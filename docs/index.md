@@ -48,6 +48,8 @@ via Docker or with a system install.
 **Members**: Members are something analogous to 'customers.'
 But everyone on the platform (vendors and housing partners) are also members,
 and/or made up of members.
+The word 'member' is usually interchangeable with 'resident',
+you'll see both used.
 
 **Suma platform**: The web app, backend, etc., ie all the stuff in this repository.
 
@@ -56,6 +58,14 @@ Or put more concretely: a database instance the Suma platform connects to.
 
 **Instance operators**: The team who operates the Suma instance.
 
+**The platform**: Usually refers to the automated behavior of the backend
+("the platform creates an Invoice") or the external accounts run by Instance Operators
+("the platform bank account").
+
+**Platform Ledger and Platform Account**: Collectively referring to the account
+that the instance operators operate, through which all funds go onto and leave the platform.
+See "Platform Account" below.
+
 **Vendor**: An organization offering goods and services on the Suma platform.
 Goods and services are always tied to a vendor.
 The Vendor may have 0 or more Members;
@@ -63,7 +73,7 @@ Vendor Members may be able to administrate the goods and services
 and other aspects of the Vendor's engagement on the platform,
 or the Instance Operators can do it.
 
-**Housing Partner**: Every Member must be associated with a Housing Partner.
+**Housing Partner (HP)**: Every Member must be associated with a Housing Partner.
 The HP determines what discounts and goods and services are available
 to its Members. One example would be an affordable housing Community Development Corporation,
 which a Member would need to live at to be eligible for Suma.
@@ -75,7 +85,36 @@ and approved just at the whim of the Instance Operators.
 This is usually something like a 'local currency',
 where vendors agree to take that currency at a discount
 in order to keep economic activity local.
+Scrip is created using some conversion from normal dollars;
+that is, using _n_ dollars produces _t_ scrip,
+for any values of _n_ and _t_ >= 0.
 
+**Client Assistance Dollars (CADs)**: Affordable housing partners usually have a discretionary budget
+they can allocate to residents. Unlike Scrip, CADs are 1-to-1 with dollars and represent real money.
+HPs can award CADs to members through Suma, but Suma has to collect this as a normal payment
+from the affordable housing partner.
+
+**Ledger**: Ordered collection of debits and credits.
+Every member has a `general` ledger,
+and may have additional ledgers for specific types of funds
+(SNAP, CADs, etc).
+
+**Transaction**: Any movement of money on the Suma platform.
+Involves moving funds onto and off of the platform,
+and between ledgers.
+
+**Funding Transaction**: Moving money onto the platform,
+like when a resident adds money via ACH.
+
+**Book Transaction**: Moving money between ledgers on the platform.
+Never involves transfering actual funds.
+
+**Payout Transaction**: Moving money off the platform,
+like for paying vendors, usually from the platform account.
+
+**Invoice**: Represents someone's request for payment.
+Transactions can be created from invoices,
+but invoices themselves do not involve moving any funds.
 
 ## Technical Architecture
 
@@ -96,34 +135,4 @@ they can browse the app, but most features are not available for use.
 
 ## Payments System
 
-Payment processing with Suma is one of the most complex parts,
-since it has some rather unusual requirements.
-
-The flow of funds on the platform can be extremely complex:
-
-- Service usage (scooter rides, food purchases) are liabilities against a resident's Suma balance.
-- Suma charges residents for accrued service fees (service usage, Suma/platform fees).
-- Residents have multiple Suma balances, as some dollars can only be used for certain services.
-- Residents can fund their Suma balance through their bank.
-- Residents can send other residents funds through their bank, adding to their balance.
-- Housing Partners can contribute Client Assistance Dollars to a resident's balance.
-  Some of these dollars can only be used for certain services.
-- Suma supports one or many scrips. Scrips can be used only for certain vendors/services,
-  like Client Assistance Dollars can. Housing partners and vendors can be given scrip
-  to award to residents. There is also a transaction for this scrip purchase
-  from the platform operator.
-- Residents (and other actors on the platform, like vendors) can send other residents script
-  just like they can real money.
-- Suma has to pay vendors for service. One model is where vendors invoice Suma,
-  and Suma pays them as invoices. An example would be a vendor where
-  the instance operator has a 'corporate account',
-  and all usage by residents gets billed to that account.
-- The other way Suma pays vendors is where Suma has a per-resident 'account' with a vendor,
-  and the platform automatically keeps this account funded. An example would be a vendor
-  that requires you add 'points' to your account to purchase with. In these cases,
-  the vendor does not invoice Suma, instead a bank account/credit card associated
-  with the platform is added to the resident's ledger.
-- Anything involving bank accounts (ACH) takes several days to settle.
-  Even if we used credit cards, those can also be disputed.
-  So we need to be able to handle reversals.
-- All services have an 'undiscounted rate' so we can keep track of savings.
+See the documentation for [Payment System](payments.md).
