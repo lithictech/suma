@@ -1,0 +1,23 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+SOURCE_APP = ENV["SOURCE_APP"] or raise "SOURCE_APP env var is required"
+DEST_APP = ENV["DEST_APP"] or raise "DEST_APP env var is required"
+
+raise "NO! Cannot use production as DEST_APP" if DEST_APP.include?("prod")
+
+`heroku ps:stop web --app #{DEST_APP}`
+`heroku ps:stop worker --app #{DEST_APP}`
+# pg:copy can lock the source database, so do not use it. Take a new snapshot if you need.
+# `heroku pg:copy #{SOURCE_APP}::DATABASE_URL DATABASE_URL --app #{DEST_APP} --confirm #{DEST_APP}`
+# rubocop:disable Layout/LineLength
+`heroku pg:backups restore $(heroku pg:backups public-url --app #{SOURCE_APP}) DATABASE_URL --app #{DEST_APP} --confirm #{DEST_APP}`
+# rubocop:enable Layout/LineLength
+
+if ENV["LOCAL"]
+  `MERGE_HEROKU_ENV=#{DEST_APP} bundle exec rake db:migrate`
+else
+  `heroku run 'bundle exec rake db:migrate' --app #{DEST_APP}`
+end
+
+`heroku ps:restart --app #{DEST_APP}`

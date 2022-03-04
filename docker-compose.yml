@@ -1,0 +1,23 @@
+version: "3.4"
+
+services:
+  db:
+    image: "postgres:13"
+    ports:
+      - "22005:5432"
+    environment:
+      POSTGRES_USER: 'suma'
+      POSTGRES_PASSWORD: 'suma'
+      POSTGRES_DB: 'suma'
+  test_db:
+    image: "postgres:13"
+    ports:
+      - "22006:5432"
+    environment:
+      POSTGRES_USER: 'suma'
+      POSTGRES_PASSWORD: 'suma'
+      POSTGRES_DB: 'suma_test'
+  sidekiq_redis:
+    image: "redis:6"
+    ports:
+      - "22007:6379"

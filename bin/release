@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+
+bundle exec rake release
+if [[ "${RUN_INTEGRATION_TESTS_ON_RELEASE}" = "true" ]]; then
+    bundle exec rake portals:create_all
+    INTEGRATION_TESTS=true bundle exec rake specs:integration
+#    WEBDRIVER_TESTS=true bundle exec rake specs:webdriver
+fi
