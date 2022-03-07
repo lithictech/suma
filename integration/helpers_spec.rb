@@ -6,7 +6,7 @@ RSpec.describe "helpers", :integration do
     expect(customer).to be_an_instance_of(Suma::Customer)
     expect(customer).to be_saved
 
-    resp = get("/v1/me")
+    resp = get("/api/v1/me")
     expect(resp).to party_status(200)
     expect(resp).to party_response(include(id: customer.id))
   end
@@ -16,7 +16,7 @@ RSpec.describe "helpers", :integration do
     got_customer = auth_customer(customer)
     expect(got_customer).to be === customer
 
-    resp = get("/v1/me")
+    resp = get("/api/v1/me")
     expect(resp).to party_status(200)
     expect(resp).to party_response(include(id: customer.id))
   end

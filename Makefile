@@ -1,3 +1,5 @@
+.PHONY: build
+
 staging_app:=suma-staging
 production_app:=suma-production
 
@@ -119,6 +121,13 @@ reinit-db-from-dump:
 	make restore-db-from-dump
 	@echo "Remember to migrate your test DB before running tests by running 'make migrate-test'"
 
+build:
+	@rm -r build
+	@mkdir build
+	@mkdir build/webapp
+	@cp webapp/public/index.html build/webapp
+	@cp webapp/src/index.js build/webapp
+
 goto-logging: cmd-exists-heroku
 	heroku addons:open coralogix --app $(production_app)
 goto-heroku:
@@ -136,9 +145,3 @@ env-%:
 cmd-exists-%:
 	@hash $(*) > /dev/null 2>&1 || \
 		(echo "ERROR: '$(*)' must be installed and available on your PATH."; exit 1)
-
-register-address:
-	bundle exec rake 'lob:register_address[Company Name,Address1,Address2,City,State,Zip]'
-
-register-bank-account:
-	bundle exec rake 'lob:register_bank_account[routing_number,account_number,signatory,account_type]'
