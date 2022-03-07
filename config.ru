@@ -6,6 +6,7 @@ $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require "suma"
 Suma.load_app
 
+require "amigo"
 require "grape"
 require "grape_logging"
 require "grape-swagger"
@@ -25,7 +26,7 @@ require "suma/admin_api/customers"
 require "suma/admin_api/message_deliveries"
 require "suma/admin_api/roles"
 
-class Suma::App::API < Suma::Service
+class Suma::App < Suma::Service
   mount Suma::API::System
   mount Suma::API::Auth
   mount Suma::API::Me
@@ -38,5 +39,5 @@ class Suma::App::API < Suma::Service
   add_swagger_documentation if ENV["RACK_ENV"] == "development"
 end
 
-Suma::Async.register_subscriber
-run Suma::App::API.build_app
+Amigo.install_amigo_jobs
+run Suma::App.build_app

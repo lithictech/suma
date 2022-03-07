@@ -7,7 +7,7 @@ require "appydays/dotenviable"
 Appydays::Dotenviable.load
 
 require "suma"
-require "pry/clipboard"
+require "pry-clipboard"
 
 Pry.config.commands.alias_command "ch", "copy-history"
 Pry.config.commands.alias_command "cr", "copy-result"
@@ -23,11 +23,11 @@ end
 # It also registers subscribers, so changes to the models are handled
 # by their correct async jobs (since async jobs are handled in-process).
 def connect
+  return if defined?(Suma::Role) # Do not double-load
+  require "amigo"
   require "suma"
   Suma.load_app
-
-  return unless require "suma/async"
-  Suma::Async.register_subscriber
+  Amigo.install_amigo_jobs
   return
 end
 

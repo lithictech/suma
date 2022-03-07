@@ -6,11 +6,12 @@ require "rspec"
 
 require "suma"
 require "suma/async"
+require "suma/spec_helpers"
 
 raise "integration tests not enabled, this file should not have been evaluated" unless
   Suma::INTEGRATION_TESTS_ENABLED
 
-module Suma::IntegrationSpecHelpers
+module Suma::SpecHelpers::Integration
   include Appydays::Configurable
   include Appydays::Loggable
 
@@ -29,10 +30,10 @@ module Suma::IntegrationSpecHelpers
   end
 
   module_function def with_async_publisher
-    sub = Suma::Async.register_subscriber
+    sub = Amigo.install_amigo_jobs
     yield
   ensure
-    Suma.unregister_subscriber(sub) if sub
+    Amigo.unregister_subscriber(sub) if sub
   end
 
   module_function def url(more)
@@ -48,7 +49,7 @@ module Suma::IntegrationSpecHelpers
   module_function def store_cookies
     response = yield()
     @stored_cookies = parse_cookie(response)
-    Suma::IntegrationSpecHelpers.logger.debug "Got cookies: %p" % [stored_cookies]
+    Suma::SpecHelpers::Integration.logger.debug "Got cookies: %p" % [stored_cookies]
     return response
   end
 
@@ -58,10 +59,10 @@ module Suma::IntegrationSpecHelpers
 
   module_function def valid_testing_address
     return Suma::Address.lookup(
-      address1: "1134 SE 60th Ave",
+      address1: "1221 SW 4th Ave",
       city: "Portland",
       state_or_province: "OR",
-      postal_code: "97215",
+      postal_code: "97204",
     )
   end
 
@@ -88,7 +89,7 @@ module Suma::IntegrationSpecHelpers
           opts[:headers] ||= {}
           opts[:headers] = opts[:headers].merge("Cookie" => cookie_header)
         end
-        Suma::IntegrationSpecHelpers.logger.info "%s %s %s" % [method.upcase, url_, opts]
+        Suma::SpecHelpers::Integration.logger.info "%s %s %s" % [method.upcase, url_, opts]
         HTTParty.send(method, url(url_), opts)
       end
     end

@@ -18,6 +18,7 @@ module Suma::Message
   require "suma/liquid/liquification"
   require "suma/liquid/partial"
 
+  require "suma/message/email_transport"
   require "suma/message/fake_transport"
   require "suma/message/sms_transport"
   require "suma/message/transport"

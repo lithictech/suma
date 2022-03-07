@@ -59,6 +59,7 @@ class Suma::Message::SmsTransport < Suma::Message::Transport
   end
 
   def _allowlisted?(phone)
+    return false if phone.nil?
     phone = phone.delete_prefix("+")
     allowed = self.allowlist.map { |s| s.delete_prefix("+") }
     return allowed.any? { |pattern| File.fnmatch(pattern, phone) }

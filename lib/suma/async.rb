@@ -1,16 +1,24 @@
 # frozen_string_literal: true
 
+require "amigo"
 require "redis"
 require "appydays/configurable"
 require "appydays/loggable"
+require "sentry-sidekiq"
 require "sidekiq"
 
 require "suma"
+
+# See https://github.com/mperham/sidekiq/pull/5071
+# We serialize models a lot, so this isn't suitable.
+Sidekiq.strict_args!(false)
 
 module Suma::Async
   include Appydays::Configurable
   include Appydays::Loggable
   extend Suma::MethodUtilities
+
+  require "suma/async/job_logger"
 
   # Registry of all jobs that will be required when the async system is started/run.
   JOBS = [
@@ -54,7 +62,6 @@ module Suma::Async
   end
 
   def self.require_jobs
-    require "suma/async/job_logger"
     Amigo.structured_logging = true
     Amigo.log_callback = lambda { |j, lvl, msg, o|
       lg = j ? Appydays::Loggable[j] : Suma::Async::JobLogger.logger

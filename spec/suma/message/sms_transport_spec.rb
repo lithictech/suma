@@ -17,6 +17,7 @@ RSpec.describe Suma::Message::SmsTransport, :db do
       inst.allowlist = ["1404*"]
       expect(inst).to be_allowlisted(Suma::Fixtures.message_delivery.sms("404-555-0128").instance)
       expect(inst).to_not be_allowlisted(Suma::Fixtures.message_delivery.sms("454-555-0128").instance)
+      expect(inst).to_not be_allowlisted(Suma::Fixtures.message_delivery.sms("invalid").instance)
     end
   end
 
