@@ -1,0 +1,70 @@
+# frozen_string_literal: true
+
+source "https://rubygems.org"
+ruby "3.1.0"
+
+gem "activesupport"
+gem "appydays"
+gem "bcrypt"
+gem "biz"
+gem "browser"
+gem "foreman"
+gem "geokit"
+gem "grape"
+gem "grape-entity"
+gem "grape_logging"
+gem "grape-swagger"
+gem "holidays"
+gem "httparty"
+gem "liquid"
+gem "mimemagic", "~> 0.4"
+gem "monetize"
+gem "money"
+gem "name_of_person"
+gem "nokogiri"
+gem "parser"
+gem "pg"
+gem "phony"
+gem "platform-api"
+gem "premailer"
+gem "pry"
+gem "puma"
+gem "rack-cors"
+gem "rack-protection"
+gem "rack-ssl-enforcer"
+gem "rake"
+gem "semantic_logger"
+gem "sentry-ruby"
+gem "sequel"
+gem "sequel-annotate"
+gem "sequel-money-fields"
+gem "sequel_pg"
+gem "sequel-soft-deletes"
+gem "sequel-tstzrange-fields"
+gem "sidekiq"
+gem "sidekiq-amigo"
+gem "state_machines"
+gem "twilio-ruby"
+gem "warden"
+gem "yajl-ruby"
+
+# By default, Heroku ignores 'test' gem groups.
+# But for ci, we need these gems loaded. It doesn't appear possible to 'fool' heroku using BUNDLE_WITHOUT
+# to only exclude some fake group.
+# So we include this test group by default, then BUNDLE_WITHOUT the real apps.
+group :test_group do
+  gem "amazing_print"
+  gem "clipboard"
+  gem "faker"
+  gem "fluent_fixtures"
+  gem "rack-test"
+  gem "rspec"
+  gem "rspec-eventually"
+  gem "rspec-json_expectations"
+  gem "rubocop"
+  gem "rubocop-performance", require: false
+  gem "rubocop-rake", require: false
+  gem "rubocop-sequel", require: false
+  gem "timecop"
+  gem "webmock"
+end

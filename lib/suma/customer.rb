@@ -1,0 +1,239 @@
+# frozen_string_literal: true
+
+require "appydays/configurable"
+require "bcrypt"
+require "openssl"
+
+require "suma/secureid"
+require "suma/postgres/model"
+
+class Suma::Customer < Suma::Postgres::Model(:customers)
+  extend Suma::MethodUtilities
+  include Appydays::Configurable
+
+  class InvalidPassword < RuntimeError; end
+
+  configurable(:customer) do
+    setting :skip_phone_verification, false
+    setting :skip_email_verification, false
+    setting :skip_verification_allowlist, [], convert: ->(s) { s.split }
+  end
+
+  # The bcrypt hash cost. Changing this would invalidate all passwords!
+  # It's only here so we can change it for testing.
+  singleton_attr_accessor :password_hash_cost
+  @password_hash_cost = 10
+
+  MIN_PASSWORD_LENGTH = 8
+
+  # A bcrypt digest that's valid, but not a real digest. Used as a placeholder for
+  # accounts with no passwords, which makes them impossible to authenticate. Or at
+  # least much less likely than with a random string.
+  PLACEHOLDER_PASSWORD_DIGEST = "$2a$11$....................................................."
+
+  # Regex that matches the prefix of a deleted user's email
+  DELETED_EMAIL_PATTERN = /^(?<prefix>\d+(?:\.\d+)?)\+(?<rest>.*)$/
+
+  plugin :timestamps
+  plugin :soft_deletes
+
+  one_to_many :journeys, class: "Suma::Customer::Journey", order: Sequel.desc([:created_at, :id])
+  many_to_one :legal_entity, class: "Suma::LegalEntity"
+  one_to_many :message_deliveries, key: :recipient_id, class: "Suma::Message::Delivery"
+  one_to_many :reset_codes, class: "Suma::Customer::ResetCode", order: Sequel.desc([:created_at])
+  many_to_many :roles, class: "Suma::Role", join_table: :roles_customers
+  one_to_many :sessions, class: "Suma::Customer::Session", order: Sequel.desc([:created_at, :id])
+
+  dataset_module do
+    def with_email(*emails)
+      emails = emails.map { |e| e.downcase.strip }
+      return self.where(email: emails)
+    end
+
+    def with_normalized_phone(*phones)
+      return self.where(phone: phones)
+    end
+  end
+
+  def self.with_normalized_phone(p)
+    return self.dataset.with_normalized_phone(p).first
+  end
+
+  def self.with_us_phone(p)
+    return self.with_normalized_phone(Suma::PhoneNumber::US.normalize(p))
+  end
+
+  def self.with_email(e)
+    return self.dataset.with_email(e).first
+  end
+
+  # If the SKIP_PHONE|EMAIL_VERIFICATION are set, verify the phone/email.
+  # Also verify phone and email if the customer email matches the allowlist.
+  def self.handle_verification_skipping(customer)
+    if self.skip_verification_allowlist.any? { |pattern| File.fnmatch(pattern, customer.email) }
+      customer.verify_email
+      customer.verify_phone
+      return
+    end
+    customer.verify_email if self.skip_email_verification
+    customer.verify_phone if self.skip_phone_verification
+  end
+
+  def initialize(*)
+    super
+    self[:registered_env] ||= Suma::RACK_ENV
+    self[:opaque_id] ||= Suma::Secureid.new_opaque_id("c")
+  end
+
+  def ensure_role(role_or_name)
+    role = role_or_name.is_a?(Suma::Role) ? role_or_name : Suma::Role[name: role_or_name]
+    raise "No role for #{role_or_name}" unless role.present?
+    self.add_role(role) unless self.roles_dataset[role.id]
+  end
+
+  def admin?
+    return self.roles.include?(Suma::Role.admin_role)
+  end
+
+  def greeting
+    return self.name.blank? ? "there" : self.name
+  end
+
+  def onboarded?
+    return self.name.present? &&
+        self.email.present? &&
+        self.phone.present? &&
+        self.password_digest != PLACEHOLDER_PASSWORD_DIGEST
+  end
+
+  #
+  # :section: Password
+  #
+
+  ### Fetch the user's password as an BCrypt::Password object.
+  def encrypted_password
+    digest = self.password_digest or return nil
+    return BCrypt::Password.new(digest)
+  end
+
+  ### Set the password to the given +unencrypted+ String.
+  def password=(unencrypted)
+    if unencrypted
+      self.check_password_complexity(unencrypted)
+      self.password_digest = BCrypt::Password.create(unencrypted, cost: self.class.password_hash_cost)
+    else
+      self.password_digest = BCrypt::Password.new(PLACEHOLDER_PASSWORD_DIGEST)
+    end
+  end
+
+  ### Attempt to authenticate the user with the specified +unencrypted+ password. Returns
+  ### +true+ if the password matched.
+  def authenticate(unencrypted)
+    return false unless unencrypted
+    return false if self.soft_deleted?
+    return self.encrypted_password == unencrypted
+  end
+
+  protected def new_password_matches?(unencrypted)
+    existing_pw = BCrypt::Password.new(self.password_digest)
+    new_pw = self.digest_password(unencrypted)
+    return existing_pw == new_pw
+  end
+
+  ### Raise if +unencrypted+ password does not meet complexity requirements.
+  protected def check_password_complexity(unencrypted)
+    raise Suma::Customer::InvalidPassword, "password must be at least %d characters." % [MIN_PASSWORD_LENGTH] if
+      unencrypted.length < MIN_PASSWORD_LENGTH
+  end
+
+  def display_email
+    return self.email unless self.soft_deleted?
+    return self.email.split("+", 2)[1]
+  end
+
+  #
+  # :section: Phone
+  #
+
+  def us_phone
+    return Phony.format(self.phone, format: :national)
+  end
+
+  def us_phone=(s)
+    self.phone = Suma::PhoneNumber::US.normalize(s)
+  end
+
+  def unverified?
+    return !self.email_verified? && !self.phone_verified?
+  end
+
+  def verify_email
+    self.email_verified_at ||= Time.now
+    return self
+  end
+
+  def email_verified?
+    return !!self.email_verified_at
+  end
+
+  def verify_phone
+    self.phone_verified_at ||= Time.now
+    return self
+  end
+
+  def phone_verified?
+    return !!self.phone_verified_at
+  end
+
+  #
+  # :section: Sequel Hooks
+  #
+
+  def before_create
+    self.legal_entity ||= Suma::LegalEntity.create(name: self.name)
+    super
+  end
+
+  ### Soft-delete hook -- prep the user for deletion.
+  def before_soft_delete
+    self.email = "#{Time.now.to_f}+#{self[:email]}"
+    self.password = "aA1!#{SecureRandom.hex(8)}"
+    self.note = (self.note + "\nOriginal phone: #{self.phone}").strip
+    # To make sure we clear out the phone, use +37-(13 chars).
+    # But we do need to make sure no one already has this phone number.
+    loop do
+      new_phone = Suma::PhoneNumber.faked_unreachable_phone
+      next unless Suma::Customer.where(phone: new_phone).empty?
+      self.phone = new_phone
+      break
+    end
+    super
+  end
+
+  def after_save
+    super
+    orig_name = self.previous_changes&.fetch(:name, [])&.first || self.name
+    change_name = self.legal_entity.name.blank? || self.legal_entity.name == orig_name
+    self.legal_entity.update(name: self.name) if change_name
+  end
+
+  ### Soft-delete hook -- expire unused, unexpired reset codes and
+  ### trigger an event on removal.
+
+  #
+  # :section: Sequel Validation
+  #
+
+  def validate
+    super
+    self.validates_presence(:phone)
+    self.validates_unique(:phone)
+    unless self.soft_deleted?
+      self.validates_format(Suma::PhoneNumber::US::REGEXP, :phone, message: "is not an 11 digit US phone number")
+    end
+
+    self.validates_presence(:email)
+    self.validates_unique(:email)
+    self.validates_operator(:==, self.email.downcase.strip, :email)
+  end
+end
