@@ -75,7 +75,7 @@ module Suma::SpecHelpers::Integration
       customer.save_changes
     end
 
-    resp = post("/v1/auth", body: {phone: customer.us_phone, password: pw})
+    resp = post("/api/v1/auth", body: {phone: customer.us_phone, password: pw})
     expect(resp).to party_status(200)
 
     return customer
@@ -112,6 +112,7 @@ end
 # Match a parsed Response hash (deep symbol keys) against an RSpec matcher.
 RSpec::Matchers.define(:party_response) do |matcher|
   match do |response|
+    raise "API did not return a hash: #{response.parsed_response}" unless response.parsed_response.is_a?(Hash)
     matcher.matches?(response.parsed_response.deep_symbolize_keys)
   end
 
