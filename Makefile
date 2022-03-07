@@ -77,9 +77,9 @@ annotate:
 	LOG_LEVEL=info bundle exec rake annotate
 
 psql: cmd-exists-pgcli
-	pgcli postgres://suma:suma@localhost:17005/suma
+	pgcli postgres://suma:suma@localhost:22005/suma
 psql-test: cmd-exists-pgcli
-	pgcli postgres://suma:suma@localhost:17006/suma_test
+	pgcli postgres://suma:suma@localhost:22006/suma_test
 psql-%: cmd-exists-pgcli
 	pgcli `heroku config:get DATABASE_URL --app=$($(*)_app)`
 psql-app: env-APP cmd-exists-pgcli
@@ -108,7 +108,7 @@ download-production-dump:
 
 restore-db-from-dump:
 	@mkdir -p temp
-	PGPASSWORD=suma pg_restore --clean --no-acl --no-owner -h 127.0.0.1 -p 17005 -U suma -d suma temp/latest.dump || true
+	PGPASSWORD=suma pg_restore --clean --no-acl --no-owner -h 127.0.0.1 -p 22005 -U suma -d suma temp/latest.dump || true
 	@./bin/notify "Finished restoring database from production"
 
 
