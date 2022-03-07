@@ -46,12 +46,21 @@ RSpec.configure do |config|
   config.include(Appydays::Loggable::SpecHelpers)
   config.include(Amigo::SpecHelpers)
 
-  require "suma/spec_helpers"
-  config.include(Suma::SpecHelpers)
-  require "suma/spec_helpers/message"
-  config.include(Suma::SpecHelpers::Message)
-  require "suma/spec_helpers/postgres"
-  config.include(Suma::SpecHelpers::Postgres)
-  require "suma/spec_helpers/service"
-  config.include(Suma::SpecHelpers::Service)
+  if Suma::INTEGRATION_TESTS_ENABLED
+    require "suma/spec_helpers/integration"
+    config.include(Suma::SpecHelpers::Integration)
+    require "suma/spec_helpers/postgres"
+    config.include(Suma::SpecHelpers::Postgres)
+  else
+    require "sidekiq/testing"
+    Sidekiq::Testing.inline!
+    require "suma/spec_helpers"
+    config.include(Suma::SpecHelpers)
+    require "suma/spec_helpers/message"
+    config.include(Suma::SpecHelpers::Message)
+    require "suma/spec_helpers/postgres"
+    config.include(Suma::SpecHelpers::Postgres)
+    require "suma/spec_helpers/service"
+    config.include(Suma::SpecHelpers::Service)
+  end
 end

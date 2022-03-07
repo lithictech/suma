@@ -11,8 +11,7 @@ Suma.load_app
 
 require "suma/async"
 Suma::Async.require_jobs
-Suma::Async.register_subscriber
-Suma::Async.start_scheduler
+Amigo.start_scheduler
 Sentry.configure_scope do |scope|
   scope.set_tags(application: "worker")
 end

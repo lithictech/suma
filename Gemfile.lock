@@ -1,3 +1,12 @@
+GIT
+  remote: https://github.com/citusdata/sidekiq-cron
+  revision: 56b3d32aeedeb5dfdebbf498d0079dbb0bbee890
+  branch: hotfix/pipelining_depreciation
+  specs:
+    sidekiq-cron (1.2.0)
+      fugit (~> 1.1)
+      sidekiq (>= 4.2.1)
+
 GEM
   remote: https://rubygems.org/
   specs:
@@ -166,6 +175,9 @@ GEM
     pry (0.14.1)
       coderay (~> 1.1)
       method_source (~> 1.0)
+    pry-clipboard2 (1.0.0)
+      clipboard (~> 1)
+      pry (~> 0)
     public_suffix (4.0.6)
     puma (5.6.2)
       nio4r (~> 2.0)
@@ -229,6 +241,9 @@ GEM
       sentry-ruby-core (= 5.1.1)
     sentry-ruby-core (5.1.1)
       concurrent-ruby
+    sentry-sidekiq (5.1.1)
+      sentry-ruby-core (~> 5.1.1)
+      sidekiq (>= 3.0)
     sequel (5.54.0)
     sequel-annotate (1.7.0)
       sequel (>= 4)
@@ -249,12 +264,9 @@ GEM
       connection_pool (>= 2.2.2)
       rack (~> 2.0)
       redis (>= 4.2.0)
-    sidekiq-amigo (1.1.0)
+    sidekiq-amigo (1.1.1)
       sidekiq (~> 6)
       sidekiq-cron (~> 1)
-    sidekiq-cron (1.2.0)
-      fugit (~> 1.1)
-      sidekiq (>= 4.2.1)
     state_machines (0.5.0)
     timecop (0.9.4)
     twilio-ruby (5.65.0)
@@ -309,6 +321,7 @@ DEPENDENCIES
   platform-api
   premailer
   pry
+  pry-clipboard2
   puma
   rack-cors
   rack-protection
@@ -324,6 +337,7 @@ DEPENDENCIES
   rubocop-sequel
   semantic_logger
   sentry-ruby
+  sentry-sidekiq
   sequel
   sequel-annotate
   sequel-money-fields
@@ -332,6 +346,7 @@ DEPENDENCIES
   sequel_pg
   sidekiq
   sidekiq-amigo
+  sidekiq-cron!
   state_machines
   timecop
   twilio-ruby

@@ -2,7 +2,7 @@
 
 require "appydays/loggable/sidekiq_job_logger"
 
-require "suma/async"
+require "suma/async" unless defined? Suma::Async
 
 class Suma::Async::JobLogger < Appydays::Loggable::SidekiqJobLogger
   protected def slow_job_seconds
