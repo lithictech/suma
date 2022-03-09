@@ -131,7 +131,7 @@ build:
 goto-logging: cmd-exists-heroku
 	heroku addons:open coralogix --app $(production_app)
 goto-heroku:
-	open 'https://dashboard.heroku.com/pipelines/fa5aa9ca-5544-41f3-957f-990aec652f43'
+	open 'https://dashboard.heroku.com/pipelines/e6dc59e6-757c-462f-bd72-15f48b2064d1'
 goto-production:
 	open 'https://dashboard.heroku.com/apps/$(production_app)'
 goto-staging:
