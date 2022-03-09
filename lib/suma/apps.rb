@@ -34,9 +34,9 @@ module Suma::Apps
   end
 
   Web = Rack::Builder.new do
-    use Rack::SpaRewrite, index_path: "build/webapp/index.html", html_only: true
-    use Rack::Static, urls: [""], root: "build/webapp", cascade: true
-    use Rack::SpaRewrite, index_path: "build/webapp/index.html", html_only: false
+    use Rack::SpaRewrite, index_path: "build-webapp/index.html", html_only: true
+    use Rack::Static, urls: [""], root: "build-webapp", cascade: true
+    use Rack::SpaRewrite, index_path: "build-webapp/index.html", html_only: false
     run Rack::LambdaApp.new(->(_) { raise "Should not see this" })
   end
 

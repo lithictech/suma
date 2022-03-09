@@ -1,4 +1,4 @@
-.PHONY: build
+.PHONY: build build-webapp
 
 staging_app:=suma-staging
 production_app:=suma-production
@@ -121,12 +121,11 @@ reinit-db-from-dump:
 	make restore-db-from-dump
 	@echo "Remember to migrate your test DB before running tests by running 'make migrate-test'"
 
-build:
-	@rm -r build
-	@mkdir build
-	@mkdir build/webapp
-	@cp webapp/public/index.html build/webapp
-	@cp webapp/src/index.js build/webapp
+build-webapp:
+	@# Need dev deps to build
+	@cd webapp && npm install --production=false && PUBLIC_URL="app/" BUILD_PATH="../build-webapp" npm run build
+
+build-frontends: build-webapp ## Build the JS frontends and place them into their location so they can be served by Rack
 
 goto-logging: cmd-exists-heroku
 	heroku addons:open coralogix --app $(production_app)

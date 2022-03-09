@@ -1,0 +1,48 @@
+{
+  "name": "MySuma Platform",
+  "description": "Suma is a platform and application for collective purchasing and local community empowerment.",
+  "keywords": [],
+  "website": "https://github.com/lithictech/suma",
+  "repository": "https://github.com/lithictech/suma",
+  "logo": "https://mysuma.org/wp-content/uploads/2020/06/finalpng-resize.png",
+  "scripts": {},
+  "env": {
+    "BUILDPACK_RUN": {
+      "description": "https://elements.heroku.com/buildpacks/weibeld/heroku-buildpack-run",
+      "value": "make build-frontends"
+    },
+    "BUILDPACK_RUN_LOAD_CONFIG": {
+      "description": "https://elements.heroku.com/buildpacks/weibeld/heroku-buildpack-run",
+      "value": "1"
+    }
+  },
+  "formation": {
+    "web": {
+      "quantity": 1,
+      "size": "hobby"
+    },
+    "worker": {
+      "quantity": 1,
+      "size": "hobby"
+    }
+  },
+  "addons": [
+    {
+      "plan": "heroku-postgresql",
+      "options": {
+        "version": "13"
+      }
+    },
+    {
+      "plan": "heroku-redis",
+      "options": {
+        "version": "6.2"
+      }
+    }
+  ],
+  "buildpacks": [
+    {"url": "heroku/ruby"},
+    {"url": "heroku/nodejs"},
+    {"url": "https://github.com/weibeld/heroku-buildpack-run.git"}
+  ]
+}
