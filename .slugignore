@@ -1,0 +1,5 @@
+.run/
+#webapp/
+docs/
+spec/suma/
+spec/data/

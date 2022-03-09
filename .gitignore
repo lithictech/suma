@@ -55,6 +55,11 @@ build-iPhoneSimulator/
 .idea/
 temp/
 
+# top-level Node files are for tooling only
+build-webapp/
+node_modules/
+package-lock.json
+
 # react webapp gitignore
 webapp/node_modules
 webapp/.pnp
