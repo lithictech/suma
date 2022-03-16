@@ -70,7 +70,7 @@ RSpec.describe Suma::AdminAPI::Customers, :db do
       def make_item(i)
         # Sorting is newest first, so the first items we create need to the the oldest.
         created = Time.now - i.days
-        return admin.update(created_at: created) if i == 0
+        return admin.update(created_at: created) if i.zero?
         return Suma::Fixtures.customer.create(created_at: created)
       end
     end
@@ -79,7 +79,7 @@ RSpec.describe Suma::AdminAPI::Customers, :db do
       let(:url) { "/admin/v1/customers" }
       let(:order_by_field) { "note" }
       def make_item(i)
-        return admin.update(note: i.to_s) if i == 0
+        return admin.update(note: i.to_s) if i.zero?
         return Suma::Fixtures.customer.create(created_at: Time.now + rand(1..100).days, note: i.to_s)
       end
     end
@@ -131,33 +131,6 @@ RSpec.describe Suma::AdminAPI::Customers, :db do
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.that_includes(roles: contain_exactly("existing", "to_add"))
       expect(customer.refresh.roles.map(&:name)).to contain_exactly("existing", "to_add")
-    end
-
-    it "removes phone and email verification time" do
-      customer = Suma::Fixtures.customer.create
-
-      post "/admin/v1/customers/#{customer.id}", phone_verified: false, email_verified: false
-
-      expect(last_response).to have_status(200)
-      expect(last_response).to have_json_body.that_includes(
-        id: customer.id, phone_verified_at: nil, email_verified_at: nil,
-      )
-    end
-
-    it "creates phone and email verification time" do
-      customer = Suma::Fixtures.customer.create
-
-      now = Time.at(Time.now.to_i)
-      Timecop.freeze(now) do
-        post "/admin/v1/customers/#{customer.id}", phone_verified: true, email_verified: true
-      end
-
-      expect(last_response).to have_status(200)
-      expect(last_response).to have_json_body.that_includes(
-        id: customer.id,
-        phone_verified_at: now,
-        email_verified_at: now,
-      )
     end
   end
 

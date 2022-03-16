@@ -23,397 +23,118 @@ RSpec.describe Suma::API::Auth, :db do
   end
   let(:customer_create_params) { customer_params.merge(phone: full_phone) }
 
-  describe "POST /v1/register" do
-    it "creates an unverified customer with the given parameters" do
-      post "/v1/register", **customer_params
-
-      expect(last_response).to have_status(200)
-
-      customer = Suma::Customer.last
-      expect(customer).to_not be_nil
-      expect(customer).to have_attributes(
-        name:,
-        us_phone: fmt_phone,
-        email:,
-        timezone: "America/Juneau",
-        phone_verified?: false,
-        email_verified?: false,
-      )
-      expect(customer.authenticate(password)).to be_truthy
-      expect(customer.reset_codes).to contain_exactly(have_attributes(transport: "sms"))
-    end
-
-    it "verifies the customer if skip_verification is set" do
-      Suma::Customer.skip_phone_verification = true
-      Suma::Customer.skip_email_verification = true
-
-      post "/v1/register", **customer_params
-
-      expect(last_response).to have_status(200)
-      customer = Suma::Customer.last
-      expect(customer).to have_attributes(
-        phone_verified?: true,
-        email_verified?: true,
-      )
-      expect(customer.reset_codes).to be_empty
-    ensure
-      Suma::Customer.reset_configuration
-    end
-
-    it "returns the customer in the body and a session in a cookie" do
-      post "/v1/register", customer_params
-
-      expect(last_response).to have_status(200)
-      expect(last_response).to have_session_cookie
-      expect(last_response).to have_json_body.
-        that_includes(
-          :id,
-          name:,
-          email:,
-          phone: fmt_phone,
-          email_verified: false,
-          phone_verified: false,
-        )
-    end
-
-    it "will use a default password" do
-      customer_params.delete(:password)
-
-      post "/v1/register", **customer_params
-
-      expect(last_response).to have_status(200)
-      expect(Suma::Customer.last).to have_attributes(password_digest: Suma::Customer::PLACEHOLDER_PASSWORD_DIGEST)
-    end
-
-    it "replaces the auth of an already-logged-in customer" do
-      customer = Suma::Fixtures.customer.create
-      login_as(customer)
-
-      post "/v1/register", customer_params
-
-      expect(last_response).to have_status(200)
-      expect(last_response).to have_json_body.that_includes(id: be > customer.id, name:)
-    end
-
-    it "creates a journey for a new customer" do
-      post "/v1/register", **customer_params
-
-      expect(last_response).to have_status(200)
-
-      expect(Suma::Customer.last.journeys).to contain_exactly(have_attributes(name: "registered"))
-    end
-
-    it "does not create a journey for an existing customer" do
-      c = Suma::Fixtures.customer(**customer_create_params).create
-
-      post "/v1/register", **customer_params
-
-      expect(last_response).to have_status(200)
-
-      expect(Suma::Customer::Journey.all).to be_empty
-    end
-
-    it "requires a valid phone" do
-      post "/v1/register", customer_params.merge(phone: "123456129abc")
-
-      expect(last_response).to have_status(400)
-      expect(last_response).to have_json_body.
-        that_includes(error: include(message: "Phone must be a 10-digit US phone"))
-
-      post "/v1/register", customer_params.merge(phone: "234")
-
-      expect(last_response).to have_status(400)
-      expect(last_response).to have_json_body.
-        that_includes(error: include(message: "Phone must be a 10-digit US phone"))
-    end
-
-    it "lowercases the email" do
-      post "/v1/register", customer_params.merge(email: "HEARME@ROAR.coM")
-
-      expect(last_response).to have_status(200)
-      expect(last_response).to have_json_body.that_includes(email: "hearme@roar.com")
-      expect(Suma::Customer.last).to have_attributes(email: "hearme@roar.com")
-    end
-
-    it "trims spaces from name and email" do
-      post "/v1/register", customer_params.merge(name: " Space  Balls ", email: " barf@sb.com ")
-
-      expect(last_response).to have_status(200)
-      expect(last_response).to have_json_body.that_includes(name: "Space Balls", email: "barf@sb.com")
-      expect(Suma::Customer.last).to have_attributes(name: "Space Balls", email: "barf@sb.com")
-    end
-
-    it "formats the phone number" do
-      post "/v1/register", customer_params.merge(phone: "  123- 456 8909 ")
-
-      expect(last_response).to have_status(200)
-      expect(last_response).to have_json_body.
-        that_includes(phone: "(123) 456-8909")
-      expect(Suma::Customer.last).to have_attributes(phone: "11234568909")
-    end
-
-    it "creates a session" do
-      post "/v1/register", customer_params
-
-      expect(last_response).to have_status(200)
-      cust = Suma::Customer.last
-      expect(Suma::Customer::Session.last).to have_attributes(customer: be === cust)
-    end
-
-    describe "conflict specification (see docs)" do
-      describe "email and phone match existing, different users" do
-        it "errors that email and phone are in use" do
-          Suma::Fixtures.customer.create(customer_create_params.merge(phone: other_full_phone))
-          Suma::Fixtures.customer.create(customer_create_params.merge(email: other_email))
-          post "/v1/register", **customer_params
-          expect(last_response).to have_status(400)
-          expect(last_response).to have_json_body.
-            that_includes(error: include(message: "Sorry, this email and phone number is already in use."))
-        end
-      end
-      describe "email and phone match the same user" do
-        it "if both unverified, update password and log in" do
-          c = Suma::Fixtures.customer.unverified.create(customer_create_params.merge(password: other_password))
-          post "/v1/register", **customer_params
-          expect(last_response).to have_status(200)
-          expect(c.refresh.authenticate(password)).to be_truthy
-        end
-        it "if phone and/or email are verified and passwords match, log in" do
-          Suma::Fixtures.customer.create(customer_create_params.merge(phone_verified_at: nil))
-          post "/v1/register", **customer_params
-          expect(last_response).to have_status(200)
-        end
-        it "else, error that user already has an account" do
-          Suma::Fixtures.customer.create(customer_create_params.merge(password: other_password))
-          post "/v1/register", **customer_params
-          expect(last_response).to have_status(400)
-          expect(last_response).to have_json_body.
-            that_includes(error: include(message: "Sorry, this email and phone number is already in use."))
-        end
-      end
-      describe "phone matches an existing user, email does not" do
-        let!(:c) { Suma::Fixtures.customer.create(customer_create_params.merge(email: other_email)) }
-        it "if phone and email are unverified, replace email and password and log in" do
-          c.update(phone_verified_at: nil, email_verified_at: nil, password: other_password)
-          post "/v1/register", **customer_params
-          expect(last_response).to have_status(200)
-          expect(c.refresh.email).to eq(email)
-          expect(c.authenticate(password)).to be_truthy
-        end
-        it "if phone is unverified and email is verified, and password matches, error that email is already used" do
-          c.update(phone_verified_at: nil)
-          post "/v1/register", **customer_params
-          expect(last_response).to have_status(400)
-          expect(last_response).to have_json_body.
-            that_includes(error: include(message: "Sorry, this email is already in use."))
-        end
-        it "if phone is verified and email is unverified, and password matches, replace email and log in" do
-          c.update(email_verified_at: nil)
-          post "/v1/register", **customer_params
-          expect(last_response).to have_status(200)
-          expect(c.refresh.email).to eq(email)
-        end
-        it "if phone and email are verified, and password matches, error that phone is already used" do
-          post "/v1/register", **customer_params
-          expect(last_response).to have_status(400)
-          expect(last_response).to have_json_body.
-            that_includes(error: include(message: "Sorry, this phone number is already in use with a different email."))
-        end
-        it "else, error that an account already exists" do
-          # Dupe of above test
-          c.update(password: other_password)
-          post "/v1/register", **customer_params
-          expect(last_response).to have_status(400)
-          expect(last_response).to have_json_body.
-            that_includes(error: include(message: "Sorry, this phone number is already in use with a different email."))
-        end
-      end
-      describe "email matches an existing user, phone does not" do
-        let!(:c) { Suma::Fixtures.customer.create(customer_create_params.merge(phone: other_full_phone)) }
-        it "if email and phone are unverified, replace phone and password and log in" do
-          c.update(phone_verified_at: nil, email_verified_at: nil, password: other_password)
-          post "/v1/register", **customer_params
-          expect(last_response).to have_status(200)
-          expect(c.refresh.phone).to eq(full_phone)
-          expect(c.authenticate(password)).to be_truthy
-        end
-        it "if email is unverified and phone is verified, and password matches, error that phone is already used" do
-          c.update(email_verified_at: nil)
-          post "/v1/register", **customer_params
-          expect(last_response).to have_status(400)
-          expect(last_response).to have_json_body.
-            that_includes(error: include(message: "Sorry, this phone number is already in use."))
-        end
-        it "if email is verified and phone is unverified, and password matches, replace phone and log in" do
-          c.update(phone_verified_at: nil)
-          post "/v1/register", **customer_params
-          expect(last_response).to have_status(200)
-          expect(c.refresh.phone).to eq(full_phone)
-        end
-        it "if email and phone are verified, and password matches, error that email is already used" do
-          post "/v1/register", **customer_params
-          expect(last_response).to have_status(400)
-          expect(last_response).to have_json_body.
-            that_includes(error: include(message: "Sorry, this email is already in use with a different phone number."))
-        end
-        it "else, error that an account already exists" do
-          # Dupe of above test
-          c.update(password: other_password)
-          post "/v1/register", **customer_params
-          expect(last_response).to have_status(400)
-          expect(last_response).to have_json_body.
-            that_includes(error: include(message: "Sorry, this email is already in use with a different phone number."))
-        end
-      end
-    end
+  before(:each) do
+    Suma::Customer.reset_configuration
+  end
+  after(:each) do
+    Suma::Customer.reset_configuration
   end
 
-  describe "POST /v1/auth" do
-    let!(:customer) { Suma::Fixtures.customer(**customer_create_params).create }
+  describe "POST /v1/auth/start" do
+    it "errors if a customer is already authed" do
+      c = Suma::Fixtures.customer.create
+      login_as(c)
 
-    it "returns 200 with the customer data and a session cookie if phone is verified and password matches" do
-      post "/v1/auth", phone: phone, password: password
+      post("/v1/auth/start", phone: "(222) 333-4444", timezone:)
 
-      expect(last_response).to have_status(200)
-      expect(last_response).to have_session_cookie
+      expect(last_response).to have_status(409)
       expect(last_response).to have_json_body.
-        that_includes(name:, phone: fmt_phone)
+        that_includes(error: include(message: "You are already signed in. Please sign out first."))
     end
 
-    it "returns 401 if the password does not match" do
-      post "/v1/auth", phone: phone, password: "a" + password
+    describe "when the phone number does not exist" do
+      it "creates a customer with the given phone number and dispatches an SMS" do
+        post("/v1/auth/start", phone: "(222) 333-4444", timezone:)
 
-      expect(last_response).to have_status(401)
-      expect(last_response.body).to include("Incorrect password")
+        expect(last_response).to have_status(200)
+        expect(last_response_json_body).to be_empty
+        expect(last_response).to have_session_cookie.with_no_extra_keys
+        expect(Suma::Customer.all).to contain_exactly(have_attributes(phone: "12223334444"))
+        customer = Suma::Customer.first
+        expect(customer.reset_codes).to contain_exactly(have_attributes(transport: "sms"))
+      end
+
+      it "creates a journey" do
+        post("/v1/auth/start", phone: "(222) 333-4444", timezone:)
+
+        expect(last_response).to have_status(200)
+        expect(Suma::Customer.last.journeys).to contain_exactly(have_attributes(name: "registered"))
+      end
     end
 
-    it "returns 401 if the phone has no customer" do
-      post "/v1/auth", phone: "111-111-1111", password: password
+    describe "when the phone number belongs to a customer" do
+      it "dispatches an SMS" do
+        existing = Suma::Fixtures.customer(phone: "12223334444").create
 
-      expect(last_response).to have_status(401)
-      expect(last_response.body).to include("No customer with that phone")
-    end
+        post("/v1/auth/start", phone: "(222) 333-4444", timezone:)
 
-    it "succeeds if email is verified and password matches" do
-      post "/v1/auth", email: email, password: password
+        expect(last_response).to have_status(200)
+        expect(last_response_json_body).to be_empty
+        expect(last_response).to have_session_cookie.with_no_extra_keys
+        expect(Suma::Customer.all).to contain_exactly(be === existing)
+        expect(existing.reset_codes).to contain_exactly(have_attributes(transport: "sms"))
+      end
 
-      expect(last_response).to have_status(200)
-      expect(last_response).to have_session_cookie
-      expect(last_response).to have_json_body.that_includes(id: customer.id)
-    end
+      it "does not create a journey" do
+        c = Suma::Fixtures.customer(phone: full_phone).create
 
-    it "returns 401 if email has no customer" do
-      post "/v1/auth", email: "a@b.c", password: password
+        post("/v1/auth/start", phone: c.phone, timezone:)
 
-      expect(last_response).to have_status(401)
-      expect(last_response.body).to include("No customer with that email")
-    end
-
-    it "replaces the auth of an already-logged-in customer" do
-      other_cust = Suma::Fixtures.customer.create
-      login_as(other_cust)
-
-      post "/v1/auth", phone: phone, password: password
-
-      expect(last_response).to have_status(200)
-      expect(last_response).to have_json_body.that_includes(id: customer.id)
-    end
-
-    it "creates a session" do
-      post "/v1/auth", phone: phone, password: password
-
-      expect(last_response).to have_status(200)
-      cust = Suma::Customer.last
-      expect(Suma::Customer::Session.last).to have_attributes(customer: be === cust)
+        expect(last_response).to have_status(200)
+        expect(Suma::Customer::Journey.all).to be_empty
+      end
     end
   end
 
   describe "POST /v1/auth/verify" do
-    let(:customer) { Suma::Fixtures.customer(**customer_create_params).unverified.create }
+    it "errors if a customer is already authed" do
+      c = Suma::Fixtures.customer.create
+      login_as(c)
 
-    before(:each) do
-      login_as(customer)
-    end
+      post("/v1/auth/verify", phone: "(222) 333-4444", token: "abc")
 
-    it "tries to verify the customer" do
-      code = customer.add_reset_code(transport: "sms")
-      expect(customer).to_not be_phone_verified
-      expect(customer).to_not be_email_verified
-
-      post "/v1/auth/verify", token: code.token
-
-      expect(last_response).to have_status(200)
-      expect(last_response).to have_json_body.that_includes(phone_verified: true)
-      customer.refresh
-      expect(customer).to be_phone_verified
-      expect(customer).to_not be_email_verified
-    end
-
-    it "tries to verify the customer email" do
-      code = customer.add_reset_code(transport: "email")
-      expect(customer).to_not be_email_verified
-      expect(customer).to_not be_phone_verified
-
-      post "/v1/auth/verify", token: code.token
-
-      expect(last_response).to have_status(200)
-      expect(last_response).to have_json_body.that_includes(email_verified: true)
-      customer.refresh
-      expect(customer).to be_email_verified
-      expect(customer).to_not be_phone_verified
-    end
-
-    it "400s if the token does not belong to the current customer" do
-      code = Suma::Fixtures.reset_code.create
-
-      post "/v1/auth/verify", token: code.token
-
-      expect(last_response).to have_status(400)
+      expect(last_response).to have_status(409)
       expect(last_response).to have_json_body.
-        that_includes(error: include(message: "Invalid verification code"))
+        that_includes(error: include(message: "You are already signed in. Please sign out first."))
     end
 
-    it "400s if the token is invalid" do
-      code = Suma::Fixtures.reset_code(customer:).create
+    it "returns 200 and creates a session if the phone number and OTP are valid" do
+      c = Suma::Fixtures.customer(phone: full_phone).create
+      code = Suma::Fixtures.reset_code(customer: c).sms.create
+
+      post("/v1/auth/verify", phone: c.phone, token: code.token)
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_session_cookie.with_payload_key("warden.user.customer.key")
+      expect(last_response).to have_json_body.
+        that_includes(id: c.id, phone: fmt_phone)
+      expect(code.refresh).to be_expired
+    end
+
+    it "returns a 200 and creates a session if the customer exists and skip verification is configured" do
+      c = Suma::Fixtures.customer.create
+      Suma::Customer.skip_verification_allowlist = ["*"]
+
+      post("/v1/auth/verify", phone: c.phone, token: "abc")
+
+      expect(last_response).to have_status(200)
+    end
+
+    it "returns 401 if the phone number does not map to a customer" do
+      code = Suma::Fixtures.reset_code.sms.create
+
+      post("/v1/auth/verify", phone: "15551112222", token: code.token)
+
+      expect(last_response).to have_status(401)
+    end
+
+    it "returns 401 if the OTP is not valid for the phone number" do
+      code = Suma::Fixtures.reset_code.sms.create
       code.expire!
 
-      post "/v1/auth/verify", token: code.token
+      post("/v1/auth/verify", phone: code.customer.phone, token: code.token)
 
-      expect(last_response).to have_status(400)
-      expect(last_response).to have_json_body.
-        that_includes(error: include(message: "Invalid verification code"))
-    end
-  end
-
-  describe "POST /v1/auth/resend_verification" do
-    let(:customer) { Suma::Fixtures.customer(**customer_create_params).create }
-    let!(:sms_code) { Suma::Fixtures.reset_code(customer:).sms.create }
-    let!(:email_code) { Suma::Fixtures.reset_code(customer:).email.create }
-
-    before(:each) do
-      login_as(customer)
-    end
-
-    it "expires and creates a new sms reset code for the customer" do
-      post "/v1/auth/resend_verification", transport: "sms"
-
-      expect(last_response).to have_status(204)
-      expect(sms_code.refresh).to be_expired
-      expect(email_code.refresh).to_not be_expired
-      new_code = customer.refresh.reset_codes.first
-      expect(new_code).to_not be_expired
-      expect(new_code).to have_attributes(transport: "sms")
-    end
-
-    it "expires and creates a new email reset code for the customer" do
-      post "/v1/auth/resend_verification", transport: "email"
-
-      expect(last_response).to have_status(204)
-      expect(sms_code.refresh).to_not be_expired
-      expect(email_code.refresh).to be_expired
-      new_code = customer.refresh.reset_codes.first
-      expect(new_code).to_not be_expired
-      expect(new_code).to have_attributes(transport: "email")
+      expect(last_response).to have_status(401)
     end
   end
 

@@ -47,8 +47,6 @@ class Suma::AdminAPI::Customers < Suma::AdminAPI::V1
         optional :note, type: String
         optional :email, type: String
         optional :phone, type: Integer
-        optional :email_verified, type: Boolean
-        optional :phone_verified, type: Boolean
         optional :timezone, type: String, values: ALL_TIMEZONES
         optional :roles, type: Array[String]
       end
@@ -59,12 +57,6 @@ class Suma::AdminAPI::Customers < Suma::AdminAPI::V1
           if (roles = fields.delete(:roles))
             customer.remove_all_roles
             roles.uniq.each { |r| customer.add_role(Suma::Role[name: r]) }
-          end
-          if fields.key?(:email_verified)
-            customer.email_verified_at = fields.delete(:email_verified) ? Time.now : nil
-          end
-          if fields.key?(:phone_verified)
-            customer.phone_verified_at = fields.delete(:phone_verified) ? Time.now : nil
           end
           set_declared(customer, params)
           customer.save_changes

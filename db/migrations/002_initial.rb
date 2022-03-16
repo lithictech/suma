@@ -55,13 +55,18 @@ Sequel.migration do
       text :password_digest, null: false
       text :opaque_id, null: false
 
-      citext :email, null: false, unique: true
-      constraint(:lowercase_nospace_email, Sequel[:email] => Sequel.function(:btrim, Sequel.function(:lower, :email)))
-      timestamptz :email_verified_at
+      citext :email, null: true, unique: true
+      constraint(
+        :lowercase_nospace_email,
+        Sequel[:email] => Sequel.function(:btrim, Sequel.function(:lower, :email)),
+      )
+      constraint(
+        :email_present,
+        Sequel[email: nil] | (Sequel.function(:length, :email) > 0),
+      )
 
       text :phone, null: false, unique: true
       constraint(:numeric_phone, Sequel.lit("phone ~ '^[0-9]{11,15}$'"))
-      timestamptz :phone_verified_at
 
       text :name, null: false, default: ""
       text :note, null: false, default: ""

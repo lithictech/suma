@@ -29,3 +29,19 @@ This involves two non-obvious features in the codebase:
   This allows us to have a "zero configuration" deployment.
   For a faster option, you can set up your reverse proxy (nginx or whatever)
   to serve the static assets instead.
+
+## Auth
+
+Auth with Suma is based exclusively on SMS verification rather than
+an explicit registration and login step.
+
+- Client POSTs to `/v1/auth/start` with a phone number.
+- Server will create a Customer if none exists with that phone number.
+- Server no-ops if a Customer already exists with that phone number.
+- In both cases, the server dispatches a One Time Password (OTP) to the phone number.
+- At this point, the client does *not* have an authenticated session.
+- Client POSTS to `/v1/auth/verify` with the phone number and the OTP.
+- If the phone number and OTP are valid, Server sets up an authenticated session.
+- If they are invalid, Server returns an error.
+- Client can POST to `/v1/auth/start` with the phone number again to dispatch
+  a new OTP.
