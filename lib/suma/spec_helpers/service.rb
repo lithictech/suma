@@ -338,14 +338,44 @@ module Suma::SpecHelpers::Service
   #   expect(last_response).to have_session_cookie
   #
   RSpec::Matchers.define(:have_session_cookie) do
-    look_for = Suma::Service::SESSION_COOKIE + "="
-
     match do |response|
-      response["Set-Cookie"]&.include?(look_for)
+      cookie = response["Set-Cookie"]
+      if cookie.nil?
+        @msg = "expected response to have a Set-Cookie header"
+        break false
+      end
+      cookie_prefix = Suma::Service::SESSION_COOKIE + "="
+      unless cookie.start_with?(cookie_prefix)
+        @msg = "expected response Set-Cookie '#{cookie}' to start with #{cookie_prefix}"
+        break false
+      end
+      payload = Suma::Service.decode_cookie(cookie)
+      (@payload_keys || []).each do |k|
+        break false unless payload.key?(k)
+      end
+      if @with_no_extra_keys
+        keys = payload.keys
+        keys.delete("session_id")
+        keys.delete("_")
+        unless keys.empty?
+          @msg = "expected response Set-Cookie payload #{payload} to have no extra keys"
+          break false
+        end
+      end
+      break true
     end
 
-    failure_message do |string|
-      "expected response Set-Cookie to include %p but got: %p" % [look_for, string]
+    chain :with_payload_key do |k|
+      @payload_keys ||= []
+      @payload_keys << k
+    end
+
+    chain :with_no_extra_keys do
+      @with_no_extra_keys = true
+    end
+
+    failure_message do |*|
+      @msg
     end
   end
 

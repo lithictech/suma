@@ -54,11 +54,6 @@ class Suma::Customer::ResetCode < Suma::Postgres::Model(:customer_reset_codes)
     return self
   end
 
-  def verify
-    self.customer.verify_phone if self.transport == "sms"
-    self.customer.verify_email if self.transport == "email"
-  end
-
   def used?
     return self.used
   end

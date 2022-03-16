@@ -79,8 +79,6 @@ module Suma::Service::Entities
     expose :email
     expose :name
     expose :us_phone, as: :phone
-    expose :email_verified?, as: :email_verified
-    expose :phone_verified?, as: :phone_verified
     expose :onboarded?, as: :onboarded
     expose :roles do |instance|
       instance.roles.map(&:name)

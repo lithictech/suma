@@ -92,57 +92,23 @@ RSpec.describe "Suma::Customer", :db do
   end
 
   describe "verification" do
-    let(:c) { Suma::Fixtures.customer.unverified.instance }
+    let(:c) { Suma::Fixtures.customer.instance }
     after(:each) do
       described_class.reset_configuration
     end
 
-    it "does not change timestamp if already set" do
-      expect(c).to_not be_phone_verified
-      expect(c).to_not be_email_verified
+    it "says if customer is allowlisted based on phone or email" do
+      described_class.skip_verification_allowlist = ["*autoverify@lithic.tech", "1555*"]
 
-      c.verify_phone
-      c.verify_email
-      expect(c).to be_phone_verified
-      expect(c).to be_email_verified
+      c.phone = ""
+      expect(described_class.skip_verification?(c.set(email: "rob@lithic.tech"))).to be_falsey
+      expect(described_class.skip_verification?(c.set(email: "rob+autoverify@lithic.tech"))).to be_truthy
+      c.email = ""
+      expect(described_class.skip_verification?(c.set(phone: "14443332222"))).to be_falsey
+      expect(described_class.skip_verification?(c.set(phone: "15553334444"))).to be_truthy
 
-      expect { c.verify_phone }.to(not_change { c.phone_verified_at })
-      expect { c.verify_email }.to(not_change { c.email_verified_at })
-    end
-
-    it "verifies email if configured to skip" do
-      described_class.handle_verification_skipping(c)
-      expect(c).to_not be_email_verified
-      expect(c).to_not be_phone_verified
-
-      described_class.skip_email_verification = true
-      described_class.handle_verification_skipping(c)
-      expect(c).to be_email_verified
-      expect(c).to_not be_phone_verified
-    end
-
-    it "verifies phone if configured to skip" do
-      described_class.handle_verification_skipping(c)
-      expect(c).to_not be_phone_verified
-      expect(c).to_not be_email_verified
-
-      described_class.skip_phone_verification = true
-      described_class.handle_verification_skipping(c)
-      expect(c).to be_phone_verified
-      expect(c).to_not be_email_verified
-    end
-
-    it "verifies email and phone if allowlisted" do
-      described_class.skip_verification_allowlist = ["*autoverify@lithic.tech"]
-      c.email = "rob@lithic.tech"
-      described_class.handle_verification_skipping(c)
-      expect(c).to_not be_email_verified
-      expect(c).to_not be_phone_verified
-
-      c.email = "rob+autoverify@lithic.tech"
-      described_class.handle_verification_skipping(c)
-      expect(c).to be_email_verified
-      expect(c).to be_phone_verified
+      described_class.skip_verification_allowlist = []
+      expect(described_class.skip_verification?(c.set(phone: "15553334444"))).to be_falsey
     end
   end
 

@@ -119,11 +119,6 @@ class Suma::API::Me < Suma::API::V1
       begin
         customer = Suma::Customer::ResetCode.use_code_with_token(params[:token]) do |code|
           code.customer.password = params[:password]
-          if code.transport == "sms"
-            code.customer.verify_phone
-          else
-            code.customer.verify_email
-          end
           code.customer.save_changes
           code.customer
         end

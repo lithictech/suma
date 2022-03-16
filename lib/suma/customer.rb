@@ -14,8 +14,6 @@ class Suma::Customer < Suma::Postgres::Model(:customers)
   class InvalidPassword < RuntimeError; end
 
   configurable(:customer) do
-    setting :skip_phone_verification, false
-    setting :skip_email_verification, false
     setting :skip_verification_allowlist, [], convert: ->(s) { s.split }
   end
 
@@ -67,16 +65,10 @@ class Suma::Customer < Suma::Postgres::Model(:customers)
     return self.dataset.with_email(e).first
   end
 
-  # If the SKIP_PHONE|EMAIL_VERIFICATION are set, verify the phone/email.
-  # Also verify phone and email if the customer email matches the allowlist.
-  def self.handle_verification_skipping(customer)
-    if self.skip_verification_allowlist.any? { |pattern| File.fnmatch(pattern, customer.email) }
-      customer.verify_email
-      customer.verify_phone
-      return
+  def self.skip_verification?(customer)
+    return self.skip_verification_allowlist.any? do |pattern|
+      File.fnmatch(pattern, customer.phone) || File.fnmatch(pattern, customer.email)
     end
-    customer.verify_email if self.skip_email_verification
-    customer.verify_phone if self.skip_phone_verification
   end
 
   def initialize(*)
@@ -163,28 +155,6 @@ class Suma::Customer < Suma::Postgres::Model(:customers)
     self.phone = Suma::PhoneNumber::US.normalize(s)
   end
 
-  def unverified?
-    return !self.email_verified? && !self.phone_verified?
-  end
-
-  def verify_email
-    self.email_verified_at ||= Time.now
-    return self
-  end
-
-  def email_verified?
-    return !!self.email_verified_at
-  end
-
-  def verify_phone
-    self.phone_verified_at ||= Time.now
-    return self
-  end
-
-  def phone_verified?
-    return !!self.phone_verified_at
-  end
-
   #
   # :section: Sequel Hooks
   #
@@ -231,8 +201,7 @@ class Suma::Customer < Suma::Postgres::Model(:customers)
     unless self.soft_deleted?
       self.validates_format(Suma::PhoneNumber::US::REGEXP, :phone, message: "is not an 11 digit US phone number")
     end
-
-    self.validates_presence(:email)
+    return if self[:email].nil?
     self.validates_unique(:email)
     self.validates_operator(:==, self.email.downcase.strip, :email)
   end
