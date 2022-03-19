@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { isValidPhoneNumber } from 'react-phone-number-input';
-import { start } from "../api/auth";
+// import { start } from "../api/auth";
 import Input from 'react-phone-number-input/input'
 import 'react-phone-number-input/style.css'
 

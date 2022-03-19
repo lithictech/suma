@@ -1,5 +1,3 @@
-import errorMsg from '../constants/errorMessages';
-
 const apiRequest = (request) => new Promise(async (resolve, reject) => {
   const {
     path,
