@@ -19,17 +19,10 @@ module Suma::Fixtures::Customers
     self.email ||= Faker::Internet.email
     self.phone ||= Faker::Suma.us_phone
     self.password_digest ||= Suma::Customer::PLACEHOLDER_PASSWORD_DIGEST
-    self.email_verified_at ||= Time.now
-    self.phone_verified_at ||= Time.now
   end
 
   before_saving do |instance|
     instance
-  end
-
-  decorator :unverified do
-    self.email_verified_at = nil
-    self.phone_verified_at = nil
   end
 
   decorator :password do |pwd=nil|
@@ -81,10 +74,6 @@ module Suma::Fixtures::Customers
       json["id"] = "cus_fixtured_#{SecureRandom.hex(8)}"
     end
     self.stripe.update(stripe_customer_json: json)
-  end
-
-  decorator :verified do
-    self.identity_verified_at = Time.now
   end
 
   STRIPE_JSON = {

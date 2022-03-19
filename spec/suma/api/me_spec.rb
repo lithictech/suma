@@ -197,16 +197,6 @@ RSpec.describe Suma::API::Me, :db do
       expect(code.refresh).to be_used
     end
 
-    it "verifies the associated field if unverified" do
-      code.update(transport: "sms")
-
-      customer.update(phone_verified_at: nil, email_verified_at: nil)
-
-      post "/v1/me/reset_password", token: code.token, password: "new-password"
-
-      expect(customer.refresh).to be_phone_verified
-    end
-
     it "403s if the reset code does not exist" do
       code.destroy
 

@@ -86,10 +86,8 @@ module Suma::AdminAPI
   end
 
   class DetailedCustomerEntity < CustomerEntity
-    expose :email_verified_at
     expose :opaque_id
     expose :note
-    expose :phone_verified_at
     expose :roles do |instance|
       instance.roles.map(&:name)
     end
