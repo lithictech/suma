@@ -4,5 +4,8 @@
   },
   "scripts": {
     "build": "echo 'use Makefile to build frontends'"
+  },
+  "dependencies": {
+    "i18next-browser-languagedetector": "^6.1.3"
   }
 }
