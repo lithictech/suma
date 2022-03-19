@@ -16,12 +16,9 @@ const OneTimePassword = (props) => {
 	const [isSubmitDisabled, setIsSubmitDisabled] = useState(true);
 	const [isWarningHidden, setIsWarningHidden] = useState(true);
 	const [warningMsg, setWarningMsg] = useState(errorMsg.invalidToken);
-	const location = useLocation();
-	console.log(location)
-	// const { phoneNumber } = state;
-	const phoneNumber = "+19192847284"
-	// console.log(handleStartFetch);
-	const displayPhoneNumber = phoneNumber ? formatPhoneNumber(phoneNumber) : "invalid phone number.";
+	const { state } = useLocation();
+	const { phoneNumber } = state;
+	const displayPhoneNumber = phoneNumber ? formatPhoneNumber(phoneNumber) : "(invalid phone number)";
 
 	useEffect(() => {
 		const isEntireCode = otp.every((number) => number !== "");
