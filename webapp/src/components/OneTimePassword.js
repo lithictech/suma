@@ -46,7 +46,7 @@ const OneTimePassword = () => {
 		const otpCode = otp.join("");
 		const verifyPhoneNumber = phoneNumber.replace(/^\+/g, '');
 
-		// TODO: handle redirect to onBoarding if user doesn't exist
+		// TODO: handle redirect to onBoarding if user doesn't exist 
 		verifyPhone(verifyPhoneNumber, otpCode).then((response) => {
 			if (response) {
 				setIsWarningHidden(true);
