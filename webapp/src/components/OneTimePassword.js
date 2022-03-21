@@ -19,6 +19,7 @@ const OneTimePassword = () => {
 	const { state } = useLocation();
 	const { phoneNumber } = state;
 	const displayPhoneNumber = phoneNumber ? formatPhoneNumber(phoneNumber) : "(invalid phone number)";
+  const displayWarningMessage = (<p className="d-block text-danger small">{warningMsg}</p>);
 
 	useEffect(() => {
 		const isEntireCode = otp.every((number) => number !== "");
@@ -32,15 +33,14 @@ const OneTimePassword = () => {
 	const handleOtpChange = (event, index) => {
 		const { target } = event;
 		const { value } = target;
-		if (isNaN(value)) return setOtp([...otp.map((num, idx) => (idx === index) ? "" : num)]);
-		setOtp([...otp.map((num, idx) => (idx === index) ? value : num)])
+    if (isNaN(parseInt(value))) return setOtp([...otp.map((num, idx) => (idx === index) ? "" : num)]);
+    setOtp([...otp.map((num, idx) => (idx === index) ? value : num)]);
 
 		// Focus next input
 		if (target.nextSibling) {
 			target.nextSibling.focus();
 		};
-	}
-	const displayWarningMessage = (<p className="d-block text-danger small">{warningMsg}</p>);
+  }
 	const handleOtpSubmit = () => {
 		setIsSubmitDisabled(true);
 		const otpCode = otp.join("");
@@ -52,21 +52,23 @@ const OneTimePassword = () => {
 				setIsWarningHidden(true);
 				return navigate("/dashboard");
 			} else {
-				setWarningMsg("Unexpected error occured. Please try again.");
-				setIsWarningHidden(false);
+        resetOtp("Unexpected error occured. Please try again.");
 			}
 		}).catch((error) => {
 			if (error) {
-				const firstOtpField = document.getElementById("otpContainer").firstChild;
+        resetOtp(error);
+      }
+    });
+  }
 
-				setOtp([...otp.map((num) => num = "")]);
-				setWarningMsg(error);
-				setIsWarningHidden(false);
-				firstOtpField.focus();
-			}
-		});
+  const resetOtp = (errorMsg) => {
+    const firstOtpField = document.getElementById("otpContainer").firstChild;
 
-	}
+    setOtp(new Array(6).fill(""));
+    setWarningMsg(errorMsg);
+    setIsWarningHidden(false);
+    firstOtpField.focus();
+  } 
 
 	return (
 		<Container>
