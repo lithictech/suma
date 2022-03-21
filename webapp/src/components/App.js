@@ -17,7 +17,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/start" element={<Start />} />
-        <Route path="/oneTimePassword" element={<OneTimePassword />} />
+        <Route path="/one-time-password" element={<OneTimePassword />} />
         <Route path="/onboarding" element={<Onboarding />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="*" element={<Home />} />

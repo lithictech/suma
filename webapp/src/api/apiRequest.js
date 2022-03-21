@@ -15,8 +15,8 @@ const apiRequest = (request) => new Promise(async (resolve, reject) => {
     const fetchResponse = await fetch('jsonUserList.json', {
       method,
       headers,
+      params,
       body: JSON.stringify(data),
-      params
     });
 
     if (fetchResponse.status !== 200) throw new Error("Server error occured, try again.");

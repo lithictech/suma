@@ -32,11 +32,11 @@ const Start = () => {
     setIsInputDisabled(true);
 
     if (isValidPhoneNumber(phoneNumber) === true) {
-      return navigate("/oneTimePassword", { state: { phoneNumber } });
+      return navigate("/one-time-password", { state: { phoneNumber } });
       // TODO: Uncomment once api setup is done
       // start(phoneNumber).then((response) => {
       //   if (response) {
-      //     return navigate("/oneTimePassword", { state: { phoneNumber } });
+      //     return navigate("/one-time-password", { state: { phoneNumber } });
       //   }
       // }).catch((error) => {
       //     // TODO: BS warning alert
@@ -61,7 +61,7 @@ const Start = () => {
                 international={false}
                 country="US"
                 maxLength="14"
-                placeholder="e.g. (123) 345-6789"
+                placeholder="e.g. (919) 123-4567"
                 onChange={handleNumberChange}
                 value={phoneNumber}
                 disabled={isInputDisabled}
