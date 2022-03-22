@@ -7,13 +7,15 @@ import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import useToggle from "../state/useToggle";
-import { useError} from "../state/useError";
+import {extractErrorCode, useError} from "../state/useError";
 import FormError from "../components/FormError";
 import api from "../api";
+import {useUser} from "../state/useUser";
 
 const OneTimePassword = () => {
 	const navigate = useNavigate();
 
+	const {setUser} = useUser();
 	const [otp, setOtp] = useState(new Array(6).fill(""));
 	const submitDisabled = useToggle(true);
 	const [error, setError] = useError();
@@ -44,9 +46,12 @@ const OneTimePassword = () => {
 	const handleOtpSubmit = () => {
 		submitDisabled.turnOn();
 		setError()
-		api.authVerify({phone: phoneNumber, token: otp.join("")}).then(() => navigate("/dashboard")).catch((err) => {
+		api.authVerify({phone: phoneNumber, token: otp.join("")}).then((r) => {
+			setUser(r.data)
+			navigate("/dashboard");
+		}).catch((err) => {
 			setOtp(new Array(6).fill(""));
-			setError(err);
+			setError(extractErrorCode(err));
 			const firstOtpField = document.getElementById("otpContainer").firstChild;
 			firstOtpField.focus();
 		})

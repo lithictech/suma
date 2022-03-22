@@ -31,5 +31,7 @@ export default {
   put,
   del,
   authStart: (data) => post(`/api/v1/auth/start`, data),
-  authVerify: (data) => post(`/api/v1/auth/verify`, data)
+  authVerify: (data) => post(`/api/v1/auth/verify`, data),
+  authSignout: (data) => del(`/api/v1/auth`, data),
+  getMe: (data) => get(`/api/v1/me`, data)
 }

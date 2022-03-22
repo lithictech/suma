@@ -67,7 +67,7 @@ class Suma::Customer < Suma::Postgres::Model(:customers)
 
   def self.skip_verification?(customer)
     return self.skip_verification_allowlist.any? do |pattern|
-      File.fnmatch(pattern, customer.phone) || File.fnmatch(pattern, customer.email)
+      File.fnmatch(pattern, customer.phone || '') || File.fnmatch(pattern, customer.email || '')
     end
   end
 

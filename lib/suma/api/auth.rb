@@ -68,7 +68,7 @@ class Suma::API::Auth < Suma::API::V1
           end
         end
       rescue Suma::Customer::ResetCode::Unusable
-        merror!(401, "Sorry, that token is invalid or the phone number is not in our system.")
+        merror!(403, "Sorry, that token is invalid or the phone number is not in our system.", code: "invalid_otp")
       end
 
       set_customer(me)
