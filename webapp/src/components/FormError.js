@@ -2,11 +2,11 @@ import React from "react";
 import {useTranslation} from "react-i18next";
 
 
-export default function FormError({code}) {
-  const { t } = useTranslation('error');
-  if (!code) {
+export default function FormError({error}) {
+  const { t } = useTranslation('errors');
+  if (!error) {
     return null;
   }
-  const error = t(code);
-  return <p className="d-block text-danger small">{error}</p>
+  const msg = t(error);
+  return <p className="d-block text-danger small">{msg}</p>
 }

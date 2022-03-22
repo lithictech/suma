@@ -1,7 +1,6 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { isPossiblePhoneNumber } from 'react-phone-number-input';
-// import { start } from "../api/auth";
+import React, {useState} from "react";
+import {useNavigate} from "react-router-dom";
+import {isPossiblePhoneNumber} from 'react-phone-number-input';
 import Input from 'react-phone-number-input/input'
 import 'react-phone-number-input/style.css'
 
@@ -11,43 +10,43 @@ import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import useToggle from "../state/useToggle";
+import FormError from "../components/FormError";
+import {extractErrorCode, useError} from "../state/useError";
+import api from "../api";
 
 const Start = () => {
   const [phoneNumber, setPhoneNumber] = useState('');
   const submitDisabled = useToggle(false);
   const inputDisabled = useToggle(false);
+  const [error, setError] = useError();
   const navigate = useNavigate();
 
   const handleNumberChange = (value) => {
     setPhoneNumber(value);
-    if (value && value.length === 12) {
-      submitDisabled.turnOff()
-    } else {
-      submitDisabled.turnOn()
-    }
   }
 
   const handleSubmit = (event) => {
     event.preventDefault();
+    setError()
+    if (!phoneNumber) {
+      setError('required')
+      return;
+    }
+    if (!isPossiblePhoneNumber(phoneNumber)) {
+      setError('impossible_phone_number')
+      return;
+    }
     submitDisabled.turnOn();
     inputDisabled.turnOn();
 
-    if (isPossiblePhoneNumber(phoneNumber)) {
-      return navigate("/one-time-password", { state: { phoneNumber } });
-      // TODO: Uncomment once api setup is done
-      // start(phoneNumber).then((response) => {
-      //   if (response) {
-      //     return navigate("/one-time-password", { state: { phoneNumber } });
-      //   }
-      // }).catch((error) => {
-      //     // TODO: BS warning alert
-      //     console.log(error);
-      // })
-    }
-    // TODO: BS warning alert
-    console.log("BS warning alert");
-    submitDisabled.turnOff();
-    inputDisabled.turnOff();
+    api.authStart({
+      phone: phoneNumber,
+      timezone: 'America/New_York'
+    }).then(() => navigate("/one-time-password", {state: {phoneNumber}})).catch((err) => {
+      setError(extractErrorCode(err))
+      submitDisabled.turnOff();
+      inputDisabled.turnOff();
+    })
   }
   return (
     <Container>
@@ -57,7 +56,7 @@ const Start = () => {
             <Form.Group className="mb-3" controlId="formBasicPhoneNumber">
               <Form.Label>Phone number</Form.Label>
               <Input
-                style={{ display: "block" }}
+                style={{display: "block"}}
                 useNationalFormatForDefaultCountryValue={true}
                 international={false}
                 country="US"
@@ -72,6 +71,7 @@ const Start = () => {
                 We will send you a verification code to your phone number.
               </Form.Text>
             </Form.Group>
+            <FormError error={error}/>
             <Button variant="outline-success" type="submit" disabled={submitDisabled.isOn}>
               Continue
             </Button>

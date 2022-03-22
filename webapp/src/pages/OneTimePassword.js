@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { formatPhoneNumber } from 'react-phone-number-input';
-import { verifyPhone } from "../api/auth";
 
 import Button from 'react-bootstrap/Button';
 import Container from 'react-bootstrap/Container';
@@ -10,6 +9,7 @@ import Col from 'react-bootstrap/Col';
 import useToggle from "../state/useToggle";
 import { useError} from "../state/useError";
 import FormError from "../components/FormError";
+import api from "../api";
 
 const OneTimePassword = () => {
 	const navigate = useNavigate();
@@ -43,11 +43,8 @@ const OneTimePassword = () => {
   }
 	const handleOtpSubmit = () => {
 		submitDisabled.turnOn();
-		const otpCode = otp.join("");
 		setError()
-		verifyPhone(phoneNumber, otpCode).then(() => {
-			return navigate("/dashboard");
-		}).catch((err) => {
+		api.authVerify({phone: phoneNumber, token: otp.join("")}).then(() => navigate("/dashboard")).catch((err) => {
 			setOtp(new Array(6).fill(""));
 			setError(err);
 			const firstOtpField = document.getElementById("otpContainer").firstChild;
