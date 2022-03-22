@@ -1,15 +1,14 @@
-// import './App.css';
 import React from 'react';
 import {
   BrowserRouter as Router,
   Routes,
   Route,
 } from 'react-router-dom';
-import Home from './Home';
-import Start from './Start';
-import OneTimePassword from './OneTimePassword';
-import Onboarding from './Onboarding';
-import Dashboard from './Dashboard';
+import Home from './pages/Home';
+import Start from './pages/Start';
+import OneTimePassword from './pages/OneTimePassword';
+import Onboarding from './pages/Onboarding';
+import Dashboard from './pages/Dashboard';
 
 function App() {
   return (

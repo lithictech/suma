@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { isValidPhoneNumber } from 'react-phone-number-input';
+import { isPossiblePhoneNumber } from 'react-phone-number-input';
 // import { start } from "../api/auth";
 import Input from 'react-phone-number-input/input'
 import 'react-phone-number-input/style.css'
@@ -10,28 +10,29 @@ import Button from 'react-bootstrap/Button';
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
+import useToggle from "../state/useToggle";
 
 const Start = () => {
-  const [phoneNumber, setPhoneNumber] = useState(undefined);
-  const [isSubmitDisabled, setIsSubmitDisabled] = useState(true);
-  const [isInputDisabled, setIsInputDisabled] = useState(false);
+  const [phoneNumber, setPhoneNumber] = useState('');
+  const submitDisabled = useToggle(false);
+  const inputDisabled = useToggle(false);
   const navigate = useNavigate();
 
   const handleNumberChange = (value) => {
     setPhoneNumber(value);
     if (value && value.length === 12) {
-      setIsSubmitDisabled(false);
+      submitDisabled.turnOff()
     } else {
-      setIsSubmitDisabled(true);
+      submitDisabled.turnOn()
     }
   }
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    setIsSubmitDisabled(true);
-    setIsInputDisabled(true);
+    submitDisabled.turnOn();
+    inputDisabled.turnOn();
 
-    if (isValidPhoneNumber(phoneNumber) === true) {
+    if (isPossiblePhoneNumber(phoneNumber)) {
       return navigate("/one-time-password", { state: { phoneNumber } });
       // TODO: Uncomment once api setup is done
       // start(phoneNumber).then((response) => {
@@ -45,8 +46,8 @@ const Start = () => {
     }
     // TODO: BS warning alert
     console.log("BS warning alert");
-    setIsSubmitDisabled(false);
-    setIsInputDisabled(false);
+    submitDisabled.turnOff();
+    inputDisabled.turnOff();
   }
   return (
     <Container>
@@ -64,14 +65,14 @@ const Start = () => {
                 placeholder="e.g. (919) 123-4567"
                 onChange={handleNumberChange}
                 value={phoneNumber}
-                disabled={isInputDisabled}
+                disabled={inputDisabled.isOn}
               />
               <Form.Text className="text-muted">
                 To verify your identity, you are required to sign in with your phone number.{" "}
                 We will send you a verification code to your phone number.
               </Form.Text>
             </Form.Group>
-            <Button variant="outline-success" type="submit" disabled={isSubmitDisabled}>
+            <Button variant="outline-success" type="submit" disabled={submitDisabled.isOn}>
               Continue
             </Button>
           </Form>

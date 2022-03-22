@@ -8,13 +8,14 @@ i18n
 	.use(LanguageDetector)
 	.use(HttpApi)
   .init({
+		ns: ['common', 'errors'],
 		fallbackLng: 'en',
 		detection: {
 			order: ['htmlTag', 'localStorage', 'cookie'],
 			caches: ['cookie'],
 		},
 		backend: {
-			loadPath: '/locale/{{lng}}/translations.json',
+			loadPath: '/locale/{{lng}}/{{ns}}.json',
 		},
 		interpolation: {
 			// react already safes from xss

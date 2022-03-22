@@ -2,33 +2,33 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { formatPhoneNumber } from 'react-phone-number-input';
 import { verifyPhone } from "../api/auth";
-import errorMsg from "../constants/errorMessages";
 
 import Button from 'react-bootstrap/Button';
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
+import useToggle from "../state/useToggle";
+import { useError} from "../state/useError";
+import FormError from "../components/FormError";
 
 const OneTimePassword = () => {
 	const navigate = useNavigate();
 
 	const [otp, setOtp] = useState(new Array(6).fill(""));
-	const [isSubmitDisabled, setIsSubmitDisabled] = useState(true);
-	const [isWarningHidden, setIsWarningHidden] = useState(true);
-	const [warningMsg, setWarningMsg] = useState(errorMsg.invalidToken);
+	const submitDisabled = useToggle(true);
+	const [error, setError] = useError();
 	const { state } = useLocation();
 	const { phoneNumber } = state;
 	const displayPhoneNumber = phoneNumber ? formatPhoneNumber(phoneNumber) : "(invalid phone number)";
-  const displayWarningMessage = (<p className="d-block text-danger small">{warningMsg}</p>);
 
 	useEffect(() => {
 		const isEntireCode = otp.every((number) => number !== "");
 		if (isEntireCode) {
-			setIsSubmitDisabled(false);
+			submitDisabled.turnOff();
 		} else {
-			setIsSubmitDisabled(true);
+			submitDisabled.turnOn();
 		}
-	}, [setIsSubmitDisabled, otp]);
+	}, [submitDisabled, otp]);
 
 	const handleOtpChange = (event, index) => {
 		const { target } = event;
@@ -39,38 +39,23 @@ const OneTimePassword = () => {
 		// Focus next input
 		if (target.nextSibling) {
 			target.nextSibling.focus();
-		};
+		}
   }
 	const handleOtpSubmit = () => {
-		setIsSubmitDisabled(true);
+		submitDisabled.turnOn();
 		const otpCode = otp.join("");
-		const verifyPhoneNumber = phoneNumber.replace(/^\+/g, '');
-
-		// TODO: handle redirect to onBoarding if user doesn't exist 
-		verifyPhone(verifyPhoneNumber, otpCode).then((response) => {
-			if (response) {
-				setIsWarningHidden(true);
-				return navigate("/dashboard");
-			} else {
-        resetOtp("Unexpected error occured. Please try again.");
-			}
-		}).catch((error) => {
-			if (error) {
-        resetOtp(error);
-      }
-    });
+		setError()
+		verifyPhone(phoneNumber, otpCode).then(() => {
+			return navigate("/dashboard");
+		}).catch((err) => {
+			setOtp(new Array(6).fill(""));
+			setError(err);
+			const firstOtpField = document.getElementById("otpContainer").firstChild;
+			firstOtpField.focus();
+		})
   }
 
-  const resetOtp = (errorMsg) => {
-    const firstOtpField = document.getElementById("otpContainer").firstChild;
-
-    setOtp(new Array(6).fill(""));
-    setWarningMsg(errorMsg);
-    setIsWarningHidden(false);
-    firstOtpField.focus();
-  } 
-
-	return (
+  return (
 		<Container>
 			<Row className="justify-content-center">
 				<Col className="my-4">
@@ -95,10 +80,9 @@ const OneTimePassword = () => {
 							})
 						}
 					</div>
-					{isWarningHidden ? "" : displayWarningMessage}
-					<p className="text-muted small">Did not recieve a code? <a href="./start">Resend code again.</a></p>
-
-					<Button variant="outline-success d-block mt-3" onClick={handleOtpSubmit} disabled={isSubmitDisabled}>Verify Code</Button>
+					<FormError error={error} />
+					<p className="text-muted small">Did not recieve a code? <a href={"#TOD-resend-this"} onClick={(e) => e.preventDefault()}>Resend code again.</a></p>
+					<Button variant="outline-success d-block mt-3" onClick={handleOtpSubmit} disabled={submitDisabled.isOn}>Verify Code</Button>
 				</Col>
 			</Row>
 		</Container>
