@@ -100,10 +100,10 @@ RSpec.describe "Suma::Customer", :db do
     it "says if customer is allowlisted based on phone or email" do
       described_class.skip_verification_allowlist = ["*autoverify@lithic.tech", "1555*"]
 
-      c.phone = ""
+      c.phone = nil
       expect(described_class.skip_verification?(c.set(email: "rob@lithic.tech"))).to be_falsey
       expect(described_class.skip_verification?(c.set(email: "rob+autoverify@lithic.tech"))).to be_truthy
-      c.email = ""
+      c.email = nil
       expect(described_class.skip_verification?(c.set(phone: "14443332222"))).to be_falsey
       expect(described_class.skip_verification?(c.set(phone: "15553334444"))).to be_truthy
 

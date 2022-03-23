@@ -1,0 +1,6 @@
+{
+	"impossible_phone_number": "That doesn't look like a real phone number.",
+	"invalid_otp": "That token is not valid. Enter it again, or request a new code.",
+	"unhandled_error": "Sorry, something went wrong. Please try again.",
+	"required": "This field is required"
+}

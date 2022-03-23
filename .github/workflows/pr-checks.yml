@@ -1,7 +1,7 @@
 name: PR Checks
 on: pull_request
 jobs:
-  run-tests:
+  backend-checks:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
@@ -28,3 +28,26 @@ jobs:
         run: |
           bundle exec rake db:migrate
           bundle exec rspec spec/
+  webapp-checks:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: webapp
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v2
+        with:
+          ref: ${{ github.head_ref }}
+      - name: Setup node
+        uses: actions/setup-node@v1
+        with:
+          node-version: 16.13
+      - uses: actions/cache@v1
+        with:
+          path: ~/.npm
+          key: node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: node-
+      - run: npm install
+      - run: npm run prettier-check
+      - run: npm run eslint-check
+      - run: CI=true npm test

@@ -103,6 +103,7 @@ module Suma::Service::Helpers
     merror!(403, "Sorry, this action is unavailable.", code: "role_check")
   end
 
+  # TODO: code should be required since all errors will be localized (code can be nil though, for admin etc)
   def merror!(status, message, code: nil, more: {})
     header "Content-Type", "application/json"
     body = Suma::Service.error_body(status, message, code:, more:)

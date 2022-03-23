@@ -120,21 +120,23 @@ RSpec.describe Suma::API::Auth, :db do
       expect(last_response).to have_status(200)
     end
 
-    it "returns 401 if the phone number does not map to a customer" do
+    it "returns 403 if the phone number does not map to a customer" do
       code = Suma::Fixtures.reset_code.sms.create
 
       post("/v1/auth/verify", phone: "15551112222", token: code.token)
 
-      expect(last_response).to have_status(401)
+      expect(last_response).to have_status(403)
+      expect(last_response).to have_json_body.that_includes(error: include(code: "invalid_otp"))
     end
 
-    it "returns 401 if the OTP is not valid for the phone number" do
+    it "returns 403 if the OTP is not valid for the phone number" do
       code = Suma::Fixtures.reset_code.sms.create
       code.expire!
 
       post("/v1/auth/verify", phone: code.customer.phone, token: code.token)
 
-      expect(last_response).to have_status(401)
+      expect(last_response).to have_status(403)
+      expect(last_response).to have_json_body.that_includes(error: include(code: "invalid_otp"))
     end
   end
 
