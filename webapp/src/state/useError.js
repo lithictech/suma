@@ -1,6 +1,6 @@
 import { Logger } from "../modules/logger";
-import React from "react";
 import _ from "lodash";
+import React from "react";
 
 const logger = new Logger("form-error");
 

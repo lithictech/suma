@@ -1,14 +1,13 @@
-import React from "react";
-
-import Button from 'react-bootstrap/Button';
-import Container from 'react-bootstrap/Container';
-import Row from 'react-bootstrap/Row';
-import Col from 'react-bootstrap/Col';
 import signOut from "../modules/signOut";
-import {useUser} from "../state/useUser";
+import { useUser } from "../state/useUser";
+import React from "react";
+import Button from "react-bootstrap/Button";
+import Col from "react-bootstrap/Col";
+import Container from "react-bootstrap/Container";
+import Row from "react-bootstrap/Row";
 
 const Dashboard = () => {
-  const {user} = useUser();
+  const { user } = useUser();
   return (
     <Container>
       <Row className="justify-content-center">
@@ -19,11 +18,13 @@ const Dashboard = () => {
           <Button>Food Service</Button>
           <Button>Scooter Service</Button>
           <Button>Bicycle Service</Button>
-          <Button variant="danger" onClick={signOut}>Log Out</Button>
+          <Button variant="danger" onClick={signOut}>
+            Log Out
+          </Button>
         </Col>
       </Row>
     </Container>
   );
-}
+};
 
 export default Dashboard;

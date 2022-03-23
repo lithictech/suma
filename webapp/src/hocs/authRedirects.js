@@ -1,6 +1,6 @@
-import React from "react";
-import { useUser } from "../state/useUser";
 import Redirect from "../components/Redirect";
+import { useUser } from "../state/useUser";
+import React from "react";
 
 export function redirectUnless(to, test) {
   return (Wrapped) => {

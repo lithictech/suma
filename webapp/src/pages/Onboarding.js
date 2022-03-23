@@ -1,20 +1,19 @@
 import React, { useState } from "react";
-
-import Form from 'react-bootstrap/Form';
-import Button from 'react-bootstrap/Button';
-import Container from 'react-bootstrap/Container';
-import Row from 'react-bootstrap/Row';
-import Col from 'react-bootstrap/Col';
+import Button from "react-bootstrap/Button";
+import Col from "react-bootstrap/Col";
+import Container from "react-bootstrap/Container";
+import Form from "react-bootstrap/Form";
+import Row from "react-bootstrap/Row";
 
 const Onboarding = () => {
   const [isSubmitDisabled, setIsSubmitDisabled] = useState(false);
 
   const handleFormSubmit = (event) => {
-    event.preventDefault()
+    event.preventDefault();
     setIsSubmitDisabled(true);
     // navigate to tutorial after submittion
     console.log("Navigate to tutorial");
-  }
+  };
   return (
     <Container>
       <Row className="justify-content-center">
@@ -46,6 +45,6 @@ const Onboarding = () => {
       </Row>
     </Container>
   );
-}
+};
 
 export default Onboarding;

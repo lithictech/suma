@@ -1,21 +1,20 @@
-import React, {useState} from "react";
-import {useNavigate} from "react-router-dom";
-import {isPossiblePhoneNumber} from 'react-phone-number-input';
-import Input from 'react-phone-number-input/input'
-import 'react-phone-number-input/style.css'
-
-import Form from 'react-bootstrap/Form';
-import Button from 'react-bootstrap/Button';
-import Container from 'react-bootstrap/Container';
-import Row from 'react-bootstrap/Row';
-import Col from 'react-bootstrap/Col';
-import useToggle from "../state/useToggle";
-import FormError from "../components/FormError";
-import {extractErrorCode, useError} from "../state/useError";
 import api from "../api";
+import FormError from "../components/FormError";
+import { extractErrorCode, useError } from "../state/useError";
+import useToggle from "../state/useToggle";
+import React, { useState } from "react";
+import Button from "react-bootstrap/Button";
+import Col from "react-bootstrap/Col";
+import Container from "react-bootstrap/Container";
+import Form from "react-bootstrap/Form";
+import Row from "react-bootstrap/Row";
+import { isPossiblePhoneNumber } from "react-phone-number-input";
+import Input from "react-phone-number-input/input";
+import "react-phone-number-input/style.css";
+import { useNavigate } from "react-router-dom";
 
 const Start = () => {
-  const [phoneNumber, setPhoneNumber] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState("");
   const submitDisabled = useToggle(false);
   const inputDisabled = useToggle(false);
   const [error, setError] = useError();
@@ -23,31 +22,34 @@ const Start = () => {
 
   const handleNumberChange = (value) => {
     setPhoneNumber(value);
-  }
+  };
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    setError()
+    setError();
     if (!phoneNumber) {
-      setError('required')
+      setError("required");
       return;
     }
     if (!isPossiblePhoneNumber(phoneNumber)) {
-      setError('impossible_phone_number')
+      setError("impossible_phone_number");
       return;
     }
     submitDisabled.turnOn();
     inputDisabled.turnOn();
 
-    api.authStart({
-      phone: phoneNumber,
-      timezone: 'America/New_York'
-    }).then(() => navigate("/one-time-password", {state: {phoneNumber}})).catch((err) => {
-      setError(extractErrorCode(err))
-      submitDisabled.turnOff();
-      inputDisabled.turnOff();
-    })
-  }
+    api
+      .authStart({
+        phone: phoneNumber,
+        timezone: "America/New_York",
+      })
+      .then(() => navigate("/one-time-password", { state: { phoneNumber } }))
+      .catch((err) => {
+        setError(extractErrorCode(err));
+        submitDisabled.turnOff();
+        inputDisabled.turnOff();
+      });
+  };
   return (
     <Container>
       <Row>
@@ -56,7 +58,7 @@ const Start = () => {
             <Form.Group className="mb-3" controlId="formBasicPhoneNumber">
               <Form.Label>Phone number</Form.Label>
               <Input
-                style={{display: "block"}}
+                style={{ display: "block" }}
                 useNationalFormatForDefaultCountryValue={true}
                 international={false}
                 country="US"
@@ -67,12 +69,16 @@ const Start = () => {
                 disabled={inputDisabled.isOn}
               />
               <Form.Text className="text-muted">
-                To verify your identity, you are required to sign in with your phone number.{" "}
-                We will send you a verification code to your phone number.
+                To verify your identity, you are required to sign in with your phone
+                number. We will send you a verification code to your phone number.
               </Form.Text>
             </Form.Group>
-            <FormError error={error}/>
-            <Button variant="outline-success" type="submit" disabled={submitDisabled.isOn}>
+            <FormError error={error} />
+            <Button
+              variant="outline-success"
+              type="submit"
+              disabled={submitDisabled.isOn}
+            >
               Continue
             </Button>
           </Form>
@@ -80,6 +86,6 @@ const Start = () => {
       </Row>
     </Container>
   );
-}
+};
 
 export default Start;

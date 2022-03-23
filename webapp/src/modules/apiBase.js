@@ -3,10 +3,9 @@ import {
   debugResponseLogger,
   errorResponseLogger,
 } from "./apilogger";
-
-import _ from "lodash";
 import axios from "axios";
 import humps from "humps";
+import _ from "lodash";
 
 function create(apiHost, config) {
   const { debug, chaos, ...rest } = config || {};

@@ -1,5 +1,5 @@
-import apiBase from "./modules/apiBase";
 import config from "./config";
+import apiBase from "./modules/apiBase";
 
 const instance = apiBase.create(config.apiHost, {
   debug: config.debug,
@@ -33,5 +33,5 @@ export default {
   authStart: (data) => post(`/api/v1/auth/start`, data),
   authVerify: (data) => post(`/api/v1/auth/verify`, data),
   authSignout: (data) => del(`/api/v1/auth`, data),
-  getMe: (data) => get(`/api/v1/me`, data)
-}
+  getMe: (data) => get(`/api/v1/me`, data),
+};

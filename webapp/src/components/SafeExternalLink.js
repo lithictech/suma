@@ -1,5 +1,5 @@
 import React from "react";
-import Button from "react-bootstrap/Button"
+import Button from "react-bootstrap/Button";
 
 export default function SafeExternalLink({
   href,
@@ -17,7 +17,9 @@ export default function SafeExternalLink({
     <Component
       href={href}
       target="_blank"
-      rel={[opener ? null : "noopener", referrer ? null : "noreferrer"].filter(Boolean).join(' ')}
+      rel={[opener ? null : "noopener", referrer ? null : "noreferrer"]
+        .filter(Boolean)
+        .join(" ")}
       className={className}
       style={style}
       title={title}
