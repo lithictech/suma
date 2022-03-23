@@ -28,7 +28,7 @@ release-staging:
 	MERGE_HEROKU_ENV=$(staging_app) bundle exec foreman start release
 
 run:
-	CUSTOMER_SKIP_VERIFICATION_ALLOWLIST='000*' bundle exec foreman start web
+	CUSTOMER_SKIP_VERIFICATION_ALLOWLIST='1222*' bundle exec foreman start web
 run-with-verification:
 	bundle exec foreman start web
 run-workers:
