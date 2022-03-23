@@ -1,0 +1,6 @@
+{
+  "arrowParens": "always",
+  "printWidth": 90,
+  "trailingComma": "es5",
+  "parser": "flow"
+}

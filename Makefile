@@ -7,7 +7,6 @@ OUT ?= -
 
 install:
 	bundle install
-	cd webapp && npm install
 cop:
 	bundle exec rubocop
 fix:
@@ -34,8 +33,6 @@ run-with-verification:
 	bundle exec foreman start web
 run-workers:
 	bundle exec foreman start worker
-run-webapp:
-	cd webapp && npm start
 
 migrate:
 	bundle exec rake db:migrate

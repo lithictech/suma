@@ -9,6 +9,8 @@
     "axios": "^0.26.1",
     "bluebird": "^3.7.2",
     "bootstrap": "^5.1.3",
+    "clsx": "^1.1.1",
+    "dayjs": "^1.11.0",
     "humps": "^2.0.1",
     "i18next": "^21.6.14",
     "i18next-browser-languagedetector": "^6.1.3",
@@ -28,8 +30,12 @@
   "scripts": {
     "start": "PORT=22004 react-scripts start",
     "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "test": "react-scripts test --passWithNoTests",
+    "eject": "react-scripts eject",
+    "prettier-check": "prettier --no-error-on-unmatched-pattern --check '*.js' './tools/*.js' './src/**/*.js'",
+    "prettier-fix": "prettier --no-error-on-unmatched-pattern --write '*.js' './tools/*.js' './src/**/*.js'",
+    "eslint-check": "eslint --no-error-on-unmatched-pattern '*.js' './tools/*.js' './src/**/*.js'",
+    "eslint-fix": "eslint --no-error-on-unmatched-pattern --fix '*.js' './tools/*.js' './src/**/*.js'"
   },
   "eslintConfig": {
     "extends": [
@@ -48,5 +54,9 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "@trivago/prettier-plugin-sort-imports": "^3.2.0",
+    "prettier": "^2.6.0"
   }
 }
