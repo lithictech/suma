@@ -48,6 +48,6 @@ jobs:
           key: node-${{ hashFiles('**/package-lock.json') }}
           restore-keys: node-
       - run: npm install
-      - run: npm run fmt-check
-      - run: npm run lint-check
+      - run: npm run prettier-check
+      - run: npm run eslint-check
       - run: CI=true npm test
