@@ -113,7 +113,3 @@ function Map() {
     </div>
   )
 }
-
-// spanish tomatillo rice
-// beans
-// vegies - bell peppers, tomatoes
