@@ -6,7 +6,7 @@ require "rspec/eventually"
 
 RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transaction_check do
   before(:all) do
-    Suma::Async.require_jobs
+    Suma::Async.setup_tests
   end
 
   describe "MessageDispatched", messaging: true do
