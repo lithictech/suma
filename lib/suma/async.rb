@@ -59,28 +59,50 @@ module Suma::Async
     end
   end
 
-  def self.require_jobs
+  # Set up async for the web/client side of things.
+  # This performs common Amigo config,
+  # and sets up the routing/auditing jobs.
+  # It does not require in the actual jobs,
+  # since invoking them is the responsibility of the router.
+  def self.setup_web
+    self._setup_common
+    Amigo.install_amigo_jobs
+    return true
+  end
+
+  # Set up the worker process.
+  # This peforms common Amigo config,
+  # sets up the routing/audit jobs (since jobs may publish to other jobs),
+  # requires the actual jobs,
+  # and starts the cron.
+  def self.setup_workers
+    self._setup_common
+    Amigo.install_amigo_jobs
+    self._require_jobs
+    Amigo.start_scheduler
+    return true
+  end
+
+  # Set up for tests.
+  # This performs common config and requires the jobs.
+  # It does not install the routing/auditing jobs,
+  # since those should only be installed at specific times.
+  def self.setup_tests
+    self._setup_common
+    self._require_jobs
+    return true
+  end
+
+  def self._require_jobs
+    JOBS.each { |j| require(j) }
+  end
+
+  def self._setup_common
+    raise "Async already setup, only call this once" if Amigo.structured_logging
     Amigo.structured_logging = true
     Amigo.log_callback = lambda { |j, lvl, msg, o|
       lg = j ? Appydays::Loggable[j] : Suma::Async::JobLogger.logger
       lg.send(lvl, msg, o)
     }
-    Amigo.install_amigo_jobs
-    JOBS.each { |j| require(j) }
-  end
-
-  # Start the scheduler.
-  # This should generally be run in the Sidekiq worker process,
-  # not a webserver process.
-  def self.start_scheduler
-    hash = self.scheduled_jobs.each_with_object({}) do |job, memo|
-      self.logger.info "Scheduling %s every %p" % [job.name, job.cron_expr]
-      memo[job.name] = {
-        "class" => job.name,
-        "cron" => job.cron_expr,
-      }
-    end
-    load_errs = Sidekiq::Cron::Job.load_from_hash hash
-    raise "Errors loading sidekiq-cron jobs: %p" % [load_errs] if load_errs.present?
   end
 end

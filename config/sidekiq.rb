@@ -9,9 +9,9 @@ Appydays::Dotenviable.load
 require "suma"
 Suma.load_app
 
-require "suma/async"
-Suma::Async.require_jobs
-Amigo.start_scheduler
 Sentry.configure_scope do |scope|
   scope.set_tags(application: "worker")
 end
+
+require "suma/async"
+Suma::Async.setup_workers

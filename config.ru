@@ -7,8 +7,10 @@ require "suma"
 Suma.load_app
 
 require "suma/apps"
+require "suma/async"
 
-Amigo.install_amigo_jobs
+Suma::Async.setup_web
+
 map "/api" do
   run Suma::Apps::API.build_app
 end

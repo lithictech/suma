@@ -23,19 +23,18 @@ end
 # It also registers subscribers, so changes to the models are handled
 # by their correct async jobs (since async jobs are handled in-process).
 def connect
-  return if defined?(Suma::Role) # Do not double-load
-  require "amigo"
+  return false if defined?(Suma::Role) # Do not double-load
   require "suma"
   Suma.load_app
-  Amigo.install_amigo_jobs
-  return
+  require "suma/async"
+  Suma::Async.setup_web
+  return true
 end
 
 # Load models and fixtures. Use this when riffing locally.
 def repl
-  require "suma"
-  Suma.load_app
+  return false unless connect
   require "suma/fixtures"
   Suma::Fixtures.load_all
-  return
+  return true
 end
