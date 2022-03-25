@@ -15,14 +15,25 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  border-radius: 50%;
-  margin-left: -20px!important;
-  margin-top: -20px!important;
-  width: 40px!important;
-  height: 40px!important;
+  margin-left: -18px!important;
+  margin-top: -18px!important;
+  width: 36px!important;
+  height: 36px!important;
   font-size: 18px;
+  border-radius: 50%;
   color: #14c260;
-  background-color: white;
+  background-color: #fafafa;
   /* lower than scooter value (240) */
   z-index: 230;
+  -webkit-box-shadow: 0px 0px 5px 0px rgba(201,201,201,1);
+  -moz-box-shadow: 0px 0px 5px 0px rgba(201,201,201,1);
+  box-shadow: 0px 0px 5px 0px rgba(201,201,201,1);
+}
+
+.scooterIcon {
+  width: 90%;
+  top: 50%;
+  position: absolute;
+  left: 50%;
+  transform: translate(-50%, -50%);
 }
