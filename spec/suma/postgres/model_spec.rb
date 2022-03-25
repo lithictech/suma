@@ -213,7 +213,31 @@ RSpec.describe "Suma::Postgres::Model", :db do
       instance.save_changes
       expect do
         instance.destroy
-      end.to publish("suma.postgres.testingpixie.destroyed", [instance.id, instance.values.stringify_keys])
+      end.to publish("suma.postgres.testingpixie.destroyed", match_array([instance.id, include("id", "name")]))
+    end
+
+    it "can publish pgrange fields" do
+      t1 = Time.parse("2011-01-01T00:00:00Z")
+      t2 = Time.parse("2012-01-01T00:00:00Z")
+      matcher = publish("suma.postgres.testingpixie.created")
+      pixie = nil
+      expect do
+        pixie = Suma::Postgres::TestingPixie.create(active_during: t1..t2)
+        pixie.save_changes
+        pixie.active_during = Float::INFINITY
+        pixie.save_changes
+        pixie.destroy
+      end.to matcher
+      expect(pixie).to_not be_nil
+      expect(matcher.recorded_events[0].payload).to match_array(
+        [pixie.id, include("active_during" => "[2011-01-01 00:00:00.000000+0000,2012-01-01 00:00:00.000000+0000)")],
+      )
+      expect(matcher.recorded_events[1].payload).to match_array(
+        [pixie.id, {"active_during" => ["[2011-01-01 00:00:00.000000+0000,2012-01-01 00:00:00.000000+0000)", "[,]"]}],
+      )
+      expect(matcher.recorded_events[2].payload).to match_array(
+        [pixie.id, include("active_during" => "[,]")],
+      )
     end
 
     it "does not publish duplicate or redundant events" do

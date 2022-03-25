@@ -9,9 +9,7 @@ require "sidekiq"
 
 require "suma"
 
-# See https://github.com/mperham/sidekiq/pull/5071
-# We serialize models a lot, so this isn't suitable.
-Sidekiq.strict_args!(false)
+Sidekiq.strict_args!(true)
 
 module Suma::Async
   include Appydays::Configurable
