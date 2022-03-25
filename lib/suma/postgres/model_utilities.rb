@@ -289,29 +289,44 @@ module Suma::Postgres::ModelUtilities
     # Sequel hook -- send an asynchronous event after the model is saved.
     def after_create
       super
-      self.publish_deferred("created", self.id, self._clean_encrypted_payload(self.values))
+      self.publish_deferred("created", self.id, self._clean_payload(self.values))
     end
 
     # Sequel hook -- send an asynchronous event after the save is committed.
     def after_update
       super
-      self.publish_deferred("updated", self.id, self._clean_encrypted_payload(self.previous_changes))
+      self.publish_deferred("updated", self.id, self._clean_payload(self.previous_changes, values_are_pairs: true))
     end
 
     # Sequel hook -- send an event after a transaction that destroys the object is committed.
     def after_destroy
       super
-      self.publish_deferred("destroyed", self.id, self._clean_encrypted_payload(self.values))
+      self.publish_deferred("destroyed", self.id, self._clean_payload(self.values))
     end
 
-    def _clean_encrypted_payload(h)
+    def _clean_payload(h, values_are_pairs: false)
       result = h.dup
-      h.each_key do |k|
-        next unless self.class.encrypted_attributes_by_column.key?(k.to_sym)
-        result.delete(k)
-        result["_#{k}"] = ""
+      h.each_pair do |k, v|
+        if self.class.encrypted_attributes_by_column.key?(k.to_sym)
+          result.delete(k)
+          result["_#{k}"] = if values_are_pairs
+                              v.map { |o| o.nil? ? nil : "" }
+          else
+            v.nil? ? nil : ""
+          end
+          next
+        end
+        call_unquoted_lit = (v.respond_to?(:to_ary) ? v : [v]).any? { |o| o.respond_to?(:unquoted_literal) }
+        next unless call_unquoted_lit
+        ds = self.class.dataset
+        # unquoted_literal is not an interface method and its arity is not consistent,
+        # so we may need to make this more complex in the future.
+        # Note, I have seen nils here in the array along with ranges,
+        # but was not able to repro it in a test, so we use null coalesce to protect and keep
+        # the json value as nil.
+        result[k] = values_are_pairs ? v.map { |o| o&.unquoted_literal(ds) } : v&.unquoted_literal(ds)
       end
-      return result
+      return result.as_json
     end
   end
 
