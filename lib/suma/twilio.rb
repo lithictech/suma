@@ -15,10 +15,11 @@ module Suma::Twilio
 
   configurable(:twilio) do
     setting :account_sid, "AC444test"
-    setting :auth_token, "ac45test"
+    setting :secret_id, "twilapikey_sid"
+    setting :secret, "twilsecret"
 
     after_configured do
-      @client = Twilio::REST::Client.new(self.account_sid, self.auth_token)
+      @client = Twilio::REST::Client.new(self.secret_id, self.secret, self.account_sid, nil, nil, self.logger)
     end
   end
 

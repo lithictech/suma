@@ -8,7 +8,7 @@ RSpec.describe Suma::Twilio, :db do
       req = stub_twilio_sms(sid: "SMXYZ").
         with(
           body: {"Body" => "hello", "From" => "17742606953", "To" => "+15554443210"},
-          headers: {"Authorization" => "Basic QUM0NDR0ZXN0OmFjNDV0ZXN0"},
+          headers: {"Authorization" => "Basic dHdpbGFwaWtleV9zaWQ6dHdpbHNlY3JldA=="},
         )
       result = described_class.send_sms("17742606953", "+15554443210", "hello")
       expect(result).to have_attributes(sid: "SMXYZ")

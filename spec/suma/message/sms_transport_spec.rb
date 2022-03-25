@@ -26,7 +26,7 @@ RSpec.describe Suma::Message::SmsTransport, :db do
       req = stub_twilio_sms(sid: "SMXYZ").
         with(
           body: {"Body" => "hello", "From" => "15554443333", "To" => "+15554443210"},
-          headers: {"Authorization" => "Basic QUM0NDR0ZXN0OmFjNDV0ZXN0"},
+          headers: {"Authorization" => "Basic dHdpbGFwaWtleV9zaWQ6dHdpbHNlY3JldA=="},
         )
       delivery = Suma::Fixtures.message_delivery.sms("+15554443210", "hello").create
       result = described_class.new.send!(delivery)
