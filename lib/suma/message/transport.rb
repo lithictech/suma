@@ -14,12 +14,12 @@ class Suma::Message::Transport
   singleton_attr_accessor :override
 
   def self.register_transport(type)
-    Suma::Message::Transport.transports[type] = self.new
+    Suma::Message::Transport.transports[type] = self
   end
 
   def self.for(type)
     type = Suma::Message::Transport.override || type
-    return Suma::Message::Transport.transports[type.to_sym]
+    return Suma::Message::Transport.transports[type.to_sym]&.new
   end
 
   def self.for!(type)
