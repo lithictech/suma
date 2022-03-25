@@ -10,7 +10,11 @@ class Rack::SpaRewrite
     @app = app
     @index_path = index_path
     @html_only = html_only
-    @index_mtime = ::File.mtime(@index_path).httpdate
+    begin
+      @index_mtime = ::File.mtime(@index_path).httpdate
+    rescue Errno::ENOENT
+      @index_mtime = Time.at(0)
+    end
     @index_bytes = nil
     @head = Rack::Head.new(->(env) { get env })
   end
