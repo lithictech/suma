@@ -1,5 +1,6 @@
 import signOut from "../modules/signOut";
 import { useUser } from "../state/useUser";
+import { useTranslation } from "react-i18next";
 import React from "react";
 import Button from "react-bootstrap/Button";
 import Col from "react-bootstrap/Col";
@@ -99,13 +100,20 @@ function Map() {
 }
 
 function ReserveCard() {
+  const { t } = useTranslation();
+  const ride = {
+    number: 3434,
+    startCost: 3.00,
+    costPerMinute: 0.22
+  }
   return (
     <>
       {/* zIndex higher than map (400)*/}
       <Card style={{ position: 'absolute', top: 0, left: '50%', transform: 'translate(-50%, 2%)', zIndex: '401' }} className="mx-auto">
         <Card.Body>
-          <Card.Title className="mb-2 text-muted">Scooter #3434</Card.Title>
-          <Card.Text className="text-muted">$1.50 to start then $0.20/min + taxes</Card.Text>
+          <Card.Title className="mb-2 text-muted">Scooter {ride.number}</Card.Title>
+          <Card.Text className="text-muted">{t('scooter_cost', { startCost: ride.startCost, costPerMinute: ride.costPerMinute })}
+          </Card.Text>
           <Button size="sm" variant="outline-success" href="http://google.com" onClick={(e) => e.preventDefault()}>Reserve Scooter</Button>
         </Card.Body>
       </Card>

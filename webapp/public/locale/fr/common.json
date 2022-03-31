@@ -1,0 +1,4 @@
+{
+	"welcome_to_suma": "Bienvenue à Suma",
+	"scooter_cost": "{{startCost, number(style: currency; currency: USD)}} pour commencer alors {{costPerMinute, number(style: currency; currency: USD)}}/min + impôts"
+}

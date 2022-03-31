@@ -1,3 +1,4 @@
 {
-	"welcome to suma": "Welcome to Suma"
+	"welcome_to_suma": "Welcome to Suma",
+	"scooter_cost": "{{startCost, number(style: currency; currency: USD)}} to start then {{costPerMinute, number(style: currency; currency: USD)}}/min + taxes"
 }
