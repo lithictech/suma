@@ -20,17 +20,13 @@ function format(value, format, lng) {
 function formatDate(value, format, lng) {
   const options = toOptions(format, "date");
 
-  return options === null
-    ? value
-    : new Intl.DateTimeFormat(lng, options).format(value);
+  return options === null ? value : new Intl.DateTimeFormat(lng, options).format(value);
 }
 
 function formatCurrency(value, format, lng) {
   const options = toOptions(format, "number");
 
-  return options === null
-    ? value
-    : new Intl.NumberFormat(lng, options).format(value);
+  return options === null ? value : new Intl.NumberFormat(lng, options).format(value);
 }
 
 function toOptions(format, specifier) {
@@ -58,7 +54,7 @@ function toJsonString(format, specifier) {
       param
         .split(":")
         .map((name) => `"${name.trim()}"`)
-        .join(":"),
+        .join(":")
     )
     .join(",");
   // specifier is "number" results e.g. {"style":"currency","currency":"USD"}

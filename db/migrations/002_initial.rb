@@ -154,5 +154,25 @@ Sequel.migration do
       foreign_key :delivery_id, :message_deliveries, null: false, on_delete: :cascade
       index :delivery_id
     end
+
+    create_table(:platform_partners) do
+      primary_key :id
+      timestamptz :created_at, null: false, default: Sequel.function(:now)
+      timestamptz :updated_at
+      text :name, null: false
+      text :short_slug, null: false
+    end
+
+    create_table(:mobility_vehicles) do
+      primary_key :id
+      decimal :lat, null: false
+      decimal :lng, null: false
+      text :vehicle_type, null: false
+      text :vehicle_id, null: false
+      text :market, null: false, default: ''
+
+      foreign_key :platform_partner_id, :platform_partners, null: false
+      index :platform_partner_id
+    end
   end
 end
