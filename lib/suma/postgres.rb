@@ -54,6 +54,8 @@ module Suma::Postgres
     "suma/legal_entity",
     "suma/message/body",
     "suma/message/delivery",
+    "suma/mobility_vehicle",
+    "suma/platform_partner",
     "suma/role",
   ].freeze
 

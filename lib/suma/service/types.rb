@@ -27,4 +27,18 @@ module Suma::Service::Types
       return value.split(",").map(&:strip)
     end
   end
+
+  class DecimalLocation
+    def self.parse(value)
+      arr = value.respond_to?(:to_ary) ? value : value.split(",").map(&:strip)
+      return arr.map { |v| BigDecimal(v) }
+    end
+  end
+
+  class IntegerLocation
+    def self.parse(value)
+      arr = value.respond_to?(:to_ary) ? value : value.split(",").map(&:strip)
+      return arr.map { |v| Integer(v) }
+    end
+  end
 end

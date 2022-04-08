@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "httparty"
+
 module Suma::Http
   # Error raised when some API has rate limited us.
   class BaseError < RuntimeError; end

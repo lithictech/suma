@@ -136,3 +136,7 @@ they can browse the app, but most features are not available for use.
 ## Payments System
 
 See the documentation for [Payment System](payments.md).
+
+## Mobility System
+
+See the documentation for [Mobility](mobility.md).
