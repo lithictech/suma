@@ -49,6 +49,8 @@ reset-db:
 	bundle exec rake db:reset
 reset-db-staging:
 	MERGE_HEROKU_ENV=$(staging_app) bundle exec rake db:reset
+bootstrap-db:
+	bundle exec rake bootstrap
 
 reset-sidekiq-redis:
 	bundle exec rake sidekiq:reset

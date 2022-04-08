@@ -12,6 +12,8 @@ require "suma/tasks/annotate"
 Suma::Tasks::Annotate.new
 require "suma/tasks/db"
 Suma::Tasks::DB.new
+require "suma/tasks/bootstrap"
+Suma::Tasks::Bootstrap.new
 require "suma/tasks/heroku"
 Suma::Tasks::Heroku.new
 require "suma/tasks/release"

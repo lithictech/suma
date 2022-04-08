@@ -12,6 +12,7 @@ require "suma/async"
 require "suma/service"
 require "suma/api/auth"
 require "suma/api/me"
+require "suma/api/mobility"
 require "suma/api/system"
 
 require "suma/admin_api/auth"
@@ -24,6 +25,7 @@ module Suma::Apps
     mount Suma::API::System
     mount Suma::API::Auth
     mount Suma::API::Me
+    mount Suma::API::Mobility
 
     mount Suma::AdminAPI::Auth
     mount Suma::AdminAPI::Customers
