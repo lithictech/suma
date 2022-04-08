@@ -26,12 +26,35 @@ RSpec.describe Suma::API::Mobility, :db do
       expect(last_response).to have_json_body.
         that_includes(
           escooter: [
-            loc: [200_000_000, 1_200_000_000], pi: 0,
+            {c: [200_000_000, 1_200_000_000], p: 0},
           ],
           ebike: [
-            {loc: [200_000_000, 1_200_000_000], pi: 0},
+            {c: [200_000_000, 1_200_000_000], p: 0},
           ],
         )
+    end
+
+    it "handles coordinate precision" do
+      Suma::Fixtures.mobility_vehicle.loc(-0.5, 100).escooter.create
+
+      get "/v1/mobility/map", minloc: [-10, 50], maxloc: [50, 150]
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.
+        that_includes(
+          precision: 10_000_000,
+          escooter: [
+            {c: [-5_000_000, 1_000_000_000], p: 0},
+          ],
+        )
+      expect(last_response_json_body[:escooter][0][:c][0].to_f / last_response_json_body[:precision]).to eq(-0.5)
+    end
+
+    it "tells the frontend to refresh in 30 seconds" do
+      get "/v1/mobility/map", minloc: [-10, 50], maxloc: [50, 150]
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.that_includes(refresh: 30_000)
     end
 
     it "can limit results to the requested type" do
@@ -42,9 +65,11 @@ RSpec.describe Suma::API::Mobility, :db do
       get "/v1/mobility/map", minloc: [15, 110], maxloc: [25, 125], types: ["ebike"]
 
       expect(last_response).to have_status(200)
-      expect(last_response_json_body).to include(:providers, ebike: [
-                                                   {loc: [200_000_000, 1_200_000_000], pi: 0},
-                                                 ],)
+      expect(last_response_json_body).to include(
+        :providers, ebike: [
+          {c: [200_000_000, 1_200_000_000], p: 0},
+        ],
+      )
       expect(last_response_json_body).to_not include(:escooter)
     end
 
@@ -60,9 +85,9 @@ RSpec.describe Suma::API::Mobility, :db do
         that_includes(
           providers: have_length(2),
           ebike: contain_exactly(
-            include(pi: 0),
-            include(pi: 1),
-            include(pi: 0),
+            include(p: 0),
+            include(p: 1),
+            include(p: 0),
           ),
         )
     end
@@ -82,13 +107,13 @@ RSpec.describe Suma::API::Mobility, :db do
       expect(last_response).to have_json_body.
         that_includes(
           escooter: [
-            {loc: [200_000_000, 1_200_000_000], pi: 0},
+            {c: [200_000_000, 1_200_000_000], p: 0},
           ],
           ebike: [
-            {loc: [200_000_000, 1_200_000_000], pi: 0, d: "111"},
-            {loc: [200_000_000, 1_200_000_000], pi: 0, d: "211"},
-            {loc: [400_000_000, 1_400_000_000], pi: 0},
-            {loc: [200_000_000, 1_200_000_000], pi: 1},
+            {c: [200_000_000, 1_200_000_000], p: 0, d: "111"},
+            {c: [200_000_000, 1_200_000_000], p: 0, d: "211"},
+            {c: [400_000_000, 1_400_000_000], p: 0},
+            {c: [200_000_000, 1_200_000_000], p: 1},
           ],
         )
     end
@@ -166,14 +191,4 @@ RSpec.describe Suma::API::Mobility, :db do
       expect(last_response).to have_status(401)
     end
   end
-  #
-  # describe "POST /v1/mobility/start_trip" do
-  #   it "starts a trip for the customer" do
-  #     post "/v1/mobility/start_trip", loc: [45, -122], provider: "spin"
-  #
-  #     expect(last_response).to have_status(200)
-  #     expect(last_response).to have_json_body.
-  #       that_includes(x: 1)
-  #   end
-  # end
 end

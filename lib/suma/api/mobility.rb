@@ -33,8 +33,8 @@ class Suma::API::Mobility < Suma::API::V1
           providers << vehicle.platform_partner
         end
         vhash = {
-          loc: vehicle.to_api_location,
-          pi: provider_index,
+          c: vehicle.to_api_location,
+          p: provider_index,
         }
         videntity = vehicle.api_identity
         if seen_identities_and_initial_vehicle_hashes.key?(videntity)

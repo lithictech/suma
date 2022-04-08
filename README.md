@@ -9,6 +9,33 @@ a digital justice nonprofit.
 
 Check out the [docs](https://github.com/lithictech/suma/tree/main/docs) folder for more info.
 
+To get started, you can run:
+
+```
+make install
+make reset-db
+make migrate
+make bootstrap-db
+```
+
+If you are only doing backend work,
+you can use the embedded frontend, as explained in the "Infrastructure" section:
+
+```
+make build-frontends
+make run
+```
+
+To work on the frontends, you need to be in the right folder:
+
+```
+make run # from the app root
+# Open another terminal
+cd webapp
+make install
+make start # Run a React dev server frontend against the running local backend
+```
+
 ## Infrastructure
 
 Right now, Suma is designed to be hosted on Heroku,

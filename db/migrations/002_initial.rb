@@ -169,7 +169,7 @@ Sequel.migration do
       decimal :lng, null: false
       text :vehicle_type, null: false
       text :vehicle_id, null: false
-      text :market, null: false, default: ''
+      text :market, null: false, default: ""
 
       foreign_key :platform_partner_id, :platform_partners, null: false
       index :platform_partner_id

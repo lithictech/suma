@@ -1,10 +1,12 @@
-require 'appydays/loggable'
-require 'suma/http'
+# frozen_string_literal: true
+
+require "appydays/loggable"
+require "suma/http"
 
 module Suma::MobilityVehicle::SyncSpin
   include Appydays::Loggable
   # TODO: Configure this
-  GBFS_MARKETS = ['portland']
+  GBFS_MARKETS = ["portland"].freeze
 
   def self.sync_all
     GBFS_MARKETS.each do |m|
@@ -13,18 +15,18 @@ module Suma::MobilityVehicle::SyncSpin
   end
 
   def self.sync_gbfs(m)
-    (spin = Suma::PlatformPartner[short_slug: 'spin']) or raise "Spin partner does not exist, cannot run this code"
+    (spin = Suma::PlatformPartner[short_slug: "spin"]) or raise "Spin partner does not exist, cannot run this code"
     url = "https://gbfs.spin.pm/api/gbfs/v2_2/#{m}/free_bike_status"
     resp = Suma::Http.get(url, logger: self.logger)
     rows = []
-    resp.parsed_response['data']['bikes'].each do |bike|
+    resp.parsed_response["data"]["bikes"].each do |bike|
       row = {
-        lat: bike['lat'],
-        lng: bike['lon'],
-        vehicle_id: bike['bike_id'],
-        vehicle_type: 'escooter',
+        lat: bike["lat"],
+        lng: bike["lon"],
+        vehicle_id: bike["bike_id"],
+        vehicle_type: "escooter",
         market: m,
-        platform_partner_id: spin.id
+        platform_partner_id: spin.id,
       }
       rows << row
     end
