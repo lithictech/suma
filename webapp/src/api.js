@@ -34,4 +34,5 @@ export default {
   authVerify: (data) => post(`/api/v1/auth/verify`, data),
   authSignout: (data) => del(`/api/v1/auth`, data),
   getMe: (data) => get(`/api/v1/me`, data),
+  getMobilityMap: (data) => get("/api/v1/mobility/map", data),
 };
