@@ -42,6 +42,7 @@ function Map() {
     }
     const { L } = window;
     const map = L.map(mapRef.current).setView([45.5152, -122.6784], 13);
+    const { _northEast, _southWest } = map.getBounds();
 
     L.tileLayer(
       "https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw",
@@ -68,8 +69,8 @@ function Map() {
     });
     api
       .getMobilityMap({
-        minloc: [45.461919, -122.745581],
-        maxloc: [45.555603, -122.562547],
+        minloc: [_southWest.lat, _southWest.lng],
+        maxloc: [_northEast.lat, _northEast.lng],
       })
       .then((r) => {
         let markers = L.markerClusterGroup({
