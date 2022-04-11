@@ -52,12 +52,15 @@ module Suma::Postgres
     "suma/customer/session",
     "suma/idempotency",
     "suma/legal_entity",
+    "suma/market",
     "suma/message/body",
     "suma/message/delivery",
-    "suma/mobility_vehicle",
+    "suma/mobility/vehicle",
     "suma/organization",
     "suma/role",
     "suma/vendor",
+    "suma/vendor/service",
+    "suma/vendor/service_category",
   ].freeze
 
   # If true, deferred model events publish immediately.

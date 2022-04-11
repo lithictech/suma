@@ -73,7 +73,7 @@ Sequel.migration do
       text :timezone, null: false, default: "America/Los_Angeles"
       text :registered_env, null: false
 
-      foreign_key :legal_entity_id, :legal_entities, null: false
+      foreign_key :legal_entity_id, :legal_entities, null: false, on_delete: :restrict
     end
 
     create_join_table(
@@ -163,6 +163,14 @@ Sequel.migration do
       text :slug, null: false
     end
 
+    create_table(:markets) do
+      primary_key :id
+      timestamptz :created_at, null: false, default: Sequel.function(:now)
+      timestamptz :updated_at
+      text :name, null: false
+      text :slug, null: false
+    end
+
     create_table(:vendors) do
       primary_key :id
       timestamptz :created_at, null: false, default: Sequel.function(:now)
@@ -172,16 +180,68 @@ Sequel.migration do
       foreign_key :organization_id, :organizations, null: false, on_delete: :cascade
     end
 
+    create_table(:vendor_services) do
+      primary_key :id
+      timestamptz :created_at, null: false, default: Sequel.function(:now)
+      timestamptz :updated_at
+
+      foreign_key :vendor_id, :vendors, null: false, on_delete: :cascade
+
+      text :internal_name, null: false
+      text :external_name, null: false
+      text :sync_url, null: false, default: ""
+    end
+
+    create_table(:vendor_service_categories) do
+      primary_key :id
+      text :name, null: false
+      text :slug, null: false, unique: true
+    end
+
+    create_join_table(
+      {
+        category_id: :vendor_service_categories,
+        service_id: :vendor_services,
+      },
+      name: :vendor_service_categories_vendor_services,
+    )
+
+    create_table(:vendor_service_market_constraints) do
+      primary_key :id
+      foreign_key :service_id, :vendor_services, null: false, on_delete: :cascade
+      foreign_key :market_id, :markets, null: false, on_delete: :cascade
+      unique [:service_id, :market_id]
+    end
+
+    create_table(:vendor_service_organization_constraints) do
+      primary_key :id
+      foreign_key :service_id, :vendor_services, null: false, on_delete: :cascade
+      foreign_key :organization_id, :organizations, null: false, on_delete: :cascade
+      unique [:service_id, :organization_id]
+    end
+
+    create_table(:vendor_service_role_constraints) do
+      primary_key :id
+      foreign_key :service_id, :vendor_services, null: false, on_delete: :cascade
+      foreign_key :role_id, :roles, null: false, on_delete: :cascade
+      unique [:service_id, :role_id]
+    end
+
+    create_table(:vendor_service_matchall_constraints) do
+      primary_key :id
+      foreign_key :service_id, :vendor_services, null: false, on_delete: :cascade
+      unique :service_id
+    end
+
     create_table(:mobility_vehicles) do
       primary_key :id
       decimal :lat, null: false
       decimal :lng, null: false
       text :vehicle_type, null: false
       text :vehicle_id, null: false
-      text :market, null: false, default: ""
 
-      foreign_key :vendor_id, :vendors, null: false
-      index :vendor_id
+      foreign_key :vendor_service_id, :vendor_services, null: false, on_delete: :cascade
+      index :vendor_service_id
     end
   end
 end

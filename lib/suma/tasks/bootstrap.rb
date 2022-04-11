@@ -11,9 +11,22 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
     task :bootstrap do
       Suma.load_app
       org = Suma::Organization.find_or_create(name: "Spin")
-      Suma::Vendor.find_or_create(name: "Spin", organization: org)
-      require "suma/mobility_vehicle/sync_spin"
-      Suma::MobilityVehicle::SyncSpin.sync_all
+      org.db.transaction do
+        spin = Suma::Vendor.find_or_create(name: "Spin", organization: org)
+        if spin.services_dataset.mobility.empty?
+          svc = spin.add_service(
+            internal_name: "Portland Scooters",
+            external_name: "Spin E-Scooters",
+            sync_url: "https://gbfs.spin.pm/api/gbfs/v2_2/portland/free_bike_status",
+          )
+          svc.add_category(Suma::Vendor::ServiceCategory.find_or_create(name: "Mobility"))
+        end
+      end
+      require "suma/mobility/sync_spin"
+      i = org.db.transaction do
+        Suma::Mobility::SyncSpin.sync_all
+      end
+      puts "Synced #{i} scooters"
     end
   end
 end
