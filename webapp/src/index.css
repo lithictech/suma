@@ -11,6 +11,10 @@
   border: 1px solid #8f8f8f;
 }
 
+.leaflet-container {
+  height: 500px;
+}
+
 .scooterCluster {
   display: flex;
   justify-content: center;
@@ -42,4 +46,14 @@
   position: absolute;
   left: 50%;
   transform: translate(-50%, -50%);
+}
+
+.reserve {
+  /* zIndex higher than map (400) */
+  z-index: 401;
+  position: absolute !important;
+  top: 0;
+  left: 50%;
+  transform: translate(-50%, 2%);
+  margin: 0 auto;
 }
