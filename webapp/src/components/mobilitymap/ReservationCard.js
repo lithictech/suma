@@ -13,7 +13,9 @@ const ReservationCard = () => {
   return (
     <Card className="reserve">
       <Card.Body>
-        <Card.Title className="mb-2 text-muted">Scooter {ride.number}</Card.Title>
+        <Card.Title className="mb-2 text-muted">
+          Scooter {ride.number}
+        </Card.Title>
         <Card.Text className="text-muted">
           {t("scooter_cost", {
             startCost: ride.startCost,
@@ -31,6 +33,6 @@ const ReservationCard = () => {
       </Card.Body>
     </Card>
   );
-}
+};
 
 export default ReservationCard;
