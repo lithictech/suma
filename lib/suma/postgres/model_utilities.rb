@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require "amigo"
 require "tsort"
 require "pg"
 require "suma/postgres"

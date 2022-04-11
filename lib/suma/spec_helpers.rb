@@ -49,6 +49,10 @@ module Suma::SpecHelpers
     end
   end
 
+  module_function def fixture_response(path, status: 200, headers: {"Content-Type" => "application/json"})
+    return {status:, body: load_fixture_data(path, raw: true), headers:}
+  end
+
   # Zero out nsecs to t can be compared to one from the database.
   module_function def trunc_time(t)
     return t.change(nsec: t.usec * 1000)

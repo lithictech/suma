@@ -2,12 +2,12 @@
 
 require "suma"
 require "suma/fixtures"
-require "suma/mobility_vehicle"
+require "suma/mobility/vehicle"
 
 module Suma::Fixtures::MobilityVehicles
   extend Suma::Fixtures
 
-  fixtured_class Suma::MobilityVehicle
+  fixtured_class Suma::Mobility::Vehicle
 
   base :mobility_vehicle do
     self.lat ||= Faker::Number.between(from: -90.0, to: 90.0)
@@ -17,7 +17,7 @@ module Suma::Fixtures::MobilityVehicles
   end
 
   before_saving do |instance|
-    instance.platform_partner ||= Suma::Fixtures.platform_partner.create
+    instance.vendor_service ||= Suma::Fixtures.vendor_service.mobility.create
     instance
   end
 
