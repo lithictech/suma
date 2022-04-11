@@ -1,3 +1,4 @@
+import Map from "../components/mobilitymap/Map";
 import signOut from "../modules/signOut";
 import { useUser } from "../state/useUser";
 import React from "react";
@@ -5,7 +6,6 @@ import Button from "react-bootstrap/Button";
 import Col from "react-bootstrap/Col";
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
-import Map from "../components/mobilitymap/Map";
 
 const Dashboard = () => {
   const { user } = useUser();

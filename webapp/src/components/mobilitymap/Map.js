@@ -1,7 +1,7 @@
-import React from "react";
 import api from "../../api";
 import scooterIcon from "../../assets/images/kick-scooter.png";
 import ReservationCard from "./ReservationCard";
+import React from "react";
 
 function Map() {
   const mapRef = React.useRef();

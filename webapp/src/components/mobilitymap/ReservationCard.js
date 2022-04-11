@@ -1,6 +1,6 @@
 import React from "react";
-import Card from "react-bootstrap/Card";
 import Button from "react-bootstrap/Button";
+import Card from "react-bootstrap/Card";
 import { useTranslation } from "react-i18next";
 
 const ReservationCard = () => {
@@ -13,9 +13,7 @@ const ReservationCard = () => {
   return (
     <Card className="reserve">
       <Card.Body>
-        <Card.Title className="mb-2 text-muted">
-          Scooter {ride.number}
-        </Card.Title>
+        <Card.Title className="mb-2 text-muted">Scooter {ride.number}</Card.Title>
         <Card.Text className="text-muted">
           {t("scooter_cost", {
             startCost: ride.startCost,
