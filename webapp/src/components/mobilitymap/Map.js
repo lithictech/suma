@@ -1,7 +1,7 @@
 import React from "react";
-import api from "../api";
-import scooterIcon from "../assets/images/kick-scooter.png";
-import Reserve from "./Reserve";
+import api from "../../api";
+import scooterIcon from "../../assets/images/kick-scooter.png";
+import ReservationCard from "./ReservationCard";
 
 function Map() {
   const mapRef = React.useRef();
@@ -79,8 +79,8 @@ function Map() {
   }, []);
   return (
     <div className="position-relative">
-      <Reserve />
       <div ref={mapRef} />
+      <ReservationCard />
     </div>
   );
 }

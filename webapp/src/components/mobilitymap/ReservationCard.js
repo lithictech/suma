@@ -3,7 +3,7 @@ import Card from "react-bootstrap/Card";
 import Button from "react-bootstrap/Button";
 import { useTranslation } from "react-i18next";
 
-const Reserve = () => {
+const ReservationCard = () => {
   const { t } = useTranslation();
   const ride = {
     number: 3434,
@@ -33,4 +33,4 @@ const Reserve = () => {
   );
 }
 
-export default Reserve;
+export default ReservationCard;
