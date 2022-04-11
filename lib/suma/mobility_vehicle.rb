@@ -11,7 +11,7 @@ class Suma::MobilityVehicle < Suma::Postgres::Model(:mobility_vehicles)
 
   plugin :timestamps
 
-  many_to_one :platform_partner, key: :platform_partner_id, class: "Suma::PlatformPartner"
+  many_to_one :vendor, key: :vendor_id, class: "Suma::Vendor"
 
   dataset_module do
     def search(min_lat:, min_lng:, max_lat:, max_lng:)
@@ -38,7 +38,7 @@ class Suma::MobilityVehicle < Suma::Postgres::Model(:mobility_vehicles)
   end
 
   def api_identity
-    return "#{self.lat}-#{self.lng}-#{self.platform_partner_id}-#{self.vehicle_type}"
+    return "#{self.lat}-#{self.lng}-#{self.vendor_id}-#{self.vehicle_type}"
   end
 
   def to_api_location

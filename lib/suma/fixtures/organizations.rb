@@ -2,14 +2,14 @@
 
 require "suma"
 require "suma/fixtures"
-require "suma/platform_partner"
+require "suma/organization"
 
-module Suma::Fixtures::PlatformPartners
+module Suma::Fixtures::Organizations
   extend Suma::Fixtures
 
-  fixtured_class Suma::PlatformPartner
+  fixtured_class Suma::Organization
 
-  base :platform_partner do
+  base :organization do
     self.name ||= Faker::Company.name
   end
 end

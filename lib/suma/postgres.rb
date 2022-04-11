@@ -55,8 +55,9 @@ module Suma::Postgres
     "suma/message/body",
     "suma/message/delivery",
     "suma/mobility_vehicle",
-    "suma/platform_partner",
+    "suma/organization",
     "suma/role",
+    "suma/vendor",
   ].freeze
 
   # If true, deferred model events publish immediately.

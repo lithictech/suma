@@ -17,7 +17,7 @@ module Suma::Fixtures::MobilityVehicles
   end
 
   before_saving do |instance|
-    instance.platform_partner ||= Suma::Fixtures.platform_partner.create
+    instance.vendor ||= Suma::Fixtures.vendor.create
     instance
   end
 

@@ -15,7 +15,7 @@ module Suma::MobilityVehicle::SyncSpin
   end
 
   def self.sync_gbfs(m)
-    (spin = Suma::PlatformPartner[short_slug: "spin"]) or raise "Spin partner does not exist, cannot run this code"
+    (spin = Suma::Vendor[slug: "spin"]) or raise "Spin partner does not exist, cannot run this code"
     url = "https://gbfs.spin.pm/api/gbfs/v2_2/#{m}/free_bike_status"
     resp = Suma::Http.get(url, logger: self.logger)
     rows = []
@@ -26,13 +26,13 @@ module Suma::MobilityVehicle::SyncSpin
         vehicle_id: bike["bike_id"],
         vehicle_type: "escooter",
         market: m,
-        platform_partner_id: spin.id,
+        vendor_id: spin.id,
       }
       rows << row
     end
     Suma::MobilityVehicle.db.transaction do
       Suma::MobilityVehicle.where(
-        platform_partner: spin,
+        vendor: spin,
         market: m,
       ).delete
       Suma::MobilityVehicle.dataset.multi_insert(rows)

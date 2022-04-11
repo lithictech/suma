@@ -28,9 +28,9 @@ class Suma::API::Mobility < Suma::API::V1
       # If the value is nil, we assume it's been applied.
       seen_identities_and_initial_vehicle_hashes = {}
       ds.all.each do |vehicle|
-        if (provider_index = providers.find_index { |p| p.id === vehicle.platform_partner_id }).nil?
+        if (provider_index = providers.find_index { |p| p.id === vehicle.vendor_id }).nil?
           provider_index = providers.length
-          providers << vehicle.platform_partner
+          providers << vehicle.vendor
         end
         vhash = {
           c: vehicle.to_api_location,
@@ -65,7 +65,7 @@ class Suma::API::Mobility < Suma::API::V1
       matches = Suma::MobilityVehicle.where(
         lat: Suma::MobilityVehicle.int2coord(params[:loc][0]),
         lng: Suma::MobilityVehicle.int2coord(params[:loc][1]),
-        platform_partner: Suma::PlatformPartner.where(short_slug: params[:provider]),
+        vendor: Suma::Vendor.where(slug: params[:provider]),
         vehicle_type: params[:type],
       ).all
       merror!(403, "No vehicle matching criteria was found", code: "vehicle_not_found") if matches.empty?

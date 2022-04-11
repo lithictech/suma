@@ -20,9 +20,14 @@ module Suma::API
     expose :d, expose_nil: false
   end
 
-  class PlatformPartnerEntity < BaseEntity
+  class OrganizationEntity < BaseEntity
     expose :name
-    expose :short_slug
+    expose :slug
+  end
+
+  class VendorEntity < BaseEntity
+    expose :name
+    expose :slug
   end
 
   class MobilityMapEntity < BaseEntity
@@ -32,7 +37,7 @@ module Suma::API
     expose :refresh do |_|
       30_000
     end
-    expose :providers, with: PlatformPartnerEntity
+    expose :providers, with: VendorEntity
     expose :escooter, with: MobilityMapVehicleEntity, expose_nil: false
     expose :ebike, with: MobilityMapVehicleEntity, expose_nil: false
   end
@@ -41,7 +46,7 @@ module Suma::API
     expose :precision do |_|
       Suma::MobilityVehicle::COORD2INT_FACTOR
     end
-    expose :platform_partner, with: PlatformPartnerEntity
+    expose :vendor, with: VendorEntity
     expose :vehicle_id
     expose :to_api_location, as: :loc
   end
