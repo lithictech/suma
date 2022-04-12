@@ -67,22 +67,19 @@ const OneTimePassword = () => {
   };
 
   const handleResend = () => {
-    const firstOtpField = document.getElementById("otpContainer").firstChild;
+    setOtp(new Array(6).fill(""));
     setError(null);
+    setMessage("otp_resent");
+    const firstOtpField = document.getElementById("otpContainer").firstChild;
+    firstOtpField.focus();
     api
       .authStart({
         phone: phoneNumber,
         timezone: dayjs.tz.guess(),
       })
-      .then(() => {
-        setOtp(new Array(6).fill(""));
-        setMessage("otp_resent");
-        firstOtpField.focus();
-      })
       .catch((err) => {
-        setOtp(new Array(6).fill(""));
+        setMessage(null);
         setError(extractErrorCode(err));
-        firstOtpField.focus();
       });
   };
 
@@ -116,7 +113,9 @@ const OneTimePassword = () => {
           <FormSuccess message={message} />
           <p className="text-muted small">
             Did not recieve a code?{" "}
-            <Button className="p-0 align-baseline" variant="link" onClick={handleResend}>Resend code again.</Button>
+            <Button className="p-0 align-baseline" variant="link" onClick={handleResend}>
+              Resend code again.
+            </Button>
           </p>
           <Button
             variant="outline-success d-block mt-3"
