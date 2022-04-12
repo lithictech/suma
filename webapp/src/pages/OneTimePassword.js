@@ -1,5 +1,7 @@
 import api from "../api";
 import FormError from "../components/FormError";
+import FormSuccess from "../components/FormSuccess";
+import { dayjs } from "../modules/dayConfig";
 import { extractErrorCode, useError } from "../state/useError";
 import useToggle from "../state/useToggle";
 import { useUser } from "../state/useUser";
@@ -13,11 +15,11 @@ import { useNavigate, useLocation } from "react-router-dom";
 
 const OneTimePassword = () => {
   const navigate = useNavigate();
-
   const { setUser } = useUser();
   const [otp, setOtp] = useState(new Array(6).fill(""));
   const submitDisabled = useToggle(true);
   const [error, setError] = useError();
+  const [message, setMessage] = useState();
   const { state } = useLocation();
   const { phoneNumber } = state;
   const displayPhoneNumber = phoneNumber
@@ -45,6 +47,7 @@ const OneTimePassword = () => {
       target.nextSibling.focus();
     }
   };
+
   const handleOtpSubmit = () => {
     submitDisabled.turnOn();
     setError();
@@ -56,9 +59,27 @@ const OneTimePassword = () => {
       })
       .catch((err) => {
         setOtp(new Array(6).fill(""));
+        setMessage(null);
         setError(extractErrorCode(err));
         const firstOtpField = document.getElementById("otpContainer").firstChild;
         firstOtpField.focus();
+      });
+  };
+
+  const handleResend = () => {
+    setOtp(new Array(6).fill(""));
+    setError(null);
+    setMessage("otp_resent");
+    const firstOtpField = document.getElementById("otpContainer").firstChild;
+    firstOtpField.focus();
+    api
+      .authStart({
+        phone: phoneNumber,
+        timezone: dayjs.tz.guess(),
+      })
+      .catch((err) => {
+        setMessage(null);
+        setError(extractErrorCode(err));
       });
   };
 
@@ -89,11 +110,12 @@ const OneTimePassword = () => {
             })}
           </div>
           <FormError error={error} />
+          <FormSuccess message={message} />
           <p className="text-muted small">
             Did not recieve a code?{" "}
-            <a href={"#TOD-resend-this"} onClick={(e) => e.preventDefault()}>
+            <Button className="p-0 align-baseline" variant="link" onClick={handleResend}>
               Resend code again.
-            </a>
+            </Button>
           </p>
           <Button
             variant="outline-success d-block mt-3"

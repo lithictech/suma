@@ -1,5 +1,6 @@
 import api from "../api";
 import FormError from "../components/FormError";
+import { dayjs } from "../modules/dayConfig";
 import { extractErrorCode, useError } from "../state/useError";
 import useToggle from "../state/useToggle";
 import React, { useState } from "react";
@@ -41,7 +42,7 @@ const Start = () => {
     api
       .authStart({
         phone: phoneNumber,
-        timezone: "America/New_York",
+        timezone: dayjs.tz.guess(),
       })
       .then(() => navigate("/one-time-password", { state: { phoneNumber } }))
       .catch((err) => {
