@@ -1,6 +1,7 @@
 import api from "../api";
 import FormError from "../components/FormError";
 import FormSuccess from "../components/FormSuccess";
+import { dayjs } from "../modules/dayConfig";
 import { extractErrorCode, useError } from "../state/useError";
 import useToggle from "../state/useToggle";
 import { useUser } from "../state/useUser";
@@ -46,6 +47,7 @@ const OneTimePassword = () => {
       target.nextSibling.focus();
     }
   };
+
   const handleOtpSubmit = () => {
     submitDisabled.turnOn();
     setError();
@@ -64,22 +66,20 @@ const OneTimePassword = () => {
       });
   };
 
-  const handleResend = (e) => {
-    e.preventDefault();
+  const handleResend = () => {
     const firstOtpField = document.getElementById("otpContainer").firstChild;
+    setError(null);
     api
       .authStart({
         phone: phoneNumber,
-        timezone: "America/New_York",
+        timezone: dayjs.tz.guess(),
       })
       .then(() => {
-        setError(null);
         setOtp(new Array(6).fill(""));
         setMessage("otp_resent");
         firstOtpField.focus();
       })
       .catch((err) => {
-        setError(null);
         setOtp(new Array(6).fill(""));
         setError(extractErrorCode(err));
         firstOtpField.focus();
@@ -116,9 +116,7 @@ const OneTimePassword = () => {
           <FormSuccess message={message} />
           <p className="text-muted small">
             Did not recieve a code?{" "}
-            <a href="/" onClick={handleResend}>
-              Resend code again.
-            </a>
+            <Button className="p-0 align-baseline" variant="link" onClick={handleResend}>Resend code again.</Button>
           </p>
           <Button
             variant="outline-success d-block mt-3"
