@@ -243,5 +243,72 @@ Sequel.migration do
       foreign_key :vendor_service_id, :vendor_services, null: false, on_delete: :cascade
       index :vendor_service_id
     end
+
+    create_table(:vendor_service_rates) do
+      primary_key :id
+      timestamptz :created_at, null: false, default: Sequel.function(:now)
+      timestamptz :updated_at
+
+      int :unit_amount_cents, null: false
+      text :unit_amount_currency, null: false
+      int :surcharge_cents, null: false
+      text :surcharge_currency, null: false
+      int :unit_offset, null: false, default: 0
+
+      foreign_key :undiscounted_rate_id, :vendor_service_rates
+      index :undiscounted_rate_id
+    end
+
+    create_join_table(
+      {vendor_service_id: :vendor_services, vendor_service_rate_id: :vendor_service_rates},
+      name: :vendor_service_vendor_service_rates,
+    )
+
+    create_table(:mobility_trips) do
+      primary_key :id
+      timestamptz :created_at, null: false, default: Sequel.function(:now)
+      timestamptz :updated_at
+
+      # We CANNOT use an FK into vehicles, because they are ephemeral
+      text :vehicle_id, null: false
+      foreign_key :vendor_service_id, :vendor_services, null: false, on_delete: :restrict
+      index [:vehicle_id, :vendor_service_id]
+
+      numeric :begin_lat, null: false
+      numeric :begin_lng, null: false
+      timestamptz :began_at, null: false
+      numeric :end_lat, null: true
+      numeric :end_lng, null: true
+      timestamptz :ended_at, null: true
+
+      foreign_key :vendor_service_rate_id, :vendor_service_rates, null: false, on_delete: :restrict
+
+      foreign_key :customer_id, :customers, null: false
+      index :customer_id
+
+      index :customer_id, name: "one_active_ride_per_customer", unique: true, where: Sequel[ended_at: nil]
+      constraint(
+        :end_fields_set_together,
+        Sequel.lit("(end_lat IS NULL AND end_lng IS NULL AND ended_at IS NULL) OR " \
+                   "(end_lat IS NOT NULL AND end_lng IS NOT NULL AND ended_at IS NOT NULL)"),
+      )
+    end
+
+    create_table(:charges) do
+      primary_key :id
+      timestamptz :created_at, null: false, default: Sequel.function(:now)
+      timestamptz :updated_at
+
+      int :undiscounted_subtotal_cents, null: false
+      text :undiscounted_subtotal_currency, null: false
+      int :discounted_subtotal_cents, null: false
+      text :discounted_subtotal_currency, null: false
+
+      foreign_key :customer_id, :customers, null: false
+      index :customer_id
+
+      foreign_key :mobility_trip_id, :mobility_trips, null: true, on_delete: :set_null
+      index :mobility_trip_id
+    end
   end
 end

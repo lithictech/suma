@@ -205,4 +205,41 @@ RSpec.describe Suma::API::Mobility, :db do
       expect(last_response).to have_status(401)
     end
   end
+
+  describe "POST /v1/mobility/begin_trip" do
+    let(:fac) {  Suma::Fixtures.mobility_vehicle }
+
+    it "starts a trip for the resident using the given vehicle and its associated rate" do
+      b1 = fac.create
+
+      post "/v1/mobility/begin_trip", provider_id: b1.vendor_service_id, vehicle_id: b1.vehicle_id
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.
+        that_includes(
+          vendor_service: include(:name, :vendor_name, id: vsvc.id),
+          vehicle_id: b1.vehicle_id,
+        )
+    end
+
+    it "errors if the vehicle cannot be found" do
+    end
+
+    it "errors if the resident already has an active trip" do
+    end
+
+    it "errors if there is no rate for the vehicle" do
+    end
+  end
+
+  describe "POST /v1/mobility/end_trip" do
+    it "ends the active trip for the resident" do
+    end
+
+    it "errors if the resident has no active trip" do
+    end
+
+    it "creates a charge using the rate attached to the trip" do
+    end
+  end
 end
