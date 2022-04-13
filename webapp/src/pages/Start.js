@@ -31,7 +31,6 @@ const Start = () => {
     const phoneInput = document.querySelector("input");
     phoneInput.focus();
 
-    setError();
     if (!phoneNumber) {
       setError("required");
       return;
@@ -86,7 +85,11 @@ const Start = () => {
                 number. We will send you a verification code to your phone number.
               </Form.Text>
             </Form.Group>
-            <Button variant="success" type="submit" disabled={submitDisabled.isOn}>
+            <Button
+              variant="success"
+              type="submit"
+              disabled={submitDisabled.isOn}
+            >
               Continue
             </Button>
           </Form>
