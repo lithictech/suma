@@ -6,7 +6,6 @@ import { useUser } from "../state/useUser";
 import React, { useState, useEffect } from "react";
 import Button from "react-bootstrap/Button";
 import Col from "react-bootstrap/Col";
-import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import { formatPhoneNumber } from "react-phone-number-input";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -63,7 +62,7 @@ const OneTimePassword = () => {
   };
 
   return (
-    <Container>
+    <div className="mainContainer">
       <Row className="justify-content-center">
         <Col className="my-4">
           <h2>Phone Verification</h2>
@@ -96,7 +95,7 @@ const OneTimePassword = () => {
             </a>
           </p>
           <Button
-            variant="outline-success d-block mt-3"
+            variant="success d-block mt-3"
             onClick={handleOtpSubmit}
             disabled={submitDisabled.isOn}
           >
@@ -104,7 +103,7 @@ const OneTimePassword = () => {
           </Button>
         </Col>
       </Row>
-    </Container>
+    </div>
   );
 };
 

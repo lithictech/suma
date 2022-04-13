@@ -1,0 +1,69 @@
+// Override Variables
+$font-size-base: 1.1rem;
+$btn-border-radius: .4rem;
+$btn-border-radius-sm: .35rem;
+$btn-border-radius-lg: .5rem;
+
+// Configuration
+// Note: Any variable override goes above these files
+// to avoid any unexpected bugs
+@import "~bootstrap/scss/_functions";
+@import "~bootstrap/scss/_variables";
+@import "~bootstrap/scss/_mixins";
+@import "~bootstrap/scss/_utilities";
+
+// Base Styles
+@mixin mainContainer() {
+  width: 500px;
+  margin: 50px auto;
+}
+
+.mainContainer {
+  @include mainContainer();
+}
+
+
+$custom-theme-colors: (
+  "suma": #c79866,
+  "darksuma": #a77948
+);
+$theme-colors: map-merge($custom-theme-colors, $theme-colors);
+
+
+// Layout & components
+@import "~bootstrap/scss/_root";
+@import "~bootstrap/scss/_reboot";
+@import "~bootstrap/scss/_type";
+@import "~bootstrap/scss/_images";
+@import "~bootstrap/scss/_containers";
+@import "~bootstrap/scss/_grid";
+@import "~bootstrap/scss/_tables";
+@import "~bootstrap/scss/_forms";
+@import "~bootstrap/scss/_buttons";
+@import "~bootstrap/scss/_transitions";
+@import "~bootstrap/scss/_dropdown";
+@import "~bootstrap/scss/_button-group";
+@import "~bootstrap/scss/_nav";
+@import "~bootstrap/scss/_navbar";
+@import "~bootstrap/scss/_card";
+@import "~bootstrap/scss/_accordion";
+@import "~bootstrap/scss/_breadcrumb";
+@import "~bootstrap/scss/_pagination";
+@import "~bootstrap/scss/_badge";
+@import "~bootstrap/scss/_alert";
+@import "~bootstrap/scss/_progress";
+@import "~bootstrap/scss/_list-group";
+@import "~bootstrap/scss/_close";
+@import "~bootstrap/scss/_toasts";
+@import "~bootstrap/scss/_modal";
+@import "~bootstrap/scss/_tooltip";
+@import "~bootstrap/scss/_popover";
+@import "~bootstrap/scss/_carousel";
+@import "~bootstrap/scss/_spinners";
+@import "~bootstrap/scss/_offcanvas";
+
+// Helpers
+@import "~bootstrap/scss/_helpers";
+
+// Utilities
+@import "~bootstrap/scss/utilities/api";

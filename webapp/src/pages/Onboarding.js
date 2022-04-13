@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import Button from "react-bootstrap/Button";
 import Col from "react-bootstrap/Col";
-import Container from "react-bootstrap/Container";
 import Form from "react-bootstrap/Form";
 import Row from "react-bootstrap/Row";
 
@@ -15,7 +14,7 @@ const Onboarding = () => {
     console.log("Navigate to tutorial");
   };
   return (
-    <Container>
+    <div className="mainContainer">
       <Row className="justify-content-center">
         <Col>
           <h2>Member Onboarding</h2>
@@ -37,13 +36,13 @@ const Onboarding = () => {
                 This address will be used to verify your eligibility for membership.
               </Form.Text>
             </Form.Group>
-            <Button variant="outline-success" type="submit" disabled={isSubmitDisabled}>
+            <Button variant="success" type="submit" disabled={isSubmitDisabled}>
               Continue
             </Button>
           </Form>
         </Col>
       </Row>
-    </Container>
+    </div>
   );
 };
 
