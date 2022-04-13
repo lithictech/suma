@@ -27,14 +27,10 @@ const Start = () => {
 
   const handleSubmit = (event) => {
     event.preventDefault();
-
-    const form = event.currentTarget;
-    if (form.checkValidity() === false) {
-      event.preventDefault();
-      event.stopPropagation();
-    }
-
     validated.turnOn();
+    const phoneInput = document.querySelector("input");
+    phoneInput.focus();
+
     setError();
     if (!phoneNumber) {
       setError("required");
@@ -55,9 +51,10 @@ const Start = () => {
       .then(() => navigate("/one-time-password", { state: { phoneNumber } }))
       .catch((err) => {
         setError(extractErrorCode(err));
-        // validated.turnOff();
+        validated.turnOff();
         submitDisabled.turnOff();
         inputDisabled.turnOff();
+        phoneInput.classList.add("is-invalid");
       });
   };
   return (
@@ -74,12 +71,13 @@ const Start = () => {
                 international={false}
                 onChange={handleNumberChange}
                 country="US"
-                pattern="\(?\d{3}\)?[- ]?\d{3}[- ]?\d{4}"
+                pattern="^(\+\d{1,2}\s)?\(?\d{3}\)?[\s.-]\d{3}[\s.-]\d{4}$"
                 minLength="14"
                 maxLength="14"
                 placeholder="Enter your number"
                 value={phoneNumber}
                 disabled={inputDisabled.isOn}
+                autoFocus
                 required
               />
               <FormError error={error} />
@@ -88,11 +86,7 @@ const Start = () => {
                 number. We will send you a verification code to your phone number.
               </Form.Text>
             </Form.Group>
-            <Button
-              variant="success"
-              type="submit"
-              disabled={submitDisabled.isOn}
-            >
+            <Button variant="success" type="submit" disabled={submitDisabled.isOn}>
               Continue
             </Button>
           </Form>

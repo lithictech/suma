@@ -1,7 +1,7 @@
 import App from "./App";
-import "./localization/i18n";
 import "./assets/styles/index.css";
 import "./assets/styles/theme.scss";
+import "./localization/i18n";
 import "leaflet.markercluster/dist/MarkerCluster.css";
 import "leaflet.markercluster/dist/leaflet.markercluster";
 import React from "react";
