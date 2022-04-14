@@ -4,14 +4,13 @@ import { useUser } from "../state/useUser";
 import React from "react";
 import Button from "react-bootstrap/Button";
 import Col from "react-bootstrap/Col";
-import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 
 const Dashboard = () => {
   const { user } = useUser();
   return (
-    <Container>
-      <Row className="justify-content-center">
+    <div className="mainContainer">
+      <Row>
         <Col>
           <h2>Member Dashboard</h2>
           <p>Welcome back.</p>
@@ -25,7 +24,7 @@ const Dashboard = () => {
           </Button>
         </Col>
       </Row>
-    </Container>
+    </div>
   );
 };
 

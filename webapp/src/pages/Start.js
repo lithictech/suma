@@ -6,7 +6,6 @@ import useToggle from "../state/useToggle";
 import React, { useState } from "react";
 import Button from "react-bootstrap/Button";
 import Col from "react-bootstrap/Col";
-import Container from "react-bootstrap/Container";
 import Form from "react-bootstrap/Form";
 import Row from "react-bootstrap/Row";
 import { isPossiblePhoneNumber } from "react-phone-number-input";
@@ -16,10 +15,12 @@ import { useNavigate } from "react-router-dom";
 
 const Start = () => {
   const [phoneNumber, setPhoneNumber] = useState("");
+  const validated = useToggle(false);
   const submitDisabled = useToggle(false);
   const inputDisabled = useToggle(false);
   const [error, setError] = useError();
   const navigate = useNavigate();
+  const phoneRef = React.useRef();
 
   const handleNumberChange = (value) => {
     setPhoneNumber(value);
@@ -27,7 +28,9 @@ const Start = () => {
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    setError();
+    validated.turnOn();
+    phoneRef.current.focus();
+
     if (!phoneNumber) {
       setError("required");
       return;
@@ -47,45 +50,52 @@ const Start = () => {
       .then(() => navigate("/one-time-password", { state: { phoneNumber } }))
       .catch((err) => {
         setError(extractErrorCode(err));
+        validated.turnOff();
         submitDisabled.turnOff();
         inputDisabled.turnOff();
+        phoneRef.current.classList.add("is-invalid");
       });
   };
   return (
-    <Container>
+    <div className="mainContainer">
       <Row>
         <Col>
-          <Form onSubmit={handleSubmit}>
-            <Form.Group className="mb-3" controlId="formBasicPhoneNumber">
+          <h2>Verification</h2>
+          <Form noValidate validated={validated.isOn} onSubmit={handleSubmit}>
+            <Form.Group className="mb-3" controlId="phoneInput">
               <Form.Label>Phone number</Form.Label>
               <Input
-                style={{ display: "block" }}
+                id="phoneInput"
+                ref={phoneRef}
+                className="form-control"
                 useNationalFormatForDefaultCountryValue={true}
                 international={false}
-                country="US"
-                maxLength="14"
-                placeholder="e.g. (919) 123-4567"
                 onChange={handleNumberChange}
+                country="US"
+                pattern="^(\+\d{1,2}\s)?\(?\d{3}\)?[\s-]\d{3}[\s-]\d{4}$"
+                minLength="14"
+                maxLength="14"
+                placeholder="Enter your number"
                 value={phoneNumber}
                 disabled={inputDisabled.isOn}
+                ariaDescribedby="phoneRequired"
+                autoComplete="tel-national"
+                autoFocus
+                required
               />
-              <Form.Text className="text-muted">
+              <FormError error={error} />
+              <Form.Text id="phoneRequired" className="text-muted">
                 To verify your identity, you are required to sign in with your phone
                 number. We will send you a verification code to your phone number.
               </Form.Text>
             </Form.Group>
-            <FormError error={error} />
-            <Button
-              variant="outline-success"
-              type="submit"
-              disabled={submitDisabled.isOn}
-            >
+            <Button variant="success" type="submit" disabled={submitDisabled.isOn}>
               Continue
             </Button>
           </Form>
         </Col>
       </Row>
-    </Container>
+    </div>
   );
 };
 
