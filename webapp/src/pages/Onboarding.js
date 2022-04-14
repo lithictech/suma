@@ -15,7 +15,7 @@ const Onboarding = () => {
   };
   return (
     <div className="mainContainer">
-      <Row className="justify-content-center">
+      <Row>
         <Col>
           <h2>Member Onboarding</h2>
           <Form onSubmit={handleFormSubmit}>

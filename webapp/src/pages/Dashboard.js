@@ -10,7 +10,7 @@ const Dashboard = () => {
   const { user } = useUser();
   return (
     <div className="mainContainer">
-      <Row className="justify-content-center">
+      <Row>
         <Col>
           <h2>Member Dashboard</h2>
           <p>Welcome back.</p>

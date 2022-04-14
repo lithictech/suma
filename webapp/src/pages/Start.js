@@ -20,6 +20,7 @@ const Start = () => {
   const inputDisabled = useToggle(false);
   const [error, setError] = useError();
   const navigate = useNavigate();
+  const phoneRef = React.useRef();
 
   const handleNumberChange = (value) => {
     setPhoneNumber(value);
@@ -28,8 +29,7 @@ const Start = () => {
   const handleSubmit = (event) => {
     event.preventDefault();
     validated.turnOn();
-    const phoneInput = document.querySelector("input");
-    phoneInput.focus();
+    phoneRef.current.focus();
 
     if (!phoneNumber) {
       setError("required");
@@ -53,7 +53,7 @@ const Start = () => {
         validated.turnOff();
         submitDisabled.turnOff();
         inputDisabled.turnOff();
-        phoneInput.classList.add("is-invalid");
+        phoneRef.current.classList.add("is-invalid");
       });
   };
   return (
@@ -62,25 +62,29 @@ const Start = () => {
         <Col>
           <h2>Verification</h2>
           <Form noValidate validated={validated.isOn} onSubmit={handleSubmit}>
-            <Form.Group className="mb-3" controlId="formBasicPhoneNumber">
+            <Form.Group className="mb-3" controlId="phoneInput">
               <Form.Label>Phone number</Form.Label>
               <Input
+                id="phoneInput"
+                ref={phoneRef}
                 className="form-control"
                 useNationalFormatForDefaultCountryValue={true}
                 international={false}
                 onChange={handleNumberChange}
                 country="US"
-                pattern="^(\+\d{1,2}\s)?\(?\d{3}\)?[\s.-]\d{3}[\s.-]\d{4}$"
+                pattern="^(\+\d{1,2}\s)?\(?\d{3}\)?[\s-]\d{3}[\s-]\d{4}$"
                 minLength="14"
                 maxLength="14"
                 placeholder="Enter your number"
                 value={phoneNumber}
                 disabled={inputDisabled.isOn}
+                ariaDescribedby="phoneRequired"
+                autoComplete="tel-national"
                 autoFocus
                 required
               />
               <FormError error={error} />
-              <Form.Text className="text-muted">
+              <Form.Text id="phoneRequired" className="text-muted">
                 To verify your identity, you are required to sign in with your phone
                 number. We will send you a verification code to your phone number.
               </Form.Text>

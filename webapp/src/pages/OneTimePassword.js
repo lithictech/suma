@@ -84,30 +84,36 @@ const OneTimePassword = () => {
 
   return (
     <div className="mainContainer">
-      <Row className="justify-content-center">
-        <Col className="my-4">
-          <h2>Phone Verification</h2>
+      <Row>
+        <Col>
+          <h2>One Time Code</h2>
           <p className="text-muted small">
             Enter the code that you recieved on the phone number you provided{" "}
             {displayPhoneNumber}
           </p>
-          <div id="otpContainer">
-            {otp.map((data, index) => {
-              return (
-                <input
-                  className="otp-field"
-                  type="text"
-                  name="otp"
-                  maxLength="1"
-                  key={index}
-                  value={data}
-                  placeholder="&middot;"
-                  onChange={(event) => handleOtpChange(event, index)}
-                  onFocus={(event) => event.target.select()}
-                />
-              );
-            })}
-          </div>
+          <fieldset>
+            <legend className="small">Verify Code</legend>
+            <div id="otpContainer">
+              {otp.map((data, index) => {
+                return (
+                  <input
+                    className="otp-field"
+                    type="text"
+                    name="otp"
+                    maxLength="1"
+                    key={index}
+                    value={data}
+                    placeholder="&middot;"
+                    onChange={(event) => handleOtpChange(event, index)}
+                    onFocus={(event) => event.target.select()}
+                    autoFocus={index === 0}
+                    aria-label={"Enter code " + (index + 1)}
+                    autoComplete="one-time-code"
+                  />
+                );
+              })}
+            </div>
+          </fieldset>
           <FormError error={error} />
           <FormSuccess message={message} />
           <p className="text-muted small">

@@ -11,7 +11,7 @@ const Home = () => {
 
   return (
     <div className="mainContainer">
-      <Row className="justify-content-center">
+      <Row>
         <Col className="text-center">
           <img src={sumaLogo} alt="MySuma Logo" />
           <p>{t("welcome_to_suma")}</p>
