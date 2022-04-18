@@ -23,6 +23,13 @@ module Suma::Fixtures::MobilityTrips
     instance
   end
 
+  decorator :for_vehicle do |v|
+    self.begin_lat = v.lat
+    self.begin_lng = v.lng
+    self.vehicle_id = v.vehicle_id
+    self.vendor_service = v.vendor_service
+  end
+
   decorator :ongoing do
     self.end_lat = nil
     self.end_lng = nil

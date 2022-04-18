@@ -68,7 +68,7 @@ class Suma::API::Mobility < Suma::API::V1
       matches = Suma::Mobility::Vehicle.where(
         lat: Suma::Mobility.int2coord(params[:loc][0]),
         lng: Suma::Mobility.int2coord(params[:loc][1]),
-        vendor_service: Suma::Vendor::Service[params[:provider_id]],
+        vendor_service_id: params[:provider_id],
         vehicle_type: params[:type],
       ).all
       merror!(403, "No vehicle matching criteria was found", code: "vehicle_not_found") if matches.empty?
@@ -82,6 +82,42 @@ class Suma::API::Mobility < Suma::API::V1
         vehicle = matches[0]
       end
       present vehicle, with: Suma::API::MobilityVehicleEntity
+    end
+
+    params do
+      requires :provider_id, type: Integer
+      requires :vehicle_id, type: String
+      requires :rate_id, type: Integer
+    end
+    post :begin_trip do
+      customer = current_customer
+      vehicle = Suma::Mobility::Vehicle[
+        vendor_service_id: params[:provider_id],
+        vehicle_id: params[:vehicle_id],
+      ]
+      merror!(403, "Vehicle does not exist", code: "vehicle_not_found") if vehicle.nil?
+      rate = vehicle.vendor_service.rates_dataset[params[:rate_id]]
+      merror!(403, "Rate does not exist", code: "rate_not_found") if rate.nil?
+      begin
+        trip = Suma::Mobility::Trip.start_trip_from_vehicle(customer:, vehicle:, rate:)
+      rescue Suma::Mobility::Trip::OngoingTrip
+        merror!(409, "Already in a trip", code: "ongoing_trip")
+      end
+      status 200
+      present trip, with: Suma::API::MobilityTripEntity
+    end
+
+    params do
+      requires :lat, type: BigDecimal
+      requires :lng, type: BigDecimal
+    end
+    post :end_trip do
+      customer = current_customer
+      trip = Suma::Mobility::Trip.ongoing.where(customer:).first
+      merror!(409, "No ongoing trip", code: "no_active_trip") if trip.nil?
+      trip.end_trip(lat: params[:lat], lng: params[:lng])
+      status 200
+      present trip, with: Suma::API::MobilityTripEntity
     end
   end
 end

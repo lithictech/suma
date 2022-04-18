@@ -8,6 +8,19 @@ RSpec.describe "Suma::Vendor::ServiceRate", :db do
     expect(p).to be_a(described_class)
   end
 
+  it "has associations to vendor service" do
+    svc1 = Suma::Fixtures.vendor_service.create
+    svc2 = Suma::Fixtures.vendor_service.create
+    r = Suma::Fixtures.vendor_service_rate.for_service(svc1).create
+    expect(svc1.rates).to contain_exactly(be === r)
+
+    expect(svc2.rates).to be_empty
+    svc2.add_rate(r)
+    expect(svc2.rates).to contain_exactly(be === r)
+
+    expect(r.refresh.services).to include(be === svc1, be === svc2)
+  end
+
   describe "calculate_total" do
     it "multiplies units by unit cost" do
       r = Suma::Fixtures.vendor_service_rate(unit_amount: Money.new(500)).create

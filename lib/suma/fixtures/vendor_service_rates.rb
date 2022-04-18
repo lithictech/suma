@@ -35,4 +35,9 @@ module Suma::Fixtures::VendorServiceRates
         surcharge: self.surcharge / mult,
       ).create
   end
+
+  decorator :for_service, presave: true do |vs={}|
+    vs = Suma::Fixtures.vendor_service(vs).create unless vs.is_a?(Suma::Vendor::Service)
+    self.add_service(vs)
+  end
 end

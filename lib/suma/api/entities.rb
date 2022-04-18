@@ -25,6 +25,12 @@ module Suma::API
     expose :slug
   end
 
+  class VendorServiceRateEntity < BaseEntity
+    expose :id
+    expose :message_template
+    expose :message_vars
+  end
+
   class VendorServiceEntity < BaseEntity
     expose :id
     expose :external_name, as: :name
@@ -51,5 +57,18 @@ module Suma::API
     expose :vendor_service, with: VendorServiceEntity
     expose :vehicle_id
     expose :to_api_location, as: :loc
+  end
+
+  class MobilityTripEntity < BaseEntity
+    expose :id
+    expose :vehicle_id
+    expose :vendor_service, as: :provider, with: VendorServiceEntity
+    expose :vendor_service_rate, as: :rate, with: VendorServiceRateEntity
+    expose :begin_lat
+    expose :begin_lng
+    expose :began_at
+    expose :end_lat
+    expose :end_lng
+    expose :ended_at
   end
 end

@@ -12,6 +12,24 @@ class Suma::Mobility::Trip < Suma::Postgres::Model(:mobility_trips)
   many_to_one :vendor_service_rate, key: :vendor_service_rate_id, class: "Suma::Vendor::ServiceRate"
   many_to_one :customer, key: :customer_id, class: "Suma::Customer"
 
+  dataset_module do
+    def ongoing
+      return self.where(ended_at: nil)
+    end
+  end
+
+  def self.start_trip_from_vehicle(customer:, vehicle:, rate:, at: Time.now)
+    return self.start_trip(
+      customer:,
+      vehicle_id: vehicle.vehicle_id,
+      vendor_service: vehicle.vendor_service,
+      rate:,
+      lat: vehicle.lat,
+      lng: vehicle.lng,
+      at:,
+    )
+  end
+
   def self.start_trip(customer:, vehicle_id:, vendor_service:, rate:, lat:, lng:, at: Time.now)
     self.db.transaction(savepoint: true) do
       return self.create(
@@ -36,5 +54,9 @@ class Suma::Mobility::Trip < Suma::Postgres::Model(:mobility_trips)
       end_lng: lng,
       ended_at: at,
     )
+  end
+
+  def ended?
+    return !self.ended_at.nil?
   end
 end

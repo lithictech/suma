@@ -48,6 +48,19 @@ RSpec.describe "Suma::Mobility::Trip", :db do
     end
   end
 
+  describe "start_trip_from_vehicle" do
+    it "uses vehicle params for the trip" do
+      v = Suma::Fixtures.mobility_vehicle.create
+      trip = described_class.start_trip_from_vehicle(customer:, vehicle: v, rate:)
+      expect(trip).to have_attributes(
+        vehicle_id: v.vehicle_id,
+        vendor_service: be === v.vendor_service,
+        begin_lat: v.lat,
+        begin_lng: v.lng,
+      )
+    end
+  end
+
   describe "end_trip" do
     it "ends the trip" do
       ongoing = Suma::Fixtures.mobility_trip(customer:).ongoing.create

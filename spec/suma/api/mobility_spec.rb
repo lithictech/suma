@@ -207,39 +207,75 @@ RSpec.describe Suma::API::Mobility, :db do
   end
 
   describe "POST /v1/mobility/begin_trip" do
-    let(:fac) {  Suma::Fixtures.mobility_vehicle }
+    let(:vendor_service) { Suma::Fixtures.vendor_service.create }
+    let(:vehicle) { Suma::Fixtures.mobility_vehicle.create(vendor_service:) }
+    let(:rate) { Suma::Fixtures.vendor_service_rate.for_service(vendor_service).create }
 
     it "starts a trip for the resident using the given vehicle and its associated rate" do
-      b1 = fac.create
-
-      post "/v1/mobility/begin_trip", provider_id: b1.vendor_service_id, vehicle_id: b1.vehicle_id
+      post "/v1/mobility/begin_trip",
+           provider_id: vehicle.vendor_service_id, vehicle_id: vehicle.vehicle_id, rate_id: rate.id
 
       expect(last_response).to have_status(200)
-      expect(last_response).to have_json_body.
-        that_includes(
-          vendor_service: include(:name, :vendor_name, id: vsvc.id),
-          vehicle_id: b1.vehicle_id,
-        )
+      expect(last_response).to have_json_body.that_includes(:id)
+
+      trip = Suma::Mobility::Trip[last_response_json_body[:id]]
+      expect(trip).to have_attributes(customer: be === customer)
     end
 
     it "errors if the vehicle cannot be found" do
+      post "/v1/mobility/begin_trip",
+           provider_id: vehicle.vendor_service_id, vehicle_id: vehicle.vehicle_id + "1", rate_id: rate.id
+
+      expect(last_response).to have_status(403)
+      expect(last_response).to have_json_body.that_includes(error: include(code: "vehicle_not_found"))
     end
 
     it "errors if the resident already has an active trip" do
+      Suma::Fixtures.mobility_trip.ongoing.for_vehicle(vehicle).create(customer:)
+
+      post "/v1/mobility/begin_trip",
+           provider_id: vehicle.vendor_service_id, vehicle_id: vehicle.vehicle_id, rate_id: rate.id
+
+      expect(last_response).to have_status(409)
+      expect(last_response).to have_json_body.that_includes(error: include(code: "ongoing_trip"))
     end
 
-    it "errors if there is no rate for the vehicle" do
+    it "errors if the given rate does not exist for the provider" do
+      rate2 = Suma::Fixtures.vendor_service_rate.create
+      post "/v1/mobility/begin_trip",
+           provider_id: vehicle.vendor_service_id, vehicle_id: vehicle.vehicle_id, rate_id: rate2.id
+
+      expect(last_response).to have_status(403)
+      expect(last_response).to have_json_body.that_includes(error: include(code: "rate_not_found"))
     end
   end
 
   describe "POST /v1/mobility/end_trip" do
     it "ends the active trip for the resident" do
+      trip = Suma::Fixtures.mobility_trip.ongoing.create(customer:)
+      expect(trip).to_not be_ended
+
+      post "/v1/mobility/end_trip", lat: 5, lng: -5
+
+      expect(last_response).to have_status(200)
+      expect(trip.refresh).to be_ended
+      expect(trip).to have_attributes(end_lat: 5, end_lng: -5)
     end
 
     it "errors if the resident has no active trip" do
+      post "/v1/mobility/end_trip", lat: 5, lng: -5
+
+      expect(last_response).to have_status(409)
+      expect(last_response).to have_json_body.that_includes(error: include(code: "no_active_trip"))
     end
 
-    it "creates a charge using the rate attached to the trip" do
+    xit "creates a charge using the rate attached to the trip" do
+      trip = Suma::Fixtures.mobility_trip.ongoing.create(customer)
+
+      post "/v1/mobility/end_trip", lat: 5, lng: -5
+
+      expect(last_response).to have_status(200)
+      expect(trip.charges).to have_length(1)
     end
   end
 end
