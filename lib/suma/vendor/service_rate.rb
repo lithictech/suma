@@ -34,7 +34,9 @@ class Suma::Vendor::ServiceRate < Suma::Postgres::Model(:vendor_service_rates)
   def discount_percentage(units)
     disc = self.calculate_total(units)
     undisc = self.calculate_undiscounted_total(units)
-    f = 1 - (disc.to_f / undisc)
+    # rubocop:disable Style/FloatDivision
+    f = 1 - (disc.to_f / undisc.to_f)
+    # rubocop:enable Style/FloatDivision
     return (f * 100).to_i
   end
 

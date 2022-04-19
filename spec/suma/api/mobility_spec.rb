@@ -269,13 +269,22 @@ RSpec.describe Suma::API::Mobility, :db do
       expect(last_response).to have_json_body.that_includes(error: include(code: "no_active_trip"))
     end
 
-    xit "creates a charge using the rate attached to the trip" do
-      trip = Suma::Fixtures.mobility_trip.ongoing.create(customer)
+    it "creates a charge using the rate attached to the trip" do
+      rate = Suma::Fixtures.vendor_service_rate.
+        unit_amount(20).
+        discounted_by(0.25).
+        create
+      trip = Suma::Fixtures.mobility_trip.
+        ongoing.
+        create(began_at: 6.minutes.ago, vendor_service_rate: rate, customer:)
 
       post "/v1/mobility/end_trip", lat: 5, lng: -5
 
       expect(last_response).to have_status(200)
-      expect(trip.charges).to have_length(1)
+      expect(trip.charge).to have_attributes(
+        undiscounted_subtotal: cost("$1.62"),
+        discounted_subtotal: cost("$1.20"),
+      )
     end
   end
 end

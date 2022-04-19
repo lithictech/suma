@@ -190,6 +190,8 @@ Sequel.migration do
       text :internal_name, null: false
       text :external_name, null: false
       text :sync_url, null: false, default: ""
+
+      text :mobility_vendor_adapter_key, null: false, default: ""
     end
 
     create_table(:vendor_service_categories) do
@@ -308,7 +310,7 @@ Sequel.migration do
       index :customer_id
 
       foreign_key :mobility_trip_id, :mobility_trips, null: true, on_delete: :set_null
-      index :mobility_trip_id
+      unique :mobility_trip_id
     end
   end
 end

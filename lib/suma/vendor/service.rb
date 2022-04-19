@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "suma/postgres/model"
+require "suma/mobility/vendor_adapter"
 
 class Suma::Vendor::Service < Suma::Postgres::Model(:vendor_services)
   plugin :timestamps
@@ -22,5 +23,9 @@ class Suma::Vendor::Service < Suma::Postgres::Model(:vendor_services)
     def with_category(slug)
       return self.where(categories: Suma::Vendor::ServiceCategory.where(slug:))
     end
+  end
+
+  def mobility_adapter
+    return Suma::Mobility::VendorAdapter.create(self.mobility_vendor_adapter_key)
   end
 end

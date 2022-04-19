@@ -21,6 +21,7 @@ module Suma::Fixtures::VendorServices
 
   decorator :mobility, presave: true do
     self.add_category(Suma::Fixtures.vendor_service_category.mobility.create)
+    self.mobility_vendor_adapter_key = "fake" if self.mobility_vendor_adapter_key.blank?
   end
 
   decorator :food, presave: true do

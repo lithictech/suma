@@ -64,12 +64,22 @@ RSpec.describe "Suma::Mobility::Trip", :db do
   describe "end_trip" do
     it "ends the trip" do
       ongoing = Suma::Fixtures.mobility_trip(customer:).ongoing.create
-      ongoing.end_trip(lat: 1, lng: 2, at: t + 5)
-      expect(ongoing.refresh).to have_attributes(
-        end_lat: 1, end_lng: 2, ended_at: t + 5,
-      )
+      ongoing.end_trip(lat: 1, lng: 2)
+      expect(ongoing.refresh).to have_attributes(end_lat: 1, end_lng: 2)
     end
     it "creates a charge using the linked rate" do
+      rate = Suma::Fixtures.vendor_service_rate.
+        unit_amount(20).
+        discounted_by(0.25).
+        create
+      trip = Suma::Fixtures.mobility_trip.
+        ongoing.
+        create(began_at: 6.minutes.ago, vendor_service_rate: rate, customer:)
+      trip.end_trip(lat: 1, lng: 2)
+      expect(trip.charge).to have_attributes(
+        undiscounted_subtotal: cost("$1.62"),
+        discounted_subtotal: cost("$1.20"),
+      )
     end
   end
 
