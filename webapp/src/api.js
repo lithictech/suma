@@ -25,6 +25,7 @@ const del = (path, params, opts) => {
 };
 
 export default {
+  ...apiBase,
   get,
   post,
   patch,
@@ -35,4 +36,7 @@ export default {
   authSignout: (data) => del(`/api/v1/auth`, data),
   getMe: (data) => get(`/api/v1/me`, data),
   getMobilityMap: (data) => get("/api/v1/mobility/map", data),
+  getMobilityVehicle: (data) => get("/api/v1/mobility/vehicle", data),
+  beginMobilityTrip: (data) => post("/api/v1/mobility/begin_trip", data),
+  endMobilityTrip: (data) => post("/api/v1/mobility/end_trip", data),
 };

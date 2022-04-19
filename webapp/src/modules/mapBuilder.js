@@ -14,7 +14,7 @@ export default class MapBuilder {
     this._lastBounds = null;
   }
 
-  init() {
+  init({ onVehicleClick }) {
     this._map = this._l
       .map(this.mapRef.current)
       .setView([this._dLat, this._dLng], this._dZoom);
@@ -22,7 +22,7 @@ export default class MapBuilder {
     this.setTileLayer();
     this.setScooterIcon();
     this.setMarkerCluster();
-    this.getScooters();
+    this.getScooters(onVehicleClick);
     // add markers to markerCluster after setting mcg layers in getScooters
     // no need to add mcg everytime we getScooters, we simply addLayer to mcg
     this._map.addLayer(this._mcg);
@@ -34,7 +34,7 @@ export default class MapBuilder {
         this._lastBounds.contains(bounds._southWest) === false
       ) {
         this._lastBounds = bounds;
-        this.getScooters();
+        this.getScooters(onVehicleClick);
       }
     });
 
@@ -105,7 +105,7 @@ export default class MapBuilder {
     this._mcg.removeLayers(removableMarkers);
   }
 
-  getScooters() {
+  getScooters(onVehicleClick) {
     const { _northEast, _southWest } = this._lastBounds;
     api
       .getMobilityMap({
@@ -116,19 +116,29 @@ export default class MapBuilder {
         const precisionFactor = 1 / r.data.precision;
         const newMarkers = [];
         this.removeVisibleLayers();
-        r.data.escooter?.forEach((bike) => {
-          const [lat, lng] = bike.c;
-          const marker = this.newMarker([lat * precisionFactor, lng * precisionFactor]);
-          newMarkers.push(marker);
+        ["ebike", "escooter"].forEach((vehicleType) => {
+          r.data[vehicleType]?.forEach((bike) => {
+            const marker = this.newMarker(
+              bike,
+              vehicleType,
+              r.data.providers,
+              precisionFactor,
+              onVehicleClick
+            );
+            newMarkers.push(marker);
+          });
         });
         // addLayers preferred over addLayer for efficient performance
         this._mcg.addLayers(newMarkers, { chunkedLoading: true });
       });
+    // TODO: Handle when we click the map but not a marker, we need to deselect the vehicle
+    // and hide the reservation card (call onVehicleClick(null)).
   }
 
-  newMarker(latLng) {
+  newMarker(bike, vehicleType, providers, precisionFactor, onVehicleClick) {
+    const [lat, lng] = bike.c;
     return this._l
-      .marker([latLng[0], latLng[1]], {
+      .marker([lat * precisionFactor, lng * precisionFactor], {
         icon: this._scooterIcon,
         riseOnHover: true,
       })
@@ -140,6 +150,13 @@ export default class MapBuilder {
           animate: true,
           duration: 1.5,
         });
+        const mapVehicle = {
+          loc: bike.c,
+          type: vehicleType,
+          disambiguator: bike.d,
+          providerId: providers[bike.p].id,
+        };
+        onVehicleClick(mapVehicle);
       });
   }
 }
