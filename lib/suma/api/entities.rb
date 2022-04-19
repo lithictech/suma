@@ -7,7 +7,6 @@ require "suma/api" unless defined? Suma::API
 
 module Suma::API
   AddressEntity = Suma::Service::Entities::Address
-  CurrentCustomerEntity = Suma::Service::Entities::CurrentCustomer
   LegalEntityEntity = Suma::Service::Entities::LegalEntityEntity
   MoneyEntity = Suma::Service::Entities::Money
   TimeRangeEntity = Suma::Service::Entities::TimeRange
@@ -70,5 +69,9 @@ module Suma::API
     expose :end_lat
     expose :end_lng
     expose :ended_at
+  end
+
+  class CurrentCustomerEntity < Suma::Service::Entities::CurrentCustomer
+    expose :ongoing_trip, with: MobilityTripEntity
   end
 end

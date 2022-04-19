@@ -18,7 +18,7 @@ RSpec.describe Suma::API::Me, :db do
 
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.
-        that_includes(email: customer.email)
+        that_includes(email: customer.email, ongoing_trip: nil)
     end
 
     it "errors if the customer is soft deleted" do
@@ -46,6 +46,16 @@ RSpec.describe Suma::API::Me, :db do
       get "/v1/me"
       expect(last_response).to have_status(200)
       expect(Suma::Customer::Session.all).to have_length(1)
+    end
+
+    it "returns the customer's ongoing trip if they have one" do
+      trip = Suma::Fixtures.mobility_trip.ongoing.create(customer:)
+
+      get "/v1/me"
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.
+        that_includes(ongoing_trip: include(id: trip.id))
     end
   end
 
