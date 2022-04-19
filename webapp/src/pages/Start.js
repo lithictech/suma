@@ -78,7 +78,7 @@ const Start = () => {
                 placeholder="Enter your number"
                 value={phoneNumber}
                 disabled={inputDisabled.isOn}
-                ariaDescribedby="phoneRequired"
+                aria-describedby="phoneRequired"
                 autoComplete="tel-national"
                 autoFocus
                 required

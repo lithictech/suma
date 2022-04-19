@@ -11,25 +11,31 @@ export default class MapBuilder {
     this._map = null;
     this._mcg = null;
     this._scooterIcon = null;
+    this._lastBounds = null;
   }
 
   init() {
     this._map = this._l
       .map(this.mapRef.current)
       .setView([this._dLat, this._dLng], this._dZoom);
+    this._lastBounds = this._map.getBounds();
     this.setTileLayer();
     this.setScooterIcon();
     this.setMarkerCluster();
     this.getScooters();
     // add markers to markerCluster after setting mcg layers in getScooters
     // no need to add mcg everytime we getScooters, we simply addLayer to mcg
-    this._map.addLayer(this._mcg, {
-      chunkedLoading: true,
-      chunkInterval: 350,
-    });
+    this._map.addLayer(this._mcg);
 
     this._map.on("moveend", () => {
-      this.getScooters();
+      const bounds = this._map.getBounds();
+      if (
+        this._lastBounds.contains(bounds._northEast) === false ||
+        this._lastBounds.contains(bounds._southWest) === false
+      ) {
+        this._lastBounds = bounds;
+        this.getScooters();
+      }
     });
 
     return this;
@@ -47,7 +53,7 @@ export default class MapBuilder {
         "https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw",
         {
           maxZoom: 23,
-          minZoom: 12,
+          minZoom: 13,
           tileSize: 512,
           zoomOffset: -1,
           attribution:
@@ -89,19 +95,18 @@ export default class MapBuilder {
 
   // Remove markers in visible bounds to prevent duplicates
   removeVisibleLayers() {
-    const bounds = this._map.getBounds();
-    const removableLayers = [];
+    const removableMarkers = [];
     this._mcg.eachLayer((marker) => {
-      if (bounds.contains(marker._latlng)) {
-        removableLayers.push(marker);
+      if (this._lastBounds.contains(marker._latlng)) {
+        removableMarkers.push(marker);
       }
     });
     // removeLayers preferred over removeLayer for efficient performance
-    this._mcg.removeLayers(removableLayers);
+    this._mcg.removeLayers(removableMarkers);
   }
 
   getScooters() {
-    const { _northEast, _southWest } = this._map.getBounds();
+    const { _northEast, _southWest } = this._lastBounds;
     api
       .getMobilityMap({
         minloc: [_southWest.lat, _southWest.lng],
@@ -117,7 +122,7 @@ export default class MapBuilder {
           newMarkers.push(marker);
         });
         // addLayers preferred over addLayer for efficient performance
-        this._mcg.addLayers(newMarkers);
+        this._mcg.addLayers(newMarkers, { chunkedLoading: true });
       });
   }
 
@@ -125,6 +130,7 @@ export default class MapBuilder {
     return this._l
       .marker([latLng[0], latLng[1]], {
         icon: this._scooterIcon,
+        riseOnHover: true,
       })
       .on("click", (e) => {
         const { lat, lng } = e.latlng;
