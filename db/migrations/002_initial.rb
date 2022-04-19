@@ -259,6 +259,9 @@ Sequel.migration do
 
       foreign_key :undiscounted_rate_id, :vendor_service_rates
       index :undiscounted_rate_id
+
+      text :localization_key, null: false
+      text :name, null: false
     end
 
     create_join_table(

@@ -75,4 +75,18 @@ RSpec.describe "Suma::Vendor::ServiceRate", :db do
       expect(r.discount_percentage(5)).to be_zero
     end
   end
+
+  describe "localization" do
+    it "can describe its cost template and vars" do
+      r = Suma::Fixtures.vendor_service_rate.unit_amount(100).create
+      expect(r.localization_vars).to eq(
+        {surcharge_cents: 0, surcharge_currency: "USD", unit_cents: 100, unit_currency: "USD"},
+      )
+
+      r = Suma::Fixtures.vendor_service_rate.surcharge(150).create
+      expect(r.localization_vars).to eq(
+        {surcharge_cents: 150, surcharge_currency: "USD", unit_cents: 0, unit_currency: "USD"},
+      )
+    end
+  end
 end

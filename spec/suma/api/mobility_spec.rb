@@ -141,7 +141,8 @@ RSpec.describe Suma::API::Mobility, :db do
 
   describe "GET /v1/mobility/vehicle" do
     let(:fac) {  Suma::Fixtures.mobility_vehicle }
-    let(:vsvc) { Suma::Fixtures.vendor_service.create }
+    let(:vsvc) { Suma::Fixtures.vendor_service.mobility.create }
+    let!(:rate) { Suma::Fixtures.vendor_service_rate.for_service(vsvc).create }
 
     it "returns information about the requested vehicle" do
       b1 = fac.loc(0.5, 179.5).ebike.create(vendor_service: vsvc)
@@ -156,6 +157,7 @@ RSpec.describe Suma::API::Mobility, :db do
           vendor_service: include(:name, :vendor_name, id: vsvc.id),
           vehicle_id: b1.vehicle_id,
           loc: [5_000_000, 1_795_000_000],
+          rate: include(id: rate.id),
         )
     end
 

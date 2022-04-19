@@ -26,8 +26,8 @@ module Suma::API
 
   class VendorServiceRateEntity < BaseEntity
     expose :id
-    expose :message_template
-    expose :message_vars
+    expose :localization_key
+    expose :localization_vars
   end
 
   class VendorServiceEntity < BaseEntity
@@ -56,6 +56,7 @@ module Suma::API
     expose :vendor_service, with: VendorServiceEntity
     expose :vehicle_id
     expose :to_api_location, as: :loc
+    expose :rate, &self.delegate_to(:vendor_service, :one_rate)
   end
 
   class MobilityTripEntity < BaseEntity

@@ -28,4 +28,14 @@ class Suma::Vendor::Service < Suma::Postgres::Model(:vendor_services)
   def mobility_adapter
     return Suma::Mobility::VendorAdapter.create(self.mobility_vendor_adapter_key)
   end
+
+  # Return the one and only rate for this service, or error if it has multiple rates.
+  # In the future we will likely support determining rates per-resident,
+  # but for now, we assume one rate for all residents using a service.
+  def one_rate
+    r = self.rates
+    raise "#{self.inspect} has no rates" if r.empty?
+    raise "#{self.inspect} has too many rates" if r.length > 1
+    return r.first
+  end
 end
