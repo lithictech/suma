@@ -7,6 +7,17 @@ RSpec.describe "Suma::Customer", :db do
     expect { Suma::Customer.new.inspect }.to_not raise_error
   end
 
+  describe "associations" do
+    it "has an ongoing_trip association" do
+      c = Suma::Fixtures.customer.create
+      expect(c.ongoing_trip).to be_nil
+      t = Suma::Fixtures.mobility_trip.ongoing.create(customer: c)
+      expect(c.refresh.ongoing_trip).to be === t
+      t.end_trip(lat: 1, lng: 2)
+      expect(c.refresh.ongoing_trip).to be_nil
+    end
+  end
+
   describe "greeting" do
     it "uses the name if present" do
       expect(described_class.new(name: "Huck Finn").greeting).to eq("Huck Finn")

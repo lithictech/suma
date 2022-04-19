@@ -70,3 +70,35 @@ and replace relevant rows into the `mobility_vehicles` table
 
 This refresh happens on an interval. In the we may be more clever about
 how we sync data.
+
+## Starting and ending trips
+
+Interally, we model a 'trip' as a reference to a vendor service, its vendor vehicle id,
+and the Suma rate model used to start a trip.
+Note the vehicle ID is is **not** a foreign key into the Vehicles table, since that table is transient.
+The trip records the time and location of when it was begun and ended.
+
+We abstract communication with vendor backends through the `Suma::Mobility::VendorAdapter` interface
+and its implementers. We have a `FakeAdapter` we use for unit and integration testing.
+
+The complexity around trips comes into play with the external dependency of the mobility services:
+
+- Only start a Suma trip when the service is successful.
+- Only end a Suma trip when the service is successful.
+- We need to handle orphan trips and unexpected server responses.
+- What if the service state, such as the account balance, is not in sync with Suma's balance?
+- What happens if we start/end a trip but cannot commit the result to the database?
+- Only allow one ongoing trip at a time for all of Suma
+  (we could modify this to be per-service in the future since it is technically possible, if not advisable).
+
+We cannot answer all of these questions perfectly,
+and will improve our answers as time goes on.
+
+It's important to keep in mind that, though Suma models trips,
+they are not authoritative in terms of duration and cost-
+the vendor systems themselves are authoritative, especially for cost.
+
+Because of this, though the trip points to a 'rate',
+the rate is only used for descriptive purposes. It does *not* calculate the money
+that the resident owes; instead its used to predict trip cost and model
+the undiscounted cost of the trip.

@@ -41,6 +41,7 @@ class Suma::Customer < Suma::Postgres::Model(:customers)
   one_to_many :reset_codes, class: "Suma::Customer::ResetCode", order: Sequel.desc([:created_at])
   many_to_many :roles, class: "Suma::Role", join_table: :roles_customers
   one_to_many :sessions, class: "Suma::Customer::Session", order: Sequel.desc([:created_at, :id])
+  one_to_one :ongoing_trip, class: "Suma::Mobility::Trip", conditions: {ended_at: nil}
 
   dataset_module do
     def with_email(*emails)

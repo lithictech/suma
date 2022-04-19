@@ -7,7 +7,6 @@ require "suma/api" unless defined? Suma::API
 
 module Suma::API
   AddressEntity = Suma::Service::Entities::Address
-  CurrentCustomerEntity = Suma::Service::Entities::CurrentCustomer
   LegalEntityEntity = Suma::Service::Entities::LegalEntityEntity
   MoneyEntity = Suma::Service::Entities::Money
   TimeRangeEntity = Suma::Service::Entities::TimeRange
@@ -23,6 +22,12 @@ module Suma::API
   class OrganizationEntity < BaseEntity
     expose :name
     expose :slug
+  end
+
+  class VendorServiceRateEntity < BaseEntity
+    expose :id
+    expose :localization_key
+    expose :localization_vars
   end
 
   class VendorServiceEntity < BaseEntity
@@ -51,5 +56,23 @@ module Suma::API
     expose :vendor_service, with: VendorServiceEntity
     expose :vehicle_id
     expose :to_api_location, as: :loc
+    expose :rate, &self.delegate_to(:vendor_service, :one_rate)
+  end
+
+  class MobilityTripEntity < BaseEntity
+    expose :id
+    expose :vehicle_id
+    expose :vendor_service, as: :provider, with: VendorServiceEntity
+    expose :vendor_service_rate, as: :rate, with: VendorServiceRateEntity
+    expose :begin_lat
+    expose :begin_lng
+    expose :began_at
+    expose :end_lat
+    expose :end_lng
+    expose :ended_at
+  end
+
+  class CurrentCustomerEntity < Suma::Service::Entities::CurrentCustomer
+    expose :ongoing_trip, with: MobilityTripEntity
   end
 end

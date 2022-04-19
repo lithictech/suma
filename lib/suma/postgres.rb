@@ -46,6 +46,7 @@ module Suma::Postgres
   # Require paths for all Sequel models used by the app.
   MODELS = [
     "suma/address",
+    "suma/charge",
     "suma/customer",
     "suma/customer/journey",
     "suma/customer/reset_code",
@@ -55,12 +56,14 @@ module Suma::Postgres
     "suma/market",
     "suma/message/body",
     "suma/message/delivery",
+    "suma/mobility/trip",
     "suma/mobility/vehicle",
     "suma/organization",
     "suma/role",
     "suma/vendor",
     "suma/vendor/service",
     "suma/vendor/service_category",
+    "suma/vendor/service_rate",
   ].freeze
 
   # If true, deferred model events publish immediately.
