@@ -1,9 +1,10 @@
+import loadingGif from "../../assets/images/loading.gif";
+import FormError from "../FormError";
 import React from "react";
 import Button from "react-bootstrap/Button";
 import Card from "react-bootstrap/Card";
-import { useTranslation } from "react-i18next";
 
-const ReservationCard = ({ active, loading, vehicle, onReserve }) => {
+const ReservationCard = ({ active, loading, vehicle, onReserve, reserveError }) => {
   // const { t } = useTranslation();
   if (!active) {
     return null;
@@ -12,16 +13,12 @@ const ReservationCard = ({ active, loading, vehicle, onReserve }) => {
     return (
       <Card className="reserve">
         <Card.Body>
-          <Card.Text className="text-muted">Loading... (todo)</Card.Text>
+          <img src={loadingGif} className="loading" />
         </Card.Body>
       </Card>
     );
   }
-  const ride = {
-    number: 3434,
-    startCost: 3.0,
-    costPerMinute: 0.22,
-  };
+  const { rate, vendorService } = vehicle;
   const handlePress = (e) => {
     e.preventDefault();
     onReserve(vehicle);
@@ -30,16 +27,23 @@ const ReservationCard = ({ active, loading, vehicle, onReserve }) => {
   return (
     <Card className="reserve">
       <Card.Body>
-        <Card.Title className="mb-2 text-muted">Scooter {ride.number}</Card.Title>
-        <Card.Text className="text-muted">
-          {/*{t("scooter_cost", {*/}
-          {/*  startCost: ride.startCost,*/}
-          {/*  costPerMinute: ride.costPerMinute,*/}
-          {/*})}*/}
-        </Card.Text>
-        <Button size="sm" variant="outline-success" onClick={handlePress}>
-          Reserve Scooter
-        </Button>
+        {!reserveError ? (
+          <>
+            <Card.Title className="mb-2 text-muted">{vendorService.name}</Card.Title>
+            <Card.Text className="text-muted">
+              {rate.name}
+              {/*{t("scooter_cost", {*/}
+              {/*  startCost: ride.startCost,*/}
+              {/*  costPerMinute: ride.costPerMinute,*/}
+              {/*})}*/}
+            </Card.Text>
+            <Button size="sm" variant="success" onClick={handlePress}>
+              Reserve Scooter
+            </Button>
+          </>
+        ) : (
+          <FormError error={reserveError} noPadding />
+        )}
       </Card.Body>
     </Card>
   );

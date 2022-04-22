@@ -55,6 +55,11 @@
   position: absolute !important;
   top: 0;
   left: 50%;
-  transform: translate(-50%, 2%);
+  width: 250px;
   margin: 0 auto;
+  transform: translate(-50%, 2%);
+}
+
+.loading {
+  width: 38px;
 }

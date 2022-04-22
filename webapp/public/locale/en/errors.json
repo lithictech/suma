@@ -2,5 +2,7 @@
 	"impossible_phone_number": "That doesn't look like a real phone number.",
 	"invalid_otp": "That token is not valid. Enter it again, or request a new code.",
 	"unhandled_error": "Sorry, something went wrong. Please try again.",
-	"required": "This field is required"
+	"required": "This field is required",
+	"no_active_trip": "There is no trip currently active.",
+	"vehicle_not_found": "No vehicle found in this location."
 }
