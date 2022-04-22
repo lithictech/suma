@@ -1,33 +1,42 @@
+import loadingGif from "../../assets/images/loading.gif";
+import FormError from "../FormError";
 import React from "react";
 import Button from "react-bootstrap/Button";
 import Card from "react-bootstrap/Card";
-import { useTranslation } from "react-i18next";
 
-const ReservationCard = () => {
-  const { t } = useTranslation();
-  const ride = {
-    number: 3434,
-    startCost: 3.0,
-    costPerMinute: 0.22,
+const ReservationCard = ({ active, loading, vehicle, onReserve, reserveError }) => {
+  if (!active) {
+    return null;
+  }
+  if (loading) {
+    return (
+      <Card className="reserve">
+        <Card.Body>
+          <img src={loadingGif} className="loading" alt="loading" />
+        </Card.Body>
+      </Card>
+    );
+  }
+  const { rate, vendorService } = vehicle;
+  const handlePress = (e) => {
+    e.preventDefault();
+    onReserve(vehicle);
   };
+
   return (
     <Card className="reserve">
       <Card.Body>
-        <Card.Title className="mb-2 text-muted">Scooter {ride.number}</Card.Title>
-        <Card.Text className="text-muted">
-          {t("scooter_cost", {
-            startCost: ride.startCost,
-            costPerMinute: ride.costPerMinute,
-          })}
-        </Card.Text>
-        <Button
-          size="sm"
-          variant="outline-success"
-          href="http://google.com"
-          onClick={(e) => e.preventDefault()}
-        >
-          Reserve Scooter
-        </Button>
+        {!reserveError ? (
+          <>
+            <Card.Title className="mb-2 text-muted">{vendorService.name}</Card.Title>
+            <Card.Text className="text-muted">{rate.localizationKey}</Card.Text>
+            <Button size="sm" variant="success" onClick={handlePress}>
+              Reserve Scooter
+            </Button>
+          </>
+        ) : (
+          <FormError error={reserveError} noPadding />
+        )}
       </Card.Body>
     </Card>
   );

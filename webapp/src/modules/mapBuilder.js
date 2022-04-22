@@ -12,8 +12,10 @@ export default class MapBuilder {
     this._mcg = null;
     this._scooterIcon = null;
     this._lastBounds = null;
+    this._vehicleClicked = false;
+    this._ongoingTrip = false;
+    this._latOffset = 0.00004;
   }
-
   init() {
     this._map = this._l
       .map(this.mapRef.current)
@@ -22,10 +24,12 @@ export default class MapBuilder {
     this.setTileLayer();
     this.setScooterIcon();
     this.setMarkerCluster();
-    this.getScooters();
-    // add markers to markerCluster after setting mcg layers in getScooters
-    // no need to add mcg everytime we getScooters, we simply addLayer to mcg
+    // adds all markerClusterGroup to map, no needed layer rerender
     this._map.addLayer(this._mcg);
+    return this;
+  }
+  run({ onVehicleClick }) {
+    this.getScooters(onVehicleClick);
 
     this._map.on("moveend", () => {
       const bounds = this._map.getBounds();
@@ -34,10 +38,38 @@ export default class MapBuilder {
         this._lastBounds.contains(bounds._southWest) === false
       ) {
         this._lastBounds = bounds;
-        this.getScooters();
+        this.getScooters(onVehicleClick);
       }
     });
 
+    this._map.on("click", () => {
+      if (this._ongoingTrip) return;
+      if (this._vehicleClicked) {
+        onVehicleClick(null);
+        this._vehicleClicked = false;
+      }
+    });
+    return this;
+  }
+  beginTrip({ ongoingTrip }) {
+    this._mcg.clearLayers();
+    // TODO: remove all layers except the ongoing marker latlng
+    // setup global tripMode clause...
+  }
+
+  loadOngoingTrip(ongoingTrip) {
+    this._ongoingTrip = ongoingTrip;
+    if (ongoingTrip) {
+      this._map.flyTo(
+        [Number(ongoingTrip.beginLat) + this._latOffset, ongoingTrip.beginLng],
+        20,
+        {
+          animate: true,
+          duration: 1.3,
+          easeLinearity: 1,
+        }
+      );
+    }
     return this;
   }
 
@@ -52,7 +84,7 @@ export default class MapBuilder {
       .tileLayer(
         "https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw",
         {
-          maxZoom: 23,
+          maxZoom: 20,
           minZoom: 13,
           tileSize: 512,
           zoomOffset: -1,
@@ -105,7 +137,7 @@ export default class MapBuilder {
     this._mcg.removeLayers(removableMarkers);
   }
 
-  getScooters() {
+  getScooters(onVehicleClick) {
     const { _northEast, _southWest } = this._lastBounds;
     api
       .getMobilityMap({
@@ -116,30 +148,54 @@ export default class MapBuilder {
         const precisionFactor = 1 / r.data.precision;
         const newMarkers = [];
         this.removeVisibleLayers();
-        r.data.escooter?.forEach((bike) => {
-          const [lat, lng] = bike.c;
-          const marker = this.newMarker([lat * precisionFactor, lng * precisionFactor]);
-          newMarkers.push(marker);
+        ["ebike", "escooter"].forEach((vehicleType) => {
+          r.data[vehicleType]?.forEach((bike) => {
+            const marker = this.newMarker(
+              bike,
+              vehicleType,
+              r.data.providers,
+              precisionFactor,
+              onVehicleClick
+            );
+            newMarkers.push(marker);
+          });
         });
         // addLayers preferred over addLayer for efficient performance
         this._mcg.addLayers(newMarkers, { chunkedLoading: true });
       });
+    // TODO: Handle when we click the map but not a marker, we need to deselect the vehicle
+    // and hide the reservation card (call onVehicleClick(null)).
   }
 
-  newMarker(latLng) {
+  newMarker(bike, vehicleType, providers, precisionFactor, onVehicleClick) {
+    const [lat, lng] = bike.c;
     return this._l
-      .marker([latLng[0], latLng[1]], {
+      .marker([lat * precisionFactor, lng * precisionFactor], {
         icon: this._scooterIcon,
         riseOnHover: true,
       })
       .on("click", (e) => {
         const { lat, lng } = e.latlng;
-        const lowerTo = 0.00004;
-        const loweredLat = lat + lowerTo;
-        this._map.flyTo([loweredLat, lng], 21, {
-          animate: true,
-          duration: 1.5,
-        });
+        const loweredLat = lat + this._latOffset;
+        const { lat: mLat, lng: mLng } = this._map.getCenter();
+        const isScooterCentered =
+          mLat.toPrecision(7) === loweredLat.toPrecision(7) &&
+          mLng.toPrecision(7) === lng.toPrecision(7);
+        if (!this._vehicleSelected && !isScooterCentered) {
+          this._map.flyTo([loweredLat, lng], 20, {
+            animate: true,
+            duration: 1.3,
+            easeLinearity: 1,
+          });
+        }
+        const mapVehicle = {
+          loc: bike.c,
+          type: vehicleType,
+          disambiguator: bike.d,
+          providerId: providers[bike.p].id,
+        };
+        onVehicleClick(mapVehicle);
+        this._vehicleClicked = true;
       });
   }
 }
