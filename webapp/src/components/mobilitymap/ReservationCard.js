@@ -5,7 +5,6 @@ import Button from "react-bootstrap/Button";
 import Card from "react-bootstrap/Card";
 
 const ReservationCard = ({ active, loading, vehicle, onReserve, reserveError }) => {
-  // const { t } = useTranslation();
   if (!active) {
     return null;
   }
@@ -13,7 +12,7 @@ const ReservationCard = ({ active, loading, vehicle, onReserve, reserveError }) 
     return (
       <Card className="reserve">
         <Card.Body>
-          <img src={loadingGif} className="loading" alt="Scooter image" />
+          <img src={loadingGif} className="loading" alt="loading" />
         </Card.Body>
       </Card>
     );
@@ -30,13 +29,7 @@ const ReservationCard = ({ active, loading, vehicle, onReserve, reserveError }) 
         {!reserveError ? (
           <>
             <Card.Title className="mb-2 text-muted">{vendorService.name}</Card.Title>
-            <Card.Text className="text-muted">
-              {rate.name}
-              {/*{t("scooter_cost", {*/}
-              {/*  startCost: ride.startCost,*/}
-              {/*  costPerMinute: ride.costPerMinute,*/}
-              {/*})}*/}
-            </Card.Text>
+            <Card.Text className="text-muted">{rate.localizationKey}</Card.Text>
             <Button size="sm" variant="success" onClick={handlePress}>
               Reserve Scooter
             </Button>

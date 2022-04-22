@@ -56,7 +56,7 @@ module Suma::API
     expose :vendor_service, with: VendorServiceEntity
     expose :vehicle_id
     expose :to_api_location, as: :loc
-    expose :rate, &self.delegate_to(:vendor_service, :one_rate)
+    expose :rate, with: VendorServiceRateEntity, &self.delegate_to(:vendor_service, :one_rate)
   end
 
   class MobilityTripEntity < BaseEntity
