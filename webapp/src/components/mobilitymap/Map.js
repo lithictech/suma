@@ -28,11 +28,11 @@ const Map = () => {
         })
         .then((r) => {
           setOngoingTrip(r.data);
-          hasInit.beginTrip(ongoingTrip);
+          hasInit.beginTrip(r.data);
         })
         .catch((e) => setError(extractErrorCode(e)));
     },
-    [hasInit, ongoingTrip, setError]
+    [hasInit, setError]
   );
 
   const handleVehicleClick = React.useCallback(
@@ -72,7 +72,7 @@ const Map = () => {
   return (
     <div className="position-relative">
       <div ref={mapRef} />
-      {ongoingTrip ? (
+      {ongoingTrip && !error ? (
         <TripCard trip={ongoingTrip} onEndTrip={handleEndTrip} />
       ) : (
         <ReservationCard

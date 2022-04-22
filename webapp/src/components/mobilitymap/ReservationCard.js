@@ -13,7 +13,7 @@ const ReservationCard = ({ active, loading, vehicle, onReserve, reserveError }) 
     return (
       <Card className="reserve">
         <Card.Body>
-          <img src={loadingGif} className="loading" />
+          <img src={loadingGif} className="loading" alt="Scooter image" />
         </Card.Body>
       </Card>
     );
