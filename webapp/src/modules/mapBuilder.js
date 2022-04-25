@@ -224,16 +224,4 @@ export default class MapBuilder {
       mLng.toPrecision(7) === lng.toPrecision(7)
     );
   }
-
-  // centerMarkerView() {
-  //   const isCentered = this.isScooterCentered({ lat: this._ongoingTrip.beginLat, lng:  this._ongoingTrip.beginLng});
-  //   if (this._ongoingTrip && !isCentered) {
-  //     this._map.flyTo([Number(this._ongoingTrip.beginLat) + this._latOffset, this._ongoingTrip.beginLng], 20, {
-  //       animate: true,
-  //       duration: 1,
-  //       easeLinearity: 1,
-  //     });
-  //   }
-  //   return this;
-  // }
 }
