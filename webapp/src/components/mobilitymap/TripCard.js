@@ -1,6 +1,7 @@
 import api from "../../api";
 import { extractErrorCode, useError } from "../../state/useError";
 import FormError from "../FormError";
+import TransactionCard from "./TransactionCard";
 import React from "react";
 import { Button, Card } from "react-bootstrap";
 
@@ -25,11 +26,7 @@ const TripCard = ({ trip, onEndTrip }) => {
   return (
     <>
       {endTrip ? (
-        <TransactionDisplay
-          endTrip={endTrip}
-          error={error}
-          onCloseTrip={handleCloseTrip}
-        />
+        <TransactionCard endTrip={endTrip} error={error} onCloseTrip={handleCloseTrip} />
       ) : (
         <Card className="reserve">
           <Card.Body>
@@ -46,24 +43,3 @@ const TripCard = ({ trip, onEndTrip }) => {
 };
 
 export default TripCard;
-
-// TODO: setup as component
-const TransactionDisplay = ({ endTrip, onCloseTrip, error }) => {
-  const { rate, provider, id } = endTrip;
-  const handleClose = () => onCloseTrip();
-  return (
-    <Card className="reserve">
-      <Card.Body>
-        {/* TODO: localization */}
-        <p>Your trip {id} has ended.</p>
-        <p>Provider: {provider.vendorName}</p>
-        <p>Rate:{rate.localizationKey}</p>
-        <p>Total: $2</p>
-        <FormError error={error} />
-        <Button size="sm" variant="outline-success" onClick={handleClose}>
-          Done
-        </Button>
-      </Card.Body>
-    </Card>
-  );
-};

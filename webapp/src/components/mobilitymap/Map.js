@@ -56,16 +56,24 @@ const Map = () => {
     [setError, setReserveError]
   );
 
-  const handleEndTrip = () => setOngoingTrip(null);
+  const handleEndTrip = () => {
+    setOngoingTrip(null);
+    hasInit.loadScooters({ onVehicleClick: handleVehicleClick });
+  };
 
   React.useEffect(() => {
     if (!mapRef.current) {
       return;
     }
     if (!hasInit) {
-      const map = new MapBuilder(mapRef);
-      map.init().run({ onVehicleClick: handleVehicleClick }).loadOngoingTrip(ongoingTrip);
+      const map = new MapBuilder(mapRef).init();
+      if (!ongoingTrip) {
+        map.loadScooters({ onVehicleClick: handleVehicleClick });
+      }
       setHasInit(map);
+    }
+    if (hasInit && ongoingTrip) {
+      hasInit.beginTrip(ongoingTrip);
     }
   }, [hasInit, ongoingTrip, handleVehicleClick]);
 
@@ -86,7 +94,7 @@ const Map = () => {
       {error && (
         <Card className="reserve">
           <Card.Body>
-            <FormError error={error} />
+            <FormError error={error} noMargin />
           </Card.Body>
         </Card>
       )}

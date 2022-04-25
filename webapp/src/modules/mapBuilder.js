@@ -24,13 +24,18 @@ export default class MapBuilder {
     this.setTileLayer();
     this.setScooterIcon();
     this.setMarkerCluster();
-    // adds all markerClusterGroup to map, no needed layer rerender
+    return this;
+  }
+
+  loadScooters({ onVehicleClick }) {
+    this.viewMode();
+    this.setEventHandlers(onVehicleClick);
+    this.getScooters(onVehicleClick);
     this._map.addLayer(this._mcg);
     return this;
   }
-  run({ onVehicleClick }) {
-    this.getScooters(onVehicleClick);
 
+  setEventHandlers(onVehicleClick) {
     this._map.on("moveend", () => {
       const bounds = this._map.getBounds();
       if (
@@ -43,33 +48,11 @@ export default class MapBuilder {
     });
 
     this._map.on("click", () => {
-      if (this._ongoingTrip) return;
       if (this._vehicleClicked) {
         onVehicleClick(null);
         this._vehicleClicked = false;
       }
     });
-    return this;
-  }
-  beginTrip({ ongoingTrip }) {
-    this._mcg.clearLayers();
-    // TODO: remove all layers except the ongoing marker latlng
-    // setup global tripMode clause...
-  }
-
-  loadOngoingTrip(ongoingTrip) {
-    this._ongoingTrip = ongoingTrip;
-    if (ongoingTrip) {
-      this._map.flyTo(
-        [Number(ongoingTrip.beginLat) + this._latOffset, ongoingTrip.beginLng],
-        20,
-        {
-          animate: true,
-          duration: 1.3,
-          easeLinearity: 1,
-        }
-      );
-    }
     return this;
   }
 
@@ -104,8 +87,8 @@ export default class MapBuilder {
         <img src="${scooterIcon}" class="scooterIcon"/>
       `,
       className: "scooterContainer",
-      iconSize: [36, 36],
-      iconAnchor: [18, 36],
+      iconSize: [43.4, 52.6],
+      iconAnchor: [21.7, 52.6],
     });
   }
 
@@ -123,18 +106,6 @@ export default class MapBuilder {
         });
       },
     });
-  }
-
-  // Remove markers in visible bounds to prevent duplicates
-  removeVisibleLayers() {
-    const removableMarkers = [];
-    this._mcg.eachLayer((marker) => {
-      if (this._lastBounds.contains(marker._latlng)) {
-        removableMarkers.push(marker);
-      }
-    });
-    // removeLayers preferred over removeLayer for efficient performance
-    this._mcg.removeLayers(removableMarkers);
   }
 
   getScooters(onVehicleClick) {
@@ -160,11 +131,19 @@ export default class MapBuilder {
             newMarkers.push(marker);
           });
         });
-        // addLayers preferred over addLayer for efficient performance
         this._mcg.addLayers(newMarkers, { chunkedLoading: true });
       });
-    // TODO: Handle when we click the map but not a marker, we need to deselect the vehicle
-    // and hide the reservation card (call onVehicleClick(null)).
+  }
+
+  // Remove markers in visible bounds to prevent duplicates
+  removeVisibleLayers() {
+    const removableMarkers = [];
+    this._mcg.eachLayer((marker) => {
+      if (this._lastBounds.contains(marker._latlng)) {
+        removableMarkers.push(marker);
+      }
+    });
+    this._mcg.removeLayers(removableMarkers);
   }
 
   newMarker(bike, vehicleType, providers, precisionFactor, onVehicleClick) {
@@ -175,14 +154,8 @@ export default class MapBuilder {
         riseOnHover: true,
       })
       .on("click", (e) => {
-        const { lat, lng } = e.latlng;
-        const loweredLat = lat + this._latOffset;
-        const { lat: mLat, lng: mLng } = this._map.getCenter();
-        const isScooterCentered =
-          mLat.toPrecision(7) === loweredLat.toPrecision(7) &&
-          mLng.toPrecision(7) === lng.toPrecision(7);
-        if (!this._vehicleSelected && !isScooterCentered) {
-          this._map.flyTo([loweredLat, lng], 20, {
+        if (!this._vehicleSelected && !this.isScooterCentered(e.latlng)) {
+          this._map.flyTo([e.latlng.lat + this._latOffset, e.latlng.lng], 20, {
             animate: true,
             duration: 1.3,
             easeLinearity: 1,
@@ -198,4 +171,69 @@ export default class MapBuilder {
         this._vehicleClicked = true;
       });
   }
+
+  beginTrip(ongoingTrip) {
+    this._ongoingTrip = ongoingTrip;
+    this.tripMode();
+    this._mcg.clearLayers();
+    const marker = this._l.marker([ongoingTrip.beginLat, ongoingTrip.beginLng], {
+      icon: this._scooterIcon,
+      riseOnHover: true,
+    });
+    this._mcg.addLayer(marker);
+    this._map.addLayer(this._mcg);
+
+    this._map.setView(
+      [Number(ongoingTrip.beginLat) + this._latOffset, ongoingTrip.beginLng],
+      20
+    );
+    return this;
+  }
+
+  tripMode() {
+    this._map.off("moveend click");
+    this._map.dragging.disable();
+    this._map.touchZoom.disable();
+    this._map.doubleClickZoom.disable();
+    this._map.scrollWheelZoom.disable();
+    this._map.boxZoom.disable();
+    this._map.keyboard.disable();
+    if (this._map.tap) this._map.tap.disable();
+    this._map._container.style.cursor = "default";
+    return this;
+  }
+
+  viewMode() {
+    this._map.dragging.enable();
+    this._map.touchZoom.enable();
+    this._map.doubleClickZoom.enable();
+    this._map.scrollWheelZoom.enable();
+    this._map.boxZoom.enable();
+    this._map.keyboard.enable();
+    if (this._map.tap) this._map.tap.enable();
+    this._map._container.style.cursor = "grab";
+  }
+
+  isScooterCentered(latLng) {
+    const lat = Number(latLng.lat);
+    const lng = Number(latLng.lng);
+    const loweredLat = lat + this._latOffset;
+    const { lat: mLat, lng: mLng } = this._map.getCenter();
+    return (
+      mLat.toPrecision(7) === loweredLat.toPrecision(7) &&
+      mLng.toPrecision(7) === lng.toPrecision(7)
+    );
+  }
+
+  // centerMarkerView() {
+  //   const isCentered = this.isScooterCentered({ lat: this._ongoingTrip.beginLat, lng:  this._ongoingTrip.beginLng});
+  //   if (this._ongoingTrip && !isCentered) {
+  //     this._map.flyTo([Number(this._ongoingTrip.beginLat) + this._latOffset, this._ongoingTrip.beginLng], 20, {
+  //       animate: true,
+  //       duration: 1,
+  //       easeLinearity: 1,
+  //     });
+  //   }
+  //   return this;
+  // }
 }
