@@ -51,7 +51,7 @@
   transform: translate(-50%, -50%);
 }
 
-.reserve {
+.cardContainer {
   /* zIndex higher than map (400) */
   z-index: 401;
   position: absolute !important;

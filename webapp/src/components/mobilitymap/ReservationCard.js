@@ -26,7 +26,7 @@ const ReservationCard = ({ active, loading, vehicle, onReserve, reserveError }) 
   };
 
   return (
-    <Card className="reserve">
+    <Card className="cardContainer">
       <Card.Body>
         {!reserveError ? (
           <>
@@ -38,7 +38,7 @@ const ReservationCard = ({ active, loading, vehicle, onReserve, reserveError }) 
                 ns: "mobility",
               })}
             </Card.Text>
-            <Button size="sm" variant="success" onClick={handlePress}>
+            <Button size="sm" variant="success" className="w-100" onClick={handlePress}>
               Reserve Scooter
             </Button>
           </>

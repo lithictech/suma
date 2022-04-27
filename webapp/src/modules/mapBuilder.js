@@ -4,18 +4,19 @@ import scooterIcon from "../assets/images/kick-scooter.png";
 export default class MapBuilder {
   constructor(mapRef) {
     this.mapRef = mapRef;
+    this._l = window.L;
     this._dZoom = 13;
     this._dLat = 45.5152;
     this._dLng = -122.6784;
-    this._l = window.L;
+    this._latOffset = 0.00004;
     this._map = null;
     this._mcg = null;
     this._scooterIcon = null;
     this._lastBounds = null;
     this._vehicleClicked = false;
-    this._ongoingTrip = false;
-    this._latOffset = 0.00004;
+    this._tripMarker = null;
   }
+
   init() {
     this._map = this._l
       .map(this.mapRef.current)
@@ -24,41 +25,6 @@ export default class MapBuilder {
     this.setTileLayer();
     this.setScooterIcon();
     this.setMarkerCluster();
-    return this;
-  }
-
-  loadScooters({ onVehicleClick }) {
-    this.viewMode();
-    this.setEventHandlers(onVehicleClick);
-    this.getScooters(onVehicleClick);
-    this._map.addLayer(this._mcg);
-    return this;
-  }
-
-  setEventHandlers(onVehicleClick) {
-    this._map.on("moveend", () => {
-      const bounds = this._map.getBounds();
-      if (
-        this._lastBounds.contains(bounds._northEast) === false ||
-        this._lastBounds.contains(bounds._southWest) === false
-      ) {
-        this._lastBounds = bounds;
-        this.getScooters(onVehicleClick);
-      }
-    });
-
-    this._map.on("click", () => {
-      if (this._vehicleClicked) {
-        onVehicleClick(null);
-        this._vehicleClicked = false;
-      }
-    });
-    return this;
-  }
-
-  setLatLng(latLng) {
-    this._dLat = latLng[0];
-    this._dLng = latLng[1];
     return this;
   }
 
@@ -106,6 +72,34 @@ export default class MapBuilder {
         });
       },
     });
+  }
+
+  loadScooters({ onVehicleClick }) {
+    this.setEventHandlers(onVehicleClick);
+    this.getScooters(onVehicleClick);
+    this._map.addLayer(this._mcg);
+    return this;
+  }
+
+  setEventHandlers(onVehicleClick) {
+    this._map.on("moveend", () => {
+      const bounds = this._map.getBounds();
+      if (
+        this._lastBounds.contains(bounds._northEast) === false ||
+        this._lastBounds.contains(bounds._southWest) === false
+      ) {
+        this._lastBounds = bounds;
+        this.getScooters(onVehicleClick);
+      }
+    });
+
+    this._map.on("click", () => {
+      if (this._vehicleClicked) {
+        onVehicleClick(null);
+        this._vehicleClicked = false;
+      }
+    });
+    return this;
   }
 
   getScooters(onVehicleClick) {
@@ -172,25 +166,60 @@ export default class MapBuilder {
       });
   }
 
-  beginTrip(ongoingTrip) {
-    this._ongoingTrip = ongoingTrip;
+  beginTrip({ onGetLocation }) {
     this.tripMode();
     this._mcg.clearLayers();
-    const marker = this._l.marker([ongoingTrip.beginLat, ongoingTrip.beginLng], {
-      icon: this._scooterIcon,
-      riseOnHover: true,
-    });
-    this._mcg.addLayer(marker);
-    this._map.addLayer(this._mcg);
-
-    this._map.setView(
-      [Number(ongoingTrip.beginLat) + this._latOffset, ongoingTrip.beginLng],
-      20
-    );
+    let loc;
+    this._map
+      .locate({
+        watch: true,
+        maxZoom: 20,
+        enableHighAccuracy: true,
+      })
+      .on("locationfound", (e) => {
+        if (!loc) {
+          loc = e.latlng;
+          this._tripMarker = this._l
+            .marker([e.latitude, e.longitude], {
+              icon: this._scooterIcon,
+            })
+            .addTo(this._map);
+          this._map.setView([e.latitude + this._latOffset, e.longitude], 20);
+          onGetLocation(e);
+        }
+        if (
+          this._tripMarker &&
+          loc &&
+          loc.lat !== e.latitude &&
+          loc.lng !== e.longitude
+        ) {
+          // TODO: Event rerenders constantly when loc change,
+          // detected causing marker to shift back and forth
+          // between changing locations
+          this._map.removeLayer(this._tripMarker);
+          this._tripMarker = this._l
+            .marker([e.latitude, e.longitude], {
+              icon: this._scooterIcon,
+            })
+            .addTo(this._map);
+          this._map.setView([e.latitude + this._latOffset, e.longitude], 20);
+          loc = e.latlng;
+          // sets location state in Map to track endTrip location
+          onGetLocation(e);
+        }
+      });
     return this;
   }
 
+  endTrip({ onVehicleClick }) {
+    this._map.removeLayer(this._tripMarker);
+    this._tripMarker = null;
+    this.viewMode();
+    this.loadScooters({ onVehicleClick });
+  }
+
   tripMode() {
+    // will be re-enabled on getScooters
     this._map.off("moveend click");
     this._map.dragging.disable();
     this._map.touchZoom.disable();
@@ -204,6 +233,7 @@ export default class MapBuilder {
   }
 
   viewMode() {
+    this._map.stopLocate();
     this._map.dragging.enable();
     this._map.touchZoom.enable();
     this._map.doubleClickZoom.enable();

@@ -11,29 +11,13 @@ import { Card } from "react-bootstrap";
 const Map = () => {
   const mapRef = React.useRef();
   const { user } = useUser();
+  const [loadedMap, setLoadedMap] = React.useState(null);
   const [selectedMapVehicle, setSelectedMapVehicle] = React.useState(null);
   const [loadedVehicle, setLoadedVehicle] = React.useState(null);
+  const [lastMarkerLocation, setLastMarkerLocation] = React.useState(null);
   const [ongoingTrip, setOngoingTrip] = React.useState(user.ongoingTrip);
   const [reserveError, setReserveError] = useError();
   const [error, setError] = useError();
-  const [hasInit, setHasInit] = React.useState(null);
-
-  const handleReserve = React.useCallback(
-    (vehicle) => {
-      api
-        .beginMobilityTrip({
-          providerId: vehicle.vendorService.id,
-          vehicleId: vehicle.vehicleId,
-          rateId: vehicle.rate.id,
-        })
-        .then((r) => {
-          setOngoingTrip(r.data);
-          hasInit.beginTrip(r.data);
-        })
-        .catch((e) => setError(extractErrorCode(e)));
-    },
-    [hasInit, setError]
-  );
 
   const handleVehicleClick = React.useCallback(
     (mapVehicle) => {
@@ -56,32 +40,60 @@ const Map = () => {
     [setError, setReserveError]
   );
 
-  const handleEndTrip = () => {
+  const handleGetLastLocation = React.useCallback(
+    (lastLocation) => setLastMarkerLocation(lastLocation),
+    []
+  );
+
+  const handleReserve = React.useCallback(
+    (vehicle) => {
+      api
+        .beginMobilityTrip({
+          providerId: vehicle.vendorService.id,
+          vehicleId: vehicle.vehicleId,
+          rateId: vehicle.rate.id,
+        })
+        .then((r) => {
+          setOngoingTrip(r.data);
+          loadedMap.beginTrip({ onGetLocation: handleGetLastLocation });
+        })
+        .catch((e) => setError(extractErrorCode(e)));
+    },
+    [loadedMap, setError, handleGetLastLocation]
+  );
+
+  const handleStopTrip = () => loadedMap.endTrip({ onVehicleClick: handleVehicleClick });
+
+  const handleCloseTrip = () => {
+    setSelectedMapVehicle(null);
     setOngoingTrip(null);
-    hasInit.loadScooters({ onVehicleClick: handleVehicleClick });
   };
 
   React.useEffect(() => {
     if (!mapRef.current) {
       return;
     }
-    if (!hasInit) {
+    if (!loadedMap) {
       const map = new MapBuilder(mapRef).init();
-      if (!ongoingTrip) {
+      if (ongoingTrip) {
+        map.beginTrip({ onGetLocation: handleGetLastLocation });
+      } else {
         map.loadScooters({ onVehicleClick: handleVehicleClick });
       }
-      setHasInit(map);
+      setLoadedMap(map);
     }
-    if (hasInit && ongoingTrip) {
-      hasInit.beginTrip(ongoingTrip);
-    }
-  }, [hasInit, ongoingTrip, handleVehicleClick]);
+  }, [loadedMap, ongoingTrip, handleVehicleClick, handleGetLastLocation]);
 
   return (
     <div className="position-relative">
       <div ref={mapRef} />
       {ongoingTrip && !error ? (
-        <TripCard trip={ongoingTrip} onEndTrip={handleEndTrip} />
+        <TripCard
+          trip={ongoingTrip}
+          onCloseTrip={handleCloseTrip}
+          onStopTrip={handleStopTrip}
+          lastLocation={lastMarkerLocation}
+        />
       ) : (
         <ReservationCard
           active={Boolean(selectedMapVehicle)}
@@ -92,7 +104,7 @@ const Map = () => {
         />
       )}
       {error && (
-        <Card className="reserve">
+        <Card className="cardContainer">
           <Card.Body>
             <FormError error={error} noMargin />
           </Card.Body>

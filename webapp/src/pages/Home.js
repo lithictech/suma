@@ -12,7 +12,7 @@ const Home = () => {
       <Row>
         <Col className="text-center">
           <img src={sumaLogo} alt="MySuma Logo" />
-          <p>{i18next.t("welcome_to_suma")}</p>
+          <p>{i18next.t("welcome_to_suma", { ns: "common" })}</p>
           <div className="d-grid gap-2">
             <SafeExternalLink
               href="https://mysuma.org/"
