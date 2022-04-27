@@ -11,7 +11,7 @@ const ReservationCard = ({ active, loading, vehicle, onReserve, reserveError }) 
   }
   if (loading) {
     return (
-      <Card className="reserve">
+      <Card className="cardContainer">
         <Card.Body>
           <img src={loadingGif} className="loading" alt="loading" />
         </Card.Body>
@@ -28,23 +28,18 @@ const ReservationCard = ({ active, loading, vehicle, onReserve, reserveError }) 
   return (
     <Card className="cardContainer">
       <Card.Body>
-        {!reserveError ? (
-          <>
-            <Card.Title className="mb-2 text-muted">{vendorService.name}</Card.Title>
-            <Card.Text className="text-muted">
-              {i18next.t(rate.localizationKey, {
-                surchargeCents: locVars.surchargeCents * 0.01,
-                unitCents: locVars.unitCents * 0.01,
-                ns: "mobility",
-              })}
-            </Card.Text>
-            <Button size="sm" variant="success" className="w-100" onClick={handlePress}>
-              Reserve Scooter
-            </Button>
-          </>
-        ) : (
-          <FormError error={reserveError} noMargin />
-        )}
+        <Card.Title className="mb-2 text-muted">{vendorService.name}</Card.Title>
+        <Card.Text className="text-muted">
+          {i18next.t(rate.localizationKey, {
+            surchargeCents: locVars.surchargeCents * 0.01,
+            unitCents: locVars.unitCents * 0.01,
+            ns: "mobility",
+          })}
+        </Card.Text>
+        <FormError error={reserveError} />
+        <Button size="sm" variant="success" className="w-100" onClick={handlePress}>
+          Reserve Scooter
+        </Button>
       </Card.Body>
     </Card>
   );

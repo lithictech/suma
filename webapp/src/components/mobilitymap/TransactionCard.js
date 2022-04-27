@@ -10,25 +10,20 @@ const TransactionCard = ({ endTrip, onCloseTrip, error }) => {
   return (
     <Card className="cardContainer">
       <Card.Body>
-        {!error ? (
-          <>
-            <p>
-              Trip {id} with {provider.vendorName} has ended.
-            </p>
-            <p>
-              {i18next.t(rate.localizationKey, {
-                surchargeCents: locVars.surchargeCents * 0.01,
-                unitCents: locVars.unitCents * 0.01,
-                ns: "mobility",
-              })}
-            </p>
-            <Button size="sm" variant="secondary" className="w-100" onClick={handleClose}>
-              Close
-            </Button>
-          </>
-        ) : (
-          <FormError error={error} />
-        )}
+        <p>
+          Trip {id} with {provider.vendorName} has ended.
+        </p>
+        <p>
+          {i18next.t(rate.localizationKey, {
+            surchargeCents: locVars.surchargeCents * 0.01,
+            unitCents: locVars.unitCents * 0.01,
+            ns: "mobility",
+          })}
+        </p>
+        <FormError error={error} />
+        <Button size="sm" variant="secondary" className="w-100" onClick={handleClose}>
+          Close
+        </Button>
       </Card.Body>
     </Card>
   );

@@ -168,8 +168,7 @@ export default class MapBuilder {
 
   beginTrip({ onGetLocation }) {
     this.tripMode();
-    this._mcg.clearLayers();
-    let loc;
+    let loc, line;
     this._map
       .locate({
         watch: true,
@@ -179,32 +178,31 @@ export default class MapBuilder {
       .on("locationfound", (e) => {
         if (!loc) {
           loc = e.latlng;
+          this._mcg.clearLayers();
+          this._map.setView([e.latitude + this._latOffset, e.longitude], 20);
+          line = this._l.polyline([[e.latlng.lat, e.latlng.lng]]);
           this._tripMarker = this._l
-            .marker([e.latitude, e.longitude], {
+            .animatedMarker(line.getLatLngs(), {
               icon: this._scooterIcon,
             })
             .addTo(this._map);
-          this._map.setView([e.latitude + this._latOffset, e.longitude], 20);
           onGetLocation(e);
         }
         if (
           this._tripMarker &&
           loc &&
+          line &&
           loc.lat !== e.latitude &&
           loc.lng !== e.longitude
         ) {
-          // TODO: Event rerenders constantly when loc change,
-          // detected causing marker to shift back and forth
-          // between changing locations
-          this._map.removeLayer(this._tripMarker);
-          this._tripMarker = this._l
-            .marker([e.latitude, e.longitude], {
-              icon: this._scooterIcon,
-            })
-            .addTo(this._map);
-          this._map.setView([e.latitude + this._latOffset, e.longitude], 20);
+          line.addLatLng([e.latitude, e.longitude]);
+          this._tripMarker.start();
+          this._map.setView([e.latitude + this._latOffset, e.longitude], 20, {
+            animate: true,
+            duration: 1.0,
+            easeLinearity: 1,
+          });
           loc = e.latlng;
-          // sets location state in Map to track endTrip location
           onGetLocation(e);
         }
       });

@@ -57,9 +57,9 @@ const Map = () => {
           setOngoingTrip(r.data);
           loadedMap.beginTrip({ onGetLocation: handleGetLastLocation });
         })
-        .catch((e) => setError(extractErrorCode(e)));
+        .catch((e) => setReserveError(extractErrorCode(e)));
     },
-    [loadedMap, setError, handleGetLastLocation]
+    [loadedMap, setReserveError, handleGetLastLocation]
   );
 
   const handleStopTrip = () => loadedMap.endTrip({ onVehicleClick: handleVehicleClick });
