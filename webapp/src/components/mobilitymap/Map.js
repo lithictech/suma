@@ -3,8 +3,10 @@ import MapBuilder from "../../modules/mapBuilder";
 import { extractErrorCode, useError } from "../../state/useError";
 import { useUser } from "../../state/useUser";
 import FormError from "../FormError";
+import SafeExternalLink from "../SafeExternalLink";
 import ReservationCard from "./ReservationCard";
 import TripCard from "./TripCard";
+import i18next from "i18next";
 import React from "react";
 import { Card } from "react-bootstrap";
 
@@ -44,6 +46,21 @@ const Map = () => {
     (lastLocation) => setLastMarkerLocation(lastLocation),
     []
   );
+  const handleGetLocationError = React.useCallback(
+    (e) => {
+      console.error(e);
+      setError(
+        <>
+          <span>{i18next.t("denied_geolocation", { ns: "errors" })}</span>
+          <br />
+          <SafeExternalLink href="#todo">
+            {i18next.t("enable_geolocation_instructions", { ns: "errors" })}
+          </SafeExternalLink>
+        </>
+      );
+    },
+    [setError]
+  );
 
   const handleReserve = React.useCallback(
     (vehicle) => {
@@ -55,11 +72,14 @@ const Map = () => {
         })
         .then((r) => {
           setOngoingTrip(r.data);
-          loadedMap.beginTrip({ onGetLocation: handleGetLastLocation });
+          loadedMap.beginTrip({
+            onGetLocation: handleGetLastLocation,
+            onGetLocationError: handleGetLocationError,
+          });
         })
         .catch((e) => setReserveError(extractErrorCode(e)));
     },
-    [loadedMap, setReserveError, handleGetLastLocation]
+    [loadedMap, handleGetLastLocation, handleGetLocationError, setReserveError]
   );
 
   const handleStopTrip = () => loadedMap.endTrip({ onVehicleClick: handleVehicleClick });
@@ -76,13 +96,22 @@ const Map = () => {
     if (!loadedMap) {
       const map = new MapBuilder(mapRef).init();
       if (ongoingTrip) {
-        map.beginTrip({ onGetLocation: handleGetLastLocation });
+        map.beginTrip({
+          onGetLocation: handleGetLastLocation,
+          onGetLocationError: handleGetLocationError,
+        });
       } else {
         map.loadScooters({ onVehicleClick: handleVehicleClick });
       }
       setLoadedMap(map);
     }
-  }, [loadedMap, ongoingTrip, handleVehicleClick, handleGetLastLocation]);
+  }, [
+    loadedMap,
+    ongoingTrip,
+    handleVehicleClick,
+    handleGetLastLocation,
+    handleGetLocationError,
+  ]);
 
   return (
     <div className="position-relative">

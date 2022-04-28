@@ -6,7 +6,7 @@ export default function FormError({ error, noMargin }) {
   if (!error) {
     return null;
   }
-  const msg = i18next.t(error, { ns: "errors" });
+  const msg = React.isValidElement(error) ? error : i18next.t(error, { ns: "errors" });
   const cls = clsx("d-block text-danger small", noMargin && "m-0");
   return <p className={cls}>{msg}</p>;
 }

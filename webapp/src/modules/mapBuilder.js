@@ -166,7 +166,7 @@ export default class MapBuilder {
       });
   }
 
-  beginTrip({ onGetLocation }) {
+  beginTrip({ onGetLocation, onGetLocationError }) {
     this.tripMode();
     let loc, line;
     this._map
@@ -175,6 +175,7 @@ export default class MapBuilder {
         maxZoom: 20,
         enableHighAccuracy: true,
       })
+      .on("locationerror", (e) => onGetLocationError(e))
       .on("locationfound", (e) => {
         if (!loc) {
           loc = e.latlng;
