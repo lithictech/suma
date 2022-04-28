@@ -1,13 +1,12 @@
 import clsx from "clsx";
+import i18next from "i18next";
 import React from "react";
-import { useTranslation } from "react-i18next";
 
 export default function FormError({ error, noMargin }) {
-  const { t } = useTranslation("errors");
   if (!error) {
     return null;
   }
-  const msg = t(error);
+  const msg = React.isValidElement(error) ? error : i18next.t(error, { ns: "errors" });
   const cls = clsx("d-block text-danger small", noMargin && "m-0");
   return <p className={cls}>{msg}</p>;
 }

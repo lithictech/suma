@@ -1,16 +1,14 @@
-import format from "./i18n-format";
 import i18n from "i18next";
 import LanguageDetector from "i18next-browser-languagedetector";
 import HttpApi from "i18next-http-backend";
-import { initReactI18next } from "react-i18next";
 
 i18n
-  .use(initReactI18next)
   .use(LanguageDetector)
   .use(HttpApi)
   .init({
-    ns: ["common", "errors"],
+    ns: ["common", "errors", "mobility", "messages"],
     fallbackLng: "en",
+    initImmediate: false,
     detection: {
       order: ["htmlTag", "localStorage", "cookie"],
       caches: ["cookie"],
@@ -21,7 +19,6 @@ i18n
     interpolation: {
       // react already safes from xss
       escapeValue: false,
-      format,
     },
     react: {
       useSuspense: false,

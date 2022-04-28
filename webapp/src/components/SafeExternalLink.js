@@ -1,5 +1,4 @@
 import React from "react";
-import Button from "react-bootstrap/Button";
 
 export default function SafeExternalLink({
   href,
@@ -12,7 +11,7 @@ export default function SafeExternalLink({
   component: Component,
   ...rest
 }) {
-  Component = Component || Button;
+  Component = Component || "a";
   return (
     <Component
       href={href}

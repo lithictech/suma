@@ -3,37 +3,23 @@ import MapBuilder from "../../modules/mapBuilder";
 import { extractErrorCode, useError } from "../../state/useError";
 import { useUser } from "../../state/useUser";
 import FormError from "../FormError";
+import SafeExternalLink from "../SafeExternalLink";
 import ReservationCard from "./ReservationCard";
 import TripCard from "./TripCard";
+import i18next from "i18next";
 import React from "react";
 import { Card } from "react-bootstrap";
 
 const Map = () => {
   const mapRef = React.useRef();
   const { user } = useUser();
+  const [loadedMap, setLoadedMap] = React.useState(null);
   const [selectedMapVehicle, setSelectedMapVehicle] = React.useState(null);
   const [loadedVehicle, setLoadedVehicle] = React.useState(null);
+  const [lastMarkerLocation, setLastMarkerLocation] = React.useState(null);
   const [ongoingTrip, setOngoingTrip] = React.useState(user.ongoingTrip);
   const [reserveError, setReserveError] = useError();
   const [error, setError] = useError();
-  const [hasInit, setHasInit] = React.useState(null);
-
-  const handleReserve = React.useCallback(
-    (vehicle) => {
-      api
-        .beginMobilityTrip({
-          providerId: vehicle.vendorService.id,
-          vehicleId: vehicle.vehicleId,
-          rateId: vehicle.rate.id,
-        })
-        .then((r) => {
-          setOngoingTrip(r.data);
-          hasInit.beginTrip(r.data);
-        })
-        .catch((e) => setError(extractErrorCode(e)));
-    },
-    [hasInit, setError]
-  );
 
   const handleVehicleClick = React.useCallback(
     (mapVehicle) => {
@@ -56,24 +42,87 @@ const Map = () => {
     [setError, setReserveError]
   );
 
-  const handleEndTrip = () => setOngoingTrip(null);
+  const handleGetLastLocation = React.useCallback(
+    (lastLocation) => setLastMarkerLocation(lastLocation),
+    []
+  );
+  const handleGetLocationError = React.useCallback(
+    (e) => {
+      console.error(e);
+      setError(
+        <>
+          <span>{i18next.t("denied_geolocation", { ns: "errors" })}</span>
+          <br />
+          <SafeExternalLink href="#todo">
+            {i18next.t("enable_geolocation_instructions", { ns: "errors" })}
+          </SafeExternalLink>
+        </>
+      );
+    },
+    [setError]
+  );
+
+  const handleReserve = React.useCallback(
+    (vehicle) => {
+      api
+        .beginMobilityTrip({
+          providerId: vehicle.vendorService.id,
+          vehicleId: vehicle.vehicleId,
+          rateId: vehicle.rate.id,
+        })
+        .then((r) => {
+          setOngoingTrip(r.data);
+          loadedMap.beginTrip({
+            onGetLocation: handleGetLastLocation,
+            onGetLocationError: handleGetLocationError,
+          });
+        })
+        .catch((e) => setReserveError(extractErrorCode(e)));
+    },
+    [loadedMap, handleGetLastLocation, handleGetLocationError, setReserveError]
+  );
+
+  const handleStopTrip = () => loadedMap.endTrip({ onVehicleClick: handleVehicleClick });
+
+  const handleCloseTrip = () => {
+    setSelectedMapVehicle(null);
+    setOngoingTrip(null);
+  };
 
   React.useEffect(() => {
     if (!mapRef.current) {
       return;
     }
-    if (!hasInit) {
-      const map = new MapBuilder(mapRef);
-      map.init().run({ onVehicleClick: handleVehicleClick }).loadOngoingTrip(ongoingTrip);
-      setHasInit(map);
+    if (!loadedMap) {
+      const map = new MapBuilder(mapRef).init();
+      if (ongoingTrip) {
+        map.beginTrip({
+          onGetLocation: handleGetLastLocation,
+          onGetLocationError: handleGetLocationError,
+        });
+      } else {
+        map.loadScooters({ onVehicleClick: handleVehicleClick });
+      }
+      setLoadedMap(map);
     }
-  }, [hasInit, ongoingTrip, handleVehicleClick]);
+  }, [
+    loadedMap,
+    ongoingTrip,
+    handleVehicleClick,
+    handleGetLastLocation,
+    handleGetLocationError,
+  ]);
 
   return (
     <div className="position-relative">
       <div ref={mapRef} />
       {ongoingTrip && !error ? (
-        <TripCard trip={ongoingTrip} onEndTrip={handleEndTrip} />
+        <TripCard
+          trip={ongoingTrip}
+          onCloseTrip={handleCloseTrip}
+          onStopTrip={handleStopTrip}
+          lastLocation={lastMarkerLocation}
+        />
       ) : (
         <ReservationCard
           active={Boolean(selectedMapVehicle)}
@@ -84,9 +133,9 @@ const Map = () => {
         />
       )}
       {error && (
-        <Card className="reserve">
+        <Card className="cardContainer">
           <Card.Body>
-            <FormError error={error} />
+            <FormError error={error} noMargin />
           </Card.Body>
         </Card>
       )}

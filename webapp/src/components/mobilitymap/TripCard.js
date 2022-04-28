@@ -1,41 +1,42 @@
 import api from "../../api";
 import { extractErrorCode, useError } from "../../state/useError";
 import FormError from "../FormError";
+import TransactionCard from "./TransactionCard";
 import React from "react";
 import { Button, Card } from "react-bootstrap";
 
-const TripCard = ({ trip, onEndTrip }) => {
+const TripCard = ({ trip, onCloseTrip, onStopTrip, lastLocation }) => {
   const [endTrip, setEndTrip] = React.useState(null);
   const [error, setError] = useError();
   if (!trip) {
     return null;
   }
   const handleEndTrip = () => {
-    const { beginLat, beginLng } = trip;
+    const { lat, lng } = lastLocation.latlng;
     api
       .endMobilityTrip({
-        lat: beginLat,
-        lng: beginLng,
+        lat: lat,
+        lng: lng,
       })
-      .then((r) => setEndTrip(r.data))
+      .then((r) => {
+        onStopTrip();
+        setEndTrip(r.data);
+      })
       .catch((e) => setError(extractErrorCode(e)));
   };
-  const handleCloseTrip = () => onEndTrip();
+  const handleCloseTrip = () => onCloseTrip();
 
   return (
     <>
       {endTrip ? (
-        <TransactionDisplay
-          endTrip={endTrip}
-          error={error}
-          onCloseTrip={handleCloseTrip}
-        />
+        <TransactionCard endTrip={endTrip} error={error} onCloseTrip={handleCloseTrip} />
       ) : (
-        <Card className="reserve">
+        <Card className="cardContainer">
           <Card.Body>
             <Card.Text className="text-muted">Scooter {trip.id}</Card.Text>
+            {/* TODO: add error handling */}
             <FormError error={error} />
-            <Button size="sm" variant="danger" onClick={handleEndTrip}>
+            <Button size="sm" variant="danger" className="w-100" onClick={handleEndTrip}>
               End Trip
             </Button>
           </Card.Body>
@@ -46,24 +47,3 @@ const TripCard = ({ trip, onEndTrip }) => {
 };
 
 export default TripCard;
-
-// TODO: setup as component
-const TransactionDisplay = ({ endTrip, onCloseTrip, error }) => {
-  const { rate, provider, id } = endTrip;
-  const handleClose = () => onCloseTrip();
-  return (
-    <Card className="reserve">
-      <Card.Body>
-        {/* TODO: localization */}
-        <p>Your trip {id} has ended.</p>
-        <p>Provider: {provider.vendorName}</p>
-        <p>Rate:{rate.localizationKey}</p>
-        <p>Total: $2</p>
-        <FormError error={error} />
-        <Button size="sm" variant="outline-success" onClick={handleClose}>
-          Done
-        </Button>
-      </Card.Body>
-    </Card>
-  );
-};
