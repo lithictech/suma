@@ -14,7 +14,7 @@ $btn-border-radius-lg: .5rem;
 
 // Base Styles
 @mixin mainContainer() {
-  width: 500px;
+  max-width: 500px;
   margin: 50px auto;
 }
 

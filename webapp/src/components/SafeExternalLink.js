@@ -3,6 +3,7 @@ import React from "react";
 export default function SafeExternalLink({
   href,
   className,
+  variant,
   style,
   title,
   children,
@@ -20,6 +21,7 @@ export default function SafeExternalLink({
         .filter(Boolean)
         .join(" ")}
       className={className}
+      variant={variant}
       style={style}
       title={title}
       {...rest}

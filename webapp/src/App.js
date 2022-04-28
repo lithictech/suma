@@ -6,6 +6,7 @@ import Dashboard from "./pages/Dashboard";
 import Home from "./pages/Home";
 import Onboarding from "./pages/Onboarding";
 import OneTimePassword from "./pages/OneTimePassword";
+import MapPage from "./pages/MapPage";
 import Start from "./pages/Start";
 import { UserProvider } from "./state/useUser";
 import React from "react";
@@ -32,6 +33,11 @@ function App() {
             path="/dashboard"
             exact
             element={renderWithHocs(redirectIfUnauthed, Dashboard)}
+          />
+          <Route
+            path="/map"
+            exact
+            element={renderWithHocs(redirectIfUnauthed, MapPage)}
           />
           <Route path="/*" element={<Redirect to="/" />} />
         </Routes>
