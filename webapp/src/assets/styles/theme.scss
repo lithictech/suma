@@ -15,7 +15,7 @@ $btn-border-radius-lg: .5rem;
 // Base Styles
 @mixin mainContainer() {
   max-width: 500px;
-  margin: 50px auto;
+  margin: 0 auto;
 }
 
 .mainContainer {
@@ -48,8 +48,8 @@ $theme-colors: map-merge($custom-theme-colors, $theme-colors);
 // @import "~bootstrap/scss/_dropdown";
 // @import "~bootstrap/scss/_list-group";
 // @import "~bootstrap/scss/_modal";
-// @import "~bootstrap/scss/_nav";
-// @import "~bootstrap/scss/_navbar";
+@import "~bootstrap/scss/_nav";
+@import "~bootstrap/scss/_navbar";
 // @import "~bootstrap/scss/_offcanvas";
 // @import "~bootstrap/scss/_pagination";
 // @import "~bootstrap/scss/_progress";

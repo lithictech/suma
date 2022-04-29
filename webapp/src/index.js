@@ -5,6 +5,7 @@ import "./localization/i18n";
 import "leaflet.animatedmarker/src/AnimatedMarker";
 import "leaflet.markercluster/dist/MarkerCluster.css";
 import "leaflet.markercluster/dist/leaflet.markercluster";
+import 'bootstrap-icons/font/bootstrap-icons.css';
 import React from "react";
 import ReactDOM from "react-dom";
 
