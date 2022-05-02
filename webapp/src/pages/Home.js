@@ -2,9 +2,9 @@ import sumaLogo from "../assets/images/suma-logo.png";
 import SafeExternalLink from "../components/SafeExternalLink";
 import i18next from "i18next";
 import React from "react";
+import Button from "react-bootstrap/Button";
 import Col from "react-bootstrap/Col";
 import Row from "react-bootstrap/Row";
-import Button from "react-bootstrap/Button";
 import { Link } from "react-router-dom";
 
 const Home = () => {
