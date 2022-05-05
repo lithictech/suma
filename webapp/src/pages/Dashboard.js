@@ -21,27 +21,24 @@ const Dashboard = () => {
                 to="/map"
                 className="btn btn-sm btn-success w-100 p-2 my-2 rounded-pill"
               >
-                You have an active ride in mobility map.{" "}
+                You have an active ride in mobility map.
               </Link>
             )}
             <Link
               to="/map"
-              className="btn btn-sm btn-light w-100 p-2 my-2 text-body rounded-pill"
-              style={{ border: "2px solid #6597F8" }}
+              className="btn btn-sm btn-light w-100 p-2 my-2 text-body rounded-pill border border-primary"
             >
               Scooter Service
             </Link>
             <Link
               to="/map"
-              className="btn btn-sm btn-light w-100 p-2 my-2 text-body rounded-pill"
-              style={{ border: "2px solid #6597F8" }}
+              className="btn btn-sm btn-light w-100 p-2 my-2 text-body rounded-pill border border-primary"
             >
               Food Service
             </Link>
             <Link
               to="/map"
-              className="btn btn-sm btn-light w-100 p-2 my-2 text-body rounded-pill"
-              style={{ border: "2px solid #6597F8" }}
+              className="btn btn-sm btn-light w-100 p-2 my-2 text-body rounded-pill border border-primary"
             >
               Other Services
             </Link>
@@ -49,7 +46,6 @@ const Dashboard = () => {
               variant="danger"
               size="small"
               className="w-100 p-2 my-2 rounded-pill"
-              style={{ borderRadius: "50px" }}
               onClick={signOut}
             >
               Log Out{" "}
