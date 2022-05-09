@@ -173,9 +173,14 @@ export default class MapBuilder {
       .locate({
         watch: true,
         maxZoom: 20,
+        timeout: 20000,
         enableHighAccuracy: true,
       })
-      .on("locationerror", (e) => onGetLocationError(e))
+      .on("locationerror", (e) => {
+        if (e.code === (1 || 2)) {
+          onGetLocationError(e);
+        }
+      })
       .on("locationfound", (e) => {
         if (!loc) {
           loc = e.latlng;

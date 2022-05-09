@@ -49,7 +49,7 @@ $utilities-bg-colors: map-loop($utilities-colors, rgba-css-var, "$key", "bg");
 @import "~bootstrap/scss/_grid";
 @import "~bootstrap/scss/_images";
 @import "~bootstrap/scss/_reboot";
-// @import "~bootstrap/scss/_accordion";
+@import "~bootstrap/scss/_accordion";
 // @import "~bootstrap/scss/_alert";
 // @import "~bootstrap/scss/_button-group";
 // @import "~bootstrap/scss/_breadcrumb";
@@ -58,7 +58,7 @@ $utilities-bg-colors: map-loop($utilities-colors, rgba-css-var, "$key", "bg");
 // @import "~bootstrap/scss/_carousel";
 // @import "~bootstrap/scss/_dropdown";
 // @import "~bootstrap/scss/_list-group";
-// @import "~bootstrap/scss/_modal";
+@import "~bootstrap/scss/_modal";
 @import "~bootstrap/scss/_nav";
 @import "~bootstrap/scss/_navbar";
 // @import "~bootstrap/scss/_offcanvas";
@@ -69,7 +69,7 @@ $utilities-bg-colors: map-loop($utilities-colors, rgba-css-var, "$key", "bg");
 // @import "~bootstrap/scss/_tables";
 // @import "~bootstrap/scss/_toasts";
 // @import "~bootstrap/scss/_tooltip";
-// @import "~bootstrap/scss/_transitions";
+@import "~bootstrap/scss/_transitions";
 // @import "~bootstrap/scss/_type";
 
 // Helpers
