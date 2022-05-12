@@ -91,8 +91,7 @@ Sequel.migration do
       boolean :used, null: false, default: false
       timestamptz :expire_at, null: false
 
-      foreign_key :customer_id, :customers, null: false, on_delete: :cascade
-      index :customer_id
+      foreign_key :customer_id, :customers, null: false, on_delete: :cascade, index: true
     end
 
     create_join_table({role_id: :roles, customer_id: :customers}, name: :roles_customers)
@@ -113,8 +112,7 @@ Sequel.migration do
 
       text :message, null: false
 
-      foreign_key :customer_id, :customers, null: false, on_delete: :cascade
-      index :customer_id
+      foreign_key :customer_id, :customers, null: false, on_delete: :cascade, index: true
     end
 
     create_table(:customer_sessions) do
@@ -139,8 +137,7 @@ Sequel.migration do
       text :transport_service, null: false
       text :transport_message_id, unique: true
       text :to, null: false
-      foreign_key :recipient_id, :customers, on_delete: :set_null
-      index :recipient_id
+      foreign_key :recipient_id, :customers, on_delete: :set_null, index: true
       jsonb :extra_fields, null: false, default: "{}"
       timestamptz :sent_at
       index :sent_at
@@ -151,8 +148,7 @@ Sequel.migration do
       primary_key :id
       text :content, null: false
       text :mediatype, null: false
-      foreign_key :delivery_id, :message_deliveries, null: false, on_delete: :cascade
-      index :delivery_id
+      foreign_key :delivery_id, :message_deliveries, null: false, on_delete: :cascade, index: true
     end
 
     create_table(:organizations) do
@@ -177,7 +173,7 @@ Sequel.migration do
       timestamptz :updated_at
       text :name, null: false
       text :slug, null: false
-      foreign_key :organization_id, :organizations, null: false, on_delete: :cascade
+      foreign_key :organization_id, :organizations, null: false, on_delete: :cascade, index: true
     end
 
     create_table(:vendor_services) do
@@ -185,7 +181,7 @@ Sequel.migration do
       timestamptz :created_at, null: false, default: Sequel.function(:now)
       timestamptz :updated_at
 
-      foreign_key :vendor_id, :vendors, null: false, on_delete: :cascade
+      foreign_key :vendor_id, :vendors, null: false, on_delete: :cascade, index: true
 
       text :internal_name, null: false
       text :external_name, null: false
@@ -198,6 +194,7 @@ Sequel.migration do
       primary_key :id
       text :name, null: false
       text :slug, null: false, unique: true
+      foreign_key :parent_id, :vendor_service_categories, index: true
     end
 
     create_join_table(
@@ -242,8 +239,7 @@ Sequel.migration do
       text :vehicle_type, null: false
       text :vehicle_id, null: false
 
-      foreign_key :vendor_service_id, :vendor_services, null: false, on_delete: :cascade
-      index :vendor_service_id
+      foreign_key :vendor_service_id, :vendor_services, null: false, on_delete: :cascade, index: true
     end
 
     create_table(:vendor_service_rates) do
@@ -257,8 +253,7 @@ Sequel.migration do
       text :surcharge_currency, null: false
       int :unit_offset, null: false, default: 0
 
-      foreign_key :undiscounted_rate_id, :vendor_service_rates
-      index :undiscounted_rate_id
+      foreign_key :undiscounted_rate_id, :vendor_service_rates, index: true
 
       text :localization_key, null: false
       text :name, null: false
@@ -288,8 +283,7 @@ Sequel.migration do
 
       foreign_key :vendor_service_rate_id, :vendor_service_rates, null: false, on_delete: :restrict
 
-      foreign_key :customer_id, :customers, null: false
-      index :customer_id
+      foreign_key :customer_id, :customers, null: false, index: true
 
       index :customer_id, name: "one_active_ride_per_customer", unique: true, where: Sequel[ended_at: nil]
       constraint(
@@ -299,6 +293,62 @@ Sequel.migration do
       )
     end
 
+    create_table(:payment_accounts) do
+      primary_key :id
+      timestamptz :created_at, null: false, default: Sequel.function(:now)
+      timestamptz :updated_at
+
+      foreign_key :customer_id, :customers, null: true, unique: true
+      foreign_key :vendor_id, :vendors, null: true, unique: true
+      boolean :is_platform_account, null: false, default: false
+      index [:is_platform_account],
+            name: :one_platform_account,
+            unique: true,
+            where: Sequel[is_platform_account: true]
+
+      constraint(
+        :unambiguous_owner,
+        Sequel.lit(
+          "(customer_id IS NOT NULL AND vendor_id IS NULL) " \
+          "OR (customer_id IS NULL AND vendor_id IS NOT NULL) " \
+          "OR (is_platform_account IS TRUE AND customer_id IS NULL AND vendor_id IS NULL)",
+        ),
+      )
+    end
+
+    create_table(:payment_ledgers) do
+      primary_key :id
+      timestamptz :created_at, null: false, default: Sequel.function(:now)
+      timestamptz :updated_at
+
+      text :currency, null: false
+
+      foreign_key :account_id, :payment_accounts, index: true
+    end
+
+    create_join_table(
+      {
+        category_id: :vendor_service_categories,
+        ledger_id: :payment_ledgers,
+      },
+      name: :vendor_service_categories_payment_ledgers,
+    )
+
+    create_table(:payment_book_transactions) do
+      primary_key :id
+      timestamptz :created_at, null: false, default: Sequel.function(:now)
+      timestamptz :updated_at
+
+      foreign_key :originating_ledger_id, :payment_ledgers, index: true
+      foreign_key :receiving_ledger_id, :payment_ledgers, index: true
+
+      int :amount_cents, null: false
+      text :amount_currency, null: false
+      constraint(:positive_amount, Sequel.lit("amount_cents > 0"))
+
+      text :memo, null: false
+    end
+
     create_table(:charges) do
       primary_key :id
       timestamptz :created_at, null: false, default: Sequel.function(:now)
@@ -306,14 +356,16 @@ Sequel.migration do
 
       int :undiscounted_subtotal_cents, null: false
       text :undiscounted_subtotal_currency, null: false
-      int :discounted_subtotal_cents, null: false
-      text :discounted_subtotal_currency, null: false
 
       foreign_key :customer_id, :customers, null: false
       index :customer_id
 
-      foreign_key :mobility_trip_id, :mobility_trips, null: true, on_delete: :set_null
-      unique :mobility_trip_id
+      foreign_key :mobility_trip_id, :mobility_trips, null: true, on_delete: :set_null, index: true
     end
+
+    create_join_table(
+      {charge_id: :charges, book_transaction_id: :payment_book_transactions},
+      name: :charges_payment_book_transactions,
+    )
   end
 end

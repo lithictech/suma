@@ -10,6 +10,7 @@ RSpec.describe "Suma::Customer", :db do
   describe "associations" do
     it "has an ongoing_trip association" do
       c = Suma::Fixtures.customer.create
+      Suma::Fixtures.ledger.customer(c).category(:mobility).create # So we can end trip
       expect(c.ongoing_trip).to be_nil
       t = Suma::Fixtures.mobility_trip.ongoing.create(customer: c)
       expect(c.refresh.ongoing_trip).to be === t

@@ -18,7 +18,6 @@ if (heroku_app = ENV["MERGE_HEROKU_ENV"])
 end
 
 Money.locale_backend = :i18n
-Money.default_currency = "USD"
 Money.rounding_mode = BigDecimal::ROUND_HALF_UP
 
 module Suma
@@ -62,6 +61,7 @@ module Suma
     setting :app_url, "http://localhost:22002"
     setting :admin_url, "http://localhost:22011"
     setting :api_url, "http://localhost:#{ENV['PORT'] || 22_001}"
+    setting :default_currency, "USD", side_effect: ->(v) { Money.default_currency = v }
     setting :bust_idempotency, false
     setting :use_globals_cache, false
   end
@@ -179,5 +179,6 @@ module Suma
   end
 end
 
-require "suma/phone_number"
 require "suma/aggregate_result"
+require "suma/phone_number"
+require "suma/typed_struct"

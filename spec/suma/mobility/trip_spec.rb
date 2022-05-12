@@ -62,12 +62,9 @@ RSpec.describe "Suma::Mobility::Trip", :db do
   end
 
   describe "end_trip" do
-    it "ends the trip" do
-      ongoing = Suma::Fixtures.mobility_trip(customer:).ongoing.create
-      ongoing.end_trip(lat: 1, lng: 2)
-      expect(ongoing.refresh).to have_attributes(end_lat: 1, end_lng: 2)
-    end
-    it "creates a charge using the linked rate" do
+    let!(:customer_ledger) { Suma::Fixtures.ledger.customer(customer).category(:mobility).create }
+
+    it "ends the trip and creates a charge using the linked rate" do
       rate = Suma::Fixtures.vendor_service_rate.
         unit_amount(20).
         discounted_by(0.25).
@@ -76,10 +73,22 @@ RSpec.describe "Suma::Mobility::Trip", :db do
         ongoing.
         create(began_at: 6.minutes.ago, vendor_service_rate: rate, customer:)
       trip.end_trip(lat: 1, lng: 2)
+      expect(trip.refresh).to have_attributes(end_lat: 1, end_lng: 2)
       expect(trip.charge).to have_attributes(
         undiscounted_subtotal: cost("$1.62"),
         discounted_subtotal: cost("$1.20"),
       )
+      expect(trip.charge.book_transactions).to have_length(1)
+    end
+
+    it "creates no transactions for a $0 trip" do
+      rate = Suma::Fixtures.vendor_service_rate.unit_amount(0).surcharge(0).create
+      trip = Suma::Fixtures.mobility_trip.
+        ongoing.
+        create(began_at: 6.minutes.ago, vendor_service_rate: rate, customer:)
+      trip.end_trip(lat: 1, lng: 2)
+      expect(trip.charge).to have_attributes(discounted_subtotal: cost("$0"))
+      expect(trip.charge.book_transactions).to be_empty
     end
   end
 

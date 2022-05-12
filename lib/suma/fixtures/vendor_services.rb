@@ -27,4 +27,8 @@ module Suma::Fixtures::VendorServices
   decorator :food, presave: true do
     self.add_category(Suma::Fixtures.vendor_service_category.food.create)
   end
+
+  decorator :with_categories, presave: true do |*cats|
+    cats.each { |c| self.add_category(c) }
+  end
 end
