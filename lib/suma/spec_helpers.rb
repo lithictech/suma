@@ -58,6 +58,12 @@ module Suma::SpecHelpers
     return t.change(nsec: t.usec * 1000)
   end
 
+  module_function def money(x, *more)
+    return x if x.is_a?(Money)
+    return Monetize.parse(x) if x.is_a?(String)
+    return Money.new(x, *more)
+  end
+
   #
   # :section: Matchers
   #

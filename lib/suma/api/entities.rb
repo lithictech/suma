@@ -75,4 +75,18 @@ module Suma::API
   class CurrentCustomerEntity < Suma::Service::Entities::CurrentCustomer
     expose :ongoing_trip, with: MobilityTripEntity
   end
+
+  class LedgerLineEntity < BaseEntity
+    expose :amount, with: MoneyEntity
+  end
+
+  class CustomerLedgerEntity < BaseEntity
+    expose :available_balance, with: MoneyEntity
+    expose :lifetime_savings, with: MoneyEntity
+    expose :lines, with: LedgerLineEntity
+  end
+
+  class CustomerDashboardEntity < BaseEntity
+    expose :ledger, with: CustomerLedgerEntity
+  end
 end

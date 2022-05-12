@@ -10,7 +10,7 @@ module Suma::Fixtures::VendorServiceCategories
   fixtured_class Suma::Vendor::ServiceCategory
 
   base :vendor_service_category do
-    self.name ||= ["Mobility", "Food", "Widgets"].sample
+    self.name ||= "RandCategory-#{SecureRandom.hex(3)}"
   end
 
   before_saving do |instance|

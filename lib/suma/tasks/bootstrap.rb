@@ -12,6 +12,7 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
       Suma.load_app
       org = Suma::Organization.find_or_create(name: "Spin")
       org.db.transaction do
+        ["Food", "Mobility", "Cash"].each { |n| Suma::Vendor::ServiceCategory.find_or_create(name: n) }
         rate = Suma::Vendor::ServiceRate.find_or_create(name: "Mobility $1 start $0.20/minute") do |r|
           r.localization_key = "mobility_start_and_per_minute"
           r.surcharge = Money.new(100)
@@ -26,6 +27,7 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
             mobility_vendor_adapter_key: "fake",
           )
           svc.add_category(Suma::Vendor::ServiceCategory.find_or_create(name: "Mobility"))
+          svc.add_category(Suma::Vendor::ServiceCategory.find_or_create(name: "Cash"))
           svc.add_rate(rate)
         end
       end

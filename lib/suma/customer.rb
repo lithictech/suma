@@ -4,12 +4,14 @@ require "appydays/configurable"
 require "bcrypt"
 require "openssl"
 
-require "suma/secureid"
+require "suma/payment/has_account"
 require "suma/postgres/model"
+require "suma/secureid"
 
 class Suma::Customer < Suma::Postgres::Model(:customers)
   extend Suma::MethodUtilities
   include Appydays::Configurable
+  include Suma::Payment::HasAccount
 
   class InvalidPassword < RuntimeError; end
 
@@ -37,6 +39,8 @@ class Suma::Customer < Suma::Postgres::Model(:customers)
 
   one_to_many :journeys, class: "Suma::Customer::Journey", order: Sequel.desc([:created_at, :id])
   many_to_one :legal_entity, class: "Suma::LegalEntity"
+  one_to_one :payment_account, class: "Suma::Payment::Account"
+  one_to_many :charges, class: "Suma::Charge", order: Sequel.desc([:id])
   one_to_many :message_deliveries, key: :recipient_id, class: "Suma::Message::Delivery"
   one_to_many :reset_codes, class: "Suma::Customer::ResetCode", order: Sequel.desc([:created_at])
   many_to_many :roles, class: "Suma::Role", join_table: :roles_customers

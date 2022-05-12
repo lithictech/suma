@@ -63,10 +63,24 @@ class Suma::Mobility::Trip < Suma::Postgres::Model(:mobility_trips)
       units = self.rate_units
       self.charge = Suma::Charge.create(
         mobility_trip: self,
-        discounted_subtotal: Money.new(result.cost_cents, result.cost_currency),
         undiscounted_subtotal: self.vendor_service_rate.calculate_undiscounted_total(units),
         customer: self.customer,
       )
+      if result.cost_cents.positive?
+        contributions = self.customer.payment_account!.find_chargeable_ledgers(
+          self.vendor_service,
+          Money.new(result.cost_cents, result.cost_currency),
+          # At this point, serivce has been taken so we need to accept it
+          # and deal with a potential negative balance.
+          allow_negative_balance: true,
+        )
+        xactions = self.customer.payment_account.debit_contributions(
+          contributions,
+          memo: "Suma Mobility - #{self.vendor_service.external_name}",
+        )
+        xactions.each { |x| self.charge.add_book_transaction(x) }
+      end
+      return self.charge
     end
   end
 
