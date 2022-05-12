@@ -3,6 +3,7 @@
 require "grape"
 
 require "suma/api"
+require "suma/customer/dashboard"
 
 class Suma::API::Me < Suma::API::V1
   resource :me do
@@ -27,6 +28,11 @@ class Suma::API::Me < Suma::API::V1
 
       status 200
       present customer, with: Suma::API::CurrentCustomerEntity, env:
+    end
+
+    get :dashboard do
+      d = Suma::Customer::Dashboard.new(current_customer)
+      present d, with: Suma::API::CustomerDashboardEntity
     end
   end
 end

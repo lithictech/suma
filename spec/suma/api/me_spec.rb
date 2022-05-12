@@ -70,4 +70,17 @@ RSpec.describe Suma::API::Me, :db do
       expect(customer.refresh).to have_attributes(name: "Hassan")
     end
   end
+
+  describe "GET /v1/me/dashboard" do
+    it "returns the dashboard" do
+      cash_ledger = Suma::Fixtures.ledger.customer(customer).category(:cash).create
+      Suma::Fixtures.book_transaction.to(cash_ledger).create(amount: money("$27"))
+
+      get "/v1/me/dashboard"
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.
+        that_includes(payment_account_balance: cost("$27"))
+    end
+  end
 end
