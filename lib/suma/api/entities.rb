@@ -77,16 +77,14 @@ module Suma::API
   end
 
   class LedgerLineEntity < BaseEntity
+    expose :at
     expose :amount, with: MoneyEntity
-  end
-
-  class CustomerLedgerEntity < BaseEntity
-    expose :available_balance, with: MoneyEntity
-    expose :lifetime_savings, with: MoneyEntity
-    expose :lines, with: LedgerLineEntity
+    expose :memo
   end
 
   class CustomerDashboardEntity < BaseEntity
-    expose :ledger, with: CustomerLedgerEntity
+    expose :payment_account_balance, with: MoneyEntity
+    expose :lifetime_savings, with: MoneyEntity
+    expose :ledger_lines, with: LedgerLineEntity
   end
 end

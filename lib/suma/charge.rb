@@ -17,4 +17,8 @@ class Suma::Charge < Suma::Postgres::Model(:charges)
   def discounted_subtotal
     return self.book_transactions.sum(Money.new(0), &:amount)
   end
+
+  def discount_amount
+    return self.undiscounted_subtotal - self.discounted_subtotal
+  end
 end

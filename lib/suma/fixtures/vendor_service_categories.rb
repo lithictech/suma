@@ -25,4 +25,8 @@ module Suma::Fixtures::VendorServiceCategories
   decorator :food do
     self.name = "Food"
   end
+
+  decorator :cash do
+    self.name = "Cash"
+  end
 end
