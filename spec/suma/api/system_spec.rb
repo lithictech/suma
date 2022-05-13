@@ -27,7 +27,7 @@ RSpec.describe Suma::API::System do
       header "User-Agent",
              "Mozilla/5.0 (iPad; CPU OS 14_7_1 like Mac OS X) AppleWebKit/605.1.15
              (KHTML, like Gecko) Version/14.1.2 Mobile/15E148 Safari/604.1"
-      get "/useragentz"
+      get "/useragent"
       expect(last_response).to have_status(200)
       expect(last_response_json_body).to include(:device, :platform, :is_android, :is_ios)
       expect(last_response).to have_json_body.that_includes(
