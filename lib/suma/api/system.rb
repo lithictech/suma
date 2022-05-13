@@ -29,8 +29,9 @@ class Suma::API::System < Suma::Service
     }
   end
 
-  get :useragentz do
+  get :useragent do
     status 200
+    use_http_expires_caching 7.days
     browser = Browser.new(request.headers["User-Agent"], accept_language: "en-us")
     {
       device: browser.name,

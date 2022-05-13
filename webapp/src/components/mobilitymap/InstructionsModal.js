@@ -1,4 +1,5 @@
 import api from "../../api";
+import useToggle from "../../state/useToggle";
 import React from "react";
 import Accordion from "react-bootstrap/Accordion";
 import Alert from "react-bootstrap/Alert";
@@ -6,18 +7,22 @@ import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
 
 const InstructionsModal = () => {
-  const [show, setShow] = React.useState(false);
-  const [accordionKey, setAccordionKey] = React.useState(null);
-  const [version, setVersion] = React.useState(null);
-  const handleClose = () => setShow(false);
-  const handleShow = () => setShow(true);
+  const showModal = useToggle(false);
+  const [accordionKey, setAccordionKey] = React.useState("");
+  const [version, setVersion] = React.useState("");
+  const toggleShow = () => showModal.toggle();
   React.useEffect(() => {
     if (!accordionKey) {
       api.getUserAgent().then((r) => {
         if (r.data) {
           const browser = r.data;
-          if (browser.device === "Uknown") return;
-          if (browser.isIos) return setAccordionKey("ios");
+          if (browser.device === "Uknown") {
+            return;
+          }
+          if (browser.isIos) {
+            setAccordionKey("ios");
+            return;
+          }
           if (browser.isAndroid) {
             setVersion(browser.platformVersion);
             setAccordionKey("android");
@@ -31,10 +36,18 @@ const InstructionsModal = () => {
 
   return (
     <>
-      <Button variant="dark" size="sm" className="w-100 mt-2" onClick={handleShow}>
+      <Button
+        variant="darksuma"
+        size="sm"
+        className="w-100 mt-2 text-white"
+        onClick={toggleShow}
+      >
         <i className="bi bi-book"></i> Location Instructions
       </Button>
-      <Modal show={show} onHide={handleClose}>
+      <Modal show={showModal.isOn} onHide={toggleShow}>
+        <Modal.Header closeButton>
+          <Modal.Title>Enable Location Services</Modal.Title>
+        </Modal.Header>
         <Modal.Body>
           <Alert variant="info">
             <p>
@@ -147,7 +160,7 @@ const InstructionsModal = () => {
                 {version && (
                   <Alert variant="info">
                     <i className="bi bi-info-circle-fill"></i> We detected that you are
-                    using {version}
+                    using version {version}
                   </Alert>
                 )}
                 <h5>Android 10 and 11</h5>
@@ -234,7 +247,7 @@ const InstructionsModal = () => {
               </Accordion.Body>
             </Accordion.Item>
           </Accordion>
-          <Button variant="secondary" className="mt-2" onClick={handleClose}>
+          <Button variant="secondary" className="mt-2" onClick={toggleShow}>
             Close
           </Button>
         </Modal.Body>

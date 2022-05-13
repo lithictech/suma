@@ -1,5 +1,6 @@
 import api from "../api";
 import scooterIcon from "../assets/images/kick-scooter.png";
+import { locationErrors as errors } from "../constants/errorMessages";
 
 export default class MapBuilder {
   constructor(mapRef) {
@@ -166,6 +167,14 @@ export default class MapBuilder {
       });
   }
 
+  /**
+   * Error code 3 is for timeout but location service keeps attempting
+   * and seems to always prevail so there's no need for throwing geolocation error msg.
+   */
+  ignoreLocationError(e) {
+    return e.code !== errors.PERMISSION_DENIED && e.code !== errors.POSITION_UNAVAILABLE;
+  }
+
   beginTrip({ onGetLocation, onGetLocationError }) {
     this.tripMode();
     let loc, line;
@@ -177,7 +186,9 @@ export default class MapBuilder {
         enableHighAccuracy: true,
       })
       .on("locationerror", (e) => {
-        if (e.code === (1 || 2)) return onGetLocationError();
+        if (!this.ignoreLocationError(e)) {
+          onGetLocationError();
+        }
       })
       .on("locationfound", (e) => {
         if (!loc) {

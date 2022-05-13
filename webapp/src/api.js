@@ -39,5 +39,5 @@ export default {
   getMobilityVehicle: (data) => get("/api/v1/mobility/vehicle", data),
   beginMobilityTrip: (data) => post("/api/v1/mobility/begin_trip", data),
   endMobilityTrip: (data) => post("/api/v1/mobility/end_trip", data),
-  getUserAgent: () => get("/api/useragentz"),
+  getUserAgent: () => get("/api/useragent"),
 };
