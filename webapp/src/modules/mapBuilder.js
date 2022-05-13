@@ -166,6 +166,19 @@ export default class MapBuilder {
       });
   }
 
+  /**
+   * Error code 3 is for timeout but location service keeps attempting
+   * and seems to always prevail so there's no need for throwing geolocation error msg.
+   */
+  ignoreLocationError(e) {
+    const ERR_LOCATION_PERMISSION_DENIED = 1;
+    const ERR_LOCATION_POSITION_UNAVAILABLE = 2;
+    return (
+      e.code !== ERR_LOCATION_PERMISSION_DENIED &&
+      e.code !== ERR_LOCATION_POSITION_UNAVAILABLE
+    );
+  }
+
   beginTrip({ onGetLocation, onGetLocationError }) {
     this.tripMode();
     let loc, line;
@@ -173,9 +186,14 @@ export default class MapBuilder {
       .locate({
         watch: true,
         maxZoom: 20,
+        timeout: 20000,
         enableHighAccuracy: true,
       })
-      .on("locationerror", (e) => onGetLocationError(e))
+      .on("locationerror", (e) => {
+        if (!this.ignoreLocationError(e)) {
+          onGetLocationError();
+        }
+      })
       .on("locationfound", (e) => {
         if (!loc) {
           loc = e.latlng;

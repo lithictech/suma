@@ -3,12 +3,13 @@ import MapBuilder from "../../modules/mapBuilder";
 import { extractErrorCode, useError } from "../../state/useError";
 import { useUser } from "../../state/useUser";
 import FormError from "../FormError";
-import SafeExternalLink from "../SafeExternalLink";
+import InstructionsModal from "./InstructionsModal";
 import ReservationCard from "./ReservationCard";
 import TripCard from "./TripCard";
 import i18next from "i18next";
 import React from "react";
-import { Card } from "react-bootstrap";
+import Alert from "react-bootstrap/Alert";
+import Card from "react-bootstrap/Card";
 
 const Map = () => {
   const mapRef = React.useRef();
@@ -46,21 +47,17 @@ const Map = () => {
     (lastLocation) => setLastMarkerLocation(lastLocation),
     []
   );
-  const handleGetLocationError = React.useCallback(
-    (e) => {
-      console.error(e);
-      setError(
-        <>
-          <span>{i18next.t("denied_geolocation", { ns: "errors" })}</span>
-          <br />
-          <SafeExternalLink href="#todo">
-            {i18next.t("enable_geolocation_instructions", { ns: "errors" })}
-          </SafeExternalLink>
-        </>
-      );
-    },
-    [setError]
-  );
+  const handleGetLocationError = React.useCallback(() => {
+    setError(
+      <>
+        <Alert variant="warning m-0">
+          <i className="bi bi-exclamation-triangle-fill"></i>{" "}
+          {i18next.t("denied_geolocation", { ns: "errors" })}
+          <InstructionsModal />
+        </Alert>
+      </>
+    );
+  }, [setError]);
 
   const handleReserve = React.useCallback(
     (vehicle) => {
@@ -135,7 +132,7 @@ const Map = () => {
       {error && (
         <Card className="cardContainer">
           <Card.Body>
-            <FormError error={error} noMargin />
+            <FormError error={error} noMargin component="div" />
           </Card.Body>
         </Card>
       )}
