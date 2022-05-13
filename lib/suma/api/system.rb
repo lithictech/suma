@@ -31,13 +31,13 @@ class Suma::API::System < Suma::Service
 
   get :useragentz do
     status 200
-    browser = Browser.new(request.headers['User-Agent'], accept_language: "en-us")
+    browser = Browser.new(request.headers["User-Agent"], accept_language: "en-us")
     {
       device: browser.name,
       platform: browser.platform.name,
       platform_version: browser.platform.version,
       is_android: browser.platform.android?,
-      is_ios: browser.platform.ios?
+      is_ios: browser.platform.ios?,
     }
   end
 end

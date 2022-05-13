@@ -24,7 +24,9 @@ RSpec.describe Suma::API::System do
 
   describe "GET /useragentz" do
     it "returns 200 and user-agent object" do
-      header "User-Agent", "Mozilla/5.0 (iPad; CPU OS 14_7_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.1.2 Mobile/15E148 Safari/604.1"
+      header "User-Agent",
+             "Mozilla/5.0 (iPad; CPU OS 14_7_1 like Mac OS X) AppleWebKit/605.1.15
+             (KHTML, like Gecko) Version/14.1.2 Mobile/15E148 Safari/604.1"
       get "/useragentz"
       expect(last_response).to have_status(200)
       expect(last_response_json_body).to include(:device, :platform, :is_android, :is_ios)
