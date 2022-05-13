@@ -29,7 +29,6 @@ RSpec.describe Suma::API::System do
              (KHTML, like Gecko) Version/14.1.2 Mobile/15E148 Safari/604.1"
       get "/useragent"
       expect(last_response).to have_status(200)
-      expect(last_response_json_body).to include(:device, :platform, :is_android, :is_ios)
       expect(last_response).to have_json_body.that_includes(
         device: "Safari", platform: "iOS (iPad)", platform_version: "14.7.1", is_android: false, is_ios: true,
       )
