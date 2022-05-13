@@ -177,9 +177,7 @@ export default class MapBuilder {
         enableHighAccuracy: true,
       })
       .on("locationerror", (e) => {
-        if (e.code === (1 || 2)) {
-          onGetLocationError(e);
-        }
+        if (e.code === (1 || 2)) return onGetLocationError();
       })
       .on("locationfound", (e) => {
         if (!loc) {

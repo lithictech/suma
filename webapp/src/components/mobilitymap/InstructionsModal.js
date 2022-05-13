@@ -1,50 +1,50 @@
+import api from "../../api";
 import React from "react";
 import Accordion from "react-bootstrap/Accordion";
+import Alert from "react-bootstrap/Alert";
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
 
 const InstructionsModal = () => {
   const [show, setShow] = React.useState(false);
   const [accordionKey, setAccordionKey] = React.useState(null);
-
+  const [version, setVersion] = React.useState(null);
   const handleClose = () => setShow(false);
-  const handleShow = () => {
-    setAccordionKey(getBrowserName());
-    setShow(true);
-  };
-
-  const getBrowserName = () => {
-    const ua = navigator.userAgent;
-    if (ua.match(/chrome|chromium|crios/i)) {
-      return "chrome";
-    } else if (ua.match(/firefox|fxios/i)) {
-      return "firefox";
-    } else if (ua.match(/safari/i)) {
-      return "safari";
-    } else if (ua.match(/edg/i)) {
-      return "edge";
-    } else if (ua.match(/Android/i)) {
-      return "android";
-    } else if (ua.match(/iPhone|iPad|iPod/i)) {
-      return "ios";
-    } else {
-      return null;
+  const handleShow = () => setShow(true);
+  React.useEffect(() => {
+    if (!accordionKey) {
+      api.getUserAgent().then((r) => {
+        if (r.data) {
+          const browser = r.data;
+          if (browser.device === "Uknown") return;
+          if (browser.isIos) return setAccordionKey("ios");
+          if (browser.isAndroid) {
+            setVersion(browser.platformVersion);
+            setAccordionKey("android");
+            return;
+          }
+          setAccordionKey(browser.device.toLowerCase());
+        }
+      });
     }
-  };
+  }, [accordionKey]);
+
   return (
     <>
-      <Button variant="warning" size="sm" className=" w-100 mt-2" onClick={handleShow}>
-        Location Instructions
+      <Button variant="dark" size="sm" className="w-100 mt-2" onClick={handleShow}>
+        <i className="bi bi-book"></i> Location Instructions
       </Button>
       <Modal show={show} onHide={handleClose}>
         <Modal.Body>
-          <p>
-            <i className="bi bi-info-circle-fill text-primary"></i> Click on your
-            browser/device below and follow the instructions to enable location service.
-          </p>
-          <p>
-            <b>Reload</b> this page when you are done.
-          </p>
+          <Alert variant="info">
+            <p>
+              <i className="bi bi-info-circle-fill"></i> Click on your browser/device
+              below and follow the instructions to enable location service.
+            </p>
+            <p className="m-0">
+              <b>Refresh</b> this page after you are done following instructions.
+            </p>
+          </Alert>
           <Accordion defaultActiveKey={accordionKey}>
             <Accordion.Item eventKey="chrome">
               <Accordion.Header>Google Chrome</Accordion.Header>
@@ -122,7 +122,7 @@ const InstructionsModal = () => {
                 </ol>
               </Accordion.Body>
             </Accordion.Item>
-            <Accordion.Item eventKey="edge">
+            <Accordion.Item eventKey="microsoft edge">
               <Accordion.Header>Microsoft Edge</Accordion.Header>
               <Accordion.Body>
                 <ol>
@@ -142,8 +142,14 @@ const InstructionsModal = () => {
               </Accordion.Body>
             </Accordion.Item>
             <Accordion.Item eventKey="android">
-              <Accordion.Header>Android Phone</Accordion.Header>
+              <Accordion.Header>Android Device</Accordion.Header>
               <Accordion.Body>
+                {version && (
+                  <Alert variant="info">
+                    <i className="bi bi-info-circle-fill"></i> We detected that you are
+                    using {version}
+                  </Alert>
+                )}
                 <h5>Android 10 and 11</h5>
                 <ol>
                   <li>Swipe down from the top of the screen.</li>
@@ -171,7 +177,7 @@ const InstructionsModal = () => {
                     </ul>
                   </li>
                   <li>
-                    <b>Turn Location on or off</b>: Tap <b>Location.</b>
+                    <b>Turn Location on</b>: Tap <b>Location.</b>
                   </li>
                 </ol>
                 <h5>Android 4.4 to 8.1</h5>
@@ -215,14 +221,14 @@ const InstructionsModal = () => {
               </Accordion.Body>
             </Accordion.Item>
             <Accordion.Item eventKey="ios">
-              <Accordion.Header>IOS Phone</Accordion.Header>
+              <Accordion.Header>IOS Device</Accordion.Header>
               <Accordion.Body>
                 <ol>
                   <li>
                     Go to <b>Settings &#62; Privacy &#62; Location Services</b>
                   </li>
                   <li>
-                    Make sure that <b>Location Services</b> is on
+                    Make sure that <b>Location Services</b> is turned on
                   </li>
                 </ol>
               </Accordion.Body>

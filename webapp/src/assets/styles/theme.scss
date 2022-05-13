@@ -40,7 +40,8 @@ $utilities-bg-colors: map-loop($utilities-colors, rgba-css-var, "$key", "bg");
   
   
 // Layout & components
-@import "~bootstrap/scss/_utilities";
+@import "~bootstrap/scss/_accordion";
+@import "~bootstrap/scss/_alert";
 @import "~bootstrap/scss/_root";
 @import "~bootstrap/scss/_buttons";
 @import "~bootstrap/scss/_card";
@@ -48,9 +49,12 @@ $utilities-bg-colors: map-loop($utilities-colors, rgba-css-var, "$key", "bg");
 @import "~bootstrap/scss/_forms";
 @import "~bootstrap/scss/_grid";
 @import "~bootstrap/scss/_images";
+@import "~bootstrap/scss/_modal";
+@import "~bootstrap/scss/_nav";
+@import "~bootstrap/scss/_navbar";
 @import "~bootstrap/scss/_reboot";
-@import "~bootstrap/scss/_accordion";
-// @import "~bootstrap/scss/_alert";
+@import "~bootstrap/scss/_transitions";
+@import "~bootstrap/scss/_utilities";
 // @import "~bootstrap/scss/_button-group";
 // @import "~bootstrap/scss/_breadcrumb";
 // @import "~bootstrap/scss/_badge";
@@ -58,9 +62,6 @@ $utilities-bg-colors: map-loop($utilities-colors, rgba-css-var, "$key", "bg");
 // @import "~bootstrap/scss/_carousel";
 // @import "~bootstrap/scss/_dropdown";
 // @import "~bootstrap/scss/_list-group";
-@import "~bootstrap/scss/_modal";
-@import "~bootstrap/scss/_nav";
-@import "~bootstrap/scss/_navbar";
 // @import "~bootstrap/scss/_offcanvas";
 // @import "~bootstrap/scss/_pagination";
 // @import "~bootstrap/scss/_progress";
@@ -69,7 +70,6 @@ $utilities-bg-colors: map-loop($utilities-colors, rgba-css-var, "$key", "bg");
 // @import "~bootstrap/scss/_tables";
 // @import "~bootstrap/scss/_toasts";
 // @import "~bootstrap/scss/_tooltip";
-@import "~bootstrap/scss/_transitions";
 // @import "~bootstrap/scss/_type";
 
 // Helpers

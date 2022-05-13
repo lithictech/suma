@@ -8,6 +8,7 @@ import ReservationCard from "./ReservationCard";
 import TripCard from "./TripCard";
 import i18next from "i18next";
 import React from "react";
+import Alert from "react-bootstrap/Alert";
 import Card from "react-bootstrap/Card";
 
 const Map = () => {
@@ -49,8 +50,11 @@ const Map = () => {
   const handleGetLocationError = React.useCallback(() => {
     setError(
       <>
-        <span>{i18next.t("denied_geolocation", { ns: "errors" })}</span>
-        <InstructionsModal />
+        <Alert variant="warning m-0">
+          <i className="bi bi-exclamation-triangle-fill"></i>{" "}
+          {i18next.t("denied_geolocation", { ns: "errors" })}
+          <InstructionsModal />
+        </Alert>
       </>
     );
   }, [setError]);
@@ -128,7 +132,7 @@ const Map = () => {
       {error && (
         <Card className="cardContainer">
           <Card.Body>
-            <FormError error={error} noMargin />
+            <FormError error={error} noMargin component="div" />
           </Card.Body>
         </Card>
       )}
