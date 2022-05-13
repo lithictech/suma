@@ -171,13 +171,11 @@ export default class MapBuilder {
    * and seems to always prevail so there's no need for throwing geolocation error msg.
    */
   ignoreLocationError(e) {
-    const code = {
-      ERR_LOCATION_PERMISSION_DENIED: 1,
-      ERR_LOCATION_POSITION_UNAVAILABLE: 2,
-    };
+    const ERR_LOCATION_PERMISSION_DENIED = 1;
+    const ERR_LOCATION_POSITION_UNAVAILABLE = 2;
     return (
-      e.code !== code.ERR_LOCATION_PERMISSION_DENIED &&
-      e.code !== code.ERR_LOCATION_PERMISSION_DENIED
+      e.code !== ERR_LOCATION_PERMISSION_DENIED &&
+      e.code !== ERR_LOCATION_POSITION_UNAVAILABLE
     );
   }
 
