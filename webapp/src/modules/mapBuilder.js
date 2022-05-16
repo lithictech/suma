@@ -15,6 +15,7 @@ export default class MapBuilder {
     this._lastBounds = null;
     this._vehicleClicked = false;
     this._tripMarker = null;
+    this._refreshId = null;
   }
 
   init() {
@@ -126,7 +127,24 @@ export default class MapBuilder {
           });
         });
         this._mcg.addLayers(newMarkers, { chunkedLoading: true });
+        this.stopRefreshTimer();
+        this.startRefreshTimer(r.data.refresh, onVehicleClick);
       });
+  }
+
+  startRefreshTimer(interval, onVehicleClick) {
+    if (!this._refreshId && !this._ongoingTrip) {
+      this._refreshId = window.setInterval(() => {
+        this.getScooters(onVehicleClick);
+      }, interval);
+    }
+  }
+
+  stopRefreshTimer() {
+    if (this._refreshId) {
+      clearInterval(this._refreshId);
+      this._refreshId = null;
+    }
   }
 
   // Remove markers in visible bounds to prevent duplicates
@@ -236,6 +254,7 @@ export default class MapBuilder {
   }
 
   tripMode() {
+    this.stopRefreshTimer();
     // will be re-enabled on getScooters
     this._map.off("moveend click");
     this._map.dragging.disable();
