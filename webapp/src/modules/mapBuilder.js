@@ -126,8 +126,9 @@ export default class MapBuilder {
             newMarkers.push(marker);
           });
         });
-        this.startRefreshTimer(r.data.refresh, onVehicleClick);
         this._mcg.addLayers(newMarkers, { chunkedLoading: true });
+        this.stopRefreshTimer();
+        this.startRefreshTimer(r.data.refresh, onVehicleClick);
       });
   }
 
@@ -140,8 +141,10 @@ export default class MapBuilder {
   }
 
   stopRefreshTimer() {
-    clearInterval(this._refreshId);
-    this._refreshId = null;
+    if (this._refreshId) {
+      clearInterval(this._refreshId);
+      this._refreshId = null;
+    }
   }
 
   // Remove markers in visible bounds to prevent duplicates
