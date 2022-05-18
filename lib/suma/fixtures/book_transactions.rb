@@ -11,7 +11,7 @@ module Suma::Fixtures::BookTransactions
   base :book_transaction do
     self.amount_cents ||= Faker::Number.between(from: 100, to: 100_00)
     self.amount_currency ||= "USD"
-    self.memo ||= Faker::Lorem.words(number: 3)
+    self.memo ||= Faker::Lorem.words(number: 3).join(" ")
   end
 
   before_saving do |instance|

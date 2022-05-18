@@ -60,7 +60,7 @@ module Suma::SpecHelpers
 
   module_function def money(x, *more)
     return x if x.is_a?(Money)
-    return Monetize.parse(x) if x.is_a?(String)
+    return Monetize.parse!(x) if x.is_a?(String)
     return Money.new(x, *more)
   end
 
@@ -145,7 +145,7 @@ module Suma::SpecHelpers
     end
 
     def money(s)
-      return Monetize.parse(s) if s.is_a?(String)
+      return Monetize.parse!(s) if s.is_a?(String)
       return s if s.is_a?(Money)
       return Money.new(s) if s.is_a?(Integer)
       return Money.new(s[:cents], s[:currency]) if s.respond_to?(:key?) && s.key?(:cents) && s.key?(:currency)
