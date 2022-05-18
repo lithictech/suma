@@ -2,6 +2,9 @@ import api from "../api";
 import React from "react";
 
 export const UserContext = React.createContext();
+/**
+ * @returns {{user: User, setUser: function, userLoading: boolean, userError: object, userAuthed: boolean, userUnauthed: boolean}}
+ */
 export const useUser = () => React.useContext(UserContext);
 export function UserProvider({ children }) {
   const [user, setUserInner] = React.useState(null);
@@ -41,3 +44,8 @@ export function UserProvider({ children }) {
     </UserContext.Provider>
   );
 }
+
+/**
+ * @typedef User
+ * @property {boolean} ongoingTrip
+ */

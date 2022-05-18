@@ -9,8 +9,11 @@ import Onboarding from "./pages/Onboarding";
 import OneTimePassword from "./pages/OneTimePassword";
 import Start from "./pages/Start";
 import { UserProvider } from "./state/useUser";
+import bluebird from "bluebird";
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+
+window.Promise = bluebird.Promise;
 
 function App() {
   return (

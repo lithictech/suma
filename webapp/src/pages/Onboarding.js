@@ -14,7 +14,7 @@ const Onboarding = () => {
     console.log("Navigate to tutorial");
   };
   return (
-    <div className="mainContainer">
+    <div className="main-container">
       <Row>
         <Col>
           <h2>Member Onboarding</h2>

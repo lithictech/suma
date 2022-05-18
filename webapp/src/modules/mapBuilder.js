@@ -51,9 +51,9 @@ export default class MapBuilder {
     this._scooterIcon = this._l.divIcon({
       // TODO: load svg dynamically
       html: `<svg id="ePJdIXVzjGA1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 100 121.21" shape-rendering="geometricPrecision" text-rendering="geometricPrecision"><g transform="translate(-193.037537-102.389076)"><rect width="40" height="40" rx="5" ry="5" transform="matrix(.707107 0.707107-.707107 0.707107 243.037543 169.104807)" fill="#fafafa" stroke-width="0"/><rect width="100" height="100" rx="20" ry="20" transform="translate(193.037543 102.389078)" fill="#fafafa" stroke-width="0"/></g></svg>
-        <img src="${scooterIcon}" class="scooterIcon"/>
+        <img src="${scooterIcon}" class="mobility-map-icon-img"/>
       `,
-      className: "scooterContainer",
+      className: "mobility-map-icon",
       iconSize: [43.4, 52.6],
       iconAnchor: [21.7, 52.6],
     });
@@ -69,7 +69,7 @@ export default class MapBuilder {
       iconCreateFunction: (cluster) => {
         return this._l.divIcon({
           html: "<b>" + cluster.getChildCount() + "</b>",
-          className: "scooterCluster",
+          className: "mobility-map-cluster-icon",
         });
       },
     });

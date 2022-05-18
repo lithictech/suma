@@ -12,10 +12,11 @@
 }
 
 .leaflet-container {
-  height: 500px;
+  /* This is approximately equal to the leftover space after accounting for the header */
+  height: calc(100vh - 150px);
 }
 
-.scooterCluster {
+.mobility-map-cluster-icon {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -29,21 +30,17 @@
   background-color: #fafafa;
   /* lower than scooter value (240) */
   z-index: 230;
-  -webkit-box-shadow: 0px 0px 5px 0px rgba(201, 201, 201, 1);
-  -moz-box-shadow: 0px 0px 5px 0px rgba(201, 201, 201, 1);
-  box-shadow: 0px 0px 5px 0px rgba(201, 201, 201, 1);
+  box-shadow: 0 0 5px 0 rgba(201, 201, 201, 1);
 }
 
-.scooterContainer {
+.mobility-map-icon {
   /* height of scooter and container */
   height: 43px!important;
   border-radius: 7px;
-  -webkit-box-shadow: 0px 0px 5px 0px rgba(201, 201, 201, 1);
-  -moz-box-shadow: 0px 0px 5px 0px rgba(201, 201, 201, 1);
-  box-shadow: 0px 0px 5px 0px rgba(201, 201, 201, 1);
+  box-shadow: 0 0 5px 0 rgba(201, 201, 201, 1);
 }
 
-.scooterIcon {
+.mobility-map-icon-img {
   width: 90%;
   top: 50%;
   position: absolute;
@@ -51,7 +48,7 @@
   transform: translate(-50%, -50%);
 }
 
-.cardContainer {
+.mobility-overlay-card {
   /* zIndex higher than map (400) */
   z-index: 401;
   position: absolute !important;
@@ -62,14 +59,6 @@
   transform: translate(-50%, 2%);
 }
 
-.loading {
+.mobility-overlay-card-loading-icon {
   width: 38px;
-}
-
-.scooterIconWidth {
-  width: 28px;
-}
-
-.ledgerTable {
-  table-layout: fixed;
 }

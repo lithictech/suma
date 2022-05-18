@@ -11,9 +11,13 @@ const ReservationCard = ({ active, loading, vehicle, onReserve, reserveError }) 
   }
   if (loading) {
     return (
-      <Card className="cardContainer">
+      <Card className="mobility-overlay-card">
         <Card.Body>
-          <img src={loadingGif} className="loading" alt="loading" />
+          <img
+            src={loadingGif}
+            className="mobility-overlay-card-loading-icon"
+            alt="loading"
+          />
         </Card.Body>
       </Card>
     );
@@ -26,7 +30,7 @@ const ReservationCard = ({ active, loading, vehicle, onReserve, reserveError }) 
   };
 
   return (
-    <Card className="cardContainer">
+    <Card className="mobility-overlay-card">
       <Card.Body>
         <Card.Title className="mb-2 text-muted">{vendorService.name}</Card.Title>
         <Card.Text className="text-muted">
@@ -37,7 +41,7 @@ const ReservationCard = ({ active, loading, vehicle, onReserve, reserveError }) 
           })}
         </Card.Text>
         <FormError error={reserveError} />
-        <Button size="sm" variant="success" className="w-100" onClick={handlePress}>
+        <Button size="sm" variant="primary" className="w-100" onClick={handlePress}>
           Reserve Scooter
         </Button>
       </Card.Body>

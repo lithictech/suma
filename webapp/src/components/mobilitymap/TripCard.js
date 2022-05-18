@@ -31,12 +31,12 @@ const TripCard = ({ trip, onCloseTrip, onStopTrip, lastLocation }) => {
       {endTrip ? (
         <TransactionCard endTrip={endTrip} error={error} onCloseTrip={handleCloseTrip} />
       ) : (
-        <Card className="cardContainer">
+        <Card className="mobility-overlay-card">
           <Card.Body>
             <Card.Text className="text-muted">Scooter {trip.id}</Card.Text>
             {/* TODO: add error handling */}
             <FormError error={error} />
-            <Button size="sm" variant="danger" className="w-100" onClick={handleEndTrip}>
+            <Button size="sm" variant="primary" className="w-100" onClick={handleEndTrip}>
               End Trip
             </Button>
           </Card.Body>
