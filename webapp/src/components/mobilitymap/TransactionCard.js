@@ -8,7 +8,7 @@ const TransactionCard = ({ endTrip, onCloseTrip, error }) => {
   const { localizationVars: locVars } = rate;
   const handleClose = () => onCloseTrip();
   return (
-    <Card className="cardContainer">
+    <Card className="mobility-overlay-card">
       <Card.Body>
         <p>
           Trip {id} with {provider.vendorName} has ended.
@@ -21,7 +21,7 @@ const TransactionCard = ({ endTrip, onCloseTrip, error }) => {
           })}
         </p>
         <FormError error={error} />
-        <Button size="sm" variant="secondary" className="w-100" onClick={handleClose}>
+        <Button size="sm" variant="primary" className="w-100" onClick={handleClose}>
           Close
         </Button>
       </Card.Body>

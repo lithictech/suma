@@ -1,65 +1,147 @@
-import Header from "../components/Header";
+import api from "../api";
+import Money from "../components/Money";
+import TopNav from "../components/TopNav";
 import signOut from "../modules/signOut";
+import useAsyncFetch from "../state/useAsyncFetch";
 import { useUser } from "../state/useUser";
+import clsx from "clsx";
+import dayjs from "dayjs";
+import i18next from "i18next";
+import _ from "lodash";
 import React from "react";
+import { Alert } from "react-bootstrap";
 import Button from "react-bootstrap/Button";
 import Col from "react-bootstrap/Col";
 import Container from "react-bootstrap/Container";
+import Navbar from "react-bootstrap/Navbar";
 import Row from "react-bootstrap/Row";
+import Spinner from "react-bootstrap/Spinner";
+import Table from "react-bootstrap/Table";
 import { Link } from "react-router-dom";
 
 const Dashboard = () => {
   const { user } = useUser();
+  const { state: dashboard, loading: dashboardLoading } = useAsyncFetch(api.dashboard, {
+    default: {},
+    pickData: true,
+  });
+
   return (
-    <div className="mainContainer">
-      <Header subText="Overview" />
+    <div className="main-container">
+      <TopNav />
       <Container>
         <Row>
-          <Col className="px-3 py-4">
+          <Col className="px-3 py-2">
             {user.ongoingTrip && (
-              <Link
-                to="/map"
-                className="btn btn-sm btn-success w-100 p-2 my-2 rounded-pill"
-              >
-                You have an active ride in mobility map.
-              </Link>
+              <Alert variant="danger">
+                <p>{i18next.t("check_ongoing_trip", { ns: "dashboard" })}</p>
+                <div className="d-flex justify-content-end">
+                  <Link to="/map" className="btn btn-sm btn-danger">
+                    {i18next.t("check_ongoing_trip_button", { ns: "dashboard" })}
+                    <i
+                      className="bi bi-box-arrow-in-right mx-1"
+                      role="img"
+                      aria-label="Map Icon"
+                    ></i>
+                  </Link>
+                </div>
+              </Alert>
             )}
-            <Link
-              to="/map"
-              className="btn btn-sm btn-light w-100 p-2 my-2 text-body rounded-pill border border-primary"
-            >
-              Scooter Service
-            </Link>
-            <Link
-              to="/map"
-              className="btn btn-sm btn-light w-100 p-2 my-2 text-body rounded-pill border border-primary"
-            >
-              Food Service
-            </Link>
-            <Link
-              to="/map"
-              className="btn btn-sm btn-light w-100 p-2 my-2 text-body rounded-pill border border-primary"
-            >
-              Other Services
-            </Link>
-            <Button
-              variant="danger"
-              size="small"
-              className="w-100 p-2 my-2 rounded-pill"
-              onClick={signOut}
-            >
-              Log Out{" "}
-              <i
-                className="bi bi-box-arrow-in-right"
-                role="img"
-                aria-label="Map Icon"
-              ></i>
-            </Button>
+            <Row>
+              <Col>
+                <AppLink to="/map" label="Mobility" />
+              </Col>
+              <Col>
+                <AppLink to="#todo" label="Food"></AppLink>
+              </Col>
+              <Col>
+                <AppLink to="/map" label="Utilities"></AppLink>
+              </Col>
+            </Row>
           </Col>
         </Row>
+        {dashboardLoading ? (
+          <Spinner animation="border" />
+        ) : (
+          <Ledger dashboard={dashboard} />
+        )}
+        <Button
+          variant="outline-danger"
+          size="small"
+          className="w-100 p-2 my-2 rounded-pill"
+          onClick={signOut}
+        >
+          Log Out{" "}
+          <i className="bi bi-box-arrow-in-right" role="img" aria-label="Map Icon"></i>
+        </Button>
       </Container>
     </div>
   );
 };
 
 export default Dashboard;
+
+const AppLink = ({ to, label }) => {
+  return (
+    <Link to={to} className="btn btn-sm btn-primary w-100 p-2 text-body rounded-pill">
+      {label}
+    </Link>
+  );
+};
+
+const Ledger = ({ dashboard }) => {
+  return (
+    <>
+      <Navbar variant="light" className="justify-content-between py-3 px-2">
+        <div>
+          <h3>
+            <Money colored>{dashboard.paymentAccountBalance}</Money>
+          </h3>
+          <p className="m-0">
+            {i18next.t("payment_account_balance", { ns: "dashboard" })}
+          </p>
+        </div>
+        <div className="text-end">
+          <h3>
+            <Money>{dashboard.lifetimeSavings}</Money>
+          </h3>
+          <p className="m-0">{i18next.t("lifetime_savings", { ns: "dashboard" })}</p>
+        </div>
+      </Navbar>
+      <hr />
+      {!_.isEmpty(dashboard.ledgerLines) ? (
+        <Table responsive striped hover className="table-borderless">
+          <thead>
+            <tr>
+              <th>{i18next.t("recent_ledger_lines", { ns: "dashboard" })}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {dashboard.ledgerLines.map((ledger, i) => (
+              <tr key={i}>
+                <td>
+                  <div className="d-flex justify-content-between mb-1">
+                    <strong>{dayjs(ledger.at).format("lll")}</strong>
+                    <Money
+                      className={clsx(
+                        ledger.amount.cents < 0 ? "text-danger" : "text-success"
+                      )}
+                    >
+                      {ledger.amount}
+                    </Money>
+                  </div>
+                  <div>{ledger.memo}</div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </Table>
+      ) : (
+        <p>
+          You haven&rsquo;t added or spent any money.{" "}
+          <Link to="/#todo">Press here to add money to your account</Link>.
+        </p>
+      )}
+    </>
+  );
+};

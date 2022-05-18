@@ -6,7 +6,7 @@ i18n
   .use(LanguageDetector)
   .use(HttpApi)
   .init({
-    ns: ["common", "errors", "mobility", "messages"],
+    ns: ["common", "dashboard", "errors", "mobility", "messages"],
     fallbackLng: "en",
     initImmediate: false,
     detection: {

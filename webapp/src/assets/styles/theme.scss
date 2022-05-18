@@ -1,7 +1,7 @@
 // Override Variables
 $font-size-base: 1.05rem;
-$btn-border-radius: .4rem;
-$btn-border-radius-sm: .35rem;
+$btn-border-radius: .3rem;
+$btn-border-radius-sm: .2rem;
 $btn-border-radius-lg: .5rem;
 
 // Configuration
@@ -11,21 +11,18 @@ $btn-border-radius-lg: .5rem;
 @import "~bootstrap/scss/_variables";
 @import "~bootstrap/scss/_mixins";
 
-// Base Styles
-@mixin mainContainer() {
+.main-container {
   max-width: 500px;
   margin: 0 auto;
 }
 
-.mainContainer {
-  @include mainContainer();
-}
-
-$custom-theme-colors: (
-  "suma": #c79866,
-  "darksuma": #a77948
+$theme-colors: map-merge-multiple(
+  $theme-colors,
+  (
+    "primary": rgb(245, 203, 130),
+    "parimary-dark": #a77948
+  ),
 );
-$theme-colors: map-merge($custom-theme-colors, $theme-colors);
 // Adds theme colors to sub-classes e.g. text-suma, bg-suma
 // will be fixed in BS 5.2.x per: https://github.com/twbs/bootstrap/issues/35297
 $theme-colors-rgb: map-loop($theme-colors, to-rgb, "$value");
@@ -37,12 +34,13 @@ $utilities-colors: map-merge($utilities-colors, (
 ));
 $utilities-text-colors: map-loop($utilities-colors, rgba-css-var, "$key", "text");
 $utilities-bg-colors: map-loop($utilities-colors, rgba-css-var, "$key", "bg");
-  
-  
+
+
 // Layout & components
 @import "~bootstrap/scss/_accordion";
 @import "~bootstrap/scss/_alert";
 @import "~bootstrap/scss/_root";
+@import "~bootstrap/scss/_badge";
 @import "~bootstrap/scss/_buttons";
 @import "~bootstrap/scss/_card";
 @import "~bootstrap/scss/_close";
@@ -54,11 +52,11 @@ $utilities-bg-colors: map-loop($utilities-colors, rgba-css-var, "$key", "bg");
 @import "~bootstrap/scss/_nav";
 @import "~bootstrap/scss/_navbar";
 @import "~bootstrap/scss/_reboot";
+@import "~bootstrap/scss/_tables";
 @import "~bootstrap/scss/_transitions";
 @import "~bootstrap/scss/_utilities";
 // @import "~bootstrap/scss/_button-group";
 // @import "~bootstrap/scss/_breadcrumb";
-// @import "~bootstrap/scss/_badge";
 // @import "~bootstrap/scss/_carousel";
 // @import "~bootstrap/scss/_dropdown";
 // @import "~bootstrap/scss/_list-group";
@@ -67,7 +65,6 @@ $utilities-bg-colors: map-loop($utilities-colors, rgba-css-var, "$key", "bg");
 // @import "~bootstrap/scss/_progress";
 // @import "~bootstrap/scss/_popover";
 // @import "~bootstrap/scss/_spinners";
-// @import "~bootstrap/scss/_tables";
 // @import "~bootstrap/scss/_toasts";
 // @import "~bootstrap/scss/_tooltip";
 // @import "~bootstrap/scss/_type";

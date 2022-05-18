@@ -36,12 +36,7 @@ const InstructionsModal = () => {
 
   return (
     <>
-      <Button
-        variant="darksuma"
-        size="sm"
-        className="w-100 mt-2 text-white"
-        onClick={toggleShow}
-      >
+      <Button variant="success" size="sm" className="w-100 mt-2" onClick={toggleShow}>
         <i className="bi bi-book"></i> Location Instructions
       </Button>
       <Modal show={showModal.isOn} onHide={toggleShow}>
@@ -247,9 +242,11 @@ const InstructionsModal = () => {
               </Accordion.Body>
             </Accordion.Item>
           </Accordion>
-          <Button variant="secondary" className="mt-2" onClick={toggleShow}>
-            Close
-          </Button>
+          <div className="d-flex justify-content-end mt-2">
+            <Button variant="primary" className="mt-2" onClick={toggleShow}>
+              Close
+            </Button>
+          </div>
         </Modal.Body>
       </Modal>
     </>

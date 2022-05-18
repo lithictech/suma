@@ -1,11 +1,18 @@
 {
   "plugins": [],
-  "env": {},
+  "env": {
+    "browser": true,
+    "jest": true,
+    "es6": true
+  },
   "extends": [
     "react-app",
     "eslint:recommended",
     "plugin:react/recommended"
   ],
+  "globals": {
+    "__DEV__": true
+  },
   "settings": {
     "react": {
       "version": "17.0"

@@ -49,13 +49,11 @@ const Map = () => {
   );
   const handleGetLocationError = React.useCallback(() => {
     setError(
-      <>
-        <Alert variant="warning m-0">
-          <i className="bi bi-exclamation-triangle-fill"></i>{" "}
-          {i18next.t("denied_geolocation", { ns: "errors" })}
-          <InstructionsModal />
-        </Alert>
-      </>
+      <Alert variant="warning" className="m-0">
+        <i className="bi bi-exclamation-triangle-fill"></i>{" "}
+        {i18next.t("denied_geolocation", { ns: "errors" })}
+        <InstructionsModal />
+      </Alert>
     );
   }, [setError]);
 
@@ -130,7 +128,7 @@ const Map = () => {
         />
       )}
       {error && (
-        <Card className="cardContainer">
+        <Card className="mobility-overlay-card">
           <Card.Body>
             <FormError error={error} noMargin component="div" />
           </Card.Body>

@@ -83,7 +83,7 @@ const OneTimePassword = () => {
   };
 
   return (
-    <div className="mainContainer">
+    <div className="main-container">
       <Row>
         <Col>
           <h2>One Time Code</h2>

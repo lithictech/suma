@@ -1,21 +1,19 @@
-import Header from "../components/Header";
+import TopNav from "../components/TopNav";
 import Map from "../components/mobilitymap/Map";
+import i18next from "i18next";
 import React from "react";
-import Col from "react-bootstrap/Col";
-import Container from "react-bootstrap/Container";
-import Row from "react-bootstrap/Row";
 
 const MapPage = () => {
   return (
-    <div className="mainContainer">
-      <Header subText="Transportation Service" />
-      <Container>
-        <Row>
-          <Col className="px-3 py-4">
-            <Map />
-          </Col>
-        </Row>
-      </Container>
+    <div className="main-container">
+      <TopNav />
+      <div className="mx-3">
+        <h5>{i18next.t("title", { ns: "mobility" })}</h5>
+        <p className="text-secondary">{i18next.t("intro", { ns: "mobility" })}</p>
+      </div>
+      <div>
+        <Map />
+      </div>
     </div>
   );
 };

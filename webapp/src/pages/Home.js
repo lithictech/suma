@@ -9,7 +9,7 @@ import { Link } from "react-router-dom";
 
 const Home = () => {
   return (
-    <div className="mainContainer">
+    <div className="main-container">
       <Row>
         <Col className="text-center">
           <img src={sumaLogo} alt="MySuma Logo" />

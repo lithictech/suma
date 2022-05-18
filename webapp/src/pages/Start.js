@@ -57,7 +57,7 @@ const Start = () => {
       });
   };
   return (
-    <div className="mainContainer">
+    <div className="main-container">
       <Row>
         <Col>
           <h2>Verification</h2>
