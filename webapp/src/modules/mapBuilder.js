@@ -167,7 +167,7 @@ export default class MapBuilder {
       })
       .on("click", (e) => {
         if (!this._vehicleSelected && !this.isScooterCentered(e.latlng)) {
-          this._map.flyTo([e.latlng.lat + this._latOffset, e.latlng.lng], 20, {
+          this._map.flyTo([e.latlng.lat + this._latOffset, e.latlng.lng], 18, {
             animate: true,
             duration: 1.3,
             easeLinearity: 1,
