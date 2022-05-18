@@ -6,11 +6,12 @@ module Suma::Payment
   # if a vendor wants to be paid only in scrip or something else).
   def self.ensure_cash_ledger(customer)
     customer.payment_account ||= Suma::Payment::Account.create(customer:)
-    cash_category = Suma::Vendor::ServiceCategory.find_or_create(name: "Cash")
-    ledger = customer.payment_account.ledgers.find { |led| led.vendor_service_categories.include?(cash_category) }
+    ledger = customer.payment_account.cash_ledger
     return ledger if ledger
     ledger = customer.payment_account.add_ledger({currency: Suma.default_currency})
+    cash_category = Suma::Vendor::ServiceCategory.find_or_create(name: "Cash")
     ledger.add_vendor_service_category(cash_category)
+    customer.payment_account.associations.delete(:cash_ledger)
     return ledger
   end
 end
