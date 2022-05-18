@@ -56,10 +56,10 @@ RSpec.describe "Suma::Payment::Account", :db do
       end.to raise_error(Suma::InvalidPrecondition, /has no ledgers/)
     end
 
-    it "raises if the amount is not positive" do
+    it "raises if the amount is negative" do
       expect do
-        account.find_chargeable_ledgers(grocery_service, money("$0"))
-      end.to raise_error(ArgumentError, /must be positive/)
+        account.find_chargeable_ledgers(grocery_service, money("-$1"))
+      end.to raise_error(ArgumentError, /cannot be negative/)
     end
 
     it "raises if the required total cannot be reached" do
@@ -97,6 +97,17 @@ RSpec.describe "Suma::Payment::Account", :db do
         have_attributes(ledger: be === can_use_g1, amount: cost("$10")),
         have_attributes(ledger: be === can_use_g2, amount: cost("$10")),
         have_attributes(ledger: be === can_use_f, amount: cost("$2")),
+      )
+    end
+
+    it "returns the first matching ledger for $0" do
+      cannot_use = ledger_fac.with_categories(mobility).create
+      can_use_g1 = ledger_fac.with_categories(grocery).create
+      Suma::Fixtures.book_transaction.to(cannot_use).create(amount: money("$50"))
+      Suma::Fixtures.book_transaction.to(can_use_g1).create(amount: money("$10"))
+      results = account.find_chargeable_ledgers(grocery_service, money("$0"))
+      expect(results).to contain_exactly(
+        have_attributes(ledger: be === can_use_g1, amount: cost("$0")),
       )
     end
 

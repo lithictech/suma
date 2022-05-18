@@ -52,7 +52,7 @@ class Suma::Payment::Account < Suma::Postgres::Model(:payment_accounts)
   end
 
   def find_chargeable_ledgers(vendor_service, amount, allow_negative_balance: false)
-    raise ArgumentError, "amount must be positive, got #{amount.format}" unless amount.positive?
+    raise ArgumentError, "amount cannot be negative, got #{amount.format}" if amount.negative?
     raise Suma::InvalidPrecondition, "#{self.inspect} has no ledgers" if self.ledgers.empty?
     contributions = []
     self.ledgers.each do |led|

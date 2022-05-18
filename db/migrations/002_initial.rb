@@ -345,7 +345,7 @@ Sequel.migration do
 
       int :amount_cents, null: false
       text :amount_currency, null: false
-      constraint(:positive_amount, Sequel.lit("amount_cents > 0"))
+      constraint(:amount_not_negative, Sequel.lit("amount_cents >= 0"))
 
       text :memo, null: false
     end
