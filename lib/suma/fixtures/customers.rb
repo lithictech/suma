@@ -68,43 +68,12 @@ module Suma::Fixtures::Customers
     self.add_linked_legal_entity(opts)
   end
 
-  decorator :registered_as_stripe_customer, presave: true do |json=nil|
-    if json.nil?
-      json = STRIPE_JSON.dup
-      json["id"] = "cus_fixtured_#{SecureRandom.hex(8)}"
-    end
-    self.stripe.update(stripe_customer_json: json)
+  decorator :onboarding_verified do |t=Time.now|
+    self.onboarding_verified_at = t
   end
 
-  STRIPE_JSON = {
-    "id" => "cus_xyz",
-    "object" => "customer",
-    "account_balance" => 0,
-    "created" => 1_529_818_867,
-    "currency" => "usd",
-    "default_source" => nil,
-    "delinquent" => false,
-    "description" => nil,
-    "discount" => nil,
-    "email" => nil,
-    "invoice_prefix" => "A6D2E24",
-    "livemode" => false,
-    "metadata" => {
-    },
-    "shipping" => nil,
-    "sources" => {
-      "object" => "list",
-      "data" => [],
-      "has_more" => false,
-      "total_count" => 0,
-      "url" => "/v1/customers/cus_D6eGmbqyejk8s9/sources",
-    },
-    "subscriptions" => {
-      "object" => "list",
-      "data" => [],
-      "has_more" => false,
-      "total_count" => 0,
-      "url" => "/v1/customers/cus_D6eGmbqyejk8s9/subscriptions",
-    },
-  }.freeze
+  decorator :with_cash_ledger, presave: true do |amount: nil|
+    led = Suma::Payment.ensure_cash_ledger(self)
+    Suma::Fixtures.book_transaction.to(led).create(amount:) if amount
+  end
 end

@@ -69,6 +69,10 @@ class Suma::API::TestService < Suma::Service
     raise Suma::LockFailed
   end
 
+  get :read_only_mode do
+    raise Suma::Customer::ReadOnlyMode, "blah"
+  end
+
   get :unhandled do
     1 / 0
   end
@@ -243,6 +247,17 @@ RSpec.describe Suma::Service, :db do
     expect(last_response_json_body).to match(
       error: hash_including(
         code: "lock_failed",
+        status: 409,
+      ),
+    )
+  end
+
+  it "uses a consistent shape for ReadOnlyMode errors" do
+    get "/read_only_mode"
+    expect(last_response).to have_status(409)
+    expect(last_response_json_body).to match(
+      error: hash_including(
+        code: "blah",
         status: 409,
       ),
     )

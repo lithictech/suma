@@ -71,7 +71,8 @@ Sequel.migration do
       text :name, null: false, default: ""
       text :note, null: false, default: ""
       text :timezone, null: false, default: "America/Los_Angeles"
-      text :registered_env, null: false
+
+      timestamptz :onboarding_verified_at, null: true
 
       foreign_key :legal_entity_id, :legal_entities, null: false, on_delete: :restrict
     end

@@ -6,7 +6,7 @@ RSpec.describe Suma::API::Mobility, :db do
   include Rack::Test::Methods
 
   let(:app) { described_class.build_app }
-  let(:customer) { Suma::Fixtures.customer.create }
+  let(:customer) { Suma::Fixtures.customer.onboarding_verified.with_cash_ledger(amount: money("$15")).create }
 
   before(:each) do
     login_as(customer)

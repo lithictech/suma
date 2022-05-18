@@ -74,6 +74,8 @@ module Suma::API
 
   class CurrentCustomerEntity < Suma::Service::Entities::CurrentCustomer
     expose :ongoing_trip, with: MobilityTripEntity
+    expose :read_only_mode?, as: :read_only_mode
+    expose :read_only_reason
   end
 
   class LedgerLineEntity < BaseEntity

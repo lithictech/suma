@@ -14,6 +14,7 @@ class Suma::Customer < Suma::Postgres::Model(:customers)
   include Suma::Payment::HasAccount
 
   class InvalidPassword < RuntimeError; end
+  class ReadOnlyMode < RuntimeError; end
 
   configurable(:customer) do
     setting :skip_verification_allowlist, [], convert: ->(s) { s.split }
@@ -78,7 +79,6 @@ class Suma::Customer < Suma::Postgres::Model(:customers)
 
   def initialize(*)
     super
-    self[:registered_env] ||= Suma::RACK_ENV
     self[:opaque_id] ||= Suma::Secureid.new_opaque_id("c")
   end
 
@@ -101,6 +101,27 @@ class Suma::Customer < Suma::Postgres::Model(:customers)
         self.email.present? &&
         self.phone.present? &&
         self.password_digest != PLACEHOLDER_PASSWORD_DIGEST
+  end
+
+  def onboarding_verified?
+    return self.onboarding_verified_at ? true : false
+  end
+
+  def read_only_reason
+    return "read_only_unverified" if self.onboarding_verified_at.nil?
+    return "read_only_technical_error" if self.payment_account.nil?
+    return "read_only_zero_balance" if self.payment_account.total_balance <= Money.new(0)
+    return nil
+  end
+
+  def read_only_mode?
+    return !!self.read_only_reason
+  end
+
+  def read_only_mode!
+    reason = self.read_only_reason
+    return if reason.nil?
+    raise ReadOnlyMode, reason
   end
 
   #
