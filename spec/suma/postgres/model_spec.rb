@@ -165,6 +165,24 @@ RSpec.describe "Suma::Postgres::Model", :db do
     end
   end
 
+  describe "find!" do
+    let(:model_class) { Suma::Postgres::TestingPixie }
+
+    it "can error if an instance or dataset entry is not found" do
+      expect do
+        model_class.find!(name: "foo")
+      end.to raise_error(Suma::InvalidPostcondition, 'No row matching Class[{:name=>"foo"}]')
+
+      expect do
+        model_class.dataset.where(name: "foo").find!
+      end.to raise_error(Suma::InvalidPostcondition, "No matching dataset row (params: {})")
+
+      x = model_class.create(name: "foo")
+      expect(model_class.find!(name: "foo")).to be === x
+      expect(model_class.dataset.where(name: "foo").find!).to be === x
+    end
+  end
+
   context "async events", :async, db: :no_transaction do
     let(:instance) { Suma::Postgres::TestingPixie.new }
 
