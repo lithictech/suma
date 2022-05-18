@@ -46,6 +46,20 @@ Sequel.migration do
       text :name, null: false, unique: true
     end
 
+    create_table(:plaid_institutions) do
+      primary_key :pk
+      timestamptz :created_at, null: false, default: Sequel.function(:now)
+      timestamptz :updated_at
+
+      text :institution_id, null: false, unique: true
+      text :name, null: false
+      text :logo_base64, null: false, default: ""
+      text :primary_color_hex, null: false, default: "#000000"
+      column :routing_numbers, "text[]", null: false
+      index :routing_numbers, type: :GIN
+      jsonb :data, null: false, default: "{}"
+    end
+
     create_table(:customers) do
       primary_key :id
       timestamptz :created_at, null: false, default: Sequel.function(:now)
