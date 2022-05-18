@@ -188,8 +188,7 @@ RSpec.describe "Suma::Customer", :db do
 
     it "is false if the customer is verified and has a balance" do
       c = Suma::Fixtures.customer.onboarding_verified.with_cash_ledger(amount: money("$5")).create
-      expect(c).to_not be_read_only_mode
-      expect(c).to have_attributes(read_only_reason: nil)
+      expect(c).to have_attributes(read_only_reason: nil, read_only_mode?: false)
     end
   end
 
