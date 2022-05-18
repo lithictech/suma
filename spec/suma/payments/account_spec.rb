@@ -135,9 +135,24 @@ RSpec.describe "Suma::Payment::Account", :db do
       expect(results).to all(be_a(Suma::Payment::BookTransaction))
       recip = Suma::Payment::Account.lookup_platform_vendor_service_category_ledger(food)
       expect(results).to contain_exactly(
-        have_attributes(originating_ledger: be === ledgers[0], receiving_ledger: be === recip, amount: cost("$2")),
-        have_attributes(originating_ledger: be === ledgers[1], receiving_ledger: be === recip, amount: cost("$2")),
-        have_attributes(originating_ledger: be === ledgers[2], receiving_ledger: be === recip, amount: cost("$2")),
+        have_attributes(
+          originating_ledger: be === ledgers[0],
+          receiving_ledger: be === recip,
+          associated_vendor_service_category: be === food,
+          amount: cost("$2"),
+        ),
+        have_attributes(
+          originating_ledger: be === ledgers[1],
+          receiving_ledger: be === recip,
+          associated_vendor_service_category: be === food,
+          amount: cost("$2"),
+        ),
+        have_attributes(
+          originating_ledger: be === ledgers[2],
+          receiving_ledger: be === recip,
+          associated_vendor_service_category: be === food,
+          amount: cost("$2"),
+        ),
       )
     end
   end
