@@ -107,6 +107,7 @@ RSpec.describe "Suma::Mobility::Trip", :db do
           receiving_ledger: Suma::Payment::Account.lookup_platform_vendor_service_category_ledger(mobility),
           amount: cost("$0.70"),
           memo: "Suma Mobility - Super Scoot",
+          associated_vendor_service_category: be === mobility,
         ),
       )
     end

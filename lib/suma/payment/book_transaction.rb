@@ -8,4 +8,5 @@ class Suma::Payment::BookTransaction < Suma::Postgres::Model(:payment_book_trans
 
   many_to_one :originating_ledger, class: "Suma::Payment::Ledger"
   many_to_one :receiving_ledger, class: "Suma::Payment::Ledger"
+  many_to_one :associated_vendor_service_category, class: "Suma::Vendor::ServiceCategory"
 end

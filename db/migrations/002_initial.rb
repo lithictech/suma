@@ -342,6 +342,7 @@ Sequel.migration do
 
       foreign_key :originating_ledger_id, :payment_ledgers, index: true
       foreign_key :receiving_ledger_id, :payment_ledgers, index: true
+      foreign_key :associated_vendor_service_category_id, :vendor_service_categories
 
       int :amount_cents, null: false
       text :amount_currency, null: false
