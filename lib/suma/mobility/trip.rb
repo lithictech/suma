@@ -51,16 +51,15 @@ class Suma::Mobility::Trip < Suma::Postgres::Model(:mobility_trips)
   end
 
   def end_trip(lat:, lng:)
-    # TODO: Not sure how to handle multiple calls to this for the same trip,
-    # or if we lose track of something. We can work this out more clearly once
-    # we have a real provider to work with.
+    # TODO: Not sure how to handle API multiple calls to a 3rd party service for the same trip,
+    # or if we lose track of something (out of sync between us and service).
+    # We can work this out more clearly once we have a real provider to work with.
     result = self.vendor_service.mobility_adapter.end_trip(self)
+    # This would be bad, but we should know when it happens and pick up the pieces
+    # instead of trying to figure out a solution to an impossible problem.
+    raise Suma::InvalidPostcondition, "negative trip cost for #{self.inspect}" if result.cost_cents.negative?
     self.db.transaction do
-      self.update(
-        end_lat: lat,
-        end_lng: lng,
-        ended_at: result.end_time,
-      )
+      self.update(end_lat: lat, end_lng: lng, ended_at: result.end_time)
       # The calculated rate can be different than the service actually
       # charges us, so if we aren't using a discount, always use
       # what we end up getting actually charged.
@@ -74,20 +73,19 @@ class Suma::Mobility::Trip < Suma::Postgres::Model(:mobility_trips)
         undiscounted_subtotal:,
         customer: self.customer,
       )
-      if result.cost_cents.positive?
-        contributions = self.customer.payment_account!.find_chargeable_ledgers(
-          self.vendor_service,
-          Money.new(result.cost_cents, result.cost_currency),
-          # At this point, serivce has been taken so we need to accept it
-          # and deal with a potential negative balance.
-          allow_negative_balance: true,
-        )
-        xactions = self.customer.payment_account.debit_contributions(
-          contributions,
-          memo: "Suma Mobility - #{self.vendor_service.external_name}",
-        )
-        xactions.each { |x| self.charge.add_book_transaction(x) }
-      end
+      result_cost = Money.new(result.cost_cents, result.cost_currency)
+      contributions = self.customer.payment_account!.find_chargeable_ledgers(
+        self.vendor_service,
+        result_cost,
+        # At this point, ride has been taken and finished so we need to accept it
+        # and deal with a potential negative balance.
+        allow_negative_balance: true,
+      )
+      xactions = self.customer.payment_account.debit_contributions(
+        contributions,
+        memo: "Suma Mobility - #{self.vendor_service.external_name}",
+      )
+      xactions.each { |x| self.charge.add_book_transaction(x) }
       return self.charge
     end
   end
