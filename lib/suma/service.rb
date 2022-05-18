@@ -158,6 +158,14 @@ class Suma::Service < Grape::API
     )
   end
 
+  rescue_from Suma::Customer::ReadOnlyMode do |e|
+    merror!(
+      409,
+      "Customer is in read-only mode and cannot be updated: #{e.message}",
+      code: e.message,
+    )
+  end
+
   rescue_from :all do |e|
     status = e.respond_to?(:status) ? e.status : 500
     error_id = SecureRandom.uuid

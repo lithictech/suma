@@ -118,6 +118,7 @@ RSpec.describe Suma::API::Auth, :db do
       post("/v1/auth/verify", phone: c.phone, token: "abc")
 
       expect(last_response).to have_status(200)
+      expect(c.refresh).to have_attributes(onboarding_verified?: true)
     end
 
     it "returns 403 if the phone number does not map to a customer" do

@@ -2,7 +2,7 @@
 
 RSpec.describe "Suma::Mobility::Trip", :db do
   let(:described_class) { Suma::Mobility::Trip }
-  let(:customer) { Suma::Fixtures.customer.create }
+  let(:customer) { Suma::Fixtures.customer.onboarding_verified.with_cash_ledger(amount: money("$15")).create }
   let(:vendor_service) { Suma::Fixtures.vendor_service.create }
   let(:rate) { Suma::Fixtures.vendor_service_rate.create }
   let(:t) { trunc_time(Time.now) }
@@ -50,8 +50,6 @@ RSpec.describe "Suma::Mobility::Trip", :db do
 
   describe "start_trip_from_vehicle" do
     it "uses vehicle params for the trip" do
-      cash_ledger = Suma::Fixtures.ledger.customer(customer).category(:cash).create
-      Suma::Fixtures.book_transaction.to(cash_ledger).create
       v = Suma::Fixtures.mobility_vehicle.create
       trip = described_class.start_trip_from_vehicle(customer:, vehicle: v, rate:)
       expect(trip).to have_attributes(
@@ -63,11 +61,11 @@ RSpec.describe "Suma::Mobility::Trip", :db do
     end
 
     it "errors if the eligible account balance is negative" do
-      Suma::Fixtures.payment_account.create(customer:)
+      Suma::Fixtures.book_transaction.from(customer.payment_account.ledgers.first).create(amount: money("$100"))
       v = Suma::Fixtures.mobility_vehicle.create
       expect do
         described_class.start_trip_from_vehicle(customer:, vehicle: v, rate:)
-      end.to raise_error(Suma::Payment::InsufficientFunds)
+      end.to raise_error(Suma::Customer::ReadOnlyMode)
     end
   end
 

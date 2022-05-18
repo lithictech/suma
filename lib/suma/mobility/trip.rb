@@ -32,8 +32,7 @@ class Suma::Mobility::Trip < Suma::Postgres::Model(:mobility_trips)
   end
 
   def self.start_trip(customer:, vehicle_id:, vendor_service:, rate:, lat:, lng:, at: Time.now)
-    raise Suma::Payment::InsufficientFunds, "customer #{customer.id} has a negative balance so cannot start a trip" if
-      customer.payment_account.total_balance <= Money.new(0)
+    customer.read_only_mode!
     self.db.transaction(savepoint: true) do
       return self.create(
         customer:,

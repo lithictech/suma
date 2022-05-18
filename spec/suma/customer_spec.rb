@@ -166,6 +166,33 @@ RSpec.describe "Suma::Customer", :db do
     end
   end
 
+  describe "read_only_mode" do
+    it "is true if the customer has no payment account" do
+      c = Suma::Fixtures.customer.onboarding_verified.create
+      expect(c).to be_read_only_mode
+      expect(c).to have_attributes(read_only_reason: "read_only_technical_error")
+    end
+
+    it "is true if the customer has a $0 balance" do
+      c = Suma::Fixtures.customer.onboarding_verified.create
+      Suma::Payment::Account.create(customer: c)
+      expect(c).to be_read_only_mode
+      expect(c).to have_attributes(read_only_reason: "read_only_zero_balance")
+    end
+
+    it "is true if the customer has not been verified" do
+      c = Suma::Fixtures.customer.with_cash_ledger(amount: money("$5")).create
+      expect(c).to be_read_only_mode
+      expect(c).to have_attributes(read_only_reason: "read_only_unverified")
+    end
+
+    it "is false if the customer is verified and has a balance" do
+      c = Suma::Fixtures.customer.onboarding_verified.with_cash_ledger(amount: money("$5")).create
+      expect(c).to_not be_read_only_mode
+      expect(c).to have_attributes(read_only_reason: nil)
+    end
+  end
+
   describe "soft deleting" do
     it "sets email and password" do
       c = Suma::Fixtures.customer(email: "a@b.c", password: "password").create
