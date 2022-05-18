@@ -27,9 +27,6 @@ const Header = ({ subText }) => {
       </Navbar>
       <Navbar bg="light" variant="light" className="justify-content-between p-3">
         <h5 className="m-0 text-secondary">{subText}</h5>
-        <p className="m-0 text-muted">
-          Balance: <span>$30</span>
-        </p>
       </Navbar>
     </>
   );

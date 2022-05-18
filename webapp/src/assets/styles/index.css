@@ -65,3 +65,11 @@
 .loading {
   width: 38px;
 }
+
+.scooterIconWidth {
+  width: 28px;
+}
+
+.ledgerTable {
+  table-layout: fixed;
+}
