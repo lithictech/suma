@@ -32,6 +32,8 @@ class Suma::Mobility::Trip < Suma::Postgres::Model(:mobility_trips)
   end
 
   def self.start_trip(customer:, vehicle_id:, vendor_service:, rate:, lat:, lng:, at: Time.now)
+    raise Suma::Payment::InsufficientFunds, "customer #{customer.id} has a negative balance so cannot start a trip" if
+      customer.payment_account.total_balance <= Money.new(0)
     self.db.transaction(savepoint: true) do
       return self.create(
         customer:,
@@ -42,11 +44,11 @@ class Suma::Mobility::Trip < Suma::Postgres::Model(:mobility_trips)
         begin_lng: lng,
         began_at: at,
       )
+    rescue Sequel::UniqueConstraintViolation => e
+      raise OngoingTrip, "customer #{customer.id} is already in a trip" if
+        e.to_s.include?("one_active_ride_per_customer")
+      raise
     end
-  rescue Sequel::UniqueConstraintViolation => e
-    raise OngoingTrip, "customer #{customer.id} is already in a trip" if
-      e.to_s.include?("one_active_ride_per_customer")
-    raise
   end
 
   def end_trip(lat:, lng:)

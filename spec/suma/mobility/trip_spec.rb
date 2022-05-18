@@ -50,6 +50,8 @@ RSpec.describe "Suma::Mobility::Trip", :db do
 
   describe "start_trip_from_vehicle" do
     it "uses vehicle params for the trip" do
+      cash_ledger = Suma::Fixtures.ledger.customer(customer).category(:cash).create
+      Suma::Fixtures.book_transaction.to(cash_ledger).create
       v = Suma::Fixtures.mobility_vehicle.create
       trip = described_class.start_trip_from_vehicle(customer:, vehicle: v, rate:)
       expect(trip).to have_attributes(
@@ -58,6 +60,14 @@ RSpec.describe "Suma::Mobility::Trip", :db do
         begin_lat: v.lat,
         begin_lng: v.lng,
       )
+    end
+
+    it "errors if the eligible account balance is negative" do
+      Suma::Fixtures.payment_account.create(customer:)
+      v = Suma::Fixtures.mobility_vehicle.create
+      expect do
+        described_class.start_trip_from_vehicle(customer:, vehicle: v, rate:)
+      end.to raise_error(Suma::Payment::InsufficientFunds)
     end
   end
 
