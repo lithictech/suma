@@ -5,6 +5,16 @@ RSpec.describe "Suma::Payment::Account", :db do
   let(:account) { Suma::Fixtures.payment_account.create }
   let(:customer) { account.customer }
 
+  describe "associations" do
+    it "can find its cash ledger" do
+      acct = Suma::Fixtures.payment_account.create
+      expect(acct.cash_ledger).to be_nil
+      cashledger = Suma::Payment.ensure_cash_ledger(acct.customer)
+      expect(acct.refresh.cash_ledger).to be_a(Suma::Payment::Ledger)
+      expect(acct.cash_ledger).to be === cashledger
+    end
+  end
+
   describe "validations" do
     it "must have an owner" do
       pa = account
