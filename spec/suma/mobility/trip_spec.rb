@@ -89,6 +89,20 @@ RSpec.describe "Suma::Mobility::Trip", :db do
       expect(trip.charge.book_transactions).to have_length(1)
     end
 
+    it "uses the actual charge if there is no discount" do
+      rate = Suma::Fixtures.vendor_service_rate.unit_amount(20).create
+      trip = Suma::Fixtures.mobility_trip.
+        ongoing.
+        create(began_at: 211.seconds.ago, vendor_service_rate: rate, customer:)
+      trip.end_trip(lat: 1, lng: 2)
+      expect(trip.refresh).to have_attributes(end_lat: 1, end_lng: 2)
+      expect(trip.charge).to have_attributes(
+        undiscounted_subtotal: cost("$0.70"),
+        discounted_subtotal: cost("$0.70"),
+      )
+      expect(trip.charge.book_transactions).to have_length(1)
+    end
+
     it "creates no transactions for a $0 trip" do
       rate = Suma::Fixtures.vendor_service_rate.unit_amount(0).surcharge(0).create
       trip = Suma::Fixtures.mobility_trip.

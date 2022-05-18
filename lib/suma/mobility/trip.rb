@@ -61,10 +61,17 @@ class Suma::Mobility::Trip < Suma::Postgres::Model(:mobility_trips)
         end_lng: lng,
         ended_at: result.end_time,
       )
-      units = self.rate_units
+      # The calculated rate can be different than the service actually
+      # charges us, so if we aren't using a discount, always use
+      # what we end up getting actually charged.
+      undiscounted_subtotal = if self.vendor_service_rate.undiscounted_rate.nil?
+                                Money.new(result.cost_cents, result.cost_currency)
+      else
+        self.vendor_service_rate.calculate_undiscounted_total(self.rate_units)
+      end
       self.charge = Suma::Charge.create(
         mobility_trip: self,
-        undiscounted_subtotal: self.vendor_service_rate.calculate_undiscounted_total(units),
+        undiscounted_subtotal:,
         customer: self.customer,
       )
       if result.cost_cents.positive?
