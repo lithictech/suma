@@ -308,6 +308,28 @@ Sequel.migration do
       )
     end
 
+    create_table(:bank_accounts) do
+      primary_key :id
+      timestamptz :created_at, null: false, default: Sequel.function(:now)
+      timestamptz :updated_at
+      timestamptz :soft_deleted_at
+
+      text :routing_number, null: false
+      text :account_number, null: false
+
+      foreign_key :legal_entity_id, :legal_entities, null: false, on_delete: :restrict
+      foreign_key :plaid_institution_id, :plaid_institutions, on_delete: :set_null
+
+      text :name, null: false
+      text :official_name, null: false
+      text :account_type, null: false
+
+      index [:legal_entity_id, :routing_number, :account_number],
+            name: :undeleted_legal_entity_id_routing_number_account_number_key,
+            unique: true,
+            where: Sequel[soft_deleted_at: nil]
+    end
+
     create_table(:payment_accounts) do
       primary_key :id
       timestamptz :created_at, null: false, default: Sequel.function(:now)
