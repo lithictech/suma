@@ -190,6 +190,12 @@ module Suma::Postgres::ModelUtilities
     return self.find(params)
   end
 
+  def find!(params)
+    x = self[params]
+    return x if x
+    raise Suma::InvalidPostcondition, "No row matching #{self.class.name}[#{params}]"
+  end
+
   module InstanceMethods
     # Return a human-readable representation of the object as a String suitable for debugging.
     def inspect
@@ -332,6 +338,12 @@ module Suma::Postgres::ModelUtilities
   end
 
   module DatasetMethods
+    def find!(**params)
+      x = self[params]
+      return x if x
+      raise Suma::InvalidPostcondition, "No matching dataset row (params: #{params})"
+    end
+
     # Helper for applying multiple conditions for Sequel, where some can be nil.
     def reduce_expr(op_symbol, operands, method: :where)
       return self if operands.blank?
