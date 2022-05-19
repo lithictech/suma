@@ -18,8 +18,7 @@ const Home = () => {
             <SafeExternalLink
               component={Button}
               href="https://mysuma.org/"
-              variant="suma"
-              className="text-white"
+              variant="primary"
               referrer
             >
               Learn More
