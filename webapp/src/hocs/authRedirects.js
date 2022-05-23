@@ -1,4 +1,4 @@
-import Redirect from "../components/Redirect";
+import Redirect from "../shared/react/Redirect";
 import { useUser } from "../state/useUser";
 import React from "react";
 
