@@ -1,8 +1,8 @@
 import api from "../api";
 import FormError from "../components/FormError";
 import { dayjs } from "../modules/dayConfig";
+import useToggle from "../shared/react/useToggle";
 import { extractErrorCode, useError } from "../state/useError";
-import useToggle from "../state/useToggle";
 import React, { useState } from "react";
 import Button from "react-bootstrap/Button";
 import Col from "react-bootstrap/Col";

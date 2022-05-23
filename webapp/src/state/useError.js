@@ -1,4 +1,4 @@
-import { Logger } from "../modules/logger";
+import { Logger } from "../shared/logger";
 import _ from "lodash";
 import React from "react";
 
