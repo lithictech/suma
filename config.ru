@@ -20,4 +20,7 @@ end
 map "/app" do
   run Suma::Apps::Web.to_app
 end
+map "/admin" do
+  run Suma::Apps::Web.to_app
+end
 run Suma::Apps::Root.to_app

@@ -1,25 +1,65 @@
-import logo from "./logo.svg";
+import TopNav from "./components/TopNav";
+import { redirectIfAuthed, redirectIfUnauthed } from "./hocs/authRedirects";
+import { UserProvider } from "./hooks/user";
+import DashboardPage from "./pages/DashboardPage";
+import SignInPage from "./pages/SignInPage";
+import applyHocs from "./shared/applyHocs";
+import bluejay from "./shared/bluejay";
+import renderComponent from "./shared/react/renderComponent";
+import theme from "./theme";
+import { ThemeProvider } from "@mui/material";
+import { SnackbarProvider } from "notistack";
 import React from "react";
+import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
 
-function App() {
+window.Promise = bluejay.Promise;
+
+export default function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <ThemeProvider theme={theme}>
+      <SnackbarProvider>
+        <UserProvider>
+          <Router>
+            <NavSwitch />
+            <PageSwitch />
+          </Router>
+        </UserProvider>
+      </SnackbarProvider>
+    </ThemeProvider>
   );
 }
 
-export default App;
+function NavSwitch() {
+  return (
+    <Routes>
+      <Route exact path="/" element={null} />
+      <Route exact path="/sign-in" element={null} />
+      <Route exact path="*" element={<TopNav />} />
+    </Routes>
+  );
+}
+
+function PageSwitch() {
+  return (
+    <Routes>
+      <Route
+        exact
+        path="/sign-in"
+        element={renderWithHocs(redirectIfAuthed, SignInPage)}
+      />
+      <Route
+        exact
+        path="/dashboard"
+        element={renderWithHocs(redirectIfUnauthed, DashboardPage)}
+      />
+      <Route
+        path="/"
+        element={renderWithHocs(redirectIfAuthed, redirectIfUnauthed, () => null)}
+      />
+    </Routes>
+  );
+}
+
+function renderWithHocs(...args) {
+  return renderComponent(applyHocs(...args));
+}
