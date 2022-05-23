@@ -43,7 +43,7 @@ module Suma::Apps
   end
 
   Root = Rack::Builder.new do
-    use Rack::SimpleRedirect, routes: {/.*/ => "/app"}, status: 302
+    use Rack::SimpleRedirect, routes: {/.*/ => ->(env) { "/app#{env['REQUEST_PATH']}" }}, status: 302
     run Rack::LambdaApp.new(->(_) { raise "Should not see this" })
   end
 end
