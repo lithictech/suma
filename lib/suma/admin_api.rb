@@ -9,13 +9,14 @@ require "suma/service"
 module Suma::AdminAPI
   require "suma/admin_api/entities"
 
-  class V1 < Suma::Service
+  # Split this out since some admin endpoints are unauthed,
+  # but otherwise we want it by default.
+  class BaseV1 < Suma::Service
     def self.inherited(subclass)
       super
       subclass.instance_eval do
         version "v1", using: :path
         format :json
-        prefix :admin
 
         content_type :csv, "text/csv"
 
@@ -34,13 +35,20 @@ module Suma::AdminAPI
           end
         end
 
-        auth(:admin)
-
         before do
           Sentry.configure_scope do |scope|
             scope.set_tags(application: "admin-api")
           end
         end
+      end
+    end
+  end
+
+  class V1 < BaseV1
+    def self.inherited(subclass)
+      super
+      subclass.instance_eval do
+        auth(:admin)
       end
     end
   end
