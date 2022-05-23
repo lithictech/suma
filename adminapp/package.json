@@ -12,10 +12,14 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "start": "react-scripts start",
+    "start": "CHOKIDAR_USEPOLLING=true PORT=22005 FAST_REFRESH=false react-scripts start",
     "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "test": "react-scripts test --passWithNoTests",
+    "eject": "react-scripts eject",
+    "prettier-check": "prettier --no-error-on-unmatched-pattern --check '*.js' './tools/*.js' './src/**/*.js'",
+    "prettier-fix": "prettier --no-error-on-unmatched-pattern --write '*.js' './tools/*.js' './src/**/*.js'",
+    "eslint-check": "eslint --no-error-on-unmatched-pattern '*.js' './tools/*.js' './src/**/*.js'",
+    "eslint-fix": "eslint --no-error-on-unmatched-pattern --fix '*.js' './tools/*.js' './src/**/*.js'"
   },
   "eslintConfig": {
     "extends": [
@@ -34,5 +38,9 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "@trivago/prettier-plugin-sort-imports": "^3.2.0",
+    "prettier": "^2.6.0"
   }
 }

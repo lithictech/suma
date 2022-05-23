@@ -1,0 +1,32 @@
+{
+  "plugins": [],
+  "env": {
+    "browser": true,
+    "jest": true,
+    "es6": true
+  },
+  "extends": [
+    "react-app",
+    "eslint:recommended",
+    "plugin:react/recommended"
+  ],
+  "globals": {
+    "__DEV__": true
+  },
+  "settings": {
+    "react": {
+      "version": "17.0"
+    }
+  },
+  "rules": {
+    "import/no-anonymous-default-export": "off",
+    // Due to some dependency stuff, this needs to be disabled.
+    // Search for "create react app" "Definition for rule 'jsx-a11y/href-no-hash' was not found"
+    // and check out the line 100 results for it.
+    "jsx-a11y/href-no-hash": "off",
+    "no-console": "off",
+    "no-unused-vars": "warn",
+    "react/display-name": "off",
+    "react/prop-types": "off"
+  }
+}
