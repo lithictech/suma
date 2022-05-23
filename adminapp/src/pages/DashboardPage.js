@@ -1,7 +1,15 @@
 import Link from "../components/Link";
 import { useUser } from "../hooks/user";
 import navLinks from "../modules/navLinks";
-import { Container, Typography } from "@mui/material";
+import {
+  Container,
+  List,
+  ListItem,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
+  Typography,
+} from "@mui/material";
 import { makeStyles } from "@mui/styles";
 import React from "react";
 
@@ -22,13 +30,16 @@ export default function DashboardPage() {
     <Container className={classes.root} maxWidth="lg">
       <Typography gutterBottom>Hello, {user.name}</Typography>
       <div className={classes.row}>
-        <ul>
-          {navLinks.map(({ label, href }) => (
-            <li key={label}>
-              <Link to={href}>{label}</Link>
-            </li>
+        <List>
+          {navLinks.map(({ label, href, icon }) => (
+            <ListItem key={label} disablePadding>
+              <ListItemButton component={Link} href={href}>
+                <ListItemIcon>{icon}</ListItemIcon>
+                <ListItemText primary={label} />
+              </ListItemButton>
+            </ListItem>
           ))}
-        </ul>
+        </List>
       </div>
     </Container>
   );

@@ -19,7 +19,7 @@ export default function App() {
     <ThemeProvider theme={theme}>
       <SnackbarProvider>
         <UserProvider>
-          <Router>
+          <Router basename={process.env.PUBLIC_URL}>
             <NavSwitch />
             <PageSwitch />
           </Router>

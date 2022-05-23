@@ -23,7 +23,7 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "start": "CHOKIDAR_USEPOLLING=true PORT=22015 FAST_REFRESH=false react-scripts start",
+    "start": "CHOKIDAR_USEPOLLING=true PORT=22014 FAST_REFRESH=false react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test --passWithNoTests",
     "eject": "react-scripts eject",
