@@ -125,7 +125,7 @@ reinit-db-from-dump:
 
 build-webapp:
 	@# Need dev deps to build
-	@cd webapp && npm install --production=false && PUBLIC_URL="app/" BUILD_PATH="../build-webapp" REACT_APP_API_HOST="/" npm run build
+	@cd webapp && npm install --production=false && PUBLIC_URL="/app/" BUILD_PATH="../build-webapp" REACT_APP_API_HOST="/" npm run build
 
 build-frontends: build-webapp ## Build the JS frontends and place them into their location so they can be served by Rack
 
