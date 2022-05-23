@@ -12,13 +12,13 @@ RSpec.describe Suma::AdminAPI::Roles, :db do
     login_as_admin(admin)
   end
 
-  describe "GET /admin/v1/roles" do
+  describe "GET /v1/roles" do
     it "returns all roles" do
       c = Suma::Role.create(name: "c")
       d = Suma::Role.create(name: "d")
       b = Suma::Role.create(name: "b")
 
-      get "/admin/v1/roles"
+      get "/v1/roles"
 
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.

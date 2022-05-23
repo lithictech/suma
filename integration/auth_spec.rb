@@ -72,13 +72,13 @@ RSpec.describe "auth", :integration do
     customer = Suma::Fixtures.customer.admin.instance
     auth_customer(customer)
 
-    resp = get("/api/admin/v1/auth")
+    resp = get("/api/v1/auth")
     expect(resp).to party_status(200)
     expect(resp).to party_response(match(hash_including(name: customer.name)))
 
     customer.remove_role(Suma::Role.admin_role)
 
-    resp = get("/api/admin/v1/auth")
+    resp = get("/api/v1/auth")
     expect(resp).to party_status(401)
   end
 end

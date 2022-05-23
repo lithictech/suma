@@ -26,12 +26,14 @@ module Suma::Apps
     mount Suma::API::Auth
     mount Suma::API::Me
     mount Suma::API::Mobility
+    add_swagger_documentation if ENV["RACK_ENV"] == "development"
+  end
 
+  class AdminAPI < Suma::Service
     mount Suma::AdminAPI::Auth
     mount Suma::AdminAPI::Customers
     mount Suma::AdminAPI::MessageDeliveries
     mount Suma::AdminAPI::Roles
-
     add_swagger_documentation if ENV["RACK_ENV"] == "development"
   end
 

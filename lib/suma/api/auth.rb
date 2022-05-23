@@ -16,12 +16,6 @@ class Suma::API::Auth < Suma::API::V1
   end
 
   resource :auth do
-    helpers do
-      def guard_authed!
-        merror!(409, "You are already signed in. Please sign out first.", code: "auth_conflict") if current_customer?
-      end
-    end
-
     desc "Start the authentication process"
     params do
       requires :phone, us_phone: true, type: String, coerce_with: NormalizedPhone

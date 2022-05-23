@@ -14,6 +14,9 @@ Suma::Async.setup_web
 map "/api" do
   run Suma::Apps::API.build_app
 end
+map "/adminapi" do
+  run Suma::Apps::AdminAPI.build_app
+end
 map "/app" do
   run Suma::Apps::Web.to_app
 end
