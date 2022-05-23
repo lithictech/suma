@@ -23,3 +23,6 @@ check: fmt-check lint-check test
 
 start: check-version
 	npm start
+
+sync-shared: check-version
+	cp -r ../webapp/src/shared src
