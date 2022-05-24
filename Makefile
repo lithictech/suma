@@ -1,4 +1,4 @@
-.PHONY: build build-webapp
+.PHONY: build build-webapp build-adminapp
 
 staging_app:=suma-staging
 production_app:=suma-production
@@ -127,7 +127,11 @@ build-webapp:
 	@# Need dev deps to build
 	@cd webapp && npm install --production=false && PUBLIC_URL="/app/" BUILD_PATH="../build-webapp" REACT_APP_API_HOST="/" npm run build
 
-build-frontends: build-webapp ## Build the JS frontends and place them into their location so they can be served by Rack
+build-adminapp:
+	@# Need dev deps to build
+	@cd adminapp && npm install --production=false && PUBLIC_URL="/admin/" BUILD_PATH="../build-adminapp" REACT_APP_API_HOST="/" npm run build
+
+build-frontends: build-webapp build-adminapp ## Build the JS frontends and place them into their location so they can be served by Rack
 
 goto-logging: cmd-exists-heroku
 	heroku addons:open coralogix --app $(production_app)

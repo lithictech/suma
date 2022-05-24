@@ -44,6 +44,13 @@ module Suma::Apps
     run Rack::LambdaApp.new(->(_) { raise "Should not see this" })
   end
 
+  Admin = Rack::Builder.new do
+    use Rack::SpaRewrite, index_path: "build-adminapp/index.html", html_only: true
+    use Rack::Static, urls: [""], root: "build-adminapp", cascade: true
+    use Rack::SpaRewrite, index_path: "build-adminapp/index.html", html_only: false
+    run Rack::LambdaApp.new(->(_) { raise "Should not see this" })
+  end
+
   Root = Rack::Builder.new do
     use Rack::SimpleRedirect, routes: {/.*/ => ->(env) { "/app#{env['REQUEST_PATH']}" }}, status: 302
     run Rack::LambdaApp.new(->(_) { raise "Should not see this" })
