@@ -20,7 +20,7 @@ $theme-colors: map-merge-multiple(
   $theme-colors,
   (
     "primary": rgb(245, 203, 130),
-    "parimary-dark": #a77948
+    "primary-dark": #a77948
   ),
 );
 // Adds theme colors to sub-classes e.g. text-suma, bg-suma

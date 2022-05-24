@@ -10,6 +10,7 @@ import i18next from "i18next";
 import React from "react";
 import Alert from "react-bootstrap/Alert";
 import Card from "react-bootstrap/Card";
+import { Link } from "react-router-dom";
 
 const Map = () => {
   const mapRef = React.useRef();
@@ -28,6 +29,10 @@ const Map = () => {
       setReserveError(null);
       setSelectedMapVehicle(mapVehicle);
       setLoadedVehicle(null);
+      if (user.readOnlyMode) {
+        setError(extractErrorCode(user.readOnlyReason));
+        return;
+      }
       if (mapVehicle) {
         const { loc, providerId, disambiguator, type } = mapVehicle;
         api
@@ -40,7 +45,7 @@ const Map = () => {
           });
       }
     },
-    [setError, setReserveError]
+    [user, setError, setReserveError]
   );
 
   const handleGetLastLocation = React.useCallback(
@@ -131,6 +136,9 @@ const Map = () => {
         <Card className="mobility-overlay-card">
           <Card.Body>
             <FormError error={error} noMargin component="div" />
+            {user.readOnlyReason && (
+              <Link to="/#todo">Press here to add money to your account</Link>
+            )}
           </Card.Body>
         </Card>
       )}
