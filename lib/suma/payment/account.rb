@@ -9,6 +9,13 @@ class Suma::Payment::Account < Suma::Postgres::Model(:payment_accounts)
   many_to_one :customer, class: "Suma::Customer"
   many_to_one :vendor, class: "Suma::Vendor"
   one_to_many :ledgers, class: "Suma::Payment::Ledger"
+  one_to_one :cash_ledger, class: "Suma::Payment::Ledger", read_only: true do |ds|
+    ds.where(vendor_service_categories: Suma::Vendor::ServiceCategory.where(slug: "cash"))
+  end
+
+  one_to_one :mobility_ledger, class: "Suma::Payment::Ledger", read_only: true do |ds|
+    ds.where(vendor_service_categories: Suma::Vendor::ServiceCategory.where(slug: "mobility"))
+  end
 
   def self.lookup_platform_account
     return Suma.cached_get("platform_payment_account") do
@@ -34,8 +41,18 @@ class Suma::Payment::Account < Suma::Postgres::Model(:payment_accounts)
     return self.ledgers.sum(Money.new(0), &:balance)
   end
 
+  def cash_ledger!
+    return self.cash_ledger if self.cash_ledger
+    raise "PaymentAccount[#{self.id}] has no cash ledger"
+  end
+
+  def mobility_ledger!
+    return self.mobility_ledger if self.mobility_ledger
+    raise "PaymentAccount[#{self.id}] has no mobility ledger"
+  end
+
   def find_chargeable_ledgers(vendor_service, amount, allow_negative_balance: false)
-    raise ArgumentError, "amount must be positive, got #{amount.format}" unless amount.positive?
+    raise ArgumentError, "amount cannot be negative, got #{amount.format}" if amount.negative?
     raise Suma::InvalidPrecondition, "#{self.inspect} has no ledgers" if self.ledgers.empty?
     contributions = []
     self.ledgers.each do |led|
@@ -71,6 +88,7 @@ class Suma::Payment::Account < Suma::Postgres::Model(:payment_accounts)
         amount: c.amount,
         originating_ledger: c.ledger,
         receiving_ledger: Suma::Payment::Account.lookup_platform_vendor_service_category_ledger(c.category),
+        associated_vendor_service_category: c.category,
         memo:,
       )
     end

@@ -3,7 +3,7 @@
 RSpec.describe "Suma::Mobility::Trip", :db do
   let(:described_class) { Suma::Mobility::Trip }
   let(:customer) { Suma::Fixtures.customer.onboarding_verified.with_cash_ledger(amount: money("$15")).create }
-  let(:vendor_service) { Suma::Fixtures.vendor_service.create }
+  let(:vendor_service) { Suma::Fixtures.vendor_service.mobility.create(external_name: "Super Scoot") }
   let(:rate) { Suma::Fixtures.vendor_service_rate.create }
   let(:t) { trunc_time(Time.now) }
 
@@ -91,7 +91,7 @@ RSpec.describe "Suma::Mobility::Trip", :db do
 
     it "uses the actual charge if there is no discount" do
       rate = Suma::Fixtures.vendor_service_rate.unit_amount(20).create
-      trip = Suma::Fixtures.mobility_trip.
+      trip = Suma::Fixtures.mobility_trip(vendor_service:).
         ongoing.
         create(began_at: 211.seconds.ago, vendor_service_rate: rate, customer:)
       trip.end_trip(lat: 1, lng: 2)
@@ -100,17 +100,33 @@ RSpec.describe "Suma::Mobility::Trip", :db do
         undiscounted_subtotal: cost("$0.70"),
         discounted_subtotal: cost("$0.70"),
       )
-      expect(trip.charge.book_transactions).to have_length(1)
+      mobility = Suma::Vendor::ServiceCategory.find!(slug: "mobility")
+      expect(trip.charge.book_transactions).to contain_exactly(
+        have_attributes(
+          originating_ledger: customer.payment_account.mobility_ledger!,
+          receiving_ledger: Suma::Payment::Account.lookup_platform_vendor_service_category_ledger(mobility),
+          amount: cost("$0.70"),
+          memo: "Suma Mobility - Super Scoot",
+          associated_vendor_service_category: be === mobility,
+        ),
+      )
     end
 
-    it "creates no transactions for a $0 trip" do
+    it "creates a $0 transaction for a $0 trip" do
+      Suma::Payment.ensure_cash_ledger(customer)
+      customer.refresh
       rate = Suma::Fixtures.vendor_service_rate.unit_amount(0).surcharge(0).create
       trip = Suma::Fixtures.mobility_trip.
         ongoing.
         create(began_at: 6.minutes.ago, vendor_service_rate: rate, customer:)
       trip.end_trip(lat: 1, lng: 2)
       expect(trip.charge).to have_attributes(discounted_subtotal: cost("$0"))
-      expect(trip.charge.book_transactions).to be_empty
+      expect(trip.charge.book_transactions).to contain_exactly(
+        have_attributes(
+          originating_ledger: customer.payment_account.mobility_ledger!,
+          amount: cost("$0"),
+        ),
+      )
     end
   end
 

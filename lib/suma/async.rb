@@ -23,6 +23,7 @@ module Suma::Async
     "suma/async/emailer",
     "suma/async/ensure_default_customer_ledgers_on_create",
     "suma/async/message_dispatched",
+    "suma/async/plaid_update_institutions",
     "suma/async/reset_code_create_dispatch",
   ].freeze
 

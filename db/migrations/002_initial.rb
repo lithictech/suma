@@ -46,6 +46,20 @@ Sequel.migration do
       text :name, null: false, unique: true
     end
 
+    create_table(:plaid_institutions) do
+      primary_key :pk
+      timestamptz :created_at, null: false, default: Sequel.function(:now)
+      timestamptz :updated_at
+
+      text :institution_id, null: false, unique: true
+      text :name, null: false
+      text :logo_base64, null: false, default: ""
+      text :primary_color_hex, null: false, default: "#000000"
+      column :routing_numbers, "text[]", null: false
+      index :routing_numbers, type: :GIN
+      jsonb :data, null: false, default: "{}"
+    end
+
     create_table(:customers) do
       primary_key :id
       timestamptz :created_at, null: false, default: Sequel.function(:now)
@@ -294,6 +308,28 @@ Sequel.migration do
       )
     end
 
+    create_table(:bank_accounts) do
+      primary_key :id
+      timestamptz :created_at, null: false, default: Sequel.function(:now)
+      timestamptz :updated_at
+      timestamptz :soft_deleted_at
+
+      text :routing_number, null: false
+      text :account_number, null: false
+
+      foreign_key :legal_entity_id, :legal_entities, null: false, on_delete: :restrict
+      foreign_key :plaid_institution_id, :plaid_institutions, on_delete: :set_null
+
+      text :name, null: false
+      text :official_name, null: false
+      text :account_type, null: false
+
+      index [:legal_entity_id, :routing_number, :account_number],
+            name: :undeleted_legal_entity_id_routing_number_account_number_key,
+            unique: true,
+            where: Sequel[soft_deleted_at: nil]
+    end
+
     create_table(:payment_accounts) do
       primary_key :id
       timestamptz :created_at, null: false, default: Sequel.function(:now)
@@ -342,10 +378,11 @@ Sequel.migration do
 
       foreign_key :originating_ledger_id, :payment_ledgers, index: true
       foreign_key :receiving_ledger_id, :payment_ledgers, index: true
+      foreign_key :associated_vendor_service_category_id, :vendor_service_categories
 
       int :amount_cents, null: false
       text :amount_currency, null: false
-      constraint(:positive_amount, Sequel.lit("amount_cents > 0"))
+      constraint(:amount_not_negative, Sequel.lit("amount_cents >= 0"))
 
       text :memo, null: false
     end

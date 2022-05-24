@@ -5,6 +5,16 @@ RSpec.describe "Suma::Payment::Account", :db do
   let(:account) { Suma::Fixtures.payment_account.create }
   let(:customer) { account.customer }
 
+  describe "associations" do
+    it "can find its cash ledger" do
+      acct = Suma::Fixtures.payment_account.create
+      expect(acct.cash_ledger).to be_nil
+      cashledger = Suma::Payment.ensure_cash_ledger(acct.customer)
+      expect(acct.refresh.cash_ledger).to be_a(Suma::Payment::Ledger)
+      expect(acct.cash_ledger).to be === cashledger
+    end
+  end
+
   describe "validations" do
     it "must have an owner" do
       pa = account
@@ -46,10 +56,10 @@ RSpec.describe "Suma::Payment::Account", :db do
       end.to raise_error(Suma::InvalidPrecondition, /has no ledgers/)
     end
 
-    it "raises if the amount is not positive" do
+    it "raises if the amount is negative" do
       expect do
-        account.find_chargeable_ledgers(grocery_service, money("$0"))
-      end.to raise_error(ArgumentError, /must be positive/)
+        account.find_chargeable_ledgers(grocery_service, money("-$1"))
+      end.to raise_error(ArgumentError, /cannot be negative/)
     end
 
     it "raises if the required total cannot be reached" do
@@ -90,6 +100,17 @@ RSpec.describe "Suma::Payment::Account", :db do
       )
     end
 
+    it "returns the first matching ledger for $0" do
+      cannot_use = ledger_fac.with_categories(mobility).create
+      can_use_g1 = ledger_fac.with_categories(grocery).create
+      Suma::Fixtures.book_transaction.to(cannot_use).create(amount: money("$50"))
+      Suma::Fixtures.book_transaction.to(can_use_g1).create(amount: money("$10"))
+      results = account.find_chargeable_ledgers(grocery_service, money("$0"))
+      expect(results).to contain_exactly(
+        have_attributes(ledger: be === can_use_g1, amount: cost("$0")),
+      )
+    end
+
     it "distributes remainder over ledgers equally if allow_negative_balance is true" do
       ledgers = Array.new(3) { ledger_fac.with_categories(grocery).create }
       results = account.find_chargeable_ledgers(grocery_service, money("10"), allow_negative_balance: true)
@@ -114,9 +135,24 @@ RSpec.describe "Suma::Payment::Account", :db do
       expect(results).to all(be_a(Suma::Payment::BookTransaction))
       recip = Suma::Payment::Account.lookup_platform_vendor_service_category_ledger(food)
       expect(results).to contain_exactly(
-        have_attributes(originating_ledger: be === ledgers[0], receiving_ledger: be === recip, amount: cost("$2")),
-        have_attributes(originating_ledger: be === ledgers[1], receiving_ledger: be === recip, amount: cost("$2")),
-        have_attributes(originating_ledger: be === ledgers[2], receiving_ledger: be === recip, amount: cost("$2")),
+        have_attributes(
+          originating_ledger: be === ledgers[0],
+          receiving_ledger: be === recip,
+          associated_vendor_service_category: be === food,
+          amount: cost("$2"),
+        ),
+        have_attributes(
+          originating_ledger: be === ledgers[1],
+          receiving_ledger: be === recip,
+          associated_vendor_service_category: be === food,
+          amount: cost("$2"),
+        ),
+        have_attributes(
+          originating_ledger: be === ledgers[2],
+          receiving_ledger: be === recip,
+          associated_vendor_service_category: be === food,
+          amount: cost("$2"),
+        ),
       )
     end
   end

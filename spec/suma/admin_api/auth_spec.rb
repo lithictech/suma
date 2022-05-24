@@ -6,14 +6,15 @@ RSpec.describe Suma::AdminAPI::Auth, :db do
   include Rack::Test::Methods
 
   let(:app) { described_class.build_app }
-  let(:customer) { Suma::Fixtures.customer.create }
-  let(:admin) { Suma::Fixtures.customer.admin.create }
+  let(:password) { "Password1!" }
+  let(:customer) { Suma::Fixtures.customer.create(password:) }
+  let(:admin) { Suma::Fixtures.customer.admin.create(password:) }
 
-  describe "GET /admin/v1/auth" do
+  describe "GET /v1/auth" do
     it "200s if the customer is an admin and authed as an admin" do
       login_as_admin(admin)
 
-      get "/admin/v1/auth"
+      get "/v1/auth"
 
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.
@@ -24,17 +25,17 @@ RSpec.describe Suma::AdminAPI::Auth, :db do
       login_as_admin(admin)
 
       target = Suma::Fixtures.customer.create
-      post "/admin/v1/auth/impersonate/#{target.id}"
+      post "/v1/auth/impersonate/#{target.id}"
       expect(last_response).to have_status(200)
 
-      get "/admin/v1/auth"
+      get "/v1/auth"
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.
         that_includes(id: admin.id, impersonated: true)
     end
 
     it "401s if the customer is not authed" do
-      get "/admin/v1/auth"
+      get "/v1/auth"
 
       expect(last_response).to have_status(401)
     end
@@ -42,7 +43,7 @@ RSpec.describe Suma::AdminAPI::Auth, :db do
     it "401s if the customer did not auth as an admin (even if they are now)" do
       login_as(admin)
 
-      get "/admin/v1/auth"
+      get "/v1/auth"
 
       expect(last_response).to have_status(401)
     end
@@ -51,19 +52,70 @@ RSpec.describe Suma::AdminAPI::Auth, :db do
       login_as_admin(admin)
       admin.remove_role(Suma::Role.admin_role)
 
-      get "/admin/v1/auth"
+      get "/v1/auth"
 
       expect(last_response).to have_status(401)
     end
   end
 
-  describe "POST /admin/v1/auth/impersonate/:id" do
+  describe "POST /v1/auth" do
+    it "errors if a customer is already authed" do
+      login_as(admin)
+
+      post("/v1/auth", email: admin.email, password:)
+
+      expect(last_response).to have_status(409)
+      expect(last_response).to have_json_body.
+        that_includes(error: include(message: "You are already signed in. Please sign out first."))
+    end
+
+    it "errors if the customer is not an admin" do
+      post("/v1/auth", email: customer.email, password:)
+
+      expect(last_response).to have_status(403)
+      expect(last_response).to have_json_body.
+        that_includes(error: include(code: "invalid_permissions"))
+    end
+
+    it "returns 200 and creates a session if the email and password are valid" do
+      post("/v1/auth", email: admin.email, password:)
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_session_cookie.with_payload_key("warden.user.customer.key")
+      expect(last_response).to have_json_body.that_includes(id: admin.id)
+    end
+
+    it "returns 403 if the email does not map to a customer" do
+      post("/v1/auth", email: admin.email + "x", password:)
+
+      expect(last_response).to have_status(403)
+      expect(last_response).to have_json_body.that_includes(error: include(code: "invalid_credentials"))
+    end
+
+    it "returns 403 if the password is not valid" do
+      post("/v1/auth", email: admin.email, password: "password")
+
+      expect(last_response).to have_status(403)
+      expect(last_response).to have_json_body.that_includes(error: include(code: "invalid_credentials"))
+    end
+  end
+
+  describe "DELETE /v1/auth" do
+    it "removes the cookies" do
+      delete "/v1/auth"
+
+      expect(last_response).to have_status(204)
+      expect(last_response["Set-Cookie"]).to include("=deleted; path=/; expires=Thu, 01 Jan 1970 00:00:00")
+    end
+  end
+
+  describe "POST /v1/auth/impersonate/:id" do
     let(:target) { Suma::Fixtures.customer.create }
 
     it "impersonates the given customer" do
       login_as_admin(admin)
 
-      post "/admin/v1/auth/impersonate/#{target.id}"
+      post "/v1/auth/impersonate/#{target.id}"
 
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.
@@ -72,42 +124,42 @@ RSpec.describe Suma::AdminAPI::Auth, :db do
 
     it "replaces an existing impersonated customer" do
       login_as_admin(admin)
-      post "/admin/v1/auth/impersonate/#{target.id}"
+      post "/v1/auth/impersonate/#{target.id}"
 
       other_target = Suma::Fixtures.customer.create
-      post "/admin/v1/auth/impersonate/#{other_target.id}"
+      post "/v1/auth/impersonate/#{other_target.id}"
 
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.
         that_includes(id: other_target.id, impersonated: true)
     end
 
-    it "404s if the customer does not exist" do
+    it "403s if the customer does not exist" do
       login_as_admin(admin)
 
-      post "/admin/v1/auth/impersonate/0"
+      post "/v1/auth/impersonate/0"
 
-      expect(last_response).to have_status(404)
+      expect(last_response).to have_status(403)
     end
 
     it "401s if the authed customer is not an admin" do
       login_as_admin(target)
 
-      post "/admin/v1/auth/impersonate/#{target.id}"
+      post "/v1/auth/impersonate/#{target.id}"
 
       expect(last_response).to have_status(401)
     end
   end
 
-  describe "DELETE /admin/v1/auth/impersonate" do
+  describe "DELETE /v1/auth/impersonate" do
     it "unimpersonates an impersonated customer" do
       login_as_admin(admin)
 
       target = Suma::Fixtures.customer.create
-      post "/admin/v1/auth/impersonate/#{target.id}"
+      post "/v1/auth/impersonate/#{target.id}"
       expect(last_response).to have_status(200)
 
-      delete "/admin/v1/auth/impersonate"
+      delete "/v1/auth/impersonate"
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.
         that_includes(id: admin.id, impersonated: false)
@@ -116,7 +168,7 @@ RSpec.describe Suma::AdminAPI::Auth, :db do
     it "noops if no customer is impersonated" do
       login_as_admin(admin)
 
-      delete "/admin/v1/auth/impersonate"
+      delete "/v1/auth/impersonate"
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.
         that_includes(id: admin.id, impersonated: false)
@@ -125,7 +177,7 @@ RSpec.describe Suma::AdminAPI::Auth, :db do
     it "401s if the authed customer is not an admin" do
       login_as_admin(Suma::Fixtures.customer.create)
 
-      delete "/admin/v1/auth/impersonate"
+      delete "/v1/auth/impersonate"
 
       expect(last_response).to have_status(401)
     end

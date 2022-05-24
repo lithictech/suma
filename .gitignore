@@ -57,6 +57,7 @@ temp/
 
 # top-level Node files are for tooling only
 build-webapp/
+build-adminapp/
 node_modules/
 package-lock.json
 

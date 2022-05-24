@@ -1,24 +1,24 @@
-import Redirect from "./components/Redirect";
 import { redirectIfAuthed, redirectIfUnauthed } from "./hocs/authRedirects";
-import applyHocs from "./modules/applyHocs";
-import renderComponent from "./modules/renderComponent";
 import Dashboard from "./pages/Dashboard";
 import Home from "./pages/Home";
 import MapPage from "./pages/MapPage";
 import Onboarding from "./pages/Onboarding";
 import OneTimePassword from "./pages/OneTimePassword";
 import Start from "./pages/Start";
+import applyHocs from "./shared/applyHocs";
+import bluejay from "./shared/bluejay";
+import Redirect from "./shared/react/Redirect";
+import renderComponent from "./shared/react/renderComponent";
 import { UserProvider } from "./state/useUser";
-import bluebird from "bluebird";
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
-window.Promise = bluebird.Promise;
+window.Promise = bluejay.Promise;
 
 function App() {
   return (
     <UserProvider>
-      <Router>
+      <Router basename={process.env.PUBLIC_URL}>
         <Routes>
           <Route path="/" exact element={renderWithHocs(redirectIfAuthed, Home)} />
           <Route path="/start" exact element={renderWithHocs(redirectIfAuthed, Start)} />

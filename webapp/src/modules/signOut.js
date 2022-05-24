@@ -1,6 +1,6 @@
 import api from "../api";
-import { localStorageCache } from "./localStorageHelper";
-import refreshAsync from "./refreshAsync";
+import { localStorageCache } from "../shared/localStorageHelper";
+import refreshAsync from "../shared/refreshAsync";
 
 export default function signOut() {
   api

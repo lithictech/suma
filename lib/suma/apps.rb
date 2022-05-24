@@ -26,12 +26,14 @@ module Suma::Apps
     mount Suma::API::Auth
     mount Suma::API::Me
     mount Suma::API::Mobility
+    add_swagger_documentation if ENV["RACK_ENV"] == "development"
+  end
 
+  class AdminAPI < Suma::Service
     mount Suma::AdminAPI::Auth
     mount Suma::AdminAPI::Customers
     mount Suma::AdminAPI::MessageDeliveries
     mount Suma::AdminAPI::Roles
-
     add_swagger_documentation if ENV["RACK_ENV"] == "development"
   end
 
@@ -42,8 +44,15 @@ module Suma::Apps
     run Rack::LambdaApp.new(->(_) { raise "Should not see this" })
   end
 
+  Admin = Rack::Builder.new do
+    use Rack::SpaRewrite, index_path: "build-adminapp/index.html", html_only: true
+    use Rack::Static, urls: [""], root: "build-adminapp", cascade: true
+    use Rack::SpaRewrite, index_path: "build-adminapp/index.html", html_only: false
+    run Rack::LambdaApp.new(->(_) { raise "Should not see this" })
+  end
+
   Root = Rack::Builder.new do
-    use Rack::SimpleRedirect, routes: {/.*/ => "/app"}, status: 302
+    use Rack::SimpleRedirect, routes: {/.*/ => ->(env) { "/app#{env['REQUEST_PATH']}" }}, status: 302
     run Rack::LambdaApp.new(->(_) { raise "Should not see this" })
   end
 end

@@ -1,5 +1,5 @@
 import config from "./config";
-import apiBase from "./modules/apiBase";
+import apiBase from "./shared/apiBase";
 
 const instance = apiBase.create(config.apiHost, {
   debug: config.debug,

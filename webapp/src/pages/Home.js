@@ -1,5 +1,5 @@
 import sumaLogo from "../assets/images/suma-logo.png";
-import SafeExternalLink from "../components/SafeExternalLink";
+import SafeExternalLink from "../shared/react/SafeExternalLink";
 import i18next from "i18next";
 import React from "react";
 import Button from "react-bootstrap/Button";

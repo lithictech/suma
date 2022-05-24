@@ -13,11 +13,11 @@ RSpec.describe Suma::AdminAPI::Customers, :db do
     login_as_admin(admin)
   end
 
-  describe "GET /admin/v1/customers" do
+  describe "GET /v1/customers" do
     it "returns all customers" do
       u = Array.new(2) { Suma::Fixtures.customer.create }
 
-      get "/admin/v1/customers"
+      get "/v1/customers"
 
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.
@@ -25,7 +25,7 @@ RSpec.describe Suma::AdminAPI::Customers, :db do
     end
 
     it_behaves_like "an endpoint capable of search" do
-      let(:url) { "/admin/v1/customers" }
+      let(:url) { "/v1/customers" }
       let(:search_term) { "ZIM" }
 
       def make_matching_items
@@ -48,7 +48,7 @@ RSpec.describe Suma::AdminAPI::Customers, :db do
         match = Suma::Fixtures.customer(phone: "12223334444").create
         nommatch = Suma::Fixtures.customer(phone: "12225554444").create
 
-        get "/admin/v1/customers", search: "22333444"
+        get "/v1/customers", search: "22333444"
 
         expect(last_response).to have_status(200)
         expect(last_response).to have_json_body.that_includes(items: have_same_ids_as(match))
@@ -58,7 +58,7 @@ RSpec.describe Suma::AdminAPI::Customers, :db do
         match = Suma::Fixtures.customer(email: "holt17510@hotmail.com", phone: "15319990165").create
         nommatch = Suma::Fixtures.customer(email: "nonsense@hotmail.com", phone: "17519910205").create
 
-        get "/admin/v1/customers", search: "holt1751"
+        get "/v1/customers", search: "holt1751"
 
         expect(last_response).to have_status(200)
         expect(last_response).to have_json_body.that_includes(items: have_same_ids_as(match))
@@ -66,7 +66,7 @@ RSpec.describe Suma::AdminAPI::Customers, :db do
     end
 
     it_behaves_like "an endpoint with pagination" do
-      let(:url) { "/admin/v1/customers" }
+      let(:url) { "/v1/customers" }
       def make_item(i)
         # Sorting is newest first, so the first items we create need to the the oldest.
         created = Time.now - i.days
@@ -76,7 +76,7 @@ RSpec.describe Suma::AdminAPI::Customers, :db do
     end
 
     it_behaves_like "an endpoint with customer-supplied ordering" do
-      let(:url) { "/admin/v1/customers" }
+      let(:url) { "/v1/customers" }
       let(:order_by_field) { "note" }
       def make_item(i)
         return admin.update(note: i.to_s) if i.zero?
@@ -85,16 +85,16 @@ RSpec.describe Suma::AdminAPI::Customers, :db do
     end
   end
 
-  describe "GET /admin/v1/customers/:id" do
+  describe "GET /v1/customers/:id" do
     it "returns the customer" do
-      get "/admin/v1/customers/#{admin.id}"
+      get "/v1/customers/#{admin.id}"
 
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.that_includes(:roles, id: admin.id)
     end
 
     it "404s if the customer does not exist" do
-      get "/admin/v1/customers/0"
+      get "/v1/customers/0"
 
       expect(last_response).to have_status(404)
     end
@@ -102,7 +102,7 @@ RSpec.describe Suma::AdminAPI::Customers, :db do
     it "represents sessions" do
       Suma::Fixtures.session(customer: admin, peer_ip: "1.2.3.4").create
 
-      get "/admin/v1/customers/#{admin.id}"
+      get "/v1/customers/#{admin.id}"
 
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.that_includes(
@@ -111,11 +111,11 @@ RSpec.describe Suma::AdminAPI::Customers, :db do
     end
   end
 
-  describe "POST /admin/v1/customers/:id" do
+  describe "POST /v1/customers/:id" do
     it "updates the customer" do
       customer = Suma::Fixtures.customer.create
 
-      post "/admin/v1/customers/#{customer.id}", name: "b 2", email: "b@gmail.com"
+      post "/v1/customers/#{customer.id}", name: "b 2", email: "b@gmail.com"
 
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.
@@ -126,7 +126,7 @@ RSpec.describe Suma::AdminAPI::Customers, :db do
       customer = Suma::Fixtures.customer.with_role("existing").with_role("to_remove").create
       Suma::Role.create(name: "to_add")
 
-      post "/admin/v1/customers/#{customer.id}", roles: ["existing", "to_add"]
+      post "/v1/customers/#{customer.id}", roles: ["existing", "to_add"]
 
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.that_includes(roles: contain_exactly("existing", "to_add"))
@@ -134,10 +134,10 @@ RSpec.describe Suma::AdminAPI::Customers, :db do
     end
   end
 
-  describe "POST /admin/v1/customers/:id/close" do
+  describe "POST /v1/customers/:id/close" do
     it "soft deletes the customer" do
       customer = Suma::Fixtures.customer.create
-      post "/admin/v1/customers/#{customer.id}/close"
+      post "/v1/customers/#{customer.id}/close"
 
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.that_includes(id: customer.id, soft_deleted_at: be_present)
@@ -148,7 +148,7 @@ RSpec.describe Suma::AdminAPI::Customers, :db do
       orig_at = 2.hours.ago
       customer = Suma::Fixtures.customer.create(soft_deleted_at: orig_at)
 
-      post "/admin/v1/customers/#{customer.id}/close"
+      post "/v1/customers/#{customer.id}/close"
 
       expect(last_response).to have_status(200)
       expect(customer.refresh.soft_deleted_at).to be_within(1).of(orig_at)
@@ -156,7 +156,7 @@ RSpec.describe Suma::AdminAPI::Customers, :db do
 
     it "adds a journey" do
       customer = Suma::Fixtures.customer.create
-      post "/admin/v1/customers/#{customer.id}/close"
+      post "/v1/customers/#{customer.id}/close"
 
       expect(last_response).to have_status(200)
       expect(Suma::Customer.last.journeys).to contain_exactly(have_attributes(name: "accountclosed"))

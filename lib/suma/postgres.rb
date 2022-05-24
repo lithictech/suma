@@ -28,6 +28,8 @@ module Suma::Postgres
   Sequel.extension(
     :core_extensions,
     :core_refinements,
+    :pg_array,
+    :pg_array_ops,
     :pg_inet,
     :pg_inet_ops,
     :pg_json,
@@ -62,6 +64,7 @@ module Suma::Postgres
     "suma/payment/book_transaction",
     "suma/payment/ledger",
     "suma/payment/account",
+    "suma/plaid_institution",
     "suma/role",
     "suma/vendor",
     "suma/vendor/service",

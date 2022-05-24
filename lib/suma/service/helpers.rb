@@ -16,6 +16,11 @@ module Suma::Service::Helpers
     return Suma::Service.logger
   end
 
+  def guard_authed!
+    merror!(409, "You are already signed in. Please sign out first.", code: "auth_conflict") if
+      current_customer?
+  end
+
   # Return the currently-authenticated user,
   # or respond with a 401 if there is no authenticated user.
   def current_customer
