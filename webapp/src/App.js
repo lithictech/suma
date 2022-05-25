@@ -1,8 +1,13 @@
-import { redirectIfAuthed, redirectIfUnauthed } from "./hocs/authRedirects";
+import {
+  redirectIfAuthed,
+  redirectIfUnauthed,
+  redirectIfUnboarded,
+} from "./hocs/authRedirects";
 import Dashboard from "./pages/Dashboard";
 import Home from "./pages/Home";
 import MapPage from "./pages/MapPage";
 import Onboarding from "./pages/Onboarding";
+import OnboardingSignup from "./pages/OnboardingSignup";
 import OneTimePassword from "./pages/OneTimePassword";
 import Start from "./pages/Start";
 import applyHocs from "./shared/applyHocs";
@@ -33,14 +38,19 @@ function App() {
             element={renderWithHocs(redirectIfUnauthed, Onboarding)}
           />
           <Route
+            path="/onboarding/signup"
+            exact
+            element={renderWithHocs(redirectIfUnauthed, OnboardingSignup)}
+          />
+          <Route
             path="/dashboard"
             exact
-            element={renderWithHocs(redirectIfUnauthed, Dashboard)}
+            element={renderWithHocs(redirectIfUnauthed, redirectIfUnboarded, Dashboard)}
           />
           <Route
             path="/map"
             exact
-            element={renderWithHocs(redirectIfUnauthed, MapPage)}
+            element={renderWithHocs(redirectIfUnauthed, redirectIfUnboarded, MapPage)}
           />
           <Route path="/*" element={<Redirect to="/" />} />
         </Routes>

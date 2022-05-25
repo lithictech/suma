@@ -1,45 +1,72 @@
-import React, { useState } from "react";
+import onboardingDiscounts from "../assets/images/onboarding-discounts.jpg";
+import onboardingFood from "../assets/images/onboarding-food.jpg";
+import onboardingScooters from "../assets/images/onboarding-scooters.jpg";
+import signOut from "../modules/signOut";
+import React from "react";
 import Button from "react-bootstrap/Button";
+import Carousel from "react-bootstrap/Carousel";
 import Col from "react-bootstrap/Col";
-import Form from "react-bootstrap/Form";
 import Row from "react-bootstrap/Row";
+import { Link } from "react-router-dom";
 
 const Onboarding = () => {
-  const [isSubmitDisabled, setIsSubmitDisabled] = useState(false);
-
-  const handleFormSubmit = (event) => {
-    event.preventDefault();
-    setIsSubmitDisabled(true);
-    // navigate to tutorial after submittion
-    console.log("Navigate to tutorial");
-  };
   return (
     <div className="main-container">
       <Row>
         <Col>
-          <h2>Member Onboarding</h2>
-          <Form onSubmit={handleFormSubmit}>
-            <Form.Group className="mb-3" controlId="formBasicPhoneNumber">
-              <Form.Label>Name</Form.Label>
-              <Form.Control
-                // name="name"
-                placeholder="Full Name"
+          <h2>Onboarding</h2>
+          <Carousel fade className="onboarding-carousel rounded overflow-hidden">
+            <Carousel.Item interval={4500}>
+              <img
+                className="d-block w-100"
+                src={onboardingScooters}
+                alt="scooters slide"
               />
-            </Form.Group>
-            <Form.Group className="mb-3" controlId="formBasicPhoneNumber">
-              <Form.Label>Full Address</Form.Label>
-              <Form.Control
-                // name="address"
-                placeholder="e.g. 123 Main Street, Durham, North Carolina 27701"
+              <Carousel.Caption className="bg-dark bg-opacity-75 rounded">
+                <h5>Mobility</h5>
+                <p className="px-3">
+                  We provide clean-energy transportation with electric scooters and bikes
+                </p>
+              </Carousel.Caption>
+            </Carousel.Item>
+            <Carousel.Item interval={4500}>
+              <img
+                className="d-block w-100"
+                src={onboardingDiscounts}
+                alt="discounts slide"
               />
-              <Form.Text className="text-muted">
-                This address will be used to verify your eligibility for membership.
-              </Form.Text>
-            </Form.Group>
-            <Button variant="success" type="submit" disabled={isSubmitDisabled}>
-              Continue
-            </Button>
-          </Form>
+              <Carousel.Caption className="bg-dark bg-opacity-75 rounded">
+                <h5>Save Money</h5>
+                <p className="px-3">Big discounts on things that you buy the most</p>
+              </Carousel.Caption>
+            </Carousel.Item>
+            <Carousel.Item interval={4500}>
+              <img className="d-block w-100" src={onboardingFood} alt="food slide" />
+              <Carousel.Caption className="bg-dark bg-opacity-75 rounded">
+                <h5>Food</h5>
+                <p className="px-3">Hungry? Get food directly to your door</p>
+              </Carousel.Caption>
+            </Carousel.Item>
+          </Carousel>
+          <Link
+            to="/onboarding/signup"
+            className="btn btn-success w-100 p-2 my-2 mt-4 rounded-pill"
+          >
+            Continue Signup
+          </Link>
+          <Button
+            variant="outline-danger"
+            size="small"
+            className="w-100 p-2 my-2 rounded-pill"
+            onClick={signOut}
+          >
+            Log Out{" "}
+            <i
+              className="bi bi-box-arrow-in-right"
+              role="img"
+              aria-label="Logout Icon"
+            ></i>
+          </Button>
         </Col>
       </Row>
     </div>

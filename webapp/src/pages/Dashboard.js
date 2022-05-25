@@ -72,7 +72,7 @@ const Dashboard = () => {
           onClick={signOut}
         >
           Log Out{" "}
-          <i className="bi bi-box-arrow-in-right" role="img" aria-label="Map Icon"></i>
+          <i className="bi bi-box-arrow-in-right" role="img" aria-label="Logout Icon"></i>
         </Button>
       </Container>
     </div>

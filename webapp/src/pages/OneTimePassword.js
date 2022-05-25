@@ -54,7 +54,11 @@ const OneTimePassword = () => {
       .authVerify({ phone: phoneNumber, token: otp.join("") })
       .then((r) => {
         setUser(r.data);
-        navigate("/dashboard");
+        if (r.data.onboarded === false) {
+          navigate("/onboarding");
+        } else {
+          navigate("/dashboard");
+        }
       })
       .catch((err) => {
         setOtp(new Array(6).fill(""));

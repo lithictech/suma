@@ -20,6 +20,11 @@ export const redirectIfAuthed = redirectUnless(
 );
 
 export const redirectIfUnauthed = redirectUnless(
-  "/sign-in",
+  "/start",
   ({ userAuthed }) => userAuthed
+);
+
+export const redirectIfUnboarded = redirectUnless(
+  "/onboarding",
+  ({ user }) => user.onboarded
 );

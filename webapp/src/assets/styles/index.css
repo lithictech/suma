@@ -17,7 +17,7 @@
 }
 
 .mobility-map-cluster-icon {
-  display: flex;
+  display: flex!important;
   justify-content: center;
   align-items: center;
   margin-left: -18px !important;
