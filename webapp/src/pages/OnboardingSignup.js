@@ -1,13 +1,15 @@
-import React, { useState } from "react";
+import useToggle from "../shared/react/useToggle";
+import React from "react";
 import Button from "react-bootstrap/Button";
 import Col from "react-bootstrap/Col";
 import Form from "react-bootstrap/Form";
 import Row from "react-bootstrap/Row";
-import { useNavigate } from "react-router";
+
+// import { useNavigate } from "react-router";
 
 function OnboardingSignup() {
-  const navigate = useNavigate();
-  const [validated, setValidated] = useState(false);
+  // const navigate = useNavigate();
+  const validated = useToggle(false);
 
   const handleFormSubmit = (event) => {
     const form = event.currentTarget;
@@ -16,8 +18,9 @@ function OnboardingSignup() {
       event.stopPropagation();
     }
 
-    setValidated(true);
-    navigate("/dashboard");
+    validated.turnOn();
+    // TODO: should call onboarding api then navigate to dashboard
+    // navigate("/dashboard");
   };
   return (
     <div className="main-container">
@@ -28,7 +31,7 @@ function OnboardingSignup() {
             To join our platform, you are required to enter your address to verify your
             eligibility for membership.
           </p>
-          <Form noValidate validated={validated} onSubmit={handleFormSubmit}>
+          <Form noValidate validated={validated.isOn} onSubmit={handleFormSubmit}>
             <Form.Group className="mb-3" controlId="name">
               <Form.Label>Name</Form.Label>
               <Form.Control
