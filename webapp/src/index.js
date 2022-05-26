@@ -1,4 +1,3 @@
-import App from "./App";
 import "./assets/styles/index.css";
 import "./assets/styles/theme.scss";
 import "./localization/i18n";
@@ -9,9 +8,14 @@ import "leaflet.markercluster/dist/leaflet.markercluster";
 import React from "react";
 import ReactDOM from "react-dom";
 
+// Lazyload app after localization loads
+const App = React.lazy(() => import("./App.js"));
+
 ReactDOM.render(
   <React.StrictMode>
-    <App />
+    <React.Suspense fallback={null}>
+      <App />
+    </React.Suspense>
   </React.StrictMode>,
   document.getElementById("root")
 );
