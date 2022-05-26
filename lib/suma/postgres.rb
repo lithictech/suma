@@ -66,6 +66,7 @@ module Suma::Postgres
     "suma/payment/account",
     "suma/plaid_institution",
     "suma/role",
+    "suma/supported_geography",
     "suma/vendor",
     "suma/vendor/service",
     "suma/vendor/service_category",

@@ -12,6 +12,7 @@ require "suma/async"
 require "suma/service"
 require "suma/api/auth"
 require "suma/api/me"
+require "suma/api/meta"
 require "suma/api/mobility"
 require "suma/api/system"
 
@@ -25,6 +26,7 @@ module Suma::Apps
     mount Suma::API::System
     mount Suma::API::Auth
     mount Suma::API::Me
+    mount Suma::API::Meta
     mount Suma::API::Mobility
     add_swagger_documentation if ENV["RACK_ENV"] == "development"
   end
