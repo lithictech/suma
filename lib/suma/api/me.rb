@@ -20,12 +20,20 @@ class Suma::API::Me < Suma::API::V1
     desc "Update supported fields on the customer"
     params do
       optional :name, type: String, allow_blank: false
+      optional :address, type: JSON do
+        use :address
+      end
     end
     post :update do
       customer = current_customer
-      set_declared(customer, params)
-      save_or_error!(customer)
-
+      customer.db.transaction do
+        set_declared(customer, params, ignore: [:address])
+        save_or_error!(customer)
+        if params.key?(:address)
+          customer.legal_entity.address = Suma::Address.lookup(params[:address])
+          save_or_error!(customer.legal_entity)
+        end
+      end
       status 200
       present customer, with: Suma::API::CurrentCustomerEntity, env:
     end
