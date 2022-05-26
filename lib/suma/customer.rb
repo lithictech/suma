@@ -97,10 +97,7 @@ class Suma::Customer < Suma::Postgres::Model(:customers)
   end
 
   def onboarded?
-    return self.name.present? &&
-        self.email.present? &&
-        self.phone.present? &&
-        self.password_digest != PLACEHOLDER_PASSWORD_DIGEST
+    return self.name.present? && self.legal_entity.address_id.present?
   end
 
   def onboarding_verified?
