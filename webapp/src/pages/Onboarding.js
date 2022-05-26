@@ -1,9 +1,8 @@
 import onboardingDiscounts from "../assets/images/onboarding-discounts.jpg";
 import onboardingFood from "../assets/images/onboarding-food.jpg";
 import onboardingScooters from "../assets/images/onboarding-scooters.jpg";
-import signOut from "../modules/signOut";
+import TopNav from "../components/TopNav";
 import React from "react";
-import Button from "react-bootstrap/Button";
 import Carousel from "react-bootstrap/Carousel";
 import Col from "react-bootstrap/Col";
 import Row from "react-bootstrap/Row";
@@ -12,6 +11,7 @@ import { Link } from "react-router-dom";
 const Onboarding = () => {
   return (
     <div className="main-container">
+      <TopNav />
       <Row>
         <Col>
           <h2>Onboarding</h2>
@@ -54,19 +54,6 @@ const Onboarding = () => {
           >
             Continue Signup
           </Link>
-          <Button
-            variant="outline-danger"
-            size="small"
-            className="w-100 p-2 my-2 rounded-pill"
-            onClick={signOut}
-          >
-            Log Out{" "}
-            <i
-              className="bi bi-box-arrow-in-right"
-              role="img"
-              aria-label="Logout Icon"
-            ></i>
-          </Button>
         </Col>
       </Row>
     </div>

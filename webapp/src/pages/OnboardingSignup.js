@@ -1,4 +1,5 @@
 import useToggle from "../shared/react/useToggle";
+import i18next from "i18next";
 import React from "react";
 import Button from "react-bootstrap/Button";
 import Col from "react-bootstrap/Col";
@@ -9,7 +10,9 @@ import Row from "react-bootstrap/Row";
 
 function OnboardingSignup() {
   // const navigate = useNavigate();
+  const { t } = i18next;
   const validated = useToggle(false);
+  const [states, setStates] = React.useState([]);
 
   const handleFormSubmit = (event) => {
     const form = event.currentTarget;
@@ -22,6 +25,12 @@ function OnboardingSignup() {
     // TODO: should call onboarding api then navigate to dashboard
     // navigate("/dashboard");
   };
+
+  React.useEffect(() => {
+    Promise.resolve({ states: [{ value: "OR", label: "Oregon" }] }).then((r) =>
+      setStates(r.states)
+    );
+  }, []);
   return (
     <div className="main-container">
       <Row>
@@ -33,7 +42,7 @@ function OnboardingSignup() {
           </p>
           <Form noValidate validated={validated.isOn} onSubmit={handleFormSubmit}>
             <Form.Group className="mb-3" controlId="name">
-              <Form.Label>Name</Form.Label>
+              <Form.Label>{t("label_name", { ns: "forms" })}</Form.Label>
               <Form.Control
                 // name="name"
                 placeholder="Full Name"
@@ -41,7 +50,7 @@ function OnboardingSignup() {
               />
             </Form.Group>
             <Form.Group className="mb-3" controlId="address1">
-              <Form.Label>Address 1</Form.Label>
+              <Form.Label>{t("label_address", { number: "1", ns: "forms" })}</Form.Label>
               <Form.Control
                 // name="address"
                 placeholder="e.g. 123 Main Street"
@@ -49,77 +58,33 @@ function OnboardingSignup() {
               />
             </Form.Group>
             <Form.Group className="mb-3" controlId="address2">
-              <Form.Label>Address 2</Form.Label>
+              <Form.Label>{t("label_address", { number: "2", ns: "forms" })}</Form.Label>
               <Form.Control
               // name="address2"
               />
             </Form.Group>
             <Row className="mb-3">
               <Form.Group as={Col} md="6" controlId="cityInput">
-                <Form.Label>City</Form.Label>
+                <Form.Label>{t("label_city", { ns: "forms" })}</Form.Label>
                 <Form.Control type="text" placeholder="City" required />
               </Form.Group>
               <Form.Group as={Col} controlId="stateInput">
-                <Form.Label>State</Form.Label>
+                <Form.Label>{t("label_state", { ns: "forms" })}</Form.Label>
                 <Form.Select defaultValue="" required>
                   <option disabled value="">
                     Choose state...
                   </option>
-                  <option value="AL">Alabama</option>
-                  <option value="AK">Alaska</option>
-                  <option value="AZ">Arizona</option>
-                  <option value="AR">Arkansas</option>
-                  <option value="CA">California</option>
-                  <option value="CO">Colorado</option>
-                  <option value="CT">Connecticut</option>
-                  <option value="DE">Delaware</option>
-                  <option value="DC">District Of Columbia</option>
-                  <option value="FL">Florida</option>
-                  <option value="GA">Georgia</option>
-                  <option value="HI">Hawaii</option>
-                  <option value="ID">Idaho</option>
-                  <option value="IL">Illinois</option>
-                  <option value="IN">Indiana</option>
-                  <option value="IA">Iowa</option>
-                  <option value="KS">Kansas</option>
-                  <option value="KY">Kentucky</option>
-                  <option value="LA">Louisiana</option>
-                  <option value="ME">Maine</option>
-                  <option value="MD">Maryland</option>
-                  <option value="MA">Massachusetts</option>
-                  <option value="MI">Michigan</option>
-                  <option value="MN">Minnesota</option>
-                  <option value="MS">Mississippi</option>
-                  <option value="MO">Missouri</option>
-                  <option value="MT">Montana</option>
-                  <option value="NE">Nebraska</option>
-                  <option value="NV">Nevada</option>
-                  <option value="NH">New Hampshire</option>
-                  <option value="NJ">New Jersey</option>
-                  <option value="NM">New Mexico</option>
-                  <option value="NY">New York</option>
-                  <option value="NC">North Carolina</option>
-                  <option value="ND">North Dakota</option>
-                  <option value="OH">Ohio</option>
-                  <option value="OK">Oklahoma</option>
-                  <option value="OR">Oregon</option>
-                  <option value="PA">Pennsylvania</option>
-                  <option value="RI">Rhode Island</option>
-                  <option value="SC">South Carolina</option>
-                  <option value="SD">South Dakota</option>
-                  <option value="TN">Tennessee</option>
-                  <option value="TX">Texas</option>
-                  <option value="UT">Utah</option>
-                  <option value="VT">Vermont</option>
-                  <option value="VA">Virginia</option>
-                  <option value="WA">Washington</option>
-                  <option value="WV">West Virginia</option>
-                  <option value="WI">Wisconsin</option>
-                  <option value="WY">Wyoming</option>
+                  {states.map((state, i) => {
+                    return (
+                      <option key={i} value={state.value}>
+                        {state.label}
+                      </option>
+                    );
+                  })}
                 </Form.Select>
               </Form.Group>
               <Form.Group as={Col} md="3" controlId="zipInput">
-                <Form.Label>Zip</Form.Label>
+                <Form.Label>{t("label_zip", { ns: "forms" })}</Form.Label>
                 <Form.Control type="text" placeholder="Zip" required />
               </Form.Group>
             </Row>

@@ -1,0 +1,7 @@
+{
+  "label_name": "Name",
+  "label_address": "Address {{number}}",
+  "label_city": "City",
+  "label_state": "State",
+  "label_zip": "Zip"
+}
