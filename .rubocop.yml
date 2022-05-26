@@ -8,6 +8,12 @@ inherit_from: .rubocop_todo.yml
 AllCops:
   NewCops: enable
   SuggestExtensions: false
+  Exclude:
+    - 'node_modules/**/*'
+    - 'vendor/**/*'
+    - 'build-*/**/*'
+    - 'adminapp/**/*'
+    - 'webapp/**/*'
 
 Layout/ParameterAlignment:
   EnforcedStyle: with_fixed_indentation
