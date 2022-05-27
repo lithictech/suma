@@ -1,6 +1,6 @@
 import api from "../api";
-import useAsyncFetch from "../hooks/useAsyncFetch";
-import useStyles from "../hooks/useStyles";
+import useGlobalStyles from "../hooks/useGlobalStyles";
+import useAsyncFetch from "../shared/react/useAsyncFetch";
 import {
   Table,
   TableBody,
@@ -19,8 +19,8 @@ import _ from "lodash";
 import React from "react";
 import { formatPhoneNumber } from "react-phone-number-input";
 
-export default function CustomersPage() {
-  const classes = useStyles();
+export default function CustomerListPage() {
+  const classes = useGlobalStyles();
   const { state: customers, loading: listLoading } = useAsyncFetch(api.getCustomers, {
     default: {},
     pickData: true,
@@ -43,12 +43,12 @@ export default function CustomersPage() {
               <TableCell align="left">Registered</TableCell>
             </TableRow>
           </TableHead>
-          <TableBody stripedRows>
+          <TableBody>
             {listLoading ? (
               <CircularProgress />
             ) : !_.isEmpty(customers.items) ? (
               customers.items.map((c) => (
-                <TableRow key={c.name}>
+                <TableRow key={c.id}>
                   <TableCell component="th" scope="row" align="center">
                     {c.id}
                   </TableCell>
