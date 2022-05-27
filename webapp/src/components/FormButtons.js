@@ -15,7 +15,7 @@ const FormButtons = ({ primaryProps, secondaryProps, variant, back, className })
     <div className={clsx("d-flex flex-row justify-content-end", className)}>
       {secondaryProps && <Button variant={`outline-${variant}`} {...secondaryProps} />}
       {primaryProps && (
-        <Button variant={variant} className="ml-2" type="submit" {...primaryProps} />
+        <Button variant={variant} className="ms-2" type="submit" {...primaryProps} />
       )}
     </div>
   );
