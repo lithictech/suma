@@ -39,7 +39,7 @@ const useAsyncFetch = (makeRequest, options) => {
     state,
     asyncFetch,
     error,
-    loading: loading.isOn,
+    loading,
   };
 };
 
