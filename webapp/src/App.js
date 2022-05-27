@@ -8,6 +8,7 @@ import Dashboard from "./pages/Dashboard";
 import Home from "./pages/Home";
 import MapPage from "./pages/MapPage";
 import Onboarding from "./pages/Onboarding";
+import OnboardingFinish from "./pages/OnboardingFinish";
 import OnboardingSignup from "./pages/OnboardingSignup";
 import OneTimePassword from "./pages/OneTimePassword";
 import Start from "./pages/Start";
@@ -46,6 +47,11 @@ function App() {
               redirectIfBoarded,
               OnboardingSignup
             )}
+          />
+          <Route
+            path="/onboarding/finish"
+            exact
+            element={renderWithHocs(redirectIfUnauthed, OnboardingFinish)}
           />
           <Route
             path="/dashboard"

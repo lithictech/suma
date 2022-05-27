@@ -1,12 +1,14 @@
 import sumaLogo from "../assets/images/suma-logo.png";
 import signOut from "../modules/signOut";
+import { useUser } from "../state/useUser";
 import React from "react";
 import Nav from "react-bootstrap/Nav";
 import Navbar from "react-bootstrap/Navbar";
 
 const TopNav = () => {
+  const { userAuthed } = useUser();
   return (
-    <Navbar className="p-3">
+    <Navbar className="py-3">
       <Navbar.Brand
         href="/dashboard"
         className="me-auto d-flex align-items-center text-primary-dark"
@@ -20,10 +22,16 @@ const TopNav = () => {
         MySuma
       </Navbar.Brand>
       <Nav>
-        <Nav.Link onClick={signOut}>
-          Logout
-          <i className="bi bi-box-arrow-in-right" role="img" aria-label="Logout Icon"></i>
-        </Nav.Link>
+        {userAuthed && (
+          <Nav.Link onClick={signOut}>
+            Logout
+            <i
+              className="bi bi-box-arrow-in-right"
+              role="img"
+              aria-label="Logout Icon"
+            ></i>
+          </Nav.Link>
+        )}
       </Nav>
     </Navbar>
   );

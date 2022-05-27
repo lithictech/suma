@@ -14,7 +14,6 @@ const Onboarding = () => {
       <TopNav />
       <Row>
         <Col>
-          <h2>Onboarding</h2>
           <Carousel fade className="onboarding-carousel rounded overflow-hidden">
             <CarouselSlide
               src={onboardingScooters}
@@ -36,7 +35,7 @@ const Onboarding = () => {
             to="/onboarding/signup"
             className="btn btn-success w-100 p-2 my-2 mt-4 rounded-pill"
           >
-            Continue Signup
+            Continue
           </Link>
         </Col>
       </Row>

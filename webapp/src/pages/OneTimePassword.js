@@ -1,14 +1,16 @@
 import api from "../api";
+import FormButtons from "../components/FormButtons";
 import FormError from "../components/FormError";
 import FormSuccess from "../components/FormSuccess";
+import TopNav from "../components/TopNav";
 import { dayjs } from "../modules/dayConfig";
 import useToggle from "../shared/react/useToggle";
 import { extractErrorCode, useError } from "../state/useError";
 import { useUser } from "../state/useUser";
+import i18next from "i18next";
 import React, { useState, useEffect } from "react";
+import { Form } from "react-bootstrap";
 import Button from "react-bootstrap/Button";
-import Col from "react-bootstrap/Col";
-import Row from "react-bootstrap/Row";
 import { formatPhoneNumber } from "react-phone-number-input";
 import { useNavigate, useLocation } from "react-router-dom";
 
@@ -47,17 +49,18 @@ const OneTimePassword = () => {
     }
   };
 
-  const handleOtpSubmit = () => {
+  const handleOtpSubmit = (e) => {
+    e.preventDefault();
     submitDisabled.turnOn();
     setError();
     api
       .authVerify({ phone: phoneNumber, token: otp.join("") })
       .then((r) => {
         setUser(r.data);
-        if (!r.data.onboarded) {
-          navigate("/onboarding");
-        } else {
+        if (r.data.onboarded) {
           navigate("/dashboard");
+        } else {
+          navigate("/onboarding");
         }
       })
       .catch((err) => {
@@ -88,53 +91,51 @@ const OneTimePassword = () => {
 
   return (
     <div className="main-container">
-      <Row>
-        <Col>
-          <h2>One Time Code</h2>
-          <p className="text-muted small">
-            Enter the code that you recieved on the phone number you provided{" "}
-            {displayPhoneNumber}
-          </p>
-          <fieldset>
-            <legend className="small">Verify Code</legend>
-            <div id="otpContainer">
-              {otp.map((data, index) => {
-                return (
-                  <input
-                    className="otp-field"
-                    type="text"
-                    name="otp"
-                    maxLength="1"
-                    key={index}
-                    value={data}
-                    placeholder="&middot;"
-                    onChange={(event) => handleOtpChange(event, index)}
-                    onFocus={(event) => event.target.select()}
-                    autoFocus={index === 0}
-                    aria-label={"Enter code " + (index + 1)}
-                    autoComplete="one-time-code"
-                  />
-                );
-              })}
-            </div>
-          </fieldset>
-          <FormError error={error} />
-          <FormSuccess message={message} />
-          <p className="text-muted small">
-            Did not recieve a code?{" "}
-            <Button className="p-0 align-baseline" variant="link" onClick={handleResend}>
-              Resend code again.
-            </Button>
-          </p>
-          <Button
-            variant="success d-block mt-3"
-            onClick={handleOtpSubmit}
-            disabled={submitDisabled.isOn}
-          >
-            Verify Code
+      <TopNav />
+      <p>
+        Enter the code that you recieved on the phone number you provided{" "}
+        {displayPhoneNumber}
+      </p>
+      <Form noValidate onSubmit={handleOtpSubmit}>
+        <fieldset>
+          <legend className="text-center">Verify Code</legend>
+          <div id="otpContainer" className="d-flex justify-content-center">
+            {otp.map((data, index) => (
+              <input
+                className="otp-field"
+                type="text"
+                name="otp"
+                maxLength="1"
+                key={index}
+                value={data}
+                placeholder="&middot;"
+                onChange={(event) => handleOtpChange(event, index)}
+                onFocus={(event) => event.target.select()}
+                autoFocus={index === 0}
+                aria-label={"Enter code " + (index + 1)}
+                autoComplete="one-time-code"
+              />
+            ))}
+          </div>
+        </fieldset>
+        <FormError error={error} />
+        <FormSuccess message={message} />
+        <p className="text-muted small text-center mt-2">
+          Did not recieve a code?{" "}
+          <Button className="p-0 align-baseline" variant="link" onClick={handleResend}>
+            Resend code again.
           </Button>
-        </Col>
-      </Row>
+        </p>
+        <FormButtons
+          back
+          primaryProps={{
+            children: i18next.t("otp_verify", { ns: "forms" }),
+            disabled: submitDisabled.isOn,
+          }}
+          variant="success"
+          className="mt-2"
+        />
+      </Form>
     </div>
   );
 };
