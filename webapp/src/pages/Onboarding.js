@@ -16,37 +16,21 @@ const Onboarding = () => {
         <Col>
           <h2>Onboarding</h2>
           <Carousel fade className="onboarding-carousel rounded overflow-hidden">
-            <Carousel.Item interval={4500}>
-              <img
-                className="d-block w-100"
-                src={onboardingScooters}
-                alt="scooters slide"
-              />
-              <Carousel.Caption className="bg-dark bg-opacity-75 rounded">
-                <h5>Mobility</h5>
-                <p className="px-3">
-                  We provide clean-energy transportation with electric scooters and bikes
-                </p>
-              </Carousel.Caption>
-            </Carousel.Item>
-            <Carousel.Item interval={4500}>
-              <img
-                className="d-block w-100"
-                src={onboardingDiscounts}
-                alt="discounts slide"
-              />
-              <Carousel.Caption className="bg-dark bg-opacity-75 rounded">
-                <h5>Save Money</h5>
-                <p className="px-3">Big discounts on things that you buy the most</p>
-              </Carousel.Caption>
-            </Carousel.Item>
-            <Carousel.Item interval={4500}>
-              <img className="d-block w-100" src={onboardingFood} alt="food slide" />
-              <Carousel.Caption className="bg-dark bg-opacity-75 rounded">
-                <h5>Food</h5>
-                <p className="px-3">Hungry? Get food directly to your door</p>
-              </Carousel.Caption>
-            </Carousel.Item>
+            <CarouselSlide
+              src={onboardingScooters}
+              title="Mobility"
+              subtitle="We provide clean-energy transportation with electric scooters and bikes"
+            />
+            <CarouselSlide
+              src={onboardingDiscounts}
+              title="Save Money"
+              subtitle="Big discounts on things that you buy the most"
+            />
+            <CarouselSlide
+              src={onboardingFood}
+              title="Food"
+              subtitle="Hungry? Get food directly to your door"
+            />
           </Carousel>
           <Link
             to="/onboarding/signup"
@@ -61,3 +45,16 @@ const Onboarding = () => {
 };
 
 export default Onboarding;
+
+const CarouselSlide = React.forwardRef((props, ref) => {
+  const { src, title, subtitle, className } = props;
+  return (
+    <Carousel.Item ref={ref} className={className} interval={4500}>
+      <img className="d-block w-100" src={src} alt="onboarding carousel slide" />
+      <Carousel.Caption className="bg-dark bg-opacity-75 rounded">
+        <h5>{title}</h5>
+        <p className="px-3">{subtitle}</p>
+      </Carousel.Caption>
+    </Carousel.Item>
+  );
+});

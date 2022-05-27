@@ -32,6 +32,8 @@ export default {
   put,
   del,
   getMe: (data) => get(`/api/v1/me`, data),
+  updateMe: (data) => post(`/api/v1/me/update`, data),
+  getMeta: (data) => get(`/api/v1/meta/supported_geographies`, data),
   dashboard: (data) => get("/api/v1/me/dashboard", data),
   authStart: (data) => post(`/api/v1/auth/start`, data),
   authVerify: (data) => post(`/api/v1/auth/verify`, data),

@@ -3,11 +3,12 @@
 	"enable_geolocation_instructions": "Follow these instructions to enable Geolocation",
 	"impossible_phone_number": "That doesn't look like a real phone number.",
 	"invalid_otp": "That token is not valid. Enter it again, or request a new code.",
+	"validation_error": "Some fields were left blank, please fill in all required fields and try again.",
 	"unhandled_error": "Sorry, something went wrong. Please try again.",
 	"required": "This field is required",
 	"no_active_trip": "There is no trip currently active.",
 	"vehicle_not_found": "No vehicle found in this location.",
 	"read_only_unverified": "You are in read-only mode due to having an unverified account.",
 	"read_only_technical_error": "You are currently in read-only mode and cannot access any rides yet.",
-	"read_only_zero_balance": "You are in read-only mode due to having zero balance."
+	"read_only_zero_balance": "You are in read-only mode due to having a zero balance."
 }

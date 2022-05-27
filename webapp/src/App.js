@@ -1,6 +1,7 @@
 import {
   redirectIfAuthed,
   redirectIfUnauthed,
+  redirectIfBoarded,
   redirectIfUnboarded,
 } from "./hocs/authRedirects";
 import Dashboard from "./pages/Dashboard";
@@ -35,12 +36,16 @@ function App() {
           <Route
             path="/onboarding"
             exact
-            element={renderWithHocs(redirectIfUnauthed, Onboarding)}
+            element={renderWithHocs(redirectIfUnauthed, redirectIfBoarded, Onboarding)}
           />
           <Route
             path="/onboarding/signup"
             exact
-            element={renderWithHocs(redirectIfUnauthed, OnboardingSignup)}
+            element={renderWithHocs(
+              redirectIfUnauthed,
+              redirectIfBoarded,
+              OnboardingSignup
+            )}
           />
           <Route
             path="/dashboard"

@@ -52,10 +52,10 @@ const Dashboard = () => {
                 <AppLink to="/map" label="Mobility" />
               </Col>
               <Col>
-                <AppLink to="#todo" label="Food"></AppLink>
+                <AppLink to="#todo" label="Food" />
               </Col>
               <Col>
-                <AppLink to="/map" label="Utilities"></AppLink>
+                <AppLink to="/map" label="Utilities" />
               </Col>
             </Row>
           </Col>
