@@ -125,20 +125,22 @@ RSpec.describe "Suma::Customer", :db do
   end
 
   describe "onboarded?" do
-    let(:onboarded) do
-      Suma::Fixtures.customer.create(
-        password: "password",
-        legal_entity: Suma::Fixtures.legal_entity.with_address.create,
-      )
-    end
-    it "is true if name, email, phone, and password are set" do
-      c = onboarded
+    it "is false if address or name fields are missing" do
+      c = Suma::Fixtures.customer.create(name: "")
+      expect(c).to_not be_onboarded
 
-      expect(c.refresh).to be_onboarded
-      expect(c.refresh.set(name: "")).to_not be_onboarded
-      expect(c.refresh.set(phone: "")).to_not be_onboarded
-      expect(c.refresh.set(email: "")).to_not be_onboarded
-      expect(c.refresh.set(password_digest: described_class::PLACEHOLDER_PASSWORD_DIGEST)).to_not be_onboarded
+      c.name = "X"
+      expect(c).to_not be_onboarded
+
+      c.refresh
+      addr = Suma::Fixtures.address.create
+      c.legal_entity.address = addr
+      expect(c).to_not be_onboarded
+
+      c.refresh
+      c.name = "X"
+      c.legal_entity.address = addr
+      expect(c).to be_onboarded
     end
   end
 

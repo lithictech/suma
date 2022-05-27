@@ -19,7 +19,14 @@ export const redirectIfAuthed = redirectUnless(
   ({ userUnauthed }) => userUnauthed
 );
 
-export const redirectIfUnauthed = redirectUnless(
-  "/sign-in",
-  ({ userAuthed }) => userAuthed
+export const redirectIfUnauthed = redirectUnless("/", ({ userAuthed }) => userAuthed);
+
+export const redirectIfBoarded = redirectUnless(
+  "/dashboard",
+  ({ user }) => !user.onboarded
+);
+
+export const redirectIfUnboarded = redirectUnless(
+  "/onboarding",
+  ({ user }) => user.onboarded
 );

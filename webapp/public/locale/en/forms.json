@@ -1,0 +1,15 @@
+{
+  "back": "Back",
+  "name": "Name",
+  "address1": "Street Address",
+  "address2": "Unit or Apartment Number",
+  "city": "City",
+  "state": "State",
+  "zip": "Zip",
+  "phone": "Phone",
+  "continue": "Continue",
+  "logout": "Logout",
+  "get_started": "Get Started",
+  "get_started_intro": "To start a new account, or sign into your existing account, please enter your phone number. We will send you a verification code to confirm the phone number.",
+  "otp_verify": "Verify Code"
+}

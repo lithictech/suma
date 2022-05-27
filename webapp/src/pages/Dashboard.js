@@ -1,7 +1,6 @@
 import api from "../api";
 import Money from "../components/Money";
 import TopNav from "../components/TopNav";
-import signOut from "../modules/signOut";
 import useAsyncFetch from "../state/useAsyncFetch";
 import { useUser } from "../state/useUser";
 import clsx from "clsx";
@@ -10,7 +9,6 @@ import i18next from "i18next";
 import _ from "lodash";
 import React from "react";
 import { Alert } from "react-bootstrap";
-import Button from "react-bootstrap/Button";
 import Col from "react-bootstrap/Col";
 import Container from "react-bootstrap/Container";
 import Navbar from "react-bootstrap/Navbar";
@@ -52,10 +50,10 @@ const Dashboard = () => {
                 <AppLink to="/map" label="Mobility" />
               </Col>
               <Col>
-                <AppLink to="#todo" label="Food"></AppLink>
+                <AppLink to="#todo" label="Food" />
               </Col>
               <Col>
-                <AppLink to="/map" label="Utilities"></AppLink>
+                <AppLink to="/map" label="Utilities" />
               </Col>
             </Row>
           </Col>
@@ -65,15 +63,6 @@ const Dashboard = () => {
         ) : (
           <Ledger dashboard={dashboard} />
         )}
-        <Button
-          variant="outline-danger"
-          size="small"
-          className="w-100 p-2 my-2 rounded-pill"
-          onClick={signOut}
-        >
-          Log Out{" "}
-          <i className="bi bi-box-arrow-in-right" role="img" aria-label="Map Icon"></i>
-        </Button>
       </Container>
     </div>
   );

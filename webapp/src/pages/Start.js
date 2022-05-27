@@ -1,10 +1,12 @@
 import api from "../api";
+import FormButtons from "../components/FormButtons";
 import FormError from "../components/FormError";
+import TopNav from "../components/TopNav";
 import { dayjs } from "../modules/dayConfig";
 import useToggle from "../shared/react/useToggle";
 import { extractErrorCode, useError } from "../state/useError";
+import i18n from "i18next";
 import React, { useState } from "react";
-import Button from "react-bootstrap/Button";
 import Col from "react-bootstrap/Col";
 import Form from "react-bootstrap/Form";
 import Row from "react-bootstrap/Row";
@@ -58,12 +60,13 @@ const Start = () => {
   };
   return (
     <div className="main-container">
+      <TopNav />
       <Row>
         <Col>
-          <h2>Verification</h2>
+          <h2>{i18n.t("get_started", { ns: "forms" })}</h2>
+          <p>{i18n.t("get_started_intro", { ns: "forms" })}</p>
           <Form noValidate validated={validated.isOn} onSubmit={handleSubmit}>
             <Form.Group className="mb-3" controlId="phoneInput">
-              <Form.Label>Phone number</Form.Label>
               <Input
                 id="phoneInput"
                 ref={phoneRef}
@@ -75,7 +78,7 @@ const Start = () => {
                 pattern="^(\+\d{1,2}\s)?\(?\d{3}\)?[\s-]\d{3}[\s-]\d{4}$"
                 minLength="14"
                 maxLength="14"
-                placeholder="Enter your number"
+                placeholder={i18n.t("phone", { ns: "forms" })}
                 value={phoneNumber}
                 disabled={inputDisabled.isOn}
                 aria-describedby="phoneRequired"
@@ -84,14 +87,15 @@ const Start = () => {
                 required
               />
               <FormError error={error} />
-              <Form.Text id="phoneRequired" className="text-muted">
-                To verify your identity, you are required to sign in with your phone
-                number. We will send you a verification code to your phone number.
-              </Form.Text>
             </Form.Group>
-            <Button variant="success" type="submit" disabled={submitDisabled.isOn}>
-              Continue
-            </Button>
+            <FormButtons
+              variant="success"
+              back
+              primaryProps={{
+                children: i18n.t("continue", { ns: "forms" }),
+                disabled: submitDisabled.isOn,
+              }}
+            />
           </Form>
         </Col>
       </Row>

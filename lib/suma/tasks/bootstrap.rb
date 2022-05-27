@@ -10,6 +10,14 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
     desc "Bootstrap a new database so you can use the app."
     task :bootstrap do
       Suma.load_app
+      usa = Suma::SupportedGeography.find_or_create(label: "USA", value: "United States of America", type: "country")
+      Suma::SupportedGeography.find_or_create(
+        label: "Oregon", value: "Oregon", type: "province", parent: usa,
+      )
+      Suma::SupportedGeography.find_or_create(
+        label: "North Carolina", value: "North Carolina", type: "province", parent: usa,
+      )
+
       org = Suma::Organization.find_or_create(name: "Spin")
       org.db.transaction do
         ["Food", "Mobility", "Cash"].each { |n| Suma::Vendor::ServiceCategory.find_or_create(name: n) }

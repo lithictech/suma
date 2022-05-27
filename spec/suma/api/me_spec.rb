@@ -69,6 +69,15 @@ RSpec.describe Suma::API::Me, :db do
 
       expect(customer.refresh).to have_attributes(name: "Hassan")
     end
+
+    it "can set the address on the customer" do
+      post "/v1/me/update",
+           name: "Hassan",
+           address: {address1: "123 Main", city: "Portland", state_or_province: "OR", postal_code: "11111"}
+
+      expect(last_response).to have_status(200)
+      expect(customer.refresh.legal_entity.address).to have_attributes(address1: "123 Main")
+    end
   end
 
   describe "GET /v1/me/dashboard" do

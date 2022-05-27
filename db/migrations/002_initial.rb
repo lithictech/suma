@@ -2,6 +2,21 @@
 
 Sequel.migration do
   change do
+    create_table(:supported_geographies) do
+      primary_key :id
+      citext :label, null: false
+      citext :value, null: false
+      text :type, null: false
+      constraint(:valid_type, Sequel[:type] => ["province", "country"])
+      foreign_key :parent_id, :supported_geographies, on_delete: :cascade
+      constraint(:valid_type_settings,
+                 Sequel.lit("(type = 'country' AND parent_id IS NULL) " \
+                            "OR (type = 'province' AND parent_id IS NOT NULL)"),)
+
+      unique [:value, :parent_id], name: :unique_child_values
+      unique [:label, :parent_id], name: :unique_child_labels
+    end
+
     create_table(:addresses) do
       primary_key :id
       timestamptz :created_at, null: false, default: Sequel.function(:now)
