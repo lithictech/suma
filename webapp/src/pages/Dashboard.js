@@ -1,7 +1,7 @@
 import api from "../api";
 import Money from "../components/Money";
 import TopNav from "../components/TopNav";
-import useAsyncFetch from "../state/useAsyncFetch";
+import useAsyncFetch from "../shared/react/useAsyncFetch";
 import { useUser } from "../state/useUser";
 import clsx from "clsx";
 import dayjs from "dayjs";
