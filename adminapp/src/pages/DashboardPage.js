@@ -1,4 +1,5 @@
 import Link from "../components/Link";
+import useStyles from "../hooks/useStyles";
 import { useUser } from "../hooks/user";
 import navLinks from "../modules/navLinks";
 import {
@@ -10,18 +11,7 @@ import {
   ListItemText,
   Typography,
 } from "@mui/material";
-import { makeStyles } from "@mui/styles";
 import React from "react";
-
-const useStyles = makeStyles((theme) => ({
-  root: {
-    marginTop: theme.spacing(5),
-  },
-  row: {
-    display: "flex",
-    flexDirection: "row",
-  },
-}));
 
 export default function DashboardPage() {
   const classes = useStyles();

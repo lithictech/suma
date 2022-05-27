@@ -1,6 +1,7 @@
 import TopNav from "./components/TopNav";
 import { redirectIfAuthed, redirectIfUnauthed } from "./hocs/authRedirects";
 import { UserProvider } from "./hooks/user";
+import CustomersPage from "./pages/CustomersPage";
 import DashboardPage from "./pages/DashboardPage";
 import SignInPage from "./pages/SignInPage";
 import applyHocs from "./shared/applyHocs";
@@ -51,6 +52,11 @@ function PageSwitch() {
         exact
         path="/dashboard"
         element={renderWithHocs(redirectIfUnauthed, DashboardPage)}
+      />
+      <Route
+        exact
+        path="/customers"
+        element={renderWithHocs(redirectIfUnauthed, CustomersPage)}
       />
       <Route
         path="/"

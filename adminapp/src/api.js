@@ -44,4 +44,5 @@ export default {
   signOut: () => del("/adminapi/v1/auth"),
   signIn: (data) => post("/adminapi/v1/auth", data),
   getCurrentUser: (data) => get(`/adminapi/v1/auth`, data),
+  getCustomers: (data) => get(`/adminapi/v1/customers`, data),
 };
