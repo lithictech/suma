@@ -126,21 +126,16 @@ Sequel.migration do
 
     create_join_table({role_id: :roles, customer_id: :customers}, name: :roles_customers)
 
-    create_table(:customer_journeys) do
+    create_table(:customer_activities) do
       primary_key :id
       timestamptz :created_at, null: false, default: Sequel.function(:now)
       timestamptz :updated_at
-      timestamptz :processed_at
 
-      text :name, null: false
+      text :message_name, null: false
+      jsonb :message_vars, null: false, default: "{}"
+      text :summary, null: false
       text :subject_type, null: false
       text :subject_id, null: false
-      text :disambiguator, null: false, default: ""
-      index [:name, :subject_type, :subject_id, :disambiguator],
-            name: :customer_journeys_uniqueness_index,
-            unique: true
-
-      text :message, null: false
 
       foreign_key :customer_id, :customers, null: false, on_delete: :cascade, index: true
     end

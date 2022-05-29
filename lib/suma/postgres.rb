@@ -50,7 +50,7 @@ module Suma::Postgres
     "suma/address",
     "suma/charge",
     "suma/customer",
-    "suma/customer/journey",
+    "suma/customer/activity",
     "suma/customer/reset_code",
     "suma/customer/session",
     "suma/idempotency",

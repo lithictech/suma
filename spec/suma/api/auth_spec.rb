@@ -54,11 +54,11 @@ RSpec.describe Suma::API::Auth, :db do
         expect(customer.reset_codes).to contain_exactly(have_attributes(transport: "sms"))
       end
 
-      it "creates a journey" do
+      it "creates a activity" do
         post("/v1/auth/start", phone: "(222) 333-4444", timezone:)
 
         expect(last_response).to have_status(200)
-        expect(Suma::Customer.last.journeys).to contain_exactly(have_attributes(name: "registered"))
+        expect(Suma::Customer.last.activities).to contain_exactly(have_attributes(message_name: "registered"))
       end
     end
 
@@ -75,13 +75,13 @@ RSpec.describe Suma::API::Auth, :db do
         expect(existing.reset_codes).to contain_exactly(have_attributes(transport: "sms"))
       end
 
-      it "does not create a journey" do
+      it "does not create an activity" do
         c = Suma::Fixtures.customer(phone: full_phone).create
 
         post("/v1/auth/start", phone: c.phone, timezone:)
 
         expect(last_response).to have_status(200)
-        expect(Suma::Customer::Journey.all).to be_empty
+        expect(Suma::Customer::Activity.all).to be_empty
       end
     end
   end

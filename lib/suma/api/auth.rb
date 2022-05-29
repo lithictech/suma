@@ -34,9 +34,9 @@ class Suma::API::Auth < Suma::API::V1
         customer.timezone = params[:timezone]
         save_or_error!(customer)
         if is_new
-          customer.add_journey(
-            name: "registered",
-            message: "Created from API",
+          customer.add_activity(
+            message_name: "registered",
+            summary: "Created from API",
             subject_type: "Suma::Customer",
             subject_id: customer.id,
           )

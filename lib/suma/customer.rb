@@ -38,7 +38,7 @@ class Suma::Customer < Suma::Postgres::Model(:customers)
   plugin :timestamps
   plugin :soft_deletes
 
-  one_to_many :journeys, class: "Suma::Customer::Journey", order: Sequel.desc([:created_at, :id])
+  one_to_many :activities, class: "Suma::Customer::Activity", order: Sequel.desc([:created_at, :id])
   many_to_one :legal_entity, class: "Suma::LegalEntity"
   one_to_one :payment_account, class: "Suma::Payment::Account"
   one_to_many :charges, class: "Suma::Charge", order: Sequel.desc([:id])
