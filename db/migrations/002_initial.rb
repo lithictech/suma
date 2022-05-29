@@ -397,6 +397,51 @@ Sequel.migration do
       text :memo, null: false
     end
 
+    create_table(:payment_fake_strategies) do
+      primary_key :id
+      jsonb :responses, null: false, default: "{}"
+    end
+
+    create_table(:payment_funding_transactions) do
+      primary_key :id
+      timestamptz :created_at, null: false, default: Sequel.function(:now)
+      timestamptz :updated_at
+
+      text :status, null: false
+      int :amount_cents, null: false
+      text :amount_currency, null: false
+      constraint(:amount_positive, Sequel.lit("amount_cents > 0"))
+      text :memo, null: false
+
+      foreign_key :originating_payment_account_id, :payment_accounts, null: false, index: true, on_delete: :restrict
+      foreign_key :platform_ledger_id, :payment_ledgers, null: false, index: true, on_delete: :restrict
+      foreign_key :originated_book_transaction_id, :payment_book_transactions,
+                  null: true, unique: true, on_delete: :restrict
+
+      foreign_key :fake_strategy_id, :payment_fake_strategies,
+                  null: true, unique: true
+      constraint(
+        :unambiguous_strategy,
+        Sequel.lit(
+          "(fake_strategy_id IS NOT NULL)",
+        ),
+      )
+    end
+
+    create_table(:payment_funding_transaction_audit_logs) do
+      primary_key :id
+      timestamptz :at, null: false
+
+      text :event, null: false
+      text :to_state, null: false
+      text :from_state, null: false
+      text :reason, null: false, default: ""
+      jsonb :messages, default: "[]"
+
+      foreign_key :funding_transaction_id, :payment_funding_transactions, null: false
+      foreign_key :actor_id, :customers, on_delete: :set_null
+    end
+
     create_table(:charges) do
       primary_key :id
       timestamptz :created_at, null: false, default: Sequel.function(:now)
