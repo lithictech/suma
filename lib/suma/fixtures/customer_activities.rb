@@ -4,14 +4,14 @@ require "suma"
 require "suma/fixtures"
 require "suma/customer"
 
-module Suma::Fixtures::Journeys
+module Suma::Fixtures::CustomerActivities
   extend Suma::Fixtures
 
-  fixtured_class Suma::Customer::Journey
+  fixtured_class Suma::Customer::Activity
 
-  base :journey do
-    self.name ||= Faker::NatoPhoneticAlphabet.code_word
-    self.message ||= "Fixtured journey"
+  base :customer_activity do
+    self.message_name ||= Faker::NatoPhoneticAlphabet.code_word
+    self.summary ||= "Fixtured activity"
     self.subject_type ||= "Fixtured"
     self.subject_id ||= Time.now.to_i
   end

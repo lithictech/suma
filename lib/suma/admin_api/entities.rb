@@ -35,12 +35,12 @@ module Suma::AdminAPI
     expose :timezone
   end
 
-  class CustomerJourneyEntity < BaseEntity
+  class CustomerActivityEntity < BaseEntity
     expose :id
     expose :created_at
-    expose :processed_at
-    expose :name
-    expose :message
+    expose :message_name
+    expose :message_vars
+    expose :summary
   end
 
   class CustomerResetCodeEntity < BaseEntity
@@ -95,7 +95,7 @@ module Suma::AdminAPI
       Suma::Role.order(:name).select_map(:name)
     end
     expose :legal_entity, with: LegalEntityEntity
-    expose :journeys, with: CustomerJourneyEntity
+    expose :activities, with: CustomerActivityEntity
     expose :reset_codes, with: CustomerResetCodeEntity
     expose :sessions, with: CustomerSessionEntity
   end

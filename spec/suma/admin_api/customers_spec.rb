@@ -154,12 +154,12 @@ RSpec.describe Suma::AdminAPI::Customers, :db do
       expect(customer.refresh.soft_deleted_at).to be_within(1).of(orig_at)
     end
 
-    it "adds a journey" do
+    it "adds an activity" do
       customer = Suma::Fixtures.customer.create
       post "/v1/customers/#{customer.id}/close"
 
       expect(last_response).to have_status(200)
-      expect(Suma::Customer.last.journeys).to contain_exactly(have_attributes(name: "accountclosed"))
+      expect(Suma::Customer.last.activities).to contain_exactly(have_attributes(message_name: "accountclosed"))
     end
   end
 end
