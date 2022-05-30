@@ -1,8 +1,11 @@
 # frozen_string_literal: true
 
+require "suma/external_links"
 require "suma/postgres/model"
 
 module Suma::Payment::FundingTransaction::Strategy
+  include Suma::ExternalLinks
+
   # Return a string that summarizes the strategy.
   # Use whatever is most useful for an admin to see,
   # it does not have to be totally unambiguous.

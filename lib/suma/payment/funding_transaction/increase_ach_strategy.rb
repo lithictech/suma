@@ -50,4 +50,22 @@ class Suma::Payment::FundingTransaction::IncreaseAchStrategy <
   def ach_transfer_id
     return self.ach_transfer_json["id"]
   end
+
+  def _external_links_self
+    return [] unless self.ach_transfer_id
+    return [
+      self._external_link(
+        "ACH Transfer into Increase Account",
+        "#{Suma::Increase.app_url}#{self.ach_transfer_json['path']}",
+      ),
+      self._external_link(
+        "Transaction for ACH Transfer",
+        "#{Suma::Increase.app_url}/transactions/#{self.ach_transfer_json['transaction_id']}",
+      ),
+    ]
+  end
+
+  def _external_link_deps
+    return [self.originating_bank_account]
+  end
 end

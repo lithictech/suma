@@ -72,4 +72,21 @@ RSpec.describe "Suma::Payment::FundingTransaction::IncreaseAchStrategy", :db do
       expect(strategy.funds_cleared?).to eq(false)
     end
   end
+
+  describe "external_links" do
+    it "generates external links" do
+      expect(strategy.external_links).to eq([])
+      strategy.ach_transfer_json = {
+        "id" => "xfer",
+        "path" => "/transfers/xfer",
+        "transaction_id" => "fff",
+      }
+      expect(strategy.external_links).to eq(
+        [
+          {name: "ACH Transfer into Increase Account", url: "https://dashboard.increase.com/transfers/xfer"},
+          {name: "Transaction for ACH Transfer", url: "https://dashboard.increase.com/transactions/fff"},
+        ],
+      )
+    end
+  end
 end
