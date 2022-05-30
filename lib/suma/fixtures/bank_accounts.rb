@@ -32,4 +32,8 @@ module Suma::Fixtures::BankAccounts
     le = Suma::Fixtures.legal_entity(le).create unless le.is_a?(Suma::LegalEntity)
     self.legal_entity = le
   end
+
+  decorator :verified do |at=Time.now|
+    self.verified_at = at
+  end
 end

@@ -64,6 +64,7 @@ module Suma::Postgres
     "suma/payment/book_transaction",
     "suma/payment/funding_transaction",
     "suma/payment/funding_transaction/audit_log",
+    "suma/payment/funding_transaction/increase_ach_strategy",
     # Move this out of alphabetical order since it requires
     # all transaction types to be loaded (fake strategy
     # are used for testing funding and outgoing transactions).

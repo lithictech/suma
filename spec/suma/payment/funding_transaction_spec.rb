@@ -7,7 +7,9 @@ RSpec.describe "Suma::Payment::FundingTransaction", :db do
     let(:pacct) { Suma::Fixtures.payment_account.create }
 
     it "creates a new transaction to the platform ledger" do
-      xaction = described_class.start_new(pacct, amount: Money.new(500), fake_strategy: true)
+      strategy = Suma::Payment::FakeStrategy.create
+      strategy.set_response(:check_validity, [])
+      xaction = described_class.start_new(pacct, amount: Money.new(500), strategy:)
       expect(xaction).to have_attributes(
         status: "created",
         amount: cost("$5"),
@@ -15,7 +17,33 @@ RSpec.describe "Suma::Payment::FundingTransaction", :db do
         originating_payment_account: be === pacct,
         platform_ledger: be === Suma::Payment::Account.lookup_platform_account.cash_ledger!,
         originated_book_transaction: nil,
+        strategy: be_a(Suma::Payment::FakeStrategy),
       )
+    end
+
+    it "uses an ACH strategy if originating from a bank account" do
+      bank_account = Suma::Fixtures.bank_account.verified.create
+      xaction = described_class.start_new(pacct, amount: Money.new(500), bank_account:)
+      expect(xaction).to have_attributes(
+        originating_payment_account: be === pacct,
+        platform_ledger: be === Suma::Payment::Account.lookup_platform_account.cash_ledger!,
+        strategy: be_a(Suma::Payment::FundingTransaction::IncreaseAchStrategy),
+      )
+      expect(xaction.strategy).to have_attributes(originating_bank_account: bank_account)
+    end
+
+    it "errors if there is no strategy matching the arguments" do
+      expect do
+        described_class.start_new(pacct, amount: Money.new(500))
+      end.to raise_error(described_class::StrategyUnavailable)
+    end
+
+    it "errors if the strategy validity check fails" do
+      strategy = Suma::Payment::FakeStrategy.create
+      strategy.set_response(:check_validity, ["not registered"])
+      expect do
+        described_class.start_new(pacct, amount: Money.new(500), strategy:)
+      end.to raise_error(Suma::Payment::Invalid)
     end
   end
 
@@ -50,6 +78,11 @@ RSpec.describe "Suma::Payment::FundingTransaction", :db do
         strategy.set_response(:collect_funds, false)
         expect(payment).to transition_on(:collect_funds).to("collecting")
         expect(customer.refresh.activities).to have_length(1)
+      end
+
+      it "transition to review needed if ready to collect funds fails terminally" do
+        strategy.set_response(:ready_to_collect_funds?, described_class::CollectFundsFailed.new("nope"))
+        expect(payment).to transition_on(:collect_funds).to("needs_review")
       end
 
       it "transition to review needed if funds fail to collect" do
@@ -121,7 +154,7 @@ RSpec.describe "Suma::Payment::FundingTransaction", :db do
     it "requires a strategy" do
       payment = Suma::Fixtures.funding_transaction.with_fake_strategy.create
       expect { payment.save_changes }.to_not raise_error
-      expect { payment.update(fake_strategy: nil) }.to raise_error(/specify a strategy/i)
+      expect { payment.update(fake_strategy: nil) }.to raise_error(/strategy is not available/i)
     end
   end
 end

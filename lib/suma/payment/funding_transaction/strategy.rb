@@ -10,6 +10,22 @@ module Suma::Payment::FundingTransaction::Strategy
     raise NotImplementedError
   end
 
+  # Return an array of reasons this strategy is not valid
+  # to be created. Usually this is something like an instrument
+  # being soft deleted or not being registered in an external service;
+  # these issues are terminal, so need to be reported.
+  # @return [Array<String>]
+  def check_validity
+    raise NotImplementedError
+  end
+
+  # Raise a Suma::Payment::Invalid error with the messages from check_validity.
+  def check_validity!
+    msgs = self.check_validity
+    return if msgs.empty?
+    raise Suma::Payment::Invalid.new("Payment could not be created: #{msgs.join(', ')}", reasons: msgs)
+  end
+
   # Return true if we are ready to initiate
   # a debit from an external account to a credit to our platform account.
   # This could be things like checking to make sure funds are available in the external account.

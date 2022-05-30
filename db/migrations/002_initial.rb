@@ -323,6 +323,7 @@ Sequel.migration do
       timestamptz :created_at, null: false, default: Sequel.function(:now)
       timestamptz :updated_at
       timestamptz :soft_deleted_at
+      timestamptz :verified_at
 
       text :routing_number, null: false
       text :account_number, null: false
@@ -402,6 +403,16 @@ Sequel.migration do
       jsonb :responses, null: false, default: "{}"
     end
 
+    create_table(:payment_funding_transaction_increase_ach_strategies) do
+      primary_key :id
+      timestamptz :created_at, null: false, default: Sequel.function(:now)
+      timestamptz :updated_at
+
+      foreign_key :originating_bank_account_id, :bank_accounts, null: false
+      jsonb :ach_transfer_json, null: false, default: "{}"
+      jsonb :transaction_json, null: false, default: "{}"
+    end
+
     create_table(:payment_funding_transactions) do
       primary_key :id
       timestamptz :created_at, null: false, default: Sequel.function(:now)
@@ -420,10 +431,13 @@ Sequel.migration do
 
       foreign_key :fake_strategy_id, :payment_fake_strategies,
                   null: true, unique: true
+      foreign_key :increase_ach_strategy_id, :payment_funding_transaction_increase_ach_strategies,
+                  null: true, unique: true
       constraint(
         :unambiguous_strategy,
         Sequel.lit(
-          "(fake_strategy_id IS NOT NULL)",
+          "(fake_strategy_id IS NOT NULL AND increase_ach_strategy_id IS NULL) OR" \
+          "(fake_strategy_id IS NULL AND increase_ach_strategy_id IS NOT NULL)",
         ),
       )
     end

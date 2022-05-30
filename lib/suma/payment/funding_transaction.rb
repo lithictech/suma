@@ -8,6 +8,7 @@ class Suma::Payment::FundingTransaction < Suma::Postgres::Model(:payment_funding
   include Appydays::Configurable
 
   class CollectFundsFailed < Suma::StateMachine::FailedTransition; end
+  class StrategyUnavailable < Suma::Payment::Error; end
 
   plugin :state_machine
   plugin :timestamps
@@ -19,6 +20,7 @@ class Suma::Payment::FundingTransaction < Suma::Postgres::Model(:payment_funding
   one_to_many :audit_logs, class: "Suma::Payment::FundingTransaction::AuditLog", order: Sequel.desc(:at)
 
   many_to_one :fake_strategy, class: "Suma::Payment::FakeStrategy"
+  many_to_one :increase_ach_strategy, class: "Suma::Payment::FundingTransaction::IncreaseAchStrategy"
 
   state_machine :status, initial: :created do
     state :created,
@@ -52,10 +54,22 @@ class Suma::Payment::FundingTransaction < Suma::Postgres::Model(:payment_funding
     ],
   )
 
-  def self.start_new(payment_account, amount:, fake_strategy: false)
+  # Create a new funding transaction with the given parameters.
+  # @param [Suma::Payment::Account] payment_account
+  # @param [Money] amount
+  # @param [Suma::BankAccount] bank_account If given, use an ACH strategy sending from this account.
+  # @param [Suma::Payment::FundingTransaction::Strategy] strategy Explicit override to use this strategy.
+  #   When using a FakeStrategy, pass it in this way.
+  # @return [Suma::Payment::FundingTransaction]
+  def self.start_new(payment_account, amount:, bank_account: nil, strategy: nil)
     self.db.transaction do
       platform_ledger = Suma::Payment.ensure_cash_ledger(Suma::Payment::Account.lookup_platform_account)
-      strategy = fake_strategy ? Suma::Payment::FakeStrategy.create : (raise NotImplementedError)
+      strategy ||= if bank_account
+                     IncreaseAchStrategy.create(originating_bank_account: bank_account)
+      else
+        raise StrategyUnavailable, "cannot determine valid funding strategy for given arguments"
+      end
+      strategy.check_validity!
       xaction = self.new(
         amount:,
         memo: "Transfer to Suma App",
@@ -88,11 +102,12 @@ class Suma::Payment::FundingTransaction < Suma::Postgres::Model(:payment_funding
       strat.associations[:payment] = self
       return strat
     end
-    raise "Strategy type #{strat.class.name} does not match any association type on Payment"
+    raise "Strategy type #{strat.class.name} does not match any association type on FundingTransaction"
   end
 
   protected def strategy_array
     return [
+      self.increase_ach_strategy,
       self.fake_strategy,
     ]
   end
@@ -102,8 +117,8 @@ class Suma::Payment::FundingTransaction < Suma::Postgres::Model(:payment_funding
   #
 
   def collect_funds
-    return false unless self.strategy.ready_to_collect_funds?
     begin
+      return false unless self.strategy.ready_to_collect_funds?
       collected = self.strategy.collect_funds
     rescue CollectFundsFailed => e
       self.logger.error("collect_funds_error", error: e)
@@ -153,6 +168,6 @@ class Suma::Payment::FundingTransaction < Suma::Postgres::Model(:payment_funding
   end
 
   private def strategy_present
-    errors.add(:base, "Specify a strategy") unless self.strategy_array.any?
+    errors.add(:strategy, "is not available using strategy associations") unless self.strategy_array.any?
   end
 end

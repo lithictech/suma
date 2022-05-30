@@ -4,6 +4,17 @@ require "biz"
 require "holidays"
 
 module Suma::Payment
+  class Error < StandardError; end
+
+  class Invalid < Error
+    attr_reader :reasons
+
+    def initialize(msg=nil, reasons: [])
+      super(msg)
+      @reasons = reasons
+    end
+  end
+
   APPROXIMATE_ACH_SCHEDULE = Biz::Schedule.new do |config|
     config.hours = {
       mon: {"09:00" => "15:00"},

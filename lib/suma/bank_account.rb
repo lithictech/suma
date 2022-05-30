@@ -24,6 +24,10 @@ class Suma::BankAccount < Suma::Postgres::Model(:bank_accounts)
     end
   end
 
+  def verified?
+    return !!self.verified_at
+  end
+
   def payment_method_type
     return "bank_account"
   end

@@ -17,7 +17,7 @@ class Suma::Payment::FakeStrategy < Suma::Postgres::Model(:payment_fake_strategi
     return "Fake"
   end
 
-  [:ready_to_collect_funds?, :collect_funds, :funds_cleared?].each do |m|
+  [:check_validity, :ready_to_collect_funds?, :collect_funds, :funds_cleared?].each do |m|
     define_method(m) do |*args|
       self.return_response(m, *args)
     end
