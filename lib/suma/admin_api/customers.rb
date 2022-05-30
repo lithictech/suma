@@ -80,6 +80,16 @@ class Suma::AdminAPI::Customers < Suma::AdminAPI::V1
         status 200
         present customer, with: Suma::AdminAPI::DetailedCustomerEntity
       end
+
+      get :bank_accounts do
+        customer = lookup_customer!
+        present_collection customer.bank_accounts, with: Suma::AdminAPI::BankAccountEntity
+      end
+
+      get :payment_instruments do
+        customer = lookup_customer!
+        present_collection customer.bank_accounts, with: Suma::AdminAPI::PaymentInstrumentEntity
+      end
     end
   end
 end

@@ -332,7 +332,6 @@ Sequel.migration do
       foreign_key :plaid_institution_id, :plaid_institutions, on_delete: :set_null
 
       text :name, null: false
-      text :official_name, null: false
       text :account_type, null: false
 
       index [:legal_entity_id, :routing_number, :account_number],

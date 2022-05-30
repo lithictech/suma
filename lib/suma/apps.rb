@@ -14,9 +14,11 @@ require "suma/api/auth"
 require "suma/api/me"
 require "suma/api/meta"
 require "suma/api/mobility"
+require "suma/api/payment_instruments"
 require "suma/api/system"
 
 require "suma/admin_api/auth"
+require "suma/admin_api/bank_accounts"
 require "suma/admin_api/customers"
 require "suma/admin_api/message_deliveries"
 require "suma/admin_api/roles"
@@ -28,11 +30,13 @@ module Suma::Apps
     mount Suma::API::Me
     mount Suma::API::Meta
     mount Suma::API::Mobility
+    mount Suma::API::PaymentInstruments
     add_swagger_documentation if ENV["RACK_ENV"] == "development"
   end
 
   class AdminAPI < Suma::Service
     mount Suma::AdminAPI::Auth
+    mount Suma::AdminAPI::BankAccounts
     mount Suma::AdminAPI::Customers
     mount Suma::AdminAPI::MessageDeliveries
     mount Suma::AdminAPI::Roles

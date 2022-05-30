@@ -4,6 +4,8 @@ require "biz"
 require "holidays"
 
 module Suma::Payment
+  include Appydays::Configurable
+
   class Error < StandardError; end
 
   class Invalid < Error
@@ -13,6 +15,10 @@ module Suma::Payment
       super(msg)
       @reasons = reasons
     end
+  end
+
+  configurable(:payments) do
+    setting :autoverify_account_numbers, [], convert: ->(s) { s.split }
   end
 
   APPROXIMATE_ACH_SCHEDULE = Biz::Schedule.new do |config|

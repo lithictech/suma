@@ -31,6 +31,10 @@ class Suma::BankAccount < Suma::Postgres::Model(:bank_accounts)
     return !!self.verified_at
   end
 
+  def verified=(v)
+    self.verified_at = v.nil? ? nil : Time.now
+  end
+
   def payment_method_type
     return "bank_account"
   end

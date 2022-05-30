@@ -41,6 +41,14 @@ module Suma::AdminAPI
     expose :name
   end
 
+  class PaymentInstrumentEntity < BaseEntity
+    include AutoExposeBase
+    expose :payment_method_type
+    expose :admin_link
+    expose :to_display, as: :display
+    expose :legal_entity_display
+  end
+
   class AuditCustomerEntity < BaseEntity
     expose :id
     expose :email
@@ -100,6 +108,14 @@ module Suma::AdminAPI
     expose :bodies, with: MessageBodyEntity
   end
 
+  class BankAccountEntity < PaymentInstrumentEntity
+    include AutoExposeDetail
+    expose :verified_at
+    expose :routing_number
+    expose :account_number
+    expose :account_type
+  end
+
   class DetailedCustomerEntity < CustomerEntity
     include AutoExposeDetail
     expose :opaque_id
@@ -114,5 +130,9 @@ module Suma::AdminAPI
     expose :activities, with: CustomerActivityEntity
     expose :reset_codes, with: CustomerResetCodeEntity
     expose :sessions, with: CustomerSessionEntity
+  end
+
+  class DetailedBankAccountEntity < BankAccountEntity
+    include AutoExposeDetail
   end
 end

@@ -24,6 +24,13 @@ module Suma::API
     expose :slug
   end
 
+  class PaymentInstrumentEntity < BaseEntity
+    expose :id
+    expose :created_at
+    expose :payment_method_type
+    expose :to_display, as: :display
+  end
+
   class VendorServiceRateEntity < BaseEntity
     expose :id
     expose :localization_key
