@@ -15,6 +15,7 @@ require "suma/api/me"
 require "suma/api/meta"
 require "suma/api/mobility"
 require "suma/api/payment_instruments"
+require "suma/api/payments"
 require "suma/api/system"
 
 require "suma/admin_api/auth"
@@ -31,6 +32,7 @@ module Suma::Apps
     mount Suma::API::Meta
     mount Suma::API::Mobility
     mount Suma::API::PaymentInstruments
+    mount Suma::API::Payments
     add_swagger_documentation if ENV["RACK_ENV"] == "development"
   end
 

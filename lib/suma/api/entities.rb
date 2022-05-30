@@ -96,4 +96,12 @@ module Suma::API
     expose :lifetime_savings, with: MoneyEntity
     expose :ledger_lines, with: LedgerLineEntity
   end
+
+  class FundingTransactionEntity < BaseEntity
+    expose :id
+    expose :created_at
+    expose :status
+    expose :amount, with: MoneyEntity
+    expose :memo
+  end
 end
