@@ -8,6 +8,8 @@ class Suma::Payment::Account < Suma::Postgres::Model(:payment_accounts)
 
   many_to_one :customer, class: "Suma::Customer"
   many_to_one :vendor, class: "Suma::Vendor"
+  one_to_many :originated_funding_transactions, key: :originating_payment_account_id,
+                                                class: "Suma::Payment::FundingTransaction", read_only: true
   one_to_many :ledgers, class: "Suma::Payment::Ledger"
   one_to_one :cash_ledger, class: "Suma::Payment::Ledger", read_only: true do |ds|
     ds.where(vendor_service_categories: Suma::Vendor::ServiceCategory.where(slug: "cash"))

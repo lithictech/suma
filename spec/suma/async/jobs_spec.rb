@@ -21,6 +21,32 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
     end
   end
 
+  describe "FundingTransactionProcessor" do
+    it "processes all created and collecting funding transactions" do
+      created = Suma::Fixtures.funding_transaction.with_fake_strategy.create
+      created.strategy.set_response(:ready_to_collect_funds?, true)
+      created.strategy.set_response(:collect_funds, true)
+      created.strategy.set_response(:funds_cleared?, true)
+
+      collecting = Suma::Fixtures.funding_transaction.with_fake_strategy.create(status: "collecting")
+      collecting.strategy.set_response(:ready_to_collect_funds?, true)
+      collecting.strategy.set_response(:collect_funds, false)
+      collecting.strategy.set_response(:funds_cleared?, true)
+
+      stuck = Suma::Fixtures.funding_transaction.with_fake_strategy.create
+      stuck.strategy.set_response(:ready_to_collect_funds?, true)
+      stuck.strategy.set_response(:collect_funds, true)
+      stuck.strategy.set_response(:funds_cleared?, false)
+
+      Suma::Async::FundingTransactionProcessor.new.perform
+
+      # Was processed all the way through
+      expect(created.refresh).to have_attributes(status: "cleared")
+      expect(collecting.refresh).to have_attributes(status: "cleared")
+      expect(stuck.refresh).to have_attributes(status: "collecting")
+    end
+  end
+
   describe "MessageDispatched", messaging: true do
     it "sends the delivery on create" do
       email = "wibble@lithic.tech"

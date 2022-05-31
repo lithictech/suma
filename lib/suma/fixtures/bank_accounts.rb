@@ -14,8 +14,7 @@ module Suma::Fixtures::BankAccounts
     self.routing_number ||= routing_numbers.sample(1)
     self.account_number ||= Faker::Bank.account_number
     self.account_type ||= ["checking", "savings"].sample
-    self.official_name ||= "#{self.to_display.institution_name} #{self.account_type.capitalize}"
-    self.name ||= self.official_name
+    self.name ||= "#{self.to_display.institution_name} #{self.account_type.capitalize}"
   end
 
   before_saving do |instance|
@@ -31,5 +30,9 @@ module Suma::Fixtures::BankAccounts
   decorator :with_legal_entity do |le={}|
     le = Suma::Fixtures.legal_entity(le).create unless le.is_a?(Suma::LegalEntity)
     self.legal_entity = le
+  end
+
+  decorator :verified do |at=Time.now|
+    self.verified_at = at
   end
 end

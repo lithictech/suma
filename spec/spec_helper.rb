@@ -15,6 +15,7 @@ require "timecop"
 require "webmock/rspec"
 require "appydays/loggable/spec_helpers"
 require "amigo/spec_helpers"
+require "state_machines/sequel/spec_helpers"
 
 require "suma"
 require "suma/fixtures"
