@@ -26,9 +26,8 @@ function OnboardingSignup() {
   const [zipCode, setZipCode] = React.useState("");
   const handleFormSubmit = (e) => {
     e.preventDefault();
+    e.stopPropagation();
     if (e.currentTarget.checkValidity() === false) {
-      e.preventDefault();
-      e.stopPropagation();
       validated.turnOn();
       return;
     }
@@ -37,6 +36,7 @@ function OnboardingSignup() {
         name: name,
         address: {
           address1: address,
+          address2: address2,
           city: city,
           state_or_province: state,
           postal_code: zipCode,
