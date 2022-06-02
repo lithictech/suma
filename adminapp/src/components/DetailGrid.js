@@ -1,5 +1,4 @@
 import { dayjs } from "../modules/dayConfig";
-import Unavailable from "./Unavailable";
 import { Grid, Typography, Box } from "@mui/material";
 import _ from "lodash";
 import React from "react";
@@ -17,9 +16,9 @@ export default function DetailGrid({ title, properties }) {
     return !_.isEmpty(val);
   });
   return (
-    <Box>
+    <Box mt={2}>
       {title && (
-        <Typography variant="h6" mt={2} mb={1}>
+        <Typography variant="h6" gutterBottom>
           {title}
         </Typography>
       )}
@@ -64,7 +63,7 @@ function Value({ value, children }) {
   if (children) {
     return children;
   }
-  return <Unavailable variant="body1" gutterBottom />;
+  return null;
 }
 
 /**

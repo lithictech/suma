@@ -65,7 +65,7 @@ export default function MemberDetailPage() {
               },
             ]}
           />
-          <LegalEntity address={member.legalEntity.address} />
+          <LegalEntity {...member.legalEntity} />
           <ActivityList activities={member.activities} />
         </div>
       )}
