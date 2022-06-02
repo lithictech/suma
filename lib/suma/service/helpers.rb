@@ -252,8 +252,8 @@ module Suma::Service::Helpers
   end
 
   params :pagination do
-    optional :page, type: Integer, default: 1
-    optional :per_page, type: Integer, default: 100
+    optional :page, type: Integer, default: 1, values: (1..1_000_000)
+    optional :per_page, type: Integer, default: 100, values: (1..500)
   end
 
   params :searchable do

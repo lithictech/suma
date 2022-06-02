@@ -2,8 +2,8 @@ import api from "../api";
 import FormButtons from "../components/FormButtons";
 import FormError from "../components/FormError";
 import TopNav from "../components/TopNav";
+import useAsyncFetch from "../shared/react/useAsyncFetch";
 import useToggle from "../shared/react/useToggle";
-import useAsyncFetch from "../state/useAsyncFetch";
 import { extractErrorCode } from "../state/useError";
 import { useUser } from "../state/useUser";
 import { t } from "i18next";
@@ -26,9 +26,8 @@ function OnboardingSignup() {
   const [zipCode, setZipCode] = React.useState("");
   const handleFormSubmit = (e) => {
     e.preventDefault();
+    e.stopPropagation();
     if (e.currentTarget.checkValidity() === false) {
-      e.preventDefault();
-      e.stopPropagation();
       validated.turnOn();
       return;
     }
@@ -37,6 +36,7 @@ function OnboardingSignup() {
         name: name,
         address: {
           address1: address,
+          address2: address2,
           city: city,
           state_or_province: state,
           postal_code: zipCode,

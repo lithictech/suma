@@ -1,4 +1,5 @@
 import Link from "../components/Link";
+import useGlobalStyles from "../hooks/useGlobalStyles";
 import { useUser } from "../hooks/user";
 import navLinks from "../modules/navLinks";
 import {
@@ -14,9 +15,6 @@ import { makeStyles } from "@mui/styles";
 import React from "react";
 
 const useStyles = makeStyles((theme) => ({
-  root: {
-    marginTop: theme.spacing(5),
-  },
   row: {
     display: "flex",
     flexDirection: "row",
@@ -24,10 +22,11 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function DashboardPage() {
+  const globalClasses = useGlobalStyles();
   const classes = useStyles();
   const { user } = useUser();
   return (
-    <Container className={classes.root} maxWidth="lg">
+    <Container className={globalClasses.root} maxWidth="lg">
       <Typography gutterBottom>Hello, {user.name}</Typography>
       <div className={classes.row}>
         <List>
