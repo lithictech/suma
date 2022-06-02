@@ -1,16 +1,11 @@
 import api from "../api";
+import DetailGrid from "../components/DetailGrid";
+import RelatedList from "../components/RelatedListTable";
 import useErrorSnackbar from "../hooks/useErrorSnackbar";
 import useGlobalStyles from "../hooks/useGlobalStyles";
 import { dayjs } from "../modules/dayConfig";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
-import {
-  Divider,
-  Container,
-  Grid,
-  CircularProgress,
-  Typography,
-  Chip,
-} from "@mui/material";
+import { Divider, Container, CircularProgress, Typography, Chip } from "@mui/material";
 import _ from "lodash";
 import React from "react";
 import { formatPhoneNumberIntl } from "react-phone-number-input";
@@ -47,51 +42,40 @@ export default function MemberDetailPage() {
           <Typography variant="h6" mt={2} mb={1}>
             Account Information
           </Typography>
-          <Grid container spacing={2}>
-            <Grid item sx={{ width: "180px" }}>
-              <CustomTypography label>ID:</CustomTypography>
-              <CustomTypography label>Name:</CustomTypography>
-              <CustomTypography label>Email:</CustomTypography>
-              <CustomTypography label>Phone Number:</CustomTypography>
-              {!_.isEmpty(member.roles) && (
-                <CustomTypography label>Roles:</CustomTypography>
-              )}
-            </Grid>
-            <Grid item>
-              <CustomTypography>{id}</CustomTypography>
-              <CustomTypography>{member.name || unavailable}</CustomTypography>
-              <CustomTypography>{member.email || unavailable}</CustomTypography>
-              <CustomTypography>
-                {formatPhoneNumberIntl("+" + member.phone) || unavailable}
-              </CustomTypography>
-              {!_.isEmpty(member.roles) &&
-                member.roles.map((role) => {
-                  return <Chip key={role} label={_.capitalize(role)} />;
-                })}
-            </Grid>
-          </Grid>
+          <DetailGrid
+            properties={[
+              { label: "ID", value: id },
+              { label: "Name", value: member.name || unavailable },
+              { label: "Email", value: member.email || unavailable },
+              {
+                label: "Phone Number",
+                value: formatPhoneNumberIntl("+" + member.phone) || unavailable,
+              },
+              {
+                label: "Roles",
+                children: member.roles.map((role) => (
+                  <Chip key={role} label={_.capitalize(role)} />
+                )),
+                hideEmpty: true,
+              },
+            ]}
+          />
           <Typography variant="h6" mt={2} mb={1}>
             Other Information
           </Typography>
-          <Grid container spacing={2}>
-            <Grid item sx={{ width: "180px" }}>
-              <CustomTypography label>Timezone:</CustomTypography>
-              <CustomTypography label>Account Created:</CustomTypography>
-            </Grid>
-            <Grid item>
-              <CustomTypography>{member.timezone}</CustomTypography>
-              <CustomTypography>{dayjs(member.createdAt).format("lll")}</CustomTypography>
-              {member.softDeletedAt && (
-                <CustomTypography>
-                  <strong>
-                    Account soft deleted on {dayjs(member.createdAt).format("lll")}
-                  </strong>
-                </CustomTypography>
-              )}
-            </Grid>
-          </Grid>
+          <DetailGrid
+            properties={[
+              { label: "Timezone", value: member.timezone },
+              { label: "Created At", value: dayjs(member.createdAt) },
+              {
+                label: "Deleted At",
+                value: member.softDeletedAt && dayjs(member.softDeletedAt),
+                hideEmpty: true,
+              },
+            ]}
+          />
           <LegalEntity entity={member.legalEntity} />
-          <JourneyList journeys={member.journeys} />
+          <ActivityList activities={member.activities} />
         </div>
       )}
     </Container>
@@ -100,71 +84,44 @@ export default function MemberDetailPage() {
 
 function LegalEntity({ entity }) {
   const { address1, address2, city, stateOrProvince, postalCode, country } =
-    entity.address;
+    entity.address || {};
   return (
     <div>
       <Typography variant="h6" mt={2} mb={1}>
         Legal Entity
       </Typography>
-      <Grid container spacing={2}>
-        <Grid item sx={{ width: "180px" }}>
-          <CustomTypography label>Address:</CustomTypography>
-          <CustomTypography label>City:</CustomTypography>
-          <CustomTypography label>State:</CustomTypography>
-          <CustomTypography label>Postal Code:</CustomTypography>
-          <CustomTypography label>Country:</CustomTypography>
-        </Grid>
-        <Grid item>
-          <CustomTypography>{address1 + " " + address2}</CustomTypography>
-          <CustomTypography>{city}</CustomTypography>
-          <CustomTypography>{stateOrProvince}</CustomTypography>
-          <CustomTypography>{postalCode}</CustomTypography>
-          <CustomTypography>{country}</CustomTypography>
-        </Grid>
-      </Grid>
+      <DetailGrid
+        properties={[
+          {
+            label: "Street Address",
+            value: [address1, address2].filter(Boolean).join(" "),
+          },
+          { label: "City", value: city },
+          { label: "State", value: stateOrProvince },
+          { label: "Postal Code", value: postalCode },
+          { label: "Country", value: country },
+        ]}
+      />
     </div>
   );
 }
 
-function JourneyList({ journeys }) {
-  if (_.isEmpty(journeys)) {
+function ActivityList({ activities }) {
+  if (_.isEmpty(activities)) {
     return null;
   }
   return (
-    <>
-      <Typography variant="h6" mt={2} mb={1}>
-        Journey
-      </Typography>
-      {journeys.map((j) => {
-        return (
-          <div key={j.id}>
-            {journeys.length > 1 && <Divider variant="middle" sx={{ my: 1 }} />}
-            <Grid key={j.id} container spacing={2}>
-              <Grid item>
-                <Typography variant="h6">{dayjs(j.createdAt).format("lll")}</Typography>
-                <CustomTypography color="textSecondary">
-                  <Chip component="span" color="primary" label={_.capitalize(j.name)} />{" "}
-                  {j.message}
-                </CustomTypography>
-              </Grid>
-            </Grid>
-          </div>
-        );
-      })}
-    </>
-  );
-}
-
-function CustomTypography({ children, label, ...props }) {
-  if (_.isEmpty(children)) {
-    return;
-  }
-  const customProps = label
-    ? { variant: "body1", color: "textSecondary", align: "right" }
-    : { variant: "body1" };
-  return (
-    <Typography {...props} {...customProps} gutterBottom>
-      {children}
-    </Typography>
+    <RelatedList
+      title="Activities"
+      headers={["At", "Summary", "Message"]}
+      rows={activities}
+      toCells={(row) => [
+        dayjs(row.createdAt).format("lll"),
+        row.summary,
+        <span key="msg">
+          {row.messageName} / <code>{JSON.stringify(row.messageVars)}</code>
+        </span>,
+      ]}
+    />
   );
 }

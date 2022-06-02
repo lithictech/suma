@@ -1,7 +1,7 @@
 import qs from "../queryString";
 import _ from "lodash";
 import React from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 /**
  * Like React.setState, but with a query param.

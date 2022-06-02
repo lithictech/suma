@@ -1,4 +1,5 @@
 import api from "../api";
+import Unavailable from "../components/Unavailable";
 import useGlobalStyles from "../hooks/useGlobalStyles";
 import useListQueryControls from "../hooks/useListQueryControls";
 import { dayjs } from "../modules/dayConfig";
@@ -66,7 +67,6 @@ export default function MemberListPage() {
               <TableCell align="left">Name</TableCell>
               <TableCell align="left">Email</TableCell>
               <TableCell align="left">Registered</TableCell>
-              <TableCell align="left"></TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -80,27 +80,14 @@ export default function MemberListPage() {
               listResponse.items?.map((c) => (
                 <TableRow key={c.id}>
                   <TableCell component="th" scope="row" align="center">
-                    {c.id}
+                    <Link to={"/member/" + c.id}>{c.id}</Link>
                   </TableCell>
                   <TableCell align="center">{formatPhoneNumber("+" + c.phone)}</TableCell>
                   <TableCell align="left" className={clsx(c.name ? "" : "")}>
-                    {c.name || (
-                      <Typography variant="body2" color="textSecondary">
-                        Unavailable
-                      </Typography>
-                    )}
+                    <Link to={"/member/" + c.id}>{c.name || <Unavailable />}</Link>
                   </TableCell>
-                  <TableCell align="left">
-                    {c.email || (
-                      <Typography variant="body2" color="textSecondary">
-                        Unavailable
-                      </Typography>
-                    )}
-                  </TableCell>
+                  <TableCell align="left">{c.email || <Unavailable />}</TableCell>
                   <TableCell align="left">{dayjs(c.createdAt).format("lll")}</TableCell>
-                  <TableCell align="center">
-                    <Link to={"/member/" + c.id}>View Details</Link>
-                  </TableCell>
                 </TableRow>
               ))
             )}

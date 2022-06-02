@@ -44,7 +44,6 @@ export default {
   signOut: () => del("/adminapi/v1/auth"),
   signIn: (data) => post("/adminapi/v1/auth", data),
   getCurrentUser: (data) => get(`/adminapi/v1/auth`, data),
-  // TODO: rename api to ...v1/members.. after server-side rename
   getMembers: (data) => get(`/adminapi/v1/customers`, data),
   getMember: ({ id, ...data }) => get(`/adminapi/v1/customers/${id}`, data),
 };
