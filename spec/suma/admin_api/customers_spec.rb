@@ -154,12 +154,36 @@ RSpec.describe Suma::AdminAPI::Customers, :db do
       expect(customer.refresh.soft_deleted_at).to be_within(1).of(orig_at)
     end
 
-    it "adds a journey" do
+    it "adds an activity" do
       customer = Suma::Fixtures.customer.create
       post "/v1/customers/#{customer.id}/close"
 
       expect(last_response).to have_status(200)
-      expect(Suma::Customer.last.journeys).to contain_exactly(have_attributes(name: "accountclosed"))
+      expect(Suma::Customer.last.activities).to contain_exactly(have_attributes(message_name: "accountclosed"))
+    end
+  end
+
+  describe "GET /v1/customers/:id/bank_accounts" do
+    it "returns customer bank accounts" do
+      c = Suma::Fixtures.customer.create
+      o = Suma::Fixtures.bank_account.customer(c).create
+
+      get "/v1/customers/#{c.id}/bank_accounts"
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.that_includes(items: have_same_ids_as(o))
+    end
+  end
+
+  describe "GET /v1/customers/:id/payment_instruments" do
+    it "returns customer bank accounts" do
+      c = Suma::Fixtures.customer.create
+      o1 = Suma::Fixtures.bank_account.customer(c).create
+
+      get "/v1/customers/#{c.id}/payment_instruments"
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.that_includes(items: have_same_ids_as(o1).ordered)
     end
   end
 end

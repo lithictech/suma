@@ -50,7 +50,7 @@ module Suma::Postgres
     "suma/address",
     "suma/charge",
     "suma/customer",
-    "suma/customer/journey",
+    "suma/customer/activity",
     "suma/customer/reset_code",
     "suma/customer/session",
     "suma/idempotency",
@@ -62,6 +62,13 @@ module Suma::Postgres
     "suma/mobility/vehicle",
     "suma/organization",
     "suma/payment/book_transaction",
+    "suma/payment/funding_transaction",
+    "suma/payment/funding_transaction/audit_log",
+    "suma/payment/funding_transaction/increase_ach_strategy",
+    # Move this out of alphabetical order since it requires
+    # all transaction types to be loaded (fake strategy
+    # are used for testing funding and outgoing transactions).
+    "suma/payment/fake_strategy",
     "suma/payment/ledger",
     "suma/payment/account",
     "suma/plaid_institution",

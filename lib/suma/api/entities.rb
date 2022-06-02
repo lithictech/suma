@@ -24,6 +24,13 @@ module Suma::API
     expose :slug
   end
 
+  class PaymentInstrumentEntity < BaseEntity
+    expose :id
+    expose :created_at
+    expose :payment_method_type
+    expose :to_display, as: :display
+  end
+
   class VendorServiceRateEntity < BaseEntity
     expose :id
     expose :localization_key
@@ -88,5 +95,13 @@ module Suma::API
     expose :payment_account_balance, with: MoneyEntity
     expose :lifetime_savings, with: MoneyEntity
     expose :ledger_lines, with: LedgerLineEntity
+  end
+
+  class FundingTransactionEntity < BaseEntity
+    expose :id
+    expose :created_at
+    expose :status
+    expose :amount, with: MoneyEntity
+    expose :memo
   end
 end

@@ -1,10 +1,13 @@
 # frozen_string_literal: true
 
+require "suma/external_links"
 require "suma/payment/instrument"
 require "suma/postgres/model"
 
 class Suma::BankAccount < Suma::Postgres::Model(:bank_accounts)
   include Suma::Payment::Instrument
+  include Suma::ExternalLinks
+
   plugin :timestamps
   plugin :soft_deletes
 
@@ -24,6 +27,14 @@ class Suma::BankAccount < Suma::Postgres::Model(:bank_accounts)
     end
   end
 
+  def verified?
+    return !!self.verified_at
+  end
+
+  def verified=(v)
+    self.verified_at = v.nil? ? nil : Time.now
+  end
+
   def payment_method_type
     return "bank_account"
   end
@@ -34,6 +45,10 @@ class Suma::BankAccount < Suma::Postgres::Model(:bank_accounts)
 
   def name_with_last4
     return "#{self.name} x-#{self.last4}"
+  end
+
+  def admin_link
+    return "#{Suma.admin_url}/bank-accounts/#{self.id}"
   end
 
   def to_display

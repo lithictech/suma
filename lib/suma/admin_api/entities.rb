@@ -14,9 +14,39 @@ module Suma::AdminAPI
 
   class BaseEntity < Suma::Service::Entities::Base; end
 
+  # Simple exposure of common fields that can be used for lists of entities.
+  module AutoExposeBase
+    def self.included(ctx)
+      ctx.expose :id, if: ->(o) { o.respond_to?(:id) }
+      ctx.expose :created_at, if: ->(o) { o.respond_to?(:created_at) }
+      ctx.expose :soft_deleted_at, if: ->(o) { o.respond_to?(:soft_deleted_at) }
+    end
+  end
+
+  # More extensive exposure of common fields for when we show
+  # detailed entities, or limited lists.
+  module AutoExposeDetail
+    def self.included?(ctx)
+      ctx.expose :updated_at, if: ->(o) { o.respond_to?(:updated_at) }
+      ctx.expose :admin_link, if: ->(o, _) { o.respond_to?(:admin_link) }
+      # Always expose an external links array when we mix this in
+      ctx.expose :external_links do |inst|
+        inst.respond_to?(:external_links) ? inst.external_links : []
+      end
+    end
+  end
+
   class RoleEntity < BaseEntity
     expose :id
     expose :name
+  end
+
+  class PaymentInstrumentEntity < BaseEntity
+    include AutoExposeBase
+    expose :payment_method_type
+    expose :admin_link
+    expose :to_display, as: :display
+    expose :legal_entity_display
   end
 
   class AuditCustomerEntity < BaseEntity
@@ -26,26 +56,22 @@ module Suma::AdminAPI
   end
 
   class CustomerEntity < BaseEntity
-    expose :id
-    expose :created_at
-    expose :soft_deleted_at
+    include AutoExposeBase
     expose :email
     expose :name
     expose :phone
     expose :timezone
   end
 
-  class CustomerJourneyEntity < BaseEntity
-    expose :id
-    expose :created_at
-    expose :processed_at
-    expose :name
-    expose :message
+  class CustomerActivityEntity < BaseEntity
+    include AutoExposeBase
+    expose :message_name
+    expose :message_vars
+    expose :summary
   end
 
   class CustomerResetCodeEntity < BaseEntity
-    expose :id
-    expose :created_at
+    include AutoExposeBase
     expose :transport
     expose :token
     expose :used
@@ -53,8 +79,7 @@ module Suma::AdminAPI
   end
 
   class CustomerSessionEntity < BaseEntity
-    expose :id
-    expose :created_at
+    include AutoExposeBase
     expose :user_agent
     expose :peer_ip, &self.delegate_to(:peer_ip, :to_s)
     expose :ip_lookup_link do |instance|
@@ -63,15 +88,13 @@ module Suma::AdminAPI
   end
 
   class MessageBodyEntity < BaseEntity
-    expose :id
+    include AutoExposeBase
     expose :content
     expose :mediatype
   end
 
   class MessageDeliveryEntity < BaseEntity
-    expose :id
-    expose :created_at
-    expose :updated_at
+    include AutoExposeBase
     expose :template
     expose :transport_type
     expose :transport_service
@@ -85,7 +108,16 @@ module Suma::AdminAPI
     expose :bodies, with: MessageBodyEntity
   end
 
+  class BankAccountEntity < PaymentInstrumentEntity
+    include AutoExposeDetail
+    expose :verified_at
+    expose :routing_number
+    expose :account_number
+    expose :account_type
+  end
+
   class DetailedCustomerEntity < CustomerEntity
+    include AutoExposeDetail
     expose :opaque_id
     expose :note
     expose :roles do |instance|
@@ -95,8 +127,12 @@ module Suma::AdminAPI
       Suma::Role.order(:name).select_map(:name)
     end
     expose :legal_entity, with: LegalEntityEntity
-    expose :journeys, with: CustomerJourneyEntity
+    expose :activities, with: CustomerActivityEntity
     expose :reset_codes, with: CustomerResetCodeEntity
     expose :sessions, with: CustomerSessionEntity
+  end
+
+  class DetailedBankAccountEntity < BankAccountEntity
+    include AutoExposeDetail
   end
 end

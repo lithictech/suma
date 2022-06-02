@@ -202,3 +202,54 @@ We'll walk through some examples of how the payments system handles scenarios of
   This gets put into the system as an Invoice and is paid out via a Payout Transaction.
   The HP's `cad` ledger is at $20, other ledgers are at $0.
 
+
+
+# Implementation
+
+There are three classes of transactions:
+
+- `Suma::Payment::BookTransaction`
+- `Suma::Payment::FundingTransaction`
+- `Suma::Payment::PayoutTransaction`
+
+Of these, Book is one "species" and Funding and Payout are another.
+
+Book transactions are immediate, since they are just used for moving
+money between internal ledgers. They depend on no external state,
+so are very simple to reason about.
+
+Funding and Payout transactions are very similar,
+except the former is about receiving funds into Suma's operating account
+and the latter is about sending funds from Suma's operating account.
+
+We'll call these _external transactions_ collectively.
+The design for external transactions is:
+
+- They are implemented with a **state machine** that models their flow of funds.
+- The connection to 3rd party payment processors is abstracted behind a "strategy" concept.
+  See the base strategy modules like `Suma::Payment::FundingTransaction::Strategy` for more details.
+- All unit testing is done with a "fake" strategy; as long as all strategies adhere to the correct interface
+  (and are implemented correctly for their internal logic), we can be confident they work.
+
+State machines are a complex topic, outside the scope of this document.
+We use the excellent Ruby `state_machines` library
+[github.com/state-machines/state_machines](https://github.com/state-machines/state_machines).
+
+"Strategies" are a design pattern perhaps more accurately called an "Adapter", but no matter.
+Given a payment instrument, like a bank account or check recipient, and a set of supported processing partners,
+we can figure out which strategy should be used to debit/credit the instrument.
+In the future, this support will be dynamic (so, for example, bank accounts could not be used if we do not have
+an ACH processor available), but for now, it's explicit.
+
+When we transaction is created, we assume it is _valid_.
+"Valid" here means the instruments involved in the transaction are verified,
+are not deleted, are registered with 3rd parties, etc.
+It does not mean the transaction will succeed, just that it can technically run.
+We do this ahead of time validation for two reasons:
+
+- To avoid causing transactions to quickly asynchronously fail,
+  which is a bad internal and external UX, and
+- Because it is always possible an instrument gets deleted or otherwise becomes invalid
+  as the transaction processes. By checking these things only ahead of time,
+  we do not pretend to have any guarantees about the same validity
+  as the transaction processes.

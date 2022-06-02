@@ -69,9 +69,9 @@ class Suma::AdminAPI::Customers < Suma::AdminAPI::V1
         customer = lookup_customer!
         admin = admin_customer
         customer.db.transaction do
-          customer.add_journey(
-            name: "accountclosed",
-            message: "Admin #{admin.email} closed customer #{customer.email} account",
+          customer.add_activity(
+            message_name: "accountclosed",
+            summary: "Admin #{admin.email} closed customer #{customer.email} account",
             subject_type: "Suma::Customer",
             subject_id: customer.id,
           )
@@ -79,6 +79,16 @@ class Suma::AdminAPI::Customers < Suma::AdminAPI::V1
         end
         status 200
         present customer, with: Suma::AdminAPI::DetailedCustomerEntity
+      end
+
+      get :bank_accounts do
+        customer = lookup_customer!
+        present_collection customer.bank_accounts, with: Suma::AdminAPI::BankAccountEntity
+      end
+
+      get :payment_instruments do
+        customer = lookup_customer!
+        present_collection customer.bank_accounts, with: Suma::AdminAPI::PaymentInstrumentEntity
       end
     end
   end

@@ -9,6 +9,10 @@ module Suma::Payment::Instrument
     raise NotImplementedError
   end
 
+  def admin_link
+    raise NotImplementedError
+  end
+
   def legal_entity_display
     return Suma::LegalEntity::Display.new(self.legal_entity)
   end

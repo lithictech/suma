@@ -38,15 +38,23 @@ class Suma::Customer < Suma::Postgres::Model(:customers)
   plugin :timestamps
   plugin :soft_deletes
 
-  one_to_many :journeys, class: "Suma::Customer::Journey", order: Sequel.desc([:created_at, :id])
-  many_to_one :legal_entity, class: "Suma::LegalEntity"
-  one_to_one :payment_account, class: "Suma::Payment::Account"
+  one_to_many :activities, class: "Suma::Customer::Activity", order: Sequel.desc([:created_at, :id])
+  many_through_many :bank_accounts,
+                    [
+                      [:legal_entities, :id, :id],
+                      [:bank_accounts, :legal_entity_id, :id],
+                    ],
+                    class: "Suma::BankAccount",
+                    left_primary_key: :legal_entity_id,
+                    order: [:created_at, :id]
   one_to_many :charges, class: "Suma::Charge", order: Sequel.desc([:id])
+  many_to_one :legal_entity, class: "Suma::LegalEntity"
   one_to_many :message_deliveries, key: :recipient_id, class: "Suma::Message::Delivery"
+  one_to_one :ongoing_trip, class: "Suma::Mobility::Trip", conditions: {ended_at: nil}
+  one_to_one :payment_account, class: "Suma::Payment::Account"
   one_to_many :reset_codes, class: "Suma::Customer::ResetCode", order: Sequel.desc([:created_at])
   many_to_many :roles, class: "Suma::Role", join_table: :roles_customers
   one_to_many :sessions, class: "Suma::Customer::Session", order: Sequel.desc([:created_at, :id])
-  one_to_one :ongoing_trip, class: "Suma::Mobility::Trip", conditions: {ended_at: nil}
 
   dataset_module do
     def with_email(*emails)
