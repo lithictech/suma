@@ -4,5 +4,5 @@ import React from "react";
 
 export default [
   { label: "Home", href: "/dashboard", icon: <HomeIcon /> },
-  { label: "Customers", href: "/customers", icon: <PersonIcon /> },
+  { label: "Members", href: "/members", icon: <PersonIcon /> },
 ];

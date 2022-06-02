@@ -21,15 +21,16 @@ import {
 import clsx from "clsx";
 import React from "react";
 import { formatPhoneNumber } from "react-phone-number-input";
+import { Link } from "react-router-dom";
 
-export default function CustomerListPage() {
+export default function MemberListPage() {
   const classes = useGlobalStyles();
   const { page, setPage, perPage, setPerPage, search, setSearch } =
     useListQueryControls();
-  const getCustomers = React.useCallback(() => {
-    return api.getCustomers({ page: page + 1, perPage, search });
+  const getMembers = React.useCallback(() => {
+    return api.getMembers({ page: page + 1, perPage, search });
   }, [page, perPage, search]);
-  const { state: listResponse, loading: listLoading } = useAsyncFetch(getCustomers, {
+  const { state: listResponse, loading: listLoading } = useAsyncFetch(getMembers, {
     default: {},
     pickData: true,
   });
@@ -46,9 +47,7 @@ export default function CustomerListPage() {
   return (
     <Container className={classes.root} maxWidth="lg">
       <Stack direction="row" justifyContent="space-between" alignItems="center">
-        <Typography variant="h5" gutterBottom>
-          Customers
-        </Typography>
+        <Typography variant="h5">Members</Typography>
         <TextField
           label="Search"
           variant="outlined"
@@ -67,6 +66,7 @@ export default function CustomerListPage() {
               <TableCell align="left">Name</TableCell>
               <TableCell align="left">Email</TableCell>
               <TableCell align="left">Registered</TableCell>
+              <TableCell align="left"></TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -84,24 +84,23 @@ export default function CustomerListPage() {
                   </TableCell>
                   <TableCell align="center">{formatPhoneNumber("+" + c.phone)}</TableCell>
                   <TableCell align="left" className={clsx(c.name ? "" : "")}>
-                    {c.name ? (
-                      c.name
-                    ) : (
+                    {c.name || (
                       <Typography variant="body2" color="textSecondary">
                         Unavailable
                       </Typography>
                     )}
                   </TableCell>
                   <TableCell align="left">
-                    {c.email ? (
-                      c.email
-                    ) : (
+                    {c.email || (
                       <Typography variant="body2" color="textSecondary">
                         Unavailable
                       </Typography>
                     )}
                   </TableCell>
                   <TableCell align="left">{dayjs(c.createdAt).format("lll")}</TableCell>
+                  <TableCell align="center">
+                    <Link to={"/member/" + c.id}>View Details</Link>
+                  </TableCell>
                 </TableRow>
               ))
             )}

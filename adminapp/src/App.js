@@ -1,11 +1,13 @@
 import TopNav from "./components/TopNav";
 import { redirectIfAuthed, redirectIfUnauthed } from "./hocs/authRedirects";
 import { UserProvider } from "./hooks/user";
-import CustomerListPage from "./pages/CustomerListPage";
 import DashboardPage from "./pages/DashboardPage";
+import MemberDetailPage from "./pages/MemberDetailPage";
+import MemberListPage from "./pages/MemberListPage";
 import SignInPage from "./pages/SignInPage";
 import applyHocs from "./shared/applyHocs";
 import bluejay from "./shared/bluejay";
+import Redirect from "./shared/react/Redirect";
 import renderComponent from "./shared/react/renderComponent";
 import theme from "./theme";
 import { ThemeProvider } from "@mui/material";
@@ -55,12 +57,19 @@ function PageSwitch() {
       />
       <Route
         exact
-        path="/customers"
-        element={renderWithHocs(redirectIfUnauthed, CustomerListPage)}
+        path="/members"
+        element={renderWithHocs(redirectIfUnauthed, MemberListPage)}
       />
       <Route
-        path="/"
-        element={renderWithHocs(redirectIfAuthed, redirectIfUnauthed, () => null)}
+        exact
+        path="/member/:id"
+        element={renderWithHocs(redirectIfUnauthed, MemberDetailPage)}
+      />
+      <Route
+        path="/*"
+        element={renderWithHocs(redirectIfAuthed, redirectIfUnauthed, () => (
+          <Redirect to="/" />
+        ))}
       />
     </Routes>
   );
