@@ -39,7 +39,6 @@ export default function MemberListPage() {
   function handleSearchKeyPress(e) {
     if (e.key === "Enter") {
       e.preventDefault();
-      console.log(e.key, e.code, e.target.value);
       setSearch(e.target.value);
       setPage(0);
     }

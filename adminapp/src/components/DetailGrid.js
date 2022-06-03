@@ -1,5 +1,5 @@
 import { dayjs } from "../modules/dayConfig";
-import { Grid, Typography } from "@mui/material";
+import { Grid, Typography, Box } from "@mui/material";
 import _ from "lodash";
 import React from "react";
 
@@ -7,7 +7,7 @@ import React from "react";
  * @param {Array<DetailGridProperty>} properties
  * @constructor
  */
-export default function DetailGrid({ properties }) {
+export default function DetailGrid({ title, properties }) {
   const usedProperties = properties.filter(({ hideEmpty, value, children }) => {
     if (!hideEmpty) {
       return true;
@@ -16,20 +16,27 @@ export default function DetailGrid({ properties }) {
     return !_.isEmpty(val);
   });
   return (
-    <Grid container spacing={2}>
-      <Grid item sx={{ width: "180px" }}>
-        {usedProperties.map(({ label }) => (
-          <Label key={label}>{label}</Label>
-        ))}
+    <Box mt={2}>
+      {title && (
+        <Typography variant="h6" gutterBottom>
+          {title}
+        </Typography>
+      )}
+      <Grid container spacing={2}>
+        <Grid item sx={{ width: "180px" }}>
+          {usedProperties.map(({ label }) => (
+            <Label key={label}>{label}</Label>
+          ))}
+        </Grid>
+        <Grid item>
+          {usedProperties.map(({ label, value, children }) => (
+            <Value key={label} value={value}>
+              {children}
+            </Value>
+          ))}
+        </Grid>
       </Grid>
-      <Grid item>
-        {usedProperties.map(({ label, value, children, hideEmpty }) => (
-          <Value key={label} value={value} hideEmpty={hideEmpty}>
-            {children}
-          </Value>
-        ))}
-      </Grid>
-    </Grid>
+    </Box>
   );
 }
 

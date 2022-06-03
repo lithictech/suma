@@ -8,9 +8,11 @@ export default function RelatedList({ title, tableProps, ...rest }) {
   tableProps = _.merge({ size: "small" }, tableProps);
   return (
     <Box mt={5}>
-      <Typography variant="h6" gutterBottom>
-        {title}
-      </Typography>
+      {title && (
+        <Typography variant="h6" gutterBottom>
+          {title}
+        </Typography>
+      )}
       <SimpleTable tableProps={tableProps} {...rest} />
     </Box>
   );

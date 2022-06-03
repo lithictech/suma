@@ -1,6 +1,6 @@
 import api from "../api";
 import DetailGrid from "../components/DetailGrid";
-import RelatedList from "../components/RelatedListTable";
+import RelatedList from "../components/RelatedList";
 import useErrorSnackbar from "../hooks/useErrorSnackbar";
 import useGlobalStyles from "../hooks/useGlobalStyles";
 import { dayjs } from "../modules/dayConfig";
@@ -24,11 +24,6 @@ export default function MemberDetailPage() {
     default: {},
     pickData: true,
   });
-  const unavailable = (
-    <Typography component="span" color="textSecondary">
-      Unavailable
-    </Typography>
-  );
 
   return (
     <Container className={classes.root} maxWidth="lg">
@@ -39,31 +34,27 @@ export default function MemberDetailPage() {
             Member Details
           </Typography>
           <Divider />
-          <Typography variant="h6" mt={2} mb={1}>
-            Account Information
-          </Typography>
           <DetailGrid
+            title="Account Information"
             properties={[
               { label: "ID", value: id },
-              { label: "Name", value: member.name || unavailable },
-              { label: "Email", value: member.email || unavailable },
+              { label: "Name", value: member.name },
+              { label: "Email", value: member.email },
               {
                 label: "Phone Number",
-                value: formatPhoneNumberIntl("+" + member.phone) || unavailable,
+                value: formatPhoneNumberIntl("+" + member.phone),
               },
               {
                 label: "Roles",
                 children: member.roles.map((role) => (
-                  <Chip key={role} label={_.capitalize(role)} />
+                  <Chip key={role} label={_.capitalize(role)} sx={{ mr: 0.5 }} />
                 )),
                 hideEmpty: true,
               },
             ]}
           />
-          <Typography variant="h6" mt={2} mb={1}>
-            Other Information
-          </Typography>
           <DetailGrid
+            title="Other Information"
             properties={[
               { label: "Timezone", value: member.timezone },
               { label: "Created At", value: dayjs(member.createdAt) },
@@ -74,7 +65,7 @@ export default function MemberDetailPage() {
               },
             ]}
           />
-          <LegalEntity entity={member.legalEntity} />
+          <LegalEntity {...member.legalEntity} />
           <ActivityList activities={member.activities} />
         </div>
       )}
@@ -82,15 +73,16 @@ export default function MemberDetailPage() {
   );
 }
 
-function LegalEntity({ entity }) {
+function LegalEntity({ address }) {
+  if (_.isEmpty(address)) {
+    return null;
+  }
   const { address1, address2, city, stateOrProvince, postalCode, country } =
-    entity.address || {};
+    address || {};
   return (
     <div>
-      <Typography variant="h6" mt={2} mb={1}>
-        Legal Entity
-      </Typography>
       <DetailGrid
+        title="Legal Entity"
         properties={[
           {
             label: "Street Address",
