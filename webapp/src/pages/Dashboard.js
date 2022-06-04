@@ -14,6 +14,7 @@ import Container from "react-bootstrap/Container";
 import Navbar from "react-bootstrap/Navbar";
 import Row from "react-bootstrap/Row";
 import Spinner from "react-bootstrap/Spinner";
+import Stack from "react-bootstrap/Stack";
 import Table from "react-bootstrap/Table";
 import { Link } from "react-router-dom";
 
@@ -102,7 +103,14 @@ const Ledger = ({ dashboard }) => {
         <Table responsive striped hover className="table-borderless">
           <thead>
             <tr>
-              <th>{i18next.t("recent_ledger_lines", { ns: "dashboard" })}</th>
+              <th>
+                <Stack direction="horizontal" gap={3}>
+                  {i18next.t("recent_ledger_lines", { ns: "dashboard" })}
+                  <div className="ms-auto">
+                    <Link to="/ledger">{i18next.t("view_all", { ns: "dashboard" })}</Link>
+                  </div>
+                </Stack>
+              </th>
             </tr>
           </thead>
           <tbody>

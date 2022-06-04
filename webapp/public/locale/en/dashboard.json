@@ -3,5 +3,8 @@
 	"check_ongoing_trip_button": "Go to Mobility",
 	"payment_account_balance": "Available Balance",
 	"lifetime_savings": "Suma Savings",
-	"recent_ledger_lines": "Recent Charges and Credits"
+	"recent_ledger_lines": "Recent Charges and Credits",
+	"view_all": "View all",
+	"ledgers_title": "Ledger Transactions",
+	"ledgers_intro": "View account balance, savings and transactions"
 }
