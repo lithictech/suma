@@ -1,14 +1,17 @@
 # frozen_string_literal: true
 
 RSpec.describe "Suma::Payment::Ledger", :db do
+  let(:described_class) { Suma::Payment::Ledger }
   describe "associations" do
     let(:ledger) { Suma::Fixtures.ledger.create }
 
     it "knows what it has originated and received" do
+      Suma::Fixtures.book_transaction.create
       orig = Suma::Fixtures.book_transaction.from(ledger).create
       recip = Suma::Fixtures.book_transaction.to(ledger).create
       expect(ledger.originated_book_transactions).to have_same_ids_as(orig)
       expect(ledger.received_book_transactions).to have_same_ids_as(recip)
+      expect(ledger.combined_book_transactions).to have_same_ids_as(orig, recip)
     end
   end
 
@@ -70,6 +73,16 @@ RSpec.describe "Suma::Payment::Ledger", :db do
       expect(grocery_ledger.category_used_to_purchase(grocery_service)).to be === grocery
       expect(grocery_ledger.category_used_to_purchase(organic_service)).to be === grocery
       expect(organic_ledger.category_used_to_purchase(organic_service)).to be === organic
+    end
+  end
+
+  describe "validations" do
+    it "account and name must be unique" do
+      Suma::Fixtures.ledger.create(name: "A")
+      led = Suma::Fixtures.ledger.create(name: "A")
+      expect do
+        Suma::Fixtures.ledger(account: led.account).create(name: "A")
+      end.to raise_error(Sequel::UniqueConstraintViolation)
     end
   end
 end

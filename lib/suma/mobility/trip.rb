@@ -59,6 +59,7 @@ class Suma::Mobility::Trip < Suma::Postgres::Model(:mobility_trips)
     # instead of trying to figure out a solution to an impossible problem.
     raise Suma::InvalidPostcondition, "negative trip cost for #{self.inspect}" if result.cost_cents.negative?
     self.db.transaction do
+      now = Time.now
       self.update(end_lat: lat, end_lng: lng, ended_at: result.end_time)
       # The calculated rate can be different than the service actually
       # charges us, so if we aren't using a discount, always use
@@ -77,6 +78,7 @@ class Suma::Mobility::Trip < Suma::Postgres::Model(:mobility_trips)
       contributions = self.customer.payment_account!.find_chargeable_ledgers(
         self.vendor_service,
         result_cost,
+        now:,
         # At this point, ride has been taken and finished so we need to accept it
         # and deal with a potential negative balance.
         allow_negative_balance: true,
