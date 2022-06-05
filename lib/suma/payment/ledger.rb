@@ -13,6 +13,11 @@ class Suma::Payment::Ledger < Suma::Postgres::Model(:payment_ledgers)
                right_key: :category_id
   one_to_many :originated_book_transactions, class: "Suma::Payment::BookTransaction", key: :originating_ledger_id
   one_to_many :received_book_transactions, class: "Suma::Payment::BookTransaction", key: :receiving_ledger_id
+  one_to_many :combined_book_transactions, class: "Suma::Payment::BookTransaction", readonly: true do |_ds|
+    Suma::Payment::BookTransaction.
+      where(Sequel[originating_ledger_id: id] | Sequel[receiving_ledger_id: id]).
+      order(Sequel.desc(:apply_at), Sequel.desc(:id))
+  end
 
   def balance
     credits = self.received_book_transactions.sum(Money.new(0), &:amount)

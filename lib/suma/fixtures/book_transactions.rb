@@ -12,6 +12,7 @@ module Suma::Fixtures::BookTransactions
     self.amount_cents ||= Faker::Number.between(from: 100, to: 100_00)
     self.amount_currency ||= "USD"
     self.memo ||= Faker::Lorem.words(number: 3).join(" ")
+    self.apply_at ||= Time.now
   end
 
   before_saving do |instance|

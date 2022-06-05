@@ -45,7 +45,7 @@ module Suma::Payment
    end
     ledger = payment_account.cash_ledger
     return ledger if ledger
-    ledger = payment_account.add_ledger({currency: Suma.default_currency})
+    ledger = payment_account.add_ledger({currency: Suma.default_currency, name: "Cash"})
     cash_category = Suma::Vendor::ServiceCategory.find_or_create(name: "Cash")
     ledger.add_vendor_service_category(cash_category)
     payment_account.associations.delete(:cash_ledger)

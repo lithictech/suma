@@ -9,6 +9,7 @@ RSpec.describe Suma::Payment, :db do
       led = described_class.ensure_cash_ledger(customer)
       expect(led.vendor_service_categories).to contain_exactly(have_attributes(name: "Cash"))
       expect(led).to be === customer.payment_account.cash_ledger
+      expect(led).to have_attributes(name: "Cash")
     end
 
     it "can reuse an existing cash ledger" do

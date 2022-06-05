@@ -14,6 +14,11 @@ class Suma::Charge < Suma::Postgres::Model(:charges)
                left_key: :charge_id,
                right_key: :book_transaction_id
 
+  def initialize(*)
+    super
+    self.opaque_id ||= Suma::Secureid.new_opaque_id("ch")
+  end
+
   def discounted_subtotal
     return self.book_transactions.sum(Money.new(0), &:amount)
   end

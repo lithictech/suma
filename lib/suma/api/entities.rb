@@ -86,15 +86,38 @@ module Suma::API
   end
 
   class LedgerLineEntity < BaseEntity
-    expose :at
-    expose :amount, with: MoneyEntity
+    expose :id
+    expose :opaque_id
+    expose :apply_at, as: :at
     expose :memo
+    expose :amount, with: MoneyEntity do |inst, opts|
+      if inst.directed?
+        inst.amount
+      else
+        inst.receiving_ledger === opts.fetch(:ledger) ? inst.amount : (inst.amount * -1)
+      end
+    end
+  end
+
+  class LedgerEntity < BaseEntity
+    expose :id
+    expose :name
+    expose :balance, with: MoneyEntity
   end
 
   class CustomerDashboardEntity < BaseEntity
     expose :payment_account_balance, with: MoneyEntity
     expose :lifetime_savings, with: MoneyEntity
     expose :ledger_lines, with: LedgerLineEntity
+  end
+
+  class LedgersViewEntity < BaseEntity
+    expose :total_balance, with: MoneyEntity
+    expose :ledgers, with: LedgerEntity
+    expose :recent_lines, with: LedgerLineEntity
+    expose :single_ledger_lines_first_page, with: LedgerLineEntity do |_, opts|
+      opts[:single_ledger_lines_first_page]
+    end
   end
 
   class FundingTransactionEntity < BaseEntity

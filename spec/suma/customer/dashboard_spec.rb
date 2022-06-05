@@ -3,7 +3,6 @@
 require "suma/customer/dashboard"
 
 RSpec.describe Suma::Customer::Dashboard, :db do
-  let(:described_class) { Suma::Customer::Dashboard }
   let(:customer) { Suma::Fixtures.customer.create }
 
   it "can represent a blank/empty customer" do
@@ -20,8 +19,10 @@ RSpec.describe Suma::Customer::Dashboard, :db do
     grocery_ledger = Suma::Fixtures.ledger.customer(customer).category(:food).create
     # Add charges, one with transactions
     charge1 = Suma::Fixtures.charge(customer:).create(undiscounted_subtotal: money("$30"))
-    charge1.add_book_transaction(Suma::Fixtures.book_transaction.from(cash_ledger).create(amount: money("$20")))
-    charge1.add_book_transaction(Suma::Fixtures.book_transaction.from(grocery_ledger).create(amount: money("$5")))
+    charge1.add_book_transaction(Suma::Fixtures.book_transaction.from(cash_ledger).create(amount: money("$20"),
+                                                                                          apply_at: 20.days.ago,))
+    charge1.add_book_transaction(Suma::Fixtures.book_transaction.from(grocery_ledger).create(amount: money("$5"),
+                                                                                             apply_at: 21.days.ago,))
     charge2 = Suma::Fixtures.charge(customer:).create(undiscounted_subtotal: money("$4.31"))
     # Add book transactions for funding events
     Suma::Fixtures.book_transaction.to(cash_ledger).create(amount: money("$27"))
@@ -29,14 +30,13 @@ RSpec.describe Suma::Customer::Dashboard, :db do
     expect(d).to have_attributes(
       payment_account_balance: cost("$2"),
       lifetime_savings: cost("$9.31"),
-      ledger_lines: contain_exactly(
-        have_attributes(amount: cost("$27")),
-        have_attributes(amount: cost("-$5")),
-        have_attributes(amount: cost("-$20")),
+      ledger_lines: match(
+        [
+          have_attributes(amount: cost("$27")),
+          have_attributes(amount: cost("-$20")),
+          have_attributes(amount: cost("-$5")),
+        ],
       ),
     )
-    expect(d.ledger_lines[0]).to have_attributes(amount: cost("$27"))
-    expect(d.ledger_lines[1]).to have_attributes(amount: cost("-$5"))
-    expect(d.ledger_lines[2]).to have_attributes(amount: cost("-$20"))
   end
 end
