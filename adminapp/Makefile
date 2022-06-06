@@ -5,7 +5,7 @@ check-version:
 	@node tools/checkversion
 
 install: check-version
-	@npm install --legacy-peer-deps # See https://stackoverflow.com/questions/71713111/mui-installation-doesnt-work-with-react-18
+	@npm install
 test: check-version
 	CI=true npm test
 test-watch: check-version
