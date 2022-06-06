@@ -13,6 +13,15 @@ module Suma::API
 
   class BaseEntity < Suma::Service::Entities::Base; end
 
+  class CurrencyEntity < BaseEntity
+    expose :symbol
+    expose :code
+    expose :funding_minimum_cents
+    expose :funding_step_cents
+    expose :cents_in_dollar
+    expose :payment_method_types
+  end
+
   class MobilityMapVehicleEntity < BaseEntity
     expose :c
     expose :p

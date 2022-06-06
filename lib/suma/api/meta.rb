@@ -19,5 +19,11 @@ class Suma::API::Meta < Suma::API::V1
       end
       present result
     end
+
+    get :supported_currencies do
+      cur = Suma::SupportedCurrency.dataset.order(:ordinal).all
+      raise Suma::InvalidPrecondition, "no currencies set up, app is busted" if cur.empty?
+      present_collection cur, with: Suma::API::CurrencyEntity
+    end
   end
 end
