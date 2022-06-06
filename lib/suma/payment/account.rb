@@ -32,7 +32,7 @@ class Suma::Payment::Account < Suma::Postgres::Model(:payment_accounts)
       pa = self.lookup_platform_account
       pa.lock!
       unless (led = pa.ledgers_dataset[vendor_service_categories: cat])
-        led = pa.add_ledger({currency: Suma.default_currency})
+        led = pa.add_ledger({currency: Suma.default_currency, name: cat.name})
         led.add_vendor_service_category(cat)
       end
       led
@@ -53,13 +53,13 @@ class Suma::Payment::Account < Suma::Postgres::Model(:payment_accounts)
     raise "PaymentAccount[#{self.id}] has no mobility ledger"
   end
 
-  def find_chargeable_ledgers(vendor_service, amount, allow_negative_balance: false)
+  def find_chargeable_ledgers(vendor_service, amount, now:, allow_negative_balance: false)
     raise ArgumentError, "amount cannot be negative, got #{amount.format}" if amount.negative?
     raise Suma::InvalidPrecondition, "#{self.inspect} has no ledgers" if self.ledgers.empty?
     contributions = []
     self.ledgers.each do |led|
       cat = led.category_used_to_purchase(vendor_service)
-      contributions << ChargeContribution.new(ledger: led, amount: 0, category: cat) if cat
+      contributions << ChargeContribution.new(ledger: led, apply_at: now, amount: 0, category: cat) if cat
     end
     contributions.sort_by! { |c| [-c.category.hierarchy_depth, c.ledger.id] }
     remainder = amount
@@ -81,12 +81,13 @@ class Suma::Payment::Account < Suma::Postgres::Model(:payment_accounts)
   end
 
   class ChargeContribution < Suma::TypedStruct
-    attr_accessor :ledger, :amount, :category
+    attr_accessor :ledger, :apply_at, :amount, :category
   end
 
   def debit_contributions(contributions, memo:)
     xactions = contributions.map do |c|
       Suma::Payment::BookTransaction.create(
+        apply_at: c.apply_at,
         amount: c.amount,
         originating_ledger: c.ledger,
         receiving_ledger: Suma::Payment::Account.lookup_platform_vendor_service_category_ledger(c.category),

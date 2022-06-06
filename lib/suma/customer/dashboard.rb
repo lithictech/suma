@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "suma/customer"
+require "suma/payment/ledgers_view"
 
 class Suma::Customer::Dashboard
   def initialize(customer)
@@ -20,20 +21,6 @@ class Suma::Customer::Dashboard
   def ledger_lines
     pa = @customer.payment_account
     return [] if pa.nil?
-    lines = pa.ledgers.map(&:received_book_transactions).
-      flatten.
-      map { |bt| LedgerLine.new(at: bt.created_at, amount: bt.amount, memo: bt.memo) }
-    lines.concat(
-      pa.ledgers.map(&:originated_book_transactions).
-      flatten.
-      map { |bt| LedgerLine.new(at: bt.created_at, amount: -1 * bt.amount, memo: bt.memo) },
-    )
-    lines.sort_by!(&:at)
-    lines.reverse!
-    return lines
-  end
-
-  class LedgerLine < Suma::TypedStruct
-    attr_reader :at, :amount, :memo
+    return Suma::Payment::LedgersView.new(pa.ledgers).recent_lines
   end
 end

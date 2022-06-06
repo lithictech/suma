@@ -89,7 +89,7 @@ RSpec.describe Suma::API::Me, :db do
 
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.
-        that_includes(payment_account_balance: cost("$27"))
+        that_includes(payment_account_balance: cost("$27"), lifetime_savings: cost("$0"), ledger_lines: have_length(1))
     end
   end
 end

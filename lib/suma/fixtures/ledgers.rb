@@ -15,6 +15,7 @@ module Suma::Fixtures::Ledgers
 
   before_saving do |instance|
     instance.account ||= Suma::Fixtures.payment_account.create
+    instance.name ||= Faker::Lorem.word
     instance
   end
 
@@ -31,5 +32,6 @@ module Suma::Fixtures::Ledgers
   decorator :category, presave: true do |name|
     raise ArgumentError, "#{name} must be a Symbol (the fixture decorator method)" unless name.is_a?(Symbol)
     self.add_vendor_service_category(Suma::Fixtures.vendor_service_category.send(name).create)
+    self.name ||= name
   end
 end

@@ -369,8 +369,11 @@ Sequel.migration do
       timestamptz :updated_at
 
       text :currency, null: false
+      text :name, null: false
 
       foreign_key :account_id, :payment_accounts, index: true
+
+      unique [:account_id, :name]
     end
 
     create_join_table(
@@ -385,6 +388,9 @@ Sequel.migration do
       primary_key :id
       timestamptz :created_at, null: false, default: Sequel.function(:now)
       timestamptz :updated_at
+      timestamptz :apply_at, null: false
+
+      text :opaque_id, null: false
 
       foreign_key :originating_ledger_id, :payment_ledgers, index: true
       foreign_key :receiving_ledger_id, :payment_ledgers, index: true
@@ -459,6 +465,8 @@ Sequel.migration do
       primary_key :id
       timestamptz :created_at, null: false, default: Sequel.function(:now)
       timestamptz :updated_at
+
+      text :opaque_id, null: false
 
       int :undiscounted_subtotal_cents, null: false
       text :undiscounted_subtotal_currency, null: false

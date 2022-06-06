@@ -20,10 +20,12 @@ class Suma::API::Payments < Suma::API::V1
       (bank_account = c.legal_entity.bank_accounts_dataset.usable[params[:bank_account_id]]) or
         merror!(403, "Bank account not found", code: "resource_not_found")
       fx = bank_account.db.transaction do
+        now = Time.now
         fx = Suma::Payment::FundingTransaction.start_new(c.payment_account, amount: params[:amount], bank_account:)
         # TODO: Move this to the model layer and test it thoroughly,
         # it is too important to just have testing as a side effect in the endpoint.
         originated_book_transaction = Suma::Payment::BookTransaction.create(
+          apply_at: now,
           amount: fx.amount,
           originating_ledger: fx.platform_ledger,
           receiving_ledger: Suma::Payment.ensure_cash_ledger(c),
