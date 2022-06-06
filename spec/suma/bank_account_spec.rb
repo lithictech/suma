@@ -9,6 +9,18 @@ RSpec.describe "Suma::BankAccount", :db do
     let(:instrument) { Suma::Fixtures.bank_account.create }
   end
 
+  describe "dataset" do
+    describe "usable" do
+      it "is not soft deleted bank accounts" do
+        deleted_ba = Suma::Fixtures.bank_account.create
+        deleted_ba.soft_delete
+        ba2 = Suma::Fixtures.bank_account.create
+        ba1 = Suma::Fixtures.bank_account.create
+        expect(Suma::BankAccount.usable.all).to have_same_ids_as(ba1, ba2)
+      end
+    end
+  end
+
   it "finds or updates associated plaid institution when routing number is changed" do
     inst1 = Suma::Fixtures.plaid_institution.create(routing_numbers: ["111222333", "111222444"])
     inst2 = Suma::Fixtures.plaid_institution.create(routing_numbers: ["444555666"])

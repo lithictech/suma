@@ -48,6 +48,7 @@ module Suma::Postgres
   # Require paths for all Sequel models used by the app.
   MODELS = [
     "suma/address",
+    "suma/bank_account",
     "suma/charge",
     "suma/customer",
     "suma/customer/activity",

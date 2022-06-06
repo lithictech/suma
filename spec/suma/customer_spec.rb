@@ -193,6 +193,21 @@ RSpec.describe "Suma::Customer", :db do
     end
   end
 
+  describe "usable_payment_instruments" do
+    let(:customer) { Suma::Fixtures.customer.create }
+    let(:bank_fac) { Suma::Fixtures.bank_account.customer(customer) }
+
+    it "returns undeleted bank accounts" do
+      deleted_ba = bank_fac.create
+      deleted_ba.soft_delete
+
+      ba2 = bank_fac.create
+      ba1 = bank_fac.create
+
+      expect(customer.usable_payment_instruments).to have_same_ids_as(ba1, ba2).ordered
+    end
+  end
+
   describe "soft deleting" do
     it "sets email and password" do
       c = Suma::Fixtures.customer(email: "a@b.c", password: "password").create

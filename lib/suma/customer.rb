@@ -130,6 +130,16 @@ class Suma::Customer < Suma::Postgres::Model(:customers)
     raise ReadOnlyMode, reason
   end
 
+  def usable_payment_instruments
+    bank_accounts = self.
+      legal_entity.
+      bank_accounts_dataset.
+      usable.
+      order(Sequel.desc(:created_at), :id).
+      all
+    return bank_accounts
+  end
+
   #
   # :section: Password
   #

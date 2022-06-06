@@ -221,4 +221,14 @@ module Suma::SpecHelpers::Postgres
       "did not expect to find item with id %s in %s" % [actual.id, actual.class.where(id: actual.id).all]
     end
   end
+
+  RSpec::Matchers.define(:be_bool) do
+    match do |actual|
+      [true, false].include?(actual)
+    end
+
+    failure_message do |actual|
+      "%s must be true or false" % [actual]
+    end
+  end
 end

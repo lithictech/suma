@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "suma/payment"
+
 module Suma::Payment::Instrument
   def to_display
     raise NotImplementedError
@@ -15,6 +17,10 @@ module Suma::Payment::Instrument
 
   def legal_entity_display
     return Suma::LegalEntity::Display.new(self.legal_entity)
+  end
+
+  def can_use_for_funding?
+    raise NotImplementedError
   end
 
   class Display

@@ -38,6 +38,13 @@ module Suma::API
     expose :created_at
     expose :payment_method_type
     expose :to_display, as: :display
+    expose :can_use_for_funding?, as: :can_use_for_funding
+  end
+
+  class MutationPaymentInstrumentEntity < PaymentInstrumentEntity
+    expose :all_payment_instruments, with: PaymentInstrumentEntity do |_inst, opts|
+      opts.fetch(:all_payment_instruments)
+    end
   end
 
   class VendorServiceRateEntity < BaseEntity
@@ -92,6 +99,7 @@ module Suma::API
     expose :ongoing_trip, with: MobilityTripEntity
     expose :read_only_mode?, as: :read_only_mode
     expose :read_only_reason
+    expose :usable_payment_instruments, with: PaymentInstrumentEntity
   end
 
   class LedgerLineEntity < BaseEntity
