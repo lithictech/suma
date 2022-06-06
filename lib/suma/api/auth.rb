@@ -56,8 +56,11 @@ class Suma::API::Auth < Suma::API::V1
       me = Suma::Customer.with_us_phone(params[:phone])
       begin
         Suma::Customer::ResetCode::Unusable if me.nil?
-        if Suma::Customer.skip_verification?(me)
+        if Suma::Customer.matches_allowlist?(me, Suma::Customer.superadmin_allowlist)
           me.update(onboarding_verified_at: Time.now)
+          me.ensure_role(Suma::Role.admin_role)
+        elsif Suma::Customer.matches_allowlist?(me, Suma::Customer.skip_verification_allowlist)
+          nil
         else
           Suma::Customer::ResetCode.use_code_with_token(params[:token]) do |code|
             raise Suma::Customer::ResetCode::Unusable unless code.customer === me
