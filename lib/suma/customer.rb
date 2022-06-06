@@ -18,6 +18,7 @@ class Suma::Customer < Suma::Postgres::Model(:customers)
 
   configurable(:customer) do
     setting :skip_verification_allowlist, [], convert: ->(s) { s.split }
+    setting :superadmin_allowlist, [], convert: ->(s) { s.split }
   end
 
   # The bcrypt hash cost. Changing this would invalidate all passwords!
@@ -79,8 +80,8 @@ class Suma::Customer < Suma::Postgres::Model(:customers)
     return self.dataset.with_email(e).first
   end
 
-  def self.skip_verification?(customer)
-    return self.skip_verification_allowlist.any? do |pattern|
+  def self.matches_allowlist?(customer, allowlist)
+    return allowlist.any? do |pattern|
       File.fnmatch(pattern, customer.phone || "") || File.fnmatch(pattern, customer.email || "")
     end
   end
@@ -127,6 +128,16 @@ class Suma::Customer < Suma::Postgres::Model(:customers)
     reason = self.read_only_reason
     return if reason.nil?
     raise ReadOnlyMode, reason
+  end
+
+  def usable_payment_instruments
+    bank_accounts = self.
+      legal_entity.
+      bank_accounts_dataset.
+      usable.
+      order(Sequel.desc(:created_at), :id).
+      all
+    return bank_accounts
   end
 
   #

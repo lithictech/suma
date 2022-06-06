@@ -11,5 +11,7 @@
 	"vehicle_not_found": "No vehicle found in this location.",
 	"read_only_unverified": "You are in read-only mode due to having an unverified account.",
 	"read_only_technical_error": "You are currently in read-only mode and cannot access any rides yet.",
-	"read_only_zero_balance": "You are in read-only mode due to having a zero balance."
+	"read_only_zero_balance": "You are in read-only mode due to having a zero balance.",
+	"something_went_wrong_title": "Something went wrong",
+	"something_went_wrong_body": "Sorry, something went wrong. Let's go to your home screen so you can try again."
 }

@@ -43,6 +43,10 @@ class Suma::BankAccount < Suma::Postgres::Model(:bank_accounts)
     return self.account_number[-4..]
   end
 
+  def can_use_for_funding?
+    return self.verified?
+  end
+
   def name_with_last4
     return "#{self.name} x-#{self.last4}"
   end

@@ -16,7 +16,10 @@ RSpec.describe Suma::API::Payments, :db do
     it "creates a new funding and book transaction" do
       ba = Suma::Fixtures.bank_account.customer(customer).verified.create
 
-      post "/v1/payments/create_funding", amount: {cents: 500, currency: "USD"}, bank_account_id: ba.id
+      post "/v1/payments/create_funding",
+           amount: {cents: 500, currency: "USD"},
+           payment_method_id: ba.id,
+           payment_method_type: ba.payment_method_type
 
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.that_includes(status: "created")
@@ -34,7 +37,10 @@ RSpec.describe Suma::API::Payments, :db do
       ba = Suma::Fixtures.bank_account.customer(customer).create
       ba.soft_delete
 
-      post "/v1/payments/create_funding", amount: {cents: 500, currency: "USD"}, bank_account_id: ba.id
+      post "/v1/payments/create_funding",
+           amount: {cents: 500, currency: "USD"},
+           payment_method_id: ba.id,
+           payment_method_type: ba.payment_method_type
 
       expect(last_response).to have_status(403)
       expect(last_response).to have_json_body.that_includes(error: include(code: "resource_not_found"))

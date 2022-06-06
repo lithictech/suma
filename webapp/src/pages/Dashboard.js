@@ -1,5 +1,6 @@
 import api from "../api";
 import Money from "../components/Money";
+import RLink from "../components/RLink";
 import TopNav from "../components/TopNav";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
 import { useUser } from "../state/useUser";
@@ -9,6 +10,7 @@ import i18next from "i18next";
 import _ from "lodash";
 import React from "react";
 import { Alert } from "react-bootstrap";
+import Button from "react-bootstrap/Button";
 import Col from "react-bootstrap/Col";
 import Container from "react-bootstrap/Container";
 import Navbar from "react-bootstrap/Navbar";
@@ -102,7 +104,12 @@ const Ledger = ({ dashboard }) => {
         <Table responsive striped hover className="table-borderless">
           <thead>
             <tr>
-              <th>{i18next.t("recent_ledger_lines", { ns: "dashboard" })}</th>
+              <th className="d-flex justify-content-between align-items-center">
+                <span>{i18next.t("recent_ledger_lines", { ns: "dashboard" })}</span>
+                <Button variant="success" href="/funding" as={RLink}>
+                  <i className="bi bi-cash-stack me-2"></i>Add Funds
+                </Button>
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -128,7 +135,8 @@ const Ledger = ({ dashboard }) => {
       ) : (
         <p>
           You haven&rsquo;t added or spent any money.{" "}
-          <Link to="/#todo">Press here to add money to your account</Link>.
+          <Link to="/funding">{i18next.t("add_money_to_account", { ns: "common" })}</Link>
+          .
         </p>
       )}
     </>

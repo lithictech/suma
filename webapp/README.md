@@ -1,70 +1,31 @@
-# Getting Started with Create React App
+# Suma Web App
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app),
+see those docs for more details.
 
-## Available Scripts
+Refer to the `Makefile` for working with this repo.
 
-In the project directory, you can run:
+This app is built into the Suma build and served by it;
+see the main folder's README for more details.
 
-### `npm start`
+# Styleguide
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+We use Bootstrap and React Bootstrap for styles.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+ESLint and Prettier are set up and should be run to ensure basic code style consistency.
 
-### `npm test`
+As far as non-statically-enforced styles, please observe the following:
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
-
-### `npm run build`
-
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
-
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+- Use `function` for module-level React components. This allows us to do `export default function Component() {}`
+  rather than have to split up the export.
+- Inside of functions, you can use `const x = () => {}` or `function x() {}` as preferred.
+- Always use `const` over `let` except where you need `let`.
+  In most cases, it'd be better to create new `const` variables than reassign `let`,
+  but it's up to you. I don't have a great reason for this other than to that the less
+  mutation and reassignment the better.
+- Use `React.useState` to access hooks, instead of `import {useState} from "react"`.
+  There's no reason that requiring other properties from the React module should result
+  in additional line diffs.
+- Try to use `import Col from "react-boostrap/Col"` rather than `import {Col} from "react-bootstrap"`,
+  and similar for other libraries. The main reason is to support tree shaking of unused code.
+- Use lodash!

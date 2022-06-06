@@ -41,8 +41,11 @@ end
 
 RSpec.shared_examples "a payment instrument" do
   it "knows about itself" do
-    expect(instrument).to have_attributes(payment_method_type: be_a(String))
-    expect(instrument).to have_attributes(name: be_a(String).and(be_present))
+    expect(instrument).to have_attributes(
+      payment_method_type: be_a(String),
+      name: be_a(String).and(be_present),
+      can_use_for_funding?: be_bool,
+    )
   end
 
   it "can display itself" do

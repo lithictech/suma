@@ -17,6 +17,17 @@ Sequel.migration do
       unique [:label, :parent_id], name: :unique_child_labels
     end
 
+    create_table(:supported_currencies) do
+      primary_key :id
+      text :symbol, null: false
+      text :code, null: false
+      int :funding_minimum_cents, null: false
+      int :funding_step_cents, null: false
+      int :cents_in_dollar, null: false
+      column :payment_method_types, "text[]", null: false
+      double :ordinal, null: false, unique: true
+    end
+
     create_table(:addresses) do
       primary_key :id
       timestamptz :created_at, null: false, default: Sequel.function(:now)

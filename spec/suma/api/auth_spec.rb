@@ -118,7 +118,21 @@ RSpec.describe Suma::API::Auth, :db do
       post("/v1/auth/verify", phone: c.phone, token: "abc")
 
       expect(last_response).to have_status(200)
-      expect(c.refresh).to have_attributes(onboarding_verified?: true)
+      expect(last_response).to have_session_cookie.with_payload_key("warden.user.customer.key")
+    end
+
+    it "returns a 200 and handles superadmin promotion configured" do
+      c = Suma::Fixtures.customer.create
+      Suma::Customer.superadmin_allowlist = ["*"]
+
+      post("/v1/auth/verify", phone: c.phone, token: "abc")
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_session_cookie.with_payload_key("warden.user.customer.key")
+      expect(c.refresh).to have_attributes(
+        onboarding_verified?: true,
+        roles: include(Suma::Role.admin_role),
+      )
     end
 
     it "returns 403 if the phone number does not map to a customer" do
