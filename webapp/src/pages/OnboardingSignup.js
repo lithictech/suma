@@ -58,7 +58,7 @@ function OnboardingSignup() {
     setZipCode(v);
   };
 
-  const { state: meta } = useAsyncFetch(api.getMeta, {
+  const { state: supportedGeographies } = useAsyncFetch(api.getSupportedGeographies, {
     default: {},
     pickData: true,
   });
@@ -129,8 +129,8 @@ function OnboardingSignup() {
                   <option disabled value="">
                     Choose state...
                   </option>
-                  {!!meta.provinces &&
-                    meta.provinces.map((state) => (
+                  {!!supportedGeographies.provinces &&
+                    supportedGeographies.provinces.map((state) => (
                       <option key={state.value} value={state.value}>
                         {state.label}
                       </option>
