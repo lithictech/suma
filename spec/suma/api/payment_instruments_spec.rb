@@ -13,21 +13,6 @@ RSpec.describe Suma::API::PaymentInstruments, :db do
     login_as(customer)
   end
 
-  describe "GET /v1/payment_instruments" do
-    it "returns all undeleted bank accounts for the customer" do
-      deleted_ba = bank_fac.create
-      deleted_ba.soft_delete
-
-      ba2 = bank_fac.create
-      ba1 = bank_fac.create
-
-      get "/v1/payment_instruments"
-
-      expect(last_response).to have_status(200)
-      expect(last_response).to have_json_body.that_includes(items: have_same_ids_as(ba1, ba2).ordered)
-    end
-  end
-
   describe "POST /v1/payment_instruments/bank_accounts/create" do
     let(:account_number) { "99988877" }
     let(:routing_number) { "111222333" }
@@ -40,7 +25,9 @@ RSpec.describe Suma::API::PaymentInstruments, :db do
       expect(customer.refresh.bank_accounts).to contain_exactly(
         have_attributes(name: "Foo", account_number:, routing_number:, verified?: false),
       )
-      expect(last_response).to have_json_body.that_includes(id: customer.bank_accounts.first.id)
+      ba = customer.bank_accounts.first
+      expect(last_response).to have_json_body.
+        that_includes(id: ba.id, all_payment_instruments: have_same_ids_as(ba))
     end
 
     it "verifies the account automatically if autoverify is enabled" do
@@ -82,7 +69,7 @@ RSpec.describe Suma::API::PaymentInstruments, :db do
       delete "/v1/payment_instruments/bank_accounts/#{ba.id}"
 
       expect(last_response).to have_status(200)
-      expect(last_response).to have_json_body.that_includes(id: ba.id)
+      expect(last_response).to have_json_body.that_includes(id: ba.id, all_payment_instruments: [])
       expect(ba.refresh).to be_soft_deleted
     end
     it "errors if the bank account does not belong to the org or is not usable" do

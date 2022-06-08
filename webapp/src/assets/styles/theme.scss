@@ -13,7 +13,7 @@ $btn-border-radius-lg: .5rem;
 
 .main-container {
   max-width: 500px;
-  margin: 0 auto;
+  margin: 0 auto 80px;
 }
 
 $theme-colors: map-merge-multiple(
@@ -67,7 +67,7 @@ $utilities-bg-colors: map-loop($utilities-colors, rgba-css-var, "$key", "bg");
 // @import "~bootstrap/scss/_spinners";
 // @import "~bootstrap/scss/_toasts";
 // @import "~bootstrap/scss/_tooltip";
-// @import "~bootstrap/scss/_type";
+@import "~bootstrap/scss/_type";
 
 // Helpers
 @import "~bootstrap/scss/_helpers";

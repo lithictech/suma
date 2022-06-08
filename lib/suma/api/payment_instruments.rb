@@ -4,12 +4,6 @@ require "suma/api"
 
 class Suma::API::PaymentInstruments < Suma::API::V1
   resource :payment_instruments do
-    get do
-      me = current_customer
-      items = me.legal_entity.bank_accounts_dataset.usable.order(Sequel.desc(:created_at), :id).all
-      present_collection items, with: Suma::API::PaymentInstrumentEntity
-    end
-
     resource :bank_accounts do
       params do
         requires :name, type: String, allow_blank: false
@@ -35,7 +29,11 @@ class Suma::API::PaymentInstruments < Suma::API::V1
         set_declared(ba, params)
         save_or_error!(ba)
         status 200
-        present ba, with: Suma::API::PaymentInstrumentEntity
+        present(
+          ba,
+          with: Suma::API::MutationPaymentInstrumentEntity,
+          all_payment_instruments: c.usable_payment_instruments,
+        )
       end
 
       route_param :id, type: Integer do
@@ -50,7 +48,11 @@ class Suma::API::PaymentInstruments < Suma::API::V1
         delete do
           ba = lookup
           ba.soft_delete
-          present ba, with: Suma::API::PaymentInstrumentEntity
+          present(
+            ba,
+            with: Suma::API::MutationPaymentInstrumentEntity,
+            all_payment_instruments: current_customer.usable_payment_instruments,
+          )
         end
       end
     end

@@ -12,14 +12,17 @@ class Suma::API::Payments < Suma::API::V1
       requires :amount, type: JSON do
         use :money
       end
-      requires :bank_account_id, type: Integer
+      requires :payment_method_type, type: String, values: ["bank_account"]
+      requires :payment_method_id, type: Integer
     end
     post :create_funding do
       c = current_customer
       Suma::Payment.ensure_cash_ledger(c)
-      (bank_account = c.legal_entity.bank_accounts_dataset.usable[params[:bank_account_id]]) or
-        merror!(403, "Bank account not found", code: "resource_not_found")
-      fx = bank_account.db.transaction do
+      bank_account = c.usable_payment_instruments.find do |pi|
+        pi.id == params[:payment_method_id] && pi.payment_method_type == params[:payment_method_type]
+      end
+      merror!(403, "Bank account not found", code: "resource_not_found") unless bank_account
+      fx = c.db.transaction do
         now = Time.now
         fx = Suma::Payment::FundingTransaction.start_new(c.payment_account, amount: params[:amount], bank_account:)
         # TODO: Move this to the model layer and test it thoroughly,

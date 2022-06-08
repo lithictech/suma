@@ -13,6 +13,15 @@ module Suma::API
 
   class BaseEntity < Suma::Service::Entities::Base; end
 
+  class CurrencyEntity < BaseEntity
+    expose :symbol
+    expose :code
+    expose :funding_minimum_cents
+    expose :funding_step_cents
+    expose :cents_in_dollar
+    expose :payment_method_types
+  end
+
   class MobilityMapVehicleEntity < BaseEntity
     expose :c
     expose :p
@@ -29,6 +38,13 @@ module Suma::API
     expose :created_at
     expose :payment_method_type
     expose :to_display, as: :display
+    expose :can_use_for_funding?, as: :can_use_for_funding
+  end
+
+  class MutationPaymentInstrumentEntity < PaymentInstrumentEntity
+    expose :all_payment_instruments, with: PaymentInstrumentEntity do |_inst, opts|
+      opts.fetch(:all_payment_instruments)
+    end
   end
 
   class VendorServiceRateEntity < BaseEntity
@@ -83,6 +99,7 @@ module Suma::API
     expose :ongoing_trip, with: MobilityTripEntity
     expose :read_only_mode?, as: :read_only_mode
     expose :read_only_reason
+    expose :usable_payment_instruments, with: PaymentInstrumentEntity
   end
 
   class LedgerLineEntity < BaseEntity

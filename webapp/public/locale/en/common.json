@@ -1,4 +1,6 @@
 {
 	"welcome_to_suma": "Welcome to Suma",
-	"scooter_cost": "{{startCost, number(style: currency; currency: USD)}} to start then {{costPerMinute, number(style: currency; currency: USD)}}/min + taxes"
+	"scooter_cost": "{{startCost, number(style: currency; currency: USD)}} to start then {{costPerMinute, number(style: currency; currency: USD)}}/min + taxes",
+	"add_money_to_account": "Press here to add money to your account",
+	"go_home": "Go Home"
 }

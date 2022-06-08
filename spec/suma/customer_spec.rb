@@ -105,22 +105,21 @@ RSpec.describe "Suma::Customer", :db do
 
   describe "verification" do
     let(:c) { Suma::Fixtures.customer.instance }
-    after(:each) do
-      described_class.reset_configuration
+
+    def skip_verification?(c, list=nil)
+      list ||= ["*autoverify@lithic.tech", "1555*"]
+      return c.class.matches_allowlist?(c, list)
     end
 
     it "says if customer is allowlisted based on phone or email" do
-      described_class.skip_verification_allowlist = ["*autoverify@lithic.tech", "1555*"]
-
       c.phone = nil
-      expect(described_class.skip_verification?(c.set(email: "rob@lithic.tech"))).to be_falsey
-      expect(described_class.skip_verification?(c.set(email: "rob+autoverify@lithic.tech"))).to be_truthy
+      expect(skip_verification?(c.set(email: "rob@lithic.tech"))).to be_falsey
+      expect(skip_verification?(c.set(email: "rob+autoverify@lithic.tech"))).to be_truthy
       c.email = nil
-      expect(described_class.skip_verification?(c.set(phone: "14443332222"))).to be_falsey
-      expect(described_class.skip_verification?(c.set(phone: "15553334444"))).to be_truthy
+      expect(skip_verification?(c.set(phone: "14443332222"))).to be_falsey
+      expect(skip_verification?(c.set(phone: "15553334444"))).to be_truthy
 
-      described_class.skip_verification_allowlist = []
-      expect(described_class.skip_verification?(c.set(phone: "15553334444"))).to be_falsey
+      expect(skip_verification?(c.set(phone: "15553334444"), [])).to be_falsey
     end
   end
 
@@ -191,6 +190,21 @@ RSpec.describe "Suma::Customer", :db do
     it "is false if the customer is verified and has a balance" do
       c = Suma::Fixtures.customer.onboarding_verified.with_cash_ledger(amount: money("$5")).create
       expect(c).to have_attributes(read_only_reason: nil, read_only_mode?: false)
+    end
+  end
+
+  describe "usable_payment_instruments" do
+    let(:customer) { Suma::Fixtures.customer.create }
+    let(:bank_fac) { Suma::Fixtures.bank_account.customer(customer) }
+
+    it "returns undeleted bank accounts" do
+      deleted_ba = bank_fac.create
+      deleted_ba.soft_delete
+
+      ba2 = bank_fac.create
+      ba1 = bank_fac.create
+
+      expect(customer.usable_payment_instruments).to have_same_ids_as(ba1, ba2).ordered
     end
   end
 

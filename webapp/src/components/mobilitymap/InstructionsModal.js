@@ -10,7 +10,6 @@ const InstructionsModal = () => {
   const showModal = useToggle(false);
   const [accordionKey, setAccordionKey] = React.useState("");
   const [version, setVersion] = React.useState("");
-  const toggleShow = () => showModal.toggle();
   React.useEffect(() => {
     if (!accordionKey) {
       api.getUserAgent().then((r) => {
@@ -36,10 +35,15 @@ const InstructionsModal = () => {
 
   return (
     <>
-      <Button variant="success" size="sm" className="w-100 mt-2" onClick={toggleShow}>
+      <Button
+        variant="success"
+        size="sm"
+        className="w-100 mt-2"
+        onClick={showModal.toggle}
+      >
         <i className="bi bi-book"></i> Location Instructions
       </Button>
-      <Modal show={showModal.isOn} onHide={toggleShow}>
+      <Modal show={showModal.isOn} onHide={showModal.toggle}>
         <Modal.Header closeButton>
           <Modal.Title>Enable Location Services</Modal.Title>
         </Modal.Header>
@@ -243,7 +247,7 @@ const InstructionsModal = () => {
             </Accordion.Item>
           </Accordion>
           <div className="d-flex justify-content-end mt-2">
-            <Button variant="primary" className="mt-2" onClick={toggleShow}>
+            <Button variant="primary" className="mt-2" onClick={showModal.toggle}>
               Close
             </Button>
           </div>

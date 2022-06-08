@@ -50,6 +50,14 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
         c.phone = "15552223333"
       end
       admin.ensure_role(Suma::Role.admin_role)
+      Suma::SupportedCurrency.find_or_create(code: "USD") do |c|
+        c.symbol = "$"
+        c.funding_minimum_cents = 500
+        c.funding_step_cents = 100
+        c.cents_in_dollar = 100
+        c.payment_method_types = ["bank_account"]
+        c.ordinal = 1
+      end
     end
   end
 end
