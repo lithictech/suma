@@ -107,7 +107,9 @@ const Ledger = ({ dashboard }) => {
                 <Stack direction="horizontal" gap={3}>
                   {i18next.t("recent_ledger_lines", { ns: "dashboard" })}
                   <div className="ms-auto">
-                    <Link to="/ledger">{i18next.t("view_all", { ns: "dashboard" })}</Link>
+                    <Link to="/ledgers-overview">
+                      {i18next.t("view_all", { ns: "dashboard" })}
+                    </Link>
                   </div>
                 </Stack>
               </th>

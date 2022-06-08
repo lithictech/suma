@@ -7,7 +7,8 @@ import {
 import useI18Next from "./localization/useI18Next";
 import Dashboard from "./pages/Dashboard";
 import Home from "./pages/Home";
-import LedgerPage from "./pages/LedgerPage";
+import Ledger from "./pages/Ledger";
+import LedgersOverview from "./pages/LedgersOverview";
 import MapPage from "./pages/MapPage";
 import Onboarding from "./pages/Onboarding";
 import OnboardingFinish from "./pages/OnboardingFinish";
@@ -70,13 +71,18 @@ function App() {
               element={renderWithHocs(redirectIfUnauthed, redirectIfUnboarded, Dashboard)}
             />
             <Route
-              path="/ledger"
+              path="/ledgers-overview"
               exact
               element={renderWithHocs(
                 redirectIfUnauthed,
                 redirectIfUnboarded,
-                LedgerPage
+                LedgersOverview
               )}
+            />
+            <Route
+              path="/ledger/:id"
+              exact
+              element={renderWithHocs(redirectIfUnauthed, redirectIfUnboarded, Ledger)}
             />
             <Route
               path="/map"

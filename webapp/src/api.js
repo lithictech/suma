@@ -35,6 +35,8 @@ export default {
   updateMe: (data) => post(`/api/v1/me/update`, data),
   getMeta: (data) => get(`/api/v1/meta/supported_geographies`, data),
   dashboard: (data) => get("/api/v1/me/dashboard", data),
+  ledgers: (data) => get("/api/v1/ledgers/overview", data),
+  getLedgerLines: ({ id, ...data }) => get(`/api/v1/ledgers/${id}/lines`, data),
   authStart: (data) => post(`/api/v1/auth/start`, data),
   authVerify: (data) => post(`/api/v1/auth/verify`, data),
   authSignout: (data) => del(`/api/v1/auth`, data),

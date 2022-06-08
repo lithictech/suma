@@ -1,7 +1,7 @@
 import api from "../api";
 import Unavailable from "../components/Unavailable";
 import useGlobalStyles from "../hooks/useGlobalStyles";
-import useListQueryControls from "../hooks/useListQueryControls";
+import useListQueryControls from "../shared/react/useListQueryControls";
 import { dayjs } from "../modules/dayConfig";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
 import {

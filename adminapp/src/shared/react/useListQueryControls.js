@@ -1,4 +1,4 @@
-import useQueryParam from "../shared/react/useQueryParam";
+import useQueryParam from "./useQueryParam";
 import _ from "lodash";
 
 export default function useListQueryControls() {
