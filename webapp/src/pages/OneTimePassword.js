@@ -22,10 +22,7 @@ const OneTimePassword = () => {
   const [error, setError] = useError();
   const [message, setMessage] = useState();
   const { state } = useLocation();
-  const { phoneNumber } = state;
-  const displayPhoneNumber = phoneNumber
-    ? formatPhoneNumber(phoneNumber)
-    : "(invalid phone number)";
+  const phoneNumber = state ? state.phoneNumber : undefined;
 
   useEffect(() => {
     const isEntireCode = otp.every((number) => number !== "");
@@ -34,7 +31,10 @@ const OneTimePassword = () => {
     } else {
       submitDisabled.turnOn();
     }
-  }, [submitDisabled, otp]);
+    if (!phoneNumber) {
+      navigate("/start", { replace: true });
+    }
+  }, [navigate, phoneNumber, submitDisabled, otp]);
 
   const handleOtpChange = (event, index) => {
     const { target } = event;
@@ -94,7 +94,7 @@ const OneTimePassword = () => {
       <TopNav />
       <p>
         Enter the code that you recieved on the phone number you provided{" "}
-        {displayPhoneNumber}
+        {formatPhoneNumber(phoneNumber)}
       </p>
       <Form noValidate onSubmit={handleOtpSubmit}>
         <fieldset>
