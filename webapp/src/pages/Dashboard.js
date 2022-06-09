@@ -1,6 +1,6 @@
 import api from "../api";
 import Money from "../components/Money";
-import RLink from "../components/RLink";
+import PageLoader from "../components/PageLoader";
 import TopNav from "../components/TopNav";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
 import { useUser } from "../state/useUser";
@@ -10,12 +10,10 @@ import i18next from "i18next";
 import _ from "lodash";
 import React from "react";
 import { Alert } from "react-bootstrap";
-import Button from "react-bootstrap/Button";
 import Col from "react-bootstrap/Col";
 import Container from "react-bootstrap/Container";
 import Navbar from "react-bootstrap/Navbar";
 import Row from "react-bootstrap/Row";
-import Spinner from "react-bootstrap/Spinner";
 import Stack from "react-bootstrap/Stack";
 import Table from "react-bootstrap/Table";
 import { Link } from "react-router-dom";
@@ -61,11 +59,8 @@ const Dashboard = () => {
             </Row>
           </Col>
         </Row>
-        {dashboardLoading ? (
-          <Spinner animation="border" />
-        ) : (
-          <Ledger dashboard={dashboard} />
-        )}
+        <PageLoader show={dashboardLoading} />
+        {!dashboardLoading && <Ledger dashboard={dashboard} />}
       </Container>
     </div>
   );

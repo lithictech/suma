@@ -1,7 +1,7 @@
 import api from "../api";
-import loaderRing from "../assets/images/loader-ring.svg";
 import FormError from "../components/FormError";
 import Money from "../components/Money";
+import PageLoader from "../components/PageLoader";
 import RLink from "../components/RLink";
 import TopNav from "../components/TopNav";
 import LedgerItemModal from "../components/ledger/LedgerItemModal";
@@ -57,11 +57,8 @@ const LedgerDetails = () => {
         .getLedgerLines({ id: id, page: page + 1, perPage })
         .then((r) => {
           const ledger = r.data;
-          // TODO: if currentPage > pageCount, instead of navigating,
-          // we can setPage(0); setPage causes multiple API calls (4 total)
-          // but is potentionally fixable
           if (ledger.currentPage > ledger.pageCount) {
-            navigate("/ledgers-overview");
+            setPage(0);
           } else {
             setLedgerLines(ledger.items);
             setPageCount(ledger.pageCount || 2);
@@ -79,6 +76,7 @@ const LedgerDetails = () => {
     ledgerLines,
     page,
     perPage,
+    setPage,
     hasMore,
     firstLedgerLines,
     error,
@@ -132,8 +130,8 @@ const LedgerDetails = () => {
           onPageChange={({ toPage }) => handlePageChange({ toPage })}
         />
       )}
-      {_.isEmpty(ledgerLines) && !error && <ListLoader />}
-      {error && <FormError error={error} />}
+      <PageLoader show={_.isEmpty(ledgerLines) && !error} />
+      <FormError error={error} />
       <LedgerItemModal
         item={ledgerItem}
         show={showLedgerModal.isOn}
@@ -164,13 +162,5 @@ const CustomPagination = ({ page, hasMore, onPageChange }) => {
         {i18next.t("pagination_next", { ns: "dashboard" })} &rsaquo;
       </Pagination.Next>
     </Pagination>
-  );
-};
-
-const ListLoader = () => {
-  return (
-    <div className="text-center">
-      <img src={loaderRing} alt="loading" />
-    </div>
   );
 };

@@ -1,13 +1,14 @@
 import api from "../api";
 import Money from "../components/Money";
+import PageLoader from "../components/PageLoader";
 import TopNav from "../components/TopNav";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
 import i18next from "i18next";
+import _ from "lodash";
 import React from "react";
 import Button from "react-bootstrap/Button";
 import Container from "react-bootstrap/Container";
 import Navbar from "react-bootstrap/Navbar";
-import Spinner from "react-bootstrap/Spinner";
 import Stack from "react-bootstrap/Stack";
 import { useNavigate } from "react-router-dom";
 
@@ -16,7 +17,6 @@ const LedgersOverview = () => {
     default: {},
     pickData: true,
   });
-  console.log(dashboard);
   return (
     <div className="main-container">
       <TopNav />
@@ -27,11 +27,8 @@ const LedgersOverview = () => {
         </p>
       </div>
       <Container>
-        {dashboardLoading ? (
-          <Spinner animation="border" />
-        ) : (
-          <Overview dashboard={dashboard} />
-        )}
+        <PageLoader show={dashboardLoading} />
+        {!_.isEmpty(dashboard) && <Overview dashboard={dashboard} />}
       </Container>
     </div>
   );
