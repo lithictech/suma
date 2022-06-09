@@ -3,7 +3,6 @@ import Money from "../components/Money";
 import TopNav from "../components/TopNav";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
 import i18next from "i18next";
-import _ from "lodash";
 import React from "react";
 import Button from "react-bootstrap/Button";
 import Container from "react-bootstrap/Container";
@@ -42,16 +41,6 @@ export default LedgersOverview;
 
 const Overview = ({ dashboard }) => {
   const navigate = useNavigate();
-  const handleLedgerLoad = ({ ledger }) => {
-    if (ledger.id === 1) {
-      const firstLedger = _.merge(ledger, {
-        lines: dashboard.singleLedgerLinesFirstPage,
-      });
-      navigate(`/ledger/${ledger.id}`, { state: { firstLedger: firstLedger } });
-    } else {
-      navigate(`/ledger/${ledger.id}`);
-    }
-  };
   return (
     <div className="px-2">
       <Navbar variant="light" className="justify-content-between py-3">
@@ -70,7 +59,14 @@ const Overview = ({ dashboard }) => {
           variant="primary"
           size="lg"
           className="my-2 w-100"
-          onClick={() => handleLedgerLoad({ ledger: ledger })}
+          onClick={() =>
+            navigate(`/ledger/${ledger.id}`, {
+              state: {
+                firstLedgerLines:
+                  ledger.id === 1 ? dashboard.singleLedgerLinesFirstPage : null,
+              },
+            })
+          }
         >
           <Stack direction="horizontal" gap={3}>
             {ledger.name}

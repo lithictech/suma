@@ -1,6 +1,7 @@
 import Money from "../Money";
 import clsx from "clsx";
 import dayjs from "dayjs";
+import i18next from "i18next";
 import _ from "lodash";
 import React from "react";
 import Button from "react-bootstrap/Button";
@@ -41,17 +42,25 @@ const LedgerItemModal = ({ item, show, onClose, onExited }) => {
                 <>
                   <hr />
                   <div className="mt-2">
-                    <h5 className="mb-2 text-center">Mobility Trip</h5>
+                    <h5 className="mb-2 text-center">
+                      {i18next.t("ledger_item_mobility_trip", { ns: "dashboard" })}
+                    </h5>
                     <div className="hstack gap-4">
                       <div>
                         <p className="m-0">
-                          <strong>Started:</strong>
+                          <strong>
+                            {i18next.t("ledger_item_mobility_started", {
+                              ns: "dashboard",
+                            })}
+                          </strong>
                         </p>
                         <p className="m-0">{dayjs(mobility.startedAt).format("lll")}</p>
                       </div>
                       <div className="ms-auto text-end">
                         <p className="m-0">
-                          <strong>Ended:</strong>
+                          <strong>
+                            {i18next.t("ledger_item_mobility_ended", { ns: "dashboard" })}
+                          </strong>
                         </p>
                         <p className="m-0">{dayjs(mobility.endedAt).format("lll")}</p>
                       </div>
@@ -61,7 +70,10 @@ const LedgerItemModal = ({ item, show, onClose, onExited }) => {
               )}
               <hr />
               <p className="text-secondary">
-                <strong>Transaction Ref:</strong> {opaqueId}
+                <strong>
+                  {i18next.t("ledger_item_transaction_id", { ns: "dashboard" })}:
+                </strong>{" "}
+                {opaqueId}
               </p>
               <div className="d-flex justify-content-end mt-4">
                 <Button variant="primary" className="mt-2" onClick={onClose}>

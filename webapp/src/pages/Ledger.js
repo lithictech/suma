@@ -1,32 +1,38 @@
 import api from "../api";
+import loaderRing from "../assets/images/loader-ring.svg";
+import FormError from "../components/FormError";
 import Money from "../components/Money";
+import RLink from "../components/RLink";
 import TopNav from "../components/TopNav";
 import LedgerItemModal from "../components/ledger/LedgerItemModal";
 import useListQueryControls from "../shared/react/useListQueryControls";
 import useToggle from "../shared/react/useToggle";
-import { extractErrorCode } from "../state/useError";
+import { useError } from "../state/useError";
 import clsx from "clsx";
 import dayjs from "dayjs";
+import i18next from "i18next";
 import _ from "lodash";
 import React from "react";
 import Button from "react-bootstrap/Button";
 import Pagination from "react-bootstrap/Pagination";
 import Table from "react-bootstrap/Table";
-import { useLocation, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 
 const LedgerDetails = () => {
-  const showLedgerModal = useToggle(false);
-
+  const navigate = useNavigate();
   const { id } = useParams();
   const { state } = useLocation();
-
+  const firstLedgerLines = state ? state.firstLedgerLines : undefined;
   const { page, setPage, perPage, setPerPage } = useListQueryControls();
+
+  const showLedgerModal = useToggle(false);
   const [pageCount, setPageCount] = React.useState(0);
-  const [currentPage, setCurrentPage] = React.useState(1);
-  const hasMore = useToggle(true);
-  const [ledger, setLedger] = React.useState(null);
+  const [currentPage, setCurrentPage] = React.useState(0);
   const [ledgerItem, setLedgerItem] = React.useState({});
   const [ledgerLines, setLedgerLines] = React.useState([]);
+  const [error, setError] = useError();
+  const hasMore = useToggle(true);
+  const ledgerLoading = useToggle(false);
 
   function handleLedgerItemLoad({ item }) {
     setLedgerItem(item);
@@ -35,83 +41,99 @@ const LedgerDetails = () => {
   const handlePageChange = React.useCallback(
     ({ toPage }) => {
       setPage(toPage);
+      setLedgerLines([]);
     },
     [setPage]
   );
   React.useEffect(() => {
-    if (state && !ledger) {
-      setLedger(state.firstLedger);
-      setLedgerLines(state.firstLedger.lines);
+    if (firstLedgerLines) {
+      setLedgerLines(firstLedgerLines);
       setPageCount(50); // TODO: Return from backend
     }
-  }, [ledger, state, id]);
+  }, [firstLedgerLines]);
   React.useEffect(() => {
-    // TODO: condition is causing multiple API reloads at once,
-    // we need to refactor how we call the API when:
-    // page loads and when *page* variable changes (see Pagination)
-    if ((!state && !ledger) || currentPage !== page + 1) {
+    if (!firstLedgerLines && _.isEmpty(ledgerLines) && !error) {
       api
         .getLedgerLines({ id: id, page: page + 1, perPage })
         .then((r) => {
-          setLedger(r.data);
-          setLedgerLines(r.data.items);
-          setPageCount(r.data.pageCount || 2);
-          setCurrentPage(r.data.currentPage);
-          r.data.hasMore ? hasMore.turnOn() : hasMore.turnOff();
+          const ledger = r.data;
+          // TODO: if currentPage > pageCount, instead of navigating,
+          // we can setPage(0); setPage causes multiple API calls (4 total)
+          // but is potentionally fixable
+          if (ledger.currentPage > ledger.pageCount) {
+            navigate("/ledgers-overview");
+          } else {
+            setLedgerLines(ledger.items);
+            setPageCount(ledger.pageCount || 2);
+            setCurrentPage(ledger.currentPage);
+            ledger.hasMore ? hasMore.turnOn() : hasMore.turnOff();
+          }
         })
-        .catch((e) => {
-          // TODO: display errors
-          console.log(extractErrorCode(e));
+        .catch(() => {
+          setError("unhandled_error");
+          setLedgerLines([]);
         });
     }
-  }, [currentPage, hasMore, id, state, ledger, page, perPage]);
+  }, [
+    id,
+    ledgerLines,
+    page,
+    perPage,
+    hasMore,
+    firstLedgerLines,
+    error,
+    setError,
+    navigate,
+  ]);
   return (
     <div className="main-container">
       <TopNav />
-      {/* TODO: add new loading image */}
-      {!ledger && <p className="text-center m-3">Loading...</p>}
+      <Button variant="primary my-2" href="/ledgers-overview" as={RLink}>
+        <i className="bi bi-chevron-left"></i> {i18next.t("back", { ns: "common" })}
+      </Button>
+      <Table responsive striped hover className="mt-2">
+        <thead>
+          <tr>
+            <th>{i18next.t("all_ledger_lines", { ns: "dashboard" })}</th>
+          </tr>
+        </thead>
+        {!_.isEmpty(ledgerLines) && !ledgerLoading.isOn && (
+          <tbody>
+            {ledgerLines.map((line) => (
+              <tr key={line.id}>
+                <td>
+                  <div className="d-flex justify-content-between mb-1">
+                    <Button
+                      variant="link"
+                      onClick={() => handleLedgerItemLoad({ item: line })}
+                    >
+                      <strong>{dayjs(line.at).format("lll")}</strong>
+                    </Button>
+                    <Money
+                      className={clsx(
+                        line.amount.cents < 0 ? "text-danger" : "text-success"
+                      )}
+                    >
+                      {line.amount}
+                    </Money>
+                  </div>
+                  <div>{line.memo}</div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        )}
+      </Table>
       {!_.isEmpty(ledgerLines) && (
-        <>
-          <div className="p-2 mb-4">
-            <h4 className="m-0 text-secondary">{ledger.name}</h4>
-            <p className="m-0">
-              <Money className="fs-3">{ledger.balance}</Money>
-            </p>
-          </div>
-          <CustomPagination
-            page={page}
-            pageCount={pageCount}
-            hasMore={hasMore.isOn}
-            onPageChange={({ toPage }) => handlePageChange({ toPage })}
-          />
-          <Table responsive striped hover className="table-borderless">
-            <tbody>
-              {ledgerLines.map((line) => (
-                <tr key={line.id}>
-                  <td>
-                    <div className="d-flex justify-content-between mb-1">
-                      <Button
-                        variant="link"
-                        onClick={() => handleLedgerItemLoad({ item: line })}
-                      >
-                        <strong>{dayjs(line.at).format("lll")}</strong>
-                      </Button>
-                      <Money
-                        className={clsx(
-                          line.amount.cents < 0 ? "text-danger" : "text-success"
-                        )}
-                      >
-                        {line.amount}
-                      </Money>
-                    </div>
-                    <div>{line.memo}</div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </Table>
-        </>
+        <CustomPagination
+          page={page}
+          pageCount={pageCount}
+          hasMore={hasMore.isOn}
+          onPageChange={({ toPage }) => handlePageChange({ toPage })}
+        />
       )}
+      {_.isEmpty(ledgerLines) && !error && <ListLoader />}
+      {error && <FormError error={error} />}
       <LedgerItemModal
         item={ledgerItem}
         show={showLedgerModal.isOn}
@@ -124,22 +146,31 @@ const LedgerDetails = () => {
 export default LedgerDetails;
 
 // TODO: finish pagination, needs setPerPage dropdown menu
-// and display page information e.g. Page 1 of 2 etc...
-// check MUI pagination as ref
-// Also, disable pagination buttons instead of conditional rendering
-const CustomPagination = ({ page, pageCount, hasMore, onPageChange }) => {
+// and display page information e.g. Page 1 of 2 etc,
+// use MUI pagination as ref
+const CustomPagination = ({ page, hasMore, onPageChange }) => {
   return (
     <Pagination size="sm" className="justify-content-end">
-      {page !== 0 && (
-        <Pagination.Prev onClick={(_e) => onPageChange({ toPage: page - 1 })}>
-          &lsaquo; Prev
-        </Pagination.Prev>
-      )}
-      {hasMore && (
-        <Pagination.Next onClick={(_e) => onPageChange({ toPage: page + 1 })}>
-          Next &rsaquo;
-        </Pagination.Next>
-      )}
+      <Pagination.Prev
+        className={clsx(page === 0 ? "disabled" : null)}
+        onClick={(_e) => onPageChange({ toPage: page - 1 })}
+      >
+        &lsaquo; {i18next.t("pagination_prev", { ns: "dashboard" })}
+      </Pagination.Prev>
+      <Pagination.Next
+        className={clsx(!hasMore ? "disabled" : null)}
+        onClick={(_e) => onPageChange({ toPage: page + 1 })}
+      >
+        {i18next.t("pagination_next", { ns: "dashboard" })} &rsaquo;
+      </Pagination.Next>
     </Pagination>
+  );
+};
+
+const ListLoader = () => {
+  return (
+    <div className="text-center">
+      <img src={loaderRing} alt="loading" />
+    </div>
   );
 };

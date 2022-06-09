@@ -10,5 +10,11 @@
 	"ledgers_title": "Ledger Overview",
 	"ledgers_intro": "View ledgers balances, savings and transactions",
 	"ledgers_name": "Ledger Name",
-	"ledger_accounts": "Ledger Accounts"
+	"ledger_accounts": "Ledger Accounts",
+	"ledger_item_mobility_trip": "Mobility Trip",
+	"ledger_item_mobility_started": "Started",
+	"ledger_item_mobility_ended": "Ended",
+	"ledger_item_transaction_id": "Transaction Ref",
+	"pagination_prev": "Prev",
+	"pagination_next": "Next"
 }
