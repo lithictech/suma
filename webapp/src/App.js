@@ -30,6 +30,7 @@ import {
 } from "./state/useScreenLoader";
 import { UserProvider } from "./state/useUser";
 import React from "react";
+import { HelmetProvider } from "react-helmet-async";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
 window.Promise = bluejay.Promise;
@@ -38,9 +39,11 @@ export default function App() {
   const { i18nextLoading } = useI18Next();
   return (
     <ScreenLoaderProvider>
-      <UserProvider>
-        {i18nextLoading ? <ScreenLoader show /> : <AppRoutes />}
-      </UserProvider>
+      <HelmetProvider>
+        <UserProvider>
+          {i18nextLoading ? <ScreenLoader show /> : <AppRoutes />}
+        </UserProvider>
+      </HelmetProvider>
     </ScreenLoaderProvider>
   );
 }
