@@ -256,6 +256,11 @@ module Suma::Service::Helpers
     optional :per_page, type: Integer, default: Suma::Service::PAGE_SIZE, values: (1..500)
   end
 
+  params :short_pagination do
+    optional :page, type: Integer, default: 1, values: (1..1_000_000)
+    optional :per_page, type: Integer, default: Suma::Service::SHORT_PAGE_SIZE, values: (1..50)
+  end
+
   params :searchable do
     optional :search, type: String
   end
