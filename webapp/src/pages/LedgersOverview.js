@@ -40,7 +40,7 @@ export default function LedgersOverview() {
   const ledger = _.first(ledgersOverview.ledgers);
 
   React.useEffect(() => {
-    if (ledger && page > 0) {
+    if (ledger && page > 1) {
       ledgerLinesFetch({ id: ledger.id, page });
     }
     // Only run this on mount
@@ -57,13 +57,14 @@ export default function LedgersOverview() {
       <Container>
         <p>{i18next.t("ledgers_intro", { ns: "payments" })}</p>
       </Container>
+      <PageLoader show={!ledgersOverview.ledgers} />
       {ledgersOverview.ledgers && (
         <Ledger
           ledger={ledger}
           lines={ledgerLines.items || ledgersOverview.singleLedgerLinesFirstPage}
           linesPage={page}
           linesPageCount={ledgerLines.pageCount || ledgersOverview.singleLedgerPageCount}
-          loading={ledgersOverviewLoading || ledgerLinesLoading}
+          linesLoading={ledgersOverviewLoading || ledgerLinesLoading}
           onLinesPageChange={handleLinesPageChange}
         />
       )}
@@ -108,9 +109,14 @@ const Ledger = ({
         <p className="m-0">{i18next.t("ledger_balance", { ns: "payments" })}</p>
         <h5 className="mt-2">{i18next.t("ledger_transactions", { ns: "payments" })}</h5>
       </Container>
-      <Table responsive striped hover className="mt-2">
+      <PageLoader show={linesLoading} />
+      <Table
+        responsive
+        striped
+        hover
+        className={clsx("mt-2", linesLoading && "opacity-50")}
+      >
         <tbody>
-          <PageLoader show={linesLoading} />
           {lines.map((line) => (
             <tr key={line.id}>
               <td>

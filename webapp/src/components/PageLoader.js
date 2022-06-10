@@ -14,8 +14,12 @@ export default function PageLoader({ show }) {
     return null;
   }
   return (
-    <div className="text-center">
-      <img src={loaderRing} alt="loading" />
+    <div className="text-center position-relative">
+      <img
+        src={loaderRing}
+        alt="loading"
+        className="position-absolute top-0 start-0 w-100"
+      />
     </div>
   );
 }
