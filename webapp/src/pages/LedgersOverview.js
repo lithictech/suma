@@ -56,19 +56,17 @@ export default function LedgersOverview() {
       <TopNav />
       <Container>
         <p>{i18next.t("ledgers_intro", { ns: "payments" })}</p>
-        {ledgersOverview.ledgers && (
-          <Ledger
-            ledger={ledger}
-            lines={ledgerLines.items || ledgersOverview.singleLedgerLinesFirstPage}
-            linesPage={page}
-            linesPageCount={
-              ledgerLines.pageCount || ledgersOverview.singleLedgerPageCount
-            }
-            loading={ledgersOverviewLoading || ledgerLinesLoading}
-            onLinesPageChange={handleLinesPageChange}
-          />
-        )}
       </Container>
+      {ledgersOverview.ledgers && (
+        <Ledger
+          ledger={ledger}
+          lines={ledgerLines.items || ledgersOverview.singleLedgerLinesFirstPage}
+          linesPage={page}
+          linesPageCount={ledgerLines.pageCount || ledgersOverview.singleLedgerPageCount}
+          loading={ledgersOverviewLoading || ledgerLinesLoading}
+          onLinesPageChange={handleLinesPageChange}
+        />
+      )}
     </div>
   );
 }
@@ -103,11 +101,13 @@ const Ledger = ({
 
   return (
     <div>
-      <h3>
-        <Money>{ledger.balance}</Money>
-      </h3>
-      <p className="m-0">{i18next.t("ledger_balance", { ns: "payments" })}</p>
-      <h5 className="mt-2">{i18next.t("ledger_transactions", { ns: "payments" })}</h5>
+      <Container>
+        <h3>
+          <Money>{ledger.balance}</Money>
+        </h3>
+        <p className="m-0">{i18next.t("ledger_balance", { ns: "payments" })}</p>
+        <h5 className="mt-2">{i18next.t("ledger_transactions", { ns: "payments" })}</h5>
+      </Container>
       <Table responsive striped hover className="mt-2">
         <tbody>
           <PageLoader show={linesLoading} />
@@ -136,11 +136,13 @@ const Ledger = ({
           ))}
         </tbody>
       </Table>
-      <ForwardBackPagination
-        page={linesPage}
-        pageCount={linesPageCount}
-        onPageChange={onLinesPageChange}
-      />
+      <Container>
+        <ForwardBackPagination
+          page={linesPage}
+          pageCount={linesPageCount}
+          onPageChange={onLinesPageChange}
+        />
+      </Container>
       <LedgerItemModal
         item={selectedLine}
         onClose={() => handleLedgerLineSelected(null)}

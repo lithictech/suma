@@ -2,15 +2,16 @@ import TopNav from "../components/TopNav";
 import Map from "../components/mobilitymap/Map";
 import i18next from "i18next";
 import React from "react";
+import Container from "react-bootstrap/Container";
 
 const MapPage = () => {
   return (
     <div className="main-container">
       <TopNav />
-      <div className="mx-3">
+      <Container>
         <h5>{i18next.t("title", { ns: "mobility" })}</h5>
         <p className="text-secondary">{i18next.t("intro", { ns: "mobility" })}</p>
-      </div>
+      </Container>
       <div>
         <Map />
       </div>

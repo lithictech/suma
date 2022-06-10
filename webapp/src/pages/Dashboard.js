@@ -29,40 +29,36 @@ const Dashboard = () => {
   return (
     <div className="main-container">
       <TopNav />
+      {user.ongoingTrip && (
+        <Alert variant="danger" className="border-radius-0">
+          <p>{i18next.t("check_ongoing_trip", { ns: "dashboard" })}</p>
+          <div className="d-flex justify-content-end">
+            <Link to="/map" className="btn btn-sm btn-danger">
+              {i18next.t("check_ongoing_trip_button", { ns: "dashboard" })}
+              <i
+                className="bi bi-box-arrow-in-right mx-1"
+                role="img"
+                aria-label="Map Icon"
+              ></i>
+            </Link>
+          </div>
+        </Alert>
+      )}
       <Container>
         <Row>
-          <Col className="px-3 py-2">
-            {user.ongoingTrip && (
-              <Alert variant="danger">
-                <p>{i18next.t("check_ongoing_trip", { ns: "dashboard" })}</p>
-                <div className="d-flex justify-content-end">
-                  <Link to="/map" className="btn btn-sm btn-danger">
-                    {i18next.t("check_ongoing_trip_button", { ns: "dashboard" })}
-                    <i
-                      className="bi bi-box-arrow-in-right mx-1"
-                      role="img"
-                      aria-label="Map Icon"
-                    ></i>
-                  </Link>
-                </div>
-              </Alert>
-            )}
-            <Row>
-              <Col>
-                <AppLink to="/map" label="Mobility" />
-              </Col>
-              <Col>
-                <AppLink to="#todo" label="Food" />
-              </Col>
-              <Col>
-                <AppLink to="/map" label="Utilities" />
-              </Col>
-            </Row>
+          <Col>
+            <AppLink to="/map" label="Mobility" />
+          </Col>
+          <Col>
+            <AppLink to="#todo" label="Food" />
+          </Col>
+          <Col>
+            <AppLink to="/map" label="Utilities" />
           </Col>
         </Row>
-        <PageLoader show={dashboardLoading} />
-        {!dashboardLoading && <Ledger dashboard={dashboard} />}
       </Container>
+      <PageLoader show={dashboardLoading} />
+      {!dashboardLoading && <Ledger dashboard={dashboard} />}
     </div>
   );
 };
@@ -80,7 +76,7 @@ const AppLink = ({ to, label }) => {
 const Ledger = ({ dashboard }) => {
   return (
     <>
-      <div className="d-flex justify-content-between pt-3 pb-1 px-2 align-items-start">
+      <Container className="d-flex justify-content-between pt-3 pb-1 align-items-start">
         <div>
           <h3>
             <Money colored>{dashboard.paymentAccountBalance}</Money>
@@ -98,7 +94,7 @@ const Ledger = ({ dashboard }) => {
           </h3>
           <p className="m-0">{i18next.t("lifetime_savings", { ns: "dashboard" })}</p>
         </div>
-      </div>
+      </Container>
       <hr />
       {!_.isEmpty(dashboard.ledgerLines) ? (
         <Table responsive striped hover className="table-borderless">
