@@ -1,3 +1,3 @@
 {
-	"otp_resent": "Code resent successfully, enter the code you received."
+	"otp_resent": "New code sent to {{ phone }}."
 }

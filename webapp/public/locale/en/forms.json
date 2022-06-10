@@ -10,5 +10,6 @@
   "logout": "Logout",
   "get_started": "Get Started",
   "get_started_intro": "To start a new account, or sign into your existing account, please enter your phone number. We will send you a verification code to confirm the phone number.",
-  "otp_verify": "Verify Code"
+  "otp_verify": "Verify Code",
+  "phone_placeholder": "555-111-2222"
 }

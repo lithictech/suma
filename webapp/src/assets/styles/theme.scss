@@ -19,8 +19,11 @@ $btn-border-radius-lg: .5rem;
 $theme-colors: map-merge-multiple(
   $theme-colors,
   (
-    "primary": rgb(245, 203, 130),
-    "primary-dark": #a77948
+    "primary": #f5cb82,
+    "primary-dark": #a77948,
+    "suma-blue": #a7b8d9,
+    "light": #f2f2f2,
+    "dark": #0d0d0d
   ),
 );
 // Adds theme colors to sub-classes e.g. text-suma, bg-suma

@@ -22,10 +22,13 @@ const OneTimePassword = () => {
   const [error, setError] = useError();
   const [message, setMessage] = useState();
   const { state } = useLocation();
-  const { phoneNumber } = state;
-  const displayPhoneNumber = phoneNumber
-    ? formatPhoneNumber(phoneNumber)
-    : "(invalid phone number)";
+  const phoneNumber = state ? state.phoneNumber : undefined;
+
+  React.useEffect(() => {
+    if (!phoneNumber) {
+      navigate("/start", { replace: true });
+    }
+  }, [navigate, phoneNumber]);
 
   useEffect(() => {
     const isEntireCode = otp.every((number) => number !== "");
@@ -34,7 +37,7 @@ const OneTimePassword = () => {
     } else {
       submitDisabled.turnOn();
     }
-  }, [submitDisabled, otp]);
+  }, [navigate, submitDisabled, otp]);
 
   const handleOtpChange = (event, index) => {
     const { target } = event;
@@ -75,7 +78,7 @@ const OneTimePassword = () => {
   const handleResend = () => {
     setOtp(new Array(6).fill(""));
     setError(null);
-    setMessage("otp_resent");
+    setMessage(["otp_resent", { phone: formatPhoneNumber(phoneNumber) }]);
     const firstOtpField = document.getElementById("otpContainer").firstChild;
     firstOtpField.focus();
     api
@@ -92,9 +95,8 @@ const OneTimePassword = () => {
   return (
     <div className="main-container">
       <TopNav />
-      <p>
-        Enter the code that you recieved on the phone number you provided{" "}
-        {displayPhoneNumber}
+      <p className="text-center">
+        Enter the code that we sent to {formatPhoneNumber(phoneNumber)}:
       </p>
       <Form noValidate onSubmit={handleOtpSubmit}>
         <fieldset>
@@ -102,7 +104,7 @@ const OneTimePassword = () => {
           <div id="otpContainer" className="d-flex justify-content-center">
             {otp.map((data, index) => (
               <input
-                className="otp-field"
+                className="otp-field mb-2"
                 type="text"
                 name="otp"
                 maxLength="1"
@@ -118,12 +120,17 @@ const OneTimePassword = () => {
             ))}
           </div>
         </fieldset>
-        <FormError error={error} />
-        <FormSuccess message={message} />
+        <FormError error={error} center className="mb-1" />
+        <FormSuccess message={message} center className="mb-1" />
         <p className="text-muted small text-center mt-2">
-          Did not recieve a code?{" "}
-          <Button className="p-0 align-baseline" variant="link" onClick={handleResend}>
-            Resend code again.
+          Did not recieve a text message?{" "}
+          <Button
+            className="p-0 align-baseline"
+            size="sm"
+            variant="link"
+            onClick={handleResend}
+          >
+            Send a new code.
           </Button>
         </p>
         <FormButtons
