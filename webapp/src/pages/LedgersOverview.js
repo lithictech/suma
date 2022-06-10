@@ -49,7 +49,7 @@ export default function LedgersOverview() {
 
   const handleLinesPageChange = (pg) => {
     setPage(pg);
-    ledgerLinesFetch({ id: ledger.id, page: pg + 1 });
+    ledgerLinesFetch({ id: ledger.id, page: pg });
   };
   return (
     <div className="main-container">
@@ -62,7 +62,7 @@ export default function LedgersOverview() {
             lines={ledgerLines.items || ledgersOverview.singleLedgerLinesFirstPage}
             linesPage={page}
             linesPageCount={
-              ledgerLines.pageCount || ledgersOverview.singleLedgerLinesPageCount
+              ledgerLines.pageCount || ledgersOverview.singleLedgerPageCount
             }
             loading={ledgersOverviewLoading || ledgerLinesLoading}
             onLinesPageChange={handleLinesPageChange}
