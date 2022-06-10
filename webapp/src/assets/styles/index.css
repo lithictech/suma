@@ -1,3 +1,7 @@
+.border-radius-0 {
+  border-radius: 0 !important;
+}
+
 .otp-field {
   margin-right: 8px;
   width: 40px;
