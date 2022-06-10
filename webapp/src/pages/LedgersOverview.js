@@ -141,6 +141,7 @@ const Ledger = ({
           page={linesPage}
           pageCount={linesPageCount}
           onPageChange={onLinesPageChange}
+          scrollTop={140}
         />
       </Container>
       <LedgerItemModal

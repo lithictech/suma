@@ -4,9 +4,17 @@ import { clamp } from "lodash/number";
 import React from "react";
 import Pagination from "react-bootstrap/Pagination";
 
-export default function ForwardBackPagination({ page, pageCount, onPageChange }) {
+export default function ForwardBackPagination({
+  page,
+  pageCount,
+  onPageChange,
+  scrollTop,
+}) {
   const handlePageChange = (p) => {
     onPageChange(clamp(p, 1, pageCount));
+    if (typeof scrollTop !== "undefined") {
+      window.scrollTo(0, scrollTop);
+    }
   };
   return (
     <Pagination size="sm" className="justify-content-end">
