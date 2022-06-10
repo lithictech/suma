@@ -1,6 +1,7 @@
 import api from "../api";
 import Money from "../components/Money";
 import PageLoader from "../components/PageLoader";
+import RLink from "../components/RLink";
 import TopNav from "../components/TopNav";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
 import { useUser } from "../state/useUser";
@@ -10,9 +11,9 @@ import i18next from "i18next";
 import _ from "lodash";
 import React from "react";
 import { Alert } from "react-bootstrap";
+import Button from "react-bootstrap/Button";
 import Col from "react-bootstrap/Col";
 import Container from "react-bootstrap/Container";
-import Navbar from "react-bootstrap/Navbar";
 import Row from "react-bootstrap/Row";
 import Stack from "react-bootstrap/Stack";
 import Table from "react-bootstrap/Table";
@@ -79,7 +80,7 @@ const AppLink = ({ to, label }) => {
 const Ledger = ({ dashboard }) => {
   return (
     <>
-      <Navbar variant="light" className="justify-content-between py-3 px-2">
+      <div className="d-flex justify-content-between pt-3 pb-1 px-2 align-items-start">
         <div>
           <h3>
             <Money colored>{dashboard.paymentAccountBalance}</Money>
@@ -87,6 +88,9 @@ const Ledger = ({ dashboard }) => {
           <p className="m-0">
             {i18next.t("payment_account_balance", { ns: "dashboard" })}
           </p>
+          <Button variant="link" href="/funding" className="ps-0" as={RLink}>
+            Add Funds
+          </Button>
         </div>
         <div className="text-end">
           <h3>
@@ -94,7 +98,7 @@ const Ledger = ({ dashboard }) => {
           </h3>
           <p className="m-0">{i18next.t("lifetime_savings", { ns: "dashboard" })}</p>
         </div>
-      </Navbar>
+      </div>
       <hr />
       {!_.isEmpty(dashboard.ledgerLines) ? (
         <Table responsive striped hover className="table-borderless">
