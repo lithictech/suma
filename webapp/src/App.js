@@ -11,7 +11,6 @@ import Funding from "./pages/Funding";
 import FundingAddFunds from "./pages/FundingAddFunds";
 import FundingLinkBankAccount from "./pages/FundingLinkBankAccount";
 import Home from "./pages/Home";
-import Ledger from "./pages/Ledger";
 import LedgersOverview from "./pages/LedgersOverview";
 import MapPage from "./pages/MapPage";
 import Onboarding from "./pages/Onboarding";
@@ -162,7 +161,7 @@ function AppRoutes() {
           )}
         />
         <Route
-          path="/ledgers-overview"
+          path="/ledgers"
           exact
           element={renderWithHocs(
             redirectIfUnauthed,
@@ -170,17 +169,6 @@ function AppRoutes() {
             withScreenLoaderMount(),
             withMetatags({ title: "Ledgers Overview" }),
             LedgersOverview
-          )}
-        />
-        <Route
-          path="/ledger/:id"
-          exact
-          element={renderWithHocs(
-            redirectIfUnauthed,
-            redirectIfUnboarded,
-            withScreenLoaderMount(),
-            withMetatags({ title: "Ledger" }),
-            Ledger
           )}
         />
         <Route path="/styleguide" exact element={<Styleguide />} />

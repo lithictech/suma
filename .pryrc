@@ -33,7 +33,7 @@ end
 
 # Load models and fixtures. Use this when riffing locally.
 def repl
-  return false unless connect
+  connect
   require "suma/fixtures"
   Suma::Fixtures.load_all
   return true

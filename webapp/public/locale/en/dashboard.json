@@ -2,19 +2,6 @@
 	"check_ongoing_trip": "You have an ongoing trip. Please make sure you end it when you are finished with your ride!",
 	"check_ongoing_trip_button": "Go to Mobility",
 	"payment_account_balance": "Available Balance",
-	"total_account_balance": "Total Balance",
 	"lifetime_savings": "Suma Savings",
-	"recent_ledger_lines": "Recent Charges and Credits",
-	"all_ledger_lines": "All Charges and Credits",
-	"view_all": "View all",
-	"ledgers_title": "Ledgers Overview",
-	"ledgers_intro": "View ledgers balances, savings and transactions",
-	"ledgers_name": "Ledger Name",
-	"ledger_accounts": "Ledger Accounts",
-	"ledger_item_mobility_trip": "Mobility Trip",
-	"ledger_item_mobility_started": "Started",
-	"ledger_item_mobility_ended": "Ended",
-	"ledger_item_transaction_id": "Transaction Ref",
-	"pagination_prev": "Prev",
-	"pagination_next": "Next"
+	"recent_ledger_lines": "Recent Charges and Credits"
 }

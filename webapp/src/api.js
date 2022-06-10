@@ -36,7 +36,7 @@ export default {
   getSupportedGeographies: (data) => get(`/api/v1/meta/supported_geographies`, data),
   getSupportedCurrencies: (data) => get(`/api/v1/meta/supported_currencies`, data),
   dashboard: (data) => get("/api/v1/me/dashboard", data),
-  ledgers: (data) => get("/api/v1/ledgers/overview", data),
+  getLedgersOverview: (data) => get("/api/v1/ledgers/overview", data),
   getLedgerLines: ({ id, ...data }) => get(`/api/v1/ledgers/${id}/lines`, data),
   authStart: (data) => post(`/api/v1/auth/start`, data),
   authVerify: (data) => post(`/api/v1/auth/verify`, data),

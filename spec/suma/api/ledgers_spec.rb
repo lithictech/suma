@@ -29,10 +29,8 @@ RSpec.describe Suma::API::Ledgers, :db do
           include(id: led1.id, name: "A", balance: cost("$3")),
           include(id: led2.id, name: "B", balance: cost("$0")),
         ),
-        recent_lines: contain_exactly(
-          include(amount: cost("-$1"), at: match_time(recent_xaction.apply_at)),
-        ),
         single_ledger_lines_first_page: [],
+        single_ledger_page_count: 0,
         total_balance: cost("$3"),
       )
     end
@@ -48,7 +46,7 @@ RSpec.describe Suma::API::Ledgers, :db do
       expect(last_response_json_body).to include(
         ledgers: have_length(1),
         total_balance: cost("$3"),
-        recent_lines: have_length(1),
+        single_ledger_page_count: 1,
         single_ledger_lines_first_page: match(
           [
             include(amount: cost("-$1"), at: match_time(recent_xaction.apply_at)),
