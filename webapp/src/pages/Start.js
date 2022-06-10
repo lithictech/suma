@@ -78,7 +78,7 @@ const Start = () => {
                 pattern="^(\+\d{1,2}\s)?\(?\d{3}\)?[\s-]\d{3}[\s-]\d{4}$"
                 minLength="14"
                 maxLength="14"
-                placeholder={i18n.t("phone", { ns: "forms" })}
+                placeholder={i18n.t("phone_placeholder", { ns: "forms" })}
                 value={phoneNumber}
                 disabled={inputDisabled.isOn}
                 aria-describedby="phoneRequired"
