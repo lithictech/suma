@@ -131,9 +131,11 @@ module Suma::API
   class LedgersViewEntity < BaseEntity
     expose :total_balance, with: MoneyEntity
     expose :ledgers, with: LedgerEntity
-    expose :recent_lines, with: LedgerLineEntity
     expose :single_ledger_lines_first_page, with: LedgerLineEntity do |_, opts|
-      opts[:single_ledger_lines_first_page]
+      opts.fetch(:single_ledger_lines_first_page)
+    end
+    expose :single_ledger_page_count do |_, opts|
+      opts.fetch(:single_ledger_page_count)
     end
   end
 

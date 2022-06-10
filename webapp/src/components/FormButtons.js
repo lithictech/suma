@@ -6,7 +6,7 @@ import Button from "react-bootstrap/Button";
 const FormButtons = ({ primaryProps, secondaryProps, variant, back, className }) => {
   if (back) {
     secondaryProps = {
-      children: i18next.t("back", { ns: "forms" }),
+      children: i18next.t("back", { ns: "common" }),
       onClick: () => window.history.back(),
     };
   }

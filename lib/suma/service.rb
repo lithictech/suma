@@ -27,6 +27,7 @@ class Suma::Service < Grape::API
   # Note that it is always 'rack.session' in code though.
   SESSION_COOKIE = "suma.session"
   DEFAULT_CORS_ORIGINS = [/localhost:\d+/, /192\.168\.\d{1,3}\.\d{1,3}:\d{3,5}/].freeze
+  SHORT_PAGE_SIZE = 20
   PAGE_SIZE = 100
 
   configurable(:service) do

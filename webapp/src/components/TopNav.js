@@ -1,6 +1,7 @@
 import sumaLogo from "../assets/images/suma-logo.png";
 import signOut from "../modules/signOut";
 import { useUser } from "../state/useUser";
+import RLink from "./RLink";
 import React from "react";
 import Nav from "react-bootstrap/Nav";
 import Navbar from "react-bootstrap/Navbar";
@@ -12,6 +13,7 @@ const TopNav = () => {
       <Navbar.Brand
         href="/dashboard"
         className="me-auto d-flex align-items-center text-primary-dark"
+        as={RLink}
       >
         <img
           alt="MySuma logo"
