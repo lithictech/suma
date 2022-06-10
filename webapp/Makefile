@@ -22,4 +22,4 @@ lint-check:
 check: fmt-check lint-check test
 
 start: check-version
-	npm start
+	REACT_APP_CHAOS=0.5 npm start
