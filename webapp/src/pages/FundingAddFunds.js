@@ -9,6 +9,7 @@ import useAsyncFetch from "../shared/react/useAsyncFetch";
 import { extractErrorCode, useError } from "../state/useError";
 import { useScreenLoader } from "../state/useScreenLoader";
 import { useUser } from "../state/useUser";
+import i18next from "i18next";
 import _ from "lodash";
 import React, { useState } from "react";
 import { InputGroup } from "react-bootstrap";
@@ -101,15 +102,12 @@ export default function FundingAddFunds() {
     <div className="main-container">
       <TopNav />
       <Container>
-        <h2>Add Funds</h2>
-        <p>
-          Add funds to your Suma account so you can purchase discounted goods and services
-          through the app.
-        </p>
+        <h2>{i18next.t("payments:add_funds")}</h2>
+        <p>{i18next.t("payments:add_funds_intro")}</p>
         <Form noValidate validated={validated} onSubmit={handleSubmit}>
           <Row className="mb-3">
             <Form.Group as={Col}>
-              <Form.Label>Amount</Form.Label>
+              <Form.Label>{i18next.t("forms:amount")}</Form.Label>
               <InputGroup className="mb-3">
                 <InputGroup.Text>{selectedCurrency.symbol}</InputGroup.Text>
                 <Form.Control
@@ -123,20 +121,19 @@ export default function FundingAddFunds() {
                   onChange={(e) => setAmountDollars(e.target.value)}
                 />
                 <Form.Control.Feedback type="invalid">
-                  Please use a whole dollar amount greater than {selectedCurrency.symbol}
-                  {fundingMinimumDollars}.
+                  {i18next.t("forms:invalid_min_amount", {
+                    constraint: selectedCurrency.symbol + fundingMinimumDollars,
+                  })}
                 </Form.Control.Feedback>
               </InputGroup>
               <Form.Text>
-                Whole dollars amounts only. {selectedCurrency.symbol}
-                {fundingMinimumDollars} minimum.
+                {i18next.t("forms:amount_caption", {
+                  constraint: selectedCurrency.symbol + fundingMinimumDollars,
+                })}
               </Form.Text>
             </Form.Group>
           </Row>
-          <p>
-            After you submit your payment, you will be able to use the money immediately.
-            The withdrawal should hit your account in 2 or 3 business days.
-          </p>
+          <p>{i18next.t("payments:payment_submition_statement")}</p>
           <FormError error={error} />
           <FormButtons
             variant="success"
@@ -145,8 +142,10 @@ export default function FundingAddFunds() {
               disabled: !amountDollars,
               style: { minWidth: 120 },
               children: amountDollars
-                ? `Add ${selectedCurrency.symbol}${amountDollars}`
-                : "Submit",
+                ? i18next.t("forms:add_amount", {
+                    amount: selectedCurrency.symbol + amountDollars,
+                  })
+                : i18next.t("forms:submit"),
             }}
           />
         </Form>
