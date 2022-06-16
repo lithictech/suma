@@ -4,7 +4,7 @@ require "liquid"
 
 require "suma"
 
-# Allow customers to expose variables from a template
+# Allow members to expose variables from a template
 # using custom blocks and registers.
 # See https://github.com/Shopify/liquid/wiki/Liquid-for-Programmers#create-your-own-tag-blocks
 # for more info about blocks.

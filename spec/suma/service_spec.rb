@@ -122,29 +122,29 @@ class Suma::API::TestService < Suma::Service
   end
 
   get :rolecheck do
-    check_role!(current_customer, "testing")
+    check_role!(current_member, "testing")
     status 200
   end
 
-  get :current_customer do
-    c = current_customer
+  get :current_member do
+    c = current_member
     header "Test-TLS-User-Id", Thread.current[:suma_request_user]&.id&.to_s
     header "Test-TLS-Admin-Id", Thread.current[:suma_request_admin]&.id&.to_s
     present({id: c.id})
   end
 
-  get :current_customer_safe do
-    c = current_customer?
+  get :current_member_safe do
+    c = current_member?
     present({id: c&.id})
   end
 
-  get :admin_customer do
-    c = admin_customer
+  get :admin_member do
+    c = admin_member
     present({id: c.id})
   end
 
-  get :admin_customer_safe do
-    c = admin_customer?
+  get :admin_member_safe do
+    c = admin_member?
     present({id: c&.id})
   end
 end
@@ -310,7 +310,7 @@ RSpec.describe Suma::Service, :db do
     expect(last_response).to have_json_body.that_includes(error: "405 Not Allowed")
   end
 
-  it "always creates a session for unauthed customers" do
+  it "always creates a session for unauthed members" do
     get "/hello"
 
     expect(last_response).to have_status(201)
@@ -358,14 +358,14 @@ RSpec.describe Suma::Service, :db do
     end
 
     it "can wrap a Sequel dataset" do
-      customer = Suma::Fixtures.customer.create
+      member = Suma::Fixtures.member.create
 
       get "/collection_dataset"
 
       expect(last_response).to have_status(200)
       expect(last_response_json_body).to include(
         object: "list",
-        items: [{id: customer.id, note: customer.note}],
+        items: [{id: member.id, note: member.note}],
         current_page: 1,
         has_more: false,
         page_count: 1,
@@ -451,7 +451,7 @@ RSpec.describe Suma::Service, :db do
       expect(last_response).to have_status(500)
     end
 
-    it "captures context for unauthed customers" do
+    it "captures context for unauthed members" do
       get "/hello?world=1"
       expect(last_response).to have_status(201)
 
@@ -461,9 +461,9 @@ RSpec.describe Suma::Service, :db do
       )
     end
 
-    it "captures context for authed customers" do
-      customer = Suma::Fixtures.customer.create
-      login_as(customer)
+    it "captures context for authed members" do
+      member = Suma::Fixtures.member.create
+      login_as(member)
 
       get "/hello?world=1"
       expect(last_response).to have_status(201)
@@ -471,24 +471,24 @@ RSpec.describe Suma::Service, :db do
       expect(Suma::API::TestService.global_shim[:sentry_scope]).to have_attributes(
         user: include(
           ip_address: "127.0.0.1",
-          id: customer.id,
-          email: customer.email,
-          name: customer.name,
+          id: member.id,
+          email: member.email,
+          name: member.name,
         ),
         tags: include(
           host: "example.org",
           method: "GET",
           path: "/hello",
           query: "world=1",
-          "member.email" => customer.email,
+          "member.email" => member.email,
         ),
       )
     end
 
     it "captures context for admins" do
-      admin = Suma::Fixtures.customer.admin.create
-      customer = Suma::Fixtures.customer.create
-      impersonate(admin:, target: customer)
+      admin = Suma::Fixtures.member.admin.create
+      member = Suma::Fixtures.member.create
+      impersonate(admin:, target: member)
 
       get "/hello?world=1"
       expect(last_response).to have_status(201)
@@ -496,10 +496,10 @@ RSpec.describe Suma::Service, :db do
       expect(Suma::API::TestService.global_shim[:sentry_scope]).to have_attributes(
         user: include(
           admin_id: admin.id,
-          id: customer.id,
+          id: member.id,
         ),
         tags: include(
-          "member.email" => customer.email,
+          "member.email" => member.email,
           "admin.email" => admin.email,
         ),
       )
@@ -550,24 +550,24 @@ RSpec.describe Suma::Service, :db do
   end
 
   describe "role checking" do
-    let(:member) { Suma::Fixtures.customer.create }
+    let(:member) { Suma::Fixtures.member.create }
 
-    it "passes if the customer has a matching role" do
-      customer.add_role(Suma::Role.create(name: "testing"))
-      login_as(customer)
+    it "passes if the member has a matching role" do
+      member.add_role(Suma::Role.create(name: "testing"))
+      login_as(member)
       get "/rolecheck"
       expect(last_response).to have_status(200)
     end
 
     it "errors if no role with that name exists" do
-      login_as(customer)
+      login_as(member)
       get "/rolecheck"
       expect(last_response).to have_status(500)
     end
 
-    it "errors if the customer does not have a matching role" do
+    it "errors if the member does not have a matching role" do
       Suma::Role.create(name: "testing")
-      login_as(customer)
+      login_as(member)
       get "/rolecheck"
       expect(last_response).to have_json_body.that_includes(
         error: {
@@ -579,124 +579,124 @@ RSpec.describe Suma::Service, :db do
     end
   end
 
-  describe "current_customer" do
-    let(:member) { Suma::Fixtures.customer.create }
-    let(:admin) { Suma::Fixtures.customer.admin.create }
+  describe "current_member" do
+    let(:member) { Suma::Fixtures.member.create }
+    let(:admin) { Suma::Fixtures.member.admin.create }
 
     it "looks up the logged in user" do
-      login_as(customer)
-      get "/current_customer"
+      login_as(member)
+      get "/current_member"
       expect(last_response).to have_status(200)
-      expect(last_response).to have_json_body.that_includes(id: customer.id)
+      expect(last_response).to have_json_body.that_includes(id: member.id)
     end
 
     it "sets the custom in thread local and clears it after the request" do
-      login_as(customer)
-      impersonate(admin:, target: customer)
-      get "/current_customer"
+      login_as(member)
+      impersonate(admin:, target: member)
+      get "/current_member"
       expect(last_response).to have_status(200)
-      expect(last_response.headers["Test-TLS-User-Id"]).to eq(customer.id.to_s)
+      expect(last_response.headers["Test-TLS-User-Id"]).to eq(member.id.to_s)
       expect(last_response.headers["Test-TLS-Admin-Id"]).to eq(admin.id.to_s)
       expect(Thread.current[:request_user]).to be_nil
       expect(Thread.current[:request_admin]).to be_nil
     end
 
     it "errors if no logged in user" do
-      get "/current_customer"
+      get "/current_member"
       expect(last_response).to have_status(401)
     end
 
     it "errors and clears cookies if the user is deleted" do
-      login_as(customer)
-      customer.soft_delete
-      get "/current_customer"
+      login_as(member)
+      member.soft_delete
+      get "/current_member"
       expect(last_response).to have_status(401)
       expect(last_response.cookies).to be_empty
     end
 
     it "returns the impersonated user (even if deleted)" do
-      impersonate(admin:, target: customer)
-      get "/current_customer"
+      impersonate(admin:, target: member)
+      get "/current_member"
       expect(last_response).to have_status(200)
-      expect(last_response).to have_json_body.that_includes(id: customer.id)
+      expect(last_response).to have_json_body.that_includes(id: member.id)
     end
 
     it "errors and clears cookies if the admin impersonating a user is deleted" do
-      impersonate(admin:, target: customer)
+      impersonate(admin:, target: member)
       admin.soft_delete
-      get "/current_customer"
+      get "/current_member"
       expect(last_response).to have_status(401)
       expect(last_response.cookies).to be_empty
     end
 
     it "errors if the admin impersonating a user does not have the admin role" do
-      impersonate(admin:, target: customer)
+      impersonate(admin:, target: member)
       admin.remove_all_roles
-      get "/current_customer"
+      get "/current_member"
       expect(last_response).to have_status(401)
     end
   end
 
-  describe "current_customer?" do
-    let(:member) { Suma::Fixtures.customer.create }
-    let(:admin) { Suma::Fixtures.customer.admin.create }
+  describe "current_member?" do
+    let(:member) { Suma::Fixtures.member.create }
+    let(:admin) { Suma::Fixtures.member.admin.create }
 
     it "looks up the logged in user" do
-      login_as(customer)
-      get "/current_customer_safe"
+      login_as(member)
+      get "/current_member_safe"
       expect(last_response).to have_status(200)
-      expect(last_response).to have_json_body.that_includes(id: customer.id)
+      expect(last_response).to have_json_body.that_includes(id: member.id)
     end
 
     it "returns nil if no logged in user" do
-      get "/current_customer_safe"
+      get "/current_member_safe"
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.that_includes(id: nil)
     end
 
     it "errors and clears cookies if the user is deleted" do
-      login_as(customer)
-      customer.soft_delete
-      get "/current_customer_safe"
+      login_as(member)
+      member.soft_delete
+      get "/current_member_safe"
       expect(last_response).to have_status(401)
     end
 
     it "returns the impersonated user (even if deleted)" do
-      impersonate(admin:, target: customer)
-      get "/current_customer_safe"
+      impersonate(admin:, target: member)
+      get "/current_member_safe"
       expect(last_response).to have_status(200)
-      expect(last_response).to have_json_body.that_includes(id: customer.id)
+      expect(last_response).to have_json_body.that_includes(id: member.id)
     end
 
     it "errors if the admin impersonating a user is deleted/missing role" do
-      impersonate(admin:, target: customer)
+      impersonate(admin:, target: member)
       admin.soft_delete
-      get "/current_customer_safe"
+      get "/current_member_safe"
       expect(last_response).to have_status(401)
       expect(last_response.cookies).to be_empty
     end
   end
 
-  describe "admin_customer" do
-    let(:member) { Suma::Fixtures.customer.create }
-    let(:admin) { Suma::Fixtures.customer.admin.create }
+  describe "admin_member" do
+    let(:member) { Suma::Fixtures.member.create }
+    let(:admin) { Suma::Fixtures.member.admin.create }
 
     it "looks up the logged in admin" do
       login_as_admin(admin)
-      get "/admin_customer"
+      get "/admin_member"
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.that_includes(id: admin.id)
     end
 
     it "errors if no logged in admin" do
-      get "/admin_customer"
+      get "/admin_member"
       expect(last_response).to have_status(401)
     end
 
     it "errors and clears cookies if the admin is deleted" do
       login_as_admin(admin)
       admin.soft_delete
-      get "/admin_customer"
+      get "/admin_member"
       expect(last_response).to have_status(401)
       expect(last_response.cookies).to be_empty
     end
@@ -704,32 +704,32 @@ RSpec.describe Suma::Service, :db do
     it "errors and clears cookies if the admin does not have the role" do
       login_as_admin(admin)
       admin.remove_all_roles
-      get "/admin_customer"
+      get "/admin_member"
       expect(last_response).to have_status(401)
       expect(last_response.cookies).to be_empty
     end
 
     it "returns the admin, even while impersonating" do
-      impersonate(admin:, target: customer)
-      get "/admin_customer"
+      impersonate(admin:, target: member)
+      get "/admin_member"
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.that_includes(id: admin.id)
     end
   end
 
-  describe "admin_customer?" do
-    let(:member) { Suma::Fixtures.customer.create }
-    let(:admin) { Suma::Fixtures.customer.admin.create }
+  describe "admin_member?" do
+    let(:member) { Suma::Fixtures.member.create }
+    let(:admin) { Suma::Fixtures.member.admin.create }
 
     it "looks up the logged in admin" do
       login_as_admin(admin)
-      get "/admin_customer_safe"
+      get "/admin_member_safe"
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.that_includes(id: admin.id)
     end
 
     it "returns nil no logged in admin" do
-      get "/admin_customer_safe"
+      get "/admin_member_safe"
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.that_includes(id: nil)
     end
@@ -737,7 +737,7 @@ RSpec.describe Suma::Service, :db do
     it "errors and clears cookies if the admin is deleted" do
       login_as_admin(admin)
       admin.soft_delete
-      get "/admin_customer_safe"
+      get "/admin_member_safe"
       expect(last_response).to have_status(401)
       expect(last_response.cookies).to be_empty
     end
@@ -745,14 +745,14 @@ RSpec.describe Suma::Service, :db do
     it "errors and clears cookies if the admin does not have the role" do
       login_as_admin(admin)
       admin.remove_all_roles
-      get "/admin_customer_safe"
+      get "/admin_member_safe"
       expect(last_response).to have_status(401)
       expect(last_response.cookies).to be_empty
     end
 
     it "returns the admin, even while impersonating" do
-      impersonate(admin:, target: customer)
-      get "/admin_customer_safe"
+      impersonate(admin:, target: member)
+      get "/admin_member_safe"
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.that_includes(id: admin.id)
     end
@@ -769,7 +769,7 @@ RSpec.describe Suma::Service, :db do
         r = ent.represent(
           instance_double("Obj",
                           time: t,
-                          customer: instance_double("Member", mytz: "America/New_York"),),
+                          member: instance_double("Member", mytz: "America/New_York"),),
         )
         expect(r.as_json[:time]).to eq("2021-09-16T08:41:23-04:00")
       end
@@ -781,7 +781,7 @@ RSpec.describe Suma::Service, :db do
         r = ent.represent(
           instance_double("Obj",
                           time: t,
-                          customer: instance_double("Member", timezone: "America/New_York"),),
+                          member: instance_double("Member", timezone: "America/New_York"),),
         )
         expect(r.as_json[:time]).to eq("2021-09-16T08:41:23-04:00")
       end
@@ -793,7 +793,7 @@ RSpec.describe Suma::Service, :db do
         r = ent.represent(
           instance_double("Obj",
                           time: t,
-                          customer: instance_double("Member", time_zone: "America/New_York"),),
+                          member: instance_double("Member", time_zone: "America/New_York"),),
         )
         expect(r.as_json[:time]).to eq("2021-09-16T08:41:23-04:00")
       end
@@ -809,16 +809,16 @@ RSpec.describe Suma::Service, :db do
         r = ent.represent(d)
         expect(r.as_json[:time]).to eq(ts)
 
-        d = instance_double("Obj", time: t, customer: instance_double("Member"))
-        expect(d.customer).to receive(:mytz).and_raise(NoMethodError)
+        d = instance_double("Obj", time: t, member: instance_double("Member"))
+        expect(d.member).to receive(:mytz).and_raise(NoMethodError)
         r = ent.represent(d)
         expect(r.as_json[:time]).to eq(ts)
 
-        d = instance_double("Obj", time: t, customer: instance_double("Member", mytz: nil))
+        d = instance_double("Obj", time: t, member: instance_double("Member", mytz: nil))
         r = ent.represent(d)
         expect(r.as_json[:time]).to eq(ts)
 
-        d = instance_double("Obj", time: t, customer: instance_double("Member", mytz: ""))
+        d = instance_double("Obj", time: t, member: instance_double("Member", mytz: ""))
         r = ent.represent(d)
         expect(r.as_json[:time]).to eq(ts)
       end
@@ -830,7 +830,7 @@ RSpec.describe Suma::Service, :db do
         r = ent.represent(
           instance_double("Obj",
                           mytime: t,
-                          customer: instance_double("Member", time_zone: "America/New_York"),),
+                          member: instance_double("Member", time_zone: "America/New_York"),),
         )
         expect(r.as_json[:time_not_here]).to eq("2021-09-16T08:41:23-04:00")
       end

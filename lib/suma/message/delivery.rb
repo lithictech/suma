@@ -15,9 +15,9 @@ class Suma::Message::Delivery < Suma::Postgres::Model(:message_deliveries)
       return self.where(aborted_at: nil, sent_at: nil)
     end
 
-    def to_customers(customers)
-      emails = customers.is_a?(Sequel::Dataset) ? customers.select(:email) : customers.map(&:email)
-      return self.where(Sequel[to: emails] | Sequel[recipient: customers])
+    def to_members(members)
+      emails = members.is_a?(Sequel::Dataset) ? members.select(:email) : members.map(&:email)
+      return self.where(Sequel[to: emails] | Sequel[recipient: members])
     end
   end
 
@@ -87,7 +87,7 @@ class Suma::Message::Delivery < Suma::Postgres::Model(:message_deliveries)
 
     delivery = nil
     self.db.transaction(rollback: commit ? nil : :always) do
-      to = Suma::Fixtures.customer.create
+      to = Suma::Fixtures.member.create
       template = template_class.fixtured(to)
       delivery = template.dispatch(to, transport:)
       delivery.bodies # Fetch this ahead of time so it is there after rollback
@@ -117,7 +117,7 @@ end
 #  message_deliveries_recipient_id_index       | btree (recipient_id)
 #  message_deliveries_sent_at_index            | btree (sent_at)
 # Foreign key constraints:
-#  message_deliveries_recipient_id_fkey | (recipient_id) REFERENCES customers(id) ON DELETE SET NULL
+#  message_deliveries_recipient_id_fkey | (recipient_id) REFERENCES members(id) ON DELETE SET NULL
 # Referenced By:
 #  message_bodies | message_bodies_delivery_id_fkey | (delivery_id) REFERENCES message_deliveries(id) ON DELETE CASCADE
 # ---------------------------------------------------------------------------------------------------------------------

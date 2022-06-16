@@ -24,8 +24,8 @@ module Suma::Fixtures::Ledgers
   end
 
   decorator :member do |c={}|
-    c = Suma::Fixtures.customer(c).create unless c.is_a?(Suma::Member)
-    c.payment_account ||= Suma::Fixtures.payment_account.create(customer: c)
+    c = Suma::Fixtures.member(c).create unless c.is_a?(Suma::Member)
+    c.payment_account ||= Suma::Fixtures.payment_account.create(member: c)
     self.account = c.payment_account
   end
 

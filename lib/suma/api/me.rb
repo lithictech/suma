@@ -3,21 +3,21 @@
 require "grape"
 
 require "suma/api"
-require "suma/customer/dashboard"
+require "suma/member/dashboard"
 
 class Suma::API::Me < Suma::API::V1
   resource :me do
-    desc "Return the current customer"
+    desc "Return the current member"
     get do
-      customer = current_customer
-      if customer.sessions_dataset.empty?
+      member = current_member
+      if member.sessions_dataset.empty?
         # Add this as a way to backfill sessions for users that last authed before we had them.
-        customer.add_session(**Suma::Member::Session.params_for_request(request))
+        member.add_session(**Suma::Member::Session.params_for_request(request))
       end
-      present customer, with: Suma::API::CurrentMemberEntity, env:
+      present member, with: Suma::API::CurrentMemberEntity, env:
     end
 
-    desc "Update supported fields on the customer"
+    desc "Update supported fields on the member"
     params do
       optional :name, type: String, allow_blank: false
       optional :address, type: JSON do
@@ -25,21 +25,21 @@ class Suma::API::Me < Suma::API::V1
       end
     end
     post :update do
-      customer = current_customer
-      customer.db.transaction do
-        set_declared(customer, params, ignore: [:address])
-        save_or_error!(customer)
+      member = current_member
+      member.db.transaction do
+        set_declared(member, params, ignore: [:address])
+        save_or_error!(member)
         if params.key?(:address)
-          customer.legal_entity.address = Suma::Address.lookup(params[:address])
-          save_or_error!(customer.legal_entity)
+          member.legal_entity.address = Suma::Address.lookup(params[:address])
+          save_or_error!(member.legal_entity)
         end
       end
       status 200
-      present customer, with: Suma::API::CurrentMemberEntity, env:
+      present member, with: Suma::API::CurrentMemberEntity, env:
     end
 
     get :dashboard do
-      d = Suma::Member::Dashboard.new(current_customer)
+      d = Suma::Member::Dashboard.new(current_member)
       present d, with: Suma::API::MemberDashboardEntity
     end
   end

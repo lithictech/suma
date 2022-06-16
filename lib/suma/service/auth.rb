@@ -12,25 +12,25 @@ class Suma::Service::Auth
     end
 
     def authenticate!
-      customer = self.lookup_customer
-      success!(customer) if customer
+      member = self.lookup_member
+      success!(member) if member
     end
 
-    protected def lookup_customer
+    protected def lookup_member
       if params["phone"]
-        customer = Suma::Member.with_us_phone(params["phone"].strip)
-        if customer.nil?
-          fail!("No customer with that phone")
+        member = Suma::Member.with_us_phone(params["phone"].strip)
+        if member.nil?
+          fail!("No member with that phone")
           return nil
         end
       else
-        customer = Suma::Member.with_email(params["email"].strip)
-        if customer.nil?
-          fail!("No customer with that email")
+        member = Suma::Member.with_email(params["email"].strip)
+        if member.nil?
+          fail!("No member with that email")
           return nil
         end
       end
-      return customer if customer.authenticate(params["password"])
+      return member if member.authenticate(params["password"])
       fail!("Incorrect password")
       return nil
     end
@@ -38,12 +38,12 @@ class Suma::Service::Auth
 
   class AdminPasswordStrategy < PasswordStrategy
     def authenticate!
-      return unless (customer = self.lookup_customer)
-      unless customer.admin?
+      return unless (member = self.lookup_member)
+      unless member.admin?
         fail!
         return
       end
-      success!(customer)
+      success!(member)
     end
   end
 
@@ -69,9 +69,9 @@ class Suma::Service::Auth
 
     def call(env)
       warden = env["warden"]
-      customer = warden.authenticate!(scope: :admin)
+      member = warden.authenticate!(scope: :admin)
 
-      unless customer.admin?
+      unless member.admin?
         body = Suma::Service.error_body(401, "Unauthorized")
         return 401, {"Content-Type" => "application/json"}, [body.to_json]
       end
@@ -102,7 +102,7 @@ class Suma::Service::Auth
   end
 
   class Impersonation
-    attr_reader :admin_customer, :warden
+    attr_reader :admin_member, :warden
 
     def initialize(warden)
       @warden = warden
@@ -113,16 +113,16 @@ class Suma::Service::Auth
       return self.warden.session(:admin)["impersonating"].present?
     end
 
-    def on(target_customer)
-      self.warden.session(:admin)["impersonating"] = target_customer.id
+    def on(target_member)
+      self.warden.session(:admin)["impersonating"] = target_member.id
       self.warden.logout(:member)
-      self.warden.set_user(target_customer, scope: :member)
+      self.warden.set_user(target_member, scope: :member)
     end
 
-    def off(admin_customer)
+    def off(admin_member)
       self.warden.logout(:member)
       self.warden.session(:admin).delete("impersonating")
-      self.warden.set_user(admin_customer, scope: :member)
+      self.warden.set_user(admin_member, scope: :member)
     end
   end
 end

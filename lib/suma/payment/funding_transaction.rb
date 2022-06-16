@@ -125,7 +125,7 @@ class Suma::Payment::FundingTransaction < Suma::Postgres::Model(:payment_funding
       return self.put_into_review("Error collecting funds", exception: e)
     end
     if collected
-      self.originating_payment_account.customer&.add_activity(
+      self.originating_payment_account.member&.add_activity(
         message_name: "fundscollecting",
         subject_type: self.class.name,
         subject_id: self.id,

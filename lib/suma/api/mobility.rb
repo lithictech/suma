@@ -15,7 +15,7 @@ class Suma::API::Mobility < Suma::API::V1
       optional :types, type: Array[String], coerce_with: CommaSepArray, values: ["ebike", "escooter"]
     end
     get :map do
-      current_customer
+      current_member
       min_lat, min_lng = params[:minloc]
       max_lat, max_lng = params[:maxloc]
       ds = Suma::Mobility::Vehicle.search(min_lat:, min_lng:, max_lat:, max_lng:)
@@ -64,7 +64,7 @@ class Suma::API::Mobility < Suma::API::V1
       optional :disambiguator, type: String
     end
     get :vehicle do
-      current_customer
+      current_member
       matches = Suma::Mobility::Vehicle.where(
         lat: Suma::Mobility.int2coord(params[:loc][0]),
         lng: Suma::Mobility.int2coord(params[:loc][1]),
@@ -90,7 +90,7 @@ class Suma::API::Mobility < Suma::API::V1
       requires :rate_id, type: Integer
     end
     post :begin_trip do
-      customer = current_customer
+      member = current_member
       vehicle = Suma::Mobility::Vehicle[
         vendor_service_id: params[:provider_id],
         vehicle_id: params[:vehicle_id],
@@ -99,7 +99,7 @@ class Suma::API::Mobility < Suma::API::V1
       rate = vehicle.vendor_service.rates_dataset[params[:rate_id]]
       merror!(403, "Rate does not exist", code: "rate_not_found") if rate.nil?
       begin
-        trip = Suma::Mobility::Trip.start_trip_from_vehicle(customer:, vehicle:, rate:)
+        trip = Suma::Mobility::Trip.start_trip_from_vehicle(member:, vehicle:, rate:)
       rescue Suma::Mobility::Trip::OngoingTrip
         merror!(409, "Already in a trip", code: "ongoing_trip")
       end
@@ -112,8 +112,8 @@ class Suma::API::Mobility < Suma::API::V1
       requires :lng, type: BigDecimal
     end
     post :end_trip do
-      customer = current_customer
-      trip = Suma::Mobility::Trip.ongoing.where(customer:).first
+      member = current_member
+      trip = Suma::Mobility::Trip.ongoing.where(member:).first
       merror!(409, "No ongoing trip", code: "no_active_trip") if trip.nil?
       trip.end_trip(lat: params[:lat], lng: params[:lng])
       status 200

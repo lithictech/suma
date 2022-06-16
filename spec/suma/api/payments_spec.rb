@@ -6,15 +6,15 @@ RSpec.describe Suma::API::Payments, :db do
   include Rack::Test::Methods
 
   let(:app) { described_class.build_app }
-  let(:member) { Suma::Fixtures.customer.create }
+  let(:member) { Suma::Fixtures.member.create }
 
   before(:each) do
-    login_as(customer)
+    login_as(member)
   end
 
   describe "POST /v1/payments/create_funding" do
     it "creates a new funding and book transaction" do
-      ba = Suma::Fixtures.bank_account.customer(customer).verified.create
+      ba = Suma::Fixtures.bank_account.member(member).verified.create
 
       post "/v1/payments/create_funding",
            amount: {cents: 500, currency: "USD"},
@@ -24,17 +24,17 @@ RSpec.describe Suma::API::Payments, :db do
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.that_includes(status: "created")
 
-      expect(customer.payment_account.originated_funding_transactions).to contain_exactly(
+      expect(member.payment_account.originated_funding_transactions).to contain_exactly(
         have_attributes(status: "created", originated_book_transaction: be_present),
       )
-      expect(customer.payment_account.cash_ledger.received_book_transactions).to contain_exactly(
+      expect(member.payment_account.cash_ledger.received_book_transactions).to contain_exactly(
         have_attributes(amount: cost("$5")),
       )
-      expect(customer.payment_account).to have_attributes(total_balance: cost("$5"))
+      expect(member.payment_account).to have_attributes(total_balance: cost("$5"))
     end
 
     it "errors if the bank account is not usable" do
-      ba = Suma::Fixtures.bank_account.customer(customer).create
+      ba = Suma::Fixtures.bank_account.member(member).create
       ba.soft_delete
 
       post "/v1/payments/create_funding",

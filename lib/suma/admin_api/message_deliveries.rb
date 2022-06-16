@@ -48,9 +48,9 @@ class Suma::AdminAPI::MessageDeliveries < Suma::AdminAPI::V1
   resource :members do
     route_param :id, type: Integer do
       resource :message_deliveries do
-        desc "Return all message deliveries for customer the given customers, as recipients or to their emails"
+        desc "Return all message deliveries for member the given members, as recipients or to their emails"
         get do
-          ds = Suma::Message::Delivery.to_customers(Suma::Member.where(id: params[:id])).order(Sequel.desc(:id))
+          ds = Suma::Message::Delivery.to_members(Suma::Member.where(id: params[:id])).order(Sequel.desc(:id))
           present_collection ds, with: Suma::AdminAPI::MessageDeliveryEntity
         end
       end

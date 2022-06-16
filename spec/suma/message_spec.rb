@@ -10,7 +10,7 @@ RSpec.describe "Suma::Message", :db, :messaging do
   describe "dispatch" do
     let(:basic) { Suma::Messages::Testers::Basic.new }
     it "creates an undelivered message to the given recipient", messaging: false do
-      recipient = Suma::Fixtures.customer.create
+      recipient = Suma::Fixtures.member.create
       delivery = basic.dispatch(recipient)
 
       expect(delivery).to have_attributes(
@@ -50,7 +50,7 @@ RSpec.describe "Suma::Message", :db, :messaging do
     it "renders bodies using the specified transport" do
       delivery = basic.dispatch("member@lithic.tech", transport: :fake)
       expect(delivery.bodies).to have_length(1)
-      expect(delivery.bodies.first).to have_attributes(content: match("test message to customer@lithic.tech"))
+      expect(delivery.bodies.first).to have_attributes(content: match("test message to member@lithic.tech"))
     end
   end
 
@@ -67,7 +67,7 @@ RSpec.describe "Suma::Message", :db, :messaging do
     it "renders the template using the given attributes" do
       tmpl = testers::WithField.new(2)
       r = Suma::Message.render(tmpl, :fake, recipient)
-      expect(r.contents.strip).to eq("test message to customer@lithic.tech, field 2")
+      expect(r.contents.strip).to eq("test message to member@lithic.tech, field 2")
     end
 
     it "renders strictly" do
@@ -80,7 +80,7 @@ RSpec.describe "Suma::Message", :db, :messaging do
     it "exposes variables from the template" do
       tmpl = testers::WithField.new(2)
       r = Suma::Message.render(tmpl, :email, recipient)
-      expect(r[:subject]).to eq("subject with field 2 to customer@lithic.tech")
+      expect(r[:subject]).to eq("subject with field 2 to member@lithic.tech")
     end
 
     it "can use includes" do

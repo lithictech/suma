@@ -21,7 +21,7 @@ require "suma/api/system"
 
 require "suma/admin_api/auth"
 require "suma/admin_api/bank_accounts"
-require "suma/admin_api/customers"
+require "suma/admin_api/members"
 require "suma/admin_api/message_deliveries"
 require "suma/admin_api/roles"
 

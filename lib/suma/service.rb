@@ -100,8 +100,8 @@ class Suma::Service < Grape::API
 
   # Add some context to Sentry on each request.
   before do
-    customer = current_customer?
-    admin = admin_customer?
+    member = current_member?
+    admin = admin_member?
     Sentry.configure_scope do |scope|
       sentry_tags = {
         agent: env["HTTP_USER_AGENT"],
@@ -112,14 +112,14 @@ class Suma::Service < Grape::API
         referrer: env["HTTP_REFERER"],
       }
       sentry_user = {ip_address: request.ip}
-      if customer
+      if member
         sentry_user.merge!(
-          id: customer.id,
-          email: customer.email,
-          name: customer.name,
+          id: member.id,
+          email: member.email,
+          name: member.name,
           ip_address: request.ip,
         )
-        sentry_tags["member.email"] = customer.email
+        sentry_tags["member.email"] = member.email
       end
       if admin
         sentry_user.merge!(
@@ -134,7 +134,7 @@ class Suma::Service < Grape::API
       scope.set_tags(sentry_tags)
     end
 
-    Suma.set_request_user_and_admin(customer, admin)
+    Suma.set_request_user_and_admin(member, admin)
   end
 
   rescue_from Grape::Exceptions::ValidationErrors do |e|

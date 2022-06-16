@@ -6,11 +6,11 @@ RSpec.describe Suma::API::PaymentInstruments, :db do
   include Rack::Test::Methods
 
   let(:app) { described_class.build_app }
-  let(:member) { Suma::Fixtures.customer.create }
-  let(:bank_fac) { Suma::Fixtures.bank_account.customer(customer) }
+  let(:member) { Suma::Fixtures.member.create }
+  let(:bank_fac) { Suma::Fixtures.bank_account.member(member) }
 
   before(:each) do
-    login_as(customer)
+    login_as(member)
   end
 
   describe "POST /v1/payment_instruments/bank_accounts/create" do
@@ -22,10 +22,10 @@ RSpec.describe Suma::API::PaymentInstruments, :db do
       post("/v1/payment_instruments/bank_accounts/create", name: "Foo", account_number:, routing_number:, account_type:)
 
       expect(last_response).to have_status(200)
-      expect(customer.refresh.bank_accounts).to contain_exactly(
+      expect(member.refresh.bank_accounts).to contain_exactly(
         have_attributes(name: "Foo", account_number:, routing_number:, verified?: false),
       )
-      ba = customer.bank_accounts.first
+      ba = member.bank_accounts.first
       expect(last_response).to have_json_body.
         that_includes(id: ba.id, all_payment_instruments: have_same_ids_as(ba))
     end
@@ -35,12 +35,12 @@ RSpec.describe Suma::API::PaymentInstruments, :db do
       post("/v1/payment_instruments/bank_accounts/create", name: "Foo", account_number:, routing_number:, account_type:)
 
       expect(last_response).to have_status(200)
-      expect(customer.refresh.bank_accounts).to contain_exactly(have_attributes(verified?: true))
+      expect(member.refresh.bank_accounts).to contain_exactly(have_attributes(verified?: true))
     ensure
       Suma::Payment.reset_configuration
     end
 
-    it "errors if the bank account already exists undeleted for the customer" do
+    it "errors if the bank account already exists undeleted for the member" do
       bank_fac.create(account_number:, routing_number:)
 
       post("/v1/payment_instruments/bank_accounts/create", name: "Foo", account_number:, routing_number:, account_type:)
@@ -56,9 +56,9 @@ RSpec.describe Suma::API::PaymentInstruments, :db do
       post("/v1/payment_instruments/bank_accounts/create", name: "Foo", account_number:, routing_number:, account_type:)
 
       expect(last_response).to have_status(200)
-      expect(customer.refresh.bank_accounts).to contain_exactly(be === ba)
+      expect(member.refresh.bank_accounts).to contain_exactly(be === ba)
       expect(ba.refresh).to have_attributes(name: "Foo")
-      expect(last_response).to have_json_body.that_includes(id: customer.bank_accounts.first.id)
+      expect(last_response).to have_json_body.that_includes(id: member.bank_accounts.first.id)
     end
   end
 

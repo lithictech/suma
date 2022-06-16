@@ -4,7 +4,7 @@ require "faker"
 
 require "suma"
 require "suma/fixtures"
-require "suma/customer"
+require "suma/member"
 
 module Suma::Fixtures::Sessions
   extend Suma::Fixtures
@@ -17,7 +17,7 @@ module Suma::Fixtures::Sessions
   end
 
   before_saving do |instance|
-    instance.customer ||= Suma::Fixtures.customer.create
+    instance.member ||= Suma::Fixtures.member.create
     instance
   end
 

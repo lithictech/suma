@@ -20,13 +20,13 @@ module Suma::API
         helpers Suma::Service::Helpers
 
         helpers do
-          def verified_customer!
-            c = current_customer
+          def verified_member!
+            c = current_member
             forbidden! unless c.phone_verified?
             return c
           end
 
-          def unsafe_customer_lookup(forbid: false)
+          def unsafe_member_lookup(forbid: false)
             if (token = params["token"]).present?
               c = Suma::Member[opaque_id: token]
             elsif (email = params[:lookup_email]).present?
@@ -36,7 +36,7 @@ module Suma::API
             return c
           end
 
-          params :unsafe_customer_lookup do
+          params :unsafe_member_lookup do
             optional :lookup_email, type: String
             optional :token, type: String
           end

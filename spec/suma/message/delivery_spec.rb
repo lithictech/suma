@@ -14,16 +14,16 @@ RSpec.describe "Suma::Message::Delivery", :db, :messaging do
       expect(described_class.unsent.all).to contain_exactly(unsent)
     end
 
-    it "has a dataset to messages to a customer dataset or array, where they are the recipient or to address" do
-      customer = Suma::Fixtures.customer.create
-      to_customer = Suma::Fixtures.message_delivery.with_recipient(customer).create
-      to_email = Suma::Fixtures.message_delivery.to(customer.email).create
+    it "has a dataset to messages to a member dataset or array, where they are the recipient or to address" do
+      member = Suma::Fixtures.member.create
+      to_member = Suma::Fixtures.message_delivery.with_recipient(member).create
+      to_email = Suma::Fixtures.message_delivery.to(member.email).create
       Suma::Fixtures.message_delivery.with_recipient.create
       Suma::Fixtures.message_delivery.create
 
-      expect(described_class.to_customers([customer]).all).to contain_exactly(to_email, to_customer)
-      expect(described_class.to_customers(Suma::Member.where(id: customer.id)).all).to contain_exactly(
-        to_email, to_customer,
+      expect(described_class.to_members([member]).all).to contain_exactly(to_email, to_member)
+      expect(described_class.to_members(Suma::Member.where(id: member.id)).all).to contain_exactly(
+        to_email, to_member,
       )
     end
   end
@@ -84,22 +84,22 @@ RSpec.describe "Suma::Message::Delivery", :db, :messaging do
   end
 
   describe "fixtures" do
-    let(:member) { Suma::Fixtures.customer.create }
+    let(:member) { Suma::Fixtures.member.create }
 
     it "can specify a recipient" do
       d = Suma::Fixtures.message_delivery.to("me@co.co").create
       expect(d).to have_attributes(transport_type: "fake", to: "me@co.co", recipient: nil)
 
-      d = Suma::Fixtures.message_delivery.to(customer).create
-      expect(d).to have_attributes(transport_type: "fake", to: customer.email, recipient: customer)
+      d = Suma::Fixtures.message_delivery.to(member).create
+      expect(d).to have_attributes(transport_type: "fake", to: member.email, recipient: member)
     end
 
     it "can specify a transport" do
       d = Suma::Fixtures.message_delivery.via(:email).create
       expect(d).to have_attributes(transport_type: "email", to: "fixture-to")
 
-      d = Suma::Fixtures.message_delivery(recipient: customer).via(:email).create
-      expect(d).to have_attributes(transport_type: "email", to: customer.email, recipient: customer)
+      d = Suma::Fixtures.message_delivery(recipient: member).via(:email).create
+      expect(d).to have_attributes(transport_type: "email", to: member.email, recipient: member)
     end
 
     it "can fixture an email with bodies" do
@@ -111,8 +111,8 @@ RSpec.describe "Suma::Message::Delivery", :db, :messaging do
         have_attributes(mediatype: "text/html"),
       )
 
-      d = Suma::Fixtures.message_delivery.to(customer).email.create
-      expect(d).to have_attributes(transport_type: "email", to: customer.email, recipient: customer)
+      d = Suma::Fixtures.message_delivery.to(member).email.create
+      expect(d).to have_attributes(transport_type: "email", to: member.email, recipient: member)
     end
 
     it "can be marked sent" do
@@ -146,22 +146,22 @@ RSpec.describe "Suma::Message::Delivery", :db, :messaging do
     end
 
     it "returns the delivery but rolls back changes" do
-      customer_count = Suma::Member.count
+      member_count = Suma::Member.count
 
       delivery = described_class.preview("Testers::Basic", rack_env: "development")
 
       expect(delivery).to be_a(described_class)
-      expect(Suma::Member.count).to eq(customer_count)
+      expect(Suma::Member.count).to eq(member_count)
       expect(Suma::Message::Delivery[id: delivery.id]).to be_nil
     end
 
     it "can commit changes" do
-      customer_count = Suma::Member.count
+      member_count = Suma::Member.count
 
       delivery = described_class.preview("Testers::Basic", commit: true, rack_env: "development")
 
       expect(delivery).to be_a(described_class)
-      expect(Suma::Member.count).to eq(customer_count + 1)
+      expect(Suma::Member.count).to eq(member_count + 1)
       expect(Suma::Message::Delivery[id: delivery.id]).to be === delivery
     end
   end

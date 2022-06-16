@@ -118,7 +118,7 @@ Sequel.migration do
     end
 
     create_join_table(
-      {customer_id: :members, linked_legal_entity_id: :legal_entities},
+      {member_id: :members, linked_legal_entity_id: :legal_entities},
       name: :member_linked_legal_entities,
     )
 
@@ -135,7 +135,7 @@ Sequel.migration do
       foreign_key :member_id, :members, null: false, on_delete: :cascade, index: true
     end
 
-    create_join_table({role_id: :roles, customer_id: :members}, name: :roles_customers)
+    create_join_table({role_id: :roles, member_id: :members}, name: :roles_members)
 
     create_table(:member_activities) do
       primary_key :id
@@ -321,7 +321,7 @@ Sequel.migration do
 
       foreign_key :member_id, :members, null: false, index: true
 
-      index :member_id, name: "one_active_ride_per_customer", unique: true, where: Sequel[ended_at: nil]
+      index :member_id, name: "one_active_ride_per_member", unique: true, where: Sequel[ended_at: nil]
       constraint(
         :end_fields_set_together,
         Sequel.lit("(end_lat IS NULL AND end_lng IS NULL AND ended_at IS NULL) OR " \
@@ -367,9 +367,9 @@ Sequel.migration do
       constraint(
         :unambiguous_owner,
         Sequel.lit(
-          "(customer_id IS NOT NULL AND vendor_id IS NULL) " \
-          "OR (customer_id IS NULL AND vendor_id IS NOT NULL) " \
-          "OR (is_platform_account IS TRUE AND customer_id IS NULL AND vendor_id IS NULL)",
+          "(member_id IS NOT NULL AND vendor_id IS NULL) " \
+          "OR (member_id IS NULL AND vendor_id IS NOT NULL) " \
+          "OR (is_platform_account IS TRUE AND member_id IS NULL AND vendor_id IS NULL)",
         ),
       )
     end

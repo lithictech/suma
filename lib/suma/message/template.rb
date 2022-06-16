@@ -39,7 +39,7 @@ class Suma::Message::Template
   end
 
   # The name of the template. By default, it is tied to the name of the class,
-  # so Messages::NewMember looks for 'new_customer' templates.
+  # so Messages::NewMember looks for 'new_member' templates.
   # However, a subclass can override this to not tie the template to the class name.
   def template_name
     return self.class.name.demodulize.underscore
@@ -79,8 +79,8 @@ class Suma::Message::Template
 
   # Return a hash of special fields for that this delivery should use.
   # Necessary for deliveries that need to carry along some metadata. For example:
-  #   {'reply_to' => 'customer@gmail.com'}
-  # for customers who send support requests.
+  #   {'reply_to' => 'member@gmail.com'}
+  # for members who send support requests.
   # These fields are subject to flux and change and may only be applicable to some transports.
   def extra_fields
     return {}

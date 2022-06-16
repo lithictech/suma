@@ -18,27 +18,27 @@ module Suma::Service::Helpers
 
   def guard_authed!
     merror!(409, "You are already signed in. Please sign out first.", code: "auth_conflict") if
-      current_customer?
+      current_member?
   end
 
   # Return the currently-authenticated user,
   # or respond with a 401 if there is no authenticated user.
-  def current_customer
-    return _check_customer_deleted(env["warden"].authenticate!(scope: :member), admin_customer?)
+  def current_member
+    return _check_member_deleted(env["warden"].authenticate!(scope: :member), admin_member?)
   end
 
   # Return the currently-authenticated user,
   # or respond nil if there is no authenticated user.
-  def current_customer?
-    return _check_customer_deleted(env["warden"].user(scope: :member), admin_customer?)
+  def current_member?
+    return _check_member_deleted(env["warden"].user(scope: :member), admin_member?)
   end
 
-  def admin_customer
-    return _check_customer_deleted(env["warden"].authenticate!(scope: :admin), nil)
+  def admin_member
+    return _check_member_deleted(env["warden"].authenticate!(scope: :admin), nil)
   end
 
-  def admin_customer?
-    return _check_customer_deleted(env["warden"].authenticate(scope: :admin), nil)
+  def admin_member?
+    return _check_member_deleted(env["warden"].authenticate(scope: :admin), nil)
   end
 
   def authenticate!
@@ -58,7 +58,7 @@ module Suma::Service::Helpers
   #
   # The scenarios this covers are:
   # - Normal users cannot auth if deleted.
-  # - Admins can sudo deleted users, and current_customer still works.
+  # - Admins can sudo deleted users, and current_member still works.
   # - Deleted admins cannot auth or get their sudo'ed user.
   #
   # NOTE: It is safe to throw unauthed errors for deleted users-
@@ -66,7 +66,7 @@ module Suma::Service::Helpers
   # because the only way to call this is via cookies,
   # and cookies are encrypted. So it is impossible to force requests
   # trying to auth/check auth for a user without knowing the secret.
-  def _check_customer_deleted(user, potential_admin)
+  def _check_member_deleted(user, potential_admin)
     return nil if user.nil?
     if potential_admin && (potential_admin.soft_deleted? || !potential_admin.roles.include?(Suma::Role.admin_role))
       delete_session_cookies
@@ -90,18 +90,18 @@ module Suma::Service::Helpers
     cookies.delete(Suma::Service::SESSION_COOKIE, domain: options[:domain], path: options[:path])
   end
 
-  def set_customer(customer)
+  def set_member(member)
     warden = env["warden"]
-    warden.set_user(customer, scope: :member)
-    warden.set_user(customer, scope: :admin) if customer.admin?
+    warden.set_user(member, scope: :member)
+    warden.set_user(member, scope: :admin) if member.admin?
   end
 
   def current_session_id
     return env["rack.session"].id
   end
 
-  def check_role!(customer, role_name)
-    has_role = customer.roles.find { |r| r.name == role_name }
+  def check_role!(member, role_name)
+    has_role = member.roles.find { |r| r.name == role_name }
     return if has_role
     role_exists = !Suma::Role.where(name: role_name).empty?
     raise "The role '#{role_name}' does not exist so cannot be checked. You need to create it first." unless role_exists

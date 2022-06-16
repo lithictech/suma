@@ -4,7 +4,7 @@ require "suma/message/template"
 
 class Suma::Messages::Verification < Suma::Message::Template
   def self.fixtured(recipient)
-    code = Suma::Fixtures.reset_code(customer: recipient).create
+    code = Suma::Fixtures.reset_code(member: recipient).create
     return self.new(code)
   end
 

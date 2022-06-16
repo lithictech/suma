@@ -45,7 +45,7 @@ via Docker or with a system install.
 
 ## Terms
 
-**Members**: Members are something analogous to 'customers.'
+**Members**: Members are something analogous to 'members.'
 But everyone on the platform (vendors and housing partners) are also members,
 and/or made up of members.
 The word 'member' is usually interchangeable with 'resident',

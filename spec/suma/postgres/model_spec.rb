@@ -281,7 +281,7 @@ RSpec.describe "Suma::Postgres::Model", :db do
     end
 
     it "formats timestamps in the local timezone" do
-      inst = Suma::Fixtures.customer.create
+      inst = Suma::Fixtures.member.create
       inst.created_at = Time.new(2016, 12, 30, 22, 17, 55, "-00:00")
       s = Time.use_zone(ActiveSupport::TimeZone.new("Hawaii")) do
         inst.inspect
@@ -315,7 +315,7 @@ RSpec.describe "Suma::Postgres::Model", :db do
   end
 
   describe "resource_lock!" do
-    let(:instance) { Suma::Fixtures.customer.create(note: "hello") }
+    let(:instance) { Suma::Fixtures.member.create(note: "hello") }
     let(:now) { Time.now }
 
     it "raises a LockFailed if updated_at changed before/after the lock" do

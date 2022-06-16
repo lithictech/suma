@@ -8,9 +8,9 @@ class Suma::AdminAPI::Auth < Suma::AdminAPI::BaseV1
   include Suma::Service::Types
 
   resource :auth do
-    desc "Return the current administrator customer."
+    desc "Return the current administrator member."
     get do
-      present admin_customer, with: Suma::AdminAPI::CurrentMemberEntity, env:
+      present admin_member, with: Suma::AdminAPI::CurrentMemberEntity, env:
     end
 
     params do
@@ -24,9 +24,9 @@ class Suma::AdminAPI::Auth < Suma::AdminAPI::BaseV1
         merror!(403, "Those credentials are invalid or that email is not in our system.", code: "invalid_credentials")
       end
       merror!(403, "This account is not an administrator.", code: "invalid_permissions") unless me.admin?
-      set_customer(me)
+      set_member(me)
       status 200
-      present admin_customer, with: Suma::AdminAPI::CurrentMemberEntity, env:
+      present admin_member, with: Suma::AdminAPI::CurrentMemberEntity, env:
     end
 
     delete do
@@ -37,16 +37,16 @@ class Suma::AdminAPI::Auth < Suma::AdminAPI::BaseV1
 
     auth(:admin)
     resource :impersonate do
-      desc "Remove any active impersonation and return the admin customer."
+      desc "Remove any active impersonation and return the admin member."
       delete do
-        Suma::Service::Auth::Impersonation.new(env["warden"]).off(admin_customer)
+        Suma::Service::Auth::Impersonation.new(env["warden"]).off(admin_member)
 
         status 200
-        present admin_customer, with: Suma::AdminAPI::CurrentMemberEntity, env:
+        present admin_member, with: Suma::AdminAPI::CurrentMemberEntity, env:
       end
 
       route_param :member_id, type: Integer do
-        desc "Impersonate a customer"
+        desc "Impersonate a member"
         post do
           (target = Suma::Member[params[:member_id]]) or forbidden!
 

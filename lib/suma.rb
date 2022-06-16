@@ -38,7 +38,7 @@ module Suma
   # are different.
   class ResourceOwnerMismatch < ResourceForbidden; end
 
-  # Error when a resource that a customer owns is used,
+  # Error when a resource that a member owns is used,
   # but cannot because it is deleted.
   class ResourceDeleted < ResourceForbidden; end
 
@@ -145,17 +145,17 @@ module Suma
   # Return the request user and admin stored in TLS. See service.rb for implementation.
   #
   # Note that the second return value (the admin) will be nil if not authed as an admin,
-  # and if an admin is impersonating, the impersonated customer is the first value.
+  # and if an admin is impersonating, the impersonated member is the first value.
   #
   # Both values will be nil if no user is authed or this is called outside of a request.
   #
   # Usually these fields should only be used where it would be sufficiently difficult
   # to pass the current user through the stack.
-  # In the API, you should instead use the 'current customer' methods
-  # like current_customer, and admin_customer, NOT using TLS.
+  # In the API, you should instead use the 'current member' methods
+  # like current_member, and admin_member, NOT using TLS.
   # Outside of the API, this should only be used for things like auditing;
-  # it should NOT, for example, ever be used to determine the 'customer owner' of objects
-  # being created. Nearly all code will be simpler if the current customer
+  # it should NOT, for example, ever be used to determine the 'member owner' of objects
+  # being created. Nearly all code will be simpler if the current member
   # is passed around. But it would be too complex for some code (like auditing)
   # so this system exists. Overuse of request_user_and_admin will inevitably lead to regret.
   def self.request_user_and_admin

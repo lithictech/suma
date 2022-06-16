@@ -50,7 +50,7 @@ RSpec.describe "Suma::Payment::FundingTransaction", :db do
   describe "state machine" do
     let(:strategy) { Suma::Payment::FakeStrategy.create }
     let(:payment) { Suma::Fixtures.funding_transaction.with_fake_strategy(strategy).create }
-    let(:member) { payment.originating_payment_account.customer }
+    let(:member) { payment.originating_payment_account.member }
 
     describe "collect_funds" do
       it "processes to collecting when ready to collect funds, and cleared when funds have cleared" do
@@ -73,11 +73,11 @@ RSpec.describe "Suma::Payment::FundingTransaction", :db do
         strategy.set_response(:collect_funds, true)
         strategy.set_response(:funds_cleared?, false)
         expect(payment).to transition_on(:collect_funds).to("collecting")
-        expect(customer.refresh.activities).to have_length(1)
+        expect(member.refresh.activities).to have_length(1)
 
         strategy.set_response(:collect_funds, false)
         expect(payment).to transition_on(:collect_funds).to("collecting")
-        expect(customer.refresh.activities).to have_length(1)
+        expect(member.refresh.activities).to have_length(1)
       end
 
       it "transition to review needed if ready to collect funds fails terminally" do

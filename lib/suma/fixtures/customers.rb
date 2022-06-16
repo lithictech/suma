@@ -5,7 +5,7 @@ require "securerandom"
 
 require "suma"
 require "suma/fixtures"
-require "suma/customer"
+require "suma/member"
 
 module Suma::Fixtures::Members
   extend Suma::Fixtures

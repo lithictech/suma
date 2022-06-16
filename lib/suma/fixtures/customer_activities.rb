@@ -2,7 +2,7 @@
 
 require "suma"
 require "suma/fixtures"
-require "suma/customer"
+require "suma/member"
 
 module Suma::Fixtures::MemberActivities
   extend Suma::Fixtures
@@ -17,7 +17,7 @@ module Suma::Fixtures::MemberActivities
   end
 
   before_saving do |instance|
-    instance.customer ||= Suma::Fixtures.customer.create
+    instance.member ||= Suma::Fixtures.member.create
     instance
   end
 end

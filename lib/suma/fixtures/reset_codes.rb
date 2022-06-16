@@ -2,7 +2,7 @@
 
 require "suma"
 require "suma/fixtures"
-require "suma/customer/reset_code"
+require "suma/member/reset_code"
 
 module Suma::Fixtures::ResetCodes
   extend Suma::Fixtures
@@ -14,7 +14,7 @@ module Suma::Fixtures::ResetCodes
   end
 
   before_saving do |instance|
-    instance.customer ||= Suma::Fixtures.customer.create
+    instance.member ||= Suma::Fixtures.member.create
     instance
   end
 

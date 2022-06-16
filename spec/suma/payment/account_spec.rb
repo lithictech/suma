@@ -3,14 +3,14 @@
 RSpec.describe "Suma::Payment::Account", :db do
   let(:described_class) { Suma::Payment::Account }
   let(:account) { Suma::Fixtures.payment_account.create }
-  let(:member) { account.customer }
+  let(:member) { account.member }
   let(:now) { Time.now }
 
   describe "associations" do
     it "can find its cash ledger" do
       acct = Suma::Fixtures.payment_account.create
       expect(acct.cash_ledger).to be_nil
-      cashledger = Suma::Payment.ensure_cash_ledger(acct.customer)
+      cashledger = Suma::Payment.ensure_cash_ledger(acct.member)
       expect(acct.refresh.cash_ledger).to be_a(Suma::Payment::Ledger)
       expect(acct.cash_ledger).to be === cashledger
     end
@@ -19,7 +19,7 @@ RSpec.describe "Suma::Payment::Account", :db do
   describe "validations" do
     it "must have an owner" do
       pa = account
-      pa.customer = nil
+      pa.member = nil
       expect { pa.save_changes }.to raise_error(Sequel::CheckConstraintViolation)
     end
 
@@ -28,7 +28,7 @@ RSpec.describe "Suma::Payment::Account", :db do
       pa2 = Suma::Fixtures.payment_account.create
       described_class.lookup_platform_account
       expect do
-        pa2.update(customer: nil, is_platform_account: true)
+        pa2.update(member: nil, is_platform_account: true)
       end.to raise_error(Sequel::UniqueConstraintViolation, /one_platform_account/)
     end
   end
@@ -162,7 +162,7 @@ RSpec.describe "Suma::Payment::Account", :db do
     it "can be looked up" do
       pa = described_class.lookup_platform_account
       expect(pa).to have_attributes(
-        customer: nil,
+        member: nil,
         vendor: nil,
         is_platform_account: true,
       )

@@ -97,9 +97,9 @@ class Suma::Address < Suma::Postgres::Model(:addresses)
   ### two addresses with the same "primary identity" but different states
   ### (since postal code is unique to state/country).
   ###
-  ### This creates some potential issues, where customers can change each other's
+  ### This creates some potential issues, where members can change each other's
   ### addresses (for example, by using the address of an existing property,
-  ### but providing a nonsense +city+ field). The original customer would see
+  ### but providing a nonsense +city+ field). The original member would see
   ### a property with an address with the nonsense +city+.
   ###
   ### In practice, this rarely happens, but we may need to do something

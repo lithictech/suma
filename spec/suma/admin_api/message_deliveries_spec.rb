@@ -7,7 +7,7 @@ RSpec.describe Suma::AdminAPI::MessageDeliveries, :db do
   include Rack::Test::Methods
 
   let(:app) { described_class.build_app }
-  let(:admin) { Suma::Fixtures.customer.admin.create }
+  let(:admin) { Suma::Fixtures.member.admin.create }
 
   before(:each) do
     login_as_admin(admin)
@@ -50,7 +50,7 @@ RSpec.describe Suma::AdminAPI::MessageDeliveries, :db do
       end
     end
 
-    it_behaves_like "an endpoint with customer-supplied ordering" do
+    it_behaves_like "an endpoint with member-supplied ordering" do
       let(:url) { "/v1/message_deliveries" }
       let(:order_by_field) { "to" }
       def make_item(i)
@@ -59,18 +59,18 @@ RSpec.describe Suma::AdminAPI::MessageDeliveries, :db do
     end
   end
 
-  describe "GET /v1/customers/:id/message_deliveries" do
-    it "returns all deliveries that to the customer" do
-      customer = Suma::Fixtures.customer.create
-      to_customer = Suma::Fixtures.message_delivery.with_recipient(customer).create
-      to_email = Suma::Fixtures.message_delivery.to(customer.email).create
+  describe "GET /v1/members/:id/message_deliveries" do
+    it "returns all deliveries that to the member" do
+      member = Suma::Fixtures.member.create
+      to_member = Suma::Fixtures.message_delivery.with_recipient(member).create
+      to_email = Suma::Fixtures.message_delivery.to(member.email).create
       to_neither = Suma::Fixtures.message_delivery.with_recipient.create
 
-      get "/v1/customers/#{customer.id}/message_deliveries"
+      get "/v1/members/#{member.id}/message_deliveries"
 
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.
-        that_includes(items: have_same_ids_as(to_email, to_customer).ordered)
+        that_includes(items: have_same_ids_as(to_email, to_member).ordered)
     end
   end
 

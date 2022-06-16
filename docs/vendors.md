@@ -6,7 +6,7 @@ to [Payments](payments.md).
 
 The roughest analog would be something like an e-commerce store,
 and in fact for some vendors, the services look very similar to e-commerce.
-Ultimately Suma models a way for residents/customers to view
+Ultimately Suma models a way for residents/members to view
 and purchase products, and pay for them;
 it so happens that the viewing can be through a map view (mobility services)
 or 'shopping view' (some food services), and that the payment

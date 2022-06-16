@@ -8,7 +8,7 @@ class Suma::AdminAPI::Members < Suma::AdminAPI::V1
   ALL_TIMEZONES = Set.new(TZInfo::Timezone.all_identifiers)
 
   resource :members do
-    desc "Return all customers, newest first"
+    desc "Return all members, newest first"
     params do
       use :pagination
       use :ordering, model: Suma::Member
@@ -29,19 +29,19 @@ class Suma::AdminAPI::Members < Suma::AdminAPI::V1
 
     route_param :id, type: Integer do
       helpers do
-        def lookup_customer!
-          (customer = Suma::Member[params[:id]]) or not_found!
-          return customer
+        def lookup_member!
+          (member = Suma::Member[params[:id]]) or not_found!
+          return member
         end
       end
 
-      desc "Return the customer"
+      desc "Return the member"
       get do
-        customer = lookup_customer!
-        present customer, with: Suma::AdminAPI::DetailedMemberEntity
+        member = lookup_member!
+        present member, with: Suma::AdminAPI::DetailedMemberEntity
       end
 
-      desc "Update the customer"
+      desc "Update the member"
       params do
         optional :name, type: String
         optional :note, type: String
@@ -51,44 +51,44 @@ class Suma::AdminAPI::Members < Suma::AdminAPI::V1
         optional :roles, type: Array[String]
       end
       post do
-        customer = lookup_customer!
+        member = lookup_member!
         fields = params
-        customer.db.transaction do
+        member.db.transaction do
           if (roles = fields.delete(:roles))
-            customer.remove_all_roles
-            roles.uniq.each { |r| customer.add_role(Suma::Role[name: r]) }
+            member.remove_all_roles
+            roles.uniq.each { |r| member.add_role(Suma::Role[name: r]) }
           end
-          set_declared(customer, params)
-          customer.save_changes
+          set_declared(member, params)
+          member.save_changes
         end
         status 200
-        present customer, with: Suma::AdminAPI::DetailedMemberEntity
+        present member, with: Suma::AdminAPI::DetailedMemberEntity
       end
 
       post :close do
-        customer = lookup_customer!
-        admin = admin_customer
-        customer.db.transaction do
-          customer.add_activity(
+        member = lookup_member!
+        admin = admin_member
+        member.db.transaction do
+          member.add_activity(
             message_name: "accountclosed",
-            summary: "Admin #{admin.email} closed customer #{customer.email} account",
+            summary: "Admin #{admin.email} closed member #{member.email} account",
             subject_type: "Suma::Member",
-            subject_id: customer.id,
+            subject_id: member.id,
           )
-          customer.soft_delete unless customer.soft_deleted?
+          member.soft_delete unless member.soft_deleted?
         end
         status 200
-        present customer, with: Suma::AdminAPI::DetailedMemberEntity
+        present member, with: Suma::AdminAPI::DetailedMemberEntity
       end
 
       get :bank_accounts do
-        customer = lookup_customer!
-        present_collection customer.bank_accounts, with: Suma::AdminAPI::BankAccountEntity
+        member = lookup_member!
+        present_collection member.bank_accounts, with: Suma::AdminAPI::BankAccountEntity
       end
 
       get :payment_instruments do
-        customer = lookup_customer!
-        present_collection customer.bank_accounts, with: Suma::AdminAPI::PaymentInstrumentEntity
+        member = lookup_member!
+        present_collection member.bank_accounts, with: Suma::AdminAPI::PaymentInstrumentEntity
       end
     end
   end

@@ -38,12 +38,12 @@ module Suma::Fixtures::MessageDeliveries
   decorator :to do |recipient=nil|
     recipient = self.transport!.recipient(recipient)
     self.to = recipient.to
-    self.recipient = recipient.customer
+    self.recipient = recipient.member
   end
 
-  decorator :with_recipient do |customer={}|
-    customer = Suma::Fixtures.customer.create(customer) unless customer.is_a?(Suma::Member)
-    self.recipient = customer
+  decorator :with_recipient do |member={}|
+    member = Suma::Fixtures.member.create(member) unless member.is_a?(Suma::Member)
+    self.recipient = member
   end
 
   decorator :with_body, presave: true do |body={}|

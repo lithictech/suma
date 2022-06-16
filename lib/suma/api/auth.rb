@@ -10,8 +10,8 @@ class Suma::API::Auth < Suma::API::V1
   ALL_TIMEZONES = Set.new(TZInfo::Timezone.all_identifiers)
 
   helpers do
-    def create_session(customer)
-      customer.add_session(**Suma::Member::Session.params_for_request(request))
+    def create_session(member)
+      member.add_session(**Suma::Member::Session.params_for_request(request))
     end
   end
 
@@ -24,24 +24,24 @@ class Suma::API::Auth < Suma::API::V1
     post :start do
       guard_authed!
       Suma::Member.db.transaction do
-        customer = Suma::Member.with_us_phone(params[:phone])
-        is_new = customer.nil?
-        customer ||= Suma::Member.new(
+        member = Suma::Member.with_us_phone(params[:phone])
+        is_new = member.nil?
+        member ||= Suma::Member.new(
           phone: params[:phone],
           name: "",
           password_digest: Suma::Member::PLACEHOLDER_PASSWORD_DIGEST,
         )
-        customer.timezone = params[:timezone]
-        save_or_error!(customer)
+        member.timezone = params[:timezone]
+        save_or_error!(member)
         if is_new
-          customer.add_activity(
+          member.add_activity(
             message_name: "registered",
             summary: "Created from API",
             subject_type: "Suma::Member",
-            subject_id: customer.id,
+            subject_id: member.id,
           )
         end
-        customer.add_reset_code({transport: "sms"})
+        member.add_reset_code({transport: "sms"})
         status 200
         present({})
       end
@@ -63,14 +63,14 @@ class Suma::API::Auth < Suma::API::V1
           nil
         else
           Suma::Member::ResetCode.use_code_with_token(params[:token]) do |code|
-            raise Suma::Member::ResetCode::Unusable unless code.customer === me
+            raise Suma::Member::ResetCode::Unusable unless code.member === me
           end
         end
       rescue Suma::Member::ResetCode::Unusable
         merror!(403, "Sorry, that token is invalid or the phone number is not in our system.", code: "invalid_otp")
       end
 
-      set_customer(me)
+      set_member(me)
       create_session(me)
       status 200
       present me, with: Suma::API::CurrentMemberEntity, env:

@@ -19,9 +19,9 @@ class Suma::Mobility::Trip < Suma::Postgres::Model(:mobility_trips)
     end
   end
 
-  def self.start_trip_from_vehicle(customer:, vehicle:, rate:, at: Time.now)
+  def self.start_trip_from_vehicle(member:, vehicle:, rate:, at: Time.now)
     return self.start_trip(
-      customer:,
+      member:,
       vehicle_id: vehicle.vehicle_id,
       vendor_service: vehicle.vendor_service,
       rate:,
@@ -31,11 +31,11 @@ class Suma::Mobility::Trip < Suma::Postgres::Model(:mobility_trips)
     )
   end
 
-  def self.start_trip(customer:, vehicle_id:, vendor_service:, rate:, lat:, lng:, at: Time.now)
-    customer.read_only_mode!
+  def self.start_trip(member:, vehicle_id:, vendor_service:, rate:, lat:, lng:, at: Time.now)
+    member.read_only_mode!
     self.db.transaction(savepoint: true) do
       return self.create(
-        customer:,
+        member:,
         vehicle_id:,
         vendor_service:,
         vendor_service_rate: rate,
@@ -44,8 +44,8 @@ class Suma::Mobility::Trip < Suma::Postgres::Model(:mobility_trips)
         began_at: at,
       )
     rescue Sequel::UniqueConstraintViolation => e
-      raise OngoingTrip, "member #{customer.id} is already in a trip" if
-        e.to_s.include?("one_active_ride_per_customer")
+      raise OngoingTrip, "member #{member.id} is already in a trip" if
+        e.to_s.include?("one_active_ride_per_member")
       raise
     end
   end
@@ -72,10 +72,10 @@ class Suma::Mobility::Trip < Suma::Postgres::Model(:mobility_trips)
       self.charge = Suma::Charge.create(
         mobility_trip: self,
         undiscounted_subtotal:,
-        customer: self.customer,
+        member: self.member,
       )
       result_cost = Money.new(result.cost_cents, result.cost_currency)
-      contributions = self.customer.payment_account!.find_chargeable_ledgers(
+      contributions = self.member.payment_account!.find_chargeable_ledgers(
         self.vendor_service,
         result_cost,
         now:,
@@ -83,7 +83,7 @@ class Suma::Mobility::Trip < Suma::Postgres::Model(:mobility_trips)
         # and deal with a potential negative balance.
         allow_negative_balance: true,
       )
-      xactions = self.customer.payment_account.debit_contributions(
+      xactions = self.member.payment_account.debit_contributions(
         contributions,
         memo: "Suma Mobility - #{self.vendor_service.external_name}",
       )

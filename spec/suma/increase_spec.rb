@@ -205,15 +205,15 @@ RSpec.describe Suma::Increase, :db do
 
   describe "ach_transfer_succeeded?" do
     it "returns true if transfer is submitted and " \
-       "now is at least 5 business days after the ach_transfer_json's created_at in the customer's timezone" do
+       "now is at least 5 business days after the ach_transfer_json's created_at in the member's timezone" do
       pending = {"created_at" => "2020-12-22T12:00:00Z", "status" => "pending_approval"}
       submitted = pending.merge("status" => "submitted")
       late_enough = Time.parse("2020-12-30T20:00:00Z")
       too_early = Time.parse("2020-12-27T20:00:00Z")
       tz = "America/Los_Angeles"
-      expect(described_class).to_not be_ach_transfer_succeeded(submitted, customer_timezone: tz, now: too_early)
-      expect(described_class).to_not be_ach_transfer_succeeded(pending, customer_timezone: tz, now: late_enough)
-      expect(described_class).to be_ach_transfer_succeeded(submitted, customer_timezone: tz, now: late_enough)
+      expect(described_class).to_not be_ach_transfer_succeeded(submitted, member_timezone: tz, now: too_early)
+      expect(described_class).to_not be_ach_transfer_succeeded(pending, member_timezone: tz, now: late_enough)
+      expect(described_class).to be_ach_transfer_succeeded(submitted, member_timezone: tz, now: late_enough)
     end
   end
 end
