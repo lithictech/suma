@@ -11,7 +11,7 @@ class Suma::Tasks::Message < Rake::TaskLib
       desc "Render the specified message"
       task :render, [:template_class, :out] do |_t, args|
         template_class_name = args[:template_class] or
-          raise "Provide the template class name (NewCustomer or new_customer) as the first argument"
+          raise "Provide the template class name (NewMember or new_member) as the first argument"
         outpath = args[:out]
         outpath = nil if outpath.blank? || outpath == "-"
         if outpath

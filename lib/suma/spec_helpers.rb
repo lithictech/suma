@@ -18,7 +18,7 @@ module Suma::SpecHelpers
 
   def self.included(context)
     context.before(:all) do
-      Suma::Customer.password_hash_cost = 1
+      Suma::Member.password_hash_cost = 1
     end
     super
   end

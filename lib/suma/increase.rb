@@ -100,13 +100,13 @@ class Suma::Increase
   end
 
   # Returns true if transfer is submitted and
-  # was created at least 5 business days before now in the customer's timezone.
-  def self.ach_transfer_succeeded?(ach_transfer_json, customer_timezone:, now: Time.now)
+  # was created at least 5 business days before now in the member's timezone.
+  def self.ach_transfer_succeeded?(ach_transfer_json, member_timezone:, now: Time.now)
     status = ach_transfer_json["status"]
     return false unless status == "submitted"
     cutoff = Suma::Biztime.roll_days(
       Suma::Payment::APPROXIMATE_ACH_SCHEDULE,
-      (Time.parse(ach_transfer_json["created_at"])).in_time_zone(customer_timezone),
+      (Time.parse(ach_transfer_json["created_at"])).in_time_zone(member_timezone),
       days: 5,
     )
     return now > cutoff

@@ -13,7 +13,7 @@ require "suma/postgres/model"
 # instead, you will use once_ever and every.
 # For example, to only send a welcome email once:
 #
-#   Suma::Idempotency.once_ever.under_key("welcome-email-#{customer.id}") { send_welcome_email(customer) }
+#   Suma::Idempotency.once_ever.under_key("welcome-email-#{member.id}") { send_welcome_email(member) }
 #
 # Similarly, to prevent an action email from going out multiple times in a short period accidentally:
 #

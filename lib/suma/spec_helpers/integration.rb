@@ -66,19 +66,19 @@ module Suma::SpecHelpers::Integration
     )
   end
 
-  module_function def auth_customer(customer=nil)
-    pw = Suma::Fixtures::Customers::PASSWORD
-    if customer.nil?
-      customer = Suma::Fixtures.customer.password(pw).create
+  module_function def auth_member(member=nil)
+    pw = Suma::Fixtures::Members::PASSWORD
+    if member.nil?
+      member = Suma::Fixtures.member.password(pw).create
     else
-      customer.password = pw
-      customer.save_changes
+      member.password = pw
+      member.save_changes
     end
 
-    resp = post("/api/v1/auth", body: {phone: customer.us_phone, password: pw})
+    resp = post("/api/v1/auth", body: {phone: member.us_phone, password: pw})
     expect(resp).to party_status(200)
 
-    return customer
+    return member
   end
 
   [:get, :post, :put, :patch, :delete].each do |method|

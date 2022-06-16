@@ -6,5 +6,5 @@ class Suma::Payment::FundingTransaction::AuditLog < Suma::Postgres::Model(:payme
   plugin :state_machine_audit_log
 
   many_to_one :funding_transaction, class: "Suma::Payment::FundingTransaction"
-  many_to_one :actor, class: "Suma::Customer"
+  many_to_one :actor, class: "Suma::Member"
 end

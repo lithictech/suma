@@ -16,7 +16,7 @@ class Suma::API::Payments < Suma::API::V1
       requires :payment_method_id, type: Integer
     end
     post :create_funding do
-      c = current_customer
+      c = current_member
       Suma::Payment.ensure_cash_ledger(c)
       bank_account = c.usable_payment_instruments.find do |pi|
         pi.id == params[:payment_method_id] && pi.payment_method_type == params[:payment_method_type]

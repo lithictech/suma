@@ -34,14 +34,14 @@ module Suma::Payment
       map { |h| h[:date] }
   end
 
-  # Every customer should have a 'cash' ledger that is used for almost every service
+  # Every member should have a 'cash' ledger that is used for almost every service
   # (except those that do not have a 'cash' category, which is rare but possible,
   # if a vendor wants to be paid only in scrip or something else).
-  def self.ensure_cash_ledger(customer_or_payment_account)
-    payment_account = if customer_or_payment_account.is_a?(Suma::Customer)
-                        Suma::Payment::Account.find_or_create_or_find(customer: customer_or_payment_account)
+  def self.ensure_cash_ledger(member_or_payment_account)
+    payment_account = if member_or_payment_account.is_a?(Suma::Member)
+                        Suma::Payment::Account.find_or_create_or_find(member: member_or_payment_account)
     else
-      customer_or_payment_account
+      member_or_payment_account
    end
     ledger = payment_account.cash_ledger
     return ledger if ledger

@@ -27,8 +27,8 @@ module Suma::Fixtures::LegalEntities
     self.set(**o)
   end
 
-  decorator :linked_to, presave: true do |customer|
-    customer.add_linked_legal_entity(self)
+  decorator :linked_to, presave: true do |member|
+    member.add_linked_legal_entity(self)
   end
 
   decorator :with_address do |a={}|

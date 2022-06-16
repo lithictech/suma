@@ -50,7 +50,7 @@ module Suma::Message
         transport_type: transport.type,
         transport_service: transport.service,
         to: recipient.to,
-        recipient: recipient.customer,
+        recipient: recipient.member,
         extra_fields: template.extra_fields,
       )
       transport.add_bodies(delivery, contents)
@@ -70,7 +70,7 @@ module Suma::Message
     raise MissingTemplateError, "#{template_file} does not exist" unless template_file.exist?
 
     drops = template.liquid_drops.stringify_keys.merge(
-      "recipient" => Suma::Message::CustomerDrop.new(recipient),
+      "recipient" => Suma::Message::MemberDrop.new(recipient),
       "environment" => Suma::Message::EnvironmentDrop.new,
       "app_url" => Suma.app_url,
     )
@@ -100,14 +100,14 @@ module Suma::Message
 
   class MissingTemplateError < StandardError; end
 
-  # Presents a homogeneous interface for a given 'to' value (email vs. customer, for example).
-  # .to will always be a plain object, and .customer will be a +Suma::Customer+ if present.
+  # Presents a homogeneous interface for a given 'to' value (email vs. member, for example).
+  # .to will always be a plain object, and .member will be a +Suma::Member+ if present.
   class Recipient
-    attr_reader :to, :customer
+    attr_reader :to, :member
 
-    def initialize(to, customer)
+    def initialize(to, member)
       @to = to
-      @customer = customer
+      @member = member
     end
   end
 

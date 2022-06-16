@@ -95,7 +95,7 @@ module Suma::API
     expose :ended_at
   end
 
-  class CurrentCustomerEntity < Suma::Service::Entities::CurrentCustomer
+  class CurrentMemberEntity < Suma::Service::Entities::CurrentMember
     expose :ongoing_trip, with: MobilityTripEntity
     expose :read_only_mode?, as: :read_only_mode
     expose :read_only_reason
@@ -122,7 +122,7 @@ module Suma::API
     expose :balance, with: MoneyEntity
   end
 
-  class CustomerDashboardEntity < BaseEntity
+  class MemberDashboardEntity < BaseEntity
     expose :payment_account_balance, with: MoneyEntity
     expose :lifetime_savings, with: MoneyEntity
     expose :ledger_lines, with: LedgerLineEntity

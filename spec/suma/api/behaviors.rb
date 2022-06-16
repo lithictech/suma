@@ -41,7 +41,7 @@ RSpec.shared_examples "an endpoint with pagination" do
   end
 end
 
-RSpec.shared_examples "an endpoint with customer-supplied ordering" do
+RSpec.shared_examples "an endpoint with member-supplied ordering" do
   let(:url) { raise "must be defined in block" }
   let(:make_item) { raise "must be defined in block" }
   let(:order_by_field) { raise "must be defined in block" }

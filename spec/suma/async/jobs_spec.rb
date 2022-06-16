@@ -9,13 +9,13 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
     Suma::Async.setup_tests
   end
 
-  describe "EnsureDefaultCustomerLedgersOnCreate" do
+  describe "EnsureDefaultMemberLedgersOnCreate" do
     it "creates ledgers" do
       expect do
-        Suma::Fixtures.customer.create
-      end.to perform_async_job(Suma::Async::EnsureDefaultCustomerLedgersOnCreate)
+        Suma::Fixtures.member.create
+      end.to perform_async_job(Suma::Async::EnsureDefaultMemberLedgersOnCreate)
 
-      c = Suma::Customer.last
+      c = Suma::Member.last
       expect(c).to have_attributes(payment_account: be_present)
       expect(c.payment_account.ledgers).to have_length(1)
     end
@@ -89,9 +89,9 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
 
   describe "ResetCodeCreateDispatch" do
     it "sends an sms for an sms reset code" do
-      customer = Suma::Fixtures.customer(phone: "12223334444").create
+      member = Suma::Fixtures.member(phone: "12223334444").create
       expect do
-        customer.add_reset_code(token: "12345", transport: "sms")
+        member.add_reset_code(token: "12345", transport: "sms")
       end.to perform_async_job(Suma::Async::ResetCodeCreateDispatch)
 
       expect(Suma::Message::Delivery.all).to contain_exactly(

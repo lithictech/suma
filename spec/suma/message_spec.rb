@@ -10,7 +10,7 @@ RSpec.describe "Suma::Message", :db, :messaging do
   describe "dispatch" do
     let(:basic) { Suma::Messages::Testers::Basic.new }
     it "creates an undelivered message to the given recipient", messaging: false do
-      recipient = Suma::Fixtures.customer.create
+      recipient = Suma::Fixtures.member.create
       delivery = basic.dispatch(recipient)
 
       expect(delivery).to have_attributes(
@@ -26,15 +26,15 @@ RSpec.describe "Suma::Message", :db, :messaging do
     end
 
     it "can send a message to a bare email" do
-      delivery = basic.dispatch("customer@lithic.tech")
+      delivery = basic.dispatch("member@lithic.tech")
       expect(delivery).to have_attributes(
-        to: "customer@lithic.tech",
+        to: "member@lithic.tech",
         recipient: nil,
       )
     end
 
     it "can specify a different transport" do
-      delivery = basic.dispatch("customer@lithic.tech", transport: :fake)
+      delivery = basic.dispatch("member@lithic.tech", transport: :fake)
       expect(delivery).to have_attributes(
         transport_type: "fake",
         transport_service: "fake",
@@ -43,19 +43,19 @@ RSpec.describe "Suma::Message", :db, :messaging do
 
     it "errors if the transport is invalid", messaging: false do
       expect do
-        basic.dispatch("customer@lithic.tech", transport: :fake2)
+        basic.dispatch("member@lithic.tech", transport: :fake2)
       end.to raise_error(Suma::Message::InvalidTransportError)
     end
 
     it "renders bodies using the specified transport" do
-      delivery = basic.dispatch("customer@lithic.tech", transport: :fake)
+      delivery = basic.dispatch("member@lithic.tech", transport: :fake)
       expect(delivery.bodies).to have_length(1)
-      expect(delivery.bodies.first).to have_attributes(content: match("test message to customer@lithic.tech"))
+      expect(delivery.bodies.first).to have_attributes(content: match("test message to member@lithic.tech"))
     end
   end
 
   describe "rendering" do
-    let(:recipient) { Suma::Message::Recipient.new("customer@lithic.tech", nil) }
+    let(:recipient) { Suma::Message::Recipient.new("member@lithic.tech", nil) }
 
     it "errors if a template for the specified transport does not exist" do
       expect do
@@ -67,7 +67,7 @@ RSpec.describe "Suma::Message", :db, :messaging do
     it "renders the template using the given attributes" do
       tmpl = testers::WithField.new(2)
       r = Suma::Message.render(tmpl, :fake, recipient)
-      expect(r.contents.strip).to eq("test message to customer@lithic.tech, field 2")
+      expect(r.contents.strip).to eq("test message to member@lithic.tech, field 2")
     end
 
     it "renders strictly" do
@@ -80,7 +80,7 @@ RSpec.describe "Suma::Message", :db, :messaging do
     it "exposes variables from the template" do
       tmpl = testers::WithField.new(2)
       r = Suma::Message.render(tmpl, :email, recipient)
-      expect(r[:subject]).to eq("subject with field 2 to customer@lithic.tech")
+      expect(r[:subject]).to eq("subject with field 2 to member@lithic.tech")
     end
 
     it "can use includes" do

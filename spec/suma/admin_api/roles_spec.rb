@@ -6,7 +6,7 @@ RSpec.describe Suma::AdminAPI::Roles, :db do
   include Rack::Test::Methods
 
   let(:app) { described_class.build_app }
-  let(:admin) { Suma::Fixtures.customer.admin.create }
+  let(:admin) { Suma::Fixtures.member.admin.create }
 
   before(:each) do
     login_as_admin(admin)

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Suma::Message
-  class CustomerDrop < Liquid::Drop
+  class MemberDrop < Liquid::Drop
     def initialize(recipient)
       @recipient = recipient
       super()
@@ -12,12 +12,12 @@ module Suma::Message
     end
 
     def name
-      return @recipient.customer&.name
+      return @recipient.member&.name
     end
 
     def greeting
-      return nil unless @recipient.customer
-      return @recipient.customer.greeting
+      return nil unless @recipient.member
+      return @recipient.member.greeting
     end
   end
 

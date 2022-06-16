@@ -6,23 +6,23 @@ RSpec.describe Suma::API::Me, :db do
   include Rack::Test::Methods
 
   let(:app) { described_class.build_app }
-  let(:customer) { Suma::Fixtures.customer.create }
+  let(:member) { Suma::Fixtures.member.create }
 
   before(:each) do
-    login_as(customer)
+    login_as(member)
   end
 
   describe "GET /v1/me" do
-    it "returns the authed customer" do
+    it "returns the authed member" do
       get "/v1/me"
 
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.
-        that_includes(email: customer.email, ongoing_trip: nil)
+        that_includes(email: member.email, ongoing_trip: nil)
     end
 
-    it "errors if the customer is soft deleted" do
-      customer.soft_delete
+    it "errors if the member is soft deleted" do
+      member.soft_delete
 
       get "/v1/me"
 
@@ -40,16 +40,16 @@ RSpec.describe Suma::API::Me, :db do
     it "adds a session if the user does not have one" do
       get "/v1/me"
       expect(last_response).to have_status(200)
-      expect(Suma::Customer::Session.all).to have_length(1)
-      expect(Suma::Customer::Session.last).to have_attributes(customer: be === customer)
+      expect(Suma::Member::Session.all).to have_length(1)
+      expect(Suma::Member::Session.last).to have_attributes(member: be === member)
 
       get "/v1/me"
       expect(last_response).to have_status(200)
-      expect(Suma::Customer::Session.all).to have_length(1)
+      expect(Suma::Member::Session.all).to have_length(1)
     end
 
-    it "returns the customer's ongoing trip if they have one" do
-      trip = Suma::Fixtures.mobility_trip.ongoing.create(customer:)
+    it "returns the member's ongoing trip if they have one" do
+      trip = Suma::Fixtures.mobility_trip.ongoing.create(member:)
 
       get "/v1/me"
 
@@ -60,29 +60,29 @@ RSpec.describe Suma::API::Me, :db do
   end
 
   describe "POST /v1/me/update" do
-    it "updates the given fields on the customer" do
+    it "updates the given fields on the member" do
       post "/v1/me/update", name: "Hassan", other_thing: "abcd"
 
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.
         that_includes(name: "Hassan")
 
-      expect(customer.refresh).to have_attributes(name: "Hassan")
+      expect(member.refresh).to have_attributes(name: "Hassan")
     end
 
-    it "can set the address on the customer" do
+    it "can set the address on the member" do
       post "/v1/me/update",
            name: "Hassan",
            address: {address1: "123 Main", city: "Portland", state_or_province: "OR", postal_code: "11111"}
 
       expect(last_response).to have_status(200)
-      expect(customer.refresh.legal_entity.address).to have_attributes(address1: "123 Main")
+      expect(member.refresh.legal_entity.address).to have_attributes(address1: "123 Main")
     end
   end
 
   describe "GET /v1/me/dashboard" do
     it "returns the dashboard" do
-      cash_ledger = Suma::Fixtures.ledger.customer(customer).category(:cash).create
+      cash_ledger = Suma::Fixtures.ledger.member(member).category(:cash).create
       Suma::Fixtures.book_transaction.to(cash_ledger).create(amount: money("$27"))
 
       get "/v1/me/dashboard"

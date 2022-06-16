@@ -14,7 +14,7 @@ module Suma::Fixtures::Charges
   end
 
   before_saving do |instance|
-    instance.customer ||= Suma::Fixtures.customer.create
+    instance.member ||= Suma::Fixtures.member.create
     instance
   end
 end

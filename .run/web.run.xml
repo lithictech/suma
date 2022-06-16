@@ -7,7 +7,7 @@
     <COMMAND_RUN_CONFIGURATION NAME="ALTERN_SDK_NAME" VALUE="" />
     <COMMAND_RUN_CONFIGURATION NAME="myPassParentEnvs" VALUE="true" />
     <envs>
-      <env name="CUSTOMER_SKIP_VERIFICATION_ALLOWLIST" value="1222*" />
+      <env name="MEMBER_SKIP_VERIFICATION_ALLOWLIST" value="1222*" />
     </envs>
     <EXTENSION ID="BundlerRunConfigurationExtension" BUNDLE_MODE="AUTO" bundleExecEnabled="true" />
     <EXTENSION ID="JRubyRunConfigurationExtension" NailgunExecEnabled="false" />

@@ -2,19 +2,19 @@
 
 require "suma"
 require "suma/fixtures"
-require "suma/customer/reset_code"
+require "suma/member/reset_code"
 
 module Suma::Fixtures::ResetCodes
   extend Suma::Fixtures
 
-  fixtured_class Suma::Customer::ResetCode
+  fixtured_class Suma::Member::ResetCode
 
   base :reset_code do
     self.transport ||= ["sms", "email"].sample
   end
 
   before_saving do |instance|
-    instance.customer ||= Suma::Fixtures.customer.create
+    instance.member ||= Suma::Fixtures.member.create
     instance
   end
 

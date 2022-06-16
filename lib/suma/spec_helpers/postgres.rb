@@ -72,8 +72,8 @@ module Suma::SpecHelpers::Postgres
     end
 
     wrapped_proc.call
-    return if !SNIFF_LEAKY_TESTS || Suma::Customer.empty?
-    puts "Customer is not cleaned up, failing for diagnosis."
+    return if !SNIFF_LEAKY_TESTS || Suma::Member.empty?
+    puts "Member is not cleaned up, failing for diagnosis."
     puts "Check the spec that ran before: #{example.metadata[:full_description]}"
     exit
   end
@@ -112,7 +112,7 @@ module Suma::SpecHelpers::Postgres
 
   module_function def truncate_all
     # We can delete items from 'leaf' to 'trunk' in association terms
-    # by using the TSort API (so Address and Customer, for example, are very early,
+    # by using the TSort API (so Address and Member, for example, are very early,
     # while 'StripeAttributes', which nothing has an FK into, is very late).
     # This is much faster than truncating with cascade.
     # Though in some cases, it doesn't work, so we need to cascade.

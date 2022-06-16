@@ -7,7 +7,7 @@ require "suma/messages/specs"
 
 RSpec.describe "async workers", :integration do
   it "can process message deliveries" do
-    c = Suma::Fixtures.customer.create
+    c = Suma::Fixtures.member.create
     c.soft_delete
     md = with_async_publisher do
       Suma::Messages::Testers::Basic.new.dispatch(c)

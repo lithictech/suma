@@ -30,8 +30,8 @@ class Suma::Message::Transport
   # Override this if a transport needs a different 'to' than the email,
   # like for text messages.
   def recipient(to)
-    if to.is_a?(Suma::Customer)
-      (email = to.email) or raise "Customer #{to.id} has no default email"
+    if to.is_a?(Suma::Member)
+      (email = to.email) or raise "Member #{to.id} has no default email"
       return Suma::Message::Recipient.new(email, to)
     end
     return Suma::Message::Recipient.new(to, nil)

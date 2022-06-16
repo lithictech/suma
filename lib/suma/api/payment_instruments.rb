@@ -12,7 +12,7 @@ class Suma::API::PaymentInstruments < Suma::API::V1
         requires :account_type, type: String, values: ["checking", "savings"]
       end
       post :create do
-        c = current_customer
+        c = current_member
         account_number = params.delete(:account_number)
         routing_number = params.delete(:routing_number)
         ba = c.legal_entity.bank_accounts_dataset[account_number:, routing_number:]
@@ -39,7 +39,7 @@ class Suma::API::PaymentInstruments < Suma::API::V1
       route_param :id, type: Integer do
         helpers do
           def lookup
-            c = current_customer
+            c = current_member
             ba = c.legal_entity.bank_accounts_dataset.usable[params[:id]]
             merror!(403, "No bank account with that id", code: "resource_not_found") if ba.nil?
             return ba
@@ -51,7 +51,7 @@ class Suma::API::PaymentInstruments < Suma::API::V1
           present(
             ba,
             with: Suma::API::MutationPaymentInstrumentEntity,
-            all_payment_instruments: current_customer.usable_payment_instruments,
+            all_payment_instruments: current_member.usable_payment_instruments,
           )
         end
       end

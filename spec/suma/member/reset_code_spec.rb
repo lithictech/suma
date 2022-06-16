@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
-RSpec.describe "Suma::Customer::ResetCode", :db do
-  let(:described_class) { Suma::Customer::ResetCode }
-  let(:customer) { Suma::Fixtures.customer.create }
-  let(:reset_code) { Suma::Fixtures.reset_code(customer:).create }
+RSpec.describe "Suma::Member::ResetCode", :db do
+  let(:described_class) { Suma::Member::ResetCode }
+  let(:member) { Suma::Fixtures.member.create }
+  let(:reset_code) { Suma::Fixtures.reset_code(member:).create }
 
   it "has a generated six-digit token" do
     expect(reset_code.token).to match(/^\d{6}$/)
@@ -36,8 +36,8 @@ RSpec.describe "Suma::Customer::ResetCode", :db do
       expect(reset_code).to be_used
     end
 
-    it "marks any unused code on the customer as expired" do
-      other_code = described_class.create(customer:, transport: "sms")
+    it "marks any unused code on the member as expired" do
+      other_code = described_class.create(member:, transport: "sms")
       expect(other_code).to be_usable
       expect(other_code).to_not be_expired
       expect(other_code).to_not be_used
@@ -52,9 +52,9 @@ RSpec.describe "Suma::Customer::ResetCode", :db do
 
   describe "datasets" do
     it "can select only usable codes" do
-      used = Suma::Fixtures.reset_code(customer:).create.use!
-      expired = Suma::Fixtures.reset_code(customer:).create(expire_at: 1.minute.ago)
-      usable = Suma::Fixtures.reset_code(customer:).create
+      used = Suma::Fixtures.reset_code(member:).create.use!
+      expired = Suma::Fixtures.reset_code(member:).create(expire_at: 1.minute.ago)
+      usable = Suma::Fixtures.reset_code(member:).create
 
       expect(described_class.usable).to contain_exactly(usable)
     end

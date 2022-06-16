@@ -68,8 +68,8 @@ RSpec.describe "Suma::BankAccount", :db do
 
   describe "validations" do
     it "errors for duplicate undeleted bank accounts" do
-      customer = Suma::Fixtures.customer.create
-      fac = Suma::Fixtures.bank_account(routing_number: "011401533", account_number: "9900009606").customer(customer)
+      member = Suma::Fixtures.member.create
+      fac = Suma::Fixtures.bank_account(routing_number: "011401533", account_number: "9900009606").member(member)
       fac.create.soft_delete
       fac.create
       expect { fac.create }.to raise_error(

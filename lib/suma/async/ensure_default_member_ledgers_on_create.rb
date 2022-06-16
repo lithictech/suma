@@ -2,13 +2,13 @@
 
 require "amigo/job"
 
-class Suma::Async::EnsureDefaultCustomerLedgersOnCreate
+class Suma::Async::EnsureDefaultMemberLedgersOnCreate
   extend Amigo::Job
 
-  on "suma.customer.created"
+  on "suma.member.created"
 
   def _perform(event)
-    c = self.lookup_model(Suma::Customer, event)
+    c = self.lookup_model(Suma::Member, event)
     Suma::Payment.ensure_cash_ledger(c)
   end
 

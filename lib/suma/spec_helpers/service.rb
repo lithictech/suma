@@ -26,25 +26,25 @@ module Suma::SpecHelpers::Service
     return session["session_id"]
   end
 
-  def login_as(customer, opts=nil)
-    opts ||= {scope: :customer}
+  def login_as(member, opts=nil)
+    opts ||= {scope: :member}
     Warden.on_next_request do |proxy|
       opts[:event] ||= :authentication
-      proxy.set_user(customer, opts)
+      proxy.set_user(member, opts)
     end
   end
 
-  def login_as_admin(customer, opts={})
-    login_as(customer, opts.merge(scope: :customer))
-    login_as(customer, opts.merge(scope: :admin))
+  def login_as_admin(member, opts={})
+    login_as(member, opts.merge(scope: :member))
+    login_as(member, opts.merge(scope: :admin))
   end
 
   def impersonate(admin: nil, target: nil)
-    admin ||= Suma::Fixtures.customer.admin.create
-    target ||= Suma::Fixtures.customer.create
+    admin ||= Suma::Fixtures.member.admin.create
+    target ||= Suma::Fixtures.member.create
     Warden.on_next_request do |proxy|
       proxy.set_user(admin, event: :authentication, scope: :admin)
-      proxy.set_user(target, event: :authentication, scope: :customer)
+      proxy.set_user(target, event: :authentication, scope: :member)
       Suma::Service::Auth::Impersonation.new(proxy).on(target)
     end
   end

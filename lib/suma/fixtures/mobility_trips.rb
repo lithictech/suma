@@ -17,7 +17,7 @@ module Suma::Fixtures::MobilityTrips
   end
 
   before_saving do |instance|
-    instance.customer ||= Suma::Fixtures.customer.create
+    instance.member ||= Suma::Fixtures.member.create
     instance.vendor_service ||= Suma::Fixtures.vendor_service.mobility.create
     instance.vendor_service_rate ||= Suma::Fixtures.vendor_service_rate.create
     instance

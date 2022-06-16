@@ -2,14 +2,14 @@
 
 require "suma"
 require "suma/fixtures"
-require "suma/customer"
+require "suma/member"
 
-module Suma::Fixtures::CustomerActivities
+module Suma::Fixtures::MemberActivities
   extend Suma::Fixtures
 
-  fixtured_class Suma::Customer::Activity
+  fixtured_class Suma::Member::Activity
 
-  base :customer_activity do
+  base :member_activity do
     self.message_name ||= Faker::NatoPhoneticAlphabet.code_word
     self.summary ||= "Fixtured activity"
     self.subject_type ||= "Fixtured"
@@ -17,7 +17,7 @@ module Suma::Fixtures::CustomerActivities
   end
 
   before_saving do |instance|
-    instance.customer ||= Suma::Fixtures.customer.create
+    instance.member ||= Suma::Fixtures.member.create
     instance
   end
 end

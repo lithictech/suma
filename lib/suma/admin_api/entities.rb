@@ -6,7 +6,7 @@ require "suma/service/entities"
 require "suma/admin_api" unless defined? Suma::AdminAPI
 
 module Suma::AdminAPI
-  CurrentCustomerEntity = Suma::Service::Entities::CurrentCustomer
+  CurrentMemberEntity = Suma::Service::Entities::CurrentMember
   MoneyEntity = Suma::Service::Entities::Money
   LegalEntityEntity = Suma::Service::Entities::LegalEntityEntity
   TimeRangeEntity = Suma::Service::Entities::TimeRange
@@ -49,13 +49,13 @@ module Suma::AdminAPI
     expose :legal_entity_display
   end
 
-  class AuditCustomerEntity < BaseEntity
+  class AuditMemberEntity < BaseEntity
     expose :id
     expose :email
     expose :name
   end
 
-  class CustomerEntity < BaseEntity
+  class MemberEntity < BaseEntity
     include AutoExposeBase
     expose :email
     expose :name
@@ -63,14 +63,14 @@ module Suma::AdminAPI
     expose :timezone
   end
 
-  class CustomerActivityEntity < BaseEntity
+  class MemberActivityEntity < BaseEntity
     include AutoExposeBase
     expose :message_name
     expose :message_vars
     expose :summary
   end
 
-  class CustomerResetCodeEntity < BaseEntity
+  class MemberResetCodeEntity < BaseEntity
     include AutoExposeBase
     expose :transport
     expose :token
@@ -78,7 +78,7 @@ module Suma::AdminAPI
     expose :expire_at
   end
 
-  class CustomerSessionEntity < BaseEntity
+  class MemberSessionEntity < BaseEntity
     include AutoExposeBase
     expose :user_agent
     expose :peer_ip, &self.delegate_to(:peer_ip, :to_s)
@@ -116,7 +116,7 @@ module Suma::AdminAPI
     expose :account_type
   end
 
-  class DetailedCustomerEntity < CustomerEntity
+  class DetailedMemberEntity < MemberEntity
     include AutoExposeDetail
     expose :opaque_id
     expose :note
@@ -127,9 +127,9 @@ module Suma::AdminAPI
       Suma::Role.order(:name).select_map(:name)
     end
     expose :legal_entity, with: LegalEntityEntity
-    expose :activities, with: CustomerActivityEntity
-    expose :reset_codes, with: CustomerResetCodeEntity
-    expose :sessions, with: CustomerSessionEntity
+    expose :activities, with: MemberActivityEntity
+    expose :reset_codes, with: MemberResetCodeEntity
+    expose :sessions, with: MemberSessionEntity
   end
 
   class DetailedBankAccountEntity < BankAccountEntity

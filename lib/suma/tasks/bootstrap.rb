@@ -44,7 +44,7 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
         Suma::Mobility::SyncSpin.sync_all
       end
       puts "Synced #{i} scooters"
-      admin = Suma::Customer.find_or_create(email: "admin@lithic.tech") do |c|
+      admin = Suma::Member.find_or_create(email: "admin@lithic.tech") do |c|
         c.password = "Password1!"
         c.name = "Suma Admin"
         c.phone = "15552223333"

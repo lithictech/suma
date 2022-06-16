@@ -7,7 +7,7 @@ class Suma::API::Ledgers < Suma::API::V1
   resource :ledgers do
     desc "Return an overview of all ledgers including balances, and recent transactions."
     get :overview do
-      me = current_customer
+      me = current_member
       lv = Suma::Payment::LedgersView.new(me.payment_account&.ledgers || [])
       first_page = []
       page_count = 0
@@ -31,7 +31,7 @@ class Suma::API::Ledgers < Suma::API::V1
         use :short_pagination
       end
       get :lines do
-        me = current_customer
+        me = current_member
         me.payment_account or forbidden!
         (ledger = me.payment_account.ledgers_dataset[params[:id]]) or forbidden!
         ds = ledger.combined_book_transactions_dataset

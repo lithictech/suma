@@ -1,18 +1,18 @@
 # frozen_string_literal: true
 
-RSpec.describe "Suma::Customer", :db do
-  let(:described_class) { Suma::Customer }
+RSpec.describe "Suma::Member", :db do
+  let(:described_class) { Suma::Member }
 
   it "can be inspected" do
-    expect { Suma::Customer.new.inspect }.to_not raise_error
+    expect { Suma::Member.new.inspect }.to_not raise_error
   end
 
   describe "associations" do
     it "has an ongoing_trip association" do
-      c = Suma::Fixtures.customer.with_cash_ledger.create
-      Suma::Fixtures.ledger.customer(c).category(:mobility).create # So we can end trip
+      c = Suma::Fixtures.member.with_cash_ledger.create
+      Suma::Fixtures.ledger.member(c).category(:mobility).create # So we can end trip
       expect(c.ongoing_trip).to be_nil
-      t = Suma::Fixtures.mobility_trip.ongoing.create(customer: c)
+      t = Suma::Fixtures.mobility_trip.ongoing.create(member: c)
       expect(c.refresh.ongoing_trip).to be === t
       t.end_trip(lat: 1, lng: 2)
       expect(c.refresh.ongoing_trip).to be_nil
@@ -30,25 +30,25 @@ RSpec.describe "Suma::Customer", :db do
   end
 
   context "ensure_role" do
-    let(:customer) { Suma::Fixtures.customer.create }
-    let(:role) { Suma::Role.create(name: "customer-test") }
+    let(:member) { Suma::Fixtures.member.create }
+    let(:role) { Suma::Role.create(name: "member-test") }
     it "can set a role by a role object" do
-      customer.ensure_role(role)
+      member.ensure_role(role)
 
-      expect(customer.roles).to contain_exactly(role)
+      expect(member.roles).to contain_exactly(role)
     end
 
     it "can set a role by the role name" do
-      customer.ensure_role(role.name)
-      expect(customer.roles).to contain_exactly(role)
+      member.ensure_role(role.name)
+      expect(member.roles).to contain_exactly(role)
     end
 
-    it "noops if the customer already has the role" do
-      customer.ensure_role(role.name)
-      customer.ensure_role(role.name)
-      customer.ensure_role(role)
-      customer.ensure_role(role)
-      expect(customer.roles).to contain_exactly(role)
+    it "noops if the member already has the role" do
+      member.ensure_role(role.name)
+      member.ensure_role(role.name)
+      member.ensure_role(role)
+      member.ensure_role(role)
+      expect(member.roles).to contain_exactly(role)
     end
   end
 
@@ -56,19 +56,19 @@ RSpec.describe "Suma::Customer", :db do
     let(:password) { "testtest1" }
 
     it "returns true if the password matches" do
-      u = Suma::Customer.new
+      u = Suma::Member.new
       u.password = password
       expect(u.authenticate(password)).to be_truthy
     end
 
     it "returns false if the password does not match" do
-      u = Suma::Customer.new
+      u = Suma::Member.new
       u.password = "testtest1"
       expect(u.authenticate("testtest2")).to be_falsey
     end
 
     it "returns false if the new password is blank" do
-      u = Suma::Customer.new
+      u = Suma::Member.new
       expect(u.authenticate(nil)).to be_falsey
       expect(u.authenticate("")).to be_falsey
 
@@ -78,7 +78,7 @@ RSpec.describe "Suma::Customer", :db do
     end
 
     it "cannot auth after being removed" do
-      u = Suma::Fixtures.customer.create
+      u = Suma::Fixtures.member.create
       u.soft_delete
       u.password = password
       expect(u.authenticate(password)).to be_falsey
@@ -86,32 +86,32 @@ RSpec.describe "Suma::Customer", :db do
   end
 
   describe "setting password" do
-    let(:customer) { Suma::Fixtures.customer.instance }
+    let(:member) { Suma::Fixtures.member.instance }
 
     it "sets the digest to a bcrypt hash" do
-      customer.password = "abcdefg123"
-      expect(customer.password_digest.to_s).to have_length(described_class::PLACEHOLDER_PASSWORD_DIGEST.to_s.length)
+      member.password = "abcdefg123"
+      expect(member.password_digest.to_s).to have_length(described_class::PLACEHOLDER_PASSWORD_DIGEST.to_s.length)
     end
 
     it "uses the placeholder for a nil password" do
-      customer.password = nil
-      expect(customer.password_digest).to be === described_class::PLACEHOLDER_PASSWORD_DIGEST
+      member.password = nil
+      expect(member.password_digest).to be === described_class::PLACEHOLDER_PASSWORD_DIGEST
     end
 
     it "fails if the password is not complex enough" do
-      expect { customer.password = "" }.to raise_error(described_class::InvalidPassword)
+      expect { member.password = "" }.to raise_error(described_class::InvalidPassword)
     end
   end
 
   describe "verification" do
-    let(:c) { Suma::Fixtures.customer.instance }
+    let(:c) { Suma::Fixtures.member.instance }
 
     def skip_verification?(c, list=nil)
       list ||= ["*autoverify@lithic.tech", "1555*"]
       return c.class.matches_allowlist?(c, list)
     end
 
-    it "says if customer is allowlisted based on phone or email" do
+    it "says if member is allowlisted based on phone or email" do
       c.phone = nil
       expect(skip_verification?(c.set(email: "rob@lithic.tech"))).to be_falsey
       expect(skip_verification?(c.set(email: "rob+autoverify@lithic.tech"))).to be_truthy
@@ -125,7 +125,7 @@ RSpec.describe "Suma::Customer", :db do
 
   describe "onboarded?" do
     it "is false if address or name fields are missing" do
-      c = Suma::Fixtures.customer.create(name: "")
+      c = Suma::Fixtures.member.create(name: "")
       expect(c).to_not be_onboarded
 
       c.name = "X"
@@ -144,15 +144,15 @@ RSpec.describe "Suma::Customer", :db do
   end
 
   describe "legal entity" do
-    let(:c) { Suma::Fixtures.customer.with_legal_entity.instance }
+    let(:c) { Suma::Fixtures.member.with_legal_entity.instance }
 
-    it "gets its name copied on customer update if it is blank" do
+    it "gets its name copied on member update if it is blank" do
       c.legal_entity.update(name: "")
       c.update(name: "Jim Davis")
       expect(c.legal_entity.refresh).to have_attributes(name: "Jim Davis")
     end
 
-    it "gets its name copied on customer update if it matches the previous value" do
+    it "gets its name copied on member update if it matches the previous value" do
       c.update(name: "Jim Davis")
       c.legal_entity.update(name: "Jim Davis")
       c.update(name: "James Davis")
@@ -168,34 +168,34 @@ RSpec.describe "Suma::Customer", :db do
   end
 
   describe "read_only_mode" do
-    it "is true if the customer has no payment account" do
-      c = Suma::Fixtures.customer.onboarding_verified.create
+    it "is true if the member has no payment account" do
+      c = Suma::Fixtures.member.onboarding_verified.create
       expect(c).to be_read_only_mode
       expect(c).to have_attributes(read_only_reason: "read_only_technical_error")
     end
 
-    it "is true if the customer has a $0 balance" do
-      c = Suma::Fixtures.customer.onboarding_verified.create
-      Suma::Payment::Account.create(customer: c)
+    it "is true if the member has a $0 balance" do
+      c = Suma::Fixtures.member.onboarding_verified.create
+      Suma::Payment::Account.create(member: c)
       expect(c).to be_read_only_mode
       expect(c).to have_attributes(read_only_reason: "read_only_zero_balance")
     end
 
-    it "is true if the customer has not been verified" do
-      c = Suma::Fixtures.customer.with_cash_ledger(amount: money("$5")).create
+    it "is true if the member has not been verified" do
+      c = Suma::Fixtures.member.with_cash_ledger(amount: money("$5")).create
       expect(c).to be_read_only_mode
       expect(c).to have_attributes(read_only_reason: "read_only_unverified")
     end
 
-    it "is false if the customer is verified and has a balance" do
-      c = Suma::Fixtures.customer.onboarding_verified.with_cash_ledger(amount: money("$5")).create
+    it "is false if the member is verified and has a balance" do
+      c = Suma::Fixtures.member.onboarding_verified.with_cash_ledger(amount: money("$5")).create
       expect(c).to have_attributes(read_only_reason: nil, read_only_mode?: false)
     end
   end
 
   describe "usable_payment_instruments" do
-    let(:customer) { Suma::Fixtures.customer.create }
-    let(:bank_fac) { Suma::Fixtures.bank_account.customer(customer) }
+    let(:member) { Suma::Fixtures.member.create }
+    let(:bank_fac) { Suma::Fixtures.bank_account.member(member) }
 
     it "returns undeleted bank accounts" do
       deleted_ba = bank_fac.create
@@ -204,13 +204,13 @@ RSpec.describe "Suma::Customer", :db do
       ba2 = bank_fac.create
       ba1 = bank_fac.create
 
-      expect(customer.usable_payment_instruments).to have_same_ids_as(ba1, ba2).ordered
+      expect(member.usable_payment_instruments).to have_same_ids_as(ba1, ba2).ordered
     end
   end
 
   describe "soft deleting" do
     it "sets email and password" do
-      c = Suma::Fixtures.customer(email: "a@b.c", password: "password").create
+      c = Suma::Fixtures.member(email: "a@b.c", password: "password").create
       expect do
         c.soft_delete
       end.to(change { c.password_digest })
@@ -218,7 +218,7 @@ RSpec.describe "Suma::Customer", :db do
     end
 
     it "sets phone to an invalid, unused phone number" do
-      c = Suma::Fixtures.customer(phone: "15551234567").create
+      c = Suma::Fixtures.member(phone: "15551234567").create
       c.soft_delete
       expect(c.phone).to_not eq("15551234567")
       expect(c.phone).to have_length(15)
@@ -226,7 +226,7 @@ RSpec.describe "Suma::Customer", :db do
     end
 
     it "can retrieve the display email" do
-      c = Suma::Fixtures.customer(email: "x@y.com").create
+      c = Suma::Fixtures.member(email: "x@y.com").create
       expect(c.display_email).to eq("x@y.com")
       c.soft_delete
       expect(c.display_email).to eq("x@y.com")

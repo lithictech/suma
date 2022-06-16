@@ -22,8 +22,8 @@ module Suma::Fixtures::BankAccounts
     instance
   end
 
-  decorator :customer do |c={}|
-    c = Suma::Fixtures.customer(c).create unless c.is_a?(Suma::Customer)
+  decorator :member do |c={}|
+    c = Suma::Fixtures.member(c).create unless c.is_a?(Suma::Member)
     self.legal_entity = c.legal_entity
   end
 

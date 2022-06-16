@@ -63,75 +63,75 @@ RSpec.describe Suma do
     end
 
     it "is the same for the same model instance" do
-      customer = Suma::Customer.new
-      key1 = described_class.idempotency_key(customer)
-      key2 = described_class.idempotency_key(customer)
+      member = Suma::Member.new
+      key1 = described_class.idempotency_key(member)
+      key2 = described_class.idempotency_key(member)
       expect(key1).to eq(key2)
     end
 
     it "is the same for models with the same type and primary key" do
-      customer1 = Suma::Customer.new
-      customer1.id = 1
-      customer2 = Suma::Customer.new
-      customer2.id = 1
+      member1 = Suma::Member.new
+      member1.id = 1
+      member2 = Suma::Member.new
+      member2.id = 1
 
-      key1 = described_class.idempotency_key(customer1)
-      key2 = described_class.idempotency_key(customer2)
+      key1 = described_class.idempotency_key(member1)
+      key2 = described_class.idempotency_key(member2)
       expect(key1).to eq(key2)
     end
 
     it "is unique for the same model type with different ids" do
-      customer1 = Suma::Customer.new
-      customer1.id = 1
-      customer2 = Suma::Customer.new
-      customer2.id = 2
+      member1 = Suma::Member.new
+      member1.id = 1
+      member2 = Suma::Member.new
+      member2.id = 2
 
-      key1 = described_class.idempotency_key(customer1)
-      key2 = described_class.idempotency_key(customer2)
+      key1 = described_class.idempotency_key(member1)
+      key2 = described_class.idempotency_key(member2)
       expect(key1).not_to eq(key2)
     end
 
     it "is unique for model types" do
-      customer = Suma::Customer.new
+      member = Suma::Member.new
       person = Suma::Role.new
 
-      customerkey = described_class.idempotency_key(customer)
+      memberkey = described_class.idempotency_key(member)
       personkey = described_class.idempotency_key(person)
-      expect(customerkey).not_to eq(personkey)
+      expect(memberkey).not_to eq(personkey)
     end
 
     it "is randomized if bust_idempotency is true" do
       described_class.bust_idempotency = true
-      customer = Suma::Customer.new
-      key1 = described_class.idempotency_key(customer)
-      key2 = described_class.idempotency_key(customer)
+      member = Suma::Member.new
+      key1 = described_class.idempotency_key(member)
+      key2 = described_class.idempotency_key(member)
       expect(key1).not_to eq(key2)
     end
 
     it "is unique when different `parts` are passed" do
-      customer = Suma::Customer.new
-      no_parts = described_class.idempotency_key(customer)
-      part_a = described_class.idempotency_key(customer, "parta")
-      part_b = described_class.idempotency_key(customer, "partb")
-      two_parts = described_class.idempotency_key(customer, "part1", "part2")
+      member = Suma::Member.new
+      no_parts = described_class.idempotency_key(member)
+      part_a = described_class.idempotency_key(member, "parta")
+      part_b = described_class.idempotency_key(member, "partb")
+      two_parts = described_class.idempotency_key(member, "part1", "part2")
 
       expect([no_parts, part_a, part_b, two_parts].uniq.count).to eq(4)
     end
 
     it "is unique on updated_at if updated_at is defined and not empty" do
-      customer = Suma::Customer.new
-      key1 = described_class.idempotency_key(customer)
-      customer.updated_at = Time.now
-      key2 = described_class.idempotency_key(customer)
+      member = Suma::Member.new
+      key1 = described_class.idempotency_key(member)
+      member.updated_at = Time.now
+      key2 = described_class.idempotency_key(member)
       expect(key1).not_to eq(key2)
     end
 
     it "is unique on created_at if updated_at is empty or undefined and created_at is defined" do
-      customer = Suma::Customer.new
-      customer.created_at = Time.now - 1.second
-      key1 = described_class.idempotency_key(customer)
-      customer.created_at = Time.now
-      key2 = described_class.idempotency_key(customer)
+      member = Suma::Member.new
+      member.created_at = Time.now - 1.second
+      key1 = described_class.idempotency_key(member)
+      member.created_at = Time.now
+      key2 = described_class.idempotency_key(member)
       expect(key1).not_to eq(key2)
     end
 

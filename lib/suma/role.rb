@@ -9,9 +9,9 @@ class Suma::Role < Suma::Postgres::Model(:roles)
     end
   end
 
-  many_to_many :customers,
-               class: "Suma::Customer",
-               join_table: :roles_customers
+  many_to_many :members,
+               class: "Suma::Member",
+               join_table: :roles_members
 end
 
 # Table: roles
@@ -23,5 +23,5 @@ end
 #  roles_pkey     | PRIMARY KEY btree (id)
 #  roles_name_key | UNIQUE btree (name)
 # Referenced By:
-#  roles_customers | roles_customers_role_id_fkey | (role_id) REFERENCES roles(id)
+#  roles_members | roles_members_role_id_fkey | (role_id) REFERENCES roles(id)
 # --------------------------------------------------------------------------------

@@ -3,7 +3,7 @@
 class Suma::Mobility::FakeVendorAdapter
   include Suma::Mobility::VendorAdapter
 
-  def begin_trip(_customer, _vehicle_id)
+  def begin_trip(_member, _vehicle_id)
     return BeginTripResult.new
   end
 

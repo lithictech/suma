@@ -6,10 +6,10 @@ RSpec.describe Suma::API::Mobility, :db do
   include Rack::Test::Methods
 
   let(:app) { described_class.build_app }
-  let(:customer) { Suma::Fixtures.customer.onboarding_verified.with_cash_ledger(amount: money("$15")).create }
+  let(:member) { Suma::Fixtures.member.onboarding_verified.with_cash_ledger(amount: money("$15")).create }
 
   before(:each) do
-    login_as(customer)
+    login_as(member)
   end
 
   describe "GET /v1/mobility/map" do
@@ -221,7 +221,7 @@ RSpec.describe Suma::API::Mobility, :db do
       expect(last_response).to have_json_body.that_includes(:id)
 
       trip = Suma::Mobility::Trip[last_response_json_body[:id]]
-      expect(trip).to have_attributes(customer: be === customer)
+      expect(trip).to have_attributes(member: be === member)
     end
 
     it "errors if the vehicle cannot be found" do
@@ -233,7 +233,7 @@ RSpec.describe Suma::API::Mobility, :db do
     end
 
     it "errors if the resident already has an active trip" do
-      Suma::Fixtures.mobility_trip.ongoing.for_vehicle(vehicle).create(customer:)
+      Suma::Fixtures.mobility_trip.ongoing.for_vehicle(vehicle).create(member:)
 
       post "/v1/mobility/begin_trip",
            provider_id: vehicle.vendor_service_id, vehicle_id: vehicle.vehicle_id, rate_id: rate.id
@@ -253,10 +253,10 @@ RSpec.describe Suma::API::Mobility, :db do
   end
 
   describe "POST /v1/mobility/end_trip" do
-    let!(:customer_ledger) { Suma::Fixtures.ledger.customer(customer).category(:mobility).create }
+    let!(:member_ledger) { Suma::Fixtures.ledger.member(member).category(:mobility).create }
 
     it "ends the active trip for the resident" do
-      trip = Suma::Fixtures.mobility_trip.ongoing.create(customer:)
+      trip = Suma::Fixtures.mobility_trip.ongoing.create(member:)
       expect(trip).to_not be_ended
 
       post "/v1/mobility/end_trip", lat: 5, lng: -5
@@ -280,7 +280,7 @@ RSpec.describe Suma::API::Mobility, :db do
         create
       trip = Suma::Fixtures.mobility_trip.
         ongoing.
-        create(began_at: 6.minutes.ago, vendor_service_rate: rate, customer:)
+        create(began_at: 6.minutes.ago, vendor_service_rate: rate, member:)
 
       post "/v1/mobility/end_trip", lat: 5, lng: -5
 

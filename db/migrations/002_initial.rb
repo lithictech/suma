@@ -86,7 +86,7 @@ Sequel.migration do
       jsonb :data, null: false, default: "{}"
     end
 
-    create_table(:customers) do
+    create_table(:members) do
       primary_key :id
       timestamptz :created_at, null: false, default: Sequel.function(:now)
       timestamptz :updated_at
@@ -118,11 +118,11 @@ Sequel.migration do
     end
 
     create_join_table(
-      {customer_id: :customers, linked_legal_entity_id: :legal_entities},
-      name: :customer_linked_legal_entities,
+      {member_id: :members, linked_legal_entity_id: :legal_entities},
+      name: :member_linked_legal_entities,
     )
 
-    create_table(:customer_reset_codes) do
+    create_table(:member_reset_codes) do
       primary_key :id
       timestamptz :created_at, null: false, default: Sequel.function(:now)
       timestamptz :updated_at
@@ -132,12 +132,12 @@ Sequel.migration do
       boolean :used, null: false, default: false
       timestamptz :expire_at, null: false
 
-      foreign_key :customer_id, :customers, null: false, on_delete: :cascade, index: true
+      foreign_key :member_id, :members, null: false, on_delete: :cascade, index: true
     end
 
-    create_join_table({role_id: :roles, customer_id: :customers}, name: :roles_customers)
+    create_join_table({role_id: :roles, member_id: :members}, name: :roles_members)
 
-    create_table(:customer_activities) do
+    create_table(:member_activities) do
       primary_key :id
       timestamptz :created_at, null: false, default: Sequel.function(:now)
       timestamptz :updated_at
@@ -148,20 +148,20 @@ Sequel.migration do
       text :subject_type, null: false
       text :subject_id, null: false
 
-      foreign_key :customer_id, :customers, null: false, on_delete: :cascade, index: true
+      foreign_key :member_id, :members, null: false, on_delete: :cascade, index: true
     end
 
-    create_table(:customer_sessions) do
+    create_table(:member_sessions) do
       primary_key :id
       timestamptz :created_at, null: false, default: Sequel.function(:now)
 
-      foreign_key :customer_id, :customers, null: false, on_delete: :cascade
+      foreign_key :member_id, :members, null: false, on_delete: :cascade
       text :user_agent, null: false
       inet :peer_ip, null: false
 
       index :peer_ip
       index :user_agent
-      index :customer_id
+      index :member_id
     end
 
     create_table(:message_deliveries) do
@@ -173,7 +173,7 @@ Sequel.migration do
       text :transport_service, null: false
       text :transport_message_id, unique: true
       text :to, null: false
-      foreign_key :recipient_id, :customers, on_delete: :set_null, index: true
+      foreign_key :recipient_id, :members, on_delete: :set_null, index: true
       jsonb :extra_fields, null: false, default: "{}"
       timestamptz :sent_at
       index :sent_at
@@ -319,9 +319,9 @@ Sequel.migration do
 
       foreign_key :vendor_service_rate_id, :vendor_service_rates, null: false, on_delete: :restrict
 
-      foreign_key :customer_id, :customers, null: false, index: true
+      foreign_key :member_id, :members, null: false, index: true
 
-      index :customer_id, name: "one_active_ride_per_customer", unique: true, where: Sequel[ended_at: nil]
+      index :member_id, name: "one_active_ride_per_member", unique: true, where: Sequel[ended_at: nil]
       constraint(
         :end_fields_set_together,
         Sequel.lit("(end_lat IS NULL AND end_lng IS NULL AND ended_at IS NULL) OR " \
@@ -356,7 +356,7 @@ Sequel.migration do
       timestamptz :created_at, null: false, default: Sequel.function(:now)
       timestamptz :updated_at
 
-      foreign_key :customer_id, :customers, null: true, unique: true
+      foreign_key :member_id, :members, null: true, unique: true
       foreign_key :vendor_id, :vendors, null: true, unique: true
       boolean :is_platform_account, null: false, default: false
       index [:is_platform_account],
@@ -367,9 +367,9 @@ Sequel.migration do
       constraint(
         :unambiguous_owner,
         Sequel.lit(
-          "(customer_id IS NOT NULL AND vendor_id IS NULL) " \
-          "OR (customer_id IS NULL AND vendor_id IS NOT NULL) " \
-          "OR (is_platform_account IS TRUE AND customer_id IS NULL AND vendor_id IS NULL)",
+          "(member_id IS NOT NULL AND vendor_id IS NULL) " \
+          "OR (member_id IS NULL AND vendor_id IS NOT NULL) " \
+          "OR (is_platform_account IS TRUE AND member_id IS NULL AND vendor_id IS NULL)",
         ),
       )
     end
@@ -469,7 +469,7 @@ Sequel.migration do
       jsonb :messages, default: "[]"
 
       foreign_key :funding_transaction_id, :payment_funding_transactions, null: false
-      foreign_key :actor_id, :customers, on_delete: :set_null
+      foreign_key :actor_id, :members, on_delete: :set_null
     end
 
     create_table(:charges) do
@@ -482,8 +482,8 @@ Sequel.migration do
       int :undiscounted_subtotal_cents, null: false
       text :undiscounted_subtotal_currency, null: false
 
-      foreign_key :customer_id, :customers, null: false
-      index :customer_id
+      foreign_key :member_id, :members, null: false
+      index :member_id
 
       foreign_key :mobility_trip_id, :mobility_trips, null: true, on_delete: :set_null, index: true
     end
