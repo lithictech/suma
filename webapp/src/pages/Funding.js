@@ -76,8 +76,8 @@ function BankAccountLine({ bankAccount }) {
       .finally(screenLoader.turnOff);
   }
   return (
-    <Card className="text-start text-white border-0 bg-dark bg-gradient mb-3 funding-card-border-radius">
-      <Card.Body className="d-flex justify-content-between align-items-end">
+    <Card className="text-start mb-3 funding-card-border-radius">
+      <Card.Body className="d-flex justify-content-between align-items-center">
         <div>
           <Card.Title className="mb-1" as="h6">
             <i className="bi bi-bank2 me-2"></i>
@@ -88,7 +88,7 @@ function BankAccountLine({ bankAccount }) {
           </Card.Subtitle>
         </div>
         <div className="ms-auto text-end">
-          {bankAccount.canUseForFunding && (
+          {bankAccount.canUseForFunding ? (
             <Button
               variant="success"
               size="sm"
@@ -97,6 +97,10 @@ function BankAccountLine({ bankAccount }) {
               as={RLink}
             >
               <i className="bi bi-plus-circle"></i> {i18next.t("payments:add_funds")}
+            </Button>
+          ) : (
+            <Button size="sm" className="opacity-0" disabled aria-hidden>
+              &nbsp;{/* Match verified account sizing so cards are same size*/}
             </Button>
           )}
           <div>
