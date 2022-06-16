@@ -31,7 +31,7 @@ RSpec.describe "Suma::Member", :db do
 
   context "ensure_role" do
     let(:member) { Suma::Fixtures.customer.create }
-    let(:role) { Suma::Role.create(name: "customer-test") }
+    let(:role) { Suma::Role.create(name: "member-test") }
     it "can set a role by a role object" do
       customer.ensure_role(role)
 

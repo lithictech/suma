@@ -2,7 +2,7 @@
 
 require "amigo/job"
 
-class Suma::Async::EnsureDefaultCustomerLedgersOnCreate
+class Suma::Async::EnsureDefaultMemberLedgersOnCreate
   extend Amigo::Job
 
   on "suma.customer.created"

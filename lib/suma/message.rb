@@ -70,7 +70,7 @@ module Suma::Message
     raise MissingTemplateError, "#{template_file} does not exist" unless template_file.exist?
 
     drops = template.liquid_drops.stringify_keys.merge(
-      "recipient" => Suma::Message::CustomerDrop.new(recipient),
+      "recipient" => Suma::Message::MemberDrop.new(recipient),
       "environment" => Suma::Message::EnvironmentDrop.new,
       "app_url" => Suma.app_url,
     )

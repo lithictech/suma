@@ -44,7 +44,7 @@ class Suma::Mobility::Trip < Suma::Postgres::Model(:mobility_trips)
         began_at: at,
       )
     rescue Sequel::UniqueConstraintViolation => e
-      raise OngoingTrip, "customer #{customer.id} is already in a trip" if
+      raise OngoingTrip, "member #{customer.id} is already in a trip" if
         e.to_s.include?("one_active_ride_per_customer")
       raise
     end

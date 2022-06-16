@@ -31,7 +31,7 @@ class Suma::Message::Transport
   # like for text messages.
   def recipient(to)
     if to.is_a?(Suma::Member)
-      (email = to.email) or raise "Customer #{to.id} has no default email"
+      (email = to.email) or raise "Member #{to.id} has no default email"
       return Suma::Message::Recipient.new(email, to)
     end
     return Suma::Message::Recipient.new(to, nil)

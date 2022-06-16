@@ -63,8 +63,8 @@ Auth with Suma is based exclusively on SMS verification rather than
 an explicit registration and login step.
 
 - Client POSTs to `/v1/auth/start` with a phone number.
-- Server will create a Customer if none exists with that phone number.
-- Server no-ops if a Customer already exists with that phone number.
+- Server will create a Member if none exists with that phone number.
+- Server no-ops if a Member already exists with that phone number.
 - In both cases, the server dispatches a One Time Password (OTP) to the phone number.
 - At this point, the client does *not* have an authenticated session.
 - Client POSTS to `/v1/auth/verify` with the phone number and the OTP.

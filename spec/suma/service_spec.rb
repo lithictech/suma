@@ -82,7 +82,7 @@ class Suma::API::TestService < Suma::Service
     body "hi"
   end
 
-  class CustomerEntity < Grape::Entity
+  class MemberEntity < Grape::Entity
     expose :id
     expose :note
   end
@@ -92,7 +92,7 @@ class Suma::API::TestService < Suma::Service
   end
 
   get :collection_dataset do
-    present_collection Suma::Member.dataset, with: CustomerEntity
+    present_collection Suma::Member.dataset, with: MemberEntity
   end
 
   get :collection_direct do
@@ -480,7 +480,7 @@ RSpec.describe Suma::Service, :db do
           method: "GET",
           path: "/hello",
           query: "world=1",
-          "customer.email" => customer.email,
+          "member.email" => customer.email,
         ),
       )
     end
@@ -499,7 +499,7 @@ RSpec.describe Suma::Service, :db do
           id: customer.id,
         ),
         tags: include(
-          "customer.email" => customer.email,
+          "member.email" => customer.email,
           "admin.email" => admin.email,
         ),
       )
@@ -769,7 +769,7 @@ RSpec.describe Suma::Service, :db do
         r = ent.represent(
           instance_double("Obj",
                           time: t,
-                          customer: instance_double("Customer", mytz: "America/New_York"),),
+                          customer: instance_double("Member", mytz: "America/New_York"),),
         )
         expect(r.as_json[:time]).to eq("2021-09-16T08:41:23-04:00")
       end
@@ -781,7 +781,7 @@ RSpec.describe Suma::Service, :db do
         r = ent.represent(
           instance_double("Obj",
                           time: t,
-                          customer: instance_double("Customer", timezone: "America/New_York"),),
+                          customer: instance_double("Member", timezone: "America/New_York"),),
         )
         expect(r.as_json[:time]).to eq("2021-09-16T08:41:23-04:00")
       end
@@ -793,7 +793,7 @@ RSpec.describe Suma::Service, :db do
         r = ent.represent(
           instance_double("Obj",
                           time: t,
-                          customer: instance_double("Customer", time_zone: "America/New_York"),),
+                          customer: instance_double("Member", time_zone: "America/New_York"),),
         )
         expect(r.as_json[:time]).to eq("2021-09-16T08:41:23-04:00")
       end
@@ -809,16 +809,16 @@ RSpec.describe Suma::Service, :db do
         r = ent.represent(d)
         expect(r.as_json[:time]).to eq(ts)
 
-        d = instance_double("Obj", time: t, customer: instance_double("Customer"))
+        d = instance_double("Obj", time: t, customer: instance_double("Member"))
         expect(d.customer).to receive(:mytz).and_raise(NoMethodError)
         r = ent.represent(d)
         expect(r.as_json[:time]).to eq(ts)
 
-        d = instance_double("Obj", time: t, customer: instance_double("Customer", mytz: nil))
+        d = instance_double("Obj", time: t, customer: instance_double("Member", mytz: nil))
         r = ent.represent(d)
         expect(r.as_json[:time]).to eq(ts)
 
-        d = instance_double("Obj", time: t, customer: instance_double("Customer", mytz: ""))
+        d = instance_double("Obj", time: t, customer: instance_double("Member", mytz: ""))
         r = ent.represent(d)
         expect(r.as_json[:time]).to eq(ts)
       end
@@ -830,7 +830,7 @@ RSpec.describe Suma::Service, :db do
         r = ent.represent(
           instance_double("Obj",
                           mytime: t,
-                          customer: instance_double("Customer", time_zone: "America/New_York"),),
+                          customer: instance_double("Member", time_zone: "America/New_York"),),
         )
         expect(r.as_json[:time_not_here]).to eq("2021-09-16T08:41:23-04:00")
       end

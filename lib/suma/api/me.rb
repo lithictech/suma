@@ -40,7 +40,7 @@ class Suma::API::Me < Suma::API::V1
 
     get :dashboard do
       d = Suma::Member::Dashboard.new(current_customer)
-      present d, with: Suma::API::CustomerDashboardEntity
+      present d, with: Suma::API::MemberDashboardEntity
     end
   end
 end

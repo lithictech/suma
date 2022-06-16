@@ -4,7 +4,7 @@ require "suma"
 require "suma/fixtures"
 require "suma/customer"
 
-module Suma::Fixtures::CustomerActivities
+module Suma::Fixtures::MemberActivities
   extend Suma::Fixtures
 
   fixtured_class Suma::Member::Activity

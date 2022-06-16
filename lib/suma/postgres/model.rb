@@ -58,7 +58,7 @@ class Suma::Postgres::Model
   #
   # @example Add order methods to Suma::Member
   #
-  #   module Suma::Orders::CustomerExtensions
+  #   module Suma::Orders::MemberExtensions
   #
   #       # Add some associations for Order models
   #       def included( model )

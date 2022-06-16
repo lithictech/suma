@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Suma::Message
-  class CustomerDrop < Liquid::Drop
+  class MemberDrop < Liquid::Drop
     def initialize(recipient)
       @recipient = recipient
       super()

@@ -122,7 +122,7 @@ module Suma::API
     expose :balance, with: MoneyEntity
   end
 
-  class CustomerDashboardEntity < BaseEntity
+  class MemberDashboardEntity < BaseEntity
     expose :payment_account_balance, with: MoneyEntity
     expose :lifetime_savings, with: MoneyEntity
     expose :ledger_lines, with: LedgerLineEntity

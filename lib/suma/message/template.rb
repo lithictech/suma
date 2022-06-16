@@ -39,7 +39,7 @@ class Suma::Message::Template
   end
 
   # The name of the template. By default, it is tied to the name of the class,
-  # so Messages::NewCustomer looks for 'new_customer' templates.
+  # so Messages::NewMember looks for 'new_customer' templates.
   # However, a subclass can override this to not tie the template to the class name.
   def template_name
     return self.class.name.demodulize.underscore

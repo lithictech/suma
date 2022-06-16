@@ -24,7 +24,7 @@ class Suma::AdminAPI::Members < Suma::AdminAPI::V1
 
       ds = order(ds, params)
       ds = paginate(ds, params)
-      present_collection ds, with: Suma::AdminAPI::CustomerEntity
+      present_collection ds, with: Suma::AdminAPI::MemberEntity
     end
 
     route_param :id, type: Integer do
@@ -38,7 +38,7 @@ class Suma::AdminAPI::Members < Suma::AdminAPI::V1
       desc "Return the customer"
       get do
         customer = lookup_customer!
-        present customer, with: Suma::AdminAPI::DetailedCustomerEntity
+        present customer, with: Suma::AdminAPI::DetailedMemberEntity
       end
 
       desc "Update the customer"
@@ -62,7 +62,7 @@ class Suma::AdminAPI::Members < Suma::AdminAPI::V1
           customer.save_changes
         end
         status 200
-        present customer, with: Suma::AdminAPI::DetailedCustomerEntity
+        present customer, with: Suma::AdminAPI::DetailedMemberEntity
       end
 
       post :close do
@@ -78,7 +78,7 @@ class Suma::AdminAPI::Members < Suma::AdminAPI::V1
           customer.soft_delete unless customer.soft_deleted?
         end
         status 200
-        present customer, with: Suma::AdminAPI::DetailedCustomerEntity
+        present customer, with: Suma::AdminAPI::DetailedMemberEntity
       end
 
       get :bank_accounts do

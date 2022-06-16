@@ -119,7 +119,7 @@ class Suma::Service < Grape::API
           name: customer.name,
           ip_address: request.ip,
         )
-        sentry_tags["customer.email"] = customer.email
+        sentry_tags["member.email"] = customer.email
       end
       if admin
         sentry_user.merge!(
@@ -163,7 +163,7 @@ class Suma::Service < Grape::API
   rescue_from Suma::Member::ReadOnlyMode do |e|
     merror!(
       409,
-      "Customer is in read-only mode and cannot be updated: #{e.message}",
+      "Member is in read-only mode and cannot be updated: #{e.message}",
       code: e.message,
     )
   end
