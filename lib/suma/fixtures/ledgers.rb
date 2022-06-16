@@ -23,8 +23,8 @@ module Suma::Fixtures::Ledgers
     cats.each { |c| self.add_vendor_service_category(c) }
   end
 
-  decorator :customer do |c={}|
-    c = Suma::Fixtures.customer(c).create unless c.is_a?(Suma::Customer)
+  decorator :member do |c={}|
+    c = Suma::Fixtures.customer(c).create unless c.is_a?(Suma::Member)
     c.payment_account ||= Suma::Fixtures.payment_account.create(customer: c)
     self.account = c.payment_account
   end

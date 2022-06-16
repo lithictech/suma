@@ -101,9 +101,9 @@ module Suma::Message
   class MissingTemplateError < StandardError; end
 
   # Presents a homogeneous interface for a given 'to' value (email vs. customer, for example).
-  # .to will always be a plain object, and .customer will be a +Suma::Customer+ if present.
+  # .to will always be a plain object, and .customer will be a +Suma::Member+ if present.
   class Recipient
-    attr_reader :to, :customer
+    attr_reader :to, :member
 
     def initialize(to, customer)
       @to = to

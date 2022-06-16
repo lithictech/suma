@@ -18,16 +18,16 @@ RSpec.describe Suma::API::Auth, :db do
   let(:other_full_phone) { "11234567999" }
   let(:fmt_phone) { "(123) 456-7890" }
   let(:timezone) { "America/Juneau" }
-  let(:customer_params) do
+  let(:member_params) do
     {name:, email:, phone:, password:, timezone:}
   end
-  let(:customer_create_params) { customer_params.merge(phone: full_phone) }
+  let(:member_create_params) { customer_params.merge(phone: full_phone) }
 
   before(:each) do
-    Suma::Customer.reset_configuration
+    Suma::Member.reset_configuration
   end
   after(:each) do
-    Suma::Customer.reset_configuration
+    Suma::Member.reset_configuration
   end
 
   describe "POST /v1/auth/start" do
@@ -49,8 +49,8 @@ RSpec.describe Suma::API::Auth, :db do
         expect(last_response).to have_status(200)
         expect(last_response_json_body).to be_empty
         expect(last_response).to have_session_cookie.with_no_extra_keys
-        expect(Suma::Customer.all).to contain_exactly(have_attributes(phone: "12223334444"))
-        customer = Suma::Customer.first
+        expect(Suma::Member.all).to contain_exactly(have_attributes(phone: "12223334444"))
+        customer = Suma::Member.first
         expect(customer.reset_codes).to contain_exactly(have_attributes(transport: "sms"))
       end
 
@@ -58,7 +58,7 @@ RSpec.describe Suma::API::Auth, :db do
         post("/v1/auth/start", phone: "(222) 333-4444", timezone:)
 
         expect(last_response).to have_status(200)
-        expect(Suma::Customer.last.activities).to contain_exactly(have_attributes(message_name: "registered"))
+        expect(Suma::Member.last.activities).to contain_exactly(have_attributes(message_name: "registered"))
       end
     end
 
@@ -71,7 +71,7 @@ RSpec.describe Suma::API::Auth, :db do
         expect(last_response).to have_status(200)
         expect(last_response_json_body).to be_empty
         expect(last_response).to have_session_cookie.with_no_extra_keys
-        expect(Suma::Customer.all).to contain_exactly(be === existing)
+        expect(Suma::Member.all).to contain_exactly(be === existing)
         expect(existing.reset_codes).to contain_exactly(have_attributes(transport: "sms"))
       end
 
@@ -81,7 +81,7 @@ RSpec.describe Suma::API::Auth, :db do
         post("/v1/auth/start", phone: c.phone, timezone:)
 
         expect(last_response).to have_status(200)
-        expect(Suma::Customer::Activity.all).to be_empty
+        expect(Suma::Member::Activity.all).to be_empty
       end
     end
   end
@@ -113,7 +113,7 @@ RSpec.describe Suma::API::Auth, :db do
 
     it "returns a 200 and creates a session if the customer exists and skip verification is configured" do
       c = Suma::Fixtures.customer.create
-      Suma::Customer.skip_verification_allowlist = ["*"]
+      Suma::Member.skip_verification_allowlist = ["*"]
 
       post("/v1/auth/verify", phone: c.phone, token: "abc")
 
@@ -123,7 +123,7 @@ RSpec.describe Suma::API::Auth, :db do
 
     it "returns a 200 and handles superadmin promotion configured" do
       c = Suma::Fixtures.customer.create
-      Suma::Customer.superadmin_allowlist = ["*"]
+      Suma::Member.superadmin_allowlist = ["*"]
 
       post("/v1/auth/verify", phone: c.phone, token: "abc")
 

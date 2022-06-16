@@ -7,9 +7,9 @@ require "suma/customer"
 module Suma::Fixtures::CustomerActivities
   extend Suma::Fixtures
 
-  fixtured_class Suma::Customer::Activity
+  fixtured_class Suma::Member::Activity
 
-  base :customer_activity do
+  base :member_activity do
     self.message_name ||= Faker::NatoPhoneticAlphabet.code_word
     self.summary ||= "Fixtured activity"
     self.subject_type ||= "Fixtured"

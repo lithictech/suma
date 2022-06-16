@@ -3,7 +3,7 @@
 require "suma/customer"
 require "suma/payment/ledgers_view"
 
-class Suma::Customer::Dashboard
+class Suma::Member::Dashboard
   def initialize(customer)
     @customer = customer
   end

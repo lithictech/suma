@@ -8,7 +8,7 @@ class Suma::Async::EnsureDefaultCustomerLedgersOnCreate
   on "suma.customer.created"
 
   def _perform(event)
-    c = self.lookup_model(Suma::Customer, event)
+    c = self.lookup_model(Suma::Member, event)
     Suma::Payment.ensure_cash_ledger(c)
   end
 

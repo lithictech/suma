@@ -20,7 +20,7 @@ class Suma::Message::EmailTransport < Suma::Message::Transport
   end
 
   def recipient(to)
-    return Suma::Message::Recipient.new(to.name, to) if to.is_a?(Suma::Customer)
+    return Suma::Message::Recipient.new(to.name, to) if to.is_a?(Suma::Member)
     return Suma::Message::Recipient.new(to, nil)
   end
 

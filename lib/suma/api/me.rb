@@ -12,9 +12,9 @@ class Suma::API::Me < Suma::API::V1
       customer = current_customer
       if customer.sessions_dataset.empty?
         # Add this as a way to backfill sessions for users that last authed before we had them.
-        customer.add_session(**Suma::Customer::Session.params_for_request(request))
+        customer.add_session(**Suma::Member::Session.params_for_request(request))
       end
-      present customer, with: Suma::API::CurrentCustomerEntity, env:
+      present customer, with: Suma::API::CurrentMemberEntity, env:
     end
 
     desc "Update supported fields on the customer"
@@ -35,11 +35,11 @@ class Suma::API::Me < Suma::API::V1
         end
       end
       status 200
-      present customer, with: Suma::API::CurrentCustomerEntity, env:
+      present customer, with: Suma::API::CurrentMemberEntity, env:
     end
 
     get :dashboard do
-      d = Suma::Customer::Dashboard.new(current_customer)
+      d = Suma::Member::Dashboard.new(current_customer)
       present d, with: Suma::API::CustomerDashboardEntity
     end
   end

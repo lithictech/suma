@@ -7,18 +7,18 @@ require "suma"
 require "suma/fixtures"
 require "suma/customer"
 
-module Suma::Fixtures::Customers
+module Suma::Fixtures::Members
   extend Suma::Fixtures
 
   PASSWORD = "suma1234"
 
-  fixtured_class Suma::Customer
+  fixtured_class Suma::Member
 
-  base :customer do
+  base :member do
     self.name ||= Faker::Name.name
     self.email ||= Faker::Internet.email
     self.phone ||= Faker::Suma.us_phone
-    self.password_digest ||= Suma::Customer::PLACEHOLDER_PASSWORD_DIGEST
+    self.password_digest ||= Suma::Member::PLACEHOLDER_PASSWORD_DIGEST
   end
 
   before_saving do |instance|

@@ -13,12 +13,12 @@ class Suma::BankAccount < Suma::Postgres::Model(:bank_accounts)
 
   many_to_one :plaid_institution, class: "Suma::PlaidInstitution"
   many_to_one :legal_entity, class: "Suma::LegalEntity"
-  one_through_many :customer,
+  one_through_many :member,
                    [
                      [:legal_entities, :id, :id],
-                     [:customers, :legal_entity_id, :id],
+                     [:members, :legal_entity_id, :id],
                    ],
-                   class: "Suma::Customer",
+                   class: "Suma::Member",
                    left_primary_key: :legal_entity_id
 
   dataset_module do

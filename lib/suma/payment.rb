@@ -38,7 +38,7 @@ module Suma::Payment
   # (except those that do not have a 'cash' category, which is rare but possible,
   # if a vendor wants to be paid only in scrip or something else).
   def self.ensure_cash_ledger(customer_or_payment_account)
-    payment_account = if customer_or_payment_account.is_a?(Suma::Customer)
+    payment_account = if customer_or_payment_account.is_a?(Suma::Member)
                         Suma::Payment::Account.find_or_create_or_find(customer: customer_or_payment_account)
     else
       customer_or_payment_account

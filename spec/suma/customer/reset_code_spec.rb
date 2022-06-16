@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-RSpec.describe "Suma::Customer::ResetCode", :db do
-  let(:described_class) { Suma::Customer::ResetCode }
-  let(:customer) { Suma::Fixtures.customer.create }
+RSpec.describe "Suma::Member::ResetCode", :db do
+  let(:described_class) { Suma::Member::ResetCode }
+  let(:member) { Suma::Fixtures.customer.create }
   let(:reset_code) { Suma::Fixtures.reset_code(customer:).create }
 
   it "has a generated six-digit token" do

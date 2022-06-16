@@ -3,10 +3,10 @@
 require "suma/postgres"
 require "suma/customer"
 
-class Suma::Customer::Activity < Suma::Postgres::Model(:customer_activities)
+class Suma::Member::Activity < Suma::Postgres::Model(:member_activities)
   plugin :timestamps
 
-  many_to_one :customer, class: Suma::Customer
+  many_to_one :member, class: Suma::Member
 end
 
 # Table: customer_journeys

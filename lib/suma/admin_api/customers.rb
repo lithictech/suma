@@ -4,18 +4,18 @@ require "grape"
 
 require "suma/admin_api"
 
-class Suma::AdminAPI::Customers < Suma::AdminAPI::V1
+class Suma::AdminAPI::Members < Suma::AdminAPI::V1
   ALL_TIMEZONES = Set.new(TZInfo::Timezone.all_identifiers)
 
-  resource :customers do
+  resource :members do
     desc "Return all customers, newest first"
     params do
       use :pagination
-      use :ordering, model: Suma::Customer
+      use :ordering, model: Suma::Member
       use :searchable
     end
     get do
-      ds = Suma::Customer.dataset
+      ds = Suma::Member.dataset
       if (email_like = search_param_to_sql(params, :email))
         name_like = search_param_to_sql(params, :name)
         phone_like = phone_search_param_to_sql(params)
@@ -30,7 +30,7 @@ class Suma::AdminAPI::Customers < Suma::AdminAPI::V1
     route_param :id, type: Integer do
       helpers do
         def lookup_customer!
-          (customer = Suma::Customer[params[:id]]) or not_found!
+          (customer = Suma::Member[params[:id]]) or not_found!
           return customer
         end
       end
@@ -72,7 +72,7 @@ class Suma::AdminAPI::Customers < Suma::AdminAPI::V1
           customer.add_activity(
             message_name: "accountclosed",
             summary: "Admin #{admin.email} closed customer #{customer.email} account",
-            subject_type: "Suma::Customer",
+            subject_type: "Suma::Member",
             subject_id: customer.id,
           )
           customer.soft_delete unless customer.soft_deleted?

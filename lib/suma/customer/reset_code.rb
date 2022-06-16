@@ -5,12 +5,12 @@ require "securerandom"
 require "suma/postgres"
 require "suma/customer"
 
-class Suma::Customer::ResetCode < Suma::Postgres::Model(:customer_reset_codes)
+class Suma::Member::ResetCode < Suma::Postgres::Model(:member_reset_codes)
   class Unusable < RuntimeError; end
 
   plugin :timestamps
 
-  many_to_one :customer, class: Suma::Customer
+  many_to_one :member, class: Suma::Member
 
   dataset_module do
     def usable

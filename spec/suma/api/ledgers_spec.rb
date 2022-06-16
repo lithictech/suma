@@ -7,7 +7,7 @@ RSpec.describe Suma::API::Ledgers, :db do
   include Rack::Test::Methods
 
   let(:app) { described_class.build_app }
-  let(:customer) { Suma::Fixtures.customer.create }
+  let(:member) { Suma::Fixtures.customer.create }
   let(:bookfac) { Suma::Fixtures.book_transaction }
 
   before(:each) do

@@ -56,7 +56,7 @@ class Suma::Postgres::Model
   # if it also contains a constant called ClassMethods, the model class will be
   # also be extended with it.
   #
-  # @example Add order methods to Suma::Customer
+  # @example Add order methods to Suma::Member
   #
   #   module Suma::Orders::CustomerExtensions
   #

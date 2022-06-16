@@ -6,7 +6,7 @@ require "suma/payment"
 class Suma::Payment::Account < Suma::Postgres::Model(:payment_accounts)
   plugin :timestamps
 
-  many_to_one :customer, class: "Suma::Customer"
+  many_to_one :member, class: "Suma::Member"
   many_to_one :vendor, class: "Suma::Vendor"
   one_to_many :originated_funding_transactions, key: :originating_payment_account_id,
                                                 class: "Suma::Payment::FundingTransaction", read_only: true

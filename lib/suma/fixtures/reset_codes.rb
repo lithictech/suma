@@ -7,7 +7,7 @@ require "suma/customer/reset_code"
 module Suma::Fixtures::ResetCodes
   extend Suma::Fixtures
 
-  fixtured_class Suma::Customer::ResetCode
+  fixtured_class Suma::Member::ResetCode
 
   base :reset_code do
     self.transport ||= ["sms", "email"].sample

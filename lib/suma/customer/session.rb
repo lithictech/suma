@@ -3,10 +3,10 @@
 require "suma/postgres"
 require "suma/customer"
 
-class Suma::Customer::Session < Suma::Postgres::Model(:customer_sessions)
+class Suma::Member::Session < Suma::Postgres::Model(:member_sessions)
   plugin :timestamps
 
-  many_to_one :customer, class: Suma::Customer
+  many_to_one :member, class: Suma::Member
 
   def self.params_for_request(request)
     return {
@@ -19,7 +19,7 @@ class Suma::Customer::Session < Suma::Postgres::Model(:customer_sessions)
     super
     self.validates_presence :peer_ip
     self.validates_presence :user_agent
-    self.validates_presence :customer_id
+    self.validates_presence :member_id
   end
 end
 

@@ -2,7 +2,7 @@
 
 RSpec.describe "Suma::Mobility::Trip", :db do
   let(:described_class) { Suma::Mobility::Trip }
-  let(:customer) { Suma::Fixtures.customer.onboarding_verified.with_cash_ledger(amount: money("$15")).create }
+  let(:member) { Suma::Fixtures.customer.onboarding_verified.with_cash_ledger(amount: money("$15")).create }
   let(:vendor_service) { Suma::Fixtures.vendor_service.mobility.create(external_name: "Super Scoot") }
   let(:rate) { Suma::Fixtures.vendor_service_rate.create }
   let(:t) { trunc_time(Time.now) }
@@ -65,12 +65,12 @@ RSpec.describe "Suma::Mobility::Trip", :db do
       v = Suma::Fixtures.mobility_vehicle.create
       expect do
         described_class.start_trip_from_vehicle(customer:, vehicle: v, rate:)
-      end.to raise_error(Suma::Customer::ReadOnlyMode)
+      end.to raise_error(Suma::Member::ReadOnlyMode)
     end
   end
 
   describe "end_trip" do
-    let!(:customer_ledger) { Suma::Fixtures.ledger.customer(customer).category(:mobility).create }
+    let!(:member_ledger) { Suma::Fixtures.ledger.customer(customer).category(:mobility).create }
 
     it "ends the trip and creates a charge using the linked rate" do
       rate = Suma::Fixtures.vendor_service_rate.

@@ -22,7 +22,7 @@ RSpec.describe "Suma::Message::Delivery", :db, :messaging do
       Suma::Fixtures.message_delivery.create
 
       expect(described_class.to_customers([customer]).all).to contain_exactly(to_email, to_customer)
-      expect(described_class.to_customers(Suma::Customer.where(id: customer.id)).all).to contain_exactly(
+      expect(described_class.to_customers(Suma::Member.where(id: customer.id)).all).to contain_exactly(
         to_email, to_customer,
       )
     end
@@ -84,7 +84,7 @@ RSpec.describe "Suma::Message::Delivery", :db, :messaging do
   end
 
   describe "fixtures" do
-    let(:customer) { Suma::Fixtures.customer.create }
+    let(:member) { Suma::Fixtures.customer.create }
 
     it "can specify a recipient" do
       d = Suma::Fixtures.message_delivery.to("me@co.co").create
@@ -146,22 +146,22 @@ RSpec.describe "Suma::Message::Delivery", :db, :messaging do
     end
 
     it "returns the delivery but rolls back changes" do
-      customer_count = Suma::Customer.count
+      customer_count = Suma::Member.count
 
       delivery = described_class.preview("Testers::Basic", rack_env: "development")
 
       expect(delivery).to be_a(described_class)
-      expect(Suma::Customer.count).to eq(customer_count)
+      expect(Suma::Member.count).to eq(customer_count)
       expect(Suma::Message::Delivery[id: delivery.id]).to be_nil
     end
 
     it "can commit changes" do
-      customer_count = Suma::Customer.count
+      customer_count = Suma::Member.count
 
       delivery = described_class.preview("Testers::Basic", commit: true, rack_env: "development")
 
       expect(delivery).to be_a(described_class)
-      expect(Suma::Customer.count).to eq(customer_count + 1)
+      expect(Suma::Member.count).to eq(customer_count + 1)
       expect(Suma::Message::Delivery[id: delivery.id]).to be === delivery
     end
   end

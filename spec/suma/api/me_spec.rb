@@ -6,7 +6,7 @@ RSpec.describe Suma::API::Me, :db do
   include Rack::Test::Methods
 
   let(:app) { described_class.build_app }
-  let(:customer) { Suma::Fixtures.customer.create }
+  let(:member) { Suma::Fixtures.customer.create }
 
   before(:each) do
     login_as(customer)
@@ -40,12 +40,12 @@ RSpec.describe Suma::API::Me, :db do
     it "adds a session if the user does not have one" do
       get "/v1/me"
       expect(last_response).to have_status(200)
-      expect(Suma::Customer::Session.all).to have_length(1)
-      expect(Suma::Customer::Session.last).to have_attributes(customer: be === customer)
+      expect(Suma::Member::Session.all).to have_length(1)
+      expect(Suma::Member::Session.last).to have_attributes(customer: be === customer)
 
       get "/v1/me"
       expect(last_response).to have_status(200)
-      expect(Suma::Customer::Session.all).to have_length(1)
+      expect(Suma::Member::Session.all).to have_length(1)
     end
 
     it "returns the customer's ongoing trip if they have one" do

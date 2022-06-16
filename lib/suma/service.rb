@@ -144,7 +144,7 @@ class Suma::Service < Grape::API
     invalid!(e.full_messages, message: e.message)
   end
 
-  rescue_from Suma::Customer::InvalidPassword do |e|
+  rescue_from Suma::Member::InvalidPassword do |e|
     invalid!(e.message)
   end
 
@@ -160,7 +160,7 @@ class Suma::Service < Grape::API
     )
   end
 
-  rescue_from Suma::Customer::ReadOnlyMode do |e|
+  rescue_from Suma::Member::ReadOnlyMode do |e|
     merror!(
       409,
       "Customer is in read-only mode and cannot be updated: #{e.message}",

@@ -36,7 +36,7 @@ class Suma::API::TestService < Suma::Service
   end
 
   get :invalid_password do
-    raise Suma::Customer::InvalidPassword, "not a bunny"
+    raise Suma::Member::InvalidPassword, "not a bunny"
   end
 
   get :invalid_plain do
@@ -70,7 +70,7 @@ class Suma::API::TestService < Suma::Service
   end
 
   get :read_only_mode do
-    raise Suma::Customer::ReadOnlyMode, "blah"
+    raise Suma::Member::ReadOnlyMode, "blah"
   end
 
   get :unhandled do
@@ -92,7 +92,7 @@ class Suma::API::TestService < Suma::Service
   end
 
   get :collection_dataset do
-    present_collection Suma::Customer.dataset, with: CustomerEntity
+    present_collection Suma::Member.dataset, with: CustomerEntity
   end
 
   get :collection_direct do
@@ -550,7 +550,7 @@ RSpec.describe Suma::Service, :db do
   end
 
   describe "role checking" do
-    let(:customer) { Suma::Fixtures.customer.create }
+    let(:member) { Suma::Fixtures.customer.create }
 
     it "passes if the customer has a matching role" do
       customer.add_role(Suma::Role.create(name: "testing"))
@@ -580,7 +580,7 @@ RSpec.describe Suma::Service, :db do
   end
 
   describe "current_customer" do
-    let(:customer) { Suma::Fixtures.customer.create }
+    let(:member) { Suma::Fixtures.customer.create }
     let(:admin) { Suma::Fixtures.customer.admin.create }
 
     it "looks up the logged in user" do
@@ -638,7 +638,7 @@ RSpec.describe Suma::Service, :db do
   end
 
   describe "current_customer?" do
-    let(:customer) { Suma::Fixtures.customer.create }
+    let(:member) { Suma::Fixtures.customer.create }
     let(:admin) { Suma::Fixtures.customer.admin.create }
 
     it "looks up the logged in user" do
@@ -678,7 +678,7 @@ RSpec.describe Suma::Service, :db do
   end
 
   describe "admin_customer" do
-    let(:customer) { Suma::Fixtures.customer.create }
+    let(:member) { Suma::Fixtures.customer.create }
     let(:admin) { Suma::Fixtures.customer.admin.create }
 
     it "looks up the logged in admin" do
@@ -718,7 +718,7 @@ RSpec.describe Suma::Service, :db do
   end
 
   describe "admin_customer?" do
-    let(:customer) { Suma::Fixtures.customer.create }
+    let(:member) { Suma::Fixtures.customer.create }
     let(:admin) { Suma::Fixtures.customer.admin.create }
 
     it "looks up the logged in admin" do
@@ -764,7 +764,7 @@ RSpec.describe Suma::Service, :db do
 
       it "renders using a path to a timezone" do
         ent = Class.new(Suma::Service::Entities::Base) do
-          expose :time, &self.timezone(:customer, :mytz)
+          expose :time, &self.timezone(:member, :mytz)
         end
         r = ent.represent(
           instance_double("Obj",
@@ -776,7 +776,7 @@ RSpec.describe Suma::Service, :db do
 
       it "renders using a path to an object with a :timezone method" do
         ent = Class.new(Suma::Service::Entities::Base) do
-          expose :time, &self.timezone(:customer)
+          expose :time, &self.timezone(:member)
         end
         r = ent.represent(
           instance_double("Obj",
@@ -788,7 +788,7 @@ RSpec.describe Suma::Service, :db do
 
       it "renders using a path to an object with a :time_zone method" do
         ent = Class.new(Suma::Service::Entities::Base) do
-          expose :time, &self.timezone(:customer)
+          expose :time, &self.timezone(:member)
         end
         r = ent.represent(
           instance_double("Obj",
@@ -801,11 +801,11 @@ RSpec.describe Suma::Service, :db do
       it "uses the default rendering if any item in the path is missing" do
         ts = t.iso8601
         ent = Class.new(Suma::Service::Entities::Base) do
-          expose :time, &self.timezone(:customer, :mytz)
+          expose :time, &self.timezone(:member, :mytz)
         end
 
         d = instance_double("Obj", time: t)
-        expect(d).to receive(:customer).and_raise(NoMethodError)
+        expect(d).to receive(:member).and_raise(NoMethodError)
         r = ent.represent(d)
         expect(r.as_json[:time]).to eq(ts)
 
@@ -825,7 +825,7 @@ RSpec.describe Suma::Service, :db do
 
       it "can pull from an explicit field" do
         ent = Class.new(Suma::Service::Entities::Base) do
-          expose :time_not_here, &self.timezone(:customer, field: :mytime)
+          expose :time_not_here, &self.timezone(:member, field: :mytime)
         end
         r = ent.represent(
           instance_double("Obj",

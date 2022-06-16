@@ -41,7 +41,7 @@ module Suma::Apps
   class AdminAPI < Suma::Service
     mount Suma::AdminAPI::Auth
     mount Suma::AdminAPI::BankAccounts
-    mount Suma::AdminAPI::Customers
+    mount Suma::AdminAPI::Members
     mount Suma::AdminAPI::MessageDeliveries
     mount Suma::AdminAPI::Roles
     add_swagger_documentation if ENV["RACK_ENV"] == "development"

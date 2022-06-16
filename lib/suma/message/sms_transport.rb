@@ -50,7 +50,7 @@ class Suma::Message::SmsTransport < Suma::Message::Transport
   end
 
   def recipient(to)
-    return Suma::Message::Recipient.new(to.phone, to) if to.is_a?(Suma::Customer)
+    return Suma::Message::Recipient.new(to.phone, to) if to.is_a?(Suma::Member)
     return Suma::Message::Recipient.new(to, nil)
   end
 

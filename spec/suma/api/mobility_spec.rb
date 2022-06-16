@@ -6,7 +6,7 @@ RSpec.describe Suma::API::Mobility, :db do
   include Rack::Test::Methods
 
   let(:app) { described_class.build_app }
-  let(:customer) { Suma::Fixtures.customer.onboarding_verified.with_cash_ledger(amount: money("$15")).create }
+  let(:member) { Suma::Fixtures.customer.onboarding_verified.with_cash_ledger(amount: money("$15")).create }
 
   before(:each) do
     login_as(customer)
@@ -253,7 +253,7 @@ RSpec.describe Suma::API::Mobility, :db do
   end
 
   describe "POST /v1/mobility/end_trip" do
-    let!(:customer_ledger) { Suma::Fixtures.ledger.customer(customer).category(:mobility).create }
+    let!(:member_ledger) { Suma::Fixtures.ledger.customer(customer).category(:mobility).create }
 
     it "ends the active trip for the resident" do
       trip = Suma::Fixtures.mobility_trip.ongoing.create(customer:)

@@ -7,7 +7,7 @@ require "suma/message"
 class Suma::Message::Delivery < Suma::Postgres::Model(:message_deliveries)
   plugin :timestamps
 
-  many_to_one :recipient, class: "Suma::Customer"
+  many_to_one :recipient, class: "Suma::Member"
   one_to_many :bodies, class: "Suma::Message::Body"
 
   dataset_module do

@@ -28,9 +28,9 @@ module Suma::API
 
           def unsafe_customer_lookup(forbid: false)
             if (token = params["token"]).present?
-              c = Suma::Customer[opaque_id: token]
+              c = Suma::Member[opaque_id: token]
             elsif (email = params[:lookup_email]).present?
-              c = Suma::Customer.with_email(email.strip)
+              c = Suma::Member.with_email(email.strip)
             end
             forbidden! if forbid && c.nil?
             return c

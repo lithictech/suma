@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-RSpec.describe "Suma::Customer::Session", :db do
-  let(:described_class) { Suma::Customer::Session }
+RSpec.describe "Suma::Member::Session", :db do
+  let(:described_class) { Suma::Member::Session }
 
   it "can fixture a valid instance" do
     Suma::Fixtures.session.create

@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
-RSpec.describe "Suma::Customer", :db do
-  let(:described_class) { Suma::Customer }
+RSpec.describe "Suma::Member", :db do
+  let(:described_class) { Suma::Member }
 
   it "can be inspected" do
-    expect { Suma::Customer.new.inspect }.to_not raise_error
+    expect { Suma::Member.new.inspect }.to_not raise_error
   end
 
   describe "associations" do
@@ -30,7 +30,7 @@ RSpec.describe "Suma::Customer", :db do
   end
 
   context "ensure_role" do
-    let(:customer) { Suma::Fixtures.customer.create }
+    let(:member) { Suma::Fixtures.customer.create }
     let(:role) { Suma::Role.create(name: "customer-test") }
     it "can set a role by a role object" do
       customer.ensure_role(role)
@@ -56,19 +56,19 @@ RSpec.describe "Suma::Customer", :db do
     let(:password) { "testtest1" }
 
     it "returns true if the password matches" do
-      u = Suma::Customer.new
+      u = Suma::Member.new
       u.password = password
       expect(u.authenticate(password)).to be_truthy
     end
 
     it "returns false if the password does not match" do
-      u = Suma::Customer.new
+      u = Suma::Member.new
       u.password = "testtest1"
       expect(u.authenticate("testtest2")).to be_falsey
     end
 
     it "returns false if the new password is blank" do
-      u = Suma::Customer.new
+      u = Suma::Member.new
       expect(u.authenticate(nil)).to be_falsey
       expect(u.authenticate("")).to be_falsey
 
@@ -86,7 +86,7 @@ RSpec.describe "Suma::Customer", :db do
   end
 
   describe "setting password" do
-    let(:customer) { Suma::Fixtures.customer.instance }
+    let(:member) { Suma::Fixtures.customer.instance }
 
     it "sets the digest to a bcrypt hash" do
       customer.password = "abcdefg123"
@@ -194,7 +194,7 @@ RSpec.describe "Suma::Customer", :db do
   end
 
   describe "usable_payment_instruments" do
-    let(:customer) { Suma::Fixtures.customer.create }
+    let(:member) { Suma::Fixtures.customer.create }
     let(:bank_fac) { Suma::Fixtures.bank_account.customer(customer) }
 
     it "returns undeleted bank accounts" do

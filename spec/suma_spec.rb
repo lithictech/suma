@@ -63,16 +63,16 @@ RSpec.describe Suma do
     end
 
     it "is the same for the same model instance" do
-      customer = Suma::Customer.new
+      customer = Suma::Member.new
       key1 = described_class.idempotency_key(customer)
       key2 = described_class.idempotency_key(customer)
       expect(key1).to eq(key2)
     end
 
     it "is the same for models with the same type and primary key" do
-      customer1 = Suma::Customer.new
+      customer1 = Suma::Member.new
       customer1.id = 1
-      customer2 = Suma::Customer.new
+      customer2 = Suma::Member.new
       customer2.id = 1
 
       key1 = described_class.idempotency_key(customer1)
@@ -81,9 +81,9 @@ RSpec.describe Suma do
     end
 
     it "is unique for the same model type with different ids" do
-      customer1 = Suma::Customer.new
+      customer1 = Suma::Member.new
       customer1.id = 1
-      customer2 = Suma::Customer.new
+      customer2 = Suma::Member.new
       customer2.id = 2
 
       key1 = described_class.idempotency_key(customer1)
@@ -92,7 +92,7 @@ RSpec.describe Suma do
     end
 
     it "is unique for model types" do
-      customer = Suma::Customer.new
+      customer = Suma::Member.new
       person = Suma::Role.new
 
       customerkey = described_class.idempotency_key(customer)
@@ -102,14 +102,14 @@ RSpec.describe Suma do
 
     it "is randomized if bust_idempotency is true" do
       described_class.bust_idempotency = true
-      customer = Suma::Customer.new
+      customer = Suma::Member.new
       key1 = described_class.idempotency_key(customer)
       key2 = described_class.idempotency_key(customer)
       expect(key1).not_to eq(key2)
     end
 
     it "is unique when different `parts` are passed" do
-      customer = Suma::Customer.new
+      customer = Suma::Member.new
       no_parts = described_class.idempotency_key(customer)
       part_a = described_class.idempotency_key(customer, "parta")
       part_b = described_class.idempotency_key(customer, "partb")
@@ -119,7 +119,7 @@ RSpec.describe Suma do
     end
 
     it "is unique on updated_at if updated_at is defined and not empty" do
-      customer = Suma::Customer.new
+      customer = Suma::Member.new
       key1 = described_class.idempotency_key(customer)
       customer.updated_at = Time.now
       key2 = described_class.idempotency_key(customer)
@@ -127,7 +127,7 @@ RSpec.describe Suma do
     end
 
     it "is unique on created_at if updated_at is empty or undefined and created_at is defined" do
-      customer = Suma::Customer.new
+      customer = Suma::Member.new
       customer.created_at = Time.now - 1.second
       key1 = described_class.idempotency_key(customer)
       customer.created_at = Time.now

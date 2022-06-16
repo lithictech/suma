@@ -95,7 +95,7 @@ module Suma::API
     expose :ended_at
   end
 
-  class CurrentCustomerEntity < Suma::Service::Entities::CurrentCustomer
+  class CurrentMemberEntity < Suma::Service::Entities::CurrentMember
     expose :ongoing_trip, with: MobilityTripEntity
     expose :read_only_mode?, as: :read_only_mode
     expose :read_only_reason

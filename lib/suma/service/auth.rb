@@ -18,13 +18,13 @@ class Suma::Service::Auth
 
     protected def lookup_customer
       if params["phone"]
-        customer = Suma::Customer.with_us_phone(params["phone"].strip)
+        customer = Suma::Member.with_us_phone(params["phone"].strip)
         if customer.nil?
           fail!("No customer with that phone")
           return nil
         end
       else
-        customer = Suma::Customer.with_email(params["email"].strip)
+        customer = Suma::Member.with_email(params["email"].strip)
         if customer.nil?
           fail!("No customer with that email")
           return nil
@@ -80,7 +80,7 @@ class Suma::Service::Auth
   end
 
   Warden::Manager.serialize_into_session(&:id)
-  Warden::Manager.serialize_from_session { |id| Suma::Customer[id] }
+  Warden::Manager.serialize_from_session { |id| Suma::Member[id] }
 
   Warden::Strategies.add(:password, PasswordStrategy)
   Warden::Strategies.add(:admin_password, AdminPasswordStrategy)
@@ -96,7 +96,7 @@ class Suma::Service::Auth
       # manager.default_strategies :password
       manager.failure_app = FailureApp
 
-      manager.scope_defaults(:customer, strategies: [:password])
+      manager.scope_defaults(:member, strategies: [:password])
       manager.scope_defaults(:admin, strategies: [:admin_password])
     end
   end
@@ -115,14 +115,14 @@ class Suma::Service::Auth
 
     def on(target_customer)
       self.warden.session(:admin)["impersonating"] = target_customer.id
-      self.warden.logout(:customer)
-      self.warden.set_user(target_customer, scope: :customer)
+      self.warden.logout(:member)
+      self.warden.set_user(target_customer, scope: :member)
     end
 
     def off(admin_customer)
-      self.warden.logout(:customer)
+      self.warden.logout(:member)
       self.warden.session(:admin).delete("impersonating")
-      self.warden.set_user(admin_customer, scope: :customer)
+      self.warden.set_user(admin_customer, scope: :member)
     end
   end
 end

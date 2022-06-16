@@ -4,7 +4,7 @@ require "suma/payment"
 
 RSpec.describe Suma::Payment, :db do
   describe "ensure_cash_ledger" do
-    let(:customer) { Suma::Fixtures.customer.create }
+    let(:member) { Suma::Fixtures.customer.create }
     it "creates a payment account and cash ledger" do
       led = described_class.ensure_cash_ledger(customer)
       expect(led.vendor_service_categories).to contain_exactly(have_attributes(name: "Cash"))

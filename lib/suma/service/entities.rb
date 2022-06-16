@@ -73,7 +73,7 @@ module Suma::Service::Entities
     expose :lng
   end
 
-  class CurrentCustomer < Base
+  class CurrentMember < Base
     expose :id
     expose :created_at
     expose :email

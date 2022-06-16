@@ -72,7 +72,7 @@ module Suma::SpecHelpers::Postgres
     end
 
     wrapped_proc.call
-    return if !SNIFF_LEAKY_TESTS || Suma::Customer.empty?
+    return if !SNIFF_LEAKY_TESTS || Suma::Member.empty?
     puts "Customer is not cleaned up, failing for diagnosis."
     puts "Check the spec that ran before: #{example.metadata[:full_description]}"
     exit

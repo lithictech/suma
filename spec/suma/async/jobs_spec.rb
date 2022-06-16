@@ -15,7 +15,7 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
         Suma::Fixtures.customer.create
       end.to perform_async_job(Suma::Async::EnsureDefaultCustomerLedgersOnCreate)
 
-      c = Suma::Customer.last
+      c = Suma::Member.last
       expect(c).to have_attributes(payment_account: be_present)
       expect(c.payment_account.ledgers).to have_length(1)
     end

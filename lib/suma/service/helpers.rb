@@ -24,13 +24,13 @@ module Suma::Service::Helpers
   # Return the currently-authenticated user,
   # or respond with a 401 if there is no authenticated user.
   def current_customer
-    return _check_customer_deleted(env["warden"].authenticate!(scope: :customer), admin_customer?)
+    return _check_customer_deleted(env["warden"].authenticate!(scope: :member), admin_customer?)
   end
 
   # Return the currently-authenticated user,
   # or respond nil if there is no authenticated user.
   def current_customer?
-    return _check_customer_deleted(env["warden"].user(scope: :customer), admin_customer?)
+    return _check_customer_deleted(env["warden"].user(scope: :member), admin_customer?)
   end
 
   def admin_customer
@@ -43,7 +43,7 @@ module Suma::Service::Helpers
 
   def authenticate!
     warden = env["warden"]
-    user = warden.authenticate!(scope: :customer)
+    user = warden.authenticate!(scope: :member)
     warden.set_user(user, scope: :admin) if user.admin?
     return user
   end
@@ -92,7 +92,7 @@ module Suma::Service::Helpers
 
   def set_customer(customer)
     warden = env["warden"]
-    warden.set_user(customer, scope: :customer)
+    warden.set_user(customer, scope: :member)
     warden.set_user(customer, scope: :admin) if customer.admin?
   end
 

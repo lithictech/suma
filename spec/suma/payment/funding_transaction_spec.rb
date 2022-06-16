@@ -50,7 +50,7 @@ RSpec.describe "Suma::Payment::FundingTransaction", :db do
   describe "state machine" do
     let(:strategy) { Suma::Payment::FakeStrategy.create }
     let(:payment) { Suma::Fixtures.funding_transaction.with_fake_strategy(strategy).create }
-    let(:customer) { payment.originating_payment_account.customer }
+    let(:member) { payment.originating_payment_account.customer }
 
     describe "collect_funds" do
       it "processes to collecting when ready to collect funds, and cleared when funds have cleared" do

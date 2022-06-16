@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 RSpec.describe "auth", :integration do
-  let(:password) { Suma::Fixtures::Customers::PASSWORD }
+  let(:password) { Suma::Fixtures::Members::PASSWORD }
 
   it "allows me to sign up" do
     customer = Suma::Fixtures.customer.instance

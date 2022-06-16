@@ -10,7 +10,7 @@ module Suma::Fixtures::MessageDeliveries
 
   fixtured_class Suma::Message::Delivery
 
-  depends_on(:customers)
+  depends_on(:members)
 
   base :message_delivery do
     self.template ||= "fixture"
@@ -42,7 +42,7 @@ module Suma::Fixtures::MessageDeliveries
   end
 
   decorator :with_recipient do |customer={}|
-    customer = Suma::Fixtures.customer.create(customer) unless customer.is_a?(Suma::Customer)
+    customer = Suma::Fixtures.customer.create(customer) unless customer.is_a?(Suma::Member)
     self.recipient = customer
   end
 

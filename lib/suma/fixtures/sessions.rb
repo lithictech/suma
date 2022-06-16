@@ -9,7 +9,7 @@ require "suma/customer"
 module Suma::Fixtures::Sessions
   extend Suma::Fixtures
 
-  fixtured_class Suma::Customer::Session
+  fixtured_class Suma::Member::Session
 
   base :session do
     self.peer_ip ||= Faker::Internet.ip_v4_address

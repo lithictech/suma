@@ -9,8 +9,8 @@ class Suma::Role < Suma::Postgres::Model(:roles)
     end
   end
 
-  many_to_many :customers,
-               class: "Suma::Customer",
+  many_to_many :members,
+               class: "Suma::Member",
                join_table: :roles_customers
 end
 

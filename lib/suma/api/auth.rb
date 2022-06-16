@@ -11,7 +11,7 @@ class Suma::API::Auth < Suma::API::V1
 
   helpers do
     def create_session(customer)
-      customer.add_session(**Suma::Customer::Session.params_for_request(request))
+      customer.add_session(**Suma::Member::Session.params_for_request(request))
     end
   end
 
@@ -23,13 +23,13 @@ class Suma::API::Auth < Suma::API::V1
     end
     post :start do
       guard_authed!
-      Suma::Customer.db.transaction do
-        customer = Suma::Customer.with_us_phone(params[:phone])
+      Suma::Member.db.transaction do
+        customer = Suma::Member.with_us_phone(params[:phone])
         is_new = customer.nil?
-        customer ||= Suma::Customer.new(
+        customer ||= Suma::Member.new(
           phone: params[:phone],
           name: "",
-          password_digest: Suma::Customer::PLACEHOLDER_PASSWORD_DIGEST,
+          password_digest: Suma::Member::PLACEHOLDER_PASSWORD_DIGEST,
         )
         customer.timezone = params[:timezone]
         save_or_error!(customer)
@@ -37,7 +37,7 @@ class Suma::API::Auth < Suma::API::V1
           customer.add_activity(
             message_name: "registered",
             summary: "Created from API",
-            subject_type: "Suma::Customer",
+            subject_type: "Suma::Member",
             subject_id: customer.id,
           )
         end
@@ -53,27 +53,27 @@ class Suma::API::Auth < Suma::API::V1
     end
     post :verify do
       guard_authed!
-      me = Suma::Customer.with_us_phone(params[:phone])
+      me = Suma::Member.with_us_phone(params[:phone])
       begin
-        Suma::Customer::ResetCode::Unusable if me.nil?
-        if Suma::Customer.matches_allowlist?(me, Suma::Customer.superadmin_allowlist)
+        Suma::Member::ResetCode::Unusable if me.nil?
+        if Suma::Member.matches_allowlist?(me, Suma::Member.superadmin_allowlist)
           me.update(onboarding_verified_at: Time.now)
           me.ensure_role(Suma::Role.admin_role)
-        elsif Suma::Customer.matches_allowlist?(me, Suma::Customer.skip_verification_allowlist)
+        elsif Suma::Member.matches_allowlist?(me, Suma::Member.skip_verification_allowlist)
           nil
         else
-          Suma::Customer::ResetCode.use_code_with_token(params[:token]) do |code|
-            raise Suma::Customer::ResetCode::Unusable unless code.customer === me
+          Suma::Member::ResetCode.use_code_with_token(params[:token]) do |code|
+            raise Suma::Member::ResetCode::Unusable unless code.customer === me
           end
         end
-      rescue Suma::Customer::ResetCode::Unusable
+      rescue Suma::Member::ResetCode::Unusable
         merror!(403, "Sorry, that token is invalid or the phone number is not in our system.", code: "invalid_otp")
       end
 
       set_customer(me)
       create_session(me)
       status 200
-      present me, with: Suma::API::CurrentCustomerEntity, env:
+      present me, with: Suma::API::CurrentMemberEntity, env:
     end
 
     delete do

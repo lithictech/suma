@@ -6,7 +6,7 @@ require "suma/service/entities"
 require "suma/admin_api" unless defined? Suma::AdminAPI
 
 module Suma::AdminAPI
-  CurrentCustomerEntity = Suma::Service::Entities::CurrentCustomer
+  CurrentMemberEntity = Suma::Service::Entities::CurrentMember
   MoneyEntity = Suma::Service::Entities::Money
   LegalEntityEntity = Suma::Service::Entities::LegalEntityEntity
   TimeRangeEntity = Suma::Service::Entities::TimeRange

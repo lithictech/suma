@@ -3,7 +3,7 @@
 RSpec.describe "helpers", :integration do
   it "work (auth_customer with no argument creates and logs in new customer)" do
     customer = auth_customer
-    expect(customer).to be_an_instance_of(Suma::Customer)
+    expect(customer).to be_an_instance_of(Suma::Member)
     expect(customer).to be_saved
 
     resp = get("/api/v1/me")

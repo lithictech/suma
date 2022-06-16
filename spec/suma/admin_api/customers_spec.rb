@@ -3,7 +3,7 @@
 require "suma/admin_api/customers"
 require "suma/api/behaviors"
 
-RSpec.describe Suma::AdminAPI::Customers, :db do
+RSpec.describe Suma::AdminAPI::Members, :db do
   include Rack::Test::Methods
 
   let(:app) { described_class.build_app }
@@ -159,7 +159,7 @@ RSpec.describe Suma::AdminAPI::Customers, :db do
       post "/v1/customers/#{customer.id}/close"
 
       expect(last_response).to have_status(200)
-      expect(Suma::Customer.last.activities).to contain_exactly(have_attributes(message_name: "accountclosed"))
+      expect(Suma::Member.last.activities).to contain_exactly(have_attributes(message_name: "accountclosed"))
     end
   end
 

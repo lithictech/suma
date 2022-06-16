@@ -67,7 +67,7 @@ module Suma::SpecHelpers::Integration
   end
 
   module_function def auth_customer(customer=nil)
-    pw = Suma::Fixtures::Customers::PASSWORD
+    pw = Suma::Fixtures::Members::PASSWORD
     if customer.nil?
       customer = Suma::Fixtures.customer.password(pw).create
     else

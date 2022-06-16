@@ -7,7 +7,7 @@ RSpec.describe Suma::AdminAPI::Auth, :db do
 
   let(:app) { described_class.build_app }
   let(:password) { "Password1!" }
-  let(:customer) { Suma::Fixtures.customer.create(password:) }
+  let(:member) { Suma::Fixtures.customer.create(password:) }
   let(:admin) { Suma::Fixtures.customer.admin.create(password:) }
 
   describe "GET /v1/auth" do

@@ -9,7 +9,7 @@ class Suma::Async::ResetCodeCreateDispatch
   on "suma.customer.resetcode.created"
 
   def _perform(event)
-    code = self.lookup_model(Suma::Customer::ResetCode, event)
+    code = self.lookup_model(Suma::Member::ResetCode, event)
     Suma::Idempotency.once_ever.under_key("reset-code-#{code.customer_id}-#{code.id}") do
       msg = Suma::Messages::Verification.new(code)
       case code.transport

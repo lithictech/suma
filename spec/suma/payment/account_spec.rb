@@ -3,7 +3,7 @@
 RSpec.describe "Suma::Payment::Account", :db do
   let(:described_class) { Suma::Payment::Account }
   let(:account) { Suma::Fixtures.payment_account.create }
-  let(:customer) { account.customer }
+  let(:member) { account.customer }
   let(:now) { Time.now }
 
   describe "associations" do

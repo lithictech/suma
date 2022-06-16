@@ -2,8 +2,8 @@
 
 require "suma/customer/dashboard"
 
-RSpec.describe Suma::Customer::Dashboard, :db do
-  let(:customer) { Suma::Fixtures.customer.create }
+RSpec.describe Suma::Member::Dashboard, :db do
+  let(:member) { Suma::Fixtures.customer.create }
 
   it "can represent a blank/empty customer" do
     d = described_class.new(customer)

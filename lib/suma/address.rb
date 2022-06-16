@@ -11,7 +11,7 @@ class Suma::Address < Suma::Postgres::Model(:addresses)
   include Appydays::Loggable
   extend Suma::MethodUtilities
 
-  many_to_many :customer, class: "Suma::Customer"
+  many_to_many :member, class: "Suma::Member"
 
   # The default country code for new addresses
   DEFAULT_COUNTRY = "US"

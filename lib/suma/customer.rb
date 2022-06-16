@@ -8,7 +8,7 @@ require "suma/payment/has_account"
 require "suma/postgres/model"
 require "suma/secureid"
 
-class Suma::Customer < Suma::Postgres::Model(:customers)
+class Suma::Member < Suma::Postgres::Model(:members)
   extend Suma::MethodUtilities
   include Appydays::Configurable
   include Suma::Payment::HasAccount
@@ -16,7 +16,7 @@ class Suma::Customer < Suma::Postgres::Model(:customers)
   class InvalidPassword < RuntimeError; end
   class ReadOnlyMode < RuntimeError; end
 
-  configurable(:customer) do
+  configurable(:member) do
     setting :skip_verification_allowlist, [], convert: ->(s) { s.split }
     setting :superadmin_allowlist, [], convert: ->(s) { s.split }
   end
@@ -39,7 +39,7 @@ class Suma::Customer < Suma::Postgres::Model(:customers)
   plugin :timestamps
   plugin :soft_deletes
 
-  one_to_many :activities, class: "Suma::Customer::Activity", order: Sequel.desc([:created_at, :id])
+  one_to_many :activities, class: "Suma::Member::Activity", order: Sequel.desc([:created_at, :id])
   many_through_many :bank_accounts,
                     [
                       [:legal_entities, :id, :id],
@@ -53,9 +53,9 @@ class Suma::Customer < Suma::Postgres::Model(:customers)
   one_to_many :message_deliveries, key: :recipient_id, class: "Suma::Message::Delivery"
   one_to_one :ongoing_trip, class: "Suma::Mobility::Trip", conditions: {ended_at: nil}
   one_to_one :payment_account, class: "Suma::Payment::Account"
-  one_to_many :reset_codes, class: "Suma::Customer::ResetCode", order: Sequel.desc([:created_at])
+  one_to_many :reset_codes, class: "Suma::Member::ResetCode", order: Sequel.desc([:created_at])
   many_to_many :roles, class: "Suma::Role", join_table: :roles_customers
-  one_to_many :sessions, class: "Suma::Customer::Session", order: Sequel.desc([:created_at, :id])
+  one_to_many :sessions, class: "Suma::Member::Session", order: Sequel.desc([:created_at, :id])
 
   dataset_module do
     def with_email(*emails)
@@ -176,7 +176,7 @@ class Suma::Customer < Suma::Postgres::Model(:customers)
 
   ### Raise if +unencrypted+ password does not meet complexity requirements.
   protected def check_password_complexity(unencrypted)
-    raise Suma::Customer::InvalidPassword, "password must be at least %d characters." % [MIN_PASSWORD_LENGTH] if
+    raise Suma::Member::InvalidPassword, "password must be at least %d characters." % [MIN_PASSWORD_LENGTH] if
       unencrypted.length < MIN_PASSWORD_LENGTH
   end
 
@@ -215,7 +215,7 @@ class Suma::Customer < Suma::Postgres::Model(:customers)
     # But we do need to make sure no one already has this phone number.
     loop do
       new_phone = Suma::PhoneNumber.faked_unreachable_phone
-      next unless Suma::Customer.where(phone: new_phone).empty?
+      next unless Suma::Member.where(phone: new_phone).empty?
       self.phone = new_phone
       break
     end

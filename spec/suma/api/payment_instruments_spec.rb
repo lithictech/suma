@@ -6,7 +6,7 @@ RSpec.describe Suma::API::PaymentInstruments, :db do
   include Rack::Test::Methods
 
   let(:app) { described_class.build_app }
-  let(:customer) { Suma::Fixtures.customer.create }
+  let(:member) { Suma::Fixtures.customer.create }
   let(:bank_fac) { Suma::Fixtures.bank_account.customer(customer) }
 
   before(:each) do

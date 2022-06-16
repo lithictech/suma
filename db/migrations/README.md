@@ -46,11 +46,11 @@ Put indices and constraints (unique and otherwise) near their column.
 Put compound indices/constraints at the bottom of the block.
 
 ```ruby
-foreign_key :customer_id, :customers, null: false
-index :customer_id
+foreign_key :member_id, :members, null: false
+index :member_id
 foreign_key :address_id, :addresses, null: false
 
-unique [:customer_id, :address_id]
+unique [:member_id, :address_id]
 ```
 
 ## Useful References

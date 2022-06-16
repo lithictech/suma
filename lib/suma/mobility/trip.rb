@@ -10,7 +10,7 @@ class Suma::Mobility::Trip < Suma::Postgres::Model(:mobility_trips)
 
   many_to_one :vendor_service, key: :vendor_service_id, class: "Suma::Vendor::Service"
   many_to_one :vendor_service_rate, key: :vendor_service_rate_id, class: "Suma::Vendor::ServiceRate"
-  many_to_one :customer, key: :customer_id, class: "Suma::Customer"
+  many_to_one :member, key: :member_id, class: "Suma::Member"
   one_to_one :charge, key: :mobility_trip_id, class: "Suma::Charge"
 
   dataset_module do
