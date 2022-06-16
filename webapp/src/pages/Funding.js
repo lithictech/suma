@@ -7,33 +7,25 @@ import useToggle from "../shared/react/useToggle";
 import { extractErrorCode, useError } from "../state/useError";
 import { useScreenLoader } from "../state/useScreenLoader";
 import { useUser } from "../state/useUser";
+import i18next from "i18next";
 import _ from "lodash";
 import React from "react";
-import { Card, Modal } from "react-bootstrap";
 import Button from "react-bootstrap/Button";
+import Card from "react-bootstrap/Card";
 import Container from "react-bootstrap/Container";
+import Dropdown from "react-bootstrap/Dropdown";
+import Modal from "react-bootstrap/Modal";
 import "react-phone-number-input/style.css";
 
 export default function Funding() {
   const { user } = useUser();
-
   return (
     <div className="main-container">
       <TopNav />
       <Container>
-        <h2>Payment Accounts</h2>
-        <p>
-          To add money to your account, you&rsquo;ll need at least one{" "}
-          <em>funding source</em>. Usually this is a bank account, but other options may
-          be available to you below.
-        </p>
-        <p>
-          Your financial information is secured using{" "}
-          <strong>bank-level encryption</strong> and{" "}
-          <strong>never shared without your consent</strong>. Please see{" "}
-          <a href="#todo">Suma&rsquo;s Privacy Policy</a> for more details about how we
-          protect and use your financial information.
-        </p>
+        <h2>{i18next.t("payments:payment_title")}</h2>
+        <p>{i18next.t("payments:payment_intro.intro_md")}</p>
+        <p id="some">{i18next.t("payments:payment_intro.privacy_statement_md")}</p>
         <BankAccountsCard instruments={user.usablePaymentInstruments} />
         <AdditionalSourcesCard />
       </Container>
@@ -44,27 +36,25 @@ export default function Funding() {
 function BankAccountsCard({ instruments }) {
   const bankAccounts = _.filter(instruments, { paymentMethodType: "bank_account" });
   return (
-    <PaymentsCard header="Bank Accounts">
-      <Card.Body>
-        {bankAccounts.length === 0 ? (
-          <>
-            <Card.Text>You don&rsquo;t have any bank accounts linked.</Card.Text>
-            <Button variant="primary" href="/link-bank-account" as={RLink}>
-              Link Bank Account
-            </Button>
-          </>
-        ) : (
-          <>
-            {bankAccounts.map((ba) => (
-              <BankAccountLine key={ba.id} bankAccount={ba} />
-            ))}
-            <hr className="my-4" />
-            <Button variant="primary" href="/link-bank-account" as={RLink}>
-              Link Another Account
-            </Button>
-          </>
-        )}
-      </Card.Body>
+    <PaymentsCard header={i18next.t("payments:bank_accounts")}>
+      {bankAccounts.length === 0 ? (
+        <>
+          <Card.Text>{i18next.t("payments:no_bank_accounts_warning")}</Card.Text>
+          <Button variant="primary" href="/link-bank-account" as={RLink}>
+            {i18next.t("payments:link_account")}
+          </Button>
+        </>
+      ) : (
+        <>
+          {bankAccounts.map((ba) => (
+            <BankAccountLine key={ba.id} bankAccount={ba} />
+          ))}
+          <hr className="my-4" />
+          <Button variant="primary" href="/link-bank-account" as={RLink}>
+            {i18next.t("payments:link_another_account")}
+          </Button>
+        </>
+      )}
     </PaymentsCard>
   );
 }
@@ -86,77 +76,93 @@ function BankAccountLine({ bankAccount }) {
       .finally(screenLoader.turnOff);
   }
   return (
-    <div className="my-3 d-flex justify-content-between align-items-center">
-      <div className="me-2">
-        <i className="bi bi-bank2 me-2"></i>
-        <strong className="text-nowrap">{bankAccount.display.name}</strong>{" "}
-        <span className="text-nowrap">x-{bankAccount.display.last4}</span>
-        {bankAccount.canUseForFunding ? (
-          <i
-            className="bi bi-check2-circle text-success ms-2"
-            title="Verified account"
-          ></i>
-        ) : (
-          <i
-            className="bi bi-stopwatch text-warning ms-2"
-            title="Verification pending"
-          ></i>
-        )}
-      </div>
-      {bankAccount.canUseForFunding && (
-        <div className="mx-2">
-          <Button
-            variant="success"
-            href={`/add-funds?id=${bankAccount.id}&paymentMethodType=bank_account`}
-            as={RLink}
-          >
-            <i className="bi bi-cash-stack" title="Add Funds"></i>
-          </Button>
+    <Card className="text-start mb-3 funding-card-border-radius">
+      <Card.Body className="d-flex justify-content-between align-items-center">
+        <div>
+          <Card.Title className="mb-1" as="h6">
+            <i className="bi bi-bank2 me-2"></i>
+            {bankAccount.display.name}
+          </Card.Title>
+          <Card.Subtitle className="m-0">
+            <span className="opacity-50">x-{bankAccount.display.last4}</span>
+          </Card.Subtitle>
         </div>
-      )}
-      <div className="ms-2">
-        <Button variant="outline-danger" className="border-0" onClick={showDelete.turnOn}>
-          <i className="bi bi-x-circle-fill" title="Unlink bank account"></i>
-        </Button>
-      </div>
+        <div className="ms-auto text-end">
+          {bankAccount.canUseForFunding ? (
+            <Button
+              variant="success"
+              size="sm"
+              className="mb-2 funding-card-border-radius"
+              href={`/add-funds?id=${bankAccount.id}&paymentMethodType=bank_account`}
+              as={RLink}
+            >
+              <i className="bi bi-plus-circle"></i> {i18next.t("payments:add_funds")}
+            </Button>
+          ) : (
+            <Button size="sm" className="opacity-0" disabled aria-hidden>
+              &nbsp;{/* Match verified account sizing so cards are same size*/}
+            </Button>
+          )}
+          <div>
+            {bankAccount.canUseForFunding ? (
+              <small>
+                <i className="bi bi-check2-circle text-success" title="Verified account">
+                  {i18next.t("payments:payment_account_verified")}
+                </i>
+              </small>
+            ) : (
+              <small>
+                <i className="bi bi-stopwatch text-warning" title="Verification pending">
+                  {i18next.t("payments:payment_account_pending")}
+                </i>
+              </small>
+            )}
+            <Dropdown as="span">
+              <Dropdown.Toggle variant="link" className="p-0 ms-2 text-muted" size="sm">
+                <i className="bi bi-gear-fill"></i>
+              </Dropdown.Toggle>
+              <Dropdown.Menu align="end">
+                <Dropdown.Item className="text-danger" onClick={showDelete.turnOn}>
+                  {i18next.t("payments:unlink_account")}
+                </Dropdown.Item>
+              </Dropdown.Menu>
+            </Dropdown>
+          </div>
+        </div>
+      </Card.Body>
       <Modal show={showDelete.isOn} onHide={showDelete.turnOff} centered>
         <Modal.Header closeButton>
-          <Modal.Title>Unlink Account?</Modal.Title>
+          <Modal.Title as="h5">{i18next.t("payments:unlink_account")}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
+          <p>{i18next.t("payments:unlink_account_question")}</p>
           <p>
-            Are you sure you want to unlink this account? You can always re-add it later.
-          </p>
-          <p>
-            <strong>Any in-progress transactions will not be canceled.</strong>
+            <strong>{i18next.t("payments:unlink_account_question_subtitle")}</strong>
           </p>
           <FormError error={error} />
           <FormButtons
-            variant="primary"
+            variant="danger"
             primaryProps={{
-              children: "Unlink",
+              children: i18next.t("payment:unlink"),
               onClick: submitDelete,
             }}
             secondaryProps={{
-              children: "Cancel",
+              children: i18next.t("common:cancel"),
               onClick: showDelete.turnOff,
             }}
           />
         </Modal.Body>
       </Modal>
-    </div>
+    </Card>
   );
 }
 
 function AdditionalSourcesCard() {
   return (
-    <PaymentsCard header="Other Sources">
-      <Card.Text>
-        Support is coming for additional sources, such as cash, money order, and adding
-        funds through a friend.
-      </Card.Text>
+    <PaymentsCard header={i18next.t("payments:payment_other_sources")}>
+      <Card.Text>{i18next.t("payments:payment_support_coming")}</Card.Text>
       <Button variant="link" href="#todo">
-        Learn More
+        {i18next.t("common:learn_more")}
       </Button>
     </PaymentsCard>
   );

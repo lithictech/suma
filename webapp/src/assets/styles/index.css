@@ -66,3 +66,7 @@
 .mobility-overlay-card-loading-icon {
   width: 38px;
 }
+
+.funding-card-border-radius {
+  border-radius: 15px!important;
+}

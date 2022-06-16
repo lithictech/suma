@@ -9,6 +9,7 @@ import { extractErrorCode, useError } from "../state/useError";
 import { useScreenLoader } from "../state/useScreenLoader";
 import { useUser } from "../state/useUser";
 import i18n from "i18next";
+import i18next from "i18next";
 import _ from "lodash";
 import React from "react";
 import Col from "react-bootstrap/Col";
@@ -39,13 +40,8 @@ export default function FundingLinkBankAccount() {
 function Success() {
   return (
     <>
-      <h2>Bank Account Linked</h2>
-      <p>
-        Your bank account has been successfully linked to Suma. Within the next day or
-        two, one of our Member Experience specialists will be in touch to confirm the
-        account.
-      </p>
-      <p>Once the account is confirmed, you&rsquo;ll be able to add funds.</p>
+      <h2>{i18next.t("payments:linked_account")}</h2>
+      <p>{i18next.t("payments:linked_account_successful_md")}</p>
       <GoHome />
     </>
   );
@@ -93,17 +89,12 @@ function LinkBankAccount({ onSuccess }) {
 
   return (
     <>
-      <h2>Link Bank Account</h2>
-      <p>
-        Your financial information is secured using <strong>bank-level encryption</strong>{" "}
-        and <strong>never shared without your consent</strong>. Please see{" "}
-        <a href="#todo">Suma&rsquo;s Privacy Policy</a> for more details about how we
-        protect and use your financial information.
-      </p>
+      <h2>{i18next.t("payments:link_account")}</h2>
+      <p>{i18next.t("payments:payment_intro.privacy_statement_md")}</p>
       <Form noValidate validated={validated} onSubmit={handleSubmit}>
         <Row className="mb-3">
           <Form.Group as={Col}>
-            <Form.Label>Nickname</Form.Label>
+            <Form.Label>{i18next.t("forms:nickname")}</Form.Label>
             <Form.Control
               required
               type="text"
@@ -111,14 +102,14 @@ function LinkBankAccount({ onSuccess }) {
               onChange={(e) => setNickname(e.target.value)}
             />
             <Form.Control.Feedback type="invalid">
-              Please provide a nickname for your account.
+              {i18next.t("forms:invalid_nickname")}
             </Form.Control.Feedback>
-            <Form.Text>The name used to refer to the account in Suma.</Form.Text>
+            <Form.Text>{i18next.t("forms:nickname_caption")}</Form.Text>
           </Form.Group>
         </Row>
         <Row className="mb-3">
           <Form.Group as={Col}>
-            <Form.Label>Routing Number</Form.Label>
+            <Form.Label>{i18next.t("forms:routing_number")}</Form.Label>
             <Form.Control
               required
               type="text"
@@ -127,21 +118,18 @@ function LinkBankAccount({ onSuccess }) {
               onChange={(e) => setRouting(_.replace(e.target.value, /\D/, ""))}
             />
             <Form.Control.Feedback type="invalid">
-              Please enter the 9 digit number of your bank account.
+              {i18next.t("forms:invalid_routing_number")}
             </Form.Control.Feedback>
             <Form.Text>
-              9-digit number for your bank. You can get these from your online banking
-              portal, or check out{" "}
-              <a href="#check-details">
-                how to find your bank details from a paper check
-              </a>
-              .
+              {/* #TODO: Combine account_caption including markdown link */}
+              {i18next.t("forms:routing_caption") + " "}
+              <a href="#check-details">{i18next.t("forms:paper_check_details")}</a>.
             </Form.Text>
           </Form.Group>
         </Row>
         <Row className="mb-3">
           <Form.Group as={Col}>
-            <Form.Label>Account Number</Form.Label>
+            <Form.Label>{i18next.t("forms:account_number")}</Form.Label>
             <Form.Control
               required
               type="text"
@@ -150,21 +138,18 @@ function LinkBankAccount({ onSuccess }) {
               onChange={(e) => setAccountNumber(_.replace(e.target.value, /[^\d -]/, ""))}
             />
             <Form.Control.Feedback type="invalid">
-              Please enter your bank account number.
+              {i18next.t("forms:invalid_account_number")}
             </Form.Control.Feedback>
             <Form.Text>
-              Number of your bank account. You can get these from your online banking
-              portal, or check out{" "}
-              <a href="#check-details">
-                how to find your bank details from a paper check
-              </a>
-              .
+              {/* #TODO: Combine account_caption including markdown link */}
+              {i18next.t("forms:account_caption") + " "}
+              <a href="#check-details">{i18next.t("forms:paper_check_details")}</a>.
             </Form.Text>
           </Form.Group>
         </Row>
         <Row className="mb-3">
           <Form.Group as={Col}>
-            <Form.Label>Confirm Account Number</Form.Label>
+            <Form.Label>{i18next.t("forms:confirm_account_number")}</Form.Label>
             <Form.Control
               required
               type="text"
@@ -175,20 +160,20 @@ function LinkBankAccount({ onSuccess }) {
               }
             />
             <Form.Control.Feedback type="invalid">
-              Must match your Account Number above.
+              {i18next.t("forms:invalid_confirm_account_number")}
             </Form.Control.Feedback>
-            <Form.Text>Please retype your Account Number to confirm.</Form.Text>
+            <Form.Text>{i18next.t("forms:confirm_account_number_caption")}</Form.Text>
           </Form.Group>
         </Row>
 
         <Row className="mb-3">
           <Form.Group as={Col}>
-            <Form.Label>Account Type</Form.Label>
+            <Form.Label>{i18next.t("forms:account_type")}</Form.Label>
             <div>
               <Form.Check
                 name="account-type"
                 type="radio"
-                label="Checking"
+                label={i18next.t("forms:checking")}
                 inline
                 checked={accountType === "checking"}
                 onChange={() => setAccountType("checking")}
@@ -196,23 +181,17 @@ function LinkBankAccount({ onSuccess }) {
               <Form.Check
                 name="account-type"
                 type="radio"
-                label="Savings"
+                label={i18next.t("forms:savings")}
                 inline
                 checked={accountType === "savings"}
                 onChange={() => setAccountType("savings")}
               />
             </div>
-            <Form.Text>
-              Choose which type of account this is. If you&rsquo;re not sure, use
-              Checking.
-            </Form.Text>
+            <Form.Text>{i18next.t("forms:account_type_caption")}</Form.Text>
           </Form.Group>
         </Row>
 
-        <p>
-          After you submit your information, one of our Member Experience specialists will
-          be in touch to confirm the account.
-        </p>
+        <p>{i18next.t("payments:account_submission_statement")}</p>
         <FormError error={error} />
         <FormButtons
           variant="success"
@@ -227,32 +206,15 @@ function LinkBankAccount({ onSuccess }) {
           centered
         >
           <Modal.Header closeButton>
-            <Modal.Title>What is my Account Number?</Modal.Title>
+            <Modal.Title>{i18next.t("payments:check_details_title")}</Modal.Title>
           </Modal.Header>
           <Modal.Body>
-            <p>
-              At the bottom of your check are three sets of numbers. The first is the
-              9-digit routing number. The second is your account number. The third, which
-              you can ignore, is your check number.
-            </p>
-            <img src={bankAccountCheckDetails} alt="check detail" className="w-100" />
-          </Modal.Body>
-        </Modal>
-        <Modal
-          show={showCheckModalToggle.isOn}
-          onHide={showCheckModalToggle.turnOff}
-          centered
-        >
-          <Modal.Header closeButton>
-            <Modal.Title>What is my Account Number?</Modal.Title>
-          </Modal.Header>
-          <Modal.Body>
-            <p>
-              At the bottom of your check are three sets of numbers. The first is the
-              9-digit routing number. The second is your account number. The third, which
-              you can ignore, is your check number.
-            </p>
-            <img src={bankAccountCheckDetails} alt="check detail" className="w-100" />
+            <p>{i18next.t("payments:check_details_subtitle")}</p>
+            <img
+              src={bankAccountCheckDetails}
+              alt={i18next.t("payments:check_detail")}
+              className="w-100"
+            />
           </Modal.Body>
         </Modal>
       </Form>
