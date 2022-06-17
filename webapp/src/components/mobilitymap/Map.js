@@ -137,7 +137,7 @@ const Map = () => {
         <CardOverlay>
           <FormError error={error} noMargin component="div" />
           {user.readOnlyReason && (
-            <Link to="/#todo">{i18next.t("common:add_money_to_account")}</Link>
+            <Link to="/funding">{i18next.t("common:add_money_to_account")}</Link>
           )}
         </CardOverlay>
       )}
