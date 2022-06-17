@@ -98,6 +98,8 @@ export default function OnboardingSignup() {
               label={t("name", { ns: "forms" })}
               required
               register={register}
+              registerArgs={{validate: {minAmount: (a) => a < 500}}}
+              errorKeys={{minAmount: 'forms:min_amount'}}
               errors={errors}
               value={name}
               onChange={(e) => handleInputChange(e, setName)}

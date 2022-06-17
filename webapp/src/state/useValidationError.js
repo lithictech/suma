@@ -7,12 +7,13 @@ import i18next from "i18next";
  * @param validations Object like {required: true, minLength: 3}.
  * @returns {null|string}
  */
-export default function useValidationError(name, errors, validations) {
+export default function useValidationError(name, errors, validations, additionalErrorKeys={}) {
   const err = errors && errors[name];
   if (!err) {
     return null;
   }
-  const errKey = errorKeys[err.type] || "forms:invalid_field";
+  const allErrKeys = {...errorKeys, additionalErrorKeys}
+  const errKey = allErrKeys[err.type] || additionalErrorKeys || "forms:invalid_field";
   const message = i18next.t(errKey, {
     constraint: validations[err.type],
     value: err.ref.value,

@@ -9,14 +9,16 @@ export default function FormControlGroup({
   label,
   Component,
   register,
+  registerArgs,
   errors,
   required,
   pattern,
   minLength,
   maxLength,
+                                           errorKeys,
   ...rest
 }) {
-  const registerArgs = {};
+  registerArgs = registerArgs || {};
   if (required) {
     registerArgs.required = true;
   }
@@ -30,7 +32,7 @@ export default function FormControlGroup({
     registerArgs.pattern = pattern;
   }
   const C = Component || Form.Control;
-  const message = useValidationError(name, errors, registerArgs);
+  const message = useValidationError(name, errors, registerArgs, errorKeys);
   return (
     <Form.Group className={className} controlId={name} as={as}>
       <Form.Label>{label}</Form.Label>
