@@ -1,5 +1,6 @@
-import loadingGif from "../../assets/images/loading.gif";
 import FormError from "../FormError";
+import PageLoader from "../PageLoader";
+import CardOverlay from "./CardOverlay";
 import i18next from "i18next";
 import React from "react";
 import Button from "react-bootstrap/Button";
@@ -11,15 +12,9 @@ const ReservationCard = ({ active, loading, vehicle, onReserve, reserveError }) 
   }
   if (loading) {
     return (
-      <Card className="mobility-overlay-card">
-        <Card.Body>
-          <img
-            src={loadingGif}
-            className="mobility-overlay-card-loading-icon"
-            alt="loading"
-          />
-        </Card.Body>
-      </Card>
+      <CardOverlay>
+        <PageLoader relative />
+      </CardOverlay>
     );
   }
   const { rate, vendorService } = vehicle;
@@ -30,22 +25,19 @@ const ReservationCard = ({ active, loading, vehicle, onReserve, reserveError }) 
   };
 
   return (
-    <Card className="mobility-overlay-card">
-      <Card.Body>
-        <Card.Title className="mb-2 text-muted">{vendorService.name}</Card.Title>
-        <Card.Text className="text-muted">
-          {i18next.t(rate.localizationKey, {
-            surchargeCents: locVars.surchargeCents * 0.01,
-            unitCents: locVars.unitCents * 0.01,
-            ns: "mobility",
-          })}
-        </Card.Text>
-        <FormError error={reserveError} />
-        <Button size="sm" variant="primary" className="w-100" onClick={handlePress}>
-          Reserve Scooter
-        </Button>
-      </Card.Body>
-    </Card>
+    <CardOverlay>
+      <Card.Title className="mb-2 text-muted">{vendorService.name}</Card.Title>
+      <Card.Text className="text-muted">
+        {i18next.t("mobility:" + rate.localizationKey, {
+          surchargeCents: locVars.surchargeCents * 0.01,
+          unitCents: locVars.unitCents * 0.01,
+        })}
+      </Card.Text>
+      <FormError error={reserveError} />
+      <Button size="sm" variant="primary" className="w-100" onClick={handlePress}>
+        {i18next.t("mobility:reserve_scooter")}
+      </Button>
+    </CardOverlay>
   );
 };
 

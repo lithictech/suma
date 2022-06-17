@@ -1,5 +1,7 @@
 {
+	"title": "Mobility Services",
 	"intro": "Ride with enhanced privacy and better prices.",
 	"mobility_start_and_per_minute": "Start fee is {{surchargeCents, currency(USD)}}, then {{unitCents, currency(USD)}} per minute",
-	"title": "Mobility Services"
+	"reserve_scooter": "Reserve Scooter",
+	"end_trip": "End Trip"
 }

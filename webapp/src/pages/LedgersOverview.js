@@ -57,8 +57,7 @@ export default function LedgersOverview() {
       <Container>
         <p>{i18next.t("ledgers_intro", { ns: "payments" })}</p>
       </Container>
-      <PageLoader show={!ledgersOverview.ledgers} />
-      {ledgersOverview.ledgers && (
+      {ledgersOverview.ledgers ? (
         <Ledger
           ledger={ledger}
           lines={ledgerLines.items || ledgersOverview.singleLedgerLinesFirstPage}
@@ -67,6 +66,8 @@ export default function LedgersOverview() {
           linesLoading={ledgersOverviewLoading || ledgerLinesLoading}
           onLinesPageChange={handleLinesPageChange}
         />
+      ) : (
+        <PageLoader />
       )}
     </div>
   );
@@ -109,7 +110,7 @@ const Ledger = ({
         <p className="m-0">{i18next.t("ledger_balance", { ns: "payments" })}</p>
         <h5 className="mt-2">{i18next.t("ledger_transactions", { ns: "payments" })}</h5>
       </Container>
-      <PageLoader show={linesLoading} />
+      {linesLoading && <PageLoader />}
       <Table
         responsive
         striped

@@ -57,8 +57,7 @@ const Dashboard = () => {
           </Col>
         </Row>
       </Container>
-      <PageLoader show={dashboardLoading} />
-      {!dashboardLoading && <Ledger dashboard={dashboard} />}
+      {dashboardLoading ? <PageLoader /> : <Ledger dashboard={dashboard} />}
     </div>
   );
 };
