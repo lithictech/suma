@@ -57,7 +57,7 @@ const Map = () => {
     setError(
       <Alert variant="warning" className="m-0">
         <i className="bi bi-exclamation-triangle-fill"></i>{" "}
-        {i18next.t("erros:denied_geolocation")}
+        {i18next.t("errors:denied_geolocation")}
         <InstructionsModal />
       </Alert>
     );
