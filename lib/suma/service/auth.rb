@@ -102,7 +102,7 @@ class Suma::Service::Auth
   end
 
   class Impersonation
-    attr_reader :admin_member, :warden
+    attr_reader :warden
 
     def initialize(warden)
       @warden = warden
@@ -111,6 +111,14 @@ class Suma::Service::Auth
     def is?
       return false unless self.warden.authenticated?(:admin)
       return self.warden.session(:admin)["impersonating"].present?
+    end
+
+    def current_member
+      return self.warden.authenticate!(scope: :member)
+    end
+
+    def admin_member
+      return self.warden.authenticate!(scope: :admin)
     end
 
     def on(target_member)

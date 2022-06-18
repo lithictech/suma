@@ -100,6 +100,9 @@ module Suma::API
     expose :read_only_mode?, as: :read_only_mode
     expose :read_only_reason
     expose :usable_payment_instruments, with: PaymentInstrumentEntity
+    expose :admin_member, expose_nil: false, with: Suma::Service::Entities::CurrentMember do |_|
+      self.impersonation.is? ? self.impersonation.admin_member : nil
+    end
   end
 
   class LedgerLineEntity < BaseEntity

@@ -44,6 +44,8 @@ export default {
   signOut: () => del("/adminapi/v1/auth"),
   signIn: (data) => post("/adminapi/v1/auth", data),
   getCurrentUser: (data) => get(`/adminapi/v1/auth`, data),
+  impersonate: ({ id, ...data }) => post(`/adminapi/v1/auth/impersonate/${id}`, data),
+  unimpersonate: (data) => del(`/adminapi/v1/auth/impersonate`, data),
   getMembers: (data) => get(`/adminapi/v1/members`, data),
   getMember: ({ id, ...data }) => get(`/adminapi/v1/members/${id}`, data),
 };

@@ -57,6 +57,31 @@ RSpec.describe Suma::API::Me, :db do
       expect(last_response).to have_json_body.
         that_includes(ongoing_trip: include(id: trip.id))
     end
+
+    describe "when authed as an admin" do
+      let(:admin) { Suma::Fixtures.member.admin.create }
+      before(:each) do
+        logout
+        login_as_admin(admin)
+      end
+
+      it "returns the impersonated user if they are impersonated" do
+        target = Suma::Fixtures.member.create
+
+        impersonate(admin:, target:)
+
+        get "/v1/me"
+        expect(last_response).to have_status(200)
+        expect(last_response).to have_json_body.
+          that_includes(id: target.id, admin_member: include(id: admin.id))
+      end
+
+      it "does not include 'impersonating' if not impersonating" do
+        get "/v1/me"
+        expect(last_response).to have_status(200)
+        expect(last_response_json_body).to_not include(:admin_member)
+      end
+    end
   end
 
   describe "POST /v1/me/update" do

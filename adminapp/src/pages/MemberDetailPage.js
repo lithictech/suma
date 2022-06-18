@@ -3,9 +3,12 @@ import DetailGrid from "../components/DetailGrid";
 import RelatedList from "../components/RelatedList";
 import useErrorSnackbar from "../hooks/useErrorSnackbar";
 import useGlobalStyles from "../hooks/useGlobalStyles";
+import { useUser } from "../hooks/user";
 import { dayjs } from "../modules/dayConfig";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
 import { Divider, Container, CircularProgress, Typography, Chip } from "@mui/material";
+import Button from "@mui/material/Button";
+import { makeStyles } from "@mui/styles";
 import _ from "lodash";
 import React from "react";
 import { formatPhoneNumberIntl } from "react-phone-number-input";
@@ -15,9 +18,10 @@ export default function MemberDetailPage() {
   const classes = useGlobalStyles();
   const { enqueueErrorSnackbar } = useErrorSnackbar();
   let { id } = useParams();
+  id = Number(id);
   const getMember = React.useCallback(() => {
     return api
-      .getMember({ id: id })
+      .getMember({ id })
       .catch((e) => enqueueErrorSnackbar(e, { variant: "error" }));
   }, [id, enqueueErrorSnackbar]);
   const { state: member, loading: memberLoading } = useAsyncFetch(getMember, {
@@ -31,7 +35,7 @@ export default function MemberDetailPage() {
       {!_.isEmpty(member) && (
         <div>
           <Typography variant="h5" gutterBottom>
-            Member Details
+            Member Details <ImpersonateButton id={id} />
           </Typography>
           <Divider />
           <DetailGrid
@@ -117,3 +121,55 @@ function ActivityList({ activities }) {
     />
   );
 }
+
+function ImpersonateButton({ id }) {
+  const { enqueueErrorSnackbar } = useErrorSnackbar();
+  const { user, setUser } = useUser();
+  const classes = useStyles();
+
+  function handleImpersonate() {
+    api
+      .impersonate({ id })
+      .then((r) => setUser(r.data))
+      .catch((e) => enqueueErrorSnackbar(e, { variant: "error" }));
+  }
+  function handleUnimpersonate() {
+    api
+      .unimpersonate()
+      .then((r) => setUser(r.data))
+      .catch((e) => enqueueErrorSnackbar(e, { variant: "error" }));
+  }
+  if (user.impersonating) {
+    return (
+      <Button
+        className={classes.impersonate}
+        onClick={handleUnimpersonate}
+        variant="contained"
+        color="warning"
+        size="small"
+      >
+        Unimpersonate {user.impersonating.name || user.impersonating.phone}
+      </Button>
+    );
+  }
+  if (id === user.id) {
+    return null; // don't impersonate yourself
+  }
+  return (
+    <Button
+      className={classes.impersonate}
+      onClick={handleImpersonate}
+      variant="outlined"
+      color="warning"
+      size="small"
+    >
+      Impersonate
+    </Button>
+  );
+}
+
+const useStyles = makeStyles((theme) => ({
+  impersonate: {
+    marginLeft: theme.spacing(2),
+  },
+}));
