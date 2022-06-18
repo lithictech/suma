@@ -1,6 +1,7 @@
 import api from "../api";
 import ErrorScreen from "../components/ErrorScreen";
 import FormButtons from "../components/FormButtons";
+import FormControlGroup from "../components/FormControlGroup";
 import FormError from "../components/FormError";
 import ScreenLoader from "../components/ScreenLoader";
 import TopNav from "../components/TopNav";
@@ -11,12 +12,11 @@ import { useScreenLoader } from "../state/useScreenLoader";
 import { useUser } from "../state/useUser";
 import i18next from "i18next";
 import _ from "lodash";
-import React, { useState } from "react";
+import React from "react";
 import { InputGroup } from "react-bootstrap";
-import Col from "react-bootstrap/Col";
 import Container from "react-bootstrap/Container";
 import Form from "react-bootstrap/Form";
-import Row from "react-bootstrap/Row";
+import { useForm } from "react-hook-form";
 import { useNavigate, useSearchParams } from "react-router-dom";
 
 const logger = new Logger("addfunds");
@@ -26,6 +26,15 @@ export default function FundingAddFunds() {
   const { user } = useUser();
   const [params] = useSearchParams();
   const navigate = useNavigate();
+  const {
+    register,
+    handleSubmit,
+    clearErrors,
+    setValue,
+    formState: { errors },
+  } = useForm({
+    mode: "all",
+  });
   const {
     state: currenciesResp,
     loading: currenciesLoading,
@@ -51,16 +60,7 @@ export default function FundingAddFunds() {
     _.first(validCurrencies) ||
     {};
 
-  const [validated, setValidated] = useState(false);
-
-  const handleSubmit = (event) => {
-    const form = event.currentTarget;
-    event.preventDefault();
-    event.stopPropagation();
-    if (form.checkValidity() === false) {
-      setValidated(true);
-      return;
-    }
+  const handleFormSubmit = () => {
     screenLoader.turnOn();
     api
       .createFundingPayment({
@@ -76,6 +76,11 @@ export default function FundingAddFunds() {
         setError(extractErrorCode(e));
         screenLoader.turnOff();
       });
+  };
+  const runSetter = (name, set, value) => {
+    clearErrors(name);
+    setValue(name, value);
+    set(value);
   };
 
   if (currenciesLoading) {
@@ -104,35 +109,25 @@ export default function FundingAddFunds() {
       <Container>
         <h2>{i18next.t("payments:add_funds")}</h2>
         <p>{i18next.t("payments:add_funds_intro")}</p>
-        <Form noValidate validated={validated} onSubmit={handleSubmit}>
-          <Row className="mb-3">
-            <Form.Group as={Col}>
-              <Form.Label>{i18next.t("forms:amount")}</Form.Label>
-              <InputGroup className="mb-3">
-                <InputGroup.Text>{selectedCurrency.symbol}</InputGroup.Text>
-                <Form.Control
-                  required
-                  type="number"
-                  min={fundingMinimumDollars}
-                  step={
-                    selectedCurrency.fundingStepCents / selectedCurrency.centsInDollar
-                  }
-                  value={amountDollars}
-                  onChange={(e) => setAmountDollars(e.target.value)}
-                />
-                <Form.Control.Feedback type="invalid">
-                  {i18next.t("forms:invalid_min_amount", {
-                    constraint: selectedCurrency.symbol + fundingMinimumDollars,
-                  })}
-                </Form.Control.Feedback>
-              </InputGroup>
-              <Form.Text>
-                {i18next.t("forms:amount_caption", {
-                  constraint: selectedCurrency.symbol + fundingMinimumDollars,
-                })}
-              </Form.Text>
-            </Form.Group>
-          </Row>
+        <Form noValidate onSubmit={handleSubmit(handleFormSubmit)}>
+          <FormControlGroup
+            className="mb-3"
+            name="amount"
+            label={i18next.t("forms:amount")}
+            type="number"
+            required
+            register={register}
+            errors={errors}
+            errorKeys={{ min: "forms:invalid_min_amount" }}
+            value={amountDollars}
+            min={fundingMinimumDollars}
+            step={selectedCurrency.fundingStepCents / selectedCurrency.centsInDollar}
+            text={i18next.t("forms:amount_caption", {
+              constraint: selectedCurrency.symbol + fundingMinimumDollars,
+            })}
+            prepend={<InputGroup.Text>{selectedCurrency.symbol}</InputGroup.Text>}
+            onChange={(e) => runSetter(e.target.name, setAmountDollars, e.target.value)}
+          />
           <p>{i18next.t("payments:payment_submition_statement")}</p>
           <FormError error={error} />
           <FormButtons
