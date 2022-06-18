@@ -83,8 +83,8 @@ module Suma::Service::Entities
     expose :roles do |instance|
       instance.roles.map(&:name)
     end
-    expose :impersonated do |_instance, options|
-      Suma::Service::Auth::Impersonation.new(options[:env]["warden"]).is?
+    protected def impersonation
+      return @impersonation ||= Suma::Service::Auth::Impersonation.new(options[:env]["warden"])
     end
   end
 

@@ -17,8 +17,7 @@ RSpec.describe Suma::AdminAPI::Auth, :db do
       get "/v1/auth"
 
       expect(last_response).to have_status(200)
-      expect(last_response).to have_json_body.
-        that_includes(id: admin.id, impersonated: false)
+      expect(last_response).to have_json_body.that_includes(id: admin.id, impersonating: nil)
     end
 
     it "returns the admin member, even if impersonated" do
@@ -31,7 +30,7 @@ RSpec.describe Suma::AdminAPI::Auth, :db do
       get "/v1/auth"
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.
-        that_includes(id: admin.id, impersonated: true)
+        that_includes(id: admin.id, impersonating: include(id: target.id))
     end
 
     it "401s if the member is not authed" do
@@ -119,7 +118,7 @@ RSpec.describe Suma::AdminAPI::Auth, :db do
 
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.
-        that_includes(id: target.id, impersonated: true)
+        that_includes(id: admin.id,  impersonating: include(id: target.id))
     end
 
     it "replaces an existing impersonated member" do
@@ -131,7 +130,7 @@ RSpec.describe Suma::AdminAPI::Auth, :db do
 
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.
-        that_includes(id: other_target.id, impersonated: true)
+        that_includes(id: admin.id,  impersonating: include(id: other_target.id))
     end
 
     it "403s if the member does not exist" do
@@ -162,7 +161,7 @@ RSpec.describe Suma::AdminAPI::Auth, :db do
       delete "/v1/auth/impersonate"
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.
-        that_includes(id: admin.id, impersonated: false)
+        that_includes(id: admin.id,  impersonating: nil)
     end
 
     it "noops if no member is impersonated" do
@@ -171,7 +170,7 @@ RSpec.describe Suma::AdminAPI::Auth, :db do
       delete "/v1/auth/impersonate"
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.
-        that_includes(id: admin.id, impersonated: false)
+        that_includes(id: admin.id,  impersonating: nil)
     end
 
     it "401s if the authed member is not an admin" do

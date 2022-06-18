@@ -53,7 +53,7 @@ class Suma::AdminAPI::Auth < Suma::AdminAPI::BaseV1
           Suma::Service::Auth::Impersonation.new(env["warden"]).on(target)
 
           status 200
-          present target, with: Suma::AdminAPI::CurrentMemberEntity, env:
+          present admin_member, with: Suma::AdminAPI::CurrentMemberEntity, env:
         end
       end
     end

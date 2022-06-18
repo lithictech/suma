@@ -6,7 +6,6 @@ require "suma/service/entities"
 require "suma/admin_api" unless defined? Suma::AdminAPI
 
 module Suma::AdminAPI
-  CurrentMemberEntity = Suma::Service::Entities::CurrentMember
   MoneyEntity = Suma::Service::Entities::Money
   LegalEntityEntity = Suma::Service::Entities::LegalEntityEntity
   TimeRangeEntity = Suma::Service::Entities::TimeRange
@@ -33,6 +32,12 @@ module Suma::AdminAPI
       ctx.expose :external_links do |inst|
         inst.respond_to?(:external_links) ? inst.external_links : []
       end
+    end
+  end
+
+  class CurrentMemberEntity < Suma::Service::Entities::CurrentMember
+    expose :impersonating, with: Suma::Service::Entities::CurrentMember do |_|
+      self.impersonation.is? ? self.impersonation.current_member : nil
     end
   end
 
