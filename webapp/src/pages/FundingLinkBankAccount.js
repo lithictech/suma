@@ -4,11 +4,11 @@ import FormButtons from "../components/FormButtons";
 import FormError from "../components/FormError";
 import GoHome from "../components/GoHome";
 import TopNav from "../components/TopNav";
+import { md } from "../localization/useI18Next";
 import useHashToggle from "../shared/react/useHashToggle";
 import { extractErrorCode, useError } from "../state/useError";
 import { useScreenLoader } from "../state/useScreenLoader";
 import { useUser } from "../state/useUser";
-import i18n from "i18next";
 import i18next from "i18next";
 import _ from "lodash";
 import React from "react";
@@ -41,7 +41,7 @@ function Success() {
   return (
     <>
       <h2>{i18next.t("payments:linked_account")}</h2>
-      <p>{i18next.t("payments:linked_account_successful_md")}</p>
+      <p>{md("payments:linked_account_successful_md")}</p>
       <GoHome />
     </>
   );
@@ -90,7 +90,7 @@ function LinkBankAccount({ onSuccess }) {
   return (
     <>
       <h2>{i18next.t("payments:link_account")}</h2>
-      <p>{i18next.t("payments:payment_intro.privacy_statement_md")}</p>
+      <p>{md("payments:payment_intro.privacy_statement_md")}</p>
       <Form noValidate validated={validated} onSubmit={handleSubmit}>
         <Row className="mb-3">
           <Form.Group as={Col}>
@@ -122,8 +122,7 @@ function LinkBankAccount({ onSuccess }) {
             </Form.Control.Feedback>
             <Form.Text>
               {/* #TODO: Combine account_caption including markdown link */}
-              {i18next.t("forms:routing_caption") + " "}
-              <a href="#check-details">{i18next.t("forms:paper_check_details")}</a>.
+              {md("forms:routing_caption_md")}
             </Form.Text>
           </Form.Group>
         </Row>
@@ -142,8 +141,7 @@ function LinkBankAccount({ onSuccess }) {
             </Form.Control.Feedback>
             <Form.Text>
               {/* #TODO: Combine account_caption including markdown link */}
-              {i18next.t("forms:account_caption") + " "}
-              <a href="#check-details">{i18next.t("forms:paper_check_details")}</a>.
+              {md("forms:account_caption_md")}
             </Form.Text>
           </Form.Group>
         </Row>
@@ -197,7 +195,7 @@ function LinkBankAccount({ onSuccess }) {
           variant="success"
           back
           primaryProps={{
-            children: i18n.t("continue", { ns: "forms" }),
+            children: i18next.t("forms:continue"),
           }}
         />
         <Modal

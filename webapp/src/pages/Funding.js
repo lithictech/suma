@@ -3,6 +3,7 @@ import FormButtons from "../components/FormButtons";
 import FormError from "../components/FormError";
 import RLink from "../components/RLink";
 import TopNav from "../components/TopNav";
+import { md } from "../localization/useI18Next";
 import useToggle from "../shared/react/useToggle";
 import { extractErrorCode, useError } from "../state/useError";
 import { useScreenLoader } from "../state/useScreenLoader";
@@ -24,8 +25,8 @@ export default function Funding() {
       <TopNav />
       <Container>
         <h2>{i18next.t("payments:payment_title")}</h2>
-        <p>{i18next.t("payments:payment_intro.intro_md")}</p>
-        <p id="some">{i18next.t("payments:payment_intro.privacy_statement_md")}</p>
+        <p>{md("payments:payment_intro.intro_md")}</p>
+        <p id="some">{md("payments:payment_intro.privacy_statement_md")}</p>
         <BankAccountsCard instruments={user.usablePaymentInstruments} />
         <AdditionalSourcesCard />
       </Container>

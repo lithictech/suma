@@ -15,7 +15,8 @@ export default function FormSuccess({ message, center, ns, className }) {
     msgkey = message;
     vars = {};
   }
-  const msg = i18next.t(msgkey, { ns: ns || "messages", ...vars });
+  msgkey = `${ns || "messages"}:${msgkey}`;
+  const msg = i18next.t(msgkey, { ...vars });
   return (
     <p className={clsx("d-block text-success small", center && "text-center", className)}>
       {msg}

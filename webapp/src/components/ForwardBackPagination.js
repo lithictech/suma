@@ -22,13 +22,13 @@ export default function ForwardBackPagination({
         className={clsx(page <= 1 && "disabled")}
         onClick={() => handlePageChange(page - 1)}
       >
-        {i18next.t("pagination_prev", { ns: "common" })}
+        {i18next.t("common:pagination_prev")}
       </Pagination.Prev>
       <Pagination.Next
         className={clsx(page >= pageCount && "disabled")}
         onClick={() => handlePageChange(page + 1)}
       >
-        {i18next.t("pagination_next", { ns: "common" })}
+        {i18next.t("common:pagination_next")}
       </Pagination.Next>
     </Pagination>
   );

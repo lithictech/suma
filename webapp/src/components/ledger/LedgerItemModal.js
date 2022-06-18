@@ -29,11 +29,11 @@ export default function ({ item, onClose }) {
             ))}
             <p className="text-secondary mb-1">{dayjs(at).format("LLL")}</p>
             <p className="text-secondary">
-              {i18next.t("reference_id", { ns: "common" })}: {opaqueId}
+              {i18next.t("common:reference_id")}: {opaqueId}
             </p>
             <div className="d-flex justify-content-end mt-4">
               <Button variant="primary" className="mt-2" onClick={onClose}>
-                {i18next.t("close", { ns: "common" })}
+                {i18next.t("common:close")}
               </Button>
             </div>
           </>

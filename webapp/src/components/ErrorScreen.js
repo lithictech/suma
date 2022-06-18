@@ -15,8 +15,8 @@ export default function ErrorScreen() {
     <div className="main-container">
       <TopNav />
       <Container>
-        <h2>{i18next.t("something_went_wrong_title", { ns: "errors" })}</h2>
-        <p>{i18next.t("something_went_wrong_body", { ns: "errors" })}</p>
+        <h2>{i18next.t("errors:something_went_wrong_title")}</h2>
+        <p>{i18next.t("errors:something_went_wrong_body")}</p>
         <GoHome />
       </Container>
     </div>

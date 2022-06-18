@@ -14,7 +14,7 @@ export default function FormError({
     return null;
   }
   const Component = component || "p";
-  const msg = React.isValidElement(error) ? error : i18next.t(error, { ns: "errors" });
+  const msg = React.isValidElement(error) ? error : i18next.t("errors:" + error);
   const cls = clsx(
     "d-block text-danger small",
     noMargin && "m-0",

@@ -9,8 +9,8 @@ const MapPage = () => {
     <div className="main-container">
       <TopNav />
       <Container>
-        <h5>{i18next.t("title", { ns: "mobility" })}</h5>
-        <p className="text-secondary">{i18next.t("intro", { ns: "mobility" })}</p>
+        <h5>{i18next.t("mobility:title")}</h5>
+        <p className="text-secondary">{i18next.t("mobility:intro")}</p>
       </Container>
       <div>
         <Map />

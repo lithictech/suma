@@ -136,7 +136,7 @@ const OneTimePassword = () => {
         <FormButtons
           back
           primaryProps={{
-            children: i18next.t("otp_verify", { ns: "forms" }),
+            children: i18next.t("forms:otp_verify"),
             disabled: submitDisabled.isOn,
           }}
           variant="success"
