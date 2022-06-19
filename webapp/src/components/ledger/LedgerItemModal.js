@@ -1,7 +1,7 @@
+import { t } from "../../localization";
 import Money from "../Money";
 import clsx from "clsx";
 import dayjs from "dayjs";
-import i18next from "i18next";
 import _ from "lodash";
 import React from "react";
 import Button from "react-bootstrap/Button";
@@ -25,15 +25,15 @@ export default function ({ item, onClose }) {
               </Money>
             </p>
             {usageDetails.map(({ code, args }, i) => (
-              <p key={i}>{i18next.t(code, { ns: "ledgerusage", ...args })}</p>
+              <p key={i}>{t(code, { ns: "ledgerusage", ...args })}</p>
             ))}
             <p className="text-secondary mb-1">{dayjs(at).format("LLL")}</p>
             <p className="text-secondary">
-              {i18next.t("common:reference_id")}: {opaqueId}
+              {t("common:reference_id")}: {opaqueId}
             </p>
             <div className="d-flex justify-content-end mt-4">
               <Button variant="primary" className="mt-2" onClick={onClose}>
-                {i18next.t("common:close")}
+                {t("common:close")}
               </Button>
             </div>
           </>

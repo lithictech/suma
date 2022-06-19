@@ -1,12 +1,12 @@
+import { t } from "../localization";
 import clsx from "clsx";
-import i18next from "i18next";
 import React from "react";
 import Button from "react-bootstrap/Button";
 
 const FormButtons = ({ primaryProps, secondaryProps, variant, back, className }) => {
   if (back) {
     secondaryProps = {
-      children: i18next.t("common:back"),
+      children: t("common:back"),
       onClick: () => window.history.back(),
     };
   }

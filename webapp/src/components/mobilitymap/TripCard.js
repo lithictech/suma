@@ -1,4 +1,5 @@
 import api from "../../api";
+import { t } from "../../localization";
 import { dayjs } from "../../modules/dayConfig";
 import { extractErrorCode, useError } from "../../state/useError";
 import { useUser } from "../../state/useUser";
@@ -6,7 +7,6 @@ import FormError from "../FormError";
 import PageLoader from "../PageLoader";
 import CardOverlay from "./CardOverlay";
 import TransactionCard from "./TransactionCard";
-import i18next from "i18next";
 import React from "react";
 import Button from "react-bootstrap/Button";
 
@@ -48,13 +48,13 @@ const TripCard = ({ active, trip, onCloseTrip, onStopTrip, lastLocation }) => {
         <CardOverlay>
           <h6>{trip.provider.name}</h6>
           <p>
-            {i18next.t("mobility:trip_started_at", {
+            {t("mobility:trip_started_at", {
               at: dayjs(trip.beganAt).format("LT"),
             })}
           </p>
           <FormError error={error} />
           <Button size="sm" variant="primary" className="w-100" onClick={handleEndTrip}>
-            {i18next.t("mobility:end_trip")}
+            {t("mobility:end_trip")}
           </Button>
         </CardOverlay>
       )}

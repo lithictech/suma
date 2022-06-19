@@ -1,6 +1,6 @@
+import { t } from "../localization";
 import GoHome from "./GoHome";
 import TopNav from "./TopNav";
-import i18next from "i18next";
 import React from "react";
 import Container from "react-bootstrap/Container";
 
@@ -15,8 +15,8 @@ export default function ErrorScreen() {
     <div className="main-container">
       <TopNav />
       <Container>
-        <h2>{i18next.t("errors:something_went_wrong_title")}</h2>
-        <p>{i18next.t("errors:something_went_wrong_body")}</p>
+        <h2>{t("errors:something_went_wrong_title")}</h2>
+        <p>{t("errors:something_went_wrong_body")}</p>
         <GoHome />
       </Container>
     </div>

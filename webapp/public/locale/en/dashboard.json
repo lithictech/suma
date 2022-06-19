@@ -1,8 +1,0 @@
-{
-	"check_ongoing_trip": "You have an ongoing trip. Please make sure you end it when you are finished with your ride!",
-	"check_ongoing_trip_button": "See My Trip",
-	"payment_account_balance": "Available Balance",
-	"lifetime_savings": "Suma Savings",
-	"recent_ledger_lines": "Recent Charges and Credits",
-	"no_money_md": "You haven't added or spent any money. $t(payments:funding_link_md)"
-}

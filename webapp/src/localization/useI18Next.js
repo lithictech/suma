@@ -10,16 +10,8 @@ export default function useI18Next() {
       .use(LanguageDetector)
       .use(Backend)
       .init({
-        ns: [
-          "common",
-          "dashboard",
-          "errors",
-          "ledgerusage",
-          "mobility",
-          "messages",
-          "forms",
-          "payments",
-        ],
+        ns: ["strings"],
+        defaultNS: "strings",
         // Disable fallback language for now so it's easy to see when translations are missing.
         // fallbackLng: "en",
         initImmediate: false,

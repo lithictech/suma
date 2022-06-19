@@ -1,5 +1,5 @@
+import { t } from "../localization";
 import clsx from "clsx";
-import i18next from "i18next";
 import React from "react";
 
 export default function FormError({
@@ -14,7 +14,7 @@ export default function FormError({
     return null;
   }
   const Component = component || "p";
-  const msg = React.isValidElement(error) ? error : i18next.t("errors:" + error);
+  const msg = React.isValidElement(error) ? error : t("errors:" + error);
   const cls = clsx(
     "d-block text-danger small",
     noMargin && "m-0",

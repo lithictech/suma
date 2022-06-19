@@ -5,12 +5,12 @@ import FormButtons from "../components/FormButtons";
 import FormError from "../components/FormError";
 import ScreenLoader from "../components/ScreenLoader";
 import TopNav from "../components/TopNav";
+import { t } from "../localization";
 import { Logger } from "../shared/logger";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
 import { extractErrorCode, useError } from "../state/useError";
 import { useScreenLoader } from "../state/useScreenLoader";
 import { useUser } from "../state/useUser";
-import i18next from "i18next";
 import _ from "lodash";
 import React from "react";
 import Container from "react-bootstrap/Container";
@@ -54,7 +54,7 @@ export default function FundingAddFunds() {
     e.preventDefault();
     if (amountCents < selectedCurrency?.fundingMinimumCents) {
       setError(
-        i18next.t("forms:invalid_min_amount", {
+        t("forms:invalid_min_amount", {
           constraint: selectedCurrency?.fundingMinimumCents,
         })
       );
@@ -104,8 +104,8 @@ export default function FundingAddFunds() {
     <div className="main-container">
       <TopNav />
       <Container>
-        <h2>{i18next.t("payments:add_funds")}</h2>
-        <p>{i18next.t("payments:add_funds_intro")}</p>
+        <h2>{t("payments:add_funds")}</h2>
+        <p>{t("payments:add_funds_intro")}</p>
         <Form noValidate onSubmit={handleFormSubmit}>
           <div className="d-flex justify-content-center mb-3">
             <div style={{ maxWidth: 400, flex: 1 }}>
@@ -118,7 +118,7 @@ export default function FundingAddFunds() {
               />
             </div>
           </div>
-          <p>{i18next.t("payments:payment_submition_statement")}</p>
+          <p>{t("payments:payment_submition_statement")}</p>
           <FormError error={error} end />
           <FormButtons
             variant="success"
@@ -126,7 +126,7 @@ export default function FundingAddFunds() {
             primaryProps={{
               disabled: !amountCents,
               style: { minWidth: 120 },
-              children: i18next.t("forms:add_funds"),
+              children: t("forms:add_funds"),
             }}
           />
         </Form>

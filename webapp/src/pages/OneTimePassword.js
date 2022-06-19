@@ -3,11 +3,11 @@ import FormButtons from "../components/FormButtons";
 import FormError from "../components/FormError";
 import FormSuccess from "../components/FormSuccess";
 import TopNav from "../components/TopNav";
+import { t } from "../localization";
 import { dayjs } from "../modules/dayConfig";
 import useToggle from "../shared/react/useToggle";
 import { extractErrorCode, useError } from "../state/useError";
 import { useUser } from "../state/useUser";
-import i18next from "i18next";
 import React, { useState, useEffect } from "react";
 import { Form } from "react-bootstrap";
 import Button from "react-bootstrap/Button";
@@ -136,7 +136,7 @@ const OneTimePassword = () => {
         <FormButtons
           back
           primaryProps={{
-            children: i18next.t("forms:otp_verify"),
+            children: t("forms:otp_verify"),
             disabled: submitDisabled.isOn,
           }}
           variant="success"

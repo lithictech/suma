@@ -1,5 +1,5 @@
+import { t } from "../localization";
 import clsx from "clsx";
-import i18next from "i18next";
 import { clamp } from "lodash/number";
 import React from "react";
 import Pagination from "react-bootstrap/Pagination";
@@ -22,13 +22,13 @@ export default function ForwardBackPagination({
         className={clsx(page <= 1 && "disabled")}
         onClick={() => handlePageChange(page - 1)}
       >
-        {i18next.t("common:pagination_prev")}
+        {t("common:pagination_prev")}
       </Pagination.Prev>
       <Pagination.Next
         className={clsx(page >= pageCount && "disabled")}
         onClick={() => handlePageChange(page + 1)}
       >
-        {i18next.t("common:pagination_next")}
+        {t("common:pagination_next")}
       </Pagination.Next>
     </Pagination>
   );
