@@ -12,6 +12,10 @@ cop:
 fix:
 	bundle exec rubocop --auto-correct-all
 fmt: fix
+fmt-all:
+	@make fmt
+	@cd webapp && make fmt && make lint
+	@cd adminapp && make fmt && make lint
 
 up:
 	docker-compose up -d
