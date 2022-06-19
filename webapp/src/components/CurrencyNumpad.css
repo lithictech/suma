@@ -7,8 +7,10 @@
     background: #e0e0e0;
     font-weight: bold;
     box-shadow: none;
+    width: 33.3% !important;
 }
 
-.simple-keyboard.hg-layout-default .hg-button.hg-hidden {
+.simple-keyboard.hg-layout-default .hg-button.hg-button-blank {
     opacity: 0;
+    cursor: unset;
 }

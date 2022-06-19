@@ -1,6 +1,5 @@
 import useValidationError from "../state/useValidationError";
 import FormText from "./FormText";
-import clsx from "clsx";
 import _ from "lodash";
 import React from "react";
 import Form from "react-bootstrap/Form";
