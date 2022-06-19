@@ -28,6 +28,7 @@ class Suma::API::PaymentInstruments < Suma::API::V1
         end
         set_declared(ba, params)
         save_or_error!(ba)
+        add_current_member_header
         status 200
         present(
           ba,

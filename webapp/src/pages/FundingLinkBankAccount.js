@@ -50,7 +50,7 @@ function LinkBankAccount({ onSuccess }) {
   const [error, setError] = useError();
   const location = useLocation();
   const navigate = useNavigate();
-  const { user, setUser } = useUser();
+  const { user, setUser, handleUpdateCurrentMember } = useUser();
 
   const screenLoader = useScreenLoader();
   const showCheckModalToggle = useHashToggle(location, navigate, "check-details");
@@ -78,6 +78,7 @@ function LinkBankAccount({ onSuccess }) {
         accountNumber,
         accountType,
       })
+      .tap(handleUpdateCurrentMember)
       .then((r) => {
         setUser({ ...user, usablePaymentInstruments: r.data.allPaymentInstruments });
         onSuccess();
