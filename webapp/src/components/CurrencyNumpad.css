@@ -1,0 +1,14 @@
+
+.simple-keyboard.hg-theme-default.suma {
+    background-color: transparent;
+}
+
+.simple-keyboard.hg-layout-default .hg-button {
+    background: #e0e0e0;
+    font-weight: bold;
+    box-shadow: none;
+}
+
+.simple-keyboard.hg-layout-default .hg-button.hg-hidden {
+    opacity: 0;
+}

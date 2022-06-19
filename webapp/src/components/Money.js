@@ -63,17 +63,17 @@ export const formatMoney = (entity, options) => {
   return formatter.format(entity.cents / 100.0);
 };
 
-export function floatToMoney(f) {
+export function floatToMoney(f, currency) {
   return {
     cents: f * 100,
-    currency: "USD",
+    currency,
   };
 }
 
-export function intToMoney(cents) {
+export function intToMoney(cents, currency) {
   return {
     cents: cents,
-    currency: "USD",
+    currency,
   };
 }
 

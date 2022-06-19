@@ -1,7 +1,7 @@
 import api from "../api";
+import CurrencyNumpad from "../components/CurrencyNumpad";
 import ErrorScreen from "../components/ErrorScreen";
 import FormButtons from "../components/FormButtons";
-import FormControlGroup from "../components/FormControlGroup";
 import FormError from "../components/FormError";
 import ScreenLoader from "../components/ScreenLoader";
 import TopNav from "../components/TopNav";
@@ -13,10 +13,8 @@ import { useUser } from "../state/useUser";
 import i18next from "i18next";
 import _ from "lodash";
 import React from "react";
-import { InputGroup } from "react-bootstrap";
 import Container from "react-bootstrap/Container";
 import Form from "react-bootstrap/Form";
-import { useForm } from "react-hook-form";
 import { useNavigate, useSearchParams } from "react-router-dom";
 
 const logger = new Logger("addfunds");
@@ -26,15 +24,9 @@ export default function FundingAddFunds() {
   const { user } = useUser();
   const [params] = useSearchParams();
   const navigate = useNavigate();
-  const {
-    register,
-    handleSubmit,
-    clearErrors,
-    setValue,
-    formState: { errors },
-  } = useForm({
-    mode: "all",
-  });
+  const [amountCents, setAmountCents] = React.useState();
+  const [selectedCurrencyCode] = React.useState("");
+
   const {
     state: currenciesResp,
     loading: currenciesLoading,
@@ -49,23 +41,30 @@ export default function FundingAddFunds() {
       paymentMethodType: params.get("paymentMethodType"),
     }) || {};
   const screenLoader = useScreenLoader();
-  // TODO: Once we have multiple currencies, we'll need to figure out how to select one
+  // Once we have multiple currencies, we'll need to figure out how to select one
   const validCurrencies = _.filter(currenciesResp.items, (c) =>
     _.includes(c.paymentMethodTypes, instrument.paymentMethodType)
   );
-  const [amountDollars, setAmountDollars] = React.useState("");
-  const [selectedCurrencyCode] = React.useState("");
   const selectedCurrency =
     _.find(validCurrencies, { code: selectedCurrencyCode }) ||
     _.first(validCurrencies) ||
     {};
 
-  const handleFormSubmit = () => {
+  const handleFormSubmit = (e) => {
+    e.preventDefault();
+    if (amountCents < selectedCurrency?.fundingMinimumCents) {
+      setError(
+        i18next.t("forms:invalid_min_amount", {
+          constraint: selectedCurrency?.fundingMinimumCents,
+        })
+      );
+      return;
+    }
     screenLoader.turnOn();
     api
       .createFundingPayment({
         amount: {
-          cents: amountDollars * selectedCurrency.centsInDollar,
+          cents: amountCents,
           currency: selectedCurrency.code,
         },
         paymentMethodId: instrument.id,
@@ -76,11 +75,6 @@ export default function FundingAddFunds() {
         setError(extractErrorCode(e));
         screenLoader.turnOff();
       });
-  };
-  const runSetter = (name, set, value) => {
-    clearErrors(name);
-    setValue(name, value);
-    set(value);
   };
 
   if (currenciesLoading) {
@@ -100,8 +94,10 @@ export default function FundingAddFunds() {
     return <ErrorScreen />;
   }
 
-  const fundingMinimumDollars =
-    selectedCurrency.fundingMinimumCents / selectedCurrency.centsInDollar;
+  function handleChange(v) {
+    setAmountCents(v);
+    setError(null);
+  }
 
   return (
     <div className="main-container">
@@ -109,38 +105,27 @@ export default function FundingAddFunds() {
       <Container>
         <h2>{i18next.t("payments:add_funds")}</h2>
         <p>{i18next.t("payments:add_funds_intro")}</p>
-        <Form noValidate onSubmit={handleSubmit(handleFormSubmit)}>
-          <FormControlGroup
-            className="mb-3"
-            name="amount"
-            label={i18next.t("forms:amount")}
-            type="number"
-            required
-            register={register}
-            errors={errors}
-            errorKeys={{ min: "forms:invalid_min_amount" }}
-            value={amountDollars}
-            min={fundingMinimumDollars}
-            step={selectedCurrency.fundingStepCents / selectedCurrency.centsInDollar}
-            text={i18next.t("forms:amount_caption", {
-              constraint: selectedCurrency.symbol + fundingMinimumDollars,
-            })}
-            prepend={<InputGroup.Text>{selectedCurrency.symbol}</InputGroup.Text>}
-            onChange={(e) => runSetter(e.target.name, setAmountDollars, e.target.value)}
-          />
+        <Form noValidate onSubmit={handleFormSubmit}>
+          <div className="d-flex justify-content-center mb-3">
+            <div style={{ maxWidth: 400, flex: 1 }}>
+              <CurrencyNumpad
+                currency={selectedCurrency}
+                layout={{ default: ["1 2 3", "4 5 6", "7 8 9", " 0 "] }}
+                whole
+                cents={amountCents}
+                onCentsChange={handleChange}
+              />
+            </div>
+          </div>
           <p>{i18next.t("payments:payment_submition_statement")}</p>
-          <FormError error={error} />
+          <FormError error={error} end />
           <FormButtons
             variant="success"
             back
             primaryProps={{
-              disabled: !amountDollars,
+              disabled: !amountCents,
               style: { minWidth: 120 },
-              children: amountDollars
-                ? i18next.t("forms:add_amount", {
-                    amount: selectedCurrency.symbol + amountDollars,
-                  })
-                : i18next.t("forms:submit"),
+              children: i18next.t("forms:add_funds"),
             }}
           />
         </Form>

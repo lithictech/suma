@@ -140,7 +140,7 @@ export default function OnboardingSignup() {
                 name="state"
                 label={t("state", { ns: "forms" })}
                 required
-                Component={Form.Select}
+                Input={Form.Select}
                 register={register}
                 errors={errors}
                 value={state}

@@ -17,7 +17,7 @@
   "invalid_field": "This field is not valid.",
   "invalid_required": "This field is required.",
   "invalid_min": "Must be greater than or equal to {{constraint}}.",
-  "invalid_min_amount": "Please use a whole dollar amount of at least {{constraint, currency(USD)}}.",
+  "invalid_min_amount": "Must be at least {{constraint, currency(USD)}}.",
   "invalid_min_length": "Must be at least {{constraint}} characters.",
   "invalid_max_length": "Cannot be more than {{constraint}} characters.",
   "invalid_nickname": "Please provide a nickname for your account.",
@@ -25,7 +25,6 @@
   "invalid_confirm_account_number": "Must match your Account Number above.",
   "invalid_routing_number": "Please enter the 9 digit number of your bank account.",
   "amount": "Amount",
-  "amount_caption": "Whole dollars amounts only. {{constraint}} minimum.",
   "nickname_caption": "The name used to refer to the account in Suma.",
   "add_amount": "Add {{amount}}",
   "routing_number": "Routing Number",
@@ -39,5 +38,6 @@
   "account_type_caption": "Choose which type of account this is. If you're not sure, use Checking.",
   "account_caption": "Number of your bank account. You can get these from your online banking portal, or check out",
   "checking": "Checking",
-  "savings": "Savings"
+  "savings": "Savings",
+  "add_funds": "Add Funds"
 }
