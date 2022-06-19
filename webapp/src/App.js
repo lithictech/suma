@@ -5,7 +5,7 @@ import {
   redirectIfBoarded,
   redirectIfUnboarded,
 } from "./hocs/authRedirects";
-import { useI18Next } from "./localization/useI18Next";
+import useI18Next from "./localization/useI18Next";
 import Dashboard from "./pages/Dashboard";
 import Funding from "./pages/Funding";
 import FundingAddFunds from "./pages/FundingAddFunds";

@@ -3,12 +3,11 @@ import Money from "../components/Money";
 import PageLoader from "../components/PageLoader";
 import RLink from "../components/RLink";
 import TopNav from "../components/TopNav";
-import { md } from "../localization/useI18Next";
+import { md, t } from "../localization";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
 import { useUser } from "../state/useUser";
 import clsx from "clsx";
 import dayjs from "dayjs";
-import i18next from "i18next";
 import _ from "lodash";
 import React from "react";
 import { Alert } from "react-bootstrap";
@@ -32,10 +31,10 @@ const Dashboard = () => {
       <TopNav />
       {user.ongoingTrip && (
         <Alert variant="danger" className="border-radius-0">
-          <p>{i18next.t("dashboard:check_ongoing_trip")}</p>
+          <p>{t("dashboard:check_ongoing_trip")}</p>
           <div className="d-flex justify-content-end">
             <Link to="/map" className="btn btn-sm btn-danger">
-              {i18next.t("dashboard:check_ongoing_trip_button")}
+              {t("dashboard:check_ongoing_trip_button")}
               <i
                 className="bi bi-box-arrow-in-right mx-1"
                 role="img"
@@ -81,7 +80,7 @@ const Ledger = ({ dashboard }) => {
           <h3>
             <Money colored>{dashboard.paymentAccountBalance}</Money>
           </h3>
-          <p className="m-0">{i18next.t("dashboard:payment_account_balance")}</p>
+          <p className="m-0">{t("dashboard:payment_account_balance")}</p>
           <Button variant="link" href="/funding" className="ps-0" as={RLink}>
             Add Funds
           </Button>
@@ -90,7 +89,7 @@ const Ledger = ({ dashboard }) => {
           <h3>
             <Money>{dashboard.lifetimeSavings}</Money>
           </h3>
-          <p className="m-0">{i18next.t("dashboard:lifetime_savings")}</p>
+          <p className="m-0">{t("dashboard:lifetime_savings")}</p>
         </div>
       </Container>
       <hr />
@@ -100,9 +99,9 @@ const Ledger = ({ dashboard }) => {
             <tr>
               <th>
                 <Stack direction="horizontal" gap={3}>
-                  {i18next.t("dashboard:recent_ledger_lines")}
+                  {t("dashboard:recent_ledger_lines")}
                   <div className="ms-auto">
-                    <Link to="/ledgers">{i18next.t("common:view_all")}</Link>
+                    <Link to="/ledgers">{t("common:view_all")}</Link>
                   </div>
                 </Stack>
               </th>
