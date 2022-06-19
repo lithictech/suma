@@ -17,7 +17,13 @@ class Suma::Payment::FakeStrategy < Suma::Postgres::Model(:payment_fake_strategi
     return "Fake"
   end
 
-  [:check_validity, :ready_to_collect_funds?, :collect_funds, :funds_cleared?].each do |m|
+  [
+    :originating_instrument,
+    :check_validity,
+    :ready_to_collect_funds?,
+    :collect_funds,
+    :funds_cleared?,
+  ].each do |m|
     define_method(m) do |*args|
       self.return_response(m, *args)
     end
@@ -35,12 +41,19 @@ class Suma::Payment::FakeStrategy < Suma::Postgres::Model(:payment_fake_strategi
       return args[0]
     end
     raise ArgumentError, "no response registered for #{symbol.inspect}" unless self.responses.key?(syms)
-    return self.responses[syms]
+    result = self.responses[syms]
+    if result.is_a?(Hash) && result.key?("klass")
+      cls = result["klass"].constantize
+      return cls[result.fetch("id")]
+    end
+    return result
   end
 
   def set_response(symbol, result)
     @memory_responses ||= {}
     @memory_responses[symbol] = result
+    result = {"id" => result.id, "klass" => result.class.name} if
+      result.is_a?(Suma::Postgres::Model)
     self.responses = self.responses.merge(symbol.to_s => result)
     self.save_changes
   end

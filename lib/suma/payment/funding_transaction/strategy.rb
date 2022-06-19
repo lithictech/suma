@@ -6,6 +6,11 @@ require "suma/postgres/model"
 module Suma::Payment::FundingTransaction::Strategy
   include Suma::ExternalLinks
 
+  # @return Suma::Payment::Instrument
+  def originating_instrument
+    raise NotImplementedError
+  end
+
   # Return a string that summarizes the strategy.
   # Use whatever is most useful for an admin to see,
   # it does not have to be totally unambiguous.

@@ -42,6 +42,7 @@ RSpec.describe "Suma::BankAccount", :db do
         name: "Checking",
         last4: "4567",
         address: nil,
+        simple_label: "Checking x-4567",
         admin_label: "Checking/4567 (Unknown)",
       )
     end
@@ -61,6 +62,7 @@ RSpec.describe "Suma::BankAccount", :db do
         name: "Checking",
         last4: "4567",
         address: nil,
+        simple_label: "Checking x-4567",
         admin_label: "Checking/4567 (Chase)",
       )
     end
