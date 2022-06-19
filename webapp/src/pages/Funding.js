@@ -3,11 +3,11 @@ import FormButtons from "../components/FormButtons";
 import FormError from "../components/FormError";
 import RLink from "../components/RLink";
 import TopNav from "../components/TopNav";
+import { md, t } from "../localization";
 import useToggle from "../shared/react/useToggle";
 import { extractErrorCode, useError } from "../state/useError";
 import { useScreenLoader } from "../state/useScreenLoader";
 import { useUser } from "../state/useUser";
-import i18next from "i18next";
 import _ from "lodash";
 import React from "react";
 import Button from "react-bootstrap/Button";
@@ -23,9 +23,9 @@ export default function Funding() {
     <div className="main-container">
       <TopNav />
       <Container>
-        <h2>{i18next.t("payments:payment_title")}</h2>
-        <p>{i18next.t("payments:payment_intro.intro_md")}</p>
-        <p id="some">{i18next.t("payments:payment_intro.privacy_statement_md")}</p>
+        <h2>{t("payments:payment_title")}</h2>
+        <p>{md("payments:payment_intro.intro_md")}</p>
+        <p id="some">{md("payments:payment_intro.privacy_statement_md")}</p>
         <BankAccountsCard instruments={user.usablePaymentInstruments} />
         <AdditionalSourcesCard />
       </Container>
@@ -36,12 +36,12 @@ export default function Funding() {
 function BankAccountsCard({ instruments }) {
   const bankAccounts = _.filter(instruments, { paymentMethodType: "bank_account" });
   return (
-    <PaymentsCard header={i18next.t("payments:bank_accounts")}>
+    <PaymentsCard header={t("payments:bank_accounts")}>
       {bankAccounts.length === 0 ? (
         <>
-          <Card.Text>{i18next.t("payments:no_bank_accounts_warning")}</Card.Text>
+          <Card.Text>{t("payments:no_bank_accounts_warning")}</Card.Text>
           <Button variant="primary" href="/link-bank-account" as={RLink}>
-            {i18next.t("payments:link_account")}
+            {t("payments:link_account")}
           </Button>
         </>
       ) : (
@@ -51,7 +51,7 @@ function BankAccountsCard({ instruments }) {
           ))}
           <hr className="my-4" />
           <Button variant="primary" href="/link-bank-account" as={RLink}>
-            {i18next.t("payments:link_another_account")}
+            {t("payments:link_another_account")}
           </Button>
         </>
       )}
@@ -96,7 +96,7 @@ function BankAccountLine({ bankAccount }) {
               href={`/add-funds?id=${bankAccount.id}&paymentMethodType=bank_account`}
               as={RLink}
             >
-              <i className="bi bi-plus-circle"></i> {i18next.t("payments:add_funds")}
+              <i className="bi bi-plus-circle"></i> {t("payments:add_funds")}
             </Button>
           ) : (
             <Button size="sm" className="opacity-0" disabled aria-hidden>
@@ -107,13 +107,13 @@ function BankAccountLine({ bankAccount }) {
             {bankAccount.canUseForFunding ? (
               <small>
                 <i className="bi bi-check2-circle text-success" title="Verified account">
-                  {i18next.t("payments:payment_account_verified")}
+                  {t("payments:payment_account_verified")}
                 </i>
               </small>
             ) : (
               <small>
                 <i className="bi bi-stopwatch text-warning" title="Verification pending">
-                  {i18next.t("payments:payment_account_pending")}
+                  {t("payments:payment_account_pending")}
                 </i>
               </small>
             )}
@@ -123,7 +123,7 @@ function BankAccountLine({ bankAccount }) {
               </Dropdown.Toggle>
               <Dropdown.Menu align="end">
                 <Dropdown.Item className="text-danger" onClick={showDelete.turnOn}>
-                  {i18next.t("payments:unlink_account")}
+                  {t("payments:unlink_account")}
                 </Dropdown.Item>
               </Dropdown.Menu>
             </Dropdown>
@@ -132,22 +132,22 @@ function BankAccountLine({ bankAccount }) {
       </Card.Body>
       <Modal show={showDelete.isOn} onHide={showDelete.turnOff} centered>
         <Modal.Header closeButton>
-          <Modal.Title as="h5">{i18next.t("payments:unlink_account")}</Modal.Title>
+          <Modal.Title as="h5">{t("payments:unlink_account")}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <p>{i18next.t("payments:unlink_account_question")}</p>
+          <p>{t("payments:unlink_account_question")}</p>
           <p>
-            <strong>{i18next.t("payments:unlink_account_question_subtitle")}</strong>
+            <strong>{t("payments:unlink_account_question_subtitle")}</strong>
           </p>
           <FormError error={error} />
           <FormButtons
             variant="danger"
             primaryProps={{
-              children: i18next.t("payment:unlink"),
+              children: t("payment:unlink"),
               onClick: submitDelete,
             }}
             secondaryProps={{
-              children: i18next.t("common:cancel"),
+              children: t("common:cancel"),
               onClick: showDelete.turnOff,
             }}
           />
@@ -159,10 +159,10 @@ function BankAccountLine({ bankAccount }) {
 
 function AdditionalSourcesCard() {
   return (
-    <PaymentsCard header={i18next.t("payments:payment_other_sources")}>
-      <Card.Text>{i18next.t("payments:payment_support_coming")}</Card.Text>
+    <PaymentsCard header={t("payments:payment_other_sources")}>
+      <Card.Text>{t("payments:payment_support_coming")}</Card.Text>
       <Button variant="link" href="#todo">
-        {i18next.t("common:learn_more")}
+        {t("common:learn_more")}
       </Button>
     </PaymentsCard>
   );

@@ -35,8 +35,7 @@ export default function useI18Next() {
           escapeValue: false,
         },
       })
-      .then(() => setI18NextLoading(false))
-      .catch(() => setI18NextLoading(false));
+      .finally(() => setI18NextLoading(false));
   }, []);
   return { i18nextLoading };
 }

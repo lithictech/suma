@@ -13,7 +13,7 @@ const Home = () => {
       <Row>
         <Col className="text-center">
           <img src={sumaLogo} alt="MySuma Logo" />
-          <p>{i18next.t("welcome_to_suma", { ns: "common" })}</p>
+          <p>{i18next.t("common:welcome_to_suma")}</p>
           <div className="d-grid gap-2">
             <SafeExternalLink
               component={Button}
@@ -21,10 +21,10 @@ const Home = () => {
               variant="primary"
               referrer
             >
-              Learn More
+              {i18next.t("common:learn_more")}
             </SafeExternalLink>
             <Link to="/start" className="btn btn-success">
-              Continue
+              {i18next.t("forms:continue")}
             </Link>
           </div>
         </Col>

@@ -63,8 +63,8 @@ const Start = () => {
       <TopNav />
       <Row>
         <Col>
-          <h2>{i18n.t("get_started", { ns: "forms" })}</h2>
-          <p>{i18n.t("get_started_intro", { ns: "forms" })}</p>
+          <h2>{i18n.t("forms:get_started")}</h2>
+          <p>{i18n.t("forms:get_started_intro")}</p>
           <Form noValidate validated={validated.isOn} onSubmit={handleSubmit}>
             <Form.Group className="mb-3" controlId="phoneInput">
               <Input
@@ -78,7 +78,7 @@ const Start = () => {
                 pattern="^(\+\d{1,2}\s)?\(?\d{3}\)?[\s-]\d{3}[\s-]\d{4}$"
                 minLength="14"
                 maxLength="14"
-                placeholder={i18n.t("phone_placeholder", { ns: "forms" })}
+                placeholder={i18n.t("forms:phone_placeholder")}
                 value={phoneNumber}
                 disabled={inputDisabled.isOn}
                 aria-describedby="phoneRequired"
@@ -92,7 +92,7 @@ const Start = () => {
               variant="success"
               back
               primaryProps={{
-                children: i18n.t("continue", { ns: "forms" }),
+                children: i18n.t("forms:continue"),
                 disabled: submitDisabled.isOn,
               }}
             />

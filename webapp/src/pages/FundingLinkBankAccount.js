@@ -4,12 +4,11 @@ import FormButtons from "../components/FormButtons";
 import FormError from "../components/FormError";
 import GoHome from "../components/GoHome";
 import TopNav from "../components/TopNav";
+import { md, t } from "../localization";
 import useHashToggle from "../shared/react/useHashToggle";
 import { extractErrorCode, useError } from "../state/useError";
 import { useScreenLoader } from "../state/useScreenLoader";
 import { useUser } from "../state/useUser";
-import i18n from "i18next";
-import i18next from "i18next";
 import _ from "lodash";
 import React from "react";
 import Col from "react-bootstrap/Col";
@@ -40,8 +39,8 @@ export default function FundingLinkBankAccount() {
 function Success() {
   return (
     <>
-      <h2>{i18next.t("payments:linked_account")}</h2>
-      <p>{i18next.t("payments:linked_account_successful_md")}</p>
+      <h2>{t("payments:linked_account")}</h2>
+      <p>{md("payments:linked_account_successful_md")}</p>
       <GoHome />
     </>
   );
@@ -89,12 +88,12 @@ function LinkBankAccount({ onSuccess }) {
 
   return (
     <>
-      <h2>{i18next.t("payments:link_account")}</h2>
-      <p>{i18next.t("payments:payment_intro.privacy_statement_md")}</p>
+      <h2>{t("payments:link_account")}</h2>
+      <p>{md("payments:payment_intro.privacy_statement_md")}</p>
       <Form noValidate validated={validated} onSubmit={handleSubmit}>
         <Row className="mb-3">
           <Form.Group as={Col}>
-            <Form.Label>{i18next.t("forms:nickname")}</Form.Label>
+            <Form.Label>{t("forms:nickname")}</Form.Label>
             <Form.Control
               required
               type="text"
@@ -102,14 +101,14 @@ function LinkBankAccount({ onSuccess }) {
               onChange={(e) => setNickname(e.target.value)}
             />
             <Form.Control.Feedback type="invalid">
-              {i18next.t("forms:invalid_nickname")}
+              {t("forms:invalid_nickname")}
             </Form.Control.Feedback>
-            <Form.Text>{i18next.t("forms:nickname_caption")}</Form.Text>
+            <Form.Text>{t("forms:nickname_caption")}</Form.Text>
           </Form.Group>
         </Row>
         <Row className="mb-3">
           <Form.Group as={Col}>
-            <Form.Label>{i18next.t("forms:routing_number")}</Form.Label>
+            <Form.Label>{t("forms:routing_number")}</Form.Label>
             <Form.Control
               required
               type="text"
@@ -118,18 +117,17 @@ function LinkBankAccount({ onSuccess }) {
               onChange={(e) => setRouting(_.replace(e.target.value, /\D/, ""))}
             />
             <Form.Control.Feedback type="invalid">
-              {i18next.t("forms:invalid_routing_number")}
+              {t("forms:invalid_routing_number")}
             </Form.Control.Feedback>
             <Form.Text>
               {/* #TODO: Combine account_caption including markdown link */}
-              {i18next.t("forms:routing_caption") + " "}
-              <a href="#check-details">{i18next.t("forms:paper_check_details")}</a>.
+              {md("forms:routing_caption_md")}
             </Form.Text>
           </Form.Group>
         </Row>
         <Row className="mb-3">
           <Form.Group as={Col}>
-            <Form.Label>{i18next.t("forms:account_number")}</Form.Label>
+            <Form.Label>{t("forms:account_number")}</Form.Label>
             <Form.Control
               required
               type="text"
@@ -138,18 +136,14 @@ function LinkBankAccount({ onSuccess }) {
               onChange={(e) => setAccountNumber(_.replace(e.target.value, /[^\d -]/, ""))}
             />
             <Form.Control.Feedback type="invalid">
-              {i18next.t("forms:invalid_account_number")}
+              {t("forms:invalid_account_number")}
             </Form.Control.Feedback>
-            <Form.Text>
-              {/* #TODO: Combine account_caption including markdown link */}
-              {i18next.t("forms:account_caption") + " "}
-              <a href="#check-details">{i18next.t("forms:paper_check_details")}</a>.
-            </Form.Text>
+            <Form.Text>{md("forms:account_caption_md")}</Form.Text>
           </Form.Group>
         </Row>
         <Row className="mb-3">
           <Form.Group as={Col}>
-            <Form.Label>{i18next.t("forms:confirm_account_number")}</Form.Label>
+            <Form.Label>{t("forms:confirm_account_number")}</Form.Label>
             <Form.Control
               required
               type="text"
@@ -160,20 +154,20 @@ function LinkBankAccount({ onSuccess }) {
               }
             />
             <Form.Control.Feedback type="invalid">
-              {i18next.t("forms:invalid_confirm_account_number")}
+              {t("forms:invalid_confirm_account_number")}
             </Form.Control.Feedback>
-            <Form.Text>{i18next.t("forms:confirm_account_number_caption")}</Form.Text>
+            <Form.Text>{t("forms:confirm_account_number_caption")}</Form.Text>
           </Form.Group>
         </Row>
 
         <Row className="mb-3">
           <Form.Group as={Col}>
-            <Form.Label>{i18next.t("forms:account_type")}</Form.Label>
+            <Form.Label>{t("forms:account_type")}</Form.Label>
             <div>
               <Form.Check
                 name="account-type"
                 type="radio"
-                label={i18next.t("forms:checking")}
+                label={t("forms:checking")}
                 inline
                 checked={accountType === "checking"}
                 onChange={() => setAccountType("checking")}
@@ -181,23 +175,23 @@ function LinkBankAccount({ onSuccess }) {
               <Form.Check
                 name="account-type"
                 type="radio"
-                label={i18next.t("forms:savings")}
+                label={t("forms:savings")}
                 inline
                 checked={accountType === "savings"}
                 onChange={() => setAccountType("savings")}
               />
             </div>
-            <Form.Text>{i18next.t("forms:account_type_caption")}</Form.Text>
+            <Form.Text>{t("forms:account_type_caption")}</Form.Text>
           </Form.Group>
         </Row>
 
-        <p>{i18next.t("payments:account_submission_statement")}</p>
+        <p>{t("payments:account_submission_statement")}</p>
         <FormError error={error} />
         <FormButtons
           variant="success"
           back
           primaryProps={{
-            children: i18n.t("continue", { ns: "forms" }),
+            children: t("forms:continue"),
           }}
         />
         <Modal
@@ -206,13 +200,13 @@ function LinkBankAccount({ onSuccess }) {
           centered
         >
           <Modal.Header closeButton>
-            <Modal.Title>{i18next.t("payments:check_details_title")}</Modal.Title>
+            <Modal.Title>{t("payments:check_details_title")}</Modal.Title>
           </Modal.Header>
           <Modal.Body>
-            <p>{i18next.t("payments:check_details_subtitle")}</p>
+            <p>{t("payments:check_details_subtitle")}</p>
             <img
               src={bankAccountCheckDetails}
-              alt={i18next.t("payments:check_detail")}
+              alt={t("payments:check_detail")}
               className="w-100"
             />
           </Modal.Body>

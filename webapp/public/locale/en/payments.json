@@ -5,7 +5,7 @@
   "payment_title": "Payment Accounts",
   "payment_intro": {
     "intro_md": "To add money to your account, you'll need at least one *funding source*. Usually this is a bank account, but other options maybe available to you below.",
-    "privacy_statement_md": "Your financial information is secured using **bank-level encryption** and **never shared without your consent**. Please see [Suma's Privacy Policy](http://TODO.org 'Suma Privacy Policy Link') for more details about how we protect and use your financial information."
+    "privacy_statement_md": "Your financial information is secured using **bank-level encryption** and **never shared without your consent**. Please see [Suma's Privacy Policy](#TODO 'Suma Privacy Policy Link') for more details about how we protect and use your financial information."
   },
   "sumas_privacy_policy": "Suma's Privacy Policy",
   "bank_accounts": "Bank Accounts",
@@ -27,5 +27,6 @@
   "payment_account_verified": "Verified",
   "payment_account_pending": "Pending",
   "payment_support_coming": "Support is coming for additional sources, such as cash, money order, and adding funds through a friend.",
-  "payment_other_sources": "Other Sources"
+  "payment_other_sources": "Other Sources",
+  "funding_link_md": "[$t(common:add_money_to_account)](/funding 'Funding Page Link')"
 }

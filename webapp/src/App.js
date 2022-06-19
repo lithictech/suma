@@ -85,7 +85,7 @@ function AppRoutes() {
           element={renderWithHocs(
             redirectIfUnauthed,
             redirectIfBoarded,
-            withMetatags({ title: "One Time Password" }),
+            withMetatags({ title: "Onboarding" }),
             Onboarding
           )}
         />

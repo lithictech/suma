@@ -55,7 +55,7 @@ export default function LedgersOverview() {
     <div className="main-container">
       <TopNav />
       <Container>
-        <p>{i18next.t("ledgers_intro", { ns: "payments" })}</p>
+        <p>{i18next.t("payments:ledgers_intro")}</p>
       </Container>
       {ledgersOverview.ledgers ? (
         <Ledger
@@ -107,8 +107,8 @@ const Ledger = ({
         <h3>
           <Money>{ledger.balance}</Money>
         </h3>
-        <p className="m-0">{i18next.t("ledger_balance", { ns: "payments" })}</p>
-        <h5 className="mt-2">{i18next.t("ledger_transactions", { ns: "payments" })}</h5>
+        <p className="m-0">{i18next.t("payments:ledger_balance")}</p>
+        <h5 className="mt-2">{i18next.t("payments:ledger_transactions")}</h5>
       </Container>
       {linesLoading && <PageLoader />}
       <Table

@@ -2,6 +2,7 @@ import onboardingDiscounts from "../assets/images/onboarding-discounts.jpg";
 import onboardingFood from "../assets/images/onboarding-food.jpg";
 import onboardingScooters from "../assets/images/onboarding-scooters.jpg";
 import TopNav from "../components/TopNav";
+import i18next from "i18next";
 import React from "react";
 import Carousel from "react-bootstrap/Carousel";
 import Col from "react-bootstrap/Col";
@@ -35,7 +36,7 @@ const Onboarding = () => {
             to="/onboarding/signup"
             className="btn btn-success w-100 p-2 my-2 mt-4 rounded-pill"
           >
-            Continue
+            {i18next.t("common:continue")}
           </Link>
         </Col>
       </Row>

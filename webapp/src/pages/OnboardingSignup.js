@@ -95,7 +95,7 @@ export default function OnboardingSignup() {
             <FormControlGroup
               className="mb-3"
               name="name"
-              label={t("name", { ns: "forms" })}
+              label={t("forms:name")}
               required
               register={register}
               errors={errors}
@@ -105,7 +105,7 @@ export default function OnboardingSignup() {
             <FormControlGroup
               className="mb-3"
               name="address"
-              label={t("address1", { ns: "forms" })}
+              label={t("forms:address1")}
               type="text"
               required
               register={register}
@@ -116,7 +116,7 @@ export default function OnboardingSignup() {
             <FormControlGroup
               className="mb-3"
               name="address2"
-              label={t("address2", { ns: "forms" })}
+              label={t("forms:address2")}
               type="text"
               register={register}
               errors={errors}
@@ -126,7 +126,7 @@ export default function OnboardingSignup() {
             <FormControlGroup
               className="mb-3"
               name="city"
-              label={t("city", { ns: "forms" })}
+              label={t("forms:city")}
               type="text"
               required
               register={register}
@@ -138,7 +138,7 @@ export default function OnboardingSignup() {
               <FormControlGroup
                 as={Col}
                 name="state"
-                label={t("state", { ns: "forms" })}
+                label={t("forms:state")}
                 required
                 Input={Form.Select}
                 register={register}
@@ -159,7 +159,7 @@ export default function OnboardingSignup() {
               <FormControlGroup
                 as={Col}
                 name="zip"
-                label={t("zip", { ns: "forms" })}
+                label={t("forms:zip")}
                 type="text"
                 pattern="^[0-9]{5}(?:-[0-9]{4})?$"
                 minLength="5"
@@ -172,7 +172,11 @@ export default function OnboardingSignup() {
               />
             </Row>
             <FormError error={error} />
-            <FormButtons variant="success" back primaryProps={{ children: "Submit" }} />
+            <FormButtons
+              variant="success"
+              back
+              primaryProps={{ children: t("forms:submit") }}
+            />
           </Form>
         </Col>
       </Row>
