@@ -32,6 +32,10 @@ module Suma::Payment::Instrument
       @admin_label += " (#{self.institution_name})" unless self.name&.include?(self.institution_name || "")
     end
 
+    def simple_label
+      return "#{self.name} x-#{self.last4}"
+    end
+
     def to_h
       return {
         institution_name: self.institution_name,
@@ -40,6 +44,7 @@ module Suma::Payment::Instrument
         name: self.name,
         last4: self.last4,
         address: self.address,
+        simple_label: self.simple_label,
         admin_label: self.admin_label,
       }
     end
