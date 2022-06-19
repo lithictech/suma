@@ -12,4 +12,8 @@ class Suma::Moneyutil
     end
     return result
   end
+
+  def self.to_h(m)
+    return {currency: m.currency.iso_code, cents: m.cents}
+  end
 end

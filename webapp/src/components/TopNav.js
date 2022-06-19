@@ -25,7 +25,7 @@ const TopNav = () => {
       </Navbar.Brand>
       <Nav>
         {(() => {
-          if (user.adminMember) {
+          if (user?.adminMember) {
             return (
               <Nav.Link
                 className="bi bi-exclamation-circle-fill bg-danger"
