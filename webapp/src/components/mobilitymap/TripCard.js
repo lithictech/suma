@@ -1,6 +1,7 @@
 import api from "../../api";
 import { dayjs } from "../../modules/dayConfig";
 import { extractErrorCode, useError } from "../../state/useError";
+import { useUser } from "../../state/useUser";
 import FormError from "../FormError";
 import PageLoader from "../PageLoader";
 import CardOverlay from "./CardOverlay";
@@ -10,6 +11,7 @@ import React from "react";
 import Button from "react-bootstrap/Button";
 
 const TripCard = ({ active, trip, onCloseTrip, onStopTrip, lastLocation }) => {
+  const { handleUpdateCurrentMember } = useUser();
   const [endTrip, setEndTrip] = React.useState(null);
   const [error, setError] = useError();
   if (!active) {
@@ -29,6 +31,7 @@ const TripCard = ({ active, trip, onCloseTrip, onStopTrip, lastLocation }) => {
         lat: lat,
         lng: lng,
       })
+      .tap(handleUpdateCurrentMember)
       .then((r) => {
         onStopTrip();
         setEndTrip(r.data);

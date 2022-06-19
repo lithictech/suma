@@ -38,6 +38,7 @@ class Suma::API::Payments < Suma::API::V1
         fx.update(originated_book_transaction:)
         fx
       end
+      add_current_member_header
       status 200
       present fx, with: Suma::API::FundingTransactionEntity
     end

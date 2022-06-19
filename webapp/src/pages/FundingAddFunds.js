@@ -21,7 +21,7 @@ const logger = new Logger("addfunds");
 
 export default function FundingAddFunds() {
   const [error, setError] = useError();
-  const { user } = useUser();
+  const { user, handleUpdateCurrentMember } = useUser();
   const [params] = useSearchParams();
   const navigate = useNavigate();
   const [amountCents, setAmountCents] = React.useState();
@@ -70,6 +70,7 @@ export default function FundingAddFunds() {
         paymentMethodId: instrument.id,
         paymentMethodType: instrument.paymentMethodType,
       })
+      .tap(handleUpdateCurrentMember)
       .then(() => navigate(`/dashboard`, { replace: true }))
       .catch((e) => {
         setError(extractErrorCode(e));

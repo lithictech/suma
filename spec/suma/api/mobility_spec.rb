@@ -218,6 +218,7 @@ RSpec.describe Suma::API::Mobility, :db do
            provider_id: vehicle.vendor_service_id, vehicle_id: vehicle.vehicle_id, rate_id: rate.id
 
       expect(last_response).to have_status(200)
+      expect(last_response.headers).to include("Suma-Current-Member")
       expect(last_response).to have_json_body.that_includes(:id)
 
       trip = Suma::Mobility::Trip[last_response_json_body[:id]]
@@ -262,6 +263,7 @@ RSpec.describe Suma::API::Mobility, :db do
       post "/v1/mobility/end_trip", lat: 5, lng: -5
 
       expect(last_response).to have_status(200)
+      expect(last_response.headers).to include("Suma-Current-Member")
       expect(trip.refresh).to be_ended
       expect(trip).to have_attributes(end_lat: 5, end_lng: -5)
     end

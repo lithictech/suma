@@ -22,6 +22,7 @@ RSpec.describe Suma::API::Payments, :db do
            payment_method_type: ba.payment_method_type
 
       expect(last_response).to have_status(200)
+      expect(last_response.headers).to include("Suma-Current-Member")
       expect(last_response).to have_json_body.that_includes(status: "created")
 
       expect(member.payment_account.originated_funding_transactions).to contain_exactly(

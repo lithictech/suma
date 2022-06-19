@@ -14,7 +14,7 @@ import { Link } from "react-router-dom";
 
 const Map = () => {
   const mapRef = React.useRef();
-  const { user } = useUser();
+  const { user, handleUpdateCurrentMember } = useUser();
   const [loadedMap, setLoadedMap] = React.useState(null);
   const [selectedMapVehicle, setSelectedMapVehicle] = React.useState(null);
   const [loadedVehicle, setLoadedVehicle] = React.useState(null);
@@ -72,6 +72,7 @@ const Map = () => {
           vehicleId: vehicle.vehicleId,
           rateId: vehicle.rate.id,
         })
+        .tap(handleUpdateCurrentMember)
         .then((r) => {
           setOngoingTrip(r.data);
           loadedMap.beginTrip({
@@ -81,7 +82,13 @@ const Map = () => {
         })
         .catch((e) => setReserveError(extractErrorCode(e)));
     },
-    [loadedMap, handleGetLastLocation, handleGetLocationError, setReserveError]
+    [
+      handleUpdateCurrentMember,
+      loadedMap,
+      handleGetLastLocation,
+      handleGetLocationError,
+      setReserveError,
+    ]
   );
 
   const handleStopTrip = () => loadedMap.endTrip({ onVehicleClick: handleVehicleClick });

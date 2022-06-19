@@ -22,6 +22,7 @@ RSpec.describe Suma::API::PaymentInstruments, :db do
       post("/v1/payment_instruments/bank_accounts/create", name: "Foo", account_number:, routing_number:, account_type:)
 
       expect(last_response).to have_status(200)
+      expect(last_response.headers).to include("Suma-Current-Member")
       expect(member.refresh.bank_accounts).to contain_exactly(
         have_attributes(name: "Foo", account_number:, routing_number:, verified?: false),
       )

@@ -28,7 +28,7 @@ module Suma::Service::Middleware
                  headers: :any,
                  methods: :any,
                  credentials: true,
-                 expose: ["Etag", "Created-Resource-Id", "Created-Resource-Admin"]
+                 expose: ["Etag", "Created-Resource-Id", "Created-Resource-Admin", "Suma-Current-Member"]
       end
     end
   end
