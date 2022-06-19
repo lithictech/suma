@@ -5,18 +5,15 @@ import React from "react";
 import Button from "react-bootstrap/Button";
 
 const TransactionCard = ({ endTrip, onCloseTrip, error }) => {
-  const { rate, provider, id } = endTrip;
-  const { localizationVars: locVars } = rate;
+  const { totalCost, discountAmount, provider } = endTrip;
   const handleClose = () => onCloseTrip();
   return (
     <CardOverlay>
       <p>
-        Trip {id} with {provider.vendorName} has ended.
-      </p>
-      <p>
-        {i18next.t("mobility:" + rate.localizationKey, {
-          surchargeCents: locVars.surchargeCents * 0.01,
-          unitCents: locVars.unitCents * 0.01,
+        {i18next.t("mobility:trip_ended", {
+          vendor: provider.vendorName,
+          totalCostCents: totalCost.cents * 0.01,
+          discountAmountCents: discountAmount.cents * 0.01,
         })}
       </p>
       <FormError error={error} />

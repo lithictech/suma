@@ -3,5 +3,7 @@
 	"intro": "Ride with enhanced privacy and better prices.",
 	"mobility_start_and_per_minute": "Start fee is {{surchargeCents, currency(USD)}}, then {{unitCents, currency(USD)}} per minute",
 	"reserve_scooter": "Reserve Scooter",
-	"end_trip": "End Trip"
+	"end_trip": "End Trip",
+	"trip_ended": "Your trip with {{vendor}} has ended.\n\nWe used {{totalCostCents, currency(USD)}} of your Suma balance for this trip.\n\nYou saved {{discountAmountCents, currency(USD)}}.",
+	"trip_started_at": "Trip started at {{at}}."
 }

@@ -93,6 +93,8 @@ module Suma::API
     expose :end_lat
     expose :end_lng
     expose :ended_at
+    expose :total_cost, with: MoneyEntity, &self.delegate_to(:charge, :discounted_subtotal, safe: true)
+    expose :discount_amount, with: MoneyEntity, &self.delegate_to(:charge, :discount_amount, safe: true)
   end
 
   class CurrentMemberEntity < Suma::Service::Entities::CurrentMember

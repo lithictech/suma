@@ -1,4 +1,5 @@
 import api from "../../api";
+import { dayjs } from "../../modules/dayConfig";
 import { extractErrorCode, useError } from "../../state/useError";
 import FormError from "../FormError";
 import PageLoader from "../PageLoader";
@@ -43,6 +44,11 @@ const TripCard = ({ active, trip, onCloseTrip, onStopTrip, lastLocation }) => {
       {lastLocation && !endTrip && (
         <CardOverlay>
           <h6>{trip.provider.name}</h6>
+          <p>
+            {i18next.t("mobility:trip_started_at", {
+              at: dayjs(trip.beganAt).format("LT"),
+            })}
+          </p>
           <FormError error={error} />
           <Button size="sm" variant="primary" className="w-100" onClick={handleEndTrip}>
             {i18next.t("mobility:end_trip")}
