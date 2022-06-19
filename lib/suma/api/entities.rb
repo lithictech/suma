@@ -105,6 +105,11 @@ module Suma::API
     end
   end
 
+  class LedgerLineUsageDetailsEntity < Grape::Entity
+    expose :code
+    expose :args
+  end
+
   class LedgerLineEntity < BaseEntity
     expose :id
     expose :opaque_id
@@ -113,10 +118,13 @@ module Suma::API
     expose :amount, with: MoneyEntity do |inst, opts|
       if inst.directed?
         inst.amount
+      elsif (ledger = opts[:ledger])
+        inst.receiving_ledger === ledger ? inst.amount : (inst.amount * -1)
       else
-        inst.receiving_ledger === opts.fetch(:ledger) ? inst.amount : (inst.amount * -1)
+        raise "Must use directed ledger lines or pass :ledger option"
       end
     end
+    expose :usage_details, with: LedgerLineUsageDetailsEntity
   end
 
   class LedgerEntity < BaseEntity

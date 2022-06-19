@@ -14,6 +14,7 @@ export default function useI18Next() {
           "common",
           "dashboard",
           "errors",
+          "ledgerusage",
           "mobility",
           "messages",
           "forms",

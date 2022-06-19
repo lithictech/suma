@@ -24,6 +24,10 @@ module Suma::Fixtures::FundingTransactions
     instance
   end
 
+  decorator :member do |m|
+    self.originating_payment_account ||= m.payment_account
+  end
+
   decorator :with_fake_strategy do |strategy={}|
     strategy = Suma::Payment::FakeStrategy.create(**strategy) unless strategy.is_a?(Suma::Payment::FakeStrategy)
     self.fake_strategy = strategy

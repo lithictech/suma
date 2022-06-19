@@ -1,0 +1,6 @@
+{
+	"funding": "Transfer from {{accountLabel}}",
+	"mobility_trip": "{{serviceName}} trip. You saved {{discountAmount.cents, currency(USD)}}.",
+	"misc": "Suma charge",
+	"unknown": "Uncategorized Suma charge"
+}

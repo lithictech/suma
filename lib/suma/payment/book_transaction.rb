@@ -9,6 +9,12 @@ class Suma::Payment::BookTransaction < Suma::Postgres::Model(:payment_book_trans
   many_to_one :originating_ledger, class: "Suma::Payment::Ledger"
   many_to_one :receiving_ledger, class: "Suma::Payment::Ledger"
   many_to_one :associated_vendor_service_category, class: "Suma::Vendor::ServiceCategory"
+  one_to_many :funding_transactions, class: "Suma::Payment::FundingTransaction", key: :originated_book_transaction_id
+  many_to_many :charges,
+               class: "Suma::Charge",
+               join_table: :charges_payment_book_transactions,
+               right_key: :charge_id,
+               left_key: :book_transaction_id
 
   def initialize(*)
     super
@@ -43,6 +49,32 @@ class Suma::Payment::BookTransaction < Suma::Postgres::Model(:payment_book_trans
   # Return true if the received is an output of +directed+.
   def directed?
     return self.values.fetch(:_directed, false)
+  end
+
+  UsageDetails = Struct.new(:code, :args)
+
+  # @return [Array<UsageDetails>]
+  def usage_details
+    result = []
+    result.concat(charges.map do |ch|
+      code = "misc"
+      service_name = self.memo
+      if ch.mobility_trip
+        code = "mobility_trip"
+        service_name = ch.mobility_trip.vendor_service.external_name
+     end
+      UsageDetails.new(
+        code, {
+          discount_amount: Suma::Moneyutil.to_h(ch.discount_amount),
+          service_name:,
+        },
+      )
+    end)
+    result.concat(self.funding_transactions.map do |fx|
+      UsageDetails.new("funding", {account_label: fx.strategy.originating_instrument.to_display.simple_label})
+    end)
+    result << UsageDetails.new("unknown", {memo: self.memo}) if result.empty?
+    return result
   end
 end
 
