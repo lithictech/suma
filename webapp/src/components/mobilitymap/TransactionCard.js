@@ -1,31 +1,26 @@
 import FormError from "../FormError";
+import CardOverlay from "./CardOverlay";
 import i18next from "i18next";
 import React from "react";
-import { Button, Card } from "react-bootstrap";
+import Button from "react-bootstrap/Button";
 
 const TransactionCard = ({ endTrip, onCloseTrip, error }) => {
-  const { rate, provider, id } = endTrip;
-  const { localizationVars: locVars } = rate;
+  const { totalCost, discountAmount, provider } = endTrip;
   const handleClose = () => onCloseTrip();
   return (
-    <Card className="mobility-overlay-card">
-      <Card.Body>
-        <p>
-          Trip {id} with {provider.vendorName} has ended.
-        </p>
-        <p>
-          {i18next.t(rate.localizationKey, {
-            surchargeCents: locVars.surchargeCents * 0.01,
-            unitCents: locVars.unitCents * 0.01,
-            ns: "mobility",
-          })}
-        </p>
-        <FormError error={error} />
-        <Button size="sm" variant="primary" className="w-100" onClick={handleClose}>
-          Close
-        </Button>
-      </Card.Body>
-    </Card>
+    <CardOverlay>
+      <p>
+        {i18next.t("mobility:trip_ended", {
+          vendor: provider.vendorName,
+          totalCostCents: totalCost.cents * 0.01,
+          discountAmountCents: discountAmount.cents * 0.01,
+        })}
+      </p>
+      <FormError error={error} />
+      <Button size="sm" variant="primary" className="w-100" onClick={handleClose}>
+        {i18next.t("common:close")}
+      </Button>
+    </CardOverlay>
   );
 };
 

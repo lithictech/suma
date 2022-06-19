@@ -1,4 +1,5 @@
 import loaderRing from "../assets/images/loader-ring.svg";
+import clsx from "clsx";
 import React from "react";
 
 /**
@@ -9,17 +10,14 @@ import React from "react";
  * @param show
  * @returns {JSX.Element}
  */
-export default function PageLoader({ show }) {
-  if (!show) {
-    return null;
-  }
+export default function PageLoader({ relative }) {
+  const cls = clsx(
+    relative ? "position-relative" : "position-absolute",
+    "top-0 start-0 w-100"
+  );
   return (
     <div className="text-center position-relative">
-      <img
-        src={loaderRing}
-        alt="loading"
-        className="position-absolute top-0 start-0 w-100"
-      />
+      <img src={loaderRing} alt="loading" className={cls} />
     </div>
   );
 }

@@ -3,13 +3,13 @@ import MapBuilder from "../../modules/mapBuilder";
 import { extractErrorCode, useError } from "../../state/useError";
 import { useUser } from "../../state/useUser";
 import FormError from "../FormError";
+import CardOverlay from "./CardOverlay";
 import InstructionsModal from "./InstructionsModal";
 import ReservationCard from "./ReservationCard";
 import TripCard from "./TripCard";
 import i18next from "i18next";
 import React from "react";
 import Alert from "react-bootstrap/Alert";
-import Card from "react-bootstrap/Card";
 import { Link } from "react-router-dom";
 
 const Map = () => {
@@ -19,6 +19,7 @@ const Map = () => {
   const [selectedMapVehicle, setSelectedMapVehicle] = React.useState(null);
   const [loadedVehicle, setLoadedVehicle] = React.useState(null);
   const [lastMarkerLocation, setLastMarkerLocation] = React.useState(null);
+  const [activeTrip, setActiveTrip] = React.useState(Boolean(user.ongoingTrip) || false);
   const [ongoingTrip, setOngoingTrip] = React.useState(user.ongoingTrip);
   const [reserveError, setReserveError] = useError();
   const [error, setError] = useError();
@@ -56,7 +57,7 @@ const Map = () => {
     setError(
       <Alert variant="warning" className="m-0">
         <i className="bi bi-exclamation-triangle-fill"></i>{" "}
-        {i18next.t("denied_geolocation", { ns: "errors" })}
+        {i18next.t("errors:denied_geolocation")}
         <InstructionsModal />
       </Alert>
     );
@@ -64,6 +65,7 @@ const Map = () => {
 
   const handleReserve = React.useCallback(
     (vehicle) => {
+      setActiveTrip(true);
       api
         .beginMobilityTrip({
           providerId: vehicle.vendorService.id,
@@ -86,6 +88,7 @@ const Map = () => {
 
   const handleCloseTrip = () => {
     setSelectedMapVehicle(null);
+    setActiveTrip(null);
     setOngoingTrip(null);
   };
 
@@ -116,31 +119,27 @@ const Map = () => {
   return (
     <div className="position-relative">
       <div ref={mapRef} />
-      {ongoingTrip && !error ? (
-        <TripCard
-          trip={ongoingTrip}
-          onCloseTrip={handleCloseTrip}
-          onStopTrip={handleStopTrip}
-          lastLocation={lastMarkerLocation}
-        />
-      ) : (
-        <ReservationCard
-          active={Boolean(selectedMapVehicle)}
-          loading={selectedMapVehicle && !loadedVehicle}
-          vehicle={loadedVehicle}
-          onReserve={handleReserve}
-          reserveError={reserveError}
-        />
-      )}
+      <ReservationCard
+        active={Boolean(selectedMapVehicle) && !ongoingTrip && !error}
+        loading={selectedMapVehicle && !loadedVehicle}
+        vehicle={loadedVehicle}
+        onReserve={handleReserve}
+        reserveError={reserveError}
+      />
+      <TripCard
+        active={activeTrip && !error}
+        trip={ongoingTrip}
+        onCloseTrip={handleCloseTrip}
+        onStopTrip={handleStopTrip}
+        lastLocation={lastMarkerLocation}
+      />
       {error && (
-        <Card className="mobility-overlay-card">
-          <Card.Body>
-            <FormError error={error} noMargin component="div" />
-            {user.readOnlyReason && (
-              <Link to="/#todo">Press here to add money to your account</Link>
-            )}
-          </Card.Body>
-        </Card>
+        <CardOverlay>
+          <FormError error={error} noMargin component="div" />
+          {user.readOnlyReason && (
+            <Link to="/funding">{i18next.t("common:add_money_to_account")}</Link>
+          )}
+        </CardOverlay>
       )}
     </div>
   );

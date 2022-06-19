@@ -6,7 +6,8 @@ export default class MapBuilder {
   constructor(mapRef) {
     this.mapRef = mapRef;
     this._l = window.L;
-    this._dZoom = 13;
+    this._minZoom = 13;
+    this._maxZoom = 20;
     this._dLat = 45.5152;
     this._dLng = -122.6784;
     this._latOffset = 0.00004;
@@ -22,7 +23,7 @@ export default class MapBuilder {
   init() {
     this._map = this._l
       .map(this.mapRef.current)
-      .setView([this._dLat, this._dLng], this._dZoom);
+      .setView([this._dLat, this._dLng], this._minZoom);
     this._lastBounds = this._map.getBounds();
     this.setTileLayer();
     this.setScooterIcon();
@@ -35,8 +36,8 @@ export default class MapBuilder {
       .tileLayer(
         "https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw",
         {
-          maxZoom: 20,
-          minZoom: 13,
+          maxZoom: this._maxZoom,
+          minZoom: this._minZoom,
           tileSize: 512,
           zoomOffset: -1,
           attribution:
@@ -201,7 +202,7 @@ export default class MapBuilder {
     this._map
       .locate({
         watch: true,
-        maxZoom: 20,
+        maxZoom: this._maxZoom,
         timeout: 20000,
         enableHighAccuracy: true,
       })
@@ -214,28 +215,34 @@ export default class MapBuilder {
         if (!loc) {
           loc = e.latlng;
           this._mcg.clearLayers();
-          this._map.setView([e.latitude + this._latOffset, e.longitude], 20);
+          this._map.setView([e.latitude + this._latOffset, e.longitude], this._maxZoom);
           line = this._l.polyline([[e.latlng.lat, e.latlng.lng]]);
-          this._tripMarker = this._l
-            .animatedMarker(line.getLatLngs(), {
-              icon: this._scooterIcon,
-            })
-            .addTo(this._map);
+          this._tripMarker = this._l.animatedMarker(line.getLatLngs(), {
+            icon: this._scooterIcon,
+            autoStart: false,
+            duration: 250,
+            distance: 0,
+          });
+          this._map.addLayer(this._tripMarker);
           onGetLocation(e);
         }
         if (
           this._tripMarker &&
           loc &&
           line &&
-          loc.lat !== e.latitude &&
-          loc.lng !== e.longitude
+          (loc.lat !== e.latitude || loc.lng !== e.longitude)
         ) {
+          this._tripMarker.stop();
+          // Sets next location distance for animation purpose
+          const nextDistance = this._l
+            .latLng(loc.lat, loc.lng)
+            .distanceTo([e.latitude, e.longitude]);
+          this._tripMarker.options.distance = nextDistance;
           line.addLatLng([e.latitude, e.longitude]);
           this._tripMarker.start();
-          this._map.setView([e.latitude + this._latOffset, e.longitude], 20, {
+          this._map.flyTo([e.latitude + this._latOffset, e.longitude], this._maxZoom, {
             animate: true,
-            duration: 1.0,
-            easeLinearity: 1,
+            duration: 0.25,
           });
           loc = e.latlng;
           onGetLocation(e);
@@ -263,7 +270,6 @@ export default class MapBuilder {
     this._map.keyboard.disable();
     if (this._map.tap) this._map.tap.disable();
     this._map._container.style.cursor = "default";
-    return this;
   }
 
   viewMode() {

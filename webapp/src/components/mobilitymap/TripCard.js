@@ -1,15 +1,26 @@
 import api from "../../api";
+import { dayjs } from "../../modules/dayConfig";
 import { extractErrorCode, useError } from "../../state/useError";
 import FormError from "../FormError";
+import PageLoader from "../PageLoader";
+import CardOverlay from "./CardOverlay";
 import TransactionCard from "./TransactionCard";
+import i18next from "i18next";
 import React from "react";
-import { Button, Card } from "react-bootstrap";
+import Button from "react-bootstrap/Button";
 
-const TripCard = ({ trip, onCloseTrip, onStopTrip, lastLocation }) => {
+const TripCard = ({ active, trip, onCloseTrip, onStopTrip, lastLocation }) => {
   const [endTrip, setEndTrip] = React.useState(null);
   const [error, setError] = useError();
-  if (!trip) {
+  if (!active) {
     return null;
+  }
+  if (!endTrip && !lastLocation) {
+    return (
+      <CardOverlay>
+        <PageLoader relative />
+      </CardOverlay>
+    );
   }
   const handleEndTrip = () => {
     const { lat, lng } = lastLocation.latlng;
@@ -25,22 +36,24 @@ const TripCard = ({ trip, onCloseTrip, onStopTrip, lastLocation }) => {
       .catch((e) => setError(extractErrorCode(e)));
   };
   const handleCloseTrip = () => onCloseTrip();
-
   return (
     <>
-      {endTrip ? (
+      {endTrip && (
         <TransactionCard endTrip={endTrip} error={error} onCloseTrip={handleCloseTrip} />
-      ) : (
-        <Card className="mobility-overlay-card">
-          <Card.Body>
-            <Card.Text className="text-muted">Scooter {trip.id}</Card.Text>
-            {/* TODO: add error handling */}
-            <FormError error={error} />
-            <Button size="sm" variant="primary" className="w-100" onClick={handleEndTrip}>
-              End Trip
-            </Button>
-          </Card.Body>
-        </Card>
+      )}
+      {lastLocation && !endTrip && (
+        <CardOverlay>
+          <h6>{trip.provider.name}</h6>
+          <p>
+            {i18next.t("mobility:trip_started_at", {
+              at: dayjs(trip.beganAt).format("LT"),
+            })}
+          </p>
+          <FormError error={error} />
+          <Button size="sm" variant="primary" className="w-100" onClick={handleEndTrip}>
+            {i18next.t("mobility:end_trip")}
+          </Button>
+        </CardOverlay>
       )}
     </>
   );
