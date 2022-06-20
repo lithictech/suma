@@ -1,0 +1,53 @@
+# frozen_string_literal: true
+
+require "rake/tasklib"
+
+require "suma/tasks"
+
+class Suma::Tasks::I18n < Rake::TaskLib
+  def initialize
+    super()
+    namespace :i18n do
+      desc "Reformat all locale JSON files to standard spacing and alphabetized keys."
+      task :format do
+        require "suma/i18n"
+        Suma::I18n.reformat_files
+      end
+
+      desc "Ensure all locale files contain the same keys as the base language (en-us). " \
+           "Return 0 if valid, print issues and return 1 if not."
+      task :verify do
+        require "suma/i18n"
+        issues = Suma::I18n.verify_files
+        next if issues.empty?
+        issues.each do |iss|
+          io << "locale: #{iss.locale_code}\n"
+          io << "  missing:\n" if iss.missing
+          iss.missing.each { |k| io << "    #{k}\n" }
+          io << "  extra:\n" if iss.extra
+          iss.extra.each { |k| io << "    #{k}\n" }
+        end
+        exit(1)
+      end
+
+      desc "Write to stdout the contents of a CSV file that should be used for translation. " \
+           "Provide a source language and its strings will be merged with the base language (en, es, etc)."
+      task :prepare_csv, [:locale_code] do |_, args|
+        require "suma/i18n"
+        lang = args[:locale_code] || Suma::I18n.base_locale_code
+        Suma::I18n.prepare_csv(lang, output: io)
+      end
+
+      desc "Read from stdin the contents of a CSV file containing translated strings (see prepare_csv). " \
+           "It is written to the strings.json file of the provided locale."
+      task :import_csv do
+        require "suma/i18n"
+        Suma::I18n.import_csv(input: $stdin)
+      end
+    end
+  end
+
+  def io
+    return $stdout
+  end
+end

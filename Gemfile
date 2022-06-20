@@ -65,6 +65,7 @@ group :test_group do
   gem "rspec"
   gem "rspec-eventually"
   gem "rspec-json_expectations"
+  gem "rspec-temp_dir"
   gem "rubocop"
   gem "rubocop-performance", require: false
   gem "rubocop-rake", require: false

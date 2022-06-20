@@ -214,6 +214,8 @@ GEM
       diff-lcs (>= 1.2.0, < 2.0)
       rspec-support (~> 3.11.0)
     rspec-support (3.11.0)
+    rspec-temp_dir (1.1.1)
+      rspec (>= 3.0)
     rubocop (1.25.1)
       parallel (~> 1.10)
       parser (>= 3.1.0.0)
@@ -332,6 +334,7 @@ DEPENDENCIES
   rspec
   rspec-eventually
   rspec-json_expectations
+  rspec-temp_dir
   rubocop
   rubocop-performance
   rubocop-rake

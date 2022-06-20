@@ -1,4 +1,7 @@
 {
-	"welcome_to_suma": "Bienvenido a Suma",
-	"scooter_cost": "{{startCost, number(style: currency; currency: USD)}} para empezar después {{costPerMinute, number(style: currency; currency: USD)}}/min + impuestos"
+  "common": {
+    "back": "Regresa",
+    "scooter_cost": "{{startCost, number(style: currency; currency: USD)}} para empezar después {{costPerMinute, number(style: currency; currency: USD)}}/min + impuestos",
+    "welcome_to_suma": "Bienvenido a Suma"
+  }
 }
