@@ -55,7 +55,7 @@ module Suma::I18n
 
   # @return [Array<VerificationIssue>]
   def self.verify_files
-    base_keys = self.flatten_hash(self.strings_data(self.base_locale_code)).keys.to_set
+    base_keys = self.flatten_hash(self.base_locale_data).keys.to_set
     result = []
     SUPPORTED_LOCALES.each_value do |locale|
       next if locale.code == self.base_locale_code
@@ -66,6 +66,10 @@ module Suma::I18n
       result << VerificationIssue.new(locale.code, missing, extra)
     end
     return result
+  end
+
+  def self.base_locale_data
+    return self.strings_data(self.base_locale_code)
   end
 
   # @return [String]
@@ -96,7 +100,7 @@ module Suma::I18n
   def self.prepare_csv(locale_code, output:)
     base_locale = SUPPORTED_LOCALES.fetch(self.base_locale_code)
     locale = SUPPORTED_LOCALES.fetch(locale_code)
-    base_data = self.flatten_hash(self.strings_data(base_locale.code))
+    base_data = self.flatten_hash(self.base_locale_data)
     locale_data = self.flatten_hash(self.strings_data(locale.code))
     CSV(output) do |csv|
       csv << ["Key", locale.language, base_locale.language]

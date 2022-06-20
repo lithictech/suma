@@ -108,8 +108,10 @@ module Suma::Service::Helpers
     merror!(403, "Sorry, this action is unavailable.", code: "role_check")
   end
 
-  # TODO: code should be required since all errors will be localized (code can be nil though, for admin etc)
-  def merror!(status, message, code: nil, more: {})
+  def merror!(status, message, code:, more: {})
+    if Suma::Service.localized_error_codes && !Suma::Service.localized_error_codes.include?(code)
+      merror!(500, "Error code is unlocalized: #{code}", code: "unhandled_error")
+    end
     header "Content-Type", "application/json"
     body = Suma::Service.error_body(status, message, code:, more:)
     error!(body, status)
@@ -126,10 +128,6 @@ module Suma::Service::Helpers
 
   def forbidden!(message="Forbidden")
     merror!(403, message, code: "forbidden")
-  end
-
-  def not_found!(message="Not Found")
-    merror!(404, message, code: "not_found")
   end
 
   def invalid!(errors, message: nil)

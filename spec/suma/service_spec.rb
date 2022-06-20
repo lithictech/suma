@@ -22,10 +22,13 @@ class Suma::API::TestService < Suma::Service
     Suma::API::TestService.global_shim[:sentry_scope] = Sentry.get_current_scope
   end
 
+  params do
+    requires :code
+  end
   get :merror do
     # Ensure merror! sets content type explicitly
     content_type "application/xml"
-    merror!(403, "Hello!", code: "test_err", more: {doc_url: "http://some-place"})
+    merror!(403, "Hello!", code: params[:code], more: {doc_url: "http://some-place"})
   end
 
   params do
@@ -186,18 +189,21 @@ RSpec.describe Suma::Service, :db do
 
     Thread.current[:suma_request_user] = 5
     Thread.current[:suma_request_admin] = 6
-    get "/merror"
+    get "/merror", code: "forbidden"
     expect(last_response).to have_status(403)
     expect(Thread.current[:suma_request_user]).to be_nil
     expect(Thread.current[:suma_request_admin]).to be_nil
   end
 
   it "uses a consistent error shape for manual errors (merror!)" do
-    get "/merror"
+    described_class.localized_error_codes = nil
+    get "/merror?code=test_err"
     expect(last_response).to have_status(403)
     expect(last_response_json_body).to eq(
       error: {doc_url: "http://some-place", message: "Hello!", status: 403, code: "test_err"},
     )
+  ensure
+    described_class.reset_configuration
   end
 
   it "uses a consistent error shape for validation errors" do
@@ -299,6 +305,30 @@ RSpec.describe Suma::Service, :db do
       status: 500,
       code: "api_error",
     ))
+  end
+
+  describe "error code localization" do
+    after(:each) do
+      described_class.reset_configuration
+    end
+
+    it "does not error if code are localized" do
+      get "/merror?code=auth_conflict"
+      expect(last_response).to have_status(403)
+      expect(last_response).to have_json_body.that_includes(error: include(code: "auth_conflict"))
+    end
+
+    it "errors if the code is not localized" do
+      get "/merror?code=thisisabadcode"
+      expect(last_response).to have_status(500)
+      expect(last_response).to have_json_body.that_includes(error: include(code: "unhandled_error"))
+    end
+
+    it "does not error if not enabled" do
+      described_class.localized_error_codes = nil
+      get "/merror?code=thisisabadcode"
+      expect(last_response).to have_status(403)
+    end
   end
 
   it "returns 405s as-is" do
