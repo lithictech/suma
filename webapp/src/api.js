@@ -34,6 +34,7 @@ export default {
   getMe: (data) => get(`/api/v1/me`, data),
   updateMe: (data) => post(`/api/v1/me/update`, data),
   getSupportedGeographies: (data) => get(`/api/v1/meta/supported_geographies`, data),
+  getSupportedLocales: (data) => get(`/api/v1/meta/supported_locales`, data),
   getSupportedCurrencies: (data) => get(`/api/v1/meta/supported_currencies`, data),
   dashboard: (data) => get("/api/v1/me/dashboard", data),
   getLedgersOverview: (data) => get("/api/v1/ledgers/overview", data),
