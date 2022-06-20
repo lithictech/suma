@@ -11,7 +11,7 @@ import Navbar from "react-bootstrap/Navbar";
 const TopNav = () => {
   const { user, userAuthed } = useUser();
   return (
-    <Navbar className="py-3" expand="lg" collapseOnSelect>
+    <Navbar className="py-3" expand={false} collapseOnSelect>
       <Container>
         <Navbar.Brand
           href="/dashboard"
