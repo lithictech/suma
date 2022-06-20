@@ -21,16 +21,24 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
       org = Suma::Organization.find_or_create(name: "Spin")
       org.db.transaction do
         ["Food", "Mobility", "Cash"].each { |n| Suma::Vendor::ServiceCategory.find_or_create(name: n) }
-        rate = Suma::Vendor::ServiceRate.find_or_create(name: "Mobility $1 start $0.20/minute") do |r|
+        undiscounted_rate = Suma::Vendor::ServiceRate.find_or_create(name: "Mobility $1 start $0.30/minute") do |r|
           r.localization_key = "mobility_start_and_per_minute"
           r.surcharge = Money.new(100)
-          r.unit_amount = Money.new(20)
+          r.unit_amount = Money.new(30)
         end
-        spin = Suma::Vendor.find_or_create(name: "Spin", organization: org)
+        rate = Suma::Vendor::ServiceRate.find_or_create(name: "Mobility $0.50 start $0.10/minute") do |r|
+          r.localization_key = "mobility_start_and_per_minute"
+          r.surcharge = Money.new(50)
+          r.unit_amount = Money.new(10)
+          r.undiscounted_rate = undiscounted_rate
+        end
+        spin = Suma::Vendor.find_or_create(slug: "spin", organization: org) do |v|
+          v.name = "Demo"
+        end
         if spin.services_dataset.mobility.empty?
           svc = spin.add_service(
-            internal_name: "Portland Scooters",
-            external_name: "Spin E-Scooters",
+            internal_name: "Spin Scooters",
+            external_name: "Demo E-Scooters",
             sync_url: "https://gbfs.spin.pm/api/gbfs/v2_2/portland/free_bike_status",
             mobility_vendor_adapter_key: "fake",
           )
