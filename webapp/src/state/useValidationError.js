@@ -1,4 +1,4 @@
-import i18next from "i18next";
+import { t } from "../localization";
 
 /**
  * Return the localized validation error value for an input.
@@ -20,7 +20,7 @@ export default function useValidationError(
   }
   const allErrKeys = { ...errorKeys, ...additionalErrorKeys };
   const errKey = allErrKeys[err.type] || "forms:invalid_field";
-  const message = i18next.t(errKey, {
+  const message = t(errKey, {
     constraint: validations[err.type],
     value: err.ref.value,
   });

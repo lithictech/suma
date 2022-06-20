@@ -3,6 +3,7 @@
 require "grape"
 
 require "suma/api"
+require "suma/i18n"
 
 class Suma::API::Meta < Suma::API::V1
   resource :meta do
@@ -24,6 +25,10 @@ class Suma::API::Meta < Suma::API::V1
       cur = Suma::SupportedCurrency.dataset.order(:ordinal).all
       raise Suma::InvalidPrecondition, "no currencies set up, app is busted" if cur.empty?
       present_collection cur, with: Suma::API::CurrencyEntity
+    end
+
+    get :supported_locales do
+      present_collection Suma::I18n::SUPPORTED_LOCALES.values, with: Suma::API::LocaleEntity
     end
   end
 end

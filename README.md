@@ -72,3 +72,24 @@ an explicit registration and login step.
 - If they are invalid, Server returns an error.
 - Client can POST to `/v1/auth/start` with the phone number again to dispatch
   a new OTP.
+
+
+## Localization
+
+We use the excellent i18next library for localization on the frontend.
+
+Localization strings are stored in `webapp/public/locale`.
+Right now only the public app is localized; the admin app is English-only,
+but can be localized in the future.
+
+We manage the localization JSON files with the following process:
+
+- When we are developing a feature, it's fine to put strings directly into the JS.
+- We then extract the strings and put them into `locale/en/strings.json`.
+- Run `bundle exec rake i18n:format` to format locale files.
+- Run `bundle exec rake i18n:prepare_csv[es] > spanish.csv`,
+  which will write out a CSV with all the base (English) localization keys, English values,
+  and language-specific values (Spanish in the case of 'es').
+- Hand that file off to translators. They should fill in the 'Spanish' column.
+- To load the translated strings back into Suma, run `cat spanish.csv | bundle exec rake i18n:import_csv`.
+  This will overwrite `locale/es/strings.json` with the values parsed from the CSV.

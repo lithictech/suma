@@ -9,6 +9,7 @@ export function md(key, options = {}) {
         `loc key '${key}' does not end with _md but md() was used (is unnecessarily slow)`
       );
     }
+    checkKeyName(key);
   }
   return (
     <ReactMarkdown
@@ -17,7 +18,7 @@ export function md(key, options = {}) {
         p: React.Fragment,
       }}
     >
-      {i18n.t(key, options)}
+      {i18n.t("strings:" + key, options)}
     </ReactMarkdown>
   );
 }
@@ -29,6 +30,15 @@ export function t(key, options = {}) {
         `loc key '${key}' ends with _md but t() was used (will not render markdown)`
       );
     }
+    checkKeyName(key);
   }
-  return i18n.t(key, options);
+  return i18n.t("strings:" + key, options);
+}
+
+function checkKeyName(key) {
+  if (key.startsWith("strings:")) {
+    console.error(
+      "Do not start localization keys with 'strings:', since it may change in the future."
+    );
+  }
 }

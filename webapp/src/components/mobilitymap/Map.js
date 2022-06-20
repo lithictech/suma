@@ -1,4 +1,5 @@
 import api from "../../api";
+import { t } from "../../localization";
 import MapBuilder from "../../modules/mapBuilder";
 import { extractErrorCode, useError } from "../../state/useError";
 import { useUser } from "../../state/useUser";
@@ -7,7 +8,6 @@ import CardOverlay from "./CardOverlay";
 import InstructionsModal from "./InstructionsModal";
 import ReservationCard from "./ReservationCard";
 import TripCard from "./TripCard";
-import i18next from "i18next";
 import React from "react";
 import Alert from "react-bootstrap/Alert";
 import { Link } from "react-router-dom";
@@ -57,7 +57,7 @@ const Map = () => {
     setError(
       <Alert variant="warning" className="m-0">
         <i className="bi bi-exclamation-triangle-fill"></i>{" "}
-        {i18next.t("errors:denied_geolocation")}
+        {t("errors:denied_geolocation")}
         <InstructionsModal />
       </Alert>
     );
@@ -144,7 +144,7 @@ const Map = () => {
         <CardOverlay>
           <FormError error={error} noMargin component="div" />
           {user.readOnlyReason && (
-            <Link to="/funding">{i18next.t("common:add_money_to_account")}</Link>
+            <Link to="/funding">{t("common:add_money_to_account")}</Link>
           )}
         </CardOverlay>
       )}

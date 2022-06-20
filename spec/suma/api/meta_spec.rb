@@ -57,4 +57,26 @@ RSpec.describe Suma::API::Meta, :db do
       expect(last_response).to have_status(500)
     end
   end
+
+  describe "GET /v1/meta/supported_locales" do
+    it "returns supported locales" do
+      get "/v1/meta/supported_locales"
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.that_includes(
+        items: [
+          {
+            code: "en",
+            language: "English",
+            native: "English",
+          },
+          {
+            code: "es",
+            language: "Spanish",
+            native: "Español",
+          },
+        ],
+      )
+    end
+  end
 end

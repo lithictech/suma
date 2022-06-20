@@ -2,10 +2,10 @@ import api from "../api";
 import FormButtons from "../components/FormButtons";
 import FormError from "../components/FormError";
 import TopNav from "../components/TopNav";
+import { t } from "../localization";
 import { dayjs } from "../modules/dayConfig";
 import useToggle from "../shared/react/useToggle";
 import { extractErrorCode, useError } from "../state/useError";
-import i18n from "i18next";
 import React, { useState } from "react";
 import Col from "react-bootstrap/Col";
 import Form from "react-bootstrap/Form";
@@ -63,8 +63,8 @@ const Start = () => {
       <TopNav />
       <Row>
         <Col>
-          <h2>{i18n.t("forms:get_started")}</h2>
-          <p>{i18n.t("forms:get_started_intro")}</p>
+          <h2>{t("forms:get_started")}</h2>
+          <p>{t("forms:get_started_intro")}</p>
           <Form noValidate validated={validated.isOn} onSubmit={handleSubmit}>
             <Form.Group className="mb-3" controlId="phoneInput">
               <Input
@@ -78,7 +78,7 @@ const Start = () => {
                 pattern="^(\+\d{1,2}\s)?\(?\d{3}\)?[\s-]\d{3}[\s-]\d{4}$"
                 minLength="14"
                 maxLength="14"
-                placeholder={i18n.t("forms:phone_placeholder")}
+                placeholder={t("forms:phone_placeholder")}
                 value={phoneNumber}
                 disabled={inputDisabled.isOn}
                 aria-describedby="phoneRequired"
@@ -92,7 +92,7 @@ const Start = () => {
               variant="success"
               back
               primaryProps={{
-                children: i18n.t("forms:continue"),
+                children: t("forms:continue"),
                 disabled: submitDisabled.isOn,
               }}
             />

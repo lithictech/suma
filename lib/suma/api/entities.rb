@@ -22,6 +22,12 @@ module Suma::API
     expose :payment_method_types
   end
 
+  class LocaleEntity < BaseEntity
+    expose :code
+    expose :language
+    expose :native
+  end
+
   class MobilityMapVehicleEntity < BaseEntity
     expose :c
     expose :p

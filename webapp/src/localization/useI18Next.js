@@ -1,32 +1,39 @@
+import useLocalStorageState from "../shared/react/useLocalStorageState";
 import i18n from "i18next";
-import LanguageDetector from "i18next-browser-languagedetector";
 import Backend from "i18next-http-backend";
 import React from "react";
 
-export default function useI18Next() {
+export const I18NextContext = React.createContext();
+
+export const useI18Next = () => React.useContext(I18NextContext);
+export default useI18Next;
+
+export function I18NextProvider({ children }) {
   const [i18nextLoading, setI18NextLoading] = React.useState(true);
+  const [language, setLanguage] = useLocalStorageState("language", "en");
+
+  const changeLanguage = React.useCallback(
+    (lang) => {
+      setI18NextLoading(true);
+      Promise.delayOr(
+        500,
+        i18n.changeLanguage(lang).then(() => setLanguage(lang))
+      ).then(() => {
+        setI18NextLoading(false);
+      });
+    },
+    [setLanguage]
+  );
+
   React.useEffect(() => {
     i18n
-      .use(LanguageDetector)
       .use(Backend)
       .init({
-        ns: [
-          "common",
-          "dashboard",
-          "errors",
-          "ledgerusage",
-          "mobility",
-          "messages",
-          "forms",
-          "payments",
-        ],
+        ns: ["strings"],
         // Disable fallback language for now so it's easy to see when translations are missing.
         // fallbackLng: "en",
         initImmediate: false,
-        detection: {
-          order: ["htmlTag", "localStorage", "cookie"],
-          caches: ["cookie"],
-        },
+        lng: language,
         backend: {
           loadPath: "/locale/{{lng}}/{{ns}}.json",
         },
@@ -36,6 +43,12 @@ export default function useI18Next() {
         },
       })
       .finally(() => setI18NextLoading(false));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-  return { i18nextLoading };
+
+  return (
+    <I18NextContext.Provider value={{ i18nextLoading, language, changeLanguage }}>
+      {children}
+    </I18NextContext.Provider>
+  );
 }

@@ -4,13 +4,13 @@ import Money from "../components/Money";
 import PageLoader from "../components/PageLoader";
 import TopNav from "../components/TopNav";
 import LedgerItemModal from "../components/ledger/LedgerItemModal";
+import { t } from "../localization";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
 import useListQueryControls from "../shared/react/useListQueryControls";
 import relativeUrl from "../shared/relativeUrl";
 import setUrlPart from "../shared/setUrlPart";
 import clsx from "clsx";
 import dayjs from "dayjs";
-import i18next from "i18next";
 import _ from "lodash";
 import React from "react";
 import Button from "react-bootstrap/Button";
@@ -55,7 +55,7 @@ export default function LedgersOverview() {
     <div className="main-container">
       <TopNav />
       <Container>
-        <p>{i18next.t("payments:ledgers_intro")}</p>
+        <p>{t("payments:ledgers_intro")}</p>
       </Container>
       {ledgersOverview.ledgers ? (
         <Ledger
@@ -107,8 +107,8 @@ const Ledger = ({
         <h3>
           <Money>{ledger.balance}</Money>
         </h3>
-        <p className="m-0">{i18next.t("payments:ledger_balance")}</p>
-        <h5 className="mt-2">{i18next.t("payments:ledger_transactions")}</h5>
+        <p className="m-0">{t("payments:ledger_balance")}</p>
+        <h5 className="mt-2">{t("payments:ledger_transactions")}</h5>
       </Container>
       {linesLoading && <PageLoader />}
       <Table

@@ -5,7 +5,7 @@ import {
   redirectIfBoarded,
   redirectIfUnboarded,
 } from "./hocs/authRedirects";
-import useI18Next from "./localization/useI18Next";
+import useI18Next, { I18NextProvider } from "./localization/useI18Next";
 import Dashboard from "./pages/Dashboard";
 import Funding from "./pages/Funding";
 import FundingAddFunds from "./pages/FundingAddFunds";
@@ -36,16 +36,22 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 window.Promise = bluejay.Promise;
 
 export default function App() {
-  const { i18nextLoading } = useI18Next();
   return (
-    <ScreenLoaderProvider>
-      <HelmetProvider>
-        <UserProvider>
-          {i18nextLoading ? <ScreenLoader show /> : <AppRoutes />}
-        </UserProvider>
-      </HelmetProvider>
-    </ScreenLoaderProvider>
+    <I18NextProvider>
+      <ScreenLoaderProvider>
+        <HelmetProvider>
+          <UserProvider>
+            <InnerApp />
+          </UserProvider>
+        </HelmetProvider>
+      </ScreenLoaderProvider>
+    </I18NextProvider>
   );
+}
+
+function InnerApp() {
+  const { i18nextLoading } = useI18Next();
+  return i18nextLoading ? <ScreenLoader show /> : <AppRoutes />;
 }
 
 function AppRoutes() {

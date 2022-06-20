@@ -1,6 +1,6 @@
 import TopNav from "../components/TopNav";
 import Map from "../components/mobilitymap/Map";
-import i18next from "i18next";
+import { t } from "../localization";
 import React from "react";
 import Container from "react-bootstrap/Container";
 
@@ -9,8 +9,8 @@ const MapPage = () => {
     <div className="main-container">
       <TopNav />
       <Container>
-        <h5>{i18next.t("mobility:title")}</h5>
-        <p className="text-secondary">{i18next.t("mobility:intro")}</p>
+        <h5>{t("mobility:title")}</h5>
+        <p className="text-secondary">{t("mobility:intro")}</p>
       </Container>
       <div>
         <Map />
