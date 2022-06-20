@@ -7,7 +7,7 @@ require "suma/admin_api"
 class Suma::AdminAPI::MessageDeliveries < Suma::AdminAPI::V1
   helpers do
     def lookup_delivery(params)
-      (batch = Suma::Message::Delivery[params[:id]]) or not_found!
+      (batch = Suma::Message::Delivery[params[:id]]) or forbidden!
       return batch
     end
   end

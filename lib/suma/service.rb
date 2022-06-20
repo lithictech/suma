@@ -11,6 +11,7 @@ require "set"
 require "warden"
 
 require "suma"
+require "suma/i18n"
 
 # Service is the base class for all endpoint/resource classes.
 class Suma::Service < Grape::API
@@ -29,6 +30,8 @@ class Suma::Service < Grape::API
   DEFAULT_CORS_ORIGINS = [/localhost:\d+/, /192\.168\.\d{1,3}\.\d{1,3}:\d{3,5}/].freeze
   SHORT_PAGE_SIZE = 20
   PAGE_SIZE = 100
+
+  singleton_attr_accessor :localized_error_codes
 
   configurable(:service) do
     setting :max_session_age, 30.days.to_i
@@ -54,8 +57,13 @@ class Suma::Service < Grape::API
 
     setting :endpoint_caching, false
 
+    setting :verify_localized_response_codes, false
+
     after_configured do
       self.cors_origins += DEFAULT_CORS_ORIGINS
+      self.localized_error_codes = if self.verify_localized_response_codes
+                                     Suma::I18n.base_locale_data.fetch("errors").keys
+        end
     end
   end
 

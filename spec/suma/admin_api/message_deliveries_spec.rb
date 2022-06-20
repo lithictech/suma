@@ -85,10 +85,10 @@ RSpec.describe Suma::AdminAPI::MessageDeliveries, :db do
         that_includes(id: del.id, bodies: have_length(2))
     end
 
-    it "404s if the delivery does not exist" do
+    it "403s if the delivery does not exist" do
       get "/v1/message_deliveries/0"
 
-      expect(last_response).to have_status(404)
+      expect(last_response).to have_status(403)
     end
   end
 

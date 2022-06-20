@@ -30,7 +30,7 @@ class Suma::AdminAPI::Members < Suma::AdminAPI::V1
     route_param :id, type: Integer do
       helpers do
         def lookup_member!
-          (member = Suma::Member[params[:id]]) or not_found!
+          (member = Suma::Member[params[:id]]) or forbidden!
           return member
         end
       end

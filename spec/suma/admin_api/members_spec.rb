@@ -93,10 +93,10 @@ RSpec.describe Suma::AdminAPI::Members, :db do
       expect(last_response).to have_json_body.that_includes(:roles, id: admin.id)
     end
 
-    it "404s if the member does not exist" do
+    it "403s if the member does not exist" do
       get "/v1/members/0"
 
-      expect(last_response).to have_status(404)
+      expect(last_response).to have_status(403)
     end
 
     it "represents sessions" do
