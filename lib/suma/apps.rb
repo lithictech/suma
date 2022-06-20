@@ -48,6 +48,7 @@ module Suma::Apps
   end
 
   Web = Rack::Builder.new do
+    use(Rack::SslEnforcer, redirect_html: false) if Suma::Service.enforce_ssl
     use Rack::SpaRewrite, index_path: "build-webapp/index.html", html_only: true
     use Rack::Static, urls: [""], root: "build-webapp", cascade: true
     use Rack::SpaRewrite, index_path: "build-webapp/index.html", html_only: false
@@ -55,6 +56,7 @@ module Suma::Apps
   end
 
   Admin = Rack::Builder.new do
+    use(Rack::SslEnforcer, redirect_html: false) if Suma::Service.enforce_ssl
     use Rack::SpaRewrite, index_path: "build-adminapp/index.html", html_only: true
     use Rack::Static, urls: [""], root: "build-adminapp", cascade: true
     use Rack::SpaRewrite, index_path: "build-adminapp/index.html", html_only: false
@@ -62,6 +64,7 @@ module Suma::Apps
   end
 
   Root = Rack::Builder.new do
+    use(Rack::SslEnforcer, redirect_html: false) if Suma::Service.enforce_ssl
     use Rack::SimpleRedirect, routes: {/.*/ => ->(env) { "/app#{env['REQUEST_PATH']}" }}, status: 302
     run Rack::LambdaApp.new(->(_) { raise "Should not see this" })
   end
