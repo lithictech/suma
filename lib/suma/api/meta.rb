@@ -8,6 +8,7 @@ require "suma/i18n"
 class Suma::API::Meta < Suma::API::V1
   resource :meta do
     get :supported_geographies do
+      use_http_expires_caching 2.days
       countries = Suma::SupportedGeography.order(:label).where(type: "country").all
       country_ids = countries.map(&:id)
       provinces = Suma::SupportedGeography.order(:label).where(type: "province").all
@@ -22,12 +23,14 @@ class Suma::API::Meta < Suma::API::V1
     end
 
     get :supported_currencies do
+      use_http_expires_caching 2.days
       cur = Suma::SupportedCurrency.dataset.order(:ordinal).all
       raise Suma::InvalidPrecondition, "no currencies set up, app is busted" if cur.empty?
       present_collection cur, with: Suma::API::CurrencyEntity
     end
 
     get :supported_locales do
+      use_http_expires_caching 2.days
       present_collection Suma::I18n::SUPPORTED_LOCALES.values, with: Suma::API::LocaleEntity
     end
   end
