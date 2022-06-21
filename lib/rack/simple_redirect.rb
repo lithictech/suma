@@ -16,7 +16,7 @@ class Rack::SimpleRedirect
   end
 
   def call(env)
-    path = env["REQUEST_PATH"]
+    path = env["PATH_INFO"]
     loc = nil
     @routes.each do |route, result|
       if self._matches(path, env, route)

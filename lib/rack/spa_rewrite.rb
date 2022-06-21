@@ -33,7 +33,7 @@ class Rack::SpaRewrite
     path_info = Rack::Utils.unescape_path(request.path_info)
     return [400, {}, ["Bad Request"]] unless Rack::Utils.valid_path?(path_info)
 
-    return [200, {"Allow" => ALLOW_HEADER, CONTENT_LENGTH => "0"}, []] if
+    return [200, {"Allow" => ALLOW_HEADER, Rack::CONTENT_LENGTH => "0"}, []] if
       request.options?
 
     lastmod = ::File.mtime(@index_path)
