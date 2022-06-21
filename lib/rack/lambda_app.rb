@@ -14,10 +14,11 @@ class Rack::LambdaApp
 
   def new(app)
     @app = app
+    return self
   end
 
   def call(env)
-    result = proc.call(env)
+    result = @proc.call(env)
     return result if result
     return @app.call(env)
   end
