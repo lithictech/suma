@@ -17,6 +17,7 @@ module Suma::Service::Middleware
     self.add_session_middleware(builder)
     self.add_security_middleware(builder)
     Suma::Service::Auth.add_warden_middleware(builder)
+    self.add_etag_middleware(builder)
     builder.use(RequestLogger)
   end
 
@@ -59,6 +60,11 @@ module Suma::Service::Middleware
   def self.add_security_middleware(_builder)
     # session_hijacking causes issues in integration tests...?
     # builder.use Rack::Protection, except: :session_hijacking
+  end
+
+  def self.add_etag_middleware(builder)
+    builder.use Rack::ConditionalGet
+    builder.use Rack::ETag
   end
 
   # We always want a session to be written, even if noop requests,
