@@ -5,6 +5,7 @@ require "grape-swagger"
 require "rack/builder"
 require "rack/lambda_app"
 require "rack/simple_redirect"
+require "rack/spa_app"
 require "rack/spa_rewrite"
 
 require "suma/api"
@@ -48,19 +49,11 @@ module Suma::Apps
   end
 
   Web = Rack::Builder.new do
-    use(Rack::SslEnforcer, redirect_html: false) if Suma::Service.enforce_ssl
-    use Rack::SpaRewrite, index_path: "build-webapp/index.html", html_only: true
-    use Rack::Static, urls: [""], root: "build-webapp", cascade: true
-    use Rack::SpaRewrite, index_path: "build-webapp/index.html", html_only: false
-    run Rack::LambdaApp.new(->(_) { raise "Should not see this" })
+    Rack::SpaApp.run_spa_app(self, "build-webapp", enforce_ssl: Suma::Service.enforce_ssl)
   end
 
   Admin = Rack::Builder.new do
-    use(Rack::SslEnforcer, redirect_html: false) if Suma::Service.enforce_ssl
-    use Rack::SpaRewrite, index_path: "build-adminapp/index.html", html_only: true
-    use Rack::Static, urls: [""], root: "build-adminapp", cascade: true
-    use Rack::SpaRewrite, index_path: "build-adminapp/index.html", html_only: false
-    run Rack::LambdaApp.new(->(_) { raise "Should not see this" })
+    Rack::SpaApp.run_spa_app(self, "build-adminapp", enforce_ssl: Suma::Service.enforce_ssl)
   end
 
   Root = Rack::Builder.new do
