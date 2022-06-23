@@ -10,6 +10,8 @@
   position: fixed;
   background-color: rgba(map-get($theme-colors, "light"), 0.3);
   display: none;
+  top: 0;
+  left: 0;
 
   .screen-loader-centerer {
     position: absolute;
