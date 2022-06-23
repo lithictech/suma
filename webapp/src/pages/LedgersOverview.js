@@ -2,7 +2,6 @@ import api from "../api";
 import ForwardBackPagination from "../components/ForwardBackPagination";
 import Money from "../components/Money";
 import PageLoader from "../components/PageLoader";
-import TopNav from "../components/TopNav";
 import LedgerItemModal from "../components/ledger/LedgerItemModal";
 import { t } from "../localization";
 import useAsyncFetch from "../shared/react/useAsyncFetch";

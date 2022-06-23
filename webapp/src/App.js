@@ -1,5 +1,4 @@
 import ScreenLoader from "./components/ScreenLoader";
-import TopNav from "./components/TopNav";
 import {
   redirectIfAuthed,
   redirectIfUnauthed,
