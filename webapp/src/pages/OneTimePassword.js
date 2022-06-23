@@ -2,7 +2,6 @@ import api from "../api";
 import FormButtons from "../components/FormButtons";
 import FormError from "../components/FormError";
 import FormSuccess from "../components/FormSuccess";
-import TopNav from "../components/TopNav";
 import { t } from "../localization";
 import { dayjs } from "../modules/dayConfig";
 import useToggle from "../shared/react/useToggle";
@@ -93,8 +92,7 @@ const OneTimePassword = () => {
   };
 
   return (
-    <div className="main-container">
-      <TopNav />
+    <>
       <p className="text-center">
         Enter the code that we sent to {formatPhoneNumber(phoneNumber)}:
       </p>
@@ -140,10 +138,10 @@ const OneTimePassword = () => {
             disabled: submitDisabled.isOn,
           }}
           variant="success"
-          className="mt-2"
+          className="mt-2 container"
         />
       </Form>
-    </div>
+    </>
   );
 };
 

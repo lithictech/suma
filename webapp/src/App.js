@@ -1,10 +1,12 @@
 import ScreenLoader from "./components/ScreenLoader";
+import TopNav from "./components/TopNav";
 import {
   redirectIfAuthed,
   redirectIfUnauthed,
   redirectIfBoarded,
   redirectIfUnboarded,
 } from "./hocs/authRedirects";
+import { t } from "./localization";
 import useI18Next, { I18NextProvider } from "./localization/useI18Next";
 import Dashboard from "./pages/Dashboard";
 import Funding from "./pages/Funding";
@@ -12,7 +14,7 @@ import FundingAddFunds from "./pages/FundingAddFunds";
 import FundingLinkBankAccount from "./pages/FundingLinkBankAccount";
 import Home from "./pages/Home";
 import LedgersOverview from "./pages/LedgersOverview";
-import MapPage from "./pages/MapPage";
+import Mobility from "./pages/Mobility";
 import Onboarding from "./pages/Onboarding";
 import OnboardingFinish from "./pages/OnboardingFinish";
 import OnboardingSignup from "./pages/OnboardingSignup";
@@ -23,12 +25,10 @@ import applyHocs from "./shared/applyHocs";
 import bluejay from "./shared/bluejay";
 import Redirect from "./shared/react/Redirect";
 import renderComponent from "./shared/react/renderComponent";
-import {
-  ScreenLoaderProvider,
-  withScreenLoaderMount,
-  withMetatags,
-} from "./state/useScreenLoader";
+import { ScreenLoaderProvider, withScreenLoaderMount } from "./state/useScreenLoader";
 import { UserProvider } from "./state/useUser";
+import withLayout from "./state/withLayout";
+import withMetatags from "./state/withMetatags";
 import React from "react";
 import { HelmetProvider } from "react-helmet-async";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
@@ -63,7 +63,8 @@ function AppRoutes() {
           exact
           element={renderWithHocs(
             redirectIfAuthed,
-            withMetatags({ title: "Welcome to Suma!", exact: true }),
+            withMetatags({ title: t("titles:home"), exact: true }),
+            withLayout({ nav: "none" }),
             Home
           )}
         />
@@ -72,7 +73,8 @@ function AppRoutes() {
           exact
           element={renderWithHocs(
             redirectIfAuthed,
-            withMetatags({ title: "Get Started" }),
+            withMetatags({ title: t("titles:start") }),
+            withLayout(),
             Start
           )}
         />
@@ -81,7 +83,8 @@ function AppRoutes() {
           exact
           element={renderWithHocs(
             redirectIfAuthed,
-            withMetatags({ title: "One Time Password" }),
+            withMetatags({ title: t("titles:otp") }),
+            withLayout(),
             OneTimePassword
           )}
         />
@@ -91,7 +94,8 @@ function AppRoutes() {
           element={renderWithHocs(
             redirectIfUnauthed,
             redirectIfBoarded,
-            withMetatags({ title: "Onboarding" }),
+            withMetatags({ title: t("titles:onboarding") }),
+            withLayout(),
             Onboarding
           )}
         />
@@ -101,7 +105,8 @@ function AppRoutes() {
           element={renderWithHocs(
             redirectIfUnauthed,
             redirectIfBoarded,
-            withMetatags({ title: "Onboarding Signup" }),
+            withMetatags({ title: t("titles:onboarding_signup") }),
+            withLayout(),
             OnboardingSignup
           )}
         />
@@ -110,7 +115,8 @@ function AppRoutes() {
           exact
           element={renderWithHocs(
             redirectIfUnauthed,
-            withMetatags({ title: "Onboarding Finish" }),
+            withMetatags({ title: t("titles:onboarding_finish") }),
+            withLayout(),
             OnboardingFinish
           )}
         />
@@ -121,19 +127,21 @@ function AppRoutes() {
             redirectIfUnauthed,
             redirectIfUnboarded,
             withScreenLoaderMount(),
-            withMetatags({ title: "Dashboard" }),
+            withMetatags({ title: t("titles:dashboard") }),
+            withLayout(),
             Dashboard
           )}
         />
         <Route
-          path="/map"
+          path="/mobility"
           exact
           element={renderWithHocs(
             redirectIfUnauthed,
             redirectIfUnboarded,
             withScreenLoaderMount(),
-            withMetatags({ title: "Mobility Services" }),
-            MapPage
+            withMetatags({ title: t("mobility:title") }),
+            withLayout(),
+            Mobility
           )}
         />
         <Route
@@ -143,7 +151,8 @@ function AppRoutes() {
             redirectIfUnauthed,
             redirectIfUnboarded,
             withScreenLoaderMount(),
-            withMetatags({ title: "Funding" }),
+            withMetatags({ title: t("titles:funding") }),
+            withLayout(),
             Funding
           )}
         />
@@ -154,7 +163,8 @@ function AppRoutes() {
             redirectIfUnauthed,
             redirectIfUnboarded,
             withScreenLoaderMount(),
-            withMetatags({ title: "Link Bank Account" }),
+            withMetatags({ title: t("payments:link_account") }),
+            withLayout(),
             FundingLinkBankAccount
           )}
         />
@@ -165,7 +175,8 @@ function AppRoutes() {
             redirectIfUnauthed,
             redirectIfUnboarded,
             withScreenLoaderMount(),
-            withMetatags({ title: "Add Funds" }),
+            withMetatags({ title: t("payments:add_funds") }),
+            withLayout(),
             FundingAddFunds
           )}
         />
@@ -176,7 +187,8 @@ function AppRoutes() {
             redirectIfUnauthed,
             redirectIfUnboarded,
             withScreenLoaderMount(),
-            withMetatags({ title: "Ledgers Overview" }),
+            withMetatags({ title: t("titles:ledgers_overview") }),
+            withLayout(),
             LedgersOverview
           )}
         />

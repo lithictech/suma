@@ -9,6 +9,7 @@ import { extractErrorCode } from "../state/useError";
 import { useUser } from "../state/useUser";
 import React from "react";
 import Col from "react-bootstrap/Col";
+import Container from "react-bootstrap/Container";
 import Form from "react-bootstrap/Form";
 import Row from "react-bootstrap/Row";
 import { useForm } from "react-hook-form";
@@ -76,8 +77,7 @@ export default function OnboardingSignup() {
   });
 
   return (
-    <div className="main-container">
-      <TopNav />
+    <Container>
       <Row>
         <Col>
           <h2>Enroll in Suma</h2>
@@ -180,6 +180,6 @@ export default function OnboardingSignup() {
           </Form>
         </Col>
       </Row>
-    </div>
+    </Container>
   );
 }

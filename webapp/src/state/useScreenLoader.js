@@ -2,7 +2,6 @@ import "../assets/styles/screenloader.scss";
 import ScreenLoader from "../components/ScreenLoader";
 import useToggle from "../shared/react/useToggle";
 import React from "react";
-import { Helmet } from "react-helmet-async";
 
 export const ScreenLoaderContext = React.createContext();
 
@@ -27,23 +26,6 @@ export function withScreenLoaderMount(show) {
       const loader = useScreenLoader();
       React.useEffect(() => loader.setState(show), [loader]);
       return <Wrapped {...props} />;
-    };
-  };
-}
-
-export function withMetatags({ title, link, exact }) {
-  const customTitle = title ? title + " | Suma App" : "Suma App";
-  return (Wrapped) => {
-    return (props) => {
-      return (
-        <>
-          <Helmet>
-            <title>{exact ? title : customTitle}</title>
-            <link rel="canonical" href={link || window.location.href} />
-          </Helmet>
-          <Wrapped {...props} />
-        </>
-      );
     };
   };
 }

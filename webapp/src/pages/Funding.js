@@ -2,7 +2,6 @@ import api from "../api";
 import FormButtons from "../components/FormButtons";
 import FormError from "../components/FormError";
 import RLink from "../components/RLink";
-import TopNav from "../components/TopNav";
 import { md, t } from "../localization";
 import useToggle from "../shared/react/useToggle";
 import { extractErrorCode, useError } from "../state/useError";
@@ -20,16 +19,13 @@ import "react-phone-number-input/style.css";
 export default function Funding() {
   const { user } = useUser();
   return (
-    <div className="main-container">
-      <TopNav />
-      <Container>
-        <h2>{t("payments:payment_title")}</h2>
-        <p>{md("payments:payment_intro.intro_md")}</p>
-        <p id="some">{md("payments:payment_intro.privacy_statement_md")}</p>
-        <BankAccountsCard instruments={user.usablePaymentInstruments} />
-        <AdditionalSourcesCard />
-      </Container>
-    </div>
+    <Container>
+      <h2>{t("payments:payment_title")}</h2>
+      <p>{md("payments:payment_intro.intro_md")}</p>
+      <p id="some">{md("payments:payment_intro.privacy_statement_md")}</p>
+      <BankAccountsCard instruments={user.usablePaymentInstruments} />
+      <AdditionalSourcesCard />
+    </Container>
   );
 }
 
@@ -143,7 +139,7 @@ function BankAccountLine({ bankAccount }) {
           <FormButtons
             variant="danger"
             primaryProps={{
-              children: t("payment:unlink"),
+              children: t("payments:unlink"),
               onClick: submitDelete,
             }}
             secondaryProps={{

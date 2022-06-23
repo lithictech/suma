@@ -25,7 +25,7 @@ export default function ({ item, onClose }) {
               </Money>
             </p>
             {usageDetails.map(({ code, args }, i) => (
-              <p key={i}>{t(code, { ns: "ledgerusage", ...args })}</p>
+              <p key={i}>{t("ledgerusage:" + code, { ...args })}</p>
             ))}
             <p className="text-secondary mb-1">{dayjs(at).format("LLL")}</p>
             <p className="text-secondary">

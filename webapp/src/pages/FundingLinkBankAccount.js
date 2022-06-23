@@ -1,9 +1,9 @@
 import api from "../api";
 import bankAccountCheckDetails from "../assets/images/bank-account-check-details.gif";
 import FormButtons from "../components/FormButtons";
+import FormControlGroup from "../components/FormControlGroup";
 import FormError from "../components/FormError";
 import GoHome from "../components/GoHome";
-import TopNav from "../components/TopNav";
 import { md, t } from "../localization";
 import useHashToggle from "../shared/react/useHashToggle";
 import { extractErrorCode, useError } from "../state/useError";
@@ -16,23 +16,20 @@ import Container from "react-bootstrap/Container";
 import Form from "react-bootstrap/Form";
 import Modal from "react-bootstrap/Modal";
 import Row from "react-bootstrap/Row";
+import { useForm } from "react-hook-form";
 import "react-phone-number-input/style.css";
 import { useLocation, useNavigate } from "react-router-dom";
 
 export default function FundingLinkBankAccount() {
   const [submitSuccessful, setSubmitSuccessful] = React.useState(false);
-
   return (
-    <div className="main-container">
-      <TopNav />
-      <Container>
-        {submitSuccessful ? (
-          <Success />
-        ) : (
-          <LinkBankAccount onSuccess={() => setSubmitSuccessful(true)} />
-        )}
-      </Container>
-    </div>
+    <Container>
+      {submitSuccessful ? (
+        <Success />
+      ) : (
+        <LinkBankAccount onSuccess={() => setSubmitSuccessful(true)} />
+      )}
+    </Container>
   );
 }
 
@@ -47,6 +44,15 @@ function Success() {
 }
 
 function LinkBankAccount({ onSuccess }) {
+  const {
+    register,
+    handleSubmit,
+    clearErrors,
+    setValue,
+    formState: { errors },
+  } = useForm({
+    mode: "all",
+  });
   const [error, setError] = useError();
   const location = useLocation();
   const navigate = useNavigate();
@@ -59,17 +65,8 @@ function LinkBankAccount({ onSuccess }) {
   const [accountNumber, setAccountNumber] = React.useState("12345");
   const [accountNumberConfirm, setAccountNumberConfirm] = React.useState("12345");
   const [accountType, setAccountType] = React.useState("checking");
-  const [validated, setValidated] = React.useState(false);
 
-  const handleSubmit = (event) => {
-    const form = event.currentTarget;
-    event.preventDefault();
-    event.stopPropagation();
-
-    if (form.checkValidity() === false) {
-      setValidated(true);
-      return;
-    }
+  const handleFormSubmit = () => {
     screenLoader.turnOn();
     api
       .createBankAccount({
@@ -86,98 +83,113 @@ function LinkBankAccount({ onSuccess }) {
       .catch((e) => setError(extractErrorCode(e)))
       .finally(screenLoader.turnOff);
   };
+  const runSetter = (name, set, value) => {
+    clearErrors(name);
+    setValue(name, value);
+    set(value);
+  };
 
   return (
     <>
       <h2>{t("payments:link_account")}</h2>
       <p>{md("payments:payment_intro.privacy_statement_md")}</p>
-      <Form noValidate validated={validated} onSubmit={handleSubmit}>
+      <Form noValidate onSubmit={handleSubmit(handleFormSubmit)}>
         <Row className="mb-3">
-          <Form.Group as={Col}>
-            <Form.Label>{t("forms:nickname")}</Form.Label>
-            <Form.Control
-              required
-              type="text"
-              value={nickname}
-              onChange={(e) => setNickname(e.target.value)}
-            />
-            <Form.Control.Feedback type="invalid">
-              {t("forms:invalid_nickname")}
-            </Form.Control.Feedback>
-            <Form.Text>{t("forms:nickname_caption")}</Form.Text>
-          </Form.Group>
+          <FormControlGroup
+            as={Col}
+            required
+            type="text"
+            name="nickname"
+            label={t("forms:nickname")}
+            text={t("forms:nickname_caption")}
+            value={nickname}
+            errors={errors}
+            errorKeys={{ required: "forms:invalid_nickname" }}
+            register={register}
+            onChange={(e) => runSetter(e.target.name, setNickname, e.target.value)}
+          />
         </Row>
         <Row className="mb-3">
-          <Form.Group as={Col}>
-            <Form.Label>{t("forms:routing_number")}</Form.Label>
-            <Form.Control
-              required
-              type="text"
-              pattern="^[0-9]{9}$"
-              value={routing}
-              onChange={(e) => setRouting(_.replace(e.target.value, /\D/, ""))}
-            />
-            <Form.Control.Feedback type="invalid">
-              {t("forms:invalid_routing_number")}
-            </Form.Control.Feedback>
-            <Form.Text>
-              {/* #TODO: Combine account_caption including markdown link */}
-              {md("forms:routing_caption_md")}
-            </Form.Text>
-          </Form.Group>
+          <FormControlGroup
+            as={Col}
+            required
+            type="text"
+            pattern="^[0-9]{9}$"
+            name="routing_number"
+            label={t("forms:routing_number")}
+            text={md("forms:routing_caption_md")}
+            value={routing}
+            errors={errors}
+            errorKeys={{ required: "forms:invalid_routing_number" }}
+            register={register}
+            onChange={(e) =>
+              runSetter(e.target.name, setRouting, _.replace(e.target.value, /\D/, ""))
+            }
+          />
         </Row>
         <Row className="mb-3">
-          <Form.Group as={Col}>
-            <Form.Label>{t("forms:account_number")}</Form.Label>
-            <Form.Control
-              required
-              type="text"
-              pattern="^[0-9 -]+$"
-              value={accountNumber}
-              onChange={(e) => setAccountNumber(_.replace(e.target.value, /[^\d -]/, ""))}
-            />
-            <Form.Control.Feedback type="invalid">
-              {t("forms:invalid_account_number")}
-            </Form.Control.Feedback>
-            <Form.Text>{md("forms:account_caption_md")}</Form.Text>
-          </Form.Group>
+          <FormControlGroup
+            as={Col}
+            required
+            type="text"
+            pattern="^[0-9 -]+$"
+            name="account_number"
+            label={t("forms:account_number")}
+            text={md("forms:account_caption_md")}
+            value={accountNumber}
+            errors={errors}
+            errorKeys={{ required: "forms:invalid_account_number" }}
+            register={register}
+            onChange={(e) =>
+              runSetter(
+                e.target.name,
+                setAccountNumber,
+                _.replace(e.target.value, /[^\d -]/, "")
+              )
+            }
+          />
         </Row>
         <Row className="mb-3">
-          <Form.Group as={Col}>
-            <Form.Label>{t("forms:confirm_account_number")}</Form.Label>
-            <Form.Control
-              required
-              type="text"
-              pattern="^[0-9 -]+$"
-              value={accountNumberConfirm}
-              onChange={(e) =>
-                setAccountNumberConfirm(_.replace(e.target.value, /[^\d -]/, ""))
-              }
-            />
-            <Form.Control.Feedback type="invalid">
-              {t("forms:invalid_confirm_account_number")}
-            </Form.Control.Feedback>
-            <Form.Text>{t("forms:confirm_account_number_caption")}</Form.Text>
-          </Form.Group>
+          <FormControlGroup
+            as={Col}
+            required
+            type="text"
+            pattern="^[0-9 -]+$"
+            name="confirm_account_number"
+            label={t("forms:confirm_account_number")}
+            text={t("forms:confirm_account_number_caption")}
+            value={accountNumberConfirm}
+            errors={errors}
+            errorKeys={{ required: "forms:invalid_confirm_account_number" }}
+            register={register}
+            onChange={(e) =>
+              runSetter(
+                e.target.name,
+                setAccountNumberConfirm,
+                _.replace(e.target.value, /[^\d -]/, "")
+              )
+            }
+          />
         </Row>
-
         <Row className="mb-3">
           <Form.Group as={Col}>
             <Form.Label>{t("forms:account_type")}</Form.Label>
             <div>
               <Form.Check
+                inline
+                id="cheking"
                 name="account-type"
                 type="radio"
                 label={t("forms:checking")}
-                inline
                 checked={accountType === "checking"}
                 onChange={() => setAccountType("checking")}
               />
               <Form.Check
+                inline
+                id="savings"
                 name="account-type"
                 type="radio"
                 label={t("forms:savings")}
-                inline
                 checked={accountType === "savings"}
                 onChange={() => setAccountType("savings")}
               />

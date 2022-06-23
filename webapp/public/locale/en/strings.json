@@ -1,5 +1,7 @@
 {
   "common": {
+    "welcome_to_suma": "Welcome to Suma",
+    "app_name": "MySuma",
     "add_money_to_account": "Press here to add money to your account",
     "back": "Back",
     "cancel": "Cancel",
@@ -11,7 +13,7 @@
     "reference_id": "Reference ID",
     "scooter_cost": "{{startCost, number(style: currency; currency: USD)}} to start then {{costPerMinute, number(style: currency; currency: USD)}}/min + taxes",
     "view_all": "View all",
-    "welcome_to_suma": "Welcome to Suma"
+    "logout": "Logout"
   },
   "dashboard": {
     "check_ongoing_trip": "You have an ongoing trip. Please make sure you end it when you are finished with your ride!",
@@ -49,7 +51,7 @@
     "vehicle_not_found": "No vehicle found in this location."
   },
   "forms": {
-    "account_caption_md": "Number of your bank account. You can get these from your online banking portal, or check out $t(strings:forms:paper_check_link_md)",
+    "account_caption_md": "Number of your bank account. You can get these from your online banking portal, or check out $t(strings:forms:paper_check_link_md).",
     "account_number": "Account Number",
     "account_type": "Account Type",
     "account_type_caption": "Choose which type of account this is. If you're not sure, use Checking.",
@@ -76,7 +78,6 @@
     "invalid_nickname": "Please provide a nickname for your account.",
     "invalid_required": "This field is required.",
     "invalid_routing_number": "Please enter the 9 digit number of your bank account.",
-    "logout": "Logout",
     "name": "Name",
     "nickname": "Nickname",
     "nickname_caption": "The name used to refer to the account in Suma.",
@@ -123,7 +124,7 @@
     "link_account": "Link Bank Account",
     "link_another_account": "Link Another Account",
     "linked_account": "Bank Account Linked",
-    "linked_account_successful_md": "Your bank account has been successfully linked to Suma. Within the next day or two, one of our Member Experience specialists will be in touch to confirm the account.<br> Once the account is confirmed, you'll be able to add funds.",
+    "linked_account_successful_md": "Your bank account has been successfully linked to Suma. Within the next day or two, one of our Member Experience specialists will be in touch to confirm the account.  \nOnce the account is confirmed, you'll be able to add funds.",
     "no_bank_accounts_warning": "You don't have any bank accounts linked.",
     "payment_account_pending": "Pending",
     "payment_account_verified": "Verified",
@@ -132,7 +133,7 @@
       "privacy_statement_md": "Your financial information is secured using **bank-level encryption** and **never shared without your consent**. Please see [Suma's Privacy Policy](#TODO 'Suma Privacy Policy Link') for more details about how we protect and use your financial information."
     },
     "payment_other_sources": "Other Sources",
-    "payment_submition_statement": "After you submit your payment, you will be able to use the money immediately. The withdrawal should hit your account in 2 or 3 business days.",
+    "payment_submission_statement": "After you submit your payment, you will be able to use the money immediately. The withdrawal should hit your account in 2 or 3 business days.",
     "payment_support_coming": "Support is coming for additional sources, such as cash, money order, and adding funds through a friend.",
     "payment_title": "Payment Accounts",
     "sumas_privacy_policy": "Suma's Privacy Policy",
@@ -140,5 +141,17 @@
     "unlink_account": "Unlink Account",
     "unlink_account_question": "Are you sure you want to unlink this account? You can always re-add it later.",
     "unlink_account_question_subtitle": "Any in-progress transactions will not be canceled."
+  },
+  "titles": {
+    "suma_app": "Suma App",
+    "home": "Welcome to Suma!",
+    "start": "Get Started",
+    "otp": "One Time Password",
+    "onboarding": "Onboarding",
+    "onboarding_signup": "Onboarding Signup",
+    "onboarding_finish": "Onboarding Finish",
+    "dashboard": "Dashboard",
+    "funding": "Funding",
+    "ledgers_overview": "Ledgers Overview"
   }
 }
