@@ -115,6 +115,11 @@ const Map = () => {
       }
       setLoadedMap(map);
     }
+    return () => {
+      if (loadedMap) {
+        loadedMap.tripMode();
+      }
+    };
   }, [
     loadedMap,
     ongoingTrip,
