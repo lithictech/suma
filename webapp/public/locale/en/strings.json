@@ -75,7 +75,6 @@
     "invalid_min": "Must be greater than or equal to {{constraint}}.",
     "invalid_min_amount": "Must be at least {{constraint, currency(USD)}}.",
     "invalid_min_length": "Must be at least {{constraint}} characters.",
-    "invalid_nickname": "Please provide a nickname for your account.",
     "invalid_required": "This field is required.",
     "invalid_routing_number": "Please enter the 9 digit number of your bank account.",
     "name": "Name",

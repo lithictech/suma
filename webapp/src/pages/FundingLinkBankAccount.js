@@ -5,11 +5,11 @@ import FormControlGroup from "../components/FormControlGroup";
 import FormError from "../components/FormError";
 import GoHome from "../components/GoHome";
 import { md, t } from "../localization";
+import keepDigits from "../modules/keepDigits";
 import useHashToggle from "../shared/react/useHashToggle";
 import { extractErrorCode, useError } from "../state/useError";
 import { useScreenLoader } from "../state/useScreenLoader";
 import { useUser } from "../state/useUser";
-import _ from "lodash";
 import React from "react";
 import Col from "react-bootstrap/Col";
 import Container from "react-bootstrap/Container";
@@ -60,10 +60,10 @@ function LinkBankAccount({ onSuccess }) {
 
   const screenLoader = useScreenLoader();
   const showCheckModalToggle = useHashToggle(location, navigate, "check-details");
-  const [nickname, setNickname] = React.useState("My Account");
-  const [routing, setRouting] = React.useState("111222333");
-  const [accountNumber, setAccountNumber] = React.useState("12345");
-  const [accountNumberConfirm, setAccountNumberConfirm] = React.useState("12345");
+  const [nickname, setNickname] = React.useState("");
+  const [routing, setRouting] = React.useState("");
+  const [accountNumber, setAccountNumber] = React.useState("");
+  const [accountNumberConfirm, setAccountNumberConfirm] = React.useState("");
   const [accountType, setAccountType] = React.useState("checking");
 
   const handleFormSubmit = () => {
@@ -104,7 +104,6 @@ function LinkBankAccount({ onSuccess }) {
             text={t("forms:nickname_caption")}
             value={nickname}
             errors={errors}
-            errorKeys={{ required: "forms:invalid_nickname" }}
             register={register}
             onChange={(e) => runSetter(e.target.name, setNickname, e.target.value)}
           />
@@ -115,15 +114,16 @@ function LinkBankAccount({ onSuccess }) {
             required
             type="text"
             pattern="^[0-9]{9}$"
+            inputMode="numeric"
             name="routing_number"
             label={t("forms:routing_number")}
             text={md("forms:routing_caption_md")}
             value={routing}
             errors={errors}
-            errorKeys={{ required: "forms:invalid_routing_number" }}
+            errorKeys={{ pattern: "forms:invalid_routing_number" }}
             register={register}
             onChange={(e) =>
-              runSetter(e.target.name, setRouting, _.replace(e.target.value, /\D/, ""))
+              runSetter(e.target.name, setRouting, keepDigits(e.target.value))
             }
           />
         </Row>
@@ -132,41 +132,38 @@ function LinkBankAccount({ onSuccess }) {
             as={Col}
             required
             type="text"
-            pattern="^[0-9 -]+$"
+            pattern="^\d{3}\d+$"
+            inputMode="numeric"
             name="account_number"
             label={t("forms:account_number")}
             text={md("forms:account_caption_md")}
             value={accountNumber}
             errors={errors}
-            errorKeys={{ required: "forms:invalid_account_number" }}
+            errorKeys={{ pattern: "forms:invalid_account_number" }}
             register={register}
             onChange={(e) =>
-              runSetter(
-                e.target.name,
-                setAccountNumber,
-                _.replace(e.target.value, /[^\d -]/, "")
-              )
+              runSetter(e.target.name, setAccountNumber, keepDigits(e.target.value))
             }
           />
         </Row>
         <Row className="mb-3">
           <FormControlGroup
             as={Col}
-            required
             type="text"
-            pattern="^[0-9 -]+$"
+            inputMode="numeric"
             name="confirm_account_number"
             label={t("forms:confirm_account_number")}
             text={t("forms:confirm_account_number_caption")}
             value={accountNumberConfirm}
             errors={errors}
-            errorKeys={{ required: "forms:invalid_confirm_account_number" }}
+            errorKeys={{ validate: "forms:invalid_confirm_account_number" }}
             register={register}
+            registerOptions={{ validate: (v) => v === accountNumber }}
             onChange={(e) =>
               runSetter(
                 e.target.name,
                 setAccountNumberConfirm,
-                _.replace(e.target.value, /[^\d -]/, "")
+                keepDigits(e.target.value)
               )
             }
           />
