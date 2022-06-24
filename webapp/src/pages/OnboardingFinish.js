@@ -1,6 +1,6 @@
 import FormButtons from "../components/FormButtons";
-import TopNav from "../components/TopNav";
 import React from "react";
+import Container from "react-bootstrap/Container";
 import { useNavigate } from "react-router-dom";
 
 const OnboardingFinish = () => {
@@ -11,8 +11,7 @@ const OnboardingFinish = () => {
     navigate("/dashboard");
   };
   return (
-    <div className="main-container">
-      <TopNav />
+    <Container>
       <p>
         Thanks! Our team will check things out and be in touch with any questions, or as
         soon as you&rsquo;re verified.
@@ -26,7 +25,7 @@ const OnboardingFinish = () => {
         variant="success"
         primaryProps={{ children: "Okay!", onClick: handleSubmit }}
       />
-    </div>
+    </Container>
   );
 };
 

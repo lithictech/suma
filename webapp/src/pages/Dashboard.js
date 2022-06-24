@@ -2,7 +2,6 @@ import api from "../api";
 import Money from "../components/Money";
 import PageLoader from "../components/PageLoader";
 import RLink from "../components/RLink";
-import TopNav from "../components/TopNav";
 import { md, t } from "../localization";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
 import { useUser } from "../state/useUser";
@@ -10,7 +9,7 @@ import clsx from "clsx";
 import dayjs from "dayjs";
 import _ from "lodash";
 import React from "react";
-import { Alert } from "react-bootstrap";
+import Alert from "react-bootstrap/Alert";
 import Button from "react-bootstrap/Button";
 import Col from "react-bootstrap/Col";
 import Container from "react-bootstrap/Container";
@@ -27,8 +26,7 @@ const Dashboard = () => {
   });
 
   return (
-    <div className="main-container">
-      <TopNav />
+    <>
       {user.ongoingTrip && (
         <Alert variant="danger" className="border-radius-0">
           <p>{t("dashboard:check_ongoing_trip")}</p>
@@ -47,18 +45,18 @@ const Dashboard = () => {
       <Container>
         <Row>
           <Col>
-            <AppLink to="/map" label="Mobility" />
+            <AppLink to="/mobility" label="Mobility" />
           </Col>
           <Col>
             <AppLink to="#todo" label="Food" />
           </Col>
           <Col>
-            <AppLink to="/map" label="Utilities" />
+            <AppLink to="#todo" label="Utilities" />
           </Col>
         </Row>
       </Container>
       {dashboardLoading ? <PageLoader /> : <Ledger dashboard={dashboard} />}
-    </div>
+    </>
   );
 };
 
@@ -82,7 +80,7 @@ const Ledger = ({ dashboard }) => {
           </h3>
           <p className="m-0">{t("dashboard:payment_account_balance")}</p>
           <Button variant="link" href="/funding" className="ps-0" as={RLink}>
-            Add Funds
+            {t("payments:add_funds")}
           </Button>
         </div>
         <div className="text-end">
@@ -94,7 +92,7 @@ const Ledger = ({ dashboard }) => {
       </Container>
       <hr />
       {!_.isEmpty(dashboard.ledgerLines) ? (
-        <Table responsive striped hover className="table-borderless">
+        <Table responsive striped hover className="table-borderless table-flush">
           <thead>
             <tr>
               <th>
@@ -128,7 +126,9 @@ const Ledger = ({ dashboard }) => {
           </tbody>
         </Table>
       ) : (
-        <p>{md("dashboard:no_money_md")}</p>
+        <Container>
+          <p>{md("dashboard:no_money_md")}</p>
+        </Container>
       )}
     </>
   );

@@ -2,7 +2,6 @@ import api from "../api";
 import ForwardBackPagination from "../components/ForwardBackPagination";
 import Money from "../components/Money";
 import PageLoader from "../components/PageLoader";
-import TopNav from "../components/TopNav";
 import LedgerItemModal from "../components/ledger/LedgerItemModal";
 import { t } from "../localization";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
@@ -52,8 +51,7 @@ export default function LedgersOverview() {
     ledgerLinesFetch({ id: ledger.id, page: pg });
   };
   return (
-    <div className="main-container">
-      <TopNav />
+    <>
       <Container>
         <p>{t("payments:ledgers_intro")}</p>
       </Container>
@@ -69,7 +67,7 @@ export default function LedgersOverview() {
       ) : (
         <PageLoader />
       )}
-    </div>
+    </>
   );
 }
 
@@ -102,20 +100,23 @@ const Ledger = ({
   };
 
   return (
-    <div>
+    <>
       <Container>
         <h3>
           <Money>{ledger.balance}</Money>
         </h3>
         <p className="m-0">{t("payments:ledger_balance")}</p>
-        <h5 className="mt-2">{t("payments:ledger_transactions")}</h5>
+        <h5 className="mt-3">{t("payments:ledger_transactions")}</h5>
       </Container>
       {linesLoading && <PageLoader />}
       <Table
         responsive
         striped
         hover
-        className={clsx("mt-2", linesLoading && "opacity-50")}
+        className={clsx(
+          "mt-1 table-flush table-borderless",
+          linesLoading && "opacity-50"
+        )}
       >
         <tbody>
           {lines.map((line) => (
@@ -155,6 +156,6 @@ const Ledger = ({
         item={selectedLine}
         onClose={() => handleLedgerLineSelected(null)}
       />
-    </div>
+    </>
   );
 };

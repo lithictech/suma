@@ -1,11 +1,10 @@
-import TopNav from "../components/TopNav";
 import React from "react";
 import Button from "react-bootstrap/Button";
+import Container from "react-bootstrap/Container";
 
 const Styleguide = () => {
   return (
-    <div className="main-container">
-      <TopNav />
+    <Container>
       <h1>H1 Heading</h1>
       <h2>H2 Heading</h2>
       <h3>H3 Heading</h3>
@@ -45,7 +44,7 @@ const Styleguide = () => {
           </div>
         );
       })}
-    </div>
+    </Container>
   );
 };
 

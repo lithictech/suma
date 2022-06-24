@@ -1,13 +1,13 @@
 import api from "../api";
 import FormButtons from "../components/FormButtons";
 import FormError from "../components/FormError";
-import TopNav from "../components/TopNav";
 import { t } from "../localization";
 import { dayjs } from "../modules/dayConfig";
 import useToggle from "../shared/react/useToggle";
 import { extractErrorCode, useError } from "../state/useError";
 import React, { useState } from "react";
 import Col from "react-bootstrap/Col";
+import Container from "react-bootstrap/Container";
 import Form from "react-bootstrap/Form";
 import Row from "react-bootstrap/Row";
 import { isPossiblePhoneNumber } from "react-phone-number-input";
@@ -59,8 +59,7 @@ const Start = () => {
       });
   };
   return (
-    <div className="main-container">
-      <TopNav />
+    <Container>
       <Row>
         <Col>
           <h2>{t("forms:get_started")}</h2>
@@ -99,7 +98,7 @@ const Start = () => {
           </Form>
         </Col>
       </Row>
-    </div>
+    </Container>
   );
 };
 

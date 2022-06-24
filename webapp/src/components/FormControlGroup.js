@@ -14,6 +14,9 @@ import InputGroup from "react-bootstrap/InputGroup";
  * @param {string} text Helper that goes in a Form.Text.
  * @param {JSX.Element} Input The input component to use, default to Form.Control.
  * @param register The react-hook-form register function.
+ * @param registerOptions Arguments passed to `register`.
+ *   Normally something like `{validate: (value) => value === otherValue}`,
+ *   which would be paired with an `errorKeys` like `{validate: 'forms:account_number_confirm_nomatch'}`.
  * @param errors Something like `formState: { errors }` from react-hook-form.
  * @param {object} errorKeys See useValidationError. Some default error messages for validations are supported;
  *   if you need a custom message, you can pass in something like: `{min: "forms:invalid_min_amount"}`.
@@ -34,6 +37,7 @@ export default function FormControlGroup({
   text,
   Input,
   register,
+  registerOptions,
   errors,
   errorKeys,
   required,
@@ -46,7 +50,7 @@ export default function FormControlGroup({
   ...rest
 }) {
   const usesGroup = prepend || append;
-  const registerArgs = {};
+  const registerArgs = { ...registerOptions };
   if (required) {
     registerArgs.required = true;
   }
@@ -57,7 +61,7 @@ export default function FormControlGroup({
     registerArgs.maxLength = maxLength;
   }
   if (pattern) {
-    registerArgs.pattern = pattern;
+    registerArgs.pattern = _.isString(pattern) ? new RegExp(pattern) : pattern;
   }
   if (min) {
     registerArgs.min = min;

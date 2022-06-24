@@ -12,7 +12,6 @@ export default function CurrencyNumpad({ onCentsChange, whole, currency, cents }
   }
 
   const handleChange = (x) => {
-    console.log(x);
     onCentsChange(Number(x) * currency.centsInDollar);
   };
 

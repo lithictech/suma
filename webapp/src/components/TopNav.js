@@ -1,4 +1,5 @@
 import sumaLogo from "../assets/images/suma-logo.png";
+import { t } from "../localization";
 import signOut from "../modules/signOut";
 import { useUser } from "../state/useUser";
 import LanguageSwitcher from "./LanguageSwitcher";
@@ -24,39 +25,39 @@ const TopNav = () => {
             width="50"
             className="d-inline-block align-top me-2"
           />{" "}
-          MySuma
+          {t("common:app_name")}
         </Navbar.Brand>
         <Navbar.Toggle />
       </Container>
       <Navbar.Collapse
-        className="px-3"
         style={{ background: "linear-gradient(0deg, rgb(240, 240, 240), transparent)" }}
       >
-        <div className="d-flex justify-content-end mt-2">
-          <LanguageSwitcher />
-        </div>
-        <Nav className="me-auto text-end">
-          {user?.adminMember && (
-            <Nav.Link
-              className="bi bi-exclamation-circle-fill bg-danger"
-              as={RLink}
-              href={`/admin/member/${user.id}`}
-            >
-              {user.name || user.phone}
-            </Nav.Link>
-          )}
-          {userAuthed && (
-            <Nav.Link onClick={signOut}>
-              Logout
-              <i
-                className="bi bi-box-arrow-in-right"
-                role="img"
-                aria-label="Logout Icon"
-              ></i>
-            </Nav.Link>
-          )}
-          <div style={{ height: "1rem" }} />
-        </Nav>
+        <Container className="mb-3">
+          <div className="d-flex justify-content-end mt-2">
+            <LanguageSwitcher />
+          </div>
+          <Nav className="me-auto text-end">
+            {user?.adminMember && (
+              <Nav.Link
+                className="bi bi-exclamation-circle-fill bg-danger"
+                as={RLink}
+                href={`/admin/member/${user.id}`}
+              >
+                {user.name || user.phone}
+              </Nav.Link>
+            )}
+            {userAuthed && (
+              <Nav.Link onClick={signOut}>
+                {t("common:logout")}
+                <i
+                  className="bi bi-box-arrow-in-right"
+                  role="img"
+                  aria-label="Logout Icon"
+                ></i>
+              </Nav.Link>
+            )}
+          </Nav>
+        </Container>
       </Navbar.Collapse>
     </Navbar>
   );

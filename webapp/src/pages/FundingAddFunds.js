@@ -4,7 +4,6 @@ import ErrorScreen from "../components/ErrorScreen";
 import FormButtons from "../components/FormButtons";
 import FormError from "../components/FormError";
 import ScreenLoader from "../components/ScreenLoader";
-import TopNav from "../components/TopNav";
 import { t } from "../localization";
 import { Logger } from "../shared/logger";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
@@ -53,9 +52,10 @@ export default function FundingAddFunds() {
   const handleFormSubmit = (e) => {
     e.preventDefault();
     if (amountCents < selectedCurrency?.fundingMinimumCents) {
+      // #TODO: fix FormError translation render
       setError(
         t("forms:invalid_min_amount", {
-          constraint: selectedCurrency?.fundingMinimumCents,
+          constraint: selectedCurrency?.fundingMinimumCents * 0.01,
         })
       );
       return;
@@ -101,36 +101,33 @@ export default function FundingAddFunds() {
   }
 
   return (
-    <div className="main-container">
-      <TopNav />
-      <Container>
-        <h2>{t("payments:add_funds")}</h2>
-        <p>{t("payments:add_funds_intro")}</p>
-        <Form noValidate onSubmit={handleFormSubmit}>
-          <div className="d-flex justify-content-center mb-3">
-            <div style={{ maxWidth: 400, flex: 1 }}>
-              <CurrencyNumpad
-                currency={selectedCurrency}
-                layout={{ default: ["1 2 3", "4 5 6", "7 8 9", " 0 "] }}
-                whole
-                cents={amountCents}
-                onCentsChange={handleChange}
-              />
-            </div>
+    <Container>
+      <h2>{t("payments:add_funds")}</h2>
+      <p>{t("payments:add_funds_intro")}</p>
+      <Form noValidate onSubmit={handleFormSubmit}>
+        <div className="d-flex justify-content-center mb-3">
+          <div style={{ maxWidth: 400, flex: 1 }}>
+            <CurrencyNumpad
+              currency={selectedCurrency}
+              layout={{ default: ["1 2 3", "4 5 6", "7 8 9", " 0 "] }}
+              whole
+              cents={amountCents}
+              onCentsChange={handleChange}
+            />
           </div>
-          <p>{t("payments:payment_submition_statement")}</p>
-          <FormError error={error} end />
-          <FormButtons
-            variant="success"
-            back
-            primaryProps={{
-              disabled: !amountCents,
-              style: { minWidth: 120 },
-              children: t("forms:add_funds"),
-            }}
-          />
-        </Form>
-      </Container>
-    </div>
+        </div>
+        <p>{t("payments:payment_submission_statement")}</p>
+        <FormError error={error} end />
+        <FormButtons
+          variant="success"
+          back
+          primaryProps={{
+            disabled: !amountCents,
+            style: { minWidth: 120 },
+            children: t("forms:add_funds"),
+          }}
+        />
+      </Form>
+    </Container>
   );
 }

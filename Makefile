@@ -105,6 +105,9 @@ pry-%:
 message-render: env-MESSAGE
 	@bundle exec rake 'message:render[$(MESSAGE), $(OUT)]'
 
+i18n-format:
+	@bundle exec rake i18n:format
+
 take-production-db-snapshot:
 	heroku pg:backups:capture --app $(production_app)
 
