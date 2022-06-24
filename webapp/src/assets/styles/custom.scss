@@ -2,9 +2,9 @@
 
 .table-flush {
     > tbody > tr > td:first-child, > thead > tr > th {
-        padding-left: $grid-gutter-width / 2 !important;
+        padding-left: $grid-gutter-width * 0.5 !important;
     }
     > tbody > tr > td:last-child, > thead > tr > th {
-        padding-right: $grid-gutter-width / 2 !important;
+        padding-right: $grid-gutter-width * 0.5 !important;
     }
 }
