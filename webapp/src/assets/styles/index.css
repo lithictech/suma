@@ -11,6 +11,10 @@
   padding-left: 15px;
 }
 
+.nowrap {
+  white-space: nowrap;
+}
+
 .otp-field:hover {
   border: 1px solid #8f8f8f;
 }

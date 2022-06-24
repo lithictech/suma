@@ -88,7 +88,7 @@ function BankAccountLine({ bankAccount }) {
             <Button
               variant="success"
               size="sm"
-              className="mb-2 funding-card-border-radius"
+              className="mb-2 funding-card-border-radius nowrap"
               href={`/add-funds?id=${bankAccount.id}&paymentMethodType=bank_account`}
               as={RLink}
             >
