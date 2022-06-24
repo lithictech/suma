@@ -1,19 +1,19 @@
 {
   "common": {
-    "welcome_to_suma": "Welcome to Suma",
-    "app_name": "MySuma",
     "add_money_to_account": "Press here to add money to your account",
+    "app_name": "MySuma",
     "back": "Back",
     "cancel": "Cancel",
     "close": "Close",
     "go_home": "Go Home",
     "learn_more": "Learn More",
+    "logout": "Logout",
     "pagination_next": "Next ›",
     "pagination_prev": "‹ Prev",
     "reference_id": "Reference ID",
     "scooter_cost": "{{startCost, number(style: currency; currency: USD)}} to start then {{costPerMinute, number(style: currency; currency: USD)}}/min + taxes",
     "view_all": "View all",
-    "logout": "Logout"
+    "welcome_to_suma": "Welcome to Suma"
   },
   "dashboard": {
     "check_ongoing_trip": "You have an ongoing trip. Please make sure you end it when you are finished with your ride!",
@@ -32,8 +32,8 @@
     "forbidden": "You are forbidden from accessing these resources.",
     "impossible_phone_number": "That doesn't look like a real phone number.",
     "invalid_credentials": "Sorry, that information is not correct.",
-    "invalid_permissions": "You are not allowed to do that.",
     "invalid_otp": "That token is not valid. Enter it again, or request a new code.",
+    "invalid_permissions": "You are not allowed to do that.",
     "no_active_trip": "There is no trip currently active.",
     "ongoing_trip": "You must end your ongoing trip before starting a new one.",
     "rate_not_found": "$t(strings:errors:unhandled_error)",
@@ -143,15 +143,15 @@
     "unlink_account_question_subtitle": "Any in-progress transactions will not be canceled."
   },
   "titles": {
-    "suma_app": "Suma App",
-    "home": "Welcome to Suma!",
-    "start": "Get Started",
-    "otp": "One Time Password",
-    "onboarding": "Onboarding",
-    "onboarding_signup": "Onboarding Signup",
-    "onboarding_finish": "Onboarding Finish",
     "dashboard": "Dashboard",
     "funding": "Funding",
-    "ledgers_overview": "Ledgers Overview"
+    "home": "Welcome to Suma!",
+    "ledgers_overview": "Ledgers Overview",
+    "onboarding": "Onboarding",
+    "onboarding_finish": "Onboarding Finish",
+    "onboarding_signup": "Onboarding Signup",
+    "otp": "One Time Password",
+    "start": "Get Started",
+    "suma_app": "Suma App"
   }
 }
