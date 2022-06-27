@@ -52,11 +52,15 @@ export default function FundingAddFunds() {
   const handleFormSubmit = (e) => {
     e.preventDefault();
     if (amountCents < selectedCurrency?.fundingMinimumCents) {
-      // #TODO: fix FormError translation render
       setError(
-        t("forms:invalid_min_amount", {
-          constraint: selectedCurrency?.fundingMinimumCents * 0.01,
-        })
+        <span>
+          {t("forms:invalid_min_amount", {
+            constraint: {
+              cents: selectedCurrency?.fundingMinimumCents,
+              currency: selectedCurrency?.code,
+            },
+          })}
+        </span>
       );
       return;
     }

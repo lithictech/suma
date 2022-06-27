@@ -1,3 +1,4 @@
+import { formatMoney } from "../components/Money";
 import useLocalStorageState from "../shared/react/useLocalStorageState";
 import i18n from "i18next";
 import Backend from "i18next-http-backend";
@@ -43,6 +44,9 @@ export function I18NextProvider({ children }) {
         },
       })
       .finally(() => setI18NextLoading(false));
+    i18n.services.formatter.add("sumaCurrency", (value, lng, options) => {
+      return formatMoney(value);
+    });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

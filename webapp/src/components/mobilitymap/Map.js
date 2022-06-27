@@ -115,11 +115,6 @@ const Map = () => {
       }
       setLoadedMap(map);
     }
-    return () => {
-      if (loadedMap) {
-        loadedMap.tripMode();
-      }
-    };
   }, [
     loadedMap,
     ongoingTrip,
@@ -127,6 +122,14 @@ const Map = () => {
     handleGetLastLocation,
     handleGetLocationError,
   ]);
+
+  React.useEffect(() => {
+    return () => {
+      if (loadedMap) {
+        loadedMap.unmount();
+      }
+    };
+  }, [loadedMap]);
 
   return (
     <div className="position-relative">

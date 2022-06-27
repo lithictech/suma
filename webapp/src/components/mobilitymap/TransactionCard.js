@@ -12,8 +12,8 @@ const TransactionCard = ({ endTrip, onCloseTrip, error }) => {
       <p>
         {t("mobility:trip_ended", {
           vendor: provider.vendorName,
-          totalCostCents: totalCost.cents * 0.01,
-          discountAmountCents: discountAmount.cents * 0.01,
+          totalCost: totalCost,
+          discountAmount: discountAmount,
         })}
       </p>
       <FormError error={error} />
