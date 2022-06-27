@@ -3,7 +3,7 @@ import { t } from "../localization";
 import React from "react";
 import Container from "react-bootstrap/Container";
 
-const MapPage = () => {
+const Mobility = () => {
   return (
     <>
       <Container>
@@ -15,4 +15,4 @@ const MapPage = () => {
   );
 };
 
-export default MapPage;
+export default Mobility;

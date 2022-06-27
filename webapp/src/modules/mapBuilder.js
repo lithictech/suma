@@ -294,4 +294,9 @@ export default class MapBuilder {
       mLng.toPrecision(7) === lng.toPrecision(7)
     );
   }
+
+  unmount() {
+    this.stopRefreshTimer();
+    this._map.stopLocate();
+  }
 }

@@ -29,8 +29,11 @@ const ReservationCard = ({ active, loading, vehicle, onReserve, reserveError }) 
       <Card.Title className="mb-2 text-muted">{vendorService.name}</Card.Title>
       <Card.Text className="text-muted">
         {t("mobility:" + rate.localizationKey, {
-          surchargeCents: locVars.surchargeCents * 0.01,
-          unitCents: locVars.unitCents * 0.01,
+          surchargeCents: {
+            cents: locVars.surchargeCents,
+            currency: locVars.surchargeCurrency,
+          },
+          unitCents: { cents: locVars.unitCents, currency: locVars.unitCurrency },
         })}
       </Card.Text>
       <FormError error={reserveError} />
