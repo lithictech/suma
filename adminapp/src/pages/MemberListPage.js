@@ -1,6 +1,5 @@
 import api from "../api";
 import Unavailable from "../components/Unavailable";
-import useGlobalStyles from "../hooks/useGlobalStyles";
 import { dayjs } from "../modules/dayConfig";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
 import useListQueryControls from "../shared/react/useListQueryControls";
@@ -12,7 +11,6 @@ import {
   TableHead,
   TableRow,
   Paper,
-  Container,
   CircularProgress,
   Typography,
   TablePagination,
@@ -25,7 +23,6 @@ import { formatPhoneNumber } from "react-phone-number-input";
 import { Link } from "react-router-dom";
 
 export default function MemberListPage() {
-  const classes = useGlobalStyles();
   const { page, setPage, perPage, setPerPage, search, setSearch } =
     useListQueryControls();
   const getMembers = React.useCallback(() => {
