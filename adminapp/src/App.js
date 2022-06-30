@@ -1,4 +1,3 @@
-import TopNav from "./components/TopNav";
 import { redirectIfAuthed, redirectIfUnauthed } from "./hocs/authRedirects";
 import { UserProvider } from "./hooks/user";
 import DashboardPage from "./pages/DashboardPage";
@@ -9,6 +8,7 @@ import applyHocs from "./shared/applyHocs";
 import bluejay from "./shared/bluejay";
 import Redirect from "./shared/react/Redirect";
 import renderComponent from "./shared/react/renderComponent";
+import withLayout from "./state/withLayout";
 import theme from "./theme";
 import { ThemeProvider } from "@mui/material";
 import { SnackbarProvider } from "notistack";
@@ -37,7 +37,7 @@ function NavSwitch() {
     <Routes>
       <Route exact path="/" element={null} />
       <Route exact path="/sign-in" element={null} />
-      <Route exact path="*" element={<TopNav />} />
+      <Route exact path="/*" element={null} />
     </Routes>
   );
 }
@@ -53,23 +53,28 @@ function PageSwitch() {
       <Route
         exact
         path="/dashboard"
-        element={renderWithHocs(redirectIfUnauthed, DashboardPage)}
+        element={renderWithHocs(redirectIfUnauthed, withLayout(), DashboardPage)}
       />
       <Route
         exact
         path="/members"
-        element={renderWithHocs(redirectIfUnauthed, MemberListPage)}
+        element={renderWithHocs(redirectIfUnauthed, withLayout(), MemberListPage)}
       />
       <Route
         exact
         path="/member/:id"
-        element={renderWithHocs(redirectIfUnauthed, MemberDetailPage)}
+        element={renderWithHocs(redirectIfUnauthed, withLayout(), MemberDetailPage)}
       />
       <Route
         path="/*"
-        element={renderWithHocs(redirectIfAuthed, redirectIfUnauthed, () => (
-          <Redirect to="/" />
-        ))}
+        element={renderWithHocs(
+          redirectIfAuthed,
+          withLayout(),
+          redirectIfUnauthed,
+          () => (
+            <Redirect to="/" />
+          )
+        )}
       />
     </Routes>
   );

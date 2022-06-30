@@ -30,7 +30,7 @@ export default function MemberDetailPage() {
   });
 
   return (
-    <Container className={classes.root} maxWidth="lg">
+    <>
       {memberLoading && <CircularProgress />}
       {!_.isEmpty(member) && (
         <div>
@@ -73,7 +73,7 @@ export default function MemberDetailPage() {
           <ActivityList activities={member.activities} />
         </div>
       )}
-    </Container>
+    </>
   );
 }
 

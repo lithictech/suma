@@ -45,7 +45,7 @@ export default function MemberListPage() {
   }
 
   return (
-    <Container className={classes.root} maxWidth="lg">
+    <>
       <Stack direction="row" justifyContent="space-between" alignItems="center">
         <Typography variant="h5">Members</Typography>
         <TextField
@@ -104,6 +104,6 @@ export default function MemberListPage() {
           rowsPerPageOptions={[20, 50, 100]}
         />
       )}
-    </Container>
+    </>
   );
 }

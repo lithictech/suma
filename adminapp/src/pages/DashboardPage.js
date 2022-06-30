@@ -1,45 +1,23 @@
-import Link from "../components/Link";
-import useGlobalStyles from "../hooks/useGlobalStyles";
 import { useUser } from "../hooks/user";
-import navLinks from "../modules/navLinks";
-import {
-  Container,
-  List,
-  ListItem,
-  ListItemButton,
-  ListItemIcon,
-  ListItemText,
-  Typography,
-} from "@mui/material";
-import { makeStyles } from "@mui/styles";
+import MenuIcon from "@mui/icons-material/Menu";
+import { Typography } from "@mui/material";
 import React from "react";
 
-const useStyles = makeStyles((theme) => ({
-  row: {
-    display: "flex",
-    flexDirection: "row",
-  },
-}));
-
 export default function DashboardPage() {
-  const globalClasses = useGlobalStyles();
-  const classes = useStyles();
   const { user } = useUser();
   return (
-    <Container className={globalClasses.root} maxWidth="lg">
-      <Typography gutterBottom>Hello, {user.name}</Typography>
-      <div className={classes.row}>
-        <List>
-          {navLinks.map(({ label, href, icon }) => (
-            <ListItem key={label} disablePadding>
-              <ListItemButton component={Link} href={href}>
-                <ListItemIcon>{icon}</ListItemIcon>
-                <ListItemText primary={label} />
-              </ListItemButton>
-            </ListItem>
-          ))}
-        </List>
-      </div>
-    </Container>
+    <>
+      <Typography variant="h6" gutterBottom>
+        Hello, {user.name}
+      </Typography>
+      <Typography gutterBottom>
+        You can currently check member details, impersonate members and check their
+        activity history. More features will be coming soon.
+      </Typography>
+      <Typography>
+        Use the side drawer or click <MenuIcon sx={{ verticalAlign: "top" }} /> on the top
+        left to navigate.
+      </Typography>
+    </>
   );
 }
