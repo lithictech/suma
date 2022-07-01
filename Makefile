@@ -149,7 +149,9 @@ goto-production:
 goto-staging:
 	open 'https://dashboard.heroku.com/apps/$(staging_app)'
 goto-sidekiq: cmd-exists-heroku
-	open "https://`heroku config:get USERNAME --app=suma-sidekiq-dash`:`heroku config:get PASSWORD --app=suma-sidekiq-dash`@suma-sidekiq-dash.herokuapp.com"
+	open "https://`heroku config:get ASYNC_WEB_USERNAME --app=$(production_app)`:`heroku config:get ASYNC_WEB_PASSWORD --app=$(production_app)`@$(production_app).herokuapp.com/sidekiq"
+goto-sidekiq-staging: cmd-exists-heroku
+	open "https://`heroku config:get ASYNC_WEB_USERNAME --app=$(staging_app)`:`heroku config:get ASYNC_WEB_PASSWORD --app=$(staging_app)`@$(staging_app).herokuapp.com/sidekiq"
 
 env-%:
 	@if [ -z '${${*}}' ]; then echo 'ERROR: variable $* not set' && exit 1; fi

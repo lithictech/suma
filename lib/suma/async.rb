@@ -36,6 +36,9 @@ module Suma::Async
 
     setting :sidekiq_redis_url, "redis://localhost:6379/0", key: "REDIS_URL"
     setting :sidekiq_redis_provider, ""
+    # For sidekiq web UI. Randomize a default so they will only be useful if set.
+    setting :web_username, SecureRandom.hex(8)
+    setting :web_password, SecureRandom.hex(8)
 
     after_configured do
       # Very hard to to test this, so it's not tested.
