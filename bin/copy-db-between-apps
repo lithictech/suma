@@ -1,8 +1,8 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
-SOURCE_APP = ENV["SOURCE_APP"] or raise "SOURCE_APP env var is required"
-DEST_APP = ENV["DEST_APP"] or raise "DEST_APP env var is required"
+SOURCE_APP = ENV.fetch("SOURCE_APP", nil) or raise "SOURCE_APP env var is required"
+DEST_APP = ENV.fetch("DEST_APP", nil) or raise "DEST_APP env var is required"
 
 raise "NO! Cannot use production as DEST_APP" if DEST_APP.include?("prod")
 

@@ -7,7 +7,7 @@ require "suma"
 RSpec.describe Suma do
   describe "configuration" do
     before do
-      @env = ENV[described_class::CONFIG_ENV_VAR]
+      @env = ENV.fetch(described_class::CONFIG_ENV_VAR, nil)
       @tempfiles = []
     end
 

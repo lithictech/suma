@@ -9,7 +9,7 @@ require "pathname"
 require "phony"
 require "yajl"
 
-if (heroku_app = ENV["MERGE_HEROKU_ENV"])
+if (heroku_app = ENV.fetch("MERGE_HEROKU_ENV", nil))
   text = `heroku config -j --app=#{heroku_app}`
   json = Yajl::Parser.parse(text)
   json.each do |k, v|
@@ -43,12 +43,12 @@ module Suma
   class ResourceDeleted < ResourceForbidden; end
 
   APPLICATION_NAME = "Suma"
-  RACK_ENV = ENV["RACK_ENV"] || "development"
-  VERSION = ENV["HEROKU_SLUG_COMMIT"] || "unknown-version"
-  RELEASE = ENV["HEROKU_RELEASE_VERSION"] || "unknown-release"
-  RELEASE_CREATED_AT = ENV["HEROKU_RELEASE_CREATED_AT"] || Time.at(0).utc.iso8601
-  WEBDRIVER_TESTS_ENABLED = ENV["WEBDRIVER_TESTS"] || false
-  INTEGRATION_TESTS_ENABLED = ENV["INTEGRATION_TESTS"] || false
+  RACK_ENV = ENV.fetch("RACK_ENV", "development")
+  VERSION = ENV.fetch("HEROKU_SLUG_COMMIT", "unknown-version")
+  RELEASE = ENV.fetch("HEROKU_RELEASE_VERSION", "unknown-release")
+  RELEASE_CREATED_AT = ENV.fetch("HEROKU_RELEASE_CREATED_AT") { Time.at(0).utc.iso8601 }
+  WEBDRIVER_TESTS_ENABLED = ENV.fetch("WEBDRIVER_TESTS", false)
+  INTEGRATION_TESTS_ENABLED = ENV.fetch("INTEGRATION_TESTS", false)
 
   DATA_DIR = Pathname(__FILE__).dirname.parent + "data"
 
@@ -60,7 +60,7 @@ module Suma
     setting :log_format, nil
     setting :app_url, "http://localhost:22002"
     setting :admin_url, "http://localhost:22011"
-    setting :api_url, "http://localhost:#{ENV['PORT'] || 22_001}"
+    setting :api_url, "http://localhost:#{ENV.fetch('PORT', 22_001)}"
     setting :default_currency, "USD", side_effect: ->(v) { Money.default_currency = v }
     setting :bust_idempotency, false
     setting :use_globals_cache, false
