@@ -10,7 +10,7 @@ install:
 cop:
 	bundle exec rubocop
 fix:
-	bundle exec rubocop --auto-correct-all
+	bundle exec rubocop --autocorrect-all
 fmt: fix
 fmt-all:
 	@make fmt
