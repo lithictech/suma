@@ -7,6 +7,7 @@ require "rack/lambda_app"
 require "rack/simple_redirect"
 require "rack/spa_app"
 require "rack/spa_rewrite"
+require "sidekiq/web"
 
 require "suma/api"
 require "suma/async"
@@ -46,6 +47,23 @@ module Suma::Apps
     mount Suma::AdminAPI::MessageDeliveries
     mount Suma::AdminAPI::Roles
     add_swagger_documentation if ENV["RACK_ENV"] == "development"
+  end
+
+  SidekiqWeb = Rack::Builder.new do
+    use Rack::Auth::Basic, "Protected Area" do |username, password|
+      # Protect against timing attacks: (https://codahale.com/a-lesson-in-timing-attacks/)
+      # - Use & (do not use &&) so that it doesn't short circuit.
+      # - Use digests to stop length information leaking
+      Rack::Utils.secure_compare(
+        ::Digest::SHA256.hexdigest(username),
+        ::Digest::SHA256.hexdigest(Suma::Async.web_username),
+      ) & Rack::Utils.secure_compare(
+        ::Digest::SHA256.hexdigest(password),
+        ::Digest::SHA256.hexdigest(Suma::Async.web_password),
+      )
+    end
+    use Rack::Session::Cookie, secret: Suma::Service.session_secret, same_site: true, max_age: 86_400
+    run Sidekiq::Web
   end
 
   Web = Rack::Builder.new do
