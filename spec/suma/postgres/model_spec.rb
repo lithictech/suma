@@ -312,6 +312,13 @@ RSpec.describe "Suma::Postgres::Model", :db do
       state.price_per_unit_cents = 240
       expect(state.inspect).to include("price_per_unit: $2.40")
     end
+
+    it "decrypts strings and uris" do
+      ba = Suma::Fixtures.bank_account.create(account_number: "123456789")
+      expect(ba.inspect).to include('account_number: "123...789')
+      ba.account_number = "postgres://user:pass@localhost:1234/db"
+      expect(ba.inspect).to include('account_number: "postgres://*:*@localhost')
+    end
   end
 
   describe "resource_lock!" do
