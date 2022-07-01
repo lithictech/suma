@@ -10,6 +10,9 @@ class Suma::BankAccount < Suma::Postgres::Model(:bank_accounts)
 
   plugin :timestamps
   plugin :soft_deletes
+  plugin :column_encryption do |enc|
+    enc.column :account_number
+  end
 
   many_to_one :plaid_institution, class: "Suma::PlaidInstitution"
   many_to_one :legal_entity, class: "Suma::LegalEntity"
@@ -25,6 +28,12 @@ class Suma::BankAccount < Suma::Postgres::Model(:bank_accounts)
     def usable
       return self.not_soft_deleted
     end
+  end
+
+  # Create a stable identity for this account. We encrypt the account number
+  # so cannot use it in our unique constraint.
+  def self.identity(legal_entity_id, routing_number, account_number)
+    return Digest::SHA512.hexdigest("#{legal_entity_id}|#{routing_number}|#{account_number}")
   end
 
   def verified?
@@ -71,6 +80,11 @@ class Suma::BankAccount < Suma::Postgres::Model(:bank_accounts)
     raise Suma::InvalidPrecondition, "routing number cannot be blank" if self.routing_number.blank?
     matches = Suma::PlaidInstitution.where(Sequel.pg_array_op(:routing_numbers).contains([self.routing_number]))
     self.plaid_institution = matches.first
+  end
+
+  def before_validation
+    self[:identity] = self.class.identity(self.legal_entity_id, self.routing_number, self.account_number)
+    super
   end
 
   def before_save

@@ -202,6 +202,11 @@ module Suma::Postgres::ModelUtilities
       values = self.values.reject do |k, v|
         v.blank? || k.to_s.end_with?("_currency")
       end
+      begin
+        encrypted = self.class.send(:column_encryption_metadata).map { |(col, _)| col.to_s }.to_set
+      rescue NoMethodError
+        encrypted = Set.new
+      end
       values = values.map do |(k, v)|
         k = k.to_s
         v = if v.is_a?(Time)
@@ -222,6 +227,23 @@ module Suma::Postgres::ModelUtilities
           "encrypted"
         elsif k.end_with?("_base64")
           "(#{v.size})"
+        elsif encrypted.include?(k)
+          # Render encrypted fields as xyz...abc, or if a URL, hide the user/password.
+          unenc = self.send(k)
+          safe = nil
+          if unenc.include?("://")
+            begin
+              uri = URI(unenc)
+            rescue URI::InvalidURIError
+              nil
+            else
+              uri.user = "*"
+              uri.password = "*"
+              safe = uri.to_s
+            end
+          end
+          safe ||= "#{unenc[..2]}...#{unenc[-3..]}"
+          safe.inspect
         else
           v.inspect
         end

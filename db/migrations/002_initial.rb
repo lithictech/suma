@@ -344,9 +344,10 @@ Sequel.migration do
 
       text :name, null: false
       text :account_type, null: false
+      text :identity, null: false
 
-      index [:legal_entity_id, :routing_number, :account_number],
-            name: :undeleted_legal_entity_id_routing_number_account_number_key,
+      index :identity,
+            name: :unique_undeleted_bank_account_identity_key,
             unique: true,
             where: Sequel[soft_deleted_at: nil]
     end
