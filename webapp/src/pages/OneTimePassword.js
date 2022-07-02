@@ -93,13 +93,15 @@ const OneTimePassword = () => {
 
   return (
     <>
-      <p className="text-center">
-        Enter the code that we sent to {formatPhoneNumber(phoneNumber)}:
+      <p className="text-center mb-0">
+        Enter the code that we sent to
+        <br />
+        {formatPhoneNumber(phoneNumber)}:
       </p>
       <Form noValidate onSubmit={handleOtpSubmit}>
         <fieldset>
-          <legend className="text-center">Verify Code</legend>
-          <div id="otpContainer" className="d-flex justify-content-center">
+          <h3 className="text-center mt-4">Verify Code</h3>
+          <div id="otpContainer" className="d-flex justify-content-center mt-4">
             {otp.map((data, index) => (
               <input
                 className="otp-field mb-2"
@@ -108,7 +110,7 @@ const OneTimePassword = () => {
                 maxLength="1"
                 key={index}
                 value={data}
-                placeholder="&middot;"
+                placeholder="&nbsp;&middot;"
                 onChange={(event) => handleOtpChange(event, index)}
                 onFocus={(event) => event.target.select()}
                 autoFocus={index === 0}
@@ -120,8 +122,9 @@ const OneTimePassword = () => {
         </fieldset>
         <FormError error={error} center className="mb-1" />
         <FormSuccess message={message} center className="mb-1" />
-        <p className="text-muted small text-center mt-2">
-          Did not recieve a text message?{" "}
+        <p className="text-muted small text-center mt-4">
+          Did not recieve a text message?
+          <br />
           <Button
             className="p-0 align-baseline"
             size="sm"
@@ -138,7 +141,7 @@ const OneTimePassword = () => {
             disabled: submitDisabled.isOn,
           }}
           variant="success"
-          className="mt-2 container"
+          className="px-3"
         />
       </Form>
     </>

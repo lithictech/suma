@@ -6,6 +6,22 @@ $font-family-sans-serif: 'Source Sans Pro', system-ui, -apple-system, "Segoe UI"
 $font-family-serif: 'Raleway', $font-family-sans-serif;
 $font-size-base: 1.05rem;
 
+$primary: rgb(205, 166, 113);
+$secondary: rgb(190, 193, 187);
+$success: #498567;
+$danger: #b53d00;
+$light: #f2f2f2;
+$dark: #0d0d0d;
+$gray-100: #f8f9fa !default;
+$gray-200: #e9ecef !default;
+$gray-300: #dee2e6 !default;
+$gray-400: #ced4da !default;
+$gray-500: #adb5bd !default;
+$gray-600: #6c757d !default;
+$gray-700: #495057 !default;
+$gray-800: #343a40 !default;
+$gray-900: #212529 !default;
+
 $btn-border-width: 3px;
 $btn-border-radius: 50px;
 $btn-font-weight: bold;
@@ -15,13 +31,10 @@ $headings-font-family: $font-family-serif;
 
 $input-btn-padding-y: .5rem;
 $input-btn-padding-x: 1rem;
-
-$primary: rgb(205, 166, 113);
-$secondary: rgb(190, 193, 187);
-$success: #498567;
-$error: #b53d00;
-$light: #f2f2f2;
-$dark: #0d0d0d;
+$input-border-color: lighten($primary, 20%);
+$input-border-width: 2px;
+$input-border-radius: 0;
+$input-placeholder-color: $gray-500;
 
 // Configuration
 // Note: Any variable override goes above these files

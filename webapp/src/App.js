@@ -63,7 +63,7 @@ function AppRoutes() {
           element={renderWithHocs(
             redirectIfAuthed,
             withMetatags({ title: t("titles:home"), exact: true }),
-            withLayout({ nav: "none" }),
+            withLayout({ nav: "none", bg: "bg-white" }),
             Home
           )}
         />
@@ -73,7 +73,7 @@ function AppRoutes() {
           element={renderWithHocs(
             redirectIfAuthed,
             withMetatags({ title: t("titles:start") }),
-            withLayout(),
+            withLayout({ gutters: true, top: true }),
             Start
           )}
         />
@@ -83,7 +83,7 @@ function AppRoutes() {
           element={renderWithHocs(
             redirectIfAuthed,
             withMetatags({ title: t("titles:otp") }),
-            withLayout(),
+            withLayout({ gutters: true, top: true }),
             OneTimePassword
           )}
         />

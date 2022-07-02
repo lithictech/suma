@@ -4,11 +4,9 @@ import { t } from "../localization";
 import SafeExternalLink from "../shared/react/SafeExternalLink";
 import React from "react";
 import Button from "react-bootstrap/Button";
-import Col from "react-bootstrap/Col";
 import Container from "react-bootstrap/Container";
-import Row from "react-bootstrap/Row";
 
-const Home = () => {
+export default function Home() {
   return (
     <Container className="text-center">
       <img src={sumaLogo} alt="MySuma Logo" className="p-4" style={{ width: 250 }} />
@@ -29,6 +27,4 @@ const Home = () => {
       </div>
     </Container>
   );
-};
-
-export default Home;
+}
