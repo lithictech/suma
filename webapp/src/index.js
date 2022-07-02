@@ -1,7 +1,5 @@
 import App from "./App";
-import "./assets/styles/custom.scss";
-import "./assets/styles/index.css";
-import "./assets/styles/theme.scss";
+import "./assets/styles/imports.scss";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import "leaflet.animatedmarker/src/AnimatedMarker";
 import "leaflet.markercluster/dist/MarkerCluster.css";

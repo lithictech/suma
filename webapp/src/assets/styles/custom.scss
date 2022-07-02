@@ -1,5 +1,18 @@
 @import "./theme.scss";
 
+.main-container {
+    max-width: 500px;
+    margin: 0 auto 80px;
+}
+
+.nowrap {
+    white-space: nowrap;
+}
+
+.border-radius-0 {
+    border-radius: 0 !important;
+}
+
 .table-flush {
     > tbody > tr > td:first-child, > thead > tr > th {
         padding-left: $grid-gutter-width * 0.5 !important;

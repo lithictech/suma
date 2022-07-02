@@ -1,4 +1,6 @@
-@import "./fonts";
+@import "./_fonts";
+
+$min-contrast-ratio: 2.5;
 
 $font-family-sans-serif: 'Source Sans Pro', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji" !default;
 $font-family-serif: 'Raleway', $font-family-sans-serif;
@@ -14,14 +16,12 @@ $headings-font-family: $font-family-serif;
 $input-btn-padding-y: .5rem;
 $input-btn-padding-x: 1rem;
 
-$theme-colors: (
-  "primary": rgb(205, 166, 113),
-  "secondary": rgb(190, 193, 187),
-  "success": #498567,
-  "error": #b53d00,
-  "light": #f2f2f2,
-  "dark": #0d0d0d
-  );
+$primary: rgb(205, 166, 113);
+$secondary: rgb(190, 193, 187);
+$success: #498567;
+$error: #b53d00;
+$light: #f2f2f2;
+$dark: #0d0d0d;
 
 // Configuration
 // Note: Any variable override goes above these files
@@ -75,4 +75,8 @@ $theme-colors: (
   font-size: 110%;
   letter-spacing: 0.5px;
   text-transform: uppercase;
+}
+
+.btn-primary {
+  @include button-variant(darken($primary, 5%), darken($primary, 5%));
 }
