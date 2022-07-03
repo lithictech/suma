@@ -105,7 +105,7 @@ function AppRoutes() {
             redirectIfUnauthed,
             redirectIfBoarded,
             withMetatags({ title: t("titles:onboarding_signup") }),
-            withLayout(),
+            withLayout({ gutters: true, top: true }),
             OnboardingSignup
           )}
         />
@@ -115,7 +115,7 @@ function AppRoutes() {
           element={renderWithHocs(
             redirectIfUnauthed,
             withMetatags({ title: t("titles:onboarding_finish") }),
-            withLayout(),
+            withLayout({ gutters: true, top: true }),
             OnboardingFinish
           )}
         />

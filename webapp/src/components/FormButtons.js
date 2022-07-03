@@ -14,7 +14,7 @@ const FormButtons = ({ primaryProps, secondaryProps, variant, back, className })
   }
   variant = variant || "outline-primary";
   return (
-    <div className={clsx("mt-4", className)}>
+    <div className={clsx("mt-4 mx-4", className)}>
       <Row>
         <Col>
           {secondaryProps && (

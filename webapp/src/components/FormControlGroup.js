@@ -11,8 +11,10 @@ import InputGroup from "react-bootstrap/InputGroup";
  * @param {string} className Form.Group class name.
  * @param {JSX.Element} as The 'as' for the Form.Group.
  * @param {string|JSX.Element} label Text or element for the form label.
+ * @param {string|JSX.Element} placeholder Do not use, since we put the label in the form.
  * @param {string} text Helper that goes in a Form.Text.
  * @param {JSX.Element} Input The input component to use, default to Form.Control.
+ * @param {string} inputClass Applied to Input element.
  * @param register The react-hook-form register function.
  * @param registerOptions Arguments passed to `register`.
  *   Normally something like `{validate: (value) => value === otherValue}`,
@@ -34,8 +36,10 @@ export default function FormControlGroup({
   className,
   as,
   label,
+  placeholder,
   text,
   Input,
+  inputClass,
   register,
   registerOptions,
   errors,
@@ -69,11 +73,22 @@ export default function FormControlGroup({
   const message = useValidationError(name, errors, registerArgs, errorKeys);
   const C = Input || Form.Control;
   const input = (
-    <C {...register(name, registerArgs)} name={name} isInvalid={!!message} {...rest} />
+    <C
+      {...register(name, registerArgs)}
+      name={name}
+      isInvalid={!!message}
+      placeholder={_.isString(label) ? label : null}
+      className={inputClass}
+      {...rest}
+    />
   );
   return (
     <Form.Group className={className} controlId={name} as={as}>
-      {_.isString(label) ? <Form.Label>{label}</Form.Label> : label}
+      {_.isString(label) ? (
+        <Form.Label className="visually-hidden">{label}</Form.Label>
+      ) : (
+        label
+      )}
       {usesGroup ? (
         <InputGroup hasValidation>
           {prepend}

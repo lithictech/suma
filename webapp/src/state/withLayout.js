@@ -1,5 +1,6 @@
 import "../assets/styles/screenloader.scss";
 import TopNav from "../components/TopNav";
+import clsx from "clsx";
 import React from "react";
 import Col from "react-bootstrap/Col";
 import Container from "react-bootstrap/Container";
@@ -22,14 +23,14 @@ export default function withLayout(options) {
   options = options || {};
   const nav = options.nav || "top";
   const bg = options.bg || "bg-light";
-  const gutters = options.gutters;
-  const topCls = options.top ? "pt-3" : null;
+  const gutterCls = options.gutters ? "px-4" : null;
+  const topCls = options.top ? "pt-4" : null;
   return (Wrapped) => {
     return (props) => {
       let node;
-      if (gutters) {
+      if (gutterCls) {
         node = (
-          <Container className={topCls}>
+          <Container className={clsx(topCls, gutterCls)}>
             <Row>
               <Col>
                 <Wrapped {...props} />

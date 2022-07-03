@@ -32,3 +32,15 @@
         max-width: 275px;
     }
 }
+
+.page-header {
+    color: $primary;
+    text-transform: uppercase;
+    font-family: $font-family-sans-serif;
+    letter-spacing: 2px;
+    font-weight: 500;
+}
+
+.select-noselection {
+    color: $input-placeholder-color !important;
+}
