@@ -66,3 +66,9 @@
 .app-link-active {
     background: $white !important;;
 }
+
+.thin-header-image {
+    height: 140px;
+    width: 100%;
+    object-fit: cover;
+}

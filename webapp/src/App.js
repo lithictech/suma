@@ -8,6 +8,7 @@ import {
 import { t } from "./localization";
 import useI18Next, { I18NextProvider } from "./localization/useI18Next";
 import Dashboard from "./pages/Dashboard";
+import Food from "./pages/Food";
 import Funding from "./pages/Funding";
 import FundingAddFunds from "./pages/FundingAddFunds";
 import FundingLinkBankAccount from "./pages/FundingLinkBankAccount";
@@ -20,6 +21,7 @@ import OnboardingSignup from "./pages/OnboardingSignup";
 import OneTimePassword from "./pages/OneTimePassword";
 import Start from "./pages/Start";
 import Styleguide from "./pages/Styleguide";
+import Utilities from "./pages/Utilities";
 import applyHocs from "./shared/applyHocs";
 import bluejay from "./shared/bluejay";
 import Redirect from "./shared/react/Redirect";
@@ -141,6 +143,30 @@ function AppRoutes() {
             withMetatags({ title: t("mobility:title") }),
             withLayout({ noBottom: true }),
             Mobility
+          )}
+        />
+        <Route
+          path="/food"
+          exact
+          element={renderWithHocs(
+            redirectIfUnauthed,
+            redirectIfUnboarded,
+            withScreenLoaderMount(),
+            withMetatags({ title: t("food:title") }),
+            withLayout({}),
+            Food
+          )}
+        />
+        <Route
+          path="/utilities"
+          exact
+          element={renderWithHocs(
+            redirectIfUnauthed,
+            redirectIfUnboarded,
+            withScreenLoaderMount(),
+            withMetatags({ title: t("utilities:title") }),
+            withLayout({}),
+            Utilities
           )}
         />
         <Route

@@ -7,8 +7,8 @@ export default function AppNav() {
     <div className="d-flex flex-row">
       <AppLink to="/dashboard" label="Home" style={{ borderRightWidth: 0 }} />
       <AppLink to="/mobility" label="Mobility" style={{ borderRightWidth: 0 }} />
-      <AppLink to="#todo" label="Food" style={{ borderRightWidth: 0 }} />
-      <AppLink to="#todo" label="Utilities" />
+      <AppLink to="/food" label="Food" style={{ borderRightWidth: 0 }} />
+      <AppLink to="/utilities" label="Utilities" />
     </div>
   );
 }
