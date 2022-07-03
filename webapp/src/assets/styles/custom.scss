@@ -56,3 +56,13 @@
 .active-outline-button {
     background: $white !important;
 }
+
+.app-link {
+    border-radius: 0 !important;
+    flex-grow: 1 !important;;
+    font-size: $font-size-base !important;;
+    background: rgba(0, 0, 0, 0.05) !important;;
+}
+.app-link-active {
+    background: $white !important;;
+}

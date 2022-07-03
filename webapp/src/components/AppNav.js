@@ -1,12 +1,11 @@
-import RLink from "./RLink";
 import clsx from "clsx";
 import React from "react";
-import Button from "react-bootstrap/Button";
-import { useLocation } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 export default function AppNav() {
   return (
     <div className="d-flex flex-row">
+      <AppLink to="/dashboard" label="Home" style={{ borderRightWidth: 0 }} />
       <AppLink to="/mobility" label="Mobility" style={{ borderRightWidth: 0 }} />
       <AppLink to="#todo" label="Food" style={{ borderRightWidth: 0 }} />
       <AppLink to="#todo" label="Utilities" />
@@ -17,17 +16,15 @@ export default function AppNav() {
 const AppLink = ({ to, label, style }) => {
   const location = useLocation();
   return (
-    <Button
-      href={to}
-      as={RLink}
-      variant="outline-primary"
+    <Link
+      to={to}
       className={clsx(
-        "border-radius-0 flex-grow-1",
-        location.pathname === to ? "active-outline-button" : "inactive-outline-button"
+        "btn btn-outline-primary app-link",
+        location.pathname === to && "app-link-active"
       )}
       style={style}
     >
       {label}
-    </Button>
+    </Link>
   );
 };
