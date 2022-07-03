@@ -30,7 +30,7 @@ const Dashboard = () => {
         <Alert variant="danger" className="border-radius-0">
           <p>{t("dashboard:check_ongoing_trip")}</p>
           <div className="d-flex justify-content-end">
-            <Link to="/mobility" className="btn btn-sm btn-danger">
+            <Link to="/mobility" className="btn btn-sm btn-danger px-3">
               {t("dashboard:check_ongoing_trip_button")}
               <i
                 className="bi bi-box-arrow-in-right mx-1"
