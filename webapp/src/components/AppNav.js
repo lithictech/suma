@@ -1,3 +1,4 @@
+import RLink from "./RLink";
 import clsx from "clsx";
 import React from "react";
 import Button from "react-bootstrap/Button";
@@ -18,10 +19,11 @@ const AppLink = ({ to, label, style }) => {
   return (
     <Button
       href={to}
+      as={RLink}
       variant="outline-primary"
       className={clsx(
         "border-radius-0 flex-grow-1",
-        location.pathname === to && "active-outline-button"
+        location.pathname === to ? "active-outline-button" : "inactive-outline-button"
       )}
       style={style}
     >

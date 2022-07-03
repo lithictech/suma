@@ -2,12 +2,11 @@
 
 .main-container {
     max-width: 500px;
-    margin: 0 auto 80px;
+    margin: 0 auto;
 }
 
 .root {
     min-height: 100vh;
-    padding-bottom: $spacer * 2;
 }
 
 .nowrap {
@@ -50,6 +49,10 @@
     color: $input-placeholder-color !important;
 }
 
+.inactive-outline-button {
+    background: rgba(0, 0, 0, 0.05) !important;
+}
+
 .active-outline-button {
-    background: $white;
+    background: $white !important;
 }
