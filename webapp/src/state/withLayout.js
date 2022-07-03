@@ -17,6 +17,10 @@ import Row from "react-bootstrap/Row";
  *   which provides automatic gutters.
  * @param {boolean=} options.top If true, add an mt-3 to the page content,
  *   to buffer it from the top nav or top of page.
+ * @param {boolean=} options.noBottom By default, we add a bottom padding to every page,
+ *   so the page content doesn't sit at the bottom of the screen.
+ *   In rare cases (like the mobility map), we want the page content to sit flush
+ *   with the bottom. Use noBottom in those cases.
  * @param {string=} options.bg Background color class for the page container.
  */
 export default function withLayout(options) {
@@ -25,6 +29,7 @@ export default function withLayout(options) {
   const bg = options.bg || "bg-light";
   const gutterCls = options.gutters ? guttersClass : null;
   const topCls = options.top ? topMarginClass : null;
+  const noBottomCls = options.noBottom ? null : "pb-5";
   return (Wrapped) => {
     return (props) => {
       let node;
@@ -48,7 +53,7 @@ export default function withLayout(options) {
         node = <Wrapped {...props} />;
       }
       return (
-        <div className={clsx(bg, "root")}>
+        <div className={clsx(bg, "root", noBottomCls)}>
           <div className="main-container">
             {nav === "top" && <TopNav />}
             {node}

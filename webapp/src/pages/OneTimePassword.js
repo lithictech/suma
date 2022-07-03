@@ -108,6 +108,7 @@ const OneTimePassword = () => {
                 type="text"
                 name="otp"
                 maxLength="1"
+                inputMode="numeric"
                 key={index}
                 value={data}
                 placeholder="&nbsp;&middot;"
