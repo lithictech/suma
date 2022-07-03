@@ -6,9 +6,8 @@ import PageLoader from "../components/PageLoader";
 import LedgerItemModal from "../components/ledger/LedgerItemModal";
 import { t } from "../localization";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
+import useHashSelector from "../shared/react/useHashSelector";
 import useListQueryControls from "../shared/react/useListQueryControls";
-import relativeUrl from "../shared/relativeUrl";
-import setUrlPart from "../shared/setUrlPart";
 import { LayoutContainer } from "../state/withLayout";
 import clsx from "clsx";
 import dayjs from "dayjs";
@@ -16,7 +15,6 @@ import _ from "lodash";
 import React from "react";
 import Container from "react-bootstrap/Container";
 import Table from "react-bootstrap/Table";
-import { useLocation, useNavigate } from "react-router-dom";
 
 export default function LedgersOverview() {
   const { page, setPage } = useListQueryControls();
@@ -54,7 +52,7 @@ export default function LedgersOverview() {
   return (
     <>
       <LayoutContainer gutters top>
-        <LinearBreadcrumbs />
+        <LinearBreadcrumbs back />
         <h2 className="page-header">{t("payments:ledger_transactions")}</h2>
         <p>{t("payments:ledgers_intro")}</p>
       </LayoutContainer>
@@ -82,26 +80,7 @@ const Ledger = ({
   linesLoading,
   onLinesPageChange,
 }) => {
-  const navigate = useNavigate();
-  const location = useLocation();
-  const [selectedLine, setSelectedLine] = React.useState(null);
-  React.useEffect(() => {
-    if (!location.hash) {
-      return;
-    }
-    const line = _.find(lines, { opaqueId: _.trimStart(location.hash, "#") });
-    if (!line) {
-      return;
-    }
-    setSelectedLine(line);
-  }, [location, lines]);
-
-  const handleLedgerLineSelected = (event, line) => {
-    event && event.preventDefault();
-    const hash = line ? line.opaqueId : "#";
-    navigate(relativeUrl({ location: setUrlPart({ location, hash }) }));
-    setSelectedLine(line);
-  };
+  const { selectedHashItem, onHashItemSelected } = useHashSelector(lines, "opaqueId");
 
   return (
     <>
@@ -129,7 +108,7 @@ const Ledger = ({
                   <a
                     className="ps-0"
                     href={`#${line.opaqueId}`}
-                    onClick={(e) => handleLedgerLineSelected(e, line)}
+                    onClick={(e) => onHashItemSelected(e, line)}
                   >
                     <strong>{dayjs(line.at).format("lll")}</strong>
                   </a>
@@ -156,8 +135,8 @@ const Ledger = ({
         />
       </Container>
       <LedgerItemModal
-        item={selectedLine}
-        onClose={() => handleLedgerLineSelected(null, null)}
+        item={selectedHashItem}
+        onClose={() => onHashItemSelected(null, null)}
       />
     </>
   );

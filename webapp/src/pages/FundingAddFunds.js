@@ -3,7 +3,6 @@ import CurrencyNumpad from "../components/CurrencyNumpad";
 import ErrorScreen from "../components/ErrorScreen";
 import FormButtons from "../components/FormButtons";
 import FormError from "../components/FormError";
-import LinearBreadcrumbs from "../components/LinearBreadcrumbs";
 import ScreenLoader from "../components/ScreenLoader";
 import { t } from "../localization";
 import { Logger } from "../shared/logger";

@@ -18,7 +18,6 @@ import Modal from "react-bootstrap/Modal";
 import Row from "react-bootstrap/Row";
 import { useForm } from "react-hook-form";
 import "react-phone-number-input/style.css";
-import { useLocation, useNavigate } from "react-router-dom";
 
 export default function FundingLinkBankAccount() {
   const [submitSuccessful, setSubmitSuccessful] = React.useState(false);
