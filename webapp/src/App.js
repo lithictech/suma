@@ -94,7 +94,7 @@ function AppRoutes() {
             redirectIfUnauthed,
             redirectIfBoarded,
             withMetatags({ title: t("titles:onboarding") }),
-            withLayout(),
+            withLayout({}),
             Onboarding
           )}
         />

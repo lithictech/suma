@@ -1,58 +1,57 @@
-import onboardingDiscounts from "../assets/images/onboarding-discounts.jpg";
 import onboardingFood from "../assets/images/onboarding-food.jpg";
-import onboardingScooters from "../assets/images/onboarding-scooters.jpg";
+import onboardingMobility from "../assets/images/onboarding-mobility.jpg";
+import onboardingUtilities from "../assets/images/onboarding-utilities.jpg";
+import RLink from "../components/RLink";
 import { t } from "../localization";
 import React from "react";
+import Button from "react-bootstrap/Button";
 import Carousel from "react-bootstrap/Carousel";
-import Col from "react-bootstrap/Col";
-import Container from "react-bootstrap/Container";
-import Row from "react-bootstrap/Row";
-import { Link } from "react-router-dom";
 
 const Onboarding = () => {
   return (
-    <Container>
-      <Row>
-        <Col>
-          <Carousel fade className="onboarding-carousel rounded overflow-hidden">
-            <CarouselSlide
-              src={onboardingScooters}
-              title="Mobility"
-              subtitle="We provide clean-energy transportation with electric scooters and bikes"
-            />
-            <CarouselSlide
-              src={onboardingDiscounts}
-              title="Save Money"
-              subtitle="Big discounts on things that you buy the most"
-            />
-            <CarouselSlide
-              src={onboardingFood}
-              title="Food"
-              subtitle="Hungry? Get food directly to your door"
-            />
-          </Carousel>
-          <Link
-            to="/onboarding/signup"
-            className="btn btn-success w-100 p-2 my-2 mt-4 rounded-pill"
-          >
-            {t("forms:continue")}
-          </Link>
-        </Col>
-      </Row>
-    </Container>
+    <>
+      <Carousel fade className="onboarding-carousel overflow-hidden">
+        <CarouselSlide
+          src={onboardingMobility}
+          title="Mobility"
+          subtitle="We provide clean-energy transportation with electric scooters and bikes"
+        />
+        <CarouselSlide
+          src={onboardingUtilities}
+          title="Save Money"
+          subtitle="Big discounts on things that you buy the most"
+        />
+        <CarouselSlide
+          src={onboardingFood}
+          title="Food"
+          subtitle="Hungry? Get food directly to your door"
+        />
+      </Carousel>
+      <div className="button-stack">
+        <Button
+          to="/onboarding/signup"
+          as={RLink}
+          variant="outline-primary"
+          className="mt-4"
+        >
+          {t("forms:continue")}
+        </Button>
+      </div>
+    </>
   );
 };
 
 export default Onboarding;
 
 const CarouselSlide = React.forwardRef((props, ref) => {
-  const { src, title, subtitle, className } = props;
+  const { src, title, subtitle, ...rest } = props;
   return (
-    <Carousel.Item ref={ref} className={className} interval={4500}>
-      <img className="d-block w-100" src={src} alt="onboarding carousel slide" />
-      <Carousel.Caption className="bg-dark bg-opacity-75 rounded">
-        <h5>{title}</h5>
-        <p className="px-3">{subtitle}</p>
+    <Carousel.Item ref={ref} interval={1500} {...rest}>
+      <div className="onboarding-carousel-image-overlay" />
+      <img className="onboarding-carousel-image" src={src} alt="" />
+      <Carousel.Caption>
+        <h3>{title}</h3>
+        <p className="px-3 lead">{subtitle}</p>
       </Carousel.Caption>
     </Carousel.Item>
   );

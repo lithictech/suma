@@ -1,6 +1,5 @@
 import "../assets/styles/screenloader.scss";
 import TopNav from "../components/TopNav";
-import clsx from "clsx";
 import React from "react";
 import Col from "react-bootstrap/Col";
 import Container from "react-bootstrap/Container";
@@ -27,11 +26,10 @@ export default function withLayout(options) {
   const topCls = options.top ? "pt-3" : null;
   return (Wrapped) => {
     return (props) => {
-      const containerCls = clsx(topCls);
       let node;
       if (gutters) {
         node = (
-          <Container className={containerCls}>
+          <Container className={topCls}>
             <Row>
               <Col>
                 <Wrapped {...props} />
@@ -39,9 +37,14 @@ export default function withLayout(options) {
             </Row>
           </Container>
         );
+      } else if (topCls) {
+        node = (
+          <div className={topCls}>
+            <Wrapped {...props} />
+          </div>
+        );
       } else {
-        const mergedClass = clsx(containerCls, props.className);
-        node = <Wrapped {...props} className={mergedClass} />;
+        node = <Wrapped {...props} />;
       }
       return (
         <div className={bg} style={{ height: "100vh" }}>
