@@ -60,9 +60,5 @@
 }
 
 .navbar-collapse {
-  background: darken($light, 5%);
-}
-
-.language-switcher-active {
-  background: $white;
+  background: $light-darker;
 }

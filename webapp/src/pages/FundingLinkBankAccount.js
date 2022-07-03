@@ -4,7 +4,8 @@ import FormButtons from "../components/FormButtons";
 import FormControlGroup from "../components/FormControlGroup";
 import FormError from "../components/FormError";
 import GoHome from "../components/GoHome";
-import { md, t } from "../localization";
+import LinearBreadcrumbs from "../components/LinearBreadcrumbs";
+import { md, mdp, t } from "../localization";
 import keepDigits from "../modules/keepDigits";
 import useHashToggle from "../shared/react/useHashToggle";
 import { extractErrorCode, useError } from "../state/useError";
@@ -12,7 +13,6 @@ import { useScreenLoader } from "../state/useScreenLoader";
 import { useUser } from "../state/useUser";
 import React from "react";
 import Col from "react-bootstrap/Col";
-import Container from "react-bootstrap/Container";
 import Form from "react-bootstrap/Form";
 import Modal from "react-bootstrap/Modal";
 import Row from "react-bootstrap/Row";
@@ -23,13 +23,13 @@ import { useLocation, useNavigate } from "react-router-dom";
 export default function FundingLinkBankAccount() {
   const [submitSuccessful, setSubmitSuccessful] = React.useState(false);
   return (
-    <Container>
+    <>
       {submitSuccessful ? (
         <Success />
       ) : (
         <LinkBankAccount onSuccess={() => setSubmitSuccessful(true)} />
       )}
-    </Container>
+    </>
   );
 }
 
@@ -37,7 +37,7 @@ function Success() {
   return (
     <>
       <h2>{t("payments:linked_account")}</h2>
-      <p>{md("payments:linked_account_successful_md")}</p>
+      {mdp("payments:linked_account_successful_md")}
       <GoHome />
     </>
   );
@@ -91,7 +91,8 @@ function LinkBankAccount({ onSuccess }) {
 
   return (
     <>
-      <h2>{t("payments:link_account")}</h2>
+      <LinearBreadcrumbs back />
+      <h2 className="page-header">{t("payments:link_account")}</h2>
       <p>{md("payments:payment_intro.privacy_statement_md")}</p>
       <Form noValidate onSubmit={handleSubmit(handleFormSubmit)}>
         <Row className="mb-3">
@@ -198,7 +199,7 @@ function LinkBankAccount({ onSuccess }) {
         <p>{t("payments:account_submission_statement")}</p>
         <FormError error={error} />
         <FormButtons
-          variant="success"
+          variant="outline-primary"
           back
           primaryProps={{
             children: t("forms:continue"),

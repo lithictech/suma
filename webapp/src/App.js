@@ -127,7 +127,7 @@ function AppRoutes() {
             redirectIfUnboarded,
             withScreenLoaderMount(),
             withMetatags({ title: t("titles:dashboard") }),
-            withLayout(),
+            withLayout({}),
             Dashboard
           )}
         />
@@ -151,7 +151,7 @@ function AppRoutes() {
             redirectIfUnboarded,
             withScreenLoaderMount(),
             withMetatags({ title: t("titles:funding") }),
-            withLayout(),
+            withLayout({ top: true, gutters: true }),
             Funding
           )}
         />
@@ -163,7 +163,7 @@ function AppRoutes() {
             redirectIfUnboarded,
             withScreenLoaderMount(),
             withMetatags({ title: t("payments:link_account") }),
-            withLayout(),
+            withLayout({ top: true, gutters: true }),
             FundingLinkBankAccount
           )}
         />

@@ -11,6 +11,7 @@ $secondary: rgb(190, 193, 187);
 $success: #498567;
 $danger: #b53d00;
 $light: #f2f2f2;
+$light-darker: darken($light, 5%);
 $dark: #0d0d0d;
 $gray-100: #f8f9fa !default;
 $gray-200: #e9ecef !default;
@@ -24,6 +25,8 @@ $gray-900: #212529 !default;
 
 $btn-border-width: 3px;
 $btn-border-radius: 50px;
+$btn-border-radius-sm: 50px;
+$btn-border-radius-lg: 50px;
 $btn-font-weight: bold;
 
 $headings-font-weight: 700;
@@ -92,4 +95,8 @@ $input-placeholder-color: $gray-500;
 
 .btn-primary {
   @include button-variant(darken($primary, 5%), darken($primary, 5%));
+}
+
+.card-header {
+  background-color: $light-darker;
 }

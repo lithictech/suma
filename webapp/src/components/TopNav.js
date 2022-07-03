@@ -88,7 +88,7 @@ function LanguageButtons() {
     <Button
       key={code}
       variant="outline-primary"
-      className={clsx("mt-2", i18next.language === code && "language-switcher-active")}
+      className={clsx("mt-2", i18next.language === code && "active-outline-button")}
       onClick={() => changeLanguage(code)}
     >
       {native}

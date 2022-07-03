@@ -5,6 +5,11 @@
     margin: 0 auto 80px;
 }
 
+.root {
+    min-height: 100vh;
+    padding-bottom: $spacer * 2;
+}
+
 .nowrap {
     white-space: nowrap;
 }
@@ -43,4 +48,8 @@
 
 .select-noselection {
     color: $input-placeholder-color !important;
+}
+
+.active-outline-button {
+    background: $white;
 }

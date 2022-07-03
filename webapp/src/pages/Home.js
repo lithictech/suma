@@ -1,7 +1,8 @@
 import sumaLogo from "../assets/images/suma-logo.png";
+import ExternalLink from "../components/ExternalLink";
 import RLink from "../components/RLink";
 import { t } from "../localization";
-import SafeExternalLink from "../shared/react/SafeExternalLink";
+import externalLinks from "../modules/externalLinks";
 import React from "react";
 import Button from "react-bootstrap/Button";
 import Container from "react-bootstrap/Container";
@@ -15,15 +16,14 @@ export default function Home() {
         <Button href="/start" variant="outline-primary" as={RLink} className="w-75">
           {t("forms:continue")}
         </Button>
-        <SafeExternalLink
+        <ExternalLink
           component={Button}
-          href="https://mysuma.org/"
+          href={externalLinks.sumaIntroLink}
           variant="outline-secondary"
-          referrer
           className="w-75 mt-3 nowrap"
         >
           {t("common:learn_more")}
-        </SafeExternalLink>
+        </ExternalLink>
       </div>
     </Container>
   );

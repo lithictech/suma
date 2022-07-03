@@ -23,8 +23,8 @@ export default function withLayout(options) {
   options = options || {};
   const nav = options.nav || "top";
   const bg = options.bg || "bg-light";
-  const gutterCls = options.gutters ? "px-4" : null;
-  const topCls = options.top ? "pt-4" : null;
+  const gutterCls = options.gutters ? guttersClass : null;
+  const topCls = options.top ? topMarginClass : null;
   return (Wrapped) => {
     return (props) => {
       let node;
@@ -48,7 +48,7 @@ export default function withLayout(options) {
         node = <Wrapped {...props} />;
       }
       return (
-        <div className={bg} style={{ height: "100vh" }}>
+        <div className={clsx(bg, "root")}>
           <div className="main-container">
             {nav === "top" && <TopNav />}
             {node}
@@ -57,4 +57,12 @@ export default function withLayout(options) {
       );
     };
   };
+}
+
+export const topMarginClass = "pt-4";
+export const guttersClass = "px-4";
+
+export function LayoutContainer({ className, gutters, top, ...rest }) {
+  const cls = clsx(top && topMarginClass, gutters && guttersClass, className);
+  return <Container className={cls} {...rest} />;
 }

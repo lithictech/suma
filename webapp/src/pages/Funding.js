@@ -1,8 +1,11 @@
 import api from "../api";
+import ExternalLink from "../components/ExternalLink";
 import FormButtons from "../components/FormButtons";
 import FormError from "../components/FormError";
+import LinearBreadcrumbs from "../components/LinearBreadcrumbs";
 import RLink from "../components/RLink";
 import { md, t } from "../localization";
+import externalLinks from "../modules/externalLinks";
 import useToggle from "../shared/react/useToggle";
 import { extractErrorCode, useError } from "../state/useError";
 import { useScreenLoader } from "../state/useScreenLoader";
@@ -11,7 +14,6 @@ import _ from "lodash";
 import React from "react";
 import Button from "react-bootstrap/Button";
 import Card from "react-bootstrap/Card";
-import Container from "react-bootstrap/Container";
 import Dropdown from "react-bootstrap/Dropdown";
 import Modal from "react-bootstrap/Modal";
 import "react-phone-number-input/style.css";
@@ -19,13 +21,14 @@ import "react-phone-number-input/style.css";
 export default function Funding() {
   const { user } = useUser();
   return (
-    <Container>
-      <h2>{t("payments:payment_title")}</h2>
+    <>
+      <LinearBreadcrumbs back />
+      <h2 className="page-header">{t("payments:payment_title")}</h2>
       <p>{md("payments:payment_intro.intro_md")}</p>
       <p id="some">{md("payments:payment_intro.privacy_statement_md")}</p>
       <BankAccountsCard instruments={user.usablePaymentInstruments} />
       <AdditionalSourcesCard />
-    </Container>
+    </>
   );
 }
 
@@ -36,7 +39,7 @@ function BankAccountsCard({ instruments }) {
       {bankAccounts.length === 0 ? (
         <>
           <Card.Text>{t("payments:no_bank_accounts_warning")}</Card.Text>
-          <Button variant="primary" href="/link-bank-account" as={RLink}>
+          <Button variant="outline-primary" href="/link-bank-account" as={RLink}>
             {t("payments:link_account")}
           </Button>
         </>
@@ -46,7 +49,7 @@ function BankAccountsCard({ instruments }) {
             <BankAccountLine key={ba.id} bankAccount={ba} />
           ))}
           <hr className="my-4" />
-          <Button variant="primary" href="/link-bank-account" as={RLink}>
+          <Button variant="outline-primary" href="/link-bank-account" as={RLink}>
             {t("payments:link_another_account")}
           </Button>
         </>
@@ -72,7 +75,7 @@ function BankAccountLine({ bankAccount }) {
       .finally(screenLoader.turnOff);
   }
   return (
-    <Card className="text-start mb-3 funding-card-border-radius">
+    <Card className="text-start mb-3 funding-card-border-radius shadow-sm">
       <Card.Body className="d-flex justify-content-between align-items-center">
         <div>
           <Card.Title className="mb-1" as="h6">
@@ -95,8 +98,13 @@ function BankAccountLine({ bankAccount }) {
               <i className="bi bi-plus-circle"></i> {t("payments:add_funds")}
             </Button>
           ) : (
-            <Button size="sm" className="opacity-0" disabled aria-hidden>
-              &nbsp;{/* Match verified account sizing so cards are same size*/}
+            <Button
+              variant="outline-secondary"
+              size="sm"
+              disabled
+              className="mb-2 funding-card-border-radius nowrap opacity-0"
+            >
+              &nbsp;
             </Button>
           )}
           <div>
@@ -157,9 +165,9 @@ function AdditionalSourcesCard() {
   return (
     <PaymentsCard header={t("payments:payment_other_sources")}>
       <Card.Text>{t("payments:payment_support_coming")}</Card.Text>
-      <Button variant="link" href="#todo">
+      <ExternalLink href={externalLinks.fundingSourcesLink}>
         {t("common:learn_more")}
-      </Button>
+      </ExternalLink>
     </PaymentsCard>
   );
 }
