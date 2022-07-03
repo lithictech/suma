@@ -54,6 +54,7 @@ const Ledger = ({ dashboard }) => {
     <>
       <LayoutContainer
         top="pt-2"
+        gutters
         className="d-flex justify-content-between pb-2 align-items-start"
       >
         <div>
@@ -108,7 +109,7 @@ const Ledger = ({ dashboard }) => {
           </tbody>
         </Table>
       ) : (
-        <LayoutContainer top="pt-2">
+        <LayoutContainer top="pt-2" gutters>
           <p>{md("dashboard:no_money_md")}</p>
         </LayoutContainer>
       )}

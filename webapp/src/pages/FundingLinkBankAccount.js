@@ -54,12 +54,10 @@ function LinkBankAccount({ onSuccess }) {
     mode: "all",
   });
   const [error, setError] = useError();
-  const location = useLocation();
-  const navigate = useNavigate();
   const { user, setUser, handleUpdateCurrentMember } = useUser();
 
   const screenLoader = useScreenLoader();
-  const showCheckModalToggle = useHashToggle(location, navigate, "check-details");
+  const showCheckModalToggle = useHashToggle("check-details");
   const [nickname, setNickname] = React.useState("");
   const [routing, setRouting] = React.useState("");
   const [accountNumber, setAccountNumber] = React.useState("");

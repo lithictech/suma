@@ -1,5 +1,6 @@
 import api from "../api";
 import ForwardBackPagination from "../components/ForwardBackPagination";
+import LinearBreadcrumbs from "../components/LinearBreadcrumbs";
 import Money from "../components/Money";
 import PageLoader from "../components/PageLoader";
 import LedgerItemModal from "../components/ledger/LedgerItemModal";
@@ -8,11 +9,11 @@ import useAsyncFetch from "../shared/react/useAsyncFetch";
 import useListQueryControls from "../shared/react/useListQueryControls";
 import relativeUrl from "../shared/relativeUrl";
 import setUrlPart from "../shared/setUrlPart";
+import { LayoutContainer } from "../state/withLayout";
 import clsx from "clsx";
 import dayjs from "dayjs";
 import _ from "lodash";
 import React from "react";
-import Button from "react-bootstrap/Button";
 import Container from "react-bootstrap/Container";
 import Table from "react-bootstrap/Table";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -52,9 +53,11 @@ export default function LedgersOverview() {
   };
   return (
     <>
-      <Container>
+      <LayoutContainer gutters top>
+        <LinearBreadcrumbs />
+        <h2 className="page-header">{t("payments:ledger_transactions")}</h2>
         <p>{t("payments:ledgers_intro")}</p>
-      </Container>
+      </LayoutContainer>
       {ledgersOverview.ledgers ? (
         <Ledger
           ledger={ledger}
@@ -93,7 +96,8 @@ const Ledger = ({
     setSelectedLine(line);
   }, [location, lines]);
 
-  const handleLedgerLineSelected = (line) => {
+  const handleLedgerLineSelected = (event, line) => {
+    event && event.preventDefault();
     const hash = line ? line.opaqueId : "#";
     navigate(relativeUrl({ location: setUrlPart({ location, hash }) }));
     setSelectedLine(line);
@@ -101,13 +105,12 @@ const Ledger = ({
 
   return (
     <>
-      <Container>
+      <LayoutContainer gutters>
         <h3>
           <Money>{ledger.balance}</Money>
         </h3>
-        <p className="m-0">{t("payments:ledger_balance")}</p>
-        <h5 className="mt-3">{t("payments:ledger_transactions")}</h5>
-      </Container>
+        <p>{t("payments:ledger_balance")}</p>
+      </LayoutContainer>
       {linesLoading && <PageLoader />}
       <Table
         responsive
@@ -121,15 +124,15 @@ const Ledger = ({
         <tbody>
           {lines.map((line) => (
             <tr key={line.id}>
-              <td>
+              <td className="pt-3 pb-3">
                 <div className="d-flex justify-content-between mb-1">
-                  <Button
-                    variant="link"
+                  <a
                     className="ps-0"
-                    onClick={() => handleLedgerLineSelected(line)}
+                    href={`#${line.opaqueId}`}
+                    onClick={(e) => handleLedgerLineSelected(e, line)}
                   >
                     <strong>{dayjs(line.at).format("lll")}</strong>
-                  </Button>
+                  </a>
                   <Money
                     className={clsx(
                       line.amount.cents < 0 ? "text-danger" : "text-success"
@@ -154,7 +157,7 @@ const Ledger = ({
       </Container>
       <LedgerItemModal
         item={selectedLine}
-        onClose={() => handleLedgerLineSelected(null)}
+        onClose={() => handleLedgerLineSelected(null, null)}
       />
     </>
   );

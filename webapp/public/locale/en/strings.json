@@ -85,7 +85,7 @@
     "nickname": "Nickname",
     "nickname_caption": "The name used to refer to the account in Suma.",
     "otp_verify": "Verify",
-    "paper_check_link_md": "[how to find your bank details from a paper check](#check-details 'Paper Check Details Modal')",
+    "paper_check_link_md": "[how to find your bank details from a paper check](##check-details 'Paper Check Details')",
     "phone": "Phone",
     "routing_caption_md": "9-digit number for your bank. You can get these from your online banking portal, or check out $t(strings:forms:paper_check_link_md).",
     "routing_number": "Routing Number",

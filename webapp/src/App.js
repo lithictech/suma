@@ -175,7 +175,7 @@ function AppRoutes() {
             redirectIfUnboarded,
             withScreenLoaderMount(),
             withMetatags({ title: t("payments:add_funds") }),
-            withLayout(),
+            withLayout({ top: true, gutters: true }),
             FundingAddFunds
           )}
         />

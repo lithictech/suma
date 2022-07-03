@@ -30,6 +30,12 @@ const runChecks = process.env.NODE_ENV === "development";
  *
  *   <h1>title</h1>
  *   <p>{md("key")}</p>
+ *
+ * Note: Links are rendered with the ELink component,
+ * which will 1) use a new tab for external links,
+ * 2) use Link for internal links (# or /),
+ * and 3) use a Link with 'replace' if the href includes ##.
+ * So ## can be used, for example, to trigger modals controlled by the hash.
  */
 export function mdx(key, mdoptions = {}, i18noptions = {}) {
   if (runChecks) {
