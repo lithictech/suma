@@ -3,16 +3,17 @@
     "add_money_to_account": "Press here to add money to your account",
     "app_name": "Suma",
     "back": "Back",
+    "back_sym": "‹",
     "cancel": "Cancel",
     "close": "Close",
     "go_home": "Go Home",
     "learn_more": "Learn More",
     "logout": "Logout",
     "next": "Next",
+    "next_sym": "›",
+    "okay_ex": "Okay!",
     "pagination_next": "Next ›",
     "pagination_prev": "‹ Prev",
-    "back_sym": "‹",
-    "next_sym": "›",
     "reference_id": "Reference ID",
     "scooter_cost": "{{startCost, sumaCurrency}} to start then {{costPerMinute, sumaCurrency}}/min + taxes",
     "view_all": "View all",
@@ -66,6 +67,7 @@
     "amount": "Amount",
     "check_detail": "check detail",
     "checking": "Checking",
+    "choose_state": "Choose state...",
     "city": "City",
     "confirm_account_number": "Confirm Account Number",
     "confirm_account_number_caption": "Please retype your Account Number to confirm.",
@@ -84,7 +86,6 @@
     "name": "Name",
     "nickname": "Nickname",
     "nickname_caption": "The name used to refer to the account in Suma.",
-    "otp_verify": "Verify",
     "paper_check_link_md": "[how to find your bank details from a paper check](##check-details 'Paper Check Details')",
     "phone": "Phone",
     "routing_caption_md": "9-digit number for your bank. You can get these from your online banking portal, or check out $t(strings:forms:paper_check_link_md).",
@@ -100,9 +101,6 @@
     "mobility_trip": "{{serviceName}} trip. You saved {{discountAmount, sumaCurrency}}.",
     "unknown": "Uncategorized Suma charge"
   },
-  "messages": {
-    "otp_resent": "New code sent to {{ phone }}."
-  },
   "mobility": {
     "end_trip": "End Trip",
     "intro": "Ride with enhanced privacy and better prices.",
@@ -111,6 +109,25 @@
     "title": "Mobility Services",
     "trip_ended": "Your trip with {{vendor}} has ended.\n\nWe used {{totalCost, sumaCurrency}} of your Suma balance for this trip.\n\nYou saved {{discountAmount, sumaCurrency}}.",
     "trip_started_at": "Trip started at {{at}}."
+  },
+  "onboarding": {
+    "enroll_intro": "Welcome to Suma! To get started, we will need to verify your identity. This makes sure you are eligible for the right programs, such as with our affordable housing partners.\n\n**We will never share this information other than to verify your identity.**",
+    "enroll_title": "Enroll in Suma",
+    "finish": "Thanks! Our team will check things out and be in touch with any questions, or as soon as you&rsquo;re verified.\n\nVerification usually happens within 1-2 business days.\n\nIn the meantime, you can learn more about the application and see what is available.",
+    "food_text": "Suma partners with the grocers you already use to offer discounts and bundled benefits",
+    "food_title": "Fresh Groceries",
+    "mobility_text": "Reduced-fare clean-energy transportation with electric scooters and bikes",
+    "mobility_title": "Clean Mobility",
+    "utilities_text": "Access local Community Solar projects for affordable, clean renewable energy",
+    "utilities_title": "Green Energy"
+  },
+  "otp": {
+    "code_resent": "New code sent to {{ phone }}.",
+    "did_not_receive": "Didn't recieve a text message?",
+    "enter_code_sent_to": "Enter the code that we sent to",
+    "send_new_code": "Send a new code",
+    "verify": "Verify",
+    "verify_code": "Verify Code"
   },
   "payments": {
     "account_submission_statement": "After you submit your information, one of our Member Experience specialists will be in touch to confirm the account.",
@@ -126,7 +143,7 @@
     "link_account": "Link Bank Account",
     "link_another_account": "Link Another Account",
     "linked_account": "Bank Account Linked",
-    "linked_account_successful_md": "Your bank account has been successfully linked to Suma. Within the next day or two, one of our Member Experience specialists will be in touch to confirm the account.\n\n\n\nOnce the account is confirmed, you'll be able to add funds.",
+    "linked_account_successful_md": "Your bank account has been successfully linked to Suma. Within the next day or two, one of our Member Experience specialists will be in touch to confirm the account.\n\nOnce the account is confirmed, you'll be able to add funds.",
     "no_bank_accounts_warning": "You don't have any bank accounts linked.",
     "payment_account_pending": "Pending",
     "payment_account_verified": "Verified",

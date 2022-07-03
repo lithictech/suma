@@ -2,7 +2,7 @@ import api from "../api";
 import FormButtons from "../components/FormButtons";
 import FormControlGroup from "../components/FormControlGroup";
 import FormError from "../components/FormError";
-import { t } from "../localization";
+import { mdp, t } from "../localization";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
 import { extractErrorCode } from "../state/useError";
 import { useUser } from "../state/useUser";
@@ -76,17 +76,8 @@ export default function OnboardingSignup() {
 
   return (
     <>
-      <h1 className="page-header">Enroll in Suma</h1>
-      <p>
-        Welcome to Suma! To get started, we will need to verify your identity. This makes
-        sure you are eligible for the right programs, such as with our affordable housing
-        partners.
-      </p>
-      <p>
-        <strong>
-          We will never share this information other than to verify your identity.
-        </strong>
-      </p>
+      <h2 className="page-header">{t("onboarding:enroll_title")}</h2>
+      {mdp("onboarding:enroll_intro")}
       <Form noValidate onSubmit={handleSubmit(handleFormSubmit)}>
         <FormControlGroup
           className="mb-3"
@@ -144,7 +135,7 @@ export default function OnboardingSignup() {
             onChange={(e) => handleInputChange(e, setState)}
           >
             <option disabled value="">
-              Choose state...
+              {t("forms:choose_state")}
             </option>
             {!!supportedGeographies.provinces &&
               supportedGeographies.provinces.map((state) => (

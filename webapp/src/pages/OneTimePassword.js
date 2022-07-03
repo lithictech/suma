@@ -77,7 +77,7 @@ const OneTimePassword = () => {
   const handleResend = () => {
     setOtp(new Array(6).fill(""));
     setError(null);
-    setMessage(["otp_resent", { phone: formatPhoneNumber(phoneNumber) }]);
+    setMessage(["otp:code_resent", { phone: formatPhoneNumber(phoneNumber) }]);
     const firstOtpField = document.getElementById("otpContainer").firstChild;
     firstOtpField.focus();
     api
@@ -94,13 +94,13 @@ const OneTimePassword = () => {
   return (
     <>
       <p className="text-center mb-0">
-        Enter the code that we sent to
+        {t("otp:enter_code_sent_to")}
         <br />
         {formatPhoneNumber(phoneNumber)}:
       </p>
       <Form noValidate onSubmit={handleOtpSubmit}>
         <fieldset>
-          <h3 className="text-center mt-4">Verify Code</h3>
+          <h4 className="text-center mt-4">{t("otp:verify_code")}</h4>
           <div id="otpContainer" className="d-flex justify-content-center mt-4">
             {otp.map((data, index) => (
               <input
@@ -124,7 +124,7 @@ const OneTimePassword = () => {
         <FormError error={error} center className="mb-1" />
         <FormSuccess message={message} center className="mb-1" />
         <p className="text-muted small text-center mt-4">
-          Did not recieve a text message?
+          {t("otp:did_not_receive")}
           <br />
           <Button
             className="p-0 align-baseline"
@@ -132,16 +132,16 @@ const OneTimePassword = () => {
             variant="link"
             onClick={handleResend}
           >
-            Send a new code.
+            {t("otp:send_new_code")}
           </Button>
         </p>
         <FormButtons
           back
           primaryProps={{
-            children: t("forms:otp_verify"),
+            children: t("otp:verify"),
             disabled: submitDisabled.isOn,
           }}
-          variant="success"
+          variant="outline-primary"
           className="px-3"
         />
       </Form>

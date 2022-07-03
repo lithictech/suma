@@ -3,7 +3,7 @@ import clsx from "clsx";
 import _ from "lodash";
 import React from "react";
 
-export default function FormSuccess({ message, center, ns, className }) {
+export default function FormSuccess({ message, center, className }) {
   if (!message) {
     return null;
   }
@@ -15,7 +15,6 @@ export default function FormSuccess({ message, center, ns, className }) {
     msgkey = message;
     vars = {};
   }
-  msgkey = `${ns || "messages"}:${msgkey}`;
   const msg = t(msgkey, { ...vars });
   return (
     <p className={clsx("d-block text-success small", center && "text-center", className)}>

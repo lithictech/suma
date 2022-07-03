@@ -13,18 +13,18 @@ const Onboarding = () => {
       <Carousel fade className="onboarding-carousel overflow-hidden">
         <CarouselSlide
           src={onboardingMobility}
-          title="Mobility"
-          subtitle="We provide clean-energy transportation with electric scooters and bikes"
+          title={t("onboarding:mobility_title")}
+          subtitle={t("onboarding:mobility_text")}
         />
         <CarouselSlide
           src={onboardingUtilities}
-          title="Save Money"
-          subtitle="Big discounts on things that you buy the most"
+          title={t("onboarding:utilities_title")}
+          subtitle={t("onboarding:utilities_text")}
         />
         <CarouselSlide
           src={onboardingFood}
-          title="Food"
-          subtitle="Hungry? Get food directly to your door"
+          title={t("onboarding:food_title")}
+          subtitle={t("onboarding:food_text")}
         />
       </Carousel>
       <div className="button-stack">
@@ -46,7 +46,7 @@ export default Onboarding;
 const CarouselSlide = React.forwardRef((props, ref) => {
   const { src, title, subtitle, ...rest } = props;
   return (
-    <Carousel.Item ref={ref} interval={1500} {...rest}>
+    <Carousel.Item ref={ref} interval={2200} {...rest}>
       <div className="onboarding-carousel-image-overlay" />
       <img className="onboarding-carousel-image" src={src} alt="" />
       <Carousel.Caption>
