@@ -1,5 +1,6 @@
 import "../assets/styles/screenloader.scss";
 import TopNav from "../components/TopNav";
+import ScrollTopOnMount from "../shared/ScrollToTopOnMount";
 import clsx from "clsx";
 import React from "react";
 import Col from "react-bootstrap/Col";
@@ -21,6 +22,7 @@ import Row from "react-bootstrap/Row";
  *   so the page content doesn't sit at the bottom of the screen.
  *   In rare cases (like the mobility map), we want the page content to sit flush
  *   with the bottom. Use noBottom in those cases.
+ * @param {boolean=} options.noScrollTop By default, scroll to top when the page mounts.
  * @param {string=} options.bg Background color class for the page container.
  */
 export default function withLayout(options) {
@@ -30,6 +32,7 @@ export default function withLayout(options) {
   const gutterCls = options.gutters ? guttersClass : null;
   const topCls = options.top ? topMarginClass : null;
   const noBottomCls = options.noBottom ? null : "pb-5";
+  const scrollTop = !options.noScrollTop;
   return (Wrapped) => {
     return (props) => {
       let node;
@@ -54,6 +57,7 @@ export default function withLayout(options) {
       }
       return (
         <div className={clsx(bg, "root", noBottomCls)}>
+          {scrollTop && <ScrollTopOnMount />}
           <div className="main-container">
             {nav === "top" && <TopNav />}
             {node}
