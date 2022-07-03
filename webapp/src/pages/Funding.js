@@ -16,7 +16,6 @@ import Button from "react-bootstrap/Button";
 import Card from "react-bootstrap/Card";
 import Dropdown from "react-bootstrap/Dropdown";
 import Modal from "react-bootstrap/Modal";
-import "react-phone-number-input/style.css";
 
 export default function Funding() {
   const { user } = useUser();

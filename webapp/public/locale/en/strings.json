@@ -7,6 +7,7 @@
     "cancel": "Cancel",
     "close": "Close",
     "go_home": "Go Home",
+    "join_waitlist": "Join Waiting List",
     "learn_more": "Learn More",
     "logout": "Logout",
     "next": "Next",
@@ -54,6 +55,11 @@
     "unhandled_error": "Sorry, something went wrong. Please try again.",
     "validation_error": "Some fields were left blank, please fill in all required fields and try again.",
     "vehicle_not_found": "No vehicle found in this location."
+  },
+  "food": {
+    "intro_md": "Suma wants to make it easy for you to save money on food, whether you shop at a big chain, the corner store or an organic market.\n\nSign up for our free waiting list to suggest food vendors you want to see on the platform and to help us build a community of users.",
+    "page_title": "Food",
+    "title": "Food"
   },
   "forms": {
     "account_caption_md": "Number of your bank account. You can get these from your online banking portal, or check out $t(strings:forms:paper_check_link_md).",
@@ -172,5 +178,10 @@
     "otp": "One Time Password",
     "start": "Get Started",
     "suma_app": "Suma App"
+  },
+  "utilities": {
+    "intro_md": "Suma wants to make it easy for you to save money on your utility bills and make our communities more resilient against extreme weather and climate change.\n\nSign up for our free waiting list to help us build a community of users and to show that everyone deserves clean and affordable energy.",
+    "page_title": "Utilities",
+    "title": "Utilities"
   }
 }
