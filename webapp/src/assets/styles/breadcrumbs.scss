@@ -1,0 +1,17 @@
+@import "./theme";
+
+.linear-breadcrumb {
+  display: flex;
+  flex-wrap: wrap;
+  padding: 0;
+  margin-bottom: $spacer;
+  list-style: none;
+  justify-content: space-between;
+  letter-spacing: 1px;
+
+  a {
+    color: $dark;
+    text-decoration: none;
+    border-bottom: 1px $dark solid;
+  }
+}

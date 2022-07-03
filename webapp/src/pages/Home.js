@@ -1,31 +1,30 @@
 import sumaLogo from "../assets/images/suma-logo.png";
+import ExternalLink from "../components/ExternalLink";
 import RLink from "../components/RLink";
 import { t } from "../localization";
-import SafeExternalLink from "../shared/react/SafeExternalLink";
+import externalLinks from "../modules/externalLinks";
 import React from "react";
 import Button from "react-bootstrap/Button";
 import Container from "react-bootstrap/Container";
 
-const Home = () => {
+export default function Home() {
   return (
     <Container className="text-center">
-      <img src={sumaLogo} alt="MySuma Logo" />
-      <p>{t("common:welcome_to_suma")}</p>
-      <div className="d-grid gap-3">
-        <Button href="/start" variant="primary" as={RLink}>
+      <img src={sumaLogo} alt="MySuma Logo" className="p-4" style={{ width: 250 }} />
+      <h1 className="mb-4">{t("common:welcome_to_suma")}</h1>
+      <div className="button-stack">
+        <Button href="/start" variant="outline-primary" as={RLink} className="w-75">
           {t("forms:continue")}
         </Button>
-        <SafeExternalLink
+        <ExternalLink
           component={Button}
-          href="https://mysuma.org/"
+          href={externalLinks.sumaIntroLink}
           variant="outline-secondary"
-          referrer
+          className="w-75 mt-3 nowrap"
         >
           {t("common:learn_more")}
-        </SafeExternalLink>
+        </ExternalLink>
       </div>
     </Container>
   );
-};
-
-export default Home;
+}

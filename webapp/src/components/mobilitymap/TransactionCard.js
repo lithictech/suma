@@ -17,7 +17,7 @@ const TransactionCard = ({ endTrip, onCloseTrip, error }) => {
         })}
       </p>
       <FormError error={error} />
-      <Button size="sm" variant="primary" className="w-100" onClick={handleClose}>
+      <Button size="sm" variant="outline-primary" className="w-100" onClick={handleClose}>
         {t("common:close")}
       </Button>
     </CardOverlay>

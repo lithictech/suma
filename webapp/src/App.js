@@ -63,7 +63,7 @@ function AppRoutes() {
           element={renderWithHocs(
             redirectIfAuthed,
             withMetatags({ title: t("titles:home"), exact: true }),
-            withLayout({ nav: "none" }),
+            withLayout({ nav: "none", bg: "bg-white" }),
             Home
           )}
         />
@@ -73,7 +73,7 @@ function AppRoutes() {
           element={renderWithHocs(
             redirectIfAuthed,
             withMetatags({ title: t("titles:start") }),
-            withLayout(),
+            withLayout({ gutters: true, top: true }),
             Start
           )}
         />
@@ -83,7 +83,7 @@ function AppRoutes() {
           element={renderWithHocs(
             redirectIfAuthed,
             withMetatags({ title: t("titles:otp") }),
-            withLayout(),
+            withLayout({ gutters: true, top: true }),
             OneTimePassword
           )}
         />
@@ -94,7 +94,7 @@ function AppRoutes() {
             redirectIfUnauthed,
             redirectIfBoarded,
             withMetatags({ title: t("titles:onboarding") }),
-            withLayout(),
+            withLayout({}),
             Onboarding
           )}
         />
@@ -105,7 +105,7 @@ function AppRoutes() {
             redirectIfUnauthed,
             redirectIfBoarded,
             withMetatags({ title: t("titles:onboarding_signup") }),
-            withLayout(),
+            withLayout({ gutters: true, top: true }),
             OnboardingSignup
           )}
         />
@@ -115,7 +115,7 @@ function AppRoutes() {
           element={renderWithHocs(
             redirectIfUnauthed,
             withMetatags({ title: t("titles:onboarding_finish") }),
-            withLayout(),
+            withLayout({ gutters: true, top: true }),
             OnboardingFinish
           )}
         />
@@ -127,7 +127,7 @@ function AppRoutes() {
             redirectIfUnboarded,
             withScreenLoaderMount(),
             withMetatags({ title: t("titles:dashboard") }),
-            withLayout(),
+            withLayout({}),
             Dashboard
           )}
         />
@@ -139,7 +139,7 @@ function AppRoutes() {
             redirectIfUnboarded,
             withScreenLoaderMount(),
             withMetatags({ title: t("mobility:title") }),
-            withLayout(),
+            withLayout({ noBottom: true }),
             Mobility
           )}
         />
@@ -151,7 +151,7 @@ function AppRoutes() {
             redirectIfUnboarded,
             withScreenLoaderMount(),
             withMetatags({ title: t("titles:funding") }),
-            withLayout(),
+            withLayout({ top: true, gutters: true }),
             Funding
           )}
         />
@@ -163,7 +163,7 @@ function AppRoutes() {
             redirectIfUnboarded,
             withScreenLoaderMount(),
             withMetatags({ title: t("payments:link_account") }),
-            withLayout(),
+            withLayout({ top: true, gutters: true }),
             FundingLinkBankAccount
           )}
         />
@@ -175,7 +175,7 @@ function AppRoutes() {
             redirectIfUnboarded,
             withScreenLoaderMount(),
             withMetatags({ title: t("payments:add_funds") }),
-            withLayout(),
+            withLayout({ top: true, gutters: true }),
             FundingAddFunds
           )}
         />

@@ -37,7 +37,7 @@ const ReservationCard = ({ active, loading, vehicle, onReserve, reserveError }) 
         })}
       </Card.Text>
       <FormError error={reserveError} />
-      <Button size="sm" variant="primary" className="w-100" onClick={handlePress}>
+      <Button size="sm" variant="outline-primary" className="w-100" onClick={handlePress}>
         {t("mobility:reserve_scooter")}
       </Button>
     </CardOverlay>

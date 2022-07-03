@@ -5,8 +5,8 @@ import Button from "react-bootstrap/Button";
 
 export default function GoHome() {
   return (
-    <div className="d-flex justify-content-center">
-      <Button variant="primary" href="/dashboard" as={RLink}>
+    <div className="button-stack mt-4">
+      <Button variant="outline-primary" href="/dashboard" as={RLink}>
         {t("common:go_home")}
       </Button>
     </div>

@@ -53,7 +53,12 @@ const TripCard = ({ active, trip, onCloseTrip, onStopTrip, lastLocation }) => {
             })}
           </p>
           <FormError error={error} />
-          <Button size="sm" variant="primary" className="w-100" onClick={handleEndTrip}>
+          <Button
+            size="sm"
+            variant="outline-danger"
+            className="w-100"
+            onClick={handleEndTrip}
+          >
             {t("mobility:end_trip")}
           </Button>
         </CardOverlay>

@@ -12,7 +12,6 @@ import { useScreenLoader } from "../state/useScreenLoader";
 import { useUser } from "../state/useUser";
 import _ from "lodash";
 import React from "react";
-import Container from "react-bootstrap/Container";
 import Form from "react-bootstrap/Form";
 import { useNavigate, useSearchParams } from "react-router-dom";
 
@@ -105,8 +104,8 @@ export default function FundingAddFunds() {
   }
 
   return (
-    <Container>
-      <h2>{t("payments:add_funds")}</h2>
+    <>
+      <h2 className="page-header">{t("payments:add_funds")}</h2>
       <p>{t("payments:add_funds_intro")}</p>
       <Form noValidate onSubmit={handleFormSubmit}>
         <div className="d-flex justify-content-center mb-3">
@@ -123,7 +122,7 @@ export default function FundingAddFunds() {
         <p>{t("payments:payment_submission_statement")}</p>
         <FormError error={error} end />
         <FormButtons
-          variant="success"
+          variant="outline-primary"
           back
           primaryProps={{
             disabled: !amountCents,
@@ -132,6 +131,6 @@ export default function FundingAddFunds() {
           }}
         />
       </Form>
-    </Container>
+    </>
   );
 }

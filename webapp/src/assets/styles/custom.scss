@@ -1,10 +1,68 @@
 @import "./theme.scss";
 
+.main-container {
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+.root {
+    min-height: 100vh;
+}
+
+.nowrap {
+    white-space: nowrap;
+}
+
+.border-radius-0 {
+    border-radius: 0 !important;
+}
+
 .table-flush {
     > tbody > tr > td:first-child, > thead > tr > th {
-        padding-left: $grid-gutter-width * 0.5 !important;
+        padding-left: map-get($spacers, 4) !important;
     }
     > tbody > tr > td:last-child, > thead > tr > th {
-        padding-right: $grid-gutter-width * 0.5 !important;
+        padding-right: map-get($spacers, 4) !important;
     }
+}
+
+.button-stack {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    > a, button {
+        width: 75%;
+        max-width: 275px;
+    }
+}
+
+.page-header {
+    color: $primary;
+    text-transform: uppercase;
+    font-family: $font-family-sans-serif;
+    letter-spacing: 2px;
+    font-weight: 500;
+}
+
+.select-noselection {
+    color: $input-placeholder-color !important;
+}
+
+.inactive-outline-button {
+    background: rgba(0, 0, 0, 0.05) !important;
+}
+
+.active-outline-button {
+    background: $white !important;
+}
+
+.app-link {
+    border-radius: 0 !important;
+    flex-grow: 1 !important;;
+    font-size: $font-size-base !important;;
+    background: rgba(0, 0, 0, 0.05) !important;;
+}
+.app-link-active {
+    background: $white !important;;
 }

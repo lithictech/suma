@@ -1,0 +1,16 @@
+.onboarding-carousel {
+  > .carousel-indicators {
+    display: none !important;
+  }
+}
+
+.onboarding-carousel-image {
+  height: 500px;
+}
+
+.onboarding-carousel-image-overlay {
+  height: 100%;
+  width: 100%;
+  position: absolute;
+  background: linear-gradient(0deg, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.45) 25%, rgba(0,0,0,0.0) 43%);
+}

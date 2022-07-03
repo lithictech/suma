@@ -1,8 +1,46 @@
-// Override Variables
+@import "./_fonts";
+
+$min-contrast-ratio: 2.5;
+
+$font-family-sans-serif: 'Source Sans Pro', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji" !default;
+$font-family-serif: 'Raleway', $font-family-sans-serif;
 $font-size-base: 1.05rem;
-$btn-border-radius: .3rem;
-$btn-border-radius-sm: .2rem;
-$btn-border-radius-lg: .5rem;
+
+$primary: rgb(205, 166, 113);
+$secondary: rgb(132, 134, 130);
+$success: #498567;
+$danger: #b53d00;
+$light: #f2f2f2;
+$light-darker: darken($light, 5%);
+$dark: #0d0d0d;
+
+$gray-100: #f8f9fa !default;
+$gray-200: #e9ecef !default;
+$gray-300: #dee2e6 !default;
+$gray-400: #ced4da !default;
+$gray-500: #adb5bd !default;
+$gray-600: #6c757d !default;
+$gray-700: #495057 !default;
+$gray-800: #343a40 !default;
+$gray-900: #212529 !default;
+
+$text-muted: $gray-700 !default;
+
+$btn-border-width: 3px;
+$btn-border-radius: 50px;
+$btn-border-radius-sm: 50px;
+$btn-border-radius-lg: 50px;
+$btn-font-weight: bold;
+
+$headings-font-weight: 700;
+$headings-font-family: $font-family-serif;
+
+$input-btn-padding-y: .5rem;
+$input-btn-padding-x: 1rem;
+$input-border-color: lighten($primary, 20%);
+$input-border-width: 2px;
+$input-border-radius: 0;
+$input-placeholder-color: $gray-500;
 
 // Configuration
 // Note: Any variable override goes above these files
@@ -10,34 +48,6 @@ $btn-border-radius-lg: .5rem;
 @import "~bootstrap/scss/_functions";
 @import "~bootstrap/scss/_variables";
 @import "~bootstrap/scss/_mixins";
-
-.main-container {
-  max-width: 500px;
-  margin: 0 auto 80px;
-}
-
-$theme-colors: map-merge-multiple(
-  $theme-colors,
-  (
-    "primary": #f5cb82,
-    "primary-dark": #a77948,
-    "suma-blue": #a7b8d9,
-    "light": #f2f2f2,
-    "dark": #0d0d0d
-  ),
-);
-// Adds theme colors to sub-classes e.g. text-suma, bg-suma
-// will be fixed in BS 5.2.x per: https://github.com/twbs/bootstrap/issues/35297
-$theme-colors-rgb: map-loop($theme-colors, to-rgb, "$value");
-$utilities-colors: map-merge($utilities-colors, $theme-colors-rgb);
-$utilities-colors: map-merge($utilities-colors, (
-  "black": to-rgb($black),
-  "white": to-rgb($white),
-  "body": to-rgb($body-color)
-));
-$utilities-text-colors: map-loop($utilities-colors, rgba-css-var, "$key", "text");
-$utilities-bg-colors: map-loop($utilities-colors, rgba-css-var, "$key", "bg");
-
 
 // Layout & components
 @import "~bootstrap/scss/_accordion";
@@ -77,3 +87,19 @@ $utilities-bg-colors: map-loop($utilities-colors, rgba-css-var, "$key", "bg");
 
 // Utilities
 @import "~bootstrap/scss/utilities/api";
+
+// Customize Bootstrap classes
+
+.btn {
+  font-size: 110%;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.btn-primary {
+  @include button-variant(darken($primary, 5%), darken($primary, 5%));
+}
+
+.card-header {
+  background-color: $light-darker;
+}

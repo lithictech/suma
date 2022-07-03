@@ -1,17 +1,9 @@
-import FormButtons from "../components/FormButtons";
 import React from "react";
-import Container from "react-bootstrap/Container";
-import { useNavigate } from "react-router-dom";
+import Button from "react-bootstrap/Button";
 
-const OnboardingFinish = () => {
-  const navigate = useNavigate();
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    navigate("/dashboard");
-  };
+export default function OnboardingFinish() {
   return (
-    <Container>
+    <>
       <p>
         Thanks! Our team will check things out and be in touch with any questions, or as
         soon as you&rsquo;re verified.
@@ -21,12 +13,11 @@ const OnboardingFinish = () => {
         In the meantime, you can learn more about the application and see what is
         available.
       </p>
-      <FormButtons
-        variant="success"
-        primaryProps={{ children: "Okay!", onClick: handleSubmit }}
-      />
-    </Container>
+      <div className="button-stack">
+        <Button href="/dashboard" variant="outline-primary" className="mt-3">
+          Okay!
+        </Button>
+      </div>
+    </>
   );
-};
-
-export default OnboardingFinish;
+}

@@ -1,19 +1,23 @@
 {
   "common": {
     "add_money_to_account": "Press here to add money to your account",
-    "app_name": "MySuma",
+    "app_name": "Suma",
     "back": "Back",
     "cancel": "Cancel",
     "close": "Close",
     "go_home": "Go Home",
     "learn_more": "Learn More",
     "logout": "Logout",
+    "next": "Next",
     "pagination_next": "Next ›",
     "pagination_prev": "‹ Prev",
+    "back_sym": "‹",
+    "next_sym": "›",
     "reference_id": "Reference ID",
     "scooter_cost": "{{startCost, sumaCurrency}} to start then {{costPerMinute, sumaCurrency}}/min + taxes",
     "view_all": "View all",
-    "welcome_to_suma": "Welcome to Suma"
+    "welcome_to_suma": "Welcome to Suma",
+    "whats_this": "What's this?"
   },
   "dashboard": {
     "check_ongoing_trip": "You have an ongoing trip. Please make sure you end it when you are finished with your ride!",
@@ -80,10 +84,9 @@
     "name": "Name",
     "nickname": "Nickname",
     "nickname_caption": "The name used to refer to the account in Suma.",
-    "otp_verify": "Verify Code",
-    "paper_check_link_md": "[how to find your bank details from a paper check](#check-details 'Paper Check Details Modal')",
+    "otp_verify": "Verify",
+    "paper_check_link_md": "[how to find your bank details from a paper check](##check-details 'Paper Check Details')",
     "phone": "Phone",
-    "phone_placeholder": "555-111-2222",
     "routing_caption_md": "9-digit number for your bank. You can get these from your online banking portal, or check out $t(strings:forms:paper_check_link_md).",
     "routing_number": "Routing Number",
     "savings": "Savings",
@@ -123,13 +126,13 @@
     "link_account": "Link Bank Account",
     "link_another_account": "Link Another Account",
     "linked_account": "Bank Account Linked",
-    "linked_account_successful_md": "Your bank account has been successfully linked to Suma. Within the next day or two, one of our Member Experience specialists will be in touch to confirm the account.  \nOnce the account is confirmed, you'll be able to add funds.",
+    "linked_account_successful_md": "Your bank account has been successfully linked to Suma. Within the next day or two, one of our Member Experience specialists will be in touch to confirm the account.\n\n\n\nOnce the account is confirmed, you'll be able to add funds.",
     "no_bank_accounts_warning": "You don't have any bank accounts linked.",
     "payment_account_pending": "Pending",
     "payment_account_verified": "Verified",
     "payment_intro": {
       "intro_md": "To add money to your account, you'll need at least one *funding source*. Usually this is a bank account, but other options maybe available to you below.",
-      "privacy_statement_md": "Your financial information is secured using **bank-level encryption** and **never shared without your consent**. Please see [Suma's Privacy Policy](#TODO 'Suma Privacy Policy Link') for more details about how we protect and use your financial information."
+      "privacy_statement_md": "Your financial information is secured using **bank-level encryption** and **never shared without your consent**. Please see [Suma's Privacy Policy]({{ externalLinks.privacyPolicy }}) for more details about how we protect and use your financial information."
     },
     "payment_other_sources": "Other Sources",
     "payment_submission_statement": "After you submit your payment, you will be able to use the money immediately. The withdrawal should hit your account in 2 or 3 business days.",

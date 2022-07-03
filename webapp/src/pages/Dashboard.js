@@ -1,19 +1,18 @@
 import api from "../api";
+import AppNav from "../components/AppNav";
 import Money from "../components/Money";
 import PageLoader from "../components/PageLoader";
 import RLink from "../components/RLink";
 import { md, t } from "../localization";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
 import { useUser } from "../state/useUser";
+import { LayoutContainer } from "../state/withLayout";
 import clsx from "clsx";
 import dayjs from "dayjs";
 import _ from "lodash";
 import React from "react";
 import Alert from "react-bootstrap/Alert";
 import Button from "react-bootstrap/Button";
-import Col from "react-bootstrap/Col";
-import Container from "react-bootstrap/Container";
-import Row from "react-bootstrap/Row";
 import Stack from "react-bootstrap/Stack";
 import Table from "react-bootstrap/Table";
 import { Link } from "react-router-dom";
@@ -31,7 +30,7 @@ const Dashboard = () => {
         <Alert variant="danger" className="border-radius-0">
           <p>{t("dashboard:check_ongoing_trip")}</p>
           <div className="d-flex justify-content-end">
-            <Link to="/mobility" className="btn btn-sm btn-danger">
+            <Link to="/mobility" className="btn btn-sm btn-danger px-3">
               {t("dashboard:check_ongoing_trip_button")}
               <i
                 className="bi bi-box-arrow-in-right mx-1"
@@ -42,19 +41,7 @@ const Dashboard = () => {
           </div>
         </Alert>
       )}
-      <Container>
-        <Row>
-          <Col>
-            <AppLink to="/mobility" label="Mobility" />
-          </Col>
-          <Col>
-            <AppLink to="#todo" label="Food" />
-          </Col>
-          <Col>
-            <AppLink to="#todo" label="Utilities" />
-          </Col>
-        </Row>
-      </Container>
+      <AppNav />
       {dashboardLoading ? <PageLoader /> : <Ledger dashboard={dashboard} />}
     </>
   );
@@ -62,24 +49,20 @@ const Dashboard = () => {
 
 export default Dashboard;
 
-const AppLink = ({ to, label }) => {
-  return (
-    <Link to={to} className="btn btn-sm btn-primary w-100 p-2 text-body rounded-pill">
-      {label}
-    </Link>
-  );
-};
-
 const Ledger = ({ dashboard }) => {
   return (
     <>
-      <Container className="d-flex justify-content-between pt-3 pb-1 align-items-start">
+      <LayoutContainer
+        top="pt-2"
+        gutters
+        className="d-flex justify-content-between pb-2 align-items-start"
+      >
         <div>
           <h3>
             <Money colored>{dashboard.paymentAccountBalance}</Money>
           </h3>
-          <p className="m-0">{t("dashboard:payment_account_balance")}</p>
-          <Button variant="link" href="/funding" className="ps-0" as={RLink}>
+          <p className="m-0 mb-2">{t("dashboard:payment_account_balance")}</p>
+          <Button variant="outline-success" href="/funding" as={RLink} size="sm">
             {t("payments:add_funds")}
           </Button>
         </div>
@@ -89,7 +72,7 @@ const Ledger = ({ dashboard }) => {
           </h3>
           <p className="m-0">{t("dashboard:lifetime_savings")}</p>
         </div>
-      </Container>
+      </LayoutContainer>
       <hr />
       {!_.isEmpty(dashboard.ledgerLines) ? (
         <Table responsive striped hover className="table-borderless table-flush">
@@ -126,9 +109,9 @@ const Ledger = ({ dashboard }) => {
           </tbody>
         </Table>
       ) : (
-        <Container>
+        <LayoutContainer top="pt-2" gutters>
           <p>{md("dashboard:no_money_md")}</p>
-        </Container>
+        </LayoutContainer>
       )}
     </>
   );
