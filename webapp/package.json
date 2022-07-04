@@ -15,6 +15,7 @@
     "humps": "^2.0.1",
     "i18next": "^21.6.14",
     "i18next-http-backend": "^1.4.0",
+    "leaflet": "1.7.1",
     "leaflet.animatedmarker": "^1.0.0",
     "leaflet.markercluster": "^1.5.3",
     "lodash": "^4.17.21",
