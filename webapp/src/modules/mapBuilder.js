@@ -1,11 +1,16 @@
 import api from "../api";
 import scooterIcon from "../assets/images/kick-scooter.png";
 import scooterContainer from "../assets/images/scooter-container.svg";
+import leaflet from "leaflet";
+import "leaflet.animatedmarker/src/AnimatedMarker";
+import "leaflet.markercluster/dist/MarkerCluster.css";
+import "leaflet.markercluster/dist/leaflet.markercluster";
+import "leaflet/dist/leaflet.css";
 
 export default class MapBuilder {
   constructor(mapRef) {
     this.mapRef = mapRef;
-    this._l = window.L;
+    this._l = leaflet;
     this._minZoom = 13;
     this._maxZoom = 20;
     this._dLat = 45.5152;
