@@ -4,7 +4,6 @@ import navLinks from "../modules/navLinks";
 import useToggle from "../shared/react/useToggle";
 import refreshAsync from "../shared/refreshAsync";
 import Link from "./Link";
-import CloseIcon from "@mui/icons-material/Close";
 import MenuIcon from "@mui/icons-material/Menu";
 import {
   Drawer,
@@ -13,17 +12,23 @@ import {
   ListItemButton,
   ListItemIcon,
   ListItemText,
+  useMediaQuery,
 } from "@mui/material";
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
+import Divider from "@mui/material/Divider";
 import IconButton from "@mui/material/IconButton";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
+import { useTheme } from "@mui/styles";
 import * as React from "react";
 
 export default function TopNav() {
+  const theme = useTheme();
   const openToggle = useToggle(false);
+  const isLarge = useMediaQuery(theme.breakpoints.up("md"));
+  const dynamicDrawerWidth = `calc(100% - ${drawerWidth}px)`;
   const { enqueueErrorSnackbar } = useErrorSnackbar();
   const handleLogout = (e) => {
     e.preventDefault();
@@ -33,20 +38,27 @@ export default function TopNav() {
       .catch(enqueueErrorSnackbar);
   };
   return (
-    <Box sx={{ flexGrow: 1 }}>
-      <NavDrawer openToggle={openToggle} />
-      <AppBar position="static">
+    <>
+      <AppBar
+        position="fixed"
+        sx={{
+          width: { [drawerBP]: dynamicDrawerWidth },
+          ml: { [drawerBP]: dynamicDrawerWidth },
+        }}
+      >
         <Toolbar>
-          <IconButton
-            size="large"
-            edge="start"
-            color="inherit"
-            aria-label="menu"
-            onClick={openToggle.toggle}
-            sx={{ mr: 2 }}
-          >
-            <MenuIcon />
-          </IconButton>
+          {!isLarge && (
+            <IconButton
+              size="large"
+              edge="start"
+              color="inherit"
+              aria-label="menu"
+              onClick={openToggle.toggle}
+              sx={{ mr: 2, display: { [drawerBP]: "none" } }}
+            >
+              <MenuIcon />
+            </IconButton>
+          )}
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
             Suma Admin
           </Typography>
@@ -55,39 +67,67 @@ export default function TopNav() {
           </Button>
         </Toolbar>
       </AppBar>
+      {isLarge ? (
+        <StaticNavDrawer />
+      ) : (
+        <SlidingNavDrawer open={openToggle.isOn} onClose={openToggle.turnOff} />
+      )}
+    </>
+  );
+}
+
+function StaticNavDrawer() {
+  const drawerSx = {
+    ".MuiDrawer-paper": { width: drawerWidth },
+  };
+  return (
+    <Box
+      component="nav"
+      sx={{ width: { [drawerBP]: drawerWidth }, flexShrink: { [drawerBP]: 0 } }}
+      aria-label="navigation drawer"
+    >
+      <Drawer variant="permanent" sx={drawerSx} open>
+        <DrawerContents />
+      </Drawer>
     </Box>
   );
 }
 
-function NavDrawer({ openToggle }) {
+function SlidingNavDrawer({ open, onClose }) {
+  const drawerSx = {
+    ".MuiDrawer-paper": { width: drawerWidth },
+  };
   return (
     <Drawer
-      anchor="left"
-      open={openToggle.isOn}
-      onClose={openToggle.turnOff}
-      onClick={openToggle.turnOff}
+      variant="temporary"
+      open={open}
+      onClose={onClose}
+      ModalProps={{ keepMounted: true }}
+      sx={drawerSx}
     >
-      <Box sx={{ width: 250 }} role="presentation">
-        <ListItem
-          secondaryAction={
-            <IconButton edge="end" aria-label="close" onClick={openToggle.turnOff}>
-              <CloseIcon />
-            </IconButton>
-          }
-        >
-          <ListItemText>&nbsp;</ListItemText>
-        </ListItem>
-        <List>
-          {navLinks.map(({ label, href, icon }) => (
-            <ListItem key={label} disablePadding>
-              <ListItemButton component={Link} href={href}>
-                <ListItemIcon>{icon}</ListItemIcon>
-                <ListItemText primary={label} />
-              </ListItemButton>
-            </ListItem>
-          ))}
-        </List>
-      </Box>
+      <DrawerContents />
     </Drawer>
   );
 }
+
+function DrawerContents() {
+  return (
+    <Box md={{ width: drawerWidth }} role="presentation">
+      <Toolbar />
+      <Divider />
+      <List>
+        {navLinks.map(({ label, href, icon }) => (
+          <ListItem key={label} disablePadding>
+            <ListItemButton component={Link} href={href}>
+              <ListItemIcon>{icon}</ListItemIcon>
+              <ListItemText primary={label} />
+            </ListItemButton>
+          </ListItem>
+        ))}
+      </List>
+    </Box>
+  );
+}
+
+const drawerBP = "md";
+const drawerWidth = 250;

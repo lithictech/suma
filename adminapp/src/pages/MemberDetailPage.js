@@ -2,11 +2,10 @@ import api from "../api";
 import DetailGrid from "../components/DetailGrid";
 import RelatedList from "../components/RelatedList";
 import useErrorSnackbar from "../hooks/useErrorSnackbar";
-import useGlobalStyles from "../hooks/useGlobalStyles";
 import { useUser } from "../hooks/user";
 import { dayjs } from "../modules/dayConfig";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
-import { Divider, Container, CircularProgress, Typography, Chip } from "@mui/material";
+import { Divider, CircularProgress, Typography, Chip } from "@mui/material";
 import Button from "@mui/material/Button";
 import { makeStyles } from "@mui/styles";
 import _ from "lodash";
@@ -15,7 +14,6 @@ import { formatPhoneNumberIntl } from "react-phone-number-input";
 import { useParams } from "react-router-dom";
 
 export default function MemberDetailPage() {
-  const classes = useGlobalStyles();
   const { enqueueErrorSnackbar } = useErrorSnackbar();
   let { id } = useParams();
   id = Number(id);
@@ -30,7 +28,7 @@ export default function MemberDetailPage() {
   });
 
   return (
-    <Container className={classes.root} maxWidth="lg">
+    <>
       {memberLoading && <CircularProgress />}
       {!_.isEmpty(member) && (
         <div>
@@ -73,7 +71,7 @@ export default function MemberDetailPage() {
           <ActivityList activities={member.activities} />
         </div>
       )}
-    </Container>
+    </>
   );
 }
 

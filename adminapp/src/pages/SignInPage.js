@@ -2,7 +2,14 @@ import api from "../api";
 import useErrorSnackbar from "../hooks/useErrorSnackbar";
 import { useUser } from "../hooks/user";
 import ScrollTopOnMount from "../shared/ScrollToTopOnMount";
-import { Button, Card, CardContent, FormControl, TextField } from "@mui/material";
+import {
+  Button,
+  Card,
+  CardContent,
+  FormControl,
+  TextField,
+  Container,
+} from "@mui/material";
 import { makeStyles } from "@mui/styles";
 import React from "react";
 
@@ -23,7 +30,7 @@ export default function SignInPage() {
   }
 
   return (
-    <div className={classes.root}>
+    <Container>
       <ScrollTopOnMount top={0} />
       <Card className={classes.card}>
         <CardContent>
@@ -54,7 +61,7 @@ export default function SignInPage() {
           </form>
         </CardContent>
       </Card>
-    </div>
+    </Container>
   );
 }
 
