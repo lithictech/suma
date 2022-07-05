@@ -1,4 +1,5 @@
 import ScreenLoader from "./components/ScreenLoader";
+import config from "./config";
 import {
   redirectIfAuthed,
   redirectIfUnauthed,
@@ -26,6 +27,7 @@ import applyHocs from "./shared/applyHocs";
 import bluejay from "./shared/bluejay";
 import Redirect from "./shared/react/Redirect";
 import renderComponent from "./shared/react/renderComponent";
+import useFrontAppSdk from "./state/useFrontAppSdk";
 import { ScreenLoaderProvider, withScreenLoaderMount } from "./state/useScreenLoader";
 import { UserProvider } from "./state/useUser";
 import withLayout from "./state/withLayout";
@@ -37,6 +39,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 window.Promise = bluejay.Promise;
 
 export default function App() {
+  useFrontAppSdk(config.helpChatId);
   return (
     <I18NextProvider>
       <ScreenLoaderProvider>

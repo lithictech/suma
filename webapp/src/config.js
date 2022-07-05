@@ -13,6 +13,7 @@ const config = {
   chaos: process.env.REACT_APP_CHAOS,
   debug: process.env.REACT_APP_DEBUG,
   environment: process.env.NODE_ENV,
+  helpChatId: process.env.REACT_APP_HELP_CHAT_ID,
 };
 
 export default config;

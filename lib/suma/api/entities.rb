@@ -111,6 +111,9 @@ module Suma::API
     expose :admin_member, expose_nil: false, with: Suma::Service::Entities::CurrentMember do |_|
       self.impersonation.is? ? self.impersonation.admin_member : nil
     end
+    expose :frontapp_verified_hash do |inst|
+      Suma::FrontApp.user_email_hash(inst.email)
+    end
   end
 
   class LedgerLineUsageDetailsEntity < Grape::Entity
