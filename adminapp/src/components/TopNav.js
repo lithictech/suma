@@ -22,12 +22,13 @@ import IconButton from "@mui/material/IconButton";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 import { useTheme } from "@mui/styles";
-import clsx from "clsx";
 import * as React from "react";
 
 export default function TopNav() {
+  const theme = useTheme();
   const openToggle = useToggle(false);
-  const dynamicDrawerWidth = "calc(100% - 250px)";
+  const isLarge = useMediaQuery(theme.breakpoints.up("md"));
+  const dynamicDrawerWidth = `calc(100% - ${drawerWidth}px)`;
   const { enqueueErrorSnackbar } = useErrorSnackbar();
   const handleLogout = (e) => {
     e.preventDefault();
@@ -41,21 +42,23 @@ export default function TopNav() {
       <AppBar
         position="fixed"
         sx={{
-          width: { md: dynamicDrawerWidth },
-          ml: { md: dynamicDrawerWidth },
+          width: { [drawerBP]: dynamicDrawerWidth },
+          ml: { [drawerBP]: dynamicDrawerWidth },
         }}
       >
         <Toolbar>
-          <IconButton
-            size="large"
-            edge="start"
-            color="inherit"
-            aria-label="menu"
-            onClick={openToggle.toggle}
-            sx={{ mr: 2, display: { md: "none" } }}
-          >
-            <MenuIcon />
-          </IconButton>
+          {!isLarge && (
+            <IconButton
+              size="large"
+              edge="start"
+              color="inherit"
+              aria-label="menu"
+              onClick={openToggle.toggle}
+              sx={{ mr: 2, display: { [drawerBP]: "none" } }}
+            >
+              <MenuIcon />
+            </IconButton>
+          )}
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
             Suma Admin
           </Typography>
@@ -64,18 +67,53 @@ export default function TopNav() {
           </Button>
         </Toolbar>
       </AppBar>
-      <NavDrawer openToggle={openToggle} />
+      {isLarge ? (
+        <StaticNavDrawer />
+      ) : (
+        <SlidingNavDrawer open={openToggle.isOn} onClose={openToggle.turnOff} />
+      )}
     </>
   );
 }
 
-function NavDrawer({ openToggle }) {
-  const drawerWidth = 250;
-  const drawer = (
+function StaticNavDrawer() {
+  const drawerSx = {
+    ".MuiDrawer-paper": { width: drawerWidth },
+  };
+  return (
+    <Box
+      component="nav"
+      sx={{ width: { [drawerBP]: drawerWidth }, flexShrink: { [drawerBP]: 0 } }}
+      aria-label="navigation drawer"
+    >
+      <Drawer variant="permanent" sx={drawerSx} open>
+        <DrawerContents />
+      </Drawer>
+    </Box>
+  );
+}
+
+function SlidingNavDrawer({ open, onClose }) {
+  const drawerSx = {
+    ".MuiDrawer-paper": { width: drawerWidth },
+  };
+  return (
+    <Drawer
+      variant="temporary"
+      open={open}
+      onClose={onClose}
+      ModalProps={{ keepMounted: true }}
+      sx={drawerSx}
+    >
+      <DrawerContents />
+    </Drawer>
+  );
+}
+
+function DrawerContents() {
+  return (
     <Box md={{ width: drawerWidth }} role="presentation">
-      <Toolbar>
-        <Typography variant="h6">Navigation</Typography>
-      </Toolbar>
+      <Toolbar />
       <Divider />
       <List>
         {navLinks.map(({ label, href, icon }) => (
@@ -89,39 +127,7 @@ function NavDrawer({ openToggle }) {
       </List>
     </Box>
   );
-  const theme = useTheme();
-  const isMediumSize = useMediaQuery(theme.breakpoints.down("md"));
-  const drawerSx = {
-    display: {
-      sm: clsx(isMediumSize ? "block" : "none"),
-      md: clsx(isMediumSize ? "none" : "block"),
-    },
-    "& .MuiDrawer-paper": { boxSizing: "border-box", width: drawerWidth },
-  };
-  return (
-    <Box
-      component="nav"
-      sx={{ width: { md: drawerWidth }, flexShrink: { md: 0 } }}
-      aria-label="navigation drawer"
-    >
-      {isMediumSize ? (
-        <Drawer
-          variant="temporary"
-          open={openToggle.isOn}
-          onClose={openToggle.turnOff}
-          ModalProps={{
-            // Better open performance on mobile
-            keepMounted: true,
-          }}
-          sx={drawerSx}
-        >
-          {drawer}
-        </Drawer>
-      ) : (
-        <Drawer variant="permanent" sx={drawerSx} open>
-          {drawer}
-        </Drawer>
-      )}
-    </Box>
-  );
 }
+
+const drawerBP = "md";
+const drawerWidth = 250;
