@@ -11,7 +11,6 @@ import i18next from "i18next";
 import React from "react";
 import Button from "react-bootstrap/Button";
 import Container from "react-bootstrap/Container";
-import Nav from "react-bootstrap/Nav";
 import Navbar from "react-bootstrap/Navbar";
 
 export default function TopNav() {
@@ -20,7 +19,7 @@ export default function TopNav() {
   return (
     <Navbar
       className="pt-1 pb-0"
-      bg="primary"
+      bg={user?.adminMember ? "danger" : "primary"}
       expand={false}
       variant="dark"
       expanded={expanded}
@@ -50,6 +49,17 @@ export default function TopNav() {
         <Container className="mb-3">
           <div className="d-flex justify-content-end mt-2">
             <div className="d-flex flex-column">
+              {user?.adminMember && (
+                <Button
+                  variant="danger"
+                  className="mt-2"
+                  href={`/admin/member/${user.id}`}
+                >
+                  Impersonating:
+                  <br />
+                  {user.name || user.phone}
+                </Button>
+              )}
               <LanguageButtons />
               {userAuthed && (
                 <Button onClick={signOut} className="mt-5" variant="primary">
@@ -58,17 +68,6 @@ export default function TopNav() {
               )}
             </div>
           </div>
-          <Nav className="me-auto text-end">
-            {user?.adminMember && (
-              <Nav.Link
-                className="bi bi-exclamation-circle-fill bg-danger"
-                as={RLink}
-                href={`/admin/member/${user.id}`}
-              >
-                {user.name || user.phone}
-              </Nav.Link>
-            )}
-          </Nav>
         </Container>
       </Navbar.Collapse>
     </Navbar>
