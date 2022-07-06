@@ -33,6 +33,7 @@ export default {
   del,
   getMe: (data) => get(`/api/v1/me`, data),
   updateMe: (data) => post(`/api/v1/me/update`, data),
+  joinWaitlist: (data) => post(`/api/v1/me/waitlist`, data),
   getSupportedGeographies: (data) => get(`/api/v1/meta/supported_geographies`, data),
   getSupportedLocales: (data) => get(`/api/v1/meta/supported_locales`, data),
   getSupportedCurrencies: (data) => get(`/api/v1/meta/supported_currencies`, data),

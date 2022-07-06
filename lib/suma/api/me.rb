@@ -42,5 +42,17 @@ class Suma::API::Me < Suma::API::V1
       d = Suma::Member::Dashboard.new(current_member)
       present d, with: Suma::API::MemberDashboardEntity
     end
+
+    params do
+      requires :feature, type: String, values: ["food", "utilities"]
+    end
+    post :waitlist do
+      member = current_member
+      member.db[:member_key_values].
+        insert_conflict.
+        insert(member_id: member.id, key: "waitlist_#{params[:feature]}")
+      status 200
+      present member, with: Suma::API::CurrentMemberEntity, env:
+    end
   end
 end

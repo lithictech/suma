@@ -117,4 +117,31 @@ RSpec.describe Suma::API::Me, :db do
         that_includes(payment_account_balance: cost("$27"), lifetime_savings: cost("$0"), ledger_lines: have_length(1))
     end
   end
+
+  describe "POST /v1/me/waitlist" do
+    def keyvalues_ds
+      return member.db[:member_key_values].where(member_id: member.id)
+    end
+
+    it "marks the user as waitlisted for the given feature" do
+      post "/v1/me/waitlist", feature: "food"
+      expect(last_response).to have_status(200)
+      post "/v1/me/waitlist", feature: "utilities"
+      expect(last_response).to have_status(200)
+      expect(keyvalues_ds.all).to contain_exactly(
+        include(key: "waitlist_food"),
+        include(key: "waitlist_utilities"),
+      )
+    end
+
+    it "does not update an existing feature" do
+      post "/v1/me/waitlist", feature: "food"
+      expect(last_response).to have_status(200)
+      expect(keyvalues_ds.all).to contain_exactly(include(key: "waitlist_food"))
+
+      post "/v1/me/waitlist", feature: "food"
+      expect(last_response).to have_status(200)
+      expect(keyvalues_ds.all).to contain_exactly(include(key: "waitlist_food"))
+    end
+  end
 end
