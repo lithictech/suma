@@ -5,6 +5,8 @@ require "grape"
 require "suma/admin_api"
 
 class Suma::AdminAPI::BankAccounts < Suma::AdminAPI::V1
+  include Suma::AdminAPI::Entities
+
   resource :bank_accounts do
     route_param :id, type: Integer do
       helpers do
@@ -16,7 +18,7 @@ class Suma::AdminAPI::BankAccounts < Suma::AdminAPI::V1
 
       get do
         o = lookup
-        present o, with: Suma::AdminAPI::DetailedBankAccountEntity
+        present o, with: DetailedBankAccountEntity
       end
 
       delete do
@@ -24,7 +26,7 @@ class Suma::AdminAPI::BankAccounts < Suma::AdminAPI::V1
         o.db.transaction do
           o.soft_delete
         end
-        present o, with: Suma::AdminAPI::DetailedBankAccountEntity
+        present o, with: DetailedBankAccountEntity
       end
 
       params do
@@ -37,8 +39,13 @@ class Suma::AdminAPI::BankAccounts < Suma::AdminAPI::V1
           save_or_error!(o)
         end
         status 200
-        present o, with: Suma::AdminAPI::DetailedBankAccountEntity
+        present o, with: DetailedBankAccountEntity
       end
     end
+  end
+
+  class DetailedBankAccountEntity < BankAccountEntity
+    include Suma::AdminAPI::Entities
+    include AutoExposeDetail
   end
 end

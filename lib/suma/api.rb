@@ -40,7 +40,7 @@ module Suma::API
           # and update the stored user to it.
           def add_current_member_header
             c = current_member
-            h = Suma::API::CurrentMemberEntity.represent(c, env:)
+            h = Suma::API::Entities::CurrentMemberEntity.represent(c, env:)
             j = h.to_json
             b64 = Base64.strict_encode64(j)
             header "Suma-Current-Member", b64

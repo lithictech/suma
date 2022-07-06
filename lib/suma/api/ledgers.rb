@@ -4,6 +4,8 @@ require "suma/payment/ledgers_view"
 require "suma/api"
 
 class Suma::API::Ledgers < Suma::API::V1
+  include Suma::API::Entities
+
   resource :ledgers do
     desc "Return an overview of all ledgers including balances, and recent transactions."
     get :overview do
@@ -19,7 +21,7 @@ class Suma::API::Ledgers < Suma::API::V1
       end
       present(
         lv,
-        with: Suma::API::LedgersViewEntity,
+        with: LedgersViewEntity,
         single_ledger_lines_first_page: first_page,
         single_ledger_page_count: page_count,
       )
@@ -36,8 +38,20 @@ class Suma::API::Ledgers < Suma::API::V1
         (ledger = me.payment_account.ledgers_dataset[params[:id]]) or forbidden!
         ds = ledger.combined_book_transactions_dataset
         ds = paginate(ds, params)
-        present_collection ds, with: Suma::API::LedgerLineEntity, ledger:
+        present_collection ds, with: LedgerLineEntity, ledger:
       end
+    end
+  end
+
+  class LedgersViewEntity < BaseEntity
+    include Suma::API::Entities
+    expose :total_balance, with: MoneyEntity
+    expose :ledgers, with: LedgerEntity
+    expose :single_ledger_lines_first_page, with: LedgerLineEntity do |_, opts|
+      opts.fetch(:single_ledger_lines_first_page)
+    end
+    expose :single_ledger_page_count do |_, opts|
+      opts.fetch(:single_ledger_page_count)
     end
   end
 end

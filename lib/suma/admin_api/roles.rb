@@ -9,7 +9,7 @@ class Suma::AdminAPI::Roles < Suma::AdminAPI::V1
     desc "Return all roles, ordered by name"
     get do
       ds = Suma::Role.dataset.order(:name)
-      present_collection ds, with: Suma::AdminAPI::RoleEntity
+      present_collection ds, with: Suma::AdminAPI::Entities::RoleEntity
     end
   end
 end
