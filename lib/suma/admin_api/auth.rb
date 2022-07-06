@@ -6,11 +6,12 @@ require "suma/admin_api"
 
 class Suma::AdminAPI::Auth < Suma::AdminAPI::BaseV1
   include Suma::Service::Types
+  include Suma::AdminAPI::Entities
 
   resource :auth do
     desc "Return the current administrator member."
     get do
-      present admin_member, with: Suma::AdminAPI::CurrentMemberEntity, env:
+      present admin_member, with: CurrentMemberEntity, env:
     end
 
     params do
@@ -26,7 +27,7 @@ class Suma::AdminAPI::Auth < Suma::AdminAPI::BaseV1
       merror!(403, "This account is not an administrator.", code: "invalid_permissions") unless me.admin?
       set_member(me)
       status 200
-      present admin_member, with: Suma::AdminAPI::CurrentMemberEntity, env:
+      present admin_member, with: CurrentMemberEntity, env:
     end
 
     delete do
@@ -42,7 +43,7 @@ class Suma::AdminAPI::Auth < Suma::AdminAPI::BaseV1
         Suma::Service::Auth::Impersonation.new(env["warden"]).off(admin_member)
 
         status 200
-        present admin_member, with: Suma::AdminAPI::CurrentMemberEntity, env:
+        present admin_member, with: CurrentMemberEntity, env:
       end
 
       route_param :member_id, type: Integer do
@@ -53,7 +54,7 @@ class Suma::AdminAPI::Auth < Suma::AdminAPI::BaseV1
           Suma::Service::Auth::Impersonation.new(env["warden"]).on(target)
 
           status 200
-          present admin_member, with: Suma::AdminAPI::CurrentMemberEntity, env:
+          present admin_member, with: CurrentMemberEntity, env:
         end
       end
     end

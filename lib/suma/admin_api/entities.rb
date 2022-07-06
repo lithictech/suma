@@ -3,9 +3,8 @@
 require "grape_entity"
 
 require "suma/service/entities"
-require "suma/admin_api" unless defined? Suma::AdminAPI
 
-module Suma::AdminAPI
+module Suma::AdminAPI::Entities
   MoneyEntity = Suma::Service::Entities::Money
   LegalEntityEntity = Suma::Service::Entities::LegalEntityEntity
   TimeRangeEntity = Suma::Service::Entities::TimeRange
@@ -68,36 +67,6 @@ module Suma::AdminAPI
     expose :timezone
   end
 
-  class MemberActivityEntity < BaseEntity
-    include AutoExposeBase
-    expose :message_name
-    expose :message_vars
-    expose :summary
-  end
-
-  class MemberResetCodeEntity < BaseEntity
-    include AutoExposeBase
-    expose :transport
-    expose :token
-    expose :used
-    expose :expire_at
-  end
-
-  class MemberSessionEntity < BaseEntity
-    include AutoExposeBase
-    expose :user_agent
-    expose :peer_ip, &self.delegate_to(:peer_ip, :to_s)
-    expose :ip_lookup_link do |instance|
-      "https://whatismyipaddress.com/ip/#{instance.peer_ip}"
-    end
-  end
-
-  class MessageBodyEntity < BaseEntity
-    include AutoExposeBase
-    expose :content
-    expose :mediatype
-  end
-
   class MessageDeliveryEntity < BaseEntity
     include AutoExposeBase
     expose :template
@@ -109,35 +78,11 @@ module Suma::AdminAPI
     expose :to
   end
 
-  class MessageDeliveryWithBodiesEntity < MessageDeliveryEntity
-    expose :bodies, with: MessageBodyEntity
-  end
-
   class BankAccountEntity < PaymentInstrumentEntity
     include AutoExposeDetail
     expose :verified_at
     expose :routing_number
     expose :account_number
     expose :account_type
-  end
-
-  class DetailedMemberEntity < MemberEntity
-    include AutoExposeDetail
-    expose :opaque_id
-    expose :note
-    expose :roles do |instance|
-      instance.roles.map(&:name)
-    end
-    expose :available_roles do |_|
-      Suma::Role.order(:name).select_map(:name)
-    end
-    expose :legal_entity, with: LegalEntityEntity
-    expose :activities, with: MemberActivityEntity
-    expose :reset_codes, with: MemberResetCodeEntity
-    expose :sessions, with: MemberSessionEntity
-  end
-
-  class DetailedBankAccountEntity < BankAccountEntity
-    include AutoExposeDetail
   end
 end
