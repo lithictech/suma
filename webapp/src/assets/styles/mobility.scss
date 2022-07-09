@@ -1,6 +1,39 @@
+@import "./theme";
+
 .leaflet-container {
+  font-family: $font-family-sans-serif !important;
+  font-size: 0.85rem;
   /* This is approximately equal to the leftover space after accounting for the header */
   height: calc(100vh - 150px);
+}
+
+.leaflet-popup-content-wrapper {
+  border-radius: 0.25rem;
+  border: 1px solid #eee;
+  background-color: white;
+}
+
+.leaflet-popup-content-wrapper, .leaflet-popup-tip {
+  box-shadow: none;
+}
+
+.leaflet-popup-tip-container {
+  overflow:unset;
+}
+
+.leaflet-popup-content {
+  width:250px!important;
+  margin: 0!important;
+  padding: 1rem 1rem!important;
+
+  p {
+    color: $gray-600;
+  }
+}
+
+.mobility-blocked-area-icon {
+  width: 24px!important;
+  height: 24px!important;
 }
 
 .mobility-map-cluster-icon {
@@ -13,7 +46,7 @@
   height: 36px !important;
   font-size: 16px;
   border-radius: 50%;
-  color: #14c260;
+  color: $primary;
   background-color: #fafafa;
   /* lower than scooter value (240) */
   z-index: 230;
