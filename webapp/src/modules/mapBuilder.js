@@ -13,7 +13,8 @@ export default class MapBuilder {
     this.mapRef = mapRef;
     this._l = leaflet;
     this._minZoom = 13;
-    this._maxZoom = 20;
+    this._maxZoom = 23;
+    this._zoomTo = 20;
     this._dLat = 45.5152;
     this._dLng = -122.6784;
     this._latOffset = 0.00004;
@@ -34,6 +35,7 @@ export default class MapBuilder {
     this.setTileLayer();
     this.setScooterIcon();
     this.setMarkerCluster();
+    this.loadGeoFences();
     return this;
   }
 
@@ -66,11 +68,11 @@ export default class MapBuilder {
 
   setMarkerCluster() {
     this._mcg = this._l.markerClusterGroup({
-      spiderfyOnMaxZoom: false,
       showCoverageOnHover: false,
-      removeOutsideVisibleBounds: true,
-      disableClusteringAtZoom: 18,
-      maxClusterRadius: 32,
+      maxClusterRadius: (mapZoom) => {
+        // only cluster same location markers above zoom 17
+        return mapZoom >= 17 ? 0 : 32;
+      },
       iconCreateFunction: (cluster) => {
         return this._l.divIcon({
           html: "<b>" + cluster.getChildCount() + "</b>",
@@ -81,10 +83,7 @@ export default class MapBuilder {
   }
 
   loadScooters({ onVehicleClick }) {
-    // Loading geoFences here temporarily for example
-    this.loadGeoFences();
-    this.setEventHandlers(onVehicleClick);
-    this.getScooters(onVehicleClick);
+    this.setEventHandlers(onVehicleClick).getScooters(onVehicleClick);
     this._map.addLayer(this._mcg);
     return this;
   }
@@ -134,18 +133,11 @@ export default class MapBuilder {
           });
         });
         this._mcg.addLayers(newMarkers, { chunkedLoading: true });
-        this.stopRefreshTimer();
-        this.startRefreshTimer(r.data.refresh, onVehicleClick);
+        this.stopRefreshTimer().startRefreshTimer(r.data.refresh, onVehicleClick);
       });
   }
 
   loadGeoFences() {
-    // e.g.
-    // doNotParkOrRide: [
-    //    [Array of first restricted polygon latLngs area],
-    //    [Array of second restricted polygon latLngs area],
-    //    [...],
-    // ]
     const apiResponse = {
       doNotParkOrRide: [
         [
@@ -243,13 +235,6 @@ export default class MapBuilder {
 
   createRestrictedArea({ latlngs, options }) {
     options = options || {};
-    const blockedIcon = this._l.divIcon({
-      iconAnchor: [12, 12],
-      iconSize: [24, 24],
-      className:
-        "mobility-blocked-area-icon bg-danger border-0 rounded-circle text-white text-center fs-6",
-      html: "<i class='bi bi-slash-circle'></i>",
-    });
     let popup = this._l.popup({
       direction: "top",
       offset: [0, -5],
@@ -274,11 +259,17 @@ export default class MapBuilder {
     if (options.restriction === "all") {
       popup.setContent(allRestrictionsContent);
     }
+    const restrictedIcon = this._l.divIcon({
+      iconAnchor: [12, 12],
+      iconSize: [24, 24],
+      className: "mobility-restricted-area-icon",
+      html: "<i class='bi bi-slash-circle'></i>",
+    });
 
     latlngs.forEach((area) => {
-      const marker = this._l
+      const restrictedMarker = this._l
         .marker(this._l.latLngBounds(area).getCenter(), {
-          icon: blockedIcon,
+          icon: restrictedIcon,
           interactive: false,
         })
         .bindPopup(popup)
@@ -290,7 +281,7 @@ export default class MapBuilder {
           weight: 1,
         })
         .on("click", () => {
-          marker.openPopup();
+          restrictedMarker.openPopup();
         })
         .addTo(this._map);
     });
@@ -309,6 +300,7 @@ export default class MapBuilder {
       clearInterval(this._refreshId);
       this._refreshId = null;
     }
+    return this;
   }
 
   // Remove markers in visible bounds to prevent duplicates
@@ -362,12 +354,13 @@ export default class MapBuilder {
   }
 
   beginTrip({ onGetLocation, onGetLocationError }) {
+    this._mcg.clearLayers();
     this.tripMode();
     let loc, line;
     this._map
       .locate({
         watch: true,
-        maxZoom: this._maxZoom,
+        maxZoom: this._zoomTo,
         timeout: 20000,
         enableHighAccuracy: true,
       })
@@ -379,8 +372,7 @@ export default class MapBuilder {
       .on("locationfound", (e) => {
         if (!loc) {
           loc = e.latlng;
-          this._mcg.clearLayers();
-          this._map.setView([e.latitude + this._latOffset, e.longitude], this._maxZoom);
+          this._map.setView([e.latitude + this._latOffset, e.longitude], this._zoomTo);
           line = this._l.polyline([[e.latlng.lat, e.latlng.lng]]);
           this._tripMarker = this._l.animatedMarker(line.getLatLngs(), {
             icon: this._scooterIcon,
@@ -405,7 +397,7 @@ export default class MapBuilder {
           this._tripMarker.options.distance = nextDistance;
           line.addLatLng([e.latitude, e.longitude]);
           this._tripMarker.start();
-          this._map.flyTo([e.latitude + this._latOffset, e.longitude], this._maxZoom, {
+          this._map.flyTo([e.latitude + this._latOffset, e.longitude], this._zoomTo, {
             animate: true,
             duration: 0.25,
           });
