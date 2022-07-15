@@ -56,7 +56,9 @@ RSpec.describe Suma::API::Payments, :db do
            payment_method_type: ba.payment_method_type
 
       expect(last_response).to have_status(400)
-      expect(last_response).to have_json_body.that_includes(error: include(errors: ["amount[cents] must be at least 500"], code: "validation_error"))
+      expect(last_response).to have_json_body.that_includes(error: include(
+        errors: ["amount[cents] must be at least 500"], code: "validation_error",
+      ))
     end
   end
 end
