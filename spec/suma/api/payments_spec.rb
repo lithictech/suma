@@ -46,5 +46,17 @@ RSpec.describe Suma::API::Payments, :db do
       expect(last_response).to have_status(403)
       expect(last_response).to have_json_body.that_includes(error: include(code: "resource_not_found"))
     end
+
+    it "errors if amount_cents param has invalid minimum" do
+      ba = Suma::Fixtures.bank_account.member(member).verified.create
+
+      post "/v1/payments/create_funding",
+           amount: {cents: 1, currency: "USD"},
+           payment_method_id: ba.id,
+           payment_method_type: ba.payment_method_type
+
+      expect(last_response).to have_status(400)
+      expect(last_response).to have_json_body.that_includes(error: include(errors: ["amount[cents] must be at least 500"], code: "validation_error"))
+    end
   end
 end

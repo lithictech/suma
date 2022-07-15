@@ -9,7 +9,11 @@ class Suma::API::Payments < Suma::API::V1
 
   resource :payments do
     params do
-      requires :amount, type: JSON do
+      requires :amount, allow_blank: false, type: JSON do
+        min_cents_allowed = 500
+        requires :cents, type: Integer, values: {value: lambda { |cent|
+                                                          cent >= min_cents_allowed
+                                                        }, message: "must be at least #{min_cents_allowed}",}
         use :money
       end
       requires :payment_method_type, type: String, values: ["bank_account"]

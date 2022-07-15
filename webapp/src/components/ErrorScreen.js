@@ -12,13 +12,10 @@ import Container from "react-bootstrap/Container";
  */
 export default function ErrorScreen() {
   return (
-    <div className="main-container">
-      <TopNav />
-      <Container>
-        <h2>{t("errors:something_went_wrong_title")}</h2>
-        <p>{t("errors:something_went_wrong_body")}</p>
-        <GoHome />
-      </Container>
-    </div>
+    <>
+      <h2>{t("errors:something_went_wrong_title")}</h2>
+      <p>{t("errors:something_went_wrong_body")}</p>
+      <GoHome />
+    </>
   );
 }
