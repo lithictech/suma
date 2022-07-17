@@ -85,4 +85,66 @@ module Suma::AdminAPI::Entities
     expose :account_number
     expose :account_type
   end
+
+  class VendorEntity < BaseEntity
+    include AutoExposeBase
+    expose :name
+  end
+
+  class VendorServiceCategoryEntity < BaseEntity
+    expose :id
+    expose :name
+  end
+
+  class ChargeEntity < BaseEntity
+    include AutoExposeBase
+    expose :opaque_id
+    expose :undiscounted_subtotal, with: MoneyEntity
+  end
+
+  class SimpleLedgerEntity < BaseEntity
+    expose :id
+    expose :name
+    expose :account_name, &self.delegate_to(:account, :display_name)
+    expose :admin_link, &self.delegate_to(:account, :admin_link)
+  end
+
+  class BookTransactionEntity < BaseEntity
+    include AutoExposeBase
+    expose :apply_at
+    expose :opaque_id
+    expose :amount, with: MoneyEntity
+    expose :memo
+    expose :associated_vendor_service_category, with: VendorServiceCategoryEntity
+    expose :originating_ledger, with: SimpleLedgerEntity
+    expose :receiving_ledger, with: SimpleLedgerEntity
+    expose :admin_link
+  end
+
+  class PaymentAccountEntity < BaseEntity
+    include AutoExposeBase
+    expose :member, with: MemberEntity
+    expose :vendor, with: VendorEntity
+    expose :is_platform_account
+  end
+
+  class DetailedPaymentAccountLedgerEntity < BaseEntity
+    include AutoExposeBase
+    include AutoExposeDetail
+    expose :currency
+    expose :vendor_service_categories, with: VendorServiceCategoryEntity
+    expose :combined_book_transactions, with: BookTransactionEntity
+    expose :balance, with: MoneyEntity
+  end
+
+  class DetailedPaymentAccountEntity < PaymentAccountEntity
+    expose :ledgers, with: DetailedPaymentAccountLedgerEntity
+    expose :total_balance
+  end
+
+  class FundingTransactionEntity < BaseEntity
+    include AutoExposeBase
+    expose :status
+    expose :memo
+  end
 end

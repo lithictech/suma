@@ -83,6 +83,8 @@ class Suma::Payment::FundingTransaction < Suma::Postgres::Model(:payment_funding
     end
   end
 
+  def admin_link = "/admin/funding_transaction/#{self.id}"
+
   # @return [Suma::Payment::FundingTransaction::Strategy]
   def strategy
     strat = self.strategy_array.compact.first
