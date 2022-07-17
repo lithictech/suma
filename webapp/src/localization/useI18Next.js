@@ -32,11 +32,11 @@ export function I18NextProvider({ children }) {
       .init({
         ns: ["strings"],
         // Disable fallback language for now so it's easy to see when translations are missing.
-        // fallbackLng: "en",
+        fallbackLng: false,
         initImmediate: false,
         lng: language,
         backend: {
-          loadPath: "/locale/{{lng}}/{{ns}}.json",
+          loadPath: `${process.env.PUBLIC_URL}/locale/{{lng}}/{{ns}}.json`,
         },
         interpolation: {
           // react already safes from xss
