@@ -1,8 +1,6 @@
 import { t } from "../localization";
 import GoHome from "./GoHome";
-import TopNav from "./TopNav";
 import React from "react";
-import Container from "react-bootstrap/Container";
 
 /**
  * Show this component when an unhandled error has occurred.
