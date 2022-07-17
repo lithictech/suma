@@ -19,6 +19,7 @@ module Suma::Payment
 
   configurable(:payments) do
     setting :autoverify_account_numbers, [], convert: ->(s) { s.split }
+    setting :minimum_funding_amount_cents, 500
   end
 
   APPROXIMATE_ACH_SCHEDULE = Biz::Schedule.new do |config|
