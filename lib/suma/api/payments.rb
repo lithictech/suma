@@ -9,8 +9,14 @@ class Suma::API::Payments < Suma::API::V1
 
   resource :payments do
     params do
-      requires :amount, type: JSON do
+      requires :amount, allow_blank: false, type: JSON do
         use :money
+        requires :cents,
+                 type: Integer,
+                 values: {
+                   value: ->(v) { v >= Suma::Payment.minimum_funding_amount_cents },
+                   message: "must be at least #{Suma::Payment.minimum_funding_amount_cents}",
+                 }
       end
       requires :payment_method_type, type: String, values: ["bank_account"]
       requires :payment_method_id, type: Integer
