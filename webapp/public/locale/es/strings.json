@@ -63,8 +63,8 @@
     "title": "Comida"
   },
   "forms": {
-    "account_caption_md": "El número de tu cuenta bancaria. Puedes conseguirlo en tu portal de banca en línea, o consultar $t(strings:forms:paper_check_link_md).",
-    "account_number": "Número de cuenta",
+    "account_caption_md": "El número de tu cuenta bancaria. Puede encontrar esta información en el portal de banco en línea, o consultando $t(strings:forms:paper_check_link_md).",
+    "account_number": "Número de Cuenta",
     "account_type": "Tipo de cuenta",
     "account_type_caption": "Elegir el tipo de cuenta. Si no estás seguro, elige Cheques",
     "add_amount": "Añadir {{amount}}",
@@ -92,10 +92,10 @@
     "invalid_routing_number": "Ingrese el código de ruta de 9 dígitos de su cuenta bancaria.",
     "name": "Nombre",
     "nickname": "Apodo",
-    "nickname_caption": "El nombre utilizado para refererise a la cuenta en Suma.",
+    "nickname_caption": "El nombre utilizado para referirse a la cuenta en Suma.",
     "paper_check_link_md": "[cómo encontrar los datos bancarios en un cheque de papel](##check-details 'Detalles de cheque de papel')",
     "phone": "Teléfono",
-    "routing_caption_md": "Ingrese el número de ruta de 9 dígitos de su cuenta bancaria. Puede encontrar esta información en el portal de banca en internet, o consultando $t(strings:forms:paper_check_link_md).",
+    "routing_caption_md": "Ingrese el número de ruta de 9 dígitos de su cuenta bancaria. Puede encontrar esta información en el portal de banco en línea, o consultando $t(strings:forms:paper_check_link_md).",
     "routing_number": "Código de Identificación",
     "savings": "Ahorros",
     "state": "Estado",

@@ -146,6 +146,7 @@ function LinkBankAccount({ onSuccess }) {
         <Row className="mb-3">
           <FormControlGroup
             as={Col}
+            required
             type="text"
             inputMode="numeric"
             name="confirm_account_number"
