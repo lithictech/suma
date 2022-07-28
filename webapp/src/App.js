@@ -64,7 +64,7 @@ function AppRoutes() {
           exact
           element={renderWithHocs(
             redirectIfAuthed,
-            withMetatags({ title: t("titles:home"), exact: true }),
+            withMetatags({ title: t("common:welcome_to_suma"), exact: true }),
             withLayout({ nav: "none", bg: "bg-white" }),
             Home
           )}

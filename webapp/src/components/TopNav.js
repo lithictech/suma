@@ -62,7 +62,7 @@ export default function TopNav() {
               )}
               <LanguageButtons />
               {userAuthed && (
-                <Button onClick={signOut} className="mt-5" variant="primary">
+                <Button onClick={signOut} className="mt-5" variant="danger">
                   {t("common:logout")}
                 </Button>
               )}

@@ -1,3 +1,4 @@
+import { t } from "../localization";
 import clsx from "clsx";
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
@@ -5,10 +6,14 @@ import { Link, useLocation } from "react-router-dom";
 export default function AppNav() {
   return (
     <div className="d-flex flex-row">
-      <AppLink to="/dashboard" label="Home" style={{ borderRightWidth: 0 }} />
-      <AppLink to="/mobility" label="Mobility" style={{ borderRightWidth: 0 }} />
-      <AppLink to="/food" label="Food" style={{ borderRightWidth: 0 }} />
-      <AppLink to="/utilities" label="Utilities" />
+      <AppLink to="/dashboard" label={t("titles:home")} style={{ borderRightWidth: 0 }} />
+      <AppLink
+        to="/mobility"
+        label={t("titles:mobility")}
+        style={{ borderRightWidth: 0 }}
+      />
+      <AppLink to="/food" label={t("food:title")} style={{ borderRightWidth: 0 }} />
+      <AppLink to="/utilities" label={t("utilities:title")} />
     </div>
   );
 }
