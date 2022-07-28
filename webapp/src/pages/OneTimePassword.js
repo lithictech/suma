@@ -111,7 +111,7 @@ const OneTimePassword = () => {
                 inputMode="numeric"
                 key={index}
                 value={data}
-                placeholder="&nbsp;&middot;"
+                placeholder="&middot;"
                 onChange={(event) => handleOtpChange(event, index)}
                 onFocus={(event) => event.target.select()}
                 autoFocus={index === 0}
