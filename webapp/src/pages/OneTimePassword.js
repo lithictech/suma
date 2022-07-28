@@ -115,7 +115,7 @@ const OneTimePassword = () => {
                 onChange={(event) => handleOtpChange(event, index)}
                 onFocus={(event) => event.target.select()}
                 autoFocus={index === 0}
-                aria-label={"Enter code " + (index + 1)}
+                aria-label={t("otp:enter_code") + (index + 1)}
                 autoComplete="one-time-code"
               />
             ))}

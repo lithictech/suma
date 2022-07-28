@@ -135,6 +135,7 @@
   "otp": {
     "code_resent": "New code sent to {{ phone }}.",
     "did_not_receive": "Didn't recieve a text message?",
+    "enter_code": "Enter code ",
     "enter_code_sent_to": "Enter the code that we sent to",
     "send_new_code": "Send a new code",
     "verify": "Verify",
