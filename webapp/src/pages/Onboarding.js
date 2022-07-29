@@ -48,7 +48,7 @@ const CarouselSlide = React.forwardRef((props, ref) => {
   return (
     <Carousel.Item ref={ref} interval={2200} {...rest}>
       <div className="onboarding-carousel-image-overlay" />
-      <img className="onboarding-carousel-image" src={src} alt="" />
+      <img className="onboarding-carousel-image" src={src} alt={title} />
       <Carousel.Caption>
         <h3>{title}</h3>
         <p className="px-3 lead">{subtitle}</p>

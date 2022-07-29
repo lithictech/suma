@@ -58,7 +58,7 @@ export default function Start() {
   return (
     <>
       <h2>{t("forms:get_started")}</h2>
-      <p>{t("forms:get_started_intro")}</p>
+      <p id="phoneRequired">{t("forms:get_started_intro")}</p>
       <Form noValidate validated={validated.isOn} onSubmit={handleSubmit}>
         <Form.Group className="mb-3" controlId="phoneInput">
           <Input

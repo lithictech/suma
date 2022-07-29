@@ -19,7 +19,7 @@
     "scooter_cost": "{{startCost, sumaCurrency}} to start then {{costPerMinute, sumaCurrency}}/min + taxes",
     "view_all": "View all",
     "waitlisted": "Great! You are on the waiting list and we'll let you know when it's available.",
-    "welcome_to_suma": "Welcome to Suma",
+    "welcome_to_suma": "Welcome to Suma!",
     "whats_this": "What's this?"
   },
   "dashboard": {
@@ -58,7 +58,7 @@
     "vehicle_not_found": "No vehicle found in this location."
   },
   "food": {
-    "intro_md": "Suma wants to make it easy for you to save money on food, whether you shop at a big chain, the corner store or an organic market.\n\nSign up for our free waiting list to suggest food vendors you want to see on the platform and to help us build a community of users.",
+    "intro_md": "Suma wants to make it easy for you to save money on food, whether you shop at a big chain, the corner store or an organic market.\n\nSign up for our free waiting list to suggest food vendors you want to see on the platform and to help us build a community of members.",
     "page_title": "Food",
     "title": "Food"
   },
@@ -109,17 +109,17 @@
     "unknown": "Uncategorized Suma charge"
   },
   "mobility": {
+    "do_not_park_intro": "You cannot park in this area. We may take action for repeated violations.",
+    "do_not_park_title": "Please do not park here",
+    "do_not_ride_intro": "You cannot ride in this area. We may take action for repeated violations.",
+    "do_not_ride_title": "Please do not ride here",
     "end_trip": "End Trip",
     "intro": "Ride with enhanced privacy and better prices.",
     "mobility_start_and_per_minute": "Start fee is {{surchargeCents, sumaCurrency}}, then {{unitCents, sumaCurrency}} per minute",
     "reserve_scooter": "Reserve Scooter",
     "title": "Mobility Services",
     "trip_ended": "Your trip with {{vendor}} has ended.\n\nWe used {{totalCost, sumaCurrency}} of your Suma balance for this trip.\n\nYou saved {{discountAmount, sumaCurrency}}.",
-    "trip_started_at": "Trip started at {{at}}.",
-    "do_not_park_title": "Please do not park here",
-    "do_not_park_intro": "You cannot park in this area. We may take action for repeated violations.",
-    "do_not_ride_title": "Please do not ride here",
-    "do_not_ride_intro": "You cannot ride in this area. We may take action for repeated violations."
+    "trip_started_at": "Trip started at {{at}}."
   },
   "onboarding": {
     "enroll_intro": "Welcome to Suma! To get started, we will need to verify your identity. This makes sure you are eligible for the right programs, such as with our affordable housing partners.\n\n**We will never share this information other than to verify your identity.**",
@@ -135,6 +135,7 @@
   "otp": {
     "code_resent": "New code sent to {{ phone }}.",
     "did_not_receive": "Didn't recieve a text message?",
+    "enter_code": "Enter code ",
     "enter_code_sent_to": "Enter the code that we sent to",
     "send_new_code": "Send a new code",
     "verify": "Verify",
@@ -147,7 +148,7 @@
     "bank_accounts": "Bank Accounts",
     "check_details_subtitle": "At the bottom of your check are three sets of numbers. The first is the 9-digit routing number. The second is your account number. The third, which you can ignore, is your check number.",
     "check_details_title": "What is my Account Number?",
-    "funding_link_md": "[$t(strings:common:add_money_to_account)](/funding 'Funding Page Link')",
+    "funding_link_md": "[$t(strings:common:add_money_to_account)](/funding 'Funding Page')",
     "ledger_balance": "Funds on Suma",
     "ledger_transactions": "Transaction History",
     "ledgers_intro": "Your Suma accounts are used to purchase goods and services through the application, like a bank account you can use on Suma. Below is your account balance and all credits to, and debits from, your account.",
@@ -175,8 +176,9 @@
   "titles": {
     "dashboard": "Dashboard",
     "funding": "Funding",
-    "home": "Welcome to Suma!",
+    "home": "Home",
     "ledgers_overview": "Ledgers Overview",
+    "mobility": "Mobility",
     "onboarding": "Onboarding",
     "onboarding_finish": "Onboarding Finish",
     "onboarding_signup": "Onboarding Signup",
@@ -185,7 +187,7 @@
     "suma_app": "Suma App"
   },
   "utilities": {
-    "intro_md": "Suma wants to make it easy for you to save money on your utility bills and make our communities more resilient against extreme weather and climate change.\n\nSign up for our free waiting list to help us build a community of users and to show that everyone deserves clean and affordable energy.",
+    "intro_md": "Suma wants to make it easy for you to save money on your utility bills and make our communities more resilient against extreme weather and climate change.\n\nSign up for our free waiting list to help us build a community of members and to show that everyone deserves clean and affordable energy.",
     "page_title": "Utilities",
     "title": "Utilities"
   }

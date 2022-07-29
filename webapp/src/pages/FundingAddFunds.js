@@ -22,7 +22,7 @@ export default function FundingAddFunds() {
   const { user, handleUpdateCurrentMember } = useUser();
   const [params] = useSearchParams();
   const navigate = useNavigate();
-  const [amountCents, setAmountCents] = React.useState();
+  const [amountCents, setAmountCents] = React.useState(0);
   const [selectedCurrencyCode] = React.useState("");
 
   const {
@@ -122,7 +122,7 @@ export default function FundingAddFunds() {
         <p>{t("payments:payment_submission_statement")}</p>
         <FormError error={error} end />
         <FormButtons
-          variant="outline-primary"
+          variant="outline-success"
           back
           primaryProps={{
             disabled: !amountCents,
