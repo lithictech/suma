@@ -41,6 +41,7 @@
     "invalid_credentials": "Sorry, that information is not correct.",
     "invalid_otp": "That token is not valid. Enter it again, or request a new code.",
     "invalid_permissions": "You are not allowed to do that.",
+    "network_error": "There was a network error. Connect to the internet and try again.",
     "no_active_trip": "There is no trip currently active.",
     "ongoing_trip": "You must end your ongoing trip before starting a new one.",
     "rate_not_found": "$t(strings:errors:unhandled_error)",

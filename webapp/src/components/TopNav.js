@@ -4,6 +4,7 @@ import { t } from "../localization";
 import useI18Next from "../localization/useI18Next";
 import signOut from "../modules/signOut";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
+import { useOnlineStatus } from "../state/useOnlineStatus";
 import { useUser } from "../state/useUser";
 import RLink from "./RLink";
 import clsx from "clsx";
@@ -14,6 +15,7 @@ import Container from "react-bootstrap/Container";
 import Navbar from "react-bootstrap/Navbar";
 
 export default function TopNav() {
+  const { isOnline } = useOnlineStatus();
   const { user, userAuthed } = useUser();
   const [expanded, setExpanded] = React.useState(false);
   return (
@@ -39,6 +41,12 @@ export default function TopNav() {
           />{" "}
           <p className="brand-text">{t("common:app_name")}</p>
         </Navbar.Brand>
+        <i
+          className={clsx(
+            "offline-status bi bi-wifi-off fs-4 ms-2 text-danger ms-auto",
+            isOnline ? "opacity-0" : "offline-status-fadein"
+          )}
+        ></i>
         <Navbar.Toggle className={clsx(expanded && "expanded")}>
           <div className="navbar-toggler-icon-bar" />
           <div className="navbar-toggler-icon-bar" />

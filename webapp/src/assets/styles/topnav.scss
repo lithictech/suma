@@ -62,3 +62,18 @@
 .navbar-collapse {
   background: $light-darker;
 }
+
+.offline-status {
+  transition: opacity 1s ease-out;
+}
+
+.offline-status-fadein {
+  animation: fadeIn 2s ease-in-out;
+}
+
+@keyframes fadeIn {
+  0% { opacity: 0; }
+  25% { opacity: 1; }
+  50% { opacity: 0; }
+  100% { opacity: 1; }
+}

@@ -25,6 +25,9 @@ export function extractErrorCode(error) {
   if (!error || _.isString(error)) {
     return error;
   }
+  if (_.get(error, "message") === "Network Error") {
+    return "network_error";
+  }
   const status = _.get(error, "response.data.error.status") || 500;
   let msg;
   if (status >= 500) {
