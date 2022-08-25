@@ -9,7 +9,6 @@ import InstructionsModal from "./InstructionsModal";
 import ReservationCard from "./ReservationCard";
 import TripCard from "./TripCard";
 import React from "react";
-import Alert from "react-bootstrap/Alert";
 import { Link } from "react-router-dom";
 
 const Map = () => {
@@ -19,7 +18,6 @@ const Map = () => {
   const [selectedMapVehicle, setSelectedMapVehicle] = React.useState(null);
   const [loadedVehicle, setLoadedVehicle] = React.useState(null);
   const [lastMarkerLocation, setLastMarkerLocation] = React.useState(null);
-  const [activeTrip, setActiveTrip] = React.useState(Boolean(user.ongoingTrip) || false);
   const [ongoingTrip, setOngoingTrip] = React.useState(user.ongoingTrip);
   const [reserveError, setReserveError] = useError();
   const [error, setError] = useError();
@@ -53,19 +51,14 @@ const Map = () => {
     (lastLocation) => setLastMarkerLocation(lastLocation),
     []
   );
-  const handleGetLocationError = React.useCallback(() => {
-    setError(
-      <Alert variant="warning" className="m-0">
-        <i className="bi bi-exclamation-triangle-fill"></i>{" "}
-        {t("errors:denied_geolocation")}
-        <InstructionsModal />
-      </Alert>
-    );
-  }, [setError]);
+  const handleGetLocationError = React.useCallback(
+    () => setError(<InstructionsModal />),
+    [setError]
+  );
 
+  // todo: attempt to move this logic into ReservationCard compnent
   const handleReserve = React.useCallback(
     (vehicle) => {
-      setActiveTrip(true);
       api
         .beginMobilityTrip({
           providerId: vehicle.vendorService.id,
@@ -75,27 +68,19 @@ const Map = () => {
         .tap(handleUpdateCurrentMember)
         .then((r) => {
           setOngoingTrip(r.data);
-          loadedMap.beginTrip({
-            onGetLocation: handleGetLastLocation,
-            onGetLocationError: handleGetLocationError,
-          });
+          loadedMap.beginTrip();
         })
         .catch((e) => setReserveError(extractErrorCode(e)));
     },
-    [
-      handleUpdateCurrentMember,
-      loadedMap,
-      handleGetLastLocation,
-      handleGetLocationError,
-      setReserveError,
-    ]
+    [handleUpdateCurrentMember, loadedMap, setReserveError]
   );
 
-  const handleStopTrip = () => loadedMap.endTrip({ onVehicleClick: handleVehicleClick });
+  const handleEndTrip = () => {
+    loadedMap.loadScooters({ onVehicleClick: handleVehicleClick });
+  };
 
   const handleCloseTrip = () => {
     setSelectedMapVehicle(null);
-    setActiveTrip(null);
     setOngoingTrip(null);
   };
 
@@ -104,12 +89,12 @@ const Map = () => {
       return;
     }
     if (!loadedMap) {
-      const map = new MapBuilder(mapRef).init();
+      const map = new MapBuilder(mapRef).init().startTrackingLocation({
+        onGetLocation: handleGetLastLocation,
+        onGetLocationError: handleGetLocationError,
+      });
       if (ongoingTrip) {
-        map.beginTrip({
-          onGetLocation: handleGetLastLocation,
-          onGetLocationError: handleGetLocationError,
-        });
+        map.beginTrip();
       } else {
         map.loadScooters({ onVehicleClick: handleVehicleClick });
       }
@@ -140,12 +125,13 @@ const Map = () => {
         vehicle={loadedVehicle}
         onReserve={handleReserve}
         reserveError={reserveError}
+        lastLocation={lastMarkerLocation}
       />
       <TripCard
-        active={activeTrip && !error}
+        active={ongoingTrip && !error}
         trip={ongoingTrip}
         onCloseTrip={handleCloseTrip}
-        onStopTrip={handleStopTrip}
+        onEndTrip={handleEndTrip}
         lastLocation={lastMarkerLocation}
       />
       {error && (

@@ -18,23 +18,40 @@ export default class MapBuilder {
     this._dLat = 45.5152;
     this._dLng = -122.6784;
     this._latOffset = 0.00004;
-    this._map = null;
-    this._mcg = null;
-    this._scooterIcon = null;
-    this._lastBounds = null;
-    this._vehicleClicked = false;
-    this._tripMarker = null;
-    this._refreshId = null;
-  }
-
-  init() {
     this._map = this._l
       .map(this.mapRef.current)
       .setView([this._dLat, this._dLng], this._minZoom);
     this._lastBounds = this._map.getBounds();
+    this._mcg = this._l.markerClusterGroup({
+      showCoverageOnHover: false,
+      maxClusterRadius: (mapZoom) => {
+        // only cluster same location markers above zoom 17
+        return mapZoom >= 17 ? 0 : 32;
+      },
+      iconCreateFunction: (cluster) => {
+        return this._l.divIcon({
+          html: "<b>" + cluster.getChildCount() + "</b>",
+          className: "mobility-map-cluster-icon",
+        });
+      },
+    });
+    this._scooterIcon = this._l.divIcon({
+      html: `<img src="${scooterContainer}" alt="scooter container"/><img src="${scooterIcon}" class="mobility-map-icon-img" alt="scooter icon"/>`,
+      className: "mobility-map-icon",
+      iconSize: [43.4, 52.6],
+      iconAnchor: [21.7, 52.6],
+    });
+    this._vehicleClicked = false;
+    this._locationMarker = null;
+    this._locationAccuracyCircle = null;
+    this._animationTimeoutId = null;
+    this._refreshId = null;
+    this._onVehicleClick = null;
+  }
+
+  init() {
     this.setTileLayer();
-    this.setScooterIcon();
-    this.setMarkerCluster();
+    this.setLocationEventHandlers();
     this.loadGeoFences();
     return this;
   }
@@ -57,60 +74,67 @@ export default class MapBuilder {
       .addTo(this._map);
   }
 
-  setScooterIcon() {
-    this._scooterIcon = this._l.divIcon({
-      html: `<img src="${scooterContainer}" alt="scooter container"/><img src="${scooterIcon}" class="mobility-map-icon-img" alt="scooter icon"/>`,
-      className: "mobility-map-icon",
-      iconSize: [43.4, 52.6],
-      iconAnchor: [21.7, 52.6],
+  setLocationEventHandlers() {
+    this._map.on("zoomstart", () => {
+      if (this._locationAccuracyCircle && this._locationMarker) {
+        // prevent animation issues when zooming
+        if (this._animationTimeoutId) {
+          clearTimeout(this._animationTimeoutId);
+          this._animationTimeoutId = null;
+        }
+        this._locationAccuracyCircle._path.classList.remove(
+          "mobility-location-accuracy-circle-animation"
+        );
+        this._locationMarker._icon.style.transition = "none";
+      }
+    });
+    this._map.on("zoomend", () => {
+      if (this._locationAccuracyCircle && this._locationMarker) {
+        this._animationTimeoutId = setTimeout(() => {
+          this._locationAccuracyCircle._path.classList.add(
+            "mobility-location-accuracy-circle-animation"
+          );
+          this._locationMarker._icon.style.transition = "all 1000ms linear 0s";
+        }, 250);
+      }
     });
   }
 
-  setMarkerCluster() {
-    this._mcg = this._l.markerClusterGroup({
-      showCoverageOnHover: false,
-      maxClusterRadius: (mapZoom) => {
-        // only cluster same location markers above zoom 17
-        return mapZoom >= 17 ? 0 : 32;
-      },
-      iconCreateFunction: (cluster) => {
-        return this._l.divIcon({
-          html: "<b>" + cluster.getChildCount() + "</b>",
-          className: "mobility-map-cluster-icon",
-        });
-      },
-    });
+  setVehicleEventHandlers() {
+    this._map.on("moveend", this.moveEnd, this);
+    this._map.on("click", this.click, this);
   }
 
-  loadScooters({ onVehicleClick }) {
-    this.setEventHandlers(onVehicleClick).getScooters(onVehicleClick);
-    this._map.addLayer(this._mcg);
-    return this;
-  }
-
-  setEventHandlers(onVehicleClick) {
-    this._map.on("moveend", () => {
+  moveEnd() {
+    if (this._map) {
       const bounds = this._map.getBounds();
       if (
         this._lastBounds.contains(bounds._northEast) === false ||
         this._lastBounds.contains(bounds._southWest) === false
       ) {
         this._lastBounds = bounds;
-        this.getScooters(onVehicleClick);
+        this.getScooters();
       }
-    });
+    }
+  }
 
-    this._map.on("click", () => {
-      if (this._vehicleClicked) {
-        onVehicleClick(null);
-        this._vehicleClicked = false;
-      }
-    });
+  click() {
+    if (this._vehicleClicked) {
+      this._onVehicleClick(null);
+      this._vehicleClicked = false;
+    }
+  }
+
+  loadScooters({ onVehicleClick }) {
+    this._onVehicleClick = onVehicleClick;
+    this.getScooters();
+    this.setVehicleEventHandlers();
+    this._map.addLayer(this._mcg);
     return this;
   }
 
-  getScooters(onVehicleClick) {
-    const { _northEast, _southWest } = this._lastBounds;
+  getScooters() {
+    const { _northEast, _southWest } = this._lastBounds || this.lastBounds;
     api
       .getMobilityMap({
         minloc: [_southWest.lat, _southWest.lng],
@@ -126,14 +150,13 @@ export default class MapBuilder {
               bike,
               vehicleType,
               r.data.providers,
-              precisionFactor,
-              onVehicleClick
+              precisionFactor
             );
             newMarkers.push(marker);
           });
         });
         this._mcg.addLayers(newMarkers, { chunkedLoading: true });
-        this.stopRefreshTimer().startRefreshTimer(r.data.refresh, onVehicleClick);
+        this.stopRefreshTimer().startRefreshTimer(r.data.refresh);
       });
   }
 
@@ -270,7 +293,6 @@ export default class MapBuilder {
       const restrictedMarker = this._l
         .marker(this._l.latLngBounds(area).getCenter(), {
           icon: restrictedIcon,
-          interactive: false,
         })
         .bindPopup(popup)
         .addTo(this._map);
@@ -287,10 +309,10 @@ export default class MapBuilder {
     });
   }
 
-  startRefreshTimer(interval, onVehicleClick) {
+  startRefreshTimer(interval) {
     if (!this._refreshId && !this._ongoingTrip) {
       this._refreshId = window.setInterval(() => {
-        this.getScooters(onVehicleClick);
+        this.getScooters();
       }, interval);
     }
   }
@@ -314,7 +336,7 @@ export default class MapBuilder {
     this._mcg.removeLayers(removableMarkers);
   }
 
-  newMarker(bike, vehicleType, providers, precisionFactor, onVehicleClick) {
+  newMarker(bike, vehicleType, providers, precisionFactor) {
     const [lat, lng] = bike.c;
     return this._l
       .marker([lat * precisionFactor, lng * precisionFactor], {
@@ -322,40 +344,19 @@ export default class MapBuilder {
         riseOnHover: true,
       })
       .on("click", (e) => {
-        if (!this._vehicleSelected && !this.isScooterCentered(e.latlng)) {
-          this._map.flyTo([e.latlng.lat + this._latOffset, e.latlng.lng], 18, {
-            animate: true,
-            duration: 1.3,
-            easeLinearity: 1,
-          });
-        }
+        this.centerLocation(e.latlng);
         const mapVehicle = {
           loc: bike.c,
           type: vehicleType,
           disambiguator: bike.d,
           providerId: providers[bike.p].id,
         };
-        onVehicleClick(mapVehicle);
+        this._onVehicleClick(mapVehicle);
         this._vehicleClicked = true;
       });
   }
 
-  /**
-   * Error code 3 is for timeout but location service keeps attempting
-   * and seems to always prevail so there's no need for throwing geolocation error msg.
-   */
-  ignoreLocationError(e) {
-    const ERR_LOCATION_PERMISSION_DENIED = 1;
-    const ERR_LOCATION_POSITION_UNAVAILABLE = 2;
-    return (
-      e.code !== ERR_LOCATION_PERMISSION_DENIED &&
-      e.code !== ERR_LOCATION_POSITION_UNAVAILABLE
-    );
-  }
-
-  beginTrip({ onGetLocation, onGetLocationError }) {
-    this._mcg.clearLayers();
-    this.tripMode();
+  startTrackingLocation({ onGetLocation, onGetLocationError }) {
     let loc, line;
     this._map
       .locate({
@@ -365,91 +366,100 @@ export default class MapBuilder {
         enableHighAccuracy: true,
       })
       .on("locationerror", (e) => {
-        if (!this.ignoreLocationError(e)) {
+        /**
+         * Error code 3 is for timeout but location service keeps attempting
+         * and seems to always prevail so there's no need for throwing geolocation error msg.
+         */
+        function ignoreLocationError() {
+          const ERR_LOCATION_PERMISSION_DENIED = 1;
+          const ERR_LOCATION_POSITION_UNAVAILABLE = 2;
+          return (
+            e.code !== ERR_LOCATION_PERMISSION_DENIED &&
+            e.code !== ERR_LOCATION_POSITION_UNAVAILABLE
+          );
+        }
+        if (!ignoreLocationError()) {
           onGetLocationError();
         }
       })
-      .on("locationfound", (e) => {
+      .on("locationfound", (location) => {
         if (!loc) {
-          loc = e.latlng;
-          this._map.setView([e.latitude + this._latOffset, e.longitude], this._zoomTo);
-          line = this._l.polyline([[e.latlng.lat, e.latlng.lng]]);
-          this._tripMarker = this._l.animatedMarker(line.getLatLngs(), {
-            icon: this._scooterIcon,
+          loc = location.latlng;
+          line = this._l.polyline([[loc.lat, loc.lng]]);
+          this._locationMarker = this._l.animatedMarker(line.getLatLngs(), {
+            icon: this._l.divIcon({
+              html: "<div class='mobility-location-marker-icon'></div>",
+              iconSize: [16, 16],
+              iconAnchor: [8, 8],
+            }),
+            interactive: false,
             autoStart: false,
             duration: 250,
             distance: 0,
           });
-          this._map.addLayer(this._tripMarker);
-          onGetLocation(e);
+          this._locationAccuracyCircle = this._l.circle([loc.lat, loc.lng], {
+            className: "mobility-location-accuracy-circle-animation",
+            radius: location.accuracy,
+            color: "#0495ff",
+            fillColor: "#0495ff",
+            fillOpacity: 0.1,
+            weight: 0,
+          });
+          this._map.addLayer(this._locationAccuracyCircle);
+          this._map.addLayer(this._locationMarker);
+          this.centerLocation(loc);
+          onGetLocation(location);
         }
         if (
-          this._tripMarker &&
+          this._locationMarker &&
+          this._locationAccuracyCircle &&
           loc &&
           line &&
-          (loc.lat !== e.latitude || loc.lng !== e.longitude)
+          (loc.lat !== location.latitude || loc.lng !== location.longitude)
         ) {
-          this._tripMarker.stop();
+          this._locationMarker.stop();
+          const nextLocation = [location.latitude, location.longitude];
           // Sets next location distance for animation purpose
-          const nextDistance = this._l
-            .latLng(loc.lat, loc.lng)
-            .distanceTo([e.latitude, e.longitude]);
-          this._tripMarker.options.distance = nextDistance;
-          line.addLatLng([e.latitude, e.longitude]);
-          this._tripMarker.start();
-          this._map.flyTo([e.latitude + this._latOffset, e.longitude], this._zoomTo, {
-            animate: true,
-            duration: 0.25,
-          });
-          loc = e.latlng;
-          onGetLocation(e);
+          const nextDistance = this._l.latLng(loc.lat, loc.lng).distanceTo(nextLocation);
+          this._locationMarker.options.distance = nextDistance;
+          line.addLatLng(nextLocation);
+          this._locationAccuracyCircle
+            .setLatLng(nextLocation)
+            .setRadius(location.accuracy);
+          this._locationMarker.start();
+          loc = location.latlng;
+          onGetLocation(location);
         }
       });
     return this;
   }
 
-  endTrip({ onVehicleClick }) {
-    this._map.removeLayer(this._tripMarker);
-    this._tripMarker = null;
-    this.viewMode();
-    this.loadScooters({ onVehicleClick });
-  }
-
-  tripMode() {
-    this.stopRefreshTimer();
+  beginTrip() {
     // will be re-enabled on getScooters
-    this._map.off("moveend click");
-    this._map.dragging.disable();
-    this._map.touchZoom.disable();
-    this._map.doubleClickZoom.disable();
-    this._map.scrollWheelZoom.disable();
-    this._map.boxZoom.disable();
-    this._map.keyboard.disable();
-    if (this._map.tap) this._map.tap.disable();
-    this._map._container.style.cursor = "default";
+    this._map.off("moveend", this.moveEnd, this);
+    this._map.off("click", this.click, this);
+    this._mcg.clearLayers();
+    this.stopRefreshTimer();
+    if (this._locationMarker) {
+      this.centerLocation(this._locationMarker.getLatLng());
+    }
   }
 
-  viewMode() {
-    this._map.stopLocate();
-    this._map.dragging.enable();
-    this._map.touchZoom.enable();
-    this._map.doubleClickZoom.enable();
-    this._map.scrollWheelZoom.enable();
-    this._map.boxZoom.enable();
-    this._map.keyboard.enable();
-    if (this._map.tap) this._map.tap.enable();
-    this._map._container.style.cursor = "grab";
-  }
-
-  isScooterCentered(latLng) {
+  centerLocation(latLng) {
     const lat = Number(latLng.lat);
     const lng = Number(latLng.lng);
     const loweredLat = lat + this._latOffset;
     const { lat: mLat, lng: mLng } = this._map.getCenter();
-    return (
-      mLat.toPrecision(7) === loweredLat.toPrecision(7) &&
-      mLng.toPrecision(7) === lng.toPrecision(7)
-    );
+    if (
+      mLat.toPrecision(7) !== loweredLat.toPrecision(7) ||
+      mLng.toPrecision(7) !== lng.toPrecision(7)
+    ) {
+      this._map.flyTo([loweredLat, lng], 18, {
+        animate: true,
+        duration: 1.3,
+        easeLinearity: 1,
+      });
+    }
   }
 
   unmount() {
