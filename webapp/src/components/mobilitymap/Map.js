@@ -56,7 +56,6 @@ const Map = () => {
     [setError]
   );
 
-  // todo: attempt to move this logic into ReservationCard compnent
   const handleReserve = React.useCallback(
     (vehicle) => {
       api
