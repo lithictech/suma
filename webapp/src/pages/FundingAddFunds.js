@@ -5,6 +5,7 @@ import FormButtons from "../components/FormButtons";
 import FormError from "../components/FormError";
 import ScreenLoader from "../components/ScreenLoader";
 import { t } from "../localization";
+import idempotency from "../modules/idempotency";
 import { Logger } from "../shared/logger";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
 import { extractErrorCode, useError } from "../state/useError";
@@ -64,21 +65,23 @@ export default function FundingAddFunds() {
       return;
     }
     screenLoader.turnOn();
-    api
-      .createFundingPayment({
-        amount: {
-          cents: amountCents,
-          currency: selectedCurrency.code,
-        },
-        paymentMethodId: instrument.id,
-        paymentMethodType: instrument.paymentMethodType,
-      })
-      .tap(handleUpdateCurrentMember)
-      .then(() => navigate(`/dashboard`, { replace: true }))
-      .catch((e) => {
-        setError(extractErrorCode(e));
-        screenLoader.turnOff();
-      });
+    idempotency.runAsync("add-funds", () =>
+      api
+        .createFundingPayment({
+          amount: {
+            cents: amountCents,
+            currency: selectedCurrency.code,
+          },
+          paymentMethodId: instrument.id,
+          paymentMethodType: instrument.paymentMethodType,
+        })
+        .tap(handleUpdateCurrentMember)
+        .then(() => navigate(`/dashboard`, { replace: true }))
+        .catch((e) => {
+          setError(extractErrorCode(e));
+          screenLoader.turnOff();
+        })
+    );
   };
 
   if (currenciesLoading) {
