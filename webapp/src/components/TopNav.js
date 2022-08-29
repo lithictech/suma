@@ -41,12 +41,15 @@ export default function TopNav() {
           />{" "}
           <p className="brand-text">{t("common:app_name")}</p>
         </Navbar.Brand>
-        <i
+        <div
           className={clsx(
-            "offline-status bi bi-wifi-off fs-4 ms-2 text-danger ms-auto",
+            "offline-status fs-4 ms-2 ms-auto",
             isOnline ? "opacity-0" : "offline-status-fadein"
           )}
-        ></i>
+        >
+          <i className="bi bi-wifi-off text-white"></i>
+        </div>
+
         <Navbar.Toggle className={clsx(expanded && "expanded")}>
           <div className="navbar-toggler-icon-bar" />
           <div className="navbar-toggler-icon-bar" />

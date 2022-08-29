@@ -65,13 +65,20 @@
 
 .offline-status {
   transition: opacity 1s ease-out;
+  background-color: $danger;
+  border-radius: 50px;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .offline-status-fadein {
-  animation: fadeIn 2s ease-in-out;
+  animation: offline-status-fadein 2s ease-in-out;
 }
 
-@keyframes fadeIn {
+@keyframes offline-status-fadein {
   0% { opacity: 0; }
   25% { opacity: 1; }
   50% { opacity: 0; }
