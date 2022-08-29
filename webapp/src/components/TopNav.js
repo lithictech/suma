@@ -4,7 +4,7 @@ import { t } from "../localization";
 import useI18Next from "../localization/useI18Next";
 import signOut from "../modules/signOut";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
-import { useOnlineStatus } from "../state/useOnlineStatus";
+import useOnlineStatus from "../state/useOnlineStatus";
 import { useUser } from "../state/useUser";
 import RLink from "./RLink";
 import clsx from "clsx";

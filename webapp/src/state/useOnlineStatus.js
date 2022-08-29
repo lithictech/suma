@@ -1,43 +1,18 @@
 import React from "react";
 
-const useOnlineStatus = () => {
-  const [isOnline, setIsOnline] = React.useState(true);
-  const [statusInterval, setStatusInterval] = React.useState(null);
-  const defaultIntervalDuration = 20000;
-  const [intervalDuration, setIntervalDuration] = React.useState(defaultIntervalDuration);
-
-  const handleCheckStatus = React.useCallback(() => {
-    const statusVerifier = fetch("/favicon.ico");
-    Promise.resolve(statusVerifier)
-      .then((online) => {
-        setIsOnline(online.status >= 200 && online.status < 300);
-      })
-      .catch(() => {
-        setIsOnline(false);
-      })
-      .finally(() => {
-        setIntervalDuration(isOnline ? defaultIntervalDuration : 5000);
-      });
-  }, [isOnline]);
+export default function useOnlineStatus() {
+  const [isOnline, setIsOnline] = React.useState(window.navigator.onLine);
 
   React.useEffect(() => {
-    handleCheckStatus();
-    setStatusInterval(
-      setInterval(() => {
-        handleCheckStatus();
-      }, intervalDuration)
-    );
-  }, [intervalDuration, handleCheckStatus]);
+    const abortCtrl = new AbortController();
+    window.addEventListener("offline", (e) => setIsOnline(false), {
+      signal: abortCtrl.signal,
+    });
+    window.addEventListener("online", (e) => setIsOnline(true), {
+      signal: abortCtrl.signal,
+    });
+    return () => abortCtrl.abort();
+  }, []);
 
-  React.useEffect(() => {
-    return () => {
-      if (statusInterval) {
-        clearInterval(statusInterval);
-      }
-    };
-  }, [statusInterval]);
-
-  return { isOnline, setIsOnline };
-};
-
-export { useOnlineStatus };
+  return { isOnline };
+}
