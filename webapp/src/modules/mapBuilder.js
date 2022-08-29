@@ -7,6 +7,7 @@ import "leaflet.animatedmarker/src/AnimatedMarker";
 import "leaflet.markercluster/dist/MarkerCluster.css";
 import "leaflet.markercluster/dist/leaflet.markercluster";
 import "leaflet/dist/leaflet.css";
+import _ from "lodash";
 
 export default class MapBuilder {
   constructor(mapRef) {
@@ -106,15 +107,16 @@ export default class MapBuilder {
   }
 
   moveEnd() {
-    if (this._map) {
-      const bounds = this._map.getBounds();
-      if (
-        this._lastBounds.contains(bounds._northEast) === false ||
-        this._lastBounds.contains(bounds._southWest) === false
-      ) {
-        this._lastBounds = bounds;
-        this.getScooters();
-      }
+    if (!this._map) {
+      return;
+    }
+    const bounds = this._map.getBounds();
+    if (
+      !this._lastBounds.contains(bounds._northEast) ||
+      !this._lastBounds.contains(bounds._southWest)
+    ) {
+      this._lastBounds = bounds;
+      this.getScooters(bounds);
     }
   }
 
@@ -127,14 +129,14 @@ export default class MapBuilder {
 
   loadScooters({ onVehicleClick }) {
     this._onVehicleClick = onVehicleClick;
-    this.getScooters();
+    this.getScooters(this._lastBounds);
     this.setVehicleEventHandlers();
     this._map.addLayer(this._mcg);
     return this;
   }
 
-  getScooters() {
-    const { _northEast, _southWest } = this._lastBounds || this.lastBounds;
+  getScooters(bounds) {
+    const { _northEast, _southWest } = bounds;
     api
       .getMobilityMap({
         minloc: [_southWest.lat, _southWest.lng],
@@ -143,7 +145,7 @@ export default class MapBuilder {
       .then((r) => {
         const precisionFactor = 1 / r.data.precision;
         const newMarkers = [];
-        this.removeVisibleLayers();
+        this.removeVisibleLayers(bounds);
         ["ebike", "escooter"].forEach((vehicleType) => {
           r.data[vehicleType]?.forEach((bike) => {
             const marker = this.newMarker(
@@ -312,7 +314,7 @@ export default class MapBuilder {
   startRefreshTimer(interval) {
     if (!this._refreshId && !this._ongoingTrip) {
       this._refreshId = window.setInterval(() => {
-        this.getScooters();
+        this.getScooters(this._lastBounds);
       }, interval);
     }
   }
@@ -326,10 +328,10 @@ export default class MapBuilder {
   }
 
   // Remove markers in visible bounds to prevent duplicates
-  removeVisibleLayers() {
+  removeVisibleLayers(bounds) {
     const removableMarkers = [];
     this._mcg.eachLayer((marker) => {
-      if (this._lastBounds.contains(marker._latlng)) {
+      if (bounds.contains(marker._latlng)) {
         removableMarkers.push(marker);
       }
     });
@@ -407,7 +409,7 @@ export default class MapBuilder {
           });
           this._map.addLayer(this._locationAccuracyCircle);
           this._map.addLayer(this._locationMarker);
-          this.centerLocation(loc);
+          this.centerLocation({ ...loc, targetZoom: 15 });
           onGetLocation(location);
         }
         if (
@@ -445,16 +447,17 @@ export default class MapBuilder {
     }
   }
 
-  centerLocation(latLng) {
-    const lat = Number(latLng.lat);
-    const lng = Number(latLng.lng);
+  centerLocation({ lat, lng, targetZoom }) {
+    lat = Number(lat);
+    lng = Number(lng);
+    targetZoom = _.isUndefined(targetZoom) ? 18 : targetZoom;
     const loweredLat = lat + this._latOffset;
     const { lat: mLat, lng: mLng } = this._map.getCenter();
     if (
       mLat.toPrecision(7) !== loweredLat.toPrecision(7) ||
       mLng.toPrecision(7) !== lng.toPrecision(7)
     ) {
-      this._map.flyTo([loweredLat, lng], 18, {
+      this._map.flyTo([loweredLat, lng], targetZoom, {
         animate: true,
         duration: 1.3,
         easeLinearity: 1,

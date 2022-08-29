@@ -10,7 +10,7 @@ const TransactionCard = ({ endTrip, onCloseTrip, error }) => {
   const handleClose = () => onCloseTrip();
   return (
     <CardOverlay>
-      <Card.Text className="text-muted">
+      <Card.Text>
         {t("mobility:trip_ended", {
           vendor: provider.vendorName,
           totalCost: totalCost,
