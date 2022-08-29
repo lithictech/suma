@@ -2,11 +2,19 @@ import { t } from "../../localization";
 import FormError from "../FormError";
 import PageLoader from "../PageLoader";
 import CardOverlay from "./CardOverlay";
+import InstructionsModal from "./InstructionsModal";
 import React from "react";
 import Button from "react-bootstrap/Button";
 import Card from "react-bootstrap/Card";
 
-const ReservationCard = ({ active, loading, vehicle, onReserve, reserveError }) => {
+const ReservationCard = ({
+  active,
+  loading,
+  vehicle,
+  onReserve,
+  reserveError,
+  lastLocation,
+}) => {
   if (!active) {
     return null;
   }
@@ -26,20 +34,32 @@ const ReservationCard = ({ active, loading, vehicle, onReserve, reserveError }) 
 
   return (
     <CardOverlay>
-      <Card.Title className="mb-2 text-muted">{vendorService.name}</Card.Title>
+      <Card.Title className="mb-2">{vendorService.name}</Card.Title>
       <Card.Text className="text-muted">
         {t("mobility:" + rate.localizationKey, {
           surchargeCents: {
             cents: locVars.surchargeCents,
             currency: locVars.surchargeCurrency,
           },
-          unitCents: { cents: locVars.unitCents, currency: locVars.unitCurrency },
+          unitCents: {
+            cents: locVars.unitCents,
+            currency: locVars.unitCurrency,
+          },
         })}
       </Card.Text>
       <FormError error={reserveError} />
-      <Button size="sm" variant="outline-primary" className="w-100" onClick={handlePress}>
-        {t("mobility:reserve_scooter")}
-      </Button>
+      {lastLocation ? (
+        <Button
+          size="sm"
+          variant="outline-success"
+          className="w-100"
+          onClick={handlePress}
+        >
+          {t("mobility:reserve_scooter")}
+        </Button>
+      ) : (
+        <InstructionsModal />
+      )}
     </CardOverlay>
   );
 };

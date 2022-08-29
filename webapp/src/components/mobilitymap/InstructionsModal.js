@@ -1,4 +1,5 @@
 import api from "../../api";
+import { t } from "../../localization";
 import useToggle from "../../shared/react/useToggle";
 import React from "react";
 import Accordion from "react-bootstrap/Accordion";
@@ -35,10 +36,14 @@ const InstructionsModal = () => {
 
   return (
     <>
+      <Alert variant="warning" className="m-0">
+        <i className="bi bi-exclamation-triangle-fill"></i>{" "}
+        {t("errors:denied_geolocation")}
+      </Alert>
       <Button
         variant="success"
         size="sm"
-        className="w-100 mt-2"
+        className="w-100 mt-3 fs-6"
         onClick={showModal.toggle}
       >
         <i className="bi bi-book"></i> Location Instructions

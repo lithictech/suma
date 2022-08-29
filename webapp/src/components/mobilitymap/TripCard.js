@@ -9,8 +9,9 @@ import CardOverlay from "./CardOverlay";
 import TransactionCard from "./TransactionCard";
 import React from "react";
 import Button from "react-bootstrap/Button";
+import Card from "react-bootstrap/Card";
 
-const TripCard = ({ active, trip, onCloseTrip, onStopTrip, lastLocation }) => {
+const TripCard = ({ active, trip, onCloseTrip, onEndTrip, lastLocation }) => {
   const { handleUpdateCurrentMember } = useUser();
   const [endTrip, setEndTrip] = React.useState(null);
   const [error, setError] = useError();
@@ -25,33 +26,35 @@ const TripCard = ({ active, trip, onCloseTrip, onStopTrip, lastLocation }) => {
     );
   }
   const handleEndTrip = () => {
-    const { lat, lng } = lastLocation.latlng;
     api
       .endMobilityTrip({
-        lat: lat,
-        lng: lng,
+        lat: lastLocation.latlng.lat,
+        lng: lastLocation.latlng.lng,
       })
       .tap(handleUpdateCurrentMember)
       .then((r) => {
-        onStopTrip();
+        onEndTrip();
         setEndTrip(r.data);
       })
       .catch((e) => setError(extractErrorCode(e)));
   };
-  const handleCloseTrip = () => onCloseTrip();
+  const handleCloseTrip = () => {
+    onCloseTrip();
+    setEndTrip(null);
+  };
   return (
     <>
       {endTrip && (
         <TransactionCard endTrip={endTrip} error={error} onCloseTrip={handleCloseTrip} />
       )}
-      {lastLocation && !endTrip && (
+      {trip && !endTrip && lastLocation && (
         <CardOverlay>
-          <h6>{trip.provider.name}</h6>
-          <p>
+          <Card.Title className="mb-2">{trip.provider.name}</Card.Title>
+          <Card.Text className="text-muted">
             {t("mobility:trip_started_at", {
               at: dayjs(trip.beganAt).format("LT"),
             })}
-          </p>
+          </Card.Text>
           <FormError error={error} />
           <Button
             size="sm"

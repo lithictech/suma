@@ -7,6 +7,11 @@
   height: calc(100vh - 150px);
 }
 
+.leaflet-div-icon {
+  background: none;
+  border: none;
+}
+
 .leaflet-popup-content-wrapper {
   border-radius: 0.25rem;
   border: 1px solid #eee;
@@ -79,13 +84,25 @@
   /* zIndex higher than map (400) */
   z-index: 401;
   position: absolute !important;
-  top: 0;
+  top: 10px;
   left: 50%;
   width: 300px;
   margin: 0 auto;
-  transform: translate(-50%, 2%);
+  transform: translate(-50%, 0%);
 }
 
 .mobility-overlay-card-loading-icon {
   width: 38px;
+}
+
+.mobility-location-marker-icon {
+  width: 16px;
+  height: 16px;
+  background-color: #0495ff;
+  border-radius: 50%;
+  border: 2px solid white;
+}
+
+.mobility-location-accuracy-circle-animation {
+  transition: all 1000ms linear 0s;
 }
