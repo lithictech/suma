@@ -43,6 +43,7 @@ export default class MapBuilder {
       iconAnchor: [21.7, 52.6],
     });
     this._vehicleClicked = false;
+    this._lastLocation = null;
     this._locationMarker = null;
     this._locationAccuracyCircle = null;
     this._animationTimeoutId = null;
@@ -52,7 +53,6 @@ export default class MapBuilder {
 
   init() {
     this.setTileLayer();
-    this.setLocationEventHandlers();
     this.loadGeoFences();
     return this;
   }
@@ -269,6 +269,61 @@ export default class MapBuilder {
       });
   }
 
+  setLocateControl() {
+    const LocateControl = this._l.Control.extend({
+      options: {
+        position: "topleft",
+        link: undefined,
+        center: () => {
+          this.centerLocation({ ...this._lastLocation, targetZoom: 15 });
+        },
+      },
+      onAdd() {
+        const container = leaflet.DomUtil.create(
+          "div",
+          "leaflet-control-locate leaflet-bar leaflet-control"
+        );
+        const layer = new leaflet.LayerGroup();
+        layer.addTo(this._map);
+        const link = leaflet.DomUtil.create(
+          "a",
+          "leaflet-bar-part leaflet-bar-part-single",
+          container
+        );
+        this.options.link = link;
+        link.href = "#";
+        link.title = "Locate me";
+        link.setAttribute("role", "button");
+        leaflet.DomUtil.create("div", "bi bi-geo-fill", link);
+
+        leaflet.DomEvent.on(
+          this.options.link,
+          "click",
+          () => this.options.center(),
+          this
+        );
+        leaflet.DomEvent.on(this.options.link, "dblclick", (ev) => {
+          leaflet.DomEvent.stopPropagation(ev);
+        });
+        return container;
+      },
+      onRemove() {
+        leaflet.DomEvent.off(
+          this.options.link,
+          "click",
+          () => this.options.center(),
+          this
+        );
+        leaflet.DomEvent.off(this.options.link, "dblclick", (ev) => {
+          leaflet.DomEvent.stopPropagation(ev);
+        });
+      },
+    });
+
+    this._l.control.locate = () => new LocateControl();
+    this._l.control.locate().addTo(this._map);
+  }
+
   startTrackingLocation({ onGetLocation, onGetLocationError }) {
     let loc, line;
     this._map
@@ -301,7 +356,7 @@ export default class MapBuilder {
           line = this._l.polyline([[loc.lat, loc.lng]]);
           this._locationMarker = this._l.animatedMarker(line.getLatLngs(), {
             icon: this._l.divIcon({
-              html: "<div class='mobility-location-marker-icon'></div>",
+              className: "mobility-location-marker-icon",
               iconSize: [16, 16],
               iconAnchor: [8, 8],
             }),
@@ -320,6 +375,9 @@ export default class MapBuilder {
           });
           this._map.addLayer(this._locationAccuracyCircle);
           this._map.addLayer(this._locationMarker);
+          this._lastLocation = location.latlng;
+          this.setLocateControl();
+          this.setLocationEventHandlers();
           this.centerLocation({ ...loc, targetZoom: 15 });
           onGetLocation(location);
         }
@@ -341,6 +399,8 @@ export default class MapBuilder {
             .setRadius(location.accuracy);
           this._locationMarker.start();
           loc = location.latlng;
+          this._lastLocation = location.latlng;
+
           onGetLocation(location);
         }
       });
