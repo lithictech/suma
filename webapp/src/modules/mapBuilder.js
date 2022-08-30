@@ -43,6 +43,7 @@ export default class MapBuilder {
       iconAnchor: [21.7, 52.6],
     });
     this._vehicleClicked = false;
+    this._lastLocation = null;
     this._locationMarker = null;
     this._locationAccuracyCircle = null;
     this._animationTimeoutId = null;
@@ -116,7 +117,7 @@ export default class MapBuilder {
       !this._lastBounds.contains(bounds._southWest)
     ) {
       this._lastBounds = bounds;
-      this.getScooters(bounds);
+      this.getScooters(this.expandBounds(this._lastBounds, 0.05));
     }
   }
 
@@ -129,7 +130,7 @@ export default class MapBuilder {
 
   loadScooters({ onVehicleClick }) {
     this._onVehicleClick = onVehicleClick;
-    this.getScooters(this._lastBounds);
+    this.getScooters(this.expandBounds(this._lastBounds, 0.05));
     this.setVehicleEventHandlers();
     this._map.addLayer(this._mcg);
     return this;
@@ -145,16 +146,30 @@ export default class MapBuilder {
       .then((r) => {
         const precisionFactor = 1 / r.data.precision;
         const newMarkers = [];
-        this.removeVisibleLayers(bounds);
+        const removableMarkers = [];
+        // TODO: Remove markers that are not present in the new list of ids
+        // Removes markers that are not present in the bounds
+        this._mcg.eachLayer((marker) => {
+          if (!bounds.contains(marker._latlng)) {
+            removableMarkers.push(marker);
+          }
+        });
+        this._mcg.removeLayers(removableMarkers, { chunkedLoading: true });
+        // Add markers for ids that are missing
+        const currentMarkers = this._mcg.getLayers().map((marker) => marker.options.id);
         ["ebike", "escooter"].forEach((vehicleType) => {
           r.data[vehicleType]?.forEach((bike) => {
-            const marker = this.newMarker(
-              bike,
-              vehicleType,
-              r.data.providers,
-              precisionFactor
-            );
-            newMarkers.push(marker);
+            const id = `${bike.p}-${bike.c[0]}-${bike.c[1]}`;
+            if (!currentMarkers.includes(id) || this._mcg.getLayers().length === 0) {
+              const marker = this.newMarker(
+                id,
+                bike,
+                vehicleType,
+                r.data.providers,
+                precisionFactor
+              );
+              newMarkers.push(marker);
+            }
           });
         });
         this._mcg.addLayers(newMarkers, { chunkedLoading: true });
@@ -314,7 +329,7 @@ export default class MapBuilder {
   startRefreshTimer(interval) {
     if (!this._refreshId && !this._ongoingTrip) {
       this._refreshId = window.setInterval(() => {
-        this.getScooters(this._lastBounds);
+        this.getScooters(this.expandBounds(this._lastBounds, 0.05));
       }, interval);
     }
   }
@@ -327,23 +342,13 @@ export default class MapBuilder {
     return this;
   }
 
-  // Remove markers in visible bounds to prevent duplicates
-  removeVisibleLayers(bounds) {
-    const removableMarkers = [];
-    this._mcg.eachLayer((marker) => {
-      if (bounds.contains(marker._latlng)) {
-        removableMarkers.push(marker);
-      }
-    });
-    this._mcg.removeLayers(removableMarkers);
-  }
-
-  newMarker(bike, vehicleType, providers, precisionFactor) {
+  newMarker(id, bike, vehicleType, providers, precisionFactor) {
     const [lat, lng] = bike.c;
     return this._l
       .marker([lat * precisionFactor, lng * precisionFactor], {
         icon: this._scooterIcon,
         riseOnHover: true,
+        id
       })
       .on("click", (e) => {
         this.centerLocation(e.latlng);
@@ -356,6 +361,57 @@ export default class MapBuilder {
         this._onVehicleClick(mapVehicle);
         this._vehicleClicked = true;
       });
+  }
+
+  setLocateControl() {
+    const LocateControl = this._l.Control.extend({
+      options: {
+        position: "topleft",
+        link: undefined,
+        center: () => {
+          this.centerLocation({ ...this._lastLocation, targetZoom: 15 });
+        },
+      },
+      onAdd() {
+        const container = leaflet.DomUtil.create(
+          "div",
+          "leaflet-control-locate leaflet-bar leaflet-control"
+        );
+        const link = leaflet.DomUtil.create(
+          "a",
+          "leaflet-bar-part leaflet-bar-part-single",
+          container
+        );
+        this.options.link = link;
+        link.href = "#";
+        link.title = "Locate me";
+        link.setAttribute("role", "button");
+        leaflet.DomUtil.create("div", "bi bi-geo-fill", link);
+        leaflet.DomEvent.on(
+          this.options.link,
+          "click",
+          () => this.options.center(),
+          this
+        );
+        leaflet.DomEvent.on(this.options.link, "dblclick", (ev) => {
+          leaflet.DomEvent.stopPropagation(ev);
+        });
+        return container;
+      },
+      onRemove() {
+        leaflet.DomEvent.off(
+          this.options.link,
+          "click",
+          () => this.options.center(),
+          this
+        );
+        leaflet.DomEvent.off(this.options.link, "dblclick", (ev) => {
+          leaflet.DomEvent.stopPropagation(ev);
+        });
+      },
+    });
+    this._l.control.locate = () => new LocateControl();
+    this._l.control.locate().addTo(this._map);
   }
 
   startTrackingLocation({ onGetLocation, onGetLocationError }) {
@@ -463,6 +519,20 @@ export default class MapBuilder {
         easeLinearity: 1,
       });
     }
+  }
+
+  expandBounds(bounds, distance) {
+    if (!bounds) {
+      return {};
+    }
+    if (!distance) {
+      return bounds;
+    }
+    bounds._northEast.lat += distance;
+    bounds._northEast.lng += distance;
+    bounds._southWest.lat -= distance;
+    bounds._southWest.lng -= distance;
+    return bounds;
   }
 
   unmount() {
