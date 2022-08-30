@@ -270,6 +270,7 @@ export default class MapBuilder {
   }
 
   setLocateControl() {
+    // Adds locate button to center map on location when clicked
     const LocateControl = this._l.Control.extend({
       options: {
         position: "topleft",
@@ -283,8 +284,6 @@ export default class MapBuilder {
           "div",
           "leaflet-control-locate leaflet-bar leaflet-control"
         );
-        const layer = new leaflet.LayerGroup();
-        layer.addTo(this._map);
         const link = leaflet.DomUtil.create(
           "a",
           "leaflet-bar-part leaflet-bar-part-single",
@@ -295,7 +294,6 @@ export default class MapBuilder {
         link.title = "Locate me";
         link.setAttribute("role", "button");
         leaflet.DomUtil.create("div", "bi bi-geo-fill", link);
-
         leaflet.DomEvent.on(
           this.options.link,
           "click",
