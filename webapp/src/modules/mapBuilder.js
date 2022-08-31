@@ -42,23 +42,127 @@ export default class MapBuilder {
       iconSize: [43.4, 52.6],
       iconAnchor: [21.7, 52.6],
     });
-    this._vehicleClicked = false;
+    this._vehicleClicked = null;
     this._lastLocation = null;
     this._locationMarker = null;
     this._locationAccuracyCircle = null;
     this._animationTimeoutId = null;
     this._refreshId = null;
     this._onVehicleClick = null;
+    this._onVehicleRemove = null;
   }
 
   init() {
-    this.setTileLayer();
-    this.setLocationEventHandlers();
-    this.loadGeoFences();
+    this._setTileLayer();
+    this._setLocationEventHandlers();
+    this._loadGeoFences();
     return this;
   }
 
-  setTileLayer() {
+  loadScooters({ onVehicleClick, onVehicleRemove }) {
+    this._onVehicleClick = onVehicleClick;
+    this._onVehicleRemove = onVehicleRemove;
+    this._getAndUpdateScooters(this._lastBounds, this._mcg);
+    this._setVehicleEventHandlers();
+    this._map.addLayer(this._mcg);
+    return this;
+  }
+
+  startTrackingLocation({ onGetLocation, onGetLocationError }) {
+    let loc, line;
+    this._map
+      .locate({
+        watch: true,
+        maxZoom: this._zoomTo,
+        timeout: 20000,
+        enableHighAccuracy: true,
+      })
+      .on("locationerror", (e) => {
+        /**
+         * Error code 3 is for timeout but location service keeps attempting
+         * and seems to always prevail so there's no need for throwing geolocation error msg.
+         */
+        function ignoreLocationError() {
+          const ERR_LOCATION_PERMISSION_DENIED = 1;
+          const ERR_LOCATION_POSITION_UNAVAILABLE = 2;
+          return (
+            e.code !== ERR_LOCATION_PERMISSION_DENIED &&
+            e.code !== ERR_LOCATION_POSITION_UNAVAILABLE
+          );
+        }
+        if (!ignoreLocationError()) {
+          onGetLocationError();
+        }
+      })
+      .on("locationfound", (location) => {
+        if (!loc) {
+          loc = location.latlng;
+          line = this._l.polyline([[loc.lat, loc.lng]]);
+          this._locationMarker = this._l.animatedMarker(line.getLatLngs(), {
+            icon: this._l.divIcon({
+              html: "<div class='mobility-location-marker-icon'></div>",
+              iconSize: [16, 16],
+              iconAnchor: [8, 8],
+            }),
+            interactive: false,
+            autoStart: false,
+            duration: 250,
+            distance: 0,
+          });
+          this._locationAccuracyCircle = this._l.circle([loc.lat, loc.lng], {
+            className: "mobility-location-accuracy-circle-animation",
+            radius: location.accuracy,
+            color: "#0495ff",
+            fillColor: "#0495ff",
+            fillOpacity: 0.1,
+            weight: 0,
+          });
+          this._map.addLayer(this._locationAccuracyCircle);
+          this._map.addLayer(this._locationMarker);
+          this._centerLocation({ ...loc, targetZoom: 15 });
+          onGetLocation(location);
+        }
+        if (
+          this._locationMarker &&
+          this._locationAccuracyCircle &&
+          loc &&
+          line &&
+          (loc.lat !== location.latitude || loc.lng !== location.longitude)
+        ) {
+          this._locationMarker.stop();
+          const nextLocation = [location.latitude, location.longitude];
+          // Sets next location distance for animation purpose
+          const nextDistance = this._l.latLng(loc.lat, loc.lng).distanceTo(nextLocation);
+          this._locationMarker.options.distance = nextDistance;
+          line.addLatLng(nextLocation);
+          this._locationAccuracyCircle
+            .setLatLng(nextLocation)
+            .setRadius(location.accuracy);
+          this._locationMarker.start();
+          loc = location.latlng;
+          onGetLocation(location);
+        }
+      });
+    return this;
+  }
+
+  beginTrip() {
+    // will be re-enabled on getAndUpdateScooters
+    this._map.off("moveend", this._moveEndEvent, this);
+    this._map.off("click", this._clickEvent, this);
+    this._mcg.clearLayers();
+    this._stopRefreshTimer();
+    if (this._locationMarker) {
+      this._centerLocation(this._locationMarker.getLatLng());
+    }
+  }
+
+  unmount() {
+    this._stopRefreshTimer();
+    this._map.stopLocate();
+  }
+
+  _setTileLayer() {
     this._l
       .tileLayer(
         "https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw",
@@ -76,7 +180,7 @@ export default class MapBuilder {
       .addTo(this._map);
   }
 
-  setLocationEventHandlers() {
+  _setLocationEventHandlers() {
     this._map.on("zoomstart", () => {
       if (this._locationAccuracyCircle && this._locationMarker) {
         // prevent animation issues when zooming
@@ -102,12 +206,12 @@ export default class MapBuilder {
     });
   }
 
-  setVehicleEventHandlers() {
-    this._map.on("moveend", this.moveEnd, this);
-    this._map.on("click", this.click, this);
+  _setVehicleEventHandlers() {
+    this._map.on("moveend", this._moveEndEvent, this);
+    this._map.on("click", this._clickEvent, this);
   }
 
-  moveEnd() {
+  _moveEndEvent() {
     if (!this._map) {
       return;
     }
@@ -117,26 +221,19 @@ export default class MapBuilder {
       !this._lastBounds.contains(bounds._southWest)
     ) {
       this._lastBounds = bounds;
-      this.getScooters(this.expandBounds(this._lastBounds, 0.05));
+      this._getAndUpdateScooters(this._lastBounds, this._mcg);
     }
   }
 
-  click() {
+  _clickEvent() {
+    console.log("click event happened", this._vehicleClicked);
     if (this._vehicleClicked) {
       this._onVehicleClick(null);
-      this._vehicleClicked = false;
+      this._vehicleClicked = null;
     }
   }
 
-  loadScooters({ onVehicleClick }) {
-    this._onVehicleClick = onVehicleClick;
-    this.getScooters(this.expandBounds(this._lastBounds, 0.05));
-    this.setVehicleEventHandlers();
-    this._map.addLayer(this._mcg);
-    return this;
-  }
-
-  getScooters(bounds) {
+  _getAndUpdateScooters(bounds, mcg) {
     const { _northEast, _southWest } = bounds;
     api
       .getMobilityMap({
@@ -144,40 +241,89 @@ export default class MapBuilder {
         maxloc: [_northEast.lat, _northEast.lng],
       })
       .then((r) => {
-        const precisionFactor = 1 / r.data.precision;
-        const newMarkers = [];
-        const removableMarkers = [];
-        // TODO: Remove markers that are not present in the new list of ids
-        // Removes markers that are not present in the bounds
-        this._mcg.eachLayer((marker) => {
-          if (!bounds.contains(marker._latlng)) {
-            removableMarkers.push(marker);
-          }
-        });
-        this._mcg.removeLayers(removableMarkers, { chunkedLoading: true });
-        // Add markers for ids that are missing
-        const currentMarkers = this._mcg.getLayers().map((marker) => marker.options.id);
-        ["ebike", "escooter"].forEach((vehicleType) => {
-          r.data[vehicleType]?.forEach((bike) => {
-            const id = `${bike.p}-${bike.c[0]}-${bike.c[1]}`;
-            if (!currentMarkers.includes(id) || this._mcg.getLayers().length === 0) {
-              const marker = this.newMarker(
-                id,
-                bike,
-                vehicleType,
-                r.data.providers,
-                precisionFactor
-              );
-              newMarkers.push(marker);
-            }
-          });
-        });
-        this._mcg.addLayers(newMarkers, { chunkedLoading: true });
-        this.stopRefreshTimer().startRefreshTimer(r.data.refresh);
+        this._updateMarkers({ ...r, bounds, mcg });
+        this._stopRefreshTimer()._startRefreshTimer(r.data.refresh);
       });
   }
 
-  loadGeoFences() {
+  _updateMarkers({ data, bounds, mcg }) {
+    const precisionFactor = 1 / data.precision;
+    const applicableMarkers = [];
+    const allNewMarkersIds = [];
+    const leftoverMarkers = [];
+
+    // First: Removes markers that are not present in the bounds
+    const removableMarkers = mcg
+      .getLayers()
+      .filter((marker) => !bounds.contains(marker._latlng));
+    mcg.removeLayers(removableMarkers, { chunkedLoading: true });
+    // Second: Add markers for ids that are missing
+    const currentMarkersIds = mcg.getLayers().map((marker) => marker.options.id);
+    ["ebike", "escooter"].forEach((vehicleType) => {
+      data[vehicleType]?.forEach((bike) => {
+        const id = `${bike.p}-${bike.c[0] * precisionFactor}-${
+          bike.c[1] * precisionFactor
+        }`;
+        const marker = this._newMarker(
+          id,
+          bike,
+          vehicleType,
+          data.providers,
+          precisionFactor
+        );
+        if (!currentMarkersIds.includes(id) || currentMarkersIds.length === 0) {
+          applicableMarkers.push(marker);
+        } else {
+          leftoverMarkers.push(marker);
+        }
+        allNewMarkersIds.push(id);
+      });
+    });
+    mcg.addLayers(applicableMarkers, { chunkedLoading: true });
+    // Third: Remove *leftover* markers that are not present in the new list of ids
+    // Leftover markers are visible in new bounds but might not exist in new list of ids,
+    // therefor we should remove the non-existing leftover marker(s)
+    const removableLeftoverMarkers = leftoverMarkers.filter(
+      (marker) => !allNewMarkersIds.includes(marker.options.id)
+    );
+    mcg.removeLayers(removableLeftoverMarkers, { chunkedLoading: true });
+
+    // Fourth: Close the map reserve card if the marker for a scooter is now gone
+    const removedMarkers = removableMarkers.concat(removableLeftoverMarkers);
+    if (this._vehicleClicked && removedMarkers.length !== 0) {
+      const isVehicleRemoved = removedMarkers.find(
+        (marker) => this._vehicleClicked.options.id === marker.options.id
+      );
+      if (!isVehicleRemoved) {
+        return;
+      }
+      this._onVehicleRemove();
+      this._vehicleClicked = null;
+    }
+  }
+
+  _newMarker(id, bike, vehicleType, providers, precisionFactor) {
+    const [lat, lng] = bike.c;
+    return this._l
+      .marker([lat * precisionFactor, lng * precisionFactor], {
+        icon: this._scooterIcon,
+        riseOnHover: true,
+        id,
+      })
+      .on("click", (e) => {
+        this._centerLocation(e.latlng);
+        const mapVehicle = {
+          loc: bike.c,
+          type: vehicleType,
+          disambiguator: bike.d,
+          providerId: providers[bike.p].id,
+        };
+        this._onVehicleClick(mapVehicle);
+        this._vehicleClicked = e.target;
+      });
+  }
+
+  _loadGeoFences() {
     const apiResponse = {
       doNotParkOrRide: [
         [
@@ -253,19 +399,19 @@ export default class MapBuilder {
     };
     Promise.resolve(apiResponse).then((r) => {
       if (r.doNotPark) {
-        this.createRestrictedArea({
+        this._createRestrictedArea({
           latlngs: r.doNotPark,
           options: { restriction: "parking" },
         });
       }
       if (r.doNotRide) {
-        this.createRestrictedArea({
+        this._createRestrictedArea({
           latlngs: r.doNotRide,
           options: { restriction: "riding" },
         });
       }
       if (r.doNotParkOrRide) {
-        this.createRestrictedArea({
+        this._createRestrictedArea({
           latlngs: r.doNotParkOrRide,
           options: { restriction: "all" },
         });
@@ -273,7 +419,7 @@ export default class MapBuilder {
     });
   }
 
-  createRestrictedArea({ latlngs, options }) {
+  _createRestrictedArea({ latlngs, options }) {
     options = options || {};
     let popup = this._l.popup({
       direction: "top",
@@ -326,15 +472,15 @@ export default class MapBuilder {
     });
   }
 
-  startRefreshTimer(interval) {
+  _startRefreshTimer(interval) {
     if (!this._refreshId && !this._ongoingTrip) {
       this._refreshId = window.setInterval(() => {
-        this.getScooters(this.expandBounds(this._lastBounds, 0.05));
+        this._getAndUpdateScooters(this._lastBounds, this._mcg);
       }, interval);
     }
   }
 
-  stopRefreshTimer() {
+  _stopRefreshTimer() {
     if (this._refreshId) {
       clearInterval(this._refreshId);
       this._refreshId = null;
@@ -342,34 +488,13 @@ export default class MapBuilder {
     return this;
   }
 
-  newMarker(id, bike, vehicleType, providers, precisionFactor) {
-    const [lat, lng] = bike.c;
-    return this._l
-      .marker([lat * precisionFactor, lng * precisionFactor], {
-        icon: this._scooterIcon,
-        riseOnHover: true,
-        id
-      })
-      .on("click", (e) => {
-        this.centerLocation(e.latlng);
-        const mapVehicle = {
-          loc: bike.c,
-          type: vehicleType,
-          disambiguator: bike.d,
-          providerId: providers[bike.p].id,
-        };
-        this._onVehicleClick(mapVehicle);
-        this._vehicleClicked = true;
-      });
-  }
-
-  setLocateControl() {
+  _setLocateControl() {
     const LocateControl = this._l.Control.extend({
       options: {
         position: "topleft",
         link: undefined,
         center: () => {
-          this.centerLocation({ ...this._lastLocation, targetZoom: 15 });
+          this._centerLocation({ ...this._lastLocation, targetZoom: 15 });
         },
       },
       onAdd() {
@@ -414,96 +539,7 @@ export default class MapBuilder {
     this._l.control.locate().addTo(this._map);
   }
 
-  startTrackingLocation({ onGetLocation, onGetLocationError }) {
-    let loc, line;
-    this._map
-      .locate({
-        watch: true,
-        maxZoom: this._zoomTo,
-        timeout: 20000,
-        enableHighAccuracy: true,
-      })
-      .on("locationerror", (e) => {
-        /**
-         * Error code 3 is for timeout but location service keeps attempting
-         * and seems to always prevail so there's no need for throwing geolocation error msg.
-         */
-        function ignoreLocationError() {
-          const ERR_LOCATION_PERMISSION_DENIED = 1;
-          const ERR_LOCATION_POSITION_UNAVAILABLE = 2;
-          return (
-            e.code !== ERR_LOCATION_PERMISSION_DENIED &&
-            e.code !== ERR_LOCATION_POSITION_UNAVAILABLE
-          );
-        }
-        if (!ignoreLocationError()) {
-          onGetLocationError();
-        }
-      })
-      .on("locationfound", (location) => {
-        if (!loc) {
-          loc = location.latlng;
-          line = this._l.polyline([[loc.lat, loc.lng]]);
-          this._locationMarker = this._l.animatedMarker(line.getLatLngs(), {
-            icon: this._l.divIcon({
-              html: "<div class='mobility-location-marker-icon'></div>",
-              iconSize: [16, 16],
-              iconAnchor: [8, 8],
-            }),
-            interactive: false,
-            autoStart: false,
-            duration: 250,
-            distance: 0,
-          });
-          this._locationAccuracyCircle = this._l.circle([loc.lat, loc.lng], {
-            className: "mobility-location-accuracy-circle-animation",
-            radius: location.accuracy,
-            color: "#0495ff",
-            fillColor: "#0495ff",
-            fillOpacity: 0.1,
-            weight: 0,
-          });
-          this._map.addLayer(this._locationAccuracyCircle);
-          this._map.addLayer(this._locationMarker);
-          this.centerLocation({ ...loc, targetZoom: 15 });
-          onGetLocation(location);
-        }
-        if (
-          this._locationMarker &&
-          this._locationAccuracyCircle &&
-          loc &&
-          line &&
-          (loc.lat !== location.latitude || loc.lng !== location.longitude)
-        ) {
-          this._locationMarker.stop();
-          const nextLocation = [location.latitude, location.longitude];
-          // Sets next location distance for animation purpose
-          const nextDistance = this._l.latLng(loc.lat, loc.lng).distanceTo(nextLocation);
-          this._locationMarker.options.distance = nextDistance;
-          line.addLatLng(nextLocation);
-          this._locationAccuracyCircle
-            .setLatLng(nextLocation)
-            .setRadius(location.accuracy);
-          this._locationMarker.start();
-          loc = location.latlng;
-          onGetLocation(location);
-        }
-      });
-    return this;
-  }
-
-  beginTrip() {
-    // will be re-enabled on getScooters
-    this._map.off("moveend", this.moveEnd, this);
-    this._map.off("click", this.click, this);
-    this._mcg.clearLayers();
-    this.stopRefreshTimer();
-    if (this._locationMarker) {
-      this.centerLocation(this._locationMarker.getLatLng());
-    }
-  }
-
-  centerLocation({ lat, lng, targetZoom }) {
+  _centerLocation({ lat, lng, targetZoom }) {
     lat = Number(lat);
     lng = Number(lng);
     targetZoom = _.isUndefined(targetZoom) ? 18 : targetZoom;
@@ -519,24 +555,5 @@ export default class MapBuilder {
         easeLinearity: 1,
       });
     }
-  }
-
-  expandBounds(bounds, distance) {
-    if (!bounds) {
-      return {};
-    }
-    if (!distance) {
-      return bounds;
-    }
-    bounds._northEast.lat += distance;
-    bounds._northEast.lng += distance;
-    bounds._southWest.lat -= distance;
-    bounds._southWest.lng -= distance;
-    return bounds;
-  }
-
-  unmount() {
-    this.stopRefreshTimer();
-    this._map.stopLocate();
   }
 }

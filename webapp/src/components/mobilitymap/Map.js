@@ -47,6 +47,10 @@ const Map = () => {
     [user, setError, setReserveError]
   );
 
+  const handleVehicleRemove = () => {
+    setSelectedMapVehicle(null);
+  };
+
   const handleGetLastLocation = React.useCallback(
     (lastLocation) => setLastMarkerLocation(lastLocation),
     []
@@ -95,7 +99,10 @@ const Map = () => {
       if (ongoingTrip) {
         map.beginTrip();
       } else {
-        map.loadScooters({ onVehicleClick: handleVehicleClick });
+        map.loadScooters({
+          onVehicleClick: handleVehicleClick,
+          onVehicleRemove: handleVehicleRemove,
+        });
       }
       setLoadedMap(map);
     }
