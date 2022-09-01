@@ -287,7 +287,7 @@ export default class MapBuilder {
     const isVehicleRemoved = removedMarkers.find(
       (marker) => this._vehicleClicked?.options.id === marker.options.id
     );
-    if (!this._vehicleClicked && !isVehicleRemoved) {
+    if (!this._vehicleClicked || !isVehicleRemoved) {
       return;
     }
     this._onVehicleRemove();
