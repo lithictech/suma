@@ -78,6 +78,16 @@ module Suma::API
     expose :ebike, with: MobilityMapVehicleEntity, expose_nil: false
   end
 
+  class MobilityMapRestrictionEntity < BaseEntity
+    expose :restriction
+    expose :polygon_numeric, as: :polygon
+    expose :bounds_numeric, as: :bounds
+  end
+
+  class MobilityMapFeaturesEntity < BaseEntity
+    expose :restrictions, with: MobilityMapRestrictionEntity
+  end
+
   class MobilityVehicleEntity < BaseEntity
     expose :precision do |_|
       Suma::Mobility::COORD2INT_FACTOR

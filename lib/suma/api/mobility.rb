@@ -10,14 +10,14 @@ class Suma::API::Mobility < Suma::API::V1
   resource :mobility do
     desc "Return all mobility vehicles fitting the requested parameters."
     params do
-      requires :minloc, type: Array[BigDecimal], coerce_with: DecimalLocation
-      requires :maxloc, type: Array[BigDecimal], coerce_with: DecimalLocation
+      requires :sw, type: Array[BigDecimal], coerce_with: DecimalLocation
+      requires :ne, type: Array[BigDecimal], coerce_with: DecimalLocation
       optional :types, type: Array[String], coerce_with: CommaSepArray, values: ["ebike", "escooter"]
     end
     get :map do
       current_member
-      min_lat, min_lng = params[:minloc]
-      max_lat, max_lng = params[:maxloc]
+      min_lat, min_lng = params[:sw]
+      max_lat, max_lng = params[:ne]
       ds = Suma::Mobility::Vehicle.search(min_lat:, min_lng:, max_lat:, max_lng:)
       ds = ds.where(vehicle_type: params[:types]) if params.key?(:types)
       ds = ds.where(vendor_service: Suma::Vendor::Service.dataset.mobility)
@@ -55,6 +55,21 @@ class Suma::API::Mobility < Suma::API::V1
       end
       map_obj[:providers] = vnd_services
       present map_obj, with: Suma::API::MobilityMapEntity
+    end
+
+    desc "Return restrictions and other map features."
+    params do
+      requires :sw, type: Array[BigDecimal], coerce_with: DecimalLocation
+      requires :ne, type: Array[BigDecimal], coerce_with: DecimalLocation
+    end
+    get :map_features do
+      current_member
+      min_lat, min_lng = params[:sw]
+      max_lat, max_lng = params[:ne]
+      ds = Suma::Mobility::RestrictedArea.intersecting(ne: [max_lat, max_lng], sw: [min_lat, min_lng])
+      ds = ds.order(:id)
+      result = {restrictions: ds.all}
+      present result, with: Suma::API::MobilityMapFeaturesEntity
     end
 
     params do

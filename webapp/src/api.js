@@ -44,6 +44,7 @@ export default {
   authVerify: (data) => post(`/api/v1/auth/verify`, data),
   authSignout: (data) => del(`/api/v1/auth`, data),
   getMobilityMap: (data) => get("/api/v1/mobility/map", data),
+  getMobilityMapFeatures: (data) => get("/api/v1/mobility/map_features", data),
   getMobilityVehicle: (data) => get("/api/v1/mobility/vehicle", data),
   beginMobilityTrip: (data) => post("/api/v1/mobility/begin_trip", data),
   endMobilityTrip: (data) => post("/api/v1/mobility/end_trip", data),
