@@ -212,25 +212,20 @@ export default class MapBuilder {
   }
 
   _moveEndEvent() {
-    if (!this._map) {
+    const bounds = this._map.getBounds();
+    if (!this._map || this._lastBounds.contains(bounds)) {
       return;
     }
-    const bounds = this._map.getBounds();
-    if (
-      !this._lastBounds.contains(bounds._northEast) ||
-      !this._lastBounds.contains(bounds._southWest)
-    ) {
-      this._lastBounds = bounds;
-      this._getAndUpdateScooters(this._lastBounds, this._mcg);
-    }
+    this._lastBounds = bounds;
+    this._getAndUpdateScooters(this._lastBounds, this._mcg);
   }
 
   _clickEvent() {
-    console.log("click event happened", this._vehicleClicked);
-    if (this._vehicleClicked) {
-      this._onVehicleClick(null);
-      this._vehicleClicked = null;
+    if (!this._vehicleClicked) {
+      return;
     }
+    this._onVehicleClick(null);
+    this._vehicleClicked = null;
   }
 
   _getAndUpdateScooters(bounds, mcg) {
@@ -251,7 +246,6 @@ export default class MapBuilder {
     const applicableMarkers = [];
     const allNewMarkersIds = [];
     const leftoverMarkers = [];
-
     // First: Removes markers that are not present in the bounds
     const removableMarkers = mcg
       .getLayers()
@@ -271,7 +265,7 @@ export default class MapBuilder {
           data.providers,
           precisionFactor
         );
-        if (!currentMarkersIds.includes(id) || currentMarkersIds.length === 0) {
+        if (!currentMarkersIds.includes(id)) {
           applicableMarkers.push(marker);
         } else {
           leftoverMarkers.push(marker);
@@ -290,16 +284,14 @@ export default class MapBuilder {
 
     // Fourth: Close the map reserve card if the marker for a scooter is now gone
     const removedMarkers = removableMarkers.concat(removableLeftoverMarkers);
-    if (this._vehicleClicked && removedMarkers.length !== 0) {
-      const isVehicleRemoved = removedMarkers.find(
-        (marker) => this._vehicleClicked.options.id === marker.options.id
-      );
-      if (!isVehicleRemoved) {
-        return;
-      }
-      this._onVehicleRemove();
-      this._vehicleClicked = null;
+    const isVehicleRemoved = removedMarkers.find(
+      (marker) => this._vehicleClicked?.options.id === marker.options.id
+    );
+    if (!this._vehicleClicked && !isVehicleRemoved) {
+      return;
     }
+    this._onVehicleRemove();
+    this._vehicleClicked = null;
   }
 
   _newMarker(id, bike, vehicleType, providers, precisionFactor) {
@@ -473,18 +465,20 @@ export default class MapBuilder {
   }
 
   _startRefreshTimer(interval) {
-    if (!this._refreshId && !this._ongoingTrip) {
-      this._refreshId = window.setInterval(() => {
-        this._getAndUpdateScooters(this._lastBounds, this._mcg);
-      }, interval);
+    if (this._refreshId && this._ongoingTrip) {
+      return;
     }
+    this._refreshId = window.setInterval(() => {
+      this._getAndUpdateScooters(this._lastBounds, this._mcg);
+    }, interval);
   }
 
   _stopRefreshTimer() {
-    if (this._refreshId) {
-      clearInterval(this._refreshId);
-      this._refreshId = null;
+    if (!this._refreshId) {
+      return this;
     }
+    clearInterval(this._refreshId);
+    this._refreshId = null;
     return this;
   }
 

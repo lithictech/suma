@@ -79,7 +79,10 @@ const Map = () => {
   );
 
   const handleEndTrip = () => {
-    loadedMap.loadScooters({ onVehicleClick: handleVehicleClick });
+    loadedMap.loadScooters({
+      onVehicleClick: handleVehicleClick,
+      onVehicleRemove: handleVehicleRemove,
+    });
   };
 
   const handleCloseTrip = () => {
