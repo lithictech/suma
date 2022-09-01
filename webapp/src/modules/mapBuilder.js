@@ -136,130 +136,43 @@ export default class MapBuilder {
   }
 
   getScooters(bounds) {
-    const { _northEast, _southWest } = bounds;
-    api
-      .getMobilityMap({
-        minloc: [_southWest.lat, _southWest.lng],
-        maxloc: [_northEast.lat, _northEast.lng],
-      })
-      .then((r) => {
-        const precisionFactor = 1 / r.data.precision;
-        const newMarkers = [];
-        this.removeVisibleLayers(bounds);
-        ["ebike", "escooter"].forEach((vehicleType) => {
-          r.data[vehicleType]?.forEach((bike) => {
-            const marker = this.newMarker(
-              bike,
-              vehicleType,
-              r.data.providers,
-              precisionFactor
-            );
-            newMarkers.push(marker);
-          });
+    api.getMobilityMap(boundsToParams(bounds)).then((r) => {
+      const precisionFactor = 1 / r.data.precision;
+      const newMarkers = [];
+      this.removeVisibleLayers(bounds);
+      ["ebike", "escooter"].forEach((vehicleType) => {
+        r.data[vehicleType]?.forEach((bike) => {
+          const marker = this.newMarker(
+            bike,
+            vehicleType,
+            r.data.providers,
+            precisionFactor
+          );
+          newMarkers.push(marker);
         });
-        this._mcg.addLayers(newMarkers, { chunkedLoading: true });
-        this.stopRefreshTimer().startRefreshTimer(r.data.refresh);
       });
-  }
-
-  loadGeoFences() {
-    const apiResponse = {
-      doNotParkOrRide: [
-        [
-          [45.49584550855579, -122.68355369567871],
-          [45.49576278304519, -122.68331229686737],
-          [45.496168888931074, -122.68292605876921],
-          [45.49607488319949, -122.68264710903166],
-          [45.49703749446685, -122.68198192119598],
-          [45.49724806348807, -122.68259346485138],
-          [45.49600719897556, -122.68352150917053],
-          [45.495977117072165, -122.6834625005722],
-          [45.49584550855579, -122.68355369567871],
-        ],
-      ],
-      doNotRide: [
-        [
-          [45.50015270758223, -122.68442273139952],
-          [45.49948719071191, -122.68540441989899],
-          [45.49901906820077, -122.68492430448532],
-          [45.500212866911646, -122.68348127603531],
-          [45.50048734303642, -122.68365025520323],
-          [45.500530582303945, -122.68397212028502],
-          [45.50015270758223, -122.68442273139952],
-        ],
-      ],
-      doNotPark: [
-        [
-          [45.497545, -122.685026],
-          [45.4971314, -122.68488],
-          [45.497045, -122.6847],
-          [45.496717, -122.684948],
-          [45.49598, -122.68461],
-          [45.495777, -122.684347],
-          [45.495785, -122.684004],
-          [45.4959169, -122.683655],
-          [45.495728, -122.683194],
-          [45.4960335, -122.682896],
-          [45.4959827, -122.68276],
-          [45.4956349, -122.682848],
-          [45.4956349, -122.682496],
-          [45.496185, -122.68174],
-          [45.4965937, -122.68137],
-          [45.497022, -122.681212],
-          [45.4971051, -122.681268],
-          [45.497308, -122.681343],
-          [45.497797, -122.682384],
-          [45.49768, -122.68306],
-          [45.4979512, -122.683435],
-          [45.4978, -122.683945],
-          [45.497481, -122.684344],
-          [45.49751, -122.6846],
-          [45.4976071, -122.68474],
-          [45.497545, -122.685026],
-        ],
-        [
-          [45.50206179495491, -122.68491994589567],
-          [45.50153071609439, -122.68461316823958],
-          [45.501344602317154, -122.68466949462892],
-          [45.50120172667681, -122.68466010689735],
-          [45.500931013942854, -122.68455684185028],
-          [45.500531522287645, -122.68468961119653],
-          [45.50026456628402, -122.68468961119653],
-          [45.50019312713877, -122.68461316823958],
-          [45.500535282222344, -122.68412500619888],
-          [45.50083513620411, -122.68403112888336],
-          [45.50136340171654, -122.68418535590172],
-          [45.501996937805096, -122.68425107002257],
-          [45.50212665203002, -122.68437042832375],
-          [45.50216613021309, -122.6845595240593],
-          [45.50206179495491, -122.68491994589567],
-        ],
-      ],
-    };
-    Promise.resolve(apiResponse).then((r) => {
-      if (r.doNotPark) {
-        this.createRestrictedArea({
-          latlngs: r.doNotPark,
-          options: { restriction: "parking" },
-        });
-      }
-      if (r.doNotRide) {
-        this.createRestrictedArea({
-          latlngs: r.doNotRide,
-          options: { restriction: "riding" },
-        });
-      }
-      if (r.doNotParkOrRide) {
-        this.createRestrictedArea({
-          latlngs: r.doNotParkOrRide,
-          options: { restriction: "all" },
-        });
-      }
+      this._mcg.addLayers(newMarkers, { chunkedLoading: true });
+      this.stopRefreshTimer().startRefreshTimer(r.data.refresh);
     });
   }
 
-  createRestrictedArea({ latlngs, options }) {
-    options = options || {};
+  loadGeoFences() {
+    // TODO: Need to use new bounds logic
+    const bounds = this._l.latLngBounds(
+      this._l.latLng(45.40706339656264, -122.80156150460245),
+      this._l.latLng(45.58041884450583, -122.51986645843971)
+    );
+    return api.getMobilityMapFeatures(boundsToParams(bounds)).then((d) => {
+      d.data.restrictions.forEach((r) => {
+        this.createRestrictedArea({
+          latlngs: r.polygon,
+          restriction: r.restriction,
+        });
+      });
+    });
+  }
+
+  createRestrictedArea({ latlngs, restriction }) {
     let popup = this._l.popup({
       direction: "top",
       offset: [0, -5],
@@ -273,15 +186,15 @@ export default class MapBuilder {
     )}</h6><p class='m-0'>${t("mobility:do_not_ride_intro")}</p>`;
     const allRestrictionsContent =
       parkingRestrictionContent + "<hr />" + ridingRestrictionContent;
-    if (options.restriction === "parking") {
+    if (restriction === "do-not-park") {
       popup.setContent(parkingRestrictionContent);
       polygonFillOpacity = 0.2;
     }
-    if (options.restriction === "riding") {
+    if (restriction === "do-not-ride") {
       popup.setContent(ridingRestrictionContent);
       polygonFillOpacity = 0.2;
     }
-    if (options.restriction === "all") {
+    if (restriction === "do-not-park-or-ride") {
       popup.setContent(allRestrictionsContent);
     }
     const restrictedIcon = this._l.divIcon({
@@ -291,24 +204,22 @@ export default class MapBuilder {
       html: "<i class='bi bi-slash-circle'></i>",
     });
 
-    latlngs.forEach((area) => {
-      const restrictedMarker = this._l
-        .marker(this._l.latLngBounds(area).getCenter(), {
-          icon: restrictedIcon,
-        })
-        .bindPopup(popup)
-        .addTo(this._map);
-      this._l
-        .polygon([area], {
-          fillOpacity: polygonFillOpacity,
-          color: "#b53d00",
-          weight: 1,
-        })
-        .on("click", () => {
-          restrictedMarker.openPopup();
-        })
-        .addTo(this._map);
-    });
+    const restrictedMarker = this._l
+      .marker(this._l.latLngBounds(latlngs).getCenter(), {
+        icon: restrictedIcon,
+      })
+      .bindPopup(popup)
+      .addTo(this._map);
+    this._l
+      .polygon([latlngs], {
+        fillOpacity: polygonFillOpacity,
+        color: "#b53d00",
+        weight: 1,
+      })
+      .on("click", () => {
+        restrictedMarker.openPopup();
+      })
+      .addTo(this._map);
   }
 
   startRefreshTimer(interval) {
@@ -469,4 +380,12 @@ export default class MapBuilder {
     this.stopRefreshTimer();
     this._map.stopLocate();
   }
+}
+
+function boundsToParams(bounds) {
+  const { _northEast, _southWest } = bounds;
+  return {
+    sw: [_southWest.lat, _southWest.lng],
+    ne: [_northEast.lat, _northEast.lng],
+  };
 }

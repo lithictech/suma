@@ -20,7 +20,7 @@ RSpec.describe Suma::API::Mobility, :db do
       bike = fac.loc(20, 120).ebike.create
       v3 = fac.loc(30, 130).escooter.create
 
-      get "/v1/mobility/map", minloc: [15, 110], maxloc: [25, 125]
+      get "/v1/mobility/map", sw: [15, 110], ne: [25, 125]
 
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.
@@ -38,7 +38,7 @@ RSpec.describe Suma::API::Mobility, :db do
       fac = Suma::Fixtures.mobility_vehicle(vendor_service: Suma::Fixtures.vendor_service.food.create)
       fac.loc(20, 120).escooter.create
 
-      get "/v1/mobility/map", minloc: [15, 110], maxloc: [25, 125]
+      get "/v1/mobility/map", sw: [15, 110], ne: [25, 125]
 
       expect(last_response).to have_status(200)
       expect(last_response_json_body).to_not include(:escooter, :ebike)
@@ -51,7 +51,7 @@ RSpec.describe Suma::API::Mobility, :db do
     it "handles coordinate precision" do
       Suma::Fixtures.mobility_vehicle.loc(-0.5, 100).escooter.create
 
-      get "/v1/mobility/map", minloc: [-10, 50], maxloc: [50, 150]
+      get "/v1/mobility/map", sw: [-10, 50], ne: [50, 150]
 
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.
@@ -65,7 +65,7 @@ RSpec.describe Suma::API::Mobility, :db do
     end
 
     it "tells the frontend to refresh in 30 seconds" do
-      get "/v1/mobility/map", minloc: [-10, 50], maxloc: [50, 150]
+      get "/v1/mobility/map", sw: [-10, 50], ne: [50, 150]
 
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.that_includes(refresh: 30_000)
@@ -76,7 +76,7 @@ RSpec.describe Suma::API::Mobility, :db do
       scooter = fac.loc(20, 121).escooter.create
       bike = fac.loc(20, 120).ebike.create
 
-      get "/v1/mobility/map", minloc: [15, 110], maxloc: [25, 125], types: ["ebike"]
+      get "/v1/mobility/map", sw: [15, 110], ne: [25, 125], types: ["ebike"]
 
       expect(last_response).to have_status(200)
       expect(last_response_json_body).to include(
@@ -92,7 +92,7 @@ RSpec.describe Suma::API::Mobility, :db do
       v2 = Suma::Fixtures.mobility_vehicle.loc(20, 120).ebike.create
       v2 = Suma::Fixtures.mobility_vehicle.loc(20, 120).ebike.create(vendor_service: v1.vendor_service)
 
-      get "/v1/mobility/map", minloc: [15, 110], maxloc: [25, 125]
+      get "/v1/mobility/map", sw: [15, 110], ne: [25, 125]
 
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.
@@ -115,7 +115,7 @@ RSpec.describe Suma::API::Mobility, :db do
       scooter1_provider1_loc1 = fac.loc(20, 120).escooter.create(vendor_service: vs, vehicle_id: "s111")
       bike1_provider2_loc1 = fac.loc(20, 120).ebike.create(vehicle_id: "121")
 
-      get "/v1/mobility/map", minloc: [-90, -180], maxloc: [90, 180]
+      get "/v1/mobility/map", sw: [-90, -180], ne: [90, 180]
 
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.
@@ -134,7 +134,47 @@ RSpec.describe Suma::API::Mobility, :db do
 
     it "401s if not logged in" do
       logout
-      get "/v1/mobility/map", minloc: [15, 110], maxloc: [25, 125]
+      get "/v1/mobility/map", sw: [15, 110], ne: [25, 125]
+      expect(last_response).to have_status(401)
+    end
+  end
+
+  describe "GET /v1/mobility/map_features" do
+    it "returns the location of restricted areas within the given bounds" do
+      ra1 = Suma::Fixtures.mobility_restricted_area.
+        latlng_bounds(sw: [20, 120], ne: [50, 150]).
+        create(restriction: "do-not-park-or-ride")
+      ra2 = Suma::Fixtures.mobility_restricted_area.
+        latlng_bounds(sw: [30, 130], ne: [50, 150]).
+        create(restriction: "do-not-park")
+
+      get "/v1/mobility/map_features", sw: [15, 110], ne: [25, 125]
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.
+        that_includes(
+          restrictions: [
+            {
+              restriction: "do-not-park-or-ride",
+              polygon: [
+                [20.0, 120.0],
+                [50.0, 120.0],
+                [50.0, 150.0],
+                [20.0, 150.0],
+                [20.0, 120.0],
+              ],
+              bounds: {
+                ne: [50.0, 150.0],
+                sw: [20.0, 120.0],
+              },
+            },
+          ],
+        )
+    end
+
+    it "401s if not logged in" do
+      logout
+      get "/v1/mobility/map_features", sw: [15, 110], ne: [25, 125]
       expect(last_response).to have_status(401)
     end
   end
