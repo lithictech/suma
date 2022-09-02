@@ -18,12 +18,21 @@ const FormButtons = ({ primaryProps, secondaryProps, variant, back, className })
       <Row>
         <Col>
           {secondaryProps && (
-            <Button variant="outline-secondary" className="w-100 h-100" {...secondaryProps} />
+            <Button
+              variant="outline-secondary"
+              className="w-100 h-100"
+              {...secondaryProps}
+            />
           )}
         </Col>
         <Col>
           {primaryProps && (
-            <Button variant={variant} className="w-100 h-100" type="submit" {...primaryProps} />
+            <Button
+              variant={variant}
+              className="w-100 h-100"
+              type="submit"
+              {...primaryProps}
+            />
           )}
         </Col>
       </Row>
