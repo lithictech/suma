@@ -13,7 +13,7 @@ export default class MapBuilder {
   constructor(mapRef) {
     this.mapRef = mapRef;
     this._l = leaflet;
-    this._minZoom = 13;
+    this._minZoom = 14;
     this._maxZoom = 23;
     this._zoomTo = 20;
     this._dLat = 45.5152;
@@ -22,7 +22,7 @@ export default class MapBuilder {
     this._map = this._l
       .map(this.mapRef.current)
       .setView([this._dLat, this._dLng], this._minZoom);
-    this._lastBounds = this._map.getBounds();
+    this._lastExtendedBounds = expandBounds(this._map.getBounds());
     this._mcg = this._l.markerClusterGroup({
       showCoverageOnHover: false,
       maxClusterRadius: (mapZoom) => {
@@ -55,14 +55,14 @@ export default class MapBuilder {
   init() {
     this._setTileLayer();
     this._setLocationEventHandlers();
-    this._loadGeoFences();
+    this._loadGeoFences(this._lastExtendedBounds);
     return this;
   }
 
   loadScooters({ onVehicleClick, onVehicleRemove }) {
     this._onVehicleClick = onVehicleClick;
     this._onVehicleRemove = onVehicleRemove;
-    this._getAndUpdateScooters(this._lastBounds, this._mcg);
+    this._getAndUpdateScooters(this._lastExtendedBounds, this._mcg);
     this._setVehicleEventHandlers();
     this._map.addLayer(this._mcg);
     return this;
@@ -181,24 +181,27 @@ export default class MapBuilder {
   }
 
   _setLocationEventHandlers() {
-    if (!this._locationAccuracyCircle && !this._locationMarker) {
-      return;
-    }
+    // prevent animation issues when zooming
     this._map.on("zoomstart", () => {
-      // prevent animation issues when zooming
+      if (!this._locationAccuracyCircle && !this._locationMarker) {
+        return;
+      }
       if (this._animationTimeoutId) {
         clearTimeout(this._animationTimeoutId);
         this._animationTimeoutId = null;
       }
       this._locationAccuracyCircle._path.classList.remove(
-        "mobility-location-accuracy-circle-animation"
+        "mobility-location-accuracy-circle-transition"
       );
       this._locationMarker.getElement().style.transition = "none";
     });
     this._map.on("zoomend", () => {
+      if (!this._locationAccuracyCircle && !this._locationMarker) {
+        return;
+      }
       this._animationTimeoutId = setTimeout(() => {
         this._locationAccuracyCircle._path.classList.add(
-          "mobility-location-accuracy-circle-animation"
+          "mobility-location-accuracy-circle-transition"
         );
         this._locationMarker._icon.style.transition = "all 1000ms linear 0s";
       }, 250);
@@ -212,11 +215,11 @@ export default class MapBuilder {
 
   _moveEndEvent() {
     const bounds = this._map.getBounds();
-    if (!this._map || this._lastBounds.contains(bounds)) {
+    if (this._lastExtendedBounds.contains(bounds)) {
       return;
     }
-    this._lastBounds = bounds;
-    this._getAndUpdateScooters(this._lastBounds, this._mcg);
+    this._lastExtendedBounds = expandBounds(bounds);
+    this._getAndUpdateScooters(this._lastExtendedBounds, this._mcg);
   }
 
   _clickEvent() {
@@ -228,10 +231,9 @@ export default class MapBuilder {
   }
 
   _getAndUpdateScooters(bounds, mcg) {
-    bounds = expandBounds(bounds, 0.05);
     api.getMobilityMap(boundsToParams(bounds)).then((r) => {
       this._updateMarkers({ ...r, bounds, mcg });
-      this._stopRefreshTimer()._startRefreshTimer(r.data.refresh);
+      this._stopRefreshTimer()._startRefreshTimer(r.data.refresh, bounds, mcg);
     });
   }
 
@@ -309,12 +311,7 @@ export default class MapBuilder {
       });
   }
 
-  _loadGeoFences() {
-    // TODO: Need to use new bounds logic
-    const bounds = this._l.latLngBounds(
-      this._l.latLng(45.40706339656264, -122.80156150460245),
-      this._l.latLng(45.58041884450583, -122.51986645843971)
-    );
+  _loadGeoFences(bounds) {
     return api.getMobilityMapFeatures(boundsToParams(bounds)).then((d) => {
       d.data.restrictions.forEach((r) => {
         this._createRestrictedArea({
@@ -375,12 +372,12 @@ export default class MapBuilder {
       .addTo(this._map);
   }
 
-  _startRefreshTimer(interval) {
+  _startRefreshTimer(interval, bounds, mcg) {
     if (this._refreshId && this._ongoingTrip) {
       return;
     }
     this._refreshId = window.setInterval(() => {
-      this._getAndUpdateScooters(this._lastBounds, this._mcg);
+      this._getAndUpdateScooters(bounds, mcg);
     }, interval);
   }
 
@@ -472,12 +469,8 @@ function boundsToParams(bounds) {
 }
 
 function expandBounds(bounds, distance) {
-  if (!bounds) {
-    return {};
-  }
-  if (!distance) {
-    return bounds;
-  }
+  const distanceFromMapsCenter = (bounds.getEast() - bounds.getWest()) / 2;
+  distance = distance || distanceFromMapsCenter;
   bounds._northEast.lat += distance;
   bounds._northEast.lng += distance;
   bounds._southWest.lat -= distance;
