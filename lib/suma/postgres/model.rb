@@ -25,12 +25,13 @@ class Suma::Postgres::Model
   configurable(:suma_db) do
     setting :uri, "postgres:/suma_test", key: "DATABASE_URL"
 
+    setting :extension_schema, "public"
+
     # The number of (Float) seconds that should be considered "slow" for a
     # single query; queries that take longer than this amount of time will be logged
     # at `warn` level.
     setting :slow_query_seconds, 0.01
 
-    ##
     # The maximum number of connections to use in the Sequel pool
     # Ref: http://sequel.jeremyevans.net/rdoc/files/doc/opening_databases_rdoc.html#label-General+connection+options
     setting :max_connections, 4

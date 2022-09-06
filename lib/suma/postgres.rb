@@ -138,17 +138,9 @@ module Suma::Postgres
   def self.run_all_migrations(target: nil)
     Sequel.extension :migration
     Suma::Postgres.each_model_superclass do |cls|
-      self.install_all_extensions(cls.db)
+      cls.install_all_extensions
       Sequel::Migrator.run(cls.db, "db/migrations", target:)
     end
-  end
-
-  def self.install_all_extensions(db)
-    db.execute("CREATE EXTENSION IF NOT EXISTS citext WITH SCHEMA public")
-    db.execute("CREATE EXTENSION IF NOT EXISTS pg_stat_statements WITH SCHEMA public")
-    db.execute("CREATE EXTENSION IF NOT EXISTS pgcrypto WITH SCHEMA public")
-    db.execute("CREATE EXTENSION IF NOT EXISTS btree_gist WITH SCHEMA public")
-    db.execute("CREATE EXTENSION IF NOT EXISTS pg_trgm WITH SCHEMA public")
   end
 
   # We can always register the models right away, since it does not have a side effect.
