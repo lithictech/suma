@@ -179,7 +179,7 @@
     "funding": "Financiamiento",
     "home": "Inicio",
     "ledgers_overview": "Estado de Cuentas",
-    "mobility": "Movilidad",
+    "mobile": "Móvil",
     "onboarding": "Integración",
     "onboarding_finish": "Finalizar la integración",
     "onboarding_signup": "Registro de incorporación",
@@ -189,7 +189,7 @@
   },
   "utilities": {
     "intro_md": "Suma quiere facilitarle el ahorro de dinero en sus facturas de servicios públicos y hacer que nuestras comunidades sean más resilientes frente al clima extremo y el cambio climático.\n\nRegístrese en nuestra lista de espera gratuita para ayudarnos a construir una comunidad de miembros y demostrar que todos merecen energía limpia y asequible.",
-    "page_title": "Servicios públicos",
-    "title": "Utilidades"
+    "page_title": "Utilidad",
+    "title": "Utilidad"
   }
 }

@@ -9,7 +9,7 @@ export default function AppNav() {
       <AppLink to="/dashboard" label={t("titles:home")} style={{ borderRightWidth: 0 }} />
       <AppLink
         to="/mobility"
-        label={t("titles:mobility")}
+        label={t("titles:mobile")}
         style={{ borderRightWidth: 0 }}
       />
       <AppLink to="/food" label={t("food:title")} style={{ borderRightWidth: 0 }} />
@@ -24,7 +24,7 @@ const AppLink = ({ to, label, style }) => {
     <Link
       to={to}
       className={clsx(
-        "btn btn-outline-primary app-link",
+        "btn btn-outline-primary px-1 app-link",
         location.pathname === to && "app-link-active"
       )}
       style={style}
