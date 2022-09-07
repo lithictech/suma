@@ -62,7 +62,21 @@
     flex-grow: 1 !important;;
     font-size: $font-size-base !important;;
     background: rgba(0, 0, 0, 0.05) !important;;
+    padding-left: 4px !important; /* We don't really need these anyway since text is centered */
+    padding-right: 4px !important;
 }
+
+@media only screen and (max-width: 375px) {
+    .app-link {
+        font-size: 0.9rem !important;
+    }
+}
+@media only screen and (max-width: 320px) {
+    .app-link {
+        font-size: 0.8rem !important;
+    }
+}
+
 .app-link-active {
     background: $white !important;;
 }
