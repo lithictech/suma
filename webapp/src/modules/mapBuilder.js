@@ -43,13 +43,14 @@ export default class MapBuilder {
       iconSize: [43.4, 52.6],
       iconAnchor: [21.7, 52.6],
     });
-    this._vehicleClicked = false;
     this._lastLocation = null;
     this._locationMarker = null;
     this._locationAccuracyCircle = null;
     this._animationTimeoutId = null;
     this._refreshId = null;
+    this._vehicleClicked = null;
     this._onVehicleClick = null;
+    this._onVehicleRemove = null;
   }
 
   init() {
@@ -117,44 +118,84 @@ export default class MapBuilder {
       !this._lastBounds.contains(bounds._southWest)
     ) {
       this._lastBounds = bounds;
-      this.getScooters(bounds);
+      this.getAndUpdateScooters(this._lastBounds, this._mcg);
     }
   }
 
   click() {
     if (this._vehicleClicked) {
       this._onVehicleClick(null);
-      this._vehicleClicked = false;
+      this._vehicleClicked = null;
     }
   }
 
-  loadScooters({ onVehicleClick }) {
+  loadScooters({ onVehicleClick, onVehicleRemove }) {
     this._onVehicleClick = onVehicleClick;
-    this.getScooters(this._lastBounds);
+    this._onVehicleRemove = onVehicleRemove;
+    this.getAndUpdateScooters(this._lastBounds, this._mcg);
     this.setVehicleEventHandlers();
     this._map.addLayer(this._mcg);
     return this;
   }
 
-  getScooters(bounds) {
+  getAndUpdateScooters(bounds, mcg) {
     api.getMobilityMap(boundsToParams(bounds)).then((r) => {
-      const precisionFactor = 1 / r.data.precision;
-      const newMarkers = [];
-      this.removeVisibleLayers(bounds);
-      ["ebike", "escooter"].forEach((vehicleType) => {
-        r.data[vehicleType]?.forEach((bike) => {
-          const marker = this.newMarker(
-            bike,
-            vehicleType,
-            r.data.providers,
-            precisionFactor
-          );
-          newMarkers.push(marker);
-        });
-      });
-      this._mcg.addLayers(newMarkers, { chunkedLoading: true });
-      this.stopRefreshTimer().startRefreshTimer(r.data.refresh);
+      this.updateScooters({ ...r, bounds, mcg });
+      this.stopRefreshTimer().startRefreshTimer(r.data.refresh, bounds, mcg);
     });
+  }
+
+  updateScooters({ data, bounds, mcg }) {
+    const precisionFactor = 1 / data.precision;
+    const applicableMarkers = [];
+    const allNewMarkersIds = [];
+    const leftoverMarkers = [];
+    // First: Removes markers that are not present in the bounds
+    const removableMarkers = mcg
+      .getLayers()
+      .filter((marker) => !bounds.contains(marker._latlng));
+    mcg.removeLayers(removableMarkers, { chunkedLoading: true });
+    // Second: Add markers for ids that are missing
+    const currentMarkersIds = mcg.getLayers().map((marker) => marker.options.id);
+    ["ebike", "escooter"].forEach((vehicleType) => {
+      data[vehicleType]?.forEach((bike) => {
+        const id = `${bike.p}-${bike.c[0] * precisionFactor}-${
+          bike.c[1] * precisionFactor
+        }`;
+        const marker = this.newMarker(
+          id,
+          bike,
+          vehicleType,
+          data.providers,
+          precisionFactor
+        );
+        if (!currentMarkersIds.includes(id)) {
+          applicableMarkers.push(marker);
+        } else {
+          leftoverMarkers.push(marker);
+        }
+        allNewMarkersIds.push(id);
+      });
+    });
+    mcg.addLayers(applicableMarkers, { chunkedLoading: true });
+    // Third: Remove *leftover* markers that are not present in the new list of ids
+    // Leftover markers are visible in new bounds but might not exist in new list of ids,
+    // therefor we should remove the non-existing leftover marker(s)
+    const removableLeftoverMarkers = leftoverMarkers.filter(
+      (marker) => !allNewMarkersIds.includes(marker.options.id)
+    );
+    mcg.removeLayers(removableLeftoverMarkers, { chunkedLoading: true });
+
+    // Fourth: Close the map reserve card if the marker for a scooter is now gone
+    const removedMarkers = removableMarkers.concat(removableLeftoverMarkers);
+    const isVehicleRemoved = removedMarkers.find(
+      (marker) => this._vehicleClicked?.options.id === marker.options.id
+    );
+    if (!this._vehicleClicked || !isVehicleRemoved) {
+      return;
+    }
+    this._onVehicleRemove();
+    this._vehicleClicked = null;
   }
 
   loadGeoFences() {
@@ -226,7 +267,7 @@ export default class MapBuilder {
   startRefreshTimer(interval) {
     if (!this._refreshId && !this._ongoingTrip) {
       this._refreshId = window.setInterval(() => {
-        this.getScooters(this._lastBounds);
+        this.getAndUpdateScooters(this._lastBounds, this._mcg);
       }, interval);
     }
   }
@@ -250,10 +291,11 @@ export default class MapBuilder {
     this._mcg.removeLayers(removableMarkers);
   }
 
-  newMarker(bike, vehicleType, providers, precisionFactor) {
+  newMarker(id, bike, vehicleType, providers, precisionFactor) {
     const [lat, lng] = bike.c;
     return this._l
       .marker([lat * precisionFactor, lng * precisionFactor], {
+        id,
         icon: this._scooterIcon,
         riseOnHover: true,
       })
@@ -266,7 +308,7 @@ export default class MapBuilder {
           providerId: providers[bike.p].id,
         };
         this._onVehicleClick(mapVehicle);
-        this._vehicleClicked = true;
+        this._vehicleClicked = e.target;
       });
   }
 
