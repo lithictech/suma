@@ -22,6 +22,7 @@ export default class MapBuilder {
     this._map = this._l.map(this.mapRef.current, { zoomControl: false });
     this._map.setView([this._dLat, this._dLng], this._minZoom);
     this._l.control.zoom({ position: "bottomright" }).addTo(this._map);
+    this.newLocateControl().addTo(this._map);
     this._lastBounds = this._map.getBounds();
     this._mcg = this._l.markerClusterGroup({
       showCoverageOnHover: false,
@@ -269,7 +270,7 @@ export default class MapBuilder {
       });
   }
 
-  setLocateControl() {
+  newLocateControl() {
     // Adds locate button to center map on location when clicked
     const LocateControl = this._l.Control.extend({
       options: {
@@ -317,9 +318,7 @@ export default class MapBuilder {
         });
       },
     });
-
-    this._l.control.locate = () => new LocateControl();
-    this._l.control.locate().addTo(this._map);
+    return new LocateControl();
   }
 
   startTrackingLocation({ onGetLocation, onGetLocationError }) {
@@ -374,7 +373,6 @@ export default class MapBuilder {
           this._map.addLayer(this._locationAccuracyCircle);
           this._map.addLayer(this._locationMarker);
           this._lastLocation = location.latlng;
-          this.setLocateControl();
           this.setLocationEventHandlers();
           this.centerLocation({ ...loc, targetZoom: 15 });
           onGetLocation(location);
