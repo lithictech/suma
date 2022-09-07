@@ -19,9 +19,9 @@ export default class MapBuilder {
     this._dLat = 45.5152;
     this._dLng = -122.6784;
     this._latOffset = 0.00004;
-    this._map = this._l
-      .map(this.mapRef.current)
-      .setView([this._dLat, this._dLng], this._minZoom);
+    this._map = this._l.map(this.mapRef.current, { zoomControl: false });
+    this._map.setView([this._dLat, this._dLng], this._minZoom);
+    this._l.control.zoom({ position: "bottomright" }).addTo(this._map);
     this._lastBounds = this._map.getBounds();
     this._mcg = this._l.markerClusterGroup({
       showCoverageOnHover: false,
@@ -273,7 +273,7 @@ export default class MapBuilder {
     // Adds locate button to center map on location when clicked
     const LocateControl = this._l.Control.extend({
       options: {
-        position: "topleft",
+        position: "bottomright",
         link: undefined,
         center: () => {
           this.centerLocation({ ...this._lastLocation, targetZoom: 15 });
