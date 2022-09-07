@@ -179,7 +179,7 @@
     "funding": "Funding",
     "home": "Home",
     "ledgers_overview": "Ledgers Overview",
-    "mobile": "Mobile",
+    "mobility": "Mobility",
     "onboarding": "Onboarding",
     "onboarding_finish": "Onboarding Finish",
     "onboarding_signup": "Onboarding Signup",
@@ -189,7 +189,7 @@
   },
   "utilities": {
     "intro_md": "Suma wants to make it easy for you to save money on your utility bills and make our communities more resilient against extreme weather and climate change.\n\nSign up for our free waiting list to help us build a community of members and to show that everyone deserves clean and affordable energy.",
-    "page_title": "Utility",
-    "title": "Utility"
+    "page_title": "Utilities",
+    "title": "Utilities"
   }
 }

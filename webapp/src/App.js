@@ -140,7 +140,7 @@ function AppRoutes() {
             redirectIfUnauthed,
             redirectIfUnboarded,
             withScreenLoaderMount(),
-            withMetatags({ title: t("titles:mobile") }),
+            withMetatags({ title: t("mobility:title") }),
             withLayout({ noBottom: true }),
             Mobility
           )}
