@@ -195,12 +195,7 @@ export default class MapBuilder {
     this._vehicleClicked = null;
   }
 
-  loadGeoFences() {
-    // TODO: Need to use new bounds logic
-    const bounds = this._l.latLngBounds(
-      this._l.latLng(45.40706339656264, -122.80156150460245),
-      this._l.latLng(45.58041884450583, -122.51986645843971)
-    );
+  loadGeoFences(bounds) {
     return api.getMobilityMapFeatures(boundsToParams(bounds)).then((d) => {
       d.data.restrictions.forEach((r) => {
         this.createRestrictedArea({
@@ -275,17 +270,6 @@ export default class MapBuilder {
       this._refreshId = null;
     }
     return this;
-  }
-
-  // Remove markers in visible bounds to prevent duplicates
-  removeVisibleLayers(bounds) {
-    const removableMarkers = [];
-    this._mcg.eachLayer((marker) => {
-      if (bounds.contains(marker._latlng)) {
-        removableMarkers.push(marker);
-      }
-    });
-    this._mcg.removeLayers(removableMarkers);
   }
 
   newMarker(id, bike, vehicleType, providers, precisionFactor) {
