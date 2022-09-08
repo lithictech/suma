@@ -86,7 +86,7 @@ export default class MapBuilder {
           this._animationTimeoutId = null;
         }
         this._locationAccuracyCircle._path.classList.remove(
-          "mobility-location-accuracy-circle-animation"
+          "mobility-location-accuracy-circle-transition"
         );
         this._locationMarker._icon.style.transition = "none";
       }
@@ -95,7 +95,7 @@ export default class MapBuilder {
       if (this._locationAccuracyCircle && this._locationMarker) {
         this._animationTimeoutId = setTimeout(() => {
           this._locationAccuracyCircle._path.classList.add(
-            "mobility-location-accuracy-circle-animation"
+            "mobility-location-accuracy-circle-transition"
           );
           this._locationMarker._icon.style.transition = "all 1000ms linear 0s";
         }, 250);
@@ -386,7 +386,7 @@ export default class MapBuilder {
             distance: 0,
           });
           this._locationAccuracyCircle = this._l.circle([loc.lat, loc.lng], {
-            className: "mobility-location-accuracy-circle-animation",
+            className: "mobility-location-accuracy-circle-transition",
             radius: location.accuracy,
             color: "#0495ff",
             fillColor: "#0495ff",
