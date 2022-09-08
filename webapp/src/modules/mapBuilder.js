@@ -23,7 +23,7 @@ export default class MapBuilder {
     this._map.setView([this._dLat, this._dLng], this._minZoom);
     this._l.control.zoom({ position: "bottomright" }).addTo(this._map);
     this.newLocateControl().addTo(this._map);
-    this._lastBounds = this._map.getBounds();
+    this._lastExtendedBounds = expandBounds(this._map.getBounds());
     this._mcg = this._l.markerClusterGroup({
       showCoverageOnHover: false,
       maxClusterRadius: (mapZoom) => {
@@ -55,7 +55,7 @@ export default class MapBuilder {
 
   init() {
     this.setTileLayer();
-    this.loadGeoFences();
+    this.loadGeoFences(this._lastExtendedBounds);
     return this;
   }
 
@@ -113,12 +113,9 @@ export default class MapBuilder {
       return;
     }
     const bounds = this._map.getBounds();
-    if (
-      !this._lastBounds.contains(bounds._northEast) ||
-      !this._lastBounds.contains(bounds._southWest)
-    ) {
-      this._lastBounds = bounds;
-      this.getAndUpdateScooters(this._lastBounds, this._mcg);
+    if (!this._lastExtendedBounds.contains(bounds)) {
+      this._lastExtendedBounds = expandBounds(bounds);
+      this.getAndUpdateScooters(this._lastExtendedBounds, this._mcg);
     }
   }
 
@@ -132,7 +129,7 @@ export default class MapBuilder {
   loadScooters({ onVehicleClick, onVehicleRemove }) {
     this._onVehicleClick = onVehicleClick;
     this._onVehicleRemove = onVehicleRemove;
-    this.getAndUpdateScooters(this._lastBounds, this._mcg);
+    this.getAndUpdateScooters(this._lastExtendedBounds, this._mcg);
     this.setVehicleEventHandlers();
     this._map.addLayer(this._mcg);
     return this;
@@ -264,10 +261,10 @@ export default class MapBuilder {
       .addTo(this._map);
   }
 
-  startRefreshTimer(interval) {
+  startRefreshTimer(interval, bounds, mcg) {
     if (!this._refreshId && !this._ongoingTrip) {
       this._refreshId = window.setInterval(() => {
-        this.getAndUpdateScooters(this._lastBounds, this._mcg);
+        this.getAndUpdateScooters(bounds, mcg);
       }, interval);
     }
   }
@@ -486,4 +483,14 @@ function boundsToParams(bounds) {
     sw: [_southWest.lat, _southWest.lng],
     ne: [_northEast.lat, _northEast.lng],
   };
+}
+
+function expandBounds(bounds, distance) {
+  const distanceFromMapsCenter = (bounds.getEast() - bounds.getWest()) / 2;
+  distance = distance || distanceFromMapsCenter;
+  bounds._northEast.lat += distance;
+  bounds._northEast.lng += distance;
+  bounds._southWest.lat -= distance;
+  bounds._southWest.lng -= distance;
+  return bounds;
 }
