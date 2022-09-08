@@ -78,28 +78,30 @@ export default class MapBuilder {
   }
 
   setLocationEventHandlers() {
+    // prevent animation issues when zooming
     this._map.on("zoomstart", () => {
-      if (this._locationAccuracyCircle && this._locationMarker) {
-        // prevent animation issues when zooming
-        if (this._animationTimeoutId) {
-          clearTimeout(this._animationTimeoutId);
-          this._animationTimeoutId = null;
-        }
-        this._locationAccuracyCircle._path.classList.remove(
-          "mobility-location-accuracy-circle-transition"
-        );
-        this._locationMarker._icon.style.transition = "none";
+      if (!this._locationAccuracyCircle || !this._locationMarker) {
+        return;
       }
+      if (this._animationTimeoutId) {
+        clearTimeout(this._animationTimeoutId);
+        this._animationTimeoutId = null;
+      }
+      this._locationAccuracyCircle._path.classList.remove(
+        "mobility-location-accuracy-circle-transition"
+      );
+      this._locationMarker.getElement().style.transition = "none";
     });
     this._map.on("zoomend", () => {
-      if (this._locationAccuracyCircle && this._locationMarker) {
-        this._animationTimeoutId = setTimeout(() => {
-          this._locationAccuracyCircle._path.classList.add(
-            "mobility-location-accuracy-circle-transition"
-          );
-          this._locationMarker._icon.style.transition = "all 1000ms linear 0s";
-        }, 250);
+      if (!this._locationAccuracyCircle || !this._locationMarker) {
+        return;
       }
+      this._animationTimeoutId = setTimeout(() => {
+        this._locationAccuracyCircle._path.classList.add(
+          "mobility-location-accuracy-circle-transition"
+        );
+        this._locationMarker.getElement().style.transition = "all 1000ms linear 0s";
+      }, 250);
     });
   }
 
@@ -109,21 +111,20 @@ export default class MapBuilder {
   }
 
   moveEnd() {
-    if (!this._map) {
+    const bounds = this._map.getBounds();
+    if (this._lastExtendedBounds.contains(bounds)) {
       return;
     }
-    const bounds = this._map.getBounds();
-    if (!this._lastExtendedBounds.contains(bounds)) {
-      this._lastExtendedBounds = expandBounds(bounds);
-      this.getAndUpdateScooters(this._lastExtendedBounds, this._mcg);
-    }
+    this._lastExtendedBounds = expandBounds(bounds);
+    this.getAndUpdateScooters(this._lastExtendedBounds, this._mcg);
   }
 
   click() {
-    if (this._vehicleClicked) {
-      this._onVehicleClick(null);
-      this._vehicleClicked = null;
+    if (!this._vehicleClicked) {
+      return;
     }
+    this._onVehicleClick(null);
+    this._vehicleClicked = null;
   }
 
   loadScooters({ onVehicleClick, onVehicleRemove }) {
@@ -257,18 +258,20 @@ export default class MapBuilder {
   }
 
   startRefreshTimer(interval, bounds, mcg) {
-    if (!this._refreshId && !this._ongoingTrip) {
-      this._refreshId = window.setInterval(() => {
-        this.getAndUpdateScooters(bounds, mcg);
-      }, interval);
+    if (this._refreshId && this._ongoingTrip) {
+      return;
     }
+    this._refreshId = window.setInterval(() => {
+      this.getAndUpdateScooters(bounds, mcg);
+    }, interval);
   }
 
   stopRefreshTimer() {
-    if (this._refreshId) {
-      clearInterval(this._refreshId);
-      this._refreshId = null;
+    if (!this._refreshId) {
+      return this;
     }
+    clearInterval(this._refreshId);
+    this._refreshId = null;
     return this;
   }
 
