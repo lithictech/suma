@@ -157,9 +157,7 @@ export default class MapBuilder {
     const currentMarkersIds = mcg.getLayers().map((marker) => marker.options.id);
     ["ebike", "escooter"].forEach((vehicleType) => {
       data[vehicleType]?.forEach((bike) => {
-        const id = `${bike.p}-${bike.c[0] * precisionFactor}-${
-          bike.c[1] * precisionFactor
-        }`;
+        const id = `${bike.p}-${bike.c[0]}-${bike.c[1]}${bike.d ? "-" + bike.d : ""}`;
         const marker = this.newMarker(
           id,
           bike,
