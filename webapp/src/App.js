@@ -19,6 +19,7 @@ import Onboarding from "./pages/Onboarding";
 import OnboardingFinish from "./pages/OnboardingFinish";
 import OnboardingSignup from "./pages/OnboardingSignup";
 import OneTimePassword from "./pages/OneTimePassword";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
 import Start from "./pages/Start";
 import Styleguide from "./pages/Styleguide";
 import Utilities from "./pages/Utilities";
@@ -67,6 +68,14 @@ function AppRoutes() {
             withMetatags({ title: t("common:welcome_to_suma"), exact: true }),
             withLayout({ nav: "none", bg: "bg-white" }),
             Home
+          )}
+        />
+        <Route
+          path="/privacy-policy"
+          exact
+          element={renderWithHocs(
+            withMetatags({ title: t("common:welcome_to_suma"), exact: true }),
+            PrivacyPolicy
           )}
         />
         <Route
