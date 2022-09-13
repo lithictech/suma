@@ -23,7 +23,7 @@ export default class MapBuilder {
     this._map.setView([this._dLat, this._dLng], this._minZoom);
     this._l.control.zoom({ position: "bottomright" }).addTo(this._map);
     this.newLocateControl().addTo(this._map);
-    this._lastBounds = this._map.getBounds();
+    this._lastExtendedBounds = expandBounds(this._map.getBounds());
     this._mcg = this._l.markerClusterGroup({
       showCoverageOnHover: false,
       maxClusterRadius: (mapZoom) => {
@@ -43,18 +43,19 @@ export default class MapBuilder {
       iconSize: [43.4, 52.6],
       iconAnchor: [21.7, 52.6],
     });
-    this._vehicleClicked = false;
     this._lastLocation = null;
     this._locationMarker = null;
     this._locationAccuracyCircle = null;
     this._animationTimeoutId = null;
     this._refreshId = null;
+    this._vehicleClicked = null;
     this._onVehicleClick = null;
+    this._onVehicleRemove = null;
   }
 
   init() {
     this.setTileLayer();
-    this.loadGeoFences();
+    this.loadGeoFences(this._lastExtendedBounds);
     return this;
   }
 
@@ -77,28 +78,30 @@ export default class MapBuilder {
   }
 
   setLocationEventHandlers() {
+    // prevent animation issues when zooming
     this._map.on("zoomstart", () => {
-      if (this._locationAccuracyCircle && this._locationMarker) {
-        // prevent animation issues when zooming
-        if (this._animationTimeoutId) {
-          clearTimeout(this._animationTimeoutId);
-          this._animationTimeoutId = null;
-        }
-        this._locationAccuracyCircle._path.classList.remove(
-          "mobility-location-accuracy-circle-animation"
-        );
-        this._locationMarker._icon.style.transition = "none";
+      if (!this._locationAccuracyCircle || !this._locationMarker) {
+        return;
       }
+      if (this._animationTimeoutId) {
+        clearTimeout(this._animationTimeoutId);
+        this._animationTimeoutId = null;
+      }
+      this._locationAccuracyCircle._path.classList.remove(
+        "mobility-location-accuracy-circle-transition"
+      );
+      this._locationMarker.getElement().style.transition = "none";
     });
     this._map.on("zoomend", () => {
-      if (this._locationAccuracyCircle && this._locationMarker) {
-        this._animationTimeoutId = setTimeout(() => {
-          this._locationAccuracyCircle._path.classList.add(
-            "mobility-location-accuracy-circle-animation"
-          );
-          this._locationMarker._icon.style.transition = "all 1000ms linear 0s";
-        }, 250);
+      if (!this._locationAccuracyCircle || !this._locationMarker) {
+        return;
       }
+      this._animationTimeoutId = setTimeout(() => {
+        this._locationAccuracyCircle._path.classList.add(
+          "mobility-location-accuracy-circle-transition"
+        );
+        this._locationMarker.getElement().style.transition = "all 1000ms linear 0s";
+      }, 250);
     });
   }
 
@@ -108,61 +111,90 @@ export default class MapBuilder {
   }
 
   moveEnd() {
-    if (!this._map) {
+    const bounds = this._map.getBounds();
+    if (this._lastExtendedBounds.contains(bounds)) {
       return;
     }
-    const bounds = this._map.getBounds();
-    if (
-      !this._lastBounds.contains(bounds._northEast) ||
-      !this._lastBounds.contains(bounds._southWest)
-    ) {
-      this._lastBounds = bounds;
-      this.getScooters(bounds);
-    }
+    this._lastExtendedBounds = expandBounds(bounds);
+    this.getAndUpdateScooters(this._lastExtendedBounds, this._mcg);
   }
 
   click() {
-    if (this._vehicleClicked) {
-      this._onVehicleClick(null);
-      this._vehicleClicked = false;
+    if (!this._vehicleClicked) {
+      return;
     }
+    this._onVehicleClick(null);
+    this._vehicleClicked = null;
   }
 
-  loadScooters({ onVehicleClick }) {
+  loadScooters({ onVehicleClick, onVehicleRemove }) {
     this._onVehicleClick = onVehicleClick;
-    this.getScooters(this._lastBounds);
+    this._onVehicleRemove = onVehicleRemove;
+    this.getAndUpdateScooters(this._lastExtendedBounds, this._mcg);
     this.setVehicleEventHandlers();
     this._map.addLayer(this._mcg);
     return this;
   }
 
-  getScooters(bounds) {
+  getAndUpdateScooters(bounds, mcg) {
     api.getMobilityMap(boundsToParams(bounds)).then((r) => {
-      const precisionFactor = 1 / r.data.precision;
-      const newMarkers = [];
-      this.removeVisibleLayers(bounds);
-      ["ebike", "escooter"].forEach((vehicleType) => {
-        r.data[vehicleType]?.forEach((bike) => {
-          const marker = this.newMarker(
-            bike,
-            vehicleType,
-            r.data.providers,
-            precisionFactor
-          );
-          newMarkers.push(marker);
-        });
-      });
-      this._mcg.addLayers(newMarkers, { chunkedLoading: true });
-      this.stopRefreshTimer().startRefreshTimer(r.data.refresh);
+      this.updateScooters({ ...r, bounds, mcg });
+      this.stopRefreshTimer().startRefreshTimer(r.data.refresh, bounds, mcg);
     });
   }
 
-  loadGeoFences() {
-    // TODO: Need to use new bounds logic
-    const bounds = this._l.latLngBounds(
-      this._l.latLng(45.40706339656264, -122.80156150460245),
-      this._l.latLng(45.58041884450583, -122.51986645843971)
+  updateScooters({ data, bounds, mcg }) {
+    const precisionFactor = 1 / data.precision;
+    const applicableMarkers = [];
+    const allNewMarkersIds = [];
+    const leftoverMarkers = [];
+    // First: Removes markers that are not present in the bounds
+    const removableMarkers = mcg
+      .getLayers()
+      .filter((marker) => !bounds.contains(marker._latlng));
+    mcg.removeLayers(removableMarkers, { chunkedLoading: true });
+    // Second: Add markers for ids that are missing
+    const currentMarkersIds = mcg.getLayers().map((marker) => marker.options.id);
+    ["ebike", "escooter"].forEach((vehicleType) => {
+      data[vehicleType]?.forEach((bike) => {
+        const id = `${bike.p}-${bike.c[0]}-${bike.c[1]}${bike.d ? "-" + bike.d : ""}`;
+        const marker = this.newMarker(
+          id,
+          bike,
+          vehicleType,
+          data.providers,
+          precisionFactor
+        );
+        if (!currentMarkersIds.includes(id)) {
+          applicableMarkers.push(marker);
+        } else {
+          leftoverMarkers.push(marker);
+        }
+        allNewMarkersIds.push(id);
+      });
+    });
+    mcg.addLayers(applicableMarkers, { chunkedLoading: true });
+    // Third: Remove *leftover* markers that are not present in the new list of ids
+    // Leftover markers are visible in new bounds but might not exist in new list of ids,
+    // therefor we should remove the non-existing leftover marker(s)
+    const removableLeftoverMarkers = leftoverMarkers.filter(
+      (marker) => !allNewMarkersIds.includes(marker.options.id)
     );
+    mcg.removeLayers(removableLeftoverMarkers, { chunkedLoading: true });
+
+    // Fourth: Close the map reserve card if the marker for a scooter is now gone
+    const removedMarkers = removableMarkers.concat(removableLeftoverMarkers);
+    const isVehicleRemoved = removedMarkers.find(
+      (marker) => this._vehicleClicked?.options.id === marker.options.id
+    );
+    if (!this._vehicleClicked || !isVehicleRemoved) {
+      return;
+    }
+    this._onVehicleRemove();
+    this._vehicleClicked = null;
+  }
+
+  loadGeoFences(bounds) {
     return api.getMobilityMapFeatures(boundsToParams(bounds)).then((d) => {
       d.data.restrictions.forEach((r) => {
         this.createRestrictedArea({
@@ -223,37 +255,29 @@ export default class MapBuilder {
       .addTo(this._map);
   }
 
-  startRefreshTimer(interval) {
-    if (!this._refreshId && !this._ongoingTrip) {
-      this._refreshId = window.setInterval(() => {
-        this.getScooters(this._lastBounds);
-      }, interval);
+  startRefreshTimer(interval, bounds, mcg) {
+    if (this._refreshId && this._ongoingTrip) {
+      return;
     }
+    this._refreshId = window.setInterval(() => {
+      this.getAndUpdateScooters(bounds, mcg);
+    }, interval);
   }
 
   stopRefreshTimer() {
-    if (this._refreshId) {
-      clearInterval(this._refreshId);
-      this._refreshId = null;
+    if (!this._refreshId) {
+      return this;
     }
+    clearInterval(this._refreshId);
+    this._refreshId = null;
     return this;
   }
 
-  // Remove markers in visible bounds to prevent duplicates
-  removeVisibleLayers(bounds) {
-    const removableMarkers = [];
-    this._mcg.eachLayer((marker) => {
-      if (bounds.contains(marker._latlng)) {
-        removableMarkers.push(marker);
-      }
-    });
-    this._mcg.removeLayers(removableMarkers);
-  }
-
-  newMarker(bike, vehicleType, providers, precisionFactor) {
+  newMarker(id, bike, vehicleType, providers, precisionFactor) {
     const [lat, lng] = bike.c;
     return this._l
       .marker([lat * precisionFactor, lng * precisionFactor], {
+        id,
         icon: this._scooterIcon,
         riseOnHover: true,
       })
@@ -266,7 +290,7 @@ export default class MapBuilder {
           providerId: providers[bike.p].id,
         };
         this._onVehicleClick(mapVehicle);
-        this._vehicleClicked = true;
+        this._vehicleClicked = e.target;
       });
   }
 
@@ -363,7 +387,7 @@ export default class MapBuilder {
             distance: 0,
           });
           this._locationAccuracyCircle = this._l.circle([loc.lat, loc.lng], {
-            className: "mobility-location-accuracy-circle-animation",
+            className: "mobility-location-accuracy-circle-transition",
             radius: location.accuracy,
             color: "#0495ff",
             fillColor: "#0495ff",
@@ -444,4 +468,14 @@ function boundsToParams(bounds) {
     sw: [_southWest.lat, _southWest.lng],
     ne: [_northEast.lat, _northEast.lng],
   };
+}
+
+function expandBounds(bounds, distance) {
+  const distanceFromMapsCenter = (bounds.getEast() - bounds.getWest()) / 2;
+  distance = distance || distanceFromMapsCenter;
+  bounds._northEast.lat += distance;
+  bounds._northEast.lng += distance;
+  bounds._southWest.lat -= distance;
+  bounds._southWest.lng -= distance;
+  return bounds;
 }
