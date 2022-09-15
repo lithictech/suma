@@ -73,10 +73,7 @@ function AppRoutes() {
         <Route
           path="/privacy-policy"
           exact
-          element={renderWithHocs(
-            withMetatags({ title: t("common:welcome_to_suma"), exact: true }),
-            PrivacyPolicy
-          )}
+          element={renderWithHocs(withLayout({ top: true }), PrivacyPolicy)}
         />
         <Route
           path="/start"

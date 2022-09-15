@@ -1,23 +1,44 @@
 import transparencyIconTest from "../assets/images/privacy-policy-transparency-icon-cropped-test.png";
-import TopNav from "../components/TopNav";
-import ScrollTopOnMount from "../shared/ScrollToTopOnMount";
+import ScreenLoader from "../components/ScreenLoader";
+import useI18Next from "../localization/useI18Next";
 import clsx from "clsx";
+import i18n from "i18next";
 import React from "react";
+import Button from "react-bootstrap/Button";
 import Col from "react-bootstrap/Col";
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Stack from "react-bootstrap/Stack";
+import { Helmet } from "react-helmet-async";
 import { Link } from "react-router-dom";
 
 export default function PrivacyPolicy() {
+  const [i18nextLoading, setI18NextLoading] = React.useState(true);
+
+  const t = (key, options = {}) => {
+    return i18n.t("privacy-policy-strings:" + key, options);
+  };
+
+  React.useEffect(() => {
+    // initialize isolated privacy policy translations
+    Promise.delayOr(500, i18n.loadNamespaces("privacy-policy-strings")).then(() => {
+      setI18NextLoading(false);
+    });
+  }, []);
+
+  if (i18nextLoading) {
+    return <ScreenLoader show />;
+  }
   return (
-    <div className="bg-light">
-      <ScrollTopOnMount />
-      <TopNav />
-      <Container className="py-5">
+    <>
+      <Helmet>
+        <title>{`${t("title")} | ${i18n.t("strings:titles:suma_app")}`}</title>
+      </Helmet>
+      <Container>
+        <SpanishTranslatorButton />
         <Row>
-          <Col md={8}>
-            <h1 className="display-4">Overview</h1>
+          <Col xs={12}>
+            <h1 className="display-4">{t("overview")}</h1>
             <p className="fw-light">
               At suma, we believe you have the right to understand how your data is being
               used.
@@ -28,7 +49,7 @@ export default function PrivacyPolicy() {
               </a>
             </p>
           </Col>
-          <Col>
+          <Col xs={12}>
             <Stack gap={3}>
               <TabLink label="FAQ" to="/frequently-asked-questions" />
               <TabLink label="Contact Us" to="/contact-us" />
@@ -40,10 +61,10 @@ export default function PrivacyPolicy() {
           style={{ borderRadius: "25px" }}
         >
           <Row>
-            <Col lg={4} className="px-lg-5 d-flex align-items-center">
+            <Col xs={12} className="align-items-center">
               <h1 className="display-5">Community Driven</h1>
             </Col>
-            <Col>
+            <Col xs={12}>
               Suma developed our privacy policy for and with and for community members.
               Our work started with students at the Ida B.Wells Just Data Lab where we
               explored best and worst privacy policy practices. From there, we wanted to
@@ -79,14 +100,12 @@ export default function PrivacyPolicy() {
             right="true"
           />
         </Row>
-      </Container>
-      <hr />
-      <Container className="py-5">
+        <hr className="my-5" />
         <h1 id="privacy-policy-title" className="text-center display-4">
           Privacy Policy
         </h1>
       </Container>
-    </div>
+    </>
   );
 }
 
@@ -100,7 +119,7 @@ const TabLink = ({ to, label }) => {
 
 const PedalCol = ({ heading, paragraph, img, right }) => {
   return (
-    <Col lg={6} className={clsx("pt-4 pt-lg-1", !right && "text-lg-end")}>
+    <Col>
       <Stack direction="horizontal" gap={3} className="align-items-start">
         <div className="mt-4">
           <h6>{heading}</h6>
@@ -111,3 +130,20 @@ const PedalCol = ({ heading, paragraph, img, right }) => {
     </Col>
   );
 };
+
+function SpanishTranslatorButton() {
+  const { language, changeLanguage } = useI18Next();
+  return (
+    <div className="d-flex justify-content-end">
+      {language !== "en" ? (
+        <Button variant="link" onClick={() => changeLanguage("en")}>
+          <i>English</i>
+        </Button>
+      ) : (
+        <Button variant="link" onClick={() => changeLanguage("es")}>
+          <i>En Español</i>
+        </Button>
+      )}
+    </div>
+  );
+}
