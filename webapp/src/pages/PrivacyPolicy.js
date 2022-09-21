@@ -9,14 +9,18 @@ import methodsOfCollection from "../assets/images/privacypolicy/methods-of-colle
 import methodsOfDataUsage from "../assets/images/privacypolicy/methods-of-data-usage.svg";
 import policyChanges from "../assets/images/privacypolicy/policy-changes.svg";
 import thirdPartyAcceess from "../assets/images/privacypolicy/third-party-access.svg";
+import "../assets/styles/privacy-policy.scss";
 import ScreenLoader from "../components/ScreenLoader";
 import useI18Next from "../localization/useI18Next";
+import ScrollSpy from "bootstrap/js/src/scrollspy";
 import clsx from "clsx";
 import i18n from "i18next";
 import React from "react";
 import Button from "react-bootstrap/Button";
 import Col from "react-bootstrap/Col";
 import Container from "react-bootstrap/Container";
+import Nav from "react-bootstrap/Nav";
+import Navbar from "react-bootstrap/Navbar";
 import Row from "react-bootstrap/Row";
 import Stack from "react-bootstrap/Stack";
 import { Helmet } from "react-helmet-async";
@@ -24,10 +28,18 @@ import { Link } from "react-router-dom";
 
 export default function PrivacyPolicy() {
   const [i18nextLoading, setI18NextLoading] = React.useState(true);
-
+  const [expanded, setExpanded] = React.useState(false);
+  const scrollSpyElement = document.getElementById("scrollspy");
   const t = (key, options = {}) => {
     return i18n.t("privacy-policy-strings:" + key, options);
   };
+
+  React.useEffect(() => {
+    if (!scrollSpyElement) {
+      return;
+    }
+    new ScrollSpy(document.body, { target: "#scrollspy", offset: 20 });
+  }, [scrollSpyElement]);
 
   React.useEffect(() => {
     // initialize isolated privacy policy translations
@@ -44,8 +56,52 @@ export default function PrivacyPolicy() {
       <Helmet>
         <title>{`${t("title")} | ${i18n.t("strings:titles:suma_app")}`}</title>
       </Helmet>
-      <Container>
-        <SpanishTranslatorButton />
+      <Navbar
+        className="pt-0 pb-0 border border-secondary border-top-0"
+        bg="light"
+        variant="light"
+        sticky="top"
+        collapseOnSelect={true}
+        expand={false}
+        expanded={expanded}
+        onToggle={() => setExpanded(!expanded)}
+      >
+        <Container>
+          <Navbar.Toggle className={clsx(expanded && "expanded")}>
+            <div className="navbar-toggler-icon-bar bg-dark" />
+            <div className="navbar-toggler-icon-bar bg-dark" />
+            <div className="navbar-toggler-icon-bar bg-dark" />
+          </Navbar.Toggle>
+          <Navbar.Brand className="me-auto d-flex align-items-center">
+            Table of Contents
+          </Navbar.Brand>
+        </Container>
+        <Navbar.Collapse className="table-of-contents-collapse">
+          <Container id="scrollspy" className="position-relative">
+            <Nav className="navbar-nav-scroll navbar-absolute">
+              <Nav.Link href="#overview">Overview</Nav.Link>
+              <Nav.Link href="#informationCollected">
+                What information is collected?
+              </Nav.Link>
+              <Nav.Link href="#methodsOfCollection">Methods of collection</Nav.Link>
+              <Nav.Link href="#methodsOfDataUsage">Methods of data usage</Nav.Link>
+              <Nav.Link href="#cookiesPolicy">Cookies policy</Nav.Link>
+              <Nav.Link href="#thirdPartyAccess">Third-party access</Nav.Link>
+              <Nav.Link href="#dataRetentionAndRemoval">
+                Data retention and removal
+              </Nav.Link>
+              <Nav.Link href="#businessTransfer">Business transfer</Nav.Link>
+              <Nav.Link href="#childrenUnder13">Children under 13</Nav.Link>
+              <Nav.Link href="#communication">Communication</Nav.Link>
+              <Nav.Link href="#futureChangesToPolicy">Future changes to policy</Nav.Link>
+              <Nav.Link href="#disputeResolution">Dispute resolution</Nav.Link>
+              <Nav.Link href="#contactInformation">Contact information</Nav.Link>
+            </Nav>
+          </Container>
+        </Navbar.Collapse>
+      </Navbar>
+      <Container className="position-relative" tabIndex="0">
+        <SpanishTranslatorButton id="overview" />
         <Row>
           <Col xs={12}>
             <h1 className="display-4">{t("overview")}</h1>
@@ -70,10 +126,7 @@ export default function PrivacyPolicy() {
             </Stack>
           </Col>
         </Row>
-        <Container
-          className="border border-1 border-dark bg-white my-5 p-4"
-          style={{ borderRadius: "25px" }}
-        >
+        <Container className="community-driven-container border border-1 border-dark bg-white my-5 p-4">
           <Row>
             <Col xs={12} className="align-items-center">
               <h1 className="display-5">Community Driven</h1>
@@ -118,8 +171,9 @@ export default function PrivacyPolicy() {
         <h1 id="privacy-policy-title" className="text-center display-4">
           Privacy Policy
         </h1>
-        <p>Effective: [Date here]</p>
+        <p className="text-center">Effective: [Date here]</p>
         <PrivacyPolicySection
+          id="informationCollected"
           title="What information is collected?"
           p="We collect the minimum information needed to create your suma platform account, work with community partners, connect you with vendors, and secure subsidy: Registration: We collect your name, telephone number, email, billing information, and community partner name when you create your suma platform account."
           list={[
@@ -128,8 +182,8 @@ export default function PrivacyPolicy() {
             "Subsidy: We collect data necessary to secure third party subsidy that reduces the cost of goods and services from vendors via the suma platform.",
           ]}
         />
-        <p></p>
         <PrivacyPolicySection
+          id="methodsOfCollection"
           title="Methods of collection"
           p="Your trust in, consent to and understanding of our privacy policy are fundamental to the suma platform. To provide platform services, we collect information from the following methods:"
           img={methodsOfCollection}
@@ -141,6 +195,7 @@ export default function PrivacyPolicy() {
           ]}
         />
         <PrivacyPolicySection
+          id="methodsOfDataUsage"
           title="Methods of data usage"
           p="We use personal data to power suma platform services, to process your transactions, to qualify you for platform vendor discounts, to support third party subsidy, to aggregate platform usage, to educate community partners, to communicate with you, for security and fraud prevention, and to comply with the law:"
           img={methodsOfDataUsage}
@@ -155,6 +210,7 @@ export default function PrivacyPolicy() {
           ]}
         />
         <PrivacyPolicySection
+          id="cookiesPolicy"
           title="Cookies policy"
           p="We use cookies to help us manage the platform. Cookies are small text files that are stored on your device when you visit the Suma platform. A cookie contains a unique code, which we use to recognize your device when you return to the Suma platform."
           img={cookiesPolicy}
@@ -168,6 +224,7 @@ export default function PrivacyPolicy() {
           </p>
         </PrivacyPolicySection>
         <PrivacyPolicySection
+          id="thirdPartyAccess"
           title="Third-party access"
           p="Suma does not share personal information about you with any third parties for their own marketing purposes. We do share this information with trusted and vetted third parties (platform vendors, subsidy providers, community partners, service providers to the platform), via the platform dashboard, for security and fraud prevention, to comply with the law or in the event of a dispute:"
           img={thirdPartyAcceess}
@@ -219,6 +276,7 @@ export default function PrivacyPolicy() {
           />
         </PrivacyPolicySection>
         <PrivacyPolicySection
+          id="dataRetentionAndRemoval"
           title="Data retention and removal"
           p="We have the following standards for retaining and deleting Suma platform data:"
         >
@@ -248,6 +306,7 @@ export default function PrivacyPolicy() {
           />
         </PrivacyPolicySection>
         <PrivacyPolicySection
+          id="businessTransfer"
           title="Business transfer"
           p="We may choose to sell assets of the suma platform or buy assets for the platform. These transactions may be necessary and in our legitimate interests, particularly our interest in growing the platform to serve more community members and to offer more goods and services. User information is typically an asset that is transferred in these transactions (such as a sale, merger, liquidation, receivership, or transfer of all or substantially all of the suma platform’s assets)."
           img={businessTransfer}
@@ -260,10 +319,12 @@ export default function PrivacyPolicy() {
           </p>
         </PrivacyPolicySection>
         <PrivacyPolicySection
+          id="childrenUnder13"
           title="Children under 13"
           p="The Suma platform is not intended for children under 13 years of age. We do not knowingly collect personal information from children under 13. If you are under 13, please do not provide any information on the Suma platform."
         />
         <PrivacyPolicySection
+          id="communication"
           title="Communication"
           p="Sometimes we will need to communicate with you about the platform, including things like new vendors, new community partners, savings or subsidy opportunities, community events and service messages. We will use the communication preferences and contact information you have shared with us to communicate with you via email, text and/or in-platform tools. Communications will take place in the language you indicate in your communication preferences. You may change your communication preferences and contact information at any time, except:"
           img={communication}
@@ -273,6 +334,7 @@ export default function PrivacyPolicy() {
           ]}
         />
         <PrivacyPolicySection
+          id="futureChangesToPolicy"
           title="Future changes to policy"
           p="We may change suma platform Privacy Policy from time to time. If we do change the Suma platform Privacy Policy, we will let you know about the change by email and/or by posting a notice on the Suma platform’s homepage (https://app.mysuma.org/app/). This notice will let you know what is changing, why it is changing and how it is changing. We will provide this notice at least 30 days before the changes take effect unless the law requires a different notice period. You will have the chance to consent to the changes at your first login to the platform after the changes take effect. If you do not consent to the changes, you will not be able to use the platform (see ____)"
           img={policyChanges}
@@ -284,11 +346,13 @@ export default function PrivacyPolicy() {
           </p>
         </PrivacyPolicySection>
         <PrivacyPolicySection
+          id="disputeResolution"
           title="Dispute resolution"
           p="If you have any questions or concerns about our use or disclosure of information, please reach out to us via apphelp@mysuma.org. We are here to listen to all of your concerns. If we cannot resolve your concern, we will/the next step is… [Needs more context here]"
           img={disputeResolution}
         />
         <PrivacyPolicySection
+          id="contactInformation"
           title="Contact information"
           p="If you have questions about this Privacy Policy, we are here to listen. Please contact Suma at apphelp@mysuma.org. We are also available to host remote or in person meetings to provide information and answer questions about the Privacy Policy."
         />
@@ -297,9 +361,12 @@ export default function PrivacyPolicy() {
   );
 }
 
-const PrivacyPolicySection = ({ title, p, img, list, subsection, children }) => {
+const PrivacyPolicySection = ({ id, title, p, img, list, subsection, children }) => {
   return (
-    <div className={clsx(!subsection ? "mt-5" : "mt-4")}>
+    <div
+      id={id}
+      className={clsx(!subsection ? "privacy-policy-section-padding" : "pt-3")}
+    >
       {!subsection ? <h4>{title}</h4> : <h5 className="mt-3">{title}</h5>}
       {img && <img src={img} alt={title} className="d-block mx-auto" />}
       <p>{p}</p>
@@ -337,10 +404,10 @@ const PedalCol = ({ heading, paragraph, img, right }) => {
   );
 };
 
-function SpanishTranslatorButton() {
+const SpanishTranslatorButton = ({ id }) => {
   const { language, changeLanguage } = useI18Next();
   return (
-    <div className="d-flex justify-content-end">
+    <div id={id} className="d-flex justify-content-end">
       {language !== "en" ? (
         <Button variant="link" onClick={() => changeLanguage("en")}>
           <i>English</i>
@@ -352,4 +419,4 @@ function SpanishTranslatorButton() {
       )}
     </div>
   );
-}
+};

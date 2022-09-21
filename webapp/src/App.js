@@ -73,7 +73,7 @@ function AppRoutes() {
         <Route
           path="/privacy-policy"
           exact
-          element={renderWithHocs(withLayout({ top: true }), PrivacyPolicy)}
+          element={renderWithHocs(withLayout({ noScrollTop: true }), PrivacyPolicy)}
         />
         <Route
           path="/start"
