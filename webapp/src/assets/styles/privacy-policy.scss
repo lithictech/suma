@@ -1,7 +1,7 @@
 @import "./theme";
 
 .table-of-contents-collapse {
-  // avoid scrollTo position issues
+  // avoid BS scrollTo position issues
   position: absolute;
   top: 49px;
   border: 1px solid $secondary;
@@ -18,10 +18,10 @@
   }
 }
 
-.community-driven-container {
+.community-driven-container-radius {
   border-radius: 25px;
 }
 
-.privacy-policy-section-padding {
+.privacy-policy-section-top-padding {
   padding-top: 3.5rem;
 }
