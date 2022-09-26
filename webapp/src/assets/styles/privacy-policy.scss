@@ -1,0 +1,27 @@
+@import "./theme";
+
+.table-of-contents-collapse {
+  // avoid BS scrollTo position issues
+  position: absolute;
+  top: 49px;
+  border: 1px solid $secondary;
+  left: -1px;
+  right: -1px;
+
+  // mobile-responsive
+  .navbar-nav-scroll {
+    --bs-scroll-height: calc(100vh - 50px);
+
+    .active {
+      font-weight: bold;
+    }
+  }
+}
+
+.community-driven-container-radius {
+  border-radius: 25px;
+}
+
+.privacy-policy-section-top-padding {
+  padding-top: 3.5rem;
+}

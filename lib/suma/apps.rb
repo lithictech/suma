@@ -3,6 +3,7 @@
 require "amigo"
 require "grape-swagger"
 require "rack/builder"
+require "rack/csp"
 require "rack/lambda_app"
 require "rack/simple_redirect"
 require "rack/spa_app"
@@ -67,10 +68,12 @@ module Suma::Apps
   end
 
   Web = Rack::Builder.new do
+    # self.use Rack::Csp, policy: "default-src 'self' mysuma.org *.mysuma.org; img-src 'self' data:"
     Rack::SpaApp.run_spa_app(self, "build-webapp", enforce_ssl: Suma::Service.enforce_ssl)
   end
 
   Admin = Rack::Builder.new do
+    # self.use Rack::Csp, policy: "default-src 'self'; img-src 'self' data:"
     Rack::SpaApp.run_spa_app(self, "build-adminapp", enforce_ssl: Suma::Service.enforce_ssl)
   end
 
