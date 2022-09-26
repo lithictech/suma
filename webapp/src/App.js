@@ -1,3 +1,4 @@
+import PrivacyPolicyContent from "./components/PrivacyPolicyContent";
 import ScreenLoader from "./components/ScreenLoader";
 import {
   redirectIfAuthed,
@@ -19,7 +20,6 @@ import Onboarding from "./pages/Onboarding";
 import OnboardingFinish from "./pages/OnboardingFinish";
 import OnboardingSignup from "./pages/OnboardingSignup";
 import OneTimePassword from "./pages/OneTimePassword";
-import PrivacyPolicy from "./pages/PrivacyPolicy";
 import Start from "./pages/Start";
 import Styleguide from "./pages/Styleguide";
 import Utilities from "./pages/Utilities";
@@ -73,7 +73,15 @@ function AppRoutes() {
         <Route
           path="/privacy-policy"
           exact
-          element={renderWithHocs(withLayout({ noScrollTop: true }), PrivacyPolicy)}
+          element={renderWithHocs(
+            withLayout({ noScrollTop: true }),
+            PrivacyPolicyContent
+          )}
+        />
+        <Route
+          path="/privacy-policy-content"
+          exact
+          element={renderWithHocs(PrivacyPolicyContent)}
         />
         <Route
           path="/start"
