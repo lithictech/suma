@@ -8,14 +8,21 @@
   left: -1px;
   right: -1px;
 
-  // mobile-responsive
-  .navbar-nav-scroll {
-    --bs-scroll-height: calc(100vh - 50px);
+}
 
-    .active {
-      font-weight: bold;
-    }
+// table-of-contents mobile-responsive
+// note: needs to be outside of table-of-contents-collapse
+// to work properly
+.navbar-nav-scroll {
+  --bs-scroll-height: calc(100vh - 50px);
+
+  .active {
+    font-weight: bold;
   }
+}
+
+.navbar-bg {
+  background: $light-darker;
 }
 
 .community-driven-container-radius {
@@ -24,4 +31,20 @@
 
 .privacy-policy-section-top-padding {
   padding-top: 3.5rem;
+}
+
+.table-of-contents-desktop {
+  max-width: 320px;
+  min-width: 320px;
+}
+
+.privacy-policy-desktop {
+  padding-bottom: 100px;
+}
+
+// X-Large devices (large desktops, 1200px and up)
+@include media-breakpoint-up(xl) { 
+  .privacy-policy-desktop {
+    max-width: 900px!important;
+  }
 }

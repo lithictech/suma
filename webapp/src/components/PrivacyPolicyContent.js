@@ -30,22 +30,44 @@ import { Helmet } from "react-helmet-async";
 import ReactMarkdown from "react-markdown";
 import { Link } from "react-router-dom";
 
-export default function PrivacyPolicy() {
+export default function PrivacyPolicyContent({ mobile }) {
+  mobile = Boolean(mobile);
   const [i18nextLoading, setI18NextLoading] = React.useState(true);
-  const [expanded, setExpanded] = React.useState(false);
-  const scrollSpyElement = document.getElementById("scrollspy");
 
-  React.useEffect(() => {
-    if (!scrollSpyElement) {
-      return;
-    }
-    new ScrollSpy(document.body, { target: "#scrollspy", offset: 20 });
-  }, [scrollSpyElement]);
+  const PrivacyPolicySection = ({ id, title, p, img, list, subsection, children }) => {
+    return (
+      <div
+        id={id}
+        className={clsx(!subsection ? "privacy-policy-section-top-padding" : "pt-3")}
+      >
+        {!subsection ? <h3>{title}</h3> : <h5 className="mt-3">{title}</h5>}
+        {img && (
+          <img
+            src={img}
+            alt={title}
+            className={clsx("d-block mx-auto", !mobile && "float-xl-end")}
+          />
+        )}
+        <p>{p}</p>
+        {list && (
+          <ul>
+            {list.map((b) => (
+              <li key={b}>{b}</li>
+            ))}
+          </ul>
+        )}
+        {children}
+      </div>
+    );
+  };
 
   React.useEffect(() => {
     // initialize isolated privacy policy translations
     Promise.delayOr(500, i18n.loadNamespaces("privacy-policy-strings")).then(() => {
       setI18NextLoading(false);
+      // initialize top navigation BS scrollspy
+      new ScrollSpy(document.body, { target: "#mobile-scrollspy", offset: 20 });
+      new ScrollSpy(document.body, { target: "#desktop-scrollspy", offset: 10 });
     });
   }, []);
 
@@ -53,81 +75,36 @@ export default function PrivacyPolicy() {
     return <ScreenLoader show />;
   }
   return (
-    <>
+    <div
+      className={clsx(
+        "bg-light mx-auto",
+        !mobile &&
+          "d-flex flex-column flex-xl-row border-secondary border-start border-end"
+      )}
+      style={{ maxWidth: "1600px" }}
+    >
       <Helmet>
         <title>{`${t("privacy_policy:title")} | ${i18n.t(
           "strings:titles:suma_app"
         )}`}</title>
       </Helmet>
-      <Navbar
-        className="pt-0 pb-0 border border-secondary border-top-0"
-        bg="light"
-        variant="light"
-        sticky="top"
-        collapseOnSelect={true}
-        expand={false}
-        expanded={expanded}
-        onToggle={() => setExpanded(!expanded)}
+      {!mobile && (
+        <Col className="table-of-contents-desktop d-none d-xl-block border-secondary border-end order-end navbar-bg">
+          <TableOfContentsNav id="desktop-scrollspy" />
+        </Col>
+      )}
+      <TableOfContentsNav
+        id="mobile-scrollspy"
+        mobile={true}
+        classes={clsx(!mobile && "d-xl-none")}
+      />
+      <Container
+        className={clsx("position-relative", !mobile && "privacy-policy-desktop")}
+        tabIndex="0"
       >
-        <Container>
-          <Navbar.Toggle className={clsx(expanded && "expanded")}>
-            <div className="navbar-toggler-icon-bar bg-dark" />
-            <div className="navbar-toggler-icon-bar bg-dark" />
-            <div className="navbar-toggler-icon-bar bg-dark" />
-          </Navbar.Toggle>
-          <Navbar.Brand className="me-auto d-flex align-items-center">
-            {t("common:table_of_contents")}
-          </Navbar.Brand>
-        </Container>
-        <Navbar.Collapse className="table-of-contents-collapse">
-          <Container id="scrollspy" className="position-relative">
-            <Nav className="navbar-nav-scroll navbar-absolute">
-              <Nav.Link href="#overview">{t("overview:title")}</Nav.Link>
-              <NavDropdown.Divider />
-              <Nav.Link href="#informationCollected">
-                {t("privacy_policy:information_collected:title")}
-              </Nav.Link>
-              <Nav.Link href="#methodsOfCollection">
-                {t("privacy_policy:methods_of_collection:title")}
-              </Nav.Link>
-              <Nav.Link href="#methodsOfDataUsage">
-                {t("privacy_policy:methods_of_data_usage:title")}
-              </Nav.Link>
-              <Nav.Link href="#cookiesPolicy">
-                {t("privacy_policy:cookies_policy:title")}
-              </Nav.Link>
-              <Nav.Link href="#thirdPartyAccess">
-                {t("privacy_policy:third_party_access:title")}
-              </Nav.Link>
-              <Nav.Link href="#dataRetentionAndRemoval">
-                {t("privacy_policy:data_retention_and_removal:title")}
-              </Nav.Link>
-              <Nav.Link href="#businessTransfer">
-                {t("privacy_policy:business_transfer:title")}
-              </Nav.Link>
-              <Nav.Link href="#childrenUnder13">
-                {t("privacy_policy:children_under_13:title")}
-              </Nav.Link>
-              <Nav.Link href="#communication">
-                {t("privacy_policy:communication:title")}
-              </Nav.Link>
-              <Nav.Link href="#futureChangesToPolicy">
-                {t("privacy_policy:future_changes_to_policy:title")}
-              </Nav.Link>
-              <Nav.Link href="#disputeResolution">
-                {t("privacy_policy:dispute_resolution:title")}
-              </Nav.Link>
-              <Nav.Link href="#contactInformation">
-                {t("privacy_policy:contact_information:title")}
-              </Nav.Link>
-            </Nav>
-          </Container>
-        </Navbar.Collapse>
-      </Navbar>
-      <Container className="position-relative" tabIndex="0">
         <SpanishTranslatorButton id="overview" />
         <Row>
-          <Col xs={12}>
+          <Col xs={12} className={clsx(!mobile && "col-xl-8")}>
             <h1 className="display-4">{t("overview:title")}</h1>
             <p className="fw-light">{t("overview:intro")}</p>
             <p className="pt-2">
@@ -136,7 +113,7 @@ export default function PrivacyPolicy() {
               </a>
             </p>
           </Col>
-          <Col xs={12}>
+          <Col xs={12} className={clsx("pt-3", !mobile && "col-xl-4")}>
             <Stack gap={3}>
               <TabLink
                 label={t("overview:faq:label")}
@@ -151,21 +128,30 @@ export default function PrivacyPolicy() {
             </Stack>
           </Col>
         </Row>
-        <Container className="community-driven-container-radius border border-1 border-dark bg-white my-5 p-4">
+        <Container
+          className={clsx(
+            "community-driven-container-radius border border-1 border-dark bg-white my-5 p-4",
+            !mobile && "px-xl-5"
+          )}
+        >
           <Row>
-            <Col xs={12} className="align-items-center">
+            <Col xs={12} className={clsx(!mobile && "col-xl-5 align-self-xl-center")}>
               <h1 className="display-5">{t("overview:community_driven_title")}</h1>
             </Col>
-            <Col xs={12}>{t("overview:community_driven_intro")}</Col>
+            <Col xs={12} className={clsx(!mobile && "col-xl-7")}>
+              {t("overview:community_driven_intro")}
+            </Col>
           </Row>
         </Container>
         <Row>
           <PedalCol
+            mobile={mobile}
             heading={t("overview:transparency_title")}
             paragraph={t("overview:transparency_statement")}
             img={transparencyIconTest}
           />
           <PedalCol
+            mobile={mobile}
             heading={t("overview:consent_title")}
             paragraph={t("overview:consent_statement")}
             img={transparencyIconTest}
@@ -174,11 +160,13 @@ export default function PrivacyPolicy() {
         </Row>
         <Row className="mt-2">
           <PedalCol
+            mobile={mobile}
             heading={t("overview:education_title")}
             paragraph={t("overview:education_statement")}
             img={transparencyIconTest}
           />
           <PedalCol
+            mobile={mobile}
             heading={t("overview:trust_title")}
             paragraph={t("overview:trust_statement")}
             img={transparencyIconTest}
@@ -200,9 +188,9 @@ export default function PrivacyPolicy() {
           title={t("privacy_policy:information_collected:title")}
           p={t("privacy_policy:information_collected:paragraph")}
           list={[
-            t("privacy_policy:information_collected:list:registration"),
-            t("privacy_policy:information_collected:list:vendors"),
-            t("privacy_policy:information_collected:list:subsidy"),
+            md("privacy_policy:information_collected:list:registration_md"),
+            md("privacy_policy:information_collected:list:vendors_md"),
+            md("privacy_policy:information_collected:list:subsidy_md"),
           ]}
         />
         <PrivacyPolicySection
@@ -211,10 +199,10 @@ export default function PrivacyPolicy() {
           p={t("privacy_policy:methods_of_collection:paragraph")}
           img={methodsOfCollection}
           list={[
-            t("privacy_policy:methods_of_collection:list:registration_page"),
-            t("privacy_policy:methods_of_collection:list:cookies"),
-            t("privacy_policy:methods_of_collection:list:goods_and_services"),
-            t("privacy_policy:methods_of_collection:list:community_partners"),
+            md("privacy_policy:methods_of_collection:list:registration_page_md"),
+            md("privacy_policy:methods_of_collection:list:cookies_md"),
+            md("privacy_policy:methods_of_collection:list:goods_and_services_md"),
+            md("privacy_policy:methods_of_collection:list:community_partners_md"),
           ]}
         />
         <PrivacyPolicySection
@@ -222,16 +210,43 @@ export default function PrivacyPolicy() {
           title={t("privacy_policy:methods_of_data_usage:title")}
           p={t("privacy_policy:methods_of_data_usage:paragraph")}
           img={methodsOfDataUsage}
-          list={[
-            t("privacy_policy:methods_of_data_usage:list:vendor_discounts"),
-            t("privacy_policy:methods_of_data_usage:list:third_party_subsidy"),
-            t("privacy_policy:methods_of_data_usage:list:platform_usage"),
-            t("privacy_policy:methods_of_data_usage:list:educate_partners"),
-            t("privacy_policy:methods_of_data_usage:list:communicate_with_you"),
-            t("privacy_policy:methods_of_data_usage:list:security_and_fraud_prevention"),
-            t("privacy_policy:methods_of_data_usage:list:comply_with_law"),
-          ]}
-        />
+        >
+          <PrivacyPolicySection
+            subsection="true"
+            title={t("privacy_policy_subsections:vendor_discounts:title")}
+            p={t("privacy_policy_subsections:vendor_discounts:paragraph")}
+          />
+          <PrivacyPolicySection
+            subsection="true"
+            title={t("privacy_policy_subsections:third_party_subsidy:title")}
+            p={t("privacy_policy_subsections:third_party_subsidy:paragraph")}
+          />
+          <PrivacyPolicySection
+            subsection="true"
+            title={t("privacy_policy_subsections:platform_usage:title")}
+            p={t("privacy_policy_subsections:platform_usage:paragraph")}
+          />
+          <PrivacyPolicySection
+            subsection="true"
+            title={t("privacy_policy_subsections:educate_partners:title")}
+            p={t("privacy_policy_subsections:educate_partners:paragraph")}
+          />
+          <PrivacyPolicySection
+            subsection="true"
+            title={t("privacy_policy_subsections:communicate_with_you:title")}
+            p={t("privacy_policy_subsections:communicate_with_you:paragraph")}
+          />
+          <PrivacyPolicySection
+            subsection="true"
+            title={t("privacy_policy_subsections:security_and_fraud_prevention:title")}
+            p={t("privacy_policy_subsections:security_and_fraud_prevention:paragraph")}
+          />
+          <PrivacyPolicySection
+            subsection="true"
+            title={t("privacy_policy_subsections:comply_with_law:title")}
+            p={md("privacy_policy_subsections:comply_with_law:paragraph_md")}
+          />
+        </PrivacyPolicySection>
         <PrivacyPolicySection
           id="cookiesPolicy"
           title={t("privacy_policy:cookies_policy:title")}
@@ -367,28 +382,87 @@ export default function PrivacyPolicy() {
           p={md("privacy_policy:contact_information:paragraph_md")}
         />
       </Container>
-    </>
+    </div>
   );
 }
 
-const PrivacyPolicySection = ({ id, title, p, img, list, subsection, children }) => {
+const TableOfContentsNav = ({ id, mobile, classes }) => {
+  mobile = Boolean(mobile);
+  const [expanded, setExpanded] = React.useState(!mobile || false);
   return (
-    <div
-      id={id}
-      className={clsx(!subsection ? "privacy-policy-section-top-padding" : "pt-3")}
-    >
-      {!subsection ? <h4>{title}</h4> : <h5 className="mt-3">{title}</h5>}
-      {img && <img src={img} alt={title} className="d-block mx-auto" />}
-      <p>{p}</p>
-      {list && (
-        <ul>
-          {list.map((b) => (
-            <li key={b}>{b}</li>
-          ))}
-        </ul>
+    <Navbar
+      className={clsx(
+        "pt-0 pb-0 border-secondary",
+        mobile && "border border-top-0",
+        classes
       )}
-      {children}
-    </div>
+      bg="light"
+      variant="light"
+      sticky="top"
+      collapseOnSelect={mobile && true}
+      expand={false}
+      expanded={expanded}
+      onToggle={() => setExpanded(!expanded)}
+    >
+      {mobile && (
+        <Container>
+          <Navbar.Toggle className={clsx(expanded && "expanded")}>
+            <div className="navbar-toggler-icon-bar bg-dark" />
+            <div className="navbar-toggler-icon-bar bg-dark" />
+            <div className="navbar-toggler-icon-bar bg-dark" />
+          </Navbar.Toggle>
+          <Navbar.Brand className="me-auto d-flex align-items-center">
+            {t("common:table_of_contents")}
+          </Navbar.Brand>
+        </Container>
+      )}
+      <Navbar.Collapse className={clsx(mobile && "table-of-contents-collapse")}>
+        <Container id={id} className="position-relative">
+          <Nav className="navbar-nav-scroll navbar-absolute">
+            <Nav.Link href="#overview" className="active">
+              {t("overview:title")}
+            </Nav.Link>
+            <NavDropdown.Divider />
+            <Nav.Link href="#informationCollected">
+              {t("privacy_policy:information_collected:title")}
+            </Nav.Link>
+            <Nav.Link href="#methodsOfCollection">
+              {t("privacy_policy:methods_of_collection:title")}
+            </Nav.Link>
+            <Nav.Link href="#methodsOfDataUsage">
+              {t("privacy_policy:methods_of_data_usage:title")}
+            </Nav.Link>
+            <Nav.Link href="#cookiesPolicy">
+              {t("privacy_policy:cookies_policy:title")}
+            </Nav.Link>
+            <Nav.Link href="#thirdPartyAccess">
+              {t("privacy_policy:third_party_access:title")}
+            </Nav.Link>
+            <Nav.Link href="#dataRetentionAndRemoval">
+              {t("privacy_policy:data_retention_and_removal:title")}
+            </Nav.Link>
+            <Nav.Link href="#businessTransfer">
+              {t("privacy_policy:business_transfer:title")}
+            </Nav.Link>
+            <Nav.Link href="#childrenUnder13">
+              {t("privacy_policy:children_under_13:title")}
+            </Nav.Link>
+            <Nav.Link href="#communication">
+              {t("privacy_policy:communication:title")}
+            </Nav.Link>
+            <Nav.Link href="#futureChangesToPolicy">
+              {t("privacy_policy:future_changes_to_policy:title")}
+            </Nav.Link>
+            <Nav.Link href="#disputeResolution">
+              {t("privacy_policy:dispute_resolution:title")}
+            </Nav.Link>
+            <Nav.Link href="#contactInformation">
+              {t("privacy_policy:contact_information:title")}
+            </Nav.Link>
+          </Nav>
+        </Container>
+      </Navbar.Collapse>
+    </Navbar>
   );
 };
 
@@ -400,12 +474,12 @@ const TabLink = ({ to, label, title }) => {
   );
 };
 
-const PedalCol = ({ heading, paragraph, img, right }) => {
+const PedalCol = ({ heading, paragraph, img, right, mobile }) => {
   return (
-    <Col>
+    <Col xs={12} className={clsx(!mobile && "col-xl-6")}>
       <Stack direction="horizontal" gap={3} className="align-items-start">
         <div className="mt-4">
-          <h6>{heading}</h6>
+          <h5>{heading}</h5>
           <p className="fw-light">{paragraph}</p>
         </div>
         <img src={img} alt={heading} className={right && "order-first"} />
