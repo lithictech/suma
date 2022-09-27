@@ -33,26 +33,28 @@ import { Link } from "react-router-dom";
 export default function PrivacyPolicyContent({ mobile }) {
   mobile = Boolean(mobile);
   const [i18nextLoading, setI18NextLoading] = React.useState(true);
-
   const PrivacyPolicySection = ({ id, title, p, img, list, subsection, children }) => {
     return (
       <div
         id={id}
-        className={clsx(!subsection ? "privacy-policy-section-top-padding" : "pt-3", !mobile && !subsection && "mx-lg-5")}
+        className={clsx(
+          !subsection ? "privacy-policy-section-top-padding" : "pt-3",
+          !mobile && !subsection && "mx-lg-5"
+        )}
       >
         {!subsection ? <h3>{title}</h3> : <h5 className="mt-3">{title}</h5>}
         {img && (
           <img
             src={img}
             alt={title}
-            className={clsx("d-block mx-auto", !mobile && "float-xl-end")}
+            className={clsx("d-block mx-auto", !mobile && "float-md-end")}
           />
         )}
         <p>{p}</p>
         {list && (
           <ul>
-            {list.map((b) => (
-              <li key={b}>{b}</li>
+            {list.map((b, idx) => (
+              <li key={idx + title}>{b}</li>
             ))}
           </ul>
         )}
@@ -66,10 +68,20 @@ export default function PrivacyPolicyContent({ mobile }) {
     Promise.delayOr(500, i18n.loadNamespaces("privacy-policy-strings")).then(() => {
       setI18NextLoading(false);
       // initialize top navigation BS scrollspy
-      new ScrollSpy(document.body, { target: "#mobile-scrollspy", offset: 20 });
-      new ScrollSpy(document.body, { target: "#desktop-scrollspy", offset: 10 });
+      new ScrollSpy(document.body, {
+        target: "#mobile-scrollspy",
+        smoothScroll: true,
+        rootMargin: "0px 0px -75%",
+      });
+      if (!mobile) {
+        new ScrollSpy(document.body, {
+          target: "#desktop-scrollspy",
+          smoothScroll: true,
+          rootMargin: "0px 0px -75%",
+        });
+      }
     });
-  }, []);
+  }, [mobile]);
 
   if (i18nextLoading) {
     return <ScreenLoader show />;
@@ -78,8 +90,7 @@ export default function PrivacyPolicyContent({ mobile }) {
     <div
       className={clsx(
         "bg-light mx-auto",
-        !mobile &&
-          "privacy-policy-desktop-container d-flex flex-column flex-xl-row"
+        !mobile && "privacy-policy-desktop-container d-flex flex-column flex-xl-row"
       )}
     >
       <Helmet>
@@ -101,77 +112,79 @@ export default function PrivacyPolicyContent({ mobile }) {
         className={clsx("position-relative", !mobile && "privacy-policy-desktop")}
         tabIndex="0"
       >
-        <SpanishTranslatorButton id="overview" />
-        <Row>
-          <Col xs={12} className={clsx(!mobile && "col-md-8")}>
-            <h1 className="display-4">{t("overview:title")}</h1>
-            <p className="fw-light">{t("overview:intro")}</p>
-            <p className="pt-2">
-              <a href="#privacy-policy-title">
-                <i>{t("overview:jump_to_privacy_policy")}</i>
-              </a>
-            </p>
-          </Col>
-          <Col xs={12} className={clsx("pt-3", !mobile && "col-md-4")}>
-            <Stack gap={3}>
-              <TabLink
-                label={t("overview:faq:label")}
-                title={t("overview:faq:title")}
-                to="/frequently-asked-questions"
-              />
-              <TabLink
-                label={t("overview:contact_us")}
-                title={t("overview:contact_us")}
-                to="/contact-us"
-              />
-            </Stack>
-          </Col>
-        </Row>
-        <Container
-          className={clsx(
-            "community-driven-container-radius border border-1 border-dark bg-white my-5 p-4",
-            !mobile && "px-xl-5"
-          )}
-        >
+        <div id="overview">
+          <SpanishTranslatorButton />
           <Row>
-            <Col xs={12} className={clsx(!mobile && "col-xl-5 align-self-xl-center")}>
-              <h1 className="display-5">{t("overview:community_driven_title")}</h1>
+            <Col xs={12} className={clsx(!mobile && "col-md-8")}>
+              <h1 className="display-4">{t("overview:title")}</h1>
+              <p className="fw-light">{t("overview:intro")}</p>
+              <p className="pt-2">
+                <a href="#privacy-policy-title">
+                  <i>{t("overview:jump_to_privacy_policy")}</i>
+                </a>
+              </p>
             </Col>
-            <Col xs={12} className={clsx(!mobile && "col-xl-7")}>
-              {t("overview:community_driven_intro")}
+            <Col xs={12} className={clsx("pt-3", !mobile && "col-md-4")}>
+              <Stack gap={3}>
+                <TabLink
+                  label={t("overview:faq:label")}
+                  title={t("overview:faq:title")}
+                  to="/frequently-asked-questions"
+                />
+                <TabLink
+                  label={t("overview:contact_us")}
+                  title={t("overview:contact_us")}
+                  to="/contact-us"
+                />
+              </Stack>
             </Col>
           </Row>
-        </Container>
-        <Row>
-          <PedalCol
-            mobile={mobile}
-            heading={t("overview:transparency_title")}
-            paragraph={t("overview:transparency_statement")}
-            img={transparencyIconTest}
-          />
-          <PedalCol
-            mobile={mobile}
-            heading={t("overview:consent_title")}
-            paragraph={t("overview:consent_statement")}
-            img={transparencyIconTest}
-            right={true}
-          />
-        </Row>
-        <Row className="mt-2">
-          <PedalCol
-            mobile={mobile}
-            heading={t("overview:education_title")}
-            paragraph={t("overview:education_statement")}
-            img={transparencyIconTest}
-          />
-          <PedalCol
-            mobile={mobile}
-            heading={t("overview:trust_title")}
-            paragraph={t("overview:trust_statement")}
-            img={transparencyIconTest}
-            right={true}
-          />
-        </Row>
+          <Container
+            className={clsx(
+              "community-driven-container-radius border border-1 border-dark bg-white my-5 p-4",
+              !mobile && "px-xl-5"
+            )}
+          >
+            <Row>
+              <Col xs={12} className={clsx(!mobile && "col-xl-5 align-self-xl-center")}>
+                <h1 className="display-5">{t("overview:community_driven_title")}</h1>
+              </Col>
+              <Col xs={12} className={clsx(!mobile && "col-xl-7")}>
+                {t("overview:community_driven_intro")}
+              </Col>
+            </Row>
+          </Container>
+          <Row>
+            <PedalCol
+              mobile={mobile}
+              heading={t("overview:transparency_title")}
+              paragraph={t("overview:transparency_statement")}
+              img={transparencyIconTest}
+            />
+            <PedalCol
+              mobile={mobile}
+              heading={t("overview:consent_title")}
+              paragraph={t("overview:consent_statement")}
+              img={transparencyIconTest}
+              right={true}
+            />
+          </Row>
+          <Row className="mt-2">
+            <PedalCol
+              mobile={mobile}
+              heading={t("overview:education_title")}
+              paragraph={t("overview:education_statement")}
+              img={transparencyIconTest}
+            />
+            <PedalCol
+              mobile={mobile}
+              heading={t("overview:trust_title")}
+              paragraph={t("overview:trust_statement")}
+              img={transparencyIconTest}
+              right={true}
+            />
+          </Row>
+        </div>
         <hr className="mt-5" />
         <h1
           id="privacy-policy-title"
@@ -415,7 +428,9 @@ const TableOfContentsNav = ({ id, mobile, classes }) => {
           </Navbar.Brand>
         </Container>
       )}
-      <Navbar.Collapse className={clsx("bg-light",mobile && "table-of-contents-collapse")}>
+      <Navbar.Collapse
+        className={clsx("bg-light", mobile && "table-of-contents-collapse")}
+      >
         <Container id={id} className="position-relative">
           <Nav className="navbar-nav-scroll navbar-absolute">
             <Nav.Link href="#overview" className="active">
@@ -476,7 +491,14 @@ const TabLink = ({ to, label, title }) => {
 const PedalCol = ({ heading, paragraph, img, right, mobile }) => {
   return (
     <Col xs={12} className={clsx(!mobile && "col-xl-6")}>
-      <Stack direction="horizontal" gap={3} className={clsx("align-items-start justify-content-center", !mobile && "mx-lg-5 mx-xl-0")}>
+      <Stack
+        direction="horizontal"
+        gap={3}
+        className={clsx(
+          "align-items-start justify-content-center",
+          !mobile && "mx-lg-5 mx-xl-0"
+        )}
+      >
         <div className="mt-4">
           <h5>{heading}</h5>
           <p className="fw-light">{paragraph}</p>
@@ -487,10 +509,10 @@ const PedalCol = ({ heading, paragraph, img, right, mobile }) => {
   );
 };
 
-const SpanishTranslatorButton = ({ id }) => {
+const SpanishTranslatorButton = () => {
   const { language, changeLanguage } = useI18Next();
   return (
-    <div id={id} className="d-flex justify-content-end">
+    <div className="d-flex justify-content-end">
       {language !== "en" ? (
         <Button
           variant="link"
