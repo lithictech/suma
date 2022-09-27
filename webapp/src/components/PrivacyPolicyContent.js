@@ -38,7 +38,7 @@ export default function PrivacyPolicyContent({ mobile }) {
     return (
       <div
         id={id}
-        className={clsx(!subsection ? "privacy-policy-section-top-padding" : "pt-3")}
+        className={clsx(!subsection ? "privacy-policy-section-top-padding" : "pt-3", !mobile && !subsection && "mx-lg-5")}
       >
         {!subsection ? <h3>{title}</h3> : <h5 className="mt-3">{title}</h5>}
         {img && (
@@ -79,9 +79,8 @@ export default function PrivacyPolicyContent({ mobile }) {
       className={clsx(
         "bg-light mx-auto",
         !mobile &&
-          "d-flex flex-column flex-xl-row border-secondary border-start border-end"
+          "privacy-policy-desktop-container d-flex flex-column flex-xl-row"
       )}
-      style={{ maxWidth: "1600px" }}
     >
       <Helmet>
         <title>{`${t("privacy_policy:title")} | ${i18n.t(
@@ -89,7 +88,7 @@ export default function PrivacyPolicyContent({ mobile }) {
         )}`}</title>
       </Helmet>
       {!mobile && (
-        <Col className="table-of-contents-desktop d-none d-xl-block border-secondary border-end order-end navbar-bg">
+        <Col className="table-of-contents-desktop d-none d-xl-block border-secondary border-end order-end">
           <TableOfContentsNav id="desktop-scrollspy" />
         </Col>
       )}
@@ -104,7 +103,7 @@ export default function PrivacyPolicyContent({ mobile }) {
       >
         <SpanishTranslatorButton id="overview" />
         <Row>
-          <Col xs={12} className={clsx(!mobile && "col-xl-8")}>
+          <Col xs={12} className={clsx(!mobile && "col-md-8")}>
             <h1 className="display-4">{t("overview:title")}</h1>
             <p className="fw-light">{t("overview:intro")}</p>
             <p className="pt-2">
@@ -113,7 +112,7 @@ export default function PrivacyPolicyContent({ mobile }) {
               </a>
             </p>
           </Col>
-          <Col xs={12} className={clsx("pt-3", !mobile && "col-xl-4")}>
+          <Col xs={12} className={clsx("pt-3", !mobile && "col-md-4")}>
             <Stack gap={3}>
               <TabLink
                 label={t("overview:faq:label")}
@@ -416,7 +415,7 @@ const TableOfContentsNav = ({ id, mobile, classes }) => {
           </Navbar.Brand>
         </Container>
       )}
-      <Navbar.Collapse className={clsx(mobile && "table-of-contents-collapse")}>
+      <Navbar.Collapse className={clsx("bg-light",mobile && "table-of-contents-collapse")}>
         <Container id={id} className="position-relative">
           <Nav className="navbar-nav-scroll navbar-absolute">
             <Nav.Link href="#overview" className="active">
@@ -477,7 +476,7 @@ const TabLink = ({ to, label, title }) => {
 const PedalCol = ({ heading, paragraph, img, right, mobile }) => {
   return (
     <Col xs={12} className={clsx(!mobile && "col-xl-6")}>
-      <Stack direction="horizontal" gap={3} className="align-items-start">
+      <Stack direction="horizontal" gap={3} className={clsx("align-items-start justify-content-center", !mobile && "mx-lg-5 mx-xl-0")}>
         <div className="mt-4">
           <h5>{heading}</h5>
           <p className="fw-light">{paragraph}</p>
