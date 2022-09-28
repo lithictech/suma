@@ -20,27 +20,6 @@ module Suma::API
         helpers Suma::Service::Helpers
 
         helpers do
-          def verified_member!
-            c = current_member
-            forbidden! unless c.phone_verified?
-            return c
-          end
-
-          def unsafe_member_lookup(forbid: false)
-            if (token = params["token"]).present?
-              c = Suma::Member[opaque_id: token]
-            elsif (email = params[:lookup_email]).present?
-              c = Suma::Member.with_email(email.strip)
-            end
-            forbidden! if forbid && c.nil?
-            return c
-          end
-
-          params :unsafe_member_lookup do
-            optional :lookup_email, type: String
-            optional :token, type: String
-          end
-
           # Set the Suma-Current-Member header to a base64 encoded version
           # of the current member entity.
           #

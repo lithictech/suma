@@ -2,7 +2,7 @@ import api from "../api";
 import FormButtons from "../components/FormButtons";
 import FormError from "../components/FormError";
 import FormSuccess from "../components/FormSuccess";
-import { t } from "../localization";
+import { md, t } from "../localization";
 import { dayjs } from "../modules/dayConfig";
 import useToggle from "../shared/react/useToggle";
 import { extractErrorCode, useError } from "../state/useError";
@@ -22,6 +22,7 @@ const OneTimePassword = () => {
   const [message, setMessage] = useState();
   const { state } = useLocation();
   const phoneNumber = state ? state.phoneNumber : undefined;
+  const requireTerms = state ? state.requiresTermsAgreement : true;
 
   React.useEffect(() => {
     if (!phoneNumber) {
@@ -56,7 +57,7 @@ const OneTimePassword = () => {
     submitDisabled.turnOn();
     setError();
     api
-      .authVerify({ phone: phoneNumber, token: otp.join("") })
+      .authVerify({ phone: phoneNumber, token: otp.join(""), termsAgreed: true })
       .then((r) => {
         setUser(r.data);
         if (r.data.onboarded) {
@@ -135,6 +136,7 @@ const OneTimePassword = () => {
             {t("otp:send_new_code")}
           </Button>
         </p>
+        {requireTerms && <p className="w-75 text-center m-auto">{md("otp:terms_md")}</p>}
         <FormButtons
           back
           primaryProps={{

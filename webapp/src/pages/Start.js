@@ -46,7 +46,11 @@ export default function Start() {
         phone: phoneNumber,
         timezone: dayjs.tz.guess(),
       })
-      .then(() => navigate("/one-time-password", { state: { phoneNumber } }))
+      .then((r) =>
+        navigate("/one-time-password", {
+          state: { phoneNumber, requiresTermsAgreement: r.data.requiresTermsAgreement },
+        })
+      )
       .catch((err) => {
         setError(extractErrorCode(err));
         validated.turnOff();

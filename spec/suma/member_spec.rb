@@ -232,4 +232,20 @@ RSpec.describe "Suma::Member", :db do
       expect(c.display_email).to eq("x@y.com")
     end
   end
+
+  describe "requires_terms_agreement?" do
+    it "is true if no terms are accepted" do
+      expect(Suma::Fixtures.member.instance).to be_requires_terms_agreement
+    end
+
+    it "is true if the accepted terms date is before the latest one" do
+      expect(Suma::Fixtures.member(terms_agreed: Date.new(1900, 1, 1)).instance).to be_requires_terms_agreement
+    end
+
+    it "is false if the accepted terms date is on or after the latest one" do
+      expect(Suma::Fixtures.member(terms_agreed: Date.new(2300, 1, 1)).instance).to_not be_requires_terms_agreement
+      date = described_class::LATEST_TERMS_PUBLISH_DATE
+      expect(Suma::Fixtures.member(terms_agreed: date).instance).to_not be_requires_terms_agreement
+    end
+  end
 end
