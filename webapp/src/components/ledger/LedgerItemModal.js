@@ -1,5 +1,5 @@
 import { t } from "../../localization";
-import Money from "../Money";
+import Money from "../../shared/react/Money";
 import clsx from "clsx";
 import dayjs from "dayjs";
 import _ from "lodash";

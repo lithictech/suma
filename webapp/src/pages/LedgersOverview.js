@@ -1,10 +1,10 @@
 import api from "../api";
 import ForwardBackPagination from "../components/ForwardBackPagination";
 import LinearBreadcrumbs from "../components/LinearBreadcrumbs";
-import Money from "../components/Money";
 import PageLoader from "../components/PageLoader";
 import LedgerItemModal from "../components/ledger/LedgerItemModal";
 import { t } from "../localization";
+import Money from "../shared/react/Money";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
 import useHashSelector from "../shared/react/useHashSelector";
 import useListQueryControls from "../shared/react/useListQueryControls";
