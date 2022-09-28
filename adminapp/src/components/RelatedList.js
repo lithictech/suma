@@ -4,7 +4,10 @@ import Typography from "@mui/material/Typography";
 import _ from "lodash";
 import React from "react";
 
-export default function RelatedList({ title, tableProps, ...rest }) {
+export default function RelatedList({ title, tableProps, rows, ...rest }) {
+  if (_.isEmpty(rows)) {
+    return null;
+  }
   tableProps = _.merge({ size: "small" }, tableProps);
   return (
     <Box mt={5}>
@@ -13,7 +16,7 @@ export default function RelatedList({ title, tableProps, ...rest }) {
           {title}
         </Typography>
       )}
-      <SimpleTable tableProps={tableProps} {...rest} />
+      <SimpleTable tableProps={tableProps} rows={rows} {...rest} />
     </Box>
   );
 }

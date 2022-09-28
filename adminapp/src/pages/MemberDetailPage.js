@@ -1,9 +1,11 @@
 import api from "../api";
+import BoolCheckmark from "../components/BoolCheckmark";
 import DetailGrid from "../components/DetailGrid";
 import RelatedList from "../components/RelatedList";
 import useErrorSnackbar from "../hooks/useErrorSnackbar";
 import { useUser } from "../hooks/user";
 import { dayjs } from "../modules/dayConfig";
+import SafeExternalLink from "../shared/react/SafeExternalLink";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
 import { Divider, CircularProgress, Typography, Chip } from "@mui/material";
 import Button from "@mui/material/Button";
@@ -68,7 +70,9 @@ export default function MemberDetailPage() {
             ]}
           />
           <LegalEntity {...member.legalEntity} />
-          <ActivityList activities={member.activities} />
+          <Activities activities={member.activities} />
+          <Sessions sessions={member.sessions} />
+          <ResetCodes resetCodes={member.resetCodes} />
         </div>
       )}
     </>
@@ -100,10 +104,7 @@ function LegalEntity({ address }) {
   );
 }
 
-function ActivityList({ activities }) {
-  if (_.isEmpty(activities)) {
-    return null;
-  }
+function Activities({ activities }) {
   return (
     <RelatedList
       title="Activities"
@@ -115,6 +116,39 @@ function ActivityList({ activities }) {
         <span key="msg">
           {row.messageName} / <code>{JSON.stringify(row.messageVars)}</code>
         </span>,
+      ]}
+    />
+  );
+}
+
+function ResetCodes({ resetCodes }) {
+  return (
+    <RelatedList
+      title="Login Codes"
+      headers={["Sent", "Expires", "Token", "Used"]}
+      rows={resetCodes}
+      toCells={(row) => [
+        dayjs(row.createdAt).format("lll"),
+        dayjs(row.expireAt).format("lll"),
+        row.token,
+        <BoolCheckmark key={4}>{row.used}</BoolCheckmark>,
+      ]}
+    />
+  );
+}
+
+function Sessions({ sessions }) {
+  return (
+    <RelatedList
+      title="Sessions"
+      headers={["Started", "IP", "User Agent"]}
+      rows={sessions}
+      toCells={(row) => [
+        dayjs(row.createdAt).format("lll"),
+        <SafeExternalLink key={2} href={row.ipLookupLink}>
+          {row.peerIp}
+        </SafeExternalLink>,
+        row.userAgent,
       ]}
     />
   );
