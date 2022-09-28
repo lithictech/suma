@@ -99,8 +99,11 @@ RSpec.describe Suma::AdminAPI::Members, :db do
       expect(last_response).to have_status(403)
     end
 
-    it "represents sessions" do
+    it "represents detailed info" do
       Suma::Fixtures.session(member: admin, peer_ip: "1.2.3.4").create
+      cash_ledger = Suma::Fixtures.ledger.member(admin).category(:cash).create
+      charge1 = Suma::Fixtures.charge(member: admin).create
+      charge1.add_book_transaction(Suma::Fixtures.book_transaction.from(cash_ledger).create)
 
       get "/v1/members/#{admin.id}"
 
@@ -160,30 +163,6 @@ RSpec.describe Suma::AdminAPI::Members, :db do
 
       expect(last_response).to have_status(200)
       expect(Suma::Member.last.activities).to contain_exactly(have_attributes(message_name: "accountclosed"))
-    end
-  end
-
-  describe "GET /v1/members/:id/bank_accounts" do
-    it "returns member bank accounts" do
-      c = Suma::Fixtures.member.create
-      o = Suma::Fixtures.bank_account.member(c).create
-
-      get "/v1/members/#{c.id}/bank_accounts"
-
-      expect(last_response).to have_status(200)
-      expect(last_response).to have_json_body.that_includes(items: have_same_ids_as(o))
-    end
-  end
-
-  describe "GET /v1/members/:id/payment_instruments" do
-    it "returns member bank accounts" do
-      c = Suma::Fixtures.member.create
-      o1 = Suma::Fixtures.bank_account.member(c).create
-
-      get "/v1/members/#{c.id}/payment_instruments"
-
-      expect(last_response).to have_status(200)
-      expect(last_response).to have_json_body.that_includes(items: have_same_ids_as(o1).ordered)
     end
   end
 end

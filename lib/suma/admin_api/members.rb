@@ -82,16 +82,6 @@ class Suma::AdminAPI::Members < Suma::AdminAPI::V1
         status 200
         present member, with: DetailedMemberEntity
       end
-
-      get :bank_accounts do
-        member = lookup_member!
-        present_collection member.bank_accounts, with: BankAccountEntity
-      end
-
-      get :payment_instruments do
-        member = lookup_member!
-        present_collection member.bank_accounts, with: PaymentInstrumentEntity
-      end
     end
   end
 
@@ -133,9 +123,14 @@ class Suma::AdminAPI::Members < Suma::AdminAPI::V1
     expose :available_roles do |_|
       Suma::Role.order(:name).select_map(:name)
     end
+
     expose :legal_entity, with: LegalEntityEntity
+    expose :payment_account, with: DetailedPaymentAccountEntity
+
     expose :activities, with: MemberActivityEntity
     expose :reset_codes, with: MemberResetCodeEntity
     expose :sessions, with: MemberSessionEntity
+    expose :bank_accounts, with: PaymentInstrumentEntity
+    expose :charges, with: ChargeEntity
   end
 end
