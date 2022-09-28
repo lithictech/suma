@@ -6,6 +6,7 @@ import signOut from "../modules/signOut";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
 import useOnlineStatus from "../state/useOnlineStatus";
 import { useUser } from "../state/useUser";
+import ExternalLink from "./ExternalLink";
 import RLink from "./RLink";
 import clsx from "clsx";
 import i18next from "i18next";
@@ -13,6 +14,7 @@ import React from "react";
 import Button from "react-bootstrap/Button";
 import Container from "react-bootstrap/Container";
 import Navbar from "react-bootstrap/Navbar";
+import { Link } from "react-router-dom";
 
 export default function TopNav() {
   const { isOnline } = useOnlineStatus();
@@ -77,6 +79,7 @@ export default function TopNav() {
                   {t("common:logout")}
                 </Button>
               )}
+              <NavFooter />
             </div>
           </div>
         </Container>
@@ -104,4 +107,42 @@ function LanguageButtons() {
       {native}
     </Button>
   ));
+}
+
+function NavFooter() {
+  const rowCls = "mb-1 text-center";
+  const linkCls = "text-decoration-none";
+  const iconStyle = { fontSize: "140%" };
+  return (
+    <>
+      <div className="d-flex flex-column mt-4">
+        <div className={clsx("text-primary", rowCls)}>
+          &copy; {new Date().getFullYear()} mysuma.org
+        </div>
+        <div className="d-flex flex-row justify-content-center">
+          <ExternalLink href="https://twitter.com/sumapdx">
+            <i className="bi bi-twitter me-3" style={iconStyle}></i>
+          </ExternalLink>
+          <ExternalLink href="https://www.linkedin.com/company/mysuma/">
+            <i className="bi bi-linkedin" style={iconStyle}></i>
+          </ExternalLink>
+        </div>
+      </div>
+      <div className={rowCls}>
+        <Link to="/user-agreement" className={linkCls}>
+          {t("common:user_agreement")}
+        </Link>
+      </div>
+      <div className={rowCls}>
+        <Link to="/privacy-policy" className={linkCls}>
+          {t("common:privacy_policy")}
+        </Link>
+      </div>
+      <div className={rowCls}>
+        <a href="mailto:apphelp@mysuma.org" className={linkCls}>
+          {t("common:contact_us")}
+        </a>
+      </div>
+    </>
+  );
 }
