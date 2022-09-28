@@ -142,6 +142,7 @@
     "enter_code": "Enter code ",
     "enter_code_sent_to": "Enter the code that we sent to",
     "send_new_code": "Send a new code",
+    "terms_md": "By creating an account or signing in, you accept and agree to our [User Agreement](/user-agreement).",
     "verify": "Verify",
     "verify_code": "Verify Code"
   },
