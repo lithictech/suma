@@ -17,6 +17,10 @@ class Suma::Vendor < Suma::Postgres::Model(:vendors)
     super
     self.payment_account ||= Suma::Payment::Account.create(vendor: self)
   end
+
+  def admin_link
+    return "/admin/vendor/#{self.id}"
+  end
 end
 
 # Table: vendors

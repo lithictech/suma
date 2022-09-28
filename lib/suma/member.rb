@@ -107,6 +107,10 @@ class Suma::Member < Suma::Postgres::Model(:members)
     return self.name.blank? ? "there" : self.name
   end
 
+  def admin_link
+    return "/admin/member/#{self.id}"
+  end
+
   def onboarded?
     return self.name.present? && self.legal_entity.address_id.present?
   end

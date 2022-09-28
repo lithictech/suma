@@ -21,6 +21,8 @@ class Suma::Payment::BookTransaction < Suma::Postgres::Model(:payment_book_trans
     self.opaque_id ||= Suma::Secureid.new_opaque_id("bx")
   end
 
+  def admin_link = "/admin/book_transaction/#{self.id}"
+
   # Return a copy of the receiver, but with id removed, and amount set to be positive or negative
   # based on whether the receiver is the originating or receiving ledger.
   # This is used in places we need to represent book transactions

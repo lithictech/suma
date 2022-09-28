@@ -6,6 +6,7 @@ require "suma/state_machine"
 
 class Suma::Payment::FundingTransaction < Suma::Postgres::Model(:payment_funding_transactions)
   include Appydays::Configurable
+  include Suma::ExternalLinks
 
   class CollectFundsFailed < Suma::StateMachine::FailedTransition; end
   class StrategyUnavailable < Suma::Payment::Error; end
@@ -81,6 +82,12 @@ class Suma::Payment::FundingTransaction < Suma::Postgres::Model(:payment_funding
       xaction.save_changes
       return xaction
     end
+  end
+
+  def admin_link = "/admin/funding_transaction/#{self.id}"
+
+  def _external_links_self
+    return [self.strategy]
   end
 
   # @return [Suma::Payment::FundingTransaction::Strategy]
