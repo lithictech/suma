@@ -39,6 +39,18 @@ class Suma::Payment::Account < Suma::Postgres::Model(:payment_accounts)
     end
   end
 
+  def platform_account? = self.is_platform_account
+
+  def admin_link
+    return "/admin/payment-accounts/platform" if self.platform_account?
+    return self.member&.admin_link || self.vendor&.admin_link || "/admin/payment-accounts/#{self.id}"
+  end
+
+  def display_name
+    return "Suma Platform" if self.platform_account?
+    return self.member&.name || self.vendor&.name || "Payment Account #{self.id}"
+  end
+
   def total_balance
     return self.ledgers.sum(Money.new(0), &:balance)
   end
