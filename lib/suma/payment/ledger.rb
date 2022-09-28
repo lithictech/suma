@@ -13,7 +13,29 @@ class Suma::Payment::Ledger < Suma::Postgres::Model(:payment_ledgers)
                right_key: :category_id
   one_to_many :originated_book_transactions, class: "Suma::Payment::BookTransaction", key: :originating_ledger_id
   one_to_many :received_book_transactions, class: "Suma::Payment::BookTransaction", key: :receiving_ledger_id
-  one_to_many :combined_book_transactions, class: "Suma::Payment::BookTransaction", readonly: true do |_ds|
+  one_to_many :combined_book_transactions,
+              class: "Suma::Payment::BookTransaction",
+              readonly: true,
+              eager_loader: (lambda do |eo|
+                # Custom eager loader because we need to check 2 FKs for an ID, not just one.
+                assocs_by_ledger_id = {}
+                eo[:rows].each do |r|
+                  arr = []
+                  assocs_by_ledger_id[r.id] = arr
+                  r.associations[:combined_book_transactions] = arr
+                end
+                ids = eo[:id_map].keys
+                Suma::Payment::BookTransaction.
+                  where(Sequel[originating_ledger_id: ids] | Sequel[receiving_ledger_id: ids]).
+                  order(Sequel.desc(:apply_at), Sequel.desc(:id)).all do |bt|
+                  [:originating_ledger_id, :receiving_ledger_id].each do |k|
+                    arr = assocs_by_ledger_id[bt[k]]
+                    arr << bt if arr
+                  end
+                end
+                assocs_by_ledger_id.each_value(&:uniq!)
+              end) do |_ds|
+    # Custom block for when we aren't using eager loading
     Suma::Payment::BookTransaction.
       where(Sequel[originating_ledger_id: id] | Sequel[receiving_ledger_id: id]).
       order(Sequel.desc(:apply_at), Sequel.desc(:id))

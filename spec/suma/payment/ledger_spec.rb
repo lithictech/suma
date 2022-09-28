@@ -9,9 +9,12 @@ RSpec.describe "Suma::Payment::Ledger", :db do
       Suma::Fixtures.book_transaction.create
       orig = Suma::Fixtures.book_transaction.from(ledger).create
       recip = Suma::Fixtures.book_transaction.to(ledger).create
-      expect(ledger.originated_book_transactions).to have_same_ids_as(orig)
-      expect(ledger.received_book_transactions).to have_same_ids_as(recip)
-      expect(ledger.combined_book_transactions).to have_same_ids_as(orig, recip)
+      self_x = Suma::Fixtures.book_transaction.from(ledger).to(ledger).create
+      expect(ledger.originated_book_transactions).to have_same_ids_as(orig, self_x)
+      expect(ledger.received_book_transactions).to have_same_ids_as(recip, self_x)
+      expect(ledger.combined_book_transactions).to have_same_ids_as(orig, recip, self_x)
+      # Test custom eager loader
+      expect(ledger.account.ledgers.first.combined_book_transactions).to have_same_ids_as(orig, recip, self_x)
     end
   end
 
