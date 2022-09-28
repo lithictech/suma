@@ -6,6 +6,8 @@ require "suma/api"
 require "suma/member/dashboard"
 
 class Suma::API::Me < Suma::API::V1
+  include Suma::API::Entities
+
   resource :me do
     desc "Return the current member"
     get do
@@ -14,7 +16,7 @@ class Suma::API::Me < Suma::API::V1
         # Add this as a way to backfill sessions for users that last authed before we had them.
         member.add_session(**Suma::Member::Session.params_for_request(request))
       end
-      present member, with: Suma::API::CurrentMemberEntity, env:
+      present member, with: CurrentMemberEntity, env:
     end
 
     desc "Update supported fields on the member"
@@ -35,12 +37,12 @@ class Suma::API::Me < Suma::API::V1
         end
       end
       status 200
-      present member, with: Suma::API::CurrentMemberEntity, env:
+      present member, with: CurrentMemberEntity, env:
     end
 
     get :dashboard do
       d = Suma::Member::Dashboard.new(current_member)
-      present d, with: Suma::API::MemberDashboardEntity
+      present d, with: MemberDashboardEntity
     end
 
     params do
@@ -52,7 +54,14 @@ class Suma::API::Me < Suma::API::V1
         insert_conflict.
         insert(member_id: member.id, key: "waitlist_#{params[:feature]}")
       status 200
-      present member, with: Suma::API::CurrentMemberEntity, env:
+      present member, with: CurrentMemberEntity, env:
     end
+  end
+
+  class MemberDashboardEntity < BaseEntity
+    include Suma::API::Entities
+    expose :payment_account_balance, with: MoneyEntity
+    expose :lifetime_savings, with: MoneyEntity
+    expose :ledger_lines, with: LedgerLineEntity
   end
 end

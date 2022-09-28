@@ -6,6 +6,7 @@ require "suma/api"
 
 class Suma::API::Mobility < Suma::API::V1
   include Suma::Service::Types
+  include Suma::API::Entities
 
   resource :mobility do
     desc "Return all mobility vehicles fitting the requested parameters."
@@ -54,7 +55,7 @@ class Suma::API::Mobility < Suma::API::V1
         arr << vhash
       end
       map_obj[:providers] = vnd_services
-      present map_obj, with: Suma::API::MobilityMapEntity
+      present map_obj, with: MobilityMapEntity
     end
 
     desc "Return restrictions and other map features."
@@ -69,7 +70,7 @@ class Suma::API::Mobility < Suma::API::V1
       ds = Suma::Mobility::RestrictedArea.intersecting(ne: [max_lat, max_lng], sw: [min_lat, min_lng])
       ds = ds.order(:id)
       result = {restrictions: ds.all}
-      present result, with: Suma::API::MobilityMapFeaturesEntity
+      present result, with: MobilityMapFeaturesEntity
     end
 
     params do
@@ -96,7 +97,7 @@ class Suma::API::Mobility < Suma::API::V1
       else
         vehicle = matches[0]
       end
-      present vehicle, with: Suma::API::MobilityVehicleEntity
+      present vehicle, with: MobilityVehicleEntity
     end
 
     params do
@@ -120,7 +121,7 @@ class Suma::API::Mobility < Suma::API::V1
       end
       add_current_member_header
       status 200
-      present trip, with: Suma::API::MobilityTripEntity
+      present trip, with: MobilityTripEntity
     end
 
     params do
@@ -134,7 +135,47 @@ class Suma::API::Mobility < Suma::API::V1
       trip.end_trip(lat: params[:lat], lng: params[:lng])
       add_current_member_header
       status 200
-      present trip, with: Suma::API::MobilityTripEntity
+      present trip, with: MobilityTripEntity
     end
+  end
+
+  class MobilityMapVehicleEntity < BaseEntity
+    expose :c
+    expose :p
+    expose :d, expose_nil: false
+  end
+
+  class MobilityMapEntity < BaseEntity
+    include Suma::API::Entities
+    expose :precision do |_|
+      Suma::Mobility::COORD2INT_FACTOR
+    end
+    expose :refresh do |_|
+      30_000
+    end
+    expose :providers, with: VendorServiceEntity
+    expose :escooter, with: MobilityMapVehicleEntity, expose_nil: false
+    expose :ebike, with: MobilityMapVehicleEntity, expose_nil: false
+  end
+
+  class MobilityMapRestrictionEntity < BaseEntity
+    expose :restriction
+    expose :polygon_numeric, as: :polygon
+    expose :bounds_numeric, as: :bounds
+  end
+
+  class MobilityMapFeaturesEntity < BaseEntity
+    expose :restrictions, with: MobilityMapRestrictionEntity
+  end
+
+  class MobilityVehicleEntity < BaseEntity
+    include Suma::API::Entities
+    expose :precision do |_|
+      Suma::Mobility::COORD2INT_FACTOR
+    end
+    expose :vendor_service, with: VendorServiceEntity
+    expose :vehicle_id
+    expose :to_api_location, as: :loc
+    expose :rate, with: VendorServiceRateEntity, &self.delegate_to(:vendor_service, :one_rate)
   end
 end

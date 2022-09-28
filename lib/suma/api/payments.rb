@@ -6,6 +6,7 @@ require "suma/api"
 
 class Suma::API::Payments < Suma::API::V1
   include Suma::Service::Types
+  include Suma::API::Entities
 
   resource :payments do
     params do
@@ -46,7 +47,16 @@ class Suma::API::Payments < Suma::API::V1
       end
       add_current_member_header
       status 200
-      present fx, with: Suma::API::FundingTransactionEntity
+      present fx, with: FundingTransactionEntity
     end
+  end
+
+  class FundingTransactionEntity < BaseEntity
+    include Suma::API::Entities
+    expose :id
+    expose :created_at
+    expose :status
+    expose :amount, with: MoneyEntity
+    expose :memo
   end
 end

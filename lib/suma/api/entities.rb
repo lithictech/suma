@@ -5,7 +5,7 @@ require "grape_entity"
 require "suma/service/entities"
 require "suma/api" unless defined? Suma::API
 
-module Suma::API
+module Suma::API::Entities
   AddressEntity = Suma::Service::Entities::Address
   LegalEntityEntity = Suma::Service::Entities::LegalEntityEntity
   MoneyEntity = Suma::Service::Entities::Money
@@ -28,16 +28,6 @@ module Suma::API
     expose :native
   end
 
-  class AuthFlowMemberEntity < BaseEntity
-    expose :requires_terms_agreement?, as: :requires_terms_agreement
-  end
-
-  class MobilityMapVehicleEntity < BaseEntity
-    expose :c
-    expose :p
-    expose :d, expose_nil: false
-  end
-
   class OrganizationEntity < BaseEntity
     expose :name
     expose :slug
@@ -51,12 +41,6 @@ module Suma::API
     expose :can_use_for_funding?, as: :can_use_for_funding
   end
 
-  class MutationPaymentInstrumentEntity < PaymentInstrumentEntity
-    expose :all_payment_instruments, with: PaymentInstrumentEntity do |_inst, opts|
-      opts.fetch(:all_payment_instruments)
-    end
-  end
-
   class VendorServiceRateEntity < BaseEntity
     expose :id
     expose :localization_key
@@ -68,38 +52,6 @@ module Suma::API
     expose :external_name, as: :name
     expose :vendor_name, &self.delegate_to(:vendor, :name)
     expose :vendor_slug, &self.delegate_to(:vendor, :slug)
-  end
-
-  class MobilityMapEntity < BaseEntity
-    expose :precision do |_|
-      Suma::Mobility::COORD2INT_FACTOR
-    end
-    expose :refresh do |_|
-      30_000
-    end
-    expose :providers, with: VendorServiceEntity
-    expose :escooter, with: MobilityMapVehicleEntity, expose_nil: false
-    expose :ebike, with: MobilityMapVehicleEntity, expose_nil: false
-  end
-
-  class MobilityMapRestrictionEntity < BaseEntity
-    expose :restriction
-    expose :polygon_numeric, as: :polygon
-    expose :bounds_numeric, as: :bounds
-  end
-
-  class MobilityMapFeaturesEntity < BaseEntity
-    expose :restrictions, with: MobilityMapRestrictionEntity
-  end
-
-  class MobilityVehicleEntity < BaseEntity
-    expose :precision do |_|
-      Suma::Mobility::COORD2INT_FACTOR
-    end
-    expose :vendor_service, with: VendorServiceEntity
-    expose :vehicle_id
-    expose :to_api_location, as: :loc
-    expose :rate, with: VendorServiceRateEntity, &self.delegate_to(:vendor_service, :one_rate)
   end
 
   class MobilityTripEntity < BaseEntity
@@ -153,30 +105,5 @@ module Suma::API
     expose :id
     expose :name
     expose :balance, with: MoneyEntity
-  end
-
-  class MemberDashboardEntity < BaseEntity
-    expose :payment_account_balance, with: MoneyEntity
-    expose :lifetime_savings, with: MoneyEntity
-    expose :ledger_lines, with: LedgerLineEntity
-  end
-
-  class LedgersViewEntity < BaseEntity
-    expose :total_balance, with: MoneyEntity
-    expose :ledgers, with: LedgerEntity
-    expose :single_ledger_lines_first_page, with: LedgerLineEntity do |_, opts|
-      opts.fetch(:single_ledger_lines_first_page)
-    end
-    expose :single_ledger_page_count do |_, opts|
-      opts.fetch(:single_ledger_page_count)
-    end
-  end
-
-  class FundingTransactionEntity < BaseEntity
-    expose :id
-    expose :created_at
-    expose :status
-    expose :amount, with: MoneyEntity
-    expose :memo
   end
 end

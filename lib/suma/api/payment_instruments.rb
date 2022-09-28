@@ -3,6 +3,8 @@
 require "suma/api"
 
 class Suma::API::PaymentInstruments < Suma::API::V1
+  include Suma::API::Entities
+
   resource :payment_instruments do
     resource :bank_accounts do
       params do
@@ -33,7 +35,7 @@ class Suma::API::PaymentInstruments < Suma::API::V1
         status 200
         present(
           ba,
-          with: Suma::API::MutationPaymentInstrumentEntity,
+          with: MutationPaymentInstrumentEntity,
           all_payment_instruments: c.usable_payment_instruments,
         )
       end
@@ -52,11 +54,18 @@ class Suma::API::PaymentInstruments < Suma::API::V1
           ba.soft_delete
           present(
             ba,
-            with: Suma::API::MutationPaymentInstrumentEntity,
+            with: MutationPaymentInstrumentEntity,
             all_payment_instruments: current_member.usable_payment_instruments,
           )
         end
       end
+    end
+  end
+
+  class MutationPaymentInstrumentEntity < PaymentInstrumentEntity
+    include Suma::API::Entities
+    expose :all_payment_instruments, with: PaymentInstrumentEntity do |_inst, opts|
+      opts.fetch(:all_payment_instruments)
     end
   end
 end

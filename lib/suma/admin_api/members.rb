@@ -5,6 +5,8 @@ require "grape"
 require "suma/admin_api"
 
 class Suma::AdminAPI::Members < Suma::AdminAPI::V1
+  include Suma::AdminAPI::Entities
+
   ALL_TIMEZONES = Set.new(TZInfo::Timezone.all_identifiers)
 
   resource :members do
@@ -24,7 +26,7 @@ class Suma::AdminAPI::Members < Suma::AdminAPI::V1
 
       ds = order(ds, params)
       ds = paginate(ds, params)
-      present_collection ds, with: Suma::AdminAPI::MemberEntity
+      present_collection ds, with: MemberEntity
     end
 
     route_param :id, type: Integer do
@@ -38,7 +40,7 @@ class Suma::AdminAPI::Members < Suma::AdminAPI::V1
       desc "Return the member"
       get do
         member = lookup_member!
-        present member, with: Suma::AdminAPI::DetailedMemberEntity
+        present member, with: DetailedMemberEntity
       end
 
       desc "Update the member"
@@ -62,7 +64,7 @@ class Suma::AdminAPI::Members < Suma::AdminAPI::V1
           member.save_changes
         end
         status 200
-        present member, with: Suma::AdminAPI::DetailedMemberEntity
+        present member, with: DetailedMemberEntity
       end
 
       post :close do
@@ -78,18 +80,62 @@ class Suma::AdminAPI::Members < Suma::AdminAPI::V1
           member.soft_delete unless member.soft_deleted?
         end
         status 200
-        present member, with: Suma::AdminAPI::DetailedMemberEntity
+        present member, with: DetailedMemberEntity
       end
 
       get :bank_accounts do
         member = lookup_member!
-        present_collection member.bank_accounts, with: Suma::AdminAPI::BankAccountEntity
+        present_collection member.bank_accounts, with: BankAccountEntity
       end
 
       get :payment_instruments do
         member = lookup_member!
-        present_collection member.bank_accounts, with: Suma::AdminAPI::PaymentInstrumentEntity
+        present_collection member.bank_accounts, with: PaymentInstrumentEntity
       end
     end
+  end
+
+  class MemberActivityEntity < BaseEntity
+    include Suma::AdminAPI::Entities
+    include AutoExposeBase
+    expose :message_name
+    expose :message_vars
+    expose :summary
+  end
+
+  class MemberResetCodeEntity < BaseEntity
+    include Suma::AdminAPI::Entities
+    include AutoExposeBase
+    expose :transport
+    expose :token
+    expose :used
+    expose :expire_at
+  end
+
+  class MemberSessionEntity < BaseEntity
+    include Suma::AdminAPI::Entities
+    include AutoExposeBase
+    expose :user_agent
+    expose :peer_ip, &self.delegate_to(:peer_ip, :to_s)
+    expose :ip_lookup_link do |instance|
+      "https://whatismyipaddress.com/ip/#{instance.peer_ip}"
+    end
+  end
+
+  class DetailedMemberEntity < MemberEntity
+    include Suma::AdminAPI::Entities
+    include AutoExposeDetail
+    expose :opaque_id
+    expose :note
+    expose :roles do |instance|
+      instance.roles.map(&:name)
+    end
+    expose :available_roles do |_|
+      Suma::Role.order(:name).select_map(:name)
+    end
+    expose :legal_entity, with: LegalEntityEntity
+    expose :activities, with: MemberActivityEntity
+    expose :reset_codes, with: MemberResetCodeEntity
+    expose :sessions, with: MemberSessionEntity
   end
 end

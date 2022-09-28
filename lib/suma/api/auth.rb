@@ -6,6 +6,7 @@ require "suma/api"
 
 class Suma::API::Auth < Suma::API::V1
   include Suma::Service::Types
+  include Suma::API::Entities
 
   ALL_TIMEZONES = Set.new(TZInfo::Timezone.all_identifiers)
 
@@ -43,7 +44,7 @@ class Suma::API::Auth < Suma::API::V1
         end
         member.add_reset_code({transport: "sms"})
         status 200
-        present member, with: Suma::API::AuthFlowMemberEntity
+        present member, with: AuthFlowMemberEntity
       end
     end
 
@@ -75,7 +76,7 @@ class Suma::API::Auth < Suma::API::V1
       set_member(me)
       create_session(me)
       status 200
-      present me, with: Suma::API::CurrentMemberEntity, env:
+      present me, with: CurrentMemberEntity, env:
     end
 
     delete do
@@ -83,5 +84,9 @@ class Suma::API::Auth < Suma::API::V1
       status 204
       body ""
     end
+  end
+
+  class AuthFlowMemberEntity < BaseEntity
+    expose :requires_terms_agreement?, as: :requires_terms_agreement
   end
 end
