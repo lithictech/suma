@@ -76,4 +76,8 @@ module Suma::Fixtures::Members
     led = Suma::Payment.ensure_cash_ledger(self)
     Suma::Fixtures.book_transaction.to(led).create(amount:) if amount
   end
+
+  decorator :terms_agreed do
+    self.terms_agreed = Suma::Member::LATEST_TERMS_PUBLISH_DATE
+  end
 end

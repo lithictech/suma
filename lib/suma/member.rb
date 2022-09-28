@@ -36,6 +36,8 @@ class Suma::Member < Suma::Postgres::Model(:members)
   # Regex that matches the prefix of a deleted user's email
   DELETED_EMAIL_PATTERN = /^(?<prefix>\d+(?:\.\d+)?)\+(?<rest>.*)$/
 
+  LATEST_TERMS_PUBLISH_DATE = Date.new(2022, 10, 1)
+
   plugin :timestamps
   plugin :soft_deletes
 
@@ -128,6 +130,11 @@ class Suma::Member < Suma::Postgres::Model(:members)
     reason = self.read_only_reason
     return if reason.nil?
     raise ReadOnlyMode, reason
+  end
+
+  def requires_terms_agreement?
+    return true if self.terms_agreed.nil?
+    return self.terms_agreed < LATEST_TERMS_PUBLISH_DATE
   end
 
   def usable_payment_instruments

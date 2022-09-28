@@ -28,6 +28,10 @@ module Suma::API
     expose :native
   end
 
+  class AuthFlowMemberEntity < BaseEntity
+    expose :requires_terms_agreement?, as: :requires_terms_agreement
+  end
+
   class MobilityMapVehicleEntity < BaseEntity
     expose :c
     expose :p

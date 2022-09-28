@@ -43,13 +43,14 @@ class Suma::API::Auth < Suma::API::V1
         end
         member.add_reset_code({transport: "sms"})
         status 200
-        present({})
+        present member, with: Suma::API::AuthFlowMemberEntity
       end
     end
 
     params do
       requires :phone, us_phone: true, type: String, coerce_with: NormalizedPhone
       requires :token, type: String, allow_blank: false
+      optional :terms_agreed, type: Boolean
     end
     post :verify do
       guard_authed!
@@ -70,6 +71,7 @@ class Suma::API::Auth < Suma::API::V1
         merror!(403, "Sorry, that token is invalid or the phone number is not in our system.", code: "invalid_otp")
       end
 
+      me.update(terms_agreed: Suma::Member::LATEST_TERMS_PUBLISH_DATE) if params[:terms_agreed]
       set_member(me)
       create_session(me)
       status 200
