@@ -1,24 +1,40 @@
-import useQueryParam from "./useQueryParam";
 import _ from "lodash";
-import React from "react";
+import { useSearchParams } from "react-router-dom";
 
 export default function useListQueryControls() {
-  const [page, setPage] = useQueryParam("page", 1, numberSerializer);
-  const [perPage, setPerPage] = useQueryParam("pagesize", 50, numberSerializer);
-  const [search, setSearch] = useQueryParam("search", "");
-  React.useEffect(() => {
-    if (page < 1) {
-      setPage(1);
-    }
-  }, [page, setPage]);
+  const [params, setParams] = useSearchParams(new URLSearchParams());
+  const page = Number(params.get("page") || "0");
+  const perPage = Number(params.get("pagesize") || "50");
+  const search = params.get("search");
+  const order = params.get("order");
+  const orderBy = params.get("orderby");
+  function setListQueryParams(arg) {
+    const sp = new URLSearchParams(params);
+    _.each(urlKeysAndProps, (attr, key) => {
+      if (_.has(arg, attr)) {
+        if (_.isUndefined(arg[attr]) || arg[attr] === "") {
+          sp.delete(key);
+        } else {
+          sp.set(key, "" + arg[attr]);
+        }
+      }
+    });
+    setParams(sp);
+  }
   return {
     page,
-    setPage,
     perPage,
-    setPerPage,
     search,
-    setSearch,
+    order,
+    orderBy,
+    setListQueryParams,
   };
 }
 
-const numberSerializer = { parse: Number, serialize: _.toString };
+const urlKeysAndProps = {
+  page: "page",
+  pagesize: "perPage",
+  search: "search",
+  order: "order",
+  orderby: "orderBy",
+};
