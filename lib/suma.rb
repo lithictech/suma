@@ -58,8 +58,8 @@ module Suma
             key: "LOG_LEVEL",
             side_effect: ->(v) { Appydays::Loggable.default_level = v if v }
     setting :log_format, nil
-    setting :app_url, "http://localhost:22002"
-    setting :admin_url, "http://localhost:22011"
+    setting :app_url, "http://localhost:22004"
+    setting :admin_url, "http://localhost:22014"
     setting :api_url, "http://localhost:#{ENV.fetch('PORT', 22_001)}"
     setting :default_currency, "USD", side_effect: ->(v) { Money.default_currency = v }
     setting :bust_idempotency, false

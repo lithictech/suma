@@ -1,11 +1,14 @@
 # frozen_string_literal: true
 
 require "state_machines"
+
+require "suma/admin_linked"
 require "suma/payment"
 require "suma/state_machine"
 
 class Suma::Payment::FundingTransaction < Suma::Postgres::Model(:payment_funding_transactions)
   include Appydays::Configurable
+  include Suma::AdminLinked
   include Suma::ExternalLinks
 
   class CollectFundsFailed < Suma::StateMachine::FailedTransition; end
@@ -84,7 +87,7 @@ class Suma::Payment::FundingTransaction < Suma::Postgres::Model(:payment_funding
     end
   end
 
-  def admin_link = "/admin/funding_transaction/#{self.id}"
+  def rel_admin_link = "/funding-transaction/#{self.id}"
 
   def _external_links_self
     return [self.strategy]

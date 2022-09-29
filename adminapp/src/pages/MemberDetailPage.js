@@ -1,10 +1,13 @@
 import api from "../api";
+import AdminLink from "../components/AdminLink";
 import BoolCheckmark from "../components/BoolCheckmark";
 import DetailGrid from "../components/DetailGrid";
+import PaymentAccountRelatedLists from "../components/PaymentAccountRelatedLists";
 import RelatedList from "../components/RelatedList";
 import useErrorSnackbar from "../hooks/useErrorSnackbar";
 import { useUser } from "../hooks/user";
 import { dayjs } from "../modules/dayConfig";
+import Money from "../shared/react/Money";
 import SafeExternalLink from "../shared/react/SafeExternalLink";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
 import { Divider, CircularProgress, Typography, Chip } from "@mui/material";
@@ -73,6 +76,9 @@ export default function MemberDetailPage() {
           <Activities activities={member.activities} />
           <Sessions sessions={member.sessions} />
           <ResetCodes resetCodes={member.resetCodes} />
+          <Charges charges={member.charges} />
+          <BankAccounts bankAccounts={member.bankAccounts} />
+          <PaymentAccountRelatedLists paymentAccount={member.paymentAccount} />
         </div>
       )}
     </>
@@ -149,6 +155,39 @@ function Sessions({ sessions }) {
           {row.peerIp}
         </SafeExternalLink>,
         row.userAgent,
+      ]}
+    />
+  );
+}
+
+function Charges({ charges }) {
+  return (
+    <RelatedList
+      title="Charges"
+      headers={["Id", "At", "Undiscounted Total", "Opaque Id"]}
+      rows={charges}
+      toCells={(row) => [
+        row.id,
+        dayjs(row.createdAt).format("lll"),
+        <Money key={3}>{row.undiscountedSubtotal}</Money>,
+        row.opaqueId,
+      ]}
+    />
+  );
+}
+
+function BankAccounts({ bankAccounts }) {
+  return (
+    <RelatedList
+      title="Bank Accounts"
+      headers={["Id", "Name", "Added", "Deleted"]}
+      rows={bankAccounts}
+      keyRowAttr="id"
+      toCells={(row) => [
+        <AdminLink key="id" model={row} />,
+        row.display.adminLabel,
+        dayjs(row.createdAt).format("lll"),
+        row.softDeletedAt ? dayjs(row.softDeletedAt).format("lll") : "",
       ]}
     />
   );

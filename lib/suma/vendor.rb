@@ -1,8 +1,11 @@
 # frozen_string_literal: true
 
+require "suma/admin_linked"
 require "suma/postgres/model"
 
 class Suma::Vendor < Suma::Postgres::Model(:vendors)
+  include Suma::AdminLinked
+
   plugin :timestamps
 
   many_to_one :organization, key: :organization_id, class: "Suma::Organization"
@@ -18,9 +21,7 @@ class Suma::Vendor < Suma::Postgres::Model(:vendors)
     self.payment_account ||= Suma::Payment::Account.create(vendor: self)
   end
 
-  def admin_link
-    return "/admin/vendor/#{self.id}"
-  end
+  def rel_admin_link = "/vendor/#{self.id}"
 end
 
 # Table: vendors

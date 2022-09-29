@@ -4,6 +4,7 @@ require "appydays/configurable"
 require "bcrypt"
 require "openssl"
 
+require "suma/admin_linked"
 require "suma/payment/has_account"
 require "suma/postgres/model"
 require "suma/secureid"
@@ -12,6 +13,7 @@ class Suma::Member < Suma::Postgres::Model(:members)
   extend Suma::MethodUtilities
   include Appydays::Configurable
   include Suma::Payment::HasAccount
+  include Suma::AdminLinked
 
   class InvalidPassword < RuntimeError; end
   class ReadOnlyMode < RuntimeError; end
@@ -107,9 +109,7 @@ class Suma::Member < Suma::Postgres::Model(:members)
     return self.name.blank? ? "there" : self.name
   end
 
-  def admin_link
-    return "/admin/member/#{self.id}"
-  end
+  def rel_admin_link = "/member/#{self.id}"
 
   def onboarded?
     return self.name.present? && self.legal_entity.address_id.present?

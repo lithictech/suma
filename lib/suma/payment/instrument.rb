@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require "suma/admin_linked"
 require "suma/payment"
 
 module Suma::Payment::Instrument
@@ -11,7 +12,7 @@ module Suma::Payment::Instrument
     raise NotImplementedError
   end
 
-  def admin_link
+  def rel_admin_link
     raise NotImplementedError
   end
 

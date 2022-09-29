@@ -1,11 +1,13 @@
 # frozen_string_literal: true
 
+require "suma/admin_linked"
 require "suma/external_links"
 require "suma/payment/instrument"
 require "suma/postgres/model"
 
 class Suma::BankAccount < Suma::Postgres::Model(:bank_accounts)
   include Suma::Payment::Instrument
+  include Suma::AdminLinked
   include Suma::ExternalLinks
 
   plugin :timestamps
@@ -60,9 +62,7 @@ class Suma::BankAccount < Suma::Postgres::Model(:bank_accounts)
     return "#{self.name} x-#{self.last4}"
   end
 
-  def admin_link
-    return "#{Suma.admin_url}/bank-accounts/#{self.id}"
-  end
+  def rel_admin_link = "/bank-account/#{self.id}"
 
   def to_display
     inst = self.plaid_institution

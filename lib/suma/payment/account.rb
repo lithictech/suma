@@ -1,9 +1,12 @@
 # frozen_string_literal: true
 
+require "suma/admin_linked"
 require "suma/moneyutil"
 require "suma/payment"
 
 class Suma::Payment::Account < Suma::Postgres::Model(:payment_accounts)
+  include Suma::AdminLinked
+
   plugin :timestamps
 
   many_to_one :member, class: "Suma::Member"
@@ -41,9 +44,9 @@ class Suma::Payment::Account < Suma::Postgres::Model(:payment_accounts)
 
   def platform_account? = self.is_platform_account
 
-  def admin_link
-    return "/admin/payment-accounts/platform" if self.platform_account?
-    return self.member&.admin_link || self.vendor&.admin_link || "/admin/payment-accounts/#{self.id}"
+  def rel_admin_link
+    return "/payment-accounts/platform" if self.platform_account?
+    return self.member&.rel_admin_link || self.vendor&.rel_admin_link || "/payment-accounts/#{self.id}"
   end
 
   def display_name

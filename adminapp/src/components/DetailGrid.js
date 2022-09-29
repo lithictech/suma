@@ -49,21 +49,18 @@ function Label({ children }) {
 }
 
 function Value({ value, children }) {
-  if (value) {
-    let fmtVal = value;
-    if (value instanceof dayjs) {
-      fmtVal = value.format("lll");
-    }
-    return (
-      <Typography variant="body1" gutterBottom>
-        {fmtVal}
-      </Typography>
-    );
-  }
   if (children) {
     return children;
   }
-  return null;
+  let fmtVal = value || <>&nbsp;</>;
+  if (value instanceof dayjs) {
+    fmtVal = value.format("lll");
+  }
+  return (
+    <Typography variant="body1" gutterBottom>
+      {fmtVal}
+    </Typography>
+  );
 }
 
 /**

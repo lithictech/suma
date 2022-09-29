@@ -186,26 +186,26 @@ RSpec.describe "Suma::Payment::Account", :db do
     it "can display member, vendor, and platform names and links" do
       account.set(member:, vendor: nil, is_platform_account: false)
       expect(account).to have_attributes(
-        admin_link: "/admin/member/#{member.id}",
+        admin_link: "http://localhost:22014/member/#{member.id}",
         display_name: member.name,
       )
 
       vendor = Suma::Fixtures.vendor.create
       account.set(member: nil, vendor:, is_platform_account: false)
       expect(account).to have_attributes(
-        admin_link: "/admin/vendor/#{vendor.id}",
+        admin_link: "http://localhost:22014/vendor/#{vendor.id}",
         display_name: vendor.name,
       )
 
       account.set(member: nil, vendor: nil, is_platform_account: true)
       expect(account).to have_attributes(
-        admin_link: "/admin/payment-accounts/platform",
+        admin_link: "http://localhost:22014/payment-accounts/platform",
         display_name: "Suma Platform",
       )
 
       account.set(member: nil, vendor: nil, is_platform_account: false)
       expect(account).to have_attributes(
-        admin_link: "/admin/payment-accounts/#{account.id}",
+        admin_link: "http://localhost:22014/payment-accounts/#{account.id}",
         display_name: "Payment Account #{account.id}",
       )
     end

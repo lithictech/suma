@@ -34,23 +34,29 @@ function create(apiHost, config) {
     instance.interceptors.response.use(...errorResponseLogger);
   }
   if (chaos) {
-    console.log("apiBase: Chaos mode enabled, adding random delays to api calls");
-    instance.interceptors.request.use(requestChaos);
+    console.log(
+      `apiBase: Chaos mode enabled (${chaos}), adding random delays to api calls`
+    );
+    instance.interceptors.request.use(requestChaos(chaos));
   }
   return instance;
 }
 
-function requestChaos(config) {
-  // Add some delay into api calls to simulate real-world behavior.
-  let debugDelay = 250 + Math.random() * 1000;
-  // Add some p90 and p95 latencies
-  const percentile = Math.random();
-  if (percentile < 0.05) {
-    debugDelay += 3000 + Math.random() * 4000;
-  } else if (percentile < 0.1) {
-    debugDelay += 1000 + Math.random() * 2000;
-  }
-  return Promise.resolve(config).delay(debugDelay);
+function requestChaos(chaos) {
+  const chaosMult = isNaN(Number(chaos)) ? 1 : Number(chaos);
+  return (reqConfig) => {
+    // Add some delay into api calls to simulate real-world behavior.
+    let debugDelay = 250 + Math.random() * 1000;
+    // Add some p90 and p95 latencies
+    const percentile = Math.random();
+    if (percentile < 0.05) {
+      debugDelay += 3000 + Math.random() * 4000;
+    } else if (percentile < 0.1) {
+      debugDelay += 1000 + Math.random() * 2000;
+    }
+    debugDelay *= chaosMult;
+    return Promise.resolve(reqConfig).delay(debugDelay);
+  };
 }
 
 function handleStatus(status, cb) {

@@ -1,8 +1,11 @@
 # frozen_string_literal: true
 
+require "suma/admin_linked"
 require "suma/payment"
 
 class Suma::Payment::BookTransaction < Suma::Postgres::Model(:payment_book_transactions)
+  include Suma::AdminLinked
+
   plugin :timestamps
   plugin :money_fields, :amount
 
@@ -21,7 +24,7 @@ class Suma::Payment::BookTransaction < Suma::Postgres::Model(:payment_book_trans
     self.opaque_id ||= Suma::Secureid.new_opaque_id("bx")
   end
 
-  def admin_link = "/admin/book_transaction/#{self.id}"
+  def rel_admin_link = "/book-transaction/#{self.id}"
 
   # Return a copy of the receiver, but with id removed, and amount set to be positive or negative
   # based on whether the receiver is the originating or receiving ledger.

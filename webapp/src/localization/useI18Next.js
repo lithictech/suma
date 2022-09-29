@@ -1,4 +1,4 @@
-import { formatMoney } from "../components/Money";
+import { formatMoney } from "../shared/react/Money";
 import useLocalStorageState from "../shared/react/useLocalStorageState";
 import i18n from "i18next";
 import Backend from "i18next-http-backend";

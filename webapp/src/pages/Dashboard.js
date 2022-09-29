@@ -1,9 +1,9 @@
 import api from "../api";
 import AppNav from "../components/AppNav";
-import Money from "../components/Money";
 import PageLoader from "../components/PageLoader";
 import RLink from "../components/RLink";
 import { md, t } from "../localization";
+import Money from "../shared/react/Money";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
 import { useUser } from "../state/useUser";
 import { LayoutContainer } from "../state/withLayout";
