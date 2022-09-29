@@ -25,8 +25,9 @@
   border-radius: 25px;
 }
 
-.privacy-policy-section-top-padding {
-  padding-top: 3.5rem;
+.privacy-policy-section-padding {
+  padding-top: map-get($spacers, 4);
+  padding-bottom: map-get($spacers, 5);
 }
 
 .table-of-contents-desktop {
@@ -44,13 +45,6 @@
 // X-Large devices (large desktops, 1200px and up)
 @include media-breakpoint-up(xl) { 
   .privacy-policy-desktop {
-    max-width: 900px!important;
-  }
-}
-
-@media only screen and (min-width: 1600px) {
-  .privacy-policy-desktop-container {
-    border-right: 1px solid $secondary;
-    border-left: 1px solid $secondary;
+    max-width: 900px !important;
   }
 }
