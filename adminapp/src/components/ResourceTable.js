@@ -77,23 +77,27 @@ export default function ResourceTable({
                   sortDirection={orderBy === col.id ? order : false}
                   className={classes.cell}
                 >
-                  <TableSortLabel
-                    active={orderBy === col.id}
-                    direction={orderBy === col.id ? order || "desc" : "desc"}
-                    onClick={() =>
-                      onParamsChange({
-                        order: cycleOrder(order),
-                        orderBy: cycleOrder(order) ? col.id : undefined,
-                      })
-                    }
-                  >
-                    {col.label}
-                    {orderBy === col.id ? (
-                      <Box component="span" sx={visuallyHidden}>
-                        {order === "desc" ? "sorted descending" : "sorted ascending"}
-                      </Box>
-                    ) : null}
-                  </TableSortLabel>
+                  {col.sortable ? (
+                    <TableSortLabel
+                      active={orderBy === col.id}
+                      direction={orderBy === col.id ? order || "desc" : "desc"}
+                      onClick={() =>
+                        onParamsChange({
+                          order: cycleOrder(order),
+                          orderBy: cycleOrder(order) ? col.id : undefined,
+                        })
+                      }
+                    >
+                      {col.label}
+                      {orderBy === col.id ? (
+                        <Box component="span" sx={visuallyHidden}>
+                          {order === "desc" ? "sorted descending" : "sorted ascending"}
+                        </Box>
+                      ) : null}
+                    </TableSortLabel>
+                  ) : (
+                    col.label
+                  )}
                 </TableCell>
               ))}
             </TableRow>

@@ -46,10 +46,10 @@ export default function PaymentAccountRelatedLists({ paymentAccount }) {
             <Money key="amt">{row.amount}</Money>,
             row.associatedVendorServiceCategory.name,
             <AdminLink key="originating" model={row.originatingLedger}>
-              {row.originatingLedger.accountName}/{row.originatingLedger.name}
+              {row.originatingLedger.adminLabel}
             </AdminLink>,
             <AdminLink key="receiving" model={row.receivingLedger}>
-              {row.receivingLedger.accountName}/{row.receivingLedger.name}
+              {row.receivingLedger.adminLabel}
             </AdminLink>,
           ]}
         />

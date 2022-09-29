@@ -24,6 +24,8 @@ require "suma/api/system"
 
 require "suma/admin_api/auth"
 require "suma/admin_api/bank_accounts"
+require "suma/admin_api/book_transactions"
+require "suma/admin_api/funding_transactions"
 require "suma/admin_api/members"
 require "suma/admin_api/message_deliveries"
 require "suma/admin_api/roles"
@@ -44,6 +46,8 @@ module Suma::Apps
   class AdminAPI < Suma::Service
     mount Suma::AdminAPI::Auth
     mount Suma::AdminAPI::BankAccounts
+    mount Suma::AdminAPI::BookTransactions
+    mount Suma::AdminAPI::FundingTransactions
     mount Suma::AdminAPI::Members
     mount Suma::AdminAPI::MessageDeliveries
     mount Suma::AdminAPI::Roles

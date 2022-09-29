@@ -1,6 +1,11 @@
 import { redirectIfAuthed, redirectIfUnauthed } from "./hocs/authRedirects";
 import { UserProvider } from "./hooks/user";
+import BankAccountDetailPage from "./pages/BankAccountDetailPage";
+import BookTransactionDetailPage from "./pages/BookTransactionDetailPage";
+import BookTransactionListPage from "./pages/BookTransactionListPage";
 import DashboardPage from "./pages/DashboardPage";
+import FundingTransactionDetailPage from "./pages/FundingTransactionDetailPage";
+import FundingTransactionListPage from "./pages/FundingTransactionListPage";
 import MemberDetailPage from "./pages/MemberDetailPage";
 import MemberListPage from "./pages/MemberListPage";
 import SignInPage from "./pages/SignInPage";
@@ -54,6 +59,47 @@ function PageSwitch() {
         exact
         path="/dashboard"
         element={renderWithHocs(redirectIfUnauthed, withLayout(), DashboardPage)}
+      />
+      <Route
+        exact
+        path="/bank-account/:id"
+        element={renderWithHocs(redirectIfUnauthed, withLayout(), BankAccountDetailPage)}
+      />
+      <Route
+        exact
+        path="/funding-transactions"
+        element={renderWithHocs(
+          redirectIfUnauthed,
+          withLayout(),
+          FundingTransactionListPage
+        )}
+      />
+      <Route
+        exact
+        path="/funding-transaction/:id"
+        element={renderWithHocs(
+          redirectIfUnauthed,
+          withLayout(),
+          FundingTransactionDetailPage
+        )}
+      />
+      <Route
+        exact
+        path="/book-transactions"
+        element={renderWithHocs(
+          redirectIfUnauthed,
+          withLayout(),
+          BookTransactionListPage
+        )}
+      />
+      <Route
+        exact
+        path="/book-transaction/:id"
+        element={renderWithHocs(
+          redirectIfUnauthed,
+          withLayout(),
+          BookTransactionDetailPage
+        )}
       />
       <Route
         exact

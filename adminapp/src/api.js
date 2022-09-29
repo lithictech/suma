@@ -46,6 +46,17 @@ export default {
   getCurrentUser: (data) => get(`/adminapi/v1/auth`, data),
   impersonate: ({ id, ...data }) => post(`/adminapi/v1/auth/impersonate/${id}`, data),
   unimpersonate: (data) => del(`/adminapi/v1/auth/impersonate`, data),
+
+  getBankAccount: ({ id, ...data }) => get(`/adminapi/v1/bank_accounts/${id}`, data),
+
+  getBookTransactions: (data) => get(`/adminapi/v1/book_transactions`, data),
+  getBookTransaction: ({ id, ...data }) =>
+    get(`/adminapi/v1/book_transactions/${id}`, data),
+
+  getFundingTransactions: (data) => get(`/adminapi/v1/funding_transactions`, data),
+  getFundingTransaction: ({ id, ...data }) =>
+    get(`/adminapi/v1/funding_transactions/${id}`, data),
+
   getMembers: (data) => get(`/adminapi/v1/members`, data),
   getMember: ({ id, ...data }) => get(`/adminapi/v1/members/${id}`, data),
 };

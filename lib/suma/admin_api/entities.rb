@@ -56,6 +56,7 @@ module Suma::AdminAPI::Entities
     expose :id
     expose :email
     expose :name
+    expose :admin_link
   end
 
   class AuditLogEntity < BaseEntity
@@ -116,13 +117,12 @@ module Suma::AdminAPI::Entities
     include AutoExposeBase
     expose :name
     expose :account_name, &self.delegate_to(:account, :display_name)
+    expose :admin_label
   end
 
   class SimplePaymentAccountEntity < BaseEntity
     include AutoExposeBase
-    expose :member, with: MemberEntity
-    expose :vendor, with: VendorEntity
-    expose :is_platform_account
+    expose :display_name
   end
 
   class FundingTransactionEntity < BaseEntity
@@ -136,6 +136,7 @@ module Suma::AdminAPI::Entities
     include AutoExposeBase
     expose :apply_at
     expose :amount, with: MoneyEntity
+    expose :memo
     expose :associated_vendor_service_category, with: VendorServiceCategoryEntity
     expose :originating_ledger, with: SimpleLedgerEntity
     expose :receiving_ledger, with: SimpleLedgerEntity
