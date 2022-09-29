@@ -126,11 +126,11 @@ class Suma::AdminAPI::Members < Suma::AdminAPI::V1
 
     expose :legal_entity, with: LegalEntityEntity
     expose :payment_account, with: DetailedPaymentAccountEntity
+    expose :bank_accounts, with: PaymentInstrumentEntity
+    expose :charges, with: ChargeEntity
 
     expose :activities, with: MemberActivityEntity
     expose :reset_codes, with: MemberResetCodeEntity
     expose :sessions, with: MemberSessionEntity
-    expose :bank_accounts, with: PaymentInstrumentEntity
-    expose :charges, with: ChargeEntity
   end
 end

@@ -18,6 +18,7 @@ module Suma::AdminAPI::Entities
       ctx.expose :id, if: ->(o) { o.respond_to?(:id) }
       ctx.expose :created_at, if: ->(o) { o.respond_to?(:created_at) }
       ctx.expose :soft_deleted_at, if: ->(o) { o.respond_to?(:soft_deleted_at) }
+      ctx.expose :admin_link, if: ->(o, _) { o.respond_to?(:admin_link) }
     end
   end
 
@@ -26,7 +27,6 @@ module Suma::AdminAPI::Entities
   module AutoExposeDetail
     def self.included?(ctx)
       ctx.expose :updated_at, if: ->(o) { o.respond_to?(:updated_at) }
-      ctx.expose :admin_link, if: ->(o, _) { o.respond_to?(:admin_link) }
       # Always expose an external links array when we mix this in
       ctx.expose :external_links do |inst|
         inst.respond_to?(:external_links) ? inst.external_links : []
@@ -48,7 +48,6 @@ module Suma::AdminAPI::Entities
   class PaymentInstrumentEntity < BaseEntity
     include AutoExposeBase
     expose :payment_method_type
-    expose :admin_link
     expose :to_display, as: :display
     expose :legal_entity_display
   end
@@ -114,10 +113,9 @@ module Suma::AdminAPI::Entities
   end
 
   class SimpleLedgerEntity < BaseEntity
-    expose :id
+    include AutoExposeBase
     expose :name
     expose :account_name, &self.delegate_to(:account, :display_name)
-    expose :admin_link, &self.delegate_to(:account, :admin_link)
   end
 
   class SimplePaymentAccountEntity < BaseEntity
@@ -141,7 +139,6 @@ module Suma::AdminAPI::Entities
     expose :associated_vendor_service_category, with: VendorServiceCategoryEntity
     expose :originating_ledger, with: SimpleLedgerEntity
     expose :receiving_ledger, with: SimpleLedgerEntity
-    expose :admin_link
   end
 
   class DetailedPaymentAccountLedgerEntity < BaseEntity

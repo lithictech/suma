@@ -1,8 +1,11 @@
 # frozen_string_literal: true
 
+require "suma/admin_linked"
 require "suma/payment"
 
 class Suma::Payment::Ledger < Suma::Postgres::Model(:payment_ledgers)
+  include Suma::AdminLinked
+
   plugin :timestamps
 
   many_to_one :account, class: "Suma::Payment::Account"
@@ -84,6 +87,8 @@ class Suma::Payment::Ledger < Suma::Postgres::Model(:payment_ledgers)
       !(service_cat_ids & chain_ids).empty?
     end
   end
+
+  def rel_admin_link = self.account.rel_admin_link
 end
 
 # Table: payment_ledgers
