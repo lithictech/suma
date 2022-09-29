@@ -276,6 +276,7 @@ end
 #  timezone               | text                     | NOT NULL DEFAULT 'America/Los_Angeles'::text
 #  onboarding_verified_at | timestamp with time zone |
 #  legal_entity_id        | integer                  | NOT NULL
+#  terms_agreed           | date                     |
 # Indexes:
 #  members_pkey      | PRIMARY KEY btree (id)
 #  members_email_key | UNIQUE btree (email)
@@ -289,6 +290,7 @@ end
 # Referenced By:
 #  charges                                | charges_member_id_fkey                               | (member_id) REFERENCES members(id)
 #  member_activities                      | member_activities_member_id_fkey                     | (member_id) REFERENCES members(id) ON DELETE CASCADE
+#  member_key_values                      | member_key_values_member_id_fkey                     | (member_id) REFERENCES members(id) ON DELETE CASCADE
 #  member_linked_legal_entities           | member_linked_legal_entities_member_id_fkey          | (member_id) REFERENCES members(id)
 #  member_reset_codes                     | member_reset_codes_member_id_fkey                    | (member_id) REFERENCES members(id) ON DELETE CASCADE
 #  member_sessions                        | member_sessions_member_id_fkey                       | (member_id) REFERENCES members(id) ON DELETE CASCADE
