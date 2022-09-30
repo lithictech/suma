@@ -14,7 +14,7 @@ module Suma::Fixtures::BankAccounts
     self.routing_number ||= routing_numbers.sample(1)
     self.account_number ||= Faker::Bank.account_number
     self.account_type ||= ["checking", "savings"].sample
-    self.name ||= "#{self.to_display.institution_name} #{self.account_type.capitalize}"
+    self.name ||= "#{self.institution.name} #{self.account_type.capitalize}"
   end
 
   before_saving do |instance|

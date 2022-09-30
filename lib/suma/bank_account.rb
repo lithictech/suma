@@ -64,14 +64,12 @@ class Suma::BankAccount < Suma::Postgres::Model(:bank_accounts)
 
   def rel_admin_link = "/bank-account/#{self.id}"
 
-  def to_display
+  def institution
     inst = self.plaid_institution
-    return Display.new(
-      institution_name: inst&.name || "Unknown",
-      institution_logo: inst&.logo_base64 || "",
-      institution_color: inst&.primary_color_hex || "#000000",
-      name: self.name,
-      last4: self.last4,
+    return Institution.new(
+      name: inst&.name || "Unknown",
+      logo: inst&.logo_base64 || "",
+      color: inst&.primary_color_hex || "#000000",
     )
   end
 

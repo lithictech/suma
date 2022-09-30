@@ -37,8 +37,10 @@ module Suma::API::Entities
     expose :id
     expose :created_at
     expose :payment_method_type
-    expose :to_display, as: :display
     expose :can_use_for_funding?, as: :can_use_for_funding
+    expose :institution
+    expose :name
+    expose :last4
   end
 
   class VendorServiceRateEntity < BaseEntity

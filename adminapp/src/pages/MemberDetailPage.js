@@ -185,7 +185,7 @@ function BankAccounts({ bankAccounts }) {
       keyRowAttr="id"
       toCells={(row) => [
         <AdminLink key="id" model={row} />,
-        row.display.adminLabel,
+        row.adminLabel,
         dayjs(row.createdAt).format("lll"),
         row.softDeletedAt ? dayjs(row.softDeletedAt).format("lll") : "",
       ]}

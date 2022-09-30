@@ -38,7 +38,7 @@ export default function BankAccountDetailPage() {
             title="Account Information"
             properties={[
               { label: "ID", value: id },
-              { label: "Name", value: bankAccount.display.name },
+              { label: "Name", value: bankAccount.name },
               { label: "Created At", value: dayjs(bankAccount.createdAt) },
               {
                 label: "Deleted At",
@@ -55,10 +55,10 @@ export default function BankAccountDetailPage() {
               { label: "Account Type", value: bankAccount.accountType },
             ]}
           />
-          {bankAccount.legalEntityDisplay && (
+          {bankAccount.legalEntity && (
             <LegalEntity
-              address={bankAccount.legalEntityDisplay.address}
-              name={bankAccount.legalEntityDisplay.name}
+              address={bankAccount.legalEntity.address}
+              name={bankAccount.legalEntity.name}
             />
           )}
         </div>

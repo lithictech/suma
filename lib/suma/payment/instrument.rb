@@ -4,9 +4,7 @@ require "suma/admin_linked"
 require "suma/payment"
 
 module Suma::Payment::Instrument
-  def to_display
-    raise NotImplementedError
-  end
+  Institution = Struct.new(:name, :logo, :color, keyword_init: true)
 
   def payment_method_type
     raise NotImplementedError
@@ -16,38 +14,28 @@ module Suma::Payment::Instrument
     raise NotImplementedError
   end
 
-  def legal_entity_display
-    return Suma::LegalEntity::Display.new(self.legal_entity)
-  end
-
   def can_use_for_funding?
     raise NotImplementedError
   end
 
-  class Display
-    attr_reader :institution_name, :institution_logo, :institution_color, :name, :last4, :address, :admin_label
+  # @return [Institution]
+  def institution
+    raise NotImplementedError
+  end
 
-    def initialize(opts={})
-      opts.each { |k, v| self.instance_variable_set("@#{k}", v) }
-      @admin_label = "#{self.name}/#{self.last4}"
-      @admin_label += " (#{self.institution_name})" unless self.name&.include?(self.institution_name || "")
-    end
+  def admin_label
+    lbl = "#{self.name}/#{self.last4}"
+    inst_name = self.institution.name
+    lbl += " (#{inst_name})" unless self.name&.include?(inst_name || "")
+    return lbl
+  end
 
-    def simple_label
-      return "#{self.name} x-#{self.last4}"
-    end
+  def simple_label
+    return "#{self.name} x-#{self.last4}"
+  end
 
-    def to_h
-      return {
-        institution_name: self.institution_name,
-        institution_logo: self.institution_logo,
-        institution_color: self.institution_color,
-        name: self.name,
-        last4: self.last4,
-        address: self.address,
-        simple_label: self.simple_label,
-        admin_label: self.admin_label,
-      }
-    end
+  def search_label
+    lbl = "#{self.legal_entity.name}: #{self.name} x-#{self.last4}, #{self.institution.name}"
+    return lbl
   end
 end

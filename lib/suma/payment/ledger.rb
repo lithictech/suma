@@ -95,6 +95,10 @@ class Suma::Payment::Ledger < Suma::Postgres::Model(:payment_ledgers)
     lbl = "(#{self.id}) #{lbl}" unless self.account.platform_account?
     return lbl
   end
+
+  def search_label
+    return self.admin_label
+  end
 end
 
 # Table: payment_ledgers
