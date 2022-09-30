@@ -30,6 +30,10 @@ class Suma::BankAccount < Suma::Postgres::Model(:bank_accounts)
     def usable
       return self.not_soft_deleted
     end
+
+    def verified
+      return self.exclude(verified_at: nil)
+    end
   end
 
   # Create a stable identity for this account. We encrypt the account number

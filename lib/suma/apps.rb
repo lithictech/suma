@@ -29,6 +29,7 @@ require "suma/admin_api/funding_transactions"
 require "suma/admin_api/members"
 require "suma/admin_api/message_deliveries"
 require "suma/admin_api/roles"
+require "suma/admin_api/search"
 
 module Suma::Apps
   class API < Suma::Service
@@ -51,6 +52,7 @@ module Suma::Apps
     mount Suma::AdminAPI::Members
     mount Suma::AdminAPI::MessageDeliveries
     mount Suma::AdminAPI::Roles
+    mount Suma::AdminAPI::Search
     add_swagger_documentation if ENV["RACK_ENV"] == "development"
   end
 
