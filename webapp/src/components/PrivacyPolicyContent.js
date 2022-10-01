@@ -1,5 +1,5 @@
-import transparencyIconTest from "../assets/images/privacy-policy-transparency-icon-cropped-test.png";
 import businessTransfer from "../assets/images/privacypolicy/business-transfer.svg";
+import childrenUnder13 from "../assets/images/privacypolicy/children-under-13.svg";
 import communication from "../assets/images/privacypolicy/communication.svg";
 import cookiesPolicy from "../assets/images/privacypolicy/cookies-policy.svg";
 import dataRemoval from "../assets/images/privacypolicy/data-removal.svg";
@@ -7,6 +7,10 @@ import dataRetention from "../assets/images/privacypolicy/data-retention.svg";
 import disputeResolution from "../assets/images/privacypolicy/dispute-resolution.svg";
 import methodsOfCollection from "../assets/images/privacypolicy/methods-of-collection.svg";
 import methodsOfDataUsage from "../assets/images/privacypolicy/methods-of-data-usage.svg";
+import consentIcon from "../assets/images/privacypolicy/overview-consent-icon.svg";
+import educationIcon from "../assets/images/privacypolicy/overview-education-icon.svg";
+import transparencyIcon from "../assets/images/privacypolicy/overview-transparency-icon.svg";
+import trustIcon from "../assets/images/privacypolicy/overview-trust-icon.svg";
 import policyChanges from "../assets/images/privacypolicy/policy-changes.svg";
 import thirdPartyAcceess from "../assets/images/privacypolicy/third-party-access.svg";
 import "../assets/styles/privacy-policy.scss";
@@ -22,7 +26,6 @@ import Button from "react-bootstrap/Button";
 import Col from "react-bootstrap/Col";
 import Container from "react-bootstrap/Container";
 import Nav from "react-bootstrap/Nav";
-import NavDropdown from "react-bootstrap/NavDropdown";
 import Navbar from "react-bootstrap/Navbar";
 import Row from "react-bootstrap/Row";
 import Stack from "react-bootstrap/Stack";
@@ -38,23 +41,32 @@ export default function PrivacyPolicyContent({ mobile }) {
       <div
         id={id}
         className={clsx(
-          !subsection ? "privacy-policy-section-padding" : "pt-3",
+          !subsection ? "privacy-policy-section-padding" : "pt-2",
           !mobile && !subsection && "mx-lg-5"
         )}
       >
-        {!subsection ? <h3>{title}</h3> : <h5 className="mt-3">{title}</h5>}
+        {!subsection ? (
+          <h3 className="mb-4">{title}</h3>
+        ) : (
+          <h5 className="mt-3">{title}</h5>
+        )}
         {img && (
           <img
             src={img}
             alt={title}
-            className={clsx("d-block mx-auto", !mobile && "float-md-end")}
+            className={clsx(
+              "privacy-policy-image d-block mx-auto mb-4",
+              !mobile && "float-md-end mx-md-4"
+            )}
           />
         )}
-        <p>{p}</p>
+        <p className="mb-4">{p}</p>
         {list && (
           <ul>
             {list.map((b, idx) => (
-              <li key={idx + title}>{b}</li>
+              <li key={idx + title} className="ps-3 pb-2">
+                {b}
+              </li>
             ))}
           </ul>
         )}
@@ -104,11 +116,9 @@ export default function PrivacyPolicyContent({ mobile }) {
             <TableOfContentsNav id="desktop-scrollspy" />
           </Col>
         )}
-        <TableOfContentsNav
-          id="mobile-scrollspy"
-          mobile={true}
-          classes={clsx(!mobile && "d-xl-none")}
-        />
+        <div className={clsx("sticky-top", !mobile && "container d-xl-none")}>
+          <TableOfContentsNav id="mobile-scrollspy" mobile={true} />
+        </div>
         <Container
           className={clsx("position-relative", !mobile && "privacy-policy-desktop")}
           tabIndex="0"
@@ -143,14 +153,17 @@ export default function PrivacyPolicyContent({ mobile }) {
             <Container
               className={clsx(
                 "community-driven-container-radius border border-1 border-dark bg-white my-5 p-4",
-                !mobile && "px-xl-5"
+                !mobile && "px-lg-5"
               )}
             >
               <Row>
-                <Col xs={12} className={clsx(!mobile && "col-xl-5 align-self-xl-center")}>
+                <Col
+                  xs={12}
+                  className={clsx(!mobile && "col-lg-4 col-xl-5 align-self-lg-center")}
+                >
                   <h1 className="display-5">{t("overview:community_driven_title")}</h1>
                 </Col>
-                <Col xs={12} className={clsx(!mobile && "col-xl-7")}>
+                <Col xs={12} className={clsx(!mobile && "col-lg-8 col-xl-7")}>
                   {t("overview:community_driven_intro")}
                 </Col>
               </Row>
@@ -160,13 +173,13 @@ export default function PrivacyPolicyContent({ mobile }) {
                 mobile={mobile}
                 heading={t("overview:transparency_title")}
                 paragraph={t("overview:transparency_statement")}
-                img={transparencyIconTest}
+                img={transparencyIcon}
               />
               <PedalCol
                 mobile={mobile}
                 heading={t("overview:consent_title")}
                 paragraph={t("overview:consent_statement")}
-                img={transparencyIconTest}
+                img={consentIcon}
                 right={true}
               />
             </Row>
@@ -175,20 +188,20 @@ export default function PrivacyPolicyContent({ mobile }) {
                 mobile={mobile}
                 heading={t("overview:education_title")}
                 paragraph={t("overview:education_statement")}
-                img={transparencyIconTest}
+                img={educationIcon}
               />
               <PedalCol
                 mobile={mobile}
                 heading={t("overview:trust_title")}
                 paragraph={t("overview:trust_statement")}
-                img={transparencyIconTest}
+                img={trustIcon}
                 right={true}
               />
             </Row>
           </Container>
-          <hr className="mt-5" />
+          <hr className="my-5" />
           <Container>
-            <h1 id="privacy-policy-title" className="text-center mt-5 display-4">
+            <h1 id="privacy-policy-title" className="text-center display-4">
               {t("privacy_policy:title")}
             </h1>
             <p className="text-center mb-5">
@@ -372,6 +385,7 @@ export default function PrivacyPolicyContent({ mobile }) {
               id="childrenUnder13"
               title={t("privacy_policy:children_under_13:title")}
               p={t("privacy_policy:children_under_13:paragraph")}
+              img={childrenUnder13}
             />
             <PrivacyPolicySection
               id="communication"
@@ -409,19 +423,17 @@ export default function PrivacyPolicyContent({ mobile }) {
   );
 }
 
-const TableOfContentsNav = ({ id, mobile, classes }) => {
+const TableOfContentsNav = ({ id, mobile }) => {
   mobile = Boolean(mobile);
   const [expanded, setExpanded] = React.useState(!mobile || false);
   return (
     <Navbar
       className={clsx(
         "pt-0 pb-0 border-secondary",
-        !mobile ? "p-xl-4" : "border border-top-0",
-        classes
+        !mobile ? "sticky-top p-xl-4" : "border border-top-0"
       )}
       bg="light"
       variant="light"
-      sticky="top"
       collapseOnSelect={mobile && true}
       expand={false}
       expanded={expanded}
@@ -447,7 +459,7 @@ const TableOfContentsNav = ({ id, mobile, classes }) => {
             <Nav.Link href="#overview" className="active">
               {t("overview:title")}
             </Nav.Link>
-            <NavDropdown.Divider />
+            <hr />
             <Nav.Link href="#informationCollected">
               {t("privacy_policy:information_collected:title")}
             </Nav.Link>
@@ -501,20 +513,27 @@ const TabLink = ({ to, label, title }) => {
 
 const PedalCol = ({ heading, paragraph, img, right, mobile }) => {
   return (
-    <Col xs={12} className={clsx(!mobile && "col-xl-6")}>
+    <Col xs={12} className={clsx("mb-4", !mobile && "mb-lg-0 px-sm-5 px-lg-2 col-lg-6")}>
       <Stack
         direction="horizontal"
         gap={3}
-        className={clsx(
-          "align-items-start justify-content-center",
-          !mobile && "mx-lg-5 mx-xl-0"
-        )}
+        className={clsx("align-items-start justify-content-center")}
       >
-        <div className="mt-4">
+        <img
+          src={img}
+          alt={heading}
+          className={clsx(right && "order-last", right && !mobile && "order-lg-last")}
+        />
+        <div
+          className={clsx(
+            "mt-4",
+            !right && !mobile && "order-lg-first",
+            right && !mobile && "order-lg-last"
+          )}
+        >
           <h5>{heading}</h5>
           <p className="fw-light">{paragraph}</p>
         </div>
-        <img src={img} alt={heading} className={right && "order-first"} />
       </Stack>
     </Col>
   );
