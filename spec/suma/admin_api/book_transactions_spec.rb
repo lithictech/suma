@@ -60,6 +60,28 @@ RSpec.describe Suma::AdminAPI::BookTransactions, :db do
     end
   end
 
+  describe "POST /v1/book_transactions/create" do
+    it "creates the transaction" do
+      b1 = Suma::Fixtures.book_transaction.create
+      corn = Suma::Fixtures.vendor_service_category(name: "Corn").create
+
+      post "/v1/book_transactions/create",
+           originating_ledger_id: b1.originating_ledger_id,
+           receiving_ledger_id: b1.receiving_ledger_id,
+           amount: {cents: 100},
+           memo: "hi",
+           vendor_service_category_slug: "corn"
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.that_includes(id: be > b1.id)
+      expect(last_response.headers).to include("Created-Resource-Admin")
+      expect(b1.refresh.originating_ledger.combined_book_transactions).to contain_exactly(
+        be === b1,
+        have_attributes(memo: "hi", amount: cost("$1"), associated_vendor_service_category: be === corn),
+      )
+    end
+  end
+
   describe "GET /v1/book_transactions/:id" do
     it "returns the transaction" do
       o = Suma::Fixtures.book_transaction.create

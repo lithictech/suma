@@ -81,6 +81,12 @@ class Suma::Payment::BookTransaction < Suma::Postgres::Model(:payment_book_trans
     result << UsageDetails.new("unknown", {memo: self.memo}) if result.empty?
     return result
   end
+
+  def validate
+    super
+    self.errors.add(:receiving_ledger_id, "originating and receiving ledgers cannot be the same") if
+      self.receiving_ledger_id == self.originating_ledger_id
+  end
 end
 
 # Table: payment_book_transactions

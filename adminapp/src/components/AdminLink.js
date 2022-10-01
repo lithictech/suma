@@ -1,3 +1,4 @@
+import relativeLink from "../modules/relativeLink";
 import MatLink from "@mui/material/Link";
 import React from "react";
 import { Link as RouterLink } from "react-router-dom";
@@ -6,14 +7,13 @@ const AdminLink = React.forwardRef(function AdminLink(
   { href, to, model, children, ...rest },
   ref
 ) {
-  const propTo = model?.adminLink || href || to || "";
-  const start = `${window.location.protocol}//${window.location.host}`;
+  const [newTo, isRelative] = relativeLink(model?.adminLink || href || to || "");
   const newProps = { ...rest, ref, children: children || model?.id };
-  if (propTo.startsWith(start)) {
+  if (isRelative) {
     newProps.component = RouterLink;
-    newProps.to = propTo.slice(start.length);
+    newProps.to = newTo;
   } else {
-    newProps.href = propTo;
+    newProps.href = newTo;
   }
   return <MatLink {...newProps} />;
 });

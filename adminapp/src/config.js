@@ -13,6 +13,8 @@ const config = {
   chaos: process.env.REACT_APP_CHAOS,
   debug: process.env.REACT_APP_DEBUG,
   environment: process.env.NODE_ENV,
+  defaultCurrency: { code: "USD", symbol: "$" },
 };
+config.defaultZeroMoney = { cents: 0, currency: config.defaultCurrency.code };
 
 export default config;

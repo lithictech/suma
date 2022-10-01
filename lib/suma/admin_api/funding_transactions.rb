@@ -23,6 +23,33 @@ class Suma::AdminAPI::FundingTransactions < Suma::AdminAPI::V1
       present_collection ds, with: FundingTransactionEntity
     end
 
+    desc "Create a funding transaction and book transfer for the given instrument and its owner's cash ledger."
+    params do
+      use :payment_instrument
+      requires :amount, allow_blank: false, type: JSON do
+        use :funding_money
+      end
+    end
+    post :create_for_self do
+      instrument_ds = case params[:payment_method_type]
+        when "bank_account"
+          Suma::BankAccount.dataset
+        else
+          raise "Invalid payment_method_type"
+      end
+      (instrument = instrument_ds[params[:payment_instrument_id]]) or forbidden!
+      c = instrument.member
+      fx = Suma::Payment::FundingTransaction.start_and_transfer(
+        Suma::Payment.ensure_cash_ledger(c),
+        amount: params[:amount],
+        vendor_service_category: Suma::Vendor::ServiceCategory.find_or_create(name: "Cash"),
+        **{params[:payment_method_type].to_sym => instrument},
+      )
+      created_resource_headers(fx.id, fx.admin_link)
+      status 200
+      present fx, with: DetailedFundingTransactionEntity
+    end
+
     route_param :id, type: Integer do
       helpers do
         def lookup_funding_transaction!
