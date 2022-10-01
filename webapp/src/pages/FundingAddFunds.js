@@ -72,7 +72,7 @@ export default function FundingAddFunds() {
             cents: amountCents,
             currency: selectedCurrency.code,
           },
-          paymentMethodId: instrument.id,
+          paymentInstrumentId: instrument.id,
           paymentMethodType: instrument.paymentMethodType,
         })
         .tap(handleUpdateCurrentMember)

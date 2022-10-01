@@ -11,40 +11,23 @@ class Suma::API::Payments < Suma::API::V1
   resource :payments do
     params do
       requires :amount, allow_blank: false, type: JSON do
-        use :money
-        requires :cents,
-                 type: Integer,
-                 values: {
-                   value: ->(v) { v >= Suma::Payment.minimum_funding_amount_cents },
-                   message: "must be at least #{Suma::Payment.minimum_funding_amount_cents}",
-                 }
+        use :funding_money
       end
-      requires :payment_method_type, type: String, values: ["bank_account"]
-      requires :payment_method_id, type: Integer
+      use :payment_instrument
     end
     post :create_funding do
       c = current_member
       Suma::Payment.ensure_cash_ledger(c)
       bank_account = c.usable_payment_instruments.find do |pi|
-        pi.id == params[:payment_method_id] && pi.payment_method_type == params[:payment_method_type]
+        pi.id == params[:payment_instrument_id] && pi.payment_method_type == params[:payment_method_type]
       end
       merror!(403, "Bank account not found", code: "resource_not_found") unless bank_account
-      fx = c.db.transaction do
-        now = Time.now
-        fx = Suma::Payment::FundingTransaction.start_new(c.payment_account, amount: params[:amount], bank_account:)
-        # TODO: Move this to the model layer and test it thoroughly,
-        # it is too important to just have testing as a side effect in the endpoint.
-        originated_book_transaction = Suma::Payment::BookTransaction.create(
-          apply_at: now,
-          amount: fx.amount,
-          originating_ledger: fx.platform_ledger,
-          receiving_ledger: Suma::Payment.ensure_cash_ledger(c),
-          associated_vendor_service_category: Suma::Vendor::ServiceCategory.find_or_create(name: "Cash"),
-          memo: fx.memo,
-        )
-        fx.update(originated_book_transaction:)
-        fx
-      end
+      fx = Suma::Payment::FundingTransaction.start_and_transfer(
+        Suma::Payment.ensure_cash_ledger(c),
+        amount: params[:amount],
+        bank_account:,
+        vendor_service_category: Suma::Vendor::ServiceCategory.find_or_create(name: "Cash"),
+      )
       add_current_member_header
       status 200
       present fx, with: FundingTransactionEntity

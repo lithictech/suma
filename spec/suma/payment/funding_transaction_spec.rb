@@ -47,6 +47,28 @@ RSpec.describe "Suma::Payment::FundingTransaction", :db do
     end
   end
 
+  describe "start_and_transfer" do
+    let(:member) { Suma::Fixtures.member.create }
+    let(:ledger) { Suma::Payment.ensure_cash_ledger(member) }
+    let(:bank_account) { Suma::Fixtures.bank_account.member(member).verified.create }
+    let(:category) { Suma::Vendor::ServiceCategory.find_or_create(name: "Cash") }
+
+    it "creates a new funding and book transaction" do
+      fx = described_class.start_and_transfer(
+        ledger,
+        amount: Money.new(500, "USD"),
+        vendor_service_category: category,
+        bank_account:,
+      )
+      expect(fx).to have_attributes(status: "created")
+      expect(member.payment_account.originated_funding_transactions).to contain_exactly(be === fx)
+      expect(member.payment_account.cash_ledger.received_book_transactions).to contain_exactly(
+        have_attributes(amount: cost("$5")),
+      )
+      expect(member.payment_account).to have_attributes(total_balance: cost("$5"))
+    end
+  end
+
   describe "state machine" do
     let(:strategy) { Suma::Payment::FakeStrategy.create }
     let(:payment) { Suma::Fixtures.funding_transaction.with_fake_strategy(strategy).create }
