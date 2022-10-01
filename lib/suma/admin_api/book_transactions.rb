@@ -24,6 +24,32 @@ class Suma::AdminAPI::BookTransactions < Suma::AdminAPI::V1
       present_collection ds, with: BookTransactionEntity
     end
 
+    params do
+      requires :originating_ledger_id, type: Integer
+      requires :receiving_ledger_id, type: Integer
+      requires :memo, type: String
+      requires :vendor_service_category_slug, type: String
+      requires :amount, allow_blank: false, type: JSON do
+        use :money
+      end
+    end
+    post :create do
+      (originating = Suma::Payment::Ledger[params[:originating_ledger_id]]) or forbidden!
+      (receiving = Suma::Payment::Ledger[params[:receiving_ledger_id]]) or forbidden!
+      (vsc = Suma::Vendor::ServiceCategory[slug: params[:vendor_service_category_slug]]) or forbidden!
+      bx = Suma::Payment::BookTransaction.create(
+        apply_at: Time.now,
+        amount: params[:amount],
+        originating_ledger: originating,
+        receiving_ledger: receiving,
+        associated_vendor_service_category: vsc,
+        memo: params[:memo],
+      )
+      created_resource_headers(bx.id, bx.admin_link)
+      status 200
+      present bx, with: DetailedBookTransactionEntity
+    end
+
     route_param :id, type: Integer do
       helpers do
         def lookup_book_transaction!

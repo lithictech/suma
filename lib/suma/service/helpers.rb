@@ -244,6 +244,16 @@ module Suma::Service::Helpers
     optional :currency, type: String, default: "USD"
   end
 
+  params :funding_money do
+    use :money
+    requires :cents,
+             type: Integer,
+             values: {
+               value: ->(v) { v >= Suma::Payment.minimum_funding_amount_cents },
+               message: "must be at least #{Suma::Payment.minimum_funding_amount_cents}",
+             }
+  end
+
   params :time_range do
     requires :start, as: :begin, type: Time
     requires :end, type: Time
@@ -293,5 +303,10 @@ module Suma::Service::Helpers
     all_or_none_of :address1, :city, :state_or_province, :postal_code
     optional :lat, type: Float
     optional :lng, type: Float
+  end
+
+  params :payment_instrument do
+    requires :payment_instrument_id, type: Integer
+    requires :payment_method_type, type: String, values: ["bank_account"]
   end
 end

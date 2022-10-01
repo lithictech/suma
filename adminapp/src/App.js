@@ -1,9 +1,11 @@
 import { redirectIfAuthed, redirectIfUnauthed } from "./hocs/authRedirects";
 import { UserProvider } from "./hooks/user";
 import BankAccountDetailPage from "./pages/BankAccountDetailPage";
+import BookTransactionCreatePage from "./pages/BookTransactionCreatePage";
 import BookTransactionDetailPage from "./pages/BookTransactionDetailPage";
 import BookTransactionListPage from "./pages/BookTransactionListPage";
 import DashboardPage from "./pages/DashboardPage";
+import FundingTransactionCreatePage from "./pages/FundingTransactionCreatePage";
 import FundingTransactionDetailPage from "./pages/FundingTransactionDetailPage";
 import FundingTransactionListPage from "./pages/FundingTransactionListPage";
 import MemberDetailPage from "./pages/MemberDetailPage";
@@ -16,6 +18,8 @@ import renderComponent from "./shared/react/renderComponent";
 import withLayout from "./state/withLayout";
 import theme from "./theme";
 import { ThemeProvider } from "@mui/material";
+import { LocalizationProvider } from "@mui/x-date-pickers";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { SnackbarProvider } from "notistack";
 import React from "react";
 import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
@@ -25,14 +29,16 @@ window.Promise = bluejay.Promise;
 export default function App() {
   return (
     <ThemeProvider theme={theme}>
-      <SnackbarProvider>
-        <UserProvider>
-          <Router basename={process.env.PUBLIC_URL}>
-            <NavSwitch />
-            <PageSwitch />
-          </Router>
-        </UserProvider>
-      </SnackbarProvider>
+      <LocalizationProvider dateAdapter={AdapterDayjs}>
+        <SnackbarProvider>
+          <UserProvider>
+            <Router basename={process.env.PUBLIC_URL}>
+              <NavSwitch />
+              <PageSwitch />
+            </Router>
+          </UserProvider>
+        </SnackbarProvider>
+      </LocalizationProvider>
     </ThemeProvider>
   );
 }
@@ -76,6 +82,15 @@ function PageSwitch() {
       />
       <Route
         exact
+        path="/funding-transaction/new"
+        element={renderWithHocs(
+          redirectIfUnauthed,
+          withLayout(),
+          FundingTransactionCreatePage
+        )}
+      />
+      <Route
+        exact
         path="/funding-transaction/:id"
         element={renderWithHocs(
           redirectIfUnauthed,
@@ -90,6 +105,15 @@ function PageSwitch() {
           redirectIfUnauthed,
           withLayout(),
           BookTransactionListPage
+        )}
+      />
+      <Route
+        exact
+        path="/book-transaction/new"
+        element={renderWithHocs(
+          redirectIfUnauthed,
+          withLayout(),
+          BookTransactionCreatePage
         )}
       />
       <Route

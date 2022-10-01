@@ -87,6 +87,25 @@ class Suma::Payment::FundingTransaction < Suma::Postgres::Model(:payment_funding
     end
   end
 
+  # Like +start_new+, but also creates a +BookTransaction+ that moves funds
+  # from the platform ledger into the receiving ledger.
+  def self.start_and_transfer(receiving_ledger, amount:, vendor_service_category:, bank_account: nil, strategy: nil)
+    self.db.transaction do
+      now = Time.now
+      fx = Suma::Payment::FundingTransaction.start_new(receiving_ledger.account, amount:, bank_account:, strategy:)
+      originated_book_transaction = Suma::Payment::BookTransaction.create(
+        apply_at: now,
+        amount: fx.amount,
+        originating_ledger: fx.platform_ledger,
+        receiving_ledger:,
+        associated_vendor_service_category: vendor_service_category,
+        memo: fx.memo,
+      )
+      fx.update(originated_book_transaction:)
+      fx
+    end
+  end
+
   def rel_admin_link = "/funding-transaction/#{self.id}"
 
   def _external_links_self

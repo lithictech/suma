@@ -48,8 +48,12 @@ module Suma::AdminAPI::Entities
   class PaymentInstrumentEntity < BaseEntity
     include AutoExposeBase
     expose :payment_method_type
-    expose :to_display, as: :display
-    expose :legal_entity_display
+    expose :legal_entity, with: LegalEntityEntity
+    expose :institution
+    expose :name
+    expose :last4
+    expose :simple_label
+    expose :admin_label
   end
 
   class AuditMemberEntity < BaseEntity

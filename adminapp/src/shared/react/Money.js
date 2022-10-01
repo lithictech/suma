@@ -47,20 +47,28 @@ Money.propTypes = {
 };
 
 export const formatMoney = (entity, options) => {
-  let formatterOpts = null;
-  if (_.get(options, "rounded")) {
+  options = options || {};
+  const formatterOpts = {};
+  if (options.rounded) {
     const hasCents = entity.cents % 100 > 0;
-    formatterOpts = { minimumFractionDigits: hasCents ? 2 : 0 };
+    formatterOpts.minimumFractionDigits = hasCents ? 2 : 0;
+  }
+  if (options.noCurrency) {
+    formatterOpts.currencyDisplay = "code";
   }
 
   let formatter;
-  if (!formatterOpts) {
+  if (_.isEmpty(formatterOpts)) {
     formatter = defaultFormatters[entity.currency] || defaultFormatters.default;
   } else {
     const ctor = optionedFormatters[entity.currency] || optionedFormatters.default;
     formatter = ctor(formatterOpts);
   }
-  return formatter.format(entity.cents / 100.0);
+  let result = formatter.format(entity.cents / 100.0);
+  if (options.noCurrency) {
+    result = result.replace(/[a-z]{3}/i, "").trim();
+  }
+  return result;
 };
 
 export function floatToMoney(f, currency) {

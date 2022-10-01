@@ -35,13 +35,14 @@ RSpec.describe "Suma::BankAccount", :db do
   describe "display" do
     it "uses a default rendering if there is no Plaid institution" do
       ba = Suma::Fixtures.bank_account(account_number: "1234567", name: "Checking").create
-      expect(ba.to_display.to_h).to eq(
-        institution_name: "Unknown",
-        institution_logo: "",
-        institution_color: "#000000",
+      expect(ba).to have_attributes(
+        institution: have_attributes(
+          name: "Unknown",
+          logo: "",
+          color: "#000000",
+        ),
         name: "Checking",
         last4: "4567",
-        address: nil,
         simple_label: "Checking x-4567",
         admin_label: "Checking/4567 (Unknown)",
       )
@@ -55,13 +56,14 @@ RSpec.describe "Suma::BankAccount", :db do
         routing_numbers: ["111333444"],
       )
       ba = Suma::Fixtures.bank_account(account_number: "1234567", routing_number: "111333444", name: "Checking").create
-      expect(ba.to_display.to_h).to eq(
-        institution_name: "Chase",
-        institution_logo: "xyz",
-        institution_color: "red",
+      expect(ba).to have_attributes(
+        institution: have_attributes(
+          name: "Chase",
+          logo: "xyz",
+          color: "red",
+        ),
         name: "Checking",
         last4: "4567",
-        address: nil,
         simple_label: "Checking x-4567",
         admin_label: "Checking/4567 (Chase)",
       )

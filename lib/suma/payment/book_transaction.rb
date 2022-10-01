@@ -76,10 +76,16 @@ class Suma::Payment::BookTransaction < Suma::Postgres::Model(:payment_book_trans
       )
     end)
     result.concat(self.funding_transactions.map do |fx|
-      UsageDetails.new("funding", {account_label: fx.strategy.originating_instrument.to_display.simple_label})
+      UsageDetails.new("funding", {account_label: fx.strategy.originating_instrument.simple_label})
     end)
     result << UsageDetails.new("unknown", {memo: self.memo}) if result.empty?
     return result
+  end
+
+  def validate
+    super
+    self.errors.add(:receiving_ledger_id, "originating and receiving ledgers cannot be the same") if
+      self.receiving_ledger_id == self.originating_ledger_id
   end
 end
 

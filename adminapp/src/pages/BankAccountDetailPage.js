@@ -1,4 +1,5 @@
 import api from "../api";
+import AdminLink from "../components/AdminLink";
 import DetailGrid from "../components/DetailGrid";
 import useErrorSnackbar from "../hooks/useErrorSnackbar";
 import { dayjs } from "../modules/dayConfig";
@@ -38,7 +39,7 @@ export default function BankAccountDetailPage() {
             title="Account Information"
             properties={[
               { label: "ID", value: id },
-              { label: "Name", value: bankAccount.display.name },
+              { label: "Account Name", value: bankAccount.name },
               { label: "Created At", value: dayjs(bankAccount.createdAt) },
               {
                 label: "Deleted At",
@@ -53,14 +54,20 @@ export default function BankAccountDetailPage() {
               { label: "Routing Number", value: bankAccount.routingNumber },
               { label: "Account Number", value: bankAccount.accountNumber },
               { label: "Account Type", value: bankAccount.accountType },
+              {
+                label: "Member",
+                value: (
+                  <AdminLink model={bankAccount.member}>
+                    ({bankAccount.member.id}) {bankAccount.member.name}
+                  </AdminLink>
+                ),
+              },
             ]}
           />
-          {bankAccount.legalEntityDisplay && (
-            <LegalEntity
-              address={bankAccount.legalEntityDisplay.address}
-              name={bankAccount.legalEntityDisplay.name}
-            />
-          )}
+          <LegalEntity
+            address={bankAccount.legalEntity.address}
+            name={bankAccount.legalEntity.name}
+          />
         </div>
       )}
     </>

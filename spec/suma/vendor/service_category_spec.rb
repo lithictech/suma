@@ -40,4 +40,15 @@ RSpec.describe "Suma::Vendor::ServiceCategory", :db do
       expect(c1_b1).to have_attributes(hierarchy_depth: 2)
     end
   end
+
+  describe "full_label" do
+    it "renders hierarchical" do
+      a = Suma::Fixtures.vendor_service_category(name: "A").create
+      b = Suma::Fixtures.vendor_service_category.create(name: "B", parent: a)
+      c = Suma::Fixtures.vendor_service_category.create(name: "C", parent: b)
+      expect(a).to have_attributes(full_label: "A")
+      expect(b).to have_attributes(full_label: "A - B")
+      expect(c).to have_attributes(full_label: "A - B - C")
+    end
+  end
 end

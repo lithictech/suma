@@ -34,6 +34,13 @@ class Suma::Vendor::ServiceCategory < Suma::Postgres::Model(:vendor_service_cate
     return d
   end
 
+  def full_label
+    if (prefix = self.parent&.full_label)
+      return "#{prefix} - #{self.name}"
+    end
+    return self.name
+  end
+
   def before_create
     self.slug ||= Suma.to_slug(self.name)
   end

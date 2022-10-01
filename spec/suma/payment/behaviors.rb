@@ -44,16 +44,10 @@ RSpec.shared_examples "a payment instrument" do
     expect(instrument).to have_attributes(
       payment_method_type: be_a(String),
       name: be_a(String).and(be_present),
+      last4: be_a(String).and(be_present),
       can_use_for_funding?: be_bool,
+      institution: be_a(Suma::Payment::Instrument::Institution),
+      legal_entity: be_a(Suma::LegalEntity),
     )
-  end
-
-  it "can display itself" do
-    expect(instrument).to have_attributes(to_display: be_a(Suma::Payment::Instrument::Display))
-  end
-
-  it "can render a legal entity" do
-    expect(instrument).to have_attributes(legal_entity: be_a(Suma::LegalEntity))
-    expect(instrument).to have_attributes(legal_entity_display: be_a(Suma::LegalEntity::Display))
   end
 end

@@ -18,7 +18,7 @@ RSpec.describe Suma::API::Payments, :db do
 
       post "/v1/payments/create_funding",
            amount: {cents: 500, currency: "USD"},
-           payment_method_id: ba.id,
+           payment_instrument_id: ba.id,
            payment_method_type: ba.payment_method_type
 
       expect(last_response).to have_status(200)
@@ -40,7 +40,7 @@ RSpec.describe Suma::API::Payments, :db do
 
       post "/v1/payments/create_funding",
            amount: {cents: 500, currency: "USD"},
-           payment_method_id: ba.id,
+           payment_instrument_id: ba.id,
            payment_method_type: ba.payment_method_type
 
       expect(last_response).to have_status(403)
@@ -52,7 +52,7 @@ RSpec.describe Suma::API::Payments, :db do
 
       post "/v1/payments/create_funding",
            amount: {cents: 1, currency: "USD"},
-           payment_method_id: ba.id,
+           payment_instrument_id: ba.id,
            payment_method_type: ba.payment_method_type
 
       expect(last_response).to have_status(400)

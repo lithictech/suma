@@ -30,6 +30,10 @@ class Suma::BankAccount < Suma::Postgres::Model(:bank_accounts)
     def usable
       return self.not_soft_deleted
     end
+
+    def verified
+      return self.exclude(verified_at: nil)
+    end
   end
 
   # Create a stable identity for this account. We encrypt the account number
@@ -64,14 +68,12 @@ class Suma::BankAccount < Suma::Postgres::Model(:bank_accounts)
 
   def rel_admin_link = "/bank-account/#{self.id}"
 
-  def to_display
+  def institution
     inst = self.plaid_institution
-    return Display.new(
-      institution_name: inst&.name || "Unknown",
-      institution_logo: inst&.logo_base64 || "",
-      institution_color: inst&.primary_color_hex || "#000000",
-      name: self.name,
-      last4: self.last4,
+    return Institution.new(
+      name: inst&.name || "Unknown",
+      logo: inst&.logo_base64 || "",
+      color: inst&.primary_color_hex || "#000000",
     )
   end
 

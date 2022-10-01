@@ -1,4 +1,5 @@
 import config from "./config";
+import relativeLink from "./modules/relativeLink";
 import apiBase from "./shared/apiBase";
 
 const instance = apiBase.create(config.apiHost, {
@@ -24,10 +25,15 @@ const del = (path, params, opts) => {
   return instance.delete(path, apiBase.mergeParams(params, opts));
 };
 
-function followRedirect(history) {
+function followRedirect(navigate) {
   return function (resp) {
     if (resp.headers["created-resource-admin"]) {
-      history.push(resp.headers["created-resource-admin"]);
+      const [href, relative] = relativeLink(resp.headers["created-resource-admin"]);
+      if (relative) {
+        navigate(href);
+      } else {
+        window.location.href = href;
+      }
     }
     return resp;
   };
@@ -46,17 +52,27 @@ export default {
   getCurrentUser: (data) => get(`/adminapi/v1/auth`, data),
   impersonate: ({ id, ...data }) => post(`/adminapi/v1/auth/impersonate/${id}`, data),
   unimpersonate: (data) => del(`/adminapi/v1/auth/impersonate`, data),
+  getCurrencies: (data) => get(`/adminapi/v1/meta/currencies`, data),
+  getVendorServiceCategories: (data) =>
+    get(`/adminapi/v1/meta/vendor_service_categories`, data),
 
   getBankAccount: ({ id, ...data }) => get(`/adminapi/v1/bank_accounts/${id}`, data),
 
   getBookTransactions: (data) => get(`/adminapi/v1/book_transactions`, data),
   getBookTransaction: ({ id, ...data }) =>
     get(`/adminapi/v1/book_transactions/${id}`, data),
+  createBookTransaction: (data) => post(`/adminapi/v1/book_transactions/create`, data),
 
   getFundingTransactions: (data) => get(`/adminapi/v1/funding_transactions`, data),
   getFundingTransaction: ({ id, ...data }) =>
     get(`/adminapi/v1/funding_transactions/${id}`, data),
+  createForSelfFundingTransaction: (data) =>
+    post(`/adminapi/v1/funding_transactions/create_for_self`, data),
 
   getMembers: (data) => get(`/adminapi/v1/members`, data),
   getMember: ({ id, ...data }) => get(`/adminapi/v1/members/${id}`, data),
+
+  searchPaymentInstruments: (data) =>
+    get(`/adminapi/v1/search/payment_instruments`, data),
+  searchLedgers: (data) => get(`/adminapi/v1/search/ledgers`, data),
 };

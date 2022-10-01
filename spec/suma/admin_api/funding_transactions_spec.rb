@@ -77,4 +77,22 @@ RSpec.describe Suma::AdminAPI::FundingTransactions, :db do
       expect(last_response).to have_status(403)
     end
   end
+
+  describe "POST /v1/funding_transactions/create_for_self" do
+    it "creates the funding and book transaction to the instrument owner cash ledger" do
+      member = Suma::Fixtures.member.create
+      ba = Suma::Fixtures.bank_account.member(member).verified.create
+
+      post "/v1/funding_transactions/create_for_self",
+           amount: {cents: 500, currency: "USD"},
+           payment_instrument_id: ba.id,
+           payment_method_type: ba.payment_method_type
+
+      expect(last_response).to have_status(200)
+      expect(last_response.headers).to include("Created-Resource-Admin")
+      expect(member.payment_account.originated_funding_transactions).to contain_exactly(
+        have_attributes(status: "created", originated_book_transaction: be_present),
+      )
+    end
+  end
 end

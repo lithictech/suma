@@ -67,4 +67,13 @@ RSpec.describe "Suma::Payment::BookTransaction", :db do
       )
     end
   end
+
+  describe "validations" do
+    it "cannot have the same originating and receiving ledger id" do
+      bt = Suma::Fixtures.book_transaction.create
+      bt.receiving_ledger = bt.originating_ledger
+      bt.validate
+      expect(bt.errors).to eq({receiving_ledger_id: ["originating and receiving ledgers cannot be the same"]})
+    end
+  end
 end
