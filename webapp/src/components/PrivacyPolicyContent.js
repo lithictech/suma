@@ -31,7 +31,6 @@ import Row from "react-bootstrap/Row";
 import Stack from "react-bootstrap/Stack";
 import { Helmet } from "react-helmet-async";
 import ReactMarkdown from "react-markdown";
-import { Link } from "react-router-dom";
 
 export default function PrivacyPolicyContent({ mobile }) {
   mobile = Boolean(mobile);
@@ -55,7 +54,7 @@ export default function PrivacyPolicyContent({ mobile }) {
             src={img}
             alt={title}
             className={clsx(
-              "privacy-policy-image d-block mx-auto mb-4",
+              "privacy-policy-image d-block ms-4 mb-4",
               !mobile && "float-md-end mx-md-4"
             )}
           />
@@ -138,14 +137,12 @@ export default function PrivacyPolicyContent({ mobile }) {
               <Col xs={12} className={clsx("pt-3", !mobile && "col-md-4")}>
                 <Stack gap={3}>
                   <TabLink
-                    label={t("overview:faq:label")}
-                    title={t("overview:faq:title")}
-                    to="/frequently-asked-questions"
+                    label={t("overview:faq")}
+                    to="https://mysuma.org/sumaplatform/faq"
                   />
                   <TabLink
                     label={t("overview:contact_us")}
-                    title={t("overview:contact_us")}
-                    to="/contact-us"
+                    to="mailto:apphelp@mysuma.org"
                   />
                 </Stack>
               </Col>
@@ -442,9 +439,12 @@ const TableOfContentsNav = ({ id, mobile }) => {
       {mobile && (
         <Container>
           <Navbar.Toggle className={clsx(expanded && "expanded")}>
-            <div className="navbar-toggler-icon-bar bg-dark" />
-            <div className="navbar-toggler-icon-bar bg-dark" />
-            <div className="navbar-toggler-icon-bar bg-dark" />
+            <i
+              className={clsx(
+                "bi bi-list-ul fs-2",
+                !expanded ? "text-dark" : "text-secondary"
+              )}
+            ></i>
           </Navbar.Toggle>
           <Navbar.Brand className="me-auto d-flex align-items-center">
             {t("common:table_of_contents")}
@@ -505,9 +505,9 @@ const TableOfContentsNav = ({ id, mobile }) => {
 
 const TabLink = ({ to, label, title }) => {
   return (
-    <Link to={to} className="btn btn-outline-dark border-1" title={title}>
+    <ELink to={to} className="btn btn-outline-dark border-1">
       {label}
-    </Link>
+    </ELink>
   );
 };
 

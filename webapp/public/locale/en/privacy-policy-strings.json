@@ -20,10 +20,7 @@
     "consent_title": "Consent",
     "education_title": "Education",
     "trust_title": "Trust",
-    "faq": {
-      "title":"Frequently asked questions",
-      "label":"FAQ"
-    },
+    "faq": "FAQ",
     "contact_us": "Contact us"
   },
   "privacy_policy": {

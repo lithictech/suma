@@ -3,11 +3,10 @@
 .table-of-contents-collapse {
   // avoid BS scrollTo position issues
   position: absolute;
-  top: 49px;
+  top: 100%;
   border: 1px solid $secondary;
   left: -1px;
   right: -1px;
-
 }
 
 // table-of-contents mobile-responsive
