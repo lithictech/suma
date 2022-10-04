@@ -20,10 +20,7 @@
     "consent_title": "Consent",
     "education_title": "Education",
     "trust_title": "Trust",
-    "faq": {
-      "title":"Frequently asked questions",
-      "label":"FAQ"
-    },
+    "faq": "FAQ",
     "contact_us": "Contact us"
   },
   "privacy_policy": {
@@ -33,33 +30,24 @@
       "title": "What information is collected?",
       "paragraph": "We collect the minimum information needed to create your suma platform account, work with community partners, connect you with vendors, and secure subsidy: Registration: We collect your name, telephone number, email, billing information, and community partner name when you create your suma platform account.",
       "list": {
-        "registration":"Registration: We collect your name, telephone number, email, billing information, and community partner name when you create your suma platform account.",
-        "vendors":"Vendors: We collect data about what goods and services you access and purchase via the suma platform.",
-        "subsidy":"Subsidy: We collect data necessary to secure third party subsidy that reduces the cost of goods and services from vendors via the suma platform."
+        "registration_md":"**Registration:** We collect your name, telephone number, email, billing information, and community partner name when you create your suma platform account.",
+        "vendors_md":"**Vendors:** We collect data about what goods and services you access and purchase via the suma platform.",
+        "subsidy_md":"**Subsidy:** We collect data necessary to secure third party subsidy that reduces the cost of goods and services from vendors via the suma platform."
       }
     },
     "methods_of_collection": {
       "title":"Methods of collection",
       "paragraph":"Your trust in, consent to and understanding of our privacy policy are fundamental to the suma platform. To provide platform services, we collect information from the following methods:",
       "list": {
-        "registration_page":"We use our registration page to collect information when you create your suma account.",
-        "cookies":"Cookies and Log Files. We use cookies to track who you are logged in as. We use log files to track all activity on the platform. Please see our cookies policy to learn about the cookies we use and why.",
-        "goods_and_services":"______. We use _____ to collect information when you access goods and services from vendors via the suma platform",
-        "community_partners":"Community Partners. We collect data from community partners to help us qualify you for vendor discounts on the suma platform as well as to support third party subsidy that reduces the cost of goods and services from vendors via the suma platform."
+        "registration_page_md":"**Registration:** We use our registration page to collect information when you create your suma account.",
+        "cookies_md":"**Cookies and Log Files:** We use cookies to track who you are logged in as. We use log files to track all activity on the platform. Please see our cookies policy to learn about the cookies we use and why.",
+        "goods_and_services_md":"**______:** We use _____ to collect information when you access goods and services from vendors via the suma platform",
+        "community_partners_md":"**Community Partners:** We collect data from community partners to help us qualify you for vendor discounts on the suma platform as well as to support third party subsidy that reduces the cost of goods and services from vendors via the suma platform."
       }
     },
     "methods_of_data_usage": {
       "title": "Methods of data usage",
-      "paragraph":"We use personal data to power suma platform services, to process your transactions, to qualify you for platform vendor discounts, to support third party subsidy, to aggregate platform usage, to educate community partners, to communicate with you, for security and fraud prevention, and to comply with the law:",
-      "list":{
-        "vendor_discounts":"Qualify you for vendor discounts: Community members told us that vendor discount programs are frustrating and time consuming, so we built the platform to make it easier for our users to qualify for vendor discounts. With your consent, we may use your personal data to qualify you for these discounts.",
-        "third_party_subsidy":"Support third party subsidy: Funders may want to put money into the suma platform to reduce the cost of food, transportation, utilities or other goods and services for platform users. With your consent, we may use your personal data to secure or report on these investments.",
-        "platform_usage":"Aggregated platform usage: We anonymize and aggregate platform usage data to demonstrate to funders and partners the impact and reach of the platform. You can opt out of being included in this anonymized reporting through your Preferences page in the suma application.",
-        "educate_partners":"Educate community partners: Affordable housing providers and other community partners may request anonymized and aggregated data on how their residents are using the platform. For example, a partner may request anonymized and aggregated transportation data to help them advocate for more e-bike stations in their neighborhood or request anonymized and aggregated food data to help them advocate for a farmers market at their affordable housing complex. With your consent, we may share aggregate or anonymized data with these partners.",
-        "communicate_with_you":"Communicate with you: We may use your data to respond to your communications, reach out to you about your transactions or account, market the platform, provide other relevant information, or request information or feedback. ",
-        "security_and_fraud_prevention":"Security and fraud prevention: [Needs More Context Here]",
-        "comply_with_law":"Comply with the law: We may share your personal information if we believe its required by applicable law, regulation, operating license or agreement, legal process or governmental request, or where the disclosure is otherwise appropriate due to safety or similar concerns. For example, we may share your personal information if an e-scooter is lost or damaged in order to ___."
-      }
+      "paragraph":"We use personal data to power suma platform services, to process your transactions, to qualify you for platform vendor discounts, to support third party subsidy, to aggregate platform usage, to educate community partners, to communicate with you, for security and fraud prevention, and to comply with the law:"
     },
     "cookies_policy": {
       "title":"Cookies policy",
@@ -87,8 +75,8 @@
       "title":"Communication",
       "paragraph":"Sometimes we will need to communicate with you about the platform, including things like new vendors, new community partners, savings or subsidy opportunities, community events and service messages. We will use the communication preferences and contact information you have shared with us to communicate with you via email, text and/or in-platform tools. Communications will take place in the language you indicate in your communication preferences. You may change your communication preferences and contact information at any time, except:",
       "list": {
-        "no_opt_out":"You cannot opt out of receiving service messages from us, including privacy policy updates, security notices and legal notices.",
-        "keep_valid_email":"You are required to keep a valid email address on file to receive messages."
+        "no_opt_out":"you cannot opt out of receiving service messages from us, including privacy policy updates, security notices and legal notices.",
+        "keep_valid_email":"you are required to keep a valid email address on file to receive messages."
       }
     },
     "future_changes_to_policy": {
@@ -106,6 +94,26 @@
     }
   },
   "privacy_policy_subsections": {
+    "vendor_discounts": { 
+      "title": "Qualify you for vendor discounts",
+      "paragraph": "Community members told us that vendor discount programs are frustrating and time consuming, so we built the platform to make it easier for our users to qualify for vendor discounts. With your consent, we may use your personal data to qualify you for these discounts."
+    },
+    "third_party_subsidy": { 
+      "title": "Support third party subsidy",
+      "paragraph": "Funders may want to put money into the suma platform to reduce the cost of food, transportation, utilities or other goods and services for platform users. With your consent, we may use your personal data to secure or report on these investments."
+    },
+    "platform_usage": { 
+      "title": "Aggregated platform usage",
+      "paragraph": "We anonymize and aggregate platform usage data to demonstrate to funders and partners the impact and reach of the platform. You can opt out of being included in this anonymized reporting through your Preferences page in the suma application."
+    },
+    "educate_partners": { 
+      "title": "Educate community partners",
+      "paragraph": "Affordable housing providers and other community partners may request anonymized and aggregated data on how their residents are using the platform. For example, a partner may request anonymized and aggregated transportation data to help them advocate for more e-bike stations in their neighborhood or request anonymized and aggregated food data to help them advocate for a farmers market at their affordable housing complex. With your consent, we may share aggregate or anonymized data with these partners."
+    },
+    "communicate_with_you": { 
+      "title": "Communicate with you",
+      "paragraph": "We may use your data to respond to your communications, reach out to you about your transactions or account, market the platform, provide other relevant information, or request information or feedback. "
+    },
     "platform_vendors": {
       "title": "Platform vendors",
       "paragraph_md":"We may share certain data with a platform vendor when you use the platform to access goods or services from that vendor. For example, if you request an e-scooter ride from Operator X via the platform, we may share certain data with Operator X to confirm you are a Suma user and/or to confirm you are eligible for Operator X&rsquo;s discount program."
@@ -157,9 +165,9 @@
       "title":"Data removal",
       "paragraph":"You may request deletion of your suma platform account at any time from your Preferences page in the Suma app. We will delete your account and data within 7 days after you make a deletion request. Things to note:",
       "list":{
-        "request_your_consent":"We may request your consent to anonymize and retain your data to educate community partners or for platform dashboard purposes.",
-        "deleting_your_account":"Deleting your account may not free up your email address or phone number for reuse on a new account.",
-        "deleting_certain_data":"We may not be able to delete certain data because of legal, regulatory or subsidy reporting requirements, for purposes of safety, security, and fraud prevention, or because of an issue relating to your account such as an outstanding credit or an unresolved claim or dispute."
+        "request_your_consent":"we may request your consent to anonymize and retain your data to educate community partners or for platform dashboard purposes.",
+        "deleting_your_account":"deleting your account may not free up your email address or phone number for reuse on a new account.",
+        "deleting_certain_data":"we may not be able to delete certain data because of legal, regulatory or subsidy reporting requirements, for purposes of safety, security, and fraud prevention, or because of an issue relating to your account such as an outstanding credit or an unresolved claim or dispute."
       }
     }
   },

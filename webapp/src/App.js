@@ -1,3 +1,4 @@
+import PrivacyPolicyContent from "./components/PrivacyPolicyContent";
 import ScreenLoader from "./components/ScreenLoader";
 import {
   redirectIfAuthed,
@@ -74,6 +75,11 @@ function AppRoutes() {
           path="/privacy-policy"
           exact
           element={renderWithHocs(withLayout({ noScrollTop: true }), PrivacyPolicy)}
+        />
+        <Route
+          path="/privacy-policy-content"
+          exact
+          element={renderWithHocs(PrivacyPolicyContent)}
         />
         <Route
           path="/start"
