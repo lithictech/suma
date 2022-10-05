@@ -6,6 +6,7 @@ import externalLinks from "../modules/externalLinks";
 import React from "react";
 import Button from "react-bootstrap/Button";
 import Container from "react-bootstrap/Container";
+import TranslationToggle from "../components/TranslationToggle";
 
 export default function Home() {
   return (
@@ -24,6 +25,7 @@ export default function Home() {
         >
           {t("common:learn_more")}
         </ExternalLink>
+        <TranslationToggle classes="mt-3 mx-auto w-75" />
       </div>
     </Container>
   );

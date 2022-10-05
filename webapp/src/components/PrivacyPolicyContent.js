@@ -16,13 +16,11 @@ import thirdPartyAcceess from "../assets/images/privacypolicy/third-party-access
 import "../assets/styles/privacy-policy.scss";
 import ELink from "../components/ELink";
 import ScreenLoader from "../components/ScreenLoader";
-import useI18Next from "../localization/useI18Next";
 import externalLinks from "../modules/externalLinks";
 import ScrollSpy from "bootstrap/js/src/scrollspy";
 import clsx from "clsx";
 import i18n from "i18next";
 import React from "react";
-import Button from "react-bootstrap/Button";
 import Col from "react-bootstrap/Col";
 import Container from "react-bootstrap/Container";
 import Nav from "react-bootstrap/Nav";
@@ -31,6 +29,7 @@ import Row from "react-bootstrap/Row";
 import Stack from "react-bootstrap/Stack";
 import { Helmet } from "react-helmet-async";
 import ReactMarkdown from "react-markdown";
+import TranslationToggle from "./TranslationToggle";
 
 export default function PrivacyPolicyContent({ mobile }) {
   mobile = Boolean(mobile);
@@ -123,7 +122,7 @@ export default function PrivacyPolicyContent({ mobile }) {
           tabIndex="0"
         >
           <Container id="overview" className={clsx(!mobile && "px-xl-3")}>
-            <SpanishTranslatorButton />
+            <TranslationToggle classes="d-flex justify-content-end" />
             <Row>
               <Col xs={12} className={clsx(!mobile && "col-md-8")}>
                 <h1 className="display-4">{t("overview:title")}</h1>
@@ -536,31 +535,6 @@ const PedalCol = ({ heading, paragraph, img, right, mobile }) => {
         </div>
       </Stack>
     </Col>
-  );
-};
-
-const SpanishTranslatorButton = () => {
-  const { language, changeLanguage } = useI18Next();
-  return (
-    <div className="d-flex justify-content-end">
-      {language !== "en" ? (
-        <Button
-          variant="link"
-          onClick={() => changeLanguage("en")}
-          title={t("common:translate_to_english")}
-        >
-          <i>{t("common:in_english")}</i>
-        </Button>
-      ) : (
-        <Button
-          variant="link"
-          onClick={() => changeLanguage("es")}
-          title={t("common:translate_to_spanish")}
-        >
-          <i>{t("common:in_spanish")}</i>
-        </Button>
-      )}
-    </div>
   );
 };
 
