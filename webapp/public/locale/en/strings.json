@@ -124,7 +124,9 @@
     "reserve_scooter": "Reserve Scooter",
     "title": "Mobility Services",
     "trip_ended": "Your trip with {{vendor}} has ended.\n\nWe used {{totalCost, sumaCurrency}} of your Suma balance for this trip.\n\nYou saved {{discountAmount, sumaCurrency}}.",
-    "trip_started_at": "Trip started at {{at}}."
+    "trip_started_at": "Trip started at {{at}}.",
+    "zoom_in": "Zoom in",
+    "zoom_out": "Zoom out"
   },
   "onboarding": {
     "enroll_intro": "Welcome to Suma! To get started, we will need to verify your identity. This makes sure you are eligible for the right programs, such as with our affordable housing partners.\n\n**We will never share this information other than to verify your identity.**",

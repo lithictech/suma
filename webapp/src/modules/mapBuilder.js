@@ -21,7 +21,13 @@ export default class MapBuilder {
     this._latOffset = 0.00004;
     this._map = this._l.map(this.mapRef.current, { zoomControl: false });
     this._map.setView([this._dLat, this._dLng], this._minZoom);
-    this._l.control.zoom({ position: "bottomright" }).addTo(this._map);
+    this._l.control
+      .zoom({
+        position: "bottomright",
+        zoomInTitle: t("mobility:zoom_in"),
+        zoomOutTitle: t("mobility:zoom_out"),
+      })
+      .addTo(this._map);
     this.newLocateControl().addTo(this._map);
     this._lastExtendedBounds = expandBounds(this._map.getBounds());
     this._mcg = this._l.markerClusterGroup({
