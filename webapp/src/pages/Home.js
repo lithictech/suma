@@ -1,12 +1,12 @@
 import sumaLogo from "../assets/images/suma-logo.png";
 import ExternalLink from "../components/ExternalLink";
 import RLink from "../components/RLink";
+import TranslationToggle from "../components/TranslationToggle";
 import { t } from "../localization";
 import externalLinks from "../modules/externalLinks";
 import React from "react";
 import Button from "react-bootstrap/Button";
 import Container from "react-bootstrap/Container";
-import TranslationToggle from "../components/TranslationToggle";
 
 export default function Home() {
   return (

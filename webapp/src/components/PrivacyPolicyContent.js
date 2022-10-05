@@ -17,6 +17,7 @@ import "../assets/styles/privacy-policy.scss";
 import ELink from "../components/ELink";
 import ScreenLoader from "../components/ScreenLoader";
 import externalLinks from "../modules/externalLinks";
+import TranslationToggle from "./TranslationToggle";
 import ScrollSpy from "bootstrap/js/src/scrollspy";
 import clsx from "clsx";
 import i18n from "i18next";
@@ -29,7 +30,6 @@ import Row from "react-bootstrap/Row";
 import Stack from "react-bootstrap/Stack";
 import { Helmet } from "react-helmet-async";
 import ReactMarkdown from "react-markdown";
-import TranslationToggle from "./TranslationToggle";
 
 export default function PrivacyPolicyContent({ mobile }) {
   mobile = Boolean(mobile);
