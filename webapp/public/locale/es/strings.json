@@ -116,6 +116,7 @@
     "do_not_ride_title": "Por favor no conduzca aquí.",
     "end_trip": "Finalizar el viaje",
     "intro": "Viaja con más seguridad y mejores precios.",
+    "locate_me": "Localizarme",
     "mobility_start_and_per_minute": "La tarifa inicial es {{surchargeCents, sumaCurrency}}, y luego, {{unitCents, sumaCurrency}} por minuto",
     "reserve_scooter": "Reservar una patineta eléctrica",
     "title": "Servicios de movilidad",

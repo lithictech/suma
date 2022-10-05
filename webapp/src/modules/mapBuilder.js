@@ -300,7 +300,11 @@ export default class MapBuilder {
       options: {
         position: "bottomright",
         link: undefined,
-        center: () => {
+        center: (e) => {
+          e.preventDefault();
+          if (!this._lastLocation) {
+            return;
+          }
           this.centerLocation({ ...this._lastLocation, targetZoom: 15 });
         },
       },
@@ -316,13 +320,14 @@ export default class MapBuilder {
         );
         this.options.link = link;
         link.href = "#";
-        link.title = "Locate me";
+        link.title = t("mobility:locate_me");
         link.setAttribute("role", "button");
+        link.setAttribute("aria-label", t("mobility:locate_me"));
         leaflet.DomUtil.create("div", "bi bi-geo-fill", link);
         leaflet.DomEvent.on(
           this.options.link,
           "click",
-          () => this.options.center(),
+          (e) => this.options.center(e),
           this
         );
         leaflet.DomEvent.on(this.options.link, "dblclick", (ev) => {
@@ -334,7 +339,7 @@ export default class MapBuilder {
         leaflet.DomEvent.off(
           this.options.link,
           "click",
-          () => this.options.center(),
+          (e) => this.options.center(e),
           this
         );
         leaflet.DomEvent.off(this.options.link, "dblclick", (ev) => {
