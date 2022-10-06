@@ -116,11 +116,14 @@
     "do_not_ride_title": "Por favor no conduzca aquí.",
     "end_trip": "Finalizar el viaje",
     "intro": "Viaja con más seguridad y mejores precios.",
+    "locate_me": "Localizarme",
     "mobility_start_and_per_minute": "La tarifa inicial es {{surchargeCents, sumaCurrency}}, y luego, {{unitCents, sumaCurrency}} por minuto",
     "reserve_scooter": "Reservar una patineta eléctrica",
     "title": "Servicios de movilidad",
     "trip_ended": "Tu viaje con {{vendor}} ah terminado.\n\nUsamos {{totalCost, sumaCurrency}} de su saldo de Suma.\n\nSalvaste {{discountAmount, sumaCurrency}}.",
-    "trip_started_at": "Viaje iniciado a {{at}}."
+    "trip_started_at": "Viaje iniciado a {{at}}.",
+    "zoom_in": "Acercar",
+    "zoom_out": "Alejar"
   },
   "onboarding": {
     "enroll_intro": "¡Bienvenido a Suma! Para comenzar, necesitaremos verificar su identidad. Esto asegura que sea elegible para los programas correctos, como con nuestros socios de vivienda asequible.\n\n**Nunca compartiremos esta información más que para verificar su identidad.**",

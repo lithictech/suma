@@ -21,7 +21,13 @@ export default class MapBuilder {
     this._latOffset = 0.00004;
     this._map = this._l.map(this.mapRef.current, { zoomControl: false });
     this._map.setView([this._dLat, this._dLng], this._minZoom);
-    this._l.control.zoom({ position: "bottomright" }).addTo(this._map);
+    this._l.control
+      .zoom({
+        position: "bottomright",
+        zoomInTitle: t("mobility:zoom_in"),
+        zoomOutTitle: t("mobility:zoom_out"),
+      })
+      .addTo(this._map);
     this.newLocateControl().addTo(this._map);
     this._lastExtendedBounds = expandBounds(this._map.getBounds());
     this._mcg = this._l.markerClusterGroup({
@@ -300,7 +306,11 @@ export default class MapBuilder {
       options: {
         position: "bottomright",
         link: undefined,
-        center: () => {
+        center: (e) => {
+          e.preventDefault();
+          if (!this._lastLocation) {
+            return;
+          }
           this.centerLocation({ ...this._lastLocation, targetZoom: 15 });
         },
       },
@@ -316,13 +326,14 @@ export default class MapBuilder {
         );
         this.options.link = link;
         link.href = "#";
-        link.title = "Locate me";
+        link.title = t("mobility:locate_me");
         link.setAttribute("role", "button");
+        link.setAttribute("aria-label", t("mobility:locate_me"));
         leaflet.DomUtil.create("div", "bi bi-geo-fill", link);
         leaflet.DomEvent.on(
           this.options.link,
           "click",
-          () => this.options.center(),
+          (e) => this.options.center(e),
           this
         );
         leaflet.DomEvent.on(this.options.link, "dblclick", (ev) => {
@@ -334,7 +345,7 @@ export default class MapBuilder {
         leaflet.DomEvent.off(
           this.options.link,
           "click",
-          () => this.options.center(),
+          (e) => this.options.center(e),
           this
         );
         leaflet.DomEvent.off(this.options.link, "dblclick", (ev) => {
