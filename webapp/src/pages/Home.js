@@ -1,6 +1,7 @@
 import sumaLogo from "../assets/images/suma-logo.png";
 import ExternalLink from "../components/ExternalLink";
 import RLink from "../components/RLink";
+import TranslationToggle from "../components/TranslationToggle";
 import { t } from "../localization";
 import externalLinks from "../modules/externalLinks";
 import React from "react";
@@ -24,6 +25,7 @@ export default function Home() {
         >
           {t("common:learn_more")}
         </ExternalLink>
+        <TranslationToggle classes="mt-3 mx-auto w-75" />
       </div>
     </Container>
   );
