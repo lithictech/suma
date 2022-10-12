@@ -106,7 +106,7 @@ RSpec.describe Suma::API::Mobility, :db do
         )
     end
 
-    it "disambiguates vehicles of the same type and provider at the same location" do
+    it "disambiguates and offsets vehicles of the same type and provider at the same location" do
       vs = Suma::Fixtures.vendor_service.mobility.create
       fac = Suma::Fixtures.mobility_vehicle
       bike1_provider1_loc1 = fac.loc(20, 120).ebike.create(vendor_service: vs, vehicle_id: "111")
@@ -124,12 +124,62 @@ RSpec.describe Suma::API::Mobility, :db do
             {c: [200_000_000, 1_200_000_000], p: 0},
           ],
           ebike: [
-            {c: [200_000_000, 1_200_000_000], p: 0, d: "111"},
-            {c: [200_000_000, 1_200_000_000], p: 0, d: "211"},
+            {c: [200_000_000, 1_200_000_000], p: 0, d: "111", o: [200_000_024, 1_200_000_000]},
+            {c: [200_000_000, 1_200_000_000], p: 0, d: "211", o: [199_999_988, 1_200_000_021]},
             {c: [400_000_000, 1_400_000_000], p: 0},
-            {c: [200_000_000, 1_200_000_000], p: 1},
+            {c: [200_000_000, 1_200_000_000], p: 1, o: [199_999_988, 1_199_999_979]},
           ],
         )
+    end
+
+    context "when offsetting vehicles at the same location" do
+      def get_same_location_vehicles(amount)
+        amount.times do
+          Suma::Fixtures.mobility_vehicle.loc(20, 120).escooter.create
+        end
+        get "/v1/mobility/map", sw: [15, 110], ne: [25, 125]
+      end
+
+      it "offsets 2 vehicles" do
+        get_same_location_vehicles(2)
+        expect(last_response).to have_status(200)
+        expect(last_response).to have_json_body.
+          that_includes(
+            escooter: contain_exactly(
+              include(o: [200_000_016, 1_200_000_000]),
+              include(o: [199_999_984, 1_200_000_000]),
+            ),
+          )
+      end
+
+      it "offsets 4 vehicles" do
+        get_same_location_vehicles(4)
+        expect(last_response).to have_status(200)
+        expect(last_response).to have_json_body.
+          that_includes(
+            escooter: contain_exactly(
+              include(o: [200_000_032, 1_200_000_000]),
+              include(o: [200_000_000, 1_200_000_032]),
+              include(o: [199_999_968, 1_200_000_000]),
+              include(o: [200_000_000, 1_199_999_968]),
+            ),
+          )
+      end
+
+      it "offsets 5 vehicles" do
+        get_same_location_vehicles(5)
+        expect(last_response).to have_status(200)
+        expect(last_response).to have_json_body.
+          that_includes(
+            escooter: contain_exactly(
+              include(o: [200_000_040, 1_200_000_000]),
+              include(o: [200_000_012, 1_200_000_038]),
+              include(o: [199_999_968, 1_200_000_023]),
+              include(o: [199_999_968, 1_199_999_977]),
+              include(o: [200_000_012, 1_199_999_962]),
+            ),
+          )
+      end
     end
 
     it "401s if not logged in" do

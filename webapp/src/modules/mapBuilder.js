@@ -280,6 +280,8 @@ export default class MapBuilder {
   }
 
   newMarker(id, bike, vehicleType, providers, precisionFactor) {
+    // use offset coordinates when available
+    bike.c = !bike.o ? bike.c : bike.o;
     const [lat, lng] = bike.c;
     return this._l
       .marker([lat * precisionFactor, lng * precisionFactor], {

@@ -54,24 +54,7 @@ class Suma::API::Mobility < Suma::API::V1
         arr = map_obj[vehicle.vehicle_type.to_sym] ||= []
         arr << vhash
       end
-      map_obj.each_value do |vehicles|
-        vehicles.group_by { |v| v[:c] }.each do |_, shared_loc_vehicles|
-          next if shared_loc_vehicles.count <= 1
-          two_pi = Math::PI * 2
-          circle_circumference = 50 * (2 + shared_loc_vehicles.count)
-          leg_length = circle_circumference / two_pi
-          angle_step = two_pi / shared_loc_vehicles.count
-          d = 0.5
-
-          shared_loc_vehicles.each_with_index do |v, idx|
-            angle = angle_step * idx
-            lat, lng = v[:c]
-            offset_lat = (lat + (leg_length * (d * Math.cos(angle)))).round
-            offset_lng = (lng + (leg_length * (d * Math.sin(angle)))).round
-            v[:c] = [offset_lat, offset_lng]
-          end
-        end
-      end
+      Suma::Mobility.offset_disambiguated_vehicles(map_obj:)
       map_obj[:providers] = vnd_services
       present map_obj, with: MobilityMapEntity
     end
@@ -161,6 +144,7 @@ class Suma::API::Mobility < Suma::API::V1
     expose :c
     expose :p
     expose :d, expose_nil: false
+    expose :o, expose_nil: false
   end
 
   class MobilityMapEntity < BaseEntity
