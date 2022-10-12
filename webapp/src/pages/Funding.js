@@ -79,10 +79,10 @@ function BankAccountLine({ bankAccount }) {
         <div>
           <Card.Title className="mb-1" as="h6">
             <i className="bi bi-bank2 me-2"></i>
-            {bankAccount.display.name}
+            {bankAccount.name}
           </Card.Title>
           <Card.Subtitle className="m-0">
-            <span className="opacity-50">x-{bankAccount.display.last4}</span>
+            <span className="opacity-50">x-{bankAccount.last4}</span>
           </Card.Subtitle>
         </div>
         <div className="ms-auto text-end">
