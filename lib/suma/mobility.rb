@@ -21,22 +21,29 @@ module Suma::Mobility
     return i * INT2COORD_FACTOR
   end
 
-  # Same location vehicles are spread equally around that location in a circular manner.
-  # We pass an offset variable for each vehicle to evaluate their new position.
-  def self.offset_disambiguated_vehicles(map_obj:)
-    map_obj.each_value do |vehicles|
+  # *map_vehicles* is hash of vehicles types e.g. escooters or ebikes containing an array of vehicle hashes
+  # which include properties that will be used in the front-end e.g. coordinates.
+  # This function calculates and sets an offset integer for each disambiguated vehicle coordinates to use that
+  # new position in the front-end. The vehicles new position will spread in a circular manner from that center location.
+  # This is done to avoid disambiguated vehicles from appearing at the same position causing visiblity issues.
+  # Example of two vehicles at location [450000060, -1220000060]:
+  # o: [-10, 0] and [10, 0] => [45000050, -1220000000] and [45000070, -1220000000]
+  def self.offset_disambiguated_vehicles(map_vehicles)
+    map_vehicles.each_value do |vehicles|
       vehicles.group_by { |v| v[:c] }.each do |_, shared_loc_vehicles|
         next if shared_loc_vehicles.count <= 1
+        # measured in pixels
+        diameter = 40
         two_pi = Math::PI * 2
-        circle_circumference = 50 * shared_loc_vehicles.count
+        circle_circumference = diameter * Math::PI
         spread_length = circle_circumference / two_pi
         angle_step = two_pi / shared_loc_vehicles.count
         shared_loc_vehicles.each_with_index do |v, idx|
           angle = angle_step * idx
           lat, lng = v[:c]
-          offset_lat = (lat + (spread_length * Math.cos(angle))).round
-          offset_lng = (lng + (spread_length * Math.sin(angle))).round
-          v[:o] = [offset_lat, offset_lng]
+          offset_lat = lat + (spread_length * Math.cos(angle)).round
+          offset_lng = lng + (spread_length * Math.sin(angle)).round
+          v[:o] = [lat - offset_lat, lng - offset_lng]
         end
       end
     end

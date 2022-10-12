@@ -31,11 +31,9 @@ export default class MapBuilder {
     this.newLocateControl().addTo(this._map);
     this._lastExtendedBounds = expandBounds(this._map.getBounds());
     this._mcg = this._l.markerClusterGroup({
+      spiderfyOnMaxZoom: false,
       showCoverageOnHover: false,
-      maxClusterRadius: (mapZoom) => {
-        // only cluster same location markers above zoom 17
-        return mapZoom >= 17 ? 0 : 32;
-      },
+      maxClusterRadius: 32,
       iconCreateFunction: (cluster) => {
         return this._l.divIcon({
           html: "<b>" + cluster.getChildCount() + "</b>",
@@ -280,9 +278,12 @@ export default class MapBuilder {
   }
 
   newMarker(id, bike, vehicleType, providers, precisionFactor) {
-    // use offset coordinates when available
-    bike.c = !bike.o ? bike.c : bike.o;
-    const [lat, lng] = bike.c;
+    // calculate lat, lng offsets when available
+    let [lat, lng] = bike.c;
+    if (bike.o) {
+      lat += bike.o[0];
+      lng += bike.o[1];
+    }
     return this._l
       .marker([lat * precisionFactor, lng * precisionFactor], {
         id,
