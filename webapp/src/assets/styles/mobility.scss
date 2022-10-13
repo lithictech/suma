@@ -3,8 +3,7 @@
 .leaflet-container {
   font-family: $font-family-sans-serif !important;
   font-size: 0.85rem;
-  /* This is approximately equal to the leftover space after accounting for the header */
-  height: calc(100vh - 150px);
+  height: 100vh;
 }
 
 .leaflet-div-icon {

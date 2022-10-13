@@ -5,7 +5,7 @@ import { Link, useLocation } from "react-router-dom";
 
 export default function AppNav() {
   return (
-    <div className="d-flex flex-row">
+    <div className="app-nav d-flex flex-row sticky-top">
       <AppLink to="/dashboard" label={t("titles:home")} style={{ borderRightWidth: 0 }} />
       <AppLink
         to="/mobility"

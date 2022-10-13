@@ -57,6 +57,12 @@
     background: $white !important;
 }
 
+.app-nav {
+    // Approximate height of topNav
+    top: 61px!important;
+    background-color: $light;
+}
+
 .app-link {
     border-radius: 0 !important;
     flex-grow: 1 !important;;
