@@ -26,6 +26,7 @@ const Dashboard = () => {
 
   return (
     <>
+      <AppNav />
       {user.ongoingTrip && (
         <Alert variant="danger" className="border-radius-0">
           <p>{t("dashboard:check_ongoing_trip")}</p>
@@ -41,7 +42,6 @@ const Dashboard = () => {
           </div>
         </Alert>
       )}
-      <AppNav />
       {dashboardLoading ? <PageLoader /> : <Ledger dashboard={dashboard} />}
     </>
   );
