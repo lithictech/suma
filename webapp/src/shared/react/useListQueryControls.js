@@ -3,7 +3,7 @@ import { useSearchParams } from "react-router-dom";
 
 export default function useListQueryControls() {
   const [params, setParams] = useSearchParams(new URLSearchParams());
-  const page = Number(params.get("page") || "0");
+  const page = Number(params.get("page") || "1");
   const perPage = Number(params.get("pagesize") || "50");
   const search = params.get("search");
   const order = params.get("order");

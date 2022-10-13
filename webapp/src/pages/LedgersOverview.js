@@ -17,7 +17,7 @@ import Container from "react-bootstrap/Container";
 import Table from "react-bootstrap/Table";
 
 export default function LedgersOverview() {
-  const { page, setPage } = useListQueryControls();
+  const { page, setListQueryParams } = useListQueryControls();
   const { state: ledgersOverview, loading: ledgersOverviewLoading } = useAsyncFetch(
     api.getLedgersOverview,
     {
@@ -46,7 +46,7 @@ export default function LedgersOverview() {
   }, [ledger]);
 
   const handleLinesPageChange = (pg) => {
-    setPage(pg);
+    setListQueryParams({ page: pg });
     ledgerLinesFetch({ id: ledger.id, page: pg });
   };
   return (

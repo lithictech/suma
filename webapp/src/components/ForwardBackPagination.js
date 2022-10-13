@@ -25,7 +25,7 @@ export default function ForwardBackPagination({
         {t("common:pagination_prev")}
       </Pagination.Prev>
       <Pagination.Next
-        className={clsx(page >= pageCount && "disabled")}
+        className={clsx((page >= pageCount || pageCount <= 1) && "disabled")}
         onClick={() => handlePageChange(page + 1)}
       >
         {t("common:pagination_next")}
