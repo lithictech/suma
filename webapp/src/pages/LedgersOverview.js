@@ -34,12 +34,10 @@ export default function LedgersOverview() {
     pickData: true,
     doNotFetchOnInit: true,
   });
-
   const ledger = _.first(ledgersOverview.ledgers);
-
   React.useEffect(() => {
-    if (ledger && page > 1) {
-      ledgerLinesFetch({ id: ledger.id, page });
+    if (ledger && page > 0) {
+      ledgerLinesFetch({ id: ledger.id, page: page + 1 });
     }
     // Only run this on mount
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -47,7 +45,7 @@ export default function LedgersOverview() {
 
   const handleLinesPageChange = (pg) => {
     setListQueryParams({ page: pg });
-    ledgerLinesFetch({ id: ledger.id, page: pg });
+    ledgerLinesFetch({ id: ledger.id, page: pg + 1 });
   };
   return (
     <>

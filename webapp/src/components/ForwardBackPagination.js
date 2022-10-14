@@ -11,7 +11,7 @@ export default function ForwardBackPagination({
   scrollTop,
 }) {
   const handlePageChange = (p) => {
-    onPageChange(clamp(p, 1, pageCount));
+    onPageChange(clamp(p, 0, pageCount));
     if (typeof scrollTop !== "undefined") {
       window.scrollTo(0, scrollTop);
     }
@@ -19,13 +19,13 @@ export default function ForwardBackPagination({
   return (
     <Pagination size="sm" className="justify-content-end">
       <Pagination.Prev
-        className={clsx(page <= 1 && "disabled")}
+        className={clsx(page < 1 && "disabled")}
         onClick={() => handlePageChange(page - 1)}
       >
         {t("common:pagination_prev")}
       </Pagination.Prev>
       <Pagination.Next
-        className={clsx((page >= pageCount || pageCount <= 1) && "disabled")}
+        className={clsx(page + 1 >= pageCount && "disabled")}
         onClick={() => handlePageChange(page + 1)}
       >
         {t("common:pagination_next")}
