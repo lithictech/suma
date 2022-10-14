@@ -33,7 +33,10 @@ export default class MapBuilder {
     this._mcg = this._l.markerClusterGroup({
       spiderfyOnMaxZoom: false,
       showCoverageOnHover: false,
-      maxClusterRadius: 32,
+      maxClusterRadius: (mapZoom) => {
+        // only cluster same location markers above zoom 17
+        return mapZoom >= 17 ? 0 : 32;
+      },
       iconCreateFunction: (cluster) => {
         return this._l.divIcon({
           html: "<b>" + cluster.getChildCount() + "</b>",
@@ -284,8 +287,13 @@ export default class MapBuilder {
       lat += bike.o[0];
       lng += bike.o[1];
     }
+    lat = lat * precisionFactor;
+    lng = lng * precisionFactor;
+    // if (bike.o) {
+    //   this._l.circle([lat, lng], {radius: 10}).addTo(this._map)
+    // }
     return this._l
-      .marker([lat * precisionFactor, lng * precisionFactor], {
+      .marker([lat, lng], {
         id,
         icon: this._scooterIcon,
         riseOnHover: true,

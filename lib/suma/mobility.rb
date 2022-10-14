@@ -21,30 +21,43 @@ module Suma::Mobility
     return i * INT2COORD_FACTOR
   end
 
-  # *map_vehicles* is hash of vehicles types e.g. escooters or ebikes containing an array of vehicle hashes
-  # which include properties that will be used in the front-end e.g. coordinates.
-  # This function calculates and sets an offset integer for each disambiguated vehicle coordinates to use that
-  # new position in the front-end. The vehicles new position will spread in a circular manner from that center location.
-  # This is done to avoid disambiguated vehicles from appearing at the same position causing visiblity issues.
-  # Example of two vehicles at location [450000060, -1220000060]:
-  # o: [-10, 0] and [10, 0] => [45000050, -1220000000] and [45000070, -1220000000]
+  # *map_vehicles* is a hash, where the key is the type of vehicle (:ebike, :escooter)
+  # and the values is an array of hashes describing an individual vehicle.
+  #
+  # Each vehicle hash contains a :c key which is a tuple
+  # of "integer" lat and lng. For example [{c:[45_000_000,-120_000_000]}].
+  #
+  # Any vehicles (across types) that occupy the same coordinates must be offset
+  # so they are not at the same point on the map.
+  #
+  # The vehicle hash for these vehicles gets modified to contain an :o key,
+  # which contains a value of the "integer" lat and lng offset.
+  # For example, a vehicle hash at the same coordinates as another vehicle
+  # would be modified to {c:[45_000_000,-120_000_000], o:[60, 60]}.
   def self.offset_disambiguated_vehicles(map_vehicles)
-    map_vehicles.each_value do |vehicles|
-      vehicles.group_by { |v| v[:c] }.each do |_, shared_loc_vehicles|
-        next if shared_loc_vehicles.count <= 1
-        # measured in pixels
-        diameter = 40
-        two_pi = Math::PI * 2
-        circle_circumference = diameter * Math::PI
-        spread_length = circle_circumference / two_pi
-        angle_step = two_pi / shared_loc_vehicles.count
-        shared_loc_vehicles.each_with_index do |v, idx|
-          angle = angle_step * idx
-          lat, lng = v[:c]
-          offset_lat = lat + (spread_length * Math.cos(angle)).round
-          offset_lng = lng + (spread_length * Math.sin(angle)).round
-          v[:o] = [lat - offset_lat, lng - offset_lng]
-        end
+    all_vehicles = map_vehicles.values.flatten
+    all_vehicles.group_by { |v| v[:c] }.each do |_, shared_loc_vehicles|
+      next if shared_loc_vehicles.count <= 1
+      # For each vehicle occupying the same point,
+      # we want to offset each one around a circle, equidistant from
+      # the others on the circumference of the circle.
+      # Note that we talk about a circle here,
+      # but since lat and lng do not form a square grid,
+      # the circle is effectively an oval (more severe towards global poles).
+      # This is fine though since the circle is so small, no one will know.
+      unit_circle_circumference = 2 * Math::PI # C = 2 * PI * R, R = 1 here
+      angle_step = unit_circle_circumference / shared_loc_vehicles.count
+      # This 'magnitude' is in lat/lng degrees/minutes. It is not an actual
+      # distance like in meters (it isn't worth the complexity).
+      # 0.0000080 degrees is about 1 meter.
+      offset_magnitude = 0.000016 * COORD2INT_FACTOR
+      shared_loc_vehicles.each_with_index do |v, idx|
+        angle = angle_step * idx
+        # The first step is 'up' and we want to avoid scooters vertically stacked
+        angle += angle_step * 0.5
+        offset_lat = (offset_magnitude * Math.cos(angle)).round
+        offset_lng = (offset_magnitude * Math.sin(angle)).round
+        v[:o] = [offset_lat, offset_lng]
       end
     end
   end

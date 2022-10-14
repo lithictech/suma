@@ -15,10 +15,10 @@ RSpec.describe Suma::API::Mobility, :db do
   describe "GET /v1/mobility/map" do
     it "returns the location of all vehicles within the requested bounds" do
       fac = Suma::Fixtures.mobility_vehicle(vendor_service: Suma::Fixtures.vendor_service.mobility.create)
-      v1 = fac.loc(10, 100).escooter.create
-      v2 = fac.loc(20, 120).escooter.create
-      bike = fac.loc(20, 120).ebike.create
-      v3 = fac.loc(30, 130).escooter.create
+      v1 = fac.loc(11, 100).escooter.create
+      v2 = fac.loc(22, 120).escooter.create
+      bike = fac.loc(23, 120).ebike.create
+      v3 = fac.loc(31, 130).escooter.create
 
       get "/v1/mobility/map", sw: [15, 110], ne: [25, 125]
 
@@ -26,10 +26,10 @@ RSpec.describe Suma::API::Mobility, :db do
       expect(last_response).to have_json_body.
         that_includes(
           escooter: [
-            {c: [200_000_000, 1_200_000_000], p: 0},
+            {c: [220_000_000, 1_200_000_000], p: 0},
           ],
           ebike: [
-            {c: [200_000_000, 1_200_000_000], p: 0},
+            {c: [230_000_000, 1_200_000_000], p: 0},
           ],
         )
     end
@@ -121,13 +121,13 @@ RSpec.describe Suma::API::Mobility, :db do
       expect(last_response).to have_json_body.
         that_includes(
           escooter: [
-            {c: [200_000_000, 1_200_000_000], p: 0},
+            {c: [200_000_000, 1_200_000_000], p: 0, o: [0, -40]},
           ],
           ebike: [
-            {c: [200_000_000, 1_200_000_000], p: 0, d: "111", o: [200_000_024, 1_200_000_000]},
-            {c: [200_000_000, 1_200_000_000], p: 0, d: "211", o: [199_999_988, 1_200_000_021]},
+            {c: [200_000_000, 1_200_000_000], p: 0, d: "111", o: [40, 0]},
+            {c: [200_000_000, 1_200_000_000], p: 0, d: "211", o: [0, 40]},
             {c: [400_000_000, 1_400_000_000], p: 0},
-            {c: [200_000_000, 1_200_000_000], p: 1, o: [199_999_988, 1_199_999_979]},
+            {c: [200_000_000, 1_200_000_000], p: 1, o: [-40, 0]},
           ],
         )
     end
@@ -146,8 +146,8 @@ RSpec.describe Suma::API::Mobility, :db do
         expect(last_response).to have_json_body.
           that_includes(
             escooter: contain_exactly(
-              include(o: [200_000_016, 1_200_000_000]),
-              include(o: [199_999_984, 1_200_000_000]),
+              include(o: [40, 0]),
+              include(o: [-40, 0]),
             ),
           )
       end
@@ -158,10 +158,10 @@ RSpec.describe Suma::API::Mobility, :db do
         expect(last_response).to have_json_body.
           that_includes(
             escooter: contain_exactly(
-              include(o: [200_000_032, 1_200_000_000]),
-              include(o: [200_000_000, 1_200_000_032]),
-              include(o: [199_999_968, 1_200_000_000]),
-              include(o: [200_000_000, 1_199_999_968]),
+              include(o: [40, 0]),
+              include(o: [0, 40]),
+              include(o: [-40, 0]),
+              include(o: [0, -40]),
             ),
           )
       end
@@ -172,11 +172,11 @@ RSpec.describe Suma::API::Mobility, :db do
         expect(last_response).to have_json_body.
           that_includes(
             escooter: contain_exactly(
-              include(o: [200_000_040, 1_200_000_000]),
-              include(o: [200_000_012, 1_200_000_038]),
-              include(o: [199_999_968, 1_200_000_023]),
-              include(o: [199_999_968, 1_199_999_977]),
-              include(o: [200_000_012, 1_199_999_962]),
+              include(o: [40, 0]),
+              include(o: [12, 38]),
+              include(o: [-32, 24]),
+              include(o: [-32, -24]),
+              include(o: [12, -38]),
             ),
           )
       end
