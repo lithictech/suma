@@ -10,6 +10,7 @@ RSpec.describe Suma::API::Mobility, :db do
 
   before(:each) do
     login_as(member)
+    stub_const("Suma::Mobility::SPIDERIFY_OFFSET_MAGNITUDE", 0.000004)
   end
 
   describe "GET /v1/mobility/map" do
@@ -121,13 +122,13 @@ RSpec.describe Suma::API::Mobility, :db do
       expect(last_response).to have_json_body.
         that_includes(
           escooter: [
-            {c: [200_000_000, 1_200_000_000], p: 0, o: [0, -40]},
+            {c: [200_000_000, 1_200_000_000], p: 0, o: [28, -28]},
           ],
           ebike: [
-            {c: [200_000_000, 1_200_000_000], p: 0, d: "111", o: [40, 0]},
-            {c: [200_000_000, 1_200_000_000], p: 0, d: "211", o: [0, 40]},
+            {c: [200_000_000, 1_200_000_000], p: 0, d: "111", o: [28, 28]},
+            {c: [200_000_000, 1_200_000_000], p: 0, d: "211", o: [-28, 28]},
             {c: [400_000_000, 1_400_000_000], p: 0},
-            {c: [200_000_000, 1_200_000_000], p: 1, o: [-40, 0]},
+            {c: [200_000_000, 1_200_000_000], p: 1, o: [-28, -28]},
           ],
         )
     end
@@ -146,8 +147,8 @@ RSpec.describe Suma::API::Mobility, :db do
         expect(last_response).to have_json_body.
           that_includes(
             escooter: contain_exactly(
-              include(o: [40, 0]),
-              include(o: [-40, 0]),
+              include(o: [0, 40]),
+              include(o: [0, -40]),
             ),
           )
       end
@@ -158,10 +159,10 @@ RSpec.describe Suma::API::Mobility, :db do
         expect(last_response).to have_json_body.
           that_includes(
             escooter: contain_exactly(
-              include(o: [40, 0]),
-              include(o: [0, 40]),
-              include(o: [-40, 0]),
-              include(o: [0, -40]),
+              include(o: [28, 28]),
+              include(o: [-28, 28]),
+              include(o: [-28, -28]),
+              include(o: [28, -28]),
             ),
           )
       end
@@ -172,11 +173,11 @@ RSpec.describe Suma::API::Mobility, :db do
         expect(last_response).to have_json_body.
           that_includes(
             escooter: contain_exactly(
-              include(o: [40, 0]),
-              include(o: [12, 38]),
-              include(o: [-32, 24]),
-              include(o: [-32, -24]),
-              include(o: [12, -38]),
+              include(o: [32, 24]),
+              include(o: [-12, 38]),
+              include(o: [-40, 0]),
+              include(o: [-12, -38]),
+              include(o: [32, -24]),
             ),
           )
       end

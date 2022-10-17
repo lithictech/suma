@@ -10,6 +10,10 @@ module Suma::Mobility
   INT2COORD_FACTOR = BigDecimal("1") / COORD2INT_FACTOR
   COORD_RANGE = -180.0..180.0
   INTCOORD_RANGE = (-180.0 * COORD2INT_FACTOR)..(180.0 * COORD2INT_FACTOR)
+  # This 'magnitude' is in lat/lng degrees/minutes. It is not an actual
+  # distance like in meters (it isn't worth the complexity).
+  # 0.0000080 degrees is about 1 meter.
+  SPIDERIFY_OFFSET_MAGNITUDE = 0.000016
 
   def self.coord2int(c)
     raise OutOfBounds, "#{c} must be between -180 and 180" unless COORD_RANGE.cover?(c)
@@ -50,7 +54,7 @@ module Suma::Mobility
       # This 'magnitude' is in lat/lng degrees/minutes. It is not an actual
       # distance like in meters (it isn't worth the complexity).
       # 0.0000080 degrees is about 1 meter.
-      offset_magnitude = 0.000016 * COORD2INT_FACTOR
+      offset_magnitude = Suma::Mobility::SPIDERIFY_OFFSET_MAGNITUDE * COORD2INT_FACTOR
       shared_loc_vehicles.each_with_index do |v, idx|
         angle = angle_step * idx
         # The first step is 'up' and we want to avoid scooters vertically stacked
