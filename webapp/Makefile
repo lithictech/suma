@@ -1,11 +1,7 @@
 .PHONY: help
 .DEFAULT_GOAL := help
 
-ifneq (, $(shell which ifconfig))
-  LOCAL_NETWORK_IP := `ifconfig | sed -En 's/127.0.0.1//;s/.*inet (addr:)?(([0-9]*\.){3}[0-9]*).*/\2/p'`
-else
-  $(info ifconfig not found, figure out how to do this for your OS and add it here.)
-endif
+LOCAL_NETWORK_IP := `node tools/networkip.js`
 LOCAL_NETWORK_ADDR := http://$(LOCAL_NETWORK_IP):22004
 
 check-version:
@@ -35,6 +31,6 @@ start-network: check-version network-code
 	BROWSER=none REACT_APP_API_HOST=http://$(LOCAL_NETWORK_IP):22001 npm start
 
 network-code:
-	@echo "Go to $(LOCAL_NETWORK_ADDR) on your device or scan this code, then press Enter:"
-	@echo $(LOCAL_NETWORK_ADDR) | qrencode -t ANSI256 -m 1
+	@echo $(LOCAL_NETWORK_ADDR) | node node_modules/.bin/qrcode --small
+	@echo "Go to $(LOCAL_NETWORK_ADDR) on your device or scan the above code, then press Enter."
 	@read
