@@ -54,6 +54,7 @@ class Suma::API::Mobility < Suma::API::V1
         arr = map_obj[vehicle.vehicle_type.to_sym] ||= []
         arr << vhash
       end
+      Suma::Mobility.offset_disambiguated_vehicles(map_obj)
       map_obj[:providers] = vnd_services
       present map_obj, with: MobilityMapEntity
     end
@@ -143,6 +144,7 @@ class Suma::API::Mobility < Suma::API::V1
     expose :c
     expose :p
     expose :d, expose_nil: false
+    expose :o, expose_nil: false
   end
 
   class MobilityMapEntity < BaseEntity

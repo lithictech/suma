@@ -10,15 +10,16 @@ RSpec.describe Suma::API::Mobility, :db do
 
   before(:each) do
     login_as(member)
+    stub_const("Suma::Mobility::SPIDERIFY_OFFSET_MAGNITUDE", 0.000004)
   end
 
   describe "GET /v1/mobility/map" do
     it "returns the location of all vehicles within the requested bounds" do
       fac = Suma::Fixtures.mobility_vehicle(vendor_service: Suma::Fixtures.vendor_service.mobility.create)
-      v1 = fac.loc(10, 100).escooter.create
-      v2 = fac.loc(20, 120).escooter.create
-      bike = fac.loc(20, 120).ebike.create
-      v3 = fac.loc(30, 130).escooter.create
+      v1 = fac.loc(11, 100).escooter.create
+      v2 = fac.loc(22, 120).escooter.create
+      bike = fac.loc(23, 120).ebike.create
+      v3 = fac.loc(31, 130).escooter.create
 
       get "/v1/mobility/map", sw: [15, 110], ne: [25, 125]
 
@@ -26,10 +27,10 @@ RSpec.describe Suma::API::Mobility, :db do
       expect(last_response).to have_json_body.
         that_includes(
           escooter: [
-            {c: [200_000_000, 1_200_000_000], p: 0},
+            {c: [220_000_000, 1_200_000_000], p: 0},
           ],
           ebike: [
-            {c: [200_000_000, 1_200_000_000], p: 0},
+            {c: [230_000_000, 1_200_000_000], p: 0},
           ],
         )
     end
@@ -106,7 +107,7 @@ RSpec.describe Suma::API::Mobility, :db do
         )
     end
 
-    it "disambiguates vehicles of the same type and provider at the same location" do
+    it "disambiguates and offsets vehicles of the same type and provider at the same location" do
       vs = Suma::Fixtures.vendor_service.mobility.create
       fac = Suma::Fixtures.mobility_vehicle
       bike1_provider1_loc1 = fac.loc(20, 120).ebike.create(vendor_service: vs, vehicle_id: "111")
@@ -121,15 +122,65 @@ RSpec.describe Suma::API::Mobility, :db do
       expect(last_response).to have_json_body.
         that_includes(
           escooter: [
-            {c: [200_000_000, 1_200_000_000], p: 0},
+            {c: [200_000_000, 1_200_000_000], p: 0, o: [28, -28]},
           ],
           ebike: [
-            {c: [200_000_000, 1_200_000_000], p: 0, d: "111"},
-            {c: [200_000_000, 1_200_000_000], p: 0, d: "211"},
+            {c: [200_000_000, 1_200_000_000], p: 0, d: "111", o: [28, 28]},
+            {c: [200_000_000, 1_200_000_000], p: 0, d: "211", o: [-28, 28]},
             {c: [400_000_000, 1_400_000_000], p: 0},
-            {c: [200_000_000, 1_200_000_000], p: 1},
+            {c: [200_000_000, 1_200_000_000], p: 1, o: [-28, -28]},
           ],
         )
+    end
+
+    context "when offsetting vehicles at the same location" do
+      def get_same_location_vehicles(amount)
+        amount.times do
+          Suma::Fixtures.mobility_vehicle.loc(20, 120).escooter.create
+        end
+        get "/v1/mobility/map", sw: [15, 110], ne: [25, 125]
+      end
+
+      it "offsets 2 vehicles" do
+        get_same_location_vehicles(2)
+        expect(last_response).to have_status(200)
+        expect(last_response).to have_json_body.
+          that_includes(
+            escooter: contain_exactly(
+              include(o: [0, 40]),
+              include(o: [0, -40]),
+            ),
+          )
+      end
+
+      it "offsets 4 vehicles" do
+        get_same_location_vehicles(4)
+        expect(last_response).to have_status(200)
+        expect(last_response).to have_json_body.
+          that_includes(
+            escooter: contain_exactly(
+              include(o: [28, 28]),
+              include(o: [-28, 28]),
+              include(o: [-28, -28]),
+              include(o: [28, -28]),
+            ),
+          )
+      end
+
+      it "offsets 5 vehicles" do
+        get_same_location_vehicles(5)
+        expect(last_response).to have_status(200)
+        expect(last_response).to have_json_body.
+          that_includes(
+            escooter: contain_exactly(
+              include(o: [32, 24]),
+              include(o: [-12, 38]),
+              include(o: [-40, 0]),
+              include(o: [-12, -38]),
+              include(o: [32, -24]),
+            ),
+          )
+      end
     end
 
     it "401s if not logged in" do
