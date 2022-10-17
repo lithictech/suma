@@ -201,7 +201,7 @@ export default function PrivacyPolicyContent({ mobile }) {
               {t("privacy_policy:title")}
             </h1>
             <p className="text-center mb-5">
-              {t("privacy_policy:effective_date", { date: "09/01/2022" })}
+              {t("privacy_policy:effective") + " " + t("privacy_policy:date")}
             </p>
             <PrivacyPolicySection
               id="informationCollected"
@@ -221,7 +221,7 @@ export default function PrivacyPolicyContent({ mobile }) {
               list={[
                 md("privacy_policy:methods_of_collection:list:registration_page_md"),
                 md("privacy_policy:methods_of_collection:list:cookies_md"),
-                md("privacy_policy:methods_of_collection:list:goods_and_services_md"),
+                md("privacy_policy:methods_of_collection:list:forms_md"),
                 md("privacy_policy:methods_of_collection:list:community_partners_md"),
               ]}
             />
@@ -374,9 +374,11 @@ export default function PrivacyPolicyContent({ mobile }) {
               title={t("privacy_policy:business_transfer:title")}
               p={md("privacy_policy:business_transfer:paragraph_md")}
               img={businessTransfer}
-            >
-              <p>{md("privacy_policy:business_transfer:conclusion_md")}</p>
-            </PrivacyPolicySection>
+              list={[
+                md("privacy_policy:business_transfer:list:email_md"),
+                t("privacy_policy:business_transfer:list:opt_out"),
+              ]}
+            />
             <PrivacyPolicySection
               id="childrenUnder13"
               title={t("privacy_policy:children_under_13:title")}

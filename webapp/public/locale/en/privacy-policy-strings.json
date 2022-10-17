@@ -8,7 +8,7 @@
     "suma_privacy_policy_md": "[https://app.mysuma.org/app/privacy-policy/](https://app.mysuma.org/app/privacy-policy/ 'suma privacy policy')"
   },
   "overview": {
-    "community_driven_intro": "Suma developed our privacy policy for and with and for community members. Our work started with students at the Ida B.Wells Just Data Lab where we explored best and worst privacy policy practices. From there, we wanted to hear what community had to say about our findings and engaged in conversations with community members across Portland. Their ideas, opinions, and thoughts have been incorpated in our policy at every level.",
+    "community_driven_intro": "Suma developed our privacy policy for and with community members. Our work started with students at the Ida B.Wells Just Data Lab where we explored best and worst privacy policy practices. From there, we wanted to hear what community had to say about our findings and engaged in conversations with community members across Portland. Their ideas, opinions, and thoughts have been incorpated in our policy at every level.",
     "community_driven_title": "Community Driven",
     "consent_statement": "Suma will asks for consent from our users and gives the option for users to change their mind",
     "consent_title": "Consent",
@@ -26,8 +26,11 @@
   },
   "privacy_policy": {
     "business_transfer": {
-      "conclusion_md": "If we intend to transfer information about you, we will let you know about the change by email and/or by posting a notice on the suma platform&rsquo;s homepage ($t(privacy-policy-strings:links:suma_platform_homepage_md)) and you will have a chance to opt out before information about you becomes subject to a different Privacy Policy.",
-      "paragraph_md": "We may choose to sell assets of the suma platform or buy assets for the platform. These transactions may be necessary and in our legitimate interests, particularly our interest in growing the platform to serve more community members and to offer more goods and services. User information is typically an asset that is transferred in these transactions (such as a sale, merger, liquidation, receivership, or transfer of all or substantially all of the suma platform&rsquo;s assets).",
+      "list": {
+        "email_md": "we will let you know about the change by email and/or by posting a notice on the suma platform&rsquo;s homepage ($t(privacy-policy-strings:links:suma_platform_homepage_md)); and",
+        "opt_out": "you will have the chance to opt out before information about you becomes subject to a different privacy policy"
+      },
+      "paragraph_md": "We may choose to sell assets of the suma platform or buy assets for the platform. These transactions may be necessary and in our legitimate interests, particularly our interest in growing the platform to serve more community members and to offer more goods and services. User information is typically an asset that is transferred in these transactions (such as a sale, merger, liquidation, receivership, or transfer of all or substantially all of the suma platform&rsquo;s assets). If we intend to transfer information about you:",
       "title": "Business transfer"
     },
     "children_under_13": {
@@ -55,11 +58,12 @@
       "paragraph": "We have the following standards for retaining and deleting Suma platform data:",
       "title": "Data retention and removal"
     },
+    "date": "August 2nd 2022",
     "dispute_resolution": {
-      "paragraph_md": "If you have any questions or concerns about our use or disclosure of information, please reach out to us via $t(privacy-policy-strings:links:suma_help_email_md). We are here to listen to all of your concerns. If we cannot resolve your concern, we will/the next step is… [Needs more context here]",
+      "paragraph_md": "If you have any questions or concerns about our use or disclosure of information, please reach out to us via $t(privacy-policy-strings:links:suma_help_email_md). We are here to listen to all of your concerns. If we cannot resolve your concern (next steps are developing).",
       "title": "Dispute resolution"
     },
-    "effective_date": "Effective: {{date}}",
+    "effective": "Effective:",
     "future_changes_to_policy": {
       "conclusion_md": "You can always find the most recent version of the suma platform privacy policy at $t(privacy-policy-strings:links:suma_privacy_policy_md). Please contact $t(privacy-policy-strings:links:suma_help_email_md) for any questions or concerns regarding our policy changes.",
       "paragraph_md": "We may change suma platform Privacy Policy from time to time. If we do change the Suma platform Privacy Policy, we will let you know about the change by email and/or by posting a notice on the $t(privacy-policy-strings:links:suma_platform_homepage_md). This notice will let you know what is changing, why it is changing and how it is changing. We will provide this notice at least 30 days before the changes take effect unless the law requires a different notice period. You will have the chance to consent to the changes at your first login to the platform after the changes take effect. If you do not consent to the changes, you will not be able to use the platform (see ____)",
@@ -78,7 +82,7 @@
       "list": {
         "community_partners_md": "**Community Partners:** We collect data from community partners to help us qualify you for vendor discounts on the suma platform as well as to support third party subsidy that reduces the cost of goods and services from vendors via the suma platform.",
         "cookies_md": "**Cookies and Log Files:** We use cookies to track who you are logged in as. We use log files to track all activity on the platform. Please see our cookies policy to learn about the cookies we use and why.",
-        "goods_and_services_md": "**______:** We use _____ to collect information when you access goods and services from vendors via the suma platform",
+        "forms_md": "**Forms:** When you provide data on various froms within the application and when you interact with the application itself such as purchasing goods and services.",
         "registration_page_md": "**Registration:** We use our registration page to collect information when you create your suma account."
       },
       "paragraph": "Your trust in, consent to and understanding of our privacy policy are fundamental to the suma platform. To provide platform services, we collect information from the following methods:",
@@ -128,7 +132,7 @@
       "title": "Data retention"
     },
     "disputes": {
-      "paragraph": "[Need more context]",
+      "paragraph": "(in development)",
       "title": "Disputes"
     },
     "educate_partners": {
@@ -136,7 +140,7 @@
       "title": "Educate community partners"
     },
     "platform_dashboard": {
-      "paragraph": "We use data to create dashboards that show how the platform is benefiting you and the broader suma user community. For example, a dashboard might show how much money all platform users combined saved on food purchases in the most recent month. Your food purchasing data may be anonymized and aggregated into such a dashboard. You can opt out of being included in anonymized dashboards. Security and fraud prevention.",
+      "paragraph": "We use data to create dashboards that show how the platform is benefiting you and the broader suma user community. For example, a dashboard might show how much money all platform users combined saved on food purchases in the most recent month. Your food purchasing data may be anonymized and aggregated into such a dashboard. You can opt out of being included in anonymized dashboards.",
       "title": "Platform dashboard"
     },
     "platform_usage": {
@@ -148,7 +152,7 @@
       "title": "Platform vendors"
     },
     "security_and_fraud_prevention": {
-      "paragraph": "[Need more context]",
+      "paragraph": "We may use your data to detect and prevent fraud. For example, fraudulent payments and fraudulent use of suma platform.",
       "title": "Security and fraud prevention"
     },
     "service_providers": {
