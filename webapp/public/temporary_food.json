@@ -1,0 +1,56 @@
+{
+	"data": [
+		{
+			"description": "...",
+			"id": 1,
+			"image_link": "/TODO.png",
+			"ingredients": [],
+			"name": "Bananas",
+			"weight": "12oz",
+			"amount": {
+					"cents": 60,
+					"currency": "USD"
+			},
+			"partner": {
+					"id": "2",
+					"name": "Food Lion"
+			}
+		},
+		{
+			"description": "...",
+			"id": 2,
+			"image_link": "/TODO.png",
+			"ingredients": [],
+			"name": "Apples",
+			"weight": "1pound",
+			"amount": {
+					"cents": 70,
+					"currency": "USD"
+			},
+			"partner": {
+					"id": "2",
+					"name": "Harris Teeter"
+			}
+		},
+		{
+			"description": "...",
+			"id": 3,
+			"image_link": "/TODO.png",
+			"ingredients": [],
+			"name": "Chicken",
+			"weight": "12oz",
+			"discounted_amount": {
+					"cents": 600,
+					"currency": "USD"
+			}, 
+			"amount": {
+					"cents": 700,
+					"currency": "USD"
+			},
+			"partner": {
+					"id": "2",
+					"name": "Harris Teeter"
+			}
+		}
+	]
+}

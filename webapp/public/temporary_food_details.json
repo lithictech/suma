@@ -1,0 +1,23 @@
+{
+	"description": "Get the juciest chicken ever. Right now!",
+	"id": 3,
+	"image_link": "/TODO.png",
+	"ingredients": [
+		"whole chicken",
+		"seasoning"
+	],
+	"name": "Chicken",
+	"weight": "12oz",
+	"discounted_amount": {
+		"cents": 600,
+		"currency": "USD"
+	}, 
+	"amount": {
+		"cents": 700,
+		"currency": "USD"
+	},
+	"partner": {
+		"id": "2",
+		"name": "Harris Teeter"
+	}
+}
