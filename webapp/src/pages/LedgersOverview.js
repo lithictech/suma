@@ -17,7 +17,7 @@ import Container from "react-bootstrap/Container";
 import Table from "react-bootstrap/Table";
 
 export default function LedgersOverview() {
-  const { page, setPage } = useListQueryControls();
+  const { page, setListQueryParams } = useListQueryControls();
   const { state: ledgersOverview, loading: ledgersOverviewLoading } = useAsyncFetch(
     api.getLedgersOverview,
     {
@@ -34,20 +34,18 @@ export default function LedgersOverview() {
     pickData: true,
     doNotFetchOnInit: true,
   });
-
   const ledger = _.first(ledgersOverview.ledgers);
-
   React.useEffect(() => {
-    if (ledger && page > 1) {
-      ledgerLinesFetch({ id: ledger.id, page });
+    if (ledger && page > 0) {
+      ledgerLinesFetch({ id: ledger.id, page: page + 1 });
     }
     // Only run this on mount
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ledger]);
 
   const handleLinesPageChange = (pg) => {
-    setPage(pg);
-    ledgerLinesFetch({ id: ledger.id, page: pg });
+    setListQueryParams({ page: pg });
+    ledgerLinesFetch({ id: ledger.id, page: pg + 1 });
   };
   return (
     <>
