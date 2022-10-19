@@ -50,8 +50,8 @@ export default {
   beginMobilityTrip: (data) => post("/api/v1/mobility/begin_trip", data),
   endMobilityTrip: (data) => post("/api/v1/mobility/end_trip", data),
   getUserAgent: () => get("/api/useragent"),
-  getFood: () => get("http://localhost:22004/temporary_food.json"),
-  getFoodDetails: (data) =>
+  getFoodOfferings: () => get("http://localhost:22004/temporary_food.json"),
+  getFoodProductDetails: (data) =>
     get("http://localhost:22004/temporary_food_details.json", data),
 
   createBankAccount: (data) =>

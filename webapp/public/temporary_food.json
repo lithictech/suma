@@ -1,56 +1,158 @@
-{
-	"data": [
-		{
-			"description": "...",
-			"id": 1,
-			"image_link": "/TODO.png",
-			"ingredients": [],
-			"name": "Bananas",
-			"weight": "12oz",
-			"amount": {
-					"cents": 60,
-					"currency": "USD"
+[
+	{
+		"vendor_id": 1,
+		"vendor_name": "Food Lion",
+		"offering_type": ["food", "snacks", "groceries"],
+		"opening_date": "2022-10-12T16:36:11.583+00:00",
+		"closing_date": "2022-11-01T16:36:11.583+00:00",
+		"offering_products": [
+			{
+				"description": "...",
+				"max_quantity": 200,
+				"id": 1,
+				"image_link": "/TODO.png",
+				"ingredients": [],
+				"name": "Bananas",
+				"weight": "12oz",
+				"price": {
+						"cents": 60,
+						"currency": "USD"
+				}
 			},
-			"partner": {
-					"id": "2",
-					"name": "Food Lion"
-			}
-		},
-		{
-			"description": "...",
-			"id": 2,
-			"image_link": "/TODO.png",
-			"ingredients": [],
-			"name": "Apples",
-			"weight": "1pound",
-			"amount": {
-					"cents": 70,
-					"currency": "USD"
+			{
+				"description": "...",
+				"max_quantity": 200,
+				"id": 2,
+				"image_link": "/TODO.png",
+				"ingredients": [],
+				"name": "Apples",
+				"weight": "1pound",
+				"price": {
+						"cents": 70,
+						"currency": "USD"
+				}
 			},
-			"partner": {
-					"id": "2",
-					"name": "Harris Teeter"
+			{
+				"description": "...",
+				"max_quantity": 200,
+				"id": 3,
+				"image_link": "/TODO.png",
+				"ingredients": [],
+				"name": "Chicken",
+				"weight": "12oz",
+				"discounted_price": {
+						"cents": 600,
+						"currency": "USD"
+				}, 
+				"price": {
+						"cents": 700,
+						"currency": "USD"
+				}
 			}
-		},
-		{
-			"description": "...",
-			"id": 3,
-			"image_link": "/TODO.png",
-			"ingredients": [],
-			"name": "Chicken",
-			"weight": "12oz",
-			"discounted_amount": {
-					"cents": 600,
-					"currency": "USD"
-			}, 
-			"amount": {
-					"cents": 700,
-					"currency": "USD"
+		]
+	},
+	{
+		"vendor_id": 2,
+		"vendor_name": "Harris Teeter",
+		"offering_type": ["groceries"],
+		"opening_date": "2022-10-12T16:36:11.583+00:00",
+		"closing_date": "2022-11-01T16:36:11.583+00:00",
+		"offering_products": [
+			{
+				"description": "...",
+				"max_quantity": 200,
+				"id": 1,
+				"image_link": "/TODO.png",
+				"ingredients": [],
+				"name": "Bananas",
+				"weight": "12oz",
+				"price": {
+						"cents": 60,
+						"currency": "USD"
+				}
 			},
-			"partner": {
-					"id": "2",
-					"name": "Harris Teeter"
+			{
+				"description": "...",
+				"max_quantity": 200,
+				"id": 2,
+				"image_link": "/TODO.png",
+				"ingredients": [],
+				"name": "Apples",
+				"weight": "1pound",
+				"price": {
+						"cents": 70,
+						"currency": "USD"
+				}
+			},
+			{
+				"description": "...",
+				"max_quantity": 200,
+				"id": 3,
+				"image_link": "/TODO.png",
+				"ingredients": [],
+				"name": "Chicken",
+				"weight": "12oz",
+				"discounted_price": {
+						"cents": 600,
+						"currency": "USD"
+				}, 
+				"price": {
+						"cents": 700,
+						"currency": "USD"
+				}
 			}
-		}
-	]
-}
+		]
+	},
+	{
+		"vendor_id": 3,
+		"vendor_name": "Walmart",
+		"offering_type": ["snacks"],
+		"opening_date": "2022-10-12T16:36:11.583+00:00",
+		"closing_date": "2022-11-01T16:36:11.583+00:00",
+		"offering_products": [
+			{
+				"description": "...",
+				"max_quantity": 200,
+				"id": 1,
+				"image_link": "/TODO.png",
+				"ingredients": [],
+				"name": "Bananas",
+				"weight": "12oz",
+				"price": {
+						"cents": 60,
+						"currency": "USD"
+				}
+			},
+			{
+				"description": "...",
+				"max_quantity": 200,
+				"id": 2,
+				"image_link": "/TODO.png",
+				"ingredients": [],
+				"name": "Apples",
+				"weight": "1 pound",
+				"price": {
+						"cents": 70,
+						"currency": "USD"
+				}
+			},
+			{
+				"description": "...",
+				"max_quantity": 200,
+				"id": 3,
+				"image_link": "/TODO.png",
+				"ingredients": [],
+				"name": "Chicken",
+				"weight": "12oz",
+				"discounted_price": {
+						"cents": 600,
+						"currency": "USD"
+				}, 
+				"price": {
+						"cents": 700,
+						"currency": "USD"
+				}
+			}
+		]
+	}
+]

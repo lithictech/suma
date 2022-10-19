@@ -1,0 +1,6 @@
+@import "./theme.scss";
+
+.food-widget-container {
+	top: map-get($spacers, 1);
+	right: map-get($spacers, 1);
+}
