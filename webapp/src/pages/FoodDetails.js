@@ -47,19 +47,18 @@ export default function FoodDetails() {
       </div>
       <h3 className="mt-4 mb-2">{productDetails.name}</h3>
       <h5>
-        <Money
-          className={clsx("me-2", productDetails.discountedAmount && "text-success")}
-        >
-          {productDetails.amount}
+        <Money className={clsx("me-2", productDetails.discountedPrice && "text-success")}>
+          {productDetails.discountedPrice || productDetails.price}
         </Money>
-        {productDetails.discountedAmount && (
+        {productDetails.discountedPrice && (
           <strike>
-            <Money>{productDetails.discountedAmount}</Money>
+            <Money>{productDetails.price}</Money>
           </strike>
         )}
       </h5>
       <b>{productDetails.weight}</b>
       <p>By {productDetails.partner.name}</p>
+      <hr />
       <h5 className="mt-4 mb-2">Details</h5>
       <p>{productDetails.description}</p>
       <h5 className="mt-4 mb-2">Ingredients</h5>

@@ -8,10 +8,10 @@ export default function FoodWidget({ productId, maxQuantity, quantity }) {
   const [maxQ] = React.useState(maxQuantity || 200);
   const [selectedQuantity, setSelectedQuantity] = React.useState(quantity || 0);
 
-  const handleQuantityChange = (add) => {
+  const handleQuantityChange = (to) => {
     // TODO: connect cart API once the backend cart mechanism is done
     // use productId in API to change correct product
-    setSelectedQuantity((previousValue) => (add ? previousValue + 1 : previousValue - 1));
+    setSelectedQuantity(Number(to));
   };
 
   const DropdownQuantities = () => {
@@ -29,17 +29,20 @@ export default function FoodWidget({ productId, maxQuantity, quantity }) {
     <ButtonGroup aria-label="add-to-cart widget" className="shadow">
       {selectedQuantity > 0 && (
         <>
-          <Button variant="danger" onClick={() => handleQuantityChange()}>
+          <Button
+            variant="danger"
+            onClick={() => handleQuantityChange(selectedQuantity - 1)}
+          >
             -
           </Button>
           <Dropdown
             variant="success"
             as={ButtonGroup}
             title={selectedQuantity}
-            onSelect={(q) => setSelectedQuantity(Number(q))}
+            onSelect={(quantity) => handleQuantityChange(quantity)}
           >
             <Dropdown.Toggle variant="success">{selectedQuantity}</Dropdown.Toggle>
-            <Dropdown.Menu style={{ height: "300px", overflowY: "scroll" }}>
+            <Dropdown.Menu className="food-widget-dropdown-menu" renderOnMount={true}>
               <DropdownQuantities />
             </Dropdown.Menu>
           </Dropdown>
@@ -47,7 +50,7 @@ export default function FoodWidget({ productId, maxQuantity, quantity }) {
       )}
       <Button
         variant="success"
-        onClick={() => handleQuantityChange({ add: true })}
+        onClick={() => handleQuantityChange(selectedQuantity + 1)}
         className={clsx(selectedQuantity === maxQ && "disabled")}
       >
         +

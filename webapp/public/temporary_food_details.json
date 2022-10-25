@@ -8,11 +8,11 @@
 	],
 	"name": "Chicken",
 	"weight": "12oz",
-	"discounted_amount": {
+	"discounted_price": {
 		"cents": 600,
 		"currency": "USD"
 	}, 
-	"amount": {
+	"price": {
 		"cents": 700,
 		"currency": "USD"
 	},

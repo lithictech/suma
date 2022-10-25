@@ -4,3 +4,8 @@
 	top: map-get($spacers, 1);
 	right: map-get($spacers, 1);
 }
+
+.food-widget-dropdown-menu {
+	height: 300px;
+	overflow-y: scroll;
+}
