@@ -77,6 +77,7 @@ module Suma::Postgres
     "suma/role",
     "suma/supported_currency",
     "suma/supported_geography",
+    "suma/uploaded_file",
     "suma/vendor",
     "suma/vendor/service",
     "suma/vendor/service_category",

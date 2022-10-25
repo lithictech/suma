@@ -44,6 +44,7 @@
     }
   ],
   "buildpacks": [
+    {"url": "heroku-community/apt"},
     {"url": "heroku/ruby"},
     {"url": "heroku/nodejs"},
     {"url": "https://github.com/weibeld/heroku-buildpack-run.git"}
