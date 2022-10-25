@@ -416,11 +416,20 @@ module Suma::SpecHelpers::Service
     end
 
     def make_json_request(env, params)
+      # If the body is a string, just use it.
+      return env, params if params.is_a?(String)
+
+      if (_file = params.values.find { |v| v.is_a?(Rack::Test::UploadedFile) })
+        # No need to set content_type, Rack does this well for us.
+        return env, params
+      end
+
+      # Default to json, which is what we normally want.
+      # If it's not json, do nothing, if it is, encode it.
       env["CONTENT_TYPE"] ||= "application/json"
-
-      params = Yajl::Encoder.encode(params) if env["CONTENT_TYPE"] == "application/json" && !params.is_a?(String)
-
-      return env, params
+      return env, params unless env["CONTENT_TYPE"] == "application/json"
+      j = Yajl::Encoder.encode(params)
+      return env, j
     end
   end
 end
