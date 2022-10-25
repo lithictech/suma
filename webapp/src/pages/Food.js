@@ -1,12 +1,10 @@
-// import foodImage from "../assets/images/onboarding-food.jpg";
-// import WaitingListPage from "../components/WaitingListPage";
-// import { mdp, t } from "../localization";
 import api from "../api";
 import foodImage from "../assets/images/onboarding-food.jpg";
 import AppNav from "../components/AppNav";
 import FoodWidget from "../components/FoodWidget";
 import LinearBreadcrumbs from "../components/LinearBreadcrumbs";
 import PageLoader from "../components/PageLoader";
+import RLink from "../components/RLink";
 import { dayjs } from "../modules/dayConfig";
 import Money from "../shared/react/Money";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
@@ -78,6 +76,7 @@ function FoodContent({ offerings, params }) {
                       variant="success"
                       className="ms-auto"
                       href={`/food?id=${o.vendorId}`}
+                      as={RLink}
                     >
                       Shop
                     </Button>
