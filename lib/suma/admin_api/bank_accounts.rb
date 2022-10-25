@@ -11,7 +11,7 @@ class Suma::AdminAPI::BankAccounts < Suma::AdminAPI::V1
     route_param :id, type: Integer do
       helpers do
         def lookup
-          (o = Suma::BankAccount[params[:id]]) or forbidden!
+          (o = Suma::Payment::BankAccount[params[:id]]) or forbidden!
           return o
         end
       end

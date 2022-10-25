@@ -61,7 +61,7 @@ class Suma::Payment::FundingTransaction < Suma::Postgres::Model(:payment_funding
   # Create a new funding transaction with the given parameters.
   # @param [Suma::Payment::Account] payment_account
   # @param [Money] amount
-  # @param [Suma::BankAccount] bank_account If given, use an ACH strategy sending from this account.
+  # @param [Suma::Payment::BankAccount] bank_account If given, use an ACH strategy sending from this account.
   # @param [Suma::Payment::FundingTransaction::Strategy] strategy Explicit override to use this strategy.
   #   When using a FakeStrategy, pass it in this way.
   # @return [Suma::Payment::FundingTransaction]

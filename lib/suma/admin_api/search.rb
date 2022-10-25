@@ -30,7 +30,7 @@ class Suma::AdminAPI::Search < Suma::AdminAPI::V1
       optional :payment_method_type, type: String, values: ["bank_account"]
     end
     get :payment_instruments do
-      ds = Suma::BankAccount.dataset.usable.verified
+      ds = Suma::Payment::BankAccount.dataset.usable.verified
       if (q = params[:q]).present?
         conds = search_to_sql(q, :name) |
           Sequel[legal_entity: Suma::LegalEntity.where(

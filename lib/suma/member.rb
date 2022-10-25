@@ -47,9 +47,9 @@ class Suma::Member < Suma::Postgres::Model(:members)
   many_through_many :bank_accounts,
                     [
                       [:legal_entities, :id, :id],
-                      [:bank_accounts, :legal_entity_id, :id],
+                      [:payment_bank_accounts, :legal_entity_id, :id],
                     ],
-                    class: "Suma::BankAccount",
+                    class: "Suma::Payment::BankAccount",
                     left_primary_key: :legal_entity_id,
                     order: [:created_at, :id]
   one_to_many :charges, class: "Suma::Charge", order: Sequel.desc([:id])

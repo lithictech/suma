@@ -33,7 +33,7 @@ class Suma::AdminAPI::FundingTransactions < Suma::AdminAPI::V1
     post :create_for_self do
       instrument_ds = case params[:payment_method_type]
         when "bank_account"
-          Suma::BankAccount.dataset
+          Suma::Payment::BankAccount.dataset
         else
           raise "Invalid payment_method_type"
       end

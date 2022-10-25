@@ -17,10 +17,10 @@ class Suma::API::PaymentInstruments < Suma::API::V1
         c = current_member
         account_number = params.delete(:account_number)
         routing_number = params.delete(:routing_number)
-        identity = Suma::BankAccount.identity(c.legal_entity_id, routing_number, account_number)
+        identity = Suma::Payment::BankAccount.identity(c.legal_entity_id, routing_number, account_number)
         ba = c.legal_entity.bank_accounts_dataset[identity:]
         if ba.nil?
-          ba = Suma::BankAccount.new(legal_entity: c.legal_entity, account_number:, routing_number:)
+          ba = Suma::Payment::BankAccount.new(legal_entity: c.legal_entity, account_number:, routing_number:)
         elsif ba.soft_deleted?
           ba.soft_deleted_at = nil
         else

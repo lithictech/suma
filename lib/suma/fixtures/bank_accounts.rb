@@ -1,15 +1,16 @@
 # frozen_string_literal: true
 
 require "suma/fixtures"
-require "suma/bank_account"
+require "suma/payment/bank_account"
 
 module Suma::Fixtures::BankAccounts
   extend Suma::Fixtures
 
-  fixtured_class Suma::BankAccount
+  fixtured_class Suma::Payment::BankAccount
 
   routing_numbers = ["011103093", "067014822", "211274450", "211370545", "054001725", "011400071",
                      "031201360", "026013673", "021302567", "053902197", "036001808", "011600033",]
+
   base :bank_account do
     self.routing_number ||= routing_numbers.sample(1)
     self.account_number ||= Faker::Bank.account_number
