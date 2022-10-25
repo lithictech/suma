@@ -58,6 +58,7 @@ GEM
       faraday-net_http (~> 2.0)
       ruby2_keywords (>= 0.0.4)
     faraday-net_http (2.0.3)
+    ffi (1.15.5)
     fluent_fixtures (0.10.0)
       faker (~> 2.14)
       inflecto (~> 0.0)
@@ -96,6 +97,9 @@ GEM
       multi_xml (>= 0.5.2)
     i18n (1.10.0)
       concurrent-ruby (~> 1.0)
+    image_processing (1.12.2)
+      mini_magick (>= 4.9.5, < 5)
+      ruby-vips (>= 2.0.17, < 3)
     inflecto (0.0.2)
     json (2.6.2)
     jwt (2.4.1)
@@ -108,6 +112,7 @@ GEM
     mimemagic (0.4.3)
       nokogiri (~> 1)
       rake
+    mini_magick (4.11.0)
     mini_portile2 (2.8.0)
     minitest (5.16.1)
     moneta (1.0.0)
@@ -208,6 +213,8 @@ GEM
     rubocop-sequel (0.3.4)
       rubocop (~> 1.0)
     ruby-progressbar (1.11.0)
+    ruby-vips (2.1.4)
+      ffi (~> 1.12)
     ruby2_keywords (0.0.5)
     semantic_logger (4.11.0)
       concurrent-ruby (~> 1.0)
@@ -288,6 +295,7 @@ DEPENDENCIES
   grape_logging
   holidays
   httparty
+  image_processing (~> 1.0)
   liquid
   mimemagic
   monetize
@@ -315,6 +323,7 @@ DEPENDENCIES
   rubocop-performance
   rubocop-rake
   rubocop-sequel
+  ruby-vips
   semantic_logger
   sentry-ruby
   sentry-sidekiq

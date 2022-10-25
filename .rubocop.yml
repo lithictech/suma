@@ -49,8 +49,8 @@ Metrics/CyclomaticComplexity:
   Enabled: false
 Layout/LineLength:
   Max: 120
-  # Allow comments to be long
-  AllowedPatterns: ['\A#']
+  # Allow comment lines, and lines ending in '# nolen' to be long
+  AllowedPatterns: ['^ *#', '# nolen$']
 Metrics/MethodLength:
   Enabled: false
 Metrics/ModuleLength:

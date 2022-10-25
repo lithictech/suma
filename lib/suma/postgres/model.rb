@@ -32,6 +32,8 @@ class Suma::Postgres::Model
     # at `warn` level.
     setting :slow_query_seconds, 0.01
 
+    setting :pool_timeout, 10
+
     # The maximum number of connections to use in the Sequel pool
     # Ref: http://sequel.jeremyevans.net/rdoc/files/doc/opening_databases_rdoc.html#label-General+connection+options
     setting :max_connections, 4
@@ -42,7 +44,10 @@ class Suma::Postgres::Model
 
     after_configured do
       options = {
+        logger: [Suma.logger],
+        sql_log_level: :debug,
         max_connections: self.max_connections,
+        pool_timeout: self.pool_timeout,
       }
       self.logger.debug "Connecting to %s with options: %p" % [self.uri, options]
       self.db = Sequel.connect(self.uri, options)

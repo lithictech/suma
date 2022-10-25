@@ -9,6 +9,12 @@ class Suma::Role < Suma::Postgres::Model(:roles)
     end
   end
 
+  def self.upload_files_role
+    return Suma.cached_get("role_upload_files") do
+      Suma::Role.find_or_create_or_find(name: "upload_files")
+    end
+  end
+
   many_to_many :members,
                class: "Suma::Member",
                join_table: :roles_members

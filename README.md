@@ -57,6 +57,7 @@ This involves two non-obvious features in the codebase:
   For a faster option, you can set up your reverse proxy (nginx or whatever)
   to serve the static assets instead.
 
+
 ## Auth
 
 Auth with Suma is based exclusively on SMS verification rather than
@@ -93,3 +94,35 @@ We manage the localization JSON files with the following process:
 - Hand that file off to translators. They should fill in the 'Spanish' column.
 - To load the translated strings back into Suma, run `cat spanish.csv | bundle exec rake i18n:import_csv`.
   This will overwrite `locale/es/strings.json` with the values parsed from the CSV.
+
+
+## Images (and Uploaded Files)
+
+Suma stores images in the database by default.
+Given the choice between 1) a 3rd party dependency, 2) filesystems with backups,
+or 3) a big database, we chose the last.
+
+However, there is the ability for images to be stored in S3, R2, etc.
+It isn't built out yet but will likely need to be in the future
+to support larger Suma deployments.
+
+The way images work is:
+
+- There is an `blobs` table which stores the image bytes and a hash.
+  The hash acts as a unique identifier for the bytes.
+- This blobs table is NOT a normal application table. It can be in a separate database.
+  This is important, for example, if the image table grows, and we do not want to back it up
+  with the same semantics as the rest of the data.
+- There is an `uploaded_files` table which stores the image metadata, like name and content type,
+  and the location to the image blob. This can be the `blob_hash` (in which case we assume
+  it is coming from the blobs table), or in the future, it can be a URL to the blob
+  in a service like S3 or R2.
+- When a resource with an image, like a product image, is returned, the value returned
+  is the _image url_. The URL can be to our backend, or to S3, etc.
+- The frontend makes an HTTP request to the suma backend to fetch the image.
+  It can include some basic image processing constraints, like format and resolution,
+  and the backend uses `libvips` to process the blob.
+
+See `UploadedFile` for the code around blobs and file uploading.
+
+See `API::Images` for the endpoints related to image uploads and image fetching.

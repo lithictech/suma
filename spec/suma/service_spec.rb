@@ -22,6 +22,10 @@ class Suma::API::TestService < Suma::Service
     Suma::API::TestService.global_shim[:sentry_scope] = Sentry.get_current_scope
   end
 
+  post :echo do
+    present({body: params.as_json, headers: request.headers})
+  end
+
   params do
     requires :code
   end
@@ -149,6 +153,13 @@ class Suma::API::TestService < Suma::Service
   get :admin_member_safe do
     c = admin_member?
     present({id: c&.id})
+  end
+
+  params do
+    requires :file, type: File
+  end
+  post :fileparam do
+    present params[:file]
   end
 end
 
@@ -864,6 +875,28 @@ RSpec.describe Suma::Service, :db do
         )
         expect(r.as_json[:time_not_here]).to eq("2021-09-16T08:41:23-04:00")
       end
+    end
+  end
+
+  describe "test helpers" do
+    it "does not try to turn a file upload into json" do
+      file = Rack::Test::UploadedFile.new(__FILE__, "text/csv")
+      post "/fileparam", {file:}
+      expect(last_response).to have_status(201)
+      expect(last_response).to have_json_body.that_includes(type: "text/csv", name: "file", filename: "service_spec.rb")
+    end
+
+    it "does not modify string requests" do
+      # If we re-encode this it'd be a string, not a hash
+      post "/echo", '{"x":1}', {"CONTENT_TYPE" => "application/json"}
+      expect(last_response).to have_status(201)
+      expect(last_response).to have_json_body.that_includes(body: {x: 1})
+    end
+
+    it "only serializes json content type" do
+      post "/echo", {x: 1}, {"CONTENT_TYPE" => "application/x-www-form-urlencoded"}
+      expect(last_response).to have_status(201)
+      expect(last_response).to have_json_body.that_includes(body: {x: "1"})
     end
   end
 end
