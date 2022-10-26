@@ -46,7 +46,10 @@ module Suma::Http
   def self.post(url, body={}, headers: {}, **options)
     raise ArgumentError, "must pass :logger keyword" unless options.key?(:logger)
     headers["Content-Type"] ||= "application/json"
-    body = body.to_json if !body.is_a?(String) && headers["Content-Type"].include?("json")
+    unless body.is_a?(String)
+      body = body.to_json if headers["Content-Type"].include?("json")
+      body = URI.encode_www_form(body) if headers["Content-Type"] == "application/x-www-form-urlencoded"
+    end
     opts = {body:, headers:}.merge(**options)
     return self.execute("post", url, **opts)
   end
