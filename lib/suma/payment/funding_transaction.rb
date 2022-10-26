@@ -25,6 +25,7 @@ class Suma::Payment::FundingTransaction < Suma::Postgres::Model(:payment_funding
 
   many_to_one :fake_strategy, class: "Suma::Payment::FakeStrategy"
   many_to_one :increase_ach_strategy, class: "Suma::Payment::FundingTransaction::IncreaseAchStrategy"
+  many_to_one :helcim_card_strategy, class: "Suma::Payment::FundingTransaction::HelcimCardStrategy"
 
   state_machine :status, initial: :created do
     state :created,
@@ -62,16 +63,24 @@ class Suma::Payment::FundingTransaction < Suma::Postgres::Model(:payment_funding
   # @param [Suma::Payment::Account] payment_account
   # @param [Money] amount
   # @param [Suma::Payment::BankAccount] bank_account If given, use an ACH strategy sending from this account.
+  # @param [Suma::Payment::Card] card If given, use a strategy sending from this card.
+  # @param [String] originating_ip The IP of the user starting this transaction.
+  #   Only some strategies, like cards, require this to be set.
   # @param [Suma::Payment::FundingTransaction::Strategy] strategy Explicit override to use this strategy.
   #   When using a FakeStrategy, pass it in this way.
   # @return [Suma::Payment::FundingTransaction]
-  def self.start_new(payment_account, amount:, bank_account: nil, strategy: nil)
+  def self.start_new(payment_account, amount:, bank_account: nil, card: nil, originating_ip: nil, strategy: nil)
     self.db.transaction do
       platform_ledger = Suma::Payment.ensure_cash_ledger(Suma::Payment::Account.lookup_platform_account)
-      strategy ||= if bank_account
-                     IncreaseAchStrategy.create(originating_bank_account: bank_account)
-      else
-        raise StrategyUnavailable, "cannot determine valid funding strategy for given arguments"
+      if strategy.nil?
+        possible = [
+          [bank_account, IncreaseAchStrategy.new(originating_bank_account: bank_account)],
+          [card, HelcimCardStrategy.new(originating_card: card)],
+        ]
+        provided = possible.select(&:first).count(&:present?)
+        raise StrategyUnavailable, "cannot determine valid funding strategy for given arguments" unless provided == 1
+        _, strategy = possible.find(&:first)
+        strategy.save_changes
       end
       strategy.check_validity!
       xaction = self.new(
@@ -79,6 +88,7 @@ class Suma::Payment::FundingTransaction < Suma::Postgres::Model(:payment_funding
         memo: "Transfer to Suma App",
         originating_payment_account: payment_account,
         platform_ledger:,
+        originating_ip:,
         originated_book_transaction: nil,
         strategy:,
       )
@@ -137,6 +147,7 @@ class Suma::Payment::FundingTransaction < Suma::Postgres::Model(:payment_funding
   protected def strategy_array
     return [
       self.increase_ach_strategy,
+      self.helcim_card_strategy,
       self.fake_strategy,
     ]
   end

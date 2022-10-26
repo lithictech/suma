@@ -196,15 +196,20 @@ RSpec.describe "Suma::Member", :db do
   describe "usable_payment_instruments" do
     let(:member) { Suma::Fixtures.member.create }
     let(:bank_fac) { Suma::Fixtures.bank_account.member(member) }
+    let(:card_fac) { Suma::Fixtures.card.member(member) }
 
-    it "returns undeleted bank accounts" do
+    it "returns undeleted bank accounts and cards" do
       deleted_ba = bank_fac.create
       deleted_ba.soft_delete
+      deleted_card = card_fac.create
+      deleted_card.soft_delete
 
       ba2 = bank_fac.create
+      c1 = card_fac.create
       ba1 = bank_fac.create
+      c2 = card_fac.create
 
-      expect(member.usable_payment_instruments).to have_same_ids_as(ba1, ba2).ordered
+      expect(member.usable_payment_instruments).to have_same_ids_as(ba1, ba2, c2, c1).ordered
     end
   end
 

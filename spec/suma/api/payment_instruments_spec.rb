@@ -8,6 +8,7 @@ RSpec.describe Suma::API::PaymentInstruments, :db do
   let(:app) { described_class.build_app }
   let(:member) { Suma::Fixtures.member.create }
   let(:bank_fac) { Suma::Fixtures.bank_account.member(member) }
+  let(:card_fac) { Suma::Fixtures.card.member(member) }
 
   before(:each) do
     login_as(member)
@@ -78,6 +79,50 @@ RSpec.describe Suma::API::PaymentInstruments, :db do
       ba.soft_delete
 
       delete "/v1/payment_instruments/bank_accounts/#{ba.id}"
+
+      expect(last_response).to have_status(403)
+      expect(last_response).to have_json_body.that_includes(error: include(code: "resource_not_found"))
+    end
+  end
+
+  describe "POST /v1/payment_instruments/cards/create_helcim" do
+    it "creates a card using Helcim data" do
+      post "/v1/payment_instruments/cards/create_helcim", xml: load_fixture_data("helcim/register.xml", raw: true)
+
+      expect(last_response).to have_status(200)
+      expect(last_response.headers).to include("Suma-Current-Member")
+      expect(member.refresh.cards).to contain_exactly(
+        have_attributes(helcim_token: "5440c5e27f287875889421"),
+      )
+      card = member.cards.first
+      expect(last_response).to have_json_body.
+        that_includes(id: card.id, all_payment_instruments: have_same_ids_as(card))
+    end
+
+    it "errors if the helcim xml response is not 1" do
+      post "/v1/payment_instruments/cards/create_helcim", xml: load_fixture_data("helcim/error.xml", raw: true)
+
+      expect(last_response).to have_status(402)
+      expect(last_response).to have_json_body.
+        that_includes(error: include(code: "invalid_card"))
+    end
+  end
+
+  describe "DELETE /v1/payment_instruments/cards/:id" do
+    it "soft deletes the bank account" do
+      card = card_fac.create
+
+      delete "/v1/payment_instruments/cards/#{card.id}"
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.that_includes(id: card.id, all_payment_instruments: [])
+      expect(card.refresh).to be_soft_deleted
+    end
+    it "errors if the bank account does not belong to the org or is not usable" do
+      card = card_fac.create
+      card.soft_delete
+
+      delete "/v1/payment_instruments/cards/#{card.id}"
 
       expect(last_response).to have_status(403)
       expect(last_response).to have_json_body.that_includes(error: include(code: "resource_not_found"))

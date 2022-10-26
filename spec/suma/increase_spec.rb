@@ -41,8 +41,8 @@ RSpec.describe Suma::Increase, :db do
           }.to_json,
         ).
         to_return(
-          **fixture_response(body:
-            {
+          **fixture_response(
+            body: {
               id: "ach_transfer_uoxatyh3lt5evrsdvo7q",
               account_number: "acctNum-123",
               routing_number: "routNum-456",
@@ -51,7 +51,8 @@ RSpec.describe Suma::Increase, :db do
               status: "submitted",
               statement_descriptor: "Statement descriptor",
               transaction_id: "transaction_uyrp7fld2ium70oa7oi",
-            }.to_json),
+            }.to_json,
+          ),
         )
 
       resp = described_class._create_ach_transfer(

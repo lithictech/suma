@@ -5,11 +5,12 @@ RSpec.describe "Suma::Payment::FundingTransaction", :db do
 
   describe "start_new" do
     let(:pacct) { Suma::Fixtures.payment_account.create }
+    let(:amount) { Money.new(500) }
 
     it "creates a new transaction to the platform ledger" do
       strategy = Suma::Payment::FakeStrategy.create
       strategy.set_response(:check_validity, [])
-      xaction = described_class.start_new(pacct, amount: Money.new(500), strategy:)
+      xaction = described_class.start_new(pacct, amount:, strategy:, originating_ip: "1.2.3.4")
       expect(xaction).to have_attributes(
         status: "created",
         amount: cost("$5"),
@@ -18,12 +19,13 @@ RSpec.describe "Suma::Payment::FundingTransaction", :db do
         platform_ledger: be === Suma::Payment::Account.lookup_platform_account.cash_ledger!,
         originated_book_transaction: nil,
         strategy: be_a(Suma::Payment::FakeStrategy),
+        originating_ip: IPAddr.new("1.2.3.4"),
       )
     end
 
     it "uses an ACH strategy if originating from a bank account" do
       bank_account = Suma::Fixtures.bank_account.verified.create
-      xaction = described_class.start_new(pacct, amount: Money.new(500), bank_account:)
+      xaction = described_class.start_new(pacct, amount:, bank_account:)
       expect(xaction).to have_attributes(
         originating_payment_account: be === pacct,
         platform_ledger: be === Suma::Payment::Account.lookup_platform_account.cash_ledger!,
@@ -32,9 +34,28 @@ RSpec.describe "Suma::Payment::FundingTransaction", :db do
       expect(xaction.strategy).to have_attributes(originating_bank_account: bank_account)
     end
 
+    it "uses a card strategy if originating from a card" do
+      card = Suma::Fixtures.card.create
+      xaction = described_class.start_new(pacct, amount:, card:, originating_ip: "1.2.3.4")
+      expect(xaction).to have_attributes(
+        originating_payment_account: be === pacct,
+        platform_ledger: be === Suma::Payment::Account.lookup_platform_account.cash_ledger!,
+        strategy: be_a(Suma::Payment::FundingTransaction::HelcimCardStrategy),
+      )
+      expect(xaction.strategy).to have_attributes(originating_card: card)
+    end
+
+    it "errors if multiple strategies match arguments" do
+      bank_account = Suma::Fixtures.bank_account.verified.create
+      card = Suma::Fixtures.card.create
+      expect do
+        described_class.start_new(pacct, amount:, bank_account:, card:)
+      end.to raise_error(described_class::StrategyUnavailable)
+    end
+
     it "errors if there is no strategy matching the arguments" do
       expect do
-        described_class.start_new(pacct, amount: Money.new(500))
+        described_class.start_new(pacct, amount:)
       end.to raise_error(described_class::StrategyUnavailable)
     end
 
@@ -42,7 +63,7 @@ RSpec.describe "Suma::Payment::FundingTransaction", :db do
       strategy = Suma::Payment::FakeStrategy.create
       strategy.set_response(:check_validity, ["not registered"])
       expect do
-        described_class.start_new(pacct, amount: Money.new(500), strategy:)
+        described_class.start_new(pacct, amount:, strategy:)
       end.to raise_error(Suma::Payment::Invalid)
     end
   end

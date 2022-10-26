@@ -44,6 +44,7 @@
     "disambiguation_required": "$t(strings:errors:unhandled_error)",
     "enable_geolocation_instructions": "Follow these instructions to enable Geolocation",
     "forbidden": "You are forbidden from accessing these resources.",
+    "invalid_card": "Sorry, that card information is not correct. Please double check it and try again.",
     "impossible_phone_number": "That doesn't look like a real phone number.",
     "invalid_credentials": "Sorry, that information is not correct.",
     "invalid_otp": "That token is not valid. Enter it again, or request a new code.",

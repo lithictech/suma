@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<message>
+  <response>1</response>
+  <responseMessage>APPROVED</responseMessage>
+  <noticeMessage>Order Created - Customer Created</noticeMessage>
+  <date>2017-06-21</date>
+  <time>12:23:31</time>
+  <type>purchase</type>
+  <amount>100.00</amount>
+  <cardHolderName>John Smith</cardHolderName>
+  <cardNumber>5454****5454</cardNumber>
+  <cardExpiry>1025</cardExpiry>
+  <cardToken>5440c5e27f287875889421</cardToken>
+  <cardType>MasterCard</cardType>
+  <transactionId>112415310</transactionId>
+  <avsResponse>X</avsResponse>
+  <cvvResponse>M</cvvResponse>
+  <approvalCode>102542</approvalCode>
+  <orderNumber>INV10010</orderNumber>
+  <customerCode>CST2000</customerCode>
+</message>

@@ -60,6 +60,51 @@ class Suma::API::PaymentInstruments < Suma::API::V1
         end
       end
     end
+
+    resource :cards do
+      params do
+        # See https://devdocs.helcim.com/docs/response-fields#post-response-sample
+        requires :xml, type: String
+      end
+      post :create_helcim do
+        me = current_member
+        helcim_json = Hash.from_xml(params[:xml]).fetch("message")
+        if helcim_json.fetch("response") != "1"
+          self.logger.warn("helcim_error_response", helcim_xml: params["xml"])
+          merror!(402, helcim_json.fetch("responseMessage") || "Helcim Error", code: "invalid_card")
+        end
+        card = Suma::Payment::Card.create(
+          legal_entity: me.legal_entity,
+          helcim_json:,
+        )
+        add_current_member_header
+        status 200
+        present(
+          card,
+          with: MutationPaymentInstrumentEntity,
+          all_payment_instruments: me.usable_payment_instruments,
+        )
+      end
+      route_param :id, type: Integer do
+        helpers do
+          def lookup
+            c = current_member
+            card = c.legal_entity.cards_dataset.usable[params[:id]]
+            merror!(403, "No card with that id", code: "resource_not_found") if card.nil?
+            return card
+          end
+        end
+        delete do
+          card = lookup
+          card.soft_delete
+          present(
+            card,
+            with: MutationPaymentInstrumentEntity,
+            all_payment_instruments: current_member.usable_payment_instruments,
+          )
+        end
+      end
+    end
   end
 
   class MutationPaymentInstrumentEntity < PaymentInstrumentEntity

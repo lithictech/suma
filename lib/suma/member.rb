@@ -52,6 +52,14 @@ class Suma::Member < Suma::Postgres::Model(:members)
                     class: "Suma::Payment::BankAccount",
                     left_primary_key: :legal_entity_id,
                     order: [:created_at, :id]
+  many_through_many :cards,
+                    [
+                      [:legal_entities, :id, :id],
+                      [:payment_cards, :legal_entity_id, :id],
+                    ],
+                    class: "Suma::Payment::Card",
+                    left_primary_key: :legal_entity_id,
+                    order: [:created_at, :id]
   one_to_many :charges, class: "Suma::Charge", order: Sequel.desc([:id])
   many_to_one :legal_entity, class: "Suma::LegalEntity"
   one_to_many :message_deliveries, key: :recipient_id, class: "Suma::Message::Delivery"
@@ -142,13 +150,15 @@ class Suma::Member < Suma::Postgres::Model(:members)
   end
 
   def usable_payment_instruments
+    ord = [Sequel.desc(:created_at), :id]
     bank_accounts = self.
       legal_entity.
       bank_accounts_dataset.
       usable.
-      order(Sequel.desc(:created_at), :id).
+      order(*ord).
       all
-    return bank_accounts
+    cards = self.legal_entity.cards_dataset.usable.order(*ord).all
+    return bank_accounts + cards
   end
 
   #
