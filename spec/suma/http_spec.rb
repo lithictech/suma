@@ -41,7 +41,7 @@ RSpec.describe Suma::Http do
     end
   end
   describe "post" do
-    it "calls HTTP POST" do
+    it "calls HTTP POST with json if not headers given" do
       req = stub_request(:post, "https://a.b").
         with(body: "{}", headers: {"Content-Type" => "application/json"}).
         to_return(status: 200, body: "")
@@ -52,6 +52,14 @@ RSpec.describe Suma::Http do
       described_class.post("https://x.y", {x: 1}, logger: nil)
       expect(req).to have_been_made
       expect(qreq).to have_been_made
+    end
+    it "calls HTTP POST with form encoding if object body given with form content type" do
+      form = "application/x-www-form-urlencoded"
+      req = stub_request(:post, "https://x.y").
+        with(body: {"x" => "1"}, headers: {"Content-Type" => form}).
+        to_return(status: 200, body: "")
+      described_class.post("https://x.y", {x: 1}, headers: {"Content-Type" => form}, logger: nil)
+      expect(req).to have_been_made
     end
     it "will not to_json string body" do
       req = stub_request(:post, "https://a.b").
