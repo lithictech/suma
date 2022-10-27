@@ -34,8 +34,8 @@ export default function FundingLinkBankAccount() {
 function Success() {
   return (
     <>
-      <h2>{t("payments:linked_account")}</h2>
-      {mdp("payments:linked_account_successful_md")}
+      <h2>{t("payments:linked_bank_account")}</h2>
+      {mdp("payments:linked_bank_account_successful_md")}
       <GoHome />
     </>
   );
@@ -88,7 +88,7 @@ function LinkBankAccount({ onSuccess }) {
   return (
     <>
       <LinearBreadcrumbs back />
-      <h2 className="page-header">{t("payments:link_account")}</h2>
+      <h2 className="page-header">{t("payments:link_bank_account")}</h2>
       <p>{md("payments:payment_intro.privacy_statement_md")}</p>
       <Form noValidate onSubmit={handleSubmit(handleFormSubmit)}>
         <Row className="mb-3">
@@ -133,10 +133,10 @@ function LinkBankAccount({ onSuccess }) {
             inputMode="numeric"
             name="account_number"
             label={t("forms:account_number")}
-            text={md("forms:account_caption_md")}
+            text={md("forms:bank_account_caption_md")}
             value={accountNumber}
             errors={errors}
-            errorKeys={{ pattern: "forms:invalid_account_number" }}
+            errorKeys={{ pattern: "forms:invalid_bank_account_number" }}
             register={register}
             onChange={(e) =>
               runSetter(e.target.name, setAccountNumber, keepDigits(e.target.value))
@@ -154,7 +154,7 @@ function LinkBankAccount({ onSuccess }) {
             text={t("forms:confirm_account_number_caption")}
             value={accountNumberConfirm}
             errors={errors}
-            errorKeys={{ validate: "forms:invalid_confirm_account_number" }}
+            errorKeys={{ validate: "forms:invalid_bank_account_number_confirm" }}
             register={register}
             registerOptions={{ validate: (v) => v === accountNumber }}
             onChange={(e) =>
@@ -168,7 +168,7 @@ function LinkBankAccount({ onSuccess }) {
         </Row>
         <Row className="mb-3">
           <Form.Group as={Col}>
-            <Form.Label>{t("forms:account_type")}</Form.Label>
+            <Form.Label>{t("forms:bank_account_type")}</Form.Label>
             <div>
               <Form.Check
                 inline
@@ -189,7 +189,7 @@ function LinkBankAccount({ onSuccess }) {
                 onChange={() => setAccountType("savings")}
               />
             </div>
-            <Form.Text>{t("forms:account_type_caption")}</Form.Text>
+            <Form.Text>{t("forms:bank_account_type_caption")}</Form.Text>
           </Form.Group>
         </Row>
 

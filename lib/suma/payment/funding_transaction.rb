@@ -25,7 +25,7 @@ class Suma::Payment::FundingTransaction < Suma::Postgres::Model(:payment_funding
 
   many_to_one :fake_strategy, class: "Suma::Payment::FakeStrategy"
   many_to_one :increase_ach_strategy, class: "Suma::Payment::FundingTransaction::IncreaseAchStrategy"
-  many_to_one :helcim_card_strategy, class: "Suma::Payment::FundingTransaction::HelcimCardStrategy"
+  many_to_one :stripe_card_strategy, class: "Suma::Payment::FundingTransaction::StripeCardStrategy"
 
   state_machine :status, initial: :created do
     state :created,
@@ -75,7 +75,7 @@ class Suma::Payment::FundingTransaction < Suma::Postgres::Model(:payment_funding
       if strategy.nil?
         possible = [
           [bank_account, IncreaseAchStrategy.new(originating_bank_account: bank_account)],
-          [card, HelcimCardStrategy.new(originating_card: card)],
+          [card, StripeCardStrategy.new(originating_card: card)],
         ]
         provided = possible.select(&:first).count(&:present?)
         raise StrategyUnavailable, "cannot determine valid funding strategy for given arguments" unless provided == 1
@@ -147,7 +147,7 @@ class Suma::Payment::FundingTransaction < Suma::Postgres::Model(:payment_funding
   protected def strategy_array
     return [
       self.increase_ach_strategy,
-      self.helcim_card_strategy,
+      self.stripe_card_strategy,
       self.fake_strategy,
     ]
   end

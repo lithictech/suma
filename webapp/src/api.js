@@ -26,6 +26,7 @@ const del = (path, params, opts) => {
 
 export default {
   ...apiBase,
+  axios: instance,
   get,
   post,
   patch,
@@ -54,6 +55,10 @@ export default {
     post(`/api/v1/payment_instruments/bank_accounts/create`, data),
   deleteBankAccount: (data) =>
     del(`/api/v1/payment_instruments/bank_accounts/${data.id}`, data),
+
+  createCardStripe: (data) =>
+    post(`/api/v1/payment_instruments/cards/create_stripe`, data),
+  deleteCard: (data) => del(`/api/v1/payment_instruments/cards/${data.id}`, data),
 
   createFundingPayment: (data) => post(`/api/v1/payments/create_funding`, data),
 };

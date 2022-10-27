@@ -19,10 +19,19 @@ RSpec.describe "Suma::Payment::Card", :db do
     end
 
     it "falls back to an unknown brand" do
-      expect(Suma::Fixtures.card.with_helcim({"cardType" => "foo"}).create.institution).to have_attributes(
+      expect(Suma::Fixtures.card.with_stripe({"brand" => "foo"}).create.institution).to have_attributes(
         name: "foo",
         color: "#AAAAAA",
         logo: end_with("ElFTkSuQmCC"),
+      )
+    end
+  end
+
+  describe "external links" do
+    it "links to the Stripe dashboard" do
+      ca = Suma::Fixtures.card.with_stripe({"customer" => "cu_123"}).create
+      expect(ca.external_links).to contain_exactly(
+        {name: "Stripe Customer", url: "https://dashboard.stripe.com/customers/cu_123"},
       )
     end
   end

@@ -35,12 +35,12 @@ RSpec.describe "Suma::Payment::FundingTransaction", :db do
     end
 
     it "uses a card strategy if originating from a card" do
-      card = Suma::Fixtures.card.create
+      card = Suma::Fixtures.card.member(Suma::Fixtures.member.registered_as_stripe_customer.create).create
       xaction = described_class.start_new(pacct, amount:, card:, originating_ip: "1.2.3.4")
       expect(xaction).to have_attributes(
         originating_payment_account: be === pacct,
         platform_ledger: be === Suma::Payment::Account.lookup_platform_account.cash_ledger!,
-        strategy: be_a(Suma::Payment::FundingTransaction::HelcimCardStrategy),
+        strategy: be_a(Suma::Payment::FundingTransaction::StripeCardStrategy),
       )
       expect(xaction.strategy).to have_attributes(originating_card: card)
     end

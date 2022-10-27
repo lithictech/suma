@@ -63,20 +63,26 @@ class Suma::API::PaymentInstruments < Suma::API::V1
 
     resource :cards do
       params do
-        # See https://devdocs.helcim.com/docs/response-fields#post-response-sample
-        requires :xml, type: String
-      end
-      post :create_helcim do
-        me = current_member
-        helcim_json = Hash.from_xml(params[:xml]).fetch("message")
-        if helcim_json.fetch("response") != "1"
-          self.logger.warn("helcim_error_response", helcim_xml: params["xml"])
-          merror!(402, helcim_json.fetch("responseMessage") || "Helcim Error", code: "invalid_card")
+        # See https://stripe.com/docs/api/tokens/object
+        requires :token, type: JSON do
+          requires :id, type: String
         end
-        card = Suma::Payment::Card.create(
-          legal_entity: me.legal_entity,
-          helcim_json:,
-        )
+      end
+      post :create_stripe do
+        me = current_member
+        card = me.db.transaction do
+          me.stripe.ensure_registered_as_customer
+          begin
+            stripe_card = me.stripe.register_card_for_charges(params[:token][:id])
+          rescue Stripe::CardError => e
+            code = Suma::Stripe.localized_error_code(e)
+            merror!(402, e.message, code:, more: {stripe_error: e.to_s})
+          end
+          Suma::Payment::Card.create(
+            legal_entity: me.legal_entity,
+            stripe_json: stripe_card.to_json,
+          )
+        end
         add_current_member_header
         status 200
         present(
@@ -96,6 +102,7 @@ class Suma::API::PaymentInstruments < Suma::API::V1
         end
         delete do
           card = lookup
+          card.stripe_card.delete
           card.soft_delete
           present(
             card,

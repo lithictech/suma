@@ -9,25 +9,30 @@ module Suma::Fixtures::Cards
   fixtured_class Suma::Payment::Card
 
   base :card do
-    self.helcim_json ||= {
-      "response" => "1",
-      "responseMessage" => "APPROVED",
-      "noticeMessage" => "Order Created - Customer Created",
-      "date" => "2017-06-21",
-      "time" => "12:23:31",
-      "type" => "purchase",
-      "amount" => "100.00",
-      "cardHolderName" => "John Smith",
-      "cardNumber" => "5454****5454",
-      "cardExpiry" => "1025",
-      "cardToken" => "5440c5e27f287875889421",
-      "cardType" => "MasterCard",
-      "transactionId" => "112415310",
-      "avsResponse" => "X",
-      "cvvResponse" => "M",
-      "approvalCode" => "102542",
-      "orderNumber" => "INV10010",
-      "customerCode" => "CST2000",
+    self.stripe_json ||= {
+      "id" => "card_1LxbQmAqRmWQecssc7Yf9Wr7",
+      "object" => "card",
+      "address_city" => nil,
+      "address_country" => nil,
+      "address_line1" => nil,
+      "address_line1_check" => nil,
+      "address_line2" => nil,
+      "address_state" => nil,
+      "address_zip" => nil,
+      "address_zip_check" => nil,
+      "brand" => "Visa",
+      "country" => "US",
+      "customer" => "cus_cardowner",
+      "cvc_check" => "pass",
+      "dynamic_last4" => nil,
+      "exp_month" => 8,
+      "exp_year" => 2023,
+      "fingerprint" => "vIjZVstYyGmkvbVe",
+      "funding" => "credit",
+      "last4" => "4242",
+      "metadata" => {},
+      "name" => nil,
+      "tokenization_method" => nil,
     }
   end
 
@@ -46,12 +51,12 @@ module Suma::Fixtures::Cards
     self.legal_entity = le
   end
 
-  decorator :with_helcim do |j|
-    self.helcim_json.merge!(j)
+  decorator :with_stripe do |j|
+    self.stripe_json.merge!(j)
   end
 
   decorator :visa do
-    self.helcim_json["cardType"] = "Visa"
-    self.helcim_json["cardNumber"] = "4141****4141"
+    self.stripe_json["brand"] = "Visa"
+    self.stripe_json["last4"] = "4242"
   end
 end

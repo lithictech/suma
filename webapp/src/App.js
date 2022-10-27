@@ -11,6 +11,7 @@ import useI18Next, { I18NextProvider } from "./localization/useI18Next";
 import Dashboard from "./pages/Dashboard";
 import Food from "./pages/Food";
 import Funding from "./pages/Funding";
+import FundingAddCard from "./pages/FundingAddCard";
 import FundingAddFunds from "./pages/FundingAddFunds";
 import FundingLinkBankAccount from "./pages/FundingLinkBankAccount";
 import Home from "./pages/Home";
@@ -203,9 +204,21 @@ function AppRoutes() {
             redirectIfUnauthed,
             redirectIfUnboarded,
             withScreenLoaderMount(),
-            withMetatags({ title: t("payments:link_account") }),
+            withMetatags({ title: t("payments:link_bank_account") }),
             withLayout({ top: true, gutters: true }),
             FundingLinkBankAccount
+          )}
+        />
+        <Route
+          path="/add-card"
+          exact
+          element={renderWithHocs(
+            redirectIfUnauthed,
+            redirectIfUnboarded,
+            withScreenLoaderMount(),
+            withMetatags({ title: t("payments:add_card") }),
+            withLayout({ top: true, gutters: true }),
+            FundingAddCard
           )}
         />
         <Route

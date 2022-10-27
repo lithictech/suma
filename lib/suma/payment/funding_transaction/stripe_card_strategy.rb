@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
-require "suma/helcim"
+require "suma/stripe"
 require "suma/payment/funding_transaction/strategy"
 require "suma/postgres/model"
 
-class Suma::Payment::FundingTransaction::HelcimCardStrategy <
-  Suma::Postgres::Model(:payment_funding_transaction_helcim_card_strategies)
+class Suma::Payment::FundingTransaction::StripeCardStrategy <
+  Suma::Postgres::Model(:payment_funding_transaction_stripe_card_strategies)
   include Suma::Payment::FundingTransaction::Strategy
 
   one_to_one :funding_transaction, class: "Suma::Payment::FundingTransaction"
@@ -16,14 +16,15 @@ class Suma::Payment::FundingTransaction::HelcimCardStrategy <
   end
 
   def short_name
-    return "Helcim Card Funding"
+    return "Stripe Card Funding"
   end
 
   def check_validity
     card = self.originating_card
     result = []
     (result << "is soft deleted and cannot be used for funding") if card.soft_deleted?
-    (result << "requires the originating ip to be set") if self.funding_transaction.originating_ip.blank?
+    raise Suma::InvalidPrecondition, "card is not owned by a member, should only see this in tests" if card.member.nil?
+    (result << "member is not registered in Stripe") unless card.member.stripe.registered_as_customer?
     return result
   end
 
@@ -31,58 +32,49 @@ class Suma::Payment::FundingTransaction::HelcimCardStrategy <
     return true
   end
 
-  def transaction_id
-    preauth_xid = self.preauth_transaction_id
-    capture_xid = self.capture_transaction_id
-    raise Suma::InvalidPostcondition, "preauth and capture ids differ" if
-      preauth_xid && capture_xid && preauth_xid != capture_xid
-    return capture_xid || preauth_xid
-  end
-
-  def preauth_transaction_id = self.preauth_json&.fetch("transactionId", nil)
-  def capture_transaction_id = self.capture_json&.fetch("transactionId", nil)
+  def charge_id = self.charge_json&.fetch("id")
 
   def collect_funds
-    return false if self.transaction_id.present?
-    self.preauth_json = Suma::Helcim.preauthorize(
+    return false if self.charge_id.present?
+    charge = self.originating_card.member.stripe.charge_card(
+      card: self.originating_card,
       amount: self.funding_transaction.amount,
-      token: self.originating_card.helcim_token,
-      ip: self.funding_transaction.originating_ip,
+      memo: "#{Suma.operator_name} charge",
+      idempotency_key: Suma.idempotency_key(self, "charge"),
+      params: {capture: false},
+      metadata: {suma_funding_transaction_id: self.funding_transaction.id},
     )
-    if self.preauth_transaction_id.blank?
-      msg = "Helcim preauth transaction id not set after API call from #{self.class.name}[#{self.id}]. " \
-            "JSON: #{self.preauth_json}"
-      raise Suma::InvalidPostcondition, msg
-    end
+    self.charge_json = charge.as_json
+    charge_id_set!
     return true
   end
 
   def funds_cleared?
-    return true if self.capture_transaction_id
-    raise Suma::InvalidPrecondition, "Helcim preauth transaction id not set" unless self.preauth_transaction_id
-    self.capture_json = Suma::Helcim.capture(transaction_id: self.preauth_transaction_id)
-    if self.capture_transaction_id.blank?
-      msg = "Helcim capture transaction id not set after API call from #{self.class.name}[#{self.id}]. " \
-            "JSON: #{self.preauth_json}"
-      raise Suma::InvalidPostcondition, msg
-    end
+    raise Suma::InvalidPrecondition, "charge_json must be set" if self.charge_json.nil?
+    return true if self.charge_json["captured"]
+    charge = Stripe::Charge.capture(self.charge_id)
+    self.charge_json = charge.as_json
+    charge_id_set!
     return true
   end
 
-  # def _external_links_self
-  #   return [] unless self.ach_transfer_id
-  #   return [
-  #     self._external_link(
-  #       "ACH Transfer into Increase Account",
-  #       "#{Suma::Increase.app_url}#{self.ach_transfer_json['path']}",
-  #     ),
-  #     self._external_link(
-  #       "Transaction for ACH Transfer",
-  #       "#{Suma::Increase.app_url}/transactions/#{self.ach_transfer_json['transaction_id']}",
-  #     ),
-  #   ]
-  # end
-  #
+  private def charge_id_set!
+    return if self.charge_id.present?
+    msg = "Stripe charge idid not set after API call from #{self.class.name}[#{self.id}]. " \
+          "JSON: #{self.charge_json}"
+    raise Suma::InvalidPostcondition, msg
+  end
+
+  def _external_links_self
+    return [] unless self.charge_id
+    return [
+      self._external_link(
+        "Stripe Charge",
+        "#{Suma::Stripe.app_url}/payments/#{self.charge_id}",
+      ),
+    ]
+  end
+
   def _external_link_deps
     return [self.originating_card]
   end

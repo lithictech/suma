@@ -48,20 +48,22 @@ class Suma::Payment::Card < Suma::Postgres::Model(:payment_cards)
     return inst
   end
 
-  def last4
-    return self.helcim_json.fetch("cardNumber")[-4..]
+  def stripe_id = self.stripe_json.fetch("id")
+  def last4  = self.stripe_json.fetch("last4")
+  def brand  = self.stripe_json.fetch("brand")
+  def name = "#{self.brand} x-#{self.last4}"
+
+  def stripe_card
+    return @stripe_card ||= Stripe::Card.construct_from(stripe_json.deep_symbolize_keys)
   end
 
-  def brand
-    return self.helcim_json.fetch("cardType")
-  end
-
-  def helcim_token
-    return self.helcim_json.fetch("cardToken")
-  end
-
-  def name
-    return "#{self.brand} x-#{self.last4}"
+  def _external_links_self
+    return [
+      self._external_link(
+        "Stripe Customer",
+        "#{Suma::Stripe.app_url}/customers/#{self.stripe_json.fetch('customer')}",
+      ),
+    ]
   end
 
   INSTITUTIONS = {

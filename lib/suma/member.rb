@@ -161,6 +161,10 @@ class Suma::Member < Suma::Postgres::Model(:members)
     return bank_accounts + cards
   end
 
+  def stripe
+    return @stripe ||= Suma::Member::StripeAttributes.new(self)
+  end
+
   #
   # :section: Password
   #
@@ -269,6 +273,8 @@ class Suma::Member < Suma::Postgres::Model(:members)
     self.validates_operator(:==, self.email.downcase.strip, :email)
   end
 end
+
+require "suma/member/stripe_attributes"
 
 # Table: members
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------

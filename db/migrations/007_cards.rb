@@ -14,28 +14,32 @@ Sequel.migration do
 
       foreign_key :legal_entity_id, :legal_entities, null: false, on_delete: :restrict
 
-      jsonb :helcim_json, null: false
+      jsonb :stripe_json, null: false
     end
 
-    create_table(:payment_funding_transaction_helcim_card_strategies) do
+    create_table(:payment_funding_transaction_stripe_card_strategies) do
       primary_key :id
       timestamptz :created_at, null: false, default: Sequel.function(:now)
       timestamptz :updated_at
 
       foreign_key :originating_card_id, :payment_cards, null: false
-      jsonb :preauth_json, null: false, default: "{}"
-      jsonb :capture_json, null: false, default: "{}"
+      jsonb :charge_json
     end
 
     alter_table(:payment_funding_transactions) do
       add_column :originating_ip, :inet
-      add_foreign_key :helcim_card_strategy_id, :payment_funding_transaction_helcim_card_strategies,
+      add_foreign_key :stripe_card_strategy_id, :payment_funding_transaction_stripe_card_strategies,
                       null: true, unique: true
+
       drop_constraint(:unambiguous_strategy)
       add_constraint(
         :unambiguous_strategy,
-        Sequel.unambiguous_constraint([:fake_strategy_id, :increase_ach_strategy_id, :helcim_card_strategy_id]),
+        Sequel.unambiguous_constraint([:fake_strategy_id, :increase_ach_strategy_id, :stripe_card_strategy_id]),
       )
+    end
+
+    alter_table(:members) do
+      add_column :stripe_customer_json, :jsonb
     end
   end
 end
