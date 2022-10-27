@@ -182,7 +182,7 @@ function AppRoutes() {
             redirectIfUnboarded,
             withScreenLoaderMount(),
             withMetatags({ title: t("food:title") }),
-            withLayout({ gutters: true, top: true }),
+            withLayout({ gutters: false, top: false }),
             FoodDetails
           )}
         />

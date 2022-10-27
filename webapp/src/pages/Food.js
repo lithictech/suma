@@ -47,7 +47,7 @@ function FoodContent({ offerings, params }) {
   // TODO: Recieve this cart from backend API once cart mechanism is done
   const cart = [{ key: 1, productId: 3, maxQuantity: 200, quantity: 2 }];
   return (
-    <LayoutContainer gutters top>
+    <LayoutContainer top>
       {!params.get("id") ? (
         <Row>
           <h5 className="page-header mb-4">Vendor Offerings</h5>
@@ -91,12 +91,10 @@ function FoodContent({ offerings, params }) {
           <LinearBreadcrumbs back />
           <h3 className="mb-4">{offerings[Number(params.get("id"))].vendorName}</h3>
           {offerings[Number(params.get("id"))].offeringProducts.map((f) => (
-            <Col xs={6} key={f.id} className="mb-4">
+            <Col xs={6} key={f.id} className="mb-2">
               <div className="position-relative">
-                <Link to={`/food-details?id=${f.id}`}>
-                  {/* TODO: refactor image src with correct link */}
-                  <img src="/temporary-food-chicken.jpg" alt={f.name} className="w-100" />
-                </Link>
+                {/* TODO: refactor image src with correct link */}
+                <img src="/temporary-food-chicken.jpg" alt={f.name} className="w-100" />
                 <div className="food-widget-container position-absolute">
                   {cart.map((product) =>
                     product.productId === f.id ? (
@@ -106,19 +104,20 @@ function FoodContent({ offerings, params }) {
                     )
                   )}
                 </div>
+                <h5>{f.name}</h5>
+                <h6 className="mb-0">
+                  <Money className={clsx("me-2", f.discountedPrice && "text-success")}>
+                    {f.discountedPrice || f.price}
+                  </Money>
+                  {f.discountedPrice && (
+                    <strike>
+                      <Money>{f.price}</Money>
+                    </strike>
+                  )}
+                </h6>
+                <p>{f.weight}</p>
+                <Link to={`/food-details?id=${f.id}`} className="stretched-link"></Link>
               </div>
-              <h5>{f.name}</h5>
-              <h6 className="mb-0">
-                <Money className={clsx("me-2", f.discountedPrice && "text-success")}>
-                  {f.discountedPrice || f.price}
-                </Money>
-                {f.discountedPrice && (
-                  <strike>
-                    <Money>{f.price}</Money>
-                  </strike>
-                )}
-              </h6>
-              <p>{f.weight}</p>
             </Col>
           ))}
         </Row>

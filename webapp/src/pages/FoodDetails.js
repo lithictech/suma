@@ -4,8 +4,10 @@ import LinearBreadcrumbs from "../components/LinearBreadcrumbs";
 import PageLoader from "../components/PageLoader";
 import Money from "../shared/react/Money";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
+import { LayoutContainer } from "../state/withLayout";
 import clsx from "clsx";
 import React from "react";
+import Stack from "react-bootstrap/Stack";
 import { useSearchParams } from "react-router-dom";
 
 export default function FoodDetails() {
@@ -27,49 +29,55 @@ export default function FoodDetails() {
   }
   return (
     <>
-      <LinearBreadcrumbs back />
+      <LayoutContainer className="pt-2">
+        <LinearBreadcrumbs back />
+      </LayoutContainer>
       {/* TODO: refactor image src with correct link */}
-      <div className="position-relative">
-        <img
-          src="/temporary-food-chicken.jpg"
-          alt={productDetails.name}
-          className="w-100"
-        />
-        <div className="food-widget-container position-absolute">
-          {cart.map((product) =>
-            product.productId === productDetails.id ? (
-              <FoodWidget key={productDetails.id} {...product} />
-            ) : (
-              <FoodWidget key={productDetails.id} {...productDetails} />
-            )
-          )}
-        </div>
-      </div>
-      <h3 className="mt-4 mb-2">{productDetails.name}</h3>
-      <h5>
-        <Money className={clsx("me-2", productDetails.discountedPrice && "text-success")}>
-          {productDetails.discountedPrice || productDetails.price}
-        </Money>
-        {productDetails.discountedPrice && (
-          <strike>
-            <Money>{productDetails.price}</Money>
-          </strike>
-        )}
-      </h5>
-      <b>{productDetails.weight}</b>
-      <p>By {productDetails.partner.name}</p>
-      <hr />
-      <h5 className="mt-4 mb-2">Details</h5>
-      <p>{productDetails.description}</p>
-      <h5 className="mt-4 mb-2">Ingredients</h5>
-      {productDetails.ingredients.map((i, idx) => (
-        <span key={i} className="me-2">
-          {i}
-          {productDetails.ingredients.length > 1 &&
-            productDetails.ingredients.length !== idx + 1 &&
-            ", "}
-        </span>
-      ))}
+      <img
+        src="/temporary-food-chicken.jpg"
+        alt={productDetails.name}
+        className="w-100"
+      />
+      <LayoutContainer top>
+        <h3 className="mb-2">{productDetails.name}</h3>
+        <Stack direction="horizontal">
+          <h5>
+            <Money
+              className={clsx("me-2", productDetails.discountedPrice && "text-success")}
+            >
+              {productDetails.discountedPrice || productDetails.price}
+            </Money>
+            {productDetails.discountedPrice && (
+              <strike>
+                <Money>{productDetails.price}</Money>
+              </strike>
+            )}
+          </h5>
+          <div className="ms-auto">
+            {cart.map((product) =>
+              product.productId === productDetails.id ? (
+                <FoodWidget key={productDetails.id} {...product} large={true} />
+              ) : (
+                <FoodWidget key={productDetails.id} {...productDetails} large={true} />
+              )
+            )}
+          </div>
+        </Stack>
+        <b>{productDetails.weight}</b>
+        <p>By {productDetails.partner.name}</p>
+        <hr />
+        <h5 className="mt-4 mb-2">Details</h5>
+        <p>{productDetails.description}</p>
+        <h5 className="mt-4 mb-2">Ingredients</h5>
+        {productDetails.ingredients.map((i, idx) => (
+          <span key={i}>
+            {i}
+            {productDetails.ingredients.length > 1 &&
+              productDetails.ingredients.length !== idx + 1 &&
+              ", "}
+          </span>
+        ))}
+      </LayoutContainer>
     </>
   );
 }
