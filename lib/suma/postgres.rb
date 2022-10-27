@@ -64,6 +64,7 @@ module Suma::Postgres
     "suma/organization",
     "suma/payment/bank_account",
     "suma/payment/book_transaction",
+    "suma/payment/card",
     "suma/payment/funding_transaction",
     "suma/payment/funding_transaction/audit_log",
     "suma/payment/funding_transaction/helcim_card_strategy",
