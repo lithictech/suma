@@ -2,6 +2,7 @@ import api from "../../api";
 import { t } from "../../localization";
 import MapBuilder from "../../modules/mapBuilder";
 import { extractErrorCode, useError } from "../../state/useError";
+import { useGlobalViewState } from "../../state/useGlobalViewState";
 import { useUser } from "../../state/useUser";
 import FormError from "../FormError";
 import CardOverlay from "./CardOverlay";
@@ -12,6 +13,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 
 const Map = () => {
+  const { appNav, topNav } = useGlobalViewState();
   const mapRef = React.useRef();
   const { user, handleUpdateCurrentMember } = useUser();
   const [loadedMap, setLoadedMap] = React.useState(null);
@@ -125,9 +127,11 @@ const Map = () => {
     };
   }, [loadedMap]);
 
+  const navsHeight = (topNav?.clientHeight || 0) + (appNav?.clientHeight || 0);
+
   return (
     <div className="position-relative">
-      <div ref={mapRef} />
+      <div ref={mapRef} style={{ height: `calc(100vh - ${navsHeight}px` }} />
       <ReservationCard
         active={Boolean(selectedMapVehicle) && !ongoingTrip && !error}
         loading={selectedMapVehicle && !loadedVehicle}

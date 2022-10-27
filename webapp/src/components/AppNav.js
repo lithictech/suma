@@ -1,11 +1,14 @@
 import { t } from "../localization";
+import { useGlobalViewState } from "../state/useGlobalViewState";
 import clsx from "clsx";
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 
 export default function AppNav() {
+  const { setAppNav, topNav } = useGlobalViewState();
+  const top = topNav?.clientHeight || 0;
   return (
-    <div className="app-nav d-flex flex-row sticky-top">
+    <div ref={setAppNav} className="app-nav d-flex flex-row sticky-top" style={{ top }}>
       <AppLink to="/dashboard" label={t("titles:home")} style={{ borderRightWidth: 0 }} />
       <AppLink
         to="/mobility"
