@@ -4,6 +4,7 @@ import { t } from "../localization";
 import useI18Next from "../localization/useI18Next";
 import signOut from "../modules/signOut";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
+import { useGlobalViewState } from "../state/useGlobalViewState";
 import useOnlineStatus from "../state/useOnlineStatus";
 import { useUser } from "../state/useUser";
 import ExternalLink from "./ExternalLink";
@@ -19,13 +20,16 @@ import { Link } from "react-router-dom";
 export default function TopNav() {
   const { isOnline } = useOnlineStatus();
   const { user, userAuthed } = useUser();
+  const { setTopNav } = useGlobalViewState();
   const [expanded, setExpanded] = React.useState(false);
   return (
     <Navbar
+      ref={setTopNav}
       className="pt-1 pb-0"
       bg={user?.adminMember ? "danger" : "primary"}
       expand={false}
       variant="dark"
+      sticky="top"
       expanded={expanded}
       onToggle={() => setExpanded(!expanded)}
     >

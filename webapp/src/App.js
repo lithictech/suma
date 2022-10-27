@@ -28,6 +28,7 @@ import applyHocs from "./shared/applyHocs";
 import bluejay from "./shared/bluejay";
 import Redirect from "./shared/react/Redirect";
 import renderComponent from "./shared/react/renderComponent";
+import { GlobalViewStateProvider } from "./state/useGlobalViewState";
 import { ScreenLoaderProvider, withScreenLoaderMount } from "./state/useScreenLoader";
 import { UserProvider } from "./state/useUser";
 import withLayout from "./state/withLayout";
@@ -44,7 +45,9 @@ export default function App() {
       <ScreenLoaderProvider>
         <HelmetProvider>
           <UserProvider>
-            <InnerApp />
+            <GlobalViewStateProvider>
+              <InnerApp />
+            </GlobalViewStateProvider>
           </UserProvider>
         </HelmetProvider>
       </ScreenLoaderProvider>
