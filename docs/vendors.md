@@ -28,14 +28,13 @@ they can use. There are many things that can impact what vehicles are available:
 
 When a resident wants to shop (for food, etc), we need to present available vendors
 they can shop with. This ends up being conceptually the same as mobility,
-except the presentation is different.
+except the presentation is different. Specifically, instead of a map with vehicles,
+we present a series of offerings a member can shop from.
 
 ## Models
 
 The key models involved are:
 
-- **Tags** are key/value pairs that can be associated with certain objects,
-  most notably residents and organizations.
 - **Organizations** model any group of platform users that need
   shared access to a resource. We use organizations to model vendors,
   but also housing partners, funders, and any other group that requires
