@@ -27,8 +27,8 @@ class Suma::Payment::FundingTransaction::IncreaseAchStrategy <
     return result
   end
 
-  def ready_to_collect_funds?
-    return true
+  def ready_to_collect_funds?(now: Time.now)
+    return Suma::Payment::APPROXIMATE_ACH_SCHEDULE.in_hours?(now)
   end
 
   def collect_funds

@@ -81,7 +81,7 @@ function BankAccountLine({ bankAccount }) {
               href={`/add-funds?id=${bankAccount.id}&paymentMethodType=bank_account`}
               as={RLink}
             >
-              <i className="bi bi-plus-circle"></i> {t("payments:add_funds")}
+              <i className="bi bi-plus-circle"></i> {t("payments:funds")}
             </Button>
           ) : (
             <Button
@@ -199,27 +199,18 @@ function CardsCard({ instruments }) {
 }
 
 function CardLine({ card }) {
-  const { user, setUser } = useUser();
-  const [error, setError] = useError();
-  const screenLoader = useScreenLoader();
   const showDelete = useToggle(false);
-  function submitDelete(e) {
-    screenLoader.turnOn();
-    e.preventDefault();
-    api
-      .deleteCard({ id: card.id })
-      .then((r) =>
-        setUser({ ...user, usablePaymentInstruments: r.data.allPaymentInstruments })
-      )
-      .catch((e) => setError(extractErrorCode(e)))
-      .finally(screenLoader.turnOff);
-  }
   return (
     <Card className="text-start mb-3 funding-card-border-radius shadow-sm">
       <Card.Body className="d-flex justify-content-between align-items-center">
         <div>
           <Card.Title className="mb-1" as="h6">
-            <i className="bi bi-bank2 me-2"></i>
+            <img
+              className="me-2"
+              width="28px"
+              src={`data://${card.institution.logo}`}
+              alt={card.institution.name}
+            />
             {card.name}
           </Card.Title>
           <Card.Subtitle className="m-0">
@@ -234,7 +225,7 @@ function CardLine({ card }) {
             href={`/add-funds?id=${card.id}&paymentMethodType=card`}
             as={RLink}
           >
-            <i className="bi bi-plus-circle"></i> {t("payments:add_funds")}
+            <i className="bi bi-plus-circle"></i> {t("payments:funds")}
           </Button>
           <div>
             <Dropdown as="span">

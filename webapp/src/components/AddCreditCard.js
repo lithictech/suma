@@ -36,10 +36,10 @@ export default function AddCreditCard({ onSuccess, error, setError }) {
   const cardRowRef = React.useRef(null);
   const [rerender, setRerender] = React.useState(1);
 
-  const [name, setName] = React.useState("Test Suma");
-  const [number, setNumber] = React.useState("424242424242424");
-  const [expiry, setExpiry] = React.useState("01");
-  const [cvc, setCvc] = React.useState("12");
+  const [name, setName] = React.useState("Your Name Here");
+  const [number, setNumber] = React.useState("4242424242424242");
+  const [expiry, setExpiry] = React.useState("01 / 25");
+  const [cvc, setCvc] = React.useState("123");
   const [focus, setFocus] = React.useState("");
 
   const runSetter = React.useCallback(
@@ -52,9 +52,6 @@ export default function AddCreditCard({ onSuccess, error, setError }) {
   );
 
   const handleSubmitInner = React.useCallback(() => {
-    if (parseInt("1", 10) + 1 === 2) {
-      return;
-    }
     const exp = keepDigits(expiry);
     screenLoader.turnOn();
     setError("");

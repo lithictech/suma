@@ -50,8 +50,7 @@ RSpec.describe Suma::Member::StripeAttributes, :db do
   describe "charge card creation" do
     it "creates a card for a customer" do
       member = Suma::Fixtures.member.registered_as_stripe_customer.create
-      url = "https://api.stripe.com#{member.stripe_customer_json['sources']['url']}"
-      card_req = stub_request(:post, url).
+      card_req = stub_request(:post, "https://api.stripe.com/v1/customers/#{member.stripe.customer_id}/sources").
         with(body: hash_including("source" => "tok_456")).
         to_return(fixture_response("stripe/card"))
 

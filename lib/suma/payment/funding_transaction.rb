@@ -62,25 +62,25 @@ class Suma::Payment::FundingTransaction < Suma::Postgres::Model(:payment_funding
   # Create a new funding transaction with the given parameters.
   # @param [Suma::Payment::Account] payment_account
   # @param [Money] amount
-  # @param [Suma::Payment::BankAccount] bank_account If given, use an ACH strategy sending from this account.
-  # @param [Suma::Payment::Card] card If given, use a strategy sending from this card.
+  # @param [Suma::Payment::Instrument] instrument The payment instrument to use.
+  #   Use an ACH strategy for bank accounts, Card strategy for cards, etc.
   # @param [String] originating_ip The IP of the user starting this transaction.
   #   Only some strategies, like cards, require this to be set.
   # @param [Suma::Payment::FundingTransaction::Strategy] strategy Explicit override to use this strategy.
   #   When using a FakeStrategy, pass it in this way.
   # @return [Suma::Payment::FundingTransaction]
-  def self.start_new(payment_account, amount:, bank_account: nil, card: nil, originating_ip: nil, strategy: nil)
+  def self.start_new(payment_account, amount:, instrument: nil, originating_ip: nil, strategy: nil)
     self.db.transaction do
       platform_ledger = Suma::Payment.ensure_cash_ledger(Suma::Payment::Account.lookup_platform_account)
       if strategy.nil?
-        possible = [
-          [bank_account, IncreaseAchStrategy.new(originating_bank_account: bank_account)],
-          [card, StripeCardStrategy.new(originating_card: card)],
-        ]
-        provided = possible.select(&:first).count(&:present?)
-        raise StrategyUnavailable, "cannot determine valid funding strategy for given arguments" unless provided == 1
-        _, strategy = possible.find(&:first)
-        strategy.save_changes
+        strategy = case instrument&.payment_method_type
+          when "bank_account"
+            IncreaseAchStrategy.create(originating_bank_account: instrument)
+          when "card"
+            StripeCardStrategy.create(originating_card: instrument)
+          else
+            raise StrategyUnavailable, "cannot determine valid funding strategy for given arguments"
+        end
       end
       strategy.check_validity!
       xaction = self.new(
@@ -93,16 +93,17 @@ class Suma::Payment::FundingTransaction < Suma::Postgres::Model(:payment_funding
         strategy:,
       )
       xaction.save_changes
+      xaction.process(:collect_funds) if xaction.strategy.ready_to_collect_funds?
       return xaction
     end
   end
 
   # Like +start_new+, but also creates a +BookTransaction+ that moves funds
   # from the platform ledger into the receiving ledger.
-  def self.start_and_transfer(receiving_ledger, amount:, vendor_service_category:, bank_account: nil, strategy: nil)
+  def self.start_and_transfer(receiving_ledger, amount:, vendor_service_category:, instrument: nil, strategy: nil)
     self.db.transaction do
       now = Time.now
-      fx = Suma::Payment::FundingTransaction.start_new(receiving_ledger.account, amount:, bank_account:, strategy:)
+      fx = Suma::Payment::FundingTransaction.start_new(receiving_ledger.account, amount:, instrument:, strategy:)
       originated_book_transaction = Suma::Payment::BookTransaction.create(
         apply_at: now,
         amount: fx.amount,

@@ -53,9 +53,8 @@ class Suma::Member::StripeAttributes
   # Create a Stripe Card for the member's Stripe Customer and return it.
   # https://stripe.com/docs/api#create_card
   def register_card_for_charges(token_str)
-    cust = self.customer
-    key = Suma.idempotency_key(@member, "card", token_str)
-    card = cust.sources.create({source: token_str}, idempotency_key: key)
+    key = Suma.idempotency_key(@member, "card", token_str[-8..])
+    card = Stripe::Customer.create_source(self.customer_id, {source: token_str}, idempotency_key: key)
     return card
   end
 

@@ -45,9 +45,7 @@ export default function FundingAddFunds() {
     _.includes(c.paymentMethodTypes, instrument.paymentMethodType)
   );
   const selectedCurrency =
-    _.find(validCurrencies, { code: selectedCurrencyCode }) ||
-    _.first(validCurrencies) ||
-    {};
+    _.find(validCurrencies, { code: selectedCurrencyCode }) || _.first(validCurrencies);
 
   const handleFormSubmit = (e) => {
     e.preventDefault();
@@ -122,7 +120,9 @@ export default function FundingAddFunds() {
             />
           </div>
         </div>
-        <p>{t("payments:payment_submission_statement")}</p>
+        <p>
+          {t(`payments:payment_submission_statement_${instrument.paymentMethodType}`)}
+        </p>
         <FormError error={error} end />
         <FormButtons
           variant="outline-success"

@@ -161,6 +161,7 @@ class Suma::Member < Suma::Postgres::Model(:members)
     return bank_accounts + cards
   end
 
+  # @return [Suma::Member::StripeAttributes]
   def stripe
     return @stripe ||= Suma::Member::StripeAttributes.new(self)
   end

@@ -66,21 +66,26 @@ class Suma::Payment::Card < Suma::Postgres::Model(:payment_cards)
     ]
   end
 
+  def self.load_payment_icon_base64(name)
+    b = Base64.strict_encode64(File.binread(Suma::DATA_DIR + "payment-icons/#{name}"))
+    return "data:image/png;base64,#{b}"
+  end
+
   INSTITUTIONS = {
     "Visa" => Institution.new(
       name: "Visa",
-      logo: Base64.strict_encode64(File.binread(Suma::DATA_DIR + "payment-icons/visa.png")),
+      logo: self.load_payment_icon_base64("visa.png"),
       color: "#1A1F71",
     ),
     "MasterCard" => Institution.new(
       name: "MasterCard",
-      logo: Base64.strict_encode64(File.binread(Suma::DATA_DIR + "payment-icons/mastercard.png")),
+      logo: self.load_payment_icon_base64("mastercard.png"),
       color: "#EB001B",
     ),
   }.freeze
   DEFAULT_INSTITUTION = Institution.new(
     name: "",
-    logo: Base64.strict_encode64(File.binread(Suma::DATA_DIR + "payment-icons/default.png")),
+    logo: self.load_payment_icon_base64("default.png"),
     color: "#AAAAAA",
   )
 end

@@ -172,7 +172,7 @@
       "privacy_statement_md": "Su información financiera está protegida mediante **cifrado de nivel bancario** y **nunca se compartirá sin su consentimiento**. Consulte la [Política de privacidad de Suma]({{ externalLinks.privacyPolicy }}) para más información sobre cómo usamos y protegemos su información financiera."
     },
     "payment_other_sources": "Otras Fuentes",
-    "payment_submission_statement": "Una vez que realices tu pago, puedes usar el dinero de inmediato. El retiro será registrado a tu cuenta en 2 a 3 días hábiles.",
+    "payment_submission_statement_bank_account": "Una vez que realices tu pago, puedes usar el dinero de inmediato. El retiro será registrado a tu cuenta en 2 a 3 días hábiles.",
     "payment_support_coming": "Próximamente se podrá añadir fondos de fuentes adicionales, como dinero en efectivo, giro bancario o depositos por un amigo.",
     "payment_title": "Cuentas de pago",
     "sumas_privacy_policy": "Política de privacidad de Suma",

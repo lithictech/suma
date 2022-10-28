@@ -31,7 +31,7 @@ module Suma::Payment
       fri: {"09:00" => "15:00"},
     }
     config.time_zone = "America/New_York"
-    config.holidays = Holidays.between(Date.new(2020, 7, 1), 1.year.from_now, :us, :observed).
+    config.holidays = Holidays.between(Date.new(2022, 7, 1), 1.year.from_now, :us, :observed).
       map { |h| h[:date] }
   end
 

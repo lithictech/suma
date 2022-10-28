@@ -18,14 +18,14 @@ class Suma::API::Payments < Suma::API::V1
     post :create_funding do
       c = current_member
       Suma::Payment.ensure_cash_ledger(c)
-      bank_account = c.usable_payment_instruments.find do |pi|
+      instrument = c.usable_payment_instruments.find do |pi|
         pi.id == params[:payment_instrument_id] && pi.payment_method_type == params[:payment_method_type]
       end
-      merror!(403, "Bank account not found", code: "resource_not_found") unless bank_account
+      merror!(403, "Instrument not found", code: "resource_not_found") unless instrument
       fx = Suma::Payment::FundingTransaction.start_and_transfer(
         Suma::Payment.ensure_cash_ledger(c),
         amount: params[:amount],
-        bank_account:,
+        instrument:,
         vendor_service_category: Suma::Vendor::ServiceCategory.find_or_create(name: "Cash"),
       )
       add_current_member_header

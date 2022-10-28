@@ -63,7 +63,7 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
         c.funding_minimum_cents = 500
         c.funding_step_cents = 100
         c.cents_in_dollar = 100
-        c.payment_method_types = ["bank_account"]
+        c.payment_method_types = ["bank_account", "card"]
         c.ordinal = 1
       end
 

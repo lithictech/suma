@@ -89,6 +89,11 @@ module Suma::Fixtures::Members
     self.update(stripe_customer_json: json)
   end
 
+  def self.register_as_stripe_customer(member)
+    member.stripe_customer_json = STRIPE_JSON.dup
+    return member.save_changes
+  end
+
   STRIPE_JSON = {
     "id" => "cus_xyz",
     "object" => "customer",
