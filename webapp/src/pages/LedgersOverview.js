@@ -39,7 +39,7 @@ export default function LedgersOverview() {
     if (ledger && page > 0) {
       ledgerLinesFetch({ id: ledger.id, page: page + 1 });
     }
-    // Only run this on mount
+    // Only run this on mount, not on page changes.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ledger]);
 
