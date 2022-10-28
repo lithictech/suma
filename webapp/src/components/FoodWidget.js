@@ -1,3 +1,5 @@
+import addIcon from "../assets/images/food-widget-add.svg";
+import subtractIcon from "../assets/images/food-widget-subtract.svg";
 import clsx from "clsx";
 import React from "react";
 import Button from "react-bootstrap/Button";
@@ -35,7 +37,7 @@ export default function FoodWidget({ productId, maxQuantity, quantity, large }) 
             onClick={() => handleQuantityChange(selectedQuantity - 1)}
             className={btnClasses}
           >
-            -
+            <img src={subtractIcon} alt="remove from cart" width="32px" />
           </Button>
           <Dropdown
             variant="success"
@@ -57,11 +59,14 @@ export default function FoodWidget({ productId, maxQuantity, quantity, large }) 
         onClick={() => handleQuantityChange(selectedQuantity + 1)}
         className={clsx(btnClasses, selectedQuantity === maxQ && "disabled")}
       >
-        +
+        <img src={addIcon} alt="add to cart" width="32px" />
+        {large && selectedQuantity === 0 && (
+          <span className="text-capitalize fs-5 align-middle ms-1 pe-2">Add to cart</span>
+        )}
       </Button>
     </ButtonGroup>
   );
 }
 
-const smallBtnClasses = "fs-1 lh-1 m-0 pb-1 px-2 py-0";
-const largeBtnClasses = "fs-1 lh-1 m-0 pb-2 px-3 py-1";
+const smallBtnClasses = "lh-1 m-0 p-0";
+const largeBtnClasses = "lh-1 m-0 p-2";
