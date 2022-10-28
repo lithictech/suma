@@ -145,7 +145,7 @@ function AppRoutes() {
             redirectIfUnboarded,
             withScreenLoaderMount(),
             withMetatags({ title: t("titles:dashboard") }),
-            withLayout({}),
+            withLayout({ appNav: true }),
             Dashboard
           )}
         />
@@ -157,7 +157,7 @@ function AppRoutes() {
             redirectIfUnboarded,
             withScreenLoaderMount(),
             withMetatags({ title: t("mobility:title") }),
-            withLayout({ noBottom: true }),
+            withLayout({ noBottom: true, appNav: true }),
             Mobility
           )}
         />
@@ -169,7 +169,7 @@ function AppRoutes() {
             redirectIfUnboarded,
             withScreenLoaderMount(),
             withMetatags({ title: t("food:title") }),
-            withLayout({}),
+            withLayout({ appNav: true }),
             Food
           )}
         />
@@ -181,7 +181,7 @@ function AppRoutes() {
             redirectIfUnboarded,
             withScreenLoaderMount(),
             withMetatags({ title: t("utilities:title") }),
-            withLayout({}),
+            withLayout({ appNav: true }),
             Utilities
           )}
         />

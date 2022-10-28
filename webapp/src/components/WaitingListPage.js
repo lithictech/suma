@@ -1,6 +1,5 @@
 import api from "../api";
 import AnimatedCheckmark from "../components/AnimatedCheckmark";
-import AppNav from "../components/AppNav";
 import PageLoader from "../components/PageLoader";
 import RLink from "../components/RLink";
 import { t } from "../localization";
@@ -48,7 +47,6 @@ export default function WaitingListPage({ feature, imgSrc, imgAlt, title, text }
   }
   return (
     <>
-      <AppNav />
       <img src={imgSrc} alt={imgAlt} className="thin-header-image" />
       <LayoutContainer top gutters>
         {content}

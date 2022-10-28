@@ -1,4 +1,3 @@
-import AppNav from "../components/AppNav";
 import ExternalLink from "../components/ExternalLink";
 import Map from "../components/mobilitymap/Map";
 import { t } from "../localization";
@@ -9,7 +8,6 @@ import React from "react";
 export default function Mobility() {
   return (
     <>
-      <AppNav />
       <LayoutContainer top gutters>
         <h5>{t("mobility:title")}</h5>
         <p className="text-secondary">

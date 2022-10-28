@@ -1,4 +1,5 @@
 import "../assets/styles/screenloader.scss";
+import AppNav from "../components/AppNav";
 import TopNav from "../components/TopNav";
 import ScrollTopOnMount from "../shared/ScrollToTopOnMount";
 import clsx from "clsx";
@@ -14,6 +15,7 @@ import Row from "react-bootstrap/Row";
  *
  * @param {object=} options
  * @param {string=} options.nav 'top' or 'none'
+ * @param {boolean=} options.appNav If true, display appNav below topNav
  * @param {boolean=} options.gutters If true, put this page in a Container/Row/Column,
  *   which provides automatic gutters.
  * @param {boolean=} options.top If true, add an mt-3 to the page content,
@@ -28,6 +30,8 @@ import Row from "react-bootstrap/Row";
 export default function withLayout(options) {
   options = options || {};
   const nav = options.nav || "top";
+  const appNav = options.appNav;
+  const hasNav = nav !== "none" || options.navApp;
   const bg = options.bg || "bg-light";
   const gutterCls = options.gutters ? guttersClass : null;
   const topCls = options.top ? topMarginClass : null;
@@ -59,7 +63,12 @@ export default function withLayout(options) {
         <div className={clsx(bg, "root", noBottomCls)}>
           {scrollTop && <ScrollTopOnMount />}
           <div className="main-container">
-            {nav === "top" && <TopNav />}
+            {hasNav && (
+              <div className="sticky-top">
+                {nav === "top" && <TopNav />}
+                {appNav === true && <AppNav />}
+              </div>
+            )}
             {node}
           </div>
         </div>
