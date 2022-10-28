@@ -5,7 +5,7 @@ import ButtonGroup from "react-bootstrap/ButtonGroup";
 import Dropdown from "react-bootstrap/Dropdown";
 
 export default function FoodWidget({ productId, maxQuantity, quantity, large }) {
-  const [maxQ] = React.useState(maxQuantity || 200);
+  const [maxQ] = React.useState(maxQuantity || 1);
   const [selectedQuantity, setSelectedQuantity] = React.useState(quantity || 0);
   const btnClasses = !large ? smallBtnClasses : largeBtnClasses;
 

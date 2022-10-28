@@ -51,7 +51,8 @@ export default {
   endMobilityTrip: (data) => post("/api/v1/mobility/end_trip", data),
   getUserAgent: () => get("/api/useragent"),
   getFoodOfferings: () => get("http://localhost:22004/temporary_food.json"),
-  getFoodProductDetails: (data) =>
+  getFoodOfferingList: () => get("http://localhost:22004/temporary_food_list.json"),
+  getFoodOfferingDetails: (data) =>
     get("http://localhost:22004/temporary_food_details.json", data),
 
   createBankAccount: (data) =>

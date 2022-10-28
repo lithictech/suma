@@ -8,23 +8,21 @@ import { LayoutContainer } from "../state/withLayout";
 import clsx from "clsx";
 import React from "react";
 import Stack from "react-bootstrap/Stack";
-import { useSearchParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 
 export default function FoodDetails() {
-  const [params] = useSearchParams();
-  const getFoodProductDetails = React.useCallback(() => {
-    return api.getFoodProductDetails({ id: params.get("id") });
-  }, [params]);
-  const { state: productDetails, loading: productDetailsLoading } = useAsyncFetch(
-    getFoodProductDetails,
+  const { productId } = useParams();
+  const getFoodOfferingDetails = React.useCallback(() => {
+    return api.getFoodOfferingDetails({ productId: productId });
+  }, [productId]);
+  const { state: offeringDetails, loading: offeringDetailsLoading } = useAsyncFetch(
+    getFoodOfferingDetails,
     {
       default: {},
       pickData: true,
     }
   );
-  // TODO: Recieve this cart from backend API once cart mechanism is done
-  const cart = [{ key: 1, productId: 3, maxQuantity: 200, quantity: 2 }];
-  if (productDetailsLoading) {
+  if (offeringDetailsLoading) {
     return <PageLoader />;
   }
   return (
@@ -35,45 +33,39 @@ export default function FoodDetails() {
       {/* TODO: refactor image src with correct link */}
       <img
         src="/temporary-food-chicken.jpg"
-        alt={productDetails.name}
+        alt={offeringDetails.name}
         className="w-100"
       />
       <LayoutContainer top>
-        <h3 className="mb-2">{productDetails.name}</h3>
+        <h3 className="mb-2">{offeringDetails.name}</h3>
         <Stack direction="horizontal">
           <h5>
             <Money
-              className={clsx("me-2", productDetails.discountedPrice && "text-success")}
+              className={clsx("me-2", offeringDetails.discountedPrice && "text-success")}
             >
-              {productDetails.discountedPrice || productDetails.price}
+              {offeringDetails.discountedPrice || offeringDetails.price}
             </Money>
-            {productDetails.discountedPrice && (
+            {offeringDetails.discountedPrice && (
               <strike>
-                <Money>{productDetails.price}</Money>
+                <Money>{offeringDetails.price}</Money>
               </strike>
             )}
           </h5>
           <div className="ms-auto">
-            {cart.map((product) =>
-              product.productId === productDetails.id ? (
-                <FoodWidget key={productDetails.id} {...product} large={true} />
-              ) : (
-                <FoodWidget key={productDetails.id} {...productDetails} large={true} />
-              )
-            )}
+            <FoodWidget {...offeringDetails} large={true} />
           </div>
         </Stack>
-        <b>{productDetails.weight}</b>
-        <p>By {productDetails.partner.name}</p>
+        <b>{offeringDetails.weight}</b>
+        <p>By {offeringDetails.partner.name}</p>
         <hr />
         <h5 className="mt-4 mb-2">Details</h5>
-        <p>{productDetails.description}</p>
+        <p>{offeringDetails.description}</p>
         <h5 className="mt-4 mb-2">Ingredients</h5>
-        {productDetails.ingredients.map((i, idx) => (
+        {offeringDetails.ingredients.map((i, idx) => (
           <span key={i}>
             {i}
-            {productDetails.ingredients.length > 1 &&
-              productDetails.ingredients.length !== idx + 1 &&
+            {offeringDetails.ingredients.length > 1 &&
+              offeringDetails.ingredients.length !== idx + 1 &&
               ", "}
           </span>
         ))}

@@ -11,6 +11,7 @@ import useI18Next, { I18NextProvider } from "./localization/useI18Next";
 import Dashboard from "./pages/Dashboard";
 import Food from "./pages/Food";
 import FoodDetails from "./pages/FoodDetails";
+import FoodList from "./pages/FoodList";
 import Funding from "./pages/Funding";
 import FundingAddCard from "./pages/FundingAddCard";
 import FundingAddFunds from "./pages/FundingAddFunds";
@@ -175,7 +176,19 @@ function AppRoutes() {
           )}
         />
         <Route
-          path="/food-details"
+          path="/offering/:id"
+          exact
+          element={renderWithHocs(
+            redirectIfUnauthed,
+            redirectIfUnboarded,
+            withScreenLoaderMount(),
+            withMetatags({ title: t("food:title") }),
+            withLayout({ gutters: false, top: false }),
+            FoodList
+          )}
+        />
+        <Route
+          path="/offering-product/:id"
           exact
           element={renderWithHocs(
             redirectIfUnauthed,
