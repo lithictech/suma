@@ -1,5 +1,4 @@
 import api from "../api";
-import AppNav from "../components/AppNav";
 import PageLoader from "../components/PageLoader";
 import RLink from "../components/RLink";
 import { md, t } from "../localization";
@@ -26,7 +25,6 @@ const Dashboard = () => {
 
   return (
     <>
-      <AppNav />
       {user.ongoingTrip && (
         <Alert variant="danger" className="border-radius-0">
           <p>{t("dashboard:check_ongoing_trip")}</p>
