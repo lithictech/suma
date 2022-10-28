@@ -31,6 +31,7 @@ export default function withLayout(options) {
   options = options || {};
   const nav = options.nav || "top";
   const appNav = options.appNav;
+  const hasNav = nav !== "none" || options.navApp;
   const bg = options.bg || "bg-light";
   const gutterCls = options.gutters ? guttersClass : null;
   const topCls = options.top ? topMarginClass : null;
@@ -62,10 +63,12 @@ export default function withLayout(options) {
         <div className={clsx(bg, "root", noBottomCls)}>
           {scrollTop && <ScrollTopOnMount />}
           <div className="main-container">
-            <div className="sticky-top">
-              {nav === "top" && <TopNav />}
-              {appNav === true && <AppNav />}
-            </div>
+            {hasNav && (
+              <div className="sticky-top">
+                {nav === "top" && <TopNav />}
+                {appNav === true && <AppNav />}
+              </div>
+            )}
             {node}
           </div>
         </div>
