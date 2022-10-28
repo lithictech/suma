@@ -13,6 +13,9 @@ const config = {
   chaos: process.env.REACT_APP_CHAOS,
   debug: process.env.REACT_APP_DEBUG,
   environment: process.env.NODE_ENV,
+  stripePublicKey:
+    process.env.REACT_APP_STRIPE_PUBLIC_KEY ||
+    "pk_test_51KlS9cAqRmWQecssicpSG7l8AzzGttANpp4k1LKEnmvLiN6YnrcoHebK3QubwXwpJZzmSMwCOKtinnEyO6kMPQDn00rmqmhwML",
 };
 
 export default config;

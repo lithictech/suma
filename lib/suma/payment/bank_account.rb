@@ -5,7 +5,7 @@ require "suma/external_links"
 require "suma/payment/instrument"
 require "suma/postgres/model"
 
-class Suma::BankAccount < Suma::Postgres::Model(:bank_accounts)
+class Suma::Payment::BankAccount < Suma::Postgres::Model(:payment_bank_accounts)
   include Suma::Payment::Instrument
   include Suma::AdminLinked
   include Suma::ExternalLinks

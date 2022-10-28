@@ -33,7 +33,7 @@ class Suma::AdminAPI::FundingTransactions < Suma::AdminAPI::V1
     post :create_for_self do
       instrument_ds = case params[:payment_method_type]
         when "bank_account"
-          Suma::BankAccount.dataset
+          Suma::Payment::BankAccount.dataset
         else
           raise "Invalid payment_method_type"
       end
@@ -43,7 +43,7 @@ class Suma::AdminAPI::FundingTransactions < Suma::AdminAPI::V1
         Suma::Payment.ensure_cash_ledger(c),
         amount: params[:amount],
         vendor_service_category: Suma::Vendor::ServiceCategory.find_or_create(name: "Cash"),
-        **{params[:payment_method_type].to_sym => instrument},
+        instrument:,
       )
       created_resource_headers(fx.id, fx.admin_link)
       status 200

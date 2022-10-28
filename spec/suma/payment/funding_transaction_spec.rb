@@ -5,11 +5,13 @@ RSpec.describe "Suma::Payment::FundingTransaction", :db do
 
   describe "start_new" do
     let(:pacct) { Suma::Fixtures.payment_account.create }
+    let(:amount) { Money.new(500) }
 
     it "creates a new transaction to the platform ledger" do
       strategy = Suma::Payment::FakeStrategy.create
       strategy.set_response(:check_validity, [])
-      xaction = described_class.start_new(pacct, amount: Money.new(500), strategy:)
+      strategy.set_response(:ready_to_collect_funds?, false)
+      xaction = described_class.start_new(pacct, amount:, strategy:, originating_ip: "1.2.3.4")
       expect(xaction).to have_attributes(
         status: "created",
         amount: cost("$5"),
@@ -18,23 +20,55 @@ RSpec.describe "Suma::Payment::FundingTransaction", :db do
         platform_ledger: be === Suma::Payment::Account.lookup_platform_account.cash_ledger!,
         originated_book_transaction: nil,
         strategy: be_a(Suma::Payment::FakeStrategy),
+        originating_ip: IPAddr.new("1.2.3.4"),
       )
+    end
+
+    it "tries to collect funds if the strategy says it is ready to collect funds" do
+      strategy = Suma::Payment::FakeStrategy.create
+      strategy.set_response(:check_validity, [])
+      strategy.set_response(:ready_to_collect_funds?, true)
+      strategy.set_response(:collect_funds, true)
+      xaction = described_class.start_new(pacct, amount:, strategy:)
+      expect(xaction).to have_attributes(status: "collecting")
     end
 
     it "uses an ACH strategy if originating from a bank account" do
       bank_account = Suma::Fixtures.bank_account.verified.create
-      xaction = described_class.start_new(pacct, amount: Money.new(500), bank_account:)
+      req = stub_request(:post, "https://sandbox.increase.com/transfers/achs").
+        to_return(fixture_response("increase/ach_transfer"))
+
+      # Travel to real collection time so we can test collection happens
+      xaction = Timecop.travel("2022-10-28T13:00:00-0400") do
+        described_class.start_new(pacct, amount:, instrument: bank_account)
+      end
       expect(xaction).to have_attributes(
         originating_payment_account: be === pacct,
         platform_ledger: be === Suma::Payment::Account.lookup_platform_account.cash_ledger!,
         strategy: be_a(Suma::Payment::FundingTransaction::IncreaseAchStrategy),
       )
+      expect(req).to have_been_made
       expect(xaction.strategy).to have_attributes(originating_bank_account: bank_account)
+    end
+
+    it "uses a card strategy if originating from a card" do
+      card = Suma::Fixtures.card.member(Suma::Fixtures.member.registered_as_stripe_customer.create).create
+      req = stub_request(:post, "https://api.stripe.com/v1/charges").
+        to_return(fixture_response("stripe/charge"))
+      xaction = described_class.start_new(pacct, amount:, instrument: card, originating_ip: "1.2.3.4")
+      expect(xaction).to have_attributes(
+        status: "collecting",
+        originating_payment_account: be === pacct,
+        platform_ledger: be === Suma::Payment::Account.lookup_platform_account.cash_ledger!,
+        strategy: be_a(Suma::Payment::FundingTransaction::StripeCardStrategy),
+      )
+      expect(xaction.strategy).to have_attributes(originating_card: card)
+      expect(req).to have_been_made
     end
 
     it "errors if there is no strategy matching the arguments" do
       expect do
-        described_class.start_new(pacct, amount: Money.new(500))
+        described_class.start_new(pacct, amount:, instrument: nil)
       end.to raise_error(described_class::StrategyUnavailable)
     end
 
@@ -42,7 +76,7 @@ RSpec.describe "Suma::Payment::FundingTransaction", :db do
       strategy = Suma::Payment::FakeStrategy.create
       strategy.set_response(:check_validity, ["not registered"])
       expect do
-        described_class.start_new(pacct, amount: Money.new(500), strategy:)
+        described_class.start_new(pacct, amount:, strategy:)
       end.to raise_error(Suma::Payment::Invalid)
     end
   end
@@ -58,7 +92,7 @@ RSpec.describe "Suma::Payment::FundingTransaction", :db do
         ledger,
         amount: Money.new(500, "USD"),
         vendor_service_category: category,
-        bank_account:,
+        instrument: bank_account,
       )
       expect(fx).to have_attributes(status: "created")
       expect(member.payment_account.originated_funding_transactions).to contain_exactly(be === fx)

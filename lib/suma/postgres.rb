@@ -48,7 +48,6 @@ module Suma::Postgres
   # Require paths for all Sequel models used by the app.
   MODELS = [
     "suma/address",
-    "suma/bank_account",
     "suma/charge",
     "suma/member",
     "suma/member/activity",
@@ -63,10 +62,13 @@ module Suma::Postgres
     "suma/mobility/trip",
     "suma/mobility/vehicle",
     "suma/organization",
+    "suma/payment/bank_account",
     "suma/payment/book_transaction",
+    "suma/payment/card",
     "suma/payment/funding_transaction",
     "suma/payment/funding_transaction/audit_log",
     "suma/payment/funding_transaction/increase_ach_strategy",
+    "suma/payment/funding_transaction/stripe_card_strategy",
     # Move this out of alphabetical order since it requires
     # all transaction types to be loaded (fake strategy
     # are used for testing funding and outgoing transactions).

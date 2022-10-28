@@ -22,8 +22,17 @@ RSpec.describe "Suma::Payment::FundingTransaction::IncreaseAchStrategy", :db do
   end
 
   describe "ready_to_collect_funds?" do
-    it "returns true" do
-      expect(strategy).to be_ready_to_collect_funds
+    it "is true if it is between noon and 3pm Eastern on an ACH day " do
+      # Before noon
+      Timecop.travel("2022-10-28T01:20:00-0700") { expect(strategy).to_not be_ready_to_collect_funds }
+      # Okay window
+      Timecop.travel("2022-10-28T10:20:00-0700") { expect(strategy).to be_ready_to_collect_funds }
+      # After window
+      Timecop.travel("2022-10-28T12:20:00-0700") { expect(strategy).to_not be_ready_to_collect_funds }
+      # Weekend
+      Timecop.travel("2022-10-29T10:20:00-0700") { expect(strategy).to_not be_ready_to_collect_funds }
+      # Holiday
+      Timecop.travel("2022-12-25T11:20:00-0700") { expect(strategy).to_not be_ready_to_collect_funds }
     end
   end
 
@@ -40,14 +49,10 @@ RSpec.describe "Suma::Payment::FundingTransaction::IncreaseAchStrategy", :db do
             statement_descriptor: "foobar",
           ),
         ).
-        to_return(
-          status: 200,
-          body: {id: "ach-transfer-id"}.to_json,
-          headers: {"Content-Type" => "application/json"},
-        )
+        to_return(fixture_response("increase/ach_transfer"))
       expect(strategy.collect_funds).to eq(true)
       expect(req).to have_been_made
-      expect(strategy.ach_transfer_id).to eq("ach-transfer-id")
+      expect(strategy.ach_transfer_id).to eq("ach_transfer_uoxatyh3lt5evrsdvo7q")
     end
 
     it "noops if an increase ach transfer id is present" do
@@ -57,11 +62,7 @@ RSpec.describe "Suma::Payment::FundingTransaction::IncreaseAchStrategy", :db do
 
     it "errors if no Increase ach transfer id is set after it is called" do
       req = stub_request(:post, "https://sandbox.increase.com/transfers/achs").
-        to_return(
-          status: 200,
-          body: {}.to_json,
-          headers: {"Content-Type" => "application/json"},
-        )
+        to_return(fixture_response(body: "{}"))
       expect { strategy.collect_funds }.to raise_error(/Increase ACH Transfer Id was not set/)
       expect(req).to have_been_made
     end

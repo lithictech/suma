@@ -307,6 +307,6 @@ module Suma::Service::Helpers
 
   params :payment_instrument do
     requires :payment_instrument_id, type: Integer
-    requires :payment_method_type, type: String, values: ["bank_account"]
+    requires :payment_method_type, type: String, values: ["bank_account", "card"]
   end
 end

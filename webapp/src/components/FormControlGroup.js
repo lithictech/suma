@@ -7,6 +7,7 @@ import InputGroup from "react-bootstrap/InputGroup";
 
 /**
  * Represents a Bootstrap Form.Group, Form.Control, and related components.
+ * @param inputRef ref for the input element.
  * @param {string} name 'name' attribute for the input (and validation)
  * @param {string} className Form.Group class name.
  * @param {JSX.Element} as The 'as' for the Form.Group.
@@ -32,6 +33,7 @@ import InputGroup from "react-bootstrap/InputGroup";
  * @param rest Passed through to the component.
  */
 export default function FormControlGroup({
+  inputRef,
   name,
   className,
   as,
@@ -70,11 +72,16 @@ export default function FormControlGroup({
   if (min) {
     registerArgs.min = min;
   }
+  const { ref: registerRef, ...registerRest } = register(name, registerArgs);
   const message = useValidationError(name, errors, registerArgs, errorKeys);
   const C = Input || Form.Control;
   const input = (
     <C
-      {...register(name, registerArgs)}
+      ref={(r) => {
+        registerRef(r);
+        inputRef && inputRef(r);
+      }}
+      {...registerRest}
       name={name}
       isInvalid={!!message}
       placeholder={_.isString(label) ? label : null}

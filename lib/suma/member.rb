@@ -47,9 +47,17 @@ class Suma::Member < Suma::Postgres::Model(:members)
   many_through_many :bank_accounts,
                     [
                       [:legal_entities, :id, :id],
-                      [:bank_accounts, :legal_entity_id, :id],
+                      [:payment_bank_accounts, :legal_entity_id, :id],
                     ],
-                    class: "Suma::BankAccount",
+                    class: "Suma::Payment::BankAccount",
+                    left_primary_key: :legal_entity_id,
+                    order: [:created_at, :id]
+  many_through_many :cards,
+                    [
+                      [:legal_entities, :id, :id],
+                      [:payment_cards, :legal_entity_id, :id],
+                    ],
+                    class: "Suma::Payment::Card",
                     left_primary_key: :legal_entity_id,
                     order: [:created_at, :id]
   one_to_many :charges, class: "Suma::Charge", order: Sequel.desc([:id])
@@ -142,13 +150,20 @@ class Suma::Member < Suma::Postgres::Model(:members)
   end
 
   def usable_payment_instruments
+    ord = [Sequel.desc(:created_at), :id]
     bank_accounts = self.
       legal_entity.
       bank_accounts_dataset.
       usable.
-      order(Sequel.desc(:created_at), :id).
+      order(*ord).
       all
-    return bank_accounts
+    cards = self.legal_entity.cards_dataset.usable.order(*ord).all
+    return bank_accounts + cards
+  end
+
+  # @return [Suma::Member::StripeAttributes]
+  def stripe
+    return @stripe ||= Suma::Member::StripeAttributes.new(self)
   end
 
   #
@@ -259,6 +274,8 @@ class Suma::Member < Suma::Postgres::Model(:members)
     self.validates_operator(:==, self.email.downcase.strip, :email)
   end
 end
+
+require "suma/member/stripe_attributes"
 
 # Table: members
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------

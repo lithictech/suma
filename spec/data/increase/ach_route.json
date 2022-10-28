@@ -1,0 +1,8 @@
+{
+  "id": "sandbox_ach_route_123",
+  "name": "testRoute",
+  "status": "active",
+  "account_number": "5561721281",
+  "routing_number": "053112929",
+  "account_id": "sandbox_account_id"
+}

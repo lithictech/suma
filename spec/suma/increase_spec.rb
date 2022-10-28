@@ -10,16 +10,7 @@ RSpec.describe Suma::Increase, :db do
           headers: {"Authorization" => "Bearer test_increase_key"},
           body: {name: "testRoute"}.to_json,
         ).
-        to_return(
-          **fixture_response(body: {
-            id: "sandbox_ach_route_123",
-            name: "testRoute",
-            status: "active",
-            account_number: "5561721281",
-            routing_number: "053112929",
-            account_id: "sandbox_account_id",
-          }.to_json),
-        )
+        to_return(fixture_response("increase/ach_route"))
 
       resp = described_class.create_ach_route("testRoute")
       expect(req).to have_been_made
@@ -39,20 +30,7 @@ RSpec.describe Suma::Increase, :db do
             routing_number: "routNum-456",
             statement_descriptor: "Statement descriptor",
           }.to_json,
-        ).
-        to_return(
-          **fixture_response(body:
-            {
-              id: "ach_transfer_uoxatyh3lt5evrsdvo7q",
-              account_number: "acctNum-123",
-              routing_number: "routNum-456",
-              account_id: "sandbox_account_id",
-              amount: 100,
-              status: "submitted",
-              statement_descriptor: "Statement descriptor",
-              transaction_id: "transaction_uyrp7fld2ium70oa7oi",
-            }.to_json),
-        )
+        ).to_return(fixture_response("increase/ach_transfer"))
 
       resp = described_class._create_ach_transfer(
         account_number: "acctNum-123",
@@ -77,21 +55,7 @@ RSpec.describe Suma::Increase, :db do
             routing_number: "routNum-456",
             statement_descriptor: "Statement descriptor",
           }.to_json,
-        ).
-        to_return(
-          **fixture_response(
-            body: {
-              id: "ach_transfer_uoxatyh3lt5evrsdvo7q",
-              account_number: "acctNum-123",
-              routing_number: "routNum-456",
-              account_id: "sandbox_account_id",
-              amount: 100,
-              status: "submitted",
-              statement_descriptor: "Statement descriptor",
-              transaction_id: "transaction_uyrp7fld2ium70oa7oi",
-            }.to_json,
-          ),
-        )
+        ).to_return(fixture_response("increase/ach_transfer"))
 
       bank_account = Suma::Fixtures.bank_account.create(
         account_number: "acctNum-123",

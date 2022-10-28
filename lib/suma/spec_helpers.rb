@@ -49,12 +49,16 @@ module Suma::SpecHelpers
     end
   end
 
-  module_function def fixture_response(
-    path=nil, body: nil, status: 200, headers: {"Content-Type" => "application/json"}
-  )
+  module_function def fixture_response(path=nil, body: nil, status: 200, format: :json, headers: {})
     raise ArgumentError, "need path or body" if path.nil? && body.nil?
-    use_body = body || load_fixture_data(path, raw: true)
-    return {status:, body: use_body, headers:}
+    respbody = body || load_fixture_data(path, raw: true)
+    case format
+      when :json
+        headers["Content-Type"] = "application/json"
+      when :xml
+        headers["Content-Type"] = "application/xml"
+    end
+    return {status:, body: respbody, headers:}
   end
 
   # Zero out nsecs to t can be compared to one from the database.

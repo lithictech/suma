@@ -5,7 +5,8 @@ require "suma/postgres/model"
 class Suma::LegalEntity < Suma::Postgres::Model(:legal_entities)
   many_to_one :address, class: "Suma::Address"
   one_to_one :member, class: "Suma::Member"
-  one_to_many :bank_accounts, class: "Suma::BankAccount", order: [:created_at, :id]
+  one_to_many :bank_accounts, class: "Suma::Payment::BankAccount", order: [:created_at, :id]
+  one_to_many :cards, class: "Suma::Payment::Card", order: [:created_at, :id]
 end
 
 # Table: legal_entities

@@ -17,10 +17,10 @@ class Suma::API::PaymentInstruments < Suma::API::V1
         c = current_member
         account_number = params.delete(:account_number)
         routing_number = params.delete(:routing_number)
-        identity = Suma::BankAccount.identity(c.legal_entity_id, routing_number, account_number)
+        identity = Suma::Payment::BankAccount.identity(c.legal_entity_id, routing_number, account_number)
         ba = c.legal_entity.bank_accounts_dataset[identity:]
         if ba.nil?
-          ba = Suma::BankAccount.new(legal_entity: c.legal_entity, account_number:, routing_number:)
+          ba = Suma::Payment::BankAccount.new(legal_entity: c.legal_entity, account_number:, routing_number:)
         elsif ba.soft_deleted?
           ba.soft_deleted_at = nil
         else
@@ -54,6 +54,58 @@ class Suma::API::PaymentInstruments < Suma::API::V1
           ba.soft_delete
           present(
             ba,
+            with: MutationPaymentInstrumentEntity,
+            all_payment_instruments: current_member.usable_payment_instruments,
+          )
+        end
+      end
+    end
+
+    resource :cards do
+      params do
+        # See https://stripe.com/docs/api/tokens/object
+        requires :token, type: JSON do
+          requires :id, type: String
+        end
+      end
+      post :create_stripe do
+        me = current_member
+        card = me.db.transaction do
+          me.stripe.ensure_registered_as_customer
+          begin
+            stripe_card = me.stripe.register_card_for_charges(params[:token][:id])
+          rescue Stripe::CardError => e
+            code = Suma::Stripe.localized_error_code(e)
+            merror!(402, e.message, code:, more: {stripe_error: e.to_s})
+          end
+          Suma::Payment::Card.create(
+            legal_entity: me.legal_entity,
+            stripe_json: stripe_card.to_json,
+          )
+        end
+        add_current_member_header
+        status 200
+        present(
+          card,
+          with: MutationPaymentInstrumentEntity,
+          all_payment_instruments: me.usable_payment_instruments,
+        )
+      end
+      route_param :id, type: Integer do
+        helpers do
+          def lookup
+            c = current_member
+            card = c.legal_entity.cards_dataset.usable[params[:id]]
+            merror!(403, "No card with that id", code: "resource_not_found") if card.nil?
+            return card
+          end
+        end
+        delete do
+          card = lookup
+          card.stripe_card.delete
+          card.soft_delete
+          present(
+            card,
             with: MutationPaymentInstrumentEntity,
             all_payment_instruments: current_member.usable_payment_instruments,
           )

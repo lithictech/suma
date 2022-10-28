@@ -1,0 +1,10 @@
+{
+  "id": "ach_transfer_uoxatyh3lt5evrsdvo7q",
+  "account_number": "acctNum-123",
+  "routing_number": "routNum-456",
+  "account_id": "sandbox_account_id",
+  "amount": 100,
+  "status": "submitted",
+  "statement_descriptor": "Statement descriptor",
+  "transaction_id": "transaction_uyrp7fld2ium70oa7oi"
+}

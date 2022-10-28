@@ -19,6 +19,7 @@
     "leaflet.animatedmarker": "^1.0.0",
     "leaflet.markercluster": "^1.5.3",
     "lodash": "^4.17.21",
+    "payment": "^2.4.6",
     "prop-types": "^15.8.1",
     "qs": "^6.10.3",
     "react": "^17.0.2",

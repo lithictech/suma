@@ -26,6 +26,7 @@ export default function Funding() {
       <p>{md("payments:payment_intro.intro_md")}</p>
       <p id="some">{md("payments:payment_intro.privacy_statement_md")}</p>
       <BankAccountsCard instruments={user.usablePaymentInstruments} />
+      <CardsCard instruments={user.usablePaymentInstruments} />
       <AdditionalSourcesCard />
     </>
   );
@@ -39,7 +40,7 @@ function BankAccountsCard({ instruments }) {
         <>
           <Card.Text>{t("payments:no_bank_accounts_warning")}</Card.Text>
           <Button variant="outline-primary" href="/link-bank-account" as={RLink}>
-            {t("payments:link_account")}
+            {t("payments:link_bank_account")}
           </Button>
         </>
       ) : (
@@ -49,7 +50,7 @@ function BankAccountsCard({ instruments }) {
           ))}
           <hr className="my-4" />
           <Button variant="outline-primary" href="/link-bank-account" as={RLink}>
-            {t("payments:link_another_account")}
+            {t("payments:link_another_bank_account")}
           </Button>
         </>
       )}
@@ -58,21 +59,7 @@ function BankAccountsCard({ instruments }) {
 }
 
 function BankAccountLine({ bankAccount }) {
-  const { user, setUser } = useUser();
-  const [error, setError] = useError();
-  const screenLoader = useScreenLoader();
   const showDelete = useToggle(false);
-  function submitDelete(e) {
-    screenLoader.turnOn();
-    e.preventDefault();
-    api
-      .deleteBankAccount({ id: bankAccount.id })
-      .then((r) =>
-        setUser({ ...user, usablePaymentInstruments: r.data.allPaymentInstruments })
-      )
-      .catch((e) => setError(extractErrorCode(e)))
-      .finally(screenLoader.turnOff);
-  }
   return (
     <Card className="text-start mb-3 funding-card-border-radius shadow-sm">
       <Card.Body className="d-flex justify-content-between align-items-center">
@@ -94,7 +81,7 @@ function BankAccountLine({ bankAccount }) {
               href={`/add-funds?id=${bankAccount.id}&paymentMethodType=bank_account`}
               as={RLink}
             >
-              <i className="bi bi-plus-circle"></i> {t("payments:add_funds")}
+              <i className="bi bi-plus-circle"></i> {t("payments:funds")}
             </Button>
           ) : (
             <Button
@@ -133,29 +120,132 @@ function BankAccountLine({ bankAccount }) {
           </div>
         </div>
       </Card.Body>
-      <Modal show={showDelete.isOn} onHide={showDelete.turnOff} centered>
-        <Modal.Header closeButton>
-          <Modal.Title as="h5">{t("payments:unlink_account")}</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <p>{t("payments:unlink_account_question")}</p>
-          <p>
-            <strong>{t("payments:unlink_account_question_subtitle")}</strong>
-          </p>
-          <FormError error={error} />
-          <FormButtons
-            variant="danger"
-            primaryProps={{
-              children: t("payments:unlink"),
-              onClick: submitDelete,
-            }}
-            secondaryProps={{
-              children: t("common:cancel"),
-              onClick: showDelete.turnOff,
-            }}
-          />
-        </Modal.Body>
-      </Modal>
+      <DeleteInstrumentModal
+        instrument={bankAccount}
+        apiMethod={api.deleteBankAccount}
+        toggle={showDelete}
+      />
+    </Card>
+  );
+}
+
+function DeleteInstrumentModal({ instrument, apiMethod, toggle }) {
+  const { user, setUser } = useUser();
+  const [error, setError] = useError();
+  const screenLoader = useScreenLoader();
+
+  function submitDelete(e) {
+    screenLoader.turnOn();
+    e.preventDefault();
+    apiMethod({ id: instrument.id })
+      .then((r) =>
+        setUser({ ...user, usablePaymentInstruments: r.data.allPaymentInstruments })
+      )
+      .catch((e) => setError(extractErrorCode(e)))
+      .finally(screenLoader.turnOff);
+  }
+
+  return (
+    <Modal show={toggle.isOn} onHide={toggle.turnOff} centered>
+      <Modal.Header closeButton>
+        <Modal.Title as="h5">{t("payments:unlink_account")}</Modal.Title>
+      </Modal.Header>
+      <Modal.Body>
+        <p>{t("payments:unlink_account_question")}</p>
+        <p>
+          <strong>{t("payments:unlink_account_question_subtitle")}</strong>
+        </p>
+        <FormError error={error} />
+        <FormButtons
+          variant="danger"
+          primaryProps={{
+            children: t("payments:unlink"),
+            onClick: submitDelete,
+          }}
+          secondaryProps={{
+            children: t("common:cancel"),
+            onClick: toggle.turnOff,
+          }}
+        />
+      </Modal.Body>
+    </Modal>
+  );
+}
+
+function CardsCard({ instruments }) {
+  const cards = _.filter(instruments, { paymentMethodType: "card" });
+  return (
+    <PaymentsCard header={t("payments:cards")}>
+      {cards.length === 0 ? (
+        <>
+          <Card.Text>{t("payments:no_cards_warning")}</Card.Text>
+          <Button variant="outline-primary" href="/add-card" as={RLink}>
+            {t("payments:add_card")}
+          </Button>
+        </>
+      ) : (
+        <>
+          {cards.map((c) => (
+            <CardLine key={c.id} card={c} />
+          ))}
+          <hr className="my-4" />
+          <Button variant="outline-primary" href="/add-card" as={RLink}>
+            {t("payments:add_another_card")}
+          </Button>
+        </>
+      )}
+    </PaymentsCard>
+  );
+}
+
+function CardLine({ card }) {
+  const showDelete = useToggle(false);
+  return (
+    <Card className="text-start mb-3 funding-card-border-radius shadow-sm">
+      <Card.Body className="d-flex justify-content-between align-items-center">
+        <div>
+          <Card.Title className="mb-1" as="h6">
+            <img
+              className="me-2"
+              width="28px"
+              src={`data://${card.institution.logo}`}
+              alt={card.institution.name}
+            />
+            {card.name}
+          </Card.Title>
+          <Card.Subtitle className="m-0">
+            <span className="opacity-50">x-{card.last4}</span>
+          </Card.Subtitle>
+        </div>
+        <div className="ms-auto text-end">
+          <Button
+            variant="success"
+            size="sm"
+            className="mb-2 funding-card-border-radius nowrap"
+            href={`/add-funds?id=${card.id}&paymentMethodType=card`}
+            as={RLink}
+          >
+            <i className="bi bi-plus-circle"></i> {t("payments:funds")}
+          </Button>
+          <div>
+            <Dropdown as="span">
+              <Dropdown.Toggle variant="link" className="p-0 ms-2 text-muted" size="sm">
+                <i className="bi bi-gear-fill"></i>
+              </Dropdown.Toggle>
+              <Dropdown.Menu align="end">
+                <Dropdown.Item className="text-danger" onClick={showDelete.turnOn}>
+                  {t("payments:unlink_account")}
+                </Dropdown.Item>
+              </Dropdown.Menu>
+            </Dropdown>
+          </div>
+        </div>
+      </Card.Body>
+      <DeleteInstrumentModal
+        toggle={showDelete}
+        instrument={card}
+        apiMethod={api.deleteCard}
+      />
     </Card>
   );
 }

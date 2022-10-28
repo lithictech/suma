@@ -9,7 +9,7 @@ class Suma::Payment::FundingTransaction::IncreaseAchStrategy <
   include Suma::Payment::FundingTransaction::Strategy
 
   one_to_one :funding_transaction, class: "Suma::Payment::FundingTransaction"
-  many_to_one :originating_bank_account, class: "Suma::BankAccount"
+  many_to_one :originating_bank_account, class: "Suma::Payment::BankAccount"
 
   def originating_instrument
     return self.originating_bank_account
@@ -27,8 +27,8 @@ class Suma::Payment::FundingTransaction::IncreaseAchStrategy <
     return result
   end
 
-  def ready_to_collect_funds?
-    return true
+  def ready_to_collect_funds?(now: Time.now)
+    return Suma::Payment::APPROXIMATE_ACH_SCHEDULE.in_hours?(now)
   end
 
   def collect_funds

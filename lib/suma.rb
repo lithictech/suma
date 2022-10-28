@@ -64,6 +64,7 @@ module Suma
     setting :default_currency, "USD", side_effect: ->(v) { Money.default_currency = v }
     setting :bust_idempotency, false
     setting :use_globals_cache, false
+    setting :operator_name, "suma"
   end
 
   require "suma/method_utilities"

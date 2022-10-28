@@ -2,8 +2,8 @@
 
 require "suma/payment/behaviors"
 
-RSpec.describe "Suma::BankAccount", :db do
-  let(:described_class) { Suma::BankAccount }
+RSpec.describe "Suma::Payment::BankAccount", :db do
+  let(:described_class) { Suma::Payment::BankAccount }
 
   it_behaves_like "a payment instrument" do
     let(:instrument) { Suma::Fixtures.bank_account.create }
@@ -16,7 +16,7 @@ RSpec.describe "Suma::BankAccount", :db do
         deleted_ba.soft_delete
         ba2 = Suma::Fixtures.bank_account.create
         ba1 = Suma::Fixtures.bank_account.create
-        expect(Suma::BankAccount.usable.all).to have_same_ids_as(ba1, ba2)
+        expect(Suma::Payment::BankAccount.usable.all).to have_same_ids_as(ba1, ba2)
       end
     end
   end
