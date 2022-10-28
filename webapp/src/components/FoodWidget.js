@@ -29,11 +29,11 @@ export default function FoodWidget({ productId, maxQuantity, quantity, large }) 
     ));
   };
   return (
-    <ButtonGroup aria-label="add-to-cart widget" className="shadow">
+    <ButtonGroup aria-label="add-to-cart" className="shadow">
       {selectedQuantity > 0 && (
         <>
           <Button
-            variant="danger"
+            variant="success"
             onClick={() => handleQuantityChange(selectedQuantity - 1)}
             className={btnClasses}
           >
@@ -45,7 +45,11 @@ export default function FoodWidget({ productId, maxQuantity, quantity, large }) 
             title={selectedQuantity}
             onSelect={(quantity) => handleQuantityChange(quantity)}
           >
-            <Dropdown.Toggle variant="success" className="py-0 px-2">
+            <Dropdown.Toggle
+              variant="success"
+              className="py-0 px-2"
+              style={{ width: 60 }}
+            >
               {selectedQuantity}
             </Dropdown.Toggle>
             <Dropdown.Menu className="food-widget-dropdown-menu" renderOnMount={true}>

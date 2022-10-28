@@ -7,7 +7,7 @@
 	"products":[
 		{
 			"description": "...",
-			"max_quantity": 200,
+			"max_quantity": 20,
 			"quantity": 10,
 			"id": 1,
 			"image_link": "/TODO.png",
@@ -21,7 +21,7 @@
 		},
 		{
 			"description": "...",
-			"max_quantity": 200,
+			"max_quantity": 20,
 			"id": 2,
 			"image_link": "/TODO.png",
 			"ingredients": [],
@@ -34,7 +34,7 @@
 		},
 		{
 			"description": "...",
-			"max_quantity": 200,
+			"max_quantity": 20,
 			"quantity": 3,
 			"id": 3,
 			"image_link": "/TODO.png",
@@ -44,7 +44,7 @@
 			"discounted_price": {
 					"cents": 600,
 					"currency": "USD"
-			}, 
+			},
 			"price": {
 					"cents": 700,
 					"currency": "USD"
