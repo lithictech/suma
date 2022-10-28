@@ -24,7 +24,9 @@ export function withScreenLoaderMount(show) {
   return (Wrapped) => {
     return (props) => {
       const loader = useScreenLoader();
-      React.useEffect(() => loader.setState(show), [loader]);
+      // Only run this on mount
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+      React.useEffect(() => loader.setState(show), []);
       return <Wrapped {...props} />;
     };
   };
