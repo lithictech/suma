@@ -5,6 +5,7 @@ import ErrorScreen from "../components/ErrorScreen";
 import FoodWidget from "../components/FoodWidget";
 import LinearBreadcrumbs from "../components/LinearBreadcrumbs";
 import PageLoader from "../components/PageLoader";
+import { t } from "../localization";
 import Money from "../shared/react/Money";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
 import { LayoutContainer } from "../state/withLayout";
@@ -12,6 +13,7 @@ import clsx from "clsx";
 import React from "react";
 import Col from "react-bootstrap/Col";
 import Row from "react-bootstrap/Row";
+import { Helmet } from "react-helmet-async";
 import { Link, useParams } from "react-router-dom";
 
 export default function FoodList() {
@@ -33,8 +35,19 @@ export default function FoodList() {
   if (!foodOfferingList || listError) {
     return <ErrorScreen />;
   }
+  // TODO: We assume that all names are capitalized
+  const firstOfferingType =
+    foodOfferingList?.offeringType && foodOfferingList.offeringType[0];
+  const title = `${foodOfferingList.vendorName} | ${
+    firstOfferingType ? firstOfferingType + " | " : t("food:title") + " | "
+  }${t("titles:suma_app")}`;
   return (
     <>
+      {!listLoading && (
+        <Helmet>
+          <title>{title}</title>
+        </Helmet>
+      )}
       <AppNav />
       <img src={foodImage} alt="food" className="thin-header-image" />
       {listLoading ? (
@@ -57,8 +70,8 @@ export default function FoodList() {
                         quantity={quantity}
                       />
                     </div>
-                    <h5>{name}</h5>
-                    <h6 className="mb-0">
+                    <h6 className="mb-0 mt-2">{name}</h6>
+                    <p className="mb-0 fs-5 fw-semibold">
                       <Money className={clsx("me-2", discountedPrice && "text-success")}>
                         {discountedPrice || price}
                       </Money>
@@ -67,8 +80,8 @@ export default function FoodList() {
                           <Money>{price}</Money>
                         </strike>
                       )}
-                    </h6>
-                    <p>{weight}</p>
+                    </p>
+                    <p className="text-muted lh-1">{weight}</p>
                     <Link
                       to={`/offering-product/${id}`}
                       className="stretched-link"
