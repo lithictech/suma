@@ -6,20 +6,19 @@ require "suma/api"
 class Suma::API::Commerce < Suma::API::V1
   include Suma::Service::Types
   include Suma::API::Entities
-  TimeRangeEntity = Suma::Service::Entities::TimeRange
 
   resource :commerce do
     desc "Return all commerce offerings that are not closed"
     get :offerings do
-      # TODO: render list of available (not closed) offerings
-      open_offerings = Suma::Commerce::Offerings.available
-      present_collection open_offerings, with: CommerceOfferingsEntity
+      t = Time.now.to_time
+      ds = Suma::Commerce::Offering.available_at(t)
+      present_collection ds, with: CommerceOfferingsEntity
     end
   end
 
   class CommerceOfferingsEntity < BaseEntity
     expose :id
     expose :description
-    expose :period, with: TimeRangeEntity
+    expose :period, with: Suma::Service::Entities::TimeRange
   end
 end
