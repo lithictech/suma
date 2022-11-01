@@ -9,13 +9,16 @@ module Suma::Fixtures::CommerceOfferings
   fixtured_class Suma::Commerce::Offering
 
   base :commerce_offering do
-    t1 = Time.parse("2011-01-01T00:00:00Z")
-    t2 = Time.parse("2012-02-01T00:00:00Z")
-    self.period ||=  Sequel::Postgres::PGRange.new(t1, t2)
+    self.period ||=  Sequel::Postgres::PGRange.new(2.days.ago, 2.days.from_now)
     self.description ||= Faker::Food.description
   end
 
   decorator :period do |begin_time, end_time|
     self.period = Sequel::Postgres::PGRange.new(begin_time, end_time)
+  end
+
+  decorator :closed do
+    self.period_begin = 4.days.ago
+    self.period_end = 2.days.ago
   end
 end

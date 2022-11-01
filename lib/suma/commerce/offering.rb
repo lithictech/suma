@@ -10,9 +10,7 @@ class Suma::Commerce::Offering < Suma::Postgres::Model(:commerce_offerings)
 
   dataset_module do
     def available_at(t)
-      # +contains+ only compares time range format
-      t_range = Sequel::Postgres::PGRange.new(t, t)
-      return self.where(Sequel.pg_range(:period).contains(t_range))
+      return self.where(Sequel.pg_range(:period).contains(Sequel.cast(t, :timestamptz)))
     end
   end
 end
