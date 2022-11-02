@@ -64,12 +64,10 @@ export default function FoodList() {
           </Row>
         )}
         {_.isEmpty(products) && !productsLoading && (
-          <>
-            <p>
-              There were no products found, this offering might be closed.{" "}
-              <Link to="/food">Click here to view available offerings</Link>
-            </p>
-          </>
+          <p>
+            There were no products found, this offering might be closed.{" "}
+            <Link to="/food">Click here to view available offerings</Link>
+          </p>
         )}
       </LayoutContainer>
     </>
