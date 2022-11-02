@@ -18,18 +18,23 @@ export default function FoodDetails() {
   const getFoodProduct = React.useCallback(() => {
     return api.getFoodProduct({ offeringId: offeringId, productId: productId });
   }, [offeringId, productId]);
-  const { state: product, loading: productLoading } = useAsyncFetch(getFoodProduct, {
+  const {
+    state: product,
+    loading: productLoading,
+    error: productError,
+  } = useAsyncFetch(getFoodProduct, {
+    default: {},
     pickData: true,
   });
-  if (productLoading) {
-    return <PageLoader />;
-  }
-  if (!product) {
+  if (productError) {
     return (
       <LayoutContainer top>
         <ErrorScreen />
       </LayoutContainer>
     );
+  }
+  if (productLoading) {
+    return <PageLoader />;
   }
   const subTitle = product.vendor ? product.vendor.name + " | " : t("food:title") + " | ";
   const title = `${product.name} | ${subTitle}${t("titles:suma_app")}`;
@@ -60,16 +65,14 @@ export default function FoodDetails() {
                 </strike>
               )}
             </p>
-            <Link to={`/offerings/${offeringId}/products`}>
-              Shop at {product.vendor.name}
-            </Link>
+            <Link to={`/offering/${offeringId}`}>Shop at {product.vendor.name}</Link>
           </div>
           <div className="ms-auto">
             <FoodWidget {...product} large={true} />
           </div>
         </Stack>
         <hr />
-        <h5 className="mt-4 mb-2">Details</h5>
+        <h5 className="mt-2 mb-2">Details</h5>
         <p>{product.description}</p>
       </LayoutContainer>
     </>

@@ -4,9 +4,11 @@ import AppNav from "../components/AppNav";
 import ErrorScreen from "../components/ErrorScreen";
 import PageLoader from "../components/PageLoader";
 import RLink from "../components/RLink";
+import { t } from "../localization";
 import { dayjs } from "../modules/dayConfig";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
 import { LayoutContainer } from "../state/withLayout";
+import _ from "lodash";
 import React from "react";
 import { Stack } from "react-bootstrap";
 import Button from "react-bootstrap/Button";
@@ -15,31 +17,43 @@ import Col from "react-bootstrap/Col";
 import Row from "react-bootstrap/Row";
 
 export default function Food() {
-  const { state: foodOfferings, loading: listLoading } = useAsyncFetch(
-    api.getFoodOfferings,
-    {
-      pickData: true,
-    }
-  );
-  if (!foodOfferings && !listLoading) {
-    return <ErrorScreen />;
+  const {
+    state: foodOfferings,
+    loading: offeringsLoading,
+    error: offeringsError,
+  } = useAsyncFetch(api.getFoodOfferings, {
+    pickData: true,
+  });
+  if (offeringsError) {
+    return (
+      <LayoutContainer top>
+        <ErrorScreen />
+      </LayoutContainer>
+    );
   }
   return (
     <>
       <AppNav />
       <img src={foodImage} alt="food" className="thin-header-image" />
-      {listLoading ? (
-        <PageLoader />
-      ) : (
-        <LayoutContainer top>
+      <LayoutContainer top gutters>
+        <h2>{t("food:title")}</h2>
+        <p className="text-secondary">{t("food:intro")}</p>
+      </LayoutContainer>
+      <hr className="my-4" />
+      {offeringsLoading && <PageLoader />}
+      <LayoutContainer gutters>
+        {!_.isEmpty(foodOfferings?.items) && (
           <Row>
-            <h5 className="page-header mb-4">Vendor Offerings</h5>
-            {foodOfferings.items.map((o) => (
+            <h4 className="mb-3">Vendor Offerings</h4>
+            {foodOfferings?.items.map((o) => (
               <Offering key={o.id} {...o} />
             ))}
           </Row>
-        </LayoutContainer>
-      )}
+        )}
+        {_.isEmpty(foodOfferings?.items) && !offeringsLoading && (
+          <p>There are no food offerings currently available, please check back later.</p>
+        )}
+      </LayoutContainer>
     </>
   );
 }
@@ -60,7 +74,7 @@ function Offering({ id, description, closesAt }) {
             <Button
               variant="success"
               className="ms-auto"
-              href={`/offerings/${id}/products`}
+              href={`/offering/${id}`}
               as={RLink}
             >
               Shop

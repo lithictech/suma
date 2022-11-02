@@ -72,7 +72,7 @@
     "vehicle_not_found": "No vehicle found in this location."
   },
   "food": {
-    "intro_md": "Suma wants to make it easy for you to save money on food, whether you shop at a big chain, the corner store or an organic market.\n\nSign up for our free waiting list to suggest food vendors you want to see on the platform and to help us build a community of members.",
+    "intro": "Suma wants to make it easy for you to save money on food, whether you shop at a big chain, the corner store or an organic market.",
     "page_title": "Food",
     "title": "Food"
   },
