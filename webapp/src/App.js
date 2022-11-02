@@ -176,7 +176,7 @@ function AppRoutes() {
           )}
         />
         <Route
-          path="/offering/:id"
+          path="/offerings/:offeringId/products"
           exact
           element={renderWithHocs(
             redirectIfUnauthed,
@@ -188,7 +188,7 @@ function AppRoutes() {
           )}
         />
         <Route
-          path="/offering-product/:id"
+          path="/offerings/:offeringId/products/:productId"
           exact
           element={renderWithHocs(
             redirectIfUnauthed,

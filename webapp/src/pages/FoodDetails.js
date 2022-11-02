@@ -1,4 +1,5 @@
 import api from "../api";
+import ErrorScreen from "../components/ErrorScreen";
 import FoodWidget from "../components/FoodWidget";
 import LinearBreadcrumbs from "../components/LinearBreadcrumbs";
 import PageLoader from "../components/PageLoader";
@@ -10,32 +11,31 @@ import clsx from "clsx";
 import React from "react";
 import Stack from "react-bootstrap/Stack";
 import { Helmet } from "react-helmet-async";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 
 export default function FoodDetails() {
-  const { productId } = useParams();
-  const getFoodOfferingDetails = React.useCallback(() => {
-    return api.getFoodOfferingDetails({ productId: productId });
-  }, [productId]);
-  const { state: offeringDetails, loading: offeringDetailsLoading } = useAsyncFetch(
-    getFoodOfferingDetails,
-    {
-      default: {},
-      pickData: true,
-    }
-  );
-  if (offeringDetailsLoading) {
+  const { offeringId, productId } = useParams();
+  const getFoodProduct = React.useCallback(() => {
+    return api.getFoodProduct({ offeringId: offeringId, productId: productId });
+  }, [offeringId, productId]);
+  const { state: product, loading: productLoading } = useAsyncFetch(getFoodProduct, {
+    pickData: true,
+  });
+  if (productLoading) {
     return <PageLoader />;
   }
-  // TODO: We assume that all names are capitalized
-  const title = `${offeringDetails.name} | ${
-    offeringDetails.partner
-      ? offeringDetails.partner.name + " | "
-      : t("food:title") + " | "
-  }${t("titles:suma_app")}`;
+  if (!product) {
+    return (
+      <LayoutContainer top>
+        <ErrorScreen />
+      </LayoutContainer>
+    );
+  }
+  const subTitle = product.vendor ? product.vendor.name + " | " : t("food:title") + " | ";
+  const title = `${product.name} | ${subTitle}${t("titles:suma_app")}`;
   return (
     <>
-      {!offeringDetailsLoading && (
+      {product && (
         <Helmet>
           <title>{title}</title>
         </Helmet>
@@ -44,49 +44,33 @@ export default function FoodDetails() {
         <LinearBreadcrumbs back />
       </LayoutContainer>
       {/* TODO: refactor image src with correct link */}
-      <img
-        src="/temporary-food-chicken.jpg"
-        alt={offeringDetails.name}
-        className="w-100"
-      />
+      <img src="/temporary-food-chicken.jpg" alt={product.name} className="w-100" />
       <LayoutContainer top>
-        <h3 className="mb-2">{offeringDetails.name}</h3>
+        <h3 className="mb-2">{product.name}</h3>
         <Stack direction="horizontal" className="align-items-baseline">
           <div>
             <p className="mb-0 fs-4">
-              <Money
-                className={clsx(
-                  "me-2",
-                  offeringDetails.discountedPrice && "text-success"
-                )}
-              >
-                {offeringDetails.discountedPrice || offeringDetails.price}
+              {/* TODO: Render undiscount_price and customer_price somehow from back-end */}
+              <Money className={clsx("me-2", product.customerPrice && "text-success")}>
+                {product.customerPrice || product.undiscountedPrice}
               </Money>
-              {offeringDetails.discountedPrice && (
+              {product.customerPrice && (
                 <strike>
-                  <Money>{offeringDetails.price}</Money>
+                  <Money>{product.undiscountedPrice}</Money>
                 </strike>
               )}
             </p>
-            <b className="text-muted">{offeringDetails.weight}</b>
-            <p>By {offeringDetails.partner.name}</p>
+            <Link to={`/offerings/${offeringId}/products`}>
+              Shop at {product.vendor.name}
+            </Link>
           </div>
           <div className="ms-auto">
-            <FoodWidget {...offeringDetails} large={true} />
+            <FoodWidget {...product} large={true} />
           </div>
         </Stack>
         <hr />
         <h5 className="mt-4 mb-2">Details</h5>
-        <p>{offeringDetails.description}</p>
-        <h5 className="mt-4 mb-2">Ingredients</h5>
-        {offeringDetails.ingredients.map((i, idx) => (
-          <span key={i}>
-            {i}
-            {offeringDetails.ingredients.length > 1 &&
-              offeringDetails.ingredients.length !== idx + 1 &&
-              ", "}
-          </span>
-        ))}
+        <p>{product.description}</p>
       </LayoutContainer>
     </>
   );

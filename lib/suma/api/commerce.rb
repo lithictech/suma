@@ -27,8 +27,9 @@ class Suma::API::Commerce < Suma::API::V1
           route_param :product_id, type: Integer do
             desc "Return one commerce offering product"
             get do
-              (p = Suma::Commerce::Product[params[:product_id]]) or forbidden!
-              present p
+              (product = Suma::Commerce::OfferingProduct[product_id: params[:product_id],
+                                                         offering_id: params[:offering_id]]) or forbidden!
+              present product, with: CommerceOfferingProductEntity
             end
           end
         end
@@ -39,7 +40,6 @@ class Suma::API::Commerce < Suma::API::V1
   class VendorEntity < BaseEntity
     expose :id
     expose :name
-    expose :slug
   end
 
   class CommerceOfferingEntity < BaseEntity
@@ -56,5 +56,6 @@ class Suma::API::Commerce < Suma::API::V1
     expose :customer_price, with: Suma::Service::Entities::Money
     expose :undiscounted_price, with: Suma::Service::Entities::Money
     expose :offering_id
+    expose :offering_description, &self.delegate_to(:offering, :description)
   end
 end

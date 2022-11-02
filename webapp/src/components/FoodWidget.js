@@ -1,6 +1,7 @@
 import addIcon from "../assets/images/food-widget-add.svg";
 import subtractIcon from "../assets/images/food-widget-subtract.svg";
 import clsx from "clsx";
+import _ from "lodash";
 import React from "react";
 import Button from "react-bootstrap/Button";
 import ButtonGroup from "react-bootstrap/ButtonGroup";
@@ -18,7 +19,7 @@ export default function FoodWidget({ productId, maxQuantity, quantity, large }) 
   };
 
   const DropdownQuantities = () => {
-    return [...Array(maxQ + 1)].map((_, i) => (
+    return _.times(maxQ + 1).map((_, i) => (
       <Dropdown.Item
         key={i}
         eventKey={i}
