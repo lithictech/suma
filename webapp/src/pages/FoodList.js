@@ -59,7 +59,7 @@ export default function FoodList() {
             <LinearBreadcrumbs back />
             <h5 className="mb-4">{firstProduct.offeringDescription}</h5>
             {products.map((p) => (
-              <Product key={p.id} offeringId={id} {...p} />
+              <Product key={p.productId} offeringId={id} {...p} />
             ))}
           </Row>
         )}
@@ -74,7 +74,8 @@ export default function FoodList() {
   );
 }
 
-function Product({ id, offeringId, name, undiscountedPrice, customerPrice }) {
+function Product({ id, productId, offeringId, name, undiscountedPrice, customerPrice }) {
+  console.log(id);
   return (
     <Col xs={6} key={id} className="mb-2">
       <div className="position-relative">
@@ -94,7 +95,7 @@ function Product({ id, offeringId, name, undiscountedPrice, customerPrice }) {
             </strike>
           )}
         </p>
-        <Link to={`/product/${offeringId}-${id}`} className="stretched-link" />
+        <Link to={`/product/${offeringId}-${productId}`} className="stretched-link" />
       </div>
     </Col>
   );
