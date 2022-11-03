@@ -22,14 +22,14 @@ class Suma::API::Commerce < Suma::API::V1
         resource :products do
           get do
             ds = Suma::Commerce::OfferingProduct.available_with(params[:offering_id])
-            present_collection ds, with: CommerceOfferingProductEntity
+            present_collection ds, with: CommerceOfferingProductListEntity
           end
           route_param :product_id, type: Integer do
             desc "Return one commerce offering product"
             get do
               (product = Suma::Commerce::OfferingProduct[product_id: params[:product_id],
                                                          offering_id: params[:offering_id]]) or forbidden!
-              present product, with: CommerceOfferingProductEntity
+              present product, with: CommerceOfferingProductDetailEntity
             end
           end
         end
@@ -48,14 +48,28 @@ class Suma::API::Commerce < Suma::API::V1
     expose :period_end, as: :closes_at
   end
 
-  class CommerceOfferingProductEntity < BaseEntity
-    expose :name, &self.delegate_to(:product, :name)
-    expose :description, &self.delegate_to(:product, :description)
-    expose :vendor, with: VendorEntity, &self.delegate_to(:product, :vendor)
-    expose :customer_price, with: Suma::Service::Entities::Money
-    expose :undiscounted_price, with: Suma::Service::Entities::Money
-    expose :product_id
-    expose :offering_id
+  module CommerceOfferingProductMixin
+    def self.included(m)
+      m.expose :name, &m.delegate_to(:product, :name)
+      m.expose :description, &m.delegate_to(:product, :description)
+      m.expose :product_id
+      m.expose :offering_id
+      m.expose :discounted?, as: :is_discounted
+      m.expose :customer_price, with: Suma::Service::Entities::Money
+      m.expose :undiscounted_price, with: Suma::Service::Entities::Money
+    end
+  end
+
+  class CommerceOfferingProductListEntity < BaseEntity
+    include CommerceOfferingProductMixin
+    # We should remove this and add it as a top-level field on the collection response
     expose :offering_description, &self.delegate_to(:offering, :description)
+    expose :image, with: Suma::API::Entities::ImageEntity, &self.delegate_to(:product, :images, :first)
+  end
+
+  class CommerceOfferingProductDetailEntity < BaseEntity
+    include CommerceOfferingProductMixin
+    expose :vendor, with: VendorEntity, &self.delegate_to(:product, :vendor)
+    expose :images, with: Suma::API::Entities::ImageEntity, &self.delegate_to(:product, :images)
   end
 end

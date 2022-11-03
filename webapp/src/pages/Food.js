@@ -44,7 +44,7 @@ export default function Food() {
       <LayoutContainer gutters>
         {!_.isEmpty(foodOfferings?.items) && (
           <Row>
-            <h4 className="mb-3">Vendor Offerings</h4>
+            <h4 className="mb-3">{t("food:current_offerings")}</h4>
             {foodOfferings?.items.map((o) => (
               <Offering key={o.id} {...o} />
             ))}
@@ -68,7 +68,7 @@ function Offering({ id, description, closesAt }) {
             <div>
               <Card.Title className="h5">{description}</Card.Title>
               <Card.Text className="text-secondary">
-                Closing in {dayjs(closesAt).format("ll")}
+                {t("food:available_until")} {dayjs(closesAt).format("ll")}
               </Card.Text>
             </div>
             <Button
@@ -77,7 +77,7 @@ function Offering({ id, description, closesAt }) {
               href={`/offering/${id}`}
               as={RLink}
             >
-              Shop
+              {t("food:shop")}
             </Button>
           </Stack>
         </Card.Body>

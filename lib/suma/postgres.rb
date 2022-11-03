@@ -52,6 +52,7 @@ module Suma::Postgres
     "suma/commerce/offering",
     "suma/commerce/product",
     "suma/commerce/offering_product",
+    "suma/image",
     "suma/member",
     "suma/member/activity",
     "suma/member/reset_code",

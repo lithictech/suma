@@ -28,6 +28,11 @@ module Suma::API::Entities
     expose :native
   end
 
+  class ImageEntity < BaseEntity
+    expose :caption
+    expose :url, &self.delegate_to(:uploaded_file, :absolute_url)
+  end
+
   class OrganizationEntity < BaseEntity
     expose :name
     expose :slug

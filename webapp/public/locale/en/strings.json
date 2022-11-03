@@ -74,7 +74,10 @@
   "food": {
     "intro": "Suma wants to make it easy for you to save money on food, whether you shop at a big chain, the corner store or an organic market.",
     "page_title": "Food",
-    "title": "Food"
+    "title": "Food",
+    "available_until": "Until",
+    "shop": "Shop",
+    "current_offerings": "Current Offerings"
   },
   "forms": {
     "account_number": "Account Number",

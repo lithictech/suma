@@ -17,10 +17,10 @@ import { Helmet } from "react-helmet-async";
 import { Link, useParams } from "react-router-dom";
 
 export default function FoodList() {
-  const { id } = useParams();
+  const { id: offeringId } = useParams();
   const getFoodOfferingProducts = React.useCallback(() => {
-    return api.getFoodOfferingProducts({ offeringId: id });
-  }, [id]);
+    return api.getFoodOfferingProducts({ offeringId });
+  }, [offeringId]);
   const {
     state: offeringProducts,
     loading: productsLoading,
@@ -29,7 +29,6 @@ export default function FoodList() {
     default: {},
     pickData: true,
   });
-  const products = offeringProducts.items;
   if (productsError) {
     return (
       <LayoutContainer top>
@@ -37,52 +36,60 @@ export default function FoodList() {
       </LayoutContainer>
     );
   }
+  const products = offeringProducts.items;
   // All products are from the same offering
   // we get +offeringDescription+ from the first occurrence
-  const firstProduct = _.first(products);
-  const offeringDescription = firstProduct
-    ? firstProduct.offeringDescription + " | "
-    : "";
-  const title = offeringDescription + t("food:title") + " | " + t("titles:suma_app");
+  const titleParts = [t("food:title"), t("titles:suma_app")];
+  if (products?.length > 0) {
+    titleParts.unshift(products[0].offeringDescription);
+  }
   return (
     <>
-      {products && (
-        <Helmet>
-          <title>{title}</title>
-        </Helmet>
-      )}
+      <Helmet>
+        <title>{titleParts.join(" | ")}</title>
+      </Helmet>
       <img src={foodImage} alt="food" className="thin-header-image" />
       <LayoutContainer className="pt-2">
         {productsLoading && <PageLoader />}
-        {!_.isEmpty(products) && (
-          <Row>
-            <LinearBreadcrumbs back />
-            <h5 className="mb-4">{firstProduct.offeringDescription}</h5>
-            {products.map((p) => (
-              <Product key={p.productId} offeringId={id} {...p} />
-            ))}
-          </Row>
-        )}
-        {_.isEmpty(products) && !productsLoading && (
-          <p>
-            There were no products found, this offering might be closed.{" "}
-            <Link to="/food">Click here to view available offerings</Link>
-          </p>
+        {!productsLoading && (
+          <>
+            {_.isEmpty(products) && (
+              <p>
+                There were no products found, this offering might be closed.{" "}
+                <Link to="/food">Click here to view available offerings</Link>
+              </p>
+            )}
+            {!_.isEmpty(products) && (
+              <Row>
+                <LinearBreadcrumbs back />
+                <h5 className="mb-4">{products[0].offeringDescription}</h5>
+                {products.map((p) => (
+                  <Product key={p.productId} offeringId={offeringId} {...p} />
+                ))}
+              </Row>
+            )}
+          </>
         )}
       </LayoutContainer>
     </>
   );
 }
 
-function Product({ id, productId, offeringId, name, undiscountedPrice, customerPrice }) {
-  console.log(id);
+function Product({
+  productId,
+  offeringId,
+  name,
+  undiscountedPrice,
+  customerPrice,
+  image,
+}) {
+  const url = `${image.url}?w=225&h=150`;
   return (
-    <Col xs={6} key={id} className="mb-2">
+    <Col xs={6} className="mb-2">
       <div className="position-relative">
-        {/* TODO: refactor image src with correct link */}
-        <img src="/temporary-food-chicken.jpg" alt={name} className="w-100" />
+        <img src={url} alt={name} className="w-100" />
         <div className="food-widget-container position-absolute">
-          <FoodWidget productId={id} />
+          <FoodWidget productId={productId} />
         </div>
         <h6 className="mb-0 mt-2">{name}</h6>
         <p className="mb-0 fs-5 fw-semibold">

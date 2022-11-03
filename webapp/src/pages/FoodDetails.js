@@ -16,7 +16,7 @@ import { Link, useParams } from "react-router-dom";
 export default function FoodDetails() {
   const { offeringId, productId } = useParams();
   const getFoodProduct = React.useCallback(() => {
-    return api.getFoodProduct({ offeringId: offeringId, productId: productId });
+    return api.getFoodProduct({ offeringId, productId });
   }, [offeringId, productId]);
   const {
     state: product,
@@ -36,36 +36,36 @@ export default function FoodDetails() {
   if (productLoading) {
     return <PageLoader />;
   }
-  const subTitle = product.vendor ? product.vendor.name + " | " : t("food:title") + " | ";
-  const title = `${product.name} | ${subTitle}${t("titles:suma_app")}`;
+  const title = [
+    product.name,
+    product.vendor.name,
+    t("food:title"),
+    t("titles:suma_app"),
+  ].join(" | ");
   return (
     <>
-      {product && (
-        <Helmet>
-          <title>{title}</title>
-        </Helmet>
-      )}
+      <Helmet>
+        <title>{title}</title>
+      </Helmet>
       <LayoutContainer className="pt-2">
         <LinearBreadcrumbs back />
       </LayoutContainer>
-      {/* TODO: refactor image src with correct link */}
-      <img src="/temporary-food-chicken.jpg" alt={product.name} className="w-100" />
+      <img src={product.images[0].url + "?h=300"} alt={product.name} className="w-100" />
       <LayoutContainer top>
         <h3 className="mb-2">{product.name}</h3>
         <Stack direction="horizontal" className="align-items-baseline">
           <div>
             <p className="mb-0 fs-4">
-              {/* TODO: Render undiscount_price and customer_price somehow from back-end */}
-              <Money className={clsx("me-2", product.customerPrice && "text-success")}>
-                {product.customerPrice || product.undiscountedPrice}
+              <Money className={clsx("me-2", product.isDiscounted && "text-success")}>
+                {product.customerPrice}
               </Money>
-              {product.customerPrice && (
+              {product.isDiscounted && (
                 <strike>
                   <Money>{product.undiscountedPrice}</Money>
                 </strike>
               )}
             </p>
-            <Link to={`/offering/${offeringId}`}>Shop at {product.vendor.name}</Link>
+            <p>From {product.vendor.name}</p>
           </div>
           <div className="ms-auto">
             <FoodWidget {...product} large={true} />

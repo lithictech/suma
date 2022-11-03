@@ -16,6 +16,22 @@ Sequel.migration do
       text :our_cost_currency, null: false
     end
 
+    create_table(:images) do
+      primary_key :id
+
+      timestamptz :created_at, null: false, default: Sequel.function(:now)
+      timestamptz :updated_at
+      timestamptz :soft_deleted_at
+
+      float :ordinal, null: false, default: 0
+      text :caption, null: false, default: ""
+
+      foreign_key :uploaded_file_id, :uploaded_files, null: false
+      # Eventually we add multiple FKs and only one can be set via UnambiguousConstraint
+      foreign_key :commerce_product_id, :commerce_products, null: false
+      index :commerce_product_id
+    end
+
     create_table(:commerce_offerings) do
       primary_key :id
       timestamptz :created_at, null: false, default: Sequel.function(:now)
