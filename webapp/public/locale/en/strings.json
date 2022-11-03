@@ -73,11 +73,12 @@
   },
   "food": {
     "intro": "Suma wants to make it easy for you to save money on food, whether you shop at a big chain, the corner store or an organic market.",
-    "page_title": "Food",
     "title": "Food",
     "available_until": "Until",
     "shop": "Shop",
-    "current_offerings": "Current Offerings"
+    "current_offerings": "Current Offerings",
+    "no_offerings": "There are no food offerings currently available, please check back later.",
+    "no_products_md": "There were no products found, this offering might be closed. [Click here to view available offerings](/food '$t(strings:food:title)')"
   },
   "forms": {
     "account_number": "Account Number",

@@ -34,7 +34,7 @@ export default function Food() {
   return (
     <>
       <AppNav />
-      <img src={foodImage} alt="food" className="thin-header-image" />
+      <img src={foodImage} alt={t("food:title")} className="thin-header-image" />
       <LayoutContainer top gutters>
         <h2>{t("food:title")}</h2>
         <p className="text-secondary">{t("food:intro")}</p>
@@ -51,7 +51,7 @@ export default function Food() {
           </Row>
         )}
         {_.isEmpty(foodOfferings?.items) && !offeringsLoading && (
-          <p>There are no food offerings currently available, please check back later.</p>
+          <p>{t("food:no_offerings")}</p>
         )}
       </LayoutContainer>
     </>

@@ -11,7 +11,7 @@ import clsx from "clsx";
 import React from "react";
 import Stack from "react-bootstrap/Stack";
 import { Helmet } from "react-helmet-async";
-import { Link, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 
 export default function FoodDetails() {
   const { offeringId, productId } = useParams();
@@ -50,10 +50,10 @@ export default function FoodDetails() {
       <LayoutContainer className="pt-2">
         <LinearBreadcrumbs back />
       </LayoutContainer>
-      <img src={product.images[0].url + "?h=300"} alt={product.name} className="w-100" />
+      <img src={product.images[0].url + ""} alt={product.name} className="w-100" />
       <LayoutContainer top>
         <h3 className="mb-2">{product.name}</h3>
-        <Stack direction="horizontal" className="align-items-baseline">
+        <Stack direction="horizontal">
           <div>
             <p className="mb-0 fs-4">
               <Money className={clsx("me-2", product.isDiscounted && "text-success")}>

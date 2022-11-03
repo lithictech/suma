@@ -4,7 +4,7 @@ import ErrorScreen from "../components/ErrorScreen";
 import FoodWidget from "../components/FoodWidget";
 import LinearBreadcrumbs from "../components/LinearBreadcrumbs";
 import PageLoader from "../components/PageLoader";
-import { t } from "../localization";
+import { t, mdp } from "../localization";
 import Money from "../shared/react/Money";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
 import { LayoutContainer } from "../state/withLayout";
@@ -48,17 +48,12 @@ export default function FoodList() {
       <Helmet>
         <title>{titleParts.join(" | ")}</title>
       </Helmet>
-      <img src={foodImage} alt="food" className="thin-header-image" />
+      <img src={foodImage} alt={t("food:title")} className="thin-header-image" />
       <LayoutContainer className="pt-2">
         {productsLoading && <PageLoader />}
         {!productsLoading && (
           <>
-            {_.isEmpty(products) && (
-              <p>
-                There were no products found, this offering might be closed.{" "}
-                <Link to="/food">Click here to view available offerings</Link>
-              </p>
-            )}
+            {_.isEmpty(products) && mdp("food:no_products_md")}
             {!_.isEmpty(products) && (
               <Row>
                 <LinearBreadcrumbs back />
@@ -79,10 +74,12 @@ function Product({
   productId,
   offeringId,
   name,
+  isDiscounted,
   undiscountedPrice,
   customerPrice,
   image,
 }) {
+  // isDiscounted = false;
   const url = `${image.url}?w=225&h=150`;
   return (
     <Col xs={6} className="mb-2">
@@ -93,10 +90,10 @@ function Product({
         </div>
         <h6 className="mb-0 mt-2">{name}</h6>
         <p className="mb-0 fs-5 fw-semibold">
-          <Money className={clsx("me-2", customerPrice && "text-success")}>
-            {customerPrice || undiscountedPrice}
+          <Money className={clsx("me-2", isDiscounted && "text-success")}>
+            {customerPrice}
           </Money>
-          {customerPrice && (
+          {isDiscounted && (
             <strike>
               <Money>{undiscountedPrice}</Money>
             </strike>
