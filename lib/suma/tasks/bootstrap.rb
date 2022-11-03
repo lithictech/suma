@@ -67,6 +67,25 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
         c.ordinal = 1
       end
 
+      food_org = Suma::Organization.find_or_create(name: "Food")
+      offering = Suma::Commerce::Offering.find_or_create(
+        description: "Check out our turkey meal offerings!",
+      ) do |o|
+        o.period = Sequel::Postgres::PGRange.new(1.day.ago, 100.days.from_now)
+      end
+      product_names = ["Turkey with sides", "Chicken with sides"]
+      product_names.each do |n|
+        Suma::Commerce::Product.find_or_create(name: n) do |p|
+          Suma::Commerce::OfferingProduct.find_or_create(offering_id: offering.id, product_id: p.id) do |op|
+            op.customer_price = Money.new(500)
+            op.undiscounted_price = Money.new(700)
+          end
+          p.description = "Something delicious awaits..."
+          p.vendor = Suma::Vendor.find_or_create(name: "Food Store", organization: food_org)
+          p.our_cost = Money.new(500)
+        end
+      end
+
       self.create_restricted_areas
     end
   end

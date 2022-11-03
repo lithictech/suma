@@ -49,12 +49,12 @@ class Suma::API::Commerce < Suma::API::V1
   end
 
   class CommerceOfferingProductEntity < BaseEntity
-    expose :id
     expose :name, &self.delegate_to(:product, :name)
     expose :description, &self.delegate_to(:product, :description)
     expose :vendor, with: VendorEntity, &self.delegate_to(:product, :vendor)
     expose :customer_price, with: Suma::Service::Entities::Money
     expose :undiscounted_price, with: Suma::Service::Entities::Money
+    expose :product_id
     expose :offering_id
     expose :offering_description, &self.delegate_to(:offering, :description)
   end

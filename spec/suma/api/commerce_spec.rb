@@ -42,22 +42,33 @@ RSpec.describe Suma::API::Commerce, :db do
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.that_includes(
         items: contain_exactly(
-          include(id: op1.id),
+          include(product_id: op1.product_id),
         ),
       )
     end
   end
 
   describe "GET /v1/commerce/offerings/:offering_id/products/:product_id" do
-    it "returns one offering product" do
-      offering = Suma::Fixtures.commerce_offering.create
-      product = Suma::Fixtures.commerce_product.create
+    let(:offering) { Suma::Fixtures.commerce_offering.create }
+    let(:product) { Suma::Fixtures.commerce_product.create }
+    before(:each) do
       Suma::Fixtures.commerce_offering_product.create(offering:, product:)
-
+    end
+    it "returns one offering product" do
       get "/v1/commerce/offerings/#{offering.id}/products/#{product.id}"
 
       expect(last_response).to have_status(200)
-      expect(last_response).to have_json_body.that_includes(id: product.id, name: product.name)
+      expect(last_response).to have_json_body.that_includes(product_id: product.id, offering_id: offering.id)
+    end
+    it "403s if product does not belong to offering" do
+      get "/v1/commerce/offerings/#{offering.id}/products/0"
+
+      expect(last_response).to have_status(403)
+    end
+    it "403s if offering does not belong to product" do
+      get "/v1/commerce/offerings/0/products/#{product.id}"
+
+      expect(last_response).to have_status(403)
     end
   end
 end
