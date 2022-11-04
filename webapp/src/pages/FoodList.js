@@ -1,6 +1,7 @@
 import api from "../api";
 import foodImage from "../assets/images/onboarding-food.jpg";
 import ErrorScreen from "../components/ErrorScreen";
+import FoodCart from "../components/FoodCart";
 import FoodWidget from "../components/FoodWidget";
 import LinearBreadcrumbs from "../components/LinearBreadcrumbs";
 import PageLoader from "../components/PageLoader";
@@ -43,11 +44,15 @@ export default function FoodList() {
   if (products?.length > 0) {
     titleParts.unshift(products[0].offeringDescription);
   }
+  const cartStartElement = (
+    <h5 className="m-0">{products && products[0].offeringDescription}</h5>
+  );
   return (
     <>
       <Helmet>
         <title>{titleParts.join(" | ")}</title>
       </Helmet>
+      <FoodCart startElement={cartStartElement} />
       <img src={foodImage} alt={t("food:title")} className="thin-header-image" />
       <LayoutContainer className="pt-2">
         {productsLoading && <PageLoader />}
@@ -57,7 +62,6 @@ export default function FoodList() {
             {!_.isEmpty(products) && (
               <Row>
                 <LinearBreadcrumbs back />
-                <h5 className="mb-4">{products[0].offeringDescription}</h5>
                 {products.map((p) => (
                   <Product key={p.productId} offeringId={offeringId} {...p} />
                 ))}

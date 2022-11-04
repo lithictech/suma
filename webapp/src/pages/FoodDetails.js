@@ -1,5 +1,6 @@
 import api from "../api";
 import ErrorScreen from "../components/ErrorScreen";
+import FoodCart from "../components/FoodCart";
 import FoodWidget from "../components/FoodWidget";
 import LinearBreadcrumbs from "../components/LinearBreadcrumbs";
 import PageLoader from "../components/PageLoader";
@@ -47,9 +48,7 @@ export default function FoodDetails() {
       <Helmet>
         <title>{title}</title>
       </Helmet>
-      <LayoutContainer className="pt-2">
-        <LinearBreadcrumbs back />
-      </LayoutContainer>
+      <FoodCart startElement={<LinearBreadcrumbs back noBottom />} />
       <img
         src={product.images[0].url + "?w=500&h=325"}
         alt={product.name}
