@@ -40,7 +40,7 @@ export default function Food() {
         <p className="text-secondary">{t("food:intro")}</p>
       </LayoutContainer>
       <hr className="my-4" />
-      {offeringsLoading && <PageLoader />}
+      {offeringsLoading && <PageLoader relative />}
       <LayoutContainer gutters>
         {!_.isEmpty(foodOfferings?.items) && (
           <Row>

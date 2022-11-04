@@ -50,7 +50,11 @@ export default function FoodDetails() {
       <LayoutContainer className="pt-2">
         <LinearBreadcrumbs back />
       </LayoutContainer>
-      <img src={product.images[0].url + ""} alt={product.name} className="w-100" />
+      <img
+        src={product.images[0].url + "?w=500&h=325"}
+        alt={product.name}
+        className="w-100"
+      />
       <LayoutContainer top>
         <h3 className="mb-2">{product.name}</h3>
         <Stack direction="horizontal">
