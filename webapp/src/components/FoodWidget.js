@@ -1,12 +1,12 @@
 import addIcon from "../assets/images/food-widget-add.svg";
 import subtractIcon from "../assets/images/food-widget-subtract.svg";
+import { t } from "../localization";
 import clsx from "clsx";
 import _ from "lodash";
 import React from "react";
 import Button from "react-bootstrap/Button";
 import ButtonGroup from "react-bootstrap/ButtonGroup";
 import Dropdown from "react-bootstrap/Dropdown";
-import { t } from "../localization";
 
 export default function FoodWidget({ productId, maxQuantity, quantity, large }) {
   const [maxQ] = React.useState(maxQuantity || 1);
@@ -69,7 +69,9 @@ export default function FoodWidget({ productId, maxQuantity, quantity, large }) 
       >
         <img src={addIcon} alt={t("food:add_to_cart")} width="32px" />
         {large && selectedQuantity === 0 && (
-          <span className="text-capitalize fs-5 align-middle ms-1 pe-2">{t("food:add_to_cart")}</span>
+          <span className="text-capitalize fs-5 align-middle ms-1 pe-2">
+            {t("food:add_to_cart")}
+          </span>
         )}
       </Button>
     </ButtonGroup>
