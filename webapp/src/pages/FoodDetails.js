@@ -65,14 +65,14 @@ export default function FoodDetails() {
                 </strike>
               )}
             </p>
-            <p>From {product.vendor.name}</p>
+            <p>{t("food:from") + " " + product.vendor.name}</p>
           </div>
           <div className="ms-auto">
             <FoodWidget {...product} large={true} />
           </div>
         </Stack>
         <hr />
-        <h5 className="mt-2 mb-2">Details</h5>
+        <h5 className="mt-2 mb-2">{t("food:details_header")}</h5>
         <p>{product.description}</p>
       </LayoutContainer>
     </>

@@ -6,6 +6,7 @@ import React from "react";
 import Button from "react-bootstrap/Button";
 import ButtonGroup from "react-bootstrap/ButtonGroup";
 import Dropdown from "react-bootstrap/Dropdown";
+import { t } from "../localization";
 
 export default function FoodWidget({ productId, maxQuantity, quantity, large }) {
   const [maxQ] = React.useState(maxQuantity || 1);
@@ -37,8 +38,9 @@ export default function FoodWidget({ productId, maxQuantity, quantity, large }) 
             variant="success"
             onClick={() => handleQuantityChange(selectedQuantity - 1)}
             className={btnClasses}
+            title={t("food:remove_from_cart")}
           >
-            <img src={subtractIcon} alt="remove from cart" width="32px" />
+            <img src={subtractIcon} alt={t("food:remove_from_cart")} width="32px" />
           </Button>
           <Dropdown
             variant="success"
@@ -63,10 +65,11 @@ export default function FoodWidget({ productId, maxQuantity, quantity, large }) 
         variant="success"
         onClick={() => handleQuantityChange(selectedQuantity + 1)}
         className={clsx(btnClasses, selectedQuantity === maxQ && "disabled")}
+        title={t("food:add_to_cart")}
       >
-        <img src={addIcon} alt="add to cart" width="32px" />
+        <img src={addIcon} alt={t("food:add_to_cart")} width="32px" />
         {large && selectedQuantity === 0 && (
-          <span className="text-capitalize fs-5 align-middle ms-1 pe-2">Add to cart</span>
+          <span className="text-capitalize fs-5 align-middle ms-1 pe-2">{t("food:add_to_cart")}</span>
         )}
       </Button>
     </ButtonGroup>
