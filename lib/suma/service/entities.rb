@@ -18,13 +18,6 @@ module Suma::Service::Entities
   class Base < Grape::Entity
     extend Suma::MethodUtilities
 
-    expose :object_type, as: :object, unless: ->(_, _) { self.object_type.nil? }
-
-    # Override this on entities that are addressable on their own
-    def object_type
-      return nil
-    end
-
     def self.timezone(*lookup_path, field: nil)
       return lambda do |instance, opts|
         field ||= opts[:attr_path].last

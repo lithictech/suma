@@ -4,6 +4,7 @@ import FoodCart from "../components/FoodCart";
 import FoodWidget from "../components/FoodWidget";
 import LinearBreadcrumbs from "../components/LinearBreadcrumbs";
 import PageLoader from "../components/PageLoader";
+import SumaImage from "../components/SumaImage";
 import { t } from "../localization";
 import Money from "../shared/react/Money";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
@@ -49,10 +50,12 @@ export default function FoodDetails() {
         <title>{title}</title>
       </Helmet>
       <FoodCart startElement={<LinearBreadcrumbs back noBottom />} />
-      <img
-        src={product.images[0].url + "?w=500&h=325"}
+      <SumaImage
+        image={product.images[0]}
         alt={product.name}
         className="w-100"
+        h={325}
+        width={500}
       />
       <LayoutContainer top>
         <h3 className="mb-2">{product.name}</h3>

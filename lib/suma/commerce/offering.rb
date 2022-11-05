@@ -1,10 +1,12 @@
 # frozen_string_literal: true
 
 require "suma/commerce"
-require "suma/postgres"
+require "suma/image"
 require "suma/postgres/model"
 
 class Suma::Commerce::Offering < Suma::Postgres::Model(:commerce_offerings)
+  include Suma::Image::AssociatedMixin
+
   plugin :timestamps
   plugin :tstzrange_fields, :period
 

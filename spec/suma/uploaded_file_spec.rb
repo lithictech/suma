@@ -74,5 +74,19 @@ RSpec.describe "Suma::UploadedFile", :db do
     end
   end
 
+  describe "NoImageAvailable" do
+    it "is like a normal uploaded file" do
+      expect(described_class::NoImageAvailable.new).to have_attributes(
+        blob_stream: be_a(StringIO),
+        absolute_url: be_a(String),
+        opaque_id: "missing",
+        filename: "no-image-available.png",
+        sha256: "b6a6e1dfff4e812d9c224cd427e1b65936e952db39ea8c6e638e6de21620872d",
+        content_type: "image/png",
+        content_length: 37_331,
+      )
+    end
+  end
+
   let(:png_1x1) { Suma::Fixtures::UploadedFiles::PNG_1X1_BYTES }
 end

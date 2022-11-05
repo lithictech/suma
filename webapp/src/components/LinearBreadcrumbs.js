@@ -1,4 +1,5 @@
 import { t } from "../localization";
+import clsx from "clsx";
 import React from "react";
 import { Link } from "react-router-dom";
 
@@ -12,7 +13,7 @@ export default function LinearBreadcrumbs({ forward, back, noBottom }) {
     backProps = { to: back };
   }
   return (
-    <nav className={noBottom || "mb-3"}>
+    <nav className={clsx(noBottom || "mb-3")}>
       <ol className="linear-breadcrumb m-0">
         {back && (
           <li>

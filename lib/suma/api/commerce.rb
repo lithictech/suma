@@ -14,22 +14,24 @@ class Suma::API::Commerce < Suma::API::V1
       get do
         t = Time.now
         ds = Suma::Commerce::Offering.available_at(t)
-        present_collection ds, with: CommerceOfferingEntity
+        present_collection ds, with: OfferingEntity
       end
 
       route_param :offering_id, type: Integer do
         desc "Returns all commerce offering products"
         resource :products do
           get do
-            ds = Suma::Commerce::OfferingProduct.available_with(params[:offering_id])
-            present_collection ds, with: CommerceOfferingProductListEntity
+            (offering = Suma::Commerce::Offering[params[:offering_id]]) or forbidden!
+            ds = Suma::Commerce::OfferingProduct.available_with(offering.id)
+            present_collection ds, with: OfferingProductListEntity, offering:
           end
+
           route_param :product_id, type: Integer do
             desc "Return one commerce offering product"
             get do
               (product = Suma::Commerce::OfferingProduct[product_id: params[:product_id],
                                                          offering_id: params[:offering_id]]) or forbidden!
-              present product, with: CommerceOfferingProductDetailEntity
+              present product, with: OfferingProductDetailEntity
             end
           end
         end
@@ -42,13 +44,14 @@ class Suma::API::Commerce < Suma::API::V1
     expose :name
   end
 
-  class CommerceOfferingEntity < BaseEntity
+  class OfferingEntity < BaseEntity
     expose :id
     expose :description
     expose :period_end, as: :closes_at
+    expose :image, with: Suma::API::Entities::ImageEntity, &self.delegate_to(:images?, :first)
   end
 
-  module CommerceOfferingProductMixin
+  module OfferingProductMixin
     def self.included(m)
       m.expose :name, &m.delegate_to(:product, :name)
       m.expose :description, &m.delegate_to(:product, :description)
@@ -60,16 +63,23 @@ class Suma::API::Commerce < Suma::API::V1
     end
   end
 
-  class CommerceOfferingProductListEntity < BaseEntity
-    include CommerceOfferingProductMixin
+  class OfferingProductListItemEntity < BaseEntity
+    include OfferingProductMixin
     # We should remove this and add it as a top-level field on the collection response
     expose :offering_description, &self.delegate_to(:offering, :description)
-    expose :image, with: Suma::API::Entities::ImageEntity, &self.delegate_to(:product, :images, :first)
+    expose :image, with: Suma::API::Entities::ImageEntity, &self.delegate_to(:product, :images?, :first)
   end
 
-  class CommerceOfferingProductDetailEntity < BaseEntity
-    include CommerceOfferingProductMixin
+  class OfferingProductListEntity < Suma::Service::Collection::BaseEntity
+    expose :items, with: OfferingProductListItemEntity
+    expose :offering, with: OfferingEntity do |_, options|
+      options.fetch(:offering)
+    end
+  end
+
+  class OfferingProductDetailEntity < BaseEntity
+    include OfferingProductMixin
     expose :vendor, with: VendorEntity, &self.delegate_to(:product, :vendor)
-    expose :images, with: Suma::API::Entities::ImageEntity, &self.delegate_to(:product, :images)
+    expose :images, with: Suma::API::Entities::ImageEntity, &self.delegate_to(:product, :images?)
   end
 end

@@ -171,19 +171,19 @@ function AppRoutes() {
             redirectIfUnboarded,
             withScreenLoaderMount(),
             withMetatags({ title: t("food:title") }),
-            withLayout({ gutters: false, top: false }),
+            withLayout({ gutters: false, top: false, appNav: true }),
             Food
           )}
         />
         <Route
-          path="/offering/:id"
+          path="/food/:id"
           exact
           element={renderWithHocs(
             redirectIfUnauthed,
             redirectIfUnboarded,
             withScreenLoaderMount(),
             withMetatags({ title: t("food:title") }),
-            withLayout({ gutters: false, top: false }),
+            withLayout({ gutters: false, top: false, appNav: true }),
             FoodList
           )}
         />

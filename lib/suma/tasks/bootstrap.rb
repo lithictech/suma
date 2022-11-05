@@ -73,6 +73,14 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
       offering = Suma::Commerce::Offering.find_or_create(description: "Holidays 2022") do |o|
         o.period = 1.day.ago..Time.new(2022, 12, 16)
       end
+      if offering.images.empty?
+        bytes = File.binread("spec/data/images/holiday-offering.jpeg")
+        uf = Suma::UploadedFile.create_with_blob(bytes:, content_type: "image/jpeg", filename: "holiday-offering.jpeg")
+        offering.add_image({uploaded_file: uf})
+      end
+      Suma::Commerce::Offering.find_or_create(description: "No Image Tester") do |o|
+        o.period = 1.day.ago..Time.new(2022, 12, 16)
+      end
       products = [
         {
           name: "Turkey dinner with sides",

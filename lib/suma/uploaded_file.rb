@@ -95,4 +95,24 @@ class Suma::UploadedFile < Suma::Postgres::Model(:uploaded_files)
   def absolute_url
     return "#{Suma.api_url}/v1/images/#{self.opaque_id}"
   end
+
+  class NoImageAvailable
+    class << self
+      def data
+        return @data if @data
+        bytes = File.binread(Suma::DATA_DIR + "images/no-image-available.png")
+        sha256 = ::Digest::SHA256.hexdigest(bytes)
+        @data = {bytes:, sha256:}
+        return @data
+      end
+    end
+
+    def opaque_id = "missing"
+    def filename = "no-image-available.png"
+    def sha256 = self.class.data[:sha256]
+    def content_type = "image/png"
+    def content_length = self.class.data[:bytes].size
+    def blob_stream = StringIO.new(self.class.data[:bytes])
+    def absolute_url = "#{Suma.api_url}/v1/images/missing"
+  end
 end

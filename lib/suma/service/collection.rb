@@ -13,6 +13,19 @@ class Suma::Service::Collection
 
   attr_reader :current_page, :items, :page_count, :total_count, :last_page
 
+  class BaseEntity < Suma::Service::Entities::Base
+    expose :object do |_|
+      "list"
+    end
+    expose :current_page
+    expose :page_count
+    expose :total_count
+    expose :more?, as: :has_more
+    # expose :items do |_|
+    #   raise "this must be exposed by the subclass, like: `expose :items, with: MyEntity`"
+    # end
+  end
+
   def self.from_dataset(ds)
     if ds.respond_to?(:current_page)
       return self.new(
@@ -48,19 +61,18 @@ class Suma::Service::Collection
 
   module Helpers
     def present_collection(collection, opts={})
-      item_entity = opts.delete(:with) || opts.delete(:using)
-      unless (collection_entity = Suma::Service::Collection.collection_entity_cache[item_entity])
-        collection_entity = Class.new(Suma::Service::Entities::Base) do
-          define_method(:object_type) do
-            "list"
+      passed_entity = opts.delete(:with) || opts.delete(:using)
+      # We can't use is_a? here, Grape entity is weird.
+      if passed_entity&.ancestors&.include?(Suma::Service::Collection::BaseEntity)
+        collection_entity = passed_entity
+      else
+        collection_entity = Suma::Service::Collection.collection_entity_cache[passed_entity]
+        if collection_entity.nil?
+          collection_entity = Class.new(Suma::Service::Collection::BaseEntity) do
+            expose :items, using: passed_entity
           end
-          expose :items, using: item_entity
-          expose :current_page
-          expose :page_count
-          expose :total_count
-          expose :more?, as: :has_more
+          Suma::Service::Collection.collection_entity_cache[passed_entity] = collection_entity
         end
-        Suma::Service::Collection.collection_entity_cache[item_entity] = collection_entity
       end
       opts[:with] = collection_entity
 

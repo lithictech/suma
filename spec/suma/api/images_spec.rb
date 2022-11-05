@@ -11,6 +11,16 @@ RSpec.describe Suma::API::Images, :db do
 
   def photo_file = File.open(Suma::SpecHelpers::TEST_DATA_DIR + "images/photo.png", "rb")
 
+  describe "GET /v1/images/missing" do
+    it "returns the 'no image available' image" do
+      get "/v1/images/missing"
+
+      expect(last_response).to have_status(200)
+      expect(last_response.headers).to include("Content-Type" => "image/png")
+      expect(last_response.body).to eq(File.binread(Suma::DATA_DIR + "images/no-image-available.png"))
+    end
+  end
+
   describe "GET /v1/images/:sha256" do
     it "returns the image" do
       uf = Suma::Fixtures.uploaded_file.uploaded_file(photo_file).create

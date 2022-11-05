@@ -23,7 +23,7 @@ const AppLink = ({ to, label, className }) => {
       to={to}
       className={clsx(
         "btn btn-outline-primary app-link",
-        location.pathname === to && "app-link-active",
+        location.pathname.startsWith(to) && "app-link-active",
         className
       )}
     >

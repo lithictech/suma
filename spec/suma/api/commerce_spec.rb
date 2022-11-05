@@ -29,7 +29,7 @@ RSpec.describe Suma::API::Commerce, :db do
     end
   end
 
-  describe "GET /v1/commerce/offerings/:offering_id/products/" do
+  describe "GET /v1/commerce/offerings/:offering_id/products" do
     it "returns only available offering products" do
       offering = Suma::Fixtures.commerce_offering.create
       product = Suma::Fixtures.commerce_product.create
@@ -44,6 +44,17 @@ RSpec.describe Suma::API::Commerce, :db do
         items: contain_exactly(
           include(product_id: op1.product_id),
         ),
+      )
+    end
+
+    it "returns details about the offering" do
+      offering = Suma::Fixtures.commerce_offering.create
+
+      get "/v1/commerce/offerings/#{offering.id}/products"
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.that_includes(
+        offering: include(id: offering.id, description: offering.description),
       )
     end
   end
