@@ -10,6 +10,8 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
     desc "Bootstrap a new database so you can use the app."
     task :bootstrap do
       Suma.load_app
+      SequelTranslatedText.language = :en
+
       usa = Suma::SupportedGeography.find_or_create(label: "USA", value: "United States of America", type: "country")
       Suma::SupportedGeography.find_or_create(
         label: "Oregon", value: "Oregon", type: "province", parent: usa,
@@ -70,43 +72,52 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
       end
 
       suma_org = Suma::Organization.find_or_create(name: "suma")
-      offering = Suma::Commerce::Offering.find_or_create(description: "Holidays 2022") do |o|
-        o.period = 1.day.ago..Time.new(2022, 12, 16)
-      end
-      if offering.images.empty?
+      if Suma::Commerce::Offering.dataset.empty?
+        offering = Suma::Commerce::Offering.new
+        offering.period = 1.day.ago..Time.new(2022, 12, 16)
+        offering.description = Suma::TranslatedText.create(en: "Holidays 2022", es: "Días festivos")
+        offering.save_changes
+
         bytes = File.binread("spec/data/images/holiday-offering.jpeg")
         uf = Suma::UploadedFile.create_with_blob(bytes:, content_type: "image/jpeg", filename: "holiday-offering.jpeg")
         offering.add_image({uploaded_file: uf})
+
+        Suma::Commerce::Offering.create(
+          description_string: "No Image Tester",
+          period: 1.day.ago..Time.new(2022, 12, 16),
+        )
+      else
+        offering = Suma::Commerce::Offering.first
       end
-      Suma::Commerce::Offering.find_or_create(description: "No Image Tester") do |o|
-        o.period = 1.day.ago..Time.new(2022, 12, 16)
-      end
+
       products = [
         {
-          name: "Turkey dinner with sides",
+          en: "Turkey dinner with sides",
+          es: "Pavos con guarniciones",
           image: "turkey-dinner.jpeg",
         },
         {
-          name: "Ham dinner with sides",
+          en: "Ham dinner with sides",
           image: "ham-dinner.jpeg",
         },
       ]
-      products.each do |ps|
-        product = Suma::Commerce::Product.find_or_create(name: ps[:name]) do |p|
-          p.description = "Includes stuffing, mashed potatoes, green beans, " \
-                          "dinner rolls, gravy, cranberry, and pie for dessert."
-          p.vendor = Suma::Vendor.find_or_create(name: "Sheridan's Market", organization: suma_org)
-          p.our_cost = Money.new(23_00)
-        end
-        if product.images.empty?
-          bytes = File.binread("spec/data/images/#{ps[:image]}")
-          uf = Suma::UploadedFile.create_with_blob(bytes:, content_type: "image/jpeg", filename: ps[:image])
-          product.add_image({uploaded_file: uf})
-        end
-        Suma::Commerce::OfferingProduct.find_or_create(offering_id: offering.id, product_id: product.id) do |op|
-          op.customer_price = Money.new(23_00)
-          op.undiscounted_price = Money.new(29_95)
-        end
+      Suma::Commerce::Product.dataset.empty? && products.each do |ps|
+        product = Suma::Commerce::Product.new
+        product.name = Suma::TranslatedText.create(en: ps[:en], es: ps[:es] || "")
+        product.description_string = "Includes stuffing, mashed potatoes, green beans, " \
+                                     "dinner rolls, gravy, cranberry, and pie for dessert."
+        product.vendor = Suma::Vendor.find_or_create(name: "Sheridan's Market", organization: suma_org)
+        product.our_cost = Money.new(23_00)
+        product.save_changes
+        bytes = File.binread("spec/data/images/#{ps[:image]}")
+        uf = Suma::UploadedFile.create_with_blob(bytes:, content_type: "image/jpeg", filename: ps[:image])
+        product.add_image({uploaded_file: uf})
+        Suma::Commerce::OfferingProduct.create(
+          offering:,
+          product:,
+          customer_price: Money.new(23_00),
+          undiscounted_price: Money.new(29_95),
+        )
       end
     end
   end

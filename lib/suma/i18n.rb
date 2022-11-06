@@ -8,6 +8,8 @@ require "suma"
 module Suma::I18n
   include Appydays::Configurable
 
+  class InvalidInput < StandardError; end
+
   LOCALE_DIR = Suma::DATA_DIR.parent + "webapp/public/locale"
   Locale = Struct.new(:code, :language, :native)
   SUPPORTED_LOCALES = {
@@ -27,6 +29,7 @@ module Suma::I18n
 
     after_configured do
       @enabled_locales = self.enabled_locale_codes.map { |c| SUPPORTED_LOCALES.fetch(c) }
+      SequelTranslatedText.default_language = self.base_locale_code
     end
   end
 
@@ -129,5 +132,53 @@ module Suma::I18n
     end
     so = self.sort_hash(hsh)
     File.write(self.strings_path(locale.code), JSON.pretty_generate(so))
+  end
+
+  DYNAMIC_DB_COLUMNS = [:id, :en, :es].freeze
+  DYNAMIC_CSV_COLUMNS = ["Id", "English", "Spanish"].freeze
+
+  def self.export_dynamic(output:)
+    CSV(output) do |csv|
+      ds = Suma::TranslatedText.dataset.select(*DYNAMIC_DB_COLUMNS)
+      csv << DYNAMIC_CSV_COLUMNS
+      ds.naked.paged_each do |row|
+        csv << DYNAMIC_DB_COLUMNS.map { |k| row.fetch(k) }
+      end
+    end
+  end
+
+  def self.import_dynamic(input:)
+    validated = false
+    linecount = 0
+    ds = Suma::TranslatedText.dataset
+    ddl_columns = DYNAMIC_DB_COLUMNS.drop(1).map { |c| "#{c} TEXT" }.join(", ")
+    temp_table = :i18nimport
+    chunk = []
+    ds.db.transaction do
+      ds.db << "CREATE TEMP TABLE #{temp_table}(id INTEGER, #{ddl_columns})"
+      CSV.parse(input, headers: false) do |line|
+        unless validated
+          raise InvalidInput, "Headers should be: #{DYNAMIC_CSV_COLUMNS.join(',')}" unless line == DYNAMIC_CSV_COLUMNS
+          validated = true
+          next
+        end
+        linecount += 1
+        chunk << line
+        if chunk.size > 500
+          ds.db[temp_table].import(DYNAMIC_DB_COLUMNS, chunk)
+          chunk.clear
+        end
+      end
+      ds.db[temp_table].import(DYNAMIC_DB_COLUMNS, chunk) unless chunk.empty?
+      update_col_stmts = DYNAMIC_DB_COLUMNS.map { |c| "#{c} = t.#{c}" }.join(", ")
+      update_stmt = <<~SQL
+        UPDATE #{Suma::TranslatedText.table_name} SET #{update_col_stmts}
+        FROM (SELECT * FROM #{temp_table}) t
+        WHERE #{Suma::TranslatedText.table_name}.id = t.id;
+      SQL
+      updated = ds.db.execute(update_stmt)
+      raise InvalidInput, "CSV had #{linecount} rows but only matched #{updated} database rows" unless
+        updated == linecount
+    end
   end
 end

@@ -1,10 +1,19 @@
 import config from "./config";
+import { getCurrentLanguage } from "./localization/useI18Next";
 import apiBase from "./shared/apiBase";
 
 const instance = apiBase.create(config.apiHost, {
   debug: config.debug,
   chaos: config.chaos,
 });
+
+instance.interceptors.request.use(
+  (config) => {
+    config.headers["Accept-Language"] = getCurrentLanguage();
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
 
 const get = (path, params, opts) => {
   return instance.get(path, apiBase.mergeParams(params, opts));

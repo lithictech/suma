@@ -9,6 +9,8 @@ class Suma::Commerce::Product < Suma::Postgres::Model(:commerce_products)
 
   plugin :timestamps
   plugin :money_fields, :our_cost
+  plugin :translated_text, :name, Suma::TranslatedText
+  plugin :translated_text, :description, Suma::TranslatedText
 
   many_to_one :vendor, class: "Suma::Vendor"
 end

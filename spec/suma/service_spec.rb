@@ -175,6 +175,27 @@ class Suma::API::TestService < Suma::Service
   post :fileparam do
     present params[:file]
   end
+
+  class LanguageWithExposeEntity < Suma::Service::Entities::Base
+    expose_translated :name
+  end
+
+  class LanguageWithBlockExposureEntity < Suma::Service::Entities::Base
+    expose_translated :othername, &self.delegate_to(:name)
+  end
+  get :language_with_exposure do
+    p = Suma::Fixtures.product.create
+    p.name.update(en: "English", es: "Spanish")
+    present(p, with: LanguageWithExposeEntity)
+    status 200
+  end
+
+  get :language_with_block do
+    p = Suma::Fixtures.product.create
+    p.name.update(en: "English", es: "Spanish")
+    present(p, with: LanguageWithBlockExposureEntity)
+    status 200
+  end
 end
 
 RSpec.describe Suma::Service, :db do
@@ -900,6 +921,22 @@ RSpec.describe Suma::Service, :db do
         )
         expect(r.as_json[:time_not_here]).to eq("2021-09-16T08:41:23-04:00")
       end
+    end
+  end
+
+  describe "localization" do
+    it "sets the language based on the accept header and can use expose_translated" do
+      expect(SequelTranslatedText.language).to be_nil
+      header "Accept-Language", "es-AR"
+      get "/language_with_exposure"
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.that_includes(name: "Spanish")
+    end
+
+    it "can use expose_translated with a block" do
+      get "/language_with_block"
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.that_includes(othername: "English")
     end
   end
 

@@ -2,7 +2,7 @@
 
 require "suma/i18n"
 
-RSpec.describe Suma::I18n do
+RSpec.describe Suma::I18n, :db do
   include_context "uses temp dir"
 
   nested_hash = {
@@ -73,6 +73,47 @@ RSpec.describe Suma::I18n do
           }
         }
       J
+    end
+  end
+
+  describe "export_dynamic" do
+    it "exports all dynamic strings" do
+      t1 = Suma::Fixtures.translated_text(en: "a1", es: "a2").create
+      t2 = Suma::Fixtures.translated_text(en: "b1", es: "b2").create
+      out = +""
+      described_class.export_dynamic(output: out)
+      expect(out).to eq("Id,English,Spanish\n#{t1.id},a1,a2\n#{t2.id},b1,b2\n")
+    end
+  end
+
+  describe "import_dynamic" do
+    it "imports dynamic strings" do
+      t1 = Suma::Fixtures.translated_text(en: "a1", es: "a2").create
+      t2 = Suma::Fixtures.translated_text(en: "b1", es: "b2").create
+      inp = "Id,English,Spanish\n#{t1.id},x1,x2\n#{t2.id},y1,y2\n"
+      described_class.import_dynamic(input: StringIO.new(inp))
+      expect(Suma::TranslatedText.all).to contain_exactly(
+        have_attributes(en: "x1", es: "x2"),
+        have_attributes(en: "y1", es: "y2"),
+      )
+    end
+
+    it "errors if an id is provided that does not exist" do
+      t1 = Suma::Fixtures.translated_text(en: "a1", es: "a2").create
+      inp = "Id,English,Spanish\n#{t1.id},x1,x2\n0,y1,y2\n"
+      expect do
+        described_class.import_dynamic(input: StringIO.new(inp))
+      end.to raise_error(described_class::InvalidInput, /CSV had 2 rows but only matched 1 database rows/)
+      expect(Suma::TranslatedText.all).to contain_exactly(
+        have_attributes(en: "a1", es: "a2"),
+      )
+    end
+
+    it "errors if columns mismatch" do
+      inp = "Id,English,Spanish,French\n"
+      expect do
+        described_class.import_dynamic(input: StringIO.new(inp))
+      end.to raise_error(described_class::InvalidInput, /Headers should be: Id,English/)
     end
   end
 end

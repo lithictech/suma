@@ -29,7 +29,7 @@ module Suma::API::Entities
   end
 
   class ImageEntity < BaseEntity
-    expose :caption
+    expose_translated :caption
     expose :url, &self.delegate_to(:uploaded_file, :absolute_url)
   end
 

@@ -48,6 +48,17 @@ module Suma::Service::Entities
         end
       end
     end
+
+    def self.expose_translated(name, *args, &block)
+      self.expose(name, *args) do |instance, options|
+        txt = if block
+                block.arity == 1 ? block[instance] : block[instance, options]
+        else
+          instance.send(name)
+        end
+        txt&.string || ""
+      end
+    end
   end
 
   class Image < Base

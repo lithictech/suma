@@ -83,6 +83,7 @@ module Suma::Postgres
     "suma/role",
     "suma/supported_currency",
     "suma/supported_geography",
+    "suma/translated_text",
     "suma/uploaded_file",
     "suma/vendor",
     "suma/vendor/service",

@@ -44,6 +44,19 @@ class Suma::Tasks::I18n < Rake::TaskLib
         require "suma/i18n"
         Suma::I18n.import_csv(input: $stdin)
       end
+
+      desc "Write to stdout the English strings of the localized content table."
+      task :export_dynamic do
+        require "suma/i18n"
+        Suma::I18n.export_dynamic(output: io)
+      end
+
+      desc "Read from stdin a CSV of the format from export_dynamic, " \
+           "and upsert the data into the localized content table."
+      task :import_dynamic do
+        require "suma/i18n"
+        Suma::I18n.import_dynamic(input: $stdin)
+      end
     end
   end
 

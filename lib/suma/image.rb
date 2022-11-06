@@ -1,11 +1,12 @@
 # frozen_string_literal: true
 
-require "suma/commerce"
 require "suma/postgres/model"
+require "suma/translated_text"
 
 class Suma::Image < Suma::Postgres::Model(:images)
   plugin :timestamps
   plugin :soft_deletes
+  plugin :translated_text, :caption, Suma::TranslatedText
 
   many_to_one :commerce_offering, class: "Suma::Commerce::Offering"
   many_to_one :commerce_product, class: "Suma::Commerce::Product"
@@ -14,7 +15,7 @@ class Suma::Image < Suma::Postgres::Model(:images)
   class << self
     def no_image_available
       return @no_image_available if @no_image_available
-      @no_image_available = self.new(ordinal: 0, caption: "")
+      @no_image_available = self.new(ordinal: 0)
       @no_image_available.associations[:uploaded_file] = Suma::UploadedFile::NoImageAvailable.new
       @no_image_available.freeze
       return @no_image_available

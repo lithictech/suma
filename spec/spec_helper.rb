@@ -25,7 +25,7 @@ Suma.load_app
 Suma::Fixtures.load_all
 
 RSpec.configure do |config|
-  # config.full_backtrace = true
+  config.full_backtrace = true
 
   RSpec::Support::ObjectFormatter.default_instance.max_formatted_output_length = 600
 

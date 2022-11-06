@@ -77,6 +77,8 @@ an explicit registration and login step.
 
 ## Localization
 
+### Frontend
+
 We use the excellent i18next library for localization on the frontend.
 
 Localization strings are stored in `webapp/public/locale`.
@@ -95,6 +97,28 @@ We manage the localization JSON files with the following process:
 - To load the translated strings back into Suma, run `cat spanish.csv | bundle exec rake i18n:import_csv`.
   This will overwrite `locale/es/strings.json` with the values parsed from the CSV.
 
+### Backend
+
+Localization on the backend involves choosing the right column from the database.
+We use a custom plugin, `Sequel::Plugins::TranslatedText`, for this
+(eventually we'll break it into its own repository).
+The way it works is:
+
+- The frontend api module reads the language from `i18n.js` and 
+  passes in an `Accept-Language` header.
+- Rack middleware parses it, and sets the `SequelTranslatedText.language` thread local
+  (it also sets the `Content-Language` response header).
+- Various models have relations to the `Suma::TranslatedText` model,
+  for example `products.name_id` is an FK to `translated_texts.id`.
+- The `translated_texts` table has `es`, `en`, etc., columns for each supported language.
+- When we access `Product#name`, it returns a `TranslatedText` instance.
+  When we access `Product#name_string` or `Product#name#string`, it looks at the
+  `SequelTranslatedText.language` value, and chooses the column based on that.
+  - If the translated value isn't set, fall back to a default language.
+
+There are a couple Rake tasks that dump the entire `translated_texts` table to a CSV,
+and then allows it to be updated via CSV as well: `rake i18n:export_dynamic`
+and `rake i18n:import_dynamic`.
 
 ## Images (and Uploaded Files)
 

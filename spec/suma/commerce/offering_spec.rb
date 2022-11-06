@@ -5,7 +5,7 @@ RSpec.describe "Suma::Commerce::Offering", :db do
 
   describe "images" do
     it "orders images by ordinal" do
-      p = Suma::Fixtures.commerce_offering.create
+      p = Suma::Fixtures.offering.create
       i1 = p.add_image({uploaded_file: Suma::Fixtures.uploaded_file.create, ordinal: 1})
       i3 = p.add_image({uploaded_file: Suma::Fixtures.uploaded_file.create, ordinal: 3})
       i2 = p.add_image({uploaded_file: Suma::Fixtures.uploaded_file.create, ordinal: 2})
@@ -15,7 +15,7 @@ RSpec.describe "Suma::Commerce::Offering", :db do
 
   describe "images?" do
     it "returns the 'unavailable' image if there are none" do
-      p = Suma::Fixtures.commerce_offering.create
+      p = Suma::Fixtures.offering.create
       expect(p.images).to be_empty
       expect(p.images?).to contain_exactly(
         have_attributes(ordinal: 0.0, uploaded_file: have_attributes(opaque_id: "missing")),
