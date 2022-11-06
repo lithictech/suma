@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "sequel/unambiguous_constraint"
+
 Sequel.migration do
   change do
     create_table(:commerce_products) do
