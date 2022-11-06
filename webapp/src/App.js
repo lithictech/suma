@@ -10,6 +10,8 @@ import { t } from "./localization";
 import useI18Next, { I18NextProvider } from "./localization/useI18Next";
 import Dashboard from "./pages/Dashboard";
 import Food from "./pages/Food";
+import FoodDetails from "./pages/FoodDetails";
+import FoodList from "./pages/FoodList";
 import Funding from "./pages/Funding";
 import FundingAddCard from "./pages/FundingAddCard";
 import FundingAddFunds from "./pages/FundingAddFunds";
@@ -169,10 +171,35 @@ function AppRoutes() {
             redirectIfUnboarded,
             withScreenLoaderMount(),
             withMetatags({ title: t("food:title") }),
-            withLayout({ appNav: true }),
+            withLayout({ gutters: false, top: false, appNav: true }),
             Food
           )}
         />
+        <Route
+          path="/food/:id"
+          exact
+          element={renderWithHocs(
+            redirectIfUnauthed,
+            redirectIfUnboarded,
+            withScreenLoaderMount(),
+            withMetatags({ title: t("food:title") }),
+            withLayout({ gutters: false, top: false, appNav: true }),
+            FoodList
+          )}
+        />
+        <Route
+          path="/product/:offeringId-:productId"
+          exact
+          element={renderWithHocs(
+            redirectIfUnauthed,
+            redirectIfUnboarded,
+            withScreenLoaderMount(),
+            withMetatags({ title: t("food:title") }),
+            withLayout({ gutters: false, top: false }),
+            FoodDetails
+          )}
+        />
+
         <Route
           path="/utilities"
           exact

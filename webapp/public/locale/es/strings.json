@@ -63,7 +63,7 @@
     "vehicle_not_found": "No se encuentra un vehículo en este lugar."
   },
   "food": {
-    "intro_md": "Suma quiere facilitarle el ahorro de dinero en alimentos, ya sea que compre en una gran cadena, en la tienda de la esquina o en un mercado orgánico.\n\nRegístrese en nuestra lista de espera gratuita para sugerir vendedores de alimentos que desea ver en la plataforma y para ayudarnos a construir una comunidad de miembros.",
+    "intro": "Suma quiere facilitarle el ahorro de dinero en alimentos, ya sea que compre en una gran cadena, en la tienda de la esquina o en un mercado orgánico.",
     "page_title": "Comida",
     "title": "Comida"
   },

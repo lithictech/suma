@@ -107,6 +107,20 @@ class Suma::API::TestService < Suma::Service
     present_collection coll
   end
 
+  class MyEntity < Grape::Entity
+    expose :attr do |_|
+      "got it"
+    end
+  end
+
+  class ExtendedCollectionEntity < Suma::Service::Collection::BaseEntity
+    expose :items, with: MyEntity
+  end
+
+  get :collection_extended do
+    present_collection [{attr: 5}, {attr: 6}], with: ExtendedCollectionEntity
+  end
+
   get :caching do
     use_http_expires_caching(5.minutes)
     present [1, 2, 3]
@@ -425,6 +439,17 @@ RSpec.describe Suma::Service, :db do
         has_more: true,
         page_count: 20,
         total_count: 3,
+      )
+    end
+
+    it "can use a custom collection entity" do
+      get "/collection_extended"
+
+      expect(last_response).to have_status(200)
+      expect(last_response_json_body).to include(
+        object: "list",
+        items: [{attr: "got it"}, {attr: "got it"}],
+        total_count: 2,
       )
     end
   end

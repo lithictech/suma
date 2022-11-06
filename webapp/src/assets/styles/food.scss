@@ -1,0 +1,14 @@
+@import "./theme.scss";
+
+.food-widget-container {
+	top: map-get($spacers, 1);
+	right: map-get($spacers, 1);
+	z-index: 2;
+}
+
+.food-widget-dropdown-menu {
+	max-height: 200px;
+	min-width: auto!important;
+	text-align: center!important;
+	overflow-y: scroll;
+}

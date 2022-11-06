@@ -50,6 +50,11 @@ export default {
   beginMobilityTrip: (data) => post("/api/v1/mobility/begin_trip", data),
   endMobilityTrip: (data) => post("/api/v1/mobility/end_trip", data),
   getUserAgent: () => get("/api/useragent"),
+  getFoodOfferings: () => get("/api/v1/commerce/offerings"),
+  getFoodOfferingProducts: ({ offeringId, ...data }) =>
+    get(`/api/v1/commerce/offerings/${offeringId}/products`, data),
+  getFoodProduct: ({ offeringId, productId, ...data }) =>
+    get(`/api/v1/commerce/offerings/${offeringId}/products/${productId}`, data),
 
   createBankAccount: (data) =>
     post(`/api/v1/payment_instruments/bank_accounts/create`, data),

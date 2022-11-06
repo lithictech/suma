@@ -25,7 +25,11 @@ class Suma::API::Images < Suma::API::V1
         optional :q, type: Integer, values: 1..100
       end
       get do
-        (uf = Suma::UploadedFile[opaque_id: params[:opaque_id]]) or forbidden!
+        if params[:opaque_id] == "missing"
+          uf = Suma::UploadedFile::NoImageAvailable.new
+        else
+          (uf = Suma::UploadedFile[opaque_id: params[:opaque_id]]) or forbidden!
+        end
         if !params[:w] && !params[:h] && !params[:format]
           handle_response(uf) do
             uf.blob_stream.read

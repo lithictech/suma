@@ -72,8 +72,16 @@
     "vehicle_not_found": "No vehicle found in this location."
   },
   "food": {
-    "intro_md": "Suma wants to make it easy for you to save money on food, whether you shop at a big chain, the corner store or an organic market.\n\nSign up for our free waiting list to suggest food vendors you want to see on the platform and to help us build a community of members.",
-    "page_title": "Food",
+    "add_to_cart": "Add to cart",
+    "available_until": "Until",
+    "current_offerings": "Current Offerings",
+    "details_header": "Details",
+    "from": "From",
+    "intro": "Suma wants to make it easy for you to save money on food, whether you shop at a big chain, the corner store or an organic market.",
+    "no_offerings": "There are no food offerings currently available, please check back later.",
+    "no_products_md": "There were no products found, this offering might be closed. [Click here to view available offerings](/food '$t(strings:food:title)')",
+    "remove_from_cart": "Remove from cart",
+    "shop": "Shop",
     "title": "Food"
   },
   "forms": {

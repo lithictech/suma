@@ -52,6 +52,8 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
         Suma::Mobility::SyncSpin.sync_all
       end
       puts "Synced #{i} scooters"
+      self.create_restricted_areas
+
       admin = Suma::Member.find_or_create(email: "admin@lithic.tech") do |c|
         c.password = "Password1!"
         c.name = "Suma Admin"
@@ -67,14 +69,51 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
         c.ordinal = 1
       end
 
-      self.create_restricted_areas
+      suma_org = Suma::Organization.find_or_create(name: "suma")
+      offering = Suma::Commerce::Offering.find_or_create(description: "Holidays 2022") do |o|
+        o.period = 1.day.ago..Time.new(2022, 12, 16)
+      end
+      if offering.images.empty?
+        bytes = File.binread("spec/data/images/holiday-offering.jpeg")
+        uf = Suma::UploadedFile.create_with_blob(bytes:, content_type: "image/jpeg", filename: "holiday-offering.jpeg")
+        offering.add_image({uploaded_file: uf})
+      end
+      Suma::Commerce::Offering.find_or_create(description: "No Image Tester") do |o|
+        o.period = 1.day.ago..Time.new(2022, 12, 16)
+      end
+      products = [
+        {
+          name: "Turkey dinner with sides",
+          image: "turkey-dinner.jpeg",
+        },
+        {
+          name: "Ham dinner with sides",
+          image: "ham-dinner.jpeg",
+        },
+      ]
+      products.each do |ps|
+        product = Suma::Commerce::Product.find_or_create(name: ps[:name]) do |p|
+          p.description = "Includes stuffing, mashed potatoes, green beans, " \
+                          "dinner rolls, gravy, cranberry, and pie for dessert."
+          p.vendor = Suma::Vendor.find_or_create(name: "Sheridan's Market", organization: suma_org)
+          p.our_cost = Money.new(23_00)
+        end
+        if product.images.empty?
+          bytes = File.binread("spec/data/images/#{ps[:image]}")
+          uf = Suma::UploadedFile.create_with_blob(bytes:, content_type: "image/jpeg", filename: ps[:image])
+          product.add_image({uploaded_file: uf})
+        end
+        Suma::Commerce::OfferingProduct.find_or_create(offering_id: offering.id, product_id: product.id) do |op|
+          op.customer_price = Money.new(23_00)
+          op.undiscounted_price = Money.new(29_95)
+        end
+      end
     end
   end
 
   def create_restricted_areas
-    Suma::Mobility::RestrictedArea.create(
-      restriction: "do-not-park-or-ride",
-      polygon: [
+    Suma::Mobility::RestrictedArea.find_or_create(restriction: "do-not-park-or-ride") do |ra|
+      ra.polygon = [
         [45.49584550855579, -122.68355369567871],
         [45.49576278304519, -122.68331229686737],
         [45.496168888931074, -122.68292605876921],
@@ -84,11 +123,10 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
         [45.49600719897556, -122.68352150917053],
         [45.495977117072165, -122.6834625005722],
         [45.49584550855579, -122.68355369567871],
-      ],
-    )
-    Suma::Mobility::RestrictedArea.create(
-      restriction: "do-not-ride",
-      polygon: [
+      ]
+    end
+    Suma::Mobility::RestrictedArea.find_or_create(restriction: "do-not-ride") do |ra|
+      ra.polygon = [
         [45.50015270758223, -122.68442273139952],
         [45.49948719071191, -122.68540441989899],
         [45.49901906820077, -122.68492430448532],
@@ -96,8 +134,8 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
         [45.50048734303642, -122.68365025520323],
         [45.500530582303945, -122.68397212028502],
         [45.50015270758223, -122.68442273139952],
-      ],
-    )
+      ]
+    end
     do_not_park = [
       [
         [45.497545, -122.685026],
@@ -145,8 +183,10 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
         [45.50206179495491, -122.68491994589567],
       ],
     ]
-    do_not_park.each do |coords|
-      Suma::Mobility::RestrictedArea.create(restriction: "do-not-park", polygon: coords)
+    do_not_park.each_with_index do |coords, i|
+      Suma::Mobility::RestrictedArea.find_or_create(restriction: "do-not-park-#{i}") do |ra|
+        ra.polygon = coords
+      end
     end
   end
 end
