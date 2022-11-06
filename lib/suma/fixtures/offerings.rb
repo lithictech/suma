@@ -3,14 +3,15 @@
 require "suma/fixtures"
 require "suma/commerce/offering"
 
-module Suma::Fixtures::CommerceOfferings
+module Suma::Fixtures::Offerings
   extend Suma::Fixtures
 
   fixtured_class Suma::Commerce::Offering
 
-  base :commerce_offering do
-    self.period ||=  Sequel::Postgres::PGRange.new(2.days.ago, 2.days.from_now)
-    self.description ||= Faker::Food.description
+  base :offering do
+    self.period ||=
+      Faker::Number.between(from: 50, to: 2).days.ago..Faker::Number.between(from: 2, to: 50).days.from_now
+    self.description ||= Suma::Fixtures.translated_text.create
   end
 
   decorator :period do |begin_time, end_time|
