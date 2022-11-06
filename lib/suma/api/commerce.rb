@@ -46,15 +46,15 @@ class Suma::API::Commerce < Suma::API::V1
 
   class OfferingEntity < BaseEntity
     expose :id
-    expose :description
+    expose_translated :description
     expose :period_end, as: :closes_at
     expose :image, with: Suma::API::Entities::ImageEntity, &self.delegate_to(:images?, :first)
   end
 
   module OfferingProductMixin
     def self.included(m)
-      m.expose :name, &m.delegate_to(:product, :name)
-      m.expose :description, &m.delegate_to(:product, :description)
+      m.expose_translated :name, &m.delegate_to(:product, :name)
+      m.expose_translated :description, &m.delegate_to(:product, :description)
       m.expose :product_id
       m.expose :offering_id
       m.expose :discounted?, as: :is_discounted

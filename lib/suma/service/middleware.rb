@@ -5,6 +5,7 @@ require "rack/protection"
 require "rack/ssl-enforcer"
 require "sentry-ruby"
 require "appydays/loggable/request_logger"
+require "sequel/sequel_translated_text"
 
 require "suma/service" unless defined?(Suma::Service)
 
@@ -39,6 +40,7 @@ module Suma::Service::Middleware
     builder.use(Rack::Chunked)
     builder.use(Rack::Deflater)
     builder.use(Sentry::Rack::CaptureExceptions)
+    builder.use(SequelTranslatedText::RackMiddleware, languages: Suma::I18n.enabled_locale_codes.map(&:to_sym))
   end
 
   def self.add_dev_middleware(builder)

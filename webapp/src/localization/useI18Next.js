@@ -1,3 +1,4 @@
+import { localStorageCache } from "../shared/localStorageHelper";
 import { formatMoney } from "../shared/react/Money";
 import useLocalStorageState from "../shared/react/useLocalStorageState";
 import i18n from "i18next";
@@ -9,6 +10,12 @@ export const I18NextContext = React.createContext();
 export const useI18Next = () => React.useContext(I18NextContext);
 export default useI18Next;
 
+let memoryCache = localStorageCache.getItem("language", "en");
+
+export function getCurrentLanguage() {
+  return memoryCache;
+}
+
 export function I18NextProvider({ children }) {
   const [i18nextLoading, setI18NextLoading] = React.useState(true);
   const [language, setLanguage] = useLocalStorageState("language", "en");
@@ -18,7 +25,10 @@ export function I18NextProvider({ children }) {
       setI18NextLoading(true);
       Promise.delayOr(
         500,
-        i18n.changeLanguage(lang).then(() => setLanguage(lang))
+        i18n.changeLanguage(lang).then(() => {
+          setLanguage(lang);
+          memoryCache = lang;
+        })
       ).then(() => {
         setI18NextLoading(false);
       });
