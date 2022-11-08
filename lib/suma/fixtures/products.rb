@@ -19,4 +19,8 @@ module Suma::Fixtures::Products
     instance.vendor ||= Suma::Fixtures.vendor.create
     instance
   end
+
+  decorator :in_offering, presave: true do |offering|
+    Suma::Fixtures.offering_product.create(offering:, product: self)
+  end
 end

@@ -49,6 +49,8 @@ module Suma::Postgres
   MODELS = [
     "suma/address",
     "suma/charge",
+    "suma/commerce/cart",
+    "suma/commerce/cart_item",
     "suma/commerce/offering",
     "suma/commerce/product",
     "suma/commerce/offering_product",
