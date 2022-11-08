@@ -1,43 +1,44 @@
-import api from "../api";
 import ErrorScreen from "../components/ErrorScreen";
-import FoodCart from "../components/FoodCart";
-import FoodWidget from "../components/FoodWidget";
+import FoodCartWidget from "../components/FoodCartWidget";
+import FoodNav from "../components/FoodNav";
 import LinearBreadcrumbs from "../components/LinearBreadcrumbs";
 import PageLoader from "../components/PageLoader";
 import SumaImage from "../components/SumaImage";
 import { t } from "../localization";
 import Money from "../shared/react/Money";
-import useAsyncFetch from "../shared/react/useAsyncFetch";
+import { useOffering } from "../state/useOffering";
 import { LayoutContainer } from "../state/withLayout";
 import clsx from "clsx";
+import _ from "lodash";
 import React from "react";
 import Stack from "react-bootstrap/Stack";
 import { Helmet } from "react-helmet-async";
 import { useParams } from "react-router-dom";
 
 export default function FoodDetails() {
-  const { offeringId, productId } = useParams();
-  const getFoodProduct = React.useCallback(() => {
-    return api.getFoodProduct({ offeringId, productId });
-  }, [offeringId, productId]);
-  const {
-    state: product,
-    loading: productLoading,
-    error: productError,
-  } = useAsyncFetch(getFoodProduct, {
-    default: {},
-    pickData: true,
-  });
-  if (productError) {
+  let { offeringId, productId } = useParams();
+  productId = parseInt(productId, 10);
+
+  const { products, cart, initializeToOffering, error, loading } = useOffering();
+
+  React.useEffect(() => {
+    initializeToOffering(offeringId);
+  }, [initializeToOffering, offeringId]);
+
+  if (loading) {
+    return <PageLoader />;
+  }
+
+  const product = _.find(products, (p) => p.productId === productId);
+
+  if (error || !product) {
     return (
       <LayoutContainer top>
         <ErrorScreen />
       </LayoutContainer>
     );
   }
-  if (productLoading) {
-    return <PageLoader />;
-  }
+
   const title = [
     product.name,
     product.vendor.name,
@@ -49,7 +50,7 @@ export default function FoodDetails() {
       <Helmet>
         <title>{title}</title>
       </Helmet>
-      <FoodCart startElement={<LinearBreadcrumbs back noBottom />} />
+      <FoodNav cart={cart} startElement={<LinearBreadcrumbs back noBottom />} />
       <SumaImage
         image={product.images[0]}
         alt={product.name}
@@ -74,7 +75,7 @@ export default function FoodDetails() {
             <p>{t("food:from") + " " + product.vendor.name}</p>
           </div>
           <div className="ms-auto">
-            <FoodWidget {...product} large={true} />
+            <FoodCartWidget product={product} size="lg" />
           </div>
         </Stack>
         <hr />

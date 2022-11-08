@@ -1,9 +1,8 @@
-import api from "../api";
 import sumaLogo from "../assets/images/suma-logo.png";
 import { t } from "../localization";
 import useI18Next from "../localization/useI18Next";
 import signOut from "../modules/signOut";
-import useAsyncFetch from "../shared/react/useAsyncFetch";
+import { useBackendGlobals } from "../state/useBackendGlobals";
 import { useGlobalViewState } from "../state/useGlobalViewState";
 import useOnlineStatus from "../state/useOnlineStatus";
 import { useUser } from "../state/useUser";
@@ -93,10 +92,7 @@ export default function TopNav() {
 }
 
 function LanguageButtons() {
-  const { state: supportedLocales } = useAsyncFetch(api.getSupportedLocales, {
-    default: i18next.language,
-    pickData: true,
-  });
+  const { supportedLocales } = useBackendGlobals();
   const { changeLanguage } = useI18Next();
   if (!supportedLocales.items) {
     return null;

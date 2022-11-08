@@ -6,7 +6,7 @@ import React from "react";
  * @param {*=} options.default
  * @param {boolean=} options.doNotFetchOnInit
  * @param {boolean=} options.pickData
- * @returns {{}}
+ * @returns {{state, asyncFetch, error, loading}}
  */
 const useAsyncFetch = (makeRequest, options) => {
   options = options || {};
@@ -18,10 +18,11 @@ const useAsyncFetch = (makeRequest, options) => {
     (...args) => {
       setLoading(true);
       setError(false);
-      makeRequest(...args)
+      return makeRequest(...args)
         .then((x) => {
           const st = options.pickData ? x.data : x;
           setState(st);
+          return st;
         })
         .tapCatch((e) => setError(e))
         .tap(() => setLoading(false))

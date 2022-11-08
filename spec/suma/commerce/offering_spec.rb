@@ -3,6 +3,12 @@
 RSpec.describe "Suma::Commerce::Offering", :db do
   let(:described_class) { Suma::Commerce::Offering }
 
+  it "knows about related carts" do
+    cart = Suma::Fixtures.cart.create
+    expect(cart.offering.carts).to contain_exactly(be === cart)
+    expect(described_class.where(carts: [cart]).all).to contain_exactly(be === cart.offering)
+  end
+
   describe "images" do
     it "orders images by ordinal" do
       p = Suma::Fixtures.offering.create

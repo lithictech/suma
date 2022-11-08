@@ -57,6 +57,7 @@
     "network_error": "There was a network error. Connect to the internet and try again.",
     "no_active_trip": "There is no trip currently active.",
     "ongoing_trip": "You must end your ongoing trip before starting a new one.",
+    "product_unavailable": "Sorry, this product is no longer available.",
     "rate_not_found": "$t(strings:errors:unhandled_error)",
     "read_only_technical_error": "You are currently in read-only mode and cannot access any rides yet.",
     "read_only_unverified": "You are in read-only mode due to having an unverified account.",

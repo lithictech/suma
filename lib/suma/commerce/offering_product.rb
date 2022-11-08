@@ -12,8 +12,8 @@ class Suma::Commerce::OfferingProduct < Suma::Postgres::Model(:commerce_offering
   many_to_one :offering, class: "Suma::Commerce::Offering"
 
   dataset_module do
-    def available_with(offering_id)
-      return self.where(offering_id:, closed_at: nil)
+    def available
+      return self.where(closed_at: nil)
     end
   end
 

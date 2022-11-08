@@ -23,4 +23,14 @@ RSpec.describe "Sequel.unambiguous_cnstraint" do
                        "((x IS NULL) AND (y IS NOT NULL) AND (z IS NULL)) OR " \
                        "((x IS NULL) AND (y IS NULL) AND (z IS NOT NULL)))")
   end
+
+  it "can allow all columns to be null" do
+    c = Sequel.unambiguous_constraint([:x, :y, :z], allow_all_null: true)
+    expr = db[:tbl].where(c).sql
+    expect(expr).to eq("SELECT * FROM tbl WHERE (" \
+                       "((x IS NOT NULL) AND (y IS NULL) AND (z IS NULL)) OR " \
+                       "((x IS NULL) AND (y IS NOT NULL) AND (z IS NULL)) OR " \
+                       "((x IS NULL) AND (y IS NULL) AND (z IS NOT NULL)) OR " \
+                       "((x IS NULL) AND (y IS NULL) AND (z IS NULL)))")
+  end
 end
