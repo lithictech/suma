@@ -1,7 +1,7 @@
 import api from "../api";
 import foodImage from "../assets/images/onboarding-food.jpg";
+import CartIcon from "../components/CartIcon";
 import ErrorScreen from "../components/ErrorScreen";
-import FoodCart from "../components/FoodCart";
 import PageLoader from "../components/PageLoader";
 import RLink from "../components/RLink";
 import SumaImage from "../components/SumaImage";
@@ -21,7 +21,7 @@ export default function Food() {
     state: foodOfferings,
     loading: offeringsLoading,
     error: offeringsError,
-  } = useAsyncFetch(api.getFoodOfferings, {
+  } = useAsyncFetch(api.getCommerceOfferings, {
     pickData: true,
   });
   if (offeringsError) {
@@ -77,11 +77,11 @@ function Offering({ id, description, image, closesAt, cartItems }) {
               </Card.Link>
               <Card.Text className="text-secondary small">
                 {t("food:available_until")} {dayjs(closesAt).format("ll")}
-                {cartItems.length > 0 && (
+                {cartItems.length === 0 && (
                   <>
                     {" · "}
-                    <RLink to={`/food/${id}`}>
-                      <FoodCart inline className="text-success" />
+                    <RLink to={`/food/${id}`} className="text-decoration-none">
+                      <CartIcon className="text-success" cart={{}} />
                     </RLink>
                   </>
                 )}

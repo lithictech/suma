@@ -1,13 +1,12 @@
-import api from "../api";
 import ErrorScreen from "../components/ErrorScreen";
-import FoodCart from "../components/FoodCart";
-import FoodWidget from "../components/FoodWidget";
+import FoodCartWidget from "../components/FoodCartWidget";
+import FoodNav from "../components/FoodNav";
 import LinearBreadcrumbs from "../components/LinearBreadcrumbs";
 import PageLoader from "../components/PageLoader";
 import SumaImage from "../components/SumaImage";
 import { t, mdp } from "../localization";
 import Money from "../shared/react/Money";
-import useAsyncFetch from "../shared/react/useAsyncFetch";
+import { useOffering } from "../state/useOffering";
 import { LayoutContainer } from "../state/withLayout";
 import clsx from "clsx";
 import _ from "lodash";
@@ -19,13 +18,14 @@ import { Link, useParams } from "react-router-dom";
 
 export default function FoodList() {
   const { id: offeringId } = useParams();
-  const getFoodOfferingProducts = React.useCallback(() => {
-    return api.getFoodOfferingProducts({ offeringId });
-  }, [offeringId]);
-  const { state, loading, error } = useAsyncFetch(getFoodOfferingProducts, {
-    default: {},
-    pickData: true,
-  });
+
+  const { offering, cart, products, initializeToOffering, error, loading } =
+    useOffering();
+
+  React.useEffect(() => {
+    initializeToOffering(offeringId);
+  }, [initializeToOffering, offeringId]);
+
   if (error) {
     return (
       <LayoutContainer top>
@@ -33,14 +33,17 @@ export default function FoodList() {
       </LayoutContainer>
     );
   }
-  const { items, offering } = state;
+
   const titleParts = [offering?.description, t("food:title"), t("titles:suma_app")];
   return (
     <>
       <Helmet>
         <title>{titleParts.join(" | ")}</title>
       </Helmet>
-      <FoodCart startElement={<h5 className="m-0">{offering?.description}</h5>} />
+      <FoodNav
+        cart={cart}
+        startElement={<h5 className="m-0">{offering?.description}</h5>}
+      />
       {offering && (
         <SumaImage image={offering.image} h={140} className="thin-header-image" />
       )}
@@ -48,12 +51,12 @@ export default function FoodList() {
         {loading && <PageLoader />}
         {!loading && (
           <>
-            {_.isEmpty(items) && mdp("food:no_products_md")}
-            {!_.isEmpty(items) && (
+            {_.isEmpty(products) && mdp("food:no_products_md")}
+            {!_.isEmpty(products) && (
               <Row>
                 <LinearBreadcrumbs back />
-                {items.map((p) => (
-                  <Product key={p.productId} offeringId={offeringId} {...p} />
+                {products.map((p) => (
+                  <Product key={p.productId} offeringId={offeringId} product={p} />
                 ))}
               </Row>
             )}
@@ -64,21 +67,15 @@ export default function FoodList() {
   );
 }
 
-function Product({
-  productId,
-  offeringId,
-  name,
-  isDiscounted,
-  undiscountedPrice,
-  customerPrice,
-  image,
-}) {
+function Product({ product, offeringId }) {
+  const { productId, name, isDiscounted, undiscountedPrice, customerPrice, images } =
+    product;
   return (
     <Col xs={6} className="mb-2">
       <div className="position-relative">
-        <SumaImage image={image} alt={name} className="w-100" w={225} h={150} />
+        <SumaImage image={images[0]} alt={name} className="w-100" w={225} h={150} />
         <div className="food-widget-container position-absolute">
-          <FoodWidget productId={productId} />
+          <FoodCartWidget product={product} />
         </div>
         <h6 className="mb-0 mt-2">{name}</h6>
         <p className="mb-0 fs-5 fw-semibold">

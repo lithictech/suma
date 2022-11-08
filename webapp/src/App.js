@@ -31,7 +31,9 @@ import applyHocs from "./shared/applyHocs";
 import bluejay from "./shared/bluejay";
 import Redirect from "./shared/react/Redirect";
 import renderComponent from "./shared/react/renderComponent";
+import { BackendGlobalsProvider } from "./state/useBackendGlobals";
 import { GlobalViewStateProvider } from "./state/useGlobalViewState";
+import { OfferingProvider } from "./state/useOffering";
 import { ScreenLoaderProvider, withScreenLoaderMount } from "./state/useScreenLoader";
 import { UserProvider } from "./state/useUser";
 import withLayout from "./state/withLayout";
@@ -44,17 +46,21 @@ window.Promise = bluejay.Promise;
 
 export default function App() {
   return (
-    <I18NextProvider>
-      <ScreenLoaderProvider>
-        <HelmetProvider>
-          <UserProvider>
-            <GlobalViewStateProvider>
-              <InnerApp />
-            </GlobalViewStateProvider>
-          </UserProvider>
-        </HelmetProvider>
-      </ScreenLoaderProvider>
-    </I18NextProvider>
+    <BackendGlobalsProvider>
+      <I18NextProvider>
+        <ScreenLoaderProvider>
+          <HelmetProvider>
+            <UserProvider>
+              <GlobalViewStateProvider>
+                <OfferingProvider>
+                  <InnerApp />
+                </OfferingProvider>
+              </GlobalViewStateProvider>
+            </UserProvider>
+          </HelmetProvider>
+        </ScreenLoaderProvider>
+      </I18NextProvider>
+    </BackendGlobalsProvider>
   );
 }
 
