@@ -68,6 +68,7 @@ class Suma::Member < Suma::Postgres::Model(:members)
   one_to_many :reset_codes, class: "Suma::Member::ResetCode", order: Sequel.desc([:created_at])
   many_to_many :roles, class: "Suma::Role", join_table: :roles_members
   one_to_many :sessions, class: "Suma::Member::Session", order: Sequel.desc([:created_at, :id])
+  one_to_many :commerce_carts, class: "Suma::Commerce::Cart"
 
   dataset_module do
     def with_email(*emails)
@@ -159,6 +160,11 @@ class Suma::Member < Suma::Postgres::Model(:members)
       all
     cards = self.legal_entity.cards_dataset.usable.order(*ord).all
     return bank_accounts + cards
+  end
+
+  def default_payment_instrument
+    # In the future we can let them set a default, for now we don't expect many folks to have multiple.
+    return self.usable_payment_instruments.first
   end
 
   # @return [Suma::Member::StripeAttributes]

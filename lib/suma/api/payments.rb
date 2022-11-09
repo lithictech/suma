@@ -18,10 +18,7 @@ class Suma::API::Payments < Suma::API::V1
     post :create_funding do
       c = current_member
       Suma::Payment.ensure_cash_ledger(c)
-      instrument = c.usable_payment_instruments.find do |pi|
-        pi.id == params[:payment_instrument_id] && pi.payment_method_type == params[:payment_method_type]
-      end
-      merror!(403, "Instrument not found", code: "resource_not_found") unless instrument
+      instrument = find_payment_instrument!(c)
       fx = Suma::Payment::FundingTransaction.start_and_transfer(
         Suma::Payment.ensure_cash_ledger(c),
         amount: params[:amount],

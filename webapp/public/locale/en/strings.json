@@ -45,6 +45,8 @@
     "card_insufficient_funds": "Your card does not have sufficient funds available. Please try again later, or use a different card.",
     "card_permanent_failure": "It looks like your card is no longer valid. Please add a new card, and you can delete this one.",
     "card_try_again": "Our card processor is having some issues. It should go through if you try again.",
+    "checkout_fatal_error": "Sorry, something went wrong trying to check out. Please go back and try again.",
+    "checkout_no_items": "There are no items in your cart, or all of your items are unavailable. Please go back and try again.",
     "conflicting_bank_account": "You already have a bank account with that account and routing number. Please go back, or enter new account details.",
     "denied_geolocation": "You need to enable Geolocation/Location Services to use Suma's Mobility app.",
     "disambiguation_required": "$t(strings:errors:unhandled_error)",

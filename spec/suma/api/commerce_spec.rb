@@ -34,7 +34,7 @@ RSpec.describe Suma::API::Commerce, :db do
     end
   end
 
-  describe "GET /v1/commerce/offerings/:offering_id" do
+  describe "GET /v1/commerce/offerings/:id" do
     it "returns only available offering products" do
       offering = Suma::Fixtures.offering.create
       product = Suma::Fixtures.product.create
@@ -74,7 +74,7 @@ RSpec.describe Suma::API::Commerce, :db do
     end
   end
 
-  describe "PUT /v1/commerce/offerings/:offering_id/cart/item" do
+  describe "PUT /v1/commerce/offerings/:id/cart/item" do
     let(:offering) { Suma::Fixtures.offering.create }
     let(:product) { Suma::Fixtures.product.create }
     let!(:offering_product) { Suma::Fixtures.offering_product.create(offering:, product:) }
@@ -107,6 +107,205 @@ RSpec.describe Suma::API::Commerce, :db do
       expect(last_response).to have_status(409)
       expect(last_response).to have_json_body.
         that_includes(error: include(code: "product_unavailable"))
+    end
+  end
+
+  describe "POST /v1/commerce/offerings/:id/checkout" do
+    let(:offering) { Suma::Fixtures.offering.create }
+    let!(:fulfillment) { Suma::Fixtures.offering_fulfillment_option(offering:).create }
+    let(:product) { Suma::Fixtures.product.create }
+    let!(:offering_product) { Suma::Fixtures.offering_product(product:, offering:).create }
+    let!(:cart) { Suma::Fixtures.cart(offering:, member:).with_product(product, 2).create }
+
+    it "starts a checkout and soft deletes any pending checkouts" do
+      other_member_checkout = Suma::Fixtures.checkout(cart: Suma::Fixtures.cart(member:).create).create
+      completed_checkout = Suma::Fixtures.checkout(cart:).completed.create
+
+      post "/v1/commerce/offerings/#{offering.id}/checkout"
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.
+        that_includes(
+          offering: include(id: offering.id),
+          items: contain_exactly(include(quantity: 2, product: include(product_id: product.id))),
+          payment_instrument: nil,
+          available_payment_instruments: [],
+          fulfillment_option_id: fulfillment.id,
+          available_fulfillment_options: contain_exactly(include(id: fulfillment.id)),
+        )
+      expect(other_member_checkout.refresh).to be_soft_deleted
+      expect(completed_checkout.refresh).to_not be_soft_deleted
+    end
+
+    it "errors if there are no items in the cart" do
+      cart.items.first.delete
+
+      post "/v1/commerce/offerings/#{offering.id}/checkout"
+
+      expect(last_response).to have_status(409)
+      expect(last_response).to have_json_body.
+        that_includes(error: include(code: "checkout_no_items"))
+    end
+
+    it "removes unavailable products from the checkout" do
+      offering_product.delete
+
+      post "/v1/commerce/offerings/#{offering.id}/checkout"
+
+      expect(last_response).to have_status(409)
+      expect(last_response).to have_json_body.
+        that_includes(error: include(code: "checkout_no_items"))
+    end
+  end
+
+  describe "GET /v1/commerce/checkouts/:id" do
+    let!(:cart) { Suma::Fixtures.cart(member:).create }
+    let(:checkout) { Suma::Fixtures.checkout(cart:).create }
+
+    it "returns the checkout and other data" do
+      get "/v1/commerce/checkouts/#{checkout.id}"
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.that_includes(id: checkout.id)
+    end
+
+    it "errors if the checkout is not editable" do
+      checkout.soft_delete
+
+      get "/v1/commerce/checkouts/#{checkout.id}"
+
+      expect(last_response).to have_status(403)
+    end
+
+    it "errors if the checkout does not belong to the member" do
+      checkout.cart.update(member: Suma::Fixtures.member.create)
+
+      get "/v1/commerce/checkouts/#{checkout.id}"
+
+      expect(last_response).to have_status(403)
+    end
+  end
+
+  describe "POST /v1/commerce/checkouts/:id/complete" do
+    let(:offering) { Suma::Fixtures.offering.create }
+    let!(:fulfillment) { Suma::Fixtures.offering_fulfillment_option(offering:).create }
+    let(:product) { Suma::Fixtures.product.create }
+    let!(:offering_product) { Suma::Fixtures.offering_product(product:, offering:).create }
+    let(:cart) { Suma::Fixtures.cart(offering:, member:).with_product(product, 2).create }
+    let(:card) { Suma::Fixtures.card.member(member).create }
+    let(:checkout) { Suma::Fixtures.checkout(cart:, card:).create }
+
+    it "clears the cart, completes the checkout, creates an order, and returns the confirmation" do
+      post "/v1/commerce/checkouts/#{checkout.id}/complete"
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.that_includes(id: checkout.id)
+      expect(checkout.orders).to have_length(1)
+      expect(cart.refresh.items).to be_empty
+      expect(checkout.refresh).to be_completed
+    end
+
+    it "errors if the charge fails" do
+    end
+
+    it "errors if the checkout is not editable" do
+      checkout.soft_delete
+
+      post "/v1/commerce/checkouts/#{checkout.id}/complete"
+
+      expect(last_response).to have_status(409)
+      expect(last_response).to have_json_body.that_includes(error: include(code: "checkout_fatal_error"))
+    end
+
+    it "sets the instrument on the checkout" do
+      newcard = Suma::Fixtures.card.create(legal_entity: card.legal_entity)
+
+      post "/v1/commerce/checkouts/#{checkout.id}/complete",
+           payment_instrument: {payment_instrument_id: newcard.id, payment_method_type: "card"}
+
+      expect(last_response).to have_status(200)
+      expect(checkout.refresh).to have_attributes(payment_instrument: be === newcard)
+    end
+
+    it "errors if the member does not own the instrument" do
+      newcard = Suma::Fixtures.card.create
+
+      post "/v1/commerce/checkouts/#{checkout.id}/complete",
+           payment_instrument: {payment_instrument_id: newcard.id, payment_method_type: "card"}
+
+      expect(last_response).to have_status(403)
+    end
+
+    it "errors if the instrument is soft deleted" do
+      newcard = Suma::Fixtures.card.create
+      newcard.soft_delete
+
+      post "/v1/commerce/checkouts/#{checkout.id}/complete",
+           payment_instrument: {payment_instrument_id: newcard.id, payment_method_type: "card"}
+
+      expect(last_response).to have_status(403)
+    end
+
+    it "errors if the checkout does not point to a payment instrument" do
+      checkout.update(payment_instrument: nil)
+
+      post "/v1/commerce/checkouts/#{checkout.id}/complete"
+
+      expect(last_response).to have_status(403)
+    end
+
+    it "sets the fulfillment option" do
+      newopt = Suma::Fixtures.offering_fulfillment_option(offering:).create
+
+      post "/v1/commerce/checkouts/#{checkout.id}/complete", fulfillment_option_id: newopt.id
+
+      expect(last_response).to have_status(200)
+      expect(checkout.refresh).to have_attributes(fulfillment_option: be === newopt)
+    end
+
+    it "errors if the fulfillment option is not available" do
+      newopt = Suma::Fixtures.offering_fulfillment_option.create
+
+      post "/v1/commerce/checkouts/#{checkout.id}/complete", fulfillment_option_id: newopt.id
+
+      expect(last_response).to have_status(403)
+    end
+  end
+
+  describe "GET /v1/commerce/checkouts/:id/confirmation" do
+    let!(:cart) { Suma::Fixtures.cart(member:).create }
+    let(:checkout) { Suma::Fixtures.checkout(cart:).create }
+
+    it "returns the completed checkout" do
+      checkout.complete.save_changes
+
+      get "/v1/commerce/checkouts/#{checkout.id}/confirmation"
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.
+        that_includes(id: checkout.id)
+    end
+
+    it "errors if the checkout is not completed" do
+      get "/v1/commerce/checkouts/#{checkout.id}/confirmation"
+
+      expect(last_response).to have_status(403)
+    end
+
+    it "errors if the checkout does not belong to the member" do
+      checkout.cart.update(member: Suma::Fixtures.member.create)
+
+      get "/v1/commerce/checkouts/#{checkout.id}/confirmation"
+
+      expect(last_response).to have_status(403)
+    end
+
+    it "errors if the checkout is more than 2 days old" do
+      checkout.update(created_at: 3.days.ago)
+
+      get "/v1/commerce/checkouts/#{checkout.id}/confirmation"
+
+      expect(last_response).to have_status(403)
     end
   end
 end

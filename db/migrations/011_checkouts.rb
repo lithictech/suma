@@ -24,12 +24,8 @@ Sequel.migration do
       text :type, null: false
       float :ordinal, null: false, default: 0
 
-      text :description
+      foreign_key :description_id, :translated_texts, null: false
       foreign_key :address_id, :addresses
-      constraint(
-        :description_set_if_no_address,
-        Sequel.nonempty_string_constraint(:description) | (Sequel[:address_id] !~ nil),
-      )
 
       foreign_key :offering_id, :commerce_offerings, null: false
       index :offering_id
@@ -42,9 +38,8 @@ Sequel.migration do
       timestamptz :soft_deleted_at
       timestamptz :completed_at
 
-      foreign_key :member_id, :members, null: false
-
-      index [:member_id, :completed_at], unique: true, where: Sequel[completed_at: nil]
+      foreign_key :cart_id, :commerce_carts, null: false
+      index :cart_id, unique: true, where: Sequel[completed_at: nil, soft_deleted_at: nil]
 
       foreign_key :bank_account_id, :payment_bank_accounts
       foreign_key :card_id, :payment_cards
@@ -67,9 +62,36 @@ Sequel.migration do
       integer :quantity, null: false
       constraint(:positive_quantity, Sequel[:quantity] > 0)
     end
+
+    create_table(:commerce_orders) do
+      primary_key :id
+      timestamptz :created_at, null: false, default: Sequel.function(:now)
+      timestamptz :updated_at
+
+      text :order_status, null: false
+      text :fulfillment_status, null: false
+
+      foreign_key :checkout_id, :commerce_checkouts, null: false, unique: true
+    end
+
+    create_table(:commerce_order_audit_logs) do
+      primary_key :id
+      timestamptz :at, null: false
+
+      text :event, null: false
+      text :to_state, null: false
+      text :from_state, null: false
+      text :reason, null: false, default: ""
+      jsonb :messages, null: false, default: "[]"
+
+      foreign_key :order_id, :commerce_orders, null: false
+      foreign_key :actor_id, :members, on_delete: :set_null
+    end
   end
 
   down do
+    drop_table(:commerce_order_audit_logs)
+    drop_table(:commerce_orders)
     drop_table(:commerce_checkout_items)
     drop_table(:commerce_checkouts)
     drop_table(:commerce_offering_fulfillment_options)
