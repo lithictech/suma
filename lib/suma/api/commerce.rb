@@ -114,6 +114,7 @@ class Suma::API::Commerce < Suma::API::V1
             use :payment_instrument
           end
           optional :fulfillment_option_id, type: Integer
+          optional :save_payment_instrument, type: Boolean, allow_blank: false
         end
         post :complete do
           member = current_member
@@ -134,9 +135,13 @@ class Suma::API::Commerce < Suma::API::V1
               checkout.fulfillment_option = fulopt
             end
 
+            checkout.save_payment_instrument = params[:save_payment_instrument] if
+              params.key?(:save_payment_instrument)
+
             checkout.save_changes
             Suma::Commerce::Order.create(checkout:)
             checkout.cart.items_dataset.delete
+            checkout.payment_instrument.soft_delete unless checkout.save_payment_instrument
             checkout.complete.save_changes
           end
           status 200
@@ -223,6 +228,7 @@ class Suma::API::Commerce < Suma::API::V1
     expose :available_fulfillment_options, with: FulfillmentOptionEntity
     expose :payment_instrument, with: Suma::API::Entities::PaymentInstrumentEntity
     expose :available_payment_instruments, with: Suma::API::Entities::PaymentInstrumentEntity
+    expose :save_payment_instrument
   end
 
   class CheckoutConfirmationEntity < BaseEntity

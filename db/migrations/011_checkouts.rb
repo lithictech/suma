@@ -48,6 +48,8 @@ Sequel.migration do
         Sequel.unambiguous_constraint([:bank_account_id, :card_id], allow_all_null: true),
       )
 
+      boolean :save_payment_instrument, null: false, default: false
+
       foreign_key :fulfillment_option_id, :commerce_offering_fulfillment_options, null: false
     end
 

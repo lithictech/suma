@@ -193,7 +193,7 @@ RSpec.describe Suma::API::Commerce, :db do
     let!(:offering_product) { Suma::Fixtures.offering_product(product:, offering:).create }
     let(:cart) { Suma::Fixtures.cart(offering:, member:).with_product(product, 2).create }
     let(:card) { Suma::Fixtures.card.member(member).create }
-    let(:checkout) { Suma::Fixtures.checkout(cart:, card:).create }
+    let(:checkout) { Suma::Fixtures.checkout(cart:, card:, save_payment_instrument: true).create }
 
     it "clears the cart, completes the checkout, creates an order, and returns the confirmation" do
       post "/v1/commerce/checkouts/#{checkout.id}/complete"
@@ -203,9 +203,7 @@ RSpec.describe Suma::API::Commerce, :db do
       expect(checkout.orders).to have_length(1)
       expect(cart.refresh.items).to be_empty
       expect(checkout.refresh).to be_completed
-    end
-
-    it "errors if the charge fails" do
+      expect(card.refresh).to_not be_soft_deleted
     end
 
     it "errors if the checkout is not editable" do
@@ -269,6 +267,13 @@ RSpec.describe Suma::API::Commerce, :db do
       post "/v1/commerce/checkouts/#{checkout.id}/complete", fulfillment_option_id: newopt.id
 
       expect(last_response).to have_status(403)
+    end
+
+    it "deletes the payment instrument if it is not being saved" do
+      post "/v1/commerce/checkouts/#{checkout.id}/complete", save_payment_instrument: false
+
+      expect(last_response).to have_status(200)
+      expect(card.refresh).to be_soft_deleted
     end
   end
 
