@@ -34,9 +34,6 @@ export default function FoodCheckout() {
     return <PageLoader />;
   }
 
-  const handleOrder = () => {
-    // TODO: hook up API that handles order
-  };
   return (
     <>
       <LayoutContainer gutters>

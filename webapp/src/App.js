@@ -208,7 +208,7 @@ function AppRoutes() {
           )}
         />
         <Route
-          path="/food-cart"
+          path="/cart/:id"
           exact
           element={renderWithHocs(
             redirectIfUnauthed,

@@ -30,32 +30,37 @@ class Suma::API::Commerce < Suma::API::V1
           end
         end
 
-        params do
-          requires :product_id, type: Integer
-          requires :quantity, type: Integer
-          optional :timestamp, type: Float, allow_blank: true
-        end
-        put :cart_item do
+        # Return offering and product info.
+        # If we need paginated offering items, we can add an endpoint that just returns
+        # paginated items after the first page.
+        get do
+          current_member
           offering = lookup_offering!
+          items = offering.offering_products_dataset.available.all
           cart = lookup_cart!(offering)
-          product = Suma::Commerce::Product[params[:product_id]]
-          begin
-            cart.set_item(product, params[:quantity], timestamp: params[:timestamp])
-          rescue Suma::Commerce::Cart::ProductUnavailable
-            merror!(409, "Product is not available", code: "product_unavailable")
-          rescue Suma::Commerce::Cart::OutOfOrderUpdate
-            self.logger.info "out_of_order_update", product_id: product&.id, quantity: params[:quantity]
-            nil
-          end
-          present offering, with: OfferingWithCartEntity, cart:
+          vendors = items.map(&:product).map(&:vendor).uniq(&:id)
+          present offering, with: OfferingWithContextEntity, cart:, items:, vendors:
         end
 
-        resource :products do
-          get do
-            current_member
+        resource :cart do
+          params do
+            requires :product_id, type: Integer
+            requires :quantity, type: Integer
+            optional :timestamp, type: Float, allow_blank: true
+          end
+          put :item do
             offering = lookup_offering!
-            ds = offering.offering_products_dataset.available
-            present_collection ds, with: OfferingProductListWithCartEntity, offering:, cart: lookup_cart!(offering)
+            cart = lookup_cart!(offering)
+            product = Suma::Commerce::Product[params[:product_id]]
+            begin
+              cart.set_item(product, params[:quantity], timestamp: params[:timestamp])
+            rescue Suma::Commerce::Cart::ProductUnavailable
+              merror!(409, "Product is not available", code: "product_unavailable")
+            rescue Suma::Commerce::Cart::OutOfOrderUpdate
+              self.logger.info "out_of_order_update", product_id: product&.id, quantity: params[:quantity]
+              nil
+            end
+            present cart, with: CartEntity
           end
         end
       end
@@ -67,37 +72,13 @@ class Suma::API::Commerce < Suma::API::V1
     expose :name
   end
 
-  module OfferingProductMixin
-    def self.apply(m, to_product, to_offpro)
-      m.expose_translated :name, &m.delegate_to(*to_product, :name)
-      m.expose_translated :description, &m.delegate_to(*to_product, :description)
-      m.expose :product_id, &m.delegate_to(*to_product, :id)
-
-      m.expose :is_discounted, &m.delegate_to(*to_offpro, :discounted?, safe_with_default: false)
-      m.expose :customer_price,
-               with: Suma::Service::Entities::Money,
-               &m.delegate_to(*to_offpro, :customer_price, safe_with_default: Money.new(0))
-      m.expose :undiscounted_price,
-               with: Suma::Service::Entities::Money,
-               &m.delegate_to(*to_offpro, :undiscounted_price, safe_with_default: Money.new(0))
-    end
-  end
-
   class CartItemEntity < BaseEntity
     expose :quantity
-    OfferingProductMixin.apply(self, [:product], [:offering_product])
+    expose :product_id
   end
 
   class CartEntity < BaseEntity
     expose :items, with: CartItemEntity
-  end
-
-  module CartMixin
-    def self.included(m)
-      m.expose :cart, with: CartEntity do |_inst, opts|
-        opts[:cart] or raise "present with 'cart: lookup_cart!'"
-      end
-    end
   end
 
   class OfferingEntity < BaseEntity
@@ -107,24 +88,34 @@ class Suma::API::Commerce < Suma::API::V1
     expose :image, with: Suma::API::Entities::ImageEntity, &self.delegate_to(:images?, :first)
   end
 
-  class OfferingWithCartEntity < BaseEntity
+  class OfferingProductEntity < BaseEntity
+    expose_translated :name, &self.delegate_to(:product, :name)
+    expose_translated :description, &self.delegate_to(:product, :description)
+    expose :product_id, &self.delegate_to(:product, :id)
+    expose :vendor_id, &self.delegate_to(:product, :vendor_id)
+    expose :images, with: Suma::API::Entities::ImageEntity, &self.delegate_to(:product, :images?)
+
+    expose :is_discounted, &self.delegate_to(:discounted?, safe_with_default: false)
+    expose :customer_price,
+           with: Suma::Service::Entities::Money,
+           &self.delegate_to(:customer_price, safe_with_default: Money.new(0))
+    expose :undiscounted_price,
+           with: Suma::Service::Entities::Money,
+           &self.delegate_to(:undiscounted_price, safe_with_default: Money.new(0))
+  end
+
+  class OfferingWithContextEntity < BaseEntity
     expose :offering, with: OfferingEntity do |instance|
       instance
     end
-    include CartMixin
-  end
-
-  class OfferingProductListItemEntity < BaseEntity
-    OfferingProductMixin.apply(self, [:product], [])
-    expose :vendor, with: VendorEntity, &self.delegate_to(:product, :vendor)
-    expose :images, with: Suma::API::Entities::ImageEntity, &self.delegate_to(:product, :images?)
-  end
-
-  class OfferingProductListWithCartEntity < Suma::Service::Collection::BaseEntity
-    expose :items, with: OfferingProductListItemEntity
-    expose :offering, with: OfferingEntity do |_, options|
-      options.fetch(:offering)
+    expose :items, with: OfferingProductEntity do |_, opts|
+      opts.fetch(:items)
     end
-    include CartMixin
+    expose :vendors, with: VendorEntity do |_, opts|
+      opts.fetch(:vendors)
+    end
+    expose :cart, with: CartEntity do |_, opts|
+      opts.fetch(:cart)
+    end
   end
 end

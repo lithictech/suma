@@ -33,7 +33,7 @@ export default function FoodCartWidget({ product, size }) {
         timestamp: Date.now(),
       })
       .then((resp) => {
-        setCart(resp.data.cart);
+        setCart(resp.data);
       })
       .catch((e) => {
         // TODO: Add an error toast when this fails

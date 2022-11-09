@@ -5,6 +5,7 @@ import LinearBreadcrumbs from "../components/LinearBreadcrumbs";
 import PageLoader from "../components/PageLoader";
 import SumaImage from "../components/SumaImage";
 import { t, mdp } from "../localization";
+import makeTitle from "../modules/makeTitle";
 import Money from "../shared/react/Money";
 import { useOffering } from "../state/useOffering";
 import { LayoutContainer } from "../state/withLayout";
@@ -34,17 +35,18 @@ export default function FoodList() {
     );
   }
 
-  const titleParts = [offering?.description, t("food:title"), t("titles:suma_app")];
+  const title = makeTitle(offering.description, t("food:title"));
   return (
     <>
       <Helmet>
-        <title>{titleParts.join(" | ")}</title>
+        <title>{title}</title>
       </Helmet>
       <FoodNav
+        offeringId={offeringId}
         cart={cart}
-        startElement={<h5 className="m-0">{offering?.description}</h5>}
+        startElement={<h5 className="m-0">{offering.description}</h5>}
       />
-      {offering && (
+      {offering.image && (
         <SumaImage image={offering.image} h={140} className="thin-header-image" />
       )}
       <LayoutContainer className="pt-2">

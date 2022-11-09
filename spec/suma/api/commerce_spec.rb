@@ -34,14 +34,14 @@ RSpec.describe Suma::API::Commerce, :db do
     end
   end
 
-  describe "GET /v1/commerce/offerings/:offering_id/products" do
+  describe "GET /v1/commerce/offerings/:offering_id" do
     it "returns only available offering products" do
       offering = Suma::Fixtures.offering.create
       product = Suma::Fixtures.product.create
       op1 = Suma::Fixtures.offering_product.create(offering:, product:)
       op2 = Suma::Fixtures.offering_product.closed.create(offering:, product:)
 
-      get "/v1/commerce/offerings/#{offering.id}/products"
+      get "/v1/commerce/offerings/#{offering.id}"
 
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.that_includes(
@@ -53,59 +53,56 @@ RSpec.describe Suma::API::Commerce, :db do
 
     it "returns details about the offering and the member cart" do
       offering = Suma::Fixtures.offering.create
+      op = Suma::Fixtures.offering_product(offering:).create
+      op = Suma::Fixtures.offering_product(offering:).product(vendor: op.product.vendor).create
 
-      get "/v1/commerce/offerings/#{offering.id}/products"
+      get "/v1/commerce/offerings/#{offering.id}"
 
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.that_includes(
         offering: include(id: offering.id, description: offering.description.en),
         cart: include(items: []),
+        vendors: contain_exactly(include(id: op.product.vendor.id)),
       )
     end
 
     it "401s if not authed" do
       logout
       offering = Suma::Fixtures.offering.create
-      get "/v1/commerce/offerings/#{offering.id}/products"
+      get "/v1/commerce/offerings/#{offering.id}"
       expect(last_response).to have_status(401)
     end
   end
 
-  describe "PUT /v1/commerce/offerings/:offering_id/cart_item" do
+  describe "PUT /v1/commerce/offerings/:offering_id/cart/item" do
     let(:offering) { Suma::Fixtures.offering.create }
     let(:product) { Suma::Fixtures.product.create }
     let!(:offering_product) { Suma::Fixtures.offering_product.create(offering:, product:) }
 
     it "adds a product (uses Cart#set_item)" do
-      put "/v1/commerce/offerings/#{offering.id}/cart_item", product_id: product.id, quantity: 2
+      put "/v1/commerce/offerings/#{offering.id}/cart/item", product_id: product.id, quantity: 2
 
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.that_includes(
-        offering: include(id: offering.id),
-        cart: include(
-          items: contain_exactly(include(product_id: product.id, quantity: 2)),
-        ),
+        items: contain_exactly(include(product_id: product.id, quantity: 2)),
       )
     end
 
     it "ignores the change and returns the existing cart if for out of order updates" do
       cart = Suma::Fixtures.cart(offering:, member:).with_product(product, 10, timestamp: 2).create
 
-      put "/v1/commerce/offerings/#{offering.id}/cart_item", product_id: product.id, quantity: 2, timestamp: 1
+      put "/v1/commerce/offerings/#{offering.id}/cart/item", product_id: product.id, quantity: 2, timestamp: 1
 
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.that_includes(
-        offering: include(id: offering.id),
-        cart: include(
-          items: contain_exactly(include(product_id: product.id, quantity: 10)),
-        ),
+        items: contain_exactly(include(product_id: product.id, quantity: 10)),
       )
     end
 
     it "returns a 409 for product unavailable" do
       offering_product.delete
 
-      put "/v1/commerce/offerings/#{offering.id}/cart_item", product_id: product.id, quantity: 2, timestamp: 1
+      put "/v1/commerce/offerings/#{offering.id}/cart/item", product_id: product.id, quantity: 2, timestamp: 1
 
       expect(last_response).to have_status(409)
       expect(last_response).to have_json_body.

@@ -24,4 +24,9 @@ module Suma::Fixtures::OfferingProducts
   decorator :closed do
     self.closed_at = 2.days.ago
   end
+
+  decorator :product do |p={}|
+    p = Suma::Fixtures.product(p).create unless p.is_a?(Suma::Commerce::Product)
+    self.product = p
+  end
 end
