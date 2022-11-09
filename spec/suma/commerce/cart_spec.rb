@@ -4,16 +4,11 @@ RSpec.describe "Suma::Commerce::Cart", :db do
   let(:described_class) { Suma::Commerce::Cart }
 
   describe "lookup" do
-    it "creates a new cart if no undeleted carts exist matching criteria" do
+    it "creates a new cart if no carts exist matching criteria" do
       member = Suma::Fixtures.member.create
       offering = Suma::Fixtures.offering.create
       cart1 = described_class.lookup(member:, offering:)
       expect(described_class.lookup(member:, offering:)).to be === cart1
-
-      cart1.soft_delete
-      cart2 = described_class.lookup(member:, offering:)
-      expect(cart1).to_not be === cart2
-      expect(described_class.lookup(member:, offering:)).to be === cart2
     end
   end
 
@@ -69,20 +64,6 @@ RSpec.describe "Suma::Commerce::Cart", :db do
       timestamp = 20
       cart.set_item(product, 0, timestamp:)
       expect(cart.items).to be_empty
-    end
-  end
-
-  describe "validations" do
-    it "must be unique across undeleted for a member within an offering" do
-      member = Suma::Fixtures.member.create
-      fac = Suma::Fixtures.cart(member:)
-      offering1_cart1 = fac.create
-      expect { offering2_cart1 = fac.create }.to_not raise_error
-      expect do
-        fac.create(offering: offering1_cart1.offering)
-      end.to raise_error(Sequel::UniqueConstraintViolation)
-      offering1_cart1.soft_delete
-      fac.create(offering: offering1_cart1.offering)
     end
   end
 

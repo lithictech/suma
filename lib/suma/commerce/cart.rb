@@ -28,7 +28,7 @@ class Suma::Commerce::Cart < Suma::Postgres::Model(:commerce_carts)
   one_to_many :items, class: "Suma::Commerce::CartItem"
 
   def self.lookup(member:, offering:)
-    return self.find_or_create_or_find(member:, offering:, soft_deleted_at: nil)
+    return self.find_or_create_or_find(member:, offering:)
   end
 
   IGNORE = Object.new.freeze
