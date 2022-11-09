@@ -58,6 +58,7 @@ export default function Food() {
 }
 
 function Offering({ id, description, image, closesAt, cartItems }) {
+  // TODO: Pass in cartItemsTotal from backend
   cartItems = cartItems || [];
   return (
     <Col xs={12} className="mb-4">
@@ -77,11 +78,11 @@ function Offering({ id, description, image, closesAt, cartItems }) {
               </Card.Link>
               <Card.Text className="text-secondary small">
                 {t("food:available_until")} {dayjs(closesAt).format("ll")}
-                {cartItems.length === 0 && (
+                {cartItems.length > 0 && (
                   <>
                     {" · "}
                     <RLink to={`/food/${id}`} className="text-decoration-none">
-                      <CartIcon className="text-success" cart={{}} />
+                      <CartIcon className="text-success" totalCartItems={cartItems} />
                     </RLink>
                   </>
                 )}

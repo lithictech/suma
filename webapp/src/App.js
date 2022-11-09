@@ -10,6 +10,8 @@ import { t } from "./localization";
 import useI18Next, { I18NextProvider } from "./localization/useI18Next";
 import Dashboard from "./pages/Dashboard";
 import Food from "./pages/Food";
+import FoodCart from "./pages/FoodCart";
+import FoodCheckout from "./pages/FoodCheckout";
 import FoodDetails from "./pages/FoodDetails";
 import FoodList from "./pages/FoodList";
 import Funding from "./pages/Funding";
@@ -203,6 +205,30 @@ function AppRoutes() {
             withMetatags({ title: t("food:title") }),
             withLayout({ gutters: false, top: false }),
             FoodDetails
+          )}
+        />
+        <Route
+          path="/food-cart"
+          exact
+          element={renderWithHocs(
+            redirectIfUnauthed,
+            redirectIfUnboarded,
+            withScreenLoaderMount(),
+            withMetatags({ title: t("food:cart_title") }),
+            withLayout({ appNav: true, gutters: false, top: true }),
+            FoodCart
+          )}
+        />
+        <Route
+          path="/food-checkout"
+          exact
+          element={renderWithHocs(
+            redirectIfUnauthed,
+            redirectIfUnboarded,
+            withScreenLoaderMount(),
+            withMetatags({ title: t("food:checkout") }),
+            withLayout({ appNav: true, gutters: false, top: true }),
+            FoodCheckout
           )}
         />
 

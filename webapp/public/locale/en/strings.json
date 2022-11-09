@@ -75,6 +75,8 @@
   "food": {
     "add_to_cart": "Add to cart",
     "available_until": "Until",
+    "cart_title": "Shopping Cart",
+    "checkout": "Checkout",
     "current_offerings": "Current Offerings",
     "details_header": "Details",
     "from": "From",

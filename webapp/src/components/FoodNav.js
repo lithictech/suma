@@ -8,14 +8,14 @@ export default function FoodNav({ startElement, cart }) {
     return (
       <Container className="hstack gap-3 border-start border-end py-2">
         {startElement && startElement}
-        <Button variant="success" className="ms-auto py-1">
+        <Button href="/food-cart" variant="success" className="ms-auto py-1">
           <CartIcon cart={cart} />
         </Button>
       </Container>
     );
   }
   return (
-    <Button variant="success" className="py-1 mt-2">
+    <Button href="/food-cart" variant="success" className="py-1 mt-2">
       <CartIcon cart={cart} />
     </Button>
   );
