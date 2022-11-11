@@ -1,9 +1,10 @@
 import ErrorScreen from "../components/ErrorScreen";
 import FoodCartWidget from "../components/FoodCartWidget";
+import LinearBreadcrumbs from "../components/LinearBreadcrumbs";
 import PageLoader from "../components/PageLoader";
 import RLink from "../components/RLink";
 import SumaImage from "../components/SumaImage";
-import { mdp, t } from "../localization";
+import { t } from "../localization";
 import Money from "../shared/react/Money";
 import { useOffering } from "../state/useOffering";
 import { LayoutContainer } from "../state/withLayout";
@@ -40,43 +41,40 @@ export default function FoodCart() {
   return (
     <>
       <LayoutContainer>
-        <>
-          {_.isEmpty(cart.items) && mdp("food:no_cart_items_md")}
-          {!_.isEmpty(cart.items) && (
-            <Row>
-              <Stack direction="horizontal" gap={3} className="align-items-start">
-                <h4>Shopping Cart</h4>
-                <Link to="/food-checkout" className="ms-auto">
-                  Checkout {t("common:next_sym")}
-                </Link>
-              </Stack>
-              <hr />
-              {cart.items.map((item) => {
-                const product = productsById[item.productId];
-                const vendor = vendorsById[product.vendorId];
-                return (
-                  <CartItem
-                    key={item.productId}
-                    offeringId={offeringId}
-                    product={product}
-                    vendor={vendor}
-                  />
-                );
-              })}
-              <Container className="d-flex align-items-end flex-column fs-6">
-                <p>
-                  Subtotal ({cart.items.length} items):{" "}
-                  <b className="ms-2">
-                    <Money>{temporaryOrderSummaryObj.subtotalPrice}</Money>
-                  </b>
-                </p>
-                <Button as={RLink} href="/food-checkout" variant="success">
-                  Continue to Checkout
-                </Button>
-              </Container>
-            </Row>
-          )}
-        </>
+        {_.isEmpty(cart.items) && t("food:no_cart_items_md")}
+        {!_.isEmpty(cart.items) && (
+          <Row>
+            <LinearBreadcrumbs back />
+            <Stack direction="horizontal" gap={3} className="align-items-end">
+              <h4>Shopping Cart</h4>
+              <span className="text-secondary ms-auto">price</span>
+            </Stack>
+            <hr />
+            {cart.items.map((item) => {
+              const product = productsById[item.productId];
+              const vendor = vendorsById[product.vendorId];
+              return (
+                <CartItem
+                  key={item.productId}
+                  offeringId={offeringId}
+                  product={product}
+                  vendor={vendor}
+                />
+              );
+            })}
+            <Container className="d-flex align-items-end flex-column fs-6">
+              <p>
+                Subtotal ({cart.items.length} items):{" "}
+                <b className="ms-2">
+                  <Money>{temporaryOrderSummaryObj.subtotalPrice}</Money>
+                </b>
+              </p>
+              <Button as={RLink} href="/food-checkout" variant="success">
+                Continue to Checkout
+              </Button>
+            </Container>
+          </Row>
+        )}
       </LayoutContainer>
     </>
   );

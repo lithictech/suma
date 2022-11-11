@@ -215,7 +215,7 @@ function AppRoutes() {
             redirectIfUnboarded,
             withScreenLoaderMount(),
             withMetatags({ title: t("food:cart_title") }),
-            withLayout({ appNav: true, gutters: false, top: true }),
+            withLayout({ gutters: false, top: true }),
             FoodCart
           )}
         />
@@ -227,7 +227,7 @@ function AppRoutes() {
             redirectIfUnboarded,
             withScreenLoaderMount(),
             withMetatags({ title: t("food:checkout") }),
-            withLayout({ appNav: true, gutters: false, top: true }),
+            withLayout({ gutters: true, top: true }),
             FoodCheckout
           )}
         />

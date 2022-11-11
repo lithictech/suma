@@ -18,7 +18,7 @@ class Suma::API::Payments < Suma::API::V1
     post :create_funding do
       c = current_member
       Suma::Payment.ensure_cash_ledger(c)
-      instrument = find_payment_instrument!(c)
+      instrument = find_payment_instrument!(c, params)
       fx = Suma::Payment::FundingTransaction.start_and_transfer(
         Suma::Payment.ensure_cash_ledger(c),
         amount: params[:amount],

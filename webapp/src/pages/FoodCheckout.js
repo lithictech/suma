@@ -1,5 +1,6 @@
 import ErrorScreen from "../components/ErrorScreen";
 import PageLoader from "../components/PageLoader";
+import RLink from "../components/RLink";
 import SumaImage from "../components/SumaImage";
 import { mdp, t } from "../localization";
 import Money from "../shared/react/Money";
@@ -15,7 +16,7 @@ import Col from "react-bootstrap/Col";
 import Form from "react-bootstrap/Form";
 import Row from "react-bootstrap/Row";
 import Stack from "react-bootstrap/Stack";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 
 export default function FoodCheckout() {
   const {
@@ -33,70 +34,134 @@ export default function FoodCheckout() {
   if (loading) {
     return <PageLoader />;
   }
-
   return (
     <>
-      <LayoutContainer gutters>
-        {!loading && (
-          <>
-            {_.isEmpty(items) && mdp("food:no_cart_items")}
-            {/* TODO: return message and button if there aren't any items*/}
-            {!_.isEmpty(items) && (
-              <Row>
-                <CheckoutPayment />
-                <CheckoutFulfillment />
-                <Col className="mb-4">
-                  <h5 className="mb-3">Review items</h5>
-                  {items?.map((p) => (
-                    <Product key={p.productId} {...p} />
-                  ))}
-                </Col>
-                <OrderSummary items={items} {...temporaryOrderSummaryObj} />
-                {/* TODO: Enable button when member selects valid payment and fulfillment options */}
-              </Row>
-            )}
-          </>
-        )}
-      </LayoutContainer>
+      {!loading && (
+        <>
+          {_.isEmpty(items) && mdp("food:no_cart_items")}
+          {/* TODO: return message and button if there aren't any items*/}
+          {!_.isEmpty(items) && (
+            <Row>
+              <CheckoutPayment />
+              <CheckoutFulfillment />
+              <Col className="mb-4">
+                <h5 className="mb-3">Review items</h5>
+                {items?.map((p) => (
+                  <Product key={p.productId} {...p} />
+                ))}
+              </Col>
+              <OrderSummary items={items} {...temporaryOrderSummaryObj} />
+              {/* TODO: Enable button when member selects valid payment and fulfillment options */}
+            </Row>
+          )}
+        </>
+      )}
     </>
   );
 }
 
 function CheckoutPayment() {
+  const [params] = useSearchParams();
+  const [isChangingPayment, setIsChangingPayment] = React.useState(false);
   const { user, userLoading } = useUser();
+  const chosenPaymentInstrument = _.find(user.usablePaymentInstruments, {
+    id: Number(params.get("instrumentId")),
+    paymentMethodType: params.get("instrumentType"),
+  });
+  // TODO: fix
+  const [payment, setPayment] = React.useState(
+    chosenPaymentInstrument || user.usablePaymentInstruments[0]
+  );
   if (userLoading) {
     return <PageLoader relative />;
   }
-  // TODO: fix
-  const payment = user.usablePaymentInstruments[0];
-
-  const handlePaymentOptions = () => {
-    // TODO: Open modal popup to change payment options?
-  };
   return (
     <Col xs={12} className="mb-4">
       <h5>Payment method</h5>
-      {payment ? (
+      {!_.isEmpty(payment) && !isChangingPayment ? (
         <>
-          <img
-            className="me-2"
-            style={{ width: "28px" }}
-            src={`data://${payment.institution.logo}`}
-            alt={payment.institution.name}
-          />
-          <span className="text-secondary me-2">
-            {payment.institution.name} ending in {payment.last4}
-          </span>
-          <Link to="#" onClick={handlePaymentOptions}>
+          <PaymentLabel {...payment} />
+          <Link to="#" onClick={() => setIsChangingPayment(true)}>
             Change payment option
           </Link>
         </>
       ) : (
-        <Button variant="success" size="sm">
-          Add payment option
-        </Button>
+        <Stack gap={2}>
+          <span className="small text-secondary">
+            Choose from the payment options, add a card or link a bank account.
+          </span>
+          <Form>
+            <Form.Group>
+              {_.filter(user.usablePaymentInstruments, { canUseForFunding: true }).map(
+                (p) => (
+                  <PaymentInstrumentRadio
+                    key={p.id + p.paymentMethodType}
+                    payment={p}
+                    currentPayment={payment}
+                    onPaymentChange={setPayment}
+                  />
+                )
+              )}
+            </Form.Group>
+          </Form>
+          <Button
+            href="/add-card?returnTo=/food-checkout"
+            as={RLink}
+            variant="outline-success"
+            size="sm"
+          >
+            Add debit/credit card
+          </Button>
+          <Button
+            href="/link-bank-account?returnTo=/food-checkout"
+            as={RLink}
+            variant="outline-success"
+            size="sm"
+          >
+            Link bank account
+          </Button>
+          <Button
+            variant="link text-capitalize"
+            size="sm"
+            onClick={() => setIsChangingPayment(false)}
+          >
+            Save changes
+          </Button>
+        </Stack>
       )}
     </Col>
+  );
+}
+
+function PaymentInstrumentRadio({ payment, currentPayment, onPaymentChange }) {
+  const radioId = payment.id + payment.last4;
+  return (
+    <Form.Check
+      id={radioId}
+      type="radio"
+      name="paymentOption"
+      label={<PaymentLabel {...payment} />}
+      defaultChecked={radioId === currentPayment.id + currentPayment.last4}
+      onChange={() => onPaymentChange(payment)}
+    />
+  );
+}
+
+function PaymentLabel({ institution, last4, name }) {
+  name = institution.name.toLowerCase() === "unknown" ? name : institution.name;
+  return (
+    <>
+      {!_.isEmpty(institution.logo) && (
+        <img
+          className="me-2"
+          style={{ width: "28px" }}
+          src={`data://${institution.logo}`}
+          alt={institution.name}
+        />
+      )}
+      <span className="me-1">{name}</span>
+      <span className="text-secondary me-2">ending in {last4}</span>
+    </>
   );
 }
 
@@ -153,7 +218,7 @@ function OrderSummary({
         <SummaryLine
           label="Order total"
           price={totalOrderPrice}
-          className="text-success fw-bold"
+          className="text-success fw-bold fs-5"
         />
         <Button
           variant="success"

@@ -2,11 +2,15 @@ import api from "../api";
 import AddCreditCard from "../components/AddCreditCard";
 import GoHome from "../components/GoHome";
 import LinearBreadcrumbs from "../components/LinearBreadcrumbs";
+import RLink from "../components/RLink";
 import { md, t } from "../localization";
 import { extractErrorCode, useError } from "../state/useError";
 import { useScreenLoader } from "../state/useScreenLoader";
 import { useUser } from "../state/useUser";
+import _ from "lodash";
 import React from "react";
+import Button from "react-bootstrap/Button";
+import { useSearchParams } from "react-router-dom";
 
 export default function FundingAddCard() {
   const [submitSuccessful, setSubmitSuccessful] = React.useState(false);
@@ -22,15 +26,18 @@ export default function FundingAddCard() {
       .tap(handleUpdateCurrentMember)
       .then((r) => {
         setUser({ ...user, usablePaymentInstruments: r.data.allPaymentInstruments });
-        setSubmitSuccessful(true);
+        setSubmitSuccessful({
+          instrumentId: r.data.id,
+          instrumentType: r.data.paymentMethodType,
+        });
       })
       .catch((e) => setError(extractErrorCode(e)))
       .finally(screenLoader.turnOff);
   }
   return (
     <>
-      {submitSuccessful ? (
-        <Success />
+      {!_.isEmpty(submitSuccessful) ? (
+        <Success {...submitSuccessful} />
       ) : (
         <>
           <LinearBreadcrumbs back />
@@ -47,12 +54,26 @@ export default function FundingAddCard() {
   );
 }
 
-function Success() {
+function Success({ instrumentId, instrumentType }) {
+  const [params] = useSearchParams();
+  const returnToURL = params.get("returnTo");
   return (
     <>
       <h2>{t("payments:added_card")}</h2>
       {t("payments:added_card_successful")}
-      <GoHome />
+      {returnToURL ? (
+        <div className="button-stack mt-4">
+          <Button
+            href={`${returnToURL}?instrumentId=${instrumentId}&instrumentType=${instrumentType}`}
+            as={RLink}
+            variant="outline-primary"
+          >
+            {t("forms:continue")}
+          </Button>
+        </div>
+      ) : (
+        <GoHome />
+      )}
     </>
   );
 }

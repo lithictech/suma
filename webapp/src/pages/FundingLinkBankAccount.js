@@ -5,38 +5,58 @@ import FormControlGroup from "../components/FormControlGroup";
 import FormError from "../components/FormError";
 import GoHome from "../components/GoHome";
 import LinearBreadcrumbs from "../components/LinearBreadcrumbs";
+import RLink from "../components/RLink";
 import { md, mdp, t } from "../localization";
 import keepDigits from "../modules/keepDigits";
 import useHashToggle from "../shared/react/useHashToggle";
 import { extractErrorCode, useError } from "../state/useError";
 import { useScreenLoader } from "../state/useScreenLoader";
 import { useUser } from "../state/useUser";
+import _ from "lodash";
 import React from "react";
+import Button from "react-bootstrap/Button";
 import Col from "react-bootstrap/Col";
 import Form from "react-bootstrap/Form";
 import Modal from "react-bootstrap/Modal";
 import Row from "react-bootstrap/Row";
 import { useForm } from "react-hook-form";
+import { useSearchParams } from "react-router-dom";
 
 export default function FundingLinkBankAccount() {
-  const [submitSuccessful, setSubmitSuccessful] = React.useState(false);
+  const [submitSuccessful, setSubmitSuccessful] = React.useState({});
   return (
     <>
-      {submitSuccessful ? (
-        <Success />
+      {!_.isEmpty(submitSuccessful) ? (
+        <Success {...submitSuccessful} />
       ) : (
-        <LinkBankAccount onSuccess={() => setSubmitSuccessful(true)} />
+        <LinkBankAccount
+          onSuccess={(bankAccountData) => setSubmitSuccessful({ ...bankAccountData })}
+        />
       )}
     </>
   );
 }
 
-function Success() {
+function Success({ instrumentId, instrumentType }) {
+  const [params] = useSearchParams();
+  const returnToURL = params.get("returnTo");
   return (
     <>
       <h2>{t("payments:linked_bank_account")}</h2>
       {mdp("payments:linked_bank_account_successful_md")}
-      <GoHome />
+      {returnToURL ? (
+        <div className="button-stack mt-4">
+          <Button
+            href={`${returnToURL}?instrumentId=${instrumentId}&instrumentType=${instrumentType}`}
+            as={RLink}
+            variant="outline-primary"
+          >
+            {t("forms:continue")}
+          </Button>
+        </div>
+      ) : (
+        <GoHome />
+      )}
     </>
   );
 }
@@ -74,7 +94,7 @@ function LinkBankAccount({ onSuccess }) {
       .tap(handleUpdateCurrentMember)
       .then((r) => {
         setUser({ ...user, usablePaymentInstruments: r.data.allPaymentInstruments });
-        onSuccess();
+        onSuccess({ instrumentId: r.data.id, instrumentType: r.data.paymentMethodType });
       })
       .catch((e) => setError(extractErrorCode(e)))
       .finally(screenLoader.turnOff);
