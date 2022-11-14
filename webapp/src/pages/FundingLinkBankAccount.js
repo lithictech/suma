@@ -24,30 +24,31 @@ import { useSearchParams } from "react-router-dom";
 
 export default function FundingLinkBankAccount() {
   const [submitSuccessful, setSubmitSuccessful] = React.useState({});
+  const [params] = useSearchParams();
+  const returnTo = params.get("returnTo");
   return (
     <>
       {!_.isEmpty(submitSuccessful) ? (
-        <Success {...submitSuccessful} />
+        <Success {...submitSuccessful} returnTo={returnTo} />
       ) : (
         <LinkBankAccount
           onSuccess={(bankAccountData) => setSubmitSuccessful({ ...bankAccountData })}
+          returnTo={returnTo}
         />
       )}
     </>
   );
 }
 
-function Success({ instrumentId, instrumentType }) {
-  const [params] = useSearchParams();
-  const returnToURL = params.get("returnTo");
+function Success({ instrumentId, instrumentType, returnTo }) {
   return (
     <>
       <h2>{t("payments:linked_bank_account")}</h2>
       {mdp("payments:linked_bank_account_successful_md")}
-      {returnToURL ? (
+      {returnTo ? (
         <div className="button-stack mt-4">
           <Button
-            href={`${returnToURL}?instrumentId=${instrumentId}&instrumentType=${instrumentType}`}
+            href={`${returnTo}?instrumentId=${instrumentId}&instrumentType=${instrumentType}`}
             as={RLink}
             variant="outline-primary"
           >
@@ -61,7 +62,7 @@ function Success({ instrumentId, instrumentType }) {
   );
 }
 
-function LinkBankAccount({ onSuccess }) {
+function LinkBankAccount({ onSuccess, returnTo }) {
   const {
     register,
     handleSubmit,
@@ -107,7 +108,7 @@ function LinkBankAccount({ onSuccess }) {
 
   return (
     <>
-      <LinearBreadcrumbs back />
+      <LinearBreadcrumbs back={returnTo || true} />
       <h2 className="page-header">{t("payments:link_bank_account")}</h2>
       <p>{md("payments:payment_intro.privacy_statement_md")}</p>
       <Form noValidate onSubmit={handleSubmit(handleFormSubmit)}>

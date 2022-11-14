@@ -1,3 +1,4 @@
+import api from "../api";
 import ErrorScreen from "../components/ErrorScreen";
 import FoodCartWidget from "../components/FoodCartWidget";
 import LinearBreadcrumbs from "../components/LinearBreadcrumbs";
@@ -16,10 +17,11 @@ import Col from "react-bootstrap/Col";
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Stack from "react-bootstrap/Stack";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 
 export default function FoodCart() {
   const { id: offeringId } = useParams();
+  const navigate = useNavigate();
   const { cart, products, vendors, error, loading, initializeToOffering } = useOffering();
 
   React.useEffect(() => {
@@ -35,6 +37,17 @@ export default function FoodCart() {
   }
   if (loading) {
     return <PageLoader />;
+  }
+  function handleCheckout(e) {
+    e.preventDefault();
+    api
+      .startCheckout({ offeringId })
+      .then(api.pickData)
+      .then((d) => navigate(`/checkout/${d.id}`, { state: { checkout: d } }))
+      .catch((e) => {
+        // TODO: Add error toast
+        console.error(e);
+      });
   }
   const productsById = Object.fromEntries(products.map((p) => [p.productId, p]));
   const vendorsById = Object.fromEntries(vendors.map((v) => [v.id, v]));
@@ -69,7 +82,7 @@ export default function FoodCart() {
                   <Money>{temporaryOrderSummaryObj.subtotalPrice}</Money>
                 </b>
               </p>
-              <Button as={RLink} href="/food-checkout" variant="success">
+              <Button onClick={handleCheckout} variant="success">
                 Continue to Checkout
               </Button>
             </Container>

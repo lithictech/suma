@@ -13,6 +13,8 @@ import Button from "react-bootstrap/Button";
 import { useSearchParams } from "react-router-dom";
 
 export default function FundingAddCard() {
+  const [params] = useSearchParams();
+  const returnTo = params.get("returnTo");
   const [submitSuccessful, setSubmitSuccessful] = React.useState(false);
   const { user, setUser, handleUpdateCurrentMember } = useUser();
   const screenLoader = useScreenLoader();
@@ -37,10 +39,10 @@ export default function FundingAddCard() {
   return (
     <>
       {!_.isEmpty(submitSuccessful) ? (
-        <Success {...submitSuccessful} />
+        <Success {...submitSuccessful} returnTo={returnTo} />
       ) : (
         <>
-          <LinearBreadcrumbs back />
+          <LinearBreadcrumbs back={returnTo || true} />
           <h2 className="page-header">{t("payments:add_card")}</h2>
           <p>{md("payments:payment_intro.privacy_statement_md")}</p>
           <AddCreditCard
@@ -54,17 +56,15 @@ export default function FundingAddCard() {
   );
 }
 
-function Success({ instrumentId, instrumentType }) {
-  const [params] = useSearchParams();
-  const returnToURL = params.get("returnTo");
+function Success({ instrumentId, instrumentType, returnTo }) {
   return (
     <>
       <h2>{t("payments:added_card")}</h2>
       {t("payments:added_card_successful")}
-      {returnToURL ? (
+      {returnTo ? (
         <div className="button-stack mt-4">
           <Button
-            href={`${returnToURL}?instrumentId=${instrumentId}&instrumentType=${instrumentType}`}
+            href={`${returnTo}?instrumentId=${instrumentId}&instrumentType=${instrumentType}`}
             as={RLink}
             variant="outline-primary"
           >

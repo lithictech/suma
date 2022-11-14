@@ -119,6 +119,30 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
           undiscounted_price: Money.new(29_95),
         )
       end
+      if offering.fulfillment_options.empty?
+        offering.add_fulfillment_option(
+          type: "pickup",
+          ordinal: 0,
+          description: Suma::TranslatedText.create(en: "Pickup at Sheridan's Market"),
+          address: Suma::Address.lookup(
+            address1: "409 SE Martin Luther King Jr Blvd",
+            city: "Portland",
+            state_or_province: "Oregon",
+            postal_code: "97214",
+          ),
+        )
+        offering.add_fulfillment_option(
+          type: "pickup",
+          ordinal: 1,
+          description: Suma::TranslatedText.create(en: "Pickup at Hacienda CDC"),
+          address: Suma::Address.lookup(
+            address1: " 6700 NE Killingsworth St",
+            city: "Portland",
+            state_or_province: "Oregon",
+            postal_code: "97218",
+          ),
+        )
+      end
     end
   end
 

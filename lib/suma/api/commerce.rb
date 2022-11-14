@@ -215,8 +215,12 @@ class Suma::API::Commerce < Suma::API::V1
     expose_translated :description
   end
 
+  class CheckoutProductEntity < OfferingProductEntity
+    expose :vendor, with: VendorEntity, &self.delegate_to(:product, :vendor)
+  end
+
   class CheckoutItemEntity < BaseEntity
-    expose :offering_product, as: :product, with: OfferingProductEntity
+    expose :offering_product, as: :product, with: CheckoutProductEntity
     expose :quantity
   end
 
@@ -229,6 +233,14 @@ class Suma::API::Commerce < Suma::API::V1
     expose :payment_instrument, with: Suma::API::Entities::PaymentInstrumentEntity
     expose :available_payment_instruments, with: Suma::API::Entities::PaymentInstrumentEntity
     expose :save_payment_instrument
+
+    expose :customer_cost, with: Suma::Service::Entities::Money
+    expose :undiscounted_cost, with: Suma::Service::Entities::Money
+    expose :savings, with: Suma::Service::Entities::Money
+    expose :handling, with: Suma::Service::Entities::Money
+    expose :taxable_cost, with: Suma::Service::Entities::Money
+    expose :tax, with: Suma::Service::Entities::Money
+    expose :total, with: Suma::Service::Entities::Money
   end
 
   class CheckoutConfirmationEntity < BaseEntity

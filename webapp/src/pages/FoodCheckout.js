@@ -1,12 +1,12 @@
+import api from "../api";
 import ErrorScreen from "../components/ErrorScreen";
 import PageLoader from "../components/PageLoader";
 import RLink from "../components/RLink";
 import SumaImage from "../components/SumaImage";
-import { mdp, t } from "../localization";
+import { t } from "../localization";
 import Money from "../shared/react/Money";
+import useAsyncFetch from "../shared/react/useAsyncFetch";
 import useToggle from "../shared/react/useToggle";
-import { useOffering } from "../state/useOffering";
-import { useUser } from "../state/useUser";
 import { LayoutContainer } from "../state/withLayout";
 import clsx from "clsx";
 import _ from "lodash";
@@ -16,14 +16,41 @@ import Col from "react-bootstrap/Col";
 import Form from "react-bootstrap/Form";
 import Row from "react-bootstrap/Row";
 import Stack from "react-bootstrap/Stack";
-import { Link, useSearchParams } from "react-router-dom";
+import { Link, useLocation, useParams, useSearchParams } from "react-router-dom";
 
 export default function FoodCheckout() {
+  const { id } = useParams();
+  const { state } = useLocation();
+  const [searchParams] = useSearchParams();
   const {
-    cart: { items },
-    error,
+    state: fetchedCheckout,
     loading,
-  } = useOffering();
+    error,
+    asyncFetch,
+  } = useAsyncFetch(api.getCheckout, {
+    default: state?.checkout,
+    pickData: true,
+    doNotFetchOnInit: true,
+  });
+  React.useEffect(() => {
+    if (_.isEmpty(fetchedCheckout)) {
+      asyncFetch({ id });
+    }
+  }, [asyncFetch, fetchedCheckout, id]);
+
+  const [checkoutMutations, setCheckoutMutations] = React.useState({});
+  const checkout = _.merge({}, fetchedCheckout, checkoutMutations);
+
+  const [manuallySelectedInstrument, setManuallySelectedInstrument] =
+    React.useState(null);
+  const instrumentFromUrl = _.find(checkout.availablePaymentInstruments, {
+    id: Number(searchParams.get("instrumentId")),
+    paymentMethodType: searchParams.get("instrumentType"),
+  });
+
+  const chosenInstrument =
+    manuallySelectedInstrument || instrumentFromUrl || checkout.chosenInstrument;
+
   if (error) {
     return (
       <LayoutContainer top>
@@ -31,118 +58,96 @@ export default function FoodCheckout() {
       </LayoutContainer>
     );
   }
-  if (loading) {
+  if (loading || _.isEmpty(checkout)) {
     return <PageLoader />;
   }
   return (
-    <>
-      {!loading && (
-        <>
-          {_.isEmpty(items) && mdp("food:no_cart_items")}
-          {/* TODO: return message and button if there aren't any items*/}
-          {!_.isEmpty(items) && (
-            <Row>
-              <CheckoutPayment />
-              <CheckoutFulfillment />
-              <Col className="mb-4">
-                <h5 className="mb-3">Review items</h5>
-                {items?.map((p) => (
-                  <Product key={p.productId} {...p} />
-                ))}
-              </Col>
-              <OrderSummary items={items} {...temporaryOrderSummaryObj} />
-              {/* TODO: Enable button when member selects valid payment and fulfillment options */}
-            </Row>
-          )}
-        </>
-      )}
-    </>
+    <Row>
+      <CheckoutPayment
+        checkout={checkout}
+        selectedInstrument={chosenInstrument}
+        onSelectedInstrumentChange={(pi) => setManuallySelectedInstrument(pi)}
+      />
+      <hr />
+      <CheckoutFulfillment
+        checkout={checkout}
+        onCheckoutChange={(attrs) =>
+          setCheckoutMutations({ ...checkoutMutations, ...attrs })
+        }
+      />
+      <hr />
+      <CheckoutItems checkout={checkout} />
+      <hr />
+      <OrderSummary checkout={checkout} chosenInstrument={chosenInstrument} />
+    </Row>
   );
 }
 
-function CheckoutPayment() {
-  const [params] = useSearchParams();
-  const [isChangingPayment, setIsChangingPayment] = React.useState(false);
-  const { user, userLoading } = useUser();
-  const chosenPaymentInstrument = _.find(user.usablePaymentInstruments, {
-    id: Number(params.get("instrumentId")),
-    paymentMethodType: params.get("instrumentType"),
-  });
-  // TODO: fix
-  const [payment, setPayment] = React.useState(
-    chosenPaymentInstrument || user.usablePaymentInstruments[0]
+function CheckoutPayment({ checkout, selectedInstrument, onSelectedInstrumentChange }) {
+  const addButtons = (
+    <>
+      <Button
+        href={`/add-card?returnTo=/checkout/${checkout.id}`}
+        as={RLink}
+        variant="outline-success"
+        size="sm"
+      >
+        Add debit/credit card
+      </Button>
+      <Button
+        href={`/link-bank-account?returnTo=/checkout/${checkout.id}`}
+        as={RLink}
+        variant="outline-success"
+        size="sm"
+      >
+        Link bank account
+      </Button>
+    </>
   );
-  if (userLoading) {
-    return <PageLoader relative />;
-  }
+
   return (
-    <Col xs={12} className="mb-4">
-      <h5>Payment method</h5>
-      {!_.isEmpty(payment) && !isChangingPayment ? (
-        <>
-          <PaymentLabel {...payment} />
-          <Link to="#" onClick={() => setIsChangingPayment(true)}>
-            Change payment option
-          </Link>
-        </>
-      ) : (
+    <Col xs={12} className="mb-3">
+      <h5>How are you paying?</h5>
+      {_.isEmpty(checkout.availablePaymentInstruments) && (
         <Stack gap={2}>
           <span className="small text-secondary">
-            Choose from the payment options, add a card or link a bank account.
+            Link a payment method to pay for this order.
           </span>
+          {addButtons}
+        </Stack>
+      )}
+      {!_.isEmpty(checkout.availablePaymentInstruments) && (
+        <Stack gap={2}>
           <Form>
             <Form.Group>
-              {_.filter(user.usablePaymentInstruments, { canUseForFunding: true }).map(
-                (p) => (
-                  <PaymentInstrumentRadio
-                    key={p.id + p.paymentMethodType}
-                    payment={p}
-                    currentPayment={payment}
-                    onPaymentChange={setPayment}
-                  />
-                )
-              )}
+              {checkout.availablePaymentInstruments.map((pi) => (
+                <PaymentInstrumentRadio
+                  key={pi.key}
+                  id={pi.key}
+                  instrument={pi}
+                  checked={pi.key === selectedInstrument?.key}
+                  onChange={() => onSelectedInstrumentChange(pi)}
+                />
+              ))}
             </Form.Group>
           </Form>
-          <Button
-            href="/add-card?returnTo=/food-checkout"
-            as={RLink}
-            variant="outline-success"
-            size="sm"
-          >
-            Add debit/credit card
-          </Button>
-          <Button
-            href="/link-bank-account?returnTo=/food-checkout"
-            as={RLink}
-            variant="outline-success"
-            size="sm"
-          >
-            Link bank account
-          </Button>
-          <Button
-            variant="link text-capitalize"
-            size="sm"
-            onClick={() => setIsChangingPayment(false)}
-          >
-            Save changes
-          </Button>
+          <div>Or, link a new payment method to pay for this order.</div>
+          {addButtons}
         </Stack>
       )}
     </Col>
   );
 }
 
-function PaymentInstrumentRadio({ payment, currentPayment, onPaymentChange }) {
-  const radioId = payment.id + payment.last4;
+function PaymentInstrumentRadio({ id, instrument, checked, onChange }) {
   return (
     <Form.Check
-      id={radioId}
+      id={id}
       type="radio"
       name="paymentOption"
-      label={<PaymentLabel {...payment} />}
-      defaultChecked={radioId === currentPayment.id + currentPayment.last4}
-      onChange={() => onPaymentChange(payment)}
+      label={<PaymentLabel {...instrument} />}
+      checked={checked}
+      onChange={onChange}
     />
   );
 }
@@ -165,72 +170,76 @@ function PaymentLabel({ institution, last4, name }) {
   );
 }
 
-function CheckoutFulfillment() {
+function CheckoutFulfillment({ checkout, onCheckoutChange }) {
   return (
-    <Col xs={12} className="mb-4">
-      <h5>Pickup options</h5>
+    <Col xs={12} className="mb-3">
+      <h5>How do you want to get your stuff?</h5>
       <Form noValidate>
         <Form.Group>
-          <Form.Check
-            id="sharedinsMarket"
-            name="fullfillment"
-            type="radio"
-            label="Pick up at Sharedins Market"
-          />
-          <Form.Check
-            id="hacienda"
-            name="fullfillment"
-            type="radio"
-            label="Pick up at Hacienda CDC"
-          />
+          {checkout.availableFulfillmentOptions.map((fo) => (
+            <Form.Check
+              key={fo.id}
+              id={fo.id}
+              name={fo.description}
+              type="radio"
+              label={fo.description}
+              checked={checkout.fulfillmentOptionId === fo.id}
+              onChange={() => onCheckoutChange({ fulfillmentOptionId: fo.id })}
+            />
+          ))}
         </Form.Group>
       </Form>
     </Col>
   );
 }
 
-function OrderSummary({
-  items,
-  itemsPrice,
-  handlingPrice,
-  savingsAmount,
-  grossPrice,
-  estimatedTaxAmount,
-  totalOrderPrice,
-}) {
-  const orderButtonDisabled = useToggle(true);
+function CheckoutItems({ checkout }) {
   return (
-    <Col xs={12} className="mb-4">
+    <Col className="mb-3">
+      <h5 className="mb-3">Here&rsquo;s what you&rsquo;re getting:</h5>
+      {checkout.items?.map((it, idx) => {
+        return (
+          <React.Fragment key={it.product.productId}>
+            {idx > 0 && <hr className="mb-3 mt-0" />}
+            <CheckoutItem item={it} />
+          </React.Fragment>
+        );
+      })}
+    </Col>
+  );
+}
+
+function OrderSummary({ checkout, chosenInstrument }) {
+  const canPlace = checkout.fulfillmentOptionId && chosenInstrument;
+  const itemCount = _.sum(_.map(checkout.items, "quantity"));
+  return (
+    <Col xs={12} className="mb-3">
       <h5>Order summary</h5>
       <div>
-        <SummaryLine label={`Items (${items.length})`} price={itemsPrice} />
-        <SummaryLine label="Handling" price={handlingPrice} />
+        <SummaryLine label={`Items (${itemCount})`} price={checkout.undiscountedCost} />
+        <SummaryLine label="Handling" price={checkout.handling} />
         <SummaryLine
           label="Total savings"
-          price={savingsAmount}
+          price={checkout.savings}
           subtract
           className="text-success"
         />
         <hr className="ms-auto w-25 my-1" />
-        <SummaryLine label="Total before tax" price={grossPrice} />
-        <SummaryLine label="Estimated tax" price={estimatedTaxAmount} />
-        <hr />
+        <SummaryLine label={`Total before tax`} price={checkout.taxableCost} />
+        <SummaryLine label={`Tax`} price={checkout.tax} />
+        <hr className="mt-1 mb-2" />
         <SummaryLine
           label="Order total"
-          price={totalOrderPrice}
+          price={checkout.total}
           className="text-success fw-bold fs-5"
         />
-        <Button
-          variant="success"
-          className="d-flex ms-auto mt-2"
-          disabled={orderButtonDisabled}
-        >
+        <Button variant="success" className="d-flex ms-auto mt-2" disabled={!canPlace}>
           Place order
         </Button>
       </div>
-      <p className="small text-secondary">
+      <p className="small text-secondary mt-2">
         By clicking &#34;place order&#34; you are agreeing to suma&#39;s{" "}
-        <Link to="/privacy-policy">privacy policy</Link>.
+        <Link to="/TODO user agreement">Terms of Use</Link>.
       </p>
     </Col>
   );
@@ -248,80 +257,40 @@ function SummaryLine({ label, price, subtract, className }) {
   );
 }
 
-function Product({
-  productId,
-  name,
-  isDiscounted,
-  customerPrice,
-  undiscountedPrice,
-  // offeringId,
-  // vendor,
-  // image,
-}) {
-  // TODO: return item image, vendor variables from backend
-  const temporaryImageObj = {
-    caption: "",
-    url: "http://localhost:22001/api/v1/images/im_9vygrwvyy9ygnllql0i5wqhhz",
-  };
-  const temporaryVendor = { id: 2, name: "Sheradin's Market" };
+function CheckoutItem({ item }) {
+  const { product, quantity } = item;
   return (
     <>
       <Col xs={12} className="mb-3">
         <Stack direction="horizontal" gap={3} className="align-items-start">
           <SumaImage
-            image={temporaryImageObj}
-            alt={name}
-            className="w-100flex-shrink-0"
+            image={product.images[0]}
+            alt={product.name}
+            className="rounded"
             w={80}
             h={80}
           />
-          <div>
-            <h6 className="mb-0">{name}</h6>
-            <p className="mb-1 text-secondary">
-              <small>{t("food:from") + " " + temporaryVendor.name}</small>
-            </p>
-          </div>
+          <Stack className="justify-content-between">
+            <h6 className="mb-0">{product.name}</h6>
+            <div className="mb-0 text-secondary">
+              <small>{t("food:from") + " " + product.vendor.name}</small>
+            </div>
+            <div className="mb-0 text-secondary">
+              <small>Quantity: {quantity}</small>
+            </div>
+          </Stack>
           <p className="ms-auto fs-6">
-            <Money className={clsx("me-2", isDiscounted && "text-success")}>
-              {customerPrice}
+            <Money className={clsx("me-2", product.isDiscounted && "text-success")}>
+              {product.customerPrice}
             </Money>
-            {isDiscounted && (
+            {product.isDiscounted && (
               <strike>
-                <Money>{undiscountedPrice}</Money>
+                <Money>{product.undiscountedPrice}</Money>
               </strike>
             )}
           </p>
         </Stack>
       </Col>
-      <hr className="mb-3 mt-0" />
     </>
   );
 }
-
-// TODO: Remove
-const temporaryOrderSummaryObj = {
-  itemsPrice: {
-    cents: 5990,
-    currency: "USD",
-  },
-  handlingPrice: {
-    cents: 300,
-    currency: "USD",
-  },
-  savingsAmount: {
-    cents: 1390,
-    currency: "USD",
-  },
-  grossPrice: {
-    cents: 4900,
-    currency: "USD",
-  },
-  estimatedTaxAmount: {
-    cents: 0,
-    currency: "USD",
-  },
-  totalOrderPrice: {
-    cents: 4900,
-    currency: "USD",
-  },
-};

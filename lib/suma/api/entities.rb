@@ -46,6 +46,9 @@ module Suma::API::Entities
     expose :institution
     expose :name
     expose :last4
+    expose :key do |inst|
+      "#{inst.payment_method_type}-#{inst.id}"
+    end
   end
 
   class VendorServiceRateEntity < BaseEntity

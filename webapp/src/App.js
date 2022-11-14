@@ -220,7 +220,7 @@ function AppRoutes() {
           )}
         />
         <Route
-          path="/food-checkout"
+          path="/checkout/:id"
           exact
           element={renderWithHocs(
             redirectIfUnauthed,

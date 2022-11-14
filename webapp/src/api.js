@@ -64,6 +64,13 @@ export default {
     get(`/api/v1/commerce/offerings/${id}`, data),
   putCartItem: ({ offeringId, ...data }) =>
     put(`/api/v1/commerce/offerings/${offeringId}/cart/item`, data),
+  startCheckout: ({ offeringId, ...data }) =>
+    post(`/api/v1/commerce/offerings/${offeringId}/checkout`, data),
+  getCheckout: ({ id, ...data }) => get(`/api/v1/commerce/checkouts/${id}`, data),
+  completeCheckout: ({ id, ...data }) =>
+    post(`/api/v1/commerce/checkouts/${id}/complete`, data),
+  getCheckoutConfirmation: ({ id, ...data }) =>
+    get(`/api/v1/commerce/checkouts/${id}/confirmation`, data),
 
   createBankAccount: (data) =>
     post(`/api/v1/payment_instruments/bank_accounts/create`, data),

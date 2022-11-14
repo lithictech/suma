@@ -50,4 +50,12 @@ class Suma::Commerce::Checkout < Suma::Postgres::Model(:commerce_checkouts)
         raise "Unhandled payment instrument: #{pi.inspect}"
     end
   end
+
+  def undiscounted_cost = self.items.sum(Money.new(0), &:undiscounted_cost)
+  def customer_cost = self.items.sum(Money.new(0), &:customer_cost)
+  def savings = self.items.sum(Money.new(0), &:savings)
+  def handling = Money.new(0)
+  def taxable_cost = self.handling + self.customer_cost
+  def tax = Money.new(0)
+  def total = self.customer_cost + self.handling
 end
