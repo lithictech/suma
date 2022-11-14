@@ -67,6 +67,9 @@ export default function FoodCheckout() {
         checkout={checkout}
         selectedInstrument={chosenInstrument}
         onSelectedInstrumentChange={(pi) => setManuallySelectedInstrument(pi)}
+        onCheckoutChange={(attrs) =>
+          setCheckoutMutations({ ...checkoutMutations, ...attrs })
+        }
       />
       <hr />
       <CheckoutFulfillment
@@ -83,25 +86,28 @@ export default function FoodCheckout() {
   );
 }
 
-function CheckoutPayment({ checkout, selectedInstrument, onSelectedInstrumentChange }) {
-  const addButtons = (
+function CheckoutPayment({ checkout, selectedInstrument, onSelectedInstrumentChange, onCheckoutChange }) {
+  const addPaymentLinks = (
     <>
-      <Button
-        href={`/add-card?returnTo=/checkout/${checkout.id}`}
-        as={RLink}
-        variant="outline-success"
-        size="sm"
+      <Link
+        to={`/add-card?returnTo=/checkout/${checkout.id}`}
       >
+        <i className="bi bi-credit-card me-2" />
         Add debit/credit card
-      </Button>
-      <Button
-        href={`/link-bank-account?returnTo=/checkout/${checkout.id}`}
-        as={RLink}
-        variant="outline-success"
-        size="sm"
+      </Link>
+      <Link
+        to={`/link-bank-account?returnTo=/checkout/${checkout.id}`}
       >
+        <i className="bi bi-bank2 me-2" />
         Link bank account
-      </Button>
+      </Link>
+      <Form>
+        <Form.Group>
+          <Form.Check id="savePayment" name="savePayment" label="Save payment method"
+                      onChange={(e) => onCheckoutChange({ savePaymentInstrument: e.target.checked })}
+          ></Form.Check>
+        </Form.Group>
+      </Form>
     </>
   );
 
@@ -113,7 +119,7 @@ function CheckoutPayment({ checkout, selectedInstrument, onSelectedInstrumentCha
           <span className="small text-secondary">
             Link a payment method to pay for this order.
           </span>
-          {addButtons}
+          {addPaymentLinks}
         </Stack>
       )}
       {!_.isEmpty(checkout.availablePaymentInstruments) && (
@@ -132,7 +138,7 @@ function CheckoutPayment({ checkout, selectedInstrument, onSelectedInstrumentCha
             </Form.Group>
           </Form>
           <div>Or, link a new payment method to pay for this order.</div>
-          {addButtons}
+          {addPaymentLinks}
         </Stack>
       )}
     </Col>
@@ -205,6 +211,7 @@ function CheckoutItems({ checkout }) {
           </React.Fragment>
         );
       })}
+      <RLink to={`/cart/${checkout.offering.id}`} >Change item quantities</RLink>
     </Col>
   );
 }
