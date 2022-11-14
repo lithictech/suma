@@ -12,6 +12,7 @@ import Dashboard from "./pages/Dashboard";
 import Food from "./pages/Food";
 import FoodCart from "./pages/FoodCart";
 import FoodCheckout from "./pages/FoodCheckout";
+import FoodCheckoutConfirmation from "./pages/FoodCheckoutConfirmation";
 import FoodConfirmation from "./pages/FoodConfirmation";
 import FoodDetails from "./pages/FoodDetails";
 import FoodList from "./pages/FoodList";
@@ -230,6 +231,18 @@ function AppRoutes() {
             withMetatags({ title: t("food:checkout") }),
             withLayout({ gutters: true, top: true }),
             FoodCheckout
+          )}
+        />
+        <Route
+          path="/checkout/:id/confirmation"
+          exact
+          element={renderWithHocs(
+            redirectIfUnauthed,
+            redirectIfUnboarded,
+            withScreenLoaderMount(),
+            withMetatags({ title: t("food:checkout") }),
+            withLayout({ appNav: true, gutters: true, top: true }),
+            FoodCheckoutConfirmation
           )}
         />
         <Route

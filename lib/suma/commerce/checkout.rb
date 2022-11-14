@@ -6,6 +6,8 @@ require "suma/postgres/model"
 class Suma::Commerce::Checkout < Suma::Postgres::Model(:commerce_checkouts)
   CONFIRMATION_EXPOSURE_CUTOFF = 2.days
 
+  class Uneditable < StandardError; end
+
   plugin :timestamps
   plugin :soft_deletes
 
@@ -58,4 +60,20 @@ class Suma::Commerce::Checkout < Suma::Postgres::Model(:commerce_checkouts)
   def taxable_cost = self.handling + self.customer_cost
   def tax = Money.new(0)
   def total = self.customer_cost + self.handling
+
+  def create_order
+    self.db.transaction do
+      self.lock!
+      raise Uneditable, "Checkout[#{self.id}] is not editable" unless self.editable?
+      order = Suma::Commerce::Order.create(checkout: self)
+      self.items.each do |item|
+        item.update(immutable_quantity: item.cart_item.quantity, cart_item: nil)
+      end
+      self.cart.items_dataset.delete
+      self.cart.associations.delete(:items)
+      self.payment_instrument.soft_delete unless self.save_payment_instrument
+      self.complete.save_changes
+      return order
+    end
+  end
 end

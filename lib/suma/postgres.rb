@@ -57,6 +57,7 @@ module Suma::Postgres
     "suma/commerce/offering_fulfillment_option",
     "suma/commerce/offering_product",
     "suma/commerce/order",
+    "suma/commerce/order_audit_log",
     "suma/commerce/product",
     "suma/image",
     "suma/member",

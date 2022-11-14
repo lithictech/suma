@@ -20,7 +20,7 @@ module Suma::Fixtures::Checkouts
 
   decorator :populate_items, presave: true do
     self.cart.items.each do |item|
-      self.add_item({quantity: item.quantity, offering_product: item.offering_product})
+      self.add_item({cart_item: item, offering_product: item.offering_product})
     end
   end
 

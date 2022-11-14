@@ -41,6 +41,7 @@ module Suma::API::Entities
   class PaymentInstrumentEntity < BaseEntity
     expose :id
     expose :created_at
+    expose :id, as: :payment_instrument_id
     expose :payment_method_type
     expose :can_use_for_funding?, as: :can_use_for_funding
     expose :institution

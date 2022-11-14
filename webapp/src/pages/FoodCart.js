@@ -3,9 +3,8 @@ import ErrorScreen from "../components/ErrorScreen";
 import FoodCartWidget from "../components/FoodCartWidget";
 import LinearBreadcrumbs from "../components/LinearBreadcrumbs";
 import PageLoader from "../components/PageLoader";
-import RLink from "../components/RLink";
 import SumaImage from "../components/SumaImage";
-import { t } from "../localization";
+import { md, t } from "../localization";
 import Money from "../shared/react/Money";
 import { useOffering } from "../state/useOffering";
 import { LayoutContainer } from "../state/withLayout";
@@ -54,7 +53,7 @@ export default function FoodCart() {
   return (
     <>
       <LayoutContainer>
-        {_.isEmpty(cart.items) && t("food:no_cart_items_md")}
+        {_.isEmpty(cart.items) && md("food:no_cart_items_md")}
         {!_.isEmpty(cart.items) && (
           <Row>
             <LinearBreadcrumbs back />

@@ -57,12 +57,14 @@ Sequel.migration do
       primary_key :id
       timestamptz :created_at, null: false, default: Sequel.function(:now)
 
-      foreign_key :checkout_id, :commerce_checkouts, null: false
       foreign_key :offering_product_id, :commerce_offering_products, null: false
-      index [:checkout_id, :offering_product_id], unique: true
+      foreign_key :checkout_id, :commerce_checkouts, null: false, on_delete: :cascade
+      foreign_key :cart_item_id, :commerce_cart_items, null: true
+      integer :immutable_quantity, null: true
 
-      integer :quantity, null: false
-      constraint(:positive_quantity, Sequel[:quantity] > 0)
+      index [:checkout_id, :cart_item_id], unique: true
+      index [:checkout_id, :offering_product_id], unique: true
+      constraint(:unambiguous_quantity, Sequel.unambiguous_constraint([:cart_item_id, :immutable_quantity]))
     end
 
     create_table(:commerce_orders) do

@@ -6,7 +6,7 @@ import SumaImage from "../components/SumaImage";
 import { t } from "../localization";
 import Money from "../shared/react/Money";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
-import useToggle from "../shared/react/useToggle";
+import { useScreenLoader } from "../state/useScreenLoader";
 import { LayoutContainer } from "../state/withLayout";
 import clsx from "clsx";
 import _ from "lodash";
@@ -16,12 +16,20 @@ import Col from "react-bootstrap/Col";
 import Form from "react-bootstrap/Form";
 import Row from "react-bootstrap/Row";
 import Stack from "react-bootstrap/Stack";
-import { Link, useLocation, useParams, useSearchParams } from "react-router-dom";
+import {
+  Link,
+  useLocation,
+  useNavigate,
+  useParams,
+  useSearchParams,
+} from "react-router-dom";
 
 export default function FoodCheckout() {
   const { id } = useParams();
   const { state } = useLocation();
   const [searchParams] = useSearchParams();
+  const screenLoader = useScreenLoader();
+  const navigate = useNavigate();
   const {
     state: fetchedCheckout,
     loading,
@@ -37,6 +45,9 @@ export default function FoodCheckout() {
       asyncFetch({ id });
     }
   }, [asyncFetch, fetchedCheckout, id]);
+  React.useEffect(() => {
+    window.history.replaceState({}, document.title);
+  }, []);
 
   const [checkoutMutations, setCheckoutMutations] = React.useState({});
   const checkout = _.merge({}, fetchedCheckout, checkoutMutations);
@@ -49,7 +60,7 @@ export default function FoodCheckout() {
   });
 
   const chosenInstrument =
-    manuallySelectedInstrument || instrumentFromUrl || checkout.chosenInstrument;
+    manuallySelectedInstrument || instrumentFromUrl || checkout.paymentInstrument;
 
   if (error) {
     return (
@@ -60,6 +71,19 @@ export default function FoodCheckout() {
   }
   if (loading || _.isEmpty(checkout)) {
     return <PageLoader />;
+  }
+  function handleSubmit(e) {
+    e.preventDefault();
+    screenLoader.turnOn();
+    api
+      .completeCheckout({ id, paymentInstrument: chosenInstrument })
+      .then(api.pickData)
+      .then((d) => navigate(`/checkout/${id}/confirmation`, { state: { checkout: d } }))
+      .catch((e) => {
+        screenLoader.turnOff();
+        console.error(e);
+        // TODO: toast error
+      });
   }
   return (
     <Row>
@@ -81,30 +105,40 @@ export default function FoodCheckout() {
       <hr />
       <CheckoutItems checkout={checkout} />
       <hr />
-      <OrderSummary checkout={checkout} chosenInstrument={chosenInstrument} />
+      <OrderSummary
+        checkout={checkout}
+        chosenInstrument={chosenInstrument}
+        onSubmit={handleSubmit}
+      />
     </Row>
   );
 }
 
-function CheckoutPayment({ checkout, selectedInstrument, onSelectedInstrumentChange, onCheckoutChange }) {
+function CheckoutPayment({
+  checkout,
+  selectedInstrument,
+  onSelectedInstrumentChange,
+  onCheckoutChange,
+}) {
   const addPaymentLinks = (
     <>
-      <Link
-        to={`/add-card?returnTo=/checkout/${checkout.id}`}
-      >
+      <Link to={`/add-card?returnTo=/checkout/${checkout.id}`}>
         <i className="bi bi-credit-card me-2" />
         Add debit/credit card
       </Link>
-      <Link
-        to={`/link-bank-account?returnTo=/checkout/${checkout.id}`}
-      >
+      <Link to={`/link-bank-account?returnTo=/checkout/${checkout.id}`}>
         <i className="bi bi-bank2 me-2" />
         Link bank account
       </Link>
       <Form>
         <Form.Group>
-          <Form.Check id="savePayment" name="savePayment" label="Save payment method"
-                      onChange={(e) => onCheckoutChange({ savePaymentInstrument: e.target.checked })}
+          <Form.Check
+            id="savePayment"
+            name="savePayment"
+            label="Save for future orders"
+            onChange={(e) =>
+              onCheckoutChange({ savePaymentInstrument: e.target.checked })
+            }
           ></Form.Check>
         </Form.Group>
       </Form>
@@ -211,12 +245,12 @@ function CheckoutItems({ checkout }) {
           </React.Fragment>
         );
       })}
-      <RLink to={`/cart/${checkout.offering.id}`} >Change item quantities</RLink>
+      <RLink to={`/cart/${checkout.offering.id}`}>Change item quantities</RLink>
     </Col>
   );
 }
 
-function OrderSummary({ checkout, chosenInstrument }) {
+function OrderSummary({ checkout, chosenInstrument, onSubmit }) {
   const canPlace = checkout.fulfillmentOptionId && chosenInstrument;
   const itemCount = _.sum(_.map(checkout.items, "quantity"));
   return (
@@ -240,7 +274,12 @@ function OrderSummary({ checkout, chosenInstrument }) {
           price={checkout.total}
           className="text-success fw-bold fs-5"
         />
-        <Button variant="success" className="d-flex ms-auto mt-2" disabled={!canPlace}>
+        <Button
+          variant="success"
+          className="d-flex ms-auto mt-2"
+          disabled={!canPlace}
+          onClick={onSubmit}
+        >
           Place order
         </Button>
       </div>

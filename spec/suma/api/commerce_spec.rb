@@ -193,7 +193,7 @@ RSpec.describe Suma::API::Commerce, :db do
     let!(:offering_product) { Suma::Fixtures.offering_product(product:, offering:).create }
     let(:cart) { Suma::Fixtures.cart(offering:, member:).with_product(product, 2).create }
     let(:card) { Suma::Fixtures.card.member(member).create }
-    let(:checkout) { Suma::Fixtures.checkout(cart:, card:, save_payment_instrument: true).create }
+    let(:checkout) { Suma::Fixtures.checkout(cart:, card:).populate_items.create }
 
     it "clears the cart, completes the checkout, creates an order, and returns the confirmation" do
       post "/v1/commerce/checkouts/#{checkout.id}/complete"
@@ -203,7 +203,6 @@ RSpec.describe Suma::API::Commerce, :db do
       expect(checkout.orders).to have_length(1)
       expect(cart.refresh.items).to be_empty
       expect(checkout.refresh).to be_completed
-      expect(card.refresh).to_not be_soft_deleted
     end
 
     it "errors if the checkout is not editable" do

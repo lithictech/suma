@@ -79,7 +79,7 @@ class Suma::API::Commerce < Suma::API::V1
             cart_items = cart.items.select(&:available?)
             merror!(409, "no items in cart", code: "checkout_no_items") if cart_items.empty?
             cart_items.each do |item|
-              checkout.add_item({quantity: item.quantity, offering_product: item.offering_product})
+              checkout.add_item({cart_item: item, offering_product: item.offering_product})
             end
             status 200
             present checkout, with: CheckoutEntity
@@ -119,30 +119,27 @@ class Suma::API::Commerce < Suma::API::V1
         post :complete do
           member = current_member
           checkout = lookup!
+          if (instrument = find_payment_instrument?(member, params[:payment_instrument]))
+            checkout.payment_instrument = instrument
+          end
+          forbidden!("Must have a payment instrument") if checkout.payment_instrument.nil?
+
+          if (fuloptid = params[:fulfillment_option_id])
+            fulopt = checkout.cart.offering.fulfillment_options_dataset[fuloptid]
+            merror!(403, "Fulfillment option not found", code: "resource_not_found") unless fulopt
+            checkout.fulfillment_option = fulopt
+          end
+
+          checkout.save_payment_instrument = params[:save_payment_instrument] if
+            params.key?(:save_payment_instrument)
+
           checkout.db.transaction do
-            checkout.lock!
-
-            raise merror!(409, "not editable", code: "checkout_fatal_error") unless checkout.editable?
-
-            if (instrument = find_payment_instrument?(member, params[:payment_instrument]))
-              checkout.payment_instrument = instrument
-            end
-            forbidden!("Must have a payment instrument") if checkout.payment_instrument.nil?
-
-            if (fuloptid = params[:fulfillment_option_id])
-              fulopt = checkout.cart.offering.fulfillment_options_dataset[fuloptid]
-              merror!(403, "Fulfillment option not found", code: "resource_not_found") unless fulopt
-              checkout.fulfillment_option = fulopt
-            end
-
-            checkout.save_payment_instrument = params[:save_payment_instrument] if
-              params.key?(:save_payment_instrument)
-
             checkout.save_changes
-            Suma::Commerce::Order.create(checkout:)
-            checkout.cart.items_dataset.delete
-            checkout.payment_instrument.soft_delete unless checkout.save_payment_instrument
-            checkout.complete.save_changes
+            begin
+              checkout.create_order
+            rescue Suma::Commerce::Checkout::Uneditable
+              merror!(409, "not editable", code: "checkout_fatal_error")
+            end
           end
           status 200
           present checkout, with: CheckoutConfirmationEntity
