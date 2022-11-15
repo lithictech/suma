@@ -5,7 +5,7 @@ import Button from "react-bootstrap/Button";
 export default function OnboardingFinish() {
   return (
     <>
-      {mdp("onboarding:finish")}
+      {mdp("onboarding:finish_md")}
       <div className="button-stack">
         <Button href="/dashboard" variant="outline-primary" className="mt-3">
           {t("common:okay_ex")}
