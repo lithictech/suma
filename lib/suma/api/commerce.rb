@@ -167,6 +167,7 @@ class Suma::API::Commerce < Suma::API::V1
 
   class CartEntity < BaseEntity
     expose :items, with: CartItemEntity
+    expose :customer_cost, with: Suma::Service::Entities::Money
   end
 
   class OfferingEntity < BaseEntity

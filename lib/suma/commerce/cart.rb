@@ -31,6 +31,10 @@ class Suma::Commerce::Cart < Suma::Postgres::Model(:commerce_carts)
     return self.find_or_create_or_find(member:, offering:)
   end
 
+  def customer_cost
+    return self.items.sum(Money.new(0)) { |ci| ci.offering_product.customer_price * ci.quantity }
+  end
+
   IGNORE = Object.new.freeze
 
   # Add, updated, or remove (quantity <= 0 ) the given product on this cart.
