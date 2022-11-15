@@ -78,7 +78,7 @@ export default function FoodCart() {
               <p>
                 Subtotal ({cart.items.length} items):{" "}
                 <b className="ms-2">
-                  <Money>{temporaryOrderSummaryObj.subtotalPrice}</Money>
+                  <Money>{cart.customerCost}</Money>
                 </b>
               </p>
               <Button onClick={handleCheckout} variant="success">
@@ -127,11 +127,3 @@ function CartItem({ offeringId, product, vendor }) {
     </>
   );
 }
-
-// TODO: Remove
-const temporaryOrderSummaryObj = {
-  subtotalPrice: {
-    cents: 4600,
-    currency: "USD",
-  },
-};
