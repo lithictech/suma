@@ -94,6 +94,7 @@ class Suma::API::Commerce < Suma::API::V1
           def lookup!
             (ch = Suma::Commerce::Checkout[params[:id]]) or forbidden!
             forbidden! unless ch.cart.member === current_member
+            forbidden! if ch.items.empty? # This can happen when cart items are cleared after checkout starts
             return ch
           end
 

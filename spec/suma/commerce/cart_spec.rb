@@ -65,6 +65,15 @@ RSpec.describe "Suma::Commerce::Cart", :db do
       cart.set_item(product, 0, timestamp:)
       expect(cart.items).to be_empty
     end
+
+    it "deletes any associated checkout items" do
+      cart.set_item(product, 10, timestamp: 10)
+      co = Suma::Fixtures.checkout(cart:).populate_items.create
+      expect(co.items).to contain_exactly(have_attributes(cart_item: be === cart.items.first))
+
+      cart.set_item(product, 0, timestamp: 20)
+      expect(co.refresh.items).to be_empty
+    end
   end
 
   describe "Suma::Commerce::CartItem" do

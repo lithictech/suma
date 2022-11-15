@@ -20,4 +20,10 @@ module Suma::Fixtures::Carts
   decorator :with_product, presave: true do |product, quantity=1, **opts|
     self.add_item(product:, quantity:, timestamp: 0, **opts)
   end
+
+  decorator :with_any_product, presave: true do |quantity: 1|
+    product = Suma::Fixtures.product.create
+    Suma::Fixtures.offering_product(product:, offering: self.offering).create
+    self.add_item(product:, quantity:, timestamp: 0)
+  end
 end

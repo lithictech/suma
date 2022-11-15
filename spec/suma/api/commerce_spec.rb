@@ -159,8 +159,8 @@ RSpec.describe Suma::API::Commerce, :db do
   end
 
   describe "GET /v1/commerce/checkouts/:id" do
-    let!(:cart) { Suma::Fixtures.cart(member:).create }
-    let(:checkout) { Suma::Fixtures.checkout(cart:).create }
+    let!(:cart) { Suma::Fixtures.cart(member:).with_any_product.create }
+    let(:checkout) { Suma::Fixtures.checkout(cart:).populate_items.create }
 
     it "returns the checkout and other data" do
       get "/v1/commerce/checkouts/#{checkout.id}"
@@ -179,6 +179,14 @@ RSpec.describe Suma::API::Commerce, :db do
 
     it "errors if the checkout does not belong to the member" do
       checkout.cart.update(member: Suma::Fixtures.member.create)
+
+      get "/v1/commerce/checkouts/#{checkout.id}"
+
+      expect(last_response).to have_status(403)
+    end
+
+    it "errors if the checkout has no items" do
+      checkout.items_dataset.delete
 
       get "/v1/commerce/checkouts/#{checkout.id}"
 
@@ -277,8 +285,8 @@ RSpec.describe Suma::API::Commerce, :db do
   end
 
   describe "GET /v1/commerce/checkouts/:id/confirmation" do
-    let!(:cart) { Suma::Fixtures.cart(member:).create }
-    let(:checkout) { Suma::Fixtures.checkout(cart:).create }
+    let!(:cart) { Suma::Fixtures.cart(member:).with_any_product.create }
+    let(:checkout) { Suma::Fixtures.checkout(cart:).populate_items.create }
 
     it "returns the completed checkout" do
       checkout.complete.save_changes
