@@ -93,6 +93,7 @@ RSpec.describe "Suma::Payment::FundingTransaction", :db do
         amount: Money.new(500, "USD"),
         vendor_service_category: category,
         instrument: bank_account,
+        strategy: Suma::Payment::FakeStrategy.create.not_ready,
       )
       expect(fx).to have_attributes(status: "created")
       expect(member.payment_account.originated_funding_transactions).to contain_exactly(be === fx)

@@ -11,6 +11,7 @@ class Suma::Payment::FakeStrategy < Suma::Postgres::Model(:payment_fake_strategi
   def initialize(*)
     @memory_responses = {}
     super
+    self[:responses] ||= Sequel.pg_json({})
   end
 
   def short_name
@@ -56,6 +57,12 @@ class Suma::Payment::FakeStrategy < Suma::Postgres::Model(:payment_fake_strategi
       result.is_a?(Suma::Postgres::Model)
     self.responses = self.responses.merge(symbol.to_s => result)
     self.save_changes
+    return self
+  end
+
+  def not_ready
+    return self.set_response(:check_validity, []).
+        set_response(:ready_to_collect_funds?, false)
   end
 end
 
