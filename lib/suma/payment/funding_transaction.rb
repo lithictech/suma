@@ -59,61 +59,77 @@ class Suma::Payment::FundingTransaction < Suma::Postgres::Model(:payment_funding
     ],
   )
 
-  # Create a new funding transaction with the given parameters.
-  # @param [Suma::Payment::Account] payment_account
-  # @param [Money] amount
-  # @param [Suma::Payment::Instrument] instrument The payment instrument to use.
-  #   Use an ACH strategy for bank accounts, Card strategy for cards, etc.
-  # @param [String] originating_ip The IP of the user starting this transaction.
-  #   Only some strategies, like cards, require this to be set.
-  # @param [Suma::Payment::FundingTransaction::Strategy] strategy Explicit override to use this strategy.
-  #   When using a FakeStrategy, pass it in this way.
-  # @return [Suma::Payment::FundingTransaction]
-  def self.start_new(payment_account, amount:, instrument: nil, originating_ip: nil, strategy: nil)
-    self.db.transaction do
-      platform_ledger = Suma::Payment.ensure_cash_ledger(Suma::Payment::Account.lookup_platform_account)
-      if strategy.nil?
-        strategy = case instrument&.payment_method_type
-          when "bank_account"
-            IncreaseAchStrategy.create(originating_bank_account: instrument)
-          when "card"
-            StripeCardStrategy.create(originating_card: instrument)
-          else
-            raise StrategyUnavailable, "cannot determine valid funding strategy for given arguments"
-        end
+  class << self
+    # Force a fake strategy within a block. Mostly used for API tests,
+    # since you can otherwise pass strategy explicitly to start_new.
+    def force_fake(strat)
+      raise LocalJumpError unless block_given?
+      raise ArgumentError, "strat cannot be nil" if strat.nil?
+      @fake_strategy = strat
+      begin
+        return yield
+      ensure
+        @fake_strategy = nil
       end
-      strategy.check_validity!
-      xaction = self.new(
-        amount:,
-        memo: "Transfer to Suma App",
-        originating_payment_account: payment_account,
-        platform_ledger:,
-        originating_ip:,
-        originated_book_transaction: nil,
-        strategy:,
-      )
-      xaction.save_changes
-      xaction.process(:collect_funds) if xaction.strategy.ready_to_collect_funds?
-      return xaction
     end
-  end
 
-  # Like +start_new+, but also creates a +BookTransaction+ that moves funds
-  # from the platform ledger into the receiving ledger.
-  def self.start_and_transfer(receiving_ledger, amount:, vendor_service_category:, instrument: nil, strategy: nil)
-    self.db.transaction do
-      now = Time.now
-      fx = Suma::Payment::FundingTransaction.start_new(receiving_ledger.account, amount:, instrument:, strategy:)
-      originated_book_transaction = Suma::Payment::BookTransaction.create(
-        apply_at: now,
-        amount: fx.amount,
-        originating_ledger: fx.platform_ledger,
-        receiving_ledger:,
-        associated_vendor_service_category: vendor_service_category,
-        memo: fx.memo,
-      )
-      fx.update(originated_book_transaction:)
-      fx
+    # Create a new funding transaction with the given parameters.
+    # @param [Suma::Payment::Account] payment_account
+    # @param [Money] amount
+    # @param [Suma::Payment::Instrument] instrument The payment instrument to use.
+    #   Use an ACH strategy for bank accounts, Card strategy for cards, etc.
+    # @param [String] originating_ip The IP of the user starting this transaction.
+    #   Only some strategies, like cards, require this to be set.
+    # @param [Suma::Payment::FundingTransaction::Strategy] strategy Explicit override to use this strategy.
+    #   When using a FakeStrategy, pass it in this way.
+    # @return [Suma::Payment::FundingTransaction]
+    def start_new(payment_account, amount:, instrument: nil, originating_ip: nil, strategy: nil)
+      strategy ||= @fake_strategy
+      self.db.transaction do
+        platform_ledger = Suma::Payment.ensure_cash_ledger(Suma::Payment::Account.lookup_platform_account)
+        if strategy.nil?
+          strategy = case instrument&.payment_method_type
+            when "bank_account"
+              IncreaseAchStrategy.create(originating_bank_account: instrument)
+            when "card"
+              StripeCardStrategy.create(originating_card: instrument)
+            else
+              raise StrategyUnavailable, "cannot determine valid funding strategy for given arguments"
+          end
+        end
+        strategy.check_validity!
+        xaction = self.new(
+          amount:,
+          memo: "Transfer to Suma App",
+          originating_payment_account: payment_account,
+          platform_ledger:,
+          originating_ip:,
+          originated_book_transaction: nil,
+          strategy:,
+        )
+        xaction.save_changes
+        xaction.process(:collect_funds) if xaction.strategy.ready_to_collect_funds?
+        return xaction
+      end
+    end
+
+    # Like +start_new+, but also creates a +BookTransaction+ that moves funds
+    # from the platform ledger into the receiving ledger.
+    def start_and_transfer(receiving_ledger, amount:, vendor_service_category:, instrument: nil, strategy: nil)
+      self.db.transaction do
+        now = Time.now
+        fx = Suma::Payment::FundingTransaction.start_new(receiving_ledger.account, amount:, instrument:, strategy:)
+        originated_book_transaction = Suma::Payment::BookTransaction.create(
+          apply_at: now,
+          amount: fx.amount,
+          originating_ledger: fx.platform_ledger,
+          receiving_ledger:,
+          associated_vendor_service_category: vendor_service_category,
+          memo: fx.memo,
+        )
+        fx.update(originated_book_transaction:)
+        fx
+      end
     end
   end
 

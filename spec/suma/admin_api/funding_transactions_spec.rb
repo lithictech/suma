@@ -83,10 +83,12 @@ RSpec.describe Suma::AdminAPI::FundingTransactions, :db do
       member = Suma::Fixtures.member.create
       ba = Suma::Fixtures.bank_account.member(member).verified.create
 
-      post "/v1/funding_transactions/create_for_self",
-           amount: {cents: 500, currency: "USD"},
-           payment_instrument_id: ba.id,
-           payment_method_type: ba.payment_method_type
+      Suma::Payment::FundingTransaction.force_fake(Suma::Payment::FakeStrategy.create.not_ready) do
+        post "/v1/funding_transactions/create_for_self",
+             amount: {cents: 500, currency: "USD"},
+             payment_instrument_id: ba.id,
+             payment_method_type: ba.payment_method_type
+      end
 
       expect(last_response).to have_status(200)
       expect(last_response.headers).to include("Created-Resource-Admin")
