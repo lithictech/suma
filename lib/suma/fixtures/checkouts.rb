@@ -20,7 +20,8 @@ module Suma::Fixtures::Checkouts
 
   decorator :populate_items, presave: true do
     self.cart.items.each do |item|
-      self.add_item({cart_item: item, offering_product: item.offering_product})
+      (offering_product = item.offering_product) or raise "CartItem[#{item.id}] product has no offering product"
+      self.add_item({cart_item: item, offering_product:})
     end
   end
 

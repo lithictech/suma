@@ -66,14 +66,25 @@ class Suma::Commerce::Checkout < Suma::Postgres::Model(:commerce_checkouts)
       self.lock!
       raise Uneditable, "Checkout[#{self.id}] is not editable" unless self.editable?
       order = Suma::Commerce::Order.create(checkout: self)
-      self.items.each do |item|
-        item.update(immutable_quantity: item.cart_item.quantity, cart_item: nil)
-      end
+      self.freeze_items
       self.cart.items_dataset.delete
       self.cart.associations.delete(:items)
       self.payment_instrument.soft_delete unless self.save_payment_instrument
       self.complete.save_changes
       return order
     end
+  end
+
+  protected def freeze_items
+    self.items.each do |item|
+      item.set(immutable_quantity: item.cart_item.quantity, cart_item: nil)
+    end
+    self.db.from(:commerce_checkout_items, :commerce_cart_items).
+      where(checkout_id: self.id).
+      update(cart_item_id: nil, immutable_quantity: Sequel[:commerce_cart_items][:quantity])
+  end
+
+  def after_soft_delete
+    self.freeze_items
   end
 end

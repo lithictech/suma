@@ -37,4 +37,21 @@ RSpec.describe "Suma::Commerce::Checkout", :db do
       expect(checkout.card).to_not be_soft_deleted
     end
   end
+
+  describe "soft delete" do
+    let(:offering) { Suma::Fixtures.offering.create }
+    let(:product) { Suma::Fixtures.product.in_offering(offering).create }
+    let(:cart) { Suma::Fixtures.cart(offering:).with_product(product).create }
+    let(:checkout) { Suma::Fixtures.checkout(cart:).populate_items.create }
+    it "copies quantity and replaces cart items" do
+      expect(checkout.items).to contain_exactly(
+        have_attributes(cart_item: be === cart.items.first, immutable_quantity: nil),
+      )
+      checkout.soft_delete
+      expect(checkout.items).to contain_exactly(
+        have_attributes(cart_item: nil, immutable_quantity: 1),
+      )
+      cart.items_dataset.delete
+    end
+  end
 end

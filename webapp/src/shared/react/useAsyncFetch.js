@@ -5,10 +5,15 @@ import React from "react";
  * @param makeRequest
  * @param {object=} options
  * @param {*=} options.default
- * @param {boolean=} options.doNotFetchOnInit
- * @param {boolean=} options.pickData
- * @param {string=} options.pullFromState
- * @param {Location=} options.location
+ * @param {boolean=} options.doNotFetchOnInit If true, do not fetch right away.
+ *   You will need to call asyncFetch manually.
+ * @param {boolean=} options.pickData The 'state' will pick the 'data' field of the response,
+ *   rather than being an axios Response.
+ * @param {string=} options.pullFromState If given, pull this field from location.state as the initial/default value.
+ *   Allows passing of data in the history state, while fetching from the URL if it is not present.
+ *   The state is cleared as soon as it is fetched, since it can get stale quickly
+ *   as it does not behave like React state (ie it persists between refreshses).
+ * @param {Location=} options.location Must be provided for pullFromState to be used.
  * @returns {{state, asyncFetch, error, loading}}
  */
 const useAsyncFetch = (makeRequest, options) => {
