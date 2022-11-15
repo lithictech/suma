@@ -86,7 +86,7 @@ end
 # Indexes:
 #  payment_funding_transaction_increase_ach_strategies_pkey | PRIMARY KEY btree (id)
 # Foreign key constraints:
-#  payment_funding_transaction_in_originating_bank_account_id_fkey | (originating_bank_account_id) REFERENCES bank_accounts(id)
+#  payment_funding_transaction_in_originating_bank_account_id_fkey | (originating_bank_account_id) REFERENCES payment_bank_accounts(id)
 # Referenced By:
 #  payment_funding_transactions | payment_funding_transactions_increase_ach_strategy_id_fkey | (increase_ach_strategy_id) REFERENCES payment_funding_transaction_increase_ach_strategies(id)
 # ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------

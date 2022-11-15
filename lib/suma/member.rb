@@ -300,6 +300,7 @@ require "suma/member/stripe_attributes"
 #  onboarding_verified_at | timestamp with time zone |
 #  legal_entity_id        | integer                  | NOT NULL
 #  terms_agreed           | date                     |
+#  stripe_customer_json   | jsonb                    |
 # Indexes:
 #  members_pkey      | PRIMARY KEY btree (id)
 #  members_email_key | UNIQUE btree (email)
@@ -312,6 +313,8 @@ require "suma/member/stripe_attributes"
 #  members_legal_entity_id_fkey | (legal_entity_id) REFERENCES legal_entities(id) ON DELETE RESTRICT
 # Referenced By:
 #  charges                                | charges_member_id_fkey                               | (member_id) REFERENCES members(id)
+#  commerce_carts                         | commerce_carts_member_id_fkey                        | (member_id) REFERENCES members(id)
+#  commerce_order_audit_logs              | commerce_order_audit_logs_actor_id_fkey              | (actor_id) REFERENCES members(id) ON DELETE SET NULL
 #  member_activities                      | member_activities_member_id_fkey                     | (member_id) REFERENCES members(id) ON DELETE CASCADE
 #  member_key_values                      | member_key_values_member_id_fkey                     | (member_id) REFERENCES members(id) ON DELETE CASCADE
 #  member_linked_legal_entities           | member_linked_legal_entities_member_id_fkey          | (member_id) REFERENCES members(id)
@@ -322,4 +325,5 @@ require "suma/member/stripe_attributes"
 #  payment_accounts                       | payment_accounts_member_id_fkey                      | (member_id) REFERENCES members(id)
 #  payment_funding_transaction_audit_logs | payment_funding_transaction_audit_logs_actor_id_fkey | (actor_id) REFERENCES members(id) ON DELETE SET NULL
 #  roles_members                          | roles_members_member_id_fkey                         | (member_id) REFERENCES members(id)
+#  uploaded_files                         | uploaded_files_created_by_id_fkey                    | (created_by_id) REFERENCES members(id)
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------

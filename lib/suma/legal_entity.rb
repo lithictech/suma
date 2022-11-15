@@ -23,7 +23,8 @@ end
 # Foreign key constraints:
 #  legal_entities_address_id_fkey | (address_id) REFERENCES addresses(id) ON DELETE SET NULL
 # Referenced By:
-#  bank_accounts                | bank_accounts_legal_entity_id_fkey                       | (legal_entity_id) REFERENCES legal_entities(id) ON DELETE RESTRICT
 #  member_linked_legal_entities | member_linked_legal_entities_linked_legal_entity_id_fkey | (linked_legal_entity_id) REFERENCES legal_entities(id)
 #  members                      | members_legal_entity_id_fkey                             | (legal_entity_id) REFERENCES legal_entities(id) ON DELETE RESTRICT
+#  payment_bank_accounts        | bank_accounts_legal_entity_id_fkey                       | (legal_entity_id) REFERENCES legal_entities(id) ON DELETE RESTRICT
+#  payment_cards                | payment_cards_legal_entity_id_fkey                       | (legal_entity_id) REFERENCES legal_entities(id) ON DELETE RESTRICT
 # -------------------------------------------------------------------------------------------------------------------------------------------------------------
