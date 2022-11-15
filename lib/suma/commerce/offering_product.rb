@@ -17,6 +17,10 @@ class Suma::Commerce::OfferingProduct < Suma::Postgres::Model(:commerce_offering
     end
   end
 
+  def available?
+    return self.closed_at.nil?
+  end
+
   def discounted?
     return false if self.undiscounted_price.nil?
     return false if self.customer_price == self.undiscounted_price

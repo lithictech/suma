@@ -309,4 +309,18 @@ module Suma::Service::Helpers
     requires :payment_instrument_id, type: Integer
     requires :payment_method_type, type: String, values: ["bank_account", "card"]
   end
+
+  def find_payment_instrument?(member, params)
+    return nil if params.nil?
+    return nil unless params[:payment_instrument_id]
+    return find_payment_instrument!(member, params)
+  end
+
+  def find_payment_instrument!(member, params)
+    instrument = member.usable_payment_instruments.find do |pi|
+      pi.id == params[:payment_instrument_id] && pi.payment_method_type == params[:payment_method_type]
+    end
+    merror!(403, "Instrument not found", code: "resource_not_found") unless instrument
+    return instrument
+  end
 end

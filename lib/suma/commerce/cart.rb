@@ -21,14 +21,14 @@ class Suma::Commerce::Cart < Suma::Postgres::Model(:commerce_carts)
   end
 
   plugin :timestamps
-  plugin :soft_deletes
 
   many_to_one :member, class: "Suma::Member"
   many_to_one :offering, class: "Suma::Commerce::Offering"
   one_to_many :items, class: "Suma::Commerce::CartItem"
+  one_to_many :checkouts, class: "Suma::Commerce::Checkout"
 
   def self.lookup(member:, offering:)
-    return self.find_or_create_or_find(member:, offering:, soft_deleted_at: nil)
+    return self.find_or_create_or_find(member:, offering:)
   end
 
   IGNORE = Object.new.freeze

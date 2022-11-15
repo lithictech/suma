@@ -10,6 +10,10 @@ import { t } from "./localization";
 import useI18Next, { I18NextProvider } from "./localization/useI18Next";
 import Dashboard from "./pages/Dashboard";
 import Food from "./pages/Food";
+import FoodCart from "./pages/FoodCart";
+import FoodCheckout from "./pages/FoodCheckout";
+import FoodCheckoutConfirmation from "./pages/FoodCheckoutConfirmation";
+import FoodConfirmation from "./pages/FoodConfirmation";
 import FoodDetails from "./pages/FoodDetails";
 import FoodList from "./pages/FoodList";
 import Funding from "./pages/Funding";
@@ -203,6 +207,54 @@ function AppRoutes() {
             withMetatags({ title: t("food:title") }),
             withLayout({ gutters: false, top: false }),
             FoodDetails
+          )}
+        />
+        <Route
+          path="/cart/:id"
+          exact
+          element={renderWithHocs(
+            redirectIfUnauthed,
+            redirectIfUnboarded,
+            withScreenLoaderMount(),
+            withMetatags({ title: t("food:cart_title") }),
+            withLayout({ gutters: false, top: true }),
+            FoodCart
+          )}
+        />
+        <Route
+          path="/checkout/:id"
+          exact
+          element={renderWithHocs(
+            redirectIfUnauthed,
+            redirectIfUnboarded,
+            withScreenLoaderMount(),
+            withMetatags({ title: t("food:checkout") }),
+            withLayout({ gutters: true, top: true }),
+            FoodCheckout
+          )}
+        />
+        <Route
+          path="/checkout/:id/confirmation"
+          exact
+          element={renderWithHocs(
+            redirectIfUnauthed,
+            redirectIfUnboarded,
+            withScreenLoaderMount(),
+            withMetatags({ title: t("food:checkout") }),
+            withLayout({ appNav: true, gutters: true, top: true }),
+            FoodCheckoutConfirmation
+          )}
+        />
+        <Route
+          path="/order-confirmation"
+          exact
+          element={renderWithHocs(
+            redirectIfUnauthed,
+            redirectIfUnboarded,
+            withScreenLoaderMount(),
+            withMetatags({ title: t("food:checkout") }),
+            withLayout({ gutters: true, top: true }),
+            FoodConfirmation
           )}
         />
 

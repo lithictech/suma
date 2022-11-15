@@ -31,4 +31,8 @@ class Suma::Commerce::CartItem < Suma::Postgres::Model(:commerce_cart_items)
     Suma::Commerce::OfferingProduct.
       where(offering_id: self.cart.offering_id, product_id: self.product_id)
   end
+
+  def available?
+    return self.offering_product&.available? || false
+  end
 end

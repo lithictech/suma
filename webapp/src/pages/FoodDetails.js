@@ -5,6 +5,7 @@ import LinearBreadcrumbs from "../components/LinearBreadcrumbs";
 import PageLoader from "../components/PageLoader";
 import SumaImage from "../components/SumaImage";
 import { t } from "../localization";
+import makeTitle from "../modules/makeTitle";
 import Money from "../shared/react/Money";
 import { useOffering } from "../state/useOffering";
 import { LayoutContainer } from "../state/withLayout";
@@ -19,7 +20,7 @@ export default function FoodDetails() {
   let { offeringId, productId } = useParams();
   productId = parseInt(productId, 10);
 
-  const { products, cart, initializeToOffering, error, loading } = useOffering();
+  const { vendors, products, cart, initializeToOffering, error, loading } = useOffering();
 
   React.useEffect(() => {
     initializeToOffering(offeringId);
@@ -38,19 +39,18 @@ export default function FoodDetails() {
       </LayoutContainer>
     );
   }
-
-  const title = [
-    product.name,
-    product.vendor.name,
-    t("food:title"),
-    t("titles:suma_app"),
-  ].join(" | ");
+  const vendor = _.find(vendors, (v) => v.id === product.vendorId);
+  const title = makeTitle(product.name, vendor.name, t("food:title"));
   return (
     <>
       <Helmet>
         <title>{title}</title>
       </Helmet>
-      <FoodNav cart={cart} startElement={<LinearBreadcrumbs back noBottom />} />
+      <FoodNav
+        offeringId={offeringId}
+        cart={cart}
+        startElement={<LinearBreadcrumbs back noBottom />}
+      />
       <SumaImage
         image={product.images[0]}
         alt={product.name}
@@ -72,7 +72,7 @@ export default function FoodDetails() {
                 </strike>
               )}
             </p>
-            <p>{t("food:from") + " " + product.vendor.name}</p>
+            <p>{t("food:from") + " " + vendor.name}</p>
           </div>
           <div className="ms-auto">
             <FoodCartWidget product={product} size="lg" />

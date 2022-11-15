@@ -2,6 +2,7 @@
 
 require "csv"
 require "appydays/configurable"
+require "sequel/sequel_translated_text"
 
 require "suma"
 

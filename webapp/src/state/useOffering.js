@@ -1,6 +1,5 @@
 import api from "../api";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
-import useLocalStorageState from "../shared/react/useLocalStorageState";
 import React from "react";
 
 export const OfferingContext = React.createContext();
@@ -9,9 +8,23 @@ export const useOffering = () => React.useContext(OfferingContext);
 const NOOP = Symbol("noop");
 
 export function OfferingProvider({ children }) {
-  const [offering, setOfferingInner] = React.useState(null);
-  const [cart, setCartInner] = useLocalStorageState("sumacart", { items: [] });
+  const [offering, setOfferingInner] = React.useState({});
+  const [vendors, setVendorsInner] = React.useState([]);
+  // Do not store things in local storage here:
+  // because carts depend on everything else being loaded,
+  // saving just the cart causes errors.
+  const [cart, setCartInner] = React.useState({ items: [] });
   const [products, setProductsInner] = React.useState([]);
+
+  const reset = React.useCallback(() => {
+    setOfferingInner({});
+    setVendorsInner([]);
+    // Do not store things in local storage here:
+    // because carts depend on everything else being loaded,
+    // saving just the cart causes errors.
+    setCartInner({ items: [] });
+    setProductsInner([]);
+  }, []);
 
   const fetchOfferingProducts = React.useCallback(
     (id) => {
@@ -19,7 +32,7 @@ export function OfferingProvider({ children }) {
       if (id === offering?.id) {
         return Promise.resolve(NOOP);
       }
-      return api.getCommerceOfferingProducts({ id });
+      return api.getCommerceOfferingDetails({ id });
     },
     [offering?.id]
   );
@@ -36,6 +49,7 @@ export function OfferingProvider({ children }) {
           return;
         }
         setOfferingInner(resp.data.offering);
+        setVendorsInner(resp.data.vendors);
         setCartInner(resp.data.cart);
         setProductsInner(resp.data.items);
       });
@@ -48,11 +62,13 @@ export function OfferingProvider({ children }) {
       value={{
         initializeToOffering,
         offering,
+        vendors,
         products,
         cart,
         setCart: setCartInner,
         loading,
         error,
+        reset,
       }}
     >
       {children}

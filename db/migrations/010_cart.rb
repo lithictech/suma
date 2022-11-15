@@ -32,34 +32,10 @@ Sequel.migration do
 
     create_table(:commerce_fulfillment_options) do
       primary_key :id
-      timestamptz :created_at, null: false, default: Sequel.function(:now)
-      timestamptz :updated_at
-      timestamptz :soft_deleted_at
-
-      text :type, null: false
-
-      text :description
-      foreign_key :address_id, :addresses
-      constraint(
-        :description_set_if_no_address,
-        Sequel.nonempty_string_constraint(:description) | (Sequel[:address_id] !~ nil),
-      )
     end
 
     create_table(:commerce_checkouts) do
       primary_key :id
-      timestamptz :created_at, null: false, default: Sequel.function(:now)
-      timestamptz :updated_at
-      timestamptz :soft_deleted_at
-
-      foreign_key :cart_id, :commerce_carts, null: false
-      index :cart_id
-
-      foreign_key :bank_account_id, :payment_bank_accounts
-      foreign_key :card_id, :payment_cards
-      constraint(:unambiguous_payment_instrument, Sequel.unambiguous_constraint([:bank_account_id, :card_id]))
-
-      foreign_key :fulfillment_option_id, :commerce_fulfillment_options
     end
   end
 end

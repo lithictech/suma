@@ -85,15 +85,21 @@ so are keeping it very simple (but in a way that is able to evolve in the future
 - `Product` represents an abstract product, like "20lb Turkey". It is tied to a vendor.
 - `Offering` represents a thing like "Suma Holiday 2022 Extravaganza" (a one-time event with multiple vendors)
   or could be "Food from Alan's Farm" (an ongoing offering with products just from Alan's Farm).
-  It includes default fulfillment information, like a pickup address.
 - `OfferingProduct` makes a product available in an `Offering`. This is the "concrete" version
   of the abstract product. The important thing is that it has prices, described earlier.
-- `OfferingCart` and `OfferingCartItem` are the products someone has for an offering.
-  We do not allow cross-offering purchases, since their fulfillment will be different.
-  Each item represents a quantity (note that the item itself does not have a quantity; instead we have multiple rows).
-- `Checkout` is a single checkout flow. It ties to a cart, fulfillment, and other contextual information.
-- `Order` and `OrderItem` represents a finished checkout. It is analogous to an `OfferingCart` and `OfferingCartItem`
-  but is not editable directly.
+- `OfferingFulfillmentOption` list the ways an offering can be fulfilled.
+  During checkout, a member selects a fulfillment option for their order.
+- `Cart` and `CartItem` are the products someone has for an offering.
+  - We do not allow cross-offering purchases, since their fulfillment will be different.
+  - The `CartItem` points to a product (not an offering product). This causes price changes to products to cause price changes of items in the cart, but NOT during checkout flow, as per `CheckoutItem` below.
+- `Checkout` is a single checkout flow. It ties to a cart, payment, fulfillment, and other contextual information.
+- `CheckoutItem` attaches a checkout to a specific offering product; this ensures that,
+  if the 'active' offering product changes, the checkout does not suddenly point to a new price.
+  - **NOTE**: checkout items at first point to a cart item; so if the cart item changes,
+    the quantity of the checkout item changes. Once the checkout is deleted or completed,
+    however, the `CartItem.quantity` gets copied over to the `CheckoutItem.immutable_quantity`.
+- `Order` represents a finished checkout. It has a collection of `CheckoutItem`
+  (note that checkout items and their associated offering products are effectively immutable at this point).
   - Orders have statuses, based on [Shopify order statuses](https://help.shopify.com/en/manual/orders/order-status)
     but simplified.
   - Orders are linked to a `Charge`, which represents the debit against the member ledger.

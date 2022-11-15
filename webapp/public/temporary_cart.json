@@ -1,0 +1,78 @@
+{
+  "subtotal_price": {
+    "cents": 4600,
+    "currency": "USD"
+  },
+  "gross_price": {
+    "cents": 4600,
+    "currency": "USD"
+  },
+  "estimated_tax_amount": {
+    "cents": 350,
+    "currency": "USD"
+  },
+  "savings_amount": {
+    "cents": 1390,
+    "currency": "USD"
+  },
+  "total_price": {
+    "cents": 4950,
+    "currency": "USD"
+  },
+  "items": [
+    {
+      "name": "Turkey dinner with sides",
+      "description": "Includes stuffing, mashed potatoes, green beans, dinner rolls, gravy, cranberry, and pie for dessert.",
+      "productId": 1,
+      "offeringId": 1,
+      "isDiscounted": true,
+      "quantity": 1,
+      "customerPrice": {
+        "cents": 2300,
+        "currency": "USD"
+      },
+      "vendor": { "id": 2, "name": "Sheridan's Market" },
+      "undiscountedPrice": {
+        "cents": 2995,
+        "currency": "USD"
+      },
+      "offeringDescription": {
+        "id": 1,
+        "createdAt": "2022-11-08T14:04:00.082+00:00",
+        "en": "Holidays 2022",
+        "es": "Días festivos"
+      },
+      "image": {
+        "caption": "",
+        "url": "http://localhost:22001/api/v1/images/im_a6pympohypqke6587jk4b4hba"
+      }
+    },
+    {
+      "name": "Ham dinner with sides",
+      "description": "Includes stuffing, mashed potatoes, green beans, dinner rolls, gravy, cranberry, and pie for dessert.",
+      "productId": 2,
+      "offeringId": 1,
+      "isDiscounted": true,
+      "quantity": 1,
+      "customerPrice": {
+        "cents": 2300,
+        "currency": "USD"
+      },
+      "vendor": { "id": 2, "name": "Sheridan's Market" },
+      "undiscountedPrice": {
+        "cents": 2995,
+        "currency": "USD"
+      },
+      "offeringDescription": {
+        "id": 1,
+        "createdAt": "2022-11-08T14:04:00.082+00:00",
+        "en": "Holidays 2022",
+        "es": "Días festivos"
+      },
+      "image": {
+        "caption": "",
+        "url": "http://localhost:22001/api/v1/images/im_9vygrwvyy9ygnllql0i5wqhhz"
+      }
+    }
+  ]
+}
