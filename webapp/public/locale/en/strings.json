@@ -157,9 +157,9 @@
     "zoom_out": "Zoom out"
   },
   "onboarding": {
-    "enroll_intro": "Welcome to Suma! To get started, we will need to verify your identity. This makes sure you are eligible for the right programs, such as with our affordable housing partners.\n\n**We will never share this information other than to verify your identity.**",
+    "enroll_intro_md": "Welcome to Suma! To get started, we will need to verify your identity. This makes sure you are eligible for the right programs, such as with our affordable housing partners.\n\n**We will never share this information other than to verify your identity.**",
     "enroll_title": "Enroll in Suma",
-    "finish": "Thanks! Our team will check things out and be in touch with any questions, or as soon as you&rsquo;re verified.\n\nVerification usually happens within 1-2 business days.\n\nIn the meantime, you can learn more about the application and see what is available.",
+    "finish_md": "Thanks! Our team will check things out and be in touch with any questions, or as soon as you&rsquo;re verified.\n\nVerification usually happens within 1-2 business days.\n\nIn the meantime, you can learn more about the application and see what is available.",
     "food_text": "Suma partners with the grocers you already use to offer discounts and bundled benefits",
     "food_title": "Fresh Groceries",
     "mobility_text": "Reduced-fare clean-energy transportation with electric scooters and bikes",
