@@ -62,6 +62,7 @@ class Suma::Commerce::Cart < Suma::Postgres::Model(:commerce_carts)
     bad_ts = timestamp != IGNORE && (timestamp.nil? || timestamp <= item.timestamp)
     raise OutOfOrderUpdate.new(item, timestamp) if bad_ts
     if quantity <= 0
+      item.checkout_items_dataset.delete
       item.delete
       self.items.delete(item)
     else
