@@ -9,25 +9,21 @@ import { useLocation, useParams } from "react-router-dom";
 
 export default function FoodCheckoutConfirmation() {
   const { id } = useParams();
-  const { state } = useLocation();
+  const location = useLocation();
+  const getCheckoutConfirmation = React.useCallback(
+    () => api.getCheckoutConfirmation({ id }),
+    [id]
+  );
   const {
     state: checkout,
     loading,
     error,
-    asyncFetch,
-  } = useAsyncFetch(api.getCheckoutConfirmation, {
-    default: state?.checkout,
+  } = useAsyncFetch(getCheckoutConfirmation, {
+    default: {},
     pickData: true,
-    doNotFetchOnInit: true,
+    pullFromState: "checkout",
+    location,
   });
-  React.useEffect(() => {
-    if (_.isEmpty(checkout)) {
-      asyncFetch({ id });
-    }
-  }, [asyncFetch, checkout, id]);
-  React.useEffect(() => {
-    window.history.replaceState({}, document.title);
-  }, []);
 
   if (error) {
     return (

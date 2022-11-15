@@ -16,6 +16,16 @@ export function OfferingProvider({ children }) {
   const [cart, setCartInner] = React.useState({ items: [] });
   const [products, setProductsInner] = React.useState([]);
 
+  const reset = React.useCallback(() => {
+    setOfferingInner({});
+    setVendorsInner([]);
+    // Do not store things in local storage here:
+    // because carts depend on everything else being loaded,
+    // saving just the cart causes errors.
+    setCartInner({ items: [] });
+    setProductsInner([]);
+  }, []);
+
   const fetchOfferingProducts = React.useCallback(
     (id) => {
       id = parseInt(id, 10);
@@ -58,6 +68,7 @@ export function OfferingProvider({ children }) {
         setCart: setCartInner,
         loading,
         error,
+        reset,
       }}
     >
       {children}

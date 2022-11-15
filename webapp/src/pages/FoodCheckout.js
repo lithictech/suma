@@ -6,6 +6,7 @@ import SumaImage from "../components/SumaImage";
 import { t } from "../localization";
 import Money from "../shared/react/Money";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
+import { useOffering } from "../state/useOffering";
 import { useScreenLoader } from "../state/useScreenLoader";
 import { LayoutContainer } from "../state/withLayout";
 import clsx from "clsx";
@@ -26,28 +27,22 @@ import {
 
 export default function FoodCheckout() {
   const { id } = useParams();
-  const { state } = useLocation();
+  const location = useLocation();
   const [searchParams] = useSearchParams();
   const screenLoader = useScreenLoader();
   const navigate = useNavigate();
+  const { reset: resetOffering } = useOffering();
+  const getCheckout = React.useCallback(() => api.getCheckout({ id }), [id]);
   const {
     state: fetchedCheckout,
     loading,
     error,
-    asyncFetch,
-  } = useAsyncFetch(api.getCheckout, {
-    default: state?.checkout,
+  } = useAsyncFetch(getCheckout, {
+    default: {},
     pickData: true,
-    doNotFetchOnInit: true,
+    pullFromState: "checkout",
+    location,
   });
-  React.useEffect(() => {
-    if (_.isEmpty(fetchedCheckout)) {
-      asyncFetch({ id });
-    }
-  }, [asyncFetch, fetchedCheckout, id]);
-  React.useEffect(() => {
-    window.history.replaceState({}, document.title);
-  }, []);
 
   const [checkoutMutations, setCheckoutMutations] = React.useState({});
   const checkout = _.merge({}, fetchedCheckout, checkoutMutations);
@@ -76,9 +71,12 @@ export default function FoodCheckout() {
     e.preventDefault();
     screenLoader.turnOn();
     api
-      .completeCheckout({ id, paymentInstrument: chosenInstrument })
+      .completeCheckout({ ...checkout, paymentInstrument: chosenInstrument })
       .then(api.pickData)
-      .then((d) => navigate(`/checkout/${id}/confirmation`, { state: { checkout: d } }))
+      .then((d) => {
+        resetOffering();
+        navigate(`/checkout/${id}/confirmation`, { state: { checkout: d } });
+      })
       .catch((e) => {
         screenLoader.turnOff();
         console.error(e);

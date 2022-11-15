@@ -1,3 +1,4 @@
+import _ from "lodash";
 import React from "react";
 
 /**
@@ -6,13 +7,26 @@ import React from "react";
  * @param {*=} options.default
  * @param {boolean=} options.doNotFetchOnInit
  * @param {boolean=} options.pickData
+ * @param {string=} options.pullFromState
+ * @param {Location=} options.location
  * @returns {{state, asyncFetch, error, loading}}
  */
 const useAsyncFetch = (makeRequest, options) => {
-  options = options || {};
-  const [state, setState] = React.useState(options.default);
+  let {
+    default: defaultVal,
+    doNotFetchOnInit,
+    location,
+    pickData,
+    pullFromState,
+  } = options || {};
+  if (pullFromState && _.get(location, ["state", pullFromState])) {
+    defaultVal = location.state[pullFromState];
+    doNotFetchOnInit = true;
+    window.history.replaceState({}, document.title);
+  }
+  const [state, setState] = React.useState(defaultVal);
   const [error, setError] = React.useState(null);
-  const [loading, setLoading] = React.useState(!options.doNotFetchOnInit);
+  const [loading, setLoading] = React.useState(!doNotFetchOnInit);
 
   const asyncFetch = React.useCallback(
     (...args) => {
@@ -20,7 +34,7 @@ const useAsyncFetch = (makeRequest, options) => {
       setError(false);
       return makeRequest(...args)
         .then((x) => {
-          const st = options.pickData ? x.data : x;
+          const st = pickData ? x.data : x;
           setState(st);
           return st;
         })
@@ -28,14 +42,14 @@ const useAsyncFetch = (makeRequest, options) => {
         .tap(() => setLoading(false))
         .tapCatch(() => setLoading(false));
     },
-    [makeRequest, options.pickData]
+    [makeRequest, pickData]
   );
 
   React.useEffect(() => {
-    if (!options.doNotFetchOnInit) {
+    if (!doNotFetchOnInit) {
       asyncFetch();
     }
-  }, [asyncFetch, options.doNotFetchOnInit]);
+  }, [asyncFetch, doNotFetchOnInit]);
   return {
     state,
     asyncFetch,
