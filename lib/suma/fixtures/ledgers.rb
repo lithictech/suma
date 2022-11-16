@@ -34,4 +34,8 @@ module Suma::Fixtures::Ledgers
     self.add_vendor_service_category(Suma::Fixtures.vendor_service_category.send(name).create)
     self.name ||= name
   end
+
+  def self.ensure_platform_cash
+    return Suma::Payment.ensure_cash_ledger(Suma::Payment::Account.lookup_platform_account)
+  end
 end

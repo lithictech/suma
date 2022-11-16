@@ -9,6 +9,7 @@ class Suma::Commerce::Order < Suma::Postgres::Model(:commerce_orders)
 
   one_to_many :audit_logs, class: "Suma::Commerce::OrderAuditLog", order: Sequel.desc(:at)
   many_to_one :checkout, class: "Suma::Commerce::Checkout"
+  one_to_many :charges, class: "Suma::Charge", key: :commerce_order_id
 
   state_machine :order_status, initial: :open do
     state :open

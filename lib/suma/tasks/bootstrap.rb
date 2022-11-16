@@ -9,141 +9,95 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
     super()
     desc "Bootstrap a new database so you can use the app."
     task :bootstrap do
+      ENV["SUMA_DB_SLOW_QUERY_SECONDS"] = "1"
       Suma.load_app
       SequelTranslatedText.language = :en
 
-      usa = Suma::SupportedGeography.find_or_create(label: "USA", value: "United States of America", type: "country")
-      Suma::SupportedGeography.find_or_create(
-        label: "Oregon", value: "Oregon", type: "province", parent: usa,
-      )
-      Suma::SupportedGeography.find_or_create(
-        label: "North Carolina", value: "North Carolina", type: "province", parent: usa,
-      )
+      Suma::Member.db.transaction do
+        self.create_meta_resources
 
-      org = Suma::Organization.find_or_create(name: "Spin")
-      org.db.transaction do
-        ["Food", "Mobility", "Cash"].each { |n| Suma::Vendor::ServiceCategory.find_or_create(name: n) }
-        undiscounted_rate = Suma::Vendor::ServiceRate.find_or_create(name: "Mobility $1 start $0.30/minute") do |r|
-          r.localization_key = "mobility_start_and_per_minute"
-          r.surcharge = Money.new(100)
-          r.unit_amount = Money.new(30)
-        end
-        rate = Suma::Vendor::ServiceRate.find_or_create(name: "Mobility $0.50 start $0.10/minute") do |r|
-          r.localization_key = "mobility_start_and_per_minute"
-          r.surcharge = Money.new(50)
-          r.unit_amount = Money.new(10)
-          r.undiscounted_rate = undiscounted_rate
-        end
-        spin = Suma::Vendor.find_or_create(slug: "spin", organization: org) do |v|
-          v.name = "Demo"
-        end
-        if spin.services_dataset.mobility.empty?
-          svc = spin.add_service(
-            internal_name: "Spin Scooters",
-            external_name: "Demo E-Scooters",
-            sync_url: "https://gbfs.spin.pm/api/gbfs/v2_2/portland/free_bike_status",
-            mobility_vendor_adapter_key: "fake",
-          )
-          svc.add_category(Suma::Vendor::ServiceCategory.find_or_create(name: "Mobility"))
-          svc.add_category(Suma::Vendor::ServiceCategory.find_or_create(name: "Cash"))
-          svc.add_rate(rate)
-        end
-      end
-      require "suma/mobility/sync_spin"
-      i = org.db.transaction do
-        Suma::Mobility::SyncSpin.sync_all
-      end
-      puts "Synced #{i} scooters"
-      self.create_restricted_areas
+        scooterorg = self.setup_scooter_vendor
+        self.sync_scooters(scooterorg)
+        self.create_restricted_areas
 
-      admin = Suma::Member.find_or_create(email: "admin@lithic.tech") do |c|
-        c.password = "Password1!"
-        c.name = "Suma Admin"
-        c.phone = "15552223333"
-      end
-      admin.ensure_role(Suma::Role.admin_role)
-      Suma::SupportedCurrency.find_or_create(code: "USD") do |c|
-        c.symbol = "$"
-        c.funding_minimum_cents = 500
-        c.funding_step_cents = 100
-        c.cents_in_dollar = 100
-        c.payment_method_types = ["bank_account", "card"]
-        c.ordinal = 1
-      end
+        self.setup_admin
 
-      suma_org = Suma::Organization.find_or_create(name: "suma")
-      if Suma::Commerce::Offering.dataset.empty?
-        offering = Suma::Commerce::Offering.new
-        offering.period = 1.day.ago..Time.new(2022, 12, 16)
-        offering.description = Suma::TranslatedText.create(en: "Holidays 2022", es: "Días festivos")
-        offering.save_changes
-
-        bytes = File.binread("spec/data/images/holiday-offering.jpeg")
-        uf = Suma::UploadedFile.create_with_blob(bytes:, content_type: "image/jpeg", filename: "holiday-offering.jpeg")
-        offering.add_image({uploaded_file: uf})
-
-        Suma::Commerce::Offering.create(
-          description_string: "No Image Tester",
-          period: 1.day.ago..Time.new(2022, 12, 16),
-        )
-      else
-        offering = Suma::Commerce::Offering.first
-      end
-
-      products = [
-        {
-          en: "Turkey dinner with sides",
-          es: "Pavos con guarniciones",
-          image: "turkey-dinner.jpeg",
-        },
-        {
-          en: "Ham dinner with sides",
-          image: "ham-dinner.jpeg",
-        },
-      ]
-      Suma::Commerce::Product.dataset.empty? && products.each do |ps|
-        product = Suma::Commerce::Product.new
-        product.name = Suma::TranslatedText.create(en: ps[:en], es: ps[:es] || "")
-        product.description_string = "Includes stuffing, mashed potatoes, green beans, " \
-                                     "dinner rolls, gravy, cranberry, and pie for dessert."
-        product.vendor = Suma::Vendor.find_or_create(name: "Sheridan's Market", organization: suma_org)
-        product.our_cost = Money.new(23_00)
-        product.save_changes
-        bytes = File.binread("spec/data/images/#{ps[:image]}")
-        uf = Suma::UploadedFile.create_with_blob(bytes:, content_type: "image/jpeg", filename: ps[:image])
-        product.add_image({uploaded_file: uf})
-        Suma::Commerce::OfferingProduct.create(
-          offering:,
-          product:,
-          customer_price: Money.new(23_00),
-          undiscounted_price: Money.new(29_95),
-        )
-      end
-      if offering.fulfillment_options.empty?
-        offering.add_fulfillment_option(
-          type: "pickup",
-          ordinal: 0,
-          description: Suma::TranslatedText.create(en: "Pickup at Sheridan's Market"),
-          address: Suma::Address.lookup(
-            address1: "409 SE Martin Luther King Jr Blvd",
-            city: "Portland",
-            state_or_province: "Oregon",
-            postal_code: "97214",
-          ),
-        )
-        offering.add_fulfillment_option(
-          type: "pickup",
-          ordinal: 1,
-          description: Suma::TranslatedText.create(en: "Pickup at Hacienda CDC"),
-          address: Suma::Address.lookup(
-            address1: " 6700 NE Killingsworth St",
-            city: "Portland",
-            state_or_province: "Oregon",
-            postal_code: "97218",
-          ),
-        )
+        self.setup_offerings
+        self.setup_products
       end
     end
+  end
+
+  def cash_category
+    return Suma::Vendor::ServiceCategory.find_or_create(name: "Cash")
+  end
+
+  def mobility_category
+    Suma::Vendor::ServiceCategory.find_or_create(name: "Mobility", parent: cash_category)
+  end
+
+  def food_category
+    Suma::Vendor::ServiceCategory.find_or_create(name: "Food", parent: cash_category)
+  end
+
+  def holidays_category
+    Suma::Vendor::ServiceCategory.find_or_create(name: "Holiday 2022 Promo", parent: food_category)
+  end
+
+  def create_meta_resources
+    usa = Suma::SupportedGeography.find_or_create(label: "USA", value: "United States of America", type: "country")
+    Suma::SupportedGeography.find_or_create(
+      label: "Oregon", value: "Oregon", type: "province", parent: usa,
+    )
+    Suma::SupportedGeography.find_or_create(
+      label: "North Carolina", value: "North Carolina", type: "province", parent: usa,
+    )
+
+    Suma::SupportedCurrency.find_or_create(code: "USD") do |c|
+      c.symbol = "$"
+      c.funding_minimum_cents = 500
+      c.funding_step_cents = 100
+      c.cents_in_dollar = 100
+      c.payment_method_types = ["bank_account", "card"]
+      c.ordinal = 1
+    end
+  end
+
+  def setup_scooter_vendor
+    org = Suma::Organization.find_or_create(name: "Spin")
+    undiscounted_rate = Suma::Vendor::ServiceRate.find_or_create(name: "Mobility $1 start $0.30/minute") do |r|
+      r.localization_key = "mobility_start_and_per_minute"
+      r.surcharge = Money.new(100)
+      r.unit_amount = Money.new(30)
+    end
+    rate = Suma::Vendor::ServiceRate.find_or_create(name: "Mobility $0.50 start $0.10/minute") do |r|
+      r.localization_key = "mobility_start_and_per_minute"
+      r.surcharge = Money.new(50)
+      r.unit_amount = Money.new(10)
+      r.undiscounted_rate = undiscounted_rate
+    end
+    spin = Suma::Vendor.find_or_create(slug: "spin", organization: org) do |v|
+      v.name = "Demo"
+    end
+    if spin.services_dataset.mobility.empty?
+      svc = spin.add_service(
+        internal_name: "Spin Scooters",
+        external_name: "Demo E-Scooters",
+        sync_url: "https://gbfs.spin.pm/api/gbfs/v2_2/portland/free_bike_status",
+        mobility_vendor_adapter_key: "fake",
+      )
+      svc.add_category(mobility_category)
+      svc.add_rate(rate)
+    end
+    return org
+  end
+
+  def sync_scooters(org)
+    require "suma/mobility/sync_spin"
+    i = org.db.transaction do
+      Suma::Mobility::SyncSpin.sync_all
+    end
+    puts "Synced #{i} scooters"
   end
 
   def create_restricted_areas
@@ -222,6 +176,95 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
       Suma::Mobility::RestrictedArea.find_or_create(restriction: "do-not-park-#{i}") do |ra|
         ra.polygon = coords
       end
+    end
+  end
+
+  def setup_admin
+    admin = Suma::Member.find_or_create(email: "admin@lithic.tech") do |c|
+      c.password = "Password1!"
+      c.name = "Suma Admin"
+      c.phone = "15552223333"
+    end
+    admin.ensure_role(Suma::Role.admin_role)
+  end
+
+  def setup_offerings
+    return unless Suma::Commerce::Offering.dataset.empty?
+
+    offering = Suma::Commerce::Offering.new
+    offering.period = 1.day.ago..Time.new(2022, 12, 16)
+    offering.description = Suma::TranslatedText.create(en: "Holidays 2022", es: "Días festivos")
+    offering.save_changes
+
+    bytes = File.binread("spec/data/images/holiday-offering.jpeg")
+    uf = Suma::UploadedFile.create_with_blob(bytes:, content_type: "image/jpeg", filename: "holiday-offering.jpeg")
+    offering.add_image({uploaded_file: uf})
+
+    offering.add_fulfillment_option(
+      type: "pickup",
+      ordinal: 0,
+      description: Suma::TranslatedText.create(en: "Pickup at Sheridan's Market"),
+      address: Suma::Address.lookup(
+        address1: "409 SE Martin Luther King Jr Blvd",
+        city: "Portland",
+        state_or_province: "Oregon",
+        postal_code: "97214",
+      ),
+    )
+    offering.add_fulfillment_option(
+      type: "pickup",
+      ordinal: 1,
+      description: Suma::TranslatedText.create(en: "Pickup at Hacienda CDC"),
+      address: Suma::Address.lookup(
+        address1: "6700 NE Killingsworth St",
+        city: "Portland",
+        state_or_province: "Oregon",
+        postal_code: "97218",
+      ),
+    )
+
+    # Create this extra one
+    Suma::Commerce::Offering.create(
+      description_string: "No Image Tester",
+      period: 1.day.ago..Time.new(2022, 12, 16),
+    )
+  end
+
+  def setup_products
+    return unless Suma::Commerce::Product.dataset.empty?
+
+    products = [
+      {
+        en: "Turkey dinner with sides",
+        es: "Pavos con guarniciones",
+        image: "turkey-dinner.jpeg",
+      },
+      {
+        en: "Ham dinner with sides",
+        image: "ham-dinner.jpeg",
+      },
+    ]
+
+    suma_org = Suma::Organization.find_or_create(name: "suma")
+    offering = Suma::Commerce::Offering.first
+    products.each do |ps|
+      product = Suma::Commerce::Product.new
+      product.name = Suma::TranslatedText.create(en: ps[:en], es: ps[:es] || "")
+      product.description_string = "Includes stuffing, mashed potatoes, green beans, " \
+                                   "dinner rolls, gravy, cranberry, and pie for dessert."
+      product.vendor = Suma::Vendor.find_or_create(name: "Sheridan's Market", organization: suma_org)
+      product.our_cost = Money.new(90_00)
+      product.save_changes
+      product.add_vendor_service_category(holidays_category)
+      bytes = File.binread("spec/data/images/#{ps[:image]}")
+      uf = Suma::UploadedFile.create_with_blob(bytes:, content_type: "image/jpeg", filename: ps[:image])
+      product.add_image({uploaded_file: uf})
+      Suma::Commerce::OfferingProduct.create(
+        offering:,
+        product:,
+        customer_price: Money.new(90_00),
+        undiscounted_price: Money.new(180_00),
+      )
     end
   end
 end

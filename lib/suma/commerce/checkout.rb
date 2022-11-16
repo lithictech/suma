@@ -53,26 +53,142 @@ class Suma::Commerce::Checkout < Suma::Postgres::Model(:commerce_checkouts)
     end
   end
 
+  # Subtotal of all items, without any discounts.
+  # @return [Money]
   def undiscounted_cost = self.items.sum(Money.new(0), &:undiscounted_cost)
+
+  # Subtotal of all items with their discounts.
+  # @return [Money]
   def customer_cost = self.items.sum(Money.new(0), &:customer_cost)
+
+  # Difference between customer and undiscounted cost.
+  # @return [Money]
   def savings = self.items.sum(Money.new(0), &:savings)
+
+  # Service fee for this order.
+  # @return [Money]
   def handling = Money.new(0)
+
+  # Tax can be charged on the subtotal and handling.
+  # @return [Money]
   def taxable_cost = self.handling + self.customer_cost
+
+  # Total tax to collect.
+  # @return [Money]
   def tax = Money.new(0)
+
+  # Subtotal, handling, and tax make up the total cost for the order.
+  # @return [Money]
   def total = self.customer_cost + self.handling
+
+  # Nonzero contributions made by existing customer ledgers against the order totals.
+  # @return [Array<Suma::Payment::Account::ChargeContribution]
+  def usable_ledger_contributions
+    return self.ledger_charge_contributions(now: Time.now, remainder_ledger: :ignore).
+        delete_if { |c| c.amount.zero? }
+  end
+
+  # Chargeable total is the total, minus the contributions from customer ledgers.
+  # @return [Money]
+  def chargeable_total
+    total = self.total
+    contribs = self.usable_ledger_contributions
+    paid = contribs.sum(Money.new(0), &:amount)
+    return total - paid
+  end
 
   def create_order
     self.db.transaction do
       self.lock!
+      now = Time.now
       raise Uneditable, "Checkout[#{self.id}] is not editable" unless self.editable?
       order = Suma::Commerce::Order.create(checkout: self)
       self.freeze_items
       self.cart.items_dataset.delete
       self.cart.associations.delete(:items)
-      self.payment_instrument.soft_delete unless self.save_payment_instrument
       self.complete.save_changes
+
+      # Record the charge for the full, undiscounted amount.
+      charge = Suma::Charge.create(
+        member: self.cart.member,
+        commerce_order: order,
+        undiscounted_subtotal: self.undiscounted_cost + self.handling + self.tax,
+      )
+
+      cash_ledger = self.cart.member.payment_account!.cash_ledger!
+      # We have some real possible debits, and possibly a remainder we also need to debit.
+      remainder_contribs, debit_contribs = self.ledger_charge_contributions(now:, remainder_ledger: :return).
+        partition(&:remainder?)
+      unless remainder_contribs.empty?
+        # We'll put the remainder into the cash ledger. See if we have a current contribution for it.
+        cash_contrib = debit_contribs.find { |c| c.ledger === cash_ledger }
+        if cash_contrib.nil?
+          # If we aren't already using the cash ledger, add it.
+          remainder = remainder_contribs.first
+          remainder.ledger = cash_ledger
+          remainder.category = Suma::Vendor::ServiceCategory.cash
+          debit_contribs << remainder
+        else
+          # If we are already debit the cash ledger, add the remainder to it (causing a negative balance).
+          cash_contrib.amount += remainder_contribs.first.amount
+        end
+      end
+
+      # Create ledger debits for all contributions. This MAY bring our balance negative.
+      book_xactions = self.cart.member.payment_account.debit_contributions(
+        debit_contribs,
+        memo: Suma::TranslatedText.create(
+          en: "Suma Order %04d - %s" % [order.id, self.cart.offering.description.en],
+          es: "Suma Pedido %04d - %s" % [order.id, self.cart.offering.description.es],
+        ),
+      )
+      book_xactions.each { |x| charge.add_book_transaction(x) }
+
+      # If there are any remainder contributions, we need to fund them against the cash ledger.
+      if remainder_contribs.present?
+        Suma::Payment::FundingTransaction.start_and_transfer(
+          cash_ledger,
+          amount: remainder_contribs.first.amount,
+          vendor_service_category: Suma::Vendor::ServiceCategory.cash,
+          instrument: self.payment_instrument,
+        )
+      end
+
+      # Delete this at the end, after it's charged.
+      self.payment_instrument.soft_delete unless self.save_payment_instrument
+
       return order
     end
+  end
+
+  # Return contributions from each ledger that can be used for paying for the order.
+  # NOTE: Right now this is only product contributions; when we support tax and handling,
+  # we'll need to modify this routine to factor those into the right (cash?) ledger.
+  #
+  # @return [Array<Suma::Payment::Account::ChargeContribution]
+  def ledger_charge_contributions(now:, remainder_ledger:)
+    product_contributions = self.items.map do |item|
+      self.cart.member.payment_account!.find_chargeable_ledgers(
+        item.offering_product.product,
+        item.customer_cost,
+        now:,
+        remainder_ledger:,
+      )
+    end
+    consolidated_contributions = product_contributions.
+      flatten.
+      group_by { |c| [c.ledger&.id, c.category&.id] }.
+      values.
+      map do |contribs|
+      c = contribs.first
+      Suma::Payment::Account::ChargeContribution.new(
+        ledger: c.ledger,
+        apply_at: c.apply_at,
+        category: c.category,
+        amount: contribs.sum(Money.new(0), &:amount),
+      )
+    end
+    return consolidated_contributions
   end
 
   protected def freeze_items

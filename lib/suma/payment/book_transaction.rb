@@ -68,7 +68,10 @@ class Suma::Payment::BookTransaction < Suma::Postgres::Model(:payment_book_trans
       if ch.mobility_trip
         code = "mobility_trip"
         service_name = ch.mobility_trip.vendor_service.external_name
-     end
+      elsif ch.commerce_order
+        code = "commerce_order"
+        service_name = ch.commerce_order.checkout.cart.offering.description.string
+      end
       UsageDetails.new(
         code, {
           discount_amount: Suma::Moneyutil.to_h(ch.discount_amount),

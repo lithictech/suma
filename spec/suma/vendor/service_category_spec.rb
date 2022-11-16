@@ -8,11 +8,14 @@ RSpec.describe "Suma::Vendor::ServiceCategory", :db do
     expect(p).to be_a(described_class)
   end
 
-  it "can add and remove services" do
+  it "can add and remove services and products" do
     cat = Suma::Fixtures.vendor_service_category.food.create
     vs = Suma::Fixtures.vendor_service.create
-    cat.add_service(vs)
-    expect(cat.services).to have_same_ids_as(vs)
+    pro = Suma::Fixtures.product.create
+    vs.add_category(cat)
+    pro.add_vendor_service_category(cat)
+    expect(vs.categories).to have_same_ids_as(cat)
+    expect(pro.vendor_service_categories).to have_same_ids_as(cat)
   end
 
   it "knows its ancestry and can tsort" do

@@ -128,18 +128,6 @@ function CheckoutPayment({
         <i className="bi bi-bank2 me-2" />
         Link bank account
       </Link>
-      <Form>
-        <Form.Group>
-          <Form.Check
-            id="savePayment"
-            name="savePayment"
-            label="Save for future orders"
-            onChange={(e) =>
-              onCheckoutChange({ savePaymentInstrument: e.target.checked })
-            }
-          ></Form.Check>
-        </Form.Group>
-      </Form>
     </>
   );
 
@@ -167,6 +155,18 @@ function CheckoutPayment({
                   onChange={() => onSelectedInstrumentChange(pi)}
                 />
               ))}
+            </Form.Group>
+          </Form>
+          <Form>
+            <Form.Group>
+              <Form.Check
+                id="savePayment"
+                name="savePayment"
+                label="Save for future orders"
+                onChange={(e) =>
+                  onCheckoutChange({ savePaymentInstrument: e.target.checked })
+                }
+              ></Form.Check>
             </Form.Group>
           </Form>
           <div>Or, link a new payment method to pay for this order.</div>
@@ -264,27 +264,33 @@ function OrderSummary({ checkout, chosenInstrument, onSubmit }) {
           className="text-success"
         />
         <hr className="ms-auto w-25 my-1" />
-        <SummaryLine label={`Total before tax`} price={checkout.taxableCost} />
-        <SummaryLine label={`Tax`} price={checkout.tax} />
+        <SummaryLine label="Total before tax" price={checkout.taxableCost} />
+        <SummaryLine label="Tax" price={checkout.tax} />
+        {checkout.existingFundsAvailable.map(({ amount, name }) => (
+          <SummaryLine key={name} label={name} price={amount} subtract />
+        ))}
         <hr className="mt-1 mb-2" />
         <SummaryLine
           label="Order total"
-          price={checkout.total}
+          price={checkout.chargeableTotal}
           className="text-success fw-bold fs-5"
         />
+        {chosenInstrument && (
+          <p className="small text-secondary mb-1">Charge to {chosenInstrument.name}.</p>
+        )}
+        <p className="small text-secondary mb-1">
+          By clicking &#34;place order&#34; you agree to suma&#39;s{" "}
+          <Link to="/terms">Terms of Use</Link>.
+        </p>
         <Button
           variant="success"
-          className="d-flex ms-auto mt-2"
+          className="w-100 mt-2"
           disabled={!canPlace}
           onClick={onSubmit}
         >
           Place order
         </Button>
       </div>
-      <p className="small text-secondary mt-2">
-        By clicking &#34;place order&#34; you are agreeing to suma&#39;s{" "}
-        <Link to="/TODO user agreement">Terms of Use</Link>.
-      </p>
     </Col>
   );
 }

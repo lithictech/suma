@@ -2,13 +2,18 @@
 
 require "suma/postgres/model"
 require "suma/mobility/vendor_adapter"
+require "suma/vendor/has_service_categories"
 
 class Suma::Vendor::Service < Suma::Postgres::Model(:vendor_services)
   plugin :timestamps
 
   many_to_one :vendor, key: :vendor_id, class: "Suma::Vendor"
+
   many_to_many :categories, class: "Suma::Vendor::ServiceCategory",
                             join_table: :vendor_service_categories_vendor_services
+  def vendor_service_categories = self.categories
+  include Suma::Vendor::HasServiceCategories
+
   many_to_many :rates,
                class: "Suma::Vendor::ServiceRate",
                join_table: :vendor_service_vendor_service_rates,

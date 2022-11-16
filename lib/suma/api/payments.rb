@@ -23,7 +23,7 @@ class Suma::API::Payments < Suma::API::V1
         Suma::Payment.ensure_cash_ledger(c),
         amount: params[:amount],
         instrument:,
-        vendor_service_category: Suma::Vendor::ServiceCategory.find_or_create(name: "Cash"),
+        vendor_service_category: Suma::Vendor::ServiceCategory.cash,
       )
       add_current_member_header
       status 200

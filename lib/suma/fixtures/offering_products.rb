@@ -21,6 +21,11 @@ module Suma::Fixtures::OfferingProducts
     instance
   end
 
+  decorator :costing do |customer, undiscounted|
+    self.customer_price = Suma::SpecHelpers.money(customer)
+    self.undiscounted_price = Suma::SpecHelpers.money(undiscounted)
+  end
+
   decorator :closed do
     self.closed_at = 2.days.ago
   end

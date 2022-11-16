@@ -6,7 +6,7 @@ RSpec.describe Suma::API::Commerce, :db do
   include Rack::Test::Methods
 
   let(:app) { described_class.build_app }
-  let(:member) { Suma::Fixtures.member.create }
+  let(:member) { Suma::Fixtures.member.with_cash_ledger.create }
 
   before(:each) do
     login_as(member)
@@ -197,11 +197,19 @@ RSpec.describe Suma::API::Commerce, :db do
   describe "POST /v1/commerce/checkouts/:id/complete" do
     let(:offering) { Suma::Fixtures.offering.create }
     let!(:fulfillment) { Suma::Fixtures.offering_fulfillment_option(offering:).create }
-    let(:product) { Suma::Fixtures.product.create }
+    let(:product) { Suma::Fixtures.product.category(:food).create }
     let!(:offering_product) { Suma::Fixtures.offering_product(product:, offering:).create }
     let(:cart) { Suma::Fixtures.cart(offering:, member:).with_product(product, 2).create }
     let(:card) { Suma::Fixtures.card.member(member).create }
     let(:checkout) { Suma::Fixtures.checkout(cart:, card:).populate_items.create }
+    let!(:member_ledger) { Suma::Fixtures.ledger.member(member).category(:food).create }
+    let!(:platform_ledger) { Suma::Fixtures::Ledgers.ensure_platform_cash }
+
+    around(:each) do |ex|
+      Suma::Payment::FundingTransaction.force_fake(Suma::Payment::FakeStrategy.create.not_ready) do
+        ex.run
+      end
+    end
 
     it "clears the cart, completes the checkout, creates an order, and returns the confirmation" do
       post "/v1/commerce/checkouts/#{checkout.id}/complete"

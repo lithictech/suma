@@ -3,6 +3,7 @@
 require "suma/commerce"
 require "suma/image"
 require "suma/postgres/model"
+require "suma/vendor/has_service_categories"
 
 class Suma::Commerce::Product < Suma::Postgres::Model(:commerce_products)
   include Suma::Image::AssociatedMixin
@@ -13,6 +14,12 @@ class Suma::Commerce::Product < Suma::Postgres::Model(:commerce_products)
   plugin :translated_text, :description, Suma::TranslatedText
 
   many_to_one :vendor, class: "Suma::Vendor"
+
+  many_to_many :vendor_service_categories, class: "Suma::Vendor::ServiceCategory",
+                                           join_table: :vendor_service_categories_commerce_products,
+                                           left_key: :product_id,
+                                           right_key: :category_id
+  include Suma::Vendor::HasServiceCategories
 end
 
 # Table: commerce_products

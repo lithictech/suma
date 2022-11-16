@@ -23,4 +23,13 @@ module Suma::Fixtures::Products
   decorator :in_offering, presave: true do |offering|
     Suma::Fixtures.offering_product.create(offering:, product: self)
   end
+
+  decorator :with_categories, presave: true do |*cats|
+    cats.each { |c| self.add_vendor_service_category(c) }
+  end
+
+  decorator :category, presave: true do |name|
+    raise ArgumentError, "#{name} must be a Symbol (the fixture decorator method)" unless name.is_a?(Symbol)
+    self.add_vendor_service_category(Suma::Fixtures.vendor_service_category.send(name).create)
+  end
 end

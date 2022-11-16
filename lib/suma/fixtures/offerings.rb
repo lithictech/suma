@@ -22,4 +22,9 @@ module Suma::Fixtures::Offerings
     self.period_begin = 4.days.ago
     self.period_end = 2.days.ago
   end
+
+  decorator :with_fulfillment, presave: true do |options|
+    Suma::Fixtures.offering_fulfillment_option(options).create(offering: self) unless
+      options.is_a?(Suma::Commerce::OfferingFulfillmentOption)
+  end
 end

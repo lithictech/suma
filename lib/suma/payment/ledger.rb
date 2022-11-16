@@ -71,8 +71,8 @@ class Suma::Payment::Ledger < Suma::Postgres::Model(:payment_ledgers)
   # only vendor services with 'organic' assigned could be used.
   #
   # Note that ledgers and services can have multiple service categories.
-  def can_be_used_to_purchase?(vendor_service)
-    match = self.category_used_to_purchase(vendor_service)
+  def can_be_used_to_purchase?(has_vnd_svc_categories)
+    match = self.category_used_to_purchase(has_vnd_svc_categories)
     return !match.nil?
   end
 
@@ -80,8 +80,8 @@ class Suma::Payment::Ledger < Suma::Postgres::Model(:payment_ledgers)
   # which qualifies this ledger to pay for the vendor service.
   # We may need to refind this search algorithm in the future
   # if we find it doesn't select the right category.
-  def category_used_to_purchase(vendor_service)
-    service_cat_ids = vendor_service.categories.map(&:id)
+  def category_used_to_purchase(has_vnd_svc_categories)
+    service_cat_ids = has_vnd_svc_categories.vendor_service_categories.map(&:id)
     return self.vendor_service_categories.find do |c|
       chain_ids = c.tsort.map(&:id)
       !(service_cat_ids & chain_ids).empty?

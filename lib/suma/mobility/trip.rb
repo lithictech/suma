@@ -81,7 +81,7 @@ class Suma::Mobility::Trip < Suma::Postgres::Model(:mobility_trips)
         now:,
         # At this point, ride has been taken and finished so we need to accept it
         # and deal with a potential negative balance.
-        allow_negative_balance: true,
+        remainder_ledger: :last,
       )
       xactions = self.member.payment_account.debit_contributions(
         contributions,
