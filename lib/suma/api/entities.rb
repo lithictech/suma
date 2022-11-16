@@ -99,7 +99,7 @@ module Suma::API::Entities
     expose :id
     expose :opaque_id
     expose :apply_at, as: :at
-    expose :memo
+    expose_translated :memo
     expose :amount, with: MoneyEntity do |inst, opts|
       if inst.directed?
         inst.amount

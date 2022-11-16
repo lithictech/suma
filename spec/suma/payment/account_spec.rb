@@ -129,10 +129,10 @@ RSpec.describe "Suma::Payment::Account", :db do
     let(:grocery_service) { Suma::Fixtures.vendor_service.with_categories(grocery).create }
     let(:ledger_fac) { Suma::Fixtures.ledger(account:) }
 
-    it "debits contributations as specified" do
+    it "debits contributations as specified", :lang do
       ledgers = Array.new(3) { ledger_fac.with_categories(food).create }
       contribs = account.find_chargeable_ledgers(grocery_service, money("$6"), allow_negative_balance: true, now:)
-      results = account.debit_contributions(contribs, memo: "hi")
+      results = account.debit_contributions(contribs, memo: translated_text("hi"))
       expect(results).to all(be_a(Suma::Payment::BookTransaction))
       recip = Suma::Payment::Account.lookup_platform_vendor_service_category_ledger(food)
       expect(results).to contain_exactly(

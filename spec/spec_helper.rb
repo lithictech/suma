@@ -58,6 +58,8 @@ RSpec.configure do |config|
     Sidekiq::Testing.inline!
     require "suma/spec_helpers"
     config.include(Suma::SpecHelpers)
+    require "suma/spec_helpers/i18n"
+    config.include(Suma::SpecHelpers::I18n)
     require "suma/spec_helpers/message"
     config.include(Suma::SpecHelpers::Message)
     require "suma/spec_helpers/postgres"

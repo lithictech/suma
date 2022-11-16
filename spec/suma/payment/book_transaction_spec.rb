@@ -21,7 +21,7 @@ RSpec.describe "Suma::Payment::BookTransaction", :db do
 
   describe "usage_code" do
     let(:member) { Suma::Fixtures.member.create }
-    it "uses 'mobility_trip' if the receiver has a mobility trip charge" do
+    it "uses 'mobility_trip' if the receiver has a mobility trip charge", lang: :en do
       ledger = Suma::Fixtures.ledger.member(member).category(:mobility).create
       trip = Suma::Fixtures.mobility_trip(member:).create
       trip.vendor_service.update(external_name: "Suma Bikes")
@@ -35,10 +35,10 @@ RSpec.describe "Suma::Payment::BookTransaction", :db do
       )
     end
 
-    it "uses 'misc' if receiver has a charge without a mobility trip" do
+    it "uses 'misc' if receiver has a charge without a mobility trip", lang: :en do
       ledger = Suma::Fixtures.ledger.member(member).create
       charge = Suma::Fixtures.charge(member:, undiscounted_subtotal: money("$12.50")).create
-      bx = Suma::Fixtures.book_transaction(amount: "$12.50", memo: "Hello").from(ledger).create
+      bx = Suma::Fixtures.book_transaction(amount: "$12.50", memo: translated_text(en: "Hello")).from(ledger).create
       bx.add_charge(charge)
       expect(bx).to have_attributes(
         usage_details: contain_exactly(
@@ -58,8 +58,8 @@ RSpec.describe "Suma::Payment::BookTransaction", :db do
       )
     end
 
-    it "uses 'misc' if receiver has no charge or funding transaction" do
-      bx = Suma::Fixtures.book_transaction(memo: "Shoni").create
+    it "uses 'misc' if receiver has no charge or funding transaction", lang: :es do
+      bx = Suma::Fixtures.book_transaction(memo: translated_text(es: "Shoni")).create
       expect(bx).to have_attributes(
         usage_details: contain_exactly(
           have_attributes(code: "unknown", args: {memo: "Shoni"}),

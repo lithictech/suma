@@ -1,8 +1,10 @@
 # frozen_string_literal: true
 
+require "sequel/sequel_translated_text"
 require "suma/postgres/model"
 
 class Suma::TranslatedText < Suma::Postgres::Model(:translated_texts)
+  include SequelTranslatedText::Model
 end
 
 # Table: translated_texts

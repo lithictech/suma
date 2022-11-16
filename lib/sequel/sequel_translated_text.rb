@@ -55,4 +55,19 @@ module SequelTranslatedText
       return [status, headers, body]
     end
   end
+
+  # Mixin for 'translated text' database models.
+  # Adds an +all=+ method that assigns the argument as the value for all text columns.
+  # NOTE: If the model has non-language text columns, implement +all_languages+.
+  # It should return the language column names, like `[:en, :es]`.
+  module Model
+    def all=(value)
+      all_langs = if self.respond_to?(:all_languages)
+                    self.all_languages
+        else
+          self.class.columns.select { |col| self.class.db_schema[col][:type] == :string }
+        end
+      all_langs.each { |la| self[la] = value }
+    end
+  end
 end

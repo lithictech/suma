@@ -17,6 +17,7 @@ class Suma::Payment::FundingTransaction < Suma::Postgres::Model(:payment_funding
   plugin :state_machine
   plugin :timestamps
   plugin :money_fields, :amount
+  plugin :translated_text, :memo, Suma::TranslatedText
 
   many_to_one :platform_ledger, class: "Suma::Payment::Ledger"
   many_to_one :originating_payment_account, class: "Suma::Payment::Account"
@@ -100,7 +101,10 @@ class Suma::Payment::FundingTransaction < Suma::Postgres::Model(:payment_funding
         strategy.check_validity!
         xaction = self.new(
           amount:,
-          memo: "Transfer to Suma App",
+          memo: Suma::TranslatedText.create(
+            en: "Transfer to Suma App",
+            es: "Transferencia a Suma App",
+          ),
           originating_payment_account: payment_account,
           platform_ledger:,
           originating_ip:,

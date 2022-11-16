@@ -140,7 +140,7 @@ module Suma::AdminAPI::Entities
     include AutoExposeBase
     expose :apply_at
     expose :amount, with: MoneyEntity
-    expose :memo
+    expose_translated :memo
     expose :associated_vendor_service_category, with: VendorServiceCategoryEntity
     expose :originating_ledger, with: SimpleLedgerEntity
     expose :receiving_ledger, with: SimpleLedgerEntity

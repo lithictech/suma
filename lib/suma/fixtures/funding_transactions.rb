@@ -11,10 +11,10 @@ module Suma::Fixtures::FundingTransactions
   base :funding_transaction do
     self.amount_cents ||= Faker::Number.between(from: 100, to: 100_00)
     self.amount_currency ||= "USD"
-    self.memo ||= Faker::Lorem.words(number: 3).join(" ")
   end
 
   before_saving do |instance|
+    instance.memo ||= Suma::Fixtures.translated_text(en: Faker::Lorem.words(number: 3).join(" ")).create
     instance.platform_ledger ||= Suma::Payment.ensure_cash_ledger(Suma::Payment::Account.lookup_platform_account)
     instance.originating_payment_account ||= Suma::Fixtures.payment_account.create
     instance.originated_book_transaction ||= Suma::Fixtures.book_transaction.

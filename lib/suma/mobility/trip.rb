@@ -85,7 +85,10 @@ class Suma::Mobility::Trip < Suma::Postgres::Model(:mobility_trips)
       )
       xactions = self.member.payment_account.debit_contributions(
         contributions,
-        memo: "Suma Mobility - #{self.vendor_service.external_name}",
+        memo: Suma::TranslatedText.create(
+          en: "Suma Mobility - #{self.vendor_service.external_name}",
+          es: "Suma Movilidad - #{self.vendor_service.external_name}",
+        ),
       )
       xactions.each { |x| self.charge.add_book_transaction(x) }
       return self.charge
