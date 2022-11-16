@@ -15,7 +15,7 @@ module Suma::Fixtures::Ledgers
 
   before_saving do |instance|
     instance.account ||= Suma::Fixtures.payment_account.create
-    instance.name ||= Faker::Lorem.word
+    instance.name ||= Faker::Lorem.word + SecureRandom.hex(2)
     instance
   end
 
