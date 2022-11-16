@@ -24,11 +24,6 @@
   border-radius: 25px;
 }
 
-.privacy-policy-section-padding {
-  padding-top: map-get($spacers, 4);
-  padding-bottom: map-get($spacers, 5);
-}
-
 .table-of-contents-desktop {
   max-width: 320px;
   min-width: 320px;
@@ -43,7 +38,7 @@
 }
 
 .privacy-policy-image {
-  width: 150px;
+  width: 125px;
 }
 
 // X-Large devices (large desktops, 1200px and up)
