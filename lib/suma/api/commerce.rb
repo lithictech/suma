@@ -225,7 +225,7 @@ class Suma::API::Commerce < Suma::API::V1
 
   class ChargeContributionEntity < BaseEntity
     expose :amount, with: Suma::Service::Entities::Money
-    expose :name, &self.delegate_to(:ledger, :name)
+    expose :name, &self.delegate_to(:ledger, :contribution_text, :string)
   end
 
   class CheckoutEntity < BaseEntity

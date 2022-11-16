@@ -11,11 +11,12 @@ module Suma::Fixtures::Ledgers
 
   base :ledger do
     self.currency ||= "USD"
+    self.name ||= Faker::Lorem.word + SecureRandom.hex(2)
   end
 
   before_saving do |instance|
     instance.account ||= Suma::Fixtures.payment_account.create
-    instance.name ||= Faker::Lorem.word + SecureRandom.hex(2)
+    instance.contribution_text ||= Suma::TranslatedText.create(all: "Credit from #{instance.name}")
     instance
   end
 

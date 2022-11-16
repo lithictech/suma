@@ -7,6 +7,7 @@ class Suma::Payment::Ledger < Suma::Postgres::Model(:payment_ledgers)
   include Suma::AdminLinked
 
   plugin :timestamps
+  plugin :translated_text, :contribution_text, Suma::TranslatedText
 
   many_to_one :account, class: "Suma::Payment::Account"
   many_to_many :vendor_service_categories,

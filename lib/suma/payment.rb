@@ -47,6 +47,7 @@ module Suma::Payment
     ledger = payment_account.cash_ledger
     return ledger if ledger
     ledger = payment_account.add_ledger({currency: Suma.default_currency, name: "Cash"})
+    ledger.usage_text.update(en: "Account Balance", es: "Saldo de la cuenta")
     ledger.add_vendor_service_category(Suma::Vendor::ServiceCategory.cash)
     payment_account.associations.delete(:cash_ledger)
     return ledger
