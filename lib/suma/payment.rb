@@ -43,14 +43,17 @@ module Suma::Payment
                         Suma::Payment::Account.find_or_create_or_find(member: member_or_payment_account)
     else
       member_or_payment_account
-   end
-    ledger = payment_account.cash_ledger
-    return ledger if ledger
-    ledger = payment_account.add_ledger({currency: Suma.default_currency, name: "Cash"})
-    ledger.usage_text.update(en: "Account Balance", es: "Saldo de la cuenta")
-    ledger.add_vendor_service_category(Suma::Vendor::ServiceCategory.cash)
-    payment_account.associations.delete(:cash_ledger)
-    return ledger
+    end
+    payment_account.db.transaction do
+      payment_account.lock!
+      ledger = payment_account.cash_ledger
+      return ledger if ledger
+      ledger = payment_account.add_ledger({currency: Suma.default_currency, name: "Cash"})
+      ledger.contribution_text.update(en: "Account Balance", es: "Saldo de la cuenta")
+      ledger.add_vendor_service_category(Suma::Vendor::ServiceCategory.cash)
+      payment_account.associations.delete(:cash_ledger)
+      return ledger
+    end
   end
 end
 

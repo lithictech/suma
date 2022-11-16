@@ -14,5 +14,17 @@ Sequel.migration do
     alter_table(:payment_ledgers) do
       add_foreign_key :contribution_text_id, :translated_texts, null: false
     end
+
+    create_table(:automation_triggers) do
+      primary_key :id
+      timestamptz :created_at, null: false, default: Sequel.function(:now)
+      timestamptz :updated_at
+
+      text :name, null: false, unique: true
+      tstzrange :active_during, null: false
+      text :topic, null: false
+      text :klass_name, null: false
+      jsonb :parameter, null: false, default: "{}"
+    end
   end
 end

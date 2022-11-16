@@ -24,6 +24,7 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
 
         self.setup_offerings
         self.setup_products
+        self.setup_automation
       end
     end
   end
@@ -266,5 +267,24 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
         undiscounted_price: Money.new(180_00),
       )
     end
+  end
+
+  def setup_automation
+    Suma::AutomationTrigger.dataset.delete
+    Suma::AutomationTrigger.create(
+      name: "Holidays 2022",
+      topic: "suma.payment.account.created",
+      active_during_begin: Time.now,
+      active_during_end: Time.parse("2022-12-12T23:00:00-0800"),
+      klass_name: "Suma::AutomationTrigger::CreateAndSubsidizeLedger",
+      parameter: {
+        ledger_name: "Holidays2022",
+        contribution_text: {en: "Holidays 2022 Gift", es: "Regalo de Vacaciones 2022"},
+        category_name: "Holiday 2022 Promo",
+        amount_cents: 80_00,
+        amount_currency: "USD",
+        subsidy_memo: {en: "Subsidy from Meyer Memorial Trust", es: "Subsidio de Meyer Memorial Trust"},
+      },
+    )
   end
 end
