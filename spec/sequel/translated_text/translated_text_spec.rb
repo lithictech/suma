@@ -60,7 +60,6 @@ RSpec.describe SequelTranslatedText, :db do
       x = cls.create(text: TranslatedTextEx.create(en: "x"))
       y = cls.create(text: TranslatedTextEx.create(en: "y"))
       q = cls.dataset.translation_join(:text, [:en, :fr])
-      puts q.sql
       expect(q.sql).to eq('SELECT * FROM (SELECT "articles".*, "text"."en" AS "text_en", "text"."fr" AS "text_fr" ' \
                           'FROM "articles" INNER JOIN "translated_texts" AS "text" ' \
                           'ON ("text"."id" = "articles"."text_id")) AS "t1"')
