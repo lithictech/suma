@@ -36,7 +36,7 @@ class Suma::Payment::FundingTransaction::IncreaseAchStrategy <
     self.ach_transfer_json = Suma::Increase.create_ach_debit_from_bank_account(
       self.originating_bank_account,
       amount_cents: self.funding_transaction.amount.cents,
-      memo: self.funding_transaction.memo,
+      memo: self.funding_transaction.memo.en,
     )
     if self.ach_transfer_id.blank?
       msg = "Increase ACH Transfer Id was not set after API call from #{self.class.name}[#{self.id}]. " \

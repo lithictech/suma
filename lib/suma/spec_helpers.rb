@@ -160,23 +160,4 @@ module Suma::SpecHelpers
       raise "#{s} type #{s.class.name} not convertable to Money (add support or use supported type)"
     end
   end
-
-  # Matcher that will compare a string or Suma::Measure expected against a string or Suma::Measure actual.
-  #
-  #   expect(value).to weigh('1 lb')
-  #   expect([1, :lb]).to weigh(Suma::Measure.parse()'1 lb'))
-  #
-  RSpec::Matchers.define(:weigh) do |expected|
-    match do |actual|
-      RSpec::Matchers::BuiltIn::Eq.new(self.measured(expected)).matches?(self.measured(actual))
-    end
-
-    failure_message do |actual|
-      "expected %s to weigh %s" % [self.measured(actual), self.measured(expected)]
-    end
-
-    def measured(s)
-      return Suma::Measure.coerce(s)
-    end
-  end
 end

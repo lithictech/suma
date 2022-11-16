@@ -38,7 +38,7 @@ RSpec.describe "Suma::Payment::FundingTransaction::IncreaseAchStrategy", :db do
 
   describe "collect_funds" do
     it "creates an Increase ach transfer from the originating bank account to the platform bank account" do
-      xaction.update(amount_cents: 2000, memo: "foobar")
+      xaction.update(amount_cents: 2000, memo: translated_text(en: "foobar"))
       req = stub_request(:post, "https://sandbox.increase.com/transfers/achs").
         with(
           body: hash_including(

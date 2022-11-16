@@ -37,6 +37,6 @@ class Suma::API::Payments < Suma::API::V1
     expose :created_at
     expose :status
     expose :amount, with: MoneyEntity
-    expose :memo
+    expose_translated :memo
   end
 end

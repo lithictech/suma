@@ -30,13 +30,13 @@ RSpec.describe Suma::AdminAPI::FundingTransactions, :db do
 
       def make_matching_items
         return [
-          Suma::Fixtures.funding_transaction(memo: "zim@zam.zom").with_fake_strategy.create,
+          Suma::Fixtures.funding_transaction(memo: translated_text("zim@zam.zom")).with_fake_strategy.create,
         ]
       end
 
       def make_non_matching_items
         return [
-          Suma::Fixtures.funding_transaction(memo: "wibble wobble").with_fake_strategy.create,
+          Suma::Fixtures.funding_transaction(memo: translated_text("wibble wobble")).with_fake_strategy.create,
         ]
       end
     end
@@ -52,11 +52,11 @@ RSpec.describe Suma::AdminAPI::FundingTransactions, :db do
 
     it_behaves_like "an endpoint with member-supplied ordering" do
       let(:url) { "/v1/funding_transactions" }
-      let(:order_by_field) { "memo" }
+      let(:order_by_field) { "updated_at" }
       def make_item(i)
         return Suma::Fixtures.funding_transaction.
             with_fake_strategy.
-            create(created_at: Time.now + rand(1..100).days, memo: i.to_s)
+            create(created_at: Time.now + rand(1..100).days, updated_at: i.days.from_now)
       end
     end
   end

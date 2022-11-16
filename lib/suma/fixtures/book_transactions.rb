@@ -11,11 +11,11 @@ module Suma::Fixtures::BookTransactions
   base :book_transaction do
     self.amount_cents ||= Faker::Number.between(from: 100, to: 100_00)
     self.amount_currency ||= "USD"
-    self.memo ||= Faker::Lorem.words(number: 3).join(" ")
     self.apply_at ||= Time.now
   end
 
   before_saving do |instance|
+    instance.memo ||= Suma::Fixtures.translated_text(all: Faker::Lorem.words(number: 3).join(" ")).create
     instance.originating_ledger ||= Suma::Fixtures.ledger.create
     instance.receiving_ledger ||= Suma::Fixtures.ledger.create
     instance

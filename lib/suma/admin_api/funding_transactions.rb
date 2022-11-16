@@ -15,8 +15,9 @@ class Suma::AdminAPI::FundingTransactions < Suma::AdminAPI::V1
     end
     get do
       ds = Suma::Payment::FundingTransaction.dataset
-      if (memo_like = search_param_to_sql(params, :memo))
-        ds = ds.where(memo_like)
+      if (memoen_like = search_param_to_sql(params, :memo_en))
+        memoes_like = search_param_to_sql(params, :memo_es)
+        ds = ds.translation_join(:memo, [:en, :es]).where(memoen_like | memoes_like)
       end
       ds = order(ds, params)
       ds = paginate(ds, params)
@@ -68,7 +69,7 @@ class Suma::AdminAPI::FundingTransactions < Suma::AdminAPI::V1
   class DetailedFundingTransactionEntity < FundingTransactionEntity
     include Suma::AdminAPI::Entities
     include AutoExposeDetail
-    expose :memo
+    expose_translated :memo
     expose :platform_ledger, with: SimpleLedgerEntity
     expose :originated_book_transaction, with: BookTransactionEntity
     expose :audit_logs, with: AuditLogEntity

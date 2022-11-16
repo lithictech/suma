@@ -52,6 +52,21 @@ RSpec.describe SequelTranslatedText, :db do
       expect(a).to have_attributes(title: be_a(TranslatedTextEx))
       expect(a.title.article).to be === a
     end
+
+    it "adds a join_translated dataset that joins desired columns" do
+      cls = Class.new(Sequel::Model(:articles)) do
+        plugin :translated_text, :text, TranslatedTextEx
+      end
+      x = cls.create(text: TranslatedTextEx.create(en: "x"))
+      y = cls.create(text: TranslatedTextEx.create(en: "y"))
+      q = cls.dataset.translation_join(:text, [:en, :fr])
+      puts q.sql
+      expect(q.sql).to eq('SELECT * FROM (SELECT "articles".*, "text"."en" AS "text_en", "text"."fr" AS "text_fr" ' \
+                          'FROM "articles" INNER JOIN "translated_texts" AS "text" ' \
+                          'ON ("text"."id" = "articles"."text_id")) AS "t1"')
+      expect(q.where(text_en: "x").all).to contain_exactly(be === x)
+      expect(q.where(id: -1).all).to be_empty # Ensure we don't get ambiguous columns
+    end
   end
 
   it "can set and reset the language context" do
@@ -196,6 +211,27 @@ RSpec.describe SequelTranslatedText, :db do
       _status, headers, response = mw.call(env)
       expect(headers).to include("Content-Language" => "en")
       expect(response).to eq("english")
+    end
+  end
+
+  describe "SequelTranslatedText::Model" do
+    it "provides an :all param that sets all language columns" do
+      c = Class.new(Sequel::Model(:translated_texts)) do
+        include SequelTranslatedText::Model
+      end
+      c = c.create(all: "foo")
+      expect(c).to have_attributes(en: "foo", fr: "foo")
+    end
+
+    it "can limit the all languages columns if `all_languages` is defined" do
+      c = Class.new(Sequel::Model(:translated_texts)) do
+        include SequelTranslatedText::Model
+        def all_languages
+          return [:fr]
+        end
+      end
+      c = c.create(all: "foo")
+      expect(c).to have_attributes(en: nil, fr: "foo")
     end
   end
 end

@@ -30,14 +30,14 @@ RSpec.describe Suma::AdminAPI::BookTransactions, :db do
 
       def make_matching_items
         return [
-          Suma::Fixtures.book_transaction(memo: "zim@zam.zom").create,
+          Suma::Fixtures.book_transaction(memo: translated_text("zim@zam.zom")).create,
           Suma::Fixtures.book_transaction(opaque_id: "Zim Zam").create,
         ]
       end
 
       def make_non_matching_items
         return [
-          Suma::Fixtures.book_transaction(memo: "wibble wobble", opaque_id: "qux@wux").create,
+          Suma::Fixtures.book_transaction(memo: translated_text("wibble wobble"), opaque_id: "qux@wux").create,
         ]
       end
     end
@@ -53,9 +53,12 @@ RSpec.describe Suma::AdminAPI::BookTransactions, :db do
 
     it_behaves_like "an endpoint with member-supplied ordering" do
       let(:url) { "/v1/book_transactions" }
-      let(:order_by_field) { "memo" }
+      let(:order_by_field) { "opaque_id" }
       def make_item(i)
-        return Suma::Fixtures.book_transaction.create(created_at: Time.now + rand(1..100).days, memo: i.to_s)
+        return Suma::Fixtures.book_transaction.create(
+          created_at: Time.now + rand(1..100).days,
+          opaque_id: i.to_s,
+        )
       end
     end
   end
@@ -77,7 +80,11 @@ RSpec.describe Suma::AdminAPI::BookTransactions, :db do
       expect(last_response.headers).to include("Created-Resource-Admin")
       expect(b1.refresh.originating_ledger.combined_book_transactions).to contain_exactly(
         be === b1,
-        have_attributes(memo: "hi", amount: cost("$1"), associated_vendor_service_category: be === corn),
+        have_attributes(
+          memo: have_attributes(en: "hi"),
+          amount: cost("$1"),
+          associated_vendor_service_category: be === corn,
+        ),
       )
     end
   end

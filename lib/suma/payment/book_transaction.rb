@@ -8,6 +8,7 @@ class Suma::Payment::BookTransaction < Suma::Postgres::Model(:payment_book_trans
 
   plugin :timestamps
   plugin :money_fields, :amount
+  plugin :translated_text, :memo, Suma::TranslatedText
 
   many_to_one :originating_ledger, class: "Suma::Payment::Ledger"
   many_to_one :receiving_ledger, class: "Suma::Payment::Ledger"
@@ -63,7 +64,7 @@ class Suma::Payment::BookTransaction < Suma::Postgres::Model(:payment_book_trans
     result = []
     result.concat(charges.map do |ch|
       code = "misc"
-      service_name = self.memo
+      service_name = self.memo.string
       if ch.mobility_trip
         code = "mobility_trip"
         service_name = ch.mobility_trip.vendor_service.external_name
@@ -78,7 +79,7 @@ class Suma::Payment::BookTransaction < Suma::Postgres::Model(:payment_book_trans
     result.concat(self.funding_transactions.map do |fx|
       UsageDetails.new("funding", {account_label: fx.strategy.originating_instrument.simple_label})
     end)
-    result << UsageDetails.new("unknown", {memo: self.memo}) if result.empty?
+    result << UsageDetails.new("unknown", {memo: self.memo.string}) if result.empty?
     return result
   end
 
