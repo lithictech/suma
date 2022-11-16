@@ -35,6 +35,22 @@ RSpec.describe "Suma::Payment::BookTransaction", :db do
       )
     end
 
+    it "uses 'commerce_order' if the receiver has a commerce charge" do
+      ledger = Suma::Fixtures.ledger.member(member).category(:food).create
+      order = Suma::Fixtures.order.create
+      SequelTranslatedText.language("en") do
+        order.checkout.cart.offering.description.update(string: "Suma Food")
+        charge = Suma::Fixtures.charge(commerce_order: order, member:, undiscounted_subtotal: money("$12.50")).create
+        bx = Suma::Fixtures.book_transaction(amount: "$10.25").from(ledger).create
+        bx.add_charge(charge)
+        expect(bx).to have_attributes(
+          usage_details: contain_exactly(
+            have_attributes(code: "commerce_order", args: {discount_amount: cost("$2.25"), service_name: "Suma Food"}),
+          ),
+        )
+      end
+    end
+
     it "uses 'misc' if receiver has a charge without a mobility trip", lang: :en do
       ledger = Suma::Fixtures.ledger.member(member).create
       charge = Suma::Fixtures.charge(member:, undiscounted_subtotal: money("$12.50")).create

@@ -4,13 +4,20 @@ require "suma/postgres/model"
 
 class Suma::Vendor::ServiceCategory < Suma::Postgres::Model(:vendor_service_categories)
   include TSort
-  many_to_many :services,
-               class: "Suma::Vendor::Service",
-               join_table: :vendor_service_categories_vendor_services,
-               left_key: :category_id,
-               right_key: :service_id
+
+  # Because a service category can point to many services and many products,
+  # we don't model the backref association.
+  # many_to_many :services
+  # many_to_many :products
+
   many_to_one :parent, class: self
   one_to_many :children, class: self, key: :parent_id
+
+  def self.cash
+    return Suma.cached_get("vendor_service_category_cash") do
+      self.find_or_create_or_find(name: "Cash")
+    end
+  end
 
   # TSort API: Iterate self and children to go through entire graph.
   def tsort_each_node(&)

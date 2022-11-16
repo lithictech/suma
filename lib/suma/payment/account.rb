@@ -68,12 +68,36 @@ class Suma::Payment::Account < Suma::Postgres::Model(:payment_accounts)
     raise "PaymentAccount[#{self.id}] has no mobility ledger"
   end
 
-  def find_chargeable_ledgers(vendor_service, amount, now:, allow_negative_balance: false)
+  # Find ledgers that have overlapping categories, and their contributions towards the charge amount.
+  #
+  # If +remainder_ledger+ is nil, and the balance across all relevant cannot cover the amount,
+  # raise +Suma::Payment::InsufficientFunds+.
+  #
+  # If +remainder_ledger+ is passed, and the balance across all relevant ledgers cannot cover the amount,
+  # +remainder_ledger+ must be one of the following:
+  #
+  # - +Suma::Payment::Ledger+ instance: the remainder will be a contribution from this ledger,
+  #   sending it into the negative. NOTE: the ledger used here must be valid for the service categories;
+  #   usually this means it is the cash or root ledger.
+  # - +:first+: Use the first matching ledger. Usually this is the most specific ledger that can be charged
+  #  ("organic vegetables" rather than "food", for example).
+  # - +:last+: Use the last matching ledger. Usually this is the least specific ledger, like "food" or "cash".
+  # - +:ignore+: The contributions will be returned as-is, and not cover the full amount.
+  #   This can be useful to see how much of an amount can be covered by the current ledgers,
+  #   assuming the remainder will be handled later (like during order checkout).
+  # - +:return+: Return an additional ChargeContribution with a nil ledger and category.
+  #
+  # @param has_vnd_svc_categories [Suma::Vendor::HasServiceCategories]
+  # @param amount [Money]
+  # @param now [Time]
+  # @param remainder_ledger [Suma::Payment::Ledger, :first, :last, :ignore] See above.
+  # @return [Array<Suma::Payment::Account::ChargeContribution]
+  def find_chargeable_ledgers(has_vnd_svc_categories, amount, now:, remainder_ledger: nil)
     raise ArgumentError, "amount cannot be negative, got #{amount.format}" if amount.negative?
     raise Suma::InvalidPrecondition, "#{self.inspect} has no ledgers" if self.ledgers.empty?
     contributions = []
     self.ledgers.each do |led|
-      cat = led.category_used_to_purchase(vendor_service)
+      cat = led.category_used_to_purchase(has_vnd_svc_categories)
       contributions << ChargeContribution.new(ledger: led, apply_at: now, amount: 0, category: cat) if cat
     end
     contributions.sort_by! { |c| [-c.category.hierarchy_depth, c.ledger.id] }
@@ -87,16 +111,35 @@ class Suma::Payment::Account < Suma::Postgres::Model(:payment_accounts)
       remainder -= amount
       break if remainder.zero?
     end
+    # We've covered the full cost
     return result if remainder.zero?
-    raise Suma::Payment::InsufficientFunds if !allow_negative_balance && remainder.positive?
-    Suma::Moneyutil.divide(remainder, contributions.size).each_with_index do |leftover, idx|
-      result[idx].amount += leftover
+    raise "how did we get a negative remainder? #{remainder}" if remainder.negative?
+
+    case remainder_ledger
+      when nil
+        raise Suma::Payment::InsufficientFunds
+      when :ignore
+        return result
+      when :return
+        result << ChargeContribution.new(ledger: nil, apply_at: now, amount: remainder, category: nil)
+        return result
+      when Symbol
+        raise Suma::InvalidPrecondition, "No ledgers for charge contributions could be found" if contributions.empty?
+        contributions.send(remainder_ledger).amount += remainder
+        return result
+      else
+        contrib_for_remainder = contributions.find { |c| c.ledger === remainder_ledger }
+        raise Suma::InvalidPrecondition, "Remainder ledger #{remainder_ledger.id} not valid for charge contributions" if
+          contrib_for_remainder.nil?
+        contrib_for_remainder.amount += remainder
+        return result
     end
-    return result
   end
 
   class ChargeContribution < Suma::TypedStruct
     attr_accessor :ledger, :apply_at, :amount, :category
+
+    def remainder? = self.ledger.nil?
   end
 
   def debit_contributions(contributions, memo:)

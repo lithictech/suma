@@ -3,15 +3,49 @@
 RSpec.describe "Suma::Commerce::Checkout", :db do
   let(:described_class) { Suma::Commerce::Checkout }
 
-  describe "create_order" do
+  describe "cost accessors" do
     let(:member) { Suma::Fixtures.member.create }
     let(:offering) { Suma::Fixtures.offering.create }
+    let(:product) { Suma::Fixtures.product.category(:cash).create }
+    let!(:offering_product) { Suma::Fixtures.offering_product(product:, offering:).costing("$20", "$30").create }
+    let(:cart) { Suma::Fixtures.cart(offering:, member:).with_product(product, 2).create }
+    let(:checkout) { Suma::Fixtures.checkout(cart:).populate_items.create }
+    let!(:member_ledger) { Suma::Fixtures.ledger.member(member).category(:cash).create }
+    let!(:platform_ledger) { Suma::Fixtures::Ledgers.ensure_platform_cash }
+
+    it "are calculated correctly" do
+      Suma::Fixtures.book_transaction(amount: money("$10")).to(member_ledger).create
+
+      expect(checkout).to have_attributes(
+        undiscounted_cost: cost("$60"),
+        customer_cost: cost("$40"),
+        savings: cost("$20"),
+        handling: cost("$0"),
+        taxable_cost: cost("$40"),
+        tax: cost("$0"),
+        total: cost("$40"),
+        chargeable_total: cost("$30"),
+      )
+    end
+  end
+
+  describe "create_order" do
+    let(:member) { Suma::Fixtures.member.registered_as_stripe_customer.create }
+    let(:offering) { Suma::Fixtures.offering.create }
     let!(:fulfillment) { Suma::Fixtures.offering_fulfillment_option(offering:).create }
-    let(:product) { Suma::Fixtures.product.create }
-    let!(:offering_product) { Suma::Fixtures.offering_product(product:, offering:).create }
+    let(:product) { Suma::Fixtures.product.category(:cash).create }
+    let!(:offering_product) { Suma::Fixtures.offering_product(product:, offering:).costing("$20", "$30").create }
     let(:cart) { Suma::Fixtures.cart(offering:, member:).with_product(product, 2).create }
     let(:card) { Suma::Fixtures.card.member(member).create }
     let(:checkout) { Suma::Fixtures.checkout(cart:, card:).populate_items.create }
+    let!(:member_ledger) { Suma::Fixtures.ledger.member(member).category(:cash).create }
+    let!(:platform_ledger) { Suma::Fixtures::Ledgers.ensure_platform_cash }
+
+    around(:each) do |ex|
+      Suma::Payment::FundingTransaction.force_fake(Suma::Payment::FakeStrategy.create.not_ready) do
+        ex.run
+      end
+    end
 
     it "errors if the checkout isn't editable" do
       checkout.soft_delete
@@ -35,6 +69,67 @@ RSpec.describe "Suma::Commerce::Checkout", :db do
       checkout.update(save_payment_instrument: true)
       checkout.create_order
       expect(checkout.card).to_not be_soft_deleted
+    end
+
+    it "creates a charge for the customer cost" do
+      order = checkout.create_order
+      expect(order).to be_a(Suma::Commerce::Order)
+      expect(order.charges).to have_length(1)
+      expect(order.charges.first).to have_attributes(
+        undiscounted_subtotal: cost("$60"), discounted_subtotal: cost("$40"),
+      )
+    end
+
+    it "creates a funding transaction for the chargeable amount" do
+      Suma::Fixtures.book_transaction(amount: money("$5")).to(member_ledger).create
+      checkout.create_order
+      expect(member.payment_account.originated_funding_transactions).to contain_exactly(
+        have_attributes(amount: cost("$35"), status: "created"),
+      )
+    end
+
+    describe "with a complex, multi-product, multi-ledger product and payment setup" do
+      it "generates the right funding and book transaction, as per the documentation" do
+        food_vsc = Suma::Fixtures.vendor_service_category(name: "Food").create
+        holidaymeal_vsc = Suma::Fixtures.vendor_service_category(name: "Holiday Special", parent: food_vsc).create
+        member = Suma::Fixtures.member.create
+
+        cash_ledger = Suma::Payment.ensure_cash_ledger(member)
+        food_ledger = Suma::Fixtures.ledger.member(member).with_categories(food_vsc).create
+        holidaymeal_ledger = Suma::Fixtures.ledger.member(member).with_categories(holidaymeal_vsc).create
+
+        offering = Suma::Fixtures.offering.create
+        food_product1 = Suma::Fixtures.product.with_categories(food_vsc).create
+        food_op1 = Suma::Fixtures.offering_product(product: food_product1, offering:).costing("$400", "$500").create
+
+        food_product2 = Suma::Fixtures.product.with_categories(food_vsc).create
+        food_op2 = Suma::Fixtures.offering_product(product: food_product2, offering:).costing("$400", "$500").create
+
+        holiday_product = Suma::Fixtures.product.with_categories(holidaymeal_vsc).create
+        holiday_op = Suma::Fixtures.offering_product(product: holiday_product, offering:).costing("$40", "$50").create
+
+        cash_product = Suma::Fixtures.product.with_categories(Suma::Vendor::ServiceCategory[slug: "cash"]).create
+        cash_op = Suma::Fixtures.offering_product(product: cash_product, offering:).costing("$4", "$5").create
+
+        cart = Suma::Fixtures.cart(offering:, member:).
+          with_product(food_product1, 2).
+          with_product(food_product2, 1).
+          with_product(holiday_product, 1).
+          with_product(cash_product, 1).
+          create
+        checkout = Suma::Fixtures.checkout(cart:, card: Suma::Fixtures.card.member(member).create).
+          populate_items.
+          create
+
+        order = checkout.create_order
+        expect(order.charges).to have_length(1)
+        expect(order.charges.first).to have_attributes(
+          discounted_subtotal: cost("$1244"),
+          undiscounted_subtotal: cost("$1555"),
+        )
+        btxs = order.charges.first.book_transactions
+        expect(btxs).to have_length(3)
+      end
     end
   end
 

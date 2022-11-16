@@ -73,15 +73,59 @@ RSpec.describe "Suma::Payment::Account", :db do
       end.to raise_error(Suma::Payment::InsufficientFunds)
     end
 
-    it "allows a negative balance if allow_negative_balance is true" do
-      can_use = ledger_fac.with_categories(food).create
+    it "assigns the negative remainder to the given ledger" do
       cannot_use = ledger_fac.with_categories(mobility).create
-      Suma::Fixtures.book_transaction.to(can_use).create(amount: money("$5"))
-      Suma::Fixtures.book_transaction.to(cannot_use).create(amount: money("$50"))
-      result = account.find_chargeable_ledgers(grocery_service, money("$6"), allow_negative_balance: true, now:)
-      expect(result).to contain_exactly(
-        have_attributes(ledger: be === can_use, amount: cost("$6")),
+      ledgers = Array.new(3) { ledger_fac.with_categories(grocery).create }
+      Suma::Fixtures.book_transaction.to(ledgers[0]).create(amount: money("$6"))
+      results = account.find_chargeable_ledgers(grocery_service, money("10"), remainder_ledger: ledgers[1], now:)
+      expect(results).to contain_exactly(
+        have_attributes(ledger: be === ledgers[0], amount: cost("$6")),
+        have_attributes(ledger: be === ledgers[1], amount: cost("$4")),
+        have_attributes(ledger: be === ledgers[2], amount: cost("$0")),
       )
+    end
+
+    it "can dynamically choose the remainder ledger with :last or :first" do
+      cannot_use = ledger_fac.with_categories(mobility).create
+      ledgers = Array.new(3) { ledger_fac.with_categories(grocery).create }
+      Suma::Fixtures.book_transaction.to(ledgers[1]).create(amount: money("$6"))
+      results = account.find_chargeable_ledgers(grocery_service, money("10"), remainder_ledger: :last, now:)
+      expect(results).to contain_exactly(
+        have_attributes(ledger: be === ledgers[0], amount: cost("$0")),
+        have_attributes(ledger: be === ledgers[1], amount: cost("$6")),
+        have_attributes(ledger: be === ledgers[2], amount: cost("$4")),
+      )
+    end
+
+    it "can use :ignore as the remainder" do
+      ledgers = Array.new(3) { ledger_fac.with_categories(grocery).create }
+      Suma::Fixtures.book_transaction.to(ledgers[1]).create(amount: money("$6"))
+      results = account.find_chargeable_ledgers(grocery_service, money("10"), remainder_ledger: :ignore, now:)
+      expect(results).to contain_exactly(
+        have_attributes(ledger: be === ledgers[0], amount: cost("$0")),
+        have_attributes(ledger: be === ledgers[1], amount: cost("$6")),
+        have_attributes(ledger: be === ledgers[2], amount: cost("$0")),
+      )
+    end
+
+    it "can :return the remainder" do
+      ledgers = Array.new(3) { ledger_fac.with_categories(grocery).create }
+      Suma::Fixtures.book_transaction.to(ledgers[1]).create(amount: money("$6"))
+      results = account.find_chargeable_ledgers(grocery_service, money("10"), remainder_ledger: :return, now:)
+      expect(results).to contain_exactly(
+        have_attributes(ledger: be === ledgers[0], amount: cost("$0")),
+        have_attributes(ledger: be === ledgers[1], amount: cost("$6")),
+        have_attributes(ledger: be === ledgers[2], amount: cost("$0")),
+        have_attributes(ledger: nil, amount: cost("$4")),
+      )
+    end
+
+    it "errors if there are no contributions and a remainder ledger is dynamic" do
+      ledger_fac.create
+      svc = Suma::Fixtures.vendor_service.create
+      expect do
+        account.find_chargeable_ledgers(svc, money("$6"), remainder_ledger: :last, now:)
+      end.to raise_error(Suma::InvalidPrecondition, /No ledgers for charge/)
     end
 
     it "returns the right amount for suitable ledgers" do
@@ -112,14 +156,12 @@ RSpec.describe "Suma::Payment::Account", :db do
       )
     end
 
-    it "distributes remainder over ledgers equally if allow_negative_balance is true" do
-      ledgers = Array.new(3) { ledger_fac.with_categories(grocery).create }
-      results = account.find_chargeable_ledgers(grocery_service, money("10"), allow_negative_balance: true, now:)
-      expect(results).to contain_exactly(
-        have_attributes(ledger: be === ledgers[0], amount: cost("$3.34")),
-        have_attributes(ledger: be === ledgers[1], amount: cost("$3.33")),
-        have_attributes(ledger: be === ledgers[2], amount: cost("$3.33")),
-      )
+    it "raises if the remainder ledger is needed, but not allowed for contributions" do
+      led = ledger_fac.create
+      svc = Suma::Fixtures.vendor_service.create
+      expect do
+        account.find_chargeable_ledgers(svc, money("$6"), remainder_ledger: led, now:)
+      end.to raise_error(Suma::InvalidPrecondition, /not valid for charge contributions/)
     end
   end
 
@@ -129,9 +171,10 @@ RSpec.describe "Suma::Payment::Account", :db do
     let(:grocery_service) { Suma::Fixtures.vendor_service.with_categories(grocery).create }
     let(:ledger_fac) { Suma::Fixtures.ledger(account:) }
 
-    it "debits contributations as specified", :lang do
+    it "debits contributions as specified", :lang do
       ledgers = Array.new(3) { ledger_fac.with_categories(food).create }
-      contribs = account.find_chargeable_ledgers(grocery_service, money("$6"), allow_negative_balance: true, now:)
+      ledgers.each { |led| Suma::Fixtures.book_transaction(amount: money("$2")).to(led).create }
+      contribs = account.find_chargeable_ledgers(grocery_service, money("$6"), now:)
       results = account.debit_contributions(contribs, memo: translated_text("hi"))
       expect(results).to all(be_a(Suma::Payment::BookTransaction))
       recip = Suma::Payment::Account.lookup_platform_vendor_service_category_ledger(food)

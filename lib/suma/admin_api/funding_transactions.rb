@@ -43,7 +43,7 @@ class Suma::AdminAPI::FundingTransactions < Suma::AdminAPI::V1
       fx = Suma::Payment::FundingTransaction.start_and_transfer(
         Suma::Payment.ensure_cash_ledger(c),
         amount: params[:amount],
-        vendor_service_category: Suma::Vendor::ServiceCategory.find_or_create(name: "Cash"),
+        vendor_service_category: Suma::Vendor::ServiceCategory.cash,
         instrument:,
       )
       created_resource_headers(fx.id, fx.admin_link)

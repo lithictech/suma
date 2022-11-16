@@ -223,6 +223,11 @@ class Suma::API::Commerce < Suma::API::V1
     expose :quantity
   end
 
+  class ChargeContributionEntity < BaseEntity
+    expose :amount, with: Suma::Service::Entities::Money
+    expose :name, &self.delegate_to(:ledger, :contribution_text, :string)
+  end
+
   class CheckoutEntity < BaseEntity
     expose :id
     expose :items, with: CheckoutItemEntity
@@ -240,6 +245,8 @@ class Suma::API::Commerce < Suma::API::V1
     expose :taxable_cost, with: Suma::Service::Entities::Money
     expose :tax, with: Suma::Service::Entities::Money
     expose :total, with: Suma::Service::Entities::Money
+    expose :chargeable_total, with: Suma::Service::Entities::Money
+    expose :usable_ledger_contributions, as: :existing_funds_available, with: ChargeContributionEntity
   end
 
   class CheckoutConfirmationEntity < BaseEntity
