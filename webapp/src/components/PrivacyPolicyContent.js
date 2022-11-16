@@ -157,7 +157,7 @@ export default function PrivacyPolicyContent({ mobile }) {
             <h1 id="privacy-policy-title" className="text-center display-4">
               {t("sections:title")}
             </h1>
-            <p className="text-center mb-5">
+            <p className="text-center text-secondary mb-5">
               {t("sections:effective") + " " + t("sections:date")}
             </p>
             <PrivacyPolicySection
@@ -344,56 +344,6 @@ export default function PrivacyPolicyContent({ mobile }) {
 const TableOfContentsNav = ({ id, mobile }) => {
   mobile = Boolean(mobile);
   const [expanded, setExpanded] = React.useState(!mobile || false);
-  const navLinks = [
-    {
-      id: "#overview",
-      title: t("overview:title"),
-    },
-    {
-      id: "#informationCollected",
-      title: t("sections:information_collected:title"),
-    },
-    {
-      id: "#methodsOfCollection",
-      title: t("sections:methods_of_collection:title"),
-    },
-    {
-      id: "#methodsOfInformationUsage",
-      title: t("sections:methods_of_information_usage:title"),
-    },
-    {
-      id: "#cookiesPolicy",
-      title: t("sections:cookies_policy:title"),
-    },
-    {
-      id: "#thirdPartyAccess",
-      title: t("sections:third_party_access:title"),
-    },
-    {
-      id: "#informationRetentionAndRemoval",
-      title: t("sections:information_retention_and_removal:title"),
-    },
-    {
-      id: "#businessTransfer",
-      title: t("sections:business_transfer:title"),
-    },
-    {
-      id: "#childrenUnder13",
-      title: t("sections:children_under_13:title"),
-    },
-    {
-      id: "#communications",
-      title: t("sections:communications:title"),
-    },
-    {
-      id: "#futureChangesToPolicy",
-      title: t("sections:future_changes_to_policy:title"),
-    },
-    {
-      id: "#contactInformation",
-      title: t("sections:contact_information:title"),
-    },
-  ];
   return (
     <Navbar
       className={clsx(
@@ -427,10 +377,10 @@ const TableOfContentsNav = ({ id, mobile }) => {
       >
         <Container id={id} className="position-relative">
           <Nav className="navbar-nav-scroll navbar-absolute">
-            {navLinks.map(({ id, title }, idx) => (
+            {navLinks.map(({ id, titleNS }, idx) => (
               <>
                 <Nav.Link key={id} href={id} className={clsx("py-1")}>
-                  {title}
+                  {t(titleNS)}
                 </Nav.Link>
                 {idx === 0 && <hr className="my-2" />}
               </>
@@ -491,15 +441,12 @@ const PrivacyPolicySection = ({
   return (
     <div
       id={id}
-      className={clsx(
-        !subsection ? "privacy-policy-section-padding" : "pt-2",
-        !mobile && !subsection && "mx-lg-5"
-      )}
+      className={clsx(!subsection ? "pb-5" : "mt-5", !mobile && !subsection && "mx-lg-5")}
     >
       {!subsection ? (
-        <h3 className="mb-4">{title}</h3>
+        <h4 className="mb-4">{title}</h4>
       ) : (
-        <h5 className="mt-3">{title}</h5>
+        <h5 className="mb-3">{title}</h5>
       )}
       {img && (
         <img
@@ -525,6 +472,57 @@ const PrivacyPolicySection = ({
     </div>
   );
 };
+
+const navLinks = [
+  {
+    id: "#overview",
+    titleNS: "overview:title",
+  },
+  {
+    id: "#informationCollected",
+    titleNS: "sections:information_collected:title",
+  },
+  {
+    id: "#methodsOfCollection",
+    titleNS: "sections:methods_of_collection:title",
+  },
+  {
+    id: "#methodsOfInformationUsage",
+    titleNS: "sections:methods_of_information_usage:title",
+  },
+  {
+    id: "#cookiesPolicy",
+    titleNS: "sections:cookies_policy:title",
+  },
+  {
+    id: "#thirdPartyAccess",
+    titleNS: "sections:third_party_access:title",
+  },
+  {
+    id: "#informationRetentionAndRemoval",
+    titleNS: "sections:information_retention_and_removal:title",
+  },
+  {
+    id: "#businessTransfer",
+    titleNS: "sections:business_transfer:title",
+  },
+  {
+    id: "#childrenUnder13",
+    titleNS: "sections:children_under_13:title",
+  },
+  {
+    id: "#communications",
+    titleNS: "sections:communications:title",
+  },
+  {
+    id: "#futureChangesToPolicy",
+    titleNS: "sections:future_changes_to_policy:title",
+  },
+  {
+    id: "#contactInformation",
+    titleNS: "sections:contact_information:title",
+  },
+];
 
 const t = (key, options = {}) => {
   return i18n.t("privacy-policy-strings:" + key, options);
