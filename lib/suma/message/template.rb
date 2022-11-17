@@ -21,6 +21,8 @@ class Suma::Message::Template
     return self.new
   end
 
+  attr_accessor :language
+
   def dispatch(to, transport: Suma::Message::DEFAULT_TRANSPORT)
     return Suma::Message.dispatch(self, to, transport)
   end
@@ -32,6 +34,10 @@ class Suma::Message::Template
   def dispatch_sms(to)
     return self.dispatch(to, transport: :sms)
   end
+
+  # Return true if the message templates support localization
+  # (different templates exist like basic.en.sms.liquid, etc).
+  def localized? = false
 
   # The folder containing this template. Templates in the root template directory should use nil.
   def template_folder
@@ -51,7 +57,12 @@ class Suma::Message::Template
   end
 
   def template_path(transport)
-    return Suma::Message::DATA_DIR + "templates/#{self.full_template_name}.#{transport}.liquid"
+    lang = ""
+    if self.localized?
+      raise Suma::Message::LanguageNotSetError if self.language.nil?
+      lang = "." + self.language
+    end
+    return Suma::Message::DATA_DIR + "templates/#{self.full_template_name}#{lang}.#{transport}.liquid"
   end
 
   # The layout for the template. See the 'layouts' folder in the message data directory.

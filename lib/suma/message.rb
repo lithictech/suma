@@ -47,6 +47,7 @@ module Suma::Message
     Suma::Message::Delivery.db.transaction do
       delivery = Suma::Message::Delivery.create(
         template: template.full_template_name,
+        template_language: template.language || "",
         transport_type: transport.type,
         transport_service: transport.service,
         to: recipient.to,
@@ -99,6 +100,8 @@ module Suma::Message
   class InvalidTransportError < StandardError; end
 
   class MissingTemplateError < StandardError; end
+
+  class LanguageNotSetError < StandardError; end
 
   # Presents a homogeneous interface for a given 'to' value (email vs. member, for example).
   # .to will always be a plain object, and .member will be a +Suma::Member+ if present.

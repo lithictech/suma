@@ -52,6 +52,21 @@ RSpec.describe "Suma::Message", :db, :messaging do
       expect(delivery.bodies).to have_length(1)
       expect(delivery.bodies.first).to have_attributes(content: match("test message to member@lithic.tech"))
     end
+
+    it "includes the language in the template name if template supports localization" do
+      tmpl = Suma::Messages::Testers::Localized.new
+      tmpl.language = "fr"
+      delivery = tmpl.dispatch("member@lithic.tech", transport: :sms)
+      expect(delivery).to have_attributes(template_language: "fr")
+      expect(delivery.bodies).to contain_exactly(have_attributes(content: match("french message")))
+    end
+
+    it "errors if no language is set and the template supports localization" do
+      tmpl = Suma::Messages::Testers::Localized.new
+      expect do
+        tmpl.dispatch("member@lithic.tech", transport: :sms)
+      end.to raise_error(Suma::Message::LanguageNotSetError)
+    end
   end
 
   describe "rendering" do

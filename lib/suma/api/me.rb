@@ -56,6 +56,18 @@ class Suma::API::Me < Suma::API::V1
       status 200
       present member, with: CurrentMemberEntity, env:
     end
+
+    params do
+      requires :language, values: ["en", "es"]
+    end
+    post :language do
+      member = current_member
+      member.db.transaction do
+        member.message_preferences!.update(preferred_language: params[:language])
+      end
+      status 200
+      present member, with: CurrentMemberEntity, env:
+    end
   end
 
   class MemberDashboardEntity < BaseEntity
