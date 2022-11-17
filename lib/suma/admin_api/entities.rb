@@ -165,4 +165,21 @@ module Suma::AdminAPI::Entities
     expose :total_balance, with: MoneyEntity
     expose :originated_funding_transactions, with: FundingTransactionEntity
   end
+
+  class CommerceOfferingEntity < BaseEntity
+    include AutoExposeBase
+    include AutoExposeDetail
+    expose_translated :description
+    expose :period_end, as: :closes_at
+    expose :products_amount, &self.delegate_to(:offering_products, :count)
+  end
+
+  class OfferingProductsEntity < BaseEntity
+    include AutoExposeBase
+    expose :closed_at
+    expose :product_id
+    expose :customer_price, with: MoneyEntity
+    expose :undiscounted_price, with: MoneyEntity
+    expose :is_closed, &self.delegate_to(:closed?, safe_with_default: false)
+  end
 end

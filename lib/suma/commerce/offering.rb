@@ -4,9 +4,11 @@ require "suma/commerce"
 require "suma/postgres/model"
 require "suma/image"
 require "suma/translated_text"
+require "suma/admin_linked"
 
 class Suma::Commerce::Offering < Suma::Postgres::Model(:commerce_offerings)
   include Suma::Image::AssociatedMixin
+  include Suma::AdminLinked
 
   plugin :timestamps
   plugin :tstzrange_fields, :period
@@ -21,6 +23,8 @@ class Suma::Commerce::Offering < Suma::Postgres::Model(:commerce_offerings)
       return self.where(Sequel.pg_range(:period).contains(Sequel.cast(t, :timestamptz)))
     end
   end
+
+  def rel_admin_link = "/commerce-offering/#{self.id}"
 end
 
 # Table: commerce_offerings

@@ -4,6 +4,8 @@ import BankAccountDetailPage from "./pages/BankAccountDetailPage";
 import BookTransactionCreatePage from "./pages/BookTransactionCreatePage";
 import BookTransactionDetailPage from "./pages/BookTransactionDetailPage";
 import BookTransactionListPage from "./pages/BookTransactionListPage";
+import CommerceOfferingDetailPage from "./pages/CommerceOfferingDetailPage";
+import CommerceOfferingList from "./pages/CommerceOfferingList";
 import DashboardPage from "./pages/DashboardPage";
 import FundingTransactionCreatePage from "./pages/FundingTransactionCreatePage";
 import FundingTransactionDetailPage from "./pages/FundingTransactionDetailPage";
@@ -123,6 +125,20 @@ function PageSwitch() {
           redirectIfUnauthed,
           withLayout(),
           BookTransactionDetailPage
+        )}
+      />
+      <Route
+        exact
+        path="/commerce-offerings"
+        element={renderWithHocs(redirectIfUnauthed, withLayout(), CommerceOfferingList)}
+      />
+      <Route
+        exact
+        path="/commerce-offering/:id"
+        element={renderWithHocs(
+          redirectIfUnauthed,
+          withLayout(),
+          CommerceOfferingDetailPage
         )}
       />
       <Route
