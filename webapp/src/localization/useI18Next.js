@@ -1,8 +1,10 @@
+import api from "../api";
 import { localStorageCache } from "../shared/localStorageHelper";
 import { formatMoney } from "../shared/react/Money";
 import useLocalStorageState from "../shared/react/useLocalStorageState";
 import i18n from "i18next";
 import Backend from "i18next-http-backend";
+import _ from "lodash";
 import React from "react";
 
 export const I18NextContext = React.createContext();
@@ -22,6 +24,10 @@ export function I18NextProvider({ children }) {
 
   const changeLanguage = React.useCallback(
     (lang) => {
+      api
+        .changeLanguage({ language: lang })
+        .then(_.noop)
+        .catch((r) => console.error(r));
       setI18NextLoading(true);
       Promise.delayOr(
         500,

@@ -64,4 +64,8 @@ module Suma::Messages::Testers
       return "basic"
     end
   end
+
+  class Localized < Base
+    def localized? = true
+  end
 end

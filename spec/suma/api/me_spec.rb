@@ -105,6 +105,15 @@ RSpec.describe Suma::API::Me, :db do
     end
   end
 
+  describe "POST /v1/me/language" do
+    it "modifies message preferences language" do
+      post "/v1/me/language", language: "es"
+
+      expect(last_response).to have_status(200)
+      expect(member.refresh.message_preferences).to have_attributes(preferred_language: "es")
+    end
+  end
+
   describe "GET /v1/me/dashboard" do
     it "returns the dashboard" do
       cash_ledger = Suma::Fixtures.ledger.member(member).category(:cash).create

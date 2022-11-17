@@ -195,6 +195,7 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
     offering = Suma::Commerce::Offering.new
     offering.period = 1.day.ago..Time.new(2022, 12, 16)
     offering.description = Suma::TranslatedText.create(en: "Holidays 2022", es: "Días festivos")
+    offering.confirmation_template = "2022-12-pilot-confirmation"
     offering.save_changes
 
     bytes = File.binread("spec/data/images/holiday-offering.jpeg")

@@ -63,6 +63,7 @@ class Suma::Member < Suma::Postgres::Model(:members)
   one_to_many :charges, class: "Suma::Charge", order: Sequel.desc([:id])
   many_to_one :legal_entity, class: "Suma::LegalEntity"
   one_to_many :message_deliveries, key: :recipient_id, class: "Suma::Message::Delivery"
+  one_to_one :message_preferences, class: "Suma::Message::Preferences"
   one_to_one :ongoing_trip, class: "Suma::Mobility::Trip", conditions: {ended_at: nil}
   one_to_one :payment_account, class: "Suma::Payment::Account"
   one_to_many :reset_codes, class: "Suma::Member::ResetCode", order: Sequel.desc([:created_at])
@@ -170,6 +171,10 @@ class Suma::Member < Suma::Postgres::Model(:members)
   # @return [Suma::Member::StripeAttributes]
   def stripe
     return @stripe ||= Suma::Member::StripeAttributes.new(self)
+  end
+
+  def message_preferences!
+    return self.message_preferences ||= Suma::Message::Preferences.find_or_create_or_find(member: self)
   end
 
   #

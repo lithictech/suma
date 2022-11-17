@@ -73,6 +73,33 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
     end
   end
 
+  describe "OrderConfirmation" do
+    let!(:order) { Suma::Fixtures.order.create }
+
+    it "sends the order confirmation" do
+      order.checkout.cart.offering.update(confirmation_template: "2022-12-pilot-confirmation")
+      expect do
+        order.publish_immediate("created", order.id)
+      end.to perform_async_job(Suma::Async::OrderConfirmation)
+
+      expect(Suma::Message::Delivery.all).to contain_exactly(
+        have_attributes(
+          template: "offerings/2022-12-pilot-confirmation",
+          transport_type: "sms",
+          template_language: "en",
+        ),
+      )
+    end
+
+    it "noops if the offering has no template" do
+      expect do
+        order.publish_immediate("created", order.id)
+      end.to perform_async_job(Suma::Async::OrderConfirmation)
+
+      expect(Suma::Message::Delivery.all).to be_empty
+    end
+  end
+
   describe "PlaidUpdateInstitutions" do
     it "updates Plaid institutions" do
       Suma::Plaid.sync_institutions = true

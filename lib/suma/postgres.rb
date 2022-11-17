@@ -70,6 +70,7 @@ module Suma::Postgres
     "suma/market",
     "suma/message/body",
     "suma/message/delivery",
+    "suma/message/preferences",
     "suma/mobility/restricted_area",
     "suma/mobility/trip",
     "suma/mobility/vehicle",
