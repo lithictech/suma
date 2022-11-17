@@ -18,6 +18,28 @@ class Suma::Commerce::Offering < Suma::Postgres::Model(:commerce_offerings)
   one_to_many :offering_products, class: "Suma::Commerce::OfferingProduct"
   one_to_many :carts, class: "Suma::Commerce::Cart"
 
+  many_through_many :products,
+                    [
+                      [:commerce_offering_products, :offering_id, :id],
+                    ],
+                    class: "Suma::Commerce::Product",
+                    left_primary_key: :id,
+                    right_primary_key: :id,
+                    read_only: true,
+                    order: [:created_at, :id]
+
+  many_through_many :orders,
+                    [
+                      [:commerce_carts, :offering_id, :id],
+                      [:commerce_checkouts, :cart_id, :id],
+                      # [:commerce_orders, :offering_id, :id],
+                    ],
+                    class: "Suma::Commerce::Order",
+                    left_primary_key: :id,
+                    right_primary_key: :checkout_id,
+                    read_only: true,
+                    order: [:created_at, :id]
+
   dataset_module do
     def available_at(t)
       return self.where(Sequel.pg_range(:period).contains(Sequel.cast(t, :timestamptz)))
