@@ -6,15 +6,22 @@ import SumaImage from "../components/SumaImage";
 import { t } from "../localization";
 import Money from "../shared/react/Money";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
+import useHashSelector from "../shared/react/useHashSelector";
+import useToggle from "../shared/react/useToggle";
 import { useOffering } from "../state/useOffering";
 import { useScreenLoader } from "../state/useScreenLoader";
 import { LayoutContainer } from "../state/withLayout";
 import clsx from "clsx";
+import leaflet from "leaflet";
+import "leaflet-control-geocoder/dist/Control.Geocoder";
+import "leaflet-control-geocoder/dist/Control.Geocoder.css";
+import "leaflet/dist/leaflet.css";
 import _ from "lodash";
 import React from "react";
 import Button from "react-bootstrap/Button";
 import Col from "react-bootstrap/Col";
 import Form from "react-bootstrap/Form";
+import Modal from "react-bootstrap/Modal";
 import Row from "react-bootstrap/Row";
 import Stack from "react-bootstrap/Stack";
 import {
@@ -83,6 +90,7 @@ export default function FoodCheckout() {
         // TODO: toast error
       });
   }
+
   return (
     <Row>
       <CheckoutPayment
@@ -209,6 +217,17 @@ function PaymentLabel({ institution, last4, name }) {
 }
 
 function CheckoutFulfillment({ checkout, onCheckoutChange }) {
+  // TODO: return address legal entity from API checkout entity
+  const address = "6700 NE Killingsworth St, Portland, OR 97218";
+
+  const [chosenAddress, setChosenAddress] = React.useState(address);
+  const isOpen = useToggle(false);
+
+  // TODO: pass fulfillment address instead of hardcoded address
+  const handleFulfillmentMap = (address) => {
+    setChosenAddress(address);
+    isOpen.turnOn();
+  };
   return (
     <Col xs={12} className="mb-3">
       <h5>How do you want to get your stuff?</h5>
@@ -220,15 +239,107 @@ function CheckoutFulfillment({ checkout, onCheckoutChange }) {
               id={fo.id}
               name={fo.description}
               type="radio"
-              label={fo.description}
+              label={
+                <>
+                  {fo.description}
+                  <a
+                    href={`#${address}`}
+                    variant="link"
+                    className="d-block"
+                    onClick={(e) => handleFulfillmentMap(address)}
+                  >
+                    <i className="bi bi-geo-alt me-1"></i>
+                    Show map
+                  </a>
+                </>
+              }
               checked={checkout.fulfillmentOptionId === fo.id}
               onChange={() => onCheckoutChange({ fulfillmentOptionId: fo.id })}
             />
           ))}
+          <MapModal
+            address={chosenAddress}
+            show={isOpen}
+            onClose={() => isOpen.turnOff()}
+          />
         </Form.Group>
       </Form>
     </Col>
   );
+}
+
+function MapModal({ address, show, onClose }) {
+  const [loadedMap, setLoadedMap] = React.useState(null);
+  const mapRef = React.useCallback((node) => {
+    if (Boolean(node) && !loadedMap) {
+      setLoadedMap(new AddressLocationMap(node).withAddress(address));
+    }
+  }, []);
+  return (
+    <Modal show={show.isOn} onHide={onClose} onExit={onClose} centered>
+      <Modal.Header closeButton>Fulfillment Location</Modal.Header>
+      <Modal.Body>
+        <div ref={mapRef} style={{ height: "400px" }} />
+      </Modal.Body>
+    </Modal>
+  );
+}
+
+class AddressLocationMap {
+  constructor(mapRef) {
+    this._map = leaflet.map(mapRef, { zoomControl: false }).setView([0, 0], 20);
+    leaflet.control
+      .zoom({
+        position: "bottomright",
+        zoomInTitle: t("mobility:zoom_in"),
+        zoomOutTitle: t("mobility:zoom_out"),
+      })
+      .addTo(this._map);
+    // TODO: Map is not rendering tiles correctly, not sure the cause
+    leaflet
+      .tileLayer(
+        "https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw",
+        {
+          maxZoom: 13,
+          minZoom: 23,
+          tileSize: 512,
+          zoomOffset: -1,
+          attribution:
+            'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, ' +
+            'Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+          id: "mapbox/streets-v11",
+        }
+      )
+      .addTo(this._map);
+  }
+
+  withAddress(a) {
+    if (!a || !leaflet.Control.Geocoder) {
+      return;
+    }
+    const geocoder = leaflet.Control.Geocoder["mapbox"]({
+      apiKey:
+        "pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw",
+    });
+    leaflet.Control.geocoder({
+      query: a,
+      geocoder: geocoder,
+      showResultIcons: true,
+    }).addTo(this._map);
+    this._map.whenReady(() => {
+      geocoder.geocode(a, (results) => {
+        results = results[0];
+        if (!results) {
+          return;
+        }
+        leaflet
+          .marker(results.center)
+          .bindPopup(results.name)
+          .addTo(this._map)
+          .openPopup();
+      });
+    }, this);
+  }
 }
 
 function CheckoutItems({ checkout }) {
