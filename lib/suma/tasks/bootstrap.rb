@@ -287,5 +287,12 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
         subsidy_memo: {en: "Subsidy from Meyer Memorial Trust", es: "Subsidio de Meyer Memorial Trust"},
       },
     )
+    Suma::AutomationTrigger.create(
+      name: "Holidays 2022 Pilot Verification",
+      topic: "suma.member.created",
+      active_during_begin: Time.now,
+      active_during_end: Time.parse("2022-12-12T23:00:00-0800"),
+      klass_name: "Suma::AutomationTrigger::AutoOnboard",
+    )
   end
 end
