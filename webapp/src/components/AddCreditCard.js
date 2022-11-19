@@ -36,10 +36,10 @@ export default function AddCreditCard({ onSuccess, error, setError }) {
   const cardRowRef = React.useRef(null);
   const [rerender, setRerender] = React.useState(1);
 
-  const [name, setName] = React.useState("Your Name Here");
-  const [number, setNumber] = React.useState("4242424242424242");
-  const [expiry, setExpiry] = React.useState("01 / 25");
-  const [cvc, setCvc] = React.useState("123");
+  const [name, setName] = React.useState(config.devCardDetails.name || "");
+  const [number, setNumber] = React.useState(config.devCardDetails.number || "");
+  const [expiry, setExpiry] = React.useState(config.devCardDetails.expiry || "");
+  const [cvc, setCvc] = React.useState(config.devCardDetails.cvc || "");
   const [focus, setFocus] = React.useState("");
 
   const runSetter = React.useCallback(
