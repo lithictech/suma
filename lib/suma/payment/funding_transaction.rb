@@ -89,7 +89,10 @@ class Suma::Payment::FundingTransaction < Suma::Postgres::Model(:payment_funding
       self.db.transaction do
         platform_ledger = Suma::Payment.ensure_cash_ledger(Suma::Payment::Account.lookup_platform_account)
         if strategy.nil?
-          strategy = case instrument&.payment_method_type
+          raise ArgumentError, ":instrument must be provided if :strategy is not" if instrument.nil?
+          pmt = instrument.payment_method_type
+          raise Suma::Payment::UnsupportedMethod, "#{pmt} is not supported" unless Suma::Payment.method_supported?(pmt)
+          strategy = case pmt
             when "bank_account"
               IncreaseAchStrategy.create(originating_bank_account: instrument)
             when "card"

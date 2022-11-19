@@ -79,4 +79,15 @@ RSpec.describe Suma::API::Meta, :db do
       )
     end
   end
+
+  describe "GET /v1/meta/supported_payment_methods" do
+    it "returns supported methods" do
+      get "/v1/meta/supported_payment_methods"
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.that_includes(
+        items: ["bank_account", "card"],
+      )
+    end
+  end
 end

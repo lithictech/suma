@@ -14,6 +14,10 @@ RSpec.describe Suma::API::PaymentInstruments, :db do
     login_as(member)
   end
 
+  after(:each) do
+    Suma::Payment.reset_configuration
+  end
+
   describe "POST /v1/payment_instruments/bank_accounts/create" do
     let(:account_number) { "99988877" }
     let(:routing_number) { "111222333" }
@@ -38,8 +42,6 @@ RSpec.describe Suma::API::PaymentInstruments, :db do
 
       expect(last_response).to have_status(200)
       expect(member.refresh.bank_accounts).to contain_exactly(have_attributes(verified?: true))
-    ensure
-      Suma::Payment.reset_configuration
     end
 
     it "errors if the bank account already exists undeleted for the member" do
@@ -61,6 +63,15 @@ RSpec.describe Suma::API::PaymentInstruments, :db do
       expect(member.refresh.bank_accounts).to contain_exactly(be === ba)
       expect(ba.refresh).to have_attributes(name: "Foo")
       expect(last_response).to have_json_body.that_includes(id: member.bank_accounts.first.id)
+    end
+
+    it "errors if bank accounts are not an enabled method" do
+      Suma::Payment.supported_methods = []
+
+      post("/v1/payment_instruments/bank_accounts/create", name: "Foo", account_number:, routing_number:, account_type:)
+
+      expect(last_response).to have_status(402)
+      expect(last_response).to have_json_body.that_includes(error: include(code: "forbidden"))
     end
   end
 
@@ -133,6 +144,15 @@ RSpec.describe Suma::API::PaymentInstruments, :db do
       expect(last_response).to have_status(402)
       expect(last_response).to have_json_body.
         that_includes(error: include(code: "card_permanent_failure"))
+    end
+
+    it "errors if bank accounts are not an enabled method" do
+      Suma::Payment.supported_methods = []
+
+      post "/v1/payment_instruments/cards/create_stripe", token: load_fixture_data("stripe/token.json", raw: true)
+
+      expect(last_response).to have_status(402)
+      expect(last_response).to have_json_body.that_includes(error: include(code: "forbidden"))
     end
   end
 

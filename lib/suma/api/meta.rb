@@ -35,5 +35,10 @@ class Suma::API::Meta < Suma::API::V1
       use_http_expires_caching 2.days
       present_collection Suma::I18n::SUPPORTED_LOCALES.values, with: LocaleEntity
     end
+
+    get :supported_payment_methods do
+      use_http_expires_caching 2.days
+      present_collection Suma::Payment.supported_methods
+    end
   end
 end

@@ -10,11 +10,25 @@ export function BackendGlobalsProvider({ children }) {
     default: { items: [] },
     pickData: true,
   });
+  const { state: supportedPaymentMethods } = useAsyncFetch(
+    api.getSupportedPaymentMethods,
+    {
+      default: { items: [] },
+      pickData: true,
+    }
+  );
+
+  const isPaymentMethodSupported = React.useCallback(
+    (pm) => supportedPaymentMethods.items.includes(pm),
+    [supportedPaymentMethods]
+  );
 
   return (
     <BackendGlobalsContext.Provider
       value={{
         supportedLocales,
+        supportedPaymentMethods,
+        isPaymentMethodSupported,
       }}
     >
       {children}
