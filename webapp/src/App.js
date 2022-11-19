@@ -241,7 +241,7 @@ function AppRoutes() {
             redirectIfUnboarded,
             withScreenLoaderMount(),
             withMetatags({ title: t("food:checkout") }),
-            withLayout({ appNav: true, gutters: true, top: true }),
+            withLayout({ appNav: true, gutters: false }),
             FoodCheckoutConfirmation
           )}
         />
