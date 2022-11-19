@@ -154,6 +154,23 @@ class Suma::API::Commerce < Suma::API::V1
         end
       end
     end
+
+    resource :orders do
+      get do
+        me = current_member
+        ds = me.orders_dataset
+        ds = ds.order(Sequel.desc(:created_at), :id)
+        present_collection ds, with: OrderHistoryCollection, detailed_orders: ds.first(2)
+      end
+
+      route_param :id, type: Integer do
+        get do
+          me = current_member
+          (order = me.orders_dataset[params[:id]]) or forbidden!
+          present order, with: DetailedOrderHistoryEntity
+        end
+      end
+    end
   end
 
   class VendorEntity < BaseEntity
@@ -254,5 +271,59 @@ class Suma::API::Commerce < Suma::API::V1
     expose :items, with: CheckoutItemEntity
     expose :offering, with: OfferingEntity, &self.delegate_to(:cart, :offering)
     expose :fulfillment_option, with: FulfillmentOptionEntity
+  end
+
+  class SimpleOrderHistoryEntity < BaseEntity
+    include Suma::API::Entities
+    expose :id
+    expose :serial
+    expose :created_at
+    expose :total, with: MoneyEntity, &self.delegate_to(:checkout, :total)
+    expose :image, with: ImageEntity do |inst|
+      inst.checkout.items.sample&.offering_product&.product&.images&.first
+    end
+  end
+
+  class OrderHistoryFundingTransactionEntity < BaseEntity
+    include Suma::API::Entities
+    expose :amount, with: MoneyEntity
+    expose :label, &self.delegate_to(:strategy, :originating_instrument, :simple_label)
+  end
+
+  class OrderHistoryItemEntity < BaseEntity
+    include Suma::API::Entities
+    expose :quantity
+    expose_translated :name, &self.delegate_to(:offering_product, :product, :name)
+    expose_translated :description, &self.delegate_to(:offering_product, :product, :description)
+    expose :image, with: ImageEntity, &self.delegate_to(:offering_product, :product, :images?, :first)
+    expose :customer_price, with: MoneyEntity, &self.delegate_to(:offering_product, :customer_price)
+  end
+
+  class DetailedOrderHistoryEntity < SimpleOrderHistoryEntity
+    include Suma::API::Entities
+    expose :items, with: OrderHistoryItemEntity, &self.delegate_to(:checkout, :items)
+    expose :offering_id, &self.delegate_to(:checkout, :cart, :offering_id)
+    expose :fulfillment_option, with: FulfillmentOptionEntity, &self.delegate_to(:checkout, :fulfillment_option)
+
+    expose :customer_cost, with: MoneyEntity, &self.delegate_to(:checkout, :customer_cost)
+    expose :undiscounted_cost, with: MoneyEntity, &self.delegate_to(:checkout, :undiscounted_cost)
+    expose :savings, with: MoneyEntity, &self.delegate_to(:checkout, :savings)
+    expose :handling, with: MoneyEntity, &self.delegate_to(:checkout, :handling)
+    expose :taxable_cost, with: MoneyEntity, &self.delegate_to(:checkout, :taxable_cost)
+    expose :tax, with: MoneyEntity, &self.delegate_to(:checkout, :tax)
+    expose :funded_amount, with: MoneyEntity
+    expose :paid_amount, with: MoneyEntity
+    expose :funding_transactions, with: OrderHistoryFundingTransactionEntity do |inst|
+      inst.charges.map(&:associated_funding_transactions).flatten
+    end
+  end
+
+  # We can assume the user is going to most often view their very recent history,
+  # so provide them to the frontend to avoid extra API calls.
+  class OrderHistoryCollection < Suma::Service::Collection::BaseEntity
+    expose :items, with: SimpleOrderHistoryEntity
+    expose :detailed_orders, with: DetailedOrderHistoryEntity do |_, opts|
+      opts.fetch(:detailed_orders)
+    end
   end
 end

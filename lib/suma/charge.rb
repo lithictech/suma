@@ -14,6 +14,17 @@ class Suma::Charge < Suma::Postgres::Model(:charges)
                join_table: :charges_payment_book_transactions,
                left_key: :charge_id,
                right_key: :book_transaction_id
+  # Keep track of any synchronous funding transactions
+  # that were caused due to this charge. There is NOT a direct linkage
+  # in ledgering terms- this is rather modeling the user experience
+  # of when a charge and funding event happen one after the other
+  # (ie, paying for an order during checkout, charges a card
+  # to cover the difference).
+  many_to_many :associated_funding_transactions,
+               class: "Suma::Payment::FundingTransaction",
+               join_table: :charges_associated_funding_transactions,
+               left_key: :charge_id,
+               right_key: :funding_transaction_id
 
   def initialize(*)
     super

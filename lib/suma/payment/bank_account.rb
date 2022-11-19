@@ -66,6 +66,8 @@ class Suma::Payment::BankAccount < Suma::Postgres::Model(:payment_bank_accounts)
     return "#{self.name} x-#{self.last4}"
   end
 
+  def simple_label = self.name_with_last4
+
   def rel_admin_link = "/bank-account/#{self.id}"
 
   def institution

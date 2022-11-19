@@ -28,4 +28,8 @@ module Suma::Fixtures::Checkouts
   decorator :completed do |t=Time.now|
     self.complete(t)
   end
+
+  decorator :with_payment_instrument, presave: true do
+    self.payment_instrument ||= Suma::Fixtures.send([:card, :bank_account].sample).member(self.cart.member).create
+  end
 end

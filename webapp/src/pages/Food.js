@@ -15,6 +15,7 @@ import { Stack } from "react-bootstrap";
 import Card from "react-bootstrap/Card";
 import Col from "react-bootstrap/Col";
 import Row from "react-bootstrap/Row";
+import { Link } from "react-router-dom";
 
 export default function Food() {
   const {
@@ -52,6 +53,13 @@ export default function Food() {
         {_.isEmpty(foodOfferings?.items) && !offeringsLoading && (
           <p>{t("food:no_offerings")}</p>
         )}
+        <hr />
+        <h4 className="mb-3">
+          <Link to="/order-history" className="text-decoration-none">
+            <span className="text-dark">Previous Orders </span>
+            <i className="bi-arrow-right"></i>
+          </Link>
+        </h4>
       </LayoutContainer>
     </>
   );

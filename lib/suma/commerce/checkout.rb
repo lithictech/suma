@@ -146,13 +146,14 @@ class Suma::Commerce::Checkout < Suma::Postgres::Model(:commerce_checkouts)
 
       # If there are any remainder contributions, we need to fund them against the cash ledger.
       if remainder_contribs.present?
-        Suma::Payment::FundingTransaction.start_and_transfer(
+        funding = Suma::Payment::FundingTransaction.start_and_transfer(
           cash_ledger,
           amount: remainder_contribs.first.amount,
           vendor_service_category: Suma::Vendor::ServiceCategory.cash,
           instrument: self.payment_instrument,
           apply_at: now,
         )
+        charge.add_associated_funding_transaction(funding)
       end
 
       # Delete this at the end, after it's charged.
@@ -201,7 +202,8 @@ class Suma::Commerce::Checkout < Suma::Postgres::Model(:commerce_checkouts)
       item.set(immutable_quantity: item.cart_item.quantity, cart_item: nil)
     end
     self.db.from(:commerce_checkout_items, :commerce_cart_items).
-      where(checkout_id: self.id).
+      # See https://github.com/jeremyevans/sequel/discussions/1967
+      where(checkout_id: self.id, Sequel[:commerce_cart_items][:id] => Sequel[:commerce_checkout_items][:cart_item_id]).
       update(cart_item_id: nil, immutable_quantity: Sequel[:commerce_cart_items][:quantity])
   end
 

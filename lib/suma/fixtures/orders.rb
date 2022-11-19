@@ -15,4 +15,9 @@ module Suma::Fixtures::Orders
     instance.checkout ||= Suma::Fixtures.checkout.create
     instance
   end
+
+  decorator :as_purchased_by do |member|
+    cart = Suma::Fixtures.cart(member:).with_any_product.create
+    self.checkout = Suma::Fixtures.checkout(cart:).with_payment_instrument.populate_items.create
+  end
 end

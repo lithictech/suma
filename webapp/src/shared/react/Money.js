@@ -22,7 +22,7 @@ const defaultFormatters = {
 };
 defaultFormatters.default = defaultFormatters.USD;
 
-export default function Money({ value, children, className, accounting, ...rest }) {
+export default function Money({ value, children, className, accounting, as, ...rest }) {
   let entity = value || children;
   if (!entity) {
     return null;
@@ -33,7 +33,8 @@ export default function Money({ value, children, className, accounting, ...rest 
   } else {
     ch = formatMoney(entity, rest);
   }
-  return <span className={className}>{ch}</span>;
+  const As = as || "span";
+  return <As className={className}>{ch}</As>;
 }
 
 Money.propTypes = {

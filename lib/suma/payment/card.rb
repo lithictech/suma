@@ -53,6 +53,8 @@ class Suma::Payment::Card < Suma::Postgres::Model(:payment_cards)
   def brand  = self.stripe_json.fetch("brand")
   def name = "#{self.brand} x-#{self.last4}"
 
+  def simple_label = self.name
+
   def stripe_card
     return @stripe_card ||= Stripe::Card.construct_from(stripe_json.deep_symbolize_keys)
   end

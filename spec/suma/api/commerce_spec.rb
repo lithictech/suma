@@ -328,4 +328,40 @@ RSpec.describe Suma::API::Commerce, :db do
       expect(last_response).to have_status(403)
     end
   end
+
+  describe "GET /v1/commerce/orders" do
+    it "returns a full order history with the most recent 2 orders as detailed" do
+      o2 = Suma::Fixtures.order.as_purchased_by(member).create(created_at: 10.days.ago)
+      o3 = Suma::Fixtures.order.as_purchased_by(member).create(created_at: 9.days.ago)
+      o4 = Suma::Fixtures.order.as_purchased_by(member).create(created_at: 8.days.ago)
+      o1 = Suma::Fixtures.order.as_purchased_by(member).create(created_at: 11.days.ago)
+
+      get "/v1/commerce/orders"
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.that_includes(
+        items: have_same_ids_as(o4, o3, o2, o1).ordered,
+        detailed_orders: have_same_ids_as(o4, o3),
+      )
+    end
+  end
+
+  describe "GET /v1/commerce/orders/:id" do
+    it "returns the order" do
+      o = Suma::Fixtures.order.as_purchased_by(member).create
+
+      get "/v1/commerce/orders/#{o.id}"
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.that_includes(id: o.id)
+    end
+
+    it "403s if the member does not own the order" do
+      o = Suma::Fixtures.order.create
+
+      get "/v1/commerce/orders/#{o.id}"
+
+      expect(last_response).to have_status(403)
+    end
+  end
 end

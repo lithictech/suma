@@ -4,7 +4,7 @@ import apiBase from "./shared/apiBase";
 
 const instance = apiBase.create(config.apiHost, {
   debug: config.debug,
-  chaos: config.chaos,
+  chaos: false,
 });
 
 instance.interceptors.request.use(
@@ -72,6 +72,8 @@ export default {
     post(`/api/v1/commerce/checkouts/${id}/complete`, data),
   getCheckoutConfirmation: ({ id, ...data }) =>
     get(`/api/v1/commerce/checkouts/${id}/confirmation`, data),
+  getOrderHistory: (data) => get(`/api/v1/commerce/orders`, data),
+  getOrderDetails: ({ id, ...data }) => get(`/api/v1/commerce/orders/${id}`, data),
 
   createBankAccount: (data) =>
     post(`/api/v1/payment_instruments/bank_accounts/create`, data),
