@@ -14,10 +14,11 @@ import dayjs from "dayjs";
 import _ from "lodash";
 import React from "react";
 import Container from "react-bootstrap/Container";
+import Dropdown from "react-bootstrap/Dropdown";
 import Table from "react-bootstrap/Table";
 
 export default function LedgersOverview() {
-  const { page, setListQueryParams } = useListQueryControls();
+  const { params, page, setListQueryParams } = useListQueryControls();
   const { state: ledgersOverview, loading: ledgersOverviewLoading } = useAsyncFetch(
     api.getLedgersOverview,
     {
@@ -34,35 +35,78 @@ export default function LedgersOverview() {
     pickData: true,
     doNotFetchOnInit: true,
   });
-  const ledger = _.first(ledgersOverview.ledgers);
+  const ledgerIdParam = Number(params.get("ledger"));
+  const firstLedger = _.first(ledgersOverview.ledgers);
+  const activeLedger = ledgerIdParam
+    ? _.find(ledgersOverview.ledgers, { id: ledgerIdParam })
+    : firstLedger;
+
+  //On mount (not page changes), fetch the ledger lines we aren't looking at
+  // the 'first ledger items' (the active ledger must be the first ledger,
+  // and the active page must be the first page).
   React.useEffect(() => {
-    if (ledger && page > 0) {
-      ledgerLinesFetch({ id: ledger.id, page: page + 1 });
+    if (!activeLedger) {
+      return;
     }
-    // Only run this on mount, not on page changes.
+    if (activeLedger !== firstLedger) {
+      ledgerLinesFetch({ id: activeLedger.id, page: page + 1 });
+    } else if (page > 0) {
+      ledgerLinesFetch({ id: firstLedger.id, page: page + 1 });
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [ledger]);
+  }, [activeLedger]);
+
+  // When we hit the 'back' button, we need to re-fetch in case
+  // the page or ledger id in the changed.
+  React.useEffect(() => {
+    if (!activeLedger || !ledgerIdParam) {
+      return;
+    }
+    if (ledgerLines.ledgerId !== ledgerIdParam) {
+      ledgerLinesFetch({ id: ledgerIdParam, page: 1 });
+    } else if (ledgerLines.currentPage !== page + 1) {
+      ledgerLinesFetch({ id: activeLedger.id, page: page + 1 });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeLedger, page, ledgerIdParam]);
+
+  const activeLines =
+    ledgerLines.items ||
+    (activeLedger === firstLedger ? ledgersOverview.firstLedgerLinesFirstPage : []);
 
   const handleLinesPageChange = (pg) => {
     setListQueryParams({ page: pg });
-    ledgerLinesFetch({ id: ledger.id, page: pg + 1 });
+    ledgerLinesFetch({ id: activeLedger.id, page: pg + 1 });
   };
+
+  const handleSelected = (led) => {
+    setListQueryParams({ page: 0 }, { ledger: led.id });
+    ledgerLinesFetch({ id: led.id, page: 1 });
+  };
+
   return (
     <>
       <LayoutContainer gutters top>
-        <LinearBreadcrumbs back />
+        <LinearBreadcrumbs back="/dashboard" />
         <h2 className="page-header">{t("payments:ledger_transactions")}</h2>
         <p>{t("payments:ledgers_intro")}</p>
       </LayoutContainer>
       {ledgersOverview.ledgers ? (
-        <Ledger
-          ledger={ledger}
-          lines={ledgerLines.items || ledgersOverview.singleLedgerLinesFirstPage}
-          linesPage={page}
-          linesPageCount={ledgerLines.pageCount || ledgersOverview.singleLedgerPageCount}
-          linesLoading={ledgersOverviewLoading || ledgerLinesLoading}
-          onLinesPageChange={handleLinesPageChange}
-        />
+        <>
+          <Header
+            activeLedger={activeLedger}
+            totalBalance={ledgersOverview.totalBalance}
+            ledgers={ledgersOverview.ledgers}
+            onLedgerSelected={handleSelected}
+          />
+          <LedgerLines
+            lines={activeLines}
+            linesPage={page}
+            linesPageCount={ledgerLines.pageCount || ledgersOverview.firstLedgerPageCount}
+            linesLoading={ledgersOverviewLoading || ledgerLinesLoading}
+            onLinesPageChange={handleLinesPageChange}
+          />
+        </>
       ) : (
         <PageLoader />
       )}
@@ -70,8 +114,41 @@ export default function LedgersOverview() {
   );
 }
 
-const Ledger = ({
-  ledger,
+function Header({ totalBalance, activeLedger, ledgers, onLedgerSelected }) {
+  return (
+    <LayoutContainer gutters>
+      <h3>
+        <Money>{totalBalance}</Money>
+      </h3>
+      <p>{t("payments:ledger_balance")}</p>
+      <Dropdown drop="down" className="mb-2">
+        <Dropdown.Toggle className="w-100 dropdown-toggle-hide d-flex flex-row justify-content-between align-items-center">
+          <div className="d-flex flex-row justify-content-between flex-grow-1">
+            <span className="d-block">{activeLedger.contributionText}</span>
+            <Money className="d-block">{activeLedger.balance}</Money>
+          </div>
+          <div className="dropdown-toggle-manual"></div>
+        </Dropdown.Toggle>
+        <Dropdown.Menu align="end" className="w-100">
+          {ledgers.map((led) => (
+            <Dropdown.Item
+              key={led.id}
+              className="d-flex flex-row justify-content-between"
+              onClick={() => onLedgerSelected(led)}
+            >
+              <div>{led.contributionText}</div>
+              <div>
+                <Money>{led.balance}</Money>
+              </div>
+            </Dropdown.Item>
+          ))}
+        </Dropdown.Menu>
+      </Dropdown>
+    </LayoutContainer>
+  );
+}
+
+const LedgerLines = ({
   lines,
   linesPage,
   linesPageCount,
@@ -82,12 +159,6 @@ const Ledger = ({
 
   return (
     <>
-      <LayoutContainer gutters>
-        <h3>
-          <Money>{ledger.balance}</Money>
-        </h3>
-        <p>{t("payments:ledger_balance")}</p>
-      </LayoutContainer>
       {linesLoading && <PageLoader />}
       <Table
         responsive

@@ -9,6 +9,14 @@ class Suma::Payment::Ledger < Suma::Postgres::Model(:payment_ledgers)
   plugin :timestamps
   plugin :translated_text, :contribution_text, Suma::TranslatedText
 
+  def self.combined_dataset_sorter(ledger_ids)
+    return [
+      Sequel.desc(:apply_at),
+      Sequel.desc(Sequel.case({Sequel[originating_ledger_id: ledger_ids] => 1}, 0)),
+      Sequel.asc(:id),
+    ]
+  end
+
   many_to_one :account, class: "Suma::Payment::Account"
   many_to_many :vendor_service_categories,
                class: "Suma::Vendor::ServiceCategory",
@@ -31,7 +39,7 @@ class Suma::Payment::Ledger < Suma::Postgres::Model(:payment_ledgers)
                 ids = eo[:id_map].keys
                 Suma::Payment::BookTransaction.
                   where(Sequel[originating_ledger_id: ids] | Sequel[receiving_ledger_id: ids]).
-                  order(Sequel.desc(:apply_at), Sequel.desc(:id)).all do |bt|
+                  order(*combined_dataset_sorter(ids)).all do |bt|
                   [:originating_ledger_id, :receiving_ledger_id].each do |k|
                     arr = assocs_by_ledger_id[bt[k]]
                     arr << bt if arr
@@ -42,7 +50,7 @@ class Suma::Payment::Ledger < Suma::Postgres::Model(:payment_ledgers)
     # Custom block for when we aren't using eager loading
     Suma::Payment::BookTransaction.
       where(Sequel[originating_ledger_id: id] | Sequel[receiving_ledger_id: id]).
-      order(Sequel.desc(:apply_at), Sequel.desc(:id))
+      order(*self.class.combined_dataset_sorter(id))
   end
 
   def balance

@@ -90,3 +90,18 @@
     width: 100%;
     object-fit: cover;
 }
+
+/* Use this to hide the dropdown toggle */
+.dropdown-toggle-hide::after {
+    display: none !important;
+}
+
+/* Render a dropdown caret in a div */
+.dropdown-toggle-manual {
+    margin-left: $caret-spacing;
+    vertical-align: $caret-vertical-align;
+    border-top: $caret-width solid;
+    border-right: $caret-width solid transparent;
+    border-bottom: 0;
+    border-left: $caret-width solid transparent;
+}

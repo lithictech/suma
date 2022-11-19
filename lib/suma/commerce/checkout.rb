@@ -82,7 +82,7 @@ class Suma::Commerce::Checkout < Suma::Postgres::Model(:commerce_checkouts)
   def total = self.customer_cost + self.handling
 
   # Nonzero contributions made by existing customer ledgers against the order totals.
-  # @return [Array<Suma::Payment::Account::ChargeContribution]
+  # @return [Array<Suma::Payment::ChargeContribution]
   def usable_ledger_contributions
     return self.ledger_charge_contributions(now: Time.now, remainder_ledger: :ignore).
         delete_if { |c| c.amount.zero? }
@@ -134,9 +134,9 @@ class Suma::Commerce::Checkout < Suma::Postgres::Model(:commerce_checkouts)
         end
       end
 
-      # Create ledger debits for all contributions. This MAY bring our balance negative.
+      # Create ledger debits for all positive contributions. This MAY bring our balance negative.
       book_xactions = self.cart.member.payment_account.debit_contributions(
-        debit_contribs,
+        debit_contribs.select { |c| c.amount.positive? },
         memo: Suma::TranslatedText.create(
           en: "Suma Order %04d - %s" % [order.id, self.cart.offering.description.en],
           es: "Suma Pedido %04d - %s" % [order.id, self.cart.offering.description.es],
@@ -151,6 +151,7 @@ class Suma::Commerce::Checkout < Suma::Postgres::Model(:commerce_checkouts)
           amount: remainder_contribs.first.amount,
           vendor_service_category: Suma::Vendor::ServiceCategory.cash,
           instrument: self.payment_instrument,
+          apply_at: now,
         )
       end
 
@@ -165,15 +166,19 @@ class Suma::Commerce::Checkout < Suma::Postgres::Model(:commerce_checkouts)
   # NOTE: Right now this is only product contributions; when we support tax and handling,
   # we'll need to modify this routine to factor those into the right (cash?) ledger.
   #
-  # @return [Array<Suma::Payment::Account::ChargeContribution]
+  # @return [Array<Suma::Payment::ChargeContribution]
   def ledger_charge_contributions(now:, remainder_ledger:)
+    ctx = Suma::Payment::CalculationContext.new
     product_contributions = self.items.map do |item|
-      self.cart.member.payment_account!.find_chargeable_ledgers(
+      contribs = self.cart.member.payment_account!.find_chargeable_ledgers(
         item.offering_product.product,
         item.customer_cost,
         now:,
         remainder_ledger:,
+        calculation_context: ctx,
       )
+      ctx.apply_all(contribs)
+      contribs
     end
     consolidated_contributions = product_contributions.
       flatten.
@@ -181,7 +186,7 @@ class Suma::Commerce::Checkout < Suma::Postgres::Model(:commerce_checkouts)
       values.
       map do |contribs|
       c = contribs.first
-      Suma::Payment::Account::ChargeContribution.new(
+      Suma::Payment::ChargeContribution.new(
         ledger: c.ledger,
         apply_at: c.apply_at,
         category: c.category,

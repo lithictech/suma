@@ -90,13 +90,20 @@ RSpec.describe "Suma::Commerce::Checkout", :db do
 
     describe "with a complex, multi-product, multi-ledger product and payment setup" do
       it "generates the right funding and book transaction, as per the documentation" do
-        food_vsc = Suma::Fixtures.vendor_service_category(name: "Food").create
+        cash_vsc = Suma::Vendor::ServiceCategory.cash
+        food_vsc = Suma::Fixtures.vendor_service_category(name: "Food", parent: cash_vsc).create
         holidaymeal_vsc = Suma::Fixtures.vendor_service_category(name: "Holiday Special", parent: food_vsc).create
         member = Suma::Fixtures.member.create
 
         cash_ledger = Suma::Payment.ensure_cash_ledger(member)
-        food_ledger = Suma::Fixtures.ledger.member(member).with_categories(food_vsc).create
-        holidaymeal_ledger = Suma::Fixtures.ledger.member(member).with_categories(holidaymeal_vsc).create
+        ledger_fac = Suma::Fixtures.ledger.member(member)
+        food_ledger = ledger_fac.with_categories(food_vsc).create(name: "food")
+        holidaymeal_ledger = ledger_fac.with_categories(holidaymeal_vsc).create(name: "holidays")
+
+        # Make sure we debit existing ledgers properly
+        Suma::Fixtures.book_transaction.to(cash_ledger).create(amount: money("$13"))
+        Suma::Fixtures.book_transaction.to(food_ledger).create(amount: money("$3"))
+        Suma::Fixtures.book_transaction.to(holidaymeal_ledger).create(amount: money("$0.30"))
 
         offering = Suma::Fixtures.offering.create
         food_product1 = Suma::Fixtures.product.with_categories(food_vsc).create
@@ -127,8 +134,65 @@ RSpec.describe "Suma::Commerce::Checkout", :db do
           discounted_subtotal: cost("$1244"),
           undiscounted_subtotal: cost("$1555"),
         )
-        btxs = order.charges.first.book_transactions
-        expect(btxs).to have_length(3)
+        expect(order.charges.first.book_transactions).to contain_exactly(
+          have_attributes(amount: cost("$3"), originating_ledger: be === food_ledger),
+          have_attributes(amount: cost("$0.30"), originating_ledger: be === holidaymeal_ledger),
+          have_attributes(amount: cost("$1240.70"), originating_ledger: be === cash_ledger),
+        )
+        expect(member.payment_account.originated_funding_transactions).to contain_exactly(
+          have_attributes(amount: cost("$1227.70")),
+        )
+        expect(member.payment_account.all_book_transactions(reload: true)).to contain_exactly(
+          # These are the initial credits
+          have_attributes(amount: cost("$13"), receiving_ledger: be === cash_ledger),
+          have_attributes(amount: cost("$3"), receiving_ledger: be === food_ledger),
+          have_attributes(amount: cost("$0.30"), receiving_ledger: be === holidaymeal_ledger),
+          # These are the debits, zeroing out the ledgers
+          have_attributes(amount: cost("$3"), originating_ledger: be === food_ledger),
+          have_attributes(amount: cost("$0.30"), originating_ledger: be === holidaymeal_ledger),
+          # This is the total cash charge, both the original $13 cash credit AND the $1227.70 funding
+          have_attributes(amount: cost("$1240.70"), originating_ledger: be === cash_ledger),
+          # Here is the credit from the platform back to the member, for their charged chart
+          have_attributes(amount: cost("$1227.70"), receiving_ledger: be === cash_ledger),
+        )
+      end
+
+      it "does not debit unused, but potentially useful, ledgers" do
+        top_vsc = Suma::Fixtures.vendor_service_category(name: "Everything").create
+        mid_vsc = Suma::Fixtures.vendor_service_category(name: "Food", parent: top_vsc).create
+        low_vsc = Suma::Fixtures.vendor_service_category(name: "Organic", parent: mid_vsc).create
+        member = Suma::Fixtures.member.create
+
+        cash_ledger = Suma::Payment.ensure_cash_ledger(member)
+        top_ledger = Suma::Fixtures.ledger.member(member).with_categories(top_vsc).create
+        mid_ledger = Suma::Fixtures.ledger.member(member).with_categories(mid_vsc).create
+        low_ledger = Suma::Fixtures.ledger.member(member).with_categories(low_vsc).create
+
+        offering = Suma::Fixtures.offering.create
+
+        low_product = Suma::Fixtures.product.with_categories(low_vsc).create
+        low_op = Suma::Fixtures.offering_product(product: low_product, offering:).costing("$40", "$50").create
+
+        cart = Suma::Fixtures.cart(offering:, member:).
+          with_product(low_product, 1).
+          create
+        checkout = Suma::Fixtures.checkout(cart:, card: Suma::Fixtures.card.member(member).create).
+          populate_items.
+          create
+
+        order = checkout.create_order
+        expect(order.charges).to have_length(1)
+        expect(order.charges.first).to have_attributes(
+          discounted_subtotal: cost("40"),
+          undiscounted_subtotal: cost("$50"),
+        )
+        expect(order.charges.first.book_transactions).to contain_exactly(
+          have_attributes(originating_ledger: be === cash_ledger, amount: cost("$40")),
+        )
+        expect(member.payment_account.all_book_transactions(reload: true)).to contain_exactly(
+          have_attributes(originating_ledger: be === cash_ledger, amount: cost("$40")),
+          have_attributes(receiving_ledger: be === cash_ledger, amount: cost("$40")),
+        )
       end
     end
   end

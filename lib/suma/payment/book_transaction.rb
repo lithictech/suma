@@ -57,6 +57,11 @@ class Suma::Payment::BookTransaction < Suma::Postgres::Model(:payment_book_trans
     return self.values.fetch(:_directed, false)
   end
 
+  def debug_description
+    return "BookTransaction[#{self.id}] for #{self.amount.format} from " \
+           "#{self.originating_ledger.admin_label} to #{self.receiving_ledger.admin_label}"
+  end
+
   UsageDetails = Struct.new(:code, :args)
 
   # @return [Array<UsageDetails>]

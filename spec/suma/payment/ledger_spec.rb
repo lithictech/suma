@@ -17,6 +17,17 @@ RSpec.describe "Suma::Payment::Ledger", :db do
       # Test custom eager loader
       expect(ledger.account.ledgers.first.combined_book_transactions).to have_same_ids_as(orig1, orig2, recip1, recip2)
     end
+
+    it "sorts combined transactions to have credits first" do
+      now = Time.now
+      debit1 = Suma::Fixtures.book_transaction.from(ledger).create(apply_at: now)
+      debit2 = Suma::Fixtures.book_transaction.from(ledger).create(apply_at: now)
+      credit1 = Suma::Fixtures.book_transaction.to(ledger).create(apply_at: now)
+      credit2 = Suma::Fixtures.book_transaction.to(ledger).create(apply_at: now)
+      expect(ledger.combined_book_transactions).to have_same_ids_as(debit1, debit2, credit1, credit2).ordered
+      eager_ledger = ledger.account.ledgers.first
+      expect(eager_ledger.combined_book_transactions).to have_same_ids_as(debit1, debit2, credit1, credit2).ordered
+    end
   end
 
   describe "balance" do

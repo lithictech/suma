@@ -45,6 +45,7 @@ class Suma::AdminAPI::FundingTransactions < Suma::AdminAPI::V1
         amount: params[:amount],
         vendor_service_category: Suma::Vendor::ServiceCategory.cash,
         instrument:,
+        apply_at: Time.now,
       )
       created_resource_headers(fx.id, fx.admin_link)
       status 200
