@@ -115,6 +115,7 @@ module Suma::API::Entities
   class LedgerEntity < BaseEntity
     expose :id
     expose :name
+    expose_translated :contribution_text
     expose :balance, with: MoneyEntity
   end
 end

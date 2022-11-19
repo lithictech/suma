@@ -15,7 +15,19 @@ RSpec.describe Suma::API::Ledgers, :db do
   end
 
   describe "GET /v1/ledgers/overview" do
-    it "returns an overview of all ledgers" do
+    it "handles no ledgers" do
+      get "/v1/ledgers/overview"
+
+      expect(last_response).to have_status(200)
+      expect(last_response_json_body).to include(
+        ledgers: [],
+        total_balance: cost("$0"),
+        first_ledger_page_count: 0,
+        first_ledger_lines_first_page: [],
+      )
+    end
+
+    it "returns an overview of all ledgers and items from the first ledger" do
       led1 = Suma::Fixtures.ledger.member(member).create(name: "A")
       led2 = Suma::Fixtures.ledger.member(member).create(name: "B")
       recent_xaction = bookfac.from(led1).create(apply_at: 20.days.ago, amount_cents: 100)
@@ -29,25 +41,9 @@ RSpec.describe Suma::API::Ledgers, :db do
           include(id: led1.id, name: "A", balance: cost("$3")),
           include(id: led2.id, name: "B", balance: cost("$0")),
         ),
-        single_ledger_lines_first_page: [],
-        single_ledger_page_count: 0,
         total_balance: cost("$3"),
-      )
-    end
-
-    it "returns the first page of ledger lines if the member has a single ledger" do
-      led1 = Suma::Fixtures.ledger.member(member).create(name: "A")
-      recent_xaction = bookfac.from(led1).create(apply_at: 20.days.ago, amount_cents: 100)
-      old_xaction = bookfac.to(led1).create(apply_at: 80.days.ago, amount_cents: 400)
-
-      get "/v1/ledgers/overview"
-
-      expect(last_response).to have_status(200)
-      expect(last_response_json_body).to include(
-        ledgers: have_length(1),
-        total_balance: cost("$3"),
-        single_ledger_page_count: 1,
-        single_ledger_lines_first_page: match(
+        first_ledger_page_count: 1,
+        first_ledger_lines_first_page: match(
           [
             include(amount: cost("-$1"), at: match_time(recent_xaction.apply_at)),
             include(amount: cost("$4"), at: match_time(old_xaction.apply_at)),
@@ -74,6 +70,15 @@ RSpec.describe Suma::API::Ledgers, :db do
       get "/v1/ledgers/#{led.id}/lines"
 
       expect(last_response).to have_status(403)
+    end
+
+    it "includes the ledger id" do
+      ledger = Suma::Fixtures.ledger.member(member).create
+
+      get "/v1/ledgers/#{ledger.id}/lines"
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.that_includes(ledger_id: ledger.id)
     end
   end
 end

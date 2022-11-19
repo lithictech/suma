@@ -13,17 +13,17 @@ class Suma::API::Ledgers < Suma::API::V1
       lv = Suma::Payment::LedgersView.new(me.payment_account&.ledgers || [])
       first_page = []
       page_count = 0
-      if lv.ledgers.length == 1
-        first_page = lv.ledgers.first.combined_book_transactions_dataset
+      if (first_ledger = lv.ledgers.first)
+        first_page = first_ledger.combined_book_transactions_dataset
         first_page = paginate(first_page, {page: 1, per_page: Suma::Service::SHORT_PAGE_SIZE})
         page_count = first_page.page_count
-        first_page = first_page.all.map { |led| led.directed(lv.ledgers.first) }
+        first_page = first_page.all.map { |led| led.directed(first_ledger) }
       end
       present(
         lv,
         with: LedgersViewEntity,
-        single_ledger_lines_first_page: first_page,
-        single_ledger_page_count: page_count,
+        first_ledger_lines_first_page: first_page,
+        first_ledger_page_count: page_count,
       )
     end
 
@@ -38,8 +38,16 @@ class Suma::API::Ledgers < Suma::API::V1
         (ledger = me.payment_account.ledgers_dataset[params[:id]]) or forbidden!
         ds = ledger.combined_book_transactions_dataset
         ds = paginate(ds, params)
-        present_collection ds, with: LedgerLineEntity, ledger:
+        present_collection ds, with: LedgerLinesEntity, ledger:
       end
+    end
+  end
+
+  class LedgerLinesEntity < Suma::Service::Collection::BaseEntity
+    include Suma::API::Entities
+    expose :items, with: LedgerLineEntity
+    expose :ledger_id do |_, opts|
+      opts.fetch(:ledger).id
     end
   end
 
@@ -47,11 +55,11 @@ class Suma::API::Ledgers < Suma::API::V1
     include Suma::API::Entities
     expose :total_balance, with: MoneyEntity
     expose :ledgers, with: LedgerEntity
-    expose :single_ledger_lines_first_page, with: LedgerLineEntity do |_, opts|
-      opts.fetch(:single_ledger_lines_first_page)
+    expose :first_ledger_lines_first_page, with: LedgerLineEntity do |_, opts|
+      opts.fetch(:first_ledger_lines_first_page)
     end
-    expose :single_ledger_page_count do |_, opts|
-      opts.fetch(:single_ledger_page_count)
+    expose :first_ledger_page_count do |_, opts|
+      opts.fetch(:first_ledger_page_count)
     end
   end
 end
