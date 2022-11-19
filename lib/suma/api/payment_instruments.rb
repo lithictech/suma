@@ -15,6 +15,9 @@ class Suma::API::PaymentInstruments < Suma::API::V1
       end
       post :create do
         c = current_member
+        merror!(402, "Bank account creation not supported", code: "forbidden") unless
+          Suma::Payment.method_supported?("bank_account")
+
         account_number = params.delete(:account_number)
         routing_number = params.delete(:routing_number)
         identity = Suma::Payment::BankAccount.identity(c.legal_entity_id, routing_number, account_number)
@@ -70,6 +73,8 @@ class Suma::API::PaymentInstruments < Suma::API::V1
       end
       post :create_stripe do
         me = current_member
+        merror!(402, "Card creation not supported", code: "forbidden") unless
+          Suma::Payment.method_supported?("card")
         card = me.db.transaction do
           me.stripe.ensure_registered_as_customer
           begin

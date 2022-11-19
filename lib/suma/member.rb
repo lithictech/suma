@@ -165,14 +165,12 @@ class Suma::Member < Suma::Postgres::Model(:members)
 
   def usable_payment_instruments
     ord = [Sequel.desc(:created_at), :id]
-    bank_accounts = self.
-      legal_entity.
-      bank_accounts_dataset.
-      usable.
-      order(*ord).
-      all
-    cards = self.legal_entity.cards_dataset.usable.order(*ord).all
-    return bank_accounts + cards
+    result = []
+    result.concat(self.legal_entity.bank_accounts_dataset.usable.order(*ord).all) if
+      Suma::Payment.method_supported?("bank_account")
+    result.concat(self.legal_entity.cards_dataset.usable.order(*ord).all) if
+      Suma::Payment.method_supported?("card")
+    return result
   end
 
   def default_payment_instrument

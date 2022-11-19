@@ -6,6 +6,7 @@ import SumaImage from "../components/SumaImage";
 import { t } from "../localization";
 import Money from "../shared/react/Money";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
+import { useBackendGlobals } from "../state/useBackendGlobals";
 import { useOffering } from "../state/useOffering";
 import { useScreenLoader } from "../state/useScreenLoader";
 import { LayoutContainer } from "../state/withLayout";
@@ -118,16 +119,21 @@ function CheckoutPayment({
   onSelectedInstrumentChange,
   onCheckoutChange,
 }) {
+  const { isPaymentMethodSupported } = useBackendGlobals();
   const addPaymentLinks = (
     <>
-      <Link to={`/add-card?returnTo=/checkout/${checkout.id}`}>
-        <i className="bi bi-credit-card me-2" />
-        Add debit/credit card
-      </Link>
-      <Link to={`/link-bank-account?returnTo=/checkout/${checkout.id}`}>
-        <i className="bi bi-bank2 me-2" />
-        Link bank account
-      </Link>
+      {isPaymentMethodSupported("card") && (
+        <Link to={`/add-card?returnTo=/checkout/${checkout.id}`}>
+          <i className="bi bi-credit-card me-2" />
+          Add debit/credit card
+        </Link>
+      )}
+      {isPaymentMethodSupported("bank_account") && (
+        <Link to={`/link-bank-account?returnTo=/checkout/${checkout.id}`}>
+          <i className="bi bi-bank2 me-2" />
+          Link bank account
+        </Link>
+      )}
     </>
   );
 

@@ -3,6 +3,10 @@
 RSpec.describe "Suma::Payment::FundingTransaction", :db do
   let(:described_class) { Suma::Payment::FundingTransaction }
 
+  after(:each) do
+    Suma::Payment.reset_configuration
+  end
+
   describe "start_new" do
     let(:pacct) { Suma::Fixtures.payment_account.create }
     let(:amount) { Money.new(500) }
@@ -67,8 +71,10 @@ RSpec.describe "Suma::Payment::FundingTransaction", :db do
     end
 
     it "errors if there is no strategy matching the arguments" do
+      fake_instrument = Struct.new(:payment_method_type)
+      Suma::Payment.supported_methods = ["specie"]
       expect do
-        described_class.start_new(pacct, amount:, instrument: nil)
+        described_class.start_new(pacct, amount:, instrument: fake_instrument.new(:specie))
       end.to raise_error(described_class::StrategyUnavailable)
     end
 
@@ -78,6 +84,14 @@ RSpec.describe "Suma::Payment::FundingTransaction", :db do
       expect do
         described_class.start_new(pacct, amount:, strategy:)
       end.to raise_error(Suma::Payment::Invalid)
+    end
+
+    it "errors if the instrument is not supported" do
+      bank_account = Suma::Fixtures.bank_account.verified.create
+      Suma::Payment.supported_methods = []
+      expect do
+        described_class.start_new(pacct, amount:, instrument: bank_account)
+      end.to raise_error(Suma::Payment::UnsupportedMethod)
     end
   end
 

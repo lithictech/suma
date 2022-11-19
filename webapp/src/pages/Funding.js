@@ -7,6 +7,7 @@ import RLink from "../components/RLink";
 import { md, t } from "../localization";
 import externalLinks from "../modules/externalLinks";
 import useToggle from "../shared/react/useToggle";
+import { useBackendGlobals } from "../state/useBackendGlobals";
 import { extractErrorCode, useError } from "../state/useError";
 import { useScreenLoader } from "../state/useScreenLoader";
 import { useUser } from "../state/useUser";
@@ -19,14 +20,19 @@ import Modal from "react-bootstrap/Modal";
 
 export default function Funding() {
   const { user } = useUser();
+  const { isPaymentMethodSupported } = useBackendGlobals();
   return (
     <>
       <LinearBreadcrumbs back />
       <h2 className="page-header">{t("payments:payment_title")}</h2>
       <p>{md("payments:payment_intro.intro_md")}</p>
       <p id="some">{md("payments:payment_intro.privacy_statement_md")}</p>
-      <BankAccountsCard instruments={user.usablePaymentInstruments} />
-      <CardsCard instruments={user.usablePaymentInstruments} />
+      {isPaymentMethodSupported("bank_account") && (
+        <BankAccountsCard instruments={user.usablePaymentInstruments} />
+      )}
+      {isPaymentMethodSupported("card") && (
+        <CardsCard instruments={user.usablePaymentInstruments} />
+      )}
       <AdditionalSourcesCard />
     </>
   );
