@@ -10,20 +10,26 @@ export default function AppNav() {
     <div ref={setAppNav} className="app-nav d-flex flex-row">
       <AppLink to="/dashboard" label={t("titles:home")} className="border-end-0" />
       <AppLink to="/mobility" label={t("titles:mobility")} className="border-end-0" />
-      <AppLink to="/food" label={t("food:title")} className="border-end-0" />
+      <AppLink
+        to="/food"
+        label={t("food:title")}
+        className="border-end-0"
+        prefixes={["/checkout"]}
+      />
       <AppLink to="/utilities" label={t("utilities:title")} />
     </div>
   );
 }
 
-const AppLink = ({ to, label, className }) => {
+const AppLink = ({ to, label, prefixes, className }) => {
   const location = useLocation();
+  const active = [...(prefixes || []), to].some((x) => location.pathname.startsWith(x));
   return (
     <Link
       to={to}
       className={clsx(
         "btn btn-outline-primary app-link",
-        location.pathname.startsWith(to) && "app-link-active",
+        active && "app-link-active",
         className
       )}
     >

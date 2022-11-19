@@ -24,6 +24,22 @@ class Suma::Commerce::Order < Suma::Postgres::Model(:commerce_orders)
     after_transition(&:commit_audit_log)
     after_failure(&:commit_audit_log)
   end
+
+  def serial = "%04d" % self.id
+
+  # How much was paid for this order is the sum of all book transactions linked to charges.
+  # Note that this includes subsidy AND synchronous charges during checkout.
+  def paid_amount
+    return self.charges.sum(Money.new(0), &:discounted_subtotal)
+  end
+
+  # How much of the paid amount was synchronously funded during checkout?
+  # Note that there is no book transaction associated from the charge (which are all debits)
+  # to the funding transaction (which is a credit)- payments work with ledgers, not linking
+  # charges to orders, so we keep track of this additional data via associated_funding_transaction.
+  def funded_amount
+    return self.charges.map(&:associated_funding_transactions).flatten.sum(Money.new(0), &:amount)
+  end
 end
 
 # Table: commerce_orders

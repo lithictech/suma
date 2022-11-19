@@ -51,7 +51,8 @@ class Suma::Member < Suma::Postgres::Model(:members)
                     ],
                     class: "Suma::Payment::BankAccount",
                     left_primary_key: :legal_entity_id,
-                    order: [:created_at, :id]
+                    order: [:created_at, :id],
+                    read_only: true
   many_through_many :cards,
                     [
                       [:legal_entities, :id, :id],
@@ -59,12 +60,23 @@ class Suma::Member < Suma::Postgres::Model(:members)
                     ],
                     class: "Suma::Payment::Card",
                     left_primary_key: :legal_entity_id,
-                    order: [:created_at, :id]
+                    order: [:created_at, :id],
+                    read_only: true
   one_to_many :charges, class: "Suma::Charge", order: Sequel.desc([:id])
   many_to_one :legal_entity, class: "Suma::LegalEntity"
   one_to_many :message_deliveries, key: :recipient_id, class: "Suma::Message::Delivery"
   one_to_one :message_preferences, class: "Suma::Message::Preferences"
   one_to_one :ongoing_trip, class: "Suma::Mobility::Trip", conditions: {ended_at: nil}
+  many_through_many :orders,
+                    [
+                      [:commerce_carts, :member_id, :id],
+                      [:commerce_checkouts, :cart_id, :id],
+                    ],
+                    class: "Suma::Commerce::Order",
+                    left_primary_key: :id,
+                    right_primary_key: :checkout_id,
+                    order: Sequel.desc(:created_at),
+                    read_only: true
   one_to_one :payment_account, class: "Suma::Payment::Account"
   one_to_many :reset_codes, class: "Suma::Member::ResetCode", order: Sequel.desc([:created_at])
   many_to_many :roles, class: "Suma::Role", join_table: :roles_members

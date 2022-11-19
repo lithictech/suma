@@ -31,7 +31,7 @@ module Suma::Payment::Instrument
   end
 
   def simple_label
-    return "#{self.name} x-#{self.last4}"
+    raise NotImplementedError
   end
 
   def search_label

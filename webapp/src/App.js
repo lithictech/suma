@@ -27,6 +27,8 @@ import Onboarding from "./pages/Onboarding";
 import OnboardingFinish from "./pages/OnboardingFinish";
 import OnboardingSignup from "./pages/OnboardingSignup";
 import OneTimePassword from "./pages/OneTimePassword";
+import OrderHistoryDetail from "./pages/OrderHistoryDetail";
+import OrderHistoryList from "./pages/OrderHistoryList";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import Start from "./pages/Start";
 import Styleguide from "./pages/Styleguide";
@@ -241,7 +243,7 @@ function AppRoutes() {
             redirectIfUnboarded,
             withScreenLoaderMount(),
             withMetatags({ title: t("food:checkout") }),
-            withLayout({ appNav: true, gutters: true, top: true }),
+            withLayout({ appNav: true, gutters: false }),
             FoodCheckoutConfirmation
           )}
         />
@@ -328,6 +330,30 @@ function AppRoutes() {
             withMetatags({ title: t("titles:ledgers_overview") }),
             withLayout(),
             LedgersOverview
+          )}
+        />
+        <Route
+          path="/order-history"
+          exact
+          element={renderWithHocs(
+            redirectIfUnauthed,
+            redirectIfUnboarded,
+            withScreenLoaderMount(),
+            withMetatags({ title: t("titles:ledgers_overview") }), // TODO
+            withLayout(),
+            OrderHistoryList
+          )}
+        />
+        <Route
+          path="/order/:id"
+          exact
+          element={renderWithHocs(
+            redirectIfUnauthed,
+            redirectIfUnboarded,
+            withScreenLoaderMount(),
+            withMetatags({ title: t("titles:ledgers_overview") }), // TODO
+            withLayout(),
+            OrderHistoryDetail
           )}
         />
         <Route path="/styleguide" exact element={<Styleguide />} />

@@ -82,9 +82,12 @@ RSpec.describe "Suma::Commerce::Checkout", :db do
 
     it "creates a funding transaction for the chargeable amount" do
       Suma::Fixtures.book_transaction(amount: money("$5")).to(member_ledger).create
-      checkout.create_order
+      order = checkout.create_order
       expect(member.payment_account.originated_funding_transactions).to contain_exactly(
         have_attributes(amount: cost("$35"), status: "created"),
+      )
+      expect(order.charges.first.associated_funding_transactions).to contain_exactly(
+        be === member.payment_account.originated_funding_transactions.first,
       )
     end
 

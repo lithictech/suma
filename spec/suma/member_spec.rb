@@ -17,6 +17,13 @@ RSpec.describe "Suma::Member", :db do
       t.end_trip(lat: 1, lng: 2)
       expect(c.refresh.ongoing_trip).to be_nil
     end
+
+    it "has an orders association" do
+      o = Suma::Fixtures.order.create
+      member = o.checkout.cart.member
+
+      expect(member.orders).to contain_exactly(be === o)
+    end
   end
 
   describe "greeting" do

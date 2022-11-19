@@ -91,6 +91,11 @@
     object-fit: cover;
 }
 
+.responsive-wide-image {
+    width: 100%;
+    object-fit: cover;
+}
+
 /* Use this to hide the dropdown toggle */
 .dropdown-toggle-hide::after {
     display: none !important;
