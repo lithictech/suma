@@ -79,6 +79,7 @@ class Suma::Mobility::Trip < Suma::Postgres::Model(:mobility_trips)
         self.vendor_service,
         result_cost,
         now:,
+        calculation_context: Suma::Payment::CalculationContext.new,
         # At this point, ride has been taken and finished so we need to accept it
         # and deal with a potential negative balance.
         remainder_ledger: :last,

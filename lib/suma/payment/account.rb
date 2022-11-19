@@ -3,6 +3,8 @@
 require "suma/admin_linked"
 require "suma/moneyutil"
 require "suma/payment"
+require "suma/payment/calculation_context"
+require "suma/payment/charge_contribution"
 
 class Suma::Payment::Account < Suma::Postgres::Model(:payment_accounts)
   include Suma::AdminLinked
@@ -17,10 +19,21 @@ class Suma::Payment::Account < Suma::Postgres::Model(:payment_accounts)
   one_to_one :cash_ledger, class: "Suma::Payment::Ledger", read_only: true do |ds|
     ds.where(vendor_service_categories: Suma::Vendor::ServiceCategory.where(slug: "cash"))
   end
-
   one_to_one :mobility_ledger, class: "Suma::Payment::Ledger", read_only: true do |ds|
     ds.where(vendor_service_categories: Suma::Vendor::ServiceCategory.where(slug: "mobility"))
   end
+  many_through_many :all_book_transactions,
+                    [
+                      [:payment_ledgers, :account_id, :id],
+                    ],
+                    class: "Suma::Payment::BookTransaction",
+                    left_primary_key: :id,
+                    # This is gross, but good enough for now.
+                    right_primary_key: Sequel.case(
+                      {Sequel[originating_ledger_id: Sequel[:payment_ledgers][:id]] => :originating_ledger_id},
+                      :receiving_ledger_id,
+                    ),
+                    read_only: true
 
   def self.lookup_platform_account
     return Suma.cached_get("platform_payment_account") do
@@ -89,22 +102,26 @@ class Suma::Payment::Account < Suma::Postgres::Model(:payment_accounts)
   #
   # @param has_vnd_svc_categories [Suma::Vendor::HasServiceCategories]
   # @param amount [Money]
+  # @param calculation_context [Suma::Payment::CalculationContext]
   # @param now [Time]
   # @param remainder_ledger [Suma::Payment::Ledger, :first, :last, :ignore] See above.
-  # @return [Array<Suma::Payment::Account::ChargeContribution]
-  def find_chargeable_ledgers(has_vnd_svc_categories, amount, now:, remainder_ledger: nil)
+  # @return [Array<Suma::Payment::ChargeContribution]
+  def find_chargeable_ledgers(has_vnd_svc_categories, amount, calculation_context:, now:, remainder_ledger: nil)
     raise ArgumentError, "amount cannot be negative, got #{amount.format}" if amount.negative?
     raise Suma::InvalidPrecondition, "#{self.inspect} has no ledgers" if self.ledgers.empty?
     contributions = []
     self.ledgers.each do |led|
       cat = led.category_used_to_purchase(has_vnd_svc_categories)
-      contributions << ChargeContribution.new(ledger: led, apply_at: now, amount: 0, category: cat) if cat
+      if cat
+        contributions << Suma::Payment::ChargeContribution.new(ledger: led, apply_at: now, amount: 0, category: cat)
+      end
     end
     contributions.sort_by! { |c| [-c.category.hierarchy_depth, c.ledger.id] }
     remainder = amount
     result = []
     contributions.each do |contrib|
-      amount = [contrib.ledger.balance, 0].max
+      ledger_balance = calculation_context.balance(contrib.ledger)
+      amount = [ledger_balance, 0].max
       amount = [amount, remainder].min
       contrib.amount = amount
       result << contrib
@@ -121,7 +138,7 @@ class Suma::Payment::Account < Suma::Postgres::Model(:payment_accounts)
       when :ignore
         return result
       when :return
-        result << ChargeContribution.new(ledger: nil, apply_at: now, amount: remainder, category: nil)
+        result << Suma::Payment::ChargeContribution.new(ledger: nil, apply_at: now, amount: remainder, category: nil)
         return result
       when Symbol
         raise Suma::InvalidPrecondition, "No ledgers for charge contributions could be found" if contributions.empty?
@@ -134,12 +151,6 @@ class Suma::Payment::Account < Suma::Postgres::Model(:payment_accounts)
         contrib_for_remainder.amount += remainder
         return result
     end
-  end
-
-  class ChargeContribution < Suma::TypedStruct
-    attr_accessor :ledger, :apply_at, :amount, :category
-
-    def remainder? = self.ledger.nil?
   end
 
   def debit_contributions(contributions, memo:)
