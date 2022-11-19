@@ -151,6 +151,7 @@ class Suma::Commerce::Checkout < Suma::Postgres::Model(:commerce_checkouts)
           amount: remainder_contribs.first.amount,
           vendor_service_category: Suma::Vendor::ServiceCategory.cash,
           instrument: self.payment_instrument,
+          apply_at: now,
         )
       end
 

@@ -24,6 +24,7 @@ class Suma::API::Payments < Suma::API::V1
         amount: params[:amount],
         instrument:,
         vendor_service_category: Suma::Vendor::ServiceCategory.cash,
+        apply_at: Time.now,
       )
       add_current_member_header
       status 200
