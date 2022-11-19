@@ -6,6 +6,7 @@ import FormError from "../components/FormError";
 import GoHome from "../components/GoHome";
 import LinearBreadcrumbs from "../components/LinearBreadcrumbs";
 import RLink from "../components/RLink";
+import config from "../config";
 import { md, mdp, t } from "../localization";
 import keepDigits from "../modules/keepDigits";
 import useHashToggle from "../shared/react/useHashToggle";
@@ -77,10 +78,16 @@ function LinkBankAccount({ onSuccess, returnTo }) {
 
   const screenLoader = useScreenLoader();
   const showCheckModalToggle = useHashToggle("check-details");
-  const [nickname, setNickname] = React.useState("");
-  const [routing, setRouting] = React.useState("");
-  const [accountNumber, setAccountNumber] = React.useState("");
-  const [accountNumberConfirm, setAccountNumberConfirm] = React.useState("");
+  const [nickname, setNickname] = React.useState(config.devBankAccountDetails.name || "");
+  const [routing, setRouting] = React.useState(
+    config.devBankAccountDetails.routing || ""
+  );
+  const [accountNumber, setAccountNumber] = React.useState(
+    config.devBankAccountDetails.account || ""
+  );
+  const [accountNumberConfirm, setAccountNumberConfirm] = React.useState(
+    config.devBankAccountDetails.account || ""
+  );
   const [accountType, setAccountType] = React.useState("checking");
 
   const handleFormSubmit = () => {

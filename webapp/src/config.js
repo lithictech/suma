@@ -8,6 +8,20 @@ if (apiHost === "/") {
 } else if (!apiHost) {
   apiHost = `http://localhost:22001`;
 }
+
+function parseIfSet(key) {
+  const s = process.env[key];
+  if (!s) {
+    return {};
+  }
+  try {
+    return JSON.parse(s);
+  } catch (e) {
+    console.error(`Failed to parse ${key} into JSON`, e);
+    return {};
+  }
+}
+
 const config = {
   apiHost: apiHost,
   chaos: process.env.REACT_APP_CHAOS,
@@ -16,6 +30,8 @@ const config = {
   stripePublicKey:
     process.env.REACT_APP_STRIPE_PUBLIC_KEY ||
     "pk_test_51KlS9cAqRmWQecssicpSG7l8AzzGttANpp4k1LKEnmvLiN6YnrcoHebK3QubwXwpJZzmSMwCOKtinnEyO6kMPQDn00rmqmhwML",
+  devCardDetails: parseIfSet("REACT_APP_DEV_CARD_DETAILS"),
+  devBankAccountDetails: parseIfSet("REACT_APP_DEV_BANK_ACCOUNT_DETAILS"),
 };
 
 export default config;
