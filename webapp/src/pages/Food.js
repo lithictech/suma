@@ -56,7 +56,7 @@ export default function Food() {
         <hr />
         <h4 className="mb-3">
           <Link to="/order-history" className="text-decoration-none">
-            <span className="text-dark">Previous Orders </span>
+            <span className="text-dark me-1">{t("food:previous_orders")}</span>
             <i className="bi-arrow-right"></i>
           </Link>
         </h4>

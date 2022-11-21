@@ -2,6 +2,7 @@ import api from "../api";
 import ErrorScreen from "../components/ErrorScreen";
 import PageLoader from "../components/PageLoader";
 import SumaImage from "../components/SumaImage";
+import { md, mdp, t } from "../localization";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
 import { LayoutContainer } from "../state/withLayout";
 import React from "react";
@@ -43,26 +44,22 @@ export default function FoodCheckoutConfirmation() {
   return (
     <>
       <div className="bg-success text-white p-3">
-        <Alert.Heading>Order placed successfully!</Alert.Heading>
-        <p className="mb-0">
-          You will get a message soon with details about how to get your order.
-        </p>
+        <Alert.Heading>{t("food:confirmation_title")}</Alert.Heading>
+        <p className="mb-0">{t("food:confirmation_subtitle")}</p>
       </div>
       <LayoutContainer top>
-        <h4 className="mb-3">What you&rsquo;re getting</h4>
+        <h4 className="mb-3">{md("food:checkout_items_title_md")}</h4>
         {items.map((p, idx) => (
           <Item key={idx} item={p} />
         ))}
         <hr />
-        <h4 className="mb-3">How you&rsquo;re getting it</h4>
+        <h4 className="mb-3">{md("food:confirmation_pickup_title_md")}</h4>
         <p>{fulfillmentOption.description}</p>
         <hr />
-        <p>
-          Respond to your confirmation message or reach out if you have any questions.
-        </p>
+        {mdp("food:confirmation_message_md")}
         <Stack className="mt-2">
           <Button variant="outline-success" href="/dashboard">
-            Take me home!
+            {t("common:go_home")}
           </Button>
         </Stack>
       </LayoutContainer>
@@ -85,7 +82,7 @@ function Item({ item }) {
           />
           <Stack>
             <p className="mb-0 lead">{product.name}</p>
-            <p className="text-secondary">Quantity: {quantity}</p>
+            <p className="text-secondary">{t("food:quantity", { quantity: quantity })}</p>
           </Stack>
         </Stack>
       </Col>

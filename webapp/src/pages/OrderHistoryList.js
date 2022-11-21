@@ -4,8 +4,8 @@ import LinearBreadcrumbs from "../components/LinearBreadcrumbs";
 import PageLoader from "../components/PageLoader";
 import RLink from "../components/RLink";
 import SumaImage from "../components/SumaImage";
+import { md, mdp, t } from "../localization";
 import { dayjs } from "../modules/dayConfig";
-import Money from "../shared/react/Money";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
 import { LayoutContainer } from "../state/withLayout";
 import _ from "lodash";
@@ -47,7 +47,7 @@ export default function OrderHistoryList() {
     <>
       <LayoutContainer top gutters>
         <LinearBreadcrumbs back="/food" />
-        <h2>Order History</h2>
+        <h2>{t("food:order_history_title")}</h2>
       </LayoutContainer>
       <LayoutContainer gutters>
         {!_.isEmpty(orderHistory?.items) && (
@@ -59,10 +59,11 @@ export default function OrderHistoryList() {
         )}
         {_.isEmpty(orderHistory?.items) && (
           <>
-            <p>You haven&rsquo;t place any orders yet.</p>
+            {mdp("food:no_orders_md")}
             <p>
               <Link to="/food">
-                Check out what&rsquo;s available. <i className="bi bi-arrow-right"></i>
+                {md("checkout_available_md")}
+                <i className="bi bi-arrow-right ms-1"></i>
               </Link>
             </p>
           </>
@@ -85,12 +86,12 @@ function Order({ id, createdAt, total, image, serial, onNavigate }) {
               className="h5"
               onClick={onNavigate}
             >
-              Order {serial}
+              {t("food:order_serial", { serial: serial })}
             </Card.Link>
             <Card.Text className="text-secondary mt-1">
-              Placed {dayjs(createdAt).format("ll")}
+              {t("food:order_date", { date: dayjs(createdAt).format("ll") })}
               <br />
-              <Money>{total}</Money>
+              {t("food:total", { total: total })}
             </Card.Text>
           </div>
         </Stack>

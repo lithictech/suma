@@ -4,7 +4,7 @@ import FoodCartWidget from "../components/FoodCartWidget";
 import LinearBreadcrumbs from "../components/LinearBreadcrumbs";
 import PageLoader from "../components/PageLoader";
 import SumaImage from "../components/SumaImage";
-import { md, t } from "../localization";
+import { md, mdp, t } from "../localization";
 import Money from "../shared/react/Money";
 import { useOffering } from "../state/useOffering";
 import { LayoutContainer } from "../state/withLayout";
@@ -58,8 +58,8 @@ export default function FoodCart() {
           <Row>
             <LinearBreadcrumbs back />
             <Stack direction="horizontal" gap={3} className="align-items-end">
-              <h4>Shopping Cart</h4>
-              <span className="text-secondary ms-auto">price</span>
+              <h4>{t("food:cart_title")}</h4>
+              <span className="text-secondary ms-auto">{t("food:price")}</span>
             </Stack>
             <hr />
             {cart.items.map((item) => {
@@ -75,14 +75,12 @@ export default function FoodCart() {
               );
             })}
             <Container className="d-flex align-items-end flex-column fs-6">
-              <p>
-                Subtotal ({cart.items.length} items):{" "}
-                <b className="ms-2">
-                  <Money>{cart.customerCost}</Money>
-                </b>
-              </p>
+              {mdp("food:subtotal_items_md", {
+                totalItems: cart.items.length,
+                customerCost: cart.customerCost,
+              })}
               <Button onClick={handleCheckout} variant="success">
-                Continue to Checkout
+                {t("food:continue_to_checkout")}
               </Button>
             </Container>
           </Row>
@@ -107,7 +105,7 @@ function CartItem({ offeringId, product, vendor }) {
               <h6 className="mb-0">{name}</h6>
             </Link>
             <p className="mb-1 text-secondary">
-              <small>{t("food:from") + " " + vendor.name}</small>
+              <small>{t("food:from_vendor", { vendorName: vendor.name })}</small>
             </p>
             <FoodCartWidget product={product} />
           </div>

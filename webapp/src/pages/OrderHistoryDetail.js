@@ -3,6 +3,7 @@ import ErrorScreen from "../components/ErrorScreen";
 import LinearBreadcrumbs from "../components/LinearBreadcrumbs";
 import PageLoader from "../components/PageLoader";
 import SumaImage from "../components/SumaImage";
+import { t } from "../localization";
 import { dayjs } from "../modules/dayConfig";
 import Money from "../shared/react/Money";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
@@ -40,18 +41,18 @@ export default function OrderHistoryDetail() {
       <LayoutContainer gutters>
         <Stack gap={3}>
           <div>
-            <h2 className="mb-1">Order {state.serial}</h2>
+            <h2 className="mb-1">{t("food:order_serial", { serial: state.serial })}</h2>
             {dayjs(state.createdAt).format("lll")}
           </div>
           <p className="mb-0">
-            Price: <Money>{state.customerCost}</Money>
+            {t("food:labels:price", { price: state.customerCost })}
             <Money as="del" className="text-secondary ms-2">
               {state.undiscountedCost}
             </Money>
             <br />
-            Fees <Money>{state.handling}</Money>, Tax <Money>{state.tax}</Money>
+            {t("food:labels:fees_and_taxes", { fees: state.handling, taxes: state.tax })}
             <br />
-            Total: <Money>{state.total}</Money>
+            {t("food:labels:total", { total: state.total })}
             {state.fundingTransactions.map(({ label, amount }) => (
               <React.Fragment key={label}>
                 <br />
@@ -69,11 +70,11 @@ export default function OrderHistoryDetail() {
           />
           <hr className="my-0" />
           <Stack>
-            <Card.Text className="h4">Items</Card.Text>
+            <Card.Text className="h4">{t("food:items_title")}</Card.Text>
             {state.items.map(({ name, description, customerPrice }, i) => (
               <Stack
                 direction="horizontal"
-                key={`${name}-${i}`}
+                key={i}
                 className="justify-content-between align-items-start"
               >
                 <div>
