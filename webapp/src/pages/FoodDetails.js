@@ -72,7 +72,7 @@ export default function FoodDetails() {
                 </strike>
               )}
             </p>
-            <p>{t("food:from") + " " + vendor.name}</p>
+            <p>{t("food:from_vendor", { vendorName: vendor.name })}</p>
           </div>
           <div className="ms-auto">
             <FoodCartWidget product={product} size="lg" />

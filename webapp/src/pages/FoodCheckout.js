@@ -3,7 +3,7 @@ import ErrorScreen from "../components/ErrorScreen";
 import PageLoader from "../components/PageLoader";
 import RLink from "../components/RLink";
 import SumaImage from "../components/SumaImage";
-import { t } from "../localization";
+import { md, t } from "../localization";
 import Money from "../shared/react/Money";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
 import { useBackendGlobals } from "../state/useBackendGlobals";
@@ -125,13 +125,13 @@ function CheckoutPayment({
       {isPaymentMethodSupported("card") && (
         <Link to={`/add-card?returnTo=/checkout/${checkout.id}`}>
           <i className="bi bi-credit-card me-2" />
-          Add debit/credit card
+          {t("food:add_card")}
         </Link>
       )}
       {isPaymentMethodSupported("bank_account") && (
         <Link to={`/link-bank-account?returnTo=/checkout/${checkout.id}`}>
           <i className="bi bi-bank2 me-2" />
-          Link bank account
+          {t("payments:link_bank_account")}
         </Link>
       )}
     </>
@@ -139,12 +139,10 @@ function CheckoutPayment({
 
   return (
     <Col xs={12} className="mb-3">
-      <h5>How are you paying?</h5>
+      <h5>{t("food:payment_title")}</h5>
       {_.isEmpty(checkout.availablePaymentInstruments) && (
         <Stack gap={2}>
-          <span className="small text-secondary">
-            Link a payment method to pay for this order.
-          </span>
+          <span className="small text-secondary">{t("food:link_new_payment")}</span>
           {addPaymentLinks}
         </Stack>
       )}
@@ -168,14 +166,14 @@ function CheckoutPayment({
               <Form.Check
                 id="savePayment"
                 name="savePayment"
-                label="Save for future orders"
+                label={t("food:save_payment")}
                 onChange={(e) =>
                   onCheckoutChange({ savePaymentInstrument: e.target.checked })
                 }
               ></Form.Check>
             </Form.Group>
           </Form>
-          <div>Or, link a new payment method to pay for this order.</div>
+          <div>{t("food:link_new_payment", { context: "or" })}</div>
           {addPaymentLinks}
         </Stack>
       )}
@@ -209,7 +207,7 @@ function PaymentLabel({ institution, last4, name }) {
         />
       )}
       <span className="me-1">{name}</span>
-      <span className="text-secondary me-2">ending in {last4}</span>
+      <span className="text-secondary me-2">{t("food:ending_in", { last4: last4 })}</span>
     </>
   );
 }
@@ -217,7 +215,7 @@ function PaymentLabel({ institution, last4, name }) {
 function CheckoutFulfillment({ checkout, onCheckoutChange }) {
   return (
     <Col xs={12} className="mb-3">
-      <h5>How do you want to get your stuff?</h5>
+      <h5>{t("food:fulfillment_title")}</h5>
       <Form noValidate>
         <Form.Group>
           {checkout.availableFulfillmentOptions.map((fo) => (
@@ -240,7 +238,7 @@ function CheckoutFulfillment({ checkout, onCheckoutChange }) {
 function CheckoutItems({ checkout }) {
   return (
     <Col className="mb-3">
-      <h5 className="mb-3">Here&rsquo;s what you&rsquo;re getting:</h5>
+      <h5 className="mb-3">{md("food:checkout_items_title_md")}</h5>
       {checkout.items?.map((it, idx) => {
         return (
           <React.Fragment key={it.product.productId}>
@@ -249,7 +247,7 @@ function CheckoutItems({ checkout }) {
           </React.Fragment>
         );
       })}
-      <RLink to={`/cart/${checkout.offering.id}`}>Change item quantities</RLink>
+      <RLink to={`/cart/${checkout.offering.id}`}>{t("food:change_quantities")}</RLink>
     </Col>
   );
 }
@@ -259,34 +257,41 @@ function OrderSummary({ checkout, chosenInstrument, onSubmit }) {
   const itemCount = _.sum(_.map(checkout.items, "quantity"));
   return (
     <Col xs={12} className="mb-3">
-      <h5>Order summary</h5>
+      <h5>{t("food:order_summary_title")}</h5>
       <div>
-        <SummaryLine label={`Items (${itemCount})`} price={checkout.undiscountedCost} />
+        <SummaryLine
+          label={t("food:labels:items_count", { itemCount: itemCount })}
+          price={checkout.undiscountedCost}
+        />
         <SummaryLine label="Handling" price={checkout.handling} />
         <SummaryLine
-          label="Total savings"
+          label={t("food:labels:total_savings")}
           price={checkout.savings}
           subtract
           className="text-success"
         />
         <hr className="ms-auto w-25 my-1" />
-        <SummaryLine label="Total before tax" price={checkout.taxableCost} />
-        <SummaryLine label="Tax" price={checkout.tax} />
+        <SummaryLine
+          label={t("food:labels:total_before_tax")}
+          price={checkout.taxableCost}
+        />
+        <SummaryLine label={t("food:labels:tax")} price={checkout.tax} />
         {checkout.existingFundsAvailable.map(({ amount, name }) => (
           <SummaryLine key={name} label={name} price={amount} subtract />
         ))}
         <hr className="mt-1 mb-2" />
         <SummaryLine
-          label="Order total"
+          label={t("food:labels:order_total")}
           price={checkout.chargeableTotal}
           className="text-success fw-bold fs-5"
         />
         {chosenInstrument && (
-          <p className="small text-secondary mb-1">Charge to {chosenInstrument.name}.</p>
+          <p className="small text-secondary mb-1">
+            {t("food:charge_to", { instrumentName: chosenInstrument.name })}.
+          </p>
         )}
         <p className="small text-secondary mb-1">
-          By clicking &#34;place order&#34; you agree to suma&#39;s{" "}
-          <Link to="/terms">Terms of Use</Link>.
+          {md("food:terms_of_use_agreement_md")}
         </p>
         <Button
           variant="success"
@@ -294,7 +299,7 @@ function OrderSummary({ checkout, chosenInstrument, onSubmit }) {
           disabled={!canPlace}
           onClick={onSubmit}
         >
-          Place order
+          {t("food:order_button")}
         </Button>
       </div>
     </Col>
@@ -316,37 +321,35 @@ function SummaryLine({ label, price, subtract, className }) {
 function CheckoutItem({ item }) {
   const { product, quantity } = item;
   return (
-    <>
-      <Col xs={12} className="mb-3">
-        <Stack direction="horizontal" gap={3} className="align-items-start">
-          <SumaImage
-            image={product.images[0]}
-            alt={product.name}
-            className="rounded"
-            w={80}
-            h={80}
-          />
-          <Stack className="justify-content-between">
-            <h6 className="mb-0">{product.name}</h6>
-            <div className="mb-0 text-secondary">
-              <small>{t("food:from") + " " + product.vendor.name}</small>
-            </div>
-            <div className="mb-0 text-secondary">
-              <small>Quantity: {quantity}</small>
-            </div>
-          </Stack>
-          <p className="ms-auto fs-6">
-            <Money className={clsx("me-2", product.isDiscounted && "text-success")}>
-              {product.customerPrice}
-            </Money>
-            {product.isDiscounted && (
-              <strike>
-                <Money>{product.undiscountedPrice}</Money>
-              </strike>
-            )}
-          </p>
+    <Col xs={12} className="mb-3">
+      <Stack direction="horizontal" gap={3} className="align-items-start">
+        <SumaImage
+          image={product.images[0]}
+          alt={product.name}
+          className="rounded"
+          w={80}
+          h={80}
+        />
+        <Stack className="justify-content-between">
+          <h6 className="mb-0">{product.name}</h6>
+          <div className="mb-0 text-secondary">
+            <small>{t("food:from_vendor", { vendorName: product.vendor.name })}</small>
+          </div>
+          <div className="mb-0 text-secondary">
+            <small>{t("food:quantity", { quantity: quantity })}</small>
+          </div>
         </Stack>
-      </Col>
-    </>
+        <p className="ms-auto fs-6">
+          <Money className={clsx("me-2", product.isDiscounted && "text-success")}>
+            {product.customerPrice}
+          </Money>
+          {product.isDiscounted && (
+            <strike>
+              <Money>{product.undiscountedPrice}</Money>
+            </strike>
+          )}
+        </p>
+      </Stack>
+    </Col>
   );
 }
