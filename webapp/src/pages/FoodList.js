@@ -47,7 +47,7 @@ export default function FoodList() {
         startElement={<h5 className="m-0">{offering.description}</h5>}
       />
       {offering.image && (
-        <SumaImage image={offering.image} h={140} className="thin-header-image" />
+        <SumaImage image={offering.image} w={500} h={140} className="thin-header-image" />
       )}
       <LayoutContainer className="pt-2">
         {loading && <PageLoader />}
