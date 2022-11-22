@@ -55,10 +55,6 @@
       "paragraph": "We use cookies to help us manage the platform. Cookies are small text files that are stored on your device when you visit the suma platform. A cookie contains a unique code, which we use to recognize your device when you return to the suma platform.",
       "title": "Cookies policy"
     },
-    "information_retention_and_removal": {
-      "paragraph": "We have the following standards for retaining and deleting personal information that we process in the suma platform:",
-      "title": "Information retention, requests and removal"
-    },
     "date": "August 2nd 2022",
     "effective": "Effective:",
     "future_changes_to_policy": {
@@ -74,6 +70,10 @@
       },
       "paragraph": "We collect the minimum information needed to create your suma platform account at registration, work with community partners, connect you with vendors, and secure outside funding from public and private organizations that reduces the cost of goods and services from vendors via the suma platform (what we refer to as “subsidy”):",
       "title": "What personal information do we collect?"
+    },
+    "information_retention_and_removal": {
+      "paragraph": "We have the following standards for retaining and deleting personal information that we process in the suma platform:",
+      "title": "Information retention, requests and removal"
     },
     "methods_of_collection": {
       "list": {
@@ -113,6 +113,10 @@
       "paragraph_md": "We may share your personal information if we believe it’s required by applicable law, regulation, operating license or agreement, legal process or governmental request, or where the disclosure is otherwise appropriate due to safety or similar concerns. For example, we may share your personal information if an e-scooter is lost or damaged in order to help the e-scooter vendor resolve how the vehicle was lost or damaged. We will provide notice to you if your personal information will be shared for this purpose when required by law.",
       "title": "Comply with the law"
     },
+    "disputes": {
+      "paragraph": "We may use or review your information to respond to a dispute raised by you, other platform users, vendors, or community partners.",
+      "title": "Disputes"
+    },
     "information_removal": {
       "list": {
         "deleting_certain_data": "we may not be able to delete certain data because of legal, regulatory or subsidy reporting requirements, for purposes of safety, security, and fraud prevention, or because of an issue relating to your account such as an outstanding credit or an unresolved claim or dispute",
@@ -125,17 +129,13 @@
       "list": {
         "information_driven_business_decisions": "making information-driven business decisions about new platform features and offerings",
         "legal_obligations": "complying with our legal obligations",
-        "subsidy": "supporting subsidy from outside organizations",
         "maintain_performance": "maintaining the performance of the suma platform",
         "qualifications": "providing you with the basic services of the suma platform, such as helping you find essential goods and services and qualifying you for platform vendor discounts",
-        "resolving_disputes": "resolving disputes"
+        "resolving_disputes": "resolving disputes",
+        "subsidy": "supporting subsidy from outside organizations"
       },
       "paragraph": "We will retain your personal information for legitimate and essential business purposes as long as your suma platform account is active. These purposes include:",
       "title": "Information retention"
-    },
-    "disputes": {
-      "paragraph": "We may use or review your information to respond to a dispute raised by you, other platform users, vendors, or community partners.",
-      "title": "Disputes"
     },
     "platform_dashboard": {
       "paragraph": "We use data to create dashboards that show how the platform is benefiting you and the broader suma user community. For example, a dashboard might show how much money all platform users combined saved on food purchases in the most recent month. Your food purchasing data may be anonymized and aggregated into such a dashboard. You can opt out of being included in anonymized dashboards.",
@@ -153,13 +153,13 @@
       "paragraph": "We may use your personal information to detect and prevent fraud. For example, fraudulent payments and fraudulent use of the suma platform.",
       "title": "Security and fraud prevention"
     },
-    "support_subsidy": {
-      "paragraph": "Funders from public and private organizations may want to put money into the suma platform to reduce the cost of food, transportation, utilities or other goods and services for platform users like yourself. You may opt-out through your Preferences page if you do not want your personal information used to secure such funding, but such funding may not be available to you if you opt-out.",
-      "title": "Support subsidy from outside organizations"
-    },
     "services": {
       "paragraph": "We use your registration information to set up your platform account so you can access goods and services on the platform and qualify for vendor discounts and/or subsidy.",
       "title": "Services"
+    },
+    "support_subsidy": {
+      "paragraph": "Funders from public and private organizations may want to put money into the suma platform to reduce the cost of food, transportation, utilities or other goods and services for platform users like yourself. You may opt-out through your Preferences page if you do not want your personal information used to secure such funding, but such funding may not be available to you if you opt-out.",
+      "title": "Support subsidy from outside organizations"
     }
   }
 }
