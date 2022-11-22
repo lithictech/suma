@@ -205,7 +205,10 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
     offering.add_fulfillment_option(
       type: "pickup",
       ordinal: 0,
-      description: Suma::TranslatedText.create(en: "Pickup at Sheridan's Market"),
+      description: Suma::TranslatedText.create(
+        en: "Pickup at Sheridan's Market (Dec 21-22)",
+        es: "Recogida en Sheridan's Market (21-22 de dic)",
+      ),
       address: Suma::Address.lookup(
         address1: "409 SE Martin Luther King Jr Blvd",
         city: "Portland",
@@ -216,17 +219,14 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
     offering.add_fulfillment_option(
       type: "pickup",
       ordinal: 1,
-      description: Suma::TranslatedText.create(en: "Pickup at Hacienda CDC"),
-      address: Suma::Address.lookup(
-        address1: "6700 NE Killingsworth St",
-        city: "Portland",
-        state_or_province: "Oregon",
-        postal_code: "97218",
+      description: Suma::TranslatedText.create(
+        en: "Pickup at Community Location (Dec 21-22)",
+        es: "Recogida en una ubicación de la comunidad (21-22 de dic)",
       ),
     )
 
     # Create this extra one
-    Suma::Commerce::Offering.create(
+    Suma::RACK_ENV == "development" && Suma::Commerce::Offering.create(
       description_string: "No Image Tester",
       period: 1.day.ago..Time.new(2022, 12, 16),
     )
@@ -235,25 +235,38 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
   def setup_products
     return unless Suma::Commerce::Product.dataset.empty?
 
+    # rubocop:disable Layout/LineLength
     products = [
       {
-        en: "Turkey dinner with sides",
-        es: "Pavos con guarniciones",
+        name_en: "Roasted Turkey Dinner, feeds 4-6",
+        name_es: "Cena De Pavo Asado, Alimenta 4-6 personas",
+        desc_en: "Roasted Turkey, Stuffing, Buttermilk Mashed Potatoes, Gravy, Dinner Rolls, Roasted Green Beans, Pumpkin Pie",
+        desc_es: "Pavo Asado, Relleno, Puré de Papas y Su Salsa, Panecillos, Ejotes Asados, y Pastel de Calabaza",
         image: "turkey-dinner.jpeg",
       },
       {
-        en: "Ham dinner with sides",
+        name_en: "Glazed Ham Dinner, feeds 4-6",
+        name_es: "Cena De Jamón Glaseado, Alimenta 4-6 personas",
+        desc_en: "Glazed Ham, Stuffing, Buttermilk Mashed Potatoes, Gravy, Dinner Rolls, Roasted Green Beans, Pumpkin Pie",
+        desc_es: "Hamon Glaseado, Relleno, Puré de Papas y Su Salsa, Panecillos, Ejotes Asados, y Pastel de Calabaza",
         image: "ham-dinner.jpeg",
       },
+      {
+        name_en: "Vegan Field Roast Dinner, feeds 4-6",
+        name_es: "Cena De Asado Vegano, Alimenta 4-6 personas",
+        desc_en: "Vegan Field Roast, Gluten-Free Stuffing, Gluten-Free Coconut Milk Mashed Potatoes, Gravy, Gluten-Free Dinner Rolls, Roasted Green Beans, Gluten-Free Pumpkin Pie",
+        desc_es: "Asado Vegano, Relleno sin Gluten, Puré de Papas de Leche de Coco (y sin gluten) y Su Salsa Vegano, Panecillos sin Gluten, Ejotes Asados, y Pastel de Calabaza Vegano",
+        image: "vegan-field-roast-dinner.jpeg",
+      },
     ]
+    # rubocop:enable Layout/LineLength
 
     suma_org = Suma::Organization.find_or_create(name: "suma")
     offering = Suma::Commerce::Offering.first
     products.each do |ps|
       product = Suma::Commerce::Product.create(
-        name: Suma::TranslatedText.create(en: ps[:en], es: ps[:es] || ""),
-        description_string: "Includes stuffing, mashed potatoes, green beans, " \
-                            "dinner rolls, gravy, cranberry, and pie for dessert.",
+        name: Suma::TranslatedText.create(en: ps[:name_en], es: ps[:name_es]),
+        description: Suma::TranslatedText.create(en: ps[:desc_en], es: ps[:desc_es]),
         vendor: Suma::Vendor.find_or_create(name: "Sheridan's Market", organization: suma_org),
         our_cost: Money.new(90_00),
         max_quantity_per_order: 1,
@@ -275,18 +288,21 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
   def setup_automation
     Suma::AutomationTrigger.dataset.delete
     Suma::AutomationTrigger.create(
-      name: "Holidays 2022",
+      name: "Holidays 2022 Promo",
       topic: "suma.payment.account.created",
       active_during_begin: Time.now,
       active_during_end: Time.parse("2022-12-12T23:00:00-0800"),
       klass_name: "Suma::AutomationTrigger::CreateAndSubsidizeLedger",
       parameter: {
-        ledger_name: "Holidays2022",
+        ledger_name: "Holidays2022Promo",
         contribution_text: {en: "Holidays 2022 Gift", es: "Regalo de Vacaciones 2022"},
         category_name: "Holiday 2022 Promo",
         amount_cents: 80_00,
         amount_currency: "USD",
-        subsidy_memo: {en: "Subsidy from Meyer Memorial Trust", es: "Subsidio de Meyer Memorial Trust"},
+        subsidy_memo: {
+          en: "Subsidy from local funders",
+          es: "Apoyo de financiadores locales",
+        },
       },
     )
     Suma::AutomationTrigger.create(

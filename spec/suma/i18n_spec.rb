@@ -16,6 +16,7 @@ RSpec.describe Suma::I18n, :db do
 
   before(:each) do
     stub_const("Suma::I18n::LOCALE_DIR", temp_dir_path)
+    stub_const("Suma::Message::DATA_DIR", temp_dir_path)
     Dir.mkdir(temp_dir_path + "en")
     Dir.mkdir(temp_dir_path + "es")
   end
@@ -58,6 +59,20 @@ RSpec.describe Suma::I18n, :db do
       described_class.prepare_csv("es", output: out)
       expect(out).to eq("Key,Spanish,English\ngreeting:bye,Adiós,Bye\nhi,,Hi\n")
     end
+
+    it "includes messages" do
+      Dir.mkdir(temp_dir_path + "templates")
+      Dir.mkdir(temp_dir_path + "templates/subdir")
+      File.write(temp_dir_path + "templates/tmpl.en.sms.liquid", "english sms 1")
+      File.write(temp_dir_path + "templates/subdir/tmpl.en.sms.liquid", "english sms 2")
+      File.write(temp_dir_path + "templates/tmpl.es.sms.liquid", "spanish sms 1")
+      File.write(temp_dir_path + "templates/subdir/tmpl.es.sms.liquid", "spanish sms 2")
+      out = +""
+      described_class.prepare_csv("es", output: out)
+      expect(out).to eq("Key,Spanish,English\n" \
+                        "message:/templates/subdir/tmpl.sms,spanish sms 2,english sms 2\n" \
+                        "message:/templates/tmpl.sms,spanish sms 1,english sms 1\n")
+    end
   end
 
   describe "import_csv" do
@@ -73,6 +88,15 @@ RSpec.describe Suma::I18n, :db do
           }
         }
       J
+    end
+
+    it "overwrites message templates" do
+      csv = "Key,Spanish,English\n" \
+            "message:/templates/subdir/tmpl.sms,spanish sms 2,english sms 2\n" \
+            "message:/templates/tmpl.sms,spanish sms 1,english sms 1\n"
+      described_class.import_csv(input: csv)
+      expect(File.read(Suma::Message::DATA_DIR + "templates/subdir/tmpl.es.sms.liquid").strip).to eq("spanish sms 2")
+      expect(Pathname(Suma::Message::DATA_DIR + "templates/subdir/tmpl.en.sms.liquid")).to_not exist
     end
   end
 

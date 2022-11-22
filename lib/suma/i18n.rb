@@ -1,10 +1,12 @@
 # frozen_string_literal: true
 
 require "csv"
+require "fileutils"
 require "appydays/configurable"
 require "sequel/sequel_translated_text"
 
 require "suma"
+require "suma/message"
 
 module Suma::I18n
   include Appydays::Configurable
@@ -17,6 +19,7 @@ module Suma::I18n
     "en" => Locale.new("en", "English", "English"),
     "es" => Locale.new("es", "Spanish", "Español"),
   }.freeze
+  MESSAGE_PREFIX = "message:"
 
   class << self
     attr_reader :enabled_locales
@@ -82,7 +85,11 @@ module Suma::I18n
   end
 
   def self.strings_data(locale_code)
-    d = File.read(self.strings_path(locale_code))
+    begin
+      d = File.read(self.strings_path(locale_code))
+    rescue Errno::ENOENT
+      return {}
+    end
     return Yajl::Parser.parse(d)
   end
 
@@ -106,12 +113,29 @@ module Suma::I18n
     locale = SUPPORTED_LOCALES.fetch(locale_code)
     base_data = self.flatten_hash(self.base_locale_data)
     locale_data = self.flatten_hash(self.strings_data(locale.code))
+    base_messages = self.load_messages(self.base_locale_code)
+    locale_messages = self.load_messages(locale.code)
     CSV(output) do |csv|
       csv << ["Key", locale.language, base_locale.language]
       base_data.sort.each do |(key, base_str)|
         csv << [key, locale_data[key], base_str]
       end
+      base_messages.each do |(key, base_contents)|
+        csv << [key, locale_messages[key], base_contents]
+      end
     end
+  end
+
+  def self.load_messages(locale_code)
+    templates = {}
+    Dir[Suma::Message::DATA_DIR + "**/*.#{locale_code}.*.liquid"].map do |s|
+      next if s.include?("/specs/")
+      tmplname, _, transport, _ = File.basename(s).split(".")
+      tmplpath = File.dirname(s.delete_prefix(Suma::Message::DATA_DIR.to_s))
+      key = "#{MESSAGE_PREFIX}#{tmplpath}/#{tmplname}.#{transport}"
+      templates[key] = File.read(s)
+    end
+    return templates
   end
 
   def self.import_csv(input:)
@@ -122,6 +146,7 @@ module Suma::I18n
     hsh = {}
     lines.each do |line|
       key, str, _ = line
+      next self.import_message(locale.code, key, str) if key.start_with?(MESSAGE_PREFIX)
       # Add intermediate hashes along the path, then set the value at the end
       tip = hsh
       pathparts = key.split(":")
@@ -133,6 +158,15 @@ module Suma::I18n
     end
     so = self.sort_hash(hsh)
     File.write(self.strings_path(locale.code), JSON.pretty_generate(so))
+  end
+
+  def self.import_message(locale_code, key, contents)
+    transport_sep = key.rindex(".")
+    transport = key[(transport_sep + 1)..]
+    partial_path = key[MESSAGE_PREFIX.length...transport_sep].delete_prefix("/")
+    path = Suma::Message::DATA_DIR + "#{partial_path}.#{locale_code}.#{transport}.liquid"
+    FileUtils.mkpath(File.dirname(path))
+    File.write(path, contents)
   end
 
   DYNAMIC_DB_COLUMNS = [:id, :en, :es].freeze
