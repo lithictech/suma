@@ -27,7 +27,8 @@
     "view_all": "View all",
     "waitlisted": "Great! You are on the waiting list and we'll let you know when it's available.",
     "welcome_to_suma": "Welcome to Suma!",
-    "whats_this": "What's this?"
+    "whats_this": "What's this?",
+    "error": "Error"
   },
   "dashboard": {
     "check_ongoing_trip": "You have an ongoing trip. Please make sure you end it when you are finished with your ride!",

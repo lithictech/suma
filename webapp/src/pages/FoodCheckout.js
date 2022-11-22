@@ -7,6 +7,7 @@ import { md, t } from "../localization";
 import Money from "../shared/react/Money";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
 import { useBackendGlobals } from "../state/useBackendGlobals";
+import { useErrorToast } from "../state/useErrorToast";
 import { useOffering } from "../state/useOffering";
 import { useScreenLoader } from "../state/useScreenLoader";
 import { LayoutContainer } from "../state/withLayout";
@@ -28,6 +29,7 @@ import {
 
 export default function FoodCheckout() {
   const { id } = useParams();
+  const { showErrorToast } = useErrorToast();
   const location = useLocation();
   const [searchParams] = useSearchParams();
   const screenLoader = useScreenLoader();
@@ -80,8 +82,7 @@ export default function FoodCheckout() {
       })
       .catch((e) => {
         screenLoader.turnOff();
-        console.error(e);
-        // TODO: toast error
+        showErrorToast(e, { extract: true });
       });
   }
   return (

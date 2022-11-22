@@ -37,6 +37,7 @@ import bluejay from "./shared/bluejay";
 import Redirect from "./shared/react/Redirect";
 import renderComponent from "./shared/react/renderComponent";
 import { BackendGlobalsProvider } from "./state/useBackendGlobals";
+import { ErrorToastProvider } from "./state/useErrorToast";
 import { GlobalViewStateProvider } from "./state/useGlobalViewState";
 import { OfferingProvider } from "./state/useOffering";
 import { ScreenLoaderProvider, withScreenLoaderMount } from "./state/useScreenLoader";
@@ -51,21 +52,23 @@ window.Promise = bluejay.Promise;
 
 export default function App() {
   return (
-    <BackendGlobalsProvider>
-      <I18NextProvider>
-        <ScreenLoaderProvider>
-          <HelmetProvider>
-            <UserProvider>
-              <GlobalViewStateProvider>
-                <OfferingProvider>
-                  <InnerApp />
-                </OfferingProvider>
-              </GlobalViewStateProvider>
-            </UserProvider>
-          </HelmetProvider>
-        </ScreenLoaderProvider>
-      </I18NextProvider>
-    </BackendGlobalsProvider>
+    <GlobalViewStateProvider>
+      <ErrorToastProvider>
+        <BackendGlobalsProvider>
+          <I18NextProvider>
+            <ScreenLoaderProvider>
+              <HelmetProvider>
+                <UserProvider>
+                  <OfferingProvider>
+                    <InnerApp />
+                  </OfferingProvider>
+                </UserProvider>
+              </HelmetProvider>
+            </ScreenLoaderProvider>
+          </I18NextProvider>
+        </BackendGlobalsProvider>
+      </ErrorToastProvider>
+    </GlobalViewStateProvider>
   );
 }
 
@@ -326,7 +329,7 @@ function AppRoutes() {
             redirectIfUnauthed,
             redirectIfUnboarded,
             withScreenLoaderMount(),
-            withMetatags({ title: t("titles:ledgers_overview") }), // TODO
+            withMetatags({ title: t("titles:ledgers_overview") }),
             withLayout(),
             OrderHistoryList
           )}
@@ -338,7 +341,7 @@ function AppRoutes() {
             redirectIfUnauthed,
             redirectIfUnboarded,
             withScreenLoaderMount(),
-            withMetatags({ title: t("titles:ledgers_overview") }), // TODO
+            withMetatags({ title: t("titles:ledgers_overview") }),
             withLayout(),
             OrderHistoryDetail
           )}

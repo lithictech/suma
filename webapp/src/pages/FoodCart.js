@@ -6,6 +6,7 @@ import PageLoader from "../components/PageLoader";
 import SumaImage from "../components/SumaImage";
 import { md, mdp, t } from "../localization";
 import Money from "../shared/react/Money";
+import { useErrorToast } from "../state/useErrorToast";
 import { useOffering } from "../state/useOffering";
 import { LayoutContainer } from "../state/withLayout";
 import clsx from "clsx";
@@ -22,6 +23,7 @@ export default function FoodCart() {
   const { id: offeringId } = useParams();
   const navigate = useNavigate();
   const { cart, products, vendors, error, loading, initializeToOffering } = useOffering();
+  const { showErrorToast } = useErrorToast();
 
   React.useEffect(() => {
     initializeToOffering(offeringId);
@@ -43,10 +45,7 @@ export default function FoodCart() {
       .startCheckout({ offeringId })
       .then(api.pickData)
       .then((d) => navigate(`/checkout/${d.id}`, { state: { checkout: d } }))
-      .catch((e) => {
-        // TODO: Add error toast
-        console.error(e);
-      });
+      .catch((e) => showErrorToast(e, { extract: true }));
   }
   const productsById = Object.fromEntries(products.map((p) => [p.productId, p]));
   const vendorsById = Object.fromEntries(vendors.map((v) => [v.id, v]));
