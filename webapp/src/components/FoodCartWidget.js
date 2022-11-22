@@ -40,9 +40,6 @@ export default function FoodCartWidget({ product, size }) {
       .catch((e) => showErrorToast(e, { extract: true }));
   };
 
-  // TODO: once we have basic inventory it should control the max quantity
-  const maxQuantity = 10;
-
   return (
     <ButtonGroup aria-label="add-to-cart" className="shadow">
       {quantity > 0 && (
@@ -69,7 +66,10 @@ export default function FoodCartWidget({ product, size }) {
               {quantity}
             </Dropdown.Toggle>
             <Dropdown.Menu className="food-widget-dropdown-menu" renderOnMount={true}>
-              <DropdownQuantities maxQuantity={maxQuantity} selectedQuantity={quantity} />
+              <DropdownQuantities
+                maxQuantity={product.maxQuantity}
+                selectedQuantity={quantity}
+              />
             </Dropdown.Menu>
           </Dropdown>
         </>
@@ -77,7 +77,7 @@ export default function FoodCartWidget({ product, size }) {
       <Button
         variant="success"
         onClick={() => handleQuantityChange(quantity + 1)}
-        className={clsx(btnClasses, quantity === maxQuantity && "disabled")}
+        className={clsx(btnClasses, quantity === product.maxQuantity && "disabled")}
         title={t("food:add_to_cart")}
       >
         <img src={addIcon} alt={t("food:add_to_cart")} width="32px" />

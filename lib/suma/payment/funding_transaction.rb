@@ -85,7 +85,9 @@ class Suma::Payment::FundingTransaction < Suma::Postgres::Model(:payment_funding
     #   When using a FakeStrategy, pass it in this way.
     # @return [Suma::Payment::FundingTransaction]
     def start_new(payment_account, amount:, instrument: nil, originating_ip: nil, strategy: nil)
-      strategy ||= @fake_strategy
+      if strategy.nil?
+        strategy = @fake_strategy.respond_to?(:call) ? @fake_strategy.call : @fake_strategy
+      end
       self.db.transaction do
         platform_ledger = Suma::Payment.ensure_cash_ledger(Suma::Payment::Account.lookup_platform_account)
         if strategy.nil?

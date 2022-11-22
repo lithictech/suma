@@ -12,7 +12,7 @@ class Suma::Commerce::Order < Suma::Postgres::Model(:commerce_orders)
   one_to_many :charges, class: "Suma::Charge", key: :commerce_order_id
 
   state_machine :order_status, initial: :open do
-    state :open
+    state :open, :completed, :canceled
 
     after_transition(&:commit_audit_log)
     after_failure(&:commit_audit_log)

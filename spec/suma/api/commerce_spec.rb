@@ -216,7 +216,7 @@ RSpec.describe Suma::API::Commerce, :db do
 
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.that_includes(id: checkout.id)
-      expect(checkout.orders).to have_length(1)
+      expect(checkout.order).to be_a(Suma::Commerce::Order)
       expect(cart.refresh.items).to be_empty
       expect(checkout.refresh).to be_completed
     end
@@ -282,6 +282,15 @@ RSpec.describe Suma::API::Commerce, :db do
       post "/v1/commerce/checkouts/#{checkout.id}/complete", fulfillment_option_id: newopt.id
 
       expect(last_response).to have_status(403)
+    end
+
+    it "errors if max quantity is exceeded" do
+      product.update(max_quantity_per_order: 1)
+
+      post "/v1/commerce/checkouts/#{checkout.id}/complete"
+
+      expect(last_response).to have_status(403)
+      expect(last_response).to have_json_body.that_includes(error: include(code: "invalid_order_quantity"))
     end
 
     it "deletes the payment instrument if it is not being saved" do
