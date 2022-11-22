@@ -26,6 +26,10 @@ class Suma::Commerce::OfferingProduct < Suma::Postgres::Model(:commerce_offering
     return false if self.customer_price == self.undiscounted_price
     return true
   end
+
+  def discount_amount
+    return self.undiscounted_price - self.customer_price
+  end
 end
 
 # Table: commerce_offering_products

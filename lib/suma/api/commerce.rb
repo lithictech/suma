@@ -215,6 +215,9 @@ class Suma::API::Commerce < Suma::API::V1
     expose :undiscounted_price,
            with: Suma::Service::Entities::Money,
            &self.delegate_to(:undiscounted_price, safe_with_default: Money.new(0))
+    expose :discount_amount,
+           with: Suma::Service::Entities::Money,
+           &self.delegate_to(:discount_amount, safe_with_default: Money.new(0))
   end
 
   class OfferingWithContextEntity < BaseEntity

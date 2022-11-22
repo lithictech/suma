@@ -28,7 +28,6 @@ export default function FoodCart() {
   React.useEffect(() => {
     initializeToOffering(offeringId);
   }, [initializeToOffering, offeringId]);
-
   if (error) {
     return (
       <LayoutContainer top>
@@ -90,8 +89,15 @@ export default function FoodCart() {
 }
 
 function CartItem({ offeringId, product, vendor }) {
-  const { productId, name, isDiscounted, customerPrice, undiscountedPrice, images } =
-    product;
+  const {
+    productId,
+    name,
+    isDiscounted,
+    customerPrice,
+    undiscountedPrice,
+    discountAmount,
+    images,
+  } = product;
   return (
     <>
       <Col xs={12} className="mb-3">
@@ -103,8 +109,13 @@ function CartItem({ offeringId, product, vendor }) {
             <Link to={`/product/${offeringId}-${productId}`}>
               <h6 className="mb-0">{name}</h6>
             </Link>
-            <p className="mb-1 text-secondary">
-              <small>{t("food:from_vendor", { vendorName: vendor.name })}</small>
+            <p className="text-secondary mb-1 small">
+              {product.isDiscounted
+                ? md("food:from_vendor_with_discount_md", {
+                    vendorName: vendor.name,
+                    discountAmount: discountAmount,
+                  })
+                : md("food:from_vendor_md", { vendorName: vendor.name })}
             </p>
             <FoodCartWidget product={product} />
           </div>
