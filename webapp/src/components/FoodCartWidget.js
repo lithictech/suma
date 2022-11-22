@@ -2,7 +2,6 @@ import api from "../api";
 import addIcon from "../assets/images/food-widget-add.svg";
 import subtractIcon from "../assets/images/food-widget-subtract.svg";
 import { t } from "../localization";
-import { extractErrorCode } from "../state/useError";
 import { useErrorToast } from "../state/useErrorToast";
 import { useOffering } from "../state/useOffering";
 import clsx from "clsx";
@@ -16,7 +15,7 @@ export default function FoodCartWidget({ product, size }) {
   size = size || "sm";
   const btnClasses = sizeClasses[size];
   const { offering, cart, setCart } = useOffering();
-  const { setErrorToast } = useErrorToast();
+  const { showErrorToast } = useErrorToast();
 
   const changePromise = React.useRef(null);
 
@@ -38,9 +37,7 @@ export default function FoodCartWidget({ product, size }) {
       .then((resp) => {
         setCart(resp.data);
       })
-      .catch((e) => {
-        setErrorToast(extractErrorCode(e));
-      });
+      .catch((e) => showErrorToast(e, { extract: true }));
   };
 
   // TODO: once we have basic inventory it should control the max quantity

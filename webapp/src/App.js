@@ -52,23 +52,23 @@ window.Promise = bluejay.Promise;
 
 export default function App() {
   return (
-    <BackendGlobalsProvider>
-      <I18NextProvider>
-        <ScreenLoaderProvider>
-          <HelmetProvider>
-            <UserProvider>
-              <GlobalViewStateProvider>
-                <OfferingProvider>
-                  <ErrorToastProvider>
+    <GlobalViewStateProvider>
+      <ErrorToastProvider>
+        <BackendGlobalsProvider>
+          <I18NextProvider>
+            <ScreenLoaderProvider>
+              <HelmetProvider>
+                <UserProvider>
+                  <OfferingProvider>
                     <InnerApp />
-                  </ErrorToastProvider>
-                </OfferingProvider>
-              </GlobalViewStateProvider>
-            </UserProvider>
-          </HelmetProvider>
-        </ScreenLoaderProvider>
-      </I18NextProvider>
-    </BackendGlobalsProvider>
+                  </OfferingProvider>
+                </UserProvider>
+              </HelmetProvider>
+            </ScreenLoaderProvider>
+          </I18NextProvider>
+        </BackendGlobalsProvider>
+      </ErrorToastProvider>
+    </GlobalViewStateProvider>
   );
 }
 
