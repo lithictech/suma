@@ -2,6 +2,8 @@ import api from "../api";
 import addIcon from "../assets/images/food-widget-add.svg";
 import subtractIcon from "../assets/images/food-widget-subtract.svg";
 import { t } from "../localization";
+import { extractErrorCode } from "../state/useError";
+import { useErrorToast } from "../state/useErrorToast";
 import { useOffering } from "../state/useOffering";
 import clsx from "clsx";
 import _ from "lodash";
@@ -14,6 +16,7 @@ export default function FoodCartWidget({ product, size }) {
   size = size || "sm";
   const btnClasses = sizeClasses[size];
   const { offering, cart, setCart } = useOffering();
+  const { setErrorToast } = useErrorToast();
 
   const changePromise = React.useRef(null);
 
@@ -36,8 +39,7 @@ export default function FoodCartWidget({ product, size }) {
         setCart(resp.data);
       })
       .catch((e) => {
-        // TODO: Add an error toast when this fails
-        console.error(e);
+        setErrorToast(extractErrorCode(e));
       });
   };
 

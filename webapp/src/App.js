@@ -37,6 +37,7 @@ import bluejay from "./shared/bluejay";
 import Redirect from "./shared/react/Redirect";
 import renderComponent from "./shared/react/renderComponent";
 import { BackendGlobalsProvider } from "./state/useBackendGlobals";
+import { ErrorToastProvider } from "./state/useErrorToast";
 import { GlobalViewStateProvider } from "./state/useGlobalViewState";
 import { OfferingProvider } from "./state/useOffering";
 import { ScreenLoaderProvider, withScreenLoaderMount } from "./state/useScreenLoader";
@@ -58,7 +59,9 @@ export default function App() {
             <UserProvider>
               <GlobalViewStateProvider>
                 <OfferingProvider>
-                  <InnerApp />
+                  <ErrorToastProvider>
+                    <InnerApp />
+                  </ErrorToastProvider>
                 </OfferingProvider>
               </GlobalViewStateProvider>
             </UserProvider>
@@ -326,7 +329,7 @@ function AppRoutes() {
             redirectIfUnauthed,
             redirectIfUnboarded,
             withScreenLoaderMount(),
-            withMetatags({ title: t("titles:ledgers_overview") }), // TODO
+            withMetatags({ title: t("titles:ledgers_overview") }),
             withLayout(),
             OrderHistoryList
           )}
@@ -338,7 +341,7 @@ function AppRoutes() {
             redirectIfUnauthed,
             redirectIfUnboarded,
             withScreenLoaderMount(),
-            withMetatags({ title: t("titles:ledgers_overview") }), // TODO
+            withMetatags({ title: t("titles:ledgers_overview") }),
             withLayout(),
             OrderHistoryDetail
           )}
