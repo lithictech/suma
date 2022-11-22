@@ -54,7 +54,7 @@ export default function FoodCart() {
         {_.isEmpty(cart.items) && md("food:no_cart_items_md")}
         {!_.isEmpty(cart.items) && (
           <Row>
-            <LinearBreadcrumbs back />
+            <LinearBreadcrumbs back={`/food/${offeringId}`} />
             <Stack direction="horizontal" gap={3} className="align-items-end">
               <h4>{t("food:cart_title")}</h4>
               <span className="text-secondary ms-auto">{t("food:price")}</span>

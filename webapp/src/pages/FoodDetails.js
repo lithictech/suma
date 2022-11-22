@@ -49,7 +49,7 @@ export default function FoodDetails() {
       <FoodNav
         offeringId={offeringId}
         cart={cart}
-        startElement={<LinearBreadcrumbs back noBottom />}
+        startElement={<LinearBreadcrumbs back={`/food/${offeringId}`} noBottom />}
       />
       <SumaImage
         image={product.images[0]}

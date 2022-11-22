@@ -1,5 +1,6 @@
 import api from "../api";
 import ErrorScreen from "../components/ErrorScreen";
+import LinearBreadcrumbs from "../components/LinearBreadcrumbs";
 import PageLoader from "../components/PageLoader";
 import RLink from "../components/RLink";
 import SumaImage from "../components/SumaImage";
@@ -85,8 +86,10 @@ export default function FoodCheckout() {
         showErrorToast(e, { extract: true });
       });
   }
+  console.log(checkout);
   return (
     <Row>
+      <LinearBreadcrumbs back={`/cart/${checkout.offering.id}`} />
       <CheckoutPayment
         checkout={checkout}
         selectedInstrument={chosenInstrument}
