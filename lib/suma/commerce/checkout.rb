@@ -7,6 +7,7 @@ class Suma::Commerce::Checkout < Suma::Postgres::Model(:commerce_checkouts)
   CONFIRMATION_EXPOSURE_CUTOFF = 2.days
 
   class Uneditable < StandardError; end
+  class MaxQuantityExceeded < StandardError; end
 
   plugin :timestamps
   plugin :soft_deletes
@@ -15,7 +16,7 @@ class Suma::Commerce::Checkout < Suma::Postgres::Model(:commerce_checkouts)
   many_to_one :card, class: "Suma::Payment::Card"
   many_to_one :bank_account, class: "Suma::Payment::BankAccount"
   one_to_many :items, class: "Suma::Commerce::CheckoutItem"
-  one_to_many :orders, class: "Suma::Commerce::Order"
+  one_to_one :order, class: "Suma::Commerce::Order"
   many_to_one :fulfillment_option, class: "Suma::Commerce::OfferingFulfillmentOption"
 
   def editable? = !self.soft_deleted? && !self.completed?
@@ -99,9 +100,11 @@ class Suma::Commerce::Checkout < Suma::Postgres::Model(:commerce_checkouts)
 
   def create_order
     self.db.transaction do
+      self.cart.lock!
       self.lock!
       now = Time.now
       raise Uneditable, "Checkout[#{self.id}] is not editable" unless self.editable?
+      self.check_quantities!
       order = Suma::Commerce::Order.create(checkout: self)
       self.freeze_items
       self.cart.items_dataset.delete
@@ -195,6 +198,16 @@ class Suma::Commerce::Checkout < Suma::Postgres::Model(:commerce_checkouts)
       )
     end
     return consolidated_contributions
+  end
+
+  protected def check_quantities!
+    self.items.each do |item|
+      product = item.cart_item.product
+      quantity = item.cart_item.quantity
+      max_available = self.cart.max_quantity_for(item.offering_product)
+      raise MaxQuantityExceeded, "product #{product.name.en} quantity #{quantity} > max of #{max_available}" if
+        quantity > max_available
+    end
   end
 
   protected def freeze_items

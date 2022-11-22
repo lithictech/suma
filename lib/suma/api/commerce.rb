@@ -82,7 +82,7 @@ class Suma::API::Commerce < Suma::API::V1
               checkout.add_item({cart_item: item, offering_product: item.offering_product})
             end
             status 200
-            present checkout, with: CheckoutEntity
+            present checkout, with: CheckoutEntity, cart:
           end
         end
       end
@@ -107,7 +107,7 @@ class Suma::API::Commerce < Suma::API::V1
 
         get do
           checkout = lookup_editable!
-          present checkout, with: CheckoutEntity
+          present checkout, with: CheckoutEntity, cart: checkout.cart
         end
 
         params do
@@ -140,17 +140,19 @@ class Suma::API::Commerce < Suma::API::V1
               checkout.create_order
             rescue Suma::Commerce::Checkout::Uneditable
               merror!(409, "not editable", code: "checkout_fatal_error")
+            rescue Suma::Commerce::Checkout::MaxQuantityExceeded
+              merror!(403, "max quantity exceeded", code: "invalid_order_quantity")
             end
           end
           status 200
-          present checkout, with: CheckoutConfirmationEntity
+          present checkout, with: CheckoutConfirmationEntity, cart: checkout.cart
         end
 
         get :confirmation do
           checkout = lookup!
           forbidden! unless checkout.completed?
           forbidden! unless checkout.expose_for_confirmation?(Time.now)
-          present checkout, with: CheckoutConfirmationEntity
+          present checkout, with: CheckoutConfirmationEntity, cart: checkout.cart
         end
       end
     end
@@ -201,6 +203,10 @@ class Suma::API::Commerce < Suma::API::V1
     expose :product_id, &self.delegate_to(:product, :id)
     expose :vendor_id, &self.delegate_to(:product, :vendor_id)
     expose :images, with: Suma::API::Entities::ImageEntity, &self.delegate_to(:product, :images?)
+
+    expose :max_quantity do |inst, opts|
+      opts.fetch(:cart).max_quantity_for(inst)
+    end
 
     expose :is_discounted, &self.delegate_to(:discounted?, safe_with_default: false)
     expose :customer_price,

@@ -26,6 +26,33 @@ class Suma::Commerce::Cart < Suma::Postgres::Model(:commerce_carts)
   many_to_one :offering, class: "Suma::Commerce::Offering"
   one_to_many :items, class: "Suma::Commerce::CartItem"
   one_to_many :checkouts, class: "Suma::Commerce::Checkout"
+  one_to_many :purchased_checkout_items,
+              class: "Suma::Commerce::CheckoutItem",
+              read_only: true,
+              key: :id,
+              dataset: lambda {
+                         Suma::Commerce::CheckoutItem.where(
+                           checkout: self.checkouts_dataset.unordered.where(
+                             order: Suma::Commerce::Order.exclude(order_status: "canceled"),
+                           ),
+                         ).select_group(:offering_product_id).
+                           select_append(Sequel.function(:sum, :immutable_quantity).as(:immutable_quantity))
+                       },
+              eager_loader: (proc do |eo|
+                               eo[:rows].each { |p| p.associations[:purchased_checkout_items] = nil }
+                               Suma::Commerce::CheckoutItem.where(
+                                 checkout: Suma::Commerce::Checkout.where(
+                                   cart_id: eo[:id_map].keys,
+                                   order: Suma::Commerce::Order.exclude(order_status: "canceled"),
+                                 ),
+                               ).select_group(:offering_product_id).
+                                 select_append(Sequel.function(:sum, :immutable_quantity).as(:immutable_quantity)).
+                                 naked.
+                                 all do |ci|
+                                 p = eo[:id_map][ci.values.delete(:offering_product_id)].first
+                                 p.associations[:purchased_checkout_items] = ci
+                               end
+                             end)
 
   def self.lookup(member:, offering:)
     return self.find_or_create_or_find(member:, offering:)
@@ -68,6 +95,22 @@ class Suma::Commerce::Cart < Suma::Postgres::Model(:commerce_carts)
     else
       item.update(quantity:, timestamp: tsval)
     end
+  end
+
+  # This seems like a reasonable default...
+  DEFAULT_MAX_QUANTITY = 12
+
+  def max_quantity_for(offering_product)
+    product = offering_product.product
+    max_order = product.max_quantity_per_order
+    max_offering = product.max_quantity_per_offering
+    return DEFAULT_MAX_QUANTITY if max_order.nil? && max_offering.nil?
+
+    items_already_in_offering = self.purchased_checkout_items.
+      to_h { |row| [row.offering_product.id, row.quantity] }
+    existing = items_already_in_offering.fetch(offering_product.id, 0)
+
+    return [max_order, max_offering].compact.min - existing
   end
 end
 

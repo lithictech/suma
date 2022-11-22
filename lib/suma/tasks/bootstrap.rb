@@ -250,13 +250,15 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
     suma_org = Suma::Organization.find_or_create(name: "suma")
     offering = Suma::Commerce::Offering.first
     products.each do |ps|
-      product = Suma::Commerce::Product.new
-      product.name = Suma::TranslatedText.create(en: ps[:en], es: ps[:es] || "")
-      product.description_string = "Includes stuffing, mashed potatoes, green beans, " \
-                                   "dinner rolls, gravy, cranberry, and pie for dessert."
-      product.vendor = Suma::Vendor.find_or_create(name: "Sheridan's Market", organization: suma_org)
-      product.our_cost = Money.new(90_00)
-      product.save_changes
+      product = Suma::Commerce::Product.create(
+        name: Suma::TranslatedText.create(en: ps[:en], es: ps[:es] || ""),
+        description_string: "Includes stuffing, mashed potatoes, green beans, " \
+                            "dinner rolls, gravy, cranberry, and pie for dessert.",
+        vendor: Suma::Vendor.find_or_create(name: "Sheridan's Market", organization: suma_org),
+        our_cost: Money.new(90_00),
+        max_quantity_per_order: 1,
+        max_quantity_per_offering: 1,
+      )
       product.add_vendor_service_category(holidays_category)
       bytes = File.binread("spec/data/images/#{ps[:image]}")
       uf = Suma::UploadedFile.create_with_blob(bytes:, content_type: "image/jpeg", filename: ps[:image])

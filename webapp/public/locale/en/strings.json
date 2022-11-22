@@ -55,6 +55,7 @@
     "forbidden": "You are forbidden from accessing these resources.",
     "impossible_phone_number": "That doesn't look like a real phone number.",
     "invalid_credentials": "Sorry, that information is not correct.",
+    "invalid_order_quantity": "Sorry, one or more of the items in your order are unavailable because you have purchased too many already. Please go back to your cart and try again.",
     "invalid_otp": "That token is not valid. Enter it again, or request a new code.",
     "invalid_permissions": "You are not allowed to do that.",
     "network_error": "There was a network error. Connect to the internet and try again.",
