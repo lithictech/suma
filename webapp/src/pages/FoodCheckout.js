@@ -1,5 +1,6 @@
 import api from "../api";
 import ErrorScreen from "../components/ErrorScreen";
+import LinearBreadcrumbs from "../components/LinearBreadcrumbs";
 import PageLoader from "../components/PageLoader";
 import RLink from "../components/RLink";
 import SumaImage from "../components/SumaImage";
@@ -85,8 +86,10 @@ export default function FoodCheckout() {
         showErrorToast(e, { extract: true });
       });
   }
+
   return (
     <Row>
+      <LinearBreadcrumbs back={`/cart/${checkout.offering.id}`} />
       <CheckoutPayment
         checkout={checkout}
         selectedInstrument={chosenInstrument}
@@ -333,9 +336,14 @@ function CheckoutItem({ item }) {
         />
         <Stack className="justify-content-between">
           <h6 className="mb-0">{product.name}</h6>
-          <div className="mb-0 text-secondary">
-            <small>{t("food:from_vendor", { vendorName: product.vendor.name })}</small>
-          </div>
+          <p className="text-secondary mb-0 small">
+            {product.isDiscounted
+              ? md("food:from_vendor_with_discount_md", {
+                  vendorName: product.vendor.name,
+                  discountAmount: product.discountAmount,
+                })
+              : md("food:from_vendor_md", { vendorName: product.vendor.name })}
+          </p>
           <div className="mb-0 text-secondary">
             <small>{t("food:quantity", { quantity: quantity })}</small>
           </div>

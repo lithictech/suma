@@ -56,7 +56,7 @@ export default function FoodList() {
             {_.isEmpty(products) && mdp("food:no_products_md")}
             {!_.isEmpty(products) && (
               <Row>
-                <LinearBreadcrumbs back />
+                <LinearBreadcrumbs back="/food" />
                 {products.map((p) => (
                   <Product key={p.productId} offeringId={offeringId} product={p} />
                 ))}

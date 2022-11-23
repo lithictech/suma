@@ -4,7 +4,7 @@ import FoodNav from "../components/FoodNav";
 import LinearBreadcrumbs from "../components/LinearBreadcrumbs";
 import PageLoader from "../components/PageLoader";
 import SumaImage from "../components/SumaImage";
-import { t } from "../localization";
+import { mdp, t } from "../localization";
 import makeTitle from "../modules/makeTitle";
 import Money from "../shared/react/Money";
 import { useOffering } from "../state/useOffering";
@@ -49,7 +49,7 @@ export default function FoodDetails() {
       <FoodNav
         offeringId={offeringId}
         cart={cart}
-        startElement={<LinearBreadcrumbs back noBottom />}
+        startElement={<LinearBreadcrumbs back={`/food/${offeringId}`} noBottom />}
       />
       <SumaImage
         image={product.images[0]}
@@ -72,7 +72,12 @@ export default function FoodDetails() {
                 </strike>
               )}
             </p>
-            <p>{t("food:from_vendor", { vendorName: vendor.name })}</p>
+            {product.isDiscounted
+              ? mdp("food:from_vendor_with_discount_md", {
+                  vendorName: vendor.name,
+                  discountAmount: product.discountAmount,
+                })
+              : mdp("food:from_vendor_md", { vendorName: vendor.name })}
           </div>
           <div className="ms-auto">
             <FoodCartWidget product={product} size="lg" />

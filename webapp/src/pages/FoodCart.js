@@ -28,7 +28,6 @@ export default function FoodCart() {
   React.useEffect(() => {
     initializeToOffering(offeringId);
   }, [initializeToOffering, offeringId]);
-
   if (error) {
     return (
       <LayoutContainer top>
@@ -55,7 +54,7 @@ export default function FoodCart() {
         {_.isEmpty(cart.items) && md("food:no_cart_items_md")}
         {!_.isEmpty(cart.items) && (
           <Row>
-            <LinearBreadcrumbs back />
+            <LinearBreadcrumbs back={`/food/${offeringId}`} />
             <Stack direction="horizontal" gap={3} className="align-items-end">
               <h4>{t("food:cart_title")}</h4>
               <span className="text-secondary ms-auto">{t("food:price")}</span>
@@ -90,8 +89,15 @@ export default function FoodCart() {
 }
 
 function CartItem({ offeringId, product, vendor }) {
-  const { productId, name, isDiscounted, customerPrice, undiscountedPrice, images } =
-    product;
+  const {
+    productId,
+    name,
+    isDiscounted,
+    customerPrice,
+    undiscountedPrice,
+    discountAmount,
+    images,
+  } = product;
   return (
     <>
       <Col xs={12} className="mb-3">
@@ -103,8 +109,13 @@ function CartItem({ offeringId, product, vendor }) {
             <Link to={`/product/${offeringId}-${productId}`}>
               <h6 className="mb-0">{name}</h6>
             </Link>
-            <p className="mb-1 text-secondary">
-              <small>{t("food:from_vendor", { vendorName: vendor.name })}</small>
+            <p className="text-secondary mb-1 small">
+              {product.isDiscounted
+                ? md("food:from_vendor_with_discount_md", {
+                    vendorName: vendor.name,
+                    discountAmount: discountAmount,
+                  })
+                : md("food:from_vendor_md", { vendorName: vendor.name })}
             </p>
             <FoodCartWidget product={product} />
           </div>
