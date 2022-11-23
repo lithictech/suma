@@ -31,6 +31,8 @@ import OrderHistoryList from "./pages/OrderHistoryList";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import Start from "./pages/Start";
 import Styleguide from "./pages/Styleguide";
+import TermsOfSale from "./pages/TermsOfSale";
+import TermsOfUse from "./pages/TermsOfUse";
 import Utilities from "./pages/Utilities";
 import applyHocs from "./shared/applyHocs";
 import bluejay from "./shared/bluejay";
@@ -101,6 +103,9 @@ function AppRoutes() {
           exact
           element={renderWithHocs(PrivacyPolicyContent)}
         />
+        <Route path="/terms-of-use" exact element={renderWithHocs(TermsOfUse)} />
+        <Route path="/terms-of-sale" exact element={renderWithHocs(TermsOfSale)} />
+
         <Route
           path="/start"
           exact
