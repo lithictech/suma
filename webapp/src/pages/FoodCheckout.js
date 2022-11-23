@@ -86,7 +86,7 @@ export default function FoodCheckout() {
         showErrorToast(e, { extract: true });
       });
   }
-  console.log(checkout);
+
   return (
     <Row>
       <LinearBreadcrumbs back={`/cart/${checkout.offering.id}`} />
