@@ -79,13 +79,16 @@ export default function OrderHistoryDetail() {
                 key={i}
                 className="justify-content-between align-items-start"
               >
-                <div>
+                <Stack gap={1}>
                   <div className="lead">{name}</div>
+                  <div>
+                    {md("food:price_times_quantity_md", {
+                      price: customerPrice,
+                      quantity,
+                    })}
+                  </div>
                   <div className="text-secondary">{description}</div>
-                </div>
-                <span className="ms-2 lead text-end">
-                  {md("food:price_times_quantity_md", { price: customerPrice, quantity })}
-                </span>
+                </Stack>
               </Stack>
             ))}
           </Stack>

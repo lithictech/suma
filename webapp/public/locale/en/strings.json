@@ -130,7 +130,7 @@
     "shop": "Shop",
     "subtotal_items_md": "Subtotal ({{totalItems}} items): **{{customerCost, sumaCurrency}}**",
     "terms_of_use_agreement_md": "By clicking &#34;place order&#34; you agree to suma&#39;s [Terms of Use](/terms).",
-    "price_times_quantity_md": "{{price, sumaCurrency}}\n\nx {{quantity}}",
+    "price_times_quantity_md": "{{price, sumaCurrency}} x {{quantity}}",
     "title": "Food",
     "total": "{{total, sumaCurrency}}"
   },
