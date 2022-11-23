@@ -3,7 +3,7 @@ import ErrorScreen from "../components/ErrorScreen";
 import LinearBreadcrumbs from "../components/LinearBreadcrumbs";
 import PageLoader from "../components/PageLoader";
 import SumaImage from "../components/SumaImage";
-import { t } from "../localization";
+import { md, t } from "../localization";
 import { dayjs } from "../modules/dayConfig";
 import Money from "../shared/react/Money";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
@@ -70,18 +70,25 @@ export default function OrderHistoryDetail() {
           />
           <hr className="my-0" />
           <Stack>
-            <Card.Text className="h4">{t("food:items_title")}</Card.Text>
-            {state.items.map(({ name, description, customerPrice }, i) => (
+            <Card.Text className="h4">
+              {t("food:labels:items_count", { itemCount: state.items.length })}
+            </Card.Text>
+            {state.items.map(({ name, description, customerPrice, quantity }, i) => (
               <Stack
                 direction="horizontal"
                 key={i}
                 className="justify-content-between align-items-start"
               >
-                <div>
+                <Stack gap={1}>
                   <div className="lead">{name}</div>
+                  <div>
+                    {md("food:price_times_quantity_md", {
+                      price: customerPrice,
+                      quantity,
+                    })}
+                  </div>
                   <div className="text-secondary">{description}</div>
-                </div>
-                <Money className="ms-2 lead">{customerPrice}</Money>
+                </Stack>
               </Stack>
             ))}
           </Stack>
