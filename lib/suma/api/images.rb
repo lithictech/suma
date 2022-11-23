@@ -25,6 +25,7 @@ class Suma::API::Images < Suma::API::V1
         optional :q, type: Integer, values: 1..100
       end
       get do
+        use_http_expires_caching 1.year
         if params[:opaque_id] == "missing"
           uf = Suma::UploadedFile::NoImageAvailable.new
         else

@@ -196,6 +196,25 @@ class Suma::API::TestService < Suma::Service
     present(p, with: LanguageWithBlockExposureEntity)
     status 200
   end
+
+  params do
+    requires :behavior, values: ["stream", "present"]
+    requires :addcache, type: Boolean
+  end
+  get :streamer do
+    header "Cache-Control", "public" if params[:addcache]
+    header "Transfer-Encoding", "compress"
+    case params[:behavior]
+      when "stream"
+        header "Content-Length", "666"
+        header "Transfer-Encoding", "nope"
+        stream ["h", "e", "l", "l", "o"]
+      when "present"
+        present({})
+      else
+        raise ArgumentError, "invalid behavior"
+    end
+  end
 end
 
 RSpec.describe Suma::Service, :db do
@@ -959,6 +978,36 @@ RSpec.describe Suma::Service, :db do
       post "/echo", {x: 1}, {"CONTENT_TYPE" => "application/x-www-form-urlencoded"}
       expect(last_response).to have_status(201)
       expect(last_response).to have_json_body.that_includes(body: {x: "1"})
+    end
+  end
+
+  describe "patches" do
+    describe "stream" do
+      it "does not modify non-stream behavior" do
+        get "/streamer?behavior=present&addcache=0"
+
+        expect(last_response.body).to eq("{}")
+        expect(last_response.headers).to include(
+          "Content-Length" => "2",
+          "Transfer-Encoding" => "compress",
+        )
+      end
+
+      it "does not modify default behavior" do
+        get "/streamer?behavior=stream&addcache=0"
+
+        expect(last_response.body).to eq("hello")
+        expect(last_response.headers).to include("Cache-Control" => "no-cache")
+        expect(last_response.headers).to_not have_key("Transfer-Encoding")
+      end
+
+      it "restores the cache-control header" do
+        get "/streamer?behavior=stream&addcache=1"
+
+        expect(last_response.body).to eq("hello")
+        expect(last_response.headers).to include("Cache-Control" => "public")
+        expect(last_response.headers).to_not have_key("Transfer-Encoding")
+      end
     end
   end
 end

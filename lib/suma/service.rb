@@ -19,6 +19,7 @@ class Suma::Service < Grape::API
   include Appydays::Configurable
   include Appydays::Loggable
 
+  require "suma/service/grape_patches"
   require "suma/service/auth"
   require "suma/service/middleware"
   require "suma/service/types"
