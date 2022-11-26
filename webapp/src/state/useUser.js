@@ -1,8 +1,11 @@
 import api from "../api";
 import { localStorageCache } from "../shared/localStorageHelper";
+import { Logger } from "../shared/logger";
 import humps from "humps";
 import _ from "lodash";
 import React from "react";
+
+const logger = new Logger("user");
 
 export const UserContext = React.createContext();
 /**
@@ -51,7 +54,7 @@ export function UserProvider({ children }) {
     (response) => {
       const memberBase64 = _.get(response, ["headers", "suma-current-member"]);
       if (!memberBase64) {
-        console.warn(
+        logger.error(
           "handleUpdateCurrentMember not used properly, response or header is malformed"
         );
         return;

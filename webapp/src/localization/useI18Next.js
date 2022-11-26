@@ -1,5 +1,6 @@
 import api from "../api";
 import { localStorageCache } from "../shared/localStorageHelper";
+import { Logger } from "../shared/logger";
 import { formatMoney } from "../shared/react/Money";
 import useLocalStorageState from "../shared/react/useLocalStorageState";
 import useMountEffect from "../shared/react/useMountEffect";
@@ -7,6 +8,8 @@ import i18n from "i18next";
 import Backend from "i18next-http-backend";
 import _ from "lodash";
 import React from "react";
+
+const logger = new Logger("i18n.hook");
 
 export const I18NextContext = React.createContext();
 
@@ -28,7 +31,7 @@ export function I18NextProvider({ children }) {
       api
         .changeLanguage({ language: lang })
         .then(_.noop)
-        .catch((r) => console.error(r));
+        .catch((r) => logger.error(r));
       setI18NextLoading(true);
       Promise.delayOr(
         500,
