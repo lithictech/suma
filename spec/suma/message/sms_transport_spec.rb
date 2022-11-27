@@ -108,4 +108,21 @@ RSpec.describe Suma::Message::SmsTransport, :db do
       end.to raise_error(/content is not set/i)
     end
   end
+
+  describe "recipient" do
+    it "raises if the member has no phone" do
+      u = Suma::Fixtures.member.instance
+      u.phone = ""
+      expect { described_class.new.recipient(u) }.to raise_error(Suma::InvalidPrecondition, /phone/)
+    end
+
+    it "uses the members phone for :to" do
+      u = Suma::Fixtures.member.create
+      expect(described_class.new.recipient(u)).to have_attributes(to: u.phone, member: u)
+    end
+
+    it "uses the value for :to if not a member" do
+      expect(described_class.new.recipient("5551112222")).to have_attributes(to: "5551112222", member: nil)
+    end
+  end
 end

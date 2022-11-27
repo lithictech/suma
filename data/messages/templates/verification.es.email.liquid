@@ -1,0 +1,17 @@
+{% expose subject %}Su código de verificación Suma{% endexpose %}
+
+{% partial 'greeting_es' %}
+
+<p>
+    Tu código de verificación de Suma es:
+</p>
+
+<p>
+    {{ token }}
+</p>
+
+<p>
+    Si no solicitó un código, póngase en contacto respondiendo a este correo electrónico.
+</p>
+
+{% partial 'signoff' %}
