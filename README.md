@@ -103,6 +103,27 @@ We manage the localization JSON files with the following process:
 - To load the translated strings back into Suma, run `cat spanish.csv | bundle exec rake i18n:import_csv`.
   This will overwrite `locale/es/strings.json` with the values parsed from the CSV.
 
+### Longform Localization
+
+In some cases, we have long-form content that can be expressed as normal Markdown,
+and we do not need to build a custom page for it.
+
+To do this, first, create a file like `locale/en/source/myfile.md`.
+
+Then when you run `i18n:format` (as above), the file `locale/en/myfile.json` is automatically created/updated.
+Re-run `make i18n-format` or the Rake task manually every time there is a Markdown file update.
+
+Then use the `MarkdownContent` component to load it dynamically, or you can also load it directly directly
+via `i18n.loadNamespaces(myfile)`.
+
+To localize these files, you must manually create the appropriate locale-specific source files.
+We do not automatically manage them with 18n commands, since they are pretty rare,
+and updating them is not a developer-driven process that requires iteration.
+
+So as an example, to localize `locale/en/source/myfile.md`, you must manually create
+the file `/locale/fr/source/myfile.md`. Whenever you run `i18n-format`, it will automatically
+create/update the appropriate resource files.
+ 
 ### Backend
 
 Localization on the backend involves choosing the right column from the database.

@@ -140,4 +140,15 @@ RSpec.describe Suma::I18n, :db do
       end.to raise_error(described_class::InvalidInput, /Headers should be: Id,English/)
     end
   end
+
+  describe "convert_source_to_resource_files" do
+    it "converts all source files" do
+      src = described_class::LOCALE_DIR + "en/source/foo.md"
+      dst = described_class::LOCALE_DIR + "en/foo.json"
+      Dir.mkdir(temp_dir_path + "en/source")
+      File.write(src, "# title\n\nfirst \"para")
+      described_class.convert_source_to_resource_files
+      expect(File.read(dst)).to eq("{\n  \"contents\": \"# title\\n\\nfirst \\\"para\"\n}")
+    end
+  end
 end

@@ -21,6 +21,7 @@ import FundingAddFunds from "./pages/FundingAddFunds";
 import FundingLinkBankAccount from "./pages/FundingLinkBankAccount";
 import Home from "./pages/Home";
 import LedgersOverview from "./pages/LedgersOverview";
+import MarkdownContent from "./pages/MarkdownContent";
 import Mobility from "./pages/Mobility";
 import Onboarding from "./pages/Onboarding";
 import OnboardingFinish from "./pages/OnboardingFinish";
@@ -31,8 +32,6 @@ import OrderHistoryList from "./pages/OrderHistoryList";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import Start from "./pages/Start";
 import Styleguide from "./pages/Styleguide";
-import TermsOfSale from "./pages/TermsOfSale";
-import TermsOfUse from "./pages/TermsOfUse";
 import Utilities from "./pages/Utilities";
 import applyHocs from "./shared/applyHocs";
 import bluejay from "./shared/bluejay";
@@ -46,6 +45,7 @@ import { ScreenLoaderProvider, withScreenLoaderMount } from "./state/useScreenLo
 import { UserProvider } from "./state/useUser";
 import withLayout from "./state/withLayout";
 import withMetatags from "./state/withMetatags";
+import withProps from "./state/withProps";
 import React from "react";
 import { HelmetProvider } from "react-helmet-async";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
@@ -103,8 +103,22 @@ function AppRoutes() {
           exact
           element={renderWithHocs(PrivacyPolicyContent)}
         />
-        <Route path="/terms-of-use" exact element={renderWithHocs(TermsOfUse)} />
-        <Route path="/terms-of-sale" exact element={renderWithHocs(TermsOfSale)} />
+        <Route
+          path="/terms-of-use"
+          exact
+          element={renderWithHocs(
+            withProps({ namespace: "terms_of_use" }),
+            MarkdownContent
+          )}
+        />
+        <Route
+          path="/terms-of-sale-holiday-2022"
+          exact
+          element={renderWithHocs(
+            withProps({ namespace: "terms_of_sale_holiday_2022" }),
+            MarkdownContent
+          )}
+        />
 
         <Route
           path="/start"
