@@ -36,6 +36,7 @@ make install
 make start # Run a React dev server frontend against the running local backend
 ```
 
+
 ## Infrastructure
 
 Right now, Suma is designed to be hosted on Heroku,
@@ -51,6 +52,11 @@ This involves two non-obvious features in the codebase:
   for building the React production build. So to build a production build,
   always use `make build-frontends`, which builds the React app into `./build-webapp`.
   The Rack app then serves that directory as static content at `/app`, as below.
+  - NOTE: At build time, we template in some environment variables that are shared
+    between the backend and frontend, like copying `RACK_ENV` into `NODE_ENV`,
+    or `SENTRY_DSN` into `REACT_APP_SENTRY_DSN`. Because these values are
+    *built into the JS at build time*, you MUST rebuild and redeploy the app
+    these enviroment variables, or you'll just modify the backend.
 - We have some custom Rack middleware for servering the React SPAs
   and other static assets ([see here](https://github.com/lithictech/suma/tree/main/lib/rack)).
   This allows us to have a "zero configuration" deployment.
@@ -120,6 +126,7 @@ There are a couple Rake tasks that dump the entire `translated_texts` table to a
 and then allows it to be updated via CSV as well: `rake i18n:export_dynamic`
 and `rake i18n:import_dynamic`.
 
+
 ## Images (and Uploaded Files)
 
 Suma stores images in the database by default.
@@ -150,3 +157,18 @@ The way images work is:
 See `UploadedFile` for the code around blobs and file uploading.
 
 See `API::Images` for the endpoints related to image uploads and image fetching.
+
+
+## Logging and Error Handling
+
+Logging is done as a standard [12 Factor App](https://12factor.net/),
+which means we log to stdout. Further, we use structured logging via
+[Semantic Logger](https://github.com/reidmorrison/semantic_logger).
+
+For exception reporting, we use [Sentry](https://sentry.io/).
+One of the important reasons for this choice is that Sentry can be
+[self-hosted](https://develop.sentry.dev/self-hosted/) pretty easily.
+That is, a minimal installation of Suma can self-host (or entirely forego) Sentry.
+In the future, we can make exception handling services configurable,
+but given Sentry's ubiquity, and self-hosting capability,
+it seemed unnecessary.

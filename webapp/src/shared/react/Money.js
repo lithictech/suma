@@ -1,6 +1,9 @@
+import { Logger } from "../logger";
 import _ from "lodash";
 import PropTypes from "prop-types";
 import React from "react";
+
+const logger = new Logger("money");
 
 const optionedFormatters = {
   USD: (opts) =>
@@ -82,7 +85,7 @@ export function mathMoney(m1, m2, t) {
   // noinspection JSUnresolvedVariable
   if (window.__DEV__) {
     if (m1.currency !== m2.currency) {
-      console.error("moneys must have the same currency:", m1, m2);
+      logger.context({ money1: m1, money2: m2 }).error("money_currency_mismatch");
     }
   }
   return {

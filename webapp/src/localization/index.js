@@ -1,10 +1,13 @@
 import ELink from "../components/ELink";
 import externalLinks from "../modules/externalLinks";
+import { Logger } from "../shared/logger";
 import i18n from "i18next";
 import React from "react";
 import ReactMarkdown from "react-markdown";
 
 const runChecks = process.env.NODE_ENV === "development";
+
+const logger = new Logger("i18n");
 
 /**
  * Render markdown localization strings.
@@ -40,7 +43,7 @@ const runChecks = process.env.NODE_ENV === "development";
 export function mdx(key, mdoptions = {}, i18noptions = {}) {
   if (runChecks) {
     if (!key.endsWith("_md")) {
-      console.error(
+      logger.error(
         `loc key '${key}' does not end with _md but md() was used (is unnecessarily slow)`
       );
     }
@@ -66,7 +69,7 @@ function MdLink({ node, ...rest }) {
 export function t(key, options = {}) {
   if (runChecks) {
     if (key.endsWith("_md")) {
-      console.error(
+      logger.error(
         `loc key '${key}' ends with _md but t() was used (will not render markdown)`
       );
     }
@@ -77,7 +80,7 @@ export function t(key, options = {}) {
 
 function checkKeyName(key) {
   if (key.startsWith("strings:")) {
-    console.error(
+    logger.error(
       "Do not start localization keys with 'strings:', since it may change in the future."
     );
   }
