@@ -17,6 +17,7 @@ module Suma::Stripe
 
   configurable(:stripe) do
     setting :api_key, "sk_SET-ME-TO-SOMETHING", side_effect: ->(s) { Stripe.api_key = s }
+    setting :public_key, "pk-ME-TO-SOMETHING"
     setting :api_version, "", side_effect: ->(s) { Stripe.api_version = s if s.present? }
     setting :app_url, "https://dashboard.stripe.com"
 

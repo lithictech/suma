@@ -131,8 +131,7 @@ reinit-db-from-dump:
 	@echo "Remember to migrate your test DB before running tests by running 'make migrate-test'"
 
 build-webapp:
-	@# Need dev deps to build
-	@cd webapp && npm install --production=false && PUBLIC_URL="/app/" BUILD_PATH="../build-webapp" REACT_APP_API_HOST="/" npm run build
+	@bundle exec rake frontend:build_webapp
 
 build-adminapp:
 	@# Need dev deps to build
