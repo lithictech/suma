@@ -216,4 +216,20 @@ module Suma::I18n
         updated == linecount
     end
   end
+
+  # Some strings are kept in raw markdown files in /source,
+  # so we can easily localize and render full pages of markdown.
+  # This converts them into dedicated string resource files.
+  def self.convert_source_to_resource_files
+    Dir.glob(LOCALE_DIR + "**/source/*.md") do |path|
+      md = File.read(path)
+      src_start_idx = path.rindex("/source/")
+      basename = File.basename(path)[...-3]
+      newpath = path[..src_start_idx] + basename + ".json"
+
+      contents = Yajl::Encoder.encode({contents: md}, pretty: true, indent: "  ")
+
+      File.write(newpath, contents)
+    end
+  end
 end

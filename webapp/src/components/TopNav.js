@@ -129,8 +129,8 @@ function NavFooter() {
         </div>
       </div>
       <div className={rowCls}>
-        <Link to="/user-agreement" className={linkCls}>
-          {t("common:user_agreement")}
+        <Link to="/terms-of-use" className={linkCls}>
+          {t("common:terms_of_use")}
         </Link>
       </div>
       <div className={rowCls}>

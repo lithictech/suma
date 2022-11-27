@@ -22,9 +22,9 @@
     "privacy_policy": "Privacy Policy",
     "reference_id": "Reference ID",
     "scooter_cost": "{{startCost, sumaCurrency}} to start then {{costPerMinute, sumaCurrency}}/min + taxes",
+    "terms_of_use": "Terms of Use",
     "translate_to_english": "Translate to English",
     "translate_to_spanish": "Traducir al Español",
-    "user_agreement": "User Agreement",
     "view_all": "View all",
     "waitlisted": "Great! You are on the waiting list and we'll let you know when it's available.",
     "welcome_to_suma": "Welcome to Suma!",
@@ -124,13 +124,13 @@
     "payment_title": "How are you paying?",
     "previous_orders": "Previous Orders",
     "price": "price",
+    "price_times_quantity_md": "{{price, sumaCurrency}} x {{quantity}}",
     "quantity": "Quantity: {{quantity}}",
     "remove_from_cart": "Remove from cart",
     "save_payment": "Save for future orders",
     "shop": "Shop",
     "subtotal_items_md": "Subtotal ({{totalItems}} items): **{{customerCost, sumaCurrency}}**",
-    "terms_of_use_agreement_md": "By clicking &#34;place order&#34; you agree to suma&#39;s [Terms of Use](/terms).",
-    "price_times_quantity_md": "{{price, sumaCurrency}} x {{quantity}}",
+    "terms_of_use_agreement_md": "By clicking &#34;place order&#34; you agree to Suma&#39;s [Terms of Use](/terms-of-use__blank__).",
     "title": "Food",
     "total": "{{total, sumaCurrency}}"
   },
@@ -218,7 +218,7 @@
     "enter_code": "Enter code ",
     "enter_code_sent_to": "Enter the code that we sent to",
     "send_new_code": "Send a new code",
-    "terms_md": "By creating an account or signing in, you accept and agree to our [User Agreement](/user-agreement).",
+    "terms_md": "By creating an account or signing in, you accept and agree to our [Terms of Use](/terms-of-use).",
     "verify": "Verify",
     "verify_code": "Verify Code"
   },
@@ -273,7 +273,9 @@
     "onboarding_signup": "Onboarding Signup",
     "otp": "One Time Password",
     "start": "Get Started",
-    "suma_app": "Suma App"
+    "suma_app": "Suma App",
+    "terms_of_sale_holiday_2022": "Terms of Sale (Holidays 2022)",
+    "terms_of_use": "Terms of Use"
   },
   "utilities": {
     "intro_md": "Suma wants to make it easy for you to save money on your utility bills and make our communities more resilient against extreme weather and climate change.\n\nSign up for our free waiting list to help us build a community of members and to show that everyone deserves clean and affordable energy.",

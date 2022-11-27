@@ -12,6 +12,7 @@ class Suma::Tasks::I18n < Rake::TaskLib
       task :format do
         require "suma/i18n"
         Suma::I18n.reformat_files
+        Suma::I18n.convert_source_to_resource_files
       end
 
       desc "Ensure all locale files contain the same keys as the base language (en-us). " \
