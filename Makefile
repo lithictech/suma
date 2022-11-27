@@ -4,6 +4,8 @@ staging_app:=suma-staging
 production_app:=suma-production
 
 OUT ?= -
+MESSAGE_LANG ?=
+MESSAGE_TRANSPORT ?=
 
 install:
 	bundle install
@@ -103,7 +105,7 @@ pry-%:
 	MERGE_HEROKU_ENV=$($(*)_app) bundle exec pry
 
 message-render: env-MESSAGE
-	@bundle exec rake 'message:render[$(MESSAGE), $(OUT)]'
+	@bundle exec rake 'message:render[$(MESSAGE), $(OUT), $(MESSAGE_LANG), $(MESSAGE_TRANSPORT)]'
 
 i18n-format:
 	@bundle exec rake i18n:format

@@ -72,7 +72,7 @@ class Suma::Message::Delivery < Suma::Postgres::Model(:message_deliveries)
     end
   end
 
-  def self.preview(template_class_name, transport: :sms, rack_env: Suma::RACK_ENV, commit: false)
+  def self.preview(template_class_name, transport: :sms, rack_env: Suma::RACK_ENV, commit: false, language: nil)
     raise "Can only preview in development" unless rack_env == "development"
 
     pattern = File.join(Pathname(__FILE__).dirname.parent, "messages", "*.rb")
@@ -89,6 +89,7 @@ class Suma::Message::Delivery < Suma::Postgres::Model(:message_deliveries)
     self.db.transaction(rollback: commit ? nil : :always) do
       to = Suma::Fixtures.member.create
       template = template_class.fixtured(to)
+      template.language = language if language
       delivery = template.dispatch(to, transport:)
       delivery.bodies # Fetch this ahead of time so it is there after rollback
     end

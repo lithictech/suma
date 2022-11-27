@@ -193,3 +193,57 @@ That is, a minimal installation of Suma can self-host (or entirely forego) Sentr
 In the future, we can make exception handling services configurable,
 but given Sentry's ubiquity, and self-hosting capability,
 it seemed unnecessary.
+
+## Messages
+
+Preview messages using `make message-render`. This is by far the easiest way to preview changes
+when iterating on message templates. Each message will fixture its own data.
+Some examples:
+
+Render the verification message using the default language (English) and transport (SMS):
+
+```
+MESSAGE=verification make message-render
+*** Created MessageDelivery: {:id=>8, :created_at=>2022-11-27 06:27:16.268154 +0000, :updated_at=>nil, :template=>"verification", :transport_type=>"sms", :transport_service=>"twilio", :transport_message_id=>nil, :to=>"12719355065", :recipient_id=>13, :extra_fields=>{}, :sent_at=>nil, :aborted_at=>nil, :template_language=>"en"}
+
+Your Suma verification code is: 016155
+```
+
+Render the verification message using a different language and transport:
+
+```
+MESSAGE_LANG=es MESSAGE_TRANSPORT=email MESSAGE=verification make message-render
+*** Created MessageDelivery: {:id=>6, :created_at=>2022-11-27 06:26:39.478303 +0000, :updated_at=>nil, :template=>"verification", :transport_type=>"email", :transport_service=>"none", :transport_message_id=>nil, :to=>"arianna.senger@ankunding.io", :recipient_id=>11, :extra_fields=>{}, :sent_at=>nil, :aborted_at=>nil, :template_language=>"es"}
+
+*******************
+Hola Erasmo Waters!
+*******************
+
+Tu código de verificación de Suma es:
+
+852606
+
+Si no solicitó un código, póngase en contacto respondiendo a
+este correo electrónico.
+
+Suma
+
+*** Writing HTML output to stdout.
+*** Redirect it to a file (> temp.html), pass OUT to write it to a file (OUT=temp.html).
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html><body>
+<h1>Hola Erasmo Waters!</h1>
+<p>Tu c&oacute;digo de verificaci&oacute;n de Suma es:</p>
+<p>852606</p>
+<p>Si no solicit&oacute; un c&oacute;digo, p&oacute;ngase en contacto respondiendo a este correo electr&oacute;nico.</p>
+<p>Suma</p>
+</body></html>
+```
+
+As the instructions say, if you attach something to stdout or pass `OUT`,
+you can write out the HTML so it can be previewed.
+
+NOTE: We currently don't send emails, so some parts of this pipeline are pretty basic.
+We will need to add styling, message previewing through admin, and hook up the `EmailTransport`
+to send (probably via SMTP so we aren't tied to a 3rd party).

@@ -8,8 +8,9 @@ class Suma::Tasks::Message < Rake::TaskLib
   def initialize
     super()
     namespace :message do
-      desc "Render the specified message"
-      task :render, [:template_class, :out] do |_t, args|
+      desc "Render the specified message using the given language and transport. " \
+           "If :out is - or blank, write to stdout, otherwise treat it as a filename."
+      task :render, [:template_class, :out, :language, :transport] do |_t, args|
         template_class_name = args[:template_class] or
           raise "Provide the template class name (NewMember or new_member) as the first argument"
         outpath = args[:out]
@@ -21,19 +22,22 @@ class Suma::Tasks::Message < Rake::TaskLib
           html_io = $stdout
           feedback_io = $stderr
         end
-        SemanticLogger.appenders.to_a.each { |a| SemanticLogger.remove_appender(a) }
-        SemanticLogger.add_appender(io: feedback_io)
 
         require "suma"
         Suma.load_app
 
-        delivery = Suma::Message::Delivery.preview(template_class_name, commit: true)
+        delivery = Suma::Message::Delivery.preview(
+          template_class_name,
+          commit: true,
+          transport: args[:transport] || "sms",
+          language: args[:language],
+        )
         feedback_io << "*** Created MessageDelivery: #{delivery.values}\n\n"
         if (plainbod = delivery.body_with_mediatype("text/plain"))
           feedback_io << plainbod.content
           feedback_io << "\n\n"
         end
-        if (htmlbod = delivery.body_with_mediatype!("text/html"))
+        if (htmlbod = delivery.body_with_mediatype("text/html"))
           if outpath
             feedback_io << "*** Writing HTML output to #{outpath}\n"
           else

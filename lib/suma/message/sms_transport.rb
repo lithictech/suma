@@ -50,7 +50,10 @@ class Suma::Message::SmsTransport < Suma::Message::Transport
   end
 
   def recipient(to)
-    return Suma::Message::Recipient.new(to.phone, to) if to.is_a?(Suma::Member)
+    if to.is_a?(Suma::Member)
+      raise Suma::InvalidPrecondition, "Member[#{to.id}] has no phone" if to.phone.blank?
+      return Suma::Message::Recipient.new(to.phone, to)
+    end
     return Suma::Message::Recipient.new(to, nil)
   end
 
