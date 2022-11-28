@@ -249,7 +249,6 @@ end
 #  status                         | text                     | NOT NULL
 #  amount_cents                   | integer                  | NOT NULL
 #  amount_currency                | text                     | NOT NULL
-#  memo                           | text                     | NOT NULL
 #  originating_payment_account_id | integer                  | NOT NULL
 #  platform_ledger_id             | integer                  | NOT NULL
 #  originated_book_transaction_id | integer                  |
@@ -257,6 +256,7 @@ end
 #  increase_ach_strategy_id       | integer                  |
 #  originating_ip                 | inet                     |
 #  stripe_card_strategy_id        | integer                  |
+#  memo_id                        | integer                  | NOT NULL
 # Indexes:
 #  payment_funding_transactions_pkey                               | PRIMARY KEY btree (id)
 #  payment_funding_transactions_fake_strategy_id_key               | UNIQUE btree (fake_strategy_id)
@@ -271,10 +271,12 @@ end
 # Foreign key constraints:
 #  payment_funding_transactions_fake_strategy_id_fkey              | (fake_strategy_id) REFERENCES payment_fake_strategies(id)
 #  payment_funding_transactions_increase_ach_strategy_id_fkey      | (increase_ach_strategy_id) REFERENCES payment_funding_transaction_increase_ach_strategies(id)
+#  payment_funding_transactions_memo_id_fkey                       | (memo_id) REFERENCES translated_texts(id)
 #  payment_funding_transactions_originated_book_transaction_i_fkey | (originated_book_transaction_id) REFERENCES payment_book_transactions(id) ON DELETE RESTRICT
 #  payment_funding_transactions_originating_payment_account_i_fkey | (originating_payment_account_id) REFERENCES payment_accounts(id) ON DELETE RESTRICT
 #  payment_funding_transactions_platform_ledger_id_fkey            | (platform_ledger_id) REFERENCES payment_ledgers(id) ON DELETE RESTRICT
 #  payment_funding_transactions_stripe_card_strategy_id_fkey       | (stripe_card_strategy_id) REFERENCES payment_funding_transaction_stripe_card_strategies(id)
 # Referenced By:
-#  payment_funding_transaction_audit_logs | payment_funding_transaction_audit_l_funding_transaction_id_fkey | (funding_transaction_id) REFERENCES payment_funding_transactions(id)
+#  charges_associated_funding_transactions | charges_associated_funding_transact_funding_transaction_id_fkey | (funding_transaction_id) REFERENCES payment_funding_transactions(id)
+#  payment_funding_transaction_audit_logs  | payment_funding_transaction_audit_l_funding_transaction_id_fkey | (funding_transaction_id) REFERENCES payment_funding_transactions(id)
 # -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------

@@ -112,6 +112,7 @@ end
 #  extra_fields         | jsonb                    | NOT NULL DEFAULT '{}'::jsonb
 #  sent_at              | timestamp with time zone |
 #  aborted_at           | timestamp with time zone |
+#  template_language    | text                     | NOT NULL DEFAULT ''::text
 # Indexes:
 #  message_deliveries_pkey                     | PRIMARY KEY btree (id)
 #  message_deliveries_transport_message_id_key | UNIQUE btree (transport_message_id)

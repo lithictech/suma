@@ -336,6 +336,7 @@ require "suma/member/stripe_attributes"
 #  member_reset_codes                     | member_reset_codes_member_id_fkey                    | (member_id) REFERENCES members(id) ON DELETE CASCADE
 #  member_sessions                        | member_sessions_member_id_fkey                       | (member_id) REFERENCES members(id) ON DELETE CASCADE
 #  message_deliveries                     | message_deliveries_recipient_id_fkey                 | (recipient_id) REFERENCES members(id) ON DELETE SET NULL
+#  message_preferences                    | message_preferences_member_id_fkey                   | (member_id) REFERENCES members(id)
 #  mobility_trips                         | mobility_trips_member_id_fkey                        | (member_id) REFERENCES members(id)
 #  payment_accounts                       | payment_accounts_member_id_fkey                      | (member_id) REFERENCES members(id)
 #  payment_funding_transaction_audit_logs | payment_funding_transaction_audit_logs_actor_id_fkey | (actor_id) REFERENCES members(id) ON DELETE SET NULL

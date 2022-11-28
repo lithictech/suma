@@ -111,7 +111,7 @@ end
 #  associated_vendor_service_category_id | integer                  |
 #  amount_cents                          | integer                  | NOT NULL
 #  amount_currency                       | text                     | NOT NULL
-#  memo                                  | text                     | NOT NULL
+#  memo_id                               | integer                  | NOT NULL
 # Indexes:
 #  payment_book_transactions_pkey                        | PRIMARY KEY btree (id)
 #  payment_book_transactions_originating_ledger_id_index | btree (originating_ledger_id)
@@ -120,6 +120,7 @@ end
 #  amount_not_negative | (amount_cents >= 0)
 # Foreign key constraints:
 #  payment_book_transactions_associated_vendor_service_catego_fkey | (associated_vendor_service_category_id) REFERENCES vendor_service_categories(id)
+#  payment_book_transactions_memo_id_fkey                          | (memo_id) REFERENCES translated_texts(id)
 #  payment_book_transactions_originating_ledger_id_fkey            | (originating_ledger_id) REFERENCES payment_ledgers(id)
 #  payment_book_transactions_receiving_ledger_id_fkey              | (receiving_ledger_id) REFERENCES payment_ledgers(id)
 # Referenced By:
