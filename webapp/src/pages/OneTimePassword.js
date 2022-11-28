@@ -105,7 +105,7 @@ const OneTimePassword = () => {
           <div id="otpContainer" className="d-flex justify-content-center mt-4">
             {otp.map((data, index) => (
               <input
-                className="otp-field mb-2"
+                className="otp-field mb-2 p-1"
                 type="text"
                 name="otp"
                 maxLength="1"
