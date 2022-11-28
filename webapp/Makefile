@@ -33,4 +33,5 @@ start-network: check-version network-code
 network-code:
 	@echo $(LOCAL_NETWORK_ADDR) | node node_modules/.bin/qrcode --small
 	@echo "Go to $(LOCAL_NETWORK_ADDR) on your device or scan the above code, then press Enter."
+	@echo "Reload the browser after the server starts up."
 	@read

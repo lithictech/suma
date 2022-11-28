@@ -14,8 +14,11 @@ for (const [name, nets] of Object.entries(networkInterfaces())) {
     }
   }
 }
+
+const first = (x) => (x && x.length > 0 ? x[0] : null);
+
 const message =
-  results["en0"] ||
-  results["eth0"] ||
+  first(results["en0"]) ||
+  first(results["eth0"]) ||
   `<could not locate en0 or eth0 in interfaces: ${Object.keys(results)}>`;
 console.log(message);
