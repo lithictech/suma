@@ -2,6 +2,7 @@ import api from "../api";
 import FormButtons from "../components/FormButtons";
 import FormError from "../components/FormError";
 import { t } from "../localization";
+import useI18Next from "../localization/useI18Next";
 import { dayjs } from "../modules/dayConfig";
 import useToggle from "../shared/react/useToggle";
 import { extractErrorCode, useError } from "../state/useError";
@@ -13,6 +14,7 @@ import "react-phone-number-input/style.css";
 import { useNavigate } from "react-router-dom";
 
 export default function Start() {
+  const { language } = useI18Next();
   const [phoneNumber, setPhoneNumber] = useState("");
   const validated = useToggle(false);
   const submitDisabled = useToggle(false);
@@ -45,6 +47,7 @@ export default function Start() {
       .authStart({
         phone: phoneNumber,
         timezone: dayjs.tz.guess(),
+        language,
       })
       .then((r) =>
         navigate("/one-time-password", {
