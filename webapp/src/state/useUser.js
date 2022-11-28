@@ -66,21 +66,20 @@ export function UserProvider({ children }) {
     [setUser]
   );
 
-  return (
-    <UserContext.Provider
-      value={{
-        user,
-        setUser,
-        userLoading,
-        userError,
-        userAuthed: Boolean(user),
-        userUnauthed: !userLoading && !user,
-        handleUpdateCurrentMember,
-      }}
-    >
-      {children}
-    </UserContext.Provider>
+  const value = React.useMemo(
+    () => ({
+      user,
+      setUser,
+      userLoading,
+      userError,
+      userAuthed: Boolean(user),
+      userUnauthed: !userLoading && !user,
+      handleUpdateCurrentMember,
+    }),
+    [handleUpdateCurrentMember, setUser, user, userError, userLoading]
   );
+
+  return <UserContext.Provider value={value}>{children}</UserContext.Provider>;
 }
 
 const STORAGE_KEY = "sumauser";

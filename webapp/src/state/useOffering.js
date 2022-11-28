@@ -57,21 +57,20 @@ export function OfferingProvider({ children }) {
     [asyncFetch, setCartInner]
   );
 
-  return (
-    <OfferingContext.Provider
-      value={{
-        initializeToOffering,
-        offering,
-        vendors,
-        products,
-        cart,
-        setCart: setCartInner,
-        loading,
-        error,
-        reset,
-      }}
-    >
-      {children}
-    </OfferingContext.Provider>
+  const value = React.useMemo(
+    () => ({
+      initializeToOffering,
+      offering,
+      vendors,
+      products,
+      cart,
+      setCart: setCartInner,
+      loading,
+      error,
+      reset,
+    }),
+    [cart, error, initializeToOffering, loading, offering, products, reset, vendors]
   );
+
+  return <OfferingContext.Provider value={value}>{children}</OfferingContext.Provider>;
 }

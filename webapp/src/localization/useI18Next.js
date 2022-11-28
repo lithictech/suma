@@ -72,9 +72,10 @@ export function I18NextProvider({ children }) {
     });
   });
 
-  return (
-    <I18NextContext.Provider value={{ i18nextLoading, language, changeLanguage }}>
-      {children}
-    </I18NextContext.Provider>
+  const value = React.useMemo(
+    () => ({ i18nextLoading, language, changeLanguage }),
+    [changeLanguage, i18nextLoading, language]
   );
+
+  return <I18NextContext.Provider value={value}>{children}</I18NextContext.Provider>;
 }

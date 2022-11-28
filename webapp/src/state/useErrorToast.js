@@ -43,8 +43,10 @@ export function ErrorToastProvider({ children }) {
     [setState]
   );
 
+  const value = React.useMemo(() => ({ showErrorToast }), [showErrorToast]);
+
   return (
-    <ErrorToastContext.Provider value={{ showErrorToast }}>
+    <ErrorToastContext.Provider value={value}>
       <ToastContainer
         className="d-flex justify-content-center position-fixed p-2 w-100"
         style={{ zIndex: "1021", top: `${navsHeight}px`, left: 0 }}

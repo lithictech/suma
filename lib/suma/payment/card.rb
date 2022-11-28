@@ -42,7 +42,7 @@ class Suma::Payment::Card < Suma::Postgres::Model(:payment_cards)
     inst = INSTITUTIONS[self.brand]
     inst ||= Institution.new(
       name: self.brand,
-      logo: DEFAULT_INSTITUTION.logo,
+      logo: DEFAULT_INSTITUTION.logo_src,
       color: DEFAULT_INSTITUTION.color,
     )
     return inst
