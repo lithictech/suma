@@ -3,6 +3,10 @@
     "node": "16.x"
   },
   "scripts": {
+    "analyze": "source-map-explorer 'build-webapp/static/js/*.js'",
     "build": "echo 'use Makefile to build frontends'"
+  },
+  "dependencies": {
+    "source-map-explorer": "^2.5.3"
   }
 }
