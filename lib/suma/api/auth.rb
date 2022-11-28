@@ -21,6 +21,7 @@ class Suma::API::Auth < Suma::API::V1
     params do
       requires :phone, us_phone: true, type: String, coerce_with: NormalizedPhone
       requires :timezone, type: String, values: ALL_TIMEZONES
+      optional :language, type: String, values: Suma::I18n.enabled_locale_codes
     end
     post :start do
       guard_authed!
@@ -43,6 +44,7 @@ class Suma::API::Auth < Suma::API::V1
           )
         end
         member.add_reset_code({transport: "sms"})
+        member.message_preferences!.update(preferred_language: params[:language]) if params[:language].present?
         status 200
         present member, with: AuthFlowMemberEntity
       end

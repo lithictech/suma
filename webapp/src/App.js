@@ -57,17 +57,17 @@ export default function App() {
     <GlobalViewStateProvider>
       <ErrorToastProvider>
         <BackendGlobalsProvider>
-          <I18NextProvider>
-            <ScreenLoaderProvider>
-              <HelmetProvider>
-                <UserProvider>
+          <UserProvider>
+            <I18NextProvider>
+              <ScreenLoaderProvider>
+                <HelmetProvider>
                   <OfferingProvider>
                     <InnerApp />
                   </OfferingProvider>
-                </UserProvider>
-              </HelmetProvider>
-            </ScreenLoaderProvider>
-          </I18NextProvider>
+                </HelmetProvider>
+              </ScreenLoaderProvider>
+            </I18NextProvider>
+          </UserProvider>
         </BackendGlobalsProvider>
       </ErrorToastProvider>
     </GlobalViewStateProvider>

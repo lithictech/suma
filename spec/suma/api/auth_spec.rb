@@ -60,6 +60,13 @@ RSpec.describe Suma::API::Auth, :db do
         expect(last_response).to have_status(200)
         expect(Suma::Member.last.activities).to contain_exactly(have_attributes(message_name: "registered"))
       end
+
+      it "sets the language" do
+        post "/v1/auth/start", phone: "(222) 333-4444", timezone:, language: "es"
+
+        expect(last_response).to have_status(200)
+        expect(Suma::Member.last.message_preferences!).to have_attributes(preferred_language: "es")
+      end
     end
 
     describe "when the phone number belongs to a member" do
@@ -91,6 +98,15 @@ RSpec.describe Suma::API::Auth, :db do
 
         expect(last_response).to have_status(200)
         expect(last_response).to have_json_body.that_includes(requires_terms_agreement: false)
+      end
+
+      it "sets the language" do
+        c = Suma::Fixtures.member(phone: full_phone).create
+
+        post "/v1/auth/start", phone: full_phone, timezone:, language: "es"
+
+        expect(last_response).to have_status(200)
+        expect(c.refresh.message_preferences!).to have_attributes(preferred_language: "es")
       end
     end
   end

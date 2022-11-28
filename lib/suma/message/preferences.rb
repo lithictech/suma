@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require "suma/i18n"
 require "suma/postgres"
 require "suma/message"
 
@@ -25,5 +26,10 @@ class Suma::Message::Preferences < Suma::Postgres::Model(:message_preferences)
     sent << Suma::Message.dispatch(message, to, :sms) if self.sms_enabled?
     sent << Suma::Message.dispatch(message, to, :email) if self.email_enabled?
     return sent
+  end
+
+  def validate
+    super
+    self.validates_includes Suma::I18n.enabled_locale_codes, :preferred_language
   end
 end

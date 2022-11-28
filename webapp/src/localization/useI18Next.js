@@ -4,6 +4,7 @@ import { Logger } from "../shared/logger";
 import { formatMoney } from "../shared/react/Money";
 import useLocalStorageState from "../shared/react/useLocalStorageState";
 import useMountEffect from "../shared/react/useMountEffect";
+import { useUser } from "../state/useUser";
 import i18n from "i18next";
 import Backend from "i18next-http-backend";
 import _ from "lodash";
@@ -25,13 +26,15 @@ export function getCurrentLanguage() {
 export function I18NextProvider({ children }) {
   const [i18nextLoading, setI18NextLoading] = React.useState(true);
   const [language, setLanguage] = useLocalStorageState("language", "en");
+  const { userAuthed } = useUser();
 
   const changeLanguage = React.useCallback(
     (lang) => {
-      api
-        .changeLanguage({ language: lang })
-        .then(_.noop)
-        .catch((r) => logger.error(r));
+      userAuthed &&
+        api
+          .changeLanguage({ language: lang })
+          .then(_.noop)
+          .catch((r) => logger.error(r));
       setI18NextLoading(true);
       Promise.delayOr(
         500,
@@ -43,7 +46,7 @@ export function I18NextProvider({ children }) {
         setI18NextLoading(false);
       });
     },
-    [setLanguage]
+    [setLanguage, userAuthed]
   );
 
   useMountEffect(() => {
