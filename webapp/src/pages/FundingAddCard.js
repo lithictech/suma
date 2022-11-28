@@ -15,27 +15,30 @@ import { useSearchParams } from "react-router-dom";
 export default function FundingAddCard() {
   const [params] = useSearchParams();
   const returnTo = params.get("returnTo");
-  const [submitSuccessful, setSubmitSuccessful] = React.useState(false);
-  const { user, setUser, handleUpdateCurrentMember } = useUser();
+  const [submitSuccessful, setSubmitSuccessful] = React.useState(null);
+  const { handleUpdateCurrentMember } = useUser();
   const screenLoader = useScreenLoader();
   const [error, setError] = useError();
 
-  function handleCardSuccess(stripeToken) {
-    screenLoader.turnOn();
-    setError("");
-    api
-      .createCardStripe({ token: stripeToken })
-      .tap(handleUpdateCurrentMember)
-      .then((r) => {
-        setUser({ ...user, usablePaymentInstruments: r.data.allPaymentInstruments });
-        setSubmitSuccessful({
-          instrumentId: r.data.id,
-          instrumentType: r.data.paymentMethodType,
-        });
-      })
-      .catch((e) => setError(extractErrorCode(e)))
-      .finally(screenLoader.turnOff);
-  }
+  const handleCardSuccess = React.useCallback(
+    (stripeToken) => {
+      screenLoader.turnOn();
+      setError("");
+      api
+        .createCardStripe({ token: stripeToken })
+        .tap(handleUpdateCurrentMember)
+        .then((r) => {
+          setSubmitSuccessful({
+            instrumentId: r.data.id,
+            instrumentType: r.data.paymentMethodType,
+          });
+        })
+        .catch((e) => setError(extractErrorCode(e)))
+        .finally(screenLoader.turnOff);
+    },
+    [handleUpdateCurrentMember, screenLoader, setError]
+  );
+
   return (
     <>
       {!_.isEmpty(submitSuccessful) ? (
