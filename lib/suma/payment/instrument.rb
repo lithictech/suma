@@ -1,10 +1,36 @@
 # frozen_string_literal: true
 
+require "mimemagic"
+
 require "suma/admin_linked"
 require "suma/payment"
 
 module Suma::Payment::Instrument
-  Institution = Struct.new(:name, :logo, :color, keyword_init: true)
+  class Institution
+    attr_reader :name, :logo_src, :color
+
+    def initialize(name:, logo:, color:)
+      @name = name
+      @color = color
+      @logo_src = Suma::Payment::Instrument.logo_to_src(logo)
+    end
+  end
+
+  PNG_PREFIX = "iVBORw0KGgo"
+
+  def self.logo_to_src(arg)
+    return "" if arg.nil?
+    return arg if /^[a-z]{2,10}:/.match?(arg)
+    return "data:image/png;base64,#{arg}" if arg.start_with?(PNG_PREFIX)
+    begin
+      raw = Base64.strict_decode64(arg[...(4 * 10)]) # base64 string length is divisible by 4
+    rescue ArgumentError
+      return arg
+    end
+    matched = MimeMagic.by_magic(raw)
+    return arg unless matched
+    return "data:#{matched};base64,#{arg}"
+  end
 
   def payment_method_type
     raise NotImplementedError

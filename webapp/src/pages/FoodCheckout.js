@@ -202,11 +202,11 @@ function PaymentLabel({ institution, last4, name }) {
   name = institution.name.toLowerCase() === "unknown" ? name : institution.name;
   return (
     <>
-      {!_.isEmpty(institution.logo) && (
+      {!_.isEmpty(institution.logoSrc) && (
         <img
           className="me-2"
           style={{ width: "28px" }}
-          src={`data://${institution.logo}`}
+          src={`${institution.logoSrc}`}
           alt={institution.name}
         />
       )}

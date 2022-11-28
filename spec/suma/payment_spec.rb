@@ -20,4 +20,42 @@ RSpec.describe Suma::Payment, :db do
       expect(led1).to be === member.payment_account.cash_ledger
     end
   end
+
+  describe Suma::Payment::Instrument do
+    describe "logo_to_src" do
+      it "converts nil to empty string" do
+        expect(described_class.logo_to_src(nil)).to eq("")
+      end
+      it "ignores empty string" do
+        expect(described_class.logo_to_src("")).to eq("")
+      end
+      it "does not modify urls with a protocol" do
+        expect(described_class.logo_to_src("https://foo")).to eq("https://foo")
+        expect(described_class.logo_to_src("data:foo")).to eq("data:foo")
+        expect(described_class.logo_to_src("data://foo")).to eq("data://foo")
+        expect(described_class.logo_to_src("data:image/png;base64,iii")).to eq("data:image/png;base64,iii")
+      end
+      it "handles pngs" do
+        expect(described_class.logo_to_src("iVBORw0KGgoAAAANSUhEUgAABLAAAAS")).to eq(
+          "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABLAAAAS",
+        )
+        b = Base64.strict_encode64(File.binread(Suma::SpecHelpers::TEST_DATA_DIR + "images/photo.png"))
+        expect(described_class.logo_to_src(b)).to start_with(
+          "data:image/png;base64,iVBORw0KGgo",
+        )
+      end
+      it "uses mimemagic to detect non-png" do
+        b = Base64.strict_encode64(File.binread(Suma::SpecHelpers::TEST_DATA_DIR + "images/turkey-dinner.jpeg"))
+        expect(described_class.logo_to_src(b)).to start_with(
+          "data:image/jpeg;base64,/9j/4AAQSkZJRgAB",
+        )
+      end
+      it "does not modify garbage" do
+        not_b64 = "zz38&320"
+        expect(described_class.logo_to_src(not_b64)).to eq(not_b64)
+        not_content = Base64.strict_encode64("foo")
+        expect(described_class.logo_to_src(not_content)).to eq(not_content)
+      end
+    end
+  end
 end

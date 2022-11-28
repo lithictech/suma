@@ -14,7 +14,7 @@ RSpec.describe "Suma::Payment::Card", :db do
       expect(Suma::Fixtures.card.visa.create.institution).to have_attributes(
         name: "Visa",
         color: "#1A1F71",
-        logo: end_with("5ErkJggg=="),
+        logo_src: end_with("5ErkJggg=="),
       )
     end
 
@@ -22,7 +22,7 @@ RSpec.describe "Suma::Payment::Card", :db do
       expect(Suma::Fixtures.card.with_stripe({"brand" => "foo"}).create.institution).to have_attributes(
         name: "foo",
         color: "#AAAAAA",
-        logo: end_with("ElFTkSuQmCC"),
+        logo_src: end_with("ElFTkSuQmCC"),
       )
     end
   end

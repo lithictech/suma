@@ -38,7 +38,7 @@ RSpec.describe "Suma::Payment::BankAccount", :db do
       expect(ba).to have_attributes(
         institution: have_attributes(
           name: "Unknown",
-          logo: "",
+          logo_src: "",
           color: "#000000",
         ),
         name: "Checking",
@@ -59,7 +59,7 @@ RSpec.describe "Suma::Payment::BankAccount", :db do
       expect(ba).to have_attributes(
         institution: have_attributes(
           name: "Chase",
-          logo: "xyz",
+          logo_src: "xyz",
           color: "red",
         ),
         name: "Checking",

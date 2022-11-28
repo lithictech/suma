@@ -214,7 +214,7 @@ function CardLine({ card }) {
             <img
               className="me-2"
               width="28px"
-              src={`data://${card.institution.logo}`}
+              src={`${card.institution.logoSrc}`}
               alt={card.institution.name}
             />
             {card.name}
