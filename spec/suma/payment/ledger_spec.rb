@@ -46,14 +46,14 @@ RSpec.describe "Suma::Payment::Ledger", :db do
 
   describe "can_be_used_to_purchase?" do
     it "is true if the service has a category in the ledger category chain" do
-      food = Suma::Fixtures.vendor_service_category.create
-      grocery = Suma::Fixtures.vendor_service_category.create(parent: food)
-      restaurant = Suma::Fixtures.vendor_service_category.create(parent: food)
-      organic = Suma::Fixtures.vendor_service_category.create(parent: grocery)
-      packaged = Suma::Fixtures.vendor_service_category.create(parent: grocery)
+      food = Suma::Fixtures.vendor_service_category.create(name: 'food')
+      grocery = Suma::Fixtures.vendor_service_category.create(name: 'grocery', parent: food)
+      restaurant = Suma::Fixtures.vendor_service_category.create(name: 'restaurant', parent: food)
+      organic = Suma::Fixtures.vendor_service_category.create(name: 'organic', parent: grocery)
+      packaged = Suma::Fixtures.vendor_service_category.create(name: 'packaged', parent: grocery)
 
-      mobility = Suma::Fixtures.vendor_service_category.create
-      scooters = Suma::Fixtures.vendor_service_category.create(parent: mobility)
+      mobility = Suma::Fixtures.vendor_service_category.create(name: 'mobility')
+      scooters = Suma::Fixtures.vendor_service_category.create(name: 'scooter', parent: mobility)
 
       food_ledger = Suma::Fixtures.ledger.with_categories(food).create
       grocery_ledger = Suma::Fixtures.ledger.with_categories(grocery).create
@@ -87,7 +87,46 @@ RSpec.describe "Suma::Payment::Ledger", :db do
       expect(food_ledger.category_used_to_purchase(restaurant_service)).to be === food
       expect(grocery_ledger.category_used_to_purchase(grocery_service)).to be === grocery
       expect(grocery_ledger.category_used_to_purchase(organic_service)).to be === grocery
-      expect(organic_ledger.category_used_to_purchase(organic_service)).to be === organic
+    end
+
+    it "can exclude categories from consideration" do
+      cash = Suma::Fixtures.vendor_service_category.create(name: 'cash')
+      food = Suma::Fixtures.vendor_service_category.create(name: 'food', parent: cash)
+      promo = Suma::Fixtures.vendor_service_category.create(name: 'promo', parent: food)
+      promo2 = Suma::Fixtures.vendor_service_category.create(name: 'promo2')
+
+      cash_ledger = Suma::Fixtures.ledger.with_categories(cash).create
+      promo_ledger = Suma::Fixtures.ledger.with_categories(promo).create
+      promo_x2_ledger = Suma::Fixtures.ledger.with_categories(promo, promo2).create
+
+      pcash_only = Suma::Fixtures.product.with_categories(cash).create
+      ppromo_only = Suma::Fixtures.product.with_categories(promo).create
+      pcash_and_promo = Suma::Fixtures.product.with_categories(cash, promo).create
+      pcash_and_promo2 = Suma::Fixtures.product.with_categories(cash, promo2).create
+      ppromo2 = Suma::Fixtures.product.with_categories(promo2).create
+
+      expect(cash_ledger).to be_can_be_used_to_purchase(pcash_only)
+      expect(cash_ledger).to be_can_be_used_to_purchase(pcash_and_promo)
+      expect(cash_ledger).to be_can_be_used_to_purchase(ppromo_only)
+      expect(cash_ledger).to be_can_be_used_to_purchase(pcash_and_promo2)
+      expect(cash_ledger).to_not be_can_be_used_to_purchase(ppromo2)
+
+      expect(cash_ledger).to_not be_can_be_used_to_purchase(pcash_only, exclude: [cash])
+      expect(cash_ledger).to be_can_be_used_to_purchase(pcash_and_promo, exclude: [cash])
+      expect(cash_ledger).to_not be_can_be_used_to_purchase(pcash_and_promo2, exclude: [cash])
+      expect(cash_ledger).to_not be_can_be_used_to_purchase(ppromo2, exclude: [cash])
+
+      expect(promo_ledger).to_not be_can_be_used_to_purchase(pcash_only)
+      expect(promo_ledger).to be_can_be_used_to_purchase(pcash_and_promo)
+      expect(promo_ledger).to be_can_be_used_to_purchase(ppromo_only)
+      expect(promo_ledger).to_not be_can_be_used_to_purchase(pcash_and_promo2)
+      expect(promo_ledger).to_not be_can_be_used_to_purchase(ppromo2)
+
+      expect(promo_ledger).to_not be_can_be_used_to_purchase(pcash_only, exclude: [cash])
+      expect(promo_ledger).to be_can_be_used_to_purchase(pcash_and_promo, exclude: [cash])
+      expect(promo_ledger).to be_can_be_used_to_purchase(ppromo_only, exclude: [cash])
+      expect(promo_ledger).to_not be_can_be_used_to_purchase(pcash_and_promo2, exclude: [cash])
+      expect(promo_ledger).to_not be_can_be_used_to_purchase(ppromo2, exclude: [cash])
     end
   end
 
