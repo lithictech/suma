@@ -79,7 +79,9 @@
   "food": {
     "add_card": "Add debit/credit card",
     "add_to_cart": "Add to cart",
+    "additional_credit_at_checkout": "-{{amount, sumaCurrency}} credit",
     "available_until": "Until",
+    "cart_available_credit": "Available Credit: **{{amount, sumaCurrency}}**",
     "cart_title": "Shopping Cart",
     "change_quantities": "Change item quantities",
     "charge_to": "Charge to {{instrumentName}}",
@@ -116,6 +118,7 @@
     "no_offerings": "There are no food offerings currently available, please check back later.",
     "no_orders": "You haven’t place any orders yet.",
     "no_products": "There were no products found, this offering might be closed. [Click here to view available offerings](/food '$t(strings:food:title)').",
+    "noncash_ledger_contribution_available": "Eligible for {{amount, sumaCurrency}} of the existing balance in your account. Applied at checkout.",
     "order_button": "Place order",
     "order_date": "Placed {{date}}",
     "order_history_title": "Order History",
@@ -218,7 +221,7 @@
     "enter_code": "Enter code ",
     "enter_code_sent_to": "Enter the code that we sent to",
     "send_new_code": "Send a new code",
-    "terms": "By creating an account or signing in, you accept and agree to our [Terms of Use](/terms-of-use).",
+    "terms": "By creating an account or signing in, you accept and agree to our [Terms of Use](/terms-of-use) and [Privacy Policy](/privacy-policy).",
     "verify": "Verify",
     "verify_code": "Verify Code"
   },

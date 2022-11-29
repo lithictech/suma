@@ -291,11 +291,11 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
       name: "Holidays 2022 Promo",
       topic: "suma.payment.account.created",
       active_during_begin: Time.now,
-      active_during_end: Time.parse("2022-12-12T23:00:00-0800"),
+      active_during_end: Time.parse("2022-12-08T23:00:00-0800"),
       klass_name: "Suma::AutomationTrigger::CreateAndSubsidizeLedger",
       parameter: {
         ledger_name: "Holidays2022Promo",
-        contribution_text: {en: "Holidays 2022 Gift", es: "Regalo de Vacaciones 2022"},
+        contribution_text: {en: "Holiday 2022 Subsidy", es: "Subsidio Vacaciones 2022"},
         category_name: "Holiday 2022 Promo",
         amount_cents: 80_00,
         amount_currency: "USD",

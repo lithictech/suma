@@ -1,12 +1,13 @@
 import ErrorScreen from "../components/ErrorScreen";
 import FoodCartWidget from "../components/FoodCartWidget";
 import FoodNav from "../components/FoodNav";
+import FoodPrice from "../components/FoodPrice";
 import LinearBreadcrumbs from "../components/LinearBreadcrumbs";
 import PageLoader from "../components/PageLoader";
 import SumaImage from "../components/SumaImage";
-import { mdp, t } from "../localization";
+import { t } from "../localization";
 import makeTitle from "../modules/makeTitle";
-import Money from "../shared/react/Money";
+import { anyMoney } from "../shared/react/Money";
 import { useOffering } from "../state/useOffering";
 import { LayoutContainer } from "../state/withLayout";
 import clsx from "clsx";
@@ -60,18 +61,9 @@ export default function FoodDetails() {
       />
       <LayoutContainer top>
         <h3 className="mb-2">{product.name}</h3>
-        <Stack direction="horizontal">
+        <Stack direction="horizontal" gap={3}>
           <div>
-            <p className="mb-0 fs-4">
-              <Money className={clsx("me-2", product.isDiscounted && "text-success")}>
-                {product.customerPrice}
-              </Money>
-              {product.isDiscounted && (
-                <strike>
-                  <Money>{product.undiscountedPrice}</Money>
-                </strike>
-              )}
-            </p>
+            <FoodPrice {...product} fs={4} className="mb-2" />
             <p>
               {product.isDiscounted
                 ? t("food:from_vendor_with_discount", {
@@ -80,6 +72,13 @@ export default function FoodDetails() {
                   })
                 : t("food:from_vendor", { vendorName: vendor.name })}
             </p>
+            {anyMoney(product.noncashLedgerContributionAmount) && (
+              <div className={clsx("mt-2")}>
+                {t("food:noncash_ledger_contribution_available", {
+                  amount: product.noncashLedgerContributionAmount,
+                })}
+              </div>
+            )}
           </div>
           <div className="ms-auto">
             <FoodCartWidget product={product} size="lg" />

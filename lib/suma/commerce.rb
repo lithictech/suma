@@ -2,3 +2,5 @@
 
 module Suma::Commerce
 end
+
+require "suma/commerce/priced_item"

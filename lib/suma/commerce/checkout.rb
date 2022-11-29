@@ -166,20 +166,33 @@ class Suma::Commerce::Checkout < Suma::Postgres::Model(:commerce_checkouts)
     end
   end
 
+  def ledger_charge_contributions(now:, remainder_ledger:)
+    return Suma::Commerce::Checkout.ledger_charge_contributions(
+      payment_account: self.cart.member.payment_account!,
+      priced_items: self.items,
+      now:,
+      remainder_ledger:,
+    )
+  end
+
   # Return contributions from each ledger that can be used for paying for the order.
   # NOTE: Right now this is only product contributions; when we support tax and handling,
   # we'll need to modify this routine to factor those into the right (cash?) ledger.
   #
+  # @param payment_account [Suma::Payment::Account]
+  # @param priced_items [Array<Suma::Commerce::PricedItem>]
+  # @param now [Time]
   # @return [Array<Suma::Payment::ChargeContribution]
-  def ledger_charge_contributions(now:, remainder_ledger:)
+  def self.ledger_charge_contributions(payment_account:, priced_items:, now:, remainder_ledger:, exclude_up: nil)
     ctx = Suma::Payment::CalculationContext.new
-    product_contributions = self.items.map do |item|
-      contribs = self.cart.member.payment_account!.find_chargeable_ledgers(
+    product_contributions = priced_items.map do |item|
+      contribs = payment_account.find_chargeable_ledgers(
         item.offering_product.product,
         item.customer_cost,
         now:,
         remainder_ledger:,
         calculation_context: ctx,
+        exclude_up:,
       )
       ctx.apply_all(contribs)
       contribs

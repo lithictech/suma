@@ -188,6 +188,7 @@ class Suma::API::Commerce < Suma::API::V1
   class CartEntity < BaseEntity
     expose :items, with: CartItemEntity
     expose :customer_cost, with: Suma::Service::Entities::Money
+    expose :noncash_ledger_contribution_amount, with: Suma::Service::Entities::Money
   end
 
   class OfferingEntity < BaseEntity
@@ -206,6 +207,9 @@ class Suma::API::Commerce < Suma::API::V1
 
     expose :max_quantity do |inst, opts|
       opts.fetch(:cart).max_quantity_for(inst)
+    end
+    expose :noncash_ledger_contribution_amount, with: Suma::Service::Entities::Money do |inst, opts|
+      opts.fetch(:cart).product_noncash_ledger_contribution_amount(inst)
     end
 
     expose :is_discounted, &self.delegate_to(:discounted?, safe_with_default: false)

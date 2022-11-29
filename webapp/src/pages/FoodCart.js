@@ -1,20 +1,19 @@
 import api from "../api";
 import ErrorScreen from "../components/ErrorScreen";
 import FoodCartWidget from "../components/FoodCartWidget";
+import FoodPrice from "../components/FoodPrice";
 import LinearBreadcrumbs from "../components/LinearBreadcrumbs";
 import PageLoader from "../components/PageLoader";
 import SumaImage from "../components/SumaImage";
-import { md, mdp, t } from "../localization";
-import Money from "../shared/react/Money";
+import { md, t } from "../localization";
+import { anyMoney } from "../shared/react/Money";
 import { useErrorToast } from "../state/useErrorToast";
 import { useOffering } from "../state/useOffering";
 import { LayoutContainer } from "../state/withLayout";
-import clsx from "clsx";
 import _ from "lodash";
 import React from "react";
 import Button from "react-bootstrap/Button";
 import Col from "react-bootstrap/Col";
-import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Stack from "react-bootstrap/Stack";
 import { Link, useNavigate, useParams } from "react-router-dom";
@@ -72,15 +71,24 @@ export default function FoodCart() {
                 />
               );
             })}
-            <Container className="d-flex align-items-end flex-column fs-6">
-              {mdp("food:subtotal_items", {
-                totalItems: cart.items.length,
-                customerCost: cart.customerCost,
-              })}
+            <Stack gap={2} className="align-items-end">
+              <div>
+                {md("food:subtotal_items", {
+                  totalItems: cart.items.length,
+                  customerCost: cart.customerCost,
+                })}
+              </div>
+              {anyMoney(cart.noncashLedgerContributionAmount) && (
+                <div>
+                  {md("food:cart_available_credit", {
+                    amount: cart.noncashLedgerContributionAmount,
+                  })}
+                </div>
+              )}
               <Button onClick={handleCheckout} variant="success">
                 {t("food:continue_to_checkout")}
               </Button>
-            </Container>
+            </Stack>
           </Row>
         )}
       </LayoutContainer>
@@ -107,9 +115,9 @@ function CartItem({ offeringId, product, vendor }) {
           </Link>
           <div>
             <Link to={`/product/${offeringId}-${productId}`}>
-              <h6 className="mb-0">{name}</h6>
+              <h6 className="mb-2">{name}</h6>
             </Link>
-            <p className="text-secondary mb-1 small">
+            <p className="text-secondary mb-2 small">
               {product.isDiscounted
                 ? t("food:from_vendor_with_discount", {
                     vendorName: vendor.name,
@@ -119,16 +127,13 @@ function CartItem({ offeringId, product, vendor }) {
             </p>
             <FoodCartWidget product={product} />
           </div>
-          <p className="ms-auto fs-6">
-            <Money className={clsx("me-2", isDiscounted && "text-success")}>
-              {customerPrice}
-            </Money>
-            {isDiscounted && (
-              <strike>
-                <Money>{undiscountedPrice}</Money>
-              </strike>
-            )}
-          </p>
+          <FoodPrice
+            customerPrice={customerPrice}
+            isDiscounted={isDiscounted}
+            undiscountedPrice={undiscountedPrice}
+            fs={6}
+            bold={false}
+          />
         </Stack>
       </Col>
       <hr className="mb-3 mt-0" />

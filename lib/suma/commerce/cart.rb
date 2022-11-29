@@ -112,6 +112,29 @@ class Suma::Commerce::Cart < Suma::Postgres::Model(:commerce_carts)
 
     return [max_order, max_offering].compact.min - existing
   end
+
+  def product_noncash_ledger_contribution_amount(offering_product, now: Time.now)
+    contribs = self.member.payment_account!.find_chargeable_ledgers(
+      offering_product.product,
+      offering_product.customer_price,
+      now:,
+      remainder_ledger: :ignore,
+      calculation_context: Suma::Payment::CalculationContext.new,
+      exclude_up: [Suma::Vendor::ServiceCategory.cash],
+    )
+    return contribs.sum(Money.new(0), &:amount)
+  end
+
+  def noncash_ledger_contribution_amount(now: Time.now)
+    contribs = Suma::Commerce::Checkout.ledger_charge_contributions(
+      payment_account: self.member.payment_account!,
+      priced_items: self.items,
+      now:,
+      remainder_ledger: :ignore,
+      exclude_up: [Suma::Vendor::ServiceCategory.cash],
+    )
+    return contribs.sum(Money.new(0), &:amount)
+  end
 end
 
 # Table: commerce_carts

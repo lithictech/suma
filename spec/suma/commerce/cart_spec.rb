@@ -126,6 +126,30 @@ RSpec.describe "Suma::Commerce::Cart", :db do
     end
   end
 
+  describe "product_noncash_ledger_contribution_amount" do
+    it "returns 0 if no ledger has an available contribution" do
+      cash_vsc = Suma::Vendor::ServiceCategory.cash
+      food_vsc = Suma::Fixtures.vendor_service_category(name: "Food", parent: cash_vsc).create
+      member = Suma::Fixtures.member.create
+      cash_ledger = Suma::Payment.ensure_cash_ledger(member)
+      food_ledger = Suma::Fixtures.ledger.member(member).with_categories(food_vsc).create
+      Suma::Fixtures.book_transaction.to(cash_ledger).create(amount: money("$13"))
+      offering = Suma::Fixtures.offering.create
+      food_product1 = Suma::Fixtures.product.with_categories(food_vsc).create
+      food_op1 = Suma::Fixtures.offering_product(product: food_product1, offering:).costing("$400", "$500").create
+
+      cart = Suma::Fixtures.cart(offering:, member:).
+        with_product(food_product1, 2).
+        create
+
+      expect(cart.product_noncash_ledger_contribution_amount(food_op1)).to cost("$0")
+      expect(cart.noncash_ledger_contribution_amount).to cost("$0")
+      Suma::Fixtures.book_transaction.to(food_ledger).create(amount: money("$13"))
+      expect(cart.refresh.product_noncash_ledger_contribution_amount(food_op1)).to cost("$13")
+      expect(cart.noncash_ledger_contribution_amount).to cost("$13")
+    end
+  end
+
   describe "Suma::Commerce::CartItem" do
     let(:described_class) { Suma::Commerce::CartItem }
 

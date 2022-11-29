@@ -175,6 +175,66 @@ RSpec.describe "Suma::Payment::Account", :db do
         account.find_chargeable_ledgers(svc, money("$6"), remainder_ledger: led, **kw)
       end.to raise_error(Suma::InvalidPrecondition, /not valid for charge contributions/)
     end
+
+    it "can exclude ledgers which have a subset of some excluded categories" do
+      parent = Suma::Fixtures.vendor_service_category.create
+      vcash1 = Suma::Fixtures.vendor_service_category.create(name: "cash1", parent:)
+      vcash2parent = Suma::Fixtures.vendor_service_category.create(name: "cash2parent", parent:)
+      vcash2child = Suma::Fixtures.vendor_service_category.create(name: "cash2child", parent: vcash2parent)
+      cash1 = ledger_fac.with_categories(vcash1).create
+      cash2 = ledger_fac.with_categories(vcash2child).create
+      cash12 = ledger_fac.with_categories(vcash1, vcash2child).create
+
+      product = Suma::Fixtures.product.with_categories(vcash1, vcash2child).create
+
+      results = account.find_chargeable_ledgers(
+        product, money("10"), remainder_ledger: :ignore, **kw,
+      )
+      expect(results).to contain_exactly(
+        have_attributes(ledger: be === cash1),
+        have_attributes(ledger: be === cash2),
+        have_attributes(ledger: be === cash12),
+      )
+
+      results = account.find_chargeable_ledgers(
+        product, money("10"), remainder_ledger: :ignore, exclude_up: [parent], **kw,
+      )
+      expect(results).to contain_exactly(
+        have_attributes(ledger: be === cash1),
+        have_attributes(ledger: be === cash2),
+        have_attributes(ledger: be === cash12),
+      )
+
+      results = account.find_chargeable_ledgers(
+        product, money("10"), remainder_ledger: :ignore, exclude_up: [vcash1], **kw,
+      )
+      expect(results).to contain_exactly(
+        have_attributes(ledger: be === cash2),
+        have_attributes(ledger: be === cash12),
+      )
+
+      results = account.find_chargeable_ledgers(
+        product, money("10"), remainder_ledger: :ignore, exclude_up: [vcash2parent], **kw,
+      )
+      expect(results).to contain_exactly(
+        have_attributes(ledger: be === cash1),
+        have_attributes(ledger: be === cash2),
+        have_attributes(ledger: be === cash12),
+      )
+
+      results = account.find_chargeable_ledgers(
+        product, money("10"), remainder_ledger: :ignore, exclude_up: [vcash2child], **kw,
+      )
+      expect(results).to contain_exactly(
+        have_attributes(ledger: be === cash1),
+        have_attributes(ledger: be === cash12),
+      )
+
+      results = account.find_chargeable_ledgers(
+        product, money("10"), remainder_ledger: :ignore, exclude_up: [vcash1, vcash2child], **kw,
+      )
+      expect(results).to be_empty
+    end
   end
 
   describe "debit_contributions" do

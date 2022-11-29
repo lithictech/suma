@@ -77,7 +77,11 @@ export default function FoodCartWidget({ product, size }) {
       <Button
         variant="success"
         onClick={() => handleQuantityChange(quantity + 1)}
-        className={clsx(btnClasses, quantity === product.maxQuantity && "disabled")}
+        className={clsx(
+          btnClasses,
+          quantity === product.maxQuantity && "disabled",
+          "nowrap"
+        )}
         title={t("food:add_to_cart")}
       >
         <img src={addIcon} alt={t("food:add_to_cart")} width="32px" />
