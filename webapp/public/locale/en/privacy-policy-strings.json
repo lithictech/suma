@@ -41,7 +41,7 @@
       "list": {
         "platform_communications": "you cannot opt out of in-platform communications.",
         "service_messages": "you cannot opt out of receiving service messages from us, including privacy policy updates, security notices and legal notices.",
-        "valid_communcation_methods": "you are required to keep a valid phone number or email address on file to receive messages."
+        "valid_communication_methods": "you are required to keep a valid phone number or email address on file to receive messages."
       },
       "paragraph": "Sometimes we will need to communicate with you about the platform, including to let you know about things like new vendors, new community partners, savings or subsidy opportunities, community events and service messages. We will use the communication preferences and contact information you have shared with us to communicate with you via email, text and/or in-platform tools (i.e. messages we place in your inbox on the suma platform). Communications will take place in the language you indicate in your communication preferences. You may change your communication preferences and contact information at any time, except:",
       "title": "Communications"
@@ -113,10 +113,6 @@
       "paragraph": "We may share your personal information if we believe it’s required by applicable law, regulation, operating license or agreement, legal process or governmental request, or where the disclosure is otherwise appropriate due to safety or similar concerns. For example, we may share your personal information if an e-scooter is lost or damaged in order to help the e-scooter vendor resolve how the vehicle was lost or damaged. We will provide notice to you if your personal information will be shared for this purpose when required by law.",
       "title": "Comply with the law"
     },
-    "disputes": {
-      "paragraph": "We may use or review your information to respond to a dispute raised by you, other platform users, vendors, or community partners.",
-      "title": "Disputes"
-    },
     "information_removal": {
       "list": {
         "deleting_certain_data": "we may not be able to delete certain data because of legal, regulatory or subsidy reporting requirements, for purposes of safety, security, and fraud prevention, or because of an issue relating to your account such as an outstanding credit or an unresolved claim or dispute",
@@ -136,18 +132,6 @@
       },
       "paragraph": "We will retain your personal information for legitimate and essential business purposes as long as your suma platform account is active. These purposes include:",
       "title": "Information retention"
-    },
-    "platform_dashboard": {
-      "paragraph": "We use data to create dashboards that show how the platform is benefiting you and the broader suma user community. For example, a dashboard might show how much money all platform users combined saved on food purchases in the most recent month. Your food purchasing data may be anonymized and aggregated into such a dashboard. You can opt out of being included in anonymized dashboards.",
-      "title": "Platform dashboard"
-    },
-    "platform_usage": {
-      "paragraph": "We anonymize and aggregate platform usage data to demonstrate to funders and partners the impact and reach of the platform. You can opt out of being included in this anonymized reporting through your Preferences page in the suma application.",
-      "title": "Aggregated platform usage"
-    },
-    "platform_vendors": {
-      "paragraph": "We may share certain data with a platform vendor when you use the platform to access goods or services from that vendor. For example, if you request an e-scooter ride from Operator X via the platform, we may share certain data with Operator X to confirm you are a Suma user and/or to confirm you are eligible for Operator X’s discount program.",
-      "title": "Platform vendors"
     },
     "security_and_fraud_prevention": {
       "paragraph": "We may use your personal information to detect and prevent fraud. For example, fraudulent payments and fraudulent use of the suma platform.",
