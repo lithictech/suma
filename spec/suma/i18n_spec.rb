@@ -37,6 +37,13 @@ RSpec.describe Suma::I18n, :db do
         }
       J
     end
+
+    it "renders html entities" do
+      path = described_class.strings_path("en")
+      File.write(path, '{"x": "«&laquo;&#171;", "y": {"z": "«&laquo;&#171;"}')
+      described_class.reformat_files
+      expect(File.read(path)).to eq("{\n  \"x\": \"«««\",\n  \"y\": {\n    \"z\": \"«««\"\n  }\n}")
+    end
   end
 
   describe "sort_hash" do
@@ -60,6 +67,14 @@ RSpec.describe Suma::I18n, :db do
       expect(out).to eq("Key,Spanish,English\ngreeting:bye,Adiós,Bye\nhi,,Hi\n")
     end
 
+    it "renders html entities" do
+      File.write(described_class.strings_path("en"), {dr: "&lsquo;evil&#8217;"}.to_json)
+      File.write(described_class.strings_path("es"), {dr: "&lsquo;evil&#8217;"}.to_json)
+      out = +""
+      described_class.prepare_csv("es", output: out)
+      expect(out).to eq("Key,Spanish,English\ndr,‘evil’,‘evil’\n")
+    end
+
     it "includes messages" do
       Dir.mkdir(temp_dir_path + "templates")
       Dir.mkdir(temp_dir_path + "templates/subdir")
@@ -78,7 +93,7 @@ RSpec.describe Suma::I18n, :db do
   describe "import_csv" do
     it "applies csv data to stored locale json" do
       path = described_class.strings_path("es")
-      File.write(path, '{"x":1}')
+      File.write(path, '{"x":1}') # Make sure it gets blown away
       csv = "Key,Spanish,English\ngreeting:bye,Adiós,Bye\nhi,,Hi\n"
       described_class.import_csv(input: csv)
       expect(File.read(path)).to eq(<<~J.rstrip)

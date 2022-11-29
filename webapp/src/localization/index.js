@@ -2,86 +2,115 @@ import ELink from "../components/ELink";
 import externalLinks from "../modules/externalLinks";
 import { Logger } from "../shared/logger";
 import i18n from "i18next";
+import Markdown, { compiler } from "markdown-to-jsx";
 import React from "react";
-import ReactMarkdown from "react-markdown";
+import ReactDOM from "react-dom";
 
 const runChecks = process.env.NODE_ENV === "development";
 
 const logger = new Logger("i18n");
 
-/**
- * Render markdown localization strings.
- * Generally you want to use `md` or `mdp` instead
- * of `mdx` (which takes options for the markdown and i18n calls).
- * We have these two helpers because in most cases
- * we do not want the surrounding `p` tags for the text
- * we are rendering, except when we have newlines.
- *
- * If your markdown has newlines, it must use p tags to
- * get the newlines to render, so use `mdp`:
- *
- *   <h1>title</h1>
- *   {mdp("key")}
- *
- * Will render:
- *
- *   <h1>title</h1>
- *   <p>line1</p>
- *   <p>line2</p>
- *
- * If you do not have newlines, use `md` which is used like:
- *
- *   <h1>title</h1>
- *   <p>{md("key")}</p>
- *
- * Note: Links are rendered with the ELink component,
- * which will 1) use a new tab for external links,
- * 2) use Link for internal links (# or /),
- * and 3) use a Link with 'replace' if the href includes ##.
- * So ## can be used, for example, to trigger modals controlled by the hash.
- */
-export function mdx(key, mdoptions = {}, i18noptions = {}) {
-  if (runChecks) {
-    if (!key.endsWith("_md")) {
-      logger.error(
-        `loc key '${key}' does not end with _md but md() was used (is unnecessarily slow)`
-      );
-    }
-    checkKeyName(key);
+export class Lookup {
+  constructor(prefix) {
+    this.prefix = prefix + ":";
   }
-  const str = i18n.t("strings:" + key, { ...i18noptions, externalLinks });
-  const components = { a: MdLink, ...mdoptions.components };
-  return <ReactMarkdown components={components}>{str}</ReactMarkdown>;
-}
+  /**
+   * Render markdown localization strings.
+   * Generally you want to use `md` or `mdp` instead
+   * of `mdx` (which takes options for the markdown and i18n calls).
+   * We have these two helpers because in most cases
+   * we do not want the surrounding `p` tags for the text
+   * we are rendering, except when we have newlines.
+   *
+   * If your markdown has newlines, it must use p tags to
+   * get the newlines to render, so use `mdp`:
+   *
+   *   <h1>title</h1>
+   *   {mdp("key")}
+   *
+   * Will render:
+   *
+   *   <h1>title</h1>
+   *   <p>line1</p>
+   *   <p>line2</p>
+   *
+   * If you do not have newlines, use `md` which is used like:
+   *
+   *   <h1>title</h1>
+   *   <p>{md("key")}</p>
+   *
+   * Note: Links are rendered with the ELink component,
+   * which will 1) use a new tab for external links,
+   * 2) use Link for internal links (# or /),
+   * and 3) use a Link with 'replace' if the href includes ##.
+   * So ## can be used, for example, to trigger modals controlled by the hash.
+   */
+  mdx = (key, mdoptions = {}, i18noptions = {}) => {
+    const { check, ...i18nrest } = i18noptions;
+    const str = i18n.t(this.prefix + key, { ...i18nrest, externalLinks });
+    if (check && runChecks) {
+      this.checkKeyName(key);
+      compileStringAsync(str, (s) => {
+        if (s && str && s === str) {
+          logger
+            .context({ key: key, input: str, output: s })
+            .error("used localization.mdx for a non-string value (slow)");
+        }
+      });
+    }
+    const overrides = { a: { component: MdLink } };
+    return <Markdown options={{ overrides }}>{str}</Markdown>;
+  };
 
-export function md(key, options = {}) {
-  return mdx(key, { components: { p: React.Fragment } }, options);
-}
+  md = (key, options = {}) => {
+    return this.mdx(key, { forceInline: true, forceWrapper: true }, options);
+  };
 
-export function mdp(key, options = {}) {
-  return mdx(key, {}, options);
+  mdp = (key, options = {}) => {
+    return this.mdx(key, {}, options);
+  };
+
+  t = (key, options = {}) => {
+    const { check, ...restopts } = options;
+    const str = i18n.t(this.prefix + key, restopts);
+    if (check && runChecks) {
+      this.checkKeyName(key);
+      compileStringAsync(str, (s) => {
+        if (s && str && s !== str) {
+          logger
+            .context({ key: key, input: str, output: s })
+            .error("used localization.t for a markdown string");
+        }
+      });
+    }
+    return str;
+  };
+
+  checkKeyName(key) {
+    if (key.startsWith(this.prefix)) {
+      logger
+        .context({ string_key: key })
+        .error(
+          `Do not start localization keys with '${this.prefix}', since it may change in the future.`
+        );
+    }
+  }
 }
 
 function MdLink({ node, ...rest }) {
   return <ELink {...rest} />;
 }
 
-export function t(key, options = {}) {
-  if (runChecks) {
-    if (key.endsWith("_md")) {
-      logger.error(
-        `loc key '${key}' ends with _md but t() was used (will not render markdown)`
-      );
-    }
-    checkKeyName(key);
-  }
-  return i18n.t("strings:" + key, options);
-}
+const lu = new Lookup("strings");
+export const t = lu.t;
+export const md = lu.md;
+export const mdp = lu.mdp;
+export const mdx = lu.mdx;
 
-function checkKeyName(key) {
-  if (key.startsWith("strings:")) {
-    logger.error(
-      "Do not start localization keys with 'strings:', since it may change in the future."
-    );
-  }
+function compileStringAsync(str, cb) {
+  window.setTimeout(() => {
+    const comp = compiler(str || "", { wrapper: React.Fragment, forceWrapper: true });
+    const el = document.createElement("div");
+    ReactDOM.render(comp, el, () => cb(el.innerHTML));
+  }, 0);
 }

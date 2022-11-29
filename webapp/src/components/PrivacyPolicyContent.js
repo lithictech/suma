@@ -15,7 +15,7 @@ import thirdPartyAcceess from "../assets/images/privacypolicy/third-party-access
 import "../assets/styles/privacy-policy.scss";
 import ELink from "../components/ELink";
 import ScreenLoader from "../components/ScreenLoader";
-import externalLinks from "../modules/externalLinks";
+import { Lookup, t as loct } from "../localization";
 import TranslationToggle from "./TranslationToggle";
 import ScrollSpy from "bootstrap/js/src/scrollspy";
 import clsx from "clsx";
@@ -28,7 +28,6 @@ import Navbar from "react-bootstrap/Navbar";
 import Row from "react-bootstrap/Row";
 import Stack from "react-bootstrap/Stack";
 import { Helmet } from "react-helmet-async";
-import ReactMarkdown from "react-markdown";
 
 export default function PrivacyPolicyContent({ mobile }) {
   mobile = Boolean(mobile);
@@ -64,7 +63,7 @@ export default function PrivacyPolicyContent({ mobile }) {
         )}
       >
         <Helmet>
-          <title>{`${t("sections:title")} | ${i18n.t("strings:titles:suma_app")}`}</title>
+          <title>{`${t("sections:title")} | ${loct("titles:suma_app")}`}</title>
         </Helmet>
         {!mobile && (
           <Col className="table-of-contents-desktop d-none d-xl-block border-secondary border-end order-end">
@@ -166,9 +165,9 @@ export default function PrivacyPolicyContent({ mobile }) {
               title={t("sections:information_collected:title")}
               p={t("sections:information_collected:paragraph")}
               list={[
-                md("sections:information_collected:list:registration_md"),
-                md("sections:information_collected:list:vendors_md"),
-                md("sections:information_collected:list:subsidy_md"),
+                md("sections:information_collected:list:registration"),
+                md("sections:information_collected:list:vendors"),
+                md("sections:information_collected:list:subsidy"),
               ]}
             />
             <PrivacyPolicySection
@@ -178,9 +177,9 @@ export default function PrivacyPolicyContent({ mobile }) {
               p={t("sections:methods_of_collection:paragraph")}
               img={methodsOfCollection}
               list={[
-                md("sections:methods_of_collection:list:registration_page_md"),
-                md("sections:methods_of_collection:list:cookies_md"),
-                md("sections:methods_of_collection:list:community_partners_md"),
+                md("sections:methods_of_collection:list:registration_page"),
+                md("sections:methods_of_collection:list:cookies"),
+                md("sections:methods_of_collection:list:community_partners"),
               ]}
             />
             <PrivacyPolicySection
@@ -210,7 +209,7 @@ export default function PrivacyPolicyContent({ mobile }) {
                   <>
                     {md("subsections:communicate_with_you:paragraph")}
                     <a href="#communications">
-                      {md("subsections:communicate_with_you:see_communications")}
+                      {t("subsections:communicate_with_you:see_communications")}
                     </a>
                   </>
                 }
@@ -225,7 +224,7 @@ export default function PrivacyPolicyContent({ mobile }) {
                 mobile={mobile}
                 subsection="true"
                 title={t("subsections:comply_with_law:title")}
-                p={md("subsections:comply_with_law:paragraph_md")}
+                p={t("subsections:comply_with_law:paragraph")}
               />
             </PrivacyPolicySection>
             <PrivacyPolicySection
@@ -244,10 +243,10 @@ export default function PrivacyPolicyContent({ mobile }) {
               p={t("sections:third_party_access:paragraph")}
               img={thirdPartyAcceess}
               list={[
-                md("sections:third_party_access:list:service_providers_md"),
-                md("sections:third_party_access:list:with_your_consent_md"),
+                md("sections:third_party_access:list:service_providers"),
+                md("sections:third_party_access:list:with_your_consent"),
                 <>
-                  {md("sections:third_party_access:list:personal_information_md")}
+                  {md("sections:third_party_access:list:personal_information")}
                   <a href="#methodsOfInformationUsage">
                     {t("sections:methods_of_information_usage:title")}
                   </a>
@@ -264,7 +263,7 @@ export default function PrivacyPolicyContent({ mobile }) {
                 mobile={mobile}
                 subsection="true"
                 title={t("subsections:information_retention:title")}
-                p={md("subsections:information_retention:paragraph")}
+                p={t("subsections:information_retention:paragraph")}
                 img={informationRetention}
                 list={[
                   t("subsections:information_retention:list:qualifications"),
@@ -296,7 +295,7 @@ export default function PrivacyPolicyContent({ mobile }) {
               p={t("sections:business_transfer:paragraph")}
               img={businessTransfer}
               list={[
-                md("sections:business_transfer:list:email_md"),
+                md("sections:business_transfer:list:email"),
                 t("sections:business_transfer:list:opt_out"),
               ]}
             />
@@ -323,16 +322,16 @@ export default function PrivacyPolicyContent({ mobile }) {
               id="futureChangesToPolicy"
               mobile={mobile}
               title={t("sections:future_changes_to_policy:title")}
-              p={md("sections:future_changes_to_policy:paragraph_md")}
+              p={md("sections:future_changes_to_policy:paragraph")}
               img={policyChanges}
             >
-              <p>{md("sections:future_changes_to_policy:conclusion_md")}</p>
+              <p>{md("sections:future_changes_to_policy:conclusion")}</p>
             </PrivacyPolicySection>
             <PrivacyPolicySection
               id="contactInformation"
               mobile={mobile}
               title={t("sections:contact_information:title")}
-              p={md("sections:contact_information:paragraph_md")}
+              p={md("sections:contact_information:paragraph")}
             />
           </Container>
         </Container>
@@ -378,12 +377,12 @@ const TableOfContentsNav = ({ id, mobile }) => {
         <Container id={id} className="position-relative">
           <Nav className="navbar-nav-scroll navbar-absolute">
             {navLinks.map(({ id, titleNS }, idx) => (
-              <>
+              <React.Fragment key={id}>
                 <Nav.Link key={id} href={id} className={clsx("py-1")}>
                   {t(titleNS)}
                 </Nav.Link>
                 {idx === 0 && <hr className="my-2" />}
-              </>
+              </React.Fragment>
             ))}
           </Nav>
         </Container>
@@ -524,15 +523,6 @@ const navLinks = [
   },
 ];
 
-const t = (key, options = {}) => {
-  return i18n.t("privacy-policy-strings:" + key, options);
-};
-
-const md = (key, mdoptions = {}, i18noptions = {}) => {
-  const MdLink = ({ node, ...rest }) => {
-    return <ELink {...rest} />;
-  };
-  const str = t(key, { ...i18noptions, externalLinks });
-  const components = { a: MdLink, p: React.Fragment, ...mdoptions.components };
-  return <ReactMarkdown components={components}>{str}</ReactMarkdown>;
-};
+const lu = new Lookup("privacy-policy-strings");
+const t = lu.t;
+const md = lu.md;

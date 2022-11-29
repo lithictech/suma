@@ -82,7 +82,7 @@ export default function OrderHistoryDetail() {
                 <Stack gap={1}>
                   <div className="lead">{name}</div>
                   <div>
-                    {md("food:price_times_quantity_md", {
+                    {md("food:price_times_quantity", {
                       price: customerPrice,
                       quantity,
                     })}

@@ -47,7 +47,7 @@ export default function FundingAddCard() {
         <>
           <LinearBreadcrumbs back={returnTo || true} />
           <h2 className="page-header">{t("payments:add_card")}</h2>
-          <p>{md("payments:payment_intro.privacy_statement_md")}</p>
+          <p>{md("payments:payment_intro.privacy_statement")}</p>
           <AddCreditCard
             error={error}
             setError={setError}

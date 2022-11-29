@@ -108,7 +108,7 @@ const Ledger = ({ dashboard }) => {
         </Table>
       ) : (
         <LayoutContainer top="pt-2" gutters>
-          <p>{md("dashboard:no_money_md")}</p>
+          <p>{md("dashboard:no_money")}</p>
         </LayoutContainer>
       )}
     </>

@@ -3,9 +3,9 @@
     "table_of_contents": "Table of contents"
   },
   "links": {
-    "suma_help_email_md": "[apphelp@mysuma.org](mailto:apphelp@mysuma.org 'suma help email')",
-    "suma_platform_homepage_md": "[https://app.mysuma.org/app/](https://app.mysuma.org/app/ 'Suma platform&rsquo;s homepage')",
-    "suma_privacy_policy_md": "[https://app.mysuma.org/app/privacy-policy/](https://app.mysuma.org/app/privacy-policy/ 'suma privacy policy')"
+    "suma_help_email": "[apphelp@mysuma.org](mailto:apphelp@mysuma.org 'suma help email')",
+    "suma_platform_homepage": "[https://app.mysuma.org/app/](https://app.mysuma.org/app/ 'Suma platform’s homepage')",
+    "suma_privacy_policy": "[https://app.mysuma.org/app/privacy-policy/](https://app.mysuma.org/app/privacy-policy/ 'suma privacy policy')"
   },
   "overview": {
     "community_driven_intro": "Suma developed our privacy policy for and with community members. Our work started with students at the Ida B.Wells Just Data Lab where we explored best and worst privacy policy practices. From there, we wanted to hear what community had to say about our findings and engaged in conversations with community members across Portland. Their ideas, opinions, and thoughts have been incorpated in our policy at every level.",
@@ -27,7 +27,7 @@
   "sections": {
     "business_transfer": {
       "list": {
-        "email_md": "we will let you know about the change by email and/or by posting a notice on the suma platform&rsquo;s homepage ($t(privacy-policy-strings:links:suma_platform_homepage_md)); and",
+        "email": "we will let you know about the change by email and/or by posting a notice on the suma platform’s homepage ($t(privacy-policy-strings:links:suma_platform_homepage)); and",
         "opt_out": "you will have the chance to opt out before information about you becomes subject to a different privacy policy"
       },
       "paragraph": "We may choose to sell assets of the suma platform or buy assets for the platform. These transactions may be necessary and in our legitimate interests, particularly our interest in growing the platform to serve more community members and to offer more goods and services. User information is typically an asset that is transferred in these transactions (such as a sale, merger, liquidation, receivership, or transfer of all or substantially all of the suma platform’s assets). If we intend to transfer information about you:",
@@ -47,7 +47,7 @@
       "title": "Communications"
     },
     "contact_information": {
-      "paragraph_md": "If you have questions about this privacy policy, we are here to listen. Please contact suma at $t(privacy-policy-strings:links:suma_help_email_md). We are also available to host remote or in person meetings to provide information and answer questions about the privacy policy.",
+      "paragraph": "If you have questions about this privacy policy, we are here to listen. Please contact suma at $t(privacy-policy-strings:links:suma_help_email). We are also available to host remote or in person meetings to provide information and answer questions about the privacy policy.",
       "title": "Contact information"
     },
     "cookies_policy": {
@@ -58,15 +58,15 @@
     "date": "August 2nd 2022",
     "effective": "Effective:",
     "future_changes_to_policy": {
-      "conclusion_md": "You can always find the most recent version of the suma platform privacy policy at $t(privacy-policy-strings:links:suma_privacy_policy_md). Please contact $t(privacy-policy-strings:links:suma_help_email_md) for any questions or concerns regarding our policy changes.",
-      "paragraph_md": "We may change the suma platform privacy policy from time to time. If we do change the suma platform privacy policy, we will let you know about the change by email and/or by posting a notice on the suma platform’s homepage $t(privacy-policy-strings:links:suma_platform_homepage_md). This notice will let you know what is changing and why it is changing. We will provide this notice at least 30 days before the changes take effect unless the law requires a different notice period. You will have the chance to consent to the changes at your first login to the platform after the changes take effect. If you do not consent to the changes, you will not be able to use the platform.",
+      "conclusion": "You can always find the most recent version of the suma platform privacy policy at $t(privacy-policy-strings:links:suma_privacy_policy). Please contact $t(privacy-policy-strings:links:suma_help_email) for any questions or concerns regarding our policy changes.",
+      "paragraph": "We may change the suma platform privacy policy from time to time. If we do change the suma platform privacy policy, we will let you know about the change by email and/or by posting a notice on the suma platform’s homepage $t(privacy-policy-strings:links:suma_platform_homepage). This notice will let you know what is changing and why it is changing. We will provide this notice at least 30 days before the changes take effect unless the law requires a different notice period. You will have the chance to consent to the changes at your first login to the platform after the changes take effect. If you do not consent to the changes, you will not be able to use the platform.",
       "title": "Future changes to policy"
     },
     "information_collected": {
       "list": {
-        "registration_md": "**Registration:** We collect your name, telephone number, email, billing information, bank account and/or debit card details, and community partner name when you create your suma platform account.",
-        "subsidy_md": "**Subsidy:** We collect personal information necessary to secure this outside funding. For example, if the subsidy provider will offer suma funding for users based on an income limit, we may collect financial information from you to confirm you are eligible for the subsidy.",
-        "vendors_md": "**Vendors:** We collect information about what goods and services you access and purchase via the suma platform."
+        "registration": "**Registration:** We collect your name, telephone number, email, billing information, bank account and/or debit card details, and community partner name when you create your suma platform account.",
+        "subsidy": "**Subsidy:** We collect personal information necessary to secure this outside funding. For example, if the subsidy provider will offer suma funding for users based on an income limit, we may collect financial information from you to confirm you are eligible for the subsidy.",
+        "vendors": "**Vendors:** We collect information about what goods and services you access and purchase via the suma platform."
       },
       "paragraph": "We collect the minimum information needed to create your suma platform account at registration, work with community partners, connect you with vendors, and secure outside funding from public and private organizations that reduces the cost of goods and services from vendors via the suma platform (what we refer to as “subsidy”):",
       "title": "What personal information do we collect?"
@@ -77,9 +77,9 @@
     },
     "methods_of_collection": {
       "list": {
-        "community_partners_md": "**Community Partners:** We collect information from community partners (such as Hacienda CDC, Proud Ground, Home Forward, others) to help us qualify you for vendor discounts on the suma platform as well as to secure outside funding that reduces the cost of goods and services on the suma platform.",
-        "cookies_md": "**Cookies and Log Files:** We use cookies so we know when you are logged in and we use log files to understand your activity on the platform. Please see our cookies policy to learn about the cookies we use and why.",
-        "registration_page_md": "**Registration:** We use our registration page to collect information when you create your suma account."
+        "community_partners": "**Community Partners:** We collect information from community partners (such as Hacienda CDC, Proud Ground, Home Forward, others) to help us qualify you for vendor discounts on the suma platform as well as to secure outside funding that reduces the cost of goods and services on the suma platform.",
+        "cookies": "**Cookies and Log Files:** We use cookies so we know when you are logged in and we use log files to understand your activity on the platform. Please see our cookies policy to learn about the cookies we use and why.",
+        "registration_page": "**Registration:** We use our registration page to collect information when you create your suma account."
       },
       "paragraph": "Your trust in, consent to and understanding of our privacy policy are fundamental to the suma platform. To provide platform services, we collect personal information from you in the following ways:",
       "title": "How do we collect your personal information?"
@@ -90,9 +90,9 @@
     },
     "third_party_access": {
       "list": {
-        "personal_information_md": "For details on how we share certain personal information with platform vendors or subsidy providers, and how we may share certain personal information to comply with the law or resolve disputes, refer to&nbsp;",
-        "service_providers_md": "**Service providers:** These are providers who help us operate the suma platform, and include payment",
-        "with_your_consent_md": "**With your consent:** We may share your personal information to additional third parties if we notify you and you consent to the sharing"
+        "personal_information": "For details on how we share certain personal information with platform vendors or subsidy providers, and how we may share certain personal information to comply with the law or resolve disputes, refer to ",
+        "service_providers": "**Service providers:** These are providers who help us operate the suma platform, and include payment",
+        "with_your_consent": "**With your consent:** We may share your personal information to additional third parties if we notify you and you consent to the sharing"
       },
       "paragraph": "Suma does not share personal information about you with any third parties for their own marketing purposes. We do share this information with trusted and vetted third parties (platform vendors, subsidy providers, service providers to the platform), to comply with the law or in the event of a dispute:",
       "title": "Third-party access"
@@ -101,7 +101,7 @@
   },
   "subsections": {
     "communicate_with_you": {
-      "paragraph": "We may use your information to respond to your communications, reach out to you about your transactions or account, market the platform, provide other relevant information, or request information or feedback. For more information about how we communicate with you,&nbsp;",
+      "paragraph": "We may use your information to respond to your communications, reach out to you about your transactions or account, market the platform, provide other relevant information, or request information or feedback. For more information about how we communicate with you, ",
       "see_communications": "see communications.",
       "title": "Communicate with you"
     },
@@ -110,7 +110,7 @@
       "title": "Community partners"
     },
     "comply_with_law": {
-      "paragraph_md": "We may share your personal information if we believe it’s required by applicable law, regulation, operating license or agreement, legal process or governmental request, or where the disclosure is otherwise appropriate due to safety or similar concerns. For example, we may share your personal information if an e-scooter is lost or damaged in order to help the e-scooter vendor resolve how the vehicle was lost or damaged. We will provide notice to you if your personal information will be shared for this purpose when required by law.",
+      "paragraph": "We may share your personal information if we believe it’s required by applicable law, regulation, operating license or agreement, legal process or governmental request, or where the disclosure is otherwise appropriate due to safety or similar concerns. For example, we may share your personal information if an e-scooter is lost or damaged in order to help the e-scooter vendor resolve how the vehicle was lost or damaged. We will provide notice to you if your personal information will be shared for this purpose when required by law.",
       "title": "Comply with the law"
     },
     "disputes": {
@@ -146,7 +146,7 @@
       "title": "Aggregated platform usage"
     },
     "platform_vendors": {
-      "paragraph_md": "We may share certain data with a platform vendor when you use the platform to access goods or services from that vendor. For example, if you request an e-scooter ride from Operator X via the platform, we may share certain data with Operator X to confirm you are a Suma user and/or to confirm you are eligible for Operator X&rsquo;s discount program.",
+      "paragraph": "We may share certain data with a platform vendor when you use the platform to access goods or services from that vendor. For example, if you request an e-scooter ride from Operator X via the platform, we may share certain data with Operator X to confirm you are a Suma user and/or to confirm you are eligible for Operator X’s discount program.",
       "title": "Platform vendors"
     },
     "security_and_fraud_prevention": {

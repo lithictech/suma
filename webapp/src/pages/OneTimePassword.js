@@ -136,7 +136,7 @@ const OneTimePassword = () => {
             {t("otp:send_new_code")}
           </Button>
         </p>
-        {requireTerms && <p className="w-75 text-center m-auto">{md("otp:terms_md")}</p>}
+        {requireTerms && <p className="w-75 text-center m-auto">{md("otp:terms")}</p>}
         <FormButtons
           back
           primaryProps={{

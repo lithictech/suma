@@ -25,8 +25,8 @@ export default function Funding() {
     <>
       <LinearBreadcrumbs back />
       <h2 className="page-header">{t("payments:payment_title")}</h2>
-      <p>{md("payments:payment_intro.intro_md")}</p>
-      <p id="some">{md("payments:payment_intro.privacy_statement_md")}</p>
+      <p>{md("payments:payment_intro.intro")}</p>
+      <p id="some">{md("payments:payment_intro.privacy_statement")}</p>
       {isPaymentMethodSupported("bank_account") && (
         <BankAccountsCard instruments={user.usablePaymentInstruments} />
       )}

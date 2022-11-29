@@ -30,7 +30,7 @@
     "check_ongoing_trip": "Tienes un viaje en curso. Asegúrate de finalizarlo al terminar el viaje.",
     "check_ongoing_trip_button": "Ver Mi Viaje",
     "lifetime_savings": "Ahorros de Suma",
-    "no_money_md": "No has añadido ni gastado fondos de tu cuenta. $t(strings:payments:funding_link_md)",
+    "no_money": "No has añadido ni gastado fondos de tu cuenta. $t(strings:payments:funding_link)",
     "payment_account_balance": "Saldo Disponible",
     "recent_ledger_lines": "Cargos y Créditos Recientes"
   },
@@ -74,7 +74,7 @@
     "address1": "Dirección Postal",
     "address2": "Unidad o Número de Apartamento",
     "amount": "Monto",
-    "bank_account_caption_md": "El número de tu cuenta bancaria. Puede encontrar esta información en el portal de banco en línea, o consultando $t(strings:forms:paper_check_link_md).",
+    "bank_account_caption": "El número de tu cuenta bancaria. Puede encontrar esta información en el portal de banco en línea, o consultando $t(strings:forms:paper_check_link).",
     "bank_account_type": "Tipo de cuenta",
     "bank_account_type_caption": "Elegir el tipo de cuenta. Si no estás seguro, elige Cheques",
     "check_detail": "Detallos de cheque",
@@ -98,9 +98,9 @@
     "name": "Nombre",
     "nickname": "Apodo",
     "nickname_caption": "El nombre utilizado para referirse a la cuenta en Suma.",
-    "paper_check_link_md": "[cómo encontrar los datos bancarios en un cheque de papel](##check-details 'Detalles de cheque de papel')",
+    "paper_check_link": "[cómo encontrar los datos bancarios en un cheque de papel](##check-details 'Detalles de cheque de papel')",
     "phone": "Teléfono",
-    "routing_caption_md": "Ingrese el número de ruta de 9 dígitos de su cuenta bancaria. Puede encontrar esta información en el portal de banco en línea, o consultando $t(strings:forms:paper_check_link_md).",
+    "routing_caption": "Ingrese el número de ruta de 9 dígitos de su cuenta bancaria. Puede encontrar esta información en el portal de banco en línea, o consultando $t(strings:forms:paper_check_link).",
     "routing_number": "Código de Identificación",
     "savings": "Ahorros",
     "state": "Estado",
@@ -156,20 +156,20 @@
     "bank_accounts": "Cuentas Bancarias",
     "check_details_subtitle": "Al calce de un cheque a tres conjuntos numericos. El primero es el número de ruta de 9 dígitos. El segundo es tu número de cuenta. El tercero, que puedes ignorar, es el número del cheque.",
     "check_details_title": "¿Cuál es mi número de cuenta?",
-    "funding_link_md": "[$t(strings:common:add_money_to_account)](/funding 'Pagina de fondos')",
+    "funding_link": "[$t(strings:common:add_money_to_account)](/funding 'Pagina de fondos')",
     "ledger_balance": "Fondos en Suma",
     "ledger_transactions": "Historial de transacciones",
     "ledgers_intro": "Puedes usar tus cuentas de Suma para comprar bienes y servicios a través de la app, como una cuenta bancaria que se utiliza para Suma. Se encuentran a continuación el saldo disponible y un historial de los créditos y débitos de tu cuenta.",
     "link_another_bank_account": "Vincular otra cuenta bancaria",
     "link_bank_account": "Vincular una cuenta bancaria",
     "linked_bank_account": "Cuenta bancaria vinculada",
-    "linked_bank_account_successful_md": "Su cuenta bancaria se ha vinculado con éxito a Suma. Dentro de uno o dos días, uno de nuestros especialistas con experiencia de miembros se pondrá en contacto para confirmar la cuenta.\n\nCuando la cuenta este confirmada, podrá agregar fondos.",
+    "linked_bank_account_successful": "Su cuenta bancaria se ha vinculado con éxito a Suma. Dentro de uno o dos días, uno de nuestros especialistas con experiencia de miembros se pondrá en contacto para confirmar la cuenta.\n\nCuando la cuenta este confirmada, podrá agregar fondos.",
     "no_bank_accounts_warning": "No tienes una cuenta bancaria vinculada.",
     "payment_account_pending": "Pendiente",
     "payment_account_verified": "Verificado",
     "payment_intro": {
-      "intro_md": "Para añadir fondos a tu cuenta, se requiere por lo menos una *fuente de financiamiento*. Por lo regular, es una cuenta bancaria, pero pueda haber otras opciones abajo.",
-      "privacy_statement_md": "Su información financiera está protegida mediante **cifrado de nivel bancario** y **nunca se compartirá sin su consentimiento**. Consulte la [Política de privacidad de Suma]({{ externalLinks.privacyPolicy }}) para más información sobre cómo usamos y protegemos su información financiera."
+      "intro": "Para añadir fondos a tu cuenta, se requiere por lo menos una *fuente de financiamiento*. Por lo regular, es una cuenta bancaria, pero pueda haber otras opciones abajo.",
+      "privacy_statement": "Su información financiera está protegida mediante **cifrado de nivel bancario** y **nunca se compartirá sin su consentimiento**. Consulte la [Política de privacidad de Suma]({{ externalLinks.privacyPolicy }}) para más información sobre cómo usamos y protegemos su información financiera."
     },
     "payment_other_sources": "Otras Fuentes",
     "payment_submission_statement_bank_account": "Una vez que realices tu pago, puedes usar el dinero de inmediato. El retiro será registrado a tu cuenta en 2 a 3 días hábiles.",
@@ -195,7 +195,7 @@
     "suma_app": "App de Suma"
   },
   "utilities": {
-    "intro_md": "Suma quiere facilitarle el ahorro de dinero en sus facturas de servicios públicos y hacer que nuestras comunidades sean más resilientes frente al clima extremo y el cambio climático.\n\nRegístrese en nuestra lista de espera gratuita para ayudarnos a construir una comunidad de miembros y demostrar que todos merecen energía limpia y asequible.",
+    "intro": "Suma quiere facilitarle el ahorro de dinero en sus facturas de servicios públicos y hacer que nuestras comunidades sean más resilientes frente al clima extremo y el cambio climático.\n\nRegístrese en nuestra lista de espera gratuita para ayudarnos a construir una comunidad de miembros y demostrar que todos merecen energía limpia y asequible.",
     "page_title": "Servicios públicos",
     "title": "Utilidades"
   }

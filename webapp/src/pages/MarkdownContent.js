@@ -1,12 +1,13 @@
 import ELink from "../components/ELink";
 import ScreenLoader from "../components/ScreenLoader";
 import TopNav from "../components/TopNav";
+import { t as loct } from "../localization";
 import useMountEffect from "../shared/react/useMountEffect";
 import { LayoutContainer } from "../state/withLayout";
 import i18n from "i18next";
+import Markdown from "markdown-to-jsx";
 import React from "react";
 import { Helmet } from "react-helmet-async";
-import ReactMarkdown from "react-markdown";
 
 export default function MarkdownContent({ namespace }) {
   const [i18nextLoading, setI18NextLoading] = React.useState(true);
@@ -16,13 +17,13 @@ export default function MarkdownContent({ namespace }) {
   if (i18nextLoading) {
     return <ScreenLoader show />;
   }
-  const titleKey = `strings:titles:${namespace}`;
+  const title = loct(`titles:${namespace}`) + " | " + loct("titles:suma_app");
   const contentKey = `${namespace}:contents`;
   return (
     <div className="bg-light">
       <div className="main-container">
         <Helmet>
-          <title>{`${i18n.t(titleKey)} | ${i18n.t("strings:titles:suma_app")}`}</title>
+          <title>{title}</title>
         </Helmet>
         <div className="sticky-top">
           <TopNav />
@@ -33,7 +34,9 @@ export default function MarkdownContent({ namespace }) {
           className="mx-auto pb-4"
           style={{ width: "500px" }}
         >
-          <ReactMarkdown components={{ a: MdLink }}>{i18n.t(contentKey)}</ReactMarkdown>
+          <Markdown options={{ overrides: { a: { component: MdLink } } }}>
+            {i18n.t(contentKey)}
+          </Markdown>
         </LayoutContainer>
       </div>
     </div>
