@@ -315,7 +315,7 @@ export default function PrivacyPolicyContent({ mobile }) {
               list={[
                 t("sections:communications:list:platform_communications"),
                 t("sections:communications:list:service_messages"),
-                t("sections:communications:list:valid_communcation_methods"),
+                t("sections:communications:list:valid_communication_methods"),
               ]}
             />
             <PrivacyPolicySection
