@@ -80,31 +80,19 @@ class Suma::Payment::Ledger < Suma::Postgres::Model(:payment_ledgers)
   # only vendor services with 'organic' assigned could be used.
   #
   # Note that ledgers and services can have multiple service categories.
-  #
-  # @param has_vnd_svc_categories [Suma::Vendor::HasServiceCategories]
-  # @param exclude [Enumerable<Suma::Vendor::ServiceCategory>]
-  #   Any categories in exclude are removed from consideration on the receiving ledger.
-  #   Ledgers look at 'child' categories when considering if they can be used to purchase,
-  #   and these exclusions apply verbatim, they do NOT apply recursively.
-  #   So if this ledger has category 'x', and category 'x' has a chain x->y->z,
-  #   excluding 'y' would only exclude 'y' and NOT 'z'
-  #   (so a product/service that has category 'z' can be still be purchased by this ledger).
-  #   Using exclude is pretty rare; generally it's only useful to exclude the 'cash' or top-level ledgers
-  #   to figure out how much will be contributed from other ledgers.
-  def can_be_used_to_purchase?(has_vnd_svc_categories, exclude: [])
-    match = self.category_used_to_purchase(has_vnd_svc_categories, exclude:)
+  def can_be_used_to_purchase?(has_vnd_svc_categories)
+    match = self.category_used_to_purchase(has_vnd_svc_categories)
     return !match.nil?
   end
 
   # See can_be_used_to_purchase?. Returns the first matching category
   # which qualifies this ledger to pay for the vendor service.
-  # We may need to refine this search algorithm in the future
+  # We may need to refind this search algorithm in the future
   # if we find it doesn't select the right category.
-  def category_used_to_purchase(has_vnd_svc_categories, exclude: [])
+  def category_used_to_purchase(has_vnd_svc_categories)
     service_cat_ids = has_vnd_svc_categories.vendor_service_categories.map(&:id)
-    exclude_ids = exclude.map(&:id)
     return self.vendor_service_categories.find do |c|
-      chain_ids = c.tsort.map(&:id) - exclude_ids
+      chain_ids = c.tsort.map(&:id)
       !(service_cat_ids & chain_ids).empty?
     end
   end
