@@ -39,7 +39,18 @@ const OneTimePassword = () => {
     }
   }, [navigate, submitDisabled, otp]);
 
-  const handleOtpChange = (event, index) => {
+  const handleOtpChange = (event, index = 0) => {
+    if (event?.clipboardData) {
+      const values = event.clipboardData
+        .getData("text")
+        .split("")
+        .map((v) => parseInt(v));
+      if (values.length !== 6) {
+        return;
+      }
+      event.preventDefault();
+      return setOtp([...otp.map((_, idx) => values[idx])]);
+    }
     const { target } = event;
     const { value } = target;
     if (isNaN(parseInt(value)))
@@ -114,6 +125,7 @@ const OneTimePassword = () => {
                 value={data}
                 placeholder="&middot;"
                 onChange={(event) => handleOtpChange(event, index)}
+                onPaste={(event) => handleOtpChange(event, index)}
                 onFocus={(event) => event.target.select()}
                 autoFocus={index === 0}
                 aria-label={t("otp:enter_code") + (index + 1)}
