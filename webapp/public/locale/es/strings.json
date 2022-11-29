@@ -79,7 +79,9 @@
   "food": {
     "add_card": "Añadir tarjeta de débito/crédito",
     "add_to_cart": "Añadir al carrito",
+    "additional_credit_at_checkout": "-{{amount, sumaCurrency}} crédito",
     "available_until": "Hasta",
+    "cart_available_credit": "Crédito disponible: **{{amount, sumaCurrency}}**",
     "cart_title": "el carrito",
     "change_quantities": "Cambiar las cantidades del artículo",
     "charge_to": "Cargar a {{instrumentName}}",
@@ -116,6 +118,7 @@
     "no_offerings": "No hay ofertas de alimentos disponibles actualmente, vuelva a consultar más tarde.",
     "no_orders": "Aún no ha realizado ningún pedido.",
     "no_products": "No se encontraron productos, esta oferta podría estar cerrada. [Haga clic aquí para ver las ofertas disponibles](/food'$t(strings:food:title)').",
+    "noncash_ledger_contribution_available": "Elegible para {{amount, sumaCurrency}} del saldo existente en su cuenta. Aplicado en el momento de la compra.",
     "order_button": "Realizar pedido",
     "order_date": "Realizado {{fecha}}",
     "order_history_title": "Historial de pedidos",
@@ -131,7 +134,8 @@
     "shop": "Comprar",
     "subtotal_items": "Subtotal ({{totalItems}} artículos): **{{customerCost, sumaCurrency}} **",
     "terms_of_use_agreement": "Al hacer clic en \"realizar pedido\" usted acepta los [Términos de uso](/terms-of-use__blank__) de Suma.",
-    "title": "Comida"
+    "title": "Comida",
+    "total": "{{total, sumaCurrency}}"
   },
   "forms": {
     "account_number": "Número de Cuenta",
