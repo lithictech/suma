@@ -193,7 +193,7 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
     return unless Suma::Commerce::Offering.dataset.empty?
 
     offering = Suma::Commerce::Offering.new
-    offering.period = 1.day.ago..Time.new(2022, 12, 16)
+    offering.period = 1.day.ago..self.pilot_end
     offering.description = Suma::TranslatedText.create(en: "Holidays 2022", es: "Días festivos")
     offering.confirmation_template = "2022-12-pilot-confirmation"
     offering.save_changes
@@ -291,7 +291,7 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
       name: "Holidays 2022 Promo",
       topic: "suma.payment.account.created",
       active_during_begin: Time.now,
-      active_during_end: Time.parse("2022-12-08T23:00:00-0800"),
+      active_during_end: self.pilot_end,
       klass_name: "Suma::AutomationTrigger::CreateAndSubsidizeLedger",
       parameter: {
         ledger_name: "Holidays2022Promo",
@@ -309,8 +309,12 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
       name: "Holidays 2022 Pilot Verification",
       topic: "suma.member.created",
       active_during_begin: Time.now,
-      active_during_end: Time.parse("2022-12-12T23:00:00-0800"),
+      active_during_end: self.pilot_end,
       klass_name: "Suma::AutomationTrigger::AutoOnboard",
     )
+  end
+
+  def pilot_end
+    return Time.parse("2022-12-08T23:00:00-0800")
   end
 end
