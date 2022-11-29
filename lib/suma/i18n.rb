@@ -2,6 +2,7 @@
 
 require "csv"
 require "fileutils"
+require "nokogiri"
 require "appydays/configurable"
 require "sequel/sequel_translated_text"
 
@@ -45,8 +46,24 @@ module Suma::I18n
 
   def self.reformat_file(path)
     h = Yajl::Parser.parse(File.open(path))
-    so = self.sort_hash(h)
+    clean = self.replace_entities(h)
+    so = self.sort_hash(clean)
     File.write(path, JSON.pretty_generate(so))
+  end
+
+  def self.replace_entities(h)
+    h2 = h.to_h
+    h2.transform_values! do |value|
+      case value
+        when Hash
+          self.replace_entities(value)
+        when String, nil
+          self._clean_str(value)
+        else
+          value
+      end
+    end
+    return h2
   end
 
   def self.sort_hash(h)
@@ -118,12 +135,17 @@ module Suma::I18n
     CSV(output) do |csv|
       csv << ["Key", locale.language, base_locale.language]
       base_data.sort.each do |(key, base_str)|
-        csv << [key, locale_data[key], base_str]
+        csv << [key, self._clean_str(locale_data[key]), self._clean_str(base_str)]
       end
       base_messages.each do |(key, base_contents)|
-        csv << [key, locale_messages[key], base_contents]
+        csv << [key, self._clean_str(locale_messages[key]), self._clean_str(base_contents)]
       end
     end
+  end
+
+  def self._clean_str(s)
+    return nil if s.nil?
+    return Nokogiri::HTML5.parse(s).text
   end
 
   def self.load_messages(locale_code)

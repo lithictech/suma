@@ -48,15 +48,15 @@ export default function FoodCheckoutConfirmation() {
         <p className="mb-0">{t("food:confirmation_subtitle")}</p>
       </div>
       <LayoutContainer top>
-        <h4 className="mb-3">{md("food:checkout_items_title_md")}</h4>
+        <h4 className="mb-3">{t("food:checkout_items_title")}</h4>
         {items.map((p, idx) => (
           <Item key={idx} item={p} />
         ))}
         <hr />
-        <h4 className="mb-3">{md("food:confirmation_pickup_title_md")}</h4>
+        <h4 className="mb-3">{t("food:confirmation_pickup_title")}</h4>
         <p>{fulfillmentOption.description}</p>
         <hr />
-        {mdp("food:confirmation_message_md")}
+        {mdp("food:confirmation_message", { check: false })}
         <Stack className="mt-2">
           <Button variant="outline-success" href="/dashboard">
             {t("common:go_home")}

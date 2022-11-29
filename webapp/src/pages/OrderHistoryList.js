@@ -59,10 +59,10 @@ export default function OrderHistoryList() {
         )}
         {_.isEmpty(orderHistory?.items) && (
           <>
-            {mdp("food:no_orders_md")}
+            {mdp("food:no_orders")}
             <p>
               <Link to="/food">
-                {md("checkout_available_md")}
+                {md("checkout_available")}
                 <i className="bi bi-arrow-right ms-1"></i>
               </Link>
             </p>

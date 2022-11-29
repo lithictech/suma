@@ -45,7 +45,7 @@ function Success({ instrumentId, instrumentType, returnTo }) {
   return (
     <>
       <h2>{t("payments:linked_bank_account")}</h2>
-      {mdp("payments:linked_bank_account_successful_md")}
+      {mdp("payments:linked_bank_account_successful")}
       {returnTo ? (
         <div className="button-stack mt-4">
           <Button
@@ -117,7 +117,7 @@ function LinkBankAccount({ onSuccess, returnTo }) {
     <>
       <LinearBreadcrumbs back={returnTo || true} />
       <h2 className="page-header">{t("payments:link_bank_account")}</h2>
-      <p>{md("payments:payment_intro.privacy_statement_md")}</p>
+      <p>{md("payments:payment_intro.privacy_statement")}</p>
       <Form noValidate onSubmit={handleSubmit(handleFormSubmit)}>
         <Row className="mb-3">
           <FormControlGroup
@@ -142,7 +142,7 @@ function LinkBankAccount({ onSuccess, returnTo }) {
             inputMode="numeric"
             name="routing_number"
             label={t("forms:routing_number")}
-            text={md("forms:routing_caption_md")}
+            text={md("forms:routing_caption")}
             value={routing}
             errors={errors}
             errorKeys={{ pattern: "forms:invalid_routing_number" }}
@@ -161,7 +161,7 @@ function LinkBankAccount({ onSuccess, returnTo }) {
             inputMode="numeric"
             name="account_number"
             label={t("forms:account_number")}
-            text={md("forms:bank_account_caption_md")}
+            text={md("forms:bank_account_caption")}
             value={accountNumber}
             errors={errors}
             errorKeys={{ pattern: "forms:invalid_bank_account_number" }}

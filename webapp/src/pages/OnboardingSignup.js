@@ -77,7 +77,7 @@ export default function OnboardingSignup() {
   return (
     <>
       <h2 className="page-header">{t("onboarding:enroll_title")}</h2>
-      {mdp("onboarding:enroll_intro_md")}
+      {mdp("onboarding:enroll_intro")}
       <Form noValidate onSubmit={handleSubmit(handleFormSubmit)}>
         <FormControlGroup
           className="mb-3"

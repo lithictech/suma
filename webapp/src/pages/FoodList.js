@@ -53,7 +53,7 @@ export default function FoodList() {
         {loading && <PageLoader />}
         {!loading && (
           <>
-            {_.isEmpty(products) && mdp("food:no_products_md")}
+            {_.isEmpty(products) && mdp("food:no_products")}
             {!_.isEmpty(products) && (
               <Row>
                 <LinearBreadcrumbs back="/food" />

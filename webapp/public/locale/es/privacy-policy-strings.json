@@ -3,9 +3,9 @@
     "table_of_contents": "Tabla de contenido"
   },
   "links": {
-    "suma_help_email_md": "[apphelp@mysuma.org](mailto:apphelp@mysuma.org 'correo electrónico de ayuda de suma')",
-    "suma_platform_homepage_md": "[https://app.mysuma.org/app/](https://app.mysuma.org/app/ 'plataforma de suma')",
-    "suma_privacy_policy_md": "[https://app.mysuma.org/app/privacy-policy/](https://app.mysuma.org/app/privacy-policy/ 'política de privacidad de suma')"
+    "suma_help_email": "[apphelp@mysuma.org](mailto:apphelp@mysuma.org 'correo electrónico de ayuda de suma')",
+    "suma_platform_homepage": "[https://app.mysuma.org/app/](https://app.mysuma.org/app/ 'plataforma de suma')",
+    "suma_privacy_policy": "[https://app.mysuma.org/app/privacy-policy/](https://app.mysuma.org/app/privacy-policy/ 'política de privacidad de suma')"
   },
   "overview": {
     "community_driven_intro": "Suma desarrolló nuestra política de privacidad para y con los miembros de la comunidad. Nuestro trabajo comenzó con los estudiantes del Ida B. Wells Just Data Lab, donde exploramos las mejores y peores prácticas de política de privacidad. Tambien queríamos escuchar lo que la comunidad tenía que decir sobre nuestros hallazgos y tuvimos conversaciones con miembros de la comunidad de Portland. Sus ideas, opiniones y pensamientos han sido incorporados en nuestra política de privacidad.",
@@ -27,10 +27,10 @@
   "privacy_policy": {
     "business_transfer": {
       "list": {
-        "email_md": "te informaremos sobre el cambio por correo electrónico y/o publicando un aviso en la página de inicio de la plataforma suma ($t(privacy-policy-strings:links:suma_platform_homepage_md)); y",
+        "email": "te informaremos sobre el cambio por correo electrónico y/o publicando un aviso en la página de inicio de la plataforma suma ($t(privacy-policy-strings:links:suma_platform_homepage)); y",
         "opt_out": "tendrás la oportunidad de optar por no participar antes de que tu información esté sujeta a una política de privacidad distinta a la presente"
       },
-      "paragraph_md": "Podemos optar por comprar o vender los activos de la plataforma suma. Estas transacciones pueden ser precisos por el beneficio legítimo de la plataforma, en particular, para cumplir con nuestro objetivo de hacer crecer la plataforma, servir a más miembros de la comunidad y ampliar la oferta de bienes y servicios. El traslado de los datos de los usuarios suele ocurrir en estas transacciones (tales como la venta, unión, liquidación, intervención judicial o transferencia de todos o una parte sustancialmente de los activos de la plataforma suma). Si tenemos la intención de transferir tu información:",
+      "paragraph": "Podemos optar por comprar o vender los activos de la plataforma suma. Estas transacciones pueden ser precisos por el beneficio legítimo de la plataforma, en particular, para cumplir con nuestro objetivo de hacer crecer la plataforma, servir a más miembros de la comunidad y ampliar la oferta de bienes y servicios. El traslado de los datos de los usuarios suele ocurrir en estas transacciones (tales como la venta, unión, liquidación, intervención judicial o transferencia de todos o una parte sustancialmente de los activos de la plataforma suma). Si tenemos la intención de transferir tu información:",
       "title": "Transferencias de negocios"
     },
     "children_under_13": {
@@ -46,7 +46,7 @@
       "title": "Comunicaciones"
     },
     "contact_information": {
-      "paragraph_md": "Si tienes alguna pregunta sobre esta política de privacidad, estamos para atenderte en $t(privacy-policy-strings:links:suma_help_email_md). También estamos a la orden para organizar reuniones informativas virtuales o en persona, para resolver cualquier duda que tengas sobre la política de privacidad.",
+      "paragraph": "Si tienes alguna pregunta sobre esta política de privacidad, estamos para atenderte en $t(privacy-policy-strings:links:suma_help_email). También estamos a la orden para organizar reuniones informativas virtuales o en persona, para resolver cualquier duda que tengas sobre la política de privacidad.",
       "title": "Los datos de contacto"
     },
     "cookies_policy": {
@@ -60,30 +60,30 @@
     },
     "date": "2 de agosto de 2022",
     "dispute_resolution": {
-      "paragraph_md": "Si tienes alguna pregunta o inquietud sobre el uso o divulgación de tu información, comunícate en $t(privacy-policy-strings:links:suma_help_email_md). Estamos aquí para atendar cualquier inquietud que tengas. Si no podemos resolver tu inquietud (el siguiente paso es en desarrollo).",
+      "paragraph": "Si tienes alguna pregunta o inquietud sobre el uso o divulgación de tu información, comunícate en $t(privacy-policy-strings:links:suma_help_email). Estamos aquí para atendar cualquier inquietud que tengas. Si no podemos resolver tu inquietud (el siguiente paso es en desarrollo).",
       "title": "Resolución de disputas"
     },
     "effective": "Fecha de entrada en vigor:",
     "future_changes_to_policy": {
-      "conclusion_md": "Puedes consultar la política de privacidad vigente de la plataforma suma en cualquier momento en $t(privacy-policy-strings:links:suma_privacy_policy_md). Por cualquier pregunta o inquietud sobre cambios a esta política, comunícate con $t(privacy-policy-strings:links:suma_help_email_md).",
-      "paragraph_md": "Es posible que se actualice la política de privacidad de la plataforma suma de vez en cuando. Si cambiamos la política de privacidad de suma, te informaremos sobre el cambio por correo electrónico y/o publicando un aviso en la página de inicio de la plataforma $t(privacy-policy-strings:links:suma_platform_homepage_md). Este aviso te informará qué va a cambiar, la razón del cambio y cómo se llevará a cabo. Proporcionaremos un aviso al menos 30 días antes de que los cambios entren en vigor, a menos que la ley requiera que el plazo de notificación sea distinto. Tendrás la oportunidad autorizar los cambios la primera vez que inicias una nueva sesión después de que los cambios entren en vigor. Si no aceptas los cambios, su cuenta será suspendida.",
+      "conclusion": "Puedes consultar la política de privacidad vigente de la plataforma suma en cualquier momento en $t(privacy-policy-strings:links:suma_privacy_policy). Por cualquier pregunta o inquietud sobre cambios a esta política, comunícate con $t(privacy-policy-strings:links:suma_help_email).",
+      "paragraph": "Es posible que se actualice la política de privacidad de la plataforma suma de vez en cuando. Si cambiamos la política de privacidad de suma, te informaremos sobre el cambio por correo electrónico y/o publicando un aviso en la página de inicio de la plataforma $t(privacy-policy-strings:links:suma_platform_homepage). Este aviso te informará qué va a cambiar, la razón del cambio y cómo se llevará a cabo. Proporcionaremos un aviso al menos 30 días antes de que los cambios entren en vigor, a menos que la ley requiera que el plazo de notificación sea distinto. Tendrás la oportunidad autorizar los cambios la primera vez que inicias una nueva sesión después de que los cambios entren en vigor. Si no aceptas los cambios, su cuenta será suspendida.",
       "title": "Cambios futuros a la presente política"
     },
     "information_collected": {
       "list": {
-        "registration_md": "**El registro:** Recopilamos tu nombre, número de teléfono, correo electrónico, datos de pago, los datos de tu cuenta bancaria y el nombre de la organización comunitaria o sin fines de lucro con la que estás afiliado cuando creas tu cuenta de la plataforma suma.",
-        "subsidy_md": "**Los subsidios:** Recopilamos los datos necesarios para obtener subsidios de los terceros que reducen el costo de los bienes y servicios de la plataforma suma.",
-        "vendors_md": "**Los proveedores y comerciantes:** Recopilamos datos sobre los bienes y servicios a los que accedes y compras a través de la plataforma suma."
+        "registration": "**El registro:** Recopilamos tu nombre, número de teléfono, correo electrónico, datos de pago, los datos de tu cuenta bancaria y el nombre de la organización comunitaria o sin fines de lucro con la que estás afiliado cuando creas tu cuenta de la plataforma suma.",
+        "subsidy": "**Los subsidios:** Recopilamos los datos necesarios para obtener subsidios de los terceros que reducen el costo de los bienes y servicios de la plataforma suma.",
+        "vendors": "**Los proveedores y comerciantes:** Recopilamos datos sobre los bienes y servicios a los que accedes y compras a través de la plataforma suma."
       },
       "paragraph": "Recogemos los datos mínimos que sean necesarios para crear tu cuenta en la plataforma suma, para colaborar con las organizaciones comunitarias y sin fines de lucro afiliadas, para conectarte con los proveedores de servicios y comerciantes y para brindar los subsidios:",
       "title": "¿Qué información se recoge?"
     },
     "methods_of_collection": {
       "list": {
-        "community_partners_md": "**Las organizaciones comunitarias y sin fines de lucro afiliadas:** Recopilamos los datos de organizaciones comunitarias afiliadas para ayudarte a calificar para descuentos de los comerciantes y proveedores de la plataforma suma, así como para avalar los subsidios de terceros para reducir el costo de bienes y servicios de los comerciantes de la plataforma.",
-        "cookies_md": "**Las cookies y archivos de registro:** Utilizamos cookies para rastrear quién inició la sesión. Utilizamos archivos de registro para rastrear la actividad en la plataforma. Consulta nuestra política de cookies para más información sobre las cookies que utilizamos y por qué.",
-        "forms_md": "**Formularios:** Cuando proporcionas datos en los varios formularios dentro de la aplicación, y cuando utiliza la propia aplicación, como para la compra de bienes y servicios.",
-        "registration_page_md": "**Registro:** Utilizamos nuestra página de registro para recopilar los datos del usuario cuando crea su cuenta de suma."
+        "community_partners": "**Las organizaciones comunitarias y sin fines de lucro afiliadas:** Recopilamos los datos de organizaciones comunitarias afiliadas para ayudarte a calificar para descuentos de los comerciantes y proveedores de la plataforma suma, así como para avalar los subsidios de terceros para reducir el costo de bienes y servicios de los comerciantes de la plataforma.",
+        "cookies": "**Las cookies y archivos de registro:** Utilizamos cookies para rastrear quién inició la sesión. Utilizamos archivos de registro para rastrear la actividad en la plataforma. Consulta nuestra política de cookies para más información sobre las cookies que utilizamos y por qué.",
+        "forms": "**Formularios:** Cuando proporcionas datos en los varios formularios dentro de la aplicación, y cuando utiliza la propia aplicación, como para la compra de bienes y servicios.",
+        "registration_page": "**Registro:** Utilizamos nuestra página de registro para recopilar los datos del usuario cuando crea su cuenta de suma."
       },
       "paragraph": "Tu confianza, consentimiento y comprensión de nuestra política de privacidad son primordiales para la plataforma suma. Para proporcionar los servicios de la plataforma, recogemos información a través de los siguientes métodos:",
       "title": "Métodos de recogida"
@@ -108,7 +108,7 @@
       "title": "Las organizaciones comunitarias y sin fines de lucro afiliadas"
     },
     "comply_with_law": {
-      "paragraph_md": "Podemos compartir tu información personal en cumplimiento de la ley aplicable, por exigencias reglamentarias, en cumplimento de los términos del contrato o licencia de operación, en vinculación con un proceso legal o solicitud gubernamental, o si hubiera lugar por razones de seguridad o preocupaciones similares. Por ejemplo, podemos compartir tu información personal en caso de que se dañe o pierda una patineta eléctrica para ayudar al proveedor de la patineta a determinar la razón de la pérdida o daños el vehículo.",
+      "paragraph": "Podemos compartir tu información personal en cumplimiento de la ley aplicable, por exigencias reglamentarias, en cumplimento de los términos del contrato o licencia de operación, en vinculación con un proceso legal o solicitud gubernamental, o si hubiera lugar por razones de seguridad o preocupaciones similares. Por ejemplo, podemos compartir tu información personal en caso de que se dañe o pierda una patineta eléctrica para ayudar al proveedor de la patineta a determinar la razón de la pérdida o daños el vehículo.",
       "title": "En cumplimiento de la ley"
     },
     "data_removal": {
@@ -128,7 +128,7 @@
         "qualifications": "para determinar la elegibilidad para descuentos de proveedores de plataformas, para avalar los subsidios de terceros, para crear los paneles de control de la plataforma y para informar a las organizaciones comunitarias y sin fines de lucro afiliadas con la plataforma",
         "resolving_disputes": "resolución de disputas"
       },
-      "paragraph_md": "Conservaremos tu información para los fines comerciales legítimos y esenciales de la plataforma mientras tu cuenta de suma esté activa. Estos propósitos incluyen:",
+      "paragraph": "Conservaremos tu información para los fines comerciales legítimos y esenciales de la plataforma mientras tu cuenta de suma esté activa. Estos propósitos incluyen:",
       "title": "Conservación de datos"
     },
     "disputes": {
@@ -148,7 +148,7 @@
       "title": "Los usos de los datos agregados de la plataforma"
     },
     "platform_vendors": {
-      "paragraph_md": "Podemos compartir ciertos datos con una tienda o proveedor afiliada con la plataforma cuando utilizas la plataforma para acceder a los bienes o servicios de ese proveedor. Por ejemplo, si solicitas un viaje en una patineta eléctrica del Operador X a través de la plataforma, podemos compartir ciertos datos con el Operador X para confirmar que sea un usuario de suma y / o para confirmar que estés elegible para el programa de descuentos del Operador X.",
+      "paragraph": "Podemos compartir ciertos datos con una tienda o proveedor afiliada con la plataforma cuando utilizas la plataforma para acceder a los bienes o servicios de ese proveedor. Por ejemplo, si solicitas un viaje en una patineta eléctrica del Operador X a través de la plataforma, podemos compartir ciertos datos con el Operador X para confirmar que sea un usuario de suma y / o para confirmar que estés elegible para el programa de descuentos del Operador X.",
       "title": "Los comerciantes y proveedores afiliados con la plataforma"
     },
     "security_and_fraud_prevention": {

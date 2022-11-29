@@ -10,7 +10,7 @@ export default function Utilities() {
       imgSrc={utilitiesImage}
       imgAlt="Solar Panels"
       title={t("utilities:page_title")}
-      text={mdp("utilities:intro_md")}
+      text={mdp("utilities:intro")}
     />
   );
 }

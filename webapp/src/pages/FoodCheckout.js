@@ -242,7 +242,7 @@ function CheckoutFulfillment({ checkout, onCheckoutChange }) {
 function CheckoutItems({ checkout }) {
   return (
     <Col className="mb-3">
-      <h5 className="mb-3">{md("food:checkout_items_title_md")}</h5>
+      <h5 className="mb-3">{t("food:checkout_items_title")}</h5>
       {checkout.items?.map((it, idx) => {
         return (
           <React.Fragment key={it.product.productId}>
@@ -294,9 +294,7 @@ function OrderSummary({ checkout, chosenInstrument, onSubmit }) {
             {t("food:charge_to", { instrumentName: chosenInstrument.name })}.
           </p>
         )}
-        <p className="small text-secondary mb-1">
-          {md("food:terms_of_use_agreement_md")}
-        </p>
+        <p className="small text-secondary mb-1">{md("food:terms_of_use_agreement")}</p>
         <Button
           variant="success"
           className="w-100 mt-2"
@@ -338,11 +336,11 @@ function CheckoutItem({ item }) {
           <h6 className="mb-0">{product.name}</h6>
           <p className="text-secondary mb-0 small">
             {product.isDiscounted
-              ? md("food:from_vendor_with_discount_md", {
+              ? t("food:from_vendor_with_discount", {
                   vendorName: product.vendor.name,
                   discountAmount: product.discountAmount,
                 })
-              : md("food:from_vendor_md", { vendorName: product.vendor.name })}
+              : t("food:from_vendor", { vendorName: product.vendor.name })}
           </p>
           <div className="mb-0 text-secondary">
             <small>{t("food:quantity", { quantity: quantity })}</small>

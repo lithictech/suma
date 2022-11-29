@@ -7,9 +7,11 @@ export default function OnboardingFinish() {
   const { user } = useUser();
   return (
     <>
-      {user.onboarded
-        ? mdp("onboarding:finish_onboarded_md")
-        : mdp("onboarding:finish_md")}
+      {user.onboarded ? (
+        <p>{t("onboarding:finish_onboarded")}</p>
+      ) : (
+        mdp("onboarding:finish")
+      )}
       <div className="button-stack">
         <Button href="/dashboard" variant="outline-primary" className="mt-3">
           {t("common:okay_ex")}

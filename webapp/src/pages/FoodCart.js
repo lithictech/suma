@@ -51,7 +51,7 @@ export default function FoodCart() {
   return (
     <>
       <LayoutContainer>
-        {_.isEmpty(cart.items) && md("food:no_cart_items_md")}
+        {_.isEmpty(cart.items) && md("food:no_cart_items")}
         {!_.isEmpty(cart.items) && (
           <Row>
             <LinearBreadcrumbs back={`/food/${offeringId}`} />
@@ -73,7 +73,7 @@ export default function FoodCart() {
               );
             })}
             <Container className="d-flex align-items-end flex-column fs-6">
-              {mdp("food:subtotal_items_md", {
+              {mdp("food:subtotal_items", {
                 totalItems: cart.items.length,
                 customerCost: cart.customerCost,
               })}
@@ -111,11 +111,11 @@ function CartItem({ offeringId, product, vendor }) {
             </Link>
             <p className="text-secondary mb-1 small">
               {product.isDiscounted
-                ? md("food:from_vendor_with_discount_md", {
+                ? t("food:from_vendor_with_discount", {
                     vendorName: vendor.name,
                     discountAmount: discountAmount,
                   })
-                : md("food:from_vendor_md", { vendorName: vendor.name })}
+                : t("food:from_vendor", { vendorName: vendor.name })}
             </p>
             <FoodCartWidget product={product} />
           </div>

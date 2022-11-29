@@ -72,12 +72,14 @@ export default function FoodDetails() {
                 </strike>
               )}
             </p>
-            {product.isDiscounted
-              ? mdp("food:from_vendor_with_discount_md", {
-                  vendorName: vendor.name,
-                  discountAmount: product.discountAmount,
-                })
-              : mdp("food:from_vendor_md", { vendorName: vendor.name })}
+            <p>
+              {product.isDiscounted
+                ? t("food:from_vendor_with_discount", {
+                    vendorName: vendor.name,
+                    discountAmount: product.discountAmount,
+                  })
+                : t("food:from_vendor", { vendorName: vendor.name })}
+            </p>
           </div>
           <div className="ms-auto">
             <FoodCartWidget product={product} size="lg" />
