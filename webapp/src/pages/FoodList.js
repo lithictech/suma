@@ -1,17 +1,17 @@
 import ErrorScreen from "../components/ErrorScreen";
-import FoodCartWidget from "../components/FoodCartWidget";
 import FoodNav from "../components/FoodNav";
+import FoodPrice from "../components/FoodPrice";
 import LinearBreadcrumbs from "../components/LinearBreadcrumbs";
 import PageLoader from "../components/PageLoader";
 import SumaImage from "../components/SumaImage";
 import { t, mdp } from "../localization";
 import makeTitle from "../modules/makeTitle";
-import Money from "../shared/react/Money";
+import { anyMoney } from "../shared/react/Money";
 import { useOffering } from "../state/useOffering";
 import { LayoutContainer } from "../state/withLayout";
-import clsx from "clsx";
 import _ from "lodash";
 import React from "react";
+import { Stack } from "react-bootstrap";
 import Col from "react-bootstrap/Col";
 import Row from "react-bootstrap/Row";
 import { Helmet } from "react-helmet-async";
@@ -41,22 +41,26 @@ export default function FoodList() {
       <Helmet>
         <title>{title}</title>
       </Helmet>
-      <FoodNav
-        offeringId={offeringId}
-        cart={cart}
-        startElement={<h5 className="m-0">{offering.description}</h5>}
-      />
       {offering.image && (
         <SumaImage image={offering.image} w={500} h={140} className="thin-header-image" />
       )}
-      <LayoutContainer className="pt-2">
+      <FoodNav
+        offeringId={offeringId}
+        cart={cart}
+        startElement={
+          <Stack gap={2}>
+            <LinearBreadcrumbs back="/food" noBottom />
+            <h3 className="m-0">{offering.description}</h3>
+          </Stack>
+        }
+      />
+      <LayoutContainer className="pt-4">
         {loading && <PageLoader />}
         {!loading && (
           <>
             {_.isEmpty(products) && mdp("food:no_products")}
             {!_.isEmpty(products) && (
               <Row>
-                <LinearBreadcrumbs back="/food" />
                 {products.map((p) => (
                   <Product key={p.productId} offeringId={offeringId} product={p} />
                 ))}
@@ -70,26 +74,33 @@ export default function FoodList() {
 }
 
 function Product({ product, offeringId }) {
-  const { productId, name, isDiscounted, undiscountedPrice, customerPrice, images } =
-    product;
+  const {
+    productId,
+    name,
+    isDiscounted,
+    undiscountedPrice,
+    customerPrice,
+    images,
+    noncashLedgerContributionAmount,
+  } = product;
   return (
-    <Col xs={6} className="mb-2">
+    <Col xs={6} className="mb-4">
       <div className="position-relative">
         <SumaImage image={images[0]} alt={name} className="w-100" w={225} h={150} />
-        <div className="food-widget-container position-absolute">
-          <FoodCartWidget product={product} />
-        </div>
-        <h6 className="mb-0 mt-2">{name}</h6>
-        <p className="mb-0 fs-5 fw-semibold">
-          <Money className={clsx("me-2", isDiscounted && "text-success")}>
-            {customerPrice}
-          </Money>
-          {isDiscounted && (
-            <strike>
-              <Money>{undiscountedPrice}</Money>
-            </strike>
-          )}
-        </p>
+        <h5 className="mb-2 mt-2">{name}</h5>
+        <FoodPrice
+          fs={5}
+          customerPrice={customerPrice}
+          isDiscounted={isDiscounted}
+          undiscountedPrice={undiscountedPrice}
+        />
+        {anyMoney(noncashLedgerContributionAmount) && (
+          <p className="mb-0">
+            {t("food:additional_credit_at_checkout", {
+              amount: noncashLedgerContributionAmount,
+            })}
+          </p>
+        )}
         <Link to={`/product/${offeringId}-${productId}`} className="stretched-link" />
       </div>
     </Col>

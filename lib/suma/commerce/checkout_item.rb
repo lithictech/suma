@@ -4,6 +4,8 @@ require "suma/commerce"
 require "suma/postgres/model"
 
 class Suma::Commerce::CheckoutItem < Suma::Postgres::Model(:commerce_checkout_items)
+  include Suma::Commerce::PricedItem
+
   plugin :timestamps
 
   many_to_one :checkout, class: "Suma::Commerce::Checkout"
@@ -11,10 +13,6 @@ class Suma::Commerce::CheckoutItem < Suma::Postgres::Model(:commerce_checkout_it
   many_to_one :offering_product, class: "Suma::Commerce::OfferingProduct"
   # Point to the cart item, rather than copying the quantity.
   many_to_one :cart_item, class: "Suma::Commerce::CartItem"
-
-  def undiscounted_cost = self.quantity * self.offering_product.undiscounted_price
-  def customer_cost = self.quantity * self.offering_product.customer_price
-  def savings = self.undiscounted_cost - self.customer_cost
 
   def quantity
     return self.immutable_quantity || self.cart_item.quantity

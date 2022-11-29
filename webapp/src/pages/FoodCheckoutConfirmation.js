@@ -2,7 +2,7 @@ import api from "../api";
 import ErrorScreen from "../components/ErrorScreen";
 import PageLoader from "../components/PageLoader";
 import SumaImage from "../components/SumaImage";
-import { md, mdp, t } from "../localization";
+import { mdp, t } from "../localization";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
 import { LayoutContainer } from "../state/withLayout";
 import React from "react";

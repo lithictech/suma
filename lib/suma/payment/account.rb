@@ -105,12 +105,26 @@ class Suma::Payment::Account < Suma::Postgres::Model(:payment_accounts)
   # @param calculation_context [Suma::Payment::CalculationContext]
   # @param now [Time]
   # @param remainder_ledger [Suma::Payment::Ledger, :first, :last, :ignore] See above.
+  # @param exclude_up [Enumerable<Suma::Vendor::ServiceCategory>] Categories of ledgers to exclude.
+  #   Specifically, the categories here will 'walk up' the parents,
+  #   and ledgers that are assigned to only a subset of these categories
+  #   cannot be used for charging. The main purpose of this argument is to find out how much of a product/service
+  #   can be charged to 'sub ledgers' rather than the fall back/cash ledger.
+  #   For example, given:
+  #   - categories a, and x->y->z
+  #   - ledgerAY with (a, y), ledgerY with (y)
+  #   Excluding y or z would exclude ledgerY (because ledgerA still has category a).
+  #   Excluding x would not exclude anything.
   # @return [Array<Suma::Payment::ChargeContribution]
-  def find_chargeable_ledgers(has_vnd_svc_categories, amount, calculation_context:, now:, remainder_ledger: nil)
+  def find_chargeable_ledgers(has_vnd_svc_categories, amount, calculation_context:, now:,
+    remainder_ledger: nil, exclude_up: nil)
+
     raise ArgumentError, "amount cannot be negative, got #{amount.format}" if amount.negative?
     raise Suma::InvalidPrecondition, "#{self.inspect} has no ledgers" if self.ledgers.empty?
     contributions = []
+    exclusions = exclude_up.present? && exclude_up.map(&:hierarchy_up).flatten.map(&:id).to_set
     self.ledgers.each do |led|
+      next if exclusions && led.vendor_service_categories.map(&:id).to_set.subset?(exclusions)
       cat = led.category_used_to_purchase(has_vnd_svc_categories)
       if cat
         contributions << Suma::Payment::ChargeContribution.new(ledger: led, apply_at: now, amount: 0, category: cat)

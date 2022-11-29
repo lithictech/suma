@@ -59,15 +59,15 @@ export class Lookup {
       });
     }
     const overrides = { a: { component: MdLink } };
-    return <Markdown options={{ overrides }}>{str}</Markdown>;
+    return <Markdown options={{ overrides, ...mdoptions }}>{str}</Markdown>;
   };
 
   md = (key, options = {}) => {
-    return this.mdx(key, { forceInline: true, forceWrapper: true }, options);
+    return this.mdx(key, { forceWrapper: true, wrapper: React.Fragment }, options);
   };
 
   mdp = (key, options = {}) => {
-    return this.mdx(key, {}, options);
+    return this.mdx(key, { forceBlock: true }, options);
   };
 
   t = (key, options = {}) => {

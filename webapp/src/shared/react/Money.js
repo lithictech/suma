@@ -101,3 +101,11 @@ export function addMoney(m1, m2) {
 export function subtractMoney(m1, m2) {
   return mathMoney(m1, m2, (x, y) => x - y);
 }
+
+export function anyMoney(m) {
+  if (!m) {
+    return false;
+  }
+  const cents = m.cents;
+  return cents > 0 || cents < 0;
+}

@@ -4,6 +4,8 @@ require "suma/commerce"
 require "suma/postgres/model"
 
 class Suma::Commerce::CartItem < Suma::Postgres::Model(:commerce_cart_items)
+  include Suma::Commerce::PricedItem
+
   plugin :timestamps
 
   many_to_one :cart, class: "Suma::Commerce::Cart"

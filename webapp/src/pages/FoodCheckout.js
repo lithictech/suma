@@ -1,5 +1,6 @@
 import api from "../api";
 import ErrorScreen from "../components/ErrorScreen";
+import FoodPrice from "../components/FoodPrice";
 import LinearBreadcrumbs from "../components/LinearBreadcrumbs";
 import PageLoader from "../components/PageLoader";
 import RLink from "../components/RLink";
@@ -294,7 +295,7 @@ function OrderSummary({ checkout, chosenInstrument, onSubmit }) {
             {t("food:charge_to", { instrumentName: chosenInstrument.name })}.
           </p>
         )}
-        <p className="small text-secondary mb-1">{md("food:terms_of_use_agreement")}</p>
+        <p className="small text-secondary mt-2">{md("food:terms_of_use_agreement")}</p>
         <Button
           variant="success"
           className="w-100 mt-2"
@@ -346,16 +347,11 @@ function CheckoutItem({ item }) {
             <small>{t("food:quantity", { quantity: quantity })}</small>
           </div>
         </Stack>
-        <p className="ms-auto fs-6">
-          <Money className={clsx("me-2", product.isDiscounted && "text-success")}>
-            {product.customerPrice}
-          </Money>
-          {product.isDiscounted && (
-            <strike>
-              <Money>{product.undiscountedPrice}</Money>
-            </strike>
-          )}
-        </p>
+        <FoodPrice
+          undiscountedPrice={product.undiscountedPrice}
+          isDiscounted={product.isDiscounted}
+          customerPrice={product.customerPrice}
+        />
       </Stack>
     </Col>
   );
