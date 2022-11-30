@@ -4,10 +4,9 @@ import FormError from "../components/FormError";
 import FormSuccess from "../components/FormSuccess";
 import { md, t } from "../localization";
 import { dayjs } from "../modules/dayConfig";
-import useToggle from "../shared/react/useToggle";
 import { extractErrorCode, useError } from "../state/useError";
 import { useUser } from "../state/useUser";
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { Form } from "react-bootstrap";
 import Button from "react-bootstrap/Button";
 import { formatPhoneNumber } from "react-phone-number-input";
@@ -16,11 +15,11 @@ import { useNavigate, useLocation } from "react-router-dom";
 const OneTimePassword = () => {
   const navigate = useNavigate();
   const { setUser } = useUser();
-  const [otp, setOtp] = useState(new Array(6).fill(""));
-  const submitDisabled = useToggle(true);
+  const [otpChars, setOtpChars] = React.useState(new Array(OTP_LENGTH).fill(""));
   const [error, setError] = useError();
-  const [message, setMessage] = useState();
+  const [message, setMessage] = React.useState();
   const { state } = useLocation();
+  const submitRef = React.useRef(null);
   const phoneNumber = state ? state.phoneNumber : undefined;
   const requireTerms = state ? state.requiresTermsAgreement : true;
 
@@ -30,45 +29,50 @@ const OneTimePassword = () => {
     }
   }, [navigate, phoneNumber]);
 
-  useEffect(() => {
-    const isEntireCode = otp.every((number) => number !== "");
-    if (isEntireCode) {
-      submitDisabled.turnOff();
-    } else {
-      submitDisabled.turnOn();
-    }
-  }, [navigate, submitDisabled, otp]);
-
   const handleOtpChange = (event, index = 0) => {
-    if (event?.clipboardData) {
-      const values = event.clipboardData
-        .getData("text")
-        .split("")
-        .map((v) => parseInt(v));
-      if (values.length !== 6) {
-        return;
-      }
-      event.preventDefault();
-      return setOtp([...otp.map((_, idx) => values[idx])]);
-    }
     const { target } = event;
     const { value } = target;
-    if (isNaN(parseInt(value)))
-      return setOtp([...otp.map((num, idx) => (idx === index ? "" : num))]);
-    setOtp([...otp.map((num, idx) => (idx === index ? value : num))]);
-
-    // Focus next input
-    if (target.nextSibling) {
-      target.nextSibling.focus();
+    if (isNaN(parseInt(value))) {
+      submitRef.current.disabled = true;
+      return setOtpChars([...otpChars.map((num, idx) => (idx === index ? "" : num))]);
     }
+    const newOtp = [...otpChars.map((num, idx) => (idx === index ? value : num))];
+    setOtpChars(newOtp);
+
+    submitRef.current.disabled = !otpValid(newOtp);
+
+    if (target.nextSibling) {
+      // Focus next input if there is one.
+      target.nextSibling.focus();
+    } else if (submitRef.current) {
+      // Focus submit if we're at the last input (will only focus if it's not disabled)
+      submitRef.current.focus();
+    }
+  };
+
+  const handleOtpPaste = (event) => {
+    if (!event?.clipboardData) {
+      return;
+    }
+    const digits = event.clipboardData
+      .getData("text")
+      .split("")
+      .filter((ch) => /^\d$/.test(ch));
+    if (digits.length !== OTP_LENGTH) {
+      return;
+    }
+    // We know we have the right number of digits, so are valid.
+    setOtpChars(digits);
+    submitRef.current.disabled = false;
+    submitRef.current.focus();
   };
 
   const handleOtpSubmit = (e) => {
     e.preventDefault();
-    submitDisabled.turnOn();
+    submitRef.current.disabled = true;
     setError();
     api
-      .authVerify({ phone: phoneNumber, token: otp.join(""), termsAgreed: true })
+      .authVerify({ phone: phoneNumber, token: otpChars.join(""), termsAgreed: true })
       .then((r) => {
         setUser(r.data);
         if (r.data.onboarded) {
@@ -78,7 +82,7 @@ const OneTimePassword = () => {
         }
       })
       .catch((err) => {
-        setOtp(new Array(6).fill(""));
+        setOtpChars(new Array(6).fill(""));
         setMessage(null);
         setError(extractErrorCode(err));
         const firstOtpField = document.getElementById("otpContainer").firstChild;
@@ -87,7 +91,7 @@ const OneTimePassword = () => {
   };
 
   const handleResend = () => {
-    setOtp(new Array(6).fill(""));
+    setOtpChars(new Array(6).fill(""));
     setError(null);
     setMessage(["otp:code_resent", { phone: formatPhoneNumber(phoneNumber) }]);
     const firstOtpField = document.getElementById("otpContainer").firstChild;
@@ -103,6 +107,17 @@ const OneTimePassword = () => {
       });
   };
 
+  const handleSubmitRef = React.useCallback((r) => {
+    // On mount of the submit button, set it disabled.
+    // It's a lot easier to manage focus and disabled manually, since they are dependent;
+    // disabled is easy to drive via view state, but focus is not. So do both imperatively.
+    // NOTE: the focus does not always work reliably due to timing issues...
+    if (r) {
+      r.disabled = true;
+    }
+    submitRef.current = r;
+  }, []);
+
   return (
     <>
       <p className="text-center mb-0">
@@ -114,7 +129,7 @@ const OneTimePassword = () => {
         <fieldset>
           <h4 className="text-center mt-4">{t("otp:verify_code")}</h4>
           <div id="otpContainer" className="d-flex justify-content-center mt-4">
-            {otp.map((data, index) => (
+            {otpChars.map((data, index) => (
               <input
                 className="otp-field mb-2 p-1"
                 type="text"
@@ -125,7 +140,7 @@ const OneTimePassword = () => {
                 value={data}
                 placeholder="&middot;"
                 onChange={(event) => handleOtpChange(event, index)}
-                onPaste={(event) => handleOtpChange(event, index)}
+                onPaste={handleOtpPaste}
                 onFocus={(event) => event.target.select()}
                 autoFocus={index === 0}
                 aria-label={t("otp:enter_code") + (index + 1)}
@@ -153,7 +168,7 @@ const OneTimePassword = () => {
           back
           primaryProps={{
             children: t("otp:verify"),
-            disabled: submitDisabled.isOn,
+            ref: handleSubmitRef,
           }}
           variant="outline-primary"
           className="px-3"
@@ -164,3 +179,9 @@ const OneTimePassword = () => {
 };
 
 export default OneTimePassword;
+
+const OTP_LENGTH = 6;
+
+function otpValid(chars) {
+  return chars.every(Boolean);
+}
