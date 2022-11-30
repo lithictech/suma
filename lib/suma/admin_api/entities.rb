@@ -171,15 +171,35 @@ module Suma::AdminAPI::Entities
     include AutoExposeDetail
     expose_translated :description
     expose :period_end, as: :closes_at
+    expose :period_begin, as: :opens_at
     expose :products_amount, &self.delegate_to(:offering_products, :count)
+    expose :orders_amount, &self.delegate_to(:orders, :count)
+  end
+
+  class CommerceProductEntity < BaseEntity
+    include AutoExposeBase
+    include AutoExposeDetail
+    expose_translated :name
+    expose :vendor_id
+    expose :our_cost, with: MoneyEntity
   end
 
   class OfferingProductsEntity < BaseEntity
     include AutoExposeBase
     expose :closed_at
     expose :product_id
+    expose_translated :name, &self.delegate_to(:product, :name)
     expose :customer_price, with: MoneyEntity
     expose :undiscounted_price, with: MoneyEntity
     expose :is_closed, &self.delegate_to(:closed?, safe_with_default: false)
+  end
+
+  class OrdersEntity < BaseEntity
+    include AutoExposeBase
+    include AutoExposeDetail
+    expose :order_status
+    expose :fulfillment_status
+    expose :checkout_id
+    expose :customer_name, &self.delegate_to(:checkout, :cart, :member, :name)
   end
 end

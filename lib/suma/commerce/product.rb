@@ -4,9 +4,11 @@ require "suma/commerce"
 require "suma/image"
 require "suma/postgres/model"
 require "suma/vendor/has_service_categories"
+require "suma/admin_linked"
 
 class Suma::Commerce::Product < Suma::Postgres::Model(:commerce_products)
   include Suma::Image::AssociatedMixin
+  include Suma::AdminLinked
 
   plugin :timestamps
   plugin :money_fields, :our_cost
@@ -41,6 +43,8 @@ class Suma::Commerce::Product < Suma::Postgres::Model(:commerce_products)
                     right_primary_key: :id,
                     read_only: true,
                     order: [:created_at, :id]
+
+  def rel_admin_link = "/product/#{self.id}"
 end
 
 # Table: commerce_products

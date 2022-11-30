@@ -46,7 +46,7 @@ class Suma::Commerce::Offering < Suma::Postgres::Model(:commerce_offerings)
     end
   end
 
-  def rel_admin_link = "/commerce-offering/#{self.id}"
+  def rel_admin_link = "/offering/#{self.id}"
 end
 
 # Table: commerce_offerings

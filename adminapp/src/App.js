@@ -4,14 +4,16 @@ import BankAccountDetailPage from "./pages/BankAccountDetailPage";
 import BookTransactionCreatePage from "./pages/BookTransactionCreatePage";
 import BookTransactionDetailPage from "./pages/BookTransactionDetailPage";
 import BookTransactionListPage from "./pages/BookTransactionListPage";
-import CommerceOfferingDetailPage from "./pages/CommerceOfferingDetailPage";
-import CommerceOfferingList from "./pages/CommerceOfferingList";
 import DashboardPage from "./pages/DashboardPage";
 import FundingTransactionCreatePage from "./pages/FundingTransactionCreatePage";
 import FundingTransactionDetailPage from "./pages/FundingTransactionDetailPage";
 import FundingTransactionListPage from "./pages/FundingTransactionListPage";
 import MemberDetailPage from "./pages/MemberDetailPage";
 import MemberListPage from "./pages/MemberListPage";
+import OfferingDetailPage from "./pages/OfferingDetailPage";
+import OfferingList from "./pages/OfferingList";
+import ProductDetailPage from "./pages/ProductDetailPage";
+import ProductList from "./pages/ProductList";
 import SignInPage from "./pages/SignInPage";
 import applyHocs from "./shared/applyHocs";
 import bluejay from "./shared/bluejay";
@@ -129,17 +131,23 @@ function PageSwitch() {
       />
       <Route
         exact
-        path="/commerce-offerings"
-        element={renderWithHocs(redirectIfUnauthed, withLayout(), CommerceOfferingList)}
+        path="/offerings"
+        element={renderWithHocs(redirectIfUnauthed, withLayout(), OfferingList)}
       />
       <Route
         exact
-        path="/commerce-offering/:id"
-        element={renderWithHocs(
-          redirectIfUnauthed,
-          withLayout(),
-          CommerceOfferingDetailPage
-        )}
+        path="/offering/:id"
+        element={renderWithHocs(redirectIfUnauthed, withLayout(), OfferingDetailPage)}
+      />
+      <Route
+        exact
+        path="/products"
+        element={renderWithHocs(redirectIfUnauthed, withLayout(), ProductList)}
+      />
+      <Route
+        exact
+        path="/product/:id"
+        element={renderWithHocs(redirectIfUnauthed, withLayout(), ProductDetailPage)}
       />
       <Route
         exact

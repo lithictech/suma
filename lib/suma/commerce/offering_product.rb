@@ -5,6 +5,7 @@ require "suma/postgres/model"
 require "suma/admin_linked"
 class Suma::Commerce::OfferingProduct < Suma::Postgres::Model(:commerce_offering_products)
   include Suma::AdminLinked
+
   plugin :timestamps
   plugin :money_fields, :customer_price
   plugin :money_fields, :undiscounted_price
@@ -37,7 +38,7 @@ class Suma::Commerce::OfferingProduct < Suma::Postgres::Model(:commerce_offering
     return self.undiscounted_price - self.customer_price
   end
 
-  def rel_admin_link = "/product/#{self.id}"
+  def rel_admin_link = self.product&.rel_admin_link
 end
 
 # Table: commerce_offering_products

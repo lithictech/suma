@@ -73,6 +73,10 @@ export default {
   getCommerceOffering: ({ id, ...data }) =>
     get(`/adminapi/v1/commerce_offerings/${id}`, data),
 
+  getCommerceProducts: (data) => get("/adminapi/v1/commerce_products", data),
+  getCommerceProduct: ({ id, ...data }) =>
+    get(`/adminapi/v1/commerce_products/${id}`, data),
+
   getMembers: (data) => get(`/adminapi/v1/members`, data),
   getMember: ({ id, ...data }) => get(`/adminapi/v1/members/${id}`, data),
 

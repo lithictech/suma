@@ -11,16 +11,16 @@ import _ from "lodash";
 import React from "react";
 import { useParams } from "react-router-dom";
 
-export default function CommerceOfferingDetailPage() {
+export default function OfferingDetailPage() {
   const { enqueueErrorSnackbar } = useErrorSnackbar();
   let { id } = useParams();
   id = Number(id);
-  const getBookTransaction = React.useCallback(() => {
+  const getCommerceOffering = React.useCallback(() => {
     return api
       .getCommerceOffering({ id })
       .catch((e) => enqueueErrorSnackbar(e, { variant: "error" }));
   }, [id, enqueueErrorSnackbar]);
-  const { state: xaction, loading: xactionLoading } = useAsyncFetch(getBookTransaction, {
+  const { state: xaction, loading: xactionLoading } = useAsyncFetch(getCommerceOffering, {
     default: {},
     pickData: true,
   });
@@ -33,6 +33,8 @@ export default function CommerceOfferingDetailPage() {
             title={`Offering ${id}`}
             properties={[
               { label: "ID", value: id },
+              { label: "Created At", value: dayjs(xaction.createdAt) },
+              { label: "Opening Date", value: dayjs(xaction.opensAt) },
               { label: "Closing Date", value: dayjs(xaction.closesAt) },
               { label: "Description", value: xaction.description },
             ]}
@@ -40,14 +42,43 @@ export default function CommerceOfferingDetailPage() {
           <RelatedList
             title={`Offering Products (${xaction.productsAmount})`}
             rows={xaction.offeringProducts}
-            headers={["Id", "Created", "Closed", "Customer Price", "Undiscounted Price"]}
+            headers={[
+              "Id",
+              "Created",
+              "Name",
+              "Closed",
+              "Customer Price",
+              "Undiscounted Price",
+            ]}
             keyRowAttr="id"
             toCells={(row) => [
               <AdminLink key="id" model={row} />,
               dayjs(row.createdAt).format("lll"),
-              row.isClosed ? dayjs(row.closedAt).format("lll") : "Not closed",
+              row.name,
+              row.isClosed ? dayjs(row.closedAt).format("lll") : "Available",
               <Money key="customer_price">{row.customerPrice}</Money>,
               <Money key="undiscounted_price">{row.undiscountedPrice}</Money>,
+            ]}
+          />
+          <RelatedList
+            title={`Offering Orders (${xaction.ordersAmount})`}
+            rows={xaction.offeringOrders}
+            headers={[
+              "Id",
+              "Created",
+              "Customer",
+              "Status",
+              "Fulfillment Status",
+              "Checkout Id",
+            ]}
+            keyRowAttr="id"
+            toCells={(row) => [
+              <AdminLink key="id" model={row} />,
+              dayjs(row.createdAt).format("lll"),
+              row.customerName,
+              _.capitalize(row.orderStatus),
+              _.capitalize(row.fulfillmentStatus),
+              row.checkoutId,
             ]}
           />
         </div>

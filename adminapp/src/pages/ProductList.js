@@ -1,7 +1,5 @@
 import api from "../api";
 import AdminLink from "../components/AdminLink";
-import FabAdd from "../components/FabAdd";
-import Link from "../components/Link";
 import ResourceTable from "../components/ResourceTable";
 import { dayjs } from "../modules/dayConfig";
 import Money from "../shared/react/Money";
@@ -9,12 +7,12 @@ import useAsyncFetch from "../shared/react/useAsyncFetch";
 import useListQueryControls from "../shared/react/useListQueryControls";
 import React from "react";
 
-export default function CommerceOfferingList() {
+export default function ProductList() {
   const { page, perPage, search, order, orderBy, setListQueryParams } =
     useListQueryControls();
 
-  const getBookTransactions = React.useCallback(() => {
-    return api.getCommerceOfferings({
+  const getCommerceProducts = React.useCallback(() => {
+    return api.getCommerceProducts({
       page: page + 1,
       perPage,
       search,
@@ -24,7 +22,7 @@ export default function CommerceOfferingList() {
   }, [order, orderBy, page, perPage, search]);
 
   const { state: listResponse, loading: listLoading } = useAsyncFetch(
-    getBookTransactions,
+    getCommerceProducts,
     {
       default: {},
       pickData: true,
@@ -32,14 +30,13 @@ export default function CommerceOfferingList() {
   );
   return (
     <>
-      {/*<FabAdd component={Link} href={"/commerce_offering/new"} />*/}
       <ResourceTable
         page={page}
         perPage={perPage}
         search={search}
         order={order}
         orderBy={orderBy}
-        title="Commerce Offerings"
+        title="Products"
         listResponse={listResponse}
         listLoading={listLoading}
         tableProps={{ sx: { minWidth: 650 }, size: "small" }}
@@ -53,23 +50,29 @@ export default function CommerceOfferingList() {
             render: (c) => <AdminLink model={c} />,
           },
           {
-            id: "description",
-            label: "Description",
+            id: "created_at",
+            label: "Created",
             align: "left",
             sortable: true,
-            render: (c) => <AdminLink model={c}>{c.description}</AdminLink>,
+            render: (c) => dayjs(c.createdAt).format("lll"),
           },
           {
-            id: "product_amount",
-            label: "Product Amount",
-            align: "center",
-            render: (c) => c.productsAmount,
+            id: "name",
+            label: "Name",
+            align: "left",
+            render: (c) => <AdminLink model={c}>{c.name}</AdminLink>,
           },
           {
-            id: "closes_at",
-            label: "Closing Date",
-            align: "center",
-            render: (c) => dayjs(c.closesAt).format("lll"),
+            id: "vendor_id",
+            label: "Vendor Id",
+            align: "left",
+            render: (c) => c.vendorId,
+          },
+          {
+            id: "our_cost",
+            label: "Our Cost",
+            align: "left",
+            render: (c) => <Money>{c.ourCost}</Money>,
           },
         ]}
       />

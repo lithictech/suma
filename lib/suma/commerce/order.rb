@@ -2,8 +2,11 @@
 
 require "suma/commerce"
 require "suma/postgres/model"
+require "suma/admin_linked"
 
 class Suma::Commerce::Order < Suma::Postgres::Model(:commerce_orders)
+  include Suma::AdminLinked
+
   plugin :state_machine
   plugin :timestamps
 
@@ -40,6 +43,8 @@ class Suma::Commerce::Order < Suma::Postgres::Model(:commerce_orders)
   def funded_amount
     return self.charges.map(&:associated_funding_transactions).flatten.sum(Money.new(0), &:amount)
   end
+
+  def rel_admin_link = "/order/#{self.id}"
 end
 
 # Table: commerce_orders

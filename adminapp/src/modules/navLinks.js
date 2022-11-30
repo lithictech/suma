@@ -2,6 +2,7 @@ import AccountBalanceIcon from "@mui/icons-material/AccountBalance";
 import AccountBalanceWalletIcon from "@mui/icons-material/AccountBalanceWallet";
 import HomeIcon from "@mui/icons-material/Home";
 import PersonIcon from "@mui/icons-material/Person";
+import SellIcon from "@mui/icons-material/Sell";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import React from "react";
 
@@ -19,8 +20,13 @@ export default [
     icon: <AccountBalanceIcon />,
   },
   {
-    label: "Commerce Offerings",
-    href: "/commerce-offerings",
+    label: "Offerings",
+    href: "/offerings",
     icon: <ShoppingCartIcon />,
+  },
+  {
+    label: "Products",
+    href: "/products",
+    icon: <SellIcon />,
   },
 ];

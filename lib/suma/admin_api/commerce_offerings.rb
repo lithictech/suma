@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require "grape"
-
 require "suma/admin_api"
 
 class Suma::AdminAPI::CommerceOfferings < Suma::AdminAPI::V1
@@ -43,5 +42,6 @@ class Suma::AdminAPI::CommerceOfferings < Suma::AdminAPI::V1
     include Suma::AdminAPI::Entities
     include AutoExposeDetail
     expose :offering_products, with: OfferingProductsEntity
+    expose :orders, with: OrdersEntity, as: :offering_orders
   end
 end
