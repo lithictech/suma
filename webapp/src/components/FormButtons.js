@@ -6,10 +6,11 @@ import Button from "react-bootstrap/Button";
 
 const FormButtons = React.forwardRef(
   ({ primaryProps, secondaryProps, variant, back, className, style }, ref) => {
+    const defaultBack = React.useCallback(() => window.history.back(), []);
     if (back) {
       secondaryProps = {
         children: t("common:back"),
-        onClick: () => window.history.back(),
+        onClick: defaultBack,
       };
     }
     // Each button should be at least 1/3 of the width, leading some nice room to the sides,
