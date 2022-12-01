@@ -7,6 +7,7 @@ import { dayjs } from "../modules/dayConfig";
 import Money from "../shared/react/Money";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
 import { CircularProgress } from "@mui/material";
+import { makeStyles } from "@mui/styles";
 import _ from "lodash";
 import React from "react";
 import { useParams } from "react-router-dom";
@@ -14,71 +15,64 @@ import { useParams } from "react-router-dom";
 export default function OfferingDetailPage() {
   const { enqueueErrorSnackbar } = useErrorSnackbar();
   let { id } = useParams();
+  const classes = useStyles();
   id = Number(id);
   const getCommerceOffering = React.useCallback(() => {
     return api
       .getCommerceOffering({ id })
       .catch((e) => enqueueErrorSnackbar(e, { variant: "error" }));
   }, [id, enqueueErrorSnackbar]);
-  const { state: xaction, loading: xactionLoading } = useAsyncFetch(getCommerceOffering, {
-    default: {},
-    pickData: true,
-  });
+  const { state: offering, loading: offeringLoading } = useAsyncFetch(
+    getCommerceOffering,
+    {
+      default: {},
+      pickData: true,
+    }
+  );
   return (
     <>
-      {xactionLoading && <CircularProgress />}
-      {!_.isEmpty(xaction) && (
+      {offeringLoading && <CircularProgress />}
+      {!_.isEmpty(offering) && (
         <div>
           <DetailGrid
             title={`Offering ${id}`}
             properties={[
               { label: "ID", value: id },
-              { label: "Created At", value: dayjs(xaction.createdAt) },
-              { label: "Opening Date", value: dayjs(xaction.opensAt) },
-              { label: "Closing Date", value: dayjs(xaction.closesAt) },
-              { label: "Description", value: xaction.description },
+              { label: "Created At", value: dayjs(offering.createdAt) },
+              { label: "Opening Date", value: dayjs(offering.opensAt) },
+              { label: "Closing Date", value: dayjs(offering.closesAt) },
+              { label: "Description", value: offering.description },
             ]}
           />
           <RelatedList
-            title={`Offering Products (${xaction.productsAmount})`}
-            rows={xaction.offeringProducts}
-            headers={[
-              "Id",
-              "Created",
-              "Name",
-              "Closed",
-              "Customer Price",
-              "Undiscounted Price",
-            ]}
+            title={`Products (${offering.offeringProducts.length})`}
+            rows={offering.offeringProducts}
+            headers={["Id", "Name", "Vendor", "Customer Price", "Full Price"]}
             keyRowAttr="id"
+            rowClass={(row) => (row.closedAt ? classes.closed : "")}
             toCells={(row) => [
               <AdminLink key="id" model={row} />,
-              dayjs(row.createdAt).format("lll"),
-              row.name,
-              row.isClosed ? dayjs(row.closedAt).format("lll") : "Available",
+              <AdminLink key="id" model={row}>
+                {row.productName}
+              </AdminLink>,
+              row.vendorName,
               <Money key="customer_price">{row.customerPrice}</Money>,
               <Money key="undiscounted_price">{row.undiscountedPrice}</Money>,
             ]}
           />
           <RelatedList
-            title={`Offering Orders (${xaction.ordersAmount})`}
-            rows={xaction.offeringOrders}
-            headers={[
-              "Id",
-              "Created",
-              "Customer",
-              "Status",
-              "Fulfillment Status",
-              "Checkout Id",
-            ]}
+            title={`Orders (${offering.orders.length})`}
+            rows={offering.orders}
+            headers={["Id", "Created", "Member", "Items", "Status"]}
             keyRowAttr="id"
             toCells={(row) => [
               <AdminLink key="id" model={row} />,
               dayjs(row.createdAt).format("lll"),
-              row.customerName,
-              _.capitalize(row.orderStatus),
-              _.capitalize(row.fulfillmentStatus),
-              row.checkoutId,
+              <AdminLink key="mem" model={row.member}>
+                {row.member.name}
+              </AdminLink>,
+              row.totalItemCount,
+              row.statusLabel,
             ]}
           />
         </div>
@@ -86,3 +80,9 @@ export default function OfferingDetailPage() {
     </>
   );
 }
+
+const useStyles = makeStyles((theme) => ({
+  closed: {
+    opacity: 0.5,
+  },
+}));

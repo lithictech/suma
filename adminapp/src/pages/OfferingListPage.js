@@ -2,17 +2,16 @@ import api from "../api";
 import AdminLink from "../components/AdminLink";
 import ResourceTable from "../components/ResourceTable";
 import { dayjs } from "../modules/dayConfig";
-import Money from "../shared/react/Money";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
 import useListQueryControls from "../shared/react/useListQueryControls";
 import React from "react";
 
-export default function ProductList() {
+export default function OfferingListPage() {
   const { page, perPage, search, order, orderBy, setListQueryParams } =
     useListQueryControls();
 
-  const getCommerceProducts = React.useCallback(() => {
-    return api.getCommerceProducts({
+  const getCommerceOfferings = React.useCallback(() => {
+    return api.getCommerceOfferings({
       page: page + 1,
       perPage,
       search,
@@ -22,7 +21,7 @@ export default function ProductList() {
   }, [order, orderBy, page, perPage, search]);
 
   const { state: listResponse, loading: listLoading } = useAsyncFetch(
-    getCommerceProducts,
+    getCommerceOfferings,
     {
       default: {},
       pickData: true,
@@ -36,7 +35,7 @@ export default function ProductList() {
         search={search}
         order={order}
         orderBy={orderBy}
-        title="Products"
+        title="Offerings"
         listResponse={listResponse}
         listLoading={listLoading}
         tableProps={{ sx: { minWidth: 650 }, size: "small" }}
@@ -50,29 +49,34 @@ export default function ProductList() {
             render: (c) => <AdminLink model={c} />,
           },
           {
-            id: "created_at",
-            label: "Created",
+            id: "description",
+            label: "Description",
             align: "left",
-            sortable: true,
-            render: (c) => dayjs(c.createdAt).format("lll"),
+            render: (c) => <AdminLink model={c}>{c.description}</AdminLink>,
           },
           {
-            id: "name",
-            label: "Name",
-            align: "left",
-            render: (c) => <AdminLink model={c}>{c.name}</AdminLink>,
+            id: "orders",
+            label: "Order Count",
+            align: "center",
+            render: (c) => c.orderCount,
           },
           {
-            id: "vendor_id",
-            label: "Vendor Id",
-            align: "left",
-            render: (c) => c.vendorId,
+            id: "product_amount",
+            label: "Product Count",
+            align: "center",
+            render: (c) => c.productCount,
           },
           {
-            id: "our_cost",
-            label: "Our Cost",
-            align: "left",
-            render: (c) => <Money>{c.ourCost}</Money>,
+            id: "opens_at",
+            label: "Opens",
+            align: "center",
+            render: (c) => dayjs(c.opensAt).format("lll"),
+          },
+          {
+            id: "closes_at",
+            label: "Closes",
+            align: "center",
+            render: (c) => dayjs(c.closesAt).format("lll"),
           },
         ]}
       />

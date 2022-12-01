@@ -74,6 +74,7 @@ export default function MemberDetailPage() {
           />
           <LegalEntity {...member.legalEntity} />
           <Activities activities={member.activities} />
+          <Orders orders={member.orders} />
           <Sessions sessions={member.sessions} />
           <ResetCodes resetCodes={member.resetCodes} />
           <Charges charges={member.charges} />
@@ -155,6 +156,26 @@ function Sessions({ sessions }) {
           {row.peerIp}
         </SafeExternalLink>,
         row.userAgent,
+      ]}
+    />
+  );
+}
+
+function Orders({ orders }) {
+  return (
+    <RelatedList
+      title="Orders"
+      rows={orders}
+      headers={["Id", "Created At", "Items", "Offering", "Status"]}
+      keyRowAttr="id"
+      toCells={(row) => [
+        <AdminLink key="id" model={row} />,
+        dayjs(row.createdAt).format("lll"),
+        row.totalItemCount,
+        <AdminLink key="off" model={row.offering}>
+          {row.offering.description}
+        </AdminLink>,
+        row.statusLabel,
       ]}
     />
   );

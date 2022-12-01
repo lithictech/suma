@@ -166,40 +166,39 @@ module Suma::AdminAPI::Entities
     expose :originated_funding_transactions, with: FundingTransactionEntity
   end
 
-  class CommerceOfferingEntity < BaseEntity
+  class OfferingEntity < BaseEntity
     include AutoExposeBase
-    include AutoExposeDetail
     expose_translated :description
     expose :period_end, as: :closes_at
     expose :period_begin, as: :opens_at
-    expose :products_amount, &self.delegate_to(:offering_products, :count)
-    expose :orders_amount, &self.delegate_to(:orders, :count)
   end
 
-  class CommerceProductEntity < BaseEntity
+  class OfferingFulfillmentOptionEntity < BaseEntity
     include AutoExposeBase
-    include AutoExposeDetail
-    expose_translated :name
-    expose :vendor_id
-    expose :our_cost, with: MoneyEntity
+    expose_translated :description
+    expose :type
+    expose :ordinal
+    expose :offering_id
+    expose :address, with: AddressEntity, safe: true
   end
 
-  class OfferingProductsEntity < BaseEntity
+  class OfferingProductEntity < BaseEntity
     include AutoExposeBase
     expose :closed_at
     expose :product_id
-    expose_translated :name, &self.delegate_to(:product, :name)
+    expose_translated :product_name, &self.delegate_to(:product, :name)
+    expose :vendor_name, &self.delegate_to(:product, :vendor, :name)
     expose :customer_price, with: MoneyEntity
     expose :undiscounted_price, with: MoneyEntity
-    expose :is_closed, &self.delegate_to(:closed?, safe_with_default: false)
+    expose :closed?, as: :is_closed
   end
 
-  class OrdersEntity < BaseEntity
+  class OrderEntity < BaseEntity
     include AutoExposeBase
-    include AutoExposeDetail
     expose :order_status
     expose :fulfillment_status
+    expose :admin_status_label, as: :status_label
     expose :checkout_id
-    expose :customer_name, &self.delegate_to(:checkout, :cart, :member, :name)
+    expose :member, with: MemberEntity, &self.delegate_to(:checkout, :cart, :member)
   end
 end

@@ -11,9 +11,11 @@ import FundingTransactionListPage from "./pages/FundingTransactionListPage";
 import MemberDetailPage from "./pages/MemberDetailPage";
 import MemberListPage from "./pages/MemberListPage";
 import OfferingDetailPage from "./pages/OfferingDetailPage";
-import OfferingList from "./pages/OfferingList";
+import OfferingListPage from "./pages/OfferingListPage";
+import OrderDetailPage from "./pages/OrderDetailPage";
+import OrderListPage from "./pages/OrderListPage";
 import ProductDetailPage from "./pages/ProductDetailPage";
-import ProductList from "./pages/ProductList";
+import ProductListPage from "./pages/ProductListPage";
 import SignInPage from "./pages/SignInPage";
 import applyHocs from "./shared/applyHocs";
 import bluejay from "./shared/bluejay";
@@ -132,7 +134,7 @@ function PageSwitch() {
       <Route
         exact
         path="/offerings"
-        element={renderWithHocs(redirectIfUnauthed, withLayout(), OfferingList)}
+        element={renderWithHocs(redirectIfUnauthed, withLayout(), OfferingListPage)}
       />
       <Route
         exact
@@ -142,12 +144,22 @@ function PageSwitch() {
       <Route
         exact
         path="/products"
-        element={renderWithHocs(redirectIfUnauthed, withLayout(), ProductList)}
+        element={renderWithHocs(redirectIfUnauthed, withLayout(), ProductListPage)}
       />
       <Route
         exact
         path="/product/:id"
         element={renderWithHocs(redirectIfUnauthed, withLayout(), ProductDetailPage)}
+      />
+      <Route
+        exact
+        path="/orders"
+        element={renderWithHocs(redirectIfUnauthed, withLayout(), OrderListPage)}
+      />
+      <Route
+        exact
+        path="/order/:id"
+        element={renderWithHocs(redirectIfUnauthed, withLayout(), OrderDetailPage)}
       />
       <Route
         exact

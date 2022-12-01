@@ -20,7 +20,7 @@ class Suma::AdminAPI::CommerceOfferings < Suma::AdminAPI::V1
       end
       ds = order(ds, params)
       ds = paginate(ds, params)
-      present_collection ds, with: CommerceOfferingEntity
+      present_collection ds, with: ListCommerceOfferingEntity
     end
 
     route_param :id, type: Integer do
@@ -38,10 +38,19 @@ class Suma::AdminAPI::CommerceOfferings < Suma::AdminAPI::V1
     end
   end
 
-  class DetailedCommerceOfferingEntity < CommerceOfferingEntity
+  class ListCommerceOfferingEntity < OfferingEntity
+    expose :product_count
+    expose :order_count
+  end
+
+  class OrderInOfferingEntity < OrderEntity
+    expose :total_item_count
+  end
+
+  class DetailedCommerceOfferingEntity < OfferingEntity
     include Suma::AdminAPI::Entities
     include AutoExposeDetail
-    expose :offering_products, with: OfferingProductsEntity
-    expose :orders, with: OrdersEntity, as: :offering_orders
+    expose :offering_products, with: OfferingProductEntity
+    expose :orders, with: OrderInOfferingEntity
   end
 end

@@ -112,6 +112,12 @@ class Suma::AdminAPI::Members < Suma::AdminAPI::V1
     end
   end
 
+  class MemberOrderEntity < OrderEntity
+    include Suma::AdminAPI::Entities
+    expose :total_item_count
+    expose :offering, with: OfferingEntity, &self.delegate_to(:checkout, :cart, :offering)
+  end
+
   class DetailedMemberEntity < MemberEntity
     include Suma::AdminAPI::Entities
     include AutoExposeDetail
@@ -132,5 +138,6 @@ class Suma::AdminAPI::Members < Suma::AdminAPI::V1
     expose :activities, with: MemberActivityEntity
     expose :reset_codes, with: MemberResetCodeEntity
     expose :sessions, with: MemberSessionEntity
+    expose :orders, with: MemberOrderEntity
   end
 end

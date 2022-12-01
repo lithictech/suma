@@ -20,38 +20,54 @@ export default function ProductDetailPage() {
       .getCommerceProduct({ id })
       .catch((e) => enqueueErrorSnackbar(e, { variant: "error" }));
   }, [id, enqueueErrorSnackbar]);
-  const { state: xaction, loading: xactionLoading } = useAsyncFetch(getCommerceProduct, {
+  const { state: product, loading: productLoading } = useAsyncFetch(getCommerceProduct, {
     default: {},
     pickData: true,
   });
   return (
     <>
-      {xactionLoading && <CircularProgress />}
-      {!_.isEmpty(xaction) && (
+      {productLoading && <CircularProgress />}
+      {!_.isEmpty(product) && (
         <div>
           <DetailGrid
             title={`Product ${id}`}
             properties={[
               { label: "ID", value: id },
-              { label: "Created At", value: dayjs(xaction.createdAt) },
-              { label: "Name", value: xaction.name },
-              { label: "Vendor ID", value: xaction.vendorId },
-              { label: "Our Cost", value: <Money>{xaction.ourCost}</Money> },
+              { label: "Created At", value: dayjs(product.createdAt) },
+              { label: "Name", value: product.name },
+              { label: "Vendor", value: product.vendor?.name },
+              { label: "Our Cost", value: <Money>{product.ourCost}</Money> },
+              { label: "Max Per Offering", value: product.maxQuantityPerOffering },
+              { label: "Max Per Order", value: product.maxQuantityPerOrder },
             ]}
           />
           <RelatedList
-            title="Offerings"
-            rows={xaction.offerings}
-            headers={["Id", "Created At", "Description", "Opens", "Closes"]}
+            title="Orders"
+            rows={product.orders}
+            headers={["Id", "Created At", "Status", "Member"]}
             keyRowAttr="id"
             toCells={(row) => [
               <AdminLink key="id" model={row} />,
               dayjs(row.createdAt).format("lll"),
-              <AdminLink key="description" model={row}>
-                {row.description}
+              row.orderStatus,
+              <AdminLink key="member" model={row.member}>
+                {row.member.name}
               </AdminLink>,
-              dayjs(row.opensAt).format("lll"),
-              dayjs(row.closesAt).format("lll"),
+            ]}
+          />
+          <RelatedList
+            title={`Offering Products`}
+            rows={product.offeringProducts}
+            headers={["Id", "Customer Price", "Full Price", "Offering", "Closed"]}
+            keyRowAttr="id"
+            toCells={(row) => [
+              row.id,
+              <Money key="customer_price">{row.customerPrice}</Money>,
+              <Money key="undiscounted_price">{row.undiscountedPrice}</Money>,
+              <AdminLink key="offering" model={row.offering}>
+                {row.offering.description}
+              </AdminLink>,
+              row.isClosed ? dayjs(row.closedAt).format("lll") : "",
             ]}
           />
         </div>

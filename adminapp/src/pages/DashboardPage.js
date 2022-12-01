@@ -11,7 +11,7 @@ export default function DashboardPage() {
       </Typography>
       <Typography gutterBottom>
         You can currently check member details, impersonate members and check their
-        activity history. More features will be coming soon.
+        activity history.
       </Typography>
     </>
   );

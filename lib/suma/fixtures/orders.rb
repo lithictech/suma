@@ -18,6 +18,6 @@ module Suma::Fixtures::Orders
 
   decorator :as_purchased_by do |member|
     cart = Suma::Fixtures.cart(member:).with_any_product.create
-    self.checkout = Suma::Fixtures.checkout(cart:).with_payment_instrument.populate_items.create
+    self.checkout = Suma::Fixtures.checkout(cart:).with_payment_instrument.populate_items.completed.create
   end
 end
