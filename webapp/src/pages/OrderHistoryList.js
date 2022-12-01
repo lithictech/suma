@@ -4,7 +4,7 @@ import LinearBreadcrumbs from "../components/LinearBreadcrumbs";
 import PageLoader from "../components/PageLoader";
 import RLink from "../components/RLink";
 import SumaImage from "../components/SumaImage";
-import { md, mdp, t } from "../localization";
+import { mdp, t } from "../localization";
 import { dayjs } from "../modules/dayConfig";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
 import { LayoutContainer } from "../state/withLayout";
@@ -62,7 +62,7 @@ export default function OrderHistoryList() {
             {mdp("food:no_orders")}
             <p>
               <Link to="/food">
-                {md("checkout_available")}
+                {t("food:checkout_available")}
                 <i className="bi bi-arrow-right ms-1"></i>
               </Link>
             </p>
