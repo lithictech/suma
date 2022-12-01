@@ -3,6 +3,16 @@
 RSpec.describe "Suma::Commerce::Order", :db do
   let(:described_class) { Suma::Commerce::Order }
 
+  describe "associations" do
+    it "can count total items" do
+      o = Suma::Fixtures.order.as_purchased_by(Suma::Fixtures.member.create).create
+      expect(o.refresh.total_item_count).to eq(1)
+      o.checkout.items.first.update(immutable_quantity: 2)
+      expect(o.refresh.total_item_count).to eq(2)
+      expect(Suma::Commerce::Order.where(id: o.id).all.first.total_item_count).to eq(2)
+    end
+  end
+
   it "can make a serial number" do
     o = Suma::Fixtures.order.create
     o.id = 12

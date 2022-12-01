@@ -2,8 +2,10 @@
 
 require "suma/commerce"
 require "suma/postgres/model"
-
+require "suma/admin_linked"
 class Suma::Commerce::OfferingProduct < Suma::Postgres::Model(:commerce_offering_products)
+  include Suma::AdminLinked
+
   plugin :timestamps
   plugin :money_fields, :customer_price
   plugin :money_fields, :undiscounted_price
@@ -21,6 +23,11 @@ class Suma::Commerce::OfferingProduct < Suma::Postgres::Model(:commerce_offering
     return self.closed_at.nil?
   end
 
+  def closed?
+    return false if self.closed_at.nil?
+    return true
+  end
+
   def discounted?
     return false if self.undiscounted_price.nil?
     return false if self.customer_price == self.undiscounted_price
@@ -30,6 +37,8 @@ class Suma::Commerce::OfferingProduct < Suma::Postgres::Model(:commerce_offering
   def discount_amount
     return self.undiscounted_price - self.customer_price
   end
+
+  def rel_admin_link = self.product&.rel_admin_link
 end
 
 # Table: commerce_offering_products

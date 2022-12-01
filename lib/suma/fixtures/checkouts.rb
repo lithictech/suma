@@ -25,8 +25,11 @@ module Suma::Fixtures::Checkouts
     end
   end
 
-  decorator :completed do |t=Time.now|
+  decorator :completed, presave: true do |t=Time.now|
     self.complete(t)
+    self.items.each do |it|
+      it.update(cart_item_id: nil, immutable_quantity: it.cart_item.quantity)
+    end
   end
 
   decorator :with_payment_instrument, presave: true do

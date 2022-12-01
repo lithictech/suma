@@ -30,6 +30,7 @@ import React from "react";
  * @param listLoading
  * @param title
  * @param tableProps
+ * @param disableSearch
  * @param {Array<{label: string, id: string, align: any, sortable: boolean, render: function}>} columns
  */
 export default function ResourceTable({
@@ -44,6 +45,7 @@ export default function ResourceTable({
   title,
   columns,
   tableProps,
+  disableSearch,
 }) {
   const classes = useStyles();
   function handleSearchKeyDown(e) {
@@ -57,14 +59,16 @@ export default function ResourceTable({
     <>
       <Stack direction="row" justifyContent="space-between" alignItems="center">
         <Typography variant="h5">{title}</Typography>
-        <TextField
-          label="Search"
-          variant="outlined"
-          type="search"
-          size="small"
-          defaultValue={search}
-          onKeyDown={handleSearchKeyDown}
-        />
+        {!disableSearch && (
+          <TextField
+            label="Search"
+            variant="outlined"
+            type="search"
+            size="small"
+            defaultValue={search}
+            onKeyDown={handleSearchKeyDown}
+          />
+        )}
       </Stack>
       <TableContainer component={Paper}>
         <Table {...tableProps}>

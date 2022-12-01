@@ -2,14 +2,47 @@
 
 require "suma/commerce"
 require "suma/postgres/model"
+require "suma/admin_linked"
 
 class Suma::Commerce::Order < Suma::Postgres::Model(:commerce_orders)
+  include Suma::AdminLinked
+
   plugin :state_machine
   plugin :timestamps
 
   one_to_many :audit_logs, class: "Suma::Commerce::OrderAuditLog", order: Sequel.desc(:at)
   many_to_one :checkout, class: "Suma::Commerce::Checkout"
   one_to_many :charges, class: "Suma::Charge", key: :commerce_order_id
+
+  many_to_one :total_item_count,
+              read_only: true,
+              key: :id,
+              class: "Suma::Commerce::Order",
+              dataset: proc {
+                Suma::Commerce::Order.
+                  join(:commerce_checkout_items, {checkout_id: :checkout_id}).
+                  where(Sequel[:commerce_orders][:id] => id).
+                  select { coalesce(sum(immutable_quantity), 0).as(total_item_count) }.
+                  naked
+              },
+              eager_loader: (lambda do |eo|
+                eo[:rows].each { |p| p.associations[:total_item_count] = nil }
+                Suma::Commerce::Order.
+                  join(:commerce_checkout_items, {checkout_id: :checkout_id}).
+                  where(Sequel[:commerce_orders][:id] => eo[:id_map].keys).
+                  select_group(Sequel[:commerce_orders][:id].as(:order_id)).
+                  select_append { coalesce(sum(immutable_quantity), 0).as(total_item_count) }.
+                  naked.
+                  all do |t|
+                  p = eo[:id_map][t.delete(:order_id)].first
+                  p.associations[:total_item_count] = t
+                end
+              end)
+
+  def total_item_count
+    # Pick just the 'select' column from the associated object
+    return (super || {}).fetch(:total_item_count, 0)
+  end
 
   state_machine :order_status, initial: :open do
     state :open, :completed, :canceled
@@ -40,6 +73,12 @@ class Suma::Commerce::Order < Suma::Postgres::Model(:commerce_orders)
   def funded_amount
     return self.charges.map(&:associated_funding_transactions).flatten.sum(Money.new(0), &:amount)
   end
+
+  def admin_status_label
+    return "#{self.order_status} / #{self.fulfillment_status}"
+  end
+
+  def rel_admin_link = "/order/#{self.id}"
 end
 
 # Table: commerce_orders

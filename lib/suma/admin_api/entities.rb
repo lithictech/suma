@@ -165,4 +165,40 @@ module Suma::AdminAPI::Entities
     expose :total_balance, with: MoneyEntity
     expose :originated_funding_transactions, with: FundingTransactionEntity
   end
+
+  class OfferingEntity < BaseEntity
+    include AutoExposeBase
+    expose_translated :description
+    expose :period_end, as: :closes_at
+    expose :period_begin, as: :opens_at
+  end
+
+  class OfferingFulfillmentOptionEntity < BaseEntity
+    include AutoExposeBase
+    expose_translated :description
+    expose :type
+    expose :ordinal
+    expose :offering_id
+    expose :address, with: AddressEntity, safe: true
+  end
+
+  class OfferingProductEntity < BaseEntity
+    include AutoExposeBase
+    expose :closed_at
+    expose :product_id
+    expose_translated :product_name, &self.delegate_to(:product, :name)
+    expose :vendor_name, &self.delegate_to(:product, :vendor, :name)
+    expose :customer_price, with: MoneyEntity
+    expose :undiscounted_price, with: MoneyEntity
+    expose :closed?, as: :is_closed
+  end
+
+  class OrderEntity < BaseEntity
+    include AutoExposeBase
+    expose :order_status
+    expose :fulfillment_status
+    expose :admin_status_label, as: :status_label
+    expose :checkout_id
+    expose :member, with: MemberEntity, &self.delegate_to(:checkout, :cart, :member)
+  end
 end

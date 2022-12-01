@@ -4,9 +4,11 @@ require "suma/commerce"
 require "suma/image"
 require "suma/postgres/model"
 require "suma/vendor/has_service_categories"
+require "suma/admin_linked"
 
 class Suma::Commerce::Product < Suma::Postgres::Model(:commerce_products)
   include Suma::Image::AssociatedMixin
+  include Suma::AdminLinked
 
   plugin :timestamps
   plugin :money_fields, :our_cost
@@ -14,12 +16,36 @@ class Suma::Commerce::Product < Suma::Postgres::Model(:commerce_products)
   plugin :translated_text, :description, Suma::TranslatedText
 
   many_to_one :vendor, class: "Suma::Vendor"
+  one_to_many :offering_products, class: "Suma::Commerce::OfferingProduct", order: [:offering_id]
 
   many_to_many :vendor_service_categories, class: "Suma::Vendor::ServiceCategory",
                                            join_table: :vendor_service_categories_commerce_products,
                                            left_key: :product_id,
                                            right_key: :category_id
   include Suma::Vendor::HasServiceCategories
+
+  many_through_many :orders,
+                    [
+                      [:commerce_offering_products, :product_id, :id],
+                      [:commerce_checkout_items, :offering_product_id, :checkout_id],
+                    ],
+                    class: "Suma::Commerce::Order",
+                    left_primary_key: :id,
+                    right_primary_key: :checkout_id,
+                    read_only: true,
+                    order: [:created_at, :id]
+
+  many_through_many :offerings,
+                    [
+                      [:commerce_offering_products, :id, :offering_id],
+                    ],
+                    class: "Suma::Commerce::Offering",
+                    left_primary_key: :id,
+                    right_primary_key: :id,
+                    read_only: true,
+                    order: [:created_at, :id]
+
+  def rel_admin_link = "/product/#{self.id}"
 end
 
 # Table: commerce_products
