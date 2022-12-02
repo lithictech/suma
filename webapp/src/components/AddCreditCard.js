@@ -44,6 +44,9 @@ export default function AddCreditCard({ onSuccess, error, setError }) {
 
   const runSetter = React.useCallback(
     (name, set, value) => {
+      // Fallback expiry formatter since Payment formatter does not remove whitespace
+      // This caused issues with ReactCreditCard expiry display
+      value = value && name === "expiry" ? value.match(/(\d{1,2})/g).join("/") : value;
       clearErrors(name);
       setValue(name, value);
       set(value);
@@ -91,6 +94,16 @@ export default function AddCreditCard({ onSuccess, error, setError }) {
   };
   const handleBlur = () => setFocus("");
 
+  const handleExpiryChange = (e) => {
+    runSetter(e.target.name, setExpiry, e.target.value);
+    // Focus CVC input element
+    const cvcElement = document.getElementsByName("cvc")[0];
+    const expiryMaxLength = 5;
+    if (e.target.value.length === expiryMaxLength) {
+      cvcElement.focus();
+    }
+  };
+
   let numberOffset = 0,
     expOffset = 0,
     errorOffset = 0,
@@ -120,7 +133,6 @@ export default function AddCreditCard({ onSuccess, error, setError }) {
       cardOffset = -buttonDims.h - errorDims.h + cardDims.my;
     }
   }
-
   return (
     <>
       <Form noValidate onSubmit={handleSubmit(handleSubmitInner)}>
@@ -175,23 +187,23 @@ export default function AddCreditCard({ onSuccess, error, setError }) {
           style={{ transform: `translateY(${expOffset}px)` }}
         >
           <FormControlGroup
-            inputRef={(r) => r && Payment.formatCardExpiry(r)}
             as={Col}
             required
             type="text"
+            maxLength="7"
             pattern="\d*"
             inputMode="numeric"
             name="expiry"
             autoComplete="cc-exp"
             autoCorrect="off"
             spellCheck="false"
-            label={"MM / YY"}
+            label={"MM/YY"}
             value={expiry}
             errors={errors}
             register={register}
             registerOptions={{ validate: Payment.fns.validateCardExpiry }}
             errorKeys={{ validate: "forms:invalid_card_expiry" }}
-            onChange={(e) => runSetter(e.target.name, setExpiry, e.target.value)}
+            onChange={handleExpiryChange}
             onFocus={handleFocus}
             onBlur={handleBlur}
           />
@@ -200,6 +212,7 @@ export default function AddCreditCard({ onSuccess, error, setError }) {
             as={Col}
             required
             type="text"
+            maxLength="3"
             pattern="\d*"
             inputMode="numeric"
             name="cvc"
