@@ -44,9 +44,6 @@ export default function AddCreditCard({ onSuccess, error, setError }) {
 
   const runSetter = React.useCallback(
     (name, set, value) => {
-      // Fallback expiry formatter since Payment formatter does not remove whitespace
-      // This caused issues with ReactCreditCard expiry display
-      value = value && name === "expiry" ? value.match(/(\d{1,2})/g).join("/") : value;
       clearErrors(name);
       setValue(name, value);
       set(value);
@@ -95,11 +92,16 @@ export default function AddCreditCard({ onSuccess, error, setError }) {
   const handleBlur = () => setFocus("");
 
   const handleExpiryChange = (e) => {
-    runSetter(e.target.name, setExpiry, e.target.value);
+    let { name, value } = e.target;
+    // Fallback expiry formatter since Payment formatter does not remove whitespace
+    // This caused issues with ReactCreditCard expiry display
+    value = value && name === "expiry" ? value.match(/(\d{1,2})/g).join("/") : value;
+    runSetter(name, setExpiry, value);
+
     // Focus CVC input element
     const cvcElement = document.getElementsByName("cvc")[0];
     const expiryMaxLength = 5;
-    if (e.target.value.length === expiryMaxLength) {
+    if (value.length === expiryMaxLength) {
       cvcElement.focus();
     }
   };
