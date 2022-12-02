@@ -7,7 +7,7 @@ import Container from "react-bootstrap/Container";
 export default function FoodNav({ offeringId, startElement, cart }) {
   if (startElement) {
     return (
-      <Container className="hstack gap-3 border-start border-end py-2">
+      <Container className="hstack gap-3 border border-top-0 py-2">
         {startElement && startElement}
         <Button
           href={`/cart/${offeringId}`}

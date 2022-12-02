@@ -42,7 +42,7 @@ export default function FoodCartWidget({ product, size }) {
 
   return (
     <ButtonGroup aria-label="add-to-cart" className="shadow">
-      {quantity > 0 && (
+      {quantity > 0 && !outOfStock && (
         <>
           <Button
             variant="success"
@@ -55,7 +55,7 @@ export default function FoodCartWidget({ product, size }) {
           <Dropdown
             variant="success"
             as={ButtonGroup}
-            title={"" + quantity}
+            title={quantity}
             onSelect={(quantity) => handleQuantityChange(Number(quantity))}
           >
             <Dropdown.Toggle
@@ -74,23 +74,34 @@ export default function FoodCartWidget({ product, size }) {
           </Dropdown>
         </>
       )}
-      <Button
-        variant="success"
-        onClick={() => handleQuantityChange(quantity + 1)}
-        className={clsx(
-          btnClasses,
-          quantity === product.maxQuantity && "disabled",
-          "nowrap"
-        )}
-        title={t("food:add_to_cart")}
-      >
-        <img src={addIcon} alt={t("food:add_to_cart")} width="32px" />
-        {size === "lg" && quantity === 0 && (
-          <span className="text-capitalize fs-5 align-middle ms-1 pe-2">
-            {t("food:add_to_cart")}
+      {!outOfStock ? (
+        <Button
+          variant="success"
+          onClick={() => handleQuantityChange(quantity + 1)}
+          className={clsx(
+            btnClasses,
+            quantity === product.maxQuantity && "disabled",
+            "nowrap"
+          )}
+          title={t("food:add_to_cart")}
+        >
+          <img src={addIcon} alt={t("food:add_to_cart")} width="32px" />
+          {size === "lg" && quantity === 0 && (
+            <span className="text-capitalize fs-5 align-middle mx-1">
+              {t("food:add_to_cart")}
+            </span>
+          )}
+        </Button>
+      ) : (
+        <Button
+          variant="secondary"
+          className={clsx(btnClasses, size === "sm" && "px-1 pb-1", "disabled nowrap")}
+        >
+          <span className="text-capitalize fs-5 align-middle mx-1">
+            {t("food:out_of_stock")}
           </span>
-        )}
-      </Button>
+        </Button>
+      )}
     </ButtonGroup>
   );
 }
@@ -111,3 +122,6 @@ const sizeClasses = {
   lg: "lh-1 m-0 p-2",
   sm: "lh-1 m-0 p-0",
 };
+
+// TODO: Return/expose outOfStock value from backend
+const outOfStock = true;
