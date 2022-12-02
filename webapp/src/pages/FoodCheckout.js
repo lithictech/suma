@@ -333,25 +333,36 @@ function CheckoutItem({ item }) {
           w={80}
           h={80}
         />
-        <Stack className="justify-content-between">
-          <h6 className="mb-0">{product.name}</h6>
-          <p className="text-secondary mb-0 small">
-            {product.isDiscounted
-              ? t("food:from_vendor_with_discount", {
-                  vendorName: product.vendor.name,
-                  discountAmount: product.discountAmount,
-                })
-              : t("food:from_vendor", { vendorName: product.vendor.name })}
-          </p>
-          <div className="mb-0 text-secondary">
-            <small>{t("food:quantity", { quantity: quantity })}</small>
-          </div>
-        </Stack>
-        <FoodPrice
-          undiscountedPrice={product.undiscountedPrice}
-          isDiscounted={product.isDiscounted}
-          customerPrice={product.customerPrice}
-        />
+        {product.outOfStock ? (
+          <Stack>
+            <h6 className="mb-2">{product.name}</h6>
+            <p className="text-secondary mb-0 text-danger">
+              {t("food:currently_unavailable")}
+            </p>
+          </Stack>
+        ) : (
+          <>
+            <Stack className="justify-content-between">
+              <h6 className="mb-0">{product.name}</h6>
+              <p className="text-secondary mb-0 small">
+                {product.isDiscounted
+                  ? t("food:from_vendor_with_discount", {
+                      vendorName: product.vendor.name,
+                      discountAmount: product.discountAmount,
+                    })
+                  : t("food:from_vendor", { vendorName: product.vendor.name })}
+              </p>
+              <div className="mb-0 text-secondary">
+                <small>{t("food:quantity", { quantity: quantity })}</small>
+              </div>
+            </Stack>
+            <FoodPrice
+              undiscountedPrice={product.undiscountedPrice}
+              isDiscounted={product.isDiscounted}
+              customerPrice={product.customerPrice}
+            />
+          </>
+        )}
       </Stack>
     </Col>
   );

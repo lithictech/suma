@@ -12,20 +12,18 @@ export default function FoodPrice({
   className,
 }) {
   return (
-    <Stack className={clsx(className)}>
-      <Stack
-        direction="horizontal"
-        className={clsx(bold && `fw-semibold`, fs && `fs-${fs}`)}
-      >
-        <Money className={clsx("me-2", isDiscounted && "text-success")}>
-          {customerPrice}
-        </Money>
-        {isDiscounted && (
-          <strike>
-            <Money>{undiscountedPrice}</Money>
-          </strike>
-        )}
-      </Stack>
+    <Stack
+      direction="horizontal"
+      className={clsx(className, bold && `fw-semibold`, fs && `fs-${fs}`)}
+    >
+      <Money className={clsx("me-2", isDiscounted && "text-success")}>
+        {customerPrice}
+      </Money>
+      {isDiscounted && (
+        <strike>
+          <Money>{undiscountedPrice}</Money>
+        </strike>
+      )}
     </Stack>
   );
 }

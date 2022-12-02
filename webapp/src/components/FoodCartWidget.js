@@ -1,6 +1,7 @@
 import api from "../api";
 import addIcon from "../assets/images/food-widget-add.svg";
 import subtractIcon from "../assets/images/food-widget-subtract.svg";
+import xIcon from "../assets/images/ui-x-thick.svg";
 import { t } from "../localization";
 import { useErrorToast } from "../state/useErrorToast";
 import { useOffering } from "../state/useOffering";
@@ -39,6 +40,36 @@ export default function FoodCartWidget({ product, size }) {
       })
       .catch((e) => showErrorToast(e, { extract: true }));
   };
+
+  if (product.outOfStock) {
+    return (
+      <ButtonGroup aria-label="add-to-cart" className="shadow">
+        <Button
+          variant="secondary"
+          className={clsx(
+            btnClasses,
+            size === "sm" && "p-1",
+            size === "lg" && "p-2",
+            "nowrap"
+          )}
+          disabled={quantity === 0}
+          onClick={quantity > 0 ? () => handleQuantityChange(0) : _.noop}
+        >
+          <span className="text-capitalize fs-5 align-middle mx-1">
+            {t("food:out_of_stock")}
+          </span>
+          {quantity > 0 && (
+            <img
+              src={xIcon}
+              alt={t("food:remove_from_cart")}
+              width="20px"
+              className="ms-1"
+            />
+          )}
+        </Button>
+      </ButtonGroup>
+    );
+  }
 
   return (
     <ButtonGroup aria-label="add-to-cart" className="shadow">

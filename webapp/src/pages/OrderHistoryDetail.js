@@ -79,29 +79,21 @@ export default function OrderHistoryDetail() {
             className="rounded responsive-wide-image"
           />
           <hr className="my-0" />
-          <Stack>
-            <Card.Text className="h4">
-              {t("food:labels:items_count", { itemCount: state.items.length })}
-            </Card.Text>
-            {state.items.map(({ name, description, customerPrice, quantity }, i) => (
-              <Stack
-                direction="horizontal"
-                key={i}
-                className="justify-content-between align-items-start"
-              >
-                <Stack gap={1}>
-                  <div className="lead">{name}</div>
-                  <div>
-                    {md("food:price_times_quantity", {
-                      price: customerPrice,
-                      quantity,
-                    })}
-                  </div>
-                  <div className="text-secondary">{description}</div>
-                </Stack>
-              </Stack>
-            ))}
-          </Stack>
+          <Card.Text className="h4 mb-0">
+            {t("food:labels:items_count", { itemCount: state.items.length })}
+          </Card.Text>
+          {state.items.map(({ name, description, customerPrice, quantity }, i) => (
+            <Stack key={i} className="justify-content-between align-items-start" gap={1}>
+              <div className="lead">{name}</div>
+              <div>
+                {md("food:price_times_quantity", {
+                  price: customerPrice,
+                  quantity,
+                })}
+              </div>
+              <div className="text-secondary">{description}</div>
+            </Stack>
+          ))}
         </Stack>
       </LayoutContainer>
     </>
