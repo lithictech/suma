@@ -214,7 +214,6 @@ export default function AddCreditCard({ onSuccess, error, setError }) {
             as={Col}
             required
             type="text"
-            maxLength="3"
             pattern="\d*"
             inputMode="numeric"
             name="cvc"
