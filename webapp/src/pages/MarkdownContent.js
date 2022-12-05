@@ -32,7 +32,7 @@ export default function MarkdownContent({ namespace }) {
           top={true}
           gutters="true"
           className="mx-auto pb-4"
-          style={{ width: "500px" }}
+          style={{ maxWidth: "500px" }}
         >
           <Markdown options={{ overrides: { a: { component: MdLink } } }}>
             {i18n.t(contentKey)}
