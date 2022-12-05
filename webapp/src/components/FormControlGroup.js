@@ -83,6 +83,8 @@ export default function FormControlGroup({
       }}
       {...registerRest}
       name={name}
+      maxLength={maxLength}
+      minLength={minLength}
       isInvalid={!!message}
       placeholder={_.isString(label) ? label : null}
       className={inputClass}
