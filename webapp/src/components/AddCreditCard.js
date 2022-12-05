@@ -94,8 +94,9 @@ export default function AddCreditCard({ onSuccess, error, setError }) {
 
   const handleExpiryChange = (e) => {
     let { name, value } = e.target;
+    value = paymentLibSafeExpiry(value);
     runSetter(name, setExpiry, value);
-    const digits = _.filter(value, (c) => /\d/.test(c)).length;
+    const digits = keepDigits(value).length;
     if (digits === 4) {
       cvcRef.current.focus();
     }
@@ -184,7 +185,7 @@ export default function AddCreditCard({ onSuccess, error, setError }) {
           style={{ transform: `translateY(${expOffset}px)` }}
         >
           <FormControlGroup
-            inputRef={(r) => r && Payment.formatCardExpiry(r)}
+            // Do NOT use Payment here, it has bugs.
             as={Col}
             required
             type="text"
@@ -253,7 +254,7 @@ export default function AddCreditCard({ onSuccess, error, setError }) {
           <Col>
             <ReactCreditCards
               cvc={cvc}
-              expiry={expiry}
+              expiry={reactCardSafeExpiry(expiry)}
               focused={focus}
               name={name}
               number={number}
@@ -263,4 +264,25 @@ export default function AddCreditCard({ onSuccess, error, setError }) {
       </Form>
     </>
   );
+}
+
+function reactCardSafeExpiry(s) {
+  // It doesn't work with 00 / 00, only 00/00
+  const digits = keepDigits(s);
+  if (digits.length < 2) {
+    return digits;
+  } else if (digits.length === 2) {
+    return digits + "/";
+  } else {
+    return digits.slice(0, 2) + "/" + digits.slice(2);
+  }
+}
+
+function paymentLibSafeExpiry(s) {
+  const digits = keepDigits(s);
+  if (digits.length < 3) {
+    return digits;
+  } else {
+    return digits.slice(0, 2) + " / " + digits.slice(2);
+  }
 }
