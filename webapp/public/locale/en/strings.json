@@ -94,6 +94,7 @@
     "confirmation_title": "Order placed successfully!",
     "continue_to_checkout": "Continue to Checkout",
     "current_offerings": "Current Offerings",
+    "currently_unavailable": "Currently unavailable",
     "details_header": "Details",
     "ending_in": "ending in {{last4}}",
     "from_vendor": "From {{vendorName}}",

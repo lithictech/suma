@@ -88,13 +88,17 @@ function Product({ product, offeringId }) {
       <div className="position-relative">
         <SumaImage image={images[0]} alt={name} className="w-100" w={225} h={150} />
         <h5 className="mb-2 mt-2">{name}</h5>
-        <FoodPrice
-          fs={5}
-          customerPrice={customerPrice}
-          isDiscounted={isDiscounted}
-          undiscountedPrice={undiscountedPrice}
-        />
-        {anyMoney(noncashLedgerContributionAmount) && (
+        {!outOfStock ? (
+          <FoodPrice
+            fs={5}
+            customerPrice={customerPrice}
+            isDiscounted={isDiscounted}
+            undiscountedPrice={undiscountedPrice}
+          />
+        ) : (
+          <p className="text-secondary">{t("food:currently_unavailable")}</p>
+        )}
+        {anyMoney(noncashLedgerContributionAmount) && !outOfStock && (
           <p className="mb-0">
             {t("food:additional_credit_at_checkout", {
               amount: noncashLedgerContributionAmount,
@@ -106,3 +110,6 @@ function Product({ product, offeringId }) {
     </Col>
   );
 }
+
+// TODO: Return/expose from backend OfferingProductEntity
+const outOfStock = true;
