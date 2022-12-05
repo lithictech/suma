@@ -6,6 +6,7 @@ require "appydays/configurable"
 require "appydays/loggable"
 require "sentry-sidekiq"
 require "sidekiq"
+require "sidekiq-unique-jobs"
 
 require "suma"
 
@@ -54,17 +55,45 @@ module Suma::Async
       Sidekiq.configure_server do |config|
         config.redis = redis_params
         config.options[:job_logger] = Suma::Async::JobLogger
+
         # We do NOT want the unstructured default error handler
         config.error_handlers.replace([Suma::Async::JobLogger.method(:error_handler)])
         # We must then replace the otherwise-automatically-added sentry middleware
         config.error_handlers << Sentry::Sidekiq::ErrorHandler.new
+
         config.death_handlers << Suma::Async::JobLogger.method(:death_handler)
+
+        config.client_middleware do |chain|
+          chain.add(SidekiqUniqueJobs::Middleware::Client)
+        end
+        config.server_middleware do |chain|
+          chain.add(SidekiqUniqueJobs::Middleware::Server)
+        end
+
+        SidekiqUniqueJobs::Server.configure(config)
       end
 
       Sidekiq.configure_client do |config|
         config.redis = redis_params
+        config.client_middleware do |chain|
+          chain.add(SidekiqUniqueJobs::Middleware::Client)
+        end
+      end
+
+      SidekiqUniqueJobs.configure do |config|
+        config.logger = Appydays::Loggable[SidekiqUniqueJobs]
+        # This adds a Redis call on the path of unique jobs.
+        config.enabled = !Suma.test?
       end
     end
+  end
+
+  def self.open_web
+    u = URI(Suma.api_url)
+    u.user = self.web_username
+    u.password = self.web_password
+    u.path = "/sidekiq"
+    `open #{u}`
   end
 
   # Set up async for the web/client side of things.
@@ -111,6 +140,21 @@ module Suma::Async
     Amigo.log_callback = lambda { |j, lvl, msg, o|
       lg = j ? Appydays::Loggable[j] : Suma::Async::JobLogger.logger
       lg.send(lvl, msg, o)
+    }
+  end
+
+  # Most cron jobs have the same options needed:
+  # No retry, and unique for their class.
+  def self.cron_job_options
+    return {
+      retry: false,
+      lock: :until_and_while_executing,
+      lock_timeout: nil,
+      on_conflict: {
+        client: :log,
+        server: :log,
+      },
+      lock_args_method: ->(_args) { [] },
     }
   end
 end

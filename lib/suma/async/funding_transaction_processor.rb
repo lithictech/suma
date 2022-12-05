@@ -5,7 +5,7 @@ require "amigo/scheduled_job"
 class Suma::Async::FundingTransactionProcessor
   extend Amigo::ScheduledJob
 
-  sidekiq_options retry: false
+  sidekiq_options(Suma::Async.cron_job_options)
   cron "*/5 * * * *"
   splay 30.seconds
 
