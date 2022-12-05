@@ -13,11 +13,12 @@ module Suma::Sentry
   configurable(:sentry) do
     setting :dsn, ""
 
-    # Apply the current configuration to Sentry.
-    # See https://docs.sentry.io/clients/ruby/config/ for more info.
     after_configured do
       if self.dsn
+        # See https://github.com/getsentry/sentry-ruby/issues/1756
+        require "sentry-sidekiq"
         Sentry.init do |config|
+          # See https://docs.sentry.io/clients/ruby/config/ for more info.
           config.dsn = dsn
           config.logger = self.logger
         end
