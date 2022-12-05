@@ -15,6 +15,9 @@ port ENV.fetch("PORT", nil)
 
 preload_app!
 
+require "suma/async/autoscaler"
+Suma::Async::Autoscaler.start
+
 on_worker_boot do
   SemanticLogger.reopen if defined?(SemanticLogger)
   if defined?(Suma::Postgres)

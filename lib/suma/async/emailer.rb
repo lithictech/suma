@@ -5,6 +5,7 @@ require "amigo/scheduled_job"
 class Suma::Async::Emailer
   extend Amigo::ScheduledJob
 
+  sidekiq_options(Suma::Async.cron_job_options)
   cron "* * * * *"
   splay 5.seconds
 

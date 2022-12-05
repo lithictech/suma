@@ -5,7 +5,7 @@ require "amigo/scheduled_job"
 class Suma::Async::PlaidUpdateInstitutions
   extend Amigo::ScheduledJob
 
-  sidekiq_options retry: 10
+  sidekiq_options(Suma::Async.cron_job_options.merge(retry: 10))
   cron "13 10 * * *"
   splay 10.seconds
 

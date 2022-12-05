@@ -143,6 +143,10 @@ module Suma
     return s.downcase.gsub(/[^a-z0-9]/, "_").squeeze("_")
   end
 
+  def self.test?
+    return RACK_ENV == "test"
+  end
+
   # Return the request user and admin stored in TLS. See service.rb for implementation.
   #
   # Note that the second return value (the admin) will be nil if not authed as an admin,

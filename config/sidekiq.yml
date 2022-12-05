@@ -1,0 +1,2 @@
+:timeout: 25
+:concurrency: <%= ENV['SIDEKIQ_CONCURRENCY'] || 10 %>
