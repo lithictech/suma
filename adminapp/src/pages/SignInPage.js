@@ -15,8 +15,8 @@ import React from "react";
 
 export default function SignInPage() {
   const { setUser } = useUser();
-  const [email, setEmail] = React.useState("admin@lithic.tech");
-  const [password, setPassword] = React.useState("Password1!");
+  const [email, setEmail] = React.useState(placeholder.email);
+  const [password, setPassword] = React.useState(placeholder.password);
   const { enqueueErrorSnackbar } = useErrorSnackbar();
   const classes = useStyles();
 
@@ -76,3 +76,8 @@ const useStyles = makeStyles((theme) => ({
     marginTop: theme.spacing(3),
   },
 }));
+
+const placeholder =
+  process.env.NODE_ENV === "development"
+    ? { email: "admin@lithic.tech", password: "Password1!" }
+    : { email: "", password: "" };
