@@ -31,6 +31,7 @@ export default function AddCreditCard({ onSuccess, error, setError }) {
   const screenLoader = useScreenLoader();
   const numberRowRef = React.useRef(null);
   const expiryRowRef = React.useRef(null);
+  const cvcRef = React.useRef(null);
   const errorRowRef = React.useRef(null);
   const buttonRowRef = React.useRef(null);
   const cardRowRef = React.useRef(null);
@@ -93,16 +94,10 @@ export default function AddCreditCard({ onSuccess, error, setError }) {
 
   const handleExpiryChange = (e) => {
     let { name, value } = e.target;
-    // Fallback expiry formatter since Payment formatter does not remove whitespace
-    // This caused issues with ReactCreditCard expiry display
-    value = value && name === "expiry" ? value.match(/(\d{1,2})/g).join("/") : value;
     runSetter(name, setExpiry, value);
-
-    // Focus CVC input element
-    const cvcElement = document.getElementsByName("cvc")[0];
-    const expiryMaxLength = 5;
-    if (value.length === expiryMaxLength) {
-      cvcElement.focus();
+    const digits = _.filter(value, (c) => /\d/.test(c)).length;
+    if (digits === 4) {
+      cvcRef.current.focus();
     }
   };
 
@@ -189,17 +184,17 @@ export default function AddCreditCard({ onSuccess, error, setError }) {
           style={{ transform: `translateY(${expOffset}px)` }}
         >
           <FormControlGroup
+            inputRef={(r) => r && Payment.formatCardExpiry(r)}
             as={Col}
             required
             type="text"
-            maxLength="7"
             pattern="\d*"
             inputMode="numeric"
             name="expiry"
             autoComplete="cc-exp"
             autoCorrect="off"
             spellCheck="false"
-            label={"MM/YY"}
+            label={"MM / YY"}
             value={expiry}
             errors={errors}
             register={register}
@@ -210,7 +205,10 @@ export default function AddCreditCard({ onSuccess, error, setError }) {
             onBlur={handleBlur}
           />
           <FormControlGroup
-            inputRef={(r) => r && Payment.formatCardCVC(r)}
+            inputRef={(r) => {
+              cvcRef.current = r;
+              r && Payment.formatCardCVC(r);
+            }}
             as={Col}
             required
             type="text"
