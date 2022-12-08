@@ -52,6 +52,11 @@ module Suma::API
             scope.set_tags(application: "public-api")
           end
         end
+
+        rescue_from Stripe::CardError do |e|
+          code = Suma::Stripe.localized_error_code(e)
+          merror!(402, e.message, code:, more: {stripe_error: e.to_s})
+        end
       end
     end
   end

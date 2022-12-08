@@ -48,66 +48,59 @@ module Suma::Stripe
   # @param [Stripe::CardError] e
   # @return [String]
   def self.localized_error_code(e)
-    dc = e.json_body.dig(:error, :decline_code)
-    return "card_generic" if dc.nil?
-    return "card_permanent_failure" if PERMANENT_FAILURE.include?(dc)
-    return "card_expired" if EXPIRED.include?(dc)
-    return "card_contact_bank" if CONTACT_BANK.include?(dc)
-    return "card_insufficient_funds" if NSF.include?(dc)
-    return "card_try_again" if TRY_AGAIN.include?(dc)
-    return "card_generic"
+    code = e.json_body.dig(:error, :decline_code) || e.code
+    return "card_generic" if code.nil?
+    code = code.to_sym
+    localized = ERRORS_FOR_CODES.fetch(code.to_sym, :card_generic)
+    return localized.to_s
   end
 
-  PERMANENT_FAILURE = Set.new(
-    [
-      "currency_not_supported",
-      "do_not_honor",
-      "incorrect_number",
-      "incorrect_cvc",
-      "incorrect_pin",
-      "incorrect_zip",
-      "invalid_cvc",
-      "invalid_expiry_year",
-      "invalid_number",
-    ],
-  ).freeze
-  CONTACT_BANK = Set.new(
-    [
-      "approve_with_id",
-      "call_issuer",
-      "card_not_supported",
-      "card_velocity_exceeded",
-      "do_not_try_again",
-      "invalid_account",
-      "invalid_amount",
-      "issuer_not_available",
-      "new_account_information_available",
-      "no_action_taken",
-      "not_permitted",
-      "pickup_card",
-      "restricted_card",
-      "revocation_of_all_authorizations",
-      "revocation_of_authorization",
-      "security_violation",
-      "service_not_allowed",
-      "stop_payment_order",
-      "transaction_not_allowed",
-    ],
-  ).freeze
-  TRY_AGAIN = Set.new(
-    [
-      "try_again_later",
-    ],
-  ).freeze
-  EXPIRED = Set.new(
-    [
-      "expired_card",
-    ],
-  ).freeze
-  NSF = Set.new(
-    [
-      "insufficient_funds",
-      "withdrawal_count_limit_exceeded",
-    ],
-  ).freeze
+  # Map Stripe error and decline codes to localized codes.
+  # Stripe decline codes https://stripe.com/docs/declines/codes
+  # and error codes https://stripe.com/docs/error-codes
+  # generally use the same values for similar errors,
+  # so we don't need to keep two separate maps.
+  ERRORS_FOR_CODES = {
+    incorrect_number: :card_invalid_number,
+    invalid_number: :card_invalid_number,
+
+    invalid_expiry_month: :card_invalid_expiry,
+    invalid_expiry_year: :card_invalid_expiry,
+
+    incorrect_cvc: :card_invalid_cvc,
+    invalid_cvc: :card_invalid_cvc,
+
+    incorrect_zip: :card_invalid_zip,
+
+    currency_not_supported: :card_permanent_failure,
+    do_not_honor: :card_permanent_failure,
+    incorrect_pin: :card_permanent_failure,
+
+    approve_with_id: :card_contact_bank,
+    call_issuer: :card_contact_bank,
+    card_not_supported: :card_contact_bank,
+    card_velocity_exceeded: :card_contact_bank,
+    do_not_try_again: :card_contact_bank,
+    invalid_account: :card_contact_bank,
+    invalid_amount: :card_contact_bank,
+    issuer_not_available: :card_contact_bank,
+    new_account_information_available: :card_contact_bank,
+    no_action_taken: :card_contact_bank,
+    not_permitted: :card_contact_bank,
+    pickup_card: :card_contact_bank,
+    restricted_card: :card_contact_bank,
+    revocation_of_all_authorizations: :card_contact_bank,
+    revocation_of_authorization: :card_contact_bank,
+    security_violation: :card_contact_bank,
+    service_not_allowed: :card_contact_bank,
+    stop_payment_order: :card_contact_bank,
+    transaction_not_allowed: :card_contact_bank,
+
+    try_again_later: :card_try_again_later,
+
+    expired_card: :card_expired,
+
+    insufficient_funds: :card_insufficient_funds,
+    withdrawal_count_limit_exceeded: :card_insufficient_funds,
+  }.freeze
 end
