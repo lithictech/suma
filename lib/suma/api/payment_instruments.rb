@@ -77,12 +77,7 @@ class Suma::API::PaymentInstruments < Suma::API::V1
           Suma::Payment.method_supported?("card")
         card = me.db.transaction do
           me.stripe.ensure_registered_as_customer
-          begin
-            stripe_card = me.stripe.register_card_for_charges(params[:token][:id])
-          rescue Stripe::CardError => e
-            code = Suma::Stripe.localized_error_code(e)
-            merror!(402, e.message, code:, more: {stripe_error: e.to_s})
-          end
+          stripe_card = me.stripe.register_card_for_charges(params[:token][:id])
           Suma::Payment::Card.create(
             legal_entity: me.legal_entity,
             stripe_json: stripe_card.to_json,

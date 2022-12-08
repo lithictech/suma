@@ -9,6 +9,10 @@ class Suma::API::TestV1API < Suma::API::V1
     add_current_member_header if params[:inheader]
     body "ok"
   end
+
+  post :call_stripe do
+    Stripe::Charge.capture("ch_123")
+  end
 end
 
 RSpec.describe Suma::API::V1, :db do
@@ -45,6 +49,30 @@ RSpec.describe Suma::API::V1, :db do
       j = Base64.strict_decode64(last_response.headers["Suma-Current-Member"])
       m = JSON.parse(j)
       expect(m).to include("onboarded", "id" => member.id)
+    end
+  end
+
+  describe "Stripe errors" do
+    it "does not modify non-card errors" do
+      req = stub_request(:post, "https://api.stripe.com/v1/charges/ch_123/capture").
+        to_return(fixture_response("stripe/charge_error", status: 500))
+
+      post "/v1/call_stripe"
+
+      expect(req).to have_been_made
+      expect(last_response).to have_status(500)
+      expect(last_response).to have_json_body.that_includes(error: include(code: "api_error"))
+    end
+
+    it "coerces card errors into an error shape" do
+      req = stub_request(:post, "https://api.stripe.com/v1/charges/ch_123/capture").
+        to_return(fixture_response("stripe/charge_error", status: 402))
+
+      post "/v1/call_stripe"
+
+      expect(req).to have_been_made
+      expect(last_response).to have_status(402)
+      expect(last_response).to have_json_body.that_includes(error: include(code: "card_permanent_failure"))
     end
   end
 end
