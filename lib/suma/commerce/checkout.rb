@@ -100,11 +100,13 @@ class Suma::Commerce::Checkout < Suma::Postgres::Model(:commerce_checkouts)
 
   def create_order
     self.db.transaction do
+      # Locking the card makes sure we don't allow the user to over-purchase for an offering
       self.cart.lock!
+      # Locking the checkout ensures we don't process it multiple times as a race
       self.lock!
       now = Time.now
       raise Uneditable, "Checkout[#{self.id}] is not editable" unless self.editable?
-      self.check_quantities!
+      self.check_and_update_product_inventories
       order = Suma::Commerce::Order.create(checkout: self)
       self.freeze_items
       self.cart.items_dataset.delete
@@ -213,14 +215,26 @@ class Suma::Commerce::Checkout < Suma::Postgres::Model(:commerce_checkouts)
     return consolidated_contributions
   end
 
-  protected def check_quantities!
+  protected def check_and_update_product_inventories
+    # If this is a limited quantity product, we have to make sure to lock it when purchasing it,
+    # so we can safely check its inventory and then update the quantity pending fulfillment.
+    limited_inventories_by_product = self.cart.items.
+      map(&:product).
+      filter_map(&:inventory).
+      filter(&:limited_quantity?).
+      index_by(&:product_id)
+    limited_inventories_by_product.values.each(&:lock!)
     self.items.each do |item|
       product = item.cart_item.product
       quantity = item.cart_item.quantity
       max_available = self.cart.max_quantity_for(item.offering_product)
       raise MaxQuantityExceeded, "product #{product.name.en} quantity #{quantity} > max of #{max_available}" if
         quantity > max_available
+      if (inv = limited_inventories_by_product[product.id])
+        inv.quantity_pending_fulfillment += quantity
+      end
     end
+    limited_inventories_by_product.values.each(&:save_changes)
   end
 
   protected def freeze_items

@@ -223,8 +223,9 @@ class Suma::API::Commerce < Suma::API::V1
     expose :vendor_id, &self.delegate_to(:product, :vendor_id)
     expose :images, with: Suma::API::Entities::ImageEntity, &self.delegate_to(:product, :images?)
 
-    expose :max_quantity do |inst, opts|
-      opts.fetch(:cart).max_quantity_for(inst)
+    expose :max_quantity
+    expose :out_of_stock do |_|
+      self.max_quantity.zero?
     end
     expose :noncash_ledger_contribution_amount, with: Suma::Service::Entities::Money do |inst, opts|
       opts.fetch(:cart).product_noncash_ledger_contribution_amount(inst)
@@ -240,6 +241,10 @@ class Suma::API::Commerce < Suma::API::V1
     expose :discount_amount,
            with: Suma::Service::Entities::Money,
            &self.delegate_to(:discount_amount, safe_with_default: Money.new(0))
+
+    private def max_quantity
+      return @max_quantity ||= self.options.fetch(:cart).max_quantity_for(self.object)
+    end
   end
 
   class OfferingWithContextEntity < BaseEntity

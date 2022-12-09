@@ -6,4 +6,6 @@ class Suma::Commerce::ProductInventory < Suma::Postgres::Model(:commerce_product
   plugin :timestamps
 
   many_to_one :product, class: "Suma::Commerce::Product"
+
+  def limited_quantity? = self[:limited_quantity]
 end

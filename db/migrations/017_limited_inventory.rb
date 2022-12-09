@@ -21,6 +21,7 @@ Sequel.migration do
       )
       boolean :limited_quantity, null: false, default: false
       integer :quantity_on_hand, null: false, default: 0
+      integer :quantity_pending_fulfillment, null: false, default: 0
     end
     from(:commerce_products).each do |row|
       from(:commerce_product_inventories).insert(
@@ -33,9 +34,15 @@ Sequel.migration do
       drop_column :max_quantity_per_order
       drop_column :max_quantity_per_offering
     end
+    alter_table(:commerce_order_audit_logs) do
+      add_column :machine_name, :text, null: false
+    end
   end
 
   down do
+    alter_table(:commerce_order_audit_logs) do
+      drop_column :machine_name
+    end
     alter_table(:commerce_products) do
       add_column :max_quantity_per_order, :integer, null: true
       add_column :max_quantity_per_offering, :integer, null: true
