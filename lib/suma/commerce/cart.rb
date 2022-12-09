@@ -102,8 +102,8 @@ class Suma::Commerce::Cart < Suma::Postgres::Model(:commerce_carts)
 
   def max_quantity_for(offering_product)
     product = offering_product.product
-    max_order = product.max_quantity_per_order
-    max_offering = product.max_quantity_per_offering
+    max_order = product.inventory!.max_quantity_per_order
+    max_offering = product.inventory!.max_quantity_per_offering
     return DEFAULT_MAX_QUANTITY if max_order.nil? && max_offering.nil?
 
     items_already_in_offering = self.purchased_checkout_items.

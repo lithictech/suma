@@ -18,6 +18,8 @@ class Suma::Commerce::Product < Suma::Postgres::Model(:commerce_products)
   many_to_one :vendor, class: "Suma::Vendor"
   one_to_many :offering_products, class: "Suma::Commerce::OfferingProduct", order: [:offering_id]
 
+  one_to_one :inventory, class: "Suma::Commerce::ProductInventory"
+
   many_to_many :vendor_service_categories, class: "Suma::Vendor::ServiceCategory",
                                            join_table: :vendor_service_categories_commerce_products,
                                            left_key: :product_id,
@@ -44,6 +46,10 @@ class Suma::Commerce::Product < Suma::Postgres::Model(:commerce_products)
                     right_primary_key: :id,
                     read_only: true,
                     order: [:created_at, :id]
+
+  def inventory!
+    return self.inventory ||= Suma::Commerce::ProductInventory.find_or_create_or_find(product: self)
+  end
 
   def rel_admin_link = "/product/#{self.id}"
 end

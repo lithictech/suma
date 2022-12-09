@@ -269,6 +269,9 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
         description: Suma::TranslatedText.create(en: ps[:desc_en], es: ps[:desc_es]),
         vendor: Suma::Vendor.find_or_create(name: "Sheridan's Market", organization: suma_org),
         our_cost: Money.new(90_00),
+      )
+      Suma::Commerce::ProductInventory.create(
+        product:,
         max_quantity_per_order: 1,
         max_quantity_per_offering: 1,
       )

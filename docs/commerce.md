@@ -107,31 +107,42 @@ so are keeping it very simple (but in a way that is able to evolve in the future
 
 ## Inventory Management
 
-Suma includes a very basic inventory management system to avoid overselling of limited products.
+Suma includes a very rudimentary inventory management system to avoid overselling of limited products.
+There is more rationale about this system explained below.
 
-The flow is:
+- Products with limited quantity are marked `limited_quantity`.
+  This will prevent them from being 'oversold'.
+- The amount of a product available is set in the `quantity_on_hand` field.
+  This is set by operations when a product is listed,
+  inventory arrives, an offering is fulfilled, etc.
+- Products have a `quantity_pending_fulfillment` field.
+  This is set by the checkout process- when a checkout is completed,
+  it is incremented for the purchased quantity.
+- When an order is marked 'fulfilled', the quantity of product in the order
+  is subtracted from `quantity_pending_fulfillment` and `quantity_on_hand`.
+- When an order is checked out, the products are locked.
+  Any product where `quantity_on_hand - quantity_pending_fulfillment < quantity being purchased`
+  causes an error to be returned due to insufficient quantity.
+- When offering products are listed, we look at the `quantity_on_hand - quantity_pending_fulfillment`
+  to determine the quantity available for purchase, in addition to the 'max quantity per order'
+  and 'max quantity per offering' fields.
 
-- Orders with a 'fulfilled' fulfillment status count against available inventory.
-- Ops modifies the "on hand" amount of a product they have available.
-  They are shown the quantity of orders with an 'unfulfilled' status.
-- Orders that have inventory management enabled cannot be oversold. Their quantity is checked during the
-  'order creation' process to avoid overselling.
+**Designer's Note**: This is a very basic inventory system, especially because it denormalizes
+significant amounts of data into the inventory system.
+However, my experience is that, at this point, it's better to keep this system
+very simple in behavior and with known caveats
+(like canceling or returning an order results in incorrect inventory),
+than it is to develop a more automated, robust inventory system.
 
-The implementation for this looks like:
+It is possible, and ultimately desirable,
+to develop a more sophisticated inventory system (with things like an immutable
+inventory ledger, projected scheduling, etc), but it is a serious investment.
+At this stage, then, a rudimentary system, closer to pen-and-paper,
+will be more appreciated by Operations than something more complex and automated
+but containing bugs or design issues.
 
-- When 'on hand' is modified, an `InventoryAdjustment` is created to adjust the current on-hand
-  to the input value.
-- OrderItems in a 'fulfilled' status subtract from available inventory.
-- So, the quantity on hand of product `X` can be thought of as the psuedo-SQL:
-```sql
-SELECT
-    (
-        SUM(SELECT count(1) FROM order_items WHERE offering_product.product_id = X AND order.fulfillment_status='fulfilled')
-        - SUM(SELECT SUM(quantity) FROM inventory_adjustments WHERE product_id = X)
-    ) AS quantity_on_hand
-```
 
-**NOTE**: This is a very basic inventory system, but experience has taught that most fulfillment
+, but experience has taught that most fulfillment
 can be done with very simple systems. If operator needs get more complex,
 we can come up with other solutions- but since Suma is not really meant to be an e-commerce system,
 we find this unlikely.

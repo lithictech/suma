@@ -89,18 +89,18 @@ RSpec.describe "Suma::Commerce::Cart", :db do
 
     describe "without any preexisting data" do
       it "returns the lesser of max quantity for order and offering" do
-        product.max_quantity_per_order = 4
+        product.inventory!.max_quantity_per_order = 4
         expect(cart.max_quantity_for(offering_product)).to eq(4)
-        product.max_quantity_per_offering = 5
+        product.inventory!.max_quantity_per_offering = 5
         expect(cart.max_quantity_for(offering_product)).to eq(4)
-        product.max_quantity_per_order = nil
+        product.inventory!.max_quantity_per_order = nil
         expect(cart.max_quantity_for(offering_product)).to eq(5)
       end
     end
 
     describe "with previous orders" do
       let(:card) { Suma::Fixtures.card.member(member).create }
-      let(:product) { super().update(max_quantity_per_order: 5) }
+      let(:product) { super().inventory!.update(max_quantity_per_order: 5).product }
       before(:each) do
         Suma::Fixtures::Members.register_as_stripe_customer(member)
         Suma::Payment.ensure_cash_ledger(member)
