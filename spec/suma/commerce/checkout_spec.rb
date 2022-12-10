@@ -199,14 +199,14 @@ RSpec.describe "Suma::Commerce::Checkout", :db do
       end
     end
 
-    describe "inventory constraints" do
+    describe "inventory behavior" do
       it "errors if the order quantity exceeds the max quantity per order" do
-        product.update(max_quantity_per_order: 1)
+        product.inventory!.update(max_quantity_per_order: 1)
         expect { checkout.create_order }.to raise_error(described_class::MaxQuantityExceeded)
       end
 
       it "errors if the order quantity exceeds the max quantity per offering" do
-        product.update(max_quantity_per_order: 2, max_quantity_per_offering: 2)
+        product.inventory!.update(max_quantity_per_order: 2, max_quantity_per_offering: 2)
 
         cancel_order = Suma::Fixtures.checkout(cart:, card:).populate_items.create.create_order
         cancel_order.update(order_status: "canceled")
@@ -218,6 +218,31 @@ RSpec.describe "Suma::Commerce::Checkout", :db do
         cart.add_item(product:, quantity: 2, timestamp: 0)
         co2 = Suma::Fixtures.checkout(cart:, card:).populate_items.create
         expect { co2.create_order }.to raise_error(described_class::MaxQuantityExceeded)
+      end
+
+      it "errors if the order quantity of a limited item exceeds what is available" do
+        product.inventory!.update(limited_quantity: true, quantity_on_hand: 3, quantity_pending_fulfillment: 2)
+
+        cart.delete_all_items
+        cart.add_item(product:, quantity: 1, timestamp: 0)
+        co1 = Suma::Fixtures.checkout(cart:, card:).populate_items.create
+        expect { co1.create_order }.to_not raise_error
+
+        cart.add_item(product:, quantity: 1, timestamp: 0)
+        co2 = Suma::Fixtures.checkout(cart:, card:).populate_items.create
+        expect { co2.create_order }.to raise_error(described_class::MaxQuantityExceeded)
+      end
+
+      it "increments pending fulfillment counts of limited quantity products" do
+        product.inventory!.update(quantity_on_hand: 5)
+
+        Suma::Fixtures.checkout(cart:, card:).populate_items.create.create_order
+        expect(product.refresh.inventory).to have_attributes(quantity_on_hand: 5, quantity_pending_fulfillment: 0)
+
+        product.inventory.update(limited_quantity: true)
+        cart.add_item(product:, quantity: 2, timestamp: 0)
+        Suma::Fixtures.checkout(cart:, card:).populate_items.create.create_order
+        expect(product.refresh.inventory).to have_attributes(quantity_on_hand: 5, quantity_pending_fulfillment: 2)
       end
     end
   end

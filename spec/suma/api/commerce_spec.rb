@@ -285,7 +285,7 @@ RSpec.describe Suma::API::Commerce, :db do
     end
 
     it "errors if max quantity is exceeded" do
-      product.update(max_quantity_per_order: 1)
+      product.inventory!.update(max_quantity_per_order: 1)
 
       post "/v1/commerce/checkouts/#{checkout.id}/complete"
 

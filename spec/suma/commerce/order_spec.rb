@@ -58,4 +58,51 @@ RSpec.describe "Suma::Commerce::Order", :db do
       expect(order.fulfillment_options_for_editing).to have_same_ids_as(*offering.fulfillment_options)
     end
   end
+
+  describe "fulfillment state machine" do
+    let(:limited_product) { Suma::Fixtures.product.limited_quantity(4, 2).create }
+    let(:unlimited_product) { Suma::Fixtures.product.create }
+    let(:cart) do
+      Suma::Fixtures.cart.
+        with_offering_of_product(limited_product, 1).
+        with_offering_of_product(unlimited_product, 1).
+        create
+    end
+    let(:checkout) { Suma::Fixtures.checkout(cart:).with_payment_instrument.populate_items.completed.create }
+    let(:order) { Suma::Fixtures.order(checkout:).create }
+
+    it "removes from onhand and quantity pending fulfillment when fulfillment completes" do
+      expect(order).to transition_on(:begin_fulfillment).to("fulfilling")
+      expect(limited_product.inventory.refresh).to have_attributes(
+        quantity_on_hand: 4, quantity_pending_fulfillment: 2,
+      )
+
+      expect(order).to transition_on(:end_fulfillment).to("fulfilled")
+      expect(limited_product.inventory.refresh).to have_attributes(
+        quantity_on_hand: 3, quantity_pending_fulfillment: 1,
+      )
+      expect(unlimited_product.refresh.inventory).to be_nil
+
+      # Ensure quantity not removed if there's no transition
+      expect(order).to not_transition_on(:end_fulfillment)
+      expect(limited_product.inventory.refresh).to have_attributes(
+        quantity_on_hand: 3, quantity_pending_fulfillment: 1,
+      )
+    end
+
+    it "adds to quantity pending fulfillment and quantity on hand when unfulfilling from fulfilled" do
+      order.fulfillment_status = "fulfilled"
+      expect(order).to transition_on(:unfulfill).to("unfulfilled")
+      expect(limited_product.inventory.refresh).to have_attributes(
+        quantity_on_hand: 5, quantity_pending_fulfillment: 3,
+      )
+      expect(unlimited_product.inventory).to be_nil
+
+      order.fulfillment_status = "fulfilling"
+      expect(order).to transition_on(:unfulfill).to("unfulfilled")
+      expect(limited_product.inventory.refresh).to have_attributes(
+        quantity_on_hand: 5, quantity_pending_fulfillment: 3,
+      ) # Assert has no changed, since the quantity modification has not been applied yet
+    end
+  end
 end

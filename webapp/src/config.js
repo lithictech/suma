@@ -33,7 +33,7 @@ const config = {
   sentryDsn: process.env.REACT_APP_SENTRY_DSN,
   stripePublicKey:
     process.env.REACT_APP_STRIPE_PUBLIC_KEY ||
-    "pk_test_51KlS9cAqRmWQecssicpSG7l8AzzGttANpp4k1LKEnmvLiN6YnrcoHebK3QubwXwpJZzmSMwCOKtinnEyO6kMPQDn00rmqmhwML",
+    "pk_test_51LxdhVLelvCURGkUPdGCTS68je1xL8wWi0faS8hiDHbxxEPhmfcAX7EBDzMFTkb3N1Y0tB5vziqtsifKp6PQ4roM005GI4h8T3",
   devCardDetails: parseIfSet("REACT_APP_DEV_CARD_DETAILS"),
   devBankAccountDetails: parseIfSet("REACT_APP_DEV_BANK_ACCOUNT_DETAILS"),
 };

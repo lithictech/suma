@@ -54,6 +54,8 @@ class Suma::Commerce::Cart < Suma::Postgres::Model(:commerce_carts)
                                end
                              end)
 
+  plugin :association_deleter, :items
+
   def self.lookup(member:, offering:)
     return self.find_or_create_or_find(member:, offering:)
   end
@@ -102,15 +104,21 @@ class Suma::Commerce::Cart < Suma::Postgres::Model(:commerce_carts)
 
   def max_quantity_for(offering_product)
     product = offering_product.product
-    max_order = product.max_quantity_per_order
-    max_offering = product.max_quantity_per_offering
-    return DEFAULT_MAX_QUANTITY if max_order.nil? && max_offering.nil?
+    inv = product.inventory!
 
-    items_already_in_offering = self.purchased_checkout_items.
-      to_h { |row| [row.offering_product.id, row.quantity] }
-    existing = items_already_in_offering.fetch(offering_product.id, 0)
-
-    return [max_order, max_offering].compact.min - existing
+    purchase_limit_max = nil
+    max_order = inv.max_quantity_per_order
+    max_offering = inv.max_quantity_per_offering
+    unless max_order.nil? && max_offering.nil?
+      items_already_in_offering = self.purchased_checkout_items.
+        to_h { |row| [row.offering_product.id, row.quantity] }
+      existing = items_already_in_offering.fetch(offering_product.id, 0)
+      purchase_limit_max = [max_order, max_offering].compact.min - existing
+    end
+    inventory_max = nil
+    inventory_max = inv.quantity_on_hand - inv.quantity_pending_fulfillment if inv.limited_quantity?
+    limited_max = [purchase_limit_max, inventory_max].compact.min
+    return limited_max.nil? ? DEFAULT_MAX_QUANTITY : limited_max
   end
 
   def product_noncash_ledger_contribution_amount(offering_product, now: Time.now)

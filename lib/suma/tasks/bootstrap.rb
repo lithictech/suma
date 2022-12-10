@@ -228,7 +228,7 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
     # Create this extra one
     Suma::RACK_ENV == "development" && Suma::Commerce::Offering.create(
       description_string: "No Image Tester",
-      period: 1.day.ago..Time.new(2022, 12, 16),
+      period: 1.day.ago..self.pilot_end,
     )
   end
 
@@ -269,6 +269,9 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
         description: Suma::TranslatedText.create(en: ps[:desc_en], es: ps[:desc_es]),
         vendor: Suma::Vendor.find_or_create(name: "Sheridan's Market", organization: suma_org),
         our_cost: Money.new(90_00),
+      )
+      Suma::Commerce::ProductInventory.create(
+        product:,
         max_quantity_per_order: 1,
         max_quantity_per_offering: 1,
       )
@@ -315,6 +318,6 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
   end
 
   def pilot_end
-    return Time.parse("2022-12-08T23:00:00-0800")
+    return Time.now + 6.months
   end
 end

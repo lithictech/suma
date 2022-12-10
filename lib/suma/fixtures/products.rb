@@ -32,4 +32,14 @@ module Suma::Fixtures::Products
     raise ArgumentError, "#{name} must be a Symbol (the fixture decorator method)" unless name.is_a?(Symbol)
     self.add_vendor_service_category(Suma::Fixtures.vendor_service_category.send(name).create)
   end
+
+  decorator :limited_quantity, presave: true do |on_hand=nil, pending_fulfillment=nil|
+    on_hand ||= Faker::Number.between(from: 0, to: 10)
+    pending_fulfillment ||= Faker::Number.between(from: 0, to: 10)
+    self.inventory!.update(
+      limited_quantity: true,
+      quantity_on_hand: on_hand,
+      quantity_pending_fulfillment: pending_fulfillment,
+    )
+  end
 end

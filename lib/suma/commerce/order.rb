@@ -52,7 +52,21 @@ class Suma::Commerce::Order < Suma::Postgres::Model(:commerce_orders)
   end
 
   state_machine :fulfillment_status, initial: :unfulfilled do
-    state :unfulfilled
+    state :unfulfilled, :fulfilling, :fulfilled
+
+    event :begin_fulfillment do
+      transition unfulfilled: :fulfilling
+    end
+
+    event :end_fulfillment do
+      transition fulfilling: :fulfilled
+    end
+    after_transition on: :end_fulfillment, do: :apply_fulfillment_quantity_changes
+
+    event :unfulfill do
+      transition [:fulfilling, :fulfilled] => :unfulfilled
+    end
+    after_transition fulfilled: :unfulfilled, do: :reverse_fulfillment_quantity_changes
 
     after_transition(&:commit_audit_log)
     after_failure(&:commit_audit_log)
@@ -85,6 +99,26 @@ class Suma::Commerce::Order < Suma::Postgres::Model(:commerce_orders)
     opts = self.checkout.available_fulfillment_options
     opts.prepend(self.checkout.fulfillment_option) unless opts.any? { |opt| opt === self.checkout.fulfillment_option }
     return opts
+  end
+
+  def apply_fulfillment_quantity_changes
+    self.limited_quantity_items.each do |ci|
+      ci.offering_product.product.inventory.quantity_on_hand -= ci.quantity
+      ci.offering_product.product.inventory.quantity_pending_fulfillment -= ci.quantity
+      ci.offering_product.product.inventory.save_changes
+    end
+  end
+
+  def reverse_fulfillment_quantity_changes
+    self.limited_quantity_items.each do |ci|
+      ci.offering_product.product.inventory.quantity_on_hand += ci.quantity
+      ci.offering_product.product.inventory.quantity_pending_fulfillment += ci.quantity
+      ci.offering_product.product.inventory.save_changes
+    end
+  end
+
+  protected def limited_quantity_items
+    return self.checkout.items.filter { |ci| ci.offering_product.product.inventory&.limited_quantity? }
   end
 end
 

@@ -56,8 +56,8 @@ class Suma::AdminAPI::CommerceProducts < Suma::AdminAPI::V1
     include Suma::AdminAPI::Entities
     include AutoExposeDetail
     expose :our_cost, with: MoneyEntity
-    expose :max_quantity_per_order
-    expose :max_quantity_per_offering
+    expose :max_quantity_per_order, &self.delegate_to(:inventory!, :max_quantity_per_order)
+    expose :max_quantity_per_offering, &self.delegate_to(:inventory!, :max_quantity_per_offering)
     expose :offerings, with: OfferingEntity
     expose :orders, with: OrderEntity
     expose :offering_products, with: OfferingProductWithOfferingEntity
