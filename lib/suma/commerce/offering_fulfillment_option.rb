@@ -4,6 +4,7 @@ require "suma/commerce"
 require "suma/postgres/model"
 
 class Suma::Commerce::OfferingFulfillmentOption < Suma::Postgres::Model(:commerce_offering_fulfillment_options)
+  plugin :soft_deletes
   plugin :timestamps
   plugin :translated_text, :description, Suma::TranslatedText
 

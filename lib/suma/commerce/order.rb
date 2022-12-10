@@ -79,6 +79,13 @@ class Suma::Commerce::Order < Suma::Postgres::Model(:commerce_orders)
   end
 
   def rel_admin_link = "/order/#{self.id}"
+
+  def fulfillment_options_for_editing
+    return [] unless self.unfulfilled?
+    opts = self.checkout.available_fulfillment_options
+    opts.prepend(self.checkout.fulfillment_option) unless opts.any? { |opt| opt === self.checkout.fulfillment_option }
+    return opts
+  end
 end
 
 # Table: commerce_orders

@@ -1,5 +1,6 @@
 import api from "../api";
 import ErrorScreen from "../components/ErrorScreen";
+import FormSaveCancel from "../components/FormSaveCancel";
 import LinearBreadcrumbs from "../components/LinearBreadcrumbs";
 import PageLoader from "../components/PageLoader";
 import SumaImage from "../components/SumaImage";
@@ -7,17 +8,23 @@ import { md, t } from "../localization";
 import { dayjs } from "../modules/dayConfig";
 import Money from "../shared/react/Money";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
+import useToggle from "../shared/react/useToggle";
+import { useErrorToast } from "../state/useErrorToast";
+import { useScreenLoader } from "../state/useScreenLoader";
 import { LayoutContainer } from "../state/withLayout";
+import _ from "lodash";
 import React from "react";
 import { Stack } from "react-bootstrap";
+import Button from "react-bootstrap/Button";
 import Card from "react-bootstrap/Card";
+import Form from "react-bootstrap/Form";
 import { useLocation, useParams } from "react-router-dom";
 
 export default function OrderHistoryDetail() {
   const { id } = useParams();
   const location = useLocation();
   const getOrderDetails = React.useCallback(() => api.getOrderDetails({ id }), [id]);
-  const { state, loading, error } = useAsyncFetch(getOrderDetails, {
+  const { state, replaceState, loading, error } = useAsyncFetch(getOrderDetails, {
     default: {},
     pickData: true,
     pullFromState: "order",
@@ -60,8 +67,11 @@ export default function OrderHistoryDetail() {
               </React.Fragment>
             ))}
             <br />
-            <span>{state.fulfillmentOption.description}</span>
           </p>
+          <FulfillmentOption
+            order={state}
+            onOrderUpdated={(o) => replaceState(o)}
+          ></FulfillmentOption>
           <SumaImage
             image={state.image}
             w={350}
@@ -95,5 +105,77 @@ export default function OrderHistoryDetail() {
         </Stack>
       </LayoutContainer>
     </>
+  );
+}
+
+function FulfillmentOption({ order, onOrderUpdated }) {
+  const editing = useToggle(false);
+  const screenLoader = useScreenLoader();
+  const [optionId, setOptionId] = React.useState(0);
+  const { showErrorToast } = useErrorToast();
+
+  if (_.isEmpty(order.fulfillmentOptionsForEditing)) {
+    return <span>{order.fulfillmentOption.description}</span>;
+  }
+
+  if (editing.isOff) {
+    return (
+      <span>
+        {order.fulfillmentOption.description}
+        <Button
+          variant="link"
+          className="p-0 ms-2"
+          onClick={() => {
+            setOptionId(order.fulfillmentOption.id);
+            editing.turnOn();
+          }}
+        >
+          <i className="bi bi-pencil-fill"></i>
+        </Button>
+      </span>
+    );
+  }
+  function updateFulfillment(e) {
+    e.preventDefault();
+    screenLoader.turnOn();
+    api
+      .updateOrderFulfillment({ orderId: order.id, optionId: optionId })
+      .then((r) => {
+        editing.turnOff();
+        screenLoader.turnOff();
+        onOrderUpdated(r.data);
+      })
+      .catch((e) => {
+        screenLoader.turnOff();
+        showErrorToast(e, { extract: true });
+      });
+  }
+  const chosenFulfillmentValid = order.fulfillmentOptionsForEditing.some(
+    ({ id }) => id === optionId
+  );
+
+  return (
+    <Form noValidate>
+      <Form.Group>
+        <h5>{t("food:fulfillment_title")}</h5>
+        {order.fulfillmentOptionsForEditing.map((fo) => (
+          <Form.Check
+            key={fo.id}
+            id={fo.id}
+            name={fo.description}
+            type="radio"
+            label={fo.description}
+            checked={optionId === fo.id}
+            onChange={() => setOptionId(fo.id)}
+          />
+        ))}
+      </Form.Group>
+      <FormSaveCancel
+        saveDisabled={!chosenFulfillmentValid}
+        className="mt-2"
+        onCancel={editing.turnOff}
+        onSave={updateFulfillment}
+      />
+    </Form>
   );
 }
