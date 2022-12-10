@@ -222,6 +222,18 @@ RSpec.describe "Suma::Commerce::Checkout", :db do
     end
   end
 
+  describe "available_fulfillment_options" do
+    it "excludes deleted options" do
+      checkout = Suma::Fixtures.checkout.create
+      opt_fac = Suma::Fixtures.offering_fulfillment_option(offering: checkout.cart.offering)
+      checkout.fulfillment_option.soft_delete
+      opt1 = opt_fac.create
+      opt2 = opt_fac.create
+      opt2.soft_delete
+      expect(checkout.available_fulfillment_options).to have_same_ids_as(opt1)
+    end
+  end
+
   describe "soft delete" do
     let(:offering) { Suma::Fixtures.offering.create }
     let(:product) { Suma::Fixtures.product.in_offering(offering).create }

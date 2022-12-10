@@ -373,4 +373,26 @@ RSpec.describe Suma::API::Commerce, :db do
       expect(last_response).to have_status(403)
     end
   end
+
+  describe "POST /v1/commerce/orders/:id/modify_fulfillment" do
+    let(:order) { Suma::Fixtures.order.as_purchased_by(member).create }
+
+    it "can modify the fulfillment option" do
+      opt = Suma::Fixtures.offering_fulfillment_option(offering: order.checkout.cart.offering).create
+
+      post "/v1/commerce/orders/#{order.id}/modify_fulfillment", option_id: opt.id
+
+      expect(last_response).to have_status(200)
+      expect(order.checkout.refresh).to have_attributes(fulfillment_option: be === opt)
+    end
+
+    it "400s if the given ID is not an available fulfillment option" do
+      opt = Suma::Fixtures.offering_fulfillment_option(offering: order.checkout.cart.offering).create
+      opt.soft_delete
+
+      post "/v1/commerce/orders/#{order.id}/modify_fulfillment", option_id: opt.id
+
+      expect(last_response).to have_status(400)
+    end
+  end
 end

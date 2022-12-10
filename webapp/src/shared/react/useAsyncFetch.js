@@ -57,6 +57,7 @@ const useAsyncFetch = (makeRequest, options) => {
   }, [asyncFetch, doNotFetchOnInit]);
   return {
     state,
+    replaceState: setState,
     asyncFetch,
     error,
     loading,

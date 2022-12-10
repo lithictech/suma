@@ -38,4 +38,24 @@ RSpec.describe "Suma::Commerce::Order", :db do
     o.add_charge(charge)
     expect(o.funded_amount).to cost("$12.50")
   end
+
+  describe "fulfillment_options_for_editing" do
+    let(:checkout) { Suma::Fixtures.checkout.completed.create }
+    let(:order) { Suma::Fixtures.order(checkout:).create }
+    let(:offering) { checkout.cart.offering }
+
+    it "shows checkout options on an unfulfilled order" do
+      expect(order.fulfillment_options_for_editing).to have_same_ids_as(*offering.fulfillment_options)
+    end
+
+    it "is empty for a non-unfulfilled order" do
+      order.fulfillment_status = "fulfilling"
+      expect(order.fulfillment_options_for_editing).to be_empty
+    end
+
+    it "includes the current option even if it is deleted" do
+      order.checkout.fulfillment_option.soft_delete
+      expect(order.fulfillment_options_for_editing).to have_same_ids_as(*offering.fulfillment_options)
+    end
+  end
 end

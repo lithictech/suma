@@ -21,7 +21,7 @@ class Suma::Commerce::Checkout < Suma::Postgres::Model(:commerce_checkouts)
 
   def editable? = !self.soft_deleted? && !self.completed?
   def completed? = !self.completed_at.nil?
-  def available_fulfillment_options = self.cart.offering.fulfillment_options
+  def available_fulfillment_options = self.cart.offering.fulfillment_options.reject(&:soft_deleted?)
   def available_payment_instruments = self.cart.member.usable_payment_instruments
 
   def expose_for_confirmation?(t=Time.now)

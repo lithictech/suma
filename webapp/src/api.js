@@ -76,6 +76,8 @@ export default {
     get(`/api/v1/commerce/checkouts/${id}/confirmation`, data),
   getOrderHistory: (data) => get(`/api/v1/commerce/orders`, data),
   getOrderDetails: ({ id, ...data }) => get(`/api/v1/commerce/orders/${id}`, data),
+  updateOrderFulfillment: ({ orderId, ...data }) =>
+    post(`/api/v1/commerce/orders/${orderId}/modify_fulfillment`, data),
 
   createBankAccount: (data) =>
     post(`/api/v1/payment_instruments/bank_accounts/create`, data),

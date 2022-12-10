@@ -166,9 +166,27 @@ class Suma::API::Commerce < Suma::API::V1
       end
 
       route_param :id, type: Integer do
+        helpers do
+          def lookup
+            me = current_member
+            (o = me.orders_dataset[params[:id]]) or forbidden!
+            return o
+          end
+        end
         get do
-          me = current_member
-          (order = me.orders_dataset[params[:id]]) or forbidden!
+          order = lookup
+          present order, with: DetailedOrderHistoryEntity
+        end
+
+        params do
+          requires :option_id, type: Integer
+        end
+        post :modify_fulfillment do
+          order = lookup
+          valid_option = order.fulfillment_options_for_editing.any? { |o| o.id == params[:option_id] }
+          invalid!("Not a valid fulfillment option") unless valid_option
+          order.checkout.update(fulfillment_option_id: params[:option_id])
+          status 200
           present order, with: DetailedOrderHistoryEntity
         end
       end
@@ -317,6 +335,7 @@ class Suma::API::Commerce < Suma::API::V1
     expose :items, with: OrderHistoryItemEntity, &self.delegate_to(:checkout, :items)
     expose :offering_id, &self.delegate_to(:checkout, :cart, :offering_id)
     expose :fulfillment_option, with: FulfillmentOptionEntity, &self.delegate_to(:checkout, :fulfillment_option)
+    expose :fulfillment_options_for_editing, with: FulfillmentOptionEntity
 
     expose :customer_cost, with: MoneyEntity, &self.delegate_to(:checkout, :customer_cost)
     expose :undiscounted_cost, with: MoneyEntity, &self.delegate_to(:checkout, :undiscounted_cost)
