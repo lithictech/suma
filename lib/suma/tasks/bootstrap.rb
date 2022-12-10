@@ -228,7 +228,7 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
     # Create this extra one
     Suma::RACK_ENV == "development" && Suma::Commerce::Offering.create(
       description_string: "No Image Tester",
-      period: 1.day.ago..Time.new(2022, 12, 16),
+      period: 1.day.ago..self.pilot_end,
     )
   end
 
@@ -315,6 +315,6 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
   end
 
   def pilot_end
-    return Time.parse("2022-12-08T23:00:00-0800")
+    return Time.now + 6.months
   end
 end
