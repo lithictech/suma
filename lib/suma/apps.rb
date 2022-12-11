@@ -4,6 +4,7 @@ require "amigo"
 require "grape-swagger"
 require "rack/builder"
 require "rack/csp"
+require "rack/dynamic_config_writer"
 require "rack/lambda_app"
 require "rack/simple_redirect"
 require "rack/spa_app"
@@ -85,7 +86,25 @@ module Suma::Apps
     run Sidekiq::Web
   end
 
+  def self.emplace_dynamic_config
+    release = "sumaweb@"
+    release += Suma::RELEASE.include?("unknown") ? Suma::VERSION : Suma::RELEASE
+    dw = Rack::DynamicConfigWriter.new(
+      "build-webapp/index.html",
+      global_assign: "window.sumaDynamicEnvPlaceholder",
+    )
+    env = {
+      "REACT_APP_API_HOST" => "/",
+      "REACT_APP_SENTRY_DSN" => Suma::Sentry.dsn,
+      "REACT_APP_STRIPE_PUBLIC_KEY" => Suma::Stripe.api_key,
+      "REACT_APP_RELEASE" => release,
+      "NODE_ENV" => Suma::RACK_ENV,
+    }.merge(Rack::DynamicConfigWriter.pick_env("REACT_APP_"))
+    dw.emplace(env)
+  end
+
   Web = Rack::Builder.new do
+    Suma::Apps.emplace_dynamic_config
     # self.use Rack::Csp, policy: "default-src 'self' mysuma.org *.mysuma.org; img-src 'self' data:"
     Rack::SpaApp.run_spa_app(self, "build-webapp", enforce_ssl: Suma::Service.enforce_ssl)
   end

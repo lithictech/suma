@@ -6,7 +6,4 @@ npm install --production=false
 export PUBLIC_URL="/app/"
 export BUILD_PATH="../build-webapp"
 export NODE_ENV=${RACK_ENV}
-export REACT_APP_API_HOST="/"
-export REACT_APP_SENTRY_DSN=${SENTRY_DSN}
-export REACT_APP_STRIPE_PUBLIC_KEY=${STRIPE_PUBLIC_KEY}
 npm run build
