@@ -91,14 +91,14 @@ module Suma::Apps
     release += Suma::RELEASE.include?("unknown") ? Suma::VERSION : Suma::RELEASE
     dw = Rack::DynamicConfigWriter.new(
       "build-webapp/index.html",
-      global_assign: "window.sumaDynamicEnvPlaceholder",
+      global_assign: "window.sumaDynamicEnv",
     )
     env = {
       "REACT_APP_API_HOST" => "/",
       "REACT_APP_SENTRY_DSN" => Suma::Sentry.dsn,
       "REACT_APP_STRIPE_PUBLIC_KEY" => Suma::Stripe.api_key,
       "REACT_APP_RELEASE" => release,
-      "NODE_ENV" => Suma::RACK_ENV,
+      "NODE_ENV" => "production",
     }.merge(Rack::DynamicConfigWriter.pick_env("REACT_APP_"))
     dw.emplace(env)
   end
