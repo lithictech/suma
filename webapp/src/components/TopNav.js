@@ -1,4 +1,4 @@
-import sumaLogo from "../assets/images/suma-logo.png";
+import sumaLogo from "../assets/images/suma-logo-plain-128.png";
 import { t } from "../localization";
 import useI18Next from "../localization/useI18Next";
 import signOut from "../modules/signOut";

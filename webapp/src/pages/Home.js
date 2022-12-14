@@ -1,4 +1,4 @@
-import sumaLogo from "../assets/images/suma-logo.png";
+import sumaLogo from "../assets/images/suma-logo-word-512.png";
 import ExternalLink from "../components/ExternalLink";
 import RLink from "../components/RLink";
 import TranslationToggle from "../components/TranslationToggle";
