@@ -117,10 +117,6 @@ class Suma::Commerce::Order < Suma::Postgres::Model(:commerce_orders)
     end
   end
 
-  def first_checkout_product
-    return self.checkout.items.first.offering_product.product
-  end
-
   protected def limited_quantity_items
     return self.checkout.items.filter { |ci| ci.offering_product.product.inventory&.limited_quantity? }
   end

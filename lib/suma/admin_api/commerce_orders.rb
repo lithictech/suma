@@ -73,5 +73,6 @@ class Suma::AdminAPI::CommerceOrders < Suma::AdminAPI::V1
     expose :offering, with: OfferingEntity, &self.delegate_to(:checkout, :cart, :offering)
     expose :checkout, with: CheckoutEntity
     expose :items, with: CheckoutItemEntity, &self.delegate_to(:checkout, :items)
+    expose :member, with: MemberEntity, &self.delegate_to(:checkout, :cart, :member)
   end
 end

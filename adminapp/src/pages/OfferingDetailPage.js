@@ -61,18 +61,17 @@ export default function OfferingDetailPage() {
               <Money key="undiscounted_price">{row.undiscountedPrice}</Money>,
             ]}
           />
+          {!_.isEmpty(offering.offeringProducts) && (
+            <Link
+              href={`/offering/${offering.id}/picklist`}
+              sx={{ display: "inline-block", marginTop: "15px" }}
+            >
+              <ListAltIcon sx={{ verticalAlign: "middle", paddingRight: "5px" }} />
+              Pick/Pack List
+            </Link>
+          )}
           <RelatedList
-            title={
-              <>
-                Orders ({offering.orders.length}){" "}
-                <Link href={`/offering/${offering.id}/picklist`}>
-                  <ListAltIcon
-                    sx={{ verticalAlign: "text-bottom", paddingRight: "5px" }}
-                  />
-                  Pick/Pack List
-                </Link>
-              </>
-            }
+            title={`Orders (${offering.orders.length})`}
             rows={offering.orders}
             headers={["Id", "Created", "Member", "Items", "Status"]}
             keyRowAttr="id"

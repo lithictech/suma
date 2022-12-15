@@ -1,4 +1,5 @@
 import api from "../api";
+import AdminLink from "../components/AdminLink";
 import useErrorSnackbar from "../hooks/useErrorSnackbar";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
 import { Link, Typography } from "@mui/material";
@@ -28,13 +29,18 @@ export default function OfferingPickListPage() {
       <StripedDataGrid
         columns={[
           {
-            field: "id",
-            headerName: "ID",
+            field: "serial",
+            headerName: "Serial",
           },
           {
             field: "member",
             headerName: "Member",
-            renderCell: ({ value }) => <Link href={value.adminLink}>{value.name}</Link>,
+            width: 150,
+            renderCell: ({ value }) => (
+              <AdminLink model={value} title={value.name}>
+                {value.name}
+              </AdminLink>
+            ),
           },
           {
             field: "quantity",
@@ -43,22 +49,35 @@ export default function OfferingPickListPage() {
           {
             field: "product",
             headerName: "Product",
-            width: 125,
-            renderCell: ({ value }) => <Link href={value.adminLink}>{value.name}</Link>,
+            width: 200,
+            renderCell: ({ value }) => (
+              <AdminLink model={value} title={value.name}>
+                {value.name}
+              </AdminLink>
+            ),
           },
           {
             field: "fulfillment",
             headerName: "Fulfillment",
-            width: 125,
+            width: 300,
+            renderCell: ({ value }) => <span title={value}>{value}</span>,
           },
         ]}
+        getRowId={(row) => row.id}
+        getRowClassName={({ indexRelativeToCurrentPage }) =>
+          indexRelativeToCurrentPage % 2 === 0 ? "even" : "odd"
+        }
+        sx={{
+          "& .MuiDataGrid-cell > *": {
+            overflow: "hidden!important",
+            textOverflow: "ellipsis!important",
+          },
+        }}
         rows={pickList.items || []}
+        density="compact"
         autoHeight={true}
         hideFooter={true}
         checkboxSelection={true}
-        getRowClassName={(params) =>
-          params.indexRelativeToCurrentPage % 2 === 0 ? "even" : "odd"
-        }
       />
     </>
   );

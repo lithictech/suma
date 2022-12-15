@@ -38,8 +38,8 @@ class Suma::AdminAPI::CommerceOfferings < Suma::AdminAPI::V1
 
       resource :picklist do
         get do
-          co_orders = lookup.orders
-          present_collection co_orders, with: CommerceOrderPickListEntity
+          co_products = lookup.order_pick_list
+          present_collection co_products, with: OrderItemsPickListEntity
         end
       end
     end
@@ -61,19 +61,19 @@ class Suma::AdminAPI::CommerceOfferings < Suma::AdminAPI::V1
     expose :orders, with: OrderInOfferingEntity
   end
 
-  class FirstProductInOrderEntity < BaseEntity
+  class ProductInPickListEntity < BaseEntity
     include Suma::AdminAPI::Entities
     include AutoExposeBase
     expose_translated :name
   end
 
-  class CommerceOrderPickListEntity < BaseEntity
+  class OrderItemsPickListEntity < BaseEntity
     include Suma::AdminAPI::Entities
     expose :id
-    expose :admin_link
+    expose :quantity
+    expose :serial, &self.delegate_to(:checkout, :order, :serial)
     expose :member, with: MemberEntity, &self.delegate_to(:checkout, :cart, :member)
-    expose :first_checkout_product, with: FirstProductInOrderEntity, as: :product
-    expose :total_item_count, as: :quantity
-    expose :fulfillment_status, as: :fulfillment
+    expose :product, with: ProductInPickListEntity, &self.delegate_to(:offering_product, :product)
+    expose_translated :fulfillment, &self.delegate_to(:checkout, :fulfillment_option, :description)
   end
 end
