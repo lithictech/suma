@@ -72,6 +72,8 @@ export default {
   getCommerceOfferings: (data) => get("/adminapi/v1/commerce_offerings", data),
   getCommerceOffering: ({ id, ...data }) =>
     get(`/adminapi/v1/commerce_offerings/${id}`, data),
+  getCommerceOfferingPickList: ({ id, ...data }) =>
+    get(`/adminapi/v1/commerce_offerings/${id}/picklist`, data),
 
   getCommerceProducts: (data) => get("/adminapi/v1/commerce_products", data),
   getCommerceProduct: ({ id, ...data }) =>

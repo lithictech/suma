@@ -6,7 +6,8 @@ import useErrorSnackbar from "../hooks/useErrorSnackbar";
 import { dayjs } from "../modules/dayConfig";
 import Money from "../shared/react/Money";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
-import { CircularProgress } from "@mui/material";
+import ListAltIcon from "@mui/icons-material/ListAlt";
+import { CircularProgress, Link } from "@mui/material";
 import { makeStyles } from "@mui/styles";
 import _ from "lodash";
 import React from "react";
@@ -61,7 +62,17 @@ export default function OfferingDetailPage() {
             ]}
           />
           <RelatedList
-            title={`Orders (${offering.orders.length})`}
+            title={
+              <>
+                Orders ({offering.orders.length}){" "}
+                <Link href={`/offering/${offering.id}/picklist`}>
+                  <ListAltIcon
+                    sx={{ verticalAlign: "text-bottom", paddingRight: "5px" }}
+                  />
+                  Pick/Pack List
+                </Link>
+              </>
+            }
             rows={offering.orders}
             headers={["Id", "Created", "Member", "Items", "Status"]}
             keyRowAttr="id"
