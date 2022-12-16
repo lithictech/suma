@@ -61,7 +61,7 @@ export default function OfferingDetailPage() {
               <Money key="undiscounted_price">{row.undiscountedPrice}</Money>,
             ]}
           />
-          {!_.isEmpty(offering.offeringProducts) && (
+          {!_.isEmpty(offering.orders) && (
             <Link
               href={`/offering/${offering.id}/picklist`}
               sx={{ display: "inline-block", marginTop: "15px" }}
