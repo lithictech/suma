@@ -27,8 +27,4 @@ module Suma::Fixtures::Offerings
     Suma::Fixtures.offering_fulfillment_option(options).create(offering: self) unless
       options.is_a?(Suma::Commerce::OfferingFulfillmentOption)
   end
-
-  decorator :order_pick_list do
-    self.orders.map { |o| o.checkout.items }.flatten
-  end
 end
