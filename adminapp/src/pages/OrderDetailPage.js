@@ -35,6 +35,14 @@ export default function OrderDetailPage() {
             title={`Order ${order.serial}`}
             properties={[
               { label: "ID", value: id },
+              {
+                label: "Member",
+                value: (
+                  <AdminLink key="member" model={order.member}>
+                    {order.member.name}
+                  </AdminLink>
+                ),
+              },
               { label: "Created At", value: dayjs(order.createdAt) },
               {
                 label: "Status",

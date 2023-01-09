@@ -6,7 +6,8 @@ import useErrorSnackbar from "../hooks/useErrorSnackbar";
 import { dayjs } from "../modules/dayConfig";
 import Money from "../shared/react/Money";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
-import { CircularProgress } from "@mui/material";
+import ListAltIcon from "@mui/icons-material/ListAlt";
+import { CircularProgress, Link } from "@mui/material";
 import { makeStyles } from "@mui/styles";
 import _ from "lodash";
 import React from "react";
@@ -60,6 +61,15 @@ export default function OfferingDetailPage() {
               <Money key="undiscounted_price">{row.undiscountedPrice}</Money>,
             ]}
           />
+          {!_.isEmpty(offering.orders) && (
+            <Link
+              href={`/offering/${offering.id}/picklist`}
+              sx={{ display: "inline-block", marginTop: "15px" }}
+            >
+              <ListAltIcon sx={{ verticalAlign: "middle", paddingRight: "5px" }} />
+              Pick/Pack List
+            </Link>
+          )}
           <RelatedList
             title={`Orders (${offering.orders.length})`}
             rows={offering.orders}

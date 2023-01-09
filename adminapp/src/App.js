@@ -12,6 +12,7 @@ import MemberDetailPage from "./pages/MemberDetailPage";
 import MemberListPage from "./pages/MemberListPage";
 import OfferingDetailPage from "./pages/OfferingDetailPage";
 import OfferingListPage from "./pages/OfferingListPage";
+import OfferingPickListPage from "./pages/OfferingPickListPage";
 import OrderDetailPage from "./pages/OrderDetailPage";
 import OrderListPage from "./pages/OrderListPage";
 import ProductDetailPage from "./pages/ProductDetailPage";
@@ -140,6 +141,11 @@ function PageSwitch() {
         exact
         path="/offering/:id"
         element={renderWithHocs(redirectIfUnauthed, withLayout(), OfferingDetailPage)}
+      />
+      <Route
+        exact
+        path="/offering/:id/picklist"
+        element={renderWithHocs(redirectIfUnauthed, withLayout(), OfferingPickListPage)}
       />
       <Route
         exact

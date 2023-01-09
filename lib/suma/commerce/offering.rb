@@ -102,6 +102,10 @@ class Suma::Commerce::Offering < Suma::Postgres::Model(:commerce_offerings)
   end
 
   def rel_admin_link = "/offering/#{self.id}"
+
+  def order_pick_list
+    self.orders.map { |o| o.checkout.items }.flatten
+  end
 end
 
 # Table: commerce_offerings
