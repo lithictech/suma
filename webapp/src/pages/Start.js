@@ -4,6 +4,7 @@ import FormError from "../components/FormError";
 import { t } from "../localization";
 import useI18Next from "../localization/useI18Next";
 import { dayjs } from "../modules/dayConfig";
+import { Logger } from "../shared/logger";
 import useToggle from "../shared/react/useToggle";
 import { extractErrorCode, useError } from "../state/useError";
 import React, { useState } from "react";
@@ -60,6 +61,10 @@ export default function Start() {
         submitDisabled.turnOff();
         inputDisabled.turnOff();
         phoneRef.current.classList.add("is-invalid");
+        if (extractErrorCode(err) === "auth_conflict") {
+          logger.error("Unexpected auth conflict");
+          window.location.reload();
+        }
       });
   };
   return (
@@ -100,3 +105,5 @@ export default function Start() {
     </>
   );
 }
+
+const logger = new Logger("user-auth");
