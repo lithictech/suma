@@ -10,12 +10,16 @@ class Suma::Message::FakeTransport < Suma::Message::Transport
   singleton_attr_reader :sent_deliveries
   @sent_deliveries = []
 
-  singleton_attr_accessor :disable_func
-  @disable_func = nil
+  singleton_attr_accessor :allowlisted_callback
+  @allowlisted_callback = nil
+
+  singleton_attr_accessor :send_callback
+  @send_callback = nil
 
   def self.reset!
     self.sent_deliveries.clear
-    self.disable_func = nil
+    self.allowlisted_callback = nil
+    self.send_callback = nil
   end
 
   def type
@@ -37,13 +41,14 @@ class Suma::Message::FakeTransport < Suma::Message::Transport
   end
 
   def allowlisted?(delivery)
-    denied = Suma::Message::FakeTransport.disable_func&.call(delivery)
+    denied = Suma::Message::FakeTransport.allowlisted_callback&.call(delivery)
     return !denied
   end
 
   def send!(delivery)
     Suma.logger.debug "Storing Delivery[%d] to %s as sent" % [delivery.id, delivery.to]
     Suma::Message::FakeTransport.sent_deliveries << delivery
+    Suma::Message::FakeTransport.send_callback&.call(delivery)
     return "#{delivery.id}-#{SecureRandom.hex(6)}"
   end
 end
