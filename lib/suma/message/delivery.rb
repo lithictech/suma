@@ -44,7 +44,13 @@ class Suma::Message::Delivery < Suma::Postgres::Model(:message_deliveries)
         self.update(aborted_at: Time.now)
         return self
       end
-      transport_message_id = self.transport.send!(self)
+      begin
+        transport_message_id = self.transport.send!(self)
+      rescue Suma::Message::Transport::UndeliverableRecipient => e
+        self.logger.error("undeliverable_recipient", message_delivery_id: self.id, error: e)
+        self.update(aborted_at: Time.now)
+        return self
+      end
       if transport_message_id.blank?
         self.logger.error("empty_transport_message_id", message_delivery_id: self.id)
         transport_message_id = "WARNING-NOT-SET"
