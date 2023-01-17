@@ -224,18 +224,16 @@ export default class MapBuilder {
     const ridingRestrictionContent = `<h6 class='mb-0'>${t(
       "mobility:do_not_ride_title"
     )}</h6><p class='m-0'>${t("mobility:do_not_ride_intro")}</p>`;
-    const allRestrictionsContent =
-      parkingRestrictionContent + "<hr />" + ridingRestrictionContent;
-    if (restriction === "do-not-park") {
+    if (restriction.startsWith("do-not-park")) {
       popup.setContent(parkingRestrictionContent);
       polygonFillOpacity = 0.2;
     }
-    if (restriction === "do-not-ride") {
+    if (restriction.startsWith("do-not-ride")) {
       popup.setContent(ridingRestrictionContent);
       polygonFillOpacity = 0.2;
     }
-    if (restriction === "do-not-park-or-ride") {
-      popup.setContent(allRestrictionsContent);
+    if (restriction.startsWith("do-not-park-or-ride")) {
+      popup.setContent(parkingRestrictionContent + "<hr />" + ridingRestrictionContent);
     }
     const restrictedIcon = this._l.divIcon({
       iconAnchor: [12, 12],
@@ -289,9 +287,6 @@ export default class MapBuilder {
     }
     lat = lat * precisionFactor;
     lng = lng * precisionFactor;
-    // if (bike.o) {
-    //   this._l.circle([lat, lng], {radius: 10}).addTo(this._map)
-    // }
     return this._l
       .marker([lat, lng], {
         id,
