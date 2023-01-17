@@ -55,3 +55,26 @@ jobs:
       - run: npm run prettier-check
       - run: npm run eslint-check
       - run: CI=true npm test
+  adminapp-checks:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: adminapp
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v2
+        with:
+          ref: ${{ github.head_ref }}
+      - name: Setup node
+        uses: actions/setup-node@v1
+        with:
+          node-version: 16.13
+      - uses: actions/cache@v1
+        with:
+          path: ~/.npm
+          key: node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: node-
+      - run: npm install
+      - run: npm run prettier-check
+      - run: npm run eslint-check
+      - run: CI=true npm test
