@@ -213,7 +213,7 @@ export default class MapBuilder {
   }
 
   createRestrictedArea({ latlngs, restriction }) {
-    let popup = this._l.popup({
+    const popup = this._l.popup({
       direction: "top",
       offset: [0, -5],
     });
@@ -224,26 +224,21 @@ export default class MapBuilder {
     const ridingRestrictionContent = `<h6 class='mb-0'>${t(
       "mobility:do_not_ride_title"
     )}</h6><p class='m-0'>${t("mobility:do_not_ride_intro")}</p>`;
-    const allRestrictionsContent =
-      parkingRestrictionContent + "<hr />" + ridingRestrictionContent;
-    if (restriction === "do-not-park") {
+
+    if (restriction.startsWith("do-not-park-or-ride")) {
+      popup.setContent(parkingRestrictionContent + "<hr />" + ridingRestrictionContent);
+    } else if (restriction.startsWith("do-not-park")) {
       popup.setContent(parkingRestrictionContent);
-      polygonFillOpacity = 0.2;
-    }
-    if (restriction === "do-not-ride") {
+    } else if (restriction.startsWith("do-not-ride")) {
       popup.setContent(ridingRestrictionContent);
-      polygonFillOpacity = 0.2;
     }
-    if (restriction === "do-not-park-or-ride") {
-      popup.setContent(allRestrictionsContent);
-    }
+
     const restrictedIcon = this._l.divIcon({
       iconAnchor: [12, 12],
       iconSize: [24, 24],
       className: "mobility-restricted-area-icon",
       html: "<i class='bi bi-slash-circle'></i>",
     });
-
     const restrictedMarker = this._l
       .marker(this._l.latLngBounds(latlngs).getCenter(), {
         icon: restrictedIcon,
@@ -263,7 +258,7 @@ export default class MapBuilder {
   }
 
   startRefreshTimer(interval, bounds, mcg) {
-    if (this._refreshId && this._ongoingTrip) {
+    if (this._refreshId) {
       return;
     }
     this._refreshId = window.setInterval(() => {
@@ -289,9 +284,6 @@ export default class MapBuilder {
     }
     lat = lat * precisionFactor;
     lng = lng * precisionFactor;
-    // if (bike.o) {
-    //   this._l.circle([lat, lng], {radius: 10}).addTo(this._map)
-    // }
     return this._l
       .marker([lat, lng], {
         id,
