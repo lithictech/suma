@@ -11,6 +11,9 @@ class Suma::Tasks::Frontend < Rake::TaskLib
       task :build_webapp do
         puts `bin/build-webapp`
       end
+      task :build_adminapp do
+        puts `bin/build-adminapp`
+      end
     end
   end
 end
