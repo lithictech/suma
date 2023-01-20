@@ -97,7 +97,7 @@ const Map = () => {
       return;
     }
     if (!loadedMap) {
-      const map = new MapBuilder(mapRef).init().startTrackingLocation({
+      const map = new MapBuilder(mapRef.current).init().startTrackingLocation({
         onGetLocation: handleGetLastLocation,
         onGetLocationError: handleGetLocationError,
       });
@@ -110,6 +110,9 @@ const Map = () => {
         });
       }
       setLoadedMap(map);
+      return () => {
+        map.unmount();
+      };
     }
   }, [
     loadedMap,
@@ -118,14 +121,6 @@ const Map = () => {
     handleGetLastLocation,
     handleGetLocationError,
   ]);
-
-  React.useEffect(() => {
-    return () => {
-      if (loadedMap) {
-        loadedMap.unmount();
-      }
-    };
-  }, [loadedMap]);
 
   const navsHeight = (topNav?.clientHeight || 0) + (appNav?.clientHeight || 0);
 

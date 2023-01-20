@@ -10,8 +10,8 @@ import "leaflet/dist/leaflet.css";
 import _ from "lodash";
 
 export default class MapBuilder {
-  constructor(mapRef) {
-    this.mapRef = mapRef;
+  constructor(host) {
+    this.mapHost = host;
     this._l = leaflet;
     this._minZoom = 13;
     this._maxZoom = 23;
@@ -19,7 +19,7 @@ export default class MapBuilder {
     this._dLat = 45.5152;
     this._dLng = -122.6784;
     this._latOffset = 0.00004;
-    this._map = this._l.map(this.mapRef.current, { zoomControl: false });
+    this._map = this._l.map(this.mapHost, { zoomControl: false });
     this._map.setView([this._dLat, this._dLng], this._minZoom);
     this._l.control
       .zoom({
@@ -473,6 +473,8 @@ export default class MapBuilder {
   unmount() {
     this.stopRefreshTimer();
     this._map.stopLocate();
+    this._map.off();
+    this._map.remove();
   }
 }
 
