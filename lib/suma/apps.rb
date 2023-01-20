@@ -87,20 +87,41 @@ module Suma::Apps
   end
 
   def self.emplace_dynamic_config
-    release = "sumaweb@"
-    release += Suma::RELEASE.include?("unknown") ? Suma::VERSION : Suma::RELEASE
     dw = Rack::DynamicConfigWriter.new(
       "build-webapp/index.html",
       global_assign: "window.sumaDynamicEnv",
     )
+    vars = self._dynamic_config_common_vars
     env = {
-      "REACT_APP_API_HOST" => "/",
+      "REACT_APP_API_HOST" => vars[:api_host],
       "REACT_APP_SENTRY_DSN" => Suma::Sentry.dsn,
       "REACT_APP_STRIPE_PUBLIC_KEY" => Suma::Stripe.api_key,
-      "REACT_APP_RELEASE" => release,
-      "NODE_ENV" => "production",
+      "REACT_APP_RELEASE" => "sumaweb@" + vars[:release_version],
+      "NODE_ENV" => vars[:node_env],
     }.merge(Rack::DynamicConfigWriter.pick_env("REACT_APP_"))
     dw.emplace(env)
+  end
+
+  def self.emplace_dynamic_config_adminapp
+    dw = Rack::DynamicConfigWriter.new(
+      "build-adminapp/index.html",
+      global_assign: "window.sumaDynamicEnv",
+    )
+    vars = self._dynamic_config_common_vars
+    env = {
+      "REACT_APP_API_HOST" => vars[:api_host],
+      "REACT_APP_RELEASE" => "sumaadmin@" + vars[:release_version],
+      "NODE_ENV" => vars[:node_env],
+    }.merge(Rack::DynamicConfigWriter.pick_env("REACT_APP_"))
+    dw.emplace(env)
+  end
+
+  def self._dynamic_config_common_vars
+    return {
+      release_version: Suma::RELEASE.include?("unknown") ? Suma::VERSION : Suma::RELEASE,
+      api_host: "/",
+      node_env: "production",
+    }
   end
 
   Web = Rack::Builder.new do
@@ -110,6 +131,7 @@ module Suma::Apps
   end
 
   Admin = Rack::Builder.new do
+    Suma::Apps.emplace_dynamic_config_adminapp
     # self.use Rack::Csp, policy: "default-src 'self'; img-src 'self' data:"
     Rack::SpaApp.run_spa_app(self, "build-adminapp", enforce_ssl: Suma::Service.enforce_ssl)
   end

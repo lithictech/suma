@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+cd adminapp
+# Need dev deps to build
+npm install --production=false
+export PUBLIC_URL="/admin/"
+export BUILD_PATH="../build-adminapp"
+export NODE_ENV=${RACK_ENV}
+npm run build

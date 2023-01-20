@@ -4,12 +4,21 @@ require "rack"
 require "nokogiri"
 
 # Allow dynamic configuration of a SPA.
-# When the app starts up, it should run #emplace.
+# When the backend app starts up, it should run #emplace.
 # This will 1) copy the index.html to a 'backup' location
 # if it does not exist, 2) replace a placeholder string
 # in the index.html with the given keys and values
 # (use .pick_env_vars to pull everything like 'REACT_APP_'),
 # and write it out to index.html.
+#
+# IMPORTANT: This sort of dynamic config writing is not normal
+# for SPAs so needs some further explanation.
+# The build process should be exactly the same;
+# for example, you'd still run `npm run build`,
+# and generate a totally normal build output.
+# It's the *backend* running that modifies index.html
+# (and creates index.html.original) *at backend startup*,
+# not at build time.
 class Rack::DynamicConfigWriter
   GLOBAL_ASSIGN = "window.rackDynamicConfig"
   BACKUP_SUFFIX = ".original"

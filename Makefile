@@ -137,8 +137,7 @@ build-webapp:
 	@bundle exec rake frontend:build_webapp
 
 build-adminapp:
-	@# Need dev deps to build
-	@cd adminapp && npm install --production=false && PUBLIC_URL="/admin/" BUILD_PATH="../build-adminapp" REACT_APP_API_HOST="/" npm run build
+	@bundle exec rake frontend:build_adminapp
 
 build-frontends: build-webapp build-adminapp ## Build the JS frontends and place them into their location so they can be served by Rack
 
