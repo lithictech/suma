@@ -1,4 +1,5 @@
 import api from "../api";
+import doOnce from "../shared/doOnce";
 import { localStorageCache } from "../shared/localStorageHelper";
 import { Logger } from "../shared/logger";
 import { formatMoney } from "../shared/react/Money";
@@ -49,28 +50,30 @@ export function I18NextProvider({ children }) {
     [setLanguage, userAuthed]
   );
 
-  useMountEffect(() => {
-    i18n
-      .use(Backend)
-      .init({
-        ns: ["strings"],
-        // Disable fallback language for now so it's easy to see when translations are missing.
-        fallbackLng: false,
-        initImmediate: false,
-        lng: language,
-        backend: {
-          loadPath: `${process.env.PUBLIC_URL}/locale/{{lng}}/{{ns}}.json`,
-        },
-        interpolation: {
-          // react already safes from xss
-          escapeValue: false,
-        },
-      })
-      .finally(() => setI18NextLoading(false));
-    i18n.services.formatter.add("sumaCurrency", (value, lng, options) => {
-      return formatMoney(value);
-    });
-  });
+  useMountEffect(
+    doOnce("i18ninit", () => {
+      i18n
+        .use(Backend)
+        .init({
+          ns: ["strings"],
+          // Disable fallback language for now so it's easy to see when translations are missing.
+          fallbackLng: false,
+          initImmediate: false,
+          lng: language,
+          backend: {
+            loadPath: `${process.env.PUBLIC_URL}/locale/{{lng}}/{{ns}}.json`,
+          },
+          interpolation: {
+            // react already safes from xss
+            escapeValue: false,
+          },
+        })
+        .finally(() => setI18NextLoading(false));
+      i18n.services.formatter.add("sumaCurrency", (value, lng, options) => {
+        return formatMoney(value);
+      });
+    })
+  );
 
   const value = React.useMemo(
     () => ({ i18nextLoading, language, changeLanguage }),
