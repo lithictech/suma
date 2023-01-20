@@ -108,7 +108,7 @@ function Product({ product, offeringId }) {
             )}
           </>
         )}
-        <Link to={`/product/${offeringId}-${productId}`} className="stretched-link" />
+        <Link to={`/product/${offeringId}/${productId}`} className="stretched-link" />
       </div>
     </Col>
   );
