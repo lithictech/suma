@@ -2,6 +2,7 @@
 
 require "suma/fixtures"
 require "suma/uploaded_file"
+require "mimemagic"
 
 module Suma::Fixtures::UploadedFiles
   extend Suma::Fixtures
@@ -27,7 +28,7 @@ module Suma::Fixtures::UploadedFiles
   end
 
   decorator :uploaded_file do |f|
-    content_type = MIME::Types.type_for(f.path).first.to_s
+    content_type = MimeMagic.by_magic(File.open(f.path)).type
     fields = Suma::UploadedFile.fields_with_blob(bytes: f.read, content_type:)
     self.set(fields)
   end

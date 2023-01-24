@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "appydays/configurable"
+require "mimemagic"
 
 class Suma::UploadedFile < Suma::Postgres::Model(:uploaded_files)
   include Appydays::Configurable
@@ -66,7 +67,7 @@ class Suma::UploadedFile < Suma::Postgres::Model(:uploaded_files)
 
   def self.create_from_multipart(file, **params)
     bytes = file.fetch(:tempfile).read
-    content_type = file[:type] || MIME::Types.type_for(file.fetch(:filename)).first&.to_s || ""
+    content_type = file[:type] || MimeMagic.by_path(file.fetch(:filename)).type || ""
     return self.create_with_blob(bytes:, content_type:, filename: file[:filename], **params)
   end
 
