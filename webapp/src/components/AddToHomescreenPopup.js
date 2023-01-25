@@ -17,18 +17,14 @@ export default function AddToHomescreenPopup() {
   }
 
   function handleAddToHomescreenPrompt() {
-    if (!isStandalone()) {
-      console.log("USING BROWSER AND NOT STANDEALONE APP - COULD NOT PROMPT");
-      return;
-    }
-    if (!beforeInstallPromptEvent) {
-      console.log("beforeinstallpromptevent NULL");
-    }
+    // if (!isStandalone() || !beforeInstallPromptEvent) {
+    //   return;
+    // }
     console.log("Beforeinstallpront event: ", beforeInstallPromptEvent);
     return beforeInstallPromptEvent
       .prompt()
       .then(function () {
-        // Wait for the user to respond to the prompt
+        // Wait for the member to respond to the prompt
         return beforeInstallPromptEvent.userChoice;
       })
       .then(function (choiceResult) {
@@ -74,11 +70,9 @@ export default function AddToHomescreenPopup() {
       // Scope path is strict, needs to end with a slash
       const scopePath =
         process.env.NODE_ENV !== "development" ? `${process.env.PUBLIC_URL}/` : "./";
-      navigator.serviceWorker
-        .register(serviceWorkerPath, { scope: scopePath })
-        .then((register) => {
-          console.log("Registration succeeded. Scope is " + register.scope);
-        });
+      navigator.serviceWorker.register(serviceWorkerPath).then((register) => {
+        console.log("Registration succeeded. Scope is " + register.scope);
+      });
       // bypass manifest check
       setTimeout(function () {
         // we wait 1 sec until we execute this because sometimes the browser needs a little time to register the service worker
