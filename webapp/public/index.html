@@ -36,5 +36,12 @@
   </head>
   <body>
     <div id="root"></div>
+    <script>
+      if ("serviceWorker" in navigator) {
+        navigator.serviceWorker.register("./add-to-homescreen-service-worker.js", { scope: "./" }).then((register) => {
+          console.log('Registration succeeded. Scope is ' + register.scope);
+        });
+      };
+    </script>
   </body>
 </html>

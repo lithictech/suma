@@ -1,0 +1,93 @@
+import React from "react";
+import Button from "react-bootstrap/Button";
+
+export default function AddToHomescreenPopup() {
+  const [beforeInstallPromptEvent, setBeforeInstallPromptEvent] = React.useState(null);
+  const [isAppInstalled, setIsAppInstalled] = React.useState(false);
+
+  function isStandalone() {
+    // check IOS usage
+    const isStandalone = window.matchMedia("(display-mode: standalone)").matches;
+    // check if already using TWA
+    const isTrustedWebActivities = document.referrer.startsWith("android-app://");
+    if (!navigator.standalone || !isStandalone || isTrustedWebActivities) {
+      return false;
+    }
+    return true;
+  }
+
+  function handleAddToHomescreenPrompt() {
+    if (!isStandalone()) {
+      console.log("USING BROWSER AND NOT STANDEALONE APP - COULD NOT PROMPT");
+      return;
+    }
+    if (!beforeInstallPromptEvent) {
+      console.log("beforeinstallpromptevent NULL");
+    }
+    console.log("Beforeinstallpront event: ", beforeInstallPromptEvent);
+    return beforeInstallPromptEvent
+      .prompt()
+      .then(function () {
+        // Wait for the user to respond to the prompt
+        return beforeInstallPromptEvent.userChoice;
+      })
+      .then(function (choiceResult) {
+        if (choiceResult.outcome === "accepted") {
+          console.log("user accepted the A2HS prompt");
+          setIsAppInstalled(true);
+        } else {
+          console.log("user dismissed the A2HS prompt");
+        }
+        setBeforeInstallPromptEvent(null);
+      })
+      .catch(function (err) {
+        console.log(err.message);
+        if (err.message.indexOf("The app is already installed") > -1) {
+          console.log(err.message);
+        } else {
+          console.log(err);
+        }
+      });
+  }
+  const initNavigatorEventHandlers = React.useCallback(() => {
+    // TODO: Check navigator session . id to return; if prompt was already used (installed app)
+    // this can be done by storing in localstorage
+
+    if ("onbeforeinstallprompt" in window) {
+      window.addEventListener("beforeinstallprompt", (event) => {
+        // Prevent early prompt display
+        event.preventDefault();
+        // event saved for later use with button
+        setBeforeInstallPromptEvent(event);
+        console.log(beforeInstallPromptEvent);
+      });
+    }
+    if ("onappinstalled" in window) {
+      window.addEventListener("appinstalled", (evt) => {
+        console.log("A2HS installed");
+        setIsAppInstalled(true);
+      });
+    }
+
+    if ("serviceWorker" in navigator) {
+      // bypass manifest check
+      setTimeout(function () {
+        // we wait 1 sec until we execute this because sometimes the browser needs a little time to register the service worker
+        navigator.serviceWorker.getRegistration().then((reg) => {
+          console.log("navigator is in service! Registration: ", reg);
+        });
+      }, 1000);
+    }
+  }, [beforeInstallPromptEvent]);
+
+  React.useEffect(() => {
+    initNavigatorEventHandlers();
+  }, [initNavigatorEventHandlers]);
+
+  return (
+    <>
+      {isAppInstalled && <p>App was installed after accepting!</p>}
+      <Button onClick={() => handleAddToHomescreenPrompt()}>Add to homescreen</Button>
+    </>
+  );
+}
