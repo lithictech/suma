@@ -71,8 +71,11 @@ export default function AddToHomescreenPopup() {
 
     if ("serviceWorker" in navigator) {
       const serviceWorkerPath = `${process.env.PUBLIC_URL}/add-to-homescreen-service-worker.js`;
+      // Scope path is strict, needs to end with a slash
+      const scopePath =
+        process.env.NODE_ENV !== "development" ? `${process.env.PUBLIC_URL}/` : "./";
       navigator.serviceWorker
-        .register(serviceWorkerPath, { scope: process.env.PUBLIC_URL || "./" })
+        .register(serviceWorkerPath, { scope: scopePath })
         .then((register) => {
           console.log("Registration succeeded. Scope is " + register.scope);
         });
