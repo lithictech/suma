@@ -70,6 +70,10 @@ export default function AddToHomescreenPopup() {
     }
 
     if ("serviceWorker" in navigator) {
+      const serviceWorkerPath = process.env.PUBLIC_URL + "/add-to-homescreen-service-worker.js";
+      navigator.serviceWorker.register(serviceWorkerPath, { scope: "./" }).then((register) => {
+        console.log('Registration succeeded. Scope is ' + register.scope);
+      });
       // bypass manifest check
       setTimeout(function () {
         // we wait 1 sec until we execute this because sometimes the browser needs a little time to register the service worker
