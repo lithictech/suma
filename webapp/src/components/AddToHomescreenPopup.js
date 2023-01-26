@@ -2,32 +2,30 @@ import React from "react";
 import Button from "react-bootstrap/Button";
 
 export default function AddToHomescreenPopup() {
-  const [beforeInstallPromptEvent, setBeforeInstallPromptEvent] = React.useState(null);
+  const [beforeInstallPromptEvent, setBeforeInstallPromptEvent] = React.useState(
+    getBeforeInstallPromptEvent()
+  );
   const [isAppInstalled, setIsAppInstalled] = React.useState(false);
 
-  function isStandalone() {
-    // check IOS usage
-    const isStandalone = window.matchMedia("(display-mode: standalone)").matches;
-    // check if already using TWA
-    const isTrustedWebActivities = document.referrer.startsWith("android-app://");
-    if (!navigator.standalone || !isStandalone || isTrustedWebActivities) {
-      return false;
-    }
-    return true;
-  }
+  // function isStandalone() {
+  //   // check IOS usage
+  //   const isStandalone = window.matchMedia("(display-mode: standalone)").matches;
+  //   // check if already using TWA
+  //   const isTrustedWebActivities = document.referrer.startsWith("android-app://");
+  //   if (!navigator.standalone || !isStandalone || isTrustedWebActivities) {
+  //     return false;
+  //   }
+  //   return true;
+  // }
 
   function handleAddToHomescreenPrompt() {
-    // if (!isStandalone() || !beforeInstallPromptEvent) {
-    //   return;
-    // }
-    console.log("Beforeinstallpront event: ", beforeInstallPromptEvent);
+    if (!beforeInstallPromptEvent) {
+      return;
+    }
     return beforeInstallPromptEvent
       .prompt()
-      .then(function () {
-        // Wait for the member to respond to the prompt
-        return beforeInstallPromptEvent.userChoice;
-      })
-      .then(function (choiceResult) {
+      .then(() => beforeInstallPromptEvent.userChoice)
+      .then((choiceResult) => {
         if (choiceResult.outcome === "accepted") {
           console.log("user accepted the A2HS prompt");
           setIsAppInstalled(true);
@@ -36,52 +34,41 @@ export default function AddToHomescreenPopup() {
         }
         setBeforeInstallPromptEvent(null);
       })
-      .catch(function (err) {
+      .catch((err) => {
         console.log(err.message);
-        if (err.message.indexOf("The app is already installed") > -1) {
-          console.log(err.message);
-        } else {
-          console.log(err);
-        }
       });
   }
-  const initNavigatorEventHandlers = React.useCallback(() => {
-    // TODO: Check navigator session . id to return; if prompt was already used (installed app)
-    // this can be done by storing in localstorage
 
+  function getBeforeInstallPromptEvent() {
     if ("onbeforeinstallprompt" in window) {
       window.addEventListener("beforeinstallprompt", (event) => {
         // Prevent early prompt display
         event.preventDefault();
-        // event saved for later use with button
-        setBeforeInstallPromptEvent(event);
-        console.log(beforeInstallPromptEvent);
+        return event;
       });
     }
+    console.log("Event not found or set.");
+    return null;
+  }
+
+  const initNavigatorEventHandlers = React.useCallback(() => {
+    // TODO: Check navigator session . id to return; if prompt was already used (installed app)
+    // this can be done by storing in localstorage
     if ("onappinstalled" in window) {
-      window.addEventListener("appinstalled", (evt) => {
+      window.addEventListener("appinstalled", () => {
         console.log("A2HS installed");
         setIsAppInstalled(true);
+        // TODO: Add condition to return if app is already installed
       });
     }
-
     if ("serviceWorker" in navigator) {
       const serviceWorkerPath = `${process.env.PUBLIC_URL}/add-to-homescreen-service-worker.js`;
-      // Scope path is strict, needs to end with a slash
-      const scopePath =
-        process.env.NODE_ENV !== "development" ? `${process.env.PUBLIC_URL}/` : "./";
-      navigator.serviceWorker.register(serviceWorkerPath).then((register) => {
-        console.log("Registration succeeded. Scope is " + register.scope);
+      navigator.serviceWorker.register(serviceWorkerPath).then((reg) => {
+        // TODO: set/save id to localstorage?
+        console.log("Registration succeeded. Scope is " + reg.scope, reg);
       });
-      // bypass manifest check
-      setTimeout(function () {
-        // we wait 1 sec until we execute this because sometimes the browser needs a little time to register the service worker
-        navigator.serviceWorker.getRegistration().then((reg) => {
-          console.log("navigator is in service! Registration: ", reg);
-        });
-      }, 1000);
     }
-  }, [beforeInstallPromptEvent]);
+  }, []);
 
   React.useEffect(() => {
     initNavigatorEventHandlers();
@@ -89,7 +76,12 @@ export default function AddToHomescreenPopup() {
 
   return (
     <>
-      {isAppInstalled && <p>App was installed after accepting!</p>}
+      {isAppInstalled ? (
+        <p>App was installed!</p>
+      ) : (
+        <p>App has not been installed on this device.</p>
+      )}
+      {beforeInstallPromptEvent}
       <Button onClick={() => handleAddToHomescreenPrompt()}>Add to homescreen</Button>
     </>
   );
