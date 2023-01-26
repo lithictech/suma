@@ -61,18 +61,9 @@ export default function AddToHomescreenPopup() {
         // TODO: Add condition to return if app is already installed
       });
     }
-    if ("serviceWorker" in navigator) {
-      const serviceWorkerPath = `${process.env.PUBLIC_URL}/add-to-homescreen-service-worker.js`;
-      navigator.serviceWorker.register(serviceWorkerPath).then((reg) => {
-        // TODO: set/save id to localstorage?
-        console.log("Registration succeeded. Scope is " + reg.scope, reg);
-      });
-    }
   }, []);
 
-  React.useEffect(() => {
-    initNavigatorEventHandlers();
-  }, [initNavigatorEventHandlers]);
+  React.useEffect(initNavigatorEventHandlers, [initNavigatorEventHandlers]);
 
   return (
     <>
