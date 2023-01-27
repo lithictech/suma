@@ -1,26 +1,19 @@
+import sumaLogo from "../assets/images/suma-logo-word-512.png";
+import { t } from "../localization";
+import { localStorageCache } from "../shared/localStorageHelper";
+import useLocalStorageState from "../shared/react/useLocalStorageState";
 import React from "react";
+import { Alert } from "react-bootstrap";
 import Button from "react-bootstrap/Button";
 
+let canPromptCache = localStorageCache.getItem("canPromptA2HS", true);
+
 export default function AddToHomescreenPopup() {
-  const [isAppInstalled, setIsAppInstalled] = React.useState(false);
+  const [canPrompt, setCanPrompt] = useLocalStorageState("canPromptA2HS", true);
   const addToHomescreenButton = React.useRef(null);
 
-  // function isStandalone() {
-  //   // check IOS usage
-  //   const isStandalone = window.matchMedia("(display-mode: standalone)").matches;
-  //   // check if already using TWA
-  //   const isTrustedWebActivities = document.referrer.startsWith("android-app://");
-  //   if (!navigator.standalone || !isStandalone || isTrustedWebActivities) {
-  //     return false;
-  //   }
-  //   return true;
-  // }
-
   const initNavigatorEventHandlers = React.useCallback(() => {
-    // TODO: Check navigator session . id to return; if prompt was already used (installed app)
-    // this can be done by storing in localstorage
-
-    if ("onbeforeinstallprompt" in window) {
+    if (canPrompt) {
       window.addEventListener("beforeinstallprompt", (event) => {
         // Prevent early prompt display
         event.preventDefault();
@@ -28,38 +21,77 @@ export default function AddToHomescreenPopup() {
           event
             .prompt()
             .then(() => event.userChoice)
-            .then((choiceResult) => {
-              if (choiceResult.outcome === "accepted") {
-                console.log("user accepted the A2HS prompt");
-                setIsAppInstalled(true);
-              } else {
-                console.log("user dismissed the A2HS prompt");
-              }
+            .then(() => {
+              setCanPrompt(false);
+              canPromptCache = false;
+              event = null;
             })
             .catch((err) => {
-              console.log(err.message);
+              if (err.message.indexOf("The app is already installed") > -1) {
+                setCanPrompt(false);
+                canPromptCache = false;
+              }
+              return err;
             });
-        })
+        });
       });
     }
     if ("onappinstalled" in window) {
       window.addEventListener("appinstalled", () => {
-        console.log("A2HS installed");
-        setIsAppInstalled(true);
+        setCanPrompt(false);
+        canPromptCache = false;
       });
     }
-  }, []);
-
+  }, [canPrompt, setCanPrompt]);
   React.useEffect(initNavigatorEventHandlers, [initNavigatorEventHandlers]);
 
+  if (!canPrompt || !isCompatible()) {
+    return null;
+  }
   return (
-    <>
-      {isAppInstalled ? (
-        <p>App was installed!</p>
-      ) : (
-        <p>App has not been installed on this device.</p>
-      )}
-      <Button ref={addToHomescreenButton}>Add to homescreen</Button>
-    </>
+    <Alert
+      variant="primary"
+      show={canPrompt}
+      onClose={() => {
+        setCanPrompt(false);
+        canPromptCache = false;
+      }}
+      dismissible
+    >
+      <Alert.Heading>
+        <img src={sumaLogo} alt="MySuma Logo" className="me-2" style={{ width: 50 }} />
+        {t("common:add_to_homescreen")}
+      </Alert.Heading>
+      <p>{t("common:add_to_homescreen_intro")}</p>
+      <div className="d-flex justify-content-end">
+        <Button ref={addToHomescreenButton} variant="primary">
+          <i className="bi bi-box-arrow-down me-1"></i>
+          {t("common:install_suma")}
+        </Button>
+      </div>
+    </Alert>
   );
 }
+
+const isCompatible = () => {
+  const userAgent = window.navigator.userAgent;
+  const isIDevice = /iphone|ipod|ipad/i.test(userAgent);
+  const isSamsung = /Samsung/i.test(userAgent);
+  const isChromium = "onbeforeinstallprompt" in window;
+  const isMobileSafari =
+    isIDevice && userAgent.indexOf("Safari") > -1 && userAgent.indexOf("CriOS") < 0;
+  const isWebAppIOS = window.navigator.standalone === true;
+  const isWebAppChrome = window.matchMedia("(display-mode: standalone)").matches;
+  const isStandalone = isWebAppIOS || isWebAppChrome;
+  const isTrustedWebActivities = document.referrer.startsWith("android-app://");
+  // some web and mobile browsers are not supported
+  // https://developer.mozilla.org/en-US/docs/Web/API/BeforeInstallPromptEvent
+  if (isStandalone || isTrustedWebActivities || isMobileSafari) {
+    return false;
+  }
+  // check serviceworker support
+  if (!("serviceWorker" in navigator)) {
+    return false;
+  }
+  return isChromium || isSamsung;
+};
