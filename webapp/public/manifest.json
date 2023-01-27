@@ -5,8 +5,8 @@
   "background_color": "#F2F2F2FF",
   "display": "standalone",
   "orientation": "portrait",
-  "scope": "/",
-  "start_url": "/",
+  "scope": "/app/",
+  "start_url": "/app/",
   "icons": [
     {
       "src": "favicon.ico",
