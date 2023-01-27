@@ -6,14 +6,12 @@ import React from "react";
 import { Alert } from "react-bootstrap";
 import Button from "react-bootstrap/Button";
 
-let canPromptCache = localStorageCache.getItem("canPromptA2HS", true);
-
-export default function AddToHomescreenPopup() {
+export default function AddToHomescreen() {
   const [canPrompt, setCanPrompt] = useLocalStorageState("canPromptA2HS", true);
   const addToHomescreenButton = React.useRef(null);
 
-  const initNavigatorEventHandlers = React.useCallback(() => {
-    if (canPrompt) {
+  const initEventHandlers = React.useCallback(() => {
+    if (canPrompt && isCompatible()) {
       window.addEventListener("beforeinstallprompt", (event) => {
         // Prevent early prompt display
         event.preventDefault();
@@ -21,11 +19,6 @@ export default function AddToHomescreenPopup() {
           event
             .prompt()
             .then(() => event.userChoice)
-            .then(() => {
-              setCanPrompt(false);
-              canPromptCache = false;
-              event = null;
-            })
             .catch((err) => {
               if (err.message.indexOf("The app is already installed") > -1) {
                 setCanPrompt(false);
@@ -43,7 +36,7 @@ export default function AddToHomescreenPopup() {
       });
     }
   }, [canPrompt, setCanPrompt]);
-  React.useEffect(initNavigatorEventHandlers, [initNavigatorEventHandlers]);
+  React.useEffect(initEventHandlers, [initEventHandlers]);
 
   if (!canPrompt || !isCompatible()) {
     return null;
@@ -74,10 +67,17 @@ export default function AddToHomescreenPopup() {
 }
 
 const isCompatible = () => {
+  // check serviceworker support
+  if (!("serviceWorker" in navigator)) {
+    return false;
+  }
+
   const userAgent = window.navigator.userAgent;
   const isIDevice = /iphone|ipod|ipad/i.test(userAgent);
   const isSamsung = /Samsung/i.test(userAgent);
   const isChromium = "onbeforeinstallprompt" in window;
+  const isOpera = /opr/i.test(userAgent);
+  const isEdge = /edg/i.test(userAgent);
   const isMobileSafari =
     isIDevice && userAgent.indexOf("Safari") > -1 && userAgent.indexOf("CriOS") < 0;
   const isWebAppIOS = window.navigator.standalone === true;
@@ -86,12 +86,10 @@ const isCompatible = () => {
   const isTrustedWebActivities = document.referrer.startsWith("android-app://");
   // some web and mobile browsers are not supported
   // https://developer.mozilla.org/en-US/docs/Web/API/BeforeInstallPromptEvent
-  if (isStandalone || isTrustedWebActivities || isMobileSafari) {
-    return false;
-  }
-  // check serviceworker support
-  if (!("serviceWorker" in navigator)) {
+  if (isStandalone || isTrustedWebActivities || isMobileSafari || isOpera || isEdge) {
     return false;
   }
   return isChromium || isSamsung;
 };
+
+let canPromptCache = localStorageCache.getItem("canPromptA2HS", true);

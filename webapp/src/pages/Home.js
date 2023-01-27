@@ -1,5 +1,5 @@
 import sumaLogo from "../assets/images/suma-logo-word-512.png";
-import AddToHomescreenPopup from "../components/AddToHomescreenPopup";
+import AddToHomescreen from "../components/AddToHomescreen";
 import ExternalLink from "../components/ExternalLink";
 import RLink from "../components/RLink";
 import TranslationToggle from "../components/TranslationToggle";
@@ -30,7 +30,7 @@ export default function Home() {
           <TranslationToggle classes="my-3 mx-auto w-75" />
         </div>
       </div>
-      <AddToHomescreenPopup />
+      <AddToHomescreen />
     </Container>
   );
 }
