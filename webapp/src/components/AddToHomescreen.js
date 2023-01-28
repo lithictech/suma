@@ -7,34 +7,40 @@ import React from "react";
 import { Alert } from "react-bootstrap";
 import Button from "react-bootstrap/Button";
 
-export const updateCanPromptCache = () =>
-  localStorageCache.setItem(ADD_TO_HOMESCREEN_KEY, canPromptCache);
-
 export default function AddToHomescreen() {
   const [canPrompt, setCanPrompt] = useLocalStorageState(ADD_TO_HOMESCREEN_KEY, true);
   const addToHomescreenButtonRef = React.useRef(null);
 
+  const updateLocalStorage = React.useCallback(
+    (canPrompt) => {
+      setCanPrompt(canPrompt);
+      canPromptCache = canPrompt;
+    },
+    [setCanPrompt]
+  );
+
   const initEventHandlers = React.useCallback(() => {
+    if (!addToHomescreenButtonRef.current) {
+      return;
+    }
     if (canPrompt && isCompatible()) {
       window.addEventListener("beforeinstallprompt", (event) => {
         // Prevent early prompt display
         event.preventDefault();
-        const addToHomescreenButton = addToHomescreenButtonRef.current;
-        addToHomescreenButton.addEventListener("click", () => {
-          event
+        // TODO: fix multiple eventListeners being added per render
+        addToHomescreenButtonRef.current.addEventListener("click", () => {
+          updateLocalStorage(false);
+          return event
             .prompt()
             .then(() => event.userChoice)
             .then((result) => {
-              if (result.outcome === "accepted") {
-                // remove component display if member accepts
-                setCanPrompt(false);
-                canPromptCache = false;
+              if (result.outcome !== "accepted") {
+                updateLocalStorage(true);
               }
             })
             .catch((err) => {
               if (err.message.indexOf("The app is already installed") > -1) {
-                setCanPrompt(false);
-                canPromptCache = false;
+                updateLocalStorage(false);
               }
               return err;
             });
@@ -42,26 +48,19 @@ export default function AddToHomescreen() {
       });
     }
     if ("onappinstalled" in window) {
-      window.addEventListener("appinstalled", () => {
-        setCanPrompt(false);
-        canPromptCache = false;
-      });
+      window.addEventListener("appinstalled", () => updateLocalStorage(false));
     }
     setTimeout(() => {
       navigator.serviceWorker
         .getRegistration(config.apiHost)
         .then((sw) => {
           if (!sw) {
-            setCanPrompt(false);
-            canPromptCache = false;
+            updateLocalStorage(false);
           }
         })
-        .catch((_e) => {
-          setCanPrompt(false);
-          canPromptCache = false;
-        });
-    }, 10);
-  }, [canPrompt, setCanPrompt]);
+        .catch((_e) => updateLocalStorage(false));
+    }, 100);
+  }, [canPrompt, updateLocalStorage]);
   React.useEffect(initEventHandlers, [initEventHandlers]);
 
   if (!canPrompt || !isCompatible()) {
@@ -71,15 +70,12 @@ export default function AddToHomescreen() {
     <Alert
       variant="primary"
       show={canPrompt}
-      onClose={() => {
-        setCanPrompt(false);
-        canPromptCache = false;
-      }}
+      onClose={() => updateLocalStorage(false)}
       dismissible
     >
       <Alert.Heading>
         <img src={sumaLogo} alt="MySuma Logo" className="me-2" style={{ width: 50 }} />
-        {t("common:add_to_homescreen")}
+        {t("common:add_to_homecreen")}
       </Alert.Heading>
       <p>{t("common:add_to_homescreen_intro")}</p>
       <div className="d-flex justify-content-end">
@@ -120,3 +116,6 @@ const isCompatible = () => {
 
 const ADD_TO_HOMESCREEN_KEY = "canPromptA2HS";
 let canPromptCache = localStorageCache.getItem(ADD_TO_HOMESCREEN_KEY, true);
+
+export const updateCanPromptCache = () =>
+  localStorageCache.setItem(ADD_TO_HOMESCREEN_KEY, canPromptCache);
