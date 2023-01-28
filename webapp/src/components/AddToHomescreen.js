@@ -1,4 +1,5 @@
 import sumaLogo from "../assets/images/suma-logo-word-512.png";
+import config from "../config";
 import { t } from "../localization";
 import { localStorageCache } from "../shared/localStorageHelper";
 import useLocalStorageState from "../shared/react/useLocalStorageState";
@@ -6,16 +7,20 @@ import React from "react";
 import { Alert } from "react-bootstrap";
 import Button from "react-bootstrap/Button";
 
+export const updateCanPromptCache = () =>
+  localStorageCache.setItem(ADD_TO_HOMESCREEN_KEY, canPromptCache);
+
 export default function AddToHomescreen() {
-  const [canPrompt, setCanPrompt] = useLocalStorageState("canPromptA2HS", true);
-  const addToHomescreenButton = React.useRef(null);
+  const [canPrompt, setCanPrompt] = useLocalStorageState(ADD_TO_HOMESCREEN_KEY, true);
+  const addToHomescreenButtonRef = React.useRef(null);
 
   const initEventHandlers = React.useCallback(() => {
     if (canPrompt && isCompatible()) {
       window.addEventListener("beforeinstallprompt", (event) => {
         // Prevent early prompt display
         event.preventDefault();
-        addToHomescreenButton.current.addEventListener("click", () => {
+        const addToHomescreenButton = addToHomescreenButtonRef.current;
+        addToHomescreenButton.addEventListener("click", () => {
           event
             .prompt()
             .then(() => event.userChoice)
@@ -42,6 +47,20 @@ export default function AddToHomescreen() {
         canPromptCache = false;
       });
     }
+    setTimeout(() => {
+      navigator.serviceWorker
+        .getRegistration(config.apiHost)
+        .then((sw) => {
+          if (!sw) {
+            setCanPrompt(false);
+            canPromptCache = false;
+          }
+        })
+        .catch((_e) => {
+          setCanPrompt(false);
+          canPromptCache = false;
+        });
+    }, 10);
   }, [canPrompt, setCanPrompt]);
   React.useEffect(initEventHandlers, [initEventHandlers]);
 
@@ -64,7 +83,7 @@ export default function AddToHomescreen() {
       </Alert.Heading>
       <p>{t("common:add_to_homescreen_intro")}</p>
       <div className="d-flex justify-content-end">
-        <Button ref={addToHomescreenButton} variant="primary">
+        <Button ref={addToHomescreenButtonRef} variant="primary">
           <i className="bi bi-box-arrow-down me-1"></i>
           {t("common:install_suma")}
         </Button>
@@ -99,4 +118,5 @@ const isCompatible = () => {
   return isChromium || isSamsung;
 };
 
-let canPromptCache = localStorageCache.getItem("canPromptA2HS", true);
+const ADD_TO_HOMESCREEN_KEY = "canPromptA2HS";
+let canPromptCache = localStorageCache.getItem(ADD_TO_HOMESCREEN_KEY, true);
