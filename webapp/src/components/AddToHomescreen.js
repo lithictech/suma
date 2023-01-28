@@ -19,6 +19,13 @@ export default function AddToHomescreen() {
           event
             .prompt()
             .then(() => event.userChoice)
+            .then((result) => {
+              if (result.outcome === "accepted") {
+                // remove component display if member accepts
+                setCanPrompt(false);
+                canPromptCache = false;
+              }
+            })
             .catch((err) => {
               if (err.message.indexOf("The app is already installed") > -1) {
                 setCanPrompt(false);
