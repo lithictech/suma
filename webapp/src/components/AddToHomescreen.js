@@ -1,50 +1,45 @@
 import sumaLogo from "../assets/images/suma-logo-word-512.png";
 import config from "../config";
 import { t } from "../localization";
-import { localStorageCache } from "../shared/localStorageHelper";
 import useLocalStorageState from "../shared/react/useLocalStorageState";
 import PageLoader from "./PageLoader";
 import React from "react";
 import { Alert } from "react-bootstrap";
 import Button from "react-bootstrap/Button";
+import useToggle from "../shared/react/useToggle";
 
 export default function AddToHomescreen() {
-  const [canPrompt, setCanPrompt] = useLocalStorageState(ADD_TO_HOMESCREEN_KEY, true);
+  // Bump the 'should prompt to install' number if we want to ask everyone to install again.
+  // In the future we could do something like storing a dismissal date and expiring.
+  const [shouldPrompt, setShouldPrompt] = useLocalStorageState("should-prompt-to-install-0", true);
   const [hasRegistration, setHasRegistration] = React.useState(false);
-  const [isLoading, setIsLoading] = React.useState(false);
+  const loading = useToggle(false);
   const addToHomescreenButtonRef = React.useRef(null);
-
-  const updateLocalStorage = React.useCallback(
-    (canPrompt) => {
-      setCanPrompt(canPrompt);
-      canPromptCache = canPrompt;
-    },
-    [setCanPrompt]
-  );
 
   const installPrompt = React.useCallback(
     (event) => {
-      setIsLoading(true);
+      loading.turnOn();
       return event
         .prompt()
         .then(() => event.userChoice)
         .then((result) => {
           if (result.outcome === "accepted") {
-            updateLocalStorage(false);
+            setShouldPrompt(false);
           }
         })
         .catch((err) => {
           if (err.message.indexOf("The app is already installed") > -1) {
-            updateLocalStorage(false);
+            setShouldPrompt(false);
+          } else {
+            console.error('Error prompting to install app:', err);
           }
-          return err;
         })
-        .finally(() => setIsLoading(false));
+        .finally(loading.turnOff);
     },
-    [updateLocalStorage]
+    [loading, setShouldPrompt]
   );
 
-  const initEventHandlers = React.useCallback(() => {
+  React.useEffect(function initEventHandlers() {
     setTimeout(() => {
       navigator.serviceWorker
         .getRegistration(config.apiHost)
@@ -59,7 +54,7 @@ export default function AddToHomescreen() {
     if (
       !hasRegistration ||
       !addToHomescreenButtonRef.current ||
-      (!canPrompt && !isCompatible())
+      (!shouldPrompt && !isCompatible)
     ) {
       return;
     }
@@ -71,75 +66,67 @@ export default function AddToHomescreen() {
       );
     });
     if ("onappinstalled" in window) {
-      window.addEventListener("appinstalled", () => updateLocalStorage(false));
+      window.addEventListener("appinstalled", () => setShouldPrompt(false));
     }
-  }, [canPrompt, hasRegistration, updateLocalStorage, installPrompt]);
-  React.useEffect(initEventHandlers, [initEventHandlers]);
+  }, [hasRegistration, installPrompt, setShouldPrompt, shouldPrompt]);
 
-  if ((!canPrompt || !isCompatible()) && !hasRegistration) {
-    return null;
+  if ((!shouldPrompt || !isCompatible) && !hasRegistration) {
+    return `${shouldPrompt} ${isCompatible} ${hasRegistration}`;
+  }
+  if (loading.isOn) {
+    return <PageLoader relative="true" />
   }
   return (
-    <>
-      {isLoading ? (
-        <PageLoader relative="true" />
-      ) : (
-        <Alert
-          variant="primary"
-          show={canPrompt}
-          onClose={() => updateLocalStorage(false)}
-          dismissible
-        >
-          <Alert.Heading>
-            <img
-              src={sumaLogo}
-              alt="MySuma Logo"
-              className="me-2"
-              style={{ width: 50 }}
-            />
-            {t("common:add_to_homecreen")}
-          </Alert.Heading>
-          <p>{t("common:add_to_homescreen_intro")}</p>
-          <div className="d-flex justify-content-end">
-            <Button ref={addToHomescreenButtonRef} variant="primary">
-              <i className="bi bi-box-arrow-down me-1"></i>
-              {t("common:install_suma")}
-            </Button>
-          </div>
-        </Alert>
-      )}
-    </>
+      <Alert
+        variant="primary"
+        show={shouldPrompt}
+        onClose={() => setShouldPrompt(false)}
+        dismissible
+      >
+        <Alert.Heading>
+          <img
+            src={sumaLogo}
+            alt="MySuma Logo"
+            className="me-2"
+            style={{ width: 50 }}
+          />
+          {t("common:add_to_homescreen")}
+        </Alert.Heading>
+        <p>{t("common:add_to_homescreen_intro")}</p>
+        <div className="d-flex justify-content-end">
+          <Button ref={addToHomescreenButtonRef} variant="primary">
+            <i className="bi bi-box-arrow-down me-1"></i>
+            {t("common:install_suma")}
+          </Button>
+        </div>
+      </Alert>
   );
 }
 
-const isCompatible = () => {
-  // check serviceworker support
+const isCompatible = (() => {
   if (!("serviceWorker" in navigator)) {
     return false;
   }
-
-  const userAgent = window.navigator.userAgent;
-  const isIDevice = /iphone|ipod|ipad/i.test(userAgent);
-  const isSamsung = /Samsung/i.test(userAgent);
-  const isChromium = "onbeforeinstallprompt" in window;
-  const isOpera = /opr/i.test(userAgent);
-  const isEdge = /edg/i.test(userAgent);
-  const isMobileSafari =
-    isIDevice && userAgent.indexOf("Safari") > -1 && userAgent.indexOf("CriOS") < 0;
-  const isWebAppIOS = window.navigator.standalone === true;
-  const isWebAppChrome = window.matchMedia("(display-mode: standalone)").matches;
-  const isStandalone = isWebAppIOS || isWebAppChrome;
-  const isTrustedWebActivities = document.referrer.startsWith("android-app://");
-  // some web and mobile browsers are not supported
-  // https://developer.mozilla.org/en-US/docs/Web/API/BeforeInstallPromptEvent
-  if (isStandalone || isTrustedWebActivities || isMobileSafari || isOpera || isEdge) {
+  const supportsInstall = "onbeforeinstallprompt" in window;
+  if (!supportsInstall) {
     return false;
   }
-  return isChromium || isSamsung;
-};
+  const userAgent = window.navigator.userAgent;
+  const isWebAppIOS = window.navigator.standalone === true;
+  if (isWebAppIOS) {
+    return false;
+  }
+  const isWebAppChrome = window.matchMedia("(display-mode: standalone)").matches;
+  if (isWebAppChrome) {
+    return false;
+  }
+  // https://developer.chrome.com/docs/android/trusted-web-activity/
+  const isTrustedWebActivities = document.referrer.startsWith("android-app://");
+  if (isTrustedWebActivities) {
+    return false;
+  }
+  const isPhone = window.outerWidth < 700; // Good enough for us since we are mobile-only
+  const isTablet = /ipad/i.test(userAgent);
+  return isPhone || isTablet
+})();
 
-const ADD_TO_HOMESCREEN_KEY = "canPromptA2HS";
-let canPromptCache = localStorageCache.getItem(ADD_TO_HOMESCREEN_KEY, true);
-
-export const updateCanPromptCache = () =>
-  localStorageCache.setItem(ADD_TO_HOMESCREEN_KEY, canPromptCache);
