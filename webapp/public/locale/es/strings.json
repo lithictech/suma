@@ -1,6 +1,8 @@
 {
   "common": {
     "add_money_to_account": "Haz click aquí para añadir fondos a tu cuenta",
+    "add_to_homescreen": "Agregar a pantalla principal",
+    "add_to_homescreen_intro": "Instale suma en la pantalla principal de su teléfono para una experiencia optimizada.",
     "app_name": "Suma",
     "back": "Volver",
     "back_sym": "‹",
@@ -9,6 +11,7 @@
     "contact_us": "Contáctanos",
     "error": "Error",
     "go_home": "Volver a la página principal",
+    "install_suma": "Instalar suma",
     "in_english": "English",
     "in_spanish": "En Español",
     "join_waitlist": "Unirse a la lista de espera",

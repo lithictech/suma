@@ -1,6 +1,8 @@
 {
   "common": {
     "add_money_to_account": "Press here to add money to your account",
+    "add_to_homescreen": "Add to homescreen",
+    "add_to_homescreen_intro": "Install suma to your homescreen for an optimized experience.",
     "app_name": "Suma",
     "back": "Back",
     "back_sym": "‹",
@@ -9,6 +11,7 @@
     "contact_us": "Contact Us",
     "error": "Error",
     "go_home": "Go Home",
+    "install_suma": "Install Suma",
     "in_english": "English",
     "in_spanish": "En Español",
     "join_waitlist": "Join Waiting List",

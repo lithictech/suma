@@ -1,4 +1,5 @@
 import api from "../api";
+import AddToHomescreen from "../components/AddToHomescreen";
 import PageLoader from "../components/PageLoader";
 import RLink from "../components/RLink";
 import { md, t } from "../localization";
@@ -40,6 +41,7 @@ const Dashboard = () => {
           </div>
         </Alert>
       )}
+      <AddToHomescreen />
       {dashboardLoading ? <PageLoader /> : <Ledger dashboard={dashboard} />}
     </>
   );
