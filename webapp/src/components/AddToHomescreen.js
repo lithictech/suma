@@ -56,9 +56,10 @@ export default function AddToHomescreen() {
       }, 100);
 
       if (
+        !isCompatible ||
+        !shouldPrompt ||
         !hasRegistration ||
-        !addToHomescreenButtonRef.current ||
-        (!shouldPrompt && !isCompatible)
+        !addToHomescreenButtonRef.current
       ) {
         return;
       }
@@ -76,7 +77,7 @@ export default function AddToHomescreen() {
     [hasRegistration, installPrompt, setShouldPrompt, shouldPrompt]
   );
 
-  if ((!shouldPrompt || !isCompatible) && !hasRegistration) {
+  if (!shouldPrompt || !isCompatible || !hasRegistration) {
     return;
   }
   if (loading.isOn) {
