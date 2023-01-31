@@ -33,8 +33,6 @@ export default function AddToHomescreen() {
         .catch((err) => {
           if (err.message.indexOf("The app is already installed") > -1) {
             setShouldPrompt(false);
-          } else {
-            console.error("Error prompting to install app:", err);
           }
         })
         .finally(loading.turnOff);
