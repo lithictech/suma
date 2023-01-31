@@ -95,7 +95,7 @@ module Suma::Apps
     env = {
       "REACT_APP_API_HOST" => vars[:api_host],
       "REACT_APP_SENTRY_DSN" => Suma::Sentry.dsn,
-      "REACT_APP_STRIPE_PUBLIC_KEY" => Suma::Stripe.api_key,
+      "REACT_APP_STRIPE_PUBLIC_KEY" => Suma::Stripe.public_key,
       "REACT_APP_RELEASE" => "sumaweb@" + vars[:release_version],
       "NODE_ENV" => vars[:node_env],
     }.merge(Rack::DynamicConfigWriter.pick_env("REACT_APP_"))
