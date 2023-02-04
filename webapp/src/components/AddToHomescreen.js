@@ -78,7 +78,7 @@ export default function AddToHomescreen() {
   );
 
   if (!shouldPrompt || !isCompatible || !hasRegistration) {
-    return;
+    return null;
   }
   if (loading.isOn) {
     return <PageLoader relative="true" />;
