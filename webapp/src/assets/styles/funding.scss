@@ -1,3 +1,17 @@
 .funding-card-border-radius {
   border-radius: 15px !important;
 }
+
+/* Numpad keyboard */
+.numpad-number-button {
+  border: 0px !important;
+  border-bottom: 2px solid #bbb !important;
+  border-radius: 10px !important;
+  background-color: #e5e5e5 !important;
+  width: 32%;
+  margin-left: 1.5%;
+}
+
+.numpad-number-button:active {
+  background-color: #ececec !important;
+}

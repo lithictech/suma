@@ -1,12 +1,8 @@
-import "./CurrencyNumpad.css";
 import _ from "lodash";
 import React from "react";
-import Keyboard from "react-simple-keyboard";
-import "react-simple-keyboard/build/css/index.css";
+import Button from "react-bootstrap/Button";
 
 export default function CurrencyNumpad({ onCentsChange, whole, currency, cents }) {
-  const keyboard = React.useRef();
-
   if (!whole) {
     throw new Error("whole must be true for now!");
   }
@@ -23,18 +19,67 @@ export default function CurrencyNumpad({ onCentsChange, whole, currency, cents }
           {_.isNumber(cents) && cents / currency.centsInDollar}
         </div>
       </div>
-      <Keyboard
-        keyboardRef={(r) => (keyboard.current = r)}
-        layout={{
-          default: ["1 2 3", "4 5 6", "7 8 9", "{blank} 0 {bksp}"],
-        }}
-        display={{
-          "{blank}": "",
-          "{bksp}": "⌫",
-        }}
-        theme="hg-theme-default suma"
-        onChange={handleChange}
-      />
+      <Numpad cents={cents} currency={currency} onNumberClick={handleChange} />
     </div>
   );
 }
+
+function Numpad({ cents, currency, onNumberClick }) {
+  const handleNumberClick = (e) => {
+    if (Number(cents) === 0) {
+      onNumberClick(Number(e.target.value));
+    }
+    onNumberClick(Number(cents / currency.centsInDollar) + e.target.value);
+  };
+
+  const handleNumberDelete = () => {
+    if (cents === 0) {
+      return;
+    }
+    onNumberClick(
+      Number(cents / currency.centsInDollar)
+        .toString()
+        .slice(0, -1)
+    );
+  };
+  return (
+    <div className="text-align-center">
+      <RenderButtons numbers={[1, 2, 3]} handleChange={handleNumberClick} />
+      <RenderButtons numbers={[4, 5, 6]} handleChange={handleNumberClick} />
+      <RenderButtons numbers={[7, 8, 9]} handleChange={handleNumberClick} />
+      <div className="d-flex justify-content-end">
+        <Button
+          variant="light"
+          className={numButtonClasses}
+          value={0}
+          onClick={handleNumberClick}
+        >
+          0
+        </Button>
+        <Button variant="light" className={numButtonClasses} onClick={handleNumberDelete}>
+          ⌫
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+function RenderButtons({ numbers, handleChange }) {
+  return (
+    <div className="d-flex justify-content-between">
+      {numbers.map((num) => (
+        <Button
+          key={num}
+          variant="light"
+          className={numButtonClasses}
+          value={num}
+          onClick={handleChange}
+        >
+          {num}
+        </Button>
+      ))}
+    </div>
+  );
+}
+
+const numButtonClasses = "numpad-number-button mb-1";

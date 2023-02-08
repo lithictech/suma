@@ -113,7 +113,6 @@ export default function FundingAddFunds() {
           <div style={{ maxWidth: 400, flex: 1 }}>
             <CurrencyNumpad
               currency={selectedCurrency}
-              layout={{ default: ["1 2 3", "4 5 6", "7 8 9", " 0 "] }}
               whole
               cents={amountCents}
               onCentsChange={handleChange}
