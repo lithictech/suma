@@ -26,7 +26,7 @@ export default function CurrencyNumpad({ onCentsChange, whole, currency, cents }
 
 function Numpad({ cents, currency, onNumberClick }) {
   const handleNumberClick = (e) => {
-    if (Number(e.target.value) === 0) {
+    if (Number(cents) === 0 && Number(e.target.value) === 0) {
       return;
     }
     onNumberClick(Number(cents / currency.centsInDollar) + e.target.value);
