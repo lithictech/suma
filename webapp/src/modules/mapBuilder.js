@@ -10,8 +10,8 @@ import "leaflet/dist/leaflet.css";
 import _ from "lodash";
 
 export default class MapBuilder {
-  constructor(mapRef) {
-    this.mapRef = mapRef;
+  constructor(host) {
+    this.mapHost = host;
     this._l = leaflet;
     this._minZoom = 13;
     this._maxZoom = 23;
@@ -19,7 +19,7 @@ export default class MapBuilder {
     this._dLat = 45.5152;
     this._dLng = -122.6784;
     this._latOffset = 0.00004;
-    this._map = this._l.map(this.mapRef.current, { zoomControl: false });
+    this._map = this._l.map(this.mapHost, { zoomControl: false });
     this._map.setView([this._dLat, this._dLng], this._minZoom);
     this._l.control
       .zoom({
@@ -55,9 +55,9 @@ export default class MapBuilder {
     this._locationAccuracyCircle = null;
     this._animationTimeoutId = null;
     this._refreshId = null;
-    this._vehicleClicked = null;
+    this._clickedVehicle = null;
     this._onVehicleClick = null;
-    this._onVehicleRemove = null;
+    this._onSelectedVehicleRemoved = null;
   }
 
   init() {
@@ -112,7 +112,7 @@ export default class MapBuilder {
     });
   }
 
-  setVehicleEventHandlers() {
+  setMapEventHandlers() {
     this._map.on("moveend", this.moveEnd, this);
     this._map.on("click", this.click, this);
   }
@@ -127,18 +127,25 @@ export default class MapBuilder {
   }
 
   click() {
-    if (!this._vehicleClicked) {
+    if (!this._clickedVehicle) {
       return;
     }
     this._onVehicleClick(null);
-    this._vehicleClicked = null;
+    this._clickedVehicle = null;
   }
 
-  loadScooters({ onVehicleClick, onVehicleRemove }) {
-    this._onVehicleClick = onVehicleClick;
-    this._onVehicleRemove = onVehicleRemove;
+  /**
+   * These handlers need to be set independently of any other side effects,
+   * since the handler functions can change (ie via React.useCallback).
+   */
+  setVehicleEventHandlers({ onClick, onSelectedRemoved }) {
+    this._onVehicleClick = onClick;
+    this._onSelectedVehicleRemoved = onSelectedRemoved;
+  }
+
+  loadScooters() {
     this.getAndUpdateScooters(this._lastExtendedBounds, this._mcg);
-    this.setVehicleEventHandlers();
+    this.setMapEventHandlers();
     this._map.addLayer(this._mcg);
     return this;
   }
@@ -192,13 +199,14 @@ export default class MapBuilder {
     // Fourth: Close the map reserve card if the marker for a scooter is now gone
     const removedMarkers = removableMarkers.concat(removableLeftoverMarkers);
     const isVehicleRemoved = removedMarkers.find(
-      (marker) => this._vehicleClicked?.options.id === marker.options.id
+      (marker) => this._clickedVehicle?.options.id === marker.options.id
     );
-    if (!this._vehicleClicked || !isVehicleRemoved) {
+    if (!this._clickedVehicle || !isVehicleRemoved) {
+      // Keep the card open if we didn't have one open, or the vehicle hasn't been removed.
       return;
     }
-    this._onVehicleRemove();
-    this._vehicleClicked = null;
+    this._onSelectedVehicleRemoved();
+    this._clickedVehicle = null;
   }
 
   loadGeoFences(bounds) {
@@ -299,7 +307,7 @@ export default class MapBuilder {
           providerId: providers[bike.p].id,
         };
         this._onVehicleClick(mapVehicle);
-        this._vehicleClicked = e.target;
+        this._clickedVehicle = e.target;
       });
   }
 
@@ -359,7 +367,7 @@ export default class MapBuilder {
     return new LocateControl();
   }
 
-  startTrackingLocation({ onGetLocation, onGetLocationError }) {
+  startTrackingLocation({ onLocationFound, onLocationError }) {
     let loc, line;
     this._map
       .locate({
@@ -381,8 +389,9 @@ export default class MapBuilder {
             e.code !== ERR_LOCATION_POSITION_UNAVAILABLE
           );
         }
+        console.error("locationerror:", e);
         if (!ignoreLocationError()) {
-          onGetLocationError();
+          onLocationError();
         }
       })
       .on("locationfound", (location) => {
@@ -413,7 +422,7 @@ export default class MapBuilder {
           this._lastLocation = location.latlng;
           this.setLocationEventHandlers();
           this.centerLocation({ ...loc, targetZoom: 15 });
-          onGetLocation(location);
+          onLocationFound(location);
         }
         if (
           this._locationMarker &&
@@ -435,7 +444,7 @@ export default class MapBuilder {
           loc = location.latlng;
           this._lastLocation = location.latlng;
 
-          onGetLocation(location);
+          onLocationFound(location);
         }
       });
     return this;
@@ -473,6 +482,8 @@ export default class MapBuilder {
   unmount() {
     this.stopRefreshTimer();
     this._map.stopLocate();
+    this._map.off();
+    this._map.remove();
   }
 }
 

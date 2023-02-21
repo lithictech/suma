@@ -11,10 +11,10 @@ export function useError(initialState) {
    * @param {any=} e
    * @return {null}
    */
-  function setError(e) {
+  const setError = React.useCallback(function setError(e) {
     setErrorInner(e);
     return null;
-  }
+  }, []);
   return [error, setError];
 }
 

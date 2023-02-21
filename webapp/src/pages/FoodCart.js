@@ -110,11 +110,11 @@ function CartItem({ offeringId, product, vendor }) {
     <>
       <Col xs={12} className="mb-3">
         <Stack direction="horizontal" gap={3} className="align-items-start">
-          <Link to={`/product/${offeringId}-${productId}`} className="flex-shrink-0">
+          <Link to={`/product/${offeringId}/${productId}`} className="flex-shrink-0">
             <SumaImage image={images[0]} alt={name} className="w-100" w={100} h={100} />
           </Link>
           <div>
-            <Link to={`/product/${offeringId}-${productId}`}>
+            <Link to={`/product/${offeringId}/${productId}`}>
               <h6 className="mb-2">{name}</h6>
             </Link>
             <p className="text-secondary mb-2 small">

@@ -1,6 +1,7 @@
 import api from "../../api";
 import { t } from "../../localization";
 import MapBuilder from "../../modules/mapBuilder";
+import useMountEffect from "../../shared/react/useMountEffect";
 import { extractErrorCode, useError } from "../../state/useError";
 import { useGlobalViewState } from "../../state/useGlobalViewState";
 import { useUser } from "../../state/useUser";
@@ -49,15 +50,12 @@ const Map = () => {
     [user, setError, setReserveError]
   );
 
-  const handleVehicleRemove = () => {
-    setSelectedMapVehicle(null);
-  };
-
-  const handleGetLastLocation = React.useCallback(
+  const handleVehicleRemove = React.useCallback(() => setSelectedMapVehicle(null), []);
+  const handleLocationFound = React.useCallback(
     (lastLocation) => setLastMarkerLocation(lastLocation),
     []
   );
-  const handleGetLocationError = React.useCallback(
+  const handleLocationError = React.useCallback(
     () => setError(<InstructionsModal />),
     [setError]
   );
@@ -80,52 +78,57 @@ const Map = () => {
     [handleUpdateCurrentMember, loadedMap, setReserveError]
   );
 
-  const handleEndTrip = () => {
-    loadedMap.loadScooters({
+  const handleEndTrip = React.useCallback(() => {
+    loadedMap?.loadScooters({
       onVehicleClick: handleVehicleClick,
       onVehicleRemove: handleVehicleRemove,
     });
-  };
+  }, [handleVehicleClick, handleVehicleRemove, loadedMap]);
 
-  const handleCloseTrip = () => {
+  const handleCloseTrip = React.useCallback(() => {
     setSelectedMapVehicle(null);
     setOngoingTrip(null);
-  };
+  }, []);
 
-  React.useEffect(() => {
+  // On mount, load the map. It's very important that any dependencies (like onLocationFound, etc)
+  // are constant callbacks (ie they have no or only constant dependencies).
+  useMountEffect(() => {
     if (!mapRef.current) {
       return;
     }
-    if (!loadedMap) {
-      const map = new MapBuilder(mapRef).init().startTrackingLocation({
-        onGetLocation: handleGetLastLocation,
-        onGetLocationError: handleGetLocationError,
-      });
-      if (ongoingTrip) {
-        map.beginTrip();
-      } else {
-        map.loadScooters({
-          onVehicleClick: handleVehicleClick,
-          onVehicleRemove: handleVehicleRemove,
-        });
-      }
-      setLoadedMap(map);
+    const map = new MapBuilder(mapRef.current).init().startTrackingLocation({
+      onLocationFound: handleLocationFound,
+      onLocationError: handleLocationError,
+    });
+    // Need these so loadScooters works.
+    // We handle any changes to the event handlers with their own useEffect later on.
+    map.setVehicleEventHandlers({
+      onClick: handleVehicleClick,
+      onSelectedRemoved: handleVehicleRemove,
+    });
+    // We only want this evaluated on load. We handle it imperatively otherwise.
+    if (ongoingTrip) {
+      map.beginTrip();
+    } else {
+      map.loadScooters();
     }
-  }, [
-    loadedMap,
-    ongoingTrip,
-    handleVehicleClick,
-    handleGetLastLocation,
-    handleGetLocationError,
-  ]);
-
-  React.useEffect(() => {
+    setLoadedMap(map);
     return () => {
-      if (loadedMap) {
-        loadedMap.unmount();
-      }
+      map.unmount();
+      setLoadedMap(null);
     };
-  }, [loadedMap]);
+  });
+
+  // Whenever the vehciel event handlers change, update the map.
+  React.useEffect(() => {
+    if (!loadedMap) {
+      return;
+    }
+    loadedMap.setVehicleEventHandlers({
+      onClick: handleVehicleClick,
+      onSelectedRemoved: handleVehicleRemove,
+    });
+  }, [handleVehicleClick, handleVehicleRemove, loadedMap]);
 
   const navsHeight = (topNav?.clientHeight || 0) + (appNav?.clientHeight || 0);
 

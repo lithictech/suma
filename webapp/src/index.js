@@ -2,11 +2,10 @@ import App from "./App";
 import "./assets/styles/imports.scss";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import React from "react";
-import ReactDOM from "react-dom";
+import { createRoot } from "react-dom/client";
 
-ReactDOM.render(
+createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <App />
-  </React.StrictMode>,
-  document.getElementById("root")
+  </React.StrictMode>
 );
