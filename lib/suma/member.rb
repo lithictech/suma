@@ -296,6 +296,7 @@ class Suma::Member < Suma::Postgres::Model(:members)
   end
 end
 
+require "suma/member/front_attributes"
 require "suma/member/stripe_attributes"
 
 # Table: members
