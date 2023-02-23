@@ -17,15 +17,7 @@ RSpec.describe Suma::Member::FrontAttributes, :db do
                                   })).
         to_return(fixture_response("front/contact"))
 
-      contact = member.front.create_contact({
-                                              name: member.name,
-                                              links: [member.admin_link],
-                                              handles: [
-                                                {source: "phone", handle: member.phone},
-                                                {source: "email", handle: member.email},
-                                              ],
-                                              custom_fields: {},
-                                            })
+      contact = member.front.create_contact
       expect(contact.fetch("id")).to eq("crd_123")
       expect(member.front.contact_id).to eq("crd_123")
 
@@ -36,15 +28,12 @@ RSpec.describe Suma::Member::FrontAttributes, :db do
       member = Suma::Fixtures.member.with_front_contact_id.create
       contact_req = stub_request(:patch, "https://api2.frontapp.com/contacts/#{member.front_contact_id}").
         with(body: hash_including({
-                                    "name" => "some name",
+                                    "name" => member.name,
                                     "links" => [member.admin_link],
                                   })).
         to_return(status: 200)
 
-      response = member.front.update_contact({
-                                               name: "some name",
-                                               links: [member.admin_link],
-                                             })
+      response = member.front.update_contact
       # Front response does not return content
       expect(response).to be_nil
 
