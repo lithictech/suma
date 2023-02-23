@@ -89,6 +89,10 @@ module Suma::Fixtures::Members
     self.update(stripe_customer_json: json)
   end
 
+  decorator :with_front_contact_id, presave: true do
+    self.front_contact_id = "crd_#{SecureRandom.alphanumeric(7)}"
+  end
+
   def self.register_as_stripe_customer(member)
     member.stripe_customer_json = STRIPE_JSON.dup
     return member.save_changes

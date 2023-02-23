@@ -8,7 +8,7 @@ class Suma::Async::UpsertFrontContact
   on "suma.member.*"
 
   def _perform(event)
-    o = self.lookup_model(Suma::Member, event)
+    self.lookup_model(Suma::Member, event)
   end
 
   Amigo.register_job(self)

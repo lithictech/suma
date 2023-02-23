@@ -2,10 +2,12 @@
 
 require "frontapp"
 
+require "suma"
 require "suma/http"
 
 module Suma::Front
   include Appydays::Configurable
+  extend Suma::MethodUtilities
 
   class << self
     # @return [Frontapp::Client]

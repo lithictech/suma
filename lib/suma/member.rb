@@ -183,6 +183,11 @@ class Suma::Member < Suma::Postgres::Model(:members)
     return @stripe ||= Suma::Member::StripeAttributes.new(self)
   end
 
+  # @return [Suma::Member::FrontAttributes]
+  def front
+    return @front ||= Suma::Member::FrontAttributes.new(self)
+  end
+
   def message_preferences!
     return self.message_preferences ||= Suma::Message::Preferences.find_or_create_or_find(member: self)
   end
