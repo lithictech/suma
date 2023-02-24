@@ -1,7 +1,7 @@
-import _ from "lodash";
+import reduceRight from "lodash/reduceRight";
 
 export default function applyHocs(...funcs) {
-  return _.reduceRight(
+  return reduceRight(
     funcs,
     (memo, f) => {
       return f(memo);

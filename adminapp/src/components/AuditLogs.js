@@ -1,7 +1,7 @@
 import { dayjs } from "../modules/dayConfig";
 import AdminLink from "./AdminLink";
 import RelatedList from "./RelatedList";
-import _ from "lodash";
+import isEmpty from "lodash/isEmpty";
 import React from "react";
 
 export default function AuditLogs({ auditLogs }) {
@@ -32,11 +32,11 @@ function by(log) {
 }
 
 function context(log) {
-  if (!log.reason && _.isEmpty(log.messages)) {
+  if (!log.reason && isEmpty(log.messages)) {
     return "";
-  } else if (log.reason && _.isEmpty(log.messages)) {
+  } else if (log.reason && isEmpty(log.messages)) {
     return log.reason;
-  } else if (!log.reason && !_.isEmpty(log.messages)) {
+  } else if (!log.reason && !isEmpty(log.messages)) {
     return log.messages.join(", ");
   } else {
     return `${log.reason} / ${log.messages.join(", ")}`;

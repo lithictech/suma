@@ -1,4 +1,4 @@
-import _ from "lodash";
+import has from "lodash/has";
 
 /**
  * @param {LocationLike} x
@@ -8,9 +8,9 @@ export default function toUrl(x) {
     return new URL(x);
   } else if (x instanceof URL) {
     return new URL(x.href);
-  } else if (_.has(x, "href")) {
+  } else if (has(x, "href")) {
     return new URL(x.href);
-  } else if (_.has(x, "pathname")) {
+  } else if (has(x, "pathname")) {
     // Usually this a react-router location thingy
     const u = new URL(window.location.href);
     u.pathname = x.pathname;

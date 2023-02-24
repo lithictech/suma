@@ -1,8 +1,9 @@
 import { Typography } from "@mui/material";
-import _ from "lodash";
+import merge from "lodash/merge";
 import React from "react";
 
+
 export default function Unavailable({ ...props }) {
-  const typoProps = _.merge({ variant: "body2", color: "textSecondary" }, props);
+  const typoProps = merge({ variant: "body2", color: "textSecondary" }, props);
   return <Typography {...typoProps}>Unavailable</Typography>;
 }

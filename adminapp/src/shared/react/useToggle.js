@@ -1,19 +1,23 @@
 import React from "react";
 
 /**
- * @param initial
+ * @param {boolean=} initial
  * @return {Toggle}
  */
 export default function useToggle(initial) {
   const [isOn, setState] = React.useState(initial || false);
-  return {
-    isOn,
-    isOff: !isOn,
-    setState,
-    turnOn: () => setState(true),
-    turnOff: () => setState(false),
-    toggle: () => setState(!isOn),
-  };
+  const toggle = React.useMemo(
+    () => ({
+      isOn,
+      isOff: !isOn,
+      setState,
+      turnOn: () => setState(true),
+      turnOff: () => setState(false),
+      toggle: () => setState(!isOn),
+    }),
+    [isOn]
+  );
+  return toggle;
 }
 
 /**

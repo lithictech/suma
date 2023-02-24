@@ -2,7 +2,7 @@ import api from "../api";
 import { localStorageCache } from "../shared/localStorageHelper";
 import { Logger } from "../shared/logger";
 import humps from "humps";
-import _ from "lodash";
+import get from "lodash/get";
 import React from "react";
 
 const logger = new Logger("user");
@@ -52,7 +52,7 @@ export function UserProvider({ children }) {
   // See add_current_member_header for more info.
   const handleUpdateCurrentMember = React.useCallback(
     (response) => {
-      const memberBase64 = _.get(response, ["headers", "suma-current-member"]);
+      const memberBase64 = get(response, ["headers", "suma-current-member"]);
       if (!memberBase64) {
         logger.error(
           "handleUpdateCurrentMember not used properly, response or header is malformed"

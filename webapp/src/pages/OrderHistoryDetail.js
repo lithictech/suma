@@ -12,7 +12,7 @@ import useToggle from "../shared/react/useToggle";
 import { useErrorToast } from "../state/useErrorToast";
 import { useScreenLoader } from "../state/useScreenLoader";
 import { LayoutContainer } from "../state/withLayout";
-import _ from "lodash";
+import isEmpty from "lodash/isEmpty";
 import React from "react";
 import { Stack } from "react-bootstrap";
 import Button from "react-bootstrap/Button";
@@ -106,7 +106,7 @@ function FulfillmentOption({ order, onOrderUpdated }) {
   const [optionId, setOptionId] = React.useState(0);
   const { showErrorToast } = useErrorToast();
 
-  if (_.isEmpty(order.fulfillmentOptionsForEditing)) {
+  if (isEmpty(order.fulfillmentOptionsForEditing)) {
     return <span>{order.fulfillmentOption.description}</span>;
   }
 

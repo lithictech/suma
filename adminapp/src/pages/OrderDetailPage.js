@@ -8,7 +8,7 @@ import { dayjs } from "../modules/dayConfig";
 import Money from "../shared/react/Money";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
 import { CircularProgress } from "@mui/material";
-import _ from "lodash";
+import isEmpty from "lodash/isEmpty";
 import React from "react";
 import { useParams } from "react-router-dom";
 
@@ -29,7 +29,7 @@ export default function OrderDetailPage() {
   return (
     <>
       {orderLoading && <CircularProgress />}
-      {!_.isEmpty(order) && (
+      {!isEmpty(order) && (
         <div>
           <DetailGrid
             title={`Order ${order.serial}`}

@@ -1,6 +1,6 @@
 import { t } from "../localization";
 import clsx from "clsx";
-import _ from "lodash";
+import isArray from "lodash/isArray";
 import React from "react";
 
 export default function FormSuccess({ message, center, className }) {
@@ -8,7 +8,7 @@ export default function FormSuccess({ message, center, className }) {
     return null;
   }
   let msgkey, vars;
-  if (_.isArray(message)) {
+  if (isArray(message)) {
     msgkey = message[0];
     vars = message[1];
   } else {

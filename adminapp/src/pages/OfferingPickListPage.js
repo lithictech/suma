@@ -5,7 +5,7 @@ import useAsyncFetch from "../shared/react/useAsyncFetch";
 import { Link, Typography } from "@mui/material";
 import { alpha, styled } from "@mui/material/styles";
 import { DataGrid, gridClasses } from "@mui/x-data-grid";
-import _ from "lodash";
+import isEmpty from "lodash/isEmpty";
 import React from "react";
 import { useParams } from "react-router-dom";
 
@@ -24,7 +24,7 @@ export default function OfferingPickListPage() {
   });
   return (
     <>
-      {!_.isEmpty(pickList) && (
+      {!isEmpty(pickList) && (
         <>
           <Typography variant="h5" gutterBottom>
             Offering <Link href={`/offering/${id}`}>{id}</Link> Pick/Pack List

@@ -7,7 +7,7 @@ import "leaflet.animatedmarker/src/AnimatedMarker";
 import "leaflet.markercluster/dist/MarkerCluster.css";
 import "leaflet.markercluster/dist/leaflet.markercluster";
 import "leaflet/dist/leaflet.css";
-import _ from "lodash";
+import isUndefined from "lodash/isUndefined";
 
 export default class MapBuilder {
   constructor(host) {
@@ -464,7 +464,7 @@ export default class MapBuilder {
   centerLocation({ lat, lng, targetZoom }) {
     lat = Number(lat);
     lng = Number(lng);
-    targetZoom = _.isUndefined(targetZoom) ? 18 : targetZoom;
+    targetZoom = isUndefined(targetZoom) ? 18 : targetZoom;
     const loweredLat = lat + this._latOffset;
     const { lat: mLat, lng: mLng } = this._map.getCenter();
     if (

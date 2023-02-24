@@ -8,7 +8,7 @@ import useMountEffect from "../shared/react/useMountEffect";
 import { useUser } from "../state/useUser";
 import i18n from "i18next";
 import Backend from "i18next-http-backend";
-import _ from "lodash";
+import noop from "lodash/noop";
 import React from "react";
 
 const logger = new Logger("i18n.hook");
@@ -34,7 +34,7 @@ export function I18NextProvider({ children }) {
       userAuthed &&
         api
           .changeLanguage({ language: lang })
-          .then(_.noop)
+          .then(noop)
           .catch((r) => logger.error(r));
       setI18NextLoading(true);
       Promise.delayOr(

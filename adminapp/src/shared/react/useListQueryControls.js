@@ -1,4 +1,6 @@
-import _ from "lodash";
+import each from "lodash/each";
+import has from "lodash/has";
+import isUndefined from "lodash/isUndefined";
 import { useSearchParams } from "react-router-dom";
 
 export default function useListQueryControls() {
@@ -8,20 +10,22 @@ export default function useListQueryControls() {
   const search = params.get("search");
   const order = params.get("order");
   const orderBy = params.get("orderby");
-  function setListQueryParams(arg) {
+  function setListQueryParams(arg, more) {
     const sp = new URLSearchParams(params);
-    _.each(urlKeysAndProps, (attr, key) => {
-      if (_.has(arg, attr)) {
-        if (_.isUndefined(arg[attr]) || arg[attr] === "") {
+    each(urlKeysAndProps, (attr, key) => {
+      if (has(arg, attr)) {
+        if (isUndefined(arg[attr]) || arg[attr] === "") {
           sp.delete(key);
         } else {
           sp.set(key, "" + arg[attr]);
         }
       }
     });
+    each(more, (val, key) => sp.set(key, val));
     setParams(sp);
   }
   return {
+    params,
     page,
     perPage,
     search,

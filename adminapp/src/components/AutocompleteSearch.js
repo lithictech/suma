@@ -1,5 +1,5 @@
 import { Autocomplete, TextField } from "@mui/material";
-import _ from "lodash";
+import debounce from "lodash/debounce";
 import React from "react";
 
 const AutocompleteSearch = React.forwardRef(function AutocompleteSearch(
@@ -8,7 +8,7 @@ const AutocompleteSearch = React.forwardRef(function AutocompleteSearch(
 ) {
   const activePromise = React.useRef(Promise.resolve());
   const searchDebounced = React.useRef(
-    _.debounce(
+    debounce(
       (data) => {
         activePromise.current.cancel();
         activePromise.current = search(data);

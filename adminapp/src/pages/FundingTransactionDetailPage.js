@@ -7,7 +7,7 @@ import { dayjs } from "../modules/dayConfig";
 import Money from "../shared/react/Money";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
 import { CircularProgress } from "@mui/material";
-import _ from "lodash";
+import isEmpty from "lodash/isEmpty";
 import React from "react";
 import { useParams } from "react-router-dom";
 
@@ -33,7 +33,7 @@ export default function FundingTransactionDetailPage() {
   return (
     <>
       {xactionLoading && <CircularProgress />}
-      {!_.isEmpty(xaction) && (
+      {!isEmpty(xaction) && (
         <div>
           <DetailGrid
             title={`Funding Transaction ${id}`}

@@ -9,7 +9,7 @@ import makeTitle from "../modules/makeTitle";
 import { anyMoney } from "../shared/react/Money";
 import { useOffering } from "../state/useOffering";
 import { LayoutContainer } from "../state/withLayout";
-import _ from "lodash";
+import isEmpty from "lodash/isEmpty";
 import React from "react";
 import { Stack } from "react-bootstrap";
 import Col from "react-bootstrap/Col";
@@ -58,8 +58,8 @@ export default function FoodList() {
         {loading && <PageLoader />}
         {!loading && (
           <>
-            {_.isEmpty(products) && mdp("food:no_products")}
-            {!_.isEmpty(products) && (
+            {isEmpty(products) && mdp("food:no_products")}
+            {!isEmpty(products) && (
               <Row>
                 {products.map((p) => (
                   <Product key={p.productId} offeringId={offeringId} product={p} />

@@ -11,7 +11,7 @@ import { useBackendGlobals } from "../state/useBackendGlobals";
 import { extractErrorCode, useError } from "../state/useError";
 import { useScreenLoader } from "../state/useScreenLoader";
 import { useUser } from "../state/useUser";
-import _ from "lodash";
+import filter from "lodash/filter";
 import React from "react";
 import Button from "react-bootstrap/Button";
 import Card from "react-bootstrap/Card";
@@ -39,7 +39,7 @@ export default function Funding() {
 }
 
 function BankAccountsCard({ instruments }) {
-  const bankAccounts = _.filter(instruments, { paymentMethodType: "bank_account" });
+  const bankAccounts = filter(instruments, { paymentMethodType: "bank_account" });
   return (
     <PaymentsCard header={t("payments:bank_accounts")}>
       {bankAccounts.length === 0 ? (
@@ -179,7 +179,7 @@ function DeleteInstrumentModal({ instrument, apiMethod, toggle }) {
 }
 
 function CardsCard({ instruments }) {
-  const cards = _.filter(instruments, { paymentMethodType: "card" });
+  const cards = filter(instruments, { paymentMethodType: "card" });
   return (
     <PaymentsCard header={t("payments:cards")}>
       {cards.length === 0 ? (

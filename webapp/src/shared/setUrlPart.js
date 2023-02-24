@@ -1,5 +1,5 @@
 import toUrl from "./toUrl";
-import _ from "lodash";
+import forEach from "lodash/forEach";
 
 /**
  * Set part of a full URL.
@@ -32,7 +32,7 @@ export default function setUrlPart({ hash, search, setParams, replaceParams, loc
 }
 
 function updateParams(sp, pairs) {
-  _.forEach(pairs, (v, k) => {
+  forEach(pairs, (v, k) => {
     if (v === null || v === undefined) {
       sp.delete(k);
     } else {

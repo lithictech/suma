@@ -2,7 +2,7 @@ import { dayjs } from "../modules/dayConfig";
 import Money, { formatMoney } from "../shared/react/Money";
 import AdminLink from "./AdminLink";
 import RelatedList from "./RelatedList";
-import _ from "lodash";
+import map from "lodash/map";
 import React from "react";
 
 export default function PaymentAccountRelatedLists({ paymentAccount }) {
@@ -19,7 +19,7 @@ export default function PaymentAccountRelatedLists({ paymentAccount }) {
         toCells={(row) => [
           <AdminLink key="id" model={row} />,
           row.currency,
-          _.map(row.vendorServiceCategories, "name").join(", "),
+          map(row.vendorServiceCategories, "name").join(", "),
           <Money key="balance">{row.balance}</Money>,
           row.softDeletedAt ? dayjs(row.softDeletedAt).format("lll") : "",
         ]}

@@ -9,7 +9,7 @@ import { useUser } from "../state/useUser";
 import { LayoutContainer } from "../state/withLayout";
 import clsx from "clsx";
 import dayjs from "dayjs";
-import _ from "lodash";
+import isEmpty from "lodash/isEmpty";
 import React from "react";
 import Alert from "react-bootstrap/Alert";
 import Button from "react-bootstrap/Button";
@@ -74,7 +74,7 @@ const Ledger = ({ dashboard }) => {
         </div>
       </LayoutContainer>
       <hr />
-      {!_.isEmpty(dashboard.ledgerLines) ? (
+      {!isEmpty(dashboard.ledgerLines) ? (
         <Table responsive striped hover className="table-borderless table-flush">
           <thead>
             <tr>

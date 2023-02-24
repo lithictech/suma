@@ -1,6 +1,6 @@
 import { dayjs } from "../modules/dayConfig";
 import { Grid, Typography, Box } from "@mui/material";
-import _ from "lodash";
+import isEmpty from "lodash/isEmpty";
 import React from "react";
 
 /**
@@ -13,7 +13,7 @@ export default function DetailGrid({ title, properties }) {
       return true;
     }
     const val = value || children;
-    return !_.isEmpty(val);
+    return !isEmpty(val);
   });
   return (
     <Box mt={2}>

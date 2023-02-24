@@ -8,7 +8,8 @@ import { mdp, t } from "../localization";
 import { dayjs } from "../modules/dayConfig";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
 import { LayoutContainer } from "../state/withLayout";
-import _ from "lodash";
+import find from "lodash/find";
+import isEmpty from "lodash/isEmpty";
 import React from "react";
 import { Stack } from "react-bootstrap";
 import Card from "react-bootstrap/Card";
@@ -36,7 +37,7 @@ export default function OrderHistoryList() {
   }
 
   function handleNavigate(e, order) {
-    const detailed = _.find(orderHistory.detailedOrders, { id: order.id });
+    const detailed = find(orderHistory.detailedOrders, { id: order.id });
     if (!detailed) {
       return;
     }
@@ -50,14 +51,14 @@ export default function OrderHistoryList() {
         <h2>{t("food:order_history_title")}</h2>
       </LayoutContainer>
       <LayoutContainer gutters>
-        {!_.isEmpty(orderHistory?.items) && (
+        {!isEmpty(orderHistory?.items) && (
           <Stack gap={4} className="mt-4">
             {orderHistory?.items.map((o) => (
               <Order key={o.id} {...o} onNavigate={(e) => handleNavigate(e, o)} />
             ))}
           </Stack>
         )}
-        {_.isEmpty(orderHistory?.items) && (
+        {isEmpty(orderHistory?.items) && (
           <>
             {mdp("food:no_orders")}
             <p>

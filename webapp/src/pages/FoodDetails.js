@@ -11,7 +11,7 @@ import { anyMoney } from "../shared/react/Money";
 import { useOffering } from "../state/useOffering";
 import { LayoutContainer } from "../state/withLayout";
 import clsx from "clsx";
-import _ from "lodash";
+import find from "lodash/find";
 import React from "react";
 import Stack from "react-bootstrap/Stack";
 import { Helmet } from "react-helmet-async";
@@ -31,7 +31,7 @@ export default function FoodDetails() {
     return <PageLoader />;
   }
 
-  const product = _.find(products, (p) => p.productId === productId);
+  const product = find(products, (p) => p.productId === productId);
 
   if (error || !product) {
     return (
@@ -40,7 +40,7 @@ export default function FoodDetails() {
       </LayoutContainer>
     );
   }
-  const vendor = _.find(vendors, (v) => v.id === product.vendorId);
+  const vendor = find(vendors, (v) => v.id === product.vendorId);
   const title = makeTitle(product.name, vendor.name, t("food:title"));
   return (
     <>
