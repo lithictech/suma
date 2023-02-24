@@ -183,9 +183,9 @@ class Suma::Member < Suma::Postgres::Model(:members)
     return @stripe ||= Suma::Member::StripeAttributes.new(self)
   end
 
-  # @return [Suma::Member::FrontAttributes]
-  def front
-    return @front ||= Suma::Member::FrontAttributes.new(self)
+  # @return [Suma::Member::FrontappAttributes]
+  def frontapp
+    return @frontapp ||= Suma::Member::FrontappAttributes.new(self)
   end
 
   def message_preferences!
@@ -301,7 +301,7 @@ class Suma::Member < Suma::Postgres::Model(:members)
   end
 end
 
-require "suma/member/front_attributes"
+require "suma/member/frontapp_attributes"
 require "suma/member/stripe_attributes"
 
 # Table: members

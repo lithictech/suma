@@ -2,10 +2,10 @@
 
 require "frontapp"
 
-require "suma"
 require "suma/http"
+require "suma/method_utilities"
 
-module Suma::Front
+module Suma::Frontapp
   include Appydays::Configurable
   extend Suma::MethodUtilities
 
@@ -14,7 +14,7 @@ module Suma::Front
     attr_accessor :client
   end
 
-  configurable(:front) do
+  configurable(:frontapp) do
     setting :auth_token, "get-from-front-add-to-env"
 
     after_configured do

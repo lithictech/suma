@@ -2,7 +2,7 @@
 
 require "amigo/job"
 
-class Suma::Async::UpsertFrontContact
+class Suma::Async::UpsertFrontappContact
   extend Amigo::Job
 
   on "suma.member.*"
