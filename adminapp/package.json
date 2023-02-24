@@ -31,6 +31,8 @@
     "react-scripts": "5.0.1"
   },
   "scripts": {
+    "analyze": "source-map-explorer ../build-webapp/static/js/**/*.js",
+    "analyze-win": "source-map-explorer ../build-webapp/static/js/**/*.js --html source-explorer.html && explorer.exe source-explorer.html",
     "start": "CHOKIDAR_USEPOLLING=true PORT=22014 FAST_REFRESH=false react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test --passWithNoTests",
