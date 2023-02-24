@@ -29,6 +29,7 @@ module Suma::Async
     "suma/async/order_confirmation",
     "suma/async/plaid_update_institutions",
     "suma/async/reset_code_create_dispatch",
+    "suma/async/upsert_frontapp_contact",
   ].freeze
 
   configurable(:async) do

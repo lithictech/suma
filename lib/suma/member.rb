@@ -183,6 +183,11 @@ class Suma::Member < Suma::Postgres::Model(:members)
     return @stripe ||= Suma::Member::StripeAttributes.new(self)
   end
 
+  # @return [Suma::Member::FrontappAttributes]
+  def frontapp
+    return @frontapp ||= Suma::Member::FrontappAttributes.new(self)
+  end
+
   def message_preferences!
     return self.message_preferences ||= Suma::Message::Preferences.find_or_create_or_find(member: self)
   end
@@ -296,6 +301,7 @@ class Suma::Member < Suma::Postgres::Model(:members)
   end
 end
 
+require "suma/member/frontapp_attributes"
 require "suma/member/stripe_attributes"
 
 # Table: members

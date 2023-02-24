@@ -1,0 +1,43 @@
+{
+  "_links": {
+    "self": null,
+    "related": {
+      "notes": null,
+      "conversations": null,
+      "owner": null
+    }
+  },
+  "id": "crd_123",
+  "name": "abc",
+  "description": null,
+  "avatar_url": null,
+  "links": [
+    "http://localhost:22001"
+  ],
+  "groups": [
+    {
+      "_links": {
+        "self": null,
+        "related": {
+          "contacts": null,
+          "owner": null
+        }
+      },
+      "id": null,
+      "name": null,
+      "is_private": true
+    }
+  ],
+  "handles": [
+    {
+      "handle": "12223334444",
+      "source": "phone"
+    },
+    {
+      "handle": "abc@cbd.com",
+      "source": "email"
+    }
+  ],
+  "custom_fields": {},
+  "is_private": true
+}

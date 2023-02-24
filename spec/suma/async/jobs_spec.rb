@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "suma/async"
+require "suma/frontapp"
 require "suma/messages/specs"
 require "rspec/eventually"
 
@@ -144,6 +145,32 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
           ),
         ),
       )
+    end
+  end
+
+  describe "UpsertFrontappContact" do
+    after(:each) do
+      Suma::Frontapp.reset_configuration
+    end
+    it "upserts front contacts" do
+      Suma::Frontapp.auth_token = "fake token"
+      req = stub_request(:post, "https://api2.frontapp.com/contacts").
+        to_return(fixture_response("front/contact"))
+
+      member = nil
+      expect do
+        member = Suma::Fixtures.member.create
+      end.to perform_async_job(Suma::Async::UpsertFrontappContact)
+
+      expect(req).to have_been_made
+      expect(member.refresh).to have_attributes(frontapp_contact_id: "crd_123")
+    end
+
+    it "noops if Front is not configured" do
+      Suma::Frontapp.reset_configuration
+      expect do
+        Suma::Fixtures.member.create
+      end.to perform_async_job(Suma::Async::UpsertFrontappContact)
     end
   end
 end
