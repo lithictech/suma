@@ -1,8 +1,8 @@
 import SimpleTable from "./SimpleTable";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
-import isEmpty from "lodash/isEmpty"
-import merge from "lodash/merge"
+import isEmpty from "lodash/isEmpty";
+import merge from "lodash/merge";
 import React from "react";
 
 export default function RelatedList({ title, tableProps, rows, ...rest }) {

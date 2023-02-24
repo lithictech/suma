@@ -1,7 +1,7 @@
 import { Logger } from "./logger";
 import get from "lodash/get";
-import omit from "lodash/omit";
 import identity from "lodash/identity";
+import omit from "lodash/omit";
 
 const reqLogger = new Logger("api.requests");
 const respLogger = new Logger("api.responses");

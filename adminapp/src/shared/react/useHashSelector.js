@@ -1,8 +1,8 @@
 import { Logger } from "../logger";
 import relativeUrl from "./../relativeUrl";
 import setUrlPart from "./../setUrlPart";
-import find from "lodash/find"
-import trimStart from "lodash/trimStart"
+import find from "lodash/find";
+import trimStart from "lodash/trimStart";
 import React from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 

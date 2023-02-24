@@ -1,6 +1,6 @@
 import { Logger } from "../shared/logger";
-import isString from "lodash/isString";
 import get from "lodash/get";
+import isString from "lodash/isString";
 
 export default function extractErrorMessage(error, defaultMsg) {
   if (!error || isString(error)) {

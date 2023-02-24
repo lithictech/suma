@@ -1,6 +1,6 @@
 import { Logger } from "../shared/logger";
-import isString from "lodash/isString";
 import get from "lodash/get";
+import isString from "lodash/isString";
 import React from "react";
 
 const logger = new Logger("form-error");

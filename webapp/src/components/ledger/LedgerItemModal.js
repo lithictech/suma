@@ -9,6 +9,7 @@ import Modal from "react-bootstrap/Modal";
 
 export default function ({ item, onClose }) {
   const { amount, at, opaqueId, usageDetails } = item || {};
+  console.log(usageDetails)
   return (
     <Modal show={Boolean(item)} onHide={onClose} onExit={onClose} centered>
       <Modal.Body>
