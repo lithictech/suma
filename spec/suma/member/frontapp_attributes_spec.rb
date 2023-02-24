@@ -25,15 +25,15 @@ RSpec.describe Suma::Member::FrontappAttributes, :db do
     end
 
     it "updates Front contact if member contains contact id" do
-      member = Suma::Fixtures.member.create(front_contact_id: "crd_123")
-      contact_req = stub_request(:patch, "https://api2.frontapp.com/contacts/#{member.front_contact_id}").
+      member = Suma::Fixtures.member.create(frontapp_contact_id: "crd_123")
+      contact_req = stub_request(:patch, "https://api2.frontapp.com/contacts/#{member.frontapp_contact_id}").
         with(body: hash_including({
                                     "name" => member.name,
                                     "links" => [member.admin_link],
                                     "custom_fields" => {},
                                   })).
         to_return(status: 200)
-      handles_url = "https://api2.frontapp.com/contacts/#{member.front_contact_id}/handles"
+      handles_url = "https://api2.frontapp.com/contacts/#{member.frontapp_contact_id}/handles"
       handle_req = stub_request(:post, handles_url).
         with(body: hash_including({"source" => "phone", "handle" => member.phone})).
         to_return(status: 200)
@@ -51,10 +51,10 @@ RSpec.describe Suma::Member::FrontappAttributes, :db do
     end
 
     it "does not add Front contact handles if member is missing them" do
-      member = Suma::Fixtures.member.create(front_contact_id: "crd_123")
+      member = Suma::Fixtures.member.create(frontapp_contact_id: "crd_123")
       member.email = nil
       member.phone = nil
-      contact_req = stub_request(:patch, "https://api2.frontapp.com/contacts/#{member.front_contact_id}").
+      contact_req = stub_request(:patch, "https://api2.frontapp.com/contacts/#{member.frontapp_contact_id}").
         with(body: hash_including({
                                     "name" => member.name,
                                     "links" => [member.admin_link],

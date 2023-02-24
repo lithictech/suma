@@ -18,7 +18,7 @@ class Suma::Member::FrontappAttributes
 
   def create_contact
     contact = Suma::Frontapp.client.create_contact!(self.contact_body.merge(handles: self.contact_handles))
-    @member.update(front_contact_id: contact.fetch("id"))
+    @member.update(frontapp_contact_id: contact.fetch("id"))
     return contact
   end
 
@@ -51,6 +51,6 @@ class Suma::Member::FrontappAttributes
   end
 
   def contact_id
-    @member.front_contact_id
+    @member.frontapp_contact_id
   end
 end
