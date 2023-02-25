@@ -1,4 +1,4 @@
-import _ from "lodash";
+import identity from "lodash/identity";
 import React from "react";
 
 const makeCache = (store) => {
@@ -33,7 +33,7 @@ const makeCache = (store) => {
       }
     },
     useState: (field, initialValue, convert) => {
-      convert = convert || _.identity;
+      convert = convert || identity;
       const [val, setVal] = React.useState(convert(getItem(store, field, initialValue)));
       const setValAndCache = (v) => {
         setItem(store, field, v);

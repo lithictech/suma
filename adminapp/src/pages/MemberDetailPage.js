@@ -13,7 +13,8 @@ import useAsyncFetch from "../shared/react/useAsyncFetch";
 import { Divider, CircularProgress, Typography, Chip } from "@mui/material";
 import Button from "@mui/material/Button";
 import { makeStyles } from "@mui/styles";
-import _ from "lodash";
+import capitalize from "lodash/capitalize";
+import isEmpty from "lodash/isEmpty";
 import React from "react";
 import { formatPhoneNumberIntl } from "react-phone-number-input";
 import { useParams } from "react-router-dom";
@@ -35,7 +36,7 @@ export default function MemberDetailPage() {
   return (
     <>
       {memberLoading && <CircularProgress />}
-      {!_.isEmpty(member) && (
+      {!isEmpty(member) && (
         <div>
           <Typography variant="h5" gutterBottom>
             Member Details <ImpersonateButton id={id} />
@@ -54,7 +55,7 @@ export default function MemberDetailPage() {
               {
                 label: "Roles",
                 children: member.roles.map((role) => (
-                  <Chip key={role} label={_.capitalize(role)} sx={{ mr: 0.5 }} />
+                  <Chip key={role} label={capitalize(role)} sx={{ mr: 0.5 }} />
                 )),
                 hideEmpty: true,
               },
@@ -87,7 +88,7 @@ export default function MemberDetailPage() {
 }
 
 function LegalEntity({ address }) {
-  if (_.isEmpty(address)) {
+  if (isEmpty(address)) {
     return null;
   }
   const { address1, address2, city, stateOrProvince, postalCode, country } =

@@ -2,7 +2,7 @@ import { t } from "../../localization";
 import Money from "../../shared/react/Money";
 import clsx from "clsx";
 import dayjs from "dayjs";
-import _ from "lodash";
+import isEmpty from "lodash/isEmpty";
 import React from "react";
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
@@ -12,7 +12,7 @@ export default function ({ item, onClose }) {
   return (
     <Modal show={Boolean(item)} onHide={onClose} onExit={onClose} centered>
       <Modal.Body>
-        {!_.isEmpty(item) && (
+        {!isEmpty(item) && (
           <>
             <p className="mt-2 mb-1">
               <Money

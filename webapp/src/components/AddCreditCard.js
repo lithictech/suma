@@ -9,7 +9,7 @@ import elementDimensions from "../modules/elementDimensions";
 import keepDigits from "../modules/keepDigits";
 import { extractErrorCode } from "../state/useError";
 import { useScreenLoader } from "../state/useScreenLoader";
-import _ from "lodash";
+import get from "lodash/get";
 import Payment from "payment";
 import React from "react";
 import Col from "react-bootstrap/Col";
@@ -73,7 +73,7 @@ export default function AddCreditCard({ onSuccess, error, setError }) {
       .then((r) => onSuccess(r.data))
       .catch((e) => {
         screenLoader.turnOff();
-        if (!_.get(e, "response.data.error.type")) {
+        if (!get(e, "response.data.error.type")) {
           setError(extractErrorCode(e));
           return;
         }

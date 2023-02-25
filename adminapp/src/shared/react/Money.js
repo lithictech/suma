@@ -1,12 +1,16 @@
-import _ from "lodash";
+import { Logger } from "../logger";
+import get from "lodash/get";
+import merge from "lodash/merge";
 import PropTypes from "prop-types";
 import React from "react";
+
+const logger = new Logger("money");
 
 const optionedFormatters = {
   USD: (opts) =>
     new Intl.NumberFormat(
       "en-US",
-      _.merge(
+      merge(
         {
           style: "currency",
           currency: "USD",
@@ -22,7 +26,7 @@ const defaultFormatters = {
 };
 defaultFormatters.default = defaultFormatters.USD;
 
-export default function Money({ value, children, className, accounting, ...rest }) {
+export default function Money({ value, children, className, accounting, as, ...rest }) {
   let entity = value || children;
   if (!entity) {
     return null;
@@ -33,7 +37,8 @@ export default function Money({ value, children, className, accounting, ...rest 
   } else {
     ch = formatMoney(entity, rest);
   }
-  return <span className={className}>{ch}</span>;
+  const As = as || "span";
+  return <As className={className}>{ch}</As>;
 }
 
 Money.propTypes = {
@@ -47,28 +52,20 @@ Money.propTypes = {
 };
 
 export const formatMoney = (entity, options) => {
-  options = options || {};
-  const formatterOpts = {};
-  if (options.rounded) {
+  let formatterOpts = null;
+  if (get(options, "rounded")) {
     const hasCents = entity.cents % 100 > 0;
-    formatterOpts.minimumFractionDigits = hasCents ? 2 : 0;
-  }
-  if (options.noCurrency) {
-    formatterOpts.currencyDisplay = "code";
+    formatterOpts = { minimumFractionDigits: hasCents ? 2 : 0 };
   }
 
   let formatter;
-  if (_.isEmpty(formatterOpts)) {
+  if (!formatterOpts) {
     formatter = defaultFormatters[entity.currency] || defaultFormatters.default;
   } else {
     const ctor = optionedFormatters[entity.currency] || optionedFormatters.default;
     formatter = ctor(formatterOpts);
   }
-  let result = formatter.format(entity.cents / 100.0);
-  if (options.noCurrency) {
-    result = result.replace(/[a-z]{3}/i, "").trim();
-  }
-  return result;
+  return formatter.format(entity.cents / 100.0);
 };
 
 export function floatToMoney(f, currency) {
@@ -89,7 +86,7 @@ export function mathMoney(m1, m2, t) {
   // noinspection JSUnresolvedVariable
   if (window.__DEV__) {
     if (m1.currency !== m2.currency) {
-      console.error("moneys must have the same currency:", m1, m2);
+      logger.context({ money1: m1, money2: m2 }).error("money_currency_mismatch");
     }
   }
   return {
@@ -104,4 +101,12 @@ export function addMoney(m1, m2) {
 
 export function subtractMoney(m1, m2) {
   return mathMoney(m1, m2, (x, y) => x - y);
+}
+
+export function anyMoney(m) {
+  if (!m) {
+    return false;
+  }
+  const cents = m.cents;
+  return cents > 0 || cents < 0;
 }

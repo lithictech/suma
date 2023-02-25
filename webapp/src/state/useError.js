@@ -1,5 +1,6 @@
 import { Logger } from "../shared/logger";
-import _ from "lodash";
+import get from "lodash/get";
+import isString from "lodash/isString";
 import React from "react";
 
 const logger = new Logger("form-error");
@@ -22,18 +23,18 @@ export function useError(initialState) {
  * @return {string|null}
  */
 export function extractErrorCode(error) {
-  if (!error || _.isString(error)) {
+  if (!error || isString(error)) {
     return error;
   }
-  if (_.get(error, "message") === "Network Error") {
+  if (get(error, "message") === "Network Error") {
     return "network_error";
   }
-  const status = _.get(error, "response.data.error.status") || 500;
+  const status = get(error, "response.data.error.status") || 500;
   let msg;
   if (status >= 500) {
     msg = defaultCode;
   } else {
-    msg = _.get(error, "response.data.error.code") || defaultCode;
+    msg = get(error, "response.data.error.code") || defaultCode;
   }
   if (msg === defaultCode) {
     // We couldn't parse anything meaningful, so log it out

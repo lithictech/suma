@@ -1,7 +1,8 @@
 import { Logger } from "../logger";
 import relativeUrl from "./../relativeUrl";
 import setUrlPart from "./../setUrlPart";
-import _ from "lodash";
+import find from "lodash/find";
+import trimStart from "lodash/trimStart";
 import React from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
@@ -18,7 +19,7 @@ export default function useHashSelector(items, property) {
     if (!location.hash) {
       return;
     }
-    const item = _.find(items, { [property]: _.trimStart(location.hash, "#") });
+    const item = find(items, { [property]: trimStart(location.hash, "#") });
     if (!item) {
       return;
     }

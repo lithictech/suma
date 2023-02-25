@@ -1,10 +1,10 @@
-import _ from "lodash";
+import isUndefined from "lodash/isUndefined";
 import qs from "qs";
 
 const exports = {
   parse: (s, options) => {
     options = options || {};
-    if (_.isUndefined(options.ignoreQueryPrefix)) {
+    if (isUndefined(options.ignoreQueryPrefix)) {
       options.ignoreQueryPrefix = true;
     }
     return qs.parse(s, options);

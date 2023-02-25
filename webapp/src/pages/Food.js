@@ -8,7 +8,7 @@ import { t } from "../localization";
 import { dayjs } from "../modules/dayConfig";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
 import { LayoutContainer } from "../state/withLayout";
-import _ from "lodash";
+import isEmpty from "lodash/isEmpty";
 import React from "react";
 import { Stack } from "react-bootstrap";
 import Card from "react-bootstrap/Card";
@@ -41,7 +41,7 @@ export default function Food() {
       <hr className="my-4" />
       {offeringsLoading && <PageLoader relative />}
       <LayoutContainer gutters>
-        {!_.isEmpty(foodOfferings?.items) && (
+        {!isEmpty(foodOfferings?.items) && (
           <Row>
             <h4 className="mb-3">{t("food:current_offerings")}</h4>
             {foodOfferings?.items.map((o) => (
@@ -49,7 +49,7 @@ export default function Food() {
             ))}
           </Row>
         )}
-        {_.isEmpty(foodOfferings?.items) && !offeringsLoading && (
+        {isEmpty(foodOfferings?.items) && !offeringsLoading && (
           <p>{t("food:no_offerings")}</p>
         )}
         <hr />

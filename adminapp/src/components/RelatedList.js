@@ -1,14 +1,15 @@
 import SimpleTable from "./SimpleTable";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
-import _ from "lodash";
+import isEmpty from "lodash/isEmpty";
+import merge from "lodash/merge";
 import React from "react";
 
 export default function RelatedList({ title, tableProps, rows, ...rest }) {
-  if (_.isEmpty(rows)) {
+  if (isEmpty(rows)) {
     return null;
   }
-  tableProps = _.merge({ size: "small" }, tableProps);
+  tableProps = merge({ size: "small" }, tableProps);
   return (
     <Box mt={5}>
       {title && (

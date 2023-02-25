@@ -9,7 +9,7 @@ import useAsyncFetch from "../shared/react/useAsyncFetch";
 import ListAltIcon from "@mui/icons-material/ListAlt";
 import { CircularProgress, Link } from "@mui/material";
 import { makeStyles } from "@mui/styles";
-import _ from "lodash";
+import isEmpty from "lodash/isEmpty";
 import React from "react";
 import { useParams } from "react-router-dom";
 
@@ -33,7 +33,7 @@ export default function OfferingDetailPage() {
   return (
     <>
       {offeringLoading && <CircularProgress />}
-      {!_.isEmpty(offering) && (
+      {!isEmpty(offering) && (
         <div>
           <DetailGrid
             title={`Offering ${id}`}
@@ -61,7 +61,7 @@ export default function OfferingDetailPage() {
               <Money key="undiscounted_price">{row.undiscountedPrice}</Money>,
             ]}
           />
-          {!_.isEmpty(offering.orders) && (
+          {!isEmpty(offering.orders) && (
             <Link
               href={`/offering/${offering.id}/picklist`}
               sx={{ display: "inline-block", marginTop: "15px" }}

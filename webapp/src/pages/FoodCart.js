@@ -10,7 +10,7 @@ import { anyMoney } from "../shared/react/Money";
 import { useErrorToast } from "../state/useErrorToast";
 import { useOffering } from "../state/useOffering";
 import { LayoutContainer } from "../state/withLayout";
-import _ from "lodash";
+import isEmpty from "lodash/isEmpty";
 import React from "react";
 import Button from "react-bootstrap/Button";
 import Col from "react-bootstrap/Col";
@@ -50,8 +50,8 @@ export default function FoodCart() {
   return (
     <>
       <LayoutContainer>
-        {_.isEmpty(cart.items) && md("food:no_cart_items")}
-        {!_.isEmpty(cart.items) && (
+        {isEmpty(cart.items) && md("food:no_cart_items")}
+        {!isEmpty(cart.items) && (
           <Row>
             <LinearBreadcrumbs back={`/food/${offeringId}`} />
             <Stack direction="horizontal" gap={3} className="align-items-end">

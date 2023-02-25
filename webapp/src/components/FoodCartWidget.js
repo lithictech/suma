@@ -6,7 +6,9 @@ import { t } from "../localization";
 import { useErrorToast } from "../state/useErrorToast";
 import { useOffering } from "../state/useOffering";
 import clsx from "clsx";
-import _ from "lodash";
+import find from "lodash/find";
+import noop from "lodash/noop";
+import times from "lodash/times";
 import React from "react";
 import Button from "react-bootstrap/Button";
 import ButtonGroup from "react-bootstrap/ButtonGroup";
@@ -21,7 +23,7 @@ export default function FoodCartWidget({ product, size }) {
   const changePromise = React.useRef(null);
 
   const [quantity, setQuantity] = React.useState(() => {
-    const item = _.find(cart.items, ({ productId }) => productId === product.productId);
+    const item = find(cart.items, ({ productId }) => productId === product.productId);
     return item?.quantity || 0;
   });
 
@@ -53,7 +55,7 @@ export default function FoodCartWidget({ product, size }) {
             "nowrap"
           )}
           disabled={quantity === 0}
-          onClick={quantity > 0 ? () => handleQuantityChange(0) : _.noop}
+          onClick={quantity > 0 ? () => handleQuantityChange(0) : noop}
         >
           <span className="text-capitalize fs-5 align-middle mx-1">
             {t("food:out_of_stock")}
@@ -127,7 +129,7 @@ export default function FoodCartWidget({ product, size }) {
 }
 
 const DropdownQuantities = ({ maxQuantity, selectedQuantity }) => {
-  return _.times(maxQuantity + 1).map((_, i) => (
+  return times(maxQuantity + 1).map((_, i) => (
     <Dropdown.Item
       key={i}
       eventKey={i}

@@ -5,7 +5,8 @@ import {
 } from "./apilogger";
 import axios from "axios";
 import humps from "humps";
-import _ from "lodash";
+import get from "lodash/get";
+import noop from "lodash/noop";
 
 function create(apiHost, config) {
   const { debug, chaos, ...rest } = config || {};
@@ -61,7 +62,7 @@ function requestChaos(chaos) {
 
 function handleStatus(status, cb) {
   return (error) => {
-    if (_.get(error, "response.data.error.status") === status) {
+    if (get(error, "response.data.error.status") === status) {
       return cb(error);
     }
     throw error;
@@ -77,7 +78,7 @@ export default {
   create,
   handleStatus,
   mergeParams,
-  pick: (s) => (o) => _.get(o, s),
+  pick: (s) => (o) => get(o, s),
   pickData: (o) => o.data,
-  swallow: (status) => handleStatus(status, _.noop),
+  swallow: (status) => handleStatus(status, noop),
 };

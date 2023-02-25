@@ -1,5 +1,7 @@
 import { Logger } from "./logger";
-import _ from "lodash";
+import get from "lodash/get";
+import identity from "lodash/identity";
+import omit from "lodash/omit";
 
 const reqLogger = new Logger("api.requests");
 const respLogger = new Logger("api.responses");
@@ -55,7 +57,7 @@ export const debugRequestLogger = [reqSuccessDebug, reqError];
 export const debugResponseLogger = [respSuccessDebug, respErrorDebug];
 
 function respErrorFull(error) {
-  if (_.get(error, "response.status") === 401) {
+  if (get(error, "response.status") === 401) {
     return Promise.reject(error);
   }
   let tags = { method: method(error.config), url: error.config.url };
@@ -64,9 +66,9 @@ function respErrorFull(error) {
     respLogger.tags(tags).error(error.message);
     return Promise.reject(error);
   }
-  const apiErr = _.get(error, "response.data.error");
+  const apiErr = get(error, "response.data.error");
   if (apiErr) {
-    tags = _.omit({ ...tags, ...apiErr }, "backtrace");
+    tags = omit({ ...tags, ...apiErr }, "backtrace");
   }
   tags.status = error.response.status;
   respLogger
@@ -76,4 +78,4 @@ function respErrorFull(error) {
   return Promise.reject(error);
 }
 
-export const errorResponseLogger = [_.identity, respErrorFull];
+export const errorResponseLogger = [identity, respErrorFull];

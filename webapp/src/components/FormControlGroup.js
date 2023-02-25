@@ -1,6 +1,6 @@
 import useValidationError from "../state/useValidationError";
 import FormText from "./FormText";
-import _ from "lodash";
+import isString from "lodash/isString";
 import React from "react";
 import Form from "react-bootstrap/Form";
 import InputGroup from "react-bootstrap/InputGroup";
@@ -67,7 +67,7 @@ export default function FormControlGroup({
     registerArgs.maxLength = maxLength;
   }
   if (pattern) {
-    registerArgs.pattern = _.isString(pattern) ? new RegExp(pattern) : pattern;
+    registerArgs.pattern = isString(pattern) ? new RegExp(pattern) : pattern;
   }
   if (min) {
     registerArgs.min = min;
@@ -86,14 +86,14 @@ export default function FormControlGroup({
       maxLength={maxLength}
       minLength={minLength}
       isInvalid={!!message}
-      placeholder={_.isString(label) ? label : null}
+      placeholder={isString(label) ? label : null}
       className={inputClass}
       {...rest}
     />
   );
   return (
     <Form.Group className={className} controlId={name} as={as}>
-      {_.isString(label) ? (
+      {isString(label) ? (
         <Form.Label className="visually-hidden">{label}</Form.Label>
       ) : (
         label

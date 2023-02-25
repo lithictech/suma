@@ -190,6 +190,7 @@
     "zip": "Zip"
   },
   "ledgerusage": {
+    "commerce_order": "{{serviceName}}. You saved` {{discountAmount, sumaCurrency}}.",
     "funding": "Transfer from {{accountLabel}}",
     "misc": "Suma charge",
     "mobility_trip": "{{serviceName}} trip. You saved {{discountAmount, sumaCurrency}}.",

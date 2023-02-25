@@ -11,7 +11,8 @@ import useListQueryControls from "../shared/react/useListQueryControls";
 import { LayoutContainer } from "../state/withLayout";
 import clsx from "clsx";
 import dayjs from "dayjs";
-import _ from "lodash";
+import find from "lodash/find";
+import first from "lodash/first";
 import React from "react";
 import Container from "react-bootstrap/Container";
 import Dropdown from "react-bootstrap/Dropdown";
@@ -36,9 +37,9 @@ export default function LedgersOverview() {
     doNotFetchOnInit: true,
   });
   const ledgerIdParam = Number(params.get("ledger"));
-  const firstLedger = _.first(ledgersOverview.ledgers);
+  const firstLedger = first(ledgersOverview.ledgers);
   const activeLedger = ledgerIdParam
-    ? _.find(ledgersOverview.ledgers, { id: ledgerIdParam })
+    ? find(ledgersOverview.ledgers, { id: ledgerIdParam })
     : firstLedger;
 
   //On mount (not page changes), fetch the ledger lines we aren't looking at

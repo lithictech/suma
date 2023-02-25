@@ -190,6 +190,7 @@
     "zip": "Código Postal"
   },
   "ledgerusage": {
+    "commerce_order": "{{serviceName}}. Ahorraste {{discountAmount, sumaCurrency}}.",
     "funding": "Transferencia de {{accountLabel}}",
     "misc": "Tarifa de Suma",
     "mobility_trip": "{{serviceName}} viaje. Ahorraste {{discountAmount, sumaCurrency}}.",

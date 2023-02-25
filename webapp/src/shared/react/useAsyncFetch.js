@@ -1,4 +1,4 @@
-import _ from "lodash";
+import get from "lodash/get";
 import React from "react";
 
 /**
@@ -24,7 +24,7 @@ const useAsyncFetch = (makeRequest, options) => {
     pickData,
     pullFromState,
   } = options || {};
-  if (pullFromState && _.get(location, ["state", pullFromState])) {
+  if (pullFromState && get(location, ["state", pullFromState])) {
     defaultVal = location.state[pullFromState];
     doNotFetchOnInit = true;
     window.history.replaceState({}, document.title);

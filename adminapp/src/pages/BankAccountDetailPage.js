@@ -5,7 +5,7 @@ import useErrorSnackbar from "../hooks/useErrorSnackbar";
 import { dayjs } from "../modules/dayConfig";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
 import { Divider, CircularProgress, Typography } from "@mui/material";
-import _ from "lodash";
+import isEmpty from "lodash/isEmpty";
 import React from "react";
 import { useParams } from "react-router-dom";
 
@@ -29,7 +29,7 @@ export default function BankAccountDetailPage() {
   return (
     <>
       {bankAccountLoading && <CircularProgress />}
-      {!_.isEmpty(bankAccount) && (
+      {!isEmpty(bankAccount) && (
         <div>
           <Typography variant="h5" gutterBottom>
             Bank Account {id}
@@ -75,7 +75,7 @@ export default function BankAccountDetailPage() {
 }
 
 function LegalEntity({ name, address }) {
-  if (_.isEmpty(address)) {
+  if (isEmpty(address)) {
     return null;
   }
   const { address1, address2, city, stateOrProvince, postalCode, country } =

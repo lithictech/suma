@@ -11,7 +11,10 @@ import useAsyncFetch from "../shared/react/useAsyncFetch";
 import { extractErrorCode, useError } from "../state/useError";
 import { useScreenLoader } from "../state/useScreenLoader";
 import { useUser } from "../state/useUser";
-import _ from "lodash";
+import filter from "lodash/filter";
+import find from "lodash/find";
+import first from "lodash/first";
+import includes from "lodash/includes";
 import React from "react";
 import Form from "react-bootstrap/Form";
 import { useNavigate, useSearchParams } from "react-router-dom";
@@ -35,17 +38,17 @@ export default function FundingAddFunds() {
     pickData: true,
   });
   const instrument =
-    _.find(user.usablePaymentInstruments, {
+    find(user.usablePaymentInstruments, {
       id: Number(params.get("id")),
       paymentMethodType: params.get("paymentMethodType"),
     }) || {};
   const screenLoader = useScreenLoader();
   // Once we have multiple currencies, we'll need to figure out how to select one
-  const validCurrencies = _.filter(currenciesResp.items, (c) =>
-    _.includes(c.paymentMethodTypes, instrument.paymentMethodType)
+  const validCurrencies = filter(currenciesResp.items, (c) =>
+    includes(c.paymentMethodTypes, instrument.paymentMethodType)
   );
   const selectedCurrency =
-    _.find(validCurrencies, { code: selectedCurrencyCode }) || _.first(validCurrencies);
+    find(validCurrencies, { code: selectedCurrencyCode }) || first(validCurrencies);
 
   const handleFormSubmit = (e) => {
     e.preventDefault();

@@ -1,4 +1,4 @@
-import _ from "lodash";
+import isNumber from "lodash/isNumber";
 import React from "react";
 import Button from "react-bootstrap/Button";
 
@@ -16,7 +16,7 @@ export default function CurrencyNumpad({ onCentsChange, whole, currency, cents }
       <div className="display-4 mb-3 ms-3 me-3 d-flex flex-row justify-content-end">
         <div>{currency.symbol}</div>
         <div className="text-end" style={{ minWidth: 60 }}>
-          {_.isNumber(cents) && cents / currency.centsInDollar}
+          {isNumber(cents) && cents / currency.centsInDollar}
         </div>
       </div>
       <Numpad cents={cents} currency={currency} onNumberClick={handleChange} />

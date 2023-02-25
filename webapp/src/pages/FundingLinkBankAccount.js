@@ -13,7 +13,7 @@ import useHashToggle from "../shared/react/useHashToggle";
 import { extractErrorCode, useError } from "../state/useError";
 import { useScreenLoader } from "../state/useScreenLoader";
 import { useUser } from "../state/useUser";
-import _ from "lodash";
+import isEmpty from "lodash/isEmpty";
 import React from "react";
 import Button from "react-bootstrap/Button";
 import Col from "react-bootstrap/Col";
@@ -29,7 +29,7 @@ export default function FundingLinkBankAccount() {
   const returnTo = params.get("returnTo");
   return (
     <>
-      {!_.isEmpty(submitSuccessful) ? (
+      {!isEmpty(submitSuccessful) ? (
         <Success {...submitSuccessful} returnTo={returnTo} />
       ) : (
         <LinkBankAccount

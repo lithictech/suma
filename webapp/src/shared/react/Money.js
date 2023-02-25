@@ -1,5 +1,6 @@
 import { Logger } from "../logger";
-import _ from "lodash";
+import get from "lodash/get";
+import merge from "lodash/merge";
 import PropTypes from "prop-types";
 import React from "react";
 
@@ -9,7 +10,7 @@ const optionedFormatters = {
   USD: (opts) =>
     new Intl.NumberFormat(
       "en-US",
-      _.merge(
+      merge(
         {
           style: "currency",
           currency: "USD",
@@ -52,7 +53,7 @@ Money.propTypes = {
 
 export const formatMoney = (entity, options) => {
   let formatterOpts = null;
-  if (_.get(options, "rounded")) {
+  if (get(options, "rounded")) {
     const hasCents = entity.cents % 100 > 0;
     formatterOpts = { minimumFractionDigits: hasCents ? 2 : 0 };
   }

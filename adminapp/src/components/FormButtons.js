@@ -1,7 +1,7 @@
 import LoadingButton from "@mui/lab/LoadingButton";
 import { Stack } from "@mui/material";
 import Button from "@mui/material/Button";
-import _ from "lodash";
+import merge from "lodash/merge";
 import React from "react";
 
 const FormButtons = ({ primaryProps, secondaryProps, back, loading }) => {
@@ -11,7 +11,7 @@ const FormButtons = ({ primaryProps, secondaryProps, back, loading }) => {
       onClick: () => window.history.back(),
     };
   }
-  primaryProps = _.merge({ children: "Submit", variant: "contained" }, primaryProps);
+  primaryProps = merge({ children: "Submit", variant: "contained" }, primaryProps);
   return (
     <Stack direction="row" spacing={2} justifyContent="flex-end">
       {secondaryProps && <Button {...secondaryProps} />}

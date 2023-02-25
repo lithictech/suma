@@ -7,7 +7,7 @@ import { md, t } from "../localization";
 import { extractErrorCode, useError } from "../state/useError";
 import { useScreenLoader } from "../state/useScreenLoader";
 import { useUser } from "../state/useUser";
-import _ from "lodash";
+import isEmpty from "lodash/isEmpty";
 import React from "react";
 import Button from "react-bootstrap/Button";
 import { useSearchParams } from "react-router-dom";
@@ -41,7 +41,7 @@ export default function FundingAddCard() {
 
   return (
     <>
-      {!_.isEmpty(submitSuccessful) ? (
+      {!isEmpty(submitSuccessful) ? (
         <Success {...submitSuccessful} returnTo={returnTo} />
       ) : (
         <>

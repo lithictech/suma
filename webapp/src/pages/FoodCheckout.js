@@ -14,7 +14,11 @@ import { useOffering } from "../state/useOffering";
 import { useScreenLoader } from "../state/useScreenLoader";
 import { LayoutContainer } from "../state/withLayout";
 import clsx from "clsx";
-import _ from "lodash";
+import find from "lodash/find";
+import isEmpty from "lodash/isEmpty";
+import map from "lodash/map";
+import merge from "lodash/merge";
+import sum from "lodash/sum";
 import React from "react";
 import Button from "react-bootstrap/Button";
 import Col from "react-bootstrap/Col";
@@ -50,11 +54,11 @@ export default function FoodCheckout() {
   });
 
   const [checkoutMutations, setCheckoutMutations] = React.useState({});
-  const checkout = _.merge({}, fetchedCheckout, checkoutMutations);
+  const checkout = merge({}, fetchedCheckout, checkoutMutations);
 
   const [manuallySelectedInstrument, setManuallySelectedInstrument] =
     React.useState(null);
-  const instrumentFromUrl = _.find(checkout.availablePaymentInstruments, {
+  const instrumentFromUrl = find(checkout.availablePaymentInstruments, {
     id: Number(searchParams.get("instrumentId")),
     paymentMethodType: searchParams.get("instrumentType"),
   });
@@ -69,7 +73,7 @@ export default function FoodCheckout() {
       </LayoutContainer>
     );
   }
-  if (loading || _.isEmpty(checkout)) {
+  if (loading || isEmpty(checkout)) {
     return <PageLoader />;
   }
   function handleSubmit(e) {
@@ -145,13 +149,13 @@ function CheckoutPayment({
   return (
     <Col xs={12} className="mb-3">
       <h5>{t("food:payment_title")}</h5>
-      {_.isEmpty(checkout.availablePaymentInstruments) && (
+      {isEmpty(checkout.availablePaymentInstruments) && (
         <Stack gap={2}>
           <span className="small text-secondary">{t("food:link_new_payment")}</span>
           {addPaymentLinks}
         </Stack>
       )}
-      {!_.isEmpty(checkout.availablePaymentInstruments) && (
+      {!isEmpty(checkout.availablePaymentInstruments) && (
         <Stack gap={2}>
           <Form>
             <Form.Group>
@@ -203,7 +207,7 @@ function PaymentLabel({ institution, last4, name }) {
   name = institution.name.toLowerCase() === "unknown" ? name : institution.name;
   return (
     <>
-      {!_.isEmpty(institution.logoSrc) && (
+      {!isEmpty(institution.logoSrc) && (
         <img
           className="me-2"
           style={{ width: "28px" }}
@@ -259,7 +263,7 @@ function CheckoutItems({ checkout }) {
 
 function OrderSummary({ checkout, chosenInstrument, onSubmit }) {
   const canPlace = checkout.fulfillmentOptionId && chosenInstrument;
-  const itemCount = _.sum(_.map(checkout.items, "quantity"));
+  const itemCount = sum(map(checkout.items, "quantity"));
   return (
     <Col xs={12} className="mb-3">
       <h5>{t("food:order_summary_title")}</h5>
