@@ -41,7 +41,7 @@ Promise.prototype.then = function then(onResolve, onReject) {
         return Promise.reject(new CancelationError())
       }
       if (onResolve) {
-        return onResolve(value);
+        return onResolve.call(null, value);
       }
     },
     (reason) => {
@@ -49,7 +49,7 @@ Promise.prototype.then = function then(onResolve, onReject) {
         return Promise.reject(new CancelationError())
       }
       if (onReject) {
-        return onReject(reason)
+        return onReject.call(null, reason)
       }
     })
   return setParent(this, setId(child))
