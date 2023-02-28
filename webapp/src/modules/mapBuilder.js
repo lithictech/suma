@@ -8,9 +8,12 @@ import "leaflet.markercluster/dist/MarkerCluster.css";
 import "leaflet.markercluster/dist/leaflet.markercluster";
 import "leaflet/dist/leaflet.css";
 import isUndefined from "lodash/isUndefined";
+import uniqueId from "lodash/uniqueId";
+import {PromiseNursery} from "../shared/bluejay";
 
 export default class MapBuilder {
   constructor(host) {
+    this.nursery = new PromiseNursery();
     this.mapHost = host;
     this._l = leaflet;
     this._minZoom = 13;
@@ -151,10 +154,11 @@ export default class MapBuilder {
   }
 
   getAndUpdateScooters(bounds, mcg) {
-    api.getMobilityMap(boundsToParams(bounds)).then((r) => {
+    const p = api.getMobilityMap(boundsToParams(bounds)).then((r) => {
       this.updateScooters({ ...r, bounds, mcg });
       this.stopRefreshTimer().startRefreshTimer(r.data.refresh, bounds, mcg);
     });
+    this.nursery.watchPromise(p);
   }
 
   updateScooters({ data, bounds, mcg }) {
@@ -210,7 +214,7 @@ export default class MapBuilder {
   }
 
   loadGeoFences(bounds) {
-    return api.getMobilityMapFeatures(boundsToParams(bounds)).then((d) => {
+    const p = api.getMobilityMapFeatures(boundsToParams(bounds)).then((d) => {
       d.data.restrictions.forEach((r) => {
         this.createRestrictedArea({
           latlngs: r.polygon,
@@ -218,6 +222,7 @@ export default class MapBuilder {
         });
       });
     });
+    this.nursery.watchPromise(p);
   }
 
   createRestrictedArea({ latlngs, restriction }) {
@@ -480,6 +485,7 @@ export default class MapBuilder {
   }
 
   unmount() {
+    this.nursery.cancelPromises();
     this.stopRefreshTimer();
     this._map.stopLocate();
     this._map.off();

@@ -34,10 +34,14 @@ function setId(p) {
   return p;
 }
 
+Promise.prototype.getId = function getId() {
+  return this.__id;
+}
+
 Promise.prototype.then = function then(onResolve, onReject) {
   const child = this._then(
     (value) => {
-      if (this.isCanceled()) {
+      if (child.isCanceled()) {
         return Promise.reject(new CancelationError())
       }
       if (onResolve) {
@@ -45,7 +49,7 @@ Promise.prototype.then = function then(onResolve, onReject) {
       }
     },
     (reason) => {
-      if (this.isCanceled()) {
+      if (child.isCanceled()) {
         return Promise.reject(new CancelationError())
       }
       if (onReject) {
@@ -59,10 +63,17 @@ Promise.prototype.catch = function catch_(onReject) {
   return this.then(null, onReject)
 }
 
+Promise.prototype.cancel = function cancel() {
+  log('canceling', this.getId())
+  this.__canceled = true;
+}
+
 Promise.prototype.isCanceled = function isCanceled() {
   let parent = this;
+  log('isCanceled:check', this.getId())
   while (parent) {
     if (parent.__canceled) {
+      log('isCanceled:earlyout', this.getId())
       return true;
     }
     parent = parent.__parent;
@@ -102,25 +113,21 @@ Promise.prototype.delayOr = function delayOr(durationMs, options) {
 
 Promise.prototype.tap = function tap(callback) {
   return this.then(async function(value) {
-    await callback(value)
+    await callback.call(null, value)
     return value;
   })
 }
 
 Promise.prototype.tapCatch = function tapCatch(callback) {
   return this.catch(async function (reason) {
-    await callback(reason);
-    return Promise.reject(...arguments)
+    await callback.call(null, reason);
+    return Promise.reject(reason)
   })
 };
 
-Promise.prototype.tapTap = function tapTap(f) {
-  return this.tap(f).tapCatch(f);
+Promise.prototype.tapTap = function tapTap(callback) {
+  return this.tap(callback).tapCatch(callback);
 };
-
-Promise.prototype.cancel = function cancel() {
-  this.__canceled = true;
-}
 
 window.addEventListener('unhandledrejection', (event) => {
   if (event.reason instanceof IgnorablePromiseError) {
@@ -129,3 +136,31 @@ window.addEventListener('unhandledrejection', (event) => {
   }
   console.error('Unhandled rejection:', event.reason)
 });
+
+function log() {
+  // console.log.apply(console, [...arguments])
+}
+
+
+export class PromiseNursery {
+  constructor() {
+    this.promises = {};
+  }
+
+  watchPromise(p) {
+    if (!p.getId) {
+      console.warn('PromiseNursery requires a Promise#getId method')
+      return;
+    }
+    const pid = p.getId();
+    p.finally(() => {
+      delete this.promises[pid];
+    })
+    this.promises[pid] = p
+  }
+
+  cancelPromises() {
+    Object.values(this.promises).forEach((p) => p.cancel())
+    this.promises = {};
+  }
+}
