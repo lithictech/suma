@@ -19,7 +19,7 @@ import ProductDetailPage from "./pages/ProductDetailPage";
 import ProductListPage from "./pages/ProductListPage";
 import SignInPage from "./pages/SignInPage";
 import applyHocs from "./shared/applyHocs";
-import bluejay from "./shared/bluejay";
+import "./shared/bluejay";
 import Redirect from "./shared/react/Redirect";
 import renderComponent from "./shared/react/renderComponent";
 import withLayout from "./state/withLayout";
@@ -30,8 +30,6 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { SnackbarProvider } from "notistack";
 import React from "react";
 import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
-
-window.Promise = bluejay.Promise;
 
 export default function App() {
   return (

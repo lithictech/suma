@@ -34,7 +34,7 @@ import Start from "./pages/Start";
 import Styleguide from "./pages/Styleguide";
 import Utilities from "./pages/Utilities";
 import applyHocs from "./shared/applyHocs";
-import bluejay from "./shared/bluejay";
+import "./shared/bluejay";
 import Redirect from "./shared/react/Redirect";
 import renderComponent from "./shared/react/renderComponent";
 import { BackendGlobalsProvider } from "./state/useBackendGlobals";
@@ -49,8 +49,6 @@ import withProps from "./state/withProps";
 import React from "react";
 import { HelmetProvider } from "react-helmet-async";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-
-window.Promise = bluejay.Promise;
 
 export default function App() {
   return (

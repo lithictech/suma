@@ -1,3 +1,4 @@
+
 export class Logger {
   constructor(name, options) {
     const { tags, context } = options || {};
@@ -20,39 +21,37 @@ export class Logger {
     });
   }
 
-  debug(...msg) {
-    console.debug(...this._buildConsoleMsg(msg));
+  debug(event, fields) {
+    console.debug(...this._buildConsoleMsg(event, fields));
   }
 
-  info(...msg) {
-    console.log(...this._buildConsoleMsg(msg));
+  info(event, fields) {
+    console.log(...this._buildConsoleMsg(event, fields));
   }
 
-  error(...msg) {
-    console.error(...this._buildConsoleMsg(msg));
-    // TODO: Report error somehow
-    // captureMessage(msg.map(stringifyNonString).join(", "), ctx);
+  error(event, fields) {
+    console.error(...this._buildConsoleMsg(event, fields));
   }
 
-  _buildConsoleMsg(msgArr) {
-    const arr = [`[${this.name}]`, ...msgArr.map(stringifyNonString)];
+  exception(event, exc, fields) {
+    console.error(...this._buildConsoleMsg(event, fields));
+  }
+
+  _buildConsoleMsg(event, fields) {
+    fields = fields || {};
+    const arr = [`[${this.name}]`, event];
     // Tags first because context can be big
     Object.entries(this._tags).forEach(([k, v]) =>
       arr.push(`${k}=${stringifyNonString(v)}`)
     );
-    Object.entries(this._context).forEach(([k, v]) =>
-      arr.push(`${k}=${stringifyNonString(v)}`)
-    );
+    const ctx = { ...this._context, ...fields };
+    Object.entries(ctx).forEach(([k, v]) => arr.push(`${k}=${stringifyNonString(v)}`));
     return arr;
-  }
-
-  exception(exc) {
-    console.error(exc);
-    // TODO: Report error somehow
-    // captureException(exc, ctx);
   }
 }
 
 function stringifyNonString(o) {
   return typeof o === "string" ? o : JSON.stringify(o);
 }
+
+window.SumaLogger = Logger;

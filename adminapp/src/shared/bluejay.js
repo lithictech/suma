@@ -1,4 +1,80 @@
-import Promise from "bluebird";
+import uniqueId from "lodash/uniqueId";
+
+const Promise = window.Promise;
+
+Promise.prototype._then = Promise.prototype.then;
+
+class CancelationError extends Error {}
+
+/**
+ * Whenever we create a promise, set the promise that spawned it.
+ * @param parent {Promise}
+ * @param child {Promise}
+ * @returns {Promise} child
+ */
+function setParent(parent, child) {
+  if (parent.__id === child.__id || child.__parent) {
+    return child;
+  }
+  child.__parent = parent;
+  return child;
+}
+
+/**
+ * Whenever we create a promise, set an ID so we can uniquely identify it.
+ * @param {Promise} p
+ * @returns {Promise}
+ */
+function setId(p) {
+  p.__id = p.__id || uniqueId('p')
+  return p;
+}
+
+Promise.prototype.then = function then(onResolve, onReject) {
+  const child = this._then(
+    (value) => {
+      if (this.isCanceled()) {
+        return Promise.reject(new CancelationError())
+      }
+      if (onResolve) {
+        return onResolve(value);
+      }
+    },
+    (reason) => {
+      if (this.isCanceled()) {
+        return Promise.reject(new CancelationError())
+      }
+      if (onReject) {
+        return onReject(reason)
+      }
+  })
+  return setParent(this, setId(child))
+}
+
+Promise.prototype.catch = function catch_(onReject) {
+  return this.then(null, onReject)
+}
+
+Promise.prototype.isCanceled = function isCanceled() {
+  let parent = this;
+  while (parent) {
+    if (parent.__canceled) {
+      return true;
+    }
+    parent = parent.__parent;
+  }
+  return false;
+}
+
+Promise.delay = function delay(durationMs, value) {
+  return new Promise((resolve) => {
+    setTimeout(() => resolve(value), durationMs);
+  })
+}
+
+Promise.prototype.delay = function delay(durationMs) {
+  return this.then((value) => Promise.delay(durationMs, value));
+}
 
 Promise.delayOr = function delayOr(durationMs, otherPromise, options) {
   options = options || { buffer: 100 };
@@ -20,14 +96,32 @@ Promise.prototype.delayOr = function delayOr(durationMs, options) {
   return Promise.delayOr(durationMs, this, options);
 };
 
+Promise.prototype.tap = function tap(callback) {
+  return this.then(async function(value) {
+    await callback(value)
+    return value;
+  })
+}
+
+Promise.prototype.tapCatch = function tapCatch(callback) {
+  return this.catch(async function (reason) {
+    await callback(reason);
+    return Promise.reject(...arguments)
+  })
+};
+
 Promise.prototype.tapTap = function tapTap(f) {
   return this.tap(f).tapCatch(f);
 };
 
-Promise.config({
-  cancellation: true,
-  longStackTraces: process.env.REACT_APP_DEBUG,
-  warnings: process.env.REACT_APP_DEBUG,
-});
+Promise.prototype.cancel = function cancel() {
+  this.__canceled = true;
+}
 
-export default Promise;
+window.addEventListener('unhandledrejection', (event) => {
+  if (event.reason instanceof CancelationError) {
+    event.preventDefault();
+    return;
+  }
+  console.error('Unhandled rejection:', event.reason)
+});
