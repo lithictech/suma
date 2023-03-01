@@ -137,9 +137,12 @@ RSpec.describe Suma::API::Me, :db do
       expect(last_response).to have_status(200)
       post "/v1/me/waitlist", feature: "utilities"
       expect(last_response).to have_status(200)
+      post "/v1/me/waitlist", feature: "mobility"
+      expect(last_response).to have_status(200)
       expect(keyvalues_ds.all).to contain_exactly(
         include(key: "waitlist_food"),
         include(key: "waitlist_utilities"),
+        include(key: "waitlist_mobility"),
       )
     end
 

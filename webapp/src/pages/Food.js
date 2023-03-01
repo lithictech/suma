@@ -1,10 +1,11 @@
 import api from "../api";
-import foodImage from "../assets/images/onboarding-food.jpg";
+import foodHeaderImage from "../assets/images/onboarding-food.jpg";
 import ErrorScreen from "../components/ErrorScreen";
 import PageLoader from "../components/PageLoader";
 import RLink from "../components/RLink";
 import SumaImage from "../components/SumaImage";
-import { t } from "../localization";
+import WaitingListPage from "../components/WaitingListPage";
+import { mdp, t } from "../localization";
 import { dayjs } from "../modules/dayConfig";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
 import { LayoutContainer } from "../state/withLayout";
@@ -33,11 +34,27 @@ export default function Food() {
   }
   return (
     <>
-      <img src={foodImage} alt={t("food:title")} className="thin-header-image" />
-      <LayoutContainer top gutters>
-        <h2>{t("food:title")}</h2>
-        <p className="text-secondary">{t("food:intro")}</p>
-      </LayoutContainer>
+      {isEmpty(foodOfferings?.items) ? (
+        <WaitingListPage
+          feature="food"
+          imgSrc={foodHeaderImage}
+          imgAlt="Food Market"
+          title={t("food:title")}
+          text={mdp("food:intro")}
+        />
+      ) : (
+        <>
+          <img
+            src={foodHeaderImage}
+            alt={t("food:title")}
+            className="thin-header-image"
+          />
+          <LayoutContainer top gutters>
+            <h2>{t("food:title")}</h2>
+            <p>{t("food:intro")}</p>
+          </LayoutContainer>
+        </>
+      )}
       <hr className="my-4" />
       {offeringsLoading && <PageLoader relative />}
       <LayoutContainer gutters>
