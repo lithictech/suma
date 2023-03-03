@@ -59,7 +59,7 @@ RSpec.describe Suma::I18n, :db do
   end
 
   describe "ensure_english_interpolation_values" do
-    it "returns if " do
+    it "ensures dynamic values are not changed" do
       spanish_dynamic_str = "Precio es {{precio}}."
       english_dynamic_str = "English {{price}}."
       expect(described_class.ensure_english_interpolation_values(spanish_dynamic_str, english_dynamic_str,

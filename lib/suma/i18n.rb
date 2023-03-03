@@ -125,9 +125,9 @@ module Suma::I18n
     return memo
   end
 
-  # Ensures a string with English interpolation value (surrounded by
+  # Ensures a string with interpolation/dynamic value (surrounded by
   # curly brackets) is not changed to a different value, for example:
-  # A string with Spanish interpolation value `{{precio}}` would be reset
+  # A Spanish string with interpolation value `{{precio}}` would be reset
   # to `{{price}}`.
   # @return [String]
   def self.ensure_english_interpolation_values(str, other_str, lng="English")
@@ -200,8 +200,7 @@ module Suma::I18n
         tip[pathpart] ||= {}
         tip = tip[pathpart]
       end
-      str = self.ensure_english_interpolation_values(str, other_str, base_language)
-      tip[pathparts.last] = str unless str.blank?
+      tip[pathparts.last] = self.ensure_english_interpolation_values(str, other_str, base_language) unless str.blank?
     end
     so = self.sort_hash(hsh)
     File.write(self.strings_path(locale.code), JSON.pretty_generate(so))
