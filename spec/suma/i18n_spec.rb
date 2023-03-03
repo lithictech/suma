@@ -61,9 +61,21 @@ RSpec.describe Suma::I18n, :db do
   describe "ensure_english_interpolation_values" do
     it "ensures dynamic values are not changed" do
       spanish_dynamic_str = "Precio es {{precio}}."
-      english_dynamic_str = "English {{price}}."
+      english_dynamic_str = "Price is {{price}}."
       expect(described_class.ensure_english_interpolation_values(spanish_dynamic_str, english_dynamic_str,
                                                                  "English",)).to eq("Precio es {{price}}.")
+    end
+    it "ensures multiple dynamic values are not changed" do
+      spanish_dynamic_str = "Precio es {{precio}}. Salvaste {{suma}}."
+      english_dynamic_str = "Price is {{price}}. You saved {{amount}}."
+      expect(described_class.ensure_english_interpolation_values(spanish_dynamic_str, english_dynamic_str,
+                                                                 "English",)).to eq("Precio es {{price}}. Salvaste {{amount}}.")
+    end
+    it "ensures strings starting with dynamic values are not changed" do
+      spanish_dynamic_str = "{{precio, sumaCurrency}} x {{cantidad}}"
+      english_dynamic_str = "{{price, sumaCurrency}} x {{quantity}}"
+      expect(described_class.ensure_english_interpolation_values(spanish_dynamic_str, english_dynamic_str,
+                                                                 "English",)).to eq(english_dynamic_str)
     end
   end
 
