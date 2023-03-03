@@ -125,6 +125,30 @@ module Suma::I18n
     return memo
   end
 
+  # Ensures a string with English interpolation value (surrounded by
+  # curly brackets) is not changed to a different value, for example:
+  # A string with Spanish interpolation value `{{precio}}` would be reset
+  # to `{{price}}`.
+  # @return [String]
+  def self.ensure_english_interpolation_values(str, other_str, lng="English")
+    return str unless str.include?("{{") && other_str.include?("{{") && lng === "English"
+    if str.scan("{{").length === 1
+      dynamic_str_val = str.split("{{").last.split("}}").first
+      other_dynamic_str_val = other_str.split("{{").last.split("}}").first
+      return str.sub(dynamic_str_val, other_dynamic_str_val)
+    end
+    # For more than one interpolations per `str`, iterate each,
+    # replace interpolation with English value and return entire string
+    dynamic_strings_concat = ""
+    str.split("{{").each_with_index do |int_string, idx|
+      next unless int_string.include?("}}")
+      dynamic_str_val = int_string.split("}}").first
+      other_dynamic_str_val = other_str.split("{{")[idx].split("}}").first
+      dynamic_strings_concat += "{{#{int_string.sub(dynamic_str_val, other_dynamic_str_val)}"
+    end
+    return str.split("{{").first + dynamic_strings_concat
+  end
+
   def self.prepare_csv(locale_code, output:)
     base_locale = SUPPORTED_LOCALES.fetch(self.base_locale_code)
     locale = SUPPORTED_LOCALES.fetch(locale_code)
@@ -162,12 +186,12 @@ module Suma::I18n
 
   def self.import_csv(input:)
     lines = CSV.new(input).to_a
-    _key_header, language, _base_language = lines.shift
+    _key_header, language, base_language = lines.shift
     locale = SUPPORTED_LOCALES.values.find { |loc| loc.language == language } or
       raise "#{language} is not supported"
     hsh = {}
     lines.each do |line|
-      key, str, _ = line
+      key, str, other_str = line
       next self.import_message(locale.code, key, str) if key.start_with?(MESSAGE_PREFIX)
       # Add intermediate hashes along the path, then set the value at the end
       tip = hsh
@@ -176,6 +200,7 @@ module Suma::I18n
         tip[pathpart] ||= {}
         tip = tip[pathpart]
       end
+      str = self.ensure_english_interpolation_values(str, other_str, base_language)
       tip[pathparts.last] = str unless str.blank?
     end
     so = self.sort_hash(hsh)

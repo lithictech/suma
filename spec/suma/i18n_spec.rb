@@ -58,6 +58,15 @@ RSpec.describe Suma::I18n, :db do
     end
   end
 
+  describe "ensure_english_interpolation_values" do
+    it "returns if " do
+      spanish_dynamic_str = "Precio es {{precio}}."
+      english_dynamic_str = "English {{price}}."
+      expect(described_class.ensure_english_interpolation_values(spanish_dynamic_str, english_dynamic_str,
+                                                                 "English",)).to eq("Precio es {{price}}.")
+    end
+  end
+
   describe "prepare_csv" do
     it "merges lang-specific data to base data and writes" do
       File.write(described_class.strings_path("en"), {hi: "Hi", greeting: {bye: "Bye"}}.to_json)
