@@ -46,7 +46,7 @@ class Suma::API::Me < Suma::API::V1
     end
 
     params do
-      requires :feature, type: String, values: ["food", "utilities"]
+      requires :feature, type: String, values: ["food", "utilities", "mobility"]
     end
     post :waitlist do
       member = current_member

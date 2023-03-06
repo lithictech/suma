@@ -39,6 +39,7 @@ const config = {
     "pk_test_51LxdhVLelvCURGkUPdGCTS68je1xL8wWi0faS8hiDHbxxEPhmfcAX7EBDzMFTkb3N1Y0tB5vziqtsifKp6PQ4roM005GI4h8T3",
   devCardDetails: parseIfSet("REACT_APP_DEV_CARD_DETAILS"),
   devBankAccountDetails: parseIfSet("REACT_APP_DEV_BANK_ACCOUNT_DETAILS"),
+  featureMobility: env.REACT_APP_FEATURE_MOBILITY,
 };
 
 initSentry({ dsn: config.sentryDsn, debug: config.debug, application: "web-app" });
