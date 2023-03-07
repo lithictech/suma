@@ -58,36 +58,6 @@ RSpec.describe Suma::I18n, :db do
     end
   end
 
-  describe "ensure_english_interpolation_values" do
-    it "ensures dynamic values are not changed" do
-      spanish_dynamic_str = "Precio es {{precio}}."
-      english_dynamic_str = "Price is {{price}}."
-      expect(described_class.ensure_english_interpolation_values(
-               spanish_dynamic_str,
-               english_dynamic_str,
-               "English",
-             )).to eq("Precio es {{price}}.")
-    end
-    it "ensures multiple dynamic values are not changed" do
-      spanish_dynamic_str = "Precio es {{precio}}. Salvaste {{cantidad}}."
-      english_dynamic_str = "Price is {{price}}. You saved {{amount}}."
-      expect(described_class.ensure_english_interpolation_values(
-               spanish_dynamic_str,
-               english_dynamic_str,
-               "English",
-             )).to eq("Precio es {{price}}. Salvaste {{amount}}.")
-    end
-    it "ensures strings starting with dynamic values are not changed" do
-      spanish_dynamic_str = "{{precio, sumaCurrency}} x {{cantidad}}"
-      english_dynamic_str = "{{price, sumaCurrency}} x {{quantity}}"
-      expect(described_class.ensure_english_interpolation_values(
-               spanish_dynamic_str,
-               english_dynamic_str,
-               "English",
-             )).to eq(english_dynamic_str)
-    end
-  end
-
   describe "prepare_csv" do
     it "merges lang-specific data to base data and writes" do
       File.write(described_class.strings_path("en"), {hi: "Hi", greeting: {bye: "Bye"}}.to_json)
@@ -130,6 +100,21 @@ RSpec.describe Suma::I18n, :db do
         {
           "greeting": {
             "bye": "Adiós"
+          }
+        }
+      J
+    end
+
+    it "ensures interpolation values are unchanged and removes whitespaces" do
+      path = described_class.strings_path("es")
+      File.write(path, '{"x":1}') # Make sure it gets blown away
+      csv = "Key,Spanish,English\n" \
+            "food:price_times_quantity,{{ precio }} x {{ cantidad }},{{price}} x {{quantity}}"
+      described_class.import_csv(input: csv)
+      expect(File.read(path)).to eq(<<~J.rstrip)
+        {
+          "food": {
+            "price_times_quantity": "{{price}} x {{quantity}}"
           }
         }
       J
