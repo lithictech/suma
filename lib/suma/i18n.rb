@@ -130,21 +130,13 @@ module Suma::I18n
   # A Spanish string with interpolation value `{{precio}}` would be reset
   # to `{{price}}`.
   # @return [String]
-  def self.ensure_english_interpolation_values(str, other_str, lng="English")
-    return str unless str.include?("{{") && other_str.include?("{{") && lng === "English"
-    if str.scan("{{").length === 1
-      dynamic_str_val = str.split("{{").last.split("}}").first
-      other_dynamic_str_val = other_str.split("{{").last.split("}}").first
-      return str.sub(dynamic_str_val, other_dynamic_str_val)
-    end
-    # For more than one interpolations per `str`, iterate each,
-    # replace interpolation with English value and return entire string
+  def self.ensure_english_interpolation_values(str, other_str, base_lng="English")
+    return str unless base_lng === "English"
     dynamic_strings_concat = ""
-    str.split("{{").each_with_index do |int_string, idx|
-      next unless int_string.include?("}}")
+    str.split("{{").drop(1).each_with_index do |int_string, idx|
       dynamic_str_val = int_string.split("}}").first
-      other_dynamic_str_val = other_str.split("{{")[idx].split("}}").first
-      dynamic_strings_concat += "{{#{int_string.sub(dynamic_str_val, other_dynamic_str_val)}"
+      other_dynamic_str_val = other_str.split("{{")[idx + 1].split("}}").first.strip
+      dynamic_strings_concat += "{{" + int_string.sub(dynamic_str_val, other_dynamic_str_val)
     end
     return str.split("{{").first + dynamic_strings_concat
   end
