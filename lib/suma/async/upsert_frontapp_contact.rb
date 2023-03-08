@@ -5,7 +5,7 @@ require "amigo/job"
 class Suma::Async::UpsertFrontappContact
   extend Amigo::Job
 
-  on "suma.member.*"
+  on(/suma\.member\.+(created|updated)$/)
 
   def _perform(event)
     member = self.lookup_model(Suma::Member, event)

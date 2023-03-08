@@ -259,7 +259,7 @@ GEM
       connection_pool (>= 2.2.5, < 3)
       rack (~> 2.0)
       redis (>= 4.5.0, < 5)
-    sidekiq-amigo (1.4.0)
+    sidekiq-amigo (1.5.0)
       sidekiq (~> 6)
       sidekiq-cron (~> 1)
     sidekiq-cron (1.9.1)
@@ -360,7 +360,7 @@ DEPENDENCIES
   sequel-tstzrange-fields
   sequel_pg
   sidekiq
-  sidekiq-amigo (>= 1.4.0)
+  sidekiq-amigo (>= 1.5.0)
   sidekiq-cron
   sidekiq-unique-jobs
   state_machines
