@@ -1,5 +1,5 @@
-// sumaDynamicEnv is set by Rack::DynamicConfigWriter
-const env = { ...process.env, ...(window.sumaDynamicEnv || {}) };
+// See webapp config.js for explanation.
+const env = window.sumaDynamicEnv || process.env;
 
 // If the API host is configured, use that.
 // If it's '/', assume we mean 'the same server',
