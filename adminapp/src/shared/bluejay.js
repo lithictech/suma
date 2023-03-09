@@ -1,3 +1,4 @@
+import config from "../config";
 import Promise from "bluebird";
 
 Promise.delayOr = function delayOr(durationMs, otherPromise, options) {
@@ -26,8 +27,8 @@ Promise.prototype.tapTap = function tapTap(f) {
 
 Promise.config({
   cancellation: true,
-  longStackTraces: process.env.REACT_APP_DEBUG,
-  warnings: process.env.REACT_APP_DEBUG,
+  longStackTraces: config.debug,
+  warnings: config.debug,
 });
 
 export default Promise;

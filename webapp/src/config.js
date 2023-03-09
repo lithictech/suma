@@ -1,7 +1,12 @@
 import { initSentry } from "./shared/sentry";
 
-// sumaDynamicEnv is set by Rack::DynamicConfigWriter
-const env = { ...process.env, ...(window.sumaDynamicEnv || {}) };
+// When we are serving from the Ruby backend, only use the config it provides.
+// Otherwise we could accidentally template in values at build time (on staging)
+// and carry them forward to runtime in a different env (on prod).
+// We won't have sumaDynamicEnv set (by Rack::DynamicConfigWriter) when running
+// the development server of React during local dev,
+// or if this app is built and deployed separately as a static app.
+const env = window.sumaDynamicEnv || process.env;
 
 // If the API host is configured, use that.
 // If it's '/', assume we mean 'the same server',
