@@ -125,20 +125,35 @@ module Suma::I18n
     return memo
   end
 
-  # Ensures a string with interpolation/dynamic value (surrounded by
-  # curly brackets) is not changed to a different value, for example:
-  # A Spanish string with interpolation value `{{precio}}` would be reset
-  # to `{{price}}`.
+  # Ensures that both strings interpolation values match
+  # and remove whitespace. Strings should have same amount of
+  # dynamic values. Values can be in reversed order e.g.
+  #   es string: `{{xyz}} es {{ zyx }}`
+  #   en string: `{{ zyx }} en {{xyz}}`
+  #   Returns es string: `{{xyz}} es {{zyx}}`
   # @return [String]
-  def self.ensure_english_interpolation_values(str, other_str, base_lng="English")
+  def self.ensure_interpolation_values_match(str, other_str, base_lng="English")
     return str unless base_lng === "English"
-    dynamic_strings_concat = ""
-    str.split("{{").drop(1).each_with_index do |int_string, idx|
-      dynamic_str_val = int_string.split("}}").first
-      other_dynamic_str_val = other_str.split("{{")[idx + 1].split("}}").first.strip
-      dynamic_strings_concat += "{{" + int_string.sub(dynamic_str_val, other_dynamic_str_val)
+    if (sc = str.scan("{{").count) != (osc = other_str.scan("{{").count)
+      raise InvalidInput, "Dynamic value count should be #{osc} but is #{sc}:\n#{str}"
     end
-    return str.split("{{").first + dynamic_strings_concat
+    dynamic_vals = []
+    other_dynamic_vals = []
+    str.split("{{").drop(1).each_with_index do |int_string, idx|
+      dynamic_vals << int_string.split("}}").first
+      other_dynamic_vals << other_str.split("{{")[idx + 1].split("}}").first.strip
+    end
+    return str if dynamic_vals.empty?
+
+    dynamic_vals.each do |val|
+      vs = val.strip
+      unless other_dynamic_vals.include?(vs)
+        raise InvalidInput,
+              "#{vs} does not match dynamic values: #{other_dynamic_vals.join(', ')}"
+      end
+      str = str.sub(val, vs)
+    end
+    return str
   end
 
   def self.prepare_csv(locale_code, output:)
@@ -192,7 +207,7 @@ module Suma::I18n
         tip[pathpart] ||= {}
         tip = tip[pathpart]
       end
-      tip[pathparts.last] = self.ensure_english_interpolation_values(str, other_str, base_language) unless str.blank?
+      tip[pathparts.last] = self.ensure_interpolation_values_match(str, other_str, base_language) unless str.blank?
     end
     so = self.sort_hash(hsh)
     File.write(self.strings_path(locale.code), JSON.pretty_generate(so))
