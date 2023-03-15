@@ -44,6 +44,9 @@ export default function AddToHomescreen() {
 
   React.useEffect(
     function initEventHandlers() {
+      if (!isCompatible) {
+        return;
+      }
       setTimeout(() => {
         navigator.serviceWorker
           .getRegistration(config.apiHost)
@@ -55,12 +58,7 @@ export default function AddToHomescreen() {
           .catch((_e) => setHasRegistration(false));
       }, 100);
 
-      if (
-        !isCompatible ||
-        !shouldPrompt ||
-        !hasRegistration ||
-        !addToHomescreenButtonRef.current
-      ) {
+      if (!shouldPrompt || !hasRegistration || !addToHomescreenButtonRef.current) {
         return;
       }
       window.addEventListener("beforeinstallprompt", (event) => {
@@ -113,7 +111,6 @@ const isCompatible = (() => {
   if (!supportsInstall) {
     return false;
   }
-  const userAgent = window.navigator.userAgent;
   const isWebAppIOS = window.navigator.standalone === true;
   if (isWebAppIOS) {
     return false;
@@ -128,6 +125,6 @@ const isCompatible = (() => {
     return false;
   }
   const isPhone = window.outerWidth < 700; // Good enough for us since we are mobile-only
-  const isTablet = /ipad/i.test(userAgent);
+  const isTablet = /ipad/i.test(window.navigator.userAgent);
   return isPhone || isTablet;
 })();
