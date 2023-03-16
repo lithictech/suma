@@ -53,9 +53,8 @@ class Suma::Mobility::RestrictedArea < Suma::Postgres::Model(:mobility_restricte
 
   def validate
     super
-    if self.polygon.nil?
-      self.validates_not_null(:polygon)
-    elsif self.polygon.length < 4
+    return unless self.polygon.present?
+    if self.polygon.length < 4
       self.errors.add(:polygon, "requires at least 4 coordinates (closed triangle)")
     elsif self.polygon.first != self.polygon.last
       self.errors.add(:polygon, "first and last coordinate must match (closed polygon)")
@@ -73,7 +72,7 @@ end
 #  ne_lng      | numeric                  | NOT NULL
 #  sw_lat      | numeric                  | NOT NULL
 #  sw_lng      | numeric                  | NOT NULL
-#  polygon     | numeric[]                | NOT NULL
+#  polygon     | numeric[]                |
 #  restriction | text                     |
 # Indexes:
 #  mobility_restricted_areas_pkey | PRIMARY KEY btree (id)
