@@ -4,20 +4,20 @@ require "suma/mobility/gbfs_fake_client"
 require "suma/mobility/gbfs_geofencing_zone"
 
 RSpec.describe Suma::Mobility::GbfsGeofencingZone, :db do
-  let(:geofencing_json) do
+  let(:fake_geofencing_json) do
     {
-      last_updated: 1_640_887_163,
-      ttl: 60,
-      version: "2.3-RC2",
-      data: {
-        geofencing_zones: {
-          type: "FeatureCollection",
-          features: [
+      "last_updated" => 1_640_887_163,
+      "ttl" => 60,
+      "version" => "2.3-RC2",
+      "data" => {
+        "geofencing_zones" => {
+          "type" => "FeatureCollection",
+          "features" => [
             {
-              type: "Feature",
-              geometry: {
-                type: "MultiPolygon",
-                coordinates: [
+              "type" => "Feature",
+              "geometry" => {
+                "type" => "MultiPolygon",
+                "coordinates" => [
                   [
                     [
                       [
@@ -68,20 +68,20 @@ RSpec.describe Suma::Mobility::GbfsGeofencingZone, :db do
                   ],
                 ],
               },
-              properties: {
-                name: "NE 24th/NE Knott",
-                start: 1_593_878_400,
-                end: 1_593_907_260,
-                rules: [
+              "properties" => {
+                "name" => "NE 24th/NE Knott",
+                "start" => 1_593_878_400,
+                "end" => 1_593_907_260,
+                "rules" => [
                   {
-                    vehicle_type_id: [
+                    "vehicle_type_id" => [
                       "moped1",
                       "car1",
                     ],
-                    ride_allowed: false,
-                    ride_through_allowed: true,
-                    maximum_speed_kph: 10,
-                    station_parking: true,
+                    "ride_allowed" => false,
+                    "ride_through_allowed" => true,
+                    "maximum_speed_kph" => 10,
+                    "station_parking" => true,
                   },
                 ],
               },
@@ -94,7 +94,7 @@ RSpec.describe Suma::Mobility::GbfsGeofencingZone, :db do
 
   describe "gbfs geofencing" do
     it "gets and upserts geofencing zones" do
-      client = Suma::Mobility::GbfsFakeClient.new(fake_geofencing_json: geofencing_json)
+      client = Suma::Mobility::GbfsFakeClient.new(fake_geofencing_json:)
       z = described_class.new(client:)
       z.process
       expect(Suma::Mobility::RestrictedArea.all).to contain_exactly(
