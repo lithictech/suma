@@ -9,6 +9,8 @@ module Suma::Fixtures::MobilityRestrictedAreas
   fixtured_class Suma::Mobility::RestrictedArea
 
   base :mobility_restricted_area do
+    self.unique_id ||= Faker::Address.street_address
+    self.title ||= self.unique_id
     self.restriction ||= Suma::Mobility::RestrictedArea::RESTRICTIONS.sample
     self.polygon ||= [
       # Right triangle

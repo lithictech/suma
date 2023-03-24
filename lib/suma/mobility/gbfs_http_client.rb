@@ -15,4 +15,12 @@ class Suma::Mobility::GbfsHttpClient
     )
     return response.parsed_response
   end
+
+  def fetch_vehicle_status
+    response = Suma::Http.get(
+      self.api_host.to_s + "/vehicle_status.json",
+      headers: {"Authorization" => "Bearer #{self.api_key}"},
+    )
+    return response.parsed_response
+  end
 end
