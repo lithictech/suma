@@ -12,6 +12,7 @@ module Suma::Fixtures::MobilityVehicles
   base :mobility_vehicle do
     self.lat ||= Faker::Number.between(from: -90.0, to: 90.0)
     self.lng ||= Faker::Number.between(from: -180.0, to: 180.0)
+    self.battery_level ||= Faker::Number.between(from: 10, to: 100)
     self.vehicle_type ||= ["ebike", "escooter"].sample
     self.vehicle_id ||= SecureRandom.hex(8)
   end
