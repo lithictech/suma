@@ -3,11 +3,10 @@
 require "mobility/gbfs_http_client"
 
 require "suma/http"
-require "suma/method_utilities"
 
 module Suma::Lime
   include Appydays::Configurable
-  extend Suma::MethodUtilities
+  include Appydays::Loggable
 
   UNCONFIGURED_AUTH_TOKEN = "get-from-lime-add-to-env"
 
@@ -30,4 +29,26 @@ module Suma::Lime
     Suma::Mobility::GbfsGeofencingZone.new(client:).process
     Suma::Mobility::GbfsVehicleStatus.new(client:).sync_all("lime")
   end
+
+  def self.api_headers
+    return {
+      "Authorization" => "Bearer #{self.api_key}",
+    }
+  end
+
+  def self.start_trip(vehicle_id:, user_id:, lat:, lng:)
+    # Make API call and return `resp.parsed_response`
+    response = Suma::Http.post(
+      self.api_root + "/trips/start",
+      {vehicle_id:},
+      headers: self.headers,
+      logger: self.logger,
+    )
+    return response.parsed_response
+  end
+
+  def self.complete_trip = raise NotImplementedError
+  def self.get_trip = raise NotImplementedError
+  def self.get_vehcile = raise NotImplementedError
+  def self.create_user = raise NotImplementedError
 end

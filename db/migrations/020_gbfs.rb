@@ -19,5 +19,9 @@ Sequel.migration do
       add_column :constraints, :jsonb, null: true, default: "[]"
       drop_column :sync_url
     end
+
+    alter_table(:mobility_trips) do
+      add_column :external_trip_id, :text, null: true, unique: true
+    end
   end
 end

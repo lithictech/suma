@@ -37,9 +37,13 @@ class Suma::Mobility::RestrictedArea < Suma::Postgres::Model(:mobility_restricte
     }
   end
 
-  def polygon_numeric
-    return self.polygon.map do |c|
-      c.map(&:to_f)
+  def multipolygon_numeric
+    return self.multipolygon.map do |polygon|
+      polygon.map do |ring|
+        ring.map do |(x, y)|
+          [x.to_f, y.to_f]
+        end
+      end
     end
   end
 

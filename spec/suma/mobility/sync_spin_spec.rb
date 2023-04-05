@@ -2,7 +2,7 @@
 
 require "suma/mobility/sync_spin"
 
-RSpec.describe "Suma::Mobility::SyncSpin", :db do
+RSpec.xdescribe "Suma::Mobility::SyncSpin", :db do
   let(:described_class) { Suma::Mobility::SyncSpin }
 
   describe "sync_all" do

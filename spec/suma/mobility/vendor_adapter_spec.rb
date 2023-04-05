@@ -20,7 +20,9 @@ RSpec.describe Suma::Mobility::VendorAdapter, :db do
     let(:ad) { Suma::Mobility::FakeVendorAdapter.new }
 
     it "can start and stop" do
-      expect(ad.begin_trip(nil, nil)).to be_a(described_class::BeginTripResult)
+      trip = Suma::Mobility::Trip.new
+      expect(ad.begin_trip(trip)).to be_a(described_class::BeginTripResult)
+      expect(trip).to have_attributes(external_trip_id: be_present)
       trip = Suma::Fixtures.mobility_trip.ongoing.create
       expect(ad.end_trip(trip)).to be_a(described_class::EndTripResult)
     end

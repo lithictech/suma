@@ -162,7 +162,7 @@ class Suma::API::Mobility < Suma::API::V1
 
   class MobilityMapRestrictionEntity < BaseEntity
     expose :restriction
-    expose :polygon_numeric, as: :polygon
+    expose :multipolygon_numeric, as: :multipolygon
     expose :bounds_numeric, as: :bounds
   end
 

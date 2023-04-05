@@ -34,7 +34,8 @@ class Suma::Mobility::Trip < Suma::Postgres::Model(:mobility_trips)
   def self.start_trip(member:, vehicle_id:, vendor_service:, rate:, lat:, lng:, at: Time.now)
     member.read_only_mode!
     self.db.transaction(savepoint: true) do
-      return self.create(
+      # noinspection RubyArgCount
+      trip = self.new(
         member:,
         vehicle_id:,
         vendor_service:,
@@ -43,6 +44,8 @@ class Suma::Mobility::Trip < Suma::Postgres::Model(:mobility_trips)
         begin_lng: lng,
         began_at: at,
       )
+      vendor_service.mobility_adapter.begin_trip(trip)
+      trip.save_changes
     rescue Sequel::UniqueConstraintViolation => e
       raise OngoingTrip, "member #{member.id} is already in a trip" if
         e.to_s.include?("one_active_ride_per_member")

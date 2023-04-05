@@ -38,7 +38,7 @@ module Suma::Fixtures::MobilityRestrictedAreas
   end
 
   decorator :latlng_bounds do |sw:, ne:|
-    self.multipolygon = Suma::Mobility::Gbfs::Geo(
+    self.multipolygon = Suma::Mobility::Gbfs::Geo.simple_multipolygon(
       [
         [sw[0], sw[1]], # SW
         [ne[0], sw[1]], # NW
