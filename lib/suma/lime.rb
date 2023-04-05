@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "mobility/gbfs_http_client"
+require "suma/mobility/gbfs"
 
 require "suma/http"
 
@@ -21,27 +21,43 @@ module Suma::Lime
   end
 
   def self.gbfs_http_client
-    return GbfsHttpClient.new(api_host: self.api_root, auth_token: self.auth_token)
+    return Gbfs::HttpClient.new(api_host: self.api_root, auth_token: self.auth_token)
   end
 
   def self.gbfs_sync_all
     client =  self.gbfs_http_client
-    Suma::Mobility::GbfsGeofencingZone.new(client:).process
-    Suma::Mobility::GbfsVehicleStatus.new(client:).sync_all("lime")
+    Suma::Mobility::Gbfs::GeofencingZone.new(client:).process
+    Suma::Mobility::Gbfs::VehicleStatus.new(client:).sync_all("lime")
   end
 
   def self.api_headers
     return {
-      "Authorization" => "Bearer #{self.api_key}",
+      "Authorization" => "Bearer #{self.auth_token}",
     }
   end
 
-  def self.start_trip(vehicle_id:, user_id:, lat:, lng:)
-    # Make API call and return `resp.parsed_response`
+  def self.start_trip(vehicle_id:, user_id:, lat:, lng:, rate_plan_id:, timestamp:)
     response = Suma::Http.post(
       self.api_root + "/trips/start",
-      {vehicle_id:},
-      headers: self.headers,
+      {
+        vehicle_id:,
+        user_id:,
+        location: {
+          type: "Feature",
+          geometry: {
+            type: "Point",
+            coordinates: [
+              lng,
+              lat,
+            ],
+          },
+          properties: {
+            timestamp:,
+          },
+        },
+        rate_plan_id:,
+      },
+      headers: self.api_headers,
       logger: self.logger,
     )
     return response.parsed_response
