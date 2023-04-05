@@ -14,5 +14,10 @@ Sequel.migration do
       add_column :battery_level, :smallint, null: true
       add_constraint(:valid_battery_level, Sequel.lit("battery_level >= 0 AND battery_level <= 100"))
     end
+
+    alter_table(:vendor_services) do
+      add_column :constraints, :jsonb, null: true, default: "[]"
+      drop_column :sync_url
+    end
   end
 end

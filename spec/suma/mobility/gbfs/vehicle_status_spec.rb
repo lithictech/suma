@@ -102,18 +102,42 @@ RSpec.describe Suma::Mobility::Gbfs::VehicleStatus, :db do
   end
 
   describe "gbfs vehicles" do
-    # TODO: mock stub request
-    it "gets and upserts vehicle statuses" do
-      client = Suma::Mobility::Gbfs::FakeClient.new(fake_vehicle_status_json:, fake_vehicle_types_json:)
-      vendor = Suma::Fixtures.vendor(name: "Lime").create
-      vs = Suma::Fixtures.vendor_service(vendor:).mobility
-      vs.create(sync_url: "https://data.lime.bike/api/partners/v2/gbfs_transit/vehicle_status.json")
+    let(:vs) { Suma::Fixtures.vendor_service.mobility.create }
 
-      z = described_class.new(client:, vendor_slug: vendor.slug)
+    it "gets and upserts vehicles" do
+      client = Suma::Mobility::Gbfs::FakeClient.new(fake_vehicle_status_json:, fake_vehicle_types_json:)
+      z = described_class.new(client:, vendor: vs.vendor)
       z.sync_all
       expect(Suma::Mobility::Vehicle.all).to contain_exactly(
-        have_attributes(vehicle_id: "973a5c94-c288-4a2b-afa6-de8aeb6ae2e5"),
+        have_attributes(
+          vehicle_id: "973a5c94-c288-4a2b-afa6-de8aeb6ae2e5",
+          vendor_service: be === vs,
+          battery_level: 33,
+        ),
+        have_attributes(
+          vehicle_id: "973a5c94-c288-4a2b-afa6-de8aeb6ae1e7",
+          vendor_service: be === vs,
+          battery_level: 55,
+        ),
+      )
+    end
+
+    it "limits vehicles to those matching the vendor service constraint" do
+      vs.update(constraints: [{"max_range_meters" => 12_000.0}])
+      client = Suma::Mobility::Gbfs::FakeClient.new(fake_vehicle_status_json:, fake_vehicle_types_json:)
+      described_class.new(client:, vendor: vs.vendor).sync_all
+      expect(Suma::Mobility::Vehicle.all).to contain_exactly(
         have_attributes(vehicle_id: "973a5c94-c288-4a2b-afa6-de8aeb6ae1e7"),
+      )
+    end
+
+    it "uses a nil battery level if range is not defined" do
+      fake_vehicle_types_json["data"]["vehicle_types"].each { |vt| vt.delete("max_range_meters") }
+      client = Suma::Mobility::Gbfs::FakeClient.new(fake_vehicle_status_json:, fake_vehicle_types_json:)
+      described_class.new(client:, vendor: vs.vendor).sync_all
+      expect(Suma::Mobility::Vehicle.all).to contain_exactly(
+        have_attributes(vehicle_id: "973a5c94-c288-4a2b-afa6-de8aeb6ae2e5", battery_level: nil),
+        have_attributes(vehicle_id: "973a5c94-c288-4a2b-afa6-de8aeb6ae1e7", battery_level: nil),
       )
     end
   end
