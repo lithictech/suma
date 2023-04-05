@@ -1,16 +1,16 @@
 # frozen_string_literal: true
 
 class Suma::Mobility::GbfsHttpClient
-  attr_reader :api_host, :api_key
+  attr_reader :api_host, :auth_token
 
-  def initialize(api_host:, api_key:)
+  def initialize(api_host:, auth_token:)
     @api_host = api_host
-    @api_key = api_key
+    @auth_token = auth_token
   end
 
   def headers
     return {
-      "Authorization" => "Bearer #{self.api_key}",
+      "Authorization" => "Bearer #{self.auth_token}",
     }
   end
 
