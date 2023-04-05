@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
-require "suma/mobility/gbfs_fake_client"
-require "suma/mobility/gbfs_geofencing_zone"
+require "suma/mobility/gbfs"
+require "suma/mobility/gbfs/fake_client"
 
-RSpec.describe Suma::Mobility::GbfsGeofencingZone, :db do
+RSpec.describe Suma::Mobility::Gbfs::GeofencingZone, :db do
   let(:fake_geofencing_json) do
     {
       "last_updated" => 1_640_887_163,
@@ -94,9 +94,9 @@ RSpec.describe Suma::Mobility::GbfsGeofencingZone, :db do
 
   describe "gbfs geofencing" do
     it "gets and upserts geofencing zones" do
-      client = Suma::Mobility::GbfsFakeClient.new(fake_geofencing_json:)
+      client = Suma::Mobility::Gbfs::FakeClient.new(fake_geofencing_json:)
       z = described_class.new(client:)
-      z.process
+      z.sync_all
       expect(Suma::Mobility::RestrictedArea.all).to contain_exactly(
         have_attributes(
           title: "NE 24th/NE Knott",

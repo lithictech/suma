@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class Suma::Mobility::GbfsFakeClient
+class Suma::Mobility::Gbfs::FakeClient
   def initialize(fake_geofencing_json: nil, fake_vehicle_status_json: nil, fake_vehicle_types_json: nil)
     @fake_geofencing_json = fake_geofencing_json
     @fake_vehicle_status_json = fake_vehicle_status_json

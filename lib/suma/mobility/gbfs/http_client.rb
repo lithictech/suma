@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class Suma::Mobility::GbfsHttpClient
+class Suma::Mobility::Gbfs::HttpClient
   attr_reader :api_host, :auth_token
 
   def initialize(api_host:, auth_token:)

@@ -1,13 +1,13 @@
 # frozen_string_literal: true
 
-class Suma::Mobility::GbfsGeofencingZone
+class Suma::Mobility::Gbfs::GeofencingZone
   attr_reader :client
 
   def initialize(client:)
     @client = client
   end
 
-  def process
+  def sync_all
     fetched = self.client.fetch_geofencing_zones
     fetched["data"]["geofencing_zones"]["features"].each do |f|
       coords = f["geometry"]["coordinates"].each do |polyline|

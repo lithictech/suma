@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
-require "suma/mobility/gbfs_fake_client"
-require "suma/mobility/gbfs_vehicle_status"
+require "suma/mobility/gbfs"
+require "suma/mobility/gbfs/fake_client"
 
-RSpec.describe Suma::Mobility::GbfsVehicleStatus, :db do
+RSpec.describe Suma::Mobility::Gbfs::VehicleStatus, :db do
   let(:fake_vehicle_status_json) do
     {
       "last_updated" => 1_640_887_163,
@@ -104,13 +104,13 @@ RSpec.describe Suma::Mobility::GbfsVehicleStatus, :db do
   describe "gbfs vehicles" do
     # TODO: mock stub request
     it "gets and upserts vehicle statuses" do
-      client = Suma::Mobility::GbfsFakeClient.new(fake_vehicle_status_json:, fake_vehicle_types_json:)
+      client = Suma::Mobility::Gbfs::FakeClient.new(fake_vehicle_status_json:, fake_vehicle_types_json:)
       vendor = Suma::Fixtures.vendor(name: "Lime").create
       vs = Suma::Fixtures.vendor_service(vendor:).mobility
       vs.create(sync_url: "https://data.lime.bike/api/partners/v2/gbfs_transit/vehicle_status.json")
 
-      z = described_class.new(client:)
-      z.sync_all(vendor.slug)
+      z = described_class.new(client:, vendor_slug: vendor.slug)
+      z.sync_all
       expect(Suma::Mobility::Vehicle.all).to contain_exactly(
         have_attributes(vehicle_id: "973a5c94-c288-4a2b-afa6-de8aeb6ae2e5"),
         have_attributes(vehicle_id: "973a5c94-c288-4a2b-afa6-de8aeb6ae1e7"),

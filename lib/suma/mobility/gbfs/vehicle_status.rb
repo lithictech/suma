@@ -1,14 +1,16 @@
 # frozen_string_literal: true
 
-class Suma::Mobility::GbfsVehicleStatus
-  attr_reader :client
+class Suma::Mobility::Gbfs::VehicleStatus
+  attr_reader :client, :vendor_slug
 
-  def initialize(client:)
+  def initialize(client:, vendor_slug:)
     @client = client
+    @vendor_slug = vendor_slug
   end
 
-  def sync_all(vendor_slug)
-    (v = Suma::Vendor[slug: vendor_slug]) or raise "#{vendor_slug} partner does not exist, cannot run this code"
+  def sync_all
+    (v = Suma::Vendor[slug: self.vendor_slug]) or
+      raise Suma::InvalidPrecondition, "Suma::Vendor[slug: #{self.vendor_slug}] partner must exist in order to sync"
     services = v.services_dataset.mobility
     total = 0
     services.each do |vs|
@@ -25,7 +27,7 @@ class Suma::Mobility::GbfsVehicleStatus
     rows = []
     resp["data"]["vehicles"].each do |vehicle|
       next unless (vehicle_type = valid_types.find { |vt| vt["vehicle_type_id"] === vehicle["vehicle_type_id"] })
-      battery_level = (vehicle["current_range_meters"] * 100.0 / vehicle_type["max_range_meters"]).round
+      battery_level = ((vehicle["current_range_meters"].to_f / vehicle_type["max_range_meters"]) * 100).round
       row = {
         lat: vehicle["lat"],
         lng: vehicle["lon"],

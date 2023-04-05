@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "suma/mobility"
+require "suma/mobility/gbfs"
 require "suma/postgres/model"
 
 class Suma::Mobility::RestrictedArea < Suma::Postgres::Model(:mobility_restricted_areas)
@@ -43,21 +44,33 @@ class Suma::Mobility::RestrictedArea < Suma::Postgres::Model(:mobility_restricte
   end
 
   def before_save
-    if self.polygon.present?
-      lats, lngs = self.polygon.transpose
-      self.sw_lat, self.ne_lat = lats.minmax
-      self.sw_lng, self.ne_lng = lngs.minmax
+    # Set the bounding box to the outside boundaries of the polygons
+    self.sw_lat = nil
+    self.ne_lat = nil
+    self.sw_lng = nil
+    self.ne_lng = nil
+    self.multipolygon&.each do |polygon|
+      polygon.each do |pointring|
+        lats, lngs = pointring.transpose
+        sw_lat, ne_lat = lats.minmax
+        sw_lng, ne_lng = lngs.minmax
+        self.sw_lat = [self.sw_lat, sw_lat].compact.min
+        self.ne_lat = [self.ne_lat, ne_lat].compact.max
+        self.sw_lng = [self.sw_lng, sw_lng].compact.min
+        self.ne_lng = [self.ne_lng, ne_lng].compact.max
+      end
     end
     super
   end
 
   def validate
     super
-    return unless self.polygon.present?
-    if self.polygon.length < 4
-      self.errors.add(:polygon, "requires at least 4 coordinates (closed triangle)")
-    elsif self.polygon.first != self.polygon.last
-      self.errors.add(:polygon, "first and last coordinate must match (closed polygon)")
+    polygon = self.multipolygon.first&.first
+    return unless polygon.present?
+    if polygon.length < 4
+      self.errors.add(:multipolygon, "requires at least 4 coordinates (closed triangle)")
+    elsif polygon.first != polygon.last
+      self.errors.add(:multipolygon, "first and last coordinate must match (closed polygon)")
     end
   end
 end
