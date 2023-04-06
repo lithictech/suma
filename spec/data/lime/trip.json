@@ -1,0 +1,74 @@
+{
+  "id": "fa03adb1-7755-429f-a80f-ad6836a960ee",
+  "type": "trip",
+  "user_id": "3499c3de-a923-4466-addb-99aee8c55186",
+  "status": "started",
+  "start_location": {
+    "type": "Feature",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [
+        122.4194,
+        37.7749
+      ]
+    },
+    "properties": {
+      "timestamp": 1528768782421
+    }
+  },
+  "started_at": "2021-01-19T10:15:20:12Z",
+  "updated_at": "2021-01-19T10:17:20:12Z",
+  "route": {
+    "type": "FeatureCollection",
+    "features": [
+      {
+        "type": "Feature",
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            122.4194,
+            37.7749
+          ]
+        },
+        "properties": {
+          "timestamp": 1528768782421
+        }
+      },
+      {
+        "type": "Feature",
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            122.4164,
+            37.7749
+          ]
+        },
+        "properties": {
+          "timestamp": 1528768792421
+        }
+      }
+    ]
+  },
+  "duration_seconds": 5,
+  "distance_meters": 50,
+  "rate_plan_id": "e94d66ab-775e-44af-a8a5-1caa9ece92de",
+  "vehicle_id": "TICTM376DA74U",
+  "vehicle_attributes": {
+    "battery_percentage": 10
+  },
+  "completed_at": "2021-01-19T10:17:20:12Z",
+  "end_location": {
+    "type": "Feature",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [
+        122.4194,
+        37.7749
+      ]
+    },
+    "properties": {
+      "timestamp": 1528768782421
+    }
+  },
+  "image_upload_url": "http://image-upload-url"
+}

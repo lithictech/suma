@@ -1,0 +1,11 @@
+{
+  "data": {
+    "id": "3499c3de-a923-4466-addb-99aee8c55186",
+    "type": "user",
+    "phone_number": "14155555555",
+    "email_address": "members+123@sumamembers.org",
+    "driver_license_verified": false,
+    "updated_at": "2021-01-19T10:17:20:12Z",
+    "created_at": "2021-01-19T10:17:20:12Z"
+  }
+}
