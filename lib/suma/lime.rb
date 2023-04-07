@@ -25,7 +25,7 @@ module Suma::Lime
     org = Suma::Organization.find_or_create(name: "Lime")
     vendor = Suma::Vendor.find_or_create(slug: "Lime", organization: org)
     Suma::Mobility::Gbfs::GeofencingZone.new(client:).sync_all
-    Suma::Mobility::Gbfs::VehicleStatus.new(client:, vendor:).sync_all
+    Suma::Mobility::Gbfs::FreeBikeStatus.new(client:, vendor:).sync_all
   end
 
   def self.api_headers

@@ -17,7 +17,6 @@ RSpec.describe Suma::Mobility::LimeVendorAdapter, :db do
         member:,
         vehicle_id: "TICTM376DA74U",
         began_at: Time.at(1_528_768_782.421),
-        external_trip_id: "",
       )
       email_address = "members+#{member.id}@sumamembers.org"
       req1 = stub_request(:post, "https://fake-lime-api.com/users").

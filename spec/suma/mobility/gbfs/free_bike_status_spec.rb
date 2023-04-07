@@ -3,40 +3,42 @@
 require "suma/mobility/gbfs"
 require "suma/mobility/gbfs/fake_client"
 
-RSpec.describe Suma::Mobility::Gbfs::VehicleStatus, :db do
-  let(:fake_vehicle_status_json) do
+RSpec.describe Suma::Mobility::Gbfs::FreeBikeStatus, :db do
+  let(:fake_free_bike_status_json) do
     {
       "last_updated" => 1_640_887_163,
       "ttl" => 0,
-      "version" => "3.0",
+      "version" => "2.3",
       "data" => {
-        "vehicles" => [
+        "bikes" => [
           {
-            "vehicle_id" => "973a5c94-c288-4a2b-afa6-de8aeb6ae2e5",
+            "bike_id" => "973a5c94-c288-4a2b-afa6-de8aeb6ae2e5",
             "last_reported" => 1_609_866_109,
-            "lat" => 12.345678,
-            "lon" => 56.789012,
+            "lat" => 12.34,
+            "lon" => 56.78,
             "is_reserved" => false,
             "is_disabled" => false,
             "vehicle_type_id" => "abc123",
             "current_range_meters" => 4000.0,
+            "station_id" => "86",
             "rental_uris" => {
-              "android" => "https://www.example.com/app?vehicle_id=973a5c94-c288-4a2b-afa6-de8aeb6ae2e5&platform=android&",
-              "ios" => "https://www.example.com/app?vehicle_id=973a5c94-c288-4a2b-afa6-de8aeb6ae2e5&platform=ios",
+              "android" => "https://www.example.com/app?bike_id=973a5c94-c288-4a2b-afa6-de8aeb6ae2e5&platform=android&",
+              "ios" => "https://www.example.com/app?bike_id=973a5c94-c288-4a2b-afa6-de8aeb6ae2e5&platform=ios",
             },
           },
           {
-            "vehicle_id" => "973a5c94-c288-4a2b-afa6-de8aeb6ae1e7",
-            "last_reported" => 1_609_866_301,
-            "lat" => 12.345611,
-            "lon" => 56.789001,
+            "bike_id" => "973a5c94-c288-4a2b-afa6-de8aeb6ae1e7",
+            "last_reported" => 1_609_866_100,
+            "lat" => 12.34,
+            "lon" => 56.78,
             "is_reserved" => false,
             "is_disabled" => false,
             "vehicle_type_id" => "abc234",
             "current_range_meters" => 6543.0,
+            "station_id" => "86",
             "rental_uris" => {
-              "android" => "https://www.example.com/app?vehicle_id=973a5c94-c288-4a2b-afa6-de8aeb6ae1e7&platform=android&",
-              "ios" => "https://www.example.com/app?vehicle_id=973a5c94-c288-4a2b-afa6-de8aeb6ae1e7&platform=ios",
+              "android" => "https://www.example.com/app?bike_id=973a5c94-c288-4a2b-afa6-de8aeb6ae2e5&platform=android&",
+              "ios" => "https://www.example.com/app?bike_id=973a5c94-c288-4a2b-afa6-de8aeb6ae2e5&platform=ios",
             },
           },
         ],
@@ -52,7 +54,8 @@ RSpec.describe Suma::Mobility::Gbfs::VehicleStatus, :db do
         "vehicle_types" => [
           {
             "vehicle_type_id" => "abc123",
-            "form_factor" => "scooter_standing",
+            # Docs must have a typo "scooted_seated", so referring to "scooter_seated"
+            "form_factor" => "scooter_seated",
             "propulsion_type" => "electric",
             "name" => [
               {
@@ -105,7 +108,7 @@ RSpec.describe Suma::Mobility::Gbfs::VehicleStatus, :db do
     let(:vs) { Suma::Fixtures.vendor_service.mobility.create }
 
     it "gets and upserts vehicles" do
-      client = Suma::Mobility::Gbfs::FakeClient.new(fake_vehicle_status_json:, fake_vehicle_types_json:)
+      client = Suma::Mobility::Gbfs::FakeClient.new(fake_free_bike_status_json:, fake_vehicle_types_json:)
       z = described_class.new(client:, vendor: vs.vendor)
       z.sync_all
       expect(Suma::Mobility::Vehicle.all).to contain_exactly(
@@ -123,8 +126,8 @@ RSpec.describe Suma::Mobility::Gbfs::VehicleStatus, :db do
     end
 
     it "limits vehicles to those matching the vendor service constraint" do
-      vs.update(constraints: [{"max_range_meters" => 12_000.0}])
-      client = Suma::Mobility::Gbfs::FakeClient.new(fake_vehicle_status_json:, fake_vehicle_types_json:)
+      vs.update(constraints: [{"form_factor" => "scooter_standing"}])
+      client = Suma::Mobility::Gbfs::FakeClient.new(fake_free_bike_status_json:, fake_vehicle_types_json:)
       described_class.new(client:, vendor: vs.vendor).sync_all
       expect(Suma::Mobility::Vehicle.all).to contain_exactly(
         have_attributes(vehicle_id: "973a5c94-c288-4a2b-afa6-de8aeb6ae1e7"),
@@ -133,7 +136,7 @@ RSpec.describe Suma::Mobility::Gbfs::VehicleStatus, :db do
 
     it "uses a nil battery level if range is not defined" do
       fake_vehicle_types_json["data"]["vehicle_types"].each { |vt| vt.delete("max_range_meters") }
-      client = Suma::Mobility::Gbfs::FakeClient.new(fake_vehicle_status_json:, fake_vehicle_types_json:)
+      client = Suma::Mobility::Gbfs::FakeClient.new(fake_free_bike_status_json:, fake_vehicle_types_json:)
       described_class.new(client:, vendor: vs.vendor).sync_all
       expect(Suma::Mobility::Vehicle.all).to contain_exactly(
         have_attributes(vehicle_id: "973a5c94-c288-4a2b-afa6-de8aeb6ae2e5", battery_level: nil),

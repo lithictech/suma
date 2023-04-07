@@ -22,9 +22,9 @@ class Suma::Mobility::Gbfs::HttpClient
     return response.parsed_response
   end
 
-  def fetch_vehicle_status
+  def fetch_free_bike_status
     response = Suma::Http.get(
-      self.api_host.to_s + "/vehicle_status.json",
+      self.api_host.to_s + "/free_bike_status.json",
       headers: self.headers,
     )
     return response.parsed_response
