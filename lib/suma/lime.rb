@@ -22,8 +22,10 @@ module Suma::Lime
 
   def self.gbfs_sync_all
     client =  self.gbfs_http_client
-    Suma::Mobility::Gbfs::GeofencingZone.new(client:).process
-    Suma::Mobility::Gbfs::VehicleStatus.new(client:).sync_all("lime")
+    org = Suma::Organization.find_or_create(name: "Lime")
+    vendor = Suma::Vendor.find_or_create(slug: "Lime", organization: org)
+    Suma::Mobility::Gbfs::GeofencingZone.new(client:).sync_all
+    Suma::Mobility::Gbfs::VehicleStatus.new(client:, vendor:).sync_all
   end
 
   def self.api_headers
@@ -91,5 +93,16 @@ module Suma::Lime
       logger: self.logger,
     )
     return response.parsed_response
+  end
+
+  def self.ensure_member_registered(member)
+    return member.lime_user_id if member.lime_user_id.present?
+    user = Suma::Lime.create_user(
+      phone_number: member.phone,
+      email_address: "members+#{member.id}@sumamembers.org",
+      driver_license_verified: false,
+    )
+    member.update(lime_user_id: user.dig("data", "id"))
+    return member.lime_user_id
   end
 end

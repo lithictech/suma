@@ -23,5 +23,9 @@ Sequel.migration do
     alter_table(:mobility_trips) do
       add_column :external_trip_id, :text, null: true, unique: true
     end
+
+    alter_table(:members) do
+      add_column :lime_user_id, :text, null: false, default: ""
+    end
   end
 end
