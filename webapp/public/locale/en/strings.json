@@ -228,6 +228,7 @@
     "end_trip": "End Trip",
     "intro": "Ride with enhanced privacy and better prices.",
     "locate_me": "Locate me",
+    "mobility_free_of_charge": "Free of charge.",
     "mobility_start_and_per_minute": "Start fee is {{surchargeCents, sumaCurrency}}, then {{unitCents, sumaCurrency}} per minute",
     "reserve_scooter": "Reserve Scooter",
     "title": "Mobility Services",
