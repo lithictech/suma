@@ -5,8 +5,7 @@ require "suma/lime"
 RSpec.describe Suma::Lime, :db do
   describe "API wrappers" do
     it "begins a trip" do
-      timestamp = Time.now
-      req = stub_request(:post, "https://fake-lime-api.com/trips/start").
+      req = stub_request(:post, "https://external-api.lime.bike/api/maas/v1/partner/trips/start").
         with(
           headers: {"Authorization" => "Bearer get-from-lime-add-to-env"},
           body: {vehicle_id: "TICTM376DA74U",
@@ -14,9 +13,9 @@ RSpec.describe Suma::Lime, :db do
                  location: {
                    type: "Feature",
                    geometry: {type: "Point", coordinates: [122.4194, 37.7749]},
-                   properties: {timestamp:},
+                   properties: {timestamp: 1_528_768_782_421},
                  },
-                 rate_plan_id: "d01ffe12-8d72-4ea2-928f-899774caed2f",}.to_json,
+                 rate_plan_id: "placeholder",}.to_json,
         ).to_return(fixture_response("lime/start_trip"))
 
       resp = described_class.start_trip(
@@ -24,8 +23,8 @@ RSpec.describe Suma::Lime, :db do
         user_id: "d01ffe12-8d72-4ea2-928f-899774caed2f",
         lat: 37.7749,
         lng: 122.4194,
-        rate_plan_id: "d01ffe12-8d72-4ea2-928f-899774caed2f",
-        timestamp:,
+        rate_plan_id: "placeholder",
+        at: Time.at(1_528_768_782.421),
       )
       expect(req).to have_been_made
       expect(resp).to include("data" => hash_including(
@@ -35,33 +34,31 @@ RSpec.describe Suma::Lime, :db do
     end
 
     it "completes a trip" do
-      trip_id = "fa03adb1-7755-429f-a80f-ad6836a960ee"
-      timestamp = "2022-01-19T10:17:20:12Z"
-      req = stub_request(:post, "https://fake-lime-api.com/trips/#{trip_id}/complete").
+      req = stub_request(:post, "https://external-api.lime.bike/api/maas/v1/partner/trips/mytrip/complete").
         with(
           headers: {"Authorization" => "Bearer get-from-lime-add-to-env"},
           body: {
             location: {
               type: "Feature",
               geometry: {type: "Point", coordinates: [122.4194, 37.7749]},
-              properties: {timestamp:},
+              properties: {timestamp: 1_681_238_802_098},
             },
           }.to_json,
         ).to_return(fixture_response("lime/complete_trip"))
 
       resp = described_class.complete_trip(
-        trip_id:,
+        trip_id: "mytrip",
         lat: 37.7749,
         lng: 122.4194,
-        timestamp:,
+        at: Time.at(1_681_238_802.098),
       )
       expect(req).to have_been_made
-      expect(resp).to include("data" => hash_including("id" => trip_id, "completed_at" => timestamp))
+      expect(resp).to include("data" => hash_including("completed_at" => "2022-01-19T10:17:20:12Z"))
     end
 
     it "gets trip details" do
       trip_id = "fa03adb1-7755-429f-a80f-ad6836a960ee"
-      req = stub_request(:get, "https://fake-lime-api.com/trips/#{trip_id}").
+      req = stub_request(:get, "https://external-api.lime.bike/api/maas/v1/partner/trips/#{trip_id}").
         with(headers: {"Authorization" => "Bearer get-from-lime-add-to-env"}).
         to_return(fixture_response("lime/trip"))
 
@@ -73,7 +70,7 @@ RSpec.describe Suma::Lime, :db do
     it "gets vehicle details" do
       qr_code_json = {sn: "PAD2V"}
       license_plate = "PAD2V"
-      url = "https://fake-lime-api.com/vehicle?qr_code=#{qr_code_json}&license_plate=#{license_plate}"
+      url = "https://external-api.lime.bike/api/maas/v1/partner/vehicle?qr_code=#{qr_code_json}&license_plate=#{license_plate}"
       req = stub_request(:get, url).
         with(headers: {"Authorization" => "Bearer get-from-lime-add-to-env"}).
         to_return(fixture_response("lime/vehicle"))
@@ -90,7 +87,7 @@ RSpec.describe Suma::Lime, :db do
       phone_number = "14155555555"
       email_address = "members+123@sumamembers.org"
       driver_license_verified = false
-      req = stub_request(:post, "https://fake-lime-api.com/users").
+      req = stub_request(:post, "https://external-api.lime.bike/api/maas/v1/partner/users").
         with(
           headers: {"Authorization" => "Bearer get-from-lime-add-to-env"},
           body: {phone_number:, email_address:, driver_license_verified:},

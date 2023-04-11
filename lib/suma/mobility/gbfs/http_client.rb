@@ -1,6 +1,9 @@
 # frozen_string_literal: true
 
+require "appydays/loggable"
 class Suma::Mobility::Gbfs::HttpClient
+  include Appydays::Loggable
+
   attr_reader :api_host, :auth_token
 
   def initialize(api_host:, auth_token:)
@@ -18,6 +21,7 @@ class Suma::Mobility::Gbfs::HttpClient
     response = Suma::Http.get(
       self.api_host.to_s + "/geofencing_zones.json",
       headers: self.headers,
+      logger: self.logger,
     )
     return response.parsed_response
   end
@@ -26,6 +30,7 @@ class Suma::Mobility::Gbfs::HttpClient
     response = Suma::Http.get(
       self.api_host.to_s + "/free_bike_status.json",
       headers: self.headers,
+      logger: self.logger,
     )
     return response.parsed_response
   end
@@ -34,6 +39,7 @@ class Suma::Mobility::Gbfs::HttpClient
     response = Suma::Http.get(
       self.api_host.to_s + "/vehicle_types.json",
       headers: self.headers,
+      logger: self.logger,
     )
     return response.parsed_response
   end

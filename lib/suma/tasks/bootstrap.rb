@@ -16,8 +16,8 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
       Suma::Member.db.transaction do
         self.create_meta_resources
 
-        lime_org = self.setup_lime_scooter_vendor
-        self.sync_lime_scooters(lime_org)
+        lime_vendor = self.setup_lime_scooter_vendor
+        self.sync_lime_scooters(lime_vendor)
 
         self.setup_admin
 
@@ -71,37 +71,29 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
 
   def setup_lime_scooter_vendor
     org = Suma::Organization.find_or_create(name: "Lime")
-    undiscounted_rate = Suma::Vendor::ServiceRate.find_or_create(name: "Mobility $1 start $0.30/minute") do |r|
-      r.localization_key = "mobility_start_and_per_minute"
-      r.surcharge = Money.new(100)
-      r.unit_amount = Money.new(30)
+    rate = Suma::Vendor::ServiceRate.find_or_create(name: "Ride for free.") do |r|
+      r.localization_key = "mobility_free_of_charge"
+      r.surcharge = Money.new(0)
+      r.unit_amount = Money.new(0)
     end
-    rate = Suma::Vendor::ServiceRate.find_or_create(name: "Mobility $0.50 start $0.10/minute") do |r|
-      r.localization_key = "mobility_start_and_per_minute"
-      r.surcharge = Money.new(50)
-      r.unit_amount = Money.new(10)
-      r.undiscounted_rate = undiscounted_rate
-    end
-    lime = Suma::Vendor.find_or_create(slug: "lime", organization: org) do |v|
-      v.name = "Demo"
-    end
-    if lime.services_dataset.mobility.empty?
-      svc = lime.add_service(
-        internal_name: "Spin Scooters",
-        external_name: "Demo E-Scooters",
-        sync_url: "https://gbfs.lime.pm/api/gbfs/v2_2/portland/free_bike_status",
-        mobility_vendor_adapter_key: "fake",
+    lime_vendor = Suma::Vendor.find_or_create(name: "Lime", organization: org)
+    if lime_vendor.services_dataset.mobility.empty?
+      svc = lime_vendor.add_service(
+        internal_name: "Lime Scooters",
+        external_name: "Lime E-Scooters",
+        mobility_vendor_adapter_key: "lime",
+        constraints: [{"form_factor" => "scooter", "propulsion_type" => "electric"}],
       )
       svc.add_category(mobility_category)
       svc.add_rate(rate)
     end
-    return org
+    return lime_vendor
   end
 
-  def sync_lime_scooters(org)
+  def sync_lime_scooters(vendor)
     require "suma/lime"
-    i = org.db.transaction do
-      Suma::Lime.gbfs_sync_all
+    i = vendor.db.transaction do
+      Suma::Lime.gbfs_sync_all(vendor)
     end
     puts "Synced #{i} scooters"
   end

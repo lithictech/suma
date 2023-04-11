@@ -11,21 +11,18 @@ module Suma::Lime
   UNCONFIGURED_AUTH_TOKEN = "get-from-lime-add-to-env"
 
   configurable(:lime) do
-    setting :api_root, "https://fake-lime-api.com"
-    setting :gbfs_root, "https://fake-lime-gbfs.com"
+    setting :api_root, "https://external-api.lime.bike/api/maas/v1/partner"
+    setting :gbfs_root, "https://data.lime.bike/api/partners/v2/gbfs_transit"
     setting :auth_token, UNCONFIGURED_AUTH_TOKEN
   end
 
   def self.gbfs_http_client
-    return Gbfs::HttpClient.new(api_host: self.api_root, auth_token: self.auth_token)
+    return Suma::Mobility::Gbfs::HttpClient.new(api_host: self.gbfs_root, auth_token: self.auth_token)
   end
 
-  def self.gbfs_sync_all
-    client =  self.gbfs_http_client
-    org = Suma::Organization.find_or_create(name: "Lime")
-    vendor = Suma::Vendor.find_or_create(slug: "Lime", organization: org)
-    Suma::Mobility::Gbfs::GeofencingZone.new(client:).sync_all
-    Suma::Mobility::Gbfs::FreeBikeStatus.new(client:, vendor:).sync_all
+  def self.gbfs_sync_all(vendor)
+    Suma::Mobility::Gbfs::GeofencingZone.new(client: self.gbfs_http_client, vendor:).sync_all
+    Suma::Mobility::Gbfs::FreeBikeStatus.new(client: self.gbfs_http_client, vendor:).sync_all
   end
 
   def self.api_headers
@@ -34,7 +31,7 @@ module Suma::Lime
     }
   end
 
-  def self.start_trip(vehicle_id:, user_id:, lat:, lng:, rate_plan_id:, timestamp:)
+  def self.start_trip(vehicle_id:, user_id:, lat:, lng:, rate_plan_id:, at:)
     response = Suma::Http.post(
       self.api_root + "/trips/start",
       {
@@ -42,8 +39,9 @@ module Suma::Lime
         user_id:,
         location: {
           type: "Feature",
-          geometry: {type: "Point", coordinates: [lng, lat]},
-          properties: {timestamp:},
+          # TODO: Add a test that passes in lat/lng as Decimal (BigDecimal?) and make sure it casts to float.
+          geometry: {type: "Point", coordinates: [lng.to_f, lat.to_f]},
+          properties: {timestamp: (at.to_f * 1000).to_i},
         },
         rate_plan_id:,
       },
@@ -53,14 +51,14 @@ module Suma::Lime
     return response.parsed_response
   end
 
-  def self.complete_trip(trip_id:, lat:, lng:, timestamp:)
+  def self.complete_trip(trip_id:, lat:, lng:, at:)
     response = Suma::Http.post(
       self.api_root + "/trips/#{trip_id}/complete",
       {
         location: {
           type: "Feature",
-          geometry: {type: "Point", coordinates: [lng, lat]},
-          properties: {timestamp:},
+          geometry: {type: "Point", coordinates: [lng.to_f, lat.to_f]},
+          properties: {timestamp: (at.to_f * 1000).to_i},
         },
       },
       headers: self.api_headers,

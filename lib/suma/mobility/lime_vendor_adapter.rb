@@ -12,7 +12,7 @@ class Suma::Mobility::LimeVendorAdapter
       lng: trip.begin_lng,
       # TODO: Figure this out
       rate_plan_id: "placeholder",
-      timestamp: (trip.began_at.to_f * 1000).to_i,
+      at: trip.began_at,
     )
     trip.external_trip_id = resp.dig("data", "id")
     return BeginTripResult.new(raw_result: resp)
@@ -20,7 +20,10 @@ class Suma::Mobility::LimeVendorAdapter
 
   def end_trip(trip)
     resp = Suma::Lime.complete_trip(
-      trip_id: trip.id, lat: trip.end_lat, lng: trip.end_lng, timestamp: (trip.ended_at.to_f * 1000).to_i,
+      trip_id: trip.external_trip_id,
+      lat: trip.end_lat,
+      lng: trip.end_lng,
+      at: trip.ended_at,
     )
     duration = resp.dig("data", "duration_seconds") / 60.0
     return EndTripResult.new(

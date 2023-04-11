@@ -69,7 +69,7 @@ export default class MapBuilder {
   setTileLayer() {
     this._l
       .tileLayer(
-        "https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw",
+        "https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoiZGVldGhlZGV2IiwiYSI6ImNsMGZ4Z21xODB4YmEzYm9ka3IwZXo2OW0ifQ.OZTLv7NEKwz_Kb3KHrCFTw",
         {
           maxZoom: this._maxZoom,
           minZoom: this._minZoom,
@@ -213,7 +213,7 @@ export default class MapBuilder {
     return api.getMobilityMapFeatures(boundsToParams(bounds)).then((d) => {
       d.data.restrictions.forEach((r) => {
         this.createRestrictedArea({
-          latlngs: r.polygon,
+          latlngs: r.multipolygon,
           restriction: r.restriction,
         });
       });
