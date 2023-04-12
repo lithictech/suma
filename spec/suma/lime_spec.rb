@@ -7,15 +7,16 @@ RSpec.describe Suma::Lime, :db do
     it "begins a trip" do
       req = stub_request(:post, "https://external-api.lime.bike/api/maas/v1/partner/trips/start").
         with(
-          headers: {"Authorization" => "Bearer get-from-lime-add-to-env"},
-          body: {vehicle_id: "TICTM376DA74U",
-                 user_id: "d01ffe12-8d72-4ea2-928f-899774caed2f",
-                 location: {
-                   type: "Feature",
-                   geometry: {type: "Point", coordinates: [122.4194, 37.7749]},
-                   properties: {timestamp: 1_528_768_782_421},
-                 },
-                 rate_plan_id: "placeholder",}.to_json,
+          body: {
+            vehicle_id: "TICTM376DA74U",
+            user_id: "d01ffe12-8d72-4ea2-928f-899774caed2f",
+            location: {
+              type: "Feature",
+              geometry: {type: "Point", coordinates: [122.4194, 37.7749]},
+              properties: {timestamp: 1_528_768_782_421},
+            },
+            rate_plan_id: "placeholder",
+          }.to_json,
         ).to_return(fixture_response("lime/start_trip"))
 
       resp = described_class.start_trip(
@@ -36,7 +37,6 @@ RSpec.describe Suma::Lime, :db do
     it "completes a trip" do
       req = stub_request(:post, "https://external-api.lime.bike/api/maas/v1/partner/trips/mytrip/complete").
         with(
-          headers: {"Authorization" => "Bearer get-from-lime-add-to-env"},
           body: {
             location: {
               type: "Feature",
@@ -59,7 +59,6 @@ RSpec.describe Suma::Lime, :db do
     it "gets trip details" do
       trip_id = "fa03adb1-7755-429f-a80f-ad6836a960ee"
       req = stub_request(:get, "https://external-api.lime.bike/api/maas/v1/partner/trips/#{trip_id}").
-        with(headers: {"Authorization" => "Bearer get-from-lime-add-to-env"}).
         to_return(fixture_response("lime/trip"))
 
       resp = described_class.get_trip(trip_id)
@@ -72,7 +71,6 @@ RSpec.describe Suma::Lime, :db do
       license_plate = "PAD2V"
       url = "https://external-api.lime.bike/api/maas/v1/partner/vehicle?qr_code=#{qr_code_json}&license_plate=#{license_plate}"
       req = stub_request(:get, url).
-        with(headers: {"Authorization" => "Bearer get-from-lime-add-to-env"}).
         to_return(fixture_response("lime/vehicle"))
 
       resp = described_class.get_vehicle(qr_code_json:, license_plate:)
@@ -89,7 +87,6 @@ RSpec.describe Suma::Lime, :db do
       driver_license_verified = false
       req = stub_request(:post, "https://external-api.lime.bike/api/maas/v1/partner/users").
         with(
-          headers: {"Authorization" => "Bearer get-from-lime-add-to-env"},
           body: {phone_number:, email_address:, driver_license_verified:},
         ).
         to_return(fixture_response("lime/new_user"))

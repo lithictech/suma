@@ -16,13 +16,38 @@ module Suma::Lime
     setting :auth_token, UNCONFIGURED_AUTH_TOKEN
   end
 
+  def self.scooter_vendor
+    org = Suma::Organization.find_or_create(name: "Lime")
+    rate = Suma::Vendor::ServiceRate.find_or_create(name: "Ride for free.") do |r|
+      r.localization_key = "mobility_free_of_charge"
+      r.surcharge = Money.new(0)
+      r.unit_amount = Money.new(0)
+    end
+    lime_vendor = Suma::Vendor.find_or_create(name: "Lime", organization: org)
+    cash_category = Suma::Vendor::ServiceCategory.find_or_create(name: "Cash")
+    if lime_vendor.services_dataset.mobility.empty?
+      svc = lime_vendor.add_service(
+        internal_name: "Lime Scooters",
+        external_name: "Lime E-Scooters",
+        mobility_vendor_adapter_key: "lime",
+        constraints: [{"form_factor" => "scooter", "propulsion_type" => "electric"}],
+      )
+      svc.add_category(Suma::Vendor::ServiceCategory.find_or_create(name: "Mobility", parent: cash_category))
+      svc.add_rate(rate)
+    end
+    return lime_vendor
+  end
+
   def self.gbfs_http_client
     return Suma::Mobility::Gbfs::HttpClient.new(api_host: self.gbfs_root, auth_token: self.auth_token)
   end
 
-  def self.gbfs_sync_all(vendor)
-    Suma::Mobility::Gbfs::GeofencingZone.new(client: self.gbfs_http_client, vendor:).sync_all
-    Suma::Mobility::Gbfs::FreeBikeStatus.new(client: self.gbfs_http_client, vendor:).sync_all
+  def self.gbfs_sync_free_bike_status
+    Suma::Mobility::Gbfs::FreeBikeStatus.new(client: self.gbfs_http_client, vendor: self.scooter_vendor).sync_all
+  end
+
+  def self.gbfs_sync_geofencing_zones
+    Suma::Mobility::Gbfs::GeofencingZone.new(client: self.gbfs_http_client, vendor: self.scooter_vendor).sync_all
   end
 
   def self.api_headers

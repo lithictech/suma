@@ -4,7 +4,6 @@ require "suma/mobility/gbfs"
 require "suma/mobility/gbfs/fake_client"
 
 RSpec.describe Suma::Mobility::Gbfs::GeofencingZone, :db do
-  let(:client) { Suma::Mobility::Gbfs::FakeClient.new(fake_geofencing_json:, fake_vehicle_types_json:) }
   let(:vendor_service) { Suma::Fixtures.vendor_service.mobility.create }
   let(:fake_geofencing_json) do
     {
@@ -159,6 +158,8 @@ RSpec.describe Suma::Mobility::Gbfs::GeofencingZone, :db do
       },
     }
   end
+  let(:client) { Suma::Mobility::Gbfs::FakeClient.new(fake_geofencing_json:, fake_vehicle_types_json:) }
+
   describe "GBFS geofencing" do
     it "gets and upserts geofencing zones" do
       z = described_class.new(client:, vendor: vendor_service.vendor)

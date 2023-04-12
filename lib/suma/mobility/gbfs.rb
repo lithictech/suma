@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "suma/mobility"
+
 module Suma::Mobility::Gbfs
   require "suma/mobility/gbfs/geo"
   require "suma/mobility/gbfs/geofencing_zone"

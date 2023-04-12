@@ -2,6 +2,7 @@
 
 require "suma/async"
 require "suma/frontapp"
+require "suma/lime"
 require "suma/messages/specs"
 require "rspec/eventually"
 
@@ -145,6 +146,36 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
           ),
         ),
       )
+    end
+  end
+
+  describe "SyncLimeFreeBikeStatusGbfs" do
+    it "sync lime scooters gbfs" do
+      Suma::Lime.auth_token = "fake token"
+      free_bike_status_req = stub_request(:get, "https://data.lime.bike/api/partners/v2/gbfs_transit/free_bike_status.json").
+        to_return(fixture_response("lime/free_bike_status"))
+      vehicle_types_req = stub_request(:get, "https://data.lime.bike/api/partners/v2/gbfs_transit/vehicle_types.json").
+        to_return(fixture_response("lime/vehicle_types"))
+
+      Suma::Async::SyncLimeFreeBikeStatusGbfs.new.perform(true)
+      expect(free_bike_status_req).to have_been_made
+      expect(vehicle_types_req).to have_been_made
+      expect(Suma::Mobility::Vehicle.all).to have_length(1)
+    end
+  end
+
+  describe "SyncLimeGeofencingZonesGbfs" do
+    it "sync geofencing zones gbfs" do
+      Suma::Lime.auth_token = "fake token"
+      geofencing_zone_req = stub_request(:get, "https://data.lime.bike/api/partners/v2/gbfs_transit/geofencing_zones.json").
+        to_return(fixture_response("lime/geofencing_zone"))
+      vehicle_types_req = stub_request(:get, "https://data.lime.bike/api/partners/v2/gbfs_transit/vehicle_types.json").
+        to_return(fixture_response("lime/vehicle_types"))
+
+      Suma::Async::SyncLimeGeofencingZonesGbfs.new.perform(true)
+      expect(geofencing_zone_req).to have_been_made
+      expect(vehicle_types_req).to have_been_made
+      expect(Suma::Mobility::RestrictedArea.all).to have_length(1)
     end
   end
 

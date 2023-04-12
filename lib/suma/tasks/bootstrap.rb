@@ -3,6 +3,7 @@
 require "rake/tasklib"
 
 require "suma/tasks"
+require "suma/lime"
 
 class Suma::Tasks::Bootstrap < Rake::TaskLib
   def initialize
@@ -16,8 +17,7 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
       Suma::Member.db.transaction do
         self.create_meta_resources
 
-        lime_vendor = self.setup_lime_scooter_vendor
-        self.sync_lime_scooters(lime_vendor)
+        self.sync_lime_gbfs
 
         self.setup_admin
 
@@ -69,31 +69,11 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
     end
   end
 
-  def setup_lime_scooter_vendor
-    org = Suma::Organization.find_or_create(name: "Lime")
-    rate = Suma::Vendor::ServiceRate.find_or_create(name: "Ride for free.") do |r|
-      r.localization_key = "mobility_free_of_charge"
-      r.surcharge = Money.new(0)
-      r.unit_amount = Money.new(0)
-    end
-    lime_vendor = Suma::Vendor.find_or_create(name: "Lime", organization: org)
-    if lime_vendor.services_dataset.mobility.empty?
-      svc = lime_vendor.add_service(
-        internal_name: "Lime Scooters",
-        external_name: "Lime E-Scooters",
-        mobility_vendor_adapter_key: "lime",
-        constraints: [{"form_factor" => "scooter", "propulsion_type" => "electric"}],
-      )
-      svc.add_category(mobility_category)
-      svc.add_rate(rate)
-    end
-    return lime_vendor
-  end
-
-  def sync_lime_scooters(vendor)
+  def sync_lime_gbfs
     require "suma/lime"
-    i = vendor.db.transaction do
-      Suma::Lime.gbfs_sync_all(vendor)
+    i = Suma::Lime.scooter_vendor.db.transaction do
+      Suma::Lime.gbfs_sync_free_bike_status
+      Suma::Lime.gbfs_sync_geofencing_zones
     end
     puts "Synced #{i} scooters"
   end
