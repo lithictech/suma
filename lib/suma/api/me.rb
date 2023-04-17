@@ -16,6 +16,10 @@ class Suma::API::Me < Suma::API::V1
         # Add this as a way to backfill sessions for users that last authed before we had them.
         member.add_session(**Suma::Member::Session.params_for_request(request))
       end
+      # Expect JS to store this response, rather than the browser.
+      # If the browser stores it, we can end up requesting stale auth info
+      # out of the local cache even once we're signed out.
+      header "Cache-Control", "no-store"
       present member, with: CurrentMemberEntity, env:
     end
 

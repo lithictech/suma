@@ -19,6 +19,7 @@ RSpec.describe Suma::API::Me, :db do
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.
         that_includes(email: member.email, ongoing_trip: nil)
+      expect(last_response.headers).to include("Cache-Control" => "no-store")
     end
 
     it "errors if the member is soft deleted" do

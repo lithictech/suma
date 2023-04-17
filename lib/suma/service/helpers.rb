@@ -88,6 +88,8 @@ module Suma::Service::Helpers
 
     # Rack sends a cookie with an empty session, but let's tell the browser to actually delete the cookie.
     cookies.delete(Suma::Service::SESSION_COOKIE, domain: options[:domain], path: options[:path])
+    # Set this header to tell the client to delete everything.
+    header "Clear-Site-Data", "*"
   end
 
   def set_member(member)

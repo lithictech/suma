@@ -202,6 +202,7 @@ RSpec.describe Suma::API::Auth, :db do
 
       expect(last_response).to have_status(204)
       expect(last_response["Set-Cookie"]).to include("=deleted; path=/; expires=Thu, 01 Jan 1970 00:00:00")
+      expect(last_response["Clear-Site-Data"]).to eq("*")
     end
   end
 end
