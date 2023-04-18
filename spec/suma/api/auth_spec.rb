@@ -204,4 +204,36 @@ RSpec.describe Suma::API::Auth, :db do
       expect(last_response["Set-Cookie"]).to include("=deleted; path=/; expires=Thu, 01 Jan 1970 00:00:00")
     end
   end
+
+  describe "POST /v1/auth/contact_list" do
+    it "errors if a member is already authed" do
+      c = Suma::Fixtures.member.create
+      login_as(c)
+
+      post("/v1/auth/contact_list", name: "Obama", phone: "(222) 333-4444", timezone:, channel: "instagram")
+
+      expect(last_response).to have_status(409)
+      expect(last_response).to have_json_body.
+        that_includes(error: include(message: "You are already signed in. Please sign out first."))
+    end
+
+    describe "when the phone number does not exist" do
+      it "creates a member and referral with the given phone number and parameters" do
+        post("/v1/auth/contact_list", name: "Obama", phone: "(222) 333-4444", timezone:, channel: "instagram",
+                                      event_name: "marketplace_event_123",)
+
+        expect(last_response).to have_status(200)
+        expect(Suma::Member.all).to contain_exactly(have_attributes(name: "Obama", phone: "12223334444"))
+        expect(Suma::Member::Referral.last).to have_attributes(member_id: Suma::Member.last.id)
+      end
+
+      it "sets the language" do
+        post("/v1/auth/contact_list", name: "Obama", phone: "(222) 333-4444", timezone:, channel: "instagram",
+                                      language: "es",)
+
+        expect(last_response).to have_status(200)
+        expect(Suma::Member.last.message_preferences!).to have_attributes(preferred_language: "es")
+      end
+    end
+  end
 end

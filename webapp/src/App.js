@@ -8,6 +8,9 @@ import {
 } from "./hocs/authRedirects";
 import { t } from "./localization";
 import useI18Next, { I18NextProvider } from "./localization/useI18Next";
+import ContactListAdd from "./pages/ContactListAdd";
+import ContactListHome from "./pages/ContactListHome";
+import ContactListSuccess from "./pages/ContactListSuccess";
 import Dashboard from "./pages/Dashboard";
 import Food from "./pages/Food";
 import FoodCart from "./pages/FoodCart";
@@ -170,6 +173,36 @@ function AppRoutes() {
             withMetatags({ title: t("titles:onboarding_finish") }),
             withLayout({ gutters: true, top: true }),
             OnboardingFinish
+          )}
+        />
+        <Route
+          path="/contact-list"
+          exact
+          element={renderWithHocs(
+            redirectIfAuthed,
+            withMetatags({ title: t("common:welcome_to_suma"), exact: true }),
+            withLayout({ nav: "none", bg: "bg-white" }),
+            ContactListHome
+          )}
+        />
+        <Route
+          path="/contact-list/add"
+          exact
+          element={renderWithHocs(
+            redirectIfAuthed,
+            withMetatags({ title: "Contact List" }),
+            withLayout({ gutters: true, top: true }),
+            ContactListAdd
+          )}
+        />
+        <Route
+          path="/contact-list/success"
+          exact
+          element={renderWithHocs(
+            redirectIfAuthed,
+            withMetatags({ title: "Contact List Success" }),
+            withLayout({ gutters: true, top: true }),
+            ContactListSuccess
           )}
         />
         <Route
