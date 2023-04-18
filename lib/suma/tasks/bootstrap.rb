@@ -16,9 +16,9 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
       Suma::Member.db.transaction do
         self.create_meta_resources
 
-        # # scooterorg = self.setup_scooter_vendor
-        # # self.sync_scooters(scooterorg)
-        # self.create_restricted_areas
+        scooterorg = self.setup_scooter_vendor
+        self.sync_scooters(scooterorg)
+        self.create_restricted_areas
 
         self.setup_admin
 
