@@ -110,8 +110,7 @@ class Suma::API::Auth < Suma::API::V1
         if is_new
           save_or_error!(member)
           referral = Suma::Member::Referral.create(member_id: member.id, channel: params[:channel])
-          referral.event_name = params[:event_name] if params[:event_name].present?
-          referral.save_changes
+          referral.update(event_name: params[:event_name]) if params[:event_name].present?
           member.add_activity(
             message_name: "registered",
             summary: "Created from referral API",
@@ -121,7 +120,6 @@ class Suma::API::Auth < Suma::API::V1
           member.message_preferences!.update(preferred_language: params[:language]) if params[:language].present?
         end
         status 200
-        present member, with: AuthFlowMemberEntity
       end
     end
   end

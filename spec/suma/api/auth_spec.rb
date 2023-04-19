@@ -235,5 +235,23 @@ RSpec.describe Suma::API::Auth, :db do
         expect(Suma::Member.last.message_preferences!).to have_attributes(preferred_language: "es")
       end
     end
+
+    describe "when phone number exists" do
+      it "does not update member" do
+        m = Suma::Fixtures.member.create(phone: 12223334444, name: "Amabo")
+        post("/v1/auth/contact_list", name: "Obama", phone: "(222) 333-4444", timezone:, channel: "instagram")
+
+        expect(last_response).to have_status(200)
+        expect(m).to have_attributes(name: "Amabo")
+      end
+
+      it "does not create new member referral" do
+        m = Suma::Fixtures.member.create(phone: 12223334444)
+        post("/v1/auth/contact_list", name: "Obama", phone: "(222) 333-4444", timezone:, channel: "instagram")
+
+        expect(last_response).to have_status(200)
+        expect(Suma::Member::Referral.all.count).to be(0)
+      end
+    end
   end
 end
