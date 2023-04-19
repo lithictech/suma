@@ -6,6 +6,7 @@ import FormError from "../components/FormError";
 import { t } from "../localization";
 import useI18Next from "../localization/useI18Next";
 import { dayjs } from "../modules/dayConfig";
+import { formatPhoneNumber, numberToUs } from "../modules/numberFormatter";
 import useToggle from "../shared/react/useToggle";
 import { extractErrorCode, useError } from "../state/useError";
 import React from "react";
@@ -13,9 +14,6 @@ import Col from "react-bootstrap/Col";
 import Form from "react-bootstrap/Form";
 import Row from "react-bootstrap/Row";
 import { useForm } from "react-hook-form";
-import { isPossiblePhoneNumber } from "react-phone-number-input";
-import Input from "react-phone-number-input/input";
-import "react-phone-number-input/style.css";
 import { useLocation, useNavigate } from "react-router-dom";
 
 export default function ContactListAdd() {
@@ -23,8 +21,6 @@ export default function ContactListAdd() {
   const location = useLocation();
   const { language } = useI18Next();
   const validated = useToggle(false);
-  const [phoneError, setPhoneError] = useError();
-  const phoneRef = React.useRef("");
   const {
     register,
     handleSubmit,
@@ -35,30 +31,20 @@ export default function ContactListAdd() {
     mode: "all",
   });
 
-  const [error, setError] = React.useState("");
+  const [error, setError] = useError();
   const [name, setName] = React.useState("");
-  const [phoneNumber, setPhoneNumber] = React.useState("");
+  const [phone, setPhone] = React.useState("");
+  const [phoneCopy, setPhoneCopy] = React.useState("");
   const [referral, setReferral] = React.useState("");
-  const handleFormSubmit = (event) => {
-    event.preventDefault();
-    validated.turnOn();
-
-    if (!phoneNumber) {
-      setPhoneError("required");
-      return;
-    }
-    if (!isPossiblePhoneNumber(phoneNumber)) {
-      setError("impossible_phone_number");
-      return;
-    }
+  const handleFormSubmit = () => {
     api
       .authContactList({
-        name: name,
-        phone: phoneNumber,
-        channel: referral,
-        event_name: location.state.eventName,
-        timezone: dayjs.tz.guess(),
+        name,
+        phone,
         language,
+        timezone: dayjs.tz.guess(),
+        event_name: location.state.eventName,
+        channel: referral,
       })
       .then(() => {
         navigate("/contact-list/success");
@@ -78,6 +64,11 @@ export default function ContactListAdd() {
     runSetter(e.target.name, set, e.target.value);
   };
 
+  const handleNumberChange = (e, set) => {
+    const formattedNumber = formatPhoneNumber(e.target.value, phoneCopy);
+    setPhone(numberToUs(formattedNumber));
+    runSetter(e.target.name, set, formattedNumber);
+  };
   return (
     <>
       <h2 className="page-header">sumas contact list</h2>
@@ -100,27 +91,18 @@ export default function ContactListAdd() {
           value={name}
           onChange={(e) => handleInputChange(e, setName)}
         />
-        <Form.Group className="mb-3" controlId="phoneInput">
-          <Input
-            id="phoneInput"
-            ref={phoneRef}
-            className="form-control"
-            useNationalFormatForDefaultCountryValue={true}
-            international={false}
-            onChange={(value) => setPhoneNumber(value)}
-            country="US"
-            pattern="^(\+\d{1,2}\s)?\(?\d{3}\)?[\s-]\d{3}[\s-]\d{4}$"
-            minLength="14"
-            maxLength="14"
-            placeholder={t("forms:phone")}
-            value={phoneNumber}
-            aria-describedby="phoneRequired"
-            autoComplete="tel-national"
-            required
-          />
-        </Form.Group>
-        <FormError error={phoneError} />
-
+        <FormControlGroup
+          className="mb-3"
+          name="phone"
+          label={t("forms:phone")}
+          pattern="^(\+\d{1,2}\s)?\(?\d{3}\)?[\s-]\d{3}[\s-]\d{4}$"
+          required
+          register={register}
+          errors={errors}
+          value={phoneCopy}
+          onChange={(e) => handleNumberChange(e, setPhoneCopy)}
+          autoComplete="tel-national"
+        />
         <Row className="mb-3">
           <FormControlGroup
             as={Col}

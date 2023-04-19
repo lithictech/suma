@@ -4,12 +4,12 @@ import FormError from "../components/FormError";
 import FormSuccess from "../components/FormSuccess";
 import { md, t } from "../localization";
 import { dayjs } from "../modules/dayConfig";
+import { formatPhoneNumber } from "../modules/numberFormatter";
 import { extractErrorCode, useError } from "../state/useError";
 import { useUser } from "../state/useUser";
 import React from "react";
 import { Form } from "react-bootstrap";
 import Button from "react-bootstrap/Button";
-import { formatPhoneNumber } from "react-phone-number-input";
 import { useNavigate, useLocation } from "react-router-dom";
 
 const OneTimePassword = () => {
