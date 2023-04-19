@@ -6,8 +6,7 @@ import FormError from "../components/FormError";
 import { t } from "../localization";
 import useI18Next from "../localization/useI18Next";
 import { dayjs } from "../modules/dayConfig";
-import { formatPhoneNumber, numberToUs } from "../modules/numberFormatter";
-import useToggle from "../shared/react/useToggle";
+import { formatPhoneNumber } from "../modules/numberFormatter";
 import { extractErrorCode, useError } from "../state/useError";
 import React from "react";
 import Col from "react-bootstrap/Col";
@@ -20,7 +19,6 @@ export default function ContactListAdd() {
   const navigate = useNavigate();
   const location = useLocation();
   const { language } = useI18Next();
-  const validated = useToggle(false);
   const {
     register,
     handleSubmit,
@@ -34,7 +32,6 @@ export default function ContactListAdd() {
   const [error, setError] = useError();
   const [name, setName] = React.useState("");
   const [phone, setPhone] = React.useState("");
-  const [phoneCopy, setPhoneCopy] = React.useState("");
   const [referral, setReferral] = React.useState("");
   const handleFormSubmit = () => {
     api
@@ -65,9 +62,7 @@ export default function ContactListAdd() {
   };
 
   const handleNumberChange = (e, set) => {
-    const formattedNumber = formatPhoneNumber(e.target.value, phoneCopy);
-    setPhone(numberToUs(formattedNumber));
-    runSetter(e.target.name, set, formattedNumber);
+    runSetter(e.target.name, set, formatPhoneNumber(e.target.value, phone));
   };
   return (
     <>
@@ -76,11 +71,7 @@ export default function ContactListAdd() {
         Sign up to our contact list to be notified about future events and saving
         opportunities.
       </p>
-      <Form
-        noValidate
-        validated={validated.isOn}
-        onSubmit={handleSubmit(handleFormSubmit)}
-      >
+      <Form noValidate onSubmit={handleSubmit(handleFormSubmit)}>
         <FormControlGroup
           className="mb-3"
           name="name"
@@ -99,8 +90,8 @@ export default function ContactListAdd() {
           required
           register={register}
           errors={errors}
-          value={phoneCopy}
-          onChange={(e) => handleNumberChange(e, setPhoneCopy)}
+          value={phone}
+          onChange={(e) => handleNumberChange(e, setPhone)}
           autoComplete="tel-national"
         />
         <Row className="mb-3">

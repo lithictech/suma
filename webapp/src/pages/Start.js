@@ -21,7 +21,6 @@ export default function Start() {
   const inputDisabled = useToggle(false);
   const [error, setError] = useError();
   const [phone, setPhone] = useState("");
-  const [phoneCopy, setPhoneCopy] = useState("");
 
   const {
     register,
@@ -34,11 +33,10 @@ export default function Start() {
   });
 
   const handleNumberChange = (e) => {
-    const formattedNum = formatPhoneNumber(e.target.value, phoneCopy);
+    const formattedNum = formatPhoneNumber(e.target.value, phone);
     clearErrors();
-    setValue("phone", numberToUs(formattedNum));
-    setPhone(numberToUs(formattedNum));
-    setPhoneCopy(formattedNum);
+    setValue("phone", formattedNum);
+    setPhone(formattedNum);
   };
 
   const handleSubmitForm = () => {
@@ -80,7 +78,7 @@ export default function Start() {
           pattern="^(\+\d{1,2}\s)?\(?\d{3}\)?[\s-]\d{3}[\s-]\d{4}$"
           register={register}
           errors={errors}
-          value={phoneCopy}
+          value={phone}
           onChange={handleNumberChange}
           aria-describedby="phoneRequired"
           autoComplete="tel-national"

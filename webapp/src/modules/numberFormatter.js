@@ -1,4 +1,4 @@
-export const formatPhoneNumber = (num, previousValue) => {
+export const formatPhoneNumber = (num, previousNum) => {
   if (!num) {
     return "";
   }
@@ -11,7 +11,7 @@ export const formatPhoneNumber = (num, previousValue) => {
     currentNum = currentNum.slice(1);
   }
   const cvLength = currentNum.length;
-  if (!previousValue || num.length > previousValue.length) {
+  if (!previousNum || num.length > previousNum.length) {
     if (cvLength < 4) {
       return currentNum;
     } else if (cvLength < 7) {
