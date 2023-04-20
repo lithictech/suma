@@ -7,7 +7,7 @@ Sequel.migration do
       timestamptz :created_at, null: false, default: Sequel.function(:now)
 
       text :channel, null: false
-      text :event_name, null: true
+      text :event_name, null: false, default: ""
 
       foreign_key :member_id, :members, null: false, on_delete: :cascade, index: true
     end

@@ -100,17 +100,16 @@ class Suma::API::Auth < Suma::API::V1
       guard_authed!
       Suma::Member.db.transaction do
         member = Suma::Member.with_us_phone(params[:phone])
-        is_new = member.nil?
-        member ||= Suma::Member.new(
-          phone: params[:phone],
-          name: params[:name],
-          password_digest: Suma::Member::PLACEHOLDER_PASSWORD_DIGEST,
-        )
-        member.timezone = params[:timezone]
-        if is_new
+        if member.nil?
+          member = Suma::Member.new(
+            phone: params[:phone],
+            name: params[:name],
+            password_digest: Suma::Member::PLACEHOLDER_PASSWORD_DIGEST,
+            timezone: params[:timezone],
+          )
           save_or_error!(member)
-          referral = Suma::Member::Referral.create(member_id: member.id, channel: params[:channel])
-          referral.update(event_name: params[:event_name]) if params[:event_name].present?
+          Suma::Member::Referral.create(member_id: member.id, channel: params[:channel],
+                                        event_name: params[:event_name] || "",)
           member.add_activity(
             message_name: "registered",
             summary: "Created from referral API",
@@ -118,6 +117,13 @@ class Suma::API::Auth < Suma::API::V1
             subject_id: member.id,
           )
           member.message_preferences!.update(preferred_language: params[:language]) if params[:language].present?
+        else
+          member.add_activity(
+            message_name: "added_to_contact_list",
+            summary: "Added to contact list (channel: #{params[:channel]}, event_name: #{params[:event_name] || ''})",
+            subject_type: "Suma::Member",
+            subject_id: member.id,
+          )
         end
         status 200
       end
