@@ -5,7 +5,7 @@ import FormError from "../components/FormError";
 import { t } from "../localization";
 import useI18Next from "../localization/useI18Next";
 import { dayjs } from "../modules/dayConfig";
-import { formatPhoneNumber, numberToUs } from "../modules/numberFormatter";
+import { formatPhoneNumber } from "../modules/numberFormatter";
 import { Logger } from "../shared/logger";
 import useToggle from "../shared/react/useToggle";
 import { extractErrorCode, useError } from "../state/useError";
