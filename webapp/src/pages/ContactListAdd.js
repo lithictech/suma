@@ -6,18 +6,19 @@ import FormError from "../components/FormError";
 import { t } from "../localization";
 import useI18Next from "../localization/useI18Next";
 import { dayjs } from "../modules/dayConfig";
-import { formatPhoneNumber } from "../modules/numberFormatter";
+import { maskPhoneNumber } from "../modules/maskPhoneNumber";
 import { extractErrorCode, useError } from "../state/useError";
 import React from "react";
 import Col from "react-bootstrap/Col";
 import Form from "react-bootstrap/Form";
 import Row from "react-bootstrap/Row";
 import { useForm } from "react-hook-form";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
 export default function ContactListAdd() {
+  const [params] = useSearchParams();
+  const eventName = params.get("eventName") || "";
   const navigate = useNavigate();
-  const location = useLocation();
   const { language } = useI18Next();
   const {
     register,
@@ -40,11 +41,15 @@ export default function ContactListAdd() {
         phone,
         language,
         timezone: dayjs.tz.guess(),
-        event_name: location.state.eventName,
+        event_name: eventName,
         channel: referral,
       })
       .then(() => {
-        navigate("/contact-list/success");
+        navigate(
+          eventName
+            ? `/contact-list/success?eventName=${eventName}`
+            : "/contact-list/success"
+        );
       })
       .catch((err) => {
         setError(extractErrorCode(err));
@@ -61,8 +66,8 @@ export default function ContactListAdd() {
     runSetter(e.target.name, set, e.target.value);
   };
 
-  const handleNumberChange = (e, set) => {
-    runSetter(e.target.name, set, formatPhoneNumber(e.target.value, phone));
+  const handlePhoneChange = (e, set) => {
+    runSetter(e.target.name, set, maskPhoneNumber(e.target.value, phone));
   };
   return (
     <>
@@ -91,7 +96,7 @@ export default function ContactListAdd() {
           register={register}
           errors={errors}
           value={phone}
-          onChange={(e) => handleNumberChange(e, setPhone)}
+          onChange={(e) => handlePhoneChange(e, setPhone)}
           autoComplete="tel-national"
         />
         <Row className="mb-3">

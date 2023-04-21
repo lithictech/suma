@@ -1,4 +1,4 @@
-export const formatPhoneNumber = (num) => {
+export const maskPhoneNumber = (num) => {
   if (!num || num.startsWith("0") || num.startsWith("1")) {
     return "";
   }
@@ -18,8 +18,4 @@ export const formatPhoneNumber = (num) => {
       10
     )}`;
   }
-};
-
-export const numberToUs = (num) => {
-  return `+1${num.replace(/[() -]/g, "")}`;
 };

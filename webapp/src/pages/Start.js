@@ -5,7 +5,7 @@ import FormError from "../components/FormError";
 import { t } from "../localization";
 import useI18Next from "../localization/useI18Next";
 import { dayjs } from "../modules/dayConfig";
-import { formatPhoneNumber } from "../modules/numberFormatter";
+import { maskPhoneNumber } from "../modules/maskPhoneNumber";
 import { Logger } from "../shared/logger";
 import useToggle from "../shared/react/useToggle";
 import { extractErrorCode, useError } from "../state/useError";
@@ -32,8 +32,8 @@ export default function Start() {
     mode: "all",
   });
 
-  const handleNumberChange = (e) => {
-    const formattedNum = formatPhoneNumber(e.target.value, phone);
+  const handlePhoneChange = (e) => {
+    const formattedNum = maskPhoneNumber(e.target.value, phone);
     clearErrors();
     setValue("phone", formattedNum);
     setPhone(formattedNum);
@@ -79,7 +79,7 @@ export default function Start() {
           register={register}
           errors={errors}
           value={phone}
-          onChange={handleNumberChange}
+          onChange={handlePhoneChange}
           aria-describedby="phoneRequired"
           autoComplete="tel-national"
           autoFocus

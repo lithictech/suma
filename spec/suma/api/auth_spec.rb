@@ -237,16 +237,25 @@ RSpec.describe Suma::API::Auth, :db do
     end
 
     describe "when phone number exists" do
+      it "creates a member activity for contact list sign up" do
+        m = Suma::Fixtures.member.create(phone: 12_223_334_444)
+        post("/v1/auth/contact_list", name: "Obama", phone: "(222) 333-4444", timezone:, channel: "instagram",
+                                      event_name: "marketplace_event_123",)
+        summary = "Added to contact list (channel: instagram, event_name: marketplace_event_123)";
+        expect(m.activities.last).to have_attributes(summary:)
+        expect(last_response).to have_status(200)
+      end
+
       it "does not update member" do
-        m = Suma::Fixtures.member.create(phone: 12_223_334_444, name: "Amabo")
+        m = Suma::Fixtures.member.create(phone: 12_223_334_455, name: "Amabo")
         post("/v1/auth/contact_list", name: "Obama", phone: "(222) 333-4444", timezone:, channel: "instagram")
 
         expect(last_response).to have_status(200)
-        expect(m).to have_attributes(name: "Amabo")
+        expect(m).to have_attributes(phone: "12223334455", name: "Amabo")
       end
 
       it "does not create new member referral" do
-        m = Suma::Fixtures.member.create(phone: 12_223_334_444)
+        Suma::Fixtures.member.create(phone: 12_223_334_444)
         post("/v1/auth/contact_list", name: "Obama", phone: "(222) 333-4444", timezone:, channel: "instagram")
 
         expect(last_response).to have_status(200)

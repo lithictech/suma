@@ -8,40 +8,24 @@ import i18next from "i18next";
 import React from "react";
 import Button from "react-bootstrap/Button";
 import Container from "react-bootstrap/Container";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 
 export default function ContactListHome() {
   const [params] = useSearchParams();
-  const navigate = useNavigate();
-  const handleContactListNavigation = () => {
-    navigate("/contact-list/add", { state: { eventName: params.get("eventName") } });
-  };
   return (
-    <Container>
-      <div className="text-center">
-        <img src={sumaLogo} alt="MySuma Logo" className="p-4" style={{ width: 250 }} />
-        <h1 className="mb-4">{t("common:welcome_to_suma")}</h1>
-        <div className="button-stack">
-          <h5>Choose language</h5>
-          <LanguageButtons />
-        </div>
-        <hr />
-        <div className="button-stack">
-          <Button
-            onClick={handleContactListNavigation}
-            variant="outline-primary"
-            className="w-75"
-          >
-            Continue to savings
-          </Button>
-        </div>
-        <ContactListTags />
+    <Container className="text-center">
+      <img src={sumaLogo} alt="MySuma Logo" className="p-4" style={{ width: 250 }} />
+      <h1 className="mb-4">{t("common:welcome_to_suma")}</h1>
+      <div className="button-stack">
+        <h5>To continue to your savings, choose your preferred language</h5>
+        <LanguageButtons eventName={params.get("eventName")} />
       </div>
+      <ContactListTags />
     </Container>
   );
 }
 
-function LanguageButtons() {
+function LanguageButtons({ eventName }) {
   const { supportedLocales } = useBackendGlobals();
   const { changeLanguage } = useI18Next();
   if (!supportedLocales.items) {
@@ -49,6 +33,7 @@ function LanguageButtons() {
   }
   return supportedLocales.items.map(({ code, native }) => (
     <Button
+      href={eventName ? `/contact-list/add?eventName=${eventName}` : "/contact-list/add"}
       key={code}
       variant="outline-secondary"
       className={clsx(
