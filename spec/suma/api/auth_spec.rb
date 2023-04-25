@@ -241,7 +241,7 @@ RSpec.describe Suma::API::Auth, :db do
         m = Suma::Fixtures.member.create(phone: 12_223_334_444)
         post("/v1/auth/contact_list", name: "Obama", phone: "(222) 333-4444", timezone:, channel: "instagram",
                                       event_name: "marketplace_event_123",)
-        summary = "Added to contact list (channel: instagram, event_name: marketplace_event_123)";
+        summary = "Added to contact list (channel: instagram, event_name: marketplace_event_123)"
         expect(m.activities.last).to have_attributes(summary:)
         expect(last_response).to have_status(200)
       end
