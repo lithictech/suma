@@ -17,6 +17,7 @@
     "join_waitlist": "Join Waiting List",
     "learn_more": "Learn More",
     "logout": "Logout",
+    "mysuma_website_link": "[www.mysuma.org](https://www.mysuma.org 'Mysuma homepage')",
     "next": "Next",
     "next_sym": "›",
     "okay_ex": "Okay!",
@@ -32,6 +33,22 @@
     "waitlisted": "Great! You are on the waiting list and we'll let you know when it's available.",
     "welcome_to_suma": "Welcome to Suma!",
     "whats_this": "What's this?"
+  },
+  "contact_list": {
+    "choose_language": "Please select a preferred language to continue to your savings!",
+    "labels": {
+      "friends_family": "Friends/Family",
+      "local_community": "Local community",
+      "mysuma_website": "MySuma website",
+      "other": "Other",
+      "suma_event": "Suma event",
+      "suma_staff": "Suma staff"
+    },
+    "referral_label": "How did you hear about suma?",
+    "sign_up_again": "Sign up again",
+    "signup_intro": "Fill in the blanks below to join our contact list, and we will update you on all our projects and upcoming money saving opportunities. We’re so excited!",
+    "signup_title": "Join suma",
+    "success_intro": "Thank you for signing up, and welcome to suma!\n\nYou are now enrolled in our community! We will update you on all future projects and money saving opportunities. To learn more about suma, visit our website at $t(strings:common:mysuma_website_link), or check us out on our social media using the link below. Chat soon!"
   },
   "dashboard": {
     "check_ongoing_trip": "You have an ongoing trip. Please make sure you end it when you are finished with your ride!",
@@ -275,6 +292,9 @@
     "unlink_account_question_subtitle": "Any in-progress transactions will not be canceled."
   },
   "titles": {
+    "contact_list": "Contact List",
+    "contact_list_finish": "Contact List Finish",
+    "contact_list_signup": "Contact List Signup",
     "dashboard": "Dashboard",
     "funding": "Funding",
     "home": "Home",

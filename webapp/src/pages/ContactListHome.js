@@ -3,8 +3,6 @@ import ContactListTags from "../components/ContactListTags";
 import { t } from "../localization";
 import useI18Next from "../localization/useI18Next";
 import { useBackendGlobals } from "../state/useBackendGlobals";
-import clsx from "clsx";
-import i18next from "i18next";
 import React from "react";
 import Button from "react-bootstrap/Button";
 import Container from "react-bootstrap/Container";
@@ -17,7 +15,7 @@ export default function ContactListHome() {
       <img src={sumaLogo} alt="MySuma Logo" className="p-4" style={{ width: 250 }} />
       <h1 className="mb-4">{t("common:welcome_to_suma")}</h1>
       <div className="button-stack">
-        <h5>To continue to your savings, choose your preferred language</h5>
+        <h5>{t("contact_list:choose_language")}</h5>
         <LanguageButtons eventName={params.get("eventName")} />
       </div>
       <ContactListTags />
@@ -36,10 +34,7 @@ function LanguageButtons({ eventName }) {
       href={eventName ? `/contact-list/add?eventName=${eventName}` : "/contact-list/add"}
       key={code}
       variant="outline-secondary"
-      className={clsx(
-        "mt-2 w-75",
-        i18next.language === code ? "btn-secondary text-white" : "btn-outline-secondary"
-      )}
+      className="btn-outline-secondary mt-2 w-75"
       onClick={() => changeLanguage(code)}
     >
       {native}

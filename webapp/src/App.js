@@ -180,7 +180,7 @@ function AppRoutes() {
           exact
           element={renderWithHocs(
             redirectIfAuthed,
-            withMetatags({ title: t("common:welcome_to_suma"), exact: true }),
+            withMetatags({ title: t("titles:contact_list"), exact: true }),
             withLayout({ nav: "none", bg: "bg-white" }),
             ContactListHome
           )}
@@ -190,7 +190,7 @@ function AppRoutes() {
           exact
           element={renderWithHocs(
             redirectIfAuthed,
-            withMetatags({ title: "Contact List" }),
+            withMetatags({ title: t("titles:contact_list_signup") }),
             withLayout({ gutters: true, top: true }),
             ContactListAdd
           )}
@@ -200,7 +200,7 @@ function AppRoutes() {
           exact
           element={renderWithHocs(
             redirectIfAuthed,
-            withMetatags({ title: "Contact List Success" }),
+            withMetatags({ title: t("titles:contact_list_finish") }),
             withLayout({ gutters: true, top: true }),
             ContactListSuccess
           )}

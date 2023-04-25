@@ -3,7 +3,7 @@ import ContactListTags from "../components/ContactListTags";
 import FormButtons from "../components/FormButtons";
 import FormControlGroup from "../components/FormControlGroup";
 import FormError from "../components/FormError";
-import { t } from "../localization";
+import { mdp, t } from "../localization";
 import useI18Next from "../localization/useI18Next";
 import { dayjs } from "../modules/dayConfig";
 import { maskPhoneNumber } from "../modules/maskPhoneNumber";
@@ -71,11 +71,8 @@ export default function ContactListAdd() {
   };
   return (
     <>
-      <h2 className="page-header">sumas contact list</h2>
-      <p>
-        Sign up to our contact list to be notified about future events and saving
-        opportunities.
-      </p>
+      <h2 className="page-header">{t("contact_list:signup_title")}</h2>
+      {mdp("contact_list:signup_intro")}
       <Form noValidate onSubmit={handleSubmit(handleFormSubmit)}>
         <FormControlGroup
           className="mb-3"
@@ -103,7 +100,7 @@ export default function ContactListAdd() {
           <FormControlGroup
             as={Col}
             name="channel"
-            label={"How did you hear about us?"}
+            label={t("contact_list:referral_label")}
             required
             Input={Form.Select}
             inputClass={referral ? null : "select-noselection"}
@@ -113,11 +110,12 @@ export default function ContactListAdd() {
             onChange={(e) => handleInputChange(e, setReferral)}
           >
             <option disabled value="">
-              How did you hear about us?
+              {t("contact_list:referral_label")}
             </option>
-            {channelList.map((referral) => (
+            <option value="instagram">Instagram</option>
+            {referralList.map((referral) => (
               <option key={referral.value} value={referral.value}>
-                {referral.label}
+                {t(referral.key)}
               </option>
             ))}
           </FormControlGroup>
@@ -134,9 +132,11 @@ export default function ContactListAdd() {
   );
 }
 
-const channelList = [
-  { label: "Twitter", value: "twitter" },
-  { label: "Instagram", value: "instagram" },
-  { label: "Friend/Family", value: "person" },
-  { label: "Other", value: "other" },
+const referralList = [
+  { key: "contact_list:labels:friends_family", value: "friends_family" },
+  { key: "contact_list:labels:local_community", value: "local_community" },
+  { key: "contact_list:labels:suma_staff", value: "suma_staff" },
+  { key: "contact_list:labels:suma_event", value: "suma_event" },
+  { key: "contact_list:labels:mysuma_website", value: "mysuma_website" },
+  { key: "contact_list:labels:other", value: "other" },
 ];
