@@ -4,12 +4,12 @@ import FormError from "../components/FormError";
 import FormSuccess from "../components/FormSuccess";
 import { md, t } from "../localization";
 import { dayjs } from "../modules/dayConfig";
+import { maskPhoneNumber } from "../modules/maskPhoneNumber";
 import { extractErrorCode, useError } from "../state/useError";
 import { useUser } from "../state/useUser";
 import React from "react";
 import { Form } from "react-bootstrap";
 import Button from "react-bootstrap/Button";
-import { formatPhoneNumber } from "react-phone-number-input";
 import { useNavigate, useLocation } from "react-router-dom";
 
 const OneTimePassword = () => {
@@ -93,7 +93,7 @@ const OneTimePassword = () => {
   const handleResend = () => {
     setOtpChars(new Array(6).fill(""));
     setError(null);
-    setMessage(["otp:code_resent", { phone: formatPhoneNumber(phoneNumber) }]);
+    setMessage(["otp:code_resent", { phone: maskPhoneNumber(phoneNumber) }]);
     const firstOtpField = document.getElementById("otpContainer").firstChild;
     firstOtpField.focus();
     api
@@ -123,7 +123,7 @@ const OneTimePassword = () => {
       <p className="text-center mb-0">
         {t("otp:enter_code_sent_to")}
         <br />
-        {formatPhoneNumber(phoneNumber)}:
+        {maskPhoneNumber(phoneNumber)}:
       </p>
       <Form noValidate onSubmit={handleOtpSubmit}>
         <fieldset>

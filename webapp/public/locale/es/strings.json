@@ -17,6 +17,7 @@
     "join_waitlist": "Unirse a la lista de espera",
     "learn_more": "Más información",
     "logout": "Cerrar sesión",
+    "mysuma_website_link": "[www.mysuma.org](https://www.mysuma.org 'Mysuma inicio')",
     "next": "Siguiente",
     "next_sym": "›",
     "okay_ex": "¡De acuerdo!",
@@ -32,6 +33,22 @@
     "waitlisted": "¡Excelente! Estás en la lista de espera y te avisaremos cuando esté disponible.",
     "welcome_to_suma": "¡Bienvenido a Suma!",
     "whats_this": "¿Qué es esto?"
+  },
+  "contact_list": {
+    "choose_language": "¡Seleccione un idioma preferido para continuar con sus ahorros!",
+    "labels": {
+      "friends_family": "Amigos/Familia",
+      "local_community": "Communidad local",
+      "mysuma_website": "MySuma sitio",
+      "other": "Otro",
+      "suma_event": "Evento de suma",
+      "suma_staff": "Personal de suma"
+    },
+    "referral_label": "¿Como te enteraste de suma?",
+    "sign_up_again": "Regístrese de nuevo",
+    "signup_intro": "Complete los espacios abajo para unirse a nuestra lista de contactos y lo actualizaremos sobre todos nuestros proyectos y las próximas oportunidades de ahorro de dinero. ¡Estamos tan emocionados!",
+    "signup_title": "Unirse a suma",
+    "success_intro": "¡Gracias por registrarte y bienvenido a suma!\n\n¡Ya estás inscrito en nuestra comunidad! Le informaremos sobre todos los proyectos futuros y las oportunidades de ahorro de dinero. Para obtener más información sobre suma, visite nuestro sitio web en $t(strings:common:mysuma_website_link), o visítenos en nuestras redes sociales usando el enlace abajo. ¡Nos hablamos pronto!"
   },
   "dashboard": {
     "check_ongoing_trip": "Tienes un viaje en curso. Asegúrate de finalizarlo al terminar el viaje.",
@@ -275,6 +292,9 @@
     "unlink_account_question_subtitle": "No se cancelarán las transaciones en curso."
   },
   "titles": {
+    "contact_list": "Lista de contactos",
+    "contact_list_finish": "Lista de contactos completo",
+    "contact_list_signup": "Registro a lista de contactos",
     "dashboard": "Tablero",
     "funding": "Financiamiento",
     "home": "Inicio",

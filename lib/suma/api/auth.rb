@@ -86,6 +86,48 @@ class Suma::API::Auth < Suma::API::V1
       status 204
       body ""
     end
+
+    desc "Add member to contact list referral"
+    params do
+      requires :name, type: String, allow_blank: false
+      requires :phone, us_phone: true, type: String, coerce_with: NormalizedPhone
+      requires :channel, type: String, allow_blank: false
+      requires :timezone, type: String, values: ALL_TIMEZONES
+      optional :event_name, type: String
+      optional :language, type: String, values: Suma::I18n.enabled_locale_codes
+    end
+    post :contact_list do
+      guard_authed!
+      Suma::Member.db.transaction do
+        member = Suma::Member.with_us_phone(params[:phone])
+        if member.nil?
+          member = Suma::Member.new(
+            phone: params[:phone],
+            name: params[:name],
+            password_digest: Suma::Member::PLACEHOLDER_PASSWORD_DIGEST,
+            timezone: params[:timezone],
+          )
+          save_or_error!(member)
+          Suma::Member::Referral.create(member_id: member.id, channel: params[:channel],
+                                        event_name: params[:event_name] || "",)
+          member.add_activity(
+            message_name: "registered",
+            summary: "Created from referral API",
+            subject_type: "Suma::Member",
+            subject_id: member.id,
+          )
+          member.message_preferences!.update(preferred_language: params[:language]) if params[:language].present?
+        else
+          member.add_activity(
+            message_name: "added_to_contact_list",
+            summary: "Added to contact list (channel: #{params[:channel]}, event_name: #{params[:event_name] || ''})",
+            subject_type: "Suma::Member",
+            subject_id: member.id,
+          )
+        end
+        status 200
+      end
+    end
   end
 
   class AuthFlowMemberEntity < BaseEntity

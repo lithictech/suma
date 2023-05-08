@@ -64,6 +64,7 @@ module Suma::Postgres
     "suma/image",
     "suma/member",
     "suma/member/activity",
+    "suma/member/referral",
     "suma/member/reset_code",
     "suma/member/session",
     "suma/idempotency",

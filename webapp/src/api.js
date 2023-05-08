@@ -55,6 +55,7 @@ export default {
   getLedgerLines: ({ id, ...data }) => get(`/api/v1/ledgers/${id}/lines`, data),
   authStart: (data) => post(`/api/v1/auth/start`, data),
   authVerify: (data) => post(`/api/v1/auth/verify`, data),
+  authContactList: (data) => post(`/api/v1/auth/contact_list`, data),
   authSignout: (data) => del(`/api/v1/auth`, data),
   getMobilityMap: (data) => get("/api/v1/mobility/map", data),
   getMobilityMapFeatures: (data) => get("/api/v1/mobility/map_features", data),
