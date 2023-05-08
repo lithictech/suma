@@ -26,6 +26,8 @@ import Home from "./pages/Home";
 import LedgersOverview from "./pages/LedgersOverview";
 import MarkdownContent from "./pages/MarkdownContent";
 import Mobility from "./pages/Mobility";
+import MobilityTripDetail from "./pages/MobilityTripDetail";
+import MobilityTripList from "./pages/MobilityTripList";
 import Onboarding from "./pages/Onboarding";
 import OnboardingFinish from "./pages/OnboardingFinish";
 import OnboardingSignup from "./pages/OnboardingSignup";
@@ -228,6 +230,30 @@ function AppRoutes() {
             withMetatags({ title: t("mobility:title") }),
             withLayout({ noBottom: true, appNav: true }),
             Mobility
+          )}
+        />
+        <Route
+          path="/mobility-trips"
+          exact
+          element={renderWithHocs(
+            redirectIfUnauthed,
+            redirectIfUnboarded,
+            withScreenLoaderMount(),
+            withMetatags({ title: "Mobility Trip History" }),
+            withLayout(),
+            MobilityTripList
+          )}
+        />
+        <Route
+          path="/mobility/:id"
+          exact
+          element={renderWithHocs(
+            redirectIfUnauthed,
+            redirectIfUnboarded,
+            withScreenLoaderMount(),
+            withMetatags({ title: t("titles:ledgers_overview") }),
+            withLayout(),
+            MobilityTripDetail
           )}
         />
         <Route
