@@ -80,8 +80,8 @@ export default {
   getUnclaimedOrderHistory: (data) => get(`/api/v1/commerce/orders/unclaimed`, data),
   updateOrderFulfillment: ({ orderId, ...data }) =>
     post(`/api/v1/commerce/orders/${orderId}/modify_fulfillment`, data),
-  updateOrderClaimedAt: ({ orderId, ...data }) =>
-    post(`/api/v1/commerce/orders/${orderId}/modify_claimed_at`, data),
+  claimOrder: ({ orderId, ...data }) =>
+    post(`/api/v1/commerce/orders/${orderId}/claim`, data),
 
   createBankAccount: (data) =>
     post(`/api/v1/payment_instruments/bank_accounts/create`, data),

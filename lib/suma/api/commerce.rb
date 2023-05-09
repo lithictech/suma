@@ -202,11 +202,11 @@ class Suma::API::Commerce < Suma::API::V1
         end
 
         params do
-          requires :claimed_at, type: DateTime, allow_blank: false
+          requires :serial, type: String, allow_blank: false
         end
-        post :modify_claimed_at do
+        post :claim do
           order = lookup
-          order.update(claimed_at: params[:claimed_at]) unless params[:claimed_at].nil?
+          order.update(claimed_at: Time.now) unless params[:serial] != order.serial
           add_current_member_header
           status 200
           present order, with: DetailedOrderHistoryEntity

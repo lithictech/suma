@@ -9,7 +9,6 @@ import { md, t } from "../localization";
 import { dayjs } from "../modules/dayConfig";
 import Money from "../shared/react/Money";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
-import useMountEffect from "../shared/react/useMountEffect";
 import useToggle from "../shared/react/useToggle";
 import { useErrorToast } from "../state/useErrorToast";
 import { useScreenLoader } from "../state/useScreenLoader";
@@ -57,9 +56,11 @@ export default function OrderHistoryDetail() {
           </div>
           <p className="mb-0">
             {t("food:labels:price", { price: state.customerCost })}
-            <Money as="del" className="text-secondary ms-2">
-              {state.undiscountedCost}
-            </Money>
+            {state.customerCost.cents !== state.undiscountedCost.cents && (
+              <Money as="del" className="text-secondary ms-2">
+                {state.undiscountedCost}
+              </Money>
+            )}
             <br />
             {t("food:labels:fees_and_taxes", { fees: state.handling, taxes: state.tax })}
             <br />
@@ -101,6 +102,7 @@ export default function OrderHistoryDetail() {
         </Stack>
         <SwipeToClaim
           id={state.id}
+          serial={state.serial}
           claimedAt={state.claimedAt}
           onReplaceState={(s) => replaceState(s)}
         />
@@ -183,17 +185,11 @@ function FulfillmentOption({ order, onOrderUpdated }) {
   );
 }
 
-function SwipeToClaim({ id, claimedAt, onReplaceState }) {
+function SwipeToClaim({ id, serial, claimedAt, onReplaceState }) {
   const screenLoader = useScreenLoader();
   const { showErrorToast } = useErrorToast();
   const { handleUpdateCurrentMember } = useUser();
   const confirmInputRef = React.useRef(null);
-  useMountEffect(() => {
-    // Fixes bug where setting initial input value does not allow sliding animation
-    if (confirmInputRef.current) {
-      confirmInputRef.current.value = 0;
-    }
-  });
 
   if (claimedAt) {
     return (
@@ -206,7 +202,7 @@ function SwipeToClaim({ id, claimedAt, onReplaceState }) {
     );
   }
 
-  const handleSlideToClaim = (e) => {
+  const handleOrderClaim = (e) => {
     e.preventDefault();
     if (e.target.value < 99) {
       e.target.value = 0;
@@ -214,7 +210,7 @@ function SwipeToClaim({ id, claimedAt, onReplaceState }) {
     }
     screenLoader.turnOn();
     api
-      .updateOrderClaimedAt({ orderId: id, claimedAt: dayjs().format() })
+      .claimOrder({ orderId: id, serial: serial })
       .tap(handleUpdateCurrentMember)
       .then((r) => {
         screenLoader.turnOff();
@@ -224,6 +220,13 @@ function SwipeToClaim({ id, claimedAt, onReplaceState }) {
         screenLoader.turnOff();
         showErrorToast(e, { extract: true });
       });
+  };
+  // Behavior improvement for slider
+  const handleSlidePointerLeave = (e) => {
+    e.preventDefault();
+    if (e.target.value < 99) {
+      e.target.value = 0;
+    }
   };
   return (
     <div id="confirmation-slider">
@@ -235,7 +238,9 @@ function SwipeToClaim({ id, claimedAt, onReplaceState }) {
           type="range"
           min="0"
           max="100"
-          onMouseUp={(e) => handleSlideToClaim(e)}
+          defaultValue="0"
+          onPointerUp={(e) => handleOrderClaim(e)}
+          onPointerLeave={(e) => handleSlidePointerLeave(e)}
         />
       </div>
     </div>

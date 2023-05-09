@@ -12,9 +12,9 @@ export default function UnclaimedOrdersWidget() {
   return (
     <LayoutContainer top gutters>
       <Button
-        variant="light"
+        variant="outline-dark"
         size="sm"
-        className="w-100 border-dark d-flex justify-content-between"
+        className="w-100 d-flex justify-content-between"
         href="/order-history?unclaimed=true"
       >
         {t("food:unclaimed_orders", { unclaimedOrdersCount: user.unclaimedOrdersCount })}

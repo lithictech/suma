@@ -17,13 +17,11 @@ export default function FoodPrice({
       className={clsx("ms-auto", className, bold && `fw-semibold`, fs && `fs-${fs}`)}
     >
       {isDiscounted && (
-        <strike>
+        <strike className="me-2">
           <Money>{undiscountedPrice}</Money>
         </strike>
       )}
-      <Money className={clsx("ms-2", isDiscounted && "text-success")}>
-        {customerPrice}
-      </Money>
+      <Money className={isDiscounted && "text-success"}>{customerPrice}</Money>
     </Stack>
   );
 }
