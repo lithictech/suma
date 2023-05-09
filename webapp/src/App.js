@@ -381,7 +381,7 @@ function AppRoutes() {
             redirectIfUnauthed,
             redirectIfUnboarded,
             withScreenLoaderMount(),
-            withMetatags({ title: t("titles:ledgers_overview") }),
+            withMetatags({ title: t("titles:order_history") }),
             withLayout(),
             OrderHistoryList
           )}
@@ -393,7 +393,7 @@ function AppRoutes() {
             redirectIfUnauthed,
             redirectIfUnboarded,
             withScreenLoaderMount(),
-            withMetatags({ title: t("titles:ledgers_overview") }),
+            withMetatags({ title: t("titles:order") }),
             withLayout(),
             OrderHistoryDetail
           )}

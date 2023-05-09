@@ -4,9 +4,11 @@ import LinearBreadcrumbs from "../components/LinearBreadcrumbs";
 import PageLoader from "../components/PageLoader";
 import RLink from "../components/RLink";
 import SumaImage from "../components/SumaImage";
+import UnclaimedOrdersWidget from "../components/UnclaimedOrdersWidget";
 import { mdp, t } from "../localization";
 import { dayjs } from "../modules/dayConfig";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
+import useListQueryControls from "../shared/react/useListQueryControls";
 import { LayoutContainer } from "../state/withLayout";
 import find from "lodash/find";
 import isEmpty from "lodash/isEmpty";
@@ -16,11 +18,14 @@ import Card from "react-bootstrap/Card";
 import { Link, useNavigate } from "react-router-dom";
 
 export default function OrderHistoryList() {
+  const { params } = useListQueryControls();
+  const showUnclaimed = params.get("unclaimed");
+  const fetchUrl = showUnclaimed ? api.getUnclaimedOrderHistory : api.getOrderHistory;
   const {
     state: orderHistory,
     loading,
     error,
-  } = useAsyncFetch(api.getOrderHistory, {
+  } = useAsyncFetch(fetchUrl, {
     default: {},
     pickData: true,
   });
@@ -44,8 +49,17 @@ export default function OrderHistoryList() {
     e.preventDefault();
     navigate(`/order/${order.id}`, { state: { order: detailed } });
   }
+  if (showUnclaimed) {
+    return (
+      <UnclaimedOrderLayout
+        orderHistory={orderHistory}
+        onNavigate={(e) => handleNavigate(e)}
+      />
+    );
+  }
   return (
     <>
+      <UnclaimedOrdersWidget />
       <LayoutContainer top gutters>
         <LinearBreadcrumbs back="/food" />
         <h2>{t("food:order_history_title")}</h2>
@@ -61,6 +75,37 @@ export default function OrderHistoryList() {
         {isEmpty(orderHistory?.items) && (
           <>
             {mdp("food:no_orders")}
+            <p>
+              <Link to="/food">
+                {t("food:checkout_available")}
+                <i className="bi bi-arrow-right ms-1"></i>
+              </Link>
+            </p>
+          </>
+        )}
+      </LayoutContainer>
+    </>
+  );
+}
+
+function UnclaimedOrderLayout({ orderHistory, onNavigate }) {
+  return (
+    <>
+      <LayoutContainer top gutters>
+        <LinearBreadcrumbs back />
+        <h2>{t("food:unclaimed_order_history_title")}</h2>
+      </LayoutContainer>
+      <LayoutContainer gutters>
+        {!isEmpty(orderHistory?.items) && (
+          <Stack gap={4} className="mt-4">
+            {orderHistory?.items.map((o) => (
+              <Order key={o.id} {...o} onNavigate={(e) => onNavigate(e, o)} />
+            ))}
+          </Stack>
+        )}
+        {isEmpty(orderHistory?.items) && (
+          <>
+            {mdp("food:no_unclaimed_orders")}
             <p>
               <Link to="/food">
                 {t("food:checkout_available")}

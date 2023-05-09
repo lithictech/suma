@@ -39,6 +39,12 @@ class Suma::Commerce::Order < Suma::Postgres::Model(:commerce_orders)
                 end
               end)
 
+  dataset_module do
+    def unclaimed
+      return self.where(claimed_at: nil)
+    end
+  end
+
   def total_item_count
     # Pick just the 'select' column from the associated object
     return (super || {}).fetch(:total_item_count, 0)

@@ -14,16 +14,16 @@ export default function FoodPrice({
   return (
     <Stack
       direction="horizontal"
-      className={clsx(className, bold && `fw-semibold`, fs && `fs-${fs}`)}
+      className={clsx("ms-auto", className, bold && `fw-semibold`, fs && `fs-${fs}`)}
     >
-      <Money className={clsx("me-2", isDiscounted && "text-success")}>
-        {customerPrice}
-      </Money>
       {isDiscounted && (
         <strike>
           <Money>{undiscountedPrice}</Money>
         </strike>
       )}
+      <Money className={clsx("ms-2", isDiscounted && "text-success")}>
+        {customerPrice}
+      </Money>
     </Stack>
   );
 }

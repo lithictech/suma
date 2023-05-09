@@ -81,7 +81,8 @@ module Suma::API::Entities
   end
 
   class CurrentMemberEntity < Suma::Service::Entities::CurrentMember
-    expose :ongoing_trip, with: MobilityTripEntity
+    expose :unclaimed_orders_count, &self.delegate_to(:orders_dataset, :unclaimed, :count)
+    expose :ongoing_trip
     expose :read_only_mode?, as: :read_only_mode
     expose :read_only_reason
     expose :usable_payment_instruments, with: PaymentInstrumentEntity

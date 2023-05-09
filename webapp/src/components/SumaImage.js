@@ -15,6 +15,10 @@ import React from "react";
  * @constructor
  */
 export default function SumaImage({ image, w, h, width, height, params, alt, ...rest }) {
+  if (!image) {
+    return null;
+  }
+
   const usp = new URLSearchParams(params || undefined);
   if (w) {
     usp.set("w", w);

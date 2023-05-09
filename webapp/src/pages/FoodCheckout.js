@@ -12,6 +12,7 @@ import { useBackendGlobals } from "../state/useBackendGlobals";
 import { useErrorToast } from "../state/useErrorToast";
 import { useOffering } from "../state/useOffering";
 import { useScreenLoader } from "../state/useScreenLoader";
+import { useUser } from "../state/useUser";
 import { LayoutContainer } from "../state/withLayout";
 import clsx from "clsx";
 import find from "lodash/find";
@@ -35,6 +36,7 @@ import {
 
 export default function FoodCheckout() {
   const { id } = useParams();
+  const { handleUpdateCurrentMember } = useUser();
   const { showErrorToast } = useErrorToast();
   const location = useLocation();
   const [searchParams] = useSearchParams();
@@ -81,6 +83,7 @@ export default function FoodCheckout() {
     screenLoader.turnOn();
     api
       .completeCheckout({ ...checkout, paymentInstrument: chosenInstrument })
+      .tap(handleUpdateCurrentMember)
       .then(api.pickData)
       .then((d) => {
         resetOffering();

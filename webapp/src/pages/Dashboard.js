@@ -2,6 +2,7 @@ import api from "../api";
 import AddToHomescreen from "../components/AddToHomescreen";
 import PageLoader from "../components/PageLoader";
 import RLink from "../components/RLink";
+import UnclaimedOrdersWidget from "../components/UnclaimedOrdersWidget";
 import { md, t } from "../localization";
 import Money from "../shared/react/Money";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
@@ -17,13 +18,12 @@ import Stack from "react-bootstrap/Stack";
 import Table from "react-bootstrap/Table";
 import { Link } from "react-router-dom";
 
-const Dashboard = () => {
+export default function Dashboard() {
   const { user } = useUser();
   const { state: dashboard, loading: dashboardLoading } = useAsyncFetch(api.dashboard, {
     default: {},
     pickData: true,
   });
-
   return (
     <>
       {user.ongoingTrip && (
@@ -42,12 +42,11 @@ const Dashboard = () => {
         </Alert>
       )}
       <AddToHomescreen />
+      <UnclaimedOrdersWidget />
       {dashboardLoading ? <PageLoader /> : <Ledger dashboard={dashboard} />}
     </>
   );
-};
-
-export default Dashboard;
+}
 
 const Ledger = ({ dashboard }) => {
   return (

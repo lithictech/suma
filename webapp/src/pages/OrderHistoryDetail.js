@@ -1,4 +1,5 @@
 import api from "../api";
+import AnimatedCheckmark from "../components/AnimatedCheckmark";
 import ErrorScreen from "../components/ErrorScreen";
 import FormSaveCancel from "../components/FormSaveCancel";
 import LinearBreadcrumbs from "../components/LinearBreadcrumbs";
@@ -8,9 +9,11 @@ import { md, t } from "../localization";
 import { dayjs } from "../modules/dayConfig";
 import Money from "../shared/react/Money";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
+import useMountEffect from "../shared/react/useMountEffect";
 import useToggle from "../shared/react/useToggle";
 import { useErrorToast } from "../state/useErrorToast";
 import { useScreenLoader } from "../state/useScreenLoader";
+import { useUser } from "../state/useUser";
 import { LayoutContainer } from "../state/withLayout";
 import isEmpty from "lodash/isEmpty";
 import React from "react";
@@ -30,6 +33,7 @@ export default function OrderHistoryDetail() {
     pullFromState: "order",
     location,
   });
+
   if (error) {
     return (
       <LayoutContainer top>
@@ -43,7 +47,7 @@ export default function OrderHistoryDetail() {
   return (
     <>
       <LayoutContainer top gutters>
-        <LinearBreadcrumbs back="/order-history" />
+        <LinearBreadcrumbs back />
       </LayoutContainer>
       <LayoutContainer gutters>
         <Stack gap={3}>
@@ -95,6 +99,11 @@ export default function OrderHistoryDetail() {
             </Stack>
           ))}
         </Stack>
+        <SwipeToClaim
+          id={state.id}
+          claimedAt={state.claimedAt}
+          onReplaceState={(s) => replaceState(s)}
+        />
       </LayoutContainer>
     </>
   );
@@ -114,16 +123,18 @@ function FulfillmentOption({ order, onOrderUpdated }) {
     return (
       <span>
         {order.fulfillmentOption.description}
-        <Button
-          variant="link"
-          className="p-0 ms-2"
-          onClick={() => {
-            setOptionId(order.fulfillmentOption.id);
-            editing.turnOn();
-          }}
-        >
-          <i className="bi bi-pencil-fill"></i>
-        </Button>
+        {order.fulfillmentOptionsForEditing.length > 1 && (
+          <Button
+            variant="link"
+            className="p-0 ms-2"
+            onClick={() => {
+              setOptionId(order.fulfillmentOption.id);
+              editing.turnOn();
+            }}
+          >
+            <i className="bi bi-pencil-fill"></i>
+          </Button>
+        )}
       </span>
     );
   }
@@ -169,5 +180,64 @@ function FulfillmentOption({ order, onOrderUpdated }) {
         onSave={updateFulfillment}
       />
     </Form>
+  );
+}
+
+function SwipeToClaim({ id, claimedAt, onReplaceState }) {
+  const screenLoader = useScreenLoader();
+  const { showErrorToast } = useErrorToast();
+  const { handleUpdateCurrentMember } = useUser();
+  const confirmInputRef = React.useRef(null);
+  useMountEffect(() => {
+    // Fixes bug where setting initial input value does not allow sliding animation
+    if (confirmInputRef.current) {
+      confirmInputRef.current.value = 0;
+    }
+  });
+
+  if (claimedAt) {
+    return (
+      <div className="mt-4 text-center d-flex justify-content-center align-items-center flex-column">
+        <AnimatedCheckmark scale={2} />
+        <p className="mt-2 fs-4 w-75">
+          Items claimed on {dayjs(claimedAt).format("lll")}!
+        </p>
+      </div>
+    );
+  }
+
+  const handleSlideToClaim = (e) => {
+    e.preventDefault();
+    if (e.target.value < 99) {
+      e.target.value = 0;
+      return;
+    }
+    screenLoader.turnOn();
+    api
+      .updateOrderClaimedAt({ orderId: id, claimedAt: dayjs().format() })
+      .tap(handleUpdateCurrentMember)
+      .then((r) => {
+        screenLoader.turnOff();
+        onReplaceState(r.data);
+      })
+      .catch((e) => {
+        screenLoader.turnOff();
+        showErrorToast(e, { extract: true });
+      });
+  };
+  return (
+    <div id="confirmation-slider">
+      <div id="status" className="text-center">
+        <div id="confirm-label">{t("food:slide_to_claim")}</div>
+        <input
+          ref={confirmInputRef}
+          id="confirm"
+          type="range"
+          min="0"
+          max="100"
+          onMouseUp={(e) => handleSlideToClaim(e)}
+        />
+      </div>
+    </div>
   );
 }

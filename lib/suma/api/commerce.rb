@@ -144,6 +144,7 @@ class Suma::API::Commerce < Suma::API::V1
               merror!(403, "max quantity exceeded", code: "invalid_order_quantity")
             end
           end
+          add_current_member_header
           status 200
           present checkout, with: CheckoutConfirmationEntity, cart: checkout.cart
         end
@@ -163,6 +164,16 @@ class Suma::API::Commerce < Suma::API::V1
         ds = me.orders_dataset
         ds = ds.order(Sequel.desc(:created_at), :id)
         present_collection ds, with: OrderHistoryCollection, detailed_orders: ds.first(2)
+      end
+
+      resource :unclaimed do
+        desc "Get unclaimed order history"
+        get do
+          me = current_member
+          ds = me.orders_dataset.unclaimed
+          ds = ds.order(Sequel.desc(:created_at), :id)
+          present_collection ds, with: SimpleOrderHistoryEntity
+        end
       end
 
       route_param :id, type: Integer do
@@ -186,6 +197,17 @@ class Suma::API::Commerce < Suma::API::V1
           valid_option = order.fulfillment_options_for_editing.any? { |o| o.id == params[:option_id] }
           invalid!("Not a valid fulfillment option") unless valid_option
           order.checkout.update(fulfillment_option_id: params[:option_id])
+          status 200
+          present order, with: DetailedOrderHistoryEntity
+        end
+
+        params do
+          requires :claimed_at, type: DateTime, allow_blank: false
+        end
+        post :modify_claimed_at do
+          order = lookup
+          order.update(claimed_at: params[:claimed_at]) unless params[:claimed_at].nil?
+          add_current_member_header
           status 200
           present order, with: DetailedOrderHistoryEntity
         end
@@ -353,6 +375,7 @@ class Suma::API::Commerce < Suma::API::V1
     expose :funding_transactions, with: OrderHistoryFundingTransactionEntity do |inst|
       inst.charges.map(&:associated_funding_transactions).flatten
     end
+    expose :claimed_at
   end
 
   # We can assume the user is going to most often view their very recent history,

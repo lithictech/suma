@@ -143,6 +143,7 @@
     "no_orders": "You haven’t place any orders yet.",
     "no_products": "There were no products found, this offering might be closed. [Click here to view available offerings](/food '$t(strings:food:title)').",
     "noncash_ledger_contribution_available": "Eligible for {{amount, sumaCurrency}} of the existing balance in your account. Applied at checkout.",
+    "no_unclaimed_orders": "All orders are claimed.",
     "order_button": "Place order",
     "order_date": "Placed {{date}}",
     "order_history_title": "Order History",
@@ -157,10 +158,13 @@
     "remove_from_cart": "Remove from cart",
     "save_payment": "Save for future orders",
     "shop": "Shop",
+    "slide_to_claim": "Slide to claim",
     "subtotal_items": "Subtotal ({{totalItems}} items): **{{customerCost, sumaCurrency}}**",
     "terms_of_use_agreement": "By clicking \"place order\" you agree to Suma's [Terms of Use](/terms-of-use__blank__).",
     "title": "Food",
-    "total": "{{total, sumaCurrency}}"
+    "total": "{{total, sumaCurrency}}",
+    "unclaimed_order_history_title": "Unclaimed Order History",
+    "unclaimed_orders": "Unclaimed orders ({{unclaimedOrdersCount}})"
   },
   "forms": {
     "account_number": "Account Number",
@@ -207,7 +211,7 @@
     "zip": "Zip"
   },
   "ledgerusage": {
-    "commerce_order": "{{serviceName}}. You saved` {{discountAmount, sumaCurrency}}.",
+    "commerce_order": "{{serviceName}}. You saved {{discountAmount, sumaCurrency}}.",
     "funding": "Transfer from {{accountLabel}}",
     "misc": "Suma charge",
     "mobility_trip": "{{serviceName}} trip. You saved {{discountAmount, sumaCurrency}}.",
@@ -303,6 +307,8 @@
     "onboarding": "Onboarding",
     "onboarding_finish": "Onboarding Finish",
     "onboarding_signup": "Onboarding Signup",
+    "order": "Order",
+    "order_history": "Order History",
     "otp": "One Time Password",
     "start": "Get Started",
     "suma_app": "Suma App",
