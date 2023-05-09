@@ -305,10 +305,10 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
           es: "Recogida en mercado de agricultores",
         ),
         address: Suma::Address.lookup(
-          address1: "409 SE Martin Luther King Jr Blvd",
+          address1: "N Charleston Avenue &, N Central Street",
           city: "Portland",
           state_or_province: "Oregon",
-          postal_code: "97214",
+          postal_code: "97203",
         ),
       )
     end
