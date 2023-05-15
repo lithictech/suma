@@ -166,14 +166,11 @@ class Suma::API::Commerce < Suma::API::V1
         present_collection ds, with: OrderHistoryCollection, detailed_orders: ds.first(2)
       end
 
-      resource :unclaimed do
-        desc "Get unclaimed order history"
-        get do
-          me = current_member
-          ds = me.orders_dataset.unclaimed
-          ds = ds.order(Sequel.desc(:created_at), :id)
-          present_collection ds, with: SimpleOrderHistoryEntity
-        end
+      get :unclaimed do
+        me = current_member
+        ds = me.orders_dataset.available_to_claim
+        ds = ds.order(Sequel.desc(:created_at), :id)
+        present_collection ds, with: UnclaimedOrderCollection
       end
 
       route_param :id, type: Integer do
@@ -201,12 +198,11 @@ class Suma::API::Commerce < Suma::API::V1
           present order, with: DetailedOrderHistoryEntity
         end
 
-        params do
-          requires :serial, type: String, allow_blank: false
-        end
         post :claim do
           order = lookup
-          order.update(claimed_at: Time.now) unless params[:serial] != order.serial
+          order.db.transaction do
+            merror!(409, 'Order cannot be claimed') unless order.process(:claim)
+          end
           add_current_member_header
           status 200
           present order, with: DetailedOrderHistoryEntity
@@ -364,6 +360,10 @@ class Suma::API::Commerce < Suma::API::V1
     expose :fulfillment_option, with: FulfillmentOptionEntity, &self.delegate_to(:checkout, :fulfillment_option)
     expose :fulfillment_options_for_editing, with: FulfillmentOptionEntity
 
+    expose :order_status
+    expose :can_claim?, as: :can_claim
+    expose :fulfilled_at
+
     expose :customer_cost, with: MoneyEntity, &self.delegate_to(:checkout, :customer_cost)
     expose :undiscounted_cost, with: MoneyEntity, &self.delegate_to(:checkout, :undiscounted_cost)
     expose :savings, with: MoneyEntity, &self.delegate_to(:checkout, :savings)
@@ -375,7 +375,6 @@ class Suma::API::Commerce < Suma::API::V1
     expose :funding_transactions, with: OrderHistoryFundingTransactionEntity do |inst|
       inst.charges.map(&:associated_funding_transactions).flatten
     end
-    expose :claimed_at
   end
 
   # We can assume the user is going to most often view their very recent history,
@@ -385,5 +384,10 @@ class Suma::API::Commerce < Suma::API::V1
     expose :detailed_orders, with: DetailedOrderHistoryEntity do |_, opts|
       opts.fetch(:detailed_orders)
     end
+  end
+
+  class UnclaimedOrderCollection < Suma::Service::Collection::BaseEntity
+    # This should be a relatively small list, so always return the detailed orders.
+    expose :items, with: DetailedOrderHistoryEntity
   end
 end

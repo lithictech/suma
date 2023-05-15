@@ -104,5 +104,27 @@ RSpec.describe "Suma::Commerce::Order", :db do
         quantity_on_hand: 5, quantity_pending_fulfillment: 3,
       ) # Assert has no changed, since the quantity modification has not been applied yet
     end
+
+    it "can claim claimable orders" do
+      expect(order).to not_transition_on(:claim)
+      expect(order).to transition_on(:begin_fulfillment).to("fulfilling")
+      expect(order).to transition_on(:claim).to("fulfilled")
+    end
+
+    it "can only be claimed if the fulfillment is a pickup and the order is fulfilling" do
+      order.update(fulfillment_status: 'fulfilling')
+      order.checkout.fulfillment_option.update(type: 'pickup')
+      expect(order).to be_can_claim
+
+      order.fulfillment_status = 'unfulfilled'
+      expect(order).to_not be_can_claim
+
+      order.refresh
+      order.checkout.fulfillment_option.type = 'delivery'
+      expect(order).to_not be_can_claim
+
+      order.refresh
+      expect(order).to be_can_claim
+    end
   end
 end

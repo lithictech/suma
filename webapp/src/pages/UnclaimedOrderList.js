@@ -8,6 +8,7 @@ import UnclaimedOrdersWidget from "../components/UnclaimedOrdersWidget";
 import { mdp, t } from "../localization";
 import { dayjs } from "../modules/dayConfig";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
+import useListQueryControls from "../shared/react/useListQueryControls";
 import { LayoutContainer } from "../state/withLayout";
 import find from "lodash/find";
 import isEmpty from "lodash/isEmpty";
@@ -16,12 +17,12 @@ import { Stack } from "react-bootstrap";
 import Card from "react-bootstrap/Card";
 import { Link, useNavigate } from "react-router-dom";
 
-export default function OrderHistoryList() {
+export default function UnclaimedOrderList() {
   const {
     state: orderHistory,
     loading,
     error,
-  } = useAsyncFetch(api.getOrderHistory, {
+  } = useAsyncFetch(api.getUnclaimedOrderHistory, {
     default: {},
     pickData: true,
   });
@@ -47,10 +48,9 @@ export default function OrderHistoryList() {
   }
   return (
     <>
-      <UnclaimedOrdersWidget />
       <LayoutContainer top gutters>
-        <LinearBreadcrumbs back="/food" />
-        <h2>{t("food:order_history_title")}</h2>
+        <LinearBreadcrumbs back />
+        <h2>{t("food:unclaimed_order_history_title")}</h2>
       </LayoutContainer>
       <LayoutContainer gutters>
         {!isEmpty(orderHistory?.items) && (
@@ -62,7 +62,7 @@ export default function OrderHistoryList() {
         )}
         {isEmpty(orderHistory?.items) && (
           <>
-            {mdp("food:no_orders")}
+            {mdp("food:no_unclaimed_orders")}
             <p>
               <Link to="/food">
                 {t("food:checkout_available")}
@@ -73,8 +73,9 @@ export default function OrderHistoryList() {
         )}
       </LayoutContainer>
     </>
-  );
+  )
 }
+
 
 function Order({ id, createdAt, total, image, serial, onNavigate }) {
   return (

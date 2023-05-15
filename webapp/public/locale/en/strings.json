@@ -152,7 +152,7 @@
     "out_of_stock": "Out of stock",
     "payment_title": "How are you paying?",
     "previous_orders": "Previous Orders",
-    "price": "price",
+    "price": "Price",
     "price_times_quantity": "{{price, sumaCurrency}} x {{quantity}}",
     "quantity": "Quantity: {{quantity}}",
     "remove_from_cart": "Remove from cart",
@@ -163,7 +163,7 @@
     "terms_of_use_agreement": "By clicking \"place order\" you agree to Suma's [Terms of Use](/terms-of-use__blank__).",
     "title": "Food",
     "total": "{{total, sumaCurrency}}",
-    "unclaimed_order_history_title": "Unclaimed Order History",
+    "unclaimed_order_history_title": "Claim Orders",
     "unclaimed_orders": "Unclaimed orders ({{unclaimedOrdersCount}})"
   },
   "forms": {
@@ -313,7 +313,8 @@
     "start": "Get Started",
     "suma_app": "Suma App",
     "terms_of_sale_holiday_2022": "Terms of Sale (Holidays 2022)",
-    "terms_of_use": "Terms of Use"
+    "terms_of_use": "Terms of Use",
+    "unclaimed_orders": "Claim Order"
   },
   "utilities": {
     "intro": "Suma wants to make it easy for you to save money on your utility bills and make our communities more resilient against extreme weather and climate change.\n\nSign up for our free waiting list to help us build a community of members and to show that everyone deserves clean and affordable energy.",

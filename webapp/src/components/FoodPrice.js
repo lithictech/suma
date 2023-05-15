@@ -21,7 +21,7 @@ export default function FoodPrice({
           <Money>{undiscountedPrice}</Money>
         </strike>
       )}
-      <Money className={isDiscounted && "text-success"}>{customerPrice}</Money>
+      <Money className={clsx(isDiscounted && "text-success")}>{customerPrice}</Money>
     </Stack>
   );
 }

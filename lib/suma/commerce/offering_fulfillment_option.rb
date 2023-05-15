@@ -10,6 +10,14 @@ class Suma::Commerce::OfferingFulfillmentOption < Suma::Postgres::Model(:commerc
 
   many_to_one :address, class: "Suma::Address"
   many_to_one :offering, class: "Suma::Commerce::Offering"
+
+  dataset_module do
+    def pickup
+      return self.where(type: 'pickup')
+    end
+  end
+
+  def pickup? = self.type == 'pickup'
 end
 
 # Table: commerce_offering_fulfillment_options

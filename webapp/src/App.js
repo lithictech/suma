@@ -52,6 +52,7 @@ import withProps from "./state/withProps";
 import React from "react";
 import { HelmetProvider } from "react-helmet-async";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import UnclaimedOrderList from "./pages/UnclaimedOrderList";
 
 window.Promise = bluejay.Promise;
 
@@ -384,6 +385,18 @@ function AppRoutes() {
             withMetatags({ title: t("titles:order_history") }),
             withLayout(),
             OrderHistoryList
+          )}
+        />
+        <Route
+          path="/unclaimed-orders"
+          exact
+          element={renderWithHocs(
+            redirectIfUnauthed,
+            redirectIfUnboarded,
+            withScreenLoaderMount(),
+            withMetatags({ title: t("titles:unclaimed_orders") }),
+            withLayout(),
+            UnclaimedOrderList
           )}
         />
         <Route
