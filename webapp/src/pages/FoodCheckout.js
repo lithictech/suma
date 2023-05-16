@@ -6,7 +6,7 @@ import PageLoader from "../components/PageLoader";
 import RLink from "../components/RLink";
 import SumaImage from "../components/SumaImage";
 import { md, t } from "../localization";
-import Money, {anyMoney} from "../shared/react/Money";
+import Money, { anyMoney } from "../shared/react/Money";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
 import { useBackendGlobals } from "../state/useBackendGlobals";
 import { useErrorToast } from "../state/useErrorToast";
@@ -276,12 +276,14 @@ function OrderSummary({ checkout, chosenInstrument, onSubmit }) {
           price={checkout.undiscountedCost}
         />
         <SummaryLine label="Handling" price={checkout.handling} />
-        {anyMoney(checkout.savings) && <SummaryLine
-          label={t("food:labels:total_savings")}
-          price={checkout.savings}
-          subtract
-          className="text-success"
-        />}
+        {anyMoney(checkout.savings) && (
+          <SummaryLine
+            label={t("food:labels:total_savings")}
+            price={checkout.savings}
+            subtract
+            className="text-success"
+          />
+        )}
         <hr className="ms-auto w-25 my-1" />
         <SummaryLine
           label={t("food:labels:total_before_tax")}

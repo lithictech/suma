@@ -112,15 +112,15 @@ RSpec.describe "Suma::Commerce::Order", :db do
     end
 
     it "can only be claimed if the fulfillment is a pickup and the order is fulfilling" do
-      order.update(fulfillment_status: 'fulfilling')
-      order.checkout.fulfillment_option.update(type: 'pickup')
+      order.update(fulfillment_status: "fulfilling")
+      order.checkout.fulfillment_option.update(type: "pickup")
       expect(order).to be_can_claim
 
-      order.fulfillment_status = 'unfulfilled'
+      order.fulfillment_status = "unfulfilled"
       expect(order).to_not be_can_claim
 
       order.refresh
-      order.checkout.fulfillment_option.type = 'delivery'
+      order.checkout.fulfillment_option.type = "delivery"
       expect(order).to_not be_can_claim
 
       order.refresh

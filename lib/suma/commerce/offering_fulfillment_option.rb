@@ -13,11 +13,11 @@ class Suma::Commerce::OfferingFulfillmentOption < Suma::Postgres::Model(:commerc
 
   dataset_module do
     def pickup
-      return self.where(type: 'pickup')
+      return self.where(type: "pickup")
     end
   end
 
-  def pickup? = self.type == 'pickup'
+  def pickup? = self.type == "pickup"
 end
 
 # Table: commerce_offering_fulfillment_options

@@ -1,4 +1,5 @@
 import api from "../api";
+import { dayjs } from "../modules/dayConfig";
 import doOnce from "../shared/doOnce";
 import { localStorageCache } from "../shared/localStorageHelper";
 import { Logger } from "../shared/logger";
@@ -21,7 +22,7 @@ export default useI18Next;
 let memoryCache = localStorageCache.getItem("language", "en");
 
 export function getCurrentLanguage() {
-  return memoryCache;
+  return localStorageCache.getItem("language", "en");
 }
 
 export function I18NextProvider({ children }) {
@@ -41,6 +42,7 @@ export function I18NextProvider({ children }) {
         500,
         i18n.changeLanguage(lang).then(() => {
           setLanguage(lang);
+          dayjs.locale(lang);
           memoryCache = lang;
         })
       ).then(() => {

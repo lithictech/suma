@@ -1,7 +1,6 @@
 import api from "../api";
 import AnimatedCheckmark from "../components/AnimatedCheckmark";
 import FormSaveCancel from "../components/FormSaveCancel";
-import LinearBreadcrumbs from "../components/LinearBreadcrumbs";
 import SumaImage from "../components/SumaImage";
 import { md, t } from "../localization";
 import { dayjs } from "../modules/dayConfig";
@@ -18,31 +17,28 @@ import Button from "react-bootstrap/Button";
 import Card from "react-bootstrap/Card";
 import Form from "react-bootstrap/Form";
 
-export default function OrderDetail({state, replaceState}) {
-
+export default function OrderDetail({ state, onOrderClaim }) {
+  const [order, setOrder] = React.useState(state);
   return (
     <>
-      <LayoutContainer top gutters>
-        <LinearBreadcrumbs back />
-      </LayoutContainer>
       <LayoutContainer gutters>
         <Stack gap={3}>
           <div>
-            <h2 className="mb-1">{t("food:order_serial", { serial: state.serial })}</h2>
-            {dayjs(state.createdAt).format("lll")}
+            <h3 className="mb-1">{t("food:order_serial", { serial: order.serial })}</h3>
+            {dayjs(order.createdAt).format("lll")}
           </div>
           <p className="mb-0">
-            {t("food:labels:price", { price: state.customerCost })}
-            {state.customerCost.cents !== state.undiscountedCost.cents && (
+            {t("food:labels:price", { price: order.customerCost })}
+            {order.customerCost.cents !== order.undiscountedCost.cents && (
               <Money as="del" className="text-secondary ms-2">
-                {state.undiscountedCost}
+                {order.undiscountedCost}
               </Money>
             )}
             <br />
-            {t("food:labels:fees_and_taxes", { fees: state.handling, taxes: state.tax })}
+            {t("food:labels:fees_and_taxes", { fees: order.handling, taxes: order.tax })}
             <br />
-            {t("food:labels:total", { total: state.total })}
-            {state.fundingTransactions.map(({ label, amount }) => (
+            {t("food:labels:total", { total: order.total })}
+            {order.fundingTransactions.map(({ label, amount }) => (
               <React.Fragment key={label}>
                 <br />
                 {label}: <Money>{amount}</Money>
@@ -50,21 +46,18 @@ export default function OrderDetail({state, replaceState}) {
             ))}
             <br />
           </p>
-          <FulfillmentOption
-            order={state}
-            onOrderUpdated={(o) => replaceState(o)}
-          ></FulfillmentOption>
+          <FulfillmentOption order={order} onOrderUpdated={(o) => setOrder(o)} />
           <SumaImage
-            image={state.image}
+            image={order.image}
             w={350}
             height={150}
             className="rounded responsive-wide-image"
           />
           <hr className="my-0" />
           <Card.Text className="h4 mb-0">
-            {t("food:labels:items_count", { itemCount: state.items.length })}
+            {t("food:labels:items_count", { itemCount: order.items.length })}
           </Card.Text>
-          {state.items.map(({ name, description, customerPrice, quantity }, i) => (
+          {order.items.map(({ name, description, customerPrice, quantity }, i) => (
             <Stack key={i} className="justify-content-between align-items-start" gap={1}>
               <div className="lead">{name}</div>
               <div>
@@ -78,10 +71,11 @@ export default function OrderDetail({state, replaceState}) {
           ))}
         </Stack>
         <SwipeToClaim
-          id={state.id}
-          canClaim={state.canClaim}
-          fulfilledAt={state.fulfilledAt}
-          onReplaceState={(s) => replaceState(s)}
+          id={order.id}
+          canClaim={order.canClaim}
+          serial={order.serial}
+          fulfilledAt={order.fulfilledAt}
+          onOrderClaim={(o) => onOrderClaim(o)}
         />
       </LayoutContainer>
     </>
@@ -162,18 +156,24 @@ function FulfillmentOption({ order, onOrderUpdated }) {
   );
 }
 
-function SwipeToClaim({ id, canClaim, fulfilledAt, onReplaceState }) {
+function SwipeToClaim({ id, canClaim, serial, fulfilledAt, onOrderClaim }) {
   const screenLoader = useScreenLoader();
   const { showErrorToast } = useErrorToast();
   const { handleUpdateCurrentMember } = useUser();
   const confirmInputRef = React.useRef(null);
 
+  if (!canClaim && !fulfilledAt) {
+    return null;
+  }
   if (!canClaim) {
     return (
       <div className="mt-4 text-center d-flex justify-content-center align-items-center flex-column">
         <AnimatedCheckmark scale={2} />
         <p className="mt-2 fs-4 w-75">
-          Items claimed on {dayjs(fulfilledAt).format("lll")}!
+          {t("food:order_for_claimed_on", {
+            serial: serial,
+            fulfilledAt: dayjs(fulfilledAt).format("lll"),
+          })}
         </p>
       </div>
     );
@@ -191,12 +191,13 @@ function SwipeToClaim({ id, canClaim, fulfilledAt, onReplaceState }) {
       .tap(handleUpdateCurrentMember)
       .then((r) => {
         screenLoader.turnOff();
-        onReplaceState(r.data);
+        onOrderClaim(r.data);
       })
       .catch((e) => {
         screenLoader.turnOff();
         showErrorToast(e, { extract: true });
-      });
+      })
+      .finally(() => (e.target.value = 0));
   };
   // Behavior improvement for slider
   const handleSlidePointerLeave = (e) => {

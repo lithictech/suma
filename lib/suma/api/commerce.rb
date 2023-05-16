@@ -201,7 +201,7 @@ class Suma::API::Commerce < Suma::API::V1
         post :claim do
           order = lookup
           order.db.transaction do
-            merror!(409, 'Order cannot be claimed') unless order.process(:claim)
+            merror!(409, "Order cannot be claimed", code: "invalid_permissions") unless order.process(:claim)
           end
           add_current_member_header
           status 200

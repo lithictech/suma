@@ -42,9 +42,9 @@ class Suma::Commerce::Order < Suma::Postgres::Model(:commerce_orders)
   dataset_module do
     def available_to_claim
       return self.where(
-        fulfillment_status: ['fulfilling'],
-        order_status: ['open', 'completed'],
-        checkout: Suma::Commerce::Checkout.where(fulfillment_option: Suma::Commerce::OfferingFulfillmentOption.pickup)
+        fulfillment_status: ["fulfilling"],
+        order_status: ["open", "completed"],
+        checkout: Suma::Commerce::Checkout.where(fulfillment_option: Suma::Commerce::OfferingFulfillmentOption.pickup),
       )
     end
   end
@@ -144,7 +144,7 @@ class Suma::Commerce::Order < Suma::Postgres::Model(:commerce_orders)
   end
 
   def can_claim?
-    return self.fulfillment_status == 'fulfilling' && self.checkout.fulfillment_option.pickup?
+    return self.fulfillment_status == "fulfilling" && self.checkout.fulfillment_option.pickup?
   end
 end
 

@@ -35,6 +35,7 @@ import OrderHistoryList from "./pages/OrderHistoryList";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import Start from "./pages/Start";
 import Styleguide from "./pages/Styleguide";
+import UnclaimedOrderList from "./pages/UnclaimedOrderList";
 import Utilities from "./pages/Utilities";
 import applyHocs from "./shared/applyHocs";
 import bluejay from "./shared/bluejay";
@@ -52,7 +53,6 @@ import withProps from "./state/withProps";
 import React from "react";
 import { HelmetProvider } from "react-helmet-async";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import UnclaimedOrderList from "./pages/UnclaimedOrderList";
 
 window.Promise = bluejay.Promise;
 

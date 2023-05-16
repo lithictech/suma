@@ -1,11 +1,12 @@
 import api from "../api";
 import ErrorScreen from "../components/ErrorScreen";
+import LinearBreadcrumbs from "../components/LinearBreadcrumbs";
+import OrderDetail from "../components/OrderDetail";
 import PageLoader from "../components/PageLoader";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
 import { LayoutContainer } from "../state/withLayout";
 import React from "react";
 import { useLocation, useParams } from "react-router-dom";
-import OrderDetail from "../components/OrderDetail";
 
 export default function OrderHistoryDetail() {
   const { id } = useParams();
@@ -28,6 +29,12 @@ export default function OrderHistoryDetail() {
   if (loading) {
     return <PageLoader />;
   }
-  return <OrderDetail state={state} replaceState={replaceState} />
+  return (
+    <>
+      <LayoutContainer top gutters>
+        <LinearBreadcrumbs back />
+      </LayoutContainer>
+      <OrderDetail state={state} onOrderClaimed={replaceState} />
+    </>
+  );
 }
-

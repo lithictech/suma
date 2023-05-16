@@ -145,7 +145,9 @@
     "noncash_ledger_contribution_available": "Eligible for {{amount, sumaCurrency}} of the existing balance in your account. Applied at checkout.",
     "no_unclaimed_orders": "All orders are claimed.",
     "order_button": "Place order",
+    "order_claimed": "Order claimed",
     "order_date": "Placed {{date}}",
+    "order_for_claimed_on": "Order #{{serial}} claimed on {{fulfilledAt}}!",
     "order_history_title": "Order History",
     "order_serial": "Order {{serial}}",
     "order_summary_title": "Order summary",
@@ -164,6 +166,7 @@
     "title": "Food",
     "total": "{{total, sumaCurrency}}",
     "unclaimed_order_history_title": "Claim Orders",
+    "unclaimed_order_history_intro": "Orders that are ready to claim will appear below. When you arrive to the order pickup location, please allow a staff member to help you \"slide to claim\" your order.",
     "unclaimed_orders": "Unclaimed orders ({{unclaimedOrdersCount}})"
   },
   "forms": {
