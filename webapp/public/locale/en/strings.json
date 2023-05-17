@@ -38,7 +38,7 @@
     "choose_language": "Please select a preferred language to continue to your savings!",
     "labels": {
       "friends_family": "Friends/Family",
-      "local_community": "Local community",
+      "local_community": "Community group",
       "mysuma_website": "MySuma website",
       "other": "Other",
       "suma_event": "Suma event",
@@ -48,7 +48,7 @@
     "sign_up_again": "Sign up again",
     "signup_intro": "Fill in the blanks below to join our contact list, and we will update you on all our projects and upcoming money saving opportunities. We’re so excited!",
     "signup_title": "Join suma",
-    "success_intro": "Thank you for signing up, and welcome to suma!\n\nYou are now enrolled in our community! We will update you on all future projects and money saving opportunities. To learn more about suma, visit our website at $t(strings:common:mysuma_website_link), or check us out on our social media using the link below. Chat soon!"
+    "success_intro": "Thank you for signing up, and welcome to the suma app!\n\nWe will update you on all future projects, money saving opportunities, and how to complete the app enrollment process. To learn more about suma, visit our website at $t(strings:common:mysuma_website_link), or check us out on our social media using the link below. Chat soon!"
   },
   "dashboard": {
     "check_ongoing_trip": "You have an ongoing trip. Please make sure you end it when you are finished with your ride!",
