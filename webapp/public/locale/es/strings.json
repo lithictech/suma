@@ -48,7 +48,7 @@
     "sign_up_again": "Regístrese de nuevo",
     "signup_intro": "Complete los espacios abajo para unirse a nuestra lista de contactos y lo actualizaremos sobre todos nuestros proyectos y las próximas oportunidades de ahorro de dinero. ¡Estamos tan emocionados!",
     "signup_title": "Unirse a suma",
-    "success_intro": "¡Gracias por registrarte y bienvenido a suma!\n\n¡Ya estás inscrito en nuestra comunidad! Lo informaremos sobre todos los proyectos futuros, las oportunidades de ahorro de dinero y cómo completar el proceso de inscripción en la aplicación. Para obtener más información sobre suma, visite nuestro sitio web en $t(strings:common:mysuma_website_link), o visítenos en nuestras redes sociales usando el enlace abajo. ¡Nos hablamos pronto!"
+    "success_intro": "¡Gracias por registrarte y bienvenido a la app suma!\n\n¡Ya estás inscrito en nuestra comunidad! Lo informaremos sobre todos los proyectos futuros, las oportunidades de ahorro de dinero y cómo completar el proceso de inscripción en la aplicación. Para obtener más información sobre suma, visite nuestro sitio web en $t(strings:common:mysuma_website_link), o visítenos en nuestras redes sociales usando el enlace abajo. ¡Nos hablamos pronto!"
   },
   "dashboard": {
     "check_ongoing_trip": "Tienes un viaje en curso. Asegúrate de finalizarlo al terminar el viaje.",
