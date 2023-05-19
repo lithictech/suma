@@ -71,16 +71,20 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
 
   def sync_lime_gbfs
     require "suma/lime"
-    i = Suma::Lime.scooter_vendor.db.transaction do
-      Suma::Lime.gbfs_sync_free_bike_status
-      Suma::Lime.gbfs_sync_geofencing_zones
+    return unless Suma::Lime.configured?
+    [Suma::Mobility::Gbfs::FreeBikeStatus, Suma::Mobility::Gbfs::GeofencingZone].each do |cc|
+      c = cc.new
+      i = Suma::Mobility::Gbfs::VendorSync.new(
+        client: Suma::Lime.gbfs_http_client,
+        vendor: Suma::Lime.mobility_vendor,
+        component: c,
+      ).sync_all
+      puts "Synced #{i} #{c.model.name}"
     end
-    puts "Synced #{i} scooters"
   end
 
   def self.create_lime_scooter_vendor
-    org = Suma::Organization.find_or_create(name: "Lime")
-    lime_vendor = Suma::Vendor.find_or_create(name: "Lime", organization: org)
+    lime_vendor = Suma::Lime.mobility_vendor
     return unless lime_vendor.services_dataset.mobility.empty?
     rate = Suma::Vendor::ServiceRate.find_or_create(name: "Ride for free") do |r|
       r.localization_key = "mobility_free_of_charge"
