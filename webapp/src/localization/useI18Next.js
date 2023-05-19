@@ -22,7 +22,7 @@ export default useI18Next;
 let memoryCache = localStorageCache.getItem("language", "en");
 
 export function getCurrentLanguage() {
-  return localStorageCache.getItem("language", "en");
+  return memoryCache;
 }
 
 export function I18NextProvider({ children }) {

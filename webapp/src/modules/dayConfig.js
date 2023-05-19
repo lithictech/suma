@@ -15,7 +15,6 @@ import "dayjs/locale/es";
 // import utc from 'dayjs/plugin/utc';
 import localizedFormat from "dayjs/plugin/localizedFormat";
 import timezone from "dayjs/plugin/timezone";
-import i18n from "i18next";
 
 dayjs.extend(timezone);
 // dayjs.extend(utc);
@@ -28,7 +27,7 @@ dayjs.extend(localizedFormat);
 // dayjs.extend(isTomorrow);
 // dayjs.extend(relativeTime);
 
-dayjs.locale(getCurrentLanguage() || "en");
+dayjs.locale(getCurrentLanguage());
 export {
   dayjs,
   // utc,
