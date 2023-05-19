@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "amigo/scheduled_job"
+require "suma/lime"
 
 class Suma::Async::SyncLimeFreeBikeStatusGbfs
   extend Amigo::ScheduledJob
