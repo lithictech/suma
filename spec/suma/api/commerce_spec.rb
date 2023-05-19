@@ -357,8 +357,8 @@ RSpec.describe Suma::API::Commerce, :db do
 
   describe "GET /v1/commerce/orders/unclaimed" do
     it "returns orders available to claim" do
-      o1 = Suma::Fixtures.order.as_purchased_by(member).create(fulfillment_status: "fulfilling")
-      o2 = Suma::Fixtures.order.as_purchased_by(member).create(fulfillment_status: "fulfilled")
+      o1 = Suma::Fixtures.order.as_purchased_by(member).claimable.create
+      o2 = Suma::Fixtures.order.as_purchased_by(member).claimed.create
 
       get "/v1/commerce/orders/unclaimed"
 
@@ -411,10 +411,9 @@ RSpec.describe Suma::API::Commerce, :db do
   end
 
   describe "POST /v1/commerce/orders/:id/claim" do
-    let(:order) { Suma::Fixtures.order.as_purchased_by(member).create }
+    let(:order_fac) { Suma::Fixtures.order.as_purchased_by(member) }
     it "claims a claimable order" do
-      order.update(fulfillment_status: "fulfilling")
-      order.update(order_status: "open")
+      order = order_fac.claimable.create
 
       post "/v1/commerce/orders/#{order.id}/claim"
 
@@ -423,7 +422,7 @@ RSpec.describe Suma::API::Commerce, :db do
     end
 
     it "409s if the order cannot be claimed" do
-      order.update(fulfillment_status: "fulfilled")
+      order = order_fac.claimed.create
 
       post "/v1/commerce/orders/#{order.id}/claim"
 
