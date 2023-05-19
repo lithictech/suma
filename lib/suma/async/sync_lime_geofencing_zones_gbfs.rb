@@ -10,8 +10,6 @@ class Suma::Async::SyncLimeGeofencingZonesGbfs
   cron "0 */12 * * *"
 
   def _perform
-    Suma::Lime.gbfs_sync_geofencing_zones
+    Suma::Mobility::Gbfs::GeofencingZone.new(client: self.gbfs_http_client, vendor: self.scooter_vendor).sync_all
   end
-
-  Amigo.register_job(self)
 end

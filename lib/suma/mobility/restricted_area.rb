@@ -7,6 +7,8 @@ require "suma/postgres/model"
 class Suma::Mobility::RestrictedArea < Suma::Postgres::Model(:mobility_restricted_areas)
   plugin :timestamps
 
+  many_to_one :vendor_service, key: :vendor_service_id, class: "Suma::Vendor::Service"
+
   RESTRICTIONS = [
     "do-not-park",
     "do-not-ride",

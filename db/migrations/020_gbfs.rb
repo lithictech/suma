@@ -7,6 +7,7 @@ Sequel.migration do
       add_column :multipolygon, "decimal[][][][]", null: false
       add_column :title, :text, null: false
       add_column :unique_id, :text, null: false, unique: true
+      add_foreign_key :vendor_service_id, :vendor_services, null: false
       drop_column :polygon
     end
 

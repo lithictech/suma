@@ -10,8 +10,6 @@ class Suma::Async::SyncLimeFreeBikeStatusGbfs
   splay 0.seconds
 
   def _perform
-    Suma::Lime.gbfs_sync_free_bike_status
+    Suma::Mobility::Gbfs::FreeBikeStatus.new(client: self.gbfs_http_client, vendor: self.scooter_vendor).sync_all
   end
-
-  Amigo.register_job(self)
 end

@@ -3,24 +3,22 @@
 class Suma::Mobility::Gbfs::FreeBikeStatus
   attr_reader :client, :vendor
 
-  def initialize(client:, vendor:)
+  def initialize(client:)
     @client = client
-    @vendor = vendor
   end
 
-  def sync_all
-    # We'll need to modify this when we have GBFS vendors that don't use vehicle_types.json
+  def sync_all(vendor_services)
     bikes = self.client.fetch_free_bike_status.dig("data", "bikes")
     vehicle_types = self.client.fetch_vehicle_types.dig("data", "vehicle_types")
     total = 0
-    self.vendor.services_dataset.mobility.each do |vs|
+    vendor_services.each do |vs|
       total += self.upsert_free_bike_status(vs, bikes, vehicle_types)
     end
     return total
   end
 
-  def upsert_free_bike_status(vendor_status, bikes, vehicle_types)
-    valid_vehicle_types = vehicle_types.select { |vt| vendor_status.satisfies_constraints?(vt) }
+  def upsert_free_bike_status(vendor_service, bikes, vehicle_types)
+    valid_vehicle_types = vehicle_types.select { |vt| vendor_service.satisfies_constraints?(vt) }
     vehicle_types_by_id = valid_vehicle_types.index_by { |vt| vt["vehicle_type_id"] }
     rows = []
     bikes.each do |bike|
@@ -34,13 +32,13 @@ class Suma::Mobility::Gbfs::FreeBikeStatus
         lng: bike["lon"],
         vehicle_id: bike["bike_id"],
         vehicle_type: "escooter",
-        vendor_service_id: vendor_status.id,
+        vendor_service_id: vendor_service.id,
         battery_level:,
       }
       rows << row
     end
     Suma::Mobility::Vehicle.db.transaction do
-      Suma::Mobility::Vehicle.where(vendor_service: vendor_status).delete
+      Suma::Mobility::Vehicle.where(vendor_service:).delete
       Suma::Mobility::Vehicle.dataset.multi_insert(rows)
     end
     return rows.length

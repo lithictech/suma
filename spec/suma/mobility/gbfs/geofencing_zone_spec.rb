@@ -162,8 +162,7 @@ RSpec.describe Suma::Mobility::Gbfs::GeofencingZone, :db do
 
   describe "GBFS geofencing" do
     it "gets and upserts geofencing zones" do
-      z = described_class.new(client:, vendor: vendor_service.vendor)
-      z.sync_all
+      described_class.new(client:).sync_all([vendor_service])
       expect(Suma::Mobility::RestrictedArea.all).to contain_exactly(
         have_attributes(
           title: "NE 24th/NE Knott",
@@ -174,8 +173,7 @@ RSpec.describe Suma::Mobility::Gbfs::GeofencingZone, :db do
 
     it "limits zones to those matching the vendor service constraint" do
       vs = vendor_service.update(constraints: [{"form_factor" => "scooter"}, "propulsion_type" => "electric"])
-      z = described_class.new(client:, vendor: vs.vendor)
-      z.sync_all
+      described_class.new(client:).sync_all([vs])
       expect(Suma::Mobility::RestrictedArea.all).to contain_exactly(
         have_attributes(
           title: "NE 24th/NE Knott",
@@ -187,8 +185,7 @@ RSpec.describe Suma::Mobility::Gbfs::GeofencingZone, :db do
 
   it "sets correct zone restriction based on rules" do
     vs = vendor_service.update(constraints: [{"form_factor" => "scooter"}, "propulsion_type" => "electric"])
-    z = described_class.new(client:, vendor: vs.vendor)
-    z.sync_all
+    described_class.new(client:).sync_all([vs])
     expect(Suma::Mobility::RestrictedArea.all).to contain_exactly(
       have_attributes(restriction: "do-not-park"),
     )

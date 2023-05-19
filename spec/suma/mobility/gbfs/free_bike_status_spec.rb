@@ -66,8 +66,8 @@ RSpec.describe Suma::Mobility::Gbfs::FreeBikeStatus, :db do
 
     it "gets and upserts vehicles" do
       client = Suma::Mobility::Gbfs::FakeClient.new(fake_free_bike_status_json:, fake_vehicle_types_json:)
-      z = described_class.new(client:, vendor: vs.vendor)
-      z.sync_all
+      z = described_class.new(client:)
+      z.sync_all([vs])
       expect(Suma::Mobility::Vehicle.all).to contain_exactly(
         have_attributes(
           vehicle_id: "ghi799",
@@ -85,7 +85,7 @@ RSpec.describe Suma::Mobility::Gbfs::FreeBikeStatus, :db do
     it "limits vehicles to those matching the vendor service constraint" do
       vs.update(constraints: [{"form_factor" => "scooter"}, "propulsion_type" => "electric"])
       client = Suma::Mobility::Gbfs::FakeClient.new(fake_free_bike_status_json:, fake_vehicle_types_json:)
-      described_class.new(client:, vendor: vs.vendor).sync_all
+      described_class.new(client:).sync_all([vs])
       expect(Suma::Mobility::Vehicle.all).to contain_exactly(
         have_attributes(vehicle_id: "ghi799"),
         have_attributes(vehicle_id: "ghi700"),
@@ -95,7 +95,7 @@ RSpec.describe Suma::Mobility::Gbfs::FreeBikeStatus, :db do
     it "uses a nil battery level if range is not defined" do
       fake_vehicle_types_json["data"]["vehicle_types"].each { |vt| vt.delete("max_range_meters") }
       client = Suma::Mobility::Gbfs::FakeClient.new(fake_free_bike_status_json:, fake_vehicle_types_json:)
-      described_class.new(client:, vendor: vs.vendor).sync_all
+      described_class.new(client:).sync_all([vs])
       expect(Suma::Mobility::Vehicle.all).to contain_exactly(
         have_attributes(vehicle_id: "ghi799", battery_level: nil),
         have_attributes(vehicle_id: "ghi700", battery_level: nil),
