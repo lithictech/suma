@@ -25,6 +25,8 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
         self.setup_offerings
         self.setup_products
         self.setup_automation
+
+        self.setup_market_offering_product
       end
     end
   end
@@ -43,6 +45,10 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
 
   def holidays_category
     Suma::Vendor::ServiceCategory.find_or_create(name: "Holiday 2022 Promo", parent: food_category)
+  end
+
+  def farmers_market_category
+    Suma::Vendor::ServiceCategory.find_or_create(name: "Summer 2023 Farmers Market", parent: cash_category)
   end
 
   def create_meta_resources
@@ -285,6 +291,56 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
         customer_price: Money.new(90_00),
         undiscounted_price: Money.new(180_00),
       )
+    end
+  end
+
+  def setup_market_offering_product
+    market_name = "St. Johns Farmers Market"
+    offering = Suma::Commerce::Offering.find_or_create(confirmation_template: "2023-06-pilot-confirmation") do |o|
+      o.period = 1.day.ago..self.pilot_end
+      o.description = Suma::TranslatedText.create(en: "Suma Farmers Market Ride & Shop",
+                                                  es: "Paseo y tienda en el mercado de agricultores de Suma",)
+    end
+    if offering.fulfillment_options.empty?
+      offering.add_fulfillment_option(
+        type: "pickup",
+        ordinal: 0,
+        description: Suma::TranslatedText.create(
+          en: "Pickup at #{market_name}",
+          es: "Recogida en #{market_name}",
+        ),
+        address: Suma::Address.lookup(
+          address1: "N Charleston Avenue &, N Central Street",
+          city: "Portland",
+          state_or_province: "Oregon",
+          postal_code: "97203",
+        ),
+      )
+    end
+
+    suma_org = Suma::Organization.find_or_create(name: "suma")
+    product_name = Suma::TranslatedText.find_or_create(en: "$2 Token", es: "Ficha de $2")
+    product = Suma::Commerce::Product.find_or_create(name: product_name) do |p|
+      p.description = Suma::TranslatedText.create(
+        en: "Farmer's Market token voucher only valid through 2023.
+             It can be used to buy anything in #{market_name}.",
+        es: "El cupón de ficha del Farmer's Market solo es válido durante 2023.
+             Se puede usar para comprar cualquier cosa en #{market_name}.",
+      )
+      p.vendor = Suma::Vendor.find_or_create(name: market_name, organization: suma_org)
+      p.our_cost = Money.new(200)
+    end
+    product.add_vendor_service_category(farmers_market_category) if product.vendor_service_categories.empty?
+    bytes = File.binread("spec/data/images/2-dollar-token.png")
+    uf = Suma::UploadedFile.create_with_blob(bytes:, content_type: "image/jpeg", filename: "2-dollar-token.png")
+    product.add_image({uploaded_file: uf}) if product.images.empty?
+    Suma::Commerce::ProductInventory.find_or_create(product:) do |p|
+      p.max_quantity_per_order = 25
+      p.max_quantity_per_offering = 50
+    end
+    Suma::Commerce::OfferingProduct.find_or_create(offering:, product:) do |op|
+      op.customer_price = Money.new(200)
+      op.undiscounted_price = Money.new(200)
     end
   end
 

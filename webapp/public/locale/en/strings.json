@@ -143,24 +143,31 @@
     "no_orders": "You haven’t place any orders yet.",
     "no_products": "There were no products found, this offering might be closed. [Click here to view available offerings](/food '$t(strings:food:title)').",
     "noncash_ledger_contribution_available": "Eligible for {{amount, sumaCurrency}} of the existing balance in your account. Applied at checkout.",
+    "no_unclaimed_orders": "All orders are claimed.",
     "order_button": "Place order",
+    "order_claimed": "Order claimed",
     "order_date": "Placed {{date}}",
+    "order_for_claimed_on": "Order #{{serial}} claimed on {{fulfilledAt}}!",
     "order_history_title": "Order History",
     "order_serial": "Order {{serial}}",
     "order_summary_title": "Order summary",
     "out_of_stock": "Out of stock",
     "payment_title": "How are you paying?",
     "previous_orders": "Previous Orders",
-    "price": "price",
+    "price": "Price",
     "price_times_quantity": "{{price, sumaCurrency}} x {{quantity}}",
     "quantity": "Quantity: {{quantity}}",
     "remove_from_cart": "Remove from cart",
     "save_payment": "Save for future orders",
     "shop": "Shop",
+    "slide_to_claim": "Slide to claim",
     "subtotal_items": "Subtotal ({{totalItems}} items): **{{customerCost, sumaCurrency}}**",
     "terms_of_use_agreement": "By clicking \"place order\" you agree to Suma's [Terms of Use](/terms-of-use__blank__).",
     "title": "Food",
-    "total": "{{total, sumaCurrency}}"
+    "total": "{{total, sumaCurrency}}",
+    "unclaimed_order_history_title": "Claim Orders",
+    "unclaimed_order_history_intro": "Orders that are ready to claim will appear below. When you arrive to the order pickup location, please allow a staff member to help you \"slide to claim\" your order.",
+    "unclaimed_orders": "Unclaimed orders ({{unclaimedOrdersCount}})"
   },
   "forms": {
     "account_number": "Account Number",
@@ -207,7 +214,7 @@
     "zip": "Zip"
   },
   "ledgerusage": {
-    "commerce_order": "{{serviceName}}. You saved` {{discountAmount, sumaCurrency}}.",
+    "commerce_order": "{{serviceName}}. You saved {{discountAmount, sumaCurrency}}.",
     "funding": "Transfer from {{accountLabel}}",
     "misc": "Suma charge",
     "mobility_trip": "{{serviceName}} trip. You saved {{discountAmount, sumaCurrency}}.",
@@ -303,11 +310,14 @@
     "onboarding": "Onboarding",
     "onboarding_finish": "Onboarding Finish",
     "onboarding_signup": "Onboarding Signup",
+    "order": "Order",
+    "order_history": "Order History",
     "otp": "One Time Password",
     "start": "Get Started",
     "suma_app": "Suma App",
     "terms_of_sale_holiday_2022": "Terms of Sale (Holidays 2022)",
-    "terms_of_use": "Terms of Use"
+    "terms_of_use": "Terms of Use",
+    "unclaimed_orders": "Claim Order"
   },
   "utilities": {
     "intro": "Suma wants to make it easy for you to save money on your utility bills and make our communities more resilient against extreme weather and climate change.\n\nSign up for our free waiting list to help us build a community of members and to show that everyone deserves clean and affordable energy.",

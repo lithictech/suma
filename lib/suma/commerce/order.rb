@@ -39,6 +39,16 @@ class Suma::Commerce::Order < Suma::Postgres::Model(:commerce_orders)
                 end
               end)
 
+  dataset_module do
+    def available_to_claim
+      return self.where(
+        fulfillment_status: ["fulfilling"],
+        order_status: ["open", "completed"],
+        checkout: Suma::Commerce::Checkout.where(fulfillment_option: Suma::Commerce::OfferingFulfillmentOption.pickup),
+      )
+    end
+  end
+
   def total_item_count
     # Pick just the 'select' column from the associated object
     return (super || {}).fetch(:total_item_count, 0)
@@ -63,6 +73,11 @@ class Suma::Commerce::Order < Suma::Postgres::Model(:commerce_orders)
     end
     after_transition on: :end_fulfillment, do: :apply_fulfillment_quantity_changes
 
+    event :claim do
+      transition fulfilling: :fulfilled, if: :can_claim?
+    end
+    after_transition on: :claim, do: :apply_fulfillment_quantity_changes
+
     event :unfulfill do
       transition [:fulfilling, :fulfilled] => :unfulfilled
     end
@@ -71,6 +86,13 @@ class Suma::Commerce::Order < Suma::Postgres::Model(:commerce_orders)
     after_transition(&:commit_audit_log)
     after_failure(&:commit_audit_log)
   end
+
+  timestamp_accessors(
+    [
+      [{to: "fulfilling"}, :fulfillment_started_at],
+      [{to: "fulfilled"}, :fulfilled_at],
+    ],
+  )
 
   def serial = "%04d" % self.id
 
@@ -119,6 +141,10 @@ class Suma::Commerce::Order < Suma::Postgres::Model(:commerce_orders)
 
   protected def limited_quantity_items
     return self.checkout.items.filter { |ci| ci.offering_product.product.inventory&.limited_quantity? }
+  end
+
+  def can_claim?
+    return self.fulfillment_status == "fulfilling" && self.checkout.fulfillment_option.pickup?
   end
 end
 

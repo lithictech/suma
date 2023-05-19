@@ -35,6 +35,7 @@ import OrderHistoryList from "./pages/OrderHistoryList";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import Start from "./pages/Start";
 import Styleguide from "./pages/Styleguide";
+import UnclaimedOrderList from "./pages/UnclaimedOrderList";
 import Utilities from "./pages/Utilities";
 import applyHocs from "./shared/applyHocs";
 import bluejay from "./shared/bluejay";
@@ -381,9 +382,21 @@ function AppRoutes() {
             redirectIfUnauthed,
             redirectIfUnboarded,
             withScreenLoaderMount(),
-            withMetatags({ title: t("titles:ledgers_overview") }),
+            withMetatags({ title: t("titles:order_history") }),
             withLayout(),
             OrderHistoryList
+          )}
+        />
+        <Route
+          path="/unclaimed-orders"
+          exact
+          element={renderWithHocs(
+            redirectIfUnauthed,
+            redirectIfUnboarded,
+            withScreenLoaderMount(),
+            withMetatags({ title: t("titles:unclaimed_orders") }),
+            withLayout(),
+            UnclaimedOrderList
           )}
         />
         <Route
@@ -393,7 +406,7 @@ function AppRoutes() {
             redirectIfUnauthed,
             redirectIfUnboarded,
             withScreenLoaderMount(),
-            withMetatags({ title: t("titles:ledgers_overview") }),
+            withMetatags({ title: t("titles:order") }),
             withLayout(),
             OrderHistoryDetail
           )}

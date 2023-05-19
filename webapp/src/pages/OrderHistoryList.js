@@ -4,6 +4,7 @@ import LinearBreadcrumbs from "../components/LinearBreadcrumbs";
 import PageLoader from "../components/PageLoader";
 import RLink from "../components/RLink";
 import SumaImage from "../components/SumaImage";
+import UnclaimedOrdersWidget from "../components/UnclaimedOrdersWidget";
 import { mdp, t } from "../localization";
 import { dayjs } from "../modules/dayConfig";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
@@ -46,6 +47,7 @@ export default function OrderHistoryList() {
   }
   return (
     <>
+      <UnclaimedOrdersWidget />
       <LayoutContainer top gutters>
         <LinearBreadcrumbs back="/food" />
         <h2>{t("food:order_history_title")}</h2>

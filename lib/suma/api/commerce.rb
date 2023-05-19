@@ -144,6 +144,7 @@ class Suma::API::Commerce < Suma::API::V1
               merror!(403, "max quantity exceeded", code: "invalid_order_quantity")
             end
           end
+          add_current_member_header
           status 200
           present checkout, with: CheckoutConfirmationEntity, cart: checkout.cart
         end
@@ -163,6 +164,13 @@ class Suma::API::Commerce < Suma::API::V1
         ds = me.orders_dataset
         ds = ds.order(Sequel.desc(:created_at), :id)
         present_collection ds, with: OrderHistoryCollection, detailed_orders: ds.first(2)
+      end
+
+      get :unclaimed do
+        me = current_member
+        ds = me.orders_dataset.available_to_claim
+        ds = ds.order(Sequel.desc(:created_at), :id)
+        present_collection ds, with: UnclaimedOrderCollection
       end
 
       route_param :id, type: Integer do
@@ -186,6 +194,16 @@ class Suma::API::Commerce < Suma::API::V1
           valid_option = order.fulfillment_options_for_editing.any? { |o| o.id == params[:option_id] }
           invalid!("Not a valid fulfillment option") unless valid_option
           order.checkout.update(fulfillment_option_id: params[:option_id])
+          status 200
+          present order, with: DetailedOrderHistoryEntity
+        end
+
+        post :claim do
+          order = lookup
+          order.db.transaction do
+            merror!(409, "Order cannot be claimed", code: "invalid_permissions") unless order.process(:claim)
+          end
+          add_current_member_header
           status 200
           present order, with: DetailedOrderHistoryEntity
         end
@@ -342,6 +360,10 @@ class Suma::API::Commerce < Suma::API::V1
     expose :fulfillment_option, with: FulfillmentOptionEntity, &self.delegate_to(:checkout, :fulfillment_option)
     expose :fulfillment_options_for_editing, with: FulfillmentOptionEntity
 
+    expose :order_status
+    expose :can_claim?, as: :can_claim
+    expose :fulfilled_at
+
     expose :customer_cost, with: MoneyEntity, &self.delegate_to(:checkout, :customer_cost)
     expose :undiscounted_cost, with: MoneyEntity, &self.delegate_to(:checkout, :undiscounted_cost)
     expose :savings, with: MoneyEntity, &self.delegate_to(:checkout, :savings)
@@ -362,5 +384,10 @@ class Suma::API::Commerce < Suma::API::V1
     expose :detailed_orders, with: DetailedOrderHistoryEntity do |_, opts|
       opts.fetch(:detailed_orders)
     end
+  end
+
+  class UnclaimedOrderCollection < Suma::Service::Collection::BaseEntity
+    # This should be a relatively small list, so always return the detailed orders.
+    expose :items, with: DetailedOrderHistoryEntity
   end
 end

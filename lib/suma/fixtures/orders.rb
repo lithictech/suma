@@ -20,4 +20,13 @@ module Suma::Fixtures::Orders
     cart = Suma::Fixtures.cart(member:).with_any_product.create
     self.checkout = Suma::Fixtures.checkout(cart:).with_payment_instrument.populate_items.completed.create
   end
+
+  decorator :claimable do
+    self.fulfillment_status = "fulfilling"
+    self.order_status = "open"
+  end
+
+  decorator :claimed do
+    self.fulfillment_status = "fulfilled"
+  end
 end

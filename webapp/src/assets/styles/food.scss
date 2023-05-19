@@ -1,14 +1,63 @@
 @import "./theme.scss";
 
 .food-widget-container {
-	top: map-get($spacers, 1);
-	right: map-get($spacers, 1);
-	z-index: 2;
+  top: map-get($spacers, 1);
+  right: map-get($spacers, 1);
+  z-index: 2;
 }
 
 .food-widget-dropdown-menu {
-	max-height: 200px;
-	min-width: auto!important;
-	text-align: center!important;
-	overflow-y: scroll;
+  max-height: 200px;
+  min-width: auto!important;
+  text-align: center!important;
+  overflow-y: scroll;
+}
+
+// Slide to claim order-items input styling
+#confirmation-slider {
+  padding: 10px;
+  margin-top: 20px;
+  background: darken($light, 5%);
+  border-radius: 0 0 25px 25px;
+}
+
+#status {
+  position:  relative;
+  background: $white;
+  border: 1px solid #ccc;
+  border-radius: 25px;
+  height: 52px;
+}
+
+#confirm-label {
+  font-size: $font-size-lg;
+  position: absolute;
+  left: 0;
+  right: 0;
+  text-align: center;
+  color: $dark;
+  line-height: 50px;
+}
+
+#confirm {
+  appearance: none!important;
+  background: transparent;
+  height: 50px;
+  padding: 0 5px;
+  width: 100%;
+}
+
+#confirm::-webkit-slider-thumb {
+  position: relative;
+  appearance: none!important;
+  height: 40px;
+  width: 80px;
+  border: 3px solid $success;
+  border-radius: 20px;
+  cursor: e-resize;
+  background-color: lighten($success, 5%);
+}
+
+#confirm:hover::-webkit-slider-thumb {
+  border-color: darken($success, 5%);
 }
