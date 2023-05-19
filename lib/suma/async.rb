@@ -29,6 +29,8 @@ module Suma::Async
     "suma/async/order_confirmation",
     "suma/async/plaid_update_institutions",
     "suma/async/reset_code_create_dispatch",
+    "suma/async/sync_lime_free_bike_status_gbfs",
+    "suma/async/sync_lime_geofencing_zones_gbfs",
     "suma/async/upsert_frontapp_contact",
   ].freeze
 

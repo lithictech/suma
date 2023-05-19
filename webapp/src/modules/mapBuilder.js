@@ -1,6 +1,7 @@
 import api from "../api";
 import scooterIcon from "../assets/images/kick-scooter.png";
 import scooterContainer from "../assets/images/scooter-container.svg";
+import config from "../config";
 import { t } from "../localization";
 import leaflet from "leaflet";
 import "leaflet.animatedmarker/src/AnimatedMarker";
@@ -69,7 +70,7 @@ export default class MapBuilder {
   setTileLayer() {
     this._l
       .tileLayer(
-        "https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw",
+        `https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=${config.mapboxAccessToken}`,
         {
           maxZoom: this._maxZoom,
           minZoom: this._minZoom,
@@ -213,7 +214,7 @@ export default class MapBuilder {
     return api.getMobilityMapFeatures(boundsToParams(bounds)).then((d) => {
       d.data.restrictions.forEach((r) => {
         this.createRestrictedArea({
-          latlngs: r.polygon,
+          latlngs: r.multipolygon,
           restriction: r.restriction,
         });
       });

@@ -207,12 +207,16 @@ RSpec.describe Suma::API::Mobility, :db do
           restrictions: [
             {
               restriction: "do-not-park-or-ride",
-              polygon: [
-                [20.0, 120.0],
-                [50.0, 120.0],
-                [50.0, 150.0],
-                [20.0, 150.0],
-                [20.0, 120.0],
+              multipolygon: [
+                [
+                  [
+                    [20.0, 120.0],
+                    [50.0, 120.0],
+                    [50.0, 150.0],
+                    [20.0, 150.0],
+                    [20.0, 120.0],
+                  ],
+                ],
               ],
               bounds: {
                 ne: [50.0, 150.0],
@@ -300,7 +304,7 @@ RSpec.describe Suma::API::Mobility, :db do
   end
 
   describe "POST /v1/mobility/begin_trip" do
-    let(:vendor_service) { Suma::Fixtures.vendor_service.create }
+    let(:vendor_service) { Suma::Fixtures.vendor_service.mobility.create }
     let(:vehicle) { Suma::Fixtures.mobility_vehicle.create(vendor_service:) }
     let(:rate) { Suma::Fixtures.vendor_service_rate.for_service(vendor_service).create }
 

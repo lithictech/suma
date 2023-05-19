@@ -26,7 +26,7 @@ module Suma::Mobility::VendorAdapter
     end
   end
 
-  def begin_trip(member, vehicle_id)
+  def begin_trip(trip)
     raise NotImplementedError
   end
 

@@ -43,6 +43,23 @@ class Suma::Vendor::Service < Suma::Postgres::Model(:vendor_services)
     raise "#{self.inspect} has too many rates" if r.length > 1
     return r.first
   end
+
+  # A hash is said to satisfy the vendor service constraints
+  # if any of the constraints have all of their keys and values present in the hash.
+  #
+  # For example, given constraints of
+  #   [{'a' => 1}, {'b' => 2}, {'a' => 3}]
+  # the hashes {'a' => 1} and {'a' => 2, 'b' => 2} are satisfied,
+  # while {'a' => 2} is not.
+  #
+  # Any hash is satisfied by empty constraints.
+  # An empty hash can only be satisfied by empty constraints.
+  def satisfies_constraints?(hash)
+    return true if self.constraints.empty?
+    return self.constraints.any? do |constraint|
+      constraint.all? { |k, v| hash[k] == v && hash.key?(k) }
+    end
+  end
 end
 
 # Table: vendor_services

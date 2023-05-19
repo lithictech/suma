@@ -45,6 +45,7 @@ const config = {
   devCardDetails: parseIfSet("REACT_APP_DEV_CARD_DETAILS"),
   devBankAccountDetails: parseIfSet("REACT_APP_DEV_BANK_ACCOUNT_DETAILS"),
   featureMobility: env.REACT_APP_FEATURE_MOBILITY,
+  mapboxAccessToken: env.REACT_APP_MAPBOX_ACCESS_TOKEN,
 };
 
 initSentry({ dsn: config.sentryDsn, debug: config.debug, application: "web-app" });

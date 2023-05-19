@@ -165,6 +165,25 @@ RSpec.describe "Suma::Postgres::Model", :db do
     end
   end
 
+  describe "#find_or_new" do
+    let(:model_class) { Suma::Postgres::TestingPixie }
+
+    it "returns an instance matching criteria" do
+      m = model_class.create(name: "x")
+      expect(model_class.find_or_new(name: "x")).to be === m
+    end
+
+    it "calls the block and returns the instance" do
+      m = model_class.find_or_new(name: "x") { |p| p.name = "y" }
+      expect(m).to have_attributes(name: "y", id: nil)
+    end
+
+    it "handles no block given" do
+      m = model_class.find_or_new(name: "x")
+      expect(m).to have_attributes(name: "x", id: nil)
+    end
+  end
+
   describe "find!" do
     let(:model_class) { Suma::Postgres::TestingPixie }
 

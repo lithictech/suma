@@ -37,35 +37,4 @@ RSpec.describe "Suma::Mobility::RestrictedArea", :db do
       ).to have_attributes(bounds: {ne: [10, 5], sw: [-10, -5]})
     end
   end
-
-  describe "validation" do
-    def validate(fac)
-      m = fac.instance
-      m.validate
-      return m.errors
-    end
-
-    it "requires at least 4 coords" do
-      ra = Suma::Fixtures.mobility_restricted_area(
-        polygon: [
-          [0, 5],
-          [5, 5],
-          [0, 5],
-        ],
-      )
-      expect(validate(ra)).to include(polygon: ["requires at least 4 coordinates (closed triangle)"])
-    end
-
-    it "requires first and last coordinate to match" do
-      ra = Suma::Fixtures.mobility_restricted_area(
-        polygon: [
-          [0, 5],
-          [5, 5],
-          [0, 5],
-          [2, 5],
-        ],
-      )
-      expect(validate(ra)).to include(polygon: ["first and last coordinate must match (closed polygon)"])
-    end
-  end
 end
