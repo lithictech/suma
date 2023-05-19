@@ -1,26 +1,20 @@
 # frozen_string_literal: true
 
-class Suma::Mobility::Gbfs::FreeBikeStatus
-  attr_reader :client, :vendor
+require "suma/mobility/gbfs/component_sync"
 
-  def initialize(client:)
-    @client = client
+class Suma::Mobility::Gbfs::FreeBikeStatus < Suma::Mobility::Gbfs::ComponentSync
+  def model = Suma::Mobility::Vehicle
+
+  def before_sync(client)
+    @bikes = client.fetch_free_bike_status.dig("data", "bikes")
+    @vehicle_types = client.fetch_vehicle_types.dig("data", "vehicle_types")
   end
 
-  def sync_all(vendor_services)
-    bikes = self.client.fetch_free_bike_status.dig("data", "bikes")
-    vehicle_types = self.client.fetch_vehicle_types.dig("data", "vehicle_types")
-    total = 0
-    vendor_services.each do |vs|
-      total += self.upsert_free_bike_status(vs, bikes, vehicle_types)
-    end
-    return total
-  end
-
-  def upsert_free_bike_status(vendor_service, bikes, vehicle_types)
+  def yield_rows(vendor_service)
+    bikes = @bikes
+    vehicle_types = @vehicle_types
     valid_vehicle_types = vehicle_types.select { |vt| vendor_service.satisfies_constraints?(vt) }
     vehicle_types_by_id = valid_vehicle_types.index_by { |vt| vt["vehicle_type_id"] }
-    rows = []
     bikes.each do |bike|
       next unless (vehicle_type = vehicle_types_by_id[bike["vehicle_type_id"]])
       battery_level = nil
@@ -35,12 +29,7 @@ class Suma::Mobility::Gbfs::FreeBikeStatus
         vendor_service_id: vendor_service.id,
         battery_level:,
       }
-      rows << row
+      yield row
     end
-    Suma::Mobility::Vehicle.db.transaction do
-      Suma::Mobility::Vehicle.where(vendor_service:).delete
-      Suma::Mobility::Vehicle.dataset.multi_insert(rows)
-    end
-    return rows.length
   end
 end

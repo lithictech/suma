@@ -1,26 +1,20 @@
 # frozen_string_literal: true
 
-class Suma::Mobility::Gbfs::GeofencingZone
-  attr_reader :client
+require "suma/mobility/gbfs/component_sync"
 
-  def initialize(client:)
-    @client = client
+class Suma::Mobility::Gbfs::GeofencingZone < Suma::Mobility::Gbfs::ComponentSync
+  def model = Suma::Mobility::RestrictedArea
+
+  def before_sync(client)
+    @zones = client.fetch_geofencing_zones.dig("data", "geofencing_zones")
+    @vehicle_types = client.fetch_vehicle_types.dig("data", "vehicle_types")
   end
 
-  def sync_all(vendor_services)
-    zones = self.client.fetch_geofencing_zones.dig("data", "geofencing_zones")
-    vehicle_types = self.client.fetch_vehicle_types.dig("data", "vehicle_types")
-    total = 0
-    vendor_services.each do |vs|
-      total += self.upsert_geofencing_zones(vs, zones, vehicle_types)
-    end
-    return total
-  end
-
-  def upsert_geofencing_zones(vendor_service, zones, vehicle_types)
+  def yield_rows(vendor_service)
+    zones = @zones
+    vehicle_types = @vehicle_types
     valid_vehicle_types = vehicle_types.select { |vt| vendor_service.satisfies_constraints?(vt) }
     vehicle_types_by_id = valid_vehicle_types.index_by { |vt| vt["vehicle_type_id"] }
-    rows = []
     zones["features"].each do |f|
       restriction = ""
       if (rule = f["properties"]["rules"].first)
@@ -51,12 +45,7 @@ class Suma::Mobility::Gbfs::GeofencingZone
       )
       row.restriction = restriction if restriction.present?
       row.before_save
-      rows << row.values
+      yield row.values
     end
-    Suma::Mobility::Vehicle.db.transaction do
-      Suma::Mobility::RestrictedArea.where(vendor_service:).delete
-      Suma::Mobility::RestrictedArea.dataset.multi_insert(rows)
-    end
-    return rows.length
   end
 end

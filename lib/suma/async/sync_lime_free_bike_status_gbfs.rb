@@ -10,6 +10,11 @@ class Suma::Async::SyncLimeFreeBikeStatusGbfs
   splay 0.seconds
 
   def _perform
-    Suma::Mobility::Gbfs::FreeBikeStatus.new(client: self.gbfs_http_client, vendor: self.scooter_vendor).sync_all
+    return unless Suma::Lime.configured?
+    Suma::Mobility::Gbfs::VendorSync.new(
+      client: Suma::Lime.gbfs_http_client,
+      vendor: Suma::Lime.mobility_vendor,
+      component: Suma::Mobility::Gbfs::FreeBikeStatus.new,
+    ).sync_all
   end
 end

@@ -23,6 +23,11 @@ module Suma::Fixtures::MobilityRestrictedAreas
     )
   end
 
+  before_saving do |instance|
+    instance.vendor_service ||= Suma::Fixtures.vendor_service.mobility.create
+    instance
+  end
+
   decorator :diamond do |x:, y:, w:, h:|
     hw = w * 0.5
     hh = h * 0.5

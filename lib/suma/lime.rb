@@ -16,13 +16,26 @@ module Suma::Lime
     setting :auth_token, UNCONFIGURED_AUTH_TOKEN
   end
 
+  def self.configured? = self.auth_token != UNCONFIGURED_AUTH_TOKEN
+
+  # @return [Suma::Organization]
+  def self.organization
+    return Suma.cached_get("lime_org") do
+      Suma::Organization.find_or_create(name: "Lime")
+    end
+  end
+
+  # @return [Suma::Vendor]
+  def self.mobility_vendor
+    return Suma.cached_get("lime_mobility_vendor") do
+      Suma::Vendor.find_or_create_or_find(name: "Lime", organization: self.organization)
+    end
+  end
+
+  # @return [Suma::Mobility::Gbfs::HttpClient]
   def self.gbfs_http_client
     return Suma::Mobility::Gbfs::HttpClient.new(api_host: self.gbfs_root, auth_token: self.auth_token)
   end
-
-  def self.gbfs_sync_free_bike_status; end
-
-  def self.gbfs_sync_geofencing_zones; end
 
   def self.api_headers
     return {
@@ -92,9 +105,10 @@ module Suma::Lime
     return response.parsed_response
   end
 
+  # @param member [Suma::Member]
   def self.ensure_member_registered(member)
     return member.lime_user_id if member.lime_user_id.present?
-    user = Suma::Lime.create_user(
+    user = self.create_user(
       phone_number: member.phone,
       email_address: "members+#{member.id}@sumamembers.org",
       driver_license_verified: false,

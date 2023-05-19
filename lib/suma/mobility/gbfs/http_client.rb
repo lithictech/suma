@@ -1,12 +1,16 @@
 # frozen_string_literal: true
 
 require "appydays/loggable"
-class Suma::Mobility::Gbfs::HttpClient
+
+require "suma/mobility/gbfs/client"
+
+class Suma::Mobility::Gbfs::HttpClient < Suma::Mobility::Gbfs::Client
   include Appydays::Loggable
 
   attr_reader :api_host, :auth_token
 
   def initialize(api_host:, auth_token:)
+    super()
     @api_host = api_host
     @auth_token = auth_token
   end

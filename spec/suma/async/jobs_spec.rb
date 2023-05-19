@@ -150,6 +150,11 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
   end
 
   describe "SyncLimeFreeBikeStatusGbfs" do
+    before(:each) do
+      Suma::Fixtures.vendor_service(vendor: Suma::Lime.mobility_vendor).mobility.create
+      Suma::Lime.reset_configuration
+    end
+
     it "sync lime scooters gbfs" do
       Suma::Lime.auth_token = "fake token"
       free_bike_status_req = stub_request(:get, "https://data.lime.bike/api/partners/v2/gbfs_transit/free_bike_status.json").
@@ -171,6 +176,11 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
   end
 
   describe "SyncLimeGeofencingZonesGbfs" do
+    before(:each) do
+      Suma::Fixtures.vendor_service(vendor: Suma::Lime.mobility_vendor).mobility.create
+      Suma::Lime.reset_configuration
+    end
+
     it "sync geofencing zones gbfs" do
       Suma::Lime.auth_token = "fake token"
       geofencing_zone_req = stub_request(:get, "https://data.lime.bike/api/partners/v2/gbfs_transit/geofencing_zones.json").
@@ -182,6 +192,12 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
       expect(geofencing_zone_req).to have_been_made
       expect(vehicle_types_req).to have_been_made
       expect(Suma::Mobility::RestrictedArea.all).to have_length(1)
+    end
+
+    it "noops if Lime is not configured" do
+      expect do
+        Suma::Async::SyncLimeGeofencingZonesGbfs.new.perform(true)
+      end.to_not raise_error
     end
   end
 
