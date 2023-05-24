@@ -29,6 +29,7 @@
     "terms_of_use": "Términos de Uso",
     "translate_to_english": "Translate to English",
     "translate_to_spanish": "Traducir al Español",
+    "total": "{{total, sumaCurrency}}",
     "view_all": "Ver todos",
     "waitlisted": "¡Excelente! Estás en la lista de espera y te avisaremos cuando esté disponible.",
     "welcome_to_suma": "¡Bienvenido a Suma!",
