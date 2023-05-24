@@ -1,20 +1,13 @@
-import api from "../api";
 import scooterIcon from "../assets/images/kick-scooter.png";
-import ErrorScreen from "../components/ErrorScreen";
 import LinearBreadcrumbs from "../components/LinearBreadcrumbs";
-import PageLoader from "../components/PageLoader";
 import RLink from "../components/RLink";
-import SumaImage from "../components/SumaImage";
-import { mdp, t } from "../localization";
+import { t } from "../localization";
 import { dayjs } from "../modules/dayConfig";
-import useAsyncFetch from "../shared/react/useAsyncFetch";
 import { LayoutContainer } from "../state/withLayout";
 import isEmpty from "lodash/isEmpty";
 import React from "react";
 import { Stack } from "react-bootstrap";
 import Card from "react-bootstrap/Card";
-import { First } from "react-bootstrap/PageItem";
-import { Link, useNavigate } from "react-router-dom";
 
 export default function MobilityTripList() {
   // const {
@@ -25,42 +18,6 @@ export default function MobilityTripList() {
   //   default: {},
   //   pickData: true,
   // });
-
-  // TODO: remove mockup below and return API trip response
-  const tripHistory = {
-    items: [
-      {
-        id: 1,
-        partner: "Lime",
-        vehicleId: "#A1B2C3",
-        total: { cents: 0, currency: "US" },
-        distanceMiles: 3.44,
-        location: "Portland, Oregon 22nd/5th Casavana Street",
-        beganAt: new Date("2023-04-01 15:22:00"),
-        endedAt: new Date("2023-04-02 15:30:00"),
-      },
-      {
-        id: 2,
-        partner: "Lime",
-        vehicleId: "#A1B2C3",
-        total: { cents: 0, currency: "US" },
-        distanceMiles: 3.44,
-        location: "Portland, Oregon 22nd/5th Casavana Street",
-        beganAt: new Date("2023-04-01 15:22:00"),
-        endedAt: new Date("2023-04-02 15:30:00"),
-      },
-      {
-        id: 3,
-        partner: "Lime",
-        vehicleId: "#A1B2C3",
-        total: { cents: 0, currency: "US" },
-        distanceMiles: 3.44,
-        location: "Portland, Oregon 22nd/5th Casavana Street",
-        beganAt: new Date("2023-04-01 15:22:00"),
-        endedAt: new Date("2023-04-02 15:30:00"),
-      },
-    ],
-  };
   // if (error) {
   //   return (
   //     <LayoutContainer top>
@@ -143,10 +100,46 @@ function TripHeader({ id, partner, vehicleId, total }) {
         </Card.Link>
       </div>
       {total.cents === 0 ? (
-        <p className="ms-auto text-success">Free Ride</p>
+        <span className="ms-auto text-success">Free Ride</span>
       ) : (
         t("common:total", { total: total })
       )}
     </Stack>
   );
 }
+
+// TODO: remove mockup below and return API trip response
+const tripHistory = {
+  items: [
+    {
+      id: 1,
+      partner: "Lime",
+      vehicleId: "#A1B2C3",
+      total: { cents: 0, currency: "US" },
+      distanceMiles: 3.44,
+      location: "Portland, Oregon 22nd/5th Casavana Street",
+      beganAt: new Date("2023-04-01 15:22:00"),
+      endedAt: new Date("2023-04-02 15:30:00"),
+    },
+    {
+      id: 2,
+      partner: "Lime",
+      vehicleId: "#A1B2C3",
+      total: { cents: 0, currency: "US" },
+      distanceMiles: 3.44,
+      location: "Portland, Oregon 22nd/5th Casavana Street",
+      beganAt: new Date("2023-04-01 15:22:00"),
+      endedAt: new Date("2023-04-02 15:30:00"),
+    },
+    {
+      id: 3,
+      partner: "Lime",
+      vehicleId: "#A1B2C3",
+      total: { cents: 0, currency: "US" },
+      distanceMiles: 3.44,
+      location: "Portland, Oregon 22nd/5th Casavana Street",
+      beganAt: new Date("2023-04-01 15:22:00"),
+      endedAt: new Date("2023-04-02 15:30:00"),
+    },
+  ],
+};
