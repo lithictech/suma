@@ -121,6 +121,7 @@ export default function ContactListAdd() {
           </FormControlGroup>
         </Row>
         <FormError error={error} />
+        <p className="text-secondary">{t("contact_list:sign_up_agreement")}</p>
         <FormButtons
           variant="outline-primary"
           back
