@@ -15,6 +15,7 @@ class Suma::AdminAPI::Members < Suma::AdminAPI::V1
       use :pagination
       use :ordering, model: Suma::Member
       use :searchable
+      optional :download, type: String, values: ["csv"]
     end
     get do
       ds = Suma::Member.dataset
@@ -23,10 +24,18 @@ class Suma::AdminAPI::Members < Suma::AdminAPI::V1
         phone_like = phone_search_param_to_sql(params)
         ds = ds.where(email_like | name_like | phone_like)
       end
-
       ds = order(ds, params)
-      ds = paginate(ds, params)
-      present_collection ds, with: MemberEntity
+
+      if params[:download]
+        csv = Suma::Member::Exporter.new(ds).to_csv
+        env["api.format"] = :binary
+        content_type "text/csv"
+        body csv
+        header["Content-Disposition"] = "attachment; filename=suma-members-export.csv"
+      else
+        ds = paginate(ds, params)
+        present_collection ds, with: MemberEntity
+      end
     end
 
     route_param :id, type: Integer do

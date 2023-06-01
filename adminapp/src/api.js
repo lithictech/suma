@@ -88,4 +88,18 @@ export default {
   searchPaymentInstruments: (data) =>
     get(`/adminapi/v1/search/payment_instruments`, data),
   searchLedgers: (data) => get(`/adminapi/v1/search/ledgers`, data),
+
+  /**
+   * Return an API url.
+   * @param tail {string}
+   * @param params {object}
+   * @return {URL}
+   */
+  makeUrl: (tail, params) => {
+    const u = new URL(config.apiHost + tail);
+    Object.entries(params).forEach(
+      ([k, v]) => v !== null && v !== undefined && u.searchParams.set(k, "" + v)
+    );
+    return u;
+  },
 };

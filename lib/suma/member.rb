@@ -78,6 +78,7 @@ class Suma::Member < Suma::Postgres::Model(:members)
                     order: Sequel.desc(:created_at),
                     read_only: true
   one_to_one :payment_account, class: "Suma::Payment::Account"
+  one_to_one :referral, class: "Suma::Member::Referral"
   one_to_many :reset_codes, class: "Suma::Member::ResetCode", order: Sequel.desc([:created_at])
   many_to_many :roles, class: "Suma::Role", join_table: :roles_members
   one_to_many :sessions, class: "Suma::Member::Session", order: Sequel.desc([:created_at, :id])
@@ -301,6 +302,7 @@ class Suma::Member < Suma::Postgres::Model(:members)
   end
 end
 
+require "suma/member/exporter"
 require "suma/member/frontapp_attributes"
 require "suma/member/stripe_attributes"
 

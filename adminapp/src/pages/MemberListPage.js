@@ -37,6 +37,12 @@ export default function MemberListPage() {
       listResponse={listResponse}
       listLoading={listLoading}
       tableProps={{ sx: { minWidth: 650 }, size: "small" }}
+      downloadUrl={api.makeUrl("/adminapi/v1/members", {
+        order,
+        orderBy,
+        search,
+        download: "csv",
+      })}
       onParamsChange={setListQueryParams}
       columns={[
         {

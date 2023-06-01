@@ -3,8 +3,8 @@
 require "suma/postgres"
 require "suma/member"
 
-class Suma::Member::Referral < Suma::Postgres::Model(:member_referral)
+class Suma::Member::Referral < Suma::Postgres::Model(:member_referrals)
   plugin :timestamps
 
-  one_to_one :member, class: Suma::Member
+  many_to_one :member, class: Suma::Member
 end

@@ -1,3 +1,4 @@
+import DownloadIcon from "@mui/icons-material/Download";
 import {
   CircularProgress,
   Paper,
@@ -14,6 +15,7 @@ import {
   Typography,
 } from "@mui/material";
 import Box from "@mui/material/Box";
+import IconButton from "@mui/material/IconButton";
 import { makeStyles } from "@mui/styles";
 import { visuallyHidden } from "@mui/utils";
 import React from "react";
@@ -31,6 +33,7 @@ import React from "react";
  * @param title
  * @param tableProps
  * @param disableSearch
+ * @param downloadUrl
  * @param {Array<{label: string, id: string, align: any, sortable: boolean, render: function}>} columns
  */
 export default function ResourceTable({
@@ -46,6 +49,7 @@ export default function ResourceTable({
   columns,
   tableProps,
   disableSearch,
+  downloadUrl,
 }) {
   const classes = useStyles();
   function handleSearchKeyDown(e) {
@@ -133,15 +137,22 @@ export default function ResourceTable({
         </Table>
       </TableContainer>
       {!listLoading && (
-        <TablePagination
-          component="div"
-          count={listResponse.totalCount || 0}
-          page={page}
-          onPageChange={(_e, page) => onParamsChange({ page })}
-          rowsPerPage={perPage}
-          onRowsPerPageChange={(e) => onParamsChange({ perPage: e.target.value })}
-          rowsPerPageOptions={[20, 50, 100]}
-        />
+        <div className={classes.pageControls}>
+          {downloadUrl && (
+            <IconButton href={downloadUrl}>
+              <DownloadIcon />
+            </IconButton>
+          )}
+          <TablePagination
+            component="div"
+            count={listResponse.totalCount || 0}
+            page={page}
+            onPageChange={(_e, page) => onParamsChange({ page })}
+            rowsPerPage={perPage}
+            onRowsPerPageChange={(e) => onParamsChange({ perPage: e.target.value })}
+            rowsPerPageOptions={[20, 50, 100]}
+          />
+        </div>
       )}
     </>
   );
@@ -164,5 +175,10 @@ const useStyles = makeStyles(() => ({
     "&:first-child": {
       paddingLeft: 0,
     },
+  },
+  pageControls: {
+    alignItems: "center",
+    display: "flex",
+    justifyContent: "flex-end",
   },
 }));
