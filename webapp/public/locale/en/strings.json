@@ -46,6 +46,7 @@
     },
     "referral_label": "How did you hear about suma?",
     "sign_up_again": "Sign up again",
+    "sign_up_agreement": "By clicking submit, you are agreeing to receive periodic SMS and/or MMS messages from suma. Message and data rates may apply. Text HELP for more information. Text STOP to stop receiving messages.",
     "signup_intro": "Fill in the blanks below to join our contact list, and we will update you on all our projects and upcoming money saving opportunities. We’re so excited!",
     "signup_title": "Join suma",
     "success_intro": "Thank you for signing up, and welcome to the suma app!\n\nWe will update you on all future projects, money saving opportunities, and how to complete the app enrollment process. To learn more about suma, visit our website at $t(strings:common:mysuma_website_link), or check us out on our social media using the link below. Chat soon!"
