@@ -83,6 +83,18 @@ RSpec.describe Suma::AdminAPI::Members, :db do
         return Suma::Fixtures.member.create(created_at: Time.now + rand(1..100).days, note: i.to_s)
       end
     end
+
+    it "can download as csv" do
+      match = Suma::Fixtures.member(phone: "12223334444").create
+      nomatch = Suma::Fixtures.member(phone: "12225554444").create
+
+      get "/v1/members", search: "22333444", download: "csv"
+
+      expect(last_response).to have_status(200)
+      expect(last_response.body.lines).to have_length(2)
+      expect(last_response.body).to include(match.name)
+      expect(last_response.body).to_not include(nomatch.name)
+    end
   end
 
   describe "GET /v1/members/:id" do

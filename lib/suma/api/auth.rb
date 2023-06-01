@@ -108,8 +108,11 @@ class Suma::API::Auth < Suma::API::V1
             timezone: params[:timezone],
           )
           save_or_error!(member)
-          Suma::Member::Referral.create(member_id: member.id, channel: params[:channel],
-                                        event_name: params[:event_name] || "",)
+          Suma::Member::Referral.create(
+            member:,
+            channel: params[:channel],
+            event_name: params[:event_name] || "",
+          )
           member.add_activity(
             message_name: "registered",
             summary: "Created from referral API",

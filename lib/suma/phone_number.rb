@@ -18,6 +18,11 @@ module Suma::PhoneNumber
     def self.valid_normalized?(s)
       return REGEXP.match?(s)
     end
+
+    def self.format(s)
+      raise ArgumentError, "#{s} must be a normalized to #{REGEXP}" unless self.valid_normalized?(s)
+      return "(#{s[1..3]}) #{s[4..6]}-#{s[7..]}"
+    end
   end
 
   def self.faked_unreachable_phone
