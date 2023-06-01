@@ -49,7 +49,7 @@ export default function AddToHomescreen() {
       }
       setTimeout(() => {
         navigator.serviceWorker
-          .getRegistration(config.apiHost)
+          .getRegistration(config.apiHost || undefined)
           .then((sw) => {
             if (sw) {
               setHasRegistration(true);

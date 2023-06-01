@@ -96,7 +96,8 @@ export default {
    * @return {URL}
    */
   makeUrl: (tail, params) => {
-    const u = new URL(config.apiHost + tail);
+    const origin = config.apiHost || window.location.origin;
+    const u = new URL(origin + tail);
     Object.entries(params).forEach(
       ([k, v]) => v !== null && v !== undefined && u.searchParams.set(k, "" + v)
     );
