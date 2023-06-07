@@ -6,7 +6,7 @@ import { useBackendGlobals } from "../state/useBackendGlobals";
 import React from "react";
 import Button from "react-bootstrap/Button";
 import Container from "react-bootstrap/Container";
-import { useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
 export default function ContactListHome() {
   const [params] = useSearchParams();
@@ -24,18 +24,25 @@ export default function ContactListHome() {
 }
 
 function LanguageButtons({ eventName }) {
+  const navigate = useNavigate();
   const { supportedLocales } = useBackendGlobals();
   const { changeLanguage } = useI18Next();
   if (!supportedLocales.items) {
     return null;
   }
+  const handleClick = (e, code) => {
+    e.preventDefault();
+    changeLanguage(code);
+    navigate(
+      eventName ? `/contact-list/add?eventName=${eventName}` : "/contact-list/add"
+    );
+  };
   return supportedLocales.items.map(({ code, native }) => (
     <Button
-      href={eventName ? `/contact-list/add?eventName=${eventName}` : "/contact-list/add"}
       key={code}
       variant="outline-secondary"
       className="btn-outline-secondary mt-2 w-75"
-      onClick={() => changeLanguage(code)}
+      onClick={(e) => handleClick(e, code)}
     >
       {native}
     </Button>
