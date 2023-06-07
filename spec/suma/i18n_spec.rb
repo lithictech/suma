@@ -105,6 +105,50 @@ RSpec.describe Suma::I18n, :db do
       J
     end
 
+    it "ensures interpolation values are unchanged and removes whitespaces" do
+      path = described_class.strings_path("es")
+      csv = "Key,Spanish,English\n" \
+            "food:price_times_quantity,{{ price }} es {{quantity}},{{price}} en {{ quantity }}"
+      described_class.import_csv(input: csv)
+      expect(File.read(path)).to eq(<<~J.rstrip)
+        {
+          "food": {
+            "price_times_quantity": "{{price}} es {{quantity}}"
+          }
+        }
+      J
+    end
+
+    it "only stomps dynamic values" do
+      path = described_class.strings_path("es")
+      csv = "Key,Spanish,English\n" \
+            "food:price_times_quantity,{{  price }}  price  es {{ price }},{{ price }}  price  en {{ price }}"
+      described_class.import_csv(input: csv)
+      expect(File.read(path)).to eq(<<~J.rstrip)
+        {
+          "food": {
+            "price_times_quantity": "{{price}}  price  es {{price}}"
+          }
+        }
+      J
+    end
+
+    it "errors if interpolation values count do not match" do
+      csv = "Key,Spanish,English\n" \
+            "food:price_times_quantity,{{precio}} es,{{price}} en {{ quantity }}"
+      expect do
+        described_class.import_csv(input: csv)
+      end.to raise_error(described_class::InvalidInput, /Dynamic value count should be 2 but is 1:\n{{precio}} es/)
+    end
+
+    it "errors if interpolation values do not match" do
+      csv = "Key,Spanish,English\n" \
+            "food:price_times_quantity,{{ precio }} es {{ cantidad }},{{price}} en {{quantity}}"
+      expect do
+        described_class.import_csv(input: csv)
+      end.to raise_error(described_class::InvalidInput, /precio does not match dynamic values: price, quantity/)
+    end
+
     it "overwrites message templates" do
       csv = "Key,Spanish,English\n" \
             "message:/templates/subdir/tmpl.sms,spanish sms 2,english sms 2\n" \

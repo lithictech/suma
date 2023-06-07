@@ -125,6 +125,40 @@ module Suma::I18n
     return memo
   end
 
+  # Ensures that both strings interpolation values match
+  # and remove whitespace. Strings should have same amount of
+  # dynamic values. Values can be in reversed order e.g.
+  #   es string: `{{xyz}} es {{ zyx }}`
+  #   en string: `{{ zyx }} en {{xyz}}`
+  #   Returns es string: `{{xyz}} es {{zyx}}`
+  # @return [String]
+  def self.ensure_interpolation_values_match(str, base_lng_str, base_lng="English")
+    return str unless base_lng === "English"
+    if (sc = str.scan("{{").count) != (osc = base_lng_str.scan("{{").count)
+      raise InvalidInput, "Dynamic value count should be #{osc} but is #{sc}:\n#{str}"
+    end
+    dynamic_vals = []
+    baselng_str_dynamic_vals = []
+    dynamic_str_parts = str.split("{{").drop(1)
+    dynamic_basestr_parts = base_lng_str.split("{{").drop(1)
+    dynamic_str_parts.each_with_index do |dyn_str, idx|
+      dynamic_vals << dyn_str.split("}}").first
+      baselng_str_dynamic_vals << dynamic_basestr_parts[idx].split("}}").first.strip
+    end
+    return str if dynamic_vals.empty?
+
+    dynamic_vals.each do |val|
+      stripped_val = val.strip
+      unless baselng_str_dynamic_vals.include?(stripped_val)
+        msg = "#{stripped_val} does not match dynamic values: #{baselng_str_dynamic_vals.join(', ')}"
+        raise InvalidInput, msg
+      end
+    end
+
+    str = str.gsub(/\{\{\s+/, "{{").gsub(/\s+}}/, "}}")
+    return str
+  end
+
   def self.prepare_csv(locale_code, output:)
     base_locale = SUPPORTED_LOCALES.fetch(self.base_locale_code)
     locale = SUPPORTED_LOCALES.fetch(locale_code)
@@ -162,12 +196,12 @@ module Suma::I18n
 
   def self.import_csv(input:)
     lines = CSV.new(input).to_a
-    _key_header, language, _base_language = lines.shift
+    _key_header, language, base_language = lines.shift
     locale = SUPPORTED_LOCALES.values.find { |loc| loc.language == language } or
       raise "#{language} is not supported"
     hsh = {}
     lines.each do |line|
-      key, str, _ = line
+      key, str, other_str = line
       next self.import_message(locale.code, key, str) if key.start_with?(MESSAGE_PREFIX)
       # Add intermediate hashes along the path, then set the value at the end
       tip = hsh
@@ -176,7 +210,7 @@ module Suma::I18n
         tip[pathpart] ||= {}
         tip = tip[pathpart]
       end
-      tip[pathparts.last] = str unless str.blank?
+      tip[pathparts.last] = self.ensure_interpolation_values_match(str, other_str, base_language) unless str.blank?
     end
     so = self.sort_hash(hsh)
     File.write(self.strings_path(locale.code), JSON.pretty_generate(so))

@@ -11,9 +11,9 @@
     "contact_us": "Contáctanos",
     "error": "Error",
     "go_home": "Volver a la página principal",
-    "install_suma": "Instalar suma",
     "in_english": "English",
     "in_spanish": "En Español",
+    "install_suma": "Instalar suma",
     "join_waitlist": "Unirse a la lista de espera",
     "learn_more": "Más información",
     "logout": "Cerrar sesión",
@@ -25,7 +25,7 @@
     "pagination_prev": "‹ Previo",
     "privacy_policy": "Política de Privacidad",
     "reference_id": "ID de referencia",
-    "scooter_cost": "{{startCost, sumaCurrency}} para empezar, y luego {{costPerMinute, number(style: currency; currency: USD)}}/min + impuestos",
+    "scooter_cost": "{{startCost, sumaCurrency}} para empezar, y luego {{costPerMinute, sumaCurrency}}/min + impuestos",
     "terms_of_use": "Términos de Uso",
     "translate_to_english": "Translate to English",
     "translate_to_spanish": "Traducir al Español",
@@ -251,7 +251,7 @@
     "utilities_title": "Energia renovable"
   },
   "otp": {
-    "code_resent": "Nuevo código enviado a {{ phone }}.",
+    "code_resent": "Nuevo código enviado a {{phone}}.",
     "did_not_receive": "¿No recibiste un mensaje de texto?",
     "enter_code": "Introduzca el código",
     "enter_code_sent_to": "Introducir el código que enviamos",
@@ -287,7 +287,7 @@
     "payment_account_verified": "Verificado",
     "payment_intro": {
       "intro": "Para añadir fondos a tu cuenta, se requiere por lo menos una *fuente de financiamiento*. Por lo regular, es una cuenta bancaria, pero pueda haber otras opciones abajo.",
-      "privacy_statement": "Su información financiera está protegida mediante **cifrado de nivel bancario** y **nunca se compartirá sin su consentimiento**. Consulte la [Política de privacidad de Suma]({{ externalLinks.privacyPolicy }}) para más información sobre cómo usamos y protegemos su información financiera."
+      "privacy_statement": "Su información financiera está protegida mediante **cifrado de nivel bancario** y **nunca se compartirá sin su consentimiento**. Consulte la [Política de privacidad de Suma]({{externalLinks.privacyPolicy}}) para más información sobre cómo usamos y protegemos su información financiera."
     },
     "payment_other_sources": "Otras Fuentes",
     "payment_submission_statement_bank_account": "Una vez que realices tu pago, puedes usar el dinero de inmediato. El retiro será registrado a tu cuenta en 2 a 3 días hábiles.",
