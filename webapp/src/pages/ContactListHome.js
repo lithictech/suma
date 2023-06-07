@@ -1,5 +1,6 @@
 import sumaLogo from "../assets/images/suma-logo-word-512.png";
 import ContactListTags from "../components/ContactListTags";
+import RLink from "../components/RLink";
 import { t } from "../localization";
 import useI18Next from "../localization/useI18Next";
 import { useBackendGlobals } from "../state/useBackendGlobals";
@@ -31,10 +32,11 @@ function LanguageButtons({ eventName }) {
   }
   return supportedLocales.items.map(({ code, native }) => (
     <Button
-      href={eventName ? `/contact-list/add?eventName=${eventName}` : "/contact-list/add"}
       key={code}
-      variant="outline-secondary"
+      as={RLink}
       className="btn-outline-secondary mt-2 w-75"
+      href={eventName ? `/contact-list/add?eventName=${eventName}` : "/contact-list/add"}
+      variant="outline-secondary"
       onClick={() => changeLanguage(code)}
     >
       {native}
