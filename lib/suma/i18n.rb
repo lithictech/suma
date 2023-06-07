@@ -132,27 +132,30 @@ module Suma::I18n
   #   en string: `{{ zyx }} en {{xyz}}`
   #   Returns es string: `{{xyz}} es {{zyx}}`
   # @return [String]
-  def self.ensure_interpolation_values_match(str, other_str, base_lng="English")
+  def self.ensure_interpolation_values_match(str, base_lng_str, base_lng="English")
     return str unless base_lng === "English"
-    if (sc = str.scan("{{").count) != (osc = other_str.scan("{{").count)
+    if (sc = str.scan("{{").count) != (osc = base_lng_str.scan("{{").count)
       raise InvalidInput, "Dynamic value count should be #{osc} but is #{sc}:\n#{str}"
     end
     dynamic_vals = []
-    other_dynamic_vals = []
-    str.split("{{").drop(1).each_with_index do |int_string, idx|
-      dynamic_vals << int_string.split("}}").first
-      other_dynamic_vals << other_str.split("{{")[idx + 1].split("}}").first.strip
+    baselng_str_dynamic_vals = []
+    dynamic_str_parts = str.split("{{").drop(1)
+    dynamic_basestr_parts = base_lng_str.split("{{").drop(1)
+    dynamic_str_parts.each_with_index do |dyn_str, idx|
+      dynamic_vals << dyn_str.split("}}").first
+      baselng_str_dynamic_vals << dynamic_basestr_parts[idx].split("}}").first.strip
     end
     return str if dynamic_vals.empty?
 
     dynamic_vals.each do |val|
-      vs = val.strip
-      unless other_dynamic_vals.include?(vs)
-        raise InvalidInput,
-              "#{vs} does not match dynamic values: #{other_dynamic_vals.join(', ')}"
+      stripped_val = val.strip
+      unless baselng_str_dynamic_vals.include?(stripped_val)
+        msg = "#{stripped_val} does not match dynamic values: #{baselng_str_dynamic_vals.join(', ')}"
+        raise InvalidInput, msg
       end
-      str = str.sub(val, vs)
     end
+
+    str = str.gsub(/\{\{\s+/, "{{").gsub(/\s+}}/, "}}")
     return str
   end
 

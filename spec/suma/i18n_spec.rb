@@ -119,6 +119,20 @@ RSpec.describe Suma::I18n, :db do
       J
     end
 
+    it "only stomps dynamic values" do
+      path = described_class.strings_path("es")
+      csv = "Key,Spanish,English\n" \
+            "food:price_times_quantity,{{  price }}  price  es {{ price }},{{ price }}  price  en {{ price }}"
+      described_class.import_csv(input: csv)
+      expect(File.read(path)).to eq(<<~J.rstrip)
+        {
+          "food": {
+            "price_times_quantity": "{{price}}  price  es {{price}}"
+          }
+        }
+      J
+    end
+
     it "errors if interpolation values count do not match" do
       csv = "Key,Spanish,English\n" \
             "food:price_times_quantity,{{precio}} es,{{price}} en {{ quantity }}"
