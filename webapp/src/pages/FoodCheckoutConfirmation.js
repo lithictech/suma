@@ -1,6 +1,7 @@
 import api from "../api";
 import ErrorScreen from "../components/ErrorScreen";
 import PageLoader from "../components/PageLoader";
+import RLink from "../components/RLink";
 import SumaImage from "../components/SumaImage";
 import { mdp, t } from "../localization";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
@@ -58,7 +59,7 @@ export default function FoodCheckoutConfirmation() {
         <hr />
         {mdp("food:confirmation_message", { check: false })}
         <Stack className="mt-2">
-          <Button variant="outline-success" href="/dashboard">
+          <Button variant="outline-success" href="/dashboard" as={RLink}>
             {t("common:go_home")}
           </Button>
         </Stack>

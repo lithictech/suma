@@ -1,3 +1,4 @@
+import RLink from "../components/RLink";
 import { mdp, t } from "../localization";
 import { useUser } from "../state/useUser";
 import React from "react";
@@ -13,7 +14,7 @@ export default function OnboardingFinish() {
         mdp("onboarding:finish")
       )}
       <div className="button-stack">
-        <Button href="/dashboard" variant="outline-primary" className="mt-3">
+        <Button href="/dashboard" variant="outline-primary" className="mt-3" as={RLink}>
           {t("common:okay_ex")}
         </Button>
       </div>
