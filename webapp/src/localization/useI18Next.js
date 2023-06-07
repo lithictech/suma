@@ -1,12 +1,11 @@
 import api from "../api";
 import { dayjs } from "../modules/dayConfig";
 import doOnce from "../shared/doOnce";
-import { localStorageCache } from "../shared/localStorageHelper";
 import { Logger } from "../shared/logger";
 import { formatMoney } from "../shared/react/Money";
-import useLocalStorageState from "../shared/react/useLocalStorageState";
 import useMountEffect from "../shared/react/useMountEffect";
 import { useUser } from "../state/useUser";
+import { setCurrentLanguage, useCurrentLanguage } from "./currentLanguage";
 import i18n from "i18next";
 import Backend from "i18next-http-backend";
 import noop from "lodash/noop";
@@ -19,15 +18,9 @@ export const I18NextContext = React.createContext();
 export const useI18Next = () => React.useContext(I18NextContext);
 export default useI18Next;
 
-let memoryCache = localStorageCache.getItem("language", "en");
-
-export function getCurrentLanguage() {
-  return memoryCache;
-}
-
 export function I18NextProvider({ children }) {
   const [i18nextLoading, setI18NextLoading] = React.useState(true);
-  const [language, setLanguage] = useLocalStorageState("language", "en");
+  const [language, setLanguage] = useCurrentLanguage();
   const { userAuthed } = useUser();
 
   const changeLanguage = React.useCallback(
@@ -43,7 +36,7 @@ export function I18NextProvider({ children }) {
         i18n.changeLanguage(lang).then(() => {
           setLanguage(lang);
           dayjs.locale(lang);
-          memoryCache = lang;
+          setCurrentLanguage(lang);
         })
       ).then(() => {
         setI18NextLoading(false);
