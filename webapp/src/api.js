@@ -1,5 +1,5 @@
 import config from "./config";
-import { getCurrentLanguage } from "./localization/useI18Next";
+import { getCurrentLanguage } from "./localization/currentLanguage";
 import apiBase from "./shared/apiBase";
 
 const instance = apiBase.create(config.apiHost, {

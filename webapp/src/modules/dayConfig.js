@@ -1,7 +1,7 @@
 // This module allows extension of plugins with dayjs globally,
 // preventing the redundancy of extending any plugin in different
 // pages, uncomment any plugin you wish to extend/utilize
-import { getCurrentLanguage } from "../localization/useI18Next";
+import { getCurrentLanguage } from "../localization/currentLanguage";
 import dayjs from "dayjs";
 // import advancedFormat from 'dayjs/plugin/advancedFormat';
 // import customParseFormat from 'dayjs/plugin/customParseFormat';
