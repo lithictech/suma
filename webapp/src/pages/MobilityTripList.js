@@ -69,11 +69,7 @@ function FirstTrip({ id, provider, totalCost, beganAt, endedAt }) {
     <Card>
       <Card.Body>
         <Stack direction="vertical" gap={3}>
-          <TripHeader
-            id={id}
-            providerName={provider?.name}
-            totalCost={totalCost}
-          />
+          <TripHeader id={id} providerName={provider?.name} totalCost={totalCost} />
           <div>
             <p className="mb-1">{dayjs(beganAt).format("ll")}</p>
             <p className="mb-1">
