@@ -7,7 +7,7 @@ import PageLoader from "../components/PageLoader";
 import SumaImage from "../components/SumaImage";
 import { t } from "../localization";
 import makeTitle from "../modules/makeTitle";
-import { anyMoney } from "../shared/react/Money";
+import Money, { anyMoney, intToMoney } from "../shared/react/Money";
 import { useOffering } from "../state/useOffering";
 import { LayoutContainer } from "../state/withLayout";
 import clsx from "clsx";
@@ -21,17 +21,26 @@ export default function FoodDetails() {
   let { offeringId, productId } = useParams();
   productId = parseInt(productId, 10);
 
+  const [totalProductAmount, setTotalProductAmount] = React.useState(0);
   const { vendors, products, cart, initializeToOffering, error, loading } = useOffering();
 
   React.useEffect(() => {
     initializeToOffering(offeringId);
   }, [initializeToOffering, offeringId]);
 
+  const product = find(products, (p) => p.productId === productId);
+  const item = find(cart.items, (item) => item.productId === productId);
+
+  React.useEffect(() => {
+    if (!item) {
+      return;
+    }
+    setTotalProductAmount((item?.quantity || 0) * product.customerPrice.cents);
+  }, [product, item]);
+
   if (loading) {
     return <PageLoader />;
   }
-
-  const product = find(products, (p) => p.productId === productId);
 
   if (error || !product) {
     return (
@@ -81,7 +90,23 @@ export default function FoodDetails() {
             )}
           </div>
           <div className="ms-auto">
-            <FoodCartWidget product={product} size="lg" />
+            <FoodCartWidget
+              product={product}
+              onQuantityChange={(q) =>
+                setTotalProductAmount(q * product.customerPrice.cents)
+              }
+              size="lg"
+            />
+            {anyMoney(intToMoney(totalProductAmount)) && (
+              <>
+                <div className="d-flex justify-content-end mt-2 small text-secondary">
+                  {t("food:item_subtotal")}
+                </div>
+                <Money className="d-flex justify-content-end text-muted">
+                  {intToMoney(totalProductAmount)}
+                </Money>
+              </>
+            )}
           </div>
         </Stack>
         <hr />

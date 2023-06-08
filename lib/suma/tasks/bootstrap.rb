@@ -219,11 +219,13 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
     end
     if offering.fulfillment_options.empty?
       offering.add_fulfillment_option(
-        type: "pickup",
+        type: "redeem",
         ordinal: 0,
         description: Suma::TranslatedText.create(
-          en: "Pickup at #{market_name}",
-          es: "Recogida en #{market_name}",
+          en: "Redeem this voucher at #{market_name} (July 16 through 2023).
+               For more information check the product details.",
+          es: "Reclame este boleto en #{market_name} (16 de julio hasta 2023). Para
+               más información verifique los detalles del producto.",
         ),
         address: Suma::Address.lookup(
           address1: "N Charleston Avenue &, N Central Street",
@@ -235,28 +237,28 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
     end
 
     suma_org = Suma::Organization.find_or_create(name: "suma")
-    product_name = Suma::TranslatedText.find_or_create(en: "$2 Token", es: "Ficha de $2")
+    product_name = Suma::TranslatedText.find_or_create(en: "$24 Token", es: "Ficha de $24")
     product = Suma::Commerce::Product.find_or_create(name: product_name) do |p|
       p.description = Suma::TranslatedText.create(
-        en: "Farmer's Market token voucher only valid through 2023.
+        en: "Farmer's Market voucher only valid through 2023.
              It can be used to buy anything in #{market_name}.",
-        es: "El cupón de ficha del Farmer's Market solo es válido durante 2023.
+        es: "El boleto del Farmer's Market solo es válido durante 2023.
              Se puede usar para comprar cualquier cosa en #{market_name}.",
       )
       p.vendor = Suma::Vendor.find_or_create(name: market_name, organization: suma_org)
-      p.our_cost = Money.new(200)
+      p.our_cost = Money.new(2400)
     end
     product.add_vendor_service_category(farmers_market_category) if product.vendor_service_categories.empty?
     bytes = File.binread("spec/data/images/2-dollar-token.png")
     uf = Suma::UploadedFile.create_with_blob(bytes:, content_type: "image/jpeg", filename: "2-dollar-token.png")
     product.add_image({uploaded_file: uf}) if product.images.empty?
     Suma::Commerce::ProductInventory.find_or_create(product:) do |p|
-      p.max_quantity_per_order = 25
+      p.max_quantity_per_order = 1
       p.max_quantity_per_offering = 50
     end
     Suma::Commerce::OfferingProduct.find_or_create(offering:, product:) do |op|
-      op.customer_price = Money.new(200)
-      op.undiscounted_price = Money.new(200)
+      op.customer_price = Money.new(2400)
+      op.undiscounted_price = Money.new(2400)
     end
   end
 

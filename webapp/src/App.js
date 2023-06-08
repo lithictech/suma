@@ -394,7 +394,7 @@ function AppRoutes() {
             redirectIfUnauthed,
             redirectIfUnboarded,
             withScreenLoaderMount(),
-            withMetatags({ title: t("titles:unclaimed_orders") }),
+            withMetatags({ title: t("food:unclaimed_order_history_title") }),
             withLayout(),
             UnclaimedOrderList
           )}
