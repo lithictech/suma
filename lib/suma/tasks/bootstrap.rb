@@ -4,6 +4,7 @@ require "rake/tasklib"
 
 require "suma/tasks"
 require "suma/lime"
+require "faker"
 
 class Suma::Tasks::Bootstrap < Rake::TaskLib
   def initialize
@@ -24,6 +25,8 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
         self.setup_offerings
         self.setup_products
         self.setup_automation
+        self.setup_lime_scooter_vendor
+        self.create_lime_mobility_trip
 
         self.setup_market_offering_product
       end
@@ -48,6 +51,14 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
 
   def farmers_market_category
     Suma::Vendor::ServiceCategory.find_or_create(name: "Summer 2023 Farmers Market", parent: cash_category)
+  end
+
+  def lime_service_rate
+    Suma::Vendor::ServiceRate.find_or_create(name: "Ride for free") do |r|
+      r.localization_key = "mobility_free_of_charge"
+      r.surcharge = Money.new(0)
+      r.unit_amount = Money.new(0)
+    end
   end
 
   def create_meta_resources
@@ -83,14 +94,10 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
     end
   end
 
-  def self.create_lime_scooter_vendor
+  def setup_lime_scooter_vendor
     lime_vendor = Suma::Lime.mobility_vendor
     return unless lime_vendor.services_dataset.mobility.empty?
-    rate = Suma::Vendor::ServiceRate.find_or_create(name: "Ride for free") do |r|
-      r.localization_key = "mobility_free_of_charge"
-      r.surcharge = Money.new(0)
-      r.unit_amount = Money.new(0)
-    end
+    rate = self.lime_service_rate
     cash_category = Suma::Vendor::ServiceCategory.find_or_create(name: "Cash")
     svc = lime_vendor.add_service(
       internal_name: "Lime Scooters",
@@ -258,6 +265,70 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
       op.customer_price = Money.new(200)
       op.undiscounted_price = Money.new(200)
     end
+  end
+
+  def create_lime_mobility_trip
+    member = Suma::Member.find_or_create(email: "admin@lithic.tech")
+    lime_vendor = Suma::Lime.mobility_vendor
+    return if lime_vendor.services_dataset.mobility.all.first.present?
+
+    member.update(onboarding_verified_at: Time.now)
+    led = Suma::Payment.ensure_cash_ledger(member)
+    Suma::Payment::BookTransaction.find_or_create(receiving_ledger: led) do |bt|
+      bt.amount_cents = 5000
+      bt.amount_currency = "USD"
+      bt.apply_at = Time.now
+    end
+    return if member.read_only_mode?
+
+    vehicle = Suma::Mobility::Vehicle.find_or_create(
+      lat: 45.51463497897246,
+      lng: -122.60175220952352,
+      vehicle_type: "escooter",
+      vendor_service_id: lime_vendor.services_dataset.all.first.id,
+      vehicle_id: "fake-id-123",
+    )
+    5.times do
+      self.create_trip(vehicle, member)
+    end
+    puts "Created 5 Suma::Mobility::Trips"
+  end
+
+  def create_trip(vehicle, member)
+    trip = Suma::Mobility::Trip.create(
+      member:,
+      vehicle_id: vehicle.vehicle_id,
+      vendor_service: vehicle.vendor_service,
+      vendor_service_rate: self.lime_service_rate,
+      begin_lat: vehicle.lat,
+      begin_lng: vehicle.lng,
+      began_at: Faker::Number.between(from: 1, to: 59).minutes.ago,
+      end_lat: 45.51463497897247,
+      end_lng: -122.60175220952353,
+      ended_at: Time.now,
+    )
+    trip.charge = Suma::Charge.create(
+      mobility_trip: trip,
+      undiscounted_subtotal: Money.new(0, "USD"),
+      member:,
+    )
+    trip.save_changes
+
+    contributions = member.payment_account!.find_chargeable_ledgers(
+      trip.vendor_service,
+      Money.new(0, "USD"),
+      now: Time.now,
+      calculation_context: Suma::Payment::CalculationContext.new,
+      remainder_ledger: :last,
+    )
+    xactions = trip.member.payment_account.debit_contributions(
+      contributions,
+      memo: Suma::TranslatedText.create(
+        en: "Suma Mobility - #{trip.vendor_service.external_name}",
+        es: "Suma Movilidad - #{trip.vendor_service.external_name}",
+      ),
+    )
+    xactions.each { |x| trip.charge.add_book_transaction(x) }
   end
 
   def setup_automation

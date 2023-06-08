@@ -7,7 +7,6 @@ import { LayoutContainer } from "../state/withLayout";
 import React from "react";
 import Badge from "react-bootstrap/Badge";
 import ListGroup from "react-bootstrap/ListGroup";
-import ProgressBar from "react-bootstrap/ProgressBar";
 import Stack from "react-bootstrap/Stack";
 
 export default function MobilityTripDetail() {
@@ -39,19 +38,11 @@ export default function MobilityTripDetail() {
             {dayjs(state.beganAt).format("ll")} &middot; from{" "}
             {dayjs(state.beganAt).format("LT")} to {dayjs(state.endedAt).format("LT")}
           </h5>
-          <Stack className="my-4 align-items-center">
-            <img
-              src={scooterIcon}
-              style={{ width: "40px", verticalAlign: "bottom" }}
-              alt="scooter icon"
-            />
-            <ProgressBar
-              className="w-100"
-              variant="success"
-              now={100}
-              label={state.distanceMiles + " miles traveled"}
-            />
-          </Stack>
+          <img
+            src={scooterIcon}
+            style={{ width: "80px", verticalAlign: "bottom" }}
+            alt="scooter icon"
+          />
           <ListGroup>
             <ListGroupInfoItem label="Provider" value={state.vendorService.name} />
             <ListGroupInfoItem

@@ -1,8 +1,12 @@
+import api from "../api";
 import scooterIcon from "../assets/images/kick-scooter.png";
+import ErrorScreen from "../components/ErrorScreen";
 import LinearBreadcrumbs from "../components/LinearBreadcrumbs";
+import PageLoader from "../components/PageLoader";
 import RLink from "../components/RLink";
 import { t } from "../localization";
 import { dayjs } from "../modules/dayConfig";
+import useAsyncFetch from "../shared/react/useAsyncFetch";
 import { LayoutContainer } from "../state/withLayout";
 import isEmpty from "lodash/isEmpty";
 import React from "react";
@@ -10,25 +14,26 @@ import { Stack } from "react-bootstrap";
 import Card from "react-bootstrap/Card";
 
 export default function MobilityTripList() {
-  // const {
-  //   state: tripHistory,
-  //   loading,
-  //   error,
-  // } = useAsyncFetch(api.getMobilityTripHistory, {
-  //   default: {},
-  //   pickData: true,
-  // });
-  // if (error) {
-  //   return (
-  //     <LayoutContainer top>
-  //       <ErrorScreen />
-  //     </LayoutContainer>
-  //   );
-  // }
-  // if (loading) {
-  //   return <PageLoader />;
-  // }
+  const {
+    state: tripHistory,
+    loading,
+    error,
+  } = useAsyncFetch(api.getMobilityTrips, {
+    default: {},
+    pickData: true,
+  });
+  if (error) {
+    return (
+      <LayoutContainer top>
+        <ErrorScreen />
+      </LayoutContainer>
+    );
+  }
+  if (loading) {
+    return <PageLoader />;
+  }
   const { items } = tripHistory;
+  // TODO: translate english text to spanish
   return (
     <>
       <LayoutContainer top gutters>
@@ -45,7 +50,7 @@ export default function MobilityTripList() {
                 {items.map((t) => (
                   <Card key={t.id}>
                     <Card.Body>
-                      <TripHeader {...t} />
+                      <TripHeader {...t} providerName={t.provider?.name} />
                     </Card.Body>
                   </Card>
                 ))}
@@ -59,30 +64,22 @@ export default function MobilityTripList() {
   );
 }
 
-function FirstTrip({
-  id,
-  partner,
-  vehicleId,
-  total,
-  distanceMiles,
-  location,
-  beganAt,
-  endedAt,
-}) {
-  const headerDetails = { id, partner, vehicleId, total };
+function FirstTrip({ id, provider, totalCost, beganAt, endedAt }) {
   return (
     <Card>
       <Card.Body>
         <Stack direction="vertical" gap={3}>
-          <TripHeader {...headerDetails} />
+          <TripHeader
+            id={id}
+            providerName={provider?.name}
+            totalCost={totalCost}
+          />
           <div>
             <p className="mb-1">{dayjs(beganAt).format("ll")}</p>
             <p className="mb-1">
               From <b>{dayjs(beganAt).format("LT")}</b> to{" "}
               <b>{dayjs(endedAt).format("LT")}</b>
             </p>
-            <p className="mb-1">{distanceMiles} miles traveled</p>
-            <p className="mb-1">{location}</p>
           </div>
         </Stack>
       </Card.Body>
@@ -90,56 +87,20 @@ function FirstTrip({
   );
 }
 
-function TripHeader({ id, partner, vehicleId, total }) {
+function TripHeader({ id, providerName, totalCost }) {
   return (
     <Stack direction={"horizontal"}>
       <div>
         <img src={scooterIcon} style={{ width: "25px" }} alt="scooter icon" />
         <Card.Link as={RLink} href={`/mobility/${id}`} className="h5 ms-2">
-          {partner + " " + vehicleId}
+          {providerName}
         </Card.Link>
       </div>
-      {total.cents === 0 ? (
+      {totalCost.cents === 0 ? (
         <span className="ms-auto text-success">Free Ride</span>
       ) : (
-        t("common:total", { total: total })
+        t("common:total", { total: totalCost })
       )}
     </Stack>
   );
 }
-
-// TODO: remove mockup below and return API trip response
-const tripHistory = {
-  items: [
-    {
-      id: 1,
-      partner: "Lime",
-      vehicleId: "#A1B2C3",
-      total: { cents: 0, currency: "US" },
-      distanceMiles: 3.44,
-      location: "Portland, Oregon 22nd/5th Casavana Street",
-      beganAt: new Date("2023-04-01 15:22:00"),
-      endedAt: new Date("2023-04-02 15:30:00"),
-    },
-    {
-      id: 2,
-      partner: "Lime",
-      vehicleId: "#A1B2C3",
-      total: { cents: 0, currency: "US" },
-      distanceMiles: 3.44,
-      location: "Portland, Oregon 22nd/5th Casavana Street",
-      beganAt: new Date("2023-04-01 15:22:00"),
-      endedAt: new Date("2023-04-02 15:30:00"),
-    },
-    {
-      id: 3,
-      partner: "Lime",
-      vehicleId: "#A1B2C3",
-      total: { cents: 0, currency: "US" },
-      distanceMiles: 3.44,
-      location: "Portland, Oregon 22nd/5th Casavana Street",
-      beganAt: new Date("2023-04-01 15:22:00"),
-      endedAt: new Date("2023-04-02 15:30:00"),
-    },
-  ],
-};
