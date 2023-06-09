@@ -219,12 +219,12 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
     end
     if offering.fulfillment_options.empty?
       offering.add_fulfillment_option(
-        type: "redeem",
+        type: "pickup",
         ordinal: 0,
         description: Suma::TranslatedText.create(
-          en: "Redeem this voucher at #{market_name} (July 16 through 2023).
+          en: "Redeem this voucher at #{market_name} (July 16 2023).
                For more information check the product details.",
-          es: "Reclame este boleto en #{market_name} (16 de julio hasta 2023). Para
+          es: "Reclame este boleto en #{market_name} (16 julio 2023). Para
                más información verifique los detalles del producto.",
         ),
         address: Suma::Address.lookup(
