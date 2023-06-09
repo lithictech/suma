@@ -17,11 +17,11 @@ import Button from "react-bootstrap/Button";
 import Card from "react-bootstrap/Card";
 import Form from "react-bootstrap/Form";
 
-export default function OrderDetail({ state, onOrderClaim }) {
+export default function OrderDetail({ state, onOrderClaim, gutters }) {
   const [order, setOrder] = React.useState(state);
   return (
     <>
-      <LayoutContainer gutters>
+      <LayoutContainer gutters={gutters}>
         <Stack gap={3}>
           <div>
             <h3 className="mb-1">{t("food:order_serial", { serial: order.serial })}</h3>
