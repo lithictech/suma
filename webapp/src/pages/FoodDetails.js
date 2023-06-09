@@ -69,10 +69,10 @@ export default function FoodDetails() {
         width={500}
       />
       <LayoutContainer top>
-        <h3 className="mb-2">{product.name}</h3>
-        <Stack direction="horizontal" gap={3}>
+        <h3 className="mb-3">{product.name}</h3>
+        <Stack direction="horizontal" gap={3} >
           <div>
-            <FoodPrice {...product} fs={4} className="mb-2" />
+            <FoodPrice {...product} fs={4} className="mb-2 lh-1" />
             <p>
               {product.isDiscounted
                 ? t("food:from_vendor_with_discount", {
@@ -97,16 +97,19 @@ export default function FoodDetails() {
               }
               size="lg"
             />
-            {anyMoney(intToMoney(itemSubtotal)) && (
-              <>
-                <div className="d-flex justify-content-end mt-2 small text-secondary">
-                  {t("food:item_subtotal")}
-                </div>
-                <Money className="d-flex justify-content-end text-muted">
-                  {intToMoney(itemSubtotal)}
-                </Money>
-              </>
-            )}
+            <div
+              className={clsx(
+                "me-4 text-end",
+                anyMoney(intToMoney(itemSubtotal)) ? "opacity-1" : "opacity-0"
+              )}
+            >
+              <div className="mt-2 small text-secondary">
+                {t("food:item_subtotal")}
+              </div>
+              <Money className="text-muted">
+                {intToMoney(itemSubtotal)}
+              </Money>
+            </div>
           </div>
         </Stack>
         <hr />
