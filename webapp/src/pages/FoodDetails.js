@@ -21,7 +21,7 @@ export default function FoodDetails() {
   let { offeringId, productId } = useParams();
   productId = parseInt(productId, 10);
 
-  const [totalProductAmount, setTotalProductAmount] = React.useState(0);
+  const [itemSubtotal, setItemSubtotal] = React.useState(0);
   const { vendors, products, cart, initializeToOffering, error, loading } = useOffering();
 
   React.useEffect(() => {
@@ -35,7 +35,7 @@ export default function FoodDetails() {
     if (!item) {
       return;
     }
-    setTotalProductAmount((item?.quantity || 0) * product.customerPrice.cents);
+    setItemSubtotal(item.quantity * product.customerPrice.cents || 0);
   }, [product, item]);
 
   if (loading) {
@@ -93,17 +93,17 @@ export default function FoodDetails() {
             <FoodCartWidget
               product={product}
               onQuantityChange={(q) =>
-                setTotalProductAmount(q * product.customerPrice.cents)
+                setItemSubtotal(q * product.customerPrice.cents || 0)
               }
               size="lg"
             />
-            {anyMoney(intToMoney(totalProductAmount)) && (
+            {anyMoney(intToMoney(itemSubtotal)) && (
               <>
                 <div className="d-flex justify-content-end mt-2 small text-secondary">
                   {t("food:item_subtotal")}
                 </div>
                 <Money className="d-flex justify-content-end text-muted">
-                  {intToMoney(totalProductAmount)}
+                  {intToMoney(itemSubtotal)}
                 </Money>
               </>
             )}
