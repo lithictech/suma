@@ -65,12 +65,13 @@ export default function FoodDetails() {
         image={product.images[0]}
         alt={product.name}
         className="w-100"
+        params={{ crop: "attention" }}
         h={325}
         width={500}
       />
       <LayoutContainer top>
         <h3 className="mb-3">{product.name}</h3>
-        <Stack direction="horizontal" gap={3} >
+        <Stack direction="horizontal" gap={3} className="align-items-start">
           <div>
             <FoodPrice {...product} fs={4} className="mb-2 lh-1" />
             <p>
@@ -103,12 +104,8 @@ export default function FoodDetails() {
                 anyMoney(intToMoney(itemSubtotal)) ? "opacity-1" : "opacity-0"
               )}
             >
-              <div className="mt-2 small text-secondary">
-                {t("food:item_subtotal")}
-              </div>
-              <Money className="text-muted">
-                {intToMoney(itemSubtotal)}
-              </Money>
+              <div className="mt-2 small text-secondary">{t("food:item_subtotal")}</div>
+              <Money className="text-muted">{intToMoney(itemSubtotal)}</Money>
             </div>
           </div>
         </Stack>

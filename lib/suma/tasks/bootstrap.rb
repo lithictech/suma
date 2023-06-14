@@ -119,9 +119,7 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
     offering.description = Suma::TranslatedText.create(en: "Holidays 2022", es: "Días festivos")
     offering.confirmation_template = "2022-12-pilot-confirmation"
     offering.save_changes
-
-    bytes = File.binread("spec/data/images/holiday-offering.jpeg")
-    uf = Suma::UploadedFile.create_with_blob(bytes:, content_type: "image/jpeg", filename: "holiday-offering.jpeg")
+    uf = self.create_uploaded_file(filename: "holiday-offering.jpeg", content_type: "image/jpeg")
     offering.add_image({uploaded_file: uf})
 
     offering.add_fulfillment_option(
@@ -198,8 +196,7 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
         max_quantity_per_offering: 1,
       )
       product.add_vendor_service_category(holidays_category)
-      bytes = File.binread("spec/data/images/#{ps[:image]}")
-      uf = Suma::UploadedFile.create_with_blob(bytes:, content_type: "image/jpeg", filename: ps[:image])
+      uf = self.create_uploaded_file(filename: ps[:image], content_type: "image/jpeg")
       product.add_image({uploaded_file: uf})
       Suma::Commerce::OfferingProduct.create(
         offering:,
@@ -217,6 +214,9 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
       o.description = Suma::TranslatedText.create(en: "Suma Farmers Market Ride & Shop",
                                                   es: "Paseo y tienda en el mercado de agricultores de Suma",)
     end
+    uf = self.create_uploaded_file(name: "st-johns-farmers-market.png", content_type: "image/png")
+    offering.add_image({uploaded_file: uf})
+
     if offering.fulfillment_options.empty?
       offering.add_fulfillment_option(
         type: "pickup",
@@ -249,8 +249,7 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
       p.our_cost = Money.new(2400)
     end
     product.add_vendor_service_category(farmers_market_category) if product.vendor_service_categories.empty?
-    bytes = File.binread("spec/data/images/2-dollar-token.png")
-    uf = Suma::UploadedFile.create_with_blob(bytes:, content_type: "image/jpeg", filename: "2-dollar-token.png")
+    uf = self.create_uploaded_file(filename: "suma-voucher-front.jpg", content_type: "image/jpeg")
     product.add_image({uploaded_file: uf}) if product.images.empty?
     Suma::Commerce::ProductInventory.find_or_create(product:) do |p|
       p.max_quantity_per_order = 1
@@ -293,5 +292,10 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
 
   def pilot_end
     return Time.now + 6.months
+  end
+
+  def self.create_uploaded_file(filename, content_type, file_path: "spec/data/images/")
+    bytes = File.binread(file_path + filename)
+    return Suma::UploadedFile.create_with_blob(bytes:, content_type:, filename:)
   end
 end
