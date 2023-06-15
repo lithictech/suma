@@ -145,6 +145,7 @@
     "no_products": "No se encontraron productos, esta oferta podría estar cerrada. [Haga clic aquí para ver las ofertas disponibles](/food'$t(strings:food:title)').",
     "noncash_ledger_contribution_available": "Elegible para {{amount, sumaCurrency}} del saldo existente en su cuenta. Aplicado en el momento de la compra.",
     "no_unclaimed_orders": "Todos los pedidos son reclamados.",
+    "order_available_for_pickup": "Dispolible para recoger {{date}}",
     "order_button": "Realizar pedido",
     "order_claimed": "Orden reclamodo",
     "order_date": "Realizado {{date}}",

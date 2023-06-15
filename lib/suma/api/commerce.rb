@@ -336,6 +336,7 @@ class Suma::API::Commerce < Suma::API::V1
     expose :image, with: ImageEntity do |inst|
       inst.checkout.items.sample&.offering_product&.product&.images&.first
     end
+    expose :begin_fulfillment_at, &self.delegate_to(:checkout, :cart, :offering, :begin_fulfillment_at)
   end
 
   class OrderHistoryFundingTransactionEntity < BaseEntity

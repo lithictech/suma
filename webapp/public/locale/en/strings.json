@@ -145,6 +145,7 @@
     "no_products": "There were no products found, this offering might be closed. [Click here to view available offerings](/food '$t(strings:food:title)').",
     "noncash_ledger_contribution_available": "Eligible for {{amount, sumaCurrency}} of the existing balance in your account. Applied at checkout.",
     "no_unclaimed_orders": "All orders are claimed.",
+    "order_available_for_pickup": "Available for pickup {{date}}",
     "order_button": "Place order",
     "order_claimed": "Order claimed",
     "order_date": "Placed {{date}}",
