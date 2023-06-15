@@ -226,4 +226,23 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
       end.to perform_async_job(Suma::Async::UpsertFrontappContact)
     end
   end
+
+  describe "BeginOrderFulfillment" do
+    it "begins fulfillment on orders that are ready" do
+      o = Suma::Fixtures.order.offering_began_fulfillment.create
+      o1 = Suma::Fixtures.order.offering_began_fulfillment.claimed.create
+
+      Suma::Async::BeginOrderFulfillment.new.perform(true)
+      expect(o.refresh).to have_attributes(fulfillment_status: "fulfilling")
+      expect(o1.refresh).to have_attributes(fulfillment_status: "fulfilled")
+    end
+
+    it "noops if all orders are without an unfulfilled status" do
+      Suma::Fixtures.order.offering_began_fulfillment.claimed.create
+      Suma::Fixtures.order.offering_began_fulfillment.claimed.create
+
+      Suma::Async::BeginOrderFulfillment.new.perform(true)
+      expect(Suma::Commerce::Order.where(fulfillment_status: "unfulfilled")).to be_empty
+    end
+  end
 end

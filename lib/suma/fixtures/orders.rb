@@ -29,4 +29,11 @@ module Suma::Fixtures::Orders
   decorator :claimed do
     self.fulfillment_status = "fulfilled"
   end
+
+  decorator :offering_began_fulfillment do
+    offering = Suma::Fixtures.offering(begin_fulfillment_at: 5.minutes.ago).create
+    cart = Suma::Fixtures.cart(offering:).create
+    checkout = Suma::Fixtures.checkout(cart:).create
+    self.checkout = checkout
+  end
 end

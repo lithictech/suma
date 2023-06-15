@@ -47,6 +47,14 @@ class Suma::Commerce::Order < Suma::Postgres::Model(:commerce_orders)
         checkout: Suma::Commerce::Checkout.where(fulfillment_option: Suma::Commerce::OfferingFulfillmentOption.pickup),
       )
     end
+
+    def ready_for_fulfillment
+      offering = Suma::Commerce::Offering.where do |o|
+        o.begin_fulfillment_at.present? && o.begin_fulfillment_at < Sequel.function(:now)
+      end
+      checkout = Suma::Commerce::Checkout.where(cart: Suma::Commerce::Cart.where(offering:))
+      return self.where(fulfillment_status: "unfulfilled", checkout:).for_update
+    end
   end
 
   def total_item_count
