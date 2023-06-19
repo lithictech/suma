@@ -7,7 +7,7 @@ import PageLoader from "../components/PageLoader";
 import SumaImage from "../components/SumaImage";
 import { t } from "../localization";
 import makeTitle from "../modules/makeTitle";
-import { anyMoney } from "../shared/react/Money";
+import Money, { anyMoney, intToMoney } from "../shared/react/Money";
 import { useOffering } from "../state/useOffering";
 import { LayoutContainer } from "../state/withLayout";
 import clsx from "clsx";
@@ -21,17 +21,26 @@ export default function FoodDetails() {
   let { offeringId, productId } = useParams();
   productId = parseInt(productId, 10);
 
+  const [itemSubtotal, setItemSubtotal] = React.useState(0);
   const { vendors, products, cart, initializeToOffering, error, loading } = useOffering();
 
   React.useEffect(() => {
     initializeToOffering(offeringId);
   }, [initializeToOffering, offeringId]);
 
+  const product = find(products, (p) => p.productId === productId);
+  const item = find(cart.items, (item) => item.productId === productId);
+
+  React.useEffect(() => {
+    if (!item) {
+      return;
+    }
+    setItemSubtotal(item.quantity * product.customerPrice.cents || 0);
+  }, [product, item]);
+
   if (loading) {
     return <PageLoader />;
   }
-
-  const product = find(products, (p) => p.productId === productId);
 
   if (error || !product) {
     return (
@@ -56,14 +65,15 @@ export default function FoodDetails() {
         image={product.images[0]}
         alt={product.name}
         className="w-100"
+        params={{ crop: "attention" }}
         h={325}
         width={500}
       />
       <LayoutContainer top>
-        <h3 className="mb-2">{product.name}</h3>
-        <Stack direction="horizontal" gap={3}>
+        <h3 className="mb-3">{product.name}</h3>
+        <Stack direction="horizontal" gap={3} className="align-items-start">
           <div>
-            <FoodPrice {...product} fs={4} className="mb-2" />
+            <FoodPrice {...product} fs={4} className="mb-2 lh-1" />
             <p>
               {product.isDiscounted
                 ? t("food:from_vendor_with_discount", {
@@ -81,7 +91,22 @@ export default function FoodDetails() {
             )}
           </div>
           <div className="ms-auto">
-            <FoodCartWidget product={product} size="lg" />
+            <FoodCartWidget
+              product={product}
+              onQuantityChange={(q) =>
+                setItemSubtotal(q * product.customerPrice.cents || 0)
+              }
+              size="lg"
+            />
+            <div
+              className={clsx(
+                "me-4 text-end",
+                anyMoney(intToMoney(itemSubtotal)) ? "opacity-1" : "opacity-0"
+              )}
+            >
+              <div className="mt-2 small text-secondary">{t("food:item_subtotal")}</div>
+              <Money className="text-muted">{intToMoney(itemSubtotal)}</Money>
+            </div>
           </div>
         </Stack>
         <hr />

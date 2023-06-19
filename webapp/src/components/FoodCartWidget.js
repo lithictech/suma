@@ -14,7 +14,7 @@ import Button from "react-bootstrap/Button";
 import ButtonGroup from "react-bootstrap/ButtonGroup";
 import Dropdown from "react-bootstrap/Dropdown";
 
-export default function FoodCartWidget({ product, size }) {
+export default function FoodCartWidget({ product, size, onQuantityChange }) {
   size = size || "sm";
   const btnClasses = sizeClasses[size];
   const { offering, cart, setCart } = useOffering();
@@ -29,7 +29,6 @@ export default function FoodCartWidget({ product, size }) {
 
   const handleQuantityChange = (q) => {
     changePromise.current?.cancel();
-    setQuantity(q);
     changePromise.current = api
       .putCartItem({
         offeringId: offering.id,
@@ -37,8 +36,13 @@ export default function FoodCartWidget({ product, size }) {
         quantity: q,
         timestamp: Date.now(),
       })
-      .then((resp) => {
-        setCart(resp.data);
+      .then(api.pickData)
+      .then((cart) => {
+        setCart(cart);
+        setQuantity(q);
+        if (onQuantityChange) {
+          onQuantityChange(q);
+        }
       })
       .catch((e) => showErrorToast(e, { extract: true }));
   };

@@ -13,6 +13,7 @@ import isEmpty from "lodash/isEmpty";
 import React from "react";
 import { Stack } from "react-bootstrap";
 import Button from "react-bootstrap/Button";
+import Card from "react-bootstrap/Card";
 import Modal from "react-bootstrap/Modal";
 import { Link } from "react-router-dom";
 
@@ -40,11 +41,11 @@ export default function UnclaimedOrderList() {
   }
   const handleOrderClaim = (o) => {
     setClaimedOrder(o);
-    replaceState({ items: orderHistory.items.filter((item) => item.id !== o.id) });
+    replaceState({ items: orderHistory.items.filter((order) => order.id !== o.id) });
   };
   return (
     <>
-      <LayoutContainer top gutters>
+      <LayoutContainer top>
         <LinearBreadcrumbs back />
         <h2>{t("food:unclaimed_order_history_title")}</h2>
         <p className="text-secondary">{t("food:unclaimed_order_history_intro")}</p>
@@ -77,17 +78,20 @@ export default function UnclaimedOrderList() {
         </Modal.Body>
       </Modal>
       {!isEmpty(orderHistory?.items) && (
-        <Stack>
-          {orderHistory?.items.map((o) => (
-            <div key={o.id}>
-              <OrderDetail state={o} onOrderClaim={(o) => handleOrderClaim(o)} />
-              <hr className="my-4" />
-            </div>
-          ))}
-        </Stack>
+        <LayoutContainer>
+          <Stack gap={3}>
+            {orderHistory?.items.map((o) => (
+              <Card key={o.id} className="p-0">
+                <Card.Body className="px-2 pb-4">
+                  <OrderDetail state={o} onOrderClaim={(o) => handleOrderClaim(o)} />
+                </Card.Body>
+              </Card>
+            ))}
+          </Stack>
+        </LayoutContainer>
       )}
       {isEmpty(orderHistory?.items) && (
-        <LayoutContainer gutters>
+        <LayoutContainer>
           {mdp("food:no_unclaimed_orders")}
           <p>
             <Link to="/food">
