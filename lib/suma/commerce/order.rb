@@ -7,6 +7,8 @@ require "suma/admin_linked"
 class Suma::Commerce::Order < Suma::Postgres::Model(:commerce_orders)
   include Suma::AdminLinked
 
+  FULFILLABLE_ORDER_STATUSES = ["open", "completed"].freeze
+
   plugin :state_machine
   plugin :timestamps
 
@@ -49,11 +51,7 @@ class Suma::Commerce::Order < Suma::Postgres::Model(:commerce_orders)
     end
 
     def ready_for_fulfillment
-      offering = Suma::Commerce::Offering.where do |o|
-        o.begin_fulfillment_at.present? && o.begin_fulfillment_at < Sequel.function(:now)
-      end
-      checkout = Suma::Commerce::Checkout.where(cart: Suma::Commerce::Cart.where(offering:))
-      return self.where(fulfillment_status: "unfulfilled", checkout:).for_update
+      return self.where(fulfillment_status: "unfulfilled", order_status: FULFILLABLE_ORDER_STATUSES)
     end
   end
 
@@ -73,7 +71,7 @@ class Suma::Commerce::Order < Suma::Postgres::Model(:commerce_orders)
     state :unfulfilled, :fulfilling, :fulfilled
 
     event :begin_fulfillment do
-      transition unfulfilled: :fulfilling
+      transition unfulfilled: :fulfilling, if: :can_begin_fulfilling?
     end
 
     event :end_fulfillment do
@@ -149,6 +147,14 @@ class Suma::Commerce::Order < Suma::Postgres::Model(:commerce_orders)
 
   protected def limited_quantity_items
     return self.checkout.items.filter { |ci| ci.offering_product.product.inventory&.limited_quantity? }
+  end
+
+  # Begin fulfilling if the order is in a fulfillable status (ie, don't fulfill canceled orders)
+  # and the offering fulfillment time has passed (or there is none).
+  def can_begin_fulfilling?(t: Time.now)
+    return false unless FULFILLABLE_ORDER_STATUSES.include?(self.order_status)
+    can_begin_at = self.checkout.cart.offering.begin_fulfillment_at
+    return can_begin_at.nil? || can_begin_at <= t
   end
 
   def can_claim?

@@ -227,22 +227,44 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
     end
   end
 
-  describe "BeginOrderFulfillment" do
-    it "begins fulfillment on orders that are ready" do
-      o = Suma::Fixtures.order.offering_began_fulfillment.create
-      o1 = Suma::Fixtures.order.offering_began_fulfillment.claimed.create
-
-      Suma::Async::BeginOrderFulfillment.new.perform(true)
-      expect(o.refresh).to have_attributes(fulfillment_status: "fulfilling")
-      expect(o1.refresh).to have_attributes(fulfillment_status: "fulfilled")
+  describe "OfferingScheduleFulfillment" do
+    it "on create, enqueues a processing job at the fulfillment time" do
+      o = Suma::Fixtures.offering.timed_fulfillment.create
+      expect(Suma::Async::OfferingBeginFulfillment).to receive(:perform_at).with(o.begin_fulfillment_at, o.id)
+      expect do
+        o.publish_immediate("created", o.id)
+      end.to perform_async_job(Suma::Async::OfferingScheduleFulfillment)
     end
 
-    it "noops if all orders are without an unfulfilled status" do
-      Suma::Fixtures.order.offering_began_fulfillment.claimed.create
-      Suma::Fixtures.order.offering_began_fulfillment.claimed.create
+    it "on update, enqueues a processing job at the fulfillment time" do
+      o = Suma::Fixtures.offering.timed_fulfillment.create
+      t2 = 2.hours.from_now
+      expect(Suma::Async::OfferingBeginFulfillment).to receive(:perform_at).with(t2, o.id)
+      expect do
+        o.update(begin_fulfillment_at: t2)
+      end.to perform_async_job(Suma::Async::OfferingScheduleFulfillment)
+    end
 
-      Suma::Async::BeginOrderFulfillment.new.perform(true)
-      expect(Suma::Commerce::Order.where(fulfillment_status: "unfulfilled")).to be_empty
+    it "noops if there is no fulfillment time" do
+      o = Suma::Fixtures.offering.create
+      expect(Suma::Async::OfferingBeginFulfillment).to_not receive(:perform_at)
+      expect do
+        o.publish_immediate("created", o.id)
+      end.to perform_async_job(Suma::Async::OfferingScheduleFulfillment)
+    end
+  end
+
+  describe "OfferingBeginFulfillment" do
+    it "begins fulfillment" do
+      o = Suma::Fixtures.offering.timed_fulfillment(1.hour.ago).create
+      order = Suma::Fixtures.order.create
+      order.checkout.cart.update(offering: o)
+      # The OfferingBeginFulfillment job will be called by the OfferingScheduleFulfillment job
+      expect(Suma::Async::OfferingBeginFulfillment).to receive(:perform_at).and_call_original
+      expect do
+        o.publish_immediate("created", o.id)
+      end.to perform_async_job(Suma::Async::OfferingScheduleFulfillment)
+      expect(order.refresh).to have_attributes(fulfillment_status: "fulfilling")
     end
   end
 end
