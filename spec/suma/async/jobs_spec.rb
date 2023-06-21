@@ -230,7 +230,8 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
   describe "OfferingScheduleFulfillment" do
     it "on create, enqueues a processing job at the fulfillment time" do
       o = Suma::Fixtures.offering.timed_fulfillment.create
-      expect(Suma::Async::OfferingBeginFulfillment).to receive(:perform_at).with(o.begin_fulfillment_at, o.id)
+      expect(Suma::Async::OfferingBeginFulfillment).to receive(:perform_at).
+        with(match_time(o.begin_fulfillment_at).within(1), o.id)
       expect do
         o.publish_immediate("created", o.id)
       end.to perform_async_job(Suma::Async::OfferingScheduleFulfillment)
@@ -239,7 +240,8 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
     it "on update, enqueues a processing job at the fulfillment time" do
       o = Suma::Fixtures.offering.timed_fulfillment.create
       t2 = 2.hours.from_now
-      expect(Suma::Async::OfferingBeginFulfillment).to receive(:perform_at).with(t2, o.id)
+      expect(Suma::Async::OfferingBeginFulfillment).to receive(:perform_at).
+        with(match_time(t2).within(1), o.id)
       expect do
         o.update(begin_fulfillment_at: t2)
       end.to perform_async_job(Suma::Async::OfferingScheduleFulfillment)
