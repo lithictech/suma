@@ -27,4 +27,9 @@ module Suma::Fixtures::Offerings
     Suma::Fixtures.offering_fulfillment_option(options).create(offering: self) unless
       options.is_a?(Suma::Commerce::OfferingFulfillmentOption)
   end
+
+  decorator :timed_fulfillment do |t=nil|
+    t ||= Time.now + Faker::Number.between(from: -50, to: 50).hours
+    self.begin_fulfillment_at = t
+  end
 end

@@ -226,4 +226,47 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
       end.to perform_async_job(Suma::Async::UpsertFrontappContact)
     end
   end
+
+  describe "OfferingScheduleFulfillment" do
+    it "on create, enqueues a processing job at the fulfillment time" do
+      o = Suma::Fixtures.offering.timed_fulfillment.create
+      expect(Suma::Async::OfferingBeginFulfillment).to receive(:perform_at).
+        with(match_time(o.begin_fulfillment_at).within(1), o.id)
+      expect do
+        o.publish_immediate("created", o.id)
+      end.to perform_async_job(Suma::Async::OfferingScheduleFulfillment)
+    end
+
+    it "on update, enqueues a processing job at the fulfillment time" do
+      o = Suma::Fixtures.offering.timed_fulfillment.create
+      t2 = 2.hours.from_now
+      expect(Suma::Async::OfferingBeginFulfillment).to receive(:perform_at).
+        with(match_time(t2).within(1), o.id)
+      expect do
+        o.update(begin_fulfillment_at: t2)
+      end.to perform_async_job(Suma::Async::OfferingScheduleFulfillment)
+    end
+
+    it "noops if there is no fulfillment time" do
+      o = Suma::Fixtures.offering.create
+      expect(Suma::Async::OfferingBeginFulfillment).to_not receive(:perform_at)
+      expect do
+        o.publish_immediate("created", o.id)
+      end.to perform_async_job(Suma::Async::OfferingScheduleFulfillment)
+    end
+  end
+
+  describe "OfferingBeginFulfillment" do
+    it "begins fulfillment" do
+      o = Suma::Fixtures.offering.timed_fulfillment(1.hour.ago).create
+      order = Suma::Fixtures.order.create
+      order.checkout.cart.update(offering: o)
+      # The OfferingBeginFulfillment job will be called by the OfferingScheduleFulfillment job
+      expect(Suma::Async::OfferingBeginFulfillment).to receive(:perform_at).and_call_original
+      expect do
+        o.publish_immediate("created", o.id)
+      end.to perform_async_job(Suma::Async::OfferingScheduleFulfillment)
+      expect(order.refresh).to have_attributes(fulfillment_status: "fulfilling")
+    end
+  end
 end

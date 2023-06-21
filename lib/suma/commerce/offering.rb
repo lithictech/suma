@@ -106,6 +106,23 @@ class Suma::Commerce::Offering < Suma::Postgres::Model(:commerce_offerings)
   def order_pick_list
     self.orders.map { |o| o.checkout.items }.flatten
   end
+
+  def timed?
+    return !self.begin_fulfillment_at.nil?
+  end
+
+  # Call begin_fulfillment on all orders, if this is a 'timed fulfillment' offering.
+  # Untimed offerings must have their orders processed manually.
+  def begin_order_fulfillment(now:)
+    return -1 unless self.timed? && now >= self.begin_fulfillment_at
+    checkout = Suma::Commerce::Checkout.where(cart: Suma::Commerce::Cart.where(offering: self))
+    orders = Suma::Commerce::Order.where(checkout:).ready_for_fulfillment
+    count = 0
+    orders.for_update.each do |o|
+      count += 1 if o.process(:begin_fulfillment)
+    end
+    return count
+  end
 end
 
 # Table: commerce_offerings

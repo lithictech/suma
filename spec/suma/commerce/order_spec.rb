@@ -126,5 +126,26 @@ RSpec.describe "Suma::Commerce::Order", :db do
       order.refresh
       expect(order).to be_can_claim
     end
+
+    it "can begin fulfillment of orders with a past or nil fulfillment time and valid status" do
+      offering = checkout.cart.offering
+      order.update(order_status: "open")
+
+      # Check the time validator
+      offering.update(begin_fulfillment_at: 5.minutes.from_now)
+      expect(order).to not_transition_on(:begin_fulfillment)
+
+      offering.update(begin_fulfillment_at: nil)
+      expect(order).to transition_on(:begin_fulfillment).to("fulfilling")
+      order.update(fulfillment_status: "unfulfilled")
+
+      offering.update(begin_fulfillment_at: 5.minutes.ago)
+      expect(order).to transition_on(:begin_fulfillment).to("fulfilling")
+      order.update(fulfillment_status: "unfulfilled")
+
+      # Check that canceled orders can't be fulfilled
+      order.update(order_status: "canceled")
+      expect(order).to not_transition_on(:begin_fulfillment)
+    end
   end
 end

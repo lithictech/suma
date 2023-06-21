@@ -67,9 +67,13 @@ The flow for commerce is:
 
 ## Ops Fulfillment
 
-At certain intervals, Suma ops fulfills orders. This is mostly manual right now
-and isn't fully modeled. More will be written as ops has more experience
-and more tooling is built.
+Each offering may have a time when fulfillment can begin.
+At this time, an automated process marks orders as 'fulfilling'.
+
+Offerings that are not 'timed' must have their orders processed manually.
+
+The actually fulfillment of the order is done in the real world.
+Once the order is fulfilled, it would get a fulfillment status of 'fulfilled'.
 
 ## Models
 

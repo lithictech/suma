@@ -48,4 +48,29 @@ RSpec.describe "Suma::Commerce::Offering", :db do
       )
     end
   end
+
+  describe "#begin_order_fulfillment" do
+    now = Time.now
+    it "begins fulfillment on qualifying orders" do
+      o1 = Suma::Fixtures.order.as_purchased_by(Suma::Fixtures.member.create).create
+      offering = o1.checkout.cart.offering
+      offering.update(begin_fulfillment_at: 1.minute.ago)
+      o2 = Suma::Fixtures.order.create(order_status: "canceled")
+      o2.checkout.cart.update(offering:)
+
+      expect(offering.begin_order_fulfillment(now:)).to eq(1)
+      expect(o1.refresh).to have_attributes(fulfillment_status: "fulfilling")
+      expect(o2.refresh).to have_attributes(fulfillment_status: "unfulfilled")
+    end
+
+    it "returns -1 if the time for fulfillment has not passed" do
+      offering = Suma::Fixtures.offering.create(begin_fulfillment_at: 1.hour.from_now)
+      expect(offering.begin_order_fulfillment(now:)).to eq(-1)
+    end
+
+    it "returns -1 if the offering does not use timed fulfillment" do
+      offering = Suma::Fixtures.offering.create(begin_fulfillment_at: nil)
+      expect(offering.begin_order_fulfillment(now:)).to eq(-1)
+    end
+  end
 end

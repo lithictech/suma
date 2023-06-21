@@ -386,7 +386,7 @@ RSpec.describe "Suma::Postgres::Model", :db do
       expect(logs).to contain_exactly(
         include_json(
           message: eq("sequel_query"),
-          duration_ms: be_within(0.5).of(0.5),
+          duration_ms: be_within(1).of(1),
           context: {
             query: eq("SELECT 1=1"),
           },

@@ -76,7 +76,15 @@ export default function OrderHistoryList() {
   );
 }
 
-function Order({ id, createdAt, total, image, serial, onNavigate }) {
+function Order({
+  id,
+  createdAt,
+  total,
+  image,
+  serial,
+  onNavigate,
+  availableForPickupAt,
+}) {
   return (
     <Card>
       <Card.Body>
@@ -92,7 +100,11 @@ function Order({ id, createdAt, total, image, serial, onNavigate }) {
               {t("food:order_serial", { serial: serial })}
             </Card.Link>
             <Card.Text className="text-secondary mt-1">
-              {t("food:order_date", { date: dayjs(createdAt).format("ll") })}
+              {availableForPickupAt
+                ? t("food:order_available_for_pickup", {
+                    date: dayjs(availableForPickupAt).format("ll"),
+                  })
+                : t("food:order_date", { date: dayjs(createdAt).format("ll") })}
               <br />
               {t("food:total", { total: total })}
             </Card.Text>
