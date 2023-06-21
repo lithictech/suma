@@ -146,6 +146,20 @@ RSpec.describe Suma::API::Auth, :db do
       expect(last_response).to have_session_cookie.with_payload_key("warden.user.member.key")
     end
 
+    it "returns a 200 and onboards user if configured" do
+      c = Suma::Fixtures.member.create
+      Suma::Member.onboard_allowlist = ["*"]
+
+      post("/v1/auth/verify", phone: c.phone, token: "abc")
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_session_cookie.with_payload_key("warden.user.member.key")
+      expect(c.refresh).to have_attributes(
+        onboarding_verified?: true,
+        roles: [],
+      )
+    end
+
     it "returns a 200 and handles superadmin promotion configured" do
       c = Suma::Fixtures.member.create
       Suma::Member.superadmin_allowlist = ["*"]

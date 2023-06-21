@@ -61,8 +61,10 @@ class Suma::API::Auth < Suma::API::V1
       begin
         Suma::Member::ResetCode::Unusable if me.nil?
         if Suma::Member.matches_allowlist?(me, Suma::Member.superadmin_allowlist)
-          me.update(onboarding_verified_at: Time.now)
+          me.update(onboarding_verified_at: Time.now) unless me.onboarding_verified?
           me.ensure_role(Suma::Role.admin_role)
+        elsif Suma::Member.matches_allowlist?(me, Suma::Member.onboard_allowlist)
+          me.update(onboarding_verified_at: Time.now) unless me.onboarding_verified?
         elsif Suma::Member.matches_allowlist?(me, Suma::Member.skip_verification_allowlist)
           nil
         else

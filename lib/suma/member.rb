@@ -19,6 +19,7 @@ class Suma::Member < Suma::Postgres::Model(:members)
   class ReadOnlyMode < RuntimeError; end
 
   configurable(:member) do
+    setting :onboard_allowlist, [], convert: ->(s) { s.split }
     setting :skip_verification_allowlist, [], convert: ->(s) { s.split }
     setting :superadmin_allowlist, [], convert: ->(s) { s.split }
   end
