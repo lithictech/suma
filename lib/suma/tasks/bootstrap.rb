@@ -214,7 +214,7 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
       o.description = Suma::TranslatedText.create(en: "Suma Farmers Market Ride & Shop",
                                                   es: "Paseo y tienda en el mercado de agricultores de Suma",)
     end
-    uf = self.create_uploaded_file(name: "st-johns-farmers-market.png", content_type: "image/png")
+    uf = self.create_uploaded_file(filename: "st-johns-farmers-market.png", content_type: "image/png")
     offering.add_image({uploaded_file: uf})
 
     if offering.fulfillment_options.empty?
