@@ -29,6 +29,7 @@
     "terms_of_use": "Terms of Use",
     "translate_to_english": "Translate to English",
     "translate_to_spanish": "Traducir al Español",
+    "total": "{{total, sumaCurrency}}",
     "view_all": "View all",
     "waitlisted": "Great! You are on the waiting list and we'll let you know when it's available.",
     "welcome_to_suma": "Welcome to Suma!",

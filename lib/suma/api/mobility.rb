@@ -138,6 +138,16 @@ class Suma::API::Mobility < Suma::API::V1
       status 200
       present trip, with: MobilityTripEntity
     end
+
+    # TODO: test endpoint
+    desc "Returns mobility trips"
+    get :trips do
+      member = current_member
+      ds = Suma::Mobility::Trip.where(member:)
+      ds = ds.order(Sequel.desc(:created_at), :id)
+      status 200
+      present_collection ds, with: MobilityTripsListEntity
+    end
   end
 
   class MobilityMapVehicleEntity < BaseEntity
@@ -179,5 +189,18 @@ class Suma::API::Mobility < Suma::API::V1
     expose :vehicle_id
     expose :to_api_location, as: :loc
     expose :rate, with: VendorServiceRateEntity, &self.delegate_to(:vendor_service, :one_rate)
+  end
+
+  class SimpleMobilityTripEntity < BaseEntity
+    expose :id
+    expose :vendor_service, as: :provider, with: Suma::API::Entities::VendorServiceEntity
+    expose :began_at
+    expose :ended_at
+    expose :total_cost, with: Suma::Service::Entities::Money,
+           &self.delegate_to(:charge, :discounted_subtotal, safe: true)
+  end
+
+  class MobilityTripsListEntity < Suma::Service::Collection::BaseEntity
+    expose :items, with: SimpleMobilityTripEntity
   end
 end

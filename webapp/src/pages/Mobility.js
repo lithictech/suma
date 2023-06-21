@@ -7,12 +7,13 @@ import { t } from "../localization";
 import externalLinks from "../modules/externalLinks";
 import { LayoutContainer } from "../state/withLayout";
 import React from "react";
+import { Link } from "react-router-dom";
 
 export default function Mobility() {
   return config.featureMobility ? (
     <>
       <LayoutContainer top gutters>
-        <h5>{t("mobility:title")}</h5>
+        <h2>{t("mobility:title")}</h2>
         <p className="text-secondary">
           {t("mobility:intro")}
           <br />
@@ -20,6 +21,12 @@ export default function Mobility() {
             {t("common:learn_more")}
           </ExternalLink>
         </p>
+        <h4 className="my-3">
+          <Link to="/mobility-trips" className="text-decoration-none">
+            <span className="text-dark me-1">Previous trips</span>
+            <i className="bi-arrow-right"></i>
+          </Link>
+        </h4>
       </LayoutContainer>
       <Map />
     </>
@@ -39,6 +46,15 @@ export default function Mobility() {
           </>
         }
       />
+      <LayoutContainer top gutters>
+        <hr />
+        <h4 className="my-3">
+          <Link to="/mobility-trips" className="text-decoration-none">
+            <span className="text-dark me-1">Previous trips</span>
+            <i className="bi-arrow-right"></i>
+          </Link>
+        </h4>
+      </LayoutContainer>
     </div>
   );
 }
