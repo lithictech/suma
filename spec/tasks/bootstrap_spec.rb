@@ -9,9 +9,10 @@ RSpec.describe "Suma::Tasks::Bootstrap", :db do
   describe "setup_market_offering_product" do
     let(:market_name) { "St. Johns Farmers Market" }
 
-    it "creates offering successfully" do
-      described_class.new
-      Rake::Task["bootstrap"].invoke
+    it "creates OfferingProduct successfully" do
+      bootstrap = described_class.new
+      bootstrap.setup_market_offering_product
+
       offering = Suma::Commerce::Offering.find(confirmation_template: "2023-07-pilot-confirmation")
       description = Suma::TranslatedText.find(en: "Suma Farmers Market Ride & Shop")
       uploaded_file = Suma::UploadedFile.find(filename: "st-johns-farmers-market-logo.png")
