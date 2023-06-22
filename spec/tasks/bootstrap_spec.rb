@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require "rake"
 require "suma/tasks/bootstrap"
 
 RSpec.describe "Suma::Tasks::Bootstrap", :db do
