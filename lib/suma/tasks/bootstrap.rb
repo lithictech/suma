@@ -13,20 +13,23 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
       ENV["SUMA_DB_SLOW_QUERY_SECONDS"] = "1"
       Suma.load_app
       SequelTranslatedText.language = :en
+      self.run_task
+    end
+  end
 
-      Suma::Member.db.transaction do
-        self.create_meta_resources
+  def run_task
+    Suma::Member.db.transaction do
+      self.create_meta_resources
 
-        self.sync_lime_gbfs
+      self.sync_lime_gbfs
 
-        self.setup_admin
+      self.setup_admin
 
-        self.setup_offerings
-        self.setup_products
-        self.setup_automation
+      self.setup_offerings
+      self.setup_products
+      self.setup_automation
 
-        self.setup_market_offering_product
-      end
+      self.setup_market_offering_product
     end
   end
 
@@ -119,7 +122,7 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
     offering.description = Suma::TranslatedText.create(en: "Holidays 2022", es: "Días festivos")
     offering.confirmation_template = "2022-12-pilot-confirmation"
     offering.save_changes
-    uf = self.create_uploaded_file(filename: "holiday-offering.jpeg", content_type: "image/jpeg")
+    uf = self.create_uploaded_file("holiday-offering.jpeg", "image/jpeg")
     offering.add_image({uploaded_file: uf})
 
     offering.add_fulfillment_option(
@@ -196,7 +199,7 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
         max_quantity_per_offering: 1,
       )
       product.add_vendor_service_category(holidays_category)
-      uf = self.create_uploaded_file(filename: ps[:image], content_type: "image/jpeg")
+      uf = self.create_uploaded_file(ps[:image], "image/jpeg")
       product.add_image({uploaded_file: uf})
       Suma::Commerce::OfferingProduct.create(
         offering:,
@@ -209,12 +212,12 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
 
   def setup_market_offering_product
     market_name = "St. Johns Farmers Market"
-    offering = Suma::Commerce::Offering.find_or_create(confirmation_template: "2023-06-pilot-confirmation") do |o|
-      o.period = 1.day.ago..self.pilot_end
+    offering = Suma::Commerce::Offering.find_or_create(confirmation_template: "2023-07-pilot-confirmation") do |o|
+      o.update(period: 1.day.ago..self.pilot_end)
       o.description = Suma::TranslatedText.create(en: "Suma Farmers Market Ride & Shop",
                                                   es: "Paseo y tienda en el mercado de agricultores de Suma",)
     end
-    uf = self.create_uploaded_file(filename: "st-johns-farmers-market.png", content_type: "image/png")
+    uf = self.create_uploaded_file("st-johns-farmers-market-logo.png", "image/png")
     offering.add_image({uploaded_file: uf})
 
     if offering.fulfillment_options.empty?
@@ -249,7 +252,7 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
       p.our_cost = Money.new(2400)
     end
     product.add_vendor_service_category(farmers_market_category) if product.vendor_service_categories.empty?
-    uf = self.create_uploaded_file(filename: "suma-voucher-front.jpg", content_type: "image/jpeg")
+    uf = self.create_uploaded_file("suma-voucher-front.jpg", "image/jpeg")
     product.add_image({uploaded_file: uf}) if product.images.empty?
     Suma::Commerce::ProductInventory.find_or_create(product:) do |p|
       p.max_quantity_per_order = 1
@@ -294,7 +297,7 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
     return Time.now + 6.months
   end
 
-  def self.create_uploaded_file(filename, content_type, file_path: "spec/data/images/")
+  def create_uploaded_file(filename, content_type, file_path: "spec/data/images/")
     bytes = File.binread(file_path + filename)
     return Suma::UploadedFile.create_with_blob(bytes:, content_type:, filename:)
   end
