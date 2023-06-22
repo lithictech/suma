@@ -13,20 +13,23 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
       ENV["SUMA_DB_SLOW_QUERY_SECONDS"] = "1"
       Suma.load_app
       SequelTranslatedText.language = :en
+      self.run_task
+    end
+  end
 
-      Suma::Member.db.transaction do
-        self.create_meta_resources
+  def run_task
+    Suma::Member.db.transaction do
+      self.create_meta_resources
 
-        self.sync_lime_gbfs
+      self.sync_lime_gbfs
 
-        self.setup_admin
+      self.setup_admin
 
-        self.setup_offerings
-        self.setup_products
-        self.setup_automation
+      self.setup_offerings
+      self.setup_products
+      self.setup_automation
 
-        self.setup_market_offering_product
-      end
+      self.setup_market_offering_product
     end
   end
 
