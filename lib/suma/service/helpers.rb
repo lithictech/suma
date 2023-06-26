@@ -110,13 +110,17 @@ module Suma::Service::Helpers
     merror!(403, "Sorry, this action is unavailable.", code: "role_check")
   end
 
-  def merror!(status, message, code:, more: {})
-    if Suma::Service.localized_error_codes && !Suma::Service.localized_error_codes.include?(code)
+  def merror!(status, message, code:, more: {}, skip_loc_check: false)
+    if !skip_loc_check && Suma::Service.localized_error_codes && !Suma::Service.localized_error_codes.include?(code)
       merror!(500, "Error code is unlocalized: #{code}", code: "unhandled_error")
     end
     header "Content-Type", "application/json"
     body = Suma::Service.error_body(status, message, code:, more:)
     error!(body, status)
+  end
+
+  def adminerror!(status, message, code: "admin", more: {})
+    merror!(status, message, code:, more:, skip_loc_check: true)
   end
 
   def unauthenticated!

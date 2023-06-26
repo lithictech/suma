@@ -91,6 +91,34 @@ class Suma::AdminAPI::Members < Suma::AdminAPI::V1
         status 200
         present member, with: DetailedMemberEntity
       end
+
+      params do
+        requires :values, type: Array[JSON] do
+          requires :constraint_id, type: Integer
+          requires :status, values: ["verified", "pending", "rejected"]
+        end
+      end
+      post :eligibilities do
+        member = lookup_member!
+        admin = admin_member
+        member.db.transaction do
+          summary = []
+          params[:values].each do |h|
+            ec = Suma::Eligibility::Constraint[h[:constraint_id]] or
+              adminerror!(403, "Unknown eligibility constraint: #{h[:constraint_id]}")
+            member.replace_eligibility_constraint(ec, h[:status])
+            summary << "#{ec.name} => #{h[:status]}"
+          end
+          member.add_activity(
+            message_name: "eligibilitychange",
+            summary: "Admin #{admin.email} modified eligibilities of #{member.email}: #{summary.join(', ')}",
+            subject_type: "Suma::Member",
+            subject_id: member.id,
+          )
+        end
+        status 200
+        present member, with: DetailedMemberEntity
+      end
     end
   end
 
@@ -143,6 +171,7 @@ class Suma::AdminAPI::Members < Suma::AdminAPI::V1
     expose :payment_account, with: DetailedPaymentAccountEntity
     expose :bank_accounts, with: PaymentInstrumentEntity
     expose :charges, with: ChargeEntity
+    # TODO: Include eligibilities
 
     expose :activities, with: MemberActivityEntity
     expose :reset_codes, with: MemberResetCodeEntity

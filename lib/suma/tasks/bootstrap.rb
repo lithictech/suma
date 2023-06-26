@@ -255,10 +255,16 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
         begin_fulfillment_at: self.sjfm_2023_end,
       )
     end
+
     if offering.images.empty?
       offering.add_image({uploaded_file: hero})
     else
       offering.images.first.update(uploaded_file: hero)
+    end
+
+    if offering.eligibility_constraints.empty?
+      constraint = Suma::Eligibility::Constraint.find_or_create(name: "New Columbia, Portland, OR")
+      offering.add_eligibility_constraint(constraint)
     end
 
     fulfillment_params = [
