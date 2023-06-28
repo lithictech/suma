@@ -211,13 +211,20 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
   end
 
   def setup_market_offering_product
-    market_name = "St. Johns Farmers Market"
-    offering = Suma::Commerce::Offering.find_or_create(confirmation_template: "2023-07-pilot-confirmation") do |o|
-      o.update(period: 1.day.ago..self.pilot_end)
-      o.description = Suma::TranslatedText.create(en: "Suma Farmers Market Ride & Shop",
-                                                  es: "Paseo y tienda en el mercado de agricultores de Suma",)
-    end
+    market_name = "St. Johns Farmer's Market"
+    market_address = Suma::Address.lookup(
+      address1: "N Charleston Avenue &, N Central Street",
+      city: "Portland",
+      state_or_province: "Oregon",
+      postal_code: "97203",
+    )
     uf = self.create_uploaded_file("st-johns-farmers-market-logo.png", "image/png")
+
+    offering = Suma::Commerce::Offering.find_or_create(confirmation_template: "2023-07-pilot-confirmation") do |o|
+      o.update(period: Date.new(2023, 6, 30)..Date.new(2023, 10, 28))
+      o.description = Suma::TranslatedText.create(en: "#{market_name} Ride & Shop",
+                                                  es: "Paseo y Compra en #{market_name}",)
+    end
     offering.add_image({uploaded_file: uf})
 
     if offering.fulfillment_options.empty?
@@ -225,22 +232,24 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
         type: "pickup",
         ordinal: 0,
         description: Suma::TranslatedText.create(
-          en: "Redeem this voucher at #{market_name} (July 16 2023).
-               For more information check the product details.",
-          es: "Reclame este boleto en #{market_name} (16 julio 2023). Para
-               más información verifique los detalles del producto.",
+          en: "Redeem your vouchers at #{market_name} July 15, 2023",
+          es: "Reclame este boleto en #{market_name} 15 de julio de 2023",
         ),
-        address: Suma::Address.lookup(
-          address1: "N Charleston Avenue &, N Central Street",
-          city: "Portland",
-          state_or_province: "Oregon",
-          postal_code: "97203",
+        address: market_address,
+      )
+      offering.add_fulfillment_option(
+        type: "pickup",
+        ordinal: 0,
+        description: Suma::TranslatedText.create(
+          en: "I need transportation to and from the #{market_name} July 15, 2023 (we will contact you)",
+          es: "Necesito transporte hacia y desde #{market_name} 15 de julio de 2023 (nos comunicaremos con usted)",
         ),
+        address: market_address,
       )
     end
 
     suma_org = Suma::Organization.find_or_create(name: "suma")
-    product_name = Suma::TranslatedText.find_or_create(en: "$24 Token", es: "Ficha de $24")
+    product_name = Suma::TranslatedText.find_or_create(en: "$24 in Food Vouchers", es: "$24 en Boletos de Comida")
     product = Suma::Commerce::Product.find_or_create(name: product_name) do |p|
       p.description = Suma::TranslatedText.create(
         en: "Farmer's Market voucher only valid through 2023.
@@ -252,11 +261,10 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
       p.our_cost = Money.new(2400)
     end
     product.add_vendor_service_category(farmers_market_category) if product.vendor_service_categories.empty?
-    uf = self.create_uploaded_file("suma-voucher-front.jpg", "image/jpeg")
     product.add_image({uploaded_file: uf}) if product.images.empty?
     Suma::Commerce::ProductInventory.find_or_create(product:) do |p|
       p.max_quantity_per_order = 1
-      p.max_quantity_per_offering = 50
+      p.max_quantity_per_offering = 25
     end
     Suma::Commerce::OfferingProduct.find_or_create(offering:, product:) do |op|
       op.customer_price = Money.new(2400)
@@ -291,12 +299,11 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
       active_during_end: self.pilot_end,
       klass_name: "Suma::AutomationTrigger::AutoOnboard",
     )
-
     Suma::AutomationTrigger.create(
       name: "Summer 2023 Promo",
       topic: "suma.payment.account.created",
-      active_during_begin: Time.parse("2023-06-30T00:00:00Z"),
-      active_during_end: Time.parse("2023-07-15T00:00:00Z"),
+      active_during_begin: Date.new(2023, 6, 30),
+      active_during_end: Date.new(2023, 7, 15),
       klass_name: "Suma::AutomationTrigger::CreateAndSubsidizeLedger",
       parameter: {
         ledger_name: "Summer2023FarmersMarket",

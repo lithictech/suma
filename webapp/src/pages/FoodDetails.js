@@ -65,7 +65,6 @@ export default function FoodDetails() {
         image={product.images[0]}
         alt={product.name}
         className="w-100"
-        params={{ crop: "attention" }}
         h={325}
         width={500}
       />
