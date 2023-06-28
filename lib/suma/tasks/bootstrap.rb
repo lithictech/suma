@@ -291,6 +291,25 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
       active_during_end: self.pilot_end,
       klass_name: "Suma::AutomationTrigger::AutoOnboard",
     )
+
+    Suma::AutomationTrigger.create(
+      name: "Summer 2023 Promo",
+      topic: "suma.payment.account.created",
+      active_during_begin: Time.parse("2023-06-30T00:00:00Z"),
+      active_during_end: Time.parse("2023-07-15T00:00:00Z"),
+      klass_name: "Suma::AutomationTrigger::CreateAndSubsidizeLedger",
+      parameter: {
+        ledger_name: "Summer2023FarmersMarket",
+        contribution_text: {en: "Summer 2023 Subsidy", es: "Subsidio Verano 2023"},
+        category_name: "Summer 2023 Farmers Market",
+        amount_cents: 19_00,
+        amount_currency: "USD",
+        subsidy_memo: {
+          en: "Subsidy from local funders",
+          es: "Apoyo de financiadores locales",
+        },
+      },
+    )
   end
 
   def pilot_end
