@@ -211,7 +211,7 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
   end
 
   def setup_market_offering_product
-    market_name = "St. Johns Farmer's Market"
+    market_name = "St. Johns Farmers Market"
     market_address = Suma::Address.lookup(
       address1: "N Charleston Avenue &, N Central Street",
       city: "Portland",
