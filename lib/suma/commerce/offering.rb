@@ -107,6 +107,11 @@ class Suma::Commerce::Offering < Suma::Postgres::Model(:commerce_offerings)
     def available_at(t)
       return self.where(Sequel.pg_range(:period).contains(Sequel.cast(t, :timestamptz)))
     end
+
+    def available_to(member)
+      # TODO: add funcitonallity to show only offerings available to specific people based on eligibility constraints
+      return self
+    end
   end
 
   def rel_admin_link = "/offering/#{self.id}"

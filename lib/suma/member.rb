@@ -138,6 +138,28 @@ class Suma::Member < Suma::Postgres::Model(:members)
     return self.roles.include?(Suma::Role.admin_role)
   end
 
+  def unified_eligibility_constraints
+    # TODO: Add tests
+    return [] if self.db[:eligibility_member_associations].empty?
+    constraints = []
+    self.db[:eligibility_member_associations].each do |ema|
+      ec = Suma::Eligibility::Constraint[ema[:constraint_id]]
+      constraints << {
+        constraint_name: ec.name,
+        constraint_id: ema[:constraint_id],
+        status: self.eligibility_constraint_status(ema),
+      }
+    end
+    return constraints
+  end
+
+  def eligibility_constraint_status(association)
+    return "verified" if association[:verified_member_id].present?
+    return "pending" if association[:pending_member_id].present?
+    return "rejected" if association[:rejected_member_id].present?
+    return nil
+  end
+
   def replace_eligibility_constraint(constraint, group)
     self.db[:eligibility_member_associations].
       insert_conflict(

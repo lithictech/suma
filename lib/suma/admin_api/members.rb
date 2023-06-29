@@ -171,7 +171,7 @@ class Suma::AdminAPI::Members < Suma::AdminAPI::V1
     expose :payment_account, with: DetailedPaymentAccountEntity
     expose :bank_accounts, with: PaymentInstrumentEntity
     expose :charges, with: ChargeEntity
-    # TODO: Include eligibilities
+    expose :eligibility_constraints, &self.delegate_to(:unified_eligibility_constraints)
 
     expose :activities, with: MemberActivityEntity
     expose :reset_codes, with: MemberResetCodeEntity
