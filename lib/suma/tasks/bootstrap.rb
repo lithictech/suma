@@ -221,11 +221,11 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
     uf = self.create_uploaded_file("st-johns-farmers-market-logo.png", "image/png")
 
     offering = Suma::Commerce::Offering.find_or_create(confirmation_template: "2023-07-pilot-confirmation") do |o|
-      pacific_tz = "-7:00"
-      o.update(period: Time.new(2023, 6, 30, 27, 0, 0, pacific_tz)..Time.new(2023, 10, 28))
+      pacific_tz = "-07:00"
+      o.update(period: Time.new(2023, 6, 30, 17, 0, 0, pacific_tz)..Time.new(2023, 10, 28))
       o.description = Suma::TranslatedText.create(en: "#{market_name} Ride & Shop",
                                                   es: "Paseo y Compra en #{market_name}",)
-      o.begin_fullfilment_at = Time.new(2023, 7, 15, 0, 0, 0, pacific_tz)
+      o.begin_fulfillment_at = Time.new(2023, 7, 15, 0, 0, 0, pacific_tz)
     end
     offering.add_image({uploaded_file: uf})
 
@@ -305,8 +305,8 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
     Suma::AutomationTrigger.create(
       name: "Summer 2023 Promo",
       topic: "suma.payment.account.created",
-      active_during_begin: Date.new(2023, 6, 30),
-      active_during_end: Date.new(2023, 7, 15),
+      active_during_begin: Time.new(2023, 6, 30),
+      active_during_end: Time.new(2023, 7, 15),
       klass_name: "Suma::AutomationTrigger::CreateAndSubsidizeLedger",
       parameter: {
         ledger_name: "Summer2023FarmersMarket",
