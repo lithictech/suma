@@ -235,7 +235,7 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
         ordinal: 0,
         description: Suma::TranslatedText.create(
           en: "Redeem your vouchers at #{market_name} July 15, 2023",
-          es: "Reclame este boleto en #{market_name} 15 de julio de 2023",
+          es: "Reclame este cupón en #{market_name} 15 de julio de 2023",
         ),
         address: market_address,
       )
@@ -252,12 +252,12 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
 
     suma_org = Suma::Organization.find_or_create(name: "suma")
     product_name = Suma::TranslatedText.find_or_create(en: "$24 in #{market_name} Vouchers",
-                                                       es: "$24 en Boletos de #{market_name}",)
+                                                       es: "$24 en Cupones de #{market_name}",)
     product = Suma::Commerce::Product.find_or_create(name: product_name) do |p|
       # rubocop:disable Layout/LineLength
       p.description = Suma::TranslatedText.create(
         en: "The suma voucher is a food special in which a suma user loads $5 and gets $24 in vouchers for fresh and packaged food at #{market_name}. You cannot use these vouchers for alcohol or hot prepared foods.",
-        es: "El boleto de suma es un especial de alimentos en el que un usuario de suma carga $5 y obtiene $24 en boletos para alimentos frescos y empaquetados en #{market_name}. No puede utilizar estos boletos para bebidas alcohólicas o comidas preparadas calientes.",
+        es: "El cupón de suma es un especial de alimentos en el que un usuario de suma carga $5 y obtiene $24 en cupones para alimentos frescos y empaquetados en #{market_name}. No puede utilizar estos cupones para bebidas alcohólicas o comidas preparadas calientes.",
       )
       # rubocop:enable Layout/LineLength
       p.vendor = Suma::Vendor.find_or_create(name: market_name, organization: suma_org)

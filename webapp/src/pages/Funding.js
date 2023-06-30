@@ -1,11 +1,9 @@
 import api from "../api";
-import ExternalLink from "../components/ExternalLink";
 import FormButtons from "../components/FormButtons";
 import FormError from "../components/FormError";
 import LinearBreadcrumbs from "../components/LinearBreadcrumbs";
 import RLink from "../components/RLink";
 import { md, t } from "../localization";
-import externalLinks from "../modules/externalLinks";
 import useToggle from "../shared/react/useToggle";
 import { useBackendGlobals } from "../state/useBackendGlobals";
 import { extractErrorCode, useError } from "../state/useError";
