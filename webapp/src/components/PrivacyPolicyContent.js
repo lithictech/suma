@@ -16,6 +16,7 @@ import "../assets/styles/privacy-policy.scss";
 import ELink from "../components/ELink";
 import ScreenLoader from "../components/ScreenLoader";
 import { Lookup, t as loct } from "../localization";
+import { useCurrentLanguage } from "../localization/currentLanguage";
 import { useGlobalViewState } from "../state/useGlobalViewState";
 import TranslationToggle from "./TranslationToggle";
 import ScrollSpy from "bootstrap/js/src/scrollspy";
@@ -33,6 +34,7 @@ import { Helmet } from "react-helmet-async";
 export default function PrivacyPolicyContent({ mobile }) {
   mobile = Boolean(mobile);
   const [i18nextLoading, setI18NextLoading] = React.useState(true);
+  const [language] = useCurrentLanguage();
   const { topNav } = useGlobalViewState();
   const topNavHeight = topNav?.clientHeight || 0;
   React.useEffect(() => {
@@ -99,7 +101,7 @@ export default function PrivacyPolicyContent({ mobile }) {
                 <Stack gap={3}>
                   <TabLink
                     label={t("overview:faq")}
-                    to="https://mysuma.org/sumaplatform/faq"
+                    to={`https://mysuma.org/sumaplatform/${language}-faq`}
                   />
                   <TabLink
                     label={t("overview:contact_us")}

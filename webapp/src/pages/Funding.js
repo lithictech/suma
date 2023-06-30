@@ -260,9 +260,6 @@ function AdditionalSourcesCard() {
   return (
     <PaymentsCard header={t("payments:payment_other_sources")}>
       <Card.Text>{t("payments:payment_support_coming")}</Card.Text>
-      <ExternalLink href={externalLinks.fundingSourcesLink}>
-        {t("common:learn_more")}
-      </ExternalLink>
     </PaymentsCard>
   );
 }

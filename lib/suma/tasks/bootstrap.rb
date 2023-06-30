@@ -257,7 +257,7 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
       # rubocop:disable Layout/LineLength
       p.description = Suma::TranslatedText.create(
         en: "The suma voucher is a food special in which a suma user loads $5 and gets $24 in vouchers for fresh and packaged food at #{market_name}. You cannot use these vouchers for alcohol or hot prepared foods.",
-        es: "El cupón de suma es un especial de alimentos en el que un usuario de suma carga $5 y obtiene $24 en boletos para alimentos frescos y empaquetada en #{market_name}. No puede utilizar estos boletos para bebidas alcohólicas o comidas preparadas calientes.",
+        es: "El boleto de suma es un especial de alimentos en el que un usuario de suma carga $5 y obtiene $24 en boletos para alimentos frescos y empaquetados en #{market_name}. No puede utilizar estos boletos para bebidas alcohólicas o comidas preparadas calientes.",
       )
       # rubocop:enable Layout/LineLength
       p.vendor = Suma::Vendor.find_or_create(name: market_name, organization: suma_org)
