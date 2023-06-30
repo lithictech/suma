@@ -46,7 +46,7 @@
     },
     "referral_label": "¿Como te enteraste de suma?",
     "sign_up_again": "Regístrese de nuevo",
-    "sign_up_agreement" : "Al hacer clic en enviar, acepta recibir mensajes SMS y/o MMS periódicos de suma. Se pueden aplicar tarifas por mensajes y datos. Envía HELP para obtener más información. Envía STOP para dejar de recibir mensajes.",
+    "sign_up_agreement": "Al hacer clic en enviar, acepta recibir mensajes SMS y/o MMS periódicos de suma. Se pueden aplicar tarifas por mensajes y datos. Envía HELP para obtener más información. Envía STOP para dejar de recibir mensajes.",
     "signup_intro": "Complete los espacios abajo para unirse a nuestra lista de contactos y lo actualizaremos sobre todos nuestros proyectos y las próximas oportunidades de ahorro de dinero. ¡Estamos tan emocionados!",
     "signup_title": "Unirse a suma",
     "success_intro": "¡Gracias por registrarte y bienvenido a la app suma!\n\n¡Ya estás inscrito en nuestra comunidad! Lo informaremos sobre todos los proyectos futuros, las oportunidades de ahorro de dinero y cómo completar el proceso de inscripción en la aplicación. Para obtener más información sobre suma, visite nuestro sitio web en $t(strings:common:mysuma_website_link), o visítenos en nuestras redes sociales usando el enlace abajo. ¡Nos hablamos pronto!"
@@ -103,8 +103,6 @@
   "food": {
     "add_card": "Añadir tarjeta de débito/crédito",
     "add_to_cart": "Añadir al carrito",
-    "credit_applied": "{{amount, sumaCurrency}} crédito",
-    "discount_applied": "{{amount, sumaCurrency}} descuento",
     "available_until": "Hasta",
     "cart_available_credit": "Crédito disponible: **{{amount, sumaCurrency}}**",
     "cart_cash_cost": "Costo para usted: **{{amount, sumaCurrency}}**",
@@ -119,15 +117,17 @@
     "confirmation_subtitle": "Pronto recibirá un mensaje con detalles sobre cómo obtener su pedido.",
     "confirmation_title": "¡Pedido realizado con éxito!",
     "continue_to_checkout": "Continúe para finalizar",
+    "credit_applied": "{{amount, sumaCurrency}} crédito",
     "current_offerings": "Las ofertas actuales",
     "currently_unavailable": "No disponible",
     "details_header": "Detalles",
+    "discount_applied": "{{amount, sumaCurrency}} descuento",
     "ending_in": "terminan en {{last4}}",
     "from_vendor": "De {{vendorName}}",
     "from_vendor_with_discount": "De {{vendorName}} con {{discountAmount, sumaCurrency}} de descuento",
     "intro": "Suma quiere facilitarle el ahorro de dinero en alimentos, ya sea que compre en una gran cadena, en la tienda de la esquina o en un mercado orgánico.",
-    "items_title": "Artículos",
     "item_subtotal": "Subtotal del artículo",
+    "items_title": "Artículos",
     "labels": {
       "fees_and_taxes": "Tarifas {{fees, sumaCurrency}}, Impuestos {{taxes, sumaCurrency}}",
       "handling": "Manejo",
@@ -145,8 +145,8 @@
     "no_offerings": "No hay ofertas de alimentos disponibles actualmente, vuelva a consultar más tarde.",
     "no_orders": "Aún no ha realizado ningún pedido.",
     "no_products": "No se encontraron productos, esta oferta podría estar cerrada. [Haga clic aquí para ver las ofertas disponibles](/food '$t(strings:food:title)').",
-    "noncash_ledger_contribution_available": "Elegible para {{amount, sumaCurrency}} del saldo existente en su cuenta. Aplicado en el momento de la compra.",
     "no_unclaimed_orders": "Todos los pedidos son reclamados.",
+    "noncash_ledger_contribution_available": "Elegible para {{amount, sumaCurrency}} del saldo existente en su cuenta. Aplicado en el momento de la compra.",
     "order_available_for_pickup": "Dispolible para recoger {{date}}",
     "order_button": "Realizar pedido",
     "order_claimed": "Orden reclamodo",
@@ -169,8 +169,8 @@
     "terms_of_use_agreement": "Al hacer clic en \"realizar pedido\" usted acepta los [Términos de uso](/terms-of-use__blank__) de Suma.",
     "title": "Comida",
     "total": "{{total, sumaCurrency}}",
-    "unclaimed_order_history_title": "Reclamar pedidos",
-    "unclaimed_order_history_intro": "Los pedidos que están listos para reclamar aparecerán a abajo. Cuando llegue al lugar de recogida del pedido, permita que un miembro le ayude a \"deslizar para reclamar\" su pedido."
+    "unclaimed_order_history_intro": "Los pedidos que están listos para reclamar aparecerán a abajo. Cuando llegue al lugar de recogida del pedido, permita que un miembro le ayude a \"deslizar para reclamar\" su pedido.",
+    "unclaimed_order_history_title": "Reclamar pedidos"
   },
   "forms": {
     "account_number": "Número de Cuenta",
