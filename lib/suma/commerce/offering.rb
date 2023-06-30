@@ -13,6 +13,8 @@ class Suma::Commerce::Offering < Suma::Postgres::Model(:commerce_offerings)
   plugin :timestamps
   plugin :tstzrange_fields, :period
   plugin :translated_text, :description, Suma::TranslatedText
+  plugin :translated_text, :fulfillment_prompt, Suma::TranslatedText
+  plugin :translated_text, :fulfillment_confirmation, Suma::TranslatedText
 
   one_to_many :fulfillment_options, class: "Suma::Commerce::OfferingFulfillmentOption"
   one_to_many :offering_products, class: "Suma::Commerce::OfferingProduct"

@@ -227,7 +227,7 @@ function PaymentLabel({ institution, last4, name }) {
 function CheckoutFulfillment({ checkout, onCheckoutChange }) {
   return (
     <Col xs={12} className="mb-3">
-      <h5>{t("food:fulfillment_title")}</h5>
+      <h5>{checkout.offering.fulfillmentPrompt}</h5>
       <Form noValidate>
         <Form.Group>
           {checkout.availableFulfillmentOptions.map((fo) => (

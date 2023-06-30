@@ -225,11 +225,14 @@ class Suma::API::Commerce < Suma::API::V1
     expose :items, with: CartItemEntity
     expose :customer_cost, with: Suma::Service::Entities::Money
     expose :noncash_ledger_contribution_amount, with: Suma::Service::Entities::Money
+    expose :cash_cost, with: Suma::Service::Entities::Money
   end
 
   class OfferingEntity < BaseEntity
     expose :id
     expose_translated :description
+    expose_translated :fulfillment_prompt
+    expose_translated :fulfillment_confirmation
     expose :period_end, as: :closes_at
     expose :image, with: Suma::API::Entities::ImageEntity, &self.delegate_to(:images?, :first)
   end
@@ -245,8 +248,14 @@ class Suma::API::Commerce < Suma::API::V1
     expose :out_of_stock do |_|
       self.max_quantity.zero?
     end
+
     expose :noncash_ledger_contribution_amount, with: Suma::Service::Entities::Money do |inst, opts|
-      opts.fetch(:cart).product_noncash_ledger_contribution_amount(inst)
+      opts.opts_hash[:_noncash] ||= opts.fetch(:cart).product_noncash_ledger_contribution_amount(inst)
+    end
+
+    expose :cash_price, with: Suma::Service::Entities::Money do |inst, opts|
+      noncash = opts.opts_hash[:_noncash] ||= opts.fetch(:cart).product_noncash_ledger_contribution_amount(inst)
+      inst.customer_price - noncash
     end
 
     expose :is_discounted, &self.delegate_to(:discounted?, safe_with_default: false)

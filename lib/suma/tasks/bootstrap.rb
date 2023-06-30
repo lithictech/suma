@@ -25,11 +25,14 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
 
       self.setup_admin
 
-      self.setup_offerings
-      self.setup_products
-      self.setup_automation
+      self.setup_noimage_offering
 
-      self.setup_market_offering_product
+      self.setup_holiday_offering
+      self.setup_holiday_products
+
+      self.setup_sjfm
+
+      self.setup_automation
     end
   end
 
@@ -114,11 +117,11 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
     admin.ensure_role(Suma::Role.admin_role)
   end
 
-  def setup_offerings
+  def setup_holiday_offering
     return unless Suma::Commerce::Offering.dataset.empty?
 
     offering = Suma::Commerce::Offering.new
-    offering.period = 1.day.ago..self.pilot_end
+    offering.period = 1.day.ago..self.holiday_2022_end
     offering.description = Suma::TranslatedText.create(en: "Holidays 2022", es: "Días festivos")
     offering.confirmation_template = "2022-12-pilot-confirmation"
     offering.save_changes
@@ -147,15 +150,17 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
         es: "Recogida en una ubicación de la comunidad (21-22 de dic)",
       ),
     )
-
-    # Create this extra one
-    Suma::RACK_ENV == "development" && Suma::Commerce::Offering.create(
-      description_string: "No Image Tester",
-      period: 1.day.ago..self.pilot_end,
-    )
   end
 
-  def setup_products
+  def setup_noimage_offering
+    return unless Suma::RACK_ENV == "development"
+    desc = Suma::TranslatedText.find_or_create(en: "No Image Tester", es: "No Image Tester (es)")
+    Suma::Commerce::Offering.update_or_create(description: desc) do |o|
+      o.period = 1.day.ago..6.months.from_now
+    end
+  end
+
+  def setup_holiday_products
     return unless Suma::Commerce::Product.dataset.empty?
 
     # rubocop:disable Layout/LineLength
@@ -210,7 +215,7 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
     end
   end
 
-  def setup_market_offering_product
+  def setup_sjfm
     market_name = "St. Johns Farmers Market"
     market_address = Suma::Address.lookup(
       address1: "N Charleston Ave & N Central St",
@@ -218,58 +223,85 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
       state_or_province: "Oregon",
       postal_code: "97203",
     )
-    uf = self.create_uploaded_file("st-johns-farmers-market-logo.png", "image/png")
+    logo = self.create_uploaded_file("st-johns-farmers-market-logo.png", "image/png")
+    hero = self.create_uploaded_file("st-johns-farmers-market-hero.jpeg", "image/jpeg")
 
-    offering = Suma::Commerce::Offering.find_or_create(confirmation_template: "2023-07-pilot-confirmation") do |o|
-      pacific_tz = "-07:00"
-      o.update(period: Time.new(2023, 6, 30, 17, 0, 0, pacific_tz)..Time.new(2023, 10, 28))
-      o.description = Suma::TranslatedText.create(en: "#{market_name} Ride & Shop",
-                                                  es: "Paseo y Compra en #{market_name}",)
-      o.begin_fulfillment_at = Time.new(2023, 7, 15, 0, 0, 0, pacific_tz)
+    offering = Suma::Commerce::Offering.update_or_create(confirmation_template: "2023-07-pilot-confirmation") do |o|
+      o.set(
+        period: self.sjfm_2023_begin..self.sjfm_2023_end,
+        description: Suma::TranslatedText.find_or_create(
+          en: "#{market_name} Ride & Shop",
+          es: "Paseo y Compra en #{market_name}",
+        ),
+        fulfillment_prompt: Suma::TranslatedText.find_or_create(
+          en: "Do you need transportation?",
+          es: "Do you need transportation? TODO",
+        ),
+        fulfillment_confirmation: Suma::TranslatedText.find_or_create(
+          en: "Transportation needed",
+          es: "Transportation needed TODO",
+        ),
+        begin_fulfillment_at: self.sjfm_2023_end,
+      )
     end
-    offering.add_image({uploaded_file: uf})
+    if offering.images.empty?
+      offering.add_image({uploaded_file: hero})
+    else
+      offering.images.first.update(uploaded_file: hero)
+    end
 
+    fulfillment_params = [
+      {
+        type: "pickup",
+        ordinal: 0,
+        description: Suma::TranslatedText.find_or_create(
+          en: "Yes, please contact me",
+          es: "TODO",
+        ),
+        address: market_address,
+      },
+      {
+        type: "pickup",
+        ordinal: 1,
+        description: Suma::TranslatedText.find_or_create(
+          en: "No, I have my own transportation",
+          es: "TODO",
+        ),
+        address: market_address,
+      },
+    ]
     if offering.fulfillment_options.empty?
-      offering.add_fulfillment_option(
-        type: "pickup",
-        ordinal: 0,
-        description: Suma::TranslatedText.create(
-          en: "Redeem your vouchers on #{market_name} July 15, 2023",
-          es: "Reclame este cupón en #{market_name} 15 de julio de 2023",
-        ),
-        address: market_address,
-      )
-      offering.add_fulfillment_option(
-        type: "pickup",
-        ordinal: 0,
-        description: Suma::TranslatedText.create(
-          en: "I need transportation to and from the #{market_name} July 15, 2023 (we will contact you)",
-          es: "Necesito transporte hacia y desde #{market_name} 15 de julio de 2023 (nos comunicaremos con usted)",
-        ),
-        address: market_address,
-      )
+      fulfillment_params.each { |o| offering.add_fulfillment_option(o) }
+    else
+      fulfillment_params.each_with_index do |o, i|
+        offering.fulfillment_options[i].update(o)
+      end
     end
 
     suma_org = Suma::Organization.find_or_create(name: "suma")
     product_name = Suma::TranslatedText.find_or_create(en: "$24 in #{market_name} Vouchers",
                                                        es: "$24 en Cupones de #{market_name}",)
-    product = Suma::Commerce::Product.find_or_create(name: product_name) do |p|
+    product = Suma::Commerce::Product.update_or_create(name: product_name) do |p|
       # rubocop:disable Layout/LineLength
-      p.description = Suma::TranslatedText.create(
+      p.description = Suma::TranslatedText.find_or_create(
         en: "The suma voucher is a food special in which a suma user loads $5 and gets $24 in vouchers for fresh and packaged food at #{market_name}. You cannot use these vouchers for alcohol or hot prepared foods.",
         es: "El cupón de suma es un especial de alimentos en el que un usuario de suma carga $5 y obtiene $24 en cupones para alimentos frescos y empaquetados en #{market_name}. No puede utilizar estos cupones para bebidas alcohólicas o comidas preparadas calientes.",
       )
       # rubocop:enable Layout/LineLength
-      p.vendor = Suma::Vendor.find_or_create(name: market_name, organization: suma_org)
+      p.vendor = Suma::Vendor.update_or_create(name: market_name, organization: suma_org)
       p.our_cost = Money.new(2400)
     end
     product.add_vendor_service_category(farmers_market_category) if product.vendor_service_categories.empty?
-    product.add_image({uploaded_file: uf}) if product.images.empty?
-    Suma::Commerce::ProductInventory.find_or_create(product:) do |p|
+    if product.images.empty?
+      product.add_image({uploaded_file: logo})
+    else
+      product.images.first.update(uploaded_file: logo)
+    end
+    Suma::Commerce::ProductInventory.update_or_create(product:) do |p|
       p.max_quantity_per_order = 1
       p.max_quantity_per_offering = 25
     end
-    Suma::Commerce::OfferingProduct.find_or_create(offering:, product:) do |op|
+    Suma::Commerce::OfferingProduct.update_or_create(offering:, product:) do |op|
       op.customer_price = Money.new(2400)
       op.undiscounted_price = Money.new(2400)
     end
@@ -280,8 +312,8 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
     Suma::AutomationTrigger.create(
       name: "Holidays 2022 Promo",
       topic: "suma.payment.account.created",
-      active_during_begin: Time.now,
-      active_during_end: self.pilot_end,
+      active_during_begin: self.holiday_2022_begin,
+      active_during_end: self.holiday_2022_end,
       klass_name: "Suma::AutomationTrigger::CreateAndSubsidizeLedger",
       parameter: {
         ledger_name: "Holidays2022Promo",
@@ -298,19 +330,19 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
     Suma::AutomationTrigger.create(
       name: "Holidays 2022 Pilot Verification",
       topic: "suma.member.created",
-      active_during_begin: Time.now,
-      active_during_end: self.pilot_end,
+      active_during_begin: self.holiday_2022_begin,
+      active_during_end: self.holiday_2022_end,
       klass_name: "Suma::AutomationTrigger::AutoOnboard",
     )
     Suma::AutomationTrigger.create(
       name: "Summer 2023 Promo",
       topic: "suma.payment.account.created",
-      active_during_begin: Time.new(2023, 6, 30),
-      active_during_end: Time.new(2023, 7, 15),
+      active_during_begin: self.sjfm_2023_begin,
+      active_during_end: self.sjfm_2023_end,
       klass_name: "Suma::AutomationTrigger::CreateAndSubsidizeLedger",
       parameter: {
         ledger_name: "Summer2023FarmersMarket",
-        contribution_text: {en: "Summer 2023 Subsidy", es: "Subsidio Verano 2023"},
+        contribution_text: {en: "Summer 2023 Market Subsidy", es: "Subsidio Verano Mercado 2023"},
         category_name: "Summer 2023 Farmers Market",
         amount_cents: 19_00,
         amount_currency: "USD",
@@ -322,9 +354,11 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
     )
   end
 
-  def pilot_end
-    return Time.now + 6.months
-  end
+  def holiday_2022_begin = Time.parse("2023-11-01T12:00:00-0700")
+  def holiday_2022_end = Time.parse("2023-12-18T12:00:00-0700")
+
+  def sjfm_2023_begin = Time.parse("2023-06-01T12:00:00-0700")
+  def sjfm_2023_end = Time.parse("2023-07-15T12:00:00-0700")
 
   def create_uploaded_file(filename, content_type, file_path: "spec/data/images/")
     bytes = File.binread(file_path + filename)

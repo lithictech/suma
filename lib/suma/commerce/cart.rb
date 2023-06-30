@@ -143,6 +143,10 @@ class Suma::Commerce::Cart < Suma::Postgres::Model(:commerce_carts)
     )
     return contribs.sum(Money.new(0), &:amount)
   end
+
+  def cash_cost(now: Time.now)
+    return self.customer_cost - self.noncash_ledger_contribution_amount(now:)
+  end
 end
 
 # Table: commerce_carts
