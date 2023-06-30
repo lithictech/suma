@@ -34,12 +34,22 @@ module Suma::SpecHelpers::Postgres
     end
 
     context.around(:each) do |example|
+      puts example.metadata[:full_description] if SNIFF_LEAKY_TESTS
       setting = example.metadata[:db]
       if setting && setting != :no_transaction
         Suma::SpecHelpers::Postgres.wrap_example_in_transactions(example)
       else
         Suma::Postgres.logger.debug "Running spec without a transaction"
         example.run
+      end
+      has_leaked = SNIFF_LEAKY_TESTS && (
+        !Suma::Member.empty? ||
+          !Suma::TranslatedText.empty?
+      )
+      if has_leaked
+        puts "Database is not cleaned up, failing for diagnosis."
+        puts "Check this or the spec that ran before: #{example.metadata[:full_description]}"
+        exit
       end
     end
 
@@ -72,10 +82,6 @@ module Suma::SpecHelpers::Postgres
     end
 
     wrapped_proc.call
-    return if !SNIFF_LEAKY_TESTS || Suma::Member.empty?
-    puts "Member is not cleaned up, failing for diagnosis."
-    puts "Check the spec that ran before: #{example.metadata[:full_description]}"
-    exit
   end
 
   singleton_attr_accessor :current_test_model_uid
