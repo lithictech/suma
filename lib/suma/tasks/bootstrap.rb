@@ -221,9 +221,11 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
     uf = self.create_uploaded_file("st-johns-farmers-market-logo.png", "image/png")
 
     offering = Suma::Commerce::Offering.find_or_create(confirmation_template: "2023-07-pilot-confirmation") do |o|
-      o.update(period: Date.new(2023, 6, 30)..Date.new(2023, 10, 28))
+      pacific_tz = "-7:00"
+      o.update(period: Time.new(2023, 6, 30, 27, 0, 0, pacific_tz)..Time.new(2023, 10, 28))
       o.description = Suma::TranslatedText.create(en: "#{market_name} Ride & Shop",
                                                   es: "Paseo y Compra en #{market_name}",)
+      o.begin_fullfilment_at = Time.new(2023, 7, 15, 0, 0, 0, pacific_tz)
     end
     offering.add_image({uploaded_file: uf})
 
@@ -249,14 +251,15 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
     end
 
     suma_org = Suma::Organization.find_or_create(name: "suma")
-    product_name = Suma::TranslatedText.find_or_create(en: "$24 in Food Vouchers", es: "$24 en Boletos de Comida")
+    product_name = Suma::TranslatedText.find_or_create(en: "$24 in #{market_name} Vouchers",
+                                                       es: "$24 en Boletos de #{market_name}",)
     product = Suma::Commerce::Product.find_or_create(name: product_name) do |p|
+      # rubocop:disable Layout/LineLength
       p.description = Suma::TranslatedText.create(
-        en: "Farmer's Market voucher only valid through 2023.
-             It can be used to buy anything in #{market_name}.",
-        es: "El boleto del Farmer's Market solo es válido durante 2023.
-             Se puede usar para comprar cualquier cosa en #{market_name}.",
+        en: "The suma voucher is a food special in which a suma user loads $5 and gets $24 in vouchers for fresh and packaged food at #{market_name}. You cannot use these vouchers for alcohol or hot prepared foods.",
+        es: "El cupón de suma es un especial de alimentos en el que un usuario de suma carga $5 y obtiene $24 en boletos para alimentos frescos y empaquetada en #{market_name}. No puede utilizar estos boletos para bebidas alcohólicas o comidas preparadas calientes.",
       )
+      # rubocop:enable Layout/LineLength
       p.vendor = Suma::Vendor.find_or_create(name: market_name, organization: suma_org)
       p.our_cost = Money.new(2400)
     end
