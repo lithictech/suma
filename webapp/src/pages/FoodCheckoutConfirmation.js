@@ -41,7 +41,7 @@ export default function FoodCheckoutConfirmation() {
   if (loading) {
     return <PageLoader />;
   }
-  const { fulfillmentOption, items } = checkout;
+  const { fulfillmentOption, items, offering } = checkout;
   return (
     <>
       <div className="bg-success text-white p-3">
@@ -54,7 +54,7 @@ export default function FoodCheckoutConfirmation() {
           <Item key={idx} item={p} />
         ))}
         <hr />
-        <h4 className="mb-3">{t("food:confirmation_pickup_title")}</h4>
+        <h4 className="mb-3">{offering.fulfillmentConfirmation}</h4>
         <p>{fulfillmentOption.description}</p>
         <hr />
         {mdp("food:confirmation_message", { check: false })}

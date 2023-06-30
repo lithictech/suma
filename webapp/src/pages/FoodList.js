@@ -6,7 +6,6 @@ import PageLoader from "../components/PageLoader";
 import SumaImage from "../components/SumaImage";
 import { t, mdp } from "../localization";
 import makeTitle from "../modules/makeTitle";
-import { anyMoney } from "../shared/react/Money";
 import { useOffering } from "../state/useOffering";
 import { LayoutContainer } from "../state/withLayout";
 import isEmpty from "lodash/isEmpty";
@@ -42,7 +41,13 @@ export default function FoodList() {
         <title>{title}</title>
       </Helmet>
       {offering.image && (
-        <SumaImage image={offering.image} w={500} h={140} className="thin-header-image" />
+        <SumaImage
+          image={offering.image}
+          w={500}
+          h={140}
+          params={{ crop: "center" }}
+          className="thin-header-image"
+        />
       )}
       <FoodNav
         offeringId={offeringId}
@@ -80,6 +85,8 @@ function Product({ product, offeringId }) {
     isDiscounted,
     undiscountedPrice,
     customerPrice,
+    discountAmount,
+    cashPrice,
     images,
     noncashLedgerContributionAmount,
     outOfStock,
@@ -87,14 +94,7 @@ function Product({ product, offeringId }) {
   return (
     <Col xs={6} className="mb-4">
       <div className="position-relative">
-        <SumaImage
-          image={images[0]}
-          alt={name}
-          params={{ crop: "attention" }}
-          className="w-100"
-          w={225}
-          h={150}
-        />
+        <SumaImage image={images[0]} alt={name} className="w-100" w={225} h={150} />
         <h5 className="mb-2 mt-2">{name}</h5>
         {outOfStock ? (
           <p className="text-secondary">{t("food:currently_unavailable")}</p>
@@ -105,14 +105,10 @@ function Product({ product, offeringId }) {
               customerPrice={customerPrice}
               isDiscounted={isDiscounted}
               undiscountedPrice={undiscountedPrice}
+              discountAmount={discountAmount}
+              noncashLedgerContributionAmount={noncashLedgerContributionAmount}
+              cashPrice={cashPrice}
             />
-            {anyMoney(noncashLedgerContributionAmount) && (
-              <p className="mb-0">
-                {t("food:additional_credit_at_checkout", {
-                  amount: noncashLedgerContributionAmount,
-                })}
-              </p>
-            )}
           </>
         )}
         <Link to={`/product/${offeringId}/${productId}`} className="stretched-link" />

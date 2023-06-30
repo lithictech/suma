@@ -11,7 +11,13 @@ module Suma::Fixtures::Offerings
   base :offering do
     self.period ||=
       Faker::Number.between(from: 50, to: 2).days.ago..Faker::Number.between(from: 2, to: 50).days.from_now
-    self.description ||= Suma::Fixtures.translated_text.create
+  end
+
+  before_saving do |instance|
+    instance.description ||= Suma::Fixtures.translated_text.create
+    instance.fulfillment_prompt ||= Suma::Fixtures.translated_text.create
+    instance.fulfillment_confirmation ||= Suma::Fixtures.translated_text.create
+    instance
   end
 
   decorator :period do |begin_time, end_time|

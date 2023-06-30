@@ -19,7 +19,7 @@ export default function UnclaimedOrdersWidget() {
         as={Link}
         to="/unclaimed-orders"
       >
-        {t("food:unclaimed_order_history_title", {
+        {t("food:claim_orders", {
           unclaimedOrdersCount: user.unclaimedOrdersCount,
         })}
         <span className="ms-auto">

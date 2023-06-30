@@ -1,11 +1,9 @@
 import api from "../api";
-import ExternalLink from "../components/ExternalLink";
 import FormButtons from "../components/FormButtons";
 import FormError from "../components/FormError";
 import LinearBreadcrumbs from "../components/LinearBreadcrumbs";
 import RLink from "../components/RLink";
 import { md, t } from "../localization";
-import externalLinks from "../modules/externalLinks";
 import useToggle from "../shared/react/useToggle";
 import { useBackendGlobals } from "../state/useBackendGlobals";
 import { extractErrorCode, useError } from "../state/useError";
@@ -260,9 +258,6 @@ function AdditionalSourcesCard() {
   return (
     <PaymentsCard header={t("payments:payment_other_sources")}>
       <Card.Text>{t("payments:payment_support_coming")}</Card.Text>
-      <ExternalLink href={externalLinks.fundingSourcesLink}>
-        {t("common:learn_more")}
-      </ExternalLink>
     </PaymentsCard>
   );
 }
