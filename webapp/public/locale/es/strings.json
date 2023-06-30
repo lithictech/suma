@@ -168,7 +168,7 @@
     "terms_of_use_agreement": "Al hacer clic en \"realizar pedido\" usted acepta los [Términos de uso](/terms-of-use__blank__) de Suma.",
     "title": "Comida",
     "total": "{{total, sumaCurrency}}",
-    "unclaimed_order_history_title": "Reclamar ordenes",
+    "unclaimed_order_history_title": "Reclamar pedidos",
     "unclaimed_order_history_intro": "Los pedidos que están listos para reclamar aparecerán a abajo. Cuando llegue al lugar de recogida del pedido, permita que un miembro le ayude a \"deslizar para reclamar\" su pedido.",
     "unclaimed_orders": "Pedidos sin reclamos ({{unclaimedOrdersCount}})"
   },
