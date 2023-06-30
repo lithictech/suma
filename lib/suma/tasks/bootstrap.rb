@@ -344,7 +344,7 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
     )
     Suma::AutomationTrigger.create(
       name: "Summer 2023 Promo",
-      topic: "suma.payment.account.created",
+      topic: "suma.payment.account.subsidize-sjfm-2023",
       active_during_begin: self.sjfm_2023_begin,
       active_during_end: self.sjfm_2023_end,
       klass_name: "Suma::AutomationTrigger::CreateAndSubsidizeLedger",
@@ -355,8 +355,8 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
         amount_cents: 19_00,
         amount_currency: "USD",
         subsidy_memo: {
-          en: "Subsidy from local funders",
-          es: "Apoyo de financiadores locales",
+          en: "Farmers Market subsidy",
+          es: "Subsidio al mercado de agricultores",
         },
       },
     )
