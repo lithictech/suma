@@ -213,7 +213,7 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
   def setup_market_offering_product
     market_name = "St. Johns Farmers Market"
     market_address = Suma::Address.lookup(
-      address1: "N Charleston Avenue &, N Central Street",
+      address1: "N Charleston Ave & N Central St",
       city: "Portland",
       state_or_province: "Oregon",
       postal_code: "97203",
@@ -234,7 +234,7 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
         type: "pickup",
         ordinal: 0,
         description: Suma::TranslatedText.create(
-          en: "Redeem your vouchers at #{market_name} July 15, 2023",
+          en: "Redeem your vouchers on #{market_name} July 15, 2023",
           es: "Reclame este cupón en #{market_name} 15 de julio de 2023",
         ),
         address: market_address,

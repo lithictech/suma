@@ -112,6 +112,7 @@
     "checkout": "Finalizar",
     "checkout_available": "Mira lo que está disponible.",
     "checkout_items_title": "Lo que está recibiendo:",
+    "claim_orders": "Reclamar pedidos ({{unclaimedOrdersCount}})",
     "confirmation_message": "Responda a su mensaje de confirmación o comuníquese si tiene alguna pregunta.",
     "confirmation_pickup_title": "Cómo lo está recibiendo",
     "confirmation_subtitle": "Pronto recibirá un mensaje con detalles sobre cómo obtener su pedido.",
@@ -170,7 +171,6 @@
     "total": "{{total, sumaCurrency}}",
     "unclaimed_order_history_title": "Reclamar pedidos",
     "unclaimed_order_history_intro": "Los pedidos que están listos para reclamar aparecerán a abajo. Cuando llegue al lugar de recogida del pedido, permita que un miembro le ayude a \"deslizar para reclamar\" su pedido.",
-    "unclaimed_orders": "Pedidos sin reclamos ({{unclaimedOrdersCount}})"
   },
   "forms": {
     "account_number": "Número de Cuenta",

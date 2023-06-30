@@ -112,6 +112,7 @@
     "checkout": "Checkout",
     "checkout_available": "Check out what’s available.",
     "checkout_items_title": "What you’re getting:",
+    "claim_orders": "Claim orders ({{unclaimedOrdersCount}})",
     "confirmation_message": "Respond to your confirmation message or reach out if you have any questions.",
     "confirmation_pickup_title": "How you’re getting it",
     "confirmation_subtitle": "You will get a message soon with details about how to get your order.",
@@ -170,7 +171,6 @@
     "total": "{{total, sumaCurrency}}",
     "unclaimed_order_history_title": "Claim Orders",
     "unclaimed_order_history_intro": "Orders that are ready to claim will appear below. When you arrive to the order pickup location, please allow a staff member to help you \"slide to claim\" your order.",
-    "unclaimed_orders": "Claimed orders ({{unclaimedOrdersCount}})"
   },
   "forms": {
     "account_number": "Account Number",

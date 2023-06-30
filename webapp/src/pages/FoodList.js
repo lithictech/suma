@@ -42,7 +42,13 @@ export default function FoodList() {
         <title>{title}</title>
       </Helmet>
       {offering.image && (
-        <SumaImage image={offering.image} w={500} h={140} className="thin-header-image" />
+        <SumaImage
+          image={offering.image}
+          w={500}
+          h={140}
+          params={{ crop: "attention " }}
+          className="thin-header-image"
+        />
       )}
       <FoodNav
         offeringId={offeringId}
