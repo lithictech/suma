@@ -170,7 +170,7 @@
     "total": "{{total, sumaCurrency}}",
     "unclaimed_order_history_title": "Claim Orders",
     "unclaimed_order_history_intro": "Orders that are ready to claim will appear below. When you arrive to the order pickup location, please allow a staff member to help you \"slide to claim\" your order.",
-    "unclaimed_orders": "Unclaimed orders ({{unclaimedOrdersCount}})"
+    "unclaimed_orders": "Claimed orders ({{unclaimedOrdersCount}})"
   },
   "forms": {
     "account_number": "Account Number",
