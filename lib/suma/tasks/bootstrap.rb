@@ -235,11 +235,11 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
         ),
         fulfillment_prompt: Suma::TranslatedText.find_or_create(
           en: "Do you need transportation?",
-          es: "Do you need transportation? TODO",
+          es: "¿Necesitas transporte?",
         ),
         fulfillment_confirmation: Suma::TranslatedText.find_or_create(
           en: "Transportation needed",
-          es: "Transportation needed TODO",
+          es: "Necesito transporte",
         ),
         begin_fulfillment_at: self.sjfm_2023_end,
       )
@@ -256,7 +256,7 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
         ordinal: 0,
         description: Suma::TranslatedText.find_or_create(
           en: "Yes, please contact me",
-          es: "TODO",
+          es: "Sí, por favor contácteme",
         ),
         address: market_address,
       },
@@ -265,7 +265,7 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
         ordinal: 1,
         description: Suma::TranslatedText.find_or_create(
           en: "No, I have my own transportation",
-          es: "TODO",
+          es: "No, tengo mi propio transporte",
         ),
         address: market_address,
       },
