@@ -121,7 +121,7 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
     return unless Suma::Commerce::Offering.dataset.empty?
 
     offering = Suma::Commerce::Offering.new
-    offering.period = 1.day.ago..self.holiday_2022_end
+    offering.period = self.holiday_2022_begin..self.holiday_2022_end
     offering.description = Suma::TranslatedText.find_or_create(en: "Holidays 2022", es: "Días festivos")
     offering.confirmation_template = "2022-12-pilot-confirmation"
     offering.fulfillment_prompt = Suma::TranslatedText.find_or_create(
