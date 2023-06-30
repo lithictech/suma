@@ -122,8 +122,16 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
 
     offering = Suma::Commerce::Offering.new
     offering.period = 1.day.ago..self.holiday_2022_end
-    offering.description = Suma::TranslatedText.create(en: "Holidays 2022", es: "Días festivos")
+    offering.description = Suma::TranslatedText.find_or_create(en: "Holidays 2022", es: "Días festivos")
     offering.confirmation_template = "2022-12-pilot-confirmation"
+    offering.fulfillment_prompt = Suma::TranslatedText.find_or_create(
+      en: "How do you want to get your stuff?",
+      es: "¿Cómo desea obtener sus cosas?",
+    )
+    offering.fulfillment_confirmation = Suma::TranslatedText.find_or_create(
+      en: "How you’re getting it",
+      es: "Cómo lo está recibiendo",
+    )
     offering.save_changes
     uf = self.create_uploaded_file("holiday-offering.jpeg", "image/jpeg")
     offering.add_image({uploaded_file: uf})
@@ -131,7 +139,7 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
     offering.add_fulfillment_option(
       type: "pickup",
       ordinal: 0,
-      description: Suma::TranslatedText.create(
+      description: Suma::TranslatedText.find_or_create(
         en: "Pickup at Sheridan's Market (Dec 21-22)",
         es: "Recogida en Sheridan's Market (21-22 de dic)",
       ),
@@ -145,7 +153,7 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
     offering.add_fulfillment_option(
       type: "pickup",
       ordinal: 1,
-      description: Suma::TranslatedText.create(
+      description: Suma::TranslatedText.find_or_create(
         en: "Pickup at Community Location (Dec 21-22)",
         es: "Recogida en una ubicación de la comunidad (21-22 de dic)",
       ),
