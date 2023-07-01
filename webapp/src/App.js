@@ -64,11 +64,13 @@ export default function App() {
           <UserProvider>
             <I18NextProvider>
               <ScreenLoaderProvider>
-                <HelmetProvider>
-                  <OfferingProvider>
-                    <InnerApp />
-                  </OfferingProvider>
-                </HelmetProvider>
+                <RerenderOnLangChange>
+                  <HelmetProvider>
+                    <OfferingProvider>
+                      <InnerApp />
+                    </OfferingProvider>
+                  </HelmetProvider>
+                </RerenderOnLangChange>
               </ScreenLoaderProvider>
             </I18NextProvider>
           </UserProvider>
@@ -76,6 +78,23 @@ export default function App() {
       </ErrorToastProvider>
     </GlobalViewStateProvider>
   );
+}
+
+/**
+ * Language choice has implicit state dependencies,
+ * since API calls are done in the user's current language.
+ * To avoid having a web of state modifications, we can just rebuild the DOM
+ * and make all new API requests when language changes.
+ *
+ * This is really only needed for cross-screen API call state, like useOffering.
+ * Components in the UI itself usually end up being redraw,
+ * but contexts at a higher level would not be.
+ *
+ * This component must be placed outside of any localized API calls.
+ */
+function RerenderOnLangChange({ children }) {
+  const { language } = useI18Next();
+  return <React.Fragment key={language}>{children}</React.Fragment>;
 }
 
 function InnerApp() {
