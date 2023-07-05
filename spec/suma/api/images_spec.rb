@@ -41,6 +41,16 @@ RSpec.describe Suma::API::Images, :db do
       expect(last_response.headers).to include("Content-Type" => "image/png")
       expect(last_response.body).to have_length(be > 1000)
     end
+
+    it "can pass a format" do
+      uf = Suma::Fixtures.uploaded_file.uploaded_file(photo_file).create
+
+      get "/v1/images/#{uf.opaque_id}", w: 10, fmt: "jpeg"
+
+      expect(last_response).to have_status(200)
+      expect(last_response.headers).to include("Content-Type" => "image/jpeg")
+      expect(last_response.body).to have_length(be > 1000)
+    end
   end
 
   describe "POST /v1/images" do
