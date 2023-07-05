@@ -4,14 +4,15 @@ require "suma/image_processor"
 require "suma/api"
 
 class Suma::API::Images < Suma::API::V1
+  include Suma::Service::Types
   include Suma::API::Entities
 
   resource :images do
     route_param :opaque_id do
       helpers do
-        def handle_response(uf)
+        def handle_response(uf, format: nil)
           env["api.format"] = :binary
-          content_type uf.content_type
+          content_type(format ? "image/#{format}" : uf.content_type)
           header "Content-Disposition", "inline; filename=\"#{uf.filename}\""
           return yield
         end
@@ -21,17 +22,20 @@ class Suma::API::Images < Suma::API::V1
         optional :h, type: Float, values: 0.01..4096.0
         optional :crop, type: Symbol, values: Suma::ImageProcessor::CROP_VALUES
         optional :resize, type: Symbol, values: Suma::ImageProcessor::RESIZE_VALUES
-        optional :format, type: Symbol, values: Suma::ImageProcessor::FORMAT_VALUES
+        # Use fmt, not format, since format is a Grape thing for the API response format.
+        optional :fmt, type: Symbol, values: Suma::ImageProcessor::FORMAT_VALUES
         optional :q, type: Integer, values: 1..100
+        optional :flatten, type: Array[Integer], coerce_with: CommaSepArray[Integer]
       end
       get do
         use_http_expires_caching 1.year
+        format = params[:fmt]
         if params[:opaque_id] == "missing"
           uf = Suma::UploadedFile::NoImageAvailable.new
         else
           (uf = Suma::UploadedFile[opaque_id: params[:opaque_id]]) or forbidden!
         end
-        if !params[:w] && !params[:h] && !params[:format]
+        if !params[:w] && !params[:h] && !format
           handle_response(uf) do
             uf.blob_stream.read
           end
@@ -42,10 +46,11 @@ class Suma::API::Images < Suma::API::V1
             h: params[:h],
             crop: params[:crop],
             resize: params[:resize],
-            format: params[:format],
+            format:,
             quality: params[:q],
+            flatten: params[:flatten],
           )
-          handle_response(uf) do
+          handle_response(uf, format:) do
             stream result
           end
         end

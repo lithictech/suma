@@ -1,3 +1,5 @@
+import isArray from "lodash/isArray";
+import mapValues from "lodash/mapValues";
 import React from "react";
 
 /**
@@ -19,7 +21,9 @@ export default function SumaImage({ image, w, h, width, height, params, alt, ...
     return null;
   }
 
-  const usp = new URLSearchParams(params || undefined);
+  const cleanParams =
+    params && mapValues(params, (v) => (isArray(v) ? v.map((o) => "" + o).join(",") : v));
+  const usp = new URLSearchParams(cleanParams || undefined);
   if (w) {
     usp.set("w", w);
   } else if (width) {

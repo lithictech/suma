@@ -45,7 +45,8 @@ module Suma::ImageProcessor
   # @param [Symbol] resize See RESIZE_VALUES
   # @param [Symbol] crop See CROP_VALUES
   # @param [Integer] quality Output format quality, when supported.
-  def self.prepare(vips_img, w: nil, h: nil, format: nil, crop: nil, resize: nil, quality: nil)
+  # @param [Array<Float>] flatten Background color when removing alpha.
+  def self.prepare(vips_img, w: nil, h: nil, format: nil, crop: nil, resize: nil, quality: nil, flatten: nil)
     v = ImageProcessing::Vips.source(vips_img)
     if w || h
       raise InvalidOption.new("width", w) if w && w <= 0
@@ -67,6 +68,10 @@ module Suma::ImageProcessor
     if quality
       raise InvalidOption.new("quality", quality) unless (1..100).cover?(quality)
       v = v.saver(quality:)
+    end
+    if flatten
+      raise InvalidOption.new("flatten", flatten) unless flatten.length == 3
+      v = v.flatten(background: flatten)
     end
     if format
       raise InvalidOption.new("format", format) unless FORMAT_VALUES.include?(format)
