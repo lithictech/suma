@@ -20,8 +20,9 @@ class Suma::AdminAPI::Meta < Suma::AdminAPI::V1
 
     get :eligibility_constraints do
       use_http_expires_caching 12.hours
-      ec = Suma::Eligibility::Constraint.dataset.order(:id).all
-      present_collection ec, with: EligibilityConstraintEntity
+      ec = Suma::Eligibility::Constraint.dataset.order(:name).all
+      present({items: ec, statuses: Suma::Eligibility::Constraint::STATUSES},
+              with: EligibilityConstraintCollectionEntity,)
     end
   end
 
@@ -36,7 +37,8 @@ class Suma::AdminAPI::Meta < Suma::AdminAPI::V1
     expose :full_label, as: :label
   end
 
-  class EligibilityConstraintEntity < BaseEntity
-    expose :name
+  class EligibilityConstraintCollectionEntity < BaseEntity
+    expose :items, with: Suma::AdminAPI::Entities::EligibilityConstraintEntity
+    expose :statuses
   end
 end

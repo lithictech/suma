@@ -155,6 +155,11 @@ class Suma::AdminAPI::Members < Suma::AdminAPI::V1
     expose :offering, with: OfferingEntity, &self.delegate_to(:checkout, :cart, :offering)
   end
 
+  class MemberEligibilityConstraintEntity < BaseEntity
+    expose :status
+    expose :constraint, with: Suma::AdminAPI::Entities::EligibilityConstraintEntity
+  end
+
   class DetailedMemberEntity < MemberEntity
     include Suma::AdminAPI::Entities
     include AutoExposeDetail
@@ -171,7 +176,9 @@ class Suma::AdminAPI::Members < Suma::AdminAPI::V1
     expose :payment_account, with: DetailedPaymentAccountEntity
     expose :bank_accounts, with: PaymentInstrumentEntity
     expose :charges, with: ChargeEntity
-    expose :eligibility_constraints, &self.delegate_to(:unified_eligibility_constraints)
+    expose :eligibility_constraints,
+           with: MemberEligibilityConstraintEntity,
+           &self.delegate_to(:eligibility_constraints_with_status)
 
     expose :activities, with: MemberActivityEntity
     expose :reset_codes, with: MemberResetCodeEntity

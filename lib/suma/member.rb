@@ -85,10 +85,9 @@ class Suma::Member < Suma::Postgres::Model(:members)
   one_to_many :sessions, class: "Suma::Member::Session", order: Sequel.desc([:created_at, :id])
   one_to_many :commerce_carts, class: "Suma::Commerce::Cart"
 
-  [:verified, :pending, :rejected].each do |mt|
+  Suma::Eligibility::Constraint::STATUSES.each do |mt|
     many_to_many "#{mt}_eligibility_constraints".to_sym,
                  class: "Suma::Eligibility::Constraint",
-                 read_only: true,
                  join_table: :eligibility_member_associations,
                  right_key: :constraint_id,
                  left_key: "#{mt}_member_id".to_sym
@@ -138,25 +137,13 @@ class Suma::Member < Suma::Postgres::Model(:members)
     return self.roles.include?(Suma::Role.admin_role)
   end
 
-  def unified_eligibility_constraints
-    return [] if self.db[:eligibility_member_associations].empty?
-    constraints = []
-    self.db[:eligibility_member_associations].each do |ema|
-      ec = Suma::Eligibility::Constraint[ema[:constraint_id]]
-      constraints << {
-        constraint_name: ec.name,
-        constraint_id: ema[:constraint_id],
-        status: self.eligibility_constraint_status(ema),
-      }
+  def eligibility_constraints_with_status
+    result = []
+    Suma::Eligibility::Constraint::STATUSES.each do |status|
+      constraints = self.send("#{status}_eligibility_constraints")
+      result += constraints.map { |c| {constraint: c, status:} }
     end
-    return constraints
-  end
-
-  def eligibility_constraint_status(association)
-    return "verified" if association[:verified_member_id].present?
-    return "pending" if association[:pending_member_id].present?
-    return "rejected" if association[:rejected_member_id].present?
-    return nil
+    return result
   end
 
   def replace_eligibility_constraint(constraint, group)

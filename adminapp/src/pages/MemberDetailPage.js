@@ -10,30 +10,21 @@ import { dayjs } from "../modules/dayConfig";
 import Money from "../shared/react/Money";
 import SafeExternalLink from "../shared/react/SafeExternalLink";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
-import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
-import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
-import LoadingButton from "@mui/lab/LoadingButton";
+import CancelIcon from "@mui/icons-material/Cancel";
+import EditIcon from "@mui/icons-material/Edit";
+import SaveIcon from "@mui/icons-material/Save";
 import {
   Divider,
   CircularProgress,
   Typography,
   Chip,
-  ButtonGroup,
-  Popper,
-  Paper,
-  ClickAwayListener,
-  MenuList,
   MenuItem,
-  Grow,
-  FormControl,
-  InputLabel,
   Select,
-  Menu,
 } from "@mui/material";
-import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
-import { alpha, styled } from "@mui/material/styles";
+import IconButton from "@mui/material/IconButton";
 import { makeStyles } from "@mui/styles";
+import _ from "lodash";
 import capitalize from "lodash/capitalize";
 import isEmpty from "lodash/isEmpty";
 import React from "react";
@@ -49,7 +40,11 @@ export default function MemberDetailPage() {
       .getMember({ id })
       .catch((e) => enqueueErrorSnackbar(e, { variant: "error" }));
   }, [id, enqueueErrorSnackbar]);
-  const { state: member, loading: memberLoading } = useAsyncFetch(getMember, {
+  const {
+    state: member,
+    loading: memberLoading,
+    replaceState: replaceMember,
+  } = useAsyncFetch(getMember, {
     default: {},
     pickData: true,
   });
@@ -96,8 +91,9 @@ export default function MemberDetailPage() {
           />
           <LegalEntity {...member.legalEntity} />
           <EligibilityConstraints
-            constraints={member.eligibilityConstraints}
+            memberConstraints={member.eligibilityConstraints}
             memberId={id}
+            replaceMemberData={replaceMember}
           />
           <Activities activities={member.activities} />
           <Orders orders={member.orders} />
@@ -137,95 +133,117 @@ function LegalEntity({ address }) {
   );
 }
 
-function EligibilityConstraints({ constraints, memberId }) {
-  const [memberConstraints, setMemberConstraints] = React.useState(constraints);
-  const { state: allEligibilityConstraints, loading: eligibilityConstraintsLoading } =
+function EligibilityConstraints({ memberConstraints, memberId, replaceMemberData }) {
+  const [editing, setEditing] = React.useState(false);
+  const [updatedConstraints, setUpdatedConstraints] = React.useState([]);
+
+  const { state: eligibilityConstraints, loading: eligibilityConstraintsLoading } =
     useAsyncFetch(api.getEligibilityConstraints, {
       pickData: true,
     });
-  if (eligibilityConstraintsLoading) {
-    return "loading";
-  }
-  const allowedEligibilityConstraintStatuses = ["verified", "pending", "rejected"];
-  return (
-    <React.Fragment>
-      <Typography variant="h6">Member Eligiblity Constraints</Typography>
-      {memberConstraints.map((c) => (
-        <Constraint
-          key={c}
-          allowedStatuses={allowedEligibilityConstraintStatuses}
-          memberId={memberId}
-          onChangeConstraint={(constraints) => setMemberConstraints(constraints)}
-          {...c}
-        />
-      ))}
-    </React.Fragment>
-  );
-}
 
-function Constraint({
-  constraintName,
-  constraintId,
-  status,
-  allowedStatuses,
-  memberId,
-  onChangeConstraint,
-}) {
-  const [anchorEl, setAnchorEl] = React.useState(null);
-  const open = Boolean(anchorEl);
-  const handleClick = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
-  const handleSelectStatus = (e, chosenStatus) => {
+  function startEditing() {
+    setEditing(true);
+    setUpdatedConstraints(memberConstraints);
+  }
+
+  if (!editing) {
+    const properties = [];
+    if (_.isEmpty(memberConstraints)) {
+      properties.push({
+        label: "*",
+        value:
+          "Member has no constraints. They can access any goods and services that are unconstrained.",
+      });
+    } else {
+      memberConstraints.forEach(({ status, constraint }) =>
+        properties.push({ label: constraint.name, value: status })
+      );
+    }
+    return (
+      <div>
+        <DetailGrid
+          title={
+            <>
+              Eligibility Constraints
+              <IconButton onClick={startEditing}>
+                <EditIcon />
+              </IconButton>
+            </>
+          }
+          properties={properties}
+        />
+      </div>
+    );
+  }
+
+  if (eligibilityConstraintsLoading) {
+    return "Loading...";
+  }
+
+  function discardChanges() {
+    setUpdatedConstraints([]);
+    setEditing(false);
+  }
+
+  function saveChanges() {
     api
       .changeMemberEligibility({
         id: memberId,
-        values: [{ constraintId: constraintId, status: chosenStatus }],
+        values: updatedConstraints.map((c) => ({
+          constraintId: c.constraint.id,
+          status: c.status,
+        })),
       })
-      .then(api.pickData)
-      .then((response) => onChangeConstraint(response.eligibilityConstraints));
-    handleClose();
-  };
+      .then((r) => replaceMemberData(r.data))
+      .then(() => setEditing(false));
+  }
 
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
+  function modifyConstraint(index, status) {
+    const newConstraints = [...updatedConstraints];
+    newConstraints[index] = { ...newConstraints[index], status };
+    setUpdatedConstraints(newConstraints);
+  }
+
+  const properties = updatedConstraints.map((c, idx) => ({
+    label: c.constraint.name,
+    children: (
+      <ConstraintStatus
+        activeStatus={c.status}
+        statuses={eligibilityConstraints.statuses}
+        onChange={(e) => modifyConstraint(idx, e.target.value)}
+      />
+    ),
+  }));
   return (
     <div>
-      <Typography variant="text">{constraintName}:</Typography>
-      <Button
-        id="demo-customized-button"
-        aria-controls={open ? constraintId : undefined}
-        aria-haspopup="true"
-        aria-expanded={open ? "true" : undefined}
-        variant="contained"
-        disableElevation
-        onClick={handleClick}
-        endIcon={<KeyboardArrowDownIcon />}
-      >
-        {status}
-      </Button>
-      <StyledEligibilityConstraintMenu
-        id={constraintId}
-        MenuListProps={{
-          "aria-labelledby": "demo-customized-button",
-        }}
-        anchorEl={anchorEl}
-        open={open}
-        onClose={handleClose}
-      >
-        {allowedStatuses.map((allowedStatus) => (
-          <MenuItem
-            key={allowedStatus}
-            onClick={(e) => handleSelectStatus(e, allowedStatus)}
-            disableRipple
-            selected={allowedStatus === status}
-          >
-            {allowedStatus}
-          </MenuItem>
-        ))}
-      </StyledEligibilityConstraintMenu>
+      <DetailGrid
+        title={
+          <>
+            Eligibility Constraints
+            <IconButton onClick={saveChanges}>
+              <SaveIcon />
+            </IconButton>
+            <IconButton onClick={discardChanges}>
+              <CancelIcon />
+            </IconButton>
+          </>
+        }
+        properties={properties}
+      />
     </div>
+  );
+}
+
+function ConstraintStatus({ activeStatus, statuses, onChange }) {
+  return (
+    <Select label="Status" value={activeStatus} onChange={onChange}>
+      {statuses.map((status) => (
+        <MenuItem key={status} value={status}>
+          {status}
+        </MenuItem>
+      ))}
+    </Select>
   );
 }
 
@@ -381,42 +399,5 @@ function ImpersonateButton({ id }) {
 const useStyles = makeStyles((theme) => ({
   impersonate: {
     marginLeft: theme.spacing(2),
-  },
-}));
-
-const StyledEligibilityConstraintMenu = styled((props) => (
-  <Menu
-    elevation={0}
-    anchorOrigin={{
-      vertical: "bottom",
-      horizontal: "right",
-    }}
-    transformOrigin={{
-      vertical: "top",
-      horizontal: "right",
-    }}
-    {...props}
-  />
-))(({ theme }) => ({
-  "& .MuiPaper-root": {
-    borderRadius: 6,
-    marginTop: theme.spacing(1),
-    minWidth: 180,
-    color: theme.palette.mode === "light" ? "rgb(55, 65, 81)" : theme.palette.grey[300],
-    boxShadow:
-      "rgb(255, 255, 255) 0px 0px 0px 0px, rgba(0, 0, 0, 0.05) 0px 0px 0px 1px, rgba(0, 0, 0, 0.1) 0px 10px 15px -3px, rgba(0, 0, 0, 0.05) 0px 4px 6px -2px",
-    "& .MuiMenu-list": {
-      padding: "4px 0",
-    },
-    "& .MuiMenuItem-root": {
-      "& .MuiSvgIcon-root": {
-        fontSize: 18,
-        color: theme.palette.text.secondary,
-        marginRight: theme.spacing(1.5),
-      },
-      "&:active": {
-        backgroundColor: theme.palette.primary.main,
-      },
-    },
   },
 }));
