@@ -38,9 +38,7 @@ export default function MemberDetailPage() {
   let { id } = useParams();
   id = Number(id);
   const getMember = React.useCallback(() => {
-    return api
-      .getMember({ id })
-      .catch((e) => enqueueErrorSnackbar(e, { variant: "error" }));
+    return api.getMember({ id }).catch((e) => enqueueErrorSnackbar(e));
   }, [id, enqueueErrorSnackbar]);
   const {
     state: member,
@@ -438,13 +436,13 @@ function ImpersonateButton({ id }) {
     api
       .impersonate({ id })
       .then((r) => setUser(r.data))
-      .catch((e) => enqueueErrorSnackbar(e, { variant: "error" }));
+      .catch((e) => enqueueErrorSnackbar(e));
   }
   function handleUnimpersonate() {
     api
       .unimpersonate()
       .then((r) => setUser(r.data))
-      .catch((e) => enqueueErrorSnackbar(e, { variant: "error" }));
+      .catch((e) => enqueueErrorSnackbar(e));
   }
   if (user.impersonating) {
     return (
