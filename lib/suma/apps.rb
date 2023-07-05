@@ -15,6 +15,7 @@ require "suma/api"
 require "suma/async"
 require "suma/service"
 require "suma/api/auth"
+require "suma/api/anon_proxy"
 require "suma/api/commerce"
 require "suma/api/images"
 require "suma/api/ledgers"
@@ -42,6 +43,7 @@ module Suma::Apps
   class API < Suma::Service
     mount Suma::API::System
     mount Suma::API::Auth
+    mount Suma::API::AnonProxy
     mount Suma::API::Commerce
     mount Suma::API::Images
     mount Suma::API::Ledgers

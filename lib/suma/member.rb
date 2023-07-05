@@ -84,6 +84,8 @@ class Suma::Member < Suma::Postgres::Model(:members)
   many_to_many :roles, class: "Suma::Role", join_table: :roles_members
   one_to_many :sessions, class: "Suma::Member::Session", order: Sequel.desc([:created_at, :id])
   one_to_many :commerce_carts, class: "Suma::Commerce::Cart"
+  one_to_many :anon_proxy_contacts, class: "Suma::AnonProxy::MemberContact"
+  one_to_many :anon_proxy_vendor_accounts, class: "Suma::AnonProxy::VendorAccount"
 
   Suma::Eligibility::Constraint::STATUSES.each do |mt|
     many_to_many "#{mt}_eligibility_constraints".to_sym,
