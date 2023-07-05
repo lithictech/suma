@@ -109,6 +109,7 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
   end
 
   def setup_admin
+    return unless Suma::RACK_ENV == "development"
     admin = Suma::Member.find_or_create(email: "admin@lithic.tech") do |c|
       c.password = "Password1!"
       c.name = "Suma Admin"
@@ -165,6 +166,8 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
     desc = Suma::TranslatedText.find_or_create(en: "No Image Tester", es: "No Image Tester (es)")
     Suma::Commerce::Offering.update_or_create(description: desc) do |o|
       o.period = 1.day.ago..6.months.from_now
+      o.fulfillment_prompt = Suma::TranslatedText.find_or_create(en: "EN prompt", es: "ES prompt")
+      o.fulfillment_confirmation = Suma::TranslatedText.find_or_create(en: "EN confirmation", es: "ES confirmation")
     end
   end
 
