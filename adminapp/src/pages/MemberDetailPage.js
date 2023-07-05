@@ -136,6 +136,7 @@ function LegalEntity({ address }) {
 function EligibilityConstraints({ memberConstraints, memberId, replaceMemberData }) {
   const [editing, setEditing] = React.useState(false);
   const [updatedConstraints, setUpdatedConstraints] = React.useState([]);
+  const [newConstraint, setNewConstraint] = React.useState({});
 
   const { state: eligibilityConstraints, loading: eligibilityConstraintsLoading } =
     useAsyncFetch(api.getEligibilityConstraints, {
@@ -145,6 +146,10 @@ function EligibilityConstraints({ memberConstraints, memberId, replaceMemberData
   function startEditing() {
     setEditing(true);
     setUpdatedConstraints(memberConstraints);
+    setNewConstraint({
+      status: "pending",
+      constraintId: eligibilityConstraints[0]?.id,
+    });
   }
 
   if (!editing) {
@@ -187,13 +192,17 @@ function EligibilityConstraints({ memberConstraints, memberId, replaceMemberData
   }
 
   function saveChanges() {
+    const values = updatedConstraints.map((c) => ({
+      constraintId: c.constraint.id,
+      status: c.status,
+    }));
+    if (newConstraint.constraintId) {
+      values.push(newConstraint);
+    }
     api
       .changeMemberEligibility({
         id: memberId,
-        values: updatedConstraints.map((c) => ({
-          constraintId: c.constraint.id,
-          status: c.status,
-        })),
+        values,
       })
       .then((r) => replaceMemberData(r.data))
       .then(() => setEditing(false));
@@ -215,6 +224,32 @@ function EligibilityConstraints({ memberConstraints, memberId, replaceMemberData
       />
     ),
   }));
+
+  const existingConstraintIds = memberConstraints.map((c) => c.constraint.id);
+  const availableConstraints = eligibilityConstraints.items.filter(
+    (c) => !existingConstraintIds.includes(c.id)
+  );
+  if (!_.isEmpty(availableConstraints)) {
+    properties.push({
+      label: "Add Constraint",
+      children: (
+        <div>
+          <Select
+            value={newConstraint.constraintId || ""}
+            onChange={(e) =>
+              setNewConstraint({ ...newConstraint, constraintId: Number(e.target.value) })
+            }
+          >
+            {availableConstraints.map((c) => (
+              <MenuItem key={c.id} value={c.id}>
+                {c.name}
+              </MenuItem>
+            ))}
+          </Select>
+        </div>
+      ),
+    });
+  }
   return (
     <div>
       <DetailGrid
@@ -237,13 +272,15 @@ function EligibilityConstraints({ memberConstraints, memberId, replaceMemberData
 
 function ConstraintStatus({ activeStatus, statuses, onChange }) {
   return (
-    <Select label="Status" value={activeStatus} onChange={onChange}>
-      {statuses.map((status) => (
-        <MenuItem key={status} value={status}>
-          {status}
-        </MenuItem>
-      ))}
-    </Select>
+    <div>
+      <Select label="Status" value={activeStatus} onChange={onChange}>
+        {statuses.map((status) => (
+          <MenuItem key={status} value={status}>
+            {status}
+          </MenuItem>
+        ))}
+      </Select>
+    </div>
   );
 }
 
@@ -253,6 +290,7 @@ function Activities({ activities }) {
       title="Activities"
       headers={["At", "Summary", "Message"]}
       rows={activities}
+      getKey={(row) => row.id}
       toCells={(row) => [
         dayjs(row.createdAt).format("lll"),
         row.summary,
