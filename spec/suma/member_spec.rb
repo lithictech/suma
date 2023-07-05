@@ -273,4 +273,26 @@ RSpec.describe "Suma::Member", :db do
       expect(Suma::Fixtures.member(terms_agreed: date).instance).to_not be_requires_terms_agreement
     end
   end
+
+  describe "unified_eligibility_constraint" do
+    it "gets member unified eligibility constraints" do
+      m = Suma::Fixtures.member.onboarding_verified.create
+      e = Suma::Fixtures.eligibility_constraint.create
+      e2 = Suma::Fixtures.eligibility_constraint.create
+      m.replace_eligibility_constraint(e, :pending)
+      m.replace_eligibility_constraint(e2, :verified)
+
+      puts m.unified_eligibility_constraints
+      expect(m.unified_eligibility_constraints).to contain_exactly(
+        have_attributes(
+          constraint_id: e,
+          status: "pending",
+        ),
+        have_attributes(
+          constraint_id: e2,
+          status: "verified",
+        ),
+      )
+    end
+  end
 end

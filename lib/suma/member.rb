@@ -139,7 +139,6 @@ class Suma::Member < Suma::Postgres::Model(:members)
   end
 
   def unified_eligibility_constraints
-    # TODO: Add tests
     return [] if self.db[:eligibility_member_associations].empty?
     constraints = []
     self.db[:eligibility_member_associations].each do |ema|

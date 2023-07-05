@@ -108,7 +108,7 @@ class Suma::Commerce::Offering < Suma::Postgres::Model(:commerce_offerings)
       return self.where(Sequel.pg_range(:period).contains(Sequel.cast(t, :timestamptz)))
     end
 
-    def available_to(member)
+    def available_to(_member)
       # TODO: add funcitonallity to show only offerings available to specific people based on eligibility constraints
       return self
     end

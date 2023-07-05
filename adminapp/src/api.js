@@ -55,6 +55,8 @@ export default {
   getCurrencies: (data) => get(`/adminapi/v1/meta/currencies`, data),
   getVendorServiceCategories: (data) =>
     get(`/adminapi/v1/meta/vendor_service_categories`, data),
+  getEligibilityConstraints: (data) =>
+    get(`/adminapi/v1/meta/eligibility_constraints`, data),
 
   getBankAccount: ({ id, ...data }) => get(`/adminapi/v1/bank_accounts/${id}`, data),
 
@@ -84,6 +86,8 @@ export default {
 
   getMembers: (data) => get(`/adminapi/v1/members`, data),
   getMember: ({ id, ...data }) => get(`/adminapi/v1/members/${id}`, data),
+  changeMemberEligibility: ({ id, ...data }) =>
+    post(`/adminapi/v1/members/${id}/eligibilities`, data),
 
   searchPaymentInstruments: (data) =>
     get(`/adminapi/v1/search/payment_instruments`, data),

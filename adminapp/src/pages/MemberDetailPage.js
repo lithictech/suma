@@ -10,8 +10,29 @@ import { dayjs } from "../modules/dayConfig";
 import Money from "../shared/react/Money";
 import SafeExternalLink from "../shared/react/SafeExternalLink";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
-import { Divider, CircularProgress, Typography, Chip } from "@mui/material";
+import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
+import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
+import LoadingButton from "@mui/lab/LoadingButton";
+import {
+  Divider,
+  CircularProgress,
+  Typography,
+  Chip,
+  ButtonGroup,
+  Popper,
+  Paper,
+  ClickAwayListener,
+  MenuList,
+  MenuItem,
+  Grow,
+  FormControl,
+  InputLabel,
+  Select,
+  Menu,
+} from "@mui/material";
+import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
+import { alpha, styled } from "@mui/material/styles";
 import { makeStyles } from "@mui/styles";
 import capitalize from "lodash/capitalize";
 import isEmpty from "lodash/isEmpty";
@@ -74,6 +95,10 @@ export default function MemberDetailPage() {
             ]}
           />
           <LegalEntity {...member.legalEntity} />
+          <EligibilityConstraints
+            constraints={member.eligibilityConstraints}
+            memberId={id}
+          />
           <Activities activities={member.activities} />
           <Orders orders={member.orders} />
           <Sessions sessions={member.sessions} />
@@ -108,6 +133,98 @@ function LegalEntity({ address }) {
           { label: "Country", value: country },
         ]}
       />
+    </div>
+  );
+}
+
+function EligibilityConstraints({ constraints, memberId }) {
+  const [memberConstraints, setMemberConstraints] = React.useState(constraints);
+  const { state: allEligibilityConstraints, loading: eligibilityConstraintsLoading } =
+    useAsyncFetch(api.getEligibilityConstraints, {
+      pickData: true,
+    });
+  if (eligibilityConstraintsLoading) {
+    return "loading";
+  }
+  const allowedEligibilityConstraintStatuses = ["verified", "pending", "rejected"];
+  return (
+    <React.Fragment>
+      <Typography variant="h6">Member Eligiblity Constraints</Typography>
+      {memberConstraints.map((c) => (
+        <Constraint
+          key={c}
+          allowedStatuses={allowedEligibilityConstraintStatuses}
+          memberId={memberId}
+          onChangeConstraint={(constraints) => setMemberConstraints(constraints)}
+          {...c}
+        />
+      ))}
+    </React.Fragment>
+  );
+}
+
+function Constraint({
+  constraintName,
+  constraintId,
+  status,
+  allowedStatuses,
+  memberId,
+  onChangeConstraint,
+}) {
+  const [anchorEl, setAnchorEl] = React.useState(null);
+  const open = Boolean(anchorEl);
+  const handleClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+  const handleSelectStatus = (e, chosenStatus) => {
+    api
+      .changeMemberEligibility({
+        id: memberId,
+        values: [{ constraintId: constraintId, status: chosenStatus }],
+      })
+      .then(api.pickData)
+      .then((response) => onChangeConstraint(response.eligibilityConstraints));
+    handleClose();
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+  return (
+    <div>
+      <Typography variant="text">{constraintName}:</Typography>
+      <Button
+        id="demo-customized-button"
+        aria-controls={open ? constraintId : undefined}
+        aria-haspopup="true"
+        aria-expanded={open ? "true" : undefined}
+        variant="contained"
+        disableElevation
+        onClick={handleClick}
+        endIcon={<KeyboardArrowDownIcon />}
+      >
+        {status}
+      </Button>
+      <StyledEligibilityConstraintMenu
+        id={constraintId}
+        MenuListProps={{
+          "aria-labelledby": "demo-customized-button",
+        }}
+        anchorEl={anchorEl}
+        open={open}
+        onClose={handleClose}
+      >
+        {allowedStatuses.map((allowedStatus) => (
+          <MenuItem
+            key={allowedStatus}
+            onClick={(e) => handleSelectStatus(e, allowedStatus)}
+            disableRipple
+            selected={allowedStatus === status}
+          >
+            {allowedStatus}
+          </MenuItem>
+        ))}
+      </StyledEligibilityConstraintMenu>
     </div>
   );
 }
@@ -264,5 +381,42 @@ function ImpersonateButton({ id }) {
 const useStyles = makeStyles((theme) => ({
   impersonate: {
     marginLeft: theme.spacing(2),
+  },
+}));
+
+const StyledEligibilityConstraintMenu = styled((props) => (
+  <Menu
+    elevation={0}
+    anchorOrigin={{
+      vertical: "bottom",
+      horizontal: "right",
+    }}
+    transformOrigin={{
+      vertical: "top",
+      horizontal: "right",
+    }}
+    {...props}
+  />
+))(({ theme }) => ({
+  "& .MuiPaper-root": {
+    borderRadius: 6,
+    marginTop: theme.spacing(1),
+    minWidth: 180,
+    color: theme.palette.mode === "light" ? "rgb(55, 65, 81)" : theme.palette.grey[300],
+    boxShadow:
+      "rgb(255, 255, 255) 0px 0px 0px 0px, rgba(0, 0, 0, 0.05) 0px 0px 0px 1px, rgba(0, 0, 0, 0.1) 0px 10px 15px -3px, rgba(0, 0, 0, 0.05) 0px 4px 6px -2px",
+    "& .MuiMenu-list": {
+      padding: "4px 0",
+    },
+    "& .MuiMenuItem-root": {
+      "& .MuiSvgIcon-root": {
+        fontSize: 18,
+        color: theme.palette.text.secondary,
+        marginRight: theme.spacing(1.5),
+      },
+      "&:active": {
+        backgroundColor: theme.palette.primary.main,
+      },
+    },
   },
 }));

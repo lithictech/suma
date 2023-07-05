@@ -17,6 +17,12 @@ class Suma::AdminAPI::Meta < Suma::AdminAPI::V1
       sc = Suma::Vendor::ServiceCategory.dataset.order(:name).all
       present_collection sc, with: HierarchicalCategoryEntity
     end
+
+    get :eligibility_constraints do
+      use_http_expires_caching 12.hours
+      ec = Suma::Eligibility::Constraint.dataset.order(:id).all
+      present_collection ec, with: EligibilityConstraintEntity
+    end
   end
 
   class CurrencyEntity < BaseEntity
@@ -28,5 +34,9 @@ class Suma::AdminAPI::Meta < Suma::AdminAPI::V1
     expose :slug
     expose :name
     expose :full_label, as: :label
+  end
+
+  class EligibilityConstraintEntity < BaseEntity
+    expose :name
   end
 end
