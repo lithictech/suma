@@ -33,4 +33,23 @@ RSpec.describe "Sequel.unambiguous_cnstraint" do
                        "((x IS NULL) AND (y IS NULL) AND (z IS NOT NULL)) OR " \
                        "((x IS NULL) AND (y IS NULL) AND (z IS NULL)))")
   end
+
+  it "can work for booleans" do
+    c = Sequel.unambiguous_bool_constraint([:x, :y, :z])
+    expr = db[:tbl].where(c).sql
+    expect(expr).to eq("SELECT * FROM tbl WHERE (" \
+                       "((x IS NOT FALSE) AND (y IS FALSE) AND (z IS FALSE)) OR " \
+                       "((x IS FALSE) AND (y IS NOT FALSE) AND (z IS FALSE)) OR " \
+                       "((x IS FALSE) AND (y IS FALSE) AND (z IS NOT FALSE)))")
+  end
+
+  it "can work for booleans and allow all null" do
+    c = Sequel.unambiguous_bool_constraint([:x, :y, :z], allow_all_null: true)
+    expr = db[:tbl].where(c).sql
+    expect(expr).to eq("SELECT * FROM tbl WHERE (" \
+                       "((x IS NOT FALSE) AND (y IS FALSE) AND (z IS FALSE)) OR " \
+                       "((x IS FALSE) AND (y IS NOT FALSE) AND (z IS FALSE)) OR " \
+                       "((x IS FALSE) AND (y IS FALSE) AND (z IS NOT FALSE)) OR " \
+                       "((x IS NULL) AND (y IS NULL) AND (z IS NULL)))")
+  end
 end
