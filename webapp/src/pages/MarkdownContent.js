@@ -1,11 +1,10 @@
-import ELink from "../components/ELink";
 import ScreenLoader from "../components/ScreenLoader";
+import SumaMarkdown from "../components/SumaMarkdown";
 import TopNav from "../components/TopNav";
 import { t as loct } from "../localization";
 import useMountEffect from "../shared/react/useMountEffect";
 import { LayoutContainer } from "../state/withLayout";
 import i18n from "i18next";
-import Markdown from "markdown-to-jsx";
 import React from "react";
 import { Helmet } from "react-helmet-async";
 
@@ -34,15 +33,9 @@ export default function MarkdownContent({ namespace }) {
           className="mx-auto pb-4"
           style={{ maxWidth: "500px" }}
         >
-          <Markdown options={{ overrides: { a: { component: MdLink } } }}>
-            {i18n.t(contentKey)}
-          </Markdown>
+          <SumaMarkdown>{i18n.t(contentKey)}</SumaMarkdown>
         </LayoutContainer>
       </div>
     </div>
   );
-}
-
-function MdLink({ node, ...rest }) {
-  return <ELink {...rest} />;
 }

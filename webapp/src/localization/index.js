@@ -1,8 +1,8 @@
-import ELink from "../components/ELink";
+import SumaMarkdown from "../components/SumaMarkdown";
 import externalLinks from "../modules/externalLinks";
 import { Logger } from "../shared/logger";
 import i18n from "i18next";
-import Markdown, { compiler } from "markdown-to-jsx";
+import { compiler } from "markdown-to-jsx";
 import React from "react";
 import ReactDOM from "react-dom";
 
@@ -58,8 +58,7 @@ export class Lookup {
         }
       });
     }
-    const overrides = { a: { component: MdLink } };
-    return <Markdown options={{ overrides, ...mdoptions }}>{str}</Markdown>;
+    return <SumaMarkdown options={mdoptions}>{str}</SumaMarkdown>;
   };
 
   md = (key, options = {}) => {
@@ -95,10 +94,6 @@ export class Lookup {
         );
     }
   }
-}
-
-function MdLink({ node, ...rest }) {
-  return <ELink {...rest} />;
 }
 
 const lu = new Lookup("strings");
