@@ -93,4 +93,8 @@ export default {
   deleteCard: (data) => del(`/api/v1/payment_instruments/cards/${data.id}`, data),
 
   createFundingPayment: (data) => post(`/api/v1/payments/create_funding`, data),
+
+  getPrivateAccounts: (data) => get(`/api/v1/anon_proxy/vendor_accounts`, data),
+  configurePrivateAccount: (data) =>
+    post(`/api/v1/anon_proxy/vendor_accounts/${data.id}/configure`, data),
 };

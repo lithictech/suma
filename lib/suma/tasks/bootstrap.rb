@@ -32,6 +32,8 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
 
       self.setup_sjfm
 
+      self.setup_private_accounts
+
       self.setup_automation
     end
   end
@@ -324,6 +326,34 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
     end
   end
 
+  def setup_private_accounts
+    lime_vendor = Suma::Lime.mobility_vendor
+    if lime_vendor.images.empty?
+      uf = self.download_to_uploaded_file(
+        "lime-logo.png",
+        "image/png",
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e1/Lime_%28transportation_company%29_logo.svg/520px-Lime_%28transportation_company%29_logo.svg.png",
+      )
+      lime_vendor.add_image({uploaded_file: uf})
+    end
+    Suma::AnonProxy::VendorConfiguration.update_or_create(vendor: lime_vendor) do |vc|
+      vc.logic_adapter_key = "lime_v1"
+      vc.uses_email = true
+      vc.uses_sms = false
+      vc.enabled = true
+      vc.instructions = Suma::TranslatedText.find_or_create(
+        en: <<~MD,
+          1. Go to the Play or App Store, or follow [this link](https://foo)
+          2. Download the Lime App.
+          3. Sign up using your private email address.
+          4. You will get a confirmation code texted to you by Suma. Enter it into Lime.
+          5. You're all set!.
+        MD
+        es: "TODO",
+      )
+    end
+  end
+
   def setup_automation
     Suma::AutomationTrigger.dataset.delete
     Suma::AutomationTrigger.create(
@@ -379,6 +409,11 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
 
   def create_uploaded_file(filename, content_type, file_path: "spec/data/images/")
     bytes = File.binread(file_path + filename)
+    return Suma::UploadedFile.create_with_blob(bytes:, content_type:, filename:)
+  end
+
+  def download_to_uploaded_file(filename, content_type, url)
+    bytes = Net::HTTP.get(URI.parse(url))
     return Suma::UploadedFile.create_with_blob(bytes:, content_type:, filename:)
   end
 end

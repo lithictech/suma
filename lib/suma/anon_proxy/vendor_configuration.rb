@@ -2,9 +2,11 @@
 
 require "suma/postgres"
 require "suma/anon_proxy"
+require "suma/translated_text"
 
 class Suma::AnonProxy::VendorConfiguration < Suma::Postgres::Model(:anon_proxy_vendor_configurations)
   plugin :timestamps
+  plugin :translated_text, :instructions, Suma::TranslatedText
 
   many_to_one :vendor, class: "Suma::Vendor"
 

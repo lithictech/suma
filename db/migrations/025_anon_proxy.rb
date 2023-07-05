@@ -3,7 +3,7 @@
 require "sequel/unambiguous_constraint"
 
 Sequel.migration do
-  change do
+  up do
     create_table(:anon_proxy_member_contacts) do
       primary_key :id
       timestamptz :created_at, null: false, default: Sequel.function(:now)
@@ -36,6 +36,8 @@ Sequel.migration do
       constraint(:unambiguous_contact_type, Sequel.unambiguous_bool_constraint([:uses_email, :uses_sms]))
 
       boolean :enabled, null: false
+
+      foreign_key :instructions_id, :translated_texts, null: false
     end
 
     create_table(:anon_proxy_vendor_accounts) do
@@ -54,6 +56,21 @@ Sequel.migration do
       add_constraint(
         :unambiguous_relation,
         Sequel.unambiguous_constraint([:commerce_product_id, :commerce_offering_id, :vendor_id]),
+      )
+    end
+  end
+
+  down do
+    drop_table(:anon_proxy_vendor_accounts)
+    drop_table(:anon_proxy_vendor_configurations)
+    drop_table(:anon_proxy_member_contacts)
+    from(:images).exclude(vendor_id: nil).delete
+    alter_table(:images) do
+      drop_constraint(:unambiguous_relation)
+      drop_column :vendor_id
+      add_constraint(
+        :unambiguous_relation,
+        Sequel.unambiguous_constraint([:commerce_product_id, :commerce_offering_id]),
       )
     end
   end

@@ -78,9 +78,17 @@ export default function TopNav() {
               )}
               <LanguageButtons />
               {userAuthed && (
-                <Button onClick={signOut} className="mt-5" variant="danger">
-                  {t("common:logout")}
-                </Button>
+                <>
+                  <Button href="/private-accounts" variant="link" className="mt-3">
+                    Private Accounts
+                  </Button>
+                  <Button href="/funding" variant="link" className="mt-2">
+                    Payment Methods
+                  </Button>
+                  <Button onClick={signOut} className="mt-3" variant="danger">
+                    {t("common:logout")}
+                  </Button>
+                </>
               )}
               <NavFooter />
             </div>
