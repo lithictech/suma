@@ -179,6 +179,10 @@ class Suma::Member < Suma::Postgres::Model(:members)
     return self.onboarding_verified_at ? true : false
   end
 
+  def onboarding_verified=(v)
+    self.onboarding_verified_at = v ? Time.now : nil
+  end
+
   def read_only_reason
     return "read_only_unverified" if self.onboarding_verified_at.nil?
     return "read_only_technical_error" if self.payment_account.nil?

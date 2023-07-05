@@ -60,6 +60,7 @@ class Suma::AdminAPI::Members < Suma::AdminAPI::V1
         optional :phone, type: Integer
         optional :timezone, type: String, values: ALL_TIMEZONES
         optional :roles, type: Array[String]
+        optional :onboarding_verified, type: Boolean
       end
       post do
         member = lookup_member!
@@ -171,6 +172,8 @@ class Suma::AdminAPI::Members < Suma::AdminAPI::V1
     expose :available_roles do |_|
       Suma::Role.order(:name).select_map(:name)
     end
+    expose :onboarding_verified?, as: :onboarding_verified
+    expose :onboarding_verified_at
 
     expose :legal_entity, with: LegalEntityEntity
     expose :payment_account, with: DetailedPaymentAccountEntity
