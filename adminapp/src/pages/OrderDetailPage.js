@@ -17,9 +17,7 @@ export default function OrderDetailPage() {
   let { id } = useParams();
   id = Number(id);
   const getOrder = React.useCallback(() => {
-    return api
-      .getCommerceOrder({ id })
-      .catch((e) => enqueueErrorSnackbar(e, { variant: "error" }));
+    return api.getCommerceOrder({ id }).catch((e) => enqueueErrorSnackbar(e));
   }, [id, enqueueErrorSnackbar]);
   const { state: order, loading: orderLoading } = useAsyncFetch(getOrder, {
     default: {},

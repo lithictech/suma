@@ -14,9 +14,7 @@ export default function BankAccountDetailPage() {
   let { id } = useParams();
   id = Number(id);
   const getBankAccount = React.useCallback(() => {
-    return api
-      .getBankAccount({ id })
-      .catch((e) => enqueueErrorSnackbar(e, { variant: "error" }));
+    return api.getBankAccount({ id }).catch((e) => enqueueErrorSnackbar(e));
   }, [id, enqueueErrorSnackbar]);
   const { state: bankAccount, loading: bankAccountLoading } = useAsyncFetch(
     getBankAccount,

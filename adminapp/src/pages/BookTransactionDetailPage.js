@@ -16,9 +16,7 @@ export default function BookTransactionDetailPage() {
   let { id } = useParams();
   id = Number(id);
   const getBookTransaction = React.useCallback(() => {
-    return api
-      .getBookTransaction({ id })
-      .catch((e) => enqueueErrorSnackbar(e, { variant: "error" }));
+    return api.getBookTransaction({ id }).catch((e) => enqueueErrorSnackbar(e));
   }, [id, enqueueErrorSnackbar]);
   const { state: xaction, loading: xactionLoading } = useAsyncFetch(getBookTransaction, {
     default: {},

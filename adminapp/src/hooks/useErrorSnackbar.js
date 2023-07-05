@@ -5,7 +5,10 @@ import React from "react";
 export default function useErrorSnackbar() {
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
   const enqueueErrorSnackbar = React.useCallback(
-    (e, options) => enqueueSnackbar(extractErrorMessage(e), options),
+    (e, options) => {
+      options = options || { variant: "error" };
+      enqueueSnackbar(extractErrorMessage(e), options);
+    },
     [enqueueSnackbar]
   );
   return { enqueueErrorSnackbar, closeSnackbar };

@@ -16,9 +16,7 @@ export default function FundingTransactionDetailPage() {
   let { id } = useParams();
   id = Number(id);
   const getFundingTransaction = React.useCallback(() => {
-    return api
-      .getFundingTransaction({ id })
-      .catch((e) => enqueueErrorSnackbar(e, { variant: "error" }));
+    return api.getFundingTransaction({ id }).catch((e) => enqueueErrorSnackbar(e));
   }, [id, enqueueErrorSnackbar]);
   const { state: xaction, loading: xactionLoading } = useAsyncFetch(
     getFundingTransaction,

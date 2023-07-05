@@ -14,9 +14,7 @@ export default function OfferingPickListPage() {
   let { id } = useParams();
   id = Number(id);
   const getCommerceOfferingPickList = React.useCallback(() => {
-    return api
-      .getCommerceOfferingPickList({ id })
-      .catch((e) => enqueueErrorSnackbar(e, { variant: "error" }));
+    return api.getCommerceOfferingPickList({ id }).catch((e) => enqueueErrorSnackbar(e));
   }, [id, enqueueErrorSnackbar]);
   const { state: pickList } = useAsyncFetch(getCommerceOfferingPickList, {
     default: {},

@@ -19,9 +19,7 @@ export default function OfferingDetailPage() {
   const classes = useStyles();
   id = Number(id);
   const getCommerceOffering = React.useCallback(() => {
-    return api
-      .getCommerceOffering({ id })
-      .catch((e) => enqueueErrorSnackbar(e, { variant: "error" }));
+    return api.getCommerceOffering({ id }).catch((e) => enqueueErrorSnackbar(e));
   }, [id, enqueueErrorSnackbar]);
   const { state: offering, loading: offeringLoading } = useAsyncFetch(
     getCommerceOffering,
