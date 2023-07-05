@@ -2,6 +2,7 @@ import api from "../api";
 import AdminLink from "../components/AdminLink";
 import BoolCheckmark from "../components/BoolCheckmark";
 import DetailGrid from "../components/DetailGrid";
+import InlineEditField from "../components/InlineEditField";
 import PaymentAccountRelatedLists from "../components/PaymentAccountRelatedLists";
 import RelatedList from "../components/RelatedList";
 import useErrorSnackbar from "../hooks/useErrorSnackbar";
@@ -20,6 +21,7 @@ import {
   Chip,
   MenuItem,
   Select,
+  Switch,
 } from "@mui/material";
 import Button from "@mui/material/Button";
 import IconButton from "@mui/material/IconButton";
@@ -49,6 +51,13 @@ export default function MemberDetailPage() {
     pickData: true,
   });
 
+  function updateMember(m) {
+    return api
+      .updateMember(m)
+      .then((r) => replaceMember(r.data))
+      .catch((e) => enqueueErrorSnackbar(e));
+  }
+
   return (
     <>
       {memberLoading && <CircularProgress />}
@@ -67,6 +76,34 @@ export default function MemberDetailPage() {
               {
                 label: "Phone Number",
                 value: formatPhoneNumberIntl("+" + member.phone),
+              },
+              {
+                label: "Verified",
+                children: (
+                  <InlineEditField
+                    renderDisplay={
+                      member.onboardingVerifiedAt
+                        ? dayjs(member.onboardingVerifiedAt).format("lll")
+                        : "-"
+                    }
+                    initialEditingState={{ id: member.id }}
+                    renderEdit={(st, set) => {
+                      const mem = { ...member, ...st };
+                      return (
+                        <Switch
+                          checked={mem.onboardingVerified}
+                          onChange={(e) =>
+                            set({
+                              ...st,
+                              onboardingVerified: e.target.checked,
+                            })
+                          }
+                        ></Switch>
+                      );
+                    }}
+                    onSave={updateMember}
+                  />
+                ),
               },
               {
                 label: "Roles",
@@ -137,6 +174,7 @@ function EligibilityConstraints({ memberConstraints, memberId, replaceMemberData
   const [editing, setEditing] = React.useState(false);
   const [updatedConstraints, setUpdatedConstraints] = React.useState([]);
   const [newConstraint, setNewConstraint] = React.useState({});
+  const { enqueueErrorSnackbar } = useErrorSnackbar();
 
   const { state: eligibilityConstraints, loading: eligibilityConstraintsLoading } =
     useAsyncFetch(api.getEligibilityConstraints, {
@@ -204,8 +242,11 @@ function EligibilityConstraints({ memberConstraints, memberId, replaceMemberData
         id: memberId,
         values,
       })
-      .then((r) => replaceMemberData(r.data))
-      .then(() => setEditing(false));
+      .then((r) => {
+        replaceMemberData(r.data);
+        setEditing(false);
+      })
+      .catch(enqueueErrorSnackbar);
   }
 
   function modifyConstraint(index, status) {
