@@ -85,6 +85,14 @@ class Suma::Member < Suma::Postgres::Model(:members)
   one_to_many :sessions, class: "Suma::Member::Session", order: Sequel.desc([:created_at, :id])
   one_to_many :commerce_carts, class: "Suma::Commerce::Cart"
 
+  Suma::Eligibility::Constraint::STATUSES.each do |mt|
+    many_to_many "#{mt}_eligibility_constraints".to_sym,
+                 class: "Suma::Eligibility::Constraint",
+                 join_table: :eligibility_member_associations,
+                 right_key: :constraint_id,
+                 left_key: "#{mt}_member_id".to_sym
+  end
+
   dataset_module do
     def with_email(*emails)
       emails = emails.map { |e| e.downcase.strip }
@@ -129,6 +137,34 @@ class Suma::Member < Suma::Postgres::Model(:members)
     return self.roles.include?(Suma::Role.admin_role)
   end
 
+  def eligibility_constraints_with_status
+    result = []
+    Suma::Eligibility::Constraint::STATUSES.each do |status|
+      constraints = self.send("#{status}_eligibility_constraints")
+      result += constraints.map { |c| {constraint: c, status:} }
+    end
+    return result
+  end
+
+  def replace_eligibility_constraint(constraint, group)
+    self.db[:eligibility_member_associations].
+      insert_conflict(
+        constraint: :unique_member,
+        update: {
+          verified_member_id: Sequel[:excluded][:verified_member_id],
+          pending_member_id: Sequel[:excluded][:pending_member_id],
+          rejected_member_id: Sequel[:excluded][:rejected_member_id],
+        },
+      ).insert(
+        constraint_id: constraint.id,
+        "#{group}_member_id".to_sym => self.id,
+      )
+    self.associations.delete(:verified_eligibility_constraints)
+    self.associations.delete(:pending_eligibility_constraints)
+    self.associations.delete(:rejected_eligibility_constraints)
+    return self
+  end
+
   def greeting
     return self.name.blank? ? "there" : self.name
   end
@@ -141,6 +177,10 @@ class Suma::Member < Suma::Postgres::Model(:members)
 
   def onboarding_verified?
     return self.onboarding_verified_at ? true : false
+  end
+
+  def onboarding_verified=(v)
+    self.onboarding_verified_at = v ? Time.now : nil
   end
 
   def read_only_reason

@@ -177,4 +177,25 @@ RSpec.describe Suma::AdminAPI::Members, :db do
       expect(Suma::Member.last.activities).to contain_exactly(have_attributes(message_name: "accountclosed"))
     end
   end
+
+  describe "POST /v1/members/:id/eligibilities" do
+    it "replaces the eligibilities" do
+      member = Suma::Fixtures.member.create
+      el = Suma::Fixtures.eligibility_constraint.create
+
+      post "/v1/members/#{member.id}/eligibilities", {values: [{constraint_id: el.id, status: "pending"}]}
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.that_includes(id: member.id)
+      expect(member.refresh.pending_eligibility_constraints).to contain_exactly(be === el)
+    end
+
+    it "403s if the constraint does not exist" do
+      member = Suma::Fixtures.member.create
+
+      post "/v1/members/#{member.id}/eligibilities", {values: [{constraint_id: 0, status: "pending"}]}
+
+      expect(last_response).to have_status(403)
+    end
+  end
 end

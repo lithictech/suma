@@ -12,9 +12,9 @@ class Suma::API::Commerce < Suma::API::V1
     resource :offerings do
       desc "Return all commerce offerings that are not closed"
       get do
-        current_member
+        me = current_member
         t = Time.now
-        ds = Suma::Commerce::Offering.available_at(t)
+        ds = Suma::Commerce::Offering.available_at(t).available_to(me)
         present_collection ds, with: OfferingEntity
       end
 

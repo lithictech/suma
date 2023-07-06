@@ -60,6 +60,7 @@ class Suma::AdminAPI::Members < Suma::AdminAPI::V1
         optional :phone, type: Integer
         optional :timezone, type: String, values: ALL_TIMEZONES
         optional :roles, type: Array[String]
+        optional :onboarding_verified, type: Boolean
       end
       post do
         member = lookup_member!
@@ -87,6 +88,34 @@ class Suma::AdminAPI::Members < Suma::AdminAPI::V1
             subject_id: member.id,
           )
           member.soft_delete unless member.soft_deleted?
+        end
+        status 200
+        present member, with: DetailedMemberEntity
+      end
+
+      params do
+        requires :values, type: Array[JSON] do
+          requires :constraint_id, type: Integer
+          requires :status, values: ["verified", "pending", "rejected"]
+        end
+      end
+      post :eligibilities do
+        member = lookup_member!
+        admin = admin_member
+        member.db.transaction do
+          summary = []
+          params[:values].each do |h|
+            ec = Suma::Eligibility::Constraint[h[:constraint_id]] or
+              adminerror!(403, "Unknown eligibility constraint: #{h[:constraint_id]}")
+            member.replace_eligibility_constraint(ec, h[:status])
+            summary << "#{ec.name} => #{h[:status]}"
+          end
+          member.add_activity(
+            message_name: "eligibilitychange",
+            summary: "Admin #{admin.email} modified eligibilities of #{member.email}: #{summary.join(', ')}",
+            subject_type: "Suma::Member",
+            subject_id: member.id,
+          )
         end
         status 200
         present member, with: DetailedMemberEntity
@@ -127,6 +156,11 @@ class Suma::AdminAPI::Members < Suma::AdminAPI::V1
     expose :offering, with: OfferingEntity, &self.delegate_to(:checkout, :cart, :offering)
   end
 
+  class MemberEligibilityConstraintEntity < BaseEntity
+    expose :status
+    expose :constraint, with: Suma::AdminAPI::Entities::EligibilityConstraintEntity
+  end
+
   class DetailedMemberEntity < MemberEntity
     include Suma::AdminAPI::Entities
     include AutoExposeDetail
@@ -138,11 +172,16 @@ class Suma::AdminAPI::Members < Suma::AdminAPI::V1
     expose :available_roles do |_|
       Suma::Role.order(:name).select_map(:name)
     end
+    expose :onboarding_verified?, as: :onboarding_verified
+    expose :onboarding_verified_at
 
     expose :legal_entity, with: LegalEntityEntity
     expose :payment_account, with: DetailedPaymentAccountEntity
     expose :bank_accounts, with: PaymentInstrumentEntity
     expose :charges, with: ChargeEntity
+    expose :eligibility_constraints,
+           with: MemberEligibilityConstraintEntity,
+           &self.delegate_to(:eligibility_constraints_with_status)
 
     expose :activities, with: MemberActivityEntity
     expose :reset_codes, with: MemberResetCodeEntity

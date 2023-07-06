@@ -201,4 +201,10 @@ module Suma::AdminAPI::Entities
     expose :checkout_id
     expose :member, with: MemberEntity, &self.delegate_to(:checkout, :cart, :member)
   end
+
+  class EligibilityConstraintEntity < BaseEntity
+    include AutoExposeBase
+    expose :id
+    expose :name
+  end
 end

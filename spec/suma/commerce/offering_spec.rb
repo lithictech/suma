@@ -29,6 +29,39 @@ RSpec.describe "Suma::Commerce::Offering", :db do
     end
   end
 
+  describe "datasets" do
+    it "can find offerings available at a given time" do
+      o = Suma::Fixtures.offering(period: 3.days.ago..3.days.from_now).create
+      expect(described_class.available_at(Time.now).all).to have_same_ids_as(o)
+      expect(described_class.available_at(5.days.ago).all).to be_empty
+      expect(described_class.available_at(5.days.from_now).all).to be_empty
+    end
+
+    it "can find offerings available to a member based on constraints" do
+      mem_no_constraints = Suma::Fixtures.member.create
+      mem_verified_constraint = Suma::Fixtures.member.create
+      mem_pending_constraint = Suma::Fixtures.member.create
+      mem_rejected_constraint = Suma::Fixtures.member.create
+
+      constraint = Suma::Fixtures.eligibility_constraint.create
+      mem_verified_constraint.add_verified_eligibility_constraint(constraint)
+      mem_pending_constraint.add_pending_eligibility_constraint(constraint)
+      mem_rejected_constraint.add_rejected_eligibility_constraint(constraint)
+
+      offering_no_constraint = Suma::Fixtures.offering.create
+      offering_with_constraint = Suma::Fixtures.offering.create
+      offering_with_constraint.add_eligibility_constraint(constraint)
+
+      expect(described_class.available_to(mem_no_constraints).all).to have_same_ids_as(offering_no_constraint)
+      expect(described_class.available_to(mem_verified_constraint).all).to have_same_ids_as(
+        offering_no_constraint,
+        offering_with_constraint,
+      )
+      expect(described_class.available_to(mem_pending_constraint).all).to have_same_ids_as(offering_no_constraint)
+      expect(described_class.available_to(mem_rejected_constraint).all).to have_same_ids_as(offering_no_constraint)
+    end
+  end
+
   describe "images" do
     it "orders images by ordinal" do
       p = Suma::Fixtures.offering.create

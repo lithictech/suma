@@ -20,6 +20,12 @@ class Suma::Commerce::Offering < Suma::Postgres::Model(:commerce_offerings)
   one_to_many :offering_products, class: "Suma::Commerce::OfferingProduct"
   one_to_many :carts, class: "Suma::Commerce::Cart"
 
+  many_to_many :eligibility_constraints,
+               class: "Suma::Eligibility::Constraint",
+               join_table: :eligibility_offering_associations,
+               right_key: :constraint_id,
+               left_key: :offering_id
+
   many_through_many :products,
                     [
                       [:commerce_offering_products, :offering_id, :product_id],
@@ -100,6 +106,15 @@ class Suma::Commerce::Offering < Suma::Postgres::Model(:commerce_offerings)
   dataset_module do
     def available_at(t)
       return self.where(Sequel.pg_range(:period).contains(Sequel.cast(t, :timestamptz)))
+    end
+
+    def available_to(member)
+      ds = self.exclude(eligibility_constraints: Suma::Eligibility::Constraint.dataset)
+      if member.verified_eligibility_constraints.empty?
+        # If the member has no constraints, return all offerings that also have no constraints.
+        return ds
+      end
+      return ds.or(eligibility_constraints: member.verified_eligibility_constraints)
     end
   end
 
