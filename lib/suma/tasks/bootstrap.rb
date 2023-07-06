@@ -340,6 +340,7 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
       vc.uses_email = true
       vc.uses_sms = false
       vc.enabled = true
+      vc.message_handler_key = "lime"
       vc.instructions = Suma::TranslatedText.find_or_create(
         en: <<~MD,
           1. Go to the Play or App Store, or follow [this link](https://limebike.app.link/m2h6hB9qrS)
@@ -414,6 +415,10 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
   end
 
   def download_to_uploaded_file(filename, content_type, url)
+    if Suma::RACK_ENV == "test"
+      # Don't bother using webmock for this
+      return create_uploaded_file("photo.png", "png")
+    end
     bytes = Net::HTTP.get(URI.parse(url))
     return Suma::UploadedFile.create_with_blob(bytes:, content_type:, filename:)
   end
