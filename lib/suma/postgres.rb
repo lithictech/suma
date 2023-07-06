@@ -50,6 +50,7 @@ module Suma::Postgres
     "suma/address",
     "suma/anon_proxy/member_contact",
     "suma/anon_proxy/vendor_account",
+    "suma/anon_proxy/vendor_account_message",
     "suma/anon_proxy/vendor_configuration",
     "suma/automation_trigger",
     "suma/charge",

@@ -33,6 +33,7 @@ module Suma::Async
     "suma/async/sync_lime_free_bike_status_gbfs",
     "suma/async/sync_lime_geofencing_zones_gbfs",
     "suma/async/upsert_frontapp_contact",
+    "suma/async/webhookdb_process_inbound_postmark",
   ].freeze
 
   configurable(:async) do

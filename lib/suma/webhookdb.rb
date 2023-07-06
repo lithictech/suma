@@ -8,10 +8,6 @@ module Suma::Webhookdb
   class << self
     attr_accessor :connection
 
-    def plivo_messages_dataset
-      return self.connection[Sequel[self.schema][self.plivo_messages_table]]
-    end
-
     def postmark_inbound_messages_dataset
       return self.connection[Sequel[self.schema][self.postmark_inbound_messages_table]]
     end
@@ -20,8 +16,7 @@ module Suma::Webhookdb
   configurable(:webhookdb) do
     setting :database_url, ENV.fetch("DATABASE_URL", nil)
     setting :schema, :public
-    setting :plivo_messages_table, :webhookdb_plivo_messages_fixture
-    setting :postmark_inbound_messages_table, :webhookdb_postmark_inbound_messages_fixture
+    setting :postmark_inbound_messages_table, :postmark_inbound_message_v1_fixture
 
     after_configured do
       self.connection = Sequel.connect(self.database_url, extensions: [:pg_json])

@@ -9,17 +9,19 @@ module Suma::Fixtures::AnonProxyMemberContacts
   fixtured_class Suma::AnonProxy::MemberContact
 
   base :anon_proxy_member_contact do
-    self.provider_key ||= "fake"
+    self.relay_key ||= "fake-relay"
   end
 
   before_saving do |instance|
     instance.member ||= Suma::Fixtures.member.create
-    instance.email = "e#{SecureRandom.hex(2)}@example.com" if !instance.phone && !instance.email
+    relay = Suma::AnonProxy::Relay.create!(instance.relay_key)
+    instance.send("#{relay.transport}=", relay.provision(instance.member)) if !instance.email && !instance.phone
     instance
   end
 
   decorator :email do
     self.phone = nil
-    self.email = "e#{SecureRandom.hex(2)}@example.com"
+    self.email = nil
+    self.relay_key = "fake-relay"
   end
 end

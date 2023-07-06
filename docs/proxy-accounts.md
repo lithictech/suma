@@ -1,4 +1,4 @@
-# Anonymized Vendor Proxy Accounts
+# Anonymized Proxy Vendor Accounts
 
 In some cases, Suma cannot provision a product directly.
 Instead, members must use a vendor's own app or system.
@@ -11,14 +11,15 @@ In these cases, we have the member sign up with the vendor using
 an email or phone number that Suma provisions,
 **not** the member's actual email or phone number.
 
-This keeps their data private on Suma's systems
-(other concerns, like liability waivers and vendor complaints against members,
-must be worked out beforehand).
+The Suma backend 'proxies' messages from the vendor (email or SMS)
+and sends them onto the Suma member (usually SMS).
 
-We call these 'anonymized vendor proxy accounts', or just 'proxy accounts' for short.
+This keeps member data private on Suma's systems.
+Note that other concerns, like liability waivers and vendor complaints against members,
+must be worked out beforehand, between the platform operator and the vendor.
 
-In the UI, we use a simpler terminology of 'private account',
-but this may change in the future.
+We call these 'anonymized proxy vendor accounts', or 'vendor accounts' for short.
+In the UI we call them 'private accounts', though this may change.
 
 ## User/Data Flow
 
@@ -39,28 +40,54 @@ This is the core data flow around authentication between Suma and a vendor's sys
     like 'Your Lime code is abc123'.
 - The member sees an auth token SMS from Suma; copies the token; and pastes it into the vendor's app
   to verify the proxy address.
-- Member uses the vendor's app.
-
-### Caveats
-
-However there are a number of wrinkles, and the devil is definitely in the details.
+- Member uses the vendor's app as normal, but the vendor doesn't know who they are directly.
 
 ## Architecture
 
-The areas of code involved in this flow includes:
+There are two main chunks to how Private Accounts work.
+The `Suma::AnonProxy` namespace contains most of this code.
 
-- The `Suma::AnonProxy` namespace contains most of this code.
-- `AnonProxy::MemberContact` is the provisioning of an email or SMS number
-  for a member. Each member can have any number of emails and phone numbers,
-  though one of each is normal.
-- `AnonProxy::VendorConfiguration` specifies the behavior of the vendor account.
-  For example, if it uses a phone number or email. It also points to a 'logic adapter'
-  which contains vendor-specific code, like how to parse emails or SMS.
-  - For now, we assume a vendor account uses a phone or an email.
-    Even if both are supported, as assume just one is required.
-    We could support both in the same account in the future, but it isn't worth the modeling complexity
-    as of this writing.
+The first chunk are the database models that are surfaced in the UI,
+which represent the vendors which support private accounts
+(`VendorConfiguration`), the proxy addresses for members (`MemberContact`),
+and a member's account within a vendor's service (`VendorAccount`):
+
+- `AnonProxy::MemberContact` contains an email or phone number associated with the member. 
+  - Each member can have any number of emails and phone numbers, though one of each is normal.
+  - The member contact stores the name of a `Relay`, like Postmark or Twilio.
+    This is the underlying provider working with the address,
+    and is used when processing inbound messages.
+- `AnonProxy::VendorConfiguration` describes the way private accounts
+  work for a particular vendor. For example, if Lime uses email for its account,
+  there would be a Vendor Configuration associated to that vendor,
+  which says that email is used for the private accounts.
 - `AnonProxy::VendorAccount` is the member account in the vendor's service.
-  It points to a single `VendorConfiguration`, which specifies the behavior.
-  It also points to a `MemberContact`, which should match the sms or phone requirement
+  It points to a single `VendorConfiguration`, which specifies the behavior,
+  and a `MemberContact`, which should match the sms or phone requirement
   (ie, an SMS member contact should be used with a 'uses SMS' vendor configuration).
+
+The second chunk are the mechanics used for the actual proxying;
+that is, forwarding messages from vendors to Suma members.
+There are a lot more moving parts here:
+
+- We have several `Relay` implementations, like `Postmark` or `Twilio`.
+- We use [WebhookDB](https://webhookdb.com) to handle ingestion from external services,
+  like Postmark. And our primary method of looking for messages is via database polling.
+  This makes ingestion *much* easier to use in non-production environments,
+  since we don't need to set up webhooks against local services.
+  - In production, WebhookDB pushes changes to our backend so we get immediate alerts,
+    and we don't need to depend on frequent database polling.
+- There is a recurring `ProcessInboundRelayRows` job that looks for rows in WebhookDB
+  for all relays, and 'processes' them.
+- Processing includes:
+  - Parsing the row using the appropriate `Relay` for the table
+    - For example, `Relay::Postmark` processes messages from the `postmark_inbound_messages_v1` WebhookDB replicator.
+  - Find the appropriate `MessageHandler` for the parsed message.
+    - For example, messages `from: 'no-reply@lime.app'` are processed using `MessageHandler::Lime`.
+  - Finding the `VendorAccount` for the given relay, and the recipient of the parsed message.
+  - Handling the message using the found handler.
+    - This usually includes extracting important info from the message and sending it via SMS.
+      In the end a `Message::Delivery` should be created.
+    - In some cases, the message may be un-processable, like a Privacy Policy update.
+  - This `Message::Delivery` is combined with the `VendorAccount` into a `VendorAccountMessage`.
+    This can be used to keep track of all messages processed through a vendor account.

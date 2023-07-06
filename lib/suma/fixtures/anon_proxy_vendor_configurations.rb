@@ -12,7 +12,7 @@ module Suma::Fixtures::AnonProxyVendorConfigurations
     self.uses_email = Suma::Fixtures.nilor(self.uses_email, [true, false].sample)
     self.uses_sms = Suma::Fixtures.nilor(self.uses_sms, !self.uses_email)
     self.enabled = Suma::Fixtures.nilor(self.enabled, true)
-    self.logic_adapter_key ||= "fake"
+    self.message_handler_key ||= "fake-handler"
   end
 
   before_saving do |instance|

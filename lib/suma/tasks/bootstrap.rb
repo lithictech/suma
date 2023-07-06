@@ -337,16 +337,17 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
       lime_vendor.add_image({uploaded_file: uf})
     end
     Suma::AnonProxy::VendorConfiguration.update_or_create(vendor: lime_vendor) do |vc|
-      vc.logic_adapter_key = "lime_v1"
       vc.uses_email = true
       vc.uses_sms = false
       vc.enabled = true
       vc.instructions = Suma::TranslatedText.find_or_create(
         en: <<~MD,
-          1. Go to the Play or App Store, or follow [this link](https://foo)
+          1. Go to the Play or App Store, or follow [this link](https://limebike.app.link/m2h6hB9qrS)
           2. Download the Lime App.
           3. Sign up using your private email address.
-          4. You will get a confirmation code texted to you by Suma. Enter it into Lime.
+          4. You will get a confirmation code texted to you by Suma. Copy the code.
+          5. Press 'Enter Code' on the Lime app screen.
+          6. Paste the code and press Next.
           5. You're all set!.
         MD
         es: "TODO",

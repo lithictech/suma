@@ -55,11 +55,11 @@ class Suma::AnonProxy::VendorAccount < Suma::Postgres::Model(:anon_proxy_vendor_
       self.lock!
       if self.email_required?
         unless (contact = self.member.anon_proxy_contacts.find(&:email?))
-          email = Suma::AnonProxy::Email.active_provider.provision(self.member)
+          email = Suma::AnonProxy::Relay.active_email_relay.provision(self.member)
           contact = Suma::AnonProxy::MemberContact.create(
             member: self.member,
             email:,
-            provider_key: Suma::AnonProxy::Email.active_provider_key,
+            relay_key: Suma::AnonProxy::Relay.active_email_relay_key,
           )
         end
         self.contact = contact
