@@ -41,6 +41,12 @@ module Suma::Async
     # at `warn` level.
     setting :slow_job_seconds, 1.0
 
+    # Smaller values here can be useful where we combine polling and webhooks,
+    # like AnonProxy, but we don't have webhooks available for a certain environment.
+    # For example, using 10 here in development avoids having to wait 30 seconds
+    # to look for inbound emails.
+    setting :cron_poll_interval, 30
+
     setting :sidekiq_redis_url, "redis://localhost:6379/0", key: "REDIS_URL"
     setting :sidekiq_redis_provider, ""
     # For sidekiq web UI. Randomize a default so they will only be useful if set.
@@ -118,6 +124,7 @@ module Suma::Async
   # and starts the cron.
   def self.setup_workers
     self._setup_common
+    Sidekiq::Options[:cron_poll_interval] = self.cron_poll_interval
     Amigo.install_amigo_jobs
     self._require_jobs
     Amigo.start_scheduler
