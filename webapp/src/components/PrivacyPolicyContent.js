@@ -40,7 +40,10 @@ export default function PrivacyPolicyContent({ mobile }) {
   const { topNav } = useGlobalViewState();
   const topNavHeight = topNav?.clientHeight - 1 || 0;
 
-  i18n.loadNamespaces("privacy-policy-strings").then(() => setI18NextLoading(false));
+  useMountEffect(() => {
+    i18n.loadNamespaces("privacy-policy-strings").then(() => setI18NextLoading(false));
+  });
+
   if (i18nextLoading) {
     return <ScreenLoader show />;
   }
@@ -336,18 +339,17 @@ export default function PrivacyPolicyContent({ mobile }) {
 const TableOfContentsNav = ({ mobile }) => {
   mobile = Boolean(mobile);
   const [expanded, setExpanded] = React.useState(!mobile || false);
-  const navRef = React.useRef();
 
-  useMountEffect(() => {
-    if (!navRef.current) {
+  function navRef(el) {
+    if (!el) {
       return;
     }
     new ScrollSpy(document.body, {
-      target: navRef.current,
+      target: el,
       smoothScroll: true,
       rootMargin: "0px 0px -60%",
     });
-  });
+  }
 
   return (
     <Navbar
