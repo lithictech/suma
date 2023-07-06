@@ -12,4 +12,11 @@ module Suma::Fixtures
   fixture_path_prefix "suma/fixtures"
 
   ::Faker::Config.locale = :en
+
+  class << self
+    def nilor(x, val)
+      return val if x.nil?
+      return x
+    end
+  end
 end
