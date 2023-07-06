@@ -12,7 +12,7 @@ RSpec.describe Suma::Mobility::VendorAdapter, :db do
     it "raises for an unknown adapter" do
       expect do
         described_class.create(:blah)
-      end.to raise_error(described_class::UnknownAdapter)
+      end.to raise_error(Suma::SimpleRegistry::Unregistered)
     end
   end
 

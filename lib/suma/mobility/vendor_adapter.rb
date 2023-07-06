@@ -1,7 +1,9 @@
 # frozen_string_literal: true
 
+require "suma/simple_registry"
+
 module Suma::Mobility::VendorAdapter
-  class UnknownAdapter < StandardError; end
+  extend Suma::SimpleRegistry
 
   BeginTripResult = Struct.new(:raw_result, keyword_init: true)
   EndTripResult = Struct.new(
@@ -14,15 +16,8 @@ module Suma::Mobility::VendorAdapter
   )
 
   class << self
-    def register(name, cls)
-      @registry ||= {}
-      @registry[name.to_s] = cls
-    end
-
     def create(name)
-      (cls = @registry[name.to_s]) or
-        raise UnknownAdapter, "No registered adapter '#{name}' available: #{@registry.keys.join(', ')}"
-      return cls.new
+      return self.registry_create!(name)
     end
   end
 
@@ -33,7 +28,7 @@ module Suma::Mobility::VendorAdapter
   def end_trip(trip)
     raise NotImplementedError
   end
-end
 
-require_relative "fake_vendor_adapter"
-Suma::Mobility::VendorAdapter.register("fake", Suma::Mobility::FakeVendorAdapter)
+  require_relative "fake_vendor_adapter"
+  register("fake", Suma::Mobility::FakeVendorAdapter)
+end
