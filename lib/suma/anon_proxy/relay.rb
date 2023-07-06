@@ -15,6 +15,10 @@ class Suma::AnonProxy::Relay
   # @return [:phone, :email]
   def transport = raise NotImplementedError
 
+  # Every relay requires at least one way to process inbound messages.
+  # If WebhookDB is used (see proxy-accounts.md), return the table name.
+  def webhookdb_table = raise NotImplementedError
+
   # Provision an address in the provider.
   # For example, this can be generating an email address
   # that can be used to look up the user, or allocating a number in Twilio.

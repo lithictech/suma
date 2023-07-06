@@ -60,6 +60,7 @@ Sequel.migration do
       text :message_id, null: false
       text :message_from, null: false
       text :message_to, null: false
+      text :message_content, null: false
       timestamptz :message_timestamp, null: false
 
       text :relay_key, null: false

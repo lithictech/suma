@@ -24,7 +24,7 @@ class Suma::AnonProxy::MessageHandler
   # Return the +Suma::Message::Delivery+, or nil if a noop.
   #
   # @param vendor_account_message [Suma::AnonProxy::VendorAccountMessage]
-  # @return [Suma::Message::Delivery]
+  # @return [Suma::Message::Delivery,nil]
   def handle(vendor_account_message) = raise NotImplementedError
 
   # After the relay parses the message,
@@ -58,6 +58,7 @@ class Suma::AnonProxy::MessageHandler
         message_id: message.message_id,
         message_from: message.from,
         message_to: message.to,
+        message_content: message.content,
         message_timestamp: message.timestamp,
         relay_key: relay.key,
         message_handler_key: handler.key,
@@ -69,7 +70,8 @@ class Suma::AnonProxy::MessageHandler
       vam.save_changes
       self.logger.info("anon_proxy_message_handled",
                        relay: relay.key,
-                       member_id: message.member_contact.member_id, handled_by: handled_by&.key,)
+                       member_id: vendor_account.member_id,
+                       handler: handler.key,)
       return vam
     end
   end

@@ -64,41 +64,56 @@ RSpec.describe Suma::AnonProxy::MessageHandler, :db do
           vendor_account: be === vendor_account,
           outbound_delivery: have_attributes(transport_message_id: "xyz"),
         )
-        expect(fake_handler.class.handled).to contain_exactly(message)
+        expect(fake_handler.class.handled).to contain_exactly(be === vam)
       end
 
       it "returns nil if no delivery is returned" do
         fake_handler.class.can_handle_callback = proc { true }
         expect(described_class.handle(relay, message)).to be_nil
-        expect(fake_handler.class.handled).to contain_exactly(message)
+        expect(fake_handler.class.handled).to contain_exactly(have_attributes(id: nil, outbound_delivery: nil))
       end
     end
   end
 
   describe Suma::AnonProxy::MessageHandler::Lime do
     let(:lime) { Suma::AnonProxy::MessageHandler.create!(described_class.new.key) }
-    let(:whdb_row) do
-      r = load_fixture_data("webhookdb/lime_access_code_postmark_email").symbolize_keys
-      r[:data] = JSON.parse(r[:data])
-      r
+    let(:vendor_config) { Suma::Fixtures.anon_proxy_vendor_configuration(message_handler_key: lime.key).create }
+    let(:vendor_account) do
+      Suma::Fixtures.anon_proxy_vendor_account(configuration: vendor_config).with_contact.create
     end
-    let!(:contact) do
-      Suma::Fixtures.anon_proxy_member_contact(relay_key: "postmark", email: whdb_row[:to_email]).create
+    let(:message) do
+      email = load_fixture_data("webhookdb/lime_access_code_postmark_email")
+      content = JSON.parse(email["data"]).fetch("HtmlBody")
+      Suma::AnonProxy::ParsedMessage.new(
+        message_id: "msg1",
+        to: vendor_account.contact.email,
+        from: described_class::NOREPLY,
+        content:,
+        timestamp: Time.now,
+      )
     end
-    let(:message) { Suma::AnonProxy::Relay::Postmark.new.parse_message(whdb_row) }
 
     it "handles messages from no-reply" do
       expect(lime).to be_can_handle(message)
     end
 
     it "parses an access code and sends it via SMS" do
-      lime.handle(message)
-      expect(contact.member.message_deliveries).to contain_exactly(
-        have_attributes(a: 1),
+      got = Suma::AnonProxy::MessageHandler.handle(
+        Suma::AnonProxy::Relay.create!("fake-relay"),
+        message,
       )
+      expect(vendor_account.contact.member.message_deliveries).to contain_exactly(be === got.outbound_delivery)
+      expect(got.outbound_delivery).to have_attributes(to: vendor_account.contact.member.phone)
     end
 
     it "noops if we do not recognize the message" do
+      message.content.gsub!(/copy and paste/, "foo and bar")
+      got = Suma::AnonProxy::MessageHandler.handle(
+        Suma::AnonProxy::Relay.create!("fake-relay"),
+        message,
+      )
+      expect(got).to be_nil
+      expect(vendor_account.contact.member.message_deliveries).to be_empty
     end
   end
 end

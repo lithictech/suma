@@ -8,8 +8,12 @@ module Suma::Webhookdb
   class << self
     attr_accessor :connection
 
+    def dataset_for_table(table)
+      return self.connection[Sequel[self.schema][table]]
+    end
+
     def postmark_inbound_messages_dataset
-      return self.connection[Sequel[self.schema][self.postmark_inbound_messages_table]]
+      return self.dataset_for_table(self.postmark_inbound_messages_table)
     end
   end
 

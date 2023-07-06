@@ -270,12 +270,15 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
     end
   end
 
-  describe "WebhookdbProcessInboundPostmark" do
+  describe "ProcessAnonProxyInboundRelays" do
     before(:each) do
       Suma::AnonProxy::MessageHandler::Fake.reset
       Suma::AnonProxy::MessageHandler::Fake.can_handle_callback = proc { true }
       Suma::Webhookdb.postmark_inbound_messages_dataset.delete
-      Suma::Redis.cache.with { |c| c.call("DEL", Suma::Async::WebhookdbProcessInboundPostmark::CACHE_KEY) }
+      relay = Suma::AnonProxy::Relay.create!("postmark")
+      Suma::Redis.cache.with do |c|
+        c.call("DEL", Suma::Async::ProcessAnonProxyInboundWebhookdbRelays.relay_cache_key(relay))
+      end
     end
 
     it "processes webhookdb rows with Postmark" do
@@ -288,13 +291,13 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
         timestamp: Time.now,
         message_id: "msgid",
       )
-      Suma::Async::WebhookdbProcessInboundPostmark.new.perform(true)
+      Suma::Async::ProcessAnonProxyInboundWebhookdbRelays.new.perform(true)
       expect(Suma::AnonProxy::MessageHandler::Fake.handled).to contain_exactly(
         have_attributes(message_id: "msgid"),
       )
 
       # Ensure we keep track of what's been synced
-      Suma::Async::WebhookdbProcessInboundPostmark.new.perform(true)
+      Suma::Async::ProcessAnonProxyInboundWebhookdbRelays.new.perform(true)
       expect(Suma::AnonProxy::MessageHandler::Fake.handled).to have_length(1)
     end
   end
