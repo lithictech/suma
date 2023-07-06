@@ -1,6 +1,7 @@
 import AccountBalanceIcon from "@mui/icons-material/AccountBalance";
 import AccountBalanceWalletIcon from "@mui/icons-material/AccountBalanceWallet";
 import HomeIcon from "@mui/icons-material/Home";
+import MailIcon from "@mui/icons-material/Mail";
 import PersonIcon from "@mui/icons-material/Person";
 import SellIcon from "@mui/icons-material/Sell";
 import ShoppingBagIcon from "@mui/icons-material/ShoppingBag";
@@ -34,5 +35,10 @@ export default [
     label: "Orders",
     href: "/orders",
     icon: <ShoppingBagIcon />,
+  },
+  {
+    label: "Messages",
+    href: "/messages",
+    icon: <MailIcon />,
   },
 ];

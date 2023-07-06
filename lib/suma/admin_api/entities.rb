@@ -91,6 +91,7 @@ module Suma::AdminAPI::Entities
     expose :sent_at
     expose :aborted_at
     expose :to
+    expose :recipient, with: MemberEntity
   end
 
   class BankAccountEntity < PaymentInstrumentEntity

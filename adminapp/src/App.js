@@ -10,6 +10,8 @@ import FundingTransactionDetailPage from "./pages/FundingTransactionDetailPage";
 import FundingTransactionListPage from "./pages/FundingTransactionListPage";
 import MemberDetailPage from "./pages/MemberDetailPage";
 import MemberListPage from "./pages/MemberListPage";
+import MessageDetailPage from "./pages/MessageDetailPage";
+import MessageListPage from "./pages/MessageListPage";
 import OfferingDetailPage from "./pages/OfferingDetailPage";
 import OfferingListPage from "./pages/OfferingListPage";
 import OfferingPickListPage from "./pages/OfferingPickListPage";
@@ -176,6 +178,16 @@ function PageSwitch() {
         exact
         path="/member/:id"
         element={renderWithHocs(redirectIfUnauthed, withLayout(), MemberDetailPage)}
+      />
+      <Route
+        exact
+        path="/messages"
+        element={renderWithHocs(redirectIfUnauthed, withLayout(), MessageListPage)}
+      />
+      <Route
+        exact
+        path="/message/:id"
+        element={renderWithHocs(redirectIfUnauthed, withLayout(), MessageDetailPage)}
       />
       <Route
         path="/*"
