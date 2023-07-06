@@ -189,6 +189,8 @@ GEM
     rake (13.0.6)
     rate_throttle_client (0.1.2)
     redis (4.8.0)
+    redis-client (0.14.1)
+      connection_pool
     regexp_parser (2.5.0)
     rexml (3.2.5)
     rspec (3.11.0)
@@ -259,7 +261,7 @@ GEM
       connection_pool (>= 2.2.5, < 3)
       rack (~> 2.0)
       redis (>= 4.5.0, < 5)
-    sidekiq-amigo (1.5.0)
+    sidekiq-amigo (1.6.1)
       sidekiq (~> 6)
       sidekiq-cron (~> 1)
     sidekiq-cron (1.9.1)
@@ -340,6 +342,7 @@ DEPENDENCIES
   rack-ssl-enforcer
   rack-test
   rake
+  redis-client
   rspec
   rspec-eventually
   rspec-json_expectations
@@ -360,7 +363,7 @@ DEPENDENCIES
   sequel-tstzrange-fields
   sequel_pg
   sidekiq
-  sidekiq-amigo (>= 1.5.0)
+  sidekiq-amigo (>= 1.6.1)
   sidekiq-cron
   sidekiq-unique-jobs
   state_machines
