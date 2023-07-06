@@ -17,7 +17,9 @@ import ELink from "../components/ELink";
 import ScreenLoader from "../components/ScreenLoader";
 import { Lookup, t as loct } from "../localization";
 import { useCurrentLanguage } from "../localization/currentLanguage";
+import useMountEffect from "../shared/react/useMountEffect";
 import { useGlobalViewState } from "../state/useGlobalViewState";
+import { LayoutContainer } from "../state/withLayout";
 import TranslationToggle from "./TranslationToggle";
 import ScrollSpy from "bootstrap/js/src/scrollspy";
 import clsx from "clsx";
@@ -36,26 +38,12 @@ export default function PrivacyPolicyContent({ mobile }) {
   const [i18nextLoading, setI18NextLoading] = React.useState(true);
   const [language] = useCurrentLanguage();
   const { topNav } = useGlobalViewState();
-  const topNavHeight = topNav?.clientHeight || 0;
-  React.useEffect(() => {
-    // initialize isolated privacy policy translations
-    Promise.delayOr(500, i18n.loadNamespaces("privacy-policy-strings")).then(() => {
-      setI18NextLoading(false);
-      // initialize top navigation BS scrollspy
-      new ScrollSpy(document.body, {
-        target: "#mobile-scrollspy",
-        smoothScroll: true,
-        rootMargin: "0px 0px -75%",
-      });
-      if (!mobile) {
-        new ScrollSpy(document.body, {
-          target: "#desktop-scrollspy",
-          smoothScroll: true,
-          rootMargin: "0px 0px -75%",
-        });
-      }
-    });
-  }, [mobile]);
+  const topNavHeight = topNav?.clientHeight - 1 || 0;
+
+  useMountEffect(() => {
+    i18n.loadNamespaces("privacy-policy-strings").then(() => setI18NextLoading(false));
+  });
+
   if (i18nextLoading) {
     return <ScreenLoader show />;
   }
@@ -72,18 +60,18 @@ export default function PrivacyPolicyContent({ mobile }) {
         </Helmet>
         {!mobile && (
           <Col className="table-of-contents-desktop d-none d-xl-block border-secondary border-end order-end">
-            <TableOfContentsNav id="desktop-scrollspy" />
+            <TableOfContentsNav />
           </Col>
         )}
         <div
           className={clsx("sticky-top", !mobile && "container d-xl-none")}
           style={{ top: topNavHeight, zIndex: 1 }}
         >
-          <TableOfContentsNav id="mobile-scrollspy" mobile={true} />
+          <TableOfContentsNav mobile={true} />
         </div>
-        <Container
+        <LayoutContainer
+          gutters={!mobile && true}
           className={clsx("position-relative", !mobile && "privacy-policy-desktop")}
-          tabIndex="0"
         >
           <Container id="overview" className={clsx(!mobile && "px-xl-3")}>
             <TranslationToggle classes="d-flex justify-content-end" />
@@ -342,15 +330,27 @@ export default function PrivacyPolicyContent({ mobile }) {
               p={md("sections:contact_information:paragraph")}
             />
           </Container>
-        </Container>
+        </LayoutContainer>
       </div>
     </div>
   );
 }
 
-const TableOfContentsNav = ({ id, mobile }) => {
+const TableOfContentsNav = ({ mobile }) => {
   mobile = Boolean(mobile);
   const [expanded, setExpanded] = React.useState(!mobile || false);
+
+  function navRef(el) {
+    if (!el) {
+      return;
+    }
+    new ScrollSpy(document.body, {
+      target: el,
+      smoothScroll: true,
+      rootMargin: "0px 0px -60%",
+    });
+  }
+
   return (
     <Navbar
       className={clsx(
@@ -362,14 +362,14 @@ const TableOfContentsNav = ({ id, mobile }) => {
       collapseOnSelect={mobile && true}
       expand={false}
       expanded={expanded}
-      onToggle={() => setExpanded(!expanded)}
+      onToggle={(ex) => setExpanded(ex)}
     >
       {mobile && (
         <Container>
           <Navbar.Toggle className={clsx(expanded && "expanded")}>
             <i
               className={clsx(
-                "bi bi-list-ul fs-2",
+                "bi bi-card-list fs-1",
                 !expanded ? "text-dark" : "text-secondary"
               )}
             ></i>
@@ -382,8 +382,8 @@ const TableOfContentsNav = ({ id, mobile }) => {
       <Navbar.Collapse
         className={clsx("bg-light", mobile && "table-of-contents-collapse p-2")}
       >
-        <Container id={id} className="position-relative">
-          <Nav className="navbar-nav-scroll navbar-absolute">
+        <Container className="position-relative">
+          <Nav ref={navRef} className="navbar-nav-scroll navbar-absolute">
             {navLinks.map(({ id, titleNS }, idx) => (
               <React.Fragment key={id}>
                 <Nav.Link key={id} href={id} className={clsx("py-1")}>
@@ -448,10 +448,10 @@ const PrivacyPolicySection = ({
   return (
     <div
       id={id}
-      className={clsx(!subsection ? "pb-5" : "mt-5", !mobile && !subsection && "mx-lg-5")}
+      className={clsx(!subsection && "mt-5", !mobile && !subsection && "mx-lg-5")}
     >
       {!subsection ? (
-        <h4 className="mb-4">{title}</h4>
+        <h4 className="mb-4 pt-4">{title}</h4>
       ) : (
         <h5 className="mb-3">{title}</h5>
       )}
