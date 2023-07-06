@@ -5,6 +5,8 @@ require "suma/postgres/model"
 require "suma/message"
 
 class Suma::Message::Delivery < Suma::Postgres::Model(:message_deliveries)
+  include Suma::AdminLinked
+
   plugin :timestamps
 
   many_to_one :recipient, class: "Suma::Member"
@@ -66,6 +68,10 @@ class Suma::Message::Delivery < Suma::Postgres::Model(:message_deliveries)
 
   def transport!
     return Suma::Message::Transport.for!(self.transport_type)
+  end
+
+  def rel_admin_link
+    return "/message/#{self.id}"
   end
 
   def self.lookup_template_class(name)

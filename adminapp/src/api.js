@@ -84,6 +84,10 @@ export default {
   getCommerceOrders: (data) => get(`/adminapi/v1/commerce_orders`, data),
   getCommerceOrder: ({ id, ...data }) => get(`/adminapi/v1/commerce_orders/${id}`, data),
 
+  getMessageDeliveries: (data) => get(`/adminapi/v1/message_deliveries`, data),
+  getMessageDelivery: ({ id, ...data }) =>
+    get(`/adminapi/v1/message_deliveries/${id}`, data),
+
   getMembers: (data) => get(`/adminapi/v1/members`, data),
   getMember: ({ id, ...data }) => get(`/adminapi/v1/members/${id}`, data),
   updateMember: ({ id, ...data }) => post(`/adminapi/v1/members/${id}`, data),

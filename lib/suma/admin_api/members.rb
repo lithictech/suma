@@ -187,5 +187,6 @@ class Suma::AdminAPI::Members < Suma::AdminAPI::V1
     expose :reset_codes, with: MemberResetCodeEntity
     expose :sessions, with: MemberSessionEntity
     expose :orders, with: MemberOrderEntity
+    expose :message_deliveries, with: MessageDeliveryEntity
   end
 end

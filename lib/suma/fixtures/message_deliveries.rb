@@ -25,7 +25,8 @@ module Suma::Fixtures::MessageDeliveries
     self.to = to || self.recipient&.email || Faker::Internet.email
     self.add_body(mediatype: "subject", content: Faker::Lorem.sentence)
     self.add_body(mediatype: "text/plain", content:)
-    self.add_body(mediatype: "text/html", content: "<html><body><p>#{content}</p></body></html>")
+    self.add_body(mediatype: "text/html",
+                  content: "<html><body><p>#{content}</p><p><strong>#{content}</strong></p></body></html>",)
   end
 
   decorator :sms, presave: true do |to=nil, content=nil|
@@ -48,7 +49,7 @@ module Suma::Fixtures::MessageDeliveries
 
   decorator :with_body, presave: true do |body={}|
     body[:mediatype] ||= Faker::Lorem.word
-    body[:content] ||= Faker::Lorem.sentences
+    body[:content] ||= Faker::Lorem.paragraph
     self.add_body(body)
   end
 

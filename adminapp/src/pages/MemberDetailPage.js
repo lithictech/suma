@@ -137,6 +137,7 @@ export default function MemberDetailPage() {
           <Charges charges={member.charges} />
           <BankAccounts bankAccounts={member.bankAccounts} />
           <PaymentAccountRelatedLists paymentAccount={member.paymentAccount} />
+          <MessageDeliveries messageDeliveries={member.messageDeliveries} />
         </div>
       )}
     </>
@@ -422,6 +423,24 @@ function BankAccounts({ bankAccounts }) {
         row.adminLabel,
         dayjs(row.createdAt).format("lll"),
         row.softDeletedAt ? dayjs(row.softDeletedAt).format("lll") : "",
+      ]}
+    />
+  );
+}
+
+function MessageDeliveries({ messageDeliveries }) {
+  return (
+    <RelatedList
+      title="Message Deliveries"
+      headers={["Id", "Created", "Sent", "Template", "To"]}
+      rows={messageDeliveries}
+      keyRowAttr="id"
+      toCells={(row) => [
+        <AdminLink key="id" model={row} />,
+        dayjs(row.createdAt).format("lll"),
+        row.sentAt ? dayjs(row.sentAt).format("lll") : "<unsent>",
+        row.template,
+        row.to,
       ]}
     />
   );
