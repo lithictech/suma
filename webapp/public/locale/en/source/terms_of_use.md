@@ -4,7 +4,7 @@ Last Modified: June 28, 2023
 
 ### Acceptance of the Terms of Use
 
-These terms of use are entered into by and between You and Suma ("**Company**," "**we**," or "**us**"). The following terms and conditions, together with any documents they expressly incorporate by reference (collectively, "Terms of Use"), govern your access to and use of app.mysuma.org for the 2023 Suma Summer Special program, as defined in the Terms of Sale, including any content, functionality, and services offered on or through [https://app.mysuma.org/app](/https://app.mysuma.org/app__blank__ 'Suma app homepage') (the "**Website**").
+These terms of use are entered into by and between You and Suma ("**Company**," "**we**," or "**us**"). The following terms and conditions, together with any documents they expressly incorporate by reference (collectively, "**Terms of Use**"), govern your access to and use of app.mysuma.org for the 2023 Suma Summer Special program, as defined in the Terms of Sale, including any content, functionality, and services offered on or through [https://app.mysuma.org/app](https://app.mysuma.org/app__blank__ 'Suma app homepage') (the "**Website**").
 
 Please read the Terms of Use carefully before you start to use the Website. **By using the Website, you accept and agree to be bound and abide by these Terms of Use and our Privacy Policy, found at [https://app.mysuma.org/app/privacy-policy](https://app.mysuma.org/app/privacy-policy__blank__ 'suma privacy policy'), incorporated herein by reference**. If you do not want to agree to these Terms of Use or the Privacy Policy, you must not access or use the Website for the 2023 Suma Summer Special program.
 
@@ -65,7 +65,7 @@ All information we collect on this Website is subject to our Privacy Policy [htt
 
 ### Online Purchases and Other Terms and Conditions
 
-All purchases through our site or other transactions for the sale of goods or services formed through the Website, or resulting from visits made by you, are governed by our ___2023 Suma Summer Special program Terms of Sale___ (“Terms of Sale”), which are hereby incorporated into these Terms of Use.
+All purchases through our site or other transactions for the sale of goods or services formed through the Website, or resulting from visits made by you, are governed by our ___2023 Suma Summer Special program Terms of Sale___ (“Terms of Sale”), available at [https://app.mysuma.org/app/terms-of-sale-summer-2023](https://app.mysuma.org/app/terms-of-sale-summer-2023__blank__ 'terms of sale for summer 2023'), which are hereby incorporated into these Terms of Use.
 
 Additional terms and conditions may also apply to specific portions, services, or features of the Website. All such additional terms and conditions are hereby incorporated by this reference into these Terms of Use.
 
