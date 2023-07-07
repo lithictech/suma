@@ -16,11 +16,27 @@ RSpec.describe Suma::API::AnonProxy, :db do
   describe "GET /v1/anon_proxy/vendor_accounts" do
     it "returns vendor accounts" do
       va = Suma::Fixtures.anon_proxy_vendor_account(member:).create
+      vc = Suma::Fixtures.anon_proxy_vendor_configuration.create
 
       get "/v1/anon_proxy/vendor_accounts"
 
       expect(last_response).to have_status(200)
-      expect(last_response).to have_json_body.that_includes(items: have_same_ids_as(va))
+      expect(last_response).to have_json_body.
+        that_includes(items: contain_exactly(
+          include(id: va.id),
+          include(vendor_slug: vc.vendor.slug),
+        ))
+    end
+
+    it "can use a default address in formatted instructions" do
+      instructions = Suma::TranslatedText.create(en: "see this: %{address}")
+      Suma::Fixtures.anon_proxy_vendor_configuration.create(instructions:)
+
+      get "/v1/anon_proxy/vendor_accounts"
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.
+        that_includes(items: contain_exactly(include(instructions: "see this: ")))
     end
   end
 
@@ -67,6 +83,18 @@ RSpec.describe Suma::API::AnonProxy, :db do
         that_includes(id: va.id, all_vendor_accounts: have_same_ids_as(va))
 
       expect(va.refresh.contact).to be === contact
+    end
+
+    it "formats the account address instructions" do
+      contact = Suma::Fixtures.anon_proxy_member_contact(member:).email("x@y.z").create
+      va.update(contact:)
+      configuration.update(instructions: Suma::TranslatedText.create(en: "see this: %{address}"))
+
+      post "/v1/anon_proxy/vendor_accounts/#{va.id}/configure"
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.
+        that_includes(instructions: "see this: x@y.z")
     end
   end
 end

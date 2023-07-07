@@ -35,6 +35,7 @@ Sequel.migration do
       constraint(:unambiguous_contact_type, Sequel.unambiguous_bool_constraint([:uses_email, :uses_sms]))
 
       text :message_handler_key, null: false
+      text :app_launch_link, null: false
 
       boolean :enabled, null: false
 

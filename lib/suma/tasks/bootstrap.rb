@@ -341,15 +341,18 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
       vc.uses_sms = false
       vc.enabled = true
       vc.message_handler_key = "lime"
+      vc.app_launch_link = "https://limebike.app.link/m2h6hB9qrS"
       vc.instructions = Suma::TranslatedText.find_or_create(
         en: <<~MD,
-          1. Go to the Play or App Store, or follow [this link](https://limebike.app.link/m2h6hB9qrS)
-          2. Download the Lime App.
-          3. Sign up using your private email address.
-          4. You will get a confirmation code texted to you by Suma. Copy the code.
-          5. Press 'Enter Code' on the Lime app screen.
-          6. Paste the code and press Next.
-          5. You're all set!.
+          1. Download the Lime App in the Play or App Store, or follow [this link](https://limebike.app.link/m2h6hB9qrS)
+          2. Start the Lime App.
+          3. When prompted to sign in, choose 'Other options'
+          4. Choose 'Email'
+          5. Enter the email **%{address}**, and press 'Next'.
+          6. The next screen is 'Check Your Email'. However, **your code will come via SMS.** Press 'Enter Code' to proceed.
+          7. Within a few seconds, Suma will send you an SMS with the Lime code. Copy the code.
+          8. Paste the code into the Lime app, and press Next.
+          9. You're all set!
         MD
         es: "TODO",
       )

@@ -12,9 +12,10 @@ import clsx from "clsx";
 import i18next from "i18next";
 import React from "react";
 import Button from "react-bootstrap/Button";
+import ButtonGroup from "react-bootstrap/ButtonGroup";
 import Container from "react-bootstrap/Container";
 import Navbar from "react-bootstrap/Navbar";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 export default function TopNav() {
   const { isOnline } = useOnlineStatus();
@@ -61,7 +62,7 @@ export default function TopNav() {
           <div className="navbar-toggler-icon-bar" />
         </Navbar.Toggle>
       </Container>
-      <Navbar.Collapse className="navbar-collapse">
+      <Navbar.Collapse className="navbar-collapse nav-collapse">
         <Container className="mb-3">
           <div className="d-flex justify-content-end mt-2">
             <div className="d-flex flex-column">
@@ -76,21 +77,14 @@ export default function TopNav() {
                   {user.name || user.phone}
                 </Button>
               )}
-              <LanguageButtons />
+              <LanguageButtons className="mt-3" />
               {userAuthed && (
-                <>
-                  <Button href="/private-accounts" variant="link" className="mt-3">
-                    Private Accounts
-                  </Button>
-                  <Button href="/funding" variant="link" className="mt-2">
-                    Payment Methods
-                  </Button>
-                  <Button onClick={signOut} className="mt-3" variant="danger">
-                    {t("common:logout")}
-                  </Button>
-                </>
+                <AuthedUserButtons
+                  onCollapse={() => setExpanded(false)}
+                  className="mt-4"
+                />
               )}
-              <NavFooter />
+              <NavFooter className="mt-4" />
             </div>
           </div>
         </Container>
@@ -99,31 +93,98 @@ export default function TopNav() {
   );
 }
 
-function LanguageButtons() {
+function LanguageButtons({ className }) {
   const { supportedLocales } = useBackendGlobals();
   const { changeLanguage } = useI18Next();
   if (!supportedLocales.items) {
     return null;
   }
-  return supportedLocales.items.map(({ code, native }) => (
-    <Button
-      key={code}
-      variant="outline-primary"
-      className={clsx("mt-2", i18next.language === code && "active-outline-button")}
-      onClick={() => changeLanguage(code)}
-    >
-      {native}
-    </Button>
-  ));
+  return (
+    <ButtonGroup vertical className={clsx("nav-lang-btn-group", className)}>
+      {supportedLocales.items.map(({ code, native }) => (
+        <Button
+          key={code}
+          variant="outline-primary"
+          className={clsx(i18next.language === code && "active-outline-button")}
+          onClick={() => changeLanguage(code)}
+        >
+          {native}
+        </Button>
+      ))}
+    </ButtonGroup>
+  );
 }
 
-function NavFooter() {
+function AuthedUserButtons({ className, onCollapse }) {
+  return (
+    <>
+      <NavLinkButton
+        href="/dashboard"
+        icon="house-door-fill"
+        label="Dashboard"
+        className={className}
+        onNoChangeClick={onCollapse}
+      />
+      <NavLinkButton
+        href="/private-accounts"
+        icon="incognito"
+        label="Private Accounts"
+        onNoChangeClick={onCollapse}
+      />
+      <NavLinkButton
+        href="/funding"
+        icon="wallet-fill"
+        label="Payment Methods"
+        onNoChangeClick={onCollapse}
+      />
+      <Button
+        onClick={signOut}
+        variant="outline-danger"
+        className="nav-menu-button text-start mt-2"
+      >
+        <i className="bi bi-box-arrow-right me-2"></i>
+        {t("common:logout")}
+      </Button>
+    </>
+  );
+}
+
+function NavLinkButton({ href, className, icon, label, onNoChangeClick }) {
+  const location = useLocation();
+  const isAtHref = href === location.pathname;
+  function handleClick(e) {
+    if (isAtHref) {
+      e.preventDefault();
+      onNoChangeClick();
+    }
+  }
+  const hereIcon = isAtHref ? (
+    <i className="bi bi-caret-right-fill me-2"></i>
+  ) : (
+    <i className="bi bi-caret-right me-2"></i>
+  );
+  return (
+    <Button
+      href={href}
+      variant="outline-primary"
+      className={clsx("nav-menu-button text-start d-flex align-items-center", className)}
+      as={RLink}
+      onClick={handleClick}
+    >
+      {hereIcon}
+      <i className={`me-2 bi bi-${icon}`} style={{ fontSize: "120%" }}></i>
+      {label}
+    </Button>
+  );
+}
+
+function NavFooter({ className }) {
   const rowCls = "mb-1 text-center";
   const linkCls = "text-decoration-none";
   const iconStyle = { fontSize: "140%" };
   return (
     <>
-      <div className="d-flex flex-column mt-4">
+      <div className={clsx("d-flex flex-column", className)}>
         <div className={clsx("text-primary", rowCls)}>
           &copy; {new Date().getFullYear()} mysuma.org
         </div>

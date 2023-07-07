@@ -47,10 +47,16 @@ class Suma::API::AnonProxy < Suma::API::V1
     expose :email_required?, as: :email_required
     expose :sms
     expose :sms_required?, as: :sms_required
-    expose_translated :instructions, &self.delegate_to(:configuration, :instructions)
+    expose :address
+    expose :address_required?, as: :address_required
+    expose :instructions do |va|
+      txt = va.configuration.instructions.string
+      txt % {address: va.address || ""}
+    end
     expose :vendor_name, &self.delegate_to(:configuration, :vendor, :name)
     expose :vendor_slug, &self.delegate_to(:configuration, :vendor, :slug)
     expose :vendor_image, with: ImageEntity, &self.delegate_to(:configuration, :vendor, :images, :first)
+    expose :recent_message_text_bodies
   end
 
   class MutationAnonProxyVendorAccountEntity < AnonProxyVendorAccountEntity

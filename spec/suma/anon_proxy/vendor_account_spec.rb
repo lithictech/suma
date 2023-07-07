@@ -81,4 +81,22 @@ RSpec.describe "Suma::AnonProxy::VendorAccount", :db do
       end
     end
   end
+
+  describe "recent_message_text_bodies" do
+    let(:va) { Suma::Fixtures.anon_proxy_vendor_account.create }
+
+    it "returns text/plain bodies of messages sent within the last 5 minutes" do
+      old = Suma::Fixtures.message_delivery.with_body(content: "old", mediatype: "text/plain").create
+      new = Suma::Fixtures.message_delivery.with_body(content: "new", mediatype: "text/plain").create
+      nontext = Suma::Fixtures.message_delivery.with_body(content: "nontext").create
+
+      vam_fac = Suma::Fixtures.anon_proxy_vendor_account_message(vendor_account: va)
+      old_vam = vam_fac.create(outbound_delivery: old)
+      old_vam.this.update(created_at: 6.minutes.ago)
+      new_vam = vam_fac.create(outbound_delivery: new)
+      nontext_vam = vam_fac.create(outbound_delivery: nontext)
+
+      expect(va.recent_message_text_bodies).to contain_exactly("new")
+    end
+  end
 end

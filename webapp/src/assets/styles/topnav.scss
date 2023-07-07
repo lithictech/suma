@@ -84,3 +84,25 @@
   50% { opacity: 0; }
   100% { opacity: 1; }
 }
+
+.nav-lang-btn-group > .btn:first-child {
+  border-top-left-radius: $border-radius !important;
+  border-top-right-radius: $border-radius !important;
+}
+.nav-lang-btn-group > .btn:last-child {
+  border-bottom-left-radius: $border-radius !important;
+  border-bottom-right-radius: $border-radius !important;
+}
+
+.nav-menu-button {
+  border: none !important;
+}
+
+.nav-menu-button:active {
+  background-color: transparent !important;
+}
+
+.nav-collapse {
+  background-color: $light;
+  border-bottom: $btn-border-width $primary solid;
+}
