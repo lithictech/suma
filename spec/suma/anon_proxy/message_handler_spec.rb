@@ -1,12 +1,13 @@
 # frozen_string_literal: true
 
 RSpec.describe Suma::AnonProxy::MessageHandler, :db do
+  before(:each) do
+    described_class::Fake.reset
+  end
+
   describe "handle" do
     let(:relay) { Suma::AnonProxy::Relay.create!("fake-relay") }
     let(:fake_handler) { Suma::AnonProxy::MessageHandler.create!("fake-handler") }
-    before(:each) do
-      described_class::Fake.reset
-    end
 
     it "noops for old messages" do
       older = relay.parse_message({from: "fake-relay", timestamp: 20.minutes.ago})

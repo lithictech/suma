@@ -82,7 +82,9 @@ export default function TopNav() {
                   onCollapse={() => setExpanded(false)}
                   className="mt-3"
                 />
-              ) : <LanguageButtons className="mt-3" />}
+              ) : (
+                <LanguageButtons className="mt-3" />
+              )}
               <NavFooter className="mt-4" />
             </div>
           </div>
