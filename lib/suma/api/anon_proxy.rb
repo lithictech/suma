@@ -53,6 +53,7 @@ class Suma::API::AnonProxy < Suma::API::V1
       txt = va.configuration.instructions.string
       txt % {address: va.address || ""}
     end
+    expose :app_launch_link, &self.delegate_to(:configuration, :app_launch_link)
     expose :vendor_name, &self.delegate_to(:configuration, :vendor, :name)
     expose :vendor_slug, &self.delegate_to(:configuration, :vendor, :slug)
     expose :vendor_image, with: ImageEntity, &self.delegate_to(:configuration, :vendor, :images, :first)

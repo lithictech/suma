@@ -4,11 +4,13 @@ require "suma/message/template"
 
 class Suma::Messages::LimeAccessCode < Suma::Message::Template
   def self.fixtured(recipient)
-    return self.new(recipient, SecureRandom.hex(4))
+    token = SecureRandom.hex(4)
+    return self.new(recipient, token, "https://magiclink?token=#{token}")
   end
 
-  def initialize(recipient, token)
+  def initialize(recipient, magic_link, token)
     @recipient = recipient
+    @magic_link = magic_link
     @token = token
     super()
   end
@@ -17,6 +19,7 @@ class Suma::Messages::LimeAccessCode < Suma::Message::Template
 
   def liquid_drops
     return super.merge(
+      magic_link: @magic_link,
       token: @token,
     )
   end

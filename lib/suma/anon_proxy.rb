@@ -20,8 +20,11 @@ module Suma::AnonProxy
     # @!attribute from
     # @return [String]
 
-    # @!attribute timestamp
+    # @!attribute content
     # @return [String]
+    #
+    # @!attribute timestamp
+    # @return [Time]
   end
 end
 

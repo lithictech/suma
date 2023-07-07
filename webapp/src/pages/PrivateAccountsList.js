@@ -166,14 +166,14 @@ function PrivateAccount({ account, onConfigure, onHelp }) {
           </p>
           <div className="mt-2 d-flex justify-content-around">
             <Button variant="outline-primary" onClick={() => onHelp()}>
-              Instructions <i className="ms-2 bi bi-info-circle"></i>
+              Help <i className="ms-2 bi bi-info-circle"></i>
             </Button>
             <Button
               variant="outline-primary"
               className="border-0"
-              onClick={() => onHelp()}
+              href={account.appLaunchLink}
             >
-              Launch <i className="ms-2 bi bi-box-arrow-up-right"></i>
+              App <i className="ms-2 bi bi-box-arrow-up-right"></i>
             </Button>
           </div>
         </Stack>

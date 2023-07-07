@@ -77,13 +77,12 @@ export default function TopNav() {
                   {user.name || user.phone}
                 </Button>
               )}
-              <LanguageButtons className="mt-3" />
-              {userAuthed && (
+              {userAuthed ? (
                 <AuthedUserButtons
                   onCollapse={() => setExpanded(false)}
-                  className="mt-4"
+                  className="mt-3"
                 />
-              )}
+              ) : <LanguageButtons className="mt-3" />}
               <NavFooter className="mt-4" />
             </div>
           </div>
@@ -145,6 +144,7 @@ function AuthedUserButtons({ className, onCollapse }) {
         <i className="bi bi-box-arrow-right me-2"></i>
         {t("common:logout")}
       </Button>
+      <LanguageButtons className="mt-3" />
     </>
   );
 }
