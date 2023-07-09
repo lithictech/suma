@@ -79,8 +79,9 @@ export default function TopNav() {
               )}
               {userAuthed ? (
                 <AuthedUserButtons
-                  onCollapse={() => setExpanded(false)}
+                  user={user}
                   className="mt-3"
+                  onCollapse={() => setExpanded(false)}
                 />
               ) : (
                 <LanguageButtons className="mt-3" />
@@ -116,7 +117,7 @@ function LanguageButtons({ className }) {
   );
 }
 
-function AuthedUserButtons({ className, onCollapse }) {
+function AuthedUserButtons({ className, user, onCollapse }) {
   return (
     <>
       <NavLinkButton
@@ -126,12 +127,14 @@ function AuthedUserButtons({ className, onCollapse }) {
         className={className}
         onNoChangeClick={onCollapse}
       />
-      <NavLinkButton
-        href="/private-accounts"
-        icon="incognito"
-        label="Private Accounts"
-        onNoChangeClick={onCollapse}
-      />
+      {user.showPrivateAccounts && (
+        <NavLinkButton
+          href="/private-accounts"
+          icon="incognito"
+          label="Private Accounts"
+          onNoChangeClick={onCollapse}
+        />
+      )}
       <NavLinkButton
         href="/funding"
         icon="wallet-fill"
