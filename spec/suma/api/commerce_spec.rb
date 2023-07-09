@@ -156,6 +156,15 @@ RSpec.describe Suma::API::Commerce, :db do
       expect(last_response).to have_json_body.
         that_includes(error: include(code: "checkout_no_items"))
     end
+
+    it "errors if the member cannot access the offering due to constraints" do
+      offering.add_eligibility_constraint(Suma::Fixtures.eligibility_constraint.create)
+
+      post "/v1/commerce/offerings/#{offering.id}/checkout"
+
+      expect(last_response).to have_status(403)
+      expect(last_response).to have_json_body.that_includes(error: include(code: "eligibility_violation"))
+    end
   end
 
   describe "GET /v1/commerce/checkouts/:id" do
@@ -298,6 +307,15 @@ RSpec.describe Suma::API::Commerce, :db do
 
       expect(last_response).to have_status(200)
       expect(card.refresh).to be_soft_deleted
+    end
+
+    it "errors if the member cannot access the offering due to constraints" do
+      offering.add_eligibility_constraint(Suma::Fixtures.eligibility_constraint.create)
+
+      post "/v1/commerce/checkouts/#{checkout.id}/complete"
+
+      expect(last_response).to have_status(403)
+      expect(last_response).to have_json_body.that_includes(error: include(code: "eligibility_violation"))
     end
   end
 

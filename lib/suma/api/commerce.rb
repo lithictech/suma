@@ -14,7 +14,7 @@ class Suma::API::Commerce < Suma::API::V1
       get do
         me = current_member
         t = Time.now
-        ds = Suma::Commerce::Offering.available_at(t).available_to(me)
+        ds = Suma::Commerce::Offering.available_at(t).eligible_to(me)
         present_collection ds, with: OfferingEntity
       end
 
@@ -67,6 +67,7 @@ class Suma::API::Commerce < Suma::API::V1
         post :checkout do
           member = current_member
           offering = lookup_offering!
+          check_eligibility!(offering, member)
           cart = lookup_cart!(offering)
           cart.db.transaction do
             cart.lock!
@@ -120,6 +121,7 @@ class Suma::API::Commerce < Suma::API::V1
         post :complete do
           member = current_member
           checkout = lookup!
+          check_eligibility!(checkout.cart.offering, member)
           if (instrument = find_payment_instrument?(member, params[:payment_instrument]))
             checkout.payment_instrument = instrument
           end

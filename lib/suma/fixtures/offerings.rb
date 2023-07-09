@@ -38,4 +38,8 @@ module Suma::Fixtures::Offerings
     t ||= Time.now + Faker::Number.between(from: -50, to: 50).hours
     self.begin_fulfillment_at = t
   end
+
+  decorator :with_constraints, presave: true do |*constraints|
+    constraints.each { |c| self.add_eligibility_constraint(c) }
+  end
 end

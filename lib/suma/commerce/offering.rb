@@ -1,10 +1,11 @@
 # frozen_string_literal: true
 
-require "suma/commerce"
-require "suma/postgres/model"
-require "suma/image"
-require "suma/translated_text"
 require "suma/admin_linked"
+require "suma/commerce"
+require "suma/eligibility/has_constraints"
+require "suma/image"
+require "suma/postgres/model"
+require "suma/translated_text"
 
 class Suma::Commerce::Offering < Suma::Postgres::Model(:commerce_offerings)
   include Suma::Image::AssociatedMixin
@@ -25,6 +26,7 @@ class Suma::Commerce::Offering < Suma::Postgres::Model(:commerce_offerings)
                join_table: :eligibility_offering_associations,
                right_key: :constraint_id,
                left_key: :offering_id
+  include Suma::Eligibility::HasConstraints
 
   many_through_many :products,
                     [
@@ -106,15 +108,6 @@ class Suma::Commerce::Offering < Suma::Postgres::Model(:commerce_offerings)
   dataset_module do
     def available_at(t)
       return self.where(Sequel.pg_range(:period).contains(Sequel.cast(t, :timestamptz)))
-    end
-
-    def available_to(member)
-      ds = self.exclude(eligibility_constraints: Suma::Eligibility::Constraint.dataset)
-      if member.verified_eligibility_constraints.empty?
-        # If the member has no constraints, return all offerings that also have no constraints.
-        return ds
-      end
-      return ds.or(eligibility_constraints: member.verified_eligibility_constraints)
     end
   end
 
