@@ -18,6 +18,7 @@ RSpec.describe SequelTranslatedText, :db do
   end
   after(:all) do
     @db.disconnect
+    Suma::I18n.reset_configuration
   end
 
   before(:each) do
