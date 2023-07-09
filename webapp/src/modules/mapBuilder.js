@@ -3,6 +3,7 @@ import scooterIcon from "../assets/images/kick-scooter.png";
 import scooterContainer from "../assets/images/scooter-container.svg";
 import config from "../config";
 import { t } from "../localization";
+import { localStorageCache } from "../shared/localStorageHelper";
 import leaflet from "leaflet";
 import "leaflet.animatedmarker/src/AnimatedMarker";
 import "leaflet.markercluster/dist/MarkerCluster.css";
@@ -17,11 +18,17 @@ export default class MapBuilder {
     this._minZoom = 13;
     this._maxZoom = 23;
     this._zoomTo = 20;
-    this._dLat = 45.5152;
-    this._dLng = -122.6784;
+    this._mapCache = localStorageCache.getItem("mobilityMapCache", {});
+    this._saveMapCacheField = function (fields) {
+      this._mapCache = { ...this._mapCache, ...fields };
+      localStorageCache.setItem("mobilityMapCache", this._mapCache);
+    };
     this._latOffset = 0.00004;
     this._map = this._l.map(this.mapHost, { zoomControl: false });
-    this._map.setView([this._dLat, this._dLng], this._minZoom);
+    this._map.setView(
+      [this._mapCache.lat || 45.5152, this._mapCache.lng || -122.6784],
+      this._mapCache.zoom || this._minZoom
+    );
     this._l.control
       .zoom({
         position: "bottomright",
@@ -115,16 +122,25 @@ export default class MapBuilder {
 
   setMapEventHandlers() {
     this._map.on("moveend", this.moveEnd, this);
+    this._map.on("zoomend", this.zoomEnd, this);
     this._map.on("click", this.click, this);
   }
 
   moveEnd() {
     const bounds = this._map.getBounds();
+    const { lat, lng } = bounds.getCenter();
+    this._saveMapCacheField({ lat, lng });
     if (this._lastExtendedBounds.contains(bounds)) {
       return;
     }
     this._lastExtendedBounds = expandBounds(bounds);
     this.getAndUpdateScooters(this._lastExtendedBounds, this._mcg);
+  }
+
+  zoomEnd() {
+    this._saveMapCacheField({
+      zoom: this._map.getZoom(),
+    });
   }
 
   click() {
@@ -312,6 +328,10 @@ export default class MapBuilder {
       });
   }
 
+  _getLocationZoom() {
+    return Math.max(15, this._map.getZoom());
+  }
+
   newLocateControl() {
     // Adds locate button to center map on location when clicked
     const LocateControl = this._l.Control.extend({
@@ -323,7 +343,10 @@ export default class MapBuilder {
           if (!this._lastLocation) {
             return;
           }
-          this.centerLocation({ ...this._lastLocation, targetZoom: 15 });
+          this.centerLocation({
+            ...this._lastLocation,
+            targetZoom: this._getLocationZoom(),
+          });
         },
       },
       onAdd() {
@@ -422,7 +445,7 @@ export default class MapBuilder {
           this._map.addLayer(this._locationMarker);
           this._lastLocation = location.latlng;
           this.setLocationEventHandlers();
-          this.centerLocation({ ...loc, targetZoom: 15 });
+          this.centerLocation({ ...loc, targetZoom: this._getLocationZoom() });
           onLocationFound(location);
         }
         if (
