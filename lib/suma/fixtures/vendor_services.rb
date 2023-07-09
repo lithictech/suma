@@ -31,4 +31,8 @@ module Suma::Fixtures::VendorServices
   decorator :with_categories, presave: true do |*cats|
     cats.each { |c| self.add_category(c) }
   end
+
+  decorator :with_constraints, presave: true do |*constraints|
+    constraints.each { |c| self.add_eligibility_constraint(c) }
+  end
 end

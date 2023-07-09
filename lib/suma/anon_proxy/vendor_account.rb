@@ -1,7 +1,8 @@
 # frozen_string_literal: true
 
-require "suma/postgres"
 require "suma/anon_proxy"
+require "suma/postgres"
+require "suma/eligibility/has_constraints"
 
 class Suma::AnonProxy::VendorAccount < Suma::Postgres::Model(:anon_proxy_vendor_accounts)
   plugin :timestamps
@@ -23,9 +24,15 @@ class Suma::AnonProxy::VendorAccount < Suma::Postgres::Model(:anon_proxy_vendor_
   class << self
     # Return existing or newly created vendor accounts for the member,
     # using all configured services. Exclude vendor accounts for disabled services.
+    # @param member [Suma::Member]
     # @return [Array<Suma::AnonProxy::VendorAccount>]
     def for(member)
-      valid_configs = Suma::AnonProxy::VendorConfiguration.enabled.all.index_by(&:id)
+      return [] unless member.onboarding_verified?
+
+      ds = Suma::AnonProxy::VendorConfiguration.enabled.eligible_to(member)
+      valid_configs = ds.
+        all.
+        index_by(&:id)
       accounts = member.anon_proxy_vendor_accounts_dataset.where(configuration_id: valid_configs.keys).all
       accounts.each { |a| valid_configs.delete(a.configuration_id) }
       unless valid_configs.empty?

@@ -5,7 +5,7 @@ RSpec.describe "Suma::AnonProxy::VendorAccount", :db do
 
   describe "::for" do
     it "returns existing enabled vendor accounts and creates new for configured vendors" do
-      member = Suma::Fixtures.member.create
+      member = Suma::Fixtures.member.onboarding_verified.create
       cfg_fac = Suma::Fixtures.anon_proxy_vendor_configuration
       vc_with_acct = cfg_fac.create
       vc_without_acct = cfg_fac.create
@@ -19,6 +19,32 @@ RSpec.describe "Suma::AnonProxy::VendorAccount", :db do
         be === good_vacct,
         have_attributes(configuration: be === vc_without_acct),
       )
+    end
+
+    it "is empty if the member is unverified" do
+      member = Suma::Fixtures.member.create
+      Suma::Fixtures.anon_proxy_vendor_configuration.create
+      expect(described_class.for(member)).to be_empty
+
+      member.onboarding_verified = true
+      expect(described_class.for(member)).to have_length(1)
+    end
+
+    it "applies eligibility constraints" do
+      member = Suma::Fixtures.member.onboarding_verified.create
+      cfg = Suma::Fixtures.anon_proxy_vendor_configuration.create
+      constraint = Suma::Fixtures.eligibility_constraint.create
+
+      # No constraints means everyone can access
+      expect(described_class.for(member.refresh)).to contain_exactly(have_attributes(configuration: be === cfg))
+
+      # Constrained restricts access
+      cfg.add_eligibility_constraint(constraint)
+      expect(described_class.for(member.refresh)).to be_empty
+
+      # Member can now access
+      member.add_verified_eligibility_constraint(constraint)
+      expect(described_class.for(member.refresh)).to contain_exactly(have_attributes(configuration: be === cfg))
     end
   end
 

@@ -16,14 +16,13 @@ class Suma::API::Mobility < Suma::API::V1
       optional :types, type: Array[String], coerce_with: CommaSepArray, values: ["ebike", "escooter"]
     end
     get :map do
-      current_member
+      me = current_member
       min_lat, min_lng = params[:sw]
       max_lat, max_lng = params[:ne]
       ds = Suma::Mobility::Vehicle.search(min_lat:, min_lng:, max_lat:, max_lng:)
       ds = ds.where(vehicle_type: params[:types]) if params.key?(:types)
-      ds = ds.where(vendor_service: Suma::Vendor::Service.dataset.mobility)
+      ds = ds.where(vendor_service: Suma::Vendor::Service.dataset.mobility.eligible_to(me))
       ds = ds.order(:id)
-      # TODO: Limit to only allowed vendor services for this user.
       vnd_services = []
       map_obj = {}
       # If a vehicle's identity is in this hash, we need to apply a disambiguator to it.
@@ -113,6 +112,7 @@ class Suma::API::Mobility < Suma::API::V1
         vehicle_id: params[:vehicle_id],
       ]
       merror!(403, "Vehicle does not exist", code: "vehicle_not_found") if vehicle.nil?
+      check_eligibility!(vehicle.vendor_service, member)
       rate = vehicle.vendor_service.rates_dataset[params[:rate_id]]
       merror!(403, "Rate does not exist", code: "rate_not_found") if rate.nil?
       begin
