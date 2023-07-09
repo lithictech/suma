@@ -14,7 +14,6 @@ module Suma::Fixtures::Vendors
   end
 
   before_saving do |instance|
-    instance.organization ||= Suma::Fixtures.organization.create
     instance
   end
 end

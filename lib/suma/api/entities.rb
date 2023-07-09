@@ -33,11 +33,6 @@ module Suma::API::Entities
     expose :url, &self.delegate_to(:uploaded_file, :absolute_url)
   end
 
-  class OrganizationEntity < BaseEntity
-    expose :name
-    expose :slug
-  end
-
   class PaymentInstrumentEntity < BaseEntity
     expose :id
     expose :created_at
