@@ -5,8 +5,8 @@ require "suma/mobility/vendor_adapter"
 RSpec.describe Suma::Mobility::VendorAdapter, :db do
   describe "registry" do
     it "returns a registered adapter" do
-      expect(described_class.create(:fake)).to be_a(Suma::Mobility::FakeVendorAdapter)
-      expect(described_class.create("fake")).to be_a(Suma::Mobility::FakeVendorAdapter)
+      expect(described_class.create(:fake)).to be_a(Suma::Mobility::VendorAdapter::Fake)
+      expect(described_class.create("fake")).to be_a(Suma::Mobility::VendorAdapter::Fake)
     end
 
     it "raises for an unknown adapter" do
@@ -16,8 +16,8 @@ RSpec.describe Suma::Mobility::VendorAdapter, :db do
     end
   end
 
-  describe "FakeVendorAdapter" do
-    let(:ad) { Suma::Mobility::FakeVendorAdapter.new }
+  describe "Fake" do
+    let(:ad) { Suma::Mobility::VendorAdapter::Fake.new }
 
     it "can start and stop" do
       trip = Suma::Mobility::Trip.new

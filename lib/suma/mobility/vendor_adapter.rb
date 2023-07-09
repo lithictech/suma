@@ -29,6 +29,8 @@ module Suma::Mobility::VendorAdapter
     raise NotImplementedError
   end
 
-  require_relative "fake_vendor_adapter"
-  register("fake", Suma::Mobility::FakeVendorAdapter)
+  require_relative "vendor_adapter/fake"
+  register("fake", Suma::Mobility::VendorAdapter::Fake)
+  require_relative "vendor_adapter/lime_maas"
+  register("lime_maas", Suma::Mobility::VendorAdapter::LimeMaas)
 end

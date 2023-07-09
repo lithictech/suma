@@ -16,7 +16,7 @@ RSpec.describe "Suma::Vendor::Service", :db do
 
   it "can create mobility vendor adapters" do
     vs = Suma::Fixtures.vendor_service.mobility.create
-    expect(vs.mobility_adapter).to be_a(Suma::Mobility::FakeVendorAdapter)
+    expect(vs.mobility_adapter).to be_a(Suma::Mobility::VendorAdapter::Fake)
   end
 
   describe "datasets" do

@@ -111,22 +111,21 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
   end
 
   def create_lime_scooter_vendor
-    lime_vendor = Suma::Lime.mobility_vendor
-    return unless lime_vendor.services_dataset.mobility.empty?
-    rate = Suma::Vendor::ServiceRate.find_or_create(name: "Ride for free") do |r|
-      r.localization_key = "mobility_free_of_charge"
-      r.surcharge = Money.new(0)
-      r.unit_amount = Money.new(0)
+    rate = Suma::Vendor::ServiceRate.update_or_create(name: "Ride for free") do |r|
+      r.localization_key = "mobility_lime_access_charge"
+      r.surcharge = Money.new(50)
+      r.unit_amount = Money.new(7)
     end
-    cash_category = Suma::Vendor::ServiceCategory.find_or_create(name: "Cash")
-    svc = lime_vendor.add_service(
-      internal_name: "Lime Scooter",
-      external_name: "Lime E-Scooter",
-      mobility_vendor_adapter_key: "lime",
-      constraints: [{"form_factor" => "scooter", "propulsion_type" => "electric"}],
-    )
-    svc.add_category(Suma::Vendor::ServiceCategory.find_or_create(name: "Mobility", parent: cash_category))
-    svc.add_rate(rate)
+    cash_category = Suma::Vendor::ServiceCategory.update_or_create(name: "Cash")
+    vendor = Suma::Lime.mobility_vendor
+    svc = Suma::Vendor::Service.update_or_create(vendor:, internal_name: "Lime Scooter") do |vs|
+      vs.external_name = "Lime E-Scooter"
+      vs.mobility_vendor_adapter_key = "lime_maas"
+      vs.constraints = [{"form_factor" => "scooter", "propulsion_type" => "electric"}]
+    end
+    svc.add_category(Suma::Vendor::ServiceCategory.update_or_create(name: "Mobility", parent: cash_category)) if
+      svc.categories.empty?
+    svc.add_rate(rate) if svc.rates.empty?
   end
 
   def setup_admin

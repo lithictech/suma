@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class Suma::Mobility::LimeVendorAdapter
+class Suma::Mobility::VendorAdapter::LimeMaas
   include Suma::Mobility::VendorAdapter
 
   def begin_trip(trip)
