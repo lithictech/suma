@@ -35,28 +35,17 @@ we present a series of offerings a member can shop from.
 
 The key models involved are:
 
-- **Organizations** model any group of platform users that need
-  shared access to a resource. We use organizations to model vendors,
-  but also housing partners, funders, and any other group that requires
-  identification and access control.
 - **Markets** model the name and geography of Suma markets.
   Markets can overlap, and a single-market Suma instance would have a single market
   that covers the whole world. But most Suma instances will involve negotiating
   discounts for specific organizations or groups of organizations.
 - **Vendors** model those companies and individuals that provide **services**
-  on the Suma platform. One organization can be responsible for several vendors.
+  on the Suma platform.
 - **Services** model the unique offerings vendors provide.
-  For example, the "Lyft" organization may have a single "Lyft" vendor
-  which has e-bike and rideshare services.
-- **Service constraints** describe who can access a service.
-  There are several specific types of service constraints:
-  - 'market' constraints require the resident's market to be one of the associated markets.
-  - 'organization' constraints require the resident to be a member of one of the associated organizations.
-  - 'role' constaints require the resident to have the associated role.
-  - 'admin' is a 'role' constraint but the role named 'admin'.
-  - 'all' constraint allows access from anyone, unless there are other constraints applied.
-  For a request to satisfy service constraints, *all* provided values
-  must pass their constraint checks.
+  For example, the "Lyft" vendor may have e-bike and rideshare services.
+- **Constraints** describe who can access a service.
+  The constraint system is still being fleshed out,
+  but see `Suma::Eligibility::Constraint` for more details.
 - **Rates** are how much a service costs.
   This can be something like "one-time charge of amount x",
   or "first 5 charges on a calendar day are free and subsequent charges use the associated rate",
@@ -95,22 +84,8 @@ and Suma ambassadors.
 We'd create something like the following:
 
 ```rb
-org = Suma::Organization.create(name: 'Spin')
-vendor = Suma::Vendor.create(name: 'Spin', organization: org)
+vendor = Suma::Vendor.create(name: 'Spin')
 flat_discount_service = vendor.add_service(external_name: 'Spin eScooters', internal_name: 'Spin, Flat Discount')
 free_ride_service = vendor.add_service(external_name: 'Spin eScooters', internal_name: 'Spin, 3 Free Rides')
-flat_discount_service.add_market_constraint(market: Suma::Market[key: 'pdx'])
-flat_discount_service.add_role_constraint(role: Suma::Role.find_or_create(name: 'suma_friends'))
-free_ride_service.add_role_constraint(role: Suma::Role.find_or_create(name: 'suma_staff'))
-free_ride_service.add_role_constraint(role: Suma::Role.find_or_create(name: 'suma_friends'))
-free_ride_service.add_organization_constraint(organization: Suma::Organization[name: 'Hacidenda CDC'])
-
-# Would match free_ride_service since it matches the given constraints
-Suma::Vendor::Service.dataset.satisfying_constraints(
-  roles: [suma_staff]
-)
-# Would match no services since it asks for an organization not present
-Suma::Vendor::Service.dataset.satisfying_constraints(
-  organizations: Suma::Organization[name: 'Verde']
-)
+# TODO: example code for subsidized pricing plan
 ```

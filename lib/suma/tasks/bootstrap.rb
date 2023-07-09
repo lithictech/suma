@@ -202,13 +202,12 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
     ]
     # rubocop:enable Layout/LineLength
 
-    suma_org = Suma::Organization.find_or_create(name: "suma")
     offering = Suma::Commerce::Offering.first
     products.each do |ps|
       product = Suma::Commerce::Product.create(
         name: Suma::TranslatedText.create(en: ps[:name_en], es: ps[:name_es]),
         description: Suma::TranslatedText.create(en: ps[:desc_en], es: ps[:desc_es]),
-        vendor: Suma::Vendor.find_or_create(name: "Sheridan's Market", organization: suma_org),
+        vendor: Suma::Vendor.find_or_create(name: "Sheridan's Market"),
         our_cost: Money.new(90_00),
       )
       Suma::Commerce::ProductInventory.create(
@@ -297,7 +296,6 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
       end
     end
 
-    suma_org = Suma::Organization.find_or_create(name: "suma")
     product_name = Suma::TranslatedText.find_or_create(en: "$24 in #{market_name} Vouchers",
                                                        es: "$24 en Cupones de #{market_name}",)
     product = Suma::Commerce::Product.update_or_create(name: product_name) do |p|
@@ -307,7 +305,7 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
         es: "El cupón de suma es un especial de alimentos en el que un usuario de suma carga $5 y obtiene $24 en cupones para alimentos frescos y empaquetados en #{market_name}. No puede utilizar estos cupones para bebidas alcohólicas o comidas preparadas calientes. Este especial está abierto solo para los residentes de New Columbia.",
       )
       # rubocop:enable Layout/LineLength
-      p.vendor = Suma::Vendor.update_or_create(name: market_name, organization: suma_org)
+      p.vendor = Suma::Vendor.update_or_create(name: market_name)
       p.our_cost = Money.new(2400)
     end
     product.add_vendor_service_category(farmers_market_category) if product.vendor_service_categories.empty?
