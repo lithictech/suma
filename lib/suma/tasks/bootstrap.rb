@@ -21,6 +21,7 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
     Suma::Member.db.transaction do
       self.create_meta_resources
 
+      self.create_lime_scooter_vendor
       self.sync_lime_gbfs
 
       self.setup_admin
@@ -77,6 +78,11 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
     end
   end
 
+  # Add to these for when Lime fails to sync
+  FAKE_LIME_BIKE_COORDS = [
+    [45.514490, -122.601940],
+  ].freeze
+
   def sync_lime_gbfs
     require "suma/lime"
     return unless Suma::Lime.configured?
@@ -87,11 +93,24 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
         vendor: Suma::Lime.mobility_vendor,
         component: c,
       ).sync_all
+      if i.zero? && cc == Suma::Mobility::Gbfs::FreeBikeStatus
+        require "suma/fixtures/mobility_vehicles"
+        FAKE_LIME_BIKE_COORDS.each do |(lat, lng)|
+          Suma::Fixtures.mobility_vehicle(
+            lat:,
+            lng:,
+            vehicle_type: "escooter",
+            vendor_service: Suma::Lime.mobility_vendor.services_dataset.mobility.first,
+          ).create
+        end
+        puts "Create fake Lime scooters since GBFS returned no vehicles"
+        i = FAKE_LIME_BIKE_COORDS.length
+      end
       puts "Synced #{i} #{c.model.name}"
     end
   end
 
-  def self.create_lime_scooter_vendor
+  def create_lime_scooter_vendor
     lime_vendor = Suma::Lime.mobility_vendor
     return unless lime_vendor.services_dataset.mobility.empty?
     rate = Suma::Vendor::ServiceRate.find_or_create(name: "Ride for free") do |r|
@@ -101,8 +120,8 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
     end
     cash_category = Suma::Vendor::ServiceCategory.find_or_create(name: "Cash")
     svc = lime_vendor.add_service(
-      internal_name: "Lime Scooters",
-      external_name: "Lime E-Scooters",
+      internal_name: "Lime Scooter",
+      external_name: "Lime E-Scooter",
       mobility_vendor_adapter_key: "lime",
       constraints: [{"form_factor" => "scooter", "propulsion_type" => "electric"}],
     )
