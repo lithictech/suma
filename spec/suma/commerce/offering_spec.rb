@@ -37,7 +37,7 @@ RSpec.describe "Suma::Commerce::Offering", :db do
       expect(described_class.available_at(5.days.from_now).all).to be_empty
     end
 
-    it "can find offerings available to a member based on constraints" do
+    it "can find offerings eligible to a member based on constraints" do
       mem_no_constraints = Suma::Fixtures.member.create
       mem_verified_constraint = Suma::Fixtures.member.create
       mem_pending_constraint = Suma::Fixtures.member.create
@@ -48,17 +48,25 @@ RSpec.describe "Suma::Commerce::Offering", :db do
       mem_pending_constraint.add_pending_eligibility_constraint(constraint)
       mem_rejected_constraint.add_rejected_eligibility_constraint(constraint)
 
-      offering_no_constraint = Suma::Fixtures.offering.create
-      offering_with_constraint = Suma::Fixtures.offering.create
-      offering_with_constraint.add_eligibility_constraint(constraint)
+      no_constraint = Suma::Fixtures.offering.create
+      with_constraint = Suma::Fixtures.offering.with_constraints(constraint).create
 
-      expect(described_class.available_to(mem_no_constraints).all).to have_same_ids_as(offering_no_constraint)
-      expect(described_class.available_to(mem_verified_constraint).all).to have_same_ids_as(
-        offering_no_constraint,
-        offering_with_constraint,
+      expect(described_class.eligible_to(mem_no_constraints).all).to have_same_ids_as(no_constraint)
+      expect(described_class.eligible_to(mem_verified_constraint).all).to have_same_ids_as(
+        no_constraint,
+        with_constraint,
       )
-      expect(described_class.available_to(mem_pending_constraint).all).to have_same_ids_as(offering_no_constraint)
-      expect(described_class.available_to(mem_rejected_constraint).all).to have_same_ids_as(offering_no_constraint)
+      expect(described_class.eligible_to(mem_pending_constraint).all).to have_same_ids_as(no_constraint)
+      expect(described_class.eligible_to(mem_rejected_constraint).all).to have_same_ids_as(no_constraint)
+
+      # Test the instance methods
+      expect(no_constraint).to be_eligible_to(mem_no_constraints)
+      expect(no_constraint).to be_eligible_to(mem_verified_constraint)
+      expect(no_constraint).to be_eligible_to(mem_pending_constraint)
+
+      expect(with_constraint).to_not be_eligible_to(mem_no_constraints)
+      expect(with_constraint).to be_eligible_to(mem_verified_constraint)
+      expect(with_constraint).to_not be_eligible_to(mem_pending_constraint)
     end
   end
 

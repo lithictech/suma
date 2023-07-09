@@ -75,6 +75,7 @@
     "conflicting_bank_account": "You already have a bank account with that account and routing number. Please go back, or enter new account details.",
     "denied_geolocation": "You need to enable Geolocation/Location Services to use Suma's Mobility app.",
     "disambiguation_required": "$t(strings:errors:unhandled_error)",
+    "eligibility_violation": "$t(strings:errors:unhandled_error)",
     "enable_geolocation_instructions": "Follow these instructions to enable Geolocation",
     "forbidden": "You are forbidden from accessing these resources.",
     "impossible_phone_number": "That doesn't look like a real phone number.",
