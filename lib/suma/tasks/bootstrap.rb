@@ -32,6 +32,8 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
 
       self.setup_sjfm
 
+      self.setup_private_accounts
+
       self.setup_automation
     end
   end
@@ -324,6 +326,39 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
     end
   end
 
+  def setup_private_accounts
+    lime_vendor = Suma::Lime.mobility_vendor
+    if lime_vendor.images.empty?
+      uf = self.download_to_uploaded_file(
+        "lime-logo.png",
+        "image/png",
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e1/Lime_%28transportation_company%29_logo.svg/520px-Lime_%28transportation_company%29_logo.svg.png",
+      )
+      lime_vendor.add_image({uploaded_file: uf})
+    end
+    Suma::AnonProxy::VendorConfiguration.update_or_create(vendor: lime_vendor) do |vc|
+      vc.uses_email = true
+      vc.uses_sms = false
+      vc.enabled = true
+      vc.message_handler_key = "lime"
+      vc.app_launch_link = "https://limebike.app.link/m2h6hB9qrS"
+      vc.instructions = Suma::TranslatedText.find_or_create(
+        en: <<~MD,
+          1. Download the Lime App in the Play or App Store, or follow [this link](https://limebike.app.link/m2h6hB9qrS)
+          2. Start the Lime App.
+          3. When prompted to sign in, choose 'Other options'
+          4. Choose 'Email'
+          5. Enter the email **%{address}**, and press 'Next'.
+          6. The next screen is 'Check Your Email'. However, **your code will come via SMS.** Press 'Enter Code' to proceed.
+          7. Within a few seconds, Suma will send you an SMS with the Lime code. Copy the code.
+          8. Paste the code into the Lime app, and press Next.
+          9. You're all set!
+        MD
+        es: "TODO",
+      )
+    end
+  end
+
   def setup_automation
     Suma::AutomationTrigger.dataset.delete
     Suma::AutomationTrigger.create(
@@ -379,6 +414,15 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
 
   def create_uploaded_file(filename, content_type, file_path: "spec/data/images/")
     bytes = File.binread(file_path + filename)
+    return Suma::UploadedFile.create_with_blob(bytes:, content_type:, filename:)
+  end
+
+  def download_to_uploaded_file(filename, content_type, url)
+    if Suma::RACK_ENV == "test"
+      # Don't bother using webmock for this
+      return create_uploaded_file("photo.png", "png")
+    end
+    bytes = Net::HTTP.get(URI.parse(url))
     return Suma::UploadedFile.create_with_blob(bytes:, content_type:, filename:)
   end
 end

@@ -11,6 +11,7 @@ class Suma::Vendor < Suma::Postgres::Model(:vendors)
   many_to_one :organization, key: :organization_id, class: "Suma::Organization"
   one_to_one :payment_account, class: "Suma::Payment::Account"
   one_to_many :services, class: "Suma::Vendor::Service"
+  one_to_many :images, class: "Suma::Image"
 
   def before_create
     self.slug ||= Suma.to_slug(self.name)

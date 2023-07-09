@@ -33,6 +33,7 @@ import OneTimePassword from "./pages/OneTimePassword";
 import OrderHistoryDetail from "./pages/OrderHistoryDetail";
 import OrderHistoryList from "./pages/OrderHistoryList";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
+import PrivateAccountsList from "./pages/PrivateAccountsList";
 import Start from "./pages/Start";
 import Styleguide from "./pages/Styleguide";
 import UnclaimedOrderList from "./pages/UnclaimedOrderList";
@@ -436,6 +437,18 @@ function AppRoutes() {
             withMetatags({ title: t("titles:order") }),
             withLayout(),
             OrderHistoryDetail
+          )}
+        />
+        <Route
+          path="/private-accounts"
+          exact
+          element={renderWithHocs(
+            redirectIfUnauthed,
+            redirectIfUnboarded,
+            withScreenLoaderMount(),
+            withMetatags({ title: "Private Accounts" }),
+            withLayout(),
+            PrivateAccountsList
           )}
         />
         <Route path="/styleguide" exact element={<Styleguide />} />
