@@ -19,6 +19,28 @@ RSpec.describe "Suma::Vendor::Service", :db do
     expect(vs.mobility_adapter).to be_a(Suma::Mobility::FakeVendorAdapter)
   end
 
+  describe "datasets" do
+    it "can find rows available to a member based on constraints" do
+      mem_no_constraints = Suma::Fixtures.member.create
+      mem_verified_constraint = Suma::Fixtures.member.create
+      mem_rejected_constraint = Suma::Fixtures.member.create
+
+      constraint = Suma::Fixtures.eligibility_constraint.create
+      mem_verified_constraint.add_verified_eligibility_constraint(constraint)
+      mem_rejected_constraint.add_rejected_eligibility_constraint(constraint)
+
+      no_constraint = Suma::Fixtures.vendor_service.create
+      with_constraint = Suma::Fixtures.vendor_service.with_constraints(constraint).create
+
+      expect(described_class.eligible_to(mem_no_constraints).all).to have_same_ids_as(no_constraint)
+      expect(described_class.eligible_to(mem_verified_constraint).all).to have_same_ids_as(
+        no_constraint,
+        with_constraint,
+      )
+      expect(described_class.eligible_to(mem_rejected_constraint).all).to have_same_ids_as(no_constraint)
+    end
+  end
+
   describe "one_rate" do
     let(:vs) { Suma::Fixtures.vendor_service.create }
 

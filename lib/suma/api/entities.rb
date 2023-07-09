@@ -89,6 +89,9 @@ module Suma::API::Entities
     expose :admin_member, expose_nil: false, with: Suma::Service::Entities::CurrentMember do |_|
       self.impersonation.is? ? self.impersonation.admin_member : nil
     end
+    expose :show_private_accounts do |m|
+      !Suma::AnonProxy::VendorAccount.for(m).empty?
+    end
   end
 
   class LedgerLineUsageDetailsEntity < Grape::Entity

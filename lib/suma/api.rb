@@ -45,6 +45,11 @@ module Suma::API
             b64 = Base64.strict_encode64(j)
             header "Suma-Current-Member", b64
           end
+
+          def check_eligibility!(receiver, member)
+            return if receiver.eligible_to?(member)
+            merror!(403, "Member cannot access due to constraints", code: "eligibility_violation")
+          end
         end
 
         before do

@@ -6,7 +6,7 @@ RSpec.describe Suma::API::AnonProxy, :db do
   include Rack::Test::Methods
 
   let(:app) { described_class.build_app }
-  let(:member) { Suma::Fixtures.member.create }
+  let(:member) { Suma::Fixtures.member.onboarding_verified.create }
   let(:fac) { Suma::Fixtures.bank_account.member(member) }
 
   before(:each) do
