@@ -127,8 +127,10 @@ end
 #  ended_at               | timestamp with time zone |
 #  vendor_service_rate_id | integer                  | NOT NULL
 #  member_id              | integer                  | NOT NULL
+#  external_trip_id       | text                     |
 # Indexes:
 #  mobility_trips_pkey                               | PRIMARY KEY btree (id)
+#  mobility_trips_external_trip_id_key               | UNIQUE btree (external_trip_id)
 #  one_active_ride_per_member                        | UNIQUE btree (member_id) WHERE ended_at IS NULL
 #  mobility_trips_member_id_index                    | btree (member_id)
 #  mobility_trips_vehicle_id_vendor_service_id_index | btree (vehicle_id, vendor_service_id)

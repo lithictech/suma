@@ -171,6 +171,7 @@ end
 #  order_status       | text                     | NOT NULL
 #  fulfillment_status | text                     | NOT NULL
 #  checkout_id        | integer                  | NOT NULL
+#  external_id        | text                     | NOT NULL DEFAULT ''::text
 # Indexes:
 #  commerce_orders_pkey            | PRIMARY KEY btree (id)
 #  commerce_orders_checkout_id_key | UNIQUE btree (checkout_id)

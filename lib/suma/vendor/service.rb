@@ -79,20 +79,18 @@ end
 #  vendor_id                   | integer                  | NOT NULL
 #  internal_name               | text                     | NOT NULL
 #  external_name               | text                     | NOT NULL
-#  sync_url                    | text                     | NOT NULL DEFAULT ''::text
 #  mobility_vendor_adapter_key | text                     | NOT NULL DEFAULT ''::text
+#  constraints                 | jsonb                    | DEFAULT '[]'::jsonb
 # Indexes:
 #  vendor_services_pkey            | PRIMARY KEY btree (id)
 #  vendor_services_vendor_id_index | btree (vendor_id)
 # Foreign key constraints:
 #  vendor_services_vendor_id_fkey | (vendor_id) REFERENCES vendors(id) ON DELETE CASCADE
 # Referenced By:
+#  eligibility_vendor_service_associations   | eligibility_vendor_service_associations_service_id_fkey    | (service_id) REFERENCES vendor_services(id)
+#  mobility_restricted_areas                 | mobility_restricted_areas_vendor_service_id_fkey           | (vendor_service_id) REFERENCES vendor_services(id)
 #  mobility_trips                            | mobility_trips_vendor_service_id_fkey                      | (vendor_service_id) REFERENCES vendor_services(id) ON DELETE RESTRICT
 #  mobility_vehicles                         | mobility_vehicles_vendor_service_id_fkey                   | (vendor_service_id) REFERENCES vendor_services(id) ON DELETE CASCADE
 #  vendor_service_categories_vendor_services | vendor_service_categories_vendor_services_service_id_fkey  | (service_id) REFERENCES vendor_services(id)
-#  vendor_service_market_constraints         | vendor_service_market_constraints_service_id_fkey          | (service_id) REFERENCES vendor_services(id) ON DELETE CASCADE
-#  vendor_service_matchall_constraints       | vendor_service_matchall_constraints_service_id_fkey        | (service_id) REFERENCES vendor_services(id) ON DELETE CASCADE
-#  vendor_service_organization_constraints   | vendor_service_organization_constraints_service_id_fkey    | (service_id) REFERENCES vendor_services(id) ON DELETE CASCADE
-#  vendor_service_role_constraints           | vendor_service_role_constraints_service_id_fkey            | (service_id) REFERENCES vendor_services(id) ON DELETE CASCADE
 #  vendor_service_vendor_service_rates       | vendor_service_vendor_service_rates_vendor_service_id_fkey | (vendor_service_id) REFERENCES vendor_services(id)
 # -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
