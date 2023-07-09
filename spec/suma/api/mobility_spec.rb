@@ -46,7 +46,24 @@ RSpec.describe Suma::API::Mobility, :db do
     end
 
     it "is limited to vendor services available to the user" do
-      # TODO: Requires constraint implementation
+      constraint = Suma::Fixtures.eligibility_constraint.create
+      vendor_service = Suma::Fixtures.vendor_service.mobility.with_constraints(constraint).create
+
+      Suma::Fixtures.mobility_vehicle(vendor_service:).
+        loc(20, 120).
+        escooter.
+        create
+
+      get "/v1/mobility/map", sw: [15, 110], ne: [25, 125]
+
+      expect(last_response).to have_status(200)
+      expect(last_response_json_body).to_not include(:escooter, :ebike)
+
+      member.add_verified_eligibility_constraint(constraint)
+      get "/v1/mobility/map", sw: [15, 110], ne: [25, 125]
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.that_includes(escooter: have_length(1))
     end
 
     it "handles coordinate precision" do
@@ -345,6 +362,16 @@ RSpec.describe Suma::API::Mobility, :db do
 
       expect(last_response).to have_status(403)
       expect(last_response).to have_json_body.that_includes(error: include(code: "rate_not_found"))
+    end
+
+    it "errors if the member cannot access the service due to constraints" do
+      vendor_service.add_eligibility_constraint(Suma::Fixtures.eligibility_constraint.create)
+
+      post "/v1/mobility/begin_trip",
+           provider_id: vehicle.vendor_service_id, vehicle_id: vehicle.vehicle_id, rate_id: rate.id
+
+      expect(last_response).to have_status(403)
+      expect(last_response).to have_json_body.that_includes(error: include(code: "eligibility_violation"))
     end
   end
 

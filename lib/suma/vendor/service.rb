@@ -1,7 +1,8 @@
 # frozen_string_literal: true
 
-require "suma/postgres/model"
+require "suma/eligibility/has_constraints"
 require "suma/mobility/vendor_adapter"
+require "suma/postgres/model"
 require "suma/vendor/has_service_categories"
 
 class Suma::Vendor::Service < Suma::Postgres::Model(:vendor_services)
@@ -19,6 +20,13 @@ class Suma::Vendor::Service < Suma::Postgres::Model(:vendor_services)
                join_table: :vendor_service_vendor_service_rates,
                left_key: :vendor_service_id,
                right_key: :vendor_service_rate_id
+
+  many_to_many :eligibility_constraints,
+               class: "Suma::Eligibility::Constraint",
+               join_table: :eligibility_vendor_service_associations,
+               right_key: :constraint_id,
+               left_key: :service_id
+  include Suma::Eligibility::HasConstraints
 
   dataset_module do
     def mobility
