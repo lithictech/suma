@@ -7,9 +7,9 @@ import { Link } from "react-router-dom";
 
 export default function UnclaimedOrdersWidget() {
   const { user } = useUser();
-  if (user.unclaimedOrdersCount === 0) {
-    return null;
-  }
+  // if (user.unclaimedOrdersCount === 0) {
+  //   return null;
+  // }
   return (
     <LayoutContainer top gutters>
       <Button

@@ -11,6 +11,7 @@ import { useUser } from "../state/useUser";
 import { LayoutContainer } from "../state/withLayout";
 import clsx from "clsx";
 import dayjs from "dayjs";
+import first from "lodash/first";
 import isEmpty from "lodash/isEmpty";
 import React from "react";
 import Alert from "react-bootstrap/Alert";
@@ -49,8 +50,31 @@ export default function Dashboard() {
       )}
       <AddToHomescreen />
       <UnclaimedOrdersWidget />
+      <LayoutContainer top gutters>
+        <AvailableOfferingsLink availableOfferings={dashboard.availableOfferings} />
+      </LayoutContainer>
       {dashboardLoading ? <PageLoader /> : <Ledger dashboard={dashboard} />}
     </>
+  );
+}
+
+function AvailableOfferingsLink({ availableOfferings }) {
+  if (isEmpty(availableOfferings)) {
+    return null;
+  }
+
+  let to = "/food/";
+  if (availableOfferings.length === 1) {
+    to += first(availableOfferings).id;
+  }
+  return (
+    <h5>
+      <Link to={to}>
+        <i className="bi bi-bag me-1"></i>
+        {t("dashboard:check_available_for_purchase")}
+        <i className="bi bi-arrow-right ms-1"></i>
+      </Link>
+    </h5>
   );
 }
 
