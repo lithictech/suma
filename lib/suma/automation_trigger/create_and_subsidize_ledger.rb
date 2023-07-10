@@ -2,13 +2,24 @@
 
 require "suma/automation_trigger"
 
-class Suma::AutomationTrigger::CreateAndSubsidizeLedger
-  def self.run(instance, event)
-    acct = Suma::Payment::Account.find!(event.payload.first)
-    instance.db.transaction do
+class Suma::AutomationTrigger::CreateAndSubsidizeLedger < Suma::AutomationTrigger::Action
+  def run
+    member = Suma::Member.find!(self.event.payload.first)
+    acct = Suma::Payment::Account.find_or_create_or_find(member:)
+    params = self.automation_trigger.parameter.deep_symbolize_keys
+    if (constraint_name = params[:verified_constraint_name])
+      constraints_ds = Suma::Eligibility::Constraint.where(name: constraint_name)
+      member_passes_constraints = !Suma::Member.
+        where(id: member.id).
+        where(verified_eligibility_constraints: constraints_ds).
+        empty?
+      return unless member_passes_constraints
+
+    end
+    self.automation_trigger.db.transaction do
       acct.lock!
-      params = instance.parameter.deep_symbolize_keys
-      return if acct.ledgers_dataset[name: params[:ledger_name]]
+      ledger_exists = !acct.ledgers_dataset.where(name: params[:ledger_name]).empty?
+      return if ledger_exists
       ledger = acct.add_ledger(
         currency: Suma.default_currency,
         name: params[:ledger_name],

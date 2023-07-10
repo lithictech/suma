@@ -190,7 +190,7 @@ RSpec.describe "Suma::Postgres::Model", :db do
     it "can error if an instance or dataset entry is not found" do
       expect do
         model_class.find!(name: "foo")
-      end.to raise_error(Suma::InvalidPostcondition, 'No row matching Class[{:name=>"foo"}]')
+      end.to raise_error(Suma::InvalidPostcondition, 'No row matching Suma::Postgres::TestingPixie[{:name=>"foo"}]')
 
       expect do
         model_class.dataset.where(name: "foo").find!

@@ -387,7 +387,7 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
     Suma::AutomationTrigger.dataset.delete
     Suma::AutomationTrigger.create(
       name: "Holidays 2022 Promo",
-      topic: "suma.payment.account.created",
+      topic: "suma.member.created",
       active_during_begin: self.holiday_2022_begin,
       active_during_end: self.holiday_2022_end,
       klass_name: "Suma::AutomationTrigger::CreateAndSubsidizeLedger",
@@ -412,7 +412,7 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
     )
     Suma::AutomationTrigger.create(
       name: "Summer 2023 Promo",
-      topic: "suma.payment.account.subsidize-sjfm-2023",
+      topic: "suma.member.eligibilitychanged",
       active_during_begin: self.sjfm_2023_begin,
       active_during_end: self.sjfm_2023_end,
       klass_name: "Suma::AutomationTrigger::CreateAndSubsidizeLedger",
@@ -426,6 +426,7 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
           en: "Farmers Market subsidy",
           es: "Subsidio al mercado de agricultores",
         },
+        verified_constraint_name: "New Columbia, Portland, OR",
       },
     )
   end
@@ -434,7 +435,7 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
   def holiday_2022_end = Time.parse("2023-12-18T12:00:00-0700")
 
   def sjfm_2023_begin = Time.parse("2023-06-01T12:00:00-0700")
-  def sjfm_2023_end = Time.parse("2023-07-15T12:00:00-0700")
+  def sjfm_2023_end = Time.parse("2023-07-15T23:00:00-0700")
 
   def create_uploaded_file(filename, content_type, file_path: "spec/data/images/")
     bytes = File.binread(file_path + filename)

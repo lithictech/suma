@@ -293,5 +293,13 @@ RSpec.describe "Suma::Member", :db do
         ),
       )
     end
+
+    it "publishes an event", :async, :do_not_defer_events do
+      m = Suma::Fixtures.member.onboarding_verified.create
+      pending = Suma::Fixtures.eligibility_constraint.create
+      expect do
+        m.replace_eligibility_constraint(pending, :pending)
+      end.to publish("suma.member.eligibilitychanged", [m.id])
+    end
   end
 end

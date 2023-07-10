@@ -10,7 +10,7 @@ class Suma::Async::AutomationTriggerRunner
   def _perform(event)
     Suma::AutomationTrigger.active_at(Time.now).each do |at|
       next unless File.fnmatch(at.topic, event.name, File::FNM_EXTGLOB)
-      at.klass.run(at, event)
+      at.klass.new(at, event).run
     end
   end
 

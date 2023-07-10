@@ -12,15 +12,22 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
   end
 
   describe "AutomationTriggerRunner" do
+    before(:each) do
+      Suma::AutomationTrigger::Tester.runs.clear
+    end
+
     it "runs active automations" do
       active = Suma::Fixtures.automation_trigger.create
       active_mismatch_topic = Suma::Fixtures.automation_trigger.create(topic: "suma.z")
       inactive = Suma::Fixtures.automation_trigger.inactive.create
-      expect(Suma::AutomationTrigger::Tester).to receive(:run).with(be === active, have_attributes(payload: [5, 6]))
 
       expect do
         Amigo.publish("suma.x", 5, 6)
       end.to perform_async_job(Suma::Async::AutomationTriggerRunner)
+
+      expect(Suma::AutomationTrigger::Tester.runs).to contain_exactly(
+        have_attributes(automation_trigger: be === active, event: have_attributes(payload: [5, 6])),
+      )
     end
   end
 
