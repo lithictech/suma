@@ -123,7 +123,7 @@ function AuthedUserButtons({ className, user, onCollapse }) {
       <NavLinkButton
         href="/dashboard"
         icon="house-door-fill"
-        label="Dashboard"
+        label={t("titles:dashboard")}
         className={className}
         onNoChangeClick={onCollapse}
       />
@@ -131,14 +131,14 @@ function AuthedUserButtons({ className, user, onCollapse }) {
         <NavLinkButton
           href="/private-accounts"
           icon="incognito"
-          label="Private Accounts"
+          label={t("mobility:private_accounts_title")}
           onNoChangeClick={onCollapse}
         />
       )}
       <NavLinkButton
         href="/funding"
         icon="wallet-fill"
-        label="Payment Methods"
+        label={t("payments:payment_methods")}
         onNoChangeClick={onCollapse}
       />
       <Button

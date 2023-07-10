@@ -37,7 +37,7 @@ const ReservationCard = ({
   if (vehicle.gotoPrivateAccount) {
     action = (
       <>
-        <p>To get started, we&rsquo;ll set up a private account for you in Lime.</p>
+        <p>{t("mobility:setup_lime_private_account_title")}</p>
         <Button
           size="sm"
           variant="outline-primary"
@@ -45,14 +45,14 @@ const ReservationCard = ({
           href="/private-accounts"
           as={RLink}
         >
-          Get Started
+          {t("mobility:get_started")}
         </Button>
       </>
     );
   } else if (vehicle.deeplink) {
     action = (
       <Button size="sm" variant="success" className="w-100" href={vehicle.deeplink}>
-        Open App <i className="ms-2 bi bi-box-arrow-up-right"></i>
+        {t("mobility:open_app")} <i className="ms-2 bi bi-box-arrow-up-right"></i>
       </Button>
     );
   } else if (lastLocation) {

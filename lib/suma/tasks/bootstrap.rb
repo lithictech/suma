@@ -375,10 +375,20 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
           5. Enter the email **%{address}**, and press 'Next'.
           6. The next screen is 'Check Your Email'. However, **your code will come via SMS.** Press 'Enter Code' to proceed.
           7. Within a few seconds, Suma will send you an SMS with the Lime code. Copy the code.
-          8. Paste the code into the Lime app, and press Next.
+          8. Paste the code into the Lime app, and press 'Next'.
           9. You're all set!
         MD
-        es: "TODO",
+        es: <<~MD,
+          1. Descargue la aplicación Lime en Play o App Store, o siga [este enlace](https://limebike.app.link/m2h6hB9qrS)
+          2. Inicie la aplicación Lime.
+          3. Cuando se le solicite iniciar sesión, elija 'Otras opciones'
+          4. Elija 'Email'
+          5. Ingrese el correo electrónico **%{address}**, y presione 'Siguiente'.
+          6. La siguiente pantalla es 'Verifique su correo electrónico'. Sin embargo, **su código llegará a través de SMS.** Presione 'Ingresar código' para continuar.
+          7. En unos segundos, Suma te enviará un SMS con el código de Lime. Copia el código.
+          8. Pegue el código en la aplicación de Lime y presione 'Siguiente'.
+          9. ¡Estás listo!
+        MD
       )
     end
   end
