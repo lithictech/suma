@@ -224,7 +224,7 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
     ]
     # rubocop:enable Layout/LineLength
 
-    offering = Suma::Commerce::Offering.first
+    offering = Suma::Commerce::Offering.find_or_create(confirmation_template: "2022-12-pilot-confirmation")
     products.each do |ps|
       product = Suma::Commerce::Product.create(
         name: Suma::TranslatedText.create(en: ps[:name_en], es: ps[:name_es]),
