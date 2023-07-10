@@ -126,6 +126,17 @@ RSpec.describe Suma::API::Me, :db do
       expect(last_response).to have_json_body.
         that_includes(payment_account_balance: cost("$27"), lifetime_savings: cost("$0"), ledger_lines: have_length(1))
     end
+
+    it "returns available_offerings entity" do
+      ec = Suma::Fixtures.eligibility_constraint.create
+      o = Suma::Fixtures.offering.timed_fulfillment.with_constraints(ec).create
+      member = Suma::Fixtures.member.onboarding_verified.create
+      member.replace_eligibility_constraint(ec, :verified)
+
+      get "/v1/me/dashboard"
+      expect(last_response).to have_json_body.that_includes(available_offerings: [])
+
+    end
   end
 
   describe "POST /v1/me/waitlist" do

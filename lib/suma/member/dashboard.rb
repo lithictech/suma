@@ -23,4 +23,8 @@ class Suma::Member::Dashboard
     return [] if pa.nil?
     return Suma::Payment::LedgersView.new(pa.ledgers).recent_lines
   end
+
+  def available_offerings
+    return Suma::Commerce::Offering.available_at(Time.now).eligible_to(@member)
+  end
 end
