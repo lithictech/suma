@@ -59,7 +59,5 @@ RSpec.describe "Suma::Eligibility", :db do
         rejected_eligibility_constraints: contain_exactly(be === e),
       )
     end
-
-    it "can return con"
   end
 end
