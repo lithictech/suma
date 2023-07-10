@@ -74,17 +74,17 @@ class Suma::API::Me < Suma::API::V1
     end
   end
 
-  # class SimpleMemberOfferingsEntity < BaseEntity
-  #   include Suma::API::Entities
-  #   # expose :id
-  #   expose_translated :description
-  # end
+  class AvailableMemberOfferingsEntity < BaseEntity
+    include Suma::API::Entities
+    expose :id
+    expose_translated :description
+  end
 
   class MemberDashboardEntity < BaseEntity
     include Suma::API::Entities
     expose :payment_account_balance, with: MoneyEntity
     expose :lifetime_savings, with: MoneyEntity
     expose :ledger_lines, with: LedgerLineEntity
-    expose :available_offerings, &self.delegate_to(:available_offerings)
+    expose :available_offerings, with: AvailableMemberOfferingsEntity, &self.delegate_to(:available_offerings)
   end
 end

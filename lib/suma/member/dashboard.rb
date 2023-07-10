@@ -25,6 +25,6 @@ class Suma::Member::Dashboard
   end
 
   def available_offerings
-    return Suma::Commerce::Offering.available_at(Time.now).eligible_to(@member)
+    return Suma::Commerce::Offering.available_at(Time.now).eligible_to(@member).all
   end
 end

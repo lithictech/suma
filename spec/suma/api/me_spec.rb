@@ -129,13 +129,14 @@ RSpec.describe Suma::API::Me, :db do
 
     it "returns available_offerings entity" do
       ec = Suma::Fixtures.eligibility_constraint.create
-      o = Suma::Fixtures.offering.timed_fulfillment.with_constraints(ec).create
-      member = Suma::Fixtures.member.onboarding_verified.create
-      member.replace_eligibility_constraint(ec, :verified)
+      member.add_verified_eligibility_constraint(ec)
+      member.update(onboarding_verified_at: 2.minutes.ago)
+      o = Suma::Fixtures.offering.with_constraints(ec).create
 
       get "/v1/me/dashboard"
-      expect(last_response).to have_json_body.that_includes(available_offerings: [])
 
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.that_includes(available_offerings: have_length(1))
     end
   end
 
