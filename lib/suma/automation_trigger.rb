@@ -15,6 +15,23 @@ class Suma::AutomationTrigger < Suma::Postgres::Model(:automation_triggers)
   plugin :timestamps
   plugin :tstzrange_fields, :active_during
 
+  class Action
+    # @!attribute automation_trigger
+    # @return [Suma::AutomationTrigger]
+
+    # @!attribute event
+    # @return [Amigo::Event]
+
+    attr_reader :automation_trigger, :event
+
+    def initialize(automation_trigger, event)
+      @automation_trigger = automation_trigger
+      @event = event
+    end
+
+    def run = raise NotImplementedError
+  end
+
   dataset_module do
     def active_at(t)
       return self.where(Sequel.pg_range(:active_during).contains(Sequel.cast(t, :timestamptz)))
@@ -27,7 +44,7 @@ class Suma::AutomationTrigger < Suma::Postgres::Model(:automation_triggers)
 
   def run_with_payload(*payload)
     event = Amigo::Event.new("test", self.topic, payload)
-    self.klass.run(self, event)
+    self.klass.new(self, event).run
   end
 
   def self.load_implementations

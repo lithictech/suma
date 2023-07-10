@@ -161,6 +161,7 @@ class Suma::Member < Suma::Postgres::Model(:members)
         constraint_id: constraint.id,
         "#{group}_member_id".to_sym => self.id,
       )
+    self.publish_deferred("eligibilitychanged", self.id)
     self.associations.delete(:verified_eligibility_constraints)
     self.associations.delete(:pending_eligibility_constraints)
     self.associations.delete(:rejected_eligibility_constraints)

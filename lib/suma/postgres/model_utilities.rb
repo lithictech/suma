@@ -218,7 +218,7 @@ module Suma::Postgres::ModelUtilities
   def find!(params)
     x = self[params]
     return x if x
-    raise Suma::InvalidPostcondition, "No row matching #{self.class.name}[#{params}]"
+    raise Suma::InvalidPostcondition, "No row matching #{self.name}[#{params}]"
   end
 
   module InstanceMethods
