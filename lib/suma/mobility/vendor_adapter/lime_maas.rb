@@ -33,4 +33,6 @@ class Suma::Mobility::VendorAdapter::LimeMaas
       duration_minutes: duration.ceil,
     )
   end
+
+  def uses_deep_linking? = false
 end

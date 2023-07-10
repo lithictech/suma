@@ -17,6 +17,12 @@ module Suma::Fixtures::AnonProxyVendorAccounts
     instance
   end
 
+  decorator :with_configuration do |c={}|
+    c = Suma::Fixtures.anon_proxy_vendor_configuration(c).create unless
+      c.is_a?(Suma::AnonProxy::VendorConfiguration)
+    self.configuration = c
+  end
+
   decorator :with_contact do |c={}|
     self.member ||= Suma::Fixtures.member.create
     c = Suma::Fixtures.anon_proxy_member_contact(member: self.member).create(c) unless

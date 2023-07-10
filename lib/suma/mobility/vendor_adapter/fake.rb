@@ -3,6 +3,15 @@
 class Suma::Mobility::VendorAdapter::Fake
   include Suma::Mobility::VendorAdapter
 
+  class << self
+    attr_accessor :uses_deep_linking, :find_anon_proxy_vendor_account_results
+
+    def reset
+      self.uses_deep_linking = nil
+      self.find_anon_proxy_vendor_account_results = []
+    end
+  end
+
   def begin_trip(trip)
     trip.external_trip_id = "fake-" + SecureRandom.hex(4)
     return BeginTripResult.new
@@ -18,4 +27,7 @@ class Suma::Mobility::VendorAdapter::Fake
       duration_minutes: duration.to_i,
     )
   end
+
+  def uses_deep_linking? = self.class.uses_deep_linking
+  def find_anon_proxy_vendor_account(*) = self.class.find_anon_proxy_vendor_account_results.shift
 end

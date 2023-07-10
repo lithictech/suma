@@ -7,7 +7,7 @@ import { useGlobalViewState } from "../../state/useGlobalViewState";
 import { useUser } from "../../state/useUser";
 import FormError from "../FormError";
 import CardOverlay from "./CardOverlay";
-import InstructionsModal from "./InstructionsModal";
+import GeolocationInstructionsModal from "./GeolocationInstructionsModal";
 import ReservationCard from "./ReservationCard";
 import TripCard from "./TripCard";
 import React from "react";
@@ -56,7 +56,7 @@ const Map = () => {
     []
   );
   const handleLocationError = React.useCallback(
-    () => setError(<InstructionsModal />),
+    () => setError(<GeolocationInstructionsModal />),
     [setError]
   );
 

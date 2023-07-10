@@ -19,7 +19,7 @@ class Suma::Mobility::Gbfs::VendorSync
     end
     @component.model.db.transaction do
       @component.model.where(vendor_service: @mobility_services).delete
-      @component.model.dataset.multi_insert(rows)
+      @component.model.dataset.insert_conflict.multi_insert(rows)
     end
     return rows.length
   end

@@ -1,3 +1,4 @@
+import ErrorScreen from "./components/ErrorScreen";
 import PrivacyPolicyContent from "./components/PrivacyPolicyContent";
 import ScreenLoader from "./components/ScreenLoader";
 import {
@@ -450,6 +451,15 @@ function AppRoutes() {
             withLayout(),
             PrivateAccountsList
           )}
+        />
+        <Route
+          path="/error"
+          exact
+          element={renderWithHocs(withMetatags({ title: "Error" }), withLayout(), () => (
+            <div className="mt-4">
+              <ErrorScreen />
+            </div>
+          ))}
         />
         <Route path="/styleguide" exact element={<Styleguide />} />
         <Route path="/*" element={<Redirect to="/" />} />

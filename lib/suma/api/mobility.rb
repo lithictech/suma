@@ -80,7 +80,7 @@ class Suma::API::Mobility < Suma::API::V1
       optional :disambiguator, type: String
     end
     get :vehicle do
-      current_member
+      member = current_member
       matches = Suma::Mobility::Vehicle.where(
         lat: Suma::Mobility.int2coord(params[:loc][0]),
         lng: Suma::Mobility.int2coord(params[:loc][1]),
@@ -97,7 +97,7 @@ class Suma::API::Mobility < Suma::API::V1
       else
         vehicle = matches[0]
       end
-      present vehicle, with: MobilityVehicleEntity
+      present vehicle, with: MobilityVehicleEntity, member:, request:
     end
 
     params do
@@ -179,5 +179,12 @@ class Suma::API::Mobility < Suma::API::V1
     expose :vehicle_id
     expose :to_api_location, as: :loc
     expose :rate, with: VendorServiceRateEntity, &self.delegate_to(:vendor_service, :one_rate)
+    expose :deeplink do |vehicle, options|
+      vehicle.deep_link_for_user_agent(options.fetch(:request).user_agent)
+    end
+    expose :goto_private_account do |vehicle, options|
+      member = options.fetch(:member)
+      vehicle.vendor_service.mobility_adapter.anon_proxy_vendor_account_requires_attention?(member)
+    end
   end
 end

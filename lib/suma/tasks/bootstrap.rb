@@ -95,13 +95,15 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
       ).sync_all
       if i.zero? && cc == Suma::Mobility::Gbfs::FreeBikeStatus
         require "suma/fixtures/mobility_vehicles"
-        FAKE_LIME_BIKE_COORDS.each do |(lat, lng)|
-          Suma::Fixtures.mobility_vehicle(
-            lat:,
-            lng:,
-            vehicle_type: "escooter",
-            vendor_service: Suma::Lime.mobility_vendor.services_dataset.mobility.first,
-          ).create
+        Suma::Lime.mobility_vendor.services_dataset.mobility.each_with_index do |vendor_service, vsidx|
+          FAKE_LIME_BIKE_COORDS.each do |(lat, lng)|
+            Suma::Fixtures.mobility_vehicle(
+              lat: lat + (0.0002 * vsidx),
+              lng:,
+              vehicle_type: "escooter",
+              vendor_service:,
+            ).create
+          end
         end
         puts "Create fake Lime scooters since GBFS returned no vehicles"
         i = FAKE_LIME_BIKE_COORDS.length
@@ -111,21 +113,27 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
   end
 
   def create_lime_scooter_vendor
-    rate = Suma::Vendor::ServiceRate.update_or_create(name: "Ride for free") do |r|
-      r.localization_key = "mobility_lime_access_charge"
-      r.surcharge = Money.new(50)
+    vendor = Suma::Lime.mobility_vendor
+    rate = Suma::Vendor::ServiceRate.update_or_create(name: "Lime Access Summer 2023") do |r|
+      r.localization_key = "mobility_lime_access_summer_2023_rate"
+      r.surcharge = Money.new(0)
       r.unit_amount = Money.new(7)
     end
-    cash_category = Suma::Vendor::ServiceCategory.update_or_create(name: "Cash")
-    vendor = Suma::Lime.mobility_vendor
-    svc = Suma::Vendor::Service.update_or_create(vendor:, internal_name: "Lime Scooter") do |vs|
-      vs.external_name = "Lime E-Scooter"
-      vs.mobility_vendor_adapter_key = "lime_maas"
-      vs.constraints = [{"form_factor" => "scooter", "propulsion_type" => "electric"}]
+    services = [
+      ["Lime Scooter MaaS", "lime_maas"],
+      ["Lime Scooter Deeplink", "lime_deeplink"],
+    ]
+    Suma::Vendor::Service.where(mobility_vendor_adapter_key: "lime").update(mobility_vendor_adapter_key: "lime_maas")
+    services.each do |(internal_name, key)|
+      svc = Suma::Vendor::Service.update_or_create(vendor:, internal_name:) do |vs|
+        vs.external_name = "Lime E-Scooter"
+        vs.constraints = [{"form_factor" => "scooter", "propulsion_type" => "electric"}]
+        vs.mobility_vendor_adapter_key = key
+      end
+      svc.add_category(Suma::Vendor::ServiceCategory.update_or_create(name: "Mobility", parent: cash_category)) if
+        svc.categories.empty?
+      svc.add_rate(rate) if svc.rates.empty?
     end
-    svc.add_category(Suma::Vendor::ServiceCategory.update_or_create(name: "Mobility", parent: cash_category)) if
-      svc.categories.empty?
-    svc.add_rate(rate) if svc.rates.empty?
   end
 
   def setup_admin

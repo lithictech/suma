@@ -21,16 +21,34 @@ module Suma::Mobility::VendorAdapter
     end
   end
 
-  def begin_trip(trip)
-    raise NotImplementedError
-  end
+  # Begin the trip with the underlying vendor.
+  # Used for MaaS and Proxy adapters. See /docs/mobility.md.
+  # @param [Suma::Mobility::Trip]
+  def begin_trip(trip) = raise NotImplementedError
+  # End a trip. See #begin_trip.
+  # @param [Suma::Mobility::Trip]
+  def end_trip(trip) = raise NotImplementedError
 
-  def end_trip(trip)
-    raise NotImplementedError
+  # Should be true for Deep Link adapters. See /docs/mobility.md.
+  # @param [true,false]
+  def uses_deep_linking? = raise NotImplementedError
+  # Find the anonymous proxy vendor account for the member
+  # that satisfies this adapter (usually this means finding one for the right vendor).
+  # It is ok to return nil if the account or vendor does not exist.
+  # @return [nil,Suma::AnonProxy::VendorAccount]
+  def find_anon_proxy_vendor_account(member) = raise NotImplementedError
+
+  def anon_proxy_vendor_account_requires_attention?(member)
+    return false unless self.uses_deep_linking?
+    account = self.find_anon_proxy_vendor_account(member)
+    return true if account.nil?
+    return account.address_required?
   end
 
   require_relative "vendor_adapter/fake"
   register("fake", Suma::Mobility::VendorAdapter::Fake)
+  require_relative "vendor_adapter/lime_deeplink"
+  register("lime_deeplink", Suma::Mobility::VendorAdapter::LimeDeeplink)
   require_relative "vendor_adapter/lime_maas"
   register("lime_maas", Suma::Mobility::VendorAdapter::LimeMaas)
 end

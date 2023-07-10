@@ -232,7 +232,7 @@
     "end_trip": "End Trip",
     "intro": "Ride with enhanced privacy and better prices.",
     "locate_me": "Locate me",
-    "mobility_lime_access_charge": "Free for 30 minutes, then {{unitCents, sumaCurrency}} per minute",
+    "mobility_lime_access_summer_2023_rate": "Free for 30 minutes, then {{unitCents, sumaCurrency}} per minute",
     "mobility_start_and_per_minute": "{{surchargeCents, sumaCurrency}} to unlock, {{unitCents, sumaCurrency}} per minute",
     "reserve_scooter": "Reserve Scooter",
     "title": "Mobility Services",
