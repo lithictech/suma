@@ -79,7 +79,18 @@ Note the vehicle ID is is **not** a foreign key into the Vehicles table, since t
 The trip records the time and location of when it was begun and ended.
 
 We abstract communication with vendor backends through the `Suma::Mobility::VendorAdapter` interface
-and its implementers. We have a `FakeAdapter` we use for unit and integration testing.
+and its implementers.
+
+There are three types of adapters, explained below.
+We also have a `FakeAdapter` we use for unit and integration testing.
+
+### Proxying Adapters
+
+**Note**: We do not currently use proxying adapters,
+but they are explained here for illustrative purposes.
+
+The first type of adapter is where Suma 'proxies' calls to a vendor,
+for example, sending an SMS to start and end a trip.
 
 The complexity around trips comes into play with the external dependency of the mobility services:
 
@@ -102,3 +113,29 @@ Because of this, though the trip points to a 'rate',
 the rate is only used for descriptive purposes. It does *not* calculate the money
 that the resident owes; instead its used to predict trip cost and model
 the undiscounted cost of the trip.
+
+### Deep-linking Adapters
+
+Some vendors do not support any sort of write-level integration,
+so we can't even use proxying.
+
+In these cases, the mobility adapters support 'deep linking,'
+which provides a URL for each vehicle.
+
+Deep linking always requires an **Anonymous Proxy Vendor Account** (aka Private Account).
+See the documentation on Private Accounts (in `/docs/proxy-accounts.md`) for more information.
+
+We use these Private Accounts to connect the Suma user to the vendor service.
+
+The big challenges here are things like dealing with charges
+and historical trip information; we'll fill this out as we have to deal with it.
+
+### Mobility-as-a-Service Adapters
+
+Some mobility vendors support a Mobility-as-a-Service (MaaS) API.
+These are the nicest to work with, because you're 'just' using a 'normal' API.
+They all have support for things like staring and ending trips,
+and we can get rates, ongoing and historical trips, and actual charges from them.
+
+Invoices for trips are also done on some period,
+rather than at point-of-service, which also fits our our model best.

@@ -4,6 +4,7 @@ import PageLoader from "../components/PageLoader";
 import RLink from "../components/RLink";
 import UnclaimedOrdersWidget from "../components/UnclaimedOrdersWidget";
 import { md, t } from "../localization";
+import readOnlyReason from "../modules/readOnlyReason";
 import Money from "../shared/react/Money";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
 import { useUser } from "../state/useUser";
@@ -39,6 +40,11 @@ export default function Dashboard() {
               ></i>
             </Link>
           </div>
+        </Alert>
+      )}
+      {readOnlyReason(user, "read_only_unverified") && (
+        <Alert variant="danger" className="border-radius-0">
+          <p>{readOnlyReason(user, "read_only_unverified")}</p>
         </Alert>
       )}
       <AddToHomescreen />

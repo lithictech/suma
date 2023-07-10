@@ -20,6 +20,7 @@ RSpec.describe Suma::Mobility::Gbfs::FreeBikeStatus, :db do
             "is_disabled" => false,
             "vehicle_type_id" => "abc123",
             "current_range_meters" => 5000.12,
+            "rental_uris" => {"web" => "https://foo.bar"},
           },
           {
             "bike_id" => "ghi700",
@@ -73,11 +74,13 @@ RSpec.describe Suma::Mobility::Gbfs::FreeBikeStatus, :db do
           vehicle_id: "ghi799",
           vendor_service: be === vs,
           battery_level: 42,
+          rental_uris: {"web" => "https://foo.bar"},
         ),
         have_attributes(
           vehicle_id: "ghi700",
           vendor_service: be === vs,
           battery_level: 55,
+          rental_uris: {},
         ),
       )
     end

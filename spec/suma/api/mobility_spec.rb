@@ -11,6 +11,7 @@ RSpec.describe Suma::API::Mobility, :db do
   before(:each) do
     login_as(member)
     stub_const("Suma::Mobility::SPIDERIFY_OFFSET_MAGNITUDE", 0.000004)
+    Suma::Mobility::VendorAdapter::Fake.reset
   end
 
   describe "GET /v1/mobility/map" do
@@ -270,6 +271,7 @@ RSpec.describe Suma::API::Mobility, :db do
           vehicle_id: b1.vehicle_id,
           loc: [5_000_000, 1_795_000_000],
           rate: include(id: rate.id),
+          deeplink: nil,
         )
     end
 
@@ -317,6 +319,21 @@ RSpec.describe Suma::API::Mobility, :db do
       logout
       get "/v1/mobility/vehicle", loc: [0, 0], provider_id: 0, type: "ebike"
       expect(last_response).to have_status(401)
+    end
+
+    it "provides deeplink information if adapter uses it" do
+      Suma::Mobility::VendorAdapter::Fake.uses_deep_linking = true
+
+      b1 = fac.loc(0.5, 179.5).ebike.create(vendor_service: vsvc, vehicle_id: "abcd")
+
+      get "/v1/mobility/vehicle", loc: [5_000_000, 1_795_000_000], provider_id: vsvc.id, type: "ebike"
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.
+        that_includes(
+          vehicle_id: b1.vehicle_id,
+          deeplink: "http://localhost:22004/error",
+        )
     end
   end
 

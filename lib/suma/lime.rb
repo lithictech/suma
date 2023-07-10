@@ -18,10 +18,12 @@ module Suma::Lime
 
   def self.configured? = self.auth_token != UNCONFIGURED_AUTH_TOKEN
 
+  VENDOR_NAME = "Lime"
+
   # @return [Suma::Vendor]
   def self.mobility_vendor
     return Suma.cached_get("lime_mobility_vendor") do
-      Suma::Vendor.find_or_create_or_find(name: "Lime")
+      Suma::Vendor.find_or_create_or_find(name: VENDOR_NAME)
     end
   end
 

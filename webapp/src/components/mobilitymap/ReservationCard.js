@@ -1,8 +1,9 @@
 import { t } from "../../localization";
 import FormError from "../FormError";
 import PageLoader from "../PageLoader";
+import RLink from "../RLink";
 import CardOverlay from "./CardOverlay";
-import InstructionsModal from "./InstructionsModal";
+import GeolocationInstructionsModal from "./GeolocationInstructionsModal";
 import React from "react";
 import Button from "react-bootstrap/Button";
 import Card from "react-bootstrap/Card";
@@ -27,10 +28,42 @@ const ReservationCard = ({
   }
   const { rate, vendorService } = vehicle;
   const { localizationVars: locVars } = rate;
-  const handlePress = (e) => {
+  const handleReserve = (e) => {
     e.preventDefault();
     onReserve(vehicle);
   };
+
+  let action;
+  if (vehicle.gotoPrivateAccount) {
+    action = (
+      <>
+        <p>To get started, we&rsquo;ll set up a private account for you in Lime.</p>
+        <Button
+          size="sm"
+          variant="outline-primary"
+          className="w-100"
+          href="/private-accounts"
+          as={RLink}
+        >
+          Get Started
+        </Button>
+      </>
+    );
+  } else if (vehicle.deeplink) {
+    action = (
+      <Button size="sm" variant="success" className="w-100" href={vehicle.deeplink}>
+        Open App <i className="ms-2 bi bi-box-arrow-up-right"></i>
+      </Button>
+    );
+  } else if (lastLocation) {
+    action = (
+      <Button size="sm" variant="success" className="w-100" onClick={handleReserve}>
+        {t("mobility:reserve_scooter")}
+      </Button>
+    );
+  } else {
+    action = <GeolocationInstructionsModal />;
+  }
 
   return (
     <CardOverlay>
@@ -48,18 +81,7 @@ const ReservationCard = ({
         })}
       </Card.Text>
       <FormError error={reserveError} />
-      {lastLocation ? (
-        <Button
-          size="sm"
-          variant="outline-success"
-          className="w-100"
-          onClick={handlePress}
-        >
-          {t("mobility:reserve_scooter")}
-        </Button>
-      ) : (
-        <InstructionsModal />
-      )}
+      {action}
     </CardOverlay>
   );
 };

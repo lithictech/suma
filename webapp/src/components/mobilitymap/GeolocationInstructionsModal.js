@@ -7,7 +7,7 @@ import Alert from "react-bootstrap/Alert";
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
 
-const InstructionsModal = () => {
+const GeolocationInstructionsModal = () => {
   const showModal = useToggle(false);
   const [accordionKey, setAccordionKey] = React.useState("");
   const [version, setVersion] = React.useState("");
@@ -262,4 +262,4 @@ const InstructionsModal = () => {
   );
 };
 
-export default InstructionsModal;
+export default GeolocationInstructionsModal;

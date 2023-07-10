@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class Suma::Mobility::LimeVendorAdapter
+class Suma::Mobility::VendorAdapter::LimeMaas
   include Suma::Mobility::VendorAdapter
 
   def begin_trip(trip)
@@ -33,4 +33,6 @@ class Suma::Mobility::LimeVendorAdapter
       duration_minutes: duration.ceil,
     )
   end
+
+  def uses_deep_linking? = false
 end

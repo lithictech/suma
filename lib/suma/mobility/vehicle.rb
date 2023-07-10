@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "browser"
+
 require "suma/mobility"
 require "suma/postgres/model"
 
@@ -20,6 +22,27 @@ class Suma::Mobility::Vehicle < Suma::Postgres::Model(:mobility_vehicles)
 
   def to_api_location
     return [Suma::Mobility.coord2int(self.lat), Suma::Mobility.coord2int(self.lng)]
+  end
+
+  FALLBACK_DEEP_LINK_URL = "#{Suma.app_url}/error".freeze
+
+  def deep_link_for_user_agent(user_agent)
+    return nil unless self.vendor_service.mobility_adapter.uses_deep_linking?
+    browser = Browser.new(user_agent || "", accept_language: "en-us")
+    uris = self.rental_uris
+    key = if browser.platform.android?
+            "android"
+    elsif browser.platform.ios?
+      "ios"
+    else
+      "web"
+    end
+    key_preferences = [key, "web", "android", "ios"]
+    key_preferences.each do |k|
+      return uris[k] if uris[k]
+    end
+    Sentry.capture_message("Cannot find rental URIs for a user agent: #{user_agent}, #{uris}")
+    return FALLBACK_DEEP_LINK_URL
   end
 end
 

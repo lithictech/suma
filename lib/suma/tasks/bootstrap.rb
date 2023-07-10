@@ -21,6 +21,7 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
     Suma::Member.db.transaction do
       self.create_meta_resources
 
+      self.create_lime_scooter_vendor
       self.sync_lime_gbfs
 
       self.setup_admin
@@ -77,6 +78,11 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
     end
   end
 
+  # Add to these for when Lime fails to sync
+  FAKE_LIME_BIKE_COORDS = [
+    [45.514490, -122.601940],
+  ].freeze
+
   def sync_lime_gbfs
     require "suma/lime"
     return unless Suma::Lime.configured?
@@ -87,27 +93,47 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
         vendor: Suma::Lime.mobility_vendor,
         component: c,
       ).sync_all
+      if i.zero? && cc == Suma::Mobility::Gbfs::FreeBikeStatus
+        require "suma/fixtures/mobility_vehicles"
+        Suma::Lime.mobility_vendor.services_dataset.mobility.each_with_index do |vendor_service, vsidx|
+          FAKE_LIME_BIKE_COORDS.each do |(lat, lng)|
+            Suma::Fixtures.mobility_vehicle(
+              lat: lat + (0.0002 * vsidx),
+              lng:,
+              vehicle_type: "escooter",
+              vendor_service:,
+            ).create
+          end
+        end
+        puts "Create fake Lime scooters since GBFS returned no vehicles"
+        i = FAKE_LIME_BIKE_COORDS.length
+      end
       puts "Synced #{i} #{c.model.name}"
     end
   end
 
-  def self.create_lime_scooter_vendor
-    lime_vendor = Suma::Lime.mobility_vendor
-    return unless lime_vendor.services_dataset.mobility.empty?
-    rate = Suma::Vendor::ServiceRate.find_or_create(name: "Ride for free") do |r|
-      r.localization_key = "mobility_free_of_charge"
+  def create_lime_scooter_vendor
+    vendor = Suma::Lime.mobility_vendor
+    rate = Suma::Vendor::ServiceRate.update_or_create(name: "Lime Access Summer 2023") do |r|
+      r.localization_key = "mobility_lime_access_summer_2023_rate"
       r.surcharge = Money.new(0)
-      r.unit_amount = Money.new(0)
+      r.unit_amount = Money.new(7)
     end
-    cash_category = Suma::Vendor::ServiceCategory.find_or_create(name: "Cash")
-    svc = lime_vendor.add_service(
-      internal_name: "Lime Scooters",
-      external_name: "Lime E-Scooters",
-      mobility_vendor_adapter_key: "lime",
-      constraints: [{"form_factor" => "scooter", "propulsion_type" => "electric"}],
-    )
-    svc.add_category(Suma::Vendor::ServiceCategory.find_or_create(name: "Mobility", parent: cash_category))
-    svc.add_rate(rate)
+    services = [
+      ["Lime Scooter MaaS", "lime_maas"],
+      ["Lime Scooter Deeplink", "lime_deeplink"],
+    ]
+    Suma::Vendor::Service.where(mobility_vendor_adapter_key: "lime").update(mobility_vendor_adapter_key: "lime_maas")
+    services.each do |(internal_name, key)|
+      svc = Suma::Vendor::Service.update_or_create(vendor:, internal_name:) do |vs|
+        vs.external_name = "Lime E-Scooter"
+        vs.constraints = [{"form_factor" => "scooter", "propulsion_type" => "electric"}]
+        vs.mobility_vendor_adapter_key = key
+      end
+      svc.add_category(Suma::Vendor::ServiceCategory.update_or_create(name: "Mobility", parent: cash_category)) if
+        svc.categories.empty?
+      svc.add_rate(rate) if svc.rates.empty?
+    end
   end
 
   def setup_admin
