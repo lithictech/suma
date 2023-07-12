@@ -447,7 +447,7 @@ function AppRoutes() {
             redirectIfUnauthed,
             redirectIfUnboarded,
             withScreenLoaderMount(),
-            withMetatags({ title: "Private Accounts" }),
+            withMetatags({ title: t("titles:private_accounts") }),
             withLayout(),
             PrivateAccountsList
           )}
@@ -455,11 +455,15 @@ function AppRoutes() {
         <Route
           path="/error"
           exact
-          element={renderWithHocs(withMetatags({ title: "Error" }), withLayout(), () => (
-            <div className="mt-4">
-              <ErrorScreen />
-            </div>
-          ))}
+          element={renderWithHocs(
+            withMetatags({ title: t("common:error") }),
+            withLayout(),
+            () => (
+              <div className="mt-4">
+                <ErrorScreen />
+              </div>
+            )
+          )}
         />
         <Route path="/styleguide" exact element={<Styleguide />} />
         <Route path="/*" element={<Redirect to="/" />} />

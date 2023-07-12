@@ -4,7 +4,7 @@ import LinearBreadcrumbs from "../components/LinearBreadcrumbs";
 import PageLoader from "../components/PageLoader";
 import SumaImage from "../components/SumaImage";
 import SumaMarkdown from "../components/SumaMarkdown";
-import { t } from "../localization";
+import { mdp, t } from "../localization";
 import ScrollTopOnMount from "../shared/ScrollToTopOnMount";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
 import useToggle from "../shared/react/useToggle";
@@ -67,17 +67,17 @@ export default function PrivateAccountsList() {
     <>
       <LayoutContainer top>
         <LinearBreadcrumbs back="/dashboard" />
-        <h2>Private Accounts</h2>
-        <p className="text-secondary mt-3">
-          Used to hide your email and phone number from vendors you use through the Suma
-          platform. Follow the instructions for the vendors you want to create a Private
-          Account with.
-        </p>
+        <h2>{t("titles:private_accounts")}</h2>
+        <p className="text-secondary mt-3">{t("private_accounts:intro")}</p>
       </LayoutContainer>
       <hr />
       <Modal show={!!viewAccount} onHide={() => setViewAccount(null)}>
         <Modal.Header closeButton>
-          <Modal.Title>{viewAccount?.vendorName} Private Accounts</Modal.Title>
+          <Modal.Title>
+            {t("private_accounts:vendor_private_accounts", {
+              vendorName: viewAccount?.vendorName,
+            })}
+          </Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <div className="mt-4 d-flex justify-content-center align-items-center flex-column">
@@ -96,10 +96,14 @@ export default function PrivateAccountsList() {
             </div>
             {!isEmpty(viewAccount?.recentMessageTextBodies) && (
               <div className="text-muted mt-4">
-                <h6>Recent Messages from {viewAccount.vendorName}</h6>
-                {viewAccount.recentMessageTextBodies.map((t, i) => (
-                  <p key={`${i}${t}`} className="small">
-                    {t}
+                <h6>
+                  {t("private_accounts:recent_messages_from_vendor", {
+                    vendorName: viewAccount.vendorName,
+                  })}
+                </h6>
+                {viewAccount.recentMessageTextBodies.map((msg, i) => (
+                  <p key={`${i}${msg}`} className="small">
+                    {msg}
                   </p>
                 ))}
               </div>
@@ -125,12 +129,7 @@ export default function PrivateAccountsList() {
         </LayoutContainer>
       )}
       {isEmpty(accounts.items) && (
-        <LayoutContainer>
-          <p>
-            It looks like no vendors are set up for Private Accounts. Contact your
-            administrator for more information.
-          </p>
-        </LayoutContainer>
+        <LayoutContainer>{mdp("private_accounts:no_private_accounts")}</LayoutContainer>
       )}
     </>
   );
@@ -153,11 +152,11 @@ function PrivateAccount({ account, onConfigure, onHelp }) {
       />
       {addressRequired ? (
         <Button className="mt-3" onClick={onConfigure}>
-          Create account
+          {t("private_accounts:create_account")}
         </Button>
       ) : (
         <Stack direction="vertical">
-          <p className="mt-3 mb-0 text-muted">Username</p>
+          <p className="mt-3 mb-0 text-muted">{t("private_accounts:username")}</p>
           <p className="lead mb-0">
             {address}
             <Button variant="link" onClick={handleCopyAddress}>
@@ -166,14 +165,14 @@ function PrivateAccount({ account, onConfigure, onHelp }) {
           </p>
           <div className="mt-2 d-flex justify-content-around">
             <Button variant="outline-primary" onClick={() => onHelp()}>
-              Help <i className="ms-2 bi bi-info-circle"></i>
+              {t("common:help")} <i className="ms-2 bi bi-info-circle"></i>
             </Button>
             <Button
               variant="outline-primary"
               className="border-0"
               href={account.appLaunchLink}
             >
-              App <i className="ms-2 bi bi-box-arrow-up-right"></i>
+              {t("common:app")} <i className="ms-2 bi bi-box-arrow-up-right"></i>
             </Button>
           </div>
         </Stack>
@@ -187,7 +186,7 @@ function PrivateAccount({ account, onConfigure, onHelp }) {
           autohide
         >
           <Toast.Body>
-            <p className="lead text-light mb-0">Copied to clipboard.</p>
+            <p className="lead text-light mb-0">{t("common:copied_to_clipboard")}</p>
           </Toast.Body>
         </Toast>
       </ToastContainer>
