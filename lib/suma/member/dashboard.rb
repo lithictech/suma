@@ -24,14 +24,17 @@ class Suma::Member::Dashboard
     return Suma::Payment::LedgersView.new(pa.ledgers).recent_lines
   end
 
-  def available_offerings
-    return Suma::Commerce::Offering.available_at(Time.now).eligible_to(@member).all
+  def offerings
+    return Suma::Commerce::Offering.
+        available_at(Time.now).
+        eligible_to(@member).
+        order { upper(period) }.
+        first(2)
   end
 
-  def mobility_vehicles_available
+  def mobility_available?
     vendor_service = Suma::Vendor::Service.dataset.mobility.eligible_to(@member)
     vehicles = Suma::Mobility::Vehicle.where(vendor_service:)
-    return false if vehicles.all.empty?
-    return true
+    return !vehicles.empty?
   end
 end

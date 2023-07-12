@@ -26,7 +26,7 @@ export default function Dashboard() {
     default: {},
     pickData: true,
   });
-  const { availableOfferings, mobilityVehiclesAvailable } = dashboard;
+  const { offerings, mobilityVehiclesAvailable } = dashboard;
   return (
     <>
       {user.ongoingTrip && (
@@ -52,12 +52,8 @@ export default function Dashboard() {
       <AvailabilityLink
         label={t("dashboard:check_available_for_purchase")}
         iconClass="bi-bag"
-        show={!isEmpty(availableOfferings)}
-        to={
-          availableOfferings?.length > 1
-            ? "/food"
-            : `/food/${first(availableOfferings)?.id}`
-        }
+        show={!isEmpty(offerings)}
+        to={offerings?.length > 1 ? "/food" : `/food/${first(offerings)?.id}`}
       />
       <AvailabilityLink
         label={t("dashboard:get_rolling_with_discounts")}

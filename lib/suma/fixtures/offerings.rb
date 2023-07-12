@@ -20,6 +20,10 @@ module Suma::Fixtures::Offerings
     instance
   end
 
+  decorator :description do |en, es: nil|
+    self.description = Suma::Fixtures.translated_text.create(en:, es: es || "(ES) #{en}")
+  end
+
   decorator :period do |begin_time, end_time|
     self.period = Sequel::Postgres::PGRange.new(begin_time, end_time)
   end

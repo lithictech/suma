@@ -74,7 +74,7 @@ class Suma::API::Me < Suma::API::V1
     end
   end
 
-  class AvailableMemberOfferingsEntity < BaseEntity
+  class AvailableOfferingEntity < BaseEntity
     include Suma::API::Entities
     expose :id
     expose_translated :description
@@ -85,7 +85,7 @@ class Suma::API::Me < Suma::API::V1
     expose :payment_account_balance, with: MoneyEntity
     expose :lifetime_savings, with: MoneyEntity
     expose :ledger_lines, with: LedgerLineEntity
-    expose :available_offerings, with: AvailableMemberOfferingsEntity, &self.delegate_to(:available_offerings)
-    expose :mobility_vehicles_available, &self.delegate_to(:mobility_vehicles_available)
+    expose :offerings, with: AvailableOfferingEntity, &self.delegate_to(:offerings)
+    expose :mobility_available?, as: :mobility_vehicles_available
   end
 end
