@@ -86,5 +86,6 @@ class Suma::API::Me < Suma::API::V1
     expose :lifetime_savings, with: MoneyEntity
     expose :ledger_lines, with: LedgerLineEntity
     expose :available_offerings, with: AvailableMemberOfferingsEntity, &self.delegate_to(:available_offerings)
+    expose :mobility_vehicles_available, &self.delegate_to(:mobility_vehicles_available)
   end
 end

@@ -26,6 +26,7 @@ export default function Dashboard() {
     default: {},
     pickData: true,
   });
+  const { availableOfferings, mobilityVehiclesAvailable } = dashboard;
   return (
     <>
       {user.ongoingTrip && (
@@ -45,36 +46,50 @@ export default function Dashboard() {
       )}
       {readOnlyReason(user, "read_only_unverified") && (
         <Alert variant="danger" className="border-radius-0">
-          <p>{readOnlyReason(user, "read_only_unverified")}</p>
+          {readOnlyReason(user, "read_only_unverified")}
         </Alert>
       )}
+      <AvailabilityLink
+        label={t("dashboard:check_available_for_purchase")}
+        iconClass="bi-bag"
+        show={!isEmpty(availableOfferings)}
+        to={
+          availableOfferings?.length > 1
+            ? "/food"
+            : `/food/${first(availableOfferings)?.id}`
+        }
+      />
+      <AvailabilityLink
+        label={t("mobility:get_rolling_with_discounts")}
+        iconClass="bi-scooter"
+        show={Boolean(mobilityVehiclesAvailable)}
+        to="/mobility"
+      />
       <AddToHomescreen />
       <UnclaimedOrdersWidget />
-      <LayoutContainer top gutters>
-        <AvailableOfferingsLink availableOfferings={dashboard.availableOfferings} />
-      </LayoutContainer>
       {dashboardLoading ? <PageLoader /> : <Ledger dashboard={dashboard} />}
     </>
   );
 }
 
-function AvailableOfferingsLink({ availableOfferings }) {
-  if (isEmpty(availableOfferings)) {
+function AvailabilityLink({ label, iconClass, show, to }) {
+  if (!show) {
     return null;
   }
-
-  let to = "/food/";
-  if (availableOfferings.length === 1) {
-    to += first(availableOfferings).id;
-  }
   return (
-    <h5>
-      <Link to={to}>
-        <i className="bi bi-bag me-1"></i>
-        {t("dashboard:check_available_for_purchase")}
-        <i className="bi bi-arrow-right ms-1"></i>
-      </Link>
-    </h5>
+    <Alert variant="success" className="border-radius-0">
+      <Alert.Link
+        as={RLink}
+        href={to}
+        className="d-flex justify-content-between align-items-center text-success"
+      >
+        <i className={`bi ${iconClass} me-2`}></i>
+        {label}
+        <div className="ms-auto">
+          <i className="bi bi-arrow-right ms-1"></i>
+        </div>
+      </Alert.Link>
+    </Alert>
   );
 }
 

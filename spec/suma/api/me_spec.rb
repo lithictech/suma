@@ -127,16 +127,32 @@ RSpec.describe Suma::API::Me, :db do
         that_includes(payment_account_balance: cost("$27"), lifetime_savings: cost("$0"), ledger_lines: have_length(1))
     end
 
-    it "returns available_offerings entity" do
+    it "returns available_offerings array with the dashboard" do
       ec = Suma::Fixtures.eligibility_constraint.create
       member.add_verified_eligibility_constraint(ec)
       member.update(onboarding_verified_at: 2.minutes.ago)
       o = Suma::Fixtures.offering.with_constraints(ec).create
 
       get "/v1/me/dashboard"
-
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.that_includes(available_offerings: have_length(1))
+    end
+
+    it "returns mobility_vehicles_available boolean with the dashboard" do
+      ec = Suma::Fixtures.eligibility_constraint.create
+      member.add_verified_eligibility_constraint(ec)
+      member.update(onboarding_verified_at: 2.minutes.ago)
+
+      get "/v1/me/dashboard"
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.that_includes(mobility_vehicles_available: be_falsey)
+
+      vendor_service = Suma::Fixtures.vendor_service.mobility.with_constraints(ec).create
+      Suma::Fixtures.mobility_vehicle.escooter.create(vendor_service:)
+
+      get "/v1/me/dashboard"
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.that_includes(mobility_vehicles_available: be_truthy)
     end
   end
 
