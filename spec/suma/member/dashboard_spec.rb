@@ -37,6 +37,34 @@ RSpec.describe Suma::Member::Dashboard, :db do
           have_attributes(amount: cost("-$5")),
         ],
       ),
+      offerings: [],
+      mobility_available?: false,
     )
+  end
+
+  it "includes the two offerings closing next" do
+    ec = Suma::Fixtures.eligibility_constraint.create
+    member.add_verified_eligibility_constraint(ec)
+    member.update(onboarding_verified_at: 2.minutes.ago)
+    ofac = Suma::Fixtures.offering.with_constraints(ec)
+    ofac.closed.description("closed").create
+    middle = ofac.description("middle ahead").create(period: 1.day.ago..10.days.from_now)
+    closest = ofac.description("closest").create(period: 1.day.ago..7.days.from_now)
+    ofac.description("furthest ahead").create(period: 1.day.ago..11.days.from_now)
+
+    d = described_class.new(member)
+    expect(d).to have_attributes(offerings: have_same_ids_as(closest, middle).ordered)
+  end
+
+  it "includes whether vehicles are available" do
+    ec = Suma::Fixtures.eligibility_constraint.create
+    member.add_verified_eligibility_constraint(ec)
+    member.update(onboarding_verified_at: 2.minutes.ago)
+
+    vendor_service = Suma::Fixtures.vendor_service.mobility.with_constraints(ec).create
+    expect(described_class.new(member)).to_not be_mobility_available
+
+    Suma::Fixtures.mobility_vehicle.escooter.create(vendor_service:)
+    expect(described_class.new(member)).to be_mobility_available
   end
 end

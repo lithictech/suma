@@ -18,13 +18,14 @@ module Suma::Eligibility::HasConstraints
   module DatasetMethods
     def eligible_to(member)
       # First select all rows that have no constraints
-      ds = self.exclude(eligibility_constraints: Suma::Eligibility::Constraint.dataset)
+      unconstrained = Sequel.~(eligibility_constraints: Suma::Eligibility::Constraint.dataset)
       if member.verified_eligibility_constraints.empty?
         # If the member has no constraints, return all offerings that also have no constraints.
-        return ds
+        return self.where(unconstrained)
       end
       # Include all rows where the member has overlapping constraints.
-      return ds.or(eligibility_constraints: member.verified_eligibility_constraints)
+      overlapping = Sequel[eligibility_constraints: member.verified_eligibility_constraints_dataset]
+      return self.where(unconstrained | overlapping)
     end
   end
 

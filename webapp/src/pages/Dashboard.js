@@ -11,6 +11,7 @@ import { useUser } from "../state/useUser";
 import { LayoutContainer } from "../state/withLayout";
 import clsx from "clsx";
 import dayjs from "dayjs";
+import first from "lodash/first";
 import isEmpty from "lodash/isEmpty";
 import React from "react";
 import Alert from "react-bootstrap/Alert";
@@ -25,6 +26,7 @@ export default function Dashboard() {
     default: {},
     pickData: true,
   });
+  const { offerings, mobilityVehiclesAvailable } = dashboard;
   return (
     <>
       {user.ongoingTrip && (
@@ -44,13 +46,46 @@ export default function Dashboard() {
       )}
       {readOnlyReason(user, "read_only_unverified") && (
         <Alert variant="danger" className="border-radius-0">
-          <p>{readOnlyReason(user, "read_only_unverified")}</p>
+          {readOnlyReason(user, "read_only_unverified")}
         </Alert>
       )}
+      <AvailabilityLink
+        label={t("dashboard:check_available_for_purchase")}
+        iconClass="bi-bag"
+        show={!isEmpty(offerings)}
+        to={offerings?.length > 1 ? "/food" : `/food/${first(offerings)?.id}`}
+      />
+      <AvailabilityLink
+        label={t("dashboard:get_rolling_with_discounts")}
+        iconClass="bi-scooter"
+        show={Boolean(mobilityVehiclesAvailable)}
+        to="/mobility"
+      />
       <AddToHomescreen />
       <UnclaimedOrdersWidget />
       {dashboardLoading ? <PageLoader /> : <Ledger dashboard={dashboard} />}
     </>
+  );
+}
+
+function AvailabilityLink({ label, iconClass, show, to }) {
+  if (!show) {
+    return null;
+  }
+  return (
+    <Alert variant="success" className="border-radius-0">
+      <Alert.Link
+        as={RLink}
+        href={to}
+        className="d-flex justify-content-between align-items-center text-success"
+      >
+        <i className={`bi ${iconClass} me-2`}></i>
+        {label}
+        <div className="ms-auto">
+          <i className="bi bi-arrow-right ms-1"></i>
+        </div>
+      </Alert.Link>
+    </Alert>
   );
 }
 

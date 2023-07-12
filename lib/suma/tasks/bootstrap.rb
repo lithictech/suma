@@ -143,24 +143,22 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
   end
 
   def setup_holiday_offering
-    return unless Suma::Commerce::Offering.dataset.empty?
-
-    offering = Suma::Commerce::Offering.new
-    offering.period = self.holiday_2022_begin..self.holiday_2022_end
-    offering.description = Suma::TranslatedText.find_or_create(en: "Holidays 2022", es: "Días festivos")
-    offering.confirmation_template = "2022-12-pilot-confirmation"
-    offering.fulfillment_prompt = Suma::TranslatedText.find_or_create(
-      en: "How do you want to get your stuff?",
-      es: "¿Cómo desea obtener sus cosas?",
-    )
-    offering.fulfillment_confirmation = Suma::TranslatedText.find_or_create(
-      en: "How you’re getting it",
-      es: "Cómo lo está recibiendo",
-    )
-    offering.save_changes
+    offering = Suma::Commerce::Offering.update_or_create(confirmation_template: "2022-12-pilot-confirmation") do |o|
+      o.period = self.holiday_2022_begin..self.holiday_2022_end
+      o.description = Suma::TranslatedText.find_or_create(en: "Holidays 2022", es: "Días festivos")
+      o.fulfillment_prompt = Suma::TranslatedText.find_or_create(
+        en: "How do you want to get your stuff?",
+        es: "¿Cómo desea obtener sus cosas?",
+      )
+      o.fulfillment_confirmation = Suma::TranslatedText.find_or_create(
+        en: "How you’re getting it",
+        es: "Cómo lo está recibiendo",
+      )
+    end
     uf = self.create_uploaded_file("holiday-offering.jpeg", "image/jpeg")
-    offering.add_image({uploaded_file: uf})
+    offering.add_image({uploaded_file: uf}) if offering.images.empty?
 
+    return unless offering.fulfillment_options.empty?
     offering.add_fulfillment_option(
       type: "pickup",
       ordinal: 0,
@@ -224,7 +222,7 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
     ]
     # rubocop:enable Layout/LineLength
 
-    offering = Suma::Commerce::Offering.first
+    offering = Suma::Commerce::Offering.find!(confirmation_template: "2022-12-pilot-confirmation")
     products.each do |ps|
       product = Suma::Commerce::Product.create(
         name: Suma::TranslatedText.create(en: ps[:name_en], es: ps[:name_es]),
