@@ -59,6 +59,7 @@
     "check_ongoing_trip": "You have an ongoing trip. Please make sure you end it when you are finished with your ride!",
     "check_ongoing_trip_button": "See My Trip",
     "check_available_for_purchase": "Check out whats available for purchase",
+    "get_rolling_with_discounts": "Get rolling with discounted e-scooters and e-bikes",
     "lifetime_savings": "Suma Savings",
     "no_money": "You haven't added or spent any money. $t(strings:payments:funding_link)",
     "payment_account_balance": "Available Balance",
@@ -245,8 +246,7 @@
     "trip_ended": "Your trip with {{vendor}} has ended.\n\nWe used {{totalCost, sumaCurrency}} of your Suma balance for this trip.\n\nYou saved {{discountAmount, sumaCurrency}}.",
     "trip_started_at": "Trip started at {{at}}.",
     "zoom_in": "Zoom in",
-    "zoom_out": "Zoom out",
-    "get_rolling_with_discounts": "Get rolling with discounted e-scooters and e-bikes"
+    "zoom_out": "Zoom out"
   },
   "onboarding": {
     "enroll_intro": "Welcome to Suma! To get started, we will need to verify your identity. This makes sure you are eligible for the right programs, such as with our affordable housing partners.\n\n**We will never share this information other than to verify your identity.**",

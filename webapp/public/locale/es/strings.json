@@ -59,6 +59,7 @@
     "check_ongoing_trip": "Tienes un viaje en curso. Asegúrate de finalizarlo al terminar el viaje.",
     "check_ongoing_trip_button": "Ver Mi Viaje",
     "check_available_for_purchase": "Ver lo que está disponible para comprar",
+    "get_rolling_with_discounts": "Ponte en marcha con patinetas y bicicletas eléctricas con descuento",
     "lifetime_savings": "Ahorros de Suma",
     "no_money": "No has añadido ni gastado fondos de tu cuenta. $t(strings:payments:funding_link)",
     "payment_account_balance": "Saldo Disponible",

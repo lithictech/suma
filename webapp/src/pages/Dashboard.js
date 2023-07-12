@@ -60,7 +60,7 @@ export default function Dashboard() {
         }
       />
       <AvailabilityLink
-        label={t("mobility:get_rolling_with_discounts")}
+        label={t("dashboard:get_rolling_with_discounts")}
         iconClass="bi-scooter"
         show={Boolean(mobilityVehiclesAvailable)}
         to="/mobility"
