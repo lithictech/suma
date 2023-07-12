@@ -447,7 +447,7 @@ function AppRoutes() {
             redirectIfUnauthed,
             redirectIfUnboarded,
             withScreenLoaderMount(),
-            withMetatags({ title: t("mobility:private_accounts_title") }),
+            withMetatags({ title: t("titles:private_accounts") }),
             withLayout(),
             PrivateAccountsList
           )}

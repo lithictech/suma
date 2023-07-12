@@ -67,14 +67,14 @@ export default function PrivateAccountsList() {
     <>
       <LayoutContainer top>
         <LinearBreadcrumbs back="/dashboard" />
-        <h2>{t("mobility:private_accounts_title")}</h2>
-        <p className="text-secondary mt-3">{t("mobility:private_accounts_intro")}</p>
+        <h2>{t("titles:private_accounts")}</h2>
+        <p className="text-secondary mt-3">{t("private_accounts:intro")}</p>
       </LayoutContainer>
       <hr />
       <Modal show={!!viewAccount} onHide={() => setViewAccount(null)}>
         <Modal.Header closeButton>
           <Modal.Title>
-            {t("mobility:vendor_private_accounts", {
+            {t("private_accounts:vendor_private_accounts", {
               vendorName: viewAccount?.vendorName,
             })}
           </Modal.Title>
@@ -97,7 +97,7 @@ export default function PrivateAccountsList() {
             {!isEmpty(viewAccount?.recentMessageTextBodies) && (
               <div className="text-muted mt-4">
                 <h6>
-                  {t("mobility:recent_messages_from_vendor", {
+                  {t("private_accounts:recent_messages_from_vendor", {
                     vendorName: viewAccount.vendorName,
                   })}
                 </h6>
@@ -129,7 +129,7 @@ export default function PrivateAccountsList() {
         </LayoutContainer>
       )}
       {isEmpty(accounts.items) && (
-        <LayoutContainer>{mdp("mobility:no_private_account_vendors")}</LayoutContainer>
+        <LayoutContainer>{mdp("private_accounts:no_private_accounts")}</LayoutContainer>
       )}
     </>
   );
@@ -152,11 +152,11 @@ function PrivateAccount({ account, onConfigure, onHelp }) {
       />
       {addressRequired ? (
         <Button className="mt-3" onClick={onConfigure}>
-          {t("mobility:create_account")}
+          {t("private_accounts:create_account")}
         </Button>
       ) : (
         <Stack direction="vertical">
-          <p className="mt-3 mb-0 text-muted">{t("mobility:username")}</p>
+          <p className="mt-3 mb-0 text-muted">{t("private_accounts:username")}</p>
           <p className="lead mb-0">
             {address}
             <Button variant="link" onClick={handleCopyAddress}>
@@ -165,14 +165,14 @@ function PrivateAccount({ account, onConfigure, onHelp }) {
           </p>
           <div className="mt-2 d-flex justify-content-around">
             <Button variant="outline-primary" onClick={() => onHelp()}>
-              {t("mobility:help")} <i className="ms-2 bi bi-info-circle"></i>
+              {t("common:help")} <i className="ms-2 bi bi-info-circle"></i>
             </Button>
             <Button
               variant="outline-primary"
               className="border-0"
               href={account.appLaunchLink}
             >
-              {t("mobility:app")} <i className="ms-2 bi bi-box-arrow-up-right"></i>
+              {t("common:app")} <i className="ms-2 bi bi-box-arrow-up-right"></i>
             </Button>
           </div>
         </Stack>
@@ -186,7 +186,7 @@ function PrivateAccount({ account, onConfigure, onHelp }) {
           autohide
         >
           <Toast.Body>
-            <p className="lead text-light mb-0">{t("mobility:copied_to_clipboard")}</p>
+            <p className="lead text-light mb-0">{t("common:copied_to_clipboard")}</p>
           </Toast.Body>
         </Toast>
       </ToastContainer>

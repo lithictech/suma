@@ -131,7 +131,7 @@ function AuthedUserButtons({ className, user, onCollapse }) {
         <NavLinkButton
           href="/private-accounts"
           icon="incognito"
-          label={t("mobility:private_accounts_title")}
+          label={t("titles:private_accounts")}
           onNoChangeClick={onCollapse}
         />
       )}

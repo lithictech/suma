@@ -1,4 +1,4 @@
-import { t } from "../../localization";
+import { mdp, t } from "../../localization";
 import FormError from "../FormError";
 import PageLoader from "../PageLoader";
 import RLink from "../RLink";
@@ -37,7 +37,9 @@ const ReservationCard = ({
   if (vehicle.gotoPrivateAccount) {
     action = (
       <>
-        <p>{t("mobility:setup_lime_private_account_title")}</p>
+        {mdp("mobility:setup_private_account_with_vendor", {
+          vendorName: vehicle.vendorService.vendorName,
+        })}
         <Button
           size="sm"
           variant="outline-primary"
@@ -45,14 +47,14 @@ const ReservationCard = ({
           href="/private-accounts"
           as={RLink}
         >
-          {t("mobility:get_started")}
+          {t("forms:get_started")}
         </Button>
       </>
     );
   } else if (vehicle.deeplink) {
     action = (
       <Button size="sm" variant="success" className="w-100" href={vehicle.deeplink}>
-        {t("mobility:open_app")} <i className="ms-2 bi bi-box-arrow-up-right"></i>
+        {t("common:open_app")} <i className="ms-2 bi bi-box-arrow-up-right"></i>
       </Button>
     );
   } else if (lastLocation) {
