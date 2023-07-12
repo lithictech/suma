@@ -37,7 +37,7 @@ RSpec.describe Suma::Member::Dashboard, :db do
           have_attributes(amount: cost("-$5")),
         ],
       ),
-      offering: be_nil,
+      offerings: [],
       mobility_available?: false,
     )
   end
