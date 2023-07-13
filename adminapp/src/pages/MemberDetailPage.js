@@ -199,7 +199,14 @@ function EligibilityConstraints({ memberConstraints, memberId, replaceMemberData
       });
     } else {
       memberConstraints.forEach(({ status, constraint }) =>
-        properties.push({ label: constraint.name, value: status })
+        properties.push({
+          label: constraint.name,
+          value: (
+            <Typography variant="span" sx={{ lineHeight: "2.5!important" }}>
+              {status}
+            </Typography>
+          ),
+        })
       );
     }
     return (
@@ -209,7 +216,7 @@ function EligibilityConstraints({ memberConstraints, memberId, replaceMemberData
             <>
               Eligibility Constraints
               <IconButton onClick={startEditing}>
-                <EditIcon />
+                <EditIcon color="info" />
               </IconButton>
             </>
           }
@@ -297,10 +304,10 @@ function EligibilityConstraints({ memberConstraints, memberId, replaceMemberData
           <>
             Eligibility Constraints
             <IconButton onClick={saveChanges}>
-              <SaveIcon />
+              <SaveIcon color="success" />
             </IconButton>
             <IconButton onClick={discardChanges}>
-              <CancelIcon />
+              <CancelIcon color="error" />
             </IconButton>
           </>
         }
@@ -313,7 +320,7 @@ function EligibilityConstraints({ memberConstraints, memberId, replaceMemberData
 function ConstraintStatus({ activeStatus, statuses, onChange }) {
   return (
     <div>
-      <Select label="Status" value={activeStatus} onChange={onChange}>
+      <Select value={activeStatus} onChange={onChange} size="small">
         {statuses.map((status) => (
           <MenuItem key={status} value={status}>
             {status}

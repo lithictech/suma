@@ -1,13 +1,14 @@
 import api from "../api";
 import AdminLink from "../components/AdminLink";
 import DetailGrid from "../components/DetailGrid";
+import Link from "../components/Link";
 import RelatedList from "../components/RelatedList";
 import useErrorSnackbar from "../hooks/useErrorSnackbar";
 import { dayjs } from "../modules/dayConfig";
 import Money from "../shared/react/Money";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
 import ListAltIcon from "@mui/icons-material/ListAlt";
-import { CircularProgress, Link } from "@mui/material";
+import { CircularProgress } from "@mui/material";
 import { makeStyles } from "@mui/styles";
 import isEmpty from "lodash/isEmpty";
 import React from "react";
@@ -61,7 +62,7 @@ export default function OfferingDetailPage() {
           />
           {!isEmpty(offering.orders) && (
             <Link
-              href={`/offering/${offering.id}/picklist`}
+              to={`/offering/${offering.id}/picklist`}
               sx={{ display: "inline-block", marginTop: "15px" }}
             >
               <ListAltIcon sx={{ verticalAlign: "middle", paddingRight: "5px" }} />
@@ -89,7 +90,7 @@ export default function OfferingDetailPage() {
   );
 }
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(() => ({
   closed: {
     opacity: 0.5,
   },
