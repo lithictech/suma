@@ -36,6 +36,8 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
       self.setup_private_accounts
 
       self.setup_automation
+
+      self.assign_fakeuser_constraints
     end
   end
 
@@ -132,14 +134,20 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
     svc.add_rate(rate) if svc.rates.empty?
   end
 
+  ADMIN_EMAIL = "admin@lithic.tech"
+
   def setup_admin
     return unless Suma::RACK_ENV == "development"
-    admin = Suma::Member.find_or_create(email: "admin@lithic.tech") do |c|
+    admin = Suma::Member.find_or_create(email: ADMIN_EMAIL) do |c|
       c.password = "Password1!"
       c.name = "Suma Admin"
       c.phone = "15552223333"
     end
     admin.ensure_role(Suma::Role.admin_role)
+  end
+
+  def assign_fakeuser_constraints
+    Suma::Eligibility::Constraint.assign_to_admins
   end
 
   def setup_holiday_offering
