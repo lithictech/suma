@@ -43,7 +43,7 @@ export default function InlineEditField({
       <div>
         {renderDisplay}
         <IconButton onClick={startEditing}>
-          <EditIcon />
+          <EditIcon color="info" />
         </IconButton>
       </div>
     );
@@ -52,10 +52,10 @@ export default function InlineEditField({
     <div>
       {renderEdit(editingState, setEditingState)}
       <IconButton onClick={saveChanges}>
-        <SaveIcon />
+        <SaveIcon color="success" />
       </IconButton>
       <IconButton onClick={discardChanges}>
-        <CancelIcon />
+        <CancelIcon color="error" />
       </IconButton>
     </div>
   );

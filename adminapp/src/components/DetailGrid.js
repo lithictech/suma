@@ -4,6 +4,7 @@ import isEmpty from "lodash/isEmpty";
 import React from "react";
 
 /**
+ * @param title The title of the detailgrid section
  * @param {Array<DetailGridProperty>} properties
  * @constructor
  */
@@ -18,23 +19,21 @@ export default function DetailGrid({ title, properties }) {
   return (
     <Box mt={2}>
       {title && (
-        <Typography variant="h6" gutterBottom>
+        <Typography variant="h6" gutterBottom mb={2}>
           {title}
         </Typography>
       )}
-      <Grid container spacing={2}>
-        <Grid item sx={{ width: "180px" }}>
-          {usedProperties.map(({ label }) => (
-            <Label key={label}>{label}</Label>
-          ))}
-        </Grid>
-        <Grid item>
-          {usedProperties.map(({ label, value, children }) => (
-            <Value key={label} value={value}>
-              {children}
-            </Value>
-          ))}
-        </Grid>
+      <Grid container spacing={2} alignItems="center" justifyContent="flex-end">
+        {usedProperties.map(({ label, value, children }) => (
+          <React.Fragment key={label}>
+            <Grid item xs={4} sm={3} lg={2} sx={{ paddingTop: "5px!important" }}>
+              <Label>{label}</Label>
+            </Grid>
+            <Grid item xs={8} sm={9} lg={10} sx={{ paddingTop: "5px!important" }}>
+              <Value value={value}>{children}</Value>
+            </Grid>
+          </React.Fragment>
+        ))}
       </Grid>
     </Box>
   );
@@ -42,7 +41,7 @@ export default function DetailGrid({ title, properties }) {
 
 function Label({ children }) {
   return (
-    <Typography variant="body1" color="textSecondary" align="right" gutterBottom>
+    <Typography variant="body1" color="textSecondary" align="right">
       {children}:
     </Typography>
   );
@@ -56,11 +55,7 @@ function Value({ value, children }) {
   if (value instanceof dayjs) {
     fmtVal = value.format("lll");
   }
-  return (
-    <Typography variant="body1" gutterBottom>
-      {fmtVal}
-    </Typography>
-  );
+  return <Typography variant="body1">{fmtVal}</Typography>;
 }
 
 /**
