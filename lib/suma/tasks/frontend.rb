@@ -9,11 +9,20 @@ class Suma::Tasks::Frontend < Rake::TaskLib
     super()
     namespace :frontend do
       task :build_webapp do
-        puts `bin/build-webapp`
+        self.runcmd("bin/build-webapp")
       end
       task :build_adminapp do
-        puts `bin/build-adminapp`
+        self.runcmd("bin/build-adminapp")
       end
     end
+  end
+
+  def runcmd(s)
+    require "English"
+    `#{s}`
+    ps = $CHILD_STATUS
+    return if ps.exitstatus.zero?
+    puts "Non-zero exit status: #{ps.inspect}"
+    exit(ps.exitstatus)
   end
 end
