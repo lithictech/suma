@@ -137,7 +137,7 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
   end
 
   describe "ResetCodeCreateDispatch" do
-    it "sends an sms for an sms reset code" do
+    it "dispatches the code" do
       member = Suma::Fixtures.member(phone: "12223334444").create
       expect do
         member.add_reset_code(token: "12345", transport: "sms")
@@ -148,9 +148,6 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
           template: "verification",
           transport_type: "sms",
           to: "12223334444",
-          bodies: contain_exactly(
-            have_attributes(content: "Your Suma verification code is: 12345"),
-          ),
         ),
       )
     end

@@ -9,24 +9,10 @@ class Suma::Message::SmsTransport < Suma::Message::Transport
   include Appydays::Configurable
   include Appydays::Loggable
 
-  # Given a string representing a phone number, returns that phone number in E.164 format (+1XXX5550100).
-  # Assumes all provided phone numbers are US numbers.
-  # Does not check for invalid area codes.
-  def self.format_phone(phone)
-    return nil if phone.blank?
-    return phone if /^\+1\d{10}$/.match?(phone)
-    phone = phone.gsub(/\D/, "")
-    return "+1" + phone if phone.size == 10
-    return "+" + phone if phone.size == 11
-  end
-
   register_transport(:sms)
 
   configurable(:sms) do
-    setting :allowlist,
-            [],
-            # NOTE: format_phone must be defined before this is called
-            convert: ->(s) { s.split.map { |p| Suma::Message::SmsTransport.format_phone(p) || p } }
+    setting :allowlist, [], convert: ->(s) { s.split.map { |p| Suma::Twilio.format_phone(p) || p } }
     setting :from, "15554443333"
   end
 
@@ -58,7 +44,7 @@ class Suma::Message::SmsTransport < Suma::Message::Transport
   end
 
   def allowlisted?(delivery)
-    return self._allowlisted?(self.class.format_phone(delivery.to))
+    return self._allowlisted?(Suma::Twilio.format_phone(delivery.to))
   end
 
   def _allowlisted?(phone)
@@ -70,7 +56,7 @@ class Suma::Message::SmsTransport < Suma::Message::Transport
 
   def send!(delivery)
     # The number provided to Twilio must be a phone number in E.164 format.
-    formatted_phone = self.class.format_phone(delivery.to)
+    formatted_phone = Suma::Twilio.format_phone(delivery.to)
     raise Suma::Message::Transport::Error, "Could not format phone number" if
       formatted_phone.nil?
 

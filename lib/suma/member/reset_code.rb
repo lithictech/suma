@@ -4,6 +4,7 @@ require "securerandom"
 
 require "suma/postgres"
 require "suma/member"
+require "suma/messages/verification"
 
 class Suma::Member::ResetCode < Suma::Postgres::Model(:member_reset_codes)
   class Unusable < RuntimeError; end
@@ -61,6 +62,39 @@ class Suma::Member::ResetCode < Suma::Postgres::Model(:member_reset_codes)
   def usable?
     return false if self.used?
     return !self.expired?
+  end
+
+  def dispatch_message
+    if self.transport == "sms" && (Suma::Member.sms_verification_service == "twilio_verify")
+      self._dispatch_twilio_verify
+      return
+      end
+    msg = Suma::Messages::Verification.new(self)
+    msg.language = self.member.message_preferences!.preferred_language
+    case self.transport
+      when "sms"
+        msg.dispatch_sms(self.member)
+      when "email"
+        msg.dispatch_email(self.member)
+      else
+        raise TypeError, "Unknown transport for #{self.inspect}"
+    end
+  end
+
+  def _dispatch_twilio_verify
+    locale = self.member.message_preferences!.preferred_language
+    twilio_to = Suma::Twilio.format_phone(self.member.phone)
+    v = Suma::Twilio.send_verification(twilio_to, code: self.token, locale:)
+    Suma::Message::Delivery.create(
+      template: "default",
+      transport_type: "sms",
+      transport_service: "twilio_verify",
+      transport_message_id: v.sid,
+      to: self.member.phone,
+      extra_fields: v.instance_variable_get(:@properties).as_json,
+      sent_at: Time.now,
+      template_language: locale,
+    )
   end
 
   #

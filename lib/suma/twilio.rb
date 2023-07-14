@@ -17,10 +17,22 @@ module Suma::Twilio
     setting :account_sid, "AC444test"
     setting :secret_id, "twilapikey_sid"
     setting :secret, "twilsecret"
+    setting :verification_sid, "VA555test"
 
     after_configured do
       @client = Twilio::REST::Client.new(self.secret_id, self.secret, self.account_sid, nil, nil, self.logger)
     end
+  end
+
+  # Given a string representing a phone number, returns that phone number in E.164 format (+1XXX5550100).
+  # Assumes all provided phone numbers are US numbers.
+  # Does not check for invalid area codes.
+  def self.format_phone(phone)
+    return nil if phone.blank?
+    return phone if /^\+1\d{10}$/.match?(phone)
+    phone = phone.gsub(/\D/, "")
+    return "+1" + phone if phone.size == 10
+    return "+" + phone if phone.size == 11
   end
 
   def self.send_sms(from, to, body, attempt: 0)
@@ -44,5 +56,13 @@ module Suma::Twilio
       # Nothing we can do in these cases, so just retry.
       retry
     end
+  end
+
+  def self.send_verification(to, code:, locale:, channel: "sms")
+    self.client.verify.
+      v2.
+      services(self.verification_sid).
+      verifications.
+      create(to:, channel:, custom_code: code, locale:)
   end
 end

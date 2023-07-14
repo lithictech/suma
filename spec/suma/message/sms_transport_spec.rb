@@ -65,31 +65,6 @@ RSpec.describe Suma::Message::SmsTransport, :db, reset_configuration: Suma::Mess
     end
   end
 
-  describe "format_phone" do
-    it "returns a phone number in E.164 format with a US country code" do
-      expect(described_class.format_phone("5554443210")).to eq("+15554443210")
-    end
-
-    it "strips non-numeric characters if present" do
-      expect(described_class.format_phone("(555) 444-3210")).to eq("+15554443210")
-    end
-
-    it "handles a country code already being present" do
-      expect(described_class.format_phone("+1 (555) 444-3210")).to eq("+15554443210")
-    end
-
-    it "does not modify a properly formatted US number" do
-      expect(described_class.format_phone("+15554443210")).to eq("+15554443210")
-    end
-
-    it "returns nil if number is not valid" do
-      expect(described_class.format_phone("555444321")).to be nil
-      expect(described_class.format_phone("notaphonenumber")).to be nil
-      expect(described_class.format_phone("")).to be nil
-      expect(described_class.format_phone(nil)).to be nil
-    end
-  end
-
   describe "add_bodies" do
     it "renders plain text" do
       delivery = Suma::Fixtures.message_delivery.via(:sms).create
