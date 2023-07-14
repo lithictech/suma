@@ -86,6 +86,7 @@ export default function ContactListAdd() {
         />
         <FormControlGroup
           className="mb-3"
+          type="tel"
           name="phone"
           label={t("forms:phone")}
           pattern="^(\+\d{1,2}\s)?\(?\d{3}\)?[\s-]\d{3}[\s-]\d{4}$"
@@ -93,8 +94,8 @@ export default function ContactListAdd() {
           register={register}
           errors={errors}
           value={phone}
-          onChange={(e) => handlePhoneChange(e, setPhone)}
           autoComplete="tel"
+          onChange={(e) => handlePhoneChange(e, setPhone)}
         />
         <Row className="mb-3">
           <FormControlGroup

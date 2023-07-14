@@ -73,17 +73,18 @@ export default function Start() {
       <Form noValidate onSubmit={handleSubmit(handleSubmitForm)}>
         <FormControlGroup
           className="mb-3"
+          type="tel"
           name="phone"
           label={t("forms:phone")}
           pattern="^(\+\d{1,2}\s)?\(?\d{3}\)?[\s-]\d{3}[\s-]\d{4}$"
           register={register}
           errors={errors}
           value={phone}
-          onChange={handlePhoneChange}
           aria-describedby="phoneRequired"
           autoComplete="tel"
           autoFocus
           required
+          onChange={handlePhoneChange}
         />
         <FormError error={error} />
         <FormButtons
