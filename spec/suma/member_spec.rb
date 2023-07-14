@@ -200,14 +200,10 @@ RSpec.describe "Suma::Member", :db do
     end
   end
 
-  describe "usable_payment_instruments" do
+  describe "usable_payment_instruments", reset_configuration: Suma::Payment do
     let(:member) { Suma::Fixtures.member.create }
     let(:bank_fac) { Suma::Fixtures.bank_account.member(member) }
     let(:card_fac) { Suma::Fixtures.card.member(member) }
-
-    after(:each) do
-      Suma::Payment.reset_configuration
-    end
 
     it "returns undeleted bank accounts and cards" do
       deleted_ba = bank_fac.create

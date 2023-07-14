@@ -262,15 +262,13 @@ RSpec.describe Suma::Service, :db do
     expect(Thread.current[:suma_request_admin]).to be_nil
   end
 
-  it "uses a consistent error shape for manual errors (merror!)" do
+  it "uses a consistent error shape for manual errors (merror!)", reset_configuration: described_class do
     described_class.localized_error_codes = nil
     get "/merror?code=test_err"
     expect(last_response).to have_status(403)
     expect(last_response_json_body).to eq(
       error: {doc_url: "http://some-place", message: "Hello!", status: 403, code: "test_err"},
     )
-  ensure
-    described_class.reset_configuration
   end
 
   it "uses a consistent error shape for validation errors" do
@@ -336,7 +334,7 @@ RSpec.describe Suma::Service, :db do
     )
   end
 
-  it "uses a consistent error shape for unhandled errors (devmode: off)" do
+  it "uses a consistent error shape for unhandled errors (devmode: off)", reset_configuration: Suma::Sentry do
     Suma::Sentry.dsn = "foo"
     Suma::Sentry.run_after_configured_hooks
     expect(Sentry).to receive(:capture_exception)
@@ -354,8 +352,6 @@ RSpec.describe Suma::Service, :db do
       code: "api_error",
     ))
     expect(last_response_json_body[:error]).to_not include(:backtrace)
-  ensure
-    Suma::Sentry.reset_configuration
   end
 
   it "uses a consistent error shape for unhandled errors (devmode: on)" do
@@ -374,11 +370,7 @@ RSpec.describe Suma::Service, :db do
     ))
   end
 
-  describe "error code localization" do
-    after(:each) do
-      described_class.reset_configuration
-    end
-
+  describe "error code localization", reset_configuration: described_class do
     it "does not error if code are localized" do
       get "/merror?code=auth_conflict"
       expect(last_response).to have_status(403)

@@ -3,12 +3,9 @@
 require "suma/message"
 require "suma/twilio"
 
-RSpec.describe Suma::Message::SmsTransport, :db do
+RSpec.describe Suma::Message::SmsTransport, :db, reset_configuration: Suma::Message::SmsTransport do
   before(:each) do
     described_class.allowlist = ["*"]
-  end
-  after(:each) do
-    described_class.reset_configuration
   end
 
   describe "allowlisted?" do

@@ -1,11 +1,7 @@
 # frozen_string_literal: true
 
-RSpec.describe "Suma::Payment::FundingTransaction", :db do
+RSpec.describe "Suma::Payment::FundingTransaction", :db, reset_configuration: Suma::Payment do
   let(:described_class) { Suma::Payment::FundingTransaction }
-
-  after(:each) do
-    Suma::Payment.reset_configuration
-  end
 
   describe "start_new" do
     let(:pacct) { Suma::Fixtures.payment_account.create }

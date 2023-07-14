@@ -14,6 +14,8 @@ require "rspec/json_expectations"
 require "rspec/temp_dir"
 require "timecop"
 require "webmock/rspec"
+require "appydays/spec_helpers"
+require "appydays/configurable/spec_helpers"
 require "appydays/loggable/spec_helpers"
 require "amigo/spec_helpers"
 require "state_machines/sequel/spec_helpers"
@@ -45,6 +47,8 @@ RSpec.configure do |config|
   config.disable_monkey_patching!
   config.default_formatter = "doc" if config.files_to_run.one?
 
+  config.include(Appydays::SpecHelpers)
+  config.include(Appydays::Configurable::SpecHelpers)
   config.include(Appydays::Loggable::SpecHelpers)
   config.include(Amigo::SpecHelpers)
 

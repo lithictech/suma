@@ -5,13 +5,11 @@ require "suma/twilio"
 
 RSpec.describe Suma::Message::Transport, :db do
   describe "for" do
-    it "returns a new transport instance" do
+    it "returns a new transport instance", reset_configuration: Suma::Message::SmsTransport do
       Suma::Message::SmsTransport.allowlist = ["99"]
       t = described_class.for("sms")
       expect(t).to be_a(Suma::Message::SmsTransport)
       expect(t.allowlist).to eq(["99"])
-    ensure
-      Suma::Message::SmsTransport.reset_configuration
     end
 
     it "can error for an invalid type" do
