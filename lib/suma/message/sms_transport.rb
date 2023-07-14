@@ -14,6 +14,12 @@ class Suma::Message::SmsTransport < Suma::Message::Transport
   configurable(:sms) do
     setting :allowlist, [], convert: ->(s) { s.split.map { |p| Suma::Twilio.format_phone(p) || p } }
     setting :from, "15554443333"
+    # If set, any message deliveries using this template will use Twilio verify, not normal SMS.
+    setting :verification_template, "verification"
+    # This is used to extract the verification code from a template.
+    # Must be coordinated with with the code generator.
+    # Default: match a word of only digits, surrounded by spaces or line start/end.
+    setting :verification_code_regex, '\b(\d+)\b'
   end
 
   attr_accessor :allowlist
@@ -44,10 +50,10 @@ class Suma::Message::SmsTransport < Suma::Message::Transport
   end
 
   def allowlisted?(delivery)
-    return self._allowlisted?(Suma::Twilio.format_phone(delivery.to))
+    return self.allowlisted_phone?(Suma::Twilio.format_phone(delivery.to))
   end
 
-  def _allowlisted?(phone)
+  def allowlisted_phone?(phone)
     return false if phone.nil?
     phone = phone.delete_prefix("+")
     allowed = self.allowlist.map { |s| s.delete_prefix("+") }
@@ -61,12 +67,25 @@ class Suma::Message::SmsTransport < Suma::Message::Transport
       formatted_phone.nil?
 
     raise Suma::Message::Transport::UndeliverableRecipient, "Number '#{formatted_phone}' not allowlisted" unless
-      self._allowlisted?(formatted_phone)
+      self.allowlisted_phone?(formatted_phone)
 
     body = delivery.bodies.first.content
-    self.logger.info("send_twilio_sms", to: formatted_phone, message_preview: body.slice(0, 20))
     begin
-      response = Suma::Twilio.send_sms(self.class.from, formatted_phone, body)
+      if delivery.template == self.class.verification_template
+        self.logger.info("send_verification_sms", to: formatted_phone)
+        rmatch = Regexp.new(self.class.verification_code_regex).match(body.strip)
+        raise "Cannot extract verification code from '#{body}' using '#{self.class.verification_code_regex}'" if
+          rmatch.nil?
+        response = Suma::Twilio.send_verification(formatted_phone, code: rmatch[1], locale: delivery.template_language)
+        # If we send the reset code multiple times with multiple deliveries,
+        # we get the same SID/message id, but different attempts. Disambiguate them,
+        # since we expect message ids to be empty.
+        sid = "#{response.sid}-#{response.send_code_attempts.length}"
+      else
+        self.logger.info("send_twilio_sms", to: formatted_phone, message_preview: body.slice(0, 20))
+        response = Suma::Twilio.send_sms(self.class.from, formatted_phone, body)
+        sid = response.sid
+      end
     rescue Twilio::REST::RestError => e
       if (logmsg = FATAL_TWILIO_ERRORS[e.code])
         self.logger.warn(logmsg, phone: formatted_phone, body:, error: e.response.body)
@@ -75,7 +94,7 @@ class Suma::Message::SmsTransport < Suma::Message::Transport
       raise(e)
     end
     self.logger.debug { "Response from Twilio: %p" % [response] }
-    return response.sid
+    return sid
   end
 
   # Twilio errors will usually be re-raised, but in some cases, we want to handle them by not handling them,

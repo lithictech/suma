@@ -18,19 +18,10 @@ class Suma::Member < Suma::Postgres::Model(:members)
   class InvalidPassword < RuntimeError; end
   class ReadOnlyMode < RuntimeError; end
 
-  SMS_VERIFICATION_SERVICES = ["sms", "twilio_verify"].freeze
-
   configurable(:member) do
     setting :onboard_allowlist, [], convert: ->(s) { s.split }
     setting :skip_verification_allowlist, [], convert: ->(s) { s.split }
     setting :superadmin_allowlist, [], convert: ->(s) { s.split }
-    # One of: 'sms', 'twilio_verify'
-    setting :sms_verification_service, "sms"
-
-    after_configured do
-      raise Appydays::TypeError, "invalid MEMBER_SMS_VERIFICATION_SERVICE" unless
-        SMS_VERIFICATION_SERVICES.include?(self.sms_verification_service)
-    end
   end
 
   # The bcrypt hash cost. Changing this would invalidate all passwords!

@@ -59,10 +59,19 @@ module Suma::Twilio
   end
 
   def self.send_verification(to, code:, locale:, channel: "sms")
-    self.client.verify.
-      v2.
-      services(self.verification_sid).
-      verifications.
-      create(to:, channel:, custom_code: code, locale:)
+    return self.client.verify.
+        v2.
+        services(self.verification_sid).
+        verifications.
+        create(to:, channel:, custom_code: code, locale:)
+  end
+
+  # Update the verification. Usually used to change the status (status: 'canceled' or 'approved') of reset codes.
+  def self.update_verification(ve_id, kw)
+    return self.client.verify.
+        v2.
+        services(self.verification_sid).
+        verifications(ve_id).
+        update(**kw)
   end
 end

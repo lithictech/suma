@@ -95,31 +95,5 @@ RSpec.describe "Suma::Member::ResetCode", :db do
         ),
       )
     end
-
-    it "can send sms verifications via Twilio Verify" do
-      Suma::Member.sms_verification_service = "twilio_verify"
-      member.message_preferences!.update(preferred_language: "es")
-      code = member.add_reset_code(token: "12345", transport: "sms")
-
-      req = stub_request(:post, "https://verify.twilio.com/v2/Services/VA555test/Verifications").
-        with(body: {"Channel" => "sms", "CustomCode" => "12345", "To" => "+#{phone}", "Locale" => "es"}).
-        to_return(status: 200, body: load_fixture_data("twilio/post_verification", raw: true))
-
-      code.dispatch_message
-
-      expect(req).to have_been_made
-      expect(Suma::Message::Delivery.all).to contain_exactly(
-        have_attributes(
-          template: "default",
-          transport_type: "sms",
-          transport_service: "twilio_verify",
-          transport_message_id: "VE123",
-          to: phone,
-          extra_fields: hash_including("send_code_attempts"),
-          sent_at: match_time(:now),
-          template_language: "es",
-        ),
-      )
-    end
   end
 end

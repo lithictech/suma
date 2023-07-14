@@ -63,6 +63,27 @@ RSpec.describe Suma::Message::SmsTransport, :db, reset_configuration: Suma::Mess
       end.to raise_error(Suma::Message::Transport::UndeliverableRecipient, /twilio_invalid_phone_number/)
       expect(req).to have_been_made
     end
+
+    it "sends verification messages via twilio verify" do
+      req = stub_request(:post, "https://verify.twilio.com/v2/Services/VA555test/Verifications").
+        with(body: {"Channel" => "sms", "CustomCode" => "12345", "To" => "+15554443210", "Locale" => "es"}).
+        to_return(status: 200, body: load_fixture_data("twilio/post_verification", raw: true))
+      delivery = Suma::Fixtures.message_delivery.
+        sms("+15554443210", "Your Suma verification code is: 12345").
+        create(template: "verification", template_language: "es")
+      result = described_class.new.send!(delivery)
+      expect(result).to eq("VE123-1")
+      expect(req).to have_been_made
+    end
+
+    it "errors if the verification template is used but no code can be extracted" do
+      delivery = Suma::Fixtures.message_delivery.
+        sms("+15554443210", "Your Suma verification code is: abcd").
+        create(template: "verification", template_language: "es")
+      expect do
+        described_class.new.send!(delivery)
+      end.to raise_error(/extract/)
+    end
   end
 
   describe "add_bodies" do

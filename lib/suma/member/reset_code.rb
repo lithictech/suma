@@ -65,10 +65,6 @@ class Suma::Member::ResetCode < Suma::Postgres::Model(:member_reset_codes)
   end
 
   def dispatch_message
-    if self.transport == "sms" && (Suma::Member.sms_verification_service == "twilio_verify")
-      self._dispatch_twilio_verify
-      return
-      end
     msg = Suma::Messages::Verification.new(self)
     msg.language = self.member.message_preferences!.preferred_language
     case self.transport
@@ -79,22 +75,6 @@ class Suma::Member::ResetCode < Suma::Postgres::Model(:member_reset_codes)
       else
         raise TypeError, "Unknown transport for #{self.inspect}"
     end
-  end
-
-  def _dispatch_twilio_verify
-    locale = self.member.message_preferences!.preferred_language
-    twilio_to = Suma::Twilio.format_phone(self.member.phone)
-    v = Suma::Twilio.send_verification(twilio_to, code: self.token, locale:)
-    Suma::Message::Delivery.create(
-      template: "default",
-      transport_type: "sms",
-      transport_service: "twilio_verify",
-      transport_message_id: v.sid,
-      to: self.member.phone,
-      extra_fields: v.instance_variable_get(:@properties).as_json,
-      sent_at: Time.now,
-      template_language: locale,
-    )
   end
 
   #
