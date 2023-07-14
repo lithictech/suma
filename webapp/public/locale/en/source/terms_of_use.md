@@ -1,12 +1,12 @@
-# Suma Summer Special Terms of Use
+# Suma Terms of Use
 
-Last Modified: June 28, 2023
+Last Modified: July 11, 2023
 
 ### Acceptance of the Terms of Use
 
-These terms of use are entered into by and between You and Suma ("**Company**," "**we**," or "**us**"). The following terms and conditions, together with any documents they expressly incorporate by reference (collectively, "**Terms of Use**"), govern your access to and use of app.mysuma.org for the 2023 Suma Summer Special program, as defined in the Terms of Sale, including any content, functionality, and services offered on or through [https://app.mysuma.org/app](https://app.mysuma.org/app__blank__ 'Suma app homepage') (the "**Website**").
+These terms of use are entered into by and between You and suma ("**Company**," "**we**," or "**us**"). The following terms and conditions, together with any documents they expressly incorporate by reference (collectively, "**Terms of Use**"), govern your access to and use of app.mysuma.org, including any content, functionality, and services offered on or through [https://app.mysuma.org/app](https://app.mysuma.org/app__blank__ 'suma app homepage') (the "**Website**").
 
-Please read the Terms of Use carefully before you start to use the Website. **By using the Website, you accept and agree to be bound and abide by these Terms of Use and our Privacy Policy, found at [https://app.mysuma.org/app/privacy-policy](https://app.mysuma.org/app/privacy-policy__blank__ 'suma privacy policy'), incorporated herein by reference**. If you do not want to agree to these Terms of Use or the Privacy Policy, you must not access or use the Website for the 2023 Suma Summer Special program.
+Please read the Terms of Use carefully before you start to use the Website. **By using the Website, you accept and agree to be bound and abide by these Terms of Use and our Privacy Policy, found at [https://app.mysuma.org/app/privacy-policy](https://app.mysuma.org/app/privacy-policy__blank__ 'suma privacy policy'), incorporated herein by reference**. If you do not want to agree to these Terms of Use or the Privacy Policy, you must not access or use the Website.
 
 By using this Website, you represent and warrant that you have all required authority to form a binding contract with the Company.
 
@@ -40,7 +40,7 @@ The Company name and all related names, logos, product and service names, design
 
 ### Prohibited Uses
 
-You may use the Website only to place and fulfill your order for the 2023 Suma Summer Special program, and in accordance with these and any other applicable Terms of Use. You agree not to use the Website:
+You may use the Website only in accordance with these and any other applicable Terms of Use. You agree not to use the Website:
 
 - In any way that violates any applicable federal, state, local, or international law or regulation (including, without limitation, any laws regarding the export of data or software to and from the U.S. or other countries).
 - For the purpose of exploiting, harming, or attempting to exploit or harm minors in any way by exposing them to inappropriate content, asking for personally identifiable information, or otherwise.
@@ -65,23 +65,23 @@ All information we collect on this Website is subject to our Privacy Policy [htt
 
 ### Online Purchases and Other Terms and Conditions
 
-All purchases through our site or other transactions for the sale of goods or services formed through the Website, or resulting from visits made by you, are governed by our ___2023 Suma Summer Special program Terms of Sale___ (“Terms of Sale”), available at [https://app.mysuma.org/app/terms-of-sale-summer-2023](https://app.mysuma.org/app/terms-of-sale-summer-2023__blank__ 'terms of sale for summer 2023'), which are hereby incorporated into these Terms of Use.
+All purchases through our site or other transactions for the sale of goods or services formed through the Website, or resulting from visits made by you, are governed by these Terms of Use and any other applicable terms and conditions.
 
 Additional terms and conditions may also apply to specific portions, services, or features of the Website. All such additional terms and conditions are hereby incorporated by this reference into these Terms of Use.
 
-The Website also may include offerings of goods and services by third parties.  It is your sole responsibility and obligation to ensure that all persons who take advantage of any third-party offerings through the Website are aware of and consent to any applicable additional terms and conditions from those third parties.  Failure to do so could result in your inability to participate in the 2023 Suma Summer Special program.
+The Website also may include offerings of goods and services by third parties.  It is your sole responsibility and obligation to ensure that all persons who take advantage of any third-party offerings through the Website are aware of and consent to any applicable additional terms and conditions from those third parties.
 
 ### Payment
 
 You agree to have the Company receive or execute payments on your behalf in relation to your use of goods or services provided by suma or its licensors and third-party partners, and manage settlement of related payments to you.
 
-Buyers may pay for your items using payment methods such as the following, the availability of which may vary:
+You may pay for your items using payment methods such as the following, the availability of which may vary:
 
 Certain credit or debit cards (VISA, MasterCard, American Express, and Discover).
 
 We may modify the scope of payment methods available in our sole discretion.
 
-The underlying contract for your purchase of “items” (which may refer to goods and/or services) for the 2023 Suma Summer Special program is directly between you and the seller of such items.
+You may be subject to the terms and conditions for your purchase of “items” (which may refer to goods and/or services)  as required by the seller of such items. Suma is not a party to such agreements between you and the seller. For avoidance of doubt, your financial obligations are directly with suma, not the seller, for your purchase of such items.
 
 ### Geographic Restrictions
 
@@ -91,7 +91,7 @@ The owner of the Website is based in the State of Oregon in the United States. W
 
 You understand that we cannot and do not guarantee or warrant that files available for downloading from the internet or the Website will be free of viruses or other destructive code. You are responsible for implementing sufficient procedures and checkpoints to satisfy your particular requirements for anti-virus protection and accuracy of data input and output, and for maintaining a means external to our site for any reconstruction of any lost data. TO THE FULLEST EXTENT PROVIDED BY LAW, WE WILL NOT BE LIABLE FOR ANY LOSS OR DAMAGE CAUSED BY A DISTRIBUTED DENIAL-OF-SERVICE ATTACK, VIRUSES, OR OTHER TECHNOLOGICALLY HARMFUL MATERIAL THAT MAY INFECT YOUR COMPUTER EQUIPMENT, COMPUTER PROGRAMS, DATA, OR OTHER PROPRIETARY MATERIAL DUE TO YOUR USE OF THE WEBSITE OR ANY SERVICES OR ITEMS OBTAINED THROUGH THE WEBSITE OR TO YOUR DOWNLOADING OF ANY MATERIAL POSTED ON IT, OR ON ANY WEBSITE LINKED TO IT.
 
-YOUR USE OF THE WEBSITE, ITS CONTENT, AND ANY SERVICES OR ITEMS OBTAINED THROUGH THE WEBSITE IS AT YOUR OWN RISK. THE WEBSITE, ITS CONTENT, AND ANY SERVICES OR ITEMS OBTAINED THROUGH THE WEBSITE ARE PROVIDED ON AN "AS IS" AND "AS AVAILABLE" BASIS, WITHOUT ANY WARRANTIES OF ANY KIND, EITHER EXPRESS OR IMPLIED. NEITHER THE COMPANY NOR ANY PERSON ASSOCIATED WITH THE COMPANY MAKES ANY WARRANTY OR REPRESENTATION WITH RESPECT TO THE COMPLETENESS, SECURITY, RELIABILITY, QUALITY, ACCURACY, OR AVAILABILITY OF THE WEBSITE, OR ANY GOODS AND SERVCIES OFFERED THROUGHT HE WEBSITE. WITHOUT LIMITING THE FOREGOING, NEITHER THE COMPANY NOR ANYONE ASSOCIATED WITH THE COMPANY REPRESENTS OR WARRANTS THAT THE WEBSITE, ITS CONTENT, OR ANY SERVICES OR ITEMS OBTAINED THROUGH THE WEBSITE WILL BE ACCURATE, RELIABLE, ERROR-FREE, OR UNINTERRUPTED, THAT DEFECTS WILL BE CORRECTED, THAT OUR SITE OR THE SERVER THAT MAKES IT AVAILABLE ARE FREE OF VIRUSES OR OTHER HARMFUL COMPONENTS, OR THAT THE WEBSITE OR ANY SERVICES OR ITEMS OBTAINED THROUGH THE WEBSITE WILL OTHERWISE MEET YOUR NEEDS OR EXPECTATIONS.
+YOUR USE OF THE WEBSITE, ITS CONTENT, AND ANY SERVICES OR ITEMS OBTAINED THROUGH THE WEBSITE IS AT YOUR OWN RISK. THE WEBSITE, ITS CONTENT, AND ANY SERVICES OR ITEMS OBTAINED THROUGH THE WEBSITE ARE PROVIDED ON AN "AS IS" AND "AS AVAILABLE" BASIS, WITHOUT ANY WARRANTIES OF ANY KIND, EITHER EXPRESS OR IMPLIED. NEITHER THE COMPANY NOR ANY PERSON ASSOCIATED WITH THE COMPANY MAKES ANY WARRANTY OR REPRESENTATION WITH RESPECT TO THE COMPLETENESS, SECURITY, RELIABILITY, QUALITY, ACCURACY, OR AVAILABILITY OF THE WEBSITE, OR ANY GOODS AND SERVICES OFFERED THROUGH THE WEBSITE. WITHOUT LIMITING THE FOREGOING, NEITHER THE COMPANY NOR ANYONE ASSOCIATED WITH THE COMPANY REPRESENTS OR WARRANTS THAT THE WEBSITE, ITS CONTENT, OR ANY SERVICES OR ITEMS OBTAINED THROUGH THE WEBSITE WILL BE ACCURATE, RELIABLE, ERROR-FREE, OR UNINTERRUPTED, THAT DEFECTS WILL BE CORRECTED, THAT OUR SITE OR THE SERVER THAT MAKES IT AVAILABLE ARE FREE OF VIRUSES OR OTHER HARMFUL COMPONENTS, OR THAT THE WEBSITE OR ANY SERVICES OR ITEMS OBTAINED THROUGH THE WEBSITE WILL OTHERWISE MEET YOUR NEEDS OR EXPECTATIONS.
 
 TO THE FULLEST EXTENT PROVIDED BY LAW, THE COMPANY HEREBY DISCLAIMS ALL WARRANTIES OF ANY KIND, WHETHER EXPRESS OR IMPLIED, STATUTORY, OR OTHERWISE, INCLUDING BUT NOT LIMITED TO ANY WARRANTIES OF MERCHANTABILITY, NON-INFRINGEMENT, AND FITNESS FOR PARTICULAR PURPOSE.
 

@@ -56,9 +56,9 @@
     "success_intro": "Thank you for signing up, and welcome to the suma app!\n\nWe will update you on all future projects, money saving opportunities, and how to complete the app enrollment process. To learn more about suma, visit our website at $t(strings:common:mysuma_website_link), or check us out on our social media using the link below. Chat soon!"
   },
   "dashboard": {
+    "check_available_for_purchase": "Check out whats available for purchase",
     "check_ongoing_trip": "You have an ongoing trip. Please make sure you end it when you are finished with your ride!",
     "check_ongoing_trip_button": "See My Trip",
-    "check_available_for_purchase": "Check out whats available for purchase",
     "get_rolling_with_discounts": "Get rolling with discounted e-scooters and e-bikes",
     "lifetime_savings": "Suma Savings",
     "no_money": "You haven't added or spent any money. $t(strings:payments:funding_link)",
