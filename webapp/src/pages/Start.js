@@ -81,7 +81,7 @@ export default function Start() {
           value={phone}
           onChange={handlePhoneChange}
           aria-describedby="phoneRequired"
-          autoComplete="tel-national"
+          autoComplete="tel"
           autoFocus
           required
         />
