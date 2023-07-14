@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+set -e
 
 cd webapp
 # Need dev deps to build
