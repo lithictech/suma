@@ -57,7 +57,7 @@ class Suma::API::AnonProxy < Suma::API::V1
     expose :vendor_name, &self.delegate_to(:configuration, :vendor, :name)
     expose :vendor_slug, &self.delegate_to(:configuration, :vendor, :slug)
     expose :vendor_image, with: ImageEntity, &self.delegate_to(:configuration, :vendor, :images, :first)
-    expose :recent_message_text_bodies
+    expose :latest_access_code_if_recent, as: :latest_access_code
   end
 
   class MutationAnonProxyVendorAccountEntity < AnonProxyVendorAccountEntity
