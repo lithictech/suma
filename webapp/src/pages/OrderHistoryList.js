@@ -3,11 +3,12 @@ import ErrorScreen from "../components/ErrorScreen";
 import LinearBreadcrumbs from "../components/LinearBreadcrumbs";
 import PageLoader from "../components/PageLoader";
 import RLink from "../components/RLink";
+import SeeAlsoAlert from "../components/SeeAlsoAlert";
 import SumaImage from "../components/SumaImage";
-import UnclaimedOrdersWidget from "../components/UnclaimedOrdersWidget";
 import { mdp, t } from "../localization";
 import { dayjs } from "../modules/dayConfig";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
+import { useUser } from "../state/useUser";
 import { LayoutContainer } from "../state/withLayout";
 import find from "lodash/find";
 import isEmpty from "lodash/isEmpty";
@@ -17,6 +18,7 @@ import Card from "react-bootstrap/Card";
 import { Link, useNavigate } from "react-router-dom";
 
 export default function OrderHistoryList() {
+  const { user } = useUser();
   const {
     state: orderHistory,
     loading,
@@ -47,8 +49,16 @@ export default function OrderHistoryList() {
   }
   return (
     <>
-      <UnclaimedOrdersWidget />
-      <LayoutContainer top gutters>
+      {user.unclaimedOrdersCount > 0 && (
+        <SeeAlsoAlert
+          variant="success"
+          label={t("food:claim_orders")}
+          iconClass="bi-bag-check-fill"
+          show
+          to="/unclaimed-orders"
+        />
+      )}
+      <LayoutContainer top={user.unclaimedOrdersCount === 0} gutters>
         <LinearBreadcrumbs back="/food" />
         <h2>{t("food:order_history_title")}</h2>
       </LayoutContainer>

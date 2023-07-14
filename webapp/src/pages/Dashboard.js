@@ -2,7 +2,7 @@ import api from "../api";
 import AddToHomescreen from "../components/AddToHomescreen";
 import PageLoader from "../components/PageLoader";
 import RLink from "../components/RLink";
-import UnclaimedOrdersWidget from "../components/UnclaimedOrdersWidget";
+import SeeAlsoAlert from "../components/SeeAlsoAlert";
 import { md, t } from "../localization";
 import readOnlyReason from "../modules/readOnlyReason";
 import Money from "../shared/react/Money";
@@ -49,43 +49,35 @@ export default function Dashboard() {
           {readOnlyReason(user, "read_only_unverified")}
         </Alert>
       )}
-      <AvailabilityLink
-        label={t("dashboard:check_available_for_purchase")}
-        iconClass="bi-bag"
-        show={!isEmpty(offerings)}
-        to={offerings?.length > 1 ? "/food" : `/food/${first(offerings)?.id}`}
-      />
-      <AvailabilityLink
-        label={t("dashboard:get_rolling_with_discounts")}
-        iconClass="bi-scooter"
-        show={Boolean(mobilityVehiclesAvailable)}
-        to="/mobility"
-      />
+      {user.unclaimedOrdersCount === 0 ? (
+        <>
+          <SeeAlsoAlert
+            variant="info"
+            label={t("dashboard:check_available_for_purchase")}
+            iconClass="bi-bag-fill"
+            show={!isEmpty(offerings)}
+            to={offerings?.length > 1 ? "/food" : `/food/${first(offerings)?.id}`}
+          />
+          <SeeAlsoAlert
+            variant="info"
+            label={t("dashboard:get_rolling_with_discounts")}
+            iconClass="bi-scooter"
+            show={Boolean(mobilityVehiclesAvailable)}
+            to="/mobility"
+          />
+        </>
+      ) : (
+        <SeeAlsoAlert
+          variant="success"
+          label={t("food:claim_orders")}
+          iconClass="bi-bag-check-fill"
+          show
+          to="/unclaimed-orders"
+        />
+      )}
       <AddToHomescreen />
-      <UnclaimedOrdersWidget />
       {dashboardLoading ? <PageLoader /> : <Ledger dashboard={dashboard} />}
     </>
-  );
-}
-
-function AvailabilityLink({ label, iconClass, show, to }) {
-  if (!show) {
-    return null;
-  }
-  return (
-    <Alert variant="success" className="border-radius-0">
-      <Alert.Link
-        as={RLink}
-        href={to}
-        className="d-flex justify-content-between align-items-center text-success"
-      >
-        <i className={`bi ${iconClass} me-2`}></i>
-        {label}
-        <div className="ms-auto">
-          <i className="bi bi-arrow-right ms-1"></i>
-        </div>
-      </Alert.Link>
-    </Alert>
   );
 }
 
