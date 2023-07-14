@@ -101,7 +101,7 @@ export default function FoodDetails() {
             <div
               className={clsx(
                 "me-4 text-end",
-                anyMoney(intToMoney(itemSubtotal)) ? "opacity-1" : "opacity-0"
+                !anyMoney(intToMoney(itemSubtotal)) && "d-none"
               )}
             >
               <div className="mt-2 small text-secondary">{t("food:item_subtotal")}</div>
