@@ -4,6 +4,7 @@ require "securerandom"
 
 require "suma/postgres"
 require "suma/member"
+require "suma/messages/verification"
 
 class Suma::Member::ResetCode < Suma::Postgres::Model(:member_reset_codes)
   class Unusable < RuntimeError; end
@@ -61,6 +62,19 @@ class Suma::Member::ResetCode < Suma::Postgres::Model(:member_reset_codes)
   def usable?
     return false if self.used?
     return !self.expired?
+  end
+
+  def dispatch_message
+    msg = Suma::Messages::Verification.new(self)
+    msg.language = self.member.message_preferences!.preferred_language
+    case self.transport
+      when "sms"
+        msg.dispatch_sms(self.member)
+      when "email"
+        msg.dispatch_email(self.member)
+      else
+        raise TypeError, "Unknown transport for #{self.inspect}"
+    end
   end
 
   #

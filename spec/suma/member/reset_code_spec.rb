@@ -59,4 +59,41 @@ RSpec.describe "Suma::Member::ResetCode", :db do
       expect(described_class.usable).to contain_exactly(usable)
     end
   end
+
+  describe "::dispatch_message", reset_configuration: Suma::Member do
+    let(:phone) { "12223334444" }
+    let(:email) { "a@b.c" }
+    let(:member) { Suma::Fixtures.member(phone:, email:).create }
+
+    it "can send the code via sms" do
+      code = member.add_reset_code(token: "12345", transport: "sms")
+      code.dispatch_message
+
+      expect(Suma::Message::Delivery.all).to contain_exactly(
+        have_attributes(
+          template: "verification",
+          transport_type: "sms",
+          to: phone,
+          bodies: contain_exactly(
+            have_attributes(content: "Your Suma verification code is: 12345"),
+          ),
+        ),
+      )
+    end
+
+    it "can send the code via email" do
+      member.message_preferences!.update(preferred_language: "es")
+      code = member.add_reset_code(token: "12345", transport: "email")
+      code.dispatch_message
+
+      expect(Suma::Message::Delivery.all).to contain_exactly(
+        have_attributes(
+          template: "verification",
+          transport_type: "email",
+          to: email,
+          bodies: include(have_attributes(mediatype: "subject", content: "Su código de verificación suma")),
+        ),
+      )
+    end
+  end
 end

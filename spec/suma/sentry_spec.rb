@@ -4,11 +4,7 @@ require "appydays/loggable"
 
 require "suma/sentry"
 
-RSpec.describe Suma::Sentry do
-  after(:each) do
-    described_class.reset_configuration
-  end
-
+RSpec.describe Suma::Sentry, reset_configuration: Suma::Sentry do
   it "configures the Sentry service" do
     described_class.dsn = "http://public:secret@not-really-sentry.nope/someproject"
     described_class.run_after_configured_hooks

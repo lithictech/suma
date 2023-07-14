@@ -2,7 +2,7 @@
 
 require "suma/api/auth"
 
-RSpec.describe Suma::API::Auth, :db do
+RSpec.describe Suma::API::Auth, :db, reset_configuration: Suma::Member do
   include Rack::Test::Methods
 
   let(:app) { described_class.build_app }
@@ -22,13 +22,6 @@ RSpec.describe Suma::API::Auth, :db do
     {name:, email:, phone:, password:, timezone:}
   end
   let(:member_create_params) { member_params.merge(phone: full_phone) }
-
-  before(:each) do
-    Suma::Member.reset_configuration
-  end
-  after(:each) do
-    Suma::Member.reset_configuration
-  end
 
   describe "POST /v1/auth/start" do
     it "errors if a member is already authed" do

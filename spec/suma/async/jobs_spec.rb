@@ -137,7 +137,7 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
   end
 
   describe "ResetCodeCreateDispatch" do
-    it "sends an sms for an sms reset code" do
+    it "dispatches the code" do
       member = Suma::Fixtures.member(phone: "12223334444").create
       expect do
         member.add_reset_code(token: "12345", transport: "sms")
@@ -148,18 +148,14 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
           template: "verification",
           transport_type: "sms",
           to: "12223334444",
-          bodies: contain_exactly(
-            have_attributes(content: "Your Suma verification code is: 12345"),
-          ),
         ),
       )
     end
   end
 
-  describe "SyncLimeFreeBikeStatusGbfs" do
+  describe "SyncLimeFreeBikeStatusGbfs", reset_configuration: Suma::Lime do
     before(:each) do
       Suma::Fixtures.vendor_service(vendor: Suma::Lime.mobility_vendor).mobility.create
-      Suma::Lime.reset_configuration
     end
 
     it "sync lime scooters gbfs" do
@@ -182,10 +178,9 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
     end
   end
 
-  describe "SyncLimeGeofencingZonesGbfs" do
+  describe "SyncLimeGeofencingZonesGbfs", reset_configuration: Suma::Lime do
     before(:each) do
       Suma::Fixtures.vendor_service(vendor: Suma::Lime.mobility_vendor).mobility.create
-      Suma::Lime.reset_configuration
     end
 
     it "sync geofencing zones gbfs" do
@@ -208,10 +203,7 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
     end
   end
 
-  describe "UpsertFrontappContact" do
-    after(:each) do
-      Suma::Frontapp.reset_configuration
-    end
+  describe "UpsertFrontappContact", reset_configuration: Suma::Frontapp do
     it "upserts front contacts" do
       Suma::Frontapp.auth_token = "fake token"
       req = stub_request(:post, "https://api2.frontapp.com/contacts").
@@ -227,7 +219,6 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
     end
 
     it "noops if Front is not configured" do
-      Suma::Frontapp.reset_configuration
       expect do
         Suma::Fixtures.member.create
       end.to perform_async_job(Suma::Async::UpsertFrontappContact)

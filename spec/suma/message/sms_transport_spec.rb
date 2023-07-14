@@ -3,12 +3,9 @@
 require "suma/message"
 require "suma/twilio"
 
-RSpec.describe Suma::Message::SmsTransport, :db do
+RSpec.describe Suma::Message::SmsTransport, :db, reset_configuration: Suma::Message::SmsTransport do
   before(:each) do
     described_class.allowlist = ["*"]
-  end
-  after(:each) do
-    described_class.reset_configuration
   end
 
   describe "allowlisted?" do
@@ -66,30 +63,26 @@ RSpec.describe Suma::Message::SmsTransport, :db do
       end.to raise_error(Suma::Message::Transport::UndeliverableRecipient, /twilio_invalid_phone_number/)
       expect(req).to have_been_made
     end
-  end
 
-  describe "format_phone" do
-    it "returns a phone number in E.164 format with a US country code" do
-      expect(described_class.format_phone("5554443210")).to eq("+15554443210")
+    it "sends verification messages via twilio verify" do
+      req = stub_request(:post, "https://verify.twilio.com/v2/Services/VA555test/Verifications").
+        with(body: {"Channel" => "sms", "CustomCode" => "12345", "To" => "+15554443210", "Locale" => "es"}).
+        to_return(status: 200, body: load_fixture_data("twilio/post_verification", raw: true))
+      delivery = Suma::Fixtures.message_delivery.
+        sms("+15554443210", "Your Suma verification code is: 12345").
+        create(template: "verification", template_language: "es")
+      result = described_class.new.send!(delivery)
+      expect(result).to eq("VE123-1")
+      expect(req).to have_been_made
     end
 
-    it "strips non-numeric characters if present" do
-      expect(described_class.format_phone("(555) 444-3210")).to eq("+15554443210")
-    end
-
-    it "handles a country code already being present" do
-      expect(described_class.format_phone("+1 (555) 444-3210")).to eq("+15554443210")
-    end
-
-    it "does not modify a properly formatted US number" do
-      expect(described_class.format_phone("+15554443210")).to eq("+15554443210")
-    end
-
-    it "returns nil if number is not valid" do
-      expect(described_class.format_phone("555444321")).to be nil
-      expect(described_class.format_phone("notaphonenumber")).to be nil
-      expect(described_class.format_phone("")).to be nil
-      expect(described_class.format_phone(nil)).to be nil
+    it "errors if the verification template is used but no code can be extracted" do
+      delivery = Suma::Fixtures.message_delivery.
+        sms("+15554443210", "Your Suma verification code is: abcd").
+        create(template: "verification", template_language: "es")
+      expect do
+        described_class.new.send!(delivery)
+      end.to raise_error(/extract/)
     end
   end
 

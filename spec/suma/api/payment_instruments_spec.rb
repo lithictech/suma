@@ -2,7 +2,7 @@
 
 require "suma/api/payment_instruments"
 
-RSpec.describe Suma::API::PaymentInstruments, :db do
+RSpec.describe Suma::API::PaymentInstruments, :db, reset_configuration: Suma::Payment do
   include Rack::Test::Methods
 
   let(:app) { described_class.build_app }
@@ -12,10 +12,6 @@ RSpec.describe Suma::API::PaymentInstruments, :db do
 
   before(:each) do
     login_as(member)
-  end
-
-  after(:each) do
-    Suma::Payment.reset_configuration
   end
 
   describe "POST /v1/payment_instruments/bank_accounts/create" do
