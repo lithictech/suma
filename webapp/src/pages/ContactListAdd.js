@@ -94,7 +94,7 @@ export default function ContactListAdd() {
           errors={errors}
           value={phone}
           onChange={(e) => handlePhoneChange(e, setPhone)}
-          autoComplete="tel-national"
+          autoComplete="tel"
         />
         <Row className="mb-3">
           <FormControlGroup
