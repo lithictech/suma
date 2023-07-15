@@ -82,8 +82,8 @@ RSpec.describe Suma::AnonProxy::MessageHandler, :db do
     let(:vendor_account) do
       Suma::Fixtures.anon_proxy_vendor_account(configuration: vendor_config).with_contact.create
     end
-    let(:message) do
-      email = load_fixture_data("webhookdb/lime_access_code_postmark_email")
+    def create_message(file)
+      email = load_fixture_data(file)
       content = JSON.parse(email["data"]).fetch("HtmlBody")
       Suma::AnonProxy::ParsedMessage.new(
         message_id: "msg1",
@@ -93,16 +93,18 @@ RSpec.describe Suma::AnonProxy::MessageHandler, :db do
         timestamp: Time.now,
       )
     end
+    let(:signin_message) { create_message("webhookdb/lime_access_code_postmark_email") }
+    let(:confirm_message) { create_message("webhookdb/lime_access_code_confirm_postmark_email") }
 
     it "handles messages from no-reply" do
-      expect(lime).to be_can_handle(message)
+      expect(lime).to be_can_handle(signin_message)
     end
 
     # rubocop:disable Layout/LineLength
     it "parses an access code, assigns it to the vendor account, and sends it via SMS" do
       got = Suma::AnonProxy::MessageHandler.handle(
         Suma::AnonProxy::Relay.create!("fake-relay"),
-        message,
+        signin_message,
       )
       expect(vendor_account.contact.member.message_deliveries).to contain_exactly(be === got.outbound_delivery)
       expect(got.outbound_delivery).to have_attributes(to: vendor_account.contact.member.phone)
@@ -114,13 +116,29 @@ RSpec.describe Suma::AnonProxy::MessageHandler, :db do
         latest_access_code_set_at: match_time(:now),
       )
     end
+
+    it "parses an confirmation access code code, assigns it to the vendor account, and sends it via SMS" do
+      got = Suma::AnonProxy::MessageHandler.handle(
+        Suma::AnonProxy::Relay.create!("fake-relay"),
+        confirm_message,
+      )
+      expect(vendor_account.contact.member.message_deliveries).to contain_exactly(be === got.outbound_delivery)
+      expect(got.outbound_delivery).to have_attributes(to: vendor_account.contact.member.phone)
+      expect(got.outbound_delivery.bodies.first).to have_attributes(
+        content: "Verify your Lime account with this link https://limebike.app.link/email_verification?authentication_code=hXYamQ1JGVifc6xuMv6qUrLZ or this code: hXYamQ1JGVifc6xuMv6qUrLZ",
+      )
+      expect(vendor_account.refresh).to have_attributes(
+        latest_access_code: "hXYamQ1JGVifc6xuMv6qUrLZ",
+        latest_access_code_set_at: match_time(:now),
+      )
+    end
     # rubocop:enable Layout/LineLength
 
     it "noops if we do not recognize the message" do
-      message.content.gsub!(/copy and paste/, "foo and bar")
+      signin_message.content.gsub!(/copy and paste/, "foo and bar")
       got = Suma::AnonProxy::MessageHandler.handle(
         Suma::AnonProxy::Relay.create!("fake-relay"),
-        message,
+        signin_message,
       )
       expect(got).to be_nil
       expect(vendor_account.contact.member.message_deliveries).to be_empty
