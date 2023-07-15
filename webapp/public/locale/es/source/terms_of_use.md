@@ -1,12 +1,12 @@
-# Términos de uso especiale de verano de suma
+# Términos de Uso de Suma
 
-Última modificación: 28 de junio de 2023
+Última modificación: 11 de julio de 2023
 
 ### Aceptación de los Términos de Uso
 
-Estos términos de uso se celebran entre usted y Suma ("**Compañía,**" "**nosotros,**" o "**a nosotros**"). Los siguientes términos y condiciones, junto con cualquier documento que incorporen expresamente por referencia (colectivamente, "**Condiciones de uso**"), rigen su acceso y uso de app.mysuma.org para el programa especial de verano de Suma 2023, tal como se define en los Términos de venta, incluido cualquier contenido, funcionalidad y servicio ofrecido en o a través de https://app.mysuma.org (el "**Sitio web**").
+Estos términos de uso se celebran entre usted y suma ("**Compañía,**" "**nosotros,**" o "**a nosotros**"). Los siguientes términos y condiciones, junto con cualquier documento que incorporen expresamente por referencia (colectivamente, "**Condiciones de uso**"), rigen su acceso y uso de app.mysuma.org, incluido cualquier contenido, funcionalidad y servicio ofrecido en o a través de [https://app.mysuma.org](https://app.mysuma.org__blank__ 'suma app') (el "**Sitio web**").
 
-Lea atentamente los Términos de uso antes de comenzar a utilizar el sitio web. **Al usar el sitio web, usted acepta estar sujeto y cumplir con estos Términos de uso y nuestra Política de privacidad, que se encuentran en https://app.mysuma.org/app/privacy-policy, incorporados aquí como referencia**. Si no desea aceptar estos Términos de uso o la Política de privacidad, no debe acceder ni utilizar el sitio web para el programa especial de verano de Suma 2023.
+Lea atentamente los Términos de uso antes de comenzar a utilizar el sitio web. **Al usar el sitio web, usted acepta estar sujeto y cumplir con estos Términos de uso y nuestra Política de privacidad, que se encuentran en [https://app.mysuma.org/app/privacy-policy](https://app.mysuma.org/app/privacy-policy__blank__ 'política de privacidad'), incorporados aquí como referencia**. Si no desea aceptar estos Términos de uso o la Política de privacidad, no debe acceder ni utilizar el sitio web.
 
 Al usar este sitio web, usted declara y garantiza que tiene toda la autoridad requerida para formar un contrato vinculante con la Compañía.
 
@@ -42,7 +42,7 @@ El nombre de la Compañía y todos los nombres, logotipos, nombres de productos 
 
 ### Usos Prohibidos
 
-Puede usar el sitio web solo para realizar y completar su pedido para el programa especial de verano de Suma 2023, y de acuerdo con estos y otros Términos de uso aplicables. Usted acepta no utilizar el sitio web:
+Puede usar el sitio web solo de acuerdo con estos y otros Términos de uso aplicables. Usted acepta no utilizar el sitio web:
 - De cualquier manera que viole cualquier ley o regulación federal, estatal, local o internacional aplicable (incluidas, entre otras, las leyes relacionadas con la exportación de datos o software hacia y desde los EE. UU. o otros países).
 - Con el propósito de explotar, dañar o intentar explotar o dañar a menores de cualquier manera exponiéndolos a contenido inapropiado, solicitando información de identificación personal, o de otra manera.
 - Participar en cualquier otra conducta que restrinja o inhiba el uso o disfrute del sitio web por parte de cualquier persona, o que, según lo determinemos, pueda dañar a la Compañía o a los usuarios del sitio web, o exponerlos a responsabilidad.
@@ -54,7 +54,7 @@ Además, acepta no:
 
 ### Confianza en la información publicada
 
-La información presentada en oa través del sitio web se pone a disposición únicamente con fines de información general. No garantizamos la exactitud, integridad o utilidad de esta información. Cualquier confianza que deposite en dicha información es estrictamente bajo su propio riesgo. Renunciamos a toda responsabilidad que surja de la confianza depositada en dichos materiales por usted o cualquier otro visitante del sitio web, o por cualquier persona que pueda estar informada de cualquiera de sus contenidos.
+La información presentada en o a través del sitio web se pone a disposición únicamente con fines de información general. No garantizamos la exactitud, integridad o utilidad de esta información. Cualquier confianza que deposite en dicha información es estrictamente bajo su propio riesgo. Renunciamos a toda responsabilidad que surja de la confianza depositada en dichos materiales por usted o cualquier otro visitante del sitio web, o por cualquier persona que pueda estar informada de cualquiera de sus contenidos.
 
 ### Cambios en el sitio web
 Es posible que actualicemos el contenido de este sitio web de vez en cuando, pero su contenido no está necesariamente completo o actualizado. Cualquiera de los materiales en el sitio web puede estar desactualizado en un momento dado, y no tenemos la obligación de actualizar dicho material.
@@ -65,23 +65,23 @@ Toda la información que recopilamos en este sitio web está sujeta a nuestra Po
 
 ### Compras en línea y otros términos y condiciones
 
-Todas las compras a través de nuestro sitio o otras transacciones para la venta de bienes o servicios realizadas a través del sitio web, o que resulten de las visitas realizadas por usted, se rigen por nuestra ___Programa especial de verano de Suma 2023 Condiciones de venta___ ("Términos de venta"), disponible en [https://app.mysuma.org/app/terms-of-sale-summer-2023](https://app.mysuma.org/app/terms-of-sale-summer-2023__blank__ 'términos de venta para verano 2023'), que se incorporan por el presente a estos Términos de uso.
+Todas las compras a través de nuestro sitio o otras transacciones para la venta de bienes o servicios realizadas a través del sitio web, o que resulten de las visitas realizadas por usted, se rigen por estos Términos de uso y cualquier otro término y condición aplicable.
 
 También se pueden aplicar términos y condiciones adicionales a partes, servicios o características específicas del sitio web. Todos los términos y condiciones adicionales se incorporan por medio de esta referencia a estos Términos de uso.
 
-El sitio web también puede incluir ofertas de bienes y servicios de terceros. Es su exclusiva responsabilidad y obligación asegurarse de que todas las personas que aprovechan las ofertas de terceros a través del sitio web conocen y aceptan los términos y condiciones adicionales aplicables de esos terceros. De no hacerlo, podría resultar en su incapacidad para participar en el programa especial de verano de Suma 2023.
+El sitio web también puede incluir ofertas de bienes y servicios de terceros. Es su exclusiva responsabilidad y obligación asegurarse de que todas las personas que aprovechan las ofertas de terceros a través del sitio web conocen y aceptan los términos y condiciones adicionales aplicables de esos terceros.
 
 ### Pago
 
 Usted acepta que la Compañía reciba o ejecute pagos en su nombre en relación con su uso de bienes o servicios proporcionados por suma o sus licenciantes y socios externos, y gestione la liquidación de los pagos relacionados con usted.
 
-Los compradores pueden pagar sus artículos utilizando métodos de pago como los siguientes, cuya disponibilidad puede variar:
+Usted puede pagar sus artículos utilizando métodos de pago como los siguientes, cuya disponibilidad puede variar:
 
 - Ciertas tarjetas de crédito o débito (VISA, MasterCard, American Express y Discover).
 
 Podemos modificar el alcance de los métodos de pago disponibles a nuestro exclusivo criterio.
 
-El contrato subyacente para su compra de "artículos" (que pueden referirse a bienes y/o servicios) para el programa especial de verano de Suma 2023 es directamente entre usted y el vendedor de dichos artículos.
+Usted puede estar sujeto a los términos y condiciones para la compra de "artículos" (que pueden referirse a bienes y/o servicios) según lo exija el vendedor de dichos artículos. Suma no es parte de tales acuerdos entre usted y el vendedor. Para evitar dudas, sus obligaciones financieras son directamente con suma, no con el vendedor, por la compra de dichos artículos.
 
 ### Restricciones Geográficas
 
