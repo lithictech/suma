@@ -375,22 +375,23 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
           3. When prompted to sign in, choose 'Other options'
           4. Choose 'Email'
           5. Enter the email **<Copyable>%{address}</Copyable>**, and press 'Next'.
-          6. The next screen is 'Check Your Email'. Instead, **reopen the Suma web app.**
+          6. The next screen is 'Check Your Email'. Instead, **reopen the suma web app.**
           7. Within a few seconds, a verification code will appear in Suma.
           8. Once it does, copy the code.
           9. Go back to Lime, press 'Enter Code', paste the code into the Lime app, and press 'Next'.
           10. You are logged into Lime and ready to start riding.
         MD
         es: <<~MD,
-          1. Descargue la aplicación Lime en Play o App Store, o siga [este enlace](https://limebike.app.link/m2h6hB9qrS)
+          1. Descargue la aplicación Lime en Play o App Store, o siga <a href="https://limebike.app.link/m2h6hB9qrS" target="_blank">este enlace</a>.
           2. Inicie la aplicación Lime.
           3. Cuando se le solicite iniciar sesión, elija 'Otras opciones'
           4. Elija 'Email'
-          5. Ingrese el correo electrónico **%{address}**, y presione 'Siguiente'.
-          6. La siguiente pantalla es 'Verifique su correo electrónico'. Sin embargo, **su código llegará a través de SMS.** Presione 'Ingresar código' para continuar.
+          5. Ingrese el correo electrónico **<Copyable>%{address}</Copyable>**, y presione 'Siguiente'.
+          6. La siguiente pantalla es 'Verifique su correo electrónico'. Sin embargo, **reabra la app de suma.**
           7. En unos segundos, Suma te enviará un SMS con el código de Lime. Copia el código.
-          8. Pegue el código en la aplicación de Lime y presione 'Siguiente'.
-          9. ¡Estás listo!
+          8. Una vez que lo haga, copie el código.
+          9. Vuelva a Lime, presione 'Ingresar código', pegue el código en la aplicación de Lime y presione 'Siguiente'.
+          10. Has iniciado sesión en Lime y estás listo para empezar a conducir.
         MD
       )
     end
