@@ -321,7 +321,7 @@ export default class MapBuilder {
           loc: bike.c,
           type: vehicleType,
           disambiguator: bike.d,
-          providerId: providers[bike.p].id,
+          provider: providers[bike.p],
         };
         this._onVehicleClick(mapVehicle);
         this._clickedVehicle = e.target;

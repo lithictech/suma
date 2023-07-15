@@ -1,6 +1,7 @@
 import api from "../../api";
 import { t } from "../../localization";
 import MapBuilder from "../../modules/mapBuilder";
+import readOnlyReason from "../../modules/readOnlyReason";
 import useMountEffect from "../../shared/react/useMountEffect";
 import { extractErrorCode, useError } from "../../state/useError";
 import { useGlobalViewState } from "../../state/useGlobalViewState";
@@ -31,14 +32,18 @@ const Map = () => {
       setReserveError(null);
       setSelectedMapVehicle(mapVehicle);
       setLoadedVehicle(null);
-      if (user.readOnlyMode) {
-        setError(extractErrorCode(user.readOnlyReason));
-        return;
-      }
       if (mapVehicle) {
-        const { loc, providerId, disambiguator, type } = mapVehicle;
+        const { loc, provider, disambiguator, type } = mapVehicle;
+        if (user.readOnlyMode) {
+          const canStillRide =
+            user.readOnlyReason === "read_only_zero_balance" && provider.zeroBalanceOk;
+          if (!canStillRide) {
+            setError(extractErrorCode(user.readOnlyReason));
+            return;
+          }
+        }
         api
-          .getMobilityVehicle({ loc, providerId, disambiguator, type })
+          .getMobilityVehicle({ loc, providerId: provider.id, disambiguator, type })
           .then((r) => setLoadedVehicle(r.data))
           .catch((e) => {
             setSelectedMapVehicle(null);
@@ -153,7 +158,7 @@ const Map = () => {
       {error && (
         <CardOverlay>
           <FormError error={error} noMargin component="div" />
-          {user.readOnlyReason && (
+          {readOnlyReason(user, "read_only_zero_balance") && (
             <Link to="/funding">{t("common:add_money_to_account")}</Link>
           )}
         </CardOverlay>

@@ -147,6 +147,12 @@ class Suma::API::Mobility < Suma::API::V1
     expose :o, expose_nil: false
   end
 
+  class MobilityMapVendorServiceEntity < VendorServiceEntity
+    expose :zero_balance_ok do |instance|
+      instance.rates.first&.surcharge&.zero? || false
+    end
+  end
+
   class MobilityMapEntity < BaseEntity
     include Suma::API::Entities
     expose :precision do |_|
@@ -155,7 +161,7 @@ class Suma::API::Mobility < Suma::API::V1
     expose :refresh do |_|
       30_000
     end
-    expose :providers, with: VendorServiceEntity
+    expose :providers, with: MobilityMapVendorServiceEntity
     expose :escooter, with: MobilityMapVehicleEntity, expose_nil: false
     expose :ebike, with: MobilityMapVehicleEntity, expose_nil: false
   end

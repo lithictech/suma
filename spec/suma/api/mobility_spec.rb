@@ -83,6 +83,27 @@ RSpec.describe Suma::API::Mobility, :db do
       expect(last_response_json_body[:escooter][0][:c][0].to_f / last_response_json_body[:precision]).to eq(-0.5)
     end
 
+    it "indicates if the service allows zero-balance rides" do
+      vendor_service = Suma::Fixtures.vendor_service.mobility.create
+      Suma::Fixtures.mobility_vehicle(vendor_service:).loc(20, 120).create
+
+      get "/v1/mobility/map", sw: [15, 110], ne: [25, 125]
+      expect(last_response).to have_status(200)
+      expect(last_response_json_body).to include(providers: contain_exactly(include(zero_balance_ok: false)))
+
+      rate = Suma::Fixtures.vendor_service_rate.surcharge.for_service(vendor_service).create
+
+      get "/v1/mobility/map", sw: [15, 110], ne: [25, 125]
+      expect(last_response).to have_status(200)
+      expect(last_response_json_body).to include(providers: contain_exactly(include(zero_balance_ok: false)))
+
+      rate.update(surcharge_cents: 0)
+
+      get "/v1/mobility/map", sw: [15, 110], ne: [25, 125]
+      expect(last_response).to have_status(200)
+      expect(last_response_json_body).to include(providers: contain_exactly(include(zero_balance_ok: true)))
+    end
+
     it "tells the frontend to refresh in 30 seconds" do
       get "/v1/mobility/map", sw: [-10, 50], ne: [50, 150]
 
