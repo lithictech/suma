@@ -136,6 +136,7 @@ function FulfillmentOption({ order, onOrderUpdated }) {
   return (
     <Form noValidate>
       <Form.Group>
+        <h5>{order.fulfillmentPrompt}</h5>
         {order.fulfillmentOptionsForEditing.map((fo) => (
           <Form.Check
             key={fo.id}
