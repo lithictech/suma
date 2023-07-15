@@ -2,6 +2,8 @@
 
 require "suma/api"
 
+require "suma/async/process_anon_proxy_inbound_webhookdb_relays"
+
 class Suma::API::AnonProxy < Suma::API::V1
   include Suma::API::Entities
 
@@ -26,6 +28,7 @@ class Suma::API::AnonProxy < Suma::API::V1
           to_h { |h| [h[:id], h[:latest_access_code]] }
         ds = member.anon_proxy_vendor_accounts_dataset.
           where(Sequel[id: latest_codes_by_id.keys] & Sequel.~(latest_access_code: nil)).
+          where { latest_access_code_set_at > Suma::AnonProxy::VendorAccount::RECENT_ACCESS_CODE_CUTOFF.ago }.
           exclude(latest_access_code: latest_codes_by_id.values.compact)
         started_polling = Time.now
         found_change = false
@@ -63,6 +66,18 @@ class Suma::API::AnonProxy < Suma::API::V1
             with: MutationAnonProxyVendorAccountEntity,
             all_vendor_accounts: Suma::AnonProxy::VendorAccount.for(current_member),
           )
+        end
+      end
+    end
+
+    resource :relays do
+      resource :webhookdb do
+        post :webhooks do
+          h = env["HTTP_WHDB_WEBHOOK_SECRET"]
+          unauthenticated! unless h == Suma::Webhookdb.postmark_inbound_messages_secret
+          Suma::Async::ProcessAnonProxyInboundWebhookdbRelays.perform_async
+          status 202
+          present({o: "k"})
         end
       end
     end
