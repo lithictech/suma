@@ -26,6 +26,7 @@ class Suma::API::AnonProxy < Suma::API::V1
           to_h { |h| [h[:id], h[:latest_access_code]] }
         ds = member.anon_proxy_vendor_accounts_dataset.
           where(Sequel[id: latest_codes_by_id.keys] & Sequel.~(latest_access_code: nil)).
+          where { latest_access_code_set_at > Suma::AnonProxy::VendorAccount::RECENT_ACCESS_CODE_CUTOFF.ago }.
           exclude(latest_access_code: latest_codes_by_id.values.compact)
         started_polling = Time.now
         found_change = false

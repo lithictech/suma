@@ -98,6 +98,25 @@ RSpec.describe Suma::API::AnonProxy, :db do
         that_includes(found_change: false, items: [])
     end
 
+    it "only looks for vendor accounts with recently updated access codes" do
+      va = Suma::Fixtures.anon_proxy_vendor_account(member:).with_access_code("abc", 1.hour.ago).create
+      expect(Kernel).to receive(:sleep) do
+        Timecop.travel(40.seconds.from_now)
+      end
+
+      j = params(va)
+      # The client sees nil access codes once they're old, so that's what they send over.
+      j[:latest_vendor_account_ids_and_access_codes][0][:latest_access_code] = nil
+
+      Timecop.freeze do
+        post "/v1/anon_proxy/vendor_accounts/poll_for_new_access_codes", j
+      end
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.
+        that_includes(found_change: false, items: [])
+    end
+
     it "times out after polling" do
       Suma::AnonProxy.access_code_poll_interval = 2
       va = Suma::Fixtures.anon_proxy_vendor_account(member:).create

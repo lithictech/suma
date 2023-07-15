@@ -5,6 +5,8 @@ require "suma/postgres"
 require "suma/eligibility/has_constraints"
 
 class Suma::AnonProxy::VendorAccount < Suma::Postgres::Model(:anon_proxy_vendor_accounts)
+  RECENT_ACCESS_CODE_CUTOFF = 10.minutes
+
   plugin :timestamps
 
   # @!attribute member
@@ -87,12 +89,10 @@ class Suma::AnonProxy::VendorAccount < Suma::Postgres::Model(:anon_proxy_vendor_
     )
   end
 
-  RECENT_MESSAGE_CUTOFF = 10.minutes
-
   def latest_access_code_if_recent
     code = self.latest_access_code
     return nil if code.blank?
-    return nil if self.latest_access_code_set_at.nil? || latest_access_code_set_at < RECENT_MESSAGE_CUTOFF.ago
+    return nil if self.latest_access_code_set_at.nil? || latest_access_code_set_at < RECENT_ACCESS_CODE_CUTOFF.ago
     return code
   end
 
@@ -102,7 +102,7 @@ class Suma::AnonProxy::VendorAccount < Suma::Postgres::Model(:anon_proxy_vendor_
     # We could select bodies directly, but we'd need to re-sort them.
     # It's not worth it, let's just select VendorAccountMessages and process that ordered list.
     messages = self.messages_dataset.
-      where { created_at > RECENT_MESSAGE_CUTOFF.ago }.
+      where { created_at > RECENT_ACCESS_CODE_CUTOFF.ago }.
       order(Sequel.desc(:created_at)).
       limit(5).
       all
