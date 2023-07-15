@@ -53,6 +53,7 @@ export default function Dashboard() {
         <>
           <SeeAlsoAlert
             variant="info"
+            textVariant="muted"
             label={t("dashboard:check_available_for_purchase")}
             iconClass="bi-bag-fill"
             show={!isEmpty(offerings)}
@@ -60,6 +61,7 @@ export default function Dashboard() {
           />
           <SeeAlsoAlert
             variant="info"
+            textVariant="muted"
             label={t("dashboard:get_rolling_with_discounts")}
             iconClass="bi-scooter"
             show={Boolean(mobilityVehiclesAvailable)}
@@ -68,6 +70,7 @@ export default function Dashboard() {
         </>
       ) : (
         <SeeAlsoAlert
+          alertClass="blinking-alert"
           variant="success"
           label={t("food:claim_orders")}
           iconClass="bi-bag-check-fill"

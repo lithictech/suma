@@ -56,9 +56,9 @@
     "success_intro": "Thank you for signing up, and welcome to the suma app!\n\nWe will update you on all future projects, money saving opportunities, and how to complete the app enrollment process. To learn more about suma, visit our website at $t(strings:common:mysuma_website_link), or check us out on our social media using the link below. Chat soon!"
   },
   "dashboard": {
+    "check_available_for_purchase": "Check out whats available for purchase",
     "check_ongoing_trip": "You have an ongoing trip. Please make sure you end it when you are finished with your ride!",
     "check_ongoing_trip_button": "See My Trip",
-    "check_available_for_purchase": "Check out whats available for purchase",
     "get_rolling_with_discounts": "Get rolling with discounted e-scooters and e-bikes",
     "lifetime_savings": "Suma Savings",
     "no_money": "You haven't added or spent any money. $t(strings:payments:funding_link)",
@@ -312,12 +312,12 @@
     "unlink_account_question_subtitle": "Any in-progress transactions will not be canceled."
   },
   "private_accounts": {
+    "access_code": "Access Code",
     "create_account": "Create account",
     "intro": "Used to hide your email and phone number from vendors you use through the Suma platform. Follow the instructions for the vendors you want to create a Private Account with.",
     "no_private_accounts": "It looks like no vendors are set up for Private Accounts. Contact your administrator for more information.",
     "recent_messages_from_vendor": "Recent Messages from {{vendorName}}",
     "username": "Username",
-    "access_code": "Access Code",
     "vendor_private_accounts": "{{vendorName}} Private Accounts"
   },
   "titles": {

@@ -5,6 +5,7 @@ import Alert from "react-bootstrap/Alert";
 
 export default function SeeAlsoAlert({
   label,
+  alertClass,
   iconClass,
   show,
   to,
@@ -19,7 +20,11 @@ export default function SeeAlsoAlert({
     `text-${textVariant || variant}`
   );
   return (
-    <Alert variant={variant} className="border-radius-0">
+    <Alert
+      variant={variant}
+      className={clsx("border-radius-0", alertClass)}
+      style={{ borderTop: "none" }}
+    >
       <Alert.Link as={RLink} href={to} className={linkCls}>
         <i className={`bi ${iconClass} me-3`}></i>
         {label}
