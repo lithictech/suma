@@ -136,7 +136,6 @@ function FulfillmentOption({ order, onOrderUpdated }) {
   return (
     <Form noValidate>
       <Form.Group>
-        <h5>{t("food:fulfillment_title")}</h5>
         {order.fulfillmentOptionsForEditing.map((fo) => (
           <Form.Check
             key={fo.id}
