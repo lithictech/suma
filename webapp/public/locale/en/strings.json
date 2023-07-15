@@ -317,6 +317,7 @@
     "no_private_accounts": "It looks like no vendors are set up for Private Accounts. Contact your administrator for more information.",
     "recent_messages_from_vendor": "Recent Messages from {{vendorName}}",
     "username": "Username",
+    "access_code": "Access Code",
     "vendor_private_accounts": "{{vendorName}} Private Accounts"
   },
   "titles": {

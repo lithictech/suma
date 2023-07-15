@@ -12,9 +12,10 @@ import useMountEffect from "../shared/react/useMountEffect";
 import { useError } from "../state/useError";
 import { useScreenLoader } from "../state/useScreenLoader";
 import { LayoutContainer } from "../state/withLayout";
+import { CanceledError } from "axios";
 import isEmpty from "lodash/isEmpty";
 import React from "react";
-import { Stack } from "react-bootstrap";
+import { Alert, Stack } from "react-bootstrap";
 import Button from "react-bootstrap/Button";
 import Card from "react-bootstrap/Card";
 import Modal from "react-bootstrap/Modal";
@@ -34,6 +35,45 @@ export default function PrivateAccountsList() {
   const [viewAccount, setViewAccount] = React.useState(null);
 
   const screenLoader = useScreenLoader();
+
+  React.useEffect(() => {
+    if (!accounts?.items) {
+      return;
+    }
+    // Abort any ongoing request when we unmount.
+    const controller = new AbortController();
+    function pollAndReplace() {
+      const reqBody = {
+        latestVendorAccountIdsAndAccessCodes: accounts.items.map(
+          ({ id, latestAccessCode }) => ({ id, latestAccessCode })
+        ),
+      };
+      return (
+        api
+          // Poll with a timeout, in case the server stops responding we want to try again.
+          .pollForNewAccessCode(reqBody, { timeout: 35000, signal: controller.signal })
+          .then((r) => {
+            if (r.data.foundChange) {
+              replaceAccounts(r.data);
+            } else {
+              pollAndReplace();
+            }
+          })
+          .catch((r) => {
+            // If the request was aborted, don't restart it. Otherwise, do restart it,
+            // since it is some unexpected type of error.
+            if (r instanceof CanceledError) {
+              return;
+            }
+            pollAndReplace();
+          })
+      );
+    }
+    pollAndReplace();
+    return () => {
+      controller.abort();
+    };
+  }, [accounts.items, replaceAccounts]);
 
   useMountEffect(() => {
     // It's important that we dismiss the modal when the page loses focus.
@@ -144,13 +184,15 @@ function PrivateAccount({ account, onConfigure, onHelp }) {
         </Button>
       ) : (
         <Stack direction="vertical">
-          <p className="mt-3 mb-0 text-muted">{t("private_accounts:username")}</p>
-          <Copyable inline className="lead mb-0" text={address} />
+          <Alert variant="light" className="bg-white border-0 pb-0">
+            <p className="mt-3 mb-0 text-muted">{t("private_accounts:username")}</p>
+            <Copyable inline className="lead mb-0" text={address} />
+          </Alert>
           {latestAccessCode && (
-            <>
-              <p className="mt-1 mb-0 text-muted">Access Code</p>
+            <Alert variant="success" className="blinking-alert">
+              <p className="mt-1 mb-0 text-muted">{t("private_accounts:access_code")}</p>
               <Copyable inline className="lead mb-0" text={latestAccessCode} />
-            </>
+            </Alert>
           )}
           <div className="mt-3 d-flex justify-content-around">
             <Button variant="outline-primary" onClick={() => onHelp()}>

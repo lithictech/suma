@@ -13,6 +13,34 @@ class Suma::API::AnonProxy < Suma::API::V1
         present_collection Suma::AnonProxy::VendorAccount.for(member), with: AnonProxyVendorAccountEntity
       end
 
+      params do
+        requires :latest_vendor_account_ids_and_access_codes, type: Array[JSON] do
+          requires :id, type: Integer
+          requires :latest_access_code, type: String
+        end
+      end
+      post :poll_for_new_access_codes do
+        # See commit that added this code for an explanation.
+        member = current_member
+        latest_codes_by_id = params[:latest_vendor_account_ids_and_access_codes].
+          to_h { |h| [h[:id], h[:latest_access_code]] }
+        ds = member.anon_proxy_vendor_accounts_dataset.
+          where(Sequel[id: latest_codes_by_id.keys] & Sequel.~(latest_access_code: nil)).
+          exclude(latest_access_code: latest_codes_by_id.values.compact)
+        started_polling = Time.now
+        found_change = false
+        loop do
+          found_change = !ds.empty?
+          break if found_change
+          elapsed = Time.now - started_polling
+          break if elapsed > Suma::AnonProxy.access_code_poll_timeout
+          Kernel.sleep(Suma::AnonProxy.access_code_poll_interval)
+        end
+        items = found_change ? Suma::AnonProxy::VendorAccount.for(member) : []
+        status 200
+        present({items:, found_change:}, with: AnonProxyVendorAccountPollResultEntity)
+      end
+
       route_param :id, type: Integer do
         helpers do
           def lookup
@@ -65,5 +93,10 @@ class Suma::API::AnonProxy < Suma::API::V1
     expose :all_vendor_accounts, with: AnonProxyVendorAccountEntity do |_inst, opts|
       opts.fetch(:all_vendor_accounts)
     end
+  end
+
+  class AnonProxyVendorAccountPollResultEntity < BaseEntity
+    expose :found_change
+    expose :items, with: AnonProxyVendorAccountEntity
   end
 end

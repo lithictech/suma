@@ -1,0 +1,19 @@
+
+.blinking-alert {
+  border-width: 2px;
+  animation-duration: 1s;
+  animation-name: blinkingAlertAnimation;
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
+  animation-timing-function: cubic-bezier(0.670, 1.140, 0.840, 0.980); /* custom */
+}
+
+@keyframes blinkingAlertAnimation {
+  from {
+    border-color: rgba(var(--bs-alert-bg), 1);
+  }
+
+  to {
+    border-color: var(--bs-alert-bg);
+  }
+}
