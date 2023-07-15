@@ -46,7 +46,10 @@ export default function OrderDetail({ state, onOrderClaim, gutters }) {
             ))}
             <br />
           </p>
-          <FulfillmentOption order={order} onOrderUpdated={(o) => setOrder(o)} />
+          <div>
+            <h6 className="fw-bold">{order.fulfillmentConfirmation}</h6>
+            <FulfillmentOption order={order} onOrderUpdated={(o) => setOrder(o)} />
+          </div>
           <SumaImage
             image={order.image}
             w={350}

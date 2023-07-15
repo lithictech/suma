@@ -6,6 +6,8 @@ module Suma::AnonProxy
   configurable(:anon_proxy) do
     setting :postmark_email_template, "#{Suma::RACK_ENV}.m%{member_id}@in-dev.mysuma.org"
     setting :email_relay, "fake-relay"
+    setting :access_code_poll_timeout, 25
+    setting :access_code_poll_interval, 3
   end
 
   class ParsedMessage < Suma::TypedStruct

@@ -118,11 +118,23 @@ RSpec.describe "Suma::AnonProxy::VendorAccount", :db do
 
       vam_fac = Suma::Fixtures.anon_proxy_vendor_account_message(vendor_account: va)
       old_vam = vam_fac.create(outbound_delivery: old)
-      old_vam.this.update(created_at: 6.minutes.ago)
+      old_vam.this.update(created_at: 10.minutes.ago)
       new_vam = vam_fac.create(outbound_delivery: new)
       nontext_vam = vam_fac.create(outbound_delivery: nontext)
 
       expect(va.recent_message_text_bodies).to contain_exactly("new")
+    end
+  end
+
+  describe "latest_access_code_if_recent" do
+    let(:va) { Suma::Fixtures.anon_proxy_vendor_account.create }
+
+    it "returns the code if recent or nil if not" do
+      expect(va).to have_attributes(latest_access_code_if_recent: nil)
+      va.replace_access_code("abc")
+      expect(va).to have_attributes(latest_access_code_if_recent: "abc")
+      va.replace_access_code("abc", at: 20.minutes.ago)
+      expect(va).to have_attributes(latest_access_code_if_recent: nil)
     end
   end
 end

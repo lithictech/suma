@@ -22,6 +22,7 @@ class Suma::AnonProxy::MessageHandler::Lime < Suma::AnonProxy::MessageHandler
     token = ac_token_match[1]
     link = ACCESS_CODE_LINK_RE.match(vendor_account_message.message_content)[1]
     member = vendor_account_message.vendor_account.member
+    vendor_account_message.vendor_account.replace_access_code(token).save_changes
     msg = Suma::Messages::LimeAccessCode.new(member, link, token)
     return member.message_preferences!.dispatch(msg).first
   end

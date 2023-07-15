@@ -80,7 +80,21 @@ class Suma::AnonProxy::VendorAccount < Suma::Postgres::Model(:anon_proxy_vendor_
     return self.contact
   end
 
-  RECENT_MESSAGE_CUTOFF = 5.minutes
+  def replace_access_code(code, at: Time.now)
+    self.set(
+      latest_access_code: code,
+      latest_access_code_set_at: at,
+    )
+  end
+
+  RECENT_MESSAGE_CUTOFF = 10.minutes
+
+  def latest_access_code_if_recent
+    code = self.latest_access_code
+    return nil if code.blank?
+    return nil if self.latest_access_code_set_at.nil? || latest_access_code_set_at < RECENT_MESSAGE_CUTOFF.ago
+    return code
+  end
 
   # Return the text/plain bodies of outbound message deliveries sent as part of this vendor account.
   # This is useful for when users cannot get messages sent to them, like on non-production environments.

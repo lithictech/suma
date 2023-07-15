@@ -99,7 +99,7 @@ RSpec.describe Suma::AnonProxy::MessageHandler, :db do
     end
 
     # rubocop:disable Layout/LineLength
-    it "parses an access code and sends it via SMS" do
+    it "parses an access code, assigns it to the vendor account, and sends it via SMS" do
       got = Suma::AnonProxy::MessageHandler.handle(
         Suma::AnonProxy::Relay.create!("fake-relay"),
         message,
@@ -108,6 +108,10 @@ RSpec.describe Suma::AnonProxy::MessageHandler, :db do
       expect(got.outbound_delivery).to have_attributes(to: vendor_account.contact.member.phone)
       expect(got.outbound_delivery.bodies.first).to have_attributes(
         content: "Verify your Lime account with this link https://limebike.app.link/login?magic_link_token=M1ZgpMepjL5kW9XgzCmnsBKQ or this code: M1ZgpMepjL5kX9XgzCmnsBKQ",
+      )
+      expect(vendor_account.refresh).to have_attributes(
+        latest_access_code: "M1ZgpMepjL5kX9XgzCmnsBKQ",
+        latest_access_code_set_at: match_time(:now),
       )
     end
     # rubocop:enable Layout/LineLength

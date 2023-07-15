@@ -36,6 +36,8 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
       self.setup_private_accounts
 
       self.setup_automation
+
+      self.assign_fakeuser_constraints
     end
   end
 
@@ -132,14 +134,20 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
     svc.add_rate(rate) if svc.rates.empty?
   end
 
+  ADMIN_EMAIL = "admin@lithic.tech"
+
   def setup_admin
     return unless Suma::RACK_ENV == "development"
-    admin = Suma::Member.find_or_create(email: "admin@lithic.tech") do |c|
+    admin = Suma::Member.find_or_create(email: ADMIN_EMAIL) do |c|
       c.password = "Password1!"
       c.name = "Suma Admin"
       c.phone = "15552223333"
     end
     admin.ensure_role(Suma::Role.admin_role)
+  end
+
+  def assign_fakeuser_constraints
+    Suma::Eligibility::Constraint.assign_to_admins
   end
 
   def setup_holiday_offering
@@ -362,15 +370,16 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
       vc.app_launch_link = "https://limebike.app.link/m2h6hB9qrS"
       vc.instructions = Suma::TranslatedText.find_or_create(
         en: <<~MD,
-          1. Download the Lime App in the Play or App Store, or follow [this link](https://limebike.app.link/m2h6hB9qrS)
+          1. Download the Lime App in the Play or App Store, or follow <a href="https://limebike.app.link/m2h6hB9qrS" target="_blank">this link</a>.
           2. Start the Lime App.
           3. When prompted to sign in, choose 'Other options'
           4. Choose 'Email'
-          5. Enter the email **%{address}**, and press 'Next'.
-          6. The next screen is 'Check Your Email'. However, **your code will come via SMS.** Press 'Enter Code' to proceed.
-          7. Within a few seconds, Suma will send you an SMS with the Lime code. Copy the code.
-          8. Paste the code into the Lime app, and press 'Next'.
-          9. You're all set!
+          5. Enter the email **<Copyable>%{address}</Copyable>**, and press 'Next'.
+          6. The next screen is 'Check Your Email'. Instead, **reopen the Suma web app.**
+          7. Within a few seconds, a verification code will appear in Suma.
+          8. Once it does, copy the code.
+          9. Go back to Lime, press 'Enter Code', paste the code into the Lime app, and press 'Next'.
+          10. You are logged into Lime and ready to start riding.
         MD
         es: <<~MD,
           1. Descargue la aplicación Lime en Play o App Store, o siga [este enlace](https://limebike.app.link/m2h6hB9qrS)

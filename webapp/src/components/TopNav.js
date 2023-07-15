@@ -194,8 +194,8 @@ function NavFooter({ className }) {
           &copy; {new Date().getFullYear()} mysuma.org
         </div>
         <div className="d-flex flex-row justify-content-center">
-          <ExternalLink href="https://twitter.com/sumapdx">
-            <i className="bi bi-twitter me-3" style={iconStyle}></i>
+          <ExternalLink href="https://www.instagram.com/mysuma/">
+            <i className="bi bi-instagram me-3" style={iconStyle}></i>
           </ExternalLink>
           <ExternalLink href="https://www.linkedin.com/company/mysuma/">
             <i className="bi bi-linkedin" style={iconStyle}></i>
