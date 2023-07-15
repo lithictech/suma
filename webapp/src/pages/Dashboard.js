@@ -72,7 +72,7 @@ export default function Dashboard() {
         <SeeAlsoAlert
           alertClass="blinking-alert"
           variant="success"
-          label={t("food:claim_orders")}
+          label={t("dashboard:claim_orders")}
           iconClass="bi-bag-check-fill"
           show
           to="/unclaimed-orders"

@@ -4,7 +4,7 @@ import ErrorScreen from "../components/ErrorScreen";
 import LinearBreadcrumbs from "../components/LinearBreadcrumbs";
 import OrderDetail from "../components/OrderDetail";
 import PageLoader from "../components/PageLoader";
-import { t } from "../localization";
+import { mdp, t } from "../localization";
 import { dayjs } from "../modules/dayConfig";
 import ScrollTopOnMount from "../shared/ScrollToTopOnMount";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
@@ -92,7 +92,7 @@ export default function UnclaimedOrderList() {
       )}
       {isEmpty(orderHistory?.items) && (
         <LayoutContainer>
-          <p>You have no orders to claim.</p>
+          {mdp("food:no_orders_to_claim")}
           <p>
             <Link to="/order-history">
               {t("food:no_unclaimed_orders")}
