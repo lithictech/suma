@@ -21,6 +21,7 @@ module Suma::Webhookdb
     setting :database_url, ENV.fetch("DATABASE_URL", nil)
     setting :schema, :public
     setting :postmark_inbound_messages_table, :postmark_inbound_message_v1_fixture
+    setting :postmark_inbound_messages_secret, "fakesecret"
 
     after_configured do
       self.connection = Sequel.connect(self.database_url, extensions: [:pg_json])

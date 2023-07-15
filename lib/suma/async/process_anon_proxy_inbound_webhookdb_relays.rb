@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 require "amigo/scheduled_job"
+require "sequel/advisory_lock"
+require "suma/async"
 require "suma/redis"
 require "suma/webhookdb"
 
@@ -17,6 +19,16 @@ class Suma::Async::ProcessAnonProxyInboundWebhookdbRelays
   end
 
   def _perform
+    # This can be enqueued from cron, and also explicitly, so it needs an exclusive lock.
+    alock = Sequel::AdvisoryLock.new(Suma::Member.db, 2_000_123_654)
+    performed, _ = alock.with_lock? do
+      self._inner_perform
+    end
+    return if performed
+    self.class.perform_in(3.seconds)
+  end
+
+  def _inner_perform
     Suma::AnonProxy::Relay.registry.each_value do |relay_cls|
       relay = relay_cls.new
       next unless relay.webhookdb_table
