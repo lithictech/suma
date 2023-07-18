@@ -9,6 +9,7 @@ import "leaflet.animatedmarker/src/AnimatedMarker";
 import "leaflet.markercluster/dist/MarkerCluster.css";
 import "leaflet.markercluster/dist/leaflet.markercluster";
 import "leaflet/dist/leaflet.css";
+import isEmpty from "lodash/isEmpty";
 import isUndefined from "lodash/isUndefined";
 
 export default class MapBuilder {
@@ -63,6 +64,7 @@ export default class MapBuilder {
     this._locationAccuracyCircle = null;
     this._animationTimeoutId = null;
     this._refreshId = null;
+    this._refreshInterval = 30000;
     this._clickedVehicle = null;
     this._onVehicleClick = null;
     this._onSelectedVehicleRemoved = null;
@@ -85,7 +87,7 @@ export default class MapBuilder {
           zoomOffset: -1,
           attribution:
             'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, ' +
-            'Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+            'Imagery &copy; <a href="https://www.mapbox.com/">Mapbox</a>',
           id: "mapbox/streets-v11",
         }
       )
@@ -134,6 +136,8 @@ export default class MapBuilder {
       return;
     }
     this._lastExtendedBounds = expandBounds(bounds);
+    // Stop refresh timer to avoid multiple API calls when moving map
+    this.stopRefreshTimer();
     this.getAndUpdateScooters(this._lastExtendedBounds, this._mcg);
   }
 
@@ -147,7 +151,7 @@ export default class MapBuilder {
     if (!this._clickedVehicle) {
       return;
     }
-    this._onVehicleClick(null);
+    this._onVehicleClick = null;
     this._clickedVehicle = null;
   }
 
@@ -158,23 +162,30 @@ export default class MapBuilder {
   setVehicleEventHandlers({ onClick, onSelectedRemoved }) {
     this._onVehicleClick = onClick;
     this._onSelectedVehicleRemoved = onSelectedRemoved;
+    return this;
   }
 
   loadScooters() {
     this.getAndUpdateScooters(this._lastExtendedBounds, this._mcg);
     this.setMapEventHandlers();
     this._map.addLayer(this._mcg);
-    return this;
   }
 
   getAndUpdateScooters(bounds, mcg) {
-    api.getMobilityMap(boundsToParams(bounds)).then((r) => {
-      this.updateScooters({ ...r, bounds, mcg });
-      this.stopRefreshTimer().startRefreshTimer(r.data.refresh, bounds, mcg);
-    });
+    api
+      .getMobilityMap(boundsToParams(bounds))
+      .then(api.pickData)
+      .then((r) => {
+        this.updateScooters({ data: r, bounds: bounds, mcg: mcg });
+        this._refreshInterval = r.refresh;
+      });
+    this.startRefreshTimer(this._refreshInterval, this._lastExtendedBounds, this._mcg);
   }
 
   updateScooters({ data, bounds, mcg }) {
+    if (isEmpty(data["escooter"]) && isEmpty(data["ebike"])) {
+      return;
+    }
     const precisionFactor = 1 / data.precision;
     const applicableMarkers = [];
     const allNewMarkersIds = [];
@@ -227,17 +238,23 @@ export default class MapBuilder {
   }
 
   loadGeoFences(bounds) {
-    return api.getMobilityMapFeatures(boundsToParams(bounds)).then((d) => {
-      d.data.restrictions.forEach((r) => {
-        this.createRestrictedArea({
-          latlngs: r.multipolygon,
-          restriction: r.restriction,
+    return api
+      .getMobilityMapFeatures(boundsToParams(bounds))
+      .then(api.pickData)
+      .then((d) => {
+        d.restrictions.forEach((r) => {
+          this.createRestrictedArea({
+            latlngs: r.multipolygon,
+            restriction: r.restriction,
+          });
         });
       });
-    });
   }
 
   createRestrictedArea({ latlngs, restriction }) {
+    if (!latlngs || !restriction) {
+      return;
+    }
     const popup = this._l.popup({
       direction: "top",
       offset: [0, -5],
@@ -249,9 +266,8 @@ export default class MapBuilder {
     const ridingRestrictionContent = `<h6 class='mb-0'>${t(
       "mobility:do_not_ride_title"
     )}</h6><p class='m-0'>${t("mobility:do_not_ride_intro")}</p>`;
-
     if (restriction.startsWith("do-not-park-or-ride")) {
-      popup.setContent(parkingRestrictionContent + "<hr />" + ridingRestrictionContent);
+      popup.setContent(`${parkingRestrictionContent}<hr />${ridingRestrictionContent}`);
     } else if (restriction.startsWith("do-not-park")) {
       popup.setContent(parkingRestrictionContent);
     } else if (restriction.startsWith("do-not-ride")) {
@@ -297,7 +313,6 @@ export default class MapBuilder {
     }
     clearInterval(this._refreshId);
     this._refreshId = null;
-    return this;
   }
 
   newMarker(id, bike, vehicleType, providers, precisionFactor) {
