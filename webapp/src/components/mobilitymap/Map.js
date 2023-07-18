@@ -86,8 +86,8 @@ const Map = () => {
   const handleEndTrip = React.useCallback(() => {
     loadedMap
       ?.setVehicleEventHandlers({
-        onVehicleClick: handleVehicleClick,
-        onVehicleRemove: handleVehicleRemove,
+        onClick: handleVehicleClick,
+        onSelectedRemoved: handleVehicleRemove,
       })
       .loadScooters();
   }, [handleVehicleClick, handleVehicleRemove, loadedMap]);
