@@ -4,6 +4,7 @@ import FormSaveCancel from "../components/FormSaveCancel";
 import SumaImage from "../components/SumaImage";
 import { md, t } from "../localization";
 import { dayjs } from "../modules/dayConfig";
+import idempotency from "../modules/idempotency";
 import Money from "../shared/react/Money";
 import useToggle from "../shared/react/useToggle";
 import { useErrorToast } from "../state/useErrorToast";
@@ -12,10 +13,11 @@ import { useUser } from "../state/useUser";
 import { LayoutContainer } from "../state/withLayout";
 import isEmpty from "lodash/isEmpty";
 import React from "react";
-import { Stack } from "react-bootstrap";
+import Alert from "react-bootstrap/Alert";
 import Button from "react-bootstrap/Button";
 import Card from "react-bootstrap/Card";
 import Form from "react-bootstrap/Form";
+import Stack from "react-bootstrap/Stack";
 
 export default function OrderDetail({ state, onOrderClaim, gutters }) {
   const [order, setOrder] = React.useState(state);
@@ -73,7 +75,7 @@ export default function OrderDetail({ state, onOrderClaim, gutters }) {
             </Stack>
           ))}
         </Stack>
-        <SwipeToClaim
+        <PressAndHoldToClaim
           id={order.id}
           canClaim={order.canClaim}
           serial={order.serial}
@@ -158,11 +160,55 @@ function FulfillmentOption({ order, onOrderUpdated }) {
   );
 }
 
-function SwipeToClaim({ id, canClaim, serial, fulfilledAt, onOrderClaim }) {
+function PressAndHoldToClaim({ id, canClaim, serial, fulfilledAt, onOrderClaim }) {
   const screenLoader = useScreenLoader();
   const { showErrorToast } = useErrorToast();
   const { handleUpdateCurrentMember } = useUser();
-  const confirmInputRef = React.useRef(null);
+  const buttonRef = React.useRef(null);
+  const [timerId, setTimerId] = React.useState(null);
+  const [timeLeft, setTimeLeft] = React.useState(3);
+  const showTime = useToggle(false);
+
+  const resetTimer = React.useCallback(() => {
+    showTime.turnOff();
+    setTimeLeft(3);
+    buttonRef.current.disabled = false;
+    if (timerId) {
+      clearInterval(Number(timerId));
+    }
+  }, [showTime, timerId]);
+
+  const handleOrderClaim = React.useCallback(() => {
+    screenLoader.turnOn();
+    api
+      .claimOrder({ orderId: id })
+      .tap(handleUpdateCurrentMember)
+      .then((r) => {
+        screenLoader.turnOff();
+        onOrderClaim(r.data);
+      })
+      .catch((e) => {
+        screenLoader.turnOff();
+        showErrorToast(e, { extract: true });
+        resetTimer();
+      });
+  }, [
+    handleUpdateCurrentMember,
+    id,
+    onOrderClaim,
+    resetTimer,
+    screenLoader,
+    showErrorToast,
+  ]);
+
+  React.useEffect(() => {
+    if (timeLeft > 0) {
+      return;
+    }
+    idempotency.runAsync("claim-order", () => {
+      handleOrderClaim();
+    });
+  }, [timeLeft, handleOrderClaim]);
 
   if (!canClaim && !fulfilledAt) {
     return null;
@@ -181,48 +227,37 @@ function SwipeToClaim({ id, canClaim, serial, fulfilledAt, onOrderClaim }) {
     );
   }
 
-  const handleOrderClaim = (e) => {
-    e.preventDefault();
-    if (e.target.value < 99) {
-      e.target.value = 0;
-      return;
-    }
-    screenLoader.turnOn();
-    api
-      .claimOrder({ orderId: id })
-      .tap(handleUpdateCurrentMember)
-      .then((r) => {
-        screenLoader.turnOff();
-        onOrderClaim(r.data);
-      })
-      .catch((e) => {
-        screenLoader.turnOff();
-        showErrorToast(e, { extract: true });
-      })
-      .finally(() => (e.target.value = 0));
-  };
-  // Behavior improvement for slider
-  const handleSlidePointerLeave = (e) => {
-    e.preventDefault();
-    if (e.target.value < 99) {
-      e.target.value = 0;
-    }
+  const startTimer = () => {
+    showTime.turnOn();
+    const id = setInterval(() => {
+      setTimeLeft((prev) => {
+        if (prev <= 1) {
+          showTime.turnOff();
+          buttonRef.current.disabled = true;
+          clearInterval(id);
+        }
+        return prev - 1;
+      });
+    }, 1000);
+    setTimerId(id);
   };
   return (
-    <div id="confirmation-slider">
-      <div id="status" className="text-center">
-        <div id="confirm-label">{t("food:slide_to_claim")}</div>
-        <input
-          ref={confirmInputRef}
-          id="confirm"
-          type="range"
-          min="0"
-          max="100"
-          defaultValue="0"
-          onPointerUp={(e) => handleOrderClaim(e)}
-          onPointerLeave={(e) => handleSlidePointerLeave(e)}
-        />
-      </div>
+    <div className="text-center">
+      <Alert variant="info mt-3 mb-0">
+        <p className="small mb-0">{t("food:claiming_instructions")}</p>
+        <Button
+          ref={buttonRef}
+          className="mt-2"
+          onMouseDown={() => startTimer()}
+          onMouseUp={() => resetTimer()}
+          onMouseOut={() => resetTimer()}
+          style={{ width: "275px" }}
+        >
+          {showTime.isOff
+            ? t("food:press_and_hold")
+            : t("food:hold_time", { time: timeLeft })}
+        </Button>
+      </Alert>
     </div>
   );
 }

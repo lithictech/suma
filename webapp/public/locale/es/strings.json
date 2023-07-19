@@ -120,6 +120,7 @@
     "checkout": "Finalizar",
     "checkout_available": "Mira lo que está disponible.",
     "checkout_items_title": "Lo que está recibiendo",
+    "claiming_instructions": "Cuando llegue al lugar de recogida del pedido, permita que un miembro le ayude a \"Presionar y Sostener\" para reclamar su pedido.",
     "confirmation_message": "Responda a su mensaje de confirmación o comuníquese si tiene alguna pregunta.",
     "confirmation_subtitle": "Pronto recibirá un mensaje con detalles sobre cómo obtener su pedido.",
     "confirmation_title": "¡Pedido realizado con éxito!",
@@ -165,6 +166,7 @@
     "order_summary_title": "Resumen del pedido",
     "out_of_stock": "Fuera de stock",
     "payment_title": "¿Cómo está pagando?",
+    "press_and_hold": "Presionar y sostener",
     "previous_orders": "Pedidos anteriores",
     "price": "precio",
     "price_times_quantity": "{{price, sumaCurrency}} x {{quantity}}",
@@ -172,13 +174,13 @@
     "remove_from_cart": "Eliminar del carrito",
     "save_payment": "Guardar para pedidos futuros",
     "shop": "Comprar",
-    "slide_to_claim": "Deslizar para reclamar",
     "subtotal_items": "Subtotal ({{totalItems}} artículos): **{{customerCost, sumaCurrency}} **",
     "terms_of_use_agreement": "Al hacer clic en \"realizar pedido\" usted acepta los [Términos de uso](/terms-of-use__blank__) de Suma.",
     "title": "Comida",
     "total": "{{total, sumaCurrency}}",
-    "unclaimed_order_history_intro": "Los pedidos que están listos para reclamar aparecerán a abajo. Cuando llegue al lugar de recogida del pedido, permita que un miembro le ayude a \"deslizar para reclamar\" su pedido.",
-    "unclaimed_order_history_title": "Reclamar pedidos"
+    "unclaimed_order_history_intro": "Los pedidos que están listos para reclamar aparecerán a abajo.",
+    "unclaimed_order_history_title": "Reclamar pedidos",
+    "hold_time": "Sostener {{ time }}"
   },
   "forms": {
     "account_number": "Número de Cuenta",
