@@ -251,6 +251,8 @@ function PressAndHoldToClaim({ id, canClaim, serial, fulfilledAt, onOrderClaim }
           onMouseDown={() => startTimer()}
           onMouseUp={() => resetTimer()}
           onMouseOut={() => resetTimer()}
+          onTouchStart={() => startTimer()}
+          onTouchEnd={() => resetTimer()}
           style={{ width: "275px" }}
         >
           {showTime.isOff
