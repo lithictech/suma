@@ -4,8 +4,8 @@ import FormSaveCancel from "../components/FormSaveCancel";
 import SumaImage from "../components/SumaImage";
 import { md, t } from "../localization";
 import { dayjs } from "../modules/dayConfig";
-import idempotency from "../modules/idempotency";
 import Money from "../shared/react/Money";
+import useLongPress from "../shared/react/useLongPress";
 import useToggle from "../shared/react/useToggle";
 import { useErrorToast } from "../state/useErrorToast";
 import { useScreenLoader } from "../state/useScreenLoader";
@@ -17,6 +17,7 @@ import Alert from "react-bootstrap/Alert";
 import Button from "react-bootstrap/Button";
 import Card from "react-bootstrap/Card";
 import Form from "react-bootstrap/Form";
+import Spinner from "react-bootstrap/Spinner";
 import Stack from "react-bootstrap/Stack";
 
 export default function OrderDetail({ state, onOrderClaim, gutters }) {
@@ -165,50 +166,10 @@ function PressAndHoldToClaim({ id, canClaim, serial, fulfilledAt, onOrderClaim }
   const { showErrorToast } = useErrorToast();
   const { handleUpdateCurrentMember } = useUser();
   const buttonRef = React.useRef(null);
-  const [timerId, setTimerId] = React.useState(null);
-  const [timeLeft, setTimeLeft] = React.useState(3);
-  const showTime = useToggle(false);
 
-  const resetTimer = React.useCallback(() => {
-    showTime.turnOff();
-    setTimeLeft(3);
-    buttonRef.current.disabled = false;
-    if (timerId) {
-      clearInterval(Number(timerId));
-    }
-  }, [showTime, timerId]);
-
-  const handleOrderClaim = React.useCallback(() => {
-    screenLoader.turnOn();
-    api
-      .claimOrder({ orderId: id })
-      .tap(handleUpdateCurrentMember)
-      .then((r) => {
-        screenLoader.turnOff();
-        onOrderClaim(r.data);
-      })
-      .catch((e) => {
-        screenLoader.turnOff();
-        showErrorToast(e, { extract: true });
-        resetTimer();
-      });
-  }, [
-    handleUpdateCurrentMember,
-    id,
-    onOrderClaim,
-    resetTimer,
-    screenLoader,
-    showErrorToast,
-  ]);
-
-  React.useEffect(() => {
-    if (timeLeft > 0) {
-      return;
-    }
-    idempotency.runAsync("claim-order", () => {
-      handleOrderClaim();
-    });
-  }, [timeLeft, handleOrderClaim]);
+  const isPressed = useLongPress(() => {
+    handleOrderClaim();
+  }, 3000);
 
   if (!canClaim && !fulfilledAt) {
     return null;
@@ -227,19 +188,21 @@ function PressAndHoldToClaim({ id, canClaim, serial, fulfilledAt, onOrderClaim }
     );
   }
 
-  const startTimer = () => {
-    showTime.turnOn();
-    const id = setInterval(() => {
-      setTimeLeft((prev) => {
-        if (prev <= 1) {
-          showTime.turnOff();
-          buttonRef.current.disabled = true;
-          clearInterval(id);
-        }
-        return prev - 1;
+  const handleOrderClaim = () => {
+    buttonRef.current.disabled = true;
+    screenLoader.turnOn();
+    api
+      .claimOrder({ orderId: id })
+      .tap(handleUpdateCurrentMember)
+      .then((r) => {
+        screenLoader.turnOff();
+        onOrderClaim(r.data);
+      })
+      .catch((e) => {
+        screenLoader.turnOff();
+        showErrorToast(e, { extract: true });
+        buttonRef.current.disabled = false;
       });
-    }, 1000);
-    setTimerId(id);
   };
   return (
     <div className="text-center">
@@ -248,17 +211,23 @@ function PressAndHoldToClaim({ id, canClaim, serial, fulfilledAt, onOrderClaim }
         <Button
           ref={buttonRef}
           className="mt-2"
-          onMouseDown={() => startTimer()}
-          onMouseUp={() => resetTimer()}
-          onMouseOut={() => resetTimer()}
-          onTouchStart={() => startTimer()}
-          onTouchEnd={() => resetTimer()}
-          style={{ width: "275px" }}
+          onMouseDown={() => isPressed.turnOn()}
+          onMouseUp={() => isPressed.turnOff()}
+          onMouseLeave={() => isPressed.turnOff()}
+          onTouchStart={() => isPressed.turnOn()}
+          onTouchEnd={() => isPressed.turnOff()}
         >
-          {showTime.isOff
-            ? t("food:press_and_hold")
-            : t("food:hold_time", { time: timeLeft })}
+          {t("food:press_and_hold")}
         </Button>
+        {isPressed.isOn && (
+          <div className="mt-2">
+            <Spinner
+              variant="primary"
+              animation="grow"
+              className="order-confirmation-spinner-duration"
+            />
+          </div>
+        )}
       </Alert>
     </div>
   );
