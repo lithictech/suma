@@ -20,6 +20,7 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
   def run_task
     Suma::Member.db.transaction do
       self.create_meta_resources
+      self.setup_constraints
 
       self.create_lime_scooter_vendor
       self.sync_lime_gbfs
@@ -132,6 +133,7 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
     svc.add_category(Suma::Vendor::ServiceCategory.update_or_create(name: "Mobility", parent: cash_category)) if
       svc.categories.empty?
     svc.add_rate(rate) if svc.rates.empty?
+    self.assign_constraints(svc)
   end
 
   ADMIN_EMAIL = "admin@lithic.tech"
@@ -148,6 +150,25 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
 
   def assign_fakeuser_constraints
     Suma::Eligibility::Constraint.assign_to_admins
+  end
+
+  def setup_constraints
+    self.constraint_names.each do |name|
+      Suma::Eligibility::Constraint.find_or_create(name:)
+    end
+  end
+
+  def constraint_names
+    return [self.new_columbia_constraint_name, self.snap_eligible_constraint_name]
+  end
+
+  def assign_constraints(obj)
+    existing_names = Set.new(obj.eligibility_constraints.map(&:name))
+    self.constraint_names.each do |name|
+      next if existing_names.include?(name)
+      constraint = Suma::Eligibility::Constraint.find(name:)
+      obj.add_eligibility_constraint(constraint)
+    end
   end
 
   def setup_holiday_offering
@@ -268,7 +289,7 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
 
     offering = Suma::Commerce::Offering.update_or_create(confirmation_template: "2023-07-pilot-confirmation") do |o|
       o.set(
-        period: self.sjfm_2023_begin..self.sjfm_2023_end,
+        period: self.sjfm_2023_begin..self.sjfm_2023_season_end,
         description: Suma::TranslatedText.find_or_create(
           en: "#{market_name} Ride & Shop",
           es: "Paseo y Compra en #{market_name}",
@@ -291,10 +312,7 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
       offering.images.first.update(uploaded_file: hero)
     end
 
-    if offering.eligibility_constraints.empty?
-      constraint = Suma::Eligibility::Constraint.find_or_create(name: "New Columbia, Portland, OR")
-      offering.add_eligibility_constraint(constraint)
-    end
+    self.assign_constraints(offering)
 
     fulfillment_params = [
       {
@@ -329,8 +347,8 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
     product = Suma::Commerce::Product.update_or_create(name: product_name) do |p|
       # rubocop:disable Layout/LineLength
       p.description = Suma::TranslatedText.find_or_create(
-        en: "The suma voucher is a food special in which a suma user loads $5 and gets $24 in vouchers for fresh and packaged food at #{market_name}. You cannot use these vouchers for alcohol or hot prepared foods. This special is open to New Columbia residents only",
-        es: "El cupón de suma es un especial de alimentos en el que un usuario de suma carga $5 y obtiene $24 en cupones para alimentos frescos y empaquetados en #{market_name}. No puede utilizar estos cupones para bebidas alcohólicas o comidas preparadas calientes. Este especial está abierto solo para los residentes de New Columbia.",
+        en: "The suma voucher is a food special where suma works with you to buy down the price of vouchers for fresh and packaged food at #{market_name}. First-time buyers load $5 and get $24 in vouchers (a $19 match from suma). For returning buyers, suma will match you 1:1 up to a $30 total (you load $15, suma matches with $15). You cannot use these vouchers for alcohol or hot prepared foods.",
+        es: "El cupón de suma es un especial de alimentos en el que suma trabaja con usted para reducir el precio de los cupones para alimentos frescos y envasados en St. Johns Farmers Market. Los primeros compradores cargan $5 y obtienen $24 en vales (un credito de $19 de suma). Para los compradores que regresan, suma te igualara 1:1 hasta un total de $30 (tu cargas $15, suma agrega $15 en crédito). No puede utilizar estos cupones para bebidas alcohólicas o comidas preparadas calientes.",
       )
       # rubocop:enable Layout/LineLength
       p.vendor = Suma::Vendor.update_or_create(name: market_name)
@@ -362,7 +380,7 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
       )
       lime_vendor.add_image({uploaded_file: uf})
     end
-    Suma::AnonProxy::VendorConfiguration.update_or_create(vendor: lime_vendor) do |vc|
+    anon_vendor_cfg = Suma::AnonProxy::VendorConfiguration.update_or_create(vendor: lime_vendor) do |vc|
       vc.uses_email = true
       vc.uses_sms = false
       vc.enabled = true
@@ -395,70 +413,73 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
         MD
       )
     end
+    self.assign_constraints(anon_vendor_cfg)
   end
 
   def setup_automation
-    Suma::AutomationTrigger.dataset.delete
-    Suma::AutomationTrigger.create(
-      name: "Holidays 2022 Promo",
-      topic: "suma.member.created",
-      active_during_begin: self.holiday_2022_begin,
-      active_during_end: self.holiday_2022_end,
-      klass_name: "Suma::AutomationTrigger::CreateAndSubsidizeLedger",
-      parameter: {
-        ledger_name: "Holidays2022Promo",
-        contribution_text: {en: "Holiday 2022 Subsidy", es: "Subsidio Vacaciones 2022"},
-        category_name: "Holiday 2022 Promo",
-        amount_cents: 80_00,
-        amount_currency: "USD",
-        subsidy_memo: {
-          en: "Subsidy from local funders",
-          es: "Apoyo de financiadores locales",
+    Suma::AutomationTrigger.db.transaction do
+      Suma::AutomationTrigger.dataset.delete
+      Suma::AutomationTrigger.create(
+        name: "Holidays 2022 Promo",
+        topic: "suma.member.created",
+        active_during_begin: self.holiday_2022_begin,
+        active_during_end: self.holiday_2022_end,
+        klass_name: "Suma::AutomationTrigger::CreateAndSubsidizeLedger",
+        parameter: {
+          ledger_name: "Holidays2022Promo",
+          contribution_text: {en: "Holiday 2022 Subsidy", es: "Subsidio Vacaciones 2022"},
+          category_name: "Holiday 2022 Promo",
+          amount_cents: 80_00,
+          amount_currency: "USD",
+          subsidy_memo: {
+            en: "Subsidy from local funders",
+            es: "Apoyo de financiadores locales",
+          },
         },
-      },
-    )
-    Suma::AutomationTrigger.create(
-      name: "Holidays 2022 Pilot Verification",
-      topic: "suma.member.created",
-      active_during_begin: self.holiday_2022_begin,
-      active_during_end: self.holiday_2022_end,
-      klass_name: "Suma::AutomationTrigger::AutoOnboard",
-    )
-    Suma::AutomationTrigger.create(
-      name: "SJFM NC 2023 $19 Match",
-      topic: "suma.member.eligibilitychanged",
-      active_during_begin: self.sjfm_2023_begin,
-      active_during_end: self.sjfm_2023_season_end,
-      klass_name: "Suma::AutomationTrigger::CreateAndSubsidizeLedger",
-      parameter: {
-        ledger_name: "Summer2023FarmersMarket",
-        contribution_text: {en: "Summer 2023 Market Subsidy", es: "Subsidio Verano Mercado 2023"},
-        category_name: "Summer 2023 Farmers Market",
-        amount_cents: 19_00,
-        amount_currency: "USD",
-        subsidy_memo: {
-          en: "Farmers Market subsidy",
-          es: "Subsidio al mercado de agricultores",
+      )
+      Suma::AutomationTrigger.create(
+        name: "Holidays 2022 Pilot Verification",
+        topic: "suma.member.created",
+        active_during_begin: self.holiday_2022_begin,
+        active_during_end: self.holiday_2022_end,
+        klass_name: "Suma::AutomationTrigger::AutoOnboard",
+      )
+      Suma::AutomationTrigger.create(
+        name: "SJFM NC 2023 $19 Match",
+        topic: "suma.member.eligibilitychanged",
+        active_during_begin: self.sjfm_2023_begin,
+        active_during_end: self.sjfm_2023_season_end,
+        klass_name: "Suma::AutomationTrigger::CreateAndSubsidizeLedger",
+        parameter: {
+          ledger_name: "Summer2023FarmersMarket",
+          contribution_text: {en: "Summer 2023 Market Subsidy", es: "Subsidio Verano Mercado 2023"},
+          category_name: "Summer 2023 Farmers Market",
+          amount_cents: 19_00,
+          amount_currency: "USD",
+          subsidy_memo: {
+            en: "Farmers Market subsidy",
+            es: "Subsidio al mercado de agricultores",
+          },
+          verified_constraint_name: [self.new_columbia_constraint_name, self.snap_eligible_constraint_name],
         },
-        verified_constraint_name: "New Columbia, Portland, OR",
-      },
-    )
-    Suma::AutomationTrigger.create(
-      name: "SJFM NC 2023 1-1 Match",
-      topic: "suma.payment.fundingtransaction.created",
-      active_during_begin: self.sjfm_2023_begin,
-      active_during_end: self.sjfm_2023_season_end,
-      klass_name: "Suma::AutomationTrigger::FundingTransactionMatch",
-      parameter: {
-        ledger_name: "Summer2023FarmersMarket",
-        max_cents: 1500,
-        subsidy_memo: {
-          en: "Farmers Market matching subsidy",
-          es: "Subsidio al mercado de agricultores",
+      )
+      Suma::AutomationTrigger.create(
+        name: "SJFM NC 2023 1-1 Match",
+        topic: "suma.payment.fundingtransaction.created",
+        active_during_begin: self.sjfm_2023_begin,
+        active_during_end: self.sjfm_2023_season_end,
+        klass_name: "Suma::AutomationTrigger::FundingTransactionMatch",
+        parameter: {
+          ledger_name: "Summer2023FarmersMarket",
+          max_cents: 1500,
+          subsidy_memo: {
+            en: "Farmers Market matching subsidy",
+            es: "Subsidio al mercado de agricultores igualado",
+          },
+          verified_constraint_name: [self.new_columbia_constraint_name, self.snap_eligible_constraint_name],
         },
-        verified_constraint_name: "New Columbia, Portland, OR",
-      },
-    )
+      )
+    end
   end
 
   def holiday_2022_begin = Time.parse("2023-11-01T12:00:00-0700")
@@ -467,6 +488,8 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
   def sjfm_2023_begin = Time.parse("2023-06-01T12:00:00-0700")
   def sjfm_2023_end = Time.parse("2023-07-15T23:00:00-0700")
   def sjfm_2023_season_end = Time.parse("2023-10-28T14:00:00-0700")
+  def new_columbia_constraint_name = "New Columbia, Portland, OR"
+  def snap_eligible_constraint_name = "SNAP Eligible"
 
   def create_uploaded_file(filename, content_type, file_path: "spec/data/images/")
     bytes = File.binread(file_path + filename)

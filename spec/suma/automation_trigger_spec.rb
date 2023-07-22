@@ -51,6 +51,14 @@ RSpec.describe "Suma::AutomationTrigger", :db do
         at.run_with_payload(pa.member.id)
         expect(pa.ledgers).to contain_exactly(have_attributes(name: "Holidays2022"))
       end
+
+      it "handles an array of constraint names" do
+        at.parameter = at.parameter.merge("verified_constraint_name" => [constraint.name])
+        at.save_changes.refresh
+        pa.member.replace_eligibility_constraint(constraint, "verified")
+        at.run_with_payload(pa.member.id)
+        expect(pa.ledgers).to contain_exactly(have_attributes(name: "Holidays2022"))
+      end
     end
   end
 
