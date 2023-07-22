@@ -28,6 +28,12 @@ class Suma::Payment::FundingTransaction < Suma::Postgres::Model(:payment_funding
   many_to_one :increase_ach_strategy, class: "Suma::Payment::FundingTransaction::IncreaseAchStrategy"
   many_to_one :stripe_card_strategy, class: "Suma::Payment::FundingTransaction::StripeCardStrategy"
 
+  many_to_many :associated_charges,
+               class: "Suma::Charge",
+               join_table: :charges_associated_funding_transactions,
+               right_key: :charge_id,
+               left_key: :funding_transaction_id
+
   state_machine :status, initial: :created do
     state :created,
           :collecting,
