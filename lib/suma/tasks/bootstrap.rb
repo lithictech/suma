@@ -343,8 +343,8 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
       product.images.first.update(uploaded_file: logo)
     end
     Suma::Commerce::ProductInventory.update_or_create(product:) do |p|
-      p.max_quantity_per_order = 1
-      p.max_quantity_per_offering = 25
+      p.max_quantity_per_order = 100
+      p.max_quantity_per_offering = 100
     end
     Suma::Commerce::OfferingProduct.update_or_create(offering:, product:) do |op|
       op.customer_price = Money.new(2400)
@@ -425,10 +425,10 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
       klass_name: "Suma::AutomationTrigger::AutoOnboard",
     )
     Suma::AutomationTrigger.create(
-      name: "Summer 2023 Promo",
+      name: "SJFM NC 2023 $19 Match",
       topic: "suma.member.eligibilitychanged",
       active_during_begin: self.sjfm_2023_begin,
-      active_during_end: self.sjfm_2023_end,
+      active_during_end: self.sjfm_2023_season_end,
       klass_name: "Suma::AutomationTrigger::CreateAndSubsidizeLedger",
       parameter: {
         ledger_name: "Summer2023FarmersMarket",
@@ -443,6 +443,22 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
         verified_constraint_name: "New Columbia, Portland, OR",
       },
     )
+    Suma::AutomationTrigger.create(
+      name: "SJFM NC 2023 1-1 Match",
+      topic: "suma.payment.fundingtransaction.created",
+      active_during_begin: self.sjfm_2023_begin,
+      active_during_end: self.sjfm_2023_season_end,
+      klass_name: "Suma::AutomationTrigger::FundingTransactionMatch",
+      parameter: {
+        ledger_name: "Summer2023FarmersMarket",
+        max_cents: 1500,
+        subsidy_memo: {
+          en: "Farmers Market matching subsidy",
+          es: "Subsidio al mercado de agricultores",
+        },
+        verified_constraint_name: "New Columbia, Portland, OR",
+      },
+    )
   end
 
   def holiday_2022_begin = Time.parse("2023-11-01T12:00:00-0700")
@@ -450,6 +466,7 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
 
   def sjfm_2023_begin = Time.parse("2023-06-01T12:00:00-0700")
   def sjfm_2023_end = Time.parse("2023-07-15T23:00:00-0700")
+  def sjfm_2023_season_end = Time.parse("2023-10-28T14:00:00-0700")
 
   def create_uploaded_file(filename, content_type, file_path: "spec/data/images/")
     bytes = File.binread(file_path + filename)

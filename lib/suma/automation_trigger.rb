@@ -30,6 +30,18 @@ class Suma::AutomationTrigger < Suma::Postgres::Model(:automation_triggers)
     end
 
     def run = raise NotImplementedError
+
+    def params = self.automation_trigger.parameter.deep_symbolize_keys
+
+    def member_passes_constraints?(member_id, constraint_name)
+      return true if constraint_name.blank?
+      constraints_ds = Suma::Eligibility::Constraint.where(name: constraint_name)
+      member_passes_constraints = !Suma::Member.
+        where(id: member_id).
+        where(verified_eligibility_constraints: constraints_ds).
+        empty?
+      return member_passes_constraints
+    end
   end
 
   dataset_module do
