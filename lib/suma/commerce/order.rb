@@ -70,6 +70,10 @@ class Suma::Commerce::Order < Suma::Postgres::Model(:commerce_orders)
   state_machine :fulfillment_status, initial: :unfulfilled do
     state :unfulfilled, :fulfilling, :fulfilled
 
+    event :begin_fulfillment_on_create do
+      transition unfulfilled: :fulfilling, if: :can_begin_fulfilling_on_create?
+    end
+
     event :begin_fulfillment do
       transition unfulfilled: :fulfilling, if: :can_begin_fulfilling?
     end
@@ -151,10 +155,25 @@ class Suma::Commerce::Order < Suma::Postgres::Model(:commerce_orders)
 
   # Begin fulfilling if the order is in a fulfillable status (ie, don't fulfill canceled orders)
   # and the offering fulfillment time has passed (or there is none).
-  def can_begin_fulfilling?(t: Time.now)
+  def can_begin_fulfilling?(now: Time.now)
     return false unless FULFILLABLE_ORDER_STATUSES.include?(self.order_status)
-    can_begin_at = self.checkout.cart.offering.begin_fulfillment_at
-    return can_begin_at.nil? || can_begin_at <= t
+    offering = self.checkout.cart.offering
+    # Untimed offerings can always have their an order start being fulfilled.
+    return true unless offering.timed?
+    # Otherwise we can only fulfill once fulfillment time has passed.
+    return offering.begin_fulfillment_at <= now
+  end
+
+  # Orders can begin fulfilling on create if and only if
+  # the offering's 'begin fulfillment time' has passed.
+  # If offering's begin fulfillment time' is in the future,
+  # the order will be caught by the processor.
+  # If the offering is untimed (nil begin fulfillment time),
+  # orders are only ever fulfilled manually.
+  def can_begin_fulfilling_on_create?(now: Time.now)
+    offering = self.checkout.cart.offering
+    return false unless offering.timed?
+    return offering.begin_fulfillment_at <= now
   end
 
   def can_claim?

@@ -108,6 +108,7 @@ class Suma::Commerce::Checkout < Suma::Postgres::Model(:commerce_checkouts)
       raise Uneditable, "Checkout[#{self.id}] is not editable" unless self.editable?
       self.check_and_update_product_inventories
       order = Suma::Commerce::Order.create(checkout: self)
+      order.save_changes if order.begin_fulfillment_on_create
       self.freeze_items
       self.cart.items_dataset.delete
       self.cart.associations.delete(:items)
