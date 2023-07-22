@@ -54,7 +54,11 @@ RSpec.describe "Suma::Commerce::Checkout", :db do
 
     it "creates the order from the checkout" do
       order = checkout.create_order
-      expect(order).to be_a(Suma::Commerce::Order)
+      expect(order).to have_attributes(
+        checkout: be === checkout,
+        order_status: "open",
+        fulfillment_status: "unfulfilled",
+      )
       expect(checkout).to be_completed
       expect(checkout.card).to be_soft_deleted
     end
@@ -88,6 +92,15 @@ RSpec.describe "Suma::Commerce::Checkout", :db do
       )
       expect(order.charges.first.associated_funding_transactions).to contain_exactly(
         be === member.payment_account.originated_funding_transactions.first,
+      )
+    end
+
+    it "creates the order in fulfilling if the offering has begun fulfillment" do
+      offering.update(begin_fulfillment_at: 1.minute.ago)
+      order = checkout.create_order
+      expect(order).to have_attributes(
+        order_status: "open",
+        fulfillment_status: "fulfilling",
       )
     end
 
