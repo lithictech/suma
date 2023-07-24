@@ -5,19 +5,18 @@ import SumaImage from "../components/SumaImage";
 import { md, t } from "../localization";
 import { dayjs } from "../modules/dayConfig";
 import Money from "../shared/react/Money";
-import useLongPress from "../shared/react/useLongPress";
 import useToggle from "../shared/react/useToggle";
 import { useErrorToast } from "../state/useErrorToast";
 import { useScreenLoader } from "../state/useScreenLoader";
 import { useUser } from "../state/useUser";
 import { LayoutContainer } from "../state/withLayout";
+import PressAndHold from "./PressAndHold";
 import isEmpty from "lodash/isEmpty";
 import React from "react";
 import Alert from "react-bootstrap/Alert";
 import Button from "react-bootstrap/Button";
 import Card from "react-bootstrap/Card";
 import Form from "react-bootstrap/Form";
-import Spinner from "react-bootstrap/Spinner";
 import Stack from "react-bootstrap/Stack";
 
 export default function OrderDetail({ state, onOrderClaim, gutters }) {
@@ -165,11 +164,6 @@ function PressAndHoldToClaim({ id, canClaim, serial, fulfilledAt, onOrderClaim }
   const screenLoader = useScreenLoader();
   const { showErrorToast } = useErrorToast();
   const { handleUpdateCurrentMember } = useUser();
-  const buttonRef = React.useRef(null);
-
-  const isPressed = useLongPress(() => {
-    handleOrderClaim();
-  }, 3000);
 
   if (!canClaim && !fulfilledAt) {
     return null;
@@ -189,7 +183,6 @@ function PressAndHoldToClaim({ id, canClaim, serial, fulfilledAt, onOrderClaim }
   }
 
   const handleOrderClaim = () => {
-    buttonRef.current.disabled = true;
     screenLoader.turnOn();
     api
       .claimOrder({ orderId: id })
@@ -201,33 +194,15 @@ function PressAndHoldToClaim({ id, canClaim, serial, fulfilledAt, onOrderClaim }
       .catch((e) => {
         screenLoader.turnOff();
         showErrorToast(e, { extract: true });
-        buttonRef.current.disabled = false;
       });
   };
   return (
     <div className="text-center">
       <Alert variant="info mt-3 mb-0">
         <p className="small mb-0">{t("food:claiming_instructions")}</p>
-        <Button
-          ref={buttonRef}
-          className="mt-2"
-          onMouseDown={() => isPressed.turnOn()}
-          onMouseUp={() => isPressed.turnOff()}
-          onMouseLeave={() => isPressed.turnOff()}
-          onTouchStart={() => isPressed.turnOn()}
-          onTouchEnd={() => isPressed.turnOff()}
-        >
+        <PressAndHold size={160} onHeld={handleOrderClaim}>
           {t("food:press_and_hold")}
-        </Button>
-        {isPressed.isOn && (
-          <div className="mt-2">
-            <Spinner
-              variant="primary"
-              animation="grow"
-              className="order-confirmation-spinner-duration"
-            />
-          </div>
-        )}
+        </PressAndHold>
       </Alert>
     </div>
   );

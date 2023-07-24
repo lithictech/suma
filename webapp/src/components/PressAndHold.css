@@ -1,0 +1,26 @@
+.press-and-hold-button {
+    border-radius: 50% !important;
+}
+
+.press-and-hold-feedback {
+    display: inline-block;
+    border-radius: 50%;
+    background: transparent;
+}
+
+.press-and-hold-feedback-active {
+    animation: 2s linear infinite both running press-and-hold-anim;
+    background: radial-gradient(circle, var(--bs-primary) 60%, transparent 70%);
+}
+
+
+@keyframes press-and-hold-anim {
+    0% {
+        /* this is a function of SIZE_RATIO in the JS */
+        transform: scale(0.8);
+        /*transform: scale(1);*/
+    }
+    100% {
+        transform: scale(1);
+    }
+}

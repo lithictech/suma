@@ -26,5 +26,5 @@ export default function useLongPress(callback, ms) {
     };
   }, [isPressed, callback, ms]);
 
-  return React.useMemo(() => isPressed, [isPressed]);
+  return isPressed;
 }
