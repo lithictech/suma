@@ -166,7 +166,7 @@
     "order_summary_title": "Order summary",
     "out_of_stock": "Out of stock",
     "payment_title": "How are you paying?",
-    "press_and_hold": "Press and hold",
+    "press_and_hold": "Press\n\n and\n\n hold",
     "previous_orders": "Previous Orders",
     "price": "Price",
     "price_times_quantity": "{{price, sumaCurrency}} x {{quantity}}",

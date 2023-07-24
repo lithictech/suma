@@ -2,7 +2,7 @@ import api from "../api";
 import AnimatedCheckmark from "../components/AnimatedCheckmark";
 import FormSaveCancel from "../components/FormSaveCancel";
 import SumaImage from "../components/SumaImage";
-import { md, t } from "../localization";
+import { md, mdp, mdx, t } from "../localization";
 import { dayjs } from "../modules/dayConfig";
 import Money from "../shared/react/Money";
 import useToggle from "../shared/react/useToggle";
@@ -168,7 +168,7 @@ function PressAndHoldToClaim({ id, canClaim, serial, fulfilledAt, onOrderClaim }
   if (!canClaim && !fulfilledAt) {
     return null;
   }
-  if (!canClaim) {
+  if (canClaim) {
     return (
       <div className="mt-4 text-center d-flex justify-content-center align-items-center flex-column">
         <AnimatedCheckmark scale={2} />
@@ -200,8 +200,16 @@ function PressAndHoldToClaim({ id, canClaim, serial, fulfilledAt, onOrderClaim }
     <div className="text-center">
       <Alert variant="info mt-3 mb-0">
         <p className="small mb-0">{t("food:claiming_instructions")}</p>
-        <PressAndHold size={160} onHeld={handleOrderClaim}>
-          {t("food:press_and_hold")}
+        <PressAndHold size={200} onHeld={handleOrderClaim}>
+          {mdx("food:press_and_hold", {
+            overrides: {
+              p: {
+                props: {
+                  className: "mb-0 fs-6",
+                },
+              },
+            },
+          })}
         </PressAndHold>
       </Alert>
     </div>
