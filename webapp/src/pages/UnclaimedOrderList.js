@@ -48,7 +48,7 @@ export default function UnclaimedOrderList() {
       <LayoutContainer top>
         <LinearBreadcrumbs back />
         <h2>{t("food:unclaimed_order_history_title")}</h2>
-        <p className="text-secondary">{t("food:unclaimed_order_history_intro")}</p>
+        <p>{t("food:unclaimed_order_history_intro")}</p>
       </LayoutContainer>
       <hr />
       <Modal show={!isEmpty(claimedOrder)} onHide={() => setClaimedOrder({})}>

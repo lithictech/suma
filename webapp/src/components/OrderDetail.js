@@ -2,7 +2,7 @@ import api from "../api";
 import AnimatedCheckmark from "../components/AnimatedCheckmark";
 import FormSaveCancel from "../components/FormSaveCancel";
 import SumaImage from "../components/SumaImage";
-import { md, t } from "../localization";
+import { md, mdx, t } from "../localization";
 import { dayjs } from "../modules/dayConfig";
 import Money from "../shared/react/Money";
 import useToggle from "../shared/react/useToggle";
@@ -10,12 +10,14 @@ import { useErrorToast } from "../state/useErrorToast";
 import { useScreenLoader } from "../state/useScreenLoader";
 import { useUser } from "../state/useUser";
 import { LayoutContainer } from "../state/withLayout";
+import PressAndHold from "./PressAndHold";
 import isEmpty from "lodash/isEmpty";
 import React from "react";
-import { Stack } from "react-bootstrap";
+import Alert from "react-bootstrap/Alert";
 import Button from "react-bootstrap/Button";
 import Card from "react-bootstrap/Card";
 import Form from "react-bootstrap/Form";
+import Stack from "react-bootstrap/Stack";
 
 export default function OrderDetail({ state, onOrderClaim, gutters }) {
   const [order, setOrder] = React.useState(state);
@@ -73,7 +75,7 @@ export default function OrderDetail({ state, onOrderClaim, gutters }) {
             </Stack>
           ))}
         </Stack>
-        <SwipeToClaim
+        <PressAndHoldToClaim
           id={order.id}
           canClaim={order.canClaim}
           serial={order.serial}
@@ -158,16 +160,15 @@ function FulfillmentOption({ order, onOrderUpdated }) {
   );
 }
 
-function SwipeToClaim({ id, canClaim, serial, fulfilledAt, onOrderClaim }) {
+function PressAndHoldToClaim({ id, canClaim, serial, fulfilledAt, onOrderClaim }) {
   const screenLoader = useScreenLoader();
   const { showErrorToast } = useErrorToast();
   const { handleUpdateCurrentMember } = useUser();
-  const confirmInputRef = React.useRef(null);
 
   if (!canClaim && !fulfilledAt) {
     return null;
   }
-  if (!canClaim) {
+  if (canClaim) {
     return (
       <div className="mt-4 text-center d-flex justify-content-center align-items-center flex-column">
         <AnimatedCheckmark scale={2} />
@@ -181,12 +182,7 @@ function SwipeToClaim({ id, canClaim, serial, fulfilledAt, onOrderClaim }) {
     );
   }
 
-  const handleOrderClaim = (e) => {
-    e.preventDefault();
-    if (e.target.value < 99) {
-      e.target.value = 0;
-      return;
-    }
+  const handleOrderClaim = () => {
     screenLoader.turnOn();
     api
       .claimOrder({ orderId: id })
@@ -198,31 +194,24 @@ function SwipeToClaim({ id, canClaim, serial, fulfilledAt, onOrderClaim }) {
       .catch((e) => {
         screenLoader.turnOff();
         showErrorToast(e, { extract: true });
-      })
-      .finally(() => (e.target.value = 0));
-  };
-  // Behavior improvement for slider
-  const handleSlidePointerLeave = (e) => {
-    e.preventDefault();
-    if (e.target.value < 99) {
-      e.target.value = 0;
-    }
+      });
   };
   return (
-    <div id="confirmation-slider">
-      <div id="status" className="text-center">
-        <div id="confirm-label">{t("food:slide_to_claim")}</div>
-        <input
-          ref={confirmInputRef}
-          id="confirm"
-          type="range"
-          min="0"
-          max="100"
-          defaultValue="0"
-          onPointerUp={(e) => handleOrderClaim(e)}
-          onPointerLeave={(e) => handleSlidePointerLeave(e)}
-        />
-      </div>
+    <div className="text-center">
+      <Alert variant="info mt-3 mb-0">
+        <p className="small mb-0">{t("food:claiming_instructions")}</p>
+        <PressAndHold size={200} onHeld={handleOrderClaim}>
+          {mdx("food:press_and_hold", {
+            overrides: {
+              p: {
+                props: {
+                  className: "mb-0 fs-6",
+                },
+              },
+            },
+          })}
+        </PressAndHold>
+      </Alert>
     </div>
   );
 }
