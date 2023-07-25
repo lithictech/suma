@@ -168,7 +168,7 @@ function PressAndHoldToClaim({ id, canClaim, serial, fulfilledAt, onOrderClaim }
   if (!canClaim && !fulfilledAt) {
     return null;
   }
-  if (canClaim) {
+  if (!canClaim) {
     return (
       <div className="mt-4 text-center d-flex justify-content-center align-items-center flex-column">
         <AnimatedCheckmark scale={2} />
