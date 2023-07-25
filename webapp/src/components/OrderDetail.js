@@ -2,7 +2,7 @@ import api from "../api";
 import AnimatedCheckmark from "../components/AnimatedCheckmark";
 import FormSaveCancel from "../components/FormSaveCancel";
 import SumaImage from "../components/SumaImage";
-import { md, mdp, mdx, t } from "../localization";
+import { md, mdx, t } from "../localization";
 import { dayjs } from "../modules/dayConfig";
 import Money from "../shared/react/Money";
 import useToggle from "../shared/react/useToggle";
