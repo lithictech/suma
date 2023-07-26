@@ -305,7 +305,6 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
       state_or_province: "Oregon",
       postal_code: "97211",
     )
-    # TODO: change image
     logo = self.create_uploaded_file("king-farmers-market-logo.png", "image/png")
     hero = self.create_uploaded_file("king-farmers-market-hero.png", "image/png")
     setup_farmers_market(
