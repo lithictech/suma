@@ -5,6 +5,7 @@ require "rake/tasklib"
 require "suma/tasks"
 require "suma/lime"
 
+# rubocop:disable Layout/LineLength
 class Suma::Tasks::Bootstrap < Rake::TaskLib
   def initialize
     super()
@@ -33,6 +34,7 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
       self.setup_holiday_products
 
       self.setup_sjfm
+      self.setup_king_fm
 
       self.setup_private_accounts
 
@@ -58,8 +60,12 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
     Suma::Vendor::ServiceCategory.find_or_create(name: "Holiday 2022 Promo", parent: food_category)
   end
 
-  def farmers_market_category
+  def fm2023_intro_category
     Suma::Vendor::ServiceCategory.find_or_create(name: "Summer 2023 Farmers Market", parent: cash_category)
+  end
+
+  def fm2023_match_category
+    Suma::Vendor::ServiceCategory.find_or_create(name: "Summer 2023 Farmers Market Match", parent: cash_category)
   end
 
   def create_meta_resources
@@ -133,7 +139,7 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
     svc.add_category(Suma::Vendor::ServiceCategory.update_or_create(name: "Mobility", parent: cash_category)) if
       svc.categories.empty?
     svc.add_rate(rate) if svc.rates.empty?
-    self.assign_constraints(svc)
+    self.assign_constraints(svc, [self.new_columbia_constraint_name, self.hacienda_cdc_constraint_name, self.snap_eligible_constraint_name])
   end
 
   ADMIN_EMAIL = "admin@lithic.tech"
@@ -153,18 +159,15 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
   end
 
   def setup_constraints
-    self.constraint_names.each do |name|
+    names = [self.new_columbia_constraint_name, self.hacienda_cdc_constraint_name, self.snap_eligible_constraint_name]
+    names.each do |name|
       Suma::Eligibility::Constraint.find_or_create(name:)
     end
   end
 
-  def constraint_names
-    return [self.new_columbia_constraint_name, self.snap_eligible_constraint_name]
-  end
-
-  def assign_constraints(obj)
+  def assign_constraints(obj, constraint_names)
     existing_names = Set.new(obj.eligibility_constraints.map(&:name))
-    self.constraint_names.each do |name|
+    constraint_names.each do |name|
       next if existing_names.include?(name)
       constraint = Suma::Eligibility::Constraint.find(name:)
       obj.add_eligibility_constraint(constraint)
@@ -225,7 +228,6 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
   def setup_holiday_products
     return unless Suma::Commerce::Product.dataset.empty?
 
-    # rubocop:disable Layout/LineLength
     products = [
       {
         name_en: "Roasted Turkey Dinner, feeds 4-6",
@@ -249,7 +251,6 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
         image: "vegan-field-roast-dinner.jpeg",
       },
     ]
-    # rubocop:enable Layout/LineLength
 
     offering = Suma::Commerce::Offering.find!(confirmation_template: "2022-12-pilot-confirmation")
     products.each do |ps|
@@ -286,10 +287,40 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
     )
     logo = self.create_uploaded_file("st-johns-farmers-market-logo.png", "image/png")
     hero = self.create_uploaded_file("st-johns-farmers-market-hero.jpeg", "image/jpeg")
+    setup_farmers_market(
+      market_name:,
+      market_address:,
+      logo:,
+      hero:,
+      offering_period: Sequel.pg_range(self.sjfm_2023_begin..self.sjfm_2023_season_end),
+      constraints: [self.new_columbia_constraint_name, self.snap_eligible_constraint_name],
+    )
+  end
 
-    offering = Suma::Commerce::Offering.update_or_create(confirmation_template: "2023-07-pilot-confirmation") do |o|
+  def setup_king_fm
+    market_name = "King Farmers Market"
+    market_address = Suma::Address.lookup(
+      address1: "NE Wygant St &, NE 7th Ave",
+      city: "Portland",
+      state_or_province: "Oregon",
+      postal_code: "97211",
+    )
+    # TODO: change image
+    logo = self.create_uploaded_file("st-johns-farmers-market-logo.png", "image/png")
+    hero = self.create_uploaded_file("st-johns-farmers-market-hero.jpeg", "image/jpeg")
+    setup_farmers_market(
+      market_name:,
+      market_address:,
+      logo:,
+      hero:,
+      offering_period: Sequel.pg_range(self.king_fm_2023_begin..self.king_fm_2023_season_end),
+      constraints: [self.hacienda_cdc_constraint_name, self.snap_eligible_constraint_name],
+    )
+  end
+
+  def setup_farmers_market(market_name:, market_address:, logo:, hero:, offering_period:, constraints:)
+    offering = Suma::Commerce::Offering.update_or_create(period: offering_period, confirmation_template: "2023-07-pilot-confirmation") do |o|
       o.set(
-        period: self.sjfm_2023_begin..self.sjfm_2023_season_end,
         description: Suma::TranslatedText.find_or_create(
           en: "#{market_name} Ride & Shop",
           es: "Paseo y Compra en #{market_name}",
@@ -302,7 +333,7 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
           en: "Transportation needed",
           es: "Necesito transporte",
         ),
-        begin_fulfillment_at: self.sjfm_2023_end,
+        begin_fulfillment_at: offering_period.begin,
       )
     end
 
@@ -312,7 +343,7 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
       offering.images.first.update(uploaded_file: hero)
     end
 
-    self.assign_constraints(offering)
+    self.assign_constraints(offering, constraints)
 
     fulfillment_params = [
       {
@@ -342,32 +373,37 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
       end
     end
 
-    product_name = Suma::TranslatedText.find_or_create(en: "$24 in #{market_name} Vouchers",
-                                                       es: "$24 en Cupones de #{market_name}",)
-    product = Suma::Commerce::Product.update_or_create(name: product_name) do |p|
-      # rubocop:disable Layout/LineLength
-      p.description = Suma::TranslatedText.find_or_create(
-        en: "The suma voucher is a food special where suma works with you to buy down the price of vouchers for fresh and packaged food at #{market_name}. First-time buyers load $5 and get $24 in vouchers (a $19 match from suma). For returning buyers, suma will match you 1:1 up to a $30 total (you load $15, suma matches with $15). You cannot use these vouchers for alcohol or hot prepared foods.",
-        es: "El cupón de suma es un especial de alimentos en el que suma trabaja con usted para reducir el precio de los cupones para alimentos frescos y envasados en St. Johns Farmers Market. Los primeros compradores cargan $5 y obtienen $24 en vales (un credito de $19 de suma). Para los compradores que regresan, suma te igualara 1:1 hasta un total de $30 (tu cargas $15, suma agrega $15 en crédito). No puede utilizar estos cupones para bebidas alcohólicas o comidas preparadas calientes.",
-      )
-      # rubocop:enable Layout/LineLength
-      p.vendor = Suma::Vendor.update_or_create(name: market_name)
-      p.our_cost = Money.new(2400)
-    end
-    product.add_vendor_service_category(farmers_market_category) if product.vendor_service_categories.empty?
-    if product.images.empty?
-      product.add_image({uploaded_file: logo})
-    else
-      product.images.first.update(uploaded_file: logo)
-    end
-    Suma::Commerce::ProductInventory.update_or_create(product:) do |p|
-      p.max_quantity_per_order = 100
-      p.max_quantity_per_offering = 100
-    end
-    Suma::Commerce::OfferingProduct.update_or_create(offering:, product:) do |op|
-      op.customer_price = Money.new(2400)
-      op.undiscounted_price = Money.new(2400)
-    end
+    vendor = Suma::Vendor.update_or_create(name: market_name)
+    create_product(
+      name_en: "$24 in #{market_name} Vouchers",
+      name_es: "$24 en Cupones de #{market_name}",
+      vendor:,
+      description_en: "The suma voucher is a food special where suma works with you to buy down the price of vouchers for fresh and packaged food at #{market_name}. First-time buyers load $5 and get $24 in vouchers (a $19 match from suma). You cannot use these vouchers for alcohol or hot prepared foods.",
+      description_es: "El cupón de suma es un especial de alimentos en el que suma trabaja con usted para reducir el precio de los cupones para alimentos frescos y envasados en #{market_name}. Los primeros compradores cargan $5 y obtienen $24 en vales (un credito de $19 de suma). Para los compradores que regresan, suma te igualara 1:1 hasta un total de $30 (tu cargas $15, suma agrega $15 en crédito). No puede utilizar estos cupones para bebidas alcohólicas o comidas preparadas calientes.",
+      our_cost: Money.new(2400),
+      vendor_service_categories: [fm2023_intro_category],
+      logo:,
+      max_quantity_per_order: 1,
+      max_quantity_per_offering: 25,
+      customer_price: Money.new(2400),
+      undiscounted_price: Money.new(2400),
+      offering:,
+    )
+    create_product(
+      vendor:,
+      name_en: "$2 in #{market_name} Vouchers",
+      name_es: "$2 en Cupones de #{market_name}",
+      description_en: "The suma voucher is a food special where suma works with you to buy down the price of vouchers for fresh and packaged food at #{market_name}. suma will match you 1:1 up to a $30 total (you load $15, suma matches with $15). You cannot use these vouchers for alcohol or hot prepared foods.",
+      description_es: "El cupón de suma es un especial de alimentos en el que suma trabaja con usted para reducir el precio de los cupones para alimentos frescos y envasados en #{market_name}. Los primeros compradores cargan $5 y obtienen $24 en vales (un credito de $19 de suma). Para los compradores que regresan, suma te igualara 1:1 hasta un total de $30 (tu cargas $15, suma agrega $15 en crédito). No puede utilizar estos cupones para bebidas alcohólicas o comidas preparadas calientes.",
+      our_cost: Money.new(200),
+      vendor_service_categories: [fm2023_match_category],
+      logo:,
+      max_quantity_per_order: 500,
+      max_quantity_per_offering: 500,
+      customer_price: Money.new(200),
+      undiscounted_price: Money.new(200),
+      offering:,
+    )
   end
 
   def setup_private_accounts
@@ -413,7 +449,7 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
         MD
       )
     end
-    self.assign_constraints(anon_vendor_cfg)
+    self.assign_constraints(anon_vendor_cfg, [self.new_columbia_constraint_name, self.hacienda_cdc_constraint_name, self.snap_eligible_constraint_name])
   end
 
   def setup_automation
@@ -445,38 +481,54 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
         klass_name: "Suma::AutomationTrigger::AutoOnboard",
       )
       Suma::AutomationTrigger.create(
-        name: "SJFM NC 2023 $19 Match",
+        name: "Farmers Market 2023 Introductory Match",
         topic: "suma.member.eligibilitychanged",
-        active_during_begin: self.sjfm_2023_begin,
-        active_during_end: self.sjfm_2023_season_end,
+        active_during_begin: self.fm_2023_season_begin,
+        active_during_end: self.fm_2023_season_end,
         klass_name: "Suma::AutomationTrigger::CreateAndSubsidizeLedger",
         parameter: {
-          ledger_name: "Summer2023FarmersMarket",
-          contribution_text: {en: "Summer 2023 Market Subsidy", es: "Subsidio Verano Mercado 2023"},
-          category_name: "Summer 2023 Farmers Market",
+          ledger_name: "Summer2023FarmersMarketIntro",
+          contribution_text: {
+            en: "2023 Farmers Market (New Member)",
+            es: "Subsidio Verano Mercado King Nuevo Miembros 2023",
+          },
+          category_name: self.fm2023_intro_category.name,
           amount_cents: 19_00,
           amount_currency: "USD",
           subsidy_memo: {
-            en: "Farmers Market subsidy",
+            en: "2023 Farmers Market subsidy",
             es: "Subsidio al mercado de agricultores",
           },
-          verified_constraint_name: [self.new_columbia_constraint_name, self.snap_eligible_constraint_name],
+          verified_constraint_name: [
+            self.hacienda_cdc_constraint_name,
+            self.new_columbia_constraint_name,
+            self.snap_eligible_constraint_name,
+          ],
         },
       )
       Suma::AutomationTrigger.create(
-        name: "SJFM NC 2023 1-1 Match",
+        name: "Farmers Market 2023 1-1 Match",
         topic: "suma.payment.fundingtransaction.created",
-        active_during_begin: self.sjfm_2023_begin,
-        active_during_end: self.sjfm_2023_season_end,
+        active_during_begin: self.fm_2023_season_begin,
+        active_during_end: self.fm_2023_season_end,
         klass_name: "Suma::AutomationTrigger::FundingTransactionMatch",
         parameter: {
-          ledger_name: "Summer2023FarmersMarket",
+          ledger_name: "Summer2023FarmersMarketMatch",
+          contribution_text: {
+            en: "2023 King Farmers Market (Match)",
+            es: "Subsidio Verano Mercado 2023",
+          },
+          category_name: self.fm2023_match_category.name,
           max_cents: 1500,
           subsidy_memo: {
-            en: "Farmers Market matching subsidy",
+            en: "2023 Farmers Market match",
             es: "Subsidio al mercado de agricultores igualado",
           },
-          verified_constraint_name: [self.new_columbia_constraint_name, self.snap_eligible_constraint_name],
+          verified_constraint_name: [
+            self.hacienda_cdc_constraint_name,
+            self.new_columbia_constraint_name,
+            self.snap_eligible_constraint_name,
+          ],
         },
       )
     end
@@ -488,7 +540,13 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
   def sjfm_2023_begin = Time.parse("2023-06-01T12:00:00-0700")
   def sjfm_2023_end = Time.parse("2023-07-15T23:00:00-0700")
   def sjfm_2023_season_end = Time.parse("2023-10-28T14:00:00-0700")
+  def king_fm_2023_begin = Time.parse("2023-07-25T00:00:00-0700")
+  def king_fm_2023_season_end = Time.parse("2023-11-29T20:00:00-0700")
+  def fm_2023_season_begin = [sjfm_2023_begin, king_fm_2023_begin].max
+  def fm_2023_season_end = [sjfm_2023_season_end, king_fm_2023_season_end].max
+
   def new_columbia_constraint_name = "New Columbia, Portland, OR"
+  def hacienda_cdc_constraint_name = "Hacienda CDC, Portland, OR"
   def snap_eligible_constraint_name = "SNAP Eligible"
 
   def create_uploaded_file(filename, content_type, file_path: "spec/data/images/")
@@ -504,4 +562,43 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
     bytes = Net::HTTP.get(URI.parse(url))
     return Suma::UploadedFile.create_with_blob(bytes:, content_type:, filename:)
   end
+
+  def create_product(
+    name_en:,
+    name_es:,
+    description_en:,
+    description_es:,
+    vendor:,
+    our_cost:,
+    vendor_service_categories:,
+    logo:,
+    max_quantity_per_order:,
+    max_quantity_per_offering:,
+    offering:,
+    customer_price:,
+    undiscounted_price:
+  )
+    product_name = Suma::TranslatedText.find_or_create(en: name_en, es: name_es)
+    product = Suma::Commerce::Product.update_or_create(name: product_name) do |p|
+      p.description = Suma::TranslatedText.find_or_create(en: description_en, es: description_es)
+      p.vendor = vendor
+      p.our_cost = our_cost
+    end
+    product.remove_all_vendor_service_categories
+    vendor_service_categories.each { |vsc| product.add_vendor_service_category(vsc) }
+    if product.images.empty?
+      product.add_image({uploaded_file: logo})
+    else
+      product.images.first.update(uploaded_file: logo)
+    end
+    Suma::Commerce::ProductInventory.update_or_create(product:) do |p|
+      p.max_quantity_per_order = max_quantity_per_order
+      p.max_quantity_per_offering = max_quantity_per_offering
+    end
+    Suma::Commerce::OfferingProduct.update_or_create(offering:, product:) do |op|
+      op.customer_price = customer_price
+      op.undiscounted_price = undiscounted_price
+    end
+  end
 end
+# rubocop:enable Layout/LineLength

@@ -13,10 +13,17 @@ class Suma::AutomationTrigger::FundingTransactionMatch < Suma::AutomationTrigger
     params = self.params
     return unless self.member_passes_constraints?(member.id, params[:verified_constraint_name])
     self.automation_trigger.db.transaction do
-      ledger = acct.ledgers_dataset.find!(name: params.fetch(:ledger_name))
+      vsc = Suma::Vendor::ServiceCategory.find!(name: params.fetch(:category_name))
+      ledger = acct.ledgers_dataset[name: params.fetch(:ledger_name)]
+      if ledger.nil?
+        ledger = acct.add_ledger(
+          currency: Suma.default_currency,
+          name: params.fetch(:ledger_name),
+          contribution_text: Suma::TranslatedText.create(**params.fetch(:contribution_text)),
+        )
+        ledger.add_vendor_service_category(vsc)
+      end
       ledger.lock!
-      vsc = ledger.vendor_service_categories.first
-      raise Suma::InvalidPrecondition, "Cannot subsidize a ledger without a vendor service category" if vsc.nil?
       ratio = params.fetch(:match_ratio, 1)
       amount = funding_xaction.amount * ratio
       if (max_cents = params.fetch(:max_cents, nil))
