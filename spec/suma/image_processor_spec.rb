@@ -63,7 +63,7 @@ RSpec.describe Suma::ImageProcessor do
     end
 
     it "can flatten with a color" do
-      expect(described_class.process(file: photo_file, flatten: [255, 0, 0])).to have_length(be > 1)
+      expect(described_class.process(file: photo_file, w: 80, h: 80, flatten: [255, 0, 0])).to have_length(be > 1)
     end
 
     it "errors for an invalid format" do

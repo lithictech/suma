@@ -69,7 +69,8 @@ module Suma::ImageProcessor
       raise InvalidOption.new("quality", quality) unless (1..100).cover?(quality)
       v = v.saver(quality:)
     end
-    if flatten
+    # JPG images do not have an alpha, so they can't be flattened
+    if flatten && vips_img.has_alpha?
       raise InvalidOption.new("flatten", flatten) unless flatten.length == 3
       v = v.flatten(background: flatten)
     end
