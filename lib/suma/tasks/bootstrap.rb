@@ -306,8 +306,8 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
       postal_code: "97211",
     )
     # TODO: change image
-    logo = self.create_uploaded_file("st-johns-farmers-market-logo.png", "image/png")
-    hero = self.create_uploaded_file("st-johns-farmers-market-hero.jpeg", "image/jpeg")
+    logo = self.create_uploaded_file("king-farmers-market-logo.png", "image/png")
+    hero = self.create_uploaded_file("king-farmers-market-hero.png", "image/png")
     setup_farmers_market(
       market_name:,
       market_address:,
@@ -379,7 +379,7 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
       name_es: "$24 en Cupones de #{market_name}",
       vendor:,
       description_en: "The suma voucher is a food special where suma works with you to buy down the price of vouchers for fresh and packaged food at #{market_name}. First-time buyers load $5 and get $24 in vouchers (a $19 match from suma). You cannot use these vouchers for alcohol or hot prepared foods.",
-      description_es: "El cupón de suma es un especial de alimentos en el que suma trabaja con usted para reducir el precio de los cupones para alimentos frescos y envasados en #{market_name}. Los primeros compradores cargan $5 y obtienen $24 en vales (un credito de $19 de suma). Para los compradores que regresan, suma te igualara 1:1 hasta un total de $30 (tu cargas $15, suma agrega $15 en crédito). No puede utilizar estos cupones para bebidas alcohólicas o comidas preparadas calientes.",
+      description_es: "El cupón de suma es un especial de alimentos en el que suma trabaja con usted para reducir el precio de los cupones para alimentos frescos y envasados en #{market_name}. Los primeros compradores cargan $5 y obtienen $24 en vales (un credito de $19 de suma). No puede utilizar estos cupones para bebidas alcohólicas o comidas preparadas calientes.",
       our_cost: Money.new(2400),
       vendor_service_categories: [fm2023_intro_category],
       logo:,
@@ -394,7 +394,7 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
       name_en: "$2 in #{market_name} Vouchers",
       name_es: "$2 en Cupones de #{market_name}",
       description_en: "The suma voucher is a food special where suma works with you to buy down the price of vouchers for fresh and packaged food at #{market_name}. suma will match you 1:1 up to a $30 total (you load $15, suma matches with $15). You cannot use these vouchers for alcohol or hot prepared foods.",
-      description_es: "El cupón de suma es un especial de alimentos en el que suma trabaja con usted para reducir el precio de los cupones para alimentos frescos y envasados en #{market_name}. Los primeros compradores cargan $5 y obtienen $24 en vales (un credito de $19 de suma). Para los compradores que regresan, suma te igualara 1:1 hasta un total de $30 (tu cargas $15, suma agrega $15 en crédito). No puede utilizar estos cupones para bebidas alcohólicas o comidas preparadas calientes.",
+      description_es: "El cupón de suma es un especial de alimentos en el que suma trabaja con usted para reducir el precio de los cupones para alimentos frescos y envasados en #{market_name}. suma te igualara 1:1 hasta un total de $30 (tu agregas $15, suma agrega $15 de créditos). No puede utilizar estos cupones para bebidas alcohólicas o comidas preparadas calientes.",
       our_cost: Money.new(200),
       vendor_service_categories: [fm2023_match_category],
       logo:,
@@ -490,14 +490,14 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
           ledger_name: "Summer2023FarmersMarketIntro",
           contribution_text: {
             en: "2023 Farmers Market (New Member)",
-            es: "Subsidio Verano Mercado King Nuevo Miembros 2023",
+            es: "2023 Mercado de Agricultores (Nuevo Miembros)",
           },
           category_name: self.fm2023_intro_category.name,
           amount_cents: 19_00,
           amount_currency: "USD",
           subsidy_memo: {
             en: "2023 Farmers Market subsidy",
-            es: "Subsidio al mercado de agricultores",
+            es: "2023 Subsidio al Mercado de Agricultores",
           },
           verified_constraint_name: [
             self.hacienda_cdc_constraint_name,
@@ -515,14 +515,14 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
         parameter: {
           ledger_name: "Summer2023FarmersMarketMatch",
           contribution_text: {
-            en: "2023 King Farmers Market (Match)",
-            es: "Subsidio Verano Mercado 2023",
+            en: "2023 Farmers Market (Match)",
+            es: "2023 Mercado de Agricultores (Igualado)",
           },
           category_name: self.fm2023_match_category.name,
           max_cents: 1500,
           subsidy_memo: {
             en: "2023 Farmers Market match",
-            es: "Subsidio al mercado de agricultores igualado",
+            es: "2023 Mercado de Agricultores igualado",
           },
           verified_constraint_name: [
             self.hacienda_cdc_constraint_name,
