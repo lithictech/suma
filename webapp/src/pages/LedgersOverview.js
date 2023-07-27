@@ -16,6 +16,7 @@ import first from "lodash/first";
 import React from "react";
 import Container from "react-bootstrap/Container";
 import Dropdown from "react-bootstrap/Dropdown";
+import Stack from "react-bootstrap/Stack";
 import Table from "react-bootstrap/Table";
 
 export default function LedgersOverview() {
@@ -123,24 +124,31 @@ function Header({ totalBalance, activeLedger, ledgers, onLedgerSelected }) {
       </h3>
       <p>{t("payments:ledger_balance")}</p>
       <Dropdown drop="down" className="mb-2">
-        <Dropdown.Toggle className="w-100 dropdown-toggle-hide d-flex flex-row justify-content-between align-items-center">
-          <div className="d-flex flex-row justify-content-between flex-grow-1">
-            <span className="d-block">{activeLedger.contributionText}</span>
-            <Money className="d-block">{activeLedger.balance}</Money>
-          </div>
+        <Dropdown.Toggle
+          className="w-100 dropdown-toggle-hide d-flex flex-row justify-content-between align-items-center"
+          title={activeLedger.contributionText}
+        >
+          <Stack direction="horizontal" gap={2} className="overflow-hidden">
+            <Money>{activeLedger.balance}</Money>
+            <span>-</span>
+            {activeLedger.contributionText}
+          </Stack>
           <div className="dropdown-toggle-manual"></div>
         </Dropdown.Toggle>
-        <Dropdown.Menu align="end" className="w-100">
+        <Dropdown.Menu className="w-100">
           {ledgers.map((led) => (
             <Dropdown.Item
               key={led.id}
-              className="d-flex flex-row justify-content-between"
+              as={Stack}
+              title={led.contributionText}
+              direction="horizontal"
+              gap={2}
+              className="overflow-hidden"
               onClick={() => onLedgerSelected(led)}
             >
-              <div>{led.contributionText}</div>
-              <div>
-                <Money>{led.balance}</Money>
-              </div>
+              <Money>{led.balance}</Money>
+              <span>-</span>
+              {led.contributionText}
             </Dropdown.Item>
           ))}
         </Dropdown.Menu>
