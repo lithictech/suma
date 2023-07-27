@@ -1,4 +1,5 @@
 import api from "../api";
+import loaderRing from "../assets/images/loader-ring.svg";
 import Copyable from "../components/Copyable";
 import ErrorScreen from "../components/ErrorScreen";
 import LinearBreadcrumbs from "../components/LinearBreadcrumbs";
@@ -9,6 +10,7 @@ import { mdp, t } from "../localization";
 import ScrollTopOnMount from "../shared/ScrollToTopOnMount";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
 import useMountEffect from "../shared/react/useMountEffect";
+import useToggle from "../shared/react/useToggle";
 import { useError } from "../state/useError";
 import { useScreenLoader } from "../state/useScreenLoader";
 import { LayoutContainer } from "../state/withLayout";
@@ -171,6 +173,14 @@ export default function PrivateAccountsList() {
 
 function PrivateAccount({ account, onConfigure, onHelp }) {
   const { address, addressRequired, latestAccessCode, vendorImage } = account;
+  const accessCodeLoading = useToggle(false);
+  const handleAppLink = (e) => {
+    e.preventDefault();
+    accessCodeLoading.turnOn();
+  };
+  const appBtnProp = latestAccessCode
+    ? { href: account.appLaunchLink }
+    : { onClick: (e) => handleAppLink(e) };
   return (
     <Stack direction="vertical" className="align-items-start">
       <SumaImage
@@ -188,27 +198,48 @@ function PrivateAccount({ account, onConfigure, onHelp }) {
             <p className="mt-3 mb-0 text-muted">{t("private_accounts:username")}</p>
             <Copyable inline className="lead mb-0" text={address} />
           </Alert>
-          {latestAccessCode && (
-            <Alert variant="success" className="blinking-alert">
-              <p className="mt-1 mb-0 text-muted">{t("private_accounts:access_code")}</p>
-              <Copyable inline className="lead mb-0" text={latestAccessCode} />
-            </Alert>
-          )}
+          <DisplayAccessCode
+            latestAccessCode={latestAccessCode}
+            loading={accessCodeLoading.isOn}
+          />
           <div className="mt-3 d-flex justify-content-around">
             <Button variant="outline-primary" onClick={() => onHelp()}>
               {t("common:help")}
             </Button>
-            <Button
-              variant="outline-primary"
-              className="border-0"
-              href={account.appLaunchLink}
-              target="_blank"
-            >
+            <Button variant="outline-primary" className="border-0" {...appBtnProp}>
               {t("common:app")} <i className="ms-2 bi bi-box-arrow-up-right"></i>
             </Button>
           </div>
         </Stack>
       )}
     </Stack>
+  );
+}
+
+function DisplayAccessCode({ latestAccessCode, loading }) {
+  if (!latestAccessCode && !loading) {
+    return null;
+  }
+  if (latestAccessCode) {
+    return (
+      <Alert variant="success" className="blinking-alert">
+        <p className="mt-1 mb-0 text-muted">{t("private_accounts:access_code")}</p>
+        <Copyable inline className="lead mb-0" text={latestAccessCode} />
+      </Alert>
+    );
+  }
+  return (
+    <Alert variant="info">
+      <p className="mt-1 lead mb-0 text-muted">{t("private_accounts:access_code")}</p>
+      <p className="lead mb-0">
+        {t("private_accounts:loading_code")}
+        <img
+          src={loaderRing}
+          width="80"
+          height="80"
+          alt={t("private_accounts:loading_code")}
+        />
+      </p>
+    </Alert>
   );
 }
