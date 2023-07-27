@@ -76,18 +76,21 @@ RSpec.describe "Suma::AutomationTrigger", :db do
   end
 
   describe Suma::AutomationTrigger::FundingTransactionMatch do
+    let(:category_name) { "Test Category" }
     let(:at) do
       Suma::Fixtures.automation_trigger(
         klass_name: "Suma::AutomationTrigger::FundingTransactionMatch",
         parameter: {
           ledger_name: "Tester",
+          contribution_text: {en: "Contrib En", es: "Contrib Es"},
+          category_name:,
           subsidy_memo: {en: "Subsidy En", es: "Subsidy Es"},
         },
       ).create
     end
     let(:funding_xaction) { Suma::Fixtures.funding_transaction.with_fake_strategy.create(amount_cents: 1000) }
     let(:payment_account) { funding_xaction.originating_payment_account }
-    let!(:vsc) { Suma::Fixtures.vendor_service_category(name: "Test Category").create }
+    let!(:vsc) { Suma::Fixtures.vendor_service_category(name: category_name).create }
     let!(:ledger) do
       led = Suma::Fixtures.ledger.create(name: "Tester", account: payment_account)
       led.add_vendor_service_category(vsc)
@@ -97,6 +100,21 @@ RSpec.describe "Suma::AutomationTrigger", :db do
     it "subsidizes the specified ledger", lang: :es do
       at.run_with_payload(funding_xaction.id)
       expect(ledger.refresh.received_book_transactions).to contain_exactly(
+        have_attributes(
+          associated_vendor_service_category: be === vsc,
+          memo_string: "Subsidy Es",
+          amount: cost("$10"),
+        ),
+      )
+    end
+
+    it "creates the ledger if it does not exist", lang: :es do
+      ledger.remove_all_vendor_service_categories
+      ledger.destroy
+      at.run_with_payload(funding_xaction.id)
+      new_ledger = payment_account.ledgers_dataset.find!(name: "Tester")
+      expect(new_ledger.vendor_service_categories).to contain_exactly(be === vsc)
+      expect(new_ledger.refresh.received_book_transactions).to contain_exactly(
         have_attributes(
           associated_vendor_service_category: be === vsc,
           memo_string: "Subsidy Es",

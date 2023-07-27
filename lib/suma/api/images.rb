@@ -40,6 +40,11 @@ class Suma::API::Images < Suma::API::V1
             uf.blob_stream.read
           end
         else
+          # Use png as default so it works right with transparency.
+          # However we need to do it here, not at the endpoint parameter level,
+          # because we need to know when nothing is passed so we can read the underlying
+          # file directly.
+          format ||= :png
           result = Suma::ImageProcessor.process(
             buffer: uf.blob_stream.read,
             w: params[:w],
