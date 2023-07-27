@@ -10,7 +10,7 @@ import { mdp, t } from "../localization";
 import ScrollTopOnMount from "../shared/ScrollToTopOnMount";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
 import useMountEffect from "../shared/react/useMountEffect";
-import useResettableTimerState from "../shared/react/useResettableTimerState";
+import useResettableTimer from "../shared/react/useResettableTimer";
 import { useError } from "../state/useError";
 import { useScreenLoader } from "../state/useScreenLoader";
 import { LayoutContainer } from "../state/withLayout";
@@ -173,11 +173,15 @@ export default function PrivateAccountsList() {
 
 function PrivateAccount({ account, onConfigure, onHelp }) {
   const { address, addressRequired, latestAccessCode, vendorImage } = account;
-  const [appLaunched, setAppLaunched] = useResettableTimerState(1000 * 60 * 3, false);
+
+  // Keep the 'loading' box up for 2 minutes
+  const [appLaunchTimerActive, triggerAppLaunched] = useResettableTimer({
+    storageKey: `anonProxyCodeTimer-${account.id}`,
+    interval: 1000 * 60 * 2,
+  });
 
   const handleAppClick = () => {
-    // Do not preventDefault, we do want the link open to go through.
-    setAppLaunched(true);
+    triggerAppLaunched(true);
   };
 
   return (
@@ -197,7 +201,10 @@ function PrivateAccount({ account, onConfigure, onHelp }) {
             <p className="mt-3 mb-0 text-muted">{t("private_accounts:username")}</p>
             <Copyable inline className="lead mb-0" text={address} />
           </Alert>
-          <AccessCode latestAccessCode={latestAccessCode} showPlaceholder={appLaunched} />
+          <AccessCode
+            latestAccessCode={latestAccessCode}
+            showPlaceholder={appLaunchTimerActive}
+          />
           <div className="mt-3 d-flex justify-content-around">
             <Button variant="outline-primary" onClick={() => onHelp()}>
               {t("common:help")}
