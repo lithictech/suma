@@ -8,74 +8,104 @@ import React from "react";
 import { Alert } from "react-bootstrap";
 import Button from "react-bootstrap/Button";
 
+/**
+ * We depend on installPromptEvent and service worker registration
+ * to render this A2HS component. Therefore, it will render null if
+ * they are not set, the device is not compatible or shouldPrompt is
+ * false.
+ *
+ * installPromptEvent renders on the initial page load and within
+ * full production app URL scope (must include slash at end of URL).
+ *
+ * @returns {JSX.Element}
+ */
 export default function AddToHomescreen() {
   // Bump the 'should prompt to install' number if we want to ask everyone to install again.
   // In the future we could do something like storing a dismissal date and expiring.
+  const currentPromptVersion = 1;
   const [shouldPrompt, setShouldPrompt] = useLocalStorageState(
-    "should-prompt-to-install-0",
+    `should-prompt-to-install-${currentPromptVersion}`,
     true
   );
   const [hasRegistration, setHasRegistration] = React.useState(false);
   const loading = useToggle(false);
   const addToHomescreenButtonRef = React.useRef(null);
+  const [installPromptEvent, setInstallPromptEvent] = React.useState(null);
 
-  const installPrompt = React.useCallback(
-    (event) => {
-      loading.turnOn();
-      return event
-        .prompt()
-        .then(() => event.userChoice)
-        .then((result) => {
-          if (result.outcome === "accepted") {
-            setShouldPrompt(false);
-          }
-        })
-        .catch((err) => {
-          if (err.message.indexOf("The app is already installed") > -1) {
-            setShouldPrompt(false);
-          } else {
-            console.error("Error prompting to install app:", err);
-          }
-        })
-        .finally(loading.turnOff);
-    },
-    [loading, setShouldPrompt]
-  );
+  const installPrompt = React.useCallback(() => {
+    loading.turnOn();
+    return installPromptEvent
+      .prompt()
+      .then(() => installPromptEvent.userChoice)
+      .then((result) => {
+        if (result.outcome === "accepted") {
+          setShouldPrompt(false);
+          return;
+        }
+        setInstallPromptEvent(null);
+      })
+      .catch((err) => {
+        if (err.message.indexOf("The app is already installed") > -1) {
+          setShouldPrompt(false);
+          return;
+        }
+        setInstallPromptEvent(null);
+        console.error("Error prompting to install app:", err);
+      })
+      .finally(loading.turnOff);
+  }, [loading, setShouldPrompt, installPromptEvent]);
+
+  const handleBeforeInstallPrompt = React.useCallback((event) => {
+    // Prevent early prompt display
+    event.preventDefault();
+    setInstallPromptEvent(event);
+  }, []);
 
   React.useEffect(
     function initEventHandlers() {
-      if (!isCompatible) {
+      if (!isCompatible || !shouldPrompt) {
         return;
       }
-      setTimeout(() => {
-        navigator.serviceWorker
-          .getRegistration(config.apiHost || undefined)
-          .then((sw) => {
-            if (sw) {
-              setHasRegistration(true);
-            }
-          })
-          .catch((_e) => setHasRegistration(false));
-      }, 100);
 
-      if (!shouldPrompt || !hasRegistration || !addToHomescreenButtonRef.current) {
+      if (!installPromptEvent && "onbeforeinstallprompt" in window) {
+        window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
+      }
+      if (!hasRegistration) {
+        setTimeout(() => {
+          navigator.serviceWorker
+            .getRegistration(config.apiHost || undefined)
+            .then((sw) => {
+              if (sw) {
+                setHasRegistration(true);
+              }
+            })
+            .catch((_e) => setHasRegistration(false));
+        }, 1000);
+      }
+
+      if (!addToHomescreenButtonRef.current) {
         return;
       }
-      window.addEventListener("beforeinstallprompt", (event) => {
-        // Prevent early prompt display
-        event.preventDefault();
-        addToHomescreenButtonRef.current.addEventListener("click", () =>
-          installPrompt(event)
-        );
-      });
+      addToHomescreenButtonRef.current.addEventListener("click", () => installPrompt());
       if ("onappinstalled" in window) {
         window.addEventListener("appinstalled", () => setShouldPrompt(false));
       }
+
+      return () => {
+        window.removeEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
+      };
     },
-    [hasRegistration, installPrompt, setShouldPrompt, shouldPrompt]
+    [
+      hasRegistration,
+      installPrompt,
+      installPromptEvent,
+      setShouldPrompt,
+      shouldPrompt,
+      handleBeforeInstallPrompt,
+    ]
   );
 
-  if (!shouldPrompt || !isCompatible || !hasRegistration) {
+  if (!shouldPrompt || !isCompatible || !installPromptEvent || !hasRegistration) {
     return null;
   }
   if (loading.isOn) {
@@ -95,7 +125,6 @@ export default function AddToHomescreen() {
       <p>{t("common:add_to_homescreen_intro")}</p>
       <div className="d-flex justify-content-end">
         <Button ref={addToHomescreenButtonRef} variant="primary">
-          <i className="bi bi-box-arrow-down me-1"></i>
           {t("common:install_suma")}
         </Button>
       </div>
