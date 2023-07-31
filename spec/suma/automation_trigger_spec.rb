@@ -84,7 +84,6 @@ RSpec.describe "Suma::AutomationTrigger", :db do
           ledger_name: "Tester",
           contribution_text: {en: "Contrib En", es: "Contrib Es"},
           category_name:,
-          subsidy_memo: {en: "Subsidy En", es: "Subsidy Es"},
         },
       ).create
     end
@@ -102,7 +101,7 @@ RSpec.describe "Suma::AutomationTrigger", :db do
       expect(ledger.refresh.received_book_transactions).to contain_exactly(
         have_attributes(
           associated_vendor_service_category: be === vsc,
-          memo_string: "Subsidy Es",
+          memo_string: "Contrib Es",
           amount: cost("$10"),
         ),
       )
@@ -117,7 +116,7 @@ RSpec.describe "Suma::AutomationTrigger", :db do
       expect(new_ledger.refresh.received_book_transactions).to contain_exactly(
         have_attributes(
           associated_vendor_service_category: be === vsc,
-          memo_string: "Subsidy Es",
+          memo_string: "Contrib Es",
           amount: cost("$10"),
         ),
       )
