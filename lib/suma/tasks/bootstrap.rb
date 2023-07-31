@@ -390,14 +390,14 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
     )
     create_product(
       vendor:,
-      name_en: "$2 in #{market_name} Vouchers",
-      name_es: "$2 en Cupones de #{market_name}",
+      name_en: "#{market_name} 1 to 1 Voucher Match",
+      name_es: "#{market_name} 1 a 1 de Cupones Igualados",
       description_en: "The suma voucher is a food special where suma works with you to buy down the price of vouchers for fresh and packaged food at #{market_name}. suma will match you 1:1 up to a $30 total (you load $15, suma matches with $15). You cannot use these vouchers for alcohol or hot prepared foods.",
       description_es: "El cupón de suma es un especial de alimentos en el que suma trabaja con usted para reducir el precio de los cupones para alimentos frescos y envasados en #{market_name}. suma te igualara 1:1 hasta un total de $30 (tu agregas $15, suma agrega $15 de créditos). No puede utilizar estos cupones para bebidas alcohólicas o comidas preparadas calientes.",
       our_cost: Money.new(200),
       vendor_service_categories: [fm2023_match_category],
       logo:,
-      max_quantity_per_order: 500,
+      max_quantity_per_order: 15,
       max_quantity_per_offering: 500,
       customer_price: Money.new(200),
       undiscounted_price: Money.new(200),
@@ -514,15 +514,11 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
         parameter: {
           ledger_name: "Summer2023FarmersMarketMatch",
           contribution_text: {
-            en: "2023 Farmers Market (Match)",
-            es: "2023 Mercado de Agricultores (Igualado)",
+            en: "2023 Farmers Market (Suma Match)",
+            es: "2023 Mercado de Agricultores (Suma Igualado)",
           },
           category_name: self.fm2023_match_category.name,
           max_cents: 1500,
-          subsidy_memo: {
-            en: "2023 Farmers Market match",
-            es: "2023 Mercado de Agricultores igualado",
-          },
           verified_constraint_name: [
             self.hacienda_cdc_constraint_name,
             self.new_columbia_constraint_name,
