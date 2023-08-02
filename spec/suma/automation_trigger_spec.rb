@@ -164,6 +164,16 @@ RSpec.describe "Suma::AutomationTrigger", :db do
       )
     end
 
+    it "defaults memo as contribution text if nil", lang: :es do
+      at.update(parameter: at.parameter.merge(subsidy_memo: nil))
+      at.run_with_payload(funding_xaction.id)
+      expect(ledger.refresh.received_book_transactions).to contain_exactly(
+        have_attributes(
+          memo_string: "Contrib Es",
+        ),
+      )
+    end
+
     describe "when constraints are set on the trigger" do
       let(:constraint) { Suma::Fixtures.eligibility_constraint(name: "Special Person").create }
       let(:member) { funding_xaction.originating_payment_account.member }

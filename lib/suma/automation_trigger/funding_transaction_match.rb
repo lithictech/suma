@@ -16,6 +16,11 @@ class Suma::AutomationTrigger::FundingTransactionMatch < Suma::AutomationTrigger
       vsc = Suma::Vendor::ServiceCategory.find!(name: params.fetch(:category_name))
       ledger = acct.ledgers_dataset[name: params.fetch(:ledger_name)]
       contribution_text = Suma::TranslatedText.create(**params.fetch(:contribution_text))
+      memo = if params[:subsidy_memo].nil?
+               contribution_text
+             else
+               Suma::TranslatedText.create(**params.fetch(:subsidy_memo))
+      end
       if ledger.nil?
         ledger = acct.add_ledger(
           currency: Suma.default_currency,
@@ -42,7 +47,7 @@ class Suma::AutomationTrigger::FundingTransactionMatch < Suma::AutomationTrigger
         originating_ledger: Suma::Payment::Account.lookup_platform_vendor_service_category_ledger(vsc),
         receiving_ledger: ledger,
         associated_vendor_service_category: vsc,
-        memo: contribution_text,
+        memo:,
       )
     end
   end
