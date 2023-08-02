@@ -397,7 +397,7 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
       our_cost: Money.new(200),
       vendor_service_categories: [fm2023_match_category],
       logo:,
-      max_quantity_per_order: 15,
+      max_quantity_per_order: 500,
       max_quantity_per_offering: 500,
       customer_price: Money.new(200),
       undiscounted_price: Money.new(200),
