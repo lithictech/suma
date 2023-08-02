@@ -5,7 +5,6 @@ import React from "react";
 import { Stack } from "react-bootstrap";
 
 export default function FoodPrice({
-  // customerPrice,
   isDiscounted,
   undiscountedPrice,
   discountAmount,
@@ -14,8 +13,16 @@ export default function FoodPrice({
   fs,
   bold,
   className,
+  showCreditsAndDiscounts,
 }) {
   let showDiscount = isDiscounted || anyMoney(noncashLedgerContributionAmount);
+  let showCredits = true;
+
+  // Avoids confusing members when there is complex credit/discount context
+  if (!showCreditsAndDiscounts) {
+    showDiscount = false;
+    showCredits = false;
+  }
   return (
     <div>
       <Stack
@@ -29,14 +36,14 @@ export default function FoodPrice({
         )}
         <Money className={clsx(showDiscount && "text-success")}>{cashPrice}</Money>
       </Stack>
-      {anyMoney(discountAmount) && (
+      {anyMoney(discountAmount) && showCredits && (
         <p className="mb-0 small text-success">
           {t("food:discount_applied", {
             amount: discountAmount,
           })}
         </p>
       )}
-      {anyMoney(noncashLedgerContributionAmount) && (
+      {anyMoney(noncashLedgerContributionAmount) && showCredits && (
         <p className="mb-0 small text-success">
           {t("food:credit_applied", {
             amount: noncashLedgerContributionAmount,

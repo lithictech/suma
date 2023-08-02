@@ -51,6 +51,8 @@ export default function FoodDetails() {
   }
   const vendor = find(vendors, (v) => v.id === product.vendorId);
   const title = makeTitle(product.name, vendor.name, t("food:title"));
+
+  const showCreditsAndDiscounts = product.maxQuantity <= 1;
   return (
     <>
       <Helmet>
@@ -73,7 +75,12 @@ export default function FoodDetails() {
         <h3 className="mb-3">{product.name}</h3>
         <Stack direction="horizontal" gap={3} className="align-items-start">
           <div>
-            <FoodPrice {...product} fs={4} className="mb-2 lh-1" />
+            <FoodPrice
+              {...product}
+              fs={4}
+              className="mb-2 lh-1"
+              showCreditsAndDiscounts={showCreditsAndDiscounts}
+            />
             <p>
               {product.isDiscounted
                 ? t("food:from_vendor_with_discount", {
@@ -82,13 +89,14 @@ export default function FoodDetails() {
                   })
                 : t("food:from_vendor", { vendorName: vendor.name })}
             </p>
-            {anyMoney(product.noncashLedgerContributionAmount) && (
-              <div className={clsx("mt-2")}>
-                {t("food:noncash_ledger_contribution_available", {
-                  amount: product.noncashLedgerContributionAmount,
-                })}
-              </div>
-            )}
+            {anyMoney(product.noncashLedgerContributionAmount) &&
+              showCreditsAndDiscounts && (
+                <div className={clsx("mt-2")}>
+                  {t("food:noncash_ledger_contribution_available", {
+                    amount: product.noncashLedgerContributionAmount,
+                  })}
+                </div>
+              )}
           </div>
           <div className="ms-auto">
             <FoodCartWidget
