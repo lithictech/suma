@@ -77,10 +77,7 @@ export default function FoodCartWidget({ product, size, onQuantityChange }) {
     );
   }
 
-  const maxQuantity =
-    product.maxQuantity > DEFAULT_MAX_QUANTITY
-      ? DEFAULT_MAX_QUANTITY
-      : product.maxQuantity;
+  const maxQuantity = Math.min(MAX_DISPLAYABLE_QUANTITY, product.maxQuantity);
   return (
     <ButtonGroup aria-label="add-to-cart" className="shadow">
       {quantity > 0 && (
@@ -146,4 +143,4 @@ const sizeClasses = {
   sm: "lh-1 m-0 p-0",
 };
 
-const DEFAULT_MAX_QUANTITY = 15;
+const MAX_DISPLAYABLE_QUANTITY = 15;

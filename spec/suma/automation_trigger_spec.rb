@@ -164,8 +164,8 @@ RSpec.describe "Suma::AutomationTrigger", :db do
       )
     end
 
-    it "defaults memo as contribution text if nil", lang: :es do
-      at.update(parameter: at.parameter.merge(subsidy_memo: nil))
+    it "defaults memo as contribution text if not present", lang: :es do
+      at.update(parameter: at.parameter.except("subsidy_memo"))
       at.run_with_payload(funding_xaction.id)
       expect(ledger.refresh.received_book_transactions).to contain_exactly(
         have_attributes(
