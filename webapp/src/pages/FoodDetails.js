@@ -82,7 +82,7 @@ export default function FoodDetails() {
               showCreditsAndDiscounts={showCreditsAndDiscounts}
             />
             <p>
-              {product.isDiscounted
+              {product.isDiscounted && showCreditsAndDiscounts
                 ? t("food:from_vendor_with_discount", {
                     vendorName: vendor.name,
                     discountAmount: product.discountAmount,
