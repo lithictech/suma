@@ -22,6 +22,7 @@ export default function FoodPrice({
   if (!showCreditsAndDiscounts) {
     showDiscount = false;
     showCredits = false;
+    cashPrice = undiscountedPrice;
   }
   return (
     <div>
