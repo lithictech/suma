@@ -8,23 +8,41 @@ import { t, mdp } from "../localization";
 import makeTitle from "../modules/makeTitle";
 import { useOffering } from "../state/useOffering";
 import { LayoutContainer } from "../state/withLayout";
+import first from "lodash/first";
 import isEmpty from "lodash/isEmpty";
 import React from "react";
 import { Stack } from "react-bootstrap";
 import Col from "react-bootstrap/Col";
 import Row from "react-bootstrap/Row";
 import { Helmet } from "react-helmet-async";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams, useLocation } from "react-router-dom";
 
 export default function FoodList() {
   const { id: offeringId } = useParams();
+  const navigate = useNavigate();
+  const { state } = useLocation();
 
   const { offering, cart, products, initializeToOffering, error, loading } =
     useOffering();
+  const onlyAvailableProductId = first(products)?.productId;
+  const redirectToAvailableProduct =
+    state?.canRedirectToAvailableProduct && products.length === 1
+      ? onlyAvailableProductId
+      : undefined;
 
   React.useEffect(() => {
     initializeToOffering(offeringId);
-  }, [initializeToOffering, offeringId]);
+
+    if (redirectToAvailableProduct) {
+      navigate(`/product/${offeringId}/${onlyAvailableProductId}`, { replace: true });
+    }
+  }, [
+    initializeToOffering,
+    offeringId,
+    onlyAvailableProductId,
+    redirectToAvailableProduct,
+    navigate,
+  ]);
 
   if (error) {
     return (

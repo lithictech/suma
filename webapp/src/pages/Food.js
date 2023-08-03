@@ -8,6 +8,7 @@ import WaitingListPage from "../components/WaitingListPage";
 import { mdp, t } from "../localization";
 import { dayjs } from "../modules/dayConfig";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
+import { useOffering } from "../state/useOffering";
 import { LayoutContainer } from "../state/withLayout";
 import isEmpty from "lodash/isEmpty";
 import React from "react";
@@ -15,7 +16,7 @@ import { Stack } from "react-bootstrap";
 import Card from "react-bootstrap/Card";
 import Col from "react-bootstrap/Col";
 import Row from "react-bootstrap/Row";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 export default function Food() {
   const {
@@ -82,6 +83,14 @@ export default function Food() {
 }
 
 function Offering({ id, description, image, closesAt }) {
+  const navigate = useNavigate();
+  const { reset } = useOffering();
+  const handleLink = (e) => {
+    e.preventDefault();
+    // MUST reset offering for the state to refresh on FoodList page
+    reset();
+    navigate(`/food/${id}`, { state: { canRedirectToAvailableProduct: true } });
+  };
   return (
     <Col xs={12} className="mb-4">
       <Card>
@@ -95,7 +104,7 @@ function Offering({ id, description, image, closesAt }) {
               className="border rounded"
             />
             <div>
-              <Card.Link as={RLink} href={`/food/${id}`} className="h6 mb-0">
+              <Card.Link as={RLink} onClick={handleLink} className="h6 mb-0">
                 {description}
               </Card.Link>
               <Card.Text className="text-secondary small">
