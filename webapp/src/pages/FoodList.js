@@ -8,7 +8,6 @@ import { t, mdp } from "../localization";
 import makeTitle from "../modules/makeTitle";
 import { useOffering } from "../state/useOffering";
 import { LayoutContainer } from "../state/withLayout";
-import first from "lodash/first";
 import isEmpty from "lodash/isEmpty";
 import React from "react";
 import { Stack } from "react-bootstrap";
@@ -24,22 +23,23 @@ export default function FoodList() {
 
   const { offering, cart, products, initializeToOffering, error, loading } =
     useOffering();
-  const onlyAvailableProductId = first(products)?.productId;
-  const redirectToAvailableProduct =
-    locationState?.fromIndex && products.length === 1 ? onlyAvailableProductId : null;
 
   React.useEffect(() => {
     initializeToOffering(offeringId);
-    if (redirectToAvailableProduct) {
-      navigate(`/product/${offeringId}/${onlyAvailableProductId}`, { replace: true });
+  }, [initializeToOffering, offeringId]);
+
+  React.useEffect(() => {
+    if (products.length !== 1 || !locationState?.fromIndex) {
+      // We can auto-redirect when coming from the index, and when we have just one product
+      return;
     }
-  }, [
-    initializeToOffering,
-    offeringId,
-    onlyAvailableProductId,
-    redirectToAvailableProduct,
-    navigate,
-  ]);
+    const firstProduct = products[0];
+    if (firstProduct.offeringId !== offeringId) {
+      // The offering hasn't finished initializing yet
+      return;
+    }
+    navigate(`/product/${offeringId}/${firstProduct.id}`, { replace: true });
+  }, [locationState?.fromIndex, navigate, offeringId, products]);
 
   if (error) {
     return (

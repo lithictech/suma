@@ -8,7 +8,6 @@ import WaitingListPage from "../components/WaitingListPage";
 import { mdp, t } from "../localization";
 import { dayjs } from "../modules/dayConfig";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
-import { useOffering } from "../state/useOffering";
 import { LayoutContainer } from "../state/withLayout";
 import isEmpty from "lodash/isEmpty";
 import React from "react";
@@ -16,7 +15,7 @@ import { Stack } from "react-bootstrap";
 import Card from "react-bootstrap/Card";
 import Col from "react-bootstrap/Col";
 import Row from "react-bootstrap/Row";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 export default function Food() {
   const {
