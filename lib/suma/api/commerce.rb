@@ -252,13 +252,24 @@ class Suma::API::Commerce < Suma::API::V1
       self.max_quantity.zero?
     end
 
-    expose :noncash_ledger_contribution_amount, with: Suma::Service::Entities::Money do |inst, opts|
-      opts.opts_hash[:_noncash] ||= opts.fetch(:cart).product_noncash_ledger_contribution_amount(inst)
+    expose :displayable_noncash_ledger_contribution_amount, with: Suma::Service::Entities::Money do |_inst|
+      # If we can only purchase 1 of an item, it makes sense to show noncash contribution.
+      # But if we can purchase multiple of it, don't include noncash contribution
+      # since it's confusing (ie, $5 credit on a $2 item would show $0 cash cost).
+      if self.max_quantity > 1
+        Money.new(0)
+      else
+        self.noncash_ledger_contrib
+      end
     end
-
-    expose :cash_price, with: Suma::Service::Entities::Money do |inst, opts|
-      noncash = opts.opts_hash[:_noncash] ||= opts.fetch(:cart).product_noncash_ledger_contribution_amount(inst)
-      inst.customer_price - noncash
+    expose :displayable_cash_price, with: Suma::Service::Entities::Money do |inst|
+      # See note above on displayable noncash ledger contribution
+      if self.max_quantity > 1
+        inst.customer_price
+      else
+        noncash = self.noncash_ledger_contrib
+        inst.customer_price - noncash
+      end
     end
 
     expose :is_discounted, &self.delegate_to(:discounted?, safe_with_default: false)
@@ -274,6 +285,11 @@ class Suma::API::Commerce < Suma::API::V1
 
     private def max_quantity
       return @max_quantity ||= self.options.fetch(:cart).max_quantity_for(self.object)
+    end
+
+    private def noncash_ledger_contrib
+      return @noncash_ledger_contrib ||
+          self.options.fetch(:cart).product_noncash_ledger_contribution_amount(self.object)
     end
   end
 

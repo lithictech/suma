@@ -51,6 +51,7 @@ export default function FoodDetails() {
   }
   const vendor = find(vendors, (v) => v.id === product.vendorId);
   const title = makeTitle(product.name, vendor.name, t("food:title"));
+
   return (
     <>
       <Helmet>
@@ -82,10 +83,10 @@ export default function FoodDetails() {
                   })
                 : t("food:from_vendor", { vendorName: vendor.name })}
             </p>
-            {anyMoney(product.noncashLedgerContributionAmount) && (
+            {anyMoney(product.displayableNoncashLedgerContributionAmount) && (
               <div className={clsx("mt-2")}>
                 {t("food:noncash_ledger_contribution_available", {
-                  amount: product.noncashLedgerContributionAmount,
+                  amount: product.displayableNoncashLedgerContributionAmount,
                 })}
               </div>
             )}

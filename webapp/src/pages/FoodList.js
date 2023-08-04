@@ -94,18 +94,7 @@ export default function FoodList() {
 }
 
 function Product({ product, offeringId }) {
-  const {
-    productId,
-    name,
-    isDiscounted,
-    undiscountedPrice,
-    customerPrice,
-    discountAmount,
-    cashPrice,
-    images,
-    noncashLedgerContributionAmount,
-    outOfStock,
-  } = product;
+  const { productId, name, images, outOfStock } = product;
   return (
     <Col xs={6} className="mb-4">
       <div className="position-relative">
@@ -115,15 +104,7 @@ function Product({ product, offeringId }) {
           <p className="text-secondary">{t("food:currently_unavailable")}</p>
         ) : (
           <>
-            <FoodPrice
-              fs={5}
-              customerPrice={customerPrice}
-              isDiscounted={isDiscounted}
-              undiscountedPrice={undiscountedPrice}
-              discountAmount={discountAmount}
-              noncashLedgerContributionAmount={noncashLedgerContributionAmount}
-              cashPrice={cashPrice}
-            />
+            <FoodPrice fs={5} {...product} />
           </>
         )}
         <Link to={`/product/${offeringId}/${productId}`} className="stretched-link" />

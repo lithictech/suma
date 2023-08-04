@@ -78,10 +78,10 @@ export default function FoodCart() {
                   customerCost: cart.customerCost,
                 })}
               </div>
-              {anyMoney(cart.noncashLedgerContributionAmount) && (
+              {anyMoney(cart.displayableNoncashLedgerContributionAmount) && (
                 <div className="text-success">
                   {md("food:cart_available_credit", {
-                    amount: cart.noncashLedgerContributionAmount,
+                    amount: cart.displayableNoncashLedgerContributionAmount,
                   })}
                 </div>
               )}
@@ -111,8 +111,6 @@ function CartItem({ offeringId, product, vendor }) {
     customerPrice,
     undiscountedPrice,
     discountAmount,
-    // noncashLedgerContributionAmount,
-    // cashPrice,
     images,
   } = product;
   return (

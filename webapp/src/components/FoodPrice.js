@@ -5,17 +5,17 @@ import React from "react";
 import { Stack } from "react-bootstrap";
 
 export default function FoodPrice({
-  // customerPrice,
   isDiscounted,
   undiscountedPrice,
   discountAmount,
-  noncashLedgerContributionAmount,
-  cashPrice,
+  displayableNoncashLedgerContributionAmount,
+  displayableCashPrice,
   fs,
   bold,
   className,
 }) {
-  let showDiscount = isDiscounted || anyMoney(noncashLedgerContributionAmount);
+  const showDiscount =
+    isDiscounted || anyMoney(displayableNoncashLedgerContributionAmount);
   return (
     <div>
       <Stack
@@ -27,7 +27,9 @@ export default function FoodPrice({
             <Money>{undiscountedPrice}</Money>
           </strike>
         )}
-        <Money className={clsx(showDiscount && "text-success")}>{cashPrice}</Money>
+        <Money className={clsx(showDiscount && "text-success")}>
+          {displayableCashPrice}
+        </Money>
       </Stack>
       {anyMoney(discountAmount) && (
         <p className="mb-0 small text-success">
@@ -36,10 +38,10 @@ export default function FoodPrice({
           })}
         </p>
       )}
-      {anyMoney(noncashLedgerContributionAmount) && (
+      {anyMoney(displayableNoncashLedgerContributionAmount) && (
         <p className="mb-0 small text-success">
           {t("food:credit_applied", {
-            amount: noncashLedgerContributionAmount,
+            amount: displayableNoncashLedgerContributionAmount,
           })}
         </p>
       )}
