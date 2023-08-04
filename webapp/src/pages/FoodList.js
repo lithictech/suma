@@ -34,11 +34,11 @@ export default function FoodList() {
       return;
     }
     const firstProduct = products[0];
-    if (firstProduct.offeringId !== offeringId) {
+    if (firstProduct.offeringId !== Number(offeringId)) {
       // The offering hasn't finished initializing yet
       return;
     }
-    navigate(`/product/${offeringId}/${firstProduct.id}`, { replace: true });
+    navigate(`/product/${offeringId}/${firstProduct.productId}`, { replace: true });
   }, [locationState?.fromIndex, navigate, offeringId, products]);
 
   if (error) {
