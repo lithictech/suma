@@ -2,19 +2,20 @@ import api from "../api";
 import AddCreditCard from "../components/AddCreditCard";
 import GoHome from "../components/GoHome";
 import LinearBreadcrumbs from "../components/LinearBreadcrumbs";
+import RLink from "../components/RLink";
 import { md, t } from "../localization";
-import useToggle from "../shared/react/useToggle";
 import { extractErrorCode, useError } from "../state/useError";
 import { useScreenLoader } from "../state/useScreenLoader";
 import { useUser } from "../state/useUser";
+import isEmpty from "lodash/isEmpty";
 import React from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import Button from "react-bootstrap/Button";
+import { useSearchParams } from "react-router-dom";
 
 export default function FundingAddCard() {
   const [params] = useSearchParams();
   const returnTo = params.get("returnTo");
-  const navigate = useNavigate();
-  const submitSuccessful = useToggle(false);
+  const [submitSuccessful, setSubmitSuccessful] = React.useState(null);
   const { handleUpdateCurrentMember } = useUser();
   const screenLoader = useScreenLoader();
   const [error, setError] = useError();
@@ -27,41 +28,55 @@ export default function FundingAddCard() {
         .createCardStripe({ token: stripeToken })
         .tap(handleUpdateCurrentMember)
         .then((r) => {
-          if (returnTo) {
-            const checkoutURL = `${returnTo}?instrumentId=${r.data.id}&instrumentType=${r.data.paymentMethodType}`;
-            navigate(checkoutURL);
-          }
-          submitSuccessful.turnOn();
+          setSubmitSuccessful({
+            instrumentId: r.data.id,
+            instrumentType: r.data.paymentMethodType,
+          });
         })
         .catch((e) => setError(extractErrorCode(e)))
         .finally(screenLoader.turnOff);
     },
-    [
-      handleUpdateCurrentMember,
-      screenLoader,
-      setError,
-      returnTo,
-      navigate,
-      submitSuccessful,
-    ]
+    [handleUpdateCurrentMember, screenLoader, setError]
   );
-
-  if (submitSuccessful.isOn) {
-    return (
-      <>
-        <h2>{t("payments:added_card")}</h2>
-        {t("payments:added_card_successful")}
-        <GoHome />
-      </>
-    );
-  }
 
   return (
     <>
-      <LinearBreadcrumbs back={returnTo || true} />
-      <h2 className="page-header">{t("payments:add_card")}</h2>
-      <p>{md("payments:payment_intro.privacy_statement")}</p>
-      <AddCreditCard error={error} setError={setError} onSuccess={handleCardSuccess} />
+      {!isEmpty(submitSuccessful) ? (
+        <Success {...submitSuccessful} returnTo={returnTo} />
+      ) : (
+        <>
+          <LinearBreadcrumbs back={returnTo || true} />
+          <h2 className="page-header">{t("payments:add_card")}</h2>
+          <p>{md("payments:payment_intro.privacy_statement")}</p>
+          <AddCreditCard
+            error={error}
+            setError={setError}
+            onSuccess={handleCardSuccess}
+          />
+        </>
+      )}
+    </>
+  );
+}
+
+function Success({ instrumentId, instrumentType, returnTo }) {
+  return (
+    <>
+      <h2>{t("payments:added_card")}</h2>
+      {t("payments:added_card_successful")}
+      {returnTo ? (
+        <div className="button-stack mt-4">
+          <Button
+            href={`${returnTo}?instrumentId=${instrumentId}&instrumentType=${instrumentType}`}
+            as={RLink}
+            variant="outline-primary"
+          >
+            {t("forms:continue")}
+          </Button>
+        </div>
+      ) : (
+        <GoHome />
+      )}
     </>
   );
 }
