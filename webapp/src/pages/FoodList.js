@@ -20,19 +20,16 @@ import { Link, useNavigate, useParams, useLocation } from "react-router-dom";
 export default function FoodList() {
   const { id: offeringId } = useParams();
   const navigate = useNavigate();
-  const { state } = useLocation();
+  const { state: locationState } = useLocation();
 
   const { offering, cart, products, initializeToOffering, error, loading } =
     useOffering();
   const onlyAvailableProductId = first(products)?.productId;
   const redirectToAvailableProduct =
-    state?.canRedirectToAvailableProduct && products.length === 1
-      ? onlyAvailableProductId
-      : undefined;
+    locationState?.fromIndex && products.length === 1 ? onlyAvailableProductId : null;
 
   React.useEffect(() => {
     initializeToOffering(offeringId);
-
     if (redirectToAvailableProduct) {
       navigate(`/product/${offeringId}/${onlyAvailableProductId}`, { replace: true });
     }

@@ -83,14 +83,6 @@ export default function Food() {
 }
 
 function Offering({ id, description, image, closesAt }) {
-  const navigate = useNavigate();
-  const { reset } = useOffering();
-  const handleLink = (e) => {
-    e.preventDefault();
-    // MUST reset offering for the state to refresh on FoodList page
-    reset();
-    navigate(`/food/${id}`, { state: { canRedirectToAvailableProduct: true } });
-  };
   return (
     <Col xs={12} className="mb-4">
       <Card>
@@ -104,7 +96,12 @@ function Offering({ id, description, image, closesAt }) {
               className="border rounded"
             />
             <div>
-              <Card.Link as={RLink} onClick={handleLink} className="h6 mb-0">
+              <Card.Link
+                as={RLink}
+                href={`/food/${id}`}
+                state={{ fromIndex: true }}
+                className="h6 mb-0"
+              >
                 {description}
               </Card.Link>
               <Card.Text className="text-secondary small">
