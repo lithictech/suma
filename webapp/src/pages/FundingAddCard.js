@@ -10,11 +10,13 @@ import { useUser } from "../state/useUser";
 import isEmpty from "lodash/isEmpty";
 import React from "react";
 import Button from "react-bootstrap/Button";
-import { useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
 export default function FundingAddCard() {
   const [params] = useSearchParams();
+  const navigate = useNavigate();
   const returnTo = params.get("returnTo");
+  const returnToImmediate = params.get("returnToImmediate");
   const [submitSuccessful, setSubmitSuccessful] = React.useState(null);
   const { handleUpdateCurrentMember } = useUser();
   const screenLoader = useScreenLoader();
@@ -28,6 +30,12 @@ export default function FundingAddCard() {
         .createCardStripe({ token: stripeToken })
         .tap(handleUpdateCurrentMember)
         .then((r) => {
+          if (returnToImmediate) {
+            navigate(
+              makeReturnUrl(returnToImmediate, r.data.id, r.data.paymentMethodType)
+            );
+            return;
+          }
           setSubmitSuccessful({
             instrumentId: r.data.id,
             instrumentType: r.data.paymentMethodType,
@@ -36,7 +44,7 @@ export default function FundingAddCard() {
         .catch((e) => setError(extractErrorCode(e)))
         .finally(screenLoader.turnOff);
     },
-    [handleUpdateCurrentMember, screenLoader, setError]
+    [handleUpdateCurrentMember, navigate, returnToImmediate, screenLoader, setError]
   );
 
   return (
@@ -67,7 +75,7 @@ function Success({ instrumentId, instrumentType, returnTo }) {
       {returnTo ? (
         <div className="button-stack mt-4">
           <Button
-            href={`${returnTo}?instrumentId=${instrumentId}&instrumentType=${instrumentType}`}
+            href={makeReturnUrl(returnTo, instrumentId, instrumentType)}
             as={RLink}
             variant="outline-primary"
           >
@@ -79,4 +87,8 @@ function Success({ instrumentId, instrumentType, returnTo }) {
       )}
     </>
   );
+}
+
+function makeReturnUrl(returnTo, instrumentId, instrumentType) {
+  return `${returnTo}?instrumentId=${instrumentId}&instrumentType=${instrumentType}`;
 }
