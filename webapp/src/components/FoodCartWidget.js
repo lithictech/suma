@@ -77,6 +77,7 @@ export default function FoodCartWidget({ product, size, onQuantityChange }) {
     );
   }
 
+  const maxQuantity = Math.min(MAX_DISPLAYABLE_QUANTITY, product.maxQuantity);
   return (
     <ButtonGroup aria-label="add-to-cart" className="shadow">
       {quantity > 0 && (
@@ -103,10 +104,7 @@ export default function FoodCartWidget({ product, size, onQuantityChange }) {
               {quantity}
             </Dropdown.Toggle>
             <Dropdown.Menu className="food-widget-dropdown-menu" renderOnMount={true}>
-              <DropdownQuantities
-                maxQuantity={product.maxQuantity}
-                selectedQuantity={quantity}
-              />
+              <DropdownQuantities maxQuantity={maxQuantity} selectedQuantity={quantity} />
             </Dropdown.Menu>
           </Dropdown>
         </>
@@ -114,11 +112,7 @@ export default function FoodCartWidget({ product, size, onQuantityChange }) {
       <Button
         variant="success"
         onClick={() => handleQuantityChange(quantity + 1)}
-        className={clsx(
-          btnClasses,
-          quantity === product.maxQuantity && "disabled",
-          "nowrap"
-        )}
+        className={clsx(btnClasses, quantity === maxQuantity && "disabled", "nowrap")}
         title={t("food:add_to_cart")}
       >
         <img src={addIcon} alt={t("food:add_to_cart")} width="32px" />
@@ -148,3 +142,5 @@ const sizeClasses = {
   lg: "lh-1 m-0 p-2",
   sm: "lh-1 m-0 p-0",
 };
+
+const MAX_DISPLAYABLE_QUANTITY = 15;
