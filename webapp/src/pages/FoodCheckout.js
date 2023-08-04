@@ -135,7 +135,7 @@ function CheckoutPayment({
   const addPaymentLinks = (
     <>
       {isPaymentMethodSupported("card") && (
-        <Link to={`/add-card?returnTo=/checkout/${checkout.id}`}>
+        <Link to={`/add-card?returnToImmediate=/checkout/${checkout.id}`}>
           <i className="bi bi-credit-card me-2" />
           {t("food:add_card")}
         </Link>

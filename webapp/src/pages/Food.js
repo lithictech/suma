@@ -95,7 +95,12 @@ function Offering({ id, description, image, closesAt }) {
               className="border rounded"
             />
             <div>
-              <Card.Link as={RLink} href={`/food/${id}`} className="h6 mb-0">
+              <Card.Link
+                as={RLink}
+                href={`/food/${id}`}
+                state={{ fromIndex: true }}
+                className="h6 mb-0"
+              >
                 {description}
               </Card.Link>
               <Card.Text className="text-secondary small">

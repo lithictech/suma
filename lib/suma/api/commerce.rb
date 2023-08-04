@@ -242,6 +242,7 @@ class Suma::API::Commerce < Suma::API::V1
   class OfferingProductEntity < BaseEntity
     expose_translated :name, &self.delegate_to(:product, :name)
     expose_translated :description, &self.delegate_to(:product, :description)
+    expose :offering_id
     expose :product_id, &self.delegate_to(:product, :id)
     expose :vendor_id, &self.delegate_to(:product, :vendor_id)
     expose :images, with: Suma::API::Entities::ImageEntity, &self.delegate_to(:product, :images?)

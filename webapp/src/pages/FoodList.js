@@ -14,10 +14,12 @@ import { Stack } from "react-bootstrap";
 import Col from "react-bootstrap/Col";
 import Row from "react-bootstrap/Row";
 import { Helmet } from "react-helmet-async";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams, useLocation } from "react-router-dom";
 
 export default function FoodList() {
   const { id: offeringId } = useParams();
+  const navigate = useNavigate();
+  const { state: locationState } = useLocation();
 
   const { offering, cart, products, initializeToOffering, error, loading } =
     useOffering();
@@ -25,6 +27,19 @@ export default function FoodList() {
   React.useEffect(() => {
     initializeToOffering(offeringId);
   }, [initializeToOffering, offeringId]);
+
+  React.useEffect(() => {
+    if (products.length !== 1 || !locationState?.fromIndex) {
+      // We can auto-redirect when coming from the index, and when we have just one product
+      return;
+    }
+    const firstProduct = products[0];
+    if (firstProduct.offeringId !== Number(offeringId)) {
+      // The offering hasn't finished initializing yet
+      return;
+    }
+    navigate(`/product/${offeringId}/${firstProduct.productId}`, { replace: true });
+  }, [locationState?.fromIndex, navigate, offeringId, products]);
 
   if (error) {
     return (
