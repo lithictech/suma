@@ -285,12 +285,10 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
       state_or_province: "Oregon",
       postal_code: "97203",
     )
-    logo = self.create_uploaded_file("st-johns-farmers-market-logo.png", "image/png")
     hero = self.create_uploaded_file("st-johns-farmers-market-hero.jpeg", "image/jpeg")
     setup_farmers_market(
       market_name:,
       market_address:,
-      logo:,
       hero:,
       offering_period: Sequel.pg_range(self.sjfm_2023_begin..self.sjfm_2023_season_end),
       constraints: [self.new_columbia_constraint_name, self.snap_eligible_constraint_name],
@@ -305,19 +303,20 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
       state_or_province: "Oregon",
       postal_code: "97211",
     )
-    logo = self.create_uploaded_file("king-farmers-market-logo.png", "image/png")
     hero = self.create_uploaded_file("king-farmers-market-hero.png", "image/png")
     setup_farmers_market(
       market_name:,
       market_address:,
-      logo:,
       hero:,
       offering_period: Sequel.pg_range(self.king_fm_2023_begin..self.king_fm_2023_season_end),
       constraints: [self.hacienda_cdc_constraint_name, self.snap_eligible_constraint_name],
     )
   end
 
-  def setup_farmers_market(market_name:, market_address:, logo:, hero:, offering_period:, constraints:)
+  def setup_farmers_market(market_name:, market_address:, hero:, offering_period:, constraints:)
+    first_time_buyers_logo = self.create_uploaded_file("farmers-market-first-time-buyers-logo.png", "image/png")
+    returning_buyers_logo = self.create_uploaded_file("farmers-market-returning-buyers-logo.png", "image/png")
+
     offering = Suma::Commerce::Offering.update_or_create(period: offering_period, confirmation_template: "2023-07-pilot-confirmation") do |o|
       o.set(
         description: Suma::TranslatedText.find_or_create(
@@ -381,7 +380,7 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
       description_es: "El cupón de suma es un especial de alimentos en el que suma trabaja con usted para reducir el precio de los cupones para alimentos frescos y envasados en #{market_name}. Los primeros compradores cargan $5 y obtienen $24 en vales (un credito de $19 de suma). No puede utilizar estos cupones para bebidas alcohólicas o comidas preparadas calientes.",
       our_cost: Money.new(2400),
       vendor_service_categories: [fm2023_intro_category],
-      logo:,
+      logo: first_time_buyers_logo,
       max_quantity_per_order: 1,
       max_quantity_per_offering: 25,
       customer_price: Money.new(2400),
@@ -396,7 +395,7 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
       description_es: "El cupón de suma es un especial de alimentos en el que suma trabaja con usted para reducir el precio de los cupones para alimentos frescos y envasados en #{market_name}. suma te igualara 1:1 hasta un total de $30 (tu agregas $15, suma agrega $15 de créditos). No puede utilizar estos cupones para bebidas alcohólicas o comidas preparadas calientes.",
       our_cost: Money.new(200),
       vendor_service_categories: [fm2023_match_category],
-      logo:,
+      logo: returning_buyers_logo,
       max_quantity_per_order: 500,
       max_quantity_per_offering: 500,
       customer_price: Money.new(200),
