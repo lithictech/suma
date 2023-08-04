@@ -8,22 +8,14 @@ export default function FoodPrice({
   isDiscounted,
   undiscountedPrice,
   discountAmount,
-  noncashLedgerContributionAmount,
-  cashPrice,
+  displayableNoncashLedgerContributionAmount,
+  displayableCashPrice,
   fs,
   bold,
   className,
-  showCreditsAndDiscounts,
 }) {
-  let showDiscount = isDiscounted || anyMoney(noncashLedgerContributionAmount);
-  let showCredits = true;
-
-  // Avoids confusing members when there is complex credit/discount context
-  if (!showCreditsAndDiscounts) {
-    showDiscount = false;
-    showCredits = false;
-    cashPrice = undiscountedPrice;
-  }
+  const showDiscount =
+    isDiscounted || anyMoney(displayableNoncashLedgerContributionAmount);
   return (
     <div>
       <Stack
@@ -35,19 +27,21 @@ export default function FoodPrice({
             <Money>{undiscountedPrice}</Money>
           </strike>
         )}
-        <Money className={clsx(showDiscount && "text-success")}>{cashPrice}</Money>
+        <Money className={clsx(showDiscount && "text-success")}>
+          {displayableCashPrice}
+        </Money>
       </Stack>
-      {anyMoney(discountAmount) && showCredits && (
+      {anyMoney(discountAmount) && (
         <p className="mb-0 small text-success">
           {t("food:discount_applied", {
             amount: discountAmount,
           })}
         </p>
       )}
-      {anyMoney(noncashLedgerContributionAmount) && showCredits && (
+      {anyMoney(displayableNoncashLedgerContributionAmount) && (
         <p className="mb-0 small text-success">
           {t("food:credit_applied", {
-            amount: noncashLedgerContributionAmount,
+            amount: displayableNoncashLedgerContributionAmount,
           })}
         </p>
       )}
