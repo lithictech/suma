@@ -314,8 +314,8 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
   end
 
   def setup_farmers_market(market_name:, market_address:, hero:, offering_period:, constraints:)
-    first_time_buyers_logo = self.create_uploaded_file("farmers-market-first-time-buyers-logo.png", "image/png")
-    returning_buyers_logo = self.create_uploaded_file("farmers-market-returning-buyers-logo.png", "image/png")
+    first_time_buyers_logo = self.create_uploaded_file("farmers-market-first-time-buyers-logo", "image/png")
+    returning_buyers_logo = self.create_uploaded_file("farmers-market-returning-buyers-logo", "image/png")
 
     offering = Suma::Commerce::Offering.update_or_create(period: offering_period, confirmation_template: "2023-07-pilot-confirmation") do |o|
       o.set(
