@@ -104,6 +104,10 @@ class Suma::Message::SmsTransport < Suma::Message::Transport
     21_211 => "twilio_invalid_phone_number",
     21_408 => "twilio_unsupported_region",
     21_610 => "twilio_blacklist_rule",
+    # Usually this is because it's a 555 or whatever number.
+    # It'd be nice to not have to catch such a generic error,
+    # but not sure what else we can do here.
+    60_200 => "twilio_invalid_record_parameter",
   }.freeze
 
   def add_bodies(delivery, content)
