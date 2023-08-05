@@ -32,7 +32,7 @@ RSpec.describe Suma::API::Meta, :db do
 
   describe "GET /v1/meta/supported_currencies" do
     it "returns supported currencies" do
-      Suma::Fixtures.supported_currency.create(funding_minimum_cents: 500)
+      Suma::Fixtures.supported_currency.create(funding_minimum_cents: 500, funding_maximum_cents: 100_00)
 
       get "/v1/meta/supported_currencies"
 
@@ -43,6 +43,7 @@ RSpec.describe Suma::API::Meta, :db do
             symbol: "$",
             code: "USD",
             funding_minimum_cents: 500,
+            funding_maximum_cents: 100_00,
             funding_step_cents: 100,
             cents_in_dollar: 100,
             payment_method_types: ["bank_account"],

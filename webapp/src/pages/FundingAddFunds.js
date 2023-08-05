@@ -65,6 +65,19 @@ export default function FundingAddFunds() {
       );
       return;
     }
+    if (amountCents > selectedCurrency?.fundingMaximumCents) {
+      setError(
+        <span>
+          {t("forms:invalid_max_amount", {
+            constraint: {
+              cents: selectedCurrency?.fundingMaximumCents,
+              currency: selectedCurrency?.code,
+            },
+          })}
+        </span>
+      );
+      return;
+    }
     screenLoader.turnOn();
     idempotency.runAsync("add-funds", () =>
       api
