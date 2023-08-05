@@ -74,7 +74,6 @@ module Suma::Postgres
     "suma/member/session",
     "suma/idempotency",
     "suma/legal_entity",
-    "suma/market",
     "suma/message/body",
     "suma/message/delivery",
     "suma/message/preferences",

@@ -64,7 +64,7 @@ including the provider's vehicle id.
 We fill our database with vehicles that we fetch from providers,
 usually through GBFS feeds but potentially in other ways (like providers who have APIs we can use).
 
-To do this, we fetch vehicle data using provider and market-specific mechanisms,
+To do this, we fetch vehicle data using provider and eligibility-specific mechanisms,
 and replace relevant rows into the `mobility_vehicles` table
 (vehicles no longer present get deleted).
 
