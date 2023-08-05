@@ -22,6 +22,7 @@ module Suma::Async
   # Registry of all jobs that will be required when the async system is started/run.
   JOBS = [
     "suma/async/automation_trigger_runner",
+    "suma/async/deprecated_jobs",
     "suma/async/emailer",
     "suma/async/ensure_default_member_ledgers_on_create",
     "suma/async/funding_transaction_processor",
@@ -31,8 +32,8 @@ module Suma::Async
     "suma/async/plaid_update_institutions",
     "suma/async/process_anon_proxy_inbound_webhookdb_relays",
     "suma/async/reset_code_create_dispatch",
-    "suma/async/sync_lime_free_bike_status_gbfs",
-    "suma/async/sync_lime_geofencing_zones_gbfs",
+    "suma/async/gbfs_sync_free_bike_status",
+    "suma/async/gbfs_sync_geofencing_zones",
     "suma/async/upsert_frontapp_contact",
   ].freeze
 

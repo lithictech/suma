@@ -38,6 +38,9 @@ class Suma::AnonProxy::Relay
   require_relative "relay/postmark"
   register(Postmark.new.key, Postmark)
 
+  require_relative "relay/plivo"
+  register(Plivo.new.key, Plivo)
+
   # @return [Suma::AnonProxy::Relay]
   def self.create!(key)
     return self.registry_create!(key)

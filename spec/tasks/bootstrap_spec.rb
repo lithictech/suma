@@ -2,10 +2,11 @@
 
 require "suma/tasks/bootstrap"
 
-RSpec.describe Suma::Tasks::Bootstrap, :db do
+RSpec.describe Suma::Tasks::Bootstrap, :db, reset_configuration: [Suma::Lyft] do
   before(:each) do
     # We don't want to mock http calls here, not worth it.
     Suma::Lime.reset_configuration
+    Suma::Lyft.gbfs_sync_markets = []
   end
 
   it "runs successfully" do

@@ -4,6 +4,7 @@ require "rake/tasklib"
 
 require "suma/tasks"
 require "suma/lime"
+require "suma/lyft"
 
 # rubocop:disable Layout/LineLength
 class Suma::Tasks::Bootstrap < Rake::TaskLib
@@ -24,7 +25,8 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
       self.setup_constraints
 
       self.create_lime_scooter_vendor
-      self.sync_lime_gbfs
+      self.create_lyft_biketown_vendor
+      self.sync_gbfs
 
       self.setup_admin
 
@@ -93,33 +95,25 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
     [45.514490, -122.601940],
   ].freeze
 
-  def sync_lime_gbfs
-    require "suma/lime"
-    return unless Suma::Lime.configured?
-    [Suma::Mobility::Gbfs::FreeBikeStatus, Suma::Mobility::Gbfs::GeofencingZone].each do |cc|
-      c = cc.new
-      i = Suma::Mobility::Gbfs::VendorSync.new(
-        client: Suma::Lime.gbfs_http_client,
-        vendor: Suma::Lime.mobility_vendor,
-        component: c,
-      ).sync_all
-      if i.zero? && cc == Suma::Mobility::Gbfs::FreeBikeStatus
-        require "suma/fixtures/mobility_vehicles"
-        Suma::Lime.mobility_vendor.services_dataset.mobility.each_with_index do |vendor_service, vsidx|
-          FAKE_LIME_BIKE_COORDS.each do |(lat, lng)|
-            Suma::Fixtures.mobility_vehicle(
-              lat: lat + (0.0002 * vsidx),
-              lng:,
-              vehicle_type: "escooter",
-              vendor_service:,
-            ).create
-          end
-        end
-        puts "Create fake Lime scooters since GBFS returned no vehicles"
-        i = FAKE_LIME_BIKE_COORDS.length
+  def sync_gbfs
+    require "suma/async"
+    require "suma/async/gbfs_sync_geofencing_zones"
+    require "suma/async/gbfs_sync_free_bike_status"
+    Suma::Async::GbfsSyncFreeBikeStatus.new.perform(true)
+    Suma::Async::GbfsSyncGeofencingZones.new.perform(true)
+    return unless Suma::Mobility::Vehicle.empty?
+    require "suma/fixtures/mobility_vehicles"
+    Suma::Lime.mobility_vendor.services_dataset.mobility.each_with_index do |vendor_service, vsidx|
+      FAKE_LIME_BIKE_COORDS.each do |(lat, lng)|
+        Suma::Fixtures.mobility_vehicle(
+          lat: lat + (0.0002 * vsidx),
+          lng:,
+          vehicle_type: "escooter",
+          vendor_service:,
+        ).create
       end
-      puts "Synced #{i} #{c.model.name}"
     end
+    puts "Create fake Lime scooters since GBFS returned no vehicles"
   end
 
   def create_lime_scooter_vendor
@@ -130,17 +124,35 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
       r.unit_amount = Money.new(7)
     end
     Suma::Vendor::Service.
-      where(mobility_vendor_adapter_key: "lime").
-      update(mobility_vendor_adapter_key: "lime_deeplink")
+      where(mobility_vendor_adapter_key: "lime_deeplink").
+      update(mobility_vendor_adapter_key: "vendor_account_deeplink")
     svc = Suma::Vendor::Service.update_or_create(vendor:, internal_name: "Lime Scooter Deeplink") do |vs|
       vs.external_name = "Lime E-Scooter"
       vs.constraints = [{"form_factor" => "scooter", "propulsion_type" => "electric"}]
-      vs.mobility_vendor_adapter_key = "lime_deeplink"
+      vs.mobility_vendor_adapter_key = "vendor_account_deeplink"
     end
     svc.add_category(Suma::Vendor::ServiceCategory.update_or_create(name: "Mobility", parent: cash_category)) if
       svc.categories.empty?
     svc.add_rate(rate) if svc.rates.empty?
     self.assign_constraints(svc, [self.new_columbia_constraint_name, self.hacienda_cdc_constraint_name, self.snap_eligible_constraint_name])
+  end
+
+  def create_lyft_biketown_vendor
+    vendor = Suma::Lyft.mobility_vendor
+    rate = Suma::Vendor::ServiceRate.update_or_create(name: "Biketown For All PDX") do |r|
+      r.localization_key = "mobility_biketown_for_all_2023_rate"
+      r.surcharge = Money.new(0)
+      r.unit_amount = Money.new(0)
+    end
+    svc = Suma::Vendor::Service.update_or_create(vendor:, internal_name: "Lyft Biketown for All") do |vs|
+      vs.external_name = "Biketown E-Bike"
+      vs.constraints = [{"form_factor" => "bicycle", "propulsion_type" => "electric_assist"}]
+      vs.mobility_vendor_adapter_key = "vendor_account_deeplink"
+    end
+    svc.add_category(Suma::Vendor::ServiceCategory.update_or_create(name: "Mobility", parent: cash_category)) if
+      svc.categories.empty?
+    svc.add_rate(rate) if svc.rates.empty?
+    self.assign_constraints(svc, [self.beta_constraint_name])
   end
 
   ADMIN_EMAIL = "admin@lithic.tech"
@@ -160,7 +172,12 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
   end
 
   def setup_constraints
-    names = [self.new_columbia_constraint_name, self.hacienda_cdc_constraint_name, self.snap_eligible_constraint_name]
+    names = [
+      self.new_columbia_constraint_name,
+      self.hacienda_cdc_constraint_name,
+      self.snap_eligible_constraint_name,
+      self.beta_constraint_name,
+    ]
     names.each do |name|
       Suma::Eligibility::Constraint.find_or_create(name:)
     end
@@ -540,6 +557,7 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
   def fm_2023_season_begin = [sjfm_2023_begin, king_fm_2023_begin].max
   def fm_2023_season_end = [sjfm_2023_season_end, king_fm_2023_season_end].max
 
+  def beta_constraint_name = "Beta Tester"
   def new_columbia_constraint_name = "New Columbia, Portland, OR"
   def hacienda_cdc_constraint_name = "Hacienda CDC, Portland, OR"
   def snap_eligible_constraint_name = "SNAP Eligible"

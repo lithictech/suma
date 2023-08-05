@@ -48,7 +48,7 @@ RSpec.describe Suma::Mobility::VendorAdapter, :db do
     let(:ad) { Suma::Mobility::VendorAdapter::Fake.new }
 
     it "is false if not using deep linking" do
-      expect(ad).to_not be_anon_proxy_vendor_account_requires_attention(member)
+      expect(ad).to_not be_anon_proxy_vendor_account_requires_attention(member, nil)
     end
 
     describe "when using deep linking" do
@@ -57,12 +57,12 @@ RSpec.describe Suma::Mobility::VendorAdapter, :db do
       end
 
       it "is true when there is no account" do
-        expect(ad).to be_anon_proxy_vendor_account_requires_attention(member)
+        expect(ad).to be_anon_proxy_vendor_account_requires_attention(member, Suma::Fixtures.vendor.create)
       end
       it "is true when the account is not configured" do
         va = Suma::Fixtures.anon_proxy_vendor_account(member:).create
         Suma::Mobility::VendorAdapter::Fake.find_anon_proxy_vendor_account_results << va
-        expect(ad).to be_anon_proxy_vendor_account_requires_attention(member)
+        expect(ad).to be_anon_proxy_vendor_account_requires_attention(member, va.configuration.vendor)
       end
       it "is false if the account is configured" do
         va = Suma::Fixtures.anon_proxy_vendor_account(member:).
@@ -70,7 +70,7 @@ RSpec.describe Suma::Mobility::VendorAdapter, :db do
           with_configuration(uses_email: true).
           create
         Suma::Mobility::VendorAdapter::Fake.find_anon_proxy_vendor_account_results << va
-        expect(ad).to_not be_anon_proxy_vendor_account_requires_attention(member)
+        expect(ad).to_not be_anon_proxy_vendor_account_requires_attention(member, va.configuration.vendor)
       end
     end
   end

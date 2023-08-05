@@ -4,6 +4,8 @@ class Suma::Mobility::Gbfs::VendorSync
   attr_reader :client, :vendor, :component
 
   # @param client [Suma::Mobility::Gbfs::BaseClient]
+  # @param vendor [Suma::Vendor]
+  # @param component [Suma::Mobility::Gbfs::ComponentSync]
   def initialize(client:, vendor:, component:)
     @client = client
     @vendor = vendor

@@ -1,0 +1,53 @@
+{
+  "api_id": "859428b0-1c88-11e4-a2d1-22000ac5040c",
+  "error": "",
+  "meta": {
+    "limit": 20,
+    "next": null,
+    "offset": 0,
+    "previous": null,
+    "total_count": 9
+  },
+  "objects": [
+    {
+      "number": "14154009186",
+      "prefix": "415",
+      "city": "SAN FRANCISCO",
+      "country": "UNITED STATES",
+      "region": "United States",
+      "rate_center": "SNFC CNTRL",
+      "lata": 722,
+      "type": "fixed",
+      "sub_type": "local",
+      "setup_rate": "0.00000",
+      "monthly_rental_rate": "0.80000",
+      "sms_enabled": true,
+      "sms_rate": "0.00800",
+      "voice_enabled": true,
+      "voice_rate": "0.00500",
+      "restriction": null,
+      "restriction_text": null,
+      "resource_uri": "/v1/Account/MA2025RK4E639VJFZAGV/PhoneNumber/14154009186/"
+    },
+    {
+      "number": "14154009187",
+      "prefix": "415",
+      "city": "SAN FRANCISCO",
+      "country": "UNITED STATES",
+      "region": "United States",
+      "rate_center": "SNFC CNTRL",
+      "lata": 722,
+      "type": "fixed",
+      "sub_type": "local",
+      "setup_rate": "0.00000",
+      "monthly_rental_rate": "0.80000",
+      "sms_enabled": true,
+      "sms_rate": "0.00800",
+      "voice_enabled": true,
+      "voice_rate": "0.00500",
+      "restriction": null,
+      "restriction_text": null,
+      "resource_uri": "/v1/Account/MA2025RK4E639VJFZAGV/PhoneNumber/14154009187/"
+    }
+  ]
+}

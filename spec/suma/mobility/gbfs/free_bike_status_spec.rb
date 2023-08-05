@@ -4,6 +4,9 @@ require "suma/mobility/gbfs"
 require "suma/mobility/gbfs/fake_client"
 
 RSpec.describe Suma::Mobility::Gbfs::FreeBikeStatus, :db do
+  # We see ints and strings inconsistently in some cases, choose them randomly to ensure we always use strings.
+  def scooter_vehicle_type_id = [123, "123"].sample
+
   let(:fake_free_bike_status_json) do
     {
       "last_updated" => 1_640_887_163,
@@ -18,7 +21,7 @@ RSpec.describe Suma::Mobility::Gbfs::FreeBikeStatus, :db do
             "lon" => 56.81,
             "is_reserved" => false,
             "is_disabled" => false,
-            "vehicle_type_id" => "abc123",
+            "vehicle_type_id" => scooter_vehicle_type_id,
             "current_range_meters" => 5000.12,
             "rental_uris" => {"web" => "https://foo.bar"},
           },
@@ -29,7 +32,7 @@ RSpec.describe Suma::Mobility::Gbfs::FreeBikeStatus, :db do
             "lon" => 56.80,
             "is_reserved" => false,
             "is_disabled" => false,
-            "vehicle_type_id" => "abc123",
+            "vehicle_type_id" => scooter_vehicle_type_id,
             "current_range_meters" => 6543.0,
           },
           {
@@ -51,9 +54,9 @@ RSpec.describe Suma::Mobility::Gbfs::FreeBikeStatus, :db do
       "data" => {
         "vehicle_types" => [
           {
-            "vehicle_type_id" => "abc123",
+            "vehicle_type_id" => scooter_vehicle_type_id,
             "form_factor" => "scooter",
-            "propulsion_type" => "human",
+            "propulsion_type" => "electric",
             "name" => "Example E-scooter V2",
             "max_range_meters" => 12_000.0,
           },
@@ -75,12 +78,14 @@ RSpec.describe Suma::Mobility::Gbfs::FreeBikeStatus, :db do
           vendor_service: be === vs,
           battery_level: 42,
           rental_uris: {"web" => "https://foo.bar"},
+          vehicle_type: "escooter",
         ),
         have_attributes(
           vehicle_id: "ghi700",
           vendor_service: be === vs,
           battery_level: 55,
           rental_uris: {},
+          vehicle_type: "escooter",
         ),
       )
     end

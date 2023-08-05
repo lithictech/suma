@@ -9,4 +9,5 @@ module Suma::Mobility::Gbfs
   require "suma/mobility/gbfs/geofencing_zone"
   require "suma/mobility/gbfs/http_client"
   require "suma/mobility/gbfs/vendor_sync"
+  require "suma/mobility/gbfs/syncable"
 end

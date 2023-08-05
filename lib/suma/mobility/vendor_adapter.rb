@@ -35,20 +35,22 @@ module Suma::Mobility::VendorAdapter
   # Find the anonymous proxy vendor account for the member
   # that satisfies this adapter (usually this means finding one for the right vendor).
   # It is ok to return nil if the account or vendor does not exist.
+  # @param member [Suma::Member]
+  # @param vendor [Suma::Vendor]
   # @return [nil,Suma::AnonProxy::VendorAccount]
-  def find_anon_proxy_vendor_account(member) = raise NotImplementedError
+  def find_anon_proxy_vendor_account(member, vendor) = raise NotImplementedError
 
-  def anon_proxy_vendor_account_requires_attention?(member)
+  def anon_proxy_vendor_account_requires_attention?(member, vendor)
     return false unless self.uses_deep_linking?
-    account = self.find_anon_proxy_vendor_account(member)
+    account = self.find_anon_proxy_vendor_account(member, vendor)
     return true if account.nil?
     return account.address_required?
   end
 
   require_relative "vendor_adapter/fake"
   register("fake", Suma::Mobility::VendorAdapter::Fake)
-  require_relative "vendor_adapter/lime_deeplink"
-  register("lime_deeplink", Suma::Mobility::VendorAdapter::LimeDeeplink)
+  require_relative "vendor_adapter/vendor_account_deeplink"
+  register("vendor_account_deeplink", Suma::Mobility::VendorAdapter::VendorAccountDeeplink)
   require_relative "vendor_adapter/lime_maas"
   register("lime_maas", Suma::Mobility::VendorAdapter::LimeMaas)
 end

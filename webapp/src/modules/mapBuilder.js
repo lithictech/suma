@@ -1,6 +1,7 @@
 import api from "../api";
-import scooterIcon from "../assets/images/kick-scooter.png";
-import scooterContainer from "../assets/images/scooter-container.svg";
+import escooterIcon from "../assets/images/escooter.png";
+import ebikeIcon from "../assets/images/ebike.png";
+import vehicleContainer from "../assets/images/vehicle-container.svg";
 import config from "../config";
 import { t } from "../localization";
 import { localStorageCache } from "../shared/localStorageHelper";
@@ -52,12 +53,20 @@ export default class MapBuilder {
         });
       },
     });
-    this._scooterIcon = this._l.divIcon({
-      html: `<img src="${scooterContainer}" alt="scooter container"/><img src="${scooterIcon}" class="mobility-map-icon-img" alt="scooter icon"/>`,
-      className: "mobility-map-icon",
-      iconSize: [43.4, 52.6],
-      iconAnchor: [21.7, 52.6],
-    });
+    this.typeToIconMap = {
+      'escooter': this._l.divIcon({
+        html: `<img src="${vehicleContainer}" alt=""/><img src="${escooterIcon}" class="mobility-map-icon-img" alt="escooter"/>`,
+        className: "mobility-map-icon",
+        iconSize: [43.4, 52.6],
+        iconAnchor: [21.7, 52.6],
+      }),
+      'ebike': this._l.divIcon({
+        html: `<img src="${vehicleContainer}" alt=""/><img src="${ebikeIcon}" class="mobility-map-icon-img" alt="ebike"/>`,
+        className: "mobility-map-icon",
+        iconSize: [43.4, 52.6],
+        iconAnchor: [21.7, 52.6],
+      })
+    }
     this._lastLocation = null;
     this._locationMarker = null;
     this._locationAccuracyCircle = null;
@@ -134,7 +143,7 @@ export default class MapBuilder {
       return;
     }
     this._lastExtendedBounds = expandBounds(bounds);
-    this.getAndUpdateScooters(this._lastExtendedBounds, this._mcg);
+    this.getAndUpdateVehicles(this._lastExtendedBounds, this._mcg);
   }
 
   zoomEnd() {
@@ -160,21 +169,21 @@ export default class MapBuilder {
     this._onSelectedVehicleRemoved = onSelectedRemoved;
   }
 
-  loadScooters() {
-    this.getAndUpdateScooters(this._lastExtendedBounds, this._mcg);
+  loadVehicles() {
+    this.getAndUpdateVehicles(this._lastExtendedBounds, this._mcg);
     this.setMapEventHandlers();
     this._map.addLayer(this._mcg);
     return this;
   }
 
-  getAndUpdateScooters(bounds, mcg) {
+  getAndUpdateVehicles(bounds, mcg) {
     api.getMobilityMap(boundsToParams(bounds)).then((r) => {
-      this.updateScooters({ ...r, bounds, mcg });
+      this.updateVehicles({ ...r, bounds, mcg });
       this.stopRefreshTimer().startRefreshTimer(r.data.refresh, bounds, mcg);
     });
   }
 
-  updateScooters({ data, bounds, mcg }) {
+  updateVehicles({ data, bounds, mcg }) {
     const precisionFactor = 1 / data.precision;
     const applicableMarkers = [];
     const allNewMarkersIds = [];
@@ -287,7 +296,7 @@ export default class MapBuilder {
       return;
     }
     this._refreshId = window.setInterval(() => {
-      this.getAndUpdateScooters(bounds, mcg);
+      this.getAndUpdateVehicles(bounds, mcg);
     }, interval);
   }
 
@@ -309,10 +318,11 @@ export default class MapBuilder {
     }
     lat = lat * precisionFactor;
     lng = lng * precisionFactor;
+    const icon = this.typeToIconMap[vehicleType];
     return this._l
       .marker([lat, lng], {
         id,
-        icon: this._scooterIcon,
+        icon,
         riseOnHover: true,
       })
       .on("click", (e) => {
@@ -419,6 +429,9 @@ export default class MapBuilder {
         }
       })
       .on("locationfound", (location) => {
+        if (Date.now() > 1) {
+          return;
+        }
         if (!loc) {
           loc = location.latlng;
           line = this._l.polyline([[loc.lat, loc.lng]]);
@@ -475,7 +488,7 @@ export default class MapBuilder {
   }
 
   beginTrip() {
-    // will be re-enabled on getScooters
+    // will be re-enabled on getVehicles
     this._map.off("moveend", this.moveEnd, this);
     this._map.off("click", this.click, this);
     this._mcg.clearLayers();

@@ -153,7 +153,7 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
     end
   end
 
-  describe "SyncLimeFreeBikeStatusGbfs", reset_configuration: Suma::Lime do
+  describe "GbfsSyncLimeFreeBikeStatus", reset_configuration: Suma::Lime do
     before(:each) do
       Suma::Fixtures.vendor_service(vendor: Suma::Lime.mobility_vendor).mobility.create
     end
@@ -165,7 +165,7 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
       vehicle_types_req = stub_request(:get, "https://data.lime.bike/api/partners/v2/gbfs_transit/vehicle_types.json").
         to_return(fixture_response("lime/vehicle_types"))
 
-      Suma::Async::SyncLimeFreeBikeStatusGbfs.new.perform(true)
+      Suma::Async::GbfsSyncLimeFreeBikeStatus.new.perform(true)
       expect(free_bike_status_req).to have_been_made
       expect(vehicle_types_req).to have_been_made
       expect(Suma::Mobility::Vehicle.all).to have_length(1)
@@ -173,12 +173,12 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
 
     it "noops if Lime is not configured" do
       expect do
-        Suma::Async::SyncLimeFreeBikeStatusGbfs.new.perform(true)
+        Suma::Async::GbfsSyncLimeFreeBikeStatus.new.perform(true)
       end.to_not raise_error
     end
   end
 
-  describe "SyncLimeGeofencingZonesGbfs", reset_configuration: Suma::Lime do
+  describe "GbfsSyncLimeGeofencingZones", reset_configuration: Suma::Lime do
     before(:each) do
       Suma::Fixtures.vendor_service(vendor: Suma::Lime.mobility_vendor).mobility.create
     end
@@ -190,7 +190,7 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
       vehicle_types_req = stub_request(:get, "https://data.lime.bike/api/partners/v2/gbfs_transit/vehicle_types.json").
         to_return(fixture_response("lime/vehicle_types"))
 
-      Suma::Async::SyncLimeGeofencingZonesGbfs.new.perform(true)
+      Suma::Async::GbfsSyncLimeGeofencingZones.new.perform(true)
       expect(geofencing_zone_req).to have_been_made
       expect(vehicle_types_req).to have_been_made
       expect(Suma::Mobility::RestrictedArea.all).to have_length(1)
@@ -198,7 +198,7 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
 
     it "noops if Lime is not configured" do
       expect do
-        Suma::Async::SyncLimeGeofencingZonesGbfs.new.perform(true)
+        Suma::Async::GbfsSyncLimeGeofencingZones.new.perform(true)
       end.to_not raise_error
     end
   end
