@@ -294,7 +294,6 @@
     "link_bank_account": "Vincular una cuenta bancaria",
     "linked_bank_account": "Cuenta bancaria vinculada",
     "linked_bank_account_successful": "Su cuenta bancaria se ha vinculado con éxito a Suma. Dentro de uno o dos días, uno de nuestros especialistas con experiencia de miembros se pondrá en contacto para confirmar la cuenta.\n\nCuando la cuenta este confirmada, podrá agregar fondos.",
-    "minimum_and_maximum": "El mínimo es {{minimum, sumaCurrency}} y el máximo es {{maximum, sumaCurrency}}",
     "no_bank_accounts_warning": "No tienes una cuenta bancaria vinculada.",
     "no_cards_warning": "No tienes ninguna tarjeta de crédito o débito vinculada.",
     "payment_account_pending": "Pendiente",

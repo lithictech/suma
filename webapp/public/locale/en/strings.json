@@ -294,7 +294,6 @@
     "link_bank_account": "Link bank account",
     "linked_bank_account": "Bank Account Linked",
     "linked_bank_account_successful": "Your bank account has been successfully linked to Suma. Within the next day or two, one of our Member Experience specialists will be in touch to confirm the account.\n\nOnce the account is confirmed, you'll be able to add funds.",
-    "minimum_and_maximum": "Minimum is {{minimum, sumaCurrency}} and maximum is {{maximum, sumaCurrency}}",
     "no_bank_accounts_warning": "You don't have any bank accounts linked.",
     "no_cards_warning": "You don't have any credit or debit cards linked.",
     "payment_account_pending": "Pending",

@@ -1,8 +1,6 @@
-import { t } from "../localization";
 import isNumber from "lodash/isNumber";
 import React from "react";
 import Button from "react-bootstrap/Button";
-import Form from "react-bootstrap/Form";
 
 export default function CurrencyNumpad({ onCentsChange, whole, currency, cents }) {
   if (!whole) {
@@ -22,18 +20,6 @@ export default function CurrencyNumpad({ onCentsChange, whole, currency, cents }
         </div>
       </div>
       <Numpad cents={cents} currency={currency} onNumberClick={handleChange} />
-      <Form.Text className="d-block text-secondary text-end">
-        {t("payments:minimum_and_maximum", {
-          minimum: {
-            cents: currency?.fundingMinimumCents,
-            currency: currency?.code,
-          },
-          maximum: {
-            cents: currency?.fundingMaximumCents,
-            currency: currency?.code,
-          },
-        })}
-      </Form.Text>
     </div>
   );
 }
