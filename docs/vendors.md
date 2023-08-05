@@ -35,10 +35,6 @@ we present a series of offerings a member can shop from.
 
 The key models involved are:
 
-- **Markets** model the name and geography of Suma markets.
-  Markets can overlap, and a single-market Suma instance would have a single market
-  that covers the whole world. But most Suma instances will involve negotiating
-  discounts for specific organizations or groups of organizations.
 - **Vendors** model those companies and individuals that provide **services**
   on the Suma platform.
 - **Services** model the unique offerings vendors provide.
@@ -67,7 +63,7 @@ We'll run through an example using Spin scooters
 since they have been a partner with mysuma.org in the past.
 The example here uses costs for illustrative purposes only.
 
-We are not going to worry about multiple markets, vendors, or services here,
+We are not going to worry about multiple vendors or services here,
 since those are the easiest to reason about.
 
 Spin offers e-scooters with two levels of discount
