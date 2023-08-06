@@ -8,16 +8,10 @@ module Suma::Lyft
 
   configurable(:lyft) do
     setting :gbfs_root, "https://gbfs.lyft.com/gbfs/2.3"
-    setting :gbfs_sync_markets, ["pdx"], convert: ->(s) { s.split(",").map(&:strip) }
-  end
-
-  VENDOR_NAME = "Lyft"
-
-  # @return [Suma::Vendor]
-  def self.mobility_vendor
-    return Suma.cached_get("lyft_mobility_vendor") do
-      Suma::Vendor.find_or_create_or_find(name: VENDOR_NAME)
-    end
+    # Key is the vendor name (can be 'lyft' when Lyft is self-operating).
+    # Value is the market name, used in the GBFS feed.
+    # For example: {'biketown' => ['pdx']}
+    setting :vendors_and_markets_json, {}, convert: ->(s) { JSON.parse(s) }
   end
 
   # @return [Suma::Mobility::Gbfs::HttpClient]

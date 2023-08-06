@@ -76,14 +76,6 @@ class Suma::AnonProxy::MessageHandler
     end
   end
 
-  #   def extract_message(whdb_row, contact_optional: false)
-  #     parsed_message = self.parse_message(whdb_row)
-  #     mc_criteria = {relay_key: self.key, self.transport => parsed_message.to}
-  #     member_contact = Suma::AnonProxy::MemberContact[mc_criteria]
-  #     raise NoRecipient, "cannot find MemberContact using #{mc_criteria}" if member_contact.nil? && !contact_optional
-  #     return Suma::AnonProxy::RelayedMessage.new(parsed_message:, relay: self, member_contact:)
-  #   end
-
   require_relative "message_handler/fake"
   register(Fake.new.key, Fake)
   require_relative "message_handler/lime"

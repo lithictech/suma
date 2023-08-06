@@ -32,8 +32,11 @@ class Suma::AnonProxy::Relay
   # @return [ParsedMessage]
   def parse_message(_whdb_row) = raise NotImplementedError
 
-  require_relative "relay/fake"
-  register(Fake.new.key, Fake)
+  require_relative "relay/fake_email"
+  register(FakeEmail.new.key, FakeEmail)
+
+  require_relative "relay/fake_sms"
+  register(FakeSms.new.key, FakeSms)
 
   require_relative "relay/postmark"
   register(Postmark.new.key, Postmark)
@@ -48,6 +51,8 @@ class Suma::AnonProxy::Relay
 
   # @return [String]
   def self.active_email_relay_key = Suma::AnonProxy.email_relay
+  # @return [String]
+  def self.active_sms_relay_key = Suma::AnonProxy.sms_relay
   # @return [Suma::AnonProxy::Relay]
-  def self.active_email_relay = self.create!(self.active_email_relay_key)
+  def self.active_relay(transport) = self.create!(self.send("active_#{transport}_relay_key"))
 end

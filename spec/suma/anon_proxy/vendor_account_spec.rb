@@ -73,7 +73,7 @@ RSpec.describe "Suma::AnonProxy::VendorAccount", :db do
         email: nil,
         email_required?: false,
       )
-      mc.set(email: nil, phone: "12223334444")
+      mc.set(email: nil, sms: "12223334444")
       expect(va).to have_attributes(
         sms: "12223334444",
         sms_required?: false,
@@ -95,13 +95,35 @@ RSpec.describe "Suma::AnonProxy::VendorAccount", :db do
         expect(c).to have_attributes(
           member: be === va.member,
           email: "u#{va.member.id}@example.com",
-          phone: nil,
-          relay_key: "fake-relay",
+          sms: nil,
+          relay_key: "fake-email-relay",
         )
       end
 
       it "noops for an existing member contact" do
         mc = Suma::Fixtures.anon_proxy_member_contact.email.create(member: va.member)
+        c = va.provision_contact
+        expect(c).to be === mc
+      end
+    end
+
+    describe "using sms" do
+      let(:configuration) { Suma::Fixtures.anon_proxy_vendor_configuration.sms.create }
+
+      it "provisions a new sms contact" do
+        va.member.id = 345
+        c = va.provision_contact
+        expect(c).to be_a(Suma::AnonProxy::MemberContact)
+        expect(c).to have_attributes(
+          member: be === va.member,
+          sms: match(/^1\d+5$/),
+          email: nil,
+          relay_key: "fake-sms-relay",
+        )
+      end
+
+      it "noops for an existing member contact" do
+        mc = Suma::Fixtures.anon_proxy_member_contact.sms.create(member: va.member)
         c = va.provision_contact
         expect(c).to be === mc
       end

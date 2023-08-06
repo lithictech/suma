@@ -34,13 +34,17 @@ module Suma::Mobility::Gbfs::Syncable
 
     # @param component [Suma::Mobility::Gbfs::ComponentSync]
     def self.component_vendor_syncs(component)
-      return [] unless SYNCABLE_TYPES.include?(component.class)
-      result = Suma::Lyft.gbfs_sync_markets.map do |market|
-        Suma::Mobility::Gbfs::VendorSync.new(
-          client: Suma::Lyft.gbfs_http_client(market),
-          vendor: Suma::Lyft.mobility_vendor,
-          component:,
-        )
+      result = []
+      return result unless SYNCABLE_TYPES.include?(component.class)
+      Suma::Lyft.vendors_and_markets_json.each do |vendor_key, markets|
+        vendor = Suma::Vendor.find!(slug: vendor_key)
+        markets.each do |market|
+          Suma::Mobility::Gbfs::VendorSync.new(
+            client: Suma::Lyft.gbfs_http_client(market),
+            vendor:,
+            component:,
+          )
+        end
       end
       return result
     end

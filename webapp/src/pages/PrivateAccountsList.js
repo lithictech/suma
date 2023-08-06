@@ -188,8 +188,8 @@ function PrivateAccount({ account, onConfigure, onHelp }) {
     <Stack direction="vertical" className="align-items-start">
       <SumaImage
         image={vendorImage}
-        height={80}
-        params={{ crop: "none", fmt: "png", flatten: [255, 255, 255] }}
+        style={{maxWidth: 330}}
+        params={{ crop: "none", fmt: "png", flatten: [255, 255, 255], h: 80 }}
       />
       {addressRequired ? (
         <Button className="mt-3" onClick={onConfigure}>

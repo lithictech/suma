@@ -48,11 +48,11 @@ class Suma::AnonProxy::VendorAccount < Suma::Postgres::Model(:anon_proxy_vendor_
     end
   end
 
-  def contact_phone = self.contact&.phone
+  def contact_sms = self.contact&.sms
   def contact_email = self.contact&.email
 
-  def sms = self.configuration.uses_sms? ? self.contact_phone : nil
-  def sms_required? = self.configuration.uses_sms? && self.contact_phone.nil?
+  def sms = self.configuration.uses_sms? ? self.contact_sms : nil
+  def sms_required? = self.configuration.uses_sms? && self.contact_sms.nil?
 
   def email = self.configuration.uses_email? ? self.contact_email : nil
   def email_required? = self.configuration.uses_email? && self.contact_email.nil?
@@ -67,17 +67,25 @@ class Suma::AnonProxy::VendorAccount < Suma::Postgres::Model(:anon_proxy_vendor_
     self.db.transaction do
       self.lock!
       if self.email_required?
-        unless (contact = self.member.anon_proxy_contacts.find(&:email?))
-          email = Suma::AnonProxy::Relay.active_email_relay.provision(self.member)
-          contact = Suma::AnonProxy::MemberContact.create(
-            member: self.member,
-            email:,
-            relay_key: Suma::AnonProxy::Relay.active_email_relay_key,
-          )
-        end
-        self.contact = contact
-        self.save_changes
+        relay_transport = :email
+        contact_field = :email
+      elsif self.sms_required?
+        relay_transport = :sms
+        contact_field = :sms
+      else
+        return self.contact
       end
+      unless (contact = self.member.anon_proxy_contacts.find { |c| c.send("#{contact_field}?") })
+        relay = Suma::AnonProxy::Relay.active_relay(relay_transport)
+        address = relay.provision(self.member)
+        contact = Suma::AnonProxy::MemberContact.create(
+          member: self.member,
+          relay_key: relay.key,
+          contact_field => address,
+        )
+      end
+      self.contact = contact
+      self.save_changes
     end
     return self.contact
   end

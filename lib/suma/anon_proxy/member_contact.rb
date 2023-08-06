@@ -9,7 +9,7 @@ class Suma::AnonProxy::MemberContact < Suma::Postgres::Model(:anon_proxy_member_
   many_to_one :member, class: "Suma::Member"
   one_to_many :vendor_accounts, class: "Suma::AnonProxy::VendorAccount"
 
-  def phone? = !!self.phone
+  def sms? = !!self.sms
   def email? = !!self.email
 end
 

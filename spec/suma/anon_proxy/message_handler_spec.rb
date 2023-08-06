@@ -6,11 +6,11 @@ RSpec.describe Suma::AnonProxy::MessageHandler, :db do
   end
 
   describe "handle" do
-    let(:relay) { Suma::AnonProxy::Relay.create!("fake-relay") }
+    let(:relay) { Suma::AnonProxy::Relay.create!("fake-email-relay") }
     let(:fake_handler) { Suma::AnonProxy::MessageHandler.create!("fake-handler") }
 
     it "noops for old messages" do
-      older = relay.parse_message({from: "fake-relay", timestamp: 20.minutes.ago})
+      older = relay.parse_message({from: "fake-email-relay", timestamp: 20.minutes.ago})
       expect(described_class.handle(relay, older)).to be_nil
       expect(fake_handler.class.handled).to be_empty
     end
@@ -34,7 +34,7 @@ RSpec.describe Suma::AnonProxy::MessageHandler, :db do
 
     it "logs a warning and returns nil if no vendor account is found" do
       fake_handler.class.can_handle_callback = proc { true }
-      msg = relay.parse_message({from: "fake-relay", timestamp: Time.now, to: "x@y.z"})
+      msg = relay.parse_message({from: "fake-email-relay", timestamp: Time.now, to: "x@y.z"})
       logs = capture_logs_from(described_class.logger, level: :warn, formatter: :json) do
         expect(described_class.handle(relay, msg)).to be_nil
       end
@@ -47,7 +47,7 @@ RSpec.describe Suma::AnonProxy::MessageHandler, :db do
       let(:message) do
         relay.parse_message({
                               message_id: "m1",
-                              from: "fake-relay",
+                              from: "fake-email-relay",
                               timestamp: Time.now,
                               to: vendor_account.contact.email,
                               content: "hello",
@@ -103,7 +103,7 @@ RSpec.describe Suma::AnonProxy::MessageHandler, :db do
     # rubocop:disable Layout/LineLength
     it "parses an access code, assigns it to the vendor account, and sends it via SMS" do
       got = Suma::AnonProxy::MessageHandler.handle(
-        Suma::AnonProxy::Relay.create!("fake-relay"),
+        Suma::AnonProxy::Relay.create!("fake-email-relay"),
         signin_message,
       )
       expect(vendor_account.contact.member.message_deliveries).to contain_exactly(be === got.outbound_delivery)
@@ -119,7 +119,7 @@ RSpec.describe Suma::AnonProxy::MessageHandler, :db do
 
     it "parses an confirmation access code code, assigns it to the vendor account, and sends it via SMS" do
       got = Suma::AnonProxy::MessageHandler.handle(
-        Suma::AnonProxy::Relay.create!("fake-relay"),
+        Suma::AnonProxy::Relay.create!("fake-email-relay"),
         confirm_message,
       )
       expect(vendor_account.contact.member.message_deliveries).to contain_exactly(be === got.outbound_delivery)
@@ -137,7 +137,7 @@ RSpec.describe Suma::AnonProxy::MessageHandler, :db do
     it "noops if we do not recognize the message" do
       signin_message.content.gsub!(/copy and paste/, "foo and bar")
       got = Suma::AnonProxy::MessageHandler.handle(
-        Suma::AnonProxy::Relay.create!("fake-relay"),
+        Suma::AnonProxy::Relay.create!("fake-email-relay"),
         signin_message,
       )
       expect(got).to be_nil

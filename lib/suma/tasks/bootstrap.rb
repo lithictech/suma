@@ -38,7 +38,8 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
       self.setup_sjfm
       self.setup_king_fm
 
-      self.setup_private_accounts
+      self.setup_lime_private_account
+      self.setup_biketown_private_account
 
       self.setup_automation
 
@@ -138,7 +139,7 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
   end
 
   def create_lyft_biketown_vendor
-    vendor = Suma::Lyft.mobility_vendor
+    vendor = self.biketown_vendor
     rate = Suma::Vendor::ServiceRate.update_or_create(name: "Biketown For All PDX") do |r|
       r.localization_key = "mobility_biketown_for_all_2023_rate"
       r.surcharge = Money.new(0)
@@ -422,7 +423,7 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
     )
   end
 
-  def setup_private_accounts
+  def setup_lime_private_account
     lime_vendor = Suma::Lime.mobility_vendor
     if lime_vendor.images.empty?
       uf = self.download_to_uploaded_file(
@@ -462,6 +463,46 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
           8. Una vez que lo haga, copie el código.
           9. Vuelva a Lime, presione 'Ingresar código', pegue el código en la aplicación de Lime y presione 'Siguiente'.
           10. Has iniciado sesión en Lime y estás listo para empezar a conducir.
+        MD
+      )
+    end
+    self.assign_constraints(anon_vendor_cfg, [self.new_columbia_constraint_name, self.hacienda_cdc_constraint_name, self.snap_eligible_constraint_name])
+  end
+
+  def biketown_vendor
+    vendor = Suma::Vendor.find_or_create(name: "Biketown")
+    if vendor.images.empty?
+      uf = self.download_to_uploaded_file(
+        "biketown-logo.png",
+        "image/png",
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0b/Biketown_logo.svg/640px-Biketown_logo.svg.png",
+      )
+      vendor.add_image({uploaded_file: uf})
+    end
+    return vendor
+  end
+
+  def setup_biketown_private_account
+    vendor = self.biketown_vendor
+    anon_vendor_cfg = Suma::AnonProxy::VendorConfiguration.update_or_create(vendor:) do |vc|
+      vc.uses_email = false
+      vc.uses_sms = true
+      vc.enabled = true
+      vc.message_handler_key = "lyft"
+      vc.app_launch_link = "https://biketownpdx.com/singular-redirect"
+      vc.instructions = Suma::TranslatedText.find_or_create(
+        en: <<~MD,
+          1. Download the Biketown App in the Play or App Store, or follow <a href="https://biketownpdx.com/singular-redirect">this link</a>.
+          2. Open the Biketown App.
+          5. Enter the phone number **<Copyable>%{address}</Copyable>**, and press the arrow to continue.
+          6. **Reopen the Suma web app.**
+          7. Within a few seconds, a verification code will appear in Suma.
+          8. Once it does, copy the code.
+          9. Go back to Biketown, press 'Enter Code', paste the code into the app, and press 'Next'.
+          10. You are logged into Biketown and ready to start riding.
+        MD
+        es: <<~MD,
+          TODO
         MD
       )
     end

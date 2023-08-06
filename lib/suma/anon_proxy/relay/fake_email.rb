@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-class Suma::AnonProxy::Relay::Fake < Suma::AnonProxy::Relay
-  def key = "fake-relay"
+class Suma::AnonProxy::Relay::FakeEmail < Suma::AnonProxy::Relay
+  def key = "fake-email-relay"
   def transport = :email
   def webhookdb_table = nil
   def provision(member) = "u#{member.id}@example.com"

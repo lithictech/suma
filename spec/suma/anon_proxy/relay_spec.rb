@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 RSpec.describe Suma::AnonProxy::Relay, :db do
-  describe Suma::AnonProxy::Relay::Fake do
+  describe Suma::AnonProxy::Relay::FakeEmail do
     it "can parse a row into a message" do
-      relay = Suma::AnonProxy::Relay::Fake.new
+      relay = Suma::AnonProxy::Relay::FakeEmail.new
       row = {
         message_id: "m1",
         to: "abc",
