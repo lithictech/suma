@@ -134,6 +134,8 @@ export default class MapBuilder {
       return;
     }
     this._lastExtendedBounds = expandBounds(bounds);
+    // Stop refresh timer to avoid multiple API calls when moving map
+    this.stopRefreshTimer();
     this.getAndUpdateScooters(this._lastExtendedBounds, this._mcg);
   }
 
