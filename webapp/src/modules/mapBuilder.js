@@ -159,6 +159,7 @@ export default class MapBuilder {
   setVehicleEventHandlers({ onClick, onSelectedRemoved }) {
     this._onVehicleClick = onClick;
     this._onSelectedVehicleRemoved = onSelectedRemoved;
+    return this;
   }
 
   loadScooters() {

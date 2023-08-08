@@ -84,10 +84,12 @@ const Map = () => {
   );
 
   const handleEndTrip = React.useCallback(() => {
-    loadedMap?.loadScooters({
-      onVehicleClick: handleVehicleClick,
-      onVehicleRemove: handleVehicleRemove,
-    });
+    loadedMap
+      ?.setVehicleEventHandlers({
+        onClick: handleVehicleClick,
+        onSelectedRemoved: handleVehicleRemove,
+      })
+      .loadScooters();
   }, [handleVehicleClick, handleVehicleRemove, loadedMap]);
 
   const handleCloseTrip = React.useCallback(() => {
@@ -105,17 +107,18 @@ const Map = () => {
       onLocationFound: handleLocationFound,
       onLocationError: handleLocationError,
     });
-    // Need these so loadScooters works.
-    // We handle any changes to the event handlers with their own useEffect later on.
-    map.setVehicleEventHandlers({
-      onClick: handleVehicleClick,
-      onSelectedRemoved: handleVehicleRemove,
-    });
     // We only want this evaluated on load. We handle it imperatively otherwise.
     if (ongoingTrip) {
       map.beginTrip();
     } else {
-      map.loadScooters();
+      // Need these so loadScooters works.
+      // We handle any changes to the event handlers with their own useEffect later on.
+      map
+        .setVehicleEventHandlers({
+          onClick: handleVehicleClick,
+          onSelectedRemoved: handleVehicleRemove,
+        })
+        .loadScooters();
     }
     setLoadedMap(map);
     return () => {
