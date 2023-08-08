@@ -47,11 +47,17 @@ RSpec.describe Suma::AnonProxy::Relay, :db do
       search = stub_request(:get, "https://api.plivo.com/v1/Account/MA_FAKE_A4NTUWNMEYZW/PhoneNumber/?country_iso=US&limit=1&services=sms").
         to_return(fixture_response("plivo/phone_search"))
       buy = stub_request(:post, "https://api.plivo.com/v1/Account/MA_FAKE_A4NTUWNMEYZW/PhoneNumber/14154009186/").
-        to_return(fixture_response("plivo/phone_buy_success"))
+        to_return(fixture_response("plivo/phone_buy_success", status: 201))
 
       me = Suma::Fixtures.member.create
       expect(relay.provision(me)).to eq("14154009186")
       expect([search, buy]).to all(have_been_made)
+    end
+
+    it "can use the shared override number", reset_configuration: Suma::Plivo do
+      Suma::Plivo.shared_override_number = "12223334444"
+      me = Suma::Fixtures.member.create
+      expect(relay.provision(me)).to eq("12223334444")
     end
 
     it "errors if the phone number is pending" do
@@ -73,7 +79,7 @@ RSpec.describe Suma::AnonProxy::Relay, :db do
         plivo_message_uuid: "m1",
         to_number: "abc",
         from_number: "xyz",
-        message_time: now,
+        row_inserted_at: now,
         data: {"Text" => "hi"},
       }
       e = relay.parse_message(row)

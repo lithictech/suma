@@ -7,9 +7,11 @@ class Suma::AnonProxy::Relay::Plivo < Suma::AnonProxy::Relay
 
   def key = "plivo"
   def transport = :sms
-  def webhookdb_table = Suma::Webhookdb.plivo_sms_table
+  def webhookdb_table = Suma::Webhookdb.plivo_inbound_sms_table
+  def format_address(s) = Suma::PhoneNumber::US.format(s)
 
   def provision(member)
+    return Suma::Plivo.shared_override_number if Suma::Plivo.shared_override_number.present?
     # We'll need a way to localize SMS anon proxy to country.
     # In the meantime, this is US-only.
     search_response = Suma::Plivo.request(
@@ -38,7 +40,7 @@ class Suma::AnonProxy::Relay::Plivo < Suma::AnonProxy::Relay
       to: row.fetch(:to_number),
       from: row.fetch(:from_number),
       content: row.fetch(:data).fetch("Text"),
-      timestamp: row.fetch(:message_time),
+      timestamp: row.fetch(:row_inserted_at),
     )
   end
 

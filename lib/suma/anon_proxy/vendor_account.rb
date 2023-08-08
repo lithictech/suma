@@ -60,6 +60,12 @@ class Suma::AnonProxy::VendorAccount < Suma::Postgres::Model(:anon_proxy_vendor_
   def address = self.email || self.sms
   def address_required? = self.email_required? || self.sms_required?
 
+  def formatted_address
+    c = self.contact
+    return "" if c.nil?
+    return Suma::AnonProxy::Relay.create!(c.relay_key).format_address(self.address)
+  end
+
   # Ensure that the right member contacts exist for what the vendor configuration needs.
   # For example, this may create a phone number in our SMS provider if needed,
   # and the member does not have one; or insert a database object with the member's email.

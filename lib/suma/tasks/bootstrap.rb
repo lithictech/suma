@@ -488,7 +488,7 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
       vc.uses_email = false
       vc.uses_sms = true
       vc.enabled = true
-      vc.message_handler_key = "lyft"
+      vc.message_handler_key = "generic_sms"
       vc.app_launch_link = "https://biketownpdx.com/singular-redirect"
       vc.instructions = Suma::TranslatedText.find_or_create(
         en: <<~MD,
@@ -499,7 +499,13 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
           7. Within a few seconds, a verification code will appear in Suma.
           8. Once it does, copy the code.
           9. Go back to Biketown, press 'Enter Code', paste the code into the app, and press 'Next'.
-          10. You are logged into Biketown and ready to start riding.
+          10. Dismiss any prompts that would connect other accounts, like Google or Apple, to this Biketown/Lyft account.
+          11. Enter anything, like 'Suma Suma', as your first and last name.
+          12. For email, enter **<Copyable>biketown@in.mysuma.org</Copyable>**.
+          13. Review and agree to Biketown's Privacy Policy and Terms of Use.
+          14. TODO: What to do for payment method?
+          15. Enter any birthdate (it does not have to be your real date of birth).
+          16. You are logged into Biketown and ready to start riding.
         MD
         es: <<~MD,
           TODO

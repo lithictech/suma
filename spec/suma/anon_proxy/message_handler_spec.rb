@@ -144,4 +144,53 @@ RSpec.describe Suma::AnonProxy::MessageHandler, :db do
       expect(vendor_account.contact.member.message_deliveries).to be_empty
     end
   end
+
+  describe Suma::AnonProxy::MessageHandler::GenericSms do
+    let(:handler) { Suma::AnonProxy::MessageHandler.create!(described_class.new.key) }
+    let(:vendor_config) { Suma::Fixtures.anon_proxy_vendor_configuration(message_handler_key: handler.key).create }
+    let!(:vendor_account) do
+      Suma::Fixtures.anon_proxy_vendor_account(configuration: vendor_config).
+        with_contact(relay_key: "fake-sms-relay").
+        create
+    end
+    let(:content) { "Your BIKETOWN login code is 106662. Never share it with anyone." }
+    def message(content_=content)
+      Suma::AnonProxy::ParsedMessage.new(
+        message_id: "78c7ed97-34d5-11ee-b24c-0242ac110002",
+        to: vendor_account.contact.sms,
+        from: "15306658721",
+        content: content_,
+        timestamp: Time.now,
+      )
+    end
+
+    it "handles parsed messages" do
+      expect(handler).to be_can_handle(message)
+    end
+
+    it "parses an access code and service, assigns it to the vendor account, and sends it via SMS" do
+      got = Suma::AnonProxy::MessageHandler.handle(
+        Suma::AnonProxy::Relay.create!("fake-sms-relay"),
+        message,
+      )
+      expect(vendor_account.contact.member.message_deliveries).to contain_exactly(be === got.outbound_delivery)
+      expect(got.outbound_delivery).to have_attributes(to: vendor_account.contact.member.phone)
+      expect(got.outbound_delivery.bodies.first).to have_attributes(
+        content: "Your BIKETOWN login code is 106662",
+      )
+      expect(vendor_account.refresh).to have_attributes(
+        latest_access_code: "106662",
+        latest_access_code_set_at: match_time(:now),
+      )
+    end
+
+    it "noops if we do not recognize the message" do
+      got = Suma::AnonProxy::MessageHandler.handle(
+        Suma::AnonProxy::Relay.create!("fake-sms-relay"),
+        message("Reply STOP to opt out."),
+      )
+      expect(got).to be_nil
+      expect(vendor_account.contact.member.message_deliveries).to be_empty
+    end
+  end
 end

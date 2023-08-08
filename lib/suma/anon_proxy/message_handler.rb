@@ -78,6 +78,8 @@ class Suma::AnonProxy::MessageHandler
 
   require_relative "message_handler/fake"
   register(Fake.new.key, Fake)
+  require_relative "message_handler/generic_sms"
+  register(GenericSms.new.key, GenericSms)
   require_relative "message_handler/lime"
   register(Lime.new.key, Lime)
 

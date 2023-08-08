@@ -29,7 +29,6 @@ class Suma::Async::ProcessAnonProxyInboundWebhookdbRelays
   end
 
   def _inner_perform
-    return
     Suma::AnonProxy::Relay.registry.each_value do |relay_cls|
       relay = relay_cls.new
       next unless relay.webhookdb_table

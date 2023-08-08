@@ -14,7 +14,13 @@ RSpec.describe Suma::Plivo, :db do
           },
         ).
         to_return(fixture_response("plivo/message_send"))
-      resp = Suma::Plivo.send_sms("13334445555", "144455566666", "msg")
+      body = {
+        src: "13334445555",
+        dst: "144455566666",
+        text: "msg",
+        url: "https://example.com",
+      }
+      resp = Suma::Plivo.request(:post, "/Message", body:)
       expect(resp.parsed_response).to include("api_id", "message_uuid")
       expect(req).to have_been_made
     end

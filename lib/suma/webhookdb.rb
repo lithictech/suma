@@ -17,7 +17,7 @@ module Suma::Webhookdb
     end
 
     def plivo_sms_dataset
-      return self.dataset_for_table(self.plivo_sms_table)
+      return self.dataset_for_table(self.plivo_inbound_sms_table)
     end
   end
 
@@ -26,8 +26,8 @@ module Suma::Webhookdb
     setting :schema, :public
     setting :postmark_inbound_messages_table, :postmark_inbound_message_v1_fixture
     setting :postmark_inbound_messages_secret, "postmarksecret"
-    setting :plivo_sms_table, :plivo_sms_v1_fixture
-    setting :plivo_sms_secret, "plivosecret"
+    setting :plivo_inbound_sms_table, :plivo_sms_inbound_v1_fixture
+    setting :plivo_inbound_sms_secret, "plivosecret"
 
     after_configured do
       self.connection = Sequel.connect(self.database_url, extensions: [:pg_json])

@@ -90,11 +90,11 @@ class Suma::API::AnonProxy < Suma::API::V1
     expose :email_required?, as: :email_required
     expose :sms
     expose :sms_required?, as: :sms_required
-    expose :address
+    expose :formatted_address, as: :address
     expose :address_required?, as: :address_required
     expose :instructions do |va|
       txt = va.configuration.instructions.string
-      txt % {address: va.address || ""}
+      txt % {address: va.formatted_address}
     end
     expose :app_launch_link, &self.delegate_to(:configuration, :app_launch_link)
     expose :vendor_name, &self.delegate_to(:configuration, :vendor, :name)

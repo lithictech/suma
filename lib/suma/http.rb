@@ -34,7 +34,7 @@ module Suma::Http
   end
 
   def self.check!(response)
-    return if response.ok?
+    return if (200..299).cover?(response.code)
     raise Error, response
   end
 

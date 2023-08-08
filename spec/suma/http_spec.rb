@@ -34,10 +34,18 @@ RSpec.describe Suma::Http do
       expect(req).to have_been_made
     end
     it "errors on non-ok" do
-      stub_request(:get, "https://a.b/").
+      req = stub_request(:get, "https://a.b/").
         to_return(status: 500, body: "meh")
 
       expect { described_class.get("https://a.b", logger: nil) }.to raise_error(described_class::Error)
+      expect(req).to have_been_made
+    end
+    it "passes on 2xx" do
+      req = stub_request(:get, "https://a.b/").
+        to_return(status: 201, body: "meh")
+
+      described_class.get("https://a.b", logger: nil)
+      expect(req).to have_been_made
     end
   end
   describe "post" do

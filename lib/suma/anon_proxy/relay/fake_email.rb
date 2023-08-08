@@ -5,6 +5,7 @@ class Suma::AnonProxy::Relay::FakeEmail < Suma::AnonProxy::Relay
   def transport = :email
   def webhookdb_table = nil
   def provision(member) = "u#{member.id}@example.com"
+  def format_address(s) = s
 
   def parse_message(row)
     return Suma::AnonProxy::ParsedMessage.new(**row)
