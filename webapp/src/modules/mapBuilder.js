@@ -38,6 +38,7 @@ export default class MapBuilder {
       .addTo(this._map);
     this.newLocateControl().addTo(this._map);
     this._lastExtendedBounds = expandBounds(this._map.getBounds());
+    this._restrictedAreasGroup = this._l.layerGroup();
     this._mcg = this._l.markerClusterGroup({
       spiderfyOnMaxZoom: false,
       showCoverageOnHover: false,
@@ -70,7 +71,11 @@ export default class MapBuilder {
 
   init() {
     this.setTileLayer();
-    this.loadGeoFences(this._lastExtendedBounds);
+    this.getAndUpdateRestrictedAreas(
+      this._lastExtendedBounds,
+      this._restrictedAreasGroup
+    );
+    this._map.addLayer(this._restrictedAreasGroup);
     return this;
   }
 
@@ -137,6 +142,10 @@ export default class MapBuilder {
     // Stop refresh timer to avoid multiple API calls when moving map
     this.stopRefreshTimer();
     this.getAndUpdateScooters(this._lastExtendedBounds, this._mcg);
+    this.getAndUpdateRestrictedAreas(
+      this._lastExtendedBounds,
+      this._restrictedAreasGroup
+    );
   }
 
   zoomEnd() {
@@ -228,23 +237,37 @@ export default class MapBuilder {
     this._clickedVehicle = null;
   }
 
-  loadGeoFences(bounds) {
-    return api.getMobilityMapFeatures(boundsToParams(bounds)).then((d) => {
-      d.data.restrictions.forEach((r) => {
-        this.createRestrictedArea({
-          latlngs: r.multipolygon,
-          restriction: r.restriction,
-        });
+  getAndUpdateRestrictedAreas(bounds, group) {
+    api
+      .getMobilityMapFeatures(boundsToParams(bounds))
+      .then(api.pickData)
+      .then((d) => {
+        this.updateRestrictedAreas({ restrictions: d.restrictions, group });
       });
+  }
+
+  updateRestrictedAreas({ restrictions, group }) {
+    const currentRestrictionsIds = group.getLayers().map((layer) => layer.options.id);
+    restrictions.forEach((r) => {
+      const id = [r.restriction, r.bounds.ne[0], r.bounds.sw[0]].join("-");
+      if (currentRestrictionsIds.includes(id)) {
+        // Only create restrictions that do not currently exist
+        return;
+      }
+      const restrictedAreaLayer = this.createRestrictedArea({
+        id,
+        latlngs: r.multipolygon,
+        restriction: r.restriction,
+      });
+      group.addLayer(restrictedAreaLayer);
     });
   }
 
-  createRestrictedArea({ latlngs, restriction }) {
+  createRestrictedArea({ id, latlngs, restriction }) {
     const popup = this._l.popup({
       direction: "top",
       offset: [0, -5],
     });
-    let polygonFillOpacity = 0.3;
     const parkingRestrictionContent = `<h6 class='mb-0'>${t(
       "mobility:do_not_park_title"
     )}</h6><p class='m-0'>${t("mobility:do_not_park_intro")}</p>`;
@@ -266,22 +289,21 @@ export default class MapBuilder {
       className: "mobility-restricted-area-icon",
       html: "<i class='bi bi-slash-circle'></i>",
     });
-    const restrictedMarker = this._l
+    const restrictionMarker = this._l
       .marker(this._l.latLngBounds(latlngs).getCenter(), {
         icon: restrictedIcon,
       })
-      .bindPopup(popup)
-      .addTo(this._map);
-    this._l
+      .bindPopup(popup);
+    const restrictionPolygon = this._l
       .polygon([latlngs], {
-        fillOpacity: polygonFillOpacity,
+        fillOpacity: 0.25,
         color: "#b53d00",
         weight: 1,
       })
       .on("click", () => {
-        restrictedMarker.openPopup();
-      })
-      .addTo(this._map);
+        restrictionMarker.openPopup();
+      });
+    return this._l.layerGroup([restrictionMarker, restrictionPolygon], { id });
   }
 
   startRefreshTimer(interval, bounds, mcg) {
