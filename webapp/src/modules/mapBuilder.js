@@ -139,8 +139,6 @@ export default class MapBuilder {
       return;
     }
     this._lastExtendedBounds = expandBounds(bounds);
-    // Stop refresh timer to avoid multiple API calls when moving map
-    this.stopRefreshTimer();
     this.getAndUpdateScooters(this._lastExtendedBounds, this._mcg);
     this.getAndUpdateRestrictedAreas(
       this._lastExtendedBounds,
@@ -181,7 +179,10 @@ export default class MapBuilder {
   getAndUpdateScooters(bounds, mcg) {
     api.getMobilityMap(boundsToParams(bounds)).then((r) => {
       this.updateScooters({ ...r, bounds, mcg });
-      this.stopRefreshTimer().startRefreshTimer(r.data.refresh, bounds, mcg);
+      this._refreshId = refreshTimer(
+        () => this.getAndUpdateScooters(bounds, mcg),
+        r.data.refresh
+      );
     });
   }
 
@@ -306,22 +307,12 @@ export default class MapBuilder {
     return this._l.layerGroup([restrictionMarker, restrictionPolygon], { id });
   }
 
-  startRefreshTimer(interval, bounds, mcg) {
-    if (this._refreshId) {
-      return;
-    }
-    this._refreshId = window.setInterval(() => {
-      this.getAndUpdateScooters(bounds, mcg);
-    }, interval);
-  }
-
   stopRefreshTimer() {
     if (!this._refreshId) {
-      return this;
+      return;
     }
     clearInterval(this._refreshId);
     this._refreshId = null;
-    return this;
   }
 
   newMarker(id, bike, vehicleType, providers, precisionFactor) {
@@ -499,7 +490,7 @@ export default class MapBuilder {
   }
 
   beginTrip() {
-    // will be re-enabled on getScooters
+    // will be re-enabled when loading scooters again
     this._map.off("moveend", this.moveEnd, this);
     this._map.off("click", this.click, this);
     this._mcg.clearLayers();
@@ -552,3 +543,14 @@ function expandBounds(bounds, distance) {
   bounds._southWest.lng -= distance;
   return bounds;
 }
+
+const refreshTimer = (function () {
+  let timer = 0;
+  // Because the inner function is bound to the refreshTimer variable,
+  // it will remain in score and will allow the timer variable to be manipulated
+  return function (cb, ms) {
+    clearTimeout(timer);
+    timer = setInterval(cb, ms);
+    return timer;
+  };
+})();
