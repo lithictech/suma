@@ -201,7 +201,7 @@ export default class MapBuilder {
     ["ebike", "escooter"].forEach((vehicleType) => {
       data[vehicleType]?.forEach((bike) => {
         const id = `${bike.p}-${bike.c[0]}-${bike.c[1]}${bike.d ? "-" + bike.d : ""}`;
-        const marker = this.newMarker(
+        const marker = this.createVehicleMarker(
           id,
           bike,
           vehicleType,
@@ -236,6 +236,34 @@ export default class MapBuilder {
     }
     this._onSelectedVehicleRemoved();
     this._clickedVehicle = null;
+  }
+
+  createVehicleMarker(id, bike, vehicleType, providers, precisionFactor) {
+    // calculate lat, lng offsets when available
+    let [lat, lng] = bike.c;
+    if (bike.o) {
+      lat += bike.o[0];
+      lng += bike.o[1];
+    }
+    lat = lat * precisionFactor;
+    lng = lng * precisionFactor;
+    return this._l
+      .marker([lat, lng], {
+        id,
+        icon: this._scooterIcon,
+        riseOnHover: true,
+      })
+      .on("click", (e) => {
+        this.centerLocation(e.latlng);
+        const mapVehicle = {
+          loc: bike.c,
+          type: vehicleType,
+          disambiguator: bike.d,
+          provider: providers[bike.p],
+        };
+        this._onVehicleClick(mapVehicle);
+        this._clickedVehicle = e.target;
+      });
   }
 
   getAndUpdateRestrictedAreas(bounds, group) {
@@ -313,34 +341,6 @@ export default class MapBuilder {
     }
     clearInterval(this._refreshId);
     this._refreshId = null;
-  }
-
-  newMarker(id, bike, vehicleType, providers, precisionFactor) {
-    // calculate lat, lng offsets when available
-    let [lat, lng] = bike.c;
-    if (bike.o) {
-      lat += bike.o[0];
-      lng += bike.o[1];
-    }
-    lat = lat * precisionFactor;
-    lng = lng * precisionFactor;
-    return this._l
-      .marker([lat, lng], {
-        id,
-        icon: this._scooterIcon,
-        riseOnHover: true,
-      })
-      .on("click", (e) => {
-        this.centerLocation(e.latlng);
-        const mapVehicle = {
-          loc: bike.c,
-          type: vehicleType,
-          disambiguator: bike.d,
-          provider: providers[bike.p],
-        };
-        this._onVehicleClick(mapVehicle);
-        this._clickedVehicle = e.target;
-      });
   }
 
   _getLocationZoom() {
