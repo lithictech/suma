@@ -179,7 +179,8 @@
     "title": "Comida",
     "total": "{{total, sumaCurrency}}",
     "unclaimed_order_history_intro": "Los pedidos que están listos para reclamar aparecerán a abajo.",
-    "unclaimed_order_history_title": "Reclamar pedidos"
+    "unclaimed_order_history_title": "Reclamar pedidos",
+    "view_order": "Ver Pedido"
   },
   "forms": {
     "account_number": "Número de Cuenta",

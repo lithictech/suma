@@ -95,16 +95,16 @@ export default function UnclaimedOrderList() {
             <div className="mt-2">
               <FormButtons
                 primaryProps={{
+                  type: "button",
                   variant: "outline-secondary",
                   children: t("common:close"),
                   onClick: () => setClaimedOrder({}),
                 }}
                 secondaryProps={{
                   variant: "outline-primary",
-                  children: "View Order",
+                  children: t("food:view_order"),
                   href: `/order/${claimedOrder.id}`,
                   as: RLink,
-                  type: "button",
                 }}
               />
             </div>

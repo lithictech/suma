@@ -179,7 +179,8 @@
     "title": "Food",
     "total": "{{total, sumaCurrency}}",
     "unclaimed_order_history_intro": "Orders that are ready to claim will appear below.",
-    "unclaimed_order_history_title": "Claim Orders"
+    "unclaimed_order_history_title": "Claim Orders",
+    "view_order": "View Order"
   },
   "forms": {
     "account_number": "Account Number",
