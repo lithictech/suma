@@ -173,7 +173,6 @@ export default class MapBuilder {
     this.getAndUpdateScooters(this._lastExtendedBounds, this._mcg);
     this.setMapEventHandlers();
     this._map.addLayer(this._mcg);
-    return this;
   }
 
   getAndUpdateScooters(bounds, mcg) {
