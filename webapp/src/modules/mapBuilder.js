@@ -37,7 +37,9 @@ export default class MapBuilder {
       })
       .addTo(this._map);
     this.newLocateControl().addTo(this._map);
-    this._lastExtendedBounds = expandBounds(this._map.getBounds());
+    this.updateLastExtendedVehicleBounds();
+    this.updateLastExtendedStaticBounds();
+    this._restrictedAreasGroup = this._l.layerGroup();
     this._mcg = this._l.markerClusterGroup({
       spiderfyOnMaxZoom: false,
       showCoverageOnHover: false,
@@ -70,7 +72,11 @@ export default class MapBuilder {
 
   init() {
     this.setTileLayer();
-    this.loadGeoFences(this._lastExtendedBounds);
+    this.getAndUpdateRestrictedAreas(
+      this._lastExtendedStaticBounds,
+      this._restrictedAreasGroup
+    );
+    this._map.addLayer(this._restrictedAreasGroup);
     return this;
   }
 
@@ -130,11 +136,28 @@ export default class MapBuilder {
     const bounds = this._map.getBounds();
     const { lat, lng } = bounds.getCenter();
     this._saveMapCacheField({ lat, lng });
-    if (this._lastExtendedBounds.contains(bounds)) {
-      return;
+    // After the move, we can be:
+    // - inside the vehicle and static bounds. Noop.
+    // - outside the vehicle, but inside the static bounds. Update vehicle bounds, request new vehicles.
+    // - outside static bounds. Update both bounds and request new of both.
+    let vehicleOOB, staticOOB;
+    if (!this._lastExtendedStaticBounds.contains(bounds)) {
+      vehicleOOB = true;
+      staticOOB = true;
+    } else if (!this._lastExtendedVehicleBounds.contains(bounds)) {
+      vehicleOOB = true;
     }
-    this._lastExtendedBounds = expandBounds(bounds);
-    this.getAndUpdateScooters(this._lastExtendedBounds, this._mcg);
+    if (vehicleOOB) {
+      this.updateLastExtendedVehicleBounds();
+      this.getAndUpdateScooters(this._lastExtendedVehicleBounds, this._mcg);
+    }
+    if (staticOOB) {
+      this.updateLastExtendedStaticBounds();
+      this.getAndUpdateRestrictedAreas(
+        this._lastExtendedStaticBounds,
+        this._restrictedAreasGroup
+      );
+    }
   }
 
   zoomEnd() {
@@ -147,7 +170,6 @@ export default class MapBuilder {
     if (!this._clickedVehicle) {
       return;
     }
-    this._onVehicleClick(null);
     this._clickedVehicle = null;
   }
 
@@ -158,19 +180,22 @@ export default class MapBuilder {
   setVehicleEventHandlers({ onClick, onSelectedRemoved }) {
     this._onVehicleClick = onClick;
     this._onSelectedVehicleRemoved = onSelectedRemoved;
+    return this;
   }
 
   loadScooters() {
-    this.getAndUpdateScooters(this._lastExtendedBounds, this._mcg);
+    this.getAndUpdateScooters(this._lastExtendedVehicleBounds, this._mcg);
     this.setMapEventHandlers();
     this._map.addLayer(this._mcg);
-    return this;
   }
 
   getAndUpdateScooters(bounds, mcg) {
     api.getMobilityMap(boundsToParams(bounds)).then((r) => {
       this.updateScooters({ ...r, bounds, mcg });
-      this.stopRefreshTimer().startRefreshTimer(r.data.refresh, bounds, mcg);
+      this._refreshId = refreshTimer(
+        () => this.getAndUpdateScooters(bounds, mcg),
+        r.data.refresh
+      );
     });
   }
 
@@ -189,7 +214,7 @@ export default class MapBuilder {
     ["ebike", "escooter"].forEach((vehicleType) => {
       data[vehicleType]?.forEach((bike) => {
         const id = `${bike.p}-${bike.c[0]}-${bike.c[1]}${bike.d ? "-" + bike.d : ""}`;
-        const marker = this.newMarker(
+        const marker = this.createVehicleMarker(
           id,
           bike,
           vehicleType,
@@ -226,81 +251,7 @@ export default class MapBuilder {
     this._clickedVehicle = null;
   }
 
-  loadGeoFences(bounds) {
-    return api.getMobilityMapFeatures(boundsToParams(bounds)).then((d) => {
-      d.data.restrictions.forEach((r) => {
-        this.createRestrictedArea({
-          latlngs: r.multipolygon,
-          restriction: r.restriction,
-        });
-      });
-    });
-  }
-
-  createRestrictedArea({ latlngs, restriction }) {
-    const popup = this._l.popup({
-      direction: "top",
-      offset: [0, -5],
-    });
-    let polygonFillOpacity = 0.3;
-    const parkingRestrictionContent = `<h6 class='mb-0'>${t(
-      "mobility:do_not_park_title"
-    )}</h6><p class='m-0'>${t("mobility:do_not_park_intro")}</p>`;
-    const ridingRestrictionContent = `<h6 class='mb-0'>${t(
-      "mobility:do_not_ride_title"
-    )}</h6><p class='m-0'>${t("mobility:do_not_ride_intro")}</p>`;
-
-    if (restriction.startsWith("do-not-park-or-ride")) {
-      popup.setContent(parkingRestrictionContent + "<hr />" + ridingRestrictionContent);
-    } else if (restriction.startsWith("do-not-park")) {
-      popup.setContent(parkingRestrictionContent);
-    } else if (restriction.startsWith("do-not-ride")) {
-      popup.setContent(ridingRestrictionContent);
-    }
-
-    const restrictedIcon = this._l.divIcon({
-      iconAnchor: [12, 12],
-      iconSize: [24, 24],
-      className: "mobility-restricted-area-icon",
-      html: "<i class='bi bi-slash-circle'></i>",
-    });
-    const restrictedMarker = this._l
-      .marker(this._l.latLngBounds(latlngs).getCenter(), {
-        icon: restrictedIcon,
-      })
-      .bindPopup(popup)
-      .addTo(this._map);
-    this._l
-      .polygon([latlngs], {
-        fillOpacity: polygonFillOpacity,
-        color: "#b53d00",
-        weight: 1,
-      })
-      .on("click", () => {
-        restrictedMarker.openPopup();
-      })
-      .addTo(this._map);
-  }
-
-  startRefreshTimer(interval, bounds, mcg) {
-    if (this._refreshId) {
-      return;
-    }
-    this._refreshId = window.setInterval(() => {
-      this.getAndUpdateScooters(bounds, mcg);
-    }, interval);
-  }
-
-  stopRefreshTimer() {
-    if (!this._refreshId) {
-      return this;
-    }
-    clearInterval(this._refreshId);
-    this._refreshId = null;
-    return this;
-  }
-
-  newMarker(id, bike, vehicleType, providers, precisionFactor) {
+  createVehicleMarker(id, bike, vehicleType, providers, precisionFactor) {
     // calculate lat, lng offsets when available
     let [lat, lng] = bike.c;
     if (bike.o) {
@@ -326,6 +277,83 @@ export default class MapBuilder {
         this._onVehicleClick(mapVehicle);
         this._clickedVehicle = e.target;
       });
+  }
+
+  getAndUpdateRestrictedAreas(bounds, group) {
+    api
+      .getMobilityMapFeatures(boundsToParams(bounds))
+      .then(api.pickData)
+      .then((d) => {
+        this.updateRestrictedAreas({ restrictions: d.restrictions, group });
+      });
+  }
+
+  updateRestrictedAreas({ restrictions, group }) {
+    const currentRestrictionsIds = group.getLayers().map((layer) => layer.options.id);
+    restrictions.forEach((r) => {
+      const id = [r.restriction, r.bounds.ne[0], r.bounds.sw[0]].join("-");
+      if (currentRestrictionsIds.includes(id)) {
+        // Only create restrictions that do not currently exist
+        return;
+      }
+      const restrictedAreaLayer = this.createRestrictedArea({
+        id,
+        latlngs: r.multipolygon,
+        restriction: r.restriction,
+      });
+      group.addLayer(restrictedAreaLayer);
+    });
+  }
+
+  createRestrictedArea({ id, latlngs, restriction }) {
+    const popup = this._l.popup({
+      direction: "top",
+      offset: [0, -5],
+    });
+    const parkingRestrictionContent = `<h6 class='mb-0'>${t(
+      "mobility:do_not_park_title"
+    )}</h6><p class='m-0'>${t("mobility:do_not_park_intro")}</p>`;
+    const ridingRestrictionContent = `<h6 class='mb-0'>${t(
+      "mobility:do_not_ride_title"
+    )}</h6><p class='m-0'>${t("mobility:do_not_ride_intro")}</p>`;
+
+    if (restriction.startsWith("do-not-park-or-ride")) {
+      popup.setContent(parkingRestrictionContent + "<hr />" + ridingRestrictionContent);
+    } else if (restriction.startsWith("do-not-park")) {
+      popup.setContent(parkingRestrictionContent);
+    } else if (restriction.startsWith("do-not-ride")) {
+      popup.setContent(ridingRestrictionContent);
+    }
+
+    const restrictedIcon = this._l.divIcon({
+      iconAnchor: [12, 12],
+      iconSize: [24, 24],
+      className: "mobility-restricted-area-icon",
+      html: "<i class='bi bi-slash-circle'></i>",
+    });
+    const restrictionMarker = this._l
+      .marker(this._l.latLngBounds(latlngs).getCenter(), {
+        icon: restrictedIcon,
+      })
+      .bindPopup(popup);
+    const restrictionPolygon = this._l
+      .polygon([latlngs], {
+        fillOpacity: 0.25,
+        color: "#b53d00",
+        weight: 1,
+      })
+      .on("click", () => {
+        restrictionMarker.openPopup();
+      });
+    return this._l.layerGroup([restrictionMarker, restrictionPolygon], { id });
+  }
+
+  stopRefreshTimer() {
+    if (!this._refreshId) {
+      return;
+    }
+    clearInterval(this._refreshId);
+    this._refreshId = null;
   }
 
   _getLocationZoom() {
@@ -475,7 +503,7 @@ export default class MapBuilder {
   }
 
   beginTrip() {
-    // will be re-enabled on getScooters
+    // will be re-enabled when loading scooters again
     this._map.off("moveend", this.moveEnd, this);
     this._map.off("click", this.click, this);
     this._mcg.clearLayers();
@@ -509,6 +537,24 @@ export default class MapBuilder {
     this._map.off();
     this._map.remove();
   }
+
+  updateLastExtendedVehicleBounds() {
+    let b = this._map.getBounds();
+    b = b.pad(1);
+    this._lastExtendedVehicleBounds = b;
+  }
+
+  updateLastExtendedStaticBounds() {
+    const b = this._map.getBounds();
+    // Use a large area here since this doesn't change often and is cached.
+    // We want to capture the entire market.
+    const staticDegreesPad = 1;
+    b._northEast.lat += staticDegreesPad;
+    b._northEast.lng += staticDegreesPad;
+    b._southWest.lat -= staticDegreesPad;
+    b._southWest.lng -= staticDegreesPad;
+    this._lastExtendedStaticBounds = b;
+  }
 }
 
 function boundsToParams(bounds) {
@@ -519,12 +565,13 @@ function boundsToParams(bounds) {
   };
 }
 
-function expandBounds(bounds, distance) {
-  const distanceFromMapsCenter = (bounds.getEast() - bounds.getWest()) / 2;
-  distance = distance || distanceFromMapsCenter;
-  bounds._northEast.lat += distance;
-  bounds._northEast.lng += distance;
-  bounds._southWest.lat -= distance;
-  bounds._southWest.lng -= distance;
-  return bounds;
-}
+const refreshTimer = (function () {
+  let timer = 0;
+  // Because the inner function is bound to the refreshTimer variable,
+  // it will remain in scope and will allow the timer variable to be manipulated
+  return function (cb, ms) {
+    clearTimeout(timer);
+    timer = setInterval(cb, ms);
+    return timer;
+  };
+})();
