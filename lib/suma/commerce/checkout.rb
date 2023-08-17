@@ -98,7 +98,6 @@ class Suma::Commerce::Checkout < Suma::Postgres::Model(:commerce_checkouts)
     return total - paid
   end
 
-  # TODO: test
   def requires_payment_instrument? = !self.chargeable_total.zero?
 
   def create_order
