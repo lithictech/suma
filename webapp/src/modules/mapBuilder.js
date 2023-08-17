@@ -37,7 +37,8 @@ export default class MapBuilder {
       })
       .addTo(this._map);
     this.newLocateControl().addTo(this._map);
-    this._lastExtendedBounds = expandBounds(this._map.getBounds());
+    this.updateLastExtendedVehicleBounds();
+    this.updateLastExtendedStaticBounds();
     this._restrictedAreasGroup = this._l.layerGroup();
     this._mcg = this._l.markerClusterGroup({
       spiderfyOnMaxZoom: false,
@@ -72,7 +73,7 @@ export default class MapBuilder {
   init() {
     this.setTileLayer();
     this.getAndUpdateRestrictedAreas(
-      this._lastExtendedBounds,
+      this._lastExtendedStaticBounds,
       this._restrictedAreasGroup
     );
     this._map.addLayer(this._restrictedAreasGroup);
@@ -135,15 +136,28 @@ export default class MapBuilder {
     const bounds = this._map.getBounds();
     const { lat, lng } = bounds.getCenter();
     this._saveMapCacheField({ lat, lng });
-    if (this._lastExtendedBounds.contains(bounds)) {
-      return;
+    // After the move, we can be:
+    // - inside the vehicle and static bounds. Noop.
+    // - outside the vehicle, but inside the static bounds. Update vehicle bounds, request new vehicles.
+    // - outside static bounds. Update both bounds and request new of both.
+    let vehicleOOB, staticOOB;
+    if (!this._lastExtendedStaticBounds.contains(bounds)) {
+      vehicleOOB = true;
+      staticOOB = true;
+    } else if (!this._lastExtendedVehicleBounds.contains(bounds)) {
+      vehicleOOB = true;
     }
-    this._lastExtendedBounds = expandBounds(bounds);
-    this.getAndUpdateScooters(this._lastExtendedBounds, this._mcg);
-    this.getAndUpdateRestrictedAreas(
-      this._lastExtendedBounds,
-      this._restrictedAreasGroup
-    );
+    if (vehicleOOB) {
+      this.updateLastExtendedVehicleBounds();
+      this.getAndUpdateScooters(this._lastExtendedVehicleBounds, this._mcg);
+    }
+    if (staticOOB) {
+      this.updateLastExtendedStaticBounds();
+      this.getAndUpdateRestrictedAreas(
+        this._lastExtendedStaticBounds,
+        this._restrictedAreasGroup
+      );
+    }
   }
 
   zoomEnd() {
@@ -170,7 +184,7 @@ export default class MapBuilder {
   }
 
   loadScooters() {
-    this.getAndUpdateScooters(this._lastExtendedBounds, this._mcg);
+    this.getAndUpdateScooters(this._lastExtendedVehicleBounds, this._mcg);
     this.setMapEventHandlers();
     this._map.addLayer(this._mcg);
   }
@@ -523,6 +537,24 @@ export default class MapBuilder {
     this._map.off();
     this._map.remove();
   }
+
+  updateLastExtendedVehicleBounds() {
+    let b = this._map.getBounds();
+    b = b.pad(1);
+    this._lastExtendedVehicleBounds = b;
+  }
+
+  updateLastExtendedStaticBounds() {
+    const b = this._map.getBounds();
+    // Use a large area here since this doesn't change often and is cached.
+    // We want to capture the entire market.
+    const staticDegreesPad = 1;
+    b._northEast.lat += staticDegreesPad;
+    b._northEast.lng += staticDegreesPad;
+    b._southWest.lat -= staticDegreesPad;
+    b._southWest.lng -= staticDegreesPad;
+    this._lastExtendedStaticBounds = b;
+  }
 }
 
 function boundsToParams(bounds) {
@@ -531,16 +563,6 @@ function boundsToParams(bounds) {
     sw: [_southWest.lat, _southWest.lng],
     ne: [_northEast.lat, _northEast.lng],
   };
-}
-
-function expandBounds(bounds, distance) {
-  const distanceFromMapsCenter = (bounds.getEast() - bounds.getWest()) / 2;
-  distance = distance || distanceFromMapsCenter;
-  bounds._northEast.lat += distance;
-  bounds._northEast.lng += distance;
-  bounds._southWest.lat -= distance;
-  bounds._southWest.lng -= distance;
-  return bounds;
 }
 
 const refreshTimer = (function () {
