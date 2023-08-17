@@ -122,7 +122,6 @@ class Suma::API::Commerce < Suma::API::V1
           member = current_member
           checkout = lookup!
           check_eligibility!(checkout.cart.offering, member)
-          # TODO: test
           if checkout.requires_payment_instrument?
             if (instrument = find_payment_instrument?(member, params[:payment_instrument]))
               checkout.payment_instrument = instrument

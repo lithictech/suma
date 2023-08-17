@@ -75,6 +75,12 @@ RSpec.describe "Suma::Commerce::Checkout", :db do
       expect(checkout.card).to_not be_soft_deleted
     end
 
+    it "prevent soft deleting payment instrument if it is not required" do
+      checkout.update(payment_instrument: nil)
+      checkout.create_order
+      expect(checkout.card).to be_nil
+    end
+
     it "creates a charge for the customer cost" do
       order = checkout.create_order
       expect(order).to be_a(Suma::Commerce::Order)

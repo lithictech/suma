@@ -166,7 +166,6 @@ class Suma::Commerce::Checkout < Suma::Postgres::Model(:commerce_checkouts)
       end
 
       # Delete this at the end, after it's charged.
-      # TODO: test
       self.payment_instrument.soft_delete if self.payment_instrument && !self.save_payment_instrument
 
       return order
