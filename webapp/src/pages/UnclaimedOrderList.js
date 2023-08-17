@@ -1,18 +1,20 @@
 import api from "../api";
 import AnimatedCheckmark from "../components/AnimatedCheckmark";
 import ErrorScreen from "../components/ErrorScreen";
+import FormButtons from "../components/FormButtons";
 import LinearBreadcrumbs from "../components/LinearBreadcrumbs";
 import OrderDetail from "../components/OrderDetail";
 import PageLoader from "../components/PageLoader";
-import { mdp, t } from "../localization";
+import RLink from "../components/RLink";
+import SumaImage from "../components/SumaImage";
+import { md, mdp, t } from "../localization";
 import { dayjs } from "../modules/dayConfig";
 import ScrollTopOnMount from "../shared/ScrollToTopOnMount";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
 import { LayoutContainer } from "../state/withLayout";
 import isEmpty from "lodash/isEmpty";
 import React from "react";
-import { Stack } from "react-bootstrap";
-import Button from "react-bootstrap/Button";
+import { Badge, Stack } from "react-bootstrap";
 import Card from "react-bootstrap/Card";
 import Modal from "react-bootstrap/Modal";
 import { Link } from "react-router-dom";
@@ -51,28 +53,60 @@ export default function UnclaimedOrderList() {
         <p>{t("food:unclaimed_order_history_intro")}</p>
       </LayoutContainer>
       <hr />
-      <Modal show={!isEmpty(claimedOrder)} onHide={() => setClaimedOrder({})}>
+      <Modal show={!isEmpty(claimedOrder)} onHide={() => setClaimedOrder({})} centered>
         <Modal.Header closeButton>
           <Modal.Title>{t("food:order_claimed")}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <div className="mt-4 text-center d-flex justify-content-center align-items-center flex-column">
+          <div className="mt-4 d-flex justify-content-center align-items-center flex-column">
             <ScrollTopOnMount />
             <AnimatedCheckmark scale={2} />
-            <p className="mt-2 fs-4 w-75">
+            <p className="mt-2 fs-4 w-75 text-center">
               {t("food:order_for_claimed_on", {
                 serial: claimedOrder.serial,
                 fulfilledAt: dayjs(claimedOrder.fulfilledAt).format("lll"),
               })}
             </p>
-            <div className="d-flex justify-content-end mt-2">
-              <Button
-                variant="outline-primary"
-                className="mt-2"
-                onClick={() => setClaimedOrder({})}
-              >
-                {t("common:close")}
-              </Button>
+            {claimedOrder?.items?.map(({ image, id, name, customerPrice, quantity }) => (
+              <Stack key={id + quantity} gap={3}>
+                <Card>
+                  <Card.Body>
+                    <Stack direction="horizontal" gap={3} className="align-items-start">
+                      <SumaImage
+                        image={image}
+                        width={80}
+                        h={80}
+                        className="border rounded"
+                      />
+                      <div className="text-align-start">
+                        <div className="lead">{name}</div>
+                        <Badge bg="secondary" className="fs-6">
+                          {md("food:price_times_quantity", {
+                            price: customerPrice,
+                            quantity,
+                          })}
+                        </Badge>
+                      </div>
+                    </Stack>
+                  </Card.Body>
+                </Card>
+              </Stack>
+            ))}
+            <div className="mt-2">
+              <FormButtons
+                primaryProps={{
+                  type: "button",
+                  variant: "outline-secondary",
+                  children: t("common:close"),
+                  onClick: () => setClaimedOrder({}),
+                }}
+                secondaryProps={{
+                  variant: "outline-primary",
+                  children: t("food:view_order"),
+                  href: `/order/${claimedOrder.id}`,
+                  as: RLink,
+                }}
+              />
             </div>
           </div>
         </Modal.Body>
