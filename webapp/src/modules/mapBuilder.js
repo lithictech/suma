@@ -568,7 +568,7 @@ function boundsToParams(bounds) {
 const refreshTimer = (function () {
   let timer = 0;
   // Because the inner function is bound to the refreshTimer variable,
-  // it will remain in score and will allow the timer variable to be manipulated
+  // it will remain in scope and will allow the timer variable to be manipulated
   return function (cb, ms) {
     clearTimeout(timer);
     timer = setInterval(cb, ms);
