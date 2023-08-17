@@ -265,7 +265,7 @@ function CheckoutItems({ checkout }) {
 }
 
 function OrderSummary({ checkout, chosenInstrument, onSubmit }) {
-  const canPlace = checkout.fulfillmentOptionId && chosenInstrument;
+  const canPlace = checkout.fulfillmentOptionId && (chosenInstrument || !checkout.requiresPaymentInstrument);
   const itemCount = sum(map(checkout.items, "quantity"));
   return (
     <Col xs={12} className="mb-3">
