@@ -101,7 +101,9 @@ export default function FoodCheckout() {
     (chosenInstrument || !checkout.requiresPaymentInstrument);
   return (
     <>
-      <LinearBreadcrumbs back={`/cart/${checkout.offering.id}`} />
+      <LayoutContainer gutters>
+        <LinearBreadcrumbs back={`/cart/${checkout.offering.id}`} />
+      </LayoutContainer>
       {!canPlace && (
         <>
           <LayoutContainer gutters className="mb-4">
