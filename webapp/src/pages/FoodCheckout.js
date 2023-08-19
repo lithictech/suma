@@ -1,6 +1,7 @@
 import api from "../api";
 import ErrorScreen from "../components/ErrorScreen";
 import FoodPrice from "../components/FoodPrice";
+import FormButtons from "../components/FormButtons";
 import LinearBreadcrumbs from "../components/LinearBreadcrumbs";
 import PageLoader from "../components/PageLoader";
 import RLink from "../components/RLink";
@@ -95,33 +96,49 @@ export default function FoodCheckout() {
       });
   }
 
+  const canPlace =
+    checkout.fulfillmentOptionId &&
+    (chosenInstrument || !checkout.requiresPaymentInstrument);
   return (
-    <Row>
+    <>
       <LinearBreadcrumbs back={`/cart/${checkout.offering.id}`} />
-      <CheckoutPayment
-        checkout={checkout}
-        selectedInstrument={chosenInstrument}
-        onSelectedInstrumentChange={(pi) => setManuallySelectedInstrument(pi)}
-        onCheckoutChange={(attrs) =>
-          setCheckoutMutations({ ...checkoutMutations, ...attrs })
-        }
-      />
+      {!canPlace && (
+        <>
+          <LayoutContainer gutters className="mb-4">
+            <CheckoutPayment
+              checkout={checkout}
+              selectedInstrument={chosenInstrument}
+              onSelectedInstrumentChange={(pi) => setManuallySelectedInstrument(pi)}
+              onCheckoutChange={(attrs) =>
+                setCheckoutMutations({ ...checkoutMutations, ...attrs })
+              }
+            />
+          </LayoutContainer>
+          <hr />
+        </>
+      )}
+      <LayoutContainer gutters className="mb-4 mt-4">
+        <CheckoutFulfillment
+          checkout={checkout}
+          onCheckoutChange={(attrs) =>
+            setCheckoutMutations({ ...checkoutMutations, ...attrs })
+          }
+        />
+      </LayoutContainer>
       <hr />
-      <CheckoutFulfillment
-        checkout={checkout}
-        onCheckoutChange={(attrs) =>
-          setCheckoutMutations({ ...checkoutMutations, ...attrs })
-        }
-      />
+      <LayoutContainer gutters className="mb-4 mt-4">
+        <CheckoutItems checkout={checkout} />
+      </LayoutContainer>
       <hr />
-      <CheckoutItems checkout={checkout} />
-      <hr />
-      <OrderSummary
-        checkout={checkout}
-        chosenInstrument={chosenInstrument}
-        onSubmit={handleSubmit}
-      />
-    </Row>
+      <LayoutContainer gutters className="mb-4 mt-4">
+        <OrderSummary
+          canPlace={canPlace}
+          checkout={checkout}
+          chosenInstrument={chosenInstrument}
+          onSubmit={handleSubmit}
+        />
+      </LayoutContainer>
+    </>
   );
 }
 
@@ -148,9 +165,8 @@ function CheckoutPayment({
       )}
     </>
   );
-
   return (
-    <Col xs={12} className="mb-3">
+    <Col xs={12}>
       <h5>{t("food:payment_title")}</h5>
       {isEmpty(checkout.availablePaymentInstruments) && (
         <Stack gap={2}>
@@ -226,7 +242,7 @@ function PaymentLabel({ institution, last4, name }) {
 
 function CheckoutFulfillment({ checkout, onCheckoutChange }) {
   return (
-    <Col xs={12} className="mb-3">
+    <Col xs={12}>
       <h5>{checkout.offering.fulfillmentPrompt}</h5>
       <Form noValidate>
         <Form.Group>
@@ -250,7 +266,7 @@ function CheckoutFulfillment({ checkout, onCheckoutChange }) {
 function CheckoutItems({ checkout }) {
   return (
     <Col className="mb-3">
-      <h5 className="mb-3">{t("food:checkout_items_title")}</h5>
+      <h5>{t("food:checkout_items_title")}</h5>
       {checkout.items?.map((it, idx) => {
         return (
           <React.Fragment key={it.product.productId}>
@@ -259,16 +275,18 @@ function CheckoutItems({ checkout }) {
           </React.Fragment>
         );
       })}
-      <RLink to={`/cart/${checkout.offering.id}`}>{t("food:change_quantities")}</RLink>
+      <RLink to={`/cart/${checkout.offering.id}`}>
+        <i className="bi bi-pencil-fill me-2" />
+        {t("food:edit_quantities")}
+      </RLink>
     </Col>
   );
 }
 
-function OrderSummary({ checkout, chosenInstrument, onSubmit }) {
-  const canPlace = checkout.fulfillmentOptionId && (chosenInstrument || !checkout.requiresPaymentInstrument);
+function OrderSummary({ canPlace, checkout, chosenInstrument, onSubmit }) {
   const itemCount = sum(map(checkout.items, "quantity"));
   return (
-    <Col xs={12} className="mb-3">
+    <Col xs={12}>
       <h5>{t("food:order_summary_title")}</h5>
       <div>
         <SummaryLine
@@ -291,7 +309,7 @@ function OrderSummary({ checkout, chosenInstrument, onSubmit }) {
         />
         <SummaryLine label={t("food:labels:tax")} price={checkout.tax} />
         {checkout.existingFundsAvailable.map(({ amount, name }) => (
-          <SummaryLine key={name} label={name} price={amount} subtract />
+          <SummaryLine key={name} label={name} price={amount} subtract credit />
         ))}
         <hr className="mt-1 mb-2" />
         <SummaryLine
@@ -305,24 +323,25 @@ function OrderSummary({ checkout, chosenInstrument, onSubmit }) {
           </p>
         )}
         <p className="small text-secondary mt-2">{md("food:terms_of_use_agreement")}</p>
-        <Button
-          variant="success"
-          className="w-100 mt-2"
-          disabled={!canPlace}
-          onClick={onSubmit}
-        >
-          {t("food:order_button")}
-        </Button>
+        <FormButtons
+          primaryProps={{
+            onClick: onSubmit,
+            disabled: !canPlace,
+            type: "button",
+            variant: "success",
+            children: t("food:order_button"),
+          }}
+        ></FormButtons>
       </div>
     </Col>
   );
 }
 
-function SummaryLine({ label, price, subtract, className }) {
+function SummaryLine({ label, price, subtract, className, credit }) {
   return (
     <p className={clsx("d-flex justify-content-between mb-0", className)}>
       <span>{label}:</span>
-      <span>
+      <span className={clsx(credit && "text-success")}>
         {subtract && "-"}
         <Money>{price}</Money>
       </span>
