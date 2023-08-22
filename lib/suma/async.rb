@@ -31,6 +31,7 @@ module Suma::Async
     "suma/async/plaid_update_institutions",
     "suma/async/process_anon_proxy_inbound_webhookdb_relays",
     "suma/async/reset_code_create_dispatch",
+    "suma/async/stripe_refunds_backfiller",
     "suma/async/sync_lime_free_bike_status_gbfs",
     "suma/async/sync_lime_geofencing_zones_gbfs",
     "suma/async/upsert_frontapp_contact",

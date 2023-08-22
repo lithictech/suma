@@ -3,7 +3,7 @@
 require "sequel/unambiguous_constraint"
 
 Sequel.migration do
-  change do
+  up do
     create_table(:payment_payout_transaction_stripe_charge_refund_strategies) do
       primary_key :id
       timestamptz :created_at, null: false, default: Sequel.function(:now)
@@ -52,5 +52,41 @@ Sequel.migration do
       foreign_key :payout_transaction_id, :payment_payout_transactions, null: false
       foreign_key :actor_id, :members, on_delete: :set_null
     end
+
+    if ENV["RACK_ENV"] == "test"
+      run <<~SQL
+        CREATE TABLE stripe_refund_v1_fixture (
+          pk bigserial PRIMARY KEY,
+          stripe_id text UNIQUE NOT NULL,
+          amount integer,
+          balance_transaction text,
+          charge text,
+          created timestamptz,
+          payment_intent text,
+          receipt_number text,
+          source_transfer_reversal text,
+          status text,
+          transfer_reversal text,
+          updated timestamptz,
+          data jsonb NOT NULL
+        );
+        CREATE INDEX IF NOT EXISTS svi_fixture_amount_idx ON stripe_refund_v1_fixture (amount);
+        CREATE INDEX IF NOT EXISTS svi_fixture_balance_transaction_idx ON stripe_refund_v1_fixture (balance_transaction);
+        CREATE INDEX IF NOT EXISTS svi_fixture_charge_idx ON stripe_refund_v1_fixture (charge);
+        CREATE INDEX IF NOT EXISTS svi_fixture_created_idx ON stripe_refund_v1_fixture (created);
+        CREATE INDEX IF NOT EXISTS svi_fixture_payment_intent_idx ON stripe_refund_v1_fixture (payment_intent);
+        CREATE INDEX IF NOT EXISTS svi_fixture_receipt_number_idx ON stripe_refund_v1_fixture (receipt_number);
+        CREATE INDEX IF NOT EXISTS svi_fixture_source_transfer_reversal_idx ON stripe_refund_v1_fixture (source_transfer_reversal);
+        CREATE INDEX IF NOT EXISTS svi_fixture_transfer_reversal_idx ON stripe_refund_v1_fixture (transfer_reversal);
+        CREATE INDEX IF NOT EXISTS svi_fixture_updated_idx ON stripe_refund_v1_fixture (updated);
+      SQL
+    end
+  end
+
+  down do
+    run("DROP TABLE stripe_refund_v1_fixture") if ENV["RACK_ENV"] == "test"
+    drop_table(:payment_payout_transaction_audit_logs)
+    drop_table(:payment_payout_transactions)
+    drop_table(:payment_payout_transaction_stripe_charge_refund_strategies)
   end
 end
