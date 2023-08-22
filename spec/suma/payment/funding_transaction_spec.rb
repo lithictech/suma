@@ -100,9 +100,8 @@ RSpec.describe "Suma::Payment::FundingTransaction", :db, reset_configuration: Su
     it "creates a new funding and book transaction" do
       now = Time.now
       fx = described_class.start_and_transfer(
-        ledger,
+        member,
         amount: Money.new(500, "USD"),
-        vendor_service_category: category,
         instrument: bank_account,
         strategy: Suma::Payment::FakeStrategy.create.not_ready,
         apply_at: now,

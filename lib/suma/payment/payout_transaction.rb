@@ -109,15 +109,16 @@ class Suma::Payment::PayoutTransaction < Suma::Postgres::Model(:payment_payout_t
 
     # Like +start_new+, but also creates a +BookTransaction+ that moves funds
     # from the platform ledger into the receiving ledger.
-    def start_and_transfer(originating_ledger, amount:, vendor_service_category:, apply_at:, strategy:)
+    def start_and_transfer(payment_account, amount:, apply_at:, strategy:)
       self.db.transaction do
+        originating_ledger = Suma::Payment.ensure_cash_ledger(payment_account)
         fx = Suma::Payment::PayoutTransaction.start_new(originating_ledger.account, amount:, strategy:)
         originated_book_transaction = Suma::Payment::BookTransaction.create(
           apply_at:,
           amount: fx.amount,
           originating_ledger:,
           receiving_ledger: fx.platform_ledger,
-          associated_vendor_service_category: vendor_service_category,
+          associated_vendor_service_category: Suma::Vendor::ServiceCategory.cash,
           memo: fx.memo,
         )
         fx.update(originated_book_transaction:)

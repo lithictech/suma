@@ -41,9 +41,8 @@ class Suma::AdminAPI::FundingTransactions < Suma::AdminAPI::V1
       (instrument = instrument_ds[params[:payment_instrument_id]]) or forbidden!
       c = instrument.member
       fx = Suma::Payment::FundingTransaction.start_and_transfer(
-        Suma::Payment.ensure_cash_ledger(c),
+        c,
         amount: params[:amount],
-        vendor_service_category: Suma::Vendor::ServiceCategory.cash,
         instrument:,
         apply_at: Time.now,
       )

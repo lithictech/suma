@@ -49,9 +49,8 @@ RSpec.describe "Suma::Payment::PayoutTransaction", :db, reset_configuration: Sum
     it "creates a new payout and book transaction" do
       now = Time.now
       px = described_class.start_and_transfer(
-        ledger,
+        member,
         amount: Money.new(500, "USD"),
-        vendor_service_category: category,
         strategy: Suma::Payment::FakeStrategy.create.not_ready,
         apply_at: now,
       )

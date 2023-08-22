@@ -153,9 +153,8 @@ class Suma::Commerce::Checkout < Suma::Postgres::Model(:commerce_checkouts)
       # If there are any remainder contributions, we need to fund them against the cash ledger.
       if remainder_contribs.present?
         funding = Suma::Payment::FundingTransaction.start_and_transfer(
-          cash_ledger,
+          self.card.member,
           amount: remainder_contribs.first.amount,
-          vendor_service_category: Suma::Vendor::ServiceCategory.cash,
           instrument: self.payment_instrument,
           apply_at: now,
         )
