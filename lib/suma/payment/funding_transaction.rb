@@ -3,13 +3,13 @@
 require "state_machines"
 
 require "suma/admin_linked"
-require "suma/payment"
 require "suma/state_machine"
+require "suma/payment"
+require "suma/payment/external_transaction"
 
 class Suma::Payment::FundingTransaction < Suma::Postgres::Model(:payment_funding_transactions)
-  include Appydays::Configurable
   include Suma::AdminLinked
-  include Suma::ExternalLinks
+  include Suma::Payment::ExternalTransaction
 
   class CollectFundsFailed < Suma::StateMachine::FailedTransition; end
   class StrategyUnavailable < Suma::Payment::Error; end
@@ -67,19 +67,6 @@ class Suma::Payment::FundingTransaction < Suma::Postgres::Model(:payment_funding
   )
 
   class << self
-    # Force a fake strategy within a block. Mostly used for API tests,
-    # since you can otherwise pass strategy explicitly to start_new.
-    def force_fake(strat)
-      raise LocalJumpError unless block_given?
-      raise ArgumentError, "strat cannot be nil" if strat.nil?
-      @fake_strategy = strat
-      begin
-        return yield
-      ensure
-        @fake_strategy = nil
-      end
-    end
-
     # Create a new funding transaction with the given parameters.
     # @param [Suma::Payment::Account] payment_account
     # @param [Money] amount
@@ -113,8 +100,8 @@ class Suma::Payment::FundingTransaction < Suma::Postgres::Model(:payment_funding
         xaction = self.new(
           amount:,
           memo: Suma::TranslatedText.create(
-            en: "Transfer to Suma App",
-            es: "Transferencia a Suma App",
+            en: "Transfer to suma",
+            es: "Transferencia a suma",
           ),
           originating_payment_account: payment_account,
           platform_ledger:,
@@ -152,32 +139,6 @@ class Suma::Payment::FundingTransaction < Suma::Postgres::Model(:payment_funding
 
   def rel_admin_link = "/funding-transaction/#{self.id}"
 
-  def _external_links_self
-    return [self.strategy]
-  end
-
-  # @return [Suma::Payment::FundingTransaction::Strategy]
-  def strategy
-    strat = self.strategy_array.compact.first
-    return strat if strat
-    return nil if self.new?
-    raise "FundingTransaction[#{self.id}] has no strategy set, should not have been possible due to constraints"
-  end
-
-  # @param [Suma::Payment::FundingTransaction::Strategy] strat
-  def strategy=(strat)
-    # We cannot just do strat.payment = self, it triggers a save and we're not valid yet/don't want that
-    self.class.association_reflections.each_value do |details|
-      type_match = details[:class_name] == strat.class.name
-      next unless type_match
-      self.associations[details[:name]] = strat
-      self["#{details[:name]}_id"] = strat.id
-      strat.associations[:payment] = self
-      return strat
-    end
-    raise "Strategy type #{strat.class.name} does not match any association type on FundingTransaction"
-  end
-
   protected def strategy_array
     return [
       self.increase_ach_strategy,
@@ -214,35 +175,8 @@ class Suma::Payment::FundingTransaction < Suma::Postgres::Model(:payment_funding
   end
 
   def put_into_review(message, opts={})
-    reason = nil
-    if opts[:reason]
-      reason = opts[:reason]
-    elsif (ex = opts[:exception])
-      reason = ex.class.name
-      message = "#{message}: #{ex}"
-      reason = ex.wrapped.class.name if ex.respond_to?(:wrapped)
-    end
-    self.audit(message, reason:)
+    self._put_into_review_helper(message, opts)
     return super
-  end
-
-  #
-  # :section: Sequel Hooks
-  #
-
-  def after_save
-    super
-    # Save the strategy changes whenever we save the payment, otherwise it's very easy to forget.
-    self.strategy&.save_changes
-  end
-
-  def validate(*)
-    super
-    self.strategy_present
-  end
-
-  private def strategy_present
-    errors.add(:strategy, "is not available using strategy associations") unless self.strategy_array.any?
   end
 end
 

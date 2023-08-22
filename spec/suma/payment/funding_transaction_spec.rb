@@ -15,7 +15,7 @@ RSpec.describe "Suma::Payment::FundingTransaction", :db, reset_configuration: Su
       expect(xaction).to have_attributes(
         status: "created",
         amount: cost("$5"),
-        memo: have_attributes(en: "Transfer to Suma App"),
+        memo: have_attributes(en: "Transfer to suma"),
         originating_payment_account: be === pacct,
         platform_ledger: be === Suma::Payment::Account.lookup_platform_account.cash_ledger!,
         originated_book_transaction: nil,

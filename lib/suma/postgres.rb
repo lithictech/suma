@@ -87,6 +87,9 @@ module Suma::Postgres
     "suma/payment/funding_transaction/audit_log",
     "suma/payment/funding_transaction/increase_ach_strategy",
     "suma/payment/funding_transaction/stripe_card_strategy",
+    "suma/payment/payout_transaction",
+    "suma/payment/payout_transaction/audit_log",
+    "suma/payment/payout_transaction/stripe_charge_refund_strategy",
     # Move this out of alphabetical order since it requires
     # all transaction types to be loaded (fake strategy
     # are used for testing funding and outgoing transactions).
