@@ -9,6 +9,14 @@ class Suma::AdminAPI::Search < Suma::AdminAPI::V1
 
   resource :search do
     params do
+      optional :id, type: Integer
+    end
+    get :ledger do
+      ledger = Suma::Payment::Ledger[params[:id]]
+      present ledger, with: SearchLedgerEntity
+    end
+
+    params do
       optional :q, type: String
     end
     get :ledgers do

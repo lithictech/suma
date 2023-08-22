@@ -6,15 +6,17 @@ import VendorServiceCategorySelect from "../components/VendorServiceCategorySele
 import config from "../config";
 import useBusy from "../hooks/useBusy";
 import useErrorSnackbar from "../hooks/useErrorSnackbar";
-import { Stack, TextField, Typography } from "@mui/material";
+import useAsyncFetch from "../shared/react/useAsyncFetch";
+import { CircularProgress, Stack, TextField, Typography } from "@mui/material";
 import Box from "@mui/material/Box";
 import React from "react";
 import { useForm } from "react-hook-form";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
 export default function BookTransactionCreatePage() {
   const { enqueueErrorSnackbar } = useErrorSnackbar();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [originatingLedgerId, setOriginatingLedgerId] = React.useState(0);
   const [receivingLedgerId, setReceivingLedgerId] = React.useState(0);
   const [amount, setAmount] = React.useState(config.defaultZeroMoney);
@@ -22,6 +24,60 @@ export default function BookTransactionCreatePage() {
   const [category, setCategory] = React.useState("");
   const { isBusy, busy, notBusy } = useBusy();
   const { register, handleSubmit } = useForm();
+
+  const {
+    state: receivingLedger,
+    loading: receivingLedgerLoading,
+    asyncFetch: receivingLedgerFetch,
+  } = useAsyncFetch(api.searchLedger, {
+    default: null,
+    pickData: true,
+    doNotFetchOnInit: true,
+  });
+  const {
+    state: originatingLedger,
+    loading: originatingLedgerLoading,
+    asyncFetch: originatingLedgerFetch,
+  } = useAsyncFetch(api.searchLedger, {
+    default: null,
+    pickData: true,
+    doNotFetchOnInit: true,
+  });
+
+  const originatingLedgerIdFromURL = Number(searchParams.get("originatingLedgerId"));
+  const receivingLedgerIdFromURL = Number(searchParams.get("receivingLedgerId"));
+
+  React.useEffect(() => {
+    if (originatingLedgerIdFromURL && !originatingLedger) {
+      originatingLedgerFetch({ id: originatingLedgerIdFromURL })
+        .then(() => {
+          setOriginatingLedgerId(originatingLedgerIdFromURL);
+        })
+        .catch((e) => enqueueErrorSnackbar(e));
+    }
+  }, [
+    originatingLedgerIdFromURL,
+    enqueueErrorSnackbar,
+    originatingLedger,
+    originatingLedgerFetch,
+    originatingLedgerId,
+  ]);
+
+  React.useEffect(() => {
+    if (receivingLedgerIdFromURL && !receivingLedger) {
+      receivingLedgerFetch({ id: receivingLedgerIdFromURL })
+        .then(() => {
+          setReceivingLedgerId(receivingLedgerIdFromURL);
+        })
+        .catch((e) => enqueueErrorSnackbar(e));
+    }
+  }, [
+    receivingLedgerIdFromURL,
+    enqueueErrorSnackbar,
+    receivingLedger,
+    receivingLedgerFetch,
+    receivingLedgerId,
+  ]);
 
   function submit() {
     busy();
@@ -78,28 +134,50 @@ export default function BookTransactionCreatePage() {
             />
           </Stack>
           <Stack direction="row" spacing={2}>
-            <AutocompleteSearch
-              {...register("originatingLedger")}
-              label="Originating Ledger"
-              helperText="Where is the money coming from?"
-              fullWidth
-              required
-              search={api.searchLedgers}
-              onValueSelect={(o) => setOriginatingLedgerId(o?.id || 0)}
-            />
-            <AutocompleteSearch
-              {...register("receivingLedger")}
-              label="Receiving Ledger"
-              helperText="Where is the money going?"
-              fullWidth
-              required
-              search={api.searchLedgers}
-              onValueSelect={(o) => setReceivingLedgerId(o?.id || 0)}
-            />
+            {originatingLedgerLoading ? (
+              <LoadingInputPlaceholder helperText="Where is the money coming from?" />
+            ) : (
+              <AutocompleteSearch
+                {...register("originatingLedger")}
+                label="Originating Ledger"
+                helperText="Where is the money coming from?"
+                defaultValue={originatingLedger?.label}
+                fullWidth
+                required
+                search={api.searchLedgers}
+                onValueSelect={(o) => setOriginatingLedgerId(o?.id || 0)}
+              />
+            )}
+            {receivingLedgerLoading ? (
+              <LoadingInputPlaceholder helperText="Where is the money going?" />
+            ) : (
+              <AutocompleteSearch
+                {...register("receivingLedger")}
+                label="Receiving Ledger"
+                helperText="Where is the money going?"
+                defaultValue={receivingLedger?.label}
+                fullWidth
+                required
+                search={api.searchLedgers}
+                onValueSelect={(o) => setReceivingLedgerId(o?.id || 0)}
+              />
+            )}
           </Stack>
           <FormButtons back loading={isBusy} />
         </Stack>
       </Box>
     </div>
+  );
+}
+
+function LoadingInputPlaceholder({ helperText }) {
+  return (
+    <TextField
+      id={helperText}
+      helperText={helperText}
+      label={<CircularProgress size="1rem" />}
+      disabled
+      fullWidth
+    />
   );
 }

@@ -12,6 +12,17 @@ RSpec.describe Suma::AdminAPI::Search, :db do
     login_as_admin(admin)
   end
 
+  describe "GET /v1/search/ledger" do
+    it "returns ledger with matching id" do
+      o1 = Suma::Fixtures.ledger.create(name: "abc")
+
+      get "/v1/search/ledger", id: o1.id
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.that_includes(id: o1.id)
+    end
+  end
+
   describe "GET /v1/search/ledgers" do
     it "returns matching ledgers" do
       o1 = Suma::Fixtures.ledger.create(name: "abc")

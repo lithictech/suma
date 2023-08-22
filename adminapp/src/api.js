@@ -99,6 +99,7 @@ export default {
 
   searchPaymentInstruments: (data) =>
     get(`/adminapi/v1/search/payment_instruments`, data),
+  searchLedger: (data) => get(`/adminapi/v1/search/ledger`, data),
   searchLedgers: (data) => get(`/adminapi/v1/search/ledgers`, data),
 
   /**
