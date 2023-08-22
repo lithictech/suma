@@ -54,7 +54,7 @@ All of these funds flows can be grouped into 3 buckets:
   making funds from funding transactions available to a resident's ledger, etc.
 
 We model payments by giving every member one or many ledgers;
-everyone has a 'general' ledger, but there may be additional ledgers
+everyone has a 'cash' ledger, but there may be additional ledgers
 for all services or activities that require non-fungible dollars.
 An example would be a Suma instance that partners with food vendors
 who offer some SNAP-eligible items.
@@ -101,7 +101,8 @@ is represented by a transaction.
 All money that comes into the Suma platform goes into this platform account.
 When a resident funds their ledger for $50 using their own bank account
 (as explained below), that creates a Funding Transaction of $50;
-the platform ledger is at $50. Once the Funding Transaction settles,
+the platform ledger is at $50. Once the Funding Transaction settles
+(or immediately, if we want to 'loan' funds),
 a Book Transaction is made from the platform ledger to the resident's ledger
 so it has a $50 balance.
 
@@ -178,6 +179,8 @@ We'll walk through some examples of how the payments system handles scenarios of
 
 ### Allocating and Using CADs, multi-ledger payments
 
+"HP" is "Housing Provider" and "CAD" is "Client Assistance Dollars".
+
 - HP wants to load $50 of CAD into their account.
   This creates a Funding Transaction just like the Bank Account funding flow,
   except the funds flow into a `cad` ledger rather than the `general` ledger.
@@ -202,6 +205,96 @@ We'll walk through some examples of how the payments system handles scenarios of
   This gets put into the system as an Invoice and is paid out via a Payout Transaction.
   The HP's `cad` ledger is at $20, other ledgers are at $0.
 
+### Refunds, and calculating total balance of the Suma ledgering system
+
+This example works with Funding Transactions and Payout Transactions.
+It demonstrates how the 'total system balance' can be calculated (sum of all the dollars in the system
+added via Funding Transactions and subtracted via Payout Transactions),
+versus individual ledger balances (which always work out to $0 since BookTransactions just transfer balance).
+
+- Dee loads $50 into their Suma account. This creates:
+  - A Funding Transaction for $50. The `FundingTransaction#platform_ledger` field points to the `platform cash` ledger.
+  - Balances are as follows:
+    - `platform cash` Ledger: $0, no book transactions
+    - `dee cash` Ledger: $0, no book transactions
+    - Total system: +$50
+      - +$50 `FundingTransaction`
+  - Funding transaction processing creates a $50 BookTransaction from `platform cash` to `dee cash`,
+    and saves it in the `FundingTransaction#originated_book_transaction` field.
+  - Balances at this point are:
+    - `platform cash` Ledger: -$50
+      - -$50 `BookTransaction` originated
+    - `dee cash` Ledger: +$50
+      - +$50 `BookTransaction` received
+    - Total system: Still $50
+- Dee uses $50 to purchase food.
+  - This creates a "Charge", which is associated with the order but NOT part of the payments system.
+    The Charge is not a source of payments system record; it just connects together application concepts
+    like mobility trips and orders, to the payments system.
+  - A Book Transaction for $50 is created from `dee cash` to `platform cash`.
+  - Balances at this point are:
+    - `platform cash` Ledger: $0
+      - -$50 `BookTransaction` originated (as part of funding process)
+      - +$50 `BookTransaction` received (payment for food)
+    - `dee cash` Ledger: $0
+      - +$50 `BookTransaction` received (as part of funding process)
+      - -$50 `BookTransaction` originated (payment for food)
+    - Total system: Still $50
+
+At this point, Dee contacts support and explains he only meant to purchase $25 worth of food
+and requests a partial refund.
+
+Suma operators have two options.
+
+The first is to truly refund the $20 so it goes back to the original payment instrument,
+such as refunding a card charge or sending money back to their bank account.
+For this option:
+
+- Suma operators initiate a $20 refund in the payment processor, such as Stripe.
+  - Eventually we may initiate refunds from suma, but as of this writing, it's easier to initiate it in the processor.
+- Suma backend finds the refund via polling or webhooks.
+- Backend creates a Payout Transaction for $20.
+  There are also two Book Transactions created, moving money to the member ledger (representing the refund)
+  and from the member ledger (representing the payout).
+  The `PayoutTransaction#platform_ledger` points to the `platform cash` ledger,
+  and its `#originated_book_transaction` points to the `dee cash` to `platform cash` transaction.
+- Balances at this point are:
+  - `platform cash` Ledger: $0
+    - -$50 `BookTransaction` originated (as part of funding process)
+    - +$50 `BookTransaction` received (payment for food)
+    - -$20 `BookTransaction` originated (to represent refund money to user)
+    - +$20 `BookTransaction` received (user sent to Suma for refund payout/withdrawl)
+  - `dee cash` Ledger: $0
+    - +$50 `BookTransaction` received (as part of funding process)
+    - -$50 `BookTransaction` originated (payment for food)
+    - +$20 `BookTransaction` received (Suma sending money to user to represent refund)
+    - -$20 `BookTransaction` originated (user 'withdrawing' money)
+  - Total system: $30
+    - +$50 `FundingTransaction`
+    - -$20 `PayoutTransaction`
+
+Another choice would be providing a 'credit'- money doesn't move back to the original payment instrument,
+but instead is available in the member's cash ledger. Note that, if we were to have to refund a non-cash ledger
+like a subsidy, this is always the flow we'd use:
+
+- Suma operators create a $20 Book Transaction in admin, from the `platform cash` ledger
+  to the `dee cash` ledger.
+- Balances at this point are:
+  - `platform cash` Ledger: -$20
+    - -$50 `BookTransaction` originated (as part of funding process)
+    - +$50 `BookTransaction` received (payment for food)
+    - -$20 `BookTransaction` originated (to represent refund money to user)
+  - `dee cash` Ledger: +$20
+    - +$50 `BookTransaction` received (as part of funding process)
+    - -$50 `BookTransaction` originated (payment for food)
+    - +$20 `BookTransaction` received (Suma sending money to user to represent refund, is available for use)
+  - Total system: $50
+    - +$50 `FundingTransaction`
+
+From this we can see that a true refund reduces the total system balance as expected,
+and ledgers have $0 at the end,
+while a 'credit' refund preserves the total system balance,
+and results in non-zero ledger balances (that cancel each other out).
 
 
 # Implementation
@@ -241,7 +334,7 @@ we can figure out which strategy should be used to debit/credit the instrument.
 In the future, this support will be dynamic (so, for example, bank accounts could not be used if we do not have
 an ACH processor available), but for now, it's explicit.
 
-When we transaction is created, we assume it is _valid_.
+When a transaction is created, we assume it is _valid_.
 "Valid" here means the instruments involved in the transaction are verified,
 are not deleted, are registered with 3rd parties, etc.
 It does not mean the transaction will succeed, just that it can technically run.
