@@ -7,7 +7,10 @@
 # Every item should be nil, or of the form {name:, url:}
 module Suma::ExternalLinks
   def external_links(shallow: false)
-    d = self._external_links_self
+    d = []
+    self._external_links_self.each do |o|
+      o.respond_to?(:external_links) ? d.concat(o.external_links) : d.push(o)
+    end
     unless shallow
       self._external_link_deps.each do |dep|
         dep && d.concat(dep.external_links(shallow: true))

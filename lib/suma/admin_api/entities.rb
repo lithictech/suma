@@ -25,7 +25,7 @@ module Suma::AdminAPI::Entities
   # More extensive exposure of common fields for when we show
   # detailed entities, or limited lists.
   module AutoExposeDetail
-    def self.included?(ctx)
+    def self.included(ctx)
       ctx.expose :updated_at, if: ->(o) { o.respond_to?(:updated_at) }
       # Always expose an external links array when we mix this in
       ctx.expose :external_links do |inst|
