@@ -55,6 +55,16 @@ class Suma::Payment::PayoutTransaction::StripeChargeRefundStrategy <
     return arr
   end
 
+  # Create PayoutTransactions for Stripe refunds in WebhookDB.
+  # - Only process Stripe refunds where the charge has a FundingTransaction in suma.
+  # - If the funding transaction was used in an order (ie charged at checkout),
+  #   credit the user the refund amount, then show it as sent back to their card.
+  # - If the funding transaction wasn't used in an order (ie loaded from dashboard)
+  #   do not create the credit.
+  # This should cover cases where users do things like:
+  # - Add too many funds from their dashboard (no credit, just refund)
+  # - Checkout without the right subsidy (partial credit and refund)
+  # - Checkout but never get their stuff (full credit and refund)
   def self.backfill_payouts_from_webhookdb
     last_ran_at = self.dataset.max(:created_at) || Time.at(0)
     # Apply some buffer, we never want to miss a refund, and processing the same row
@@ -81,11 +91,16 @@ class Suma::Payment::PayoutTransaction::StripeChargeRefundStrategy <
         existing_payout = Suma::Payment::PayoutTransaction[stripe_charge_refund_strategy: strat]
         next if existing_payout
 
-        px = Suma::Payment::PayoutTransaction.start_and_transfer(
-          funding_strategy.funding_transaction.originating_payment_account,
+        # If this funding transaction was part of a charge, it was almost definitely used for some
+        # sort of purchase that has been partially or entirely refunded. In this case,
+        # apply a credit, as per the payment system docs.
+        apply_credit = !funding_strategy.funding_transaction.associated_charges_dataset.empty?
+        px = Suma::Payment::PayoutTransaction.initiate_refund(
+          funding_strategy.funding_transaction,
           amount: Money.new(refund_row.fetch(:amount)),
           apply_at: refund_row.fetch(:created),
           strategy: strat,
+          apply_credit:,
         )
         # We only process succeeded refunds, so this transition should/must always succeed.
         px.must_process(:send_funds)

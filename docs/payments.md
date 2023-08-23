@@ -244,8 +244,6 @@ versus individual ledger balances (which always work out to $0 since BookTransac
 At this point, Dee contacts support and explains he only meant to purchase $25 worth of food
 and requests a partial refund.
 
-Suma operators have two options.
-
 The first is to truly refund the $20 so it goes back to the original payment instrument,
 such as refunding a card charge or sending money back to their bank account.
 For this option:
@@ -295,6 +293,41 @@ From this we can see that a true refund reduces the total system balance as expe
 and ledgers have $0 at the end,
 while a 'credit' refund preserves the total system balance,
 and results in non-zero ledger balances (that cancel each other out).
+
+### Refunds of loaded cash
+
+Similar to above, but there may be cases where a refund is needed of loaded cash,
+that was not used to purchase anything. This should be rare,
+as in most cases gift cards are not redeemable for cash.
+But it could happen if, say, someone adds more funds than they intend.
+
+In this case, the flow of funds is:
+
+- Dee loads $50 into their Suma account. Same as above, this creates:
+  - A Funding Transaction for $50. The `FundingTransaction#platform_ledger` field points to the `platform cash` ledger.
+  - Funding transaction processing creates a $50 BookTransaction from `platform cash` to `dee cash`,
+    and saves it in the `FundingTransaction#originated_book_transaction` field.
+  - Balances at this point are:
+    - `platform cash` Ledger: -$50
+      - -$50 `BookTransaction` originated
+    - `dee cash` Ledger: +$50
+      - +$50 `BookTransaction` received
+    - Total system: Still $50
+- Dee says they meant to load only $5, not $50, and asks to be refunded $45.
+  Suma operators can initiate a refund of the $45, but it will not get the 'credit' book transaction.
+  - The `PayoutTransaction#platform_ledger` points to the `platform cash` ledger,
+    its `#originated_book_transaction` points to the `dee cash` to `platform cash` transaction,
+    and no `#credting_book_transaction` is set.
+  - Balances at this point are:
+  - `platform cash` Ledger: -$5
+    - -$50 `BookTransaction` originated (as part of funding process)
+    - +$45 `BookTransaction` received (user sent to Suma for refund payout/withdrawl)
+  - `dee cash` Ledger: +$5
+    - +$50 `BookTransaction` received (as part of funding process)
+    - -$45 `BookTransaction` originated (user 'withdrawing' money)
+  - Total system: $5
+    - +$50 `FundingTransaction`
+    - -$45 `PayoutTransaction`
 
 
 # Implementation

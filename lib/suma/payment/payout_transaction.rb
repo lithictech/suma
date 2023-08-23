@@ -20,7 +20,14 @@ class Suma::Payment::PayoutTransaction < Suma::Postgres::Model(:payment_payout_t
 
   many_to_one :platform_ledger, class: "Suma::Payment::Ledger"
   many_to_one :originating_payment_account, class: "Suma::Payment::Account"
+  # Represents the book transaction from the user's ledger to the platform ledger,
+  # to represent that money is leaving their ledger and eventually the system.
   many_to_one :originated_book_transaction, class: "Suma::Payment::BookTransaction"
+  # Represent the book transaction from the platform ledger to the user's ledger,
+  # to compensate them for a refund.
+  many_to_one :crediting_book_transaction, class: "Suma::Payment::BookTransaction"
+  # The funding transaction that acts as a refund, if any.
+  many_to_one :refunded_funding_transaction, class: "Suma::Payment::FundingTransaction"
   one_to_many :audit_logs, class: "Suma::Payment::PayoutTransaction::AuditLog", order: Sequel.desc(:at)
 
   many_to_one :fake_strategy, class: "Suma::Payment::FakeStrategy"
@@ -86,19 +93,19 @@ class Suma::Payment::PayoutTransaction < Suma::Postgres::Model(:payment_payout_t
     #   When we need to find the strategy based on an instrument instead, we can add a method to do the inference
     #   (like exists in `FundingStrategy::start_new`).
     # @return [Suma::Payment::PayoutTransaction]
-    def start_new(payment_account, amount:, strategy:)
+    def start_new(payment_account, amount:, strategy:, memo: nil)
       self.db.transaction do
         platform_ledger = Suma::Payment.ensure_cash_ledger(Suma::Payment::Account.lookup_platform_account)
         strategy.check_validity!
+        memo ||= Suma::TranslatedText.create(
+          en: "Transfer from suma",
+          es: "Transferencia de suma",
+        )
         xaction = self.new(
           amount:,
-          memo: Suma::TranslatedText.create(
-            en: "Transfer from suma",
-            es: "Transferencia de suma",
-          ),
+          memo:,
           originating_payment_account: payment_account,
           platform_ledger:,
-          originated_book_transaction: nil,
           strategy:,
         )
         xaction.save_changes
@@ -107,22 +114,69 @@ class Suma::Payment::PayoutTransaction < Suma::Postgres::Model(:payment_payout_t
       end
     end
 
-    # Like +start_new+, but also creates a +BookTransaction+ that moves funds
-    # from the platform ledger into the receiving ledger.
-    def start_and_transfer(payment_account, amount:, apply_at:, strategy:)
+    # Create and return a payout based on an existing funding transaction.
+    #
+    # The created payout will always have an +originated_book_transaction+ created
+    # from the original payment account's cash ledger, to the platform ledger,
+    # to represent the withdrawl of funds.
+    #
+    # Additionally, if apply_credit is true, a +credited_book_transaction+ is created
+    # from the platform cash ledger to the original payment account's cash ledger,
+    # representing a credit of any funds used for a purchase.
+    # The overall effect on the cash ledgers is a $0 balance change.
+    #
+    # If +apply_credit+ is false, no credited transaction is created.
+    # The overall effect is to subtract +amount+ from the original payment account's cash ledger's balance,
+    # and add it to the platform cash ledger's balance (at which point it leaves the system
+    # as part of the +PayoutTransaction+).
+    #
+    # So, as a rule, if a funding transaction was part of a purchase (has a +Charge+, etc)
+    # a credit should be given; but if someone accidentally loaded money into their wallet,
+    # no credit would be given.
+    #
+    # @return [Suma::Payment::PayoutTransaction]
+    def initiate_refund(funding_transaction, amount:, apply_at:, strategy:, apply_credit:)
       self.db.transaction do
-        originating_ledger = Suma::Payment.ensure_cash_ledger(payment_account)
-        fx = Suma::Payment::PayoutTransaction.start_new(originating_ledger.account, amount:, strategy:)
-        originated_book_transaction = Suma::Payment::BookTransaction.create(
-          apply_at:,
-          amount: fx.amount,
-          originating_ledger:,
-          receiving_ledger: fx.platform_ledger,
-          associated_vendor_service_category: Suma::Vendor::ServiceCategory.cash,
-          memo: fx.memo,
+        associated_vendor_service_category = Suma::Vendor::ServiceCategory.cash
+        refund_memo = Suma::TranslatedText.create(
+          en: "Refund sent to #{funding_transaction.strategy.originating_instrument.simple_label}",
+          es: "Refund processed TODO", # TODO
         )
-        fx.update(originated_book_transaction:)
-        fx
+        px = Suma::Payment::PayoutTransaction.start_new(
+          funding_transaction.originating_payment_account,
+          amount:,
+          strategy:,
+          memo: refund_memo,
+        )
+        member_ledger = Suma::Payment.ensure_cash_ledger(funding_transaction.originating_payment_account)
+        crediting_book_transaction = nil
+        if apply_credit
+          crediting_book_transaction = Suma::Payment::BookTransaction.create(
+            apply_at:,
+            amount: px.amount,
+            originating_ledger: px.platform_ledger,
+            receiving_ledger: member_ledger,
+            associated_vendor_service_category:,
+            memo: Suma::TranslatedText.create(
+              en: "Credit from suma",
+              es: "Credit from suma TODO", # TODO
+            ),
+          )
+        end
+        originated_book_transaction = Suma::Payment::BookTransaction.create(
+          apply_at: apply_at + 0.001, # Apply 1ms later than the credit
+          amount: px.amount,
+          originating_ledger: member_ledger,
+          receiving_ledger: px.platform_ledger,
+          associated_vendor_service_category:,
+          memo: refund_memo,
+        )
+        px.update(
+          refunded_funding_transaction: funding_transaction,
+          crediting_book_transaction:,
+          originated_book_transaction:,
+        )
+        px
       end
     end
   end
@@ -134,6 +188,25 @@ class Suma::Payment::PayoutTransaction < Suma::Postgres::Model(:payment_payout_t
       self.stripe_charge_refund_strategy,
       self.fake_strategy,
     ]
+  end
+
+  # Classify how to refer to this payout.
+  # - 'refund' has a credit and refunding transaction,
+  #   and is generally a reversal of money that was used to pay for something and charged during a purchase.
+  # - 'reversal' has no credit but does have a refunding transaction,
+  #   and is generally a reversal of money added to the ledger, not used directly in a purchase.
+  # - 'payout' is money we send to a payment account, like to a vendor's bank account.
+  # - 'platformpayout' is money we send off-platform without any associated book transaction.
+  # - 'unknown' is a fallback and should not be seen with a valid combination of fields.
+  def classification
+    refund = self.refunded_funding_transaction_id
+    credit = self.crediting_book_transaction_id
+    originated = self.originated_book_transaction_id
+    return "refund" if refund && credit
+    return "reversal" if refund && originated
+    return "payout" if originated
+    return "platformpayout" if !refund && !credit && !originated
+    return "unknown"
   end
 
   #

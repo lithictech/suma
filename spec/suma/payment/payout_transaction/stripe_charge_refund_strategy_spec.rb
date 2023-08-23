@@ -74,13 +74,36 @@ RSpec.describe "Suma::Payment::PayoutTransaction::StripeChargeRefundStrategy", :
       )
     end
 
-    it "creates payout transactions for Stripe refunds in webhookdb" do
+    it "creates non-credit refund payout transactions for Stripe refunds in webhookdb" do
       described_class.backfill_payouts_from_webhookdb
       expect(Suma::Payment::PayoutTransaction.all).to contain_exactly(
         have_attributes(
           status: "settled",
           amount: cost("$2.50"),
           originating_payment_account: be === funding_xaction.originating_payment_account,
+          originated_book_transaction: be_present,
+          crediting_book_transaction: nil,
+        ),
+      )
+      expect(described_class.all).to contain_exactly(
+        have_attributes(
+          stripe_charge_id:,
+          refund_json: hash_including("id" => "re_abc"),
+        ),
+      )
+    end
+
+    it "creates crediting refund payout transactions if the funding transaction is used in a charge" do
+      charge = Suma::Fixtures.charge.create
+      charge.add_associated_funding_transaction(funding_xaction)
+      described_class.backfill_payouts_from_webhookdb
+      expect(Suma::Payment::PayoutTransaction.all).to contain_exactly(
+        have_attributes(
+          status: "settled",
+          amount: cost("$2.50"),
+          originating_payment_account: be === funding_xaction.originating_payment_account,
+          originated_book_transaction: be_present,
+          crediting_book_transaction: be_present,
         ),
       )
       expect(described_class.all).to contain_exactly(

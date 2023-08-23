@@ -9,9 +9,9 @@ require "suma/payment"
 # This class exists to colocate the shared behavior.
 module Suma::Payment::ExternalTransaction
   def self.included(mod)
+    mod.include(Suma::ExternalLinks)
     mod.extend(ClassMethods)
     mod.include(InstanceMethods)
-    mod.include(Suma::ExternalLinks)
   end
 
   module ClassMethods

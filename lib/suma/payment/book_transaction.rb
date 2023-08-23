@@ -13,7 +13,15 @@ class Suma::Payment::BookTransaction < Suma::Postgres::Model(:payment_book_trans
   many_to_one :originating_ledger, class: "Suma::Payment::Ledger"
   many_to_one :receiving_ledger, class: "Suma::Payment::Ledger"
   many_to_one :associated_vendor_service_category, class: "Suma::Vendor::ServiceCategory"
-  one_to_many :funding_transactions, class: "Suma::Payment::FundingTransaction", key: :originated_book_transaction_id
+  one_to_one :originating_funding_transaction,
+             class: "Suma::Payment::FundingTransaction",
+             key: :originated_book_transaction_id
+  one_to_one :originating_payout_transaction,
+             class: "Suma::Payment::PayoutTransaction",
+             key: :originated_book_transaction_id
+  one_to_one :credited_payout_transaction,
+             class: "Suma::Payment::PayoutTransaction",
+             key: :crediting_book_transaction_id
   many_to_many :charges,
                class: "Suma::Charge",
                join_table: :charges_payment_book_transactions,
@@ -84,9 +92,15 @@ class Suma::Payment::BookTransaction < Suma::Postgres::Model(:payment_book_trans
         },
       )
     end)
-    result.concat(self.funding_transactions.map do |fx|
-      UsageDetails.new("funding", {account_label: fx.strategy.originating_instrument.simple_label})
-    end)
+
+    if (fx = self.originating_funding_transaction)
+      result << UsageDetails.new("funding", {account_label: fx.strategy.originating_instrument.simple_label})
+    elsif self.originating_payout_transaction
+      result << UsageDetails.new("refund", {memo: self.memo.string})
+    elsif self.credited_payout_transaction
+      result << UsageDetails.new("credit", {memo: self.memo.string})
+    end
+
     result << UsageDetails.new("unknown", {memo: self.memo.string}) if result.empty?
     return result
   end

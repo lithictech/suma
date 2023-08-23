@@ -229,9 +229,11 @@
   },
   "ledgerusage": {
     "commerce_order": "{{serviceName}}. You saved {{discountAmount, sumaCurrency}}.",
+    "credit": "{{memo}}",
     "funding": "Transfer from {{accountLabel}}",
     "misc": "Suma charge",
     "mobility_trip": "{{serviceName}} trip. You saved {{discountAmount, sumaCurrency}}.",
+    "refund": "{{memo}}",
     "unknown": "Uncategorized Suma charge"
   },
   "mobility": {

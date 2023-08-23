@@ -229,9 +229,11 @@
   },
   "ledgerusage": {
     "commerce_order": "{{serviceName}}. Ahorraste {{discountAmount, sumaCurrency}}.",
+    "credit": "{{memo}}",
     "funding": "Transferencia de {{accountLabel}}",
     "misc": "Tarifa de Suma",
     "mobility_trip": "{{serviceName}} viaje. Ahorraste {{discountAmount, sumaCurrency}}.",
+    "refund": "{{memo}}",
     "unknown": "Tarifa de Suma no clasificada"
   },
   "mobility": {

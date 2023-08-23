@@ -20,7 +20,7 @@ module Suma::Fixtures::FundingTransactions
     instance.originated_book_transaction ||= Suma::Fixtures.book_transaction.
       from(instance.platform_ledger).
       to(Suma::Payment.ensure_cash_ledger(instance.originating_payment_account)).
-      create
+      create(amount: instance.amount)
     instance
   end
 

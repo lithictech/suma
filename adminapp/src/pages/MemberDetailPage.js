@@ -132,12 +132,12 @@ export default function MemberDetailPage() {
           />
           <Activities activities={member.activities} />
           <Orders orders={member.orders} />
-          <Sessions sessions={member.sessions} />
-          <ResetCodes resetCodes={member.resetCodes} />
           <Charges charges={member.charges} />
           <BankAccounts bankAccounts={member.bankAccounts} />
           <PaymentAccountRelatedLists paymentAccount={member.paymentAccount} />
           <MessageDeliveries messageDeliveries={member.messageDeliveries} />
+          <Sessions sessions={member.sessions} />
+          <ResetCodes resetCodes={member.resetCodes} />
         </div>
       )}
     </>

@@ -70,6 +70,9 @@ export default {
     get(`/adminapi/v1/funding_transactions/${id}`, data),
   createForSelfFundingTransaction: (data) =>
     post(`/adminapi/v1/funding_transactions/create_for_self`, data),
+  getPayoutTransactions: (data) => get(`/adminapi/v1/payout_transactions`, data),
+  getPayoutTransaction: ({ id, ...data }) =>
+    get(`/adminapi/v1/payout_transactions/${id}`, data),
 
   getCommerceOfferings: (data) => get("/adminapi/v1/commerce_offerings", data),
   getCommerceOffering: ({ id, ...data }) =>

@@ -17,10 +17,6 @@ module Suma::Fixtures::PayoutTransactions
     instance.memo ||= Suma::Fixtures.translated_text(en: Faker::Lorem.words(number: 3).join(" ")).create
     instance.platform_ledger ||= Suma::Payment.ensure_cash_ledger(Suma::Payment::Account.lookup_platform_account)
     instance.originating_payment_account ||= Suma::Fixtures.payment_account.create
-    instance.originated_book_transaction ||= Suma::Fixtures.book_transaction.
-      from(instance.platform_ledger).
-      to(Suma::Payment.ensure_cash_ledger(instance.originating_payment_account)).
-      create
     instance
   end
 
@@ -31,5 +27,19 @@ module Suma::Fixtures::PayoutTransactions
   decorator :with_fake_strategy do |strategy={}|
     strategy = Suma::Payment::FakeStrategy.create(**strategy) unless strategy.is_a?(Suma::Payment::FakeStrategy)
     self.fake_strategy = strategy
+  end
+
+  def self.refund_of(fx, originating_instrument, apply_credit:, amount: fx.amount, apply_at: Time.now)
+    fx.strategy.set_response(:originating_instrument, originating_instrument)
+    strategy = Suma::Payment::FakeStrategy.new
+    strategy.set_response(:check_validity, [])
+    strategy.set_response(:ready_to_send_funds?, false)
+    return Suma::Payment::PayoutTransaction.initiate_refund(
+      fx,
+      amount:,
+      apply_at:,
+      strategy:,
+      apply_credit:,
+    )
   end
 end

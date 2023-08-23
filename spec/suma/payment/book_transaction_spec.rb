@@ -3,6 +3,30 @@
 RSpec.describe "Suma::Payment::BookTransaction", :db do
   let(:described_class) { Suma::Payment::BookTransaction }
 
+  describe "associations" do
+    let(:b) { Suma::Fixtures.book_transaction.create }
+    it "knows about the funding transaction that originated the receiver" do
+      fx = Suma::Fixtures.funding_transaction.with_fake_strategy.create(originated_book_transaction: b)
+      expect(b.refresh.originating_funding_transaction).to be === fx
+    end
+
+    it "knows the payout that originated the receiver" do
+      px = Suma::Fixtures.payout_transaction.with_fake_strategy.create(
+        originated_book_transaction: b,
+      )
+      expect(b.refresh.originating_payout_transaction).to be === px
+    end
+
+    it "knows about the payout that used the receiver for a credit" do
+      px = Suma::Fixtures.payout_transaction.with_fake_strategy.create(
+        originated_book_transaction: Suma::Fixtures.book_transaction.create,
+        crediting_book_transaction: b,
+        refunded_funding_transaction: Suma::Fixtures.funding_transaction.with_fake_strategy.create,
+      )
+      expect(b.refresh.credited_payout_transaction).to be === px
+    end
+  end
+
   describe "directed" do
     it "can represent debits and credits" do
       bt = Suma::Fixtures.book_transaction.create(amount: money("$10"))
@@ -70,6 +94,28 @@ RSpec.describe "Suma::Payment::BookTransaction", :db do
       expect(fx.originated_book_transaction).to have_attributes(
         usage_details: contain_exactly(
           have_attributes(code: "funding", args: {account_label: "My Savings x-1234"}),
+        ),
+      )
+    end
+
+    it "uses 'credit' if a receiver is crediting on a payout", :lang do
+      fx = Suma::Fixtures.funding_transaction.with_fake_strategy.create
+      ba = Suma::Fixtures.bank_account.create(name: "My Savings", account_number: "991234")
+      px = Suma::Fixtures::PayoutTransactions.refund_of(fx, ba, apply_credit: true)
+      expect(px.crediting_book_transaction).to have_attributes(
+        usage_details: contain_exactly(
+          have_attributes(code: "credit", args: {memo: "Credit from suma"}),
+        ),
+      )
+    end
+
+    it "uses 'refund' if receiver is originated on a refund", :lang do
+      fx = Suma::Fixtures.funding_transaction.with_fake_strategy.create
+      ba = Suma::Fixtures.bank_account.create(name: "My Savings", account_number: "991234")
+      px = Suma::Fixtures::PayoutTransactions.refund_of(fx, ba, apply_credit: true)
+      expect(px.originated_book_transaction).to have_attributes(
+        usage_details: contain_exactly(
+          have_attributes(code: "refund", args: {memo: "Refund sent to My Savings x-1234"}),
         ),
       )
     end

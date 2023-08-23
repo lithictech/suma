@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require "sequel/all_or_none_constraint"
 require "sequel/unambiguous_constraint"
 
 Sequel.migration do
@@ -25,9 +26,27 @@ Sequel.migration do
 
       foreign_key :memo_id, :translated_texts, null: false
       foreign_key :platform_ledger_id, :payment_ledgers, null: false, index: true, on_delete: :restrict
+      foreign_key :refunded_funding_transaction_id, :payment_funding_transactions, on_delete: :restrict
       foreign_key :originating_payment_account_id, :payment_accounts, null: false, index: true, on_delete: :restrict
+      foreign_key :crediting_book_transaction_id, :payment_book_transactions,
+                  null: true, unique: true, on_delete: :restrict
       foreign_key :originated_book_transaction_id, :payment_book_transactions,
                   null: true, unique: true, on_delete: :restrict
+      # rubocop:disable Layout/LineLength
+      constraint(
+        :refund_fields_valid,
+        Sequel.lit(
+          # Everything can be set (refund with a credit)
+          "(refunded_funding_transaction_id IS NOT NULL AND crediting_book_transaction_id IS NOT NULL AND originated_book_transaction_id IS NOT NULL)" +
+            # Nothing can be set
+            " OR (refunded_funding_transaction_id IS NULL AND crediting_book_transaction_id IS NULL AND originated_book_transaction_id IS NULL)" +
+            # Only the originated field can be set (sending money out)
+            " OR (refunded_funding_transaction_id IS NULL AND crediting_book_transaction_id IS NULL AND originated_book_transaction_id IS NOT NULL)" +
+            # The originated field, and the refund field, can be set (refund without crediting first)
+            " OR (refunded_funding_transaction_id IS NOT NULL AND crediting_book_transaction_id IS NULL AND originated_book_transaction_id IS NOT NULL)",
+        ),
+      )
+      # rubocop:enable Layout/LineLength
 
       foreign_key :fake_strategy_id, :payment_fake_strategies,
                   null: true, unique: true
@@ -85,6 +104,16 @@ Sequel.migration do
 
   down do
     run("DROP TABLE stripe_refund_v1_fixture") if ENV["RACK_ENV"] == "test"
+    from(:payment_payout_transactions).update(
+      crediting_book_transaction_id: nil,
+      originated_book_transaction_id: nil,
+    )
+    from(:payment_book_transactions).
+      where(id: from(:payment_payout_transactions).select(:crediting_book_transaction_id)).
+      delete
+    from(:payment_book_transactions).
+      where(id: from(:payment_payout_transactions).select(:originated_book_transaction_id)).
+      delete
     drop_table(:payment_payout_transaction_audit_logs)
     drop_table(:payment_payout_transactions)
     drop_table(:payment_payout_transaction_stripe_charge_refund_strategies)
