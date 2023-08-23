@@ -25,6 +25,7 @@ require "suma/api/mobility"
 require "suma/api/payment_instruments"
 require "suma/api/payments"
 require "suma/api/system"
+require "suma/api/webhookdb"
 
 require "suma/admin_api/auth"
 require "suma/admin_api/bank_accounts"
@@ -53,6 +54,7 @@ module Suma::Apps
     mount Suma::API::Mobility
     mount Suma::API::PaymentInstruments
     mount Suma::API::Payments
+    mount Suma::API::Webhookdb
     add_swagger_documentation if ENV["RACK_ENV"] == "development"
   end
 
