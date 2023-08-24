@@ -13,13 +13,16 @@ RSpec.describe Suma::AdminAPI::Search, :db do
   end
 
   describe "GET /v1/search/ledger" do
-    it "returns ledger with matching id" do
-      o1 = Suma::Fixtures.ledger.create(name: "abc")
-
-      get "/v1/search/ledger", id: o1.id
+    it "returns receiving ledger along with platform ledger" do
+      receiving_ledger = Suma::Fixtures.ledger.create(name: "abc")
+      platform_cash_ledger = Suma::Fixtures::Ledgers.ensure_platform_cash
+      get "/v1/search/receiving_ledger", id: receiving_ledger.id
 
       expect(last_response).to have_status(200)
-      expect(last_response).to have_json_body.that_includes(id: o1.id)
+      expect(last_response).to have_json_body.that_includes(
+        receiving_ledger: include(id: receiving_ledger.id),
+        platform_ledger: include(id: platform_cash_ledger.id),
+      )
     end
   end
 

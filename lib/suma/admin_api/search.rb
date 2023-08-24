@@ -11,9 +11,10 @@ class Suma::AdminAPI::Search < Suma::AdminAPI::V1
     params do
       optional :id, type: Integer
     end
-    get :ledger do
-      ledger = Suma::Payment::Ledger[params[:id]]
-      present ledger, with: SearchLedgerEntity
+    get :receiving_ledger do
+      receiving_ledger = Suma::Payment::Ledger[params[:id]]
+      platform_ledger = Suma::Payment::Account.lookup_platform_account.cash_ledger!
+      present receiving_ledger, with: SearchReceivingLedgerWithContextEntity, platform_ledger:
     end
 
     params do
@@ -59,6 +60,15 @@ class Suma::AdminAPI::Search < Suma::AdminAPI::V1
     expose :id
     expose :admin_link
     expose :search_label, as: :label
+  end
+
+  class SearchReceivingLedgerWithContextEntity < BaseEntity
+    expose :receiving_ledger, with: SearchLedgerEntity do |instance|
+      instance
+    end
+    expose :platform_ledger, with: SearchLedgerEntity do |_, opts|
+      opts.fetch(:platform_ledger)
+    end
   end
 
   class SearchPaymentInstrumentEntity < BaseEntity

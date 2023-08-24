@@ -9,6 +9,8 @@ import useErrorSnackbar from "../hooks/useErrorSnackbar";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
 import { CircularProgress, Stack, TextField, Typography } from "@mui/material";
 import Box from "@mui/material/Box";
+import get from "lodash/get";
+import isEmpty from "lodash/isEmpty";
 import React from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate, useSearchParams } from "react-router-dom";
@@ -25,59 +27,26 @@ export default function BookTransactionCreatePage() {
   const { isBusy, busy, notBusy } = useBusy();
   const { register, handleSubmit } = useForm();
 
-  const {
-    state: receivingLedger,
-    loading: receivingLedgerLoading,
-    asyncFetch: receivingLedgerFetch,
-  } = useAsyncFetch(api.searchLedger, {
-    default: null,
-    pickData: true,
-    doNotFetchOnInit: true,
-  });
-  const {
-    state: originatingLedger,
-    loading: originatingLedgerLoading,
-    asyncFetch: originatingLedgerFetch,
-  } = useAsyncFetch(api.searchLedger, {
-    default: null,
-    pickData: true,
-    doNotFetchOnInit: true,
+  const ledgerData = useLedgers({
+    search: api.searchReceivingLedger,
+    onSetLedgers: (ledgers) => {
+      if (isEmpty(ledgers)) {
+        return;
+      }
+      setReceivingLedgerId(Number(ledgers.receivingLedger.id));
+      setOriginatingLedgerId(Number(ledgers.platformLedger.id));
+    },
   });
 
-  const originatingLedgerIdFromURL = Number(searchParams.get("originatingLedgerId"));
-  const receivingLedgerIdFromURL = Number(searchParams.get("receivingLedgerId"));
-
   React.useEffect(() => {
-    if (originatingLedgerIdFromURL && !originatingLedger) {
-      originatingLedgerFetch({ id: originatingLedgerIdFromURL })
-        .then(() => {
-          setOriginatingLedgerId(originatingLedgerIdFromURL);
-        })
-        .catch((e) => enqueueErrorSnackbar(e));
+    if (!isEmpty(ledgerData.ledgers)) {
+      return;
     }
-  }, [
-    originatingLedgerIdFromURL,
-    enqueueErrorSnackbar,
-    originatingLedger,
-    originatingLedgerFetch,
-    originatingLedgerId,
-  ]);
+    ledgerData.initializeToReceivingLedger(Number(searchParams.get("receivingLedgerId")));
+  }, [searchParams, ledgerData, enqueueErrorSnackbar]);
 
-  React.useEffect(() => {
-    if (receivingLedgerIdFromURL && !receivingLedger) {
-      receivingLedgerFetch({ id: receivingLedgerIdFromURL })
-        .then(() => {
-          setReceivingLedgerId(receivingLedgerIdFromURL);
-        })
-        .catch((e) => enqueueErrorSnackbar(e));
-    }
-  }, [
-    receivingLedgerIdFromURL,
-    enqueueErrorSnackbar,
-    receivingLedger,
-    receivingLedgerFetch,
-    receivingLedgerId,
-  ]);
+  const receivingLedgerLabel = get(ledgerData, "ledgers.receivingLedger.label");
+  const platformLedgerLabel = get(ledgerData, "ledgers.platformLedger.label");
 
   function submit() {
     busy();
@@ -93,7 +62,6 @@ export default function BookTransactionCreatePage() {
       .tapCatch(notBusy)
       .catch(enqueueErrorSnackbar);
   }
-
   return (
     <div style={{ maxWidth: 650 }}>
       <Typography variant="h4" gutterBottom>
@@ -134,33 +102,34 @@ export default function BookTransactionCreatePage() {
             />
           </Stack>
           <Stack direction="row" spacing={2}>
-            {originatingLedgerLoading ? (
-              <LoadingInputPlaceholder helperText="Where is the money coming from?" />
+            {ledgerData.ledgersLoading ? (
+              <>
+                <LoadingInputPlaceholder helperText="Where is the money coming from?" />
+                <LoadingInputPlaceholder helperText="Where is the money going?" />
+              </>
             ) : (
-              <AutocompleteSearch
-                {...register("originatingLedger")}
-                label="Originating Ledger"
-                helperText="Where is the money coming from?"
-                defaultValue={originatingLedger?.label}
-                fullWidth
-                required
-                search={api.searchLedgers}
-                onValueSelect={(o) => setOriginatingLedgerId(o?.id || 0)}
-              />
-            )}
-            {receivingLedgerLoading ? (
-              <LoadingInputPlaceholder helperText="Where is the money going?" />
-            ) : (
-              <AutocompleteSearch
-                {...register("receivingLedger")}
-                label="Receiving Ledger"
-                helperText="Where is the money going?"
-                defaultValue={receivingLedger?.label}
-                fullWidth
-                required
-                search={api.searchLedgers}
-                onValueSelect={(o) => setReceivingLedgerId(o?.id || 0)}
-              />
+              <>
+                <AutocompleteSearch
+                  {...register("originatingLedger")}
+                  label="Originating Ledger"
+                  helperText="Where is the money coming from?"
+                  defaultValue={platformLedgerLabel}
+                  fullWidth
+                  required
+                  search={api.searchLedgers}
+                  onValueSelect={(o) => setOriginatingLedgerId(o?.id || 0)}
+                />
+                <AutocompleteSearch
+                  {...register("receivingLedger")}
+                  label="Receiving Ledger"
+                  helperText="Where is the money going?"
+                  defaultValue={receivingLedgerLabel}
+                  fullWidth
+                  required
+                  search={api.searchLedgers}
+                  onValueSelect={(o) => setReceivingLedgerId(o?.id || 0)}
+                />
+              </>
             )}
           </Stack>
           <FormButtons back loading={isBusy} />
@@ -180,4 +149,39 @@ function LoadingInputPlaceholder({ helperText }) {
       fullWidth
     />
   );
+}
+
+function useLedgers({ search, onSetLedgers }) {
+  const { enqueueErrorSnackbar } = useErrorSnackbar();
+
+  const {
+    state: ledgers,
+    loading: ledgersLoading,
+    asyncFetch: ledgersFetch,
+  } = useAsyncFetch(search, {
+    default: null,
+    pickData: true,
+    doNotFetchOnInit: true,
+  });
+
+  const initializeToReceivingLedger = React.useCallback(
+    (id) => {
+      return ledgersFetch({ id })
+        .then((ledgers) => {
+          return onSetLedgers(ledgers);
+        })
+        .catch((e) => enqueueErrorSnackbar(e));
+    },
+    [enqueueErrorSnackbar, ledgersFetch, onSetLedgers]
+  );
+
+  const value = React.useMemo(
+    () => ({
+      ledgers,
+      ledgersLoading,
+      initializeToReceivingLedger,
+    }),
+    [ledgers, ledgersLoading, initializeToReceivingLedger]
+  );
+  return value;
 }

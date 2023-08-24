@@ -10,8 +10,6 @@ export default function PaymentAccountRelatedLists({ paymentAccount }) {
   if (!paymentAccount) {
     return null;
   }
-  // TODO: receive this from backend somehow
-  const sumaPlatformLedgerId = -1;
   return (
     <>
       <RelatedList
@@ -26,7 +24,7 @@ export default function PaymentAccountRelatedLists({ paymentAccount }) {
           <Money key="balance">{row.balance}</Money>,
           <Link
             key="transaction"
-            to={`/book-transaction/new?originatingLedgerId=${sumaPlatformLedgerId}&receivingLedgerId=${row.id}`}
+            to={`/book-transaction/new?receivingLedgerId=${row.id}`}
           >
             Create Book Transaction
           </Link>,
