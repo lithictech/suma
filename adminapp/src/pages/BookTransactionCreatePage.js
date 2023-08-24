@@ -39,7 +39,7 @@ export default function BookTransactionCreatePage() {
   });
 
   React.useEffect(() => {
-    if (!isEmpty(ledgerData.ledgers)) {
+    if (searchParams.get("receivingLedgerId") && !isEmpty(ledgerData.ledgers)) {
       return;
     }
     ledgerData.initializeToReceivingLedger(Number(searchParams.get("receivingLedgerId")));
