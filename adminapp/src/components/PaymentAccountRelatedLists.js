@@ -3,6 +3,9 @@ import Money, { formatMoney } from "../shared/react/Money";
 import AdminLink from "./AdminLink";
 import Link from "./Link";
 import RelatedList from "./RelatedList";
+import first from "lodash/first";
+import get from "lodash/get";
+import lowerCase from "lodash/lowerCase";
 import map from "lodash/map";
 import React from "react";
 
@@ -24,7 +27,11 @@ export default function PaymentAccountRelatedLists({ paymentAccount }) {
           <Money key="balance">{row.balance}</Money>,
           <Link
             key="transaction"
-            to={`/book-transaction/new?receivingLedgerId=${row.id}`}
+            to={`/book-transaction/new?receivingLedgerId=${
+              row.id
+            }&vendorServiceCategoryName=${lowerCase(
+              get(first(row.vendorServiceCategories), "name")
+            )}`}
           >
             Create Book Transaction
           </Link>,

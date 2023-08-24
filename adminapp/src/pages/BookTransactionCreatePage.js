@@ -23,7 +23,9 @@ export default function BookTransactionCreatePage() {
   const [receivingLedgerId, setReceivingLedgerId] = React.useState(0);
   const [amount, setAmount] = React.useState(config.defaultZeroMoney);
   const [memo, setMemo] = React.useState("");
-  const [category, setCategory] = React.useState("");
+  const [category, setCategory] = React.useState(
+    searchParams.get("vendorServiceCategoryName") || ""
+  );
   const { isBusy, busy, notBusy } = useBusy();
   const { register, handleSubmit } = useForm();
 
