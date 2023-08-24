@@ -23,9 +23,7 @@ export default function BookTransactionCreatePage() {
   const [receivingLedgerId, setReceivingLedgerId] = React.useState(0);
   const [amount, setAmount] = React.useState(config.defaultZeroMoney);
   const [memo, setMemo] = React.useState("");
-  const [category, setCategory] = React.useState(
-    searchParams.get("vendorServiceCategoryName") || ""
-  );
+  const [category, setCategory] = React.useState("");
   const { isBusy, busy, notBusy } = useBusy();
   const { register, handleSubmit } = useForm();
 
@@ -87,10 +85,11 @@ export default function BookTransactionCreatePage() {
             <div>
               <VendorServiceCategorySelect
                 {...register("category")}
+                defaultValue={searchParams.get("vendorServiceCategorySlug")}
                 label="Category"
                 helperText="What can this be used for?"
                 value={category}
-                onChange={(e) => setCategory(e.target.value)}
+                onChange={(categorySlug) => setCategory(categorySlug)}
               />
             </div>
             <TextField

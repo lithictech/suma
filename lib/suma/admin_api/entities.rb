@@ -110,6 +110,7 @@ module Suma::AdminAPI::Entities
   class VendorServiceCategoryEntity < BaseEntity
     expose :id
     expose :name
+    expose :slug
   end
 
   class ChargeEntity < BaseEntity
