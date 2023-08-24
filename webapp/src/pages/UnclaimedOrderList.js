@@ -68,7 +68,7 @@ export default function UnclaimedOrderList() {
               })}
             </p>
             {claimedOrder?.items?.map(({ image, id, name, customerPrice, quantity }) => (
-              <Stack key={id + quantity} gap={3}>
+              <Stack key={name} gap={3}>
                 <Card>
                   <Card.Body>
                     <Stack direction="horizontal" gap={3} className="align-items-start">
