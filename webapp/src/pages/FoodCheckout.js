@@ -22,10 +22,9 @@ import map from "lodash/map";
 import merge from "lodash/merge";
 import sum from "lodash/sum";
 import React from "react";
-import Button from "react-bootstrap/Button";
+import Alert from "react-bootstrap/Alert";
 import Col from "react-bootstrap/Col";
 import Form from "react-bootstrap/Form";
-import Row from "react-bootstrap/Row";
 import Stack from "react-bootstrap/Stack";
 import {
   Link,
@@ -95,30 +94,31 @@ export default function FoodCheckout() {
         showErrorToast(e, { extract: true });
       });
   }
-
-  const canPlace =
-    checkout.fulfillmentOptionId &&
-    (chosenInstrument || !checkout.requiresPaymentInstrument);
   return (
     <>
       <LayoutContainer gutters>
         <LinearBreadcrumbs back={`/cart/${checkout.offering.id}`} />
       </LayoutContainer>
-      {!canPlace && (
-        <>
-          <LayoutContainer gutters className="mb-4">
-            <CheckoutPayment
-              checkout={checkout}
-              selectedInstrument={chosenInstrument}
-              onSelectedInstrumentChange={(pi) => setManuallySelectedInstrument(pi)}
-              onCheckoutChange={(attrs) =>
-                setCheckoutMutations({ ...checkoutMutations, ...attrs })
-              }
-            />
-          </LayoutContainer>
-          <hr />
-        </>
+      {!checkout.requiresPaymentInstrument ? (
+        <LayoutContainer>
+          <Alert variant="info">
+            Payment instrument is not required since you already have enough credits to
+            cover this purchase.
+          </Alert>
+        </LayoutContainer>
+      ) : (
+        <LayoutContainer gutters className="mb-4">
+          <CheckoutPayment
+            checkout={checkout}
+            selectedInstrument={chosenInstrument}
+            onSelectedInstrumentChange={(pi) => setManuallySelectedInstrument(pi)}
+            onCheckoutChange={(attrs) =>
+              setCheckoutMutations({ ...checkoutMutations, ...attrs })
+            }
+          />
+        </LayoutContainer>
       )}
+      <hr />
       <LayoutContainer gutters className="mb-4 mt-4">
         <CheckoutFulfillment
           checkout={checkout}
@@ -134,7 +134,6 @@ export default function FoodCheckout() {
       <hr />
       <LayoutContainer gutters className="mb-4 mt-4">
         <OrderSummary
-          canPlace={canPlace}
           checkout={checkout}
           chosenInstrument={chosenInstrument}
           onSubmit={handleSubmit}
@@ -285,8 +284,11 @@ function CheckoutItems({ checkout }) {
   );
 }
 
-function OrderSummary({ canPlace, checkout, chosenInstrument, onSubmit }) {
+function OrderSummary({ checkout, chosenInstrument, onSubmit }) {
   const itemCount = sum(map(checkout.items, "quantity"));
+  const canPlace =
+    checkout.fulfillmentOptionId &&
+    (chosenInstrument || !checkout.requiresPaymentInstrument);
   return (
     <Col xs={12}>
       <h5>{t("food:order_summary_title")}</h5>
