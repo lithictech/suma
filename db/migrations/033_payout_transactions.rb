@@ -104,16 +104,14 @@ Sequel.migration do
 
   down do
     run("DROP TABLE stripe_refund_v1_fixture") if ENV["RACK_ENV"] == "test"
+    crediting_ids = from(:payment_payout_transactions).select_map(:crediting_book_transaction_id)
+    originated_ids = from(:payment_payout_transactions).select_map(:originated_book_transaction_id)
     from(:payment_payout_transactions).update(
       crediting_book_transaction_id: nil,
       originated_book_transaction_id: nil,
+      refunded_funding_transaction_id: nil,
     )
-    from(:payment_book_transactions).
-      where(id: from(:payment_payout_transactions).select(:crediting_book_transaction_id)).
-      delete
-    from(:payment_book_transactions).
-      where(id: from(:payment_payout_transactions).select(:originated_book_transaction_id)).
-      delete
+    from(:payment_book_transactions).where(id: crediting_ids + originated_ids).delete
     drop_table(:payment_payout_transaction_audit_logs)
     drop_table(:payment_payout_transactions)
     drop_table(:payment_payout_transaction_stripe_charge_refund_strategies)
