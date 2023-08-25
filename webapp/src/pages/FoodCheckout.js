@@ -101,10 +101,7 @@ export default function FoodCheckout() {
       </LayoutContainer>
       {!checkout.requiresPaymentInstrument ? (
         <LayoutContainer>
-          <Alert variant="info">
-            Payment instrument is not required since you already have enough credits to
-            cover this purchase.
-          </Alert>
+          <Alert variant="info">{t("food:payment_not_required")}</Alert>
         </LayoutContainer>
       ) : (
         <LayoutContainer gutters className="mb-4">

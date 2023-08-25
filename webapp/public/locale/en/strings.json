@@ -165,6 +165,7 @@
     "order_serial": "Order {{serial}}",
     "order_summary_title": "Order summary",
     "out_of_stock": "Out of stock",
+    "payment_not_required": "Payment instrument is not required since you already have enough credits to cover this purchase.",
     "payment_title": "How are you paying?",
     "press_and_hold": "Press\n\n and\n\n hold",
     "previous_orders": "Previous Orders",

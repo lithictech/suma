@@ -165,6 +165,7 @@
     "order_serial": "Pedido {{serial}}",
     "order_summary_title": "Resumen del pedido",
     "out_of_stock": "Fuera de stock",
+    "payment_not_required": "No se requiere instrumento de pago ya que ya tiene suficientes créditos para cubrir este pedido.",
     "payment_title": "¿Cómo está pagando?",
     "press_and_hold": "Presionar\n\n y\n\n sostener",
     "previous_orders": "Pedidos anteriores",
