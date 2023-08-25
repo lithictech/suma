@@ -17,28 +17,55 @@ class Suma::AdminAPI::Search < Suma::AdminAPI::V1
       present receiving_ledger, with: SearchReceivingLedgerWithContextEntity, platform_ledger:
     end
 
-    params do
-      optional :q, type: String
-    end
-    get :ledgers do
-      ds = Suma::Payment::Ledger.dataset
-      if (q = params[:q]).present?
-        conds = search_to_sql(q, :name) |
-          Sequel[account: Suma::Payment::Account.where(
-            Sequel[member: Suma::Member.where(search_to_sql(q, :name))] |
-              Sequel[vendor: Suma::Vendor.where(search_to_sql(q, :name))],
-          )]
-        ds = ds.where(conds)
+    resource :ledgers do
+      params do
+        optional :q, type: String
       end
-      ds = ds.order(:name).limit(15)
-      present_collection ds, with: SearchLedgerEntity
+      post do
+        ds = Suma::Payment::Ledger.dataset
+        if (q = params[:q]).present?
+          conds = search_to_sql(q, :name) |
+            Sequel[account: Suma::Payment::Account.where(
+              Sequel[member: Suma::Member.where(search_to_sql(q, :name))] |
+                Sequel[vendor: Suma::Vendor.where(search_to_sql(q, :name))],
+            )]
+          ds = ds.where(conds)
+        end
+        ds = ds.order(:name).limit(15)
+        status 200
+        present_collection ds, with: SearchLedgerEntity
+      end
+
+      params do
+        optional :ids, type: Array[Integer]
+        optional :platform_categories, type: Array[String]
+      end
+      post :lookup do
+        by_id = {}
+        params.fetch(:ids, []).each do |ledger_id|
+          led = Suma::Payment::Ledger[ledger_id]
+          by_id[led.id.to_s] = led if led
+        end
+        platform_by_category = {}
+        platform = Suma::Payment::Account.lookup_platform_account
+        params.fetch(:platform_categories, []).each do |slug|
+          led = platform.ledgers_dataset[vendor_service_categories: Suma::Vendor::ServiceCategory.where(slug:)]
+          platform_by_category[slug] = led if led
+        end
+        result = {
+          by_id: by_id.transform_values { |v| SearchLedgerEntity.represent(v) },
+          platform_by_category: platform_by_category.transform_values { |v| SearchLedgerEntity.represent(v) },
+        }
+        status 200
+        present result
+      end
     end
 
     params do
       optional :q, type: String
       optional :payment_method_type, type: String, values: ["bank_account"]
     end
-    get :payment_instruments do
+    post :payment_instruments do
       ds = Suma::Payment::BankAccount.dataset.usable.verified
       if (q = params[:q]).present?
         conds = search_to_sql(q, :name) |
@@ -49,6 +76,7 @@ class Suma::AdminAPI::Search < Suma::AdminAPI::V1
         ds = ds.where(conds)
       end
       ds = ds.order(:name).limit(15)
+      status 200
       present_collection ds, with: SearchPaymentInstrumentEntity
     end
   end
@@ -60,15 +88,6 @@ class Suma::AdminAPI::Search < Suma::AdminAPI::V1
     expose :id
     expose :admin_link
     expose :search_label, as: :label
-  end
-
-  class SearchReceivingLedgerWithContextEntity < BaseEntity
-    expose :receiving_ledger, with: SearchLedgerEntity do |instance|
-      instance
-    end
-    expose :platform_ledger, with: SearchLedgerEntity do |_, opts|
-      opts.fetch(:platform_ledger)
-    end
   end
 
   class SearchPaymentInstrumentEntity < BaseEntity

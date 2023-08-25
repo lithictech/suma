@@ -26,14 +26,14 @@ export default function PaymentAccountRelatedLists({ paymentAccount }) {
           <Money key="balance">{row.balance}</Money>,
           <Link
             key="transaction"
-            to={`/book-transaction/new?receivingLedgerId=${
+            to={`/book-transaction/new?originatingLedgerId=0&receivingLedgerId=${
               row.id
             }&vendorServiceCategorySlug=${get(
               first(row.vendorServiceCategories),
               "slug"
             )}`}
           >
-            Create Book Transaction
+            Add Book Credit
           </Link>,
           row.softDeletedAt ? dayjs(row.softDeletedAt).format("lll") : "",
         ]}

@@ -40,7 +40,7 @@ const AutocompleteSearch = React.forwardRef(function AutocompleteSearch(
       autoHighlight={true}
       autoSelect={true}
       selectOnFocus={true}
-      value={defaultValue}
+      value={defaultValue || null}
       onChange={handleSelect}
       fullWidth={fullWidth}
       renderInput={(params) => (
