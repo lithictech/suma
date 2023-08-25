@@ -17,6 +17,8 @@ import OfferingListPage from "./pages/OfferingListPage";
 import OfferingPickListPage from "./pages/OfferingPickListPage";
 import OrderDetailPage from "./pages/OrderDetailPage";
 import OrderListPage from "./pages/OrderListPage";
+import PayoutTransactionDetailPage from "./pages/PayoutTransactionDetailPage";
+import PayoutTransactionListPage from "./pages/PayoutTransactionListPage";
 import ProductDetailPage from "./pages/ProductDetailPage";
 import ProductListPage from "./pages/ProductListPage";
 import SignInPage from "./pages/SignInPage";
@@ -105,6 +107,24 @@ function PageSwitch() {
           redirectIfUnauthed,
           withLayout(),
           FundingTransactionDetailPage
+        )}
+      />
+      <Route
+        exact
+        path="/payout-transactions"
+        element={renderWithHocs(
+          redirectIfUnauthed,
+          withLayout(),
+          PayoutTransactionListPage
+        )}
+      />
+      <Route
+        exact
+        path="/payout-transaction/:id"
+        element={renderWithHocs(
+          redirectIfUnauthed,
+          withLayout(),
+          PayoutTransactionDetailPage
         )}
       />
       <Route

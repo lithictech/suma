@@ -20,10 +20,9 @@ class Suma::API::Payments < Suma::API::V1
       Suma::Payment.ensure_cash_ledger(c)
       instrument = find_payment_instrument!(c, params)
       fx = Suma::Payment::FundingTransaction.start_and_transfer(
-        Suma::Payment.ensure_cash_ledger(c),
+        c,
         amount: params[:amount],
         instrument:,
-        vendor_service_category: Suma::Vendor::ServiceCategory.cash,
         apply_at: Time.now,
       )
       add_current_member_header

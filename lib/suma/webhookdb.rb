@@ -15,13 +15,19 @@ module Suma::Webhookdb
     def postmark_inbound_messages_dataset
       return self.dataset_for_table(self.postmark_inbound_messages_table)
     end
+
+    def stripe_refunds_dataset
+      return self.dataset_for_table(self.stripe_refunds_table)
+    end
   end
 
   configurable(:webhookdb) do
     setting :database_url, ENV.fetch("DATABASE_URL", nil)
     setting :schema, :public
     setting :postmark_inbound_messages_table, :postmark_inbound_message_v1_fixture
-    setting :postmark_inbound_messages_secret, "fakesecret"
+    setting :postmark_inbound_messages_secret, "fakesecret-#{SecureRandom.hex(3)}"
+    setting :stripe_refunds_table, :stripe_refund_v1_fixture
+    setting :stripe_refunds_secret, "fakesecret-#{SecureRandom.hex(3)}"
 
     after_configured do
       self.connection = Sequel.connect(self.database_url, extensions: [:pg_json])

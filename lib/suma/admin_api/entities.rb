@@ -25,7 +25,7 @@ module Suma::AdminAPI::Entities
   # More extensive exposure of common fields for when we show
   # detailed entities, or limited lists.
   module AutoExposeDetail
-    def self.included?(ctx)
+    def self.included(ctx)
       ctx.expose :updated_at, if: ->(o) { o.respond_to?(:updated_at) }
       # Always expose an external links array when we mix this in
       ctx.expose :external_links do |inst|
@@ -137,6 +137,14 @@ module Suma::AdminAPI::Entities
     expose :originating_payment_account, with: SimplePaymentAccountEntity
   end
 
+  class PayoutTransactionEntity < BaseEntity
+    include AutoExposeBase
+    expose :status
+    expose :classification
+    expose :amount, with: MoneyEntity
+    expose :originating_payment_account, with: SimplePaymentAccountEntity
+  end
+
   class BookTransactionEntity < BaseEntity
     include AutoExposeBase
     expose :apply_at
@@ -154,6 +162,9 @@ module Suma::AdminAPI::Entities
     expose :vendor_service_categories, with: VendorServiceCategoryEntity
     expose :combined_book_transactions, with: BookTransactionEntity
     expose :balance, with: MoneyEntity
+    expose :label do |inst|
+      inst.vendor_service_categories.map(&:name).sort.join(", ")
+    end
   end
 
   class DetailedPaymentAccountEntity < BaseEntity
@@ -165,6 +176,7 @@ module Suma::AdminAPI::Entities
     expose :ledgers, with: DetailedPaymentAccountLedgerEntity
     expose :total_balance, with: MoneyEntity
     expose :originated_funding_transactions, with: FundingTransactionEntity
+    expose :originated_payout_transactions, with: PayoutTransactionEntity
   end
 
   class OfferingEntity < BaseEntity

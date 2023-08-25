@@ -2,6 +2,7 @@
 
 require "suma/postgres"
 require "suma/spec_helpers"
+require "suma/webhookdb"
 
 # Some helper functions for testing. Usage:
 #
@@ -68,19 +69,17 @@ module Suma::SpecHelpers::Postgres
   ### configured.
   def self.wrap_example_in_transactions(example)
     txn_classes = Suma::Postgres.model_superclasses
-    Suma::Postgres.logger.debug "Wrapping example for model superclasses: %p" %
-      [txn_classes]
-
-    wrapped_proc = txn_classes.inject(example.method(:run)) do |callback, txn_class|
-      if (db = txn_class.db)
-        Suma::Postgres.logger.debug "DB: Running with an outer transaction"
-        proc { db.transaction(auto_savepoint: :only, rollback: :always, &callback) }
-      else
-        raise "No database connection for %p configured! Add a %s section to the test config." %
-          [txn_class, txn_class.config_key]
-      end
+    txn_classes.each do |txn_class|
+      next if txn_class.db
+      raise "No database connection for %p configured! Add a %s section to the test config." %
+        [txn_class, txn_class.config_key]
     end
 
+    dbs = txn_classes.map(&:db) + [Suma::Webhookdb.connection]
+    wrapped_proc = dbs.inject(example.method(:run)) do |callback, db|
+      Suma::Postgres.logger.debug "DB: Running with an outer transaction"
+      proc { db.transaction(auto_savepoint: :only, rollback: :always, &callback) }
+    end
     wrapped_proc.call
   end
 

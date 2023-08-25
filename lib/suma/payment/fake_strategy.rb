@@ -24,6 +24,9 @@ class Suma::Payment::FakeStrategy < Suma::Postgres::Model(:payment_fake_strategi
     :ready_to_collect_funds?,
     :collect_funds,
     :funds_cleared?,
+    :ready_to_send_funds?,
+    :send_funds,
+    :funds_settled?,
   ].each do |m|
     define_method(m) do |*args|
       self.return_response(m, *args)
@@ -62,7 +65,8 @@ class Suma::Payment::FakeStrategy < Suma::Postgres::Model(:payment_fake_strategi
 
   def not_ready
     return self.set_response(:check_validity, []).
-        set_response(:ready_to_collect_funds?, false)
+        set_response(:ready_to_collect_funds?, false).
+        set_response(:ready_to_send_funds?, false)
   end
 end
 

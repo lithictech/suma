@@ -26,7 +26,7 @@ export default function PaymentAccountRelatedLists({ paymentAccount }) {
       />
       {paymentAccount.ledgers.map((ledger) => (
         <RelatedList
-          title={`Ledger ${ledger.id} - ${formatMoney(ledger.balance)}`}
+          title={`Ledger ${ledger.label} (${ledger.id}) - ${formatMoney(ledger.balance)}`}
           key={ledger.id}
           headers={[
             "Id",
@@ -57,6 +57,18 @@ export default function PaymentAccountRelatedLists({ paymentAccount }) {
       <RelatedList
         title="Originated Funding Transactions"
         rows={paymentAccount.originatedFundingTransactions}
+        headers={["Id", "Created", "Status", "Amount"]}
+        keyRowAttr="id"
+        toCells={(row) => [
+          <AdminLink key="id" model={row} />,
+          dayjs(row.createdAt).format("lll"),
+          row.status,
+          <Money key="amt">{row.amount}</Money>,
+        ]}
+      />
+      <RelatedList
+        title="Originated Payouts"
+        rows={paymentAccount.originatedPayoutTransactions}
         headers={["Id", "Created", "Status", "Amount"]}
         keyRowAttr="id"
         toCells={(row) => [

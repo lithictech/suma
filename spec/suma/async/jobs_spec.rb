@@ -153,6 +153,28 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
     end
   end
 
+  describe "StripeRefundsBackfiller" do
+    it "syncs refunds" do
+      Suma::Webhookdb.stripe_refunds_dataset.insert(
+        stripe_id: "re_abc",
+        amount: 250,
+        charge: "ch_abc",
+        created: Time.now,
+        status: "succeeded",
+        data: {id: "re_abc", status: "succeeded"}.to_json,
+      )
+      funding_strategy = Suma::Payment::FundingTransaction::StripeCardStrategy.create(
+        originating_card: Suma::Fixtures.card.create,
+        charge_json: {id: "ch_abc"}.to_json,
+      )
+      Suma::Fixtures.funding_transaction(strategy: funding_strategy).create
+      Suma::Async::StripeRefundsBackfiller.new.perform
+      expect(Suma::Payment::PayoutTransaction::StripeChargeRefundStrategy.all).to contain_exactly(
+        have_attributes(stripe_charge_id: "ch_abc"),
+      )
+    end
+  end
+
   describe "SyncLimeFreeBikeStatusGbfs", reset_configuration: Suma::Lime do
     before(:each) do
       Suma::Fixtures.vendor_service(vendor: Suma::Lime.mobility_vendor).mobility.create

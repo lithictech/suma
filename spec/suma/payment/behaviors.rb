@@ -21,6 +21,25 @@ RSpec.shared_examples "a funding transaction payment strategy" do
   end
 end
 
+RSpec.shared_examples "a payout transaction payment strategy" do
+  it "implements all abstract methods", on_potential_false_positives: :nothing do
+    run_error_test { strategy.short_name }
+    run_error_test { strategy.ready_to_send_funds? }
+    run_error_test { strategy.send_funds }
+    run_error_test { strategy.funds_settled? }
+  end
+
+  def run_error_test
+    # Go the long way around to avoid the rspect warning of on_potential_false_positives
+    yield
+  rescue WebMock::NetConnectNotAllowedError
+    # We expect we'll hit these at times because we aren't doing faking for these behavior tests.
+    nil
+  rescue StandardError => e
+    expect(e).to_not be_a(NotImplementedError)
+  end
+end
+
 RSpec.shared_examples "a payment strategy with a deletable instrument" do
   def delete_instrument = raise NotImplementedError
   it "should fail validation if soft deleted" do
