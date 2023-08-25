@@ -22,7 +22,6 @@ import map from "lodash/map";
 import merge from "lodash/merge";
 import sum from "lodash/sum";
 import React from "react";
-import Alert from "react-bootstrap/Alert";
 import Col from "react-bootstrap/Col";
 import Form from "react-bootstrap/Form";
 import Stack from "react-bootstrap/Stack";
@@ -99,23 +98,21 @@ export default function FoodCheckout() {
       <LayoutContainer gutters>
         <LinearBreadcrumbs back={`/cart/${checkout.offering.id}`} />
       </LayoutContainer>
-      {!checkout.requiresPaymentInstrument ? (
-        <LayoutContainer>
-          <Alert variant="info">{t("food:payment_not_required")}</Alert>
-        </LayoutContainer>
-      ) : (
-        <LayoutContainer gutters className="mb-4">
-          <CheckoutPayment
-            checkout={checkout}
-            selectedInstrument={chosenInstrument}
-            onSelectedInstrumentChange={(pi) => setManuallySelectedInstrument(pi)}
-            onCheckoutChange={(attrs) =>
-              setCheckoutMutations({ ...checkoutMutations, ...attrs })
-            }
-          />
-        </LayoutContainer>
+      {checkout.requiresPaymentInstrument && (
+        <>
+          <LayoutContainer gutters className="mb-4">
+            <CheckoutPayment
+              checkout={checkout}
+              selectedInstrument={chosenInstrument}
+              onSelectedInstrumentChange={(pi) => setManuallySelectedInstrument(pi)}
+              onCheckoutChange={(attrs) =>
+                setCheckoutMutations({ ...checkoutMutations, ...attrs })
+              }
+            />
+          </LayoutContainer>
+          <hr />
+        </>
       )}
-      <hr />
       <LayoutContainer gutters className="mb-4 mt-4">
         <CheckoutFulfillment
           checkout={checkout}
@@ -313,15 +310,28 @@ function OrderSummary({ checkout, chosenInstrument, onSubmit }) {
           <SummaryLine key={name} label={name} price={amount} subtract credit />
         ))}
         <hr className="mt-1 mb-2" />
-        <SummaryLine
-          label={t("food:labels:order_total")}
-          price={checkout.chargeableTotal}
-          className="text-success fw-bold fs-5"
-        />
-        {chosenInstrument && (
-          <p className="small text-secondary mb-1">
-            {t("food:charge_to", { instrumentName: chosenInstrument.name })}.
-          </p>
+
+        {checkout.requiresPaymentInstrument ? (
+          <>
+            <SummaryLine
+              label={t("food:labels:chargeable_total")}
+              price={checkout.chargeableTotal}
+              className="text-success fw-bold fs-5"
+            />
+            {chosenInstrument && (
+              <p className="small text-secondary mb-1">
+                {t("food:charge_to", { instrumentName: chosenInstrument.name })}.
+              </p>
+            )}
+          </>
+        ) : (
+          <>
+            <SummaryLine
+              label={t("food:labels:chargeable_total")}
+              price={checkout.chargeableTotal}
+              className="text-success"
+            />
+          </>
         )}
         <p className="small text-secondary mt-2">{md("food:terms_of_use_agreement")}</p>
         <FormButtons
