@@ -122,10 +122,12 @@ class Suma::API::Commerce < Suma::API::V1
           member = current_member
           checkout = lookup!
           check_eligibility!(checkout.cart.offering, member)
-          if (instrument = find_payment_instrument?(member, params[:payment_instrument]))
-            checkout.payment_instrument = instrument
+          if checkout.requires_payment_instrument?
+            if (instrument = find_payment_instrument?(member, params[:payment_instrument]))
+              checkout.payment_instrument = instrument
+            end
+            forbidden!("Must have a payment instrument") if checkout.payment_instrument.nil?
           end
-          forbidden!("Must have a payment instrument") if checkout.payment_instrument.nil?
 
           if (fuloptid = params[:fulfillment_option_id])
             fulopt = checkout.cart.offering.fulfillment_options_dataset[fuloptid]
@@ -345,6 +347,7 @@ class Suma::API::Commerce < Suma::API::V1
     expose :tax, with: Suma::Service::Entities::Money
     expose :total, with: Suma::Service::Entities::Money
     expose :chargeable_total, with: Suma::Service::Entities::Money
+    expose :requires_payment_instrument?, as: :requires_payment_instrument
     expose :usable_ledger_contributions, as: :existing_funds_available, with: ChargeContributionEntity
   end
 

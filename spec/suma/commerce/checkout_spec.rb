@@ -29,6 +29,25 @@ RSpec.describe "Suma::Commerce::Checkout", :db do
     end
   end
 
+  describe "requires_payment_instrument?" do
+    let(:member) { Suma::Fixtures.member.registered_as_stripe_customer.create }
+    let(:offering) { Suma::Fixtures.offering.create }
+    let(:product) { Suma::Fixtures.product.category(:cash).create }
+    let!(:offering_product) { Suma::Fixtures.offering_product(offering:, product:).costing("$3", "$0").create }
+    let(:cart) { Suma::Fixtures.cart(offering:, member:).with_product(product, 2).create }
+    let(:checkout) { Suma::Fixtures.checkout(cart:).populate_items.create }
+
+    it "returns true depending if the chargeable total is zero" do
+      Suma::Payment.ensure_cash_ledger(member)
+      expect(checkout.requires_payment_instrument?).to be_truthy
+
+      offering_product.update(customer_price_cents: 0)
+
+      expect(checkout.refresh.chargeable_total.cents).to equal(0)
+      expect(checkout.refresh.requires_payment_instrument?).to be_falsey
+    end
+  end
+
   describe "create_order" do
     let(:member) { Suma::Fixtures.member.registered_as_stripe_customer.create }
     let(:offering) { Suma::Fixtures.offering.create }
@@ -73,6 +92,12 @@ RSpec.describe "Suma::Commerce::Checkout", :db do
       checkout.update(save_payment_instrument: true)
       checkout.create_order
       expect(checkout.card).to_not be_soft_deleted
+    end
+
+    it "prevent soft deleting payment instrument if it is not required" do
+      checkout.update(payment_instrument: nil)
+      checkout.create_order
+      expect(checkout.card).to be_nil
     end
 
     it "creates a charge for the customer cost" do

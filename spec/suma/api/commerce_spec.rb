@@ -268,7 +268,16 @@ RSpec.describe Suma::API::Commerce, :db do
       expect(last_response).to have_status(403)
     end
 
-    it "errors if the checkout does not point to a payment instrument" do
+    it "does not require payment instrument if chargeable total is zero" do
+      offering_product.update(customer_price_cents: 0, undiscounted_price: 0)
+      checkout.update(payment_instrument: nil)
+
+      post "/v1/commerce/checkouts/#{checkout.id}/complete"
+
+      expect(last_response).to have_status(200)
+    end
+
+    it "errors if the checkout does not point to a payment instrument when required" do
       checkout.update(payment_instrument: nil)
 
       post "/v1/commerce/checkouts/#{checkout.id}/complete"

@@ -98,6 +98,8 @@ class Suma::Commerce::Checkout < Suma::Postgres::Model(:commerce_checkouts)
     return total - paid
   end
 
+  def requires_payment_instrument? = !self.chargeable_total.zero?
+
   def create_order
     self.db.transaction do
       # Locking the card makes sure we don't allow the user to over-purchase for an offering
@@ -163,7 +165,7 @@ class Suma::Commerce::Checkout < Suma::Postgres::Model(:commerce_checkouts)
       end
 
       # Delete this at the end, after it's charged.
-      self.payment_instrument.soft_delete unless self.save_payment_instrument
+      self.payment_instrument.soft_delete if self.payment_instrument && !self.save_payment_instrument
 
       return order
     end
