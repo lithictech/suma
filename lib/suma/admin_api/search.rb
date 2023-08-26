@@ -8,15 +8,6 @@ class Suma::AdminAPI::Search < Suma::AdminAPI::V1
   include Suma::AdminAPI::Entities
 
   resource :search do
-    params do
-      optional :id, type: Integer
-    end
-    get :receiving_ledger do
-      receiving_ledger = Suma::Payment::Ledger[params[:id]]
-      platform_ledger = Suma::Payment::Account.lookup_platform_account.cash_ledger!
-      present receiving_ledger, with: SearchReceivingLedgerWithContextEntity, platform_ledger:
-    end
-
     resource :ledgers do
       params do
         optional :q, type: String

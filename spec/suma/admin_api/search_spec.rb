@@ -12,20 +12,6 @@ RSpec.describe Suma::AdminAPI::Search, :db do
     login_as_admin(admin)
   end
 
-  describe "GET /v1/search/ledger" do
-    it "returns receiving ledger along with platform ledger" do
-      receiving_ledger = Suma::Fixtures.ledger.create(name: "abc")
-
-      get "/v1/search/receiving_ledger", id: receiving_ledger.id
-
-      expect(last_response).to have_status(200)
-      expect(last_response).to have_json_body.that_includes(
-        receiving_ledger: include(id: receiving_ledger.id),
-        platform_ledger: include(id: platform_cash_ledger.id),
-      )
-    end
-  end
-
   describe "POST /v1/search/ledgers" do
     it "returns matching ledgers" do
       o1 = Suma::Fixtures.ledger.create(name: "abc")
