@@ -98,8 +98,9 @@ export default {
     post(`/adminapi/v1/members/${id}/eligibilities`, data),
 
   searchPaymentInstruments: (data) =>
-    get(`/adminapi/v1/search/payment_instruments`, data),
-  searchLedgers: (data) => get(`/adminapi/v1/search/ledgers`, data),
+    post(`/adminapi/v1/search/payment_instruments`, data),
+  searchLedgers: (data) => post(`/adminapi/v1/search/ledgers`, data),
+  searchLedgersLookup: (data) => post(`/adminapi/v1/search/ledgers/lookup`, data),
 
   /**
    * Return an API url.

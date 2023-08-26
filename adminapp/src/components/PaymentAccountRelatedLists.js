@@ -1,7 +1,10 @@
 import { dayjs } from "../modules/dayConfig";
 import Money, { formatMoney } from "../shared/react/Money";
 import AdminLink from "./AdminLink";
+import Link from "./Link";
 import RelatedList from "./RelatedList";
+import first from "lodash/first";
+import get from "lodash/get";
 import map from "lodash/map";
 import React from "react";
 
@@ -13,7 +16,7 @@ export default function PaymentAccountRelatedLists({ paymentAccount }) {
     <>
       <RelatedList
         title={`Ledgers - ${formatMoney(paymentAccount.totalBalance)}`}
-        headers={["Id", "Currency", "Categories", "Balance"]}
+        headers={["Id", "Currency", "Categories", "Balance", "New Transaction"]}
         rows={paymentAccount.ledgers}
         keyRowAttr="id"
         toCells={(row) => [
@@ -21,6 +24,17 @@ export default function PaymentAccountRelatedLists({ paymentAccount }) {
           row.currency,
           map(row.vendorServiceCategories, "name").join(", "),
           <Money key="balance">{row.balance}</Money>,
+          <Link
+            key="transaction"
+            to={`/book-transaction/new?originatingLedgerId=0&receivingLedgerId=${
+              row.id
+            }&vendorServiceCategorySlug=${get(
+              first(row.vendorServiceCategories),
+              "slug"
+            )}`}
+          >
+            Add Book Credit
+          </Link>,
           row.softDeletedAt ? dayjs(row.softDeletedAt).format("lll") : "",
         ]}
       />

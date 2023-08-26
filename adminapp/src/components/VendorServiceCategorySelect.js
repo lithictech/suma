@@ -1,32 +1,39 @@
 import api from "../api";
 import { FormControl, FormHelperText, InputLabel, MenuItem, Select } from "@mui/material";
+import map from "lodash/map";
 import React from "react";
 
 const VendorServiceCategorySelect = React.forwardRef(function VendorServiceCategorySelect(
-  { value, helperText, label, onChange, ...rest },
+  { value, defaultValue, helperText, label, className, style, onChange, ...rest },
   ref
 ) {
   const [categories, setCategories] = React.useState([{ slug: "cash", label: "Cash" }]);
 
+  const handleChange = React.useCallback(
+    (slug) => {
+      onChange(slug);
+    },
+    [onChange]
+  );
+
   React.useEffect(() => {
     api.getVendorServiceCategories().then((r) => {
       setCategories(r.data.items);
+      if (map(r.data.items, "slug").includes(defaultValue)) {
+        handleChange(defaultValue);
+      }
     });
-  }, []);
-
-  function handleChange(e) {
-    onChange(e);
-  }
+  }, [handleChange, defaultValue]);
 
   return (
-    <FormControl>
+    <FormControl className={className} style={style}>
       {label && <InputLabel htmlFor="vscategory-select">{label}</InputLabel>}
       <Select
         id="vscategory-select"
         ref={ref}
         value={value}
         label="Category"
-        onChange={handleChange}
+        onChange={(e) => handleChange(e.target.value)}
         {...rest}
       >
         {categories.map(({ label, slug }) => (

@@ -30,7 +30,7 @@ class Suma::AdminAPI::BookTransactions < Suma::AdminAPI::V1
     params do
       requires :originating_ledger_id, type: Integer
       requires :receiving_ledger_id, type: Integer
-      requires :memo, type: String
+      requires :memo, type: JSON
       requires :vendor_service_category_slug, type: String
       requires :amount, allow_blank: false, type: JSON do
         use :money
@@ -46,7 +46,7 @@ class Suma::AdminAPI::BookTransactions < Suma::AdminAPI::V1
         originating_ledger: originating,
         receiving_ledger: receiving,
         associated_vendor_service_category: vsc,
-        memo: Suma::TranslatedText.create(all: params[:memo]),
+        memo: Suma::TranslatedText.find_or_create(**params[:memo]),
       )
       created_resource_headers(bx.id, bx.admin_link)
       status 200
