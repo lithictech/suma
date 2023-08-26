@@ -2,18 +2,17 @@ import api from "../api";
 import AutocompleteSearch from "../components/AutocompleteSearch";
 import CurrencyTextField from "../components/CurrencyTextField";
 import FormButtons from "../components/FormButtons";
+import MultiLingualText from "../components/MultiLingualText";
 import VendorServiceCategorySelect from "../components/VendorServiceCategorySelect";
 import config from "../config";
 import useBusy from "../hooks/useBusy";
 import useErrorSnackbar from "../hooks/useErrorSnackbar";
-import { Stack, TextField, Typography } from "@mui/material";
+import useMountEffect from "../shared/react/useMountEffect";
+import { Stack, Typography } from "@mui/material";
 import Box from "@mui/material/Box";
-import get from "lodash/get";
-import isEmpty from "lodash/isEmpty";
 import React from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import useMountEffect from "../shared/react/useMountEffect";
 
 export default function BookTransactionCreatePage() {
   const { enqueueErrorSnackbar } = useErrorSnackbar();
@@ -22,7 +21,7 @@ export default function BookTransactionCreatePage() {
   const [originatingLedger, setOriginatingLedger] = React.useState(null);
   const [receivingLedger, setReceivingLedger] = React.useState(null);
   const [amount, setAmount] = React.useState(config.defaultZeroMoney);
-  const [memo, setMemo] = React.useState("");
+  const [memo, setMemo] = React.useState({ en: "" });
   const [category, setCategory] = React.useState("");
   const { isBusy, busy, notBusy } = useBusy();
   const { register, handleSubmit } = useForm();
@@ -30,34 +29,38 @@ export default function BookTransactionCreatePage() {
   useMountEffect(() => {
     const originatingLedgerId = Number(searchParams.get("originatingLedgerId"));
     const receivingLedgerId = Number(searchParams.get("receivingLedgerId"));
-    const categorySlug = searchParams.get("vendorServiceCategorySlug")
+    const categorySlug = searchParams.get("vendorServiceCategorySlug");
     if (!originatingLedgerId && !receivingLedgerId) {
       return;
     }
-    api.searchLedgersLookup({
-      ids: [originatingLedgerId, receivingLedgerId],
-      platformCategories: [categorySlug],
-    }).then((r) => {
-      const {byId, platformByCategory} = r.data;
-      if (originatingLedgerId === 0) {
-        setOriginatingLedger(platformByCategory[categorySlug])
-      } else if (originatingLedgerId) {
-        setOriginatingLedger(byId[originatingLedgerId])
-      }
-      if (receivingLedgerId === 0) {
-        setReceivingLedger(platformByCategory[categorySlug]);
-      } else if (receivingLedgerId) {
-        setReceivingLedger(byId[receivingLedgerId]);
-      }
-    }).catch(enqueueErrorSnackbar)
+    api
+      .searchLedgersLookup({
+        ids: [originatingLedgerId, receivingLedgerId],
+        platformCategories: [categorySlug],
+      })
+      .then((r) => {
+        const { byId, platformByCategory } = r.data;
+        if (originatingLedgerId === 0) {
+          setOriginatingLedger(platformByCategory[categorySlug]);
+        } else if (originatingLedgerId) {
+          setOriginatingLedger(byId[originatingLedgerId]);
+        }
+        if (receivingLedgerId === 0) {
+          setReceivingLedger(platformByCategory[categorySlug]);
+        } else if (receivingLedgerId) {
+          setReceivingLedger(byId[receivingLedgerId]);
+        }
+      })
+      .catch(enqueueErrorSnackbar);
   }, [searchParams, enqueueErrorSnackbar]);
 
   function submit() {
+    console.log(memo);
     busy();
     api
       .createBookTransaction({
-          originatingLedgerId: originatingLedger?.id,
-          receivingLedgerId: receivingLedger?.id,
+        originatingLedgerId: originatingLedger?.id,
+        receivingLedgerId: receivingLedger?.id,
         amount,
         memo,
         vendorServiceCategorySlug: category,
@@ -81,6 +84,7 @@ export default function BookTransactionCreatePage() {
             <CurrencyTextField
               {...register("amount")}
               label="Amount"
+              sx={{ maxWidth: "130px" }}
               helperText="How much is going from originator to receiver?"
               money={amount}
               required
@@ -91,42 +95,44 @@ export default function BookTransactionCreatePage() {
                 {...register("category")}
                 defaultValue={searchParams.get("vendorServiceCategorySlug")}
                 label="Category"
+                sx={{ maxWidth: "200px" }}
                 helperText="What can this be used for?"
                 value={category}
                 onChange={(categorySlug) => setCategory(categorySlug)}
               />
             </div>
-            <TextField
+            <MultiLingualText
               {...register("memo")}
               label="Memo"
               helperText="This shows on the ledger."
               fullWidth
               value={memo}
+              sx={{ minWidth: "300px" }}
               required
-              onChange={(e) => setMemo(e.target.value)}
+              onChange={(memo) => setMemo(memo)}
             />
           </Stack>
           <Stack direction="row" spacing={2}>
-                <AutocompleteSearch
-                  {...register("originatingLedger")}
-                  label="Originating Ledger"
-                  helperText="Where is the money coming from?"
-                  defaultValue={originatingLedger?.label}
-                  fullWidth
-                  required
-                  search={api.searchLedgers}
-                  onValueSelect={(o) => setOriginatingLedger(o)}
-                />
-                <AutocompleteSearch
-                  {...register("receivingLedger")}
-                  label="Receiving Ledger"
-                  helperText="Where is the money going?"
-                  defaultValue={receivingLedger?.label}
-                  fullWidth
-                  required
-                  search={api.searchLedgers}
-                  onValueSelect={(o) => setReceivingLedger(o)}
-                />
+            <AutocompleteSearch
+              {...register("originatingLedger")}
+              label="Originating Ledger"
+              helperText="Where is the money coming from?"
+              defaultValue={originatingLedger?.label}
+              fullWidth
+              required
+              search={api.searchLedgers}
+              onValueSelect={(o) => setOriginatingLedger(o)}
+            />
+            <AutocompleteSearch
+              {...register("receivingLedger")}
+              label="Receiving Ledger"
+              helperText="Where is the money going?"
+              defaultValue={receivingLedger?.label}
+              fullWidth
+              required
+              search={api.searchLedgers}
+              onValueSelect={(o) => setReceivingLedger(o)}
+            />
           </Stack>
           <FormButtons back loading={isBusy} />
         </Stack>

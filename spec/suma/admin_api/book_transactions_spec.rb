@@ -72,7 +72,7 @@ RSpec.describe Suma::AdminAPI::BookTransactions, :db do
            originating_ledger_id: b1.originating_ledger_id,
            receiving_ledger_id: b1.receiving_ledger_id,
            amount: {cents: 100},
-           memo: "hi",
+           memo: {en: "hello", es: "hola"},
            vendor_service_category_slug: "corn"
 
       expect(last_response).to have_status(200)
@@ -81,7 +81,7 @@ RSpec.describe Suma::AdminAPI::BookTransactions, :db do
       expect(b1.refresh.originating_ledger.combined_book_transactions).to contain_exactly(
         be === b1,
         have_attributes(
-          memo: have_attributes(en: "hi"),
+          memo: have_attributes(en: "hello", es: "hola"),
           amount: cost("$1"),
           associated_vendor_service_category: be === corn,
         ),
