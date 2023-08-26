@@ -4,7 +4,7 @@ import map from "lodash/map";
 import React from "react";
 
 const VendorServiceCategorySelect = React.forwardRef(function VendorServiceCategorySelect(
-  { value, defaultValue, helperText, label, onChange, ...rest },
+  { value, defaultValue, helperText, label, className, style, onChange, ...rest },
   ref
 ) {
   const [categories, setCategories] = React.useState([{ slug: "cash", label: "Cash" }]);
@@ -26,7 +26,7 @@ const VendorServiceCategorySelect = React.forwardRef(function VendorServiceCateg
   }, [handleChange, defaultValue]);
 
   return (
-    <FormControl>
+    <FormControl className={className} style={style}>
       {label && <InputLabel htmlFor="vscategory-select">{label}</InputLabel>}
       <Select
         id="vscategory-select"

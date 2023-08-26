@@ -8,7 +8,7 @@ import config from "../config";
 import useBusy from "../hooks/useBusy";
 import useErrorSnackbar from "../hooks/useErrorSnackbar";
 import useMountEffect from "../shared/react/useMountEffect";
-import { Stack, Typography } from "@mui/material";
+import { FormLabel, Stack, Typography } from "@mui/material";
 import Box from "@mui/material/Box";
 import React from "react";
 import { useForm } from "react-hook-form";
@@ -36,7 +36,7 @@ export default function BookTransactionCreatePage() {
     api
       .searchLedgersLookup({
         ids: [originatingLedgerId, receivingLedgerId],
-        platformCategories: [categorySlug],
+        platformCategories: [categorySlug].filter(Boolean),
       })
       .then((r) => {
         const { byId, platformByCategory } = r.data;
@@ -55,7 +55,6 @@ export default function BookTransactionCreatePage() {
   }, [searchParams, enqueueErrorSnackbar]);
 
   function submit() {
-    console.log(memo);
     busy();
     api
       .createBookTransaction({
@@ -80,38 +79,6 @@ export default function BookTransactionCreatePage() {
       </Typography>
       <Box component="form" mt={2} onSubmit={handleSubmit(submit)}>
         <Stack spacing={2} direction="column">
-          <Stack direction="row" spacing={2} alignItems="self-start">
-            <CurrencyTextField
-              {...register("amount")}
-              label="Amount"
-              sx={{ maxWidth: "130px" }}
-              helperText="How much is going from originator to receiver?"
-              money={amount}
-              required
-              onMoneyChange={setAmount}
-            />
-            <div>
-              <VendorServiceCategorySelect
-                {...register("category")}
-                defaultValue={searchParams.get("vendorServiceCategorySlug")}
-                label="Category"
-                sx={{ maxWidth: "200px" }}
-                helperText="What can this be used for?"
-                value={category}
-                onChange={(categorySlug) => setCategory(categorySlug)}
-              />
-            </div>
-            <MultiLingualText
-              {...register("memo")}
-              label="Memo"
-              helperText="This shows on the ledger."
-              fullWidth
-              value={memo}
-              sx={{ minWidth: "300px" }}
-              required
-              onChange={(memo) => setMemo(memo)}
-            />
-          </Stack>
           <Stack direction="row" spacing={2}>
             <AutocompleteSearch
               {...register("originatingLedger")}
@@ -121,6 +88,7 @@ export default function BookTransactionCreatePage() {
               fullWidth
               required
               search={api.searchLedgers}
+              style={{ flex: 1 }}
               onValueSelect={(o) => setOriginatingLedger(o)}
             />
             <AutocompleteSearch
@@ -131,9 +99,41 @@ export default function BookTransactionCreatePage() {
               fullWidth
               required
               search={api.searchLedgers}
+              style={{ flex: 1 }}
               onValueSelect={(o) => setReceivingLedger(o)}
             />
           </Stack>
+          <Stack direction="row" spacing={2}>
+            <CurrencyTextField
+              {...register("amount")}
+              label="Amount"
+              helperText="How much is going from originator to receiver?"
+              money={amount}
+              required
+              style={{ flex: 1 }}
+              onMoneyChange={setAmount}
+            />
+            <VendorServiceCategorySelect
+              {...register("category")}
+              defaultValue={searchParams.get("vendorServiceCategorySlug")}
+              label="Category"
+              helperText="What can this be used for?"
+              value={category}
+              style={{ flex: 1 }}
+              onChange={(categorySlug) => setCategory(categorySlug)}
+            />
+          </Stack>
+          <FormLabel>Memo (appears on the ledger):</FormLabel>
+          <Stack direction="row" spacing={2}>
+            <MultiLingualText
+              label="Memo"
+              fullWidth
+              value={memo}
+              required
+              onChange={(memo) => setMemo(memo)}
+            />
+          </Stack>
+
           <FormButtons back loading={isBusy} />
         </Stack>
       </Box>
