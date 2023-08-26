@@ -39,12 +39,13 @@ RSpec.describe "Suma::Commerce::Checkout", :db do
 
     it "returns true depending if the chargeable total is zero" do
       Suma::Payment.ensure_cash_ledger(member)
-      expect(checkout.requires_payment_instrument?).to be_truthy
+      expect(checkout).to be_requires_payment_instrument
 
       offering_product.update(customer_price_cents: 0)
 
-      expect(checkout.refresh.chargeable_total.cents).to equal(0)
-      expect(checkout.refresh.requires_payment_instrument?).to be_falsey
+      checkout.refresh
+      expect(checkout.chargeable_total).to cost(0)
+      expect(checkout).to_not be_requires_payment_instrument
     end
   end
 
@@ -94,10 +95,14 @@ RSpec.describe "Suma::Commerce::Checkout", :db do
       expect(checkout.card).to_not be_soft_deleted
     end
 
-    it "prevent soft deleting payment instrument if it is not required" do
+    it "prevents soft deleting payment instrument if it is not required" do
       checkout.update(payment_instrument: nil)
+      offering_product.update(customer_price_cents: 0)
+      # Ensure payment is not required
+      expect(checkout).to_not be_requires_payment_instrument
       checkout.create_order
       expect(checkout.card).to be_nil
+      expect(card.refresh).to_not be_soft_deleted
     end
 
     it "creates a charge for the customer cost" do
