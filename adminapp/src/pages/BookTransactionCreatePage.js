@@ -13,6 +13,7 @@ import Box from "@mui/material/Box";
 import React from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import humps from "humps";
 
 export default function BookTransactionCreatePage() {
   const { enqueueErrorSnackbar } = useErrorSnackbar();
@@ -41,12 +42,12 @@ export default function BookTransactionCreatePage() {
       .then((r) => {
         const { byId, platformByCategory } = r.data;
         if (originatingLedgerId === 0) {
-          setOriginatingLedger(platformByCategory[categorySlug]);
+          setOriginatingLedger(platformByCategory[humps.camelize(categorySlug)]);
         } else if (originatingLedgerId) {
           setOriginatingLedger(byId[originatingLedgerId]);
         }
         if (receivingLedgerId === 0) {
-          setReceivingLedger(platformByCategory[categorySlug]);
+          setReceivingLedger(platformByCategory[humps.camelize(categorySlug)]);
         } else if (receivingLedgerId) {
           setReceivingLedger(byId[receivingLedgerId]);
         }
