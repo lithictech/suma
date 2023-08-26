@@ -12,28 +12,26 @@ const MultiLingualText = React.forwardRef(function MultiLingualText(
   ref
 ) {
   const handleOnChange = (val, language) => {
-    if (!val) {
-      return;
-    }
     // There should always be an English memo translation
     let memo = value || { en: "" };
-    memo[language] = val;
+    memo[language] = val ? val : "";
     onChange(memo);
   };
   return (
-    <Stack alignItems="stretch">
+    <Stack alignItems="stretch" gap={2}>
       <TextField
         {...rest}
         label={`En ${label}`}
         onChange={(e) => handleOnChange(e.target.value, "en")}
       />
-      <br />
-      <TextField
-        {...rest}
-        label={`Es ${label}`}
-        onChange={(e) => handleOnChange(e.target.value, "es")}
-      />
-      <FormHelperText>{helperText}</FormHelperText>
+      <div>
+        <TextField
+          {...rest}
+          label={`Es ${label}`}
+          onChange={(e) => handleOnChange(e.target.value, "es")}
+        />
+        <FormHelperText>{helperText}</FormHelperText>
+      </div>
     </Stack>
   );
 });
