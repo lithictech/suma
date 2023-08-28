@@ -329,28 +329,14 @@ export default class MapBuilder {
     } else if (restriction.startsWith("do-not-ride")) {
       popup.setContent(ridingRestrictionContent);
     }
-
-    const restrictedIcon = this._l.divIcon({
-      iconAnchor: [12, 12],
-      iconSize: [24, 24],
-      className: "mobility-restricted-area-icon",
-      html: "<i class='bi bi-slash-circle'></i>",
-    });
-    const restrictionMarker = this._l
-      .marker(this._l.latLngBounds(latlngs).getCenter(), {
-        icon: restrictedIcon,
-      })
-      .bindPopup(popup);
-    const restrictionPolygon = this._l
+    return this._l
       .polygon([latlngs], {
+        id: id,
         fillOpacity: 0.25,
         color: "#b53d00",
         weight: 1,
       })
-      .on("click", () => {
-        restrictionMarker.openPopup();
-      });
-    return this._l.layerGroup([restrictionMarker, restrictionPolygon], { id });
+      .bindPopup(popup);
   }
 
   stopRefreshTimer() {
