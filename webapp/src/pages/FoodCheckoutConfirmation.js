@@ -1,5 +1,6 @@
 import api from "../api";
 import ErrorScreen from "../components/ErrorScreen";
+import FormButtons from "../components/FormButtons";
 import PageLoader from "../components/PageLoader";
 import RLink from "../components/RLink";
 import SumaImage from "../components/SumaImage";
@@ -8,7 +9,6 @@ import useAsyncFetch from "../shared/react/useAsyncFetch";
 import { LayoutContainer } from "../state/withLayout";
 import React from "react";
 import { Alert } from "react-bootstrap";
-import Button from "react-bootstrap/Button";
 import Col from "react-bootstrap/Col";
 import Stack from "react-bootstrap/Stack";
 import { useLocation, useParams } from "react-router-dom";
@@ -58,11 +58,16 @@ export default function FoodCheckoutConfirmation() {
         <p>{fulfillmentOption.description}</p>
         <hr />
         {mdp("food:confirmation_message", { check: false })}
-        <Stack className="mt-2">
-          <Button variant="outline-success" href="/dashboard" as={RLink}>
-            {t("common:go_home")}
-          </Button>
-        </Stack>
+        <FormButtons
+          className="mt-2"
+          primaryProps={{
+            type: "button",
+            variant: "outline-secondary",
+            children: t("common:go_home"),
+            href: "/dashboard",
+            as: RLink,
+          }}
+        />
       </LayoutContainer>
     </>
   );
