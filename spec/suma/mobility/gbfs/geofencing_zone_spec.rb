@@ -182,6 +182,13 @@ RSpec.describe Suma::Mobility::Gbfs::GeofencingZone, :db do
         ),
       )
     end
+
+    it "should not be created when no restrictions are determined by the rules" do
+      fake_geofencing_json["data"]["geofencing_zones"]["features"][0]["properties"]["rules"][0]["ride_allowed"] = true
+
+      Suma::Mobility::Gbfs::VendorSync.new(client:, vendor:, component: described_class.new).sync_all
+      expect(Suma::Mobility::RestrictedArea.all).to be_empty
+    end
   end
 
   it "sets correct zone restriction based on rules" do

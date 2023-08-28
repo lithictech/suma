@@ -301,11 +301,16 @@ export default class MapBuilder {
         latlngs: r.multipolygon,
         restriction: r.restriction,
       });
-      group.addLayer(restrictedAreaLayer);
+      if (restrictedAreaLayer) {
+        group.addLayer(restrictedAreaLayer);
+      }
     });
   }
 
   createRestrictedArea({ id, latlngs, restriction }) {
+    if (!id || !latlngs || !restriction) {
+      return;
+    }
     const popup = this._l.popup({
       direction: "top",
       offset: [0, -5],

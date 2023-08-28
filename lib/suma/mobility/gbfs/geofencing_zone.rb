@@ -24,10 +24,11 @@ class Suma::Mobility::Gbfs::GeofencingZone < Suma::Mobility::Gbfs::ComponentSync
                         "do-not-park-or-ride"
         elsif rule["ride_allowed"] == false
           "do-not-park"
-          elsif rule["ride_through_allowed"] == false
-            "do-not-ride"
+        elsif rule["ride_through_allowed"] == false
+          "do-not-ride"
         end
       end
+      next if restriction.nil?
 
       f["geometry"]["coordinates"].each do |polyline|
         polyline.each do |lng_lat|
@@ -42,8 +43,8 @@ class Suma::Mobility::Gbfs::GeofencingZone < Suma::Mobility::Gbfs::ComponentSync
         title: unique_id,
         vendor_service:,
         multipolygon: coords,
+        restriction:,
       )
-      row.restriction = restriction if restriction.present?
       row.before_save
       yield row.values
     end
