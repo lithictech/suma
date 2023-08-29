@@ -190,7 +190,7 @@ function CheckoutPayment({
                 id="savePayment"
                 name="savePayment"
                 label={t("food:save_payment")}
-                defaultChecked={checkout.paymentInstrument}
+                checked={checkout.savePaymentInstrument}
                 onChange={(e) =>
                   onCheckoutChange({ savePaymentInstrument: e.target.checked })
                 }
