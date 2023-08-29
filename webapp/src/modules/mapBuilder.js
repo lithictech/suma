@@ -313,7 +313,7 @@ export default class MapBuilder {
     }
     const popup = this._l.popup({
       direction: "top",
-      offset: [0, -5],
+      offset: [0, 10],
     });
     const parkingRestrictionContent = `<h6 class='mb-0'>${t(
       "mobility:do_not_park_title"
