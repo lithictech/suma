@@ -3,7 +3,7 @@ import useSessionStorageState from "./useSessionStorageState";
 import isEmpty from "lodash/isEmpty";
 import React from "react";
 
-const REDIRECT_LINK_SESSION_KEY = "sumaNextUrll";
+const REDIRECT_LINK_SESSION_KEY = "sumaNextUrl";
 
 export default function useLoginRedirectLink() {
   const [link, setInnerLink] = useSessionStorageState(REDIRECT_LINK_SESSION_KEY);
