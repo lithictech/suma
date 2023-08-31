@@ -4,14 +4,7 @@ import { useUser } from "../state/useUser";
 import React from "react";
 import { useLocation } from "react-router-dom";
 
-export const redirectUnless = (to, test) => redirect(to, test);
-
-const redirectUnlessUnauthed = (to, test) =>
-  redirect(to, test, (setRedirectLink, pathname) => {
-    setRedirectLink(pathname);
-  });
-
-function redirect(to, test, callback) {
+function redirectUnless(to, test, callback) {
   return (Wrapped) => {
     return (props) => {
       const userCtx = useUser();
@@ -39,9 +32,12 @@ export const redirectIfAuthed = redirectUnless(
   ({ userUnauthed }) => userUnauthed
 );
 
-export const redirectIfUnauthed = redirectUnlessUnauthed(
+export const redirectIfUnauthed = redirectUnless(
   "/",
-  ({ userAuthed }) => userAuthed
+  ({ userAuthed }) => userAuthed,
+  (setRedirectLink, pathname) => {
+    setRedirectLink(pathname);
+  }
 );
 
 export const redirectIfBoarded = redirectUnless(
