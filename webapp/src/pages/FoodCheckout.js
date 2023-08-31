@@ -22,6 +22,7 @@ import map from "lodash/map";
 import merge from "lodash/merge";
 import sum from "lodash/sum";
 import React from "react";
+import Alert from "react-bootstrap/Alert";
 import Col from "react-bootstrap/Col";
 import Form from "react-bootstrap/Form";
 import Stack from "react-bootstrap/Stack";
@@ -93,12 +94,15 @@ export default function FoodCheckout() {
         showErrorToast(e, { extract: true });
       });
   }
+
+  const canShowCheckoutPayment =
+    checkout.requiresPaymentInstrument && !checkout.offering.prohibitChargeAtCheckout;
   return (
     <>
       <LayoutContainer gutters>
         <LinearBreadcrumbs back={`/cart/${checkout.offering.id}`} />
       </LayoutContainer>
-      {checkout.requiresPaymentInstrument && (
+      {canShowCheckoutPayment && (
         <>
           <LayoutContainer gutters className="mb-4">
             <CheckoutPayment
@@ -284,6 +288,9 @@ function OrderSummary({ checkout, chosenInstrument, onSubmit }) {
   const canPlace =
     checkout.fulfillmentOptionId &&
     (chosenInstrument || !checkout.requiresPaymentInstrument);
+
+  const prohibitCharge =
+    checkout.offering.prohibitChargeAtCheckout && anyMoney(checkout.chargeableTotal);
   return (
     <Col xs={12}>
       <h5>{t("food:order_summary_title")}</h5>
@@ -334,16 +341,39 @@ function OrderSummary({ checkout, chosenInstrument, onSubmit }) {
             />
           </>
         )}
-        <p className="small text-secondary mt-2">{md("food:terms_of_use_agreement")}</p>
-        <FormButtons
-          primaryProps={{
-            onClick: onSubmit,
-            disabled: !canPlace,
-            type: "button",
-            variant: "success",
-            children: t("food:order_button"),
-          }}
-        ></FormButtons>
+        {prohibitCharge ? (
+          <Alert variant="warning" className="mt-3">
+            <p>
+              <i className="bi bi-exclamation-circle me-2 fs-5 d-inline"></i>
+              {t("food:insufficient_funds_alert")}
+            </p>
+            <p>{t("food:return_to_dashboard_alert")}</p>
+            <FormButtons
+              primaryProps={{
+                href: "/dashboard",
+                variant: "primary",
+                type: "button",
+                children: t("common:go_to_dashboard"),
+                as: RLink,
+              }}
+            ></FormButtons>
+          </Alert>
+        ) : (
+          <>
+            <p className="small text-secondary mt-2">
+              {md("food:terms_of_use_agreement")}
+            </p>
+            <FormButtons
+              primaryProps={{
+                onClick: onSubmit,
+                disabled: !canPlace,
+                type: "button",
+                variant: "success",
+                children: t("food:order_button"),
+              }}
+            ></FormButtons>
+          </>
+        )}
       </div>
     </Col>
   );

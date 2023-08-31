@@ -240,6 +240,7 @@ class Suma::API::Commerce < Suma::API::V1
     expose_translated :fulfillment_confirmation
     expose :period_end, as: :closes_at
     expose :image, with: Suma::API::Entities::ImageEntity, &self.delegate_to(:images?, :first)
+    expose :prohibit_charge_at_checkout
   end
 
   class OfferingProductEntity < BaseEntity
