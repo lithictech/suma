@@ -19,6 +19,7 @@ function redirectUnless(to, test, callback) {
         return <Wrapped {...props} />;
       }
       // We are unauthenticated at this point
+      // This allows the callback to set the redirect link in local session storage
       if (callback) {
         callback(setRedirectLink, pathname);
       }
