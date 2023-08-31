@@ -4,7 +4,8 @@ import { useUser } from "../state/useUser";
 import React from "react";
 import { useLocation } from "react-router-dom";
 
-function redirectUnless(to, test, callback) {
+function redirectUnless(to, test, options) {
+  const { setRedirectLinkOnTestFalse } = options || {};
   return (Wrapped) => {
     return (props) => {
       const userCtx = useUser();
@@ -18,10 +19,8 @@ function redirectUnless(to, test, callback) {
       if (test(userCtx)) {
         return <Wrapped {...props} />;
       }
-      // We are unauthenticated at this point
-      // This allows the callback to set the redirect link in local session storage
-      if (callback) {
-        callback(setRedirectLink, pathname);
+      if (setRedirectLinkOnTestFalse) {
+        setRedirectLink(pathname);
       }
       return <Redirect to={to} />;
     };
@@ -33,13 +32,9 @@ export const redirectIfAuthed = redirectUnless(
   ({ userUnauthed }) => userUnauthed
 );
 
-export const redirectIfUnauthed = redirectUnless(
-  "/",
-  ({ userAuthed }) => userAuthed,
-  (setRedirectLink, pathname) => {
-    setRedirectLink(pathname);
-  }
-);
+export const redirectIfUnauthed = redirectUnless("/", ({ userAuthed }) => userAuthed, {
+  setRedirectLinkOnTestFalse: true,
+});
 
 export const redirectIfBoarded = redirectUnless(
   "/dashboard",

@@ -23,7 +23,7 @@ const OneTimePassword = () => {
   const submitRef = React.useRef(null);
   const phoneNumber = state ? state.phoneNumber : undefined;
   const requireTerms = state ? state.requiresTermsAgreement : true;
-  const { redirectLink, removeRedirectLink } = useLoginRedirectLink();
+  const { redirectLink, clearRedirectLink } = useLoginRedirectLink();
 
   React.useEffect(() => {
     if (!phoneNumber) {
@@ -84,7 +84,7 @@ const OneTimePassword = () => {
         } else {
           navigate("/onboarding");
         }
-        removeRedirectLink();
+        clearRedirectLink();
       })
       .catch((err) => {
         setOtpChars(new Array(6).fill(""));
