@@ -301,14 +301,19 @@ export default class MapBuilder {
         latlngs: r.multipolygon,
         restriction: r.restriction,
       });
-      group.addLayer(restrictedAreaLayer);
+      if (restrictedAreaLayer) {
+        group.addLayer(restrictedAreaLayer);
+      }
     });
   }
 
   createRestrictedArea({ id, latlngs, restriction }) {
+    if (!id || !latlngs || !restriction) {
+      return;
+    }
     const popup = this._l.popup({
       direction: "top",
-      offset: [0, -5],
+      offset: [0, 10],
     });
     const parkingRestrictionContent = `<h6 class='mb-0'>${t(
       "mobility:do_not_park_title"
@@ -324,28 +329,14 @@ export default class MapBuilder {
     } else if (restriction.startsWith("do-not-ride")) {
       popup.setContent(ridingRestrictionContent);
     }
-
-    const restrictedIcon = this._l.divIcon({
-      iconAnchor: [12, 12],
-      iconSize: [24, 24],
-      className: "mobility-restricted-area-icon",
-      html: "<i class='bi bi-slash-circle'></i>",
-    });
-    const restrictionMarker = this._l
-      .marker(this._l.latLngBounds(latlngs).getCenter(), {
-        icon: restrictedIcon,
-      })
-      .bindPopup(popup);
-    const restrictionPolygon = this._l
+    return this._l
       .polygon([latlngs], {
+        id: id,
         fillOpacity: 0.25,
         color: "#b53d00",
         weight: 1,
       })
-      .on("click", () => {
-        restrictionMarker.openPopup();
-      });
-    return this._l.layerGroup([restrictionMarker, restrictionPolygon], { id });
+      .bindPopup(popup);
   }
 
   stopRefreshTimer() {

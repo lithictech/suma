@@ -78,6 +78,7 @@ class Suma::Mobility::RestrictedArea < Suma::Postgres::Model(:mobility_restricte
     elsif polygon.first != polygon.last
       self.errors.add(:multipolygon, "first and last coordinate must match (closed polygon)")
     end
+    self.validates_includes RESTRICTIONS, :restriction
   end
 end
 

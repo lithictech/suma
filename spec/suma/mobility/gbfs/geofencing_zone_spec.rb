@@ -168,6 +168,19 @@ RSpec.describe Suma::Mobility::Gbfs::GeofencingZone, :db do
         have_attributes(
           title: "NE 24th/NE Knott",
           unique_id: "NE 24th/NE Knott",
+          restriction: "do-not-park",
+        ),
+      )
+    end
+
+    it "uses all vehicle type ids if none are in the rules" do
+      fake_geofencing_json["data"]["geofencing_zones"]["features"][0]["properties"]["rules"][0].delete "vehicle_type_id"
+      Suma::Mobility::Gbfs::VendorSync.new(client:, vendor:, component: described_class.new).sync_all
+      expect(Suma::Mobility::RestrictedArea.all).to contain_exactly(
+        have_attributes(
+          title: "NE 24th/NE Knott",
+          unique_id: "NE 24th/NE Knott",
+          restriction: "do-not-park",
         ),
       )
     end
@@ -181,6 +194,13 @@ RSpec.describe Suma::Mobility::Gbfs::GeofencingZone, :db do
           unique_id: "NE 24th/NE Knott",
         ),
       )
+    end
+
+    it "does not create restricted areas for zones that are not handled" do
+      fake_geofencing_json["data"]["geofencing_zones"]["features"][0]["properties"]["rules"][0]["ride_allowed"] = true
+
+      Suma::Mobility::Gbfs::VendorSync.new(client:, vendor:, component: described_class.new).sync_all
+      expect(Suma::Mobility::RestrictedArea.all).to be_empty
     end
   end
 
