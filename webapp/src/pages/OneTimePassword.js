@@ -79,7 +79,7 @@ const OneTimePassword = () => {
         setUser(r.data);
         if (r.data.onboarded && redirectLink) {
           navigate(redirectLink);
-        } else if (redirectLink) {
+        } else if (r.data.onboarded) {
           navigate("/dashboard");
         } else {
           navigate("/onboarding");
