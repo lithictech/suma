@@ -67,9 +67,9 @@ export default function UnclaimedOrderList() {
                 fulfilledAt: dayjs(claimedOrder.fulfilledAt).format("lll"),
               })}
             </p>
-            {claimedOrder?.items?.map(({ image, id, name, customerPrice, quantity }) => (
-              <Stack key={name} gap={3}>
-                <Card>
+            <Stack gap={3}>
+              {claimedOrder?.items?.map(({ image, name, customerPrice, quantity }) => (
+                <Card key={name}>
                   <Card.Body>
                     <Stack direction="horizontal" gap={3} className="align-items-start">
                       <SumaImage
@@ -90,8 +90,8 @@ export default function UnclaimedOrderList() {
                     </Stack>
                   </Card.Body>
                 </Card>
-              </Stack>
-            ))}
+              ))}
+            </Stack>
             <div className="mt-2">
               <FormButtons
                 primaryProps={{
