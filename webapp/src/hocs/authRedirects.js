@@ -1,15 +1,35 @@
 import Redirect from "../shared/react/Redirect";
+import useLoginRedirectLink from "../shared/react/useLoginRedirectLink";
 import { useUser } from "../state/useUser";
 import React from "react";
+import { useLocation } from "react-router-dom";
 
-export function redirectUnless(to, test) {
+export const redirectUnless = (to, test) => redirect(to, test);
+
+const redirectUnlessUnauthed = (to, test) =>
+  redirect(to, test, (setRedirectLink, pathname) => {
+    setRedirectLink(pathname);
+  });
+
+function redirect(to, test, callback) {
   return (Wrapped) => {
     return (props) => {
       const userCtx = useUser();
+      const { pathname } = useLocation();
+      const { setRedirectLink } = useLoginRedirectLink();
+
       if (userCtx.userLoading) {
         return null;
       }
-      return test(userCtx) ? <Wrapped {...props} /> : <Redirect to={to} />;
+
+      if (test(userCtx)) {
+        return <Wrapped {...props} />;
+      }
+      // We are unauthenticated at this point
+      if (callback) {
+        callback(setRedirectLink, pathname);
+      }
+      return <Redirect to={to} />;
     };
   };
 }
@@ -19,7 +39,10 @@ export const redirectIfAuthed = redirectUnless(
   ({ userUnauthed }) => userUnauthed
 );
 
-export const redirectIfUnauthed = redirectUnless("/", ({ userAuthed }) => userAuthed);
+export const redirectIfUnauthed = redirectUnlessUnauthed(
+  "/",
+  ({ userAuthed }) => userAuthed
+);
 
 export const redirectIfBoarded = redirectUnless(
   "/dashboard",
