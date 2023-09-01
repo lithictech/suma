@@ -5,6 +5,7 @@ import FormSuccess from "../components/FormSuccess";
 import { md, t } from "../localization";
 import { dayjs } from "../modules/dayConfig";
 import { maskPhoneNumber } from "../modules/maskPhoneNumber";
+import useLoginRedirectLink from "../shared/react/useLoginRedirectLink";
 import { extractErrorCode, useError } from "../state/useError";
 import { useUser } from "../state/useUser";
 import React from "react";
@@ -22,6 +23,7 @@ const OneTimePassword = () => {
   const submitRef = React.useRef(null);
   const phoneNumber = state ? state.phoneNumber : undefined;
   const requireTerms = state ? state.requiresTermsAgreement : true;
+  const { redirectLink, clearRedirectLink } = useLoginRedirectLink();
 
   React.useEffect(() => {
     if (!phoneNumber) {
@@ -75,11 +77,14 @@ const OneTimePassword = () => {
       .authVerify({ phone: phoneNumber, token: otpChars.join(""), termsAgreed: true })
       .then((r) => {
         setUser(r.data);
-        if (r.data.onboarded) {
+        if (r.data.onboarded && redirectLink) {
+          navigate(redirectLink);
+        } else if (r.data.onboarded) {
           navigate("/dashboard");
         } else {
           navigate("/onboarding");
         }
+        clearRedirectLink();
       })
       .catch((err) => {
         setOtpChars(new Array(6).fill(""));
