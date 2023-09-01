@@ -12,6 +12,16 @@ class Suma::AutomationTrigger::FundingTransactionMatch < Suma::AutomationTrigger
     member = acct.member
     params = self.params
     return unless self.member_passes_constraints?(member.id, params[:verified_constraint_name])
+    if (eval_if = params[:eval_if])
+      funding_xaction.instance_eval do
+        # This is pretty horrible but we don't have a better option right now,
+        # short of some absurd customization.
+        # rubocop:disable Security/Eval
+        passes_if = eval(eval_if)
+        # rubocop:enable Security/Eval
+        return unless passes_if
+      end
+    end
     self.automation_trigger.db.transaction do
       vsc = Suma::Vendor::ServiceCategory.find!(name: params.fetch(:category_name))
       ledger = acct.ledgers_dataset[name: params.fetch(:ledger_name)]

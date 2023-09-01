@@ -519,6 +519,9 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
           },
           category_name: self.fm2023_match_category.name,
           max_cents: 1500,
+          # Only add the match subsidy if there is no intro subsidy left.
+          # Otherwise users will add $5 on their dashboard and they'll get an extra $5 in match subsidy.
+          eval_if: 'self.originating_payment_account.ledgers_dataset[name: "Summer2023FarmersMarketIntro"].balance.zero?',
           verified_constraint_name: [
             self.hacienda_cdc_constraint_name,
             self.new_columbia_constraint_name,
