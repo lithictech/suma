@@ -133,6 +133,12 @@ class Suma::Commerce::Offering < Suma::Postgres::Model(:commerce_offerings)
     end
     return count
   end
+
+  # This is used in commerce API CheckoutEntity to evaluate the
+  # OfferingEntity +prohibit_charge_at_checkout+  value, error handling and testing
+  def prohibit_charge_for(checkout)
+    return self.prohibit_charge_at_checkout && checkout.requires_payment_instrument?
+  end
 end
 
 # Table: commerce_offerings

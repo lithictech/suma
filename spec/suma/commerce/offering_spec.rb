@@ -114,4 +114,17 @@ RSpec.describe "Suma::Commerce::Offering", :db do
       expect(offering.begin_order_fulfillment(now:)).to eq(-1)
     end
   end
+
+  describe "#prohibit_charge_for(checkout)" do
+    it "returns true if checkout cart offering prohibits charges" do
+      member = Suma::Fixtures.member.create
+      Suma::Payment.ensure_cash_ledger(member)
+      offering = Suma::Fixtures.offering(prohibit_charge_at_checkout: true).create
+      cart = Suma::Fixtures.cart(member:, offering:).with_any_product.create
+      checkout = Suma::Fixtures.checkout(cart:).populate_items.create
+
+      is_offering_prohibited = checkout.cart.offering.prohibit_charge_for(checkout)
+      expect(is_offering_prohibited).to eq(true)
+    end
+  end
 end

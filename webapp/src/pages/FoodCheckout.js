@@ -289,8 +289,7 @@ function OrderSummary({ checkout, chosenInstrument, onSubmit }) {
     checkout.fulfillmentOptionId &&
     (chosenInstrument || !checkout.requiresPaymentInstrument);
 
-  const prohibitCharge =
-    checkout.offering.prohibitChargeAtCheckout && anyMoney(checkout.chargeableTotal);
+  const prohibitCharge = checkout.offering.prohibitChargeAtCheckout;
   return (
     <Col xs={12}>
       <h5>{t("food:order_summary_title")}</h5>

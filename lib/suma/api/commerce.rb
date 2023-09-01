@@ -129,6 +129,7 @@ class Suma::API::Commerce < Suma::API::V1
             end
             forbidden!("Must have a payment instrument") if checkout.payment_instrument.nil?
           end
+          forbidden!("Checkout offering charge prohibited") if checkout.cart.offering.prohibit_charge_for(checkout)
 
           if (fuloptid = params[:fulfillment_option_id])
             fulopt = checkout.cart.offering.fulfillment_options_dataset[fuloptid]
@@ -334,7 +335,10 @@ class Suma::API::Commerce < Suma::API::V1
   class CheckoutEntity < BaseEntity
     expose :id
     expose :items, with: CheckoutItemEntity
-    expose :offering, with: OfferingEntity, &self.delegate_to(:cart, :offering)
+    expose :offering, with: OfferingEntity do |inst|
+      inst.cart.offering.prohibit_charge_at_checkout = inst.cart.offering.prohibit_charge_for(inst)
+      inst.cart.offering
+    end
     expose :fulfillment_option_id
     expose :available_fulfillment_options, with: FulfillmentOptionEntity
     expose :payment_instrument, with: Suma::API::Entities::PaymentInstrumentEntity
