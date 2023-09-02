@@ -210,4 +210,5 @@ end
 # Referenced By:
 #  payment_funding_transactions | payment_funding_transactions_originating_payment_account_i_fkey | (originating_payment_account_id) REFERENCES payment_accounts(id) ON DELETE RESTRICT
 #  payment_ledgers              | payment_ledgers_account_id_fkey                                 | (account_id) REFERENCES payment_accounts(id)
+#  payment_payout_transactions  | payment_payout_transactions_originating_payment_account_id_fkey | (originating_payment_account_id) REFERENCES payment_accounts(id) ON DELETE RESTRICT
 # --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------

@@ -218,4 +218,5 @@ end
 # Referenced By:
 #  charges_associated_funding_transactions | charges_associated_funding_transact_funding_transaction_id_fkey | (funding_transaction_id) REFERENCES payment_funding_transactions(id)
 #  payment_funding_transaction_audit_logs  | payment_funding_transaction_audit_l_funding_transaction_id_fkey | (funding_transaction_id) REFERENCES payment_funding_transactions(id)
+#  payment_payout_transactions             | payment_payout_transactions_refunded_funding_transaction_i_fkey | (refunded_funding_transaction_id) REFERENCES payment_funding_transactions(id) ON DELETE RESTRICT
 # -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------

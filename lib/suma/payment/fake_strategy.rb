@@ -79,4 +79,5 @@ end
 #  payment_fake_strategies_pkey | PRIMARY KEY btree (id)
 # Referenced By:
 #  payment_funding_transactions | payment_funding_transactions_fake_strategy_id_fkey | (fake_strategy_id) REFERENCES payment_fake_strategies(id)
+#  payment_payout_transactions  | payment_payout_transactions_fake_strategy_id_fkey  | (fake_strategy_id) REFERENCES payment_fake_strategies(id)
 # ----------------------------------------------------------------------------------------------------------------------------------------------

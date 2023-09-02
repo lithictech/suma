@@ -131,5 +131,6 @@ end
 #  payment_book_transactions                 | payment_book_transactions_originating_ledger_id_fkey     | (originating_ledger_id) REFERENCES payment_ledgers(id)
 #  payment_book_transactions                 | payment_book_transactions_receiving_ledger_id_fkey       | (receiving_ledger_id) REFERENCES payment_ledgers(id)
 #  payment_funding_transactions              | payment_funding_transactions_platform_ledger_id_fkey     | (platform_ledger_id) REFERENCES payment_ledgers(id) ON DELETE RESTRICT
+#  payment_payout_transactions               | payment_payout_transactions_platform_ledger_id_fkey      | (platform_ledger_id) REFERENCES payment_ledgers(id) ON DELETE RESTRICT
 #  vendor_service_categories_payment_ledgers | vendor_service_categories_payment_ledgers_ledger_id_fkey | (ledger_id) REFERENCES payment_ledgers(id)
 # ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------

@@ -147,6 +147,7 @@ end
 #  begin_fulfillment_at        | timestamp with time zone |
 #  fulfillment_prompt_id       | integer                  | NOT NULL
 #  fulfillment_confirmation_id | integer                  | NOT NULL
+#  prohibit_charge_at_checkout | boolean                  | NOT NULL DEFAULT false
 # Indexes:
 #  commerce_offerings_pkey                       | PRIMARY KEY btree (id)
 #  commerce_offerings_begin_fulfillment_at_index | btree (begin_fulfillment_at)

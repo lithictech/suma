@@ -28,4 +28,5 @@ end
 #  payment_book_transactions             | payment_book_transactions_memo_id_fkey                    | (memo_id) REFERENCES translated_texts(id)
 #  payment_funding_transactions          | payment_funding_transactions_memo_id_fkey                 | (memo_id) REFERENCES translated_texts(id)
 #  payment_ledgers                       | payment_ledgers_contribution_text_id_fkey                 | (contribution_text_id) REFERENCES translated_texts(id)
+#  payment_payout_transactions           | payment_payout_transactions_memo_id_fkey                  | (memo_id) REFERENCES translated_texts(id)
 # ------------------------------------------------------------------------------------------------------------------------------------------------------------------

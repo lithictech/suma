@@ -400,6 +400,7 @@ require "suma/member/stripe_attributes"
 #  mobility_trips                         | mobility_trips_member_id_fkey                           | (member_id) REFERENCES members(id)
 #  payment_accounts                       | payment_accounts_member_id_fkey                         | (member_id) REFERENCES members(id)
 #  payment_funding_transaction_audit_logs | payment_funding_transaction_audit_logs_actor_id_fkey    | (actor_id) REFERENCES members(id) ON DELETE SET NULL
+#  payment_payout_transaction_audit_logs  | payment_payout_transaction_audit_logs_actor_id_fkey     | (actor_id) REFERENCES members(id) ON DELETE SET NULL
 #  roles_members                          | roles_members_member_id_fkey                            | (member_id) REFERENCES members(id)
 #  uploaded_files                         | uploaded_files_created_by_id_fkey                       | (created_by_id) REFERENCES members(id)
 # ------------------------------------------------------------------------------------------------------------------------------------------------------------

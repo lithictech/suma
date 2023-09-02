@@ -92,7 +92,7 @@ end
 #  ne_lng            | numeric                  | NOT NULL
 #  sw_lat            | numeric                  | NOT NULL
 #  sw_lng            | numeric                  | NOT NULL
-#  restriction       | text                     |
+#  restriction       | text                     | NOT NULL
 #  multipolygon      | numeric[]                | NOT NULL
 #  title             | text                     | NOT NULL
 #  unique_id         | text                     | NOT NULL

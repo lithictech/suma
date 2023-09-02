@@ -16,6 +16,7 @@ end
 #  cents_in_dollar       | integer          | NOT NULL
 #  payment_method_types  | text[]           | NOT NULL
 #  ordinal               | double precision | NOT NULL
+#  funding_maximum_cents | integer          | NOT NULL
 # Indexes:
 #  supported_currencies_pkey        | PRIMARY KEY btree (id)
 #  supported_currencies_ordinal_key | UNIQUE btree (ordinal)
