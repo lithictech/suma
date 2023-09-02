@@ -95,14 +95,12 @@ export default function FoodCheckout() {
       });
   }
 
-  const canShowCheckoutPayment =
-    checkout.requiresPaymentInstrument && !checkout.offering.prohibitChargeAtCheckout;
   return (
     <>
       <LayoutContainer gutters>
         <LinearBreadcrumbs back={`/cart/${checkout.offering.id}`} />
       </LayoutContainer>
-      {canShowCheckoutPayment && (
+      {checkout.requiresPaymentInstrument && (
         <>
           <LayoutContainer gutters className="mb-4">
             <CheckoutPayment
@@ -288,8 +286,10 @@ function OrderSummary({ checkout, chosenInstrument, onSubmit }) {
   const canPlace =
     checkout.fulfillmentOptionId &&
     (chosenInstrument || !checkout.requiresPaymentInstrument);
+  // We only handle this reason explicitly; other reasons, assume we can still submit,
+  // and if there's an error we'll deal with it.
+  const showSubmit = checkout.checkoutProhibitedReason !== "charging_prohibited";
 
-  const prohibitCharge = checkout.offering.prohibitChargeAtCheckout;
   return (
     <Col xs={12}>
       <h5>{t("food:order_summary_title")}</h5>
@@ -340,7 +340,7 @@ function OrderSummary({ checkout, chosenInstrument, onSubmit }) {
             />
           </>
         )}
-        {prohibitCharge ? (
+        {checkout.checkoutProhibitedReason === "charging_prohibited" && (
           <Alert variant="warning" className="mt-3">
             <p>
               <i className="bi bi-exclamation-circle me-2 fs-5 d-inline"></i>
@@ -357,7 +357,8 @@ function OrderSummary({ checkout, chosenInstrument, onSubmit }) {
               }}
             ></FormButtons>
           </Alert>
-        ) : (
+        )}
+        {showSubmit && (
           <>
             <p className="small text-secondary mt-2">
               {md("food:terms_of_use_agreement")}
