@@ -355,6 +355,7 @@ function ResetCodes({ resetCodes }) {
       title="Login Codes"
       headers={["Sent", "Expires", "Token", "Used"]}
       rows={resetCodes}
+      keyRowAttr={"id"}
       toCells={(row) => [
         dayjs(row.createdAt).format("lll"),
         dayjs(row.expireAt).format("lll"),
@@ -371,6 +372,7 @@ function Sessions({ sessions }) {
       title="Sessions"
       headers={["Started", "IP", "User Agent"]}
       rows={sessions}
+      keyRowAttr={"id"}
       toCells={(row) => [
         dayjs(row.createdAt).format("lll"),
         <SafeExternalLink key={2} href={row.ipLookupLink}>
@@ -388,7 +390,7 @@ function Orders({ orders }) {
       title="Orders"
       rows={orders}
       headers={["Id", "Created At", "Items", "Offering", "Status"]}
-      keyRowAttr="id"
+      keyRowAttr={"id"}
       toCells={(row) => [
         <AdminLink key="id" model={row} />,
         dayjs(row.createdAt).format("lll"),
@@ -408,6 +410,7 @@ function Charges({ charges }) {
       title="Charges"
       headers={["Id", "At", "Undiscounted Total", "Opaque Id"]}
       rows={charges}
+      keyRowAttr={"id"}
       toCells={(row) => [
         row.id,
         dayjs(row.createdAt).format("lll"),
@@ -424,7 +427,7 @@ function BankAccounts({ bankAccounts }) {
       title="Bank Accounts"
       headers={["Id", "Name", "Added", "Deleted"]}
       rows={bankAccounts}
-      keyRowAttr="id"
+      keyRowAttr={"id"}
       toCells={(row) => [
         <AdminLink key="id" model={row} />,
         row.adminLabel,
@@ -441,7 +444,7 @@ function MessageDeliveries({ messageDeliveries }) {
       title="Message Deliveries"
       headers={["Id", "Created", "Sent", "Template", "To"]}
       rows={messageDeliveries}
-      keyRowAttr="id"
+      keyRowAttr={"id"}
       toCells={(row) => [
         <AdminLink key="id" model={row} />,
         dayjs(row.createdAt).format("lll"),
