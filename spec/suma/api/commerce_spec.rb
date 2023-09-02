@@ -137,16 +137,6 @@ RSpec.describe Suma::API::Commerce, :db do
       expect(completed_checkout.refresh).to_not be_soft_deleted
     end
 
-    it "sets checkout offering prohibit_charge_at_checkout value correctly" do
-      offering.update(prohibit_charge_at_checkout: true)
-
-      post "/v1/commerce/offerings/#{offering.id}/checkout"
-
-      expect(last_response).to have_status(200)
-      expect(last_response).to have_json_body.
-        that_includes(offering: include(prohibit_charge_at_checkout: true))
-    end
-
     it "errors if there are no items in the cart" do
       cart.items.first.delete
 
@@ -240,18 +230,7 @@ RSpec.describe Suma::API::Commerce, :db do
       expect(checkout.refresh).to be_completed
     end
 
-    it "errors if the checkout cart offering prohibits charge" do
-      checkout.cart.offering.update(prohibit_charge_at_checkout: true)
-
-      post "/v1/commerce/checkouts/#{checkout.id}/complete"
-
-      expect(last_response).to have_status(403)
-      expect(last_response).to have_json_body.that_includes(
-        error: include(code: "forbidden", message: match(/Checkout offering charge prohibited/)),
-      )
-    end
-
-    it "errors if the checkout is not editable" do
+    it "errors if checkout is prohibited" do
       checkout.soft_delete
 
       post "/v1/commerce/checkouts/#{checkout.id}/complete"
@@ -303,7 +282,7 @@ RSpec.describe Suma::API::Commerce, :db do
 
       post "/v1/commerce/checkouts/#{checkout.id}/complete"
 
-      expect(last_response).to have_status(403)
+      expect(last_response).to have_status(409)
     end
 
     it "sets the fulfillment option" do

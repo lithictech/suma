@@ -124,12 +124,9 @@ class Suma::API::Commerce < Suma::API::V1
           checkout = lookup!
           check_eligibility!(checkout.cart.offering, member)
           if checkout.requires_payment_instrument?
-            if (instrument = find_payment_instrument?(member, params[:payment_instrument]))
-              checkout.payment_instrument = instrument
-            end
-            forbidden!("Must have a payment instrument") if checkout.payment_instrument.nil?
+            instrument = find_payment_instrument?(member, params[:payment_instrument])
+            checkout.payment_instrument = instrument if instrument
           end
-          forbidden!("Checkout offering charge prohibited") if checkout.cart.offering.prohibit_charge_for(checkout)
 
           if (fuloptid = params[:fulfillment_option_id])
             fulopt = checkout.cart.offering.fulfillment_options_dataset[fuloptid]
@@ -144,8 +141,8 @@ class Suma::API::Commerce < Suma::API::V1
             checkout.save_changes
             begin
               checkout.create_order
-            rescue Suma::Commerce::Checkout::Uneditable
-              merror!(409, "not editable", code: "checkout_fatal_error")
+            rescue Suma::Commerce::Checkout::Prohibited => e
+              merror!(409, "Checkout prohibited: #{e.reason}", code: "checkout_fatal_error")
             rescue Suma::Commerce::Checkout::MaxQuantityExceeded
               merror!(403, "max quantity exceeded", code: "invalid_order_quantity")
             end
@@ -241,7 +238,6 @@ class Suma::API::Commerce < Suma::API::V1
     expose_translated :fulfillment_confirmation
     expose :period_end, as: :closes_at
     expose :image, with: Suma::API::Entities::ImageEntity, &self.delegate_to(:images?, :first)
-    expose :prohibit_charge_at_checkout
   end
 
   class OfferingProductEntity < BaseEntity
@@ -335,10 +331,7 @@ class Suma::API::Commerce < Suma::API::V1
   class CheckoutEntity < BaseEntity
     expose :id
     expose :items, with: CheckoutItemEntity
-    expose :offering, with: OfferingEntity do |inst|
-      inst.cart.offering.prohibit_charge_at_checkout = inst.cart.offering.prohibit_charge_for(inst)
-      inst.cart.offering
-    end
+    expose :offering, with: OfferingEntity, &self.delegate_to(:cart, :offering)
     expose :fulfillment_option_id
     expose :available_fulfillment_options, with: FulfillmentOptionEntity
     expose :payment_instrument, with: Suma::API::Entities::PaymentInstrumentEntity
@@ -354,6 +347,7 @@ class Suma::API::Commerce < Suma::API::V1
     expose :total, with: Suma::Service::Entities::Money
     expose :chargeable_total, with: Suma::Service::Entities::Money
     expose :requires_payment_instrument?, as: :requires_payment_instrument
+    expose :checkout_prohibited_reason
     expose :usable_ledger_contributions, as: :existing_funds_available, with: ChargeContributionEntity
   end
 
