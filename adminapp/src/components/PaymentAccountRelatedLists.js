@@ -113,7 +113,11 @@ function MoneyFlow({ amount, debit, children, ...rest }) {
   const greenColor = "#198754";
   const redColor = "#b53d00";
   return (
-    <Typography {...rest} variant="body2" sx={{ fontWeight: "bold", color: debit ? redColor : greenColor }}>
+    <Typography
+      {...rest}
+      variant="body2"
+      sx={{ fontWeight: "bold", color: debit ? redColor : greenColor }}
+    >
       {debit ? "-" : "+"}
       <Money>{amount}</Money>
     </Typography>
