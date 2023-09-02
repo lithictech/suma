@@ -3,6 +3,7 @@ import Money, { formatMoney } from "../shared/react/Money";
 import AdminLink from "./AdminLink";
 import Link from "./Link";
 import RelatedList from "./RelatedList";
+import Typography from "@mui/material/Typography";
 import first from "lodash/first";
 import get from "lodash/get";
 import map from "lodash/map";
@@ -57,7 +58,16 @@ export default function PaymentAccountRelatedLists({ paymentAccount }) {
             <AdminLink key="id" model={row} />,
             dayjs(row.createdAt).format("lll"),
             dayjs(row.applyAt).format("lll"),
-            <Money key="amt">{row.amount}</Money>,
+            <MoneyFlow
+              key="amt"
+              debit={
+                !row.originatingLedger.adminLabel
+                  .toLowerCase()
+                  .startsWith("suma platform")
+              }
+            >
+              {row.amount}
+            </MoneyFlow>,
             row.associatedVendorServiceCategory.name,
             <AdminLink key="originating" model={row.originatingLedger}>
               {row.originatingLedger.adminLabel}
@@ -77,7 +87,7 @@ export default function PaymentAccountRelatedLists({ paymentAccount }) {
           <AdminLink key="id" model={row} />,
           dayjs(row.createdAt).format("lll"),
           row.status,
-          <Money key="amt">{row.amount}</Money>,
+          <MoneyFlow key="amt">{row.amount}</MoneyFlow>,
         ]}
       />
       <RelatedList
@@ -89,9 +99,23 @@ export default function PaymentAccountRelatedLists({ paymentAccount }) {
           <AdminLink key="id" model={row} />,
           dayjs(row.createdAt).format("lll"),
           row.status,
-          <Money key="amt">{row.amount}</Money>,
+          <MoneyFlow key="amt" debit={true}>
+            {row.amount}
+          </MoneyFlow>,
         ]}
       />
     </>
+  );
+}
+
+function MoneyFlow({ amount, debit, children, ...rest }) {
+  amount = amount || children;
+  const greenColor = "#198754";
+  const redColor = "#b53d00";
+  return (
+    <Typography {...rest} variant="body2" sx={{ fontWeight: "bold", color: debit ? redColor : greenColor }}>
+      {debit ? "-" : "+"}
+      <Money>{amount}</Money>
+    </Typography>
   );
 }
