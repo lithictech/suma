@@ -7,10 +7,10 @@ import React from "react";
  * for example adding additional TextFields for the multiple languages
  * @returns {JSX.Element}
  */
-export default function MultiLingualText({ value, label, onChange, ...rest }) {
+export default function MultiLingualText({ value, label, onChange, disabled, ...rest }) {
+  const { en, es } = value || { en: "", es: "" };
   const handleOnChange = (val, language) => {
-    // There should always be an English translation
-    let newValue = value || { en: "" };
+    let newValue = value;
     newValue[language] = val ? val : "";
     onChange(newValue);
   };
@@ -18,13 +18,19 @@ export default function MultiLingualText({ value, label, onChange, ...rest }) {
     <>
       <TextField
         {...rest}
+        title={en}
+        defaultValue={en}
         label={`English ${label}`}
         onChange={(e) => handleOnChange(e.target.value, "en")}
+        disabled={disabled && Boolean(en)}
       />
       <TextField
         {...rest}
+        title={es}
+        defaultValue={es}
         label={`Spanish ${label}`}
         onChange={(e) => handleOnChange(e.target.value, "es")}
+        disabled={disabled && Boolean(es)}
       />
     </>
   );

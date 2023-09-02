@@ -22,7 +22,10 @@ export default function BookTransactionCreatePage() {
   const [originatingLedger, setOriginatingLedger] = React.useState(null);
   const [receivingLedger, setReceivingLedger] = React.useState(null);
   const [amount, setAmount] = React.useState(config.defaultZeroMoney);
-  const [memo, setMemo] = React.useState({ en: "" });
+  const [memo, setMemo] = React.useState({
+    en: searchParams.get("memoEn") || "",
+    es: searchParams.get("memoEs") || "",
+  });
   const [category, setCategory] = React.useState("");
   const { isBusy, busy, notBusy } = useBusy();
   const { register, handleSubmit } = useForm();
@@ -69,6 +72,8 @@ export default function BookTransactionCreatePage() {
       .tapCatch(notBusy)
       .catch(enqueueErrorSnackbar);
   }
+
+  const disableFields = searchParams.size > 0;
   return (
     <div style={{ maxWidth: 650 }}>
       <Typography variant="h4" gutterBottom>
@@ -86,6 +91,7 @@ export default function BookTransactionCreatePage() {
               label="Originating Ledger"
               helperText="Where is the money coming from?"
               defaultValue={originatingLedger?.label}
+              disabled={disableFields && Boolean(searchParams.get("originatingLedgerId"))}
               fullWidth
               required
               search={api.searchLedgers}
@@ -97,6 +103,7 @@ export default function BookTransactionCreatePage() {
               label="Receiving Ledger"
               helperText="Where is the money going?"
               defaultValue={receivingLedger?.label}
+              disabled={disableFields && Boolean(searchParams.get("receivingLedgerId"))}
               fullWidth
               required
               search={api.searchLedgers}
@@ -110,6 +117,7 @@ export default function BookTransactionCreatePage() {
               label="Amount"
               helperText="How much is going from originator to receiver?"
               money={amount}
+              autoFocus={disableFields}
               required
               style={{ flex: 1 }}
               onMoneyChange={setAmount}
@@ -117,6 +125,7 @@ export default function BookTransactionCreatePage() {
             <VendorServiceCategorySelect
               {...register("category")}
               defaultValue={searchParams.get("vendorServiceCategorySlug")}
+              disabled={disableFields}
               label="Category"
               helperText="What can this be used for?"
               value={category}
@@ -130,6 +139,7 @@ export default function BookTransactionCreatePage() {
               label="Memo"
               fullWidth
               value={memo}
+              disabled={disableFields}
               required
               onChange={(memo) => setMemo(memo)}
             />
