@@ -1,6 +1,5 @@
 import api from "../api";
 import { FormControl, FormHelperText, InputLabel, MenuItem, Select } from "@mui/material";
-import first from "lodash/first";
 import get from "lodash/get";
 import map from "lodash/map";
 import React from "react";
