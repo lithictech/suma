@@ -174,6 +174,12 @@ RSpec.describe "Suma::AutomationTrigger", :db do
       )
     end
 
+    it "noops if 'eval_if' does not pass" do
+      at.update(parameter: at.parameter.merge(eval_if: "self.id != #{funding_xaction.id}"))
+      at.run_with_payload(funding_xaction.id)
+      expect(ledger.refresh.received_book_transactions).to be_empty
+    end
+
     describe "when constraints are set on the trigger" do
       let(:constraint) { Suma::Fixtures.eligibility_constraint(name: "Special Person").create }
       let(:member) { funding_xaction.originating_payment_account.member }

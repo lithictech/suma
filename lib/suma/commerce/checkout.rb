@@ -6,7 +6,15 @@ require "suma/postgres/model"
 class Suma::Commerce::Checkout < Suma::Postgres::Model(:commerce_checkouts)
   CONFIRMATION_EXPOSURE_CUTOFF = 2.days
 
-  class Uneditable < StandardError; end
+  class Prohibited < StandardError
+    attr_reader :reason
+
+    def initialize(message, reason:)
+      @reason = reason
+      super(message)
+    end
+  end
+
   class MaxQuantityExceeded < StandardError; end
 
   plugin :timestamps
@@ -98,7 +106,19 @@ class Suma::Commerce::Checkout < Suma::Postgres::Model(:commerce_checkouts)
     return total - paid
   end
 
-  def requires_payment_instrument? = !self.chargeable_total.zero?
+  def chargeable_amount? = !self.chargeable_total.zero?
+
+  def requires_payment_instrument?
+    return false if self.cart.offering.prohibit_charge_at_checkout
+    return self.chargeable_amount?
+  end
+
+  def checkout_prohibited_reason
+    return :charging_prohibited if self.cart.offering.prohibit_charge_at_checkout && self.chargeable_amount?
+    return :requires_payment_instrument if self.requires_payment_instrument? && !self.payment_instrument
+    return :not_editable unless self.editable?
+    return nil
+  end
 
   def create_order
     self.db.transaction do
@@ -107,7 +127,12 @@ class Suma::Commerce::Checkout < Suma::Postgres::Model(:commerce_checkouts)
       # Locking the checkout ensures we don't process it multiple times as a race
       self.lock!
       now = Time.now
-      raise Uneditable, "Checkout[#{self.id}] is not editable" unless self.editable?
+      if (prohibition_reason = self.checkout_prohibited_reason)
+        raise Prohibited.new(
+          "Checkout[#{self.id}] cannot be checked out: #{prohibition_reason}",
+          reason: prohibition_reason,
+        )
+      end
       self.check_and_update_product_inventories
       order = Suma::Commerce::Order.create(checkout: self)
       order.save_changes if order.begin_fulfillment_on_create

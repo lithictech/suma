@@ -124,10 +124,8 @@ class Suma::API::Commerce < Suma::API::V1
           checkout = lookup!
           check_eligibility!(checkout.cart.offering, member)
           if checkout.requires_payment_instrument?
-            if (instrument = find_payment_instrument?(member, params[:payment_instrument]))
-              checkout.payment_instrument = instrument
-            end
-            forbidden!("Must have a payment instrument") if checkout.payment_instrument.nil?
+            instrument = find_payment_instrument?(member, params[:payment_instrument])
+            checkout.payment_instrument = instrument if instrument
           end
 
           if (fuloptid = params[:fulfillment_option_id])
@@ -143,8 +141,8 @@ class Suma::API::Commerce < Suma::API::V1
             checkout.save_changes
             begin
               checkout.create_order
-            rescue Suma::Commerce::Checkout::Uneditable
-              merror!(409, "not editable", code: "checkout_fatal_error")
+            rescue Suma::Commerce::Checkout::Prohibited => e
+              merror!(409, "Checkout prohibited: #{e.reason}", code: "checkout_fatal_error")
             rescue Suma::Commerce::Checkout::MaxQuantityExceeded
               merror!(403, "max quantity exceeded", code: "invalid_order_quantity")
             end
@@ -349,6 +347,7 @@ class Suma::API::Commerce < Suma::API::V1
     expose :total, with: Suma::Service::Entities::Money
     expose :chargeable_total, with: Suma::Service::Entities::Money
     expose :requires_payment_instrument?, as: :requires_payment_instrument
+    expose :checkout_prohibited_reason
     expose :usable_ledger_contributions, as: :existing_funds_available, with: ChargeContributionEntity
   end
 

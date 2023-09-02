@@ -47,6 +47,48 @@ RSpec.describe "Suma::Commerce::Checkout", :db do
       expect(checkout.chargeable_total).to cost(0)
       expect(checkout).to_not be_requires_payment_instrument
     end
+
+    it "is always false if charging is prohibited" do
+      Suma::Payment.ensure_cash_ledger(member)
+      offering.update(prohibit_charge_at_checkout: true)
+      expect(checkout).to_not be_requires_payment_instrument
+    end
+  end
+
+  describe "checkout_prohibited_reason" do
+    let(:member) { Suma::Fixtures.member.create }
+    let(:offering) { Suma::Fixtures.offering.create }
+    let(:cart) { Suma::Fixtures.cart(member:, offering:).with_any_product.create }
+    let(:checkout) { Suma::Fixtures.checkout(cart:).populate_items.with_payment_instrument.create }
+
+    before(:each) do
+      Suma::Payment.ensure_cash_ledger(member)
+    end
+
+    it "is nil if nothing is wrong" do
+      expect(checkout).to have_attributes(checkout_prohibited_reason: nil)
+    end
+
+    it "is :charging_prohibited if charging is prohibited and there is a chargeable amount" do
+      offering.update(prohibit_charge_at_checkout: true)
+      expect(checkout).to have_attributes(checkout_prohibited_reason: :charging_prohibited)
+      cart.items.first.offering_product.update(customer_price: Money.new(0))
+      checkout.refresh
+      expect(checkout).to have_attributes(checkout_prohibited_reason: nil)
+    end
+
+    it "is :not_editable if the checkout is not editable" do
+      checkout.soft_delete
+      expect(checkout).to have_attributes(checkout_prohibited_reason: :not_editable)
+    end
+
+    it "is :requires_payment_instrument if an instrument is required and not set" do
+      checkout.payment_instrument = nil
+      expect(checkout).to have_attributes(checkout_prohibited_reason: :requires_payment_instrument)
+      cart.items.first.offering_product.update(customer_price: Money.new(0))
+      checkout.refresh
+      expect(checkout).to have_attributes(checkout_prohibited_reason: nil)
+    end
   end
 
   describe "create_order" do
@@ -67,9 +109,9 @@ RSpec.describe "Suma::Commerce::Checkout", :db do
       end
     end
 
-    it "errors if the checkout isn't editable" do
+    it "errors if charging is prohibited" do
       checkout.soft_delete
-      expect { checkout.create_order }.to raise_error(described_class::Uneditable)
+      expect { checkout.create_order }.to raise_error(described_class::Prohibited, /not_editable/)
     end
 
     it "creates the order from the checkout" do
