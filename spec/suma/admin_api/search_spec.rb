@@ -41,7 +41,7 @@ RSpec.describe Suma::AdminAPI::Search, :db do
   end
 
   describe "POST /v1/search/payment_instruments" do
-    it "returns matching payment instruments" do
+    it "returns matching bank accounts" do
       o1 = Suma::Fixtures.bank_account.verified.create(name: "abc")
       o2 = Suma::Fixtures.bank_account.verified.create(name: "xyz")
 
@@ -51,8 +51,24 @@ RSpec.describe Suma::AdminAPI::Search, :db do
       expect(last_response).to have_json_body.that_includes(items: have_same_ids_as(o1))
     end
 
+    it "can search a card last 4" do
+      o1 = Suma::Fixtures.card.with_stripe("last4" => "1234").create
+      o2 = Suma::Fixtures.card.with_stripe("last4" => "5678").create
+
+      post "/v1/search/payment_instruments", q: "5678"
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.that_includes(items: have_same_ids_as(o2))
+    end
+
     it "can filter on payment method type" do
-      # Cannot do this until we have multiple payment methods
+      o1 = Suma::Fixtures.bank_account.verified.create(name: "5678")
+      o2 = Suma::Fixtures.card.with_stripe("last4" => "5678").create
+
+      post "/v1/search/payment_instruments", q: "5678", types: ["bank_account"]
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.that_includes(items: have_same_ids_as(o1))
     end
   end
 
