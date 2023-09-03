@@ -70,12 +70,39 @@ class Suma::AdminAPI::Search < Suma::AdminAPI::V1
       status 200
       present_collection ds, with: SearchPaymentInstrumentEntity
     end
+
+    params do
+      requires :q, type: String, allow_blank: false
+      optional :types, type: Array[Symbol], values: [:memo]
+      optional :language, type: Symbol, values: [:en, :es], default: :en
+    end
+    post :translations do
+      lang = params[:language]
+      pglang = {en: "english", es: "spanish"}.fetch(lang)
+      # Perform a subselect since otherwise we can't sort with distinct.
+      base_ds = Suma::TranslatedText.dataset.distinct(lang)
+      if (types = params[:types])
+        base_ds = nil if types.include?(:ignore_this_i_just_dont_want_reformatting)
+        base_ds = base_ds.where(id: Suma::Payment::BookTransaction.dataset.select(:memo_id)) if types.include?(:memo)
+      end
+      ds = Suma::TranslatedText.dataset.where(id: base_ds.select(:id)).full_text_search(
+        # Search using the generated column
+        "#{lang}_tsvector".to_sym,
+        # Have to do this manually for now: https://github.com/jeremyevans/sequel/discussions/2075
+        Sequel.function(:websearch_to_tsquery, pglang, params[:q]),
+        rank: true,
+        language: pglang,
+        tsvector: true,
+        tsquery: true,
+      )
+      ds = ds.limit(10)
+      status 200
+      present_collection ds, with: SearchTransactionEntity, language: lang
+    end
   end
 
   class SearchLedgerEntity < BaseEntity
-    expose :key do |inst|
-      inst.id.to_s
-    end
+    expose :key, &self.delegate_to(:id, :to_s)
     expose :id
     expose :admin_link
     expose :search_label, as: :label
@@ -89,5 +116,14 @@ class Suma::AdminAPI::Search < Suma::AdminAPI::V1
     expose :payment_method_type
     expose :admin_link
     expose :search_label, as: :label
+  end
+
+  class SearchTransactionEntity < BaseEntity
+    expose :key, &self.delegate_to(:id, :to_s)
+    expose :en
+    expose :es
+    expose :label do |inst, options|
+      inst.send(options[:language])
+    end
   end
 end

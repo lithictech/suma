@@ -55,4 +55,71 @@ RSpec.describe Suma::AdminAPI::Search, :db do
       # Cannot do this until we have multiple payment methods
     end
   end
+
+  describe "POST /v1/search/translations" do
+    it "returns ranked distinct translated texts" do
+      Suma::TranslatedText.create(en: "quickly fast brown")
+      Suma::TranslatedText.create(en: "the quick brown fox")
+      Suma::TranslatedText.create(en: "the quick brown fox")
+      Suma::TranslatedText.create(en: "jumps over the lazy dog")
+      Suma::TranslatedText.create(en: "jumps over the lazy dog")
+
+      post "/v1/search/translations", q: "quick brown"
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.that_includes(
+        items: [
+          include(en: "the quick brown fox"),
+          include(en: "quickly fast brown"),
+        ],
+      )
+    end
+
+    it "can search spanish" do
+      Suma::TranslatedText.create(en: "the quick brown fox", es: "jumps over the lazy dog")
+      Suma::TranslatedText.create(en: "jumps over the lazy dog", es: "the quick brown fox")
+
+      post "/v1/search/translations", q: "quick brown", language: "es"
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.that_includes(
+        items: [
+          include(es: "the quick brown fox"),
+        ],
+      )
+    end
+
+    it "can filter for memos" do
+      t1 = Suma::TranslatedText.create(en: "the quick brown fox", es: "est1")
+      t2 = Suma::TranslatedText.create(en: "jumps over the lazy dog", es: "est2")
+      Suma::Fixtures.book_transaction.create(memo: t2)
+
+      post "/v1/search/translations", q: "brown fox", types: ["memo"]
+
+      expect(last_response).to have_status(200)
+      # Only t2 is attached to a ledger, so no results come back.
+      expect(last_response).to have_json_body.that_includes(items: [])
+
+      post "/v1/search/translations", q: "brown fox"
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.that_includes(
+        items: [include(en: "the quick brown fox", es: start_with("est1"))],
+      )
+    end
+
+    it "renders the label with the searched language" do
+      Suma::TranslatedText.create(en: "fox english", es: "fox spanish")
+
+      post "/v1/search/translations", q: "fox", language: "en"
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.that_includes(items: [include(label: "fox english")])
+
+      post "/v1/search/translations", q: "fox", language: "es"
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.that_includes(items: [include(label: "fox spanish")])
+    end
+  end
 end
