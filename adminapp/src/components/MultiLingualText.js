@@ -1,4 +1,5 @@
-import { TextField } from "@mui/material";
+import api from "../api";
+import AutocompleteSearch from "./AutocompleteSearch";
 import React from "react";
 
 /**
@@ -7,25 +8,38 @@ import React from "react";
  * for example adding additional TextFields for the multiple languages
  * @returns {JSX.Element}
  */
-export default function MultiLingualText({ value, label, onChange, ...rest }) {
-  const handleOnChange = (val, language) => {
-    // There should always be an English translation
-    let newValue = value || { en: "" };
-    newValue[language] = val ? val : "";
-    onChange(newValue);
+const MultiLingualText = React.forwardRef(function MultiLingualText(
+  { value, label, searchParams, onChange, ...rest },
+  ref
+) {
+  const handleSelect = (t) => {
+    onChange({ en: t.en, es: t.es });
   };
+  searchParams = searchParams || {};
+  const doSearch = React.useCallback(
+    (language, seachArg) => {
+      const param = { language, ...searchParams, ...seachArg };
+      return api.searchTranslations(param);
+    },
+    [searchParams]
+  );
   return (
     <>
-      <TextField
+      <AutocompleteSearch
         {...rest}
         label={`English ${label}`}
-        onChange={(e) => handleOnChange(e.target.value, "en")}
+        search={(o) => doSearch("en", o)}
+        value={value.en}
+        onValueSelect={handleSelect}
       />
-      <TextField
+      <AutocompleteSearch
         {...rest}
         label={`Spanish ${label}`}
-        onChange={(e) => handleOnChange(e.target.value, "es")}
+        search={(o) => doSearch("es", o)}
+        value={value.es}
+        onValueSelect={handleSelect}
       />
     </>
   );
-}
+});
+export default MultiLingualText;
