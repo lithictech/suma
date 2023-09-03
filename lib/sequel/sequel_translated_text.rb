@@ -69,5 +69,9 @@ module SequelTranslatedText
         end
       all_langs.each { |la| self[la] = value }
     end
+
+    def current
+      return self.send(SequelTranslatedText.language!)
+    end
   end
 end
