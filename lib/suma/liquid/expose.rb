@@ -19,7 +19,9 @@ class Suma::Liquid::Expose < Liquid::Block
 
   def render(context)
     content = super
-    context.registers[@var_name] = content
+    exposed = context.registers[:exposed]
+    raise TypeError, "Must set `template.registers[:exposed] = {}` to use this tag" if exposed.nil?
+    context.registers[:exposed][@var_name] = content
     ""
   end
 end

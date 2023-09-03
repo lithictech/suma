@@ -77,7 +77,8 @@ module Suma::Message
     )
 
     content_tmpl = Liquid::Template.parse(template_file.read)
-    content = content_tmpl.render!(drops, strict_variables: true, registers: {})
+    content_tmpl.registers[:exposed] = {}
+    content = content_tmpl.render!(drops, strict_variables: true)
 
     transport = Suma::Message::Transport.for(transport_type)
     if transport.supports_layout?
@@ -90,7 +91,7 @@ module Suma::Message
       end
     end
 
-    return Rendering.new(content, content_tmpl.registers)
+    return Rendering.new(content, content_tmpl.registers[:exposed])
   end
 
   def self.send_unsent

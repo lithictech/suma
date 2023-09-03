@@ -54,7 +54,7 @@ gem "sidekiq-cron"
 gem "sidekiq-unique-jobs"
 gem "state_machines"
 gem "stripe"
-gem "twilio-ruby"
+gem "twilio-ruby", "~> 5.74"
 gem "warden"
 gem "yajl-ruby"
 
@@ -72,7 +72,7 @@ group :test_group do
   gem "rspec-eventually"
   gem "rspec-json_expectations"
   gem "rspec-temp_dir"
-  gem "rubocop"
+  gem "rubocop", "~> 1.31.1"
   gem "rubocop-performance", require: false
   gem "rubocop-rake", require: false
   gem "rubocop-sequel", require: false
