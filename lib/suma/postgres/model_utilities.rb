@@ -221,6 +221,18 @@ module Suma::Postgres::ModelUtilities
     raise Suma::InvalidPostcondition, "No row matching #{self.name}[#{params}]"
   end
 
+  # Temporarily set a field on the class.
+  # Usually used to turn off something like strict_param_setting within a block.
+  def with_setting(key, value)
+    old = self.send(key)
+    begin
+      self.send("#{key}=", value)
+      return yield
+    ensure
+      self.send("#{key}=", old)
+    end
+  end
+
   module InstanceMethods
     # Return a human-readable representation of the object as a String suitable for debugging.
     def inspect

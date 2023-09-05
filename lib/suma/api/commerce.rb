@@ -38,7 +38,7 @@ class Suma::API::Commerce < Suma::API::V1
           offering = lookup_offering!
           items = offering.offering_products_dataset.available.all
           cart = lookup_cart!(offering)
-          vendors = items.map(&:product).map(&:vendor).uniq(&:id)
+          vendors = items.map { |v| v.product.vendor }.uniq(&:id)
           present offering, with: OfferingWithContextEntity, cart:, items:, vendors:
         end
 

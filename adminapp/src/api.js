@@ -101,6 +101,7 @@ export default {
     post(`/adminapi/v1/search/payment_instruments`, data),
   searchLedgers: (data) => post(`/adminapi/v1/search/ledgers`, data),
   searchLedgersLookup: (data) => post(`/adminapi/v1/search/ledgers/lookup`, data),
+  searchTranslations: (data) => post(`/adminapi/v1/search/translations`, data),
 
   /**
    * Return an API url.

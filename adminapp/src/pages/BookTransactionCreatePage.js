@@ -85,7 +85,7 @@ export default function BookTransactionCreatePage() {
               {...register("originatingLedger")}
               label="Originating Ledger"
               helperText="Where is the money coming from?"
-              defaultValue={originatingLedger?.label}
+              value={originatingLedger?.label}
               fullWidth
               required
               search={api.searchLedgers}
@@ -96,7 +96,7 @@ export default function BookTransactionCreatePage() {
               {...register("receivingLedger")}
               label="Receiving Ledger"
               helperText="Where is the money going?"
-              defaultValue={receivingLedger?.label}
+              value={receivingLedger?.label}
               fullWidth
               required
               search={api.searchLedgers}
@@ -127,10 +127,12 @@ export default function BookTransactionCreatePage() {
           <FormLabel>Memo (appears on the ledger):</FormLabel>
           <Stack direction="row" spacing={2}>
             <MultiLingualText
+              {...register("memo")}
               label="Memo"
               fullWidth
               value={memo}
               required
+              searchParams={{ types: ["memo"] }}
               onChange={(memo) => setMemo(memo)}
             />
           </Stack>

@@ -233,5 +233,19 @@ RSpec.describe SequelTranslatedText, :db do
       c = c.create(all: "foo")
       expect(c).to have_attributes(en: nil, fr: "foo")
     end
+
+    it "adds a :current method that returns the configured language" do
+      c = Class.new(Sequel::Model(:translated_texts)) do
+        include SequelTranslatedText::Model
+      end
+      c = c.create(en: "english", fr: "french")
+      described_class.language(:en) do
+        expect(c).to have_attributes(current: "english")
+      end
+      described_class.language(:fr) do
+        expect(c).to have_attributes(current: "french")
+      end
+      expect { c.current }.to raise_error(described_class::NoContext)
+    end
   end
 end
