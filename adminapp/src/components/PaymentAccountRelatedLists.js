@@ -1,5 +1,5 @@
 import { dayjs } from "../modules/dayConfig";
-import Money, { formatMoney } from "../shared/react/Money";
+import Money, { formatMoney, scaleMoney } from "../shared/react/Money";
 import AdminLink from "./AdminLink";
 import Link from "./Link";
 import RelatedList from "./RelatedList";
@@ -57,7 +57,11 @@ export default function PaymentAccountRelatedLists({ paymentAccount }) {
             <AdminLink key="id" model={row} />,
             dayjs(row.createdAt).format("lll"),
             dayjs(row.applyAt).format("lll"),
-            <Money key="amt">{row.amount}</Money>,
+            <Money key="amt" accounting>
+              {row.originatingLedger.id === ledger.id
+                ? scaleMoney(row.amount, -1)
+                : row.amount}
+            </Money>,
             row.associatedVendorServiceCategory.name,
             <AdminLink key="originating" model={row.originatingLedger}>
               {row.originatingLedger.adminLabel}
