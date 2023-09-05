@@ -103,6 +103,13 @@ export function subtractMoney(m1, m2) {
   return mathMoney(m1, m2, (x, y) => x - y);
 }
 
+export function scaleMoney(m, n) {
+  return {
+    cents: m.cents * n,
+    currency: m.currency,
+  };
+}
+
 export function anyMoney(m) {
   if (!m) {
     return false;

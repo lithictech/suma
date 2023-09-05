@@ -22,33 +22,36 @@ export default function BookTransactionCreatePage() {
   const [originatingLedger, setOriginatingLedger] = React.useState(null);
   const [receivingLedger, setReceivingLedger] = React.useState(null);
   const [amount, setAmount] = React.useState(config.defaultZeroMoney);
-  const [memo, setMemo] = React.useState({ en: "" });
-  const [category, setCategory] = React.useState("");
+  const [memo, setMemo] = React.useState({ en: "", es: "" });
+  const [category, setCategory] = React.useState(null);
   const { isBusy, busy, notBusy } = useBusy();
   const { register, handleSubmit } = useForm();
 
   useMountEffect(() => {
-    const originatingLedgerId = Number(searchParams.get("originatingLedgerId"));
-    const receivingLedgerId = Number(searchParams.get("receivingLedgerId"));
+    // If the ID is 0, set the ledger by the platform category.
+    // If the ID is > 0, it should be set with an ID lookup from the backend.
+    const originatingLedgerId = Number(searchParams.get("originatingLedgerId") || -1);
+    const receivingLedgerId = Number(searchParams.get("receivingLedgerId") || -1);
     const categorySlug = searchParams.get("vendorServiceCategorySlug");
-    if (!originatingLedgerId && !receivingLedgerId) {
+    if (originatingLedgerId === -1 && receivingLedgerId === -1 && !categorySlug) {
+      // No params are in the URL so we don't search
       return;
     }
     api
       .searchLedgersLookup({
-        ids: [originatingLedgerId, receivingLedgerId],
+        ids: [originatingLedgerId, receivingLedgerId].filter((x) => x > 0),
         platformCategories: [categorySlug].filter(Boolean),
       })
       .then((r) => {
         const { byId, platformByCategory } = r.data;
         if (originatingLedgerId === 0) {
           setOriginatingLedger(platformByCategory[humps.camelize(categorySlug)]);
-        } else if (originatingLedgerId) {
+        } else if (originatingLedgerId > 0) {
           setOriginatingLedger(byId[originatingLedgerId]);
         }
         if (receivingLedgerId === 0) {
           setReceivingLedger(platformByCategory[humps.camelize(categorySlug)]);
-        } else if (receivingLedgerId) {
+        } else if (receivingLedgerId > 0) {
           setReceivingLedger(byId[receivingLedgerId]);
         }
       })
@@ -63,7 +66,7 @@ export default function BookTransactionCreatePage() {
         receivingLedgerId: receivingLedger?.id,
         amount,
         memo,
-        vendorServiceCategorySlug: category,
+        vendorServiceCategorySlug: category?.slug,
       })
       .then(api.followRedirect(navigate))
       .tapCatch(notBusy)
@@ -89,6 +92,8 @@ export default function BookTransactionCreatePage() {
               fullWidth
               required
               search={api.searchLedgers}
+              disabled={Boolean(searchParams.get("originatingLedgerId"))}
+              title={originatingLedger?.label}
               style={{ flex: 1 }}
               onValueSelect={(o) => setOriginatingLedger(o)}
             />
@@ -100,6 +105,8 @@ export default function BookTransactionCreatePage() {
               fullWidth
               required
               search={api.searchLedgers}
+              disabled={Boolean(searchParams.get("receivingLedgerId"))}
+              title={receivingLedger?.label}
               style={{ flex: 1 }}
               onValueSelect={(o) => setReceivingLedger(o)}
             />
@@ -111,6 +118,7 @@ export default function BookTransactionCreatePage() {
               helperText="How much is going from originator to receiver?"
               money={amount}
               required
+              autoFocus
               style={{ flex: 1 }}
               onMoneyChange={setAmount}
             />
@@ -119,9 +127,11 @@ export default function BookTransactionCreatePage() {
               defaultValue={searchParams.get("vendorServiceCategorySlug")}
               label="Category"
               helperText="What can this be used for?"
-              value={category}
+              value={category?.slug || ""}
+              disabled={Boolean(searchParams.get("vendorServiceCategorySlug"))}
+              title={category?.label}
               style={{ flex: 1 }}
-              onChange={(categorySlug) => setCategory(categorySlug)}
+              onChange={(_, categoryObj) => setCategory(categoryObj)}
             />
           </Stack>
           <FormLabel>Memo (appears on the ledger):</FormLabel>
