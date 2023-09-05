@@ -15,6 +15,9 @@ const MultiLingualText = React.forwardRef(function MultiLingualText(
   const handleSelect = (t) => {
     onChange({ en: t.en, es: t.es });
   };
+  const handleTextChange = (lang, txt) => {
+    onChange({ ...value, [lang]: txt });
+  };
   searchParams = searchParams || {};
   const doSearch = React.useCallback(
     (language, seachArg) => {
@@ -31,6 +34,8 @@ const MultiLingualText = React.forwardRef(function MultiLingualText(
         search={(o) => doSearch("en", o)}
         value={value.en}
         onValueSelect={handleSelect}
+        text={value.en}
+        onTextChange={(t) => handleTextChange("en", t)}
       />
       <AutocompleteSearch
         {...rest}
@@ -38,6 +43,8 @@ const MultiLingualText = React.forwardRef(function MultiLingualText(
         search={(o) => doSearch("es", o)}
         value={value.es}
         onValueSelect={handleSelect}
+        text={value.es}
+        onTextChange={(t) => handleTextChange("es", t)}
       />
     </>
   );

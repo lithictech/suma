@@ -2,8 +2,20 @@ import { Autocomplete, TextField } from "@mui/material";
 import debounce from "lodash/debounce";
 import React from "react";
 
+/**
+ * Autocomplete input with search capability.
+ *
+ * @param {function} search The search function to call with `{q}`.
+ *   Each resulting item requires a 'label' and optionally a 'key'.
+ * @param {boolean} fullWidth passed to the Autocomplete component.
+ * @param {boolean} disabled passed to the Autocomplete component.
+ * @param {{label: string}=} value The selected item. If undefined, use an uncontrolled component.
+ * @param {function} onValueSelect Called with the selected item (an object returned from the `search` function).
+ * @param {string=} text The display value of the text input. If undefined, use an uncontrolled component.
+ * @param {function=} onTextSelect Called with the new display value.
+ */
 const AutocompleteSearch = React.forwardRef(function AutocompleteSearch(
-  { search, fullWidth, onValueSelect, value, disabled, ...rest },
+  { search, fullWidth, disabled, value, onValueSelect, text, onTextChange, ...rest },
   ref
 ) {
   const activePromise = React.useRef(Promise.resolve());
@@ -21,8 +33,15 @@ const AutocompleteSearch = React.forwardRef(function AutocompleteSearch(
   const [options, setOptions] = React.useState([]);
 
   function handleChange(e) {
+    if (!e || e.target.value === 0) {
+      // Change is invoked on init (with a null event) and on select (with the value 0, no matter what is selected).
+      // I don't understand what this means.
+      return;
+    }
     activePromise.current.cancel();
     const q = e.target.value;
+    onTextChange && onTextChange(q);
+
     if (q.length < 3) {
       setOptions([]);
       return;
@@ -30,7 +49,12 @@ const AutocompleteSearch = React.forwardRef(function AutocompleteSearch(
     searchDebounced({ q });
   }
   function handleSelect(ev, val) {
-    onValueSelect(val);
+    if (typeof val === "object") {
+      // If this is in uncontrolled mode, select will be called with a string,
+      // even after the selection is made. However we always are dealing with objects,
+      // never strings, so never alert if this case is hit.
+      onValueSelect(val);
+    }
   }
 
   return (
@@ -42,6 +66,8 @@ const AutocompleteSearch = React.forwardRef(function AutocompleteSearch(
       selectOnFocus={true}
       value={value || null}
       onChange={handleSelect}
+      inputValue={text}
+      onInputChange={handleChange}
       fullWidth={fullWidth}
       disabled={disabled}
       renderInput={(params) => (
@@ -50,7 +76,6 @@ const AutocompleteSearch = React.forwardRef(function AutocompleteSearch(
           {...rest}
           fullWidth={fullWidth}
           disabled={disabled}
-          onChange={handleChange}
           InputProps={{
             ...params.InputProps,
             type: "search",
