@@ -3,7 +3,7 @@ import debounce from "lodash/debounce";
 import React from "react";
 
 const AutocompleteSearch = React.forwardRef(function AutocompleteSearch(
-  { search, fullWidth, onValueSelect, value, ...rest },
+  { search, fullWidth, onValueSelect, value, disabled, ...rest },
   ref
 ) {
   const activePromise = React.useRef(Promise.resolve());
@@ -43,11 +43,13 @@ const AutocompleteSearch = React.forwardRef(function AutocompleteSearch(
       value={value || null}
       onChange={handleSelect}
       fullWidth={fullWidth}
+      disabled={disabled}
       renderInput={(params) => (
         <TextField
           {...params}
           {...rest}
           fullWidth={fullWidth}
+          disabled={disabled}
           onChange={handleChange}
           InputProps={{
             ...params.InputProps,
