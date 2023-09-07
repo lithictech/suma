@@ -324,7 +324,7 @@
     "access_code": "Access Code",
     "create_account": "Create account",
     "intro": "Used to hide your email and phone number from vendors you use through the Suma platform. Follow the instructions for the vendors you want to create a Private Account with.",
-    "loading_code": "Loading code...",
+    "loading_code": "Signing you in...",
     "no_private_accounts": "It looks like no vendors are set up for Private Accounts. Contact your administrator for more information.",
     "recent_messages_from_vendor": "Recent Messages from {{vendorName}}",
     "username": "Username",

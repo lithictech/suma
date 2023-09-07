@@ -82,18 +82,18 @@ class Suma::AnonProxy::VendorAccount < Suma::Postgres::Model(:anon_proxy_vendor_
     return self.contact
   end
 
-  def replace_access_code(code, at: Time.now)
+  def replace_access_code(code, magic_link, at: Time.now)
     self.set(
       latest_access_code: code,
+      latest_access_code_magic_link: magic_link,
       latest_access_code_set_at: at,
     )
   end
 
-  def latest_access_code_if_recent
-    code = self.latest_access_code
-    return nil if code.blank?
-    return nil if self.latest_access_code_set_at.nil? || latest_access_code_set_at < RECENT_ACCESS_CODE_CUTOFF.ago
-    return code
+  def latest_access_code_is_recent?
+    return false if self.latest_access_code_set_at.nil? ||
+      self.latest_access_code_set_at < RECENT_ACCESS_CODE_CUTOFF.ago
+    return true
   end
 
   # Return the text/plain bodies of outbound message deliveries sent as part of this vendor account.
