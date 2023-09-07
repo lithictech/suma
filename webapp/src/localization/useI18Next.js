@@ -8,6 +8,9 @@ import { useUser } from "../state/useUser";
 import { setCurrentLanguage, useCurrentLanguage } from "./currentLanguage";
 import i18n from "i18next";
 import Backend from "i18next-http-backend";
+import first from "lodash/first";
+import get from "lodash/get";
+import isEmpty from "lodash/isEmpty";
 import noop from "lodash/noop";
 import React from "react";
 
@@ -22,6 +25,16 @@ export function I18NextProvider({ children }) {
   const [i18nextLoading, setI18NextLoading] = React.useState(true);
   const [language, setLanguage] = useCurrentLanguage();
   const { userAuthed } = useUser();
+  const [strings, setStrings] = React.useState({});
+  const defaultNS = "strings";
+
+  const fetchStrings = React.useCallback((lang) => {
+    fetch(`${process.env.PUBLIC_URL}/locale/${lang}/${defaultNS}.json`)
+      .then((r) => r.json())
+      .then((strings) => {
+        setStrings(strings);
+      });
+  }, []);
 
   const changeLanguage = React.useCallback(
     (lang) => {
@@ -37,16 +50,18 @@ export function I18NextProvider({ children }) {
           setLanguage(lang);
           dayjs.locale(lang);
           setCurrentLanguage(lang);
+          fetchStrings(lang);
         })
       ).then(() => {
         setI18NextLoading(false);
       });
     },
-    [setLanguage, userAuthed]
+    [setLanguage, userAuthed, fetchStrings]
   );
 
   useMountEffect(
     doOnce("i18ninit", () => {
+      fetchStrings(language);
       i18n
         .use(Backend)
         .init({
@@ -70,9 +85,56 @@ export function I18NextProvider({ children }) {
     })
   );
 
+  // TODO: Must translate deep '$t(string:ns)' translations in strings
+  // TODO: Using as hook can be cumbersome, maybe create sumaTranslator constructor func. and export function
+  const t = React.useCallback(
+    (path, dynamicValuesObj) => {
+      dynamicValuesObj = dynamicValuesObj || {};
+      path = path.replace("strings:", "").replace(":", ".");
+
+      const string = get(strings, path);
+      if (isEmpty(dynamicValuesObj)) {
+        return string;
+      }
+
+      const stringDynamicVals = [];
+      let dynamicStringParts = string.split("{{");
+      dynamicStringParts.shift();
+      dynamicStringParts.forEach((dynStr) => {
+        stringDynamicVals.push(first(dynStr.split("}}")));
+      });
+      // TODO: Needs to take into account default externalLinks
+      // if included, we shouldn't error.
+      if (stringDynamicVals.length !== Object.keys(dynamicValuesObj).length) {
+        console.error(
+          `Translation error: Length of dynamic values (${
+            stringDynamicVals.length
+          }) for string "${string}" do not match the dynamicValuesObj length (${
+            Object.keys(dynamicValuesObj).length
+          }).`
+        );
+      }
+
+      let resultString = string;
+      stringDynamicVals.forEach((val) => {
+        if (val.includes("sumaCurrency")) {
+          let valArr = val.split(",");
+          valArr.pop();
+          // set formatted value to be replaced
+          dynamicValuesObj[val] = formatMoney(dynamicValuesObj[valArr[0]]);
+          // delete unused property
+          delete dynamicValuesObj[valArr[0]];
+        }
+        resultString = resultString.replace(`{{${val}}}`, dynamicValuesObj[val]);
+      });
+      return resultString;
+    },
+    [strings]
+  );
+
   const value = React.useMemo(
-    () => ({ i18nextLoading, language, changeLanguage }),
-    [changeLanguage, i18nextLoading, language]
+    () => ({ i18nextLoading, language, changeLanguage, t }),
+    [changeLanguage, i18nextLoading, language, t]
   );
 
   return <I18NextContext.Provider value={value}>{children}</I18NextContext.Provider>;

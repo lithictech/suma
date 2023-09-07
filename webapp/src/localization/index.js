@@ -1,6 +1,7 @@
 import SumaMarkdown from "../components/SumaMarkdown";
 import externalLinks from "../modules/externalLinks";
 import { Logger } from "../shared/logger";
+import useI18Next from "./useI18Next";
 import i18n from "i18next";
 import { compiler } from "markdown-to-jsx";
 import React from "react";
@@ -47,6 +48,10 @@ export class Lookup {
    */
   mdx = (key, mdoptions = {}, i18noptions = {}) => {
     const { check, ...i18nrest } = i18noptions;
+    // TODO: Hook must be rendered inside a React dom wrapper e.g. compileStringAsync()
+    // const {t: testT} = useI18Next();
+    // const str = testT(this.prefix + key, { ...i18nrest, externalLinks });
+
     const str = i18n.t(this.prefix + key, { ...i18nrest, externalLinks });
     if (check && runChecks) {
       this.checkKeyName(key);

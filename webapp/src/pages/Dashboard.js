@@ -3,7 +3,8 @@ import AddToHomescreen from "../components/AddToHomescreen";
 import PageLoader from "../components/PageLoader";
 import RLink from "../components/RLink";
 import SeeAlsoAlert from "../components/SeeAlsoAlert";
-import { md, t } from "../localization";
+import { md } from "../localization";
+import useI18Next from "../localization/useI18Next";
 import readOnlyReason from "../modules/readOnlyReason";
 import Money from "../shared/react/Money";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
@@ -21,6 +22,7 @@ import Table from "react-bootstrap/Table";
 import { Link } from "react-router-dom";
 
 export default function Dashboard() {
+  const { t } = useI18Next();
   const { user } = useUser();
   const { state: dashboard, loading: dashboardLoading } = useAsyncFetch(api.dashboard, {
     default: {},
@@ -85,6 +87,8 @@ export default function Dashboard() {
 }
 
 const Ledger = ({ dashboard }) => {
+  const { t } = useI18Next();
+
   return (
     <>
       <LayoutContainer
