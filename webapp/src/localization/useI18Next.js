@@ -85,49 +85,23 @@ export function I18NextProvider({ children }) {
     })
   );
 
-  // TODO: Must translate deep '$t(string:ns)' translations in strings
-  // TODO: Using as hook can be cumbersome, maybe create sumaTranslator constructor func. and export function
   const t = React.useCallback(
-    (path, dynamicValuesObj) => {
+    (key, dynamicValuesObj) => {
       dynamicValuesObj = dynamicValuesObj || {};
-      path = path.replace("strings:", "").replace(":", ".");
+      key = key.replace("strings:", "").replace(":", ".");
+      const string = get(strings, key);
 
-      const string = get(strings, path);
+      if (!string) {
+        console.error(`${key} was not found in strings`);
+        return key;
+      }
+      // TODO: Ensure translate deep '$t(string:ns)' translations in strings, all the time
+      //  before returning
       if (isEmpty(dynamicValuesObj)) {
         return string;
       }
 
-      const stringDynamicVals = [];
-      let dynamicStringParts = string.split("{{");
-      dynamicStringParts.shift();
-      dynamicStringParts.forEach((dynStr) => {
-        stringDynamicVals.push(first(dynStr.split("}}")));
-      });
-      // TODO: Needs to take into account default externalLinks
-      // if included, we shouldn't error.
-      if (stringDynamicVals.length !== Object.keys(dynamicValuesObj).length) {
-        console.error(
-          `Translation error: Length of dynamic values (${
-            stringDynamicVals.length
-          }) for string "${string}" do not match the dynamicValuesObj length (${
-            Object.keys(dynamicValuesObj).length
-          }).`
-        );
-      }
-
-      let resultString = string;
-      stringDynamicVals.forEach((val) => {
-        if (val.includes("sumaCurrency")) {
-          let valArr = val.split(",");
-          valArr.pop();
-          // set formatted value to be replaced
-          dynamicValuesObj[val] = formatMoney(dynamicValuesObj[valArr[0]]);
-          // delete unused property
-          delete dynamicValuesObj[valArr[0]];
-        }
-        resultString = resultString.replace(`{{${val}}}`, dynamicValuesObj[val]);
-      });
-      return resultString;
+      return convertDynamicValues(string, dynamicValuesObj);
     },
     [strings]
   );
@@ -138,4 +112,34 @@ export function I18NextProvider({ children }) {
   );
 
   return <I18NextContext.Provider value={value}>{children}</I18NextContext.Provider>;
+}
+
+function convertDynamicValues(string, dynamicValuesObj) {
+  const stringDynamicVals = [];
+  let dynamicStringParts = string.split("{{");
+  dynamicStringParts.shift();
+  dynamicStringParts.forEach((dynStr) => {
+    stringDynamicVals.push(first(dynStr.split("}}")));
+  });
+
+  const dynValuesLength =
+    Object.keys(dynamicValuesObj).includes("externalLinks") &&
+    Object.keys(dynamicValuesObj).length - 1;
+  if (stringDynamicVals.length !== dynValuesLength) {
+    console.error(`Length of dynamic values do not match in '${string}'`);
+  }
+
+  let resultString = string;
+  stringDynamicVals.forEach((val) => {
+    if (val.includes("sumaCurrency")) {
+      let valArr = val.split(",");
+      valArr.pop();
+      // set formatted value to be replaced
+      dynamicValuesObj[val] = formatMoney(dynamicValuesObj[valArr[0]]);
+      // delete unused property
+      delete dynamicValuesObj[valArr[0]];
+    }
+    resultString = resultString.replace(`{{${val}}}`, dynamicValuesObj[val]);
+  });
+  return resultString;
 }

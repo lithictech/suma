@@ -5,7 +5,7 @@ import useI18Next from "./useI18Next";
 import i18n from "i18next";
 import { compiler } from "markdown-to-jsx";
 import React from "react";
-import ReactDOM from "react-dom";
+import { createRoot } from "react-dom/client";
 
 const runChecks = process.env.NODE_ENV === "development";
 
@@ -46,13 +46,28 @@ export class Lookup {
    * and 3) use a Link with 'replace' if the href includes ##.
    * So ## can be used, for example, to trigger modals controlled by the hash.
    */
+
+  // TODO: Remove mdx when replaced with Mdx, same with other functions
   mdx = (key, mdoptions = {}, i18noptions = {}) => {
     const { check, ...i18nrest } = i18noptions;
-    // TODO: Hook must be rendered inside a React dom wrapper e.g. compileStringAsync()
-    // const {t: testT} = useI18Next();
-    // const str = testT(this.prefix + key, { ...i18nrest, externalLinks });
-
     const str = i18n.t(this.prefix + key, { ...i18nrest, externalLinks });
+    if (check && runChecks) {
+      this.checkKeyName(key);
+      compileStringAsync(str, (s) => {
+        if (s && str && s === str) {
+          logger
+            .context({ key: key, input: str, output: s })
+            .error("used localization.mdx for a non-string value (slow)");
+        }
+      });
+    }
+    return <SumaMarkdown options={mdoptions}>{str}</SumaMarkdown>;
+  };
+
+  Mdx = (key, mdoptions = {}, i18noptions = {}) => {
+    const { t } = useI18Next();
+    const { check, ...i18nrest } = i18noptions;
+    const str = t(this.prefix + key, { ...i18nrest, externalLinks });
     if (check && runChecks) {
       this.checkKeyName(key);
       compileStringAsync(str, (s) => {
@@ -106,11 +121,13 @@ export const t = lu.t;
 export const md = lu.md;
 export const mdp = lu.mdp;
 export const mdx = lu.mdx;
+export const Mdx = lu.Mdx;
 
 function compileStringAsync(str, cb) {
   window.setTimeout(() => {
     const comp = compiler(str || "", { wrapper: React.Fragment, forceWrapper: true });
     const el = document.createElement("div");
-    ReactDOM.render(comp, el, () => cb(el.innerHTML));
+    createRoot(el).render(comp);
+    cb(el.innerHTML);
   }, 0);
 }
