@@ -98,6 +98,11 @@ export default {
   configurePrivateAccount: (data) =>
     post(`/api/v1/anon_proxy/vendor_accounts/${data.id}/configure`, data),
   pollForNewPrivateAccountMagicLink: (data, opts) =>
-    post(`/api/v1/anon_proxy/vendor_accounts/${data.id}/poll_for_new_magic_link`, data, opts),
-  requestedPrivateAccountAccessCode: (data) => post(`/api/v1/anon_proxy/vendor_accounts/${data.id}/requested_access_code`, data)
+    post(
+      `/api/v1/anon_proxy/vendor_accounts/${data.id}/poll_for_new_magic_link`,
+      data,
+      opts
+    ),
+  requestedPrivateAccountAccessCode: (data) =>
+    post(`/api/v1/anon_proxy/vendor_accounts/${data.id}/requested_access_code`, data),
 };

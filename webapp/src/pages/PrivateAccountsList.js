@@ -2,21 +2,22 @@ import api from "../api";
 import loaderRing from "../assets/images/loader-ring.svg";
 import Copyable from "../components/Copyable";
 import ErrorScreen from "../components/ErrorScreen";
+import FormError from "../components/FormError";
 import LinearBreadcrumbs from "../components/LinearBreadcrumbs";
 import PageLoader from "../components/PageLoader";
 import SumaImage from "../components/SumaImage";
 import { mdp, t } from "../localization";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
+import useToggle from "../shared/react/useToggle";
 import { useError } from "../state/useError";
 import { useScreenLoader } from "../state/useScreenLoader";
 import { LayoutContainer } from "../state/withLayout";
-import { CanceledError } from "axios";
+import { AxiosError, CanceledError } from "axios";
 import isEmpty from "lodash/isEmpty";
 import React from "react";
 import { Alert, Stack } from "react-bootstrap";
 import Button from "react-bootstrap/Button";
 import Card from "react-bootstrap/Card";
-import useToggle from "../shared/react/useToggle";
 
 export default function PrivateAccountsList() {
   const {
@@ -53,9 +54,7 @@ export default function PrivateAccountsList() {
             {accounts.items.map((a) => (
               <Card key={a.id} className="px-2 pb-3">
                 <Card.Body>
-                  <PrivateAccount
-                    account={a}
-                  />
+                  <PrivateAccount account={a} />
                 </Card.Body>
               </Card>
             ))}
@@ -72,23 +71,28 @@ export default function PrivateAccountsList() {
 function PrivateAccount({ account }) {
   const { address, vendorImage } = account;
   const pollingToggle = useToggle();
-
-  const [error, setError] = useError();
+  const [error, setError] = useError(null);
 
   const screenLoader = useScreenLoader();
 
-  React.useCallback(() => {
+  const pollingCallback = React.useCallback(() => {
     // Abort any ongoing request when we unmount.
     const controller = new AbortController();
     function pollAndReplace() {
       return (
         api
           // Poll with a timeout, in case the server stops responding we want to try again.
-          .pollForNewPrivateAccountMagicLink({}, { timeout: 35000, signal: controller.signal })
+          .pollForNewPrivateAccountMagicLink(
+            { id: account.id },
+            { timeout: 3000, signal: controller.signal }
+          )
           .then((r) => {
             if (r.data.foundChange) {
-              pollingToggle.turnOff()
-              window.location.href = r.data.appLaunchLink
+              pollingToggle.turnOn();
+              // Allow time to show "signing in" prompt
+              setTimeout(() => {
+                window.location.href = r.data.vendorAccount.magicLink;
+              }, 1000);
             } else {
               pollAndReplace();
             }
@@ -107,15 +111,24 @@ function PrivateAccount({ account }) {
     return () => {
       controller.abort();
     };
-  }, [pollingToggle]);
+  }, [pollingToggle, account.id]);
 
   function handleSignInClick(e) {
     e.preventDefault();
-    screenLoader.turnOn()
-    api.configurePrivateAccount({id: account.id})
+    screenLoader.turnOn();
+    api
+      .configurePrivateAccount({ id: account.id })
       .then(async (r) => {
-        await makeAuthRequest(r.authRequest)
-        return api.requestedPrivateAccountAccessCode({id: account.id})
+        const res = await makeAuthRequest(r.data.authRequest);
+        if (res instanceof AxiosError) {
+          // TODO: localize and pass translation key instead
+          setError(
+            "An error occurred trying to authentication this private account. Contact your administrator for help."
+          );
+          return;
+        }
+        api.requestedPrivateAccountAccessCode({ id: account.id });
+        pollingCallback();
       })
       .catch((e) => setError(e))
       .finally(screenLoader.turnOff);
@@ -123,27 +136,31 @@ function PrivateAccount({ account }) {
 
   let content;
   if (pollingToggle.isOff) {
-    content = <Button className="mt-3" onClick={handleSignInClick}>
-      {t("private_accounts:sign_in")}
-    </Button>
+    content = (
+      <Button className="mt-3" onClick={handleSignInClick}>
+        {t("private_accounts:sign_in")}
+      </Button>
+    );
   } else {
-    content = <Stack direction="vertical">
-      <Alert variant="light" className="bg-white border-0 pb-0">
-        <p className="mt-3 mb-0 text-muted">{t("private_accounts:username")}</p>
-        <Copyable inline className="lead mb-0" text={address} />
-      </Alert>
-      <Alert variant="info">
-        <p className="lead mb-0">
-          {t("private_accounts:signing_in")}
-          <img
-            src={loaderRing}
-            width="80"
-            height="80"
-            alt={t("private_accounts:signing_in")}
-          />
-        </p>
-      </Alert>
-    </Stack>
+    content = (
+      <Stack direction="vertical">
+        <Alert variant="light" className="bg-white border-0 pb-0">
+          <p className="mt-3 mb-0 text-muted">{t("private_accounts:username")}</p>
+          <Copyable inline className="lead mb-0" text={address} />
+        </Alert>
+        <Alert variant="info">
+          <p className="lead mb-0">
+            {t("private_accounts:signing_in")}
+            <img
+              src={loaderRing}
+              width="80"
+              height="80"
+              alt={t("private_accounts:signing_in")}
+            />
+          </p>
+        </Alert>
+      </Stack>
+    );
   }
   return (
     <Stack direction="vertical" className="align-items-start">
@@ -153,11 +170,14 @@ function PrivateAccount({ account }) {
         params={{ crop: "none", fmt: "png", flatten: [255, 255, 255] }}
       />
       {content}
+      <FormError error={error} className="mt-2" />
     </Stack>
   );
 }
 
-
-function makeAuthRequest({url, params, headers, contentType}) {
-  // TODO: Make the fetch to the url using the appropriate content type
+function makeAuthRequest({ url, params, headers, contentType }) {
+  return api
+    .get("/api/healthz")
+    .then((r) => r)
+    .catch((e) => e);
 }
