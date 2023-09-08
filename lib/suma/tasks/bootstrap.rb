@@ -420,7 +420,11 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
       vc.uses_sms = false
       vc.enabled = true
       vc.message_handler_key = "lime"
-      vc.app_launch_link = "https://limebike.app.link/m2h6hB9qrS"
+      vc.app_install_link = "https://limebike.app.link/m2h6hB9qrS"
+      vc.auth_url = "/api/healthz"
+      vc.auth_content_type = "application/json"
+      vc.auth_params = {}
+      vc.auth_headers = {}
       vc.instructions = Suma::TranslatedText.find_or_create(
         en: <<~MD,
           1. Download the Lime App in the Play or App Store, or follow <a href="https://limebike.app.link/m2h6hB9qrS" target="_blank">this link</a>.
