@@ -4,7 +4,7 @@ Sequel.migration do
   change do
     alter_table(:anon_proxy_vendor_configurations) do
       add_column :auth_url, :text, null: false
-      add_column :auth_http_method, :text, null: false, default: 'POST'
+      add_column :auth_http_method, :text, null: false, default: "POST"
       add_column :auth_content_type, :text, null: false
       add_column :auth_params, :jsonb, null: false
       add_column :auth_headers, :jsonb, null: false

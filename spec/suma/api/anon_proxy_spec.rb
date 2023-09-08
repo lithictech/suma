@@ -40,97 +40,42 @@ RSpec.describe Suma::API::AnonProxy, :db do
     end
   end
 
-  describe "POST /v1/anon_proxy/vendor_accounts/poll_for_new_access_codes", reset_configuration: Suma::AnonProxy do
+  describe "POST /v1/anon_proxy/vendor_accounts/:id/poll_for_new_magic_link" do
     before(:each) do
       # If any test is slow, it's because we're hitting this unexpectedly
       Suma::AnonProxy.access_code_poll_timeout = 10
       Suma::AnonProxy.access_code_poll_interval = 0
     end
 
-    def params(*vas)
-      latest_vendor_account_ids_and_access_codes = vas.map do |va|
-        {id: va.id, latest_access_code: va.latest_access_code}
-      end
-      return {latest_vendor_account_ids_and_access_codes:}
-    end
-
-    it "can find when an account changes from a null to present access code" do
-      va = Suma::Fixtures.anon_proxy_vendor_account(member:).create
-      expect(Kernel).to receive(:sleep) do
-        va.replace_access_code("hello").save_changes
-      end
-
-      post "/v1/anon_proxy/vendor_accounts/poll_for_new_access_codes", params(va)
-
-      expect(last_response).to have_status(200)
-      expect(last_response).to have_json_body.
-        that_includes(found_change: true, items: contain_exactly(include(id: va.id, latest_access_code: "hello")))
-    end
-
     it "can find when an account changes from one to another access code" do
       va = Suma::Fixtures.anon_proxy_vendor_account(member:).with_access_code("abc").create
-      expect(Kernel).to receive(:sleep) do
-        va.replace_access_code("def").save_changes
-      end
+      va.update(latest_access_code_requested_at: Time.now)
+      va.replace_access_code("def", "http://lime.app/magic_link_token=def").save_changes
 
-      post "/v1/anon_proxy/vendor_accounts/poll_for_new_access_codes", params(va)
-
-      expect(last_response).to have_status(200)
-      expect(last_response).to have_json_body.
-        that_includes(found_change: true, items: contain_exactly(include(id: va.id, latest_access_code: "def")))
-    end
-
-    it "only looks for vendor accounts belonging to the member" do
-      va = Suma::Fixtures.anon_proxy_vendor_account(member:).create
-      other_va = Suma::Fixtures.anon_proxy_vendor_account.create
-      expect(Kernel).to receive(:sleep) do
-        other_va.replace_access_code("def").save_changes
-        # Advance forward to defeat polling
-        Timecop.travel(40.seconds.from_now)
-      end
-
-      Timecop.freeze do
-        post "/v1/anon_proxy/vendor_accounts/poll_for_new_access_codes", params(va, other_va)
-      end
+      post "/v1/anon_proxy/vendor_accounts/#{va.id}/poll_for_new_magic_link"
 
       expect(last_response).to have_status(200)
+      puts last_response.to_json
       expect(last_response).to have_json_body.
-        that_includes(found_change: false, items: [])
-    end
-
-    it "only looks for vendor accounts with recently updated access codes" do
-      va = Suma::Fixtures.anon_proxy_vendor_account(member:).with_access_code("abc", 1.hour.ago).create
-      expect(Kernel).to receive(:sleep) do
-        Timecop.travel(40.seconds.from_now)
-      end
-
-      j = params(va)
-      # The client sees nil access codes once they're old, so that's what they send over.
-      j[:latest_vendor_account_ids_and_access_codes][0][:latest_access_code] = nil
-
-      Timecop.freeze do
-        post "/v1/anon_proxy/vendor_accounts/poll_for_new_access_codes", j
-      end
-
-      expect(last_response).to have_status(200)
-      expect(last_response).to have_json_body.
-        that_includes(found_change: false, items: [])
+        that_includes(found_change: true, vendor_account: include(id: va.id, magic_link: "http://lime.app/magic_link_token=def"))
     end
 
     it "times out after polling" do
       Suma::AnonProxy.access_code_poll_interval = 2
-      va = Suma::Fixtures.anon_proxy_vendor_account(member:).create
+      va = Suma::Fixtures.anon_proxy_vendor_account(member:).with_access_code("abc", "http://lime.app/magic_link_token=abc").create
+      va.update(latest_access_code_requested_at: Time.now)
+
       expect(Kernel).to receive(:sleep).exactly(5).times do |x|
         Timecop.travel(x.seconds.from_now)
       end
 
       Timecop.freeze do
-        post "/v1/anon_proxy/vendor_accounts/poll_for_new_access_codes", params(va)
+        post "/v1/anon_proxy/vendor_accounts/#{va.id}/poll_for_new_magic_link"
       end
 
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.
-        that_includes(found_change: false, items: [])
+        that_includes(found_change: false, vendor_account: include(id: va.id))
     end
   end
 
@@ -189,6 +134,19 @@ RSpec.describe Suma::API::AnonProxy, :db do
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.
         that_includes(instructions: "see this: x@y.z")
+    end
+  end
+
+  describe "POST /v1/anon_proxy/vendor_accounts/:id/requested_access_code" do
+    let(:configuration) { Suma::Fixtures.anon_proxy_vendor_configuration.email.create }
+    let!(:va) { Suma::Fixtures.anon_proxy_vendor_account(member:, configuration:).create }
+
+    it "updates latest_access_code_request_at time" do
+      va.update(latest_access_code_requested_at: Time.now)
+
+      post "/v1/anon_proxy/vendor_accounts/#{va.id}/requested_access_code"
+
+      expect(last_response).to have_status(200)
     end
   end
 

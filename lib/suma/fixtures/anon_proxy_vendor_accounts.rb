@@ -30,7 +30,7 @@ module Suma::Fixtures::AnonProxyVendorAccounts
     self.contact = c
   end
 
-  decorator :with_access_code do |code, at=Time.now|
-    self.replace_access_code(code, at:)
+  decorator :with_access_code do |code, magic_link, at=Time.now|
+    self.replace_access_code(code, magic_link, at:)
   end
 end

@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require "suma/messages/lime_access_code"
-
 class Suma::AnonProxy::MessageHandler::Lime < Suma::AnonProxy::MessageHandler
   def key = "lime"
 

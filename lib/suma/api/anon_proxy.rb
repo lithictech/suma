@@ -99,7 +99,7 @@ class Suma::API::AnonProxy < Suma::API::V1
       txt = va.configuration.instructions.string
       txt % {address: va.address || ""}
     end
-    expose :auth_request
+    expose :auth_request, &self.delegate_to(:configuration, :auth_request)
     expose :magic_link do |instance|
       instance.latest_access_code_is_recent? ? instance.latest_access_code_magic_link : nil
     end
