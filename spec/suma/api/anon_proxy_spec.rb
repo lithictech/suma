@@ -55,7 +55,6 @@ RSpec.describe Suma::API::AnonProxy, :db do
       post "/v1/anon_proxy/vendor_accounts/#{va.id}/poll_for_new_magic_link"
 
       expect(last_response).to have_status(200)
-      puts last_response.to_json
       expect(last_response).to have_json_body.
         that_includes(found_change: true, vendor_account: include(id: va.id, magic_link: "http://lime.app/magic_link_token=def"))
     end
