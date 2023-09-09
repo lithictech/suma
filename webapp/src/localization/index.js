@@ -82,11 +82,11 @@ export class Lookup {
   };
 
   md = (key, options = {}) => {
-    return this.mdx(key, { forceWrapper: true, wrapper: React.Fragment }, options);
+    return this.Mdx(key, { forceWrapper: true, wrapper: React.Fragment }, options);
   };
 
   mdp = (key, options = {}) => {
-    return this.mdx(key, { forceBlock: true }, options);
+    return this.Mdx(key, { forceBlock: true }, options);
   };
 
   t = (key, options = {}) => {
@@ -121,7 +121,6 @@ export const t = lu.t;
 export const md = lu.md;
 export const mdp = lu.mdp;
 export const mdx = lu.mdx;
-export const Mdx = lu.Mdx;
 
 function compileStringAsync(str, cb) {
   window.setTimeout(() => {
