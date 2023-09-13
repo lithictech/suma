@@ -1,11 +1,9 @@
 import SumaMarkdown from "../components/SumaMarkdown";
 import externalLinks from "../modules/externalLinks";
+import sumaTranslator from "../modules/sumaTranslator";
 import { Logger } from "../shared/logger";
-import useI18Next from "./useI18Next";
-import i18n from "i18next";
 import { compiler } from "markdown-to-jsx";
 import React from "react";
-import { createRoot } from "react-dom/client";
 
 const runChecks = process.env.NODE_ENV === "development";
 
@@ -47,60 +45,40 @@ export class Lookup {
    * So ## can be used, for example, to trigger modals controlled by the hash.
    */
 
-  // TODO: Remove mdx when replaced with Mdx, same with other functions
   mdx = (key, mdoptions = {}, i18noptions = {}) => {
     const { check, ...i18nrest } = i18noptions;
-    const str = i18n.t(this.prefix + key, { ...i18nrest, externalLinks });
+    const str = sumaTranslator.t(this.prefix + key, { ...i18nrest, externalLinks });
     if (check && runChecks) {
       this.checkKeyName(key);
-      compileStringAsync(str, (s) => {
-        if (s && str && s === str) {
-          logger
-            .context({ key: key, input: str, output: s })
-            .error("used localization.mdx for a non-string value (slow)");
-        }
-      });
-    }
-    return <SumaMarkdown options={mdoptions}>{str}</SumaMarkdown>;
-  };
-
-  Mdx = (key, mdoptions = {}, i18noptions = {}) => {
-    const { t } = useI18Next();
-    const { check, ...i18nrest } = i18noptions;
-    const str = t(this.prefix + key, { ...i18nrest, externalLinks });
-    if (check && runChecks) {
-      this.checkKeyName(key);
-      compileStringAsync(str, (s) => {
-        if (s && str && s === str) {
-          logger
-            .context({ key: key, input: str, output: s })
-            .error("used localization.mdx for a non-string value (slow)");
-        }
-      });
+      const s = compiler(str || "", { wrapper: React.Fragment, forceWrapper: true });
+      if (s && str && s === str) {
+        logger
+          .context({ key: key, input: str, output: s })
+          .error("used localization.mdx for a non-string value (slow)");
+      }
     }
     return <SumaMarkdown options={mdoptions}>{str}</SumaMarkdown>;
   };
 
   md = (key, options = {}) => {
-    return this.Mdx(key, { forceWrapper: true, wrapper: React.Fragment }, options);
+    return this.mdx(key, { forceWrapper: true, wrapper: React.Fragment }, options);
   };
 
   mdp = (key, options = {}) => {
-    return this.Mdx(key, { forceBlock: true }, options);
+    return this.mdx(key, { forceBlock: true }, options);
   };
 
   t = (key, options = {}) => {
     const { check, ...restopts } = options;
-    const str = i18n.t(this.prefix + key, restopts);
+    const str = sumaTranslator.t(this.prefix + key, restopts);
     if (check && runChecks) {
       this.checkKeyName(key);
-      compileStringAsync(str, (s) => {
-        if (s && str && s !== str) {
-          logger
-            .context({ key: key, input: str, output: s })
-            .error("used localization.t for a markdown string");
-        }
-      });
+      const s = compiler(str || "", { wrapper: React.Fragment, forceWrapper: true });
+      if (s && str && s !== str) {
+        logger
+          .context({ key: key, input: str, output: s })
+          .error("used localization.t for a markdown string");
+      }
     }
     return str;
   };
@@ -121,12 +99,3 @@ export const t = lu.t;
 export const md = lu.md;
 export const mdp = lu.mdp;
 export const mdx = lu.mdx;
-
-function compileStringAsync(str, cb) {
-  window.setTimeout(() => {
-    const comp = compiler(str || "", { wrapper: React.Fragment, forceWrapper: true });
-    const el = document.createElement("div");
-    createRoot(el).render(comp);
-    cb(el.innerHTML);
-  }, 0);
-}
