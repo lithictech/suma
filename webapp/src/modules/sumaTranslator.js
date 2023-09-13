@@ -25,10 +25,14 @@ class sumaTranslator {
 
   t = (key, options = {}) => {
     const string = stringByKey(this.strings, key);
-    if (!string) {
+
+    if (!string && !isEmpty(this.strings)) {
       console.error(`${key} was not found in strings`);
       return key;
+    } else if (!string) {
+      return key;
     }
+
     const translatedKeysString = translateKeys({
       stings: this.strings,
       string,
