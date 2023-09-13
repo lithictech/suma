@@ -14,7 +14,6 @@ class sumaTranslator {
   async init(ns, lng) {
     this.ns = ns;
     this.lng = lng;
-
     return await fetch(`${process.env.PUBLIC_URL}/locale/${lng}/${ns}.json`)
       .then((r) => r.json())
       .then(async (strings) => {
@@ -76,6 +75,9 @@ function translateKeys({ strings, string }) {
     let resultString = string;
     stringDynamicKeys.forEach((key) => {
       const newValue = stringByKey(strings, key);
+      if (!newValue) {
+        console.error(`Key "${key}" was not found in "${string}"`);
+      }
       resultString = resultString.replace(dynamicPrefix + key + dynamicSuffix, newValue);
     });
     return translateKeys({ strings, string: resultString });
@@ -104,15 +106,6 @@ function translateDynamicValues({ string, options }) {
   }
 
   const stringDynamicVals = getStringDynamicValues(string, dynamicPrefix, dynamicSuffix);
-
-  const dynValuesLength = Object.keys(options).includes("externalLinks")
-    ? Object.keys(options).length - 1
-    : Object.keys(options).length;
-  if (stringDynamicVals.length > dynValuesLength) {
-    console.error(
-      `'${string}' requires ${stringDynamicVals.length} dynamic values but only ${dynValuesLength} were provided`
-    );
-  }
 
   let resultString = string;
   stringDynamicVals.forEach((val) => {
