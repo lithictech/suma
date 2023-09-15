@@ -58,7 +58,8 @@ class Suma::API::AnonProxy < Suma::API::V1
           started_polling = Time.now
           found_change = false
           loop do
-            if apva.latest_access_code_set_at > apva.latest_access_code_requested_at
+            code_set_at = apva.latest_access_code_set_at
+            if code_set_at && code_set_at > apva.latest_access_code_requested_at
               found_change = true
               break
             end
@@ -99,7 +100,7 @@ class Suma::API::AnonProxy < Suma::API::V1
       txt = va.configuration.instructions.string
       txt % {address: va.address || ""}
     end
-    expose :auth_request, &self.delegate_to(:configuration, :auth_request)
+    expose :auth_request
     expose :magic_link do |instance|
       instance.latest_access_code_is_recent? ? instance.latest_access_code_magic_link : nil
     end

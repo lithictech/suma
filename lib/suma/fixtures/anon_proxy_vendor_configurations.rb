@@ -13,11 +13,10 @@ module Suma::Fixtures::AnonProxyVendorConfigurations
     self.uses_sms = Suma::Fixtures.nilor(self.uses_sms, !self.uses_email)
     self.enabled = Suma::Fixtures.nilor(self.enabled, true)
     self.message_handler_key ||= "fake-handler"
-    self.auth_url ||= "/api/healthz"
     self.auth_http_method ||= "POST"
-    self.auth_content_type ||= "application/json"
-    self.auth_params ||= {}
+    self.auth_url ||= "https://fakevendor.app.mysuma.org/signup"
     self.auth_headers ||= {}
+    self.auth_body_template ||= '{"email":"%{email}","phone":"%{phone}"}'
     self.app_install_link ||= Faker::Internet.url
   end
 

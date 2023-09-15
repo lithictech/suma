@@ -46,6 +46,21 @@ RSpec.describe Suma::API::AnonProxy, :db do
       Suma::AnonProxy.access_code_poll_timeout = 10
       Suma::AnonProxy.access_code_poll_interval = 0
     end
+    after(:each) do
+      Suma::AnonProxy.reset_configuration
+    end
+
+    it "handles when there is no code yet set" do
+      Suma::AnonProxy.access_code_poll_timeout = 0.001
+      va = Suma::Fixtures.anon_proxy_vendor_account(member:).create
+      va.update(latest_access_code_requested_at: Time.now)
+
+      post "/v1/anon_proxy/vendor_accounts/#{va.id}/poll_for_new_magic_link"
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.
+        that_includes(found_change: false)
+    end
 
     it "can find when an account changes from one to another access code" do
       va = Suma::Fixtures.anon_proxy_vendor_account(member:).with_access_code("abc").create

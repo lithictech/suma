@@ -10,9 +10,9 @@ import { mdp, t } from "../localization";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
 import useToggle from "../shared/react/useToggle";
 import { useError } from "../state/useError";
-import { useScreenLoader } from "../state/useScreenLoader";
 import { LayoutContainer } from "../state/withLayout";
-import { AxiosError, CanceledError } from "axios";
+import { CanceledError } from "axios";
+import forEach from "lodash/forEach";
 import isEmpty from "lodash/isEmpty";
 import React from "react";
 import { Alert, Stack } from "react-bootstrap";
@@ -73,8 +73,6 @@ function PrivateAccount({ account }) {
   const pollingToggle = useToggle();
   const [error, setError] = useError(null);
 
-  const screenLoader = useScreenLoader();
-
   const pollingCallback = React.useCallback(() => {
     // Abort any ongoing request when we unmount.
     const controller = new AbortController();
@@ -84,23 +82,22 @@ function PrivateAccount({ account }) {
           // Poll with a timeout, in case the server stops responding we want to try again.
           .pollForNewPrivateAccountMagicLink(
             { id: account.id },
-            { timeout: 3000, signal: controller.signal }
+            { timeout: 30000, signal: controller.signal }
           )
           .then((r) => {
             if (r.data.foundChange) {
-              pollingToggle.turnOn();
-              // Allow time to show "signing in" prompt
-              setTimeout(() => {
-                window.location.href = r.data.vendorAccount.magicLink;
-              }, 1000);
+              // Turn this off before navigating in case promise callbacks don't run.
+              pollingToggle.turnOff();
+              window.location.href = r.data.vendorAccount.magicLink;
             } else {
               pollAndReplace();
             }
           })
           .catch((r) => {
-            // If the request was aborted, don't restart it. Otherwise, do restart it,
-            // since it is some unexpected type of error.
+            // If the request was aborted (due to unmount), don't restart it.
+            // Otherwise, do restart it, since it is some unexpected type of error.
             if (r instanceof CanceledError) {
+              pollingToggle.turnOff();
               return;
             }
             pollAndReplace();
@@ -115,23 +112,23 @@ function PrivateAccount({ account }) {
 
   function handleSignInClick(e) {
     e.preventDefault();
-    screenLoader.turnOn();
+    pollingToggle.turnOn();
     api
       .configurePrivateAccount({ id: account.id })
       .then(async (r) => {
-        const res = await makeAuthRequest(r.data.authRequest);
-        if (res instanceof AxiosError) {
-          // TODO: localize and pass translation key instead
-          setError(
-            "An error occurred trying to authentication this private account. Contact your administrator for help."
-          );
-          return;
+        try {
+          await makeAuthRequest(r.data.authRequest);
+        } catch (e) {
+          console.error(e);
+          return Promise.reject(t("private_accounts.auth_error"));
         }
-        api.requestedPrivateAccountAccessCode({ id: account.id });
+        await api.requestedPrivateAccountAccessCode({ id: account.id });
         pollingCallback();
       })
-      .catch((e) => setError(e))
-      .finally(screenLoader.turnOff);
+      .catch((e) => {
+        setError(e);
+        pollingToggle.turnOff();
+      });
   }
 
   let content;
@@ -175,9 +172,24 @@ function PrivateAccount({ account }) {
   );
 }
 
-function makeAuthRequest({ url, params, headers, contentType }) {
-  return api
-    .get("/api/healthz")
-    .then((r) => r)
-    .catch((e) => e);
+function makeAuthRequest({ url, httpMethod, params, headers, contentType }) {
+  let body;
+  if (httpMethod === "GET") {
+    body = null;
+  } else if (contentType.includes("/json")) {
+    body = JSON.stringify(params);
+  } else if (contentType.includes("www-form-urlencoded")) {
+    body = new FormData();
+    forEach((v, k) => body.append(k, v));
+  }
+  let h = { ...headers };
+  h["Content-Type"] = contentType;
+  return fetch(url, { method: httpMethod, headers, body }).then((r) => {
+    if (r.status >= 400) {
+      console.error("Error making auth request:", r.status, r);
+      return Promise.reject();
+    } else {
+      return Promise.resolve();
+    }
+  });
 }

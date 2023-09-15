@@ -10,6 +10,13 @@ class Suma::AnonProxy::MessageHandler
 
   OLD_MESSAGE_CUTOFF = 5.minutes
 
+  class Result < Suma::TypedStruct
+    # @!attribute handled [TrueClass,FalseClass]
+    attr_accessor :handled
+    # @!attribute handled [Suma::Message::Delivery]
+    attr_accessor :outbound_delivery
+  end
+
   # @return [String]
   def key = raise NotImplementedError
 
@@ -21,10 +28,13 @@ class Suma::AnonProxy::MessageHandler
 
   # Handle the message, like by extracting useful info and sending an SMS.
   # In some cases (like marketing messages), this can be a noop.
-  # Return the +Suma::Message::Delivery+, or nil if a noop.
+  # Return a +Result+, which may involve sending a +Suma::Message::Delivery+
+  # (which gets associated with the VendorAccountMessage).
+  # It may also just take some other action, like updating a database object.
+  # If the operation noops, +Result#handled+ is set to +false+.
   #
   # @param vendor_account_message [Suma::AnonProxy::VendorAccountMessage]
-  # @return [Suma::Message::Delivery,nil]
+  # @return [Result]
   def handle(vendor_account_message) = raise NotImplementedError
 
   # After the relay parses the message,
@@ -64,9 +74,10 @@ class Suma::AnonProxy::MessageHandler
         message_handler_key: handler.key,
         vendor_account:,
       )
-      delivery = handler.handle(vam)
-      return nil if delivery.nil?
-      vam.outbound_delivery = delivery
+      result = handler.handle(vam)
+      raise TypeError, "#{handler}#handle must return a Result" unless result.is_a?(Result)
+      return nil unless result.handled
+      vam.outbound_delivery = result.outbound_delivery
       vam.save_changes
       self.logger.info("anon_proxy_message_handled",
                        relay: relay.key,

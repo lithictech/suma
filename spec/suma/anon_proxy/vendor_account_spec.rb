@@ -147,4 +147,32 @@ RSpec.describe "Suma::AnonProxy::VendorAccount", :db do
       expect(va.latest_access_code_is_recent?).to equal(true)
     end
   end
+
+  describe "auth_request" do
+    let(:va) do
+      Suma::Fixtures.anon_proxy_vendor_account.with_configuration(
+        auth_url: "https://x.y",
+        auth_http_method: "POST",
+        auth_headers: {"X-Y" => "b"},
+      ).create
+    end
+
+    it "returns the auth fields for the configuration" do
+      expect(va.auth_request).to include(
+        http_method: "POST",
+        url: "https://x.y",
+        headers: {"X-Y" => "b"},
+        body: '{"email":"","phone":""}',
+      )
+    end
+
+    it "can render phone and email" do
+      va.contact = Suma::Fixtures.anon_proxy_member_contact.create
+      va.contact.email = "x@y.z"
+      va.contact.phone = "12223334444"
+      expect(va.auth_request).to include(
+        body: '{"email":"x@y.z","phone":"12223334444"}',
+      )
+    end
+  end
 end

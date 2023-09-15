@@ -22,7 +22,7 @@ class Suma::AnonProxy::MessageHandler::Fake < Suma::AnonProxy::MessageHandler
 
   def handle(vendor_account_message)
     self.class.handled << vendor_account_message
-    return nil if self.class.handle_callback.nil?
+    return Suma::AnonProxy::MessageHandler::Result.new(handled: false) if self.class.handle_callback.nil?
     return self.class.handle_callback[vendor_account_message]
   end
 end
