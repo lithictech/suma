@@ -34,14 +34,30 @@ RSpec.describe Suma::Http do
       expect(req).to have_been_made
     end
     it "errors on non-ok" do
-      stub_request(:get, "https://a.b/").
-        to_return(status: 500, body: "meh")
-
+      req = stub_request(:get, "https://a.b/").to_return(status: 500, body: "meh")
       expect { described_class.get("https://a.b", logger: nil) }.to raise_error(described_class::Error)
+      expect(req).to have_been_made
+    end
+
+    it "does not error for 300s if not following redirects" do
+      req = stub_request(:get, "https://a.b").to_return(status: 307, headers: {location: "https://x.y"})
+      resp = described_class.get("https://a.b", logger: nil, follow_redirects: false)
+      expect(req).to have_been_made
+      expect(resp).to have_attributes(code: 307)
+    end
+
+    it "passes through a block" do
+      req = stub_request(:get, "https://a.b").to_return(status: 200, body: "abc")
+      t = +""
+      described_class.get("https://a.b", logger: nil) do |f|
+        t << f
+      end
+      expect(req).to have_been_made
+      expect(t).to eq("abc")
     end
   end
   describe "post" do
-    it "calls HTTP POST with json if not headers given" do
+    it "calls HTTP POST" do
       req = stub_request(:post, "https://a.b").
         with(body: "{}", headers: {"Content-Type" => "application/json"}).
         to_return(status: 200, body: "")
@@ -101,10 +117,32 @@ RSpec.describe Suma::Http do
       expect(req).to have_been_made
     end
     it "errors on non-ok" do
-      stub_request(:post, "https://a.b/").
-        to_return(status: 500, body: "meh")
-
+      req = stub_request(:post, "https://a.b/").to_return(status: 500, body: "meh")
       expect { described_class.post("https://a.b", logger: nil) }.to raise_error(described_class::Error)
+      expect(req).to have_been_made
+    end
+
+    it "does not error for 300s if not following redirects" do
+      req = stub_request(:post, "https://a.b").to_return(status: 307, headers: {location: "https://x.y"})
+      resp = described_class.post("https://a.b", logger: nil, follow_redirects: false)
+      expect(req).to have_been_made
+      expect(resp).to have_attributes(code: 307)
+    end
+
+    it "passes through a block" do
+      req = stub_request(:post, "https://a.b").to_return(status: 200, body: "abc")
+      t = +""
+      described_class.post("https://a.b", logger: nil) do |f|
+        t << f
+      end
+      expect(req).to have_been_made
+      expect(t).to eq("abc")
+    end
+
+    it "can skip raising" do
+      req = stub_request(:post, "https://a.b/").to_return(status: 500, body: "meh")
+      expect { described_class.post("https://a.b", logger: nil, skip_error: true) }.to_not raise_error
+      expect(req).to have_been_made
     end
   end
 
@@ -118,7 +156,7 @@ RSpec.describe Suma::Http do
         nil
       end
       expect(e).to_not be_nil
-      expect(e.to_s).to eq("HttpError(status: 500, uri: https://a.b/?, body: meh)")
+      expect(e.to_s).to eq("HttpError(status: 500, method: GET, uri: https://a.b/?, body: meh)")
     end
     it "sanitizes query params with secret or access" do
       stub_request(:get, "https://api.convertkit.com/v3/subscribers?api_secret=bfsek&page=1").
@@ -130,7 +168,21 @@ RSpec.describe Suma::Http do
       end
       expect(e).to_not be_nil
       expect(e.to_s).to eq(
-        "HttpError(status: 500, uri: https://api.convertkit.com/v3/subscribers?api_secret=.snip.&page=1, body: meh)",
+        "HttpError(status: 500, method: GET, " \
+        "uri: https://api.convertkit.com/v3/subscribers?api_secret=.snip.&page=1, body: meh)",
+      )
+    end
+  end
+
+  describe "logging" do
+    it "logs structured request information" do
+      logger = SemanticLogger["http_spec_logging_test"]
+      stub_request(:post, "https://foo/bar").to_return({body: "x"})
+      logs = capture_logs_from(logger, formatter: :json) do
+        described_class.post("https://foo/bar", {x: 1}, logger:)
+      end
+      expect(logs.map { |j| JSON.parse(j) }).to contain_exactly(
+        include("message" => "httparty_request", "context" => include("http_method" => "POST")),
       )
     end
   end

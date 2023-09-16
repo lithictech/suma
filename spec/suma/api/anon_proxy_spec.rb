@@ -151,16 +151,42 @@ RSpec.describe Suma::API::AnonProxy, :db do
     end
   end
 
-  describe "POST /v1/anon_proxy/vendor_accounts/:id/requested_access_code" do
-    let(:configuration) { Suma::Fixtures.anon_proxy_vendor_configuration.email.create }
-    let!(:va) { Suma::Fixtures.anon_proxy_vendor_account(member:, configuration:).create }
+  describe "POST /v1/anon_proxy/vendor_accounts/:id/make_auth_request" do
+    let!(:va) do
+      Suma::Fixtures.anon_proxy_vendor_account.with_configuration(
+        auth_url: "https://x.y",
+        auth_http_method: "POST",
+        auth_headers: {"X-Y" => "b"},
+      ).with_contact(email: "a@b.c").
+        create(member:)
+    end
 
-    it "updates latest_access_code_request_at time" do
-      va.update(latest_access_code_requested_at: Time.now)
+    it "proxies the request and marks the code as requested" do
+      req = stub_request(:post, "https://x.y/").
+        with(
+          body: '{"email":"a@b.c","phone":""}',
+          headers: {"X-Y" => "b"},
+        ).
+        to_return(status: 202, body: '{"o":"k"}', headers: {"Content-Type" => "application/json"})
 
-      post "/v1/anon_proxy/vendor_accounts/#{va.id}/requested_access_code"
+      post "/v1/anon_proxy/vendor_accounts/#{va.id}/make_auth_request"
 
-      expect(last_response).to have_status(200)
+      expect(last_response).to have_status(202)
+      expect(last_response).to have_json_body.that_includes(o: "k")
+      expect(req).to have_been_made
+      expect(va.refresh).to have_attributes(latest_access_code_requested_at: match_time(:now))
+    end
+
+    it "errors and does not mark code requested on error" do
+      req = stub_request(:post, "https://x.y/").
+        to_return(status: 400, body: '{"n":"o"}', headers: {"Content-Type" => "application/json"})
+
+      post "/v1/anon_proxy/vendor_accounts/#{va.id}/make_auth_request"
+
+      expect(last_response).to have_status(400)
+      expect(last_response).to have_json_body.that_includes(n: "o")
+      expect(req).to have_been_made
+      expect(va.refresh).to have_attributes(latest_access_code_requested_at: nil)
     end
   end
 

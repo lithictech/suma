@@ -1,23 +1,26 @@
 import api from "../api";
 import loaderRing from "../assets/images/loader-ring.svg";
-import Copyable from "../components/Copyable";
 import ErrorScreen from "../components/ErrorScreen";
 import FormError from "../components/FormError";
 import LinearBreadcrumbs from "../components/LinearBreadcrumbs";
 import PageLoader from "../components/PageLoader";
 import SumaImage from "../components/SumaImage";
+import SumaMarkdown from "../components/SumaMarkdown";
 import { mdp, t } from "../localization";
+import ScrollTopOnMount from "../shared/ScrollToTopOnMount";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
+import useMountEffect from "../shared/react/useMountEffect";
 import useToggle from "../shared/react/useToggle";
 import { useError } from "../state/useError";
 import { LayoutContainer } from "../state/withLayout";
 import { CanceledError } from "axios";
-import forEach from "lodash/forEach";
+import get from "lodash/get";
 import isEmpty from "lodash/isEmpty";
 import React from "react";
 import { Alert, Stack } from "react-bootstrap";
 import Button from "react-bootstrap/Button";
 import Card from "react-bootstrap/Card";
+import Modal from "react-bootstrap/Modal";
 
 export default function PrivateAccountsList() {
   const {
@@ -27,6 +30,21 @@ export default function PrivateAccountsList() {
   } = useAsyncFetch(api.getPrivateAccounts, {
     default: {},
     pickData: true,
+  });
+
+  const [modalAccount, setModalAccount] = React.useState(null);
+
+  useMountEffect(() => {
+    // It's important that we dismiss the modal when the page loses focus.
+    // That is an indication usually that the user has opened the vendor's native app
+    // from the instructions modal.
+    const handleVizChange = () => {
+      setModalAccount(null);
+    };
+    document.addEventListener("visibilitychange", handleVizChange);
+    return () => {
+      document.removeEventListener("visibilitychange", handleVizChange);
+    };
   });
 
   if (accountsError) {
@@ -40,6 +58,10 @@ export default function PrivateAccountsList() {
     return <PageLoader />;
   }
 
+  const handleHelp = (o) => {
+    setModalAccount(o);
+  };
+
   return (
     <>
       <LayoutContainer top>
@@ -48,13 +70,35 @@ export default function PrivateAccountsList() {
         <p className="text-secondary mt-3">{t("private_accounts:intro")}</p>
       </LayoutContainer>
       <hr />
+      <Modal show={!!modalAccount} onHide={() => setModalAccount(null)}>
+        <Modal.Header closeButton>
+          <Modal.Title>
+            {t("private_accounts:vendor_private_accounts", {
+              vendorName: modalAccount?.vendorName,
+            })}
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <div className="mt-4 d-flex justify-content-center align-items-center flex-column">
+            <ScrollTopOnMount />
+            <div className="mt-2 mx-2">
+              <SumaMarkdown>{modalAccount?.instructions}</SumaMarkdown>
+            </div>
+            <div className="d-flex justify-content-end my-2">
+              <Button variant="outline-primary" onClick={() => setModalAccount(null)}>
+                {t("common:close")}
+              </Button>
+            </div>
+          </div>
+        </Modal.Body>
+      </Modal>
       {!isEmpty(accounts.items) && (
         <LayoutContainer>
           <Stack gap={3}>
             {accounts.items.map((a) => (
               <Card key={a.id} className="px-2 pb-3">
                 <Card.Body>
-                  <PrivateAccount account={a} />
+                  <PrivateAccount account={a} onHelp={() => handleHelp(a)} />
                 </Card.Body>
               </Card>
             ))}
@@ -68,8 +112,8 @@ export default function PrivateAccountsList() {
   );
 }
 
-function PrivateAccount({ account }) {
-  const { address, vendorImage } = account;
+function PrivateAccount({ account, onHelp }) {
+  const { vendorImage } = account;
   const pollingToggle = useToggle();
   const [error, setError] = useError(null);
 
@@ -112,17 +156,17 @@ function PrivateAccount({ account }) {
 
   function handleSignInClick(e) {
     e.preventDefault();
+    setError();
     pollingToggle.turnOn();
     api
       .configurePrivateAccount({ id: account.id })
-      .then(async (r) => {
+      .then(async () => {
         try {
-          await makeAuthRequest(r.data.authRequest);
+          await api.makePrivateAccountAuthRequest({ id: account.id });
         } catch (e) {
-          console.error(e);
-          return Promise.reject(t("private_accounts.auth_error"));
+          console.error(get(e, "response.data") || e);
+          return Promise.reject(<span>{t("private_accounts.auth_error")}</span>);
         }
-        await api.requestedPrivateAccountAccessCode({ id: account.id });
         pollingCallback();
       })
       .catch((e) => {
@@ -134,17 +178,16 @@ function PrivateAccount({ account }) {
   let content;
   if (pollingToggle.isOff) {
     content = (
-      <Button className="mt-3" onClick={handleSignInClick}>
-        {t("private_accounts:sign_in")}
-      </Button>
+      <Stack direction="horizontal" gap={2} className="mt-3 justify-content-center">
+        <Button onClick={handleSignInClick}>{t("private_accounts:sign_in")}</Button>
+        <Button variant="outline-primary" onClick={() => onHelp()}>
+          {t("common:help")}
+        </Button>
+      </Stack>
     );
   } else {
     content = (
-      <Stack direction="vertical">
-        <Alert variant="light" className="bg-white border-0 pb-0">
-          <p className="mt-3 mb-0 text-muted">{t("private_accounts:username")}</p>
-          <Copyable inline className="lead mb-0" text={address} />
-        </Alert>
+      <Stack direction="vertical" className="mt-3">
         <Alert variant="info">
           <p className="lead mb-0">
             {t("private_accounts:signing_in")}
@@ -167,29 +210,7 @@ function PrivateAccount({ account }) {
         params={{ crop: "none", fmt: "png", flatten: [255, 255, 255] }}
       />
       {content}
-      <FormError error={error} className="mt-2" />
+      <FormError error={error} className="mt-3" />
     </Stack>
   );
-}
-
-function makeAuthRequest({ url, httpMethod, params, headers, contentType }) {
-  let body;
-  if (httpMethod === "GET") {
-    body = null;
-  } else if (contentType.includes("/json")) {
-    body = JSON.stringify(params);
-  } else if (contentType.includes("www-form-urlencoded")) {
-    body = new FormData();
-    forEach((v, k) => body.append(k, v));
-  }
-  let h = { ...headers };
-  h["Content-Type"] = contentType;
-  return fetch(url, { method: httpMethod, headers, body }).then((r) => {
-    if (r.status >= 400) {
-      console.error("Error making auth request:", r.status, r);
-      return Promise.reject();
-    } else {
-      return Promise.resolve();
-    }
-  });
 }

@@ -39,15 +39,19 @@ class Suma::API::AnonProxy < Suma::API::V1
           )
         end
 
-        post :requested_access_code do
+        post :make_auth_request do
           apva = lookup
-          apva.update(latest_access_code_requested_at: Time.now)
-          status 200
-          present(
-            apva,
-            with: MutationAnonProxyVendorAccountEntity,
-            all_vendor_accounts: Suma::AnonProxy::VendorAccount.for(current_member),
+          areq = apva.auth_request
+          got = Suma::Http.execute(
+            areq.delete(:http_method).downcase.to_sym,
+            areq.delete(:url),
+            logger: self.logger,
+            skip_error: true,
+            **areq,
           )
+          apva.update(latest_access_code_requested_at: Time.now) if got.code < 300
+          status got.code
+          present got.parsed_response
         end
 
         # Endpoint for long-polling for a new magic link for a vendor account.

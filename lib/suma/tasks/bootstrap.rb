@@ -427,27 +427,12 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
       vc.instructions = Suma::TranslatedText.find_or_create(
         en: <<~MD,
           1. Download the Lime App in the Play or App Store, or follow <a href="https://limebike.app.link/m2h6hB9qrS" target="_blank">this link</a>.
-          2. Start the Lime App.
-          3. When prompted to sign in, choose 'Other options'
-          4. Choose 'Email'
-          5. Enter the email **<Copyable>%{address}</Copyable>**, and press 'Next'.
-          6. The next screen is 'Check Your Email'. Instead, **reopen the suma web app.**
-          7. Within a few seconds, a verification code will appear in Suma.
-          8. Once it does, copy the code.
-          9. Go back to Lime, press 'Enter Code', paste the code into the Lime app, and press 'Next'.
-          10. You are logged into Lime and ready to start riding.
+          2. If you already have the app and are signed in, please sign out first.
+          3. Press the 'Open App' button. You will be logged into a Lime account linked to your suma account.
+          4. You can see available scooters in suma or in Lime, but you'll use the Lime app to take your rides.
         MD
         es: <<~MD,
-          1. Descargue la aplicación Lime en Play o App Store, o siga <a href="https://limebike.app.link/m2h6hB9qrS" target="_blank">este enlace</a>.
-          2. Inicie la aplicación Lime.
-          3. Cuando se le solicite iniciar sesión, elija 'Otras opciones'
-          4. Elija 'Email'
-          5. Ingrese el correo electrónico **<Copyable>%{address}</Copyable>**, y presione 'Siguiente'.
-          6. La siguiente pantalla es 'Verifique su correo electrónico'. Sin embargo, **reabra la app de suma.**
-          7. En unos segundos, Suma te enviará un SMS con el código de Lime. Copia el código.
-          8. Una vez que lo haga, copie el código.
-          9. Vuelva a Lime, presione 'Ingresar código', pegue el código en la aplicación de Lime y presione 'Siguiente'.
-          10. Has iniciado sesión en Lime y estás listo para empezar a conducir.
+          TODO
         MD
       )
     end

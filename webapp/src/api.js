@@ -97,12 +97,12 @@ export default {
   getPrivateAccounts: (data) => get(`/api/v1/anon_proxy/vendor_accounts`, data),
   configurePrivateAccount: (data) =>
     post(`/api/v1/anon_proxy/vendor_accounts/${data.id}/configure`, data),
+  makePrivateAccountAuthRequest: (data) =>
+    post(`/api/v1/anon_proxy/vendor_accounts/${data.id}/make_auth_request`, data),
   pollForNewPrivateAccountMagicLink: (data, opts) =>
     post(
       `/api/v1/anon_proxy/vendor_accounts/${data.id}/poll_for_new_magic_link`,
       data,
       opts
     ),
-  requestedPrivateAccountAccessCode: (data) =>
-    post(`/api/v1/anon_proxy/vendor_accounts/${data.id}/requested_access_code`, data),
 };

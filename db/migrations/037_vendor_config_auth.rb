@@ -32,4 +32,19 @@ Sequel.migration do
       set_column_allow_null :outbound_delivery_id
     end
   end
+  down do
+    alter_table(:anon_proxy_vendor_configurations) do
+      rename_column :app_install_link, :app_launch_link
+      drop_column :auth_http_method
+      drop_column :auth_url
+      drop_column :auth_headers
+      drop_column :auth_body_template
+    end
+
+    alter_table(:anon_proxy_vendor_accounts) do
+      drop_column :latest_access_code_requested_at
+      drop_column :latest_access_code_magic_link
+      drop_index [:member_id, :configuration_id]
+    end
+  end
 end
