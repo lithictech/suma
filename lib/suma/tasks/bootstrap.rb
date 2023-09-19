@@ -432,7 +432,10 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
           4. You can see available scooters in suma or in Lime, but you'll use the Lime app to take your rides.
         MD
         es: <<~MD,
-          TODO
+          1. Descargue la aplicación Lime en Play o App Store, o siga <a href="https://limebike.app.link/m2h6hB9qrS" target="_blank">este enlace</a>.
+          2. Si ya tiene la aplicación y ha iniciado sesión, cierre sesión primero.
+          3. Presione el botón 'Abrir aplicación'. Iniciará sesión en una cuenta de Lime vinculada a su cuenta de suma.
+          4. Puedes ver los scooters disponibles en suma o en Lime, pero usarás la aplicación Lime para realizar tus viajes.
         MD
       )
     end
