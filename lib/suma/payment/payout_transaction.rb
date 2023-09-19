@@ -140,7 +140,7 @@ class Suma::Payment::PayoutTransaction < Suma::Postgres::Model(:payment_payout_t
         associated_vendor_service_category = Suma::Vendor::ServiceCategory.cash
         refund_memo = Suma::TranslatedText.create(
           en: "Refund sent to #{funding_transaction.strategy.originating_instrument.simple_label}",
-          es: "Refund processed TODO", # TODO
+          es: "Reembolso enviado a #{funding_transaction.strategy.originating_instrument.simple_label}",
         )
         px = Suma::Payment::PayoutTransaction.start_new(
           funding_transaction.originating_payment_account,
@@ -159,7 +159,7 @@ class Suma::Payment::PayoutTransaction < Suma::Postgres::Model(:payment_payout_t
             associated_vendor_service_category:,
             memo: Suma::TranslatedText.create(
               en: "Credit from suma",
-              es: "Credit from suma TODO", # TODO
+              es: "Crédito de suma",
             ),
           )
         end

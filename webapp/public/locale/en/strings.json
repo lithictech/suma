@@ -324,10 +324,10 @@
     "auth_error": "Sorry, something went wrong. You can try again, or email apphelp@mysuma.org.",
     "create_account": "Create account",
     "intro": "Used to hide your email and phone number from vendors you use through the Suma platform. Follow the instructions for the vendors you want to create a Private Account with.",
-    "sign_in": "Sign in",
-    "signing_in": "Signing you in...",
     "no_private_accounts": "It looks like no vendors are set up for Private Accounts. Contact your administrator for more information.",
     "recent_messages_from_vendor": "Recent Messages from {{vendorName}}",
+    "sign_in": "Sign in",
+    "signing_in": "Signing you in...",
     "vendor_private_accounts": "{{vendorName}} Private Accounts"
   },
   "titles": {
