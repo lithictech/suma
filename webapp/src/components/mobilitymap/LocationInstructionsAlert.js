@@ -10,46 +10,37 @@ import Alert from "react-bootstrap/Alert";
 import Button from "react-bootstrap/Button";
 
 const LocationInstructionsAlert = () => {
-  const [browser, setBrowser] = React.useState({});
+  const [userAgent, setUserAgent] = React.useState({});
   const [linkKey, setLinkKey] = React.useState("");
   const [icon, setIcon] = React.useState("");
   const [language] = useCurrentLanguage();
   React.useEffect(() => {
-    if (!isEmpty(browser)) {
+    if (!isEmpty(userAgent)) {
       return;
     }
     api
       .getUserAgent()
       .then(api.pickData)
-      .then((browser) => {
-        setBrowser(browser);
+      .then((ua) => {
         // get the second word in case for "Microsoft Edge"
-        const device =
-          browser.device.toLowerCase().split(" ")[1] || browser.device.toLowerCase();
-        if (device === "unknown") {
-          return;
-        }
-        if (browser.isIos) {
+        const browser = ua.device.toLowerCase().split(" ")[1] || ua.device.toLowerCase();
+        if (ua.isIos) {
           setLinkKey("ios");
           setIcon("bi-apple");
-          return;
-        }
-        if (browser.isAndroid) {
+        } else if (ua.isAndroid) {
           setLinkKey("android");
           setIcon("bi-android");
-          return;
+        } else if (supportedBrowsers.includes(browser)) {
+          setLinkKey(browser);
+          setIcon(`bi-browser-${browser}`);
         }
-        const supportedBrowsers = ["safari", "chrome", "firefox", "edge"];
-        if (supportedBrowsers.includes(device)) {
-          setLinkKey(device);
-          setIcon(`bi-browser-${device}`);
-        }
+        setUserAgent(ua);
       });
-  }, [browser]);
+  }, [userAgent]);
   return (
     <Alert variant="warning" className="m-0">
       <i className="bi bi-exclamation-triangle-fill"></i> {t("errors:denied_geolocation")}
-      {!linkKey && browser && (
+      {!linkKey && !isEmpty(userAgent) && (
         <p className="mt-2 mb-0">{t("mobility:location_instructions_missing")}</p>
       )}
       {linkKey && (
@@ -77,3 +68,5 @@ const LocationInstructionsAlert = () => {
 };
 
 export default LocationInstructionsAlert;
+
+const supportedBrowsers = ["safari", "chrome", "firefox", "edge"];
