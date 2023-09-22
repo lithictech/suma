@@ -49,20 +49,27 @@ const LocationInstructionsAlert = () => {
   return (
     <Alert variant="warning" className="m-0">
       <i className="bi bi-exclamation-triangle-fill"></i> {t("errors:denied_geolocation")}
+      {!linkKey && browser && (
+        <p className="mt-2 mb-0">{t("mobility:location_instructions_missing")}</p>
+      )}
       {linkKey && (
         <>
           <p className="mt-2">
             <i className="me-1 bi bi-arrow-clockwise"></i>
             {md("mobility:reload_after_instructions")}
           </p>
-          <ExternalLink
-            component={Button}
-            href={externalLinks[linkKey](language)}
-            variant="outline-primary"
-          >
-            <i className={clsx("me-1", icon && `bi ${icon}`)}></i>
-            {t(`mobility:location_instructions_btn`, { device: linkKey })}
-          </ExternalLink>
+          <div className="d-flex flex-row align-items-center justify-content-center">
+            <ExternalLink
+              component={Button}
+              href={externalLinks[linkKey](language)}
+              variant="outline-primary"
+              className="h-100"
+              style={{ minWidth: "33%" }}
+            >
+              <i className={clsx("me-1", icon && `bi ${icon}`)}></i>
+              {t(`mobility:location_instructions_btn`, { device: linkKey })}
+            </ExternalLink>
+          </div>
         </>
       )}
     </Alert>

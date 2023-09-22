@@ -248,6 +248,7 @@
     "intro": "Ride with enhanced privacy and better prices.",
     "locate_me": "Locate me",
     "location_instructions_btn": "{{device}} instructions",
+    "location_instructions_missing": "We could not find instructions to enable location services on your browser. Contact your administrator for more help.",
     "mobility_lime_access_summer_2023_rate": "Free for 30 minutes, then {{unitCents, sumaCurrency}} per minute",
     "mobility_start_and_per_minute": "{{surchargeCents, sumaCurrency}} to unlock, {{unitCents, sumaCurrency}} per minute",
     "reload_after_instructions": "**Reload** this page after you are done following instructions.",

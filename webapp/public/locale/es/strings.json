@@ -248,6 +248,7 @@
     "intro": "Viaja con más seguridad y mejores precios.",
     "locate_me": "Localizarme",
     "location_instructions_btn": "Instrucciones de {{device}}",
+    "location_instructions_missing": "No pudimos encontrar instrucciones para permitir los servicios de localización en su aparato. Póngase en contacto con su administrador para obtener más ayuda.",
     "mobility_lime_access_summer_2023_rate": "Gratis durante 30 minutos, luego {{unitCents, sumaCurrency}} por minuto",
     "mobility_start_and_per_minute": "{{surchargeCents, sumaCurrency}} para iniciar, {{unitCents, sumaCurrency}} por minuto",
     "reload_after_instructions": "**Refrescar** esta página una vez que haya terminado de seguir las instrucciones.",
