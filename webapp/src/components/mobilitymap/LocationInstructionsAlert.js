@@ -1,8 +1,9 @@
 import api from "../../api";
 import { md, t } from "../../localization";
 import { useCurrentLanguage } from "../../localization/currentLanguage";
+import externalLinks from "../../modules/externalLinks";
+import ExternalLink from "../ExternalLink";
 import clsx from "clsx";
-import { capitalize } from "lodash";
 import isEmpty from "lodash/isEmpty";
 import React from "react";
 import Alert from "react-bootstrap/Alert";
@@ -12,8 +13,6 @@ const LocationInstructionsAlert = () => {
   const [browser, setBrowser] = React.useState({});
   const [linkKey, setLinkKey] = React.useState("");
   const [icon, setIcon] = React.useState("");
-  const [platform, setPlatform] = React.useState("");
-  const [version, setVersion] = React.useState(0);
   const [language] = useCurrentLanguage();
   React.useEffect(() => {
     if (!isEmpty(browser)) {
@@ -36,13 +35,10 @@ const LocationInstructionsAlert = () => {
           return;
         }
         if (browser.isAndroid) {
-          setLinkKey("chrome");
+          setLinkKey("android");
           setIcon("bi-android");
-          setPlatform("Android");
-          setVersion(browser.platformVersion);
           return;
         }
-        setPlatform("Desktop");
         const supportedBrowsers = ["safari", "chrome", "firefox", "edge"];
         if (supportedBrowsers.includes(device)) {
           setLinkKey(device);
@@ -59,25 +55,14 @@ const LocationInstructionsAlert = () => {
             <i className="me-1 bi bi-arrow-clockwise"></i>
             {md("mobility:reload_after_instructions")}
           </p>
-          <Button
+          <ExternalLink
+            component={Button}
+            href={externalLinks[linkKey](language)}
             variant="outline-primary"
-            href={t(`location_instructions_links:${linkKey}`, {
-              lang: language,
-              platform,
-              // for safari key
-              context: language,
-            })}
-            target="_blank"
           >
-            <>
-              <i className={clsx("me-1", icon && `bi ${icon}`)}></i>
-              {t(`location_instructions_links:label`, {
-                device: capitalize(linkKey),
-                context: version && "with_version",
-                version: version,
-              })}
-            </>
-          </Button>
+            <i className={clsx("me-1", icon && `bi ${icon}`)}></i>
+            {t(`mobility:location_instructions_btn`, { device: linkKey })}
+          </ExternalLink>
         </>
       )}
     </Alert>

@@ -239,16 +239,6 @@
     "refund": "{{memo}}",
     "unknown": "Tarifa de Suma no clasificada"
   },
-  "location_instructions_links": {
-    "chrome": "https://support.google.com/chrome/answer/142065?hl={{lang}}&co=GENIE.Platform%3D{{platform}}&oco=1",
-    "edge": "https://support.microsoft.com/{{lang}}-us/windows/windows-location-service-and-privacy-3a8eee0a-5b0b-dc07-eede-2a5ca1c49088",
-    "firefox": "https://support.mozilla.org/{{lang}}-US/kb/does-firefox-share-my-location-websites",
-    "ios": "https://support.apple.com/{{lang}}-us/HT207092",
-    "label": "Instrucciones de {{device}}",
-    "label_with_version": "Instrucciones de {{device}} {{version}}",
-    "safari_en": "https://support.apple.com/guide/mac-help/allow-apps-to-detect-the-location-of-your-mac-mh35873/mac#:~:text=Specify%20which%20apps%20and%20system%20services%20can%20use%20Location%20Services",
-    "safari_es": "https://support.apple.com/es-es/guide/mac-help/allow-apps-to-detect-the-location-of-your-mac-mh35873/mac#:~:text=Especificar%20qué%20apps%20y%20servicios%20del%20sistema%20pueden%20usar%20Localización"
-  },
   "mobility": {
     "do_not_park_intro": "No se estacione en esta zona. Podemos tomar medidas por violaciones repetidas.",
     "do_not_park_title": "Por favor no se estacione aquí.",
@@ -257,6 +247,7 @@
     "end_trip": "Finalizar el viaje",
     "intro": "Viaja con más seguridad y mejores precios.",
     "locate_me": "Localizarme",
+    "location_instructions_btn": "Instrucciones de {{device}}",
     "mobility_lime_access_summer_2023_rate": "Gratis durante 30 minutos, luego {{unitCents, sumaCurrency}} por minuto",
     "mobility_start_and_per_minute": "{{surchargeCents, sumaCurrency}} para iniciar, {{unitCents, sumaCurrency}} por minuto",
     "reload_after_instructions": "**Refrescar** esta página una vez que haya terminado de seguir las instrucciones.",
