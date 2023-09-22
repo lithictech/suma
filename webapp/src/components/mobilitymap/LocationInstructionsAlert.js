@@ -64,7 +64,10 @@ const LocationInstructionsAlert = () => {
             href={t(`location_instructions_links:${linkKey}`, {
               lang: language,
               platform,
+              // for safari key
+              context: language,
             })}
+            target="_blank"
           >
             <>
               <i className={clsx("me-1", icon && `bi ${icon}`)}></i>

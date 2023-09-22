@@ -246,7 +246,8 @@
     "ios": "https://support.apple.com/{{lang}}-us/HT207092",
     "label": "{{device}} instructions",
     "label_with_version": "{{device}} {{version}} instructions",
-    "safari": "https://support.apple.com/guide/mac-help/allow-apps-to-detect-the-location-of-your-mac-mh35873/mac#:~:text=use%20Location%20Services-,On%20your%20Mac%2C%20choose%20Apple%20menu%20%3E%20System%20Settings%2C%20click,may%20need%20to%20scroll%20down.\\)&text=Specify%20which%20apps%20and%20system%20services%20can%20use%20Location%20Services"
+    "safari_en": "https://support.apple.com/guide/mac-help/allow-apps-to-detect-the-location-of-your-mac-mh35873/mac#:~:text=Specify%20which%20apps%20and%20system%20services%20can%20use%20Location%20Services",
+    "safari_es": "https://support.apple.com/es-es/guide/mac-help/allow-apps-to-detect-the-location-of-your-mac-mh35873/mac#:~:text=Especificar%20qué%20apps%20y%20servicios%20del%20sistema%20pueden%20usar%20Localización"
   },
   "mobility": {
     "do_not_park_intro": "You cannot park in this area. We may take action for repeated violations.",
