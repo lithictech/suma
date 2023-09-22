@@ -1,5 +1,7 @@
 @import "./theme";
 
+$overlay-padding-x-size: 48px;
+
 .leaflet-container {
   font-family: $font-family-sans-serif !important;
   font-size: 0.85rem;
@@ -82,9 +84,9 @@
   /* zIndex higher than map (400) */
   z-index: 401;
   position: absolute !important;
-  top: 10px;
+  top: map-get($spacers, 4);
   left: 50%;
-  width: 300px;
+  width: calc(100% - $overlay-padding-x-size);
   margin: 0 auto;
   transform: translate(-50%, 0%);
 }
