@@ -352,6 +352,14 @@
     "terms_of_sale_summer_2023": "Condiciones de Venta (Verano 2023)",
     "terms_of_use": "Términos de Uso"
   },
+  "location_instructions_links": {
+    "label": "Instrucciones de {{device}}",
+    "firefox": "https://support.mozilla.org/{{lang}}-US/kb/does-firefox-share-my-location-websites",
+    "ios": "https://support.apple.com/{{lang}}-us/HT207092",
+    "safari": "https://support.apple.com/guide/mac-help/allow-apps-to-detect-the-location-of-your-mac-mh35873/mac#:~:text=use%20Location%20Services-,On%20your%20Mac%2C%20choose%20Apple%20menu%20%3E%20System%20Settings%2C%20click,may%20need%20to%20scroll%20down.\\)&text=Turn%20Location%20Services%20on%20or,the%20list%20on%20the%20right.",
+    "chrome": "https://support.google.com/chrome/answer/142065?hl={{lang}}&co=GENIE.Platform%3D{{platform}}&oco=1",
+    "edge": "https://support.microsoft.com/{{lang}}-us/windows/windows-location-service-and-privacy-3a8eee0a-5b0b-dc07-eede-2a5ca1c49088"
+  },
   "utilities": {
     "intro": "Suma quiere facilitarle el ahorro de dinero en sus facturas de servicios públicos y hacer que nuestras comunidades sean más resilientes frente al clima extremo y el cambio climático.\n\nRegístrese en nuestra lista de espera gratuita para ayudarnos a construir una comunidad de miembros y demostrar que todos merecen energía limpia y asequible.",
     "page_title": "Servicios públicos",
