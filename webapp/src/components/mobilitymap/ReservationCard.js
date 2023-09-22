@@ -3,7 +3,7 @@ import FormError from "../FormError";
 import PageLoader from "../PageLoader";
 import RLink from "../RLink";
 import CardOverlay from "./CardOverlay";
-import GeolocationInstructionsModal from "./GeolocationInstructionsModal";
+import LocationInstructionsAlert from "./LocationInstructionsAlert";
 import React from "react";
 import Button from "react-bootstrap/Button";
 import Card from "react-bootstrap/Card";
@@ -64,7 +64,7 @@ const ReservationCard = ({
       </Button>
     );
   } else {
-    action = <GeolocationInstructionsModal />;
+    action = <LocationInstructionsAlert />;
   }
 
   return (

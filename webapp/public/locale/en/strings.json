@@ -81,7 +81,7 @@
     "checkout_fatal_error": "Sorry, something went wrong trying to check out. Please go back and try again.",
     "checkout_no_items": "There are no items in your cart, or all of your items are unavailable. Please go back and try again.",
     "conflicting_bank_account": "You already have a bank account with that account and routing number. Please go back, or enter new account details.",
-    "denied_geolocation": "You need to enable Geolocation/Location Services to use Suma's Mobility app.",
+    "denied_geolocation": "You need to enable location services before using suma's Mobility Services.",
     "disambiguation_required": "$t(strings:errors:unhandled_error)",
     "eligibility_violation": "$t(strings:errors:unhandled_error)",
     "enable_geolocation_instructions": "Follow these instructions to enable Geolocation",
@@ -239,6 +239,15 @@
     "refund": "{{memo}}",
     "unknown": "Uncategorized Suma charge"
   },
+  "location_instructions_links": {
+    "chrome": "https://support.google.com/chrome/answer/142065?hl={{lang}}&co=GENIE.Platform%3D{{platform}}&oco=1",
+    "edge": "https://support.microsoft.com/{{lang}}-us/windows/windows-location-service-and-privacy-3a8eee0a-5b0b-dc07-eede-2a5ca1c49088",
+    "firefox": "https://support.mozilla.org/{{lang}}-US/kb/does-firefox-share-my-location-websites",
+    "ios": "https://support.apple.com/{{lang}}-us/HT207092",
+    "label": "{{device}} instructions",
+    "label_with_version": "{{device}} {{version}} instructions",
+    "safari": "https://support.apple.com/guide/mac-help/allow-apps-to-detect-the-location-of-your-mac-mh35873/mac#:~:text=use%20Location%20Services-,On%20your%20Mac%2C%20choose%20Apple%20menu%20%3E%20System%20Settings%2C%20click,may%20need%20to%20scroll%20down.\\)&text=Specify%20which%20apps%20and%20system%20services%20can%20use%20Location%20Services"
+  },
   "mobility": {
     "do_not_park_intro": "You cannot park in this area. We may take action for repeated violations.",
     "do_not_park_title": "Please do not park here",
@@ -249,6 +258,7 @@
     "locate_me": "Locate me",
     "mobility_lime_access_summer_2023_rate": "Free for 30 minutes, then {{unitCents, sumaCurrency}} per minute",
     "mobility_start_and_per_minute": "{{surchargeCents, sumaCurrency}} to unlock, {{unitCents, sumaCurrency}} per minute",
+    "reload_after_instructions": "**Reload** this page after you are done following instructions.",
     "reserve_scooter": "Reserve Scooter",
     "setup_private_account_with_vendor": "To get started, we'll set up a private account for you with {{vendorName}}.",
     "title": "Mobility Services",
@@ -351,14 +361,6 @@
     "terms_of_sale_holiday_2022": "Terms of Sale (Holidays 2022)",
     "terms_of_sale_summer_2023": "Terms of Sale (Summer 2023)",
     "terms_of_use": "Terms of Use"
-  },
-  "location_instructions_links": {
-    "label": "{{device}} instructions",
-    "firefox": "https://support.mozilla.org/{{lang}}-US/kb/does-firefox-share-my-location-websites",
-    "ios": "https://support.apple.com/{{lang}}-us/HT207092",
-    "safari": "https://support.apple.com/guide/mac-help/allow-apps-to-detect-the-location-of-your-mac-mh35873/mac#:~:text=use%20Location%20Services-,On%20your%20Mac%2C%20choose%20Apple%20menu%20%3E%20System%20Settings%2C%20click,may%20need%20to%20scroll%20down.\\)&text=Turn%20Location%20Services%20on%20or,the%20list%20on%20the%20right.",
-    "chrome": "https://support.google.com/chrome/answer/142065?hl={{lang}}&co=GENIE.Platform%3D{{platform}}&oco=1",
-    "edge": "https://support.microsoft.com/{{lang}}-us/windows/windows-location-service-and-privacy-3a8eee0a-5b0b-dc07-eede-2a5ca1c49088"
   },
   "utilities": {
     "intro": "Suma wants to make it easy for you to save money on your utility bills and make our communities more resilient against extreme weather and climate change.\n\nSign up for our free waiting list to help us build a community of members and to show that everyone deserves clean and affordable energy.",
