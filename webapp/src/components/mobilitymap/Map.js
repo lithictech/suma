@@ -12,6 +12,7 @@ import CardOverlay from "./CardOverlay";
 import LocationInstructionsAlert from "./LocationInstructionsAlert";
 import ReservationCard from "./ReservationCard";
 import TripCard from "./TripCard";
+import clsx from "clsx";
 import React from "react";
 import Alert from "react-bootstrap/Alert";
 import Button from "react-bootstrap/Button";
@@ -164,27 +165,25 @@ const Map = () => {
       {error && (
         <CardOverlay>
           <FormError error={error} noMargin component="div" />
-        </CardOverlay>
-      )}
-      {!error && readOnlyReason(user, "read_only_zero_balance") && (
-        <CardOverlay>
-          <Alert className="mb-0" variant="warning">
-            <p>
-              <i className="bi bi-exclamation-triangle-fill me-1"></i>
-              {t("mobility:add_funds_warning")}
-            </p>
-            <Stack direction="horizontal" className="justify-content-center">
-              <Button
-                as={RLink}
-                variant="outline-primary"
-                className="h-100"
-                style={{ minWidth: "33%" }}
-                to="/funding"
-              >
-                {t("forms:add_funds")}
-              </Button>
-            </Stack>
-          </Alert>
+          {readOnlyReason(user, "read_only_zero_balance") && (
+            <Alert className={clsx("mb-0", Boolean(error) && "mt-3")} variant="warning">
+              <p>
+                <i className="bi bi-exclamation-triangle-fill me-1"></i>
+                {t("mobility:add_funds_warning")}
+              </p>
+              <Stack direction="horizontal" className="justify-content-center">
+                <Button
+                  as={RLink}
+                  variant="outline-primary"
+                  className="h-100"
+                  style={{ minWidth: "33%" }}
+                  to="/funding"
+                >
+                  {t("forms:add_funds")}
+                </Button>
+              </Stack>
+            </Alert>
+          )}
         </CardOverlay>
       )}
     </div>
