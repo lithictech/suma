@@ -171,7 +171,7 @@ const Map = () => {
           <Alert className="mb-0" variant="warning">
             <p>
               <i className="bi bi-exclamation-triangle-fill me-1"></i>
-              {t("mobility:add_fudns_warning")}
+              {t("mobility:add_funds_warning")}
             </p>
             <Stack direction="horizontal" className="justify-content-center">
               <Button

@@ -239,7 +239,7 @@
   },
   "mobility": {
     "activate_location_warning": "Activate Location",
-    "add_money_warning": "Add money to your account before using suma's Mobility Services.",
+    "add_funds_warning": "Add money to your account before using suma's Mobility Services.",
     "do_not_park_intro": "You cannot park in this area. We may take action for repeated violations.",
     "do_not_park_title": "Please do not park here",
     "do_not_ride_intro": "You cannot ride in this area. We may take action for repeated violations.",
