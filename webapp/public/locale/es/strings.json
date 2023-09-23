@@ -1,6 +1,5 @@
 {
   "common": {
-    "add_money_to_account": "Haz click aquí para añadir fondos a tu cuenta",
     "add_to_homescreen": "Agregar a pantalla principal",
     "add_to_homescreen_intro": "Instale suma en la pantalla principal de su teléfono para una experiencia optimizada.",
     "app": "Aplicación",
@@ -81,10 +80,9 @@
     "checkout_fatal_error": "Lo sentimos, algo salió mal al intentar comprobarlo. Por favor, regrese y vuelva a intentarlo.",
     "checkout_no_items": "No hay artículos en su carrito, o ninguno de sus artículos está disponible. Por favor, regrese y vuelva a intentarlo.",
     "conflicting_bank_account": "Tienes una cuenta bancaria con ese número de cuenta y clave bancaria ya. Intenta de nuevo, o entre los datos de otra cuenta.",
-    "denied_geolocation": "Debe permitir servicios de localización en tu aparato antes de usar los Servicios de Movilidad de suma.",
+    "denied_geolocation": "Activar servicios de localización en tu aparato antes de usar los Servicios de Movilidad de suma.",
     "disambiguation_required": "$t(strings:errors:unhandled_error)",
     "eligibility_violation": "$t(strings:errors:unhandled_error)",
-    "enable_geolocation_instructions": "Cómo activar la geolocalización",
     "forbidden": "Acceso a estos recursos está restringido.",
     "impossible_phone_number": "Este número de teléfono no es valido.",
     "invalid_credentials": "Lo sentimos, estos datos están erroneos.",
@@ -240,6 +238,8 @@
     "unknown": "Tarifa de Suma no clasificada"
   },
   "mobility": {
+    "activate_location_warning": "Activar localización",
+    "add_funds_warning": "Añadir fondos a su cuenta antes de usar los Servicios de Movilidad de suma.",
     "do_not_park_intro": "No se estacione en esta zona. Podemos tomar medidas por violaciones repetidas.",
     "do_not_park_title": "Por favor no se estacione aquí.",
     "do_not_ride_intro": "No conduzca en esta zona. Podemos tomar medidas por violaciones repetidas.",
@@ -247,11 +247,10 @@
     "end_trip": "Finalizar el viaje",
     "intro": "Viaja con más seguridad y mejores precios.",
     "locate_me": "Localizarme",
-    "location_instructions_btn": "Instrucciones de {{device}}",
-    "location_instructions_missing": "No pudimos encontrar instrucciones para permitir los servicios de localización en su aparato. Póngase en contacto con su administrador para obtener más ayuda.",
+    "location_instructions_missing": "No pudimos encontrar instrucciones para activar los servicios de localización en su aparato. Póngase en contacto con su administrador para obtener más ayuda.",
     "mobility_lime_access_summer_2023_rate": "Gratis durante 30 minutos, luego {{unitCents, sumaCurrency}} por minuto",
     "mobility_start_and_per_minute": "{{surchargeCents, sumaCurrency}} para iniciar, {{unitCents, sumaCurrency}} por minuto",
-    "reload_after_instructions": "**Refrescar** esta página una vez que haya terminado de seguir las instrucciones.",
+    "reload_after_instructions": "**Refrescar** esta página despues de \"Activar Localización\".",
     "reserve_scooter": "Reservar una patineta eléctrica",
     "setup_private_account_with_vendor": "Para comenzar, configuraremos una cuenta privada para usted con {{vendorName}}.",
     "title": "Servicios de Movilidad",

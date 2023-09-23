@@ -7,12 +7,15 @@ import { extractErrorCode, useError } from "../../state/useError";
 import { useGlobalViewState } from "../../state/useGlobalViewState";
 import { useUser } from "../../state/useUser";
 import FormError from "../FormError";
+import RLink from "../RLink";
 import CardOverlay from "./CardOverlay";
 import LocationInstructionsAlert from "./LocationInstructionsAlert";
 import ReservationCard from "./ReservationCard";
 import TripCard from "./TripCard";
 import React from "react";
-import { Link } from "react-router-dom";
+import Alert from "react-bootstrap/Alert";
+import Button from "react-bootstrap/Button";
+import Stack from "react-bootstrap/Stack";
 
 const Map = () => {
   const { appNav, topNav } = useGlobalViewState();
@@ -161,9 +164,27 @@ const Map = () => {
       {error && (
         <CardOverlay>
           <FormError error={error} noMargin component="div" />
-          {readOnlyReason(user, "read_only_zero_balance") && (
-            <Link to="/funding">{t("common:add_money_to_account")}</Link>
-          )}
+        </CardOverlay>
+      )}
+      {!error && readOnlyReason(user, "read_only_zero_balance") && (
+        <CardOverlay>
+          <Alert className="mb-0" variant="warning">
+            <p>
+              <i className="bi bi-exclamation-triangle-fill me-1"></i>
+              {t("mobility:add_fudns_warning")}
+            </p>
+            <Stack direction="horizontal" className="justify-content-center">
+              <Button
+                as={RLink}
+                variant="outline-primary"
+                className="h-100"
+                style={{ minWidth: "33%" }}
+                to="/funding"
+              >
+                {t("forms:add_funds")}
+              </Button>
+            </Stack>
+          </Alert>
         </CardOverlay>
       )}
     </div>

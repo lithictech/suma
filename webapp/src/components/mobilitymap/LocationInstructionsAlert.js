@@ -8,6 +8,7 @@ import isEmpty from "lodash/isEmpty";
 import React from "react";
 import Alert from "react-bootstrap/Alert";
 import Button from "react-bootstrap/Button";
+import Stack from "react-bootstrap/Stack";
 
 const LocationInstructionsAlert = () => {
   const [userAgent, setUserAgent] = React.useState({});
@@ -28,7 +29,7 @@ const LocationInstructionsAlert = () => {
           setLinkKey("ios");
           setIcon("bi-apple");
         } else if (ua.isAndroid) {
-          setLinkKey("android");
+          setLinkKey(`android ${ua.platformVersion}`);
           setIcon("bi-android");
         } else if (supportedBrowsers.includes(browser)) {
           setLinkKey(browser);
@@ -37,10 +38,11 @@ const LocationInstructionsAlert = () => {
         setUserAgent(ua);
       });
   }, [userAgent]);
+  const locationInstructionsMissing = !linkKey && !isEmpty(userAgent);
   return (
-    <Alert variant="warning" className="m-0">
+    <Alert variant="warning" className="m-0 fs-6">
       <i className="bi bi-exclamation-triangle-fill"></i> {t("errors:denied_geolocation")}
-      {!linkKey && !isEmpty(userAgent) && (
+      {locationInstructionsMissing && (
         <p className="mt-2 mb-0">{t("mobility:location_instructions_missing")}</p>
       )}
       {linkKey && (
@@ -49,7 +51,7 @@ const LocationInstructionsAlert = () => {
             <i className="me-1 bi bi-arrow-clockwise"></i>
             {md("mobility:reload_after_instructions")}
           </p>
-          <div className="d-flex flex-row align-items-center justify-content-center">
+          <Stack direction="horizontal" className="justify-content-center">
             <ExternalLink
               component={Button}
               href={externalLinks[linkKey](language)}
@@ -58,9 +60,9 @@ const LocationInstructionsAlert = () => {
               style={{ minWidth: "33%" }}
             >
               <i className={clsx("me-1", icon && `bi ${icon}`)}></i>
-              {t(`mobility:location_instructions_btn`, { device: linkKey })}
+              {t("mobility:activate_location_warning")}
             </ExternalLink>
-          </div>
+          </Stack>
         </>
       )}
     </Alert>

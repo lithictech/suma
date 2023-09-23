@@ -1,6 +1,5 @@
 {
   "common": {
-    "add_money_to_account": "Press here to add money to your account",
     "add_to_homescreen": "Add to homescreen",
     "add_to_homescreen_intro": "Install suma to your homescreen for an optimized experience.",
     "app": "App",
@@ -81,10 +80,9 @@
     "checkout_fatal_error": "Sorry, something went wrong trying to check out. Please go back and try again.",
     "checkout_no_items": "There are no items in your cart, or all of your items are unavailable. Please go back and try again.",
     "conflicting_bank_account": "You already have a bank account with that account and routing number. Please go back, or enter new account details.",
-    "denied_geolocation": "You need to enable location services before using suma's Mobility Services.",
+    "denied_geolocation": "Activate location services before using suma's Mobility Services.",
     "disambiguation_required": "$t(strings:errors:unhandled_error)",
     "eligibility_violation": "$t(strings:errors:unhandled_error)",
-    "enable_geolocation_instructions": "Follow these instructions to enable Geolocation",
     "forbidden": "You are forbidden from accessing these resources.",
     "impossible_phone_number": "That doesn't look like a real phone number.",
     "invalid_credentials": "Sorry, that information is not correct.",
@@ -240,6 +238,8 @@
     "unknown": "Uncategorized Suma charge"
   },
   "mobility": {
+    "activate_location_warning": "Activate Location",
+    "add_money_warning": "Add money to your account before using suma's Mobility Services.",
     "do_not_park_intro": "You cannot park in this area. We may take action for repeated violations.",
     "do_not_park_title": "Please do not park here",
     "do_not_ride_intro": "You cannot ride in this area. We may take action for repeated violations.",
@@ -247,11 +247,10 @@
     "end_trip": "End Trip",
     "intro": "Ride with enhanced privacy and better prices.",
     "locate_me": "Locate me",
-    "location_instructions_btn": "{{device}} instructions",
-    "location_instructions_missing": "We could not find instructions to enable location services on your browser. Contact your administrator for more help.",
+    "location_instructions_missing": "We could not find instructions to activate location services on your browser. Contact your administrator for more help.",
     "mobility_lime_access_summer_2023_rate": "Free for 30 minutes, then {{unitCents, sumaCurrency}} per minute",
     "mobility_start_and_per_minute": "{{surchargeCents, sumaCurrency}} to unlock, {{unitCents, sumaCurrency}} per minute",
-    "reload_after_instructions": "**Reload** this page after you are done following instructions.",
+    "reload_after_instructions": "**Reload** this page after you \"Activate Location\".",
     "reserve_scooter": "Reserve Scooter",
     "setup_private_account_with_vendor": "To get started, we'll set up a private account for you with {{vendorName}}.",
     "title": "Mobility Services",
