@@ -13,7 +13,7 @@ const externalLinks = {
     `https://support.mozilla.org/${lang}-US/kb/does-firefox-share-my-location-websites`,
   ios: (lang) => `https://support.apple.com/${lang}-us/HT207092`,
   safari: (lang) =>
-    `https://support.apple.com/${lang}-${lang}/mac-help/allow-apps-to-detect-the-location-of-your-mac-mh35873/mac#:~:text=${
+    `https://support.apple.com/${lang}-${lang}/guide/mac-help/allow-apps-to-detect-the-location-of-your-mac-mh35873/mac#:~:text=${
       lang === "en"
         ? "Specify%20which%20apps%20and%20system%20services%20can%20use%20Location%20Services"
         : "Especificar%20qué%20apps%20y%20servicios%20del%20sistema%20pueden%20usar%20Localización"
