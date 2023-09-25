@@ -29,7 +29,7 @@ const LocationInstructionsAlert = () => {
           setLinkKey("ios");
           setIcon("bi-apple");
         } else if (ua.isAndroid) {
-          setLinkKey(`android ${ua.platformVersion}`);
+          setLinkKey(`android`);
           setIcon("bi-android");
         } else if (supportedBrowsers.includes(browser)) {
           setLinkKey(browser);
