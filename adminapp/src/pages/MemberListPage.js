@@ -3,10 +3,10 @@ import AdminLink from "../components/AdminLink";
 import ResourceTable from "../components/ResourceTable";
 import Unavailable from "../components/Unavailable";
 import { dayjs } from "../modules/dayConfig";
+import { maskPhoneNumber } from "../modules/maskPhoneNumber";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
 import useListQueryControls from "../shared/react/useListQueryControls";
 import React from "react";
-import { formatPhoneNumber } from "react-phone-number-input";
 
 export default function MemberListPage() {
   const { page, perPage, search, order, orderBy, setListQueryParams } =
@@ -55,9 +55,9 @@ export default function MemberListPage() {
         {
           id: "phone",
           label: "Phone Number",
-          align: "center",
+          align: "left",
           sortable: true,
-          render: (c) => formatPhoneNumber("+" + c.phone),
+          render: (c) => maskPhoneNumber("+" + c.phone),
         },
         {
           id: "name",

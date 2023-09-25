@@ -8,6 +8,7 @@ import RelatedList from "../components/RelatedList";
 import useErrorSnackbar from "../hooks/useErrorSnackbar";
 import { useUser } from "../hooks/user";
 import { dayjs } from "../modules/dayConfig";
+import { formatUsRegionPhoneNumber } from "../modules/formatUsRegionPhoneNumber";
 import Money from "../shared/react/Money";
 import SafeExternalLink from "../shared/react/SafeExternalLink";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
@@ -30,7 +31,6 @@ import _ from "lodash";
 import capitalize from "lodash/capitalize";
 import isEmpty from "lodash/isEmpty";
 import React from "react";
-import { formatPhoneNumberIntl } from "react-phone-number-input";
 import { useParams } from "react-router-dom";
 
 export default function MemberDetailPage() {
@@ -55,7 +55,6 @@ export default function MemberDetailPage() {
       .then((r) => replaceMember(r.data))
       .catch((e) => enqueueErrorSnackbar(e));
   }
-
   return (
     <>
       {memberLoading && <CircularProgress />}
@@ -73,7 +72,7 @@ export default function MemberDetailPage() {
               { label: "Email", value: member.email },
               {
                 label: "Phone Number",
-                value: formatPhoneNumberIntl("+" + member.phone),
+                value: formatUsRegionPhoneNumber(member.phone),
               },
               {
                 label: "Verified",
