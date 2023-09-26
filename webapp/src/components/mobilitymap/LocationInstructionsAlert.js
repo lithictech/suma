@@ -43,7 +43,7 @@ const LocationInstructionsAlert = () => {
     <Alert variant="warning" className="m-0 fs-6">
       <i className="bi bi-exclamation-triangle-fill"></i> {t("errors:denied_geolocation")}
       {locationInstructionsMissing && (
-        <p className="mt-2 mb-0">{t("mobility:location_instructions_missing")}</p>
+        <p className="mt-2 mb-0">{md("mobility:location_instructions_missing")}</p>
       )}
       {linkKey && (
         <>
