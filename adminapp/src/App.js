@@ -12,6 +12,7 @@ import MemberDetailPage from "./pages/MemberDetailPage";
 import MemberListPage from "./pages/MemberListPage";
 import MessageDetailPage from "./pages/MessageDetailPage";
 import MessageListPage from "./pages/MessageListPage";
+import OfferingCreatePage from "./pages/OfferingCreatePage";
 import OfferingDetailPage from "./pages/OfferingDetailPage";
 import OfferingListPage from "./pages/OfferingListPage";
 import OfferingPickListPage from "./pages/OfferingPickListPage";
@@ -158,6 +159,11 @@ function PageSwitch() {
         exact
         path="/offerings"
         element={renderWithHocs(redirectIfUnauthed, withLayout(), OfferingListPage)}
+      />
+      <Route
+        exact
+        path="/offerings/new"
+        element={renderWithHocs(redirectIfUnauthed, withLayout(), OfferingCreatePage)}
       />
       <Route
         exact
