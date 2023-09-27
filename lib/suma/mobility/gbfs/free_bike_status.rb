@@ -19,7 +19,7 @@ class Suma::Mobility::Gbfs::FreeBikeStatus < Suma::Mobility::Gbfs::ComponentSync
       next unless (vehicle_type = vehicle_types_by_id[bike["vehicle_type_id"]])
       battery_level = nil
       if (current_range = bike["current_range_meters"]) && (max_range = vehicle_type["max_range_meters"])
-        battery_level = ((current_range.to_f / max_range) * 100).round
+        battery_level = ((current_range.to_f / max_range) * 100).round.clamp(0, 100)
       end
       row = {
         lat: bike["lat"],
