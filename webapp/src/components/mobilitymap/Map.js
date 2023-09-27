@@ -7,7 +7,7 @@ import { extractErrorCode, useError } from "../../state/useError";
 import { useGlobalViewState } from "../../state/useGlobalViewState";
 import { useUser } from "../../state/useUser";
 import FormError from "../FormError";
-import RLink from "../RLink";
+import SumaButton from "../SumaButton";
 import CardOverlay from "./CardOverlay";
 import LocationInstructionsAlert from "./LocationInstructionsAlert";
 import ReservationCard from "./ReservationCard";
@@ -15,8 +15,6 @@ import TripCard from "./TripCard";
 import clsx from "clsx";
 import React from "react";
 import Alert from "react-bootstrap/Alert";
-import Button from "react-bootstrap/Button";
-import Stack from "react-bootstrap/Stack";
 
 const Map = () => {
   const { appNav, topNav } = useGlobalViewState();
@@ -171,17 +169,7 @@ const Map = () => {
                 <i className="bi bi-exclamation-triangle-fill me-1"></i>
                 {t("mobility:add_funds_warning")}
               </p>
-              <Stack direction="horizontal" className="justify-content-center">
-                <Button
-                  as={RLink}
-                  variant="outline-primary"
-                  className="h-100"
-                  style={{ minWidth: "33%" }}
-                  to="/funding"
-                >
-                  {t("forms:add_funds")}
-                </Button>
-              </Stack>
+              <SumaButton href="/funding">{t("forms:add_funds")}</SumaButton>
             </Alert>
           )}
         </CardOverlay>

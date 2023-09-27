@@ -2,6 +2,7 @@ import { mdp, t } from "../../localization";
 import FormError from "../FormError";
 import PageLoader from "../PageLoader";
 import RLink from "../RLink";
+import SumaButton from "../SumaButton";
 import CardOverlay from "./CardOverlay";
 import LocationInstructionsAlert from "./LocationInstructionsAlert";
 import React from "react";
@@ -53,15 +54,15 @@ const ReservationCard = ({
     );
   } else if (vehicle.deeplink) {
     action = (
-      <Button size="sm" variant="success" className="w-100" href={vehicle.deeplink}>
+      <SumaButton variant="success" href={vehicle.deeplink}>
         {t("common:open_app")} <i className="ms-2 bi bi-box-arrow-up-right"></i>
-      </Button>
+      </SumaButton>
     );
   } else if (lastLocation) {
     action = (
-      <Button size="sm" variant="success" className="w-100" onClick={handleReserve}>
+      <SumaButton variant="success" onClick={handleReserve}>
         {t("mobility:reserve_scooter")}
-      </Button>
+      </SumaButton>
     );
   } else {
     action = <LocationInstructionsAlert />;

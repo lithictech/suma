@@ -3,12 +3,11 @@ import { md, t } from "../../localization";
 import { useCurrentLanguage } from "../../localization/currentLanguage";
 import externalLinks from "../../modules/externalLinks";
 import ExternalLink from "../ExternalLink";
+import SumaButton from "../SumaButton";
 import clsx from "clsx";
 import isEmpty from "lodash/isEmpty";
 import React from "react";
 import Alert from "react-bootstrap/Alert";
-import Button from "react-bootstrap/Button";
-import Stack from "react-bootstrap/Stack";
 
 const LocationInstructionsAlert = () => {
   const [userAgent, setUserAgent] = React.useState({});
@@ -51,18 +50,10 @@ const LocationInstructionsAlert = () => {
             <i className="me-1 bi bi-arrow-clockwise"></i>
             {md("mobility:reload_after_instructions")}
           </p>
-          <Stack direction="horizontal" className="justify-content-center">
-            <ExternalLink
-              component={Button}
-              href={externalLinks[linkKey](language)}
-              variant="outline-primary"
-              className="h-100"
-              style={{ minWidth: "33%" }}
-            >
-              <i className={clsx("me-1", icon && `bi ${icon}`)}></i>
-              {t("mobility:activate_location_warning")}
-            </ExternalLink>
-          </Stack>
+          <SumaButton href={externalLinks[linkKey](language)} as={ExternalLink}>
+            <i className={clsx("me-1", icon && `bi ${icon}`)}></i>
+            {t("mobility:activate_location_warning")}
+          </SumaButton>
         </>
       )}
     </Alert>
