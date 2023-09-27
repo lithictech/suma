@@ -23,6 +23,28 @@ class Suma::AdminAPI::CommerceOfferings < Suma::AdminAPI::V1
       present_collection ds, with: ListCommerceOfferingEntity
     end
 
+    params do
+      requires :description, type: JSON
+      requires :fulfillment_prompt, type: JSON
+      requires :fulfillment_confirmation, type: JSON
+      requires :period_begin, type: Time
+      requires :period_end, type: Time
+      optional :begin_fulfillment_at, type: Float, allow_blank: true
+      optional :prohibit_charge_at_checkout, type: Boolean, allow_blank: true
+    end
+    post :create do
+      offering = Suma::Commerce::Offering.create(
+        description: Suma::TranslatedText.find_or_create(**params[:description]),
+        fulfillment_prompt: Suma::TranslatedText.find_or_create(**params[:fulfillment_prompt]),
+        fulfillment_confirmation: Suma::TranslatedText.find_or_create(**params[:fulfillment_confirmation]),
+        period: params[:period_begin]..params[:period_end],
+        begin_fulfillment_at: params[:begin_fulfillment_at] || nil,
+        prohibit_charge_at_checkout: params[:prohibit_charge_at_checkout] || false,
+      )
+      status 200
+      present offering, with: DetailedCommerceOfferingEntity
+    end
+
     route_param :id, type: Integer do
       helpers do
         def lookup

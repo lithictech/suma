@@ -62,6 +62,22 @@ RSpec.describe Suma::AdminAPI::CommerceOfferings, :db do
     end
   end
 
+  describe "GET /v1/commerce_offerings/create" do
+    it "creates the offering" do
+      o = Suma::Fixtures.offering.create
+
+      post "/v1/commerce_offerings/create",
+           description: {en: "test", es: "prueba"},
+           fulfillment_prompt: {en: "EN prompt", es: "ES prompt"},
+           fulfillment_confirmation: {en: "EN confirmation", es: "ES confirmation"},
+           period_begin: Time.new(2023, 7, 1, 0, 0, 0, "-0700"),
+           period_end: Time.new(2023, 10, 1, 0, 0, 0, "-0700")
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.that_includes(id: be > o.id)
+    end
+  end
+
   describe "GET /v1/commerce_offerings/:id" do
     it "returns the offering" do
       order = Suma::Fixtures.order.as_purchased_by(admin).create
