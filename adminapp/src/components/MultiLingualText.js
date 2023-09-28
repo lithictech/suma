@@ -13,6 +13,9 @@ const MultiLingualText = React.forwardRef(function MultiLingualText(
   ref
 ) {
   const handleSelect = (t) => {
+    if (!t) {
+      return;
+    }
     onChange({ en: t.en, es: t.es });
   };
   const handleTextChange = (lang, txt) => {
@@ -20,8 +23,8 @@ const MultiLingualText = React.forwardRef(function MultiLingualText(
   };
   searchParams = searchParams || {};
   const doSearch = React.useCallback(
-    (language, seachArg) => {
-      const param = { language, ...searchParams, ...seachArg };
+    (language, searchArg) => {
+      const param = { language, ...searchParams, ...searchArg };
       return api.searchTranslations(param);
     },
     [searchParams]

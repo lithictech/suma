@@ -33,7 +33,7 @@ const AutocompleteSearch = React.forwardRef(function AutocompleteSearch(
   const [options, setOptions] = React.useState([]);
 
   function handleChange(e) {
-    if (!e || e.target.value === 0) {
+    if (!e || !e.target.value || e.target.value === 0) {
       // Change is invoked on init (with a null event) and on select (with the value 0, no matter what is selected).
       // I don't understand what this means.
       return;
