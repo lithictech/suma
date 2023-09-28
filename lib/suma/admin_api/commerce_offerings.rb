@@ -23,13 +23,14 @@ class Suma::AdminAPI::CommerceOfferings < Suma::AdminAPI::V1
       present_collection ds, with: ListCommerceOfferingEntity
     end
 
+    # TODO: Add fulfillment_options
     params do
       requires :description, type: JSON
       requires :fulfillment_prompt, type: JSON
       requires :fulfillment_confirmation, type: JSON
       requires :period_begin, type: Time
       requires :period_end, type: Time
-      optional :begin_fulfillment_at, type: Float, allow_blank: true
+      optional :begin_fulfillment_at, type: Time, allow_blank: true
       optional :prohibit_charge_at_checkout, type: Boolean, allow_blank: true
     end
     post :create do
@@ -38,9 +39,10 @@ class Suma::AdminAPI::CommerceOfferings < Suma::AdminAPI::V1
         fulfillment_prompt: Suma::TranslatedText.find_or_create(**params[:fulfillment_prompt]),
         fulfillment_confirmation: Suma::TranslatedText.find_or_create(**params[:fulfillment_confirmation]),
         period: params[:period_begin]..params[:period_end],
-        begin_fulfillment_at: params[:begin_fulfillment_at] || nil,
+        begin_fulfillment_at: params[:begin_fulfillment_at],
         prohibit_charge_at_checkout: params[:prohibit_charge_at_checkout] || false,
       )
+      created_resource_headers(offering.id, offering.admin_link)
       status 200
       present offering, with: DetailedCommerceOfferingEntity
     end
