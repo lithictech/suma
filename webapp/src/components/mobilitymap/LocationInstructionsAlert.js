@@ -46,7 +46,7 @@ const LocationInstructionsAlert = () => {
           ))}
         </>
       )}
-      {!isLoading && isEmpty(buttonProperties) && (
+      {isLoading.isOff && isEmpty(buttonProperties) && (
         <p className="mt-2 mb-0">{md("mobility:location_instructions_missing")}</p>
       )}
     </Alert>
