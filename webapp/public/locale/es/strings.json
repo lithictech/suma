@@ -239,7 +239,7 @@
     "unknown": "Tarifa de Suma no clasificada"
   },
   "mobility": {
-    "activate_location_warning": "Activar localización",
+    "activate_device": "Activar {{device}}",
     "add_funds_warning": "Añadir fondos a su cuenta antes de usar los Servicios de Movilidad de suma.",
     "do_not_park_intro": "No se estacione en esta zona. Podemos tomar medidas por violaciones repetidas.",
     "do_not_park_title": "Por favor no se estacione aquí.",
@@ -251,7 +251,7 @@
     "location_instructions_missing": "No pudimos encontrar instrucciones para activar los servicios de localización en su aparato. Comuníquese con suma en $t(strings:common:suma_help_email) para más ayuda.",
     "mobility_lime_access_summer_2023_rate": "Gratis durante 30 minutos, luego {{unitCents, sumaCurrency}} por minuto",
     "mobility_start_and_per_minute": "{{surchargeCents, sumaCurrency}} para iniciar, {{unitCents, sumaCurrency}} por minuto",
-    "reload_after_instructions": "**Refrescar** esta página despues de \"Activar Localización\".",
+    "reload_after_instructions": "**Refrescar** esta página después de activar los servicios de localización en tu navegador. Utilice los siguientes botone(s) como guía.",
     "reserve_scooter": "Reservar una patineta eléctrica",
     "setup_private_account_with_vendor": "Para comenzar, configuraremos una cuenta privada para usted con {{vendorName}}.",
     "title": "Servicios de Movilidad",

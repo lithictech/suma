@@ -239,7 +239,7 @@
     "unknown": "Uncategorized Suma charge"
   },
   "mobility": {
-    "activate_location_warning": "Activate Location",
+    "activate_device": "Activate {{device}}",
     "add_funds_warning": "Add money to your account before using suma's Mobility Services.",
     "do_not_park_intro": "You cannot park in this area. We may take action for repeated violations.",
     "do_not_park_title": "Please do not park here",
@@ -251,7 +251,7 @@
     "location_instructions_missing": "We could not find instructions to activate location services on your browser. Please contact suma at $t(strings:common:suma_help_email) for more help.",
     "mobility_lime_access_summer_2023_rate": "Free for 30 minutes, then {{unitCents, sumaCurrency}} per minute",
     "mobility_start_and_per_minute": "{{surchargeCents, sumaCurrency}} to unlock, {{unitCents, sumaCurrency}} per minute",
-    "reload_after_instructions": "**Reload** this page after you \"Activate Location\".",
+    "reload_after_instructions": "**Reload** this page after activating location services on your browser. Use the following button(s) as a guide.",
     "reserve_scooter": "Reserve Scooter",
     "setup_private_account_with_vendor": "To get started, we'll set up a private account for you with {{vendorName}}.",
     "title": "Mobility Services",
