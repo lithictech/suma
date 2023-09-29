@@ -10,9 +10,9 @@ import dayjs from "dayjs";
 // import isTomorrow from 'dayjs/plugin/isTomorrow';
 // import relativeTime from 'dayjs/plugin/relativeTime';
 import "dayjs/locale/en";
-import utc from 'dayjs/plugin/utc';
 import localizedFormat from "dayjs/plugin/localizedFormat";
 import timezone from "dayjs/plugin/timezone";
+import utc from "dayjs/plugin/utc";
 
 dayjs.extend(timezone);
 dayjs.extend(utc);

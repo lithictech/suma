@@ -53,6 +53,7 @@ export default {
   impersonate: ({ id, ...data }) => post(`/adminapi/v1/auth/impersonate/${id}`, data),
   unimpersonate: (data) => del(`/adminapi/v1/auth/impersonate`, data),
   getCurrencies: (data) => get(`/adminapi/v1/meta/currencies`, data),
+  getSupportedGeographies: (data) => get(`/adminapi/v1/meta/geographies`, data),
   getVendorServiceCategories: (data) =>
     get(`/adminapi/v1/meta/vendor_service_categories`, data),
   getEligibilityConstraints: (data) =>

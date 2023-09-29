@@ -3,29 +3,37 @@ import FormButtons from "../components/FormButtons";
 import MultiLingualText from "../components/MultiLingualText";
 import useBusy from "../hooks/useBusy";
 import useErrorSnackbar from "../hooks/useErrorSnackbar";
+import useMountEffect from "../shared/react/useMountEffect";
+import useToggle from "../shared/react/useToggle";
 import RemoveIcon from "@mui/icons-material/Remove";
 import {
+  Button,
   Divider,
+  FormControl,
   FormControlLabel,
   FormLabel,
+  MenuItem,
+  Select,
   Stack,
   Switch,
+  TextField,
   Typography,
 } from "@mui/material";
 import Box from "@mui/material/Box";
 import { DateTimePicker } from "@mui/x-date-pickers";
+import { last } from "lodash";
 import React from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 
 export default function OfferingCreatePage() {
-  // TODO: Add ability to add fulfillment options
+  // TODO: Add ability to add images
   const navigate = useNavigate();
-  const translationObj = { en: "", es: "" };
   const [description, setDescription] = React.useState(translationObj);
   const [fulfillmentPrompt, setFulfillmentPrompt] = React.useState(translationObj);
   const [fulfillmentConfirmation, setFulfillmentConfirmation] =
     React.useState(translationObj);
+  const [fulfillmentOptions, setFulfillmentOptions] = React.useState([]);
   const [periodBegin, setPeriodBegin] = React.useState(null);
   const [periodEnd, setPeriodEnd] = React.useState(null);
   const [beginFulfillmentAt, setBeginFulfillmentAt] = React.useState(null);
@@ -97,6 +105,7 @@ export default function OfferingCreatePage() {
               }
             />
           </Stack>
+          <AddFulfillmentOption />
           <FormLabel>Period:</FormLabel>
           <Stack
             direction={{ xs: "column", sm: "row" }}
@@ -141,3 +150,148 @@ export default function OfferingCreatePage() {
     </div>
   );
 }
+
+function AddFulfillmentOption() {
+  const [options, setOptions] = React.useState([]);
+  // TODO: Figure out better way to track option components for add/delete
+  const handleRemoveOption = (optionKey) => {
+    setOptions((prev) => {
+      const result = prev.filter((op) => {
+        return op.key !== optionKey.toString();
+      });
+      return [...result];
+    });
+  };
+  const handleAddOption = () => {
+    setOptions((prev) => {
+      return [
+        ...prev,
+        <NewOption
+          key={prev.length}
+          onRemoveOption={() => handleRemoveOption(prev.length)}
+        />,
+      ];
+    });
+  };
+  return (
+    <>
+      <Button onClick={() => handleAddOption()}>Add Fulfillment option</Button>
+      {options.map((op) => op)}
+    </>
+  );
+}
+
+function NewOption({ onRemoveOption }) {
+  const [type, setType] = React.useState("");
+  const [description, setDescription] = React.useState(translationObj);
+  const addingAddress = useToggle(false);
+  return (
+    <Box component="span" sx={{ p: 2, border: "1px dashed grey" }}>
+      <Typography variant="h6">
+        Fulfillment Option
+        <Button onClick={(e) => onRemoveOption(e)}>Remove</Button>
+      </Typography>
+      <Stack direction="column" spacing={2}>
+        <FormLabel>Type (pickup is commonly used here):</FormLabel>
+        <TextField
+          value={type}
+          variant="outlined"
+          onChange={(e) => setType(e.target.value)}
+        />
+        <FormLabel>Description:</FormLabel>
+        <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
+          <MultiLingualText
+            label="Description"
+            fullWidth
+            value={description}
+            required
+            onChange={(description) => setDescription(description)}
+          />
+        </Stack>
+        <Stack direction="column" spacing={2}>
+          {addingAddress.isOff ? (
+            <Button onClick={() => addingAddress.turnOn()} disabled={addingAddress.isOn}>
+              Add Address
+            </Button>
+          ) : (
+            <>
+              <Button onClick={() => addingAddress.turnOff()} variant="warning">
+                Remove Address
+              </Button>
+              <OptionAddress editing={addingAddress} />
+            </>
+          )}
+        </Stack>
+      </Stack>
+    </Box>
+  );
+}
+
+function OptionAddress({ editing }) {
+  const [address1, setAddress1] = React.useState("");
+  const [address2, setAddress2] = React.useState("");
+  const [city, setCity] = React.useState("");
+  const [state, setState] = React.useState("");
+  const [postalCode, setPostalCode] = React.useState("");
+  const [supportedGeographies, setSupportedGeographies] = React.useState({});
+
+  useMountEffect(() => {
+    api
+      .getSupportedGeographies()
+      .then(api.pickData)
+      .then((data) => {
+        setSupportedGeographies(data);
+        setState(last(data.provinces).value);
+      });
+  }, []);
+  if (!editing) {
+    return;
+  }
+  return (
+    <Stack direction="column" spacing={2}>
+      <FormLabel>Address</FormLabel>
+      <TextField
+        value={address1}
+        size="small"
+        label="Street Address"
+        variant="outlined"
+        onChange={(e) => setAddress1(e.target.value)}
+      />
+      <TextField
+        value={address2}
+        size="small"
+        label="Unit or Apartment Number"
+        variant="outlined"
+        onChange={(e) => setAddress2(e.target.value)}
+      />
+      <TextField
+        value={city}
+        size="small"
+        label="City"
+        variant="outlined"
+        onChange={(e) => setCity(e.target.value)}
+      />
+      <Stack direction="row" spacing={2}>
+        <FormControl size="small">
+          <Select value={state} label="State" onChange={(e) => setState(e.target.value)}>
+            {!!supportedGeographies.provinces &&
+              supportedGeographies.provinces.map((st) => (
+                <MenuItem key={st.value} value={st.value}>
+                  {st.label}
+                </MenuItem>
+              ))}
+          </Select>
+        </FormControl>
+        <TextField
+          value={postalCode}
+          size="small"
+          label="Zip code"
+          variant="outlined"
+          onChange={(e) => setPostalCode(e.target.value)}
+        />
+      </Stack>
+    </Stack>
+  );
+}
+
+const translationObj = { en: "", es: "" };
