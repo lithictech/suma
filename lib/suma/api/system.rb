@@ -34,11 +34,14 @@ class Suma::API::System < Suma::Service
     use_http_expires_caching 7.days
     browser = Browser.new(request.headers["User-Agent"], accept_language: "en-us")
     {
-      device: browser.name,
-      platform: browser.platform.name,
-      platform_version: browser.platform.version,
-      is_android: browser.platform.android?,
-      is_ios: browser.platform.ios?,
+      # get the second word in case of "Microsoft Edge"
+      browser: browser.name.downcase.split.last || browser.platform.name.downcase,
+      # get the first word in case of "ios (device)"
+      platform: browser.platform.name.downcase.split.first,
+      is_apple: browser.platform.ios? || browser.platform.mac? || browser.safari?,
+      supported_platform: browser.platform.windows? || browser.platform.android? || browser.platform.ios? ||
+        browser.platform.mac?,
+      supported_browser: browser.chrome? || browser.firefox? || browser.edge?,
     }
   end
 end

@@ -30,7 +30,7 @@ RSpec.describe Suma::API::System do
       get "/useragent"
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.that_includes(
-        device: "Safari", platform: "iOS (iPad)", platform_version: "14.7.1", is_android: false, is_ios: true,
+        browser: "safari", platform: "ios", is_apple: true, supported_browser: false, supported_platform: true,
       )
     end
   end
