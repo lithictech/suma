@@ -423,7 +423,13 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
       vc.app_install_link = "https://limebike.app.link/m2h6hB9qrS"
       vc.auth_url = "https://web-production.lime.bike/api/rider/v2/onboarding/magic-link"
       vc.auth_body_template = "email=%{email}&user_agreement_version=5&user_agreement_country_code=US"
-      vc.auth_headers = {"Content-Type" => "application/x-www-form-urlencoded"}
+      vc.auth_headers = {
+        "Content-Type" => "application/x-www-form-urlencoded",
+        "Platform" => "Android",
+        "App-Version" => "3.126.0",
+        "User-Agent" => "Android Lime/3.126.0; (com.limebike; build:3.126.0; Android 33) 4.10.0",
+        "X-Suma" => "holá",
+      }
       vc.instructions = Suma::TranslatedText.find_or_create(
         en: <<~MD,
           1. Download the Lime App in the Play or App Store, or follow <a href="https://limebike.app.link/m2h6hB9qrS" target="_blank">this link</a>.
