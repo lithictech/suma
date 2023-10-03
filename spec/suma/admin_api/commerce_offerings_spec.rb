@@ -70,6 +70,17 @@ RSpec.describe Suma::AdminAPI::CommerceOfferings, :db do
            description: {en: "test", es: "prueba"},
            fulfillment_prompt: {en: "EN prompt", es: "ES prompt"},
            fulfillment_confirmation: {en: "EN confirmation", es: "ES confirmation"},
+           fulfillment_options: [{
+             description: {en: "EN confirmation", es: "ES confirmation"},
+             type: "TEST",
+             address: {
+               address1: "test st",
+               address2: "",
+               city: "Portland",
+               state_or_province: "Oregon",
+               postal_code: "97209",
+             },
+           }],
            period_begin: Time.new(2023, 7, 1, 0, 0, 0, "-0700"),
            period_end: Time.new(2023, 10, 1, 0, 0, 0, "-0700")
 
