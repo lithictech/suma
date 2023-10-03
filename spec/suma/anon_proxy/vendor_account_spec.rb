@@ -126,15 +126,53 @@ RSpec.describe "Suma::AnonProxy::VendorAccount", :db do
     end
   end
 
-  describe "latest_access_code_if_recent" do
+  describe "replace_access_code" do
     let(:va) { Suma::Fixtures.anon_proxy_vendor_account.create }
 
-    it "returns the code if recent or nil if not" do
-      expect(va).to have_attributes(latest_access_code_if_recent: nil)
-      va.replace_access_code("abc")
-      expect(va).to have_attributes(latest_access_code_if_recent: "abc")
-      va.replace_access_code("abc", at: 20.minutes.ago)
-      expect(va).to have_attributes(latest_access_code_if_recent: nil)
+    it "sets vendor account latest_access fields" do
+      va.replace_access_code("abc", "https://lime.app/magic_link_token=abc")
+      expect(va).to have_attributes(
+        latest_access_code: "abc",
+        latest_access_code_magic_link: "https://lime.app/magic_link_token=abc",
+      )
+    end
+  end
+
+  describe "latest_access_code_is_recent?" do
+    let(:va) { Suma::Fixtures.anon_proxy_vendor_account.create }
+
+    it "returns true if latest_access_code is recent" do
+      expect(va.latest_access_code_is_recent?).to equal(false)
+      va.replace_access_code("abc", "https://lime.app/magic_link_token=abc")
+      expect(va.latest_access_code_is_recent?).to equal(true)
+    end
+  end
+
+  describe "auth_request" do
+    let(:va) do
+      Suma::Fixtures.anon_proxy_vendor_account.with_configuration(
+        auth_url: "https://x.y",
+        auth_http_method: "POST",
+        auth_headers: {"X-Y" => "b"},
+      ).create
+    end
+
+    it "returns the auth fields for the configuration" do
+      expect(va.auth_request).to include(
+        http_method: "POST",
+        url: "https://x.y",
+        headers: {"X-Y" => "b"},
+        body: '{"email":"","phone":""}',
+      )
+    end
+
+    it "can render phone and email" do
+      va.contact = Suma::Fixtures.anon_proxy_member_contact.create
+      va.contact.email = "x@y.z"
+      va.contact.phone = "12223334444"
+      expect(va.auth_request).to include(
+        body: '{"email":"x@y.z","phone":"12223334444"}',
+      )
     end
   end
 end

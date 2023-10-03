@@ -420,31 +420,28 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
       vc.uses_sms = false
       vc.enabled = true
       vc.message_handler_key = "lime"
-      vc.app_launch_link = "https://limebike.app.link/m2h6hB9qrS"
+      vc.app_install_link = "https://limebike.app.link/m2h6hB9qrS"
+      vc.auth_url = "https://web-production.lime.bike/api/rider/v2/onboarding/magic-link"
+      vc.auth_body_template = "email=%{email}&user_agreement_version=5&user_agreement_country_code=US"
+      vc.auth_headers = {
+        "Content-Type" => "application/x-www-form-urlencoded",
+        "Platform" => "Android",
+        "App-Version" => "3.126.0",
+        "User-Agent" => "Android Lime/3.126.0; (com.limebike; build:3.126.0; Android 33) 4.10.0",
+        "X-Suma" => "holá",
+      }
       vc.instructions = Suma::TranslatedText.find_or_create(
         en: <<~MD,
           1. Download the Lime App in the Play or App Store, or follow <a href="https://limebike.app.link/m2h6hB9qrS" target="_blank">this link</a>.
-          2. Start the Lime App.
-          3. When prompted to sign in, choose 'Other options'
-          4. Choose 'Email'
-          5. Enter the email **<Copyable>%{address}</Copyable>**, and press 'Next'.
-          6. The next screen is 'Check Your Email'. Instead, **reopen the suma web app.**
-          7. Within a few seconds, a verification code will appear in Suma.
-          8. Once it does, copy the code.
-          9. Go back to Lime, press 'Enter Code', paste the code into the Lime app, and press 'Next'.
-          10. You are logged into Lime and ready to start riding.
+          2. If you already have the app and are signed in, please sign out first.
+          3. Press the 'Open App' button. You will be logged into a Lime account linked to your suma account.
+          4. You can see available scooters in suma or in Lime, but you'll use the Lime app to take your rides.
         MD
         es: <<~MD,
           1. Descargue la aplicación Lime en Play o App Store, o siga <a href="https://limebike.app.link/m2h6hB9qrS" target="_blank">este enlace</a>.
-          2. Inicie la aplicación Lime.
-          3. Cuando se le solicite iniciar sesión, elija 'Otras opciones'
-          4. Elija 'Email'
-          5. Ingrese el correo electrónico **<Copyable>%{address}</Copyable>**, y presione 'Siguiente'.
-          6. La siguiente pantalla es 'Verifique su correo electrónico'. Sin embargo, **reabra la app de suma.**
-          7. En unos segundos, Suma te enviará un SMS con el código de Lime. Copia el código.
-          8. Una vez que lo haga, copie el código.
-          9. Vuelva a Lime, presione 'Ingresar código', pegue el código en la aplicación de Lime y presione 'Siguiente'.
-          10. Has iniciado sesión en Lime y estás listo para empezar a conducir.
+          2. Si ya tiene la aplicación y ha iniciado sesión, cierre sesión primero.
+          3. Presione el botón 'Abrir aplicación'. Iniciará sesión en una cuenta de Lime vinculada a su cuenta de suma.
+          4. Puedes ver los scooters disponibles en suma o en Lime, pero usarás la aplicación Lime para realizar tus viajes.
         MD
       )
     end

@@ -38,10 +38,11 @@ class Suma::AnonProxy::VendorAccount < Suma::Postgres::Model(:anon_proxy_vendor_
       accounts = member.anon_proxy_vendor_accounts_dataset.where(configuration_id: valid_configs.keys).all
       accounts.each { |a| valid_configs.delete(a.configuration_id) }
       unless valid_configs.empty?
-        self.db.transaction do
-          valid_configs.each_value do |configuration|
-            accounts << member.add_anon_proxy_vendor_account(configuration:)
-          end
+        valid_configs.each_value do |configuration|
+          # This ::for method must be itself idempotent, as it's meant to be called during GET and similar requests.
+          # This is the slow path, only used when there are new configurations, so it's ok to take
+          # the additional transactions.
+          accounts << Suma::AnonProxy::VendorAccount.find_or_create_or_find(configuration:, member:)
         end
       end
       return accounts
@@ -82,18 +83,18 @@ class Suma::AnonProxy::VendorAccount < Suma::Postgres::Model(:anon_proxy_vendor_
     return self.contact
   end
 
-  def replace_access_code(code, at: Time.now)
+  def replace_access_code(code, magic_link, at: Time.now)
     self.set(
       latest_access_code: code,
+      latest_access_code_magic_link: magic_link,
       latest_access_code_set_at: at,
     )
   end
 
-  def latest_access_code_if_recent
-    code = self.latest_access_code
-    return nil if code.blank?
-    return nil if self.latest_access_code_set_at.nil? || latest_access_code_set_at < RECENT_ACCESS_CODE_CUTOFF.ago
-    return code
+  def latest_access_code_is_recent?
+    return false if self.latest_access_code_set_at.nil? ||
+      self.latest_access_code_set_at < RECENT_ACCESS_CODE_CUTOFF.ago
+    return true
   end
 
   # Return the text/plain bodies of outbound message deliveries sent as part of this vendor account.
@@ -112,6 +113,21 @@ class Suma::AnonProxy::VendorAccount < Suma::Postgres::Model(:anon_proxy_vendor_
       bodies << body.content if body
     end
     return bodies
+  end
+
+  AuthRequest = Struct.new(:url, :http_method, :body, :headers)
+
+  # Return the fields needed to make an auth request.
+  # Return nil if the contact is not yet set on the account.
+  # @return [AuthRequest,nil]
+  def auth_request
+    body = self.configuration.auth_body_template % {email: self.contact_email, phone: self.contact_phone}
+    return {
+      url: self.configuration.auth_url,
+      http_method: self.configuration.auth_http_method,
+      headers: self.configuration.auth_headers.to_h,
+      body:,
+    }
   end
 end
 

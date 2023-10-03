@@ -15,35 +15,6 @@ class Suma::API::AnonProxy < Suma::API::V1
         present_collection Suma::AnonProxy::VendorAccount.for(member), with: AnonProxyVendorAccountEntity
       end
 
-      params do
-        requires :latest_vendor_account_ids_and_access_codes, type: Array[JSON] do
-          requires :id, type: Integer
-          requires :latest_access_code, type: String
-        end
-      end
-      post :poll_for_new_access_codes do
-        # See commit that added this code for an explanation.
-        member = current_member
-        latest_codes_by_id = params[:latest_vendor_account_ids_and_access_codes].
-          to_h { |h| [h[:id], h[:latest_access_code]] }
-        ds = member.anon_proxy_vendor_accounts_dataset.
-          where(Sequel[id: latest_codes_by_id.keys] & Sequel.~(latest_access_code: nil)).
-          where { latest_access_code_set_at > Suma::AnonProxy::VendorAccount::RECENT_ACCESS_CODE_CUTOFF.ago }.
-          exclude(latest_access_code: latest_codes_by_id.values.compact)
-        started_polling = Time.now
-        found_change = false
-        loop do
-          found_change = !ds.empty?
-          break if found_change
-          elapsed = Time.now - started_polling
-          break if elapsed > Suma::AnonProxy.access_code_poll_timeout
-          Kernel.sleep(Suma::AnonProxy.access_code_poll_interval)
-        end
-        items = found_change ? Suma::AnonProxy::VendorAccount.for(member) : []
-        status 200
-        present({items:, found_change:}, with: AnonProxyVendorAccountPollResultEntity)
-      end
-
       route_param :id, type: Integer do
         helpers do
           def lookup
@@ -66,6 +37,43 @@ class Suma::API::AnonProxy < Suma::API::V1
             with: MutationAnonProxyVendorAccountEntity,
             all_vendor_accounts: Suma::AnonProxy::VendorAccount.for(current_member),
           )
+        end
+
+        post :make_auth_request do
+          apva = lookup
+          areq = apva.auth_request
+          got = Suma::Http.execute(
+            areq.delete(:http_method).downcase.to_sym,
+            areq.delete(:url),
+            logger: self.logger,
+            skip_error: true,
+            **areq,
+          )
+          apva.update(latest_access_code_requested_at: Time.now) if got.code < 300
+          status got.code
+          present got.parsed_response
+        end
+
+        # Endpoint for long-polling for a new magic link for a vendor account.
+        # It's important we long rather than short poll because
+        # we want to be as light as possible on the user's device.
+        post :poll_for_new_magic_link do
+          apva = lookup
+          started_polling = Time.now
+          found_change = false
+          loop do
+            code_set_at = apva.latest_access_code_set_at
+            if code_set_at && code_set_at > apva.latest_access_code_requested_at
+              found_change = true
+              break
+            end
+            apva.refresh
+            elapsed = Time.now - started_polling
+            break if elapsed > Suma::AnonProxy.access_code_poll_timeout
+            Kernel.sleep(Suma::AnonProxy.access_code_poll_interval)
+          end
+          status 200
+          present({vendor_account: apva, found_change:}, with: AnonProxyVendorAccountPollResultEntity)
         end
       end
     end
@@ -96,11 +104,13 @@ class Suma::API::AnonProxy < Suma::API::V1
       txt = va.configuration.instructions.string
       txt % {address: va.address || ""}
     end
-    expose :app_launch_link, &self.delegate_to(:configuration, :app_launch_link)
+    expose :auth_request
+    expose :magic_link do |instance|
+      instance.latest_access_code_is_recent? ? instance.latest_access_code_magic_link : nil
+    end
     expose :vendor_name, &self.delegate_to(:configuration, :vendor, :name)
     expose :vendor_slug, &self.delegate_to(:configuration, :vendor, :slug)
     expose :vendor_image, with: ImageEntity, &self.delegate_to(:configuration, :vendor, :images, :first)
-    expose :latest_access_code_if_recent, as: :latest_access_code
   end
 
   class MutationAnonProxyVendorAccountEntity < AnonProxyVendorAccountEntity
@@ -112,6 +122,6 @@ class Suma::API::AnonProxy < Suma::API::V1
 
   class AnonProxyVendorAccountPollResultEntity < BaseEntity
     expose :found_change
-    expose :items, with: AnonProxyVendorAccountEntity
+    expose :vendor_account, with: AnonProxyVendorAccountEntity
   end
 end

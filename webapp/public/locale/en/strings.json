@@ -81,10 +81,8 @@
     "checkout_fatal_error": "Sorry, something went wrong trying to check out. Please go back and try again.",
     "checkout_no_items": "There are no items in your cart, or all of your items are unavailable. Please go back and try again.",
     "conflicting_bank_account": "You already have a bank account with that account and routing number. Please go back, or enter new account details.",
-    "denied_geolocation": "You need to enable Geolocation/Location Services to use Suma's Mobility app.",
     "disambiguation_required": "$t(strings:errors:unhandled_error)",
     "eligibility_violation": "$t(strings:errors:unhandled_error)",
-    "enable_geolocation_instructions": "Follow these instructions to enable Geolocation",
     "forbidden": "You are forbidden from accessing these resources.",
     "impossible_phone_number": "That doesn't look like a real phone number.",
     "invalid_credentials": "Sorry, that information is not correct.",
@@ -321,13 +319,13 @@
     "unlink_account_question_subtitle": "Any in-progress transactions will not be canceled."
   },
   "private_accounts": {
-    "access_code": "Access Code",
+    "auth_error": "Sorry, something went wrong. You can try again, or email apphelp@mysuma.org.",
     "create_account": "Create account",
     "intro": "Used to hide your email and phone number from vendors you use through the Suma platform. Follow the instructions for the vendors you want to create a Private Account with.",
-    "loading_code": "Loading code...",
     "no_private_accounts": "It looks like no vendors are set up for Private Accounts. Contact your administrator for more information.",
     "recent_messages_from_vendor": "Recent Messages from {{vendorName}}",
-    "username": "Username",
+    "sign_in": "Sign in",
+    "signing_in": "Signing you in...",
     "vendor_private_accounts": "{{vendorName}} Private Accounts"
   },
   "titles": {
