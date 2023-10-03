@@ -8,7 +8,6 @@ import { useGlobalViewState } from "../../state/useGlobalViewState";
 import { useUser } from "../../state/useUser";
 import FormError from "../FormError";
 import CardOverlay from "./CardOverlay";
-import GeolocationInstructionsModal from "./GeolocationInstructionsModal";
 import ReservationCard from "./ReservationCard";
 import TripCard from "./TripCard";
 import React from "react";
@@ -61,7 +60,23 @@ const Map = () => {
     []
   );
   const handleLocationError = React.useCallback(
-    () => setError(<GeolocationInstructionsModal />),
+    (map, { cachedLocation }) => {
+      // If finding the location fails, geolocate the IP instead.
+      // Don't locate if we have a cached location though, just use
+      // where the map was last left.
+      if (cachedLocation) {
+        return;
+      }
+      fetch("http://ip-api.com/json")
+        .then((r) => r.json())
+        .then(({ lat, lon }) => {
+          map.centerLocation({ lat, lng: lon, targetZoom: 14 });
+        })
+        .catch((e) => {
+          console.error("Error fetching ip:", e);
+          setError("unhandled_error");
+        });
+    },
     [setError]
   );
 
@@ -147,16 +162,15 @@ const Map = () => {
         active={Boolean(selectedMapVehicle) && !ongoingTrip && !error}
         loading={selectedMapVehicle && !loadedVehicle}
         vehicle={loadedVehicle}
-        onReserve={handleReserve}
         reserveError={reserveError}
-        lastLocation={lastMarkerLocation}
+        onReserve={handleReserve}
       />
       <TripCard
         active={ongoingTrip && !error}
+        lastLocation={lastMarkerLocation}
         trip={ongoingTrip}
         onCloseTrip={handleCloseTrip}
         onEndTrip={handleEndTrip}
-        lastLocation={lastMarkerLocation}
       />
       {error && (
         <CardOverlay>

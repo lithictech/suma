@@ -3,19 +3,27 @@ import FormError from "../FormError";
 import PageLoader from "../PageLoader";
 import RLink from "../RLink";
 import CardOverlay from "./CardOverlay";
-import GeolocationInstructionsModal from "./GeolocationInstructionsModal";
 import React from "react";
 import Button from "react-bootstrap/Button";
 import Card from "react-bootstrap/Card";
 
-const ReservationCard = ({
+/**
+ * Card that shows when you click a scooter on the map.
+ *
+ * @param active {boolean}
+ * @param loading {boolean}
+ * @param vehicle {{rate, vendorService}}
+ * @param onReserve {function({rate, vendorService})} Called with the vehicle the user wants to return.
+ * @param reserveError {*} Error returned if making the reservation fails.
+ * @param canReserve {boolean} True if the vehicle can be reserved from the card.
+ */
+export default function ReservationCard({
   active,
   loading,
   vehicle,
   onReserve,
   reserveError,
-  lastLocation,
-}) => {
+}) {
   if (!active) {
     return null;
   }
@@ -57,14 +65,12 @@ const ReservationCard = ({
         {t("common:open_app")} <i className="ms-2 bi bi-box-arrow-up-right"></i>
       </Button>
     );
-  } else if (lastLocation) {
+  } else {
     action = (
       <Button size="sm" variant="success" className="w-100" onClick={handleReserve}>
         {t("mobility:reserve_scooter")}
       </Button>
     );
-  } else {
-    action = <GeolocationInstructionsModal />;
   }
 
   return (
@@ -86,6 +92,4 @@ const ReservationCard = ({
       {action}
     </CardOverlay>
   );
-};
-
-export default ReservationCard;
+}

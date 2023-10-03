@@ -410,8 +410,16 @@ export default class MapBuilder {
     return new LocateControl();
   }
 
+  /**
+   * @param onLocationFound {function} Called with the leaflet LocationEvent
+   * @param onLocationError {function} Called with (this, {error, cachedLocation: {lat, lng} | null}
+   * @returns {MapBuilder}
+   */
   startTrackingLocation({ onLocationFound, onLocationError }) {
-    let loc, line;
+    // 'watch' is true, so "locationfound" event is called multiple times.
+    // We set lastLoc and create the movement line on the first location found;
+    // then we update lastLoc, and append to the movement line, on subsequent location finds.
+    let lastLoc, movementLine;
     this._map
       .locate({
         watch: true,
@@ -434,14 +442,18 @@ export default class MapBuilder {
         }
         console.error("locationerror:", e);
         if (!ignoreLocationError()) {
-          onLocationError();
+          let cachedLocation = null;
+          if (this._mapCache.lat) {
+            cachedLocation = { lat: this._mapCache.lat, lng: this._mapCache.lng };
+          }
+          onLocationError(this, { error: e, cachedLocation });
         }
       })
       .on("locationfound", (location) => {
-        if (!loc) {
-          loc = location.latlng;
-          line = this._l.polyline([[loc.lat, loc.lng]]);
-          this._locationMarker = this._l.animatedMarker(line.getLatLngs(), {
+        if (!lastLoc) {
+          lastLoc = location.latlng;
+          movementLine = this._l.polyline([[lastLoc.lat, lastLoc.lng]]);
+          this._locationMarker = this._l.animatedMarker(movementLine.getLatLngs(), {
             icon: this._l.divIcon({
               className: "mobility-location-marker-icon",
               iconSize: [16, 16],
@@ -452,7 +464,7 @@ export default class MapBuilder {
             duration: 250,
             distance: 0,
           });
-          this._locationAccuracyCircle = this._l.circle([loc.lat, loc.lng], {
+          this._locationAccuracyCircle = this._l.circle([lastLoc.lat, lastLoc.lng], {
             className: "mobility-location-accuracy-circle-transition",
             radius: location.accuracy,
             color: "#0495ff",
@@ -464,27 +476,29 @@ export default class MapBuilder {
           this._map.addLayer(this._locationMarker);
           this._lastLocation = location.latlng;
           this.setLocationEventHandlers();
-          this.centerLocation({ ...loc, targetZoom: this._getLocationZoom() });
+          this.centerLocation({ ...lastLoc, targetZoom: this._getLocationZoom() });
           onLocationFound(location);
         }
         if (
           this._locationMarker &&
           this._locationAccuracyCircle &&
-          loc &&
-          line &&
-          (loc.lat !== location.latitude || loc.lng !== location.longitude)
+          lastLoc &&
+          movementLine &&
+          (lastLoc.lat !== location.latitude || lastLoc.lng !== location.longitude)
         ) {
           this._locationMarker.stop();
           const nextLocation = [location.latitude, location.longitude];
           // Sets next location distance for animation purpose
-          const nextDistance = this._l.latLng(loc.lat, loc.lng).distanceTo(nextLocation);
+          const nextDistance = this._l
+            .latLng(lastLoc.lat, lastLoc.lng)
+            .distanceTo(nextLocation);
           this._locationMarker.options.distance = nextDistance;
-          line.addLatLng(nextLocation);
+          movementLine.addLatLng(nextLocation);
           this._locationAccuracyCircle
             .setLatLng(nextLocation)
             .setRadius(location.accuracy);
           this._locationMarker.start();
-          loc = location.latlng;
+          lastLoc = location.latlng;
           this._lastLocation = location.latlng;
 
           onLocationFound(location);
