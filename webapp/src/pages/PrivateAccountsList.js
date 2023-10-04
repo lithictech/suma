@@ -114,7 +114,6 @@ export default function PrivateAccountsList() {
 function PrivateAccount({ account, onHelp }) {
   const { vendorImage } = account;
   const [buttonStatus, setButtonStatus] = React.useState(INITIAL);
-  const [appLink, setAppLink] = React.useState();
   const [error, setError] = useError(null);
 
   const pollingCallback = React.useCallback(() => {
@@ -130,8 +129,9 @@ function PrivateAccount({ account, onHelp }) {
           )
           .then((r) => {
             if (r.data.foundChange) {
-              setButtonStatus(READY);
-              setAppLink(r.data.vendorAccount.magicLink);
+              // Turn this off before navigating in case promise callbacks don't run.
+              window.setTimeout(() => setButtonStatus(INITIAL), 100);
+              window.location.href = r.data.vendorAccount.magicLink;
             } else {
               pollAndReplace();
             }
@@ -174,11 +174,6 @@ function PrivateAccount({ account, onHelp }) {
       });
   }
 
-  function handleReadyClick() {
-    // Turn this off before navigating in case promise callbacks don't run.
-    setButtonStatus(INITIAL);
-  }
-
   let content;
   if (buttonStatus === INITIAL) {
     content = (
@@ -189,7 +184,7 @@ function PrivateAccount({ account, onHelp }) {
         </Button>
       </Stack>
     );
-  } else if (buttonStatus === POLLING) {
+  } else {
     content = (
       <Stack direction="vertical" className="mt-3">
         <Alert variant="info">
@@ -204,17 +199,6 @@ function PrivateAccount({ account, onHelp }) {
           </p>
           <p>{t("private_accounts:polling_detail")}</p>
         </Alert>
-      </Stack>
-    );
-  } else {
-    content = (
-      <Stack direction="horizontal" gap={2} className="mt-3 justify-content-center">
-        <Button href={appLink} onClick={handleReadyClick}>
-          {t("private_accounts:ready")}
-        </Button>
-        <Button variant="outline-primary" onClick={() => onHelp()}>
-          {t("common:help")}
-        </Button>
       </Stack>
     );
   }
@@ -233,4 +217,3 @@ function PrivateAccount({ account, onHelp }) {
 
 const INITIAL = 0;
 const POLLING = 1;
-const READY = 2;

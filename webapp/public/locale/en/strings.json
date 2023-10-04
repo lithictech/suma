@@ -246,9 +246,9 @@
     "intro": "Ride with enhanced privacy and better prices.",
     "locate_me": "Locate me",
     "mobility_start_and_per_minute": "{{surchargeCents, sumaCurrency}} to unlock, {{unitCents, sumaCurrency}} per minute",
+    "relink_private_account_with_vendor": "If you are signed out, you can [re-link your {{vendorName}} account](/private-accounts).",
     "reserve_scooter": "Reserve Scooter",
     "setup_private_account_with_vendor": "To get started, we'll set up a private account for you with {{vendorName}}.",
-    "relink_private_account_with_vendor": "If you are signed out, you can [re-link your {{vendorName}} account](/private-accounts).",
     "title": "Mobility Services",
     "trip_ended": "Your trip with {{vendor}} has ended.\n\nWe used {{totalCost, sumaCurrency}} of your Suma balance for this trip.\n\nYou saved {{discountAmount, sumaCurrency}}.",
     "trip_started_at": "Trip started at {{at}}.",
@@ -321,13 +321,12 @@
   "private_accounts": {
     "auth_error": "Sorry, something went wrong. You can try again, or email apphelp@mysuma.org.",
     "create_account": "Create account",
+    "initial": "Launch app",
     "intro": "Used to hide your email and phone number from vendors you use through the Suma platform. Follow the instructions for the vendors you want to create a Private Account with.",
     "no_private_accounts": "It looks like no vendors are set up for Private Accounts. Contact your administrator for more information.",
-    "recent_messages_from_vendor": "Recent Messages from {{vendorName}}",
-    "initial": "Prepare account",
     "polling": "Working...",
     "polling_detail": "This can take up to a minute.",
-    "ready": "Launch app",
+    "recent_messages_from_vendor": "Recent Messages from {{vendorName}}",
     "vendor_private_accounts": "{{vendorName}} Private Accounts"
   },
   "titles": {

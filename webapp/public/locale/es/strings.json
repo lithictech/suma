@@ -320,12 +320,12 @@
   "private_accounts": {
     "auth_error": "Perdón, algo salió mal. Puede intentarlo nuevamente o enviar un correo electrónico a apphelp@mysuma.org.",
     "create_account": "Crear una cuenta",
+    "initial": "Ejecutar aplicación",
     "intro": "Se utiliza para ocultar su correo electrónico y número de teléfono de los proveedores que utiliza a través de la plataforma suma. Siga las instrucciones de los proveedores con los que desea crear una cuenta privada.",
     "no_private_accounts": "Parece que no hay proveedores configurados para cuentas privadas. Póngase en contacto con su administrador para obtener más información.",
-    "recent_messages_from_vendor": "Mensajes recientes de {{vendorName}}",
-    "initial": "Preparar cuenta",
     "polling": "Procesando",
-    "ready": "Ejecutar aplicación",
+    "polling_detail": "Esto puede tardar hasta un minuto.",
+    "recent_messages_from_vendor": "Mensajes recientes de {{vendorName}}",
     "vendor_private_accounts": "Cuentas Privadas de {{vendorName}}"
   },
   "titles": {
