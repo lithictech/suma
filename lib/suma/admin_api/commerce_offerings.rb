@@ -24,6 +24,7 @@ class Suma::AdminAPI::CommerceOfferings < Suma::AdminAPI::V1
     end
 
     params do
+      requires :image, type: File
       requires :description, type: JSON
       requires :fulfillment_prompt, type: JSON
       requires :fulfillment_confirmation, type: JSON
@@ -60,7 +61,11 @@ class Suma::AdminAPI::CommerceOfferings < Suma::AdminAPI::V1
         )
         next unless fo[:address]
         new_option.address = Suma::Address.lookup(fo[:address])
+        new_option.save_changes
       end
+
+      uf = Suma::UploadedFile.create_from_multipart(params[:image])
+      offering.add_image({uploaded_file: uf}) if params[:image]
 
       created_resource_headers(offering.id, offering.admin_link)
       status 200

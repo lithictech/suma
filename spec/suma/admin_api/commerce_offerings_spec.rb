@@ -64,18 +64,19 @@ RSpec.describe Suma::AdminAPI::CommerceOfferings, :db do
 
   describe "GET /v1/commerce_offerings/create" do
     it "creates the offering" do
-      o = Suma::Fixtures.offering.create
+      photo_file = File.open("spec/data/images/photo.png", "rb")
+      image = Rack::Test::UploadedFile.new(photo_file, "image/png", true)
 
       post "/v1/commerce_offerings/create",
-           description: {en: "test", es: "prueba"},
+           image: image,
+           description: {en: "EN test", es: "ES test"},
            fulfillment_prompt: {en: "EN prompt", es: "ES prompt"},
            fulfillment_confirmation: {en: "EN confirmation", es: "ES confirmation"},
            fulfillment_options: [{
-             description: {en: "EN confirmation", es: "ES confirmation"},
+             description: {en: "EN description", es: "ES description"},
              type: "TEST",
              address: {
                address1: "test st",
-               address2: "",
                city: "Portland",
                state_or_province: "Oregon",
                postal_code: "97209",
@@ -85,7 +86,10 @@ RSpec.describe Suma::AdminAPI::CommerceOfferings, :db do
            period_end: Time.new(2023, 10, 1, 0, 0, 0, "-0700")
 
       expect(last_response).to have_status(200)
-      expect(last_response).to have_json_body.that_includes(id: be > o.id)
+      expect(last_response.headers).to include("Created-Resource-Admin")
+      expect(Suma::Commerce::Offering.all.count).to equal(1)
+      expect(Suma::Commerce::OfferingFulfillmentOption.all.count).to equal(1)
+      expect(Suma::Address.all.count).to equal(1)
     end
   end
 

@@ -5,12 +5,14 @@ import useBusy from "../hooks/useBusy";
 import useErrorSnackbar from "../hooks/useErrorSnackbar";
 import useMountEffect from "../shared/react/useMountEffect";
 import useToggle from "../shared/react/useToggle";
+import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import RemoveIcon from "@mui/icons-material/Remove";
 import {
   Button,
   Divider,
   FormControl,
   FormControlLabel,
+  FormHelperText,
   FormLabel,
   MenuItem,
   Select,
@@ -27,8 +29,8 @@ import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 
 export default function OfferingCreatePage() {
-  // TODO: Add ability to add images
   const navigate = useNavigate();
+  const [image, setImage] = React.useState(null);
   const [description, setDescription] = React.useState(translationObj);
   const [fulfillmentPrompt, setFulfillmentPrompt] = React.useState(translationObj);
   const [fulfillmentConfirmation, setFulfillmentConfirmation] =
@@ -43,22 +45,27 @@ export default function OfferingCreatePage() {
   const { isBusy, busy, notBusy } = useBusy();
   const { register, handleSubmit } = useForm();
 
-  function submit() {
+  const submit = () => {
     busy();
     api
-      .createCommerceOffering({
+      .postForm("/adminapi/v1/commerce_offerings/create", {
+        image,
         description,
         fulfillmentPrompt,
         fulfillmentConfirmation,
-        periodBegin: periodBegin.format(),
-        periodEnd: periodEnd.format(),
-        beginFulfillmentAt: beginFulfillmentAt && beginFulfillmentAt.format(),
+        periodBegin: periodBegin?.format(),
+        periodEnd: periodEnd?.format(),
+        beginFulfillmentAt: beginFulfillmentAt?.format(),
         prohibitChargeAtCheckout,
       })
       .then(api.followRedirect(navigate))
       .tapCatch(notBusy)
       .catch(enqueueErrorSnackbar);
-  }
+  };
+
+  const handleAddImage = (e) => {
+    setImage(e.target.files[0]);
+  };
   return (
     <div style={{ maxWidth: 650 }}>
       <Typography variant="h4" gutterBottom>
@@ -69,6 +76,29 @@ export default function OfferingCreatePage() {
         during their period.
       </Typography>
       <Box component="form" mt={2} onSubmit={handleSubmit(submit)}>
+        <FormLabel>Image:</FormLabel>
+        <Stack direction={{ xs: "column", sm: "column" }} spacing={2}>
+          <Button component="label" variant="contained" startIcon={<CloudUploadIcon />}>
+            Add image
+            <input
+              type="file"
+              name="file"
+              hidden
+              required
+              onChange={(e) => handleAddImage(e)}
+            />
+          </Button>
+          {Boolean(image) && (
+            <>
+              <img src={URL.createObjectURL(image)} alt={image.name} />
+              <Typography variant="body2">{image.name}</Typography>
+            </>
+          )}
+        </Stack>
+        <FormHelperText sx={{ mb: 2 }}>
+          Use jpeg and png formats. Suggest using size 500x500 pixels or above to avoid
+          display issues.
+        </FormHelperText>
         <Stack spacing={2} direction="column">
           <FormLabel>Description:</FormLabel>
           <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
@@ -116,6 +146,7 @@ export default function OfferingCreatePage() {
             <DateTimePicker
               label="Beginning date *"
               value={periodBegin}
+              closeOnSelect
               onChange={(date) => setPeriodBegin(date)}
               sx={{ width: "100%" }}
             />
@@ -123,6 +154,7 @@ export default function OfferingCreatePage() {
               label="Ending date *"
               value={periodEnd}
               onChange={(date) => setPeriodEnd(date)}
+              closeOnSelect
               sx={{ width: "100%" }}
             />
           </Stack>
@@ -133,7 +165,7 @@ export default function OfferingCreatePage() {
             label="Begin At"
             value={beginFulfillmentAt}
             onChange={(date) => setBeginFulfillmentAt(date)}
-            onClose={() => setBeginFulfillmentAt(null)}
+            closeOnSelect
             sx={{ width: "50%" }}
           />
           <Stack direction="row" spacing={2}>
@@ -144,8 +176,8 @@ export default function OfferingCreatePage() {
               onChange={() => setProhibitChargeAtCheckout(!prohibitChargeAtCheckout)}
             />
           </Stack>
-          <FormButtons back loading={isBusy} />
         </Stack>
+        <FormButtons back loading={isBusy} />
       </Box>
     </div>
   );
