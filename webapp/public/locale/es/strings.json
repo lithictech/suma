@@ -245,7 +245,6 @@
     "end_trip": "Finalizar el viaje",
     "intro": "Viaja con más seguridad y mejores precios.",
     "locate_me": "Localizarme",
-    "mobility_lime_access_summer_2023_rate": "Gratis durante 30 minutos, luego {{unitCents, sumaCurrency}} por minuto",
     "mobility_start_and_per_minute": "{{surchargeCents, sumaCurrency}} para iniciar, {{unitCents, sumaCurrency}} por minuto",
     "reserve_scooter": "Reservar una patineta eléctrica",
     "setup_private_account_with_vendor": "Para comenzar, configuraremos una cuenta privada para usted con {{vendorName}}.",
@@ -324,8 +323,9 @@
     "intro": "Se utiliza para ocultar su correo electrónico y número de teléfono de los proveedores que utiliza a través de la plataforma suma. Siga las instrucciones de los proveedores con los que desea crear una cuenta privada.",
     "no_private_accounts": "Parece que no hay proveedores configurados para cuentas privadas. Póngase en contacto con su administrador para obtener más información.",
     "recent_messages_from_vendor": "Mensajes recientes de {{vendorName}}",
-    "sign_in": "Iniciar sesión",
-    "signing_in": "Registrándote...",
+    "initial": "Preparar cuenta",
+    "polling": "Procesando",
+    "ready": "Ejecutar aplicación",
     "vendor_private_accounts": "Cuentas Privadas de {{vendorName}}"
   },
   "titles": {

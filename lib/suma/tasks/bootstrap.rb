@@ -125,8 +125,8 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
   def create_lime_scooter_vendor
     vendor = Suma::Lime.mobility_vendor
     rate = Suma::Vendor::ServiceRate.update_or_create(name: "Lime Access Summer 2023") do |r|
-      r.localization_key = "mobility_lime_access_summer_2023_rate"
-      r.surcharge = Money.new(0)
+      r.localization_key = "mobility_start_and_per_minute"
+      r.surcharge = Money.new(50)
       r.unit_amount = Money.new(7)
     end
     Suma::Vendor::Service.
@@ -433,8 +433,10 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
       vc.instructions = Suma::TranslatedText.find_or_create(
         en: <<~MD,
           1. Download the Lime App in the Play or App Store, or follow <a href="https://limebike.app.link/m2h6hB9qrS" target="_blank">this link</a>.
-          2. If you already have the app and are signed in, please sign out first.
-          3. Press the 'Open App' button. You will be logged into a Lime account linked to your suma account.
+          2. If you already have the Lime app and are signed in, please sign out out Lime first.
+          3. Press the 'Prepare Account' button.
+          4. The suma app will take 10-60 seconds to create or sign into your Lime account.
+          5. Once your account is ready, press 'Launch app' to open Lime.
           4. You can see available scooters in suma or in Lime, but you'll use the Lime app to take your rides.
         MD
         es: <<~MD,

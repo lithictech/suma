@@ -55,6 +55,7 @@ export default function Dashboard() {
             variant="info"
             textVariant="muted"
             label={t("dashboard:check_available_for_purchase")}
+            alertClass={Boolean(mobilityVehiclesAvailable) && "mb-0"}
             iconClass="bi-bag-fill"
             show={!isEmpty(offerings)}
             to={offerings?.length > 1 ? "/food" : `/food/${first(offerings)?.id}`}

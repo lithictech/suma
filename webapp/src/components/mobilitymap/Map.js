@@ -176,7 +176,9 @@ const Map = () => {
         <CardOverlay>
           <FormError error={error} noMargin component="div" />
           {readOnlyReason(user, "read_only_zero_balance") && (
-            <Link to="/funding">{t("common:add_money_to_account")}</Link>
+            <div className="mt-2">
+              <Link to="/funding">{t("common:add_money_to_account")}</Link>
+            </div>
           )}
         </CardOverlay>
       )}

@@ -61,9 +61,16 @@ export default function ReservationCard({
     );
   } else if (vehicle.deeplink) {
     action = (
-      <Button size="sm" variant="success" className="w-100" href={vehicle.deeplink}>
-        {t("common:open_app")} <i className="ms-2 bi bi-box-arrow-up-right"></i>
-      </Button>
+      <>
+        <Button size="sm" variant="success" className="w-100" href={vehicle.deeplink}>
+          {t("common:open_app")} <i className="ms-2 bi bi-box-arrow-up-right"></i>
+        </Button>
+        <div className="mt-2">
+          {mdp("mobility:relink_private_account_with_vendor", {
+            vendorName: vehicle.vendorService.vendorName,
+          })}
+        </div>
+      </>
     );
   } else {
     action = (
