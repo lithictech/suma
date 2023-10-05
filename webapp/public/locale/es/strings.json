@@ -246,6 +246,7 @@
     "intro": "Viaja con más seguridad y mejores precios.",
     "locate_me": "Localizarme",
     "mobility_start_and_per_minute": "{{surchargeCents, sumaCurrency}} para iniciar, {{unitCents, sumaCurrency}} por minuto",
+    "relink_private_account_with_vendor": "Si no ha iniciado sesión, puede [volver a vincular su cuenta de {{vendorName}}](/private-accounts).",
     "reserve_scooter": "Reservar una patineta eléctrica",
     "setup_private_account_with_vendor": "Para comenzar, configuraremos una cuenta privada para usted con {{vendorName}}.",
     "title": "Servicios de movilidad",
@@ -320,10 +321,10 @@
   "private_accounts": {
     "auth_error": "Perdón, algo salió mal. Puede intentarlo nuevamente o enviar un correo electrónico a apphelp@mysuma.org.",
     "create_account": "Crear una cuenta",
-    "initial": "Ejecutar aplicación",
+    "initial": "Iniciar aplicación",
     "intro": "Se utiliza para ocultar su correo electrónico y número de teléfono de los proveedores que utiliza a través de la plataforma suma. Siga las instrucciones de los proveedores con los que desea crear una cuenta privada.",
     "no_private_accounts": "Parece que no hay proveedores configurados para cuentas privadas. Póngase en contacto con su administrador para obtener más información.",
-    "polling": "Procesando",
+    "polling": "Procesando...",
     "polling_detail": "Esto puede tardar hasta un minuto.",
     "recent_messages_from_vendor": "Mensajes recientes de {{vendorName}}",
     "vendor_private_accounts": "Cuentas Privadas de {{vendorName}}"

@@ -437,13 +437,15 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
           3. Press the 'Launch app' button.
           4. The suma app will take 10-60 seconds to create or sign into your Lime account.
           5. The Lime app will launch automatically.
-          4. You can see available scooters in suma or in Lime, but you'll use the Lime app to take your rides.
+          6. You can see available scooters in suma or in Lime, but you'll use the Lime app to take your rides.
         MD
         es: <<~MD,
           1. Descargue la aplicación Lime en Play o App Store, o siga <a href="https://limebike.app.link/m2h6hB9qrS" target="_blank">este enlace</a>.
-          2. Si ya tiene la aplicación y ha iniciado sesión, cierre sesión primero.
-          3. Presione el botón 'Abrir aplicación'. Iniciará sesión en una cuenta de Lime vinculada a su cuenta de suma.
-          4. Puedes ver los scooters disponibles en suma o en Lime, pero usarás la aplicación Lime para realizar tus viajes.
+          2. Si ya tiene la aplicación Lime y ha iniciado sesión, primero cierre sesión en Lime.
+          3. Presione el botón 'Iniciar aplicación'.
+          4. La aplicación suma tardará entre 10 y 60 segundos en crear o iniciar sesión en su cuenta de Lime.
+          5. La aplicación Lime se iniciará automáticamente.
+          6. Puedes ver los scooters disponibles en suma o en Lime, pero usarás la aplicación Lime para realizar tus viajes.
         MD
       )
     end
