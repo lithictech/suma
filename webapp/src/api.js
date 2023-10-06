@@ -50,6 +50,7 @@ export default {
   getSupportedCurrencies: (data) => get(`/api/v1/meta/supported_currencies`, data),
   getSupportedPaymentMethods: (data) =>
     get(`/api/v1/meta/supported_payment_methods`, data),
+  geolocateIp: (data) => get(`/api/v1/meta/geolocate_ip`, data),
   dashboard: (data) => get("/api/v1/me/dashboard", data),
   getLedgersOverview: (data) => get("/api/v1/ledgers/overview", data),
   getLedgerLines: ({ id, ...data }) => get(`/api/v1/ledgers/${id}/lines`, data),

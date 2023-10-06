@@ -10,7 +10,6 @@ import { mdp, t } from "../localization";
 import ScrollTopOnMount from "../shared/ScrollToTopOnMount";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
 import useMountEffect from "../shared/react/useMountEffect";
-import useToggle from "../shared/react/useToggle";
 import { useError } from "../state/useError";
 import { LayoutContainer } from "../state/withLayout";
 import { CanceledError } from "axios";
@@ -114,7 +113,7 @@ export default function PrivateAccountsList() {
 
 function PrivateAccount({ account, onHelp }) {
   const { vendorImage } = account;
-  const pollingToggle = useToggle();
+  const [buttonStatus, setButtonStatus] = React.useState(INITIAL);
   const [error, setError] = useError(null);
 
   const pollingCallback = React.useCallback(() => {
@@ -131,7 +130,7 @@ function PrivateAccount({ account, onHelp }) {
           .then((r) => {
             if (r.data.foundChange) {
               // Turn this off before navigating in case promise callbacks don't run.
-              pollingToggle.turnOff();
+              window.setTimeout(() => setButtonStatus(INITIAL), 100);
               window.location.href = r.data.vendorAccount.magicLink;
             } else {
               pollAndReplace();
@@ -141,7 +140,7 @@ function PrivateAccount({ account, onHelp }) {
             // If the request was aborted (due to unmount), don't restart it.
             // Otherwise, do restart it, since it is some unexpected type of error.
             if (r instanceof CanceledError) {
-              pollingToggle.turnOff();
+              setButtonStatus(INITIAL);
               return;
             }
             pollAndReplace();
@@ -152,12 +151,12 @@ function PrivateAccount({ account, onHelp }) {
     return () => {
       controller.abort();
     };
-  }, [pollingToggle, account.id]);
+  }, [account.id]);
 
-  function handleSignInClick(e) {
+  function handleInitialClick(e) {
     e.preventDefault();
-    setError();
-    pollingToggle.turnOn();
+    setError(null);
+    setButtonStatus(POLLING);
     api
       .configurePrivateAccount({ id: account.id })
       .then(async () => {
@@ -171,15 +170,15 @@ function PrivateAccount({ account, onHelp }) {
       })
       .catch((e) => {
         setError(e);
-        pollingToggle.turnOff();
+        setButtonStatus(INITIAL);
       });
   }
 
   let content;
-  if (pollingToggle.isOff) {
+  if (buttonStatus === INITIAL) {
     content = (
       <Stack direction="horizontal" gap={2} className="mt-3 justify-content-center">
-        <Button onClick={handleSignInClick}>{t("private_accounts:sign_in")}</Button>
+        <Button onClick={handleInitialClick}>{t("private_accounts:initial")}</Button>
         <Button variant="outline-primary" onClick={() => onHelp()}>
           {t("common:help")}
         </Button>
@@ -190,14 +189,15 @@ function PrivateAccount({ account, onHelp }) {
       <Stack direction="vertical" className="mt-3">
         <Alert variant="info">
           <p className="lead mb-0">
-            {t("private_accounts:signing_in")}
+            {t("private_accounts:polling")}
             <img
               src={loaderRing}
               width="80"
               height="80"
-              alt={t("private_accounts:signing_in")}
+              alt={t("private_accounts:polling")}
             />
           </p>
+          <p>{t("private_accounts:polling_detail")}</p>
         </Alert>
       </Stack>
     );
@@ -214,3 +214,6 @@ function PrivateAccount({ account, onHelp }) {
     </Stack>
   );
 }
+
+const INITIAL = 1;
+const POLLING = 2;

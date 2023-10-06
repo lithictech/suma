@@ -245,8 +245,8 @@
     "end_trip": "End Trip",
     "intro": "Ride with enhanced privacy and better prices.",
     "locate_me": "Locate me",
-    "mobility_lime_access_summer_2023_rate": "Free for 30 minutes, then {{unitCents, sumaCurrency}} per minute",
     "mobility_start_and_per_minute": "{{surchargeCents, sumaCurrency}} to unlock, {{unitCents, sumaCurrency}} per minute",
+    "relink_private_account_with_vendor": "If you are signed out, you can [re-link your {{vendorName}} account](/private-accounts).",
     "reserve_scooter": "Reserve Scooter",
     "setup_private_account_with_vendor": "To get started, we'll set up a private account for you with {{vendorName}}.",
     "title": "Mobility Services",
@@ -321,11 +321,12 @@
   "private_accounts": {
     "auth_error": "Sorry, something went wrong. You can try again, or email apphelp@mysuma.org.",
     "create_account": "Create account",
+    "initial": "Launch app",
     "intro": "Used to hide your email and phone number from vendors you use through the Suma platform. Follow the instructions for the vendors you want to create a Private Account with.",
     "no_private_accounts": "It looks like no vendors are set up for Private Accounts. Contact your administrator for more information.",
+    "polling": "Working...",
+    "polling_detail": "This can take up to a minute.",
     "recent_messages_from_vendor": "Recent Messages from {{vendorName}}",
-    "sign_in": "Sign in",
-    "signing_in": "Signing you in...",
     "vendor_private_accounts": "{{vendorName}} Private Accounts"
   },
   "titles": {

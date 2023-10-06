@@ -67,10 +67,11 @@ const Map = () => {
       if (cachedLocation) {
         return;
       }
-      fetch("http://ip-api.com/json")
-        .then((r) => r.json())
-        .then(({ lat, lon }) => {
-          map.centerLocation({ lat, lng: lon, targetZoom: 14 });
+      api
+        .geolocateIp()
+        .then((r) => {
+          const { lat, lng } = r.data;
+          map.centerLocation({ lat, lng, targetZoom: 14 });
         })
         .catch((e) => {
           console.error("Error fetching ip:", e);
@@ -176,7 +177,9 @@ const Map = () => {
         <CardOverlay>
           <FormError error={error} noMargin component="div" />
           {readOnlyReason(user, "read_only_zero_balance") && (
-            <Link to="/funding">{t("common:add_money_to_account")}</Link>
+            <div className="mt-2">
+              <Link to="/funding">{t("common:add_money_to_account")}</Link>
+            </div>
           )}
         </CardOverlay>
       )}

@@ -91,4 +91,34 @@ RSpec.describe Suma::API::Meta, :db do
       )
     end
   end
+
+  describe "GET /v1/meta/geolocate_ip" do
+    it "calls the configured ip geolocator" do
+      body = {
+        status: "success",
+        country: "United States",
+        countryCode: "US",
+        region: "OR",
+        regionName: "Oregon",
+        city: "Portland",
+        zip: "97202",
+        lat: 45.4805,
+        lon: -122.6363,
+        timezone: "America/Los_Angeles",
+        isp: "Comcast Cable Communications, LLC",
+        org: "Comcast Cable Communications",
+        as: "AS33490 Comcast Cable Communications, LLC",
+        query: "24.21.167.222",
+      }
+      stub_request(:get, "http://ip-api.com/json/1.2.3.4").
+        to_return(status: 200, body: body.to_json, headers: {"Content-Type" => "application/json"})
+
+      header "X_FORWARDED_FOR", "1.2.3.4"
+
+      get "/v1/meta/geolocate_ip"
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.that_includes({lat: 45.4805, lng: -122.6363})
+    end
+  end
 end
