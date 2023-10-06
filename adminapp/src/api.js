@@ -1,33 +1,10 @@
 import config from "./config";
 import relativeLink from "./modules/relativeLink";
 import apiBase from "./shared/apiBase";
-import axios from "axios";
-import humps from "humps";
-import merge from "lodash/merge";
 
 const instance = apiBase.create(config.apiHost, {
   debug: config.debug,
   chaos: config.chaos,
-});
-
-const multipartInstance = apiBase.create(config.apiHost, {
-  debug: config.debug,
-  chaos: config.chaos,
-  transformRequest: [
-    (data) => {
-      // prevent humps.decamalize of file values
-      let files = {};
-      let restData = {};
-      Object.keys(data).forEach((k) => {
-        if (data[k] instanceof File) {
-          files[k] = data[k];
-        }
-        restData[k] = humps.decamelizeKeys(data[k]);
-      });
-      return merge(files, restData);
-    },
-    ...axios.defaults.transformRequest,
-  ],
 });
 
 const get = (path, params, opts) => {
@@ -37,7 +14,7 @@ const post = (path, params, opts) => {
   return instance.post(path, params, opts);
 };
 const postForm = (path, params, opts) => {
-  return multipartInstance.postForm(path, params, opts);
+  return instance.postForm(path, params, opts);
 };
 const patch = (path, params, opts) => {
   return instance.patch(path, params, opts);
@@ -105,7 +82,7 @@ export default {
   getCommerceOfferings: (data) => get("/adminapi/v1/commerce_offerings", data),
   getCommerceOffering: ({ id, ...data }) =>
     get(`/adminapi/v1/commerce_offerings/${id}`, data),
-  createCommerceOffering: (data) => post(`/adminapi/v1/commerce_offerings/create`, data),
+  createCommerceOffering: (data) => postForm("/adminapi/v1/commerce_offerings/create", data),
   getCommerceOfferingPickList: ({ id, ...data }) =>
     get(`/adminapi/v1/commerce_offerings/${id}/picklist`, data),
 

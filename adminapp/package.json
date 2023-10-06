@@ -19,7 +19,7 @@
     "axios": "^1.2.3",
     "clsx": "^1.2.1",
     "dayjs": "^1.11.7",
-    "humps": "^2.0.1",
+    "humps": "git+https://github.com/lithictech/humps.git#fb9844c8d37cea67ee9c592e2685aee68d05015f",
     "lodash": "^4.17.21",
     "notistack": "^2.0.8",
     "react": "^18.2.0",

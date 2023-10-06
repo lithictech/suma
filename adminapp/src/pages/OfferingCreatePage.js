@@ -13,7 +13,7 @@ import {
   FormControl,
   FormControlLabel,
   FormHelperText,
-  FormLabel,
+  FormLabel, InputLabel,
   MenuItem,
   Select,
   Stack,
@@ -27,6 +27,9 @@ import { last } from "lodash";
 import React from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
+import {dayjs} from "../modules/dayConfig";
+import withoutAt from "../shared/withoutAt";
+import mergeAt from "../shared/mergeAt";
 
 export default function OfferingCreatePage() {
   const navigate = useNavigate();
@@ -35,10 +38,10 @@ export default function OfferingCreatePage() {
   const [fulfillmentPrompt, setFulfillmentPrompt] = React.useState(translationObj);
   const [fulfillmentConfirmation, setFulfillmentConfirmation] =
     React.useState(translationObj);
-  const [fulfillmentOptions, setFulfillmentOptions] = React.useState([]);
-  const [periodBegin, setPeriodBegin] = React.useState(null);
-  const [periodEnd, setPeriodEnd] = React.useState(null);
-  const [beginFulfillmentAt, setBeginFulfillmentAt] = React.useState(null);
+  const [fulfillmentOptions, setFulfillmentOptions] = React.useState([newOption]);
+  const [opensAt, setOpensAt] = React.useState(dayjs());
+  const [closesAt, setClosesAt] = React.useState(dayjs().add(1, 'day'));
+  const [beginFulfillmentAt, setBeginFulfillmentAt] = React.useState(dayjs());
   const [prohibitChargeAtCheckout, setProhibitChargeAtCheckout] = React.useState(false);
   const { enqueueErrorSnackbar } = useErrorSnackbar();
 
@@ -48,13 +51,14 @@ export default function OfferingCreatePage() {
   const submit = () => {
     busy();
     api
-      .postForm("/adminapi/v1/commerce_offerings/create", {
+      .createCommerceOffering({
         image,
         description,
         fulfillmentPrompt,
         fulfillmentConfirmation,
-        periodBegin: periodBegin?.format(),
-        periodEnd: periodEnd?.format(),
+        fulfillmentOptions,
+        opensAt: opensAt?.format(),
+        closesAt: closesAt?.format(),
         beginFulfillmentAt: beginFulfillmentAt?.format(),
         prohibitChargeAtCheckout,
       })
@@ -63,9 +67,6 @@ export default function OfferingCreatePage() {
       .catch(enqueueErrorSnackbar);
   };
 
-  const handleAddImage = (e) => {
-    setImage(e.target.files[0]);
-  };
   return (
     <div style={{ maxWidth: 650 }}>
       <Typography variant="h4" gutterBottom>
@@ -76,29 +77,7 @@ export default function OfferingCreatePage() {
         during their period.
       </Typography>
       <Box component="form" mt={2} onSubmit={handleSubmit(submit)}>
-        <FormLabel>Image:</FormLabel>
-        <Stack direction={{ xs: "column", sm: "column" }} spacing={2}>
-          <Button component="label" variant="contained" startIcon={<CloudUploadIcon />}>
-            Add image
-            <input
-              type="file"
-              name="file"
-              hidden
-              required
-              onChange={(e) => handleAddImage(e)}
-            />
-          </Button>
-          {Boolean(image) && (
-            <>
-              <img src={URL.createObjectURL(image)} alt={image.name} />
-              <Typography variant="body2">{image.name}</Typography>
-            </>
-          )}
-        </Stack>
-        <FormHelperText sx={{ mb: 2 }}>
-          Use jpeg and png formats. Suggest using size 500x500 pixels or above to avoid
-          display issues.
-        </FormHelperText>
+        <OfferingImage image={image} onImageChange={(f) => setImage(f)} />
         <Stack spacing={2} direction="column">
           <FormLabel>Description:</FormLabel>
           <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
@@ -135,7 +114,7 @@ export default function OfferingCreatePage() {
               }
             />
           </Stack>
-          <AddFulfillmentOption />
+          <FulfillmentOptions options={fulfillmentOptions} setOptions={setFulfillmentOptions}/>
           <FormLabel>Period:</FormLabel>
           <Stack
             direction={{ xs: "column", sm: "row" }}
@@ -145,15 +124,15 @@ export default function OfferingCreatePage() {
           >
             <DateTimePicker
               label="Beginning date *"
-              value={periodBegin}
+              value={opensAt}
               closeOnSelect
-              onChange={(date) => setPeriodBegin(date)}
+              onChange={(date) => setOpensAt(date)}
               sx={{ width: "100%" }}
             />
             <DateTimePicker
               label="Ending date *"
-              value={periodEnd}
-              onChange={(date) => setPeriodEnd(date)}
+              value={closesAt}
+              onChange={(date) => setClosesAt(date)}
               closeOnSelect
               sx={{ width: "100%" }}
             />
@@ -183,53 +162,59 @@ export default function OfferingCreatePage() {
   );
 }
 
-function AddFulfillmentOption() {
-  const [options, setOptions] = React.useState([]);
-  // TODO: Figure out better way to track option components for add/delete
-  const handleRemoveOption = (optionKey) => {
-    setOptions((prev) => {
-      const result = prev.filter((op) => {
-        return op.key !== optionKey.toString();
-      });
-      return [...result];
-    });
+function FulfillmentOptions({options, setOptions}) {
+  const handleAdd = () => {
+    setOptions([...options, newOption]);
   };
-  const handleAddOption = () => {
-    setOptions((prev) => {
-      return [
-        ...prev,
-        <NewOption
-          key={prev.length}
-          onRemoveOption={() => handleRemoveOption(prev.length)}
-        />,
-      ];
-    });
+  const handleRemove = (index) => {
+    setOptions(withoutAt(options, index));
   };
+  function handleChange(index, fields) {
+    setOptions(mergeAt(options, index, fields))
+  }
   return (
     <>
-      <Button onClick={() => handleAddOption()}>Add Fulfillment option</Button>
-      {options.map((op) => op)}
+      {options.map((o, i) => <FulfillmentOption
+        key={i}
+        {...o}
+        onChange={(fields) => handleChange(i, fields)}
+        onRemove={() => handleRemove(i)}
+      />,)}
+      <Button onClick={handleAdd}>Add Fulfillment option</Button>
     </>
   );
 }
 
-function NewOption({ onRemoveOption }) {
-  const [type, setType] = React.useState("");
-  const [description, setDescription] = React.useState(translationObj);
+function FulfillmentOption({ type, description, address, onChange, onRemove }) {
   const addingAddress = useToggle(false);
+  function handleAddressChange(a) {
+    onChange({address: {...address, ...a}})
+  }
+  function handleAddressOn() {
+    addingAddress.turnOn()
+    onChange({address: newAddress})
+  }
+  function handleAddressOff() {
+    addingAddress.turnOff()
+    onChange({address: null})
+  }
   return (
     <Box component="span" sx={{ p: 2, border: "1px dashed grey" }}>
       <Typography variant="h6">
         Fulfillment Option
-        <Button onClick={(e) => onRemoveOption(e)}>Remove</Button>
+        <Button onClick={(e) => onRemove(e)}>Remove</Button>
       </Typography>
       <Stack direction="column" spacing={2}>
-        <FormLabel>Type (pickup is commonly used here):</FormLabel>
-        <TextField
-          value={type}
-          variant="outlined"
-          onChange={(e) => setType(e.target.value)}
-        />
+        <FormControl>
+          <InputLabel>Type</InputLabel>
+          <Select
+            value={type}
+            onChange={(e) => onChange({type: e.target.value})}
+          >
+            <MenuItem value="pickup">Pickup</MenuItem>
+            <MenuItem value="delivery">Delivery</MenuItem>
+          </Select>
+        </FormControl>
         <FormLabel>Description:</FormLabel>
         <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
           <MultiLingualText
@@ -237,20 +222,20 @@ function NewOption({ onRemoveOption }) {
             fullWidth
             value={description}
             required
-            onChange={(description) => setDescription(description)}
+            onChange={(v) => onChange({description: v})}
           />
         </Stack>
         <Stack direction="column" spacing={2}>
           {addingAddress.isOff ? (
-            <Button onClick={() => addingAddress.turnOn()} disabled={addingAddress.isOn}>
+            <Button onClick={handleAddressOn}>
               Add Address
             </Button>
           ) : (
             <>
-              <Button onClick={() => addingAddress.turnOff()} variant="warning">
+              <OptionAddress address={address} onFieldChange={handleAddressChange} />
+              <Button onClick={handleAddressOff} variant="warning">
                 Remove Address
               </Button>
-              <OptionAddress editing={addingAddress} />
             </>
           )}
         </Stack>
@@ -259,12 +244,7 @@ function NewOption({ onRemoveOption }) {
   );
 }
 
-function OptionAddress({ editing }) {
-  const [address1, setAddress1] = React.useState("");
-  const [address2, setAddress2] = React.useState("");
-  const [city, setCity] = React.useState("");
-  const [state, setState] = React.useState("");
-  const [postalCode, setPostalCode] = React.useState("");
+function OptionAddress({ address, onFieldChange }) {
   const [supportedGeographies, setSupportedGeographies] = React.useState({});
 
   useMountEffect(() => {
@@ -273,41 +253,46 @@ function OptionAddress({ editing }) {
       .then(api.pickData)
       .then((data) => {
         setSupportedGeographies(data);
-        setState(last(data.provinces).value);
       });
   }, []);
-  if (!editing) {
-    return;
+
+  function handleChange(e) {
+    onFieldChange({[e.target.name]: e.target.value})
   }
+
   return (
     <Stack direction="column" spacing={2}>
       <FormLabel>Address</FormLabel>
       <TextField
-        value={address1}
+        value={address.address1}
+        name="address1"
         size="small"
         label="Street Address"
         variant="outlined"
-        onChange={(e) => setAddress1(e.target.value)}
+        onChange={handleChange}
       />
       <TextField
-        value={address2}
+        name="address2"
+        value={address.address2}
         size="small"
         label="Unit or Apartment Number"
         variant="outlined"
-        onChange={(e) => setAddress2(e.target.value)}
-      />
-      <TextField
-        value={city}
-        size="small"
-        label="City"
-        variant="outlined"
-        onChange={(e) => setCity(e.target.value)}
+        onChange={handleChange}
       />
       <Stack direction="row" spacing={2}>
-        <FormControl size="small">
-          <Select value={state} label="State" onChange={(e) => setState(e.target.value)}>
-            {!!supportedGeographies.provinces &&
-              supportedGeographies.provinces.map((st) => (
+        <TextField
+          name='city'
+          value={address.city}
+          size="small"
+          label="City"
+          variant="outlined"
+          onChange={handleChange}
+        />
+        <FormControl size="small" fullWidth>
+          <InputLabel>State</InputLabel>
+          <Select name="stateOrProvince" value={address.stateOrProvince} onChange={handleChange}>
+            {
+              supportedGeographies?.provinces?.map((st) => (
                 <MenuItem key={st.value} value={st.value}>
                   {st.label}
                 </MenuItem>
@@ -315,15 +300,48 @@ function OptionAddress({ editing }) {
           </Select>
         </FormControl>
         <TextField
-          value={postalCode}
+          name="postalCode"
+          value={address.postalCode}
           size="small"
           label="Zip code"
           variant="outlined"
-          onChange={(e) => setPostalCode(e.target.value)}
+          onChange={handleChange}
         />
       </Stack>
     </Stack>
   );
 }
 
-const translationObj = { en: "", es: "" };
+function OfferingImage({image, onImageChange}) {
+      return <>
+        <FormLabel>Image:</FormLabel>
+        <Stack direction={{ xs: "column", sm: "column" }} spacing={2}>
+          <Button component="label" variant="contained" startIcon={<CloudUploadIcon />}>
+            Set image
+            <input
+              type="file"
+              name="file"
+              accept=".jpg,.jpeg,.png"
+              hidden
+              required
+              onChange={(e) => onImageChange(e.target.files[0])}
+            />
+          </Button>
+          {Boolean(image) && (
+            <>
+              <img src={URL.createObjectURL(image)} alt={image.name} />
+              <Typography variant="body2">{image.name}</Typography>
+            </>
+          )}
+        </Stack>
+        <FormHelperText sx={{ mb: 2 }}>
+          Use JPEG and PNG formats. Suggest using size 500x500 pixels or above to avoid
+          display issues.
+        </FormHelperText>
+
+      </>
+}
+
+const translationObj = { en: "a", es: "b" };
+const newOption = {type: 'pickup', description: translationObj}
+const newAddress = {address1: '', address2: '', city: '', stateOrProvince: '', postalCode: ''}

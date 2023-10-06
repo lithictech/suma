@@ -28,9 +28,13 @@ class Suma::AdminAPI::CommerceOfferings < Suma::AdminAPI::V1
       requires :description, type: JSON
       requires :fulfillment_prompt, type: JSON
       requires :fulfillment_confirmation, type: JSON
-      requires :fulfillment_options, type: Array[JSON] do
-        requires :description, type: JSON
+      requires :fulfillment_options, type: Array, coerce_with: proc { |s|
+                                                                 s.values.each_with_index.map do |fo, ordinal|
+                                                                   fo.merge(ordinal:)
+                                                                 end
+                                                               } do
         requires :type, type: String
+        requires :description, type: JSON
         optional :address, type: JSON do
           requires :address1, type: String, allow_blank: false
           optional :address2, type: String, allow_blank: true
@@ -39,37 +43,45 @@ class Suma::AdminAPI::CommerceOfferings < Suma::AdminAPI::V1
           requires :postal_code, type: String, allow_blank: false
         end
       end
-      requires :period_begin, type: Time
-      requires :period_end, type: Time
+      requires :opens_at, type: Time
+      requires :closes_at, type: Time
       optional :begin_fulfillment_at, type: Time, allow_blank: true
       optional :prohibit_charge_at_checkout, type: Boolean, allow_blank: true
     end
     post :create do
-      offering = Suma::Commerce::Offering.create(
-        description: Suma::TranslatedText.find_or_create(**params[:description]),
-        fulfillment_prompt: Suma::TranslatedText.find_or_create(**params[:fulfillment_prompt]),
-        fulfillment_confirmation: Suma::TranslatedText.find_or_create(**params[:fulfillment_confirmation]),
-        period: params[:period_begin]..params[:period_end],
-        begin_fulfillment_at: params[:begin_fulfillment_at],
-        prohibit_charge_at_checkout: params[:prohibit_charge_at_checkout] || false,
-      )
-
-      params[:fulfillment_options]&.each do |fo|
-        new_option = offering.add_fulfillment_option(
-          description: Suma::TranslatedText.find_or_create(**fo[:description]),
-          type: fo[:type],
+      Suma::Commerce::Offering.db.transaction do
+        offering = Suma::Commerce::Offering.create(
+          description: Suma::TranslatedText.find_or_create(**params[:description]),
+          fulfillment_prompt: Suma::TranslatedText.find_or_create(**params[:fulfillment_prompt]),
+          fulfillment_confirmation: Suma::TranslatedText.find_or_create(**params[:fulfillment_confirmation]),
+          # period: params[:opens_at]..params[:closes_at],
+          period_begin: params[:opens_at],
+          period_end: params[:closes_at],
+          begin_fulfillment_at: params[:begin_fulfillment_at],
+          prohibit_charge_at_checkout: params[:prohibit_charge_at_checkout] || false,
         )
-        next unless fo[:address]
-        new_option.address = Suma::Address.lookup(fo[:address])
-        new_option.save_changes
+
+        params[:fulfillment_options]&.each do |fo|
+          fo_params = {
+            description: Suma::TranslatedText.find_or_create(**fo[:description]),
+            type: fo[:type],
+            ordinal: fo[:ordinal],
+          }
+          if (addr_params = fo[:address])
+            fo_params[:address] = Suma::Address.lookup(addr_params)
+          end
+          offering.add_fulfillment_option(fo_params)
+        end
+
+        if (image_params = params[:image])
+          uf = Suma::UploadedFile.create_from_multipart(image_params)
+          offering.add_image({uploaded_file: uf})
+        end
+
+        created_resource_headers(offering.id, offering.admin_link)
+        status 200
+        present offering, with: DetailedCommerceOfferingEntity
       end
-
-      uf = Suma::UploadedFile.create_from_multipart(params[:image])
-      offering.add_image({uploaded_file: uf}) if params[:image]
-
-      created_resource_headers(offering.id, offering.admin_link)
-      status 200
-      present offering, with: DetailedCommerceOfferingEntity
     end
 
     route_param :id, type: Integer do
@@ -106,6 +118,7 @@ class Suma::AdminAPI::CommerceOfferings < Suma::AdminAPI::V1
   class DetailedCommerceOfferingEntity < OfferingEntity
     include Suma::AdminAPI::Entities
     include AutoExposeDetail
+    expose :begin_fulfillment_at
     expose :offering_products, with: OfferingProductEntity
     expose :orders, with: OrderInOfferingEntity
   end

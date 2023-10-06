@@ -72,24 +72,36 @@ RSpec.describe Suma::AdminAPI::CommerceOfferings, :db do
            description: {en: "EN test", es: "ES test"},
            fulfillment_prompt: {en: "EN prompt", es: "ES prompt"},
            fulfillment_confirmation: {en: "EN confirmation", es: "ES confirmation"},
-           fulfillment_options: [{
-             description: {en: "EN description", es: "ES description"},
-             type: "TEST",
-             address: {
-               address1: "test st",
-               city: "Portland",
-               state_or_province: "Oregon",
-               postal_code: "97209",
+           fulfillment_options: {
+             "0" => {
+               description: {en: "EN description", es: "ES description"},
+               type: "TEST",
+               address: {
+                 address1: "test st",
+                 city: "Portland",
+                 state_or_province: "Oregon",
+                 postal_code: "97209",
+               },
              },
-           }],
-           period_begin: Time.new(2023, 7, 1, 0, 0, 0, "-0700"),
-           period_end: Time.new(2023, 10, 1, 0, 0, 0, "-0700")
+             "1" => {
+               description: {en: "EN description", es: "ES description"},
+               type: "TEST",
+             },
+           },
+           opens_at: "2023-07-01T00:00:00-0700",
+           closes_at: "2023-10-01T00:00:00-0700"
 
       expect(last_response).to have_status(200)
       expect(last_response.headers).to include("Created-Resource-Admin")
-      expect(Suma::Commerce::Offering.all.count).to equal(1)
-      expect(Suma::Commerce::OfferingFulfillmentOption.all.count).to equal(1)
-      expect(Suma::Address.all.count).to equal(1)
+      expect(Suma::Commerce::Offering.all).to have_length(1)
+      off = Suma::Commerce::Offering.first
+      expect(off).to have_attributes(
+        period_begin: match_time("2023-07-01T00:00:00-0700"),
+        period_end: match_time("2023-10-01T00:00:00-0700"),
+      )
+      expect(off.fulfillment_options).to have_length(2)
+      expect(off.fulfillment_options[0]).to have_attributes(address: be_present, ordinal: 0)
+      expect(off.fulfillment_options[1]).to have_attributes(address: be_nil, ordinal: 1)
     end
   end
 
