@@ -215,5 +215,5 @@ function PrivateAccount({ account, onHelp }) {
   );
 }
 
-const INITIAL = 0;
-const POLLING = 1;
+const INITIAL = 1;
+const POLLING = 2;
