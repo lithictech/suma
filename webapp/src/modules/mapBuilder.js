@@ -171,6 +171,9 @@ export default class MapBuilder {
       return;
     }
     this._clickedVehicle = null;
+    if (this._onVehicleClick) {
+      this._onVehicleClick(null);
+    }
   }
 
   /**
