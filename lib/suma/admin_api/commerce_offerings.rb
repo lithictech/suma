@@ -54,9 +54,7 @@ class Suma::AdminAPI::CommerceOfferings < Suma::AdminAPI::V1
           description: Suma::TranslatedText.find_or_create(**params[:description]),
           fulfillment_prompt: Suma::TranslatedText.find_or_create(**params[:fulfillment_prompt]),
           fulfillment_confirmation: Suma::TranslatedText.find_or_create(**params[:fulfillment_confirmation]),
-          # period: params[:opens_at]..params[:closes_at],
-          period_begin: params[:opens_at],
-          period_end: params[:closes_at],
+          period: params[:opens_at]..params[:closes_at],
           begin_fulfillment_at: params[:begin_fulfillment_at],
           prohibit_charge_at_checkout: params[:prohibit_charge_at_checkout] || false,
         )
@@ -118,7 +116,13 @@ class Suma::AdminAPI::CommerceOfferings < Suma::AdminAPI::V1
   class DetailedCommerceOfferingEntity < OfferingEntity
     include Suma::AdminAPI::Entities
     include AutoExposeDetail
+    expose_translated :description
+    expose_translated :fulfillment_prompt
+    expose_translated :fulfillment_confirmation
+    expose :fulfillment_options, with: OfferingFulfillmentOptionEntity
     expose :begin_fulfillment_at
+    expose :prohibit_charge_at_checkout
+    expose :image, with: ImageEntity, &self.delegate_to(:images?, :first)
     expose :offering_products, with: OfferingProductEntity
     expose :orders, with: OrderInOfferingEntity
   end

@@ -221,4 +221,9 @@ module Suma::AdminAPI::Entities
     expose :id
     expose :name
   end
+
+  class ImageEntity < BaseEntity
+    expose_translated :caption
+    expose :url, &self.delegate_to(:uploaded_file, :absolute_url)
+  end
 end

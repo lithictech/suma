@@ -6,6 +6,7 @@ import RelatedList from "../components/RelatedList";
 import useErrorSnackbar from "../hooks/useErrorSnackbar";
 import { dayjs } from "../modules/dayConfig";
 import Money from "../shared/react/Money";
+import SumaImage from "../shared/react/SumaImage";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
 import ListAltIcon from "@mui/icons-material/ListAlt";
 import { CircularProgress } from "@mui/material";
@@ -41,7 +42,47 @@ export default function OfferingDetailPage() {
               { label: "Created At", value: dayjs(offering.createdAt) },
               { label: "Opening Date", value: dayjs(offering.opensAt) },
               { label: "Closing Date", value: dayjs(offering.closesAt) },
+              {
+                label: "Begin Fulfillment At",
+                value: dayjs(offering.beginFulfillmentAt),
+              },
+              {
+                label: "Prohibit Charge At Checkout",
+                value: offering.prohibitChargeAtCheckout ? "Yes" : "No",
+              },
+              {
+                label: "Image",
+                value: (
+                  <SumaImage
+                    image={offering.image}
+                    alt={offering.image.name}
+                    className="w-100"
+                    params={{ crop: "center" }}
+                    h={225}
+                    width={225}
+                  />
+                ),
+              },
               { label: "Description", value: offering.description },
+              { label: "Fulfillment Prompt", value: offering.fulfillmentPrompt },
+              {
+                label: "Fulfillment Confirmation",
+                value: offering.fulfillmentConfirmation,
+              },
+            ]}
+          />
+          <RelatedList
+            title="Fulfillment Options"
+            rows={offering.fulfillmentOptions}
+            headers={["Id", "Description", "Type", "Address"]}
+            keyRowAttr="id"
+            rowClass={(row) => (row.closedAt ? classes.closed : "")}
+            toCells={(row) => [
+              row.id,
+              row.description,
+              row.type,
+              row.address &&
+                `${row.address.address1} ${row.address.address2} ${row.address.city}, ${row.address.stateOrProvince} ${row.address.postalCode}`,
             ]}
           />
           <RelatedList
