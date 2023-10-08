@@ -7,7 +7,7 @@
  * @return {Array<T>}
  */
 export default function mergeAt(arr, idx, fields) {
-  const r = [...arr]
-  r[idx] = {...r[idx], ...fields}
+  const r = [...arr];
+  r[idx] = { ...r[idx], ...fields };
   return r;
 }

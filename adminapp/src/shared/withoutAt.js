@@ -6,7 +6,7 @@
  * @return {Array<T>}
  */
 export default function withoutAt(arr, idx) {
-  const r = [...arr]
-  r.splice(idx, 1)
+  const r = [...arr];
+  r.splice(idx, 1);
   return r;
 }
