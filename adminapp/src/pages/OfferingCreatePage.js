@@ -208,7 +208,7 @@ function FulfillmentOption({ type, description, address, onChange, onRemove }) {
     onChange({ address: null });
   }
   return (
-    <Box component="span" sx={{ p: 2, border: "1px dashed grey" }}>
+    <Box sx={{ p: 2, border: "1px dashed grey" }}>
       <Stack
         direction="row"
         spacing={2}
@@ -224,7 +224,7 @@ function FulfillmentOption({ type, description, address, onChange, onRemove }) {
         </Button>
       </Stack>
       <Stack spacing={2}>
-        <FormControl>
+        <FormControl required>
           <InputLabel>Type</InputLabel>
           <Select
             label="Type"
@@ -286,23 +286,28 @@ function OptionAddress({ address, onFieldChange }) {
   return (
     <Stack direction="column" spacing={2}>
       <FormLabel>Address:</FormLabel>
-      <TextField
-        value={address.address1}
-        name="address1"
-        size="small"
-        label="Street Address"
-        variant="outlined"
-        onChange={handleChange}
-      />
-      <TextField
-        name="address2"
-        value={address.address2}
-        size="small"
-        label="Unit or Apartment Number"
-        variant="outlined"
-        onChange={handleChange}
-      />
-      <Stack direction="row" spacing={2}>
+      <Stack direction={responsiveStackDirection} spacing={2}>
+        <TextField
+          value={address.address1}
+          name="address1"
+          size="small"
+          label="Street Address"
+          variant="outlined"
+          onChange={handleChange}
+          fullWidth
+          required
+        />
+        <TextField
+          name="address2"
+          value={address.address2}
+          size="small"
+          label="Unit or Apartment Number"
+          variant="outlined"
+          onChange={handleChange}
+          fullWidth
+        />
+      </Stack>
+      <Stack direction={responsiveStackDirection} spacing={2}>
         <TextField
           name="city"
           value={address.city}
@@ -310,8 +315,9 @@ function OptionAddress({ address, onFieldChange }) {
           label="City"
           variant="outlined"
           onChange={handleChange}
+          required
         />
-        <FormControl size="small" fullWidth>
+        <FormControl size="small" sx={{ width: { xs: "100%", sm: "50%" } }} required>
           <InputLabel>State</InputLabel>
           <Select
             label="State"
@@ -334,6 +340,7 @@ function OptionAddress({ address, onFieldChange }) {
           label="Zip code"
           variant="outlined"
           onChange={handleChange}
+          required
         />
       </Stack>
     </Stack>
