@@ -306,6 +306,11 @@ module Suma::Service::Helpers
     optional :lng, type: Float
   end
 
+  params :translated_text do
+    requires :en, type: String, allow_blank: false
+    requires :es, type: String, allow_blank: false
+  end
+
   params :payment_instrument do
     requires :payment_instrument_id, type: Integer
     requires :payment_method_type, type: String, values: ["bank_account", "card"]

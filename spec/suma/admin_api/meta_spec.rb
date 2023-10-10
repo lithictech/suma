@@ -25,6 +25,29 @@ RSpec.describe Suma::AdminAPI::Meta, :db do
     end
   end
 
+  describe "GET /v1/meta/geographies" do
+    it "returns supported geographies" do
+      Suma::Fixtures.supported_geography.in_usa.state("Oregon").create
+      Suma::Fixtures.supported_geography.in_usa.state("North Carolina", "NC").create
+      Suma::Fixtures.supported_geography.in_country("Iceland").state("Reykjavik").create
+
+      get "/v1/meta/geographies"
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.that_includes(
+        countries: [
+          {label: "Iceland", value: "Iceland"},
+          {label: "USA", value: "United States of America"},
+        ],
+        provinces: [
+          {label: "NC", value: "North Carolina", country: include(label: "USA")},
+          {label: "Oregon", value: "Oregon", country: include(label: "USA")},
+          {label: "Reykjavik", value: "Reykjavik", country: include(label: "Iceland")},
+        ],
+      )
+    end
+  end
+
   describe "GET /v1/meta/vendor_service_categories" do
     it "returns categories" do
       a = Suma::Fixtures.vendor_service_category(name: "A").create

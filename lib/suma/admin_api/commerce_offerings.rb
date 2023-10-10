@@ -25,22 +25,22 @@ class Suma::AdminAPI::CommerceOfferings < Suma::AdminAPI::V1
 
     params do
       requires :image, type: File
-      requires :description, type: JSON
-      requires :fulfillment_prompt, type: JSON
-      requires :fulfillment_confirmation, type: JSON
-      requires :fulfillment_options, type: Array, coerce_with: proc { |s|
-                                                                 s.values.each_with_index.map do |fo, ordinal|
-                                                                   fo.merge(ordinal:)
-                                                                 end
-                                                               } do
-        requires :type, type: String
+      requires :description, type: JSON do
+        use :translated_text
+      end
+      requires :fulfillment_prompt, type: JSON do
+        use :translated_text
+      end
+      requires :fulfillment_confirmation, type: JSON do
+        use :translated_text
+      end
+      requires :fulfillment_options,
+               type: Array,
+               coerce_with: proc { |s| s.values.each_with_index.map { |fo, ordinal| fo.merge(ordinal:) } } do
+        requires :type, type: String, values: Suma::Commerce::OfferingFulfillmentOption::TYPES
         requires :description, type: JSON
         optional :address, type: JSON do
-          requires :address1, type: String, allow_blank: false
-          optional :address2, type: String, allow_blank: true
-          requires :city, type: String, allow_blank: false
-          requires :state_or_province, type: String, allow_blank: false
-          requires :postal_code, type: String, allow_blank: false
+          use :address
         end
       end
       requires :opens_at, type: Time
