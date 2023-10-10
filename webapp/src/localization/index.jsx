@@ -6,7 +6,7 @@ import { compiler } from "markdown-to-jsx";
 import React from "react";
 import ReactDOM from "react-dom";
 
-const runChecks = process.env.NODE_ENV === "development";
+const runChecks = import.meta.env.DEV;
 
 const logger = new Logger("i18n");
 
