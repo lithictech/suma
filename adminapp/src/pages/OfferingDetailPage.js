@@ -5,6 +5,7 @@ import Link from "../components/Link";
 import RelatedList from "../components/RelatedList";
 import useErrorSnackbar from "../hooks/useErrorSnackbar";
 import { dayjs } from "../modules/dayConfig";
+import oneLineAddress from "../modules/oneLineAddress";
 import Money from "../shared/react/Money";
 import SumaImage from "../shared/react/SumaImage";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
@@ -44,7 +45,7 @@ export default function OfferingDetailPage() {
               { label: "Closing Date", value: dayjs(offering.closesAt) },
               {
                 label: "Begin Fulfillment At",
-                value: dayjs(offering.beginFulfillmentAt),
+                value: offering.beginFulfillmentAt && dayjs(offering.beginFulfillmentAt),
               },
               {
                 label: "Prohibit Charge At Checkout",
@@ -76,13 +77,11 @@ export default function OfferingDetailPage() {
             rows={offering.fulfillmentOptions}
             headers={["Id", "Description", "Type", "Address"]}
             keyRowAttr="id"
-            rowClass={(row) => (row.closedAt ? classes.closed : "")}
             toCells={(row) => [
               row.id,
               row.description,
               row.type,
-              row.address &&
-                `${row.address.address1} ${row.address.address2} ${row.address.city}, ${row.address.stateOrProvince} ${row.address.postalCode}`,
+              row.address && oneLineAddress(row.address, false),
             ]}
           />
           <RelatedList
