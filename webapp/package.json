@@ -8,7 +8,6 @@
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^14.4.3",
-    "@vitejs/plugin-react": "^4.1.0",
     "axios": "^1.2.3",
     "bluebird": "^3.7.2",
     "bootstrap": "^5.2.3",
@@ -36,11 +35,10 @@
     "vite": "^4.4.11"
   },
   "scripts": {
-    "analyze": "source-map-explorer ../build-webapp/static/js/**/*.jsx",
-    "analyze-win": "source-map-explorer ../build-webapp/static/js/**/*.jsx --html source-explorer.html && explorer.exe source-explorer.html",
-    "start": "CHOKIDAR_USEPOLLING=true FAST_REFRESH=false vite --port 22004",
+    "analyze": "vite-bundle-visualizer ../build-webapp/assets/*.js --output=source-explorer.html",
+    "start": "vite --port 22004",
     "build": "vite build --base=/app/",
-    "test": "vite test --passWithNoTests",
+    "test": "vite test",
     "eject": "vite eject",
     "serve": "vite preview",
     "prettier-check": "prettier --no-error-on-unmatched-pattern --check '*.jsx' './tools/*.jsx' './src/**/*.jsx'",
@@ -68,11 +66,12 @@
   },
   "devDependencies": {
     "@trivago/prettier-plugin-sort-imports": "^4.0.0",
+    "@vitejs/plugin-react": "^4.1.0",
     "eslint": "^8.51.0",
     "eslint-config-react-app": "^7.0.1",
     "prettier": "^2.8.3",
     "qrcode": "^1.5.1",
-    "source-map-explorer": "^2.5.3",
+    "vite-bundle-visualizer": "^0.10.0",
     "vite-plugin-eslint": "^1.8.1",
     "vite-plugin-svgr": "^4.1.0"
   }

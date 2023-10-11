@@ -64,6 +64,7 @@ node_modules/
 # react webapp gitignore
 webapp/node_modules
 webapp/dist
+webapp/source-explorer.html
 webapp/.pnp
 webapp/.pnp.js
 
@@ -83,5 +84,3 @@ webapp/.env.production.local
 webapp/npm-debug.log*
 webapp/yarn-debug.log*
 webapp/yarn-error.log*
-
-source-explorer.html

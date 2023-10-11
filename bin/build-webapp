@@ -4,6 +4,5 @@ set -e
 cd webapp
 # Need dev deps to build
 npm install --production=false
-export BUILD_PATH="../build-webapp"
 export NODE_ENV=${RACK_ENV}
 npm run build
