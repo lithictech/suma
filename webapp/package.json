@@ -43,8 +43,8 @@
     "serve": "vite preview",
     "prettier-check": "prettier --no-error-on-unmatched-pattern --check '*.jsx' './tools/*.jsx' './src/**/*.jsx'",
     "prettier-fix": "prettier --no-error-on-unmatched-pattern --write '*.jsx' './tools/*.jsx' './src/**/*.jsx'",
-    "eslint-check": "eslint --no-error-on-unmatched-pattern '*.jsx' './tools/*.jsx' './src/**/*.jsx'",
-    "eslint-fix": "eslint --no-error-on-unmatched-pattern --fix '*.jsx' './tools/*.jsx' './src/**/*.jsx'"
+    "eslint-check": "eslint --ext .js,.jsx --no-error-on-unmatched-pattern . './tools/' './src/'",
+    "eslint-fix": "eslint --ext .js,.jsx --no-error-on-unmatched-pattern --fix . './tools/' './src/'"
   },
   "eslintConfig": {
     "extends": [
