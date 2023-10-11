@@ -40,12 +40,12 @@
     <script type="text/javascript">
       // AddToHomeScreen service worker must register here
       if ("serviceWorker" in navigator) {
-        const serviceWorkerPath = '/add-to-homescreen-service-worker.js';
-        window.addEventListener("load", () =>
+        window.addEventListener("load", () => {
+          const serviceWorkerPath = "add-to-homescreen-service-worker.js";
           navigator.serviceWorker
-            .register(serviceWorkerPath, {scope: '/'})
-            .catch((error) => error)
-        );
+            .register("%BASE_URL%" + serviceWorkerPath, { scope: "%BASE_URL%" })
+            .catch((error) => error);
+        });
       }
     </script>
   </body>
