@@ -75,7 +75,7 @@ RSpec.describe Suma::AdminAPI::CommerceOfferings, :db do
            fulfillment_options: {
              "0" => {
                description: {en: "EN description", es: "ES description"},
-               type: "TEST",
+               type: "delivery",
                address: {
                  address1: "test st",
                  city: "Portland",
@@ -85,7 +85,7 @@ RSpec.describe Suma::AdminAPI::CommerceOfferings, :db do
              },
              "1" => {
                description: {en: "EN description", es: "ES description"},
-               type: "TEST",
+               type: "pickup",
              },
            },
            opens_at: "2023-07-01T00:00:00-0700",

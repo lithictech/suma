@@ -18,5 +18,5 @@ export default function oneLineAddress(address, includeCountry = true) {
   if (includeCountry) {
     addressParts.push(address.country.toUpperCase());
   }
-  return addressParts.filter((p) => p).join(", ");
+  return addressParts.filter(Boolean).join(", ");
 }
