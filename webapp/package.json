@@ -38,7 +38,7 @@
     "analyze": "vite-bundle-visualizer ../build-webapp/assets/*.js --output=source-explorer.html",
     "start": "vite --port 22004",
     "build": "vite build --base=/app/",
-    "test": "vite test",
+    "test": "vitest --passWithNoTests --globals",
     "eject": "vite eject",
     "serve": "vite preview",
     "prettier-check": "prettier --no-error-on-unmatched-pattern --check '*.{jsx,js}' './tools/*.{jsx,js}' './src/**/*.{jsx,js}'",
@@ -73,6 +73,7 @@
     "qrcode": "^1.5.1",
     "vite-bundle-visualizer": "^0.10.0",
     "vite-plugin-eslint": "^1.8.1",
-    "vite-plugin-svgr": "^4.1.0"
+    "vite-plugin-svgr": "^4.1.0",
+    "vitest": "^0.34.6"
   }
 }
