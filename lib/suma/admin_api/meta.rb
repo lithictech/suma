@@ -12,6 +12,20 @@ class Suma::AdminAPI::Meta < Suma::AdminAPI::V1
       present_collection cur, with: CurrencyEntity
     end
 
+    get :geographies do
+      use_http_expires_caching 2.days
+      countries = Suma::SupportedGeography.order(:label).where(type: "country").all
+      provinces = Suma::SupportedGeography.order(:label).where(type: "province").all
+      result = {}
+      result[:countries] = countries.map do |c|
+        {label: c.label, value: c.value}
+      end
+      result[:provinces] = provinces.map do |p|
+        {label: p.label, value: p.value, country: {label: p.parent.label, value: p.parent.value}}
+      end
+      present result
+    end
+
     get :vendor_service_categories do
       use_http_expires_caching 12.hours
       sc = Suma::Vendor::ServiceCategory.dataset.order(:name).all

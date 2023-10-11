@@ -1,5 +1,7 @@
 import api from "../api";
 import AdminLink from "../components/AdminLink";
+import FabAdd from "../components/FabAdd";
+import Link from "../components/Link";
 import ResourceTable from "../components/ResourceTable";
 import { dayjs } from "../modules/dayConfig";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
@@ -29,6 +31,7 @@ export default function OfferingListPage() {
   );
   return (
     <>
+      <FabAdd component={Link} href={"/offerings/new"} />
       <ResourceTable
         page={page}
         perPage={perPage}

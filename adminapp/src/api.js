@@ -13,6 +13,9 @@ const get = (path, params, opts) => {
 const post = (path, params, opts) => {
   return instance.post(path, params, opts);
 };
+const postForm = (path, params, opts) => {
+  return instance.postForm(path, params, opts);
+};
 const patch = (path, params, opts) => {
   return instance.patch(path, params, opts);
 };
@@ -44,6 +47,7 @@ export default {
   followRedirect,
   get,
   post,
+  postForm,
   patch,
   put,
   del,
@@ -53,6 +57,7 @@ export default {
   impersonate: ({ id, ...data }) => post(`/adminapi/v1/auth/impersonate/${id}`, data),
   unimpersonate: (data) => del(`/adminapi/v1/auth/impersonate`, data),
   getCurrencies: (data) => get(`/adminapi/v1/meta/currencies`, data),
+  getSupportedGeographies: (data) => get(`/adminapi/v1/meta/geographies`, data),
   getVendorServiceCategories: (data) =>
     get(`/adminapi/v1/meta/vendor_service_categories`, data),
   getEligibilityConstraints: (data) =>
@@ -77,6 +82,8 @@ export default {
   getCommerceOfferings: (data) => get("/adminapi/v1/commerce_offerings", data),
   getCommerceOffering: ({ id, ...data }) =>
     get(`/adminapi/v1/commerce_offerings/${id}`, data),
+  createCommerceOffering: (data) =>
+    postForm("/adminapi/v1/commerce_offerings/create", data),
   getCommerceOfferingPickList: ({ id, ...data }) =>
     get(`/adminapi/v1/commerce_offerings/${id}/picklist`, data),
 

@@ -4,6 +4,8 @@ require "suma/commerce"
 require "suma/postgres/model"
 
 class Suma::Commerce::OfferingFulfillmentOption < Suma::Postgres::Model(:commerce_offering_fulfillment_options)
+  TYPES = ["pickup", "delivery"].freeze
+
   plugin :soft_deletes
   plugin :timestamps
   plugin :translated_text, :description, Suma::TranslatedText
@@ -18,6 +20,11 @@ class Suma::Commerce::OfferingFulfillmentOption < Suma::Postgres::Model(:commerc
   end
 
   def pickup? = self.type == "pickup"
+
+  def validate
+    super
+    self.validates_includes TYPES, :type
+  end
 end
 
 # Table: commerce_offering_fulfillment_options
