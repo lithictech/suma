@@ -38,8 +38,8 @@
   "scripts": {
     "analyze": "source-map-explorer ../build-webapp/static/js/**/*.jsx",
     "analyze-win": "source-map-explorer ../build-webapp/static/js/**/*.jsx --html source-explorer.html && explorer.exe source-explorer.html",
-    "start": "CHOKIDAR_USEPOLLING=true PORT=22004 FAST_REFRESH=false vite --port 22004",
-    "build": "vite build",
+    "start": "CHOKIDAR_USEPOLLING=true FAST_REFRESH=false vite --port 22004",
+    "build": "vite build --base=/app/",
     "test": "vite test --passWithNoTests",
     "eject": "vite eject",
     "serve": "vite preview",
@@ -68,6 +68,7 @@
   },
   "devDependencies": {
     "@trivago/prettier-plugin-sort-imports": "^4.0.0",
+    "eslint": "^8.51.0",
     "eslint-config-react-app": "^7.0.1",
     "prettier": "^2.8.3",
     "qrcode": "^1.5.1",

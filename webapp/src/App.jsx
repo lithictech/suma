@@ -106,7 +106,7 @@ function InnerApp() {
 
 function AppRoutes() {
   return (
-    <Router basename={process.env.PUBLIC_URL}>
+    <Router basename={import.meta.env.PUBLIC_URL}>
       <Routes>
         <Route
           path="/"

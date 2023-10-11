@@ -6,13 +6,13 @@ import { initSentry } from "./shared/sentry";
 // We won't have sumaDynamicEnv set (by Rack::DynamicConfigWriter) when running
 // the development server of React during local dev,
 // or if this app is built and deployed separately as a static app.
-const env = window.sumaDynamicEnv || process.env;
+const env = window.sumaDynamicEnv || import.meta.env;
 
 // If the API host is configured, use that.
 // If it's '/', assume we mean 'the same server',
 // and use an empty string. Otherwise, fall back to local dev,
 // which is usually a different server to the React dev server.
-let apiHost = env.REACT_APP_API_HOST;
+let apiHost = env.VITE_API_HOST;
 if (apiHost === "/") {
   apiHost = "";
 } else if (!apiHost) {
@@ -34,18 +34,18 @@ function parseIfSet(key) {
 
 const config = {
   apiHost: apiHost,
-  chaos: env.REACT_APP_CHAOS,
-  debug: env.REACT_APP_DEBUG,
+  chaos: env.VITE_CHAOS,
+  debug: env.VITE_DEBUG,
   environment: env.NODE_ENV,
-  release: env.REACT_APP_RELEASE || "app.mysuma@localdev",
-  sentryDsn: env.REACT_APP_SENTRY_DSN,
+  release: env.VITE_RELEASE || "app.mysuma@localdev",
+  sentryDsn: env.VITE_SENTRY_DSN,
   stripePublicKey:
-    env.REACT_APP_STRIPE_PUBLIC_KEY ||
+    env.VITE_STRIPE_PUBLIC_KEY ||
     "pk_test_51LxdhVLelvCURGkUPdGCTS68je1xL8wWi0faS8hiDHbxxEPhmfcAX7EBDzMFTkb3N1Y0tB5vziqtsifKp6PQ4roM005GI4h8T3",
-  devCardDetails: parseIfSet("REACT_APP_DEV_CARD_DETAILS"),
-  devBankAccountDetails: parseIfSet("REACT_APP_DEV_BANK_ACCOUNT_DETAILS"),
-  featureMobility: env.REACT_APP_FEATURE_MOBILITY,
-  mapboxAccessToken: env.REACT_APP_MAPBOX_ACCESS_TOKEN,
+  devCardDetails: parseIfSet("VITE_DEV_CARD_DETAILS"),
+  devBankAccountDetails: parseIfSet("VITE_DEV_BANK_ACCOUNT_DETAILS"),
+  featureMobility: env.VITE_FEATURE_MOBILITY,
+  mapboxAccessToken: env.VITE_MAPBOX_ACCESS_TOKEN,
 };
 
 initSentry({ dsn: config.sentryDsn, debug: config.debug, application: "web-app" });
