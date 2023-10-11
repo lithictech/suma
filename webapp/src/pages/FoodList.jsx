@@ -10,9 +10,9 @@ import { useOffering } from "../state/useOffering";
 import { LayoutContainer } from "../state/withLayout";
 import isEmpty from "lodash/isEmpty";
 import React from "react";
-import { Stack } from "react-bootstrap";
 import Col from "react-bootstrap/Col";
 import Row from "react-bootstrap/Row";
+import Stack from "react-bootstrap/Stack";
 import { Helmet } from "react-helmet-async";
 import { Link, useNavigate, useParams, useLocation } from "react-router-dom";
 

@@ -16,10 +16,11 @@ import { CanceledError } from "axios";
 import get from "lodash/get";
 import isEmpty from "lodash/isEmpty";
 import React from "react";
-import { Alert, Stack } from "react-bootstrap";
+import Alert from "react-bootstrap/Alert";
 import Button from "react-bootstrap/Button";
 import Card from "react-bootstrap/Card";
 import Modal from "react-bootstrap/Modal";
+import Stack from "react-bootstrap/Stack";
 
 export default function PrivateAccountsList() {
   const {

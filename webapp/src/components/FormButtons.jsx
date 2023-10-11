@@ -1,8 +1,8 @@
 import { t } from "../localization";
 import clsx from "clsx";
 import React from "react";
-import { Stack } from "react-bootstrap";
 import Button from "react-bootstrap/Button";
+import Stack from "react-bootstrap/Stack";
 
 const FormButtons = React.forwardRef(
   ({ primaryProps, secondaryProps, variant, back, className, style }, ref) => {

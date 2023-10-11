@@ -8,7 +8,7 @@ import { mdp, t } from "../localization";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
 import { LayoutContainer } from "../state/withLayout";
 import React from "react";
-import { Alert } from "react-bootstrap";
+import Alert from "react-bootstrap/Alert";
 import Col from "react-bootstrap/Col";
 import Stack from "react-bootstrap/Stack";
 import { useLocation, useParams } from "react-router-dom";
