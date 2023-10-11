@@ -1,11 +1,11 @@
 .PHONY: help
 .DEFAULT_GOAL := help
 
-LOCAL_NETWORK_IP := `node tools/networkip.jsx`
+LOCAL_NETWORK_IP := `node tools/networkip.js`
 LOCAL_NETWORK_ADDR := http://$(LOCAL_NETWORK_IP):22004
 
 check-version:
-	@node tools/checkversion.jsx
+	@node tools/checkversion.js
 
 install: check-version
 	npm install
