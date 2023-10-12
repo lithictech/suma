@@ -33,7 +33,7 @@
   "scripts": {
     "analyze": "vite-bundle-visualizer ../build-webapp/assets/*.js --output=source-explorer.html",
     "start": "vite --port=22014",
-    "build": "vite build",
+    "build": "vite build --base=/admin/",
     "test": "vitest --passWithNoTests --globals",
     "eject": "vite eject",
     "prettier-check": "prettier --no-error-on-unmatched-pattern --check '*.{jsx,js}' './tools/*.{jsx,js}' './src/**/*.{jsx,js}'",

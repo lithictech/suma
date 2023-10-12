@@ -6,7 +6,7 @@ import eslint from "vite-plugin-eslint";
 export default defineConfig({
   plugins: [react(), eslint()],
   build: {
-    outDir: "../build-webapp",
+    outDir: "../build-adminapp",
     emptyOutDir: true,
   },
 });
