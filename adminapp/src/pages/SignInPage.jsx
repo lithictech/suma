@@ -78,6 +78,6 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const placeholder =
-  process.env.NODE_ENV === "development"
+  import.meta.env.NODE_ENV === "development"
     ? { email: "admin@lithic.tech", password: "Password1!" }
     : { email: "", password: "" };

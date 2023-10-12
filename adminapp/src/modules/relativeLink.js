@@ -24,4 +24,6 @@ export default function relativeLink(href) {
   }
 }
 
-const start = `${window.location.protocol}//${window.location.host}${process.env.PUBLIC_URL}`;
+const start = `${window.location.protocol}//${window.location.host}${
+  import.meta.env.BASE_URL
+}`;

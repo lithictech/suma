@@ -1,11 +1,11 @@
 // See webapp config.js for explanation.
-const env = window.sumaDynamicEnv || process.env;
+const env = window.sumaDynamicEnv || import.meta.env;
 
 // If the API host is configured, use that.
 // If it's '/', assume we mean 'the same server',
 // and use an empty string. Otherwise, fall back to local dev,
 // which is usually a different server to the React dev server.
-let apiHost = env.REACT_APP_API_HOST;
+let apiHost = env.VITE_API_HOST;
 if (apiHost === "/") {
   apiHost = "";
 } else if (!apiHost) {
@@ -13,8 +13,8 @@ if (apiHost === "/") {
 }
 const config = {
   apiHost: apiHost,
-  chaos: env.REACT_APP_CHAOS,
-  debug: env.REACT_APP_DEBUG,
+  chaos: env.VITE_CHAOS,
+  debug: env.VITE_DEBUG,
   environment: env.NODE_ENV,
   defaultCurrency: { code: "USD", symbol: "$" },
 };

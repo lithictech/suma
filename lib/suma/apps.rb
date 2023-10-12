@@ -115,10 +115,10 @@ module Suma::Apps
     )
     vars = self._dynamic_config_common_vars
     env = {
-      "REACT_APP_API_HOST" => vars[:api_host],
-      "REACT_APP_RELEASE" => "sumaadmin@" + vars[:release_version],
+      "VITE_API_HOST" => vars[:api_host],
+      "VITE_RELEASE" => "sumaadmin@" + vars[:release_version],
       "NODE_ENV" => vars[:node_env],
-    }.merge(Rack::DynamicConfigWriter.pick_env("REACT_APP_"))
+    }.merge(Rack::DynamicConfigWriter.pick_env("VITE_"))
     dw.emplace(env)
   end
 
