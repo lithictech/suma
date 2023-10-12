@@ -68,6 +68,9 @@ webapp/source-explorer.html
 webapp/.pnp
 webapp/.pnp.js
 
+# react adminapp gitignore
+adminapp/source-explorer.html
+
 # testing
 webapp/coverage
 
