@@ -62,7 +62,6 @@ const AutocompleteSearch = React.forwardRef(function AutocompleteSearch(
       freeSolo
       options={options}
       autoHighlight={true}
-      autoSelect={true}
       selectOnFocus={true}
       value={value || null}
       onChange={handleSelect}
