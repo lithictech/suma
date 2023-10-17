@@ -68,6 +68,7 @@ const AutocompleteSearch = React.forwardRef(function AutocompleteSearch(
       onChange={handleSelect}
       inputValue={text}
       onInputChange={handleChange}
+      filterOptions={(ops) => ops}
       fullWidth={fullWidth}
       disabled={disabled}
       renderInput={(params) => (
