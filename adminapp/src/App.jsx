@@ -39,12 +39,13 @@ import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
 window.Promise = bluejay.Promise;
 
 export default function App() {
+  const basename = import.meta.env.BASE_URL.replace(/\/$/, "");
   return (
     <ThemeProvider theme={theme}>
       <LocalizationProvider dateAdapter={AdapterDayjs}>
         <SnackbarProvider>
           <UserProvider>
-            <Router basename={import.meta.env.BASE_URL}>
+            <Router basename={basename}>
               <NavSwitch />
               <PageSwitch />
             </Router>

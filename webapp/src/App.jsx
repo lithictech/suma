@@ -105,8 +105,9 @@ function InnerApp() {
 }
 
 function AppRoutes() {
+  const basename = import.meta.env.BASE_URL.replace(/\/$/, "");
   return (
-    <Router basename={import.meta.env.BASE_URL}>
+    <Router basename={basename}>
       <Routes>
         <Route
           path="/"
