@@ -41,9 +41,8 @@
       // AddToHomeScreen service worker must register here
       if ("serviceWorker" in navigator) {
         window.addEventListener("load", () => {
-          const serviceWorkerPath = "add-to-homescreen-service-worker.js";
           navigator.serviceWorker
-            .register("%BASE_URL%" + serviceWorkerPath, { scope: "%BASE_URL%" })
+            .register("%BASE_URL%/add-to-homescreen-service-worker.js", { scope: "%BASE_URL%" })
             .catch((error) => error);
         });
       }
