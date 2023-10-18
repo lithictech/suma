@@ -54,7 +54,7 @@ This involves two non-obvious features in the codebase:
   The Rack app then serves that directory as static content at `/app`, as below.
   - NOTE: At build time, we template in some environment variables that are shared
     between the backend and frontend, like copying `RACK_ENV` into `NODE_ENV`,
-    or `SENTRY_DSN` into `REACT_APP_SENTRY_DSN`. Because these values are
+    or `SENTRY_DSN` into `VITE_SENTRY_DSN`. Because these values are
     *built into the JS at build time*, you MUST rebuild and redeploy the app
     these enviroment variables, or you'll just modify the backend.
 - We have some custom Rack middleware for servering the React SPAs

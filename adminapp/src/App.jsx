@@ -44,7 +44,7 @@ export default function App() {
       <LocalizationProvider dateAdapter={AdapterDayjs}>
         <SnackbarProvider>
           <UserProvider>
-            <Router basename={process.env.PUBLIC_URL}>
+            <Router basename={import.meta.env.BASE_URL}>
               <NavSwitch />
               <PageSwitch />
             </Router>

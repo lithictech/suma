@@ -17,6 +17,7 @@
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^14.4.3",
     "axios": "^1.2.3",
+    "bluebird": "^3.7.2",
     "clsx": "^1.2.1",
     "dayjs": "^1.11.7",
     "humps": "git+https://github.com/lithictech/humps.git#fb9844c8d37cea67ee9c592e2685aee68d05015f",
@@ -27,20 +28,17 @@
     "react-hook-form": "^7.42.1",
     "react-phone-number-input": "^3.2.16",
     "react-router": "^6.7.0",
-    "react-router-dom": "^6.7.0",
-    "react-scripts": "5.0.1"
+    "react-router-dom": "^6.7.0"
   },
   "scripts": {
-    "analyze": "source-map-explorer ../build-adminapp/static/js/**/*.js",
-    "analyze-win": "source-map-explorer ../build-adminapp/static/js/**/*.js --html source-explorer.html && explorer.exe source-explorer.html",
-    "start": "CHOKIDAR_USEPOLLING=true PORT=22014 FAST_REFRESH=false react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test --passWithNoTests",
-    "eject": "react-scripts eject",
-    "prettier-check": "prettier --no-error-on-unmatched-pattern --check '*.js' './tools/*.js' './src/**/*.js'",
-    "prettier-fix": "prettier --no-error-on-unmatched-pattern --write '*.js' './tools/*.js' './src/**/*.js'",
-    "eslint-check": "eslint --no-error-on-unmatched-pattern '*.js' './tools/*.js' './src/**/*.js'",
-    "eslint-fix": "eslint --no-error-on-unmatched-pattern --fix '*.js' './tools/*.js' './src/**/*.js'"
+    "analyze": "vite-bundle-visualizer ../build-webapp/assets/*.js --output=source-explorer.html",
+    "start": "vite --port=22014",
+    "build": "vite build --base=/admin",
+    "test": "vitest --passWithNoTests --globals",
+    "prettier-check": "prettier --no-error-on-unmatched-pattern --check '*.{jsx,js}' './tools/*.{jsx,js}' './src/**/*.{jsx,js}'",
+    "prettier-fix": "prettier --no-error-on-unmatched-pattern --write '*.{jsx,js}' './tools/*.{jsx,js}' './src/**/*.{jsx,js}'",
+    "eslint-check": "eslint --ext .js,.jsx --no-error-on-unmatched-pattern . './tools/' './src/'",
+    "eslint-fix": "eslint --ext .js,.jsx --no-error-on-unmatched-pattern --fix . './tools/' './src/'"
   },
   "eslintConfig": {
     "extends": [
@@ -62,6 +60,13 @@
   },
   "devDependencies": {
     "@trivago/prettier-plugin-sort-imports": "^4.0.0",
-    "prettier": "^2.8.3"
+    "@vitejs/plugin-react": "^4.1.0",
+    "eslint": "^8.51.0",
+    "eslint-config-react-app": "^7.0.1",
+    "prettier": "^2.8.3",
+    "vite-bundle-visualizer": "^0.10.0",
+    "vite-plugin-eslint": "^1.8.1",
+    "vite-plugin-svgr": "^4.1.0",
+    "vitest": "^0.34.6"
   }
 }

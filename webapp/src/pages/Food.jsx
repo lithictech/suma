@@ -11,10 +11,10 @@ import useAsyncFetch from "../shared/react/useAsyncFetch";
 import { LayoutContainer } from "../state/withLayout";
 import isEmpty from "lodash/isEmpty";
 import React from "react";
-import { Stack } from "react-bootstrap";
 import Card from "react-bootstrap/Card";
 import Col from "react-bootstrap/Col";
 import Row from "react-bootstrap/Row";
+import Stack from "react-bootstrap/Stack";
 import { Link } from "react-router-dom";
 
 export default function Food() {

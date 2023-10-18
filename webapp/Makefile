@@ -5,7 +5,7 @@ LOCAL_NETWORK_IP := `node tools/networkip.js`
 LOCAL_NETWORK_ADDR := http://$(LOCAL_NETWORK_IP):22004
 
 check-version:
-	@node tools/checkversion
+	@node tools/checkversion.js
 
 install: check-version
 	npm install
@@ -25,10 +25,10 @@ lint-check:
 check: fmt-check lint-check test
 
 start: check-version
-	REACT_APP_CHAOS=0.5 npm start
+	VITE_CHAOS=0.5 npm start
 
 start-network: check-version network-code
-	BROWSER=none REACT_APP_API_HOST=http://$(LOCAL_NETWORK_IP):22001 npm start
+	BROWSER=none VITE_API_HOST=http://$(LOCAL_NETWORK_IP):22001 npm start
 
 network-code:
 	@echo $(LOCAL_NETWORK_ADDR) | node node_modules/.bin/qrcode --small

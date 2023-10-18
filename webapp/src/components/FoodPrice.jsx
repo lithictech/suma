@@ -2,7 +2,7 @@ import { t } from "../localization";
 import Money, { anyMoney } from "../shared/react/Money";
 import clsx from "clsx";
 import React from "react";
-import { Stack } from "react-bootstrap";
+import Stack from "react-bootstrap/Stack";
 
 export default function FoodPrice({
   isDiscounted,

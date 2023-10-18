@@ -60,11 +60,16 @@ build-webapp/
 build-adminapp/
 node_modules/
 /package-lock.json
+dist/
 
 # react webapp gitignore
 webapp/node_modules
+webapp/source-explorer.html
 webapp/.pnp
 webapp/.pnp.js
+
+# react adminapp gitignore
+adminapp/source-explorer.html
 
 # testing
 webapp/coverage
@@ -82,5 +87,3 @@ webapp/.env.production.local
 webapp/npm-debug.log*
 webapp/yarn-debug.log*
 webapp/yarn-error.log*
-
-source-explorer.html

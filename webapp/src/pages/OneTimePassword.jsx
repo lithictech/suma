@@ -9,8 +9,8 @@ import useLoginRedirectLink from "../shared/react/useLoginRedirectLink";
 import { extractErrorCode, useError } from "../state/useError";
 import { useUser } from "../state/useUser";
 import React from "react";
-import { Form } from "react-bootstrap";
 import Button from "react-bootstrap/Button";
+import Form from "react-bootstrap/Form";
 import { useNavigate, useLocation } from "react-router-dom";
 
 const OneTimePassword = () => {

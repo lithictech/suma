@@ -22,7 +22,6 @@ export function I18NextProvider({ children }) {
   const [i18nextLoading, setI18NextLoading] = React.useState(true);
   const [language, setLanguage] = useCurrentLanguage();
   const { userAuthed } = useUser();
-
   const changeLanguage = React.useCallback(
     (lang) => {
       userAuthed &&
@@ -56,7 +55,7 @@ export function I18NextProvider({ children }) {
           initImmediate: false,
           lng: language,
           backend: {
-            loadPath: `${process.env.PUBLIC_URL}/locale/{{lng}}/{{ns}}.json`,
+            loadPath: `/locale/{{lng}}/{{ns}}.json`,
           },
           interpolation: {
             // react already safes from xss

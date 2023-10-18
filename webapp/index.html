@@ -22,29 +22,29 @@
     <!-- Orientation  -->
     <meta name="screen-orientation" content="portrait">
 
-    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
-    <link rel="icon" href="%PUBLIC_URL%/favicon.ico" type="image/x-icon" />
-    <link rel="apple-touch-icon" href="%PUBLIC_URL%/icons/apple-touch-icon.png" />
-    <link rel="apple-touch-icon" sizes="57x57" href="%PUBLIC_URL%/icons/apple-touch-icon-57x57.png" />
-    <link rel="apple-touch-icon" sizes="72x72" href="%PUBLIC_URL%/icons/apple-touch-icon-72x72.png" />
-    <link rel="apple-touch-icon" sizes="76x76" href="%PUBLIC_URL%/icons/apple-touch-icon-76x76.png" />
-    <link rel="apple-touch-icon" sizes="114x114" href="%PUBLIC_URL%/icons/apple-touch-icon-114x114.png" />
-    <link rel="apple-touch-icon" sizes="120x120" href="%PUBLIC_URL%/icons/apple-touch-icon-120x120.png" />
-    <link rel="apple-touch-icon" sizes="144x144" href="%PUBLIC_URL%/icons/apple-touch-icon-144x144.png" />
-    <link rel="apple-touch-icon" sizes="152x152" href="%PUBLIC_URL%/icons/apple-touch-icon-152x152.png" />
-    <link rel="apple-touch-icon" sizes="180x180" href="%PUBLIC_URL%/icons/apple-touch-icon-180x180.png" />
+    <link rel="manifest" href="/manifest.json" />
+    <link rel="icon" href="/favicon.ico" type="image/x-icon" />
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+    <link rel="apple-touch-icon" sizes="57x57" href="/icons/apple-touch-icon-57x57.png" />
+    <link rel="apple-touch-icon" sizes="72x72" href="/icons/apple-touch-icon-72x72.png" />
+    <link rel="apple-touch-icon" sizes="76x76" href="/icons/apple-touch-icon-76x76.png" />
+    <link rel="apple-touch-icon" sizes="114x114" href="/icons/apple-touch-icon-114x114.png" />
+    <link rel="apple-touch-icon" sizes="120x120" href="/icons/apple-touch-icon-120x120.png" />
+    <link rel="apple-touch-icon" sizes="144x144" href="/icons/apple-touch-icon-144x144.png" />
+    <link rel="apple-touch-icon" sizes="152x152" href="/icons/apple-touch-icon-152x152.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon-180x180.png" />
   </head>
   <body>
     <div id="root"></div>
+    <script type="module" src="/src/index.jsx"></script>
     <script type="text/javascript">
       // AddToHomeScreen service worker must register here
       if ("serviceWorker" in navigator) {
-        const serviceWorkerPath = '%PUBLIC_URL%/add-to-homescreen-service-worker.js';
-        window.addEventListener("load", () =>
+        window.addEventListener("load", () => {
           navigator.serviceWorker
-            .register(serviceWorkerPath, {scope: '%PUBLIC_URL%/'})
-            .catch((error) => error)
-        );
+            .register("%BASE_URL%/add-to-homescreen-service-worker.js", { scope: "%BASE_URL%" })
+            .catch((error) => error);
+        });
       }
     </script>
   </body>

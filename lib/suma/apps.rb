@@ -6,6 +6,7 @@ require "rack/builder"
 require "rack/csp"
 require "rack/dynamic_config_writer"
 require "rack/lambda_app"
+require "rack/service_worker_allowed"
 require "rack/simple_redirect"
 require "rack/spa_app"
 require "rack/spa_rewrite"
@@ -99,12 +100,12 @@ module Suma::Apps
     )
     vars = self._dynamic_config_common_vars
     env = {
-      "REACT_APP_API_HOST" => vars[:api_host],
-      "REACT_APP_SENTRY_DSN" => Suma::Sentry.dsn,
-      "REACT_APP_STRIPE_PUBLIC_KEY" => Suma::Stripe.public_key,
-      "REACT_APP_RELEASE" => "sumaweb@" + vars[:release_version],
+      "VITE_API_HOST" => vars[:api_host],
+      "VITE_SENTRY_DSN" => Suma::Sentry.dsn,
+      "VITE_STRIPE_PUBLIC_KEY" => Suma::Stripe.public_key,
+      "VITE_RELEASE" => "sumaweb@" + vars[:release_version],
       "NODE_ENV" => vars[:node_env],
-    }.merge(Rack::DynamicConfigWriter.pick_env("REACT_APP_"))
+    }.merge(Rack::DynamicConfigWriter.pick_env("VITE_"))
     dw.emplace(env)
   end
 
@@ -115,10 +116,10 @@ module Suma::Apps
     )
     vars = self._dynamic_config_common_vars
     env = {
-      "REACT_APP_API_HOST" => vars[:api_host],
-      "REACT_APP_RELEASE" => "sumaadmin@" + vars[:release_version],
+      "VITE_API_HOST" => vars[:api_host],
+      "VITE_RELEASE" => "sumaadmin@" + vars[:release_version],
       "NODE_ENV" => vars[:node_env],
-    }.merge(Rack::DynamicConfigWriter.pick_env("REACT_APP_"))
+    }.merge(Rack::DynamicConfigWriter.pick_env("VITE_"))
     dw.emplace(env)
   end
 
@@ -133,7 +134,12 @@ module Suma::Apps
   Web = Rack::Builder.new do
     Suma::Apps.emplace_dynamic_config
     # self.use Rack::Csp, policy: "default-src 'self' mysuma.org *.mysuma.org; img-src 'self' data:"
-    Rack::SpaApp.run_spa_app(self, "build-webapp", enforce_ssl: Suma::Service.enforce_ssl)
+    Rack::SpaApp.run_spa_app(
+      self,
+      "build-webapp",
+      enforce_ssl: Suma::Service.enforce_ssl,
+      service_worker_allowed: "/app",
+    )
   end
 
   Admin = Rack::Builder.new do

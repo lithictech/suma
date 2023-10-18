@@ -14,9 +14,10 @@ import useAsyncFetch from "../shared/react/useAsyncFetch";
 import { LayoutContainer } from "../state/withLayout";
 import isEmpty from "lodash/isEmpty";
 import React from "react";
-import { Badge, Stack } from "react-bootstrap";
+import Badge from "react-bootstrap/Badge";
 import Card from "react-bootstrap/Card";
 import Modal from "react-bootstrap/Modal";
+import Stack from "react-bootstrap/Stack";
 import { Link } from "react-router-dom";
 
 export default function UnclaimedOrderList() {

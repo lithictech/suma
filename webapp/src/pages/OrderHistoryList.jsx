@@ -13,8 +13,8 @@ import { LayoutContainer } from "../state/withLayout";
 import find from "lodash/find";
 import isEmpty from "lodash/isEmpty";
 import React from "react";
-import { Stack } from "react-bootstrap";
 import Card from "react-bootstrap/Card";
+import Stack from "react-bootstrap/Stack";
 import { Link, useNavigate } from "react-router-dom";
 
 export default function OrderHistoryList() {

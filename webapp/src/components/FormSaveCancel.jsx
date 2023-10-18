@@ -1,6 +1,6 @@
 import React from "react";
-import { Stack } from "react-bootstrap";
 import Button from "react-bootstrap/Button";
+import Stack from "react-bootstrap/Stack";
 
 export default function FormSaveCancel({
   saveDisabled,
