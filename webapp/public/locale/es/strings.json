@@ -1,4 +1,7 @@
 {
+  "auth": {
+    "sign_up_agreement": "Al hacer clic en {{ buttonLabel }}, aceptas y estás de acuerdo con nuestros [Términos de uso](/términos-de-uso) y [Política de privacidad](/privacy-policy). Aceptas recibir SMS y/o MMS periódicos de suma. Se pueden aplicar tarifas de mensajes y datos. Envíe HELP para obtener más información. Envíe STOP para dejar de recibir mensajes."
+  },
   "common": {
     "add_money_to_account": "Haz click aquí para añadir fondos a tu cuenta",
     "add_to_homescreen": "Agregar a pantalla principal",
@@ -31,7 +34,6 @@
     "privacy_policy": "Política de Privacidad",
     "reference_id": "ID de referencia",
     "scooter_cost": "{{startCost, sumaCurrency}} para empezar, y luego {{costPerMinute, sumaCurrency}}/min + impuestos",
-    "sign_up_agreement": "Al hacer clic en {{ buttonLabel }}, acepta recibir mensajes SMS y/o MMS periódicos de suma. Se pueden aplicar tarifas por mensajes y datos. Envía HELP para obtener más información. Envía STOP para dejar de recibir mensajes.",
     "terms_of_use": "Términos de Uso",
     "translate_to_english": "Translate to English",
     "translate_to_spanish": "Traducir al Español",
@@ -273,7 +275,6 @@
     "enter_code": "Introduzca el código",
     "enter_code_sent_to": "Introducir el código que enviamos",
     "send_new_code": "Enviar un nuevo código",
-    "terms": "Al crear una cuenta o iniciar sesión, aceptas y estás de acuerdo con nuestros [Términos de Uso](/terms-of-use) y [Política de Privacidad](/privacy-policy).",
     "verify": "Verificar",
     "verify_code": "Verificar el código"
   },

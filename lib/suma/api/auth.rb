@@ -22,6 +22,7 @@ class Suma::API::Auth < Suma::API::V1
       requires :phone, us_phone: true, type: String, coerce_with: NormalizedPhone
       requires :timezone, type: String, values: ALL_TIMEZONES
       optional :language, type: String, values: Suma::I18n.enabled_locale_codes
+      optional :terms_agreed, type: Boolean
     end
     post :start do
       guard_authed!
@@ -32,6 +33,7 @@ class Suma::API::Auth < Suma::API::V1
           phone: params[:phone],
           name: "",
           password_digest: Suma::Member::PLACEHOLDER_PASSWORD_DIGEST,
+          terms_agreed: params[:terms_agreed] ? Suma::Member::LATEST_TERMS_PUBLISH_DATE : nil,
         )
         member.timezone = params[:timezone]
         save_or_error!(member)
@@ -53,7 +55,6 @@ class Suma::API::Auth < Suma::API::V1
     params do
       requires :phone, us_phone: true, type: String, coerce_with: NormalizedPhone
       requires :token, type: String, allow_blank: false
-      optional :terms_agreed, type: Boolean
     end
     post :verify do
       guard_authed!
@@ -76,7 +77,6 @@ class Suma::API::Auth < Suma::API::V1
         merror!(403, "Sorry, that token is invalid or the phone number is not in our system.", code: "invalid_otp")
       end
 
-      me.update(terms_agreed: Suma::Member::LATEST_TERMS_PUBLISH_DATE) if params[:terms_agreed]
       set_member(me)
       create_session(me)
       status 200

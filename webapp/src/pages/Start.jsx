@@ -47,8 +47,16 @@ export default function Start() {
         phone,
         timezone: dayjs.tz.guess(),
         language,
+        termsAgreed: true,
       })
-      .then(() => navigate("/one-time-password", { state: { phoneNumber: phone } }))
+      .then((r) =>
+        navigate("/one-time-password", {
+          state: {
+            phoneNumber: phone,
+            requiresTermsAgreement: r.data.requiresTermsAgreement,
+          },
+        })
+      )
       .catch((err) => {
         setError(extractErrorCode(err));
         submitDisabled.turnOff();
@@ -81,8 +89,7 @@ export default function Start() {
         />
 
         <div className="text-secondary small">
-          {mdp("otp:terms")}
-          <p>{t("common:sign_up_agreement", { buttonLabel: t("forms:continue") })}</p>
+          {mdp("auth:sign_up_agreement", { buttonLabel: t("forms:continue") })}
         </div>
         <FormError error={error} />
         <FormButtons

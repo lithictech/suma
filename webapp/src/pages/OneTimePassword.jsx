@@ -73,7 +73,7 @@ const OneTimePassword = () => {
     submitRef.current.disabled = true;
     setError();
     api
-      .authVerify({ phone: phoneNumber, token: otpChars.join(""), termsAgreed: true })
+      .authVerify({ phone: phoneNumber, token: otpChars.join("") })
       .then((r) => {
         setUser(r.data);
         if (r.data.onboarded && redirectLink) {

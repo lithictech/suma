@@ -1,4 +1,7 @@
 {
+  "auth": {
+    "sign_up_agreement": "By clicking {{ buttonLabel }}, you accept and agree to our [Terms of Use](/terms-of-use) and [Privacy Policy](/privacy-policy). You agree to receive periodic SMS and/or MMS messages from suma. Message and data rates may apply. Text HELP for more information. Text STOP to stop receiving messages."
+  },
   "common": {
     "add_money_to_account": "Press here to add money to your account",
     "add_to_homescreen": "Add to homescreen",
@@ -31,7 +34,6 @@
     "privacy_policy": "Privacy Policy",
     "reference_id": "Reference ID",
     "scooter_cost": "{{startCost, sumaCurrency}} to start then {{costPerMinute, sumaCurrency}}/min + taxes",
-    "sign_up_agreement": "By clicking {{ buttonLabel }}, you are agreeing to receive periodic SMS and/or MMS messages from suma. Message and data rates may apply. Text HELP for more information. Text STOP to stop receiving messages.",
     "terms_of_use": "Terms of Use",
     "translate_to_english": "Translate to English",
     "translate_to_spanish": "Traducir al Español",
@@ -273,7 +275,6 @@
     "enter_code": "Enter code ",
     "enter_code_sent_to": "Enter the code that we sent to",
     "send_new_code": "Send a new code",
-    "terms": "By creating an account or signing in, you accept and agree to our [Terms of Use](/terms-of-use) and [Privacy Policy](/privacy-policy).",
     "verify": "Verify",
     "verify_code": "Verify Code"
   },

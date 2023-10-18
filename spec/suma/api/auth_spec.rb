@@ -40,11 +40,26 @@ RSpec.describe Suma::API::Auth, :db, reset_configuration: Suma::Member do
         post("/v1/auth/start", phone: "(222) 333-4444", timezone:)
 
         expect(last_response).to have_status(200)
-        expect(last_response).to have_json_body.that_includes(requires_terms_agreement: true)
         expect(last_response).to have_session_cookie.with_no_extra_keys
         expect(Suma::Member.all).to contain_exactly(have_attributes(phone: "12223334444"))
         member = Suma::Member.first
         expect(member.reset_codes).to contain_exactly(have_attributes(transport: "sms"))
+      end
+
+      it "marks terms agreed if sent" do
+        post("/v1/auth/start", phone: "(222) 333-4444", timezone:, terms_agreed: true)
+
+        expect(last_response).to have_status(200)
+        expect(last_response).to have_json_body.that_includes(requires_terms_agreement: false)
+        expect(Suma::Member.first).to have_attributes(terms_agreed: Suma::Member::LATEST_TERMS_PUBLISH_DATE)
+      end
+
+      it "does not mark terms agreed if not sent" do
+        post("/v1/auth/start", phone: "(222) 333-4444", timezone:)
+
+        expect(last_response).to have_status(200)
+        expect(last_response).to have_json_body.that_includes(requires_terms_agreement: true)
+        expect(Suma::Member.first).to have_attributes(terms_agreed: be_nil)
       end
 
       it "creates a activity" do
@@ -69,7 +84,6 @@ RSpec.describe Suma::API::Auth, :db, reset_configuration: Suma::Member do
         post("/v1/auth/start", phone: "(222) 333-4444", timezone:)
 
         expect(last_response).to have_status(200)
-        expect(last_response).to have_json_body.that_includes(requires_terms_agreement: true)
         expect(last_response).to have_session_cookie.with_no_extra_keys
         expect(Suma::Member.all).to contain_exactly(be === existing)
         expect(existing.reset_codes).to contain_exactly(have_attributes(transport: "sms"))
@@ -84,13 +98,16 @@ RSpec.describe Suma::API::Auth, :db, reset_configuration: Suma::Member do
         expect(Suma::Member::Activity.all).to be_empty
       end
 
-      it "does not require terms agreement if already agreed" do
-        Suma::Fixtures.member(phone: "12223334444").terms_agreed.create
+      it "does not modify terms agreed since consent to changes was not explicit" do
+        member = Suma::Fixtures.member(phone: "12223334444").create
 
-        post("/v1/auth/start", phone: "(222) 333-4444", timezone:)
+        post("/v1/auth/start", phone: "(222) 333-4444", timezone:, terms_agreed: true)
 
         expect(last_response).to have_status(200)
-        expect(last_response).to have_json_body.that_includes(requires_terms_agreement: false)
+        expect(last_response).to have_json_body.that_includes(requires_terms_agreement: true)
+        # For a login, we do not set the terms agreed, since even though we show the 'you access our terms' message
+        # we need explicit approval somewhere else.
+        expect(member.refresh).to have_attributes(terms_agreed: be_nil)
       end
 
       it "sets the language" do
@@ -184,22 +201,6 @@ RSpec.describe Suma::API::Auth, :db, reset_configuration: Suma::Member do
 
       expect(last_response).to have_status(403)
       expect(last_response).to have_json_body.that_includes(error: include(code: "invalid_otp"))
-    end
-
-    it "does not set terms agreed if not included" do
-      c = Suma::Fixtures.member(phone: full_phone).create
-      code = Suma::Fixtures.reset_code(member: c).sms.create
-      post "/v1/auth/verify", phone: c.phone, token: code.token
-      expect(last_response).to have_status(200)
-      expect(c.refresh).to have_attributes(requires_terms_agreement?: true)
-    end
-
-    it "sets terms agreed if included" do
-      c = Suma::Fixtures.member(phone: full_phone).create
-      code = Suma::Fixtures.reset_code(member: c).sms.create
-      post "/v1/auth/verify", phone: c.phone, token: code.token, terms_agreed: true
-      expect(last_response).to have_status(200)
-      expect(c.refresh).to have_attributes(requires_terms_agreement?: false)
     end
   end
 
