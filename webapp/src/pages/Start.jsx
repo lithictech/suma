@@ -2,7 +2,7 @@ import api from "../api";
 import FormButtons from "../components/FormButtons";
 import FormControlGroup from "../components/FormControlGroup";
 import FormError from "../components/FormError";
-import { t } from "../localization";
+import { mdp, t } from "../localization";
 import useI18Next from "../localization/useI18Next";
 import { dayjs } from "../modules/dayConfig";
 import { maskPhoneNumber } from "../modules/maskPhoneNumber";
@@ -47,6 +47,7 @@ export default function Start() {
         phone,
         timezone: dayjs.tz.guess(),
         language,
+        termsAgreed: true,
       })
       .then((r) =>
         navigate("/one-time-password", {
@@ -86,6 +87,10 @@ export default function Start() {
           required
           onChange={handlePhoneChange}
         />
+
+        <div className="text-secondary small">
+          {mdp("auth:sign_up_agreement", { buttonLabel: t("forms:continue") })}
+        </div>
         <FormError error={error} />
         <FormButtons
           back

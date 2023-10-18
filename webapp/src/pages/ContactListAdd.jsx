@@ -3,7 +3,7 @@ import ContactListTags from "../components/ContactListTags";
 import FormButtons from "../components/FormButtons";
 import FormControlGroup from "../components/FormControlGroup";
 import FormError from "../components/FormError";
-import { mdp, t } from "../localization";
+import { md, mdp, t } from "../localization";
 import useI18Next from "../localization/useI18Next";
 import { dayjs } from "../modules/dayConfig";
 import { maskPhoneNumber } from "../modules/maskPhoneNumber";
@@ -122,7 +122,9 @@ export default function ContactListAdd() {
           </FormControlGroup>
         </Row>
         <FormError error={error} />
-        <p className="text-secondary">{t("contact_list:sign_up_agreement")}</p>
+        <p className="text-secondary">
+          {md("auth:sign_up_agreement", { buttonLabel: t("forms:submit") })}
+        </p>
         <FormButtons
           variant="outline-primary"
           back

@@ -2,7 +2,7 @@ import api from "../api";
 import FormButtons from "../components/FormButtons";
 import FormError from "../components/FormError";
 import FormSuccess from "../components/FormSuccess";
-import { md, t } from "../localization";
+import { t } from "../localization";
 import { dayjs } from "../modules/dayConfig";
 import { maskPhoneNumber } from "../modules/maskPhoneNumber";
 import useLoginRedirectLink from "../shared/react/useLoginRedirectLink";
@@ -22,7 +22,6 @@ const OneTimePassword = () => {
   const { state } = useLocation();
   const submitRef = React.useRef(null);
   const phoneNumber = state ? state.phoneNumber : undefined;
-  const requireTerms = state ? state.requiresTermsAgreement : true;
   const { redirectLink, clearRedirectLink } = useLoginRedirectLink();
 
   React.useEffect(() => {
@@ -74,7 +73,7 @@ const OneTimePassword = () => {
     submitRef.current.disabled = true;
     setError();
     api
-      .authVerify({ phone: phoneNumber, token: otpChars.join(""), termsAgreed: true })
+      .authVerify({ phone: phoneNumber, token: otpChars.join("") })
       .then((r) => {
         setUser(r.data);
         if (r.data.onboarded && redirectLink) {
@@ -168,7 +167,6 @@ const OneTimePassword = () => {
             {t("otp:send_new_code")}
           </Button>
         </p>
-        {requireTerms && <p className="w-75 text-center m-auto">{md("otp:terms")}</p>}
         <FormButtons
           back
           primaryProps={{
