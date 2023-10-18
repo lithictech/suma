@@ -18,16 +18,13 @@
  */
 export default function relativeLink(href) {
   if (href.startsWith(start)) {
-    return ["/" + href.slice(start.length), true];
+    return [href.slice(start.length - 1), true];
   } else {
     return [href, false];
   }
 }
 
-const baseUrl = import.meta.env.BASE_URL;
-
-if (!baseUrl.endsWith("/")) {
-  throw new Error(`BASE_URL must have trailing slash, got '${baseUrl}'`);
-}
+// BASE_URL must have trailing slash
+const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "") + "/";
 
 const start = `${window.location.protocol}//${window.location.host}${baseUrl}`;
