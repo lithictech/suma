@@ -26,7 +26,7 @@ export default function relativeLink(href) {
 
 const baseUrl = import.meta.env.BASE_URL;
 
-if (!baseUrl.endsWith("/")) {
+if (!baseUrl.endsWith("/") && import.meta.env.MODE === "development") {
   throw new Error(`BASE_URL must have trailing slash, got '${baseUrl}'`);
 }
 
