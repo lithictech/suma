@@ -14,6 +14,8 @@ require "suma/tasks/db"
 Suma::Tasks::DB.new
 require "suma/tasks/bootstrap"
 Suma::Tasks::Bootstrap.new
+require "suma/tasks/finance"
+Suma::Tasks::Finance.new
 require "suma/tasks/frontend"
 Suma::Tasks::Frontend.new
 require "suma/tasks/heroku"

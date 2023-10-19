@@ -155,6 +155,10 @@ goto-sidekiq: cmd-exists-heroku
 goto-sidekiq-staging: cmd-exists-heroku
 	open "https://`heroku config:get ASYNC_WEB_USERNAME --app=$(staging_app)`:`heroku config:get ASYNC_WEB_PASSWORD --app=$(staging_app)`@$(staging_app).herokuapp.com/sidekiq"
 
+financial-model:
+	@mkdir -p temp
+	bundle exec rake finance:run_financial_model
+
 env-%:
 	@if [ -z '${${*}}' ]; then echo 'ERROR: variable $* not set' && exit 1; fi
 
