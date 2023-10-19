@@ -1,5 +1,6 @@
 import { Autocomplete, TextField } from "@mui/material";
 import debounce from "lodash/debounce";
+import { isObject } from "lodash/lang";
 import React from "react";
 
 /**
@@ -39,7 +40,7 @@ const AutocompleteSearch = React.forwardRef(function AutocompleteSearch(
       return;
     }
     activePromise.current.cancel();
-    const q = e.target.value;
+    const q = e.target.value || "";
     onTextChange && onTextChange(q);
 
     if (q.length < 3) {
@@ -49,7 +50,11 @@ const AutocompleteSearch = React.forwardRef(function AutocompleteSearch(
     searchDebounced({ q });
   }
   function handleSelect(ev, val) {
-    if (typeof val === "object") {
+    // val can be null (which is type object).
+    // This will happen when we use the 'clear' button (or delete all text),
+    // which calls back a text value change, AND triggers this 'selected' callback.
+    // The caller just has to worry about the text change; onValueSelect will never be called with null.
+    if (isObject(val)) {
       // If this is in uncontrolled mode, select will be called with a string,
       // even after the selection is made. However we always are dealing with objects,
       // never strings, so never alert if this case is hit.
@@ -63,7 +68,6 @@ const AutocompleteSearch = React.forwardRef(function AutocompleteSearch(
       options={options}
       autoHighlight={true}
       selectOnFocus={true}
-      disableClearable
       value={value || null}
       onChange={handleSelect}
       inputValue={text}
