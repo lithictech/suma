@@ -41,9 +41,9 @@ const VendorServiceCategorySelect = React.forwardRef(function VendorServiceCateg
         onChange={(e) => handleChange(e.target.value)}
         {...rest}
       >
-        {categories.map(({ label, slug }) => (
+        {categories.map(({ name, slug }) => (
           <MenuItem key={slug} value={slug}>
-            {label}
+            {name}
           </MenuItem>
         ))}
       </Select>
