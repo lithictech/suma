@@ -13,9 +13,6 @@ const MultiLingualText = React.forwardRef(function MultiLingualText(
   ref
 ) {
   const handleSelect = (t) => {
-    if (!t) {
-      return;
-    }
     onChange({ en: t.en, es: t.es });
   };
   const handleTextChange = (lang, txt) => {

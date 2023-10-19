@@ -1,5 +1,6 @@
 import { Autocomplete, TextField } from "@mui/material";
 import debounce from "lodash/debounce";
+import { isObject } from "lodash/lang";
 import React from "react";
 
 /**
@@ -33,13 +34,13 @@ const AutocompleteSearch = React.forwardRef(function AutocompleteSearch(
   const [options, setOptions] = React.useState([]);
 
   function handleChange(e) {
-    if (!e || !e.target.value || e.target.value === 0) {
+    if (!e || e.target.value === 0) {
       // Change is invoked on init (with a null event) and on select (with the value 0, no matter what is selected).
       // I don't understand what this means.
       return;
     }
     activePromise.current.cancel();
-    const q = e.target.value;
+    const q = e.target.value || "";
     onTextChange && onTextChange(q);
 
     if (q.length < 3) {
@@ -49,7 +50,11 @@ const AutocompleteSearch = React.forwardRef(function AutocompleteSearch(
     searchDebounced({ q });
   }
   function handleSelect(ev, val) {
-    if (typeof val === "object") {
+    // val can be null (which is type object).
+    // This will happen when we use the 'clear' button (or delete all text),
+    // which calls back a text value change, AND triggers this 'selected' callback.
+    // The caller just has to worry about the text change; onValueSelect will never be called with null.
+    if (isObject(val)) {
       // If this is in uncontrolled mode, select will be called with a string,
       // even after the selection is made. However we always are dealing with objects,
       // never strings, so never alert if this case is hit.
@@ -62,12 +67,12 @@ const AutocompleteSearch = React.forwardRef(function AutocompleteSearch(
       freeSolo
       options={options}
       autoHighlight={true}
-      autoSelect={true}
       selectOnFocus={true}
       value={value || null}
       onChange={handleSelect}
       inputValue={text}
       onInputChange={handleChange}
+      filterOptions={(ops) => ops}
       fullWidth={fullWidth}
       disabled={disabled}
       renderInput={(params) => (
