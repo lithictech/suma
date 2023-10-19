@@ -1,6 +1,7 @@
 import api from "../api";
 import AdminLink from "../components/AdminLink";
 import DetailGrid from "../components/DetailGrid";
+import InlineEditField from "../components/InlineEditField";
 import Link from "../components/Link";
 import RelatedList from "../components/RelatedList";
 import useErrorSnackbar from "../hooks/useErrorSnackbar";
@@ -10,8 +11,16 @@ import Money from "../shared/react/Money";
 import SumaImage from "../shared/react/SumaImage";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
 import ListAltIcon from "@mui/icons-material/ListAlt";
-import { CircularProgress } from "@mui/material";
+import {
+  Chip,
+  CircularProgress,
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select,
+} from "@mui/material";
 import { makeStyles } from "@mui/styles";
+import capitalize from "lodash/capitalize";
 import isEmpty from "lodash/isEmpty";
 import React from "react";
 import { useParams } from "react-router-dom";
@@ -24,13 +33,31 @@ export default function OfferingDetailPage() {
   const getCommerceOffering = React.useCallback(() => {
     return api.getCommerceOffering({ id }).catch((e) => enqueueErrorSnackbar(e));
   }, [id, enqueueErrorSnackbar]);
-  const { state: offering, loading: offeringLoading } = useAsyncFetch(
-    getCommerceOffering,
+  const {
+    state: offering,
+    loading: offeringLoading,
+    replaceState: updateOffering,
+  } = useAsyncFetch(getCommerceOffering, {
+    default: {},
+    pickData: true,
+  });
+  const { state: allEligibilityConstraints } = useAsyncFetch(
+    api.getEligibilityConstraints,
     {
-      default: {},
       pickData: true,
     }
   );
+
+  const handleAddEligibilityConstraint = (c) => {
+    return api
+      .addOfferingEligibility(c)
+      .then(api.pickData)
+      .then((o) => {
+        updateOffering(o);
+      })
+      .catch((e) => enqueueErrorSnackbar(e));
+  };
+
   return (
     <>
       {offeringLoading && <CircularProgress />}
@@ -61,6 +88,45 @@ export default function OfferingDetailPage() {
                     params={{ crop: "center" }}
                     h={225}
                     width={225}
+                  />
+                ),
+              },
+              {
+                label: "Eligibility Constraints",
+                children: (
+                  <InlineEditField
+                    renderDisplay={
+                      !isEmpty(offering.eligibilityConstraints)
+                        ? offering.eligibilityConstraints.map(({ name }) => (
+                            <Chip
+                              key={name}
+                              label={capitalize(name)}
+                              sx={{ margin: 0.5 }}
+                            />
+                          ))
+                        : "-"
+                    }
+                    initialEditingState={{ id: offering.id }}
+                    renderEdit={(st, set) => {
+                      return (
+                        <FormControl required size="small">
+                          <InputLabel>Choose new constraint...</InputLabel>
+                          <Select
+                            label="Choose new constraint..."
+                            value={st.constraintId || ""}
+                            sx={{ width: "250px" }}
+                            onChange={(e) => set({ ...st, constraintId: e.target.value })}
+                          >
+                            {allEligibilityConstraints.items.map((c) => (
+                              <MenuItem key={c.id} value={c.id}>
+                                {c.name}
+                              </MenuItem>
+                            ))}
+                          </Select>
+                        </FormControl>
+                      );
+                    }}
+                    onSave={handleAddEligibilityConstraint}
                   />
                 ),
               },
