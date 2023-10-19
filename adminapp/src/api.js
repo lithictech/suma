@@ -84,6 +84,8 @@ export default {
     get(`/adminapi/v1/commerce_offerings/${id}`, data),
   createCommerceOffering: (data) =>
     postForm("/adminapi/v1/commerce_offerings/create", data),
+  addOfferingEligibility: ({ id, ...data }) =>
+    post(`/adminapi/v1/commerce_offerings/${id}/add_eligibility`, data),
   getCommerceOfferingPickList: ({ id, ...data }) =>
     get(`/adminapi/v1/commerce_offerings/${id}/picklist`, data),
 

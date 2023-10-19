@@ -108,7 +108,9 @@ RSpec.describe Suma::AdminAPI::CommerceOfferings, :db do
   describe "GET /v1/commerce_offerings/:id" do
     it "returns the offering" do
       order = Suma::Fixtures.order.as_purchased_by(admin).create
+      e = Suma::Fixtures.eligibility_constraint.create
       o = order.checkout.cart.offering
+      o.add_eligibility_constraint(e)
 
       get "/v1/commerce_offerings/#{o.id}"
 
@@ -117,11 +119,42 @@ RSpec.describe Suma::AdminAPI::CommerceOfferings, :db do
         id: o.id,
         orders: have_length(1),
         offering_products: have_length(1),
+        eligibility_constraints: have_length(1),
       )
     end
 
     it "403s if the item does not exist" do
       get "/v1/commerce_offerings/0"
+
+      expect(last_response).to have_status(403)
+    end
+  end
+
+  describe "GET /v1/commerce_offering/:id/add_eligibility" do
+    it "adds eligibility constraint" do
+      o = Suma::Fixtures.offering.create
+      exisiting_ec = Suma::Fixtures.eligibility_constraint.create
+      post "/v1/commerce_offerings/#{o.id}/add_eligibility", constraint_id: exisiting_ec.id
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.
+        that_includes(eligibility_constraints: have_length(1))
+    end
+
+    it "403s if eligibility constraint does not exist" do
+      o = Suma::Fixtures.offering.create
+
+      post "/v1/commerce_offerings/#{o.id}/add_eligibility", constraint_id: 0
+
+      expect(last_response).to have_status(403)
+    end
+
+    it "403s if offering eligibility constraint already exists" do
+      o = Suma::Fixtures.offering.create
+      ec = Suma::Fixtures.eligibility_constraint.create
+      o.add_eligibility_constraint(ec)
+
+      post "/v1/commerce_offerings/#{o.id}/add_eligibility", constraint_id: ec.id
 
       expect(last_response).to have_status(403)
     end

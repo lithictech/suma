@@ -95,6 +95,33 @@ class Suma::AdminAPI::CommerceOfferings < Suma::AdminAPI::V1
         present co, with: DetailedCommerceOfferingEntity
       end
 
+      params do
+        requires :constraint_id, type: Integer
+      end
+      post :add_eligibility do
+        offering = lookup
+        admin = admin_member
+        offering.db.transaction do
+          existing_ids = Set.new(offering.eligibility_constraints.map(&:id))
+          if existing_ids.include?(params[:constraint_id])
+            adminerror!(403, "Eligibility constraint already added: #{params[:constraint_id]}")
+          end
+
+          ec = Suma::Eligibility::Constraint[params[:constraint_id]]
+          adminerror!(403, "Eligibility constraint does not exist: #{params[:constraint_id]}") unless ec
+
+          offering.add_eligibility_constraint(ec)
+          admin_member.add_activity(
+            message_name: "eligibilityadd",
+            summary: "Admin #{admin.name} added eligibility to #{offering.description}: #{ec.name}",
+            subject_type: "Suma::Commerce::Offering",
+            subject_id: offering.id,
+          )
+        end
+        status 200
+        present offering, with: DetailedCommerceOfferingEntity
+      end
+
       resource :picklist do
         get do
           co_products = lookup.order_pick_list
@@ -125,6 +152,7 @@ class Suma::AdminAPI::CommerceOfferings < Suma::AdminAPI::V1
     expose :image, with: ImageEntity, &self.delegate_to(:images?, :first)
     expose :offering_products, with: OfferingProductEntity
     expose :orders, with: OrderInOfferingEntity
+    expose :eligibility_constraints, with: EligibilityConstraintEntity
   end
 
   class ProductInPickListEntity < BaseEntity
