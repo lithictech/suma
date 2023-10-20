@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require "suma/admin_api/vendors"
-require "suma/api/behaviors"
 
 RSpec.describe Suma::AdminAPI::Vendors, :db do
   include Rack::Test::Methods
