@@ -3,6 +3,8 @@
 module Suma::Payment::FinancialModeling; end
 
 class Suma::Payment::FinancialModeling::Model202309
+  # Return decimals with full precision for accuracy
+  Money.default_infinite_precision = true
   # 0.5% fee charged to all money a user moves onto the platform
   USER_TRANSACTION_FEE = 0.005
   # 1% fee charged to product subsidy (for example the $19 subsidy on $24 in vouchers)
@@ -10,6 +12,8 @@ class Suma::Payment::FinancialModeling::Model202309
   # Hard-coded Stripe fee for now
   MERCHANT_FEE_SURCHARGE = Money.new(30)
   MERCHANT_FEE_PERCENT = 0.029
+  BEGINNING_LIABILITY_AMOUNT = Money.new(0)
+  STRIPE_DEPOSITS_AMOUNT = Money.new(4_500_00)
 
   TRANSPORTATION = "Transportation"
   FOOD = "Food"
@@ -19,46 +23,51 @@ class Suma::Payment::FinancialModeling::Model202309
     FOOD => 200,
     UTILITIES => 300,
   }.freeze
-  EMPTY = ""
-  EXPENSE = "Expense"
-  REVENUE = "Revenue"
-  PARTICIPATION_FEE_VENDOR = "Platform Participation Fees - Vendor"
-  PARTICIPATION_FEE_USER = "Platform Participation Fees - User"
-  PARTICIPATION_FEE_SUBSIDY = "Platform Participation Fees - Subsidy"
+  # EMPTY = ""
+  EMPTY_GL_NUMBER = "----"
+  EMPTY_SECTOR_NUMBER = "---"
+  # EXPENSE = "Expense"
+  # REVENUE = "Revenue"
+  # PARTICIPATION_FEE_VENDOR = "Platform Participation Fees - Vendor"
+  # PARTICIPATION_FEE_USER = "Platform Participation Fees - User"
+  # PARTICIPATION_FEE_SUBSIDY = "Platform Participation Fees - Subsidy"
   TRANSACTION_FEE_VENDOR = "Platform Transaction Fees - Vendor"
   TRANSACTION_FEE_USER = "Platform Transaction Fees - User"
   TRANSACTION_FEE_SUBSIDY = "Platform Transaction Fees - Subsidy"
   USER_PAYMENT = "User payments for Platform Products"
   SUBSIDY = "Subsidy for Platform Products"
-  DISCOUNT = "Vendor Discounts for Platform Products"
+  # DISCOUNT = "Vendor Discounts for Platform Products"
   PRODUCTS = "Platform Products"
   MERCHANT_FEES = "Merchant Fees"
+  STRIPE_DEPOSITS = "Deposits"
+  BEGINNING_LIABILITY_BALANCE = "Beginning Liability Balance"
+  ENDING_LIABILITY_BALANCE = "Ending Liability Balance"
 
   GL_NUMBERS = {
-    PARTICIPATION_FEE_VENDOR => 4500,
-    PARTICIPATION_FEE_USER => 4505,
-    PARTICIPATION_FEE_SUBSIDY => 4510,
+    # PARTICIPATION_FEE_VENDOR => 4500,
+    # PARTICIPATION_FEE_USER => 4505,
+    # PARTICIPATION_FEE_SUBSIDY => 4510,
     TRANSACTION_FEE_VENDOR => 4550,
     TRANSACTION_FEE_USER => 4555,
     TRANSACTION_FEE_SUBSIDY => 4560,
+
+    USER_PAYMENT => 4625,
+    SUBSIDY => 4630,
+    PRODUCTS => 7101,
+    # MERCHANT_FEES => 0000,
   }.freeze
 
   DEBIT = "debit"
   CREDIT = "credit"
 
   class LineItem
-    attr_accessor :date, :gl_type, :gl_code, :sector, :amount, :description, :note, :gl_number, :sector_number
+    attr_accessor :category, :description, :amount, :amount_formatted
 
-    def initialize(date, gl_type, gl_code, sector, amount, description, note=nil)
-      self.date = date
-      self.gl_type = gl_type
-      self.gl_code = gl_code
-      self.sector = sector
+    def initialize(category, amount, description)
+      self.category = category
+      self.amount = amount
       self.description = description
-      self.amount = description == CREDIT ? "(#{amount})" : amount
-      self.note = note || EMPTY
-      self.gl_number = GL_NUMBERS.fetch(self.gl_code, EMPTY)
-      self.sector_number = SECTOR_NUMBERS.fetch(self.sector, EMPTY)
+      self.amount_formatted = description == CREDIT ? "(#{amount})" : amount
     end
   end
 
@@ -73,18 +82,21 @@ class Suma::Payment::FinancialModeling::Model202309
   def funding_xaction_line_items(fx)
     result = []
     user_fee = fx.amount * USER_TRANSACTION_FEE
-    result << LineItem.new(fx.created_at, REVENUE, TRANSACTION_FEE_USER, EMPTY, user_fee, CREDIT)
+    result << LineItem.new(self.create_category(TRANSACTION_FEE_USER, ""), user_fee, CREDIT)
+
     # This is strange as we're double-crediting here, but that's because one of these
     # credits are used to pay the vendor, and the other is used to pay Suma.
-    result << LineItem.new(fx.created_at, REVENUE, SUBSIDY, EMPTY, user_fee, CREDIT, "User transaction fees")
-    result << LineItem.new(fx.created_at, REVENUE, USER_PAYMENT, EMPTY, fx.amount - user_fee, CREDIT)
+    result << LineItem.new(self.create_category(SUBSIDY, "", notes: "(User transaction fees)"), user_fee, CREDIT)
+    result << LineItem.new(self.create_category(USER_PAYMENT, ""), fx.amount - user_fee, CREDIT)
 
     # We are not going to bother looking for the Stripe Charge yet. We need BalanceTransaction to get
     # the actual Fee amount, and that's not in WebhookDB yet, so when we add it, we can fetch everything.
     # TODO: Read the merchant fee from Stripe.
+    # TODO: Do we need to include this fee? If so, we need to update this with the correct GL, sector codes.
     merchant_fee = MERCHANT_FEE_SURCHARGE + (MERCHANT_FEE_PERCENT * fx.amount)
-    result << LineItem.new(fx.created_at, EXPENSE, MERCHANT_FEES, EMPTY, merchant_fee, DEBIT)
-    result << LineItem.new(fx.created_at, REVENUE, SUBSIDY, EMPTY, merchant_fee, CREDIT, "Merchant fees")
+    # result << LineItem.new(self.create_category(MERCHANT_FEES, ""), merchant_fee, DEBIT)
+    # TODO: Do we need to include this fee? If so, we need to update this with the correct GL, sector codes.
+    # result << LineItem.new(self.create_category(SUBSIDY, "", notes: "(Merchant fees)"), merchant_fee, CREDIT)
     return result
   end
 
@@ -101,9 +113,11 @@ class Suma::Payment::FinancialModeling::Model202309
     result = []
     if ["refund", "reversal"].include?(px.classification)
       user_fee = px.amount * USER_TRANSACTION_FEE
-      result << LineItem.new(px.created_at, EXPENSE, TRANSACTION_FEE_USER, EMPTY, user_fee, DEBIT, "Refund")
-      result << LineItem.new(px.created_at, EXPENSE, SUBSIDY, EMPTY, user_fee, DEBIT, "Refund User transaction fees")
-      result << LineItem.new(px.created_at, EXPENSE, USER_PAYMENT, EMPTY, px.amount - user_fee, DEBIT, "Refund")
+      result << LineItem.new(self.create_category(TRANSACTION_FEE_USER, "", notes: "(Refund)"), user_fee, DEBIT)
+      result << LineItem.new(self.create_category(SUBSIDY, "", notes: "(Refund User transaction fees)"),
+                             user_fee, DEBIT,)
+      result << LineItem.new(self.create_category(USER_PAYMENT, "", notes: "(Refund)"), px.amount - user_fee,
+                             DEBIT,)
     else
       raise TypeError, "cannot handle #{px.classification}"
     end
@@ -128,16 +142,16 @@ class Suma::Payment::FinancialModeling::Model202309
       "Unknown"
     end
     # Charge for the goods sold
-    result << LineItem.new(ch.created_at, EXPENSE, PRODUCTS, sector, ch.undiscounted_subtotal, DEBIT)
+    result << LineItem.new(self.create_category(PRODUCTS, sector), ch.undiscounted_subtotal, DEBIT)
     cash_contribution = ch.book_transactions.
       select { |bx| bx.originating_ledger === bx.originating_ledger.account.cash_ledger }.
       sum(Money.new(0), &:amount)
     subsidy_amount = ch.undiscounted_subtotal - cash_contribution
     # Get subsidy money for whatever was not covered by cash
     if subsidy_amount.positive?
-      result << LineItem.new(ch.created_at, REVENUE, SUBSIDY, sector, subsidy_amount, CREDIT, "Products")
+      result << LineItem.new(self.create_category(SUBSIDY, sector, notes: "(Products)"), subsidy_amount, CREDIT)
       # And send some money Suma's way
-      result << LineItem.new(ch.created_at, REVENUE, TRANSACTION_FEE_SUBSIDY, sector,
+      result << LineItem.new(self.create_category(TRANSACTION_FEE_SUBSIDY, sector),
                              subsidy_amount * SUBSIDY_TRANSACTION_FEE, CREDIT,)
     end
     return result
@@ -156,22 +170,26 @@ class Suma::Payment::FinancialModeling::Model202309
     px.each { |p| line_items.concat(self.payout_xaction_line_items(p)) }
 
     got = CSV.generate do |csv|
-      csv << ["Date", "GL Type", "GL Code", "Sector", "Amount", "Description", "GL #", "Sector #", "Note"]
+      csv << ["", "2025 User Wallet Liability"]
+      csv << [BEGINNING_LIABILITY_BALANCE, BEGINNING_LIABILITY_AMOUNT]
+      csv << [STRIPE_DEPOSITS, STRIPE_DEPOSITS_AMOUNT]
+      ending_liability_amount = [BEGINNING_LIABILITY_AMOUNT, STRIPE_DEPOSITS_AMOUNT]
       line_items.each do |it|
         csv << [
-          it.date.in_time_zone("America/Los_Angeles").to_date,
-          it.gl_type,
-          it.gl_code,
-          it.sector,
-          it.amount,
-          it.description,
-          it.gl_number,
-          it.sector_number,
-          it.note,
+          it.category,
+          it.amount_formatted,
         ]
+        ending_liability_amount << it.amount
       end
+      csv << [ENDING_LIABILITY_BALANCE, ending_liability_amount.sum(Money.new(0))]
     end
     return got
+  end
+
+  # Returns the category label like "[GL_NUMBER]-[SECTOR_NUMBER] [GL_CODE] [NOTES]" plus any additional parts
+  def create_category(gl_code, sector, notes: "")
+    gl_numbers = "#{GL_NUMBERS.fetch(gl_code, EMPTY_GL_NUMBER)}-#{SECTOR_NUMBERS.fetch(sector, EMPTY_SECTOR_NUMBER)}"
+    return [gl_numbers, gl_code, notes].collect(&:strip).join(" ")
   end
 
   FEEDBACK = <<~S
