@@ -177,7 +177,7 @@ function PageSwitch() {
         element={renderWithHocs(redirectIfUnauthed, withLayout(), OfferingPickListPage)}
       />
       <Route
-        exactd
+        exact
         path="/vendor/new"
         element={renderWithHocs(redirectIfUnauthed, withLayout(), VendorCreatePage)}
       />
