@@ -87,6 +87,8 @@ export default {
   getCommerceOfferingPickList: ({ id, ...data }) =>
     get(`/adminapi/v1/commerce_offerings/${id}/picklist`, data),
 
+  createVendor: (data) => post("/adminapi/v1/vendors/create", data),
+
   getCommerceProducts: (data) => get("/adminapi/v1/commerce_products", data),
   getCommerceProduct: ({ id, ...data }) =>
     get(`/adminapi/v1/commerce_products/${id}`, data),

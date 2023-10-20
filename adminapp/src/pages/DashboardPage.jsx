@@ -1,5 +1,15 @@
+import Link from "../components/Link";
 import { useUser } from "../hooks/user";
-import { Typography } from "@mui/material";
+import StorefrontIcon from "@mui/icons-material/Storefront";
+import {
+  List,
+  ListItem,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
+  Typography,
+} from "@mui/material";
+import Divider from "@mui/material/Divider";
 import React from "react";
 
 export default function DashboardPage() {
@@ -10,9 +20,20 @@ export default function DashboardPage() {
         Hello, {user.name}
       </Typography>
       <Typography gutterBottom>
-        You can currently check member details, impersonate members and check their
-        activity history.
+        Use the navigation menu on the top-left to access resources. Create resources with
+        the following links.
       </Typography>
+      <List sx={{ maxWidth: "400px" }}>
+        <ListItem disablePadding>
+          <ListItemButton component={Link} to="/vendor/new">
+            <ListItemIcon>
+              <StorefrontIcon />
+            </ListItemIcon>
+            <ListItemText primary="Create a vendor" />
+          </ListItemButton>
+        </ListItem>
+        <Divider />
+      </List>
     </>
   );
 }

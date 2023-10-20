@@ -23,6 +23,7 @@ import PayoutTransactionListPage from "./pages/PayoutTransactionListPage";
 import ProductDetailPage from "./pages/ProductDetailPage";
 import ProductListPage from "./pages/ProductListPage";
 import SignInPage from "./pages/SignInPage";
+import VendorCreatePage from "./pages/VendorCreatePage";
 import applyHocs from "./shared/applyHocs";
 import bluejay from "./shared/bluejay";
 import Redirect from "./shared/react/Redirect";
@@ -174,6 +175,11 @@ function PageSwitch() {
         exact
         path="/offering/:id/picklist"
         element={renderWithHocs(redirectIfUnauthed, withLayout(), OfferingPickListPage)}
+      />
+      <Route
+        exactd
+        path="/vendor/new"
+        element={renderWithHocs(redirectIfUnauthed, withLayout(), VendorCreatePage)}
       />
       <Route
         exact
