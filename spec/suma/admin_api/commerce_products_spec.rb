@@ -63,32 +63,6 @@ RSpec.describe Suma::AdminAPI::CommerceProducts, :db do
     end
   end
 
-  describe "GET /v1/commerce_products/create" do
-    it "creates the offering" do
-      photo_file = File.open("spec/data/images/photo.png", "rb")
-      image = Rack::Test::UploadedFile.new(photo_file, "image/png", true)
-      cat = Suma::Fixtures.vendor_service_category.food.create
-      vs = Suma::Fixtures.vendor_service.create
-
-      post "/v1/commerce_products/create",
-           image: image,
-           name: {en: "EN name", es: "ES name"},
-           description: {en: "EN description", es: "ES description"},
-           our_cost: {cents: 2400},
-           vendor_id: vs.vendor.id,
-           vendor_service_category_slug: cat.slug,
-           max_quantity_per_order: 500,
-           max_quantity_per_offering: 500
-
-      expect(last_response).to have_status(200)
-      expect(last_response.headers).to include("Created-Resource-Admin")
-      p = Suma::Commerce::Product.first
-      expect(Suma::Commerce::Product.all).to have_length(1)
-      expect(p).to have_attributes(our_cost: cost("$24"))
-      expect(p.inventory).to have_attributes(product: p)
-    end
-  end
-
   describe "GET /v1/commerce_products/:id" do
     it "returns the product" do
       x = Suma::Fixtures.product.create

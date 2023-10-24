@@ -88,8 +88,6 @@ export default {
     get(`/adminapi/v1/commerce_offerings/${id}/picklist`, data),
 
   getCommerceProducts: (data) => get("/adminapi/v1/commerce_products", data),
-  createCommerceProduct: (data) =>
-    postForm("/adminapi/v1/commerce_products/create", data),
   getCommerceProduct: ({ id, ...data }) =>
     get(`/adminapi/v1/commerce_products/${id}`, data),
 

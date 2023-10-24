@@ -24,45 +24,6 @@ class Suma::AdminAPI::CommerceProducts < Suma::AdminAPI::V1
       present_collection ds, with: ProductEntity
     end
 
-    params do
-      requires :image, type: File
-      requires :name, type: JSON do
-        use :translated_text
-      end
-      requires :description, type: JSON do
-        use :translated_text
-      end
-      requires :our_cost, allow_blank: false, type: JSON do
-        use :funding_money
-      end
-      requires :vendor_id, type: Integer
-      requires :vendor_service_category_slug, type: String
-      requires :max_quantity_per_order, type: Integer
-      requires :max_quantity_per_offering, type: Integer
-    end
-    post :create do
-      (vendor = Suma::Vendor[params[:vendor_id]]) or forbidden!
-      (vsc = Suma::Vendor::ServiceCategory[slug: params[:vendor_service_category_slug]]) or forbidden!
-      product = Suma::Commerce::Product.create(
-        name: Suma::TranslatedText.find_or_create(**params[:name]),
-        description: Suma::TranslatedText.find_or_create(**params[:description]),
-        our_cost: params[:our_cost],
-        vendor:,
-      )
-      product.add_vendor_service_category(vsc)
-      uploaded_file = Suma::UploadedFile.create_from_multipart(params[:image])
-      product.add_image({uploaded_file:})
-
-      Suma::Commerce::ProductInventory.create(
-        product:,
-        max_quantity_per_order: params[:max_quantity_per_order],
-        max_quantity_per_offering: params[:max_quantity_per_offering],
-      )
-      created_resource_headers(product.id, product.admin_link)
-      status 200
-      present product, with: DetailedProductEntity
-    end
-
     route_param :id, type: Integer do
       helpers do
         def lookup
