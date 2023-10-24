@@ -1,5 +1,6 @@
 import api from "../api";
 import FormButtons from "../components/FormButtons";
+import ImageFileInput from "../components/ImageFileInput";
 import MultiLingualText from "../components/MultiLingualText";
 import useBusy from "../hooks/useBusy";
 import useErrorSnackbar from "../hooks/useErrorSnackbar";
@@ -9,7 +10,6 @@ import useMountEffect from "../shared/react/useMountEffect";
 import useToggle from "../shared/react/useToggle";
 import withoutAt from "../shared/withoutAt";
 import AddIcon from "@mui/icons-material/Add";
-import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import DeleteIcon from "@mui/icons-material/Delete";
 import RemoveIcon from "@mui/icons-material/Remove";
 import {
@@ -17,7 +17,6 @@ import {
   Divider,
   FormControl,
   FormControlLabel,
-  FormHelperText,
   FormLabel,
   Icon,
   InputLabel,
@@ -79,7 +78,7 @@ export default function OfferingCreatePage() {
         during their period.
       </Typography>
       <Box component="form" mt={2} onSubmit={handleSubmit(submit)}>
-        <OfferingImage image={image} onImageChange={(f) => setImage(f)} />
+        <ImageFileInput image={image} onImageChange={(f) => setImage(f)} />
         <Stack spacing={2} direction="column">
           <FormLabel>Description:</FormLabel>
           <Stack direction={responsiveStackDirection} spacing={2}>
@@ -344,37 +343,6 @@ function OptionAddress({ address, onFieldChange }) {
         />
       </Stack>
     </Stack>
-  );
-}
-
-function OfferingImage({ image, onImageChange }) {
-  return (
-    <>
-      <FormLabel>Image:</FormLabel>
-      <Stack direction="column" spacing={2}>
-        <Button component="label" variant="contained" startIcon={<CloudUploadIcon />}>
-          Set image
-          <input
-            type="file"
-            name="file"
-            accept=".jpg,.jpeg,.png"
-            hidden
-            required
-            onChange={(e) => onImageChange(e.target.files[0])}
-          />
-        </Button>
-        {Boolean(image) && (
-          <>
-            <img src={URL.createObjectURL(image)} alt={image.name} />
-            <Typography variant="body2">{image.name}</Typography>
-          </>
-        )}
-      </Stack>
-      <FormHelperText sx={{ mb: 2 }}>
-        Use JPEG and PNG formats. Suggest using size 500x500 pixels or above to avoid
-        display issues.
-      </FormHelperText>
-    </>
   );
 }
 
