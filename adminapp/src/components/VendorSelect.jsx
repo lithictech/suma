@@ -4,7 +4,7 @@ import find from "lodash/find";
 import map from "lodash/map";
 import React from "react";
 
-const VendorSelect = React.forwardRef(function VendorServiceCategorySelect(
+const VendorSelect = React.forwardRef(function VendorSelect(
   { value, defaultValue, helperText, label, className, style, onChange, ...rest },
   ref
 ) {
