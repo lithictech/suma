@@ -2,14 +2,14 @@ import api from "../api";
 import AutocompleteSearch from "../components/AutocompleteSearch";
 import CurrencyTextField from "../components/CurrencyTextField";
 import FormButtons from "../components/FormButtons";
+import FormLayout from "../components/FormLayout";
 import MultiLingualText from "../components/MultiLingualText";
 import VendorServiceCategorySelect from "../components/VendorServiceCategorySelect";
 import config from "../config";
 import useBusy from "../hooks/useBusy";
 import useErrorSnackbar from "../hooks/useErrorSnackbar";
 import useMountEffect from "../shared/react/useMountEffect";
-import { FormLabel, Stack, Typography } from "@mui/material";
-import Box from "@mui/material/Box";
+import { FormLabel, Stack } from "@mui/material";
 import humps from "humps";
 import React from "react";
 import { useForm } from "react-hook-form";
@@ -73,83 +73,79 @@ export default function BookTransactionCreatePage() {
       .catch(enqueueErrorSnackbar);
   }
   return (
-    <div style={{ maxWidth: 650 }}>
-      <Typography variant="h4" gutterBottom>
-        Create a Book Transaction
-      </Typography>
-      <Typography variant="body1" gutterBottom>
-        Book transactions move virtual money from one ledger to another. They do NOT add
-        funds onto the platform.
-      </Typography>
-      <Box component="form" mt={2} onSubmit={handleSubmit(submit)}>
-        <Stack spacing={2} direction="column">
-          <Stack direction="row" spacing={2}>
-            <AutocompleteSearch
-              {...register("originatingLedger")}
-              label="Originating Ledger"
-              helperText="Where is the money coming from?"
-              value={originatingLedger?.label}
-              fullWidth
-              required
-              search={api.searchLedgers}
-              disabled={Boolean(searchParams.get("originatingLedgerId"))}
-              title={originatingLedger?.label}
-              style={{ flex: 1 }}
-              onValueSelect={(o) => setOriginatingLedger(o)}
-            />
-            <AutocompleteSearch
-              {...register("receivingLedger")}
-              label="Receiving Ledger"
-              helperText="Where is the money going?"
-              value={receivingLedger?.label}
-              fullWidth
-              required
-              search={api.searchLedgers}
-              disabled={Boolean(searchParams.get("receivingLedgerId"))}
-              title={receivingLedger?.label}
-              style={{ flex: 1 }}
-              onValueSelect={(o) => setReceivingLedger(o)}
-            />
-          </Stack>
-          <Stack direction="row" spacing={2}>
-            <CurrencyTextField
-              {...register("amount")}
-              label="Amount"
-              helperText="How much is going from originator to receiver?"
-              money={amount}
-              required
-              autoFocus
-              style={{ flex: 1 }}
-              onMoneyChange={setAmount}
-            />
-            <VendorServiceCategorySelect
-              {...register("category")}
-              defaultValue={searchParams.get("vendorServiceCategorySlug")}
-              label="Category"
-              helperText="What can this be used for?"
-              value={category?.slug || ""}
-              disabled={Boolean(searchParams.get("vendorServiceCategorySlug"))}
-              title={category?.label}
-              style={{ flex: 1 }}
-              onChange={(_, categoryObj) => setCategory(categoryObj)}
-            />
-          </Stack>
-          <FormLabel>Memo (appears on the ledger):</FormLabel>
-          <Stack direction="row" spacing={2}>
-            <MultiLingualText
-              {...register("memo")}
-              label="Memo"
-              fullWidth
-              value={memo}
-              required
-              searchParams={{ types: ["memo"] }}
-              onChange={(memo) => setMemo(memo)}
-            />
-          </Stack>
-
-          <FormButtons back loading={isBusy} />
+    <FormLayout
+      title="Create a Book Transaction"
+      subtitle="Book transactions move virtual money from one ledger to another. They do NOT add
+        funds onto the platform."
+      onSubmit={handleSubmit(submit)}
+    >
+      <Stack spacing={2} direction="column">
+        <Stack direction="row" spacing={2}>
+          <AutocompleteSearch
+            {...register("originatingLedger")}
+            label="Originating Ledger"
+            helperText="Where is the money coming from?"
+            value={originatingLedger?.label}
+            fullWidth
+            required
+            search={api.searchLedgers}
+            disabled={Boolean(searchParams.get("originatingLedgerId"))}
+            title={originatingLedger?.label}
+            style={{ flex: 1 }}
+            onValueSelect={(o) => setOriginatingLedger(o)}
+          />
+          <AutocompleteSearch
+            {...register("receivingLedger")}
+            label="Receiving Ledger"
+            helperText="Where is the money going?"
+            value={receivingLedger?.label}
+            fullWidth
+            required
+            search={api.searchLedgers}
+            disabled={Boolean(searchParams.get("receivingLedgerId"))}
+            title={receivingLedger?.label}
+            style={{ flex: 1 }}
+            onValueSelect={(o) => setReceivingLedger(o)}
+          />
         </Stack>
-      </Box>
-    </div>
+        <Stack direction="row" spacing={2}>
+          <CurrencyTextField
+            {...register("amount")}
+            label="Amount"
+            helperText="How much is going from originator to receiver?"
+            money={amount}
+            required
+            autoFocus
+            style={{ flex: 1 }}
+            onMoneyChange={setAmount}
+          />
+          <VendorServiceCategorySelect
+            {...register("category")}
+            defaultValue={searchParams.get("vendorServiceCategorySlug")}
+            label="Category"
+            helperText="What can this be used for?"
+            value={category?.slug || ""}
+            disabled={Boolean(searchParams.get("vendorServiceCategorySlug"))}
+            title={category?.label}
+            style={{ flex: 1 }}
+            onChange={(_, categoryObj) => setCategory(categoryObj)}
+          />
+        </Stack>
+        <FormLabel>Memo (appears on the ledger):</FormLabel>
+        <Stack direction="row" spacing={2}>
+          <MultiLingualText
+            {...register("memo")}
+            label="Memo"
+            fullWidth
+            value={memo}
+            required
+            searchParams={{ types: ["memo"] }}
+            onChange={(memo) => setMemo(memo)}
+          />
+        </Stack>
+
+        <FormButtons back loading={isBusy} />
+      </Stack>
+    </FormLayout>
   );
 }

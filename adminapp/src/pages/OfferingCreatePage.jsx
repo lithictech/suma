@@ -1,5 +1,6 @@
 import api from "../api";
 import FormButtons from "../components/FormButtons";
+import FormLayout from "../components/FormLayout";
 import ImageFileInput from "../components/ImageFileInput";
 import MultiLingualText from "../components/MultiLingualText";
 import useBusy from "../hooks/useBusy";
@@ -69,100 +70,96 @@ export default function OfferingCreatePage() {
       .catch(enqueueErrorSnackbar);
   };
   return (
-    <div style={{ maxWidth: 650 }}>
-      <Typography variant="h4" gutterBottom>
-        Create an Offering
-      </Typography>
-      <Typography variant="body1" gutterBottom>
-        Offerings holds products that can be ordered at checkout. They are only available
-        during their period.
-      </Typography>
-      <Box component="form" mt={2} onSubmit={handleSubmit(submit)}>
-        <ImageFileInput image={image} onImageChange={(f) => setImage(f)} />
-        <Stack spacing={2} direction="column">
-          <FormLabel>Description:</FormLabel>
-          <Stack direction={responsiveStackDirection} spacing={2}>
-            <MultiLingualText
-              {...register("description")}
-              label="Description"
-              fullWidth
-              value={description}
-              required
-              onChange={(description) => setDescription(description)}
-            />
-          </Stack>
-          <FormLabel>Fulfillment Prompt (for checkout):</FormLabel>
-          <Stack direction={responsiveStackDirection} spacing={2}>
-            <MultiLingualText
-              {...register("fulfillmentPrompt")}
-              label="Fulfillment Prompt"
-              fullWidth
-              value={fulfillmentPrompt}
-              required
-              onChange={(fulfillmentPrompt) => setFulfillmentPrompt(fulfillmentPrompt)}
-            />
-          </Stack>
-          <FormLabel>Fulfillment Confirmation (for checkout):</FormLabel>
-          <Stack direction={responsiveStackDirection} spacing={2}>
-            <MultiLingualText
-              {...register("fulfillmentConfirmation")}
-              label="Fulfillment Confirmation"
-              fullWidth
-              value={fulfillmentConfirmation}
-              required
-              onChange={(fulfillmentConfirmation) =>
-                setFulfillmentConfirmation(fulfillmentConfirmation)
-              }
-            />
-          </Stack>
-          <FulfillmentOptions
-            options={fulfillmentOptions}
-            setOptions={setFulfillmentOptions}
+    <FormLayout
+      title="Create an Offering"
+      subtitle="Offerings holds products that can be ordered at checkout. They are only available
+        during their period."
+      onSubmit={handleSubmit(submit)}
+    >
+      <ImageFileInput image={image} onImageChange={(f) => setImage(f)} />
+      <Stack spacing={2} direction="column">
+        <FormLabel>Description:</FormLabel>
+        <Stack direction={responsiveStackDirection} spacing={2}>
+          <MultiLingualText
+            {...register("description")}
+            label="Description"
+            fullWidth
+            value={description}
+            required
+            onChange={(description) => setDescription(description)}
           />
-          <FormLabel>Period:</FormLabel>
-          <Stack
-            direction={responsiveStackDirection}
-            alignItems="center"
-            spacing={2}
-            divider={<RemoveIcon />}
-          >
-            <DateTimePicker
-              label="Beginning date *"
-              value={opensAt}
-              closeOnSelect
-              onChange={(date) => setOpensAt(date)}
-              sx={{ width: "100%" }}
-            />
-            <DateTimePicker
-              label="Ending date *"
-              value={closesAt}
-              onChange={(date) => setClosesAt(date)}
-              closeOnSelect
-              sx={{ width: "100%" }}
-            />
-          </Stack>
-          <Divider />
-          <Typography variant="h6">Optional</Typography>
-          <FormLabel>Begin Fulfillment Date (of orders):</FormLabel>
-          <DateTimePicker
-            label="Begin At"
-            value={beginFulfillmentAt}
-            onChange={(date) => setBeginFulfillmentAt(date)}
-            closeOnSelect
-            sx={{ width: { xs: "100%", sm: "50%" } }}
-          />
-          <Stack direction="row" spacing={2}>
-            <FormControlLabel
-              control={<Switch />}
-              label="Prohibit Charge At Checkout"
-              checked={prohibitChargeAtCheckout}
-              onChange={() => setProhibitChargeAtCheckout(!prohibitChargeAtCheckout)}
-            />
-          </Stack>
         </Stack>
-        <FormButtons back loading={isBusy} />
-      </Box>
-    </div>
+        <FormLabel>Fulfillment Prompt (for checkout):</FormLabel>
+        <Stack direction={responsiveStackDirection} spacing={2}>
+          <MultiLingualText
+            {...register("fulfillmentPrompt")}
+            label="Fulfillment Prompt"
+            fullWidth
+            value={fulfillmentPrompt}
+            required
+            onChange={(fulfillmentPrompt) => setFulfillmentPrompt(fulfillmentPrompt)}
+          />
+        </Stack>
+        <FormLabel>Fulfillment Confirmation (for checkout):</FormLabel>
+        <Stack direction={responsiveStackDirection} spacing={2}>
+          <MultiLingualText
+            {...register("fulfillmentConfirmation")}
+            label="Fulfillment Confirmation"
+            fullWidth
+            value={fulfillmentConfirmation}
+            required
+            onChange={(fulfillmentConfirmation) =>
+              setFulfillmentConfirmation(fulfillmentConfirmation)
+            }
+          />
+        </Stack>
+        <FulfillmentOptions
+          options={fulfillmentOptions}
+          setOptions={setFulfillmentOptions}
+        />
+        <FormLabel>Period:</FormLabel>
+        <Stack
+          direction={responsiveStackDirection}
+          alignItems="center"
+          spacing={2}
+          divider={<RemoveIcon />}
+        >
+          <DateTimePicker
+            label="Beginning date *"
+            value={opensAt}
+            closeOnSelect
+            onChange={(date) => setOpensAt(date)}
+            sx={{ width: "100%" }}
+          />
+          <DateTimePicker
+            label="Ending date *"
+            value={closesAt}
+            onChange={(date) => setClosesAt(date)}
+            closeOnSelect
+            sx={{ width: "100%" }}
+          />
+        </Stack>
+        <Divider />
+        <Typography variant="h6">Optional</Typography>
+        <FormLabel>Begin Fulfillment Date (of orders):</FormLabel>
+        <DateTimePicker
+          label="Begin At"
+          value={beginFulfillmentAt}
+          onChange={(date) => setBeginFulfillmentAt(date)}
+          closeOnSelect
+          sx={{ width: { xs: "100%", sm: "50%" } }}
+        />
+        <Stack direction="row" spacing={2}>
+          <FormControlLabel
+            control={<Switch />}
+            label="Prohibit Charge At Checkout"
+            checked={prohibitChargeAtCheckout}
+            onChange={() => setProhibitChargeAtCheckout(!prohibitChargeAtCheckout)}
+          />
+        </Stack>
+      </Stack>
+      <FormButtons back loading={isBusy} />
+    </FormLayout>
   );
 }
 
