@@ -11,10 +11,9 @@ function ImageFileInput({ image, onImageChange }) {
           Set image
           <input
             type="file"
-            name="file"
+            name="image input"
             accept=".jpg,.jpeg,.png"
             hidden
-            required
             onChange={(e) => onImageChange(e.target.files[0])}
           />
         </Button>

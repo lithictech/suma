@@ -13,12 +13,11 @@ import theme from "../theme";
 import { FormLabel, Stack, TextField, Typography } from "@mui/material";
 import React from "react";
 import { useForm } from "react-hook-form";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 export default function ProductCreatePage() {
   const { enqueueErrorSnackbar } = useErrorSnackbar();
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
   const [image, setImage] = React.useState(null);
   const [description, setDescription] = React.useState(newTranslation);
   const [name, setName] = React.useState(newTranslation);
@@ -52,8 +51,8 @@ export default function ProductCreatePage() {
       title="Create a Product"
       subtitle="A product is abstract, it can represent different goods. It is tied to a Vendor
         and can later be listed with an Offering, a.k.a OfferingProduct. If the Offering
-        and Product are available, product will appear in the Offering list and details
-        page."
+        and Product are available on the platform, product will appear in the Food list and details
+        page. Discount price can be set when creating an OfferingProduct."
       onSubmit={handleSubmit(submit)}
     >
       <ImageFileInput image={image} onImageChange={(f) => setImage(f)} />
@@ -98,22 +97,18 @@ export default function ProductCreatePage() {
           />
           <VendorSelect
             {...register("vendor")}
-            defaultValue={searchParams.get("vendorName")}
             label="Vendor"
             helperText="What vendor offers this product?"
             value={vendor?.name || ""}
-            disabled={Boolean(searchParams.get("vendorServiceCategorySlug"))}
             title={vendor?.name}
             style={{ flex: 1 }}
             onChange={(_, vendorObj) => setVendor(vendorObj)}
           />
           <VendorServiceCategorySelect
             {...register("category")}
-            defaultValue={searchParams.get("vendorServiceCategorySlug")}
             label="Category"
             helperText="What can this be used for?"
             value={category?.slug || ""}
-            disabled={Boolean(searchParams.get("vendorServiceCategorySlug"))}
             title={category?.label}
             style={{ flex: 1 }}
             onChange={(_, categoryObj) => setCategory(categoryObj)}
