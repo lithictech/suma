@@ -8,7 +8,7 @@ class Suma::AdminAPI::EligibilityConstraints < Suma::AdminAPI::V1
 
   resource :constraints do
     params do
-      requires :name, type: String, null: false
+      requires :name, type: String, allow_blank: false
     end
     post :create do
       Suma::Eligibility::Constraint.db.transaction do
