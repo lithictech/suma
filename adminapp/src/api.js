@@ -62,6 +62,7 @@ export default {
     get(`/adminapi/v1/meta/vendor_service_categories`, data),
   getEligibilityConstraints: (data) =>
     get(`/adminapi/v1/meta/eligibility_constraints`, data),
+  createEligibilityConstraint: (data) => post(`/adminapi/v1/constraints/create`, data),
 
   getBankAccount: ({ id, ...data }) => get(`/adminapi/v1/bank_accounts/${id}`, data),
 
