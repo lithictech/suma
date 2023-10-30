@@ -24,6 +24,7 @@ import ProductDetailPage from "./pages/ProductDetailPage";
 import ProductListPage from "./pages/ProductListPage";
 import SignInPage from "./pages/SignInPage";
 import VendorCreatePage from "./pages/VendorCreatePage";
+import VendorListPage from "./pages/VendorListPage";
 import applyHocs from "./shared/applyHocs";
 import bluejay from "./shared/bluejay";
 import Redirect from "./shared/react/Redirect";
@@ -178,11 +179,6 @@ function PageSwitch() {
       />
       <Route
         exact
-        path="/vendor/new"
-        element={renderWithHocs(redirectIfUnauthed, withLayout(), VendorCreatePage)}
-      />
-      <Route
-        exact
         path="/products"
         element={renderWithHocs(redirectIfUnauthed, withLayout(), ProductListPage)}
       />
@@ -190,6 +186,16 @@ function PageSwitch() {
         exact
         path="/product/:id"
         element={renderWithHocs(redirectIfUnauthed, withLayout(), ProductDetailPage)}
+      />
+      <Route
+        exact
+        path="/vendors"
+        element={renderWithHocs(redirectIfUnauthed, withLayout(), VendorListPage)}
+      />
+      <Route
+        exact
+        path="/vendor/new"
+        element={renderWithHocs(redirectIfUnauthed, withLayout(), VendorCreatePage)}
       />
       <Route
         exact

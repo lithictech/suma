@@ -20,20 +20,8 @@ export default function DashboardPage() {
         Hello, {user.name}
       </Typography>
       <Typography gutterBottom>
-        Use the navigation menu on the top-left to access resources. Create resources with
-        the following links.
+        Use the navigation menu on the top-left to access resources.
       </Typography>
-      <List sx={{ maxWidth: "400px" }}>
-        <ListItem disablePadding>
-          <ListItemButton component={Link} to="/vendor/new">
-            <ListItemIcon>
-              <StorefrontIcon />
-            </ListItemIcon>
-            <ListItemText primary="Create a vendor" />
-          </ListItemButton>
-        </ListItem>
-        <Divider />
-      </List>
     </>
   );
 }

@@ -6,6 +6,7 @@ import PersonIcon from "@mui/icons-material/Person";
 import SellIcon from "@mui/icons-material/Sell";
 import ShoppingBagIcon from "@mui/icons-material/ShoppingBag";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
+import StorefrontIcon from "@mui/icons-material/Storefront";
 import TollIcon from "@mui/icons-material/Toll";
 import React from "react";
 
@@ -36,6 +37,11 @@ export default [
     label: "Products",
     href: "/products",
     icon: <SellIcon />,
+  },
+  {
+    label: "Vendors",
+    href: "/vendors",
+    icon: <StorefrontIcon />,
   },
   {
     label: "Orders",

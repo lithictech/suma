@@ -12,6 +12,18 @@ RSpec.describe Suma::AdminAPI::Vendors, :db do
     login_as_admin(admin)
   end
 
+  describe "GET /v1/vendors" do
+    it "returns all vendors" do
+      objs = Array.new(2) { Suma::Fixtures.vendor.create }
+
+      get "/v1/vendors"
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.
+        that_includes(items: have_same_ids_as(*objs))
+    end
+  end
+
   describe "POST /v1/vendors/create" do
     it "creates a vendor" do
       post "/v1/vendors/create", name: "test"
