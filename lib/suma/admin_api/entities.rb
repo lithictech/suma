@@ -226,4 +226,10 @@ module Suma::AdminAPI::Entities
     expose_translated :caption
     expose :url, &self.delegate_to(:uploaded_file, :absolute_url)
   end
+
+  class VendorServiceEntity < BaseEntity
+    expose :id
+    expose :external_name, as: :name
+    expose :eligibility_constraints, with: EligibilityConstraintEntity
+  end
 end

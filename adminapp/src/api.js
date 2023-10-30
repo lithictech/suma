@@ -59,6 +59,7 @@ export default {
   getCurrencies: (data) => get(`/adminapi/v1/meta/currencies`, data),
   getSupportedGeographies: (data) => get(`/adminapi/v1/meta/geographies`, data),
   getVendors: (data) => get(`/adminapi/v1/vendors`, data),
+  getVendor: ({ id, data }) => get(`/adminapi/v1/vendors/${id}`, data),
   getVendorServiceCategories: (data) =>
     get(`/adminapi/v1/meta/vendor_service_categories`, data),
   getEligibilityConstraints: (data) =>
