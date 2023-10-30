@@ -1,15 +1,5 @@
-import Link from "../components/Link";
 import { useUser } from "../hooks/user";
-import StorefrontIcon from "@mui/icons-material/Storefront";
-import {
-  List,
-  ListItem,
-  ListItemButton,
-  ListItemIcon,
-  ListItemText,
-  Typography,
-} from "@mui/material";
-import Divider from "@mui/material/Divider";
+import { Typography } from "@mui/material";
 import React from "react";
 
 export default function DashboardPage() {
