@@ -176,7 +176,7 @@ function EligibilityConstraints({ memberConstraints, memberId, replaceMemberData
   const { enqueueErrorSnackbar } = useErrorSnackbar();
 
   const { state: eligibilityConstraints, loading: eligibilityConstraintsLoading } =
-    useAsyncFetch(api.getEligibilityConstraints, {
+    useAsyncFetch(api.getEligibilityConstraintsMeta, {
       pickData: true,
     });
 

@@ -11,6 +11,17 @@ RSpec.describe Suma::AdminAPI::EligibilityConstraints, :db do
   before(:each) do
     login_as_admin(admin)
   end
+  describe "GET /v1/constraints" do
+    it "returns all orders" do
+      objs = Array.new(2) { Suma::Fixtures.eligibility_constraint.create }
+
+      get "/v1/constraints"
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.
+        that_includes(items: have_same_ids_as(*objs))
+    end
+  end
 
   describe "POST /v1/constraints/create" do
     it "creates the constraint" do
