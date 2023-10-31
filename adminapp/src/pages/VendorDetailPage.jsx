@@ -5,7 +5,7 @@ import RelatedList from "../components/RelatedList";
 import useErrorSnackbar from "../hooks/useErrorSnackbar";
 import { dayjs } from "../modules/dayConfig";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
-import { CircularProgress } from "@mui/material";
+import { Chip, CircularProgress } from "@mui/material";
 import isEmpty from "lodash/isEmpty";
 import map from "lodash/map";
 import React from "react";
@@ -41,14 +41,6 @@ export default function VendorDetailPage() {
               { label: "ID", value: vendor.paymentAccount.id },
               { label: "Created At", value: dayjs(vendor.paymentAccount.createdAt) },
               { label: "Name", value: vendor.paymentAccount.displayName },
-              {
-                label: "Member Id",
-                value: (
-                  <AdminLink key="memberId" model={vendor.paymentAccount.memberId}>
-                    {vendor.paymentAccount.memberId}
-                  </AdminLink>
-                ),
-              },
             ]}
           />
           <RelatedList
@@ -56,7 +48,25 @@ export default function VendorDetailPage() {
             rows={vendor.services}
             headers={["Id", "Name", "Eligibility Constraints"]}
             keyRowAttr="id"
-            toCells={(row) => [row.id, row.name, map(row.eligibilityConstraints, "name")]}
+            toCells={(row) => [
+              row.id,
+              row.name,
+              row.eligibilityConstraints.map(({ name }) => (
+                <Chip key={name} label={name} sx={{ m: "2px" }} />
+              )),
+            ]}
+          />
+          <RelatedList
+            title="Products"
+            rows={vendor.products}
+            headers={["Id", "Created", "Name"]}
+            keyRowAttr="id"
+            toCells={(row) => [
+              <AdminLink key="id" model={row} />,
+              dayjs(row.createdAt).format("lll"),
+              row.name,
+              map(row.eligibilityConstraints, "name"),
+            ]}
           />
         </div>
       )}

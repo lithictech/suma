@@ -43,6 +43,7 @@ RSpec.describe Suma::AdminAPI::Vendors, :db do
       v = Suma::Fixtures.vendor.create
       constraint = Suma::Fixtures.eligibility_constraint.create
       service = Suma::Fixtures.vendor_service.with_constraints(constraint).create(vendor: v)
+      product_objs = Array.new(2) { Suma::Fixtures.product.create(vendor: v) }
 
       get "/v1/vendors/#{v.id}"
 
@@ -50,7 +51,13 @@ RSpec.describe Suma::AdminAPI::Vendors, :db do
       expect(last_response).to have_json_body.that_includes(
         id: v.id,
         payment_account: be_present,
-        services: have_length(1),
+        services: contain_exactly(
+          include(
+            id: service.id,
+            eligibility_constraints: contain_exactly(include(id: constraint.id)),
+          ),
+        ),
+        products: have_same_ids_as(*product_objs),
       )
     end
 

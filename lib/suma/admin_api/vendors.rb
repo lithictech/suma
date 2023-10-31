@@ -45,9 +45,19 @@ class Suma::AdminAPI::Vendors < Suma::AdminAPI::V1
     end
   end
 
+  class SimpleProductEntity < BaseEntity
+    include Suma::AdminAPI::Entities
+    include AutoExposeBase
+    expose_translated :name
+  end
+
   class DetailedVendorEntity < VendorEntity
+    include Suma::AdminAPI::Entities
     expose :slug
-    expose :payment_account, with: Suma::AdminAPI::Entities::SimplePaymentAccountEntity
-    expose :services, with: Suma::AdminAPI::Entities::VendorServiceEntity
+    expose :payment_account, with: SimplePaymentAccountEntity
+    expose :services, with: VendorServiceEntity
+    expose :products, with: SimpleProductEntity do |v|
+      Suma::Commerce::Product.where(vendor: v).all
+    end
   end
 end
