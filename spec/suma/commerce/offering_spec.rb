@@ -68,6 +68,13 @@ RSpec.describe "Suma::Commerce::Offering", :db do
       expect(with_constraint).to be_eligible_to(mem_verified_constraint)
       expect(with_constraint).to_not be_eligible_to(mem_pending_constraint)
     end
+
+    it "can find offerings with the given eligibility constraint" do
+      constraint = Suma::Fixtures.eligibility_constraint.create
+      o = Suma::Fixtures.offering.with_constraints(constraint).create
+
+      expect(described_class.with_eligibility_constraint(constraint)).to have_same_ids_as(o)
+    end
   end
 
   describe "images" do

@@ -69,9 +69,32 @@ RSpec.describe Suma::AdminAPI::EligibilityConstraints, :db do
       expect(Suma::Eligibility::Constraint.all).to have_length(1)
     end
 
-    it "403s if constraint already exists exist" do
+    it "403s if constraint already exists" do
       ec = Suma::Fixtures.eligibility_constraint.create
       post "/v1/constraints/create", name: ec.name
+
+      expect(last_response).to have_status(403)
+    end
+  end
+
+  describe "GET /v1/constraints/:id" do
+    it "returns the eligibility constraint" do
+      x = Suma::Fixtures.eligibility_constraint.create
+      offering_objs = Array.new(2) { Suma::Fixtures.offering.with_constraints(x).create }
+      vendor_service_objs = Array.new(2) { Suma::Fixtures.vendor_service.with_constraints(x).create }
+
+      get "/v1/constraints/#{x.id}"
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.that_includes(
+        id: x.id,
+        offerings: have_same_ids_as(*offering_objs),
+        services: have_same_ids_as(*vendor_service_objs),
+      )
+    end
+
+    it "403s if the item does not exist" do
+      get "/v1/constraints/0"
 
       expect(last_response).to have_status(403)
     end

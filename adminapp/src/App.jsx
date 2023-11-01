@@ -6,6 +6,7 @@ import BookTransactionDetailPage from "./pages/BookTransactionDetailPage";
 import BookTransactionListPage from "./pages/BookTransactionListPage";
 import DashboardPage from "./pages/DashboardPage";
 import EligibilityConstraintCreatePage from "./pages/EligibilityConstraintCreatePage";
+import EligibilityConstraintDetailPage from "./pages/EligibilityConstraintDetailPage";
 import EligibilityConstraintListPage from "./pages/EligibilityConstraintListPage";
 import FundingTransactionCreatePage from "./pages/FundingTransactionCreatePage";
 import FundingTransactionDetailPage from "./pages/FundingTransactionDetailPage";
@@ -101,6 +102,15 @@ function PageSwitch() {
           redirectIfUnauthed,
           withLayout(),
           EligibilityConstraintCreatePage
+        )}
+      />
+      <Route
+        exact
+        path="/constraint/:id"
+        element={renderWithHocs(
+          redirectIfUnauthed,
+          withLayout(),
+          EligibilityConstraintDetailPage
         )}
       />
       <Route

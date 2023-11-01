@@ -107,6 +107,11 @@ module Suma::AdminAPI::Entities
     expose :name
   end
 
+  class VendorServiceEntity < BaseEntity
+    include AutoExposeBase
+    expose :external_name, as: :name
+  end
+
   class VendorServiceCategoryEntity < BaseEntity
     expose :id
     expose :name
