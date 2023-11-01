@@ -46,6 +46,7 @@ export default function EligibilityConstraintDetailPage() {
             title="Offerings"
             headers={["Id", "Created", "Description", "Opens", "Closes"]}
             rows={xaction.offerings}
+            keyRowAttr="id"
             toCells={(row) => [
               <AdminLink key={row.id} model={row}>
                 {row.id}
