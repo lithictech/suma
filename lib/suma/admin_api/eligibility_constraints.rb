@@ -8,6 +8,21 @@ class Suma::AdminAPI::EligibilityConstraints < Suma::AdminAPI::V1
 
   resource :constraints do
     params do
+      use :pagination
+      use :ordering, model: Suma::Eligibility::Constraint
+      use :searchable
+    end
+    get do
+      ds = Suma::Eligibility::Constraint.dataset
+      if (name_like = search_param_to_sql(params, :name))
+        ds = ds.where(name_like)
+      end
+      ds = order(ds, params)
+      ds = paginate(ds, params)
+      present_collection ds, with: EligibilityConstraintEntity
+    end
+
+    params do
       requires :name, type: String, allow_blank: false
     end
     post :create do
