@@ -21,6 +21,10 @@ class Suma::Eligibility::Constraint < Suma::Postgres::Model(:eligibility_constra
     end
   end
 
+  def associated_offerings = Suma::Commerce::Offering.with_eligibility_constraint(self)
+
+  def associated_vendor_services = Suma::Vendor::Service.with_eligibility_constraint(self)
+
   def rel_admin_link = "/constraint/#{self.id}"
 end
 

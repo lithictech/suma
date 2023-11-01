@@ -36,6 +36,10 @@ class Suma::Vendor::Service < Suma::Postgres::Model(:vendor_services)
     def with_category(slug)
       return self.where(categories: Suma::Vendor::ServiceCategory.where(slug:))
     end
+
+    def with_eligibility_constraint(ec)
+      return self.where(eligibility_constraints: ec).all
+    end
   end
 
   def mobility_adapter

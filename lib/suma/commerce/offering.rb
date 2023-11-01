@@ -109,6 +109,10 @@ class Suma::Commerce::Offering < Suma::Postgres::Model(:commerce_offerings)
     def available_at(t)
       return self.where(Sequel.pg_range(:period).contains(Sequel.cast(t, :timestamptz)))
     end
+
+    def with_eligibility_constraint(ec)
+      return self.where(eligibility_constraints: ec).all
+    end
   end
 
   def rel_admin_link = "/offering/#{self.id}"

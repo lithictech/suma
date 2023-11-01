@@ -37,5 +37,31 @@ class Suma::AdminAPI::EligibilityConstraints < Suma::AdminAPI::V1
         present ec, with: EligibilityConstraintEntity
       end
     end
+
+    route_param :id, type: Integer do
+      helpers do
+        def lookup
+          (ec = Suma::Eligibility::Constraint[params[:id]]) or forbidden!
+          return ec
+        end
+      end
+
+      get do
+        ec = lookup
+        present ec, with: DetailedEligibilityConstraintEntity
+      end
+    end
+  end
+
+  class VendorServiceEntity < BaseEntity
+    include Suma::AdminAPI::Entities
+    include AutoExposeBase
+    expose :external_name, as: :name
+  end
+
+  class DetailedEligibilityConstraintEntity < EligibilityConstraintEntity
+    include Suma::AdminAPI::Entities
+    expose :associated_offerings, as: :offerings, with: OfferingEntity
+    expose :associated_vendor_services, as: :services, with: VendorServiceEntity
   end
 end
