@@ -26,6 +26,7 @@ import PayoutTransactionListPage from "./pages/PayoutTransactionListPage";
 import ProductDetailPage from "./pages/ProductDetailPage";
 import ProductListPage from "./pages/ProductListPage";
 import SignInPage from "./pages/SignInPage";
+import VendorCreatePage from "./pages/VendorCreatePage";
 import VendorListPage from "./pages/VendorListPage";
 import applyHocs from "./shared/applyHocs";
 import bluejay from "./shared/bluejay";
@@ -220,6 +221,11 @@ function PageSwitch() {
         exact
         path="/vendors"
         element={renderWithHocs(redirectIfUnauthed, withLayout(), VendorListPage)}
+      />
+      <Route
+        exact
+        path="/vendor/new"
+        element={renderWithHocs(redirectIfUnauthed, withLayout(), VendorCreatePage)}
       />
       <Route
         exact
