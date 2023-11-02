@@ -46,7 +46,11 @@ export default function VendorDetailPage() {
               row.id,
               row.name,
               row.eligibilityConstraints.map((ec) => (
-                <AdminLink key={ec.name} model={ec} sx={{ marginRight: theme.spacing(1) }}>
+                <AdminLink
+                  key={ec.name}
+                  model={ec}
+                  sx={{ marginRight: theme.spacing(1) }}
+                >
                   {ec.name}
                 </AdminLink>
               )),

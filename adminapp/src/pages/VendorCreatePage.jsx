@@ -1,9 +1,8 @@
 import api from "../api";
-import FormButtons from "../components/FormButtons";
+import FormLayout from "../components/FormLayout";
 import useBusy from "../hooks/useBusy";
 import useErrorSnackbar from "../hooks/useErrorSnackbar";
-import { Stack, TextField, Typography } from "@mui/material";
-import Box from "@mui/material/Box";
+import { TextField } from "@mui/material";
 import React from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
@@ -24,26 +23,21 @@ export default function VendorCreatePage() {
       .catch(enqueueErrorSnackbar);
   };
   return (
-    <div style={{ maxWidth: 650 }}>
-      <Typography variant="h4" gutterBottom>
-        Create a Vendor
-      </Typography>
-      <Typography variant="body1" gutterBottom>
-        Vendor represents a vendor of goods and services, like "Alan's Farm". It is tied
+    <FormLayout
+      title="Create a Vendor"
+      subtitle="Vendor represents a vendor of goods and services, like 'Alan's Farm'. It is tied
         to a product. Suma does a wholesale purchase from a vendor. It then lists those
-        products, and takes responsibility for inventory and fulfillment.
-      </Typography>
-      <Box component="form" mt={2} onSubmit={handleSubmit(submit)}>
-        <Stack spacing={2} direction="column" sx={{ width: { xs: "100%", sm: "75%" } }}>
-          <TextField
-            {...register("name")}
-            label="Name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-          />
-          <FormButtons back loading={isBusy} />
-        </Stack>
-      </Box>
-    </div>
+        products, and takes responsibility for inventory and fulfillment."
+      onSubmit={handleSubmit(submit)}
+      isBusy={isBusy}
+    >
+      <TextField
+        {...register("name")}
+        label="Name"
+        value={name}
+        fullWidth
+        onChange={(e) => setName(e.target.value)}
+      />
+    </FormLayout>
   );
 }

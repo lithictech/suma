@@ -1,10 +1,11 @@
 import api from "../api";
-import FormButtons from "../components/FormButtons";
+import FormLayout from "../components/FormLayout";
 import ImageFileInput from "../components/ImageFileInput";
 import MultiLingualText from "../components/MultiLingualText";
 import useBusy from "../hooks/useBusy";
 import useErrorSnackbar from "../hooks/useErrorSnackbar";
 import { dayjs } from "../modules/dayConfig";
+import formHelpers from "../modules/formHelpers";
 import mergeAt from "../shared/mergeAt";
 import useMountEffect from "../shared/react/useMountEffect";
 import useToggle from "../shared/react/useToggle";
@@ -36,11 +37,13 @@ import { useNavigate } from "react-router-dom";
 export default function OfferingCreatePage() {
   const navigate = useNavigate();
   const [image, setImage] = React.useState(null);
-  const [description, setDescription] = React.useState(newTranslation);
-  const [fulfillmentPrompt, setFulfillmentPrompt] = React.useState(newTranslation);
+  const [description, setDescription] = React.useState(initialTranslation);
+  const [fulfillmentPrompt, setFulfillmentPrompt] = React.useState(initialTranslation);
   const [fulfillmentConfirmation, setFulfillmentConfirmation] =
-    React.useState(newTranslation);
-  const [fulfillmentOptions, setFulfillmentOptions] = React.useState([newOption]);
+    React.useState(initialTranslation);
+  const [fulfillmentOptions, setFulfillmentOptions] = React.useState([
+    initialFulfillmentOption,
+  ]);
   const [opensAt, setOpensAt] = React.useState(dayjs());
   const [closesAt, setClosesAt] = React.useState(dayjs().add(1, "day"));
   const [beginFulfillmentAt, setBeginFulfillmentAt] = React.useState(dayjs());
@@ -69,106 +72,102 @@ export default function OfferingCreatePage() {
       .catch(enqueueErrorSnackbar);
   };
   return (
-    <div style={{ maxWidth: 650 }}>
-      <Typography variant="h4" gutterBottom>
-        Create an Offering
-      </Typography>
-      <Typography variant="body1" gutterBottom>
-        Offerings holds products that can be ordered at checkout. They are only available
-        during their period.
-      </Typography>
-      <Box component="form" mt={2} onSubmit={handleSubmit(submit)}>
+    <FormLayout
+      title="Create a Offering"
+      subtitle="Offerings holds products that can be ordered at checkout. They are only available
+        during their period. Add eligibility constraints in the details page after creating it."
+      onSubmit={handleSubmit(submit)}
+      isBusy={isBusy}
+    >
+      <Stack spacing={2}>
         <ImageFileInput image={image} onImageChange={(f) => setImage(f)} />
-        <Stack spacing={2} direction="column">
-          <FormLabel>Description:</FormLabel>
-          <Stack direction={responsiveStackDirection} spacing={2}>
-            <MultiLingualText
-              {...register("description")}
-              label="Description"
-              fullWidth
-              value={description}
-              required
-              onChange={(description) => setDescription(description)}
-            />
-          </Stack>
-          <FormLabel>Fulfillment Prompt (for checkout):</FormLabel>
-          <Stack direction={responsiveStackDirection} spacing={2}>
-            <MultiLingualText
-              {...register("fulfillmentPrompt")}
-              label="Fulfillment Prompt"
-              fullWidth
-              value={fulfillmentPrompt}
-              required
-              onChange={(fulfillmentPrompt) => setFulfillmentPrompt(fulfillmentPrompt)}
-            />
-          </Stack>
-          <FormLabel>Fulfillment Confirmation (for checkout):</FormLabel>
-          <Stack direction={responsiveStackDirection} spacing={2}>
-            <MultiLingualText
-              {...register("fulfillmentConfirmation")}
-              label="Fulfillment Confirmation"
-              fullWidth
-              value={fulfillmentConfirmation}
-              required
-              onChange={(fulfillmentConfirmation) =>
-                setFulfillmentConfirmation(fulfillmentConfirmation)
-              }
-            />
-          </Stack>
-          <FulfillmentOptions
-            options={fulfillmentOptions}
-            setOptions={setFulfillmentOptions}
+        <FormLabel>Description:</FormLabel>
+        <Stack direction={responsiveStackDirection} spacing={2}>
+          <MultiLingualText
+            {...register("description")}
+            label="Description"
+            fullWidth
+            value={description}
+            required
+            onChange={(description) => setDescription(description)}
           />
-          <FormLabel>Period:</FormLabel>
-          <Stack
-            direction={responsiveStackDirection}
-            alignItems="center"
-            spacing={2}
-            divider={<RemoveIcon />}
-          >
-            <DateTimePicker
-              label="Beginning date *"
-              value={opensAt}
-              closeOnSelect
-              onChange={(date) => setOpensAt(date)}
-              sx={{ width: "100%" }}
-            />
-            <DateTimePicker
-              label="Ending date *"
-              value={closesAt}
-              onChange={(date) => setClosesAt(date)}
-              closeOnSelect
-              sx={{ width: "100%" }}
-            />
-          </Stack>
-          <Divider />
-          <Typography variant="h6">Optional</Typography>
-          <FormLabel>Begin Fulfillment Date (of orders):</FormLabel>
-          <DateTimePicker
-            label="Begin At"
-            value={beginFulfillmentAt}
-            onChange={(date) => setBeginFulfillmentAt(date)}
-            closeOnSelect
-            sx={{ width: { xs: "100%", sm: "50%" } }}
-          />
-          <Stack direction="row" spacing={2}>
-            <FormControlLabel
-              control={<Switch />}
-              label="Prohibit Charge At Checkout"
-              checked={prohibitChargeAtCheckout}
-              onChange={() => setProhibitChargeAtCheckout(!prohibitChargeAtCheckout)}
-            />
-          </Stack>
         </Stack>
-        <FormButtons back loading={isBusy} />
-      </Box>
-    </div>
+        <FormLabel>Fulfillment Prompt (for checkout):</FormLabel>
+        <Stack direction={responsiveStackDirection} spacing={2}>
+          <MultiLingualText
+            {...register("fulfillmentPrompt")}
+            label="Fulfillment Prompt"
+            fullWidth
+            value={fulfillmentPrompt}
+            required
+            onChange={(fulfillmentPrompt) => setFulfillmentPrompt(fulfillmentPrompt)}
+          />
+        </Stack>
+        <FormLabel>Fulfillment Confirmation (for checkout):</FormLabel>
+        <Stack direction={responsiveStackDirection} spacing={2}>
+          <MultiLingualText
+            {...register("fulfillmentConfirmation")}
+            label="Fulfillment Confirmation"
+            fullWidth
+            value={fulfillmentConfirmation}
+            required
+            onChange={(fulfillmentConfirmation) =>
+              setFulfillmentConfirmation(fulfillmentConfirmation)
+            }
+          />
+        </Stack>
+        <FulfillmentOptions
+          options={fulfillmentOptions}
+          setOptions={setFulfillmentOptions}
+        />
+        <FormLabel>Period:</FormLabel>
+        <Stack
+          direction={responsiveStackDirection}
+          alignItems="center"
+          spacing={2}
+          divider={<RemoveIcon />}
+        >
+          <DateTimePicker
+            label="Beginning date *"
+            value={opensAt}
+            closeOnSelect
+            onChange={(date) => setOpensAt(date)}
+            sx={{ width: "100%" }}
+          />
+          <DateTimePicker
+            label="Ending date *"
+            value={closesAt}
+            onChange={(date) => setClosesAt(date)}
+            closeOnSelect
+            sx={{ width: "100%" }}
+          />
+        </Stack>
+        <Divider />
+        <Typography variant="h6">Optional</Typography>
+        <FormLabel>Begin Fulfillment Date (of orders):</FormLabel>
+        <DateTimePicker
+          label="Begin At"
+          value={beginFulfillmentAt}
+          onChange={(date) => setBeginFulfillmentAt(date)}
+          closeOnSelect
+          sx={{ width: { xs: "100%", sm: "50%" } }}
+        />
+        <Stack direction="row" spacing={2}>
+          <FormControlLabel
+            control={<Switch />}
+            label="Prohibit Charge At Checkout"
+            checked={prohibitChargeAtCheckout}
+            onChange={() => setProhibitChargeAtCheckout(!prohibitChargeAtCheckout)}
+          />
+        </Stack>
+      </Stack>
+    </FormLayout>
   );
 }
 
 function FulfillmentOptions({ options, setOptions }) {
   const handleAdd = () => {
-    setOptions([...options, newOption]);
+    setOptions([...options, initialFulfillmentOption]);
   };
   const handleRemove = (index) => {
     setOptions(withoutAt(options, index));
@@ -200,7 +199,7 @@ function FulfillmentOption({ type, description, address, onChange, onRemove }) {
   }
   function handleAddressOn() {
     addingAddress.turnOn();
-    onChange({ address: newAddress });
+    onChange({ address: initialFulfillmentAddress });
   }
   function handleAddressOff() {
     addingAddress.turnOff();
@@ -244,7 +243,7 @@ function FulfillmentOption({ type, description, address, onChange, onRemove }) {
             onChange={(v) => onChange({ description: v })}
           />
         </Stack>
-        <Stack direction="column" spacing={2}>
+        <Stack spacing={2}>
           {addingAddress.isOff ? (
             <Button onClick={handleAddressOn}>
               <AddIcon /> Add Address
@@ -283,7 +282,7 @@ function OptionAddress({ address, onFieldChange }) {
   }
 
   return (
-    <Stack direction="column" spacing={2}>
+    <Stack spacing={2}>
       <FormLabel>Address:</FormLabel>
       <Stack direction={responsiveStackDirection} spacing={2}>
         <TextField
@@ -346,14 +345,9 @@ function OptionAddress({ address, onFieldChange }) {
   );
 }
 
-const newTranslation = { en: "", es: "" };
-const newOption = { type: "pickup", description: newTranslation };
-const newAddress = {
-  address1: "",
-  address2: "",
-  city: "",
-  stateOrProvince: "",
-  postalCode: "",
-};
-
-const responsiveStackDirection = { xs: "column", sm: "row" };
+const {
+  initialTranslation,
+  initialFulfillmentAddress,
+  initialFulfillmentOption,
+  responsiveStackDirection,
+} = formHelpers;
