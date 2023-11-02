@@ -39,13 +39,6 @@ RSpec.describe "Suma::Vendor::Service", :db do
       )
       expect(described_class.eligible_to(mem_rejected_constraint).all).to have_same_ids_as(no_constraint)
     end
-
-    it "can find services with the given eligibility constraint" do
-      constraint = Suma::Fixtures.eligibility_constraint.create
-      vs = Suma::Fixtures.vendor_service.with_constraints(constraint).create
-
-      expect(described_class.with_eligibility_constraint(constraint)).to have_same_ids_as(vs)
-    end
   end
 
   describe "one_rate" do

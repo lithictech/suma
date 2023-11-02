@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "suma/admin_api/eligibility_constraints"
+require "suma/api/behaviors"
 
 RSpec.describe Suma::AdminAPI::EligibilityConstraints, :db do
   include Rack::Test::Methods
@@ -79,17 +80,19 @@ RSpec.describe Suma::AdminAPI::EligibilityConstraints, :db do
 
   describe "GET /v1/constraints/:id" do
     it "returns the eligibility constraint" do
-      x = Suma::Fixtures.eligibility_constraint.create
-      offering_objs = Array.new(2) { Suma::Fixtures.offering.with_constraints(x).create }
-      vendor_service_objs = Array.new(2) { Suma::Fixtures.vendor_service.with_constraints(x).create }
+      ec = Suma::Fixtures.eligibility_constraint.create
+      offering_objs = Array.new(2) { Suma::Fixtures.offering.with_constraints(ec).create }
+      vendor_service_objs = Array.new(2) { Suma::Fixtures.vendor_service.with_constraints(ec).create }
+      configuration_objs = Array.new(2) { Suma::Fixtures.anon_proxy_vendor_configuration.with_constraints(ec).create }
 
-      get "/v1/constraints/#{x.id}"
+      get "/v1/constraints/#{ec.id}"
 
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.that_includes(
-        id: x.id,
+        id: ec.id,
         offerings: have_same_ids_as(*offering_objs),
         services: have_same_ids_as(*vendor_service_objs),
+        configurations: have_same_ids_as(*configuration_objs),
       )
     end
 

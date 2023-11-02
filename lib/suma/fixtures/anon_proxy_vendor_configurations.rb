@@ -38,4 +38,8 @@ module Suma::Fixtures::AnonProxyVendorConfigurations
     self.uses_email = true
     self.uses_sms = false
   end
+
+  decorator :with_constraints, presave: true do |*constraints|
+    constraints.each { |c| self.add_eligibility_constraint(c) }
+  end
 end

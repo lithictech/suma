@@ -53,9 +53,20 @@ class Suma::AdminAPI::EligibilityConstraints < Suma::AdminAPI::V1
     end
   end
 
+  class VendorConfigurationEntity < BaseEntity
+    include Suma::AdminAPI::Entities
+    expose :id
+    expose :vendor, with: VendorEntity
+    expose :app_install_link
+    expose :uses_email
+    expose :uses_sms
+    expose :enabled
+  end
+
   class DetailedEligibilityConstraintEntity < EligibilityConstraintEntity
     include Suma::AdminAPI::Entities
-    expose :associated_offerings, as: :offerings, with: OfferingEntity
-    expose :associated_vendor_services, as: :services, with: VendorServiceEntity
+    expose :offerings, with: OfferingEntity
+    expose :services, with: VendorServiceEntity
+    expose :configurations, with: VendorConfigurationEntity
   end
 end

@@ -115,6 +115,7 @@ module Suma::AdminAPI::Entities
   class VendorServiceEntity < BaseEntity
     include AutoExposeBase
     expose :external_name, as: :name
+    expose :vendor, with: VendorEntity
     expose :eligibility_constraints, with: EligibilityConstraintEntity
   end
 

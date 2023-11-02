@@ -4,6 +4,7 @@ import DetailGrid from "../components/DetailGrid";
 import RelatedList from "../components/RelatedList";
 import useErrorSnackbar from "../hooks/useErrorSnackbar";
 import { dayjs } from "../modules/dayConfig";
+import SafeExternalLink from "../shared/react/SafeExternalLink";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
 import { CircularProgress } from "@mui/material";
 import isEmpty from "lodash/isEmpty";
@@ -36,13 +37,6 @@ export default function EligibilityConstraintDetailPage() {
             ]}
           />
           <RelatedList
-            title="Vendor Services"
-            rows={xaction.services}
-            keyRowAttr="id"
-            headers={["Id", "Created", "Name"]}
-            toCells={(row) => [row.id, dayjs(row.createdAt).format("lll"), row.name]}
-          />
-          <RelatedList
             title="Offerings"
             rows={xaction.offerings}
             keyRowAttr="id"
@@ -52,9 +46,52 @@ export default function EligibilityConstraintDetailPage() {
                 {row.id}
               </AdminLink>,
               dayjs(row.createdAt).format("lll"),
-              row.description,
+              <AdminLink key={row.id} model={row}>
+                {row.description}
+              </AdminLink>,
               dayjs(row.opensAt).format("lll"),
               dayjs(row.closesAt).format("lll"),
+            ]}
+          />
+          <RelatedList
+            title="Vendor Services"
+            rows={xaction.services}
+            keyRowAttr="id"
+            headers={["Id", "Created", "Vendor", "Name"]}
+            toCells={(row) => [
+              row.id,
+              dayjs(row.createdAt).format("lll"),
+              <AdminLink key={row.id} model={row.vendor}>
+                {row.vendor.name}
+              </AdminLink>,
+              row.name,
+            ]}
+          />
+          <RelatedList
+            title="Vendor Configurations"
+            rows={xaction.configurations}
+            keyRowAttr="id"
+            headers={[
+              "Id",
+              "Created",
+              "Vendor",
+              "App Install Link",
+              "Uses Email",
+              "Uses SMS",
+              "Enabled",
+            ]}
+            toCells={(row) => [
+              row.id,
+              dayjs(row.createdAt).format("lll"),
+              <AdminLink key={row.vendor.name} model={row.vendor}>
+                {row.vendor.name}
+              </AdminLink>,
+              <SafeExternalLink key={1} href={row.appInstallLink}>
+                {row.appInstallLink}
+              </SafeExternalLink>,
+              row.usesEmail ? "Yes" : "No",
+              row.usesSms ? "Yes" : "No",
+              row.enabled ? "Yes" : "No",
             ]}
           />
         </div>
