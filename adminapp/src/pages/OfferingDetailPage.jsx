@@ -9,9 +9,16 @@ import oneLineAddress from "../modules/oneLineAddress";
 import Money from "../shared/react/Money";
 import SumaImage from "../shared/react/SumaImage";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
+import CancelIcon from "@mui/icons-material/Cancel";
+import CheckIcon from "@mui/icons-material/Check";
+import DeleteIcon from "@mui/icons-material/Delete";
+import EditIcon from "@mui/icons-material/Edit";
 import ListAltIcon from "@mui/icons-material/ListAlt";
-import { CircularProgress } from "@mui/material";
+import SaveIcon from "@mui/icons-material/Save";
+import { CircularProgress, MenuItem, Select } from "@mui/material";
+import IconButton from "@mui/material/IconButton";
 import { makeStyles } from "@mui/styles";
+import _ from "lodash";
 import isEmpty from "lodash/isEmpty";
 import React from "react";
 import { useParams } from "react-router-dom";
@@ -24,13 +31,14 @@ export default function OfferingDetailPage() {
   const getCommerceOffering = React.useCallback(() => {
     return api.getCommerceOffering({ id }).catch((e) => enqueueErrorSnackbar(e));
   }, [id, enqueueErrorSnackbar]);
-  const { state: offering, loading: offeringLoading } = useAsyncFetch(
-    getCommerceOffering,
-    {
-      default: {},
-      pickData: true,
-    }
-  );
+  const {
+    state: offering,
+    loading: offeringLoading,
+    replaceState: updateOffering,
+  } = useAsyncFetch(getCommerceOffering, {
+    default: {},
+    pickData: true,
+  });
   return (
     <>
       {offeringLoading && <CircularProgress />}
@@ -84,6 +92,11 @@ export default function OfferingDetailPage() {
               row.address && oneLineAddress(row.address, false),
             ]}
           />
+          <EligibilityConstraints
+            offeringConstraints={offering.eligibilityConstraints}
+            offeringId={id}
+            replaceOfferingData={updateOffering}
+          />
           <RelatedList
             title={`Products (${offering.offeringProducts.length})`}
             rows={offering.offeringProducts}
@@ -127,6 +140,142 @@ export default function OfferingDetailPage() {
         </div>
       )}
     </>
+  );
+}
+
+function EligibilityConstraints({
+  offeringConstraints,
+  offeringId,
+  replaceOfferingData,
+}) {
+  const [editing, setEditing] = React.useState(false);
+  const [updatedConstraints, setUpdatedConstraints] = React.useState([]);
+  const [newConstraintId, setNewConstraintId] = React.useState(0);
+  const { enqueueErrorSnackbar } = useErrorSnackbar();
+
+  const { state: eligibilityConstraints, loading: eligibilityConstraintsLoading } =
+    useAsyncFetch(api.getEligibilityConstraintsMeta, {
+      pickData: true,
+    });
+
+  function startEditing() {
+    setEditing(true);
+    setUpdatedConstraints(offeringConstraints);
+    setNewConstraintId(eligibilityConstraints[0]?.id);
+  }
+
+  if (!editing) {
+    const properties = [];
+    if (_.isEmpty(offeringConstraints)) {
+      properties.push({
+        label: "*",
+        value:
+          "Member has no constraints. They can access any goods and services that are unconstrained.",
+      });
+    } else {
+      offeringConstraints.forEach(({ name }) =>
+        properties.push({
+          label: name,
+          value: <CheckIcon />,
+        })
+      );
+    }
+    return (
+      <div>
+        <DetailGrid
+          title={
+            <>
+              Eligibility Constraints
+              <IconButton onClick={startEditing}>
+                <EditIcon color="info" />
+              </IconButton>
+            </>
+          }
+          properties={properties}
+        />
+      </div>
+    );
+  }
+
+  if (eligibilityConstraintsLoading) {
+    return "Loading...";
+  }
+
+  function discardChanges() {
+    setUpdatedConstraints([]);
+    setEditing(false);
+  }
+
+  function saveChanges() {
+    const constraintIds = updatedConstraints.map((c) => c.id);
+    if (newConstraintId) {
+      constraintIds.push(newConstraintId);
+    }
+    api
+      .updateOfferingEligibilityConstraints({
+        id: offeringId,
+        constraintIds,
+      })
+      .then((r) => {
+        replaceOfferingData(r.data);
+        setEditing(false);
+      })
+      .catch(enqueueErrorSnackbar);
+  }
+
+  function deleteConstraint(id) {
+    setUpdatedConstraints(updatedConstraints.filter((c) => c.id !== id));
+  }
+
+  const properties = updatedConstraints.map((c) => ({
+    label: c.name,
+    children: (
+      <IconButton onClick={() => deleteConstraint(c.id)}>
+        <DeleteIcon color="error" />
+      </IconButton>
+    ),
+  }));
+
+  const existingConstraintIds = offeringConstraints.map((c) => c.id);
+  const availableConstraints = eligibilityConstraints.items.filter(
+    (c) => !existingConstraintIds.includes(c.id)
+  );
+  if (!_.isEmpty(availableConstraints)) {
+    properties.push({
+      label: "Add Constraint",
+      children: (
+        <div>
+          <Select
+            value={newConstraintId || ""}
+            onChange={(e) => setNewConstraintId(Number(e.target.value))}
+          >
+            {availableConstraints.map((c) => (
+              <MenuItem key={c.id} value={c.id}>
+                {c.name}
+              </MenuItem>
+            ))}
+          </Select>
+        </div>
+      ),
+    });
+  }
+  return (
+    <div>
+      <DetailGrid
+        title={
+          <>
+            Eligibility Constraints
+            <IconButton onClick={saveChanges}>
+              <SaveIcon color="success" />
+            </IconButton>
+            <IconButton onClick={discardChanges}>
+              <CancelIcon color="error" />
+            </IconButton>
+          </>
+        }
+        properties={properties}
+      />
+    </div>
   );
 }
 

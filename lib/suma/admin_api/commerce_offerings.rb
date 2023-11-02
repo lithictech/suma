@@ -4,6 +4,7 @@ require "grape"
 require "suma/admin_api"
 
 class Suma::AdminAPI::CommerceOfferings < Suma::AdminAPI::V1
+  include Suma::Service::Types
   include Suma::AdminAPI::Entities
 
   resource :commerce_offerings do
@@ -95,6 +96,40 @@ class Suma::AdminAPI::CommerceOfferings < Suma::AdminAPI::V1
         present co, with: DetailedCommerceOfferingEntity
       end
 
+      params do
+        requires :constraint_ids, type: Array[Integer], coerce_with: CommaSepArray[Integer]
+      end
+      post :eligibilities do
+        offering = lookup
+        admin = admin_member
+        offering.db.transaction do
+          to_remove = offering.eligibility_constraints_dataset.exclude(id: params[:constraint_ids])
+          to_add = []
+          params[:constraint_ids].each do |id|
+            Suma::Eligibility::Constraint[id] or adminerror!(403, "Unknown eligibility constraint: #{id}")
+            to_add << id
+          end
+          to_add = Suma::Eligibility::Constraint.where(id: to_add).
+            exclude(id: offering.eligibility_constraints_dataset.select(:id))
+          to_add.each do |c|
+            offering.add_eligibility_constraint(c)
+          end
+          to_remove.each do |c|
+            offering.remove_eligibility_constraint(c)
+          end
+
+          summary = offering.eligibility_constraints_dataset.select_map(:name).join(", ")
+          admin_member.add_activity(
+            message_name: "eligibilitychange",
+            summary: "Admin #{admin.email} modified eligibilities of #{offering.description.en}: #{summary}",
+            subject_type: "Suma::Commerce::Offering",
+            subject_id: offering.id,
+          )
+        end
+        status 200
+        present offering, with: DetailedCommerceOfferingEntity
+      end
+
       resource :picklist do
         get do
           co_products = lookup.order_pick_list
@@ -125,6 +160,7 @@ class Suma::AdminAPI::CommerceOfferings < Suma::AdminAPI::V1
     expose :image, with: ImageEntity, &self.delegate_to(:images?, :first)
     expose :offering_products, with: OfferingProductEntity
     expose :orders, with: OrderInOfferingEntity
+    expose :eligibility_constraints, with: EligibilityConstraintEntity
   end
 
   class ProductInPickListEntity < BaseEntity
