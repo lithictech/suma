@@ -96,6 +96,7 @@ export default {
     get(`/adminapi/v1/commerce_products/${id}`, data),
 
   getVendors: (data) => get(`/adminapi/v1/vendors`, data),
+  getVendor: ({ id, ...data }) => get(`/adminapi/v1/vendors/${id}`, data),
   createVendor: (data) => post("/adminapi/v1/vendors/create", data),
 
   getCommerceOrders: (data) => get(`/adminapi/v1/commerce_orders`, data),

@@ -39,14 +39,6 @@ class Suma::AdminAPI::CommerceProducts < Suma::AdminAPI::V1
     end
   end
 
-  class ProductEntity < BaseEntity
-    include Suma::AdminAPI::Entities
-    include AutoExposeBase
-    expose :vendor, with: VendorEntity
-    expose_translated :name
-    expose_translated :description
-  end
-
   class OfferingProductWithOfferingEntity < OfferingProductEntity
     include Suma::AdminAPI::Entities
     expose :offering, with: OfferingEntity

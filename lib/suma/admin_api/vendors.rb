@@ -33,5 +33,26 @@ class Suma::AdminAPI::Vendors < Suma::AdminAPI::V1
       status 200
       present v, with: Suma::AdminAPI::Entities::VendorEntity
     end
+
+    route_param :id, type: Integer do
+      helpers do
+        def lookup
+          (v = Suma::Vendor[params[:id]]) or forbidden!
+          return v
+        end
+      end
+
+      get do
+        v = lookup
+        present v, with: DetailedVendorEntity
+      end
+    end
+  end
+
+  class DetailedVendorEntity < VendorEntity
+    include Suma::AdminAPI::Entities
+    expose :slug
+    expose :services, with: VendorServiceEntity
+    expose :products, with: ProductEntity
   end
 end

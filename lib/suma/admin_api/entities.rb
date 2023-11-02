@@ -102,6 +102,11 @@ module Suma::AdminAPI::Entities
     expose :account_type
   end
 
+  class EligibilityConstraintEntity < BaseEntity
+    include AutoExposeBase
+    expose :name
+  end
+
   class VendorEntity < BaseEntity
     include AutoExposeBase
     expose :name
@@ -110,6 +115,7 @@ module Suma::AdminAPI::Entities
   class VendorServiceEntity < BaseEntity
     include AutoExposeBase
     expose :external_name, as: :name
+    expose :eligibility_constraints, with: EligibilityConstraintEntity
   end
 
   class VendorServiceCategoryEntity < BaseEntity
@@ -212,6 +218,14 @@ module Suma::AdminAPI::Entities
     expose :closed?, as: :is_closed
   end
 
+  class ProductEntity < BaseEntity
+    include Suma::AdminAPI::Entities
+    include AutoExposeBase
+    expose :vendor, with: VendorEntity
+    expose_translated :name
+    expose_translated :description
+  end
+
   class OrderEntity < BaseEntity
     include AutoExposeBase
     expose :order_status
@@ -219,12 +233,6 @@ module Suma::AdminAPI::Entities
     expose :admin_status_label, as: :status_label
     expose :checkout_id
     expose :member, with: MemberEntity, &self.delegate_to(:checkout, :cart, :member)
-  end
-
-  class EligibilityConstraintEntity < BaseEntity
-    include AutoExposeBase
-    expose :id
-    expose :name
   end
 
   class ImageEntity < BaseEntity

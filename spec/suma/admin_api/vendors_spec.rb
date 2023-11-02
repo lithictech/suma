@@ -76,4 +76,33 @@ RSpec.describe Suma::AdminAPI::Vendors, :db do
       expect(last_response).to have_status(403)
     end
   end
+
+  describe "GET /v1/vendor/:id" do
+    it "returns the vendor" do
+      v = Suma::Fixtures.vendor.create
+      constraint = Suma::Fixtures.eligibility_constraint.create
+      service = Suma::Fixtures.vendor_service.with_constraints(constraint).create(vendor: v)
+      product_objs = Array.new(2) { Suma::Fixtures.product.create(vendor: v) }
+
+      get "/v1/vendors/#{v.id}"
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.that_includes(
+        id: v.id,
+        services: contain_exactly(
+          include(
+            id: service.id,
+            eligibility_constraints: contain_exactly(include(id: constraint.id)),
+          ),
+        ),
+        products: have_same_ids_as(*product_objs),
+      )
+    end
+
+    it "403s if the item does not exist" do
+      get "/v1/vendors/0"
+
+      expect(last_response).to have_status(403)
+    end
+  end
 end
