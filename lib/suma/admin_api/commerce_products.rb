@@ -92,5 +92,6 @@ class Suma::AdminAPI::CommerceProducts < Suma::AdminAPI::V1
     expose :offerings, with: OfferingEntity
     expose :orders, with: OrderEntity
     expose :offering_products, with: OfferingProductWithOfferingEntity
+    expose :image, with: ImageEntity, &self.delegate_to(:images?, :first)
   end
 end

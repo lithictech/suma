@@ -5,6 +5,7 @@ import RelatedList from "../components/RelatedList";
 import useErrorSnackbar from "../hooks/useErrorSnackbar";
 import { dayjs } from "../modules/dayConfig";
 import Money from "../shared/react/Money";
+import SumaImage from "../shared/react/SumaImage";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
 import { CircularProgress } from "@mui/material";
 import isEmpty from "lodash/isEmpty";
@@ -32,7 +33,21 @@ export default function ProductDetailPage() {
             properties={[
               { label: "ID", value: id },
               { label: "Created At", value: dayjs(product.createdAt) },
+              {
+                label: "Image",
+                value: (
+                  <SumaImage
+                    image={product.image}
+                    alt={product.image.name}
+                    className="w-100"
+                    params={{ crop: "center" }}
+                    h={225}
+                    width={225}
+                  />
+                ),
+              },
               { label: "Name", value: product.name },
+              { label: "Description", value: product.description },
               { label: "Vendor", value: product.vendor?.name },
               { label: "Our Cost", value: <Money>{product.ourCost}</Money> },
               { label: "Max Per Offering", value: product.maxQuantityPerOffering },
