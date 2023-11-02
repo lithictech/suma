@@ -48,6 +48,23 @@ RSpec.describe Suma::AdminAPI::Meta, :db do
     end
   end
 
+  describe "GET /v1/meta/vendors" do
+    it "returns vendors" do
+      Suma::Fixtures.vendor(name: "A").create
+      Suma::Fixtures.vendor.create(name: "B")
+
+      get "/v1/meta/vendors"
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.that_includes(
+        items: [
+          {name: "A"},
+          {name: "B"},
+        ],
+      )
+    end
+  end
+
   describe "GET /v1/meta/vendor_service_categories" do
     it "returns categories" do
       a = Suma::Fixtures.vendor_service_category(name: "A").create

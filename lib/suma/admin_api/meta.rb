@@ -26,6 +26,12 @@ class Suma::AdminAPI::Meta < Suma::AdminAPI::V1
       present result
     end
 
+    get :vendors do
+      use_http_expires_caching 12.hours
+      v = Suma::Vendor.dataset.order(:name).all
+      present_collection v, with: VendorCollectionEntity
+    end
+
     get :vendor_service_categories do
       use_http_expires_caching 12.hours
       sc = Suma::Vendor::ServiceCategory.dataset.order(:name).all
@@ -43,6 +49,10 @@ class Suma::AdminAPI::Meta < Suma::AdminAPI::V1
   class CurrencyEntity < BaseEntity
     expose :symbol
     expose :code
+  end
+
+  class VendorCollectionEntity < BaseEntity
+    expose :name
   end
 
   class HierarchicalCategoryEntity < BaseEntity

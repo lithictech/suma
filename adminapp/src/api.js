@@ -58,10 +58,12 @@ export default {
   unimpersonate: (data) => del(`/adminapi/v1/auth/impersonate`, data),
   getCurrencies: (data) => get(`/adminapi/v1/meta/currencies`, data),
   getSupportedGeographies: (data) => get(`/adminapi/v1/meta/geographies`, data),
+  getVendorsMeta: (data) => get(`/adminapi/v1/meta/vendors`, data),
   getVendorServiceCategories: (data) =>
     get(`/adminapi/v1/meta/vendor_service_categories`, data),
   getEligibilityConstraintsMeta: (data) =>
     get(`/adminapi/v1/meta/eligibility_constraints`, data),
+
   getEligibilityConstraints: (data) => get(`/adminapi/v1/constraints`, data),
   getEligibilityConstraint: ({ id, ...data }) =>
     get(`/adminapi/v1/constraints/${id}`, data),
@@ -94,6 +96,8 @@ export default {
   getCommerceProducts: (data) => get("/adminapi/v1/commerce_products", data),
   getCommerceProduct: ({ id, ...data }) =>
     get(`/adminapi/v1/commerce_products/${id}`, data),
+  createCommerceProduct: (data) =>
+    postForm("/adminapi/v1/commerce_products/create", data),
 
   getVendors: (data) => get(`/adminapi/v1/vendors`, data),
   getVendor: ({ id, ...data }) => get(`/adminapi/v1/vendors/${id}`, data),
