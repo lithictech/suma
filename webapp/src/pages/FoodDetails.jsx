@@ -23,7 +23,7 @@ export default function FoodDetails() {
   productId = parseInt(productId, 10);
 
   const [itemSubtotal, setItemSubtotal] = React.useState(0);
-  const { vendors, products, cart, initializeToOffering, error, loading, cartLoading } =
+  const { vendors, products, cart, initializeToOffering, error, loading } =
     useOffering();
 
   React.useEffect(() => {
@@ -61,7 +61,6 @@ export default function FoodDetails() {
       <FoodNav
         offeringId={offeringId}
         cart={cart}
-        cartLoading={cartLoading}
         startElement={<LinearBreadcrumbs back={`/food/${offeringId}`} noBottom />}
       />
       <LayoutContainer gutters>

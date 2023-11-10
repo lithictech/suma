@@ -225,6 +225,7 @@ class Suma::API::Commerce < Suma::API::V1
   end
 
   class CartEntity < BaseEntity
+    expose :cart_hash
     expose :items, with: CartItemEntity
     expose :customer_cost, with: Suma::Service::Entities::Money
     expose :noncash_ledger_contribution_amount, with: Suma::Service::Entities::Money

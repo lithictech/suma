@@ -9,7 +9,6 @@ export const useOffering = () => React.useContext(OfferingContext);
 const NOOP = Symbol("noop");
 
 export function OfferingProvider({ children }) {
-  const cartLoading = useToggle(false);
   const [offering, setOfferingInner] = React.useState({});
   const [vendors, setVendorsInner] = React.useState([]);
   // Do not store things in local storage here:
@@ -68,7 +67,6 @@ export function OfferingProvider({ children }) {
       cart,
       setCart: setCartInner,
       loading,
-      cartLoading,
       error,
       reset,
     }),
@@ -77,7 +75,6 @@ export function OfferingProvider({ children }) {
       error,
       initializeToOffering,
       loading,
-      cartLoading,
       offering,
       products,
       reset,

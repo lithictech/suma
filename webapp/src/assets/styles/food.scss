@@ -10,3 +10,22 @@
 .order-confirmation-spinner-duration {
   animation-duration: 3s !important;
 }
+
+.cart-icon-loader {
+  position: absolute;
+  opacity: 0;
+  transition: opacity 0.2s;
+
+  &.loading {
+    opacity: 1;
+  }
+}
+
+.cart-icon-text {
+  opacity: 1;
+  transition: opacity 0.2s;
+
+  &.loading {
+    opacity: 0;
+  }
+}

@@ -1,4 +1,3 @@
-import loaderRing from "../assets/images/loader-ring.svg";
 import CartIcon from "./CartIcon";
 import RLink from "./RLink";
 import clsx from "clsx";
@@ -6,21 +5,12 @@ import React from "react";
 import Button from "react-bootstrap/Button";
 import Container from "react-bootstrap/Container";
 
-export default function FoodNav({ offeringId, startElement, cart, cartLoading }) {
+export default function FoodNav({ offeringId, startElement, cart }) {
   if (startElement) {
     return (
       <Container className="hstack gap-3 border-0 py-2 px-4">
         {startElement && startElement}
         <div className="ms-auto py-1">
-          {cartLoading?.isOn && (
-            <img
-              src={loaderRing}
-              className="me-2"
-              width="32"
-              height="32"
-              alt="cart quantity loading"
-            />
-          )}
           <Button
             href={`/cart/${offeringId}`}
             variant={clsx(cart.items?.length > 0 ? "success" : "primary")}

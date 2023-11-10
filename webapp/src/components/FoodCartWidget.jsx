@@ -1,7 +1,6 @@
 import api from "../api";
 import addIcon from "../assets/images/food-widget-add.svg";
 import subtractIcon from "../assets/images/food-widget-subtract.svg";
-import loaderRing from "../assets/images/loader-ring.svg";
 import xIcon from "../assets/images/ui-x-thick.svg";
 import { t } from "../localization";
 import { useErrorToast } from "../state/useErrorToast";
@@ -18,7 +17,7 @@ import Dropdown from "react-bootstrap/Dropdown";
 export default function FoodCartWidget({ product, size, onQuantityChange }) {
   size = size || "sm";
   const btnClasses = sizeClasses[size];
-  const { offering, cart, setCart, cartLoading } = useOffering();
+  const { offering, cart, setCart } = useOffering();
   const { showErrorToast } = useErrorToast();
 
   const changePromise = React.useRef(null);
@@ -31,7 +30,6 @@ export default function FoodCartWidget({ product, size, onQuantityChange }) {
     if (q === quantity) {
       return;
     }
-    cartLoading.turnOn();
     changePromise.current?.cancel();
     changePromise.current = api
       .putCartItem({
@@ -49,7 +47,6 @@ export default function FoodCartWidget({ product, size, onQuantityChange }) {
         }
       })
       .catch((e) => showErrorToast(e, { extract: true }))
-      .finally(() => cartLoading.turnOff());
   };
 
   if (product.outOfStock) {
@@ -99,7 +96,6 @@ export default function FoodCartWidget({ product, size, onQuantityChange }) {
             title={"" + quantity}
             onSelect={(quantity) => handleQuantityChange(Number(quantity))}
           >
-            {cartLoading.isOff ? (
               <>
                 <Dropdown.Toggle className="py-0 px-2" style={{ width: 60 }}>
                   {quantity}
@@ -111,16 +107,7 @@ export default function FoodCartWidget({ product, size, onQuantityChange }) {
                   />
                 </Dropdown.Menu>
               </>
-            ) : (
-              <Button className="py-0 px-2 overflow-hidden" style={{ width: 60 }}>
-                <img
-                  src={loaderRing}
-                  width="75%"
-                  height="auto"
-                  alt="cart quantity loading"
-                />
-              </Button>
-            )}
+
           </Dropdown>
         </>
       )}
