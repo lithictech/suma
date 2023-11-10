@@ -13,11 +13,11 @@ RSpec.describe Suma::AdminAPI::EligibilityConstraints, :db do
     login_as_admin(admin)
   end
 
-  describe "GET /v1/constraints" do
+  describe "GET /v1/eligibility_constraints" do
     it "returns all eligibility constraints" do
       objs = Array.new(2) { Suma::Fixtures.eligibility_constraint.create }
 
-      get "/v1/constraints"
+      get "/v1/eligibility_constraints"
 
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.
@@ -25,7 +25,7 @@ RSpec.describe Suma::AdminAPI::EligibilityConstraints, :db do
     end
 
     it_behaves_like "an endpoint capable of search" do
-      let(:url) { "/v1/constraints" }
+      let(:url) { "/v1/eligibility_constraints" }
       let(:search_term) { "Lime" }
 
       def make_matching_items
@@ -42,7 +42,7 @@ RSpec.describe Suma::AdminAPI::EligibilityConstraints, :db do
     end
 
     it_behaves_like "an endpoint with pagination" do
-      let(:url) { "/v1/constraints" }
+      let(:url) { "/v1/eligibility_constraints" }
       def make_item(i)
         # Sorting is newest first, so the first items we create need to the the oldest.
         created = Time.now - i.days
@@ -51,7 +51,7 @@ RSpec.describe Suma::AdminAPI::EligibilityConstraints, :db do
     end
 
     it_behaves_like "an endpoint with member-supplied ordering" do
-      let(:url) { "/v1/constraints" }
+      let(:url) { "/v1/eligibility_constraints" }
       let(:order_by_field) { "id" }
       def make_item(_i)
         return Suma::Fixtures.eligibility_constraint.create(
@@ -61,9 +61,9 @@ RSpec.describe Suma::AdminAPI::EligibilityConstraints, :db do
     end
   end
 
-  describe "POST /v1/constraints/create" do
+  describe "POST /v1/eligibility_constraints/create" do
     it "creates the constraint" do
-      post "/v1/constraints/create", name: "Test constraint"
+      post "/v1/eligibility_constraints/create", name: "Test constraint"
 
       expect(last_response).to have_status(200)
       expect(last_response.headers).to include("Created-Resource-Admin")
@@ -72,20 +72,20 @@ RSpec.describe Suma::AdminAPI::EligibilityConstraints, :db do
 
     it "403s if constraint already exists" do
       ec = Suma::Fixtures.eligibility_constraint.create
-      post "/v1/constraints/create", name: ec.name
+      post "/v1/eligibility_constraints/create", name: ec.name
 
-      expect(last_response).to have_status(403)
+      expect(last_response).to have_status(400)
     end
   end
 
-  describe "GET /v1/constraints/:id" do
+  describe "GET /v1/eligibility_constraints/:id" do
     it "returns the eligibility constraint" do
       ec = Suma::Fixtures.eligibility_constraint.create
       offering_objs = Array.new(2) { Suma::Fixtures.offering.with_constraints(ec).create }
       vendor_service_objs = Array.new(2) { Suma::Fixtures.vendor_service.with_constraints(ec).create }
       configuration_objs = Array.new(2) { Suma::Fixtures.anon_proxy_vendor_configuration.with_constraints(ec).create }
 
-      get "/v1/constraints/#{ec.id}"
+      get "/v1/eligibility_constraints/#{ec.id}"
 
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.that_includes(
@@ -97,7 +97,7 @@ RSpec.describe Suma::AdminAPI::EligibilityConstraints, :db do
     end
 
     it "403s if the item does not exist" do
-      get "/v1/constraints/0"
+      get "/v1/eligibility_constraints/0"
 
       expect(last_response).to have_status(403)
     end

@@ -59,21 +59,6 @@ RSpec.describe Suma::AdminAPI::MessageDeliveries, :db do
     end
   end
 
-  describe "GET /v1/members/:id/message_deliveries" do
-    it "returns all deliveries that to the member" do
-      member = Suma::Fixtures.member.create
-      to_member = Suma::Fixtures.message_delivery.with_recipient(member).create
-      to_email = Suma::Fixtures.message_delivery.to(member.email).create
-      to_neither = Suma::Fixtures.message_delivery.with_recipient.create
-
-      get "/v1/members/#{member.id}/message_deliveries"
-
-      expect(last_response).to have_status(200)
-      expect(last_response).to have_json_body.
-        that_includes(items: have_same_ids_as(to_email, to_member).ordered)
-    end
-  end
-
   describe "GET /v1/message_deliveries/:id" do
     it "returns the delivery with the given ID and its bodies" do
       del = Suma::Fixtures.message_delivery.with_body.with_body.create

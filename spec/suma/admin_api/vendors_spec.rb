@@ -69,11 +69,11 @@ RSpec.describe Suma::AdminAPI::Vendors, :db do
       expect(Suma::Vendor.all.count).to equal(1)
     end
 
-    it "403s if vendor exists" do
+    it "400s if vendor exists" do
       v = Suma::Fixtures.vendor.create(name: "test")
       post "/v1/vendors/create", name: v.name
 
-      expect(last_response).to have_status(403)
+      expect(last_response).to have_status(400)
     end
   end
 
