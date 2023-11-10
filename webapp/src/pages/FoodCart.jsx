@@ -4,6 +4,7 @@ import FoodCartWidget from "../components/FoodCartWidget";
 import FoodPrice from "../components/FoodPrice";
 import LinearBreadcrumbs from "../components/LinearBreadcrumbs";
 import PageLoader from "../components/PageLoader";
+import RLink from "../components/RLink";
 import SumaImage from "../components/SumaImage";
 import { md, t } from "../localization";
 import { anyMoney } from "../shared/react/Money";
@@ -13,7 +14,6 @@ import { LayoutContainer } from "../state/withLayout";
 import isEmpty from "lodash/isEmpty";
 import React from "react";
 import Button from "react-bootstrap/Button";
-import Col from "react-bootstrap/Col";
 import Row from "react-bootstrap/Row";
 import Stack from "react-bootstrap/Stack";
 import { Link, useNavigate, useParams } from "react-router-dom";
@@ -47,34 +47,49 @@ export default function FoodCart() {
   }
   const productsById = Object.fromEntries(products.map((p) => [p.productId, p]));
   const vendorsById = Object.fromEntries(vendors.map((v) => [v.id, v]));
+  const { items } = cart;
   return (
     <>
-      <LayoutContainer>
-        {isEmpty(cart.items) && md("food:no_cart_items")}
-        {!isEmpty(cart.items) && (
-          <Row>
-            <LinearBreadcrumbs back={`/food/${offeringId}`} />
-            <Stack direction="horizontal" gap={3} className="align-items-end">
-              <h4>{t("food:cart_title")}</h4>
-              <span className="text-secondary ms-auto">{t("food:price")}</span>
+      <LayoutContainer gutters>
+        <Row>
+          <LinearBreadcrumbs back={`/food/${offeringId}`} />
+          <Stack direction="horizontal" gap={3} className="align-items-end">
+            <h4 className="mb-0">{t("food:cart_title")}</h4>
+            <span className="text-secondary ms-auto">{t("food:price")}</span>
+          </Stack>
+        </Row>
+      </LayoutContainer>
+      <hr className="mt-2 mb-4" />
+      <LayoutContainer gutters>
+        <Row>
+          {!isEmpty(items) ? (
+            <Stack gap={4}>
+              {items.map((item) => {
+                const product = productsById[item.productId];
+                const vendor = vendorsById[product.vendorId];
+                return (
+                  <CartItem
+                    key={product.name}
+                    offeringId={offeringId}
+                    product={product}
+                    vendor={vendor}
+                  />
+                );
+              })}
             </Stack>
-            <hr />
-            {cart.items.map((item) => {
-              const product = productsById[item.productId];
-              const vendor = vendorsById[product.vendorId];
-              return (
-                <CartItem
-                  key={item.productId}
-                  offeringId={offeringId}
-                  product={product}
-                  vendor={vendor}
-                />
-              );
-            })}
+          ) : (
+            <span className="">{md("food:no_cart_items")}</span>
+          )}
+        </Row>
+      </LayoutContainer>
+      <hr className="my-4" />
+      <LayoutContainer gutters>
+        <Row>
+          {!isEmpty(items) ? (
             <Stack gap={2} className="align-items-end">
               <div>
                 {md("food:subtotal_items", {
-                  totalItems: cart.items.length,
+                  totalItems: items.length,
                   customerCost: cart.customerCost,
                 })}
               </div>
@@ -96,57 +111,48 @@ export default function FoodCart() {
                 {t("food:continue_to_checkout")}
               </Button>
             </Stack>
-          </Row>
-        )}
+          ) : (
+            <div className="button-stack w-100">
+              <Button href="/food" as={RLink} title={t("food:title")}>
+                {t("food:available_offerings")}
+              </Button>
+            </div>
+          )}
+        </Row>
       </LayoutContainer>
     </>
   );
 }
 
 function CartItem({ offeringId, product, vendor }) {
-  const {
-    productId,
-    name,
-    isDiscounted,
-    customerPrice,
-    undiscountedPrice,
-    discountAmount,
-    images,
-  } = product;
+  const { productId, name, isDiscounted, customerPrice, undiscountedPrice, images } =
+    product;
   return (
-    <>
-      <Col xs={12} className="mb-3">
-        <Stack direction="horizontal" gap={3} className="align-items-start">
-          <Link to={`/product/${offeringId}/${productId}`} className="flex-shrink-0">
-            <SumaImage image={images[0]} alt={name} className="w-100" w={100} h={100} />
-          </Link>
-          <div>
-            <Link to={`/product/${offeringId}/${productId}`}>
-              <h6 className="mb-2">{name}</h6>
-            </Link>
-            <p className="text-secondary mb-2 small">
-              {product.isDiscounted
-                ? t("food:from_vendor_with_discount", {
-                    vendorName: vendor.name,
-                    discountAmount: discountAmount,
-                  })
-                : t("food:from_vendor", { vendorName: vendor.name })}
-            </p>
-            <FoodCartWidget product={product} />
-          </div>
-          <FoodPrice
-            customerPrice={customerPrice}
-            isDiscounted={isDiscounted}
-            undiscountedPrice={undiscountedPrice}
-            // We don't want to show noncash contributions here,
-            // so use the customer price as the cash price.
-            cashPrice={customerPrice}
-            fs={6}
-            bold={false}
-          />
-        </Stack>
-      </Col>
-      <hr className="mb-3 mt-0" />
-    </>
+    <Stack direction="horizontal" gap={3} className="align-items-start">
+      <Link to={`/product/${offeringId}/${productId}`} className="">
+        <SumaImage image={images[0]} alt={name} className="w-100" w={100} h={100} />
+      </Link>
+      <div>
+        <Link to={`/product/${offeringId}/${productId}`}>
+          <h6 className="mb-2">{name}</h6>
+        </Link>
+        <p className="text-secondary mb-2 small">
+          {t("food:from_vendor", { vendorName: vendor.name })}
+        </p>
+        <FoodCartWidget product={product} />
+      </div>
+      <div className="ms-auto text-end">
+        <FoodPrice
+          isDiscounted={isDiscounted}
+          undiscountedPrice={undiscountedPrice}
+          // We don't want to show noncash contributions here,
+          // so use the customer price as the cash price.
+          displayableCashPrice={customerPrice}
+          fs={6}
+          bold={false}
+          direction="vertical"
+        />
+      </div>
+    </Stack>
   );
 }

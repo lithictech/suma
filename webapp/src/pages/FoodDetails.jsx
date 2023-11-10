@@ -13,7 +13,8 @@ import { LayoutContainer } from "../state/withLayout";
 import clsx from "clsx";
 import find from "lodash/find";
 import React from "react";
-import Stack from "react-bootstrap/Stack";
+import Col from "react-bootstrap/Col";
+import Row from "react-bootstrap/Row";
 import { Helmet } from "react-helmet-async";
 import { useParams } from "react-router-dom";
 
@@ -22,7 +23,8 @@ export default function FoodDetails() {
   productId = parseInt(productId, 10);
 
   const [itemSubtotal, setItemSubtotal] = React.useState(0);
-  const { vendors, products, cart, initializeToOffering, error, loading } = useOffering();
+  const { vendors, products, cart, initializeToOffering, error, loading, cartLoading } =
+    useOffering();
 
   React.useEffect(() => {
     initializeToOffering(offeringId);
@@ -51,7 +53,6 @@ export default function FoodDetails() {
   }
   const vendor = find(vendors, (v) => v.id === product.vendorId);
   const title = makeTitle(product.name, vendor.name, t("food:title"));
-
   return (
     <>
       <Helmet>
@@ -60,8 +61,14 @@ export default function FoodDetails() {
       <FoodNav
         offeringId={offeringId}
         cart={cart}
+        cartLoading={cartLoading}
         startElement={<LinearBreadcrumbs back={`/food/${offeringId}`} noBottom />}
       />
+      <LayoutContainer gutters>
+        <Row>
+          <h3 className="mb-3">{product.name}</h3>
+        </Row>
+      </LayoutContainer>
       <SumaImage
         image={product.images[0]}
         alt={product.name}
@@ -70,49 +77,44 @@ export default function FoodDetails() {
         h={325}
         width={500}
       />
-      <LayoutContainer top>
-        <h3 className="mb-3">{product.name}</h3>
-        <Stack direction="horizontal" gap={3} className="align-items-start">
-          <div>
-            <FoodPrice {...product} fs={4} className="mb-2 lh-1" />
-            <p>
-              {product.isDiscounted
-                ? t("food:from_vendor_with_discount", {
-                    vendorName: vendor.name,
-                    discountAmount: product.discountAmount,
-                  })
-                : t("food:from_vendor", { vendorName: vendor.name })}
-            </p>
-            {anyMoney(product.displayableNoncashLedgerContributionAmount) && (
-              <div className={clsx("mt-2")}>
-                {t("food:noncash_ledger_contribution_available", {
-                  amount: product.displayableNoncashLedgerContributionAmount,
-                })}
+      <LayoutContainer gutters top>
+        <Row>
+          <Col>
+            <FoodPrice {...product} fs={4} className="mb-2 lh-1 gap-2" />
+            <p className="mb-3">{t("food:from_vendor", { vendorName: vendor.name })}</p>
+          </Col>
+          <Col>
+            <div className="text-end">
+              <FoodCartWidget
+                product={product}
+                onQuantityChange={(q) =>
+                  setItemSubtotal(q * product.customerPrice.cents || 0)
+                }
+                size="lg"
+              />
+              <div
+                className={clsx("me-4", !anyMoney(intToMoney(itemSubtotal)) && "d-none")}
+              >
+                <div className="mt-2 small text-secondary">{t("food:item_subtotal")}</div>
+                <Money className="text-muted">{intToMoney(itemSubtotal)}</Money>
               </div>
-            )}
-          </div>
-          <div className="ms-auto">
-            <FoodCartWidget
-              product={product}
-              onQuantityChange={(q) =>
-                setItemSubtotal(q * product.customerPrice.cents || 0)
-              }
-              size="lg"
-            />
-            <div
-              className={clsx(
-                "me-4 text-end",
-                !anyMoney(intToMoney(itemSubtotal)) && "d-none"
-              )}
-            >
-              <div className="mt-2 small text-secondary">{t("food:item_subtotal")}</div>
-              <Money className="text-muted">{intToMoney(itemSubtotal)}</Money>
             </div>
-          </div>
-        </Stack>
-        <hr />
-        <h5 className="mt-2 mb-2">{t("food:details_header")}</h5>
-        <p>{product.description}</p>
+          </Col>
+          {anyMoney(product.displayableNoncashLedgerContributionAmount) && (
+            <Col xs={12} className="mt-2">
+              {t("food:noncash_ledger_contribution_available", {
+                amount: product.displayableNoncashLedgerContributionAmount,
+              })}
+            </Col>
+          )}
+        </Row>
+      </LayoutContainer>
+      <hr className="my-4" />
+      <LayoutContainer gutters>
+        <Row>
+          <h5>{t("food:details_header")}</h5>
+          <p>{product.description}</p>
+        </Row>
       </LayoutContainer>
     </>
   );

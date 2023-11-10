@@ -6,14 +6,16 @@ import React from "react";
  * Render the page loader icon centered.
  * This is used when you are loading information and want to
  * display the default loading ring icon as a child while
- * the information loads (ie, `return <PageLoader show />`).
- * @param show
+ * the information loads (ie, `return <PageLoader relative />`).
+ * @param relative
  * @returns {JSX.Element}
  */
 export default function PageLoader({ relative }) {
   const cls = clsx(
-    relative ? "position-relative" : "position-absolute",
-    "top-0 start-0 w-100"
+    relative
+      ? "position-relative top-0 start-0"
+      : "position-absolute start-50 translate-middle-x",
+    "page-loader-img my-5"
   );
   return (
     <div className="text-center position-relative">

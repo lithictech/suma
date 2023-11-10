@@ -88,25 +88,23 @@ export default function Dashboard() {
 const Ledger = ({ dashboard }) => {
   return (
     <>
-      <LayoutContainer
-        top="pt-2"
-        gutters
-        className="d-flex justify-content-between pb-2 align-items-start"
-      >
-        <div>
-          <h3>
-            <Money colored>{dashboard.paymentAccountBalance}</Money>
-          </h3>
-          <p className="m-0 mb-2">{t("dashboard:payment_account_balance")}</p>
-          <Button variant="outline-success" href="/funding" as={RLink} size="sm">
-            {t("payments:add_funds")}
-          </Button>
-        </div>
-        <div className="text-end">
-          <h3>
-            <Money>{dashboard.lifetimeSavings}</Money>
-          </h3>
-          <p className="m-0">{t("dashboard:lifetime_savings")}</p>
+      <LayoutContainer top gutters>
+        <div className="d-flex justify-content-between pb-2 align-items-start">
+          <div>
+            <h3>
+              <Money colored>{dashboard.paymentAccountBalance}</Money>
+            </h3>
+            <p className="m-0 mb-2">{t("dashboard:payment_account_balance")}</p>
+            <Button variant="outline-success" href="/funding" as={RLink} size="sm">
+              {t("payments:add_funds")}
+            </Button>
+          </div>
+          <div className="text-end">
+            <h3>
+              <Money>{dashboard.lifetimeSavings}</Money>
+            </h3>
+            <p className="m-0">{t("dashboard:lifetime_savings")}</p>
+          </div>
         </div>
       </LayoutContainer>
       <hr />
@@ -145,7 +143,7 @@ const Ledger = ({ dashboard }) => {
           </tbody>
         </Table>
       ) : (
-        <LayoutContainer top="pt-2" gutters>
+        <LayoutContainer gutters>
           <p>{md("dashboard:no_money")}</p>
         </LayoutContainer>
       )}

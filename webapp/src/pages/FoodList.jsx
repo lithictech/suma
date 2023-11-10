@@ -11,8 +11,6 @@ import { LayoutContainer } from "../state/withLayout";
 import isEmpty from "lodash/isEmpty";
 import React from "react";
 import Col from "react-bootstrap/Col";
-import Row from "react-bootstrap/Row";
-import Stack from "react-bootstrap/Stack";
 import { Helmet } from "react-helmet-async";
 import { Link, useNavigate, useParams, useLocation } from "react-router-dom";
 
@@ -48,7 +46,9 @@ export default function FoodList() {
       </LayoutContainer>
     );
   }
-
+  if (loading) {
+    return <PageLoader />;
+  }
   const title = makeTitle(offering.description, t("food:title"));
   return (
     <>
@@ -67,27 +67,15 @@ export default function FoodList() {
       <FoodNav
         offeringId={offeringId}
         cart={cart}
-        startElement={
-          <Stack gap={2}>
-            <LinearBreadcrumbs back="/food" noBottom />
-            <h3 className="m-0">{offering.description}</h3>
-          </Stack>
-        }
+        startElement={<LinearBreadcrumbs back="/food" noBottom />}
       />
-      <LayoutContainer className="pt-4">
-        {loading && <PageLoader />}
-        {!loading && (
-          <>
-            {isEmpty(products) && mdp("food:no_products")}
-            {!isEmpty(products) && (
-              <Row>
-                {products.map((p) => (
-                  <Product key={p.productId} offeringId={offeringId} product={p} />
-                ))}
-              </Row>
-            )}
-          </>
-        )}
+      <LayoutContainer gutters>
+        <h2 className="mb-3">{offering.description}</h2>
+        {isEmpty(products)
+          ? mdp("food:no_products")
+          : products.map((p) => (
+              <Product key={p.productId} offeringId={offeringId} product={p} />
+            ))}
       </LayoutContainer>
     </>
   );
@@ -101,10 +89,10 @@ function Product({ product, offeringId }) {
         <SumaImage image={images[0]} alt={name} className="w-100" w={225} h={150} />
         <h5 className="mb-2 mt-2">{name}</h5>
         {outOfStock ? (
-          <p className="text-secondary">{t("food:currently_unavailable")}</p>
+          <p className="text-secondary">{t("food:sold_out")}</p>
         ) : (
           <>
-            <FoodPrice fs={5} {...product} />
+            <FoodPrice fs={5} className="gap-2" {...product} />
           </>
         )}
         <Link to={`/product/${offeringId}/${productId}`} className="stretched-link" />

@@ -167,7 +167,7 @@ const LedgerLines = ({
   const { selectedHashItem, onHashItemSelected } = useHashSelector(lines, "opaqueId");
 
   return (
-    <>
+    <div className="position-relative">
       {linesLoading && <PageLoader />}
       <Table
         responsive
@@ -216,6 +216,6 @@ const LedgerLines = ({
         item={selectedHashItem}
         onClose={() => onHashItemSelected(null, null)}
       />
-    </>
+    </div>
   );
 };

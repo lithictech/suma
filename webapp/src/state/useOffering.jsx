@@ -1,5 +1,6 @@
 import api from "../api";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
+import useToggle from "../shared/react/useToggle";
 import React from "react";
 
 export const OfferingContext = React.createContext();
@@ -8,6 +9,7 @@ export const useOffering = () => React.useContext(OfferingContext);
 const NOOP = Symbol("noop");
 
 export function OfferingProvider({ children }) {
+  const cartLoading = useToggle(false);
   const [offering, setOfferingInner] = React.useState({});
   const [vendors, setVendorsInner] = React.useState([]);
   // Do not store things in local storage here:
@@ -66,10 +68,21 @@ export function OfferingProvider({ children }) {
       cart,
       setCart: setCartInner,
       loading,
+      cartLoading,
       error,
       reset,
     }),
-    [cart, error, initializeToOffering, loading, offering, products, reset, vendors]
+    [
+      cart,
+      error,
+      initializeToOffering,
+      loading,
+      cartLoading,
+      offering,
+      products,
+      reset,
+      vendors,
+    ]
   );
 
   return <OfferingContext.Provider value={value}>{children}</OfferingContext.Provider>;

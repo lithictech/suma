@@ -1,6 +1,7 @@
 import api from "../api";
 import addIcon from "../assets/images/food-widget-add.svg";
 import subtractIcon from "../assets/images/food-widget-subtract.svg";
+import loaderRing from "../assets/images/loader-ring.svg";
 import xIcon from "../assets/images/ui-x-thick.svg";
 import { t } from "../localization";
 import { useErrorToast } from "../state/useErrorToast";
@@ -17,7 +18,7 @@ import Dropdown from "react-bootstrap/Dropdown";
 export default function FoodCartWidget({ product, size, onQuantityChange }) {
   size = size || "sm";
   const btnClasses = sizeClasses[size];
-  const { offering, cart, setCart } = useOffering();
+  const { offering, cart, setCart, cartLoading } = useOffering();
   const { showErrorToast } = useErrorToast();
 
   const changePromise = React.useRef(null);
@@ -26,8 +27,11 @@ export default function FoodCartWidget({ product, size, onQuantityChange }) {
     const item = find(cart.items, ({ productId }) => productId === product.productId);
     return item?.quantity || 0;
   });
-
   const handleQuantityChange = (q) => {
+    if (q === quantity) {
+      return;
+    }
+    cartLoading.turnOn();
     changePromise.current?.cancel();
     changePromise.current = api
       .putCartItem({
@@ -44,7 +48,8 @@ export default function FoodCartWidget({ product, size, onQuantityChange }) {
           onQuantityChange(q);
         }
       })
-      .catch((e) => showErrorToast(e, { extract: true }));
+      .catch((e) => showErrorToast(e, { extract: true }))
+      .finally(() => cartLoading.turnOff());
   };
 
   if (product.outOfStock) {
@@ -62,7 +67,7 @@ export default function FoodCartWidget({ product, size, onQuantityChange }) {
           onClick={quantity > 0 ? () => handleQuantityChange(0) : noop}
         >
           <span className="text-capitalize fs-5 align-middle mx-1">
-            {t("food:out_of_stock")}
+            {t("food:sold_out")}
           </span>
           {quantity > 0 && (
             <img
@@ -83,7 +88,6 @@ export default function FoodCartWidget({ product, size, onQuantityChange }) {
       {quantity > 0 && (
         <>
           <Button
-            variant="success"
             onClick={() => handleQuantityChange(quantity - 1)}
             className={btnClasses}
             title={t("food:remove_from_cart")}
@@ -91,26 +95,36 @@ export default function FoodCartWidget({ product, size, onQuantityChange }) {
             <img src={subtractIcon} alt={t("food:remove_from_cart")} width="32px" />
           </Button>
           <Dropdown
-            variant="success"
             as={ButtonGroup}
             title={"" + quantity}
             onSelect={(quantity) => handleQuantityChange(Number(quantity))}
           >
-            <Dropdown.Toggle
-              variant="success"
-              className="py-0 px-2"
-              style={{ width: 60 }}
-            >
-              {quantity}
-            </Dropdown.Toggle>
-            <Dropdown.Menu className="food-widget-dropdown-menu" renderOnMount={true}>
-              <DropdownQuantities maxQuantity={maxQuantity} selectedQuantity={quantity} />
-            </Dropdown.Menu>
+            {cartLoading.isOff ? (
+              <>
+                <Dropdown.Toggle className="py-0 px-2" style={{ width: 60 }}>
+                  {quantity}
+                </Dropdown.Toggle>
+                <Dropdown.Menu className="food-widget-dropdown-menu" renderOnMount={true}>
+                  <DropdownQuantities
+                    maxQuantity={maxQuantity}
+                    selectedQuantity={quantity}
+                  />
+                </Dropdown.Menu>
+              </>
+            ) : (
+              <Button className="py-0 px-2 overflow-hidden" style={{ width: 60 }}>
+                <img
+                  src={loaderRing}
+                  width="75%"
+                  height="auto"
+                  alt="cart quantity loading"
+                />
+              </Button>
+            )}
           </Dropdown>
         </>
       )}
       <Button
-        variant="success"
         onClick={() => handleQuantityChange(quantity + 1)}
         className={clsx(btnClasses, quantity === maxQuantity && "disabled", "nowrap")}
         title={t("food:add_to_cart")}

@@ -12,6 +12,7 @@ export default function FoodPrice({
   displayableCashPrice,
   fs,
   bold,
+  direction,
   className,
 }) {
   const showDiscount =
@@ -19,17 +20,17 @@ export default function FoodPrice({
   return (
     <div>
       <Stack
-        direction="horizontal"
-        className={clsx("ms-auto", className, bold && `fw-semibold`, fs && `fs-${fs}`)}
+        direction={clsx(direction ? direction : "horizontal")}
+        className={clsx(className, bold && `fw-semibold`, fs && `fs-${fs}`)}
       >
-        {showDiscount && (
-          <strike className="me-2">
-            <Money>{undiscountedPrice}</Money>
-          </strike>
-        )}
         <Money className={clsx(showDiscount && "text-success")}>
           {displayableCashPrice}
         </Money>
+        {showDiscount && (
+          <strike>
+            <Money>{undiscountedPrice}</Money>
+          </strike>
+        )}
       </Stack>
       {anyMoney(discountAmount) && (
         <p className="mb-0 small text-success">

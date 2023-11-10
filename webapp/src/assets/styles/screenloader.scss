@@ -23,11 +23,16 @@
   }
 
   img {
-    max-width: 400px;
+    max-width: 150px;
     width: 100%;
   }
 }
 
 .screen-loader-show {
   display: block;
+}
+
+.page-loader-img {
+  max-width: 150px;
+  width: 100%;
 }
