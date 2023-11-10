@@ -108,9 +108,11 @@ class Suma::Commerce::Order < Suma::Postgres::Model(:commerce_orders)
 
   # How much was paid for this order is the sum of all book transactions linked to charges.
   # Note that this includes subsidy AND synchronous charges during checkout.
-  def paid_amount
-    return self.charges.sum(Money.new(0), &:discounted_subtotal)
-  end
+  def paid_amount = self.charges.sum(Money.new(0), &:discounted_subtotal)
+
+  # What is the total value of this order? That is, include all that was charged/subsidized,
+  # plus the discounted value.
+  def total_value = self.charges.sum(Money.new(0), &:undiscounted_subtotal)
 
   # How much of the paid amount was synchronously funded during checkout?
   # Note that there is no book transaction associated from the charge (which are all debits)
