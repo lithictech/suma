@@ -80,11 +80,9 @@ export default function withLayout(options) {
 export const topMarginClass = "pt-4";
 export const guttersClass = "px-4";
 
-export function LayoutContainer({ className, gutters, top, children, ...rest }) {
+export function LayoutContainer({ className, gutters, top, ...rest }) {
   const cls = clsx(top && topMarginClass, gutters && guttersClass, className);
   return (
-    <Container className={cls} {...rest}>
-      <Row>{children}</Row>
-    </Container>
+    <Container className={cls} {...rest}/>
   );
 }

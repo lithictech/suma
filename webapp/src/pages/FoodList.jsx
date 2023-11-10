@@ -13,6 +13,7 @@ import React from "react";
 import Col from "react-bootstrap/Col";
 import { Helmet } from "react-helmet-async";
 import { Link, useNavigate, useParams, useLocation } from "react-router-dom";
+import Row from "react-bootstrap/Row";
 
 export default function FoodList() {
   const { id: offeringId } = useParams();
@@ -73,9 +74,9 @@ export default function FoodList() {
         <h2 className="mb-3">{offering.description}</h2>
         {isEmpty(products)
           ? mdp("food:no_products")
-          : products.map((p) => (
+          : <Row>{products.map((p) => (
               <Product key={p.productId} offeringId={offeringId} product={p} />
-            ))}
+            ))}</Row>}
       </LayoutContainer>
     </>
   );
