@@ -17,7 +17,7 @@ export default function FoodNav({ offeringId, startElement, cart }) {
             className="ms-auto py-1"
             as={RLink}
           >
-            <CartIcon cart={cart} className="d-flex flex-row" />
+            <CartIcon cart={cart} className="d-flex flex-row position-relative" />
           </Button>
         </div>
       </Container>
