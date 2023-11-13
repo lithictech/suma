@@ -1,8 +1,8 @@
 import api from "../api";
 import ErrorScreen from "../components/ErrorScreen";
 import LinearBreadcrumbs from "../components/LinearBreadcrumbs";
+import PageLoader from "../components/PageLoader";
 import RLink from "../components/RLink";
-import ScreenLoader from "../components/ScreenLoader";
 import SeeAlsoAlert from "../components/SeeAlsoAlert";
 import SumaImage from "../components/SumaImage";
 import { mdp, t } from "../localization";
@@ -36,10 +36,6 @@ export default function OrderHistoryList() {
       </LayoutContainer>
     );
   }
-  if (loading) {
-    return <ScreenLoader show />;
-  }
-
   function handleNavigate(e, order) {
     const detailed = find(orderHistory.detailedOrders, { id: order.id });
     if (!detailed) {
@@ -48,6 +44,7 @@ export default function OrderHistoryList() {
     e.preventDefault();
     navigate(`/order/${order.id}`, { state: { order: detailed } });
   }
+  console.log(orderHistory);
   return (
     <>
       {user.unclaimedOrdersCount > 0 && (
@@ -67,7 +64,9 @@ export default function OrderHistoryList() {
       </LayoutContainer>
       <LayoutContainer gutters>
         <Row>
-          {!isEmpty(orderHistory?.items) ? (
+          {loading ? (
+            <PageLoader />
+          ) : !isEmpty(orderHistory?.items) ? (
             <Stack gap={3}>
               {orderHistory?.items.map((o) => (
                 <Order key={o.id} {...o} onNavigate={(e) => handleNavigate(e, o)} />
@@ -96,6 +95,7 @@ function Order({
   total,
   image,
   serial,
+  fulfilledAt,
   onNavigate,
   availableForPickupAt,
 }) {
@@ -114,7 +114,11 @@ function Order({
               {t("food:order_serial", { serial: serial })}
             </Card.Link>
             <Card.Text className="text-secondary mt-1">
-              {availableForPickupAt
+              {fulfilledAt
+                ? t("food:claimed_on", {
+                    fulfilledAt: dayjs(fulfilledAt).format("lll"),
+                  })
+                : availableForPickupAt
                 ? t("food:order_available_for_pickup", {
                     date: dayjs(availableForPickupAt).format("ll"),
                   })

@@ -1,6 +1,5 @@
 import api from "../api";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
-import useToggle from "../shared/react/useToggle";
 import React from "react";
 
 export const OfferingContext = React.createContext();
@@ -70,16 +69,7 @@ export function OfferingProvider({ children }) {
       error,
       reset,
     }),
-    [
-      cart,
-      error,
-      initializeToOffering,
-      loading,
-      offering,
-      products,
-      reset,
-      vendors,
-    ]
+    [cart, error, initializeToOffering, loading, offering, products, reset, vendors]
   );
 
   return <OfferingContext.Provider value={value}>{children}</OfferingContext.Provider>;

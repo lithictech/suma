@@ -32,7 +32,7 @@ export default function Food() {
     );
   }
   if (offeringsLoading) {
-    return <PageLoader />;
+    return <PageLoader buffered />;
   }
   const { items } = offerings;
   return (

@@ -11,9 +11,9 @@ import { LayoutContainer } from "../state/withLayout";
 import isEmpty from "lodash/isEmpty";
 import React from "react";
 import Col from "react-bootstrap/Col";
+import Row from "react-bootstrap/Row";
 import { Helmet } from "react-helmet-async";
 import { Link, useNavigate, useParams, useLocation } from "react-router-dom";
-import Row from "react-bootstrap/Row";
 
 export default function FoodList() {
   const { id: offeringId } = useParams();
@@ -48,7 +48,7 @@ export default function FoodList() {
     );
   }
   if (loading) {
-    return <PageLoader />;
+    return <PageLoader buffered />;
   }
   const title = makeTitle(offering.description, t("food:title"));
   return (
@@ -72,11 +72,15 @@ export default function FoodList() {
       />
       <LayoutContainer gutters>
         <h2 className="mb-3">{offering.description}</h2>
-        {isEmpty(products)
-          ? mdp("food:no_products")
-          : <Row>{products.map((p) => (
+        {isEmpty(products) ? (
+          mdp("food:no_products")
+        ) : (
+          <Row>
+            {products.map((p) => (
               <Product key={p.productId} offeringId={offeringId} product={p} />
-            ))}</Row>}
+            ))}
+          </Row>
+        )}
       </LayoutContainer>
     </>
   );

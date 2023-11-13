@@ -21,7 +21,7 @@ const TripCard = ({ active, trip, onCloseTrip, onEndTrip, lastLocation }) => {
   if (!endTrip && !lastLocation) {
     return (
       <CardOverlay>
-        <PageLoader relative />
+        <PageLoader />
       </CardOverlay>
     );
   }

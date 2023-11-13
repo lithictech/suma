@@ -49,7 +49,7 @@ import { GlobalViewStateProvider } from "./state/useGlobalViewState";
 import { OfferingProvider } from "./state/useOffering";
 import { ScreenLoaderProvider, withScreenLoaderMount } from "./state/useScreenLoader";
 import { UserProvider } from "./state/useUser";
-import withLayout from "./state/withLayout";
+import withLayout, { LayoutContainer } from "./state/withLayout";
 import withMetatags from "./state/withMetatags";
 import withProps from "./state/withProps";
 import React from "react";
@@ -459,9 +459,9 @@ function AppRoutes() {
             withMetatags({ title: t("common:error") }),
             withLayout(),
             () => (
-              <div className="mt-4">
+              <LayoutContainer top>
                 <ErrorScreen />
-              </div>
+              </LayoutContainer>
             )
           )}
         />

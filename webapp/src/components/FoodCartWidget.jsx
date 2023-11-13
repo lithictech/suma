@@ -46,7 +46,7 @@ export default function FoodCartWidget({ product, size, onQuantityChange }) {
           onQuantityChange(q);
         }
       })
-      .catch((e) => showErrorToast(e, { extract: true }))
+      .catch((e) => showErrorToast(e, { extract: true }));
   };
 
   if (product.outOfStock) {
@@ -96,18 +96,17 @@ export default function FoodCartWidget({ product, size, onQuantityChange }) {
             title={"" + quantity}
             onSelect={(quantity) => handleQuantityChange(Number(quantity))}
           >
-              <>
-                <Dropdown.Toggle className="py-0 px-2" style={{ width: 60 }}>
-                  {quantity}
-                </Dropdown.Toggle>
-                <Dropdown.Menu className="food-widget-dropdown-menu" renderOnMount={true}>
-                  <DropdownQuantities
-                    maxQuantity={maxQuantity}
-                    selectedQuantity={quantity}
-                  />
-                </Dropdown.Menu>
-              </>
-
+            <>
+              <Dropdown.Toggle className="py-0 px-2" style={{ width: 60 }}>
+                {quantity}
+              </Dropdown.Toggle>
+              <Dropdown.Menu className="food-widget-dropdown-menu" renderOnMount={true}>
+                <DropdownQuantities
+                  maxQuantity={maxQuantity}
+                  selectedQuantity={quantity}
+                />
+              </Dropdown.Menu>
+            </>
           </Dropdown>
         </>
       )}

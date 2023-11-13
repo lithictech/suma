@@ -1,8 +1,8 @@
+import PageLoader from "../components/PageLoader";
+import range from "lodash/range";
 import React from "react";
 import Button from "react-bootstrap/Button";
 import Container from "react-bootstrap/Container";
-import PageLoader from "../components/PageLoader";
-import range from "lodash/range";
 
 const Styleguide = () => {
   return (
@@ -46,10 +46,12 @@ const Styleguide = () => {
           </div>
         );
       })}
-        <PageLoader buffered />
+      <PageLoader buffered />
       <hr />
       <div className="position-relative">
-        {range(10).map((i) => <p key={i}>lorem ipsum</p>)}
+        {range(10).map((i) => (
+          <p key={i}>lorem ipsum</p>
+        ))}
 
         <PageLoader overlay />
       </div>

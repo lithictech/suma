@@ -23,8 +23,7 @@ export default function FoodDetails() {
   productId = parseInt(productId, 10);
 
   const [itemSubtotal, setItemSubtotal] = React.useState(0);
-  const { vendors, products, cart, initializeToOffering, error, loading } =
-    useOffering();
+  const { vendors, products, cart, initializeToOffering, error, loading } = useOffering();
 
   React.useEffect(() => {
     initializeToOffering(offeringId);
@@ -41,7 +40,7 @@ export default function FoodDetails() {
   }, [product, item]);
 
   if (loading) {
-    return <PageLoader />;
+    return <PageLoader buffered />;
   }
 
   if (error || !product) {

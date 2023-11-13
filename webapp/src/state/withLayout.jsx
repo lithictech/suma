@@ -82,7 +82,5 @@ export const guttersClass = "px-4";
 
 export function LayoutContainer({ className, gutters, top, ...rest }) {
   const cls = clsx(top && topMarginClass, gutters && guttersClass, className);
-  return (
-    <Container className={cls} {...rest}/>
-  );
+  return <Container className={cls} {...rest} />;
 }

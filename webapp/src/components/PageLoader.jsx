@@ -1,7 +1,6 @@
 import loaderRing from "../assets/images/loader-ring.svg";
 import clsx from "clsx";
 import React from "react";
-import {over} from "lodash/util";
 
 /**
  * Render the page loader icon centered.
@@ -25,13 +24,13 @@ import {over} from "lodash/util";
  */
 export default function PageLoader({ overlay, buffered, className }) {
   const cls = clsx(
-    overlay && 'position-absolute top-0 start-50 translate-middle-x',
-    buffered && 'my-5',
+    overlay && "position-absolute top-0 start-50 translate-middle-x",
+    buffered && "my-5",
     className
-  )
+  );
   return (
     <div className={clsx("text-center")}>
-      <img src={loaderRing} alt="loading" className={cls} style={{maxWidth: 150}} />
+      <img src={loaderRing} alt="loading" className={cls} style={{ maxWidth: 150 }} />
     </div>
   );
 }

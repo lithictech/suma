@@ -76,7 +76,7 @@ export default function FoodCheckout() {
     );
   }
   if (loading || isEmpty(checkout)) {
-    return <PageLoader />;
+    return <PageLoader buffered />;
   }
   function handleSubmit(e) {
     e.preventDefault();

@@ -35,7 +35,7 @@ export default function FoodCart() {
     );
   }
   if (loading) {
-    return <PageLoader />;
+    return <PageLoader buffered />;
   }
   function handleCheckout(e) {
     e.preventDefault();

@@ -364,6 +364,7 @@ class Suma::API::Commerce < Suma::API::V1
     expose :id
     expose :serial
     expose :created_at
+    expose :fulfilled_at
     expose :total, with: MoneyEntity, &self.delegate_to(:checkout, :total)
     expose :image, with: ImageEntity do |inst|
       inst.checkout.items.sample&.offering_product&.product&.images&.first
@@ -397,7 +398,6 @@ class Suma::API::Commerce < Suma::API::V1
 
     expose :order_status
     expose :can_claim?, as: :can_claim
-    expose :fulfilled_at
 
     expose :customer_cost, with: MoneyEntity, &self.delegate_to(:checkout, :customer_cost)
     expose :undiscounted_cost, with: MoneyEntity, &self.delegate_to(:checkout, :undiscounted_cost)

@@ -110,7 +110,7 @@ export default function LedgersOverview() {
           />
         </>
       ) : (
-        <PageLoader />
+        <PageLoader buffered />
       )}
     </>
   );
@@ -168,7 +168,7 @@ const LedgerLines = ({
 
   return (
     <div className="position-relative">
-      {linesLoading && <PageLoader />}
+      {linesLoading && <PageLoader overlay />}
       <Table
         responsive
         striped

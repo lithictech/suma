@@ -29,6 +29,18 @@ export default function OrderDetail({ state, onOrderClaim, gutters }) {
             <h3 className="mb-1">{t("food:order_serial", { serial: order.serial })}</h3>
             {dayjs(order.createdAt).format("lll")}
           </div>
+          {!order.canClaim && (
+            <Alert variant="info" className="ms-0">
+              <Stack direction="horizontal" gap={3}>
+                {t("food:claimed_on", {
+                  fulfilledAt: dayjs(order.fulfilledAt).format("lll"),
+                })}
+                <div className="ms-auto">
+                  <AnimatedCheckmark />
+                </div>
+              </Stack>
+            </Alert>
+          )}
           <p className="mb-0">
             {t("food:labels:price", { price: order.customerCost })}
             {order.customerCost.cents !== order.undiscountedCost.cents && (
@@ -78,7 +90,6 @@ export default function OrderDetail({ state, onOrderClaim, gutters }) {
         <PressAndHoldToClaim
           id={order.id}
           canClaim={order.canClaim}
-          serial={order.serial}
           fulfilledAt={order.fulfilledAt}
           onOrderClaim={(o) => onOrderClaim(o)}
         />
@@ -160,26 +171,13 @@ function FulfillmentOption({ order, onOrderUpdated }) {
   );
 }
 
-function PressAndHoldToClaim({ id, canClaim, serial, fulfilledAt, onOrderClaim }) {
+function PressAndHoldToClaim({ id, canClaim, fulfilledAt, onOrderClaim }) {
   const screenLoader = useScreenLoader();
   const { showErrorToast } = useErrorToast();
   const { handleUpdateCurrentMember } = useUser();
 
-  if (!canClaim && !fulfilledAt) {
+  if (!canClaim || (!canClaim && !fulfilledAt)) {
     return null;
-  }
-  if (!canClaim) {
-    return (
-      <div className="mt-4 text-center d-flex justify-content-center align-items-center flex-column">
-        <AnimatedCheckmark scale={2} />
-        <p className="mt-2 fs-4 w-75">
-          {t("food:order_for_claimed_on", {
-            serial: serial,
-            fulfilledAt: dayjs(fulfilledAt).format("lll"),
-          })}
-        </p>
-      </div>
-    );
   }
 
   const handleOrderClaim = () => {

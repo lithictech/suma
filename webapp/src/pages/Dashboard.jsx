@@ -79,8 +79,10 @@ export default function Dashboard() {
           to="/unclaimed-orders"
         />
       )}
-      <AddToHomescreen />
-      {dashboardLoading ? <PageLoader /> : <Ledger dashboard={dashboard} />}
+      <LayoutContainer gutters>
+        <AddToHomescreen />
+      </LayoutContainer>
+      {dashboardLoading ? <PageLoader buffered /> : <Ledger dashboard={dashboard} />}
     </>
   );
 }
