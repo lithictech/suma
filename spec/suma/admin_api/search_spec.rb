@@ -138,4 +138,16 @@ RSpec.describe Suma::AdminAPI::Search, :db do
       expect(last_response).to have_json_body.that_includes(items: [include(label: "fox spanish")])
     end
   end
+
+  describe "POST /v1/search/offerings" do
+    it "returns matching offerings" do
+      o1 = Suma::Fixtures.offering.create(description: Suma::Fixtures.translated_text(en: "abc farmers market").create)
+      o2 = Suma::Fixtures.offering.create(description: Suma::Fixtures.translated_text(en: "test").create)
+
+      post "/v1/search/offerings", q: "abc"
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.that_includes(items: have_same_ids_as(o1))
+    end
+  end
 end

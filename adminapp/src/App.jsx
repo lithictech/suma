@@ -19,6 +19,8 @@ import OfferingCreatePage from "./pages/OfferingCreatePage";
 import OfferingDetailPage from "./pages/OfferingDetailPage";
 import OfferingListPage from "./pages/OfferingListPage";
 import OfferingPickListPage from "./pages/OfferingPickListPage";
+import OfferingProductCreatePage from "./pages/OfferingProductCreatePage";
+import OfferingProductDetailPage from "./pages/OfferingProductDetailPage";
 import OrderDetailPage from "./pages/OrderDetailPage";
 import OrderListPage from "./pages/OrderListPage";
 import PayoutTransactionDetailPage from "./pages/PayoutTransactionDetailPage";
@@ -223,6 +225,24 @@ function PageSwitch() {
         exact
         path="/product/:id"
         element={renderWithHocs(redirectIfUnauthed, withLayout(), ProductDetailPage)}
+      />
+      <Route
+        exact
+        path="/offering-product/new"
+        element={renderWithHocs(
+          redirectIfUnauthed,
+          withLayout(),
+          OfferingProductCreatePage
+        )}
+      />
+      <Route
+        exact
+        path="/offering-product/:id"
+        element={renderWithHocs(
+          redirectIfUnauthed,
+          withLayout(),
+          OfferingProductDetailPage
+        )}
       />
       <Route
         exact

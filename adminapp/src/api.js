@@ -67,7 +67,8 @@ export default {
   getEligibilityConstraints: (data) => get(`/adminapi/v1/eligibility_constraints`, data),
   getEligibilityConstraint: ({ id, ...data }) =>
     get(`/adminapi/v1/eligibility_constraints/${id}`, data),
-  createEligibilityConstraint: (data) => post(`/adminapi/v1/eligibility_constraints/create`, data),
+  createEligibilityConstraint: (data) =>
+    post(`/adminapi/v1/eligibility_constraints/create`, data),
 
   getBankAccount: ({ id, ...data }) => get(`/adminapi/v1/bank_accounts/${id}`, data),
 
@@ -101,6 +102,11 @@ export default {
   createCommerceProduct: (data) =>
     postForm("/adminapi/v1/commerce_products/create", data),
 
+  createCommerceOfferingProduct: (data) =>
+    postForm("/adminapi/v1/commerce_offering_products/create", data),
+  getCommerceOfferingProduct: ({ id, ...data }) =>
+    get(`/adminapi/v1/commerce_offering_products/${id}`, data),
+
   getVendors: (data) => get(`/adminapi/v1/vendors`, data),
   getVendor: ({ id, ...data }) => get(`/adminapi/v1/vendors/${id}`, data),
   createVendor: (data) => post("/adminapi/v1/vendors/create", data),
@@ -118,6 +124,8 @@ export default {
   changeMemberEligibility: ({ id, ...data }) =>
     post(`/adminapi/v1/members/${id}/eligibilities`, data),
 
+  searchProducts: (data) => post(`/adminapi/v1/search/products`, data),
+  searchOfferings: (data) => post(`/adminapi/v1/search/offerings`, data),
   searchPaymentInstruments: (data) =>
     post(`/adminapi/v1/search/payment_instruments`, data),
   searchLedgers: (data) => post(`/adminapi/v1/search/ledgers`, data),

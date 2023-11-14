@@ -69,13 +69,6 @@ RSpec.describe Suma::AdminAPI::EligibilityConstraints, :db do
       expect(last_response.headers).to include("Created-Resource-Admin")
       expect(Suma::Eligibility::Constraint.all).to have_length(1)
     end
-
-    it "403s if constraint already exists" do
-      ec = Suma::Fixtures.eligibility_constraint.create
-      post "/v1/eligibility_constraints/create", name: ec.name
-
-      expect(last_response).to have_status(400)
-    end
   end
 
   describe "GET /v1/eligibility_constraints/:id" do

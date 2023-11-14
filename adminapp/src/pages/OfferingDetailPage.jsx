@@ -98,7 +98,7 @@ export default function OfferingDetailPage() {
             replaceOfferingData={updateOffering}
           />
           <RelatedList
-            title={`Products (${offering.offeringProducts.length})`}
+            title={`Offering Products (${offering.offeringProducts.length})`}
             rows={offering.offeringProducts}
             headers={["Id", "Name", "Vendor", "Customer Price", "Full Price"]}
             keyRowAttr="id"
@@ -113,11 +113,15 @@ export default function OfferingDetailPage() {
               <Money key="undiscounted_price">{row.undiscountedPrice}</Money>,
             ]}
           />
+          <Link
+            to={`/offering-product/new?offeringId=${offering.id}&offeringDescription=${offering.description}`}
+            sx={{ display: "block", marginTop: "15px" }}
+          >
+            <ListAltIcon sx={{ verticalAlign: "middle", paddingRight: "5px" }} />
+            Create Offering Product
+          </Link>
           {!isEmpty(offering.orders) && (
-            <Link
-              to={`/offering/${offering.id}/picklist`}
-              sx={{ display: "inline-block", marginTop: "15px" }}
-            >
+            <Link to={`/offering/${offering.id}/picklist`}>
               <ListAltIcon sx={{ verticalAlign: "middle", paddingRight: "5px" }} />
               Pick/Pack List
             </Link>

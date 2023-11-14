@@ -1,12 +1,14 @@
 import api from "../api";
 import AdminLink from "../components/AdminLink";
 import DetailGrid from "../components/DetailGrid";
+import Link from "../components/Link";
 import RelatedList from "../components/RelatedList";
 import useErrorSnackbar from "../hooks/useErrorSnackbar";
 import { dayjs } from "../modules/dayConfig";
 import Money from "../shared/react/Money";
 import SumaImage from "../shared/react/SumaImage";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
+import ListAltIcon from "@mui/icons-material/ListAlt";
 import { CircularProgress } from "@mui/material";
 import isEmpty from "lodash/isEmpty";
 import React from "react";
@@ -48,7 +50,12 @@ export default function ProductDetailPage() {
               },
               { label: "Name", value: product.name },
               { label: "Description", value: product.description },
-              { label: "Vendor", value: product.vendor?.name },
+              {
+                label: "Vendor",
+                value: (
+                  <AdminLink model={product.vendor}>{product.vendor.name}</AdminLink>
+                ),
+              },
               { label: "Our Cost", value: <Money>{product.ourCost}</Money> },
               { label: "Max Per Offering", value: product.maxQuantityPerOffering },
               { label: "Max Per Order", value: product.maxQuantityPerOrder },
@@ -74,7 +81,9 @@ export default function ProductDetailPage() {
             headers={["Id", "Customer Price", "Full Price", "Offering", "Closed"]}
             keyRowAttr="id"
             toCells={(row) => [
-              row.id,
+              <AdminLink key={row.id} model={row}>
+                {row.id}
+              </AdminLink>,
               <Money key="customer_price">{row.customerPrice}</Money>,
               <Money key="undiscounted_price">{row.undiscountedPrice}</Money>,
               <AdminLink key="offering" model={row.offering}>
@@ -83,6 +92,13 @@ export default function ProductDetailPage() {
               row.isClosed ? dayjs(row.closedAt).format("lll") : "",
             ]}
           />
+          <Link
+            to={`/offering-product/new?productId=${product.id}&productName=${product.name}`}
+            sx={{ display: "inline-block", marginTop: "15px" }}
+          >
+            <ListAltIcon sx={{ verticalAlign: "middle", paddingRight: "5px" }} />
+            Create Offering Product
+          </Link>
         </div>
       )}
     </>

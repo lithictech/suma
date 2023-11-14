@@ -220,7 +220,6 @@ module Suma::AdminAPI::Entities
   end
 
   class ProductEntity < BaseEntity
-    include Suma::AdminAPI::Entities
     include AutoExposeBase
     expose :vendor, with: VendorEntity
     expose_translated :name
