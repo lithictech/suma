@@ -2,11 +2,10 @@ import api from "../api";
 import AutocompleteSearch from "../components/AutocompleteSearch";
 import CurrencyTextField from "../components/CurrencyTextField";
 import FormLayout from "../components/FormLayout";
+import ResponsiveStack from "../components/ResponsiveStack";
 import config from "../config";
 import useBusy from "../hooks/useBusy";
 import useErrorSnackbar from "../hooks/useErrorSnackbar";
-import formHelpers from "../modules/formHelpers";
-import { Stack } from "@mui/material";
 import React from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
@@ -42,11 +41,7 @@ export default function FundingTransactionCreatePage() {
       onSubmit={handleSubmit(submit)}
       isBusy={isBusy}
     >
-      <Stack
-        direction={formHelpers.responsiveStackDirection}
-        spacing={2}
-        alignItems="self-start"
-      >
+      <ResponsiveStack alignItems="self-start">
         <CurrencyTextField
           {...register("amount")}
           label="Amount"
@@ -65,7 +60,7 @@ export default function FundingTransactionCreatePage() {
           search={api.searchPaymentInstruments}
           onValueSelect={(o) => setPaymentInstrument(o)}
         />
-      </Stack>
+      </ResponsiveStack>
     </FormLayout>
   );
 }

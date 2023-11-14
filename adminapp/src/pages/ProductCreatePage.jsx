@@ -3,6 +3,7 @@ import CurrencyTextField from "../components/CurrencyTextField";
 import FormLayout from "../components/FormLayout";
 import ImageFileInput from "../components/ImageFileInput";
 import MultiLingualText from "../components/MultiLingualText";
+import ResponsiveStack from "../components/ResponsiveStack";
 import VendorSelect from "../components/VendorSelect";
 import VendorServiceCategorySelect from "../components/VendorServiceCategorySelect";
 import config from "../config";
@@ -19,8 +20,8 @@ export default function ProductCreatePage() {
   const { enqueueErrorSnackbar } = useErrorSnackbar();
   const navigate = useNavigate();
   const [image, setImage] = React.useState(null);
-  const [description, setDescription] = React.useState(initialTranslation);
-  const [name, setName] = React.useState(initialTranslation);
+  const [description, setDescription] = React.useState(formHelpers.initialTranslation);
+  const [name, setName] = React.useState(formHelpers.initialTranslation);
   const [ourCost, setOurCost] = React.useState(config.defaultZeroMoney);
   const [vendor, setVendor] = React.useState(null);
   const [category, setCategory] = React.useState(null);
@@ -60,7 +61,7 @@ export default function ProductCreatePage() {
         <ImageFileInput image={image} onImageChange={(f) => setImage(f)} />
         <Stack spacing={2}>
           <FormLabel>Name:</FormLabel>
-          <Stack direction={responsiveStackDirection} spacing={2}>
+          <ResponsiveStack>
             <MultiLingualText
               {...register("name")}
               label="Name"
@@ -69,7 +70,7 @@ export default function ProductCreatePage() {
               required
               onChange={(name) => setName(name)}
             />
-          </Stack>
+          </ResponsiveStack>
         </Stack>
         <FormLabel>Description:</FormLabel>
         <Stack spacing={2}>
@@ -82,11 +83,7 @@ export default function ProductCreatePage() {
             onChange={(description) => setDescription(description)}
           />
         </Stack>
-        <Stack
-          direction={responsiveStackDirection}
-          spacing={2}
-          sx={{ pt: theme.spacing(2) }}
-        >
+        <ResponsiveStack sx={{ pt: theme.spacing(2) }}>
           <CurrencyTextField
             {...register("ourCost")}
             label="Our Cost"
@@ -115,9 +112,9 @@ export default function ProductCreatePage() {
             onChange={(_, categoryObj) => setCategory(categoryObj)}
             required
           />
-        </Stack>
+        </ResponsiveStack>
         <Typography variant="h6">Inventory</Typography>
-        <Stack direction={responsiveStackDirection} spacing={2}>
+        <ResponsiveStack>
           <TextField
             inputRef={maxQuantityPerOffering}
             type="number"
@@ -134,10 +131,8 @@ export default function ProductCreatePage() {
             fullWidth
             required
           />
-        </Stack>
+        </ResponsiveStack>
       </Stack>
     </FormLayout>
   );
 }
-
-const { initialTranslation, responsiveStackDirection } = formHelpers;

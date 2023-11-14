@@ -9,13 +9,11 @@ const initialFulfillmentAddress = {
   stateOrProvince: "",
   postalCode: "",
 };
-const responsiveStackDirection = { xs: "column", sm: "row" };
 
 const formHelpers = {
   initialTranslation,
   initialFulfillmentOption,
   initialFulfillmentAddress,
-  responsiveStackDirection,
 };
 
 export default formHelpers;

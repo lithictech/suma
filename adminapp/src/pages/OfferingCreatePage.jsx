@@ -2,6 +2,7 @@ import api from "../api";
 import FormLayout from "../components/FormLayout";
 import ImageFileInput from "../components/ImageFileInput";
 import MultiLingualText from "../components/MultiLingualText";
+import ResponsiveStack from "../components/ResponsiveStack";
 import useBusy from "../hooks/useBusy";
 import useErrorSnackbar from "../hooks/useErrorSnackbar";
 import { dayjs } from "../modules/dayConfig";
@@ -82,7 +83,7 @@ export default function OfferingCreatePage() {
       <Stack spacing={2}>
         <ImageFileInput image={image} onImageChange={(f) => setImage(f)} />
         <FormLabel>Description:</FormLabel>
-        <Stack direction={responsiveStackDirection} spacing={2}>
+        <ResponsiveStack>
           <MultiLingualText
             {...register("description")}
             label="Description"
@@ -91,9 +92,9 @@ export default function OfferingCreatePage() {
             required
             onChange={(description) => setDescription(description)}
           />
-        </Stack>
+        </ResponsiveStack>
         <FormLabel>Fulfillment Prompt (for checkout):</FormLabel>
-        <Stack direction={responsiveStackDirection} spacing={2}>
+        <ResponsiveStack>
           <MultiLingualText
             {...register("fulfillmentPrompt")}
             label="Fulfillment Prompt"
@@ -102,9 +103,9 @@ export default function OfferingCreatePage() {
             required
             onChange={(fulfillmentPrompt) => setFulfillmentPrompt(fulfillmentPrompt)}
           />
-        </Stack>
+        </ResponsiveStack>
         <FormLabel>Fulfillment Confirmation (for checkout):</FormLabel>
-        <Stack direction={responsiveStackDirection} spacing={2}>
+        <ResponsiveStack>
           <MultiLingualText
             {...register("fulfillmentConfirmation")}
             label="Fulfillment Confirmation"
@@ -115,18 +116,13 @@ export default function OfferingCreatePage() {
               setFulfillmentConfirmation(fulfillmentConfirmation)
             }
           />
-        </Stack>
+        </ResponsiveStack>
         <FulfillmentOptions
           options={fulfillmentOptions}
           setOptions={setFulfillmentOptions}
         />
         <FormLabel>Period:</FormLabel>
-        <Stack
-          direction={responsiveStackDirection}
-          alignItems="center"
-          spacing={2}
-          divider={<RemoveIcon />}
-        >
+        <ResponsiveStack alignItems="center" divider={<RemoveIcon />}>
           <DateTimePicker
             label="Beginning date *"
             value={opensAt}
@@ -141,7 +137,7 @@ export default function OfferingCreatePage() {
             closeOnSelect
             sx={{ width: "100%" }}
           />
-        </Stack>
+        </ResponsiveStack>
         <Divider />
         <Typography variant="h6">Optional</Typography>
         <FormLabel>Begin Fulfillment Date (of orders):</FormLabel>
@@ -234,7 +230,7 @@ function FulfillmentOption({ type, description, address, onChange, onRemove }) {
           </Select>
         </FormControl>
         <FormLabel>Description:</FormLabel>
-        <Stack direction={responsiveStackDirection} spacing={2}>
+        <ResponsiveStack>
           <MultiLingualText
             label="Description"
             fullWidth
@@ -242,7 +238,7 @@ function FulfillmentOption({ type, description, address, onChange, onRemove }) {
             required
             onChange={(v) => onChange({ description: v })}
           />
-        </Stack>
+        </ResponsiveStack>
         <Stack spacing={2}>
           {addingAddress.isOff ? (
             <Button onClick={handleAddressOn}>
@@ -284,7 +280,7 @@ function OptionAddress({ address, onFieldChange }) {
   return (
     <Stack spacing={2}>
       <FormLabel>Address:</FormLabel>
-      <Stack direction={responsiveStackDirection} spacing={2}>
+      <ResponsiveStack>
         <TextField
           value={address.address1}
           name="address1"
@@ -304,8 +300,8 @@ function OptionAddress({ address, onFieldChange }) {
           onChange={handleChange}
           fullWidth
         />
-      </Stack>
-      <Stack direction={responsiveStackDirection} spacing={2}>
+      </ResponsiveStack>
+      <ResponsiveStack>
         <TextField
           name="city"
           value={address.city}
@@ -340,14 +336,10 @@ function OptionAddress({ address, onFieldChange }) {
           onChange={handleChange}
           required
         />
-      </Stack>
+      </ResponsiveStack>
     </Stack>
   );
 }
 
-const {
-  initialTranslation,
-  initialFulfillmentAddress,
-  initialFulfillmentOption,
-  responsiveStackDirection,
-} = formHelpers;
+const { initialTranslation, initialFulfillmentAddress, initialFulfillmentOption } =
+  formHelpers;

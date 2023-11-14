@@ -3,6 +3,7 @@ import AutocompleteSearch from "../components/AutocompleteSearch";
 import CurrencyTextField from "../components/CurrencyTextField";
 import FormLayout from "../components/FormLayout";
 import MultiLingualText from "../components/MultiLingualText";
+import ResponsiveStack from "../components/ResponsiveStack";
 import VendorServiceCategorySelect from "../components/VendorServiceCategorySelect";
 import config from "../config";
 import useBusy from "../hooks/useBusy";
@@ -22,7 +23,7 @@ export default function BookTransactionCreatePage() {
   const [originatingLedger, setOriginatingLedger] = React.useState(null);
   const [receivingLedger, setReceivingLedger] = React.useState(null);
   const [amount, setAmount] = React.useState(config.defaultZeroMoney);
-  const [memo, setMemo] = React.useState(initialTranslation);
+  const [memo, setMemo] = React.useState(formHelpers.initialTranslation);
   const [category, setCategory] = React.useState(null);
   const { isBusy, busy, notBusy } = useBusy();
   const { register, handleSubmit } = useForm();
@@ -81,7 +82,7 @@ export default function BookTransactionCreatePage() {
       isBusy={isBusy}
     >
       <Stack spacing={2}>
-        <Stack direction={responsiveStackDirection} spacing={2}>
+        <ResponsiveStack>
           <AutocompleteSearch
             {...register("originatingLedger")}
             label="Originating Ledger"
@@ -108,8 +109,8 @@ export default function BookTransactionCreatePage() {
             style={{ flex: 1 }}
             onValueSelect={(o) => setReceivingLedger(o)}
           />
-        </Stack>
-        <Stack direction={responsiveStackDirection} spacing={2}>
+        </ResponsiveStack>
+        <ResponsiveStack>
           <CurrencyTextField
             {...register("amount")}
             label="Amount"
@@ -131,9 +132,9 @@ export default function BookTransactionCreatePage() {
             style={{ flex: 1 }}
             onChange={(_, categoryObj) => setCategory(categoryObj)}
           />
-        </Stack>
+        </ResponsiveStack>
         <FormLabel>Memo (appears on the ledger):</FormLabel>
-        <Stack direction={responsiveStackDirection} spacing={2}>
+        <ResponsiveStack>
           <MultiLingualText
             {...register("memo")}
             label="Memo"
@@ -143,10 +144,8 @@ export default function BookTransactionCreatePage() {
             searchParams={{ types: ["memo"] }}
             onChange={(memo) => setMemo(memo)}
           />
-        </Stack>
+        </ResponsiveStack>
       </Stack>
     </FormLayout>
   );
 }
-
-const { initialTranslation, responsiveStackDirection } = formHelpers;
