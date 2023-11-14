@@ -21,7 +21,7 @@ class Suma::Member::Exporter
     ["Zip", ->(m) { m.legal_entity.address&.postal_code }],
     ["Country", ->(m) { m.legal_entity.address&.country }],
     ["Verified", ->(m) { m.onboarding_verified_at ? true : false }],
-    ["Eligibility Constraints", ->(m) { m.verified_eligibility_constraints.map(&:name).join(" | ") }],
+    ["Eligibility Constraints", ->(m) { m.verified_eligibility_constraints.map(&:name).join("|") }],
     ["Deleted", ->(m) { m.soft_deleted_at ? true : false }],
     ["Timezone", ->(m) { m.timezone }],
   ].freeze
