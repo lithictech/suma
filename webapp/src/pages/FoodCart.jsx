@@ -125,14 +125,8 @@ export default function FoodCart() {
 }
 
 function CartItem({ offeringId, product, vendor }) {
-  const {
-    productId,
-    name,
-    isDiscounted,
-    displayableCashPrice,
-    undiscountedPrice,
-    images,
-  } = product;
+  const { productId, name, isDiscounted, customerPrice, undiscountedPrice, images } =
+    product;
   return (
     <Stack direction="horizontal" gap={3} className="align-items-start">
       <Link to={`/product/${offeringId}/${productId}`} className="">
@@ -153,7 +147,7 @@ function CartItem({ offeringId, product, vendor }) {
           undiscountedPrice={undiscountedPrice}
           // We don't want to show noncash contributions here,
           // so use the customer price as the cash price.
-          displayableCashPrice={displayableCashPrice}
+          displayableCashPrice={customerPrice}
           fs={6}
           bold={false}
           direction="vertical"
