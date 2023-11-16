@@ -30,18 +30,6 @@ export default function OrderDetail({ state, onOrderClaim, gutters }) {
             <h3 className="mb-1">{t("food:order_serial", { serial: order.serial })}</h3>
             {dayjs(order.createdAt).format("lll")}
           </div>
-          {!order.canClaim && order.fulfilledAt && (
-            <Alert variant="info" className="ms-0">
-              <Stack direction="horizontal" gap={3}>
-                {t("food:claimed_on", {
-                  fulfilledAt: dayjs(order.fulfilledAt).format("lll"),
-                })}
-                <div className="ms-auto">
-                  <AnimatedCheckmark />
-                </div>
-              </Stack>
-            </Alert>
-          )}
           <p className="mb-0">
             {t("food:labels:price", { price: order.customerCost })}
             {order.customerCost.cents !== order.undiscountedCost.cents && (
@@ -64,6 +52,18 @@ export default function OrderDetail({ state, onOrderClaim, gutters }) {
           <div>
             <FulfillmentOption order={order} onOrderUpdated={(o) => setOrder(o)} />
           </div>
+          {!order.canClaim && order.fulfilledAt && (
+            <Alert variant="info" className="mb-0">
+              <Stack direction="horizontal" gap={3}>
+                {t("food:claimed_on", {
+                  fulfilledAt: dayjs(order.fulfilledAt).format("lll"),
+                })}
+                <div className="ms-auto">
+                  <AnimatedCheckmark />
+                </div>
+              </Stack>
+            </Alert>
+          )}
           <SumaImage
             image={order.image}
             w={350}
