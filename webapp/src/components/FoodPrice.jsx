@@ -1,5 +1,5 @@
 import { t } from "../localization";
-import Money, { anyMoney } from "../shared/react/Money";
+import Money, { anyMoney, subtractMoney } from "../shared/react/Money";
 import clsx from "clsx";
 import React from "react";
 import Stack from "react-bootstrap/Stack";
@@ -16,7 +16,9 @@ export default function FoodPrice({
   className,
 }) {
   const showDiscount =
-    isDiscounted || anyMoney(displayableNoncashLedgerContributionAmount);
+    isDiscounted ||
+    anyMoney(displayableNoncashLedgerContributionAmount) ||
+    anyMoney(subtractMoney(undiscountedPrice, displayableCashPrice));
   return (
     <div>
       <Stack
@@ -32,20 +34,31 @@ export default function FoodPrice({
           </strike>
         )}
       </Stack>
-      {anyMoney(discountAmount) && (
-        <p className="mb-0 small text-success">
-          {t("food:discount_applied", {
-            amount: discountAmount,
-          })}
-        </p>
-      )}
-      {anyMoney(displayableNoncashLedgerContributionAmount) && (
-        <p className="mb-0 small text-success">
-          {t("food:credit_applied", {
-            amount: displayableNoncashLedgerContributionAmount,
-          })}
-        </p>
-      )}
+      {anyMoney(discountAmount) &&
+        !anyMoney(displayableNoncashLedgerContributionAmount) && (
+          <p className="mb-0 small text-success">
+            {t("food:discount_applied", {
+              discountAmount: discountAmount,
+            })}
+          </p>
+        )}
+      {!anyMoney(discountAmount) &&
+        anyMoney(displayableNoncashLedgerContributionAmount) && (
+          <p className="mb-0 small text-success">
+            {t("food:subsidy_applied", {
+              subsidyAmount: displayableNoncashLedgerContributionAmount,
+            })}
+          </p>
+        )}
+      {anyMoney(discountAmount) &&
+        anyMoney(displayableNoncashLedgerContributionAmount) && (
+          <p className="mb-0 small text-success">
+            {t("food:subsidy_and_discount_applied", {
+              subsidyAmount: displayableNoncashLedgerContributionAmount,
+              discountAmount: displayableNoncashLedgerContributionAmount,
+            })}
+          </p>
+        )}
     </div>
   );
 }

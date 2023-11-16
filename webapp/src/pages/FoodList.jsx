@@ -97,7 +97,13 @@ function Product({ product, offeringId }) {
           <p className="text-secondary">{t("food:sold_out")}</p>
         ) : (
           <>
-            <FoodPrice fs={5} className="gap-2" {...product} />
+            <FoodPrice
+              fs={5}
+              className="gap-2"
+              isDiscounted={product.isDiscounted}
+              undiscountedPrice={product.undiscountedPrice}
+              displayableCashPrice={product.displayableCashPrice}
+            />
           </>
         )}
         <Link to={`/product/${offeringId}/${productId}`} className="stretched-link" />

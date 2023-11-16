@@ -44,7 +44,6 @@ export default function OrderHistoryList() {
     e.preventDefault();
     navigate(`/order/${order.id}`, { state: { order: detailed } });
   }
-  console.log(orderHistory);
   return (
     <>
       {user.unclaimedOrdersCount > 0 && (

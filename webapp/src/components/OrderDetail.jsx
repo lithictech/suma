@@ -11,6 +11,7 @@ import { useScreenLoader } from "../state/useScreenLoader";
 import { useUser } from "../state/useUser";
 import { LayoutContainer } from "../state/withLayout";
 import PressAndHold from "./PressAndHold";
+import clsx from "clsx";
 import isEmpty from "lodash/isEmpty";
 import React from "react";
 import Alert from "react-bootstrap/Alert";
@@ -29,7 +30,7 @@ export default function OrderDetail({ state, onOrderClaim, gutters }) {
             <h3 className="mb-1">{t("food:order_serial", { serial: order.serial })}</h3>
             {dayjs(order.createdAt).format("lll")}
           </div>
-          {!order.canClaim && (
+          {!order.canClaim && order.fulfilledAt && (
             <Alert variant="info" className="ms-0">
               <Stack direction="horizontal" gap={3}>
                 {t("food:claimed_on", {
@@ -61,7 +62,6 @@ export default function OrderDetail({ state, onOrderClaim, gutters }) {
             <br />
           </p>
           <div>
-            <h6 className="fw-bold">{order.fulfillmentConfirmation}</h6>
             <FulfillmentOption order={order} onOrderUpdated={(o) => setOrder(o)} />
           </div>
           <SumaImage
@@ -105,17 +105,25 @@ function FulfillmentOption({ order, onOrderUpdated }) {
   const { showErrorToast } = useErrorToast();
 
   if (isEmpty(order.fulfillmentOptionsForEditing)) {
-    return <span>{order.fulfillmentOption.description}</span>;
+    return (
+      <>
+        <h6 className="fw-bold">{order.fulfillmentConfirmation}</h6>
+        <span>{order.fulfillmentOption.description}</span>
+      </>
+    );
   }
 
   if (editing.isOff) {
     return (
       <span>
-        {order.fulfillmentOption.description}
-        {order.fulfillmentOptionsForEditing.length > 1 && (
+        <h6 className="fw-bold lh-lg">
+          {order.fulfillmentConfirmation}
           <Button
             variant="link"
-            className="p-0 ms-2"
+            className={clsx(
+              "p-0 ms-2",
+              order.fulfillmentOptionsForEditing.length === 1 && "opacity-0"
+            )}
             onClick={() => {
               setOptionId(order.fulfillmentOption.id);
               editing.turnOn();
@@ -123,7 +131,8 @@ function FulfillmentOption({ order, onOrderUpdated }) {
           >
             <i className="bi bi-pencil-fill"></i>
           </Button>
-        )}
+        </h6>
+        {order.fulfillmentOption.description}
       </span>
     );
   }
@@ -149,6 +158,7 @@ function FulfillmentOption({ order, onOrderUpdated }) {
   return (
     <Form noValidate>
       <Form.Group>
+        <h6 className="fw-bold lh-lg">{order.fulfillmentConfirmation}</h6>
         {order.fulfillmentOptionsForEditing.map((fo) => (
           <Form.Check
             key={fo.id}
@@ -209,6 +219,7 @@ function PressAndHoldToClaim({ id, canClaim, fulfilledAt, onOrderClaim }) {
             },
           })}
         </PressAndHold>
+        <p className="small mb-0">{t("food:button_press_warning")}</p>
       </Alert>
     </div>
   );

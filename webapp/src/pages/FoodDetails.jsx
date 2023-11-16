@@ -98,13 +98,6 @@ export default function FoodDetails() {
               </div>
             </div>
           </Col>
-          {anyMoney(product.displayableNoncashLedgerContributionAmount) && (
-            <Col xs={12} className="mt-2">
-              {t("food:noncash_ledger_contribution_available", {
-                amount: product.displayableNoncashLedgerContributionAmount,
-              })}
-            </Col>
-          )}
         </Row>
       </LayoutContainer>
       <hr className="my-4" />
