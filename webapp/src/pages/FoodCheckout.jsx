@@ -1,5 +1,6 @@
 import api from "../api";
 import ErrorScreen from "../components/ErrorScreen";
+import ExternalLink from "../components/ExternalLink";
 import FoodPrice from "../components/FoodPrice";
 import FormButtons from "../components/FormButtons";
 import LinearBreadcrumbs from "../components/LinearBreadcrumbs";
@@ -250,7 +251,20 @@ function CheckoutFulfillment({ checkout, onCheckoutChange }) {
               id={fo.id}
               name={fo.description}
               type="radio"
-              label={fo.description}
+              label={
+                <>
+                  {fo.description}
+                  {fo.address?.oneLineAddress && (
+                    <ExternalLink
+                      href={`https://www.google.com/maps/place/${fo.address.oneLineAddress}`}
+                      className="ms-1 nowrap"
+                    >
+                      <i className="bi bi-geo-alt-fill me-1"></i>
+                      {t("food:address")}
+                    </ExternalLink>
+                  )}
+                </>
+              }
               checked={checkout.fulfillmentOptionId === fo.id}
               onChange={() => onCheckoutChange({ fulfillmentOptionId: fo.id })}
             />
@@ -425,7 +439,7 @@ function CheckoutItem({ item }) {
               <FoodPrice
                 undiscountedPrice={product.undiscountedPrice}
                 isDiscounted={product.isDiscounted}
-                displayableCashPrice={product.customerPrice}
+                displayableCashPrice={product.displayableCashPrice}
                 direction="vertical"
               />
             </div>

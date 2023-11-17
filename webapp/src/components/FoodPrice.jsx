@@ -10,6 +10,7 @@ export default function FoodPrice({
   discountAmount,
   displayableNoncashLedgerContributionAmount,
   displayableCashPrice,
+  vendorName,
   fs,
   bold,
   direction,
@@ -39,6 +40,7 @@ export default function FoodPrice({
           <p className="mb-0 small text-success">
             {t("food:discount_applied", {
               discountAmount: discountAmount,
+              vendorName: vendorName,
             })}
           </p>
         )}
@@ -54,8 +56,9 @@ export default function FoodPrice({
         anyMoney(displayableNoncashLedgerContributionAmount) && (
           <p className="mb-0 small text-success">
             {t("food:subsidy_and_discount_applied", {
+              discountAmount: discountAmount,
+              vendorName: vendorName,
               subsidyAmount: displayableNoncashLedgerContributionAmount,
-              discountAmount: displayableNoncashLedgerContributionAmount,
             })}
           </p>
         )}

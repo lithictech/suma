@@ -310,9 +310,15 @@ class Suma::API::Commerce < Suma::API::V1
     end
   end
 
+  class FulfillmentOptionAddressEntity < BaseEntity
+    expose :one_line_address, &self.delegate_to(:one_line_address)
+  end
+
   class FulfillmentOptionEntity < BaseEntity
+    include Suma::API::Entities
     expose :id
     expose_translated :description
+    expose :address, with: FulfillmentOptionAddressEntity
   end
 
   class CheckoutProductEntity < OfferingProductEntity

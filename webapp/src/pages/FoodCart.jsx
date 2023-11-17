@@ -93,10 +93,10 @@ export default function FoodCart() {
                   customerCost: cart.customerCost,
                 })}
               </div>
-              {anyMoney(cart.displayableNoncashLedgerContributionAmount) && (
+              {anyMoney(cart.noncashLedgerContributionAmount) && (
                 <div className="text-success">
                   {md("food:cart_available_credit", {
-                    amount: cart.displayableNoncashLedgerContributionAmount,
+                    amount: cart.noncashLedgerContributionAmount,
                   })}
                 </div>
               )}
@@ -125,8 +125,14 @@ export default function FoodCart() {
 }
 
 function CartItem({ offeringId, product, vendor }) {
-  const { productId, name, isDiscounted, customerPrice, undiscountedPrice, images } =
-    product;
+  const {
+    productId,
+    name,
+    isDiscounted,
+    displayableCashPrice,
+    undiscountedPrice,
+    images,
+  } = product;
   return (
     <Stack direction="horizontal" gap={3} className="align-items-start">
       <Link to={`/product/${offeringId}/${productId}`} className="">
@@ -147,7 +153,8 @@ function CartItem({ offeringId, product, vendor }) {
           undiscountedPrice={undiscountedPrice}
           // We don't want to show noncash contributions here,
           // so use the customer price as the cash price.
-          displayableCashPrice={customerPrice}
+          // except for turkey hacking holiday 2023.
+          displayableCashPrice={displayableCashPrice}
           fs={6}
           bold={false}
           direction="vertical"

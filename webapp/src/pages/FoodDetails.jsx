@@ -78,8 +78,12 @@ export default function FoodDetails() {
       <LayoutContainer gutters top>
         <Row>
           <Col>
-            <FoodPrice {...product} fs={4} className="mb-2 lh-1 gap-2" />
-            <p className="mb-3">{t("food:from_vendor", { vendorName: vendor.name })}</p>
+            <FoodPrice
+              {...product}
+              vendorName={vendor.name}
+              fs={4}
+              className="mb-2 lh-1 gap-2"
+            />
           </Col>
           <Col>
             <div className="text-end">
@@ -103,7 +107,8 @@ export default function FoodDetails() {
       <hr className="my-4" />
       <LayoutContainer gutters>
         <Row>
-          <h5>{t("food:details_header")}</h5>
+          <h5>{t("food:from_vendor", { vendorName: vendor.name })}</h5>
+          <h4>{t("food:details_header")}</h4>
           <p>{product.description}</p>
         </Row>
       </LayoutContainer>

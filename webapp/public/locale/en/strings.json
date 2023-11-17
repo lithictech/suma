@@ -59,7 +59,7 @@
     "success_intro": "Thank you for signing up, and welcome to the suma app!\n\nWe will update you on all future projects, money saving opportunities, and how to complete the app enrollment process. To learn more about suma, visit our website at $t(strings:common:mysuma_website_link), or check us out on our social media using the link below. Chat soon!"
   },
   "dashboard": {
-    "check_available_for_purchase": "Check out whats available for purchase",
+    "check_available_for_purchase": "Check out what's available for purchase",
     "check_ongoing_trip": "You have an ongoing trip. Please make sure you end it when you are finished with your ride!",
     "check_ongoing_trip_button": "See My Trip",
     "claim_orders": "Your order is ready for pickup.",
@@ -112,6 +112,7 @@
   "food": {
     "add_card": "Add debit/credit card",
     "add_to_cart": "Add to cart",
+    "address": "Address",
     "available_offerings": "Available Offerings",
     "available_until": "Until",
     "button_press_warning": "Don't press this button until you are at the market",
@@ -131,7 +132,7 @@
     "continue_to_checkout": "Continue to Checkout",
     "current_offerings": "Current Offerings",
     "details_header": "Details",
-    "discount_applied": "{{discountAmount, sumaCurrency}} discount",
+    "discount_applied": "{{discountAmount, sumaCurrency}} discount from {{vendorName}}",
     "edit_quantities": "Edit quantities",
     "ending_in": "ending in {{last4}}",
     "from_vendor": "From {{vendorName}}",
@@ -177,7 +178,7 @@
     "save_payment": "Save for future orders",
     "shop": "Shop",
     "sold_out": "Sold out",
-    "subsidy_and_discount_applied": "{{subsidyAmount, sumaCurrency}} suma subsidy credit and {{discountAmount, sumaCurrency}} discount",
+    "subsidy_and_discount_applied": "{{discountAmount, sumaCurrency}} discount from {{vendorName}} and {{subsidyAmount, sumaCurrency}} suma subsidy credit",
     "subsidy_applied": "{{subsidyAmount, sumaCurrency}} suma subsidy credit",
     "subtotal_items": "Subtotal ({{totalItems}} items): **{{customerCost, sumaCurrency}}**",
     "terms_of_use_agreement": "By clicking \"place order\" you agree to suma's [Terms of Use](/terms-of-use__blank__).",
