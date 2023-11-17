@@ -24,27 +24,35 @@ export default function MarkdownContent({ namespaces }) {
     i18n.loadNamespaces(namespaces).then(() => setI18NextLoading(false));
   });
   if (i18nextLoading) {
-    return <ScreenLoader show />;
+    return (
+      <div className="bg-light">
+        <div className="main-container">
+          <ScreenLoader show />
+        </div>
+      </div>
+    );
   }
   let title = namespaces.map((ns) => loct(`titles:${ns}`) + " | ");
   title = [...title, loct("titles:suma_app")].join("");
   const contentKeys = namespaces.map((namespace) => `${namespace}:contents`);
   return (
-    <div className="main-container bg-light">
-      <Helmet>
-        <title>{title}</title>
-      </Helmet>
-      <TopNav />
-      {contentKeys.map((key, idx) => (
-        <React.Fragment key={key}>
-          <LayoutContainer top gutters className="pb-4" style={{ maxWidth: "500px" }}>
-            <Row>
-              <SumaMarkdown>{i18n.t(key)}</SumaMarkdown>
-            </Row>
-          </LayoutContainer>
-          {idx + 1 !== contentKeys.length && <hr className="my-4" />}
-        </React.Fragment>
-      ))}
+    <div className="bg-light">
+      <div className="main-container">
+        <Helmet>
+          <title>{title}</title>
+        </Helmet>
+        <TopNav />
+        {contentKeys.map((key, idx) => (
+          <React.Fragment key={key}>
+            <LayoutContainer top gutters className="pb-4" style={{ maxWidth: "500px" }}>
+              <Row>
+                <SumaMarkdown>{i18n.t(key)}</SumaMarkdown>
+              </Row>
+            </LayoutContainer>
+            {idx + 1 !== contentKeys.length && <hr className="my-4" />}
+          </React.Fragment>
+        ))}
+      </div>
     </div>
   );
 }

@@ -1,6 +1,6 @@
 # Suma Terms of Use
 
-Last Modified: July 11, 2023
+Last Modified: November 17, 2023
 
 ### Acceptance of the Terms of Use
 
@@ -14,7 +14,7 @@ By using this Website, you represent and warrant that you have all required auth
 
 We reserve the right to withdraw or amend this Website, and any service or material we provide on the Website, in our sole discretion without notice. We will not be liable if for any reason all or any part of the Website is unavailable at any time or for any period.
 
-You are responsible for both:
+You are responsible for:
 
 - Making all arrangements necessary for you to have access to the Website.
 - Ensuring that all persons who access the Website through your internet connection are aware of these Terms of Use and comply with them.
@@ -25,6 +25,10 @@ To access the Website or some of the resources it offers, you may be asked to pr
 If you choose, or are provided with, a user name, password, or any other piece of information as part of our security procedures, you acknowledge that your account is personal to you and agree not to provide any other person with access to this Website or portions of it using your user name, password, or other security information.
 
 We have the right to disable any user name, password, or other identifier, whether chosen by you or provided by us, at any time in our sole discretion for any or no reason, including if, in our opinion, you have violated any provision of these Terms of Use.
+
+### Authentication
+
+We may offer content, services, or functionality for use within the Website (the “Offerings”).  To use or access the Offerings, you may have to authenticate yourself and verify you are eligible for such content, services, or functionality.  You must authenticate yourself and your account before using or accessing any Offerings.  In so doing, you guarantee that the information you provide is true and accurate and you undertake to keep it up to date.
 
 ### Intellectual Property Rights
 
@@ -126,5 +130,5 @@ The Terms of Use, our Privacy Policy, and Terms of Sale constitute the sole and 
 
 ### Your Comments and Concerns
 
-This website is operated by suma 7450 N Charleston Ave, Portland, OR 97203.
+This Website is operated by suma 7450 N Charleston Ave, Portland, OR 97203.
 All other feedback, comments, requests for technical support, and other communications relating to the Website should be directed to: [apphelp@mysuma.org](mailto:apphelp@mysuma.org 'suma help email').

@@ -1,6 +1,6 @@
 # Términos de Uso de Suma
 
-Última modificación: 11 de julio de 2023
+Última modificación: 17 de noviembre de 2023
 
 ### Aceptación de los Términos de Uso
 
@@ -14,7 +14,7 @@ Al usar este sitio web, usted declara y garantiza que tiene toda la autoridad re
 
 Nos reservamos el derecho de retirar o modificar este sitio web y cualquier servicio o material que proporcionemos en el sitio web, a nuestro exclusivo criterio y sin previo aviso. No seremos responsables si, por cualquier motivo, la totalidad o parte del sitio web no está disponible en algún momento o durante algún período.
 
-Usted es responsable de ambos:
+Usted es responsable de:
 
 - Hacer todos los arreglos necesarios para que usted tenga acceso al sitio web.
 
@@ -27,6 +27,10 @@ Para acceder al sitio web o a algunos de los recursos que ofrece, es posible que
 Si elige, o se le proporciona, un nombre de usuario, contraseña o cualquier otra información como parte de nuestros procedimientos de seguridad, reconoce que su cuenta es personal y acepta no proporcionar acceso a este sitio web a ninguna otra persona. o partes del mismo utilizando su nombre de usuario, contraseña o otra información de seguridad.
 
 Tenemos derecho a deshabilitar cualquier nombre de usuario, contraseña o otro identificador, ya sea elegido por usted o proporcionado por nosotros, en cualquier momento, a nuestro exclusivo criterio, por cualquier motivo o sin él, incluso si, en nuestra opinión, ha violado alguna disposición. de estos Términos de uso.
+
+### Autenticación
+
+Podemos ofrecer contenido, servicios o funcionalidades para su uso dentro del sitio web (las "Ofertas"). Para utilizar o acceder a las Ofertas, es posible que deba autenticarse y verificar que es elegible para dicho contenido, servicios o funcionalidad. Debe autenticarse usted mismo y su cuenta antes de usar o acceder a cualquier Oferta. Al hacerlo, garantizas que la información que facilitas es verdadera y exacta y te comprometes a mantenerla actualizada.
 
 ### Derechos de propiedad intelectual
 

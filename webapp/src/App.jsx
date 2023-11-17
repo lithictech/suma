@@ -132,7 +132,13 @@ function AppRoutes() {
           path="/terms-of-use"
           exact
           element={renderWithHocs(
-            withProps({ namespaces: ["terms_of_use", "terms_of_sale_summer_2023"] }),
+            withProps({
+              namespaces: [
+                "terms_of_use",
+                "terms_of_sale_summer_2023",
+                "terms_of_sale_holiday_2023",
+              ],
+            }),
             MarkdownContent
           )}
         />
