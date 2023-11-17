@@ -14,7 +14,13 @@ export default function MarkdownContent({ namespace }) {
     i18n.loadNamespaces(namespace).then(() => setI18NextLoading(false));
   });
   if (i18nextLoading) {
-    return <ScreenLoader show />;
+    return (
+      <div className="bg-light">
+        <div className="main-container">
+          <ScreenLoader show />
+        </div>
+      </div>
+    );
   }
   const title = loct(`titles:${namespace}`) + " | " + loct("titles:suma_app");
   const contentKey = `${namespace}:contents`;
@@ -24,15 +30,8 @@ export default function MarkdownContent({ namespace }) {
         <Helmet>
           <title>{title}</title>
         </Helmet>
-        <div className="sticky-top">
-          <TopNav />
-        </div>
-        <LayoutContainer
-          top={true}
-          gutters="true"
-          className="mx-auto pb-4"
-          style={{ maxWidth: "500px" }}
-        >
+        <TopNav />
+        <LayoutContainer top gutters className="pb-4" style={{ maxWidth: "500px" }}>
           <SumaMarkdown>{i18n.t(contentKey)}</SumaMarkdown>
         </LayoutContainer>
       </div>
