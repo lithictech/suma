@@ -54,9 +54,6 @@ export default function PrivateAccountsList() {
       </LayoutContainer>
     );
   }
-  if (accountsLoading) {
-    return <PageLoader />;
-  }
 
   const handleHelp = (o) => {
     setModalAccount(o);
@@ -64,12 +61,12 @@ export default function PrivateAccountsList() {
 
   return (
     <>
-      <LayoutContainer top>
+      <LayoutContainer gutters top>
         <LinearBreadcrumbs back="/dashboard" />
         <h2>{t("titles:private_accounts")}</h2>
-        <p className="text-secondary mt-3">{t("private_accounts:intro")}</p>
+        <p className="text-secondary">{t("private_accounts:intro")}</p>
       </LayoutContainer>
-      <hr />
+      <hr className="my-4" />
       <Modal show={!!modalAccount} onHide={() => setModalAccount(null)}>
         <Modal.Header closeButton>
           <Modal.Title>
@@ -92,11 +89,13 @@ export default function PrivateAccountsList() {
           </div>
         </Modal.Body>
       </Modal>
-      {!isEmpty(accounts.items) && (
-        <LayoutContainer>
+      {accountsLoading ? (
+        <PageLoader />
+      ) : !isEmpty(accounts.items) ? (
+        <LayoutContainer gutters>
           <Stack gap={3}>
             {accounts.items.map((a) => (
-              <Card key={a.id} className="px-2 pb-3">
+              <Card key={a.id} className="pb-3">
                 <Card.Body>
                   <PrivateAccount account={a} onHelp={() => handleHelp(a)} />
                 </Card.Body>
@@ -104,8 +103,7 @@ export default function PrivateAccountsList() {
             ))}
           </Stack>
         </LayoutContainer>
-      )}
-      {isEmpty(accounts.items) && (
+      ) : (
         <LayoutContainer>{mdp("private_accounts:no_private_accounts")}</LayoutContainer>
       )}
     </>

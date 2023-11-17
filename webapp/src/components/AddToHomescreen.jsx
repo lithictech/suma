@@ -109,7 +109,7 @@ export default function AddToHomescreen() {
     return null;
   }
   if (loading.isOn) {
-    return <PageLoader relative="true" />;
+    return <PageLoader />;
   }
   return (
     <Alert

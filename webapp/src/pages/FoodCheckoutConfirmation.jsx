@@ -39,24 +39,28 @@ export default function FoodCheckoutConfirmation() {
     );
   }
   if (loading) {
-    return <PageLoader />;
+    return <PageLoader buffered />;
   }
   const { fulfillmentOption, items, offering } = checkout;
   return (
     <>
-      <div className="bg-success text-white p-3">
+      <div className="bg-success text-white p-4">
         <Alert.Heading>{t("food:confirmation_title")}</Alert.Heading>
         <p className="mb-0">{t("food:confirmation_subtitle")}</p>
       </div>
-      <LayoutContainer top>
+      <LayoutContainer gutters top>
         <h4 className="mb-3">{t("food:checkout_items_title")}</h4>
         {items.map((p, idx) => (
           <Item key={idx} item={p} />
         ))}
-        <hr />
-        <h4 className="mb-3">{offering.fulfillmentConfirmation}</h4>
+      </LayoutContainer>
+      <hr />
+      <LayoutContainer gutters>
+        <h4>{offering.fulfillmentConfirmation}</h4>
         <p>{fulfillmentOption.description}</p>
-        <hr />
+      </LayoutContainer>
+      <hr />
+      <LayoutContainer gutters>
         {mdp("food:confirmation_message", { check: false })}
         <FormButtons
           className="mt-2"

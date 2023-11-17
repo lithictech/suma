@@ -15,15 +15,15 @@ import { LayoutContainer } from "../state/withLayout";
 import isEmpty from "lodash/isEmpty";
 import React from "react";
 import Badge from "react-bootstrap/Badge";
+import Button from "react-bootstrap/Button";
 import Card from "react-bootstrap/Card";
 import Modal from "react-bootstrap/Modal";
 import Stack from "react-bootstrap/Stack";
-import { Link } from "react-router-dom";
 
 export default function UnclaimedOrderList() {
   const [claimedOrder, setClaimedOrder] = React.useState({});
   const {
-    state: orderHistory,
+    state: unclaimedOrders,
     replaceState,
     loading,
     error,
@@ -39,103 +39,116 @@ export default function UnclaimedOrderList() {
       </LayoutContainer>
     );
   }
-  if (loading) {
-    return <PageLoader />;
-  }
   const handleOrderClaim = (o) => {
     setClaimedOrder(o);
-    replaceState({ items: orderHistory.items.filter((order) => order.id !== o.id) });
+    replaceState({ items: unclaimedOrders.items.filter((order) => order.id !== o.id) });
   };
+  const { items } = unclaimedOrders;
   return (
     <>
-      <LayoutContainer top>
+      <LayoutContainer gutters top>
         <LinearBreadcrumbs back />
         <h2>{t("food:unclaimed_order_history_title")}</h2>
         <p>{t("food:unclaimed_order_history_intro")}</p>
       </LayoutContainer>
-      <hr />
-      <Modal show={!isEmpty(claimedOrder)} onHide={() => setClaimedOrder({})} centered>
-        <Modal.Header closeButton>
-          <Modal.Title>{t("food:order_claimed")}</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <div className="mt-4 d-flex justify-content-center align-items-center flex-column">
-            <ScrollTopOnMount />
-            <AnimatedCheckmark scale={2} />
-            <p className="mt-2 fs-4 w-75 text-center">
-              {t("food:order_for_claimed_on", {
-                serial: claimedOrder.serial,
-                fulfilledAt: dayjs(claimedOrder.fulfilledAt).format("lll"),
-              })}
-            </p>
-            <Stack gap={3}>
-              {claimedOrder?.items?.map(({ image, name, customerPrice, quantity }) => (
-                <Card key={name}>
-                  <Card.Body>
-                    <Stack direction="horizontal" gap={3} className="align-items-start">
-                      <SumaImage
-                        image={image}
-                        width={80}
-                        h={80}
-                        className="border rounded"
-                      />
-                      <div className="text-align-start">
-                        <div className="lead">{name}</div>
-                        <Badge bg="secondary" className="fs-6">
-                          {md("food:price_times_quantity", {
-                            price: customerPrice,
-                            quantity,
-                          })}
-                        </Badge>
-                      </div>
-                    </Stack>
-                  </Card.Body>
-                </Card>
-              ))}
-            </Stack>
-            <div className="mt-2">
-              <FormButtons
-                primaryProps={{
-                  type: "button",
-                  variant: "outline-secondary",
-                  children: t("common:close"),
-                  onClick: () => setClaimedOrder({}),
-                }}
-                secondaryProps={{
-                  variant: "outline-primary",
-                  children: t("food:view_order"),
-                  href: `/order/${claimedOrder.id}`,
-                  as: RLink,
-                }}
-              />
+      <hr className="my-4" />
+      <ClaimedOrderModal claimedOrder={claimedOrder} onHide={() => setClaimedOrder({})} />
+      <LayoutContainer gutters>
+        {!loading ? (
+          <>
+            {!isEmpty(items) && (
+              <Stack gap={3}>
+                {items.map((o) => (
+                  <Card key={o.id} className="p-0">
+                    <Card.Body className="px-2 pb-4">
+                      <OrderDetail state={o} onOrderClaim={(o) => handleOrderClaim(o)} />
+                    </Card.Body>
+                  </Card>
+                ))}
+              </Stack>
+            )}
+          </>
+        ) : (
+          <PageLoader />
+        )}
+      </LayoutContainer>
+      {isEmpty(items) && !loading && (
+        <>
+          <LayoutContainer gutters>{mdp("food:no_orders_to_claim")}</LayoutContainer>
+          <hr className="my-4" />
+          <LayoutContainer gutters>
+            <div className="button-stack">
+              <Button variant="primary" href="/order-history" as={RLink}>
+                <i className="bi bi-bag-check-fill me-2"></i>
+                {t("food:order_history_title")}
+              </Button>
             </div>
-          </div>
-        </Modal.Body>
-      </Modal>
-      {!isEmpty(orderHistory?.items) && (
-        <LayoutContainer>
+          </LayoutContainer>
+        </>
+      )}
+    </>
+  );
+}
+
+function ClaimedOrderModal({ claimedOrder, onHide }) {
+  return (
+    <Modal show={!isEmpty(claimedOrder)} onHide={onHide} centered>
+      <Modal.Header closeButton>
+        <Modal.Title>{t("food:order_claimed")}</Modal.Title>
+      </Modal.Header>
+      <Modal.Body>
+        <div className="mt-4 d-flex justify-content-center align-items-center flex-column">
+          <ScrollTopOnMount />
+          <AnimatedCheckmark />
+          <p className="mt-2 fs-4 w-75 text-center">
+            {t("food:order_for_claimed_on", {
+              serial: claimedOrder.serial,
+              fulfilledAt: dayjs(claimedOrder.fulfilledAt).format("lll"),
+            })}
+          </p>
           <Stack gap={3}>
-            {orderHistory?.items.map((o) => (
-              <Card key={o.id} className="p-0">
-                <Card.Body className="px-2 pb-4">
-                  <OrderDetail state={o} onOrderClaim={(o) => handleOrderClaim(o)} />
+            {claimedOrder?.items?.map(({ image, name, customerPrice, quantity }) => (
+              <Card key={name}>
+                <Card.Body>
+                  <Stack direction="horizontal" gap={3} className="align-items-start">
+                    <SumaImage
+                      image={image}
+                      width={80}
+                      h={80}
+                      className="border rounded"
+                    />
+                    <div className="text-align-start">
+                      <div className="lead">{name}</div>
+                      <Badge bg="secondary" className="fs-6">
+                        {md("food:price_times_quantity", {
+                          price: customerPrice,
+                          quantity,
+                        })}
+                      </Badge>
+                    </div>
+                  </Stack>
                 </Card.Body>
               </Card>
             ))}
           </Stack>
-        </LayoutContainer>
-      )}
-      {isEmpty(orderHistory?.items) && (
-        <LayoutContainer>
-          {mdp("food:no_orders_to_claim")}
-          <p>
-            <Link to="/order-history">
-              {t("food:no_unclaimed_orders")}
-              <i className="bi bi-arrow-right ms-1"></i>
-            </Link>
-          </p>
-        </LayoutContainer>
-      )}
-    </>
+          <div className="mt-2">
+            <FormButtons
+              primaryProps={{
+                type: "button",
+                variant: "outline-secondary",
+                children: t("common:close"),
+                onClick: () => onHide(),
+              }}
+              secondaryProps={{
+                variant: "outline-primary",
+                children: t("food:view_order"),
+                href: `/order/${claimedOrder.id}`,
+                as: RLink,
+              }}
+            />
+          </div>
+        </div>
+      </Modal.Body>
+    </Modal>
   );
 }

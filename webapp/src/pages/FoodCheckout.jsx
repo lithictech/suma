@@ -1,5 +1,6 @@
 import api from "../api";
 import ErrorScreen from "../components/ErrorScreen";
+import ExternalLink from "../components/ExternalLink";
 import FoodPrice from "../components/FoodPrice";
 import FormButtons from "../components/FormButtons";
 import LinearBreadcrumbs from "../components/LinearBreadcrumbs";
@@ -76,7 +77,7 @@ export default function FoodCheckout() {
     );
   }
   if (loading || isEmpty(checkout)) {
-    return <PageLoader />;
+    return <PageLoader buffered />;
   }
   function handleSubmit(e) {
     e.preventDefault();
@@ -250,7 +251,20 @@ function CheckoutFulfillment({ checkout, onCheckoutChange }) {
               id={fo.id}
               name={fo.description}
               type="radio"
-              label={fo.description}
+              label={
+                <>
+                  {fo.description}
+                  {fo.address?.oneLineAddress && (
+                    <ExternalLink
+                      href={`https://www.google.com/maps/place/${fo.address.oneLineAddress}`}
+                      className="ms-1 nowrap"
+                    >
+                      <i className="bi bi-geo-alt-fill me-1"></i>
+                      {t("food:address")}
+                    </ExternalLink>
+                  )}
+                </>
+              }
               checked={checkout.fulfillmentOptionId === fo.id}
               onChange={() => onCheckoutChange({ fulfillmentOptionId: fo.id })}
             />
@@ -263,12 +277,12 @@ function CheckoutFulfillment({ checkout, onCheckoutChange }) {
 
 function CheckoutItems({ checkout }) {
   return (
-    <Col className="mb-3">
+    <Col>
       <h5>{t("food:checkout_items_title")}</h5>
       {checkout.items?.map((it, idx) => {
         return (
           <React.Fragment key={it.product.productId}>
-            {idx > 0 && <hr className="mb-3 mt-0" />}
+            {idx > 0 && <hr className="my-3" />}
             <CheckoutItem item={it} />
           </React.Fragment>
         );
@@ -394,7 +408,7 @@ function SummaryLine({ label, price, subtract, className, credit }) {
 function CheckoutItem({ item }) {
   const { product, quantity } = item;
   return (
-    <Col xs={12} className="mb-3">
+    <Col className="mb-3">
       <Stack direction="horizontal" gap={3} className="align-items-start">
         <SumaImage
           image={product.images[0]}
@@ -406,31 +420,29 @@ function CheckoutItem({ item }) {
         {product.outOfStock ? (
           <Stack>
             <h6 className="mb-2">{product.name}</h6>
-            <p className="text-secondary mb-0 text-danger">
-              {t("food:currently_unavailable")}
-            </p>
+            <p className="text-secondary mb-0">{t("food:sold_out")}</p>
           </Stack>
         ) : (
           <>
             <Stack className="justify-content-between">
               <h6 className="mb-0">{product.name}</h6>
-              <p className="text-secondary mb-0 small">
-                {product.isDiscounted
-                  ? t("food:from_vendor_with_discount", {
-                      vendorName: product.vendor.name,
-                      discountAmount: product.discountAmount,
-                    })
-                  : t("food:from_vendor", { vendorName: product.vendor.name })}
+              <p className="text-secondary mb-0">
+                <small>
+                  {t("food:from_vendor", { vendorName: product.vendor.name })}
+                </small>
               </p>
-              <div className="mb-0 text-secondary">
+              <div className="text-secondary mb-0 lh-1">
                 <small>{t("food:quantity", { quantity: quantity })}</small>
               </div>
             </Stack>
-            <FoodPrice
-              undiscountedPrice={product.undiscountedPrice}
-              isDiscounted={product.isDiscounted}
-              customerPrice={product.customerPrice}
-            />
+            <div className="text-end">
+              <FoodPrice
+                undiscountedPrice={product.undiscountedPrice}
+                isDiscounted={product.isDiscounted}
+                displayableCashPrice={product.displayableCashPrice}
+                direction="vertical"
+              />
+            </div>
           </>
         )}
       </Stack>

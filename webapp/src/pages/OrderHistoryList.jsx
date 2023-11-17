@@ -14,6 +14,7 @@ import find from "lodash/find";
 import isEmpty from "lodash/isEmpty";
 import React from "react";
 import Card from "react-bootstrap/Card";
+import Row from "react-bootstrap/Row";
 import Stack from "react-bootstrap/Stack";
 import { Link, useNavigate } from "react-router-dom";
 
@@ -35,10 +36,6 @@ export default function OrderHistoryList() {
       </LayoutContainer>
     );
   }
-  if (loading) {
-    return <PageLoader />;
-  }
-
   function handleNavigate(e, order) {
     const detailed = find(orderHistory.detailedOrders, { id: order.id });
     if (!detailed) {
@@ -59,28 +56,33 @@ export default function OrderHistoryList() {
         />
       )}
       <LayoutContainer top={user.unclaimedOrdersCount === 0} gutters>
-        <LinearBreadcrumbs back="/food" />
-        <h2>{t("food:order_history_title")}</h2>
+        <Row>
+          <LinearBreadcrumbs back="/food" />
+          <h2>{t("food:order_history_title")}</h2>
+        </Row>
       </LayoutContainer>
       <LayoutContainer gutters>
-        {!isEmpty(orderHistory?.items) && (
-          <Stack gap={4} className="mt-4">
-            {orderHistory?.items.map((o) => (
-              <Order key={o.id} {...o} onNavigate={(e) => handleNavigate(e, o)} />
-            ))}
-          </Stack>
-        )}
-        {isEmpty(orderHistory?.items) && (
-          <>
-            {mdp("food:no_orders")}
-            <p>
-              <Link to="/food">
-                {t("food:checkout_available")}
-                <i className="bi bi-arrow-right ms-1"></i>
-              </Link>
-            </p>
-          </>
-        )}
+        <Row>
+          {loading ? (
+            <PageLoader />
+          ) : !isEmpty(orderHistory?.items) ? (
+            <Stack gap={3}>
+              {orderHistory?.items.map((o) => (
+                <Order key={o.id} {...o} onNavigate={(e) => handleNavigate(e, o)} />
+              ))}
+            </Stack>
+          ) : (
+            <>
+              {mdp("food:no_orders")}
+              <p>
+                <Link to="/food">
+                  {t("food:checkout_available")}
+                  <i className="bi bi-arrow-right ms-1"></i>
+                </Link>
+              </p>
+            </>
+          )}
+        </Row>
       </LayoutContainer>
     </>
   );
@@ -92,6 +94,7 @@ function Order({
   total,
   image,
   serial,
+  fulfilledAt,
   onNavigate,
   availableForPickupAt,
 }) {
@@ -110,7 +113,11 @@ function Order({
               {t("food:order_serial", { serial: serial })}
             </Card.Link>
             <Card.Text className="text-secondary mt-1">
-              {availableForPickupAt
+              {fulfilledAt
+                ? t("food:claimed_on", {
+                    fulfilledAt: dayjs(fulfilledAt).format("lll"),
+                  })
+                : availableForPickupAt
                 ? t("food:order_available_for_pickup", {
                     date: dayjs(availableForPickupAt).format("ll"),
                   })

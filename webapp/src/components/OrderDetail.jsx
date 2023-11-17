@@ -11,6 +11,7 @@ import { useScreenLoader } from "../state/useScreenLoader";
 import { useUser } from "../state/useUser";
 import { LayoutContainer } from "../state/withLayout";
 import PressAndHold from "./PressAndHold";
+import clsx from "clsx";
 import isEmpty from "lodash/isEmpty";
 import React from "react";
 import Alert from "react-bootstrap/Alert";
@@ -49,9 +50,20 @@ export default function OrderDetail({ state, onOrderClaim, gutters }) {
             <br />
           </p>
           <div>
-            <h6 className="fw-bold">{order.fulfillmentConfirmation}</h6>
             <FulfillmentOption order={order} onOrderUpdated={(o) => setOrder(o)} />
           </div>
+          {!order.canClaim && order.fulfilledAt && (
+            <Alert variant="info" className="mb-0">
+              <Stack direction="horizontal" gap={3}>
+                {t("food:claimed_on", {
+                  fulfilledAt: dayjs(order.fulfilledAt).format("lll"),
+                })}
+                <div className="ms-auto">
+                  <AnimatedCheckmark />
+                </div>
+              </Stack>
+            </Alert>
+          )}
           <SumaImage
             image={order.image}
             w={350}
@@ -78,7 +90,6 @@ export default function OrderDetail({ state, onOrderClaim, gutters }) {
         <PressAndHoldToClaim
           id={order.id}
           canClaim={order.canClaim}
-          serial={order.serial}
           fulfilledAt={order.fulfilledAt}
           onOrderClaim={(o) => onOrderClaim(o)}
         />
@@ -94,17 +105,25 @@ function FulfillmentOption({ order, onOrderUpdated }) {
   const { showErrorToast } = useErrorToast();
 
   if (isEmpty(order.fulfillmentOptionsForEditing)) {
-    return <span>{order.fulfillmentOption.description}</span>;
+    return (
+      <>
+        <h6 className="fw-bold">{order.fulfillmentConfirmation}</h6>
+        <span>{order.fulfillmentOption.description}</span>
+      </>
+    );
   }
 
   if (editing.isOff) {
     return (
       <span>
-        {order.fulfillmentOption.description}
-        {order.fulfillmentOptionsForEditing.length > 1 && (
+        <h6 className="fw-bold lh-lg">
+          {order.fulfillmentConfirmation}
           <Button
             variant="link"
-            className="p-0 ms-2"
+            className={clsx(
+              "p-0 ms-2",
+              order.fulfillmentOptionsForEditing.length === 1 && "opacity-0"
+            )}
             onClick={() => {
               setOptionId(order.fulfillmentOption.id);
               editing.turnOn();
@@ -112,7 +131,8 @@ function FulfillmentOption({ order, onOrderUpdated }) {
           >
             <i className="bi bi-pencil-fill"></i>
           </Button>
-        )}
+        </h6>
+        {order.fulfillmentOption.description}
       </span>
     );
   }
@@ -138,6 +158,7 @@ function FulfillmentOption({ order, onOrderUpdated }) {
   return (
     <Form noValidate>
       <Form.Group>
+        <h6 className="fw-bold lh-lg">{order.fulfillmentConfirmation}</h6>
         {order.fulfillmentOptionsForEditing.map((fo) => (
           <Form.Check
             key={fo.id}
@@ -160,26 +181,13 @@ function FulfillmentOption({ order, onOrderUpdated }) {
   );
 }
 
-function PressAndHoldToClaim({ id, canClaim, serial, fulfilledAt, onOrderClaim }) {
+function PressAndHoldToClaim({ id, canClaim, fulfilledAt, onOrderClaim }) {
   const screenLoader = useScreenLoader();
   const { showErrorToast } = useErrorToast();
   const { handleUpdateCurrentMember } = useUser();
 
-  if (!canClaim && !fulfilledAt) {
+  if (!canClaim || (!canClaim && !fulfilledAt)) {
     return null;
-  }
-  if (!canClaim) {
-    return (
-      <div className="mt-4 text-center d-flex justify-content-center align-items-center flex-column">
-        <AnimatedCheckmark scale={2} />
-        <p className="mt-2 fs-4 w-75">
-          {t("food:order_for_claimed_on", {
-            serial: serial,
-            fulfilledAt: dayjs(fulfilledAt).format("lll"),
-          })}
-        </p>
-      </div>
-    );
   }
 
   const handleOrderClaim = () => {
@@ -211,6 +219,7 @@ function PressAndHoldToClaim({ id, canClaim, serial, fulfilledAt, onOrderClaim }
             },
           })}
         </PressAndHold>
+        <p className="small mb-0">{t("food:button_press_warning")}</p>
       </Alert>
     </div>
   );

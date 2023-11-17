@@ -147,6 +147,17 @@ class Suma::Commerce::Cart < Suma::Postgres::Model(:commerce_carts)
   def cash_cost(now: Time.now)
     return self.customer_cost - self.noncash_ledger_contribution_amount(now:)
   end
+
+  def cart_hash
+    md5 = Digest::MD5.new
+    md5 << self.id.to_s
+    self.items.each do |item|
+      md5 << item.product_id.to_s
+      md5 << item.quantity.to_s
+      md5 << item.timestamp.to_s
+    end
+    return md5.hexdigest
+  end
 end
 
 # Table: commerce_carts

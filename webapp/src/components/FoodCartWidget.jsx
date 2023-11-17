@@ -26,8 +26,10 @@ export default function FoodCartWidget({ product, size, onQuantityChange }) {
     const item = find(cart.items, ({ productId }) => productId === product.productId);
     return item?.quantity || 0;
   });
-
   const handleQuantityChange = (q) => {
+    if (q === quantity) {
+      return;
+    }
     changePromise.current?.cancel();
     changePromise.current = api
       .putCartItem({
@@ -62,7 +64,7 @@ export default function FoodCartWidget({ product, size, onQuantityChange }) {
           onClick={quantity > 0 ? () => handleQuantityChange(0) : noop}
         >
           <span className="text-capitalize fs-5 align-middle mx-1">
-            {t("food:out_of_stock")}
+            {t("food:sold_out")}
           </span>
           {quantity > 0 && (
             <img
@@ -83,7 +85,6 @@ export default function FoodCartWidget({ product, size, onQuantityChange }) {
       {quantity > 0 && (
         <>
           <Button
-            variant="success"
             onClick={() => handleQuantityChange(quantity - 1)}
             className={btnClasses}
             title={t("food:remove_from_cart")}
@@ -91,26 +92,25 @@ export default function FoodCartWidget({ product, size, onQuantityChange }) {
             <img src={subtractIcon} alt={t("food:remove_from_cart")} width="32px" />
           </Button>
           <Dropdown
-            variant="success"
             as={ButtonGroup}
             title={"" + quantity}
             onSelect={(quantity) => handleQuantityChange(Number(quantity))}
           >
-            <Dropdown.Toggle
-              variant="success"
-              className="py-0 px-2"
-              style={{ width: 60 }}
-            >
-              {quantity}
-            </Dropdown.Toggle>
-            <Dropdown.Menu className="food-widget-dropdown-menu" renderOnMount={true}>
-              <DropdownQuantities maxQuantity={maxQuantity} selectedQuantity={quantity} />
-            </Dropdown.Menu>
+            <>
+              <Dropdown.Toggle className="py-0 px-2" style={{ width: 60 }}>
+                {quantity}
+              </Dropdown.Toggle>
+              <Dropdown.Menu className="food-widget-dropdown-menu" renderOnMount={true}>
+                <DropdownQuantities
+                  maxQuantity={maxQuantity}
+                  selectedQuantity={quantity}
+                />
+              </Dropdown.Menu>
+            </>
           </Dropdown>
         </>
       )}
       <Button
-        variant="success"
         onClick={() => handleQuantityChange(quantity + 1)}
         className={clsx(btnClasses, quantity === maxQuantity && "disabled", "nowrap")}
         title={t("food:add_to_cart")}

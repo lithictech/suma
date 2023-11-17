@@ -30,7 +30,7 @@ export default function ReservationCard({
   if (loading) {
     return (
       <CardOverlay>
-        <PageLoader relative />
+        <PageLoader />
       </CardOverlay>
     );
   }

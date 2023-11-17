@@ -110,7 +110,7 @@ export default function LedgersOverview() {
           />
         </>
       ) : (
-        <PageLoader />
+        <PageLoader buffered />
       )}
     </>
   );
@@ -167,8 +167,8 @@ const LedgerLines = ({
   const { selectedHashItem, onHashItemSelected } = useHashSelector(lines, "opaqueId");
 
   return (
-    <>
-      {linesLoading && <PageLoader />}
+    <div className="position-relative">
+      {linesLoading && <PageLoader overlay />}
       <Table
         responsive
         striped
@@ -216,6 +216,6 @@ const LedgerLines = ({
         item={selectedHashItem}
         onClose={() => onHashItemSelected(null, null)}
       />
-    </>
+    </div>
   );
 };

@@ -31,7 +31,7 @@ export default function WaitingListPage({ feature, imgSrc, imgAlt, title, text }
       </div>
     );
   } else if (loading) {
-    content = <PageLoader relative />;
+    content = <PageLoader buffered />;
   } else {
     content = (
       <>
