@@ -133,11 +133,7 @@ function AppRoutes() {
           exact
           element={renderWithHocs(
             withProps({
-              namespaces: [
-                "terms_of_use",
-                "terms_of_sale_summer_2023",
-                "terms_of_sale_holiday_2023",
-              ],
+              namespace: "terms_of_use_and_sale",
             }),
             MarkdownContent
           )}
@@ -146,7 +142,7 @@ function AppRoutes() {
           path="/terms-of-sale-holiday-2022"
           exact
           element={renderWithHocs(
-            withProps({ namespaces: ["terms_of_sale_holiday_2022"] }),
+            withProps({ namespace: "terms_of_sale_holiday_2022" }),
             MarkdownContent
           )}
         />
@@ -154,7 +150,7 @@ function AppRoutes() {
           path="/terms-of-sale-summer-2023"
           exact
           element={renderWithHocs(
-            withProps({ namespaces: ["terms_of_sale_summer_2023"] }),
+            withProps({ namespace: "terms_of_sale_summer_2023" }),
             MarkdownContent
           )}
         />
