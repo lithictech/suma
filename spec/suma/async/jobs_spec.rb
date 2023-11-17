@@ -321,4 +321,16 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
       expect(Suma::AnonProxy::MessageHandler::Fake.handled).to have_length(1)
     end
   end
+
+  describe "TopicShim" do
+    it "shims onboarding verified" do
+      u = Suma::Fixtures.member.create
+      expect do
+        u.onboarding_verified_at = Time.now
+        expect do
+          u.save_changes
+        end.to publish("suma.member.verified", [u.id])
+      end.to perform_async_job(Suma::Async::TopicShim)
+    end
+  end
 end
