@@ -1,6 +1,6 @@
 {
   "auth": {
-    "sign_up_agreement": "Al hacer clic en {{ buttonLabel }}, aceptas y estás de acuerdo con nuestros [Términos de uso](/términos-de-uso) y [Política de privacidad](/privacy-policy). Aceptas recibir SMS y/o MMS periódicos de suma. Se pueden aplicar tarifas de mensajes y datos. Envíe HELP para obtener más información. Envíe STOP para dejar de recibir mensajes."
+    "sign_up_agreement": "Al hacer clic en {{ buttonLabel }}, aceptas y estás de acuerdo con nuestros [Términos de uso](/términos-de-uso) y [Política de privacidad](/privacy-policy). Aceptas recibir SMS y/o MMS periódicos de suma. Se pueden aplicar tarifas de mensajes y datos. La frecuencia de los mensajes puede variar según su actividad y configuración. Envíe HELP para obtener más información. Envíe STOP para dejar de recibir mensajes."
   },
   "common": {
     "add_money_to_account": "Haz click aquí para añadir fondos a tu cuenta",
