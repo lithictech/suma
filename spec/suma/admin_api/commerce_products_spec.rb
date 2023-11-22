@@ -63,7 +63,7 @@ RSpec.describe Suma::AdminAPI::CommerceProducts, :db do
     end
   end
 
-  describe "GET /v1/commerce_products/create" do
+  describe "POST /v1/commerce_products/create" do
     it "creates the product" do
       photo_file = File.open("spec/data/images/photo.png", "rb")
       image = Rack::Test::UploadedFile.new(photo_file, "image/png", true)
@@ -94,6 +94,36 @@ RSpec.describe Suma::AdminAPI::CommerceProducts, :db do
       x = Suma::Fixtures.product.create
 
       get "/v1/commerce_products/#{x.id}"
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.that_includes(id: x.id)
+    end
+
+    it "403s if the item does not exist" do
+      get "/v1/commerce_products/0"
+
+      expect(last_response).to have_status(403)
+    end
+  end
+
+  describe "POST /v1/commerce_products/:id" do
+    it "updates the product" do
+      photo_file = File.open("spec/data/images/photo.png", "rb")
+      image = Rack::Test::UploadedFile.new(photo_file, "image/png", true)
+      cat = Suma::Fixtures.vendor_service_category.food.create
+      vs = Suma::Fixtures.vendor_service.create
+      x = Suma::Fixtures.product.create
+      x.add_image({uploaded_file: Suma::Fixtures.uploaded_file.create})
+
+      post "/v1/commerce_products/#{x.id}",
+           image: image,
+           name: {en: "EN name", es: "ES name"},
+           description: {en: "EN description", es: "ES description"},
+           our_cost: {cents: 2400},
+           vendor_name: vs.vendor.name,
+           vendor_service_category_slug: cat.slug,
+           max_quantity_per_order: 500,
+           max_quantity_per_offering: 500
 
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.that_includes(id: x.id)

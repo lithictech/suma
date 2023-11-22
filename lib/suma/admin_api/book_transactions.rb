@@ -11,7 +11,7 @@ class Suma::AdminAPI::BookTransactions < Suma::AdminAPI::V1
     include Suma::AdminAPI::Entities
     include AutoExposeDetail
     expose :opaque_id
-    expose_translated :memo
+    expose :memo, with: TranslatedTextEntity
     expose :originating_funding_transaction, with: FundingTransactionEntity
     expose :originating_payout_transaction, with: PayoutTransactionEntity
     expose :credited_payout_transaction, with: PayoutTransactionEntity

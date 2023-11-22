@@ -101,6 +101,8 @@ export default {
     get(`/adminapi/v1/commerce_products/${id}`, data),
   createCommerceProduct: (data) =>
     postForm("/adminapi/v1/commerce_products/create", data),
+  updateCommerceProduct: ({ id, ...data }) =>
+    postForm(`/adminapi/v1/commerce_products/${id}`, data),
 
   createCommerceOfferingProduct: (data) =>
     postForm("/adminapi/v1/commerce_offering_products/create", data),

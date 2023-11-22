@@ -27,6 +27,7 @@ import PayoutTransactionDetailPage from "./pages/PayoutTransactionDetailPage";
 import PayoutTransactionListPage from "./pages/PayoutTransactionListPage";
 import ProductCreatePage from "./pages/ProductCreatePage";
 import ProductDetailPage from "./pages/ProductDetailPage";
+import ProductEditPage from "./pages/ProductEditPage";
 import ProductListPage from "./pages/ProductListPage";
 import SignInPage from "./pages/SignInPage";
 import VendorCreatePage from "./pages/VendorCreatePage";
@@ -225,6 +226,11 @@ function PageSwitch() {
         exact
         path="/product/:id"
         element={renderWithHocs(redirectIfUnauthed, withLayout(), ProductDetailPage)}
+      />
+      <Route
+        exact
+        path="/product/:id/edit"
+        element={renderWithHocs(redirectIfUnauthed, withLayout(), ProductEditPage)}
       />
       <Route
         exact

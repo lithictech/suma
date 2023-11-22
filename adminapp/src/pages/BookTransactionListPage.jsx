@@ -69,7 +69,7 @@ export default function BookTransactionListPage() {
             id: "memo",
             label: "Memo",
             align: "center",
-            render: (c) => c.memo,
+            render: (c) => c.memo.en,
           },
           {
             id: "category",

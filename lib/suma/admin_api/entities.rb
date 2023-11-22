@@ -158,11 +158,16 @@ module Suma::AdminAPI::Entities
     expose :originating_payment_account, with: SimplePaymentAccountEntity
   end
 
+  class TranslatedTextEntity < BaseEntity
+    expose :en
+    expose :es
+  end
+
   class BookTransactionEntity < BaseEntity
     include AutoExposeBase
     expose :apply_at
     expose :amount, with: MoneyEntity
-    expose_translated :memo
+    expose :memo, with: TranslatedTextEntity
     expose :associated_vendor_service_category, with: VendorServiceCategoryEntity
     expose :originating_ledger, with: SimpleLedgerEntity
     expose :receiving_ledger, with: SimpleLedgerEntity
@@ -222,8 +227,8 @@ module Suma::AdminAPI::Entities
   class ProductEntity < BaseEntity
     include AutoExposeBase
     expose :vendor, with: VendorEntity
-    expose_translated :name
-    expose_translated :description
+    expose :name, with: TranslatedTextEntity
+    expose :description, with: TranslatedTextEntity
   end
 
   class OrderEntity < BaseEntity

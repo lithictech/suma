@@ -62,7 +62,7 @@ export default function ProductListPage() {
             id: "name",
             label: "Name",
             align: "left",
-            render: (c) => <AdminLink model={c}>{c.name}</AdminLink>,
+            render: (c) => <AdminLink model={c}>{c.name.en}</AdminLink>,
           },
           {
             id: "vendor",

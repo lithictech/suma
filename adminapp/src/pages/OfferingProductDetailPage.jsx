@@ -52,7 +52,7 @@ export default function OfferingProductDetailPage() {
                     key={offeringProduct.product.id}
                     model={offeringProduct.product}
                   >
-                    {offeringProduct.product.name}
+                    {offeringProduct.product.name.en}
                   </AdminLink>
                 ),
               },

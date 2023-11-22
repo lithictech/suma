@@ -22,7 +22,6 @@ export default function BookTransactionDetailPage() {
     default: {},
     pickData: true,
   });
-
   return (
     <>
       {xactionLoading && <CircularProgress />}
@@ -36,7 +35,8 @@ export default function BookTransactionDetailPage() {
               { label: "Amount", value: <Money>{xaction.amount}</Money> },
               { label: "Category", value: xaction.associatedVendorServiceCategory.name },
               { label: "External Id", value: xaction.opaqueId },
-              { label: "Memo", value: xaction.memo },
+              { label: `Memo (En)`, value: xaction.memo.en },
+              { label: `Memo (Es)`, value: xaction.memo.es },
               {
                 label: "Originating",
                 value: (

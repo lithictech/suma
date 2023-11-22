@@ -8,8 +8,10 @@ import { dayjs } from "../modules/dayConfig";
 import Money from "../shared/react/Money";
 import SumaImage from "../shared/react/SumaImage";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
+import EditIcon from "@mui/icons-material/Edit";
 import ListAltIcon from "@mui/icons-material/ListAlt";
 import { CircularProgress } from "@mui/material";
+import IconButton from "@mui/material/IconButton";
 import isEmpty from "lodash/isEmpty";
 import React from "react";
 import { useParams } from "react-router-dom";
@@ -31,7 +33,14 @@ export default function ProductDetailPage() {
       {!isEmpty(product) && (
         <div>
           <DetailGrid
-            title={`Product ${id}`}
+            title={
+              <>
+                Product {id}
+                <IconButton href={`/product/${id}/edit`}>
+                  <EditIcon color="info" />
+                </IconButton>
+              </>
+            }
             properties={[
               { label: "ID", value: id },
               { label: "Created At", value: dayjs(product.createdAt) },
@@ -48,8 +57,10 @@ export default function ProductDetailPage() {
                   />
                 ),
               },
-              { label: "Name", value: product.name },
-              { label: "Description", value: product.description },
+              { label: "Name (En)", value: product.name.en },
+              { label: "Name (Es)", value: product.name.es },
+              { label: "Description (En)", value: product.description.en },
+              { label: "Description (Es)", value: product.description.es },
               {
                 label: "Vendor",
                 value: (
@@ -93,7 +104,7 @@ export default function ProductDetailPage() {
             ]}
           />
           <Link
-            to={`/offering-product/new?productId=${product.id}&productName=${product.name}`}
+            to={`/offering-product/new?productId=${product.id}&productName=${product.name.en}`}
             sx={{ display: "inline-block", marginTop: "15px" }}
           >
             <ListAltIcon sx={{ verticalAlign: "middle", paddingRight: "5px" }} />
