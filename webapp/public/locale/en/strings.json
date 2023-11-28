@@ -1,6 +1,8 @@
 {
   "auth": {
-    "sign_up_agreement": "I accept and agree to suma’s [Terms of Use](/terms-of-use) and [Privacy Policy](/privacy-policy). I also agree to receive periodic SMS and/or MMS messages from suma. Message and data rates may apply. Message frequency may vary depending on your activity and settings. Text HELP for more information. Text STOP to stop receiving messages."
+    "unified_passive_signup_agreement": "By clicking {{ buttonLabel }}, you accept and agree to our [Terms of Use](/terms-of-use) and [Privacy Policy](/privacy-policy). You agree to receive periodic SMS and/or MMS messages from suma. Message and data rates may apply. Message frequency may vary depending on your activity and settings. Text HELP for more information. Text STOP to stop receiving messages.",
+    "passive_signup_agreement": "By clicking {{ buttonLabel }}, you accept and agree to our [Terms of Use](/terms-of-use) and [Privacy Policy](/privacy-policy).",
+    "sms_optin_signup_agreement": "I agree to receive periodic SMS and/or MMS messages from suma. Message and data rates may apply. Message frequency may vary depending on your activity and settings. Text HELP for more information. Text STOP to stop receiving messages."
   },
   "common": {
     "add_money_to_account": "Press here to add money to your account",

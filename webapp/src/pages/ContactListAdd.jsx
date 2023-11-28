@@ -3,8 +3,7 @@ import ContactListTags from "../components/ContactListTags";
 import FormButtons from "../components/FormButtons";
 import FormControlGroup from "../components/FormControlGroup";
 import FormError from "../components/FormError";
-import SignupAgreement from "../components/SignupAgreement";
-import { mdp, t } from "../localization";
+import { md, mdp, t } from "../localization";
 import useI18Next from "../localization/useI18Next";
 import { dayjs } from "../modules/dayConfig";
 import { maskPhoneNumber } from "../modules/maskPhoneNumber";
@@ -35,7 +34,6 @@ export default function ContactListAdd() {
   const [name, setName] = React.useState("");
   const [phone, setPhone] = React.useState("");
   const [referral, setReferral] = React.useState("");
-  const [agreementChecked, setAgreementChecked] = React.useState(false);
   const handleFormSubmit = () => {
     api
       .authContactList({
@@ -123,15 +121,16 @@ export default function ContactListAdd() {
             ))}
           </FormControlGroup>
         </Row>
-        <SignupAgreement
-          checked={agreementChecked}
-          onCheckedChanged={setAgreementChecked}
-        />
         <FormError error={error} />
+        <p className="text-secondary">
+          {md("auth:unified_passive_signup_agreement", {
+            buttonLabel: t("forms:submit"),
+          })}
+        </p>
         <FormButtons
           variant="outline-primary"
           back
-          primaryProps={{ children: t("forms:submit"), disabled: !agreementChecked }}
+          primaryProps={{ children: t("forms:submit") }}
         />
       </Form>
       <ContactListTags />

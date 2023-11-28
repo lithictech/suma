@@ -2,8 +2,7 @@ import api from "../api";
 import FormButtons from "../components/FormButtons";
 import FormControlGroup from "../components/FormControlGroup";
 import FormError from "../components/FormError";
-import SignupAgreement from "../components/SignupAgreement";
-import { t } from "../localization";
+import { mdp, t } from "../localization";
 import useI18Next from "../localization/useI18Next";
 import { dayjs } from "../modules/dayConfig";
 import { maskPhoneNumber } from "../modules/maskPhoneNumber";
@@ -11,6 +10,7 @@ import { Logger } from "../shared/logger";
 import useToggle from "../shared/react/useToggle";
 import { extractErrorCode, useError } from "../state/useError";
 import React, { useState } from "react";
+import Alert from "react-bootstrap/Alert";
 import Form from "react-bootstrap/Form";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
@@ -21,6 +21,7 @@ export default function Start() {
   const submitDisabled = useToggle(false);
   const inputDisabled = useToggle(false);
   const [agreementChecked, setAgreementChecked] = React.useState(false);
+  const showSmsOptInNotice = useToggle(false);
   const [error, setError] = useError();
   const [phone, setPhone] = useState("");
 
@@ -42,6 +43,11 @@ export default function Start() {
   };
 
   const handleSubmitForm = () => {
+    if (!agreementChecked) {
+      showSmsOptInNotice.turnOn();
+      return;
+    }
+    showSmsOptInNotice.turnOff();
     submitDisabled.turnOn();
     inputDisabled.turnOn();
     api
@@ -94,11 +100,17 @@ export default function Start() {
           onCheckedChanged={setAgreementChecked}
         />
         <FormError error={error} />
+        {showSmsOptInNotice.isOn && (
+          <Alert variant="warning" dismissible onClose={showSmsOptInNotice.turnOff}>
+            Suma uses SMS to provide you access to your account. You'll need to check the
+            box to continue.
+          </Alert>
+        )}
         <FormButtons
           back
           primaryProps={{
             children: t("forms:continue"),
-            disabled: submitDisabled.isOn || !agreementChecked,
+            disabled: submitDisabled.isOn,
           }}
         />
       </Form>
@@ -107,3 +119,25 @@ export default function Start() {
 }
 
 const logger = new Logger("user-auth");
+
+function SignupAgreement({ checked, onCheckedChanged, ...rest }) {
+  return (
+    <div className="d-flex flex-column">
+      <div className="d-flex flex-row">
+        <Form.Check
+          type="checkbox"
+          checked={checked}
+          onChange={(e) => onCheckedChanged(e.target.checked)}
+          aria-label="Agree to terms"
+          {...rest}
+        />
+        <div id="signup-agreement" className="ms-2 text-secondary small">
+          {mdp("auth:sms_optin_signup_agreement", { buttonLabel: t("forms:continue") })}
+        </div>
+      </div>
+      <div className="text-secondary small">
+        {mdp("auth:passive_signup_agreement", { buttonLabel: t("forms:continue") })}
+      </div>
+    </div>
+  );
+}
