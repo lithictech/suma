@@ -82,12 +82,16 @@ export default function Dashboard() {
       <LayoutContainer gutters>
         <AddToHomescreen />
       </LayoutContainer>
-      {dashboardLoading ? <PageLoader buffered /> : <Ledger dashboard={dashboard} />}
+      {dashboardLoading ? (
+        <PageLoader buffered />
+      ) : (
+        <Ledger dashboard={dashboard} user={user} />
+      )}
     </>
   );
 }
 
-const Ledger = ({ dashboard }) => {
+const Ledger = ({ dashboard, user }) => {
   return (
     <>
       <LayoutContainer top gutters>
@@ -97,9 +101,14 @@ const Ledger = ({ dashboard }) => {
               <Money colored>{dashboard.paymentAccountBalance}</Money>
             </h3>
             <p className="m-0 mb-2">{t("dashboard:payment_account_balance")}</p>
-            <Button variant="outline-success" href="/funding" as={RLink} size="sm">
-              {t("payments:add_funds")}
-            </Button>
+            {/* Don't show Add Funds if the member is read-only, though we technically allow it on the backend.
+             Adding funds while read-only is not a fundamental problem, just a current UX direction,
+             so for the time being we only limit it in the UI. */}
+            {!user.readOnlyMode && (
+              <Button variant="outline-success" href="/funding" as={RLink} size="sm">
+                {t("payments:add_funds")}
+              </Button>
+            )}
           </div>
           <div className="text-end">
             <h3>
