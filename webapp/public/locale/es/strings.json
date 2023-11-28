@@ -91,6 +91,7 @@
     "invalid_order_quantity": "Lo sentimos, uno o más de los artículos de su pedido no están disponibles. Vuelve a tu carrito e inténtalo de nuevo.",
     "invalid_otp": "Este código no es válido. Vuelve a intentar, o pedir un nuevo código.",
     "invalid_permissions": "Opción inválida",
+    "mobility_coming_soon": "¡Gracias por tu interés! Las opciones de movilidad están actualmente en proceso y anunciaremos cuando estén disponibles.",
     "network_error": "Un error de conectividad en la red ocurrió. Conéctate al internet y inténta de nuevo.",
     "no_active_trip": "No hay un viajes activos.",
     "ongoing_trip": "Debe finalizar el viaje que está en curso antes de iniciar un nuevo viaje.",
