@@ -45,6 +45,7 @@ const config = {
   devCardDetails: parseIfSet("VITE_DEV_CARD_DETAILS"),
   devBankAccountDetails: parseIfSet("VITE_DEV_BANK_ACCOUNT_DETAILS"),
   featureMobility: env.VITE_FEATURE_MOBILITY,
+  featureMobilityRestricted: env.VITE_FEATURE_MOBILITY_RESTRICTED,
   mapboxAccessToken: env.VITE_MAPBOX_ACCESS_TOKEN,
 };
 

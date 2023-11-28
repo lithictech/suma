@@ -1,4 +1,5 @@
 import api from "../../api";
+import config from "../../config";
 import { t } from "../../localization";
 import MapBuilder from "../../modules/mapBuilder";
 import readOnlyReason from "../../modules/readOnlyReason";
@@ -13,7 +14,7 @@ import TripCard from "./TripCard";
 import React from "react";
 import { Link } from "react-router-dom";
 
-const Map = () => {
+export default function Map() {
   const { appNav, topNav } = useGlobalViewState();
   const mapRef = React.useRef();
   const { user, handleUpdateCurrentMember } = useUser();
@@ -31,25 +32,30 @@ const Map = () => {
       setReserveError(null);
       setSelectedMapVehicle(mapVehicle);
       setLoadedVehicle(null);
-      if (mapVehicle) {
-        const { loc, provider, disambiguator, type } = mapVehicle;
-        if (user.readOnlyMode) {
-          const canStillRide =
-            user.readOnlyReason === "read_only_zero_balance" && provider.zeroBalanceOk;
-          if (!canStillRide) {
-            setError(extractErrorCode(user.readOnlyReason));
-            return;
-          }
-        }
-        api
-          .getMobilityVehicle({ loc, providerId: provider.id, disambiguator, type })
-          .then((r) => setLoadedVehicle(r.data))
-          .catch((e) => {
-            setSelectedMapVehicle(null);
-            setLoadedVehicle(null);
-            setError(extractErrorCode(e));
-          });
+      if (!mapVehicle) {
+        return;
       }
+      if (config.featureMobilityRestricted) {
+        setError("mobility_coming_soon");
+        return;
+      }
+      const { loc, provider, disambiguator, type } = mapVehicle;
+      if (user.readOnlyMode) {
+        const canStillRide =
+          user.readOnlyReason === "read_only_zero_balance" && provider.zeroBalanceOk;
+        if (!canStillRide) {
+          setError(extractErrorCode(user.readOnlyReason));
+          return;
+        }
+      }
+      api
+        .getMobilityVehicle({ loc, providerId: provider.id, disambiguator, type })
+        .then((r) => setLoadedVehicle(r.data))
+        .catch((e) => {
+          setSelectedMapVehicle(null);
+          setLoadedVehicle(null);
+          setError(extractErrorCode(e));
+        });
     },
     [user, setError, setReserveError]
   );
@@ -185,6 +191,4 @@ const Map = () => {
       )}
     </div>
   );
-};
-
-export default Map;
+}
