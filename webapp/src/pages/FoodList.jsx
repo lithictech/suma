@@ -3,6 +3,7 @@ import FoodNav from "../components/FoodNav";
 import FoodPrice from "../components/FoodPrice";
 import LinearBreadcrumbs from "../components/LinearBreadcrumbs";
 import PageLoader from "../components/PageLoader";
+import RLink from "../components/RLink";
 import SumaImage from "../components/SumaImage";
 import { t, mdp } from "../localization";
 import makeTitle from "../modules/makeTitle";
@@ -10,6 +11,7 @@ import { useOffering } from "../state/useOffering";
 import { LayoutContainer } from "../state/withLayout";
 import isEmpty from "lodash/isEmpty";
 import React from "react";
+import Button from "react-bootstrap/Button";
 import Col from "react-bootstrap/Col";
 import Row from "react-bootstrap/Row";
 import { Helmet } from "react-helmet-async";
@@ -73,7 +75,14 @@ export default function FoodList() {
       <LayoutContainer gutters>
         <h2 className="mb-3">{offering.description}</h2>
         {isEmpty(products) ? (
-          mdp("food:no_products")
+          <>
+            {mdp("food:no_products")}
+            <div className="button-stack w-100">
+              <Button href="/food" as={RLink} title={t("food:title")}>
+                {t("food:available_offerings")}
+              </Button>
+            </div>
+          </>
         ) : (
           <Row>
             {products.map((p) => (

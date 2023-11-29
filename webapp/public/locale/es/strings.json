@@ -158,7 +158,7 @@
     "no_offerings": "No hay ofertas de alimentos disponibles actualmente, vuelva a consultar más tarde.",
     "no_orders": "Aún no ha realizado ningún pedido.",
     "no_orders_to_claim": "No hay pedidos para reclamar.",
-    "no_products": "No se encontraron productos, esta oferta podría estar cerrada. [Haga clic aquí para ver las ofertas disponibles](/food '$t(strings:food:title)').",
+    "no_products": "No se encontraron productos, esta oferta podría estar cerrada.",
     "no_unclaimed_orders": "Ver tu historial de pedidos.",
     "order_available_for_pickup": "Disponible para recoger {{date}}",
     "order_button": "Realizar pedido",

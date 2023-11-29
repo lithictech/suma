@@ -127,7 +127,9 @@ const Ledger = ({ dashboard, user }) => {
                 <Stack direction="horizontal" gap={3}>
                   {t("dashboard:recent_ledger_lines")}
                   <div className="ms-auto">
-                    <Link to="/ledgers">{t("common:view_all")}</Link>
+                    <Button href="/ledgers" as={RLink} size="sm" className="nowrap">
+                      {t("common:view_all")}
+                    </Button>
                   </div>
                 </Stack>
               </th>
