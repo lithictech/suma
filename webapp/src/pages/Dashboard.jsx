@@ -137,8 +137,11 @@ const Ledger = ({ dashboard, user }) => {
             {dashboard.ledgerLines.map((ledger, i) => (
               <tr key={i}>
                 <td>
-                  <div className="d-flex justify-content-between mb-1">
-                    <strong>{dayjs(ledger.at).format("lll")}</strong>
+                  <div className="d-flex justify-content-between align-items-center gap-3 mb-1">
+                    <div>
+                      <strong>{dayjs(ledger.at).format("lll")}</strong>
+                      <div>{ledger.memo}</div>
+                    </div>
                     <Money
                       className={clsx(
                         ledger.amount.cents < 0 ? "text-danger" : "text-success"
@@ -147,7 +150,6 @@ const Ledger = ({ dashboard, user }) => {
                       {ledger.amount}
                     </Money>
                   </div>
-                  <div>{ledger.memo}</div>
                 </td>
               </tr>
             ))}
