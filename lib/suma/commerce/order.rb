@@ -63,6 +63,10 @@ class Suma::Commerce::Order < Suma::Postgres::Model(:commerce_orders)
   state_machine :order_status, initial: :open do
     state :open, :completed, :canceled
 
+    event :cancel do
+      transition open: :canceled
+    end
+
     after_transition(&:commit_audit_log)
     after_failure(&:commit_audit_log)
   end
@@ -118,6 +122,18 @@ class Suma::Commerce::Order < Suma::Postgres::Model(:commerce_orders)
   # charges to orders, so we keep track of this additional data via associated_funding_transaction.
   def funded_amount
     return self.charges.map(&:associated_funding_transactions).flatten.sum(Money.new(0), &:amount)
+  end
+
+  def cancel
+    transitioning = super
+    return unless transitioning
+    if self.fulfillment_status == "unfulfilled"
+      self.limited_quantity_items.each do |ci|
+        ci.offering_product.product.inventory.quantity_pending_fulfillment -= ci.quantity
+        ci.offering_product.product.inventory.save_changes
+      end
+    end
+    return true
   end
 
   def admin_status_label

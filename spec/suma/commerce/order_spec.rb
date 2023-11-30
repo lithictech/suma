@@ -105,6 +105,13 @@ RSpec.describe "Suma::Commerce::Order", :db do
       ) # Assert has no changed, since the quantity modification has not been applied yet
     end
 
+    it "removes from quantity pending fulfillment when canceling an open order" do
+      expect(order).to transition_on(:cancel).to("canceled")
+      expect(limited_product.inventory.refresh).to have_attributes(
+        quantity_on_hand: 4, quantity_pending_fulfillment: 1,
+      )
+    end
+
     it "can claim claimable orders" do
       expect(order).to not_transition_on(:claim)
       expect(order).to transition_on(:begin_fulfillment).to("fulfilling")
