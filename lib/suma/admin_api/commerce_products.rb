@@ -18,6 +18,9 @@ class Suma::AdminAPI::CommerceProducts < Suma::AdminAPI::V1
     expose :our_cost, with: MoneyEntity
     expose :max_quantity_per_order, &self.delegate_to(:inventory!, :max_quantity_per_order)
     expose :max_quantity_per_offering, &self.delegate_to(:inventory!, :max_quantity_per_offering)
+    expose :limited_quantity, &self.delegate_to(:inventory!, :limited_quantity)
+    expose :quantity_on_hand, &self.delegate_to(:inventory!, :quantity_on_hand)
+    expose :quantity_pending_fulfillment, &self.delegate_to(:inventory!, :quantity_pending_fulfillment)
     expose :offerings, with: OfferingEntity
     expose :orders, with: OrderEntity
     expose :offering_products, with: OfferingProductWithOfferingEntity
@@ -93,6 +96,7 @@ class Suma::AdminAPI::CommerceProducts < Suma::AdminAPI::V1
       post do
         product = Suma::Commerce::Product[params[:id]]
         product.db.transaction do
+          product.inventory!.lock!
           (vendor = Suma::Vendor[name: params[:vendor_name]]) or forbidden!
           (vsc = Suma::Vendor::ServiceCategory[slug: params[:vendor_service_category_slug]]) or forbidden!
           product.remove_all_vendor_service_categories
@@ -100,7 +104,6 @@ class Suma::AdminAPI::CommerceProducts < Suma::AdminAPI::V1
 
           uploaded_file = Suma::UploadedFile.create_from_multipart(params[:image])
           product.images.first.update(uploaded_file:)
-          product.save_changes
 
           product.update(
             name: Suma::TranslatedText.find_or_create(**params[:name]),
@@ -111,6 +114,9 @@ class Suma::AdminAPI::CommerceProducts < Suma::AdminAPI::V1
           product.inventory!.update(
             max_quantity_per_order: params[:max_quantity_per_order],
             max_quantity_per_offering: params[:max_quantity_per_offering],
+            limited_quantity: params[:limited_quantity],
+            quantity_on_hand: params[:quantity_on_hand],
+            quantity_pending_fulfillment: params[:quantity_pending_fulfillment],
           )
         end
         created_resource_headers(product.id, product.admin_link)

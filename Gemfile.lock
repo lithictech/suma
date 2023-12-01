@@ -244,7 +244,7 @@ GEM
     sentry-sidekiq (5.10.0)
       sentry-ruby (~> 5.10.0)
       sidekiq (>= 3.0)
-    sequel (5.72.0)
+    sequel (5.75.0)
       bigdecimal
     sequel-annotate (1.7.0)
       sequel (>= 4)
@@ -359,7 +359,7 @@ DEPENDENCIES
   semantic_logger
   sentry-ruby
   sentry-sidekiq
-  sequel
+  sequel (>= 5.75)
   sequel-annotate
   sequel-money-fields
   sequel-soft-deletes

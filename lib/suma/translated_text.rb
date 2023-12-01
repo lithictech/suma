@@ -5,6 +5,36 @@ require "suma/postgres/model"
 
 class Suma::TranslatedText < Suma::Postgres::Model(:translated_texts)
   include SequelTranslatedText::Model
+
+  dataset_module do
+    # Return a dataset with a full_text_search on a supported lang column like :en or :es.
+    def search(col, q)
+      pglang = case col
+        when :en
+          "english"
+        when :es
+          "spanish"
+        else
+          raise ArgumentError, "invalid column name: #{col}"
+      end
+      return self.full_text_search(
+        :"#{col}_tsvector",
+        q,
+        to_tsquery: :websearch,
+        rank: true,
+        language: pglang,
+        tsvector: true,
+      )
+    end
+
+    # Return a dataset limited to translations unique on the given column,
+    # and then searched with full text search.
+    def distinct_search(col, q)
+      # Perform a subselect since otherwise we can't sort with distinct.
+      all_unique = Suma::TranslatedText.dataset.distinct(col)
+      return self.where(id: all_unique.select(:id)).search(col, q)
+    end
+  end
 end
 
 # Table: translated_texts

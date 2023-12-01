@@ -26,20 +26,12 @@ class Suma::AdminAPI::Meta < Suma::AdminAPI::V1
       present result
     end
 
-    get :vendors do
-      use_http_expires_caching 12.hours
-      v = Suma::Vendor.dataset.order(:name).all
-      present_collection v, with: VendorCollectionEntity
-    end
-
     get :vendor_service_categories do
-      use_http_expires_caching 12.hours
       sc = Suma::Vendor::ServiceCategory.dataset.order(:name).all
       present_collection sc, with: HierarchicalCategoryEntity
     end
 
     get :eligibility_constraints do
-      use_http_expires_caching 12.hours
       ec = Suma::Eligibility::Constraint.dataset.order(:name).all
       present({items: ec, statuses: Suma::Eligibility::Constraint::STATUSES},
               with: EligibilityConstraintCollectionEntity,)
@@ -51,11 +43,8 @@ class Suma::AdminAPI::Meta < Suma::AdminAPI::V1
     expose :code
   end
 
-  class VendorCollectionEntity < BaseEntity
-    expose :name
-  end
-
   class HierarchicalCategoryEntity < BaseEntity
+    expose :id
     expose :slug
     expose :name
     expose :full_label, as: :label
