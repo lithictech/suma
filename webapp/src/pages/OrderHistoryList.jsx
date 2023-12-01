@@ -1,5 +1,6 @@
 import api from "../api";
 import ErrorScreen from "../components/ErrorScreen";
+import LayoutContainer from "../components/LayoutContainer";
 import LinearBreadcrumbs from "../components/LinearBreadcrumbs";
 import PageLoader from "../components/PageLoader";
 import RLink from "../components/RLink";
@@ -8,8 +9,7 @@ import SumaImage from "../components/SumaImage";
 import { mdp, t } from "../localization";
 import { dayjs } from "../modules/dayConfig";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
-import { useUser } from "../state/useUser";
-import { LayoutContainer } from "../state/withLayout";
+import useUser from "../state/useUser";
 import find from "lodash/find";
 import isEmpty from "lodash/isEmpty";
 import React from "react";

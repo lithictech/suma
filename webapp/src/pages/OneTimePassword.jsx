@@ -7,7 +7,7 @@ import { dayjs } from "../modules/dayConfig";
 import { maskPhoneNumber } from "../modules/maskPhoneNumber";
 import useLoginRedirectLink from "../shared/react/useLoginRedirectLink";
 import { extractErrorCode, useError } from "../state/useError";
-import { useUser } from "../state/useUser";
+import useUser from "../state/useUser";
 import React from "react";
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";

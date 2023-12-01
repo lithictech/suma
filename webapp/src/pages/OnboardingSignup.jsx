@@ -5,7 +5,7 @@ import FormError from "../components/FormError";
 import { mdp, t } from "../localization";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
 import { extractErrorCode } from "../state/useError";
-import { useUser } from "../state/useUser";
+import useUser from "../state/useUser";
 import React from "react";
 import Col from "react-bootstrap/Col";
 import Form from "react-bootstrap/Form";

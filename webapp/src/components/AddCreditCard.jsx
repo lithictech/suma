@@ -8,7 +8,7 @@ import { t } from "../localization";
 import elementDimensions from "../modules/elementDimensions";
 import keepDigits from "../modules/keepDigits";
 import { extractErrorCode } from "../state/useError";
-import { useScreenLoader } from "../state/useScreenLoader";
+import useScreenLoader from "../state/useScreenLoader";
 import get from "lodash/get";
 import Payment from "payment";
 import React from "react";

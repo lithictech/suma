@@ -3,7 +3,7 @@ import ContactListTags from "../components/ContactListTags";
 import RLink from "../components/RLink";
 import { t } from "../localization";
 import useI18Next from "../localization/useI18Next";
-import { useBackendGlobals } from "../state/useBackendGlobals";
+import useBackendGlobals from "../state/useBackendGlobals";
 import React from "react";
 import Button from "react-bootstrap/Button";
 import Container from "react-bootstrap/Container";

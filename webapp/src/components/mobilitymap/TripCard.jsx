@@ -2,7 +2,7 @@ import api from "../../api";
 import { t } from "../../localization";
 import { dayjs } from "../../modules/dayConfig";
 import { extractErrorCode, useError } from "../../state/useError";
-import { useUser } from "../../state/useUser";
+import useUser from "../../state/useUser";
 import FormError from "../FormError";
 import PageLoader from "../PageLoader";
 import CardOverlay from "./CardOverlay";

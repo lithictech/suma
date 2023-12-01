@@ -1,6 +1,7 @@
 import api from "../api";
 import foodHeaderImage from "../assets/images/onboarding-food.jpg";
 import ErrorScreen from "../components/ErrorScreen";
+import LayoutContainer from "../components/LayoutContainer";
 import PageLoader from "../components/PageLoader";
 import RLink from "../components/RLink";
 import SumaImage from "../components/SumaImage";
@@ -8,7 +9,6 @@ import WaitingListPage from "../components/WaitingListPage";
 import { mdp, t } from "../localization";
 import { dayjs } from "../modules/dayConfig";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
-import { LayoutContainer } from "../state/withLayout";
 import isEmpty from "lodash/isEmpty";
 import React from "react";
 import Button from "react-bootstrap/Button";

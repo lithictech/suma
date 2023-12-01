@@ -5,9 +5,6 @@
   "dependencies": {
     "@sentry/browser": "^7.31.1",
     "@sentry/tracing": "^7.31.1",
-    "@testing-library/jest-dom": "^5.16.5",
-    "@testing-library/react": "^13.4.0",
-    "@testing-library/user-event": "^14.4.3",
     "axios": "^1.2.3",
     "bluebird": "^3.7.2",
     "bootstrap": "^5.2.3",
@@ -65,10 +62,15 @@
     ]
   },
   "devDependencies": {
+    "@testing-library/jest-dom": "^5.16.5",
+    "@testing-library/react": "^13.4.0",
+    "@testing-library/user-event": "^14.4.3",
     "@trivago/prettier-plugin-sort-imports": "^4.0.0",
     "@vitejs/plugin-react": "^4.1.0",
-    "eslint": "^8.51.0",
-    "eslint-config-react-app": "^7.0.1",
+    "eslint": "^8.45.0",
+    "eslint-plugin-react": "^7.32.2",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "eslint-plugin-react-refresh": "^0.4.3",
     "prettier": "^2.8.3",
     "qrcode": "^1.5.1",
     "vite-bundle-visualizer": "^0.10.0",

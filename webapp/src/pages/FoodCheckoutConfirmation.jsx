@@ -1,12 +1,12 @@
 import api from "../api";
 import ErrorScreen from "../components/ErrorScreen";
 import FormButtons from "../components/FormButtons";
+import LayoutContainer from "../components/LayoutContainer";
 import PageLoader from "../components/PageLoader";
 import RLink from "../components/RLink";
 import SumaImage from "../components/SumaImage";
 import { mdp, t } from "../localization";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
-import { LayoutContainer } from "../state/withLayout";
 import React from "react";
 import Alert from "react-bootstrap/Alert";
 import Col from "react-bootstrap/Col";

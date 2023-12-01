@@ -1,10 +1,10 @@
 import api from "../api";
 import ErrorScreen from "../components/ErrorScreen";
+import LayoutContainer from "../components/LayoutContainer";
 import LinearBreadcrumbs from "../components/LinearBreadcrumbs";
 import OrderDetail from "../components/OrderDetail";
 import PageLoader from "../components/PageLoader";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
-import { LayoutContainer } from "../state/withLayout";
 import React from "react";
 import { useLocation, useParams } from "react-router-dom";
 

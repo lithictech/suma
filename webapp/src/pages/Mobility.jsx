@@ -1,11 +1,11 @@
 import mobilityHeaderImage from "../assets/images/onboarding-mobility.jpg";
 import ExternalLink from "../components/ExternalLink";
+import LayoutContainer from "../components/LayoutContainer";
 import WaitingListPage from "../components/WaitingListPage";
 import Map from "../components/mobilitymap/Map";
 import config from "../config";
 import { t } from "../localization";
 import externalLinks from "../modules/externalLinks";
-import { LayoutContainer } from "../state/withLayout";
 import React from "react";
 
 export default function Mobility() {

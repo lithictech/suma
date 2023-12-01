@@ -1,5 +1,6 @@
 import { t } from "../localization";
-import Money, { anyMoney, subtractMoney } from "../shared/react/Money";
+import { anyMoney, subtractMoney } from "../shared/money";
+import Money from "../shared/react/Money";
 import clsx from "clsx";
 import React from "react";
 import Stack from "react-bootstrap/Stack";
