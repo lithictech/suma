@@ -1,9 +1,9 @@
+import LayoutContainer from "../components/LayoutContainer";
 import ScreenLoader from "../components/ScreenLoader";
 import SumaMarkdown from "../components/SumaMarkdown";
 import TopNav from "../components/TopNav";
 import { t as loct } from "../localization";
 import useMountEffect from "../shared/react/useMountEffect";
-import { LayoutContainer } from "../state/withLayout";
 import i18n from "i18next";
 import React from "react";
 import { Helmet } from "react-helmet-async";

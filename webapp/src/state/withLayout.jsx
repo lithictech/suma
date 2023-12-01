@@ -1,6 +1,7 @@
 import "../assets/styles/screenloader.scss";
 import AppNav from "../components/AppNav";
 import TopNav from "../components/TopNav";
+import { guttersClass, topMarginClass } from "../modules/constants";
 import ScrollTopOnMount from "../shared/ScrollToTopOnMount";
 import clsx from "clsx";
 import React from "react";
@@ -31,7 +32,7 @@ export default function withLayout(options) {
   options = options || {};
   const nav = options.nav || "top";
   const appNav = options.appNav;
-  const hasNav = nav !== "none" || options.navApp;
+  const hasNav = nav !== "none" || options.appNav;
   const bg = options.bg || "bg-light";
   const gutterCls = options.gutters ? guttersClass : null;
   const topCls = options.top ? topMarginClass : null;
@@ -75,12 +76,4 @@ export default function withLayout(options) {
       );
     };
   };
-}
-
-export const topMarginClass = "pt-3";
-export const guttersClass = "px-3";
-
-export function LayoutContainer({ className, gutters, top, ...rest }) {
-  const cls = clsx(top && topMarginClass, gutters && guttersClass, className);
-  return <Container className={cls} {...rest} />;
 }

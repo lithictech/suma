@@ -1,14 +1,14 @@
 import ErrorScreen from "../components/ErrorScreen";
 import FoodNav from "../components/FoodNav";
 import FoodPrice from "../components/FoodPrice";
+import LayoutContainer from "../components/LayoutContainer";
 import LinearBreadcrumbs from "../components/LinearBreadcrumbs";
 import PageLoader from "../components/PageLoader";
 import RLink from "../components/RLink";
 import SumaImage from "../components/SumaImage";
 import { t, mdp } from "../localization";
 import makeTitle from "../modules/makeTitle";
-import { useOffering } from "../state/useOffering";
-import { LayoutContainer } from "../state/withLayout";
+import useOffering from "../state/useOffering";
 import isEmpty from "lodash/isEmpty";
 import React from "react";
 import Button from "react-bootstrap/Button";

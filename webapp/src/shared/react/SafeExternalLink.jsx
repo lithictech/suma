@@ -3,7 +3,6 @@ import React from "react";
 export default function SafeExternalLink({
   href,
   className,
-  title,
   children,
   opener,
   referrer,

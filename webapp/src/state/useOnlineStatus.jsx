@@ -5,10 +5,10 @@ export default function useOnlineStatus() {
 
   React.useEffect(() => {
     const abortCtrl = new AbortController();
-    window.addEventListener("offline", (e) => setIsOnline(false), {
+    window.addEventListener("offline", () => setIsOnline(false), {
       signal: abortCtrl.signal,
     });
-    window.addEventListener("online", (e) => setIsOnline(true), {
+    window.addEventListener("online", () => setIsOnline(true), {
       signal: abortCtrl.signal,
     });
     return () => abortCtrl.abort();

@@ -1,6 +1,6 @@
 import RLink from "../components/RLink";
 import { mdp, t } from "../localization";
-import { useUser } from "../state/useUser";
+import useUser from "../state/useUser";
 import React from "react";
 import Button from "react-bootstrap/Button";
 

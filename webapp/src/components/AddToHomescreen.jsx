@@ -79,7 +79,7 @@ export default function AddToHomescreen() {
                 setHasRegistration(true);
               }
             })
-            .catch((_e) => setHasRegistration(false));
+            .catch(() => setHasRegistration(false));
         }, 1000);
       }
 

@@ -1,4 +1,4 @@
-import { guttersClass } from "../state/withLayout";
+import { guttersClass } from "../modules/constants";
 import CartIcon from "./CartIcon";
 import RLink from "./RLink";
 import clsx from "clsx";

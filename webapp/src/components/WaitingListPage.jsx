@@ -1,9 +1,9 @@
 import api from "../api";
 import AnimatedCheckmark from "../components/AnimatedCheckmark";
+import LayoutContainer from "../components/LayoutContainer";
 import PageLoader from "../components/PageLoader";
 import RLink from "../components/RLink";
 import { t } from "../localization";
-import { LayoutContainer } from "../state/withLayout";
 import React from "react";
 import Button from "react-bootstrap/Button";
 

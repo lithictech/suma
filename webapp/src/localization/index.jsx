@@ -104,8 +104,11 @@ export const mdx = lu.mdx;
 
 function compileStringAsync(str, cb) {
   window.setTimeout(() => {
-    const comp = compiler(str || "", { wrapper: React.Fragment, forceWrapper: true });
-    const el = document.createElement("div");
-    ReactDOM.render(comp, el, () => cb(el.innerHTML));
+    const compiledMdToJsx = compiler(str || "", {
+      wrapper: React.Fragment,
+      forceWrapper: true,
+    });
+    const root = ReactDOM.createRoot(compiledMdToJsx);
+    root.render(<React.Fragment ref={(r) => cb(r && cb(r.innerHtml))} />);
   }, 0);
 }

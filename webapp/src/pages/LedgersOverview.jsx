@@ -1,5 +1,6 @@
 import api from "../api";
 import ForwardBackPagination from "../components/ForwardBackPagination";
+import LayoutContainer from "../components/LayoutContainer";
 import LinearBreadcrumbs from "../components/LinearBreadcrumbs";
 import PageLoader from "../components/PageLoader";
 import LedgerItemModal from "../components/ledger/LedgerItemModal";
@@ -8,7 +9,6 @@ import Money from "../shared/react/Money";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
 import useHashSelector from "../shared/react/useHashSelector";
 import useListQueryControls from "../shared/react/useListQueryControls";
-import { LayoutContainer } from "../state/withLayout";
 import clsx from "clsx";
 import dayjs from "dayjs";
 import find from "lodash/find";

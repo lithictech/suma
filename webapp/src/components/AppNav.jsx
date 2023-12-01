@@ -1,5 +1,5 @@
 import { t } from "../localization";
-import { useGlobalViewState } from "../state/useGlobalViewState";
+import useGlobalViewState from "../state/useGlobalViewState";
 import clsx from "clsx";
 import React from "react";
 import { Link, useLocation } from "react-router-dom";

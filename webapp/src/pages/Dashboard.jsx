@@ -1,5 +1,6 @@
 import api from "../api";
 import AddToHomescreen from "../components/AddToHomescreen";
+import LayoutContainer from "../components/LayoutContainer";
 import NavButton from "../components/NavButton";
 import PageLoader from "../components/PageLoader";
 import RLink from "../components/RLink";
@@ -8,8 +9,7 @@ import { md, t } from "../localization";
 import readOnlyReason from "../modules/readOnlyReason";
 import Money from "../shared/react/Money";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
-import { useUser } from "../state/useUser";
-import { LayoutContainer } from "../state/withLayout";
+import useUser from "../state/useUser";
 import clsx from "clsx";
 import dayjs from "dayjs";
 import first from "lodash/first";

@@ -38,6 +38,7 @@ export default function FormControlGroup({
   className,
   as,
   label,
+  // eslint-disable-next-line no-unused-vars
   placeholder,
   text,
   Input,

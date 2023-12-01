@@ -7,7 +7,7 @@ import React from "react";
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
 
-export default function ({ item, onClose }) {
+export default function LedgerItemModal({ item, onClose }) {
   const { amount, at, opaqueId, usageDetails } = item || {};
   return (
     <Modal show={Boolean(item)} onHide={onClose} onExit={onClose} centered>
