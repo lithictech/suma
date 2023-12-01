@@ -66,6 +66,7 @@ class Suma::Commerce::Order < Suma::Postgres::Model(:commerce_orders)
     event :cancel do
       transition open: :canceled
     end
+    after_transition on: :cancel, do: :after_open_order_canceled
 
     after_transition(&:commit_audit_log)
     after_failure(&:commit_audit_log)
@@ -124,16 +125,12 @@ class Suma::Commerce::Order < Suma::Postgres::Model(:commerce_orders)
     return self.charges.map(&:associated_funding_transactions).flatten.sum(Money.new(0), &:amount)
   end
 
-  def cancel
-    transitioning = super
-    return unless transitioning
-    if self.fulfillment_status == "unfulfilled"
-      self.limited_quantity_items.each do |ci|
-        ci.offering_product.product.inventory.quantity_pending_fulfillment -= ci.quantity
-        ci.offering_product.product.inventory.save_changes
-      end
+  def after_open_order_canceled
+    return if self.fulfillment_status == "fulfilled"
+    self.limited_quantity_items.each do |ci|
+      ci.offering_product.product.inventory.quantity_pending_fulfillment -= ci.quantity
+      ci.offering_product.product.inventory.save_changes
     end
-    return true
   end
 
   def admin_status_label

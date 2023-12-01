@@ -105,13 +105,6 @@ RSpec.describe "Suma::Commerce::Order", :db do
       ) # Assert has no changed, since the quantity modification has not been applied yet
     end
 
-    it "removes from quantity pending fulfillment when canceling an open order" do
-      expect(order).to transition_on(:cancel).to("canceled")
-      expect(limited_product.inventory.refresh).to have_attributes(
-        quantity_on_hand: 4, quantity_pending_fulfillment: 1,
-      )
-    end
-
     it "can claim claimable orders" do
       expect(order).to not_transition_on(:claim)
       expect(order).to transition_on(:begin_fulfillment).to("fulfilling")
@@ -153,6 +146,37 @@ RSpec.describe "Suma::Commerce::Order", :db do
       # Check that canceled orders can't be fulfilled
       order.update(order_status: "canceled")
       expect(order).to not_transition_on(:begin_fulfillment)
+    end
+  end
+
+  describe "order status state machine" do
+    let(:limited_product) { Suma::Fixtures.product.limited_quantity(4, 2).create }
+    let(:unlimited_product) { Suma::Fixtures.product.create }
+    let(:cart) do
+      Suma::Fixtures.cart.
+        with_offering_of_product(limited_product, 1).
+        with_offering_of_product(unlimited_product, 1).
+        create
+    end
+    let(:checkout) { Suma::Fixtures.checkout(cart:).with_payment_instrument.populate_items.completed.create }
+    let(:order) { Suma::Fixtures.order(checkout:).create }
+
+    it "removes from quantity pending fulfillment when canceling an open, not-fulfilled order" do
+      expect(order).to have_attributes(order_status: "open", fulfillment_status: "unfulfilled")
+      expect(order).to transition_on(:cancel).to("canceled")
+      expect(limited_product.inventory.refresh).to have_attributes(
+        quantity_on_hand: 4, quantity_pending_fulfillment: 1,
+      )
+    end
+
+    it "does not modify quantity when canceling a fulfilled order" do
+      # In reality if the order is in the 'fulfilled' status we already dealt with the quantity changes,
+      # so this should noop.
+      order.fulfillment_status = "fulfilled"
+      expect(order).to transition_on(:cancel).to("canceled")
+      expect(limited_product.inventory.refresh).to have_attributes(
+        quantity_on_hand: 4, quantity_pending_fulfillment: 2,
+      )
     end
   end
 end
