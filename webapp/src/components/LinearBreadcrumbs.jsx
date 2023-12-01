@@ -1,34 +1,29 @@
 import { t } from "../localization";
+import NavButton from "./NavButton";
 import clsx from "clsx";
 import React from "react";
-import { Link } from "react-router-dom";
 
-export default function LinearBreadcrumbs({ forward, back, noBottom }) {
-  let Back, backProps;
+export default function LinearBreadcrumbs({ back, noBottom }) {
+  let backProps;
   if (back === true) {
-    Back = "a";
-    backProps = { href: "#", onClick: () => window.history.back() };
+    backProps = {
+      to: "#",
+      onClick: (e) => {
+        e.preventDefault();
+        window.history.back();
+      },
+    };
   } else if (typeof back === "string") {
-    Back = Link;
     backProps = { to: back };
   }
   return (
-    <nav className={clsx(noBottom || "mb-3")}>
+    <nav className={clsx(noBottom || "mb-1")}>
       <ol className="linear-breadcrumb m-0">
         {back && (
           <li>
-            {t("common:back_sym")}
-            <Back className="ms-1" {...backProps}>
+            <NavButton left size="sm" {...backProps}>
               {t("common:back")}
-            </Back>
-          </li>
-        )}
-        {forward && (
-          <li>
-            <Link className="me-1" to={forward}>
-              {t("common:next")}
-            </Link>
-            {t("common:next_sym")}
+            </NavButton>
           </li>
         )}
       </ol>

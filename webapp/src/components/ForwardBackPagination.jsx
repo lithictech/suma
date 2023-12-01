@@ -17,7 +17,7 @@ export default function ForwardBackPagination({
     }
   };
   return (
-    <Pagination size="sm" className="justify-content-end">
+    <Pagination size="md" className="justify-content-end">
       <Pagination.Prev
         className={clsx(page < 1 && "disabled")}
         onClick={() => handlePageChange(page - 1)}

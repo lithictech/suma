@@ -77,8 +77,8 @@ export default function withLayout(options) {
   };
 }
 
-export const topMarginClass = "pt-4";
-export const guttersClass = "px-4";
+export const topMarginClass = "pt-3";
+export const guttersClass = "px-3";
 
 export function LayoutContainer({ className, gutters, top, ...rest }) {
   const cls = clsx(top && topMarginClass, gutters && guttersClass, className);

@@ -14,7 +14,6 @@ import { LayoutContainer } from "../state/withLayout";
 import isEmpty from "lodash/isEmpty";
 import React from "react";
 import Button from "react-bootstrap/Button";
-import Row from "react-bootstrap/Row";
 import Stack from "react-bootstrap/Stack";
 import { Link, useNavigate, useParams } from "react-router-dom";
 
@@ -51,74 +50,68 @@ export default function FoodCart() {
   return (
     <>
       <LayoutContainer gutters>
-        <Row>
-          <LinearBreadcrumbs back={`/food/${offeringId}`} />
-          <Stack direction="horizontal" gap={3} className="align-items-end">
-            <h4 className="mb-0">{t("food:cart_title")}</h4>
-            <span className="text-secondary ms-auto">{t("food:price")}</span>
-          </Stack>
-        </Row>
+        <LinearBreadcrumbs back={`/food/${offeringId}`} />
+        <Stack direction="horizontal" gap={3} className="align-items-end">
+          <h4 className="mb-0">{t("food:cart_title")}</h4>
+          <span className="text-secondary ms-auto">{t("food:price")}</span>
+        </Stack>
       </LayoutContainer>
       <hr className="mt-2 mb-4" />
       <LayoutContainer gutters>
-        <Row>
-          {!isEmpty(items) ? (
-            <Stack gap={4}>
-              {items.map((item) => {
-                const product = productsById[item.productId];
-                const vendor = vendorsById[product.vendorId];
-                return (
-                  <CartItem
-                    key={product.name}
-                    offeringId={offeringId}
-                    product={product}
-                    vendor={vendor}
-                  />
-                );
-              })}
-            </Stack>
-          ) : (
-            <span className="">{md("food:no_cart_items")}</span>
-          )}
-        </Row>
+        {!isEmpty(items) ? (
+          <Stack gap={4}>
+            {items.map((item) => {
+              const product = productsById[item.productId];
+              const vendor = vendorsById[product.vendorId];
+              return (
+                <CartItem
+                  key={product.name}
+                  offeringId={offeringId}
+                  product={product}
+                  vendor={vendor}
+                />
+              );
+            })}
+          </Stack>
+        ) : (
+          <span className="">{md("food:no_cart_items")}</span>
+        )}
       </LayoutContainer>
       <hr className="my-4" />
       <LayoutContainer gutters>
-        <Row>
-          {!isEmpty(items) ? (
-            <Stack gap={2} className="align-items-end">
-              <div>
-                {md("food:subtotal_items", {
-                  totalItems: items.length,
-                  customerCost: cart.customerCost,
+        {!isEmpty(items) ? (
+          <Stack gap={2} className="align-items-end">
+            <div>
+              {md("food:subtotal_items", {
+                totalItems: items.length,
+                customerCost: cart.customerCost,
+              })}
+            </div>
+            {anyMoney(cart.noncashLedgerContributionAmount) && (
+              <div className="text-success">
+                {md("food:cart_available_credit", {
+                  amount: cart.noncashLedgerContributionAmount,
                 })}
               </div>
-              {anyMoney(cart.noncashLedgerContributionAmount) && (
-                <div className="text-success">
-                  {md("food:cart_available_credit", {
-                    amount: cart.noncashLedgerContributionAmount,
-                  })}
-                </div>
-              )}
-              {anyMoney(cart.cashCost) && (
-                <div>
-                  {md("food:cart_cash_cost", {
-                    amount: cart.cashCost,
-                  })}
-                </div>
-              )}
-              <Button onClick={handleCheckout} variant="success">
-                {t("food:continue_to_checkout")}
-              </Button>
-            </Stack>
-          ) : (
-            <div className="button-stack w-100">
-              <Button href="/food" as={RLink} title={t("food:title")}>
-                {t("food:available_offerings")}
-              </Button>
-            </div>
-          )}
-        </Row>
+            )}
+            {anyMoney(cart.cashCost) && (
+              <div>
+                {md("food:cart_cash_cost", {
+                  amount: cart.cashCost,
+                })}
+              </div>
+            )}
+            <Button onClick={handleCheckout} variant="success">
+              {t("food:continue_to_checkout")}
+            </Button>
+          </Stack>
+        ) : (
+          <div className="button-stack">
+            <Button href="/food" as={RLink} title={t("food:title")}>
+              {t("food:available_offerings")}
+            </Button>
+          </div>
+        )}
       </LayoutContainer>
     </>
   );

@@ -1,5 +1,6 @@
 import api from "../api";
 import AddToHomescreen from "../components/AddToHomescreen";
+import NavButton from "../components/NavButton";
 import PageLoader from "../components/PageLoader";
 import RLink from "../components/RLink";
 import SeeAlsoAlert from "../components/SeeAlsoAlert";
@@ -127,7 +128,9 @@ const Ledger = ({ dashboard, user }) => {
                 <Stack direction="horizontal" gap={3}>
                   {t("dashboard:recent_ledger_lines")}
                   <div className="ms-auto">
-                    <Link to="/ledgers">{t("common:view_all")}</Link>
+                    <NavButton right href="/ledgers" size="sm" className="nowrap">
+                      {t("common:view_all")}
+                    </NavButton>
                   </div>
                 </Stack>
               </th>
@@ -137,8 +140,11 @@ const Ledger = ({ dashboard, user }) => {
             {dashboard.ledgerLines.map((ledger, i) => (
               <tr key={i}>
                 <td>
-                  <div className="d-flex justify-content-between mb-1">
-                    <strong>{dayjs(ledger.at).format("lll")}</strong>
+                  <div className="d-flex justify-content-between align-items-center gap-3 mb-1">
+                    <div>
+                      <strong>{dayjs(ledger.at).format("lll")}</strong>
+                      <div>{ledger.memo}</div>
+                    </div>
                     <Money
                       className={clsx(
                         ledger.amount.cents < 0 ? "text-danger" : "text-success"
@@ -147,7 +153,6 @@ const Ledger = ({ dashboard, user }) => {
                       {ledger.amount}
                     </Money>
                   </div>
-                  <div>{ledger.memo}</div>
                 </td>
               </tr>
             ))}

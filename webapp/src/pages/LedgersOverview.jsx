@@ -14,7 +14,6 @@ import dayjs from "dayjs";
 import find from "lodash/find";
 import first from "lodash/first";
 import React from "react";
-import Container from "react-bootstrap/Container";
 import Dropdown from "react-bootstrap/Dropdown";
 import Stack from "react-bootstrap/Stack";
 import Table from "react-bootstrap/Table";
@@ -182,14 +181,17 @@ const LedgerLines = ({
           {lines.map((line) => (
             <tr key={line.id}>
               <td className="pt-3 pb-3">
-                <div className="d-flex justify-content-between mb-1">
-                  <a
-                    className="ps-0"
-                    href={`#${line.opaqueId}`}
-                    onClick={(e) => onHashItemSelected(e, line)}
-                  >
-                    <strong>{dayjs(line.at).format("lll")}</strong>
-                  </a>
+                <div className="d-flex justify-content-between align-items-center gap-3 mb-1">
+                  <div>
+                    <a
+                      className="ps-0"
+                      href={`#${line.opaqueId}`}
+                      onClick={(e) => onHashItemSelected(e, line)}
+                    >
+                      <strong>{dayjs(line.at).format("lll")}</strong>
+                    </a>
+                    <div>{line.memo}</div>
+                  </div>
                   <Money
                     className={clsx(
                       line.amount.cents < 0 ? "text-danger" : "text-success"
@@ -198,20 +200,19 @@ const LedgerLines = ({
                     {line.amount}
                   </Money>
                 </div>
-                <div>{line.memo}</div>
               </td>
             </tr>
           ))}
         </tbody>
       </Table>
-      <Container>
+      <LayoutContainer gutters>
         <ForwardBackPagination
           page={linesPage}
           pageCount={linesPageCount}
           onPageChange={onLinesPageChange}
           scrollTop={140}
         />
-      </Container>
+      </LayoutContainer>
       <LedgerItemModal
         item={selectedHashItem}
         onClose={() => onHashItemSelected(null, null)}

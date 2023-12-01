@@ -37,6 +37,7 @@
   "scripts": {
     "analyze": "vite-bundle-visualizer ../build-webapp/assets/*.js --output=source-explorer.html",
     "start": "vite --port 22004",
+    "start-network": "vite --port 22004 --host",
     "build": "vite build --base=/app",
     "test": "vitest --passWithNoTests --globals",
     "serve": "vite preview",

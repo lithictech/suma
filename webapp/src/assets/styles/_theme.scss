@@ -104,6 +104,10 @@ $input-placeholder-color: $gray-500;
   @include button-variant(darken($primary, 5%), darken($primary, 5%));
 }
 
+.btn-link {
+  text-decoration: none;
+}
+
 .card-header {
   background-color: $light-darker;
 }

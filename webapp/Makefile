@@ -28,7 +28,7 @@ start: check-version
 	VITE_CHAOS=0.5 npm start
 
 start-network: check-version network-code
-	BROWSER=none VITE_API_HOST=http://$(LOCAL_NETWORK_IP):22001 npm start
+	BROWSER=none VITE_API_HOST=http://$(LOCAL_NETWORK_IP):22001 npm run start-network
 
 network-code:
 	@echo $(LOCAL_NETWORK_ADDR) | node node_modules/.bin/qrcode --small
