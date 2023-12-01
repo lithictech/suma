@@ -1,5 +1,6 @@
 import api from "../api";
 import AddToHomescreen from "../components/AddToHomescreen";
+import NavButton from "../components/NavButton";
 import PageLoader from "../components/PageLoader";
 import RLink from "../components/RLink";
 import SeeAlsoAlert from "../components/SeeAlsoAlert";
@@ -127,9 +128,9 @@ const Ledger = ({ dashboard, user }) => {
                 <Stack direction="horizontal" gap={3}>
                   {t("dashboard:recent_ledger_lines")}
                   <div className="ms-auto">
-                    <Button href="/ledgers" as={RLink} size="sm" className="nowrap">
+                    <NavButton right href="/ledgers" size="sm" className="nowrap">
                       {t("common:view_all")}
-                    </Button>
+                    </NavButton>
                   </div>
                 </Stack>
               </th>
