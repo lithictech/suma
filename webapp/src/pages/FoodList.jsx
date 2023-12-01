@@ -6,7 +6,7 @@ import LinearBreadcrumbs from "../components/LinearBreadcrumbs";
 import PageLoader from "../components/PageLoader";
 import RLink from "../components/RLink";
 import SumaImage from "../components/SumaImage";
-import { t, mdp } from "../localization";
+import { t } from "../localization";
 import makeTitle from "../modules/makeTitle";
 import useOffering from "../state/useOffering";
 import isEmpty from "lodash/isEmpty";
@@ -76,7 +76,7 @@ export default function FoodList() {
         <h2 className="mb-3">{offering.description}</h2>
         {isEmpty(products) ? (
           <>
-            {mdp("food:no_products")}
+            {t("food:no_products")}
             <div className="button-stack w-100">
               <Button href="/food" as={RLink} title={t("food:title")}>
                 {t("food:available_offerings")}

@@ -61,7 +61,7 @@ export default function FoodCheckoutConfirmation() {
       </LayoutContainer>
       <hr />
       <LayoutContainer gutters>
-        {mdp("food:confirmation_message", { check: false })}
+        {mdp("food:confirmation_message")}
         <FormButtons
           className="mt-2"
           primaryProps={{

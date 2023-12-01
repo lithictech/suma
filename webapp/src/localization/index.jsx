@@ -4,7 +4,7 @@ import { Logger } from "../shared/logger";
 import i18n from "i18next";
 import { compiler } from "markdown-to-jsx";
 import React from "react";
-import ReactDOM from "react-dom";
+import ReactDOMClient from "react-dom/client";
 
 const runChecks = import.meta.env.DEV;
 
@@ -46,19 +46,22 @@ export class Lookup {
    * So ## can be used, for example, to trigger modals controlled by the hash.
    */
   mdx = (key, mdoptions = {}, i18noptions = {}) => {
-    const { check, ...i18nrest } = i18noptions;
-    const str = i18n.t(this.prefix + key, { ...i18nrest, externalLinks });
-    if (check && runChecks) {
+    const { ...i18nrest } = i18noptions;
+    const plainLocalized = i18n.t(this.prefix + key, { ...i18nrest, externalLinks });
+    if (runChecks) {
       this.checkKeyName(key);
-      compileStringAsync(str, (s) => {
-        if (s && str && s === str) {
+      compileStringAsync(plainLocalized, (localizedAsMd) => {
+        if (localizedAsMd && plainLocalized && localizedAsMd === plainLocalized) {
+          // The plain localized string is equal to what would have been rendered by markdown;
+          // this is NOT a markdown string but we are using a markdown render function.
+          // Tell the dev to use 't' instead.
           logger
-            .context({ key: key, input: str, output: s })
-            .error("used localization.mdx for a non-string value (slow)");
+            .context({ key: key, input: plainLocalized, output: localizedAsMd })
+            .error("used i18n.mdx for non-markdown, use i18n.t");
         }
       });
     }
-    return <SumaMarkdown options={mdoptions}>{str}</SumaMarkdown>;
+    return <SumaMarkdown options={mdoptions}>{plainLocalized}</SumaMarkdown>;
   };
 
   md = (key, options = {}) => {
@@ -70,19 +73,21 @@ export class Lookup {
   };
 
   t = (key, options = {}) => {
-    const { check, ...restopts } = options;
-    const str = i18n.t(this.prefix + key, restopts);
-    if (check && runChecks) {
+    const { ...restopts } = options;
+    const localized = i18n.t(this.prefix + key, restopts);
+    if (runChecks) {
       this.checkKeyName(key);
-      compileStringAsync(str, (s) => {
-        if (s && str && s !== str) {
+      compileStringAsync(localized, (localizedAsMd) => {
+        if (localizedAsMd && localized && localizedAsMd !== localized) {
+          // We know this should be a markdown string, since we rendered it as markdown
+          // and it changed form.
           logger
-            .context({ key: key, input: str, output: s })
-            .error("used localization.t for a markdown string");
+            .context({ key: key, input: localized, output: localizedAsMd })
+            .error("used i18n.t for a markdown string, use a i18n.md variant");
         }
       });
     }
-    return str;
+    return localized;
   };
 
   checkKeyName(key) {
@@ -108,7 +113,8 @@ function compileStringAsync(str, cb) {
       wrapper: React.Fragment,
       forceWrapper: true,
     });
-    const root = ReactDOM.createRoot(compiledMdToJsx);
-    root.render(<React.Fragment ref={(r) => cb(r && cb(r.innerHtml))} />);
+    const div = document.createElement("div");
+    const root = ReactDOMClient.createRoot(div);
+    root.render(<div ref={(r) => r && cb(r.innerHTML)}>{compiledMdToJsx}</div>);
   }, 0);
 }
