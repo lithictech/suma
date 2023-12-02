@@ -6,36 +6,19 @@ import ImageFileInput from "../components/ImageFileInput";
 import MultiLingualText from "../components/MultiLingualText";
 import ResponsiveStack from "../components/ResponsiveStack";
 import VendorServiceCategorySelect from "../components/VendorServiceCategorySelect";
-import useBusy from "../hooks/useBusy";
-import useErrorSnackbar from "../hooks/useErrorSnackbar";
 import theme from "../theme";
 import { FormLabel, Stack, TextField, Typography } from "@mui/material";
 import React from "react";
-import { useForm } from "react-hook-form";
-import { useNavigate } from "react-router-dom";
 
 export default function ProductForm({
   isCreate,
   resource,
   setField,
   setFieldFromInput,
-  applyChange,
+  register,
+  isBusy,
+  onSubmit,
 }) {
-  const { enqueueErrorSnackbar } = useErrorSnackbar();
-  const navigate = useNavigate();
-  const { isBusy, busy, notBusy } = useBusy();
-  const { register, handleSubmit } = useForm();
-
-  const submit = () => {
-    busy();
-    const p = applyChange();
-    if (!p) {
-      console.error("applyChange must return a promise");
-      return;
-    }
-    p.then(api.followRedirect(navigate)).tapCatch(notBusy).catch(enqueueErrorSnackbar);
-  };
-
   return (
     <FormLayout
       title={isCreate ? "Create a Product" : "Edit Product"}
@@ -43,7 +26,7 @@ export default function ProductForm({
         and can later be listed with an Offering, a.k.a OfferingProduct. If the Offering
         and Product are available on the platform, product will appear in the Food list
         and details page. Discount price can be set when creating an OfferingProduct."
-      onSubmit={handleSubmit(submit)}
+      onSubmit={onSubmit}
       isBusy={isBusy}
     >
       <Stack spacing={2}>
