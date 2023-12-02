@@ -7,6 +7,7 @@ import BookTransactionListPage from "./pages/BookTransactionListPage";
 import DashboardPage from "./pages/DashboardPage";
 import EligibilityConstraintCreatePage from "./pages/EligibilityConstraintCreatePage";
 import EligibilityConstraintDetailPage from "./pages/EligibilityConstraintDetailPage";
+import EligibilityConstraintEditPage from "./pages/EligibilityConstraintEditPage";
 import EligibilityConstraintListPage from "./pages/EligibilityConstraintListPage";
 import FundingTransactionCreatePage from "./pages/FundingTransactionCreatePage";
 import FundingTransactionDetailPage from "./pages/FundingTransactionDetailPage";
@@ -32,6 +33,7 @@ import ProductListPage from "./pages/ProductListPage";
 import SignInPage from "./pages/SignInPage";
 import VendorCreatePage from "./pages/VendorCreatePage";
 import VendorDetailPage from "./pages/VendorDetailPage";
+import VendorEditPage from "./pages/VendorEditPage";
 import VendorListPage from "./pages/VendorListPage";
 import applyHocs from "./shared/applyHocs";
 import bluejay from "./shared/bluejay";
@@ -118,6 +120,15 @@ function PageSwitch() {
           redirectIfUnauthed,
           withLayout(),
           EligibilityConstraintDetailPage
+        )}
+      />
+      <Route
+        exact
+        path="/constraint/:id/edit"
+        element={renderWithHocs(
+          redirectIfUnauthed,
+          withLayout(),
+          EligibilityConstraintEditPage
         )}
       />
       <Route
@@ -264,6 +275,11 @@ function PageSwitch() {
         exact
         path="/vendor/:id"
         element={renderWithHocs(redirectIfUnauthed, withLayout(), VendorDetailPage)}
+      />
+      <Route
+        exact
+        path="/vendor/:id/edit"
+        element={renderWithHocs(redirectIfUnauthed, withLayout(), VendorEditPage)}
       />
       <Route
         exact

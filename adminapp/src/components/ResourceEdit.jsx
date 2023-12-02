@@ -3,9 +3,12 @@ import useErrorSnackbar from "../hooks/useErrorSnackbar";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
 import ResourceForm from "./ResourceForm";
 import React from "react";
+import { useParams } from "react-router-dom";
 
-export default function ResourceEdit({ id, apiGet, apiUpdate, Form }) {
+export default function ResourceEdit({ apiGet, apiUpdate, Form }) {
   const { enqueueErrorSnackbar } = useErrorSnackbar();
+  const { id: idStr } = useParams();
+  const id = Number(idStr);
   const apiGetWithErr = React.useCallback(() => {
     return apiGet({ id }).catch(enqueueErrorSnackbar);
   }, [apiGet, enqueueErrorSnackbar, id]);
