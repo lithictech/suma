@@ -1,138 +1,53 @@
 import api from "../api";
+import AutocompleteSearch from "../components/AutocompleteSearch";
 import CurrencyTextField from "../components/CurrencyTextField";
 import FormLayout from "../components/FormLayout";
 import ImageFileInput from "../components/ImageFileInput";
 import MultiLingualText from "../components/MultiLingualText";
 import ResponsiveStack from "../components/ResponsiveStack";
-import VendorSelect from "../components/VendorSelect";
 import VendorServiceCategorySelect from "../components/VendorServiceCategorySelect";
 import config from "../config";
 import useBusy from "../hooks/useBusy";
 import useErrorSnackbar from "../hooks/useErrorSnackbar";
 import formHelpers from "../modules/formHelpers";
 import theme from "../theme";
+import ProductForm from "./ProductForm";
 import { FormLabel, Stack, TextField, Typography } from "@mui/material";
+import merge from "lodash/merge";
 import React from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 
 export default function ProductCreatePage() {
-  const { enqueueErrorSnackbar } = useErrorSnackbar();
-  const navigate = useNavigate();
-  const [image, setImage] = React.useState(null);
-  const [description, setDescription] = React.useState(formHelpers.initialTranslation);
-  const [name, setName] = React.useState(formHelpers.initialTranslation);
-  const [ourCost, setOurCost] = React.useState(config.defaultZeroMoney);
-  const [vendor, setVendor] = React.useState(null);
-  const [category, setCategory] = React.useState(null);
-  const maxQuantityPerOffering = React.useRef(1);
-  const maxQuantityPerOrder = React.useRef(1);
-  const { isBusy, busy, notBusy } = useBusy();
-  const { register, handleSubmit } = useForm();
-
-  const submit = () => {
-    busy();
-    api
-      .createCommerceProduct({
-        image,
-        name,
-        description,
-        ourCost,
-        vendorName: vendor?.name,
-        vendorServiceCategorySlug: category?.slug,
-        maxQuantityPerOrder: maxQuantityPerOrder.current.value,
-        maxQuantityPerOffering: maxQuantityPerOffering.current.value,
-      })
-      .then(api.followRedirect(navigate))
-      .tapCatch(notBusy)
-      .catch(enqueueErrorSnackbar);
+  const product = {
+    image: null,
+    description: formHelpers.initialTranslation,
+    name: formHelpers.initialTranslation,
+    ourCost: config.defaultZeroMoney,
+    vendor: null,
+    category: null,
+    maxQuantityPerOffering: null,
+    maxQuantityPerOrder: null,
+    limitedQuantity: false,
+    quantityOnHand: 0,
+    quantityPendingFulfillment: 0,
   };
+  const [changes, setChanges] = React.useState({});
+  const resource = merge({}, product, changes);
+
+  const handleApplyChange = () => {
+    return api.createCommerceProduct(resource);
+  };
+
   return (
-    <FormLayout
-      title="Create a Product"
-      subtitle=" A product is abstract, it can represent different goods. It is tied to a Vendor
-        and can later be listed with an Offering, a.k.a OfferingProduct. If the Offering
-        and Product are available on the platform, product will appear in the Food list
-        and details page. Discount price can be set when creating an OfferingProduct."
-      onSubmit={handleSubmit(submit)}
-      isBusy={isBusy}
-    >
-      <Stack spacing={2}>
-        <ImageFileInput image={image} onImageChange={(f) => setImage(f)} />
-        <Stack spacing={2}>
-          <FormLabel>Name:</FormLabel>
-          <ResponsiveStack>
-            <MultiLingualText
-              {...register("name")}
-              label="Name"
-              fullWidth
-              value={name}
-              required
-              onChange={(name) => setName(name)}
-            />
-          </ResponsiveStack>
-        </Stack>
-        <FormLabel>Description:</FormLabel>
-        <Stack spacing={2}>
-          <MultiLingualText
-            {...register("description")}
-            label="Description"
-            fullWidth
-            value={description}
-            required
-            onChange={(description) => setDescription(description)}
-          />
-        </Stack>
-        <ResponsiveStack sx={{ pt: theme.spacing(2) }}>
-          <CurrencyTextField
-            {...register("ourCost")}
-            label="Our Cost"
-            helperText="How much does suma offer this product for?"
-            money={ourCost}
-            required
-            style={{ flex: 1 }}
-            onMoneyChange={setOurCost}
-          />
-          <VendorSelect
-            {...register("vendor")}
-            label="Vendor"
-            helperText="What vendor offers this product?"
-            value={vendor?.name || ""}
-            title={vendor?.name}
-            style={{ flex: 1 }}
-            onChange={(_, vendorObj) => setVendor(vendorObj)}
-          />
-          <VendorServiceCategorySelect
-            {...register("category")}
-            label="Category"
-            helperText="What can this be used for?"
-            value={category?.slug || ""}
-            title={category?.label}
-            style={{ flex: 1 }}
-            onChange={(_, categoryObj) => setCategory(categoryObj)}
-            required
-          />
-        </ResponsiveStack>
-        <Typography variant="h6">Inventory</Typography>
-        <ResponsiveStack>
-          <TextField
-            inputRef={maxQuantityPerOffering}
-            type="number"
-            label="Max Quantity Per Offering"
-            helperText="The maximum allowed for this offering per member"
-            fullWidth
-            required
-          />
-          <TextField
-            inputRef={maxQuantityPerOrder}
-            type="number"
-            label="Max Quantity Per Order"
-            helperText="The maximum allowed for each member's order"
-            fullWidth
-            required
-          />
-        </ResponsiveStack>
-      </Stack>
-    </FormLayout>
+    <ProductForm
+      resource={resource}
+      setFields={setChanges}
+      setField={(f, v) => setChanges({ ...changes, [f]: v })}
+      setFieldFromInput={(e) =>
+        setChanges({ ...changes, [e.target.name]: e.target.value })
+      }
+      applyChange={handleApplyChange}
+    />
   );
 }

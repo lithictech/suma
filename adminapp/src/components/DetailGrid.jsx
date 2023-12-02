@@ -1,6 +1,8 @@
 import { dayjs } from "../modules/dayConfig";
 import { Grid, Typography, Box } from "@mui/material";
+import isBoolean from "lodash/isBoolean";
 import isEmpty from "lodash/isEmpty";
+import isUndefined from "lodash/isUndefined";
 import React from "react";
 
 /**
@@ -13,8 +15,10 @@ export default function DetailGrid({ title, properties }) {
     if (!hideEmpty) {
       return true;
     }
-    const val = value || children;
-    return !isEmpty(val);
+    if (!isUndefined(value)) {
+      return true;
+    }
+    return !isEmpty(children);
   });
   return (
     <Box mt={2}>
@@ -51,9 +55,11 @@ function Value({ value, children }) {
   if (children) {
     return children;
   }
-  let fmtVal = value || <>&nbsp;</>;
+  let fmtVal = isUndefined(value) ? <>&nbsp;</> : value;
   if (value instanceof dayjs) {
     fmtVal = value.format("lll");
+  } else if (isBoolean(value)) {
+    fmtVal = value ? "✔️" : "❌";
   }
   return <Typography variant="body1">{fmtVal}</Typography>;
 }

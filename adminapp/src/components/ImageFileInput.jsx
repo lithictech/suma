@@ -2,7 +2,7 @@ import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import { Button, FormHelperText, FormLabel, Stack, Typography } from "@mui/material";
 import React from "react";
 
-function ImageFileInput({ image, onImageChange }) {
+function ImageFileInput({ image, required, onImageChange }) {
   return (
     <Stack spacing={1}>
       <FormLabel>Image:</FormLabel>
@@ -13,7 +13,7 @@ function ImageFileInput({ image, onImageChange }) {
           name="image input"
           accept=".jpg,.jpeg,.png"
           hidden
-          required
+          required={required}
           onChange={(e) => onImageChange(e.target.files[0])}
         />
       </Button>

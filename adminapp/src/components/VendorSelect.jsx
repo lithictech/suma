@@ -20,7 +20,7 @@ const VendorSelect = React.forwardRef(function VendorSelect(
 
   React.useEffect(() => {
     api
-      .getVendorsMeta()
+      .searchVendors()
       .then(api.pickData)
       .then((data) => {
         setVendors(data.items);

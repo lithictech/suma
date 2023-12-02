@@ -174,4 +174,10 @@ RSpec.describe Suma do
       Suma.set_request_user_and_admin(nil, nil)
     end
   end
+
+  describe "to_slug" do
+    it "slugifies" do
+      expect(described_class.to_slug("Alan's \"Farm\"")).to eq("alans_farm")
+    end
+  end
 end

@@ -36,7 +36,7 @@ export default function ProductDetailPage() {
             title={
               <>
                 Product {id}
-                <IconButton href={`/product/${id}/edit`}>
+                <IconButton href={`/product/${id}/edit`} component={Link}>
                   <EditIcon color="info" />
                 </IconButton>
               </>
@@ -67,9 +67,19 @@ export default function ProductDetailPage() {
                   <AdminLink model={product.vendor}>{product.vendor.name}</AdminLink>
                 ),
               },
+              {
+                label: "Category",
+                value: product.vendorServiceCategory?.name,
+              },
               { label: "Our Cost", value: <Money>{product.ourCost}</Money> },
               { label: "Max Per Offering", value: product.maxQuantityPerOffering },
               { label: "Max Per Order", value: product.maxQuantityPerOrder },
+              { label: "Limited Quantity", value: product.limitedQuantity },
+              { label: "Quantity On Hand", value: product.quantityOnHand },
+              {
+                label: "Quantity Pending Fulfillment",
+                value: product.quantityPendingFulfillment,
+              },
             ]}
           />
           <RelatedList

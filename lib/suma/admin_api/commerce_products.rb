@@ -36,89 +36,79 @@ class Suma::AdminAPI::CommerceProducts < Suma::AdminAPI::V1
       translation_search_params: [:name],
     )
 
-    params do
-      requires :image, type: File
-      requires :name, type: JSON do
-        use :translated_text
-      end
-      requires :description, type: JSON do
-        use :translated_text
-      end
-      requires :our_cost, allow_blank: false, type: JSON do
-        use :funding_money
-      end
-      requires :vendor_name, type: String
-      requires :vendor_service_category_slug, type: String
-      requires :max_quantity_per_order, type: Integer
-      requires :max_quantity_per_offering, type: Integer
-    end
-    post :create do
-      (vendor = Suma::Vendor[name: params[:vendor_name]]) or forbidden!
-      (vsc = Suma::Vendor::ServiceCategory[slug: params[:vendor_service_category_slug]]) or forbidden!
-      product = Suma::Commerce::Product.create(
-        name: Suma::TranslatedText.find_or_create(**params[:name]),
-        description: Suma::TranslatedText.find_or_create(**params[:description]),
-        our_cost: params[:our_cost],
-        vendor:,
-      )
-      product.add_vendor_service_category(vsc)
-      uploaded_file = Suma::UploadedFile.create_from_multipart(params[:image])
-      product.add_image({uploaded_file:})
-
-      Suma::Commerce::ProductInventory.create(
-        product:,
-        max_quantity_per_order: params[:max_quantity_per_order],
-        max_quantity_per_offering: params[:max_quantity_per_offering],
-      )
-      created_resource_headers(product.id, product.admin_link)
-      status 200
-      present product, with: DetailedProductEntity
-    end
-
-    route_param :id, type: Integer do
-      desc "Update the product"
-      params do
-        requires :image, type: File
-        requires :name, type: JSON do
+    helpers do
+      params :product_params do
+        optional :image, type: File
+        optional :name, type: JSON do
           use :translated_text
         end
-        requires :description, type: JSON do
+        optional :description, type: JSON do
           use :translated_text
         end
-        requires :our_cost, allow_blank: false, type: JSON do
+        optional :our_cost, allow_blank: false, type: JSON do
           use :funding_money
         end
-        requires :vendor_name, type: String
-        requires :vendor_service_category_slug, type: String
-        requires :max_quantity_per_order, type: Integer
-        requires :max_quantity_per_offering, type: Integer
+        optional :vendor, type: JSON do
+          requires :id, type: Integer
+        end
+        optional :vendor_service_category, type: JSON do
+          requires :slug, type: String
+        end
+        optional :max_quantity_per_order, type: Integer
+        optional :max_quantity_per_offering, type: Integer
+        optional :limited_quantity, type: Boolean
+        optional :quantity_on_hand, type: Integer
+        optional :quantity_pending_fulfillment, type: Integer
       end
-      post do
-        product = Suma::Commerce::Product[params[:id]]
-        product.db.transaction do
-          product.inventory!.lock!
-          (vendor = Suma::Vendor[name: params[:vendor_name]]) or forbidden!
-          (vsc = Suma::Vendor::ServiceCategory[slug: params[:vendor_service_category_slug]]) or forbidden!
+
+      def update_from_params(product)
+        vendor = params.key?(:vendor) &&
+          (Suma::Vendor[params[:vendor][:id]] or forbidden!)
+        vsc = params.key?(:vendor_service_category) &&
+          (Suma::Vendor::ServiceCategory[slug: params[:vendor_service_category][:slug]] or forbidden!)
+
+        (product.name = Suma::TranslatedText.find_or_create(**params[:name])) if params.key?(:name)
+        (product.description = Suma::TranslatedText.find_or_create(**params[:description])) if params.key?(:description)
+        (product.our_cost = params[:our_cost]) if params.key?(:our_cost)
+        (product.vendor = vendor) if vendor
+        product.save_changes
+
+        if params.key?(:image)
+          uploaded_file = Suma::UploadedFile.create_from_multipart(params[:image])
+          if product.images.empty?
+            product.add_image({uploaded_file:})
+          else
+            product.images.first.update(uploaded_file:)
+          end
+        end
+
+        if vsc
           product.remove_all_vendor_service_categories
           product.add_vendor_service_category(vsc)
-
-          uploaded_file = Suma::UploadedFile.create_from_multipart(params[:image])
-          product.images.first.update(uploaded_file:)
-
-          product.update(
-            name: Suma::TranslatedText.find_or_create(**params[:name]),
-            description: Suma::TranslatedText.find_or_create(**params[:description]),
-            our_cost: params[:our_cost],
-            vendor:,
-          )
-          product.inventory!.update(
-            max_quantity_per_order: params[:max_quantity_per_order],
-            max_quantity_per_offering: params[:max_quantity_per_offering],
-            limited_quantity: params[:limited_quantity],
-            quantity_on_hand: params[:quantity_on_hand],
-            quantity_pending_fulfillment: params[:quantity_pending_fulfillment],
-          )
         end
+
+        passed_inventory_params = [
+          :max_quantity_per_order,
+          :max_quantity_per_offering,
+          :limited_quantity,
+          :quantity_on_hand,
+          :quantity_pending_fulfillment,
+        ].select { |a| params.key?(a) }
+        return if passed_inventory_params.empty?
+        inv = product.inventory!
+        inv.lock!
+        passed_inventory_params.each { |a| inv.set(a => params[a]) }
+        inv.save_changes
+      end
+    end
+
+    params do
+      use :product_params
+    end
+    post :create do
+      Suma::Commerce::Product.db.transaction do
+        product = Suma::Commerce::Product.new
+        update_from_params(product)
         created_resource_headers(product.id, product.admin_link)
         status 200
         present product, with: DetailedProductEntity
@@ -126,5 +116,21 @@ class Suma::AdminAPI::CommerceProducts < Suma::AdminAPI::V1
     end
 
     Suma::AdminAPI::CommonEndpoints.get_one(self, Suma::Commerce::Product, DetailedProductEntity)
+
+    route_param :id, type: Integer do
+      desc "Update the product"
+      params do
+        use :product_params
+      end
+      post do
+        (product = Suma::Commerce::Product[params[:id]]) or forbidden!
+        product.db.transaction do
+          update_from_params(product)
+        end
+        created_resource_headers(product.id, product.admin_link)
+        status 200
+        present product, with: DetailedProductEntity
+      end
+    end
   end
 end

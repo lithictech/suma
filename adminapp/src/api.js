@@ -58,7 +58,6 @@ export default {
   unimpersonate: (data) => del(`/adminapi/v1/auth/impersonate`, data),
   getCurrencies: (data) => get(`/adminapi/v1/meta/currencies`, data),
   getSupportedGeographies: (data) => get(`/adminapi/v1/meta/geographies`, data),
-  getVendorsMeta: (data) => get(`/adminapi/v1/meta/vendors`, data),
   getVendorServiceCategories: (data) =>
     get(`/adminapi/v1/meta/vendor_service_categories`, data),
   getEligibilityConstraintsMeta: (data) =>
@@ -133,6 +132,7 @@ export default {
   searchLedgers: (data) => post(`/adminapi/v1/search/ledgers`, data),
   searchLedgersLookup: (data) => post(`/adminapi/v1/search/ledgers/lookup`, data),
   searchTranslations: (data) => post(`/adminapi/v1/search/translations`, data),
+  searchVendors: (data) => post(`/adminapi/v1/search/vendors`, data),
 
   /**
    * Return an API url.

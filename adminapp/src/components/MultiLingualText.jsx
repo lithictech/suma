@@ -9,7 +9,7 @@ import React from "react";
  * @returns {JSX.Element}
  */
 const MultiLingualText = React.forwardRef(function MultiLingualText(
-  { value, label, searchParams, onChange, ...rest },
+  { value, label, search, searchParams, onChange, ...rest },
   ref
 ) {
   const handleSelect = (t) => {
@@ -21,10 +21,14 @@ const MultiLingualText = React.forwardRef(function MultiLingualText(
   searchParams = searchParams || {};
   const doSearch = React.useCallback(
     (language, searchArg) => {
-      const param = { language, ...searchParams, ...searchArg };
-      return api.searchTranslations(param);
+      if (search) {
+        const param = { language, ...searchParams, ...searchArg };
+        return api.searchTranslations(param);
+      } else {
+        return Promise.resolve({ data: { items: [] } });
+      }
     },
-    [searchParams]
+    [search, searchParams]
   );
   return (
     <>

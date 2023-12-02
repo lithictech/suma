@@ -75,8 +75,8 @@ RSpec.describe Suma::AdminAPI::CommerceProducts, :db do
            name: {en: "EN name", es: "ES name"},
            description: {en: "EN description", es: "ES description"},
            our_cost: {cents: 2400},
-           vendor_name: vs.vendor.name,
-           vendor_service_category_slug: cat.slug,
+           vendor: {id: vs.vendor.id},
+           vendor_service_category: {slug: cat.slug},
            max_quantity_per_order: 500,
            max_quantity_per_offering: 500
 
@@ -85,7 +85,7 @@ RSpec.describe Suma::AdminAPI::CommerceProducts, :db do
       p = Suma::Commerce::Product.first
       expect(Suma::Commerce::Product.all).to have_length(1)
       expect(p).to have_attributes(our_cost: cost("$24"))
-      expect(p.inventory).to have_attributes(product: p)
+      expect(p.inventory).to have_attributes(product: p, max_quantity_per_order: 500)
     end
   end
 
@@ -112,25 +112,39 @@ RSpec.describe Suma::AdminAPI::CommerceProducts, :db do
       image = Rack::Test::UploadedFile.new(photo_file, "image/png", true)
       cat = Suma::Fixtures.vendor_service_category.food.create
       vs = Suma::Fixtures.vendor_service.create
-      x = Suma::Fixtures.product.create
-      x.add_image({uploaded_file: Suma::Fixtures.uploaded_file.create})
+      product = Suma::Fixtures.product.create
+      product.add_image({uploaded_file: Suma::Fixtures.uploaded_file.create})
 
-      post "/v1/commerce_products/#{x.id}",
+      post "/v1/commerce_products/#{product.id}",
            image: image,
            name: {en: "EN name", es: "ES name"},
            description: {en: "EN description", es: "ES description"},
            our_cost: {cents: 2400},
-           vendor_name: vs.vendor.name,
-           vendor_service_category_slug: cat.slug,
+           vendor: {id: vs.vendor.id},
+           vendor_service_category: {slug: cat.slug},
            max_quantity_per_order: 500,
-           max_quantity_per_offering: 500
+           max_quantity_per_offering: 500,
+           limited_quantity: true,
+           quantity_on_hand: 2,
+           quantity_pending_fulfillment: 2
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.that_includes(id: product.id)
+      expect(product.refresh).to have_attributes(our_cost: cost("$24"))
+      expect(product.inventory).to have_attributes(quantity_on_hand: 2)
+    end
+
+    it "requires no fields" do
+      x = Suma::Fixtures.product.create
+
+      post "/v1/commerce_products/#{x.id}"
 
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.that_includes(id: x.id)
     end
 
     it "403s if the item does not exist" do
-      get "/v1/commerce_products/0"
+      post "/v1/commerce_products/0"
 
       expect(last_response).to have_status(403)
     end

@@ -140,7 +140,7 @@ module Suma
   # a-z, 0-9, and underscores only.
   # Milk + Eggs -> milk_eggs
   def self.to_slug(s)
-    return s.downcase.gsub(/[^a-z0-9]/, "_").squeeze("_")
+    return s.downcase.gsub(/['"]/, "").gsub(/[^a-z0-9]/, "_").squeeze("_")
   end
 
   def self.test?

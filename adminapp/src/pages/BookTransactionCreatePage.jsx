@@ -141,6 +141,7 @@ export default function BookTransactionCreatePage() {
             fullWidth
             value={memo}
             required
+            search
             searchParams={{ types: ["memo"] }}
             onChange={(memo) => setMemo(memo)}
           />
