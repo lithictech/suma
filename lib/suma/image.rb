@@ -12,6 +12,21 @@ class Suma::Image < Suma::Postgres::Model(:images)
   many_to_one :commerce_product, class: "Suma::Commerce::Product"
   many_to_one :uploaded_file, class: "Suma::UploadedFile"
 
+  def associated_object = self.commerce_offering || self.commerce_product
+
+  def associated_object=(o)
+    case o
+        when Suma::Commerce::Offering
+          self.commerce_offering = o
+          self.commerce_product = nil
+        when Suma::Commerce::Product
+          self.commerce_offering = nil
+          self.commerce_product = o
+      else
+          raise TypeError, "invalid associated object type: #{o}"
+      end
+  end
+
   class << self
     def no_image_available
       return @no_image_available if @no_image_available
@@ -26,6 +41,7 @@ class Suma::Image < Suma::Postgres::Model(:images)
     def self.included(m)
       key = m.name.gsub("Suma::", "").gsub("::", "_").underscore + "_id"
       m.one_to_many :images, key: key.to_sym, class: "Suma::Image", order: [:ordinal, :id]
+      m.one_to_one :image, key: key.to_sym, class: "Suma::Image", order: [:ordinal, :id], read_only: true
       m.define_method(:images?) do
         if self.images.empty?
           [Suma::Image.no_image_available]

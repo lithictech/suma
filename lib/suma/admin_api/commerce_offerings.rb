@@ -16,7 +16,7 @@ class Suma::AdminAPI::CommerceOfferings < Suma::AdminAPI::V1
     expose :total_item_count
   end
 
-  class DetailedCommerceOfferingEntity < OfferingEntity
+  class DetailedEntity < OfferingEntity
     include Suma::AdminAPI::Entities
     include AutoExposeDetail
     expose_translated :description
@@ -55,66 +55,61 @@ class Suma::AdminAPI::CommerceOfferings < Suma::AdminAPI::V1
       translation_search_params: [:description],
     )
 
-    params do
-      requires :image, type: File
-      requires :description, type: JSON do
-        use :translated_text
-      end
-      requires :fulfillment_prompt, type: JSON do
-        use :translated_text
-      end
-      requires :fulfillment_confirmation, type: JSON do
-        use :translated_text
-      end
-      requires :fulfillment_options,
-               type: Array,
-               coerce_with: proc { |s| s.values.each_with_index.map { |fo, ordinal| fo.merge(ordinal:) } } do
-        requires :type, type: String, values: Suma::Commerce::OfferingFulfillmentOption::TYPES
-        requires :description, type: JSON
-        optional :address, type: JSON do
-          use :address
+    Suma::AdminAPI::CommonEndpoints.create(
+      self,
+      Suma::Commerce::Offering,
+      DetailedEntity,
+      process_params: lambda do |params|
+        params[:period] = params.delete(:opens_at)..params.delete(:closes_at)
+      end,
+    ) do
+      params do
+        requires :image, type: File
+        requires(:description, type: JSON) { use :translated_text }
+        requires(:fulfillment_prompt, type: JSON) { use :translated_text }
+        requires(:fulfillment_confirmation, type: JSON) { use :translated_text }
+        requires :fulfillment_options,
+                 type: Array,
+                 coerce_with: proc { |s| s.values.each_with_index.map { |fo, ordinal| fo.merge(ordinal:) } } do
+          requires :type, type: String, values: Suma::Commerce::OfferingFulfillmentOption::TYPES
+          requires(:description, type: JSON) { use :translated_text }
+          optional(:address, type: JSON) { use :address }
         end
-      end
-      requires :opens_at, type: Time
-      requires :closes_at, type: Time
-      optional :begin_fulfillment_at, type: Time, allow_blank: true
-      optional :prohibit_charge_at_checkout, type: Boolean, allow_blank: true
-    end
-    post :create do
-      Suma::Commerce::Offering.db.transaction do
-        offering = Suma::Commerce::Offering.create(
-          description: Suma::TranslatedText.find_or_create(**params[:description]),
-          fulfillment_prompt: Suma::TranslatedText.find_or_create(**params[:fulfillment_prompt]),
-          fulfillment_confirmation: Suma::TranslatedText.find_or_create(**params[:fulfillment_confirmation]),
-          period: params[:opens_at]..params[:closes_at],
-          begin_fulfillment_at: params[:begin_fulfillment_at],
-          prohibit_charge_at_checkout: params[:prohibit_charge_at_checkout] || false,
-        )
-
-        params[:fulfillment_options]&.each do |fo|
-          fo_params = {
-            description: Suma::TranslatedText.find_or_create(**fo[:description]),
-            type: fo[:type],
-            ordinal: fo[:ordinal],
-          }
-          if (addr_params = fo[:address])
-            fo_params[:address] = Suma::Address.lookup(addr_params)
-          end
-          offering.add_fulfillment_option(fo_params)
-        end
-
-        if (image_params = params[:image])
-          uf = Suma::UploadedFile.create_from_multipart(image_params)
-          offering.add_image({uploaded_file: uf})
-        end
-
-        created_resource_headers(offering.id, offering.admin_link)
-        status 200
-        present offering, with: DetailedCommerceOfferingEntity
+        requires :opens_at, type: Time
+        requires :closes_at, type: Time
+        optional :begin_fulfillment_at, type: Time
+        optional :prohibit_charge_at_checkout, type: Boolean, allow_blank: false, default: false
       end
     end
 
-    Suma::AdminAPI::CommonEndpoints.get_one(self, Suma::Commerce::Offering, DetailedCommerceOfferingEntity)
+    Suma::AdminAPI::CommonEndpoints.get_one(self, Suma::Commerce::Offering, DetailedEntity)
+
+    Suma::AdminAPI::CommonEndpoints.update(
+      self,
+      Suma::Commerce::Offering,
+      DetailedEntity,
+      process_params: lambda do |params|
+        params[:period] = params.delete(:opens_at)..params.delete(:closes_at)
+      end,
+    ) do
+      params do
+        optional :image, type: File
+        optional(:description, type: JSON) { use :translated_text }
+        optional(:fulfillment_prompt, type: JSON) { use :translated_text }
+        optional(:fulfillment_confirmation, type: JSON) { use :translated_text }
+        optional :fulfillment_options,
+                 type: Array,
+                 coerce_with: proc { |s| s.values.each_with_index.map { |fo, ordinal| fo.merge(ordinal:) } } do
+          requires :type, type: String, values: Suma::Commerce::OfferingFulfillmentOption::TYPES
+          requires(:description, type: JSON) { use :translated_text }
+          optional(:address, type: JSON) { use :address }
+        end
+        optional :opens_at, type: Time
+        optional :closes_at, type: Time
+        optional :begin_fulfillment_at, type: Time
+        optional :prohibit_charge_at_checkout, type: Boolean, allow_blank: false, default: false
+      end
+    end
 
     route_param :id, type: Integer do
       helpers do
@@ -155,7 +150,7 @@ class Suma::AdminAPI::CommerceOfferings < Suma::AdminAPI::V1
           )
         end
         status 200
-        present offering, with: DetailedCommerceOfferingEntity
+        present offering, with: DetailedEntity
       end
 
       resource :picklist do

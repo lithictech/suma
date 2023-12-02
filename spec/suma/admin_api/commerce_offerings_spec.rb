@@ -62,7 +62,7 @@ RSpec.describe Suma::AdminAPI::CommerceOfferings, :db do
     end
   end
 
-  describe "GET /v1/commerce_offerings/create" do
+  describe "POST /v1/commerce_offerings/create" do
     it "creates the offering" do
       photo_file = File.open("spec/data/images/photo.png", "rb")
       image = Rack::Test::UploadedFile.new(photo_file, "image/png", true)
@@ -130,7 +130,30 @@ RSpec.describe Suma::AdminAPI::CommerceOfferings, :db do
     end
   end
 
-  describe "GET /v1/commerce_offering/:id/eligibilities" do
+  describe "POST /v1/commerce_offerings/:id" do
+    it "updates the offering" do
+      photo_file = File.open("spec/data/images/photo.png", "rb")
+      image = Rack::Test::UploadedFile.new(photo_file, "image/png", true)
+      o = Suma::Fixtures.offering.create
+      post "/v1/commerce_offerings/#{o.id}",
+           image: image,
+           description: {en: "EN test", es: "ES test"},
+           fulfillment_options: {
+             "0" => {
+               description: {en: "EN desc", es: "ES desc"},
+               type: "pickup",
+             },
+           }
+
+      expect(last_response).to have_status(200)
+      expect(o.refresh).to have_attributes(
+        description: have_attributes(en: "EN test"),
+        fulfillment_options: contain_exactly(have_attributes(description: have_attributes(en: "EN desc"))),
+      )
+    end
+  end
+
+  describe "POST /v1/commerce_offering/:id/eligibilities" do
     it "modify offering eligibilities" do
       existing_constraint = Suma::Fixtures.eligibility_constraint.create
       o = Suma::Fixtures.offering.with_constraints(existing_constraint).create

@@ -23,10 +23,16 @@ class Suma::AdminAPI::Vendors < Suma::AdminAPI::V1
 
     Suma::AdminAPI::CommonEndpoints.create(self, Suma::Vendor, DetailedVendorEntity) do
       params do
-        requires :name, type: String
+        requires :name, type: String, allow_blank: false
       end
     end
 
     Suma::AdminAPI::CommonEndpoints.get_one(self, Suma::Vendor, DetailedVendorEntity)
+
+    Suma::AdminAPI::CommonEndpoints.update self, Suma::Vendor, DetailedVendorEntity do
+      params do
+        optional :name, type: String, allow_blank: false
+      end
+    end
   end
 end

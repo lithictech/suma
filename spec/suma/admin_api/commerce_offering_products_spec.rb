@@ -19,8 +19,8 @@ RSpec.describe Suma::AdminAPI::CommerceOfferingProducts, :db do
       p = Suma::Fixtures.product.create
 
       post "/v1/commerce_offering_products/create",
-           offering_id: o.id,
-           product_id: p.id,
+           offering: {id: o.id},
+           product: {id: p.id},
            customer_price: {cents: 1900},
            undiscounted_price: {cents: 2400}
 
@@ -40,6 +40,20 @@ RSpec.describe Suma::AdminAPI::CommerceOfferingProducts, :db do
 
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.that_includes(id: x.id)
+    end
+  end
+
+  describe "POST /v1/commerce_offering_products/:id" do
+    it "updates the offering product" do
+      op = Suma::Fixtures.offering_product.create
+
+      post "/v1/commerce_offering_products/#{op.id}",
+           customer_price: {cents: 1900},
+           undiscounted_price: {cents: 2400}
+
+      expect(last_response).to have_status(200)
+      expect(last_response.headers).to include("Created-Resource-Admin")
+      expect(op.refresh).to have_attributes(customer_price: cost("$19"))
     end
   end
 end

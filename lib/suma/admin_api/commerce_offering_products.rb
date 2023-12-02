@@ -17,34 +17,28 @@ class Suma::AdminAPI::CommerceOfferingProducts < Suma::AdminAPI::V1
   end
 
   resource :commerce_offering_products do
-    params do
-      requires :offering_id, type: Integer
-      requires :product_id, type: Integer
-      requires :customer_price, allow_blank: false, type: JSON do
-        use :funding_money
-      end
-      requires :undiscounted_price, allow_blank: false, type: JSON do
-        use :funding_money
-      end
-    end
-    post :create do
-      Suma::Commerce::Offering.db.transaction do
-        (offering = Suma::Commerce::Offering[params[:offering_id]]) or forbidden!
-        (product = Suma::Commerce::Product[params[:product_id]]) or forbidden!
-        op = Suma::Commerce::OfferingProduct.create(
-          offering:,
-          product:,
-          customer_price: params[:customer_price],
-          undiscounted_price: params[:undiscounted_price],
-        )
-        created_resource_headers(op.id, op.admin_link)
-        status 200
-        present op, with: DetailedCommerceOfferingProductEntity
+    Suma::AdminAPI::CommonEndpoints.create(
+      self, Suma::Commerce::OfferingProduct, DetailedCommerceOfferingProductEntity,
+    ) do
+      params do
+        requires(:offering, type: JSON) { use :model_with_id }
+        requires(:product, type: JSON) { use :model_with_id }
+        requires(:customer_price, allow_blank: false, type: JSON) { use :funding_money }
+        requires(:undiscounted_price, allow_blank: false, type: JSON) { use :funding_money }
       end
     end
 
     Suma::AdminAPI::CommonEndpoints.get_one(
       self, Suma::Commerce::OfferingProduct, DetailedCommerceOfferingProductEntity,
     )
+
+    Suma::AdminAPI::CommonEndpoints.update(
+      self, Suma::Commerce::OfferingProduct, DetailedCommerceOfferingProductEntity,
+    ) do
+      params do
+        optional(:customer_price, allow_blank: false, type: JSON) { use :funding_money }
+        optional(:undiscounted_price, allow_blank: false, type: JSON) { use :funding_money }
+      end
+    end
   end
 end

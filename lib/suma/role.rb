@@ -3,6 +3,8 @@
 require "suma/postgres/model"
 
 class Suma::Role < Suma::Postgres::Model(:roles)
+  include Suma::AdminLinked
+
   def self.admin_role
     return Suma.cached_get("role_admin") do
       self.find_or_create_or_find(name: "admin")
@@ -18,6 +20,8 @@ class Suma::Role < Suma::Postgres::Model(:roles)
   many_to_many :members,
                class: "Suma::Member",
                join_table: :roles_members
+
+  def rel_admin_link = "/role/#{self.id}"
 end
 
 # Table: roles

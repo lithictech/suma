@@ -66,7 +66,7 @@ RSpec.describe Suma::AdminAPI::Vendors, :db do
       post "/v1/vendors/create", name: "test"
 
       expect(last_response).to have_status(200)
-      expect(Suma::Vendor.all.count).to equal(1)
+      expect(Suma::Vendor.all).to have_length(1)
     end
   end
 
@@ -96,6 +96,17 @@ RSpec.describe Suma::AdminAPI::Vendors, :db do
       get "/v1/vendors/0"
 
       expect(last_response).to have_status(403)
+    end
+  end
+
+  describe "POST /v1/vendors/:id" do
+    it "updates a vendor" do
+      v = Suma::Fixtures.vendor.create
+
+      post "/v1/vendors/#{v.id}", name: "test"
+
+      expect(last_response).to have_status(200)
+      expect(v.refresh).to have_attributes(name: "test")
     end
   end
 end

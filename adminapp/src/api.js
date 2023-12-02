@@ -64,10 +64,12 @@ export default {
     get(`/adminapi/v1/meta/eligibility_constraints`, data),
 
   getEligibilityConstraints: (data) => get(`/adminapi/v1/eligibility_constraints`, data),
-  getEligibilityConstraint: ({ id, ...data }) =>
-    get(`/adminapi/v1/eligibility_constraints/${id}`, data),
   createEligibilityConstraint: (data) =>
     post(`/adminapi/v1/eligibility_constraints/create`, data),
+  getEligibilityConstraint: ({ id, ...data }) =>
+    get(`/adminapi/v1/eligibility_constraints/${id}`, data),
+  updateEligibilityConstraint: ({ id, ...data }) =>
+    post(`/adminapi/v1/eligibility_constraints/${id}`, data),
 
   getBankAccount: ({ id, ...data }) => get(`/adminapi/v1/bank_accounts/${id}`, data),
 
@@ -96,10 +98,10 @@ export default {
     get(`/adminapi/v1/commerce_offerings/${id}/picklist`, data),
 
   getCommerceProducts: (data) => get("/adminapi/v1/commerce_products", data),
-  getCommerceProduct: ({ id, ...data }) =>
-    get(`/adminapi/v1/commerce_products/${id}`, data),
   createCommerceProduct: (data) =>
     postForm("/adminapi/v1/commerce_products/create", data),
+  getCommerceProduct: ({ id, ...data }) =>
+    get(`/adminapi/v1/commerce_products/${id}`, data),
   updateCommerceProduct: ({ id, ...data }) =>
     postForm(`/adminapi/v1/commerce_products/${id}`, data),
 
@@ -107,10 +109,13 @@ export default {
     postForm("/adminapi/v1/commerce_offering_products/create", data),
   getCommerceOfferingProduct: ({ id, ...data }) =>
     get(`/adminapi/v1/commerce_offering_products/${id}`, data),
+  updateCommerceOfferingProduct: ({ id, ...data }) =>
+    post(`/adminapi/v1/commerce_offering_products/${id}`, data),
 
   getVendors: (data) => get(`/adminapi/v1/vendors`, data),
-  getVendor: ({ id, ...data }) => get(`/adminapi/v1/vendors/${id}`, data),
   createVendor: (data) => post("/adminapi/v1/vendors/create", data),
+  getVendor: ({ id, ...data }) => get(`/adminapi/v1/vendors/${id}`, data),
+  updateVendor: ({ id, ...data }) => post(`/adminapi/v1/vendors/${id}`, data),
 
   getCommerceOrders: (data) => get(`/adminapi/v1/commerce_orders`, data),
   getCommerceOrder: ({ id, ...data }) => get(`/adminapi/v1/commerce_orders/${id}`, data),

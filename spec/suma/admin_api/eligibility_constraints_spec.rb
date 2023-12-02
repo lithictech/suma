@@ -95,4 +95,15 @@ RSpec.describe Suma::AdminAPI::EligibilityConstraints, :db do
       expect(last_response).to have_status(403)
     end
   end
+
+  describe "POST /v1/eligibility_constraints/:id" do
+    it "updates the constraint" do
+      ec = Suma::Fixtures.eligibility_constraint.create
+      post "/v1/eligibility_constraints/#{ec.id}", name: "Test"
+
+      expect(last_response).to have_status(200)
+      expect(last_response.headers).to include("Created-Resource-Admin")
+      expect(ec.refresh).to have_attributes(name: "Test")
+    end
+  end
 end

@@ -35,5 +35,10 @@ class Suma::AdminAPI::EligibilityConstraints < Suma::AdminAPI::V1
       end
     end
     Suma::AdminAPI::CommonEndpoints.get_one self, Suma::Eligibility::Constraint, DetailedEligibilityConstraintEntity
+    Suma::AdminAPI::CommonEndpoints.update self, Suma::Eligibility::Constraint, DetailedEligibilityConstraintEntity do
+      params do
+        optional :name, type: String, allow_blank: false
+      end
+    end
   end
 end
