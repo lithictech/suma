@@ -11,7 +11,8 @@ module Suma::AdminAPI::CommonEndpoints
       process_params&.call(params)
       mtype = m.class
       images = []
-      one_to_many_assocs_and_args = []
+      to_many_assocs_and_args = []
+      to_one_assocs_and_params = []
       fk_attrs = {}
       params.to_a.each do |(k, v)|
         next unless (assoc = mtype.association_reflections[k])
@@ -24,20 +25,26 @@ module Suma::AdminAPI::CommonEndpoints
           elsif association_class?(assoc, Suma::Image)
             uf = Suma::UploadedFile.create_from_multipart(v)
             images << Suma::Image.new(uploaded_file: uf)
+          elsif v.key?(:id)
+            fk_attrs[assoc[:key]] = v[:id]
           else
-            fk_attrs[assoc[:key]] = v.fetch(:id)
+            to_one_assocs_and_params << [assoc, v]
           end
         else
-          one_to_many_assocs_and_args << [assoc, v]
+          to_many_assocs_and_args << [assoc, v]
         end
       end
       m.set(params)
       m.set(fk_attrs)
       save_or_error!(m) if save
       images.each { |im| m.add_image(im) }
-      one_to_many_assocs_and_args.each do |(assoc, args)|
+      to_one_assocs_and_params.each do |(assoc, mparams)|
+        fk_model = association_class(assoc).find_or_create_or_find(assoc[:key] => m.id)
+        update_model(fk_model, mparams)
+      end
+      to_many_assocs_and_args.each do |(assoc, args)|
         args.each do |mparams|
-          am = association_class(assoc).new
+          am = (mid = mparams.delete(:id)) ? association_class(assoc)[mid] : association_class(assoc).new
           update_model(am, mparams, save: false)
           m.send(assoc[:add_method], am)
         end
