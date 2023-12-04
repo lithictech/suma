@@ -13,11 +13,13 @@ export default function ProductCreatePage() {
     ourCost: config.defaultZeroMoney,
     vendor: null,
     category: null,
-    maxQuantityPerOffering: null,
-    maxQuantityPerOrder: null,
-    limitedQuantity: false,
-    quantityOnHand: 0,
-    quantityPendingFulfillment: 0,
+    inventory: {
+      maxQuantityPerOffering: null,
+      maxQuantityPerOrder: null,
+      limitedQuantity: false,
+      quantityOnHand: 0,
+      quantityPendingFulfillment: 0,
+    },
   };
 
   return (

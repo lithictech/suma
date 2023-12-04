@@ -8,6 +8,7 @@ module Suma::AdminAPI::CommonEndpoints
     def update_model(m, orig_params, process_params: nil, save: true)
       params = orig_params.deep_symbolize_keys
       params.delete(:id)
+      params.delete_if { |k| !m.respond_to?(k) }
       process_params&.call(params)
       mtype = m.class
       images = []

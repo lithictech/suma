@@ -7,7 +7,15 @@ import MultiLingualText from "../components/MultiLingualText";
 import ResponsiveStack from "../components/ResponsiveStack";
 import VendorServiceCategorySelect from "../components/VendorServiceCategorySelect";
 import theme from "../theme";
-import { FormLabel, Stack, TextField, Typography } from "@mui/material";
+import {
+  FormControlLabel,
+  FormLabel,
+  Stack,
+  Switch,
+  TextField,
+  Typography,
+} from "@mui/material";
+import get from "lodash/get";
 import React from "react";
 
 export default function ProductForm({
@@ -87,28 +95,51 @@ export default function ProductForm({
             {...register("category")}
             label="Category"
             helperText="What ledger funds can be used to purchase this product?"
-            value={resource.vendorServiceCategory?.slug || ""}
+            value={get(resource, "vendorServiceCategories.0.slug") || ""}
             style={{ flex: 1 }}
-            onChange={(_, c) => setField("vendorServiceCategory", c)}
+            onChange={(_, c) => setField("vendorServiceCategories.0", c)}
             required
           />
         </ResponsiveStack>
         <Typography variant="h6">Inventory</Typography>
         <ResponsiveStack>
           <TextField
-            name="maxQuantityPerOffering"
-            value={resource.maxQuantityPerOffering || ""}
+            name="inventory.maxQuantityPerOffering"
+            value={resource.inventory.maxQuantityPerOffering || ""}
             type="number"
             label="Max Quantity Per Offering"
             helperText="The maximum allowed for this offering per member."
             onChange={setFieldFromInput}
           />
           <TextField
-            name="maxQuantityPerOrder"
-            value={resource.maxQuantityPerOrder || ""}
+            name="inventory.maxQuantityPerOrder"
+            value={resource.inventory.maxQuantityPerOrder || ""}
             type="number"
             label="Max Quantity Per Order"
             helperText="The maximum allowed for each member's order."
+            onChange={setFieldFromInput}
+          />
+          <FormControlLabel
+            control={<Switch />}
+            label="Limited Quantity"
+            name="inventory.limitedQuantity"
+            checked={resource.inventory.limitedQuantity}
+            onChange={setFieldFromInput}
+          />
+          <TextField
+            name="inventory.quantityOnHand"
+            value={resource.inventory.quantityOnHand}
+            type="number"
+            label="Quantity On Hand"
+            helperText="How much of the product do we have available."
+            onChange={setFieldFromInput}
+          />
+          <TextField
+            name="inventory.quantityPendingFulfillment"
+            value={resource.inventory.quantityPendingFulfillment}
+            type="number"
+            label="Quantity Pending Fulfillment"
+            helperText="How much of the product is assigned to unfulfilled orders.."
             onChange={setFieldFromInput}
           />
         </ResponsiveStack>

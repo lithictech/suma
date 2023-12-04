@@ -16,16 +16,18 @@ class Suma::AdminAPI::CommerceProducts < Suma::AdminAPI::V1
     include Suma::AdminAPI::Entities
     include AutoExposeDetail
     expose :our_cost, with: MoneyEntity
-    expose :max_quantity_per_order, &self.delegate_to(:inventory!, :max_quantity_per_order)
-    expose :max_quantity_per_offering, &self.delegate_to(:inventory!, :max_quantity_per_offering)
-    expose :limited_quantity, &self.delegate_to(:inventory!, :limited_quantity)
-    expose :quantity_on_hand, &self.delegate_to(:inventory!, :quantity_on_hand)
-    expose :quantity_pending_fulfillment, &self.delegate_to(:inventory!, :quantity_pending_fulfillment)
+    expose :inventory do
+      expose :max_quantity_per_order, &self.delegate_to(:inventory!, :max_quantity_per_order)
+      expose :max_quantity_per_offering, &self.delegate_to(:inventory!, :max_quantity_per_offering)
+      expose :limited_quantity, &self.delegate_to(:inventory!, :limited_quantity)
+      expose :quantity_on_hand, &self.delegate_to(:inventory!, :quantity_on_hand)
+      expose :quantity_pending_fulfillment, &self.delegate_to(:inventory!, :quantity_pending_fulfillment)
+    end
     expose :offerings, with: OfferingEntity
     expose :orders, with: OrderEntity
     expose :offering_products, with: OfferingProductWithOfferingEntity
     expose :image, with: ImageEntity, &self.delegate_to(:images?, :first)
-    expose :vendor_service_category, &self.delegate_to(:vendor_service_categories, :first)
+    expose :vendor_service_categories, with: VendorServiceCategoryEntity
   end
 
   resource :commerce_products do
@@ -47,7 +49,7 @@ class Suma::AdminAPI::CommerceProducts < Suma::AdminAPI::V1
         requires(:description, type: JSON) { use :translated_text }
         requires(:our_cost, type: JSON) { use :funding_money }
         requires(:vendor, type: JSON) { use :model_with_id }
-        requires(:vendor_service_categories, type: Array[JSON]) { use :model_with_id }
+        optional(:vendor_service_categories, type: Array, coerce_with: ->(v)  { v.values}) { use :model_with_id }
         optional :inventory, type: JSON do
           optional :max_quantity_per_order, type: Integer
           optional :max_quantity_per_offering, type: Integer
@@ -71,7 +73,7 @@ class Suma::AdminAPI::CommerceProducts < Suma::AdminAPI::V1
         optional(:description, type: JSON) { use :translated_text }
         optional(:our_cost, type: JSON) { use :funding_money }
         optional(:vendor, type: JSON) { use :model_with_id }
-        optional(:vendor_service_categories, type: Array[JSON]) { use :model_with_id }
+        optional(:vendor_service_categories, type: Array, coerce_with: ->(v)  { v.values}) { use :model_with_id }
         optional :inventory, type: JSON do
           optional :max_quantity_per_order, type: Integer
           optional :max_quantity_per_offering, type: Integer

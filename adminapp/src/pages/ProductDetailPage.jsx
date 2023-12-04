@@ -1,90 +1,64 @@
 import api from "../api";
 import AdminLink from "../components/AdminLink";
-import DetailGrid from "../components/DetailGrid";
 import Link from "../components/Link";
 import RelatedList from "../components/RelatedList";
-import useErrorSnackbar from "../hooks/useErrorSnackbar";
+import ResourceDetail from "../components/ResourceDetail";
 import { dayjs } from "../modules/dayConfig";
 import Money from "../shared/react/Money";
 import SumaImage from "../shared/react/SumaImage";
-import useAsyncFetch from "../shared/react/useAsyncFetch";
-import EditIcon from "@mui/icons-material/Edit";
 import ListAltIcon from "@mui/icons-material/ListAlt";
-import { CircularProgress } from "@mui/material";
-import IconButton from "@mui/material/IconButton";
-import isEmpty from "lodash/isEmpty";
 import React from "react";
-import { useParams } from "react-router-dom";
 
 export default function ProductDetailPage() {
-  const { enqueueErrorSnackbar } = useErrorSnackbar();
-  let { id } = useParams();
-  id = Number(id);
-  const getCommerceProduct = React.useCallback(() => {
-    return api.getCommerceProduct({ id }).catch((e) => enqueueErrorSnackbar(e));
-  }, [id, enqueueErrorSnackbar]);
-  const { state: product, loading: productLoading } = useAsyncFetch(getCommerceProduct, {
-    default: {},
-    pickData: true,
-  });
   return (
-    <>
-      {productLoading && <CircularProgress />}
-      {!isEmpty(product) && (
-        <div>
-          <DetailGrid
-            title={
-              <>
-                Product {id}
-                <IconButton href={`/product/${id}/edit`} component={Link}>
-                  <EditIcon color="info" />
-                </IconButton>
-              </>
-            }
-            properties={[
-              { label: "ID", value: id },
-              { label: "Created At", value: dayjs(product.createdAt) },
-              {
-                label: "Image",
-                value: (
-                  <SumaImage
-                    image={product.image}
-                    alt={product.image.name}
-                    className="w-100"
-                    params={{ crop: "center" }}
-                    h={225}
-                    width={225}
-                  />
-                ),
-              },
-              { label: "Name (En)", value: product.name.en },
-              { label: "Name (Es)", value: product.name.es },
-              { label: "Description (En)", value: product.description.en },
-              { label: "Description (Es)", value: product.description.es },
-              {
-                label: "Vendor",
-                value: (
-                  <AdminLink model={product.vendor}>{product.vendor.name}</AdminLink>
-                ),
-              },
-              {
-                label: "Category",
-                value: product.vendorServiceCategory?.name,
-              },
-              { label: "Our Cost", value: <Money>{product.ourCost}</Money> },
-              { label: "Max Per Offering", value: product.maxQuantityPerOffering },
-              { label: "Max Per Order", value: product.maxQuantityPerOrder },
-              { label: "Limited Quantity", value: product.limitedQuantity },
-              { label: "Quantity On Hand", value: product.quantityOnHand },
-              {
-                label: "Quantity Pending Fulfillment",
-                value: product.quantityPendingFulfillment,
-              },
-            ]}
-          />
+    <ResourceDetail
+      apiGet={api.getCommerceProduct}
+      title={(model) => `Product ${model.id}`}
+      toEdit={(model) => `/product/${model.id}/edit`}
+      properties={(model) => [
+        { label: "ID", value: model.id },
+        { label: "Created At", value: dayjs(model.createdAt) },
+        {
+          label: "Image",
+          value: (
+            <SumaImage
+              image={model.image}
+              alt={model.image.name}
+              className="w-100"
+              params={{ crop: "center" }}
+              h={225}
+              width={225}
+            />
+          ),
+        },
+        { label: "Name (En)", value: model.name.en },
+        { label: "Name (Es)", value: model.name.es },
+        { label: "Description (En)", value: model.description.en },
+        { label: "Description (Es)", value: model.description.es },
+        {
+          label: "Vendor",
+          value: <AdminLink model={model.vendor}>{model.vendor.name}</AdminLink>,
+        },
+        {
+          label: "Category",
+          value: model.vendorServiceCategories[0]?.name,
+        },
+        { label: "Our Cost", value: <Money>{model.ourCost}</Money> },
+        { label: "Max Per Offering", value: model.inventory.maxQuantityPerOffering },
+        { label: "Max Per Order", value: model.inventory.maxQuantityPerOrder },
+        { label: "Limited Quantity", value: model.inventory.limitedQuantity },
+        { label: "Quantity On Hand", value: model.inventory.quantityOnHand },
+        {
+          label: "Quantity Pending Fulfillment",
+          value: model.inventory.quantityPendingFulfillment,
+        },
+      ]}
+    >
+      {(model) => (
+        <>
           <RelatedList
             title="Orders"
-            rows={product.orders}
+            rows={model.orders}
             headers={["Id", "Created At", "Status", "Member"]}
             keyRowAttr="id"
             toCells={(row) => [
@@ -98,7 +72,7 @@ export default function ProductDetailPage() {
           />
           <RelatedList
             title={`Offering Products`}
-            rows={product.offeringProducts}
+            rows={model.offeringProducts}
             headers={["Id", "Customer Price", "Full Price", "Offering", "Closed"]}
             keyRowAttr="id"
             toCells={(row) => [
@@ -114,14 +88,14 @@ export default function ProductDetailPage() {
             ]}
           />
           <Link
-            to={`/offering-product/new?productId=${product.id}&productName=${product.name.en}`}
+            to={`/offering-product/new?productId=${model.id}&productName=${model.name.en}`}
             sx={{ display: "inline-block", marginTop: "15px" }}
           >
             <ListAltIcon sx={{ verticalAlign: "middle", paddingRight: "5px" }} />
             Create Offering Product
           </Link>
-        </div>
+        </>
       )}
-    </>
+    </ResourceDetail>
   );
 }

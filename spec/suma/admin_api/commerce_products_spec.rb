@@ -76,7 +76,7 @@ RSpec.describe Suma::AdminAPI::CommerceProducts, :db do
            description: {en: "EN description", es: "ES description"},
            our_cost: {cents: 2400},
            vendor: {id: vs.vendor.id},
-           vendor_service_categories: [{id: cat.id}],
+           vendor_service_categories: {'0' => {id: cat.id}},
            inventory: {
              max_quantity_per_order: 500,
              max_quantity_per_offering: 500,

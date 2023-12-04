@@ -12,20 +12,20 @@ export default function VendorDetailPage() {
   return (
     <ResourceDetail
       apiGet={api.getVendor}
-      title={(vendor) => `Vendor ${vendor.id}`}
-      properties={(vendor) => [
-        { label: "ID", value: vendor.id },
-        { label: "Created At", value: dayjs(vendor.createdAt) },
-        { label: "Name", value: vendor.name },
-        { label: "Slug", value: vendor.slug },
+      title={(model) => `Vendor ${model.id}`}
+      toEdit={(model) => `/vendor/${model.id}/edit`}
+      properties={(model) => [
+        { label: "ID", value: model.id },
+        { label: "Created At", value: dayjs(model.createdAt) },
+        { label: "Name", value: model.name },
+        { label: "Slug", value: model.slug },
       ]}
-      toEdit={(vendor) => `/vendor/${vendor.id}/edit`}
     >
-      {(vendor) => (
+      {(model) => (
         <>
           <RelatedList
             title="Services"
-            rows={vendor.services}
+            rows={model.services}
             headers={["Id", "Name", "Eligibility Constraints"]}
             keyRowAttr="id"
             toCells={(row) => [
@@ -44,7 +44,7 @@ export default function VendorDetailPage() {
           />
           <RelatedList
             title="Products"
-            rows={vendor.products}
+            rows={model.products}
             headers={["Id", "Created", "Name"]}
             keyRowAttr="id"
             toCells={(row) => [

@@ -11,12 +11,12 @@ export default function EligibilityConstraintDetailPage() {
     <ResourceDetail
       apiGet={api.getEligibilityConstraint}
       title={(model) => `Eligibility Constraint ${model.id}`}
+      toEdit={(model) => `/constraint/${model.id}/edit`}
       properties={(model) => [
         { label: "ID", value: model.id },
         { label: "Created At", value: dayjs(model.createdAt) },
         { label: "Name", value: model.name },
       ]}
-      toEdit={(model) => `/constraint/${model.id}/edit`}
     >
       {(model) => (
         <>
