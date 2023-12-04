@@ -1,6 +1,5 @@
 import api from "../api";
 import AdminLink from "../components/AdminLink";
-import DetailGrid from "../components/DetailGrid";
 import RelatedList from "../components/RelatedList";
 import ResourceDetail from "../components/ResourceDetail";
 import { dayjs } from "../modules/dayConfig";

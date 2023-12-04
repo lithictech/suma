@@ -7,6 +7,7 @@ import ResourceDetail from "../components/ResourceDetail";
 import useErrorSnackbar from "../hooks/useErrorSnackbar";
 import { dayjs } from "../modules/dayConfig";
 import oneLineAddress from "../modules/oneLineAddress";
+import createRelativeUrl from "../shared/createRelativeUrl";
 import Money from "../shared/react/Money";
 import SumaImage from "../shared/react/SumaImage";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
@@ -100,7 +101,10 @@ export default function OfferingDetailPage() {
             ]}
           />
           <Link
-            to={`/offering-product/new?offeringId=${model.id}&offeringDescription=${model.description}`}
+            to={createRelativeUrl(`/offering-product/new`, {
+              offeringId: model.id,
+              offeringLabel: model.description.en,
+            })}
             sx={{ display: "block", marginTop: "15px" }}
           >
             <ListAltIcon sx={{ verticalAlign: "middle", paddingRight: "5px" }} />

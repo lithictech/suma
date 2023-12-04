@@ -23,6 +23,7 @@ import OfferingListPage from "./pages/OfferingListPage";
 import OfferingPickListPage from "./pages/OfferingPickListPage";
 import OfferingProductCreatePage from "./pages/OfferingProductCreatePage";
 import OfferingProductDetailPage from "./pages/OfferingProductDetailPage";
+import OfferingProductEditPage from "./pages/OfferingProductEditPage";
 import OrderDetailPage from "./pages/OrderDetailPage";
 import OrderListPage from "./pages/OrderListPage";
 import PayoutTransactionDetailPage from "./pages/PayoutTransactionDetailPage";
@@ -265,6 +266,15 @@ function PageSwitch() {
           redirectIfUnauthed,
           withLayout(),
           OfferingProductDetailPage
+        )}
+      />
+      <Route
+        exact
+        path="/offering-product/:id/edit"
+        element={renderWithHocs(
+          redirectIfUnauthed,
+          withLayout(),
+          OfferingProductEditPage
         )}
       />
       <Route

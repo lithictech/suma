@@ -4,6 +4,7 @@ import Link from "../components/Link";
 import RelatedList from "../components/RelatedList";
 import ResourceDetail from "../components/ResourceDetail";
 import { dayjs } from "../modules/dayConfig";
+import createRelativeUrl from "../shared/createRelativeUrl";
 import Money from "../shared/react/Money";
 import SumaImage from "../shared/react/SumaImage";
 import ListAltIcon from "@mui/icons-material/ListAlt";
@@ -82,13 +83,16 @@ export default function ProductDetailPage() {
               <Money key="customer_price">{row.customerPrice}</Money>,
               <Money key="undiscounted_price">{row.undiscountedPrice}</Money>,
               <AdminLink key="offering" model={row.offering}>
-                {row.offering.description}
+                {row.offering.description.en}
               </AdminLink>,
               row.isClosed ? dayjs(row.closedAt).format("lll") : "",
             ]}
           />
           <Link
-            to={`/offering-product/new?productId=${model.id}&productName=${model.name.en}`}
+            to={createRelativeUrl(`/offering-product/new`, {
+              productId: model.id,
+              productLabel: model.name.en,
+            })}
             sx={{ display: "inline-block", marginTop: "15px" }}
           >
             <ListAltIcon sx={{ verticalAlign: "middle", paddingRight: "5px" }} />

@@ -21,7 +21,7 @@ export default function ResourceDetail({ apiGet, title, properties, toEdit, chil
     default: {},
     pickData: true,
   });
-  if (!isFunction(children)) {
+  if (children && !isFunction(children)) {
     console.error("ResourceDetail children must be a function");
     return null;
   }
@@ -34,7 +34,7 @@ export default function ResourceDetail({ apiGet, title, properties, toEdit, chil
             title={<Title toEdit={toEdit && toEdit(state)}>{title(state)}</Title>}
             properties={properties(state)}
           />
-          {children(state, replaceState)}
+          {children && children(state, replaceState)}
         </div>
       )}
     </>
