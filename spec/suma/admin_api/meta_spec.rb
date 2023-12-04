@@ -68,7 +68,7 @@ RSpec.describe Suma::AdminAPI::Meta, :db do
 
       get "/v1/meta/eligibility_constraints"
 
-      e expect(last_response).to have_status(200)
+      expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.that_includes(
         :statuses,
         items: have_same_ids_as(a),

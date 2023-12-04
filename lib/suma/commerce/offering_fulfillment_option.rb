@@ -4,8 +4,6 @@ require "suma/commerce"
 require "suma/postgres/model"
 
 class Suma::Commerce::OfferingFulfillmentOption < Suma::Postgres::Model(:commerce_offering_fulfillment_options)
-  include Suma::AdminLinked
-
   TYPES = ["pickup", "delivery"].freeze
 
   plugin :soft_deletes
@@ -22,8 +20,6 @@ class Suma::Commerce::OfferingFulfillmentOption < Suma::Postgres::Model(:commerc
   end
 
   def pickup? = self.type == "pickup"
-
-  def rel_admin_link = "/commerce_offering_fulfillment_option/#{self.id}"
 
   def validate
     super
