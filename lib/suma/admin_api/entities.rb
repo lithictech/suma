@@ -199,14 +199,14 @@ module Suma::AdminAPI::Entities
 
   class OfferingEntity < BaseEntity
     include AutoExposeBase
-    expose_translated :description
+    expose :description, with: TranslatedTextEntity
     expose :period_end, as: :closes_at
     expose :period_begin, as: :opens_at
   end
 
   class OfferingFulfillmentOptionEntity < BaseEntity
     include AutoExposeBase
-    expose_translated :description
+    expose :description, with: TranslatedTextEntity
     expose :type
     expose :ordinal
     expose :offering_id

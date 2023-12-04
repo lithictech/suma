@@ -17,7 +17,7 @@ export default function ResourceDetail({ apiGet, title, properties, toEdit, chil
   const getResource = React.useCallback(() => {
     return apiGet({ id }).catch(enqueueErrorSnackbar);
   }, [apiGet, id, enqueueErrorSnackbar]);
-  const { state, loading } = useAsyncFetch(getResource, {
+  const { state, loading, replaceState } = useAsyncFetch(getResource, {
     default: {},
     pickData: true,
   });
@@ -34,7 +34,7 @@ export default function ResourceDetail({ apiGet, title, properties, toEdit, chil
             title={<Title toEdit={toEdit && toEdit(state)}>{title(state)}</Title>}
             properties={properties(state)}
           />
-          {children(state)}
+          {children(state, replaceState)}
         </div>
       )}
     </>

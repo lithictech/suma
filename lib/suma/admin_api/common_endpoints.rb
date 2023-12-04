@@ -5,10 +5,15 @@ module Suma::AdminAPI::CommonEndpoints
     def association_class?(h, cls) = h[:class] == cls || h[:class_name] == cls.to_s
     def association_class(h) = h[:class] || Kernel.const_get(h[:class_name])
 
+    def model_field_params(m, p)
+      mp = p.dup
+      mp.delete_if { |k| !m.respond_to?("#{k}=") }
+      return mp
+    end
+
     def update_model(m, orig_params, process_params: nil, save: true)
       params = orig_params.deep_symbolize_keys
       params.delete(:id)
-      params.delete_if { |k| !m.respond_to?(k) }
       process_params&.call(params)
       mtype = m.class
       images = []
@@ -35,7 +40,7 @@ module Suma::AdminAPI::CommonEndpoints
           to_many_assocs_and_args << [assoc, v]
         end
       end
-      m.set(params)
+      m.set(model_field_params(m, params))
       m.set(fk_attrs)
       save_or_error!(m) if save
       images.each { |im| m.add_image(im) }

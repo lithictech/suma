@@ -19,9 +19,9 @@ class Suma::AdminAPI::CommerceOfferings < Suma::AdminAPI::V1
   class DetailedEntity < OfferingEntity
     include Suma::AdminAPI::Entities
     include AutoExposeDetail
-    expose_translated :description
-    expose_translated :fulfillment_prompt
-    expose_translated :fulfillment_confirmation
+    expose :description, with: TranslatedTextEntity
+    expose :fulfillment_prompt, with: TranslatedTextEntity
+    expose :fulfillment_confirmation, with: TranslatedTextEntity
     expose :fulfillment_options, with: OfferingFulfillmentOptionEntity
     expose :begin_fulfillment_at
     expose :prohibit_charge_at_checkout
@@ -60,7 +60,9 @@ class Suma::AdminAPI::CommerceOfferings < Suma::AdminAPI::V1
       Suma::Commerce::Offering,
       DetailedEntity,
       process_params: lambda do |params|
-        params[:period] = params.delete(:opens_at)..params.delete(:closes_at)
+        if (opens_at = params.delete(:opens_at))
+          params[:period] = opens_at..params.delete(:closes_at)
+        end
       end,
     ) do
       params do
@@ -89,7 +91,9 @@ class Suma::AdminAPI::CommerceOfferings < Suma::AdminAPI::V1
       Suma::Commerce::Offering,
       DetailedEntity,
       process_params: lambda do |params|
-        params[:period] = params.delete(:opens_at)..params.delete(:closes_at)
+        if (opens_at = params.delete(:opens_at))
+          params[:period] = opens_at..params.delete(:closes_at)
+        end
       end,
     ) do
       params do

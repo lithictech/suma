@@ -18,6 +18,7 @@ import MessageDetailPage from "./pages/MessageDetailPage";
 import MessageListPage from "./pages/MessageListPage";
 import OfferingCreatePage from "./pages/OfferingCreatePage";
 import OfferingDetailPage from "./pages/OfferingDetailPage";
+import OfferingEditPage from "./pages/OfferingEditPage";
 import OfferingListPage from "./pages/OfferingListPage";
 import OfferingPickListPage from "./pages/OfferingPickListPage";
 import OfferingProductCreatePage from "./pages/OfferingProductCreatePage";
@@ -210,13 +211,18 @@ function PageSwitch() {
       />
       <Route
         exact
-        path="/offerings/new"
+        path="/offering/new"
         element={renderWithHocs(redirectIfUnauthed, withLayout(), OfferingCreatePage)}
       />
       <Route
         exact
         path="/offering/:id"
         element={renderWithHocs(redirectIfUnauthed, withLayout(), OfferingDetailPage)}
+      />
+      <Route
+        exact
+        path="/offering/:id/edit"
+        element={renderWithHocs(redirectIfUnauthed, withLayout(), OfferingEditPage)}
       />
       <Route
         exact

@@ -3,6 +3,7 @@ import AdminLink from "../components/AdminLink";
 import DetailGrid from "../components/DetailGrid";
 import Link from "../components/Link";
 import RelatedList from "../components/RelatedList";
+import ResourceDetail from "../components/ResourceDetail";
 import useErrorSnackbar from "../hooks/useErrorSnackbar";
 import { dayjs } from "../modules/dayConfig";
 import oneLineAddress from "../modules/oneLineAddress";
@@ -15,91 +16,76 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import ListAltIcon from "@mui/icons-material/ListAlt";
 import SaveIcon from "@mui/icons-material/Save";
-import { CircularProgress, MenuItem, Select } from "@mui/material";
+import { MenuItem, Select } from "@mui/material";
 import IconButton from "@mui/material/IconButton";
 import { makeStyles } from "@mui/styles";
 import _ from "lodash";
 import isEmpty from "lodash/isEmpty";
 import React from "react";
-import { useParams } from "react-router-dom";
 
 export default function OfferingDetailPage() {
-  const { enqueueErrorSnackbar } = useErrorSnackbar();
-  let { id } = useParams();
   const classes = useStyles();
-  id = Number(id);
-  const getCommerceOffering = React.useCallback(() => {
-    return api.getCommerceOffering({ id }).catch((e) => enqueueErrorSnackbar(e));
-  }, [id, enqueueErrorSnackbar]);
-  const {
-    state: offering,
-    loading: offeringLoading,
-    replaceState: updateOffering,
-  } = useAsyncFetch(getCommerceOffering, {
-    default: {},
-    pickData: true,
-  });
   return (
-    <>
-      {offeringLoading && <CircularProgress />}
-      {!isEmpty(offering) && (
-        <div>
-          <DetailGrid
-            title={`Offering ${id}`}
-            properties={[
-              { label: "ID", value: id },
-              { label: "Created At", value: dayjs(offering.createdAt) },
-              { label: "Opening Date", value: dayjs(offering.opensAt) },
-              { label: "Closing Date", value: dayjs(offering.closesAt) },
-              {
-                label: "Begin Fulfillment At",
-                value: offering.beginFulfillmentAt && dayjs(offering.beginFulfillmentAt),
-              },
-              {
-                label: "Prohibit Charge At Checkout",
-                value: offering.prohibitChargeAtCheckout ? "Yes" : "No",
-              },
-              {
-                label: "Image",
-                value: (
-                  <SumaImage
-                    image={offering.image}
-                    alt={offering.image.name}
-                    className="w-100"
-                    params={{ crop: "center" }}
-                    h={225}
-                    width={225}
-                  />
-                ),
-              },
-              { label: "Description", value: offering.description },
-              { label: "Fulfillment Prompt", value: offering.fulfillmentPrompt },
-              {
-                label: "Fulfillment Confirmation",
-                value: offering.fulfillmentConfirmation,
-              },
-            ]}
-          />
+    <ResourceDetail
+      apiGet={api.getCommerceOffering}
+      title={(model) => `Offering ${model.id}`}
+      toEdit={(model) => `/offering/${model.id}/edit`}
+      properties={(model) => [
+        { label: "ID", value: model.id },
+        { label: "Created At", value: dayjs(model.createdAt) },
+        { label: "Opening Date", value: dayjs(model.opensAt) },
+        { label: "Closing Date", value: dayjs(model.closesAt) },
+        {
+          label: "Begin Fulfillment At",
+          value: model.beginFulfillmentAt && dayjs(model.beginFulfillmentAt),
+        },
+        {
+          label: "Prohibit Charge At Checkout",
+          value: model.prohibitChargeAtCheckout ? "Yes" : "No",
+        },
+        {
+          label: "Image",
+          value: (
+            <SumaImage
+              image={model.image}
+              alt={model.image.name}
+              className="w-100"
+              params={{ crop: "center" }}
+              h={225}
+              width={225}
+            />
+          ),
+        },
+        { label: "Description", value: model.description.en },
+        { label: "Fulfillment Prompt", value: model.fulfillmentPrompt.en },
+        {
+          label: "Fulfillment Confirmation",
+          value: model.fulfillmentConfirmation.en,
+        },
+      ]}
+    >
+      {(model, setModel) => (
+        <>
           <RelatedList
             title="Fulfillment Options"
-            rows={offering.fulfillmentOptions}
+            rows={model.fulfillmentOptions}
             headers={["Id", "Description", "Type", "Address"]}
             keyRowAttr="id"
             toCells={(row) => [
               row.id,
-              row.description,
+              row.description.en,
               row.type,
               row.address && oneLineAddress(row.address, false),
             ]}
           />
           <EligibilityConstraints
-            offeringConstraints={offering.eligibilityConstraints}
-            offeringId={id}
-            replaceOfferingData={updateOffering}
+            offeringConstraints={model.eligibilityConstraints}
+            offeringId={model.id}
+            replaceOfferingData={setModel}
           />
           <RelatedList
-            title={`Offering Products (${offering.offeringProducts.length})`}
-            rows={offering.offeringProducts}
+            title={`Offering Products (${model.offeringProducts.length})`}
+            rows={model.offeringProducts}
             headers={["Id", "Name", "Vendor", "Customer Price", "Full Price"]}
             keyRowAttr="id"
             rowClass={(row) => (row.closedAt ? classes.closed : "")}
@@ -114,21 +100,21 @@ export default function OfferingDetailPage() {
             ]}
           />
           <Link
-            to={`/offering-product/new?offeringId=${offering.id}&offeringDescription=${offering.description}`}
+            to={`/offering-product/new?offeringId=${model.id}&offeringDescription=${model.description}`}
             sx={{ display: "block", marginTop: "15px" }}
           >
             <ListAltIcon sx={{ verticalAlign: "middle", paddingRight: "5px" }} />
             Create Offering Product
           </Link>
-          {!isEmpty(offering.orders) && (
-            <Link to={`/offering/${offering.id}/picklist`}>
+          {!isEmpty(model.orders) && (
+            <Link to={`/offering/${model.id}/picklist`}>
               <ListAltIcon sx={{ verticalAlign: "middle", paddingRight: "5px" }} />
               Pick/Pack List
             </Link>
           )}
           <RelatedList
-            title={`Orders (${offering.orders.length})`}
-            rows={offering.orders}
+            title={`Orders (${model.orders.length})`}
+            rows={model.orders}
             headers={["Id", "Created", "Member", "Items", "Status"]}
             keyRowAttr="id"
             toCells={(row) => [
@@ -141,9 +127,9 @@ export default function OfferingDetailPage() {
               row.statusLabel,
             ]}
           />
-        </div>
+        </>
       )}
-    </>
+    </ResourceDetail>
   );
 }
 
@@ -173,8 +159,7 @@ function EligibilityConstraints({
     if (_.isEmpty(offeringConstraints)) {
       properties.push({
         label: "*",
-        value:
-          "Member has no constraints. They can access any goods and services that are unconstrained.",
+        value: "Offering has no constraints. All members can access it.",
       });
     } else {
       offeringConstraints.forEach(({ name }) =>

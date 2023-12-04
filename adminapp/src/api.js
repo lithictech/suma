@@ -30,7 +30,7 @@ const del = (path, params, opts) => {
 
 function followRedirect(navigate) {
   return function (resp) {
-    if (resp.headers["created-resource-admin"]) {
+    if (resp && resp.headers && resp.headers["created-resource-admin"]) {
       const [href, relative] = relativeLink(resp.headers["created-resource-admin"]);
       if (relative) {
         navigate(href);
@@ -92,6 +92,8 @@ export default {
     get(`/adminapi/v1/commerce_offerings/${id}`, data),
   createCommerceOffering: (data) =>
     postForm("/adminapi/v1/commerce_offerings/create", data),
+  updateCommerceOffering: ({ id, ...data }) =>
+    postForm(`/adminapi/v1/commerce_offerings/${id}`, data),
   updateOfferingEligibilityConstraints: ({ id, ...data }) =>
     post(`/adminapi/v1/commerce_offerings/${id}/eligibilities`, data),
   getCommerceOfferingPickList: ({ id, ...data }) =>
