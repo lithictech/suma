@@ -63,6 +63,34 @@ RSpec.describe Suma::AdminAPI::CommerceProducts, :db do
     end
   end
 
+  describe "POST /v1/commerce_products/create" do
+    it "creates the product" do
+      photo_file = File.open("spec/data/images/photo.png", "rb")
+      image = Rack::Test::UploadedFile.new(photo_file, "image/png", true)
+      cat = Suma::Fixtures.vendor_service_category.food.create
+      vs = Suma::Fixtures.vendor_service.create
+
+      post "/v1/commerce_products/create",
+           image: image,
+           name: {en: "EN name", es: "ES name"},
+           description: {en: "EN description", es: "ES description"},
+           our_cost: {cents: 2400},
+           vendor: {id: vs.vendor.id},
+           vendor_service_categories: {"0" => {id: cat.id}},
+           inventory: {
+             max_quantity_per_order: 500,
+             max_quantity_per_offering: 500,
+           }
+
+      expect(last_response).to have_status(200)
+      expect(last_response.headers).to include("Created-Resource-Admin")
+      p = Suma::Commerce::Product.first
+      expect(Suma::Commerce::Product.all).to have_length(1)
+      expect(p).to have_attributes(our_cost: cost("$24"))
+      expect(p.inventory).to have_attributes(product: p, max_quantity_per_order: 500)
+    end
+  end
+
   describe "GET /v1/commerce_products/:id" do
     it "returns the product" do
       x = Suma::Fixtures.product.create
@@ -77,6 +105,25 @@ RSpec.describe Suma::AdminAPI::CommerceProducts, :db do
       get "/v1/commerce_products/0"
 
       expect(last_response).to have_status(403)
+    end
+  end
+
+  describe "POST /v1/commerce_products/:id" do
+    it "updates the product" do
+      photo_file = File.open("spec/data/images/photo.png", "rb")
+      image = Rack::Test::UploadedFile.new(photo_file, "image/png", true)
+      product = Suma::Fixtures.product.create
+      product.add_image({uploaded_file: Suma::Fixtures.uploaded_file.create})
+
+      post "/v1/commerce_products/#{product.id}",
+           image: image,
+           our_cost: {cents: 2400},
+           inventory: {quantity_on_hand: 2}
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.that_includes(id: product.id)
+      expect(product.refresh).to have_attributes(our_cost: cost("$24"))
+      expect(product.inventory).to have_attributes(quantity_on_hand: 2)
     end
   end
 end

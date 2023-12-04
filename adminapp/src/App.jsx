@@ -5,6 +5,10 @@ import BookTransactionCreatePage from "./pages/BookTransactionCreatePage";
 import BookTransactionDetailPage from "./pages/BookTransactionDetailPage";
 import BookTransactionListPage from "./pages/BookTransactionListPage";
 import DashboardPage from "./pages/DashboardPage";
+import EligibilityConstraintCreatePage from "./pages/EligibilityConstraintCreatePage";
+import EligibilityConstraintDetailPage from "./pages/EligibilityConstraintDetailPage";
+import EligibilityConstraintEditPage from "./pages/EligibilityConstraintEditPage";
+import EligibilityConstraintListPage from "./pages/EligibilityConstraintListPage";
 import FundingTransactionCreatePage from "./pages/FundingTransactionCreatePage";
 import FundingTransactionDetailPage from "./pages/FundingTransactionDetailPage";
 import FundingTransactionListPage from "./pages/FundingTransactionListPage";
@@ -14,15 +18,25 @@ import MessageDetailPage from "./pages/MessageDetailPage";
 import MessageListPage from "./pages/MessageListPage";
 import OfferingCreatePage from "./pages/OfferingCreatePage";
 import OfferingDetailPage from "./pages/OfferingDetailPage";
+import OfferingEditPage from "./pages/OfferingEditPage";
 import OfferingListPage from "./pages/OfferingListPage";
 import OfferingPickListPage from "./pages/OfferingPickListPage";
+import OfferingProductCreatePage from "./pages/OfferingProductCreatePage";
+import OfferingProductDetailPage from "./pages/OfferingProductDetailPage";
+import OfferingProductEditPage from "./pages/OfferingProductEditPage";
 import OrderDetailPage from "./pages/OrderDetailPage";
 import OrderListPage from "./pages/OrderListPage";
 import PayoutTransactionDetailPage from "./pages/PayoutTransactionDetailPage";
 import PayoutTransactionListPage from "./pages/PayoutTransactionListPage";
+import ProductCreatePage from "./pages/ProductCreatePage";
 import ProductDetailPage from "./pages/ProductDetailPage";
+import ProductEditPage from "./pages/ProductEditPage";
 import ProductListPage from "./pages/ProductListPage";
 import SignInPage from "./pages/SignInPage";
+import VendorCreatePage from "./pages/VendorCreatePage";
+import VendorDetailPage from "./pages/VendorDetailPage";
+import VendorEditPage from "./pages/VendorEditPage";
+import VendorListPage from "./pages/VendorListPage";
 import applyHocs from "./shared/applyHocs";
 import bluejay from "./shared/bluejay";
 import Redirect from "./shared/react/Redirect";
@@ -82,6 +96,42 @@ function PageSwitch() {
         exact
         path="/bank-account/:id"
         element={renderWithHocs(redirectIfUnauthed, withLayout(), BankAccountDetailPage)}
+      />
+      <Route
+        exact
+        path="/constraints"
+        element={renderWithHocs(
+          redirectIfUnauthed,
+          withLayout(),
+          EligibilityConstraintListPage
+        )}
+      />
+      <Route
+        exact
+        path="/constraint/new"
+        element={renderWithHocs(
+          redirectIfUnauthed,
+          withLayout(),
+          EligibilityConstraintCreatePage
+        )}
+      />
+      <Route
+        exact
+        path="/constraint/:id"
+        element={renderWithHocs(
+          redirectIfUnauthed,
+          withLayout(),
+          EligibilityConstraintDetailPage
+        )}
+      />
+      <Route
+        exact
+        path="/constraint/:id/edit"
+        element={renderWithHocs(
+          redirectIfUnauthed,
+          withLayout(),
+          EligibilityConstraintEditPage
+        )}
       />
       <Route
         exact
@@ -162,13 +212,18 @@ function PageSwitch() {
       />
       <Route
         exact
-        path="/offerings/new"
+        path="/offering/new"
         element={renderWithHocs(redirectIfUnauthed, withLayout(), OfferingCreatePage)}
       />
       <Route
         exact
         path="/offering/:id"
         element={renderWithHocs(redirectIfUnauthed, withLayout(), OfferingDetailPage)}
+      />
+      <Route
+        exact
+        path="/offering/:id/edit"
+        element={renderWithHocs(redirectIfUnauthed, withLayout(), OfferingEditPage)}
       />
       <Route
         exact
@@ -182,8 +237,65 @@ function PageSwitch() {
       />
       <Route
         exact
+        path="/product/new"
+        element={renderWithHocs(redirectIfUnauthed, withLayout(), ProductCreatePage)}
+      />
+      <Route
+        exact
         path="/product/:id"
         element={renderWithHocs(redirectIfUnauthed, withLayout(), ProductDetailPage)}
+      />
+      <Route
+        exact
+        path="/product/:id/edit"
+        element={renderWithHocs(redirectIfUnauthed, withLayout(), ProductEditPage)}
+      />
+      <Route
+        exact
+        path="/offering-product/new"
+        element={renderWithHocs(
+          redirectIfUnauthed,
+          withLayout(),
+          OfferingProductCreatePage
+        )}
+      />
+      <Route
+        exact
+        path="/offering-product/:id"
+        element={renderWithHocs(
+          redirectIfUnauthed,
+          withLayout(),
+          OfferingProductDetailPage
+        )}
+      />
+      <Route
+        exact
+        path="/offering-product/:id/edit"
+        element={renderWithHocs(
+          redirectIfUnauthed,
+          withLayout(),
+          OfferingProductEditPage
+        )}
+      />
+      <Route
+        exact
+        path="/vendors"
+        element={renderWithHocs(redirectIfUnauthed, withLayout(), VendorListPage)}
+      />
+      <Route
+        exact
+        path="/vendor/new"
+        element={renderWithHocs(redirectIfUnauthed, withLayout(), VendorCreatePage)}
+      />
+      <Route
+        exact
+        path="/vendor/:id"
+        element={renderWithHocs(redirectIfUnauthed, withLayout(), VendorDetailPage)}
+      />
+      <Route
+        exact
+        path="/vendor/:id/edit"
+        element={renderWithHocs(redirectIfUnauthed, withLayout(), VendorEditPage)}
       />
       <Route
         exact

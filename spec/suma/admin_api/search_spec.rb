@@ -138,4 +138,48 @@ RSpec.describe Suma::AdminAPI::Search, :db do
       expect(last_response).to have_json_body.that_includes(items: [include(label: "fox spanish")])
     end
   end
+
+  describe "POST /v1/search/offerings" do
+    it "returns matching offerings" do
+      o1 = Suma::Fixtures.offering.create(description: Suma::Fixtures.translated_text(en: "abc farmers market").create)
+      o2 = Suma::Fixtures.offering.create(description: Suma::Fixtures.translated_text(en: "test").create)
+
+      post "/v1/search/offerings", q: "abc"
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.that_includes(items: have_same_ids_as(o1))
+    end
+
+    it "returns all offerings if no query" do
+      o1 = Suma::Fixtures.offering.create(description: Suma::Fixtures.translated_text(en: "z market").create)
+      o2 = Suma::Fixtures.offering.create(description: Suma::Fixtures.translated_text(en: "a market").create)
+
+      post "/v1/search/offerings"
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.that_includes(items: have_same_ids_as(o2, o1))
+    end
+  end
+
+  describe "POST /v1/search/vendors" do
+    it "returns matching vendors" do
+      v1 = Suma::Fixtures.vendor.create(name: "abc farmers market")
+      v2 = Suma::Fixtures.vendor.create(name: "test")
+
+      post "/v1/search/vendors", q: "abc"
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.that_includes(items: have_same_ids_as(v1))
+    end
+
+    it "returns all results if no query" do
+      v1 = Suma::Fixtures.vendor.create(name: "x market")
+      v2 = Suma::Fixtures.vendor.create(name: "a market")
+
+      post "/v1/search/vendors"
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.that_includes(items: have_same_ids_as(v2, v1).ordered)
+    end
+  end
 end

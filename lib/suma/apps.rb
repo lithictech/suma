@@ -34,6 +34,8 @@ require "suma/admin_api/book_transactions"
 require "suma/admin_api/commerce_offerings"
 require "suma/admin_api/commerce_orders"
 require "suma/admin_api/commerce_products"
+require "suma/admin_api/commerce_offering_products"
+require "suma/admin_api/eligibility_constraints"
 require "suma/admin_api/funding_transactions"
 require "suma/admin_api/members"
 require "suma/admin_api/message_deliveries"
@@ -41,6 +43,7 @@ require "suma/admin_api/meta"
 require "suma/admin_api/payout_transactions"
 require "suma/admin_api/roles"
 require "suma/admin_api/search"
+require "suma/admin_api/vendors"
 
 module Suma::Apps
   class API < Suma::Service
@@ -66,6 +69,8 @@ module Suma::Apps
     mount Suma::AdminAPI::CommerceOfferings
     mount Suma::AdminAPI::CommerceOrders
     mount Suma::AdminAPI::CommerceProducts
+    mount Suma::AdminAPI::CommerceOfferingProducts
+    mount Suma::AdminAPI::EligibilityConstraints
     mount Suma::AdminAPI::FundingTransactions
     mount Suma::AdminAPI::Members
     mount Suma::AdminAPI::MessageDeliveries
@@ -73,6 +78,7 @@ module Suma::Apps
     mount Suma::AdminAPI::PayoutTransactions
     mount Suma::AdminAPI::Roles
     mount Suma::AdminAPI::Search
+    mount Suma::AdminAPI::Vendors
     add_swagger_documentation if ENV["RACK_ENV"] == "development"
   end
 

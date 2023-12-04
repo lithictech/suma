@@ -117,26 +117,59 @@ class Suma::AdminAPI::Search < Suma::AdminAPI::V1
     end
     post :translations do
       lang = params[:language]
-      pglang = {en: "english", es: "spanish"}.fetch(lang)
       # Perform a subselect since otherwise we can't sort with distinct.
       base_ds = Suma::TranslatedText.dataset.distinct(lang)
       if (types = params[:types])
         base_ds = nil if types.include?(:ignore_this_i_just_dont_want_reformatting)
         base_ds = base_ds.where(id: Suma::Payment::BookTransaction.dataset.select(:memo_id)) if types.include?(:memo)
       end
-      ds = Suma::TranslatedText.dataset.where(id: base_ds.select(:id)).full_text_search(
-        # Search using the generated column
-        "#{lang}_tsvector".to_sym,
-        # Have to do this manually for now: https://github.com/jeremyevans/sequel/discussions/2075
-        Sequel.function(:websearch_to_tsquery, pglang, params[:q]),
-        rank: true,
-        language: pglang,
-        tsvector: true,
-        tsquery: true,
-      )
+      ds = Suma::TranslatedText.dataset.where(id: base_ds.select(:id)).search(lang, params[:q])
       ds = ds.limit(10)
       status 200
       present_collection ds, with: SearchTransactionEntity, language: lang
+    end
+
+    params do
+      optional :q, type: String
+    end
+    post :products do
+      ds = Suma::Commerce::Product.dataset
+      if (q = params[:q]).present?
+        name_like = Suma::TranslatedText.dataset.distinct_search(:en, q)
+        ds = ds.where(name: name_like)
+      end
+      ds = ds.limit(15)
+      status 200
+      present_collection ds, with: SearchProductEntity
+    end
+
+    params do
+      optional :q, type: String
+    end
+    post :offerings do
+      ds = Suma::Commerce::Offering.dataset
+      if (q = params[:q]).present?
+        description_like = Suma::TranslatedText.dataset.distinct_search(:en, q)
+        ds = ds.where(description: description_like)
+      end
+      ds = ds.limit(15)
+      status 200
+      present_collection ds, with: SearchOfferingEntity
+    end
+
+    params do
+      optional :q, type: String
+    end
+    post :vendors do
+      ds = Suma::Vendor.dataset
+      ds = if (namelike = search_param_to_sql(params, :name, param: :q))
+             ds.where(namelike)
+      else
+        ds.order(:name)
+      end
+      ds = ds.limit(15)
+      status 200
+      present_collection ds, with: SearchVendorEntity
     end
   end
 
@@ -164,5 +197,27 @@ class Suma::AdminAPI::Search < Suma::AdminAPI::V1
     expose :label do |inst, options|
       inst.send(options[:language])
     end
+  end
+
+  class SearchProductEntity < BaseEntity
+    expose :key, &self.delegate_to(:id, :to_s)
+    expose :id
+    expose :admin_link
+    expose :label, &self.delegate_to(:name, :en)
+  end
+
+  class SearchOfferingEntity < BaseEntity
+    expose :key, &self.delegate_to(:id, :to_s)
+    expose :id
+    expose :admin_link
+    expose :label, &self.delegate_to(:description, :en)
+  end
+
+  class SearchVendorEntity < BaseEntity
+    expose :key, &self.delegate_to(:id, :to_s)
+    expose :id
+    expose :slug
+    expose :admin_link
+    expose :name, as: :label
   end
 end

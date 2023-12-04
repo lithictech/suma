@@ -71,7 +71,13 @@ export default function OrderDetailPage() {
           <RelatedList
             title="Items"
             rows={order.items}
-            headers={["Quantity", "Product", "Vendor", "Customer Price", "Full Price"]}
+            headers={[
+              "Quantity",
+              "Offering Product",
+              "Vendor",
+              "Customer Price",
+              "Full Price",
+            ]}
             keyRowAttr="id"
             toCells={(row) => [
               row.quantity,

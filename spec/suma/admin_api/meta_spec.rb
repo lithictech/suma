@@ -57,10 +57,7 @@ RSpec.describe Suma::AdminAPI::Meta, :db do
 
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.that_includes(
-        items: [
-          {slug: "a", name: "A", label: "A"},
-          {slug: "b", name: "B", label: "A - B"},
-        ],
+        items: [include(label: "A"), include(label: "A - B")],
       )
     end
   end

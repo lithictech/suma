@@ -3,90 +3,90 @@ import AdminLink from "../components/AdminLink";
 import DetailGrid from "../components/DetailGrid";
 import Link from "../components/Link";
 import RelatedList from "../components/RelatedList";
+import ResourceDetail from "../components/ResourceDetail";
 import useErrorSnackbar from "../hooks/useErrorSnackbar";
 import { dayjs } from "../modules/dayConfig";
 import oneLineAddress from "../modules/oneLineAddress";
+import createRelativeUrl from "../shared/createRelativeUrl";
 import Money from "../shared/react/Money";
 import SumaImage from "../shared/react/SumaImage";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
+import CancelIcon from "@mui/icons-material/Cancel";
+import CheckIcon from "@mui/icons-material/Check";
+import DeleteIcon from "@mui/icons-material/Delete";
+import EditIcon from "@mui/icons-material/Edit";
 import ListAltIcon from "@mui/icons-material/ListAlt";
-import { CircularProgress } from "@mui/material";
+import SaveIcon from "@mui/icons-material/Save";
+import { MenuItem, Select } from "@mui/material";
+import IconButton from "@mui/material/IconButton";
 import { makeStyles } from "@mui/styles";
+import _ from "lodash";
 import isEmpty from "lodash/isEmpty";
 import React from "react";
-import { useParams } from "react-router-dom";
 
 export default function OfferingDetailPage() {
-  const { enqueueErrorSnackbar } = useErrorSnackbar();
-  let { id } = useParams();
   const classes = useStyles();
-  id = Number(id);
-  const getCommerceOffering = React.useCallback(() => {
-    return api.getCommerceOffering({ id }).catch((e) => enqueueErrorSnackbar(e));
-  }, [id, enqueueErrorSnackbar]);
-  const { state: offering, loading: offeringLoading } = useAsyncFetch(
-    getCommerceOffering,
-    {
-      default: {},
-      pickData: true,
-    }
-  );
   return (
-    <>
-      {offeringLoading && <CircularProgress />}
-      {!isEmpty(offering) && (
-        <div>
-          <DetailGrid
-            title={`Offering ${id}`}
-            properties={[
-              { label: "ID", value: id },
-              { label: "Created At", value: dayjs(offering.createdAt) },
-              { label: "Opening Date", value: dayjs(offering.opensAt) },
-              { label: "Closing Date", value: dayjs(offering.closesAt) },
-              {
-                label: "Begin Fulfillment At",
-                value: offering.beginFulfillmentAt && dayjs(offering.beginFulfillmentAt),
-              },
-              {
-                label: "Prohibit Charge At Checkout",
-                value: offering.prohibitChargeAtCheckout ? "Yes" : "No",
-              },
-              {
-                label: "Image",
-                value: (
-                  <SumaImage
-                    image={offering.image}
-                    alt={offering.image.name}
-                    className="w-100"
-                    params={{ crop: "center" }}
-                    h={225}
-                    width={225}
-                  />
-                ),
-              },
-              { label: "Description", value: offering.description },
-              { label: "Fulfillment Prompt", value: offering.fulfillmentPrompt },
-              {
-                label: "Fulfillment Confirmation",
-                value: offering.fulfillmentConfirmation,
-              },
-            ]}
-          />
+    <ResourceDetail
+      apiGet={api.getCommerceOffering}
+      title={(model) => `Offering ${model.id}`}
+      toEdit={(model) => `/offering/${model.id}/edit`}
+      properties={(model) => [
+        { label: "ID", value: model.id },
+        { label: "Created At", value: dayjs(model.createdAt) },
+        { label: "Opening Date", value: dayjs(model.opensAt) },
+        { label: "Closing Date", value: dayjs(model.closesAt) },
+        {
+          label: "Begin Fulfillment At",
+          value: model.beginFulfillmentAt && dayjs(model.beginFulfillmentAt),
+        },
+        {
+          label: "Prohibit Charge At Checkout",
+          value: model.prohibitChargeAtCheckout ? "Yes" : "No",
+        },
+        {
+          label: "Image",
+          value: (
+            <SumaImage
+              image={model.image}
+              alt={model.image.name}
+              className="w-100"
+              params={{ crop: "center" }}
+              h={225}
+              width={225}
+            />
+          ),
+        },
+        { label: "Description", value: model.description.en },
+        { label: "Fulfillment Prompt", value: model.fulfillmentPrompt.en },
+        {
+          label: "Fulfillment Confirmation",
+          value: model.fulfillmentConfirmation.en,
+        },
+      ]}
+    >
+      {(model, setModel) => (
+        <>
           <RelatedList
             title="Fulfillment Options"
-            rows={offering.fulfillmentOptions}
+            rows={model.fulfillmentOptions}
             headers={["Id", "Description", "Type", "Address"]}
             keyRowAttr="id"
             toCells={(row) => [
               row.id,
-              row.description,
+              row.description.en,
               row.type,
               row.address && oneLineAddress(row.address, false),
             ]}
           />
+          <EligibilityConstraints
+            offeringConstraints={model.eligibilityConstraints}
+            offeringId={model.id}
+            replaceOfferingData={setModel}
+          />
           <RelatedList
-            title={`Products (${offering.offeringProducts.length})`}
-            rows={offering.offeringProducts}
+            title={`Offering Products (${model.offeringProducts.length})`}
+            rows={model.offeringProducts}
             headers={["Id", "Name", "Vendor", "Customer Price", "Full Price"]}
             keyRowAttr="id"
             rowClass={(row) => (row.closedAt ? classes.closed : "")}
@@ -100,18 +100,25 @@ export default function OfferingDetailPage() {
               <Money key="undiscounted_price">{row.undiscountedPrice}</Money>,
             ]}
           />
-          {!isEmpty(offering.orders) && (
-            <Link
-              to={`/offering/${offering.id}/picklist`}
-              sx={{ display: "inline-block", marginTop: "15px" }}
-            >
+          <Link
+            to={createRelativeUrl(`/offering-product/new`, {
+              offeringId: model.id,
+              offeringLabel: model.description.en,
+            })}
+            sx={{ display: "block", marginTop: "15px" }}
+          >
+            <ListAltIcon sx={{ verticalAlign: "middle", paddingRight: "5px" }} />
+            Create Offering Product
+          </Link>
+          {!isEmpty(model.orders) && (
+            <Link to={`/offering/${model.id}/picklist`}>
               <ListAltIcon sx={{ verticalAlign: "middle", paddingRight: "5px" }} />
               Pick/Pack List
             </Link>
           )}
           <RelatedList
-            title={`Orders (${offering.orders.length})`}
-            rows={offering.orders}
+            title={`Orders (${model.orders.length})`}
+            rows={model.orders}
             headers={["Id", "Created", "Member", "Items", "Status"]}
             keyRowAttr="id"
             toCells={(row) => [
@@ -124,9 +131,144 @@ export default function OfferingDetailPage() {
               row.statusLabel,
             ]}
           />
-        </div>
+        </>
       )}
-    </>
+    </ResourceDetail>
+  );
+}
+
+function EligibilityConstraints({
+  offeringConstraints,
+  offeringId,
+  replaceOfferingData,
+}) {
+  const [editing, setEditing] = React.useState(false);
+  const [updatedConstraints, setUpdatedConstraints] = React.useState([]);
+  const [newConstraintId, setNewConstraintId] = React.useState(0);
+  const { enqueueErrorSnackbar } = useErrorSnackbar();
+
+  const { state: eligibilityConstraints, loading: eligibilityConstraintsLoading } =
+    useAsyncFetch(api.getEligibilityConstraintsMeta, {
+      pickData: true,
+    });
+
+  function startEditing() {
+    setEditing(true);
+    setUpdatedConstraints(offeringConstraints);
+    setNewConstraintId(eligibilityConstraints[0]?.id);
+  }
+
+  if (!editing) {
+    const properties = [];
+    if (_.isEmpty(offeringConstraints)) {
+      properties.push({
+        label: "*",
+        value: "Offering has no constraints. All members can access it.",
+      });
+    } else {
+      offeringConstraints.forEach(({ name }) =>
+        properties.push({
+          label: name,
+          value: <CheckIcon />,
+        })
+      );
+    }
+    return (
+      <div>
+        <DetailGrid
+          title={
+            <>
+              Eligibility Constraints
+              <IconButton onClick={startEditing}>
+                <EditIcon color="info" />
+              </IconButton>
+            </>
+          }
+          properties={properties}
+        />
+      </div>
+    );
+  }
+
+  if (eligibilityConstraintsLoading) {
+    return "Loading...";
+  }
+
+  function discardChanges() {
+    setUpdatedConstraints([]);
+    setEditing(false);
+  }
+
+  function saveChanges() {
+    const constraintIds = updatedConstraints.map((c) => c.id);
+    if (newConstraintId) {
+      constraintIds.push(newConstraintId);
+    }
+    api
+      .updateOfferingEligibilityConstraints({
+        id: offeringId,
+        constraintIds,
+      })
+      .then((r) => {
+        replaceOfferingData(r.data);
+        setEditing(false);
+      })
+      .catch(enqueueErrorSnackbar);
+  }
+
+  function deleteConstraint(id) {
+    setUpdatedConstraints(updatedConstraints.filter((c) => c.id !== id));
+  }
+
+  const properties = updatedConstraints.map((c) => ({
+    label: c.name,
+    children: (
+      <IconButton onClick={() => deleteConstraint(c.id)}>
+        <DeleteIcon color="error" />
+      </IconButton>
+    ),
+  }));
+
+  const existingConstraintIds = offeringConstraints.map((c) => c.id);
+  const availableConstraints = eligibilityConstraints.items.filter(
+    (c) => !existingConstraintIds.includes(c.id)
+  );
+  if (!_.isEmpty(availableConstraints)) {
+    properties.push({
+      label: "Add Constraint",
+      children: (
+        <div>
+          <Select
+            value={newConstraintId || ""}
+            onChange={(e) => setNewConstraintId(Number(e.target.value))}
+          >
+            {availableConstraints.map((c) => (
+              <MenuItem key={c.id} value={c.id}>
+                {c.name}
+              </MenuItem>
+            ))}
+          </Select>
+        </div>
+      ),
+    });
+  }
+  return (
+    <div>
+      <DetailGrid
+        title={
+          <>
+            Eligibility Constraints
+            <IconButton onClick={saveChanges}>
+              <SaveIcon color="success" />
+            </IconButton>
+            <IconButton onClick={discardChanges}>
+              <CancelIcon color="error" />
+            </IconButton>
+          </>
+        }
+        properties={properties}
+      />
+    </div>
   );
 }
 

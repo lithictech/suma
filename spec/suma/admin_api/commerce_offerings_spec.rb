@@ -62,7 +62,7 @@ RSpec.describe Suma::AdminAPI::CommerceOfferings, :db do
     end
   end
 
-  describe "GET /v1/commerce_offerings/create" do
+  describe "POST /v1/commerce_offerings/create" do
     it "creates the offering" do
       photo_file = File.open("spec/data/images/photo.png", "rb")
       image = Rack::Test::UploadedFile.new(photo_file, "image/png", true)
@@ -108,7 +108,9 @@ RSpec.describe Suma::AdminAPI::CommerceOfferings, :db do
   describe "GET /v1/commerce_offerings/:id" do
     it "returns the offering" do
       order = Suma::Fixtures.order.as_purchased_by(admin).create
+      e = Suma::Fixtures.eligibility_constraint.create
       o = order.checkout.cart.offering
+      o.add_eligibility_constraint(e)
 
       get "/v1/commerce_offerings/#{o.id}"
 
@@ -117,11 +119,57 @@ RSpec.describe Suma::AdminAPI::CommerceOfferings, :db do
         id: o.id,
         orders: have_length(1),
         offering_products: have_length(1),
+        eligibility_constraints: have_length(1),
       )
     end
 
     it "403s if the item does not exist" do
       get "/v1/commerce_offerings/0"
+
+      expect(last_response).to have_status(403)
+    end
+  end
+
+  describe "POST /v1/commerce_offerings/:id" do
+    it "updates the offering" do
+      photo_file = File.open("spec/data/images/photo.png", "rb")
+      image = Rack::Test::UploadedFile.new(photo_file, "image/png", true)
+      o = Suma::Fixtures.offering.create
+      post "/v1/commerce_offerings/#{o.id}",
+           image: image,
+           description: {en: "EN test", es: "ES test"},
+           fulfillment_options: {
+             "0" => {
+               description: {en: "EN desc", es: "ES desc"},
+               type: "pickup",
+             },
+           }
+
+      expect(last_response).to have_status(200)
+      expect(o.refresh).to have_attributes(
+        description: have_attributes(en: "EN test"),
+        fulfillment_options: contain_exactly(have_attributes(description: have_attributes(en: "EN desc"))),
+      )
+    end
+  end
+
+  describe "POST /v1/commerce_offering/:id/eligibilities" do
+    it "modify offering eligibilities" do
+      existing_constraint = Suma::Fixtures.eligibility_constraint.create
+      o = Suma::Fixtures.offering.with_constraints(existing_constraint).create
+      new_eligibility = Suma::Fixtures.eligibility_constraint.create
+
+      post "/v1/commerce_offerings/#{o.id}/eligibilities", constraint_ids: [new_eligibility.id]
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.
+        that_includes(eligibility_constraints: contain_exactly(include(id: new_eligibility.id)))
+    end
+
+    it "403s if eligibility constraint does not exist" do
+      o = Suma::Fixtures.offering.create
+
+      post "/v1/commerce_offerings/#{o.id}/eligibilities", constraint_ids: [0]
 
       expect(last_response).to have_status(403)
     end

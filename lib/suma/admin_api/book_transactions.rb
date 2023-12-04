@@ -7,25 +7,24 @@ require "suma/admin_api"
 class Suma::AdminAPI::BookTransactions < Suma::AdminAPI::V1
   include Suma::AdminAPI::Entities
 
+  class DetailedBookTransactionEntity < BookTransactionEntity
+    include Suma::AdminAPI::Entities
+    include AutoExposeDetail
+    expose :opaque_id
+    expose :memo, with: TranslatedTextEntity
+    expose :originating_funding_transaction, with: FundingTransactionEntity
+    expose :originating_payout_transaction, with: PayoutTransactionEntity
+    expose :credited_payout_transaction, with: PayoutTransactionEntity
+    expose :charges, with: ChargeEntity
+  end
+
   resource :book_transactions do
-    params do
-      use :pagination
-      use :ordering, model: Suma::Payment::BookTransaction
-      use :searchable
-    end
-    get do
-      ds = Suma::Payment::BookTransaction.dataset
-      if (opaque_id_like = search_param_to_sql(params, :opaque_id))
-        ds = ds.translation_join(:memo, [:en, :es]).where(
-          search_param_to_sql(params, :memo_en) |
-            search_param_to_sql(params, :memo_es) |
-            opaque_id_like,
-        )
-      end
-      ds = order(ds, params)
-      ds = paginate(ds, params)
-      present_collection ds, with: BookTransactionEntity
-    end
+    Suma::AdminAPI::CommonEndpoints.list(
+      self,
+      Suma::Payment::BookTransaction, BookTransactionEntity,
+      search_params: [:opaque_id],
+      translation_search_params: [:memo],
+    )
 
     params do
       requires :originating_ledger_id, type: Integer
@@ -53,29 +52,6 @@ class Suma::AdminAPI::BookTransactions < Suma::AdminAPI::V1
       present bx, with: DetailedBookTransactionEntity
     end
 
-    route_param :id, type: Integer do
-      helpers do
-        def lookup_book_transaction!
-          (o = Suma::Payment::BookTransaction[params[:id]]) or forbidden!
-          return o
-        end
-      end
-
-      get do
-        o = lookup_book_transaction!
-        present o, with: DetailedBookTransactionEntity
-      end
-    end
-  end
-
-  class DetailedBookTransactionEntity < BookTransactionEntity
-    include Suma::AdminAPI::Entities
-    include AutoExposeDetail
-    expose :opaque_id
-    expose_translated :memo
-    expose :originating_funding_transaction, with: FundingTransactionEntity
-    expose :originating_payout_transaction, with: PayoutTransactionEntity
-    expose :credited_payout_transaction, with: PayoutTransactionEntity
-    expose :charges, with: ChargeEntity
+    Suma::AdminAPI::CommonEndpoints.get_one self, Suma::Payment::BookTransaction, DetailedBookTransactionEntity
   end
 end

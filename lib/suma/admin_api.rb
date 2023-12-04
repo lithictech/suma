@@ -35,6 +35,10 @@ module Suma::AdminAPI
           end
         end
 
+        rescue_from Sequel::UniqueConstraintViolation do |e|
+          invalid!(e.to_s)
+        end
+
         before do
           Sentry.configure_scope do |scope|
             scope.set_tags(application: "admin-api")
@@ -53,3 +57,5 @@ module Suma::AdminAPI
     end
   end
 end
+
+require "suma/admin_api/common_endpoints"

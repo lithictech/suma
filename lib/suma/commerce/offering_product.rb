@@ -38,7 +38,7 @@ class Suma::Commerce::OfferingProduct < Suma::Postgres::Model(:commerce_offering
     return self.undiscounted_price - self.customer_price
   end
 
-  def rel_admin_link = self.product&.rel_admin_link
+  def rel_admin_link = "/offering-product/#{self.id}"
 end
 
 # Table: commerce_offering_products

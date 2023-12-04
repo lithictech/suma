@@ -6,33 +6,6 @@ require "suma/admin_api"
 class Suma::AdminAPI::CommerceOrders < Suma::AdminAPI::V1
   include Suma::AdminAPI::Entities
 
-  resource :commerce_orders do
-    params do
-      use :pagination
-      use :ordering, model: Suma::Commerce::Order
-    end
-    get do
-      ds = Suma::Commerce::Order.dataset
-      ds = order(ds, params)
-      ds = paginate(ds, params)
-      present_collection ds, with: ListOrderEntity
-    end
-
-    route_param :id, type: Integer do
-      helpers do
-        def lookup
-          (co = Suma::Commerce::Order[params[:id]]) or forbidden!
-          return co
-        end
-      end
-
-      get do
-        co = lookup
-        present co, with: DetailedCommerceOrderEntity
-      end
-    end
-  end
-
   class ListOrderEntity < OrderEntity
     expose :total_item_count
   end
@@ -74,5 +47,10 @@ class Suma::AdminAPI::CommerceOrders < Suma::AdminAPI::V1
     expose :checkout, with: CheckoutEntity
     expose :items, with: CheckoutItemEntity, &self.delegate_to(:checkout, :items)
     expose :member, with: MemberEntity, &self.delegate_to(:checkout, :cart, :member)
+  end
+
+  resource :commerce_orders do
+    Suma::AdminAPI::CommonEndpoints.list self, Suma::Commerce::Order, ListOrderEntity
+    Suma::AdminAPI::CommonEndpoints.get_one self, Suma::Commerce::Order, DetailedCommerceOrderEntity
   end
 end

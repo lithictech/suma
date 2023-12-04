@@ -1,12 +1,11 @@
 import api from "../api";
 import AutocompleteSearch from "../components/AutocompleteSearch";
 import CurrencyTextField from "../components/CurrencyTextField";
-import FormButtons from "../components/FormButtons";
+import FormLayout from "../components/FormLayout";
+import ResponsiveStack from "../components/ResponsiveStack";
 import config from "../config";
 import useBusy from "../hooks/useBusy";
 import useErrorSnackbar from "../hooks/useErrorSnackbar";
-import { Stack, Typography } from "@mui/material";
-import Box from "@mui/material/Box";
 import React from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
@@ -33,40 +32,35 @@ export default function FundingTransactionCreatePage() {
   }
 
   return (
-    <div style={{ maxWidth: 650 }}>
-      <Typography variant="h4" gutterBottom>
-        Create a Funding Transaction
-      </Typography>
-      <Typography variant="body1" gutterBottom>
-        Funding Transactions add funds onto the platform, and moves funds into the
+    <FormLayout
+      title="Create a Funding Transaction"
+      subtitle="Funding Transactions add funds onto the platform, and moves funds into the
         platform ledger. Creating a Funding Transaction will also create a Book
         Transaction which will transfer the same amount of funds from the platform to the
-        member&rsquo;s cash ledger.
-      </Typography>
-      <Box component="form" mt={2} onSubmit={handleSubmit(submit)}>
-        <Stack spacing={2} direction="column">
-          <Stack direction="row" spacing={2} alignItems="self-start">
-            <CurrencyTextField
-              {...register("amount")}
-              label="Amount"
-              helperText="How much is going from originator to receiver?"
-              money={amount}
-              required
-              onMoneyChange={setAmount}
-            />
-            <AutocompleteSearch
-              {...register("instrument")}
-              label="Payment Instrument"
-              helperText="Where are we debiting the money from?"
-              fullWidth
-              required
-              search={api.searchPaymentInstruments}
-              onValueSelect={(o) => setPaymentInstrument(o)}
-            />
-          </Stack>
-          <FormButtons back loading={isBusy} />
-        </Stack>
-      </Box>
-    </div>
+        member's cash ledger."
+      onSubmit={handleSubmit(submit)}
+      isBusy={isBusy}
+    >
+      <ResponsiveStack alignItems="self-start">
+        <CurrencyTextField
+          {...register("amount")}
+          label="Amount"
+          helperText="How much is going from originator to receiver?"
+          money={amount}
+          sx={{ width: { xs: "100%", sm: "auto" } }}
+          required
+          onMoneyChange={setAmount}
+        />
+        <AutocompleteSearch
+          {...register("instrument")}
+          label="Payment Instrument"
+          helperText="Where are we debiting the money from?"
+          fullWidth
+          required
+          search={api.searchPaymentInstruments}
+          onValueSelect={(o) => setPaymentInstrument(o)}
+        />
+      </ResponsiveStack>
+    </FormLayout>
   );
 }

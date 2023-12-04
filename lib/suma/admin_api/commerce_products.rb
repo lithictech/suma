@@ -6,60 +6,82 @@ require "suma/admin_api"
 class Suma::AdminAPI::CommerceProducts < Suma::AdminAPI::V1
   include Suma::AdminAPI::Entities
 
-  resource :commerce_products do
-    params do
-      use :pagination
-      use :ordering, model: Suma::Commerce::Product
-      use :searchable
-    end
-    get do
-      ds = Suma::Commerce::Product.dataset
-      if (nameen_like = search_param_to_sql(params, :name_en))
-        namees_like = search_param_to_sql(params, :name_es)
-        ds = ds.translation_join(:name, [:en, :es]).where(nameen_like | namees_like)
-      end
-      # TODO: translation join doesn't work for multiple search terms
-      ds = order(ds, params)
-      ds = paginate(ds, params)
-      present_collection ds, with: ProductEntity
-    end
-
-    route_param :id, type: Integer do
-      helpers do
-        def lookup
-          (co = Suma::Commerce::Product[params[:id]]) or forbidden!
-          return co
-        end
-      end
-
-      get do
-        co = lookup
-        present co, with: DetailedProductEntity
-      end
-    end
-  end
-
-  class ProductEntity < BaseEntity
-    include Suma::AdminAPI::Entities
-    include AutoExposeBase
-    expose :vendor, with: VendorEntity
-    expose_translated :name
-    expose_translated :description
-  end
-
   class OfferingProductWithOfferingEntity < OfferingProductEntity
     include Suma::AdminAPI::Entities
+    include AutoExposeBase
     expose :offering, with: OfferingEntity
   end
 
-  class DetailedProductEntity < ProductEntity
+  class DetailedEntity < ProductEntity
     include Suma::AdminAPI::Entities
     include AutoExposeDetail
     expose :our_cost, with: MoneyEntity
-    expose :max_quantity_per_order, &self.delegate_to(:inventory!, :max_quantity_per_order)
-    expose :max_quantity_per_offering, &self.delegate_to(:inventory!, :max_quantity_per_offering)
+    expose :inventory do
+      expose :max_quantity_per_order, &self.delegate_to(:inventory!, :max_quantity_per_order)
+      expose :max_quantity_per_offering, &self.delegate_to(:inventory!, :max_quantity_per_offering)
+      expose :limited_quantity, &self.delegate_to(:inventory!, :limited_quantity)
+      expose :quantity_on_hand, &self.delegate_to(:inventory!, :quantity_on_hand)
+      expose :quantity_pending_fulfillment, &self.delegate_to(:inventory!, :quantity_pending_fulfillment)
+    end
     expose :offerings, with: OfferingEntity
     expose :orders, with: OrderEntity
     expose :offering_products, with: OfferingProductWithOfferingEntity
+    expose :image, with: ImageEntity, &self.delegate_to(:images?, :first)
+    expose :vendor_service_categories, with: VendorServiceCategoryEntity
+  end
+
+  resource :commerce_products do
+    Suma::AdminAPI::CommonEndpoints.list(
+      self,
+      Suma::Commerce::Product,
+      ProductEntity,
+      translation_search_params: [:name],
+    )
+
+    Suma::AdminAPI::CommonEndpoints.create(
+      self,
+      Suma::Commerce::Product,
+      DetailedEntity,
+    ) do
+      params do
+        requires :image, type: File
+        requires(:name, type: JSON) { use :translated_text }
+        requires(:description, type: JSON) { use :translated_text }
+        requires(:our_cost, type: JSON) { use :funding_money }
+        requires(:vendor, type: JSON) { use :model_with_id }
+        optional(:vendor_service_categories, type: Array, coerce_with: ->(v) { v.values }) { use :model_with_id }
+        optional :inventory, type: JSON do
+          optional :max_quantity_per_order, type: Integer
+          optional :max_quantity_per_offering, type: Integer
+          optional :limited_quantity, type: Boolean
+          optional :quantity_on_hand, type: Integer
+          optional :quantity_pending_fulfillment, type: Integer
+        end
+      end
+    end
+
+    Suma::AdminAPI::CommonEndpoints.get_one(self, Suma::Commerce::Product, DetailedEntity)
+
+    Suma::AdminAPI::CommonEndpoints.update(
+      self,
+      Suma::Commerce::Product,
+      DetailedEntity,
+    ) do
+      params do
+        optional :image, type: File
+        optional(:name, type: JSON) { use :translated_text }
+        optional(:description, type: JSON) { use :translated_text }
+        optional(:our_cost, type: JSON) { use :funding_money }
+        optional(:vendor, type: JSON) { use :model_with_id }
+        optional(:vendor_service_categories, type: Array, coerce_with: ->(v) { v.values }) { use :model_with_id }
+        optional :inventory, type: JSON do
+          optional :max_quantity_per_order, type: Integer
+          optional :max_quantity_per_offering, type: Integer
+          optional :limited_quantity, type: Boolean
+          optional :quantity_on_hand, type: Integer
+          optional :quantity_pending_fulfillment, type: Integer
+        end
+      end
+    end
   end
 end

@@ -311,6 +311,10 @@ module Suma::Service::Helpers
     requires :es, type: String, allow_blank: false
   end
 
+  params :model_with_id do
+    requires :id, type: Integer
+  end
+
   params :payment_instrument do
     requires :payment_instrument_id, type: Integer
     requires :payment_method_type, type: String, values: ["bank_account", "card"]

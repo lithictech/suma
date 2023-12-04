@@ -1,13 +1,20 @@
 # frozen_string_literal: true
 
 require "suma/postgres/model"
-
+require "suma/admin_linked"
 require "suma/eligibility"
 
 class Suma::Eligibility::Constraint < Suma::Postgres::Model(:eligibility_constraints)
+  include Suma::AdminLinked
+
   STATUSES = ["pending", "verified", "rejected"].freeze
 
   plugin :timestamps
+
+  many_to_many :offerings, class: "Suma::Commerce::Offering", join_table: :eligibility_offering_associations
+  many_to_many :services, class: "Suma::Vendor::Service", join_table: :eligibility_vendor_service_associations
+  many_to_many :configurations, class: "Suma::AnonProxy::VendorConfiguration",
+                                join_table: :eligibility_anon_proxy_vendor_configuration_associations
 
   def self.assign_to_admins
     ec = self.all
@@ -18,6 +25,8 @@ class Suma::Eligibility::Constraint < Suma::Postgres::Model(:eligibility_constra
       end
     end
   end
+
+  def rel_admin_link = "/constraint/#{self.id}"
 end
 
 # Table: eligibility_constraints

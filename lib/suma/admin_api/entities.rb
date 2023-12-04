@@ -102,9 +102,21 @@ module Suma::AdminAPI::Entities
     expose :account_type
   end
 
+  class EligibilityConstraintEntity < BaseEntity
+    include AutoExposeBase
+    expose :name
+  end
+
   class VendorEntity < BaseEntity
     include AutoExposeBase
     expose :name
+  end
+
+  class VendorServiceEntity < BaseEntity
+    include AutoExposeBase
+    expose :external_name, as: :name
+    expose :vendor, with: VendorEntity
+    expose :eligibility_constraints, with: EligibilityConstraintEntity
   end
 
   class VendorServiceCategoryEntity < BaseEntity
@@ -146,11 +158,16 @@ module Suma::AdminAPI::Entities
     expose :originating_payment_account, with: SimplePaymentAccountEntity
   end
 
+  class TranslatedTextEntity < BaseEntity
+    expose :en
+    expose :es
+  end
+
   class BookTransactionEntity < BaseEntity
     include AutoExposeBase
     expose :apply_at
     expose :amount, with: MoneyEntity
-    expose_translated :memo
+    expose :memo, with: TranslatedTextEntity
     expose :associated_vendor_service_category, with: VendorServiceCategoryEntity
     expose :originating_ledger, with: SimpleLedgerEntity
     expose :receiving_ledger, with: SimpleLedgerEntity
@@ -182,14 +199,14 @@ module Suma::AdminAPI::Entities
 
   class OfferingEntity < BaseEntity
     include AutoExposeBase
-    expose_translated :description
+    expose :description, with: TranslatedTextEntity
     expose :period_end, as: :closes_at
     expose :period_begin, as: :opens_at
   end
 
   class OfferingFulfillmentOptionEntity < BaseEntity
     include AutoExposeBase
-    expose_translated :description
+    expose :description, with: TranslatedTextEntity
     expose :type
     expose :ordinal
     expose :offering_id
@@ -207,6 +224,13 @@ module Suma::AdminAPI::Entities
     expose :closed?, as: :is_closed
   end
 
+  class ProductEntity < BaseEntity
+    include AutoExposeBase
+    expose :vendor, with: VendorEntity
+    expose :name, with: TranslatedTextEntity
+    expose :description, with: TranslatedTextEntity
+  end
+
   class OrderEntity < BaseEntity
     include AutoExposeBase
     expose :order_status
@@ -214,12 +238,6 @@ module Suma::AdminAPI::Entities
     expose :admin_status_label, as: :status_label
     expose :checkout_id
     expose :member, with: MemberEntity, &self.delegate_to(:checkout, :cart, :member)
-  end
-
-  class EligibilityConstraintEntity < BaseEntity
-    include AutoExposeBase
-    expose :id
-    expose :name
   end
 
   class ImageEntity < BaseEntity

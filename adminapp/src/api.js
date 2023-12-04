@@ -30,7 +30,7 @@ const del = (path, params, opts) => {
 
 function followRedirect(navigate) {
   return function (resp) {
-    if (resp.headers["created-resource-admin"]) {
+    if (resp && resp.headers && resp.headers["created-resource-admin"]) {
       const [href, relative] = relativeLink(resp.headers["created-resource-admin"]);
       if (relative) {
         navigate(href);
@@ -60,8 +60,16 @@ export default {
   getSupportedGeographies: (data) => get(`/adminapi/v1/meta/geographies`, data),
   getVendorServiceCategories: (data) =>
     get(`/adminapi/v1/meta/vendor_service_categories`, data),
-  getEligibilityConstraints: (data) =>
+  getEligibilityConstraintsMeta: (data) =>
     get(`/adminapi/v1/meta/eligibility_constraints`, data),
+
+  getEligibilityConstraints: (data) => get(`/adminapi/v1/eligibility_constraints`, data),
+  createEligibilityConstraint: (data) =>
+    post(`/adminapi/v1/eligibility_constraints/create`, data),
+  getEligibilityConstraint: ({ id, ...data }) =>
+    get(`/adminapi/v1/eligibility_constraints/${id}`, data),
+  updateEligibilityConstraint: ({ id, ...data }) =>
+    post(`/adminapi/v1/eligibility_constraints/${id}`, data),
 
   getBankAccount: ({ id, ...data }) => get(`/adminapi/v1/bank_accounts/${id}`, data),
 
@@ -84,12 +92,32 @@ export default {
     get(`/adminapi/v1/commerce_offerings/${id}`, data),
   createCommerceOffering: (data) =>
     postForm("/adminapi/v1/commerce_offerings/create", data),
+  updateCommerceOffering: ({ id, ...data }) =>
+    postForm(`/adminapi/v1/commerce_offerings/${id}`, data),
+  updateOfferingEligibilityConstraints: ({ id, ...data }) =>
+    post(`/adminapi/v1/commerce_offerings/${id}/eligibilities`, data),
   getCommerceOfferingPickList: ({ id, ...data }) =>
     get(`/adminapi/v1/commerce_offerings/${id}/picklist`, data),
 
   getCommerceProducts: (data) => get("/adminapi/v1/commerce_products", data),
+  createCommerceProduct: (data) =>
+    postForm("/adminapi/v1/commerce_products/create", data),
   getCommerceProduct: ({ id, ...data }) =>
     get(`/adminapi/v1/commerce_products/${id}`, data),
+  updateCommerceProduct: ({ id, ...data }) =>
+    postForm(`/adminapi/v1/commerce_products/${id}`, data),
+
+  createCommerceOfferingProduct: (data) =>
+    postForm("/adminapi/v1/commerce_offering_products/create", data),
+  getCommerceOfferingProduct: ({ id, ...data }) =>
+    get(`/adminapi/v1/commerce_offering_products/${id}`, data),
+  updateCommerceOfferingProduct: ({ id, ...data }) =>
+    post(`/adminapi/v1/commerce_offering_products/${id}`, data),
+
+  getVendors: (data) => get(`/adminapi/v1/vendors`, data),
+  createVendor: (data) => post("/adminapi/v1/vendors/create", data),
+  getVendor: ({ id, ...data }) => get(`/adminapi/v1/vendors/${id}`, data),
+  updateVendor: ({ id, ...data }) => post(`/adminapi/v1/vendors/${id}`, data),
 
   getCommerceOrders: (data) => get(`/adminapi/v1/commerce_orders`, data),
   getCommerceOrder: ({ id, ...data }) => get(`/adminapi/v1/commerce_orders/${id}`, data),
@@ -104,11 +132,14 @@ export default {
   changeMemberEligibility: ({ id, ...data }) =>
     post(`/adminapi/v1/members/${id}/eligibilities`, data),
 
+  searchProducts: (data) => post(`/adminapi/v1/search/products`, data),
+  searchOfferings: (data) => post(`/adminapi/v1/search/offerings`, data),
   searchPaymentInstruments: (data) =>
     post(`/adminapi/v1/search/payment_instruments`, data),
   searchLedgers: (data) => post(`/adminapi/v1/search/ledgers`, data),
   searchLedgersLookup: (data) => post(`/adminapi/v1/search/ledgers/lookup`, data),
   searchTranslations: (data) => post(`/adminapi/v1/search/translations`, data),
+  searchVendors: (data) => post(`/adminapi/v1/search/vendors`, data),
 
   /**
    * Return an API url.

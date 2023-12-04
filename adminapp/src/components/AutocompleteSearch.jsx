@@ -13,10 +13,24 @@ import React from "react";
  * @param {{label: string}=} value The selected item. If undefined, use an uncontrolled component.
  * @param {function} onValueSelect Called with the selected item (an object returned from the `search` function).
  * @param {string=} text The display value of the text input. If undefined, use an uncontrolled component.
+ * @param {boolean=} searchEmpty If true, search when the input is blank.
+ *   Otherwise, only search when there are 3 or more characters.
+ *   Useful to show a default value on click, but not useful when the number
+ *   of possible results is very large.
  * @param {function=} onTextSelect Called with the new display value.
  */
 const AutocompleteSearch = React.forwardRef(function AutocompleteSearch(
-  { search, fullWidth, disabled, value, onValueSelect, text, onTextChange, ...rest },
+  {
+    search,
+    fullWidth,
+    disabled,
+    value,
+    onValueSelect,
+    text,
+    searchEmpty,
+    onTextChange,
+    ...rest
+  },
   ref
 ) {
   const activePromise = React.useRef(Promise.resolve());
@@ -25,13 +39,18 @@ const AutocompleteSearch = React.forwardRef(function AutocompleteSearch(
       (data) => {
         activePromise.current.cancel();
         activePromise.current = search(data);
-        return activePromise.current.then((r) => setOptions(r.data.items));
+        return activePromise.current.then((r) => {
+          setOptions(r.data.items);
+          hasSearched.current = true;
+        });
       },
       150,
       { maxWait: 400 }
     )
   ).current;
+  const hasSearched = React.useRef(false);
   const [options, setOptions] = React.useState([]);
+  const [emptyOptions, setEmptyOptions] = React.useState([]);
 
   function handleChange(e) {
     if (!e || e.target.value === 0) {
@@ -44,11 +63,12 @@ const AutocompleteSearch = React.forwardRef(function AutocompleteSearch(
     onTextChange && onTextChange(q);
 
     if (q.length < 3) {
-      setOptions([]);
+      setOptions(emptyOptions);
       return;
     }
     searchDebounced({ q });
   }
+
   function handleSelect(ev, val) {
     // val can be null (which is type object).
     // This will happen when we use the 'clear' button (or delete all text),
@@ -61,6 +81,18 @@ const AutocompleteSearch = React.forwardRef(function AutocompleteSearch(
       onValueSelect(val);
     }
   }
+
+  React.useEffect(() => {
+    if (searchEmpty && !hasSearched.current) {
+      search().then((r) => {
+        setEmptyOptions(r.data.items);
+        if (!hasSearched.current) {
+          setOptions(r.data.items);
+          hasSearched.current = true;
+        }
+      });
+    }
+  }, [search, searchEmpty]);
 
   return (
     <Autocomplete
