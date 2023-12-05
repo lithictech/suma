@@ -7,24 +7,16 @@ Sequel.migration do
       add_column :max_ordered_items_per_member, :integer
     end
 
-    alter_table(:commerce_offering_products) do
-      add_column :max_quantity_per_member, :integer
-    end
-
     alter_table(:commerce_product_inventories) do
-      drop_column :max_quantity_per_order
+      rename_column :max_quantity_per_order, :max_quantity_per_member_per_offering
       drop_column :max_quantity_per_offering
     end
   end
 
   down do
     alter_table(:commerce_product_inventories) do
-      add_column :max_quantity_per_order, :integer
+      rename_column :max_quantity_per_member_per_offering, :max_quantity_per_order
       add_column :max_quantity_per_offering, :integer
-    end
-
-    alter_table(:commerce_offering_products) do
-      drop_column :max_quantity_per_member
     end
 
     alter_table(:commerce_offerings) do

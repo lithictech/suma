@@ -111,7 +111,7 @@ class Suma::Commerce::Cart < Suma::Postgres::Model(:commerce_carts)
     purchase_limits << (inv.quantity_on_hand - inv.quantity_pending_fulfillment) if
       inv.limited_quantity?
 
-    if (max_for_product = offering_product.max_quantity_per_member)
+    if (max_for_product = inv.max_quantity_per_member_per_offering)
       items_already_in_offering = self.purchased_checkout_items.
         to_h { |row| [row.offering_product.id, row.quantity] }
       existing = items_already_in_offering.fetch(offering_product.id, 0)

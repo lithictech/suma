@@ -169,7 +169,6 @@ class Suma::Commerce::Offering < Suma::Postgres::Model(:commerce_offerings)
 
   def total_ordered_items = total_ordered_items_by_member.values.sum(0)
 
-
   dataset_module do
     def available_at(t)
       return self.where(Sequel.pg_range(:period).contains(Sequel.cast(t, :timestamptz)))
