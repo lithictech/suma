@@ -303,16 +303,12 @@ RSpec.describe "Suma::Commerce::Checkout", :db do
         expect { co2.create_order }.to raise_error(described_class::MaxQuantityExceeded)
       end
 
-      it "increments pending fulfillment counts of limited quantity products" do
-        product.inventory!.update(quantity_on_hand: 5)
-
-        Suma::Fixtures.checkout(cart:, card:).populate_items.create.create_order
-        expect(product.refresh.inventory).to have_attributes(quantity_on_hand: 5, quantity_pending_fulfillment: 0)
-
-        product.inventory.update(limited_quantity: true)
+      it "increments pending fulfillment counts of products" do
+        product.inventory!.update(quantity_on_hand: 5, quantity_pending_fulfillment: 1)
+        cart.delete_all_items
         cart.add_item(product:, quantity: 2, timestamp: 0)
         Suma::Fixtures.checkout(cart:, card:).populate_items.create.create_order
-        expect(product.refresh.inventory).to have_attributes(quantity_on_hand: 5, quantity_pending_fulfillment: 2)
+        expect(product.refresh.inventory).to have_attributes(quantity_on_hand: 5, quantity_pending_fulfillment: 3)
       end
     end
   end

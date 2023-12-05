@@ -103,7 +103,7 @@ RSpec.describe "Suma::Commerce::Cart", :db do
 
     describe "with a maximum quantity per member on the product" do
       it "returns the quantity value minus the amount the member has ordered already in uncanceled orders" do
-        product.inventory.update(max_quantity_per_member_per_offering: 5)
+        product.inventory!.update(max_quantity_per_member_per_offering: 5)
         expect(cart.refresh.max_quantity_for(offering_product)).to eq(5)
 
         cart.add_item(product:, quantity: 2, timestamp: 0)

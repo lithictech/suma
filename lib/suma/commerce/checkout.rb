@@ -243,25 +243,20 @@ class Suma::Commerce::Checkout < Suma::Postgres::Model(:commerce_checkouts)
   end
 
   protected def check_and_update_product_inventories
-    # If this is a limited quantity product, we have to make sure to lock it when purchasing it,
-    # so we can safely check its inventory and then update the quantity pending fulfillment.
-    limited_inventories_by_product = self.cart.items.
-      map(&:product).
-      filter_map(&:inventory).
-      filter(&:limited_quantity?).
-      index_by(&:product_id)
-    limited_inventories_by_product.values.each(&:lock!)
+    # Lock all inventories so we can 1) check quantity on limited quantity products,
+    # and 2) update pending fulfillment amounts.
+    inventories = self.items.map { |it| it.cart_item.product.inventory! }
+    inventories.each(&:lock!)
     self.items.each do |item|
       product = item.cart_item.product
       quantity = item.cart_item.quantity
       max_available = self.cart.max_quantity_for(item.offering_product)
       raise MaxQuantityExceeded, "product #{product.name.en} quantity #{quantity} > max of #{max_available}" if
         quantity > max_available
-      if (inv = limited_inventories_by_product[product.id])
-        inv.quantity_pending_fulfillment += quantity
-      end
+      # Always keep track of what is pending
+      product.inventory.quantity_pending_fulfillment += quantity
     end
-    limited_inventories_by_product.values.each(&:save_changes)
+    inventories.each(&:save_changes)
   end
 
   protected def freeze_items
