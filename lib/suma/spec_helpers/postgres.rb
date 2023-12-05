@@ -134,6 +134,12 @@ module Suma::SpecHelpers::Postgres
     end
   end
 
+  # Call the equivalent of `MyModel.where(id: model.id).all.first`
+  # so eager loading can be tested.
+  module_function def refetch_for_eager(o)
+    return o.class.dataset.where(id: o.id).all.first
+  end
+
   #
   # Custom matchers
   #

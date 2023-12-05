@@ -84,48 +84,71 @@ RSpec.describe "Suma::Commerce::Cart", :db do
     let(:cart) { Suma::Fixtures.cart(member:, offering:).create }
 
     describe "with no quantity limitations" do
-      it "returns 12" do
+      it "returns the default max quantity" do
         expect(cart.max_quantity_for(offering_product)).to eq(12)
       end
     end
 
-    describe "with max purchase quantity" do
-      describe "and no preexisting data" do
-        it "returns the lesser of max quantity for order and offering" do
-          product.inventory!.max_quantity_per_order = 4
-          expect(cart.max_quantity_for(offering_product)).to eq(4)
-          product.inventory!.max_quantity_per_offering = 5
-          expect(cart.max_quantity_for(offering_product)).to eq(4)
-          product.inventory!.max_quantity_per_order = nil
-          expect(cart.max_quantity_for(offering_product)).to eq(5)
-        end
+    def create_fake_order(cart)
+      member = cart.member
+      Suma::Fixtures::Members.register_as_stripe_customer(member)
+      Suma::Payment.ensure_cash_ledger(member)
+      card = Suma::Fixtures.card.member(member).create
+      co1 = Suma::Fixtures.checkout(cart:, card:).populate_items.create
+      order = Suma::Payment::FundingTransaction.force_fake(Suma::Payment::FakeStrategy.create.not_ready) do
+        co1.create_order
       end
+      return order
+    end
 
-      describe "with previous orders" do
-        let(:card) { Suma::Fixtures.card.member(member).create }
-        let(:product) { super().inventory!.update(max_quantity_per_order: 5).product }
-        before(:each) do
-          Suma::Fixtures::Members.register_as_stripe_customer(member)
-          Suma::Payment.ensure_cash_ledger(member)
-        end
+    describe "with a maximum quantity per member on the offering product" do
+      it "returns the quantity value minus the amount the member has ordered already in uncanceled orders" do
+        offering_product.update(max_quantity_per_member: 5)
+        expect(cart.refresh.max_quantity_for(offering_product)).to eq(5)
 
-        it "counts previous non-canceled orders against the max for an offering" do
-          expect(cart.max_quantity_for(offering_product)).to eq(5)
+        cart.add_item(product:, quantity: 2, timestamp: 0)
+        order = create_fake_order(cart)
 
-          cart.add_item(product:, quantity: 2, timestamp: 0)
-          co1 = Suma::Fixtures.checkout(cart:, card:).populate_items.create
-          order = Suma::Payment::FundingTransaction.force_fake(Suma::Payment::FakeStrategy.create.not_ready) do
-            co1.create_order
-          end
+        expect(cart.refresh.max_quantity_for(offering_product)).to eq(3)
 
-          expect(cart.refresh.max_quantity_for(offering_product)).to eq(3)
+        order.update(order_status: "canceled")
 
-          order.update(order_status: "canceled")
+        expect(cart.refresh.max_quantity_for(offering_product)).to eq(5)
+        # Test eager loading does not break/cause an error
+        expect(Suma::Commerce::Cart.all.first.max_quantity_for(offering_product)).to eq(5)
+      end
+    end
 
-          expect(cart.refresh.max_quantity_for(offering_product)).to eq(5)
-          # Test eager loading
-          expect(Suma::Commerce::Cart.all.first.max_quantity_for(offering_product)).to eq(5)
-        end
+    describe "with a maximum number of items cumulative on the offering" do
+      it "returns the quantity value minus the total number of items in uncanceled orders" do
+        offering.update(max_ordered_items_cumulative: 5)
+        expect(cart.refresh.max_quantity_for(offering_product)).to eq(5)
+
+        order = create_fake_order(Suma::Fixtures.cart.with_product(product, 2).create(offering:))
+
+        expect(cart.refresh.max_quantity_for(offering_product.refresh)).to eq(3)
+
+        order.update(order_status: "canceled")
+
+        expect(cart.refresh.max_quantity_for(offering_product.refresh)).to eq(5)
+      end
+    end
+
+    describe "with a maximum number of items per member on the offering" do
+      it "returns the quantity value minus the total number of items in uncanceled orders for the member" do
+        offering.update(max_ordered_items_per_member: 50)
+        expect(cart.refresh.max_quantity_for(offering_product)).to eq(50)
+
+        # Ignore the order not from the member
+        create_fake_order(Suma::Fixtures.cart.with_product(product, 2).create(offering:))
+        expect(cart.refresh.max_quantity_for(offering_product.refresh)).to eq(50)
+
+        cart.add_item(product:, quantity: 10, timestamp: 0)
+        order = create_fake_order(cart)
+        expect(cart.refresh.max_quantity_for(offering_product.refresh)).to eq(40)
+
+        order.update(order_status: "canceled")
+        expect(cart.refresh.max_quantity_for(offering_product.refresh)).to eq(50)
       end
     end
 
@@ -141,20 +164,12 @@ RSpec.describe "Suma::Commerce::Cart", :db do
       end
     end
 
-    describe "with purchase and inventory limits" do
-      let(:product) do
-        super().inventory!.
-          update(
-            limited_quantity: true,
-            quantity_on_hand: 6,
-            max_quantity_per_order: 5,
-          ).product
-      end
-
+    describe "with offering and inventory limits" do
       it "returns the less available quantity" do
-        expect(cart.refresh.max_quantity_for(offering_product)).to eq(5)
-        product.inventory.update(max_quantity_per_order: 7)
+        product.inventory!.update(limited_quantity: true, quantity_on_hand: 6)
         expect(cart.refresh.max_quantity_for(offering_product)).to eq(6)
+        offering.update(max_ordered_items_cumulative: 5)
+        expect(cart.refresh.max_quantity_for(offering_product)).to eq(5)
       end
     end
   end

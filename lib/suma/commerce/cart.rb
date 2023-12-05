@@ -105,19 +105,27 @@ class Suma::Commerce::Cart < Suma::Postgres::Model(:commerce_carts)
   def max_quantity_for(offering_product)
     product = offering_product.product
     inv = product.inventory!
+    offering = offering_product.offering
 
-    purchase_limit_max = nil
-    max_order = inv.max_quantity_per_order
-    max_offering = inv.max_quantity_per_offering
-    unless max_order.nil? && max_offering.nil?
+    purchase_limits = []
+    purchase_limits << (inv.quantity_on_hand - inv.quantity_pending_fulfillment) if
+      inv.limited_quantity?
+
+    if (max_for_product = offering_product.max_quantity_per_member)
       items_already_in_offering = self.purchased_checkout_items.
         to_h { |row| [row.offering_product.id, row.quantity] }
       existing = items_already_in_offering.fetch(offering_product.id, 0)
-      purchase_limit_max = [max_order, max_offering].compact.min - existing
+      purchase_limits << (max_for_product - existing)
     end
-    inventory_max = nil
-    inventory_max = inv.quantity_on_hand - inv.quantity_pending_fulfillment if inv.limited_quantity?
-    limited_max = [purchase_limit_max, inventory_max].compact.min
+    if (max_offering_cumulative = offering.max_ordered_items_cumulative)
+      purchase_limits << (max_offering_cumulative - offering.total_ordered_items)
+    end
+
+    if (max_offering_per_member = offering.max_ordered_items_per_member)
+      purchase_limits << (max_offering_per_member - offering.total_ordered_items_by_member.fetch(self.member_id, 0))
+    end
+
+    limited_max = purchase_limits.min
     return limited_max.nil? ? DEFAULT_MAX_QUANTITY : limited_max
   end
 

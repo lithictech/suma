@@ -43,15 +43,22 @@ class Suma::Commerce::Order < Suma::Postgres::Model(:commerce_orders)
 
   dataset_module do
     def available_to_claim
-      return self.where(
+      return self.uncanceled.where(
         fulfillment_status: ["fulfilling"],
-        order_status: ["open", "completed"],
         checkout: Suma::Commerce::Checkout.where(fulfillment_option: Suma::Commerce::OfferingFulfillmentOption.pickup),
       )
     end
 
     def ready_for_fulfillment
       return self.where(fulfillment_status: "unfulfilled", order_status: FULFILLABLE_ORDER_STATUSES)
+    end
+
+    def canceled
+      return self.where(order_status: "canceled")
+    end
+
+    def uncanceled
+      return self.where(order_status: ["open", "completed"])
     end
   end
 

@@ -285,24 +285,9 @@ RSpec.describe "Suma::Commerce::Checkout", :db do
     end
 
     describe "inventory behavior" do
-      it "errors if the order quantity exceeds the max quantity per order" do
-        product.inventory!.update(max_quantity_per_order: 1)
+      it "errors if the order quantity exceeds the maximum allowed on the offering" do
+        offering.update(max_ordered_items_cumulative: 1)
         expect { checkout.create_order }.to raise_error(described_class::MaxQuantityExceeded)
-      end
-
-      it "errors if the order quantity exceeds the max quantity per offering" do
-        product.inventory!.update(max_quantity_per_order: 2, max_quantity_per_offering: 2)
-
-        cancel_order = Suma::Fixtures.checkout(cart:, card:).populate_items.create.create_order
-        cancel_order.update(order_status: "canceled")
-
-        cart.add_item(product:, quantity: 2, timestamp: 0)
-        co1 = Suma::Fixtures.checkout(cart:, card:).populate_items.create
-        expect { co1.create_order }.to_not raise_error
-
-        cart.add_item(product:, quantity: 2, timestamp: 0)
-        co2 = Suma::Fixtures.checkout(cart:, card:).populate_items.create
-        expect { co2.create_order }.to raise_error(described_class::MaxQuantityExceeded)
       end
 
       it "errors if the order quantity of a limited item exceeds what is available" do

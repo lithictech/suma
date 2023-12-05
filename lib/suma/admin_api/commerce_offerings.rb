@@ -29,6 +29,8 @@ class Suma::AdminAPI::CommerceOfferings < Suma::AdminAPI::V1
     expose :offering_products, with: OfferingProductEntity
     expose :orders, with: OrderInOfferingEntity
     expose :eligibility_constraints, with: EligibilityConstraintEntity
+    expose :max_ordered_items_cumulative
+    expose :max_ordered_items_per_member
   end
 
   class ProductInPickListEntity < BaseEntity
@@ -81,6 +83,8 @@ class Suma::AdminAPI::CommerceOfferings < Suma::AdminAPI::V1
         requires :closes_at, type: Time
         optional :begin_fulfillment_at, type: Time
         optional :prohibit_charge_at_checkout, type: Boolean, allow_blank: false, default: false
+        optional :max_ordered_items_cumulative, type: Integer
+        optional :max_ordered_items_per_member, type: Integer
       end
     end
 
@@ -112,6 +116,8 @@ class Suma::AdminAPI::CommerceOfferings < Suma::AdminAPI::V1
         optional :closes_at, type: Time
         optional :begin_fulfillment_at, type: Time
         optional :prohibit_charge_at_checkout, type: Boolean, allow_blank: false, default: false
+        optional :max_ordered_items_cumulative, type: Integer
+        optional :max_ordered_items_per_member, type: Integer
       end
     end
 

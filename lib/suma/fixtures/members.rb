@@ -90,6 +90,7 @@ module Suma::Fixtures::Members
   end
 
   def self.register_as_stripe_customer(member)
+    return member if member.stripe_customer_json.present?
     member.stripe_customer_json = STRIPE_JSON.dup
     return member.save_changes
   end
