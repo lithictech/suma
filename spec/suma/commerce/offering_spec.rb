@@ -27,6 +27,36 @@ RSpec.describe "Suma::Commerce::Offering", :db do
       expect(offering.order_count).to eq(2)
       expect(Suma::Commerce::Offering.where(id: offering.id).all.first.order_count).to eq(2)
     end
+
+    it "knows the quantity on all uncanceled orders" do
+      offering = Suma::Fixtures.offering.create
+      product = Suma::Fixtures.product.create
+      Suma::Fixtures.offering_product(offering:, product:).create
+      cart_fac = Suma::Fixtures.cart(offering:)
+      checkout1 = Suma::Fixtures.checkout(cart: cart_fac.with_product(product, 10).create).
+        with_payment_instrument.
+        populate_items.
+        completed.
+        create
+      order1 = Suma::Fixtures.order.create(checkout: checkout1)
+      checkout2 = Suma::Fixtures.checkout(cart: cart_fac.with_product(product, 20).create).
+        with_payment_instrument.
+        populate_items.
+        completed.
+        create
+      order2 = Suma::Fixtures.order.create(checkout: checkout2, order_status: "canceled")
+
+      expect(offering.orders.map { |o| o.checkout.items }.flatten.sum(&:quantity)).to eq(30)
+      expect(offering.total_ordered_items).to eq(10)
+      expect(refetch_for_eager(offering).total_ordered_items).to eq(10)
+      expect(offering.total_ordered_items_by_member).to eq({checkout1.cart.member_id => 10})
+      expect(refetch_for_eager(offering).total_ordered_items_by_member).to eq({checkout1.cart.member_id => 10})
+
+      empty_offering = Suma::Fixtures.offering.create
+      expect(empty_offering.total_ordered_items).to eq(0)
+      expect(refetch_for_eager(empty_offering).total_ordered_items).to eq(0)
+      expect(refetch_for_eager(empty_offering).total_ordered_items_by_member).to eq({})
+    end
   end
 
   describe "datasets" do

@@ -19,6 +19,9 @@ class Suma::Commerce::OfferingProduct < Suma::Postgres::Model(:commerce_offering
     end
   end
 
+  # @!attribute max_quantity_per_customer
+  # @return [Integer]
+
   def available?
     return self.closed_at.nil?
   end

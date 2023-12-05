@@ -133,6 +133,24 @@ export default function OfferingForm({
             onChange={setFieldFromInput}
           />
         </Stack>
+        <ResponsiveStack>
+          <TextField
+            name="maxOrderedItemsCumulative"
+            value={resource.maxOrderedItemsCumulative || ""}
+            type="number"
+            label="Max ordered items, cumulative"
+            helperText="The maximum number of products total can be sold in this offering. Empty if unenforced."
+            onChange={setFieldFromInput}
+          />
+          <TextField
+            name="maxOrderedItemsPerMember"
+            value={resource.maxOrderedItemsPerMember || ""}
+            type="number"
+            label="Max ordered items, per-member"
+            helperText="The maximum number of products a given member can purchase in this offering. Empty if unenforced."
+            onChange={setFieldFromInput}
+          />
+        </ResponsiveStack>
         <Divider />
         <FormLabel>Fulfillment Options</FormLabel>
         <FulfillmentOptions

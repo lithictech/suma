@@ -105,11 +105,57 @@ class Suma::Commerce::Offering < Suma::Postgres::Model(:commerce_offerings)
     return (super || {}).fetch(:order_count, 0)
   end
 
+  one_to_many :total_ordered_items_by_member,
+              read_only: true,
+              key: :id,
+              class: "Suma::Commerce::Offering",
+              dataset: proc {
+                Suma::Commerce::Order.dataset.uncanceled.
+                  join(:commerce_checkouts, {id: :checkout_id}).
+                  join(:commerce_checkout_items, {checkout_id: :id}).
+                  join(:commerce_carts, {id: Sequel[:commerce_checkouts][:cart_id]}).
+                  where(offering_id: id).
+                  select_group(:member_id).
+                  select_append { coalesce(sum(immutable_quantity), 0).as(ordered_quantity) }.
+                  naked
+              },
+              eager_loader: (lambda do |eo|
+                eo[:rows].each { |p| p.associations[:total_ordered_items_by_member] = [] }
+                Suma::Commerce::Order.dataset.uncanceled.
+                  join(:commerce_checkouts, {id: :checkout_id}).
+                  join(:commerce_checkout_items, {checkout_id: :id}).
+                  join(:commerce_carts, {id: Sequel[:commerce_checkouts][:cart_id]}).
+                  where(offering_id: eo[:id_map].keys).
+                  select_group(:offering_id, :member_id).
+                  select_append { coalesce(sum(immutable_quantity), 0).as(ordered_quantity) }.
+                  naked.
+                  all do |t|
+                  p = eo[:id_map][t.delete(:offering_id)].first
+                  p.associations[:total_ordered_items_by_member] << t
+                end
+              end)
+
+  # Hash of a member id, to the total amount of things they have ordered in this offering.
+  # Excludes canceled orders.
+  def total_ordered_items_by_member
+    sup = super || []
+    return sup.to_h { |r| [r.fetch(:member_id), r.fetch(:ordered_quantity)] }
+  end
+
+  # Total items ordered across all orders, excluding canceled.
+  def total_ordered_items = total_ordered_items_by_member.values.sum(0)
+
   dataset_module do
     def available_at(t)
       return self.where(Sequel.pg_range(:period).contains(Sequel.cast(t, :timestamptz)))
     end
   end
+
+  # @!attribute max_ordered_items_cumulative
+  # @return [Integer]
+
+  # @!attribute max_ordered_items_per_member
+  # @return [Integer]
 
   def rel_admin_link = "/offering/#{self.id}"
 

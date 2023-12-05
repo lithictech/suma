@@ -76,18 +76,13 @@ RSpec.describe Suma::AdminAPI::CommerceProducts, :db do
            description: {en: "EN description", es: "ES description"},
            our_cost: {cents: 2400},
            vendor: {id: vs.vendor.id},
-           vendor_service_categories: {"0" => {id: cat.id}},
-           inventory: {
-             max_quantity_per_order: 500,
-             max_quantity_per_offering: 500,
-           }
+           vendor_service_categories: {"0" => {id: cat.id}}
 
       expect(last_response).to have_status(200)
       expect(last_response.headers).to include("Created-Resource-Admin")
       p = Suma::Commerce::Product.first
       expect(Suma::Commerce::Product.all).to have_length(1)
       expect(p).to have_attributes(our_cost: cost("$24"))
-      expect(p.inventory).to have_attributes(product: p, max_quantity_per_order: 500)
     end
   end
 

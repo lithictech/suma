@@ -63,6 +63,14 @@ export default function OfferingDetailPage() {
           label: "Fulfillment Confirmation",
           value: model.fulfillmentConfirmation.en,
         },
+        {
+          label: "Max ordered items, cumulative",
+          value: model.maxOrderedItemsCumulative || "-",
+        },
+        {
+          label: "Max ordered items, per-member",
+          value: model.maxOrderedItemsPerMember || "-",
+        },
       ]}
     >
       {(model, setModel) => (

@@ -145,8 +145,41 @@ At this stage, then, a rudimentary system, closer to pen-and-paper,
 will be more appreciated by Operations than something more complex and automated
 but containing bugs or design issues.
 
+## Limits of Quantity
 
-, but experience has taught that most fulfillment
-can be done with very simple systems. If operator needs get more complex,
-we can come up with other solutions- but since Suma is not really meant to be an e-commerce system,
-we find this unlikely.
+The maximum quantity someone can purchase has a number of factors:
+
+- On the frontend, we limit the options to a certain number (15 or so).
+  Eventually this can/should be replaced but it's rare to purchase more
+  than 15 of anything.
+- The inventory system, described above, does not allow a product with limited quantity
+  to be oversold.
+- The product inventory also specifies how many can be sold within a given offering to a specific customer.
+  - For example, a product may be an 'introductory offer' that we only want
+    a customer to be able to purchase once within an offering. 
+  - In theory this should be a feature of an offering product, but that's too much modeling for now
+    (because inventory products are immutable, we'd need another object). We can add support for this
+    when we have products that need different constraints across offerings.
+- The offering specifies how many items a single customer can order.
+  For example, a 'flash sale' offering may only want to allow a customer to purchase a single item.
+- The offering specifies how many items all customers can order cumulatively.
+  For example, we may be doing a bulk purchase but do not want to exceed a certain quantity.
+
+One real-world scenario is offering Farmers Market vouchers:
+one 'introductory' product can only be ordered once per-customer, up to 100 for the reason.
+The normal vouchers can be purchased anytime.
+
+- The introductory product has a `max_quantity_per_member = 1`.
+  - The introductory product is sold out after ordering, other products are available.
+- The offering `max_ordered_items_cumulative = 100`.
+  - Ensure we don't over-commit introductory products.
+- The normal vouchers have no inventory constraints.
+
+Another real-world scenario are holiday meal buys:
+reserving a bulk buy for 100 orders, selling about 80 orders, placing the order, and selling the remaining meals.
+
+- The offering has `max_ordered_items_cumulative = 100` and `max_ordered_items_per_member = 1`.
+  - Everything appears sold out after ordering one product.
+- We place with the vendor an order of 60 of Meal 1 and 40 of Meal 2.
+- We update the products to `limited_quantity = true` and set the `quantity_on_hand` to 60 and 40.
+- Proper constraints will now be automatically applied.

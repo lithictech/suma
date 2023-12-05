@@ -303,7 +303,7 @@ RSpec.describe Suma::API::Commerce, :db do
     end
 
     it "errors if max quantity is exceeded" do
-      product.inventory!.update(max_quantity_per_order: 1)
+      offering.update(max_ordered_items_cumulative: 1)
 
       post "/v1/commerce/checkouts/#{checkout.id}/complete"
 

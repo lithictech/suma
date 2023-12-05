@@ -14,8 +14,7 @@ export default function ProductCreatePage() {
     vendor: null,
     category: null,
     inventory: {
-      maxQuantityPerOffering: null,
-      maxQuantityPerOrder: null,
+      maxQuantityPerMemberPerOrder: null,
       limitedQuantity: false,
       quantityOnHand: 0,
       quantityPendingFulfillment: 0,

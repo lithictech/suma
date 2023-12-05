@@ -17,8 +17,8 @@ class Suma::AdminAPI::CommerceProducts < Suma::AdminAPI::V1
     include AutoExposeDetail
     expose :our_cost, with: MoneyEntity
     expose :inventory do
-      expose :max_quantity_per_order, &self.delegate_to(:inventory!, :max_quantity_per_order)
-      expose :max_quantity_per_offering, &self.delegate_to(:inventory!, :max_quantity_per_offering)
+      expose :max_quantity_per_member_per_offering,
+             &self.delegate_to(:inventory!, :max_quantity_per_member_per_offering)
       expose :limited_quantity, &self.delegate_to(:inventory!, :limited_quantity)
       expose :quantity_on_hand, &self.delegate_to(:inventory!, :quantity_on_hand)
       expose :quantity_pending_fulfillment, &self.delegate_to(:inventory!, :quantity_pending_fulfillment)
@@ -51,8 +51,7 @@ class Suma::AdminAPI::CommerceProducts < Suma::AdminAPI::V1
         requires(:vendor, type: JSON) { use :model_with_id }
         optional(:vendor_service_categories, type: Array, coerce_with: ->(v) { v.values }) { use :model_with_id }
         optional :inventory, type: JSON do
-          optional :max_quantity_per_order, type: Integer
-          optional :max_quantity_per_offering, type: Integer
+          optional :max_quantity_per_member_per_offering, type: Integer
           optional :limited_quantity, type: Boolean
           optional :quantity_on_hand, type: Integer
           optional :quantity_pending_fulfillment, type: Integer
@@ -75,8 +74,7 @@ class Suma::AdminAPI::CommerceProducts < Suma::AdminAPI::V1
         optional(:vendor, type: JSON) { use :model_with_id }
         optional(:vendor_service_categories, type: Array, coerce_with: ->(v) { v.values }) { use :model_with_id }
         optional :inventory, type: JSON do
-          optional :max_quantity_per_order, type: Integer
-          optional :max_quantity_per_offering, type: Integer
+          optional :max_quantity_per_member_per_offering, type: Integer
           optional :limited_quantity, type: Boolean
           optional :quantity_on_hand, type: Integer
           optional :quantity_pending_fulfillment, type: Integer

@@ -43,15 +43,22 @@ class Suma::Commerce::Order < Suma::Postgres::Model(:commerce_orders)
 
   dataset_module do
     def available_to_claim
-      return self.where(
+      return self.uncanceled.where(
         fulfillment_status: ["fulfilling"],
-        order_status: ["open", "completed"],
         checkout: Suma::Commerce::Checkout.where(fulfillment_option: Suma::Commerce::OfferingFulfillmentOption.pickup),
       )
     end
 
     def ready_for_fulfillment
       return self.where(fulfillment_status: "unfulfilled", order_status: FULFILLABLE_ORDER_STATUSES)
+    end
+
+    def canceled
+      return self.where(order_status: "canceled")
+    end
+
+    def uncanceled
+      return self.where(order_status: ["open", "completed"])
     end
   end
 
@@ -127,9 +134,9 @@ class Suma::Commerce::Order < Suma::Postgres::Model(:commerce_orders)
 
   def after_open_order_canceled
     return if self.fulfillment_status == "fulfilled"
-    self.limited_quantity_items.each do |ci|
-      ci.offering_product.product.inventory.quantity_pending_fulfillment -= ci.quantity
-      ci.offering_product.product.inventory.save_changes
+    self.items_and_product_inventories.each do |ci, inv|
+      inv.quantity_pending_fulfillment -= ci.quantity
+      inv.save_changes
     end
   end
 
@@ -147,23 +154,26 @@ class Suma::Commerce::Order < Suma::Postgres::Model(:commerce_orders)
   end
 
   def apply_fulfillment_quantity_changes
-    self.limited_quantity_items.each do |ci|
-      ci.offering_product.product.inventory.quantity_on_hand -= ci.quantity
-      ci.offering_product.product.inventory.quantity_pending_fulfillment -= ci.quantity
-      ci.offering_product.product.inventory.save_changes
+    self.items_and_product_inventories.each do |ci, inv|
+      inv.quantity_on_hand -= ci.quantity if inv.limited_quantity?
+      inv.quantity_pending_fulfillment -= ci.quantity
+      inv.save_changes
     end
   end
 
   def reverse_fulfillment_quantity_changes
-    self.limited_quantity_items.each do |ci|
-      ci.offering_product.product.inventory.quantity_on_hand += ci.quantity
-      ci.offering_product.product.inventory.quantity_pending_fulfillment += ci.quantity
-      ci.offering_product.product.inventory.save_changes
+    self.items_and_product_inventories.each do |ci, inv|
+      inv.quantity_on_hand += ci.quantity if inv.limited_quantity?
+      inv.quantity_pending_fulfillment += ci.quantity
+      inv.save_changes
     end
   end
 
-  protected def limited_quantity_items
-    return self.checkout.items.filter { |ci| ci.offering_product.product.inventory&.limited_quantity? }
+  protected def items_and_product_inventories
+    return self.checkout.items.filter_map do |ci|
+      inv = ci.offering_product.product.inventory
+      inv ? [ci, inv] : nil
+    end
   end
 
   # Begin fulfilling if the order is in a fulfillable status (ie, don't fulfill canceled orders)
