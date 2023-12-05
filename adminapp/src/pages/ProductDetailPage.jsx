@@ -45,8 +45,10 @@ export default function ProductDetailPage() {
           value: model.vendorServiceCategories[0]?.name,
         },
         { label: "Our Cost", value: <Money>{model.ourCost}</Money> },
-        { label: "Max Per Offering", value: model.inventory.maxQuantityPerOffering },
-        { label: "Max Per Order", value: model.inventory.maxQuantityPerOrder },
+        {
+          label: "Max Per Member/Offering",
+          value: model.inventory.maxQuantityPerMemberPerOffering,
+        },
         { label: "Limited Quantity", value: model.inventory.limitedQuantity },
         { label: "Quantity On Hand", value: model.inventory.quantityOnHand },
         {

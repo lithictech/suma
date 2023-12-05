@@ -117,7 +117,7 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
 
   def setup_admin
     return unless Suma::RACK_ENV == "development"
-    admin = Suma::Member.find_or_create(email: ADMIN_EMAIL) do |c|
+    admin = Suma::Member.update_or_create(email: ADMIN_EMAIL) do |c|
       c.password = "Password1!"
       c.name = "Suma Admin"
       c.phone = "15552223333"

@@ -104,21 +104,15 @@ export default function ProductForm({
         <Typography variant="h6">Inventory</Typography>
         <ResponsiveStack>
           <TextField
-            name="inventory.maxQuantityPerOffering"
-            value={resource.inventory.maxQuantityPerOffering || ""}
+            name="inventory.maxQuantityPerMemberPerOffering"
+            value={resource.inventory.maxQuantityPerMemberPerOffering || ""}
             type="number"
-            label="Max Quantity Per Offering"
-            helperText="The maximum allowed for this offering per member."
+            label="Max per Member/Offering"
+            helperText="The maximum a single member can purchase within a single offering. Empty if unenforced."
             onChange={setFieldFromInput}
           />
-          <TextField
-            name="inventory.maxQuantityPerOrder"
-            value={resource.inventory.maxQuantityPerOrder || ""}
-            type="number"
-            label="Max Quantity Per Order"
-            helperText="The maximum allowed for each member's order."
-            onChange={setFieldFromInput}
-          />
+        </ResponsiveStack>
+        <ResponsiveStack>
           <FormControlLabel
             control={<Switch />}
             label="Limited Quantity"
@@ -139,7 +133,7 @@ export default function ProductForm({
             value={resource.inventory.quantityPendingFulfillment}
             type="number"
             label="Quantity Pending Fulfillment"
-            helperText="How much of the product is assigned to unfulfilled orders.."
+            helperText="How much of the product is assigned to unfulfilled orders. Usually automatically managed."
             onChange={setFieldFromInput}
           />
         </ResponsiveStack>

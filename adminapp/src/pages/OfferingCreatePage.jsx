@@ -16,6 +16,8 @@ export default function OfferingCreatePage() {
     closesAt: dayjs().add(1, "day").format(),
     beginFulfillmentAt: null,
     prohibitChargeAtCheckout: false,
+    maxOrderedItemsCumulative: null,
+    maxOrderedItemsPerMember: null,
   };
   return (
     <ResourceCreate
