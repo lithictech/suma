@@ -29,4 +29,15 @@ module Suma::PhoneNumber
     # +37 is a discontinued code for East Germany, and we just fill in the rest with random chars.
     return "37" + rand(1e12...1e13).to_i.to_s
   end
+
+  # Given a string representing a phone number, returns that phone number in E.164 format (+1XXX5550100).
+  # Assumes all provided phone numbers are US numbers.
+  # Does not check for invalid area codes.
+  def self.format_e164(phone)
+    return nil if phone.blank?
+    return phone if /^\+1\d{10}$/.match?(phone)
+    phone = phone.gsub(/\D/, "")
+    return "+1" + phone if phone.size == 10
+    return "+" + phone if phone.size == 11
+  end
 end

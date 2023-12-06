@@ -75,7 +75,7 @@ RSpec.describe "Suma::Member::ResetCode", :db do
           transport_type: "sms",
           to: phone,
           bodies: contain_exactly(
-            have_attributes(content: "Your Suma verification code is: 12345"),
+            have_attributes(content: "Your suma verification code is: 12345"),
           ),
         ),
       )
