@@ -13,13 +13,7 @@ export default function Mobility() {
     <>
       <LayoutContainer top gutters>
         <h5>{t("mobility:title")}</h5>
-        <p className="text-secondary">
-          {t("mobility:intro")}
-          <br />
-          <ExternalLink href={externalLinks.mobilityInfoLink}>
-            {t("common:learn_more")}
-          </ExternalLink>
-        </p>
+        <p className="text-secondary">{t("mobility:intro")}</p>
       </LayoutContainer>
       <Map />
     </>
@@ -30,14 +24,7 @@ export default function Mobility() {
         imgSrc={mobilityHeaderImage}
         imgAlt="Scooter Mobility"
         title={t("mobility:title")}
-        text={
-          <>
-            <span className="pe-2">{t("mobility:intro")}</span>
-            <ExternalLink href={externalLinks.mobilityInfoLink}>
-              {t("common:learn_more")}
-            </ExternalLink>
-          </>
-        }
+        text={t("mobility:intro")}
       />
     </div>
   );

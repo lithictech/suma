@@ -389,6 +389,7 @@ DEPENDENCIES
   state_machines
   stripe
   timecop
+  twilio-ruby (~> 5.74)
   warden
   webmock
   yajl-ruby

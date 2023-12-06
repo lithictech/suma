@@ -4,6 +4,7 @@ require "appydays/configurable"
 require "appydays/loggable"
 require "suma/message/transport"
 require "suma/signalwire"
+require "suma/twilio"
 
 class Suma::Message::SmsTransport < Suma::Message::Transport
   include Appydays::Configurable
@@ -20,6 +21,8 @@ class Suma::Message::SmsTransport < Suma::Message::Transport
     # Must be coordinated with with the code generator.
     # Default: match a word of only digits, surrounded by spaces or line start/end.
     setting :verification_code_regex, '\b(\d+)\b'
+    # If set, disable SMS (but allow verifications)
+    setting :provider_disabled, false
   end
 
   attr_accessor :allowlist
@@ -65,9 +68,24 @@ class Suma::Message::SmsTransport < Suma::Message::Transport
 
     body = delivery.bodies.first.content
     begin
-      self.logger.info("send_twilio_sms", to: to_phone, message_preview: body.slice(0, 20))
-      response = Suma::Signalwire.send_sms(from_phone, to_phone, body)
-      sid = response.sid
+      if delivery.template == self.class.verification_template
+        self.logger.info("send_verification_sms", to: to_phone)
+        rmatch = Regexp.new(self.class.verification_code_regex).match(body.strip)
+        raise "Cannot extract verification code from '#{body}' using '#{self.class.verification_code_regex}'" if
+          rmatch.nil?
+        response = Suma::Twilio.send_verification(to_phone, code: rmatch[1], locale: delivery.template_language)
+        # If we send the reset code multiple times with multiple deliveries,
+        # we get the same SID/message id, but different attempts. Disambiguate them,
+        # since we expect message ids to be empty.
+        sid = "#{response.sid}-#{response.send_code_attempts.length}"
+      elsif self.class.provider_disabled
+        self.logger.warn("sms_provider_disabled", phone: to_phone, body:)
+        raise Suma::Message::Transport::UndeliverableRecipient, "SMS provider disabled"
+      else
+        self.logger.info("send_twilio_sms", to: to_phone, message_preview: body.slice(0, 20))
+        response = Suma::Signalwire.send_sms(from_phone, to_phone, body)
+        sid = response.sid
+      end
     rescue Twilio::REST::RestError => e
       if (logmsg = FATAL_SIGNALWIRE_ERROR_CODES[e.code])
         self.logger.warn(logmsg, phone: to_phone, body:, error: e.response.body)

@@ -2,7 +2,8 @@ import api from "../api";
 import FormButtons from "../components/FormButtons";
 import FormControlGroup from "../components/FormControlGroup";
 import FormError from "../components/FormError";
-import { mdp, t } from "../localization";
+import SignupAgreement from "../components/SignupAgreement";
+import { t } from "../localization";
 import useI18Next from "../localization/useI18Next";
 import { dayjs } from "../modules/dayConfig";
 import { maskPhoneNumber } from "../modules/maskPhoneNumber";
@@ -19,6 +20,7 @@ export default function Start() {
   const navigate = useNavigate();
   const submitDisabled = useToggle(false);
   const inputDisabled = useToggle(false);
+  const [agreementChecked, setAgreementChecked] = React.useState(false);
   const [error, setError] = useError();
   const [phone, setPhone] = useState("");
 
@@ -87,16 +89,16 @@ export default function Start() {
           required
           onChange={handlePhoneChange}
         />
-
-        <div className="text-secondary small">
-          {mdp("auth:sign_up_agreement", { buttonLabel: t("forms:continue") })}
-        </div>
+        <SignupAgreement
+          checked={agreementChecked}
+          onCheckedChanged={setAgreementChecked}
+        />
         <FormError error={error} />
         <FormButtons
           back
           primaryProps={{
             children: t("forms:continue"),
-            disabled: submitDisabled.isOn,
+            disabled: submitDisabled.isOn || !agreementChecked,
           }}
         />
       </Form>

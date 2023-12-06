@@ -63,8 +63,12 @@ export default function OrderDetailPage() {
               { label: "Total", value: <Money>{checkout.total}</Money> },
               { label: "Instrument", value: checkout.paymentInstrument.adminLabel },
               {
-                label: "Fulfillment",
-                value: <Fulfillment f={checkout.fulfillmentOption} />,
+                label: "Fulfillment (En)",
+                value: checkout.fulfillmentOption.description.en,
+              },
+              {
+                label: "Fulfillment (Es)",
+                value: checkout.fulfillmentOption.description.es,
               },
             ]}
           />
@@ -96,8 +100,4 @@ export default function OrderDetailPage() {
       )}
     </>
   );
-}
-
-function Fulfillment({ f }) {
-  return `${f.description}`;
 }
