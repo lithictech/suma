@@ -57,11 +57,17 @@ export default function OfferingDetailPage() {
             />
           ),
         },
-        { label: "Description", value: model.description.en },
-        { label: "Fulfillment Prompt", value: model.fulfillmentPrompt.en },
+        { label: "Description (En)", value: model.description.en },
+        { label: "Description (Es)", value: model.description.es },
+        { label: "Fulfillment Prompt (En)", value: model.fulfillmentPrompt.en },
+        { label: "Fulfillment Prompt (Es)", value: model.fulfillmentPrompt.es },
         {
-          label: "Fulfillment Confirmation",
+          label: "Fulfillment Confirmation (En)",
           value: model.fulfillmentConfirmation.en,
+        },
+        {
+          label: "Fulfillment Confirmation (Es)",
+          value: model.fulfillmentConfirmation.es,
         },
         {
           label: "Max ordered items, cumulative",

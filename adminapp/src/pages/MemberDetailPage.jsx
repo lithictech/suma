@@ -394,7 +394,7 @@ function Orders({ orders }) {
         dayjs(row.createdAt).format("lll"),
         row.totalItemCount,
         <AdminLink key="off" model={row.offering}>
-          {row.offering.description}
+          {row.offering.description.en}
         </AdminLink>,
         row.statusLabel,
       ]}
