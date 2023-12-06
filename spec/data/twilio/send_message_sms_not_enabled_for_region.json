@@ -1,6 +1,0 @@
-{
-  "code": 21408,
-  "message": "Permission to send an SMS has not been enabled for the region indicated by the 'To' number: +16717971312.",
-  "more_info": "https://www.twilio.com/docs/errors/21408",
-  "status": 400
-}

@@ -1,0 +1,6 @@
+{
+  "code": "53603",
+  "message": "Internal failure while processing media.",
+  "more_info": "https://developer.signalwire.com/compatibility-api/reference/error-codes",
+  "status": 400
+}

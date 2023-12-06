@@ -16,7 +16,7 @@ RSpec.describe "Suma::Message", :db, :messaging do
       expect(delivery).to have_attributes(
         template: "specs/basic",
         transport_type: "sms",
-        transport_service: "twilio",
+        transport_service: "signalwire",
         transport_message_id: nil,
         sent_at: nil,
         to: recipient.phone,

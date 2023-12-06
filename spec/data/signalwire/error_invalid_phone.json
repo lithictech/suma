@@ -1,0 +1,6 @@
+{
+  "code": "21217",
+  "message": "A call or SMS is placed to a destination which does not represent a valid phone number.",
+  "more_info": "https://developer.signalwire.com/compatibility-api/reference/error-codes",
+  "status": 400
+}

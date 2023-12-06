@@ -3,7 +3,7 @@
 require "appydays/configurable"
 require "appydays/loggable"
 require "suma/message/transport"
-require "suma/twilio"
+require "suma/signalwire"
 
 class Suma::Message::SmsTransport < Suma::Message::Transport
   include Appydays::Configurable
@@ -12,9 +12,9 @@ class Suma::Message::SmsTransport < Suma::Message::Transport
   register_transport(:sms)
 
   configurable(:sms) do
-    setting :allowlist, [], convert: ->(s) { s.split.map { |p| Suma::Twilio.format_phone(p) || p } }
+    setting :allowlist, [], convert: ->(s) { s.split.map { |p| Suma::PhoneNumber.format_e164(p) || p } }
     setting :from, "15554443333"
-    # If set, any message deliveries using this template will use Twilio verify, not normal SMS.
+    # If set, any message deliveries using this template will use Signalwire verify, not normal SMS.
     setting :verification_template, "verification"
     # This is used to extract the verification code from a template.
     # Must be coordinated with with the code generator.
@@ -29,17 +29,9 @@ class Suma::Message::SmsTransport < Suma::Message::Transport
     @allowlist = self.class.allowlist.freeze
   end
 
-  def type
-    return :sms
-  end
-
-  def service
-    return "twilio"
-  end
-
-  def supports_layout?
-    false
-  end
+  def type = :sms
+  def service = "signalwire"
+  def supports_layout? = false
 
   def recipient(to)
     if to.is_a?(Suma::Member)
@@ -50,7 +42,7 @@ class Suma::Message::SmsTransport < Suma::Message::Transport
   end
 
   def allowlisted?(delivery)
-    return self.allowlisted_phone?(Suma::Twilio.format_phone(delivery.to))
+    return self.allowlisted_phone?(Suma::PhoneNumber.format_e164(delivery.to))
   end
 
   def allowlisted_phone?(phone)
@@ -61,53 +53,37 @@ class Suma::Message::SmsTransport < Suma::Message::Transport
   end
 
   def send!(delivery)
-    # The number provided to Twilio must be a phone number in E.164 format.
-    formatted_phone = Suma::Twilio.format_phone(delivery.to)
+    to_phone = Suma::PhoneNumber.format_e164(delivery.to)
     raise Suma::Message::Transport::Error, "Could not format phone number" if
-      formatted_phone.nil?
+      to_phone.nil?
 
-    raise Suma::Message::Transport::UndeliverableRecipient, "Number '#{formatted_phone}' not allowlisted" unless
-      self.allowlisted_phone?(formatted_phone)
+    (from_phone = Suma::PhoneNumber.format_e164(self.class.from)) or
+      raise Suma::InvalidPrecondition, "SMS_TRANSPORT_FROM is invalid"
+
+    raise Suma::Message::Transport::UndeliverableRecipient, "Number '#{to_phone}' not allowlisted" unless
+      self.allowlisted_phone?(to_phone)
 
     body = delivery.bodies.first.content
     begin
-      if delivery.template == self.class.verification_template
-        self.logger.info("send_verification_sms", to: formatted_phone)
-        rmatch = Regexp.new(self.class.verification_code_regex).match(body.strip)
-        raise "Cannot extract verification code from '#{body}' using '#{self.class.verification_code_regex}'" if
-          rmatch.nil?
-        response = Suma::Twilio.send_verification(formatted_phone, code: rmatch[1], locale: delivery.template_language)
-        # If we send the reset code multiple times with multiple deliveries,
-        # we get the same SID/message id, but different attempts. Disambiguate them,
-        # since we expect message ids to be empty.
-        sid = "#{response.sid}-#{response.send_code_attempts.length}"
-      else
-        self.logger.info("send_twilio_sms", to: formatted_phone, message_preview: body.slice(0, 20))
-        response = Suma::Twilio.send_sms(self.class.from, formatted_phone, body)
-        sid = response.sid
-      end
+      self.logger.info("send_twilio_sms", to: to_phone, message_preview: body.slice(0, 20))
+      response = Suma::Signalwire.send_sms(from_phone, to_phone, body)
+      sid = response.sid
     rescue Twilio::REST::RestError => e
-      if (logmsg = FATAL_TWILIO_ERRORS[e.code])
-        self.logger.warn(logmsg, phone: formatted_phone, body:, error: e.response.body)
-        raise Suma::Message::Transport::UndeliverableRecipient, "Fatal Twilio error: #{logmsg}"
+      if (logmsg = FATAL_SIGNALWIRE_ERROR_CODES[e.code])
+        self.logger.warn(logmsg, phone: to_phone, body:, error: e.response.body)
+        raise Suma::Message::Transport::UndeliverableRecipient, "Fatal Signalwire error: #{logmsg}"
       end
       raise(e)
     end
-    self.logger.debug { "Response from Twilio: %p" % [response] }
+    self.logger.debug { "Response from Signalwire: %p" % [response] }
     return sid
   end
 
-  # Twilio errors will usually be re-raised, but in some cases, we want to handle them by not handling them,
+  # Signalwire errors will usually be re-raised, but in some cases, we want to handle them by not handling them,
   # like for invalid phone numbers which there's no point worrying about.
   # So we just log and delete the delivery.
-  FATAL_TWILIO_ERRORS = {
-    21_211 => "twilio_invalid_phone_number",
-    21_408 => "twilio_unsupported_region",
-    21_610 => "twilio_blacklist_rule",
-    # Usually this is because it's a 555 or whatever number.
-    # It'd be nice to not have to catch such a generic error,
-    # but not sure what else we can do here.
-    60_200 => "twilio_invalid_record_parameter",
+  FATAL_SIGNALWIRE_ERROR_CODES = {
+    "21217" => "signalwire_invalid_phone_number",
   }.freeze
 
   def add_bodies(delivery, content)
