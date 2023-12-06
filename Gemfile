@@ -55,6 +55,7 @@ gem "sidekiq-unique-jobs"
 gem "signalwire"
 gem "state_machines"
 gem "stripe"
+gem "twilio-ruby", "~> 5.74"
 gem "warden"
 gem "yajl-ruby"
 
