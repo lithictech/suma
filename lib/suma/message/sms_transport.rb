@@ -21,6 +21,8 @@ class Suma::Message::SmsTransport < Suma::Message::Transport
     # Must be coordinated with with the code generator.
     # Default: match a word of only digits, surrounded by spaces or line start/end.
     setting :verification_code_regex, '\b(\d+)\b'
+    # If set, disable SMS (but allow verifications)
+    setting :provider_disabled, false
   end
 
   attr_accessor :allowlist
@@ -76,6 +78,9 @@ class Suma::Message::SmsTransport < Suma::Message::Transport
         # we get the same SID/message id, but different attempts. Disambiguate them,
         # since we expect message ids to be empty.
         sid = "#{response.sid}-#{response.send_code_attempts.length}"
+      elsif self.class.provider_disabled
+        self.logger.warn("sms_provider_disabled", phone: to_phone, body:)
+        raise Suma::Message::Transport::UndeliverableRecipient, "SMS provider disabled"
       else
         self.logger.info("send_twilio_sms", to: to_phone, message_preview: body.slice(0, 20))
         response = Suma::Signalwire.send_sms(from_phone, to_phone, body)
