@@ -37,7 +37,8 @@ end
 #  updated_at | timestamp with time zone |
 #  name       | text                     | NOT NULL
 # Indexes:
-#  eligibility_constraints_pkey | PRIMARY KEY btree (id)
+#  eligibility_constraints_pkey       | PRIMARY KEY btree (id)
+#  eligibility_constraints_name_index | UNIQUE btree (name)
 # Referenced By:
 #  eligibility_anon_proxy_vendor_configuration_associations | eligibility_anon_proxy_vendor_configuration__constraint_id_fkey | (constraint_id) REFERENCES eligibility_constraints(id)
 #  eligibility_member_associations                          | eligibility_member_associations_constraint_id_fkey              | (constraint_id) REFERENCES eligibility_constraints(id)

@@ -40,9 +40,13 @@ end
 #  uses_email          | boolean                  | NOT NULL
 #  uses_sms            | boolean                  | NOT NULL
 #  message_handler_key | text                     | NOT NULL
-#  app_launch_link     | text                     | NOT NULL
+#  app_install_link    | text                     | NOT NULL
 #  enabled             | boolean                  | NOT NULL
 #  instructions_id     | integer                  | NOT NULL
+#  auth_http_method    | text                     | NOT NULL DEFAULT 'POST'::text
+#  auth_url            | text                     | NOT NULL
+#  auth_headers        | jsonb                    | NOT NULL
+#  auth_body_template  | text                     | NOT NULL
 # Indexes:
 #  anon_proxy_vendor_configurations_pkey          | PRIMARY KEY btree (id)
 #  anon_proxy_vendor_configurations_vendor_id_key | UNIQUE btree (vendor_id)

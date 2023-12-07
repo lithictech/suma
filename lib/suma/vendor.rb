@@ -34,7 +34,8 @@ end
 #  name       | text                     | NOT NULL
 #  slug       | text                     | NOT NULL
 # Indexes:
-#  vendors_pkey | PRIMARY KEY btree (id)
+#  vendors_pkey       | PRIMARY KEY btree (id)
+#  vendors_slug_index | UNIQUE btree (slug)
 # Referenced By:
 #  anon_proxy_vendor_configurations | anon_proxy_vendor_configurations_vendor_id_fkey | (vendor_id) REFERENCES vendors(id) ON DELETE CASCADE
 #  commerce_products                | commerce_products_vendor_id_fkey                | (vendor_id) REFERENCES vendors(id)

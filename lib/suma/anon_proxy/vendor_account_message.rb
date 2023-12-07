@@ -23,7 +23,7 @@ end
 #  relay_key            | text                     | NOT NULL
 #  message_handler_key  | text                     | NOT NULL
 #  vendor_account_id    | integer                  | NOT NULL
-#  outbound_delivery_id | integer                  | NOT NULL
+#  outbound_delivery_id | integer                  |
 # Indexes:
 #  anon_proxy_vendor_account_messages_pkey                     | PRIMARY KEY btree (id)
 #  anon_proxy_vendor_account_messages_outbound_delivery_id_key | UNIQUE btree (outbound_delivery_id)
