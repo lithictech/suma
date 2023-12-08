@@ -176,17 +176,32 @@ RSpec.describe Suma::AdminAPI::CommerceOfferings, :db do
   end
 
   describe "GET /v1/commerce_offering/:id/picklist" do
-    it "returns item pick list of offering orders" do
+    it "returns item pick list, products totals, and products at location totals, of the offering orders" do
       order = Suma::Fixtures.order.as_purchased_by(admin).create
       o = order.checkout.cart.offering
       pick_list = o.order_pick_list
+      offering_products = o.offering_products
+      offering_product = o.offering_products_fulfillments_quantities_context.first[:offering_product]
+      fulfillment_option = o.offering_products_fulfillments_quantities_context.first[:fulfillment_option]
+      quantities = o.offering_products_fulfillments_quantities_context.first[:quantities]
 
       get "/v1/commerce_offerings/#{o.id}/picklist"
 
       expect(last_response).to have_status(200)
-      expect(last_response).to have_json_body.
-        that_includes(items: have_same_ids_as(*pick_list))
+      expect(last_response).to have_json_body.that_includes(
+        items: have_same_ids_as(*pick_list),
+        offering_products_quantities: have_same_ids_as(*offering_products),
+        # TODO: fix with the correct rspec equals method
+        offering_products_fulfillments_quantities: contain_exactly(
+          have_attributes(
+            offering_product:,
+            fulfillment_option:,
+            quantities:,
+          ),
+        ),
+      )
     end
+
     it "403s if offering does not exist" do
       get "/v1/commerce_offerings/0/picklist"
 

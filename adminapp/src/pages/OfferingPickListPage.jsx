@@ -1,5 +1,6 @@
 import api from "../api";
 import AdminLink from "../components/AdminLink";
+import RelatedList from "../components/RelatedList";
 import useErrorSnackbar from "../hooks/useErrorSnackbar";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
 import { Typography } from "@mui/material";
@@ -27,6 +28,29 @@ export default function OfferingPickListPage() {
           <Typography variant="h5" gutterBottom>
             Offering <Link to={`/offering/${id}`}>{id}</Link> Pick/Pack List
           </Typography>
+          <RelatedList
+            rows={pickList.offeringProductsQuantities}
+            headers={["Product", "Total"]}
+            keyRowAttr="id"
+            toCells={(row) => [
+              <AdminLink key="id" model={row}>
+                {row.product.name}
+              </AdminLink>,
+              row.ordersItemsQuantities,
+            ]}
+          />
+          <RelatedList
+            rows={pickList.offeringProductsFulfillmentsQuantities}
+            headers={["Product", "Fulfillment", "Total"]}
+            keyRowAttr="id"
+            toCells={(row) => [
+              <AdminLink key="id" model={row}>
+                {row.offeringProduct.product.name}
+              </AdminLink>,
+              row.fulfillmentOption.description,
+              row.quantities,
+            ]}
+          />
           <StripedDataGrid
             columns={[
               {
@@ -88,6 +112,7 @@ export default function OfferingPickListPage() {
 
 const ODD_OPACITY = 0.2;
 const StripedDataGrid = styled(DataGrid)(({ theme }) => ({
+  marginTop: theme.spacing(6),
   [`& .${gridClasses.row}.even`]: {
     backgroundColor: theme.palette.grey[200],
     "&:hover, &.Mui-hovered": {

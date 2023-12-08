@@ -163,6 +163,27 @@ class Suma::Commerce::Offering < Suma::Postgres::Model(:commerce_offerings)
     self.orders.map { |o| o.checkout.items }.flatten
   end
 
+  # List of offering products total items quantities at each fulfillment location, excluding canceled orders items.
+  def offering_products_fulfillments_quantities_context
+    results = []
+    self.offering_products.each do |offering_product|
+      self.fulfillment_options.each do |fulfillment_option|
+        obj = {fulfillment_option:, offering_product:}
+        if (product_fulfillment_orders = Suma::Commerce::Order.with_uncanceled_fulfillment(fulfillment_option))
+          # Only get the orders checkout items that match the offering_product
+          checkout_items = product_fulfillment_orders.map do |order|
+            order.checkout.items.select do |item|
+              item.offering_product === offering_product
+            end
+          end
+          obj[:quantities] = checkout_items.reject(&:empty?).flatten.sum(&:quantity)
+        end
+        results << obj
+      end
+    end
+    return results
+  end
+
   def timed?
     return !self.begin_fulfillment_at.nil?
   end

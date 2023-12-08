@@ -39,6 +39,32 @@ class Suma::AdminAPI::CommerceOfferings < Suma::AdminAPI::V1
     expose_translated :name
   end
 
+  class OfferingProductsQuantitiesEntity < BaseEntity
+    include Suma::AdminAPI::Entities
+    include AutoExposeBase
+    expose :product, with: ProductInPickListEntity
+    expose :orders_items_quantities, &self.delegate_to(:product, :orders_items_quantities)
+  end
+
+  class SimpleFulfillmentOptionEntity < BaseEntity
+    include Suma::AdminAPI::Entities
+    expose_translated :description
+  end
+
+  class OfferingProductsFulfillmentsQuantitiesEntity < BaseEntity
+    include Suma::AdminAPI::Entities
+    include AutoExposeBase
+    expose :product, with: ProductInPickListEntity
+  end
+
+  class OfferingProductsFulfillmentsContextEntity < BaseEntity
+    include Suma::AdminAPI::Entities
+    include AutoExposeBase
+    expose :offering_product, with: OfferingProductsFulfillmentsQuantitiesEntity
+    expose :fulfillment_option, with: SimpleFulfillmentOptionEntity
+    expose :quantities
+  end
+
   class OrderItemsPickListEntity < BaseEntity
     include Suma::AdminAPI::Entities
     expose :id
@@ -47,6 +73,15 @@ class Suma::AdminAPI::CommerceOfferings < Suma::AdminAPI::V1
     expose :member, with: MemberEntity, &self.delegate_to(:checkout, :cart, :member)
     expose :product, with: ProductInPickListEntity, &self.delegate_to(:offering_product, :product)
     expose_translated :fulfillment, &self.delegate_to(:checkout, :fulfillment_option, :description)
+  end
+
+  class OfferingOrderPickListWithContext < BaseEntity
+    expose :items, with: OrderItemsPickListEntity do |_, opts|
+      opts.fetch(:items)
+    end
+    expose :offering_products, as: :offering_products_quantities, with: OfferingProductsQuantitiesEntity
+    expose :offering_products_fulfillments_quantities_context,
+           as: :offering_products_fulfillments_quantities, with: OfferingProductsFulfillmentsContextEntity
   end
 
   resource :commerce_offerings do
@@ -165,8 +200,9 @@ class Suma::AdminAPI::CommerceOfferings < Suma::AdminAPI::V1
 
       resource :picklist do
         get do
-          co_products = lookup.order_pick_list
-          present_collection co_products, with: OrderItemsPickListEntity
+          offering = lookup
+          items = offering.order_pick_list
+          present offering, with: OfferingOrderPickListWithContext, items:
         end
       end
     end
