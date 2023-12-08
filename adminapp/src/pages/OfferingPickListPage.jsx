@@ -28,28 +28,57 @@ export default function OfferingPickListPage() {
           <Typography variant="h5" gutterBottom>
             Offering <Link to={`/offering/${id}`}>{id}</Link> Pick/Pack List
           </Typography>
-          <RelatedList
-            rows={pickList.offeringProductsQuantities}
-            headers={["Product", "Total"]}
-            keyRowAttr="id"
-            toCells={(row) => [
-              <AdminLink key="id" model={row}>
-                {row.product.name}
-              </AdminLink>,
-              row.ordersItemsQuantities,
+          <StripedDataGrid
+            columns={[
+              {
+                field: "product",
+                headerName: "Product",
+                width: 250,
+                renderCell: ({ value }) => (
+                  <AdminLink key="id" model={value}>
+                    {value.name}
+                  </AdminLink>
+                ),
+                sortComparator,
+              },
+              {
+                field: "ordersItemsQuantities",
+                headerName: "Total",
+              },
             ]}
+            rows={pickList.offeringProductsQuantities || []}
+            getRowId={(row) => row.id}
+            {...commonTableProps}
           />
-          <RelatedList
-            rows={pickList.offeringProductsFulfillmentsQuantities}
-            headers={["Product", "Fulfillment", "Total"]}
-            keyRowAttr="id"
-            toCells={(row) => [
-              <AdminLink key="id" model={row}>
-                {row.offeringProduct.product.name}
-              </AdminLink>,
-              row.fulfillmentOption.description,
-              row.quantities,
+          <StripedDataGrid
+            columns={[
+              {
+                field: "offeringProduct",
+                headerName: "Product",
+                width: 250,
+                valueGetter: (params) => params.row.offeringProduct.product,
+                renderCell: ({ value }) => (
+                  <AdminLink model={value} title={value}>
+                    {value.name}
+                  </AdminLink>
+                ),
+              },
+              {
+                field: "fulfillmentOption",
+                headerName: "Fulfillment",
+                width: 300,
+                valueGetter: (params) => params.row.fulfillmentOption.description,
+              },
+              {
+                field: "quantities",
+                headerName: "Total",
+              },
             ]}
+            rows={pickList.offeringProductsFulfillmentsQuantities || []}
+            getRowId={(row) =>
+              row?.offeringProduct.id + row?.fulfillmentOption.description
+            }
+            {...commonTableProps}
           />
           <StripedDataGrid
             columns={[
@@ -62,10 +91,11 @@ export default function OfferingPickListPage() {
                 headerName: "Member",
                 width: 150,
                 renderCell: ({ value }) => (
-                  <AdminLink model={value} title={value.name}>
+                  <AdminLink model={value} title={value}>
                     {value.name}
                   </AdminLink>
                 ),
+                sortComparator,
               },
               {
                 field: "quantity",
@@ -76,39 +106,42 @@ export default function OfferingPickListPage() {
                 headerName: "Product",
                 width: 200,
                 renderCell: ({ value }) => (
-                  <AdminLink model={value} title={value.name}>
+                  <AdminLink model={value} title={value}>
                     {value.name}
                   </AdminLink>
                 ),
+                sortComparator,
               },
               {
                 field: "fulfillment",
                 headerName: "Fulfillment",
                 width: 300,
-                renderCell: ({ value }) => <span title={value}>{value}</span>,
               },
             ]}
+            rows={pickList.items || []}
             getRowId={(row) => row.id}
-            getRowClassName={({ indexRelativeToCurrentPage }) =>
-              indexRelativeToCurrentPage % 2 === 0 ? "even" : "odd"
-            }
-            sx={{
-              "& .MuiDataGrid-cell > *": {
-                overflow: "hidden!important",
-                textOverflow: "ellipsis!important",
-              },
-            }}
-            rows={pickList?.items || []}
-            density="compact"
-            autoHeight={true}
-            hideFooter={true}
             checkboxSelection={true}
+            {...commonTableProps}
           />
         </>
       )}
     </>
   );
 }
+const sortComparator = (v1, v2) => v1.name.localeCompare(v2.name);
+const commonTableProps = {
+  getRowClassName: ({ indexRelativeToCurrentPage }) =>
+    indexRelativeToCurrentPage % 2 === 0 ? "even" : "odd",
+  sx: {
+    "& .MuiDataGrid-cell > *": {
+      overflow: "hidden!important",
+      textOverflow: "ellipsis!important",
+    },
+  },
+  density: "compact",
+  autoHeight: true,
+  hideFooter: true,
+};
 
 const ODD_OPACITY = 0.2;
 const StripedDataGrid = styled(DataGrid)(({ theme }) => ({

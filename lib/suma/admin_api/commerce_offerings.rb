@@ -48,10 +48,11 @@ class Suma::AdminAPI::CommerceOfferings < Suma::AdminAPI::V1
 
   class SimpleFulfillmentOptionEntity < BaseEntity
     include Suma::AdminAPI::Entities
+    include AutoExposeBase
     expose_translated :description
   end
 
-  class OfferingProductsFulfillmentsQuantitiesEntity < BaseEntity
+  class SimpleOfferingProductEntity < BaseEntity
     include Suma::AdminAPI::Entities
     include AutoExposeBase
     expose :product, with: ProductInPickListEntity
@@ -60,7 +61,7 @@ class Suma::AdminAPI::CommerceOfferings < Suma::AdminAPI::V1
   class OfferingProductsFulfillmentsContextEntity < BaseEntity
     include Suma::AdminAPI::Entities
     include AutoExposeBase
-    expose :offering_product, with: OfferingProductsFulfillmentsQuantitiesEntity
+    expose :offering_product, with: SimpleOfferingProductEntity
     expose :fulfillment_option, with: SimpleFulfillmentOptionEntity
     expose :quantities
   end

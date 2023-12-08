@@ -181,9 +181,10 @@ RSpec.describe Suma::AdminAPI::CommerceOfferings, :db do
       o = order.checkout.cart.offering
       pick_list = o.order_pick_list
       offering_products = o.offering_products
-      offering_product = o.offering_products_fulfillments_quantities_context.first[:offering_product]
-      fulfillment_option = o.offering_products_fulfillments_quantities_context.first[:fulfillment_option]
-      quantities = o.offering_products_fulfillments_quantities_context.first[:quantities]
+      context = o.offering_products_fulfillments_quantities_context
+      offering_product = context.first[:offering_product]
+      fulfillment_option = context.first[:fulfillment_option]
+      quantities = context.first[:quantities]
 
       get "/v1/commerce_offerings/#{o.id}/picklist"
 

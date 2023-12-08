@@ -78,12 +78,14 @@ export default function OfferingDetailPage() {
           value: model.maxOrderedItemsPerMember || "-",
         },
         {
-          label: "",
-          value: !isEmpty(model.orders) && (
+          label: "Pick/Pack list",
+          value: !isEmpty(model.orders) ? (
             <Link to={`/offering/${model.id}/picklist`}>
               <ListAltIcon sx={{ verticalAlign: "middle", paddingRight: "5px" }} />
               Pick/Pack List
             </Link>
+          ) : (
+            "-"
           ),
         },
       ]}
