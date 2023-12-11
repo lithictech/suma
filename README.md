@@ -247,3 +247,7 @@ you can write out the HTML so it can be previewed.
 NOTE: We currently don't send emails, so some parts of this pipeline are pretty basic.
 We will need to add styling, message previewing through admin, and hook up the `EmailTransport`
 to send (probably via SMTP so we aren't tied to a 3rd party).
+
+## License
+
+Licensed under [AGPL-3.0-or-later](/COPYING.txt).
