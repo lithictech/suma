@@ -33,56 +33,48 @@ class Suma::AdminAPI::CommerceOfferings < Suma::AdminAPI::V1
     expose :max_ordered_items_per_member
   end
 
-  class ProductInPickListEntity < BaseEntity
+  class PicklistProductEntity < BaseEntity
     include Suma::AdminAPI::Entities
     include AutoExposeBase
     expose_translated :name
   end
 
-  class OfferingProductsQuantitiesEntity < BaseEntity
+  class PicklistOfferingProductEntity < BaseEntity
     include Suma::AdminAPI::Entities
     include AutoExposeBase
-    expose :product, with: ProductInPickListEntity
-    expose :orders_items_quantities, &self.delegate_to(:product, :orders_items_quantities)
+    expose :product, with: PicklistProductEntity
   end
 
-  class SimpleFulfillmentOptionEntity < BaseEntity
+  class PicklistFulfillmentOptionEntity < BaseEntity
     include Suma::AdminAPI::Entities
     include AutoExposeBase
     expose_translated :description
   end
 
-  class SimpleOfferingProductEntity < BaseEntity
-    include Suma::AdminAPI::Entities
-    include AutoExposeBase
-    expose :product, with: ProductInPickListEntity
+  class PicklistProductAndQuantityEntity < BaseEntity
+    expose :product, with: PicklistProductEntity
+    expose :quantity
   end
 
-  class OfferingProductsFulfillmentsContextEntity < BaseEntity
-    include Suma::AdminAPI::Entities
-    include AutoExposeBase
-    expose :offering_product, with: SimpleOfferingProductEntity
-    expose :fulfillment_option, with: SimpleFulfillmentOptionEntity
-    expose :quantities
+  class PicklistFulfillmentOptionAndQuantityEntity < BaseEntity
+    expose :fulfillment_option, with: PicklistFulfillmentOptionEntity
+    expose :quantity
   end
 
-  class OrderItemsPickListEntity < BaseEntity
+  class PicklistOrderItemEntity < BaseEntity
     include Suma::AdminAPI::Entities
     expose :id
     expose :quantity
-    expose :serial, &self.delegate_to(:checkout, :order, :serial)
-    expose :member, with: MemberEntity, &self.delegate_to(:checkout, :cart, :member)
-    expose :product, with: ProductInPickListEntity, &self.delegate_to(:offering_product, :product)
-    expose_translated :fulfillment, &self.delegate_to(:checkout, :fulfillment_option, :description)
+    expose :serial
+    expose :member, with: MemberEntity
+    expose :offering_product, with: PicklistOfferingProductEntity
+    expose :fulfillment_option, with: PicklistFulfillmentOptionEntity
   end
 
-  class OfferingOrderPickListWithContext < BaseEntity
-    expose :items, with: OrderItemsPickListEntity do |_, opts|
-      opts.fetch(:items)
-    end
-    expose :offering_products, as: :offering_products_quantities, with: OfferingProductsQuantitiesEntity
-    expose :offering_products_fulfillments_quantities_context,
-           as: :offering_products_fulfillments_quantities, with: OfferingProductsFulfillmentsContextEntity
+  class PicklistEntity < BaseEntity
+    expose :products_and_quantities, with: PicklistProductAndQuantityEntity
+    expose :fulfillment_options_and_quantities, with: PicklistFulfillmentOptionAndQuantityEntity
+    expose :order_items, with: PicklistOrderItemEntity
   end
 
   resource :commerce_offerings do
@@ -202,8 +194,8 @@ class Suma::AdminAPI::CommerceOfferings < Suma::AdminAPI::V1
       resource :picklist do
         get do
           offering = lookup
-          items = offering.order_pick_list
-          present offering, with: OfferingOrderPickListWithContext, items:
+          picklist = Suma::Commerce::OfferingPicklist.new(offering).build
+          present picklist, with: PicklistEntity
         end
       end
     end

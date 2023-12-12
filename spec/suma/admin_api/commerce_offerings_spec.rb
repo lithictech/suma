@@ -179,26 +179,19 @@ RSpec.describe Suma::AdminAPI::CommerceOfferings, :db do
     it "returns item pick list, products totals, and products at location totals, of the offering orders" do
       order = Suma::Fixtures.order.as_purchased_by(admin).create
       o = order.checkout.cart.offering
-      pick_list = o.order_pick_list
-      offering_products = o.offering_products
-      context = o.offering_products_fulfillments_quantities_context
-      offering_product = context.first[:offering_product]
-      fulfillment_option = context.first[:fulfillment_option]
-      quantities = context.first[:quantities]
 
       get "/v1/commerce_offerings/#{o.id}/picklist"
 
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.that_includes(
-        items: have_same_ids_as(*pick_list),
-        offering_products_quantities: have_same_ids_as(*offering_products),
-        # TODO: fix with the correct rspec equals method
-        offering_products_fulfillments_quantities: contain_exactly(
-          have_attributes(
-            offering_product:,
-            fulfillment_option:,
-            quantities:,
-          ),
+        products_and_quantities: match_array(
+          hash_including(product: hash_including(:admin_link), quantity: 1),
+        ),
+        fulfillment_options_and_quantities: match_array(
+          hash_including(fulfillment_option: hash_including(:description), quantity: 1),
+        ),
+        order_items: match_array(
+          hash_including(:member, :fulfillment_option, quantity: 1, offering_product: hash_including(:product)),
         ),
       )
     end

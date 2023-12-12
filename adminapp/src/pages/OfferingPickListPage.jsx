@@ -1,13 +1,41 @@
 import api from "../api";
 import AdminLink from "../components/AdminLink";
+import Link from "../components/Link";
 import useErrorSnackbar from "../hooks/useErrorSnackbar";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
-import { Typography } from "@mui/material";
+import useClientsideSearchParams from "../shared/react/useClientsideSearchParams";
+import useListQueryControls from "../shared/react/useListQueryControls";
+import setUrlPart from "../shared/setUrlPart";
+import {
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select,
+  Stack,
+  Typography,
+} from "@mui/material";
 import { alpha, styled } from "@mui/material/styles";
 import { DataGrid, gridClasses } from "@mui/x-data-grid";
+import get from "lodash/get";
 import isEmpty from "lodash/isEmpty";
+import keyBy from "lodash/keyBy";
+import map from "lodash/map";
+import sortBy from "lodash/sortBy";
+import uniqBy from "lodash/uniqBy";
 import React from "react";
-import { Link, useParams } from "react-router-dom";
+import { useParams, useSearchParams } from "react-router-dom";
+
+function useSearchParamState(key, defaultValue) {
+  const params = new URL(window.location.href).searchParams;
+  const state = params.has(key) ? params.get(key) : defaultValue;
+  const setState = React.useCallback(
+    (v) => {
+      setUrlPart({ setParams: { [key]: v } });
+    },
+    [key]
+  );
+  return [state, setState];
+}
 
 export default function OfferingPickListPage() {
   const { enqueueErrorSnackbar } = useErrorSnackbar();
@@ -16,17 +44,94 @@ export default function OfferingPickListPage() {
   const getCommerceOfferingPickList = React.useCallback(() => {
     return api.getCommerceOfferingPickList({ id }).catch((e) => enqueueErrorSnackbar(e));
   }, [id, enqueueErrorSnackbar]);
-  const { state: pickList } = useAsyncFetch(getCommerceOfferingPickList, {
-    default: {},
+  const { state: picklist } = useAsyncFetch(getCommerceOfferingPickList, {
+    default: { orderItems: [] },
     pickData: true,
+  });
+  const { searchParams, setSearchParam } = useClientsideSearchParams();
+  const selectedProduct = searchParams.get("product") || "";
+  const selectedFulfillment = searchParams.get("fulfillment") || "";
+  const productChoices = picklist.orderItems.map((oi) => ({
+    label: oi.offeringProduct.product.name,
+    value: oi.offeringProduct.product.id,
+  }));
+  const fulfillmentChoices = picklist.orderItems.map((oi) => ({
+    label: oi.fulfillmentOption.description,
+    value: oi.fulfillmentOption.id,
+  }));
+  function selectFilterMenuItems(allChoices) {
+    const ch = sortBy(uniqBy(allChoices, "value"), "label");
+    const withEmpty = [{ label: "All", value: null }, ...ch];
+    return withEmpty.map(({ label, value }) => (
+      <MenuItem key={value} value={value}>
+        {label}
+      </MenuItem>
+    ));
+  }
+  const productMatches = React.useCallback(
+    (pr) => !selectedProduct || pr.id === Number(selectedProduct),
+    [selectedProduct]
+  );
+  const fulfillmentOptMatches = React.useCallback(
+    (fo) => !selectedFulfillment || fo.id === Number(selectedFulfillment),
+    [selectedFulfillment]
+  );
+  const matchingItems = (picklist.orderItems || []).filter(
+    (oi) =>
+      productMatches(oi.offeringProduct.product) &&
+      fulfillmentOptMatches(oi.fulfillmentOption)
+  );
+  const productsById = keyBy(map(matchingItems, "offeringProduct.product"), "id");
+  const fulfillmentsById = keyBy(map(matchingItems, "fulfillmentOption"), "id");
+  const productIdsAndQuantities = {};
+  const fulfillmentIdsAndProductQuantities = {};
+  matchingItems.forEach(({ offeringProduct, fulfillmentOption, quantity }) => {
+    const pid = offeringProduct.product.id;
+    productIdsAndQuantities[pid] ||= 0;
+    productIdsAndQuantities[pid] += quantity;
+    fulfillmentIdsAndProductQuantities[fulfillmentOption.id] ||= {};
+    fulfillmentIdsAndProductQuantities[fulfillmentOption.id][pid] ||= 0;
+    fulfillmentIdsAndProductQuantities[fulfillmentOption.id][pid] += quantity;
+  });
+  const fulfillmentAndProductQuantityRows = [];
+  Object.entries(fulfillmentIdsAndProductQuantities).forEach(([fid, pq]) => {
+    Object.entries(pq).forEach(([pid, q]) => {
+      fulfillmentAndProductQuantityRows.push({
+        product: productsById[pid],
+        fulfillmentOption: fulfillmentsById[fid],
+        quantity: q,
+      });
+    });
   });
   return (
     <>
-      {!isEmpty(pickList) && (
+      {!isEmpty(picklist) && (
         <>
           <Typography variant="h5" gutterBottom>
-            Offering <Link to={`/offering/${id}`}>{id}</Link> Pick/Pack List
+            <Link to={`/offering/${id}`}>Offering {id}</Link> Pick/Pack List
           </Typography>
+          <Stack direction="row" gap={1} sx={{ marginY: 1 }}>
+            <FormControl sx={{ flex: 1, maxWidth: 300 }}>
+              <InputLabel>Product</InputLabel>
+              <Select
+                value={selectedProduct}
+                label="Product"
+                onChange={(e) => setSearchParam("product", e.target.value || null)}
+              >
+                {selectFilterMenuItems(productChoices)}
+              </Select>
+            </FormControl>
+            <FormControl sx={{ flex: 1, maxWidth: 300 }}>
+              <InputLabel>Fulfillment</InputLabel>
+              <Select
+                value={selectedFulfillment}
+                label="Fulfillment"
+                onChange={(e) => setSearchParam("fulfillment", e.target.value || null)}
+              >
+                {selectFilterMenuItems(fulfillmentChoices)}
+              </Select>
+            </FormControl>
+          </Stack>
           <StripedDataGrid
             columns={[
               {
@@ -38,46 +143,46 @@ export default function OfferingPickListPage() {
                     {value.name}
                   </AdminLink>
                 ),
-                sortComparator,
+                sortComparator: nameComparator,
               },
               {
-                field: "ordersItemsQuantities",
+                field: "quantity",
                 headerName: "Total",
               },
             ]}
-            rows={pickList.offeringProductsQuantities || []}
-            getRowId={(row) => row.id}
+            rows={Object.entries(productIdsAndQuantities).map(([pid, quantity]) => ({
+              product: productsById[pid],
+              quantity,
+            }))}
+            getRowId={(row) => row.product.id}
             {...commonTableProps}
           />
           <StripedDataGrid
             columns={[
               {
-                field: "offeringProduct",
+                field: "product",
                 headerName: "Product",
                 width: 250,
-                valueGetter: (params) => params.row.offeringProduct.product,
                 renderCell: ({ value }) => (
                   <AdminLink model={value} title={value}>
                     {value.name}
                   </AdminLink>
                 ),
-                sortComparator,
+                sortComparator: nameComparator,
               },
               {
                 field: "fulfillmentOption",
                 headerName: "Fulfillment",
                 width: 300,
-                valueGetter: (params) => params.row.fulfillmentOption.description,
+                renderCell: ({ value }) => value.description,
               },
               {
-                field: "quantities",
+                field: "quantity",
                 headerName: "Total",
               },
             ]}
-            rows={pickList.offeringProductsFulfillmentsQuantities || []}
-            getRowId={(row) =>
-              row?.offeringProduct.id + row?.fulfillmentOption.description
-            }
+            rows={fulfillmentAndProductQuantityRows}
+            getRowId={(row) => `${row.product.id}-${row.fulfillmentOption.id}`}
             {...commonTableProps}
           />
           <StripedDataGrid
@@ -95,32 +200,32 @@ export default function OfferingPickListPage() {
                     {value.name}
                   </AdminLink>
                 ),
-                sortComparator,
+                sortComparator: nameComparator,
               },
               {
                 field: "quantity",
                 headerName: "Quantity",
               },
               {
-                field: "product",
+                field: "offeringProduct",
                 headerName: "Product",
                 width: 200,
                 renderCell: ({ value }) => (
                   <AdminLink model={value} title={value}>
-                    {value.name}
+                    {value.product.name}
                   </AdminLink>
                 ),
-                sortComparator,
+                sortComparator: newLocaleComparator("product.name"),
               },
               {
-                field: "fulfillment",
+                field: "fulfillmentOption",
                 headerName: "Fulfillment",
                 width: 300,
+                renderCell: ({ value }) => value.description,
               },
             ]}
-            rows={pickList.items || []}
+            rows={matchingItems}
             getRowId={(row) => row.id}
-            checkboxSelection={true}
             {...commonTableProps}
           />
         </>
@@ -128,7 +233,12 @@ export default function OfferingPickListPage() {
     </>
   );
 }
-const sortComparator = (v1, v2) => v1.name.localeCompare(v2.name);
+
+function newLocaleComparator(f) {
+  return (a, b) => get(a, f).localeCompare(get(b, f));
+}
+const nameComparator = newLocaleComparator("name");
+
 const commonTableProps = {
   getRowClassName: ({ indexRelativeToCurrentPage }) =>
     indexRelativeToCurrentPage % 2 === 0 ? "even" : "odd",
