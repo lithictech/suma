@@ -8,7 +8,7 @@ import OrderDetail from "../components/OrderDetail";
 import PageLoader from "../components/PageLoader";
 import RLink from "../components/RLink";
 import SumaImage from "../components/SumaImage";
-import { md, mdp, t } from "../localization";
+import { mdp, t } from "../localization";
 import { dayjs } from "../modules/dayConfig";
 import ScrollTopOnMount from "../shared/ScrollToTopOnMount";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
@@ -120,7 +120,7 @@ function ClaimedOrderModal({ claimedOrder, onHide }) {
                     <div className="text-align-start">
                       <div className="lead">{name}</div>
                       <Badge bg="secondary" className="fs-6">
-                        {md("food:price_times_quantity", {
+                        {t("food:price_times_quantity", {
                           price: customerPrice,
                           quantity,
                         })}

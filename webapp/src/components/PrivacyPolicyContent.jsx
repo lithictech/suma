@@ -203,7 +203,7 @@ export default function PrivacyPolicyContent({ mobile }) {
                 title={t("subsections:communicate_with_you:title")}
                 p={
                   <>
-                    {md("subsections:communicate_with_you:paragraph")}
+                    {t("subsections:communicate_with_you:paragraph")}
                     <a href="#communications">
                       {t("subsections:communicate_with_you:see_communications")}
                     </a>
@@ -242,7 +242,7 @@ export default function PrivacyPolicyContent({ mobile }) {
                 md("sections:third_party_access:list:service_providers"),
                 md("sections:third_party_access:list:with_your_consent"),
                 <>
-                  {md("sections:third_party_access:list:personal_information")}
+                  {t("sections:third_party_access:list:personal_information")}
                   <a href="#methodsOfInformationUsage">
                     {t("sections:methods_of_information_usage:title")}
                   </a>

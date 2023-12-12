@@ -4,7 +4,7 @@ import FormButtons from "../components/FormButtons";
 import FormControlGroup from "../components/FormControlGroup";
 import FormError from "../components/FormError";
 import SignupAgreement from "../components/SignupAgreement";
-import { mdp, t } from "../localization";
+import { t } from "../localization";
 import useI18Next from "../localization/useI18Next";
 import { dayjs } from "../modules/dayConfig";
 import { maskPhoneNumber } from "../modules/maskPhoneNumber";
@@ -74,7 +74,7 @@ export default function ContactListAdd() {
   return (
     <>
       <h2 className="page-header">{t("contact_list:signup_title")}</h2>
-      {mdp("contact_list:signup_intro")}
+      <p>{t("contact_list:signup_intro")}</p>
       <Form noValidate onSubmit={handleSubmit(handleFormSubmit)}>
         <FormControlGroup
           className="mb-3"
