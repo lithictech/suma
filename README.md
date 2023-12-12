@@ -250,4 +250,4 @@ to send (probably via SMTP so we aren't tied to a 3rd party).
 
 ## License
 
-Licensed under [AGPL-3.0-or-later](/COPYING.txt).
+Licensed under [AGPL-3.0-or-later](/LICENSE).
