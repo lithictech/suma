@@ -51,16 +51,6 @@ class Suma::AdminAPI::CommerceOfferings < Suma::AdminAPI::V1
     expose_translated :description
   end
 
-  class PicklistProductAndQuantityEntity < BaseEntity
-    expose :product, with: PicklistProductEntity
-    expose :quantity
-  end
-
-  class PicklistFulfillmentOptionAndQuantityEntity < BaseEntity
-    expose :fulfillment_option, with: PicklistFulfillmentOptionEntity
-    expose :quantity
-  end
-
   class PicklistOrderItemEntity < BaseEntity
     include Suma::AdminAPI::Entities
     expose :id
@@ -72,8 +62,6 @@ class Suma::AdminAPI::CommerceOfferings < Suma::AdminAPI::V1
   end
 
   class PicklistEntity < BaseEntity
-    expose :products_and_quantities, with: PicklistProductAndQuantityEntity
-    expose :fulfillment_options_and_quantities, with: PicklistFulfillmentOptionAndQuantityEntity
     expose :order_items, with: PicklistOrderItemEntity
   end
 

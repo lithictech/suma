@@ -184,12 +184,6 @@ RSpec.describe Suma::AdminAPI::CommerceOfferings, :db do
 
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.that_includes(
-        products_and_quantities: match_array(
-          hash_including(product: hash_including(:admin_link), quantity: 1),
-        ),
-        fulfillment_options_and_quantities: match_array(
-          hash_including(fulfillment_option: hash_including(:description), quantity: 1),
-        ),
         order_items: match_array(
           hash_including(:member, :fulfillment_option, quantity: 1, offering_product: hash_including(:product)),
         ),
