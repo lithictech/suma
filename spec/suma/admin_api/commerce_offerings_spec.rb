@@ -176,7 +176,7 @@ RSpec.describe Suma::AdminAPI::CommerceOfferings, :db do
   end
 
   describe "GET /v1/commerce_offering/:id/picklist" do
-    it "returns item pick list, products totals, and products at location totals, of the offering orders" do
+    it "returns order item pick list for an offering" do
       order = Suma::Fixtures.order.as_purchased_by(admin).create
       o = order.checkout.cart.offering
 

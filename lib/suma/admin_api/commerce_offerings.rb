@@ -59,6 +59,7 @@ class Suma::AdminAPI::CommerceOfferings < Suma::AdminAPI::V1
     expose :member, with: MemberEntity
     expose :offering_product, with: PicklistOfferingProductEntity
     expose :fulfillment_option, with: PicklistFulfillmentOptionEntity
+    expose :status
   end
 
   class PicklistEntity < BaseEntity

@@ -2,7 +2,7 @@
 
 class Suma::Commerce::OfferingPicklist
   class OrderItem
-    attr_reader :id, :quantity, :serial, :member, :offering_product, :fulfillment_option
+    attr_reader :id, :quantity, :serial, :member, :offering_product, :fulfillment_option, :status
 
     def initialize(checkout_item)
       @id = checkout_item.id
@@ -11,6 +11,7 @@ class Suma::Commerce::OfferingPicklist
       @member = checkout_item.checkout.cart.member
       @offering_product = checkout_item.offering_product
       @fulfillment_option = checkout_item.checkout.fulfillment_option
+      @status = checkout_item.checkout.order.fulfillment_status
     end
   end
 

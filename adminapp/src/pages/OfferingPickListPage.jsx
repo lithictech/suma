@@ -184,7 +184,7 @@ export default function OfferingPickListPage() {
               {
                 field: "member",
                 headerName: "Member",
-                width: 150,
+                width: 125,
                 renderCell: ({ value }) => (
                   <AdminLink model={value} title={value}>
                     {value.name}
@@ -211,8 +211,13 @@ export default function OfferingPickListPage() {
               {
                 field: "fulfillmentOption",
                 headerName: "Fulfillment",
-                width: 350,
+                width: 250,
                 renderCell: ({ value }) => value.description,
+              },
+              {
+                field: "status",
+                headerName: "Status",
+                width: 100,
               },
             ]}
             rows={matchingItems}
