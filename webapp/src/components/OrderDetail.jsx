@@ -3,7 +3,7 @@ import AnimatedCheckmark from "../components/AnimatedCheckmark";
 import FormSaveCancel from "../components/FormSaveCancel";
 import LayoutContainer from "../components/LayoutContainer";
 import SumaImage from "../components/SumaImage";
-import { md, mdx, t } from "../localization";
+import { mdx, t } from "../localization";
 import { dayjs } from "../modules/dayConfig";
 import Money from "../shared/react/Money";
 import useToggle from "../shared/react/useToggle";
@@ -78,7 +78,7 @@ export default function OrderDetail({ state, onOrderClaim, gutters }) {
             <Stack key={i} className="justify-content-between align-items-start" gap={1}>
               <div className="lead">{name}</div>
               <div>
-                {md("food:price_times_quantity", {
+                {t("food:price_times_quantity", {
                   price: customerPrice,
                   quantity,
                 })}

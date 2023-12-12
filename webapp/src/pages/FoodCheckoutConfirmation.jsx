@@ -5,7 +5,7 @@ import LayoutContainer from "../components/LayoutContainer";
 import PageLoader from "../components/PageLoader";
 import RLink from "../components/RLink";
 import SumaImage from "../components/SumaImage";
-import { mdp, t } from "../localization";
+import { t } from "../localization";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
 import React from "react";
 import Alert from "react-bootstrap/Alert";
@@ -61,7 +61,7 @@ export default function FoodCheckoutConfirmation() {
       </LayoutContainer>
       <hr />
       <LayoutContainer gutters>
-        {mdp("food:confirmation_message")}
+        <p>{t("food:confirmation_message")}</p>
         <FormButtons
           className="mt-2"
           primaryProps={{

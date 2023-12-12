@@ -76,12 +76,10 @@ export default function PrivateAccountsList() {
           </Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <div className="mt-4 d-flex justify-content-center align-items-center flex-column">
+          <div className="d-flex justify-content-center align-items-center flex-column m-2">
             <ScrollTopOnMount />
-            <div className="mt-2 mx-2">
-              <SumaMarkdown>{modalAccount?.instructions}</SumaMarkdown>
-            </div>
-            <div className="d-flex justify-content-end my-2">
+            <SumaMarkdown>{modalAccount?.instructions}</SumaMarkdown>
+            <div className="d-flex justify-content-end mt-2">
               <Button variant="outline-primary" onClick={() => setModalAccount(null)}>
                 {t("common:close")}
               </Button>

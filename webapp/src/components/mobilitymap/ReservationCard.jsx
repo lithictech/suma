@@ -45,9 +45,11 @@ export default function ReservationCard({
   if (vehicle.gotoPrivateAccount) {
     action = (
       <>
-        {mdp("mobility:setup_private_account_with_vendor", {
-          vendorName: vehicle.vendorService.vendorName,
-        })}
+        <p>
+          {t("mobility:setup_private_account_with_vendor", {
+            vendorName: vehicle.vendorService.vendorName,
+          })}
+        </p>
         <Button
           size="sm"
           variant="outline-primary"

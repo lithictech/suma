@@ -74,7 +74,7 @@ export default function FoodCart() {
             })}
           </Stack>
         ) : (
-          <span className="">{md("food:no_cart_items")}</span>
+          <span>{t("food:no_cart_items")}</span>
         )}
       </LayoutContainer>
       <hr className="my-4" />
@@ -128,7 +128,7 @@ function CartItem({ offeringId, product, vendor }) {
   } = product;
   return (
     <Stack direction="horizontal" gap={3} className="align-items-start">
-      <Link to={`/product/${offeringId}/${productId}`} className="">
+      <Link to={`/product/${offeringId}/${productId}`}>
         <SumaImage image={images[0]} alt={name} className="w-100" w={100} h={100} />
       </Link>
       <div>
