@@ -51,10 +51,6 @@ class Suma::Commerce::Product < Suma::Postgres::Model(:commerce_products)
     return self.inventory ||= Suma::Commerce::ProductInventory.find_or_create_or_find(product: self)
   end
 
-  def orders_items_quantities
-    self.orders.map { |o| o.checkout.items }.flatten.sum(&:quantity)
-  end
-
   def rel_admin_link = "/product/#{self.id}"
 end
 
