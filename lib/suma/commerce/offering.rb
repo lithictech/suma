@@ -168,10 +168,11 @@ class Suma::Commerce::Offering < Suma::Postgres::Model(:commerce_offerings)
     results = []
     self.offering_products.each do |offering_product|
       self.fulfillment_options.each do |fulfillment_option|
-        obj = {fulfillment_option:, offering_product:}
-        if (product_fulfillment_orders = Suma::Commerce::Order.with_uncanceled_fulfillment(fulfillment_option))
+        obj = {fulfillment_option:, offering_product:, quantities: 0}
+        uncanceled_fulfillment_orders = Suma::Commerce::Order.with_uncanceled_fulfillment(fulfillment_option)
+        unless uncanceled_fulfillment_orders.empty?
           # Only get the orders checkout items that match the offering_product
-          checkout_items = product_fulfillment_orders.map do |order|
+          checkout_items = uncanceled_fulfillment_orders.map do |order|
             order.checkout.items.select do |item|
               item.offering_product === offering_product
             end

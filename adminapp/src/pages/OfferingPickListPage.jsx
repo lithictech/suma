@@ -61,6 +61,7 @@ export default function OfferingPickListPage() {
                     {value.name}
                   </AdminLink>
                 ),
+                sortComparator,
               },
               {
                 field: "fulfillmentOption",
