@@ -4,8 +4,7 @@ import Link from "../components/Link";
 import useErrorSnackbar from "../hooks/useErrorSnackbar";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
 import useClientsideSearchParams from "../shared/react/useClientsideSearchParams";
-import useListQueryControls from "../shared/react/useListQueryControls";
-import setUrlPart from "../shared/setUrlPart";
+import "./OfferingPickListPage.css";
 import {
   FormControl,
   InputLabel,
@@ -23,19 +22,7 @@ import map from "lodash/map";
 import sortBy from "lodash/sortBy";
 import uniqBy from "lodash/uniqBy";
 import React from "react";
-import { useParams, useSearchParams } from "react-router-dom";
-
-function useSearchParamState(key, defaultValue) {
-  const params = new URL(window.location.href).searchParams;
-  const state = params.has(key) ? params.get(key) : defaultValue;
-  const setState = React.useCallback(
-    (v) => {
-      setUrlPart({ setParams: { [key]: v } });
-    },
-    [key]
-  );
-  return [state, setState];
-}
+import { useParams } from "react-router-dom";
 
 export default function OfferingPickListPage() {
   const { enqueueErrorSnackbar } = useErrorSnackbar();
@@ -147,7 +134,8 @@ export default function OfferingPickListPage() {
               },
               {
                 field: "quantity",
-                headerName: "Total",
+                headerName: "Qty",
+                width: 50,
               },
             ]}
             rows={Object.entries(productIdsAndQuantities).map(([pid, quantity]) => ({
@@ -173,12 +161,13 @@ export default function OfferingPickListPage() {
               {
                 field: "fulfillmentOption",
                 headerName: "Fulfillment",
-                width: 300,
+                width: 350,
                 renderCell: ({ value }) => value.description,
               },
               {
                 field: "quantity",
-                headerName: "Total",
+                headerName: "Qty",
+                width: 50,
               },
             ]}
             rows={fulfillmentAndProductQuantityRows}
@@ -190,6 +179,7 @@ export default function OfferingPickListPage() {
               {
                 field: "serial",
                 headerName: "Serial",
+                width: 60,
               },
               {
                 field: "member",
@@ -204,7 +194,8 @@ export default function OfferingPickListPage() {
               },
               {
                 field: "quantity",
-                headerName: "Quantity",
+                headerName: "Qty",
+                width: 50,
               },
               {
                 field: "offeringProduct",
@@ -220,7 +211,7 @@ export default function OfferingPickListPage() {
               {
                 field: "fulfillmentOption",
                 headerName: "Fulfillment",
-                width: 300,
+                width: 350,
                 renderCell: ({ value }) => value.description,
               },
             ]}

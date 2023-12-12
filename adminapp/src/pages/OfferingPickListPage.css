@@ -1,0 +1,10 @@
+@media print {
+    div {
+        break-inside: avoid;
+    }
+
+    a {
+        color: black !important;
+        text-decoration: none !important;
+    }
+}

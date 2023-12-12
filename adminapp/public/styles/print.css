@@ -1,0 +1,19 @@
+.print-d-none {
+    display: none !important;
+}
+
+@page {
+    margin: 1cm 0;
+}
+
+footer {
+    display: none;
+    position: fixed;
+    bottom: 0;
+}
+
+header {
+    display: none;
+    position: fixed;
+    top: 0;
+}
