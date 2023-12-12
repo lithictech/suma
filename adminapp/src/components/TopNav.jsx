@@ -41,6 +41,7 @@ export default function TopNav() {
     <>
       <AppBar
         position="fixed"
+        className="print-d-none"
         sx={{
           width: { [drawerBP]: dynamicDrawerWidth },
           ml: { [drawerBP]: dynamicDrawerWidth },
@@ -82,6 +83,7 @@ function StaticNavDrawer() {
   };
   return (
     <Box
+      className="print-d-none"
       component="nav"
       sx={{ width: { [drawerBP]: drawerWidth }, flexShrink: { [drawerBP]: 0 } }}
       aria-label="navigation drawer"
@@ -99,6 +101,7 @@ function SlidingNavDrawer({ open, onClose }) {
   };
   return (
     <Drawer
+      className="print-d-none"
       variant="temporary"
       open={open}
       onClose={onClose}

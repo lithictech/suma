@@ -159,10 +159,6 @@ class Suma::Commerce::Offering < Suma::Postgres::Model(:commerce_offerings)
 
   def rel_admin_link = "/offering/#{self.id}"
 
-  def order_pick_list
-    self.orders.map { |o| o.checkout.items }.flatten
-  end
-
   def timed?
     return !self.begin_fulfillment_at.nil?
   end
@@ -180,6 +176,8 @@ class Suma::Commerce::Offering < Suma::Postgres::Model(:commerce_offerings)
     return count
   end
 end
+
+require "suma/commerce/offering_picklist"
 
 # Table: commerce_offerings
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------

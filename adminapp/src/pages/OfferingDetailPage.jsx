@@ -77,6 +77,17 @@ export default function OfferingDetailPage() {
           label: "Max ordered items, per-member",
           value: model.maxOrderedItemsPerMember || "-",
         },
+        {
+          label: "Pick/Pack list",
+          value: !isEmpty(model.orders) ? (
+            <Link to={`/offering/${model.id}/picklist`}>
+              <ListAltIcon sx={{ verticalAlign: "middle", paddingRight: "5px" }} />
+              Pick/Pack List
+            </Link>
+          ) : (
+            "-"
+          ),
+        },
       ]}
     >
       {(model, setModel) => (
@@ -124,12 +135,6 @@ export default function OfferingDetailPage() {
             <ListAltIcon sx={{ verticalAlign: "middle", paddingRight: "5px" }} />
             Create Offering Product
           </Link>
-          {!isEmpty(model.orders) && (
-            <Link to={`/offering/${model.id}/picklist`}>
-              <ListAltIcon sx={{ verticalAlign: "middle", paddingRight: "5px" }} />
-              Pick/Pack List
-            </Link>
-          )}
           <RelatedList
             title={`Orders (${model.orders.length})`}
             rows={model.orders}

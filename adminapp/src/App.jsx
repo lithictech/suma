@@ -39,6 +39,7 @@ import VendorEditPage from "./pages/VendorEditPage";
 import VendorListPage from "./pages/VendorListPage";
 import applyHocs from "./shared/applyHocs";
 import bluejay from "./shared/bluejay";
+import ClientsideSearchParamsProvider from "./shared/react/ClientsideSearchParamsProvider";
 import Redirect from "./shared/react/Redirect";
 import renderComponent from "./shared/react/renderComponent";
 import withLayout from "./state/withLayout";
@@ -59,8 +60,10 @@ export default function App() {
         <SnackbarProvider>
           <UserProvider>
             <Router basename={import.meta.env.BASE_URL}>
-              <NavSwitch />
-              <PageSwitch />
+              <ClientsideSearchParamsProvider>
+                <NavSwitch />
+                <PageSwitch />
+              </ClientsideSearchParamsProvider>
             </Router>
           </UserProvider>
         </SnackbarProvider>

@@ -17,7 +17,7 @@ export default function withLayout() {
             sx={{ width: { md: dynamicDrawerWidth } }}
             className={globalClasses.layoutMain}
           >
-            <Toolbar />
+            <Toolbar className="print-d-none" />
             <Wrapped {...props} />
           </Box>
         </Box>

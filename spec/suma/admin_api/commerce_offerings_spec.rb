@@ -176,17 +176,20 @@ RSpec.describe Suma::AdminAPI::CommerceOfferings, :db do
   end
 
   describe "GET /v1/commerce_offering/:id/picklist" do
-    it "returns item pick list of offering orders" do
+    it "returns order item pick list for an offering" do
       order = Suma::Fixtures.order.as_purchased_by(admin).create
       o = order.checkout.cart.offering
-      pick_list = o.order_pick_list
 
       get "/v1/commerce_offerings/#{o.id}/picklist"
 
       expect(last_response).to have_status(200)
-      expect(last_response).to have_json_body.
-        that_includes(items: have_same_ids_as(*pick_list))
+      expect(last_response).to have_json_body.that_includes(
+        order_items: match_array(
+          hash_including(:member, :fulfillment_option, quantity: 1, offering_product: hash_including(:product)),
+        ),
+      )
     end
+
     it "403s if offering does not exist" do
       get "/v1/commerce_offerings/0/picklist"
 
