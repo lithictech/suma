@@ -35,8 +35,10 @@ class Suma::Commerce::CartItem < Suma::Postgres::Model(:commerce_cart_items)
       where(offering_id: self.cart.offering_id, product_id: self.product_id)
   end
 
-  def available?
-    return self.offering_product&.available? || false
+  def available_at?(now: Time.now)
+    return false if self.offering_product.nil?
+    return false if self.offering_product.offering.period_end < now
+    return self.offering_product&.available?
   end
 end
 

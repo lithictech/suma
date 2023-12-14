@@ -101,13 +101,11 @@ class Suma::Commerce::Cart < Suma::Postgres::Model(:commerce_carts)
 
   # This seems like a reasonable default...
   DEFAULT_MAX_QUANTITY = 12
-  CLOSED_OFFERING_MAX_QUANTITY = 0
 
   def max_quantity_for(offering_product)
     product = offering_product.product
     inv = product.inventory!
     offering = offering_product.offering
-    return CLOSED_OFFERING_MAX_QUANTITY unless offering.available_at?(Time.now)
 
     purchase_limits = []
     purchase_limits << (inv.quantity_on_hand - inv.quantity_pending_fulfillment) if

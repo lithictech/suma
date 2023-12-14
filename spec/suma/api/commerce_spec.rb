@@ -111,7 +111,7 @@ RSpec.describe Suma::API::Commerce, :db do
   end
 
   describe "POST /v1/commerce/offerings/:id/checkout" do
-    let(:offering) { Suma::Fixtures.offering.max_cumulative_and_per_member(20, 5).create }
+    let(:offering) { Suma::Fixtures.offering.create(max_ordered_items_cumulative: 20, max_ordered_items_per_member: 5) }
     let!(:fulfillment) { Suma::Fixtures.offering_fulfillment_option(offering:).create }
     let(:product) { Suma::Fixtures.product.create }
     let!(:offering_product) { Suma::Fixtures.offering_product(product:, offering:).create }
@@ -183,7 +183,7 @@ RSpec.describe Suma::API::Commerce, :db do
 
       expect(last_response).to have_status(409)
       expect(last_response).to have_json_body.
-        that_includes(error: include(code: "invalid_order_quantity"))
+        that_includes(error: include(code: "checkout_no_items"))
     end
   end
 

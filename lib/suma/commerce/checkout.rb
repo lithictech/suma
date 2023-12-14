@@ -113,7 +113,8 @@ class Suma::Commerce::Checkout < Suma::Postgres::Model(:commerce_checkouts)
     return self.chargeable_amount?
   end
 
-  def checkout_prohibited_reason
+  def checkout_prohibited_reason(now: Time.now)
+    return :offering_products_unavailable if self.cart.items.select { |ci| ci.available_at?(now:) }.empty?
     return :charging_prohibited if self.cart.offering.prohibit_charge_at_checkout && self.chargeable_amount?
     return :requires_payment_instrument if self.requires_payment_instrument? && !self.payment_instrument
     return :not_editable unless self.editable?
@@ -127,7 +128,7 @@ class Suma::Commerce::Checkout < Suma::Postgres::Model(:commerce_checkouts)
       # Locking the checkout ensures we don't process it multiple times as a race
       self.lock!
       now = Time.now
-      if (prohibition_reason = self.checkout_prohibited_reason)
+      if (prohibition_reason = self.checkout_prohibited_reason(now:))
         raise Prohibited.new(
           "Checkout[#{self.id}] cannot be checked out: #{prohibition_reason}",
           reason: prohibition_reason,

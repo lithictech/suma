@@ -46,9 +46,4 @@ module Suma::Fixtures::Offerings
   decorator :with_constraints, presave: true do |*constraints|
     constraints.each { |c| self.add_eligibility_constraint(c) }
   end
-
-  decorator :max_cumulative_and_per_member do |max_cumulative, max_per_member|
-    self.max_ordered_items_cumulative = max_cumulative
-    self.max_ordered_items_per_member = max_per_member
-  end
 end

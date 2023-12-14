@@ -89,6 +89,11 @@ RSpec.describe "Suma::Commerce::Checkout", :db do
       checkout.refresh
       expect(checkout).to have_attributes(checkout_prohibited_reason: nil)
     end
+
+    it "is :offering_products_unavailable if all offering products are unavailable" do
+      offering.update(period_end: 1.day.ago)
+      expect(checkout).to have_attributes(checkout_prohibited_reason: :offering_products_unavailable)
+    end
   end
 
   describe "create_order" do
