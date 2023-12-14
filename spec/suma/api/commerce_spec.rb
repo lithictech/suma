@@ -66,6 +66,35 @@ RSpec.describe Suma::API::Commerce, :db do
       )
     end
 
+    it "returns correct out_of_stock boolean detail about the offering items" do
+      offering = Suma::Fixtures.offering.create(max_ordered_items_cumulative: 20, max_ordered_items_per_member: 5)
+      op = Suma::Fixtures.offering_product(offering:).create
+      op = Suma::Fixtures.offering_product(offering:).product(vendor: op.product.vendor).create
+      op.product.inventory!.update(max_quantity_per_member_per_offering: 4)
+
+      get "/v1/commerce/offerings/#{offering.id}"
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.that_includes(
+        items: contain_exactly(
+          include(out_of_stock: false),
+          include(out_of_stock: false),
+        ),
+      )
+
+      offering.update(max_ordered_items_per_member: 0)
+
+      get "/v1/commerce/offerings/#{offering.id}"
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.that_includes(
+        items: contain_exactly(
+          include(out_of_stock: true),
+          include(out_of_stock: true),
+        ),
+      )
+    end
+
     it "401s if not authed" do
       logout
       offering = Suma::Fixtures.offering.create
