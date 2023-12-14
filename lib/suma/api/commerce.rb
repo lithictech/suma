@@ -81,6 +81,9 @@ class Suma::API::Commerce < Suma::API::V1
             cart_items = cart.items.select(&:available?)
             merror!(409, "no items in cart", code: "checkout_no_items") if cart_items.empty?
             cart_items.each do |item|
+              quantity = item.quantity
+              max_available = item.cart.max_quantity_for(item.offering_product)
+              merror!(409, "max quantity exceeded", code: "invalid_order_quantity") if quantity > max_available
               checkout.add_item({cart_item: item, offering_product: item.offering_product})
             end
             status 200
@@ -251,7 +254,7 @@ class Suma::API::Commerce < Suma::API::V1
 
     expose :max_quantity
     expose :out_of_stock do |_|
-      self.max_quantity.zero?
+      self.max_quantity <= 0
     end
 
     expose :displayable_noncash_ledger_contribution_amount, with: Suma::Service::Entities::Money do |_inst|

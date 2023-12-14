@@ -111,7 +111,7 @@ RSpec.describe Suma::API::Commerce, :db do
   end
 
   describe "POST /v1/commerce/offerings/:id/checkout" do
-    let(:offering) { Suma::Fixtures.offering.create }
+    let(:offering) { Suma::Fixtures.offering.max_cumulative_and_per_member(20, 5).create }
     let!(:fulfillment) { Suma::Fixtures.offering_fulfillment_option(offering:).create }
     let(:product) { Suma::Fixtures.product.create }
     let!(:offering_product) { Suma::Fixtures.offering_product(product:, offering:).create }
@@ -147,6 +147,16 @@ RSpec.describe Suma::API::Commerce, :db do
         that_includes(error: include(code: "checkout_no_items"))
     end
 
+    it "errors when lowering max per member inventory in an offering" do
+      offering.update(max_ordered_items_per_member: 1)
+
+      post "/v1/commerce/offerings/#{offering.id}/checkout"
+
+      expect(last_response).to have_status(409)
+      expect(last_response).to have_json_body.
+        that_includes(error: include(code: "invalid_order_quantity"))
+    end
+
     it "removes unavailable products from the checkout" do
       offering_product.delete
 
@@ -164,6 +174,16 @@ RSpec.describe Suma::API::Commerce, :db do
 
       expect(last_response).to have_status(403)
       expect(last_response).to have_json_body.that_includes(error: include(code: "eligibility_violation"))
+    end
+
+    it "errors if offering is closed" do
+      offering.update(period_end: 1.day.ago)
+
+      post "/v1/commerce/offerings/#{offering.id}/checkout"
+
+      expect(last_response).to have_status(409)
+      expect(last_response).to have_json_body.
+        that_includes(error: include(code: "invalid_order_quantity"))
     end
   end
 
