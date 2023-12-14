@@ -6,7 +6,7 @@ import PageLoader from "../components/PageLoader";
 import RLink from "../components/RLink";
 import SumaImage from "../components/SumaImage";
 import WaitingListPage from "../components/WaitingListPage";
-import { mdp, t } from "../localization";
+import { t } from "../localization";
 import { dayjs } from "../modules/dayConfig";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
 import isEmpty from "lodash/isEmpty";
@@ -74,7 +74,7 @@ function IntroHeader({ offeringItems }) {
         imgSrc={foodHeaderImage}
         imgAlt={t("food:title")}
         title={t("food:title")}
-        text={mdp("food:intro")}
+        text={<p>{t("food:intro")}</p>}
       />
     );
   }

@@ -5,7 +5,7 @@ import NavButton from "../components/NavButton";
 import PageLoader from "../components/PageLoader";
 import RLink from "../components/RLink";
 import SeeAlsoAlert from "../components/SeeAlsoAlert";
-import { md, t } from "../localization";
+import { t } from "../localization";
 import readOnlyReason from "../modules/readOnlyReason";
 import Money from "../shared/react/Money";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
@@ -159,8 +159,11 @@ const Ledger = ({ dashboard, user }) => {
           </tbody>
         </Table>
       ) : (
-        <LayoutContainer gutters>
-          <p>{md("dashboard:no_money")}</p>
+        <LayoutContainer gutters className="text-center">
+          <p>{t("dashboard:no_money")}</p>
+          <Button variant="outline-success" href="/funding" as={RLink}>
+            {t("payments:add_funds")}
+          </Button>
         </LayoutContainer>
       )}
     </>

@@ -8,11 +8,12 @@ import { extractErrorCode, useError } from "../../state/useError";
 import useGlobalViewState from "../../state/useGlobalViewState";
 import useUser from "../../state/useUser";
 import FormError from "../FormError";
+import RLink from "../RLink";
 import CardOverlay from "./CardOverlay";
 import ReservationCard from "./ReservationCard";
 import TripCard from "./TripCard";
 import React from "react";
-import { Link } from "react-router-dom";
+import Button from "react-bootstrap/Button";
 
 export default function Map() {
   const { appNav, topNav } = useGlobalViewState();
@@ -183,8 +184,10 @@ export default function Map() {
         <CardOverlay>
           <FormError error={error} noMargin component="div" />
           {readOnlyReason(user, "read_only_zero_balance") && (
-            <div className="mt-2">
-              <Link to="/funding">{t("common:add_money_to_account")}</Link>
+            <div className="text-center mt-2">
+              <Button variant="outline-success" to="/funding" size="sm" as={RLink}>
+                {t("payments:add_funds")}
+              </Button>
             </div>
           )}
         </CardOverlay>

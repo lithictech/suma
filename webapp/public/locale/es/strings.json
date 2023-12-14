@@ -4,7 +4,6 @@
     "sign_up_agreement": "Acepto y estoy de acuerdo con suma's [Términos de uso](/términos-de-uso) y [Política de privacidad](/privacy-policy). También acepto recibir SMS y/o MMS periódicos de suma. Se pueden aplicar tarifas de mensajes y datos. La frecuencia de los mensajes puede variar según su actividad y configuración. Envíe HELP para obtener más información. Envíe STOP para dejar de recibir mensajes."
   },
   "common": {
-    "add_money_to_account": "Haz click aquí para añadir fondos a tu cuenta",
     "add_to_homescreen": "Agregar a pantalla principal",
     "add_to_homescreen_intro": "Instale suma en la pantalla principal de su teléfono para una experiencia optimizada.",
     "app": "Aplicación",
@@ -67,7 +66,7 @@
     "claim_orders": "Tu pedido está listo para ser recogido.",
     "get_rolling_with_discounts": "Ponte en marcha con patinetas y bicicletas eléctricas con descuento",
     "lifetime_savings": "Ahorros de Suma",
-    "no_money": "No has añadido ni gastado fondos de tu cuenta. $t(strings:payments:funding_link)",
+    "no_money": "No has añadido ni gastado fondos de tu cuenta.",
     "payment_account_balance": "Saldo Disponible",
     "recent_ledger_lines": "Cargos y Créditos Recientes"
   },
@@ -125,7 +124,6 @@
     "cart_title": "Carrito de Compra",
     "charge_to": "Cargar a {{instrumentName}}",
     "checkout": "Finalizar",
-    "checkout_available": "Mira lo que está disponible.",
     "checkout_items_title": "Mi carrito",
     "claimed_on": "Reclamado en {{fulfilledAt}}",
     "claiming_instructions": "Cuando llegue al lugar de recogida del pedido, permita que un miembro le ayude a \"Presionar y Sostener\" para reclamar su pedido.",
@@ -296,8 +294,7 @@
     "cards": "Tarjetas",
     "check_details_subtitle": "Al calce de un cheque a tres conjuntos numericos. El primero es el número de ruta de 9 dígitos. El segundo es tu número de cuenta. El tercero, que puedes ignorar, es el número del cheque.",
     "check_details_title": "¿Cuál es mi número de cuenta?",
-    "funding_link": "[$t(strings:common:add_money_to_account)](/funding 'Pagina de fondos')",
-    "funds": "Fundos",
+    "funds": "Fondos",
     "ledger_balance": "Fondos en Suma",
     "ledger_transactions": "Historial de transacciones",
     "ledgers_intro": "Puedes usar tus cuentas de Suma para comprar bienes y servicios a través de la app, como una cuenta bancaria que se utiliza para Suma. Se encuentran a continuación el saldo disponible y un historial de los créditos y débitos de tu cuenta.",

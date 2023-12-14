@@ -6,17 +6,17 @@ import PageLoader from "../components/PageLoader";
 import RLink from "../components/RLink";
 import SeeAlsoAlert from "../components/SeeAlsoAlert";
 import SumaImage from "../components/SumaImage";
-import { mdp, t } from "../localization";
+import { t } from "../localization";
 import { dayjs } from "../modules/dayConfig";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
 import useUser from "../state/useUser";
 import find from "lodash/find";
 import isEmpty from "lodash/isEmpty";
 import React from "react";
+import Button from "react-bootstrap/Button";
 import Card from "react-bootstrap/Card";
-import Row from "react-bootstrap/Row";
 import Stack from "react-bootstrap/Stack";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 export default function OrderHistoryList() {
   const { user } = useUser();
@@ -56,33 +56,28 @@ export default function OrderHistoryList() {
         />
       )}
       <LayoutContainer top={user.unclaimedOrdersCount === 0} gutters>
-        <Row>
-          <LinearBreadcrumbs back="/food" />
-          <h2>{t("food:order_history_title")}</h2>
-        </Row>
+        <LinearBreadcrumbs back="/food" />
+        <h2>{t("food:order_history_title")}</h2>
       </LayoutContainer>
       <LayoutContainer gutters>
-        <Row>
-          {loading ? (
-            <PageLoader />
-          ) : !isEmpty(orderHistory?.items) ? (
-            <Stack gap={3}>
-              {orderHistory?.items.map((o) => (
-                <Order key={o.id} {...o} onNavigate={(e) => handleNavigate(e, o)} />
-              ))}
-            </Stack>
-          ) : (
-            <>
-              {mdp("food:no_orders")}
-              <p>
-                <Link to="/food">
-                  {t("food:checkout_available")}
-                  <i className="bi bi-arrow-right ms-1"></i>
-                </Link>
-              </p>
-            </>
-          )}
-        </Row>
+        {loading ? (
+          <PageLoader />
+        ) : !isEmpty(orderHistory?.items) ? (
+          <Stack gap={3}>
+            {orderHistory?.items.map((o) => (
+              <Order key={o.id} {...o} onNavigate={(e) => handleNavigate(e, o)} />
+            ))}
+          </Stack>
+        ) : (
+          <>
+            {t("food:no_orders")}
+            <div className="button-stack mt-2">
+              <Button variant="primary" href="/food" as={RLink}>
+                {t("food:available_offerings")}
+              </Button>
+            </div>
+          </>
+        )}
       </LayoutContainer>
     </>
   );
