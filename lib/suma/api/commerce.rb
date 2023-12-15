@@ -78,7 +78,8 @@ class Suma::API::Commerce < Suma::API::V1
               payment_instrument: member.default_payment_instrument,
               save_payment_instrument: member.default_payment_instrument.present?,
             )
-            cart_items = cart.items.select { |ci| ci.available_at?(now: Time.now) }
+            t = Time.now
+            cart_items = cart.items.select { |ci| ci.available_at?(t) }
             merror!(409, "no items in cart", code: "checkout_no_items") if cart_items.empty?
             cart_items.each do |item|
               quantity = item.quantity
