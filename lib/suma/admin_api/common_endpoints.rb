@@ -126,7 +126,7 @@ module Suma::AdminAPI::CommonEndpoints
         yield
         post do
           model_type.db.transaction do
-            m = model_type[params[:id]]
+            (m = model_type[params[:id]]) or forbidden!
             update_model(
               m,
               params,

@@ -1,5 +1,6 @@
 import api from "../api";
 import AdminLink from "../components/AdminLink";
+import RelatedList from "../components/RelatedList";
 import ResourceDetail from "../components/ResourceDetail";
 import { dayjs } from "../modules/dayConfig";
 import Money from "../shared/react/Money";
@@ -39,6 +40,24 @@ export default function OfferingProductDetailPage() {
           value: <Money>{model.undiscountedPrice}</Money>,
         },
       ]}
-    />
+    >
+      {(model) => (
+        <RelatedList
+          title={`Orders (${model.orders.length})`}
+          rows={model.orders}
+          headers={["Id", "Created", "Member", "Items", "Status"]}
+          keyRowAttr="id"
+          toCells={(row) => [
+            <AdminLink key="id" model={row} />,
+            dayjs(row.createdAt).format("lll"),
+            <AdminLink key="mem" model={row.member}>
+              {row.member.name}
+            </AdminLink>,
+            row.totalItemCount,
+            row.statusLabel,
+          ]}
+        />
+      )}
+    </ResourceDetail>
   );
 }

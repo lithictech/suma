@@ -310,7 +310,7 @@ RSpec.describe Suma::API::Commerce, :db do
     end
 
     it "does not require payment instrument if chargeable total is zero" do
-      offering_product.update(customer_price_cents: 0, undiscounted_price: 0)
+      offering_product.update_without_validate(customer_price_cents: 0, undiscounted_price: 0)
       checkout.update(payment_instrument: nil)
 
       post "/v1/commerce/checkouts/#{checkout.id}/complete"

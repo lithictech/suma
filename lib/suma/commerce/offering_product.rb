@@ -13,35 +13,73 @@ class Suma::Commerce::OfferingProduct < Suma::Postgres::Model(:commerce_offering
   many_to_one :product, class: "Suma::Commerce::Product"
   many_to_one :offering, class: "Suma::Commerce::Offering"
 
+  many_through_many :orders,
+                    [
+                      [:commerce_checkout_items, :offering_product_id, :checkout_id],
+                    ],
+                    class: "Suma::Commerce::Order",
+                    right_primary_key: :checkout_id,
+                    left_primary_key: :id,
+                    read_only: true,
+                    order: [:created_at, :id]
+
   dataset_module do
     def available
       return self.where(closed_at: nil)
     end
   end
 
-  # @!attribute max_quantity_per_customer
-  # @return [Integer]
-
-  def available?
-    return self.closed_at.nil?
-  end
-
-  def closed?
-    return false if self.closed_at.nil?
-    return true
-  end
+  def available? = self.closed_at.nil?
+  def closed? = !self.available?
 
   def discounted?
     return false if self.undiscounted_price.nil?
-    return false if self.customer_price == self.undiscounted_price
-    return true
+    return self.customer_price < self.undiscounted_price
   end
 
   def discount_amount
     return self.undiscounted_price - self.customer_price
   end
 
+  # Create and return a new instance with one or both of the given pricing fields modified,
+  # and the receiver closed. Offering product prices are immutable,
+  # so this is the way we must change pricing.
+  # @param customer_price [Money]
+  # @param undiscounted_price [Money]
+  # @return [Suma::Commerce::OfferingProduct]
+  def with_changes(customer_price: nil, undiscounted_price: nil)
+    customer_price ||= self.customer_price
+    undiscounted_price ||= self.undiscounted_price
+    raise ArgumentError, "at least one new pricing field must be passed" if
+      customer_price == self.customer_price && undiscounted_price == self.undiscounted_price
+    raise Suma::InvalidPrecondition, "cannot change pricing of a closed offering product" if self.closed?
+    self.db.transaction do
+      self.update(closed_at: Time.now)
+      return self.class.create(
+        customer_price:,
+        undiscounted_price:,
+        offering: self.offering,
+        product: self.product,
+      )
+    end
+  end
+
+  # Helper to use when we want to modify an offering product.
+  # Should only be needed for testing.
+  def update_without_validate(**kwargs)
+    self.set(**kwargs)
+    return self.save_changes(validate: false)
+  end
+
   def rel_admin_link = "/offering-product/#{self.id}"
+
+  def validate
+    super
+    return if self.new?
+    [:customer_price_cents, :customer_price_currency].each do |col|
+      errors.add(col, "cannot change customer price of offering products") if self.changed_columns.include?(col)
+    end
+  end
 end
 
 # Table: commerce_offering_products
