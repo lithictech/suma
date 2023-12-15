@@ -71,6 +71,13 @@ class Suma::API::Commerce < Suma::API::V1
           cart = lookup_cart!(offering)
           cart.db.transaction do
             cart.lock!
+            # TODO: All of this logic about creating a checkout should move to the model and be tested there,
+            # it's too much for the API level.
+            # - Other editable checkouts are soft deleted
+            # - The checkout is created with the right params and checkout items
+            # - Errors if any item is unavailable
+            # - Errors if any item has insufficient quantity available
+            # - Errors if checking out an empty cart
             cart.member.commerce_carts.map(&:checkouts).flatten.select(&:editable?).each(&:soft_delete)
             checkout = Suma::Commerce::Checkout.create(
               cart:,
@@ -79,12 +86,11 @@ class Suma::API::Commerce < Suma::API::V1
               save_payment_instrument: member.default_payment_instrument.present?,
             )
             now = Time.now
-            cart_items = cart.items.select { |ci| ci.available_at?(now) }
-            merror!(409, "no items in cart", code: "checkout_no_items") if cart_items.empty?
-            cart_items.each do |item|
-              quantity = item.quantity
+            merror!(409, "no items in cart", code: "checkout_no_items") if cart.items.empty?
+            cart.items.each do |item|
+              merror!(409, "product unavailable", code: "invalid_order_quantity") unless item.available_at?(now)
               max_available = item.cart.max_quantity_for(item.offering_product)
-              merror!(409, "max quantity exceeded", code: "invalid_order_quantity") if quantity > max_available
+              merror!(409, "max quantity exceeded", code: "invalid_order_quantity") if item.quantity > max_available
               checkout.add_item({cart_item: item, offering_product: item.offering_product})
             end
             status 200
