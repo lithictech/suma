@@ -60,39 +60,40 @@ RSpec.describe "Suma::Commerce::Checkout", :db do
     let(:offering) { Suma::Fixtures.offering.create }
     let(:cart) { Suma::Fixtures.cart(member:, offering:).with_any_product.create }
     let(:checkout) { Suma::Fixtures.checkout(cart:).populate_items.with_payment_instrument.create }
+    let(:now) { Time.now }
 
     before(:each) do
       Suma::Payment.ensure_cash_ledger(member)
     end
 
     it "is nil if nothing is wrong" do
-      expect(checkout).to have_attributes(checkout_prohibited_reason: nil)
+      expect(checkout.checkout_prohibited_reason(now)).to eq(nil)
     end
 
     it "is :charging_prohibited if charging is prohibited and there is a chargeable amount" do
       offering.update(prohibit_charge_at_checkout: true)
-      expect(checkout).to have_attributes(checkout_prohibited_reason: :charging_prohibited)
+      expect(checkout.checkout_prohibited_reason(now)).to eq(:charging_prohibited)
       cart.items.first.offering_product.update(customer_price: Money.new(0))
       checkout.refresh
-      expect(checkout).to have_attributes(checkout_prohibited_reason: nil)
+      expect(checkout.checkout_prohibited_reason(now)).to eq(nil)
     end
 
     it "is :not_editable if the checkout is not editable" do
       checkout.soft_delete
-      expect(checkout).to have_attributes(checkout_prohibited_reason: :not_editable)
+      expect(checkout.checkout_prohibited_reason(now)).to eq(:not_editable)
     end
 
     it "is :requires_payment_instrument if an instrument is required and not set" do
       checkout.payment_instrument = nil
-      expect(checkout).to have_attributes(checkout_prohibited_reason: :requires_payment_instrument)
+      expect(checkout.checkout_prohibited_reason(now)).to eq(:requires_payment_instrument)
       cart.items.first.offering_product.update(customer_price: Money.new(0))
       checkout.refresh
-      expect(checkout).to have_attributes(checkout_prohibited_reason: nil)
+      expect(checkout.checkout_prohibited_reason(now)).to eq(nil)
     end
 
     it "is :offering_products_unavailable if all offering products are unavailable" do
       offering.update(period_end: 1.day.ago)
-      expect(checkout).to have_attributes(checkout_prohibited_reason: :offering_products_unavailable)
+      expect(checkout.checkout_prohibited_reason(now)).to eq(:offering_products_unavailable)
     end
   end
 
