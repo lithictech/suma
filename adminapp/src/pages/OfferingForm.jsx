@@ -98,15 +98,15 @@ export default function OfferingForm({
         <ResponsiveStack alignItems="center" divider={<RemoveIcon />}>
           <DateTimePicker
             label="Open offering *"
-            value={dayjsOrNull(resource.opensAt)}
+            value={dayjsOrNull(resource.periodBegin)}
             closeOnSelect
-            onChange={(v) => setField("opensAt", formatOrNull(v))}
+            onChange={(v) => setField("periodBegin", formatOrNull(v))}
             sx={{ width: "100%" }}
           />
           <DateTimePicker
             label="Close offering *"
-            value={dayjsOrNull(resource.closesAt)}
-            onChange={(v) => setField("closesAt", formatOrNull(v))}
+            value={dayjsOrNull(resource.periodEnd)}
+            onChange={(v) => setField("periodEnd", formatOrNull(v))}
             closeOnSelect
             sx={{ width: "100%" }}
           />

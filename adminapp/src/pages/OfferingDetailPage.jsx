@@ -34,8 +34,8 @@ export default function OfferingDetailPage() {
       properties={(model) => [
         { label: "ID", value: model.id },
         { label: "Created At", value: dayjs(model.createdAt) },
-        { label: "Opening Date", value: dayjs(model.opensAt) },
-        { label: "Closing Date", value: dayjs(model.closesAt) },
+        { label: "Opening Date", value: dayjs(model.periodBegin) },
+        { label: "Closing Date", value: dayjs(model.periodEnd) },
         {
           label: "Begin Fulfillment At",
           value: model.beginFulfillmentAt && dayjs(model.beginFulfillmentAt),
