@@ -13,6 +13,8 @@ class Suma::AdminAPI::CommerceOfferingProducts < Suma::AdminAPI::V1
     expose :product, with: ProductEntity
     expose :customer_price, with: MoneyEntity
     expose :undiscounted_price, with: MoneyEntity
+
+    expose :orders, with: OrderEntity
   end
 
   resource :commerce_offering_products do
@@ -31,12 +33,22 @@ class Suma::AdminAPI::CommerceOfferingProducts < Suma::AdminAPI::V1
       self, Suma::Commerce::OfferingProduct, DetailedCommerceOfferingProductEntity,
     )
 
-    Suma::AdminAPI::CommonEndpoints.update(
-      self, Suma::Commerce::OfferingProduct, DetailedCommerceOfferingProductEntity,
-    ) do
+    route_param :id, type: Integer do
       params do
         optional(:customer_price, allow_blank: false, type: JSON) { use :funding_money }
         optional(:undiscounted_price, allow_blank: false, type: JSON) { use :funding_money }
+        at_least_one_of :customer_price, :undiscounted_price
+      end
+      post do
+        Suma::Commerce::OfferingProduct.db.transaction do
+          (m = Suma::Commerce::OfferingProduct[params[:id]]) or forbidden!
+          new_op = m.with_changes(
+            customer_price: params[:customer_price], undiscounted_price: params[:undiscounted_price],
+          )
+          created_resource_headers(new_op.id, new_op.admin_link)
+          status 200
+          present new_op, with: DetailedCommerceOfferingProductEntity
+        end
       end
     end
   end

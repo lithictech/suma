@@ -41,7 +41,7 @@ RSpec.describe "Suma::Commerce::Checkout", :db do
       Suma::Payment.ensure_cash_ledger(member)
       expect(checkout).to be_requires_payment_instrument
 
-      offering_product.update(customer_price_cents: 0)
+      offering_product.update_without_validate(customer_price_cents: 0)
 
       checkout.refresh
       expect(checkout.chargeable_total).to cost(0)
@@ -73,7 +73,7 @@ RSpec.describe "Suma::Commerce::Checkout", :db do
     it "is :charging_prohibited if charging is prohibited and there is a chargeable amount" do
       offering.update(prohibit_charge_at_checkout: true)
       expect(checkout.checkout_prohibited_reason(now)).to eq(:charging_prohibited)
-      cart.items.first.offering_product.update(customer_price: Money.new(0))
+      cart.items.first.offering_product.update_without_validate(customer_price: Money.new(0))
       checkout.refresh
       expect(checkout.checkout_prohibited_reason(now)).to eq(nil)
     end
@@ -86,7 +86,7 @@ RSpec.describe "Suma::Commerce::Checkout", :db do
     it "is :requires_payment_instrument if an instrument is required and not set" do
       checkout.payment_instrument = nil
       expect(checkout.checkout_prohibited_reason(now)).to eq(:requires_payment_instrument)
-      cart.items.first.offering_product.update(customer_price: Money.new(0))
+      cart.items.first.offering_product.update_without_validate(customer_price: Money.new(0))
       checkout.refresh
       expect(checkout.checkout_prohibited_reason(now)).to eq(nil)
     end
@@ -145,7 +145,7 @@ RSpec.describe "Suma::Commerce::Checkout", :db do
 
     it "prevents soft deleting payment instrument if it is not required" do
       checkout.update(payment_instrument: nil)
-      offering_product.update(customer_price_cents: 0)
+      offering_product.update_without_validate(customer_price_cents: 0)
       # Ensure payment is not required
       expect(checkout).to_not be_requires_payment_instrument
       checkout.create_order
