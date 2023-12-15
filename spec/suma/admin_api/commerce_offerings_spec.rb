@@ -88,8 +88,8 @@ RSpec.describe Suma::AdminAPI::CommerceOfferings, :db do
                type: "pickup",
              },
            },
-           opens_at: "2023-07-01T00:00:00-0700",
-           closes_at: "2023-10-01T00:00:00-0700"
+           period_begin: "2023-07-01T00:00:00-0700",
+           period_end: "2023-10-01T00:00:00-0700"
 
       expect(last_response).to have_status(200)
       expect(last_response.headers).to include("Created-Resource-Admin")
@@ -135,6 +135,8 @@ RSpec.describe Suma::AdminAPI::CommerceOfferings, :db do
       photo_file = File.open("spec/data/images/photo.png", "rb")
       image = Rack::Test::UploadedFile.new(photo_file, "image/png", true)
       o = Suma::Fixtures.offering.create
+      new_period_begin = Time.parse("2023-12-10T08:00:00-0700")
+      new_period_end = Time.parse("2023-12-15T05:00:00-0700")
       post "/v1/commerce_offerings/#{o.id}",
            image: image,
            description: {en: "EN test", es: "ES test"},
@@ -143,12 +145,16 @@ RSpec.describe Suma::AdminAPI::CommerceOfferings, :db do
                description: {en: "EN desc", es: "ES desc"},
                type: "pickup",
              },
-           }
+           },
+           period_begin: new_period_begin,
+           period_end: new_period_end
 
       expect(last_response).to have_status(200)
       expect(o.refresh).to have_attributes(
         description: have_attributes(en: "EN test"),
         fulfillment_options: contain_exactly(have_attributes(description: have_attributes(en: "EN desc"))),
+        period_begin: new_period_begin,
+        period_end: new_period_end,
       )
     end
   end

@@ -33,8 +33,8 @@ export default function EligibilityConstraintDetailPage() {
               <AdminLink key={row.id} model={row}>
                 {row.description.en}
               </AdminLink>,
-              dayjs(row.opensAt).format("lll"),
-              dayjs(row.closesAt).format("lll"),
+              dayjs(row.periodBegin).format("lll"),
+              dayjs(row.periodEnd).format("lll"),
             ]}
           />
           <RelatedList

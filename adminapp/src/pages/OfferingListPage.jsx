@@ -38,16 +38,16 @@ export default function OfferingListPage() {
           render: (c) => c.productCount,
         },
         {
-          id: "opens_at",
+          id: "period_begin",
           label: "Opens",
           align: "center",
-          render: (c) => dayjs(c.opensAt).format("l"),
+          render: (c) => dayjs(c.periodBegin).format("l"),
         },
         {
-          id: "closes_at",
+          id: "period_end",
           label: "Closes",
           align: "center",
-          render: (c) => dayjs(c.closesAt).format("l"),
+          render: (c) => dayjs(c.periodEnd).format("l"),
         },
       ]}
     />

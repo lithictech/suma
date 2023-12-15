@@ -78,11 +78,6 @@ class Suma::AdminAPI::CommerceOfferings < Suma::AdminAPI::V1
       self,
       Suma::Commerce::Offering,
       DetailedEntity,
-      process_params: lambda do |params|
-        if (opens_at = params.delete(:opens_at))
-          params[:period] = opens_at..params.delete(:closes_at)
-        end
-      end,
     ) do
       params do
         requires :image, type: File
@@ -96,8 +91,8 @@ class Suma::AdminAPI::CommerceOfferings < Suma::AdminAPI::V1
           requires(:description, type: JSON) { use :translated_text }
           optional(:address, type: JSON) { use :address }
         end
-        requires :opens_at, type: Time
-        requires :closes_at, type: Time
+        requires :period_begin, type: Time
+        requires :period_end, type: Time
         optional :begin_fulfillment_at, type: Time
         optional :prohibit_charge_at_checkout, type: Boolean, allow_blank: false, default: false
         optional :max_ordered_items_cumulative, type: Integer
@@ -111,11 +106,6 @@ class Suma::AdminAPI::CommerceOfferings < Suma::AdminAPI::V1
       self,
       Suma::Commerce::Offering,
       DetailedEntity,
-      process_params: lambda do |params|
-        if (opens_at = params.delete(:opens_at))
-          params[:period] = opens_at..params.delete(:closes_at)
-        end
-      end,
     ) do
       params do
         optional :image, type: File
@@ -129,8 +119,8 @@ class Suma::AdminAPI::CommerceOfferings < Suma::AdminAPI::V1
           requires(:description, type: JSON) { use :translated_text }
           optional(:address, type: JSON) { use :address }
         end
-        optional :opens_at, type: Time
-        optional :closes_at, type: Time
+        optional :period_begin, type: Time
+        optional :period_end, type: Time
         optional :begin_fulfillment_at, type: Time
         optional :prohibit_charge_at_checkout, type: Boolean, allow_blank: false, default: false
         optional :max_ordered_items_cumulative, type: Integer
