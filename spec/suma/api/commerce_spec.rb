@@ -66,6 +66,27 @@ RSpec.describe Suma::API::Commerce, :db do
       )
     end
 
+    it "returns correct out_of_stock info about the offering items" do
+      offering = Suma::Fixtures.offering.create(max_ordered_items_cumulative: 20, max_ordered_items_per_member: 5)
+      Suma::Fixtures.offering_product(offering:).create
+
+      get "/v1/commerce/offerings/#{offering.id}"
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.that_includes(
+        items: contain_exactly(include(out_of_stock: false)),
+      )
+
+      offering.update(max_ordered_items_per_member: 0)
+
+      get "/v1/commerce/offerings/#{offering.id}"
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.that_includes(
+        items: contain_exactly(include(out_of_stock: true)),
+      )
+    end
+
     it "401s if not authed" do
       logout
       offering = Suma::Fixtures.offering.create
@@ -111,7 +132,7 @@ RSpec.describe Suma::API::Commerce, :db do
   end
 
   describe "POST /v1/commerce/offerings/:id/checkout" do
-    let(:offering) { Suma::Fixtures.offering.create }
+    let(:offering) { Suma::Fixtures.offering.create(max_ordered_items_cumulative: 20, max_ordered_items_per_member: 5) }
     let!(:fulfillment) { Suma::Fixtures.offering_fulfillment_option(offering:).create }
     let(:product) { Suma::Fixtures.product.create }
     let!(:offering_product) { Suma::Fixtures.offering_product(product:, offering:).create }
@@ -147,14 +168,24 @@ RSpec.describe Suma::API::Commerce, :db do
         that_includes(error: include(code: "checkout_no_items"))
     end
 
-    it "removes unavailable products from the checkout" do
+    it "errors if the available inventory is insufficient for what is in the cart" do
+      offering.update(max_ordered_items_per_member: 1)
+
+      post "/v1/commerce/offerings/#{offering.id}/checkout"
+
+      expect(last_response).to have_status(409)
+      expect(last_response).to have_json_body.
+        that_includes(error: include(code: "invalid_order_quantity", message: "max quantity exceeded"))
+    end
+
+    it "errors if any product is no longer available due to offering reasons" do
       offering_product.delete
 
       post "/v1/commerce/offerings/#{offering.id}/checkout"
 
       expect(last_response).to have_status(409)
       expect(last_response).to have_json_body.
-        that_includes(error: include(code: "checkout_no_items"))
+        that_includes(error: include(code: "invalid_order_quantity", message: "product unavailable"))
     end
 
     it "errors if the member cannot access the offering due to constraints" do
@@ -164,6 +195,16 @@ RSpec.describe Suma::API::Commerce, :db do
 
       expect(last_response).to have_status(403)
       expect(last_response).to have_json_body.that_includes(error: include(code: "eligibility_violation"))
+    end
+
+    it "errors if offering is closed" do
+      offering.update(period_end: 1.day.ago)
+
+      post "/v1/commerce/offerings/#{offering.id}/checkout"
+
+      expect(last_response).to have_status(409)
+      expect(last_response).to have_json_body.
+        that_includes(error: include(code: "invalid_order_quantity", message: "product unavailable"))
     end
   end
 
