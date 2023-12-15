@@ -78,8 +78,8 @@ class Suma::API::Commerce < Suma::API::V1
               payment_instrument: member.default_payment_instrument,
               save_payment_instrument: member.default_payment_instrument.present?,
             )
-            t = Time.now
-            cart_items = cart.items.select { |ci| ci.available_at?(t) }
+            now = Time.now
+            cart_items = cart.items.select { |ci| ci.available_at?(now) }
             merror!(409, "no items in cart", code: "checkout_no_items") if cart_items.empty?
             cart_items.each do |item|
               quantity = item.quantity
@@ -88,7 +88,7 @@ class Suma::API::Commerce < Suma::API::V1
               checkout.add_item({cart_item: item, offering_product: item.offering_product})
             end
             status 200
-            present checkout, with: CheckoutEntity, cart:
+            present checkout, with: CheckoutEntity, cart:, now:
           end
         end
       end
@@ -113,7 +113,7 @@ class Suma::API::Commerce < Suma::API::V1
 
         get do
           checkout = lookup_editable!
-          present checkout, with: CheckoutEntity, cart: checkout.cart
+          present checkout, with: CheckoutEntity, cart: checkout.cart, now: Time.now
         end
 
         params do
@@ -358,7 +358,7 @@ class Suma::API::Commerce < Suma::API::V1
     expose :total, with: Suma::Service::Entities::Money
     expose :chargeable_total, with: Suma::Service::Entities::Money
     expose :requires_payment_instrument?, as: :requires_payment_instrument
-    expose :checkout_prohibited_reason
+    expose(:checkout_prohibited_reason) { |inst, opts| inst.checkout_prohibited_reason(opts.fetch(:now)) }
     expose :usable_ledger_contributions, as: :existing_funds_available, with: ChargeContributionEntity
   end
 

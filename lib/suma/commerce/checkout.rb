@@ -113,8 +113,8 @@ class Suma::Commerce::Checkout < Suma::Postgres::Model(:commerce_checkouts)
     return self.chargeable_amount?
   end
 
-  def checkout_prohibited_reason(now)
-    return :offering_products_unavailable if self.cart.items.select { |ci| ci.available_at?(now) }.empty?
+  def checkout_prohibited_reason(at)
+    return :offering_products_unavailable if self.cart.items.select { |ci| ci.available_at?(at) }.empty?
     return :charging_prohibited if self.cart.offering.prohibit_charge_at_checkout && self.chargeable_amount?
     return :requires_payment_instrument if self.requires_payment_instrument? && !self.payment_instrument
     return :not_editable unless self.editable?
