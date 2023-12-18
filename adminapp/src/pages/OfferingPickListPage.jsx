@@ -22,6 +22,7 @@ import map from "lodash/map";
 import sortBy from "lodash/sortBy";
 import uniqBy from "lodash/uniqBy";
 import React from "react";
+import { formatPhoneNumber } from "react-phone-number-input";
 import { useParams } from "react-router-dom";
 
 export default function OfferingPickListPage() {
@@ -191,6 +192,15 @@ export default function OfferingPickListPage() {
                   </AdminLink>
                 ),
                 sortComparator: nameComparator,
+              },
+              {
+                field: "member.phone",
+                headerName: "Phone",
+                width: 125,
+                valueGetter: ({ row }) => row.member.phone,
+                renderCell: ({ value }) => {
+                  return formatPhoneNumber("+" + value);
+                },
               },
               {
                 field: "quantity",
