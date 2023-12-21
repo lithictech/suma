@@ -47,4 +47,45 @@ class Suma::Mobility::Gbfs::HttpClient < Suma::Mobility::Gbfs::Client
     )
     return response.parsed_response
   end
+
+  def one_day_from_now = 1.day.from_now.strftime("%F") + " 00:00:00"
+  def two_days_from_now = 2.days.from_now.strftime("%F") + " 00:00:00"
+
+  def fetch_mdp_stations_available(vehicle_types:)
+    response = Suma::Http.post(
+      self.api_host.to_s + "/stations",
+      {
+        schemeKey: self.auth_token,
+        pickUpDatetime: self.one_day_from_now,
+        dropOffDatetime: self.two_days_from_now,
+        vehicleTypes: vehicle_types,
+      },
+      headers: {},
+      logger: self.logger,
+    )
+    return response.parsed_response
+  end
+
+  def fetch_mdp_station_models_available(station:, vehicle_types:)
+    response = Suma::Http.post(
+      self.api_host.to_s + "/models/available",
+      {
+        schemeKey: self.auth_token,
+        pickUpDatetime: self.one_day_from_now,
+        dropOffDatetime: self.two_days_from_now,
+        vehicleTypes: vehicle_types,
+        station:,
+      },
+      headers: {},
+      logger: self.logger,
+    )
+    return response.parsed_response
+  end
+
+  def fetch_mdp_vehicle_types
+    response = Suma::Http.post(
+      self.api_host.to_s + "/vehicle-types", {schemeKey: self.auth_token}, headers: {}, logger: self.logger,
+    )
+    return response.parsed_response
+  end
 end

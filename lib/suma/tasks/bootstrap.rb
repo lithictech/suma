@@ -4,6 +4,7 @@ require "rake/tasklib"
 
 require "suma/tasks"
 require "suma/lime"
+require "suma/mobility_development_partners"
 
 # rubocop:disable Layout/LineLength
 class Suma::Tasks::Bootstrap < Rake::TaskLib
@@ -24,6 +25,8 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
       self.setup_constraints
       self.create_lime_scooter_vendor
       self.sync_lime_gbfs
+      self.create_mdp_car_vendor
+      self.sync_mdp
       self.setup_admin
       self.setup_private_accounts
       self.assign_fakeuser_constraints
@@ -90,6 +93,39 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
       end
       puts "Synced #{i} #{c.model.name}"
     end
+  end
+
+  def sync_mdp
+    require "suma/mobility_development_partners"
+    return unless Suma::MobilityDevelopmentPartners.configured?
+    c = Suma::Mobility::Gbfs::MdpModelsAvailable.new
+    i = Suma::Mobility::Gbfs::VendorSync.new(
+      client: Suma::MobilityDevelopmentPartners.gbfs_http_client,
+      vendor: Suma::MobilityDevelopmentPartners.mobility_vendor,
+      component: c,
+    ).sync_all
+    puts "Synced #{i} #{c.model.name}"
+  end
+
+  def create_mdp_car_vendor
+    vendor = Suma::MobilityDevelopmentPartners.mobility_vendor
+    # rate = Suma::Vendor::ServiceRate.update_or_create(name: "MDP access 2024") do |r|
+    #   r.localization_key = "mobility_start_and_per_minute"
+    #   r.surcharge = Money.new(0)
+    #   r.unit_amount = Money.new(0)
+    # end
+    Suma::Vendor::Service.
+      where(mobility_vendor_adapter_key: "mdp").
+      update(mobility_vendor_adapter_key: "mdp_deeplink")
+    svc = Suma::Vendor::Service.update_or_create(vendor:, internal_name: "MDP Carshare Deeplink") do |vs|
+      vs.external_name = "MDP Electric Car"
+      vs.constraints = []
+      vs.mobility_vendor_adapter_key = "mdp_deeplink"
+    end
+    svc.add_category(Suma::Vendor::ServiceCategory.update_or_create(name: "Mobility", parent: cash_category)) if
+      svc.categories.empty?
+    # svc.add_rate(rate) if svc.rates.empty?
+    # self.assign_constraints(svc, [self.new_columbia_constraint_name, self.hacienda_cdc_constraint_name, self.snap_eligible_constraint_name])
   end
 
   def create_lime_scooter_vendor
