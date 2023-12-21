@@ -61,7 +61,7 @@ export default function OrderDetailPage() {
               { label: "Handling", value: <Money>{checkout.handling}</Money> },
               { label: "Tax", value: <Money>{checkout.tax}</Money> },
               { label: "Total", value: <Money>{checkout.total}</Money> },
-              { label: "Instrument", value: checkout.paymentInstrument.adminLabel },
+              { label: "Instrument", value: checkout.paymentInstrument?.adminLabel },
               {
                 label: "Fulfillment (En)",
                 value: checkout.fulfillmentOption.description.en,
