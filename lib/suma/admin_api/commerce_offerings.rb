@@ -33,6 +33,10 @@ class Suma::AdminAPI::CommerceOfferings < Suma::AdminAPI::V1
     expose :max_ordered_items_per_member
   end
 
+  class PicklistSimpleMemberEntity < MemberEntity
+    expose :phone_last4
+  end
+
   class PicklistProductEntity < BaseEntity
     include Suma::AdminAPI::Entities
     include AutoExposeBase
@@ -56,7 +60,7 @@ class Suma::AdminAPI::CommerceOfferings < Suma::AdminAPI::V1
     expose :id
     expose :quantity
     expose :serial
-    expose :member, with: MemberEntity
+    expose :member, with: PicklistSimpleMemberEntity
     expose :offering_product, with: PicklistOfferingProductEntity
     expose :fulfillment_option, with: PicklistFulfillmentOptionEntity
     expose :status

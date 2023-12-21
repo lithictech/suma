@@ -294,6 +294,10 @@ class Suma::Member < Suma::Postgres::Model(:members)
     self.phone = Suma::PhoneNumber::US.normalize(s)
   end
 
+  def phone_last4
+    return self.phone[-4..]
+  end
+
   #
   # :section: Sequel Hooks
   #
