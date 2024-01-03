@@ -21,7 +21,7 @@ import Form from "react-bootstrap/Form";
 import Stack from "react-bootstrap/Stack";
 
 export default function OrderDetail({ state, onOrderClaim, gutters }) {
-  const [orderForFulfillment, setOrderForFulfillment] = React.useState(state);
+  const [order, setOrder] = React.useState(state);
   return (
     <>
       <LayoutContainer gutters={gutters}>
@@ -50,10 +50,7 @@ export default function OrderDetail({ state, onOrderClaim, gutters }) {
             <br />
           </p>
           <div>
-            <FulfillmentOption
-              order={orderForFulfillment}
-              onOrderUpdated={setOrderForFulfillment}
-            />
+            <FulfillmentOption order={order} onOrderUpdated={setOrder} />
           </div>
           {!state.canClaim && state.fulfilledAt && (
             <Alert variant="info" className="mb-0">
