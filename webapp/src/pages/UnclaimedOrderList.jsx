@@ -61,7 +61,7 @@ export default function UnclaimedOrderList() {
                 {items.map((o) => (
                   <Card key={o.id} className="p-0">
                     <Card.Body className="px-2 pb-4">
-                      <OrderDetail state={o} onOrderClaim={(o) => handleOrderClaim(o)} />
+                      <OrderDetail order={o} setOrder={(o) => handleOrderClaim(o)} />
                     </Card.Body>
                   </Card>
                 ))}
