@@ -21,27 +21,27 @@ import Form from "react-bootstrap/Form";
 import Stack from "react-bootstrap/Stack";
 
 export default function OrderDetail({ state, onOrderClaim, gutters }) {
-  const [order, setOrder] = React.useState(state);
+  const [orderForFulfillment, setOrderForFulfillment] = React.useState(state);
   return (
     <>
       <LayoutContainer gutters={gutters}>
         <Stack gap={3}>
           <div>
-            <h3 className="mb-1">{t("food:order_serial", { serial: order.serial })}</h3>
-            {dayjs(order.createdAt).format("lll")}
+            <h3 className="mb-1">{t("food:order_serial", { serial: state.serial })}</h3>
+            {dayjs(state.createdAt).format("lll")}
           </div>
           <p className="mb-0">
-            {t("food:labels:price", { price: order.customerCost })}
-            {order.customerCost.cents !== order.undiscountedCost.cents && (
+            {t("food:labels:price", { price: state.customerCost })}
+            {state.customerCost.cents !== state.undiscountedCost.cents && (
               <Money as="del" className="text-secondary ms-2">
-                {order.undiscountedCost}
+                {state.undiscountedCost}
               </Money>
             )}
             <br />
-            {t("food:labels:fees_and_taxes", { fees: order.handling, taxes: order.tax })}
+            {t("food:labels:fees_and_taxes", { fees: state.handling, taxes: state.tax })}
             <br />
-            {t("food:labels:total", { total: order.total })}
-            {order.fundingTransactions.map(({ label, amount }) => (
+            {t("food:labels:total", { total: state.total })}
+            {state.fundingTransactions.map(({ label, amount }) => (
               <React.Fragment key={label}>
                 <br />
                 {label}: <Money>{amount}</Money>
@@ -50,13 +50,16 @@ export default function OrderDetail({ state, onOrderClaim, gutters }) {
             <br />
           </p>
           <div>
-            <FulfillmentOption order={order} onOrderUpdated={(o) => setOrder(o)} />
+            <FulfillmentOption
+              order={orderForFulfillment}
+              onOrderUpdated={setOrderForFulfillment}
+            />
           </div>
-          {!order.canClaim && order.fulfilledAt && (
+          {!state.canClaim && state.fulfilledAt && (
             <Alert variant="info" className="mb-0">
               <Stack direction="horizontal" gap={3}>
                 {t("food:claimed_on", {
-                  fulfilledAt: dayjs(order.fulfilledAt).format("lll"),
+                  fulfilledAt: dayjs(state.fulfilledAt).format("lll"),
                 })}
                 <div className="ms-auto">
                   <AnimatedCheckmark />
@@ -65,16 +68,16 @@ export default function OrderDetail({ state, onOrderClaim, gutters }) {
             </Alert>
           )}
           <SumaImage
-            image={order.image}
+            image={state.image}
             w={350}
             height={150}
             className="rounded responsive-wide-image"
           />
           <hr className="my-0" />
           <Card.Text className="h4 mb-0">
-            {t("food:labels:items_count", { itemCount: order.items.length })}
+            {t("food:labels:items_count", { itemCount: state.items.length })}
           </Card.Text>
-          {order.items.map(({ name, description, customerPrice, quantity }, i) => (
+          {state.items.map(({ name, description, customerPrice, quantity }, i) => (
             <Stack key={i} className="justify-content-between align-items-start" gap={1}>
               <div className="lead">{name}</div>
               <div>
@@ -88,9 +91,9 @@ export default function OrderDetail({ state, onOrderClaim, gutters }) {
           ))}
         </Stack>
         <PressAndHoldToClaim
-          id={order.id}
-          canClaim={order.canClaim}
-          fulfilledAt={order.fulfilledAt}
+          id={state.id}
+          canClaim={state.canClaim}
+          fulfilledAt={state.fulfilledAt}
           onOrderClaim={(o) => onOrderClaim(o)}
         />
       </LayoutContainer>
