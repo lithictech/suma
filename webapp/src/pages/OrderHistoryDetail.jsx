@@ -34,7 +34,7 @@ export default function OrderHistoryDetail() {
       <LayoutContainer top gutters>
         <LinearBreadcrumbs back />
       </LayoutContainer>
-      <OrderDetail state={state} onOrderClaimed={replaceState} gutters />
+      <OrderDetail order={state} setOrder={replaceState} gutters />
     </>
   );
 }

@@ -5,6 +5,7 @@ import LayoutContainer from "../components/LayoutContainer";
 import SumaImage from "../components/SumaImage";
 import { mdx, t } from "../localization";
 import { dayjs } from "../modules/dayConfig";
+import ScrollTopOnMount from "../shared/ScrollToTopOnMount";
 import Money from "../shared/react/Money";
 import useToggle from "../shared/react/useToggle";
 import useErrorToast from "../state/useErrorToast";
@@ -20,8 +21,7 @@ import Card from "react-bootstrap/Card";
 import Form from "react-bootstrap/Form";
 import Stack from "react-bootstrap/Stack";
 
-export default function OrderDetail({ state, onOrderClaim, gutters }) {
-  const [order, setOrder] = React.useState(state);
+export default function OrderDetail({ order, setOrder, gutters }) {
   return (
     <>
       <LayoutContainer gutters={gutters}>
@@ -50,10 +50,11 @@ export default function OrderDetail({ state, onOrderClaim, gutters }) {
             <br />
           </p>
           <div>
-            <FulfillmentOption order={order} onOrderUpdated={(o) => setOrder(o)} />
+            <FulfillmentOption order={order} onOrderUpdated={setOrder} />
           </div>
           {!order.canClaim && order.fulfilledAt && (
             <Alert variant="info" className="mb-0">
+              <ScrollTopOnMount />
               <Stack direction="horizontal" gap={3}>
                 {t("food:claimed_on", {
                   fulfilledAt: dayjs(order.fulfilledAt).format("lll"),
@@ -91,7 +92,7 @@ export default function OrderDetail({ state, onOrderClaim, gutters }) {
           id={order.id}
           canClaim={order.canClaim}
           fulfilledAt={order.fulfilledAt}
-          onOrderClaim={(o) => onOrderClaim(o)}
+          onOrderClaim={(o) => setOrder(o)}
         />
       </LayoutContainer>
     </>

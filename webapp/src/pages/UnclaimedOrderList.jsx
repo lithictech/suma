@@ -8,7 +8,7 @@ import OrderDetail from "../components/OrderDetail";
 import PageLoader from "../components/PageLoader";
 import RLink from "../components/RLink";
 import SumaImage from "../components/SumaImage";
-import { mdp, t } from "../localization";
+import { t } from "../localization";
 import { dayjs } from "../modules/dayConfig";
 import ScrollTopOnMount from "../shared/ScrollToTopOnMount";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
@@ -61,7 +61,7 @@ export default function UnclaimedOrderList() {
                 {items.map((o) => (
                   <Card key={o.id} className="p-0">
                     <Card.Body className="px-2 pb-4">
-                      <OrderDetail state={o} onOrderClaim={(o) => handleOrderClaim(o)} />
+                      <OrderDetail order={o} setOrder={(o) => handleOrderClaim(o)} />
                     </Card.Body>
                   </Card>
                 ))}
@@ -74,7 +74,9 @@ export default function UnclaimedOrderList() {
       </LayoutContainer>
       {isEmpty(items) && !loading && (
         <>
-          <LayoutContainer gutters>{mdp("food:no_orders_to_claim")}</LayoutContainer>
+          <LayoutContainer gutters>
+            <p>{t("food:no_orders_to_claim")}</p>
+          </LayoutContainer>
           <hr className="my-4" />
           <LayoutContainer gutters>
             <div className="button-stack">
