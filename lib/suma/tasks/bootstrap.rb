@@ -4,7 +4,7 @@ require "rake/tasklib"
 
 require "suma/tasks"
 require "suma/lime"
-require "suma/mobility_development_partners"
+require "suma/mobility/good_travel_solutions"
 
 # rubocop:disable Layout/LineLength
 class Suma::Tasks::Bootstrap < Rake::TaskLib
@@ -21,15 +21,14 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
 
   def run_task
     Suma::Member.db.transaction do
-      self.create_meta_resources
-      self.setup_constraints
-      self.create_lime_scooter_vendor
-      self.sync_lime_gbfs
-      self.create_mdp_car_vendor
-      self.sync_mdp
-      self.setup_admin
-      self.setup_private_accounts
-      self.assign_fakeuser_constraints
+      # self.create_meta_resources
+      # self.setup_constraints
+      # self.create_lime_scooter_vendor
+      # self.sync_lime_gbfs
+      self.sync_gts_gbfs
+      # self.setup_admin
+      # self.setup_private_accounts
+      # self.assign_fakeuser_constraints
     end
   end
 
@@ -95,37 +94,16 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
     end
   end
 
-  def sync_mdp
-    require "suma/mobility_development_partners"
-    return unless Suma::MobilityDevelopmentPartners.configured?
-    c = Suma::Mobility::Gbfs::MdpModelsAvailable.new
-    i = Suma::Mobility::Gbfs::VendorSync.new(
-      client: Suma::MobilityDevelopmentPartners.gbfs_http_client,
-      vendor: Suma::MobilityDevelopmentPartners.mobility_vendor,
-      component: c,
-    ).sync_all
-    puts "Synced #{i} #{c.model.name}"
-  end
-
-  def create_mdp_car_vendor
-    vendor = Suma::MobilityDevelopmentPartners.mobility_vendor
-    # rate = Suma::Vendor::ServiceRate.update_or_create(name: "MDP access 2024") do |r|
-    #   r.localization_key = "mobility_start_and_per_minute"
-    #   r.surcharge = Money.new(0)
-    #   r.unit_amount = Money.new(0)
-    # end
-    Suma::Vendor::Service.
-      where(mobility_vendor_adapter_key: "mdp").
-      update(mobility_vendor_adapter_key: "mdp_deeplink")
-    svc = Suma::Vendor::Service.update_or_create(vendor:, internal_name: "MDP Carshare Deeplink") do |vs|
-      vs.external_name = "MDP Electric Car"
-      vs.constraints = []
-      vs.mobility_vendor_adapter_key = "mdp_deeplink"
+  def sync_gts_gbfs
+    count = 0
+    Suma::Mobility::GoodTravelSolutions.access_details.each do |ad|
+      count += Suma::Mobility::Gbfs::VendorSync.new(
+        client: ad.gbfs_client,
+        vendor: ad.mobility_vendor,
+        component: Suma::Mobility::Gbfs::FreeBikeStatus.new,
+      ).sync_all
     end
-    svc.add_category(Suma::Vendor::ServiceCategory.update_or_create(name: "Mobility", parent: cash_category)) if
-      svc.categories.empty?
-    # svc.add_rate(rate) if svc.rates.empty?
-    # self.assign_constraints(svc, [self.new_columbia_constraint_name, self.hacienda_cdc_constraint_name, self.snap_eligible_constraint_name])
+    puts "Synced #{count} GTS vehicles"
   end
 
   def create_lime_scooter_vendor
