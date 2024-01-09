@@ -4,7 +4,7 @@ require "rake/tasklib"
 
 require "suma/tasks"
 require "suma/lime"
-require "suma/mobility/good_travel_solutions"
+require "suma/mobility/good_travel_software"
 
 # rubocop:disable Layout/LineLength
 class Suma::Tasks::Bootstrap < Rake::TaskLib
@@ -68,7 +68,7 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
   def sync_gts_gbfs
     require "suma/fixtures/mobility_vehicles"
     count = 0
-    Suma::Mobility::GoodTravelSolutions.access_details.each do |ad|
+    Suma::Mobility::GoodTravelSoftware.access_details.each do |ad|
       vendor = ad.mobility_vendor
       rate = Suma::Vendor::ServiceRate.update_or_create(name: "Miocar Hourly") do |r|
         r.localization_key = "miocar_hourly"

@@ -2,7 +2,7 @@
 
 # https://gtsapistg.developer.azure-api.net/apis
 # # https://goodtravelsoftware.atlassian.net/servicedesk/customer/portal/2/article/1829044225
-module Suma::Mobility::GoodTravelSolutions
+module Suma::Mobility::GoodTravelSoftware
   include Appydays::Configurable
   include Appydays::Loggable
 
@@ -18,7 +18,7 @@ module Suma::Mobility::GoodTravelSolutions
 
     # @return [Suma::Mobility::Gbfs::Client]
     def gbfs_client
-      return Suma::Mobility::GoodTravelSolutions::GbfsClient.new(self)
+      return Suma::Mobility::GoodTravelSoftware::GbfsClient.new(self)
     end
   end
 
@@ -56,7 +56,7 @@ module Suma::Mobility::GoodTravelSolutions
     protected def post_to(tail, body)
       b = {schemeKey: self.ad.scheme_key, community: self.ad.community_id}
       b.merge!(body)
-      cls = Suma::Mobility::GoodTravelSolutions
+      cls = Suma::Mobility::GoodTravelSoftware
       response = Suma::Http.post("#{cls.api_host}#{tail}", b, logger: cls.logger)
       return response.parsed_response
     end

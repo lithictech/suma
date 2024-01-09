@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
-require "suma/mobility/good_travel_solutions"
+require "suma/mobility/good_travel_software"
 require "suma/mobility/gbfs/fake_client"
 
-RSpec.describe Suma::Mobility::GoodTravelSolutions, :db do
+RSpec.describe Suma::Mobility::GoodTravelSoftware, :db do
   let(:fake_free_bike_status_json) do
     {
       "data" => {
@@ -46,7 +46,7 @@ RSpec.describe Suma::Mobility::GoodTravelSolutions, :db do
     }
   end
 
-  describe "good travel solutions vehicles" do
+  describe "vehicle sync" do
     let(:vs) { Suma::Fixtures.vendor_service.mobility.create }
     let(:vendor) { vs.vendor }
 

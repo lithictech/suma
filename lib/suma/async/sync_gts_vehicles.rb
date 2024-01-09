@@ -1,17 +1,17 @@
 # frozen_string_literal: true
 
 require "amigo/scheduled_job"
-require "suma/mobility/good_travel_solutions"
+require "suma/mobility/good_travel_software"
 
 class Suma::Async::SyncGtsVehicles
   extend Amigo::ScheduledJob
 
   sidekiq_options(Suma::Async.cron_job_options)
-  cron Suma::Mobility::GoodTravelSolutions.sync_cron
+  cron Suma::Mobility::GoodTravelSoftware.sync_cron
   splay 0
 
   def _perform
-    Suma::Mobility::GoodTravelSolutions.access_details.each do |ad|
+    Suma::Mobility::GoodTravelSoftware.access_details.each do |ad|
       Suma::Mobility::Gbfs::VendorSync.new(
         client: ad.gbfs_client,
         vendor: ad.mobility_vendor,
