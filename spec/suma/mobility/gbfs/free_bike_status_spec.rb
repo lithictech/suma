@@ -112,5 +112,27 @@ RSpec.describe Suma::Mobility::Gbfs::FreeBikeStatus, :db do
         have_attributes(vehicle_id: "ghi700", battery_level: nil),
       )
     end
+
+    it "skips unhandled vehicle types" do
+      fake_vehicle_types_json["data"]["vehicle_types"][0]["propulsion_type"] = "fusion"
+
+      sync_gbfs
+      expect(Suma::Mobility::Vehicle.all).to be_empty
+    end
+
+    describe "vehicle type" do
+      def getvt(form_factor, propulsion_type)
+        return described_class.suma_vehicle_type(
+          {"form_factor" => form_factor, "propulsion_type" => propulsion_type},
+        )
+      end
+      it "is chosen appropriately from the vehicle type" do
+        expect(getvt("scooter", "electric")).to eq("escooter")
+        expect(getvt("car", "electric")).to eq("ecar")
+        expect(getvt("bike", "electric")).to eq("ebike")
+        expect(getvt("bike", "human")).to eq("bike")
+        expect(getvt("tractor", "human")).to be_nil
+      end
+    end
   end
 end
