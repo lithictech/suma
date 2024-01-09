@@ -193,7 +193,9 @@ class Suma::API::Mobility < Suma::API::V1
     end
     expose :goto_private_account do |vehicle, options|
       member = options.fetch(:member)
-      vehicle.vendor_service.mobility_adapter.anon_proxy_vendor_account_requires_attention?(member)
+      vehicle.vendor_service.mobility_adapter.anon_proxy_vendor_account_requires_attention?(
+        member, vehicle.vendor_service.vendor,
+      )
     end
   end
 end

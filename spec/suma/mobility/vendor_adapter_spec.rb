@@ -46,9 +46,11 @@ RSpec.describe Suma::Mobility::VendorAdapter, :db do
   describe "vendor_account_requires_attention" do
     let(:member) { Suma::Fixtures.member.create }
     let(:ad) { Suma::Mobility::VendorAdapter::Fake.new }
+    let(:vendor) { Suma::Fixtures.vendor.create }
+    let(:vc) { Suma::Fixtures.anon_proxy_vendor_configuration.create }
 
     it "is false if not using deep linking" do
-      expect(ad).to_not be_anon_proxy_vendor_account_requires_attention(member)
+      expect(ad).to_not be_anon_proxy_vendor_account_requires_attention(member, vendor)
     end
 
     describe "when using deep linking" do
@@ -57,20 +59,20 @@ RSpec.describe Suma::Mobility::VendorAdapter, :db do
       end
 
       it "is true when there is no account" do
-        expect(ad).to be_anon_proxy_vendor_account_requires_attention(member)
+        expect(ad).to be_anon_proxy_vendor_account_requires_attention(member, vendor)
       end
       it "is true when the account is not configured" do
-        va = Suma::Fixtures.anon_proxy_vendor_account(member:).create
+        va = Suma::Fixtures.anon_proxy_vendor_account(member:, configuration: vc).create
         Suma::Mobility::VendorAdapter::Fake.find_anon_proxy_vendor_account_results << va
-        expect(ad).to be_anon_proxy_vendor_account_requires_attention(member)
+        expect(ad).to be_anon_proxy_vendor_account_requires_attention(member, vendor)
       end
       it "is false if the account is configured" do
-        va = Suma::Fixtures.anon_proxy_vendor_account(member:).
+        va = Suma::Fixtures.anon_proxy_vendor_account(member:, configuration: vc).
           with_contact(Suma::Fixtures.anon_proxy_member_contact(member:).email.create).
           with_configuration(uses_email: true).
           create
         Suma::Mobility::VendorAdapter::Fake.find_anon_proxy_vendor_account_results << va
-        expect(ad).to_not be_anon_proxy_vendor_account_requires_attention(member)
+        expect(ad).to_not be_anon_proxy_vendor_account_requires_attention(member, vendor)
       end
     end
   end

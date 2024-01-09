@@ -47,6 +47,7 @@ class Suma::Mobility::Gbfs::FreeBikeStatus < Suma::Mobility::Gbfs::ComponentSync
     return "escooter" if ff == "scooter" && pt == "electric"
     return "ebike" if ff == "bike" && pt == "electric"
     return "ecar" if ff == "car" && pt == "electric"
+    return "icecar" if ff == "car" && pt == "gas"
     return "bike" if ff == "bike" && pt == "human"
     return "scooter" if ff == "scooter" && pt == "human"
     return nil

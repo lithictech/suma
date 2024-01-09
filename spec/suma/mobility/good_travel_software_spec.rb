@@ -52,8 +52,9 @@ RSpec.describe Suma::Mobility::GoodTravelSoftware, :db do
 
     def sync_gbfs
       client = Suma::Mobility::Gbfs::FakeClient.new(fake_free_bike_status_json:, fake_vehicle_types_json:)
-      Suma::Mobility::Gbfs::VendorSync.new(client:, vendor:,
-                                           component: Suma::Mobility::Gbfs::FreeBikeStatus.new,).sync_all
+      Suma::Mobility::Gbfs::VendorSync.new(
+        client:, vendor:, component: Suma::Mobility::Gbfs::FreeBikeStatus.new,
+      ).sync_all
     end
 
     it "gets and upserts vehicles" do

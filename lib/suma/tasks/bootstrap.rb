@@ -149,11 +149,14 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
     end
     Suma::Vendor::Service.
       where(mobility_vendor_adapter_key: "lime").
-      update(mobility_vendor_adapter_key: "lime_deeplink")
+      update(mobility_vendor_adapter_key: "native_app_deeplink")
+    Suma::Vendor::Service.
+      where(mobility_vendor_adapter_key: "lime_deeplink").
+      update(mobility_vendor_adapter_key: "native_app_deeplink")
     svc = Suma::Vendor::Service.update_or_create(vendor:, internal_name: "Lime Scooter Deeplink") do |vs|
       vs.external_name = "Lime E-Scooter"
       vs.constraints = [{"form_factor" => "scooter", "propulsion_type" => "electric"}]
-      vs.mobility_vendor_adapter_key = "lime_deeplink"
+      vs.mobility_vendor_adapter_key = "native_app_deeplink"
     end
     svc.add_category(Suma::Vendor::ServiceCategory.update_or_create(name: "Mobility", parent: cash_category)) if
       svc.categories.empty?
