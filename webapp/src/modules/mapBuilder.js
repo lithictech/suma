@@ -1,4 +1,5 @@
 import api from "../api";
+import carIcon from "../assets/images/ecar-icon.png";
 import scooterIcon from "../assets/images/kick-scooter.png";
 import scooterContainer from "../assets/images/scooter-container.svg";
 import config from "../config";
@@ -56,6 +57,12 @@ export default class MapBuilder {
     });
     this._scooterIcon = this._l.divIcon({
       html: `<img src="${scooterContainer}" alt="scooter container"/><img src="${scooterIcon}" class="mobility-map-icon-img" alt="scooter icon"/>`,
+      className: "mobility-map-icon",
+      iconSize: [43.4, 52.6],
+      iconAnchor: [21.7, 52.6],
+    });
+    this._carIcon = this._l.divIcon({
+      html: `<img src="${scooterContainer}" alt="scooter container"/><img src="${carIcon}" class="mobility-map-icon-img" alt="car icon"/>`,
       className: "mobility-map-icon",
       iconSize: [43.4, 52.6],
       iconAnchor: [21.7, 52.6],
@@ -214,7 +221,7 @@ export default class MapBuilder {
     mcg.removeLayers(removableMarkers, { chunkedLoading: true });
     // Second: Add markers for ids that are missing
     const currentMarkersIds = mcg.getLayers().map((marker) => marker.options.id);
-    ["ebike", "escooter"].forEach((vehicleType) => {
+    ["ebike", "escooter", "ecar"].forEach((vehicleType) => {
       data[vehicleType]?.forEach((bike) => {
         const id = `${bike.p}-${bike.c[0]}-${bike.c[1]}${bike.d ? "-" + bike.d : ""}`;
         const marker = this.createVehicleMarker(
@@ -261,12 +268,13 @@ export default class MapBuilder {
       lat += bike.o[0];
       lng += bike.o[1];
     }
+    let icon = vehicleType === "escooter" ? this._scooterIcon : this._carIcon;
     lat = lat * precisionFactor;
     lng = lng * precisionFactor;
     return this._l
       .marker([lat, lng], {
         id,
-        icon: this._scooterIcon,
+        icon: icon,
         riseOnHover: true,
       })
       .on("click", (e) => {

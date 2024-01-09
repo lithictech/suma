@@ -8,12 +8,14 @@ class Suma::API::Mobility < Suma::API::V1
   include Suma::Service::Types
   include Suma::API::Entities
 
+  VEHICLE_TYPES_VALUES = ["ebike", "escooter", "ecar"].freeze
+
   resource :mobility do
     desc "Return all mobility vehicles fitting the requested parameters."
     params do
       requires :sw, type: Array[BigDecimal], coerce_with: DecimalLocation
       requires :ne, type: Array[BigDecimal], coerce_with: DecimalLocation
-      optional :types, type: Array[String], coerce_with: CommaSepArray, values: ["ebike", "escooter"]
+      optional :types, type: Array[String], coerce_with: CommaSepArray, values: VEHICLE_TYPES_VALUES
     end
     get :map do
       me = current_member
@@ -76,7 +78,7 @@ class Suma::API::Mobility < Suma::API::V1
     params do
       requires :loc, type: Array[Integer], coerce_with: IntegerLocation
       requires :provider_id, type: Integer
-      requires :type, type: String, values: ["ebike", "escooter"]
+      requires :type, type: String, values: VEHICLE_TYPES_VALUES
       optional :disambiguator, type: String
     end
     get :vehicle do
@@ -164,6 +166,7 @@ class Suma::API::Mobility < Suma::API::V1
     expose :providers, with: MobilityMapVendorServiceEntity
     expose :escooter, with: MobilityMapVehicleEntity, expose_nil: false
     expose :ebike, with: MobilityMapVehicleEntity, expose_nil: false
+    expose :ecar, with: MobilityMapVehicleEntity, expose_nil: false
   end
 
   class MobilityMapRestrictionEntity < BaseEntity

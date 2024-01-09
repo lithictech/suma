@@ -21,11 +21,12 @@ class Suma::Mobility::Gbfs::FreeBikeStatus < Suma::Mobility::Gbfs::ComponentSync
       if (current_range = bike["current_range_meters"]) && (max_range = vehicle_type["max_range_meters"])
         battery_level = ((current_range.to_f / max_range) * 100).round.clamp(0, 100)
       end
+      puts vehicle_type["form_factor"]
       row = {
         lat: bike["lat"],
         lng: bike["lon"],
         vehicle_id: bike["bike_id"],
-        vehicle_type: "escooter",
+        vehicle_type: vehicle_type["vehicle_type_id"].start_with?("gts") ? "ecar" : "escooter",
         vendor_service_id: vendor_service.id,
         battery_level:,
         rental_uris: Sequel.pg_jsonb(bike["rental_uris"] || {}),

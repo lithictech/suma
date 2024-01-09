@@ -70,20 +70,22 @@ module Suma::Mobility::GoodTravelSolutions
     def fetch_geofencing_zones = {"data" => {"geofencing_zones" => {}}}
 
     def fetch_vehicle_types
-      return self._fetch_gts_vehicle_types.map do |vt|
+      vehicle_types = self._fetch_gts_vehicle_types.map do |vt|
         {
-          vehicle_type_id: self.vehicle_type_id(vt.fetch("key")),
-          form_factor: "car",
-          propulsion_type: "electric",
-          name: vt.fetch("label"),
-          max_range_meters: 99_999,
+          "vehicle_type_id" => self.vehicle_type_id(vt.fetch("key")),
+          "form_factor" => "ecar",
+          "propulsion_type" => "electric",
+          "name" => vt.fetch("label"),
+          "max_range_meters" => 99_999,
         }
       end
+      return {"data" => {"vehicle_types" => vehicle_types}}
     end
 
     def fetch_free_bike_status
       bikes = []
-      self._fetch_gts_stations.each do |station|
+      t = Time.now
+      self._fetch_gts_stations(t).each do |station|
         station_id = station.fetch("id")
         self._fetch_gts_models.each do |model|
           model_id = model.fetch("id")
@@ -93,20 +95,20 @@ module Suma::Mobility::GoodTravelSolutions
               slotSize: 60,
               model: model_id,
               station: station_id,
-              **self.reservation_window(station),
+              **self.reservation_window(station:, time: t),
             },
           )
           # If there is no array of availability, do not show any vehicles for this station/model
           next if body.empty?
           # Add one vehicle representing this station/model
           bikes << {
-            bike_id: "gts-#{self.ad.community_id}-#{station_id}-#{model_id}",
-            last_reported: Time.now.to_i,
-            lat: station.fetch("latitude"),
-            lon: station.fetch("longitude"),
-            is_reserved: false,
-            is_disabled: false,
-            vehicle_type_id: self.vehicle_type_id(model.fetch("vehicleType")),
+            "bike_id" => "gts-#{self.ad.community_id}-#{station_id}-#{model_id}",
+            "last_reported" => Time.now.to_i,
+            "lat" => station.fetch("latitude"),
+            "lon" => station.fetch("longitude"),
+            "is_reserved" => false,
+            "is_disabled" => false,
+            "vehicle_type_id" => self.vehicle_type_id(model.fetch("vehicleType")),
           }
         end
       end
@@ -114,9 +116,10 @@ module Suma::Mobility::GoodTravelSolutions
     end
 
     # https://gtsapistg.developer.azure-api.net/api-details#api=sharecarapi-v2&operation=post-explore-stations
-    def _fetch_gts_stations
+    def _fetch_gts_stations(time)
       @stations ||= self.post_to("/v2/explore/stations/available",
-                                 {**self.reservation_window(start_key: :pickUpDatetime, end_key: :dropOffDatetime)},)
+                                 {**self.reservation_window(time:, start_key: :pickUpDatetime,
+                                                            end_key: :dropOffDatetime,)},)
       return @stations.fetch("_embedded").fetch("stations")
     end
 
@@ -132,13 +135,26 @@ module Suma::Mobility::GoodTravelSolutions
       return @vehicle_types.fetch("_embedded").fetch("vehicleTypes")
     end
 
-    protected def reservation_window(station=nil, start_key: :startTime, end_key: :endTime)
+    # https://gist.github.com/citrus/1107932
+    protected def next_quarter_hour(time)
+      time_array = time.to_a
+      second = time_array[1]
+      quarter = ((second % 60) / 15.0).ceil
+      time_array[1] = (quarter * 15) % 60
+      hour_in_seconds = 3600
+      return (Time.local(*time_array) + (quarter == 4 ? hour_in_seconds : 0)).beginning_of_minute
+    end
+
+    protected def reservation_window(station: nil, time: Time.now, start_key: :startTime, end_key: :endTime)
       # In places we don't have a station, use the max continental US timezones.
       # This may need to be adjusted in the future but it's a limitation of the GTS API
       # (the endpoint to get stations, uses timestamps relative to stations).
+      # Next quarter hour is necessary to fetch available items for a 60 minute duration,
+      # otherwise, there would be no results.
+      next_quarter = next_quarter_hour(time)
       return {
-        start_key => self.format_time(Time.now + 24.hours, station&.fetch("timezone") || "America/Los_Angeles"),
-        end_key => self.format_time(Time.now + 48.hours, station&.fetch("timezone") || "America/New_York"),
+        start_key => self.format_time(next_quarter, station&.fetch("timezone") || "America/Los_Angeles"),
+        end_key => self.format_time(next_quarter + 1.hour, station&.fetch("timezone") || "America/New_York"),
       }
     end
   end

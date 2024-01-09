@@ -21,14 +21,14 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
 
   def run_task
     Suma::Member.db.transaction do
-      # self.create_meta_resources
-      # self.setup_constraints
-      # self.create_lime_scooter_vendor
-      # self.sync_lime_gbfs
+      self.create_meta_resources
+      self.setup_constraints
+      self.create_lime_scooter_vendor
+      self.sync_lime_gbfs
       self.sync_gts_gbfs
-      # self.setup_admin
-      # self.setup_private_accounts
-      # self.assign_fakeuser_constraints
+      self.setup_admin
+      self.setup_private_accounts
+      self.assign_fakeuser_constraints
     end
   end
 
@@ -58,6 +58,57 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
       c.payment_method_types = ["bank_account", "card"]
       c.ordinal = 1
     end
+  end
+
+  # Add to these for when GTS fails to sync
+  FAKE_GTS_CAR_COORDS = [
+    [45.514495, -122.601940],
+  ].freeze
+
+  def sync_gts_gbfs
+    require "suma/fixtures/mobility_vehicles"
+    count = 0
+    Suma::Mobility::GoodTravelSolutions.access_details.each do |ad|
+      vendor = ad.mobility_vendor
+      # TODO: Need to implement GTS API book estimate when their vehicles are pressed in the frontend
+      # This is a temp solution
+      rate = Suma::Vendor::ServiceRate.update_or_create(name: "MDP Carshare 2024") do |r|
+        r.localization_key = "mobility_start_and_per_minute"
+        r.surcharge = Money.new(0)
+        r.unit_amount = Money.new(0)
+      end
+      Suma::Vendor::Service.
+        where(mobility_vendor_adapter_key: "mdp").
+        update(mobility_vendor_adapter_key: "mdp_deeplink")
+      svc = Suma::Vendor::Service.update_or_create(vendor:, internal_name: "MDP Carshare Deeplink") do |vs|
+        vs.external_name = "GTS Electric Car"
+        vs.constraints = [{"form_factor" => "car", "propulsion_type" => "electric"}]
+        vs.mobility_vendor_adapter_key = "mdp_deeplink"
+      end
+      svc.add_category(Suma::Vendor::ServiceCategory.update_or_create(name: "Mobility", parent: cash_category)) if
+        svc.categories.empty?
+      svc.add_rate(rate) if svc.rates.empty?
+      accumulate = Suma::Mobility::Gbfs::VendorSync.new(
+        client: ad.gbfs_client,
+        vendor:,
+        component: Suma::Mobility::Gbfs::FreeBikeStatus.new,
+      ).sync_all
+      if accumulate.zero?
+        vendor.services_dataset.mobility.each_with_index do |vendor_service, vsidx|
+          FAKE_GTS_CAR_COORDS.each do |(lat, lng)|
+            Suma::Fixtures.mobility_vehicle(
+              lat: lat + (0.0002 * vsidx),
+              lng:,
+              vehicle_type: "ecar",
+              vendor_service:,
+            ).create
+          end
+        end
+        puts "Create fake GTS cars"
+      end
+      count += accumulate
+    end
+    puts "Synced #{count} GTS vehicles"
   end
 
   # Add to these for when Lime fails to sync
@@ -92,18 +143,6 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
       end
       puts "Synced #{i} #{c.model.name}"
     end
-  end
-
-  def sync_gts_gbfs
-    count = 0
-    Suma::Mobility::GoodTravelSolutions.access_details.each do |ad|
-      count += Suma::Mobility::Gbfs::VendorSync.new(
-        client: ad.gbfs_client,
-        vendor: ad.mobility_vendor,
-        component: Suma::Mobility::Gbfs::FreeBikeStatus.new,
-      ).sync_all
-    end
-    puts "Synced #{count} GTS vehicles"
   end
 
   def create_lime_scooter_vendor
