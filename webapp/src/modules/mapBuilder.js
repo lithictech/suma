@@ -55,18 +55,27 @@ export default class MapBuilder {
         });
       },
     });
-    this._scooterIcon = this._l.divIcon({
-      html: `<img src="${scooterContainer}" alt="scooter container"/><img src="${scooterIcon}" class="mobility-map-icon-img" alt="scooter icon"/>`,
+    // TODO: Choose a better image (question mark?) for the default icon
+    this._defaultIcon = this._l.divIcon({
+      html: `<img src="${scooterContainer}" alt=""/><img src="${scooterIcon}" class="mobility-map-icon-img" alt="unknown vehicle"/>`,
       className: "mobility-map-icon",
       iconSize: [43.4, 52.6],
       iconAnchor: [21.7, 52.6],
     });
-    this._carIcon = this._l.divIcon({
-      html: `<img src="${scooterContainer}" alt="scooter container"/><img src="${carIcon}" class="mobility-map-icon-img" alt="car icon"/>`,
-      className: "mobility-map-icon",
-      iconSize: [43.4, 52.6],
-      iconAnchor: [21.7, 52.6],
-    });
+    this._iconsForVehicleTypes = {
+      escooter: this._l.divIcon({
+        html: `<img src="${scooterContainer}" alt=""/><img src="${scooterIcon}" class="mobility-map-icon-img" alt="scooter"/>`,
+        className: "mobility-map-icon",
+        iconSize: [43.4, 52.6],
+        iconAnchor: [21.7, 52.6],
+      }),
+      ecar: this._l.divIcon({
+        html: `<img src="${scooterContainer}" alt=""/><img src="${carIcon}" class="mobility-map-icon-img" alt="car"/>`,
+        className: "mobility-map-icon",
+        iconSize: [43.4, 52.6],
+        iconAnchor: [21.7, 52.6],
+      }),
+    };
     this._lastLocation = null;
     this._locationMarker = null;
     this._locationAccuracyCircle = null;
@@ -268,7 +277,7 @@ export default class MapBuilder {
       lat += bike.o[0];
       lng += bike.o[1];
     }
-    let icon = vehicleType === "escooter" ? this._scooterIcon : this._carIcon;
+    const icon = this._geticon(vehicleType);
     lat = lat * precisionFactor;
     lng = lng * precisionFactor;
     return this._l
@@ -288,6 +297,11 @@ export default class MapBuilder {
         this._onVehicleClick(mapVehicle);
         this._clickedVehicle = e.target;
       });
+  }
+
+  _geticon(vt) {
+    const icon = this._iconsForVehicleTypes[vt];
+    return icon || this._defaultIcon;
   }
 
   getAndUpdateRestrictedAreas(bounds, group) {

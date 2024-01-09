@@ -7,7 +7,7 @@ class Suma::Async::SyncGtsVehicles
   extend Amigo::ScheduledJob
 
   sidekiq_options(Suma::Async.cron_job_options)
-  cron "*/30 * * * * *"
+  cron Suma::Mobility::GoodTravelSolutions.sync_cron
   splay 0
 
   def _perform

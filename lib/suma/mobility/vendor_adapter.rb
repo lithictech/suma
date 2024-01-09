@@ -51,6 +51,6 @@ module Suma::Mobility::VendorAdapter
   register("lime_deeplink", Suma::Mobility::VendorAdapter::LimeDeeplink)
   require_relative "vendor_adapter/lime_maas"
   register("lime_maas", Suma::Mobility::VendorAdapter::LimeMaas)
-  require_relative "vendor_adapter/mdp_deeplink"
-  register("mdp_deeplink", Suma::Mobility::VendorAdapter::MdpDeeplink)
+  require_relative "vendor_adapter/miocar_deeplink"
+  register("miocar_deeplink", Suma::Mobility::VendorAdapter::MiocarDeeplink)
 end

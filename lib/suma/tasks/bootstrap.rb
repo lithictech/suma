@@ -70,20 +70,15 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
     count = 0
     Suma::Mobility::GoodTravelSolutions.access_details.each do |ad|
       vendor = ad.mobility_vendor
-      # TODO: Need to implement GTS API book estimate when their vehicles are pressed in the frontend
-      # This is a temp solution
-      rate = Suma::Vendor::ServiceRate.update_or_create(name: "MDP Carshare 2024") do |r|
-        r.localization_key = "mobility_start_and_per_minute"
+      rate = Suma::Vendor::ServiceRate.update_or_create(name: "Miocar Hourly") do |r|
+        r.localization_key = "miocar_hourly"
         r.surcharge = Money.new(0)
-        r.unit_amount = Money.new(0)
+        r.unit_amount = Money.new(40_00)
       end
-      Suma::Vendor::Service.
-        where(mobility_vendor_adapter_key: "mdp").
-        update(mobility_vendor_adapter_key: "mdp_deeplink")
-      svc = Suma::Vendor::Service.update_or_create(vendor:, internal_name: "MDP Carshare Deeplink") do |vs|
-        vs.external_name = "GTS Electric Car"
+      svc = Suma::Vendor::Service.update_or_create(vendor:, internal_name: "Miocar Deeplink") do |vs|
+        vs.external_name = "Electric Car"
         vs.constraints = [{"form_factor" => "car", "propulsion_type" => "electric"}]
-        vs.mobility_vendor_adapter_key = "mdp_deeplink"
+        vs.mobility_vendor_adapter_key = "miocar_deeplink"
       end
       svc.add_category(Suma::Vendor::ServiceCategory.update_or_create(name: "Mobility", parent: cash_category)) if
         svc.categories.empty?

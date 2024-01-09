@@ -21,7 +21,6 @@ class Suma::Mobility::Gbfs::FreeBikeStatus < Suma::Mobility::Gbfs::ComponentSync
       if (current_range = bike["current_range_meters"]) && (max_range = vehicle_type["max_range_meters"])
         battery_level = ((current_range.to_f / max_range) * 100).round.clamp(0, 100)
       end
-      puts vehicle_type["form_factor"]
       row = {
         lat: bike["lat"],
         lng: bike["lon"],
@@ -34,4 +33,6 @@ class Suma::Mobility::Gbfs::FreeBikeStatus < Suma::Mobility::Gbfs::ComponentSync
       yield row
     end
   end
+
+  def _to_suma_vehicle_type(bike, vehicle_type); end
 end

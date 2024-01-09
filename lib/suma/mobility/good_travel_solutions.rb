@@ -33,6 +33,7 @@ module Suma::Mobility::GoodTravelSolutions
   configurable(:gts) do
     setting :api_host, "http://gtsapi.localhost"
     setting :access_details_json, "[]"
+    setting :sync_cron, "*/5 * * * *"
 
     after_configured do
       self.access_details = JSON.parse(self.access_details_json).map do |j|
@@ -73,7 +74,7 @@ module Suma::Mobility::GoodTravelSolutions
       vehicle_types = self._fetch_gts_vehicle_types.map do |vt|
         {
           "vehicle_type_id" => self.vehicle_type_id(vt.fetch("key")),
-          "form_factor" => "ecar",
+          "form_factor" => "car",
           "propulsion_type" => "electric",
           "name" => vt.fetch("label"),
           "max_range_meters" => 99_999,
