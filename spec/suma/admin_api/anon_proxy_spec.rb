@@ -29,7 +29,6 @@ RSpec.describe Suma::AdminAPI::AnonProxy, :db do
     it "returns the anon proxy vendor account" do
       configuration = Suma::Fixtures.anon_proxy_vendor_configuration.create
       va = Suma::Fixtures.anon_proxy_vendor_account.with_configuration(configuration).create
-      puts va.inspect
       member_contact = Suma::Fixtures.anon_proxy_member_contact(email: "a@b.c", member: va.member).create
       va.update(contact: member_contact)
 
@@ -43,15 +42,4 @@ RSpec.describe Suma::AdminAPI::AnonProxy, :db do
       )
     end
   end
-  #
-  # describe "POST /v1/eligibility_constraints/:id" do
-  #   it "updates the constraint" do
-  #     ec = Suma::Fixtures.eligibility_constraint.create
-  #     post "/v1/eligibility_constraints/#{ec.id}", name: "Test"
-  #
-  #     expect(last_response).to have_status(200)
-  #     expect(last_response.headers).to include("Created-Resource-Admin")
-  #     expect(ec.refresh).to have_attributes(name: "Test")
-  #   end
-  # end
 end
