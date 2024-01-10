@@ -1,10 +1,12 @@
 # frozen_string_literal: true
 
+require "suma/admin_linked"
 require "suma/anon_proxy"
 require "suma/postgres"
 require "suma/eligibility/has_constraints"
 
 class Suma::AnonProxy::VendorAccount < Suma::Postgres::Model(:anon_proxy_vendor_accounts)
+  include Suma::AdminLinked
   RECENT_ACCESS_CODE_CUTOFF = 10.minutes
 
   plugin :timestamps
@@ -129,6 +131,8 @@ class Suma::AnonProxy::VendorAccount < Suma::Postgres::Model(:anon_proxy_vendor_
       body:,
     }
   end
+
+  def rel_admin_link = "/vendor-account/#{self.id}"
 end
 
 # Table: anon_proxy_vendor_accounts

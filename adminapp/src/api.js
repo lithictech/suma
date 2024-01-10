@@ -119,6 +119,12 @@ export default {
   getVendor: ({ id, ...data }) => get(`/adminapi/v1/vendors/${id}`, data),
   updateVendor: ({ id, ...data }) => post(`/adminapi/v1/vendors/${id}`, data),
 
+  getVendorAccounts: (data) => get("/adminapi/v1/anon_proxy/vendor_accounts", data),
+  createVendorAccounts: (data) =>
+    get("/adminapi/v1/anon_proxy/vendor_accounts/create", data),
+  getVendorAccount: ({ id, data }) =>
+    get(`/adminapi/v1/anon_proxy/vendor_accounts/${id}`, data),
+
   getCommerceOrders: (data) => get(`/adminapi/v1/commerce_orders`, data),
   getCommerceOrder: ({ id, ...data }) => get(`/adminapi/v1/commerce_orders/${id}`, data),
 

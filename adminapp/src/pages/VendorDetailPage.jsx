@@ -49,7 +49,7 @@ export default function VendorDetailPage() {
             toCells={(row) => [
               <AdminLink key="id" model={row} />,
               dayjs(row.createdAt).format("lll"),
-              row.name,
+              row.name.en,
               map(row.eligibilityConstraints, "name"),
             ]}
           />

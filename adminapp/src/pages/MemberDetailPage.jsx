@@ -357,6 +357,7 @@ function ResetCodes({ resetCodes }) {
       title="Login Codes"
       headers={["Sent", "Expires", "Token", "Used"]}
       rows={resetCodes}
+      getKey={(row) => row.id}
       toCells={(row) => [
         dayjs(row.createdAt).format("lll"),
         dayjs(row.expireAt).format("lll"),
@@ -472,7 +473,7 @@ function MessageDeliveries({ messageDeliveries }) {
       title="Message Deliveries"
       headers={["Id", "Created", "Sent", "Template", "To"]}
       rows={messageDeliveries}
-      keyRowAttr="id"
+      getKey={(row) => row.id}
       toCells={(row) => [
         <AdminLink key="id" model={row} />,
         dayjs(row.createdAt).format("lll"),

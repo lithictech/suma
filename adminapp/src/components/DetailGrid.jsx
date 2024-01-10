@@ -27,7 +27,7 @@ export default function DetailGrid({ title, properties }) {
           {title}
         </Typography>
       )}
-      <Grid container spacing={2} alignItems="center" justifyContent="flex-end">
+      <Grid container spacing={2} alignItems="start" justifyContent="flex-end">
         {usedProperties.map(({ label, value, children }) => (
           <React.Fragment key={label}>
             <Grid item xs={4} sm={3} lg={2} sx={{ paddingTop: "5px!important" }}>

@@ -33,6 +33,8 @@ import ProductDetailPage from "./pages/ProductDetailPage";
 import ProductEditPage from "./pages/ProductEditPage";
 import ProductListPage from "./pages/ProductListPage";
 import SignInPage from "./pages/SignInPage";
+import VendorAccountDetailPage from "./pages/VendorAccountDetailPage";
+import VendorAccountListPage from "./pages/VendorAccountListPage";
 import VendorCreatePage from "./pages/VendorCreatePage";
 import VendorDetailPage from "./pages/VendorDetailPage";
 import VendorEditPage from "./pages/VendorEditPage";
@@ -299,6 +301,20 @@ function PageSwitch() {
         exact
         path="/vendor/:id/edit"
         element={renderWithHocs(redirectIfUnauthed, withLayout(), VendorEditPage)}
+      />
+      <Route
+        exact
+        path="/vendor-accounts"
+        element={renderWithHocs(redirectIfUnauthed, withLayout(), VendorAccountListPage)}
+      />
+      <Route
+        exact
+        path="/vendor-account/:id"
+        element={renderWithHocs(
+          redirectIfUnauthed,
+          withLayout(),
+          VendorAccountDetailPage
+        )}
       />
       <Route
         exact

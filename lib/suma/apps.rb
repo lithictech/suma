@@ -45,6 +45,7 @@ require "suma/admin_api/payout_transactions"
 require "suma/admin_api/roles"
 require "suma/admin_api/search"
 require "suma/admin_api/vendors"
+require "suma/admin_api/anon_proxy"
 
 module Suma::Apps
   class API < Suma::Service
@@ -65,6 +66,7 @@ module Suma::Apps
   end
 
   class AdminAPI < Suma::Service
+    mount Suma::AdminAPI::AnonProxy
     mount Suma::AdminAPI::Auth
     mount Suma::AdminAPI::BankAccounts
     mount Suma::AdminAPI::BookTransactions

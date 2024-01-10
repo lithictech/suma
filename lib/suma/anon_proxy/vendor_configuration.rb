@@ -28,6 +28,10 @@ class Suma::AnonProxy::VendorConfiguration < Suma::Postgres::Model(:anon_proxy_v
   def uses_email? = self.uses_email
   def uses_sms? = self.uses_sms
   def enabled? = self.enabled
+
+  def auth_headers_label
+    self.auth_headers.to_s
+  end
 end
 
 # Table: anon_proxy_vendor_configurations
