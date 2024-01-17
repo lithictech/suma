@@ -136,6 +136,7 @@ export default function MemberDetailPage() {
           <Charges charges={member.charges} />
           <BankAccounts bankAccounts={member.bankAccounts} />
           <PaymentAccountRelatedLists paymentAccount={member.paymentAccount} />
+          <VendorAccounts vendorAccounts={member.vendorAccounts} />
           <MessagePreferences preferences={member.preferences} />
           <MessageDeliveries messageDeliveries={member.messageDeliveries} />
           <Sessions sessions={member.sessions} />
@@ -480,6 +481,34 @@ function MessageDeliveries({ messageDeliveries }) {
         row.sentAt ? dayjs(row.sentAt).format("lll") : "<unsent>",
         row.template,
         row.to,
+      ]}
+    />
+  );
+}
+
+function VendorAccounts({ vendorAccounts }) {
+  return (
+    <RelatedList
+      title="Vendor Accounts"
+      headers={[
+        "Id",
+        "Created",
+        "Vendor",
+        "Latest Access Code Magic Link",
+        "Latest Access Code",
+      ]}
+      rows={vendorAccounts}
+      getKey={(row) => row.id}
+      toCells={(row) => [
+        <AdminLink key="id" model={row} />,
+        dayjs(row.createdAt).format("lll"),
+        <AdminLink key="id" model={row.vendor}>
+          {row.vendor.name}
+        </AdminLink>,
+        <SafeExternalLink href={row.latestAccessCodeMagicLink}>
+          {row.latestAccessCodeMagicLink}
+        </SafeExternalLink>,
+        row.latestAccessCode,
       ]}
     />
   );

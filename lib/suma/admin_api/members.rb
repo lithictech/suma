@@ -161,6 +161,14 @@ class Suma::AdminAPI::Members < Suma::AdminAPI::V1
     expose :constraint, with: Suma::AdminAPI::Entities::EligibilityConstraintEntity
   end
 
+  class MemberVendorAccountEntity < BaseEntity
+    include Suma::AdminAPI::Entities
+    include AutoExposeBase
+    expose :latest_access_code
+    expose :latest_access_code_magic_link
+    expose :vendor, with: VendorEntity, &self.delegate_to(:configuration, :vendor)
+  end
+
   class PreferencesSubscriptionEntity < BaseEntity
     expose :key
     expose :opted_in
@@ -200,5 +208,6 @@ class Suma::AdminAPI::Members < Suma::AdminAPI::V1
     expose :orders, with: MemberOrderEntity
     expose :message_deliveries, with: MessageDeliveryEntity
     expose :preferences!, as: :preferences, with: PreferencesEntity
+    expose :anon_proxy_vendor_accounts, as: :vendor_accounts, with: MemberVendorAccountEntity
   end
 end
