@@ -8,19 +8,17 @@ class Suma::AdminAPI::AnonProxy < Suma::AdminAPI::V1
 
   class VendorAccountMessageEntity < BaseEntity
     include Suma::AdminAPI::Entities
+    expose :id
     expose :message_from
     expose :message_to
     expose :message_content
     expose :message_timestamp
     expose :relay_key
     expose :message_handler_key
-    expose :vendor_account
-    expose :outbound_delivery
   end
 
-  class VendorContactEntity < BaseEntity
+  class MemberContactEntity < BaseEntity
     include Suma::AdminAPI::Entities
-    include AutoExposeDetail
     expose :id
     expose :member, with: MemberEntity
     expose :phone
@@ -58,7 +56,7 @@ class Suma::AdminAPI::AnonProxy < Suma::AdminAPI::V1
     expose :latest_access_code_set_at
     expose :latest_access_code_requested_at
     expose :latest_access_code_magic_link
-    expose :contact, with: VendorContactEntity
+    expose :contact, with: MemberContactEntity
   end
 
   resource :anon_proxy do
@@ -66,13 +64,18 @@ class Suma::AdminAPI::AnonProxy < Suma::AdminAPI::V1
       Suma::AdminAPI::CommonEndpoints.list(
         self,
         Suma::AnonProxy::VendorAccount, AnonProxyVendorAccountEntity,
+        search_params: [:latest_access_code_magic_link, :latest_access_code],
       )
       Suma::AdminAPI::CommonEndpoints.get_one self, Suma::AnonProxy::VendorAccount, DetailedAnonProxyVendorAccountEntity
-      # Suma::AdminAPI::CommonEndpoints.update self, Suma::Eligibility::Constraint, DetailedEligibilityConstraintEntity do
-      #   params do
-      #     optional :name, type: String, allow_blank: false
-      #   end
-      # end
+      Suma::AdminAPI::CommonEndpoints.update self, Suma::AnonProxy::VendorAccount,
+                                             DetailedAnonProxyVendorAccountEntity do
+        params do
+          optional :latest_access_code_magic_link, type: String
+          optional :latest_access_code, type: String
+          optional :latest_access_code_set_at, type: Time
+          optional :latest_access_code_requested_at, type: Time
+        end
+      end
     end
   end
 end

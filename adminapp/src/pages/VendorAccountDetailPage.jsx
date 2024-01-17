@@ -1,10 +1,8 @@
 import api from "../api";
 import AdminLink from "../components/AdminLink";
 import DetailGrid from "../components/DetailGrid";
-import ExternalLinks from "../components/ExternalLinks";
 import RelatedList from "../components/RelatedList";
 import ResourceDetail from "../components/ResourceDetail";
-import Unavailable from "../components/Unavailable";
 import { dayjs } from "../modules/dayConfig";
 import SafeExternalLink from "../shared/react/SafeExternalLink";
 import React from "react";
@@ -103,13 +101,34 @@ export default function VendorAccountDetailPage() {
                 { label: "Email", value: model.contact.email },
                 { label: "Phone", value: model.contact.phone },
                 { label: "Relay Key", value: model.contact.relayKey },
-                {
-                  label: "External Links",
-                  value: <ExternalLinks externalLinks={model.contact.externalLinks} />,
-                },
               ]}
             />
           )}
+          <RelatedList
+            title="Messages"
+            rows={model.messages}
+            headers={[
+              "Id",
+              "Created",
+              "Content",
+              "From",
+              "To",
+              "Handler Key",
+              "Relay Key",
+              "Timestamp",
+            ]}
+            keyRowAttr="id"
+            toCells={(row) => [
+              row.id,
+              dayjs(row.createdAt).format("lll"),
+              row.messageContent,
+              row.messageFrom,
+              row.messageTo,
+              row.messageHandlerKey,
+              row.relayKey,
+              dayjs(row.timestamp).format("lll"),
+            ]}
+          />
         </>
       )}
     </ResourceDetail>

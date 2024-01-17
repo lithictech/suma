@@ -9,7 +9,6 @@ export default function VendorAccountListPage() {
   return (
     <ResourceList
       apiList={api.getVendorAccounts}
-      toCreate="/vendor-account/new"
       title="Vendor Accounts"
       canSearch
       columns={[
