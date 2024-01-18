@@ -1,6 +1,6 @@
 import api from "../../api";
 import config from "../../config";
-import { t } from "../../localization";
+import { md, t } from "../../localization";
 import MapBuilder from "../../modules/mapBuilder";
 import readOnlyReason from "../../modules/readOnlyReason";
 import useMountEffect from "../../shared/react/useMountEffect";
@@ -12,6 +12,7 @@ import RLink from "../RLink";
 import CardOverlay from "./CardOverlay";
 import ReservationCard from "./ReservationCard";
 import TripCard from "./TripCard";
+import isUndefined from "lodash/isUndefined";
 import React from "react";
 import Button from "react-bootstrap/Button";
 
@@ -37,7 +38,7 @@ export default function Map() {
         return;
       }
       if (config.featureMobilityRestricted) {
-        setError("mobility_coming_soon");
+        setError(md("errors:mobility_coming_soon"));
         return;
       }
       const { loc, provider, disambiguator, type } = mapVehicle;
@@ -183,13 +184,14 @@ export default function Map() {
       {error && (
         <CardOverlay>
           <FormError error={error} noMargin component="div" />
-          {readOnlyReason(user, "read_only_zero_balance") && (
-            <div className="text-center mt-2">
-              <Button variant="outline-success" to="/funding" size="sm" as={RLink}>
-                {t("payments:add_funds")}
-              </Button>
-            </div>
-          )}
+          {isUndefined(config.featureMobilityRestricted) &&
+            readOnlyReason(user, "read_only_zero_balance") && (
+              <div className="text-center mt-2">
+                <Button variant="outline-success" to="/funding" size="sm" as={RLink}>
+                  {t("payments:add_funds")}
+                </Button>
+              </div>
+            )}
         </CardOverlay>
       )}
     </div>
