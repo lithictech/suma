@@ -4,7 +4,6 @@
     "sign_up_agreement": "I accept and agree to suma’s [Terms of Use](/terms-of-use) and [Privacy Policy](/privacy-policy). I also agree to receive periodic SMS and/or MMS messages from suma. Message and data rates may apply. Message frequency may vary depending on your activity and settings. Text HELP for more information. Text STOP to stop receiving messages."
   },
   "common": {
-    "add_money_to_account": "Press here to add money to your account",
     "add_to_homescreen": "Add to homescreen",
     "add_to_homescreen_intro": "Install suma to your homescreen for an optimized experience.",
     "app": "App",
@@ -230,6 +229,7 @@
     "phone": "Phone",
     "routing_caption": "9-digit number for your bank. You can get these from your online banking portal, or check out $t(strings:forms:paper_check_link).",
     "routing_number": "Routing Number",
+    "save": "Save",
     "savings": "Savings",
     "state": "State",
     "submit": "Submit",
@@ -323,6 +323,22 @@
     "unlink_account_question": "Are you sure you want to unlink this account? You can always re-add it later.",
     "unlink_account_question_subtitle": "Any in-progress transactions will not be canceled."
   },
+  "preferences": {
+    "account_updates": {
+      "helper_text": "Order updates, receipts, and other messages based on actions you take in suma.",
+      "title": "Account Updates"
+    },
+    "marketing": {
+      "helper_text": "Communications from the suma team. You can unsubscribe from these by replying STOP to any marketing message.",
+      "title": "Marketing"
+    },
+    "security": {
+      "helper_text": "For signing in, and other security-based messages. All suma members receive these messages.",
+      "title": "Security"
+    },
+    "title": "Subscriptions",
+    "unavailable": "Subscriptions are unavailable"
+  },
   "private_accounts": {
     "auth_error": "Sorry, something went wrong. You can try again, or email apphelp@mysuma.org.",
     "create_account": "Create account",
@@ -342,6 +358,7 @@
     "funding": "Funding",
     "home": "Home",
     "ledgers_overview": "Ledgers Overview",
+    "messaging_preferences": "Messaging Preferences",
     "mobility": "Mobility",
     "onboarding": "Onboarding",
     "onboarding_finish": "Onboarding Finish",
@@ -349,6 +366,7 @@
     "order": "Order",
     "order_history": "Order History",
     "otp": "One Time Password",
+    "preferences": "Preferences",
     "private_accounts": "Private Accounts",
     "start": "Get Started",
     "suma_app": "Suma App",

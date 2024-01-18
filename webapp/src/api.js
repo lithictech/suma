@@ -106,4 +106,6 @@ export default {
       data,
       opts
     ),
+
+  getPreferences: (data) => get("/api/v1/messaging/subscriptions", data),
 };
