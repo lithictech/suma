@@ -1,25 +1,54 @@
+import api from "../api";
 import { t } from "../localization";
+import useErrorToast from "../state/useErrorToast";
+import useScreenLoader from "../state/useScreenLoader";
+import useUser from "../state/useUser";
 import FormButtons from "./FormButtons";
+import FormSuccess from "./FormSuccess";
 import humps from "humps";
 import isEmpty from "lodash/isEmpty";
 import merge from "lodash/merge";
 import React from "react";
+import Alert from "react-bootstrap/Alert";
 import Form from "react-bootstrap/Form";
 
-export default function PreferenceSettings({ subscriptions }) {
-  const [subscriptionState, setSubscriptionState] = React.useState(subscriptions);
+export default function PreferenceSettings({
+  subscriptions,
+  successKey,
+  onSubscriptionsSaved,
+}) {
+  const { showErrorToast } = useErrorToast();
+  const { handleUpdateCurrentMember } = useUser();
+  const screenLoader = useScreenLoader();
+  const [subscriptionsState, setSubscriptionsState] = React.useState(subscriptions);
   const [changes, setChanges] = React.useState({});
   const handleSubscriptionChange = (idx, changedSubscriptionObj) => {
-    const newSubscriptions = subscriptionState;
+    const newSubscriptions = subscriptionsState;
     newSubscriptions[idx] = changedSubscriptionObj;
     setChanges(
       merge({}, changes, { [changedSubscriptionObj.key]: changedSubscriptionObj.checked })
     );
-    setSubscriptionState(newSubscriptions);
+    setSubscriptionsState(newSubscriptions);
   };
-  // TODO: Add subscription changes API call and error handling
-  // Probably need to call from higher component
-  if (isEmpty(subscriptionState)) {
+
+  function handleSubmit(e) {
+    e.preventDefault();
+    if (isEmpty(changes)) {
+      return;
+    }
+    screenLoader.turnOn();
+    api
+      .updatePreferences(changes)
+      .tap(handleUpdateCurrentMember)
+      .then(() => onSubscriptionsSaved())
+      .catch((e) => showErrorToast(e, { extract: true }))
+      .finally(() => {
+        setChanges({});
+        screenLoader.turnOff();
+      });
+  }
+
+  if (isEmpty(subscriptionsState)) {
     return (
       <>
         <h4>{t("preferences:title")}</h4>
@@ -28,9 +57,9 @@ export default function PreferenceSettings({ subscriptions }) {
     );
   }
   return (
-    <Form>
+    <Form onSubmit={handleSubmit}>
       <h4>{t("preferences:title")}</h4>
-      {subscriptionState.map((sub, idx) => (
+      {subscriptionsState.map((sub, idx) => (
         <Checkbox
           key={sub.key}
           index={idx}
@@ -38,6 +67,11 @@ export default function PreferenceSettings({ subscriptions }) {
           onSubscriptionChange={handleSubscriptionChange}
         />
       ))}
+      {successKey && (
+        <Alert variant="success" className="mt-3 mb-0">
+          <FormSuccess message={successKey} className="mb-0" />
+        </Alert>
+      )}
       <FormButtons variant="success" primaryProps={{ children: t("forms:save") }} />
     </Form>
   );
@@ -47,8 +81,9 @@ function Checkbox({ index, subscription, onSubscriptionChange }) {
   let { key, checked, editableState } = subscription;
   const decamalizedKey = humps.decamelize(key);
   return (
-    <Form.Group>
+    <Form.Group className="mb-2">
       <Form.Check
+        id={key}
         type="checkbox"
         label={t(`preferences:${decamalizedKey}:title`)}
         checked={checked}

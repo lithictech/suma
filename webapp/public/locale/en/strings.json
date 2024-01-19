@@ -336,6 +336,7 @@
       "helper_text": "For signing in, and other security-based messages. All suma members receive these messages.",
       "title": "Security"
     },
+    "success": "Subscription preferences were succesfully changed.",
     "title": "Subscriptions",
     "unavailable": "Subscriptions are unavailable"
   },

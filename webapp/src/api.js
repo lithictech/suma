@@ -108,4 +108,5 @@ export default {
     ),
 
   getPreferences: (data) => get("/api/v1/messaging/subscriptions", data),
+  updatePreferences: (data) => post("/v1/messaging/subscriptions", data),
 };
