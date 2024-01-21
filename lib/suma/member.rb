@@ -66,7 +66,7 @@ class Suma::Member < Suma::Postgres::Model(:members)
   one_to_many :charges, class: "Suma::Charge", order: Sequel.desc([:id])
   many_to_one :legal_entity, class: "Suma::LegalEntity"
   one_to_many :message_deliveries, key: :recipient_id, class: "Suma::Message::Delivery"
-  one_to_one :message_preferences, class: "Suma::Message::Preferences"
+  one_to_one :preferences, class: "Suma::Message::Preferences"
   one_to_one :ongoing_trip, class: "Suma::Mobility::Trip", conditions: {ended_at: nil}
   many_through_many :orders,
                     [
@@ -233,8 +233,27 @@ class Suma::Member < Suma::Postgres::Model(:members)
     return @frontapp ||= Suma::Member::FrontappAttributes.new(self)
   end
 
-  def message_preferences!
-    return self.message_preferences ||= Suma::Message::Preferences.find_or_create_or_find(member: self)
+  def preferences!
+    return self.preferences ||= Suma::Message::Preferences.find_or_create_or_find(member: self)
+  end
+  alias message_preferences preferences
+  alias message_preferences! preferences!
+
+  #
+  # :section: Masking
+  #
+
+  def masked_name = _mask(self.name, 2, 2)
+  def masked_email = _mask(self.email, 3, 6)
+  def masked_phone = _mask((self.phone || "")[1..], 1, 2)
+
+  private def _mask(s, prefix, suffix)
+    # If the actual value is too short, always entirely hide it
+    minimum_maskable_len = (prefix + suffix) * 1.5
+    return "***" if s.blank? || s.length < minimum_maskable_len
+    pre = s[...prefix]
+    suf = s[-suffix..]
+    return "#{pre}***#{suf}"
   end
 
   #

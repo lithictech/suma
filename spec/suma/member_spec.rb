@@ -298,4 +298,39 @@ RSpec.describe "Suma::Member", :db do
       end.to publish("suma.member.eligibilitychanged", [m.id])
     end
   end
+
+  describe "masking" do
+    it "masks name/phone/email" do
+      mem = described_class.new
+      expect(mem).to have_attributes(
+        masked_name: "***",
+        masked_email: "***",
+        masked_phone: "***",
+      )
+      mem.name = "a"
+      mem.email = "a"
+      mem.phone = "a"
+      expect(mem).to have_attributes(
+        masked_name: "***",
+        masked_email: "***",
+        masked_phone: "***",
+      )
+
+      mem.name = "Pedro Pascal"
+      mem.email = "pedro@pascal.org"
+      mem.phone = "15552223333"
+      expect(mem).to have_attributes(
+        masked_name: "Pe***al",
+        masked_email: "ped***al.org",
+        masked_phone: "5***33",
+      )
+
+      mem.name = "Pedro"
+      mem.email = "ped@pas.org"
+      expect(mem).to have_attributes(
+        masked_name: "***",
+        masked_email: "***",
+      )
+    end
+  end
 end
