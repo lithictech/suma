@@ -107,6 +107,7 @@ export default {
       opts
     ),
 
-  getPreferences: (data) => get("/api/v1/messaging/subscriptions", data),
-  updatePreferences: (data) => post("/v1/messaging/subscriptions", data),
+  getPreferencesPublic: (data) => get("/api/v1/preferences/public", data),
+  updatePreferencesPublic: (data) => post("/api/v1/preferences/public", data),
+  updatePreferences: (data) => post("/api/v1/preferences", data),
 };

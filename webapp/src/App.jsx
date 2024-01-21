@@ -28,7 +28,6 @@ import FundingLinkBankAccount from "./pages/FundingLinkBankAccount";
 import Home from "./pages/Home";
 import LedgersOverview from "./pages/LedgersOverview";
 import MarkdownContent from "./pages/MarkdownContent";
-import MessagingPreferences from "./pages/MessagingPreferences";
 import Mobility from "./pages/Mobility";
 import Onboarding from "./pages/Onboarding";
 import OnboardingFinish from "./pages/OnboardingFinish";
@@ -36,7 +35,8 @@ import OnboardingSignup from "./pages/OnboardingSignup";
 import OneTimePassword from "./pages/OneTimePassword";
 import OrderHistoryDetail from "./pages/OrderHistoryDetail";
 import OrderHistoryList from "./pages/OrderHistoryList";
-import Preferences from "./pages/Preferences";
+import PreferencesAuthed from "./pages/PreferencesAuthed";
+import PreferencesPublic from "./pages/PreferencesPublic";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import PrivateAccountsList from "./pages/PrivateAccountsList";
 import Start from "./pages/Start";
@@ -468,18 +468,17 @@ function AppRoutes() {
             withScreenLoaderMount(),
             withMetatags({ title: t("titles:preferences") }),
             withLayout({ top: true, gutters: true }),
-            Preferences
+            PreferencesAuthed
           )}
         />
         <Route
-          path="/messaging-preferences"
+          path="/preferences-public"
           exact
           element={renderWithHocs(
-            redirectIfUnboarded,
             withScreenLoaderMount(),
             withMetatags({ title: t("titles:messaging_preferences") }),
             withLayout({ top: true, gutters: true }),
-            MessagingPreferences
+            PreferencesPublic
           )}
         />
         <Route

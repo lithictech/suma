@@ -336,9 +336,8 @@
       "helper_text": "For signing in, and other security-based messages. All suma members receive these messages.",
       "title": "Security"
     },
-    "success": "Subscription preferences were succesfully changed.",
-    "title": "Subscriptions",
-    "unavailable": "Subscriptions are unavailable"
+    "success": "Your preferences were succesfully changed.",
+    "title": "Preferences"
   },
   "private_accounts": {
     "auth_error": "Sorry, something went wrong. You can try again, or email apphelp@mysuma.org.",

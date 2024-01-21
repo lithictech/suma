@@ -3,28 +3,27 @@ import ErrorScreen from "../components/ErrorScreen";
 import FormSuccess from "../components/FormSuccess";
 import LayoutContainer from "../components/LayoutContainer";
 import PageLoader from "../components/PageLoader";
-import PreferenceSettings from "../components/PreferenceSettings";
+import Preferences from "../components/Preferences";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
 import useToggle from "../shared/react/useToggle";
 import useErrorToast from "../state/useErrorToast";
 import React from "react";
 import { useSearchParams } from "react-router-dom";
 
-export default function MessagingPreferences() {
+export default function PreferencesPublic() {
   const [searchParams] = useSearchParams();
+  const accessToken = searchParams.get("token");
   const { enqueueErrorToast } = useErrorToast();
   const successView = useToggle(false);
 
   const getPreferences = React.useCallback(() => {
-    return api
-      .getPreferences({ authtoken: searchParams.get("authtoken") })
-      .catch((e) => enqueueErrorToast(e));
-  }, [searchParams, enqueueErrorToast]);
-  const {
-    state: subscriptions,
-    loading,
-    error,
-  } = useAsyncFetch(getPreferences, { pickData: true });
+    return api.getPreferencesPublic({ accessToken }).catch((e) => enqueueErrorToast(e));
+  }, [accessToken, enqueueErrorToast]);
+  const { state, loading, error } = useAsyncFetch(getPreferences, { pickData: true });
+
+  function handleApiSubmit(prefs) {
+    return api.updatePreferencesPublic({ accessToken, ...prefs });
+  }
 
   if (loading) {
     return <PageLoader overlay />;
@@ -40,9 +39,10 @@ export default function MessagingPreferences() {
     return <FormSuccess message={"preferences:success"} />;
   }
   return (
-    <PreferenceSettings
-      subscriptions={subscriptions}
-      onSubscriptionsSaved={() => successView.turnOn()}
+    <Preferences
+      user={state}
+      onApiSubmit={handleApiSubmit}
+      onSaved={() => successView.turnOn()}
     />
   );
 }
