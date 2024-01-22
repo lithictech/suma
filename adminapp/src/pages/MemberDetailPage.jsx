@@ -135,6 +135,7 @@ export default function MemberDetailPage() {
           <Charges charges={member.charges} />
           <BankAccounts bankAccounts={member.bankAccounts} />
           <PaymentAccountRelatedLists paymentAccount={member.paymentAccount} />
+          <MessagePreferences preferences={member.preferences} />
           <MessageDeliveries messageDeliveries={member.messageDeliveries} />
           <Sessions sessions={member.sessions} />
           <ResetCodes resetCodes={member.resetCodes} />
@@ -430,6 +431,22 @@ function BankAccounts({ bankAccounts }) {
         row.adminLabel,
         dayjs(row.createdAt).format("lll"),
         row.softDeletedAt ? dayjs(row.softDeletedAt).format("lll") : "",
+      ]}
+    />
+  );
+}
+
+function MessagePreferences({ preferences }) {
+  return (
+    <RelatedList
+      title="Message Preferences"
+      headers={["Key", "Opted In", "Editable State"]}
+      rows={preferences}
+      keyRowAttr="id"
+      toCells={(row) => [
+        row.key,
+        <BoolCheckmark key={2}>{row.optedIn}</BoolCheckmark>,
+        row.editableState,
       ]}
     />
   );

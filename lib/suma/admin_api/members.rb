@@ -188,5 +188,7 @@ class Suma::AdminAPI::Members < Suma::AdminAPI::V1
     expose :sessions, with: MemberSessionEntity
     expose :orders, with: MemberOrderEntity
     expose :message_deliveries, with: MessageDeliveryEntity
+    expose :preferences, with: MessagePreferenceSubscriptionEntity,
+           &self.delegate_to(:preferences!, :subscriptions)
   end
 end
