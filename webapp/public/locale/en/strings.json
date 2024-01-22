@@ -328,6 +328,7 @@
       "helper_text": "Order updates, receipts, and other messages based on actions you take in suma.",
       "title": "Account Updates"
     },
+    "intro": "Manage the types of communications you receive from suma.",
     "marketing": {
       "helper_text": "Communications from the suma team. You can unsubscribe from these by replying STOP to any marketing message.",
       "title": "Marketing"

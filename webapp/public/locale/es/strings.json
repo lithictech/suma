@@ -328,6 +328,7 @@
       "helper_text": "Actualizaciones de pedidos, recibos y otros mensajes basados en las acciones que realiza en suma.",
       "title": "Actualizaciones de cuenta"
     },
+    "intro": "Administrar los tipos de comunicaciones que recibes de suma.",
     "marketing": {
       "helper_text": "Comunicaciones del equipo suma. Puede cancelar las suscripciónes respondiendo STOP a cualquier mensaje de mercadotecnia.",
       "title": "Mercadotecnia"
@@ -336,9 +337,8 @@
       "helper_text": "Para iniciar sesión y otros mensajes basados en seguridad. Todos los miembros de suma reciben estos mensajes.",
       "title": "Seguridad"
     },
-    "success": "Preferencias de suscripción se cambiaron exitosamente.",
-    "title": "Suscripciones",
-    "unavailable": "Las suscripciones no están disponibles"
+    "success": "Tus preferencias se cambiaron correctamente.",
+    "title": "Preferencias"
   },
   "private_accounts": {
     "auth_error": "Perdón, algo salió mal. Puede intentarlo nuevamente o enviar un correo electrónico a apphelp@mysuma.org.",

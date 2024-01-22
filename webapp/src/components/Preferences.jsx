@@ -26,7 +26,7 @@ export default function Preferences({ user, onApiSubmit, children, onSaved }) {
   return (
     <Form onSubmit={handleSubmit}>
       <h4>{t("preferences:title")}</h4>
-      <p>Manage the types of communications you receive from suma.</p>
+      <p>{t("preferences:intro")}</p>
       {user.preferences.subscriptions.map((sub, idx) => {
         const optedIn = has(subscriptions, sub.key)
           ? subscriptions[sub.key]
@@ -52,7 +52,7 @@ function Subscription({ subscriptionKey, optedIn, editableState, onCheckChange }
   return (
     <Form.Group className="mt-4">
       {editableState === "hidden" ? (
-        <p>{t(`preferences:${subscriptionKey}:title`)}</p>
+        <p className="mb-0">{t(`preferences:${subscriptionKey}:title`)}</p>
       ) : (
         <Form.Check
           id={subscriptionKey}
