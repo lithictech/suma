@@ -10,19 +10,27 @@
   "overview": {
     "community_driven_intro": "Suma desarrolló nuestra política de privacidad para y con los miembros de la comunidad. Nuestro trabajo comenzó con los estudiantes del Ida B. Wells Just Data Lab, donde exploramos las mejores y peores prácticas de política de privacidad. Tambien queríamos escuchar lo que la comunidad tenía que decir sobre nuestros hallazgos y tuvimos conversaciones con miembros de la comunidad de Portland. Sus ideas, opiniones y pensamientos han sido incorporados en nuestra política de privacidad.",
     "community_driven_title": "Hecho por la comunidad",
-    "consent_statement": "Suma solicitará el consentimiento de nuestros usuarios y les dará la opción de cambiar de opinión",
-    "consent_title": "Consentimiento",
+    "consent": {
+      "statement": "Suma solicita el consentimiento de nuestros usuarios y les dará la opción de cambiar de opinión",
+      "title": "Consentimiento"
+    },
     "contact_us": "Contacto",
-    "education_statement": "Suma intenta mantener que nuestros usuarios son informados y explicarles cómo y por qué necesitamos o utilizamos sus datos",
-    "education_title": "Educación",
+    "education": {
+      "statement": "Suma busca mantener informados a nuestros usuarios y explica cómo y por qué necesitamos o utilizamos sus datos",
+      "title": "Educación"
+    },
     "faq": "Preguntas frecuentes",
     "intro": "En suma, creemos que usted tiene el derecho a comprender cómo se utilizan sus datos.",
     "jump_to_privacy_policy": "Haga clic para ir a la política de privacidad de suma",
     "title": "Visión",
-    "transparency_statement": "Suma obtiene un mínimo de datos personales de nuestros usuarios, sin trucos ocultos en la letra pequeña",
-    "transparency_title": "Transparencia",
-    "trust_statement": "Suma trata de construir la confianza con los que servimos y resolver los asuntos de privacidad que impiden a la comunidad utilizar la tecnología",
-    "trust_title": "Confianza"
+    "transparency": {
+      "statement": "Suma obtiene un mínimo de datos personales de nuestros usuarios, sin trucos ocultos en la letra pequeña",
+      "title": "Transparencia"
+    },
+    "trust": {
+      "statement": "Suma trata de construir la confianza con los que servimos y resolver los asuntos de privacidad que impiden a la comunidad utilizar la tecnología",
+      "title": "Confianza"
+    }
   },
   "sections": {
     "business_transfer": {
