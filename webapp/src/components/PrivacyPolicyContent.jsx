@@ -80,7 +80,7 @@ export default function PrivacyPolicyContent({ mobile }) {
                 <h1 className="display-4">{t("overview:title")}</h1>
                 <p className="fw-light">{t("overview:intro")}</p>
                 <p className="pt-2">
-                  <a href="#privacy-policy-title">
+                  <a href="#privacy_policy_title">
                     <i>{t("overview:jump_to_privacy_policy")}</i>
                   </a>
                 </p>
@@ -119,14 +119,12 @@ export default function PrivacyPolicyContent({ mobile }) {
             <Row>
               <PedalCol
                 mobile={mobile}
-                heading={t("overview:transparency_title")}
-                paragraph={t("overview:transparency_statement")}
+                sectionKey="overview:transparency"
                 img={transparencyIcon}
               />
               <PedalCol
                 mobile={mobile}
-                heading={t("overview:consent_title")}
-                paragraph={t("overview:consent_statement")}
+                sectionKey="overview:consent"
                 img={consentIcon}
                 right={true}
               />
@@ -134,14 +132,12 @@ export default function PrivacyPolicyContent({ mobile }) {
             <Row className="mt-2">
               <PedalCol
                 mobile={mobile}
-                heading={t("overview:education_title")}
-                paragraph={t("overview:education_statement")}
+                sectionKey="overview:education"
                 img={educationIcon}
               />
               <PedalCol
                 mobile={mobile}
-                heading={t("overview:trust_title")}
-                paragraph={t("overview:trust_statement")}
+                sectionKey="overview:trust"
                 img={trustIcon}
                 right={true}
               />
@@ -149,17 +145,15 @@ export default function PrivacyPolicyContent({ mobile }) {
           </Container>
           <hr className="my-5" />
           <Container>
-            <h1 id="privacy-policy-title" className="text-center display-4">
+            <h1 id="privacy_policy_title" className="text-center display-4">
               {t("sections:title")}
             </h1>
             <p className="text-center text-secondary mb-5">
               {t("sections:effective") + " " + t("sections:date")}
             </p>
             <PrivacyPolicySection
-              id="informationCollected"
               mobile={mobile}
-              title={t("sections:information_collected:title")}
-              p={t("sections:information_collected:paragraph")}
+              sectionKey="sections:information_collected"
               list={[
                 md("sections:information_collected:list:registration"),
                 md("sections:information_collected:list:vendors"),
@@ -167,10 +161,8 @@ export default function PrivacyPolicyContent({ mobile }) {
               ]}
             />
             <PrivacyPolicySection
-              id="methodsOfCollection"
               mobile={mobile}
-              title={t("sections:methods_of_collection:title")}
-              p={t("sections:methods_of_collection:paragraph")}
+              sectionKey="sections:methods_of_collection"
               img={methodsOfCollection}
               list={[
                 md("sections:methods_of_collection:list:registration_page"),
@@ -179,32 +171,22 @@ export default function PrivacyPolicyContent({ mobile }) {
               ]}
             />
             <PrivacyPolicySection
-              id="methodsOfInformationUsage"
               mobile={mobile}
-              title={t("sections:methods_of_information_usage:title")}
-              p={t("sections:methods_of_information_usage:paragraph")}
+              sectionKey="sections:methods_of_information_usage"
               img={methodsOfInformationUsage}
             >
+              <PrivacyPolicySection mobile={mobile} sectionKey="subsections:services" />
               <PrivacyPolicySection
                 mobile={mobile}
-                subsection="true"
-                title={t("subsections:services:title")}
-                p={t("subsections:services:paragraph")}
+                sectionKey="subsections:support_subsidy"
               />
               <PrivacyPolicySection
                 mobile={mobile}
-                subsection="true"
-                title={t("subsections:support_subsidy:title")}
-                p={t("subsections:support_subsidy:paragraph")}
-              />
-              <PrivacyPolicySection
-                mobile={mobile}
-                subsection="true"
-                title={t("subsections:communicate_with_you:title")}
+                sectionKey="subsections:communicate_with_you"
                 p={
                   <>
-                    {t("subsections:communicate_with_you:paragraph")}
-                    <a href="#communications">
+                    {t("subsections:communicate_with_you:paragraph") + " "}
+                    <a href={makeSectionHashtag("sections:communications")}>
                       {t("subsections:communicate_with_you:see_communications")}
                     </a>
                   </>
@@ -212,54 +194,42 @@ export default function PrivacyPolicyContent({ mobile }) {
               />
               <PrivacyPolicySection
                 mobile={mobile}
-                subsection="true"
-                title={t("subsections:security_and_fraud_prevention:title")}
-                p={t("subsections:security_and_fraud_prevention:paragraph")}
+                sectionKey="subsections:security_and_fraud_prevention"
               />
               <PrivacyPolicySection
                 mobile={mobile}
-                subsection="true"
-                title={t("subsections:comply_with_law:title")}
-                p={t("subsections:comply_with_law:paragraph")}
+                sectionKey="subsections:comply_with_law"
               />
             </PrivacyPolicySection>
             <PrivacyPolicySection
-              id="cookiesPolicy"
               mobile={mobile}
-              title={t("sections:cookies_policy:title")}
-              p={t("sections:cookies_policy:paragraph")}
+              sectionKey="sections:cookies_policy"
               img={cookiesPolicy}
             >
               <p>{t("sections:cookies_policy:conclusion")}</p>
             </PrivacyPolicySection>
             <PrivacyPolicySection
-              id="thirdPartyAccess"
               mobile={mobile}
-              title={t("sections:third_party_access:title")}
-              p={t("sections:third_party_access:paragraph")}
+              sectionKey="sections:third_party_access"
               img={thirdPartyAcceess}
               list={[
                 md("sections:third_party_access:list:service_providers"),
                 md("sections:third_party_access:list:with_your_consent"),
                 <>
-                  {t("sections:third_party_access:list:personal_information")}
-                  <a href="#methodsOfInformationUsage">
+                  {t("sections:third_party_access:list:personal_information") + " "}
+                  <a href={makeSectionHashtag("sections:methods_of_information_usage")}>
                     {t("sections:methods_of_information_usage:title")}
                   </a>
                 </>,
               ]}
             />
             <PrivacyPolicySection
-              id="informationRetentionAndRemoval"
               mobile={mobile}
-              title={t("sections:information_retention_and_removal:title")}
-              p={t("sections:information_retention_and_removal:paragraph")}
+              sectionKey="sections:information_retention_and_removal"
             >
               <PrivacyPolicySection
                 mobile={mobile}
-                subsection="true"
-                title={t("subsections:information_retention:title")}
-                p={t("subsections:information_retention:paragraph")}
+                sectionKey="subsections:information_retention"
                 img={informationRetention}
                 list={[
                   t("subsections:information_retention:list:qualifications"),
@@ -274,10 +244,8 @@ export default function PrivacyPolicyContent({ mobile }) {
               />
               <PrivacyPolicySection
                 mobile={mobile}
-                subsection="true"
-                title={t("subsections:information_removal:title")}
+                sectionKey="subsections:information_removal"
                 img={informationRemoval}
-                p={t("subsections:information_removal:paragraph")}
                 list={[
                   t("subsections:information_removal:list:deleting_your_account"),
                   t("subsections:information_removal:list:deleting_certain_data"),
@@ -285,10 +253,8 @@ export default function PrivacyPolicyContent({ mobile }) {
               />
             </PrivacyPolicySection>
             <PrivacyPolicySection
-              id="businessTransfer"
               mobile={mobile}
-              title={t("sections:business_transfer:title")}
-              p={t("sections:business_transfer:paragraph")}
+              sectionKey="sections:business_transfer"
               img={businessTransfer}
               list={[
                 md("sections:business_transfer:list:email"),
@@ -296,17 +262,13 @@ export default function PrivacyPolicyContent({ mobile }) {
               ]}
             />
             <PrivacyPolicySection
-              id="childrenUnder13"
               mobile={mobile}
-              title={t("sections:children_under_13:title")}
-              p={t("sections:children_under_13:paragraph")}
+              sectionKey="sections:children_under_13"
               img={childrenUnder13}
             />
             <PrivacyPolicySection
-              id="communications"
               mobile={mobile}
-              title={t("sections:communications:title")}
-              p={t("sections:communications:paragraph")}
+              sectionKey="sections:communications"
               img={communication}
               list={[
                 t("sections:communications:list:platform_communications"),
@@ -315,18 +277,16 @@ export default function PrivacyPolicyContent({ mobile }) {
               ]}
             />
             <PrivacyPolicySection
-              id="futureChangesToPolicy"
               mobile={mobile}
-              title={t("sections:future_changes_to_policy:title")}
+              sectionKey="sections:future_changes_to_policy"
               p={md("sections:future_changes_to_policy:paragraph")}
               img={policyChanges}
             >
               <p>{md("sections:future_changes_to_policy:conclusion")}</p>
             </PrivacyPolicySection>
             <PrivacyPolicySection
-              id="contactInformation"
               mobile={mobile}
-              title={t("sections:contact_information:title")}
+              sectionKey="sections:contact_information"
               p={md("sections:contact_information:paragraph")}
             />
           </Container>
@@ -384,10 +344,10 @@ const TableOfContentsNav = ({ mobile }) => {
       >
         <Container className="position-relative">
           <Nav ref={navRef} className="navbar-nav-scroll navbar-absolute">
-            {navLinks.map(({ id, titleNS }, idx) => (
-              <React.Fragment key={id}>
-                <Nav.Link key={id} href={id} className={clsx("py-1")}>
-                  {t(titleNS)}
+            {navLinkSectionKeys.map((key, idx) => (
+              <React.Fragment key={key}>
+                <Nav.Link href={makeSectionHashtag(key)} className="py-1">
+                  {t(key + ":title")}
                 </Nav.Link>
                 {idx === 0 && <hr className="my-2" />}
               </React.Fragment>
@@ -407,7 +367,8 @@ const TabLink = ({ to, label }) => {
   );
 };
 
-const PedalCol = ({ heading, paragraph, img, right, mobile }) => {
+const PedalCol = ({ sectionKey, img, right, mobile }) => {
+  const title = t(sectionKey + ":title");
   return (
     <Col xs={12} className={clsx("mb-4", !mobile && "mb-lg-0 px-sm-5 px-lg-2 col-lg-6")}>
       <Stack
@@ -417,7 +378,7 @@ const PedalCol = ({ heading, paragraph, img, right, mobile }) => {
       >
         <img
           src={img}
-          alt={heading}
+          alt={title}
           className={clsx(right && "order-last", right && !mobile && "order-lg-last")}
         />
         <div
@@ -427,24 +388,19 @@ const PedalCol = ({ heading, paragraph, img, right, mobile }) => {
             right && !mobile && "order-lg-last"
           )}
         >
-          <h5>{heading}</h5>
-          <p className="fw-light">{paragraph}</p>
+          <h5>{title}</h5>
+          <p className="fw-light">{t(sectionKey + ":statement")}</p>
         </div>
       </Stack>
     </Col>
   );
 };
 
-const PrivacyPolicySection = ({
-  id,
-  title,
-  p,
-  img,
-  list,
-  subsection,
-  children,
-  mobile,
-}) => {
+const PrivacyPolicySection = ({ p, img, list, sectionKey, children, mobile }) => {
+  const subsection = sectionKey.startsWith("sub");
+  const id = subsection ? undefined : makeSectionId(sectionKey);
+  const title = t(sectionKey + ":title");
+  p = p || t(sectionKey + ":paragraph");
   return (
     <div
       id={id}
@@ -469,7 +425,7 @@ const PrivacyPolicySection = ({
       {list && (
         <ul>
           {list.map((b, idx) => (
-            <li key={idx + title} className="ps-3 pb-2">
+            <li key={idx + sectionKey} className="ps-3 pb-2">
               {b}
             </li>
           ))}
@@ -480,55 +436,26 @@ const PrivacyPolicySection = ({
   );
 };
 
-const navLinks = [
-  {
-    id: "#overview",
-    titleNS: "overview:title",
-  },
-  {
-    id: "#informationCollected",
-    titleNS: "sections:information_collected:title",
-  },
-  {
-    id: "#methodsOfCollection",
-    titleNS: "sections:methods_of_collection:title",
-  },
-  {
-    id: "#methodsOfInformationUsage",
-    titleNS: "sections:methods_of_information_usage:title",
-  },
-  {
-    id: "#cookiesPolicy",
-    titleNS: "sections:cookies_policy:title",
-  },
-  {
-    id: "#thirdPartyAccess",
-    titleNS: "sections:third_party_access:title",
-  },
-  {
-    id: "#informationRetentionAndRemoval",
-    titleNS: "sections:information_retention_and_removal:title",
-  },
-  {
-    id: "#businessTransfer",
-    titleNS: "sections:business_transfer:title",
-  },
-  {
-    id: "#childrenUnder13",
-    titleNS: "sections:children_under_13:title",
-  },
-  {
-    id: "#communications",
-    titleNS: "sections:communications:title",
-  },
-  {
-    id: "#futureChangesToPolicy",
-    titleNS: "sections:future_changes_to_policy:title",
-  },
-  {
-    id: "#contactInformation",
-    titleNS: "sections:contact_information:title",
-  },
+function makeSectionHashtag(key) {
+  return "#" + makeSectionId(key);
+}
+function makeSectionId(key) {
+  return key.replace(":", "_");
+}
+
+const navLinkSectionKeys = [
+  "overview",
+  "sections:information_collected",
+  "sections:methods_of_collection",
+  "sections:methods_of_information_usage",
+  "sections:cookies_policy",
+  "sections:third_party_access",
+  "sections:information_retention_and_removal",
+  "sections:business_transfer",
+  "sections:children_under_13",
+  "sections:communications",
+  "sections:future_changes_to_policy",
+  "sections:contact_information",
 ];
 
 const lu = new Lookup("privacy-policy-strings");

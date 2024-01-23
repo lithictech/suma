@@ -10,19 +10,27 @@
   "overview": {
     "community_driven_intro": "Suma developed our privacy policy for and with community members. Our work started with students at the Ida B.Wells Just Data Lab where we explored best and worst privacy policy practices. From there, we wanted to hear what community had to say about our findings and engaged in conversations with community members across Portland. Their ideas, opinions, and thoughts have been incorporated in our policy at every level.",
     "community_driven_title": "Community Driven",
-    "consent_statement": "Suma will asks for consent from our users and gives the option for users to change their mind",
-    "consent_title": "Consent",
+    "consent": {
+      "statement": "Suma asks for consent from our users and gives the option for users to change their mind",
+      "title": "Consent"
+    },
     "contact_us": "Contact us",
-    "education_statement": "Suma seeks keep our users in the know and explain how and why we need or use your data",
-    "education_title": "Education",
+    "education": {
+      "statement": "Suma seeks to keep our users in the know and explains how and why we need or use your data",
+      "title": "Education"
+    },
     "faq": "FAQ",
     "intro": "At suma, we believe you have the right to understand how your data is being used.",
     "jump_to_privacy_policy": "Click to jump to sumas privacy policy",
     "title": "Overview",
-    "transparency_statement": "Suma collects minimal personal data from users with no hidden tricks in the fine print",
-    "transparency_title": "Transparency",
-    "trust_statement": "Suma seeks to build trust with who we serve and overcome the privacy concerns preventing community from using tech",
-    "trust_title": "Trust"
+    "transparency": {
+      "statement": "Suma collects minimal personal data from users with no hidden tricks in the fine print",
+      "title": "Transparency"
+    },
+    "trust": {
+      "statement": "Suma seeks to build trust with those we serve and overcome the privacy concerns preventing community from using tech",
+      "title": "Trust"
+    }
   },
   "sections": {
     "business_transfer": {
