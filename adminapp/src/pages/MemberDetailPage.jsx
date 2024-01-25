@@ -438,17 +438,26 @@ function BankAccounts({ bankAccounts }) {
 
 function MessagePreferences({ preferences }) {
   return (
-    <RelatedList
-      title="Message Preferences"
-      headers={["Key", "Opted In", "Editable State"]}
-      rows={preferences}
-      keyRowAttr="id"
-      toCells={(row) => [
-        row.key,
-        <BoolCheckmark key={2}>{row.optedIn}</BoolCheckmark>,
-        row.editableState,
-      ]}
-    />
+    <>
+      <RelatedList
+        title="Message Preferences"
+        headers={["Key", "Opted In", "Editable State"]}
+        rows={preferences.subscriptions}
+        keyRowAttr="id"
+        toCells={(row) => [
+          row.key,
+          <BoolCheckmark key={2}>{row.optedIn}</BoolCheckmark>,
+          row.editableState,
+        ]}
+      />
+      <Typography sx={{ mt: 2 }}>
+        Give this link to the member when they request to change their messaging
+        preferences:{" "}
+        <SafeExternalLink href={preferences.publicUrl}>
+          {preferences.publicUrl}
+        </SafeExternalLink>
+      </Typography>
+    </>
   );
 }
 

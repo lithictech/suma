@@ -94,12 +94,6 @@ module Suma::AdminAPI::Entities
     expose :recipient, with: MemberEntity
   end
 
-  class MessagePreferenceSubscriptionEntity < BaseEntity
-    expose :key
-    expose :opted_in
-    expose :editable_state
-  end
-
   class BankAccountEntity < PaymentInstrumentEntity
     include AutoExposeDetail
     expose :verified_at
