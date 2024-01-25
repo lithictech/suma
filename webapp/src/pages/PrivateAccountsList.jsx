@@ -172,7 +172,7 @@ function PrivateAccount({ account, onHelp }) {
   }
 
   let content;
-  if (buttonStatus === "a") {
+  if (buttonStatus === INITIAL) {
     content = (
       <Stack direction="horizontal" gap={2} className="justify-content-center mb-1">
         <Button onClick={handleInitialClick}>{t("private_accounts:initial")}</Button>
@@ -181,7 +181,7 @@ function PrivateAccount({ account, onHelp }) {
         </Button>
       </Stack>
     );
-  } else if (buttonStatus === "b") {
+  } else if (buttonStatus === POLLING) {
     content = (
       <Alert variant="info" className="w-100 mb-0">
         <Stack direction="horizontal" gap={3}>
