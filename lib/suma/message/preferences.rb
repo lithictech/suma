@@ -19,6 +19,7 @@ class Suma::Message::Preferences < Suma::Postgres::Model(:message_preferences)
   def sms_enabled? = self.sms_enabled
   def email_enabled? = self.email_enabled
 
+  # @param [Suma::Message::Template] message
   def dispatch(message)
     message.language = self.preferred_language
     to = self.member
