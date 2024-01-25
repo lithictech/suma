@@ -1,5 +1,6 @@
 import api from "../api";
 import loaderRing from "../assets/images/loader-ring.svg";
+import AnimatedCheckmark from "../components/AnimatedCheckmark";
 import ErrorScreen from "../components/ErrorScreen";
 import FormError from "../components/FormError";
 import LayoutContainer from "../components/LayoutContainer";
@@ -93,7 +94,7 @@ export default function PrivateAccountsList() {
         <LayoutContainer gutters>
           <Stack gap={3}>
             {accounts.items.map((a) => (
-              <Card key={a.id} className="pb-3">
+              <Card key={a.id}>
                 <Card.Body>
                   <PrivateAccount account={a} onHelp={() => handleHelp(a)} />
                 </Card.Body>
@@ -127,8 +128,7 @@ function PrivateAccount({ account, onHelp }) {
           .then((r) => {
             if (r.data.foundChange) {
               // Turn this off before navigating in case promise callbacks don't run.
-              window.setTimeout(() => setButtonStatus(INITIAL), 100);
-              window.location.href = r.data.vendorAccount.magicLink;
+              window.setTimeout(() => setButtonStatus(SUCCESS), 100);
             } else {
               pollAndReplace();
             }
@@ -172,31 +172,42 @@ function PrivateAccount({ account, onHelp }) {
   }
 
   let content;
-  if (buttonStatus === INITIAL) {
+  if (buttonStatus === "a") {
     content = (
-      <Stack direction="horizontal" gap={2} className="mt-3 justify-content-center">
+      <Stack direction="horizontal" gap={2} className="justify-content-center mb-1">
         <Button onClick={handleInitialClick}>{t("private_accounts:initial")}</Button>
         <Button variant="outline-primary" onClick={() => onHelp()}>
           {t("common:help")}
         </Button>
       </Stack>
     );
+  } else if (buttonStatus === "b") {
+    content = (
+      <Alert variant="info" className="w-100 mb-0">
+        <Stack direction="horizontal" gap={3}>
+          <div className="me-auto">
+            <h5>{t("private_accounts:polling")}</h5>
+            <p>{t("private_accounts:polling_detail")}</p>
+          </div>
+          <img
+            src={loaderRing}
+            width="80"
+            height="80"
+            alt={t("private_accounts:polling")}
+          />
+        </Stack>
+      </Alert>
+    );
   } else {
     content = (
-      <Stack direction="vertical" className="mt-3">
-        <Alert variant="info">
-          <p className="lead mb-0">
-            {t("private_accounts:polling")}
-            <img
-              src={loaderRing}
-              width="80"
-              height="80"
-              alt={t("private_accounts:polling")}
-            />
-          </p>
-          <p>{t("private_accounts:polling_detail")}</p>
-        </Alert>
-      </Stack>
+      <Alert variant="success" className="mb-0">
+        <Stack direction="horizontal" gap={3}>
+          {t("private_accounts:success")}
+          <div className="ms-auto">
+            <AnimatedCheckmark />
+          </div>
+        </Stack>
+      </Alert>
     );
   }
   return (
@@ -205,6 +216,7 @@ function PrivateAccount({ account, onHelp }) {
         image={vendorImage}
         height={80}
         params={{ crop: "none", fmt: "png", flatten: [255, 255, 255] }}
+        className="mb-3"
       />
       {content}
       <FormError error={error} className="mt-3" />
@@ -214,3 +226,4 @@ function PrivateAccount({ account, onHelp }) {
 
 const INITIAL = 1;
 const POLLING = 2;
+const SUCCESS = 3;
