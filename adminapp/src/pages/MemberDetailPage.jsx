@@ -1,6 +1,7 @@
 import api from "../api";
 import AdminLink from "../components/AdminLink";
 import BoolCheckmark from "../components/BoolCheckmark";
+import Copyable from "../components/Copyable";
 import DetailGrid from "../components/DetailGrid";
 import InlineEditField from "../components/InlineEditField";
 import PaymentAccountRelatedLists from "../components/PaymentAccountRelatedLists";
@@ -437,12 +438,16 @@ function BankAccounts({ bankAccounts }) {
 }
 
 function MessagePreferences({ preferences }) {
+  if (!preferences) {
+    return null;
+  }
+  const { subscriptions, publicUrl } = preferences;
   return (
     <>
       <RelatedList
         title="Message Preferences"
         headers={["Key", "Opted In", "Editable State"]}
-        rows={preferences.subscriptions}
+        rows={subscriptions}
         keyRowAttr="id"
         toCells={(row) => [
           row.key,
@@ -453,9 +458,9 @@ function MessagePreferences({ preferences }) {
       <Typography sx={{ mt: 2 }}>
         Give this link to the member when they request to change their messaging
         preferences:{" "}
-        <SafeExternalLink href={preferences.publicUrl}>
-          {preferences.publicUrl}
-        </SafeExternalLink>
+        <Copyable text={publicUrl} inline>
+          <SafeExternalLink href={publicUrl}>{publicUrl}</SafeExternalLink>
+        </Copyable>
       </Typography>
     </>
   );
