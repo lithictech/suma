@@ -76,6 +76,16 @@ module Suma::API::Entities
     expose :discount_amount, with: MoneyEntity, &self.delegate_to(:charge, :discount_amount, safe: true)
   end
 
+  class PreferencesSubscriptionEntity < BaseEntity
+    expose :key
+    expose :opted_in
+    expose :editable_state
+  end
+
+  class MemberPreferencesEntity < BaseEntity
+    expose :subscriptions, with: PreferencesSubscriptionEntity
+  end
+
   class CurrentMemberEntity < Suma::Service::Entities::CurrentMember
     expose :unclaimed_orders_count, &self.delegate_to(:orders_dataset, :available_to_claim, :count)
     expose :ongoing_trip
@@ -88,6 +98,7 @@ module Suma::API::Entities
     expose :show_private_accounts do |m|
       !Suma::AnonProxy::VendorAccount.for(m).empty?
     end
+    expose :preferences!, as: :preferences, with: MemberPreferencesEntity
   end
 
   class LedgerLineUsageDetailsEntity < Grape::Entity

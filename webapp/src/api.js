@@ -106,4 +106,8 @@ export default {
       data,
       opts
     ),
+
+  getPreferencesPublic: (data) => get("/api/v1/preferences/public", data),
+  updatePreferencesPublic: (data) => post("/api/v1/preferences/public", data),
+  updatePreferences: (data) => post("/api/v1/preferences", data),
 };

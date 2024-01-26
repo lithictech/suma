@@ -161,6 +161,17 @@ class Suma::AdminAPI::Members < Suma::AdminAPI::V1
     expose :constraint, with: Suma::AdminAPI::Entities::EligibilityConstraintEntity
   end
 
+  class PreferencesSubscriptionEntity < BaseEntity
+    expose :key
+    expose :opted_in
+    expose :editable_state
+  end
+
+  class PreferencesEntity < BaseEntity
+    expose :public_url
+    expose :subscriptions, with: PreferencesSubscriptionEntity
+  end
+
   class DetailedMemberEntity < MemberEntity
     include Suma::AdminAPI::Entities
     include AutoExposeDetail
@@ -188,5 +199,6 @@ class Suma::AdminAPI::Members < Suma::AdminAPI::V1
     expose :sessions, with: MemberSessionEntity
     expose :orders, with: MemberOrderEntity
     expose :message_deliveries, with: MessageDeliveryEntity
+    expose :preferences!, as: :preferences, with: PreferencesEntity
   end
 end

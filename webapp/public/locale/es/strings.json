@@ -229,9 +229,10 @@
     "phone": "Teléfono",
     "routing_caption": "Ingrese el número de ruta de 9 dígitos de su cuenta bancaria. Puede encontrar esta información en el portal de banco en línea, o consultando $t(strings:forms:paper_check_link).",
     "routing_number": "Código de Identificación",
+    "save": "Salvar",
     "savings": "Ahorros",
     "state": "Estado",
-    "submit": "Enviar",
+    "submit": "Entregar",
     "zip": "Código Postal"
   },
   "ledgerusage": {
@@ -323,6 +324,23 @@
     "unlink_account_question": "¿Estás seguro de que quieres desvincular esta cuenta? Siempre lo puedes volver a añadir.",
     "unlink_account_question_subtitle": "No se cancelarán las transaciones en curso."
   },
+  "preferences": {
+    "account_updates": {
+      "helper_text": "Actualizaciones de pedidos, recibos y otros mensajes basados en las acciones que realiza en suma.",
+      "title": "Actualizaciones de cuenta"
+    },
+    "intro": "Administrar los tipos de comunicaciones que recibes de suma.",
+    "marketing": {
+      "helper_text": "Comunicaciones del equipo suma. Puede cancelar las suscripciónes respondiendo STOP a cualquier mensaje de mercadotecnia.",
+      "title": "Mercadotecnia"
+    },
+    "security": {
+      "helper_text": "Para iniciar sesión y otros mensajes basados en seguridad. Todos los miembros de suma reciben estos mensajes.",
+      "title": "Seguridad"
+    },
+    "success": "Tus preferencias se cambiaron correctamente.",
+    "title": "Preferencias"
+  },
   "private_accounts": {
     "auth_error": "Perdón, algo salió mal. Puede intentarlo nuevamente o enviar un correo electrónico a apphelp@mysuma.org.",
     "create_account": "Crear una cuenta",
@@ -342,6 +360,7 @@
     "funding": "Financiamiento",
     "home": "Inicio",
     "ledgers_overview": "Estado de Cuentas",
+    "messaging_preferences": "Preferencias de Mensajería",
     "mobility": "Movilidad",
     "onboarding": "Integración",
     "onboarding_finish": "Finalizar la integración",
@@ -349,6 +368,7 @@
     "order": "Pedido",
     "order_history": "Historial De Pedidos",
     "otp": "Contraseña de un solo uso",
+    "preferences": "Preferencias",
     "private_accounts": "Cuentas Privadas",
     "start": "Comenzar",
     "suma_app": "App de Suma",

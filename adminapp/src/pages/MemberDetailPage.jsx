@@ -1,6 +1,7 @@
 import api from "../api";
 import AdminLink from "../components/AdminLink";
 import BoolCheckmark from "../components/BoolCheckmark";
+import Copyable from "../components/Copyable";
 import DetailGrid from "../components/DetailGrid";
 import InlineEditField from "../components/InlineEditField";
 import PaymentAccountRelatedLists from "../components/PaymentAccountRelatedLists";
@@ -135,6 +136,7 @@ export default function MemberDetailPage() {
           <Charges charges={member.charges} />
           <BankAccounts bankAccounts={member.bankAccounts} />
           <PaymentAccountRelatedLists paymentAccount={member.paymentAccount} />
+          <MessagePreferences preferences={member.preferences} />
           <MessageDeliveries messageDeliveries={member.messageDeliveries} />
           <Sessions sessions={member.sessions} />
           <ResetCodes resetCodes={member.resetCodes} />
@@ -432,6 +434,35 @@ function BankAccounts({ bankAccounts }) {
         row.softDeletedAt ? dayjs(row.softDeletedAt).format("lll") : "",
       ]}
     />
+  );
+}
+
+function MessagePreferences({ preferences }) {
+  if (!preferences) {
+    return null;
+  }
+  const { subscriptions, publicUrl } = preferences;
+  return (
+    <>
+      <RelatedList
+        title="Message Preferences"
+        headers={["Key", "Opted In", "Editable State"]}
+        rows={subscriptions}
+        keyRowAttr="id"
+        toCells={(row) => [
+          row.key,
+          <BoolCheckmark key={2}>{row.optedIn}</BoolCheckmark>,
+          row.editableState,
+        ]}
+      />
+      <Typography sx={{ mt: 2 }}>
+        Give this link to the member when they request to change their messaging
+        preferences:{" "}
+        <Copyable text={publicUrl} inline>
+          <SafeExternalLink href={publicUrl}>{publicUrl}</SafeExternalLink>
+        </Copyable>
+      </Typography>
+    </>
   );
 }
 

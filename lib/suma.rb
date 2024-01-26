@@ -182,6 +182,8 @@ module Suma
       Thread.current[:suma_request_admin] = nil
     end
   end
+
+  def self.bool?(v) = [true, false].include?(v)
 end
 
 require "suma/aggregate_result"

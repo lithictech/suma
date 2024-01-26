@@ -9,11 +9,22 @@ class Suma::Message::Preferences < Suma::Postgres::Model(:message_preferences)
 
   many_to_one :member, class: Suma::Member
 
+  class SubscriptionGroup < Suma::TypedStruct
+    attr_accessor :model, :optout_field, :key, :opted_in, :editable_state
+
+    def editable? = self.editable_state == "on"
+
+    def set_from_opted_in(optin)
+      self.model.set(self.optout_field => !optin)
+    end
+  end
+
   def initialize(*)
     super
     self[:sms_enabled] = true if self[:sms_enabled].nil?
     self[:email_enabled] = false if self[:email_enabled].nil?
     self[:preferred_language] = "en" if self[:preferred_language].nil?
+    self[:access_token] ||= SecureRandom.uuid
   end
 
   def sms_enabled? = self.sms_enabled
@@ -27,6 +38,23 @@ class Suma::Message::Preferences < Suma::Postgres::Model(:message_preferences)
     sent << Suma::Message.dispatch(message, to, :email) if self.email_enabled?
     return sent
   end
+
+  # @return [Array<SubscriptionGroup>]
+  def subscriptions
+    groups = []
+    groups << SubscriptionGroup.new(
+      model: self,
+      optout_field: :account_updates_optout,
+      key: :account_updates,
+      opted_in: !self.account_updates_optout,
+      editable_state: "on",
+    )
+    groups << SubscriptionGroup.new(key: :marketing, opted_in: false, editable_state: "hidden")
+    groups << SubscriptionGroup.new(key: :security, opted_in: true, editable_state: "off")
+    return groups
+  end
+
+  def public_url = "#{Suma.app_url}/preferences-public?token=#{self.access_token}"
 
   def validate
     super

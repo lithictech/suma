@@ -35,6 +35,8 @@ import OnboardingSignup from "./pages/OnboardingSignup";
 import OneTimePassword from "./pages/OneTimePassword";
 import OrderHistoryDetail from "./pages/OrderHistoryDetail";
 import OrderHistoryList from "./pages/OrderHistoryList";
+import PreferencesAuthed from "./pages/PreferencesAuthed";
+import PreferencesPublic from "./pages/PreferencesPublic";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import PrivateAccountsList from "./pages/PrivateAccountsList";
 import Start from "./pages/Start";
@@ -455,6 +457,28 @@ function AppRoutes() {
             withMetatags({ title: t("titles:private_accounts") }),
             withLayout(),
             PrivateAccountsList
+          )}
+        />
+        <Route
+          path="/preferences"
+          exact
+          element={renderWithHocs(
+            redirectIfUnauthed,
+            redirectIfUnboarded,
+            withScreenLoaderMount(),
+            withMetatags({ title: t("titles:preferences") }),
+            withLayout({ top: true, gutters: true }),
+            PreferencesAuthed
+          )}
+        />
+        <Route
+          path="/preferences-public"
+          exact
+          element={renderWithHocs(
+            withScreenLoaderMount(),
+            withMetatags({ title: t("titles:messaging_preferences") }),
+            withLayout({ top: true, gutters: true }),
+            PreferencesPublic
           )}
         />
         <Route
