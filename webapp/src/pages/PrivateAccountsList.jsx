@@ -1,6 +1,5 @@
 import api from "../api";
 import loaderRing from "../assets/images/loader-ring.svg";
-import AnimatedCheckmark from "../components/AnimatedCheckmark";
 import ErrorScreen from "../components/ErrorScreen";
 import FormError from "../components/FormError";
 import LayoutContainer from "../components/LayoutContainer";
@@ -12,6 +11,7 @@ import { mdp, t } from "../localization";
 import ScrollTopOnMount from "../shared/ScrollToTopOnMount";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
 import useMountEffect from "../shared/react/useMountEffect";
+import useToggle from "../shared/react/useToggle";
 import { useError } from "../state/useError";
 import { CanceledError } from "axios";
 import get from "lodash/get";
@@ -113,6 +113,7 @@ function PrivateAccount({ account, onHelp }) {
   const { vendorImage } = account;
   const [buttonStatus, setButtonStatus] = React.useState(INITIAL);
   const [error, setError] = useError(null);
+  const success = useToggle(false);
 
   const pollingCallback = React.useCallback(() => {
     // Abort any ongoing request when we unmount.
@@ -128,7 +129,8 @@ function PrivateAccount({ account, onHelp }) {
           .then((r) => {
             if (r.data.foundChange) {
               // Turn this off before navigating in case promise callbacks don't run.
-              window.setTimeout(() => setButtonStatus(SUCCESS), 100);
+              window.setTimeout(() => setButtonStatus(INITIAL), 100);
+              success.turnOn();
             } else {
               pollAndReplace();
             }
@@ -148,10 +150,11 @@ function PrivateAccount({ account, onHelp }) {
     return () => {
       controller.abort();
     };
-  }, [account.id]);
+  }, [account.id, success]);
 
   function handleInitialClick(e) {
     e.preventDefault();
+    success.turnOff();
     setError(null);
     setButtonStatus(POLLING);
     api
@@ -181,7 +184,7 @@ function PrivateAccount({ account, onHelp }) {
         </Button>
       </Stack>
     );
-  } else if (buttonStatus === POLLING) {
+  } else {
     content = (
       <Alert variant="info" className="w-100 mb-0">
         <Stack direction="horizontal" gap={3}>
@@ -198,17 +201,6 @@ function PrivateAccount({ account, onHelp }) {
         </Stack>
       </Alert>
     );
-  } else {
-    content = (
-      <Alert variant="success" className="mb-0">
-        <Stack direction="horizontal" gap={3}>
-          {t("private_accounts:success")}
-          <div className="ms-auto">
-            <AnimatedCheckmark />
-          </div>
-        </Stack>
-      </Alert>
-    );
   }
   return (
     <Stack direction="vertical" className="align-items-start">
@@ -218,6 +210,17 @@ function PrivateAccount({ account, onHelp }) {
         params={{ crop: "none", fmt: "png", flatten: [255, 255, 255] }}
         className="mb-3"
       />
+      <Alert
+        variant="success"
+        show={success.isOn}
+        onClose={() => success.turnOff()}
+        dismissible
+      >
+        <span>
+          <i className="bi bi-phone-vibrate d-inline me-2"></i>
+          {t("private_accounts:success")}
+        </span>
+      </Alert>
       {content}
       <FormError error={error} className="mt-3" />
     </Stack>
@@ -226,4 +229,3 @@ function PrivateAccount({ account, onHelp }) {
 
 const INITIAL = 1;
 const POLLING = 2;
-const SUCCESS = 3;
