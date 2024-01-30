@@ -126,6 +126,11 @@ RSpec.describe Suma::AnonProxy::MessageHandler, :db do
           "https://limebike.app.link/email_verification?authentication_code=hXYamQ1JGVifc6xuMv6qUrLZ",
         latest_access_code_set_at: match_time(:now),
       )
+      expect(vendor_account.contact.member.message_deliveries.last).to have_attributes(
+        template: "anon_proxy/lime-deep-link-access-code",
+        transport_type: "sms",
+        transport_service: "signalwire",
+      )
     end
 
     it "noops if we do not recognize the message" do
