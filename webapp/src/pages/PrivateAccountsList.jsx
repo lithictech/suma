@@ -11,6 +11,7 @@ import { mdp, t } from "../localization";
 import ScrollTopOnMount from "../shared/ScrollToTopOnMount";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
 import useMountEffect from "../shared/react/useMountEffect";
+import useToggle from "../shared/react/useToggle";
 import { useError } from "../state/useError";
 import { CanceledError } from "axios";
 import get from "lodash/get";
@@ -93,7 +94,7 @@ export default function PrivateAccountsList() {
         <LayoutContainer gutters>
           <Stack gap={3}>
             {accounts.items.map((a) => (
-              <Card key={a.id} className="pb-3">
+              <Card key={a.id}>
                 <Card.Body>
                   <PrivateAccount account={a} onHelp={() => handleHelp(a)} />
                 </Card.Body>
@@ -112,6 +113,7 @@ function PrivateAccount({ account, onHelp }) {
   const { vendorImage } = account;
   const [buttonStatus, setButtonStatus] = React.useState(INITIAL);
   const [error, setError] = useError(null);
+  const success = useToggle(false);
 
   const pollingCallback = React.useCallback(() => {
     // Abort any ongoing request when we unmount.
@@ -128,7 +130,7 @@ function PrivateAccount({ account, onHelp }) {
             if (r.data.foundChange) {
               // Turn this off before navigating in case promise callbacks don't run.
               window.setTimeout(() => setButtonStatus(INITIAL), 100);
-              window.location.href = r.data.vendorAccount.magicLink;
+              success.turnOn();
             } else {
               pollAndReplace();
             }
@@ -148,10 +150,11 @@ function PrivateAccount({ account, onHelp }) {
     return () => {
       controller.abort();
     };
-  }, [account.id]);
+  }, [account.id, success]);
 
   function handleInitialClick(e) {
     e.preventDefault();
+    success.turnOff();
     setError(null);
     setButtonStatus(POLLING);
     api
@@ -174,7 +177,7 @@ function PrivateAccount({ account, onHelp }) {
   let content;
   if (buttonStatus === INITIAL) {
     content = (
-      <Stack direction="horizontal" gap={2} className="mt-3 justify-content-center">
+      <Stack direction="horizontal" gap={2} className="justify-content-center mb-1">
         <Button onClick={handleInitialClick}>{t("private_accounts:initial")}</Button>
         <Button variant="outline-primary" onClick={() => onHelp()}>
           {t("common:help")}
@@ -183,20 +186,20 @@ function PrivateAccount({ account, onHelp }) {
     );
   } else {
     content = (
-      <Stack direction="vertical" className="mt-3">
-        <Alert variant="info">
-          <p className="lead mb-0">
-            {t("private_accounts:polling")}
-            <img
-              src={loaderRing}
-              width="80"
-              height="80"
-              alt={t("private_accounts:polling")}
-            />
-          </p>
-          <p>{t("private_accounts:polling_detail")}</p>
-        </Alert>
-      </Stack>
+      <Alert variant="info" className="w-100 mb-0">
+        <Stack direction="horizontal" gap={3}>
+          <div className="me-auto">
+            <h5>{t("private_accounts:polling")}</h5>
+            <p>{t("private_accounts:polling_detail")}</p>
+          </div>
+          <img
+            src={loaderRing}
+            width="80"
+            height="80"
+            alt={t("private_accounts:polling")}
+          />
+        </Stack>
+      </Alert>
     );
   }
   return (
@@ -205,7 +208,19 @@ function PrivateAccount({ account, onHelp }) {
         image={vendorImage}
         height={80}
         params={{ crop: "none", fmt: "png", flatten: [255, 255, 255] }}
+        className="mb-3"
       />
+      <Alert
+        variant="success"
+        show={success.isOn}
+        onClose={() => success.turnOff()}
+        dismissible
+      >
+        <span>
+          <i className="bi bi-phone-vibrate d-inline me-2"></i>
+          {t("private_accounts:success")}
+        </span>
+      </Alert>
       {content}
       <FormError error={error} className="mt-3" />
     </Stack>

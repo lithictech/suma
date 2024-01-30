@@ -350,6 +350,7 @@
     "polling": "Procesando...",
     "polling_detail": "Esto puede tardar hasta un minuto.",
     "recent_messages_from_vendor": "Mensajes recientes de {{vendorName}}",
+    "success": "Siga las instrucciones que se enviaron a su teléfono para iniciar esta aplicación.",
     "vendor_private_accounts": "Cuentas Privadas de {{vendorName}}"
   },
   "titles": {

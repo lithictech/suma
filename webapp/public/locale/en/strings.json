@@ -350,6 +350,7 @@
     "polling": "Working...",
     "polling_detail": "This can take up to a minute.",
     "recent_messages_from_vendor": "Recent Messages from {{vendorName}}",
+    "success": "Please follow the instructions that has been sent to your phone in order to launch this app.",
     "vendor_private_accounts": "{{vendorName}} Private Accounts"
   },
   "titles": {
