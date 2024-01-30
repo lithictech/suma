@@ -52,6 +52,7 @@ const OneTimePassword = () => {
   };
 
   const handleOtpPaste = (event) => {
+    event.preventDefault();
     if (!event?.clipboardData) {
       return;
     }
