@@ -37,9 +37,18 @@ const OneTimePassword = () => {
       submitRef.current.disabled = true;
       return setOtpChars([...otpChars.map((num, idx) => (idx === index ? "" : num))]);
     }
+
+    // IOS keyboard paste does not call the onPaste event, instead it calls onChange.
+    // when the value equals the OTP length, we set it
+    if (value.length === OTP_LENGTH) {
+      setOtpChars(value.split(""));
+      submitRef.current.disabled = false;
+      submitRef.current.focus();
+      return;
+    }
+
     const newOtp = [...otpChars.map((num, idx) => (idx === index ? value : num))];
     setOtpChars(newOtp);
-
     submitRef.current.disabled = !otpValid(newOtp);
 
     if (target.nextSibling) {
