@@ -45,6 +45,9 @@ const OneTimePassword = () => {
       submitRef.current.disabled = false;
       submitRef.current.focus();
       return;
+    } else if (value.length !== 1) {
+      // handle maxLength of 1 here, it allows onChange to capture 6 digits when IOS keyboard pasting
+      return;
     }
 
     const newOtp = [...otpChars.map((num, idx) => (idx === index ? value : num))];
@@ -148,7 +151,7 @@ const OneTimePassword = () => {
                 className="otp-field mb-2 p-1"
                 type="text"
                 name="otp"
-                maxLength="1"
+                maxLength="6"
                 inputMode="numeric"
                 key={index}
                 value={data}
