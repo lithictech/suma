@@ -32,34 +32,46 @@ const OneTimePassword = () => {
 
   const handleOtpChange = (event, index = 0) => {
     const { target } = event;
-    const { value } = target;
-    if (isNaN(parseInt(value))) {
-      submitRef.current.disabled = true;
-      return setOtpChars([...otpChars.map((num, idx) => (idx === index ? "" : num))]);
+    let { value } = target;
+
+    const hasNonDigits = value.split("").filter((ch) => /^\D$/.test(ch)).length >= 1;
+    if (isNaN(parseInt(value)) || hasNonDigits) {
+      return;
     }
 
     // IOS keyboard paste does not call the onPaste event, instead it calls onChange.
-    // when the value equals the OTP length, we set it
+    // when the value equals the OTP length, we handle it
     if (value.length === OTP_LENGTH) {
       setOtpChars(value.split(""));
       submitRef.current.disabled = false;
       submitRef.current.focus();
       return;
-    } else if (value.length !== 1) {
-      // handle maxLength of 1 here, it allows onChange to capture 6 digits when IOS keyboard pasting
-      return;
     }
 
-    const newOtp = [...otpChars.map((num, idx) => (idx === index ? value : num))];
+    // In cases where selection caret is at the start (left) of current value
+    const newValueIndex = event.target.selectionStart === 1 ? 0 : value.length - 1;
+    const newOtp = newOtpChars(otpChars, value[newValueIndex], index);
     setOtpChars(newOtp);
-    submitRef.current.disabled = !otpValid(newOtp);
 
+    submitRef.current.disabled = !otpValid(newOtp);
     if (target.nextSibling) {
       // Focus next input if there is one.
       target.nextSibling.focus();
     } else if (submitRef.current) {
       // Focus submit if we're at the last input (will only focus if it's not disabled)
       submitRef.current.focus();
+    }
+  };
+
+  const handleOtpDelete = (event, index) => {
+    const { key, target } = event;
+    if (key === "Backspace" || key === "Delete") {
+      event.preventDefault();
+      submitRef.current.disabled = true;
+      if (target.previousSibling) {
+        target.previousSibling.focus();
+      }
+      setOtpChars(newOtpChars(otpChars, "", index));
     }
   };
 
@@ -155,9 +167,10 @@ const OneTimePassword = () => {
                 key={index}
                 value={data}
                 placeholder="&middot;"
-                onChange={(event) => handleOtpChange(event, index)}
+                onInput={(e) => handleOtpChange(e, index)}
                 onPaste={handleOtpPaste}
-                onFocus={(event) => event.target.select()}
+                onKeyDown={(e) => handleOtpDelete(e, index)}
+                onFocus={(e) => e.target.select()}
                 autoFocus={index === 0}
                 aria-label={t("otp:enter_code") + (index + 1)}
                 autoComplete="one-time-code"
@@ -199,4 +212,8 @@ const OTP_LENGTH = 6;
 
 function otpValid(chars) {
   return chars.every(Boolean);
+}
+
+function newOtpChars(chars, newValue, index) {
+  return [...chars.map((num, idx) => (idx === index ? newValue : num))];
 }
