@@ -49,11 +49,21 @@ module Suma::AdminAPI::CommonEndpoints
         update_model(fk_model, mparams)
       end
       to_many_assocs_and_args.each do |(assoc, args)|
+        unseen_children = m.send(assoc[:name]).to_h { |am| [am.id, am] }
         args.each do |mparams|
-          am = (mid = mparams.delete(:id)) ? association_class(assoc)[mid] : association_class(assoc).new
-          update_model(am, mparams, save: false)
-          m.send(assoc[:add_method], am)
+          assoc_model = if (assoc_model_id = mparams.delete(:id))
+                          # Submitting as form encoding, like when using an image, turns everything into a string
+                          assoc_model_id = assoc_model_id.to_i
+                          unseen_children.delete(assoc_model_id)
+                          association_class(assoc)[assoc_model_id]
+          else
+            association_class(assoc).new
+          end
+          update_model(assoc_model, mparams, save: false)
+          m.send(assoc[:add_method], assoc_model)
         end
+        unseen_children.values.each(&:destroy)
+        m.associations.delete(assoc[:name])
       end
     end
   end
