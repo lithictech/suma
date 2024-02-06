@@ -33,21 +33,45 @@ const OneTimePassword = () => {
   const handleOtpChange = (event, index = 0) => {
     const { target } = event;
     const { value } = target;
-    if (isNaN(parseInt(value))) {
-      submitRef.current.disabled = true;
-      return setOtpChars([...otpChars.map((num, idx) => (idx === index ? "" : num))]);
+
+    const onlyDigits = /^\d+$/.test(value);
+    if (!onlyDigits) {
+      return;
     }
-    const newOtp = [...otpChars.map((num, idx) => (idx === index ? value : num))];
+
+    // IOS keyboard paste does not call the onPaste event, instead it calls onChange.
+    // when the value equals the OTP length, we handle it
+    if (value.length === OTP_LENGTH) {
+      setOtpChars(value.split(""));
+      submitRef.current.disabled = false;
+      submitRef.current.focus();
+      return;
+    }
+
+    // The number we just typed is to the left of the cursor location.
+    const newlyTypedChar = value[event.target.selectionStart - 1];
+    const newOtp = setCharAt(otpChars, newlyTypedChar, index);
     setOtpChars(newOtp);
 
     submitRef.current.disabled = !otpValid(newOtp);
-
     if (target.nextSibling) {
       // Focus next input if there is one.
       target.nextSibling.focus();
     } else if (submitRef.current) {
       // Focus submit if we're at the last input (will only focus if it's not disabled)
       submitRef.current.focus();
+    }
+  };
+
+  const handleOtpKeyDown = (event, index) => {
+    const { key, target } = event;
+    if (key === "Backspace" || key === "Delete") {
+      event.preventDefault();
+      submitRef.current.disabled = true;
+      if (key === "Backspace" && target.previousSibling) {
+        target.previousSibling.focus();
+      }
+      setOtpChars(setCharAt(otpChars, "", index));
     }
   };
 
@@ -138,14 +162,16 @@ const OneTimePassword = () => {
                 className="otp-field mb-2 p-1"
                 type="text"
                 name="otp"
-                maxLength="1"
+                // Must use the OTP length here, so any input can capture the full paste.
+                maxLength={OTP_LENGTH}
                 inputMode="numeric"
                 key={index}
                 value={data}
                 placeholder="&middot;"
-                onChange={(event) => handleOtpChange(event, index)}
+                onInput={(e) => handleOtpChange(e, index)}
                 onPaste={handleOtpPaste}
-                onFocus={(event) => event.target.select()}
+                onKeyDown={(e) => handleOtpKeyDown(e, index)}
+                onFocus={(e) => e.target.select()}
                 autoFocus={index === 0}
                 aria-label={t("otp:enter_code") + (index + 1)}
                 autoComplete="one-time-code"
@@ -187,4 +213,8 @@ const OTP_LENGTH = 6;
 
 function otpValid(chars) {
   return chars.every(Boolean);
+}
+
+function setCharAt(chars, newValue, index) {
+  return [...chars.map((num, idx) => (idx === index ? newValue : num))];
 }
