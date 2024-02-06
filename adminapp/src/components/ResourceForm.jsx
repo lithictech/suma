@@ -1,7 +1,7 @@
 import api from "../api";
 import useBusy from "../hooks/useBusy";
 import useErrorSnackbar from "../hooks/useErrorSnackbar";
-import merge from "lodash/merge";
+import assign from "lodash/assign";
 import set from "lodash/set";
 import React from "react";
 import { useForm } from "react-hook-form";
@@ -26,7 +26,7 @@ export default function ResourceForm({ InnerForm, baseResource, isCreate, applyC
 
   const setField = React.useCallback(
     (f, v) => {
-      const newChanges = merge({}, changes);
+      const newChanges = assign({}, changes);
       set(newChanges, f, v);
       setChanges(newChanges);
     },
@@ -47,7 +47,7 @@ export default function ResourceForm({ InnerForm, baseResource, isCreate, applyC
   return (
     <InnerForm
       isCreate={isCreate}
-      resource={merge({}, baseResource, changes)}
+      resource={assign({}, baseResource, changes)}
       setFields={setChanges}
       setField={setField}
       setFieldFromInput={setFieldFromInput}
