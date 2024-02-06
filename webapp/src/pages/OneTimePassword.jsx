@@ -32,10 +32,10 @@ const OneTimePassword = () => {
 
   const handleOtpChange = (event, index = 0) => {
     const { target } = event;
-    let { value } = target;
+    const { value } = target;
 
-    const hasNonDigits = value.split("").filter((ch) => /^\D$/.test(ch)).length >= 1;
-    if (isNaN(parseInt(value)) || hasNonDigits) {
+    const onlyDigits = /^\d+$/.test(value);
+    if (!onlyDigits) {
       return;
     }
 
@@ -48,9 +48,9 @@ const OneTimePassword = () => {
       return;
     }
 
-    // In cases where selection caret is at the start (left) of current value
-    const newValueIndex = event.target.selectionStart === 1 ? 0 : value.length - 1;
-    const newOtp = newOtpChars(otpChars, value[newValueIndex], index);
+    // The number we just typed is to the left of the cursor location.
+    const newlyTypedChar = value[event.target.selectionStart - 1];
+    const newOtp = setCharAt(otpChars, newlyTypedChar, index);
     setOtpChars(newOtp);
 
     submitRef.current.disabled = !otpValid(newOtp);
@@ -63,15 +63,15 @@ const OneTimePassword = () => {
     }
   };
 
-  const handleOtpDelete = (event, index) => {
+  const handleOtpKeyDown = (event, index) => {
     const { key, target } = event;
     if (key === "Backspace" || key === "Delete") {
       event.preventDefault();
       submitRef.current.disabled = true;
-      if (target.previousSibling) {
+      if (key === "Backspace" && target.previousSibling) {
         target.previousSibling.focus();
       }
-      setOtpChars(newOtpChars(otpChars, "", index));
+      setOtpChars(setCharAt(otpChars, "", index));
     }
   };
 
@@ -162,14 +162,15 @@ const OneTimePassword = () => {
                 className="otp-field mb-2 p-1"
                 type="text"
                 name="otp"
-                maxLength="6"
+                // Must use the OTP length here, so any input can capture the full paste.
+                maxLength={OTP_LENGTH}
                 inputMode="numeric"
                 key={index}
                 value={data}
                 placeholder="&middot;"
                 onInput={(e) => handleOtpChange(e, index)}
                 onPaste={handleOtpPaste}
-                onKeyDown={(e) => handleOtpDelete(e, index)}
+                onKeyDown={(e) => handleOtpKeyDown(e, index)}
                 onFocus={(e) => e.target.select()}
                 autoFocus={index === 0}
                 aria-label={t("otp:enter_code") + (index + 1)}
@@ -214,6 +215,6 @@ function otpValid(chars) {
   return chars.every(Boolean);
 }
 
-function newOtpChars(chars, newValue, index) {
+function setCharAt(chars, newValue, index) {
   return [...chars.map((num, idx) => (idx === index ? newValue : num))];
 }
