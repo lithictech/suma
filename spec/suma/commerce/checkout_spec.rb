@@ -47,12 +47,6 @@ RSpec.describe "Suma::Commerce::Checkout", :db do
       expect(checkout.chargeable_total).to cost(0)
       expect(checkout).to_not be_requires_payment_instrument
     end
-
-    it "is always false if charging is prohibited" do
-      Suma::Payment.ensure_cash_ledger(member)
-      offering.update(prohibit_charge_at_checkout: true)
-      expect(checkout).to_not be_requires_payment_instrument
-    end
   end
 
   describe "checkout_prohibited_reason" do
@@ -67,14 +61,6 @@ RSpec.describe "Suma::Commerce::Checkout", :db do
     end
 
     it "is nil if nothing is wrong" do
-      expect(checkout.checkout_prohibited_reason(now)).to eq(nil)
-    end
-
-    it "is :charging_prohibited if charging is prohibited and there is a chargeable amount" do
-      offering.update(prohibit_charge_at_checkout: true)
-      expect(checkout.checkout_prohibited_reason(now)).to eq(:charging_prohibited)
-      cart.items.first.offering_product.update_without_validate(customer_price: Money.new(0))
-      checkout.refresh
       expect(checkout.checkout_prohibited_reason(now)).to eq(nil)
     end
 

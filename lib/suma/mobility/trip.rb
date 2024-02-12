@@ -83,12 +83,14 @@ class Suma::Mobility::Trip < Suma::Postgres::Model(:mobility_trips)
         result_cost,
         now:,
         calculation_context: Suma::Payment::CalculationContext.new,
-        # At this point, ride has been taken and finished so we need to accept it
-        # and deal with a potential negative balance.
-        remainder_ledger: :last,
       )
       xactions = self.member.payment_account.debit_contributions(
-        contributions,
+        # We always need a debit. If there are no debitable contributions, make a fake one for $0
+        # using the first non-cash category.
+        # I am not 100% certain this is what we want to do, don't be surprised if we need to revisit this.
+        contributions.debitable_or(
+          ledger: contributions.rest.first.ledger, category: contributions.rest.first.category,
+        ),
         memo: Suma::TranslatedText.create(
           en: "Suma Mobility - #{self.vendor_service.external_name}",
           es: "Suma Movilidad - #{self.vendor_service.external_name}",

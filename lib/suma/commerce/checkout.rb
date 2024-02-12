@@ -91,10 +91,9 @@ class Suma::Commerce::Checkout < Suma::Postgres::Model(:commerce_checkouts)
   def total = self.customer_cost + self.handling
 
   # Nonzero contributions made by existing customer ledgers against the order totals.
-  # @return [Array<Suma::Payment::ChargeContribution]
+  # @return [Enumerable<Suma::Payment::ChargeContribution]
   def usable_ledger_contributions
-    return self.ledger_charge_contributions(now: Time.now, remainder_ledger: :ignore).
-        delete_if { |c| c.amount.zero? }
+    return self.ledger_charge_contributions(now: Time.now).debitable
   end
 
   # Chargeable total is the total, minus the contributions from customer ledgers.
@@ -109,13 +108,11 @@ class Suma::Commerce::Checkout < Suma::Postgres::Model(:commerce_checkouts)
   def chargeable_amount? = !self.chargeable_total.zero?
 
   def requires_payment_instrument?
-    return false if self.cart.offering.prohibit_charge_at_checkout
     return self.chargeable_amount?
   end
 
   def checkout_prohibited_reason(at)
     return :offering_products_unavailable if self.cart.items.select { |ci| ci.available_at?(at) }.empty?
-    return :charging_prohibited if self.cart.offering.prohibit_charge_at_checkout && self.chargeable_amount?
     return :requires_payment_instrument if self.requires_payment_instrument? && !self.payment_instrument
     return :not_editable unless self.editable?
     return nil
@@ -149,28 +146,18 @@ class Suma::Commerce::Checkout < Suma::Postgres::Model(:commerce_checkouts)
         undiscounted_subtotal: self.undiscounted_cost + self.handling + self.tax,
       )
 
-      cash_ledger = self.cart.member.payment_account!.cash_ledger!
       # We have some real possible debits, and possibly a remainder we also need to debit.
-      remainder_contribs, debit_contribs = self.ledger_charge_contributions(now:, remainder_ledger: :return).
-        partition(&:remainder?)
-      unless remainder_contribs.empty?
-        # We'll put the remainder into the cash ledger. See if we have a current contribution for it.
-        cash_contrib = debit_contribs.find { |c| c.ledger === cash_ledger }
-        if cash_contrib.nil?
-          # If we aren't already using the cash ledger, add it.
-          remainder = remainder_contribs.first
-          remainder.ledger = cash_ledger
-          remainder.category = Suma::Vendor::ServiceCategory.cash
-          debit_contribs << remainder
-        else
-          # If we are already debit the cash ledger, add the remainder to it (causing a negative balance).
-          cash_contrib.amount += remainder_contribs.first.amount
-        end
+      contrib_collection = self.ledger_charge_contributions(now:)
+      if contrib_collection.remainder?
+        # We'll put the remainder into the cash ledger.
+        # If we are already debit the cash ledger, add the remainder to it.
+        # This will cause a negative balance (since the current contribution can only be up to its balance).
+        contrib_collection.cash.amount += contrib_collection.remainder.amount
       end
 
       # Create ledger debits for all positive contributions. This MAY bring our balance negative.
       book_xactions = self.cart.member.payment_account.debit_contributions(
-        debit_contribs.select { |c| c.amount.positive? },
+        contrib_collection.debitable,
         memo: Suma::TranslatedText.create(
           en: "Suma Order %04d - %s" % [order.id, self.cart.offering.description.en],
           es: "Suma Pedido %04d - %s" % [order.id, self.cart.offering.description.es],
@@ -179,10 +166,10 @@ class Suma::Commerce::Checkout < Suma::Postgres::Model(:commerce_checkouts)
       book_xactions.each { |x| charge.add_book_transaction(x) }
 
       # If there are any remainder contributions, we need to fund them against the cash ledger.
-      if remainder_contribs.present?
+      if contrib_collection.remainder?
         funding = Suma::Payment::FundingTransaction.start_and_transfer(
           self.card.member,
-          amount: remainder_contribs.first.amount,
+          amount: contrib_collection.remainder.amount,
           instrument: self.payment_instrument,
           apply_at: now,
         )
@@ -196,12 +183,11 @@ class Suma::Commerce::Checkout < Suma::Postgres::Model(:commerce_checkouts)
     end
   end
 
-  def ledger_charge_contributions(now:, remainder_ledger:)
+  def ledger_charge_contributions(now:)
     return Suma::Commerce::Checkout.ledger_charge_contributions(
       payment_account: self.cart.member.payment_account!,
       priced_items: self.items,
       now:,
-      remainder_ledger:,
     )
   end
 
@@ -212,34 +198,20 @@ class Suma::Commerce::Checkout < Suma::Postgres::Model(:commerce_checkouts)
   # @param payment_account [Suma::Payment::Account]
   # @param priced_items [Array<Suma::Commerce::PricedItem>]
   # @param now [Time]
-  # @return [Array<Suma::Payment::ChargeContribution]
-  def self.ledger_charge_contributions(payment_account:, priced_items:, now:, remainder_ledger:, exclude_up: nil)
+  # @return [Suma::Payment::ChargeContribution::Collection]
+  def self.ledger_charge_contributions(payment_account:, priced_items:, now:)
     ctx = Suma::Payment::CalculationContext.new
-    product_contributions = priced_items.map do |item|
-      contribs = payment_account.find_chargeable_ledgers(
+    collections = priced_items.map do |item|
+      coll = payment_account.find_chargeable_ledgers(
         item.offering_product.product,
         item.customer_cost,
         now:,
-        remainder_ledger:,
         calculation_context: ctx,
-        exclude_up:,
       )
-      ctx.apply_all(contribs)
-      contribs
+      ctx.apply_many(*coll.debitable)
+      coll
     end
-    consolidated_contributions = product_contributions.
-      flatten.
-      group_by { |c| [c.ledger&.id, c.category&.id] }.
-      values.
-      map do |contribs|
-      c = contribs.first
-      Suma::Payment::ChargeContribution.new(
-        ledger: c.ledger,
-        apply_at: c.apply_at,
-        category: c.category,
-        amount: contribs.sum(Money.new(0), &:amount),
-      )
-    end
+    consolidated_contributions = Suma::Payment::ChargeContribution::Collection.consolidate(collections)
     return consolidated_contributions
   end
 

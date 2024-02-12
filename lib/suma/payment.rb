@@ -65,16 +65,7 @@ module Suma::Payment
     else
       member_or_payment_account
     end
-    payment_account.db.transaction do
-      payment_account.lock!
-      ledger = payment_account.cash_ledger
-      return ledger if ledger
-      ledger = payment_account.add_ledger({currency: Suma.default_currency, name: "Cash"})
-      ledger.contribution_text.update(en: "General Balance", es: "Balance general")
-      ledger.add_vendor_service_category(Suma::Vendor::ServiceCategory.cash)
-      payment_account.associations.delete(:cash_ledger)
-      return ledger
-    end
+    payment_account.ensure_cash_ledger
   end
 end
 

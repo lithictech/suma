@@ -71,6 +71,8 @@ RSpec.describe "Suma::Mobility::Trip", :db do
 
   describe "end_trip" do
     let!(:member_ledger) { Suma::Fixtures.ledger.member(member).category(:mobility).create }
+    let!(:cash) { Suma::Vendor::ServiceCategory.find!(slug: "cash") }
+    let!(:mobility) { Suma::Vendor::ServiceCategory.find!(slug: "mobility") }
 
     it "ends the trip and creates a charge using the linked rate" do
       rate = Suma::Fixtures.vendor_service_rate.
@@ -89,8 +91,9 @@ RSpec.describe "Suma::Mobility::Trip", :db do
       expect(trip.charge.book_transactions).to have_length(1)
     end
 
-    it "uses the actual charge if there is no discount" do
+    it "charges the mobility ledger if there is a balance" do
       rate = Suma::Fixtures.vendor_service_rate.unit_amount(20).create
+      Suma::Fixtures.book_transaction.to(member.payment_account.mobility_ledger!).create(amount: money("$1"))
       trip = Suma::Fixtures.mobility_trip(vendor_service:).
         ongoing.
         create(began_at: 211.seconds.ago, vendor_service_rate: rate, member:)
@@ -100,7 +103,6 @@ RSpec.describe "Suma::Mobility::Trip", :db do
         undiscounted_subtotal: cost("$0.70"),
         discounted_subtotal: cost("$0.70"),
       )
-      mobility = Suma::Vendor::ServiceCategory.find!(slug: "mobility")
       expect(trip.charge.book_transactions).to contain_exactly(
         have_attributes(
           originating_ledger: member.payment_account.mobility_ledger!,
@@ -112,7 +114,24 @@ RSpec.describe "Suma::Mobility::Trip", :db do
       )
     end
 
-    it "creates a $0 transaction for a $0 trip" do
+    it "charges the cash ledger if the mobility ledger cannot cover the full amount" do
+      rate = Suma::Fixtures.vendor_service_rate.unit_amount(20).create
+      trip = Suma::Fixtures.mobility_trip(vendor_service:).
+        ongoing.
+        create(began_at: 211.seconds.ago, vendor_service_rate: rate, member:)
+      trip.end_trip(lat: 1, lng: 2)
+      expect(trip.charge.book_transactions).to contain_exactly(
+        have_attributes(
+          originating_ledger: member.payment_account.cash_ledger!,
+          receiving_ledger: Suma::Payment::Account.lookup_platform_vendor_service_category_ledger(cash),
+          amount: cost("$0.70"),
+          memo: have_attributes(en: "Suma Mobility - Super Scoot"),
+          associated_vendor_service_category: be === cash,
+        ),
+      )
+    end
+
+    it "creates a $0 mobility transaction for a $0 trip" do
       Suma::Payment.ensure_cash_ledger(member)
       member.refresh
       rate = Suma::Fixtures.vendor_service_rate.unit_amount(0).surcharge(0).create
@@ -125,6 +144,7 @@ RSpec.describe "Suma::Mobility::Trip", :db do
         have_attributes(
           originating_ledger: member.payment_account.mobility_ledger!,
           amount: cost("$0"),
+          associated_vendor_service_category: be === mobility,
         ),
       )
     end

@@ -134,22 +134,19 @@ class Suma::Commerce::Cart < Suma::Postgres::Model(:commerce_carts)
       offering_product.product,
       offering_product.customer_price,
       now:,
-      remainder_ledger: :ignore,
       calculation_context: Suma::Payment::CalculationContext.new,
-      exclude_up: [Suma::Vendor::ServiceCategory.cash],
     )
-    return contribs.sum(Money.new(0), &:amount)
+    return contribs.rest.sum(Money.new(0), &:amount)
   end
 
   def noncash_ledger_contribution_amount(now: Time.now)
+    return Money.new(0) if self.items.empty?
     contribs = Suma::Commerce::Checkout.ledger_charge_contributions(
       payment_account: self.member.payment_account!,
       priced_items: self.items,
       now:,
-      remainder_ledger: :ignore,
-      exclude_up: [Suma::Vendor::ServiceCategory.cash],
     )
-    return contribs.sum(Money.new(0), &:amount)
+    return contribs.rest.sum(Money.new(0), &:amount)
   end
 
   def cash_cost(now: Time.now)
