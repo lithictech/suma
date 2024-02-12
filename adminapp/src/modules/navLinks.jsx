@@ -5,6 +5,7 @@ import KeyIcon from "@mui/icons-material/Key";
 import MailIcon from "@mui/icons-material/Mail";
 import ManageAccountsIcon from "@mui/icons-material/ManageAccounts";
 import PersonIcon from "@mui/icons-material/Person";
+import PortraitIcon from "@mui/icons-material/Portrait";
 import SellIcon from "@mui/icons-material/Sell";
 import ShoppingBagIcon from "@mui/icons-material/ShoppingBag";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
@@ -53,6 +54,11 @@ export default [
   {
     label: "Vendor Accounts",
     href: "/vendor-accounts",
+    icon: <PortraitIcon />,
+  },
+  {
+    label: "Vendor Configurations",
+    href: "/vendor-configurations",
     icon: <ManageAccountsIcon />,
   },
   {

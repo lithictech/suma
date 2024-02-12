@@ -125,6 +125,16 @@ module Suma::AdminAPI::Entities
     expose :slug
   end
 
+  class VendorConfigurationEntity < BaseEntity
+    include AutoExposeBase
+    expose :id
+    expose :vendor, with: VendorEntity
+    expose :app_install_link
+    expose :uses_email
+    expose :uses_sms
+    expose :enabled
+  end
+
   class ChargeEntity < BaseEntity
     include AutoExposeBase
     expose :opaque_id

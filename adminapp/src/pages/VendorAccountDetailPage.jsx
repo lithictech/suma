@@ -1,5 +1,6 @@
 import api from "../api";
 import AdminLink from "../components/AdminLink";
+import BoolCheckmark from "../components/BoolCheckmark";
 import DetailGrid from "../components/DetailGrid";
 import RelatedList from "../components/RelatedList";
 import ResourceDetail from "../components/ResourceDetail";
@@ -36,9 +37,7 @@ export default function VendorAccountDetailPage() {
         },
         {
           label: "Latest Access Code Set At",
-          value: model.latestAccessCodeRequestedAt
-            ? dayjs(model.latestAccessCodeSetAt)
-            : "",
+          value: model.latestAccessCodeSetAt ? dayjs(model.latestAccessCodeSetAt) : "",
         },
       ]}
     >
@@ -48,7 +47,7 @@ export default function VendorAccountDetailPage() {
             <DetailGrid
               title="Configuration"
               properties={[
-                { label: "ID", value: model.configuration.id },
+                { label: "ID", value: <AdminLink model={model.configuration} /> },
                 {
                   label: "Vendor",
                   value: (
@@ -57,20 +56,6 @@ export default function VendorAccountDetailPage() {
                     </AdminLink>
                   ),
                 },
-                { label: "Auth HTTP Method", value: model.configuration.authHttpMethod },
-                {
-                  label: "Auth URL",
-                  value: (
-                    <SafeExternalLink href={model.configuration.authUrl}>
-                      {model.configuration.authUrl}
-                    </SafeExternalLink>
-                  ),
-                },
-                {
-                  label: "Auth Body Template",
-                  value: model.configuration.authBodyTemplate,
-                },
-                { label: "Auth Header", value: model.configuration.authHeaders },
                 {
                   label: "App Install Link",
                   value: (
@@ -79,9 +64,18 @@ export default function VendorAccountDetailPage() {
                     </SafeExternalLink>
                   ),
                 },
-                { label: "Enabled?", value: model.configuration.enabled },
-                { label: "Uses Email?", value: model.configuration.usesEmail },
-                { label: "Uses SMS?", value: model.configuration.usesSms },
+                {
+                  label: "Uses SMS?",
+                  value: <BoolCheckmark>{model.configuration.usesSms}</BoolCheckmark>,
+                },
+                {
+                  label: "Uses Email?",
+                  value: <BoolCheckmark>{model.configuration.usesEmail}</BoolCheckmark>,
+                },
+                {
+                  label: "Enabled?",
+                  value: <BoolCheckmark>{model.configuration.enabled}</BoolCheckmark>,
+                },
               ]}
             />
           )}

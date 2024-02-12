@@ -78,4 +78,56 @@ RSpec.describe Suma::AdminAPI::AnonProxy, :db do
       )
     end
   end
+
+  describe "GET /v1/anon_proxy/vendor_configurations" do
+    it "returns all anon proxy vendor configurations" do
+      objs = Array.new(2) { Suma::Fixtures.anon_proxy_vendor_configuration.create }
+
+      get "/v1/anon_proxy/vendor_configurations"
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.
+        that_includes(items: have_same_ids_as(*objs))
+    end
+  end
+
+  describe "GET /v1/anon_proxy/vendor_configurations/:id" do
+    it "returns the anon proxy vendor configuration" do
+      ec = Suma::Fixtures.eligibility_constraint.create
+      vendor = Suma::Fixtures.vendor.create
+      config = Suma::Fixtures.anon_proxy_vendor_configuration.with_constraints(ec).create(vendor:)
+
+      get "/v1/anon_proxy/vendor_configurations/#{config.id}"
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.that_includes(
+        id: config.id,
+        vendor: include(id: vendor.id),
+        eligibility_constraints: contain_exactly(include(id: ec.id)),
+      )
+    end
+  end
+
+  describe "POST /v1/anon_proxy/vendor_configurations/:id/eligibilities" do
+    it "replaces the eligibilities" do
+      ec = Suma::Fixtures.eligibility_constraint.create
+      to_add = Suma::Fixtures.eligibility_constraint.create
+      config = Suma::Fixtures.anon_proxy_vendor_configuration.with_constraints(ec).create
+
+      post "/v1/anon_proxy/vendor_configurations/#{config.id}/eligibilities", {constraint_ids: [to_add.id]}
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.that_includes(id: config.id)
+      expect(last_response).to have_json_body.
+        that_includes(eligibility_constraints: contain_exactly(include(id: to_add.id)))
+    end
+
+    it "403s if the constraint does not exist" do
+      config = Suma::Fixtures.anon_proxy_vendor_configuration.create
+
+      post "/v1/anon_proxy/vendor_configurations/#{config.id}/eligibilities", {constraint_ids: [0]}
+
+      expect(last_response).to have_status(403)
+    end
+  end
 end

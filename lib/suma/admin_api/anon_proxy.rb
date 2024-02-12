@@ -4,6 +4,7 @@ require "grape"
 require "suma/admin_api"
 
 class Suma::AdminAPI::AnonProxy < Suma::AdminAPI::V1
+  include Suma::Service::Types
   include Suma::AdminAPI::Entities
 
   class VendorAccountMessageEntity < BaseEntity
@@ -17,7 +18,7 @@ class Suma::AdminAPI::AnonProxy < Suma::AdminAPI::V1
     expose :message_handler_key
   end
 
-  class MemberContactEntity < BaseEntity
+  class AnonProxyMemberContactEntity < BaseEntity
     include Suma::AdminAPI::Entities
     expose :id
     expose :member, with: MemberEntity
@@ -26,22 +27,7 @@ class Suma::AdminAPI::AnonProxy < Suma::AdminAPI::V1
     expose :relay_key
   end
 
-  class VendorConfigurationEntity < BaseEntity
-    include Suma::AdminAPI::Entities
-    expose :id
-    expose :vendor, with: VendorEntity
-    expose :app_install_link
-    expose :uses_email
-    expose :uses_sms
-    expose :enabled
-    expose :message_handler_key
-    expose :auth_http_method
-    expose :auth_url
-    expose :auth_headers_label, as: :auth_headers
-    expose :auth_body_template
-  end
-
-  class AnonProxyVendorAccountEntity < BaseEntity
+  class VendorAccountEntity < BaseEntity
     include Suma::AdminAPI::Entities
     include AutoExposeBase
     expose :member, with: MemberEntity
@@ -49,31 +35,58 @@ class Suma::AdminAPI::AnonProxy < Suma::AdminAPI::V1
     expose :messages, with: VendorAccountMessageEntity
   end
 
-  class DetailedAnonProxyVendorAccountEntity < AnonProxyVendorAccountEntity
+  class DetailedVendorConfigurationEntity < VendorConfigurationEntity
     include Suma::AdminAPI::Entities
-    include AutoExposeBase
+    expose :eligibility_constraints, with: EligibilityConstraintEntity
+  end
+
+  class DetailedVendorAccountEntity < VendorAccountEntity
+    include Suma::AdminAPI::Entities
     expose :latest_access_code
     expose :latest_access_code_set_at
     expose :latest_access_code_requested_at
     expose :latest_access_code_magic_link
-    expose :contact, with: MemberContactEntity
+    expose :contact, with: AnonProxyMemberContactEntity
   end
 
   resource :anon_proxy do
     resource :vendor_accounts do
+      Suma::AdminAPI::CommonEndpoints.get_one self, Suma::AnonProxy::VendorAccount, DetailedVendorAccountEntity
       Suma::AdminAPI::CommonEndpoints.list(
         self,
-        Suma::AnonProxy::VendorAccount, AnonProxyVendorAccountEntity,
+        Suma::AnonProxy::VendorAccount, VendorAccountEntity,
         search_params: [:latest_access_code_magic_link, :latest_access_code],
       )
-      Suma::AdminAPI::CommonEndpoints.get_one self, Suma::AnonProxy::VendorAccount, DetailedAnonProxyVendorAccountEntity
-      Suma::AdminAPI::CommonEndpoints.update self, Suma::AnonProxy::VendorAccount,
-                                             DetailedAnonProxyVendorAccountEntity do
+    end
+
+    resource :vendor_configurations do
+      Suma::AdminAPI::CommonEndpoints.get_one self, Suma::AnonProxy::VendorConfiguration,
+                                              DetailedVendorConfigurationEntity
+      Suma::AdminAPI::CommonEndpoints.list(
+        self,
+        Suma::AnonProxy::VendorConfiguration, VendorConfigurationEntity,
+      )
+
+      route_param :id, type: Integer do
         params do
-          optional :latest_access_code_magic_link, type: String
-          optional :latest_access_code, type: String
-          optional :latest_access_code_set_at, type: Time
-          optional :latest_access_code_requested_at, type: Time
+          requires :constraint_ids, type: Array[Integer], coerce_with: CommaSepArray[Integer]
+        end
+        post :eligibilities do
+          config = Suma::AnonProxy::VendorConfiguration[params[:id]]
+          params[:constraint_ids].each do |id|
+            Suma::Eligibility::Constraint[id] or adminerror!(403, "Unknown eligibility constraint: #{id}")
+          end
+          config.replace_eligibility_constraints(params[:constraint_ids])
+          summary = config.eligibility_constraints_dataset.select_map(:name).join(", ")
+          admin_member.add_activity(
+            message_name: "eligibilitychange",
+            summary: "Admin #{admin_member.email} modified eligibilities of #{config.model}[#{config.id}]: #{summary}",
+            subject_type: config.model,
+            subject_id: config.id,
+          )
+
+          status 200
+          present config, with: DetailedVendorConfigurationEntity
         end
       end
     end

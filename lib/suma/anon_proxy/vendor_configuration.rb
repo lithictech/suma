@@ -4,8 +4,10 @@ require "suma/anon_proxy"
 require "suma/eligibility/has_constraints"
 require "suma/postgres"
 require "suma/translated_text"
+require "suma/admin_linked"
 
 class Suma::AnonProxy::VendorConfiguration < Suma::Postgres::Model(:anon_proxy_vendor_configurations)
+  include Suma::AdminLinked
   plugin :timestamps
   plugin :translated_text, :instructions, Suma::TranslatedText
 
@@ -32,6 +34,8 @@ class Suma::AnonProxy::VendorConfiguration < Suma::Postgres::Model(:anon_proxy_v
   def auth_headers_label
     self.auth_headers.to_s
   end
+
+  def rel_admin_link = "/vendor-configuration/#{self.id}"
 end
 
 # Table: anon_proxy_vendor_configurations

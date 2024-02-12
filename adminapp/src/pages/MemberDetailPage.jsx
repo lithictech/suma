@@ -203,7 +203,7 @@ function EligibilityConstraints({ memberConstraints, memberId, replaceMemberData
     } else {
       memberConstraints.forEach(({ status, constraint }) =>
         properties.push({
-          label: constraint.name,
+          label: <AdminLink model={constraint}>{constraint.name}</AdminLink>,
           value: (
             <Typography variant="span" sx={{ lineHeight: "2.5!important" }}>
               {status}

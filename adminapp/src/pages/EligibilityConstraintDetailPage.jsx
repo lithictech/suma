@@ -1,5 +1,6 @@
 import api from "../api";
 import AdminLink from "../components/AdminLink";
+import BoolCheckmark from "../components/BoolCheckmark";
 import RelatedList from "../components/RelatedList";
 import ResourceDetail from "../components/ResourceDetail";
 import { dayjs } from "../modules/dayConfig";
@@ -65,7 +66,7 @@ export default function EligibilityConstraintDetailPage() {
               "Enabled",
             ]}
             toCells={(row) => [
-              row.id,
+              <AdminLink model={row} />,
               dayjs(row.createdAt).format("lll"),
               <AdminLink key={row.vendor.name} model={row.vendor}>
                 {row.vendor.name}
@@ -73,9 +74,9 @@ export default function EligibilityConstraintDetailPage() {
               <SafeExternalLink key={1} href={row.appInstallLink}>
                 {row.appInstallLink}
               </SafeExternalLink>,
-              row.usesEmail ? "Yes" : "No",
-              row.usesSms ? "Yes" : "No",
-              row.enabled ? "Yes" : "No",
+              <BoolCheckmark>{row.usesSms}</BoolCheckmark>,
+              <BoolCheckmark>{row.usesEmail}</BoolCheckmark>,
+              <BoolCheckmark>{row.enabled}</BoolCheckmark>,
             ]}
           />
         </>

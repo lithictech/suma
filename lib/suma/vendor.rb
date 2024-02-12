@@ -10,6 +10,7 @@ class Suma::Vendor < Suma::Postgres::Model(:vendors)
 
   one_to_one :payment_account, class: "Suma::Payment::Account"
   one_to_many :services, class: "Suma::Vendor::Service"
+  one_to_many :configurations, class: "Suma::AnonProxy::VendorConfiguration"
   one_to_many :images, class: "Suma::Image"
   one_to_many :products, class: "Suma::Commerce::Product"
 
