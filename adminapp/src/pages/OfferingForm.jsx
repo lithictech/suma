@@ -275,6 +275,10 @@ function OptionAddress({ address, onFieldChange }) {
       });
   }, []);
 
+  if (!address) {
+    return null;
+  }
+
   function handleChange(e) {
     onFieldChange({ [e.target.name]: e.target.value });
   }

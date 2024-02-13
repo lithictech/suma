@@ -121,7 +121,7 @@ class Suma::AdminAPI::CommerceOfferings < Suma::AdminAPI::V1
                  coerce_with: proc { |s| s.values.each_with_index.map { |fo, ordinal| fo.merge(ordinal:) } } do
           requires :type, type: String, values: Suma::Commerce::OfferingFulfillmentOption::TYPES
           requires(:description, type: JSON) { use :translated_text }
-          optional(:address, type: JSON) { use :address }
+          optional(:address, default: nil, type: JSON) { use :address }
         end
         optional :period_begin, type: Time
         optional :period_end, type: Time

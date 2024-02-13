@@ -24,7 +24,9 @@ module Suma::AdminAPI::CommonEndpoints
         next unless (assoc = mtype.association_reflections[k])
         params.delete(k)
         if assoc[:type].to_s.end_with?("_to_one")
-          if association_class?(assoc, Suma::TranslatedText)
+          if v.nil?
+            fk_attrs[assoc[:name]] = nil
+          elsif association_class?(assoc, Suma::TranslatedText)
             fk_attrs[assoc[:name]] = Suma::TranslatedText.find_or_create(**v)
           elsif association_class?(assoc, Suma::Address)
             fk_attrs[assoc[:name]] = Suma::Address.lookup(v)

@@ -183,6 +183,54 @@ RSpec.describe Suma::AdminAPI::CommerceOfferings, :db do
         have_attributes(description: have_attributes(en: "EN added")),
       )
     end
+
+    it "handles create/remove/update of sub-nested resources" do
+      o = Suma::Fixtures.offering.create
+      address_to_remove = Suma::Fixtures.address.create
+      address_to_update = Suma::Fixtures.address.create
+
+      remove = o.add_fulfillment_option(Suma::Fixtures.offering_fulfillment_option.create(address: address_to_remove))
+      update = o.add_fulfillment_option(Suma::Fixtures.offering_fulfillment_option.create(address: address_to_update))
+      add = o.add_fulfillment_option(Suma::Fixtures.offering_fulfillment_option.create)
+
+      post "/v1/commerce_offerings/#{o.id}",
+           fulfillment_options: {
+             "0" => {
+               id: remove.id,
+               description: {en: "EN address to be removed", es: "ES address to be removed"},
+               type: "pickup",
+             },
+             "1" => {
+               id: update.id,
+               description: {en: "EN address to be updated", es: "ES address to be updated"},
+               type: "pickup",
+               address: {
+                 address1: "updated st",
+                 city: "Portland",
+                 state_or_province: "Oregon",
+                 postal_code: "97209",
+               },
+             },
+             "2" => {
+               id: add.id,
+               description: {en: "EN address to be added", es: "ES address to be added"},
+               type: "pickup",
+               address: {
+                 address1: "new st",
+                 city: "Portland",
+                 state_or_province: "Oregon",
+                 postal_code: "97209",
+               },
+             },
+           }
+
+      expect(last_response).to have_status(200)
+      expect(o.refresh.fulfillment_options).to contain_exactly(
+        have_attributes(id: remove.id, address: be_nil),
+        have_attributes(id: update.id, address: include(address1: "updated st")),
+        have_attributes(id: add.id, address: include(address1: "new st")),
+      )
+    end
   end
 
   describe "POST /v1/commerce_offering/:id/eligibilities" do
