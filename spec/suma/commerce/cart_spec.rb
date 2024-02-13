@@ -2,6 +2,7 @@
 
 RSpec.describe "Suma::Commerce::Cart", :db do
   let(:described_class) { Suma::Commerce::Cart }
+  let(:context) { Suma::Payment::CalculationContext.new(Time.now) }
 
   describe "lookup" do
     it "creates a new cart if no carts exist matching criteria" do
@@ -96,7 +97,7 @@ RSpec.describe "Suma::Commerce::Cart", :db do
       card = Suma::Fixtures.card.member(member).create
       co1 = Suma::Fixtures.checkout(cart:, card:).populate_items.create
       order = Suma::Payment::FundingTransaction.force_fake(Suma::Payment::FakeStrategy.create.not_ready) do
-        co1.create_order
+        co1.create_order(context)
       end
       return order
     end
@@ -190,11 +191,11 @@ RSpec.describe "Suma::Commerce::Cart", :db do
         with_product(food_product1, 2).
         create
 
-      expect(cart.product_noncash_ledger_contribution_amount(food_op1)).to cost("$0")
-      expect(cart.noncash_ledger_contribution_amount).to cost("$0")
+      expect(cart.cost_info(context).product_noncash_ledger_contribution_amount(food_op1)).to cost("$0")
+      expect(cart.cost_info(context).noncash_ledger_contribution_amount).to cost("$0")
       Suma::Fixtures.book_transaction.to(food_ledger).create(amount: money("$13"))
-      expect(cart.refresh.product_noncash_ledger_contribution_amount(food_op1)).to cost("$13")
-      expect(cart.noncash_ledger_contribution_amount).to cost("$13")
+      expect(cart.refresh.cost_info(context).product_noncash_ledger_contribution_amount(food_op1)).to cost("$13")
+      expect(cart.cost_info(context).noncash_ledger_contribution_amount).to cost("$13")
     end
   end
 

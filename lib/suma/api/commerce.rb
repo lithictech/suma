@@ -9,6 +9,10 @@ class Suma::API::Commerce < Suma::API::V1
   include Suma::API::Entities
 
   resource :commerce do
+    helpers do
+      def new_context = Suma::Payment::CalculationContext.new(Time.now)
+    end
+
     resource :offerings do
       desc "Return all commerce offerings that are not closed"
       get do
@@ -39,7 +43,7 @@ class Suma::API::Commerce < Suma::API::V1
           items = offering.offering_products_dataset.available.all
           cart = lookup_cart!(offering)
           vendors = items.map { |v| v.product.vendor }.uniq(&:id)
-          present offering, with: OfferingWithContextEntity, cart:, items:, vendors:
+          present offering, with: OfferingWithContextEntity, cart:, items:, vendors:, context: new_context
         end
 
         resource :cart do
@@ -60,7 +64,7 @@ class Suma::API::Commerce < Suma::API::V1
               self.logger.info "out_of_order_update", product_id: product&.id, quantity: params[:quantity]
               nil
             end
-            present cart, with: CartEntity
+            present cart, with: CartEntity, context: new_context
           end
         end
 
@@ -85,16 +89,17 @@ class Suma::API::Commerce < Suma::API::V1
               payment_instrument: member.default_payment_instrument,
               save_payment_instrument: member.default_payment_instrument.present?,
             )
-            now = Time.now
+            ctx = new_context
             merror!(409, "no items in cart", code: "checkout_no_items") if cart.items.empty?
             cart.items.each do |item|
-              merror!(409, "product unavailable", code: "invalid_order_quantity") unless item.available_at?(now)
+              merror!(409, "product unavailable", code: "invalid_order_quantity") unless
+                item.available_at?(ctx.apply_at)
               max_available = item.cart.max_quantity_for(item.offering_product)
               merror!(409, "max quantity exceeded", code: "invalid_order_quantity") if item.quantity > max_available
               checkout.add_item({cart_item: item, offering_product: item.offering_product})
             end
             status 200
-            present checkout, with: CheckoutEntity, cart:, now:
+            present checkout, with: CheckoutEntity, cart:, context: ctx
           end
         end
       end
@@ -119,7 +124,7 @@ class Suma::API::Commerce < Suma::API::V1
 
         get do
           checkout = lookup_editable!
-          present checkout, with: CheckoutEntity, cart: checkout.cart, now: Time.now
+          present checkout, with: CheckoutEntity, cart: checkout.cart, context: new_context
         end
 
         params do
@@ -132,8 +137,9 @@ class Suma::API::Commerce < Suma::API::V1
         post :complete do
           member = current_member
           checkout = lookup!
+          ctx = new_context
           check_eligibility!(checkout.cart.offering, member)
-          if checkout.requires_payment_instrument?
+          if checkout.cost_info(ctx).requires_payment_instrument?
             instrument = find_payment_instrument?(member, params[:payment_instrument])
             checkout.payment_instrument = instrument if instrument
           end
@@ -150,7 +156,7 @@ class Suma::API::Commerce < Suma::API::V1
           checkout.db.transaction do
             checkout.save_changes
             begin
-              checkout.create_order
+              checkout.create_order(ctx)
             rescue Suma::Commerce::Checkout::Prohibited => e
               merror!(409, "Checkout prohibited: #{e.reason}", code: "checkout_fatal_error")
             rescue Suma::Commerce::Checkout::MaxQuantityExceeded
@@ -238,8 +244,12 @@ class Suma::API::Commerce < Suma::API::V1
     expose :cart_hash
     expose :items, with: CartItemEntity
     expose :customer_cost, with: Suma::Service::Entities::Money
-    expose :noncash_ledger_contribution_amount, with: Suma::Service::Entities::Money
-    expose :cash_cost, with: Suma::Service::Entities::Money
+    expose :noncash_ledger_contribution_amount, with: Suma::Service::Entities::Money do |inst, opts|
+      inst.cost_info(opts.fetch(:context)).noncash_ledger_contribution_amount
+    end
+    expose :cash_cost, with: Suma::Service::Entities::Money do |inst, opts|
+      inst.cost_info(opts.fetch(:context)).cash_cost
+    end
   end
 
   class OfferingEntity < BaseEntity
@@ -301,7 +311,9 @@ class Suma::API::Commerce < Suma::API::V1
 
     private def noncash_ledger_contrib
       return @noncash_ledger_contrib ||
-          self.options.fetch(:cart).product_noncash_ledger_contribution_amount(self.object)
+          self.options.fetch(:cart).
+              cost_info(self.options.fetch(:context)).
+              product_noncash_ledger_contribution_amount(self.object)
     end
   end
 
@@ -362,10 +374,18 @@ class Suma::API::Commerce < Suma::API::V1
     expose :taxable_cost, with: Suma::Service::Entities::Money
     expose :tax, with: Suma::Service::Entities::Money
     expose :total, with: Suma::Service::Entities::Money
-    expose :chargeable_total, with: Suma::Service::Entities::Money
-    expose :requires_payment_instrument?, as: :requires_payment_instrument
-    expose(:checkout_prohibited_reason) { |inst, opts| inst.checkout_prohibited_reason(opts.fetch(:now)) }
-    expose :usable_ledger_contributions, as: :existing_funds_available, with: ChargeContributionEntity
+    expose :chargeable_total, with: Suma::Service::Entities::Money do |inst, opts|
+      inst.cost_info(opts.fetch(:context)).chargeable_total
+    end
+    expose :requires_payment_instrument do |inst, opts|
+      inst.cost_info(opts.fetch(:context)).requires_payment_instrument?
+    end
+    expose :checkout_prohibited_reason do |inst, opts|
+      inst.cost_info(opts.fetch(:context)).checkout_prohibited_reason
+    end
+    expose :existing_funds_available, with: ChargeContributionEntity do |inst, opts|
+      inst.cost_info(opts.fetch(:context)).usable_ledger_contributions
+    end
   end
 
   class CheckoutConfirmationEntity < BaseEntity
