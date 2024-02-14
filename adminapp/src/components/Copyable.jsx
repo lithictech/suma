@@ -18,11 +18,11 @@ export default function Copyable({ text, delay, inline, children }) {
   }
   const sx = inline && { px: "0!important", minWidth: "40px" };
   return (
-    <div>
+    <React.Fragment>
       {children || text}
       <Button title="Copy" variant="link" sx={sx} onClick={onCopy}>
         <ContentCopyIcon />
       </Button>
-    </div>
+    </React.Fragment>
   );
 }

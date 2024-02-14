@@ -340,7 +340,7 @@ function Activities({ activities }) {
       title="Activities"
       headers={["At", "Summary", "Message"]}
       rows={activities}
-      getKey={(row) => row.id}
+      keyRowAttr="id"
       toCells={(row) => [
         dayjs(row.createdAt).format("lll"),
         row.summary,
@@ -358,7 +358,7 @@ function ResetCodes({ resetCodes }) {
       title="Login Codes"
       headers={["Sent", "Expires", "Token", "Used"]}
       rows={resetCodes}
-      getKey={(row) => row.id}
+      keyRowAttr="id"
       toCells={(row) => [
         dayjs(row.createdAt).format("lll"),
         dayjs(row.expireAt).format("lll"),
@@ -450,7 +450,7 @@ function MessagePreferences({ preferences }) {
         title="Message Preferences"
         headers={["Key", "Opted In", "Editable State"]}
         rows={subscriptions}
-        keyRowAttr="id"
+        keyRowAttr="key"
         toCells={(row) => [
           row.key,
           <BoolCheckmark key={2}>{row.optedIn}</BoolCheckmark>,
@@ -474,7 +474,7 @@ function MessageDeliveries({ messageDeliveries }) {
       title="Message Deliveries"
       headers={["Id", "Created", "Sent", "Template", "To"]}
       rows={messageDeliveries}
-      getKey={(row) => row.id}
+      keyRowAttr="id"
       toCells={(row) => [
         <AdminLink key="id" model={row} />,
         dayjs(row.createdAt).format("lll"),
@@ -498,7 +498,7 @@ function VendorAccounts({ vendorAccounts }) {
         "Latest Access Code",
       ]}
       rows={vendorAccounts}
-      getKey={(row) => row.id}
+      keyRowAttr="id"
       toCells={(row) => [
         <AdminLink key="id" model={row} />,
         dayjs(row.createdAt).format("lll"),
