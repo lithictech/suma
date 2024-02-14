@@ -71,11 +71,25 @@ export default function OfferingDetailPage() {
           label: "Pick/Pack list",
           value: !isEmpty(model.orders) ? (
             <Link to={`/offering/${model.id}/picklist`}>
-              <ListAltIcon sx={{ verticalAlign: "middle", paddingRight: "5px" }} />
+              <ListAltIcon sx={{ verticalAlign: "middle", marginRight: "5px" }} />
               Pick/Pack List
             </Link>
           ) : (
             "-"
+          ),
+        },
+        {
+          label: "Create Offering Product",
+          value: (
+            <Link
+              to={createRelativeUrl(`/offering-product/new`, {
+                offeringId: model.id,
+                offeringLabel: model.description.en,
+              })}
+            >
+              <ListAltIcon sx={{ verticalAlign: "middle", marginRight: "5px" }} />
+              Create Offering Product
+            </Link>
           ),
         },
       ]}
@@ -116,16 +130,6 @@ export default function OfferingDetailPage() {
               <Money key="undiscounted_price">{row.undiscountedPrice}</Money>,
             ]}
           />
-          <Link
-            to={createRelativeUrl(`/offering-product/new`, {
-              offeringId: model.id,
-              offeringLabel: model.description.en,
-            })}
-            sx={{ display: "block", marginTop: "15px" }}
-          >
-            <ListAltIcon sx={{ verticalAlign: "middle", paddingRight: "5px" }} />
-            Create Offering Product
-          </Link>
           <RelatedList
             title={`Orders (${model.orders.length})`}
             rows={model.orders}
