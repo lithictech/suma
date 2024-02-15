@@ -118,4 +118,58 @@ class Suma::Payment::ChargeContribution < Suma::TypedStruct
       return result
     end
   end
+
+  # Runs a simulation to find the ideal cash contribution to take advantage of all payment triggers.
+  #
+  # See docs/payment-automation.md for additional details.
+  #
+  # This code runs +Suma::Payment::Account#find_chargeable_ledgers+
+  # with a number of different contexts, to find the minimum cash charge
+  # (funding transaction) that would result in enough triggered payments/subsidies
+  # to cover the given amount.
+  #
+  # NOTE: This code asserts that our cash ledger starts with a $0 balance.
+  # Starting with $0 cash ledger balance means there is a single 'right' answer
+  # of what we need to contribute in cash.
+  # This limitation can be lifted in the future, once we can handle this ambiguous case.
+  # See docs/payment-automation.md for a fuller explanation of this limitation.
+  #
+  # The order this takes is:
+  #
+  # - Use $0 cash. It's possible we can cover the full amount using existing ledger subsidy.
+  # - Use $amount cash. If we have any cash balance left on our ledger,
+  #   we start bisecting.
+  # - Run a recursive bisect. Start with $candidate=$amount/2.
+  #   Add cash of $candidate amount and:
+  #   - If we have a balance on our cash ledger, it's possible we can contribute less.
+  #     Set $candidate=$candidate/2 (bisect between the current candidate and $0).
+  #   - If we have no remainder and no balance on our cash ledger,
+  #     we've hit the correct amount exactly.
+  #   - If we have a remainder (which implies we have no cash ledger balance),
+  #     we need to contribute more cash. Set $candidate=$candidate+$candidate/2
+  #     (bisect between the current and previous candidate).
+  # - Keep going until we hit the correct amount (as above).
+  # - If we don't hit the correct amount, raise an error.
+  #   In theory it would be ok to find a 'minimum' charge that leaves a remainder,
+  #   but given the limitations above (that we need to maintain $0 on the cash ledger),
+  #   we need to error if we don't find an exact match.
+  # - If the correct amount is less than the minimum funding amount, raise an error.
+  #
+  # @param context [Suma::Payment::CalculationContext]
+  # @param account [Suma::Payment::Account]
+  # @param has_vnd_svc_categories [Suma::Vendor::HasServiceCategories]
+  # @param amount [Money]
+  # @return [Suma::Payment::ChargeContribution::Collection]
+  def self.find_ideal_cash_contribution(context, account, has_vnd_svc_categories, amount)
+    cash = account.cash_ledger!
+    unless cash.balance.zero?
+      msg = "Dynamic charge calculations are not yet supported for nonzero cash balances. " \
+            "Not sure how the Ledger[#{cash}] got this way. You'll need to refund the user or " \
+            "otherwise get to a $0 cash ledger balance. See docs/payment-triggers.md for more info."
+      raise Suma::InvalidPrecondition, msg
+    end
+    charges = account.find_chargeable_ledgers(context, has_vnd_svc_categories, amount)
+    return charges if charges.cash.amount.zero? && charges.remainder.amount.zero?
+    return charges
+  end
 end

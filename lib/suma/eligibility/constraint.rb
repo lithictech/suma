@@ -15,6 +15,10 @@ class Suma::Eligibility::Constraint < Suma::Postgres::Model(:eligibility_constra
   many_to_many :services, class: "Suma::Vendor::Service", join_table: :eligibility_vendor_service_associations
   many_to_many :configurations, class: "Suma::AnonProxy::VendorConfiguration",
                                 join_table: :eligibility_anon_proxy_vendor_configuration_associations
+  many_to_many :payment_triggers, class: "Suma::Payment::Trigger",
+                                  join_table: :eligibility_payment_trigger_associations,
+                                  right_key: :trigger_id,
+                                  left_key: :constraint_id
 
   def self.assign_to_admins
     ec = self.all

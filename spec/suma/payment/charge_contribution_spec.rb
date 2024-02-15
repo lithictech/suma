@@ -95,4 +95,61 @@ RSpec.describe Suma::Payment::ChargeContribution, :db do
       end
     end
   end
+
+  describe "find_ideal_cash_contribution" do
+    let(:ctx) { Suma::Payment::CalculationContext.new(apply_at: Time.now) }
+    let(:account) { Suma::Fixtures.payment_account.create }
+    let(:ledger_fac) { Suma::Fixtures.ledger(account:) }
+    let!(:cash_ledger) { ledger_fac.category(:cash).create(name: "Dolla") }
+    let(:food) { Suma::Fixtures.vendor_service_category.create(name: "food") }
+    let(:organic_food) { Suma::Fixtures.vendor_service_category.create(name: "organic", parent: food) }
+    let(:organic_food_service) { Suma::Fixtures.vendor_service.with_categories(organic_food).create }
+
+    it "errors if the cash ledger has a nonzero balance" do
+      Suma::Fixtures.book_transaction.to(cash_ledger).create
+      expect do
+        described_class.find_ideal_cash_contribution(ctx, account, organic_food_service, money("$5"))
+      end.to raise_error(Suma::InvalidPrecondition, /nonzero cash balances/)
+    end
+
+    it "uses no cash charge when noncash ledgers can already cover the full amount" do
+      organic_food_ledger = ledger_fac.with_categories(organic_food).create
+      Suma::Fixtures.book_transaction.to(organic_food_ledger).create(amount: money("$10"))
+      got = described_class.find_ideal_cash_contribution(ctx, account, organic_food_service, money("$5"))
+      expect(got.cash).to have_attributes(amount: be_zero)
+      expect(got.remainder).to have_attributes(amount: be_zero)
+      expect(got.rest).to contain_exactly(
+        have_attributes(amount: cost("$5"), ledger: be === organic_food_ledger),
+      )
+    end
+
+    it "uses all zero amounts when the charge amount is $0" do
+      got = described_class.find_ideal_cash_contribution(ctx, account, organic_food_service, money("$0"))
+      expect(got.cash).to have_attributes(amount: be_zero)
+      expect(got.remainder).to have_attributes(amount: be_zero)
+      expect(got.rest).to be_empty
+    end
+
+    it "uses a remainder charge when there are no triggers" do
+      got = described_class.find_ideal_cash_contribution(ctx, account, organic_food_service, money("$10"))
+      expect(got.cash).to have_attributes(amount: be_zero)
+      expect(got.remainder).to have_attributes(amount: cost("$10"))
+      expect(got.rest).to be_empty
+    end
+
+    it "handles the correct amount at the first bisect step" do
+    end
+
+    it "handles the correct amount some steps above the first bisect step" do
+    end
+
+    it "handles the correct amount some steps below the first bisect step" do
+    end
+
+    it "errors if the correct amount is lower than the minimum funding amount" do
+    end
+
+    it "errors if the correct amount is not found" do
+    end
+  end
 end

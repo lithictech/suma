@@ -21,7 +21,10 @@ module Suma::Fixtures::Ledgers
   end
 
   decorator :with_categories, presave: true do |*cats|
-    cats.each { |c| self.add_vendor_service_category(c) }
+    cats.each do |c|
+      c = Suma::Fixtures.vendor_service_category.create(c) unless c.is_a?(Suma::Vendor::ServiceCategory)
+      self.add_vendor_service_category(c)
+    end
   end
 
   decorator :member do |c={}|
