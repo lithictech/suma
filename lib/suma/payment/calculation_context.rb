@@ -37,7 +37,7 @@ class Suma::Payment::CalculationContext
   # Apply an adjustment so that when calculating the balance for the given +contrib.ledger+,
   # the given +contrib.amount+ is taken from the ledger's balance. For example, if +ledger+ has a balance of $0,
   # using `ctx.apply(ledger:, amount: Money.new(500))` and then `ctx.balance(ledger)` would return -$5.
-  # @param contributions [Array<Suma::Payment::ChargeContribution,Hash>]
+  # @param contributions [Array<Suma::Payment::ChargeContribution,Hash,Suma::Payment::Trigger::PlanStep>]
   # @return [Suma::Payment::CalculationContext]
   def apply(*contributions)
     adj = @adjustments.dup
@@ -46,6 +46,9 @@ class Suma::Payment::CalculationContext
         when Suma::Payment::ChargeContribution
           ledger = contrib.ledger
           amount = contrib.amount
+        when Suma::Payment::Trigger::PlanStep
+          ledger = contrib.receiving_ledger
+          amount = -contrib.amount
         else
           ledger = contrib.fetch(:ledger)
           amount = contrib.fetch(:amount)

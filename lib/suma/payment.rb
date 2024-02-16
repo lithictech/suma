@@ -38,6 +38,8 @@ module Suma::Payment
       map { |h| h[:date] }
   end
 
+  def self.minimum_funding_amount = Money.new(self.minimum_funding_amount_cents)
+
   # Certain Suma deployments may only support certain payment instruments-
   # for example, it may be easy to get set up with cards but difficult to
   # start using bank accounts, or perhaps this is an entirely unbanked instance

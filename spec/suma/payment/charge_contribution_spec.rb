@@ -97,13 +97,14 @@ RSpec.describe Suma::Payment::ChargeContribution, :db do
   end
 
   describe "find_ideal_cash_contribution" do
-    let(:ctx) { Suma::Payment::CalculationContext.new(apply_at: Time.now) }
+    let(:ctx) { Suma::Payment::CalculationContext.new(Time.now) }
     let(:account) { Suma::Fixtures.payment_account.create }
     let(:ledger_fac) { Suma::Fixtures.ledger(account:) }
     let!(:cash_ledger) { ledger_fac.category(:cash).create(name: "Dolla") }
     let(:food) { Suma::Fixtures.vendor_service_category.create(name: "food") }
     let(:organic_food) { Suma::Fixtures.vendor_service_category.create(name: "organic", parent: food) }
     let(:organic_food_service) { Suma::Fixtures.vendor_service.with_categories(organic_food).create }
+    let(:subsidizing_food_ledger) { Suma::Fixtures.ledger.with_categories(food).create }
 
     it "errors if the cash ledger has a nonzero balance" do
       Suma::Fixtures.book_transaction.to(cash_ledger).create
@@ -130,26 +131,45 @@ RSpec.describe Suma::Payment::ChargeContribution, :db do
       expect(got.rest).to be_empty
     end
 
-    it "uses a remainder charge when there are no triggers" do
+    it "uses the full amount from cash when there are no triggers" do
       got = described_class.find_ideal_cash_contribution(ctx, account, organic_food_service, money("$10"))
-      expect(got.cash).to have_attributes(amount: be_zero)
-      expect(got.remainder).to have_attributes(amount: cost("$10"))
+      expect(got.cash).to have_attributes(amount: cost("$10"))
+      expect(got.remainder).to have_attributes(amount: be_zero)
       expect(got.rest).to be_empty
     end
 
-    it "handles the correct amount at the first bisect step" do
-    end
+    describe "with payment triggers" do
+      it "handles the correct amount at the first bisect step" do
+        t = Suma::Fixtures.payment_trigger.matching.from(subsidizing_food_ledger).create
+        got = described_class.find_ideal_cash_contribution(ctx, account, organic_food_service, money("$10"))
+        expect(got.cash).to have_attributes(amount: cost("$5"))
+        expect(got.remainder).to have_attributes(amount: be_zero)
+        expect(got.rest).to contain_exactly(have_attributes(amount: cost("$5")))
+      end
 
-    it "handles the correct amount some steps above the first bisect step" do
-    end
+      it "handles the correct amount some steps below the first bisect step" do
+        t = Suma::Fixtures.payment_trigger.matching(3.8).from(subsidizing_food_ledger).create
+        got = described_class.find_ideal_cash_contribution(ctx, account, organic_food_service, money("$24"))
+        expect(got.cash).to have_attributes(amount: cost("$5"))
+        expect(got.remainder).to have_attributes(amount: be_zero)
+        expect(got.rest).to contain_exactly(have_attributes(amount: cost("$19")))
+      end
 
-    it "handles the correct amount some steps below the first bisect step" do
-    end
+      it "handles the correct amount some steps above the first bisect step" do
+        t = Suma::Fixtures.payment_trigger.matching(0.25).from(subsidizing_food_ledger).create
+        got = described_class.find_ideal_cash_contribution(ctx, account, organic_food_service, money("$25"))
+        expect(got.cash).to have_attributes(amount: cost("$20"))
+        expect(got.remainder).to have_attributes(amount: be_zero)
+        expect(got.rest).to contain_exactly(have_attributes(amount: cost("$5")))
+      end
 
-    it "errors if the correct amount is lower than the minimum funding amount" do
-    end
-
-    it "errors if the correct amount is not found" do
+      it "can find inexact amounts" do
+        t = Suma::Fixtures.payment_trigger.matching((1 / 3.0).to_f).from(subsidizing_food_ledger).create
+        got = described_class.find_ideal_cash_contribution(ctx, account, organic_food_service, money("$10.17"))
+        expect(got.cash).to have_attributes(amount: cost("$7.63"))
+        expect(got.remainder).to have_attributes(amount: be_zero)
+        expect(got.rest).to contain_exactly(have_attributes(amount: cost("$2.54")))
+      end
     end
   end
 end

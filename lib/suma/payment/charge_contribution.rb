@@ -139,20 +139,21 @@ class Suma::Payment::ChargeContribution < Suma::TypedStruct
   # - Use $0 cash. It's possible we can cover the full amount using existing ledger subsidy.
   # - Use $amount cash. If we have any cash balance left on our ledger,
   #   we start bisecting.
-  # - Run a recursive bisect. Start with $candidate=$amount/2.
+  # - Run an iterative bisect. Start with $candidate=$amount/2.
   #   Add cash of $candidate amount and:
   #   - If we have a balance on our cash ledger, it's possible we can contribute less.
-  #     Set $candidate=$candidate/2 (bisect between the current candidate and $0).
+  #     Set $candidate=$candidate/2**stepnum (bisect between the current candidate and $0).
   #   - If we have no remainder and no balance on our cash ledger,
   #     we've hit the correct amount exactly.
   #   - If we have a remainder (which implies we have no cash ledger balance),
-  #     we need to contribute more cash. Set $candidate=$candidate+$candidate/2
+  #     we need to contribute more cash. Set $candidate=$candidate+$candidate/2**stepnum
   #     (bisect between the current and previous candidate).
   # - Keep going until we hit the correct amount (as above).
   # - If we don't hit the correct amount, raise an error.
   #   In theory it would be ok to find a 'minimum' charge that leaves a remainder,
   #   but given the limitations above (that we need to maintain $0 on the cash ledger),
   #   we need to error if we don't find an exact match.
+  #   Note: This case may be impossible. We do not have a unit test for it.
   # - If the correct amount is less than the minimum funding amount, raise an error.
   #
   # @param context [Suma::Payment::CalculationContext]
@@ -168,8 +169,40 @@ class Suma::Payment::ChargeContribution < Suma::TypedStruct
             "otherwise get to a $0 cash ledger balance. See docs/payment-triggers.md for more info."
       raise Suma::InvalidPrecondition, msg
     end
-    charges = account.find_chargeable_ledgers(context, has_vnd_svc_categories, amount)
-    return charges if charges.cash.amount.zero? && charges.remainder.amount.zero?
-    return charges
+
+    # If there's no remainder, we are able to cover the cost from existing subsidy (or because it's a $0 amount).
+    # Can't do any better than that!
+    # (nb we cannot have a cash amount here since we check it had a $0 balance above)
+    charges_using_existing_ledgers = account.find_chargeable_ledgers(context, has_vnd_svc_categories, amount)
+    return charges_using_existing_ledgers if charges_using_existing_ledgers.remainder.amount.zero?
+
+    # We'll need to run triggers to calculate subsidy.
+    triggers = Suma::Payment::Trigger.gather(account, apply_at: context.apply_at)
+    # Bisect until we find a funding amount that results in no remainder,
+    # and no leftover cash.
+    candidate = amount
+    loop_number = 1
+    loop do
+      subsidy_plan = triggers.funding_plan(candidate)
+      candidate_charges = account.find_chargeable_ledgers(
+        context.apply({ledger: cash, amount: -candidate}, *subsidy_plan.steps),
+        has_vnd_svc_categories,
+        amount,
+      )
+      return candidate_charges if
+        candidate_charges.remainder.amount.zero? && candidate_charges.cash.amount == candidate
+      step = amount / (2**loop_number)
+      needs_more_cash = candidate_charges.remainder.amount.positive?
+      if needs_more_cash
+        candidate += step
+      else
+        # Needs less cash
+        # It is possible the candidate is below the minimum funding amount,
+        # but that is handled elsewhere.
+        candidate -= step
+      end
+      loop_number += 1
+      raise RuntimeError if loop_number > 100
+    end
   end
 end

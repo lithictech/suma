@@ -35,6 +35,28 @@ class Suma::Payment::Trigger < Suma::Postgres::Model(:payment_triggers)
     end
   end
 
+  # Gather a series of triggers applying to a payment account
+  # so they can be used multiple times with different amounts.
+  # @param [Suma::Payment::Account] account
+  # @return [Collection]
+  def self.gather(account, apply_at:)
+    triggers = self.dataset.active_at(apply_at).eligible_to_member(account.member).all
+    return Collection.new(account:, triggers:, apply_at:)
+  end
+
+  class Collection < Suma::TypedStruct
+    attr_reader :account, :apply_at, :triggers
+
+    # Figure out what transactions are going to be created based on a funding transaction
+    # of the given +amount+ to the +account+ (ie, if I pay in cash, what subsidy do I get).
+    # @param [Money] amount
+    # @return [Plan]
+    def funding_plan(amount)
+      steps = self.triggers.filter_map { |t| t.funding_plan(self.account, amount, apply_at: self.apply_at) }
+      return Plan.new(steps:)
+    end
+  end
+
   class Plan < Suma::TypedStruct
     # @return [Array<Suma::Payment::Trigger::PlanStep>]
     attr_accessor :steps
@@ -52,17 +74,6 @@ class Suma::Payment::Trigger < Suma::Postgres::Model(:payment_triggers)
 
     # @return [Suma::Payment::Trigger]
     attr_accessor :trigger
-  end
-
-  # Figure out what transactions are going to be created based on a funding transaction
-  # of the given +amount+ to the +account+ (ie, if I pay in cash, what subsidy do I get).
-  # @param [Suma::Payment::Account] account
-  # @param [Money] amount
-  # @return [Plan]
-  def self.funding_plan(account, amount, apply_at:)
-    triggers = self.dataset.active_at(apply_at).eligible_to_member(account.member).all
-    steps = triggers.filter_map { |t| t.funding_plan(account, amount, apply_at:) }
-    return Plan.new(steps:)
   end
 
   # @param [Suma::Payment::Account] account

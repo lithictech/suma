@@ -43,4 +43,10 @@ module Suma::Fixtures::PaymentTriggers
       self.add_eligibility_constraint(c)
     end
   end
+
+  decorator :from do |ledger|
+    self.originating_ledger = ledger
+    self.receiving_ledger_name = ledger.name
+    self.receiving_ledger_contribution_text = ledger.contribution_text
+  end
 end
