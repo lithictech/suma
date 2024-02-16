@@ -1,8 +1,10 @@
 import api from "../api";
 import AdminLink from "../components/AdminLink";
+import BoolCheckmark from "../components/BoolCheckmark";
 import RelatedList from "../components/RelatedList";
 import ResourceDetail from "../components/ResourceDetail";
 import { dayjs } from "../modules/dayConfig";
+import SafeExternalLink from "../shared/react/SafeExternalLink";
 import theme from "../theme";
 import map from "lodash/map";
 import React from "react";
@@ -42,6 +44,29 @@ export default function VendorDetailPage() {
             ]}
           />
           <RelatedList
+            title="Configuration"
+            rows={model.configurations}
+            headers={[
+              "Id",
+              "Vendor",
+              "App Install Link",
+              "Enabled?",
+              "Uses Email?",
+              "Uses SMS?",
+            ]}
+            keyRowAttr="id"
+            toCells={(row) => [
+              <AdminLink key="id" model={row} />,
+              row.vendor.name,
+              <SafeExternalLink href={row.appInstallLink}>
+                {row.appInstallLink}
+              </SafeExternalLink>,
+              <BoolCheckmark>{row.usesSMS}</BoolCheckmark>,
+              <BoolCheckmark>{row.usesEmail}</BoolCheckmark>,
+              <BoolCheckmark>{row.enabled}</BoolCheckmark>,
+            ]}
+          />
+          <RelatedList
             title="Products"
             rows={model.products}
             headers={["Id", "Created", "Name"]}
@@ -49,7 +74,7 @@ export default function VendorDetailPage() {
             toCells={(row) => [
               <AdminLink key="id" model={row} />,
               dayjs(row.createdAt).format("lll"),
-              row.name,
+              row.name.en,
               map(row.eligibilityConstraints, "name"),
             ]}
           />

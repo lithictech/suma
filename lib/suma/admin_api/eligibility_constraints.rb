@@ -6,16 +6,6 @@ require "suma/admin_api"
 class Suma::AdminAPI::EligibilityConstraints < Suma::AdminAPI::V1
   include Suma::AdminAPI::Entities
 
-  class VendorConfigurationEntity < BaseEntity
-    include Suma::AdminAPI::Entities
-    expose :id
-    expose :vendor, with: VendorEntity
-    expose :app_install_link
-    expose :uses_email
-    expose :uses_sms
-    expose :enabled
-  end
-
   class DetailedEligibilityConstraintEntity < EligibilityConstraintEntity
     include Suma::AdminAPI::Entities
     expose :offerings, with: OfferingEntity

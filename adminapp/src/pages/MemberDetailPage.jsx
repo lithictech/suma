@@ -136,6 +136,7 @@ export default function MemberDetailPage() {
           <Charges charges={member.charges} />
           <BankAccounts bankAccounts={member.bankAccounts} />
           <PaymentAccountRelatedLists paymentAccount={member.paymentAccount} />
+          <VendorAccounts vendorAccounts={member.vendorAccounts} />
           <MessagePreferences preferences={member.preferences} />
           <MessageDeliveries messageDeliveries={member.messageDeliveries} />
           <Sessions sessions={member.sessions} />
@@ -202,7 +203,7 @@ function EligibilityConstraints({ memberConstraints, memberId, replaceMemberData
     } else {
       memberConstraints.forEach(({ status, constraint }) =>
         properties.push({
-          label: constraint.name,
+          label: <AdminLink model={constraint}>{constraint.name}</AdminLink>,
           value: (
             <Typography variant="span" sx={{ lineHeight: "2.5!important" }}>
               {status}
@@ -339,7 +340,7 @@ function Activities({ activities }) {
       title="Activities"
       headers={["At", "Summary", "Message"]}
       rows={activities}
-      getKey={(row) => row.id}
+      keyRowAttr="id"
       toCells={(row) => [
         dayjs(row.createdAt).format("lll"),
         row.summary,
@@ -357,6 +358,7 @@ function ResetCodes({ resetCodes }) {
       title="Login Codes"
       headers={["Sent", "Expires", "Token", "Used"]}
       rows={resetCodes}
+      keyRowAttr="id"
       toCells={(row) => [
         dayjs(row.createdAt).format("lll"),
         dayjs(row.expireAt).format("lll"),
@@ -448,7 +450,7 @@ function MessagePreferences({ preferences }) {
         title="Message Preferences"
         headers={["Key", "Opted In", "Editable State"]}
         rows={subscriptions}
-        keyRowAttr="id"
+        keyRowAttr="key"
         toCells={(row) => [
           row.key,
           <BoolCheckmark key={2}>{row.optedIn}</BoolCheckmark>,
@@ -479,6 +481,34 @@ function MessageDeliveries({ messageDeliveries }) {
         row.sentAt ? dayjs(row.sentAt).format("lll") : "<unsent>",
         row.template,
         row.to,
+      ]}
+    />
+  );
+}
+
+function VendorAccounts({ vendorAccounts }) {
+  return (
+    <RelatedList
+      title="Vendor Accounts"
+      headers={[
+        "Id",
+        "Created",
+        "Vendor",
+        "Latest Access Code Magic Link",
+        "Latest Access Code",
+      ]}
+      rows={vendorAccounts}
+      keyRowAttr="id"
+      toCells={(row) => [
+        <AdminLink key="id" model={row} />,
+        dayjs(row.createdAt).format("lll"),
+        <AdminLink key="id" model={row.vendor}>
+          {row.vendor.name}
+        </AdminLink>,
+        <SafeExternalLink href={row.latestAccessCodeMagicLink}>
+          {row.latestAccessCodeMagicLink}
+        </SafeExternalLink>,
+        row.latestAccessCode,
       ]}
     />
   );

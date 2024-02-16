@@ -145,31 +145,18 @@ class Suma::AdminAPI::CommerceOfferings < Suma::AdminAPI::V1
       end
       post :eligibilities do
         offering = lookup
-        admin = admin_member
-        offering.db.transaction do
-          to_remove = offering.eligibility_constraints_dataset.exclude(id: params[:constraint_ids])
-          to_add = []
-          params[:constraint_ids].each do |id|
-            Suma::Eligibility::Constraint[id] or adminerror!(403, "Unknown eligibility constraint: #{id}")
-            to_add << id
-          end
-          to_add = Suma::Eligibility::Constraint.where(id: to_add).
-            exclude(id: offering.eligibility_constraints_dataset.select(:id))
-          to_add.each do |c|
-            offering.add_eligibility_constraint(c)
-          end
-          to_remove.each do |c|
-            offering.remove_eligibility_constraint(c)
-          end
-
-          summary = offering.eligibility_constraints_dataset.select_map(:name).join(", ")
-          admin_member.add_activity(
-            message_name: "eligibilitychange",
-            summary: "Admin #{admin.email} modified eligibilities of #{offering.description.en}: #{summary}",
-            subject_type: "Suma::Commerce::Offering",
-            subject_id: offering.id,
-          )
+        params[:constraint_ids].each do |id|
+          Suma::Eligibility::Constraint[id] or adminerror!(403, "Unknown eligibility constraint: #{id}")
         end
+        offering.replace_eligibility_constraints(params[:constraint_ids])
+        summary = offering.eligibility_constraints_dataset.select_map(:name).join(", ")
+        admin_member.add_activity(
+          message_name: "eligibilitychange",
+          summary: "Admin #{admin_member.email} modified eligibilities of #{offering.description.en}: #{summary}",
+          subject_type: offering.model,
+          subject_id: offering.id,
+        )
+
         status 200
         present offering, with: DetailedEntity
       end

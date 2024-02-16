@@ -11,6 +11,7 @@ class Suma::AdminAPI::Vendors < Suma::AdminAPI::V1
     expose :slug
     expose :services, with: VendorServiceEntity
     expose :products, with: ProductEntity
+    expose :configurations, with: VendorConfigurationEntity
   end
 
   resource :vendors do

@@ -29,6 +29,7 @@ import {
 } from "@mui/material";
 import Box from "@mui/material/Box";
 import { DateTimePicker } from "@mui/x-date-pickers";
+import isEmpty from "lodash/isEmpty";
 import React from "react";
 
 export default function OfferingForm({
@@ -318,7 +319,9 @@ function OptionAddress({ address, onFieldChange }) {
           <Select
             label="State"
             name="stateOrProvince"
-            value={address.stateOrProvince}
+            value={
+              !isEmpty(supportedGeographies?.provinces) ? address.stateOrProvince : ""
+            }
             onChange={handleChange}
           >
             <MenuItem disabled>Choose state</MenuItem>

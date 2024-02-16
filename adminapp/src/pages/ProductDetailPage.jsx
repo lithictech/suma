@@ -55,24 +55,24 @@ export default function ProductDetailPage() {
           label: "Quantity Pending Fulfillment",
           value: model.inventory.quantityPendingFulfillment,
         },
+        {
+          label: "Create Offering Product",
+          value: (
+            <Link
+              to={createRelativeUrl(`/offering-product/new`, {
+                productId: model.id,
+                productLabel: model.name.en,
+              })}
+            >
+              <ListAltIcon sx={{ verticalAlign: "middle", marginRight: "5px" }} />
+              Create Offering Product
+            </Link>
+          ),
+        },
       ]}
     >
       {(model) => (
         <>
-          <RelatedList
-            title="Orders"
-            rows={model.orders}
-            headers={["Id", "Created At", "Status", "Member"]}
-            keyRowAttr="id"
-            toCells={(row) => [
-              <AdminLink key="id" model={row} />,
-              dayjs(row.createdAt).format("lll"),
-              row.orderStatus,
-              <AdminLink key="member" model={row.member}>
-                {row.member.name}
-              </AdminLink>,
-            ]}
-          />
           <RelatedList
             title={`Offering Products`}
             rows={model.offeringProducts}
@@ -90,16 +90,20 @@ export default function ProductDetailPage() {
               row.isClosed ? dayjs(row.closedAt).format("lll") : "",
             ]}
           />
-          <Link
-            to={createRelativeUrl(`/offering-product/new`, {
-              productId: model.id,
-              productLabel: model.name.en,
-            })}
-            sx={{ display: "inline-block", marginTop: "15px" }}
-          >
-            <ListAltIcon sx={{ verticalAlign: "middle", paddingRight: "5px" }} />
-            Create Offering Product
-          </Link>
+          <RelatedList
+            title="Orders"
+            rows={model.orders}
+            headers={["Id", "Created At", "Status", "Member"]}
+            keyRowAttr="id"
+            toCells={(row) => [
+              <AdminLink key="id" model={row} />,
+              dayjs(row.createdAt).format("lll"),
+              row.orderStatus,
+              <AdminLink key="member" model={row.member}>
+                {row.member.name}
+              </AdminLink>,
+            ]}
+          />
         </>
       )}
     </ResourceDetail>

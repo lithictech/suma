@@ -28,8 +28,8 @@ export default function DetailGrid({ title, properties }) {
         </Typography>
       )}
       <Grid container spacing={2} alignItems="center" justifyContent="flex-end">
-        {usedProperties.map(({ label, value, children }) => (
-          <React.Fragment key={label}>
+        {usedProperties.map(({ label, value, children }, index) => (
+          <React.Fragment key={index}>
             <Grid item xs={4} sm={3} lg={2} sx={{ paddingTop: "5px!important" }}>
               <Label>{label}</Label>
             </Grid>
