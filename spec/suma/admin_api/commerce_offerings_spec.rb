@@ -231,6 +231,18 @@ RSpec.describe Suma::AdminAPI::CommerceOfferings, :db do
         have_attributes(id: add.id, address: include(address1: "new st")),
       )
     end
+
+    it "errors with a 409 if a foreign key constraint is violated" do
+      offering = Suma::Fixtures.offering.create
+      ful_opt = Suma::Fixtures.offering_fulfillment_option.create(offering:)
+
+      Suma::Fixtures.checkout.create(fulfillment_option: ful_opt)
+
+      post "/v1/commerce_offerings/#{offering.id}", fulfillment_options: {}
+
+      expect(last_response).to have_status(409)
+      expect(last_response).to have_json_body.that_includes(error: include(message: /could not be removed/))
+    end
   end
 
   describe "POST /v1/commerce_offering/:id/eligibilities" do

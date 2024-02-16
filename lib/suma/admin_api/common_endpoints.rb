@@ -64,8 +64,13 @@ module Suma::AdminAPI::CommonEndpoints
           update_model(assoc_model, mparams, save: false)
           m.send(assoc[:add_method], assoc_model)
         end
-        unseen_children.values.each(&:destroy)
-        m.associations.delete(assoc[:name])
+        begin
+          unseen_children.values.each(&:destroy)
+        rescue Sequel::ForeignKeyConstraintViolation => e
+          msg = "One of these resources could not be removed because it is used elsewhere. " \
+                "Please modify it instead. If you need more help, please contact a developer."
+          merror!(409, msg, code: "fk_violation", more: {exception: e.message}, skip_loc_check: true)
+        end
       end
     end
   end
@@ -137,17 +142,17 @@ module Suma::AdminAPI::CommonEndpoints
         helpers MutationHelpers
         yield
         post do
-          model_type.db.transaction do
-            (m = model_type[params[:id]]) or forbidden!
-            update_model(
-              m,
-              params,
-              process_params:,
-            )
-            created_resource_headers(m.id, m.admin_link)
-            status 200
-            present m, with: entity
-          end
+          # model_type.db.transaction do
+          (m = model_type[params[:id]]) or forbidden!
+          update_model(
+            m,
+            params,
+            process_params:,
+          )
+          created_resource_headers(m.id, m.admin_link)
+          status 200
+          present m, with: entity
+          # end
         end
       end
     end
