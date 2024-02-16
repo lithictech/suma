@@ -77,7 +77,7 @@ class Suma::Mobility::Trip < Suma::Postgres::Model(:mobility_trips)
         member: self.member,
       )
       result_cost = Money.new(result.cost_cents, result.cost_currency)
-      contributions = self.member.payment_account!.find_chargeable_ledgers(
+      contributions = self.member.payment_account!.calculate_charge_contributions(
         Suma::Payment::CalculationContext.new(Time.now),
         self.vendor_service,
         result_cost,

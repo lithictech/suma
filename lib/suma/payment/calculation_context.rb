@@ -36,23 +36,26 @@ class Suma::Payment::CalculationContext
 
   # Apply an adjustment so that when calculating the balance for the given +contrib.ledger+,
   # the given +contrib.amount+ is taken from the ledger's balance. For example, if +ledger+ has a balance of $0,
-  # using `ctx.apply(ledger:, amount: Money.new(500))` and then `ctx.balance(ledger)` would return -$5.
-  # @param contributions [Array<Suma::Payment::ChargeContribution,Hash,Suma::Payment::Trigger::PlanStep>]
+  # using `ctx.apply_debits(ledger:, amount: Money.new(500))` and then `ctx.balance(ledger)` would return -$5.
+  # @param contributions [Array<Suma::Payment::ChargeContribution,Hash>]
   # @return [Suma::Payment::CalculationContext]
-  def apply(*contributions)
+  def apply_debits(*contributions) = self.apply(contributions, 1)
+
+  # Same as +apply_debits+, but each amount will be added to the ledger balance.
+  def apply_credits(*contributions) = self.apply(contributions, -1)
+
+  protected def apply(contributions, mult)
     adj = @adjustments.dup
     contributions.each do |contrib|
       case contrib
         when Suma::Payment::ChargeContribution
           ledger = contrib.ledger
           amount = contrib.amount
-        when Suma::Payment::Trigger::PlanStep
-          ledger = contrib.receiving_ledger
-          amount = -contrib.amount
         else
           ledger = contrib.fetch(:ledger)
           amount = contrib.fetch(:amount)
       end
+      amount *= mult
       raise "cannot apply if no ledger" if ledger.nil?
       v = adj[ledger.id]
       v = v.nil? ? amount : (v + amount)

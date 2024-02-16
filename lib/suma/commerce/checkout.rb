@@ -212,12 +212,12 @@ class Suma::Commerce::Checkout < Suma::Postgres::Model(:commerce_checkouts)
   # @return [Suma::Payment::ChargeContribution::Collection]
   def self.ledger_charge_contributions(context, payment_account:, priced_items:)
     collections = priced_items.map do |item|
-      coll = payment_account.find_chargeable_ledgers(
+      coll = payment_account.calculate_charge_contributions(
         context,
         item.offering_product.product,
         item.customer_cost,
       )
-      context = context.apply(*coll.debitable)
+      context = context.apply_debits(*coll.debitable)
       coll
     end
     consolidated_contributions = Suma::Payment::ChargeContribution::Collection.consolidate(collections)

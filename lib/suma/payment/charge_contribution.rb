@@ -123,7 +123,7 @@ class Suma::Payment::ChargeContribution < Suma::TypedStruct
   #
   # See docs/payment-automation.md for additional details.
   #
-  # This code runs +Suma::Payment::Account#find_chargeable_ledgers+
+  # This code runs +Suma::Payment::Account#calculate_charge_contributions+
   # with a number of different contexts, to find the minimum cash charge
   # (funding transaction) that would result in enough triggered payments/subsidies
   # to cover the given amount.
@@ -173,7 +173,7 @@ class Suma::Payment::ChargeContribution < Suma::TypedStruct
     # If there's no remainder, we are able to cover the cost from existing subsidy (or because it's a $0 amount).
     # Can't do any better than that!
     # (nb we cannot have a cash amount here since we check it had a $0 balance above)
-    charges_using_existing_ledgers = account.find_chargeable_ledgers(context, has_vnd_svc_categories, amount)
+    charges_using_existing_ledgers = account.calculate_charge_contributions(context, has_vnd_svc_categories, amount)
     return charges_using_existing_ledgers if charges_using_existing_ledgers.remainder.amount.zero?
 
     # We'll need to run triggers to calculate subsidy.
@@ -184,8 +184,11 @@ class Suma::Payment::ChargeContribution < Suma::TypedStruct
     loop_number = 1
     loop do
       subsidy_plan = triggers.funding_plan(candidate)
-      candidate_charges = account.find_chargeable_ledgers(
-        context.apply({ledger: cash, amount: -candidate}, *subsidy_plan.steps),
+      candidate_charges = account.calculate_charge_contributions(
+        context.apply_credits(
+          {ledger: cash, amount: candidate},
+          *subsidy_plan.steps.map { |st| {ledger: st.receiving_ledger,amount: st.amount} },
+        ),
         has_vnd_svc_categories,
         amount,
       )

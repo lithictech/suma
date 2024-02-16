@@ -136,7 +136,7 @@ class Suma::Commerce::Cart < Suma::Postgres::Model(:commerce_carts)
     end
 
     def product_noncash_ledger_contribution_amount(offering_product)
-      contribs = @cart.member.payment_account!.find_chargeable_ledgers(
+      contribs = @cart.member.payment_account!.calculate_charge_contributions(
         @context,
         offering_product.product,
         offering_product.customer_price,
