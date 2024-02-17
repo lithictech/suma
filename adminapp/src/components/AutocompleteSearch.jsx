@@ -33,15 +33,18 @@ const AutocompleteSearch = React.forwardRef(function AutocompleteSearch(
   },
   ref
 ) {
-  const activePromise = React.useRef(Promise.resolve());
+  const activeAbortController = React.useRef(new AbortController());
   const searchDebounced = React.useRef(
     debounce(
       (data) => {
-        activePromise.current.cancel();
-        activePromise.current = search(data);
-        return activePromise.current.then((r) => {
-          setOptions(r.data.items);
-          hasSearched.current = true;
+        activeAbortController.current.abort();
+        const thisAbortCtrl = new AbortController();
+        activeAbortController.current = thisAbortCtrl;
+        return search(data).then((r) => {
+          if (!thisAbortCtrl.signal.aborted) {
+            setOptions(r.data.items);
+            hasSearched.current = true;
+          }
         });
       },
       150,
@@ -58,7 +61,7 @@ const AutocompleteSearch = React.forwardRef(function AutocompleteSearch(
       // I don't understand what this means.
       return;
     }
-    activePromise.current.cancel();
+    activeAbortController.current.abort();
     const q = e.target.value || "";
     onTextChange && onTextChange(q);
 

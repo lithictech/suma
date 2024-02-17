@@ -17,7 +17,6 @@
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^14.4.3",
     "axios": "^1.2.3",
-    "bluebird": "^3.7.2",
     "clsx": "^1.2.1",
     "dayjs": "^1.11.7",
     "humps": "git+https://github.com/lithictech/humps.git#fb9844c8d37cea67ee9c592e2685aee68d05015f",

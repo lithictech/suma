@@ -1,10 +1,20 @@
 import config from "./config";
 import relativeLink from "./modules/relativeLink";
 import apiBase from "./shared/apiBase";
+import transform from "lodash/transform";
 
 const instance = apiBase.create(config.apiHost, {
   debug: config.debug,
   chaos: config.chaos,
+  formSerializer: {
+    visitor: (value, key, path, helpers) => {
+      if (value === null) {
+        // See postForm below
+        value = "";
+      }
+      return helpers.defaultVisitor.apply(this, [value, key, path, helpers]);
+    },
+  },
 });
 
 const get = (path, params, opts) => {
@@ -14,7 +24,15 @@ const post = (path, params, opts) => {
   return instance.post(path, params, opts);
 };
 const postForm = (path, params, opts) => {
-  return instance.postForm(path, params, opts);
+  const paramsUsingEmptyStr = transform(params, (result, value, key) => {
+    // null gets stripped out of the form data, so we can end up with an empty form data body, which is an error.
+    // We only need to worry about this at the top level- if a nested object field is null,
+    // it'll get converted to empty string in visitor (or automatically by axios).
+    // Axios form serialization is finnicky so there's a good change this code
+    // will be incorrect in a future upgrade.
+    result[key] = value === null ? "" : value;
+  });
+  return instance.postForm(path, paramsUsingEmptyStr, opts);
 };
 const patch = (path, params, opts) => {
   return instance.patch(path, params, opts);

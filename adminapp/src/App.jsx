@@ -42,7 +42,7 @@ import VendorDetailPage from "./pages/VendorDetailPage";
 import VendorEditPage from "./pages/VendorEditPage";
 import VendorListPage from "./pages/VendorListPage";
 import applyHocs from "./shared/applyHocs";
-import bluejay from "./shared/bluejay";
+import { installPromiseExtras } from "./shared/bluejay";
 import ClientsideSearchParamsProvider from "./shared/react/ClientsideSearchParamsProvider";
 import Redirect from "./shared/react/Redirect";
 import renderComponent from "./shared/react/renderComponent";
@@ -55,7 +55,7 @@ import { SnackbarProvider } from "notistack";
 import React from "react";
 import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
 
-window.Promise = bluejay.Promise;
+installPromiseExtras(window.Promise);
 
 export default function App() {
   return (

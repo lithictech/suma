@@ -24,7 +24,9 @@ module Suma::AdminAPI::CommonEndpoints
         next unless (assoc = mtype.association_reflections[k])
         params.delete(k)
         if assoc[:type].to_s.end_with?("_to_one")
-          if association_class?(assoc, Suma::TranslatedText)
+          if v.nil?
+            fk_attrs[assoc[:name]] = nil
+          elsif association_class?(assoc, Suma::TranslatedText)
             fk_attrs[assoc[:name]] = Suma::TranslatedText.find_or_create(**v)
           elsif association_class?(assoc, Suma::Address)
             fk_attrs[assoc[:name]] = Suma::Address.lookup(v)
@@ -49,10 +51,25 @@ module Suma::AdminAPI::CommonEndpoints
         update_model(fk_model, mparams)
       end
       to_many_assocs_and_args.each do |(assoc, args)|
+        unseen_children = m.send(assoc[:name]).to_h { |am| [am.id, am] }
         args.each do |mparams|
-          am = (mid = mparams.delete(:id)) ? association_class(assoc)[mid] : association_class(assoc).new
-          update_model(am, mparams, save: false)
-          m.send(assoc[:add_method], am)
+          assoc_model = if (assoc_model_id = mparams.delete(:id))
+                          # Submitting as form encoding, like when using an image, turns everything into a string
+                          assoc_model_id = assoc_model_id.to_i
+                          unseen_children.delete(assoc_model_id)
+                          association_class(assoc)[assoc_model_id]
+          else
+            association_class(assoc).new
+          end
+          update_model(assoc_model, mparams, save: false)
+          m.send(assoc[:add_method], assoc_model)
+        end
+        begin
+          unseen_children.values.each(&:destroy)
+        rescue Sequel::ForeignKeyConstraintViolation => e
+          msg = "One of these resources could not be removed because it is used elsewhere. " \
+                "Please modify it instead. If you need more help, please contact a developer."
+          merror!(409, msg, code: "fk_violation", more: {exception: e.message}, skip_loc_check: true)
         end
       end
     end
@@ -125,17 +142,17 @@ module Suma::AdminAPI::CommonEndpoints
         helpers MutationHelpers
         yield
         post do
-          model_type.db.transaction do
-            (m = model_type[params[:id]]) or forbidden!
-            update_model(
-              m,
-              params,
-              process_params:,
-            )
-            created_resource_headers(m.id, m.admin_link)
-            status 200
-            present m, with: entity
-          end
+          # model_type.db.transaction do
+          (m = model_type[params[:id]]) or forbidden!
+          update_model(
+            m,
+            params,
+            process_params:,
+          )
+          created_resource_headers(m.id, m.admin_link)
+          status 200
+          present m, with: entity
+          # end
         end
       end
     end

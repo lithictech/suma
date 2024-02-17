@@ -131,10 +131,11 @@ RSpec.describe Suma::AdminAPI::CommerceOfferings, :db do
   end
 
   describe "POST /v1/commerce_offerings/:id" do
+    let(:photo_file) { File.open("spec/data/images/photo.png", "rb") }
+    let(:image) { Rack::Test::UploadedFile.new(photo_file, "image/png", true) }
+    let(:o) { Suma::Fixtures.offering.create }
+
     it "updates the offering" do
-      photo_file = File.open("spec/data/images/photo.png", "rb")
-      image = Rack::Test::UploadedFile.new(photo_file, "image/png", true)
-      o = Suma::Fixtures.offering.create
       new_period_begin = Time.parse("2023-12-10T08:00:00-0700")
       new_period_end = Time.parse("2023-12-15T05:00:00-0700")
       post "/v1/commerce_offerings/#{o.id}",
@@ -156,6 +157,91 @@ RSpec.describe Suma::AdminAPI::CommerceOfferings, :db do
         period_begin: new_period_begin,
         period_end: new_period_end,
       )
+    end
+
+    it "handles create/remove/update of nested resources" do
+      o = Suma::Fixtures.offering.create
+      to_remove = o.add_fulfillment_option(Suma::Fixtures.offering_fulfillment_option.create)
+      to_update = o.add_fulfillment_option(Suma::Fixtures.offering_fulfillment_option.create)
+      post "/v1/commerce_offerings/#{o.id}",
+           fulfillment_options: {
+             "0" => {
+               id: to_update.id,
+               description: {en: "EN updated", es: "ES updated"},
+               type: "pickup",
+             },
+             "1" => {
+               description: {en: "EN added", es: "ES added"},
+               type: "pickup",
+             },
+           }
+
+      expect(last_response).to have_status(200)
+      expect(to_remove).to be_destroyed
+      expect(o.refresh.fulfillment_options).to contain_exactly(
+        have_attributes(id: to_update.id, description: have_attributes(en: "EN updated")),
+        have_attributes(description: have_attributes(en: "EN added")),
+      )
+    end
+
+    it "handles create/remove/update of sub-nested resources" do
+      o = Suma::Fixtures.offering.create
+      address_to_remove = Suma::Fixtures.address.create
+      address_to_update = Suma::Fixtures.address.create
+
+      remove = o.add_fulfillment_option(Suma::Fixtures.offering_fulfillment_option.create(address: address_to_remove))
+      update = o.add_fulfillment_option(Suma::Fixtures.offering_fulfillment_option.create(address: address_to_update))
+      add = o.add_fulfillment_option(Suma::Fixtures.offering_fulfillment_option.create)
+
+      post "/v1/commerce_offerings/#{o.id}",
+           fulfillment_options: {
+             "0" => {
+               id: remove.id,
+               description: {en: "EN address to be removed", es: "ES address to be removed"},
+               type: "pickup",
+             },
+             "1" => {
+               id: update.id,
+               description: {en: "EN address to be updated", es: "ES address to be updated"},
+               type: "pickup",
+               address: {
+                 address1: "updated st",
+                 city: "Portland",
+                 state_or_province: "Oregon",
+                 postal_code: "97209",
+               },
+             },
+             "2" => {
+               id: add.id,
+               description: {en: "EN address to be added", es: "ES address to be added"},
+               type: "pickup",
+               address: {
+                 address1: "new st",
+                 city: "Portland",
+                 state_or_province: "Oregon",
+                 postal_code: "97209",
+               },
+             },
+           }
+
+      expect(last_response).to have_status(200)
+      expect(o.refresh.fulfillment_options).to contain_exactly(
+        have_attributes(id: remove.id, address: be_nil),
+        have_attributes(id: update.id, address: include(address1: "updated st")),
+        have_attributes(id: add.id, address: include(address1: "new st")),
+      )
+    end
+
+    it "errors with a 409 if a foreign key constraint is violated" do
+      offering = Suma::Fixtures.offering.create
+      ful_opt = Suma::Fixtures.offering_fulfillment_option.create(offering:)
+
+      Suma::Fixtures.checkout.create(fulfillment_option: ful_opt)
+
+      post "/v1/commerce_offerings/#{offering.id}", fulfillment_options: {}
+
+      expect(last_response).to have_status(409)
+      expect(last_response).to have_json_body.that_includes(error: include(message: /could not be removed/))
     end
   end
 
