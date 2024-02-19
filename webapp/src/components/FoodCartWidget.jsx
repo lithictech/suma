@@ -20,8 +20,7 @@ export default function FoodCartWidget({ product, size, onQuantityChange }) {
   const { offering, cart, setCart } = useOffering();
   const { showErrorToast } = useErrorToast();
 
-  const changePromise = React.useRef(null);
-
+  const changeAbortController = React.useRef(new AbortController());
   const [quantity, setQuantity] = React.useState(() => {
     const item = find(cart.items, ({ productId }) => productId === product.productId);
     return item?.quantity || 0;
@@ -30,8 +29,10 @@ export default function FoodCartWidget({ product, size, onQuantityChange }) {
     if (q === quantity) {
       return;
     }
-    changePromise.current?.cancel();
-    changePromise.current = api
+    changeAbortController.current?.abort();
+    const thisAbortCtrl = new AbortController();
+    changeAbortController.current = thisAbortCtrl;
+    api
       .putCartItem({
         offeringId: offering.id,
         productId: product.productId,
@@ -40,6 +41,9 @@ export default function FoodCartWidget({ product, size, onQuantityChange }) {
       })
       .then(api.pickData)
       .then((cart) => {
+        if (thisAbortCtrl.signal.aborted) {
+          return;
+        }
         setCart(cart);
         setQuantity(q);
         if (onQuantityChange) {
