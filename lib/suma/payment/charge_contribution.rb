@@ -187,7 +187,7 @@ class Suma::Payment::ChargeContribution < Suma::TypedStruct
       candidate_charges = account.calculate_charge_contributions(
         context.apply_credits(
           {ledger: cash, amount: candidate},
-          *subsidy_plan.steps.map { |st| {ledger: st.receiving_ledger,amount: st.amount} },
+          *subsidy_plan.steps.map { |st| {ledger: st.receiving_ledger, amount: st.amount} },
         ),
         has_vnd_svc_categories,
         amount,
