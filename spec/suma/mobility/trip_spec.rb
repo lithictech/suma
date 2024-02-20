@@ -70,7 +70,7 @@ RSpec.describe "Suma::Mobility::Trip", :db do
   end
 
   describe "end_trip" do
-    let!(:member_ledger) { Suma::Fixtures.ledger.member(member).category(:mobility).create }
+    let!(:mobility_ledger) { Suma::Fixtures.ledger.member(member).category(:mobility).create }
     let!(:cash) { Suma::Vendor::ServiceCategory.find!(slug: "cash") }
     let!(:mobility) { Suma::Vendor::ServiceCategory.find!(slug: "mobility") }
 
@@ -131,22 +131,44 @@ RSpec.describe "Suma::Mobility::Trip", :db do
       )
     end
 
-    it "creates a $0 mobility transaction for a $0 trip" do
-      Suma::Payment.ensure_cash_ledger(member)
-      member.refresh
-      rate = Suma::Fixtures.vendor_service_rate.unit_amount(0).surcharge(0).create
-      trip = Suma::Fixtures.mobility_trip.
-        ongoing.
-        create(began_at: 6.minutes.ago, vendor_service_rate: rate, member:)
-      trip.end_trip(lat: 1, lng: 2)
-      expect(trip.charge).to have_attributes(discounted_subtotal: cost("$0"))
-      expect(trip.charge.book_transactions).to contain_exactly(
-        have_attributes(
-          originating_ledger: member.payment_account.mobility_ledger!,
-          amount: cost("$0"),
-          associated_vendor_service_category: be === mobility,
-        ),
-      )
+    describe "for a $0 trip" do
+      it "creates a $0 mobility transaction on the best non-cash ledger" do
+        Suma::Payment.ensure_cash_ledger(member)
+        member.refresh
+        rate = Suma::Fixtures.vendor_service_rate.unit_amount(0).surcharge(0).create
+        trip = Suma::Fixtures.mobility_trip.
+          ongoing.
+          create(began_at: 6.minutes.ago, vendor_service_rate: rate, member:)
+        trip.end_trip(lat: 1, lng: 2)
+        expect(trip.charge).to have_attributes(discounted_subtotal: cost("$0"))
+        expect(trip.charge.book_transactions).to contain_exactly(
+          have_attributes(
+            originating_ledger: be === mobility_ledger,
+            amount: cost("$0"),
+            associated_vendor_service_category: be === mobility,
+          ),
+        )
+      end
+
+      it "uses the cash ledger if there is no more specific ledger" do
+        mobility_ledger.remove_all_vendor_service_categories
+        mobility_ledger.destroy
+        cash_ledger = Suma::Payment.ensure_cash_ledger(member)
+        member.refresh
+        rate = Suma::Fixtures.vendor_service_rate.unit_amount(0).surcharge(0).create
+        trip = Suma::Fixtures.mobility_trip.
+          ongoing.
+          create(began_at: 6.minutes.ago, vendor_service_rate: rate, member:)
+        trip.end_trip(lat: 1, lng: 2)
+        expect(trip.charge).to have_attributes(discounted_subtotal: cost("$0"))
+        expect(trip.charge.book_transactions).to contain_exactly(
+          have_attributes(
+            originating_ledger: be === cash_ledger,
+            amount: cost("$0"),
+            associated_vendor_service_category: be === cash,
+          ),
+        )
+      end
     end
   end
 

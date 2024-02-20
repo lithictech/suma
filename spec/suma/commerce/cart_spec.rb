@@ -97,7 +97,7 @@ RSpec.describe "Suma::Commerce::Cart", :db do
       card = Suma::Fixtures.card.member(member).create
       co1 = Suma::Fixtures.checkout(cart:, card:).populate_items.create
       order = Suma::Payment::FundingTransaction.force_fake(Suma::Payment::FakeStrategy.create.not_ready) do
-        co1.create_order(context)
+        co1.create_order(cash_charge_amount: co1.items.sum(&:customer_cost), apply_at: Time.now)
       end
       return order
     end
@@ -175,14 +175,13 @@ RSpec.describe "Suma::Commerce::Cart", :db do
     end
   end
 
-  describe "product_noncash_ledger_contribution_amount" do
-    it "returns 0 if no ledger has an available contribution" do
+  describe "cost_info" do
+    it "calculates appropriate product and cart cost based on ledger contributions" do
       cash_vsc = Suma::Vendor::ServiceCategory.cash
       food_vsc = Suma::Fixtures.vendor_service_category(name: "Food", parent: cash_vsc).create
       member = Suma::Fixtures.member.create
       cash_ledger = Suma::Payment.ensure_cash_ledger(member)
       food_ledger = Suma::Fixtures.ledger.member(member).with_categories(food_vsc).create
-      Suma::Fixtures.book_transaction.to(cash_ledger).create(amount: money("$13"))
       offering = Suma::Fixtures.offering.create
       food_product1 = Suma::Fixtures.product.with_categories(food_vsc).create
       food_op1 = Suma::Fixtures.offering_product(product: food_product1, offering:).costing("$400", "$500").create
@@ -191,11 +190,15 @@ RSpec.describe "Suma::Commerce::Cart", :db do
         with_product(food_product1, 2).
         create
 
-      expect(cart.cost_info(context).product_noncash_ledger_contribution_amount(food_op1)).to cost("$0")
-      expect(cart.cost_info(context).noncash_ledger_contribution_amount).to cost("$0")
+      ci = cart.cost_info(context)
+      expect(ci.product_noncash_ledger_contribution_amount(food_op1)).to cost("$0")
+      expect(ci.noncash_ledger_contribution_amount).to cost("$0")
+      expect(ci.cash_cost).to cost("$800")
       Suma::Fixtures.book_transaction.to(food_ledger).create(amount: money("$13"))
-      expect(cart.refresh.cost_info(context).product_noncash_ledger_contribution_amount(food_op1)).to cost("$13")
-      expect(cart.cost_info(context).noncash_ledger_contribution_amount).to cost("$13")
+      cart.refresh
+      expect(ci.product_noncash_ledger_contribution_amount(food_op1)).to cost("$13")
+      expect(ci.noncash_ledger_contribution_amount).to cost("$13")
+      expect(ci.cash_cost).to cost("$787")
     end
   end
 

@@ -60,6 +60,20 @@ class Suma::Payment::Trigger < Suma::Postgres::Model(:payment_triggers)
   class Plan < Suma::TypedStruct
     # @return [Array<Suma::Payment::Trigger::PlanStep>]
     attr_accessor :steps
+
+    # @return [Array<Suma::Payment::BookTransaction>]
+    def apply(at:)
+      x = self.steps.map do |step|
+        Suma::Payment::BookTransaction.create(
+          apply_at: at,
+          amount: step.amount,
+          originating_ledger: step.trigger.originating_ledger,
+          receiving_ledger: step.receiving_ledger,
+          memo: step.trigger.memo,
+        )
+      end
+      return x
+    end
   end
 
   class PlanStep < Suma::TypedStruct
@@ -140,8 +154,4 @@ class Suma::Payment::Trigger < Suma::Postgres::Model(:payment_triggers)
   # How much subsidy should we allow the ledger to get up to?
   # For example, with a 1-to-1 match, and a value of 2000,
   # we'd match only the first $20 of a charge.
-
-  # @!attribute vendor_service_category
-  # The VSC of the ledger the subsidy is added to.
-  # @return [Suma::Vendor::ServiceCategory]
 end

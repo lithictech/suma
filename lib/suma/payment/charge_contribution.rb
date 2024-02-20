@@ -3,7 +3,7 @@
 require "suma/payment"
 
 class Suma::Payment::ChargeContribution < Suma::TypedStruct
-  attr_accessor :ledger, :apply_at, :amount, :category
+  attr_reader :ledger, :apply_at, :amount, :category
 
   def _defaults
     return {amount: Money.new(0)}
@@ -22,72 +22,94 @@ class Suma::Payment::ChargeContribution < Suma::TypedStruct
   # @!attribute category
   # @return [Suma::Vendor::ServiceCategory]
 
-  def debitable? = self.amount.positive? && !self.ledger.nil?
+  # Return the amount minus the current ledger balance.
+  # In most cases, this is not super relevant,
+  # since the charge contribution isn't dealing with funding (just charging).
+  # But this will help us know if our charge will send a ledger negative, for example,
+  # especially a cash ledger which only has a balance modified after a 3rd-party side effect
+  # like a credit card charge.
+  # @return [Money]
+  def outstanding = [self.amount - self.ledger.balance, Money.new(0, self.amount.currency)].max
+  def outstanding? = !self.outstanding.zero?
+
+  # Return the amount of this contribution that is coming from the balance,
+  # rather than an additional funding.
+  # See +outstanding+ for more context. Useful to differentiate what is a new vs. transfer
+  # on a cash ledger.
+  # @return [Money]
+  def from_balance = [self.ledger.balance, self.amount].min
+  def from_balance? = !self.from_balance.zero?
+
+  def amount? = !self.amount.zero?
+
+  # Replace +amount+ on the receiver.
+  # Generally you'll want to use +dup+ to keep things immutable,
+  # but in certain cases you may need to modify the +amount+ directly.
+  # @return [ChargeContribution]
+  def mutate_amount(v)
+    @amount = v
+    return self
+  end
 
   # @return [ChargeContribution]
-  def dup
-    return self.class.new(
+  def mutate_category(v)
+    @category = v
+    return self
+  end
+
+  # @return [ChargeContribution]
+  def dup(**kw)
+    p = {
       ledger: self.ledger,
       apply_at: self.apply_at,
       amount: self.amount,
       category: self.category,
-    )
+    }
+    p.merge!(kw)
+    return self.class.new(**p)
   end
 
   class Collection < Suma::TypedStruct
-    attr_accessor :cash, :remainder, :rest
-
-    # @!attribute cash
     # The contribution from the cash ledger, using its existing balance.
     # Its amount will be 0 if other ledgers cover the full amount,
     # or its balance is 0.
     # Its category is always nil.
     # @return [Suma::Payment::ChargeContribution]
+    attr_reader :cash
 
-    # @!attribute remainder
-    # The amount not covered by existing ledgers, that may need to be charged.
-    # Its ledger is always nil (the caller can decide to do a cash charge, create an additional subsidy, etc).
-    # The amount will be 0 if ledger balances cover the full amount.
-    # Its category is always nil.
-    # @return [Suma::Payment::ChargeContribution]
-
-    # @!attribute rest
     # The contributions from other ledgers.
     # @return [Array<Suma::Payment::ChargeContribution>]
+    attr_reader :rest
 
-    def remainder? = self.remainder.amount.positive?
+    # @return [Money]
+    attr_accessor :remainder
 
-    # Contributions that can be charged (positive amount and have a ledger/not the remainder).
-    # @return [Enumerable<Suma::Payment::ChargeContribution>]
-    def debitable = self.all.select(&:debitable?)
+    def remainder? = !self.remainder.zero?
 
-    # @return [Array<Suma::Payment::ChargeContribution>]
-    def debitable_or(category:, ledger:)
-      d = self.debitable.to_a
-      return d unless d.empty?
-      return [Suma::Payment::ChargeContribution.new(apply_at: self.cash.apply_at, category:, ledger:)]
+    def _defaults
+      return {remainder: Money.new(0), rest: []}
     end
 
+    # @param cash [:first,:last] Where to include the cash contribution in the list of all.
     # @return [Enumerable<Suma::Payment::ChargeContribution>]
-    def all(&)
-      return to_enum(:all) unless block_given?
-      yield self.cash
-      self.rest.each(&)
-      yield self.remainder
+    def all(cash: :first, &block)
+      return to_enum(:all, cash:) unless block
+      yield self.cash if cash == :first
+      self.rest.each(&block)
+      yield self.cash if cash == :last
     end
 
+    # @return [Suma::Payment::ChargeContribution::Collection]
     def self.create_empty(cash_ledger, apply_at:)
       return Suma::Payment::ChargeContribution::Collection.new(
         cash: Suma::Payment::ChargeContribution.new(
           ledger: cash_ledger, apply_at:, amount: Money.new(0), category: Suma::Vendor::ServiceCategory.cash,
         ),
-        remainder: Suma::Payment::ChargeContribution.new(ledger: nil, apply_at:, amount: Money.new(0), category: nil),
-        rest: [],
       )
     end
 
     # Merge many contribution collections together.
-    # +cash+ and +remainder+ amounts are summed, while the +rest+ array
+    # +cash+ amounts are summed, while the +rest+ array
     # has a unique entry for each ledger.
     # Note that +rest+ contributions will the +category+ of one contribution;
     # consolidation is inherently lossy, so if one +rest+ ledger supports multiple categories
@@ -98,12 +120,12 @@ class Suma::Payment::ChargeContribution < Suma::TypedStruct
       raise ArgumentError, "collections cannot be empty" if collections.empty?
       result = self.new(
         cash: collections[0].cash.dup,
-        remainder: collections[0].remainder.dup,
         rest: collections[0].rest.map(&:dup),
+        remainder: collections[0].remainder,
       )
       collections[1..].each do |col|
-        result.cash.amount += col.cash.amount
-        result.remainder.amount += col.remainder.amount
+        result.cash.mutate_amount(result.cash.amount + col.cash.amount)
+        result.remainder += col.remainder
         col.rest.each do |c|
           other_contrib = result.rest.find do |r|
             r.ledger === c.ledger && r.category === c.category
@@ -111,7 +133,7 @@ class Suma::Payment::ChargeContribution < Suma::TypedStruct
           if other_contrib.nil?
             result.rest << c.dup
           else
-            other_contrib.amount += c.amount
+            other_contrib.mutate_amount(other_contrib.amount + c.amount)
           end
         end
       end
@@ -127,12 +149,6 @@ class Suma::Payment::ChargeContribution < Suma::TypedStruct
   # with a number of different contexts, to find the minimum cash charge
   # (funding transaction) that would result in enough triggered payments/subsidies
   # to cover the given amount.
-  #
-  # NOTE: This code asserts that our cash ledger starts with a $0 balance.
-  # Starting with $0 cash ledger balance means there is a single 'right' answer
-  # of what we need to contribute in cash.
-  # This limitation can be lifted in the future, once we can handle this ambiguous case.
-  # See docs/payment-automation.md for a fuller explanation of this limitation.
   #
   # The order this takes is:
   #
@@ -163,18 +179,12 @@ class Suma::Payment::ChargeContribution < Suma::TypedStruct
   # @return [Suma::Payment::ChargeContribution::Collection]
   def self.find_ideal_cash_contribution(context, account, has_vnd_svc_categories, amount)
     cash = account.cash_ledger!
-    unless cash.balance.zero?
-      msg = "Dynamic charge calculations are not yet supported for nonzero cash balances. " \
-            "Not sure how the Ledger[#{cash}] got this way. You'll need to refund the user or " \
-            "otherwise get to a $0 cash ledger balance. See docs/payment-triggers.md for more info."
-      raise Suma::InvalidPrecondition, msg
-    end
 
     # If there's no remainder, we are able to cover the cost from existing subsidy (or because it's a $0 amount).
     # Can't do any better than that!
     # (nb we cannot have a cash amount here since we check it had a $0 balance above)
-    charges_using_existing_ledgers = account.calculate_charge_contributions(context, has_vnd_svc_categories, amount)
-    return charges_using_existing_ledgers if charges_using_existing_ledgers.remainder.amount.zero?
+    charges_using_existing_ledgers = self.find_actual_contributions(context, account, has_vnd_svc_categories, amount)
+    return charges_using_existing_ledgers unless charges_using_existing_ledgers.remainder?
 
     # We'll need to run triggers to calculate subsidy.
     triggers = Suma::Payment::Trigger.gather(account, apply_at: context.apply_at)
@@ -184,28 +194,30 @@ class Suma::Payment::ChargeContribution < Suma::TypedStruct
     loop_number = 1
     loop do
       subsidy_plan = triggers.funding_plan(candidate)
-      candidate_charges = account.calculate_charge_contributions(
+      candidate_charges = self.find_actual_contributions(
         context.apply_credits(
           {ledger: cash, amount: candidate},
           *subsidy_plan.steps.map { |st| {ledger: st.receiving_ledger, amount: st.amount} },
         ),
+        account,
         has_vnd_svc_categories,
         amount,
       )
-      return candidate_charges if
-        candidate_charges.remainder.amount.zero? && candidate_charges.cash.amount == candidate
+      return candidate_charges if !candidate_charges.remainder? && candidate_charges.cash.amount == candidate
       step = amount / (2**loop_number)
-      needs_more_cash = candidate_charges.remainder.amount.positive?
-      if needs_more_cash
-        candidate += step
-      else
-        # Needs less cash
-        # It is possible the candidate is below the minimum funding amount,
-        # but that is handled elsewhere.
-        candidate -= step
-      end
+      raise "got a $0 step bisecting #{amount} #{loop_number} times" if step.zero?
+      needs_more_cash = candidate_charges.remainder?
+      # NOTE: It is possible the candidate is below the minimum funding amount,
+      # but that is handled elsewhere.
+      step *= -1 unless needs_more_cash
+      candidate += step
       loop_number += 1
-      raise RuntimeError if loop_number > 100
+      raise "failed to bisect #{amount} after #{loop_number} attempts" if loop_number > 100
     end
+  end
+
+  # Helper to maintain signature parity with +find_ideal_cash_contribution+.
+  def self.find_actual_contributions(context, account, has_vnd_svc_categories, amount)
+    return account.calculate_charge_contributions(context, has_vnd_svc_categories, amount)
   end
 end

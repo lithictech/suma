@@ -128,6 +128,7 @@ class Suma::API::Commerce < Suma::API::V1
         end
 
         params do
+          requires :charge_amount_cents, type: Integer
           optional :payment_instrument, type: JSON do
             use :payment_instrument
           end
@@ -137,9 +138,9 @@ class Suma::API::Commerce < Suma::API::V1
         post :complete do
           member = current_member
           checkout = lookup!
-          ctx = new_context
+          now = Time.now
           check_eligibility!(checkout.cart.offering, member)
-          if checkout.cost_info(ctx).requires_payment_instrument?
+          if checkout.cost_info(at: now).requires_payment_instrument?
             instrument = find_payment_instrument?(member, params[:payment_instrument])
             checkout.payment_instrument = instrument if instrument
           end
@@ -156,7 +157,7 @@ class Suma::API::Commerce < Suma::API::V1
           checkout.db.transaction do
             checkout.save_changes
             begin
-              checkout.create_order(ctx)
+              checkout.create_order(apply_at: now, cash_charge_amount: Money.new(params[:charge_amount_cents]))
             rescue Suma::Commerce::Checkout::Prohibited => e
               merror!(409, "Checkout prohibited: #{e.reason}", code: "checkout_fatal_error")
             rescue Suma::Commerce::Checkout::MaxQuantityExceeded
@@ -374,17 +375,21 @@ class Suma::API::Commerce < Suma::API::V1
     expose :taxable_cost, with: Suma::Service::Entities::Money
     expose :tax, with: Suma::Service::Entities::Money
     expose :total, with: Suma::Service::Entities::Money
-    expose :chargeable_total, with: Suma::Service::Entities::Money do |inst, opts|
-      inst.cost_info(opts.fetch(:context)).chargeable_total
+    expose :chargeable_total, with: Suma::Service::Entities::Money do |_object|
+      self.cost_info.chargeable_total
     end
-    expose :requires_payment_instrument do |inst, opts|
-      inst.cost_info(opts.fetch(:context)).requires_payment_instrument?
+    expose :requires_payment_instrument do |_object|
+      self.cost_info.requires_payment_instrument?
     end
-    expose :checkout_prohibited_reason do |inst, opts|
-      inst.cost_info(opts.fetch(:context)).checkout_prohibited_reason
+    expose :checkout_prohibited_reason do |_object|
+      self.cost_info.checkout_prohibited_reason
     end
-    expose :existing_funds_available, with: ChargeContributionEntity do |inst, opts|
-      inst.cost_info(opts.fetch(:context)).usable_ledger_contributions
+    expose :existing_funds_available, with: ChargeContributionEntity do |_object|
+      self.cost_info.existing_funds_available
+    end
+
+    private def cost_info
+      return @cost_info ||= self.object.cost_info(at: self.options.fetch(:context).apply_at)
     end
   end
 

@@ -115,7 +115,7 @@ class Suma::Payment::Account < Suma::Postgres::Model(:payment_accounts)
     self.ledgers.each do |ledger|
       if (category = ledger.category_used_to_purchase(has_vnd_svc_categories))
         if ledger === cash_ledger
-          result.cash.category = category
+          result.cash.mutate_category(category)
         else
           potential_contribs << Suma::Payment::ChargeContribution.new(ledger:, apply_at: context.apply_at, category:)
         end
@@ -127,13 +127,13 @@ class Suma::Payment::Account < Suma::Postgres::Model(:payment_accounts)
       ledger_balance = context.balance(contrib.ledger)
       amount = [ledger_balance, 0].max
       amount = [amount, remainder].min
-      contrib.amount = amount
+      contrib.mutate_amount(amount)
       (result.rest << contrib) if contrib != result.cash
       remainder -= amount
       break if remainder.zero?
     end
     raise Suma::InvalidPostcondition, "how did we get a negative remainder? #{remainder}" if remainder.negative?
-    result.remainder.amount = remainder
+    result.remainder = remainder
     return result
   end
 

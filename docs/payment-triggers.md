@@ -108,3 +108,37 @@ Then, when the user submits the checkout:
   (ie it's possible the state of the ledger has changed between when the user viewed
   the projected charges and submitted the order).
 - Create the funding transaction once everything is good.
+
+## Example Triggers
+
+Example code for the $80 subsidy for $10 cash match for holiday food promo:
+
+```rb
+Suma::Payment::Trigger.create(
+        label: 'Holiday food promo',
+        active_during: Time.now..1.year.from_now,
+        match_multiplier: 8,
+        maximum_cumulative_subsidy_cents: 80_00,
+        memo: Suma::TranslatedText.find_or_create(en: "Subsidy from local funders", es: "Apoyo de financiadores locales"),
+        originating_ledger: Suma::Payment::Account.lookup_platform_vendor_service_category_ledger(Suma::Vendor::ServiceCategory.find!(name: "Holiday Demo")),
+        receiving_ledger_name: 'Holidays Food Demo',
+        receiving_ledger_contribution_text: Suma::TranslatedText.find_or_create(en: "Holiday Food Subsidy", es: "Holiday Food Subsidy (es)"),
+)
+```
+
+Example code for the $19-subsidy-for-$5-cash match from summer 2023:
+
+```rb
+```
+
+## Glossary
+
+It's useful to have a vocabulary of terms here, because the trigger system is a formalization of
+a payment matching and subsidy process that mostly exists in an intuitive world,
+and doesn't have real world analogues or vocabulary to describe how the intuitive process works.
+
+- **Charge contributions**: Given an overall debit of $10, how much of this $10 comes from what ledger?
+  This amount is each ledger's *contribution*.
+- **Payment trigger**: Given a funding transaction (adding cash to the app),
+  what book transactions are triggered, usually to add balances to a member's non-cash ledgers.
+- **

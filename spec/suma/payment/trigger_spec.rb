@@ -16,7 +16,7 @@ RSpec.describe "Suma::Payment::Trigger", :db do
     expect(con.payment_triggers).to contain_exactly(be === tr)
   end
 
-  describe "plan" do
+  describe "funding_plan" do
     let(:account) { Suma::Fixtures.payment_account.create }
 
     it "returns an empty plan if there are no triggers" do
@@ -139,6 +139,27 @@ RSpec.describe "Suma::Payment::Trigger", :db do
       expect(plan.steps).to contain_exactly(
         have_attributes(amount: money("$1.11"), trigger: t),
       )
+    end
+  end
+
+  describe "FundingPlan" do
+    describe "apply" do
+      let(:account) { Suma::Fixtures.payment_account.create }
+
+      it "creates book transactions" do
+        t = Suma::Fixtures.payment_trigger.matching(0.5).create
+        plan = described_class.gather(account, apply_at:).funding_plan(money("$15"))
+        now = Time.now
+        xactions = plan.apply(at: now)
+        expect(xactions).to contain_exactly(
+          have_attributes(
+            apply_at: now,
+            amount: money("$7.50"),
+            originating_ledger: be === t.originating_ledger,
+            receiving_ledger: account.ledgers(reload: true).first,
+          ),
+        )
+      end
     end
   end
 end

@@ -2,7 +2,6 @@
 
 RSpec.describe "Suma::Commerce::Checkout", :db do
   let(:described_class) { Suma::Commerce::Checkout }
-  let(:context) { Suma::Payment::CalculationContext.new(Time.now) }
 
   describe "cost accessors" do
     let(:member) { Suma::Fixtures.member.create }
@@ -11,11 +10,11 @@ RSpec.describe "Suma::Commerce::Checkout", :db do
     let!(:offering_product) { Suma::Fixtures.offering_product(product:, offering:).costing("$20", "$30").create }
     let(:cart) { Suma::Fixtures.cart(offering:, member:).with_product(product, 2).create }
     let(:checkout) { Suma::Fixtures.checkout(cart:).populate_items.create }
-    let!(:member_ledger) { Suma::Fixtures.ledger.member(member).category(:cash).create }
+    let!(:cash_ledger) { Suma::Fixtures.ledger.member(member).category(:cash).create }
     let!(:platform_ledger) { Suma::Fixtures::Ledgers.ensure_platform_cash }
 
     it "are calculated correctly" do
-      Suma::Fixtures.book_transaction(amount: money("$10")).to(member_ledger).create
+      Suma::Fixtures.book_transaction(amount: money("$10")).to(cash_ledger).create
 
       expect(checkout).to have_attributes(
         undiscounted_cost: cost("$60"),
@@ -26,7 +25,9 @@ RSpec.describe "Suma::Commerce::Checkout", :db do
         tax: cost("$0"),
         total: cost("$40"),
       )
-      expect(checkout.cost_info(context).chargeable_total).to cost("$30")
+      contribs = checkout.actual_charge_contributions(apply_at: Time.now)
+      expect(contribs.cash.amount).to cost("$10")
+      expect(contribs.remainder).to cost("$30")
     end
   end
 
@@ -40,13 +41,13 @@ RSpec.describe "Suma::Commerce::Checkout", :db do
 
     it "returns true depending if the chargeable total is zero" do
       Suma::Payment.ensure_cash_ledger(member)
-      expect(checkout.cost_info(context)).to be_requires_payment_instrument
+      expect(checkout.cost_info(at: Time.now)).to be_requires_payment_instrument
 
       offering_product.update_without_validate(customer_price_cents: 0)
 
       checkout.refresh
-      expect(checkout.cost_info(context).chargeable_total).to cost(0)
-      expect(checkout.cost_info(context)).to_not be_requires_payment_instrument
+      expect(checkout.cost_info(at: Time.now).chargeable_total).to cost(0)
+      expect(checkout.cost_info(at: Time.now)).to_not be_requires_payment_instrument
     end
   end
 
@@ -60,26 +61,30 @@ RSpec.describe "Suma::Commerce::Checkout", :db do
       Suma::Payment.ensure_cash_ledger(member)
     end
 
+    def prohibited_reason
+      return checkout.cost_info(at: Time.now).checkout_prohibited_reason
+    end
+
     it "is nil if nothing is wrong" do
-      expect(checkout.cost_info(context).checkout_prohibited_reason).to eq(nil)
+      expect(prohibited_reason).to eq(nil)
     end
 
     it "is :not_editable if the checkout is not editable" do
       checkout.soft_delete
-      expect(checkout.cost_info(context).checkout_prohibited_reason).to eq(:not_editable)
+      expect(prohibited_reason).to eq(:not_editable)
     end
 
     it "is :requires_payment_instrument if an instrument is required and not set" do
       checkout.payment_instrument = nil
-      expect(checkout.cost_info(context).checkout_prohibited_reason).to eq(:requires_payment_instrument)
+      expect(prohibited_reason).to eq(:requires_payment_instrument)
       cart.items.first.offering_product.update_without_validate(customer_price: Money.new(0))
       checkout.refresh
-      expect(checkout.cost_info(context).checkout_prohibited_reason).to eq(nil)
+      expect(prohibited_reason).to eq(nil)
     end
 
     it "is :offering_products_unavailable if all offering products are unavailable" do
       offering.update(period_end: 1.day.ago)
-      expect(checkout.cost_info(context).checkout_prohibited_reason).to eq(:offering_products_unavailable)
+      expect(prohibited_reason).to eq(:offering_products_unavailable)
     end
   end
 
@@ -92,7 +97,7 @@ RSpec.describe "Suma::Commerce::Checkout", :db do
     let(:cart) { Suma::Fixtures.cart(offering:, member:).with_product(product, 2).create }
     let(:card) { Suma::Fixtures.card.member(member).create }
     let(:checkout) { Suma::Fixtures.checkout(cart:, card:).populate_items.create }
-    let!(:member_ledger) { Suma::Fixtures.ledger.member(member).category(:cash).create }
+    let!(:cash_ledger) { Suma::Fixtures.ledger.member(member).category(:cash).create }
     let!(:platform_ledger) { Suma::Fixtures::Ledgers.ensure_platform_cash }
 
     around(:each) do |ex|
@@ -101,13 +106,18 @@ RSpec.describe "Suma::Commerce::Checkout", :db do
       end
     end
 
+    def create_order(amount=nil, checkout_: checkout)
+      amount ||= checkout_.items.sum(&:customer_cost)
+      checkout_.create_order(apply_at: Time.now, cash_charge_amount: amount)
+    end
+
     it "errors if charging is prohibited" do
       checkout.soft_delete
-      expect { checkout.create_order(context) }.to raise_error(described_class::Prohibited, /not_editable/)
+      expect { create_order }.to raise_error(described_class::Prohibited, /not_editable/)
     end
 
     it "creates the order from the checkout" do
-      order = checkout.create_order(context)
+      order = create_order
       expect(order).to have_attributes(
         checkout: be === checkout,
         order_status: "open",
@@ -118,14 +128,14 @@ RSpec.describe "Suma::Commerce::Checkout", :db do
     end
 
     it "deletes the cart items, and copies their quantity to the checkout items" do
-      checkout.create_order(context)
+      create_order
       expect(checkout.cart.items).to be_empty
       expect(checkout.items.first).to have_attributes(quantity: 2, cart_item: nil)
     end
 
     it "does not delete the payment instrument if it is being saved" do
       checkout.update(save_payment_instrument: true)
-      checkout.create_order(context)
+      create_order
       expect(checkout.card).to_not be_soft_deleted
     end
 
@@ -133,14 +143,14 @@ RSpec.describe "Suma::Commerce::Checkout", :db do
       checkout.update(payment_instrument: nil)
       offering_product.update_without_validate(customer_price_cents: 0)
       # Ensure payment is not required
-      expect(checkout.cost_info(context)).to_not be_requires_payment_instrument
-      checkout.create_order(context)
+      expect(checkout.cost_info(at: Time.now)).to_not be_requires_payment_instrument
+      create_order(amount = money("$0"))
       expect(checkout.card).to be_nil
       expect(card.refresh).to_not be_soft_deleted
     end
 
     it "creates a charge for the customer cost" do
-      order = checkout.create_order(context)
+      order = create_order
       expect(order).to be_a(Suma::Commerce::Order)
       expect(order.charges).to have_length(1)
       expect(order.charges.first).to have_attributes(
@@ -149,8 +159,8 @@ RSpec.describe "Suma::Commerce::Checkout", :db do
     end
 
     it "creates a funding transaction for the chargeable amount" do
-      Suma::Fixtures.book_transaction(amount: money("$5")).to(member_ledger).create
-      order = checkout.create_order(context)
+      Suma::Fixtures.book_transaction(amount: money("$5")).to(cash_ledger).create
+      order = create_order(money("$35")) # take into account the $5 existing balance
       expect(member.payment_account.originated_funding_transactions).to contain_exactly(
         have_attributes(amount: cost("$35"), status: "created"),
       )
@@ -159,9 +169,14 @@ RSpec.describe "Suma::Commerce::Checkout", :db do
       )
     end
 
+    it "errors if the amount to be charged, and what is calculated as needing to be charged, differ" do
+      Suma::Fixtures.book_transaction(amount: money("$5")).to(cash_ledger).create
+      expect { create_order }.to raise_error(described_class::Prohibited, /calculated charge of/)
+    end
+
     it "creates the order in fulfilling if the offering has begun fulfillment" do
       offering.update(begin_fulfillment_at: 1.minute.ago)
-      order = checkout.create_order(context)
+      order = create_order
       expect(order).to have_attributes(
         order_status: "open",
         fulfillment_status: "fulfilling",
@@ -181,9 +196,9 @@ RSpec.describe "Suma::Commerce::Checkout", :db do
         holidaymeal_ledger = ledger_fac.with_categories(holidaymeal_vsc).create(name: "holidays")
 
         # Make sure we debit existing ledgers properly
-        Suma::Fixtures.book_transaction.to(cash_ledger).create(amount: money("$13"))
-        Suma::Fixtures.book_transaction.to(food_ledger).create(amount: money("$3"))
-        Suma::Fixtures.book_transaction.to(holidaymeal_ledger).create(amount: money("$0.30"))
+        book_cash = Suma::Fixtures.book_transaction.to(cash_ledger).create(amount: money("$13"))
+        book_food = Suma::Fixtures.book_transaction.to(food_ledger).create(amount: money("$3"))
+        book_holiday = Suma::Fixtures.book_transaction.to(holidaymeal_ledger).create(amount: money("$0.30"))
 
         offering = Suma::Fixtures.offering.create
         food_product1 = Suma::Fixtures.product.with_categories(food_vsc).create
@@ -208,10 +223,12 @@ RSpec.describe "Suma::Commerce::Checkout", :db do
           populate_items.
           create
 
-        order = checkout.create_order(context)
+        customer_cost = money("$1244")
+        chargeable_total = customer_cost - book_cash.amount - book_food.amount - book_holiday.amount
+        order = create_order(chargeable_total, checkout_: checkout)
         expect(order.charges).to have_length(1)
         expect(order.charges.first).to have_attributes(
-          discounted_subtotal: cost("$1244"),
+          discounted_subtotal: customer_cost,
           undiscounted_subtotal: cost("$1555"),
         )
         expect(order.charges.first.book_transactions).to contain_exactly(
@@ -260,7 +277,7 @@ RSpec.describe "Suma::Commerce::Checkout", :db do
           populate_items.
           create
 
-        order = checkout.create_order(context)
+        order = create_order(checkout_: checkout)
         expect(order.charges).to have_length(1)
         expect(order.charges.first).to have_attributes(
           discounted_subtotal: cost("40"),
@@ -279,7 +296,7 @@ RSpec.describe "Suma::Commerce::Checkout", :db do
     describe "inventory behavior" do
       it "errors if the order quantity exceeds the maximum allowed on the offering" do
         offering.update(max_ordered_items_cumulative: 1)
-        expect { checkout.create_order(context) }.to raise_error(described_class::MaxQuantityExceeded)
+        expect { create_order }.to raise_error(described_class::MaxQuantityExceeded)
       end
 
       it "errors if the order quantity of a limited item exceeds what is available" do
@@ -288,18 +305,18 @@ RSpec.describe "Suma::Commerce::Checkout", :db do
         cart.delete_all_items
         cart.add_item(product:, quantity: 1, timestamp: 0)
         co1 = Suma::Fixtures.checkout(cart:, card:).populate_items.create
-        expect { co1.create_order(context) }.to_not raise_error
+        expect { create_order(checkout_: co1) }.to_not raise_error
 
         cart.add_item(product:, quantity: 1, timestamp: 0)
         co2 = Suma::Fixtures.checkout(cart:, card:).populate_items.create
-        expect { co2.create_order(context) }.to raise_error(described_class::MaxQuantityExceeded)
+        expect { create_order(checkout_: co2) }.to raise_error(described_class::MaxQuantityExceeded)
       end
 
       it "increments pending fulfillment counts of products" do
         product.inventory!.update(quantity_on_hand: 5, quantity_pending_fulfillment: 1)
         cart.delete_all_items
         cart.add_item(product:, quantity: 2, timestamp: 0)
-        Suma::Fixtures.checkout(cart:, card:).populate_items.create.create_order(context)
+        create_order(checkout_: Suma::Fixtures.checkout(cart:, card:).populate_items.create)
         expect(product.refresh.inventory).to have_attributes(quantity_on_hand: 5, quantity_pending_fulfillment: 3)
       end
     end

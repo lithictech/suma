@@ -83,7 +83,7 @@ RSpec.describe "Suma::Payment::Account", :db do
       Suma::Fixtures.book_transaction.to(cash_ledger).create(amount: money("$10"))
       results = account.calculate_charge_contributions(context, grocery_service, money("10"))
       expect(results.cash).to have_attributes(ledger: cash_ledger, amount: cost("$4"))
-      expect(results.remainder).to have_attributes(ledger: nil, amount: cost("$0"))
+      expect(results.remainder).to cost("$0")
       expect(results.rest).to contain_exactly(
         have_attributes(ledger: be === ledgers[0], amount: cost("$6")),
         have_attributes(ledger: be === ledgers[1], amount: cost("$0")),
@@ -96,7 +96,7 @@ RSpec.describe "Suma::Payment::Account", :db do
       Suma::Fixtures.book_transaction.to(ledgers[1]).create(amount: money("$6"))
       results = account.calculate_charge_contributions(context, grocery_service, money("10"))
       expect(results.cash).to have_attributes(ledger: cash_ledger, amount: cost("$0"))
-      expect(results.remainder).to have_attributes(ledger: nil, amount: cost("$4"))
+      expect(results.remainder).to cost("$4")
       expect(results.rest).to contain_exactly(
         have_attributes(ledger: be === ledgers[0], amount: cost("$0")),
         have_attributes(ledger: be === ledgers[1], amount: cost("$6")),
@@ -115,7 +115,7 @@ RSpec.describe "Suma::Payment::Account", :db do
       Suma::Fixtures.book_transaction.to(can_use_g2).create(amount: money("$10"))
       results = account.calculate_charge_contributions(context, grocery_service, money("$22"))
       expect(results.cash).to have_attributes(ledger: cash_ledger, amount: cost("$0"))
-      expect(results.remainder).to have_attributes(ledger: nil, amount: cost("$0"))
+      expect(results.remainder).to cost("$0")
       expect(results.rest).to contain_exactly(
         have_attributes(ledger: be === can_use_g1, amount: cost("$10"), apply_at: match_time(now)),
         have_attributes(ledger: be === can_use_g2, amount: cost("$10")),
@@ -130,7 +130,7 @@ RSpec.describe "Suma::Payment::Account", :db do
       Suma::Fixtures.book_transaction.to(can_use_g1).create(amount: money("$10"))
       results = account.calculate_charge_contributions(context, grocery_service, money("$0"))
       expect(results.cash).to have_attributes(ledger: cash_ledger, amount: cost("$0"))
-      expect(results.remainder).to have_attributes(ledger: nil, amount: cost("$0"))
+      expect(results.remainder).to cost("$0")
       expect(results.rest).to contain_exactly(
         have_attributes(ledger: be === can_use_g1, amount: cost("$0"), apply_at: match_time(now)),
       )
@@ -149,7 +149,7 @@ RSpec.describe "Suma::Payment::Account", :db do
       ledgers = Array.new(3) { ledger_fac.with_categories(food).create }
       ledgers.each { |led| Suma::Fixtures.book_transaction(amount: money("$2")).to(led).create }
       contribs = account.calculate_charge_contributions(context, grocery_service, money("$6"))
-      results = account.debit_contributions(contribs.debitable, memo: translated_text("hi"))
+      results = account.debit_contributions(contribs.all.select(&:amount?), memo: translated_text("hi"))
       expect(results).to all(be_a(Suma::Payment::BookTransaction))
       recip = Suma::Payment::Account.lookup_platform_vendor_service_category_ledger(food)
       expect(results).to contain_exactly(

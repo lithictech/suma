@@ -136,8 +136,9 @@ class Suma::Commerce::Cart < Suma::Postgres::Model(:commerce_carts)
     end
 
     def product_noncash_ledger_contribution_amount(offering_product)
-      contribs = @cart.member.payment_account!.calculate_charge_contributions(
+      contribs = Suma::Payment::ChargeContribution.find_ideal_cash_contribution(
         @context,
+        @cart.member.payment_account!,
         offering_product.product,
         offering_product.customer_price,
       )
@@ -146,10 +147,10 @@ class Suma::Commerce::Cart < Suma::Postgres::Model(:commerce_carts)
 
     def noncash_ledger_contribution_amount
       return Money.new(0) if @cart.items.empty?
-      contribs = Suma::Commerce::Checkout.ledger_charge_contributions(
+      contribs = Suma::Commerce::PricedItem.ideal_ledger_charge_contributions(
         @context,
-        payment_account: @cart.member.payment_account!,
-        priced_items: @cart.items,
+        @cart.member.payment_account!,
+        @cart.items,
       )
       return contribs.rest.sum(Money.new(0), &:amount)
     end

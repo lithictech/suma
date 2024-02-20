@@ -77,18 +77,20 @@ class Suma::Mobility::Trip < Suma::Postgres::Model(:mobility_trips)
         member: self.member,
       )
       result_cost = Money.new(result.cost_cents, result.cost_currency)
-      contributions = self.member.payment_account!.calculate_charge_contributions(
+      contrib_coll = self.member.payment_account!.calculate_charge_contributions(
         Suma::Payment::CalculationContext.new(Time.now),
         self.vendor_service,
         result_cost,
       )
-      xactions = self.member.payment_account.debit_contributions(
+      debitable_contribs = contrib_coll.all.select(&:amount?)
+      if debitable_contribs.empty?
         # We always need a debit. If there are no debitable contributions, make a fake one for $0
         # using the first non-cash category.
         # I am not 100% certain this is what we want to do, don't be surprised if we need to revisit this.
-        contributions.debitable_or(
-          ledger: contributions.rest.first.ledger, category: contributions.rest.first.category,
-        ),
+        debitable_contribs = [contrib_coll.all(cash: :last).first.dup(amount: Money.new(0))]
+      end
+      xactions = self.member.payment_account.debit_contributions(
+        debitable_contribs,
         memo: Suma::TranslatedText.create(
           en: "Suma Mobility - #{self.vendor_service.external_name}",
           es: "Suma Movilidad - #{self.vendor_service.external_name}",
