@@ -1,5 +1,6 @@
 import { dayjs } from "../modules/dayConfig";
-import Money, { formatMoney, scaleMoney } from "../shared/react/Money";
+import { formatMoney, scaleMoney } from "../shared/money";
+import Money from "../shared/react/Money";
 import AdminLink from "./AdminLink";
 import Link from "./Link";
 import RelatedList from "./RelatedList";
