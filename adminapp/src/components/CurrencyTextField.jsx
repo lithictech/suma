@@ -1,7 +1,7 @@
 import api from "../api";
 import config from "../config";
 import parseCurrency from "../modules/parseCurrency";
-import { formatMoney } from "../shared/react/Money";
+import { formatMoney } from "../shared/money";
 import { InputAdornment, TextField } from "@mui/material";
 import { makeStyles } from "@mui/styles";
 import React from "react";

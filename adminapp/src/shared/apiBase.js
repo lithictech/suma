@@ -3,7 +3,7 @@ import {
   debugResponseLogger,
   errorResponseLogger,
 } from "./apilogger";
-import axios from "axios";
+import axios, { AxiosError, CanceledError } from "axios";
 import humps from "humps";
 import get from "lodash/get";
 import noop from "lodash/noop";
@@ -74,9 +74,20 @@ function mergeParams(params, o) {
   return { params: cased, ...o };
 }
 
+function isAxiosTimeout(r) {
+  if (r instanceof CanceledError) {
+    return true;
+  }
+  if (r instanceof AxiosError && r.code === "ECONNABORTED") {
+    return true;
+  }
+  return false;
+}
+
 export default {
   create,
   handleStatus,
+  isAxiosTimeout,
   mergeParams,
   pick: (s) => (o) => get(o, s),
   pickData: (o) => o.data,

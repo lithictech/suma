@@ -1,4 +1,4 @@
-import { formatMoney } from "../../shared/money";
+import { formatMoney } from "../money";
 import PropTypes from "prop-types";
 import React from "react";
 

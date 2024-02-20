@@ -35,3 +35,6 @@ network-code:
 	@echo "Go to $(LOCAL_NETWORK_ADDR) on your device or scan the above code, then press Enter."
 	@echo "Reload the browser after the server starts up."
 	@read
+
+sync-shared: check-version
+	cp -r ../adminapp/src/shared src
