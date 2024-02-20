@@ -1,5 +1,5 @@
 import Redirect from "../shared/react/Redirect";
-import useLoginRedirectLink from "../shared/react/useLoginRedirectLink";
+import useLoginRedirectLink from "../state/useLoginRedirectLink";
 import useUser from "../state/useUser";
 import React from "react";
 import { useLocation } from "react-router-dom";

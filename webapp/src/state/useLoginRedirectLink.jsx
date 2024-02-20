@@ -1,4 +1,4 @@
-import useSessionStorageState from "./useSessionStorageState";
+import useSessionStorageState from "../shared/react/useSessionStorageState";
 import React from "react";
 
 const REDIRECT_LINK_SESSION_KEY = "sumaNextUrl";
