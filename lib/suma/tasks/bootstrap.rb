@@ -153,7 +153,9 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
   class Commerce < Common
     def fixture
       self.setup_holiday_offering
-      self.setup_farmers_market
+      self.setup_holiday_triggers
+      self.setup_farmers_market_offering
+      self.setup_farmers_market_triggers
     end
 
     protected def setup_holiday_offering
@@ -238,7 +240,20 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
       end
     end
 
-    def setup_farmers_market
+    protected def setup_holiday_triggers
+      Suma::Payment::Trigger.create(
+        label: "Holiday food promo",
+        active_during: Time.now..1.year.from_now,
+        match_multiplier: 8,
+        maximum_cumulative_subsidy_cents: 80_00,
+        memo: Suma::TranslatedText.find_or_create(en: "Subsidy from local funders", es: "Apoyo de financiadores locales"),
+        originating_ledger: Suma::Payment::Account.lookup_platform_vendor_service_category_ledger(self.holidays_category),
+        receiving_ledger_name: "Holidays Food Demo",
+        receiving_ledger_contribution_text: Suma::TranslatedText.find_or_create(en: "Holiday Food Subsidy", es: "Holiday Food Subsidy (es)"),
+      )
+    end
+
+    def setup_farmers_market_offering
       market_name = "Demo Farmers Market"
       market_address = Suma::Address.lookup(
         address1: "NE Wygant St &, NE 7th Ave",
@@ -355,6 +370,29 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
         op.undiscounted_price = undiscounted_price
       end
     end
+
+    protected def setup_farmers_market_triggers
+      Suma::Payment::Trigger.create(
+        label: "Farmers market 5 for 19 signup",
+        active_during: Time.now..1.year.from_now,
+        match_multiplier: 3.8,
+        maximum_cumulative_subsidy_cents: 1900,
+        memo: Suma::TranslatedText.find_or_create(en: "Subsidy from local funders", es: "Apoyo de financiadores locales"),
+        originating_ledger: Suma::Payment::Account.lookup_platform_vendor_service_category_ledger(self.farmers_market_intro_category),
+        receiving_ledger_name: "Farmers Market Intro Demo",
+        receiving_ledger_contribution_text: Suma::TranslatedText.find_or_create(en: "FM Intro Offer", es: "FM Intro Offer (es)"),
+      )
+      Suma::Payment::Trigger.create(
+        label: "Farmers market 1 to 1",
+        active_during: Time.now..1.year.from_now,
+        match_multiplier: 1,
+        maximum_cumulative_subsidy_cents: 1500,
+        memo: Suma::TranslatedText.find_or_create(en: "Subsidy from local funders", es: "Apoyo de financiadores locales"),
+        originating_ledger: Suma::Payment::Account.lookup_platform_vendor_service_category_ledger(self.farmers_market_match_category),
+        receiving_ledger_name: "Farmers Market Match Demo",
+        receiving_ledger_contribution_text: Suma::TranslatedText.find_or_create(en: "FM Match", es: "FM Match (es)"),
+      )
     end
+  end
 end
 # rubocop:enable Layout/LineLength

@@ -276,23 +276,11 @@ class Suma::API::Commerce < Suma::API::V1
     end
 
     expose :displayable_noncash_ledger_contribution_amount, with: Suma::Service::Entities::Money do |_inst|
-      # If we can only purchase 1 of an item, it makes sense to show noncash contribution.
-      # But if we can purchase multiple of it, don't include noncash contribution
-      # since it's confusing (ie, $5 credit on a $2 item would show $0 cash cost).
-      if self.max_quantity > 1
-        Money.new(0)
-      else
-        self.noncash_ledger_contrib
-      end
+      self.noncash_ledger_contrib
     end
     expose :displayable_cash_price, with: Suma::Service::Entities::Money do |inst|
-      # See note above on displayable noncash ledger contribution
-      if self.max_quantity > 1
-        inst.customer_price
-      else
-        noncash = self.noncash_ledger_contrib
-        inst.customer_price - noncash
-      end
+      noncash = self.noncash_ledger_contrib
+      inst.customer_price - noncash
     end
 
     expose :is_discounted, &self.delegate_to(:discounted?, safe_with_default: false)
@@ -311,10 +299,9 @@ class Suma::API::Commerce < Suma::API::V1
     end
 
     private def noncash_ledger_contrib
-      return @noncash_ledger_contrib ||
-          self.options.fetch(:cart).
-              cost_info(self.options.fetch(:context)).
-              product_noncash_ledger_contribution_amount(self.object)
+      return @noncash_ledger_contrib ||= self.options.fetch(:cart).
+          cost_info(self.options.fetch(:context)).
+          product_noncash_ledger_contribution_amount(self.object)
     end
   end
 
@@ -344,7 +331,13 @@ class Suma::API::Commerce < Suma::API::V1
     expose :address, with: FulfillmentOptionAddressEntity
   end
 
-  class CheckoutProductEntity < OfferingProductEntity
+  class CheckoutProductEntity < BaseEntity
+    expose_translated :name, &self.delegate_to(:product, :name)
+    expose_translated :description, &self.delegate_to(:product, :description)
+    expose :offering_id
+    expose :product_id, &self.delegate_to(:product, :id)
+    expose :vendor_id, &self.delegate_to(:product, :vendor_id)
+    expose :images, with: Suma::API::Entities::ImageEntity, &self.delegate_to(:product, :images?)
     expose :vendor, with: VendorEntity, &self.delegate_to(:product, :vendor)
   end
 

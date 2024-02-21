@@ -111,25 +111,7 @@ Then, when the user submits the checkout:
 
 ## Example Triggers
 
-Example code for the $80 subsidy for $10 cash match for holiday food promo:
-
-```rb
-Suma::Payment::Trigger.create(
-        label: 'Holiday food promo',
-        active_during: Time.now..1.year.from_now,
-        match_multiplier: 8,
-        maximum_cumulative_subsidy_cents: 80_00,
-        memo: Suma::TranslatedText.find_or_create(en: "Subsidy from local funders", es: "Apoyo de financiadores locales"),
-        originating_ledger: Suma::Payment::Account.lookup_platform_vendor_service_category_ledger(Suma::Vendor::ServiceCategory.find!(name: "Holiday Demo")),
-        receiving_ledger_name: 'Holidays Food Demo',
-        receiving_ledger_contribution_text: Suma::TranslatedText.find_or_create(en: "Holiday Food Subsidy", es: "Holiday Food Subsidy (es)"),
-)
-```
-
-Example code for the $19-subsidy-for-$5-cash match from summer 2023:
-
-```rb
-```
+See `bootstrap.rb` for example triggers.
 
 ## Glossary
 
