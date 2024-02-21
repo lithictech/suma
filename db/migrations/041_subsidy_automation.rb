@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 Sequel.migration do
-  change do
+  up do
     create_table(:payment_triggers) do
       primary_key :id
       timestamptz :created_at, null: false, default: Sequel.function(:now)
@@ -23,7 +23,19 @@ Sequel.migration do
       name: :eligibility_payment_trigger_associations,
     )
     alter_table(:commerce_offerings) do
-      rename_column :prohibit_charge_at_checkout, :prohibit_charge_at_checkout_legacy
+      drop_column :prohibit_charge_at_checkout
     end
+    drop_table(:automation_triggers)
+  end
+
+  down do
+    create_table(:automation_triggers) do
+      primary_key :placeholder
+    end
+    alter_table(:commerce_offerings) do
+      add_column :prohibit_charge_at_checkout, :boolean
+    end
+    drop_table(:eligibility_payment_trigger_associations)
+    drop_table(:payment_triggers)
   end
 end
