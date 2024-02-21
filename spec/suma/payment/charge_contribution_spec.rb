@@ -41,6 +41,27 @@ RSpec.describe Suma::Payment::ChargeContribution, :db do
     )
   end
 
+  it "does not factor in negative ledger balances to what is oustanding/from_balance" do
+    ledger = Suma::Fixtures.ledger.create
+    Suma::Fixtures.book_transaction.from(ledger).create(amount: money("$4"))
+    c = described_class.new(ledger:)
+    expect(c).to have_attributes(
+      outstanding: cost("$0"),
+      outstanding?: false,
+      from_balance: cost("$0"),
+      from_balance?: false,
+      amount?: false,
+    )
+    c = c.dup(amount: money("$5"))
+    expect(c).to have_attributes(
+      outstanding: cost("$5"),
+      outstanding?: true,
+      from_balance: cost("$0"),
+      from_balance?: false,
+      amount?: true,
+    )
+  end
+
   it "can be duplicated" do
     c = described_class.new
     c2 = c.dup
@@ -185,20 +206,58 @@ RSpec.describe Suma::Payment::ChargeContribution, :db do
     end
 
     it "can be applied multiple times with accumulating contexts" do
-      got = described_class.find_ideal_cash_contribution(ctx, account, organic_food_service, money("$800"))
-      expect(got.cash).to have_attributes(
-        amount: cost("$800"),
-      )
-      expect(got.remainder).to cost("$0")
-      expect(got.rest).to be_empty
+      got1 = described_class.find_ideal_cash_contribution(ctx, account, organic_food_service, money("$800"))
+      expect(got1.cash).to have_attributes(amount: cost("$800"))
+      expect(got1.remainder).to cost("$0")
+      expect(got1.rest).to be_empty
 
-      ctx2 = ctx.apply_debits(*got.all)
+      ctx2 = ctx.apply_debits(*got1.all)
       got2 = described_class.find_ideal_cash_contribution(ctx2, account, organic_food_service, money("$300"))
-      expect(got2.cash).to have_attributes(
-        amount: cost("$300"),
-      )
+      expect(got2.cash).to have_attributes(amount: cost("$300"))
       expect(got2.remainder).to cost("$0")
       expect(got2.rest).to be_empty
+    end
+
+    it "can be applied multiple times with acculating contexts, having existing cash and noncash contributions" do
+      food_ledger = ledger_fac.with_categories(organic_food).create
+      # Start with money on each ledger
+      Suma::Fixtures.book_transaction.to(food_ledger).create(amount: money("$30"))
+      Suma::Fixtures.book_transaction.to(cash_ledger).create(amount: money("$40"))
+
+      # $20 food should take all from food ledger
+      ctx1 = ctx
+      got1 = described_class.find_ideal_cash_contribution(ctx1, account, organic_food_service, money("$20"))
+      expect(got1.cash).to have_attributes(amount: cost("0"))
+      expect(got1.remainder).to cost("$0")
+      expect(got1.rest).to contain_exactly(have_attributes(amount: cost("$20")))
+
+      # $30 food should take remaining $10 from food, and $20 from cash
+      ctx2 = ctx1.apply_debits(*got1.all)
+      got2 = described_class.find_ideal_cash_contribution(ctx2, account, organic_food_service, money("$30"))
+      expect(got2.cash).to have_attributes(amount: cost("$20"))
+      expect(got2.remainder).to cost("$0")
+      expect(got2.rest).to contain_exactly(have_attributes(amount: cost("$10")))
+
+      # $30 more in food should take remaining $10 from cash, and owe $20 cash
+      ctx3 = ctx2.apply_debits(*got2.all)
+      got3 = described_class.find_ideal_cash_contribution(ctx3, account, organic_food_service, money("$30"))
+      expect(got3.cash).to have_attributes(amount: cost("$30"))
+      expect(got3.remainder).to cost("$0")
+      expect(got3.rest).to contain_exactly(have_attributes(amount: cost("$0")))
+    end
+
+    it "does not require 'paying off' negative ledger balances" do
+      food_ledger = ledger_fac.with_categories(organic_food).create
+      Suma::Fixtures.book_transaction.from(food_ledger).create(amount: money("$3"))
+      Suma::Fixtures.book_transaction.from(cash_ledger).create(amount: money("$0.30"))
+      got = described_class.find_ideal_cash_contribution(ctx, account, organic_food_service, money("$30"))
+      expect(got.cash).to have_attributes(
+        amount: cost("$30"),
+        from_balance: cost("$0"),
+        outstanding: cost("$30"),
+      )
+      expect(got.remainder).to cost("$0")
+      expect(got.rest).to contain_exactly(have_attributes(amount: cost("$0"), ledger: be === food_ledger))
     end
 
     describe "with payment triggers" do

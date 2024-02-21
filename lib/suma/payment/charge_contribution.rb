@@ -29,7 +29,7 @@ class Suma::Payment::ChargeContribution < Suma::TypedStruct
   # especially a cash ledger which only has a balance modified after a 3rd-party side effect
   # like a credit card charge.
   # @return [Money]
-  def outstanding = [self.amount - self.ledger.balance, Money.new(0, self.amount.currency)].max
+  def outstanding = [self.amount - self._nonnegative_balance, Money.new(0, self.amount.currency)].max
   def outstanding? = !self.outstanding.zero?
 
   # Return the amount of this contribution that is coming from the balance,
@@ -37,8 +37,19 @@ class Suma::Payment::ChargeContribution < Suma::TypedStruct
   # See +outstanding+ for more context. Useful to differentiate what is a new vs. transfer
   # on a cash ledger.
   # @return [Money]
-  def from_balance = [self.ledger.balance, self.amount].min
+  def from_balance = [self._nonnegative_balance, self.amount].min
   def from_balance? = !self.from_balance.zero?
+
+  # Return 0 or the current ledger balance, whichever is higher.
+  # We do not take into account negative balances when determining charge contributions;
+  # this would introduce too much complexity and ambiguity, especially when things like figuring out
+  # the contributions for multiple products within an order; which of them is responsible for paying off
+  # the negative balance? It would be very confusing. Instead, if we need to worry about
+  # negative balances, we can add them as separate line items;
+  # for example, if you have a -$5 balance on your cash ledger,
+  # we could calculate the cost of your cart with an additional $5 'cash product' ("existing ledger balance")
+  # you'd have to pay for.
+  private def _nonnegative_balance = [Money.new(0, self.amount.currency), self.ledger.balance].max
 
   def amount? = !self.amount.zero?
 
@@ -180,11 +191,20 @@ class Suma::Payment::ChargeContribution < Suma::TypedStruct
   def self.find_ideal_cash_contribution(context, account, has_vnd_svc_categories, amount)
     cash = account.cash_ledger!
 
-    # If there's no remainder, we are able to cover the cost from existing subsidy (or because it's a $0 amount).
-    # Can't do any better than that!
-    # (nb we cannot have a cash amount here since we check it had a $0 balance above)
+    # If there's no remainder, we are able to cover the cost from existing ledgers (or because it's a $0 amount).
+    # Don't need to charge the user anything new.
     charges_using_existing_ledgers = self.find_actual_contributions(context, account, has_vnd_svc_categories, amount)
     return charges_using_existing_ledgers unless charges_using_existing_ledgers.remainder?
+
+    # We do not worry about existing negative balances on the ledger.
+    # See _nonnegative_balance above.
+    # This is especially important here, because we may call find_ideal_cash_contribution
+    # for each product in a cart; the contributions for the first product create a negative ledger balance.
+    # This second product would need to be charged for the deficit left by the first product, etc.
+    # Instead, reason about negative balances, as additional charges;
+    # it's simpler and more flexible, too (for example it will make it easier to do something like
+    # bring the negative balance up to a minimum, rather than $0).
+    original_cash_balance = [context.balance(cash), Money.new(0, amount.currency)].min
 
     # We'll need to run triggers to calculate subsidy.
     triggers = Suma::Payment::Trigger.gather(account, apply_at: context.apply_at)
@@ -196,14 +216,21 @@ class Suma::Payment::ChargeContribution < Suma::TypedStruct
       subsidy_plan = triggers.funding_plan(candidate)
       candidate_charges = self.find_actual_contributions(
         context.apply_credits(
-          {ledger: cash, amount: candidate},
+          {ledger: cash, amount: candidate + -original_cash_balance},
           *subsidy_plan.steps.map { |st| {ledger: st.receiving_ledger, amount: st.amount} },
         ),
         account,
         has_vnd_svc_categories,
         amount,
       )
-      return candidate_charges if !candidate_charges.remainder? && candidate_charges.cash.amount == candidate
+      # Figure out how much 'additional' cash is needed, by taking the amount we need to cover the bill,
+      # and subtracting what we'd contribute without any additional funds (this is normally the balance).
+      # If the additional funds we need to charge, is equal to the candidate, then this is ideal, because:
+      # - If the additional funds to charge is less than the candidate, we added too much cash,
+      #   and we have extra balance on our cash ledger, which we don't want.
+      # - If we need more funds (there is a remainder), the candidate was not high enough.
+      additional_cash = candidate_charges.cash.amount - charges_using_existing_ledgers.cash.amount
+      return candidate_charges if !candidate_charges.remainder? && candidate == additional_cash
       step = amount / (2**loop_number)
       raise "got a $0 step bisecting #{amount} #{loop_number} times" if step.zero?
       needs_more_cash = candidate_charges.remainder?
