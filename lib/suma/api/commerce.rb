@@ -262,14 +262,16 @@ class Suma::API::Commerce < Suma::API::V1
     expose :image, with: Suma::API::Entities::ImageEntity, &self.delegate_to(:images?, :first)
   end
 
-  class OfferingProductEntity < BaseEntity
+  class BaseOfferingProductEntity < BaseEntity
     expose_translated :name, &self.delegate_to(:product, :name)
     expose_translated :description, &self.delegate_to(:product, :description)
     expose :offering_id
     expose :product_id, &self.delegate_to(:product, :id)
     expose :vendor_id, &self.delegate_to(:product, :vendor_id)
     expose :images, with: Suma::API::Entities::ImageEntity, &self.delegate_to(:product, :images?)
+  end
 
+  class PricedOfferingProductEntity < BaseOfferingProductEntity
     expose :max_quantity
     expose :out_of_stock do |_|
       self.max_quantity <= 0
@@ -309,7 +311,7 @@ class Suma::API::Commerce < Suma::API::V1
     expose :offering, with: OfferingEntity do |instance|
       instance
     end
-    expose :items, with: OfferingProductEntity do |_, opts|
+    expose :items, with: PricedOfferingProductEntity do |_, opts|
       opts.fetch(:items)
     end
     expose :vendors, with: VendorEntity do |_, opts|
@@ -331,13 +333,7 @@ class Suma::API::Commerce < Suma::API::V1
     expose :address, with: FulfillmentOptionAddressEntity
   end
 
-  class CheckoutProductEntity < BaseEntity
-    expose_translated :name, &self.delegate_to(:product, :name)
-    expose_translated :description, &self.delegate_to(:product, :description)
-    expose :offering_id
-    expose :product_id, &self.delegate_to(:product, :id)
-    expose :vendor_id, &self.delegate_to(:product, :vendor_id)
-    expose :images, with: Suma::API::Entities::ImageEntity, &self.delegate_to(:product, :images?)
+  class CheckoutProductEntity < PricedOfferingProductEntity
     expose :vendor, with: VendorEntity, &self.delegate_to(:product, :vendor)
   end
 
@@ -386,9 +382,20 @@ class Suma::API::Commerce < Suma::API::V1
     end
   end
 
+  # CheckoutItemEntity and CheckoutProductEntity need cost info,
+  # which confirmations do not.
+  class CheckoutConfirmationProductEntity < BaseOfferingProductEntity
+    expose :vendor, with: VendorEntity, &self.delegate_to(:product, :vendor)
+  end
+
+  class CheckoutConfirmationItemEntity < BaseEntity
+    expose :offering_product, as: :product, with: CheckoutConfirmationProductEntity
+    expose :quantity
+  end
+
   class CheckoutConfirmationEntity < BaseEntity
     expose :id
-    expose :items, with: CheckoutItemEntity
+    expose :items, with: CheckoutConfirmationItemEntity
     expose :offering, with: OfferingEntity, &self.delegate_to(:cart, :offering)
     expose :fulfillment_option, with: FulfillmentOptionEntity
   end
