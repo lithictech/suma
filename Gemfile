@@ -77,6 +77,8 @@ group :test_group do
   gem "rubocop-performance", require: false
   gem "rubocop-rake", require: false
   gem "rubocop-sequel", require: false
+  gem "simplecov", require: false
+  gem "simplecov-cobertura"
   gem "timecop"
   gem "webmock"
 end
