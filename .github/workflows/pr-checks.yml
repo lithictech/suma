@@ -32,6 +32,11 @@ jobs:
         run: |
           bundle exec rake db:migrate
           bundle exec rspec spec/
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v4.0.1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          slug: lithictech/suma
   webapp-checks:
     runs-on: ubuntu-latest
     defaults:
