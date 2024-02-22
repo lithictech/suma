@@ -61,16 +61,17 @@ class Suma::Payment::Trigger < Suma::Postgres::Model(:payment_triggers)
     # @return [Array<Suma::Payment::Trigger::PlanStep>]
     attr_accessor :steps
 
-    # @return [Array<Suma::Payment::BookTransaction>]
+    # @return [Array<Suma::Payment::Trigger::Execution>]
     def apply(at:)
       x = self.steps.map do |step|
-        Suma::Payment::BookTransaction.create(
+        book_transaction = Suma::Payment::BookTransaction.create(
           apply_at: at,
           amount: step.amount,
           originating_ledger: step.trigger.originating_ledger,
           receiving_ledger: step.receiving_ledger,
           memo: step.trigger.memo,
         )
+        Suma::Payment::Trigger::Execution.create(book_transaction:, trigger: step.trigger)
       end
       return x
     end
@@ -100,8 +101,14 @@ class Suma::Payment::Trigger < Suma::Postgres::Model(:payment_triggers)
       amount.currency,
     )
     if self.maximum_cumulative_subsidy_cents
-      max_subsidy = self.max_cumulative_subsidy
-      max_subsidy -= receiving.balance
+      max_subsidy_cents = self.maximum_cumulative_subsidy_cents
+      cents_received_already = Suma::Payment::Trigger::Execution.where(trigger: self).
+        join(
+          Suma::Payment::BookTransaction.where(receiving_ledger: receiving),
+          {id: :book_transaction_id},
+        ).sum(:amount_cents)
+      max_subsidy_cents -= cents_received_already if cents_received_already
+      max_subsidy = Money.new(max_subsidy_cents, subsidy.currency)
       subsidy = [subsidy, max_subsidy].min
     end
     return PlanStep.new(
@@ -135,8 +142,6 @@ class Suma::Payment::Trigger < Suma::Postgres::Model(:payment_triggers)
       empty?
     return member_passes_constraints
   end
-
-  def max_cumulative_subsidy = Money.new(self.maximum_cumulative_subsidy_cents)
 
   # @!attribute label
   # Admin-facing name for the automation.

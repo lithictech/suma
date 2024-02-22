@@ -114,10 +114,19 @@ RSpec.describe "Suma::Payment::Trigger", :db do
         )
       end
 
-      it "takes existing ledger balance into account" do
+      it "takes previous trigger executions" do
         t = Suma::Fixtures.payment_trigger.matching.up_to(money("$20")).create
         receiving = t.ensure_receiving_ledger(account)
-        Suma::Fixtures.book_transaction.to(receiving).create(amount: money("$7"))
+        to_same_ledger = Suma::Payment::Trigger::Execution.create(
+          trigger: t,
+          book_transaction: Suma::Fixtures.book_transaction.to(receiving).create(amount: money("$7")),
+        )
+        to_diff_ledger = Suma::Payment::Trigger::Execution.create(
+          trigger: t,
+          book_transaction: Suma::Fixtures.book_transaction.create(amount: money("$5")),
+        )
+        unassociated_book_xaction = Suma::Fixtures.book_transaction.to(receiving).create(amount: money("$0.50"))
+
         plan = described_class.gather(account, apply_at:).funding_plan(money("$100"))
         expect(plan.steps).to contain_exactly(
           have_attributes(amount: money("$13"), trigger: t),
@@ -146,13 +155,15 @@ RSpec.describe "Suma::Payment::Trigger", :db do
     describe "apply" do
       let(:account) { Suma::Fixtures.payment_account.create }
 
-      it "creates book transactions" do
+      it "creates book transactions and related trigger executions" do
         t = Suma::Fixtures.payment_trigger.matching(0.5).create
         plan = described_class.gather(account, apply_at:).funding_plan(money("$15"))
         now = Time.now
-        xactions = plan.apply(at: now)
-        expect(xactions).to contain_exactly(
-          have_attributes(
+        executions = plan.apply(at: now)
+        expect(executions).to have_length(1)
+        expect(executions[0]).to have_attributes(
+          trigger: be === t,
+          book_transaction: have_attributes(
             apply_at: now,
             amount: money("$7.50"),
             originating_ledger: be === t.originating_ledger,

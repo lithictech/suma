@@ -18,6 +18,13 @@ Sequel.migration do
       text :receiving_ledger_name, null: false
       foreign_key :receiving_ledger_contribution_text_id, :translated_texts, null: false
     end
+    create_table(:payment_trigger_executions) do
+      primary_key :id
+      timestamptz :created_at, null: false, default: Sequel.function(:now)
+      foreign_key :book_transaction_id, :payment_book_transactions, null: false
+      foreign_key :trigger_id, :payment_triggers, null: false
+      unique [:trigger_id, :book_transaction_id]
+    end
     create_join_table(
       {constraint_id: :eligibility_constraints, trigger_id: :payment_triggers},
       name: :eligibility_payment_trigger_associations,
@@ -36,6 +43,7 @@ Sequel.migration do
       add_column :prohibit_charge_at_checkout, :boolean
     end
     drop_table(:eligibility_payment_trigger_associations)
+    drop_table(:payment_trigger_executions)
     drop_table(:payment_triggers)
   end
 end

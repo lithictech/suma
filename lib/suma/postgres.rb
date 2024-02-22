@@ -96,6 +96,7 @@ module Suma::Postgres
     "suma/payment/ledger",
     "suma/payment/account",
     "suma/payment/trigger",
+    "suma/payment/trigger/execution",
     "suma/plaid_institution",
     "suma/role",
     "suma/supported_currency",

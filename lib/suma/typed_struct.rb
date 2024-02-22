@@ -1,6 +1,9 @@
 # frozen_string_literal: true
 
 class Suma::TypedStruct
+  class << self
+    def _cached_base_methods = @_cached_base_methods ||= Suma::TypedStruct.new.public_methods
+  end
   def initialize(**kwargs)
     self._defaults.merge(kwargs).each do |k, v|
       raise TypeError, "invalid struct field #{k}" unless self.respond_to?(k)
@@ -14,5 +17,12 @@ class Suma::TypedStruct
 
   def [](k)
     return self.send(k)
+  end
+
+  def inspect
+    methods_to_keep = self.public_methods - Suma::TypedStruct._cached_base_methods
+    methods_to_keep.reject! { |m| m.to_s.end_with?("=") }
+    kvps = methods_to_keep.map { |m| "#{m}: #{self.send(m)}" }.join(", ")
+    return "#{self.class.name}(#{kvps})"
   end
 end
