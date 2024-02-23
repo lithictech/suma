@@ -3,6 +3,7 @@ import FormButtons from "../components/FormButtons";
 import FormError from "../components/FormError";
 import LinearBreadcrumbs from "../components/LinearBreadcrumbs";
 import RLink from "../components/RLink";
+import config from "../config";
 import { md, t } from "../localization";
 import useToggle from "../shared/react/useToggle";
 import useBackendGlobals from "../state/useBackendGlobals";
@@ -50,7 +51,7 @@ function BankAccountsCard({ instruments }) {
       ) : (
         <>
           {bankAccounts.map((ba) => (
-            <BankAccountLine key={ba.id} bankAccount={ba} />
+            <InstrumentLine key={ba.id} instrument={ba} />
           ))}
           <hr className="my-4" />
           <Button variant="outline-primary" href="/link-bank-account" as={RLink}>
@@ -62,27 +63,36 @@ function BankAccountsCard({ instruments }) {
   );
 }
 
-function BankAccountLine({ bankAccount }) {
+function InstrumentLine({ instrument }) {
   const showDelete = useToggle(false);
   return (
     <Card className="text-start mb-3 funding-card-border-radius shadow-sm">
       <Card.Body className="d-flex justify-content-between align-items-center">
         <div>
           <Card.Title className="mb-1" as="h6">
-            <i className="bi bi-bank2 me-2"></i>
-            {bankAccount.name}
+            {instrument.paymentMethodType === "card" ? (
+              <img
+                className="me-2"
+                width="28px"
+                src={`${instrument.institution.logoSrc}`}
+                alt={instrument.institution.name}
+              />
+            ) : (
+              <i className="bi bi-bank2 me-2"></i>
+            )}
+            {instrument.name}
           </Card.Title>
           <Card.Subtitle className="m-0">
-            <span className="opacity-50">x-{bankAccount.last4}</span>
+            <span className="opacity-50">x-{instrument.last4}</span>
           </Card.Subtitle>
         </div>
         <div className="ms-auto text-end">
-          {bankAccount.canUseForFunding ? (
+          {instrument.canUseForFunding && config.featureAddFunds ? (
             <Button
               variant="success"
               size="sm"
               className="mb-2 funding-card-border-radius nowrap"
-              href={`/add-funds?id=${bankAccount.id}&paymentMethodType=bank_account`}
+              href={`/add-funds?id=${instrument.id}&paymentMethodType=${instrument.paymentMethodType}`}
               as={RLink}
             >
               <i className="bi bi-plus-circle"></i> {t("payments:funds")}
@@ -98,7 +108,7 @@ function BankAccountLine({ bankAccount }) {
             </Button>
           )}
           <div>
-            {bankAccount.canUseForFunding ? (
+            {instrument.canUseForFunding ? (
               <small>
                 <i className="bi bi-check2-circle text-success" title="Verified account">
                   {t("payments:payment_account_verified")}
@@ -111,25 +121,41 @@ function BankAccountLine({ bankAccount }) {
                 </i>
               </small>
             )}
-            <Dropdown as="span">
-              <Dropdown.Toggle variant="link" className="p-0 ms-2 text-muted" size="sm">
-                <i className="bi bi-gear-fill"></i>
-              </Dropdown.Toggle>
-              <Dropdown.Menu align="end">
-                <Dropdown.Item className="text-danger" onClick={showDelete.turnOn}>
-                  {t("payments:unlink_account")}
-                </Dropdown.Item>
-              </Dropdown.Menu>
-            </Dropdown>
+            <DeleteInstrument
+              instrument={instrument}
+              apiMethod={
+                instrument.paymentMethodType === "card"
+                  ? api.deleteCard
+                  : api.deleteBankAccount
+              }
+              showDelete={showDelete}
+            />
           </div>
         </div>
       </Card.Body>
+    </Card>
+  );
+}
+
+function DeleteInstrument({ instrument, apiMethod, showDelete }) {
+  return (
+    <>
+      <Dropdown as="span">
+        <Dropdown.Toggle variant="link" className="p-0 ms-2 text-muted" size="sm">
+          <i className="bi bi-gear-fill"></i>
+        </Dropdown.Toggle>
+        <Dropdown.Menu align="end">
+          <Dropdown.Item className="text-danger" onClick={showDelete.turnOn}>
+            {t("payments:unlink_account")}
+          </Dropdown.Item>
+        </Dropdown.Menu>
+      </Dropdown>
       <DeleteInstrumentModal
-        instrument={bankAccount}
-        apiMethod={api.deleteBankAccount}
+        instrument={instrument}
+        apiMethod={apiMethod}
         toggle={showDelete}
       />
-    </Card>
+    </>
   );
 }
 
@@ -190,7 +216,7 @@ function CardsCard({ instruments }) {
       ) : (
         <>
           {cards.map((c) => (
-            <CardLine key={c.id} card={c} />
+            <InstrumentLine key={c.id} instrument={c} />
           ))}
           <hr className="my-4" />
           <Button variant="outline-primary" href="/add-card" as={RLink}>
@@ -199,58 +225,6 @@ function CardsCard({ instruments }) {
         </>
       )}
     </PaymentsCard>
-  );
-}
-
-function CardLine({ card }) {
-  const showDelete = useToggle(false);
-  return (
-    <Card className="text-start mb-3 funding-card-border-radius shadow-sm">
-      <Card.Body className="d-flex justify-content-between align-items-center">
-        <div>
-          <Card.Title className="mb-1" as="h6">
-            <img
-              className="me-2"
-              width="28px"
-              src={`${card.institution.logoSrc}`}
-              alt={card.institution.name}
-            />
-            {card.name}
-          </Card.Title>
-          <Card.Subtitle className="m-0">
-            <span className="opacity-50">x-{card.last4}</span>
-          </Card.Subtitle>
-        </div>
-        <div className="ms-auto text-end">
-          <Button
-            variant="success"
-            size="sm"
-            className="mb-2 funding-card-border-radius nowrap"
-            href={`/add-funds?id=${card.id}&paymentMethodType=card`}
-            as={RLink}
-          >
-            <i className="bi bi-plus-circle"></i> {t("payments:funds")}
-          </Button>
-          <div>
-            <Dropdown as="span">
-              <Dropdown.Toggle variant="link" className="p-0 ms-2 text-muted" size="sm">
-                <i className="bi bi-gear-fill"></i>
-              </Dropdown.Toggle>
-              <Dropdown.Menu align="end">
-                <Dropdown.Item className="text-danger" onClick={showDelete.turnOn}>
-                  {t("payments:unlink_account")}
-                </Dropdown.Item>
-              </Dropdown.Menu>
-            </Dropdown>
-          </div>
-        </div>
-      </Card.Body>
-      <DeleteInstrumentModal
-        toggle={showDelete}
-        instrument={card}
-        apiMethod={api.deleteCard}
-      />
-    </Card>
   );
 }
 

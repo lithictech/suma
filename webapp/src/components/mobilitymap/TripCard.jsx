@@ -1,5 +1,5 @@
 import api from "../../api";
-import { t } from "../../localization";
+import { md, t } from "../../localization";
 import { dayjs } from "../../modules/dayConfig";
 import { extractErrorCode, useError } from "../../state/useError";
 import useUser from "../../state/useUser";
@@ -62,7 +62,7 @@ const TripCard = ({ active, trip, onCloseTrip, onEndTrip, lastLocation }) => {
             className="w-100"
             onClick={handleEndTrip}
           >
-            {t("mobility:end_trip")}
+            {md("mobility:end_trip")}
           </Button>
         </CardOverlay>
       )}
