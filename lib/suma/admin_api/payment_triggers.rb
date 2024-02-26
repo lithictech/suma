@@ -7,14 +7,6 @@ require "suma/admin_api"
 class Suma::AdminAPI::PaymentTriggers < Suma::AdminAPI::V1
   include Suma::AdminAPI::Entities
 
-  class PaymentTriggerEntity < BaseEntity
-    include Suma::AdminAPI::Entities
-    include AutoExposeBase
-    expose :label
-    expose :active_during_begin
-    expose :active_during_end
-  end
-
   class PaymentTriggerExecutionEntity < BaseEntity
     include Suma::AdminAPI::Entities
     expose :id

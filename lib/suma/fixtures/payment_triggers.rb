@@ -51,7 +51,10 @@ module Suma::Fixtures::PaymentTriggers
   end
 
   decorator :with_execution, presave: true do |book_x={}|
-    book_x = Suma::Fixtures.book_transaction.create(book_x) unless book_x.is_a?(Suma::Payment::BookTransaction)
+    unless book_x.is_a?(Suma::Payment::BookTransaction)
+      book_x[:originating_ledger] ||= self.originating_ledger
+      book_x = Suma::Fixtures.book_transaction.create(book_x)
+    end
     self.add_execution(book_transaction: book_x)
   end
 end

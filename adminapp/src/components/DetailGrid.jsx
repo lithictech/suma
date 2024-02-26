@@ -11,15 +11,17 @@ import React from "react";
  * @constructor
  */
 export default function DetailGrid({ title, properties }) {
-  const usedProperties = properties.filter(({ hideEmpty, value, children }) => {
-    if (!hideEmpty) {
-      return true;
-    }
-    if (!isUndefined(value)) {
-      return true;
-    }
-    return !isEmpty(children);
-  });
+  const usedProperties = properties
+    .filter(Boolean)
+    .filter(({ hideEmpty, value, children }) => {
+      if (!hideEmpty) {
+        return true;
+      }
+      if (!isUndefined(value)) {
+        return true;
+      }
+      return !isEmpty(children);
+    });
   return (
     <Box mt={2}>
       {title && (

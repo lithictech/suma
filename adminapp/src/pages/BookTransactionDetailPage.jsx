@@ -53,6 +53,14 @@ export default function BookTransactionDetailPage() {
                   </AdminLink>
                 ),
               },
+              xaction.triggeredBy && {
+                label: "Triggered by",
+                value: (
+                  <AdminLink model={xaction.triggeredBy}>
+                    {xaction.triggeredBy.label}
+                  </AdminLink>
+                ),
+              },
             ]}
           />
           <RelatedList

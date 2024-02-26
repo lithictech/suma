@@ -114,7 +114,7 @@ RSpec.describe "Suma::Payment::Trigger", :db do
         )
       end
 
-      it "takes previous trigger executions" do
+      it "takes previous trigger executions into account" do
         t = Suma::Fixtures.payment_trigger.matching.up_to(money("$20")).create
         receiving = t.ensure_receiving_ledger(account)
         to_same_ledger = Suma::Payment::Trigger::Execution.create(
@@ -170,6 +170,7 @@ RSpec.describe "Suma::Payment::Trigger", :db do
             receiving_ledger: account.ledgers(reload: true).first,
           ),
         )
+        expect(executions[0].book_transaction.triggered_by).to be === executions[0]
       end
     end
   end
