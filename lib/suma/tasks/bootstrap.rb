@@ -48,6 +48,8 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
     ADMIN_PASS = "Password1!"
 
     def fixture
+      Suma::Payment.ensure_cash_ledger(Suma::Payment::Account.lookup_platform_account)
+
       admin = Suma::Member.create(email: ADMIN_EMAIL) do |c|
         c.name = "Suma Admin"
         c.password = ADMIN_PASS

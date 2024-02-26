@@ -1,5 +1,6 @@
 import AccountBalanceIcon from "@mui/icons-material/AccountBalance";
 import AccountBalanceWalletIcon from "@mui/icons-material/AccountBalanceWallet";
+import AutoModeIcon from "@mui/icons-material/AutoMode";
 import HomeIcon from "@mui/icons-material/Home";
 import KeyIcon from "@mui/icons-material/Key";
 import MailIcon from "@mui/icons-material/Mail";
@@ -32,9 +33,14 @@ export default [
     icon: <TollIcon />,
   },
   {
-    label: "Offerings",
-    href: "/offerings",
-    icon: <ShoppingCartIcon />,
+    label: "Payment Triggers",
+    href: "/payment-triggers",
+    icon: <AutoModeIcon />,
+  },
+  {
+    label: "Vendors",
+    href: "/vendors",
+    icon: <StorefrontIcon />,
   },
   {
     label: "Products",
@@ -42,14 +48,14 @@ export default [
     icon: <SellIcon />,
   },
   {
-    label: "Eligibility Constraints",
-    href: "/constraints",
-    icon: <KeyIcon />,
+    label: "Offerings",
+    href: "/offerings",
+    icon: <ShoppingCartIcon />,
   },
   {
-    label: "Vendors",
-    href: "/vendors",
-    icon: <StorefrontIcon />,
+    label: "Orders",
+    href: "/orders",
+    icon: <ShoppingBagIcon />,
   },
   {
     label: "Vendor Accounts",
@@ -62,9 +68,9 @@ export default [
     icon: <ManageAccountsIcon />,
   },
   {
-    label: "Orders",
-    href: "/orders",
-    icon: <ShoppingBagIcon />,
+    label: "Eligibility Constraints",
+    href: "/constraints",
+    icon: <KeyIcon />,
   },
   {
     label: "Messages",

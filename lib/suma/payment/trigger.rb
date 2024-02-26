@@ -3,6 +3,8 @@
 require "suma/postgres/model"
 
 class Suma::Payment::Trigger < Suma::Postgres::Model(:payment_triggers)
+  include Suma::AdminLinked
+
   plugin :timestamps
   plugin :tstzrange_fields, :active_during
   plugin :translated_text, :memo, Suma::TranslatedText
@@ -16,6 +18,8 @@ class Suma::Payment::Trigger < Suma::Postgres::Model(:payment_triggers)
                right_key: :constraint_id,
                left_key: :trigger_id
   include Suma::Eligibility::HasConstraints
+
+  one_to_many :executions, class: 'Suma::Payment::Trigger::Execution'
 
   dataset_module do
     # Limit dataset to rows where +t+ is in +active_during+.
@@ -142,6 +146,8 @@ class Suma::Payment::Trigger < Suma::Postgres::Model(:payment_triggers)
       empty?
     return member_passes_constraints
   end
+
+  def rel_admin_link = "/payment-trigger/#{self.id}"
 
   # @!attribute label
   # Admin-facing name for the automation.

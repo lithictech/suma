@@ -26,6 +26,10 @@ import OfferingProductDetailPage from "./pages/OfferingProductDetailPage";
 import OfferingProductEditPage from "./pages/OfferingProductEditPage";
 import OrderDetailPage from "./pages/OrderDetailPage";
 import OrderListPage from "./pages/OrderListPage";
+import PaymentTriggerCreatePage from "./pages/PaymentTriggerCreatePage";
+import PaymentTriggerDetailPage from "./pages/PaymentTriggerDetailPage";
+import PaymentTriggerEditPage from "./pages/PaymentTriggerEditPage";
+import PaymentTriggerListPage from "./pages/PaymentTriggerListPage";
 import PayoutTransactionDetailPage from "./pages/PayoutTransactionDetailPage";
 import PayoutTransactionListPage from "./pages/PayoutTransactionListPage";
 import ProductCreatePage from "./pages/ProductCreatePage";
@@ -211,6 +215,34 @@ function PageSwitch() {
           withLayout(),
           BookTransactionDetailPage
         )}
+      />
+      <Route
+        exact
+        path="/payment-triggers"
+        element={renderWithHocs(redirectIfUnauthed, withLayout(), PaymentTriggerListPage)}
+      />
+      <Route
+        exact
+        path="/payment-trigger/new"
+        element={renderWithHocs(
+          redirectIfUnauthed,
+          withLayout(),
+          PaymentTriggerCreatePage
+        )}
+      />
+      <Route
+        exact
+        path="/payment-trigger/:id"
+        element={renderWithHocs(
+          redirectIfUnauthed,
+          withLayout(),
+          PaymentTriggerDetailPage
+        )}
+      />
+      <Route
+        exact
+        path="/payment-trigger/:id/edit"
+        element={renderWithHocs(redirectIfUnauthed, withLayout(), PaymentTriggerEditPage)}
       />
       <Route
         exact

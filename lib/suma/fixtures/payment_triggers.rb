@@ -14,7 +14,7 @@ module Suma::Fixtures::PaymentTriggers
     self.label ||= Faker::Lorem.sentence
     self.match_multiplier ||= Faker::Number.between(from: 0.25, to: 4)
     self.maximum_cumulative_subsidy_cents ||= Faker::Number.between(from: 100_00, to: 100_000)
-    self.receiving_ledger_name ||= Faker::Lorem.words(number: 2)
+    self.receiving_ledger_name ||= Faker::Lorem.words(number: 2).join(' ')
   end
 
   before_saving do |instance|
@@ -48,5 +48,10 @@ module Suma::Fixtures::PaymentTriggers
     self.originating_ledger = ledger
     self.receiving_ledger_name = ledger.name
     self.receiving_ledger_contribution_text = ledger.contribution_text
+  end
+
+  decorator :with_execution, presave: true do |book_x={}|
+    book_x = Suma::Fixtures.book_transaction.create(book_x) unless book_x.is_a?(Suma::Payment::BookTransaction)
+    self.add_execution(book_transaction: book_x)
   end
 end
