@@ -28,8 +28,8 @@ RSpec.describe Suma::AdminAPI::Search, :db do
         o1 = Suma::Fixtures.ledger.create(name: "abc")
         o2 = Suma::Fixtures.ledger.create(name: "xyz")
         pa = Suma::Payment::Account.lookup_platform_account
-        p1 = Suma::Fixtures.ledger.create(name: 'abc', account: pa)
-        p2 = Suma::Fixtures.ledger.create(name: 'xyz', account: pa)
+        p1 = Suma::Fixtures.ledger.create(name: "abc", account: pa)
+        p2 = Suma::Fixtures.ledger.create(name: "xyz", account: pa)
 
         post "/v1/search/ledgers", q: "platform abc"
 
@@ -46,8 +46,8 @@ RSpec.describe Suma::AdminAPI::Search, :db do
         o1 = Suma::Fixtures.ledger.create(name: "suma abc")
         o2 = Suma::Fixtures.ledger.create(name: "suma xyz")
         pa = Suma::Payment::Account.lookup_platform_account
-        p1 = Suma::Fixtures.ledger.create(name: 'abc', account: pa)
-        p2 = Suma::Fixtures.ledger.create(name: 'xyz', account: pa)
+        p1 = Suma::Fixtures.ledger.create(name: "abc", account: pa)
+        p2 = Suma::Fixtures.ledger.create(name: "xyz", account: pa)
 
         post "/v1/search/ledgers", q: "suma abc"
 

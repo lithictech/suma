@@ -19,7 +19,7 @@ class Suma::Payment::Trigger < Suma::Postgres::Model(:payment_triggers)
                left_key: :trigger_id
   include Suma::Eligibility::HasConstraints
 
-  one_to_many :executions, class: 'Suma::Payment::Trigger::Execution'
+  one_to_many :executions, class: "Suma::Payment::Trigger::Execution"
 
   dataset_module do
     # Limit dataset to rows where +t+ is in +active_during+.

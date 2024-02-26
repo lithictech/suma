@@ -14,7 +14,7 @@ module Suma::Fixtures::PaymentTriggers
     self.label ||= Faker::Lorem.sentence
     self.match_multiplier ||= Faker::Number.between(from: 0.25, to: 4)
     self.maximum_cumulative_subsidy_cents ||= Faker::Number.between(from: 100_00, to: 100_000)
-    self.receiving_ledger_name ||= Faker::Lorem.words(number: 2).join(' ')
+    self.receiving_ledger_name ||= Faker::Lorem.words(number: 2).join(" ")
   end
 
   before_saving do |instance|

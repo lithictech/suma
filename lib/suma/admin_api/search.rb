@@ -28,11 +28,11 @@ class Suma::AdminAPI::Search < Suma::AdminAPI::V1
           # It would also return all non-platform ledgers that have the string 'suma food' in them.
           # This allows the common use case of something like 'suma cash' for the platform cash ledger.
           name_words = q.downcase.split
-          if name_words.include?('suma') || name_words.include?('platform')
+          if name_words.include?("suma") || name_words.include?("platform")
             platform_search_words = name_words.dup
-            platform_search_words.delete('suma')
-            platform_search_words.delete('platform')
-            platform_name_cond = search_to_sql(platform_search_words.join(' '), :name)
+            platform_search_words.delete("suma")
+            platform_search_words.delete("platform")
+            platform_name_cond = search_to_sql(platform_search_words.join(" "), :name)
             platform_acct_cond = Sequel[account: Suma::Payment::Account.where(is_platform_account: true)]
             pcond = platform_search_words.empty? ? platform_acct_cond : (platform_name_cond & platform_acct_cond)
             search_cond |= pcond
