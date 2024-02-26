@@ -33,7 +33,7 @@ export default function BookTransactionDetailPage() {
               { label: "ID", value: id },
               { label: "Apply At", value: dayjs(xaction.applyAt) },
               { label: "Amount", value: <Money>{xaction.amount}</Money> },
-              { label: "Category", value: xaction.associatedVendorServiceCategory.name },
+              { label: "Category", value: xaction.associatedVendorServiceCategory?.name },
               { label: "External Id", value: xaction.opaqueId },
               { label: `Memo (En)`, value: xaction.memo.en },
               { label: `Memo (Es)`, value: xaction.memo.es },

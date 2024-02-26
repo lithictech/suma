@@ -31,10 +31,6 @@ export default function OfferingDetailPage() {
           value: model.beginFulfillmentAt && dayjs(model.beginFulfillmentAt),
         },
         {
-          label: "Prohibit Charge At Checkout",
-          value: model.prohibitChargeAtCheckout ? "Yes" : "No",
-        },
-        {
           label: "Image",
           value: (
             <SumaImage

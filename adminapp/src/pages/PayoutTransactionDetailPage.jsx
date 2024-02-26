@@ -54,7 +54,7 @@ export default function PayoutTransactionDetailPage() {
               { label: "Amount", value: <Money>{originated.amount}</Money> },
               {
                 label: "Category",
-                value: originated.associatedVendorServiceCategory.name,
+                value: originated.associatedVendorServiceCategory?.name,
               },
               {
                 label: "Originating",
@@ -83,7 +83,7 @@ export default function PayoutTransactionDetailPage() {
                 { label: "Amount", value: <Money>{crediting.amount}</Money> },
                 {
                   label: "Category",
-                  value: crediting.associatedVendorServiceCategory.name,
+                  value: crediting.associatedVendorServiceCategory?.name,
                 },
                 {
                   label: "Originating",

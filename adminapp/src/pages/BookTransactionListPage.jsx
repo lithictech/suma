@@ -75,7 +75,7 @@ export default function BookTransactionListPage() {
             id: "category",
             label: "Category",
             align: "center",
-            render: (c) => c.associatedVendorServiceCategory.name,
+            render: (c) => c.associatedVendorServiceCategory?.name,
           },
           {
             id: "originating",
