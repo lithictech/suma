@@ -15,12 +15,29 @@ class Suma::AdminAPI::Search < Suma::AdminAPI::V1
       post do
         ds = Suma::Payment::Ledger.dataset
         if (q = params[:q]).present?
-          conds = search_to_sql(q, :name) |
+          # Search for ledgers, members, and vendors containing the given name.
+          search_cond = search_to_sql(q, :name) |
             Sequel[account: Suma::Payment::Account.where(
               Sequel[member: Suma::Member.where(search_to_sql(q, :name))] |
                 Sequel[vendor: Suma::Vendor.where(search_to_sql(q, :name))],
             )]
-          ds = ds.where(conds)
+          # Handle the keywords 'suma' and 'platform' specially.
+          # If they are present, include in the search results platform accounts that
+          # match the remaining search terms. For example, 'suma food' would return all platform ledgers
+          # that have the name 'food'.
+          # It would also return all non-platform ledgers that have the string 'suma food' in them.
+          # This allows the common use case of something like 'suma cash' for the platform cash ledger.
+          name_words = q.downcase.split
+          if name_words.include?('suma') || name_words.include?('platform')
+            platform_search_words = name_words.dup
+            platform_search_words.delete('suma')
+            platform_search_words.delete('platform')
+            platform_name_cond = search_to_sql(platform_search_words.join(' '), :name)
+            platform_acct_cond = Sequel[account: Suma::Payment::Account.where(is_platform_account: true)]
+            pcond = platform_search_words.empty? ? platform_acct_cond : (platform_name_cond & platform_acct_cond)
+            search_cond |= pcond
+          end
+          ds = ds.where(search_cond)
         end
         ds = ds.order(:name).limit(15)
         status 200
