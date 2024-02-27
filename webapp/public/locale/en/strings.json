@@ -346,6 +346,7 @@
     "create_account": "Create account",
     "initial": "Launch app",
     "intro": "Used to hide your email and phone number from vendors you use through the Suma platform. Follow the instructions for the vendors you want to create a Private Account with.",
+    "link_app": "Link App",
     "no_private_accounts": "It looks like no vendors are set up for Private Accounts. Contact your administrator for more information.",
     "polling": "Working...",
     "polling_detail": "This can take up to a minute.",

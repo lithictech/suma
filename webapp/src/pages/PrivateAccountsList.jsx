@@ -81,7 +81,7 @@ export default function PrivateAccountsList() {
             <ScrollTopOnMount />
             <SumaMarkdown>{modalAccount?.instructions}</SumaMarkdown>
             <div className="d-flex justify-content-end mt-2">
-              <Button variant="outline-primary" onClick={() => setModalAccount(null)}>
+              <Button variant="outline-secondary" onClick={() => setModalAccount(null)}>
                 {t("common:close")}
               </Button>
             </div>
@@ -178,7 +178,7 @@ function PrivateAccount({ account, onHelp }) {
   if (buttonStatus === INITIAL) {
     content = (
       <Stack direction="horizontal" gap={2} className="justify-content-center mb-1">
-        <Button onClick={handleInitialClick}>{t("private_accounts:initial")}</Button>
+        <Button onClick={handleInitialClick}>{t("private_accounts:link_app")}</Button>
         <Button variant="outline-primary" onClick={() => onHelp()}>
           {t("common:help")}
         </Button>
