@@ -84,7 +84,11 @@ export default function FoodCheckout() {
     e.preventDefault();
     screenLoader.turnOn();
     api
-      .completeCheckout({ ...checkout, paymentInstrument: chosenInstrument })
+      .completeCheckout({
+        ...checkout,
+        paymentInstrument: chosenInstrument,
+        chargeAmountCents: checkout.chargeableTotal.cents,
+      })
       .tap(handleUpdateCurrentMember)
       .then(api.pickData)
       .then((d) => {
