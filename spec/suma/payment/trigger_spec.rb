@@ -158,19 +158,19 @@ RSpec.describe "Suma::Payment::Trigger", :db do
       it "creates book transactions and related trigger executions" do
         t = Suma::Fixtures.payment_trigger.matching(0.5).create
         plan = described_class.gather(account, apply_at:).funding_plan(money("$15"))
-        now = Time.now
+        now = 1.hour.ago
         executions = plan.apply(at: now)
         expect(executions).to have_length(1)
         expect(executions[0]).to have_attributes(
           trigger: be === t,
           book_transaction: have_attributes(
-            apply_at: now,
+            apply_at: match_time(now),
             amount: money("$7.50"),
             originating_ledger: be === t.originating_ledger,
             receiving_ledger: account.ledgers(reload: true).first,
+            triggered_by: be === executions[0],
           ),
         )
-        expect(executions[0].book_transaction.triggered_by).to be === executions[0]
       end
     end
   end
