@@ -346,6 +346,7 @@
     "create_account": "Crear una cuenta",
     "initial": "Iniciar aplicación",
     "intro": "Se utiliza para ocultar su correo electrónico y número de teléfono de los proveedores que utiliza a través de la plataforma suma. Siga las instrucciones de los proveedores con los que desea crear una cuenta privada.",
+    "link_app": "Vincular App",
     "no_private_accounts": "Parece que no hay proveedores configurados para cuentas privadas. Póngase en contacto con su administrador para obtener más información.",
     "polling": "Procesando...",
     "polling_detail": "Esto puede tardar hasta un minuto.",
