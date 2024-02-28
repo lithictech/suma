@@ -27,7 +27,7 @@ module Suma::Fixtures::Carts
   end
 
   decorator :with_any_product, presave: true do |quantity: 1|
-    product = Suma::Fixtures.product.create
+    product = Suma::Fixtures.product.with_categories.create
     Suma::Fixtures.offering_product(product:, offering: self.offering).create
     self.add_item(product:, quantity:, timestamp: 0)
   end

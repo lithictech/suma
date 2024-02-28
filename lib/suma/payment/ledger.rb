@@ -89,7 +89,18 @@ class Suma::Payment::Ledger < Suma::Postgres::Model(:payment_ledgers)
   # which qualifies this ledger to pay for the vendor service.
   # We may need to refind this search algorithm in the future
   # if we find it doesn't select the right category.
+  # @param [Suma::Vendor::HasServiceCategories] has_vnd_svc_categories
+  # @return [Suma::Vendor::ServiceCategory]
   def category_used_to_purchase(has_vnd_svc_categories)
+    if has_vnd_svc_categories.vendor_service_categories.empty?
+      msg = "#{has_vnd_svc_categories.class.name}[#{has_vnd_svc_categories.pk}] " \
+            "has no categories so cannot be purchased by anything"
+      raise Suma::InvalidPrecondition, msg
+    end
+    if self.vendor_service_categories.empty?
+      msg = "#{self.class.name}[#{self.pk}] has no categories so cannot be used to purchase anything"
+      raise Suma::InvalidPrecondition, msg
+    end
     service_cat_ids = has_vnd_svc_categories.vendor_service_categories.map(&:id)
     return self.vendor_service_categories.find do |c|
       chain_ids = c.tsort.map(&:id)

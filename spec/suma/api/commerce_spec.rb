@@ -35,26 +35,27 @@ RSpec.describe Suma::API::Commerce, :db do
   end
 
   describe "GET /v1/commerce/offerings/:id" do
+    let(:offering) { Suma::Fixtures.offering.create }
+    let(:product) { Suma::Fixtures.product.with_categories.create }
+    let(:offering_product_fac) { Suma::Fixtures.offering_product(product:, offering:) }
+
     it "returns only available offering products" do
-      offering = Suma::Fixtures.offering.create
-      product = Suma::Fixtures.product.create
-      op1 = Suma::Fixtures.offering_product.create(offering:, product:)
-      op2 = Suma::Fixtures.offering_product.closed.create(offering:, product:)
+      op1 = offering_product_fac.create
+      op2 = offering_product_fac.closed.create
 
       get "/v1/commerce/offerings/#{offering.id}"
 
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.that_includes(
-        items: contain_exactly(
-          include(product_id: op1.product_id),
-        ),
+        items: contain_exactly(include(product_id: op1.product_id)),
       )
     end
 
     it "returns details about the offering and the member cart" do
-      offering = Suma::Fixtures.offering.create
-      op = Suma::Fixtures.offering_product(offering:).create
-      op = Suma::Fixtures.offering_product(offering:).product(vendor: op.product.vendor).create
+      op1 = offering_product_fac.create
+      vendor = op1.product.vendor
+      other_vendor_product = Suma::Fixtures.offering_product(offering:).product(vendor:).create
+      other_vendor_product.product.add_vendor_service_category(Suma::Fixtures.vendor_service_category.create)
 
       get "/v1/commerce/offerings/#{offering.id}"
 
@@ -62,13 +63,13 @@ RSpec.describe Suma::API::Commerce, :db do
       expect(last_response).to have_json_body.that_includes(
         offering: include(id: offering.id, description: offering.description.en),
         cart: include(items: []),
-        vendors: contain_exactly(include(id: op.product.vendor.id)),
+        vendors: contain_exactly(include(id: vendor.id)),
       )
     end
 
     it "returns correct out_of_stock info about the offering items" do
-      offering = Suma::Fixtures.offering.create(max_ordered_items_cumulative: 20, max_ordered_items_per_member: 5)
-      Suma::Fixtures.offering_product(offering:).create
+      offering.update(max_ordered_items_cumulative: 20, max_ordered_items_per_member: 5)
+      offering_product_fac.create
 
       get "/v1/commerce/offerings/#{offering.id}"
 
@@ -89,7 +90,6 @@ RSpec.describe Suma::API::Commerce, :db do
 
     it "401s if not authed" do
       logout
-      offering = Suma::Fixtures.offering.create
       get "/v1/commerce/offerings/#{offering.id}"
       expect(last_response).to have_status(401)
     end
@@ -97,7 +97,7 @@ RSpec.describe Suma::API::Commerce, :db do
 
   describe "PUT /v1/commerce/offerings/:id/cart/item" do
     let(:offering) { Suma::Fixtures.offering.create }
-    let(:product) { Suma::Fixtures.product.create }
+    let(:product) { Suma::Fixtures.product.with_categories.create }
     let!(:offering_product) { Suma::Fixtures.offering_product.create(offering:, product:) }
 
     it "adds a product (uses Cart#set_item)" do
@@ -134,7 +134,7 @@ RSpec.describe Suma::API::Commerce, :db do
   describe "POST /v1/commerce/offerings/:id/checkout" do
     let(:offering) { Suma::Fixtures.offering.create(max_ordered_items_cumulative: 20, max_ordered_items_per_member: 5) }
     let!(:fulfillment) { Suma::Fixtures.offering_fulfillment_option(offering:).create }
-    let(:product) { Suma::Fixtures.product.create }
+    let(:product) { Suma::Fixtures.product.with_categories.create }
     let!(:offering_product) { Suma::Fixtures.offering_product(product:, offering:).create }
     let!(:cart) { Suma::Fixtures.cart(offering:, member:).with_product(product, 2).create }
 

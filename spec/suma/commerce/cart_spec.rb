@@ -80,7 +80,7 @@ RSpec.describe "Suma::Commerce::Cart", :db do
   describe "max_quantity_for" do
     let(:member) { Suma::Fixtures.member.create }
     let(:offering) { Suma::Fixtures.offering.create }
-    let(:product) { Suma::Fixtures.product.create }
+    let(:product) { Suma::Fixtures.product.with_categories.create }
     let!(:offering_product) { Suma::Fixtures.offering_product(offering:, product:).create }
     let(:cart) { Suma::Fixtures.cart(member:, offering:).create }
 
