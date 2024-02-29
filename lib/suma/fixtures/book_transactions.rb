@@ -26,7 +26,7 @@ module Suma::Fixtures::BookTransactions
     self.originating_ledger = led
   end
 
-  decorator :to do |led|
+  decorator :to do |led={}|
     led = Suma::Fixtures.ledger(led).create unless led.is_a?(Suma::Payment::Ledger)
     self.receiving_ledger = led
   end

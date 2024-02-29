@@ -106,20 +106,28 @@ module Suma::API::Entities
     expose :args
   end
 
+  module LedgerLineAmountMixin
+    def xyz; end
+
+    def self.included(ctx)
+      ctx.expose :amount, with: Suma::API::Entities::MoneyEntity do |inst, opts|
+        if inst.directed?
+          inst.amount
+        elsif (ledger = opts[:ledger])
+          inst.receiving_ledger === ledger ? inst.amount : (inst.amount * -1)
+        else
+          raise "Must use directed ledger lines or pass :ledger option"
+        end
+      end
+    end
+  end
+
   class LedgerLineEntity < BaseEntity
     expose :id
     expose :opaque_id
     expose :apply_at, as: :at
     expose_translated :memo
-    expose :amount, with: MoneyEntity do |inst, opts|
-      if inst.directed?
-        inst.amount
-      elsif (ledger = opts[:ledger])
-        inst.receiving_ledger === ledger ? inst.amount : (inst.amount * -1)
-      else
-        raise "Must use directed ledger lines or pass :ledger option"
-      end
-    end
+    include Suma::API::Entities::LedgerLineAmountMixin
     expose :usage_details, with: LedgerLineUsageDetailsEntity
   end
 
