@@ -56,7 +56,7 @@ class Suma::Payment::Trigger < Suma::Postgres::Model(:payment_triggers)
     # @param [Money] amount
     # @return [Plan]
     def funding_plan(amount)
-      steps = self.triggers.filter_map { |t| t.funding_plan(self.account, amount, apply_at: self.apply_at) }
+      steps = self.triggers.map { |t| t.funding_plan(self.account, amount, apply_at: self.apply_at) }
       return Plan.new(steps:)
     end
   end
@@ -65,9 +65,15 @@ class Suma::Payment::Trigger < Suma::Postgres::Model(:payment_triggers)
     # @return [Array<Suma::Payment::Trigger::PlanStep>]
     attr_accessor :steps
 
+    # Execute this funding plan by creating book transactions for each step.
+    # Only steps with a receiving ledger including in +ledgers+ are executed;
+    # this is because a funding plan may have many triggers unrelated to
+    # what is actually being purchased.
     # @return [Array<Suma::Payment::Trigger::Execution>]
-    def apply(at:)
-      x = self.steps.map do |step|
+    def execute(ledgers:, at:)
+      led_ids = ledgers.map(&:id).to_set
+      executions = self.steps.filter_map do |step|
+        next unless led_ids.include?(step.receiving_ledger.id)
         book_transaction = Suma::Payment::BookTransaction.create(
           apply_at: at,
           amount: step.amount,
@@ -77,7 +83,7 @@ class Suma::Payment::Trigger < Suma::Postgres::Model(:payment_triggers)
         )
         Suma::Payment::Trigger::Execution.create(book_transaction:, trigger: step.trigger)
       end
-      return x
+      return executions
     end
   end
 

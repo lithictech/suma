@@ -81,10 +81,10 @@ RSpec.describe Suma::Payment::ChargeContribution, :db do
 
   describe described_class::Collection do
     let(:cash) { Suma::Fixtures.ledger.create(name: "cash") }
-    let(:apply_at) { Time.now }
+    let(:ctx) { Suma::Payment::CalculationContext.new(Time.now) }
 
     it "can create an empty instance" do
-      c = described_class.create_empty(cash, apply_at:)
+      c = described_class.create_empty(ctx, cash)
       expect(c).to have_attributes(
         cash: have_attributes(ledger: be === cash),
         remainder: cost("$0"),
@@ -93,14 +93,14 @@ RSpec.describe Suma::Payment::ChargeContribution, :db do
     end
 
     it "knows if there is a remainder" do
-      c = described_class.create_empty(cash, apply_at:)
+      c = described_class.create_empty(ctx, cash)
       expect(c).to_not be_remainder
       c.remainder = money("$1")
       expect(c).to be_remainder
     end
 
     it "can enumerate contributions" do
-      c = described_class.create_empty(cash, apply_at:)
+      c = described_class.create_empty(ctx, cash)
       otherledger = Suma::Fixtures.ledger.create
       c.rest << Suma::Payment::ChargeContribution.new(ledger: otherledger)
 
@@ -120,22 +120,24 @@ RSpec.describe Suma::Payment::ChargeContribution, :db do
       it "combines multiple collections into one, summing amounts" do
         ledgera, ledgerb, ledgerc = "abc".chars.map { |c| Suma::Fixtures.ledger.create(name: c) }
 
-        contrib1 = described_class.create_empty(cash, apply_at:)
+        contrib1 = described_class.create_empty(ctx, cash)
         contrib1.cash.mutate_amount(money("$1"))
         contrib1.remainder = money("$2")
 
-        contrib2 = described_class.create_empty(cash, apply_at:)
+        contrib2 = described_class.create_empty(ctx, cash)
         contrib2.cash.mutate_amount(money("$10"))
         contrib2.remainder = money("$20")
         contrib2.rest << Suma::Payment::ChargeContribution.new(ledger: ledgera, amount: money("$30"))
         contrib2.rest << Suma::Payment::ChargeContribution.new(ledger: ledgerb, amount: money("$40"))
 
-        contrib3 = described_class.create_empty(cash, apply_at:)
+        contrib3 = described_class.create_empty(ctx, cash)
         contrib3.cash.mutate_amount(money("$100"))
         contrib3.rest << Suma::Payment::ChargeContribution.new(ledger: ledgera, amount: money("$300"))
         contrib3.rest << Suma::Payment::ChargeContribution.new(ledger: ledgerc, amount: money("$500"))
 
-        consolidated = described_class.consolidate([contrib1, contrib2, contrib3])
+        ctx = Suma::Payment::CalculationContext.new(Time.now)
+        consolidated = described_class.consolidate(ctx, [contrib1, contrib2, contrib3])
+        expect(consolidated.context).to be(ctx)
         expect(consolidated.cash).to have_attributes(ledger: be === cash, amount: cost("$111"))
         expect(consolidated.remainder).to cost("$22")
         expect(consolidated.rest).to have_length(3)

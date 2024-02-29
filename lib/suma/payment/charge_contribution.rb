@@ -81,6 +81,9 @@ class Suma::Payment::ChargeContribution < Suma::TypedStruct
   end
 
   class Collection < Suma::TypedStruct
+    # @return [Suma::Payment::CalculationContext]
+    attr_reader :context
+
     # The contribution from the cash ledger, using its existing balance.
     # Its amount will be 0 if other ledgers cover the full amount,
     # or its balance is 0.
@@ -111,10 +114,14 @@ class Suma::Payment::ChargeContribution < Suma::TypedStruct
     end
 
     # @return [Suma::Payment::ChargeContribution::Collection]
-    def self.create_empty(cash_ledger, apply_at:)
+    def self.create_empty(context, cash_ledger)
       return Suma::Payment::ChargeContribution::Collection.new(
+        context:,
         cash: Suma::Payment::ChargeContribution.new(
-          ledger: cash_ledger, apply_at:, amount: Money.new(0), category: Suma::Vendor::ServiceCategory.cash,
+          ledger: cash_ledger,
+          apply_at: context.apply_at,
+          amount: Money.new(0),
+          category: Suma::Vendor::ServiceCategory.cash,
         ),
       )
     end
@@ -125,11 +132,13 @@ class Suma::Payment::ChargeContribution < Suma::TypedStruct
     # Note that +rest+ contributions will the +category+ of one contribution;
     # consolidation is inherently lossy, so if one +rest+ ledger supports multiple categories
     # (say "food" ledger for "organic" and "local" categories) it will have only one of those categories.
+    # @param [Suma::Payment::CalculationContext] ctx
     # @param [Array<Collection>] collections
     # @return [Collection]
-    def self.consolidate(collections)
+    def self.consolidate(ctx, collections)
       raise ArgumentError, "collections cannot be empty" if collections.empty?
       result = self.new(
+        context: ctx,
         cash: collections[0].cash.dup,
         rest: collections[0].rest.map(&:dup),
         remainder: collections[0].remainder,
@@ -217,7 +226,7 @@ class Suma::Payment::ChargeContribution < Suma::TypedStruct
       candidate_charges = self.find_actual_contributions(
         context.apply_credits(
           {ledger: cash, amount: candidate + -original_cash_balance},
-          *subsidy_plan.steps.map { |st| {ledger: st.receiving_ledger, amount: st.amount} },
+          *subsidy_plan.steps.map { |st| {ledger: st.receiving_ledger, amount: st.amount, trigger: st.trigger} },
         ),
         account,
         has_vnd_svc_categories,

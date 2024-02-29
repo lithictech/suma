@@ -110,7 +110,7 @@ class Suma::Payment::Account < Suma::Postgres::Model(:payment_accounts)
   def calculate_charge_contributions(context, has_vnd_svc_categories, amount)
     raise ArgumentError, "amount cannot be negative, got #{amount.format}" if amount.negative?
     raise Suma::InvalidPrecondition, "#{self.inspect} has no cash ledger" unless (cash_ledger = self.cash_ledger)
-    result = Suma::Payment::ChargeContribution::Collection.create_empty(cash_ledger, apply_at: context.apply_at)
+    result = Suma::Payment::ChargeContribution::Collection.create_empty(context, cash_ledger)
     potential_contribs = []
     self.ledgers.each do |ledger|
       if (category = ledger.category_used_to_purchase(has_vnd_svc_categories))

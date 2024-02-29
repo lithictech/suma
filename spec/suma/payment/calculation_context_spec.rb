@@ -39,4 +39,20 @@ RSpec.describe Suma::Payment::CalculationContext, :db do
     ctx = described_class.new(Time.now).apply_credits({amount: money("$6"), ledger: led})
     expect(ctx.balance(led)).to cost("$6")
   end
+
+  it "keeps track of credit and debit adjustments" do
+    ledger = Suma::Fixtures.ledger.create
+    trigger = Suma::Fixtures.payment_trigger.create
+    ctx = described_class.new(Time.now).
+      apply_credits({amount: money("$6"), ledger:}).
+      apply_debits({amount: money("$10"), ledger:}).
+      apply_credits({amount: money("$5"), ledger:, trigger:})
+    expect(ctx.balance(ledger)).to cost("$1")
+    expect(ctx.adjustments_for(ledger)).to contain_exactly(
+      have_attributes(amount: cost("$6"), ledger: be === ledger, type: :credit, trigger: nil),
+      have_attributes(amount: cost("$10"), ledger: be === ledger, type: :debit, trigger: nil),
+      have_attributes(amount: cost("$5"), ledger: be === ledger, type: :credit, trigger: be === trigger),
+    )
+    expect(ctx.adjustments_for(Suma::Fixtures.ledger.create)).to eq([])
+  end
 end

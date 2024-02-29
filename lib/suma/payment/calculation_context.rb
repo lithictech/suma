@@ -15,9 +15,10 @@
 # if we mutated the context, it would make running the same calculation code
 # non-idempotent.
 class Suma::Payment::CalculationContext
-  def initialize(apply_at, adjustments={})
+  def initialize(apply_at, adjustments: {}, adjustments_computed: {})
     @apply_at = apply_at
     @adjustments = adjustments.freeze
+    @adjustments_computed = adjustments_computed.freeze
   end
 
   # @return [Time]
@@ -28,39 +29,54 @@ class Suma::Payment::CalculationContext
   # @return [Money]
   def balance(ledger)
     balance = ledger.balance
-    if (adj = @adjustments[ledger.id])
-      balance -= adj
+    if (adj = @adjustments_computed[ledger.id])
+      balance += adj
     end
     return balance
+  end
+
+  def adjustments_for(ledger)
+    return @adjustments.fetch(ledger.id, [])
   end
 
   # Apply an adjustment so that when calculating the balance for the given +contrib.ledger+,
   # the given +contrib.amount+ is taken from the ledger's balance. For example, if +ledger+ has a balance of $0,
   # using `ctx.apply_debits(ledger:, amount: Money.new(500))` and then `ctx.balance(ledger)` would return -$5.
-  # @param contributions [Array<Suma::Payment::ChargeContribution,Hash>]
+  #
+  # @param contributions [Array<Suma::Payment::ChargeContribution,Hash>] Valid keys are :ledger, :amount, and :trigger.
+  #   :trigger is used when this adjustment is due to a +Suma::Payment::Trigger+ running.
   # @return [Suma::Payment::CalculationContext]
-  def apply_debits(*contributions) = self.apply(contributions, 1)
+  def apply_debits(*contributions) = self.apply(contributions, :debit)
 
   # Same as +apply_debits+, but each amount will be added to the ledger balance.
-  def apply_credits(*contributions) = self.apply(contributions, -1)
+  #
+  # @param contributions [Array<Suma::Payment::ChargeContribution,Hash>]
+  # @return [Suma::Payment::CalculationContext]
+  def apply_credits(*contributions) = self.apply(contributions, :credit)
 
-  protected def apply(contributions, mult)
-    adj = @adjustments.dup
+  protected def apply(contributions, type)
+    adjustments = @adjustments.dup
+    adjustments_computed = @adjustments_computed.dup
     contributions.each do |contrib|
-      case contrib
+      adj = case contrib
         when Suma::Payment::ChargeContribution
-          ledger = contrib.ledger
-          amount = contrib.amount
+          Adjustment.new(ledger: contrib.ledger, amount: contrib.amount, type:)
         else
-          ledger = contrib.fetch(:ledger)
-          amount = contrib.fetch(:amount)
+          Adjustment.new(**contrib, type:)
       end
-      amount *= mult
-      raise "cannot apply if no ledger" if ledger.nil?
-      v = adj[ledger.id]
-      v = v.nil? ? amount : (v + amount)
-      adj[ledger.id] = v
+      raise "cannot apply if no ledger" if adj.ledger.nil?
+      ledger_id = adj.ledger.id
+      existing_adjustment = adjustments_computed.fetch(ledger_id, 0)
+      adjustments_computed[ledger_id] = existing_adjustment + adj.balance_amount
+      these_adj = adjustments[ledger_id] ||= []
+      these_adj << adj
     end
-    return self.class.new(self.apply_at, adj)
+    return self.class.new(self.apply_at, adjustments:, adjustments_computed:)
+  end
+
+  class Adjustment < Suma::TypedStruct
+    attr_accessor :ledger, :amount, :trigger, :type
+
+    def balance_amount = self.type == :credit ? self.amount : (self.amount * -1)
   end
 end

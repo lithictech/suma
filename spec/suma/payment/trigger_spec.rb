@@ -159,7 +159,7 @@ RSpec.describe "Suma::Payment::Trigger", :db do
         t = Suma::Fixtures.payment_trigger.matching(0.5).create
         plan = described_class.gather(account, apply_at:).funding_plan(money("$15"))
         now = 1.hour.ago
-        executions = plan.apply(at: now)
+        executions = plan.execute(ledgers: account.ledgers, at: now)
         expect(executions).to have_length(1)
         expect(executions[0]).to have_attributes(
           trigger: be === t,
@@ -169,6 +169,23 @@ RSpec.describe "Suma::Payment::Trigger", :db do
             originating_ledger: be === t.originating_ledger,
             receiving_ledger: account.ledgers(reload: true).first,
             triggered_by: be === executions[0],
+          ),
+        )
+      end
+
+      it "does not execute the trigger if the trigger ledger is not passed in" do
+        Suma::Fixtures.payment_trigger.create
+        Suma::Fixtures.payment_trigger.create
+        plan = described_class.gather(account, apply_at:).funding_plan(money("$15"))
+        expect(plan.steps).to have_length(2)
+        expect(account.ledgers).to have_length(2)
+        step = plan.steps.first
+        executions = plan.execute(ledgers: [step.receiving_ledger], at: Time.now)
+        expect(executions).to have_length(1)
+        expect(executions[0]).to have_attributes(
+          trigger: be === step.trigger,
+          book_transaction: have_attributes(
+            receiving_ledger: be === step.receiving_ledger,
           ),
         )
       end

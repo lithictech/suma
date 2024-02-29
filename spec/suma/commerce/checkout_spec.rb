@@ -11,7 +11,7 @@ RSpec.describe "Suma::Commerce::Checkout", :db do
     let(:cart) { Suma::Fixtures.cart(offering:, member:).with_product(product, 2).create }
     let(:checkout) { Suma::Fixtures.checkout(cart:).populate_items.create }
     let!(:cash_ledger) { Suma::Fixtures.ledger.member(member).category(:cash).create }
-    let!(:platform_ledger) { Suma::Fixtures::Ledgers.ensure_platform_cash }
+    let!(:platform_cash_ledger) { Suma::Fixtures::Ledgers.ensure_platform_cash }
 
     it "are calculated correctly" do
       Suma::Fixtures.book_transaction(amount: money("$10")).to(cash_ledger).create
@@ -92,13 +92,13 @@ RSpec.describe "Suma::Commerce::Checkout", :db do
     let(:member) { Suma::Fixtures.member.registered_as_stripe_customer.create }
     let(:offering) { Suma::Fixtures.offering.create }
     let!(:fulfillment) { Suma::Fixtures.offering_fulfillment_option(offering:).create }
-    let(:product) { Suma::Fixtures.product.category(:cash).create }
+    let(:product) { Suma::Fixtures.product.category(:food).create }
     let!(:offering_product) { Suma::Fixtures.offering_product(product:, offering:).costing("$20", "$30").create }
     let(:cart) { Suma::Fixtures.cart(offering:, member:).with_product(product, 2).create }
     let(:card) { Suma::Fixtures.card.member(member).create }
     let(:checkout) { Suma::Fixtures.checkout(cart:, card:).populate_items.create }
     let!(:cash_ledger) { Suma::Fixtures.ledger.member(member).category(:cash).create }
-    let!(:platform_ledger) { Suma::Fixtures::Ledgers.ensure_platform_cash }
+    let!(:platform_cash_ledger) { Suma::Fixtures::Ledgers.ensure_platform_cash }
 
     around(:each) do |ex|
       Suma::Payment::FundingTransaction.force_fake(proc { Suma::Payment::FakeStrategy.create.not_ready }) do
@@ -181,6 +181,36 @@ RSpec.describe "Suma::Commerce::Checkout", :db do
         order_status: "open",
         fulfillment_status: "fulfilling",
       )
+    end
+
+    it "creates payment trigger transactions only for those that factor into contributions" do
+      food = checkout.items.first.cart_item.product.vendor_service_categories.first
+      sending_food_ledger = Suma::Fixtures.ledger.with_categories(food).
+        create(name: "Food", account: platform_cash_ledger.account)
+      receiving_food_ledger = Suma::Fixtures.ledger.with_categories(food).
+        create(name: "Food", account: checkout.cart.member.payment_account)
+      other_ledger = Suma::Fixtures.ledger.with_categories.create
+
+      matched_trigger1 = Suma::Fixtures.payment_trigger.matching(1).from(sending_food_ledger).create
+      matched_trigger2 = Suma::Fixtures.payment_trigger.matching(0.5).from(sending_food_ledger).create
+      unmatched_trigger = Suma::Fixtures.payment_trigger.matching(0.1).from(other_ledger).create
+
+      # $16 cash should generate $24 in subsidy ($16 from 1-to-1 and $8 from 0.5 match)
+      order = create_order(money("16"))
+      expect(order.charges.first.associated_funding_transactions).to contain_exactly(
+        have_attributes(amount: cost("$16")),
+      )
+      expect(matched_trigger1.executions).to contain_exactly(
+        have_attributes(
+          book_transaction: have_attributes(amount: cost("$16"), receiving_ledger: be === receiving_food_ledger),
+        ),
+      )
+      expect(matched_trigger2.executions).to contain_exactly(
+        have_attributes(
+          book_transaction: have_attributes(amount: cost("$8"), receiving_ledger: be === receiving_food_ledger),
+        ),
+      )
+      expect(unmatched_trigger.executions).to be_empty
     end
 
     describe "with a complex, multi-product, multi-ledger product and payment setup" do

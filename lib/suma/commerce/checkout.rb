@@ -191,22 +191,26 @@ class Suma::Commerce::Checkout < Suma::Postgres::Model(:commerce_checkouts)
         undiscounted_subtotal: self.undiscounted_cost + self.handling + self.tax,
       )
 
+      # We need to re-calculate how much to charge the member
+      # so we can add triggered subsidy payments onto the ledger before charging.
+      predicted_contrib = self.predicted_charge_contributions(apply_at:)
+      # If what we plan to charge them does not match what they see and pass in,
+      # raise an error since some data is out of date.
+      if predicted_contrib.cash.outstanding != cash_charge_amount
+        msg = "Checkout[#{self.id}] desired charge of #{cash_charge_amount.format} and calculated charge " \
+              "of #{predicted_contrib.cash.outstanding.format} differ, please refresh and try again."
+        raise Prohibited.new(msg, reason: :charge_amount_mismatch)
+      end
+
       # This will make member subledgers have a positive balance.
       # It will not debit the subledgers or cash ledger.
       Suma::Payment::Trigger.gather(self.cart.member.payment_account!, apply_at:).
         funding_plan(cash_charge_amount).
-        apply(at: apply_at)
+        execute(ledgers: predicted_contrib.all.map(&:ledger), at: apply_at)
 
       # See how much the member needs to pay across cash and noncash ledgers,
       # and what is not covered by existing balances.
       contrib_collection = self.actual_charge_contributions(apply_at:)
-      # The amount not covered should also be how much is being charged;
-      # if not, an error is raised since some data is out of date.
-      if contrib_collection.remainder != cash_charge_amount
-        msg = "Checkout[#{self.id}] desired charge of #{cash_charge_amount.format} and calculated charge " \
-              "of #{contrib_collection.remainder.format} differ, please refresh and try again."
-        raise Prohibited.new(msg, reason: :charge_amount_mismatch)
-      end
       if contrib_collection.remainder?
         contrib_collection.cash.mutate_amount(contrib_collection.cash.amount + contrib_collection.remainder)
       end

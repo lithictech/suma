@@ -37,7 +37,7 @@ module Suma::Commerce::PricedItem
       context = context.apply_debits(*coll.all)
       coll
     end
-    consolidated_contributions = Suma::Payment::ChargeContribution::Collection.consolidate(collections)
+    consolidated_contributions = Suma::Payment::ChargeContribution::Collection.consolidate(context, collections)
     return consolidated_contributions
   end
 end

@@ -80,6 +80,7 @@ class Suma::Payment::Ledger < Suma::Postgres::Model(:payment_ledgers)
   # only vendor services with 'organic' assigned could be used.
   #
   # Note that ledgers and services can have multiple service categories.
+  # @param [Suma::Vendor::HasServiceCategories] has_vnd_svc_categories
   def can_be_used_to_purchase?(has_vnd_svc_categories)
     match = self.category_used_to_purchase(has_vnd_svc_categories)
     return !match.nil?
@@ -98,7 +99,7 @@ class Suma::Payment::Ledger < Suma::Postgres::Model(:payment_ledgers)
       raise Suma::InvalidPrecondition, msg
     end
     if self.vendor_service_categories.empty?
-      msg = "#{self.class.name}[#{self.pk}] has no categories so cannot be used to purchase anything"
+      msg = "#{self.class.name}[#{self.pk}, name=#{self.name}] has no categories so cannot be used to purchase anything"
       raise Suma::InvalidPrecondition, msg
     end
     service_cat_ids = has_vnd_svc_categories.vendor_service_categories.map(&:id)
