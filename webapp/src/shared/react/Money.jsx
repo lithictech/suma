@@ -1,4 +1,5 @@
 import { formatMoney } from "../money";
+import clsx from "clsx";
 import PropTypes from "prop-types";
 import React from "react";
 
@@ -14,7 +15,7 @@ export default function Money({ value, children, className, accounting, as, ...r
     ch = formatMoney(entity, rest);
   }
   const As = as || "span";
-  return <As className={className}>{ch}</As>;
+  return <As className={clsx("nowrap", className)}>{ch}</As>;
 }
 
 Money.propTypes = {
