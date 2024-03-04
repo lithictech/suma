@@ -24,7 +24,6 @@ class Suma::AdminAPI::CommerceOfferings < Suma::AdminAPI::V1
     expose :fulfillment_confirmation, with: TranslatedTextEntity
     expose :fulfillment_options, with: OfferingFulfillmentOptionEntity
     expose :begin_fulfillment_at
-    expose :prohibit_charge_at_checkout
     expose :image, with: ImageEntity, &self.delegate_to(:images?, :first)
     expose :offering_products, with: OfferingProductEntity
     expose :orders, with: OrderInOfferingEntity
@@ -98,7 +97,6 @@ class Suma::AdminAPI::CommerceOfferings < Suma::AdminAPI::V1
         requires :period_begin, type: Time
         requires :period_end, type: Time
         optional :begin_fulfillment_at, type: Time
-        optional :prohibit_charge_at_checkout, type: Boolean, allow_blank: false, default: false
         optional :max_ordered_items_cumulative, type: Integer
         optional :max_ordered_items_per_member, type: Integer
       end
@@ -126,7 +124,6 @@ class Suma::AdminAPI::CommerceOfferings < Suma::AdminAPI::V1
         optional :period_begin, type: Time
         optional :period_end, type: Time
         optional :begin_fulfillment_at, type: Time
-        optional :prohibit_charge_at_checkout, type: Boolean, allow_blank: false
         optional :max_ordered_items_cumulative, type: Integer
         optional :max_ordered_items_per_member, type: Integer
       end

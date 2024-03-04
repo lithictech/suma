@@ -35,26 +35,27 @@ RSpec.describe Suma::API::Commerce, :db do
   end
 
   describe "GET /v1/commerce/offerings/:id" do
+    let(:offering) { Suma::Fixtures.offering.create }
+    let(:product) { Suma::Fixtures.product.with_categories.create }
+    let(:offering_product_fac) { Suma::Fixtures.offering_product(product:, offering:) }
+
     it "returns only available offering products" do
-      offering = Suma::Fixtures.offering.create
-      product = Suma::Fixtures.product.create
-      op1 = Suma::Fixtures.offering_product.create(offering:, product:)
-      op2 = Suma::Fixtures.offering_product.closed.create(offering:, product:)
+      op1 = offering_product_fac.create
+      op2 = offering_product_fac.closed.create
 
       get "/v1/commerce/offerings/#{offering.id}"
 
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.that_includes(
-        items: contain_exactly(
-          include(product_id: op1.product_id),
-        ),
+        items: contain_exactly(include(product_id: op1.product_id)),
       )
     end
 
     it "returns details about the offering and the member cart" do
-      offering = Suma::Fixtures.offering.create
-      op = Suma::Fixtures.offering_product(offering:).create
-      op = Suma::Fixtures.offering_product(offering:).product(vendor: op.product.vendor).create
+      op1 = offering_product_fac.create
+      vendor = op1.product.vendor
+      other_vendor_product = Suma::Fixtures.offering_product(offering:).product(vendor:).create
+      other_vendor_product.product.add_vendor_service_category(Suma::Fixtures.vendor_service_category.create)
 
       get "/v1/commerce/offerings/#{offering.id}"
 
@@ -62,13 +63,13 @@ RSpec.describe Suma::API::Commerce, :db do
       expect(last_response).to have_json_body.that_includes(
         offering: include(id: offering.id, description: offering.description.en),
         cart: include(items: []),
-        vendors: contain_exactly(include(id: op.product.vendor.id)),
+        vendors: contain_exactly(include(id: vendor.id)),
       )
     end
 
     it "returns correct out_of_stock info about the offering items" do
-      offering = Suma::Fixtures.offering.create(max_ordered_items_cumulative: 20, max_ordered_items_per_member: 5)
-      Suma::Fixtures.offering_product(offering:).create
+      offering.update(max_ordered_items_cumulative: 20, max_ordered_items_per_member: 5)
+      offering_product_fac.create
 
       get "/v1/commerce/offerings/#{offering.id}"
 
@@ -89,7 +90,6 @@ RSpec.describe Suma::API::Commerce, :db do
 
     it "401s if not authed" do
       logout
-      offering = Suma::Fixtures.offering.create
       get "/v1/commerce/offerings/#{offering.id}"
       expect(last_response).to have_status(401)
     end
@@ -97,7 +97,7 @@ RSpec.describe Suma::API::Commerce, :db do
 
   describe "PUT /v1/commerce/offerings/:id/cart/item" do
     let(:offering) { Suma::Fixtures.offering.create }
-    let(:product) { Suma::Fixtures.product.create }
+    let(:product) { Suma::Fixtures.product.with_categories.create }
     let!(:offering_product) { Suma::Fixtures.offering_product.create(offering:, product:) }
 
     it "adds a product (uses Cart#set_item)" do
@@ -134,7 +134,7 @@ RSpec.describe Suma::API::Commerce, :db do
   describe "POST /v1/commerce/offerings/:id/checkout" do
     let(:offering) { Suma::Fixtures.offering.create(max_ordered_items_cumulative: 20, max_ordered_items_per_member: 5) }
     let!(:fulfillment) { Suma::Fixtures.offering_fulfillment_option(offering:).create }
-    let(:product) { Suma::Fixtures.product.create }
+    let(:product) { Suma::Fixtures.product.with_categories.create }
     let!(:offering_product) { Suma::Fixtures.offering_product(product:, offering:).create }
     let!(:cart) { Suma::Fixtures.cart(offering:, member:).with_product(product, 2).create }
 
@@ -254,6 +254,7 @@ RSpec.describe Suma::API::Commerce, :db do
     let(:checkout) { Suma::Fixtures.checkout(cart:, card:).populate_items.create }
     let!(:member_ledger) { Suma::Fixtures.ledger.member(member).category(:food).create }
     let!(:platform_ledger) { Suma::Fixtures::Ledgers.ensure_platform_cash }
+    let(:cost) { cart.customer_cost.cents }
 
     around(:each) do |ex|
       Suma::Payment::FundingTransaction.force_fake(Suma::Payment::FakeStrategy.create.not_ready) do
@@ -262,7 +263,7 @@ RSpec.describe Suma::API::Commerce, :db do
     end
 
     it "clears the cart, completes the checkout, creates an order, and returns the confirmation" do
-      post "/v1/commerce/checkouts/#{checkout.id}/complete"
+      post "/v1/commerce/checkouts/#{checkout.id}/complete", charge_amount_cents: cost
 
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.that_includes(id: checkout.id)
@@ -274,7 +275,7 @@ RSpec.describe Suma::API::Commerce, :db do
     it "errors if checkout is prohibited" do
       checkout.soft_delete
 
-      post "/v1/commerce/checkouts/#{checkout.id}/complete"
+      post "/v1/commerce/checkouts/#{checkout.id}/complete", charge_amount_cents: cost
 
       expect(last_response).to have_status(409)
       expect(last_response).to have_json_body.that_includes(error: include(code: "checkout_fatal_error"))
@@ -284,6 +285,7 @@ RSpec.describe Suma::API::Commerce, :db do
       newcard = Suma::Fixtures.card.create(legal_entity: card.legal_entity)
 
       post "/v1/commerce/checkouts/#{checkout.id}/complete",
+           charge_amount_cents: cost,
            payment_instrument: {payment_instrument_id: newcard.id, payment_method_type: "card"}
 
       expect(last_response).to have_status(200)
@@ -294,7 +296,8 @@ RSpec.describe Suma::API::Commerce, :db do
       newcard = Suma::Fixtures.card.create
 
       post "/v1/commerce/checkouts/#{checkout.id}/complete",
-           payment_instrument: {payment_instrument_id: newcard.id, payment_method_type: "card"}
+           charge_amount_cents: cost, payment_instrument:
+          {payment_instrument_id: newcard.id, payment_method_type: "card"}
 
       expect(last_response).to have_status(403)
     end
@@ -304,6 +307,7 @@ RSpec.describe Suma::API::Commerce, :db do
       newcard.soft_delete
 
       post "/v1/commerce/checkouts/#{checkout.id}/complete",
+           charge_amount_cents: cost,
            payment_instrument: {payment_instrument_id: newcard.id, payment_method_type: "card"}
 
       expect(last_response).to have_status(403)
@@ -313,7 +317,7 @@ RSpec.describe Suma::API::Commerce, :db do
       offering_product.update_without_validate(customer_price_cents: 0, undiscounted_price: 0)
       checkout.update(payment_instrument: nil)
 
-      post "/v1/commerce/checkouts/#{checkout.id}/complete"
+      post "/v1/commerce/checkouts/#{checkout.id}/complete", charge_amount_cents: cost
 
       expect(last_response).to have_status(200)
     end
@@ -321,15 +325,18 @@ RSpec.describe Suma::API::Commerce, :db do
     it "errors if the checkout does not point to a payment instrument when required" do
       checkout.update(payment_instrument: nil)
 
-      post "/v1/commerce/checkouts/#{checkout.id}/complete"
+      post "/v1/commerce/checkouts/#{checkout.id}/complete", charge_amount_cents: cost
 
       expect(last_response).to have_status(409)
+    end
+
+    it "errors if the given amount is out of date" do
     end
 
     it "sets the fulfillment option" do
       newopt = Suma::Fixtures.offering_fulfillment_option(offering:).create
 
-      post "/v1/commerce/checkouts/#{checkout.id}/complete", fulfillment_option_id: newopt.id
+      post "/v1/commerce/checkouts/#{checkout.id}/complete", charge_amount_cents: cost, fulfillment_option_id: newopt.id
 
       expect(last_response).to have_status(200)
       expect(checkout.refresh).to have_attributes(fulfillment_option: be === newopt)
@@ -338,7 +345,7 @@ RSpec.describe Suma::API::Commerce, :db do
     it "errors if the fulfillment option is not available" do
       newopt = Suma::Fixtures.offering_fulfillment_option.create
 
-      post "/v1/commerce/checkouts/#{checkout.id}/complete", fulfillment_option_id: newopt.id
+      post "/v1/commerce/checkouts/#{checkout.id}/complete", charge_amount_cents: cost, fulfillment_option_id: newopt.id
 
       expect(last_response).to have_status(403)
     end
@@ -346,14 +353,14 @@ RSpec.describe Suma::API::Commerce, :db do
     it "errors if max quantity is exceeded" do
       offering.update(max_ordered_items_cumulative: 1)
 
-      post "/v1/commerce/checkouts/#{checkout.id}/complete"
+      post "/v1/commerce/checkouts/#{checkout.id}/complete", charge_amount_cents: cost
 
       expect(last_response).to have_status(403)
       expect(last_response).to have_json_body.that_includes(error: include(code: "invalid_order_quantity"))
     end
 
     it "deletes the payment instrument if it is not being saved" do
-      post "/v1/commerce/checkouts/#{checkout.id}/complete", save_payment_instrument: false
+      post "/v1/commerce/checkouts/#{checkout.id}/complete", charge_amount_cents: cost, save_payment_instrument: false
 
       expect(last_response).to have_status(200)
       expect(card.refresh).to be_soft_deleted
@@ -362,7 +369,7 @@ RSpec.describe Suma::API::Commerce, :db do
     it "errors if the member cannot access the offering due to constraints" do
       offering.add_eligibility_constraint(Suma::Fixtures.eligibility_constraint.create)
 
-      post "/v1/commerce/checkouts/#{checkout.id}/complete"
+      post "/v1/commerce/checkouts/#{checkout.id}/complete", charge_amount_cents: cost
 
       expect(last_response).to have_status(403)
       expect(last_response).to have_json_body.that_includes(error: include(code: "eligibility_violation"))

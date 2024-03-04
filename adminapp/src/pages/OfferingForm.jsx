@@ -16,7 +16,6 @@ import {
   Button,
   Divider,
   FormControl,
-  FormControlLabel,
   FormLabel,
   Icon,
   InputLabel,
@@ -24,7 +23,6 @@ import {
   MenuItem,
   Select,
   Stack,
-  Switch,
   TextField,
 } from "@mui/material";
 import Box from "@mui/material/Box";
@@ -125,15 +123,6 @@ export default function OfferingForm({
         </FormHelperText>
         <Divider />
         <FormLabel>Other Settings</FormLabel>
-        <Stack direction="row" spacing={2}>
-          <FormControlLabel
-            control={<Switch />}
-            label="Prohibit Charge At Checkout"
-            name="prohibitChargeAtCheckout"
-            checked={resource.prohibitChargeAtCheckout}
-            onChange={setFieldFromInput}
-          />
-        </Stack>
         <ResponsiveStack>
           <TextField
             name="maxOrderedItemsCumulative"

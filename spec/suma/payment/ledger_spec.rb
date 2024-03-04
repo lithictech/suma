@@ -89,6 +89,26 @@ RSpec.describe "Suma::Payment::Ledger", :db do
       expect(grocery_ledger.category_used_to_purchase(organic_service)).to be === grocery
       expect(organic_ledger.category_used_to_purchase(organic_service)).to be === organic
     end
+
+    it "errors if a ledger has no category, since it cannot be used to purchase anything" do
+      food = Suma::Fixtures.vendor_service_category.create
+      empty_ledger = Suma::Fixtures.ledger.create
+      food_service = Suma::Fixtures.vendor_service.with_categories(food).create
+
+      expect do
+        empty_ledger.category_used_to_purchase(food_service)
+      end.to raise_error(Suma::InvalidPrecondition, /Ledger.*has no categories/)
+    end
+
+    it "errors if the product has no category, since nothing can be used to purchase it" do
+      food = Suma::Fixtures.vendor_service_category.create
+      food_ledger = Suma::Fixtures.ledger.with_categories(food).create
+      empty_service = Suma::Fixtures.vendor_service.create
+
+      expect do
+        food_ledger.category_used_to_purchase(empty_service)
+      end.to raise_error(Suma::InvalidPrecondition, /Service.*has no categories/)
+    end
   end
 
   describe "validations" do

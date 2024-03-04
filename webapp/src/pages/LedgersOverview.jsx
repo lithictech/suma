@@ -13,6 +13,7 @@ import clsx from "clsx";
 import dayjs from "dayjs";
 import find from "lodash/find";
 import first from "lodash/first";
+import isEmpty from "lodash/isEmpty";
 import React from "react";
 import Dropdown from "react-bootstrap/Dropdown";
 import Stack from "react-bootstrap/Stack";
@@ -206,12 +207,16 @@ const LedgerLines = ({
         </tbody>
       </Table>
       <LayoutContainer gutters>
-        <ForwardBackPagination
-          page={linesPage}
-          pageCount={linesPageCount}
-          onPageChange={onLinesPageChange}
-          scrollTop={140}
-        />
+        {!isEmpty(lines) ? (
+          <ForwardBackPagination
+            page={linesPage}
+            pageCount={linesPageCount}
+            onPageChange={onLinesPageChange}
+            scrollTop={140}
+          />
+        ) : (
+          <p className="text-center">{t("dashboard:no_money")}</p>
+        )}
       </LayoutContainer>
       <LedgerItemModal
         item={selectedHashItem}

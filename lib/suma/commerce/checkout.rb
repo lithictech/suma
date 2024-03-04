@@ -88,47 +88,89 @@ class Suma::Commerce::Checkout < Suma::Postgres::Model(:commerce_checkouts)
 
   # Subtotal, handling, and tax make up the total cost for the order.
   # @return [Money]
-  def total = self.customer_cost + self.handling
+  def total = self.taxable_cost + self.tax
 
-  # Nonzero contributions made by existing customer ledgers against the order totals.
-  # @return [Array<Suma::Payment::ChargeContribution]
-  def usable_ledger_contributions
-    return self.ledger_charge_contributions(now: Time.now, remainder_ledger: :ignore).
-        delete_if { |c| c.amount.zero? }
+  # Cost and related information about the checkout.
+  # This requires calculating what will be owed/charged at checkout.
+  # This is always done on the predicted contributions,
+  # since that's generally what we care about at this stage.
+  #
+  # If, during completing checkout (+create_order+),
+  # the predicted and actual results do not match,
+  # completing the checkout will fail.
+  class CostInfo
+    def initialize(checkout, apply_at)
+      @checkout = checkout
+      @apply_at = apply_at
+      @contributions = checkout.predicted_charge_contributions(apply_at:)
+    end
+
+    # How much additional cash will be charged?
+    # @return [Money]
+    def chargeable_total = @contributions.cash.outstanding
+
+    def requires_payment_instrument? = !self.chargeable_total.zero?
+
+    def checkout_prohibited_reason
+      return :offering_products_unavailable if @checkout.cart.items.select { |ci| ci.available_at?(@apply_at) }.empty?
+      return :requires_payment_instrument if self.requires_payment_instrument? && !@checkout.payment_instrument
+      return :not_editable unless @checkout.editable?
+      return nil
+    end
+
+    # Return charge contributions that:
+    # - Are already on ledgers (cash and non-cash).
+    # - Non-cash contributions that are added by triggers
+    def existing_funds_available
+      contribs = @contributions.all.to_a
+      # The cash ledger (always first from the #all result) should have the contribution amount
+      # set to what is from the existing balance. The outstanding value goes into chargeable_total.
+      # CASH_CONTRIB: The 'only show existing funds on cash ledger' logic needs tests once it's supported.
+      contribs[0] = contribs[0].dup(amount: contribs[0].from_balance)
+      # Only include contributions that have an amount.
+      return contribs.select(&:amount?)
+    end
   end
 
-  # Chargeable total is the total, minus the contributions from customer ledgers.
-  # @return [Money]
-  def chargeable_total
-    total = self.total
-    contribs = self.usable_ledger_contributions
-    paid = contribs.sum(Money.new(0), &:amount)
-    return total - paid
+  def cost_info(at:) = CostInfo.new(self, at)
+
+  # @return [Suma::Payment::ChargeContribution::Collection]
+  def predicted_charge_contributions(apply_at:)
+    return Suma::Commerce::PricedItem.ideal_ledger_charge_contributions(
+      Suma::Payment::CalculationContext.new(apply_at),
+      self.cart.member.payment_account!,
+      self.items,
+    )
   end
 
-  def chargeable_amount? = !self.chargeable_total.zero?
-
-  def requires_payment_instrument?
-    return false if self.cart.offering.prohibit_charge_at_checkout
-    return self.chargeable_amount?
+  # @return [Suma::Payment::ChargeContribution::Collection]
+  def actual_charge_contributions(apply_at:)
+    return Suma::Commerce::PricedItem.actual_ledger_charge_contributions(
+      Suma::Payment::CalculationContext.new(apply_at),
+      self.cart.member.payment_account!,
+      self.items,
+    )
   end
 
-  def checkout_prohibited_reason(at)
-    return :offering_products_unavailable if self.cart.items.select { |ci| ci.available_at?(at) }.empty?
-    return :charging_prohibited if self.cart.offering.prohibit_charge_at_checkout && self.chargeable_amount?
-    return :requires_payment_instrument if self.requires_payment_instrument? && !self.payment_instrument
-    return :not_editable unless self.editable?
-    return nil
-  end
-
-  def create_order
+  # Create an order from this checkout.
+  # We pass in the time, and expected charge amount.
+  # The time is used for a new calculation context, using the actual state of the ledger.
+  # The cash charge is passed in, rather than calculated, so we can confirm the amount the user expects
+  # is what is actually charged (ie, avoids race conditions or out-of-date UI).
+  # If too little is charged, a balance will be owed and this method will error.
+  # If too much is charged, a balance will be left on the cash ledger, and this method will error
+  # (this may change when we support non-zero cash ledger balances).
+  #
+  # @param apply_at [Time]
+  # @param cash_charge_amount [Money]
+  def create_order(apply_at:, cash_charge_amount:)
     self.db.transaction do
-      # Locking the card makes sure we don't allow the user to over-purchase for an offering
+      # Locking the cart makes sure we don't allow the user to over-purchase for an offering
       self.cart.lock!
       # Locking the checkout ensures we don't process it multiple times as a race
       self.lock!
-      now = Time.now
-      if (prohibition_reason = self.checkout_prohibited_reason(now))
+      # This isn't ideal- it'd be better
+      if (prohibition_reason = self.cost_info(at: apply_at).checkout_prohibited_reason)
         raise Prohibited.new(
           "Checkout[#{self.id}] cannot be checked out: #{prohibition_reason}",
           reason: prohibition_reason,
@@ -149,28 +191,35 @@ class Suma::Commerce::Checkout < Suma::Postgres::Model(:commerce_checkouts)
         undiscounted_subtotal: self.undiscounted_cost + self.handling + self.tax,
       )
 
-      cash_ledger = self.cart.member.payment_account!.cash_ledger!
-      # We have some real possible debits, and possibly a remainder we also need to debit.
-      remainder_contribs, debit_contribs = self.ledger_charge_contributions(now:, remainder_ledger: :return).
-        partition(&:remainder?)
-      unless remainder_contribs.empty?
-        # We'll put the remainder into the cash ledger. See if we have a current contribution for it.
-        cash_contrib = debit_contribs.find { |c| c.ledger === cash_ledger }
-        if cash_contrib.nil?
-          # If we aren't already using the cash ledger, add it.
-          remainder = remainder_contribs.first
-          remainder.ledger = cash_ledger
-          remainder.category = Suma::Vendor::ServiceCategory.cash
-          debit_contribs << remainder
-        else
-          # If we are already debit the cash ledger, add the remainder to it (causing a negative balance).
-          cash_contrib.amount += remainder_contribs.first.amount
-        end
+      # We need to re-calculate how much to charge the member
+      # so we can add triggered subsidy payments onto the ledger before charging.
+      predicted_contrib = self.predicted_charge_contributions(apply_at:)
+      # If what we plan to charge them does not match what they see and pass in,
+      # raise an error since some data is out of date.
+      if predicted_contrib.cash.outstanding != cash_charge_amount
+        msg = "Checkout[#{self.id}] desired charge of #{cash_charge_amount.format} and calculated charge " \
+              "of #{predicted_contrib.cash.outstanding.format} differ, please refresh and try again."
+        raise Prohibited.new(msg, reason: :charge_amount_mismatch)
       end
 
-      # Create ledger debits for all positive contributions. This MAY bring our balance negative.
+      # This will make member subledgers have a positive balance.
+      # It will not debit the subledgers or cash ledger.
+      Suma::Payment::Trigger.gather(self.cart.member.payment_account!, apply_at:).
+        funding_plan(cash_charge_amount).
+        execute(ledgers: predicted_contrib.all.map(&:ledger), at: apply_at)
+
+      # See how much the member needs to pay across cash and noncash ledgers,
+      # and what is not covered by existing balances.
+      contrib_collection = self.actual_charge_contributions(apply_at:)
+      if contrib_collection.remainder?
+        contrib_collection.cash.mutate_amount(contrib_collection.cash.amount + contrib_collection.remainder)
+      end
+      debitable = contrib_collection.all.select(&:amount?)
+      # Create ledger debits for all positive contributions.
+      # This will probably make our cash ledger balance negative;
+      # the funding transaction will bring it back to zero.
       book_xactions = self.cart.member.payment_account.debit_contributions(
-        debit_contribs.select { |c| c.amount.positive? },
+        debitable,
         memo: Suma::TranslatedText.create(
           en: "Suma Order %04d - %s" % [order.id, self.cart.offering.description.en],
           es: "Suma Pedido %04d - %s" % [order.id, self.cart.offering.description.es],
@@ -179,12 +228,12 @@ class Suma::Commerce::Checkout < Suma::Postgres::Model(:commerce_checkouts)
       book_xactions.each { |x| charge.add_book_transaction(x) }
 
       # If there are any remainder contributions, we need to fund them against the cash ledger.
-      if remainder_contribs.present?
+      if contrib_collection.remainder?
         funding = Suma::Payment::FundingTransaction.start_and_transfer(
           self.card.member,
-          amount: remainder_contribs.first.amount,
+          amount: contrib_collection.remainder,
           instrument: self.payment_instrument,
-          apply_at: now,
+          apply_at:,
         )
         charge.add_associated_funding_transaction(funding)
       end
@@ -194,53 +243,6 @@ class Suma::Commerce::Checkout < Suma::Postgres::Model(:commerce_checkouts)
 
       return order
     end
-  end
-
-  def ledger_charge_contributions(now:, remainder_ledger:)
-    return Suma::Commerce::Checkout.ledger_charge_contributions(
-      payment_account: self.cart.member.payment_account!,
-      priced_items: self.items,
-      now:,
-      remainder_ledger:,
-    )
-  end
-
-  # Return contributions from each ledger that can be used for paying for the order.
-  # NOTE: Right now this is only product contributions; when we support tax and handling,
-  # we'll need to modify this routine to factor those into the right (cash?) ledger.
-  #
-  # @param payment_account [Suma::Payment::Account]
-  # @param priced_items [Array<Suma::Commerce::PricedItem>]
-  # @param now [Time]
-  # @return [Array<Suma::Payment::ChargeContribution]
-  def self.ledger_charge_contributions(payment_account:, priced_items:, now:, remainder_ledger:, exclude_up: nil)
-    ctx = Suma::Payment::CalculationContext.new
-    product_contributions = priced_items.map do |item|
-      contribs = payment_account.find_chargeable_ledgers(
-        item.offering_product.product,
-        item.customer_cost,
-        now:,
-        remainder_ledger:,
-        calculation_context: ctx,
-        exclude_up:,
-      )
-      ctx.apply_all(contribs)
-      contribs
-    end
-    consolidated_contributions = product_contributions.
-      flatten.
-      group_by { |c| [c.ledger&.id, c.category&.id] }.
-      values.
-      map do |contribs|
-      c = contribs.first
-      Suma::Payment::ChargeContribution.new(
-        ledger: c.ledger,
-        apply_at: c.apply_at,
-        category: c.category,
-        amount: contribs.sum(Money.new(0), &:amount),
-      )
-    end
-    return consolidated_contributions
   end
 
   protected def check_and_update_product_inventories

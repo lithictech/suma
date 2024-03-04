@@ -1,19 +1,18 @@
 import api from "../../api";
 import config from "../../config";
-import { md, t } from "../../localization";
+import { md } from "../../localization";
 import MapBuilder from "../../modules/mapBuilder";
 import readOnlyReason from "../../modules/readOnlyReason";
 import useMountEffect from "../../shared/react/useMountEffect";
 import { extractErrorCode, useError } from "../../state/useError";
 import useGlobalViewState from "../../state/useGlobalViewState";
 import useUser from "../../state/useUser";
+import AddFundsLinkButton from "../AddFundsLinkButton";
 import FormError from "../FormError";
-import RLink from "../RLink";
 import CardOverlay from "./CardOverlay";
 import ReservationCard from "./ReservationCard";
 import TripCard from "./TripCard";
 import React from "react";
-import Button from "react-bootstrap/Button";
 
 export default function Map() {
   const { appNav, topNav } = useGlobalViewState();
@@ -186,9 +185,7 @@ export default function Map() {
           {!config.featureMobilityRestricted &&
             readOnlyReason(user, "read_only_zero_balance") && (
               <div className="text-center mt-2">
-                <Button variant="outline-success" to="/funding" size="sm" as={RLink}>
-                  {t("payments:add_funds")}
-                </Button>
+                <AddFundsLinkButton />
               </div>
             )}
         </CardOverlay>

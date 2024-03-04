@@ -129,32 +129,38 @@ class Suma::Commerce::Cart < Suma::Postgres::Model(:commerce_carts)
     return limited_max.nil? ? DEFAULT_MAX_QUANTITY : limited_max
   end
 
-  def product_noncash_ledger_contribution_amount(offering_product, now: Time.now)
-    contribs = self.member.payment_account!.find_chargeable_ledgers(
-      offering_product.product,
-      offering_product.customer_price,
-      now:,
-      remainder_ledger: :ignore,
-      calculation_context: Suma::Payment::CalculationContext.new,
-      exclude_up: [Suma::Vendor::ServiceCategory.cash],
-    )
-    return contribs.sum(Money.new(0), &:amount)
+  class CostInfo
+    def initialize(cart, context)
+      @cart = cart
+      @context = context
+    end
+
+    def product_noncash_ledger_contribution_amount(offering_product)
+      contribs = Suma::Payment::ChargeContribution.find_ideal_cash_contribution(
+        @context,
+        @cart.member.payment_account!,
+        offering_product.product,
+        offering_product.customer_price,
+      )
+      return contribs.rest.sum(Money.new(0), &:amount)
+    end
+
+    def noncash_ledger_contribution_amount
+      return Money.new(0) if @cart.items.empty?
+      contribs = Suma::Commerce::PricedItem.ideal_ledger_charge_contributions(
+        @context,
+        @cart.member.payment_account!,
+        @cart.items,
+      )
+      return contribs.rest.sum(Money.new(0), &:amount)
+    end
+
+    def cash_cost
+      return @cart.customer_cost - self.noncash_ledger_contribution_amount
+    end
   end
 
-  def noncash_ledger_contribution_amount(now: Time.now)
-    contribs = Suma::Commerce::Checkout.ledger_charge_contributions(
-      payment_account: self.member.payment_account!,
-      priced_items: self.items,
-      now:,
-      remainder_ledger: :ignore,
-      exclude_up: [Suma::Vendor::ServiceCategory.cash],
-    )
-    return contribs.sum(Money.new(0), &:amount)
-  end
-
-  def cash_cost(now: Time.now)
-    return self.customer_cost - self.noncash_ledger_contribution_amount(now:)
-  end
+  def cost_info(context) = CostInfo.new(self, context)
 
   def cart_hash
     md5 = Digest::MD5.new

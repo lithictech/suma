@@ -207,6 +207,14 @@ module Suma::AdminAPI::Entities
     expose :originated_payout_transactions, with: PayoutTransactionEntity
   end
 
+  class PaymentTriggerEntity < BaseEntity
+    include Suma::AdminAPI::Entities
+    include AutoExposeBase
+    expose :label
+    expose :active_during_begin
+    expose :active_during_end
+  end
+
   class OfferingEntity < BaseEntity
     include AutoExposeBase
     expose :description, with: TranslatedTextEntity

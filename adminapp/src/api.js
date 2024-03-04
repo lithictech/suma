@@ -105,6 +105,13 @@ export default {
   getPayoutTransaction: ({ id, ...data }) =>
     get(`/adminapi/v1/payout_transactions/${id}`, data),
 
+  getPaymentTriggers: (data) => get(`/adminapi/v1/payment_triggers`, data),
+  createPaymentTrigger: (data) => post(`/adminapi/v1/payment_triggers/create`, data),
+  getPaymentTrigger: ({ id, ...data }) =>
+    get(`/adminapi/v1/payment_triggers/${id}`, data),
+  updatePaymentTrigger: ({ id, ...data }) =>
+    post(`/adminapi/v1/payment_triggers/${id}`, data),
+
   getCommerceOfferings: (data) => get("/adminapi/v1/commerce_offerings", data),
   getCommerceOffering: ({ id, ...data }) =>
     get(`/adminapi/v1/commerce_offerings/${id}`, data),

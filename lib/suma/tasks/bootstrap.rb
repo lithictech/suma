@@ -3,7 +3,6 @@
 require "rake/tasklib"
 
 require "suma/tasks"
-require "suma/lime"
 
 # rubocop:disable Layout/LineLength
 class Suma::Tasks::Bootstrap < Rake::TaskLib
@@ -11,8 +10,10 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
     super()
     desc "Bootstrap a new database so you can use the app."
     task :bootstrap do
+      raise "only run this in development" unless Suma::RACK_ENV == "development"
       ENV["SUMA_DB_SLOW_QUERY_SECONDS"] = "1"
       Suma.load_app
+      raise "only run with a fresh database" unless Suma::Member.dataset.empty?
       SequelTranslatedText.language = :en
       self.run_task
     end
@@ -20,194 +21,380 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
 
   def run_task
     Suma::Member.db.transaction do
-      self.create_meta_resources
-      self.setup_constraints
-      self.create_lime_scooter_vendor
-      self.sync_lime_gbfs
-      self.setup_admin
-      self.setup_private_accounts
-      self.assign_fakeuser_constraints
+      Meta.new.fixture
+      Mobility.new.fixture
+      AnonProxy.new.fixture
+      Commerce.new.fixture
     end
   end
 
-  def cash_category
-    return Suma::Vendor::ServiceCategory.find_or_create(name: "Cash")
-  end
+  class Common
+    def cash_category = Suma::Vendor::ServiceCategory.find_or_create(name: "Cash")
+    def mobility_category = Suma::Vendor::ServiceCategory.find_or_create(name: "Mobility", parent: cash_category)
+    def food_category = Suma::Vendor::ServiceCategory.find_or_create(name: "Food", parent: cash_category)
+    def holidays_category = Suma::Vendor::ServiceCategory.find_or_create(name: "Holiday Demo", parent: food_category)
+    def farmers_market_intro_category = Suma::Vendor::ServiceCategory.find_or_create(name: "Farmers Market Demo", parent: cash_category)
+    def farmers_market_match_category = Suma::Vendor::ServiceCategory.find_or_create(name: "Farmers Market Match Demo", parent: cash_category)
 
-  def mobility_category
-    Suma::Vendor::ServiceCategory.find_or_create(name: "Mobility", parent: cash_category)
-  end
-
-  def create_meta_resources
-    usa = Suma::SupportedGeography.find_or_create(label: "USA", value: "United States of America", type: "country")
-    Suma::SupportedGeography.find_or_create(
-      label: "Oregon", value: "Oregon", type: "province", parent: usa,
-    )
-    Suma::SupportedGeography.find_or_create(
-      label: "North Carolina", value: "North Carolina", type: "province", parent: usa,
-    )
-
-    Suma::SupportedCurrency.find_or_create(code: "USD") do |c|
-      c.symbol = "$"
-      c.funding_minimum_cents = 500
-      c.funding_maximum_cents = 100_00
-      c.funding_step_cents = 100
-      c.cents_in_dollar = 100
-      c.payment_method_types = ["bank_account", "card"]
-      c.ordinal = 1
+    def create_uploaded_file(filename, content_type, file_path: "spec/data/images/")
+      bytes = File.binread(file_path + filename)
+      return Suma::UploadedFile.create_with_blob(bytes:, content_type:, filename:)
     end
   end
 
-  # Add to these for when Lime fails to sync
-  FAKE_LIME_BIKE_COORDS = [
-    [45.514490, -122.601940],
-  ].freeze
+  class Meta < Common
+    ADMIN_EMAIL = "admin@lithic.tech"
+    ADMIN_PHONE = "15552223333"
+    ADMIN_PASS = "Password1!"
 
-  def sync_lime_gbfs
-    require "suma/lime"
-    return unless Suma::Lime.configured?
-    [Suma::Mobility::Gbfs::FreeBikeStatus, Suma::Mobility::Gbfs::GeofencingZone].each do |cc|
-      c = cc.new
-      i = Suma::Mobility::Gbfs::VendorSync.new(
-        client: Suma::Lime.gbfs_http_client,
-        vendor: Suma::Lime.mobility_vendor,
-        component: c,
-      ).sync_all
-      if i.zero? && cc == Suma::Mobility::Gbfs::FreeBikeStatus
-        require "suma/fixtures/mobility_vehicles"
-        Suma::Lime.mobility_vendor.services_dataset.mobility.each_with_index do |vendor_service, vsidx|
-          FAKE_LIME_BIKE_COORDS.each do |(lat, lng)|
-            Suma::Fixtures.mobility_vehicle(
-              lat: lat + (0.0002 * vsidx),
-              lng:,
-              vehicle_type: "escooter",
-              vendor_service:,
-            ).create
-          end
-        end
-        puts "Create fake Lime scooters since GBFS returned no vehicles"
-        i = FAKE_LIME_BIKE_COORDS.length
+    def fixture
+      Suma::Payment.ensure_cash_ledger(Suma::Payment::Account.lookup_platform_account)
+
+      admin = Suma::Member.create(email: ADMIN_EMAIL) do |c|
+        c.name = "Suma Admin"
+        c.password = ADMIN_PASS
+        c.phone = ADMIN_PHONE
+        c.onboarding_verified_at = Time.now
       end
-      puts "Synced #{i} #{c.model.name}"
-    end
-  end
+      admin.ensure_role(Suma::Role.admin_role)
+      Suma::Payment.ensure_cash_ledger(admin)
 
-  def create_lime_scooter_vendor
-    vendor = Suma::Lime.mobility_vendor
-    rate = Suma::Vendor::ServiceRate.update_or_create(name: "Lime Access Summer 2023") do |r|
-      r.localization_key = "mobility_start_and_per_minute"
-      r.surcharge = Money.new(50)
-      r.unit_amount = Money.new(7)
-    end
-    Suma::Vendor::Service.
-      where(mobility_vendor_adapter_key: "lime").
-      update(mobility_vendor_adapter_key: "lime_deeplink")
-    svc = Suma::Vendor::Service.update_or_create(vendor:, internal_name: "Lime Scooter Deeplink") do |vs|
-      vs.external_name = "Lime E-Scooter"
-      vs.constraints = [{"form_factor" => "scooter", "propulsion_type" => "electric"}]
-      vs.mobility_vendor_adapter_key = "lime_deeplink"
-    end
-    svc.add_category(Suma::Vendor::ServiceCategory.update_or_create(name: "Mobility", parent: cash_category)) if
-      svc.categories.empty?
-    svc.add_rate(rate) if svc.rates.empty?
-    self.assign_constraints(svc, [self.new_columbia_constraint_name, self.hacienda_cdc_constraint_name, self.snap_eligible_constraint_name])
-  end
-
-  ADMIN_EMAIL = "admin@lithic.tech"
-
-  def setup_admin
-    return unless Suma::RACK_ENV == "development"
-    admin = Suma::Member.update_or_create(email: ADMIN_EMAIL) do |c|
-      c.password = "Password1!"
-      c.name = "Suma Admin"
-      c.phone = "15552223333"
-    end
-    admin.ensure_role(Suma::Role.admin_role)
-  end
-
-  def assign_fakeuser_constraints
-    Suma::Eligibility::Constraint.assign_to_admins
-  end
-
-  def setup_constraints
-    names = [self.new_columbia_constraint_name, self.hacienda_cdc_constraint_name, self.snap_eligible_constraint_name]
-    names.each do |name|
-      Suma::Eligibility::Constraint.find_or_create(name:)
-    end
-  end
-
-  def assign_constraints(obj, constraint_names)
-    existing_names = Set.new(obj.eligibility_constraints.map(&:name))
-    constraint_names.each do |name|
-      next if existing_names.include?(name)
-      constraint = Suma::Eligibility::Constraint.find(name:)
-      obj.add_eligibility_constraint(constraint)
-    end
-  end
-
-  def setup_private_accounts
-    lime_vendor = Suma::Lime.mobility_vendor
-    if lime_vendor.images.empty?
-      uf = self.download_to_uploaded_file(
-        "lime-logo.png",
-        "image/png",
-        "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e1/Lime_%28transportation_company%29_logo.svg/520px-Lime_%28transportation_company%29_logo.svg.png",
+      usa = Suma::SupportedGeography.find_or_create(label: "USA", value: "United States of America", type: "country")
+      Suma::SupportedGeography.find_or_create(
+        label: "Oregon", value: "Oregon", type: "province", parent: usa,
       )
-      lime_vendor.add_image({uploaded_file: uf})
+      Suma::SupportedGeography.find_or_create(
+        label: "North Carolina", value: "North Carolina", type: "province", parent: usa,
+      )
+
+      Suma::SupportedCurrency.find_or_create(code: "USD") do |c|
+        c.symbol = "$"
+        c.funding_minimum_cents = 500
+        c.funding_maximum_cents = 100_00
+        c.funding_step_cents = 100
+        c.cents_in_dollar = 100
+        c.payment_method_types = ["bank_account", "card"]
+        c.ordinal = 1
+      end
     end
-    anon_vendor_cfg = Suma::AnonProxy::VendorConfiguration.update_or_create(vendor: lime_vendor) do |vc|
-      vc.uses_email = true
-      vc.uses_sms = false
-      vc.enabled = true
-      vc.message_handler_key = "lime"
-      vc.app_install_link = "https://limebike.app.link/m2h6hB9qrS"
-      vc.auth_url = "https://web-production.lime.bike/api/rider/v2/onboarding/magic-link"
-      vc.auth_body_template = "email=%{email}&user_agreement_version=5&user_agreement_country_code=US"
-      vc.auth_headers = {
-        "Content-Type" => "application/x-www-form-urlencoded",
-        "Platform" => "Android",
-        "App-Version" => "3.126.0",
-        "User-Agent" => "Android Lime/3.126.0; (com.limebike; build:3.126.0; Android 33) 4.10.0",
-        "X-Suma" => "holá",
-      }
-      vc.instructions = Suma::TranslatedText.find_or_create(
-        en: <<~MD,
-          1. Download the Lime App in the Play or App Store, or follow <a href="https://limebike.app.link/m2h6hB9qrS" target="_blank">this link</a>.
-          2. If you already have the Lime app and are signed in, please sign out out Lime first.
-          3. Press the 'Launch app' button.
-          4. The suma app will take 10-60 seconds to create or sign into your Lime account.
-          5. The Lime app will launch automatically.
-          6. You can see available scooters in suma or in Lime, but you'll use the Lime app to take your rides.
-        MD
-        es: <<~MD,
-          1. Descargue la aplicación Lime en Play o App Store, o siga <a href="https://limebike.app.link/m2h6hB9qrS" target="_blank">este enlace</a>.
-          2. Si ya tiene la aplicación Lime y ha iniciado sesión, primero cierre sesión en Lime.
-          3. Presione el botón 'Iniciar aplicación'.
-          4. La aplicación suma tardará entre 10 y 60 segundos en crear o iniciar sesión en su cuenta de Lime.
-          5. La aplicación Lime se iniciará automáticamente.
-          6. Puedes ver los scooters disponibles en suma o en Lime, pero usarás la aplicación Lime para realizar tus viajes.
-        MD
+  end
+
+  class Mobility < Common
+    def fixture
+      vs = self.create_vendor_service
+      self.sync_bikes(vs)
+    end
+
+    protected def create_vendor_service
+      vendor = Suma::Vendor.create(name: "Demo Mobility")
+      rate = Suma::Vendor::ServiceRate.create(
+        name: "Demo Scooter Rate",
+        localization_key: "mobility_start_and_per_minute",
+        surcharge: Money.new(50),
+        unit_amount: Money.new(7),
+      )
+      svc = Suma::Vendor::Service.create(
+        vendor:,
+        internal_name: "Demo Mobility Deeplink",
+        external_name: "Demo E-Scooter",
+        constraints: [{"form_factor" => "scooter", "propulsion_type" => "electric"}],
+        mobility_vendor_adapter_key: "demo_deeplink",
+      )
+      svc.add_category(Suma::Vendor::ServiceCategory.create(name: "Mobility", parent: cash_category))
+      svc.add_rate(rate)
+      return svc
+    end
+
+    protected def sync_bikes(vendor_service)
+      my_ip = Suma::Http.get("http://whatismyip.akamai.com", logger: nil).body
+      my_geo = Suma::Http.get("http://ip-api.com/json/#{my_ip}", logger: nil)
+      require "suma/fixtures/mobility_vehicles"
+      Suma::Fixtures.mobility_vehicle(
+        lat: my_geo.parsed_response.fetch("lat"),
+        lng: my_geo.parsed_response.fetch("lon"),
+        vehicle_type: "escooter",
+        vendor_service:,
+      ).create
+    end
+  end
+
+  class AnonProxy < Common
+    def fixture
+      self.setup_private_accounts
+    end
+
+    protected def setup_private_accounts
+      vendor = Suma::Vendor[name: "Demo Mobility"]
+      Suma::AnonProxy::VendorConfiguration.create(vendor:) do |vc|
+        vc.enabled = true
+        vc.uses_email = true
+        vc.uses_sms = false
+        vc.message_handler_key = "fake"
+        vc.app_install_link = "https://mysuma.org"
+        vc.auth_url = "https://mysuma.org"
+        vc.auth_body_template = ""
+        vc.auth_headers = {}
+        vc.instructions = Suma::TranslatedText.find_or_create(
+          en: <<~MD,
+            1. Step 1 en
+            1. Step 2 en
+            1. Step 3 en
+            1. Step 4 en
+          MD
+          es: <<~MD,
+            1. Step 1 es
+            1. Step 2 es
+            1. Step 3 es
+            1. Step 4 es
+          MD
+        )
+      end
+    end
+  end
+
+  class Commerce < Common
+    def fixture
+      self.setup_holiday_offering
+      self.setup_holiday_triggers
+      self.setup_farmers_market_offering
+      self.setup_farmers_market_triggers
+    end
+
+    protected def setup_holiday_offering
+      offering = Suma::Commerce::Offering.create do |o|
+        o.confirmation_template = "2022-12-pilot-confirmation"
+        o.period = Time.now..1.year.from_now
+        o.description = Suma::TranslatedText.find_or_create(en: "Holidays Demo", es: "Días festivos")
+        o.fulfillment_prompt = Suma::TranslatedText.find_or_create(
+          en: "How do you want to get your stuff?",
+          es: "¿Cómo desea obtener sus cosas?",
+        )
+        o.fulfillment_confirmation = Suma::TranslatedText.find_or_create(
+          en: "How you’re getting it",
+          es: "Cómo lo está recibiendo",
+        )
+      end
+      uf = self.create_uploaded_file("holiday-offering.jpeg", "image/jpeg")
+      offering.add_image({uploaded_file: uf}) if offering.images.empty?
+      offering.add_fulfillment_option(
+        type: "pickup",
+        ordinal: 0,
+        description: Suma::TranslatedText.find_or_create(
+          en: "Pickup at Market (Dec 21-22)",
+          es: "Recogida en Market (21-22 de dic)",
+        ),
+        address: Suma::Address.lookup(
+          address1: "409 SE Martin Luther King Jr Blvd",
+          city: "Portland",
+          state_or_province: "Oregon",
+          postal_code: "97214",
+        ),
+      )
+      offering.add_fulfillment_option(
+        type: "pickup",
+        ordinal: 1,
+        description: Suma::TranslatedText.find_or_create(
+          en: "Pickup at Community Location (Dec 21-22)",
+          es: "Recogida en una ubicación de la comunidad (21-22 de dic)",
+        ),
+      )
+
+      products = [
+        {
+          name_en: "Roasted Turkey Dinner, feeds 4-6",
+          name_es: "Cena De Pavo Asado, Alimenta 4-6 personas",
+          desc_en: "Roasted Turkey, Stuffing, Buttermilk Mashed Potatoes, Gravy, Dinner Rolls, Roasted Green Beans, Pumpkin Pie",
+          desc_es: "Pavo Asado, Relleno, Puré de Papas y Su Salsa, Panecillos, Ejotes Asados, y Pastel de Calabaza",
+          image: "turkey-dinner.jpeg",
+        },
+        {
+          name_en: "Glazed Ham Dinner, feeds 4-6",
+          name_es: "Cena De Jamón Glaseado, Alimenta 4-6 personas",
+          desc_en: "Glazed Ham, Stuffing, Buttermilk Mashed Potatoes, Gravy, Dinner Rolls, Roasted Green Beans, Pumpkin Pie",
+          desc_es: "Hamon Glaseado, Relleno, Puré de Papas y Su Salsa, Panecillos, Ejotes Asados, y Pastel de Calabaza",
+          image: "ham-dinner.jpeg",
+        },
+        {
+          name_en: "Vegan Field Roast Dinner, feeds 4-6",
+          name_es: "Cena De Asado Vegano, Alimenta 4-6 personas",
+          desc_en: "Vegan Field Roast, Gluten-Free Stuffing, Gluten-Free Coconut Milk Mashed Potatoes, Gravy, Gluten-Free Dinner Rolls, Roasted Green Beans, Gluten-Free Pumpkin Pie",
+          desc_es: "Asado Vegano, Relleno sin Gluten, Puré de Papas de Leche de Coco (y sin gluten) y Su Salsa Vegano, Panecillos sin Gluten, Ejotes Asados, y Pastel de Calabaza Vegano",
+          image: "vegan-field-roast-dinner.jpeg",
+        },
+      ]
+
+      vendor = Suma::Vendor.find_or_create(name: "Local Market")
+      products.each do |ps|
+        self.create_product(
+          name_en: ps[:name_en],
+          name_es: ps[:name_es],
+          description_en: ps[:desc_en],
+          description_es: ps[:desc_es],
+          vendor:,
+          vendor_service_categories: [self.holidays_category],
+          our_cost: Money.new(90_00),
+          image: self.create_uploaded_file(ps[:image], "image/jpeg"),
+          max_quantity_per_member_per_offering: 1,
+          offering:,
+          customer_price: Money.new(90_00),
+          undiscounted_price: Money.new(180_00),
+        )
+      end
+    end
+
+    protected def setup_holiday_triggers
+      Suma::Payment::Trigger.create(
+        label: "Holiday food promo",
+        active_during: Time.now..1.year.from_now,
+        match_multiplier: 8,
+        maximum_cumulative_subsidy_cents: 80_00,
+        memo: Suma::TranslatedText.find_or_create(en: "Subsidy from local funders", es: "Apoyo de financiadores locales"),
+        originating_ledger: Suma::Payment::Account.lookup_platform_vendor_service_category_ledger(self.holidays_category),
+        receiving_ledger_name: "Holidays Food Demo",
+        receiving_ledger_contribution_text: Suma::TranslatedText.find_or_create(en: "Holiday Food Subsidy", es: "Holiday Food Subsidy (es)"),
       )
     end
-    self.assign_constraints(anon_vendor_cfg, [self.new_columbia_constraint_name, self.hacienda_cdc_constraint_name, self.snap_eligible_constraint_name])
-  end
 
-  def new_columbia_constraint_name = "New Columbia, Portland, OR"
-  def hacienda_cdc_constraint_name = "Hacienda CDC, Portland, OR"
-  def snap_eligible_constraint_name = "SNAP Eligible"
+    def setup_farmers_market_offering
+      market_name = "Demo Farmers Market"
+      market_address = Suma::Address.lookup(
+        address1: "NE Wygant St &, NE 7th Ave",
+        city: "Portland",
+        state_or_province: "Oregon",
+        postal_code: "97211",
+      )
+      offering_period = Sequel.pg_range(Time.now..1.year.from_now)
+      hero = self.create_uploaded_file("king-farmers-market-hero.png", "image/png")
+      first_time_buyers_logo = self.create_uploaded_file("farmers-market-first-time-buyers-logo.png", "image/png")
+      returning_buyers_logo = self.create_uploaded_file("farmers-market-returning-buyers-logo.png", "image/png")
 
-  def create_uploaded_file(filename, content_type, file_path: "spec/data/images/")
-    bytes = File.binread(file_path + filename)
-    return Suma::UploadedFile.create_with_blob(bytes:, content_type:, filename:)
-  end
+      offering = Suma::Commerce::Offering.create do |o|
+        o.period = offering_period
+        o.confirmation_template = "2023-07-pilot-confirmation"
+        o.set(
+          description: Suma::TranslatedText.find_or_create(
+            en: "#{market_name} Ride & Shop",
+            es: "Paseo y Compra en #{market_name}",
+          ),
+          fulfillment_prompt: Suma::TranslatedText.find_or_create(
+            en: "Do you need transportation?",
+            es: "¿Necesitas transporte?",
+          ),
+          fulfillment_confirmation: Suma::TranslatedText.find_or_create(
+            en: "Transportation needed",
+            es: "Necesito transporte",
+          ),
+          begin_fulfillment_at: offering_period.begin,
+        )
+      end
 
-  def download_to_uploaded_file(filename, content_type, url)
-    if Suma::RACK_ENV == "test"
-      # Don't bother using webmock for this
-      return create_uploaded_file("photo.png", "png")
+      offering.add_image({uploaded_file: hero})
+      fulfillment_params = [
+        {
+          type: "pickup",
+          ordinal: 0,
+          description: Suma::TranslatedText.find_or_create(
+            en: "Yes, please contact me",
+            es: "Sí, por favor contácteme",
+          ),
+          address: market_address,
+        },
+        {
+          type: "pickup",
+          ordinal: 1,
+          description: Suma::TranslatedText.find_or_create(
+            en: "No, I have my own transportation",
+            es: "No, tengo mi propio transporte",
+          ),
+          address: market_address,
+        },
+      ]
+      fulfillment_params.each { |o| offering.add_fulfillment_option(o) }
+
+      vendor = Suma::Vendor.update_or_create(name: market_name)
+      create_product(
+        name_en: "$24 in #{market_name} Vouchers",
+        name_es: "$24 en Cupones de #{market_name}",
+        vendor:,
+        description_en: "The suma voucher is a food special where suma works with you to buy down the price of vouchers for fresh and packaged food at #{market_name}. First-time buyers load $5 and get $24 in vouchers (a $19 match from suma). You cannot use these vouchers for alcohol or hot prepared foods.",
+        description_es: "El cupón de suma es un especial de alimentos en el que suma trabaja con usted para reducir el precio de los cupones para alimentos frescos y envasados en #{market_name}. Los primeros compradores cargan $5 y obtienen $24 en vales (un credito de $19 de suma). No puede utilizar estos cupones para bebidas alcohólicas o comidas preparadas calientes.",
+        our_cost: Money.new(2400),
+        vendor_service_categories: [farmers_market_intro_category],
+        image: first_time_buyers_logo,
+        max_quantity_per_member_per_offering: 1,
+        customer_price: Money.new(2400),
+        undiscounted_price: Money.new(2400),
+        offering:,
+      )
+      create_product(
+        vendor:,
+        name_en: "#{market_name} 1 to 1 Voucher Match",
+        name_es: "#{market_name} 1 a 1 de Cupones Igualados",
+        description_en: "The suma voucher is a food special where suma works with you to buy down the price of vouchers for fresh and packaged food at #{market_name}. suma will match you 1:1 up to a $30 total (you load $15, suma matches with $15). You cannot use these vouchers for alcohol or hot prepared foods.",
+        description_es: "El cupón de suma es un especial de alimentos en el que suma trabaja con usted para reducir el precio de los cupones para alimentos frescos y envasados en #{market_name}. suma te igualara 1:1 hasta un total de $30 (tu agregas $15, suma agrega $15 de créditos). No puede utilizar estos cupones para bebidas alcohólicas o comidas preparadas calientes.",
+        our_cost: Money.new(200),
+        vendor_service_categories: [farmers_market_match_category],
+        image: returning_buyers_logo,
+        max_quantity_per_member_per_offering: 500,
+        customer_price: Money.new(200),
+        undiscounted_price: Money.new(200),
+        offering:,
+      )
     end
-    bytes = Net::HTTP.get(URI.parse(url))
-    return Suma::UploadedFile.create_with_blob(bytes:, content_type:, filename:)
+
+    def create_product(
+      name_en:,
+      name_es:,
+      description_en:,
+      description_es:,
+      vendor:,
+      our_cost:,
+      vendor_service_categories:,
+      image:,
+      max_quantity_per_member_per_offering:,
+      offering:,
+      customer_price:,
+      undiscounted_price:
+    )
+      product_name = Suma::TranslatedText.create(en: name_en, es: name_es)
+      product = Suma::Commerce::Product.create(name: product_name) do |p|
+        p.description = Suma::TranslatedText.create(en: description_en, es: description_es)
+        p.vendor = vendor
+        p.our_cost = our_cost
+      end
+      vendor_service_categories.each { |vsc| product.add_vendor_service_category(vsc) }
+      product.add_image({uploaded_file: image})
+      Suma::Commerce::ProductInventory.create(product:) do |p|
+        p.max_quantity_per_member_per_offering = max_quantity_per_member_per_offering
+      end
+      Suma::Commerce::OfferingProduct.create(offering:, product:) do |op|
+        op.customer_price = customer_price
+        op.undiscounted_price = undiscounted_price
+      end
+    end
+
+    protected def setup_farmers_market_triggers
+      Suma::Payment::Trigger.create(
+        label: "Farmers market 5 for 19 signup",
+        active_during: Time.now..1.year.from_now,
+        match_multiplier: 3.8,
+        maximum_cumulative_subsidy_cents: 1900,
+        memo: Suma::TranslatedText.find_or_create(en: "Subsidy from local funders", es: "Apoyo de financiadores locales"),
+        originating_ledger: Suma::Payment::Account.lookup_platform_vendor_service_category_ledger(self.farmers_market_intro_category),
+        receiving_ledger_name: "Farmers Market Intro Demo",
+        receiving_ledger_contribution_text: Suma::TranslatedText.find_or_create(en: "FM Intro Offer", es: "FM Intro Offer (es)"),
+      )
+      Suma::Payment::Trigger.create(
+        label: "Farmers market 1 to 1",
+        active_during: Time.now..1.year.from_now,
+        match_multiplier: 1,
+        maximum_cumulative_subsidy_cents: 1500,
+        memo: Suma::TranslatedText.find_or_create(en: "Subsidy from local funders", es: "Apoyo de financiadores locales"),
+        originating_ledger: Suma::Payment::Account.lookup_platform_vendor_service_category_ledger(self.farmers_market_match_category),
+        receiving_ledger_name: "Farmers Market Match Demo",
+        receiving_ledger_contribution_text: Suma::TranslatedText.find_or_create(en: "FM Match", es: "FM Match (es)"),
+      )
+    end
   end
 end
 # rubocop:enable Layout/LineLength

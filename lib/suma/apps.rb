@@ -41,6 +41,7 @@ require "suma/admin_api/funding_transactions"
 require "suma/admin_api/members"
 require "suma/admin_api/message_deliveries"
 require "suma/admin_api/meta"
+require "suma/admin_api/payment_triggers"
 require "suma/admin_api/payout_transactions"
 require "suma/admin_api/roles"
 require "suma/admin_api/search"
@@ -79,6 +80,7 @@ module Suma::Apps
     mount Suma::AdminAPI::Members
     mount Suma::AdminAPI::MessageDeliveries
     mount Suma::AdminAPI::Meta
+    mount Suma::AdminAPI::PaymentTriggers
     mount Suma::AdminAPI::PayoutTransactions
     mount Suma::AdminAPI::Roles
     mount Suma::AdminAPI::Search

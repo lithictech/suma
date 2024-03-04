@@ -22,6 +22,39 @@ RSpec.describe Suma::AdminAPI::Search, :db do
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.that_includes(items: have_same_ids_as(o1))
     end
+
+    describe "with the words 'platform' or 'suma' in the search string" do
+      it "replaces the words 'platform' and 'suma' with the platform account" do
+        o1 = Suma::Fixtures.ledger.create(name: "abc")
+        o2 = Suma::Fixtures.ledger.create(name: "xyz")
+        pa = Suma::Payment::Account.lookup_platform_account
+        p1 = Suma::Fixtures.ledger.create(name: "abc", account: pa)
+        p2 = Suma::Fixtures.ledger.create(name: "xyz", account: pa)
+
+        post "/v1/search/ledgers", q: "platform abc"
+
+        expect(last_response).to have_status(200)
+        expect(last_response).to have_json_body.that_includes(items: have_same_ids_as(p1))
+
+        post "/v1/search/ledgers", q: "suma"
+
+        expect(last_response).to have_status(200)
+        expect(last_response).to have_json_body.that_includes(items: have_same_ids_as(p1, p2))
+      end
+
+      it "includes non-platform ledgers with the search string" do
+        o1 = Suma::Fixtures.ledger.create(name: "suma abc")
+        o2 = Suma::Fixtures.ledger.create(name: "suma xyz")
+        pa = Suma::Payment::Account.lookup_platform_account
+        p1 = Suma::Fixtures.ledger.create(name: "abc", account: pa)
+        p2 = Suma::Fixtures.ledger.create(name: "xyz", account: pa)
+
+        post "/v1/search/ledgers", q: "suma abc"
+
+        expect(last_response).to have_status(200)
+        expect(last_response).to have_json_body.that_includes(items: have_same_ids_as(o1, p1))
+      end
+    end
   end
 
   describe "POST /v1/search/ledgers/lookup" do

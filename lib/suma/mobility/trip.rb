@@ -62,7 +62,6 @@ class Suma::Mobility::Trip < Suma::Postgres::Model(:mobility_trips)
     # instead of trying to figure out a solution to an impossible problem.
     raise Suma::InvalidPostcondition, "negative trip cost for #{self.inspect}" if result.cost_cents.negative?
     self.db.transaction do
-      now = Time.now
       self.update(end_lat: lat, end_lng: lng, ended_at: result.end_time)
       # The calculated rate can be different than the service actually
       # charges us, so if we aren't using a discount, always use
@@ -78,17 +77,20 @@ class Suma::Mobility::Trip < Suma::Postgres::Model(:mobility_trips)
         member: self.member,
       )
       result_cost = Money.new(result.cost_cents, result.cost_currency)
-      contributions = self.member.payment_account!.find_chargeable_ledgers(
+      contrib_coll = self.member.payment_account!.calculate_charge_contributions(
+        Suma::Payment::CalculationContext.new(Time.now),
         self.vendor_service,
         result_cost,
-        now:,
-        calculation_context: Suma::Payment::CalculationContext.new,
-        # At this point, ride has been taken and finished so we need to accept it
-        # and deal with a potential negative balance.
-        remainder_ledger: :last,
       )
+      debitable_contribs = contrib_coll.all.select(&:amount?)
+      if debitable_contribs.empty?
+        # We always need a debit. If there are no debitable contributions, make a fake one for $0
+        # using the first non-cash category.
+        # I am not 100% certain this is what we want to do, don't be surprised if we need to revisit this.
+        debitable_contribs = [contrib_coll.all(cash: :last).first.dup(amount: Money.new(0))]
+      end
       xactions = self.member.payment_account.debit_contributions(
-        contributions,
+        debitable_contribs,
         memo: Suma::TranslatedText.create(
           en: "Suma Mobility - #{self.vendor_service.external_name}",
           es: "Suma Movilidad - #{self.vendor_service.external_name}",

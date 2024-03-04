@@ -1,9 +1,9 @@
 import api from "../api";
+import AddFundsLinkButton from "../components/AddFundsLinkButton";
 import AddToHomescreen from "../components/AddToHomescreen";
 import LayoutContainer from "../components/LayoutContainer";
 import NavButton from "../components/NavButton";
 import PageLoader from "../components/PageLoader";
-import RLink from "../components/RLink";
 import SeeAlsoAlert from "../components/SeeAlsoAlert";
 import { t } from "../localization";
 import readOnlyReason from "../modules/readOnlyReason";
@@ -16,7 +16,6 @@ import first from "lodash/first";
 import isEmpty from "lodash/isEmpty";
 import React from "react";
 import Alert from "react-bootstrap/Alert";
-import Button from "react-bootstrap/Button";
 import Stack from "react-bootstrap/Stack";
 import Table from "react-bootstrap/Table";
 import { Link } from "react-router-dom";
@@ -98,9 +97,7 @@ const Ledger = ({ dashboard }) => {
               <Money colored>{dashboard.paymentAccountBalance}</Money>
             </h3>
             <p className="m-0 mb-2">{t("dashboard:payment_account_balance")}</p>
-            <Button variant="outline-success" href="/funding" as={RLink} size="sm">
-              {t("payments:add_funds")}
-            </Button>
+            <AddFundsLinkButton />
           </div>
           <div className="text-end">
             <h3>
@@ -111,51 +108,48 @@ const Ledger = ({ dashboard }) => {
         </div>
       </LayoutContainer>
       <hr />
-      {!isEmpty(dashboard.ledgerLines) ? (
-        <Table responsive striped hover className="table-borderless table-flush">
-          <thead>
-            <tr>
-              <th>
-                <Stack direction="horizontal" gap={3}>
-                  {t("dashboard:recent_ledger_lines")}
-                  <div className="ms-auto">
-                    <NavButton right href="/ledgers" size="sm" className="nowrap">
-                      {t("common:view_all")}
-                    </NavButton>
+      <Table responsive striped hover className="table-borderless table-flush">
+        <thead>
+          <tr>
+            <th>
+              <Stack direction="horizontal" gap={3}>
+                {t("dashboard:recent_ledger_lines")}
+                <div className="ms-auto">
+                  <NavButton right href="/ledgers" size="sm" className="nowrap">
+                    {t("common:view_all")}
+                  </NavButton>
+                </div>
+              </Stack>
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          {dashboard.ledgerLines.map((ledger, i) => (
+            <tr key={i}>
+              <td>
+                <div className="d-flex justify-content-between align-items-center gap-3 mb-1">
+                  <div>
+                    <strong>{dayjs(ledger.at).format("lll")}</strong>
+                    <div>{ledger.memo}</div>
                   </div>
-                </Stack>
-              </th>
+                  <Money
+                    className={clsx(
+                      ledger.amount.cents < 0 ? "text-danger" : "text-success"
+                    )}
+                  >
+                    {ledger.amount}
+                  </Money>
+                </div>
+              </td>
             </tr>
-          </thead>
-          <tbody>
-            {dashboard.ledgerLines.map((ledger, i) => (
-              <tr key={i}>
-                <td>
-                  <div className="d-flex justify-content-between align-items-center gap-3 mb-1">
-                    <div>
-                      <strong>{dayjs(ledger.at).format("lll")}</strong>
-                      <div>{ledger.memo}</div>
-                    </div>
-                    <Money
-                      className={clsx(
-                        ledger.amount.cents < 0 ? "text-danger" : "text-success"
-                      )}
-                    >
-                      {ledger.amount}
-                    </Money>
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </Table>
-      ) : (
-        <LayoutContainer gutters className="text-center">
-          <p>{t("dashboard:no_money")}</p>
-          <Button variant="outline-success" href="/funding" as={RLink}>
-            {t("payments:add_funds")}
-          </Button>
-        </LayoutContainer>
+          ))}
+        </tbody>
+      </Table>
+      {isEmpty(dashboard.ledgerLines) && (
+        <>
+          <p className="text-center">{t("dashboard:no_money")}</p>
+          <AddFundsLinkButton />
+        </>
       )}
     </>
   );

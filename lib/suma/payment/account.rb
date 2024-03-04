@@ -82,97 +82,64 @@ class Suma::Payment::Account < Suma::Postgres::Model(:payment_accounts)
     raise "PaymentAccount[#{self.id}] has no cash ledger"
   end
 
+  def ensure_cash_ledger
+    self.db.transaction do
+      self.lock!
+      ledger = self.cash_ledger
+      return ledger if ledger
+      ledger = self.add_ledger({currency: Suma.default_currency, name: "Cash"})
+      ledger.contribution_text.update(en: "General Balance", es: "Balance general")
+      ledger.add_vendor_service_category(Suma::Vendor::ServiceCategory.cash)
+      self.associations.delete(:cash_ledger)
+      return ledger
+    end
+  end
+
   def mobility_ledger!
     return self.mobility_ledger if self.mobility_ledger
     raise "PaymentAccount[#{self.id}] has no mobility ledger"
   end
 
   # Find ledgers that have overlapping categories, and their contributions towards the charge amount.
+  # See +Suma::Payment::ChargeContribution::Collection+ for details about returned fields.
   #
-  # If +remainder_ledger+ is nil, and the balance across all relevant cannot cover the amount,
-  # raise +Suma::Payment::InsufficientFunds+.
-  #
-  # If +remainder_ledger+ is passed, and the balance across all relevant ledgers cannot cover the amount,
-  # +remainder_ledger+ must be one of the following:
-  #
-  # - +Suma::Payment::Ledger+ instance: the remainder will be a contribution from this ledger,
-  #   sending it into the negative. NOTE: the ledger used here must be valid for the service categories;
-  #   usually this means it is the cash or root ledger.
-  # - +:first+: Use the first matching ledger. Usually this is the most specific ledger that can be charged
-  #  ("organic vegetables" rather than "food", for example).
-  # - +:last+: Use the last matching ledger. Usually this is the least specific ledger, like "food" or "cash".
-  # - +:ignore+: The contributions will be returned as-is, and not cover the full amount.
-  #   This can be useful to see how much of an amount can be covered by the current ledgers,
-  #   assuming the remainder will be handled later (like during order checkout).
-  # - +:return+: Return an additional ChargeContribution with a nil ledger and category.
-  #
+  # @param context [Suma::Payment::CalculationContext]
   # @param has_vnd_svc_categories [Suma::Vendor::HasServiceCategories]
   # @param amount [Money]
-  # @param calculation_context [Suma::Payment::CalculationContext]
-  # @param now [Time]
-  # @param remainder_ledger [Suma::Payment::Ledger, :first, :last, :ignore] See above.
-  # @param exclude_up [Enumerable<Suma::Vendor::ServiceCategory>] Categories of ledgers to exclude.
-  #   Specifically, the categories here will 'walk up' the parents,
-  #   and ledgers that are assigned to only a subset of these categories
-  #   cannot be used for charging. The main purpose of this argument is to find out how much of a product/service
-  #   can be charged to 'sub ledgers' rather than the fall back/cash ledger.
-  #   For example, given:
-  #   - categories a, and x->y->z
-  #   - ledgerAY with (a, y), ledgerY with (y)
-  #   Excluding y or z would exclude ledgerY (because ledgerA still has category a).
-  #   Excluding x would not exclude anything.
-  # @return [Array<Suma::Payment::ChargeContribution]
-  def find_chargeable_ledgers(has_vnd_svc_categories, amount, calculation_context:, now:,
-    remainder_ledger: nil, exclude_up: nil)
-
+  # @return [Suma::Payment::ChargeContribution::Collection]
+  def calculate_charge_contributions(context, has_vnd_svc_categories, amount)
     raise ArgumentError, "amount cannot be negative, got #{amount.format}" if amount.negative?
-    raise Suma::InvalidPrecondition, "#{self.inspect} has no ledgers" if self.ledgers.empty?
-    contributions = []
-    exclusions = exclude_up.present? && exclude_up.map(&:hierarchy_up).flatten.map(&:id).to_set
-    self.ledgers.each do |led|
-      next if exclusions && led.vendor_service_categories.map(&:id).to_set.subset?(exclusions)
-      cat = led.category_used_to_purchase(has_vnd_svc_categories)
-      if cat
-        contributions << Suma::Payment::ChargeContribution.new(ledger: led, apply_at: now, amount: 0, category: cat)
+    raise Suma::InvalidPrecondition, "#{self.inspect} has no cash ledger" unless (cash_ledger = self.cash_ledger)
+    result = Suma::Payment::ChargeContribution::Collection.create_empty(context, cash_ledger)
+    potential_contribs = []
+    self.ledgers.each do |ledger|
+      if (category = ledger.category_used_to_purchase(has_vnd_svc_categories))
+        if ledger === cash_ledger
+          result.cash.mutate_category(category)
+        else
+          potential_contribs << Suma::Payment::ChargeContribution.new(ledger:, apply_at: context.apply_at, category:)
+        end
       end
     end
-    contributions.sort_by! { |c| [-c.category.hierarchy_depth, c.ledger.id] }
+    potential_contribs.sort_by! { |c| [-c.category.hierarchy_depth, c.ledger.id] }
     remainder = amount
-    result = []
-    contributions.each do |contrib|
-      ledger_balance = calculation_context.balance(contrib.ledger)
+    (potential_contribs + [result.cash]).each do |contrib|
+      ledger_balance = context.balance(contrib.ledger)
       amount = [ledger_balance, 0].max
       amount = [amount, remainder].min
-      contrib.amount = amount
-      result << contrib
+      contrib.mutate_amount(amount)
+      (result.rest << contrib) if contrib != result.cash
       remainder -= amount
       break if remainder.zero?
     end
-    # We've covered the full cost
-    return result if remainder.zero?
-    raise "how did we get a negative remainder? #{remainder}" if remainder.negative?
-
-    case remainder_ledger
-      when nil
-        raise Suma::Payment::InsufficientFunds
-      when :ignore
-        return result
-      when :return
-        result << Suma::Payment::ChargeContribution.new(ledger: nil, apply_at: now, amount: remainder, category: nil)
-        return result
-      when Symbol
-        raise Suma::InvalidPrecondition, "No ledgers for charge contributions could be found" if contributions.empty?
-        contributions.send(remainder_ledger).amount += remainder
-        return result
-      else
-        contrib_for_remainder = contributions.find { |c| c.ledger === remainder_ledger }
-        raise Suma::InvalidPrecondition, "Remainder ledger #{remainder_ledger.id} not valid for charge contributions" if
-          contrib_for_remainder.nil?
-        contrib_for_remainder.amount += remainder
-        return result
-    end
+    raise Suma::InvalidPostcondition, "how did we get a negative remainder? #{remainder}" if remainder.negative?
+    result.remainder = remainder
+    return result
   end
 
+  # Create a +Suma::Payment::BookTransaction+ for each non-zero contribution in the collection.
+  # @param [Array<Suma::Payment::ChargeContribution>] contributions
+  # @param [Suma::TranslatedText] memo
   def debit_contributions(contributions, memo:)
     xactions = contributions.map do |c|
       Suma::Payment::BookTransaction.create(

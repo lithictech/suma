@@ -16,6 +16,9 @@ class Suma::AdminAPI::BookTransactions < Suma::AdminAPI::V1
     expose :originating_payout_transaction, with: PayoutTransactionEntity
     expose :credited_payout_transaction, with: PayoutTransactionEntity
     expose :charges, with: ChargeEntity
+    expose :triggered_by,
+           with: PaymentTriggerEntity,
+           &self.delegate_to(:triggered_by, :trigger, safe: true)
   end
 
   resource :book_transactions do

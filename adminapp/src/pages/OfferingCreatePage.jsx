@@ -15,7 +15,6 @@ export default function OfferingCreatePage() {
     periodBegin: dayjs().format(),
     periodEnd: dayjs().add(1, "day").format(),
     beginFulfillmentAt: null,
-    prohibitChargeAtCheckout: false,
     maxOrderedItemsCumulative: null,
     maxOrderedItemsPerMember: null,
   };

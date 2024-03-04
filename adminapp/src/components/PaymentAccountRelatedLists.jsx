@@ -63,7 +63,7 @@ export default function PaymentAccountRelatedLists({ paymentAccount }) {
                 ? scaleMoney(row.amount, -1)
                 : row.amount}
             </Money>,
-            row.associatedVendorServiceCategory.name,
+            row.associatedVendorServiceCategory?.name,
             <AdminLink key="originating" model={row.originatingLedger}>
               {row.originatingLedger.adminLabel}
             </AdminLink>,
