@@ -32,7 +32,7 @@ export default function ResourceDetail({ apiGet, title, properties, toEdit, chil
         <div>
           <DetailGrid
             title={<Title toEdit={toEdit && toEdit(state)}>{title(state)}</Title>}
-            properties={properties(state)}
+            properties={properties(state, replaceState)}
           />
           {children && children(state, replaceState)}
         </div>

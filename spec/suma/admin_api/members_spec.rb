@@ -128,24 +128,44 @@ RSpec.describe Suma::AdminAPI::Members, :db do
 
   describe "POST /v1/members/:id" do
     it "updates the member" do
-      member = Suma::Fixtures.member.create
+      legal_entity = Suma::Fixtures.legal_entity.create
+      existing = Suma::Role.create(name: "existing")
+      to_remove = Suma::Role.create(name: "to_remove")
+      to_add = Suma::Role.create(name: "to_add")
+      member = Suma::Fixtures.member.with_legal_entity(legal_entity).with_role(existing).with_role(to_remove).create
 
-      post "/v1/members/#{member.id}", name: "b 2", email: "b@gmail.com"
+      post "/v1/members/#{member.id}",
+           name: "b 2",
+           email: "b@gmail.com",
+           legal_entity: {
+             id: legal_entity.id,
+             name: "hello",
+             address: {
+               address1: "main st",
+               address2: "apt 1",
+               city: "Portland",
+               state_or_province: "OR",
+               postal_code: "97214",
+               country: "US",
+             },
+           },
+           roles: [
+             {
+               id: existing.id,
+               name: existing.name,
+             },
+             {
+               id: to_add.id,
+               name: to_add.name,
+             },
+           ]
 
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.
         that_includes(id: member.id, name: "b 2", email: "b@gmail.com")
-    end
-
-    it "replaces roles" do
-      member = Suma::Fixtures.member.with_role("existing").with_role("to_remove").create
-      Suma::Role.create(name: "to_add")
-
-      post "/v1/members/#{member.id}", roles: ["existing", "to_add"]
-
-      expect(last_response).to have_status(200)
-      expect(last_response).to have_json_body.that_includes(roles: contain_exactly("existing", "to_add"))
-      expect(member.refresh.roles.map(&:name)).to contain_exactly("existing", "to_add")
+      member.refresh
+      expect(member.legal_entity).to have_attributes(address: be_present)
+      expect(member.roles.map(&:name)).to contain_exactly("existing", "to_add")
     end
   end
 

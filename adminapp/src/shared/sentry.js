@@ -1,5 +1,4 @@
 import * as Sentry from "@sentry/browser";
-import { BrowserTracing } from "@sentry/tracing";
 
 /**
  * Call cb(Sentry), and console log if there is any sort of error.
@@ -41,7 +40,7 @@ export function initSentry({
     environment,
     allowUrls,
     sampleRate: 1.0,
-    integrations: [new BrowserTracing()],
+    integrations: [new Sentry.browserTracingIntegration()],
     ...rest,
   });
   if (application) {
