@@ -55,7 +55,7 @@ module Suma::Fixtures::Members
   end
 
   decorator :with_phone, presave: true do |phone=nil|
-    self.phone = phone || Faker::PhoneNumber.cell_phone
+    self.phone = phone || Suma::PhoneNumber::US.normalize(Faker::PhoneNumber.cell_phone)
   end
 
   decorator :with_legal_entity do |opts={}|

@@ -168,6 +168,75 @@ class Suma::Member < Suma::Postgres::Model(:members)
     return self
   end
 
+  def merge_old_account(old_member)
+    self.db.transaction do
+      # TODO: Check and add error handling where necessary
+      # TODO: Ensure test is fully covered, and test account id 2 and check if the transfer was successful
+
+      # Accepted keys to be merged
+      accepted_attribute_keys = [:name, :email, :note, :frontapp_contact_id, :lime_user_id, :legal_entity_id]
+      # TODO: handle roles separately or handle unique error
+      restricted_assoc_keys = [:anon_proxy_vendor_accounts, :anon_proxy_contacts, :preferences, :roles, :activities,
+                               :message_deliveries,
+                               :ongoing_trip, :payment_account, :reset_codes, :sessions,
+                               :pending_eligibility_constraints, :verified_eligibility_constraints,
+                               :rejected_eligibility_constraints,]
+      new_attrs = old_member.values.select { |key| accepted_attribute_keys.include?(key) }
+
+      summary = []
+      assoc_reflections = self.class.association_reflections.reject { |key| restricted_assoc_keys.include?(key) }
+      assoc_reflections.to_a.each do |(k, reflection)|
+        assocs = old_member.send(k)
+        next unless assocs.present?
+        # We don't want to update _through_many associations
+        next if reflection[:type].to_s.end_with?("_through_many")
+
+        if reflection[:type].to_s.end_with?("_to_one")
+          new_attrs[k] = assocs
+        else
+          assocs.each do |assoc|
+            if assoc.associations.key?(:member)
+              # associate model to the new member
+              assoc.update(member: self)
+            else
+              self.send(reflection[:add_method], assoc)
+            end
+            summary << k.to_s
+          end
+        end
+      end
+
+      # Remove old_mem email to avoid UniqueConstraintViolation when calling `set()`
+      old_member.update(email: nil)
+      self.set(new_attrs)
+      self.save_changes
+
+      # Handle replacing eligibility constraints
+      old_member.eligibility_constraints_with_status.each do |ec_obj|
+        self.replace_eligibility_constraint(ec_obj[:constraint], ec_obj[:status])
+        summary << (ec_obj[:status] + "_eligibility_constraint: #{ec_obj[:constraint][:name]}")
+      end
+
+      old_member.roles.each
+
+      old_member.add_activity(
+        message_name: "membermerge",
+        summary: "Soft-deleted this account and merged account information with Member[#{self.id}]",
+        subject_type: "Suma::Member",
+        subject_id: self.id,
+      )
+      old_member.soft_delete
+
+      self.add_activity(
+        message_name: "membermerge",
+        summary: "Merged Member[#{old_member.id}] to this account with attributes: #{summary.join(', ')}",
+        subject_type: "Suma::Member",
+        subject_id: old_member.id,
+      )
+      return self
+    end
+  end
+
   def greeting
     return self.name.blank? ? "there" : self.name
   end
