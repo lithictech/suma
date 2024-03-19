@@ -2,6 +2,7 @@ import api from "../api";
 import useBusy from "../hooks/useBusy";
 import useErrorSnackbar from "../hooks/useErrorSnackbar";
 import assign from "lodash/assign";
+import merge from "lodash/merge";
 import set from "lodash/set";
 import React from "react";
 import { useForm } from "react-hook-form";
@@ -47,7 +48,7 @@ export default function ResourceForm({ InnerForm, baseResource, isCreate, applyC
   return (
     <InnerForm
       isCreate={isCreate}
-      resource={assign({}, baseResource, changes)}
+      resource={merge({}, baseResource, changes)}
       setFields={setChanges}
       setField={setField}
       setFieldFromInput={setFieldFromInput}
