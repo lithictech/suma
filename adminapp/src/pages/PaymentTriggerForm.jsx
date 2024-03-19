@@ -4,6 +4,7 @@ import CurrencyTextField from "../components/CurrencyTextField";
 import FormLayout from "../components/FormLayout";
 import MultiLingualText from "../components/MultiLingualText";
 import ResponsiveStack from "../components/ResponsiveStack";
+import config from "../config";
 import { dayjsOrNull, formatOrNull } from "../modules/dayConfig";
 import { intToMoney } from "../shared/money";
 import { TextField, Stack, FormHelperText } from "@mui/material";
@@ -71,7 +72,10 @@ export default function PaymentTriggerForm({
             {...register("maximumCumulativeSubsidyCents")}
             label="Max Subsidy"
             helperText="What is the total amount that can be given to a member from this trigger?"
-            money={intToMoney(resource.maximumCumulativeSubsidyCents)}
+            money={intToMoney(
+              resource.maximumCumulativeSubsidyCents,
+              config.defaultCurrency.code
+            )}
             required
             style={{ flex: 1 }}
             onMoneyChange={(v) => setField("maximumCumulativeSubsidyCents", v.cents)}
@@ -99,7 +103,7 @@ export default function PaymentTriggerForm({
           search={api.searchLedgers}
           style={{ flex: 1 }}
           searchEmpty
-          onValueSelect={(v) => setField("originatingLedger", v)}
+          onValueSelect={(v) => setField("originatingLedger.id", v.id)}
         />
         <TextField
           {...register("receivingLedgerName")}

@@ -9,6 +9,9 @@ export default function PaymentTriggerCreatePage() {
   const empty = {
     label: "",
     description: formHelpers.initialTranslation,
+    receivingLedgerName: "",
+    receivingLedgerContributionText: formHelpers.initialTranslation,
+    memo: formHelpers.initialTranslation,
     fulfillmentPrompt: formHelpers.initialTranslation,
     fulfillmentConfirmation: formHelpers.initialTranslation,
     fulfillmentOptions: [formHelpers.initialFulfillmentOption],
