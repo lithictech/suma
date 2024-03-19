@@ -16,13 +16,13 @@ import {
   Typography,
 } from "@mui/material";
 import get from "lodash/get";
-import merge from "lodash/merge";
 import React from "react";
 
 export default function ProductForm({
   isCreate,
   resource,
   setField,
+  setFieldFromInput,
   register,
   isBusy,
   onSubmit,
@@ -101,57 +101,43 @@ export default function ProductForm({
             required
           />
         </ResponsiveStack>
-        <InventoryFields
-          inventory={resource.inventory}
-          onFieldChange={(v) => setField("inventory", v)}
-        />
+        <Typography variant="h6">Inventory</Typography>
+        <ResponsiveStack>
+          <TextField
+            name="inventory.maxQuantityPerMemberPerOffering"
+            value={resource.inventory.maxQuantityPerMemberPerOffering || ""}
+            type="number"
+            label="Max per Member/Offering"
+            helperText="The maximum a single member can purchase within a single offering. Empty if unenforced."
+            onChange={setFieldFromInput}
+          />
+        </ResponsiveStack>
+        <ResponsiveStack>
+          <FormControlLabel
+            control={<Switch />}
+            label="Limited Quantity"
+            name="inventory.limitedQuantity"
+            checked={resource.inventory.limitedQuantity}
+            onChange={setFieldFromInput}
+          />
+          <TextField
+            name="inventory.quantityOnHand"
+            value={resource.inventory.quantityOnHand}
+            type="number"
+            label="Quantity On Hand"
+            helperText="How much of the product do we have available."
+            onChange={setFieldFromInput}
+          />
+          <TextField
+            name="inventory.quantityPendingFulfillment"
+            value={resource.inventory.quantityPendingFulfillment}
+            type="number"
+            label="Quantity Pending Fulfillment"
+            helperText="How much of the product is assigned to unfulfilled orders. Usually automatically managed."
+            onChange={setFieldFromInput}
+          />
+        </ResponsiveStack>
       </Stack>
     </FormLayout>
-  );
-}
-
-function InventoryFields({ inventory, onFieldChange }) {
-  const handleChange = (changedObj) => {
-    onFieldChange(merge(inventory, changedObj));
-  };
-  return (
-    <>
-      <Typography variant="h6">Inventory</Typography>
-      <ResponsiveStack>
-        <TextField
-          name="maxQuantityPerMemberPerOffering"
-          value={inventory.maxQuantityPerMemberPerOffering || ""}
-          type="number"
-          label="Max per Member/Offering"
-          helperText="The maximum a single member can purchase within a single offering. Empty if unenforced."
-          onChange={(e) => handleChange({ [e.target.name]: e.target.value })}
-        />
-      </ResponsiveStack>
-      <ResponsiveStack>
-        <FormControlLabel
-          control={<Switch />}
-          label="Limited Quantity"
-          name="limitedQuantity"
-          checked={inventory.limitedQuantity}
-          onChange={(e) => handleChange({ [e.target.name]: e.target.checked })}
-        />
-        <TextField
-          name="quantityOnHand"
-          value={inventory.quantityOnHand}
-          type="number"
-          label="Quantity On Hand"
-          helperText="How much of the product do we have available."
-          onChange={(e) => handleChange({ [e.target.name]: e.target.value })}
-        />
-        <TextField
-          name="quantityPendingFulfillment"
-          value={inventory.quantityPendingFulfillment}
-          type="number"
-          label="Quantity Pending Fulfillment"
-          helperText="How much of the product is assigned to unfulfilled orders. Usually automatically managed."
-          onChange={(e) => handleChange({ [e.target.name]: e.target.value })}
-        />
-      </ResponsiveStack>
-    </>
   );
 }
