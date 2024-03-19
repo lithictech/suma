@@ -95,7 +95,7 @@ export default function PaymentTriggerForm({
           This memo is used for all triggered subsidy transactions.
         </FormHelperText>
         <AutocompleteSearch
-          {...register("originatingLedgerId")}
+          {...register("originatingLedger")}
           label="Originating Ledger"
           helperText="Where is the money coming from?"
           value={resource.originatingLedger?.adminLabel || ""}
@@ -103,7 +103,7 @@ export default function PaymentTriggerForm({
           search={api.searchLedgers}
           style={{ flex: 1 }}
           searchEmpty
-          onValueSelect={(v) => setField("originatingLedgerId", v.id)}
+          onValueSelect={(v) => setField("originatingLedger.id", v.id)}
         />
         <TextField
           {...register("receivingLedgerName")}
