@@ -336,36 +336,27 @@ RSpec.describe "Suma::Member", :db do
 
   describe "merge_old_account" do
     it "merges an old members account information and associations with another member" do
+      # populate old member account with associations to be transfered
       address = Suma::Fixtures.address.create
       old_mem = Suma::Fixtures.member.with_role(Suma::Role.create(name: "old role")).
-        onboarding_verified.with_email.with_phone.with_legal_entity(address:).create
-      verified_ec = Suma::Fixtures.eligibility_constraint.create
-      pending_ec = Suma::Fixtures.eligibility_constraint.create
-      rejected_ec = Suma::Fixtures.eligibility_constraint.create
-      old_mem.add_verified_eligibility_constraint(verified_ec)
-      old_mem.add_pending_eligibility_constraint(pending_ec)
-      old_mem.add_rejected_eligibility_constraint(rejected_ec)
-      old_order = Suma::Fixtures.order.as_purchased_by(old_mem).create
+        onboarding_verified.with_email.with_phone.with_legal_entity(address:).
+        with_cash_ledger(amount: money("$15")).registered_as_stripe_customer.create
+      charge = Suma::Fixtures.charge(member: old_mem).create
+      book_transaction = Suma::Fixtures.book_transaction.from(Suma::Payment.ensure_cash_ledger(old_mem)).create
+      charge.add_book_transaction(book_transaction)
+      Suma::Fixtures.card.member(old_mem).create
+      Suma::Fixtures.bank_account.verified.member(old_mem).create
+      Suma::Fixtures.order.as_purchased_by(old_mem).create
 
-      new_mem = Suma::Fixtures.member.with_phone.with_legal_entity(address:).create
+      new_mem = Suma::Fixtures.member.with_phone.with_legal_entity(address:).with_cash_ledger.create
 
-      expect(new_mem.merge_old_account(old_mem)).to have_attributes(name: old_mem.name,
-                                                                    legal_entity_id: old_mem.legal_entity.id,)
-      expect(new_mem.merge_old_account(old_mem).commerce_carts.first).to have_attributes(id: old_order.checkout.cart.id)
-      expect(new_mem.merge_old_account(old_mem).eligibility_constraints_with_status).to contain_exactly(
-        include(
-          constraint: be === verified_ec,
-          status: "verified",
-        ),
-        include(
-          constraint: be === pending_ec,
-          status: "pending",
-        ),
-        include(
-          constraint: be === rejected_ec,
-          status: "rejected",
-        ),
-      )
+      new_mem.merge_old_account(old_mem)
+
+      expect(new_mem.refresh.bank_accounts.count).to eq(1)
+      expect(new_mem.refresh.payment_account.all_book_transactions.count).to eq(2)
+      expect(new_mem.refresh.charges.count).to eq(1)
+      expect(new_mem.refresh.commerce_carts.count).to eq(1)
+      expect(new_mem.refresh.orders.count).to eq(1)
     end
 
     it "soft deletes old account" do

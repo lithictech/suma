@@ -170,54 +170,85 @@ class Suma::Member < Suma::Postgres::Model(:members)
 
   def merge_old_account(old_member)
     self.db.transaction do
-      # TODO: Check and add error handling where necessary
-      # TODO: Ensure test is fully covered, and test account id 2 and check if the transfer was successful
-
-      # Accepted keys to be merged
-      accepted_attribute_keys = [:name, :email, :note, :frontapp_contact_id, :lime_user_id, :legal_entity_id]
-      # TODO: handle roles separately or handle unique error
-      restricted_assoc_keys = [:anon_proxy_vendor_accounts, :anon_proxy_contacts, :preferences, :roles, :activities,
-                               :message_deliveries,
-                               :ongoing_trip, :payment_account, :reset_codes, :sessions,
-                               :pending_eligibility_constraints, :verified_eligibility_constraints,
-                               :rejected_eligibility_constraints,]
-      new_attrs = old_member.values.select { |key| accepted_attribute_keys.include?(key) }
-
       summary = []
-      assoc_reflections = self.class.association_reflections.reject { |key| restricted_assoc_keys.include?(key) }
-      assoc_reflections.to_a.each do |(k, reflection)|
-        assocs = old_member.send(k)
-        next unless assocs.present?
-        # We don't want to update _through_many associations
-        next if reflection[:type].to_s.end_with?("_through_many")
 
-        if reflection[:type].to_s.end_with?("_to_one")
-          new_attrs[k] = assocs
-        else
-          assocs.each do |assoc|
-            if assoc.associations.key?(:member)
-              # associate model to the new member
-              assoc.update(member: self)
-            else
-              self.send(reflection[:add_method], assoc)
+      old_member.legal_entity.bank_accounts_dataset.usable.verified.each do |ba|
+        account_number = ba[:account_number]
+        routing_number = ba[:routing_number]
+        name = ba[:name]
+        account_type = ba[:account_type]
+        identity = Suma::Payment::BankAccount.identity(self.legal_entity_id, routing_number, account_number)
+        ba = self.legal_entity.bank_accounts_dataset[identity:]
+        if ba.nil?
+          ba = Suma::Payment::BankAccount.new(
+            legal_entity: self.legal_entity,
+            name:,
+            account_number:,
+            routing_number:,
+            account_type:,
+            verified_at: Time.now,
+          )
+        elsif ba.soft_deleted?
+          ba.soft_deleted_at = nil
+        end
+        ba.save_changes
+        summary << "BankAccount[#{ba.id}]"
+      end
+
+      pa = old_member.payment_account
+      unless pa.nil?
+        pa.ledgers_dataset.all.each do |led|
+          cat = led.vendor_service_categories.first
+          led.originated_book_transactions.each do |bx|
+            new_member_led = self.payment_account.ledgers_dataset[vendor_service_categories: cat]
+            if new_member_led.nil?
+              new_member_led = Suma::Payment::Ledger.create(
+                currency: Suma.default_currency,
+                account: self.payment_account,
+                name: led.name,
+                contribution_text: led.contribution_text,
+              )
+              new_member_led.add_vendor_service_category(cat) unless cat.nil?
             end
-            summary << k.to_s
+            bx.update(originating_ledger: new_member_led)
+          end
+          led.received_book_transactions.each do |bx|
+            new_member_led = self.payment_account.ledgers_dataset[vendor_service_categories: cat]
+            if new_member_led.nil?
+              new_member_led = Suma::Payment::Ledger.create(
+                currency: Suma.default_currency,
+                account: self.payment_account,
+                name: led.name,
+                contribution_text: led.contribution_text,
+              )
+              new_member_led.add_vendor_service_category(cat) unless cat.nil?
+            end
+            bx.update(receiving_ledger: new_member_led)
           end
         end
       end
 
-      # Remove old_mem email to avoid UniqueConstraintViolation when calling `set()`
-      old_member.update(email: nil)
-      self.set(new_attrs)
-      self.save_changes
-
-      # Handle replacing eligibility constraints
-      old_member.eligibility_constraints_with_status.each do |ec_obj|
-        self.replace_eligibility_constraint(ec_obj[:constraint], ec_obj[:status])
-        summary << (ec_obj[:status] + "_eligibility_constraint: #{ec_obj[:constraint][:name]}")
+      old_member.charges.each do |charge|
+        charge.update(member: self)
+        charge.book_transactions.each do |bx|
+          cat = bx.associated_vendor_service_category
+          led = bx.originating_ledger
+          new_member_led = self.payment_account.ledgers_dataset[vendor_service_categories: cat] unless cat.nil?
+          if new_member_led.nil?
+            new_member_led = Suma::Payment::Ledger.find_or_create(
+              currency: Suma.default_currency,
+              account: self.payment_account,
+              name: led.name,
+              contribution_text: led.contribution_text,
+            )
+            new_member_led.add_vendor_service_category(cat) unless cat.nil?
+          end
+          bx.update(originating_ledger: new_member_led)
+        end
       end
 
-      old_member.roles.each
+      old_member.commerce_carts.each { |cart| cart.update(member: self) }
+      old_member.mobility_trips.each { |trip| trip.update(member: self) }
 
       old_member.add_activity(
         message_name: "membermerge",
@@ -229,7 +260,7 @@ class Suma::Member < Suma::Postgres::Model(:members)
 
       self.add_activity(
         message_name: "membermerge",
-        summary: "Merged Member[#{old_member.id}] to this account with attributes: #{summary.join(', ')}",
+        summary: "Merged Member[#{old_member.id}] to this account with associations: #{summary.join(', ')}",
         subject_type: "Suma::Member",
         subject_id: old_member.id,
       )
