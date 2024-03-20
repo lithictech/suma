@@ -11,38 +11,14 @@ module Suma::AdminAPI::CommonEndpoints
       return mp
     end
 
-    def replace_roles(ids, model)
-      assoc = model.class.association_reflections[:roles]
-      assoc_name = assoc[:name].to_s.split("_").join(" ")
-
-      ids.each do |id|
-        association_class(assoc)[id] or adminerror!(403, "Unknown #{assoc_name.singularize}: #{id}")
-      end
-      to_remove = model.roles_dataset.exclude(id: ids)
-      to_add = association_class(assoc).where(id: ids).exclude(id: model.roles_dataset.select(:id))
-      to_add.each { |c| model.send(assoc[:add_method], c) }
-      to_remove.each { |c| model.send(assoc[:remove_method], c) }
-      summary = model.roles_dataset.select_map(:name).join(", ")
-
-      admin_member.add_activity(
-        message_name: "#{assoc_name.singularize.delete(' ')}change",
-        summary: "Admin #{admin_member.email} modified #{assoc_name} of #{model.class}[#{model.id}]: #{summary}",
-        subject_type: model.class.name,
-        subject_id: model.id,
-      )
-    end
-
-    def update_model(m, orig_params, process_params: nil, save: true)
+    def update_model(m, orig_params, save: true)
       params = orig_params.deep_symbolize_keys
       params.delete(:id)
-      process_params&.call(params)
       mtype = m.class
       images = []
       to_many_assocs_and_args = []
       to_one_assocs_and_params = []
       fk_attrs = {}
-      # handle roles separately
-      roles = params.delete(:roles)
       params.to_a.each do |(k, v)|
         next unless (assoc = mtype.association_reflections[k])
         params.delete(k)
@@ -53,13 +29,6 @@ module Suma::AdminAPI::CommonEndpoints
             fk_attrs[assoc[:name]] = Suma::TranslatedText.find_or_create(**v)
           elsif association_class?(assoc, Suma::Address)
             fk_attrs[assoc[:name]] = Suma::Address.lookup(v)
-          elsif association_class?(assoc, Suma::LegalEntity)
-            assoc_model = if (assoc_model_id = v[:id])
-                            Suma::LegalEntity[assoc_model_id.to_i]
-            else
-              Suma::LegalEntity.new
-            end
-            update_model(assoc_model, v)
           elsif association_class?(assoc, Suma::Image)
             uf = Suma::UploadedFile.create_from_multipart(v)
             images << Suma::Image.new(uploaded_file: uf)
@@ -76,9 +45,10 @@ module Suma::AdminAPI::CommonEndpoints
       m.set(fk_attrs)
       save_or_error!(m) if save
       images.each { |im| m.add_image(im) }
-      replace_roles(roles.map { |r| r[:id] }, m) unless roles.nil?
       to_one_assocs_and_params.each do |(assoc, mparams)|
-        fk_model = association_class(assoc).find_or_create_or_find(assoc[:key] => m.id)
+        assoc_cls = association_class(assoc)
+        fk_model = assoc_cls.find_or_create_or_find(assoc_cls.primary_key => m.id)
+        mparams.delete(assoc_cls.primary_key)
         update_model(fk_model, mparams)
       end
       to_many_assocs_and_args.each do |(assoc, args)|
@@ -147,18 +117,14 @@ module Suma::AdminAPI::CommonEndpoints
     end
   end
 
-  def self.create(route_def, model_type, entity, process_params: nil, &)
+  def self.create(route_def, model_type, entity, &)
     route_def.instance_exec do
       helpers MutationHelpers
       yield
       post :create do
         model_type.db.transaction do
           m = model_type.new
-          update_model(
-            m,
-            params,
-            process_params:,
-          )
+          update_model(m, params,)
           created_resource_headers(m.id, m.admin_link)
           status 200
           present m, with: entity
@@ -167,7 +133,7 @@ module Suma::AdminAPI::CommonEndpoints
     end
   end
 
-  def self.update(route_def, model_type, entity, process_params: nil, &)
+  def self.update(route_def, model_type, entity, around: nil, &)
     route_def.instance_exec do
       route_param :id, type: Integer do
         helpers MutationHelpers
@@ -175,11 +141,13 @@ module Suma::AdminAPI::CommonEndpoints
         post do
           # model_type.db.transaction do
           (m = model_type[params[:id]]) or forbidden!
-          update_model(
-            m,
-            params,
-            process_params:,
-          )
+          if around
+            around.call(self, m) do
+              update_model(m, params)
+            end
+          else
+            update_model(m, params)
+          end
           created_resource_headers(m.id, m.admin_link)
           status 200
           present m, with: entity

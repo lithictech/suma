@@ -130,6 +130,21 @@ class Suma::AdminAPI::Members < Suma::AdminAPI::V1
       self,
       Suma::Member,
       DetailedMemberEntity,
+      around: ->(rt, m, &block) do
+        roles = rt.params.delete(:roles)
+        block.call
+        if roles
+          role_models = Suma::Role.where(id: roles.map { |r| r[:id] }).all
+          m.replace_roles(role_models)
+          summary = m.roles.map(&:name).join(", ")
+          m.add_activity(
+            message_name: "rolechange",
+            summary: "Admin #{rt.admin_member.email} modified roles of #{m.class.name}[#{m.id}]: #{summary}",
+            subject_type: m.class.name,
+            subject_id: m.id,
+          )
+        end
+      end
     ) do
       params do
         optional :name, type: String
@@ -137,15 +152,15 @@ class Suma::AdminAPI::Members < Suma::AdminAPI::V1
         optional :email, type: String
         optional :phone, type: Integer
         optional :timezone, type: String, values: ALL_TIMEZONES
-        optional :roles,
-                 type: Array[JSON] do
+        optional :roles, type: Array[JSON] do
           use :model_with_id
-          requires :name, type: String
         end
         optional :onboarding_verified, type: Boolean
         optional :legal_entity, type: JSON do
           optional :name, type: String
-          optional(:address, default: nil, type: JSON) { use :address }
+          optional :address, type: JSON do
+            use :address
+          end
         end
       end
     end

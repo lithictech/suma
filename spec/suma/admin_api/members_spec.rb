@@ -128,44 +128,46 @@ RSpec.describe Suma::AdminAPI::Members, :db do
 
   describe "POST /v1/members/:id" do
     it "updates the member" do
-      legal_entity = Suma::Fixtures.legal_entity.create
-      existing = Suma::Role.create(name: "existing")
-      to_remove = Suma::Role.create(name: "to_remove")
-      to_add = Suma::Role.create(name: "to_add")
-      member = Suma::Fixtures.member.with_legal_entity(legal_entity).with_role(existing).with_role(to_remove).create
+      member = Suma::Fixtures.member.create
 
-      post "/v1/members/#{member.id}",
-           name: "b 2",
-           email: "b@gmail.com",
-           legal_entity: {
-             id: legal_entity.id,
-             name: "hello",
-             address: {
-               address1: "main st",
-               address2: "apt 1",
-               city: "Portland",
-               state_or_province: "OR",
-               postal_code: "97214",
-               country: "US",
-             },
-           },
-           roles: [
-             {
-               id: existing.id,
-               name: existing.name,
-             },
-             {
-               id: to_add.id,
-               name: to_add.name,
-             },
-           ]
+      post "/v1/members/#{member.id}", name: "b 2", email: "b@gmail.com"
 
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.
         that_includes(id: member.id, name: "b 2", email: "b@gmail.com")
-      member.refresh
-      expect(member.legal_entity).to have_attributes(address: be_present)
-      expect(member.roles.map(&:name)).to contain_exactly("existing", "to_add")
+    end
+
+    it "replaces roles if given" do
+      existing = Suma::Role.create(name: "existing")
+      to_remove = Suma::Role.create(name: "to_remove")
+      to_add = Suma::Role.create(name: "to_add")
+      member = Suma::Fixtures.member.with_role(existing).with_role(to_remove).create
+
+      post "/v1/members/#{member.id}", roles: [{id: existing.id}, {id: to_add.id}]
+
+      expect(last_response).to have_status(200)
+      expect(member.refresh.roles.map(&:name)).to contain_exactly("existing", "to_add")
+      expect(member.refresh.activities).to contain_exactly(have_attributes(message_name: 'rolechange'))
+    end
+
+    it "updates legal entity if given" do
+      legal_entity = Suma::Fixtures.legal_entity.create
+      member = Suma::Fixtures.member.with_legal_entity(legal_entity).create
+
+      post "/v1/members/#{member.id}", legal_entity: {
+        name: "hello",
+        address: {
+          address1: "main st",
+          address2: "apt 1",
+          city: "Portland",
+          state_or_province: "OR",
+          postal_code: "97214",
+          country: "US",
+        },
+      }
+
+      expect(last_response).to have_status(200)
+      expect(member.refresh.legal_entity).to have_attributes(address: have_attributes(address1: "main st"))
     end
   end
 
