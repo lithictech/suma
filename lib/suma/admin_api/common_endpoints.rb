@@ -46,10 +46,38 @@ module Suma::AdminAPI::CommonEndpoints
       save_or_error!(m) if save
       images.each { |im| m.add_image(im) }
       to_one_assocs_and_params.each do |(assoc, mparams)|
+        # We're updating a child resource through its parent.
+        #
+        # This can go in the normal direction, where the child has a parent id.
+        # For example, a product inventory has a product_id pointing to product.
+        # When we update the product, we can also create/update the inventory.
+        # These are always one_to_one from the POV of the model here (parent).
+        #
+        # But it can also go in the 'reverse' direction,
+        # where we're updating a 'child' and its parent at the same time.
+        # For example, a member (which we usually think of as a parent) has a legal_entity_id.
+        # When we update the member, we also want to update the legal entity is 'owns'.
+        # These are always many_to_one from the POV of the model here (child).
+        #
+        # Logically we handle them both similarly, with the difference being where the FK is set.
+
         assoc_cls = association_class(assoc)
-        fk_model = assoc_cls.find_or_create_or_find(assoc_cls.primary_key => m.id)
-        mparams.delete(assoc_cls.primary_key)
+        fk_model = if (passed_fk_pk = mparams.delete(assoc_cls.primary_key))
+                     assoc_cls.find!(assoc_cls.primary_key => passed_fk_pk)
+        else
+          m.send(assoc[:name])
+        end
+        fk_model ||= assoc_cls.new
+        if assoc[:type] == :one_to_one
+          # fk_model (child) has an FK to m (parent)
+          # This will set child.parent_id to parent.id
+          m.set(assoc[:name] => fk_model)
+        end
         update_model(fk_model, mparams)
+        next unless assoc[:type] == :many_to_one
+        # m (child) has an FK to fk_model (parent)
+        # Set it now, that fk_model has an ID for sure.
+        m.update(assoc[:name] => fk_model)
       end
       to_many_assocs_and_args.each do |(assoc, args)|
         unseen_children = m.send(assoc[:name]).to_h { |am| [am.id, am] }
@@ -124,7 +152,7 @@ module Suma::AdminAPI::CommonEndpoints
       post :create do
         model_type.db.transaction do
           m = model_type.new
-          update_model(m, params,)
+          update_model(m, params)
           created_resource_headers(m.id, m.admin_link)
           status 200
           present m, with: entity

@@ -147,7 +147,7 @@ RSpec.describe Suma::AdminAPI::Members, :db do
 
       expect(last_response).to have_status(200)
       expect(member.refresh.roles.map(&:name)).to contain_exactly("existing", "to_add")
-      expect(member.refresh.activities).to contain_exactly(have_attributes(message_name: 'rolechange'))
+      expect(member.refresh.activities).to contain_exactly(have_attributes(message_name: "rolechange"))
     end
 
     it "updates legal entity if given" do

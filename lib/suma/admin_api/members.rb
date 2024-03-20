@@ -130,7 +130,7 @@ class Suma::AdminAPI::Members < Suma::AdminAPI::V1
       self,
       Suma::Member,
       DetailedMemberEntity,
-      around: ->(rt, m, &block) do
+      around: lambda do |rt, m, &block|
         roles = rt.params.delete(:roles)
         block.call
         if roles
@@ -144,7 +144,7 @@ class Suma::AdminAPI::Members < Suma::AdminAPI::V1
             subject_id: m.id,
           )
         end
-      end
+      end,
     ) do
       params do
         optional :name, type: String
