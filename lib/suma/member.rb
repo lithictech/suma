@@ -67,6 +67,7 @@ class Suma::Member < Suma::Postgres::Model(:members)
   many_to_one :legal_entity, class: "Suma::LegalEntity"
   one_to_many :message_deliveries, key: :recipient_id, class: "Suma::Message::Delivery"
   one_to_one :preferences, class: "Suma::Message::Preferences"
+  one_to_many :mobility_trips, class: "Suma::Mobility::Trip"
   one_to_one :ongoing_trip, class: "Suma::Mobility::Trip", conditions: {ended_at: nil}
   many_through_many :orders,
                     [
@@ -168,103 +169,90 @@ class Suma::Member < Suma::Postgres::Model(:members)
     return self
   end
 
-  def merge_old_account(old_member)
+  # Used when a member registers with a new phone number and lose their old account
+  # data. This method will transfer bank accounts, orders and mobility trips from a
+  # members old account +self+, to the +new_member+. Other association models should
+  # be treated as immutable.
+  #
+  # The old account will be soft_deleted and can later be referenced by activity logs.
+  #
+  # @param new_member [Suma::Member]
+  # @param now [Time]
+  # @return [Suma::Member]
+  def close_account_and_transfer(new_member, now)
     self.db.transaction do
+      bank_accounts = self.legal_entity.bank_accounts_dataset.usable.verified.all
+      carts = self.commerce_carts_dataset.all
+      trips_ds = self.mobility_trips_dataset
+      trips = trips_ds.all
+      [self, new_member].each do |mem|
+        unless mem.mobility_trips_dataset.ongoing.all.empty?
+          raise Suma::Mobility::Trip::OngoingTrip, "Member[#{mem.id}] is in an ongoing trip, cannot transfer account"
+        end
+      end
+
+      if [bank_accounts, carts, trips_ds.all].flatten.empty?
+        self.soft_delete
+        new_member.add_activity(
+          message_name: "membertransfer",
+          summary: "Closed Member[#{self.id}] for this account, no associations transferred",
+          subject_type: "Suma::Member",
+          subject_id: self.id,
+        )
+        self.add_activity(
+          message_name: "membertransfer",
+          summary: "Closed this account for new Member[#{new_member.id}] account, no associations transferred",
+          subject_type: "Suma::Member",
+          subject_id: new_member.id,
+        )
+        return new_member
+      end
+
       summary = []
-
-      old_member.legal_entity.bank_accounts_dataset.usable.verified.each do |ba|
-        account_number = ba[:account_number]
-        routing_number = ba[:routing_number]
-        name = ba[:name]
-        account_type = ba[:account_type]
-        identity = Suma::Payment::BankAccount.identity(self.legal_entity_id, routing_number, account_number)
-        ba = self.legal_entity.bank_accounts_dataset[identity:]
-        if ba.nil?
-          ba = Suma::Payment::BankAccount.new(
-            legal_entity: self.legal_entity,
-            name:,
-            account_number:,
-            routing_number:,
-            account_type:,
-            verified_at: Time.now,
-          )
-        elsif ba.soft_deleted?
-          ba.soft_deleted_at = nil
-        end
-        ba.save_changes
-        summary << "BankAccount[#{ba.id}]"
+      bank_account_ids_summary = []
+      bank_accounts.each do |ba|
+        identity = Suma::Payment::BankAccount.identity(new_member.legal_entity_id, ba.routing_number, ba.account_number)
+        identified = new_member.legal_entity.bank_accounts_dataset[identity:]
+        next unless identified.nil?
+        ba = Suma::Payment::BankAccount.create(
+          legal_entity: new_member.legal_entity,
+          name: ba.name,
+          account_number: ba.account_number,
+          routing_number: ba.routing_number,
+          account_type: ba.account_type,
+          verified_at: now,
+        )
+        bank_account_ids_summary << ba.id
       end
+      summary << "BankAccount[#{bank_account_ids_summary.join(', ')}]"
 
-      pa = old_member.payment_account
-      unless pa.nil?
-        pa.ledgers_dataset.all.each do |led|
-          cat = led.vendor_service_categories.first
-          led.originated_book_transactions.each do |bx|
-            new_member_led = self.payment_account.ledgers_dataset[vendor_service_categories: cat]
-            if new_member_led.nil?
-              new_member_led = Suma::Payment::Ledger.create(
-                currency: Suma.default_currency,
-                account: self.payment_account,
-                name: led.name,
-                contribution_text: led.contribution_text,
-              )
-              new_member_led.add_vendor_service_category(cat) unless cat.nil?
-            end
-            bx.update(originating_ledger: new_member_led)
-          end
-          led.received_book_transactions.each do |bx|
-            new_member_led = self.payment_account.ledgers_dataset[vendor_service_categories: cat]
-            if new_member_led.nil?
-              new_member_led = Suma::Payment::Ledger.create(
-                currency: Suma.default_currency,
-                account: self.payment_account,
-                name: led.name,
-                contribution_text: led.contribution_text,
-              )
-              new_member_led.add_vendor_service_category(cat) unless cat.nil?
-            end
-            bx.update(receiving_ledger: new_member_led)
-          end
+      cart_ids_summary = []
+      trip_ids_summary = []
+      carts.concat(trips).each do |model|
+        model.update(member: new_member)
+        if model.class.name.demodulize === "Cart"
+          cart_ids_summary << model.id
+        else
+          trip_ids_summary << model.id
         end
       end
+      summary << "Cart[#{cart_ids_summary.join(', ')}]"
+      summary << "Trip[#{trip_ids_summary.join(', ')}]"
 
-      old_member.charges.each do |charge|
-        charge.update(member: self)
-        charge.book_transactions.each do |bx|
-          cat = bx.associated_vendor_service_category
-          led = bx.originating_ledger
-          new_member_led = self.payment_account.ledgers_dataset[vendor_service_categories: cat] unless cat.nil?
-          if new_member_led.nil?
-            new_member_led = Suma::Payment::Ledger.find_or_create(
-              currency: Suma.default_currency,
-              account: self.payment_account,
-              name: led.name,
-              contribution_text: led.contribution_text,
-            )
-            new_member_led.add_vendor_service_category(cat) unless cat.nil?
-          end
-          bx.update(originating_ledger: new_member_led)
-        end
-      end
-
-      old_member.commerce_carts.each { |cart| cart.update(member: self) }
-      old_member.mobility_trips.each { |trip| trip.update(member: self) }
-
-      old_member.add_activity(
-        message_name: "membermerge",
-        summary: "Soft-deleted this account and merged account information with Member[#{self.id}]",
+      self.soft_delete
+      new_member.add_activity(
+        message_name: "membertransfer",
+        summary: "Closed Member[#{self.id}] and transferred #{summary.join(', ')} to this account",
         subject_type: "Suma::Member",
         subject_id: self.id,
       )
-      old_member.soft_delete
-
       self.add_activity(
-        message_name: "membermerge",
-        summary: "Merged Member[#{old_member.id}] to this account with associations: #{summary.join(', ')}",
+        message_name: "membertransfer",
+        summary: "Closed this account and transferred #{summary.join(', ')} to Member[#{new_member.id}]",
         subject_type: "Suma::Member",
-        subject_id: old_member.id,
+        subject_id: new_member.id,
       )
-      return self
+      return new_member
     end
   end
 
