@@ -335,7 +335,7 @@ RSpec.describe "Suma::Member", :db do
   end
 
   describe "close_account_and_transfer" do
-    it "soft delete old member, transfers associations to new member account and add activity logs" do
+    it "closes old member account, transfers associations to new member account and add activity logs" do
       t = Time.now
       old_mem = Suma::Fixtures.member.create
       Suma::Fixtures.bank_account.verified.member(old_mem).create
@@ -361,19 +361,22 @@ RSpec.describe "Suma::Member", :db do
       )
     end
 
-    it "raises if old member has an ongoing mobility trip" do
+    it "raises if any member has an ongoing mobility trip" do
       t = Time.now
       old_mem = Suma::Fixtures.member.with_cash_ledger.create
       Suma::Fixtures.mobility_trip(member: old_mem).ended.create
       new_mem = Suma::Fixtures.member.create
 
-      old_mem.close_account_and_transfer(new_mem, t)
       expect { old_mem.close_account_and_transfer(new_mem, t) }.to_not raise_error
-
+      Suma::Fixtures.mobility_trip(member: new_mem).ongoing.create
+      expect { old_mem.close_account_and_transfer(new_mem, t) }.to raise_error(
+        Suma::Mobility::Trip::OngoingTrip,
+        "Member[#{new_mem.id}] has an ongoing trip, cannot transfer account",
+      )
       Suma::Fixtures.mobility_trip(member: old_mem).ongoing.create
       expect { old_mem.close_account_and_transfer(new_mem, t) }.to raise_error(
         Suma::Mobility::Trip::OngoingTrip,
-        "Member[#{old_mem.id}] is in an ongoing trip, cannot transfer account",
+        "Member[#{old_mem.id}] has an ongoing trip, cannot transfer account",
       )
     end
 
@@ -382,18 +385,15 @@ RSpec.describe "Suma::Member", :db do
       old_mem = Suma::Fixtures.member.create
       ba1 = Suma::Fixtures.bank_account.verified.member(old_mem).create
       new_mem = Suma::Fixtures.member.create
-      same_as_ba1 = Suma::Fixtures.bank_account.verified.member(new_mem).create(
+      existing_acct = Suma::Fixtures.bank_account.verified.member(new_mem).create(
         account_number: ba1.account_number,
         routing_number: ba1.routing_number,
       )
 
-      old_mem.close_account_and_transfer(new_mem, t)
-      expect(new_mem.refresh.bank_accounts).to contain_exactly(be === same_as_ba1)
-
-      not_same_as_ba1 = same_as_ba1.update(routing_number: "111222333")
-      old_mem.close_account_and_transfer(new_mem, t)
-      expect(new_mem.refresh.bank_accounts).to contain_exactly(
-        be === not_same_as_ba1,
+      expect(old_mem.close_account_and_transfer(new_mem, t).bank_accounts).to contain_exactly(be === existing_acct)
+      not_existing_acct = existing_acct.update(routing_number: "111222333")
+      expect(old_mem.close_account_and_transfer(new_mem, t).refresh.bank_accounts).to contain_exactly(
+        be === not_existing_acct,
         have_attributes(
           legal_entity: new_mem.legal_entity,
           account_number: ba1.account_number,
@@ -424,14 +424,13 @@ RSpec.describe "Suma::Member", :db do
       t = Time.now
       old_mem = Suma::Fixtures.member.create
       Array.new(2) { Suma::Fixtures.bank_account.verified.member(old_mem).create }
-      Array.new(3) { Suma::Fixtures.mobility_trip(member: old_mem).ended.create }
       order = Suma::Fixtures.order.as_purchased_by(old_mem).create
       new_mem = Suma::Fixtures.member.create
 
       old_mem.close_account_and_transfer(new_mem, t)
+
       ba_ids = new_mem.refresh.bank_accounts.map(&:id).join(", ")
-      trip_ids = new_mem.refresh.mobility_trips.map(&:id).join(", ")
-      association_summary = "BankAccount[#{ba_ids}], Cart[#{order.checkout.cart.id}], Trip[#{trip_ids}]"
+      association_summary = "BankAccount[#{ba_ids}], Cart[#{order.checkout.cart.id}]"
       expect(new_mem.refresh.activities.last).to have_attributes(
         summary: end_with(association_summary + " to this account"),
       )

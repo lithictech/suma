@@ -181,17 +181,16 @@ class Suma::Member < Suma::Postgres::Model(:members)
   # @return [Suma::Member]
   def close_account_and_transfer(new_member, now)
     self.db.transaction do
-      bank_accounts = self.legal_entity.bank_accounts_dataset.usable.verified.all
-      carts = self.commerce_carts_dataset.all
-      trips_ds = self.mobility_trips_dataset
-      trips = trips_ds.all
       [self, new_member].each do |mem|
         unless mem.mobility_trips_dataset.ongoing.all.empty?
-          raise Suma::Mobility::Trip::OngoingTrip, "Member[#{mem.id}] is in an ongoing trip, cannot transfer account"
+          raise Suma::Mobility::Trip::OngoingTrip, "Member[#{mem.id}] has an ongoing trip, cannot transfer account"
         end
       end
 
-      if [bank_accounts, carts, trips_ds.all].flatten.empty?
+      bank_accounts = self.legal_entity.bank_accounts_dataset.usable.verified.all
+      carts = self.commerce_carts_dataset.all
+      trips = self.mobility_trips_dataset.all
+      if [bank_accounts, carts, trips].flatten.empty?
         self.soft_delete
         new_member.add_activity(
           message_name: "membertransfer",
@@ -224,7 +223,7 @@ class Suma::Member < Suma::Postgres::Model(:members)
         )
         bank_account_ids_summary << ba.id
       end
-      summary << "BankAccount[#{bank_account_ids_summary.join(', ')}]"
+      summary << "BankAccount[#{bank_account_ids_summary.join(', ')}]" unless bank_accounts.empty?
 
       cart_ids_summary = []
       trip_ids_summary = []
@@ -236,8 +235,8 @@ class Suma::Member < Suma::Postgres::Model(:members)
           trip_ids_summary << model.id
         end
       end
-      summary << "Cart[#{cart_ids_summary.join(', ')}]"
-      summary << "Trip[#{trip_ids_summary.join(', ')}]"
+      summary << "Cart[#{cart_ids_summary.join(', ')}]" unless carts.empty?
+      summary << "Trip[#{trip_ids_summary.join(', ')}]" unless trips.empty?
 
       self.soft_delete
       new_member.add_activity(
