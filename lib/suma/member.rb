@@ -188,7 +188,7 @@ class Suma::Member < Suma::Postgres::Model(:members)
       end
 
       bank_accounts = self.legal_entity.bank_accounts_dataset.usable.verified.all
-      carts = self.commerce_carts_dataset.all
+      carts = self.commerce_carts_dataset.all.filter { |c| c.checkouts_dataset.any?(&:completed?) }
       trips = self.mobility_trips_dataset.all
       if [bank_accounts, carts, trips].flatten.empty?
         self.soft_delete
