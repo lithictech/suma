@@ -67,31 +67,39 @@ class Suma::Message::SmsTransport < Suma::Message::Transport
       self.allowlisted_phone?(to_phone)
 
     body = delivery.bodies.first.content
-    begin
-      if delivery.template == self.class.verification_template
-        self.logger.info("send_verification_sms", to: to_phone)
-        rmatch = Regexp.new(self.class.verification_code_regex).match(body.strip)
-        raise "Cannot extract verification code from '#{body}' using '#{self.class.verification_code_regex}'" if
-          rmatch.nil?
+    if delivery.template == self.class.verification_template
+      self.logger.info("send_verification_sms", to: to_phone)
+      rmatch = Regexp.new(self.class.verification_code_regex).match(body.strip)
+      raise "Cannot extract verification code from '#{body}' using '#{self.class.verification_code_regex}'" if
+        rmatch.nil?
+      begin
         response = Suma::Twilio.send_verification(to_phone, code: rmatch[1], locale: delivery.template_language)
-        # If we send the reset code multiple times with multiple deliveries,
-        # we get the same SID/message id, but different attempts. Disambiguate them,
-        # since we expect message ids to be empty.
-        sid = "#{response.sid}-#{response.send_code_attempts.length}"
-      elsif self.class.provider_disabled
-        self.logger.warn("sms_provider_disabled", phone: to_phone, body:)
-        raise Suma::Message::Transport::UndeliverableRecipient, "SMS provider disabled"
-      else
-        self.logger.info("send_twilio_sms", to: to_phone, message_preview: body.slice(0, 20))
+      rescue Twilio::REST::RestError => e
+        if (logmsg = FATAL_TWILIO_ERROR_CODES[e.code])
+          self.logger.warn(logmsg, phone: to_phone, body:, error: e.response.body)
+          raise Suma::Message::Transport::UndeliverableRecipient, "Fatal Twilio error: #{logmsg}"
+        end
+        raise(e)
+      end
+      # If we send the reset code multiple times with multiple deliveries,
+      # we get the same SID/message id, but different attempts. Disambiguate them,
+      # since we expect message ids to be empty.
+      sid = "#{response.sid}-#{response.send_code_attempts.length}"
+    elsif self.class.provider_disabled
+      self.logger.warn("sms_provider_disabled", phone: to_phone, body:)
+      raise Suma::Message::Transport::UndeliverableRecipient, "SMS provider disabled"
+    else
+      self.logger.info("send_twilio_sms", to: to_phone, message_preview: body.slice(0, 20))
+      begin
         response = Suma::Signalwire.send_sms(from_phone, to_phone, body)
-        sid = response.sid
+      rescue Twilio::REST::RestError => e
+        if (logmsg = FATAL_SIGNALWIRE_ERROR_CODES[e.code])
+          self.logger.warn(logmsg, phone: to_phone, body:, error: e.response.body)
+          raise Suma::Message::Transport::UndeliverableRecipient, "Fatal Signalwire error: #{logmsg}"
+        end
+        raise(e)
       end
-    rescue Twilio::REST::RestError => e
-      if (logmsg = FATAL_SIGNALWIRE_ERROR_CODES[e.code])
-        self.logger.warn(logmsg, phone: to_phone, body:, error: e.response.body)
-        raise Suma::Message::Transport::UndeliverableRecipient, "Fatal Signalwire error: #{logmsg}"
-      end
-      raise(e)
+      sid = response.sid
     end
     self.logger.debug { "Response from Signalwire: %p" % [response] }
     return sid
@@ -102,6 +110,10 @@ class Suma::Message::SmsTransport < Suma::Message::Transport
   # So we just log and delete the delivery.
   FATAL_SIGNALWIRE_ERROR_CODES = {
     "21217" => "signalwire_invalid_phone_number",
+  }.freeze
+
+  FATAL_TWILIO_ERROR_CODES = {
+    60_200 => "twilio_invalid_phone_number",
   }.freeze
 
   def add_bodies(delivery, content)
