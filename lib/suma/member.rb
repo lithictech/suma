@@ -67,6 +67,7 @@ class Suma::Member < Suma::Postgres::Model(:members)
   many_to_one :legal_entity, class: "Suma::LegalEntity"
   one_to_many :message_deliveries, key: :recipient_id, class: "Suma::Message::Delivery"
   one_to_one :preferences, class: "Suma::Message::Preferences"
+  one_to_many :mobility_trips, class: "Suma::Mobility::Trip"
   one_to_one :ongoing_trip, class: "Suma::Mobility::Trip", conditions: {ended_at: nil}
   many_through_many :orders,
                     [
@@ -166,6 +167,92 @@ class Suma::Member < Suma::Postgres::Model(:members)
     self.associations.delete(:pending_eligibility_constraints)
     self.associations.delete(:rejected_eligibility_constraints)
     return self
+  end
+
+  # Used when a member registers with a new phone number and lose their old account
+  # data. This method will transfer bank accounts, orders and mobility trips from a
+  # members old account +self+, to the +new_member+. Other association models should
+  # be treated as immutable.
+  #
+  # The old account will be soft_deleted and can later be referenced by activity logs.
+  #
+  # @param new_member [Suma::Member]
+  # @param now [Time]
+  # @return [Suma::Member]
+  def close_account_and_transfer(new_member, now)
+    self.db.transaction do
+      [self, new_member].each do |mem|
+        unless mem.mobility_trips_dataset.ongoing.all.empty?
+          raise Suma::Mobility::Trip::OngoingTrip, "Member[#{mem.id}] has an ongoing trip, cannot transfer account"
+        end
+      end
+
+      bank_accounts = self.legal_entity.bank_accounts_dataset.usable.verified.all
+      carts = self.commerce_carts_dataset.all.filter { |c| c.checkouts_dataset.any?(&:completed?) }
+      trips = self.mobility_trips_dataset.all
+      if [bank_accounts, carts, trips].flatten.empty?
+        self.soft_delete
+        new_member.add_activity(
+          message_name: "membertransfer",
+          summary: "Closed Member[#{self.id}] for this account, no associations transferred",
+          subject_type: "Suma::Member",
+          subject_id: self.id,
+        )
+        self.add_activity(
+          message_name: "membertransfer",
+          summary: "Closed this account for new Member[#{new_member.id}] account, no associations transferred",
+          subject_type: "Suma::Member",
+          subject_id: new_member.id,
+        )
+        return new_member
+      end
+
+      summary = []
+      bank_account_ids_summary = []
+      bank_accounts.each do |ba|
+        identity = Suma::Payment::BankAccount.identity(new_member.legal_entity_id, ba.routing_number, ba.account_number)
+        identified = new_member.legal_entity.bank_accounts_dataset[identity:]
+        next unless identified.nil?
+        ba = Suma::Payment::BankAccount.create(
+          legal_entity: new_member.legal_entity,
+          name: ba.name,
+          account_number: ba.account_number,
+          routing_number: ba.routing_number,
+          account_type: ba.account_type,
+          verified_at: now,
+        )
+        bank_account_ids_summary << ba.id
+      end
+      summary << "BankAccount[#{bank_account_ids_summary.join(', ')}]" unless bank_accounts.empty?
+
+      cart_ids_summary = []
+      trip_ids_summary = []
+      carts.concat(trips).each do |model|
+        model.update(member: new_member)
+        if model.class.name.demodulize === "Cart"
+          cart_ids_summary << model.id
+        else
+          trip_ids_summary << model.id
+        end
+      end
+      summary << "Cart[#{cart_ids_summary.join(', ')}]" unless carts.empty?
+      summary << "Trip[#{trip_ids_summary.join(', ')}]" unless trips.empty?
+
+      self.soft_delete
+      new_member.add_activity(
+        message_name: "membertransfer",
+        summary: "Closed Member[#{self.id}] and transferred #{summary.join(', ')} to this account",
+        subject_type: "Suma::Member",
+        subject_id: self.id,
+      )
+      self.add_activity(
+        message_name: "membertransfer",
+        summary: "Closed this account and transferred #{summary.join(', ')} to Member[#{new_member.id}]",
+        subject_type: "Suma::Member",
+        subject_id: new_member.id,
+      )
+      return new_member
+    end
   end
 
   def greeting

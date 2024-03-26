@@ -333,4 +333,107 @@ RSpec.describe "Suma::Member", :db do
       )
     end
   end
+
+  describe "close_account_and_transfer" do
+    let(:old_mem) { Suma::Fixtures.member.with_cash_ledger.create }
+    let(:new_mem) { Suma::Fixtures.member.create }
+    def close_account_and_transfer
+      old_mem.close_account_and_transfer(new_mem, Time.now)
+    end
+    it "closes old member account, transfers associations to new member account and add activity logs" do
+      Suma::Fixtures.bank_account.verified.member(old_mem).create
+      Suma::Fixtures.mobility_trip(member: old_mem).ended.create
+      order = Suma::Fixtures.order.as_purchased_by(old_mem).create
+
+      close_account_and_transfer
+
+      expect(old_mem).to be_soft_deleted
+      expect(new_mem.refresh.bank_accounts).to contain_exactly(have_attributes(legal_entity: new_mem.legal_entity))
+      expect(new_mem.refresh.commerce_carts).to contain_exactly(have_attributes(member: new_mem))
+      expect(new_mem.refresh.mobility_trips).to contain_exactly(have_attributes(member: new_mem))
+      expect(new_mem.refresh.orders).to contain_exactly(have_attributes(checkout: order.checkout))
+      expect(new_mem.refresh.activities.last).to have_attributes(
+        message_name: "membertransfer",
+        summary: start_with("Closed Member[#{old_mem.id}] and transferred "),
+      )
+      expect(old_mem.refresh.activities.last).to have_attributes(
+        message_name: "membertransfer",
+        summary: start_with("Closed this account and transferred") &&
+                 end_with("to Member[#{new_mem.id}]"),
+      )
+    end
+
+    it "closes old account without association transfers and add activity logs" do
+      close_account_and_transfer
+
+      expect(old_mem.refresh).to be_soft_deleted
+      expect(new_mem.refresh.activities.last).to have_attributes(
+        message_name: "membertransfer",
+        summary: "Closed Member[#{old_mem.id}] for this account, no associations transferred",
+      )
+      expect(old_mem.refresh.activities.last).to have_attributes(
+        message_name: "membertransfer",
+        summary: "Closed this account for new Member[#{new_mem.id}] account, no associations transferred",
+      )
+    end
+
+    it "raises if any member has an ongoing mobility trip" do
+      Suma::Fixtures.mobility_trip(member: old_mem).ended.create
+      expect { close_account_and_transfer }.to_not raise_error
+      Suma::Fixtures.mobility_trip(member: new_mem).ongoing.create
+      expect { close_account_and_transfer }.to raise_error(
+        Suma::Mobility::Trip::OngoingTrip,
+        "Member[#{new_mem.id}] has an ongoing trip, cannot transfer account",
+      )
+      Suma::Fixtures.mobility_trip(member: old_mem).ongoing.create
+      expect { close_account_and_transfer }.to raise_error(
+        Suma::Mobility::Trip::OngoingTrip,
+        "Member[#{old_mem.id}] has an ongoing trip, cannot transfer account",
+      )
+    end
+
+    it "transfers bank accounts only if they do not exist in the new member account" do
+      ba1 = Suma::Fixtures.bank_account.verified.member(old_mem).create
+      existing_acct = Suma::Fixtures.bank_account.verified.member(new_mem).create(
+        account_number: ba1.account_number,
+        routing_number: ba1.routing_number,
+      )
+
+      expect(close_account_and_transfer.bank_accounts).to contain_exactly(be === existing_acct)
+      not_existing_acct = existing_acct.update(routing_number: "111222333")
+      expect(close_account_and_transfer.refresh.bank_accounts).to contain_exactly(
+        be === not_existing_acct,
+        have_attributes(
+          legal_entity: new_mem.legal_entity,
+          account_number: ba1.account_number,
+          routing_number: ba1.routing_number,
+        ),
+      )
+    end
+
+    it "only transfers carts that have a completed checkout" do
+      order = Suma::Fixtures.order.as_purchased_by(old_mem).create
+      uncomplete_cart = Suma::Fixtures.cart.create(member: old_mem)
+
+      close_account_and_transfer
+
+      expect(new_mem.refresh.orders).to contain_exactly(have_attributes(checkout: order.checkout))
+    end
+
+    it "summarizes activity logs correctly" do
+      Array.new(2) { Suma::Fixtures.bank_account.verified.member(old_mem).create }
+      order = Suma::Fixtures.order.as_purchased_by(old_mem).create
+
+      close_account_and_transfer
+
+      ba_ids = new_mem.refresh.bank_accounts.map(&:id).join(", ")
+      association_summary = "BankAccount[#{ba_ids}], Cart[#{order.checkout.cart.id}]"
+      expect(new_mem.refresh.activities.last).to have_attributes(
+        summary: end_with(association_summary + " to this account"),
+      )
+      expect(old_mem.refresh.activities.last).to have_attributes(
+        summary: end_with(association_summary + " to Member[#{new_mem.id}]"),
+      )
+    end
+  end
 end
