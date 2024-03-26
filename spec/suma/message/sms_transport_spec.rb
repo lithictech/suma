@@ -60,25 +60,54 @@ RSpec.describe Suma::Message::SmsTransport, :db, reset_configuration: Suma::Mess
       expect(req).to have_been_made
     end
 
-    it "sends verification messages via twilio verify" do
-      req = stub_request(:post, "https://verify.twilio.com/v2/Services/VA555test/Verifications").
-        with(body: {"Channel" => "sms", "CustomCode" => "12345", "To" => "+15554443210", "Locale" => "es"}).
-        to_return(status: 200, body: load_fixture_data("twilio/post_verification", raw: true))
-      delivery = Suma::Fixtures.message_delivery.
-        sms("+15554443210", "Your suma verification code is: 12345").
-        create(template: "verification", template_language: "es")
-      result = described_class.new.send!(delivery)
-      expect(result).to eq("VE123-1")
+    it "raises signalwire errors" do
+      req = stub_signalwire_sms(body: "error", status: 500)
+      delivery = Suma::Fixtures.message_delivery.sms("(555) 444-3210", "hello").create
+      expect do
+        described_class.new.send!(delivery)
+      end.to raise_error(Twilio::REST::RestError, /HTTP 500/)
       expect(req).to have_been_made
     end
 
-    it "errors if the verification template is used but no code can be extracted" do
-      delivery = Suma::Fixtures.message_delivery.
-        sms("+15554443210", "Your suma verification code is: abcd").
-        create(template: "verification", template_language: "es")
-      expect do
-        described_class.new.send!(delivery)
-      end.to raise_error(/extract/)
+    describe "with the verification template" do
+      let(:delivery_fac) { Suma::Fixtures.message_delivery(template: "verification", template_language: "es") }
+
+      it "sends verification messages via twilio verify" do
+        req = stub_request(:post, "https://verify.twilio.com/v2/Services/VA555test/Verifications").
+          with(body: {"Channel" => "sms", "CustomCode" => "12345", "To" => "+15554443210", "Locale" => "es"}).
+          to_return(status: 200, body: load_fixture_data("twilio/post_verification", raw: true))
+        delivery = delivery_fac.sms("+15554443210", "Your suma verification code is: 12345").create
+        result = described_class.new.send!(delivery)
+        expect(result).to eq("VE123-1")
+        expect(req).to have_been_made
+      end
+
+      it "errors if the verification template is used but no code can be extracted" do
+        delivery = delivery_fac.sms("+15554443210", "Your suma verification code is: abcd").create
+        expect do
+          described_class.new.send!(delivery)
+        end.to raise_error(/Cannot extract/)
+      end
+
+      it "raises undeliverable if the phone number is invalid" do
+        req = stub_request(:post, "https://verify.twilio.com/v2/Services/VA555test/Verifications").
+          to_return(status: 400, body: load_fixture_data("twilio/error_invalid_phone", raw: true))
+        delivery = delivery_fac.sms("+15554443210", "Your suma verification code is: 12345").create
+        expect do
+          described_class.new.send!(delivery)
+        end.to raise_error(Suma::Message::Transport::UndeliverableRecipient, /twilio_invalid_phone_number/)
+        expect(req).to have_been_made
+      end
+
+      it "raises other twilio errors" do
+        req = stub_request(:post, "https://verify.twilio.com/v2/Services/VA555test/Verifications").
+          to_return(status: 500, body: "error")
+        delivery = delivery_fac.sms("+15554443210", "Your suma verification code is: 12345").create
+        expect do
+          described_class.new.send!(delivery)
+        end.to raise_error(Twilio::REST::RestError, /HTTP 500/)
+        expect(req).to have_been_made
+      end
     end
 
     describe "with sms provider disabled", reset_configuration: described_class do

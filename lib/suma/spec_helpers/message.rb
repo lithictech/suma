@@ -28,8 +28,10 @@ module Suma::SpecHelpers::Message
     opts[:headers] ||= {}
     opts[:headers]["Content-Type"] = "application/json"
 
-    body = load_fixture_data(opts[:fixture])
-    body["sid"] = opts[:sid]
+    if (body = opts[:body]).nil?
+      body = load_fixture_data(opts[:fixture])
+      body["sid"] = opts[:sid]
+    end
 
     req = stub_request(:post, "https://sumafaketest.signalwire.com/2010-04-01/Accounts/sw-test-project/Messages.json")
     req = req.to_return(
