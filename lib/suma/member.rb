@@ -168,6 +168,14 @@ class Suma::Member < Suma::Postgres::Model(:members)
     return self
   end
 
+  def replace_roles(roles)
+    ids = roles.map(&:id)
+    to_remove = self.roles_dataset.exclude(id: ids)
+    to_add = Suma::Role.where(id: ids).exclude(id: self.roles_dataset.select(:id))
+    to_add.each { |c| self.add_role(c) }
+    to_remove.each { |c| self.remove_role(c) }
+  end
+
   def greeting
     return self.name.blank? ? "there" : self.name
   end

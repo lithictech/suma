@@ -2,7 +2,7 @@ const initialTranslation = { en: "", es: "" };
 
 const initialFulfillmentOption = { type: "pickup", description: initialTranslation };
 
-const initialFulfillmentAddress = {
+const initialAddress = {
   address1: "",
   address2: "",
   city: "",
@@ -13,7 +13,7 @@ const initialFulfillmentAddress = {
 const formHelpers = {
   initialTranslation,
   initialFulfillmentOption,
-  initialFulfillmentAddress,
+  initialAddress,
 };
 
 export default formHelpers;

@@ -6,6 +6,7 @@ import DetailGrid from "../components/DetailGrid";
 import InlineEditField from "../components/InlineEditField";
 import PaymentAccountRelatedLists from "../components/PaymentAccountRelatedLists";
 import RelatedList from "../components/RelatedList";
+import ResourceDetail from "../components/ResourceDetail";
 import useErrorSnackbar from "../hooks/useErrorSnackbar";
 import { useUser } from "../hooks/user";
 import { dayjs } from "../modules/dayConfig";
@@ -15,15 +16,7 @@ import useAsyncFetch from "../shared/react/useAsyncFetch";
 import CancelIcon from "@mui/icons-material/Cancel";
 import EditIcon from "@mui/icons-material/Edit";
 import SaveIcon from "@mui/icons-material/Save";
-import {
-  Divider,
-  CircularProgress,
-  Typography,
-  Chip,
-  MenuItem,
-  Select,
-  Switch,
-} from "@mui/material";
+import { Divider, Typography, MenuItem, Select, Switch, Chip } from "@mui/material";
 import Button from "@mui/material/Button";
 import IconButton from "@mui/material/IconButton";
 import { makeStyles } from "@mui/styles";
@@ -38,111 +31,100 @@ export default function MemberDetailPage() {
   const { enqueueErrorSnackbar } = useErrorSnackbar();
   let { id } = useParams();
   id = Number(id);
-  const getMember = React.useCallback(() => {
-    return api.getMember({ id }).catch((e) => enqueueErrorSnackbar(e));
-  }, [id, enqueueErrorSnackbar]);
-  const {
-    state: member,
-    loading: memberLoading,
-    replaceState: replaceMember,
-  } = useAsyncFetch(getMember, {
-    default: {},
-    pickData: true,
-  });
-
-  function updateMember(m) {
+  const handleUpdateMember = (member, replaceState) => {
     return api
-      .updateMember(m)
-      .then((r) => replaceMember(r.data))
-      .catch((e) => enqueueErrorSnackbar(e));
-  }
-
+      .updateMember(member)
+      .then((r) => replaceState(r.data))
+      .catch(enqueueErrorSnackbar);
+  };
   return (
     <>
-      {memberLoading && <CircularProgress />}
-      {!isEmpty(member) && (
-        <div>
-          <Typography variant="h5" gutterBottom>
-            Member Details <ImpersonateButton id={id} />
-          </Typography>
-          <Divider />
-          <DetailGrid
-            title="Account Information"
-            properties={[
-              { label: "ID", value: id },
-              { label: "Name", value: member.name },
-              { label: "Email", value: member.email },
-              {
-                label: "Phone Number",
-                value: formatPhoneNumberIntl("+" + member.phone),
-              },
-              {
-                label: "Verified",
-                children: (
-                  <InlineEditField
-                    renderDisplay={
-                      member.onboardingVerifiedAt
-                        ? dayjs(member.onboardingVerifiedAt).format("lll")
-                        : "-"
-                    }
-                    initialEditingState={{ id: member.id }}
-                    renderEdit={(st, set) => {
-                      const mem = { ...member, ...st };
-                      return (
-                        <Switch
-                          checked={mem.onboardingVerified}
-                          onChange={(e) =>
-                            set({
-                              ...st,
-                              onboardingVerified: e.target.checked,
-                            })
-                          }
-                        ></Switch>
-                      );
-                    }}
-                    onSave={updateMember}
-                  />
-                ),
-              },
-              {
-                label: "Roles",
-                children: member.roles.map((role) => (
-                  <Chip key={role} label={capitalize(role)} sx={{ mr: 0.5 }} />
-                )),
-                hideEmpty: true,
-              },
-            ]}
-          />
-          <DetailGrid
-            title="Other Information"
-            properties={[
-              { label: "Timezone", value: member.timezone },
-              { label: "Created At", value: dayjs(member.createdAt) },
-              {
-                label: "Deleted At",
-                value: member.softDeletedAt && dayjs(member.softDeletedAt),
-                hideEmpty: true,
-              },
-            ]}
-          />
-          <LegalEntity {...member.legalEntity} />
-          <EligibilityConstraints
-            memberConstraints={member.eligibilityConstraints}
-            memberId={id}
-            replaceMemberData={replaceMember}
-          />
-          <Activities activities={member.activities} />
-          <Orders orders={member.orders} />
-          <Charges charges={member.charges} />
-          <BankAccounts bankAccounts={member.bankAccounts} />
-          <PaymentAccountRelatedLists paymentAccount={member.paymentAccount} />
-          <VendorAccounts vendorAccounts={member.vendorAccounts} />
-          <MessagePreferences preferences={member.preferences} />
-          <MessageDeliveries messageDeliveries={member.messageDeliveries} />
-          <Sessions sessions={member.sessions} />
-          <ResetCodes resetCodes={member.resetCodes} />
-        </div>
-      )}
+      <Typography variant="h5" gutterBottom>
+        Member Details <ImpersonateButton id={id} />
+      </Typography>
+      <Divider />
+      <ResourceDetail
+        apiGet={api.getMember}
+        title={(model) => `Account Information  ${model.id}`}
+        toEdit={(model) => `/member/${model.id}/edit?edit=true`}
+        properties={(model, replaceState) => [
+          { label: "ID", value: model.id },
+          { label: "Name", value: model.name },
+          { label: "Email", value: model.email },
+          {
+            label: "Phone Number",
+            value: formatPhoneNumberIntl("+" + model.phone),
+          },
+          {
+            label: "Verified",
+            children: (
+              <InlineEditField
+                renderDisplay={
+                  model.onboardingVerifiedAt
+                    ? dayjs(model.onboardingVerifiedAt).format("lll")
+                    : "-"
+                }
+                initialEditingState={{ id: model.id }}
+                renderEdit={(st, set) => {
+                  const mem = { ...model, ...st };
+                  return (
+                    <Switch
+                      checked={mem.onboardingVerified}
+                      onChange={(e) =>
+                        set({
+                          ...st,
+                          onboardingVerified: e.target.checked,
+                        })
+                      }
+                    ></Switch>
+                  );
+                }}
+                onSave={(member) => handleUpdateMember(member, replaceState)}
+              />
+            ),
+          },
+          {
+            label: "Roles",
+            children: model.roles.map((role) => (
+              <Chip key={role} label={capitalize(role.name)} sx={{ mr: 0.5 }} />
+            )),
+            hideEmpty: true,
+          },
+        ]}
+      >
+        {(model, setModel) => (
+          <>
+            <DetailGrid
+              title="Other Information"
+              properties={[
+                { label: "Timezone", value: model.timezone },
+                { label: "Created At", value: dayjs(model.createdAt) },
+                {
+                  label: "Deleted At",
+                  value: model.softDeletedAt && dayjs(model.softDeletedAt),
+                  hideEmpty: true,
+                },
+              ]}
+            />
+            <LegalEntity {...model.legalEntity} />
+            <EligibilityConstraints
+              memberConstraints={model.eligibilityConstraints}
+              memberId={id}
+              replaceMemberData={setModel}
+            />
+            <Activities activities={model.activities} />
+            <Orders orders={model.orders} />
+            <Charges charges={model.charges} />
+            <BankAccounts bankAccounts={model.bankAccounts} />
+            <PaymentAccountRelatedLists paymentAccount={model.paymentAccount} />
+            <VendorAccounts vendorAccounts={model.vendorAccounts} />
+            <MessagePreferences preferences={model.preferences} />
+            <MessageDeliveries messageDeliveries={model.messageDeliveries} />
+            <Sessions sessions={model.sessions} />
+            <ResetCodes resetCodes={model.resetCodes} />
+          </>
+        )}
+      </ResourceDetail>
     </>
   );
 }

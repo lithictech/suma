@@ -35,7 +35,7 @@ export default function Start() {
   });
 
   const handlePhoneChange = (e) => {
-    const formattedNum = maskPhoneNumber(e.target.value, phone);
+    const formattedNum = maskPhoneNumber(e.target.value);
     clearErrors();
     setValue("phone", formattedNum);
     setPhone(formattedNum);
