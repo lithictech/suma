@@ -257,8 +257,12 @@ module Suma::Postgres::ModelUtilities
           ]
         elsif k.end_with?("_cents")
           accessor = k.match(/^([a-z_]+)_cents/)[1]
-          k = accessor
-          self.send(accessor).format
+          if self.respond_to?(accessor)
+            k = accessor
+            self.send(accessor).format
+          else
+            v.inspect
+          end
         elsif (enc_field = self.class.encrypted_attributes_by_column[k.to_sym])
           k = enc_field.name
           "encrypted"
