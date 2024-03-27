@@ -3,6 +3,8 @@
 require "suma/payment"
 
 class Suma::Payment::ChargeContribution < Suma::TypedStruct
+  class InvalidCalculation < StandardError; end
+
   attr_reader :ledger, :apply_at, :amount, :category
 
   def _defaults
@@ -213,6 +215,8 @@ class Suma::Payment::ChargeContribution < Suma::TypedStruct
     # Instead, reason about negative balances, as additional charges;
     # it's simpler and more flexible, too (for example it will make it easier to do something like
     # bring the negative balance up to a minimum, rather than $0).
+    #
+    # Get the original balance, and if it's negative, treat it as a 'credit' so we don't calculate it.
     original_cash_balance = [context.balance(cash), Money.new(0, amount.currency)].min
 
     # We'll need to run triggers to calculate subsidy.
@@ -241,14 +245,37 @@ class Suma::Payment::ChargeContribution < Suma::TypedStruct
       additional_cash = candidate_charges.cash.amount - charges_using_existing_ledgers.cash.amount
       return candidate_charges if !candidate_charges.remainder? && candidate == additional_cash
       step = amount / (2**loop_number)
-      raise "got a $0 step bisecting #{amount} #{loop_number} times" if step.zero?
+      if step.zero?
+        # It may be that there is no whole cent cash contribution that will yield amount exactly.
+        #   original_ledger_balance + cash_contribution + (cash_contribution * trigger_multiplier) = cart_total
+        # For example, there is no cent value of x for:
+        #   $3 + $x + ($x * 3.8) = $24
+        # To solve this, we'd need to either support fractional cents,
+        # or allow a positive cash balance to be left on the ledger
+        # (choose the lowest contribution that yields a result >= amount).
+        # Rather than allowing a positive cash balance, we error, but this can change in the future.
+        msg = <<~MSG
+          Got a $0 step bisecting #{amount} #{loop_number} times. Usually this happens because
+          there is no whole cent value that can be processed by payment triggers,
+          and added to the current cash balance, to yield the target amount.
+          The cash ledger balance should be zero'ed out,
+          or non-cash ledgers can get a balance added such that the subsidy can be added cleanly.
+          Cash ledger: #{cash.inspect}
+          Balance: #{context.balance(cash)}
+          Target amount: #{amount}
+          Loops: #{loop_number}
+          Subsidy plan: #{subsidy_plan.inspect}
+        MSG
+        raise InvalidCalculation, msg
+      end
       needs_more_cash = candidate_charges.remainder?
       # NOTE: It is possible the candidate is below the minimum funding amount,
       # but that is handled elsewhere.
       step *= -1 unless needs_more_cash
       candidate += step
       loop_number += 1
-      raise "failed to bisect #{amount} after #{loop_number} attempts" if loop_number > 100
+      # This should rarely be hit- we'd get a $0 step first for all but very large amounts.
+      raise "failed to bisect #{amount} after #{loop_number} attempts" if loop_number >= 100
     end
   end
 

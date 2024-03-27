@@ -262,6 +262,18 @@ RSpec.describe Suma::Payment::ChargeContribution, :db do
       expect(got.rest).to contain_exactly(have_attributes(amount: cost("$0"), ledger: be === food_ledger))
     end
 
+    it "raises if a $0 step is calculated" do
+      # there's no whole cent value of x for the equation:
+      # $3 + $x + ($x * 3.8) = $24
+      # See code for more info.
+      Suma::Fixtures.book_transaction.to(cash_ledger).create(amount: money("$3"))
+      Suma::Fixtures.payment_trigger.matching(3.8).up_to(money("$19")).from(subsidizing_food_ledger).create
+      led = Suma::Fixtures.ledger.with_categories(food).create(account:)
+      expect do
+        described_class.find_ideal_cash_contribution(ctx, account, led, money("$24"))
+      end.to raise_error(described_class::InvalidCalculation, /Got a \$0 step bisecting 24\.00 13 times/)
+    end
+
     describe "with payment triggers" do
       it "handles the correct amount at the first bisect step" do
         t = Suma::Fixtures.payment_trigger.matching.from(subsidizing_food_ledger).create
