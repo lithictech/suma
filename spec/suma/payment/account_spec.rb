@@ -64,7 +64,8 @@ RSpec.describe "Suma::Payment::Account", :db do
     let!(:cash_ledger) { account.ensure_cash_ledger }
 
     it "raises if there is no cash ledger" do
-      account.remove_ledger(cash_ledger)
+      cash_ledger.remove_all_vendor_service_categories
+      cash_ledger.destroy
       expect do
         account.calculate_charge_contributions(context, grocery_service, money("$6"))
       end.to raise_error(Suma::InvalidPrecondition, /has no cash ledger/)

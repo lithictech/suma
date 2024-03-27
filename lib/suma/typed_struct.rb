@@ -21,8 +21,9 @@ class Suma::TypedStruct
 
   def inspect
     methods_to_keep = self.public_methods - Suma::TypedStruct._cached_base_methods
-    methods_to_keep.reject! { |m| m.to_s.end_with?("=") }
-    kvps = methods_to_keep.map { |m| "#{m}: #{self.send(m)}" }.join(", ")
+    methods_to_keep.reject! { |m| m.to_s.end_with?("=") || self.method(m).arity.nonzero? }
+    methods_to_keep.sort!
+    kvps = methods_to_keep.map { |m| "#{m}: #{self.send(m).inspect}" }.join(", ")
     return "#{self.class.name}(#{kvps})"
   end
 end

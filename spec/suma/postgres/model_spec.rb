@@ -326,10 +326,17 @@ RSpec.describe "Suma::Postgres::Model", :db do
       expect(s).to include("active_during: [2016-12-30 12:17:55...2017-12-30 12:17:55)")
     end
 
-    it "formats money" do
+    it "formats cents columns using money" do
       state = Suma::Postgres::TestingPixie.create
       state.price_per_unit_cents = 240
       expect(state.inspect).to include("price_per_unit: $2.40")
+    end
+
+    it "formats cents columns where there is no money accessor" do
+      state = Suma::Postgres::TestingPixie.create
+      state.price_per_unit_cents = 240
+      state.instance_eval("undef :price_per_unit", __FILE__, __LINE__)
+      expect(state.inspect).to include("price_per_unit_cents: 240")
     end
 
     it "decrypts strings and uris" do
