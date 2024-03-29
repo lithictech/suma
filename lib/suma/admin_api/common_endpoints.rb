@@ -32,7 +32,7 @@ module Suma::AdminAPI::CommonEndpoints
           elsif association_class?(assoc, Suma::Image)
             uf = Suma::UploadedFile.create_from_multipart(v)
             images << Suma::Image.new(uploaded_file: uf)
-          elsif v.key?(:id)
+          elsif v.key?(:id) && v.one?
             fk_attrs[assoc[:key]] = v[:id]
           else
             to_one_assocs_and_params << [assoc, v]

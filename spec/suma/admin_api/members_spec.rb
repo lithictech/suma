@@ -155,6 +155,7 @@ RSpec.describe Suma::AdminAPI::Members, :db do
       member = Suma::Fixtures.member.with_legal_entity(legal_entity).create
 
       post "/v1/members/#{member.id}", legal_entity: {
+        id: legal_entity.id,
         name: "hello",
         address: {
           address1: "main st",
