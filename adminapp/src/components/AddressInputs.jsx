@@ -1,7 +1,6 @@
 import api from "../api";
 import formHelpers from "../modules/formHelpers";
 import useMountEffect from "../shared/react/useMountEffect";
-import useToggle from "../shared/react/useToggle";
 import ResponsiveStack from "./ResponsiveStack";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -19,27 +18,19 @@ import {
 import isEmpty from "lodash/isEmpty";
 import React from "react";
 
-export default function AddressInputs({
-  address,
-  onFieldChange,
-  onAddressOn,
-  onAddressOff,
-}) {
-  const addingAddress = useToggle(Boolean(address));
+export default function AddressInputs({ address, onFieldChange }) {
   function handleFieldChange(a) {
     onFieldChange({ address: { ...address, ...a } });
   }
   function handleAddressOn() {
-    addingAddress.turnOn();
-    onAddressOn({ address: formHelpers.initialAddress });
+    onFieldChange({ address: formHelpers.initialAddress });
   }
   function handleAddressOff() {
-    addingAddress.turnOff();
-    onAddressOff({ address: null });
+    onFieldChange({ address: null });
   }
   return (
     <Stack spacing={2}>
-      {addingAddress.isOff ? (
+      {isEmpty(address) ? (
         <Button onClick={handleAddressOn}>
           <AddIcon /> Add Address
         </Button>

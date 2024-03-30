@@ -64,12 +64,6 @@ export default function MemberForm({
           onFieldChange={(addressObj) =>
             setField("legalEntity", merge(resource.legalEntity, addressObj))
           }
-          onAddressOn={(emptyAddressObj) =>
-            setField("legalEntity", merge(resource.legalEntity, emptyAddressObj))
-          }
-          onAddressOff={(nullAddressObj) =>
-            setField("legalEntity", merge(resource.legalEntity, nullAddressObj))
-          }
         />
       </Stack>
     </FormLayout>
@@ -77,17 +71,13 @@ export default function MemberForm({
 }
 
 function Roles({ roles, availableRoles, setRoles }) {
-  const [updatedRoles, setUpdatedRoles] = React.useState(roles);
-
   function deleteRole(id) {
-    const newRoles = updatedRoles.filter((c) => c.id !== id);
-    setUpdatedRoles(newRoles);
+    const newRoles = roles.filter((c) => c.id !== id);
     setRoles(newRoles);
   }
 
   function handleAdd(newRole) {
     const newRoles = [...roles, newRole];
-    setUpdatedRoles(newRoles);
     setRoles(newRoles);
   }
 
@@ -102,7 +92,7 @@ function Roles({ roles, availableRoles, setRoles }) {
         If you remove special roles like "admin", you will be logged out of this account.
       </FormHelperText>
       <Stack direction="row" spacing={1} sx={{ mt: theme.spacing(1) }}>
-        {updatedRoles.map(({ id, name }) => (
+        {roles.map(({ id, name }) => (
           <Chip
             key={id}
             label={name}

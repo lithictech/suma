@@ -219,8 +219,6 @@ function FulfillmentOption({ index, type, description, address, onChange, onRemo
         <AddressInputs
           address={address}
           onFieldChange={(addressObj) => onChange(addressObj)}
-          onAddressOn={(emptyAddressObj) => onChange(emptyAddressObj)}
-          onAddressOff={(nullAddressObj) => onChange(nullAddressObj)}
         />
       </Stack>
     </Box>

@@ -1,7 +1,10 @@
 import api from "../api";
 import useBusy from "../hooks/useBusy";
 import useErrorSnackbar from "../hooks/useErrorSnackbar";
+import { isNil, mergeWith } from "lodash";
 import assign from "lodash/assign";
+import isArray from "lodash/isArray";
+import { isObject } from "lodash/lang";
 import merge from "lodash/merge";
 import set from "lodash/set";
 import React from "react";
@@ -45,10 +48,22 @@ export default function ResourceForm({ InnerForm, baseResource, isCreate, applyC
     [setField]
   );
 
+  const resource = mergeWith({}, baseResource, changes, (obj, src) => {
+    // Since `_.merge()` only merges array indexes and does not replace arrays,
+    // we need to check for empty arrays and return them, also return src when
+    // it's an image or not an object (like a string).
+    // This allows nested resources and sub-nested resources to be removed/set
+    const isEmptyArray = isArray(src) && !isNil(src);
+    if (!isObject(src) || isEmptyArray || src instanceof File) {
+      return src;
+    }
+    // Otherwise, return default object and src merge
+    return merge({}, obj, src);
+  });
   return (
     <InnerForm
       isCreate={isCreate}
-      resource={merge({}, baseResource, changes)}
+      resource={resource}
       setFields={setChanges}
       setField={setField}
       setFieldFromInput={setFieldFromInput}

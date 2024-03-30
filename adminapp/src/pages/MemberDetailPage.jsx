@@ -86,7 +86,7 @@ export default function MemberDetailPage() {
           {
             label: "Roles",
             children: model.roles.map((role) => (
-              <Chip key={role} label={capitalize(role.name)} sx={{ mr: 0.5 }} />
+              <Chip key={role.id} label={capitalize(role.name)} sx={{ mr: 0.5 }} />
             )),
             hideEmpty: true,
           },
