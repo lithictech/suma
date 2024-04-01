@@ -255,6 +255,33 @@ RSpec.describe Suma::API::Commerce, :db do
     end
   end
 
+  describe "POST /v1/commerce/checkouts/:id/modify_fulfillment" do
+    let(:offering) { Suma::Fixtures.offering.create }
+    let!(:fulfillment) { Suma::Fixtures.offering_fulfillment_option(offering:).create }
+    let(:product) { Suma::Fixtures.product.category(:food).create }
+    let!(:offering_product) { Suma::Fixtures.offering_product(product:, offering:).create }
+    let(:cart) { Suma::Fixtures.cart(offering:, member:).with_product(product, 2).create }
+    let(:checkout) { Suma::Fixtures.checkout(cart:).populate_items.create }
+
+    it "updates the fulfillment option" do
+      newopt = Suma::Fixtures.offering_fulfillment_option(offering:).create
+
+      post "/v1/commerce/checkouts/#{checkout.id}/modify_fulfillment", option_id: newopt.id
+
+      expect(last_response).to have_status(200)
+      expect(checkout.refresh).to have_attributes(fulfillment_option: be === newopt)
+    end
+
+    it "400s if the given ID is not an available fulfillment option" do
+      opt = Suma::Fixtures.offering_fulfillment_option(offering: checkout.cart.offering).create
+      opt.soft_delete
+
+      post "/v1/commerce/checkouts/#{checkout.id}/modify_fulfillment", option_id: opt.id
+
+      expect(last_response).to have_status(400)
+    end
+  end
+
   describe "POST /v1/commerce/checkouts/:id/complete" do
     let(:offering) { Suma::Fixtures.offering.create }
     let!(:fulfillment) { Suma::Fixtures.offering_fulfillment_option(offering:).create }

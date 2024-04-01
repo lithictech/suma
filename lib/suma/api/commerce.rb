@@ -131,6 +131,18 @@ class Suma::API::Commerce < Suma::API::V1
         end
 
         params do
+          requires :option_id, type: Integer
+        end
+        post :modify_fulfillment do
+          checkout = lookup_editable!
+          valid_option = checkout.available_fulfillment_options.any? { |o| o.id == params[:option_id] }
+          invalid!("Not a valid fulfillment option") unless valid_option
+          checkout.update(fulfillment_option_id: params[:option_id])
+          status 200
+          present checkout, with: CheckoutEntity, cart: checkout.cart, context: new_context
+        end
+
+        params do
           requires :charge_amount_cents, type: Integer
           optional :payment_instrument, type: JSON do
             use :payment_instrument
