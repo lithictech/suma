@@ -151,11 +151,22 @@ RSpec.describe Suma::API::Commerce, :db do
           items: contain_exactly(include(quantity: 2, product: include(product_id: product.id))),
           payment_instrument: nil,
           available_payment_instruments: [],
-          fulfillment_option_id: fulfillment.id,
+          fulfillment_option_id: nil,
           available_fulfillment_options: contain_exactly(include(id: fulfillment.id)),
         )
       expect(other_member_checkout.refresh).to be_soft_deleted
       expect(completed_checkout.refresh).to_not be_soft_deleted
+    end
+
+    it "starts a checkout with fulfillment option from a previously editable checkout" do
+      existing_editable_checkout = Suma::Fixtures.checkout(cart:, fulfillment_option: fulfillment).create
+
+      post "/v1/commerce/offerings/#{offering.id}/checkout"
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.that_includes(
+        fulfillment_option_id: existing_editable_checkout.fulfillment_option.id,
+      )
     end
 
     it "errors if there are no items in the cart" do

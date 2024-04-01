@@ -82,13 +82,16 @@ class Suma::API::Commerce < Suma::API::V1
             # - Errors if any item is unavailable
             # - Errors if any item has insufficient quantity available
             # - Errors if checking out an empty cart
+            existing_editable_checkout = cart.checkouts_dataset.find(&:editable?)
             cart.member.commerce_carts.map(&:checkouts).flatten.select(&:editable?).each(&:soft_delete)
             checkout = Suma::Commerce::Checkout.create(
               cart:,
-              fulfillment_option: offering.fulfillment_options.first,
               payment_instrument: member.default_payment_instrument,
               save_payment_instrument: member.default_payment_instrument.present?,
             )
+            if existing_editable_checkout&.fulfillment_option
+              checkout.update(fulfillment_option: existing_editable_checkout.fulfillment_option)
+            end
             ctx = new_context
             merror!(409, "no items in cart", code: "checkout_no_items") if cart.items.empty?
             cart.items.each do |item|

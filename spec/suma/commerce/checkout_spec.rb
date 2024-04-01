@@ -356,7 +356,6 @@ RSpec.describe "Suma::Commerce::Checkout", :db do
     it "excludes deleted options" do
       checkout = Suma::Fixtures.checkout.create
       opt_fac = Suma::Fixtures.offering_fulfillment_option(offering: checkout.cart.offering)
-      checkout.fulfillment_option.soft_delete
       opt1 = opt_fac.create
       opt2 = opt_fac.create
       opt2.soft_delete

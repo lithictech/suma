@@ -216,7 +216,7 @@ class Suma::Commerce::Order < Suma::Postgres::Model(:commerce_orders)
   end
 
   def can_claim?
-    return self.fulfillment_status == "fulfilling" && self.checkout.fulfillment_option.pickup?
+    return self.fulfillment_status == "fulfilling" && self.checkout.fulfillment_option&.pickup?
   end
 end
 
