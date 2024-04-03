@@ -54,10 +54,10 @@ RSpec.describe "Suma::Commerce::Order", :db do
 
   describe "fulfillment_options_for_editing" do
     let(:offering) { Suma::Fixtures.offering.create }
-    let(:fulfillment) { Suma::Fixtures.offering_fulfillment_option(offering:).create }
-    let(:cart) { Suma::Fixtures.cart(offering:).create }
-    let(:checkout) { Suma::Fixtures.checkout(cart:).completed.create }
-    let(:order) { Suma::Fixtures.order(checkout:).create }
+    let(:order) do
+      checkout = Suma::Fixtures.checkout(cart: Suma::Fixtures.cart(offering:).create).completed.create
+      Suma::Fixtures.order(checkout:).create
+    end
 
     it "shows checkout options on an unfulfilled order" do
       expect(order.fulfillment_options_for_editing).to have_same_ids_as(*offering.fulfillment_options)
