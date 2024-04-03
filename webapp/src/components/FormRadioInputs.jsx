@@ -24,7 +24,6 @@ export default function FormRadioInputs({
   selected,
   name,
   className,
-  // eslint-disable-next-line no-unused-vars
   text,
   onChange,
   required,
