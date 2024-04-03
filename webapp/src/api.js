@@ -72,6 +72,8 @@ export default {
   startCheckout: ({ offeringId, ...data }) =>
     post(`/api/v1/commerce/offerings/${offeringId}/checkout`, data),
   getCheckout: ({ id, ...data }) => get(`/api/v1/commerce/checkouts/${id}`, data),
+  updateCheckoutFulfillment: ({ checkoutId, ...data }) =>
+    post(`/api/v1/commerce/checkouts/${checkoutId}/modify_fulfillment`, data),
   completeCheckout: ({ id, ...data }) =>
     post(`/api/v1/commerce/checkouts/${id}/complete`, data),
   getCheckoutConfirmation: ({ id, ...data }) =>

@@ -220,6 +220,7 @@
     "invalid_min": "Su respuesta debe ser {{constraint}} o mayor.",
     "invalid_min_amount": "Su respuesta debe ser {{constraint, sumaCurrency}} o más.",
     "invalid_min_length": "Su respuesta debe ser {{constraint}} caracteres o más.",
+    "invalid_radio_or_checkbox": "Por favor elija una de las opciones.",
     "invalid_required": "Respuesta requerida",
     "invalid_routing_number": "Ingrese el código de ruta de 9 dígitos de su cuenta bancaria.",
     "name": "Nombre",
