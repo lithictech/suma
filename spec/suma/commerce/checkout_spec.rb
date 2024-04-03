@@ -3,6 +3,24 @@
 RSpec.describe "Suma::Commerce::Checkout", :db do
   let(:described_class) { Suma::Commerce::Checkout }
 
+  describe "fixtures" do
+    it "can add fulfillment option" do
+      option = Suma::Fixtures.offering_fulfillment_option.create
+      checkout = Suma::Fixtures.checkout.with_fulfillment_option(option).create
+      expect(checkout.fulfillment_option).to be === option
+    end
+
+    it "can create a fulfillment option with passed attributes" do
+      checkout = Suma::Fixtures.checkout.with_fulfillment_option({type: "delivery"}).create
+      expect(checkout.fulfillment_option).to have_attributes(type: "delivery")
+    end
+
+    it "can associate the checkouts cart offering to the new fulfillment option" do
+      checkout = Suma::Fixtures.checkout.with_fulfillment_option.create
+      expect(checkout.fulfillment_option.offering).to be === checkout.cart.offering
+    end
+  end
+
   describe "cost accessors" do
     let(:member) { Suma::Fixtures.member.create }
     let(:offering) { Suma::Fixtures.offering.create }
