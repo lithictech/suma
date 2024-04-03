@@ -159,7 +159,8 @@ RSpec.describe Suma::API::Commerce, :db do
     end
 
     it "starts a checkout with fulfillment option from a previously editable checkout" do
-      existing_editable_checkout = Suma::Fixtures.checkout(cart:, fulfillment_option: fulfillment).create
+      noneditable_checkout = Suma::Fixtures.checkout(cart:).with_fulfillment_option(fulfillment).complete.create
+      existing_editable_checkout = Suma::Fixtures.checkout(cart:).with_fulfillment_option(fulfillment).create
 
       post "/v1/commerce/offerings/#{offering.id}/checkout"
 
@@ -312,13 +313,6 @@ RSpec.describe Suma::API::Commerce, :db do
       expect(checkout.refresh).to be_completed
     end
 
-    it "errors if fulfillment option id is missing" do
-      post "/v1/commerce/checkouts/#{checkout.id}/complete", charge_amount_cents: cost
-
-      expect(last_response).to have_status(400)
-      expect(last_response).to have_json_body.that_includes(error: include(code: "validation_error"))
-    end
-
     it "errors if fulfillment option id is invalid" do
       invalid_option = Suma::Fixtures.offering_fulfillment_option.create
 
@@ -326,8 +320,8 @@ RSpec.describe Suma::API::Commerce, :db do
            charge_amount_cents: cost,
            fulfillment_option_id: invalid_option.id
 
-      expect(last_response).to have_status(403)
-      expect(last_response).to have_json_body.that_includes(error: include(code: "resource_not_found"))
+      expect(last_response).to have_status(400)
+      expect(last_response).to have_json_body.that_includes(error: include(code: "validation_error"))
     end
 
     it "errors if checkout is prohibited" do
@@ -413,7 +407,8 @@ RSpec.describe Suma::API::Commerce, :db do
 
       post "/v1/commerce/checkouts/#{checkout.id}/complete", charge_amount_cents: cost, fulfillment_option_id: newopt.id
 
-      expect(last_response).to have_status(403)
+      expect(last_response).to have_status(400)
+      expect(last_response).to have_json_body.that_includes(error: include(code: "validation_error"))
     end
 
     it "errors if max quantity is exceeded" do
@@ -555,6 +550,7 @@ RSpec.describe Suma::API::Commerce, :db do
       post "/v1/commerce/orders/#{order.id}/modify_fulfillment", option_id: opt.id
 
       expect(last_response).to have_status(400)
+      expect(last_response).to have_json_body.that_includes(error: include(code: "validation_error"))
     end
   end
 

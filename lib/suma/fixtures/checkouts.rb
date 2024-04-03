@@ -32,6 +32,13 @@ module Suma::Fixtures::Checkouts
     end
   end
 
+  decorator :with_fulfillment_option, presave: true do |o={}|
+    unless o.is_a?(Suma::Commerce::OfferingFulfillmentOption)
+      o = Suma::Fixtures.offering_fulfillment_option(offering: self.cart.offering).create(o)
+    end
+    self.fulfillment_option = o
+  end
+
   decorator :with_payment_instrument, presave: true do
     self.payment_instrument ||= Suma::Fixtures.send([:card, :bank_account].sample).member(self.cart.member).create
   end

@@ -11,6 +11,12 @@ class Suma::API::Commerce < Suma::API::V1
   resource :commerce do
     helpers do
       def new_context = Suma::Payment::CalculationContext.new(Time.now)
+
+      def set_fulfillment_or_error(model, id, available_options)
+        valid_option = available_options.any? { |o| o.id == id }
+        invalid!("Not a valid fulfillment option") unless valid_option
+        model.set(fulfillment_option_id: id)
+      end
     end
 
     resource :offerings do
@@ -135,9 +141,7 @@ class Suma::API::Commerce < Suma::API::V1
         end
         post :modify_fulfillment do
           checkout = lookup_editable!
-          valid_option = checkout.available_fulfillment_options.any? { |o| o.id == params[:option_id] }
-          invalid!("Not a valid fulfillment option") unless valid_option
-          checkout.update(fulfillment_option_id: params[:option_id])
+          set_fulfillment_or_error(checkout, params[:option_id], checkout.available_fulfillment_options).save_changes
           status 200
           present checkout, with: CheckoutEntity, cart: checkout.cart, context: new_context
         end
@@ -160,10 +164,7 @@ class Suma::API::Commerce < Suma::API::V1
             checkout.payment_instrument = instrument if instrument
           end
 
-          fuloptid = params[:fulfillment_option_id]
-          fulopt = checkout.cart.offering.fulfillment_options_dataset[fuloptid]
-          merror!(403, "Fulfillment option not found", code: "resource_not_found") unless fulopt
-          checkout.fulfillment_option = fulopt
+          set_fulfillment_or_error(checkout, params[:fulfillment_option_id], checkout.available_fulfillment_options)
 
           checkout.save_payment_instrument = params[:save_payment_instrument] if
             params.key?(:save_payment_instrument)
@@ -225,9 +226,11 @@ class Suma::API::Commerce < Suma::API::V1
         end
         post :modify_fulfillment do
           order = lookup
-          valid_option = order.fulfillment_options_for_editing.any? { |o| o.id == params[:option_id] }
-          invalid!("Not a valid fulfillment option") unless valid_option
-          order.checkout.update(fulfillment_option_id: params[:option_id])
+          set_fulfillment_or_error(
+            order.checkout,
+            params[:option_id],
+            order.fulfillment_options_for_editing,
+          ).save_changes
           status 200
           present order, with: DetailedOrderHistoryEntity
         end
