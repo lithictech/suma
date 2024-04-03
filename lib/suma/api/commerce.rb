@@ -147,7 +147,7 @@ class Suma::API::Commerce < Suma::API::V1
           optional :payment_instrument, type: JSON do
             use :payment_instrument
           end
-          optional :fulfillment_option_id, type: Integer
+          requires :fulfillment_option_id, type: Integer
           optional :save_payment_instrument, type: Boolean, allow_blank: false
         end
         post :complete do
@@ -160,11 +160,10 @@ class Suma::API::Commerce < Suma::API::V1
             checkout.payment_instrument = instrument if instrument
           end
 
-          if (fuloptid = params[:fulfillment_option_id])
-            fulopt = checkout.cart.offering.fulfillment_options_dataset[fuloptid]
-            merror!(403, "Fulfillment option not found", code: "resource_not_found") unless fulopt
-            checkout.fulfillment_option = fulopt
-          end
+          fuloptid = params[:fulfillment_option_id]
+          fulopt = checkout.cart.offering.fulfillment_options_dataset[fuloptid]
+          merror!(403, "Fulfillment option not found", code: "resource_not_found") unless fulopt
+          checkout.fulfillment_option = fulopt
 
           checkout.save_payment_instrument = params[:save_payment_instrument] if
             params.key?(:save_payment_instrument)
