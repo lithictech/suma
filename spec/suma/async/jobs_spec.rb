@@ -11,6 +11,51 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
     Suma::Async.setup_tests
   end
 
+  describe "AnalyticsDispatch" do
+    it "upserts analytics rows for transactional model updates" do
+      expect do
+        Suma::Fixtures.member.create
+      end.to perform_async_job(Suma::Async::AnalyticsDispatch)
+
+      expect(Suma::Analytics::Member.all).to have_length(1)
+    end
+
+    it "destroys analytics rows for transactional model updates" do
+      member = Suma::Fixtures.member.create
+      Suma::Analytics.upsert_from_transactional_model(member)
+      expect(Suma::Analytics::Member.dataset.all).to have_length(1)
+      expect do
+        member.destroy
+      end.to perform_async_job(Suma::Async::AnalyticsDispatch)
+
+      expect(Suma::Analytics::Member.all).to be_empty
+    end
+
+    it "noops for non-lifecycle events" do
+      m = Suma::Fixtures.member.create
+      expect do
+        m.publish_immediate("foo", m.id)
+      end.to perform_async_job(Suma::Async::AnalyticsDispatch)
+
+      expect(Suma::Analytics::Member.all).to be_empty
+    end
+
+    it "raises if no model class is found for the lifecycle event" do
+      event = Amigo::Event.new("abc", "suma.nomodel.created", [1]).as_json
+      expect do
+        Suma::Async::AnalyticsDispatch.new.perform(event)
+      end.to raise_error(/cannot find model for suma\.nomodel/)
+    end
+
+    it "noops for transactional models which do not have analytics handlers" do
+      expect do
+        Suma::Fixtures.uploaded_file.create
+      end.to perform_async_job(Suma::Async::AnalyticsDispatch)
+
+      expect(Suma::Analytics::Member.all).to be_empty
+    end
+  end
+
   describe "EnsureDefaultMemberLedgersOnCreate" do
     it "creates ledgers" do
       expect do
