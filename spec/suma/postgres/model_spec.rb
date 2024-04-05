@@ -441,6 +441,12 @@ RSpec.describe "Suma::Postgres::Model", :db do
       expect(result).to eq(names.reverse)
     end
 
+    it "can yield the full page rather than a row" do
+      result = []
+      cls.each_cursor_page(page_size: 3, yield_page: true) { |page| page.map(&:name).each { |n| result << n } }
+      expect(result).to eq(names)
+    end
+
     it "can perform an action on the returned values of each chunk" do
       clean_ds = ds.exclude(Sequel.like(:name, "%prime")) # Avoid re-selecting the stuff we just inserted
       clean_ds.each_cursor_page_action(page_size: 3, action: ds.method(:multi_insert)) do |tp|

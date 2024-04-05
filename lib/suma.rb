@@ -184,6 +184,8 @@ module Suma
   end
 
   def self.bool?(v) = [true, false].include?(v)
+
+  def self.as_ary(x)  = x.respond_to?(:to_ary) ? x : [x]
 end
 
 require "suma/aggregate_result"
