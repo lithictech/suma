@@ -144,4 +144,5 @@ end
 #  payment_funding_transactions      | payment_funding_transactions_originated_book_transaction_i_fkey | (originated_book_transaction_id) REFERENCES payment_book_transactions(id) ON DELETE RESTRICT
 #  payment_payout_transactions       | payment_payout_transactions_crediting_book_transaction_id_fkey  | (crediting_book_transaction_id) REFERENCES payment_book_transactions(id) ON DELETE RESTRICT
 #  payment_payout_transactions       | payment_payout_transactions_originated_book_transaction_id_fkey | (originated_book_transaction_id) REFERENCES payment_book_transactions(id) ON DELETE RESTRICT
+#  payment_trigger_executions        | payment_trigger_executions_book_transaction_id_fkey             | (book_transaction_id) REFERENCES payment_book_transactions(id)
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------

@@ -191,7 +191,6 @@ require "suma/commerce/offering_picklist"
 #  begin_fulfillment_at         | timestamp with time zone |
 #  fulfillment_prompt_id        | integer                  | NOT NULL
 #  fulfillment_confirmation_id  | integer                  | NOT NULL
-#  prohibit_charge_at_checkout  | boolean                  | NOT NULL DEFAULT false
 #  max_ordered_items_cumulative | integer                  |
 #  max_ordered_items_per_member | integer                  |
 # Indexes:

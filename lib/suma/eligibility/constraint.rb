@@ -47,5 +47,6 @@ end
 #  eligibility_anon_proxy_vendor_configuration_associations | eligibility_anon_proxy_vendor_configuration__constraint_id_fkey | (constraint_id) REFERENCES eligibility_constraints(id)
 #  eligibility_member_associations                          | eligibility_member_associations_constraint_id_fkey              | (constraint_id) REFERENCES eligibility_constraints(id)
 #  eligibility_offering_associations                        | eligibility_offering_associations_constraint_id_fkey            | (constraint_id) REFERENCES eligibility_constraints(id)
+#  eligibility_payment_trigger_associations                 | eligibility_payment_trigger_associations_constraint_id_fkey     | (constraint_id) REFERENCES eligibility_constraints(id)
 #  eligibility_vendor_service_associations                  | eligibility_vendor_service_associations_constraint_id_fkey      | (constraint_id) REFERENCES eligibility_constraints(id)
 # ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------

@@ -130,7 +130,7 @@ end
 #  updated_at           | timestamp with time zone |
 #  currency             | text                     | NOT NULL
 #  name                 | text                     | NOT NULL
-#  account_id           | integer                  |
+#  account_id           | integer                  | NOT NULL
 #  contribution_text_id | integer                  | NOT NULL
 # Indexes:
 #  payment_ledgers_pkey                | PRIMARY KEY btree (id)
@@ -144,5 +144,6 @@ end
 #  payment_book_transactions                 | payment_book_transactions_receiving_ledger_id_fkey       | (receiving_ledger_id) REFERENCES payment_ledgers(id)
 #  payment_funding_transactions              | payment_funding_transactions_platform_ledger_id_fkey     | (platform_ledger_id) REFERENCES payment_ledgers(id) ON DELETE RESTRICT
 #  payment_payout_transactions               | payment_payout_transactions_platform_ledger_id_fkey      | (platform_ledger_id) REFERENCES payment_ledgers(id) ON DELETE RESTRICT
+#  payment_triggers                          | payment_triggers_originating_ledger_id_fkey              | (originating_ledger_id) REFERENCES payment_ledgers(id)
 #  vendor_service_categories_payment_ledgers | vendor_service_categories_payment_ledgers_ledger_id_fkey | (ledger_id) REFERENCES payment_ledgers(id)
 # ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
