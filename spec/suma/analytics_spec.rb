@@ -13,6 +13,10 @@ RSpec.describe Suma::Analytics, :db do
       described_class.upsert_from_transactional_model(m)
       expect(Suma::Analytics::Member.all).to be_empty
     end
+
+    it "noops if empty" do
+      expect { described_class.upsert_from_transactional_model([]) }.to_not raise_error
+    end
   end
 
   describe "destroy_from_transactional_model" do
@@ -85,6 +89,14 @@ RSpec.describe Suma::Analytics, :db do
       Suma::Analytics.upsert_from_transactional_model(o)
       expect(Suma::Analytics::Order.dataset.all).to contain_exactly(
         include(order_id: o.id, member_id: o.checkout.cart.member_id, funded_amount: 0),
+      )
+    end
+
+    it "can denormalize order items" do
+      o = Suma::Fixtures.order.create
+      Suma::Analytics.upsert_from_transactional_model(o)
+      expect(Suma::Analytics::OrderItem.dataset.all).to contain_exactly(
+        include(order_id: o.id),
       )
     end
   end

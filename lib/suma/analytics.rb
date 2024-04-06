@@ -8,9 +8,11 @@ module Suma::Analytics
     # upsert them into all corresponding analytics tables.
     # All instances in +oltp_models+ must have the same type.
     def upsert_from_transactional_model(oltp_models, olap_classes: nil)
-      oltp_models = [oltp_models] unless oltp_models.respond_to?(:to_ary)
-      raise Suma::InvalidPrecondition, "models must all be the same type" unless
-        oltp_models.map(&:class).uniq.count == 1
+      oltp_models = Suma.as_ary(oltp_models)
+      return nil if oltp_models.empty?
+      uniq_oltp_classes = oltp_models.map(&:class).uniq
+      raise Suma::InvalidPrecondition, "models must all be the same type, got: #{uniq_oltp_classes.map(&:name)}" unless
+        uniq_oltp_classes.count == 1
       model_cls = oltp_models.first.class.first.class
       eligible_olap_classes = self.olap_classes.select { |d| d.denormalize_from?(model_cls) }
       olap_classes = olap_classes.nil? ? eligible_olap_classes : (olap_classes & eligible_olap_classes)
