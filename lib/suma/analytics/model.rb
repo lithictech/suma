@@ -21,6 +21,7 @@ class Suma::Analytics::Model
     setting :uri, ENV.fetch("DATABASE_URL", "postgres://suma_analytics_test"), key: "ANALYTICS_DATABASE_URL"
     setting :pool_timeout, 10
     setting :max_connections, 4
+    setting :extension_schema, "public"
     after_configured do
       options = {
         logger: [self.logger],
@@ -38,6 +39,12 @@ class Suma::Analytics::Model
     subclass.extend(ClassMethods)
   end
 
+  def self.extensions
+    return [
+      "citext",
+    ]
+  end
+
   module ClassMethods
     def unique_key(sym=nil)
       @unique_key = sym unless sym.nil?
@@ -48,9 +55,17 @@ class Suma::Analytics::Model
     # using the given method.
     #
     # @param transactional_model_class [Class] Like +Suma::Member+.
-    # @param with [Symbol,Proc] Like +member_to_rows+. Must return a hash of the row to upsert,
-    #   or an array of row hashes to upsert. Every row hash must include the +unique_key+,
-    #   used for conditional upserting.
+    # @param with [Symbol,Proc,Array] Converter to take the transactional model and return a row to upsert,
+    #   or an array of rows to upsert.
+    #   Every row hash must include the +unique_key+, used for INSERT ON CONFLICT.
+    #   The +with+_ argument can be one of:
+    #   - A +Symbol+, which identifies the method, called with the transactional model instance.
+    #   - A +Proc+, called with the transactional model instance.
+    #   - An +Array+, which is a shorthand for denormalization. Each item in the array is one of:
+    #     - A +Symbol+, like `:name`, which would add a cell for `name=model.name`.
+    #     - A tuple of symbols, like `[:id, :member_id]`, which would add a cell for `member_id=model.id`.
+    #     - A tuple of a symbol and proc, like `[:email, ->(m) { m.email.upcase }]`,
+    #       called with the model instance, which would add a cell like `email='A@B.C'`.
     def denormalize(transactional_model_class, with:)
       self.denormalizers[transactional_model_class] = with
     end
@@ -68,18 +83,42 @@ class Suma::Analytics::Model
     # call the handler for it and return its rows.
     def to_rows(oltp_model)
       h = self.denormalizers[oltp_model.class] or raise KeyError, "#{self} has no denormalizer for #{oltp_model.class}"
-      handler = h.is_a?(Symbol) ? self.method(h) : h
+      handler = self.denormalizer_to_handler(h)
       rows = handler.call(oltp_model)
       rows = Suma.as_ary(rows)
       unique_key = self.unique_key
-      unless (_rows_ok = rows.all? { |r| r.key?(unique_key) })
-        msg = "All rows need a key with the table's unique key, used for upsert: #{unique_key}"
-        raise Suma::InvalidPostcondition, msg
+      rows.each do |row|
+        unless row.key?(unique_key)
+          msg = "All rows need a key with the table's unique key #{unique_key.inspect}: #{row}"
+          raise Suma::InvalidPostcondition, msg
+        end
+        row.transform_values! { |v| v.is_a?(Money) ? v.to_f : v }
       end
       return rows
     end
 
+    def denormalizer_to_handler(h)
+      return self.method(h) if h.is_a?(Symbol)
+      if h.is_a?(Array)
+        return lambda do |o|
+          h.to_h do |item|
+            case item
+              when Symbol
+                [item, o.send(item)]
+              when Array
+                val = item[1].is_a?(Symbol) ? o.send(item[1]) : item[1].call(o)
+                [item[0], val]
+              else
+                raise TypeError, "invalid denormalizer shorthand: #{item}"
+            end
+          end
+        end
+      end
+      return h
+    end
+
     def upsert_rows(*rows)
+      return nil if rows.empty?
       unique_key = self.unique_key
       combined_rows_by_unique_id = {}
       rows.each do |row|

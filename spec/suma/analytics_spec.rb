@@ -14,7 +14,7 @@ RSpec.describe Suma::Analytics, :db do
       expect(Suma::Analytics::Member.all).to be_empty
     end
 
-    it "noops if empty" do
+    it "noops if models is empty" do
       expect { described_class.upsert_from_transactional_model([]) }.to_not raise_error
     end
   end
@@ -88,15 +88,26 @@ RSpec.describe Suma::Analytics, :db do
       o = Suma::Fixtures.order.create
       Suma::Analytics.upsert_from_transactional_model(o)
       expect(Suma::Analytics::Order.dataset.all).to contain_exactly(
-        include(order_id: o.id, member_id: o.checkout.cart.member_id, funded_amount: 0),
+        include(order_id: o.id, member_id: o.checkout.cart.member_id, funded_cost: 0),
       )
     end
 
-    it "can denormalize order items" do
-      o = Suma::Fixtures.order.create
+    it "can denormalize into order items" do
+      o = Suma::Fixtures.order.as_purchased_by.create
       Suma::Analytics.upsert_from_transactional_model(o)
       expect(Suma::Analytics::OrderItem.dataset.all).to contain_exactly(
         include(order_id: o.id),
+      )
+    end
+  end
+
+  describe "Ledger" do
+    it "can denormalize from book transactions" do
+      o = Suma::Fixtures.book_transaction.create
+      Suma::Analytics.upsert_from_transactional_model(o)
+      expect(Suma::Analytics::Ledger.dataset.all).to contain_exactly(
+        include(ledger_id: o.receiving_ledger_id),
+        include(ledger_id: o.originating_ledger_id),
       )
     end
   end

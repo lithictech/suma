@@ -29,6 +29,42 @@ RSpec.describe "Suma::Analytics::Model", :db do
       expect(subclass.to_rows(m)).to eq([{member_id: m.id, phone: "12223334444"}])
     end
 
+    it "calls the handler (shorthand) for the class" do
+      subclass = analytics_model("HashHandler")
+      subclass.instance_eval do
+        unique_key :member_id
+        denormalize Suma::Member, with: [
+          [:member_id, :id],
+          :phone,
+          [:email, ->(m) { m.email.upcase }],
+        ]
+      end
+      m = Suma::Fixtures.member.create(phone: "12223334444", email: "a@b.c")
+      expect(subclass.to_rows(m)).to eq([{
+                                          member_id: m.id,
+                                          phone: "12223334444",
+                                          email: "A@B.C",
+                                        }])
+    end
+
+    it "converts money into decimals" do
+      subclass = analytics_model("MoneyModel") do
+        decimal :amount
+      end
+      subclass.instance_eval do
+        unique_key :member_id
+        denormalize Suma::Member, with: [
+          [:member_id, :id],
+          [:amount, ->(*) { Money.new(111) }],
+        ]
+      end
+      m = Suma::Fixtures.member.create
+      expect(subclass.to_rows(m)).to eq([{
+                                          member_id: m.id,
+                                          amount: 1.11,
+                                        }])
+    end
+
     it "errors if a row does not include the unique key" do
       subclass = analytics_model("ToRowsHash")
       subclass.instance_eval do
@@ -36,7 +72,7 @@ RSpec.describe "Suma::Analytics::Model", :db do
         denormalize Suma::Member, with: ->(m) do {phone: m.phone} end
       end
       m = Suma::Fixtures.member.create
-      expect { subclass.to_rows(m) }.to raise_error(/used for upsert: member_id/)
+      expect { subclass.to_rows(m) }.to raise_error(/table's unique key :member_id/)
     end
   end
 
@@ -58,6 +94,12 @@ RSpec.describe "Suma::Analytics::Model", :db do
   end
 
   describe "#upsert_rows" do
+    it "noops if no rows" do
+      subclass = analytics_model("InsertRows")
+      subclass.upsert_rows
+      expect(subclass.all).to be_empty
+    end
+
     it "inserts rows" do
       subclass = analytics_model("InsertRows") do
         integer :member_id, unique: true

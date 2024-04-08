@@ -118,11 +118,12 @@ class Suma::Commerce::Order < Suma::Postgres::Model(:commerce_orders)
 
   def serial = "%04d" % self.id
 
+  def member = self.checkout.cart.member
+
   # How much was paid for this order is the sum of all book transactions linked to charges.
   # Note that this includes subsidy AND synchronous charges during checkout.
-  def paid_amount
-    return self.charges.sum(Money.new(0), &:discounted_subtotal)
-  end
+  def paid_amount = self.charges.sum(Money.new(0), &:discounted_subtotal)
+  alias paid_cost paid_amount
 
   # How much of the paid amount was synchronously funded during checkout?
   # Note that there is no book transaction associated from the charge (which are all debits)
@@ -131,6 +132,21 @@ class Suma::Commerce::Order < Suma::Postgres::Model(:commerce_orders)
   def funded_amount
     return self.charges.map(&:associated_funding_transactions).flatten.sum(Money.new(0), &:amount)
   end
+  alias funded_cost funded_amount
+
+  delegate :undiscounted_cost, :customer_cost, :savings, :handling, :taxable_cost, :tax, :total,
+           to: :checkout
+
+  def cash_paid
+    cash = self.member.payment_account&.cash_ledger
+    return self.charges.sum(Money.new(0)) do |ch|
+      ch.book_transactions.
+          select { |x| x.originating_ledger === cash }.
+          sum(Money.new(0), &:amount)
+    end
+  end
+
+  def noncash_paid = self.paid_cost - self.cash_paid
 
   def after_open_order_canceled
     return if self.fulfillment_status == "fulfilled"

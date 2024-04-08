@@ -110,8 +110,10 @@ module Suma::Postgres
     "suma/vendor/service_rate",
 
     # analytics models
+    "suma/analytics/ledger",
     "suma/analytics/member",
     "suma/analytics/order",
+    "suma/analytics/order_item",
   ].freeze
 
   # If true, deferred model events publish immediately.

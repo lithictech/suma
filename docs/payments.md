@@ -379,3 +379,48 @@ We do this ahead of time validation for two reasons:
   as the transaction processes. By checking these things only ahead of time,
   we do not pretend to have any guarantees about the same validity
   as the transaction processes.
+
+# Glossary
+
+Because we're dealing with a lot of different models, and different users need to discuss the same thing
+(ie, backend, frontend, operators, members, etc), here is a glossary of what various terms mean.
+
+Note that in most cases, the words "price", "amount", and "cost" are interchangeable.
+
+For use in examples, assume we're looking at a product that is normally sold by a vendor for $100,
+is sold to Suma by the vendor for $40, and is sold by Suma to Suma customers for $60.
+Suma has also secured a grant from a government to cover $30 of the cost for each purchase.
+
+- **Cash amount:** How much of a payment was covered by cash contributions,
+  both already existing on the cash ledger and also through new funding transactions during checkout.
+  $30 in our example (`$60 retail price - $30 subsidy`).
+- **Customer price**: See *discounted price*.
+- **Discount**: See *savings*.
+- **Discounted price**: What a customer pays for a product, without any subsidy.
+  $60 in our example.
+- **Funded amount:** How much of a payment (which is usually the *discounted price*) comes from funding transactions
+  created as part of the 'checkout', rather than from existing ledger balances, both cash or non-cash.
+  In other words, this is the amount a customer is charged at checkout, which can be $0 for orders covered
+  fully by existing balances on a ledger, or dynamic subsidy triggers.
+  Note that this is related to *cash amount.* In our example, if the full $30 was charged at checkout,
+  *funded amount* would be $30. But if the customer had $5 in cash balance on their ledger,
+  *funded amount* would be $25 since only $25 would be charged at checkout.
+- **Paid amount**: See *discounted price*
+- **Retail price**: See *undiscounted price*.
+- **Savings**: The difference between the *retail price* and the *discounted price*.
+  How much the customer saved purchasing through Suma.
+  $40 in our example (`$100 retail - $60 discounted price`).
+- **Subsidy**: Contributions to the *discounted price* that do not come from the *cash ledger*.
+- **Total**: The *discounted price* plus tax and handling.
+- **Undiscounted price**: What something is normally sold for.
+  $100 in our example.
+  This number is purely informational- it is used to calculate the savings customers achieve purchasing through Suma.
+- **Wholesale price:** What Suma pays the vendor for a product.
+  $40 in our example.
+  This number is purely informational- it is used to calculate the Cost of Goods Sold (COGS) and similar metrics.
+
+
+
+
+- **Undiscounted cost:** the full price someone would pay, without any discounts.
+- **Discounted cost:** the price someone pays after markdowns/discounts.

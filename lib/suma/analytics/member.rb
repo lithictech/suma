@@ -6,12 +6,17 @@ class Suma::Analytics::Member < Suma::Analytics::Model(Sequel[:analytics][:membe
   unique_key :member_id
 
   destroy_from Suma::Member
-  denormalize Suma::Member, with: :denormalize_member
-  denormalize Suma::Commerce::Order, with: :denormalize_order
+  denormalize Suma::Member, with: [
+    [:member_id, :id],
+    :created_at,
+    :soft_deleted_at,
+    :phone,
+    [:email, ->(m) { m.email&.downcase }],
+    :name,
+    :timezone,
+  ]
 
-  def self.denormalize_member(member)
-    return {member_id: member.id, phone: member.phone}
-  end
+  denormalize Suma::Commerce::Order, with: :denormalize_order
 
   def self.denormalize_order(order)
     member = order.checkout.cart.member
