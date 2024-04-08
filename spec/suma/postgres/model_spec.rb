@@ -11,6 +11,10 @@ RSpec.describe "Suma::Postgres::Model", :db do
     expect { described_class.dataset }.to raise_error(Sequel::Error, /no dataset/i)
   end
 
+  it "has an array of db extensions" do
+    expect(described_class.extensions).to include("citext")
+  end
+
   context "a subclass" do
     it "gets the database connection when one is set on the parent" do
       subclass = create_model(:conn_setter)
@@ -100,6 +104,7 @@ RSpec.describe "Suma::Postgres::Model", :db do
   it "knows what its schema is named" do
     subclass = create_model([:testing, :a_table])
     expect(subclass.schema_name).to eq("testing")
+    expect(Suma::Postgres::Model.all_loaded_schemas).to eq(["testing"])
   end
 
   it "knows that it doesn't belong to a schema if one hasn't been specified'" do
@@ -355,7 +360,7 @@ RSpec.describe "Suma::Postgres::Model", :db do
       expect(instance).to receive(:updated_at).twice do
         now - rand
       end
-      expect { instance.resource_lock! }.to raise_error(Suma::LockFailed)
+      expect { instance.resource_lock! { true } }.to raise_error(Suma::LockFailed)
     end
 
     it "calls the block if updated_at is not set" do
@@ -434,6 +439,12 @@ RSpec.describe "Suma::Postgres::Model", :db do
       result = []
       cls.each_cursor_page(page_size: 2, order: [Sequel.desc(:name), :id]) { |r| result << r.name }
       expect(result).to eq(names.reverse)
+    end
+
+    it "can yield the full page rather than a row" do
+      result = []
+      cls.each_cursor_page(page_size: 3, yield_page: true) { |page| page.map(&:name).each { |n| result << n } }
+      expect(result).to eq(names)
     end
 
     it "can perform an action on the returned values of each chunk" do

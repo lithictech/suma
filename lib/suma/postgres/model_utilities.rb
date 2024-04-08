@@ -13,14 +13,7 @@ module Suma::Postgres::ModelUtilities
   def self.extended(model_class)
     super
 
-    # Sequel::Model API -- load some plugins
-    model_class.plugin(:dirty)
-    model_class.plugin(:json_serializer)
-    model_class.plugin(:many_through_many)
     model_class.plugin(:subclasses)
-    model_class.plugin(:tactical_eager_loading)
-    model_class.plugin(:update_or_create)
-    model_class.plugin(:validation_helpers)
 
     model_class.include(Appydays::Loggable)
     model_class.extend(ClassMethods)
@@ -31,34 +24,22 @@ module Suma::Postgres::ModelUtilities
   end
 
   module ClassMethods
-    # The application name, set on database connections.
-    attr_reader :appname
+    def named_descendants = self.descendants.reject(&:anonymous?)
 
     # Set up some things on new database connections.
     def db=(newdb)
-      self.logger.debug "Setting db %p" % [newdb]
-      newdb.sql_log_level = :debug
-      newdb.logger = self.logger
-      newdb.log_warn_duration = self.slow_query_seconds
-
-      newdb.extension(:pagination)
-      newdb.extension(:pg_json)
-      newdb.extension(:pg_inet)
-      newdb.extension(:pg_array)
-      newdb.extension(:pg_streaming)
-      newdb.extension(:pg_range)
-      newdb.extension(:pg_interval)
-      newdb.extension(:pretty_table)
-
       super
-
       self.descendents.each do |subclass|
         subclass.db = newdb
       end
     end
 
+    # The application name, set on database connections.
+    attr_reader :appname
+
     # Set the PostgreSQL application name to +name+ to allow per-application connection
     # tracking and other fun stuff.
+    # @param name [String]
     def appname=(name)
       @appname = name
       self.update_connection_appname
@@ -74,74 +55,69 @@ module Suma::Postgres::ModelUtilities
       end
     end
 
-    # Fetch a model class by its +classname+. This can be the fully-qualified
-    # name, or just the bit after 'Suma::'.
-    def by_name(classname)
-      return self.descendents.find do |cl|
-        cl.name&.end_with?(classname)
-      end
-    end
-
     # Return the Array of the schemas used by all descendents of the receiving
     # model class.
-    def all_loaded_schemas
-      return self.descendents.map(&:schema_name).uniq.compact
-    end
+    # @return [Array<String>]
+    def all_loaded_schemas = self.descendents.map(&:schema_name).uniq.compact
 
     # Create a new schema named +name+ (if it doesn't already exist).
-    def create_schema(name, &block)
+    # @param name [Symbol]
+    def create_schema(name)
       self.db.create_schema(name, if_not_exists: true)
-      self.instance_eval(&block) if block
     end
 
     # Create the schema named +name+, dropping any previous schema by the same name.
-    def create_schema!(name, &)
+    # @param name [Symbol]
+    def create_schema!(name)
       self.drop_schema!(name)
-      self.create_schema(name, &)
+      self.create_schema(name)
     end
 
     # Drop the empty schema named +name+ (if it exists).
+    # @param name [Symbol]
     def drop_schema(name)
       self.db.drop_schema(name, if_exists: true)
     end
 
     # Drop the schema named +name+ and all of its tables.
+    # @param name [Symbol]
     def drop_schema!(name)
       self.db.drop_schema(name, if_exists: true, cascade: true)
     end
 
     # Returns +true+ if a schema named +name+ exists.
+    # @param name [#to_s]
     def schema_exists?(name=self.schema_name)
       ds = self.db[Sequel[:pg_catalog][:pg_namespace]].
         filter(nspname: name.to_s).
         select(:nspname)
 
-      return ds.first ? true : false
+      return !!ds.first
     end
 
     # Return the name of the schema the receiving class is in.
+    # @return [String]
     def schema_name
       schemaname, = self.db.send(:schema_and_table, self.table_name)
       return schemaname
     end
 
-    def now_sql
-      return Suma::Postgres.now_sql
+    # @return [Sequel::SQL::Expression]
+    def now_sql = Suma::Postgres.now_sql
+
+    # Name of the extension schema. Usually 'public' but should be 'heroku_ext' on Heroku.
+    # @return [String]
+    def extension_schema
+      raise NotImplementedError, "must be overridden by model class" if self.extensions.any?
+      return ""
     end
 
-    def extension_schema
-      return "public"
-    end
+    # List of names of extensions, like 'citext'.
+    # @return [Array<String>]
+    def extensions = []
 
     def install_all_extensions
-      extensions = [
-        "citext",
-        "pg_stat_statements",
-        "pgcrypto",
-        "btree_gist",
-        "pg_trgm",
-      ]
-      extensions.each do |ext|
+      self.extensions.each do |ext|
         self.db.execute("CREATE EXTENSION IF NOT EXISTS #{ext} WITH SCHEMA #{self.extension_schema}")
       end
     end
@@ -151,8 +127,7 @@ module Suma::Postgres::ModelUtilities
       self.descendents.select(&:name).each(&)
     end
 
-    # TSort API -- yield each of the given +model_class+'s dependent model
-    # classes.
+    # TSort API -- yield each of the given +model_class+'s dependent model classes.
     def tsort_each_child(model_class)
       # Include (non-anonymous) parents other than Model
       non_anon_parents = model_class.ancestors[1..].
@@ -180,18 +155,6 @@ module Suma::Postgres::ModelUtilities
             [model_class, name, associated_class]
         end
       end
-    end
-
-    def encrypted_attributes_by_column
-      if @encrypted_attributes_by_column.nil?
-        @encrypted_attributes_by_column = {}
-        if self.respond_to?(:vault_attrs)
-          self.vault_attrs.each do |f|
-            @encrypted_attributes_by_column[f.encrypted_field] = f
-          end
-        end
-      end
-      return @encrypted_attributes_by_column
     end
   end
 
@@ -263,9 +226,6 @@ module Suma::Postgres::ModelUtilities
           else
             v.inspect
           end
-        elsif (enc_field = self.class.encrypted_attributes_by_column[k.to_sym])
-          k = enc_field.name
-          "encrypted"
         elsif k.end_with?("_base64")
           "(#{v.size})"
         elsif encrypted.include?(k)
@@ -293,40 +253,18 @@ module Suma::Postgres::ModelUtilities
       return "#<%p %s>" % [self.class, values.join(", ")]
     end
 
-    def inspect_time(t)
-      return t.in_time_zone(Time.zone).strftime("%Y-%m-%d %H:%M:%S")
-    end
+    # @return [String]
+    def inspect_time(t) = t.in_time_zone(Time.zone).strftime("%Y-%m-%d %H:%M:%S")
 
     # Return the objects validation errors as full messages joined with commas.
-    def error_messages
-      return self.errors.full_messages.join(", ")
-    end
-
-    # Return the string used as a topic for events sent from the receiving object.
-    def event_prefix
-      prefix = self.class.name or return # No events for anonymous classes
-      return prefix.gsub("::", ".").downcase
-    end
-
-    # Publish an event from the receiving object of the specified +type+ and with the given +payload+.
-    # This does *not* wait for the transaction to complete, so subscribers may not be able to observe
-    # any model changes in the database. You probably want to use published_deferred.
-    def publish_immediate(type, *payload)
-      prefix = self.event_prefix or return
-      Amigo.publish(prefix + "." + type.to_s, *payload)
-    end
-
-    # Publish an event in the current db's/transaction's +after_commit+ hook.
-    def publish_deferred(type, *payload)
-      Suma::Postgres.defer_after_commit(self.db) do
-        self.publish_immediate(type, *payload)
-      end
-    end
+    # @return [String]
+    def error_messages = self.errors.full_messages.join(", ")
 
     # Take an exclusive lock on the receiver, ensuring nothing else has updated the object in the meantime.
     # If the updated_at changed from what's on the receiver, to after it acquired the lock, raise LockFailed.
     # Save changes and touch updated_at after calling the given block.
     def resource_lock!
+      raise LocalJumpError unless block_given?
       self.db.transaction do
         old_updated = self.round_time(self.updated_at)
         self.lock!
@@ -339,65 +277,15 @@ module Suma::Postgres::ModelUtilities
       end
     end
 
-    def with_lock!
-      return self.db.transaction do
-        self.lock!
-        yield
-      end
-    end
-
     # Round +Time+ t to remove nanoseconds, since Postgres can only store microseconds.
+    # @return [Time]
     protected def round_time(t)
       return nil if t.nil?
       return t.change(nsec: t.usec * 1000)
     end
 
-    protected def now_sql
-      return Suma::Postgres.now_sql
-    end
-
-    # Sequel hook -- send an asynchronous event after the model is saved.
-    def after_create
-      super
-      self.publish_deferred("created", self.id, self._clean_payload(self.values))
-    end
-
-    # Sequel hook -- send an asynchronous event after the save is committed.
-    def after_update
-      super
-      self.publish_deferred("updated", self.id, self._clean_payload(self.previous_changes, values_are_pairs: true))
-    end
-
-    # Sequel hook -- send an event after a transaction that destroys the object is committed.
-    def after_destroy
-      super
-      self.publish_deferred("destroyed", self.id, self._clean_payload(self.values))
-    end
-
-    def _clean_payload(h, values_are_pairs: false)
-      result = h.dup
-      h.each_pair do |k, v|
-        if self.class.encrypted_attributes_by_column.key?(k.to_sym)
-          result.delete(k)
-          result["_#{k}"] = if values_are_pairs
-                              v.map { |o| o.nil? ? nil : "" }
-          else
-            v.nil? ? nil : ""
-          end
-          next
-        end
-        call_unquoted_lit = (v.respond_to?(:to_ary) ? v : [v]).any? { |o| o.respond_to?(:unquoted_literal) }
-        next unless call_unquoted_lit
-        ds = self.class.dataset
-        # unquoted_literal is not an interface method and its arity is not consistent,
-        # so we may need to make this more complex in the future.
-        # Note, I have seen nils here in the array along with ranges,
-        # but was not able to repro it in a test, so we use null coalesce to protect and keep
-        # the json value as nil.
-        result[k] = values_are_pairs ? v.map { |o| o&.unquoted_literal(ds) } : v&.unquoted_literal(ds)
-      end
-      return result.as_json
-    end
+    # @return [Sequel::SQL::Expression]
+    protected def now_sql = Suma::Postgres.now_sql
   end
 
   module DatasetMethods
@@ -420,13 +308,19 @@ module Suma::Postgres::ModelUtilities
     # This is the same as paged_each or use_cursor.each, except that for each page,
     # rows are re-fetched using self.where(primary_key => [pks]).all to enable eager loading.
     #
+    # @param page_size [Integer] Size of each page. Smaller uses less memory.
+    # @param order [Symbol] Column to order by. Default to primary key.
+    # @param yield_page [true,false] If true, yield the page to the block, rather than individual rows.
+    #   Helpful when bulk processing.
+    #
     # (Note that paged_each does not do eager loading, which makes enumerating model associations very slow)
-    def each_cursor_page(page_size: 500, order: :id, &block)
+    def each_cursor_page(page_size: 500, order: nil, yield_page: false, &block)
       raise LocalJumpError unless block
       raise "dataset requires a use_cursor method, class may need `extension(:pagination)`" unless
         self.respond_to?(:use_cursor)
       model = self.model
       pk = model.primary_key
+      order ||= pk
       current_chunk_pks = []
       order = [order] unless order.respond_to?(:to_ary)
       self.naked.select(pk).order(*order).use_cursor(rows_per_fetch: page_size, hold: true).each do |row|
@@ -434,9 +328,10 @@ module Suma::Postgres::ModelUtilities
         next if current_chunk_pks.length < page_size
         page = model.where(pk => current_chunk_pks).order(*order).all
         current_chunk_pks.clear
-        page.each(&block)
+        yield_page ? yield(page) : page.each(&block)
       end
-      model.where(pk => current_chunk_pks).order(*order).all.each(&block)
+      remainder = model.where(pk => current_chunk_pks).order(*order).all
+      yield_page ? yield(remainder) : remainder.each(&block)
     end
 
     # See each_cursor_page, but takes an additional action on each chunk of returned rows.

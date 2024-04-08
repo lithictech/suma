@@ -2,7 +2,7 @@ version: "3.4"
 
 services:
   db:
-    image: "postgres:13"
+    image: "postgres:14"
     ports:
       - "22005:5432"
     environment:
@@ -10,7 +10,7 @@ services:
       POSTGRES_PASSWORD: 'suma'
       POSTGRES_DB: 'suma'
   test_db:
-    image: "postgres:13"
+    image: "postgres:14"
     ports:
       - "22006:5432"
     environment:

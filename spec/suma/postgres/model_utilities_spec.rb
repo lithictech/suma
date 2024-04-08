@@ -54,24 +54,4 @@ RSpec.describe Suma::Postgres::ModelUtilities do
 
     extended_class.appname = "Suma::Postgres::ModelUtilities Spec"
   end
-
-  it "has a method for fetching a subclass by its full name" do
-    bogart_subclass = Class.new(extended_class) do
-      def self.name
-        "Suma::Bogart"
-      end
-    end
-
-    expect(extended_class.by_name("Bogart")).to be(bogart_subclass)
-  end
-
-  it "has a method for fetching its subclasses by an abbreviated name" do
-    bansidhe_subclass = Class.new(extended_class) do
-      def self.name
-        "Suma::Bansidhe"
-      end
-    end
-
-    expect(extended_class.by_name("Suma::Bansidhe")).to be(bansidhe_subclass)
-  end
 end

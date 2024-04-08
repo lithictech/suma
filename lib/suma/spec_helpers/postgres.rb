@@ -90,28 +90,27 @@ module Suma::SpecHelpers::Postgres
 
   # Create an anonymous model with the given table name.
   # Can be a symbol, string, or [:schema, :table] array.
-  module_function def create_model(name, &)
+  module_function def create_model(name, model_class: nil, &block)
     Suma::SpecHelpers::Postgres.current_test_model_uid += 1
-
+    model_class ||= Suma::Postgres::Model
     qualifier = Sequel
     prefix = name
     if name.is_a?(Array)
       qualifier = Sequel[name[0]]
-      Suma::Postgres::Model.create_schema!(qualifier)
+      model_class.create_schema!(qualifier)
       prefix = name[1]
     end
     table_name = "testtable_#{prefix}_#{Suma::SpecHelpers::Postgres.current_test_model_uid}".to_sym
     qualified_name = qualifier[table_name]
 
-    Suma::Postgres.logger.info "Creating table: %p" % [qualified_name]
-    Suma::Postgres::Model.db.create_table!(qualified_name, &)
+    model_class.logger.info "Creating table: %p" % [qualified_name]
+    model_class.db.create_table!(qualified_name, &block)
     clsname = table_name.to_s.classify
     clsfqn = "#{Suma::SpecHelpers::Postgres::Models}::#{clsname}"
-    cls = Class.new(Suma::Postgres::Model(qualified_name)) do
+    cls = Class.new(model_class.Model(qualified_name)) do
       define_singleton_method(:name) { clsfqn }
     end
     Suma::SpecHelpers::Postgres::Models.const_set(clsname, cls)
-    # Object.const_get(clsfqn)
     return cls
   end
 

@@ -9,6 +9,7 @@ require "tsort"
 require "suma"
 require "suma/postgres"
 require "suma/postgres/model_utilities"
+require "suma/postgres/model_pubsub"
 
 # Initialize the Suma::Postgres::Model class as an abstract model class (i.e.,
 # without a default dataset). This prevents it from looking for a table called
@@ -20,7 +21,14 @@ Suma::Postgres::Model.def_Model(Suma::Postgres)
 class Suma::Postgres::Model
   include Appydays::Configurable
   extend Suma::Postgres::ModelUtilities
+  extend Suma::Postgres::ModelPubsub
   include Appydays::Loggable
+
+  plugin(:json_serializer)
+  plugin(:many_through_many)
+  plugin(:tactical_eager_loading)
+  plugin(:update_or_create)
+  plugin(:validation_helpers)
 
   configurable(:suma_db) do
     setting :uri, "postgres:/suma_test", key: "DATABASE_URL"
@@ -44,14 +52,33 @@ class Suma::Postgres::Model
 
     after_configured do
       options = {
-        logger: [Suma.logger],
+        logger: [self.logger],
         sql_log_level: :debug,
         max_connections: self.max_connections,
         pool_timeout: self.pool_timeout,
+        log_warn_duration: self.slow_query_seconds,
       }
-      self.logger.debug "Connecting to %s with options: %p" % [self.uri, options]
-      self.db = Sequel.connect(self.uri, options)
+      db = Sequel.connect(self.uri, options)
+      db.extension(:pagination)
+      db.extension(:pg_json)
+      db.extension(:pg_inet)
+      db.extension(:pg_array)
+      db.extension(:pg_streaming)
+      db.extension(:pg_range)
+      db.extension(:pg_interval)
+      db.extension(:pretty_table)
+      self.db = db
     end
+  end
+
+  def self.extensions
+    return [
+      "citext",
+      "pg_stat_statements",
+      "pgcrypto",
+      "btree_gist",
+      "pg_trgm",
+    ]
   end
 
   # Add one or more extension +modules+ to the receiving class. This allows subsystems

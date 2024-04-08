@@ -180,4 +180,14 @@ RSpec.describe Suma do
       expect(described_class.to_slug("Alan's \"Farm\"")).to eq("alans_farm")
     end
   end
+
+  describe "as_ary" do
+    it "wraps non-arrays in an array" do
+      expect(Suma.as_ary(1)).to eq([1])
+      h = {}
+      expect(Suma.as_ary(h)).to contain_exactly(be h)
+      a = [1, 2, 3]
+      expect(Suma.as_ary(a)).to be(a)
+    end
+  end
 end
