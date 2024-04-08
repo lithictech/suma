@@ -39,12 +39,6 @@ class Suma::Analytics::Model
     subclass.extend(ClassMethods)
   end
 
-  def self.extensions
-    return [
-      "citext",
-    ]
-  end
-
   module ClassMethods
     def unique_key(sym=nil)
       @unique_key = sym unless sym.nil?
@@ -89,7 +83,7 @@ class Suma::Analytics::Model
       unique_key = self.unique_key
       rows.each do |row|
         unless row.key?(unique_key)
-          msg = "All rows need a key with the table's unique key #{unique_key.inspect}: #{row}"
+          msg = "#{self}: all rows need a key with the table's unique key #{unique_key.inspect}: #{row}"
           raise Suma::InvalidPostcondition, msg
         end
         row.transform_values! { |v| v.is_a?(Money) ? v.to_f : v }
@@ -109,7 +103,7 @@ class Suma::Analytics::Model
                 val = item[1].is_a?(Symbol) ? o.send(item[1]) : item[1].call(o)
                 [item[0], val]
               else
-                raise TypeError, "invalid denormalizer shorthand: #{item}"
+                raise TypeError, "invalid denormalizer shorthand: #{item.inspect}"
             end
           end
         end

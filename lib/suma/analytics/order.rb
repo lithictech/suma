@@ -24,14 +24,4 @@ class Suma::Analytics::Order < Suma::Analytics::Model(Sequel[:analytics][:orders
     :cash_paid,
     :noncash_paid,
   ]
-
-  def self.denormalize_order(order)
-    member = order.checkout.cart.member
-    return {
-      order_id: order.id,
-      member_id: member.id,
-      funded_amount: order.funded_amount,
-      paid_amount: order.paid_amount,
-    }
-  end
 end

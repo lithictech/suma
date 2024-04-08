@@ -3,8 +3,14 @@
 RSpec.describe "Suma::Analytics::Model", :db do
   let(:described_class) { Suma::Analytics::Model }
 
+  after(:each) do
+    @models&.each(&:trash_class)
+  end
+
   def analytics_model(name, &)
-    return create_model(name, model_class: Suma::Analytics::Model, &)
+    m = create_model(name, model_class: Suma::Analytics::Model, &)
+    (@models ||= []) << m
+    return m
   end
 
   describe "#to_rows" do
@@ -47,6 +53,17 @@ RSpec.describe "Suma::Analytics::Model", :db do
                                         }])
     end
 
+    it "errors for an invalid handler shorthand type" do
+      subclass = analytics_model("HashHandler")
+      subclass.instance_eval do
+        unique_key :member_id
+        denormalize Suma::Member, with: ["foo"]
+      end
+      expect do
+        subclass.to_rows(Suma::Fixtures.member.create)
+      end.to raise_error(/invalid denormalizer shorthand: "foo"/)
+    end
+
     it "converts money into decimals" do
       subclass = analytics_model("MoneyModel") do
         decimal :amount
@@ -66,7 +83,7 @@ RSpec.describe "Suma::Analytics::Model", :db do
     end
 
     it "errors if a row does not include the unique key" do
-      subclass = analytics_model("ToRowsHash")
+      subclass = analytics_model("MissingUniqueKey")
       subclass.instance_eval do
         unique_key :member_id
         denormalize Suma::Member, with: ->(m) do {phone: m.phone} end
