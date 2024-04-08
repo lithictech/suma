@@ -39,6 +39,19 @@ RSpec.describe "Suma::Commerce::Order", :db do
     expect(o.funded_amount).to cost("$12.50")
   end
 
+  it "knows how much was paid in cash and non-cash" do
+    charge = Suma::Fixtures.charge.create
+    cash = Suma::Payment.ensure_cash_ledger(charge.member)
+    bxcash = Suma::Fixtures.book_transaction.from(cash).create(amount: money("$12.50"))
+    bxnoncash = Suma::Fixtures.book_transaction.from({account: cash.account}).create(amount: money("$5"))
+    charge.add_book_transaction(bxcash)
+    charge.add_book_transaction(bxnoncash)
+    o = Suma::Fixtures.order.as_purchased_by(charge.member).create
+    o.add_charge(charge)
+    expect(o.cash_paid).to cost("$12.50")
+    expect(o.noncash_paid).to cost("$5")
+  end
+
   describe "fulfillment_options_for_editing" do
     let(:checkout) { Suma::Fixtures.checkout.completed.create }
     let(:order) { Suma::Fixtures.order(checkout:).create }

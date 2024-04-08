@@ -43,6 +43,7 @@ module Suma::Postgres
   # Require paths for model superclasses.
   SUPERCLASSES = [
     "suma/postgres/model",
+    "suma/analytics/model",
   ].freeze
 
   # Require paths for all Sequel models used by the app.
@@ -107,6 +108,12 @@ module Suma::Postgres
     "suma/vendor/service",
     "suma/vendor/service_category",
     "suma/vendor/service_rate",
+
+    # analytics models
+    "suma/analytics/ledger",
+    "suma/analytics/member",
+    "suma/analytics/order",
+    "suma/analytics/order_item",
   ].freeze
 
   # If true, deferred model events publish immediately.

@@ -88,8 +88,12 @@ module Suma::SpecHelpers::Postgres
 
   module Models; end
 
-  # Create an anonymous model with the given table name.
+  # Create a named (so not-anonymous) model with the given table name.
   # Can be a symbol, string, or [:schema, :table] array.
+  # The returned class is available as a constant on Suma::SpecHelpers::Postgres,
+  # and has a #name method.
+  # Call #trash_class to make the class anonymous (remove the constant, have the name return nil)
+  # so it can be ignored as an anonymous class.
   module_function def create_model(name, model_class: nil, &block)
     Suma::SpecHelpers::Postgres.current_test_model_uid += 1
     model_class ||= Suma::Postgres::Model
@@ -109,6 +113,10 @@ module Suma::SpecHelpers::Postgres
     clsfqn = "#{Suma::SpecHelpers::Postgres::Models}::#{clsname}"
     cls = Class.new(model_class.Model(qualified_name)) do
       define_singleton_method(:name) { clsfqn }
+      define_singleton_method(:trash_class) do
+        Suma::SpecHelpers::Postgres::Models.send(:remove_const, clsname)
+        clsfqn = nil
+      end
     end
     Suma::SpecHelpers::Postgres::Models.const_set(clsname, cls)
     return cls

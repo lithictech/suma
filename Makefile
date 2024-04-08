@@ -110,6 +110,10 @@ message-render: env-MESSAGE
 i18n-format:
 	@bundle exec rake i18n:format
 
+analytics-reimport:
+	@bundle exec rake analytics:truncate
+	@bundle exec rake analytics:import
+
 take-production-db-snapshot:
 	heroku pg:backups:capture --app $(production_app)
 

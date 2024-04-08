@@ -8,6 +8,8 @@ Appydays::Dotenviable.load
 
 require "sentry-ruby"
 
+require "suma/tasks/analytics"
+Suma::Tasks::Analytics.new
 require "suma/tasks/annotate"
 Suma::Tasks::Annotate.new
 require "suma/tasks/db"

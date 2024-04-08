@@ -21,6 +21,7 @@ module Suma::Async
 
   # Registry of all jobs that will be required when the async system is started/run.
   JOBS = [
+    "suma/async/analytics_dispatch",
     "suma/async/emailer",
     "suma/async/ensure_default_member_ledgers_on_create",
     "suma/async/funding_transaction_processor",
