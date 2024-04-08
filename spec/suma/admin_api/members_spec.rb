@@ -168,7 +168,20 @@ RSpec.describe Suma::AdminAPI::Members, :db do
       }
 
       expect(last_response).to have_status(200)
-      expect(member.refresh.legal_entity).to have_attributes(address: have_attributes(address1: "main st"))
+      expect(member.refresh.legal_entity).to have_attributes(
+        id: legal_entity.id, address: have_attributes(address1: "main st"),
+      )
+    end
+
+    it "reassigns legal entity if just an ID is given" do
+      legal_entity1 = Suma::Fixtures.legal_entity.create
+      legal_entity2 = Suma::Fixtures.legal_entity.create
+      member = Suma::Fixtures.member.with_legal_entity(legal_entity1).create
+
+      post "/v1/members/#{member.id}", legal_entity: {id: legal_entity2.id}
+
+      expect(last_response).to have_status(200)
+      expect(member.refresh.legal_entity).to have_attributes(id: legal_entity2.id)
     end
   end
 

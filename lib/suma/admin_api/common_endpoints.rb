@@ -33,6 +33,9 @@ module Suma::AdminAPI::CommonEndpoints
             uf = Suma::UploadedFile.create_from_multipart(v)
             images << Suma::Image.new(uploaded_file: uf)
           elsif v.key?(:id) && v.one?
+            # If we're passing in a hash like {id:}, we just want to replace the FK.
+            # If the hash includes more fields, it'll get caught by the else which replaces
+            # and updates the association.
             fk_attrs[assoc[:key]] = v[:id]
           else
             to_one_assocs_and_params << [assoc, v]
