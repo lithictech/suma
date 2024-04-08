@@ -80,6 +80,8 @@ module Suma::Postgres
     "suma/mobility/restricted_area",
     "suma/mobility/trip",
     "suma/mobility/vehicle",
+    "suma/organization",
+    "suma/organization/membership",
     "suma/payment/bank_account",
     "suma/payment/book_transaction",
     "suma/payment/card",
