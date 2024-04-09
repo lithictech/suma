@@ -25,7 +25,7 @@ lint-check:
 check: fmt-check lint-check test
 
 start: check-version
-	VITE_CHAOS=0.5 npm start
+	npm start
 
 start-network: check-version network-code
 	BROWSER=none VITE_API_HOST=http://$(LOCAL_NETWORK_IP):22001 npm run start-network
