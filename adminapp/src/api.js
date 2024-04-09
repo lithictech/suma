@@ -168,6 +168,8 @@ export default {
   changeMemberEligibility: ({ id, ...data }) =>
     post(`/adminapi/v1/members/${id}/eligibilities`, data),
 
+  getOrganizations: (data) => get(`/adminapi/v1/organizations`, data),
+
   searchProducts: (data) => post(`/adminapi/v1/search/products`, data),
   searchOfferings: (data) => post(`/adminapi/v1/search/offerings`, data),
   searchPaymentInstruments: (data) =>

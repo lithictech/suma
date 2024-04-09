@@ -1,6 +1,7 @@
 import AccountBalanceIcon from "@mui/icons-material/AccountBalance";
 import AccountBalanceWalletIcon from "@mui/icons-material/AccountBalanceWallet";
 import AutoModeIcon from "@mui/icons-material/AutoMode";
+import CorporateFareIcon from "@mui/icons-material/CorporateFare";
 import HomeIcon from "@mui/icons-material/Home";
 import KeyIcon from "@mui/icons-material/Key";
 import MailIcon from "@mui/icons-material/Mail";
@@ -17,6 +18,7 @@ import React from "react";
 export default [
   { label: "Home", href: "/dashboard", icon: <HomeIcon /> },
   { label: "Members", href: "/members", icon: <PersonIcon /> },
+  { label: "Organizations", href: "/organizations", icon: <CorporateFareIcon /> },
   {
     label: "Book Transactions",
     href: "/book-transactions",

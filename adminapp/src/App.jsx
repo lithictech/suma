@@ -27,6 +27,7 @@ import OfferingProductDetailPage from "./pages/OfferingProductDetailPage";
 import OfferingProductEditPage from "./pages/OfferingProductEditPage";
 import OrderDetailPage from "./pages/OrderDetailPage";
 import OrderListPage from "./pages/OrderListPage";
+import OrganizationListPage from "./pages/OrganizationListPage";
 import PaymentTriggerCreatePage from "./pages/PaymentTriggerCreatePage";
 import PaymentTriggerDetailPage from "./pages/PaymentTriggerDetailPage";
 import PaymentTriggerEditPage from "./pages/PaymentTriggerEditPage";
@@ -393,6 +394,11 @@ function PageSwitch() {
         exact
         path="/member/:id/edit"
         element={renderWithHocs(redirectIfUnauthed, withLayout(), MemberEditPage)}
+      />
+      <Route
+        exact
+        path="/organizations"
+        element={renderWithHocs(redirectIfUnauthed, withLayout(), OrganizationListPage)}
       />
       <Route
         exact
