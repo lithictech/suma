@@ -3,8 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@sentry/browser": "^7.31.1",
-    "@sentry/tracing": "^7.31.1",
+    "@sentry/browser": "^7.102.0",
+    "@sentry/tracing": "^7.102.0",
     "axios": "^1.2.3",
     "bootstrap": "^5.2.3",
     "bootstrap-icons": "^1.10.3",

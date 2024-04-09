@@ -104,7 +104,7 @@ RSpec.describe Suma::AdminAPI::CommerceProducts, :db do
   end
 
   describe "POST /v1/commerce_products/:id" do
-    it "updates the product" do
+    it "updates the product and can create a new inventory" do
       photo_file = File.open("spec/data/images/photo.png", "rb")
       image = Rack::Test::UploadedFile.new(photo_file, "image/png", true)
       product = Suma::Fixtures.product.create
@@ -119,6 +119,16 @@ RSpec.describe Suma::AdminAPI::CommerceProducts, :db do
       expect(last_response).to have_json_body.that_includes(id: product.id)
       expect(product.refresh).to have_attributes(our_cost: cost("$24"))
       expect(product.inventory).to have_attributes(quantity_on_hand: 2)
+    end
+
+    it "updates the product and existing inventory" do
+      product = Suma::Fixtures.product.create
+      product.inventory!.update(quantity_on_hand: 5)
+
+      post "/v1/commerce_products/#{product.id}", inventory: {quantity_on_hand: 201}
+
+      expect(last_response).to have_status(200)
+      expect(product.inventory.refresh).to have_attributes(quantity_on_hand: 201)
     end
   end
 end

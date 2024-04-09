@@ -3,6 +3,7 @@ import FormButtons from "../components/FormButtons";
 import FormControlGroup from "../components/FormControlGroup";
 import FormError from "../components/FormError";
 import { mdp, t } from "../localization";
+import keepDigits from "../modules/keepDigits";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
 import { extractErrorCode } from "../state/useError";
 import useUser from "../state/useUser";
@@ -65,7 +66,7 @@ export default function OnboardingSignup() {
   };
 
   const handleZipChange = (e) => {
-    const v = e.target.value.replace(/\D/, "").slice(0, 5);
+    const v = keepDigits(e.target.value).slice(0, 5);
     runSetter(e.target.name, setZipCode, v);
   };
 

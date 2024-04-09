@@ -137,15 +137,51 @@ RSpec.describe Suma::AdminAPI::Members, :db do
         that_includes(id: member.id, name: "b 2", email: "b@gmail.com")
     end
 
-    it "replaces roles" do
-      member = Suma::Fixtures.member.with_role("existing").with_role("to_remove").create
-      Suma::Role.create(name: "to_add")
+    it "replaces roles if given" do
+      existing = Suma::Role.create(name: "existing")
+      to_remove = Suma::Role.create(name: "to_remove")
+      to_add = Suma::Role.create(name: "to_add")
+      member = Suma::Fixtures.member.with_role(existing).with_role(to_remove).create
 
-      post "/v1/members/#{member.id}", roles: ["existing", "to_add"]
+      post "/v1/members/#{member.id}", roles: [{id: existing.id}, {id: to_add.id}]
 
       expect(last_response).to have_status(200)
-      expect(last_response).to have_json_body.that_includes(roles: contain_exactly("existing", "to_add"))
       expect(member.refresh.roles.map(&:name)).to contain_exactly("existing", "to_add")
+      expect(member.refresh.activities).to contain_exactly(have_attributes(message_name: "rolechange"))
+    end
+
+    it "updates legal entity if given" do
+      legal_entity = Suma::Fixtures.legal_entity.create
+      member = Suma::Fixtures.member.with_legal_entity(legal_entity).create
+
+      post "/v1/members/#{member.id}", legal_entity: {
+        id: legal_entity.id,
+        name: "hello",
+        address: {
+          address1: "main st",
+          address2: "apt 1",
+          city: "Portland",
+          state_or_province: "OR",
+          postal_code: "97214",
+          country: "US",
+        },
+      }
+
+      expect(last_response).to have_status(200)
+      expect(member.refresh.legal_entity).to have_attributes(
+        id: legal_entity.id, address: have_attributes(address1: "main st"),
+      )
+    end
+
+    it "reassigns legal entity if just an ID is given" do
+      legal_entity1 = Suma::Fixtures.legal_entity.create
+      legal_entity2 = Suma::Fixtures.legal_entity.create
+      member = Suma::Fixtures.member.with_legal_entity(legal_entity1).create
+
+      post "/v1/members/#{member.id}", legal_entity: {id: legal_entity2.id}
+
+      expect(last_response).to have_status(200)
+      expect(member.refresh.legal_entity).to have_attributes(id: legal_entity2.id)
     end
   end
 

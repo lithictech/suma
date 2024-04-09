@@ -5,123 +5,8 @@ require "grape"
 require "suma/admin_api"
 
 class Suma::AdminAPI::Members < Suma::AdminAPI::V1
+  include Suma::Service::Types
   include Suma::AdminAPI::Entities
-
-  ALL_TIMEZONES = Set.new(TZInfo::Timezone.all_identifiers)
-
-  resource :members do
-    desc "Return all members, newest first"
-    params do
-      use :pagination
-      use :ordering, model: Suma::Member
-      use :searchable
-      optional :download, type: String, values: ["csv"]
-    end
-    get do
-      ds = Suma::Member.dataset
-      if (email_like = search_param_to_sql(params, :email))
-        name_like = search_param_to_sql(params, :name)
-        phone_like = phone_search_param_to_sql(params)
-        ds = ds.where(email_like | name_like | phone_like)
-      end
-      ds = order(ds, params)
-
-      if params[:download]
-        csv = Suma::Member::Exporter.new(ds).to_csv
-        env["api.format"] = :binary
-        content_type "text/csv"
-        body csv
-        header["Content-Disposition"] = "attachment; filename=suma-members-export.csv"
-      else
-        ds = paginate(ds, params)
-        present_collection ds, with: MemberEntity
-      end
-    end
-
-    route_param :id, type: Integer do
-      helpers do
-        def lookup_member!
-          (member = Suma::Member[params[:id]]) or forbidden!
-          return member
-        end
-      end
-
-      desc "Return the member"
-      get do
-        member = lookup_member!
-        present member, with: DetailedMemberEntity
-      end
-
-      desc "Update the member"
-      params do
-        optional :name, type: String
-        optional :note, type: String
-        optional :email, type: String
-        optional :phone, type: Integer
-        optional :timezone, type: String, values: ALL_TIMEZONES
-        optional :roles, type: Array[String]
-        optional :onboarding_verified, type: Boolean
-      end
-      post do
-        member = lookup_member!
-        fields = params
-        member.db.transaction do
-          if (roles = fields.delete(:roles))
-            member.remove_all_roles
-            roles.uniq.each { |r| member.add_role(Suma::Role[name: r]) }
-          end
-          set_declared(member, params)
-          member.save_changes
-        end
-        status 200
-        present member, with: DetailedMemberEntity
-      end
-
-      post :close do
-        member = lookup_member!
-        admin = admin_member
-        member.db.transaction do
-          member.add_activity(
-            message_name: "accountclosed",
-            summary: "Admin #{admin.email} closed member #{member.email} account",
-            subject_type: "Suma::Member",
-            subject_id: member.id,
-          )
-          member.soft_delete unless member.soft_deleted?
-        end
-        status 200
-        present member, with: DetailedMemberEntity
-      end
-
-      params do
-        requires :values, type: Array[JSON] do
-          requires :constraint_id, type: Integer
-          requires :status, values: ["verified", "pending", "rejected"]
-        end
-      end
-      post :eligibilities do
-        member = lookup_member!
-        admin = admin_member
-        member.db.transaction do
-          summary = []
-          params[:values].each do |h|
-            ec = Suma::Eligibility::Constraint[h[:constraint_id]] or
-              adminerror!(403, "Unknown eligibility constraint: #{h[:constraint_id]}")
-            member.replace_eligibility_constraint(ec, h[:status])
-            summary << "#{ec.name} => #{h[:status]}"
-          end
-          member.add_activity(
-            message_name: "eligibilitychange",
-            summary: "Admin #{admin.email} modified eligibilities of #{member.email}: #{summary.join(', ')}",
-            subject_type: "Suma::Member",
-            subject_id: member.id,
-          )
-        end
-        status 200
-        present member, with: DetailedMemberEntity
-      end
-    end
-  end
 
   class MemberActivityEntity < BaseEntity
     include Suma::AdminAPI::Entities
@@ -185,11 +70,9 @@ class Suma::AdminAPI::Members < Suma::AdminAPI::V1
     include AutoExposeDetail
     expose :opaque_id
     expose :note
-    expose :roles do |instance|
-      instance.roles.map(&:name)
-    end
-    expose :available_roles do |_|
-      Suma::Role.order(:name).select_map(:name)
+    expose :roles, with: RoleEntity
+    expose :available_roles, with: RoleEntity do |_|
+      Suma::Role.order(:name).all
     end
     expose :onboarding_verified?, as: :onboarding_verified
     expose :onboarding_verified_at
@@ -209,5 +92,130 @@ class Suma::AdminAPI::Members < Suma::AdminAPI::V1
     expose :message_deliveries, with: MessageDeliveryEntity
     expose :preferences!, as: :preferences, with: PreferencesEntity
     expose :anon_proxy_vendor_accounts, as: :vendor_accounts, with: MemberVendorAccountEntity
+  end
+
+  ALL_TIMEZONES = Set.new(TZInfo::Timezone.all_identifiers)
+
+  resource :members do
+    desc "Return all members, newest first"
+    params do
+      use :pagination
+      use :ordering, model: Suma::Member
+      use :searchable
+      optional :download, type: String, values: ["csv"]
+    end
+    get do
+      ds = Suma::Member.dataset
+      if (email_like = search_param_to_sql(params, :email))
+        name_like = search_param_to_sql(params, :name)
+        phone_like = phone_search_param_to_sql(params)
+        ds = ds.where(email_like | name_like | phone_like)
+      end
+      ds = order(ds, params)
+
+      if params[:download]
+        csv = Suma::Member::Exporter.new(ds).to_csv
+        env["api.format"] = :binary
+        content_type "text/csv"
+        body csv
+        header["Content-Disposition"] = "attachment; filename=suma-members-export.csv"
+      else
+        ds = paginate(ds, params)
+        present_collection ds, with: MemberEntity
+      end
+    end
+
+    Suma::AdminAPI::CommonEndpoints.get_one self, Suma::Member, DetailedMemberEntity
+    Suma::AdminAPI::CommonEndpoints.update(
+      self,
+      Suma::Member,
+      DetailedMemberEntity,
+      around: lambda do |rt, m, &block|
+        roles = rt.params.delete(:roles)
+        block.call
+        if roles
+          role_models = Suma::Role.where(id: roles.map { |r| r[:id] }).all
+          m.replace_roles(role_models)
+          summary = m.roles.map(&:name).join(", ")
+          m.add_activity(
+            message_name: "rolechange",
+            summary: "Admin #{rt.admin_member.email} modified roles of #{m.class.name}[#{m.id}]: #{summary}",
+            subject_type: m.class.name,
+            subject_id: m.id,
+          )
+        end
+      end,
+    ) do
+      params do
+        optional :name, type: String
+        optional :note, type: String
+        optional :email, type: String
+        optional :phone, type: Integer
+        optional :timezone, type: String, values: ALL_TIMEZONES
+        optional :roles, type: Array[JSON] do
+          use :model_with_id
+        end
+        optional :onboarding_verified, type: Boolean
+        optional :legal_entity, type: JSON do
+          optional :name, type: String
+          optional :address, type: JSON do
+            use :address
+          end
+        end
+      end
+    end
+
+    route_param :id, type: Integer do
+      helpers do
+        def lookup_member!
+          (member = Suma::Member[params[:id]]) or forbidden!
+          return member
+        end
+      end
+
+      post :close do
+        member = lookup_member!
+        admin = admin_member
+        member.db.transaction do
+          member.add_activity(
+            message_name: "accountclosed",
+            summary: "Admin #{admin.email} closed member #{member.email} account",
+            subject_type: "Suma::Member",
+            subject_id: member.id,
+          )
+          member.soft_delete unless member.soft_deleted?
+        end
+        status 200
+        present member, with: DetailedMemberEntity
+      end
+
+      params do
+        requires :values, type: Array[JSON] do
+          requires :constraint_id, type: Integer
+          requires :status, values: ["verified", "pending", "rejected"]
+        end
+      end
+      post :eligibilities do
+        member = lookup_member!
+        admin = admin_member
+        member.db.transaction do
+          summary = []
+          params[:values].each do |h|
+            ec = Suma::Eligibility::Constraint[h[:constraint_id]] or
+              adminerror!(403, "Unknown eligibility constraint: #{h[:constraint_id]}")
+            member.replace_eligibility_constraint(ec, h[:status])
+            summary << "#{ec.name} => #{h[:status]}"
+          end
+          member.add_activity(
+            message_name: "eligibilitychange",
+            summary: "Admin #{admin.email} modified eligibilities of #{member.email}: #{summary.join(', ')}",
+            subject_type: "Suma::Member",
+            subject_id: member.id,
+          )
+        end
+        status 200
+        present member, with: DetailedMemberEntity
+      end
+    end
   end
 end

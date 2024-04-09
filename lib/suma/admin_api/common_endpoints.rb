@@ -11,10 +11,9 @@ module Suma::AdminAPI::CommonEndpoints
       return mp
     end
 
-    def update_model(m, orig_params, process_params: nil, save: true)
+    def update_model(m, orig_params, save: true)
       params = orig_params.deep_symbolize_keys
       params.delete(:id)
-      process_params&.call(params)
       mtype = m.class
       images = []
       to_many_assocs_and_args = []
@@ -33,7 +32,10 @@ module Suma::AdminAPI::CommonEndpoints
           elsif association_class?(assoc, Suma::Image)
             uf = Suma::UploadedFile.create_from_multipart(v)
             images << Suma::Image.new(uploaded_file: uf)
-          elsif v.key?(:id)
+          elsif v.key?(:id) && v.one?
+            # If we're passing in a hash like {id:}, we just want to replace the FK.
+            # If the hash includes more fields, it'll get caught by the else which replaces
+            # and updates the association.
             fk_attrs[assoc[:key]] = v[:id]
           else
             to_one_assocs_and_params << [assoc, v]
@@ -47,8 +49,38 @@ module Suma::AdminAPI::CommonEndpoints
       save_or_error!(m) if save
       images.each { |im| m.add_image(im) }
       to_one_assocs_and_params.each do |(assoc, mparams)|
-        fk_model = association_class(assoc).find_or_create_or_find(assoc[:key] => m.id)
+        # We're updating a child resource through its parent.
+        #
+        # This can go in the normal direction, where the child has a parent id.
+        # For example, a product inventory has a product_id pointing to product.
+        # When we update the product, we can also create/update the inventory.
+        # These are always one_to_one from the POV of the model here (parent).
+        #
+        # But it can also go in the 'reverse' direction,
+        # where we're updating a 'child' and its parent at the same time.
+        # For example, a member (which we usually think of as a parent) has a legal_entity_id.
+        # When we update the member, we also want to update the legal entity is 'owns'.
+        # These are always many_to_one from the POV of the model here (child).
+        #
+        # Logically we handle them both similarly, with the difference being where the FK is set.
+
+        assoc_cls = association_class(assoc)
+        fk_model = if (passed_fk_pk = mparams.delete(assoc_cls.primary_key))
+                     assoc_cls.find!(assoc_cls.primary_key => passed_fk_pk)
+        else
+          m.send(assoc[:name])
+        end
+        fk_model ||= assoc_cls.new
+        if assoc[:type] == :one_to_one
+          # fk_model (child) has an FK to m (parent)
+          # This will set child.parent_id to parent.id
+          m.set(assoc[:name] => fk_model)
+        end
         update_model(fk_model, mparams)
+        next unless assoc[:type] == :many_to_one
+        # m (child) has an FK to fk_model (parent)
+        # Set it now, that fk_model has an ID for sure.
+        m.update(assoc[:name] => fk_model)
       end
       to_many_assocs_and_args.each do |(assoc, args)|
         unseen_children = m.send(assoc[:name]).to_h { |am| [am.id, am] }
@@ -116,18 +148,14 @@ module Suma::AdminAPI::CommonEndpoints
     end
   end
 
-  def self.create(route_def, model_type, entity, process_params: nil, &)
+  def self.create(route_def, model_type, entity, &)
     route_def.instance_exec do
       helpers MutationHelpers
       yield
       post :create do
         model_type.db.transaction do
           m = model_type.new
-          update_model(
-            m,
-            params,
-            process_params:,
-          )
+          update_model(m, params)
           created_resource_headers(m.id, m.admin_link)
           status 200
           present m, with: entity
@@ -136,7 +164,7 @@ module Suma::AdminAPI::CommonEndpoints
     end
   end
 
-  def self.update(route_def, model_type, entity, process_params: nil, &)
+  def self.update(route_def, model_type, entity, around: nil, &)
     route_def.instance_exec do
       route_param :id, type: Integer do
         helpers MutationHelpers
@@ -144,11 +172,13 @@ module Suma::AdminAPI::CommonEndpoints
         post do
           # model_type.db.transaction do
           (m = model_type[params[:id]]) or forbidden!
-          update_model(
-            m,
-            params,
-            process_params:,
-          )
+          if around
+            around.call(self, m) do
+              update_model(m, params)
+            end
+          else
+            update_model(m, params)
+          end
           created_resource_headers(m.id, m.admin_link)
           status 200
           present m, with: entity
