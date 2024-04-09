@@ -33,7 +33,7 @@ export default function FormRadioInputs({
 }) {
   const registerOptions = { required };
   const message = useValidationError(name, errors, registerOptions, {
-    required: "forms:invalid_radio_or_checkbox",
+    required: "forms:invalid_required",
   });
   return (
     <>
@@ -46,17 +46,18 @@ export default function FormRadioInputs({
           label={label}
           type="radio"
           className={className}
+          // It's unusual to highlight the checkbox label itself when it's required,
+          // but to draw more attention to it, we highlight the label and the tooltip
+          // below the checkboxes.
           isInvalid={!!message}
           checked={selected === id}
           onChange={onChange}
           {...rest}
         />
       ))}
-      {message && (
-        <Form.Control.Feedback type="invalid" className="d-block">
-          {message}
-        </Form.Control.Feedback>
-      )}
+      <Form.Control.Feedback type="invalid" className={message ? "d-block" : "d-none"}>
+        {message}
+      </Form.Control.Feedback>
       {text && <FormText>{text}</FormText>}
     </>
   );

@@ -302,9 +302,7 @@ RSpec.describe Suma::API::Commerce, :db do
     end
 
     it "clears the cart, completes the checkout, creates an order, and returns the confirmation" do
-      post "/v1/commerce/checkouts/#{checkout.id}/complete",
-           charge_amount_cents: cost,
-           fulfillment_option_id: fulfillment.id
+      post "/v1/commerce/checkouts/#{checkout.id}/complete", charge_amount_cents: cost
 
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.that_includes(id: checkout.id)
@@ -313,23 +311,10 @@ RSpec.describe Suma::API::Commerce, :db do
       expect(checkout.refresh).to be_completed
     end
 
-    it "errors if fulfillment option id is invalid" do
-      invalid_option = Suma::Fixtures.offering_fulfillment_option.create
-
-      post "/v1/commerce/checkouts/#{checkout.id}/complete",
-           charge_amount_cents: cost,
-           fulfillment_option_id: invalid_option.id
-
-      expect(last_response).to have_status(400)
-      expect(last_response).to have_json_body.that_includes(error: include(code: "validation_error"))
-    end
-
     it "errors if checkout is prohibited" do
       checkout.soft_delete
 
-      post "/v1/commerce/checkouts/#{checkout.id}/complete",
-           charge_amount_cents: cost,
-           fulfillment_option_id: fulfillment.id
+      post "/v1/commerce/checkouts/#{checkout.id}/complete", charge_amount_cents: cost
 
       expect(last_response).to have_status(409)
       expect(last_response).to have_json_body.that_includes(error: include(code: "checkout_fatal_error"))
@@ -340,7 +325,6 @@ RSpec.describe Suma::API::Commerce, :db do
 
       post "/v1/commerce/checkouts/#{checkout.id}/complete",
            charge_amount_cents: cost,
-           fulfillment_option_id: fulfillment.id,
            payment_instrument: {payment_instrument_id: newcard.id, payment_method_type: "card"}
 
       expect(last_response).to have_status(200)
@@ -351,7 +335,7 @@ RSpec.describe Suma::API::Commerce, :db do
       newcard = Suma::Fixtures.card.create
 
       post "/v1/commerce/checkouts/#{checkout.id}/complete",
-           charge_amount_cents: cost, fulfillment_option_id: fulfillment.id, payment_instrument:
+           charge_amount_cents: cost, payment_instrument:
           {payment_instrument_id: newcard.id, payment_method_type: "card"}
 
       expect(last_response).to have_status(403)
@@ -363,7 +347,6 @@ RSpec.describe Suma::API::Commerce, :db do
 
       post "/v1/commerce/checkouts/#{checkout.id}/complete",
            charge_amount_cents: cost,
-           fulfillment_option_id: fulfillment.id,
            payment_instrument: {payment_instrument_id: newcard.id, payment_method_type: "card"}
 
       expect(last_response).to have_status(403)
@@ -373,9 +356,7 @@ RSpec.describe Suma::API::Commerce, :db do
       offering_product.update_without_validate(customer_price_cents: 0, undiscounted_price: 0)
       checkout.update(payment_instrument: nil)
 
-      post "/v1/commerce/checkouts/#{checkout.id}/complete",
-           charge_amount_cents: cost,
-           fulfillment_option_id: fulfillment.id
+      post "/v1/commerce/checkouts/#{checkout.id}/complete", charge_amount_cents: cost
 
       expect(last_response).to have_status(200)
     end
@@ -383,9 +364,7 @@ RSpec.describe Suma::API::Commerce, :db do
     it "errors if the checkout does not point to a payment instrument when required" do
       checkout.update(payment_instrument: nil)
 
-      post "/v1/commerce/checkouts/#{checkout.id}/complete",
-           charge_amount_cents: cost,
-           fulfillment_option_id: fulfillment.id
+      post "/v1/commerce/checkouts/#{checkout.id}/complete", charge_amount_cents: cost
 
       expect(last_response).to have_status(409)
     end
@@ -402,10 +381,29 @@ RSpec.describe Suma::API::Commerce, :db do
       expect(checkout.refresh).to have_attributes(fulfillment_option: be === newopt)
     end
 
-    it "errors if the fulfillment option is not available" do
-      newopt = Suma::Fixtures.offering_fulfillment_option.create
+    it "does not modify fulfillment option if not passed" do
+      opt = Suma::Fixtures.offering_fulfillment_option(offering:).create
+      checkout.update(fulfillment_option: opt)
 
-      post "/v1/commerce/checkouts/#{checkout.id}/complete", charge_amount_cents: cost, fulfillment_option_id: newopt.id
+      post "/v1/commerce/checkouts/#{checkout.id}/complete", charge_amount_cents: cost
+
+      expect(last_response).to have_status(200)
+      expect(checkout.refresh).to have_attributes(fulfillment_option: be === opt)
+    end
+
+    it "errors if a nil fulfillment empty is passed" do
+      post "/v1/commerce/checkouts/#{checkout.id}/complete", charge_amount_cents: cost, fulfillment_option_id: nil
+
+      expect(last_response).to have_status(400)
+      expect(last_response).to have_json_body.that_includes(error: include(code: "validation_error"))
+    end
+
+    it "errors if fulfillment option id is invalid" do
+      invalid_option = Suma::Fixtures.offering_fulfillment_option.create
+
+      post "/v1/commerce/checkouts/#{checkout.id}/complete",
+           charge_amount_cents: cost,
+           fulfillment_option_id: invalid_option.id
 
       expect(last_response).to have_status(400)
       expect(last_response).to have_json_body.that_includes(error: include(code: "validation_error"))
@@ -414,9 +412,7 @@ RSpec.describe Suma::API::Commerce, :db do
     it "errors if max quantity is exceeded" do
       offering.update(max_ordered_items_cumulative: 1)
 
-      post "/v1/commerce/checkouts/#{checkout.id}/complete",
-           charge_amount_cents: cost,
-           fulfillment_option_id: fulfillment.id
+      post "/v1/commerce/checkouts/#{checkout.id}/complete", charge_amount_cents: cost
 
       expect(last_response).to have_status(403)
       expect(last_response).to have_json_body.that_includes(error: include(code: "invalid_order_quantity"))
@@ -425,7 +421,6 @@ RSpec.describe Suma::API::Commerce, :db do
     it "deletes the payment instrument if it is not being saved" do
       post "/v1/commerce/checkouts/#{checkout.id}/complete",
            charge_amount_cents: cost,
-           fulfillment_option_id: fulfillment.id,
            save_payment_instrument: false
 
       expect(last_response).to have_status(200)
@@ -435,9 +430,7 @@ RSpec.describe Suma::API::Commerce, :db do
     it "errors if the member cannot access the offering due to constraints" do
       offering.add_eligibility_constraint(Suma::Fixtures.eligibility_constraint.create)
 
-      post "/v1/commerce/checkouts/#{checkout.id}/complete",
-           charge_amount_cents: cost,
-           fulfillment_option_id: fulfillment.id
+      post "/v1/commerce/checkouts/#{checkout.id}/complete", charge_amount_cents: cost
 
       expect(last_response).to have_status(403)
       expect(last_response).to have_json_body.that_includes(error: include(code: "eligibility_violation"))

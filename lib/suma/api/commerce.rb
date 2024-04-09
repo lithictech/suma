@@ -12,10 +12,10 @@ class Suma::API::Commerce < Suma::API::V1
     helpers do
       def new_context = Suma::Payment::CalculationContext.new(Time.now)
 
-      def set_fulfillment_or_error(model, id, available_options)
-        valid_option = available_options.any? { |o| o.id == id }
+      def set_fulfillment_or_error(checkout, option_id, options)
+        valid_option = options.any? { |o| o.id == option_id }
         invalid!("Not a valid fulfillment option") unless valid_option
-        model.set(fulfillment_option_id: id)
+        checkout.set(fulfillment_option_id: option_id)
       end
     end
 
@@ -141,7 +141,8 @@ class Suma::API::Commerce < Suma::API::V1
         end
         post :modify_fulfillment do
           checkout = lookup_editable!
-          set_fulfillment_or_error(checkout, params[:option_id], checkout.available_fulfillment_options).save_changes
+          set_fulfillment_or_error(checkout, params[:option_id], checkout.available_fulfillment_options)
+          checkout.save_changes
           status 200
           present checkout, with: CheckoutEntity, cart: checkout.cart, context: new_context
         end
@@ -151,7 +152,7 @@ class Suma::API::Commerce < Suma::API::V1
           optional :payment_instrument, type: JSON do
             use :payment_instrument
           end
-          requires :fulfillment_option_id, type: Integer
+          optional :fulfillment_option_id, type: Integer
           optional :save_payment_instrument, type: Boolean, allow_blank: false
         end
         post :complete do
@@ -164,7 +165,9 @@ class Suma::API::Commerce < Suma::API::V1
             checkout.payment_instrument = instrument if instrument
           end
 
-          set_fulfillment_or_error(checkout, params[:fulfillment_option_id], checkout.available_fulfillment_options)
+          if params.key?(:fulfillment_option_id)
+            set_fulfillment_or_error(checkout, params[:fulfillment_option_id], checkout.available_fulfillment_options)
+          end
 
           checkout.save_payment_instrument = params[:save_payment_instrument] if
             params.key?(:save_payment_instrument)
@@ -230,7 +233,8 @@ class Suma::API::Commerce < Suma::API::V1
             order.checkout,
             params[:option_id],
             order.fulfillment_options_for_editing,
-          ).save_changes
+          )
+          order.checkout.save_changes
           status 200
           present order, with: DetailedOrderHistoryEntity
         end

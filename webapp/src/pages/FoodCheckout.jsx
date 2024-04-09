@@ -15,7 +15,6 @@ import ScrollTopOnMount from "../shared/ScrollToTopOnMount";
 import { anyMoney } from "../shared/money";
 import Money from "../shared/react/Money";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
-import useToggle from "../shared/react/useToggle";
 import useBackendGlobals from "../state/useBackendGlobals";
 import useErrorToast from "../state/useErrorToast";
 import useOffering from "../state/useOffering";
@@ -227,7 +226,7 @@ function CheckoutPayment({
         <Stack gap={2}>
           <span className="small text-secondary">{t("food:link_new_payment")}</span>
           {addPaymentLinks}
-          <FakeInputValidationMessage
+          <PaymentsInputValidationMessage
             name={paymentValidationInputName}
             register={register}
             errors={errors}
@@ -284,37 +283,28 @@ function PaymentLabel({ institution, last4, name }) {
   );
 }
 
-function CheckoutFulfillment({
-  checkout,
-  onCheckoutChange,
-  register,
-  errors,
-  showErrorToast,
-}) {
-  const loading = useToggle(false);
+function CheckoutFulfillment({ checkout, onCheckoutChange, register, errors }) {
   const handleCheckoutChange = (e) => {
     const id = Number(e.target.value);
     if (checkout.fulfillmentOptionId === id) {
       return;
     }
-    loading.turnOn();
+    // We save the fulfillment choice, but it is only a convenience-
+    // because we also submit the option id
+    // when completing the checkout, we don't need to worry about any failures or latency
+    // when saving the selected option.
+    onCheckoutChange({ fulfillmentOptionId: id });
     idempotency.runAsync("update-checkout-fulfillment", () =>
-      api
-        .updateCheckoutFulfillment({ checkoutId: checkout.id, optionId: id })
-        .then(() => {
-          onCheckoutChange({ fulfillmentOptionId: id });
-        })
-        .catch((e) => showErrorToast(e, { extract: true }))
-        .finally(() => loading.turnOff())
+      api.updateCheckoutFulfillment({ checkoutId: checkout.id, optionId: id })
     );
   };
-  const inputs = checkout.availableFulfillmentOptions.map((fo) => {
-    return { id: fo.id, label: <FulfillmentOptionLabel {...fo} /> };
-  });
+  const inputs = checkout.availableFulfillmentOptions.map((fo) => ({
+    id: fo.id,
+    label: <FulfillmentOptionLabel {...fo} />,
+  }));
   return (
     <Col xs={12} className="position-relative">
       <h5>{checkout.offering.fulfillmentPrompt}</h5>
-      {loading.isOn && <PageLoader overlay />}
       <FormRadioInputs
         inputs={inputs}
         name="fulfillmentOption"
@@ -513,10 +503,17 @@ function CheckoutItem({ item }) {
   );
 }
 
-function FakeInputValidationMessage({ name, register, errors }) {
+/**
+ * The payments component, when it's empty, shows two links.
+ * If someone submits, and nothing is selected, we want to show an error,
+ * just like if it was a radiobutton group with nothing selected.
+ * However these are not inputs, so the validation system doesn't work.
+ * We have to create a fake input (with d-none) and then show the error message.
+ */
+function PaymentsInputValidationMessage({ name, register, errors }) {
   const registerOptions = { required: true };
   const message = useValidationError(name, errors, registerOptions, {
-    required: "forms:invalid_radio_or_checkbox",
+    required: "forms:invalid_required",
   });
   return (
     <>
