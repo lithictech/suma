@@ -53,9 +53,11 @@ RSpec.describe "Suma::Commerce::Order", :db do
   end
 
   describe "fulfillment_options_for_editing" do
-    let(:checkout) { Suma::Fixtures.checkout.completed.create }
-    let(:order) { Suma::Fixtures.order(checkout:).create }
-    let(:offering) { checkout.cart.offering }
+    let(:offering) { Suma::Fixtures.offering.create }
+    let(:order) do
+      checkout = Suma::Fixtures.checkout(cart: Suma::Fixtures.cart(offering:).create).completed.create
+      Suma::Fixtures.order(checkout:).create
+    end
 
     it "shows checkout options on an unfulfilled order" do
       expect(order.fulfillment_options_for_editing).to have_same_ids_as(*offering.fulfillment_options)
@@ -124,7 +126,7 @@ RSpec.describe "Suma::Commerce::Order", :db do
       expect(order).to transition_on(:claim).to("fulfilled")
     end
 
-    it "can only be claimed if the fulfillment is a pickup and the order is fulfilling" do
+    it "can only be claimed if the fulfillment exists, is of type pickup and the order is fulfilling" do
       order.update(fulfillment_status: "fulfilling")
       order.checkout.fulfillment_option.update(type: "pickup")
       expect(order).to be_can_claim
@@ -134,6 +136,10 @@ RSpec.describe "Suma::Commerce::Order", :db do
 
       order.refresh
       order.checkout.fulfillment_option.type = "delivery"
+      expect(order).to_not be_can_claim
+
+      order.refresh
+      order.checkout.fulfillment_option = nil
       expect(order).to_not be_can_claim
 
       order.refresh

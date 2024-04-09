@@ -13,8 +13,6 @@ module Suma::Fixtures::Checkouts
 
   before_saving do |instance|
     instance.cart ||= Suma::Fixtures.cart.create
-    instance.fulfillment_option ||= instance.cart.offering.fulfillment_options.first ||
-      Suma::Fixtures.offering_fulfillment_option(offering: instance.cart.offering).create
     instance
   end
 
@@ -27,9 +25,18 @@ module Suma::Fixtures::Checkouts
 
   decorator :completed, presave: true do |t=Time.now|
     self.complete(t)
+    self.fulfillment_option ||= self.cart.offering.fulfillment_options.first ||
+      Suma::Fixtures.offering_fulfillment_option(offering: self.cart.offering).create
     self.items.each do |it|
       it.update(cart_item_id: nil, immutable_quantity: it.cart_item.quantity)
     end
+  end
+
+  decorator :with_fulfillment_option, presave: true do |o={}|
+    unless o.is_a?(Suma::Commerce::OfferingFulfillmentOption)
+      o = Suma::Fixtures.offering_fulfillment_option(offering: self.cart.offering).create(o)
+    end
+    self.fulfillment_option = o
   end
 
   decorator :with_payment_instrument, presave: true do

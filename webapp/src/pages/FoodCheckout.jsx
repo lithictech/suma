@@ -3,12 +3,15 @@ import ErrorScreen from "../components/ErrorScreen";
 import ExternalLink from "../components/ExternalLink";
 import FoodPrice from "../components/FoodPrice";
 import FormButtons from "../components/FormButtons";
+import FormRadioInputs from "../components/FormRadioInputs";
 import LayoutContainer from "../components/LayoutContainer";
 import LinearBreadcrumbs from "../components/LinearBreadcrumbs";
 import PageLoader from "../components/PageLoader";
 import RLink from "../components/RLink";
 import SumaImage from "../components/SumaImage";
 import { md, t } from "../localization";
+import idempotency from "../modules/idempotency";
+import ScrollTopOnMount from "../shared/ScrollToTopOnMount";
 import { anyMoney } from "../shared/money";
 import Money from "../shared/react/Money";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
@@ -17,6 +20,7 @@ import useErrorToast from "../state/useErrorToast";
 import useOffering from "../state/useOffering";
 import useScreenLoader from "../state/useScreenLoader";
 import useUser from "../state/useUser";
+import useValidationError from "../state/useValidationError";
 import clsx from "clsx";
 import find from "lodash/find";
 import isEmpty from "lodash/isEmpty";
@@ -28,6 +32,7 @@ import Alert from "react-bootstrap/Alert";
 import Col from "react-bootstrap/Col";
 import Form from "react-bootstrap/Form";
 import Stack from "react-bootstrap/Stack";
+import { useForm } from "react-hook-form";
 import {
   Link,
   useLocation,
@@ -45,6 +50,16 @@ export default function FoodCheckout() {
   const screenLoader = useScreenLoader();
   const navigate = useNavigate();
   const { reset: resetOffering } = useOffering();
+  const {
+    register,
+    handleSubmit,
+    clearErrors,
+    setValue,
+    formState: { errors },
+  } = useForm({
+    mode: "all",
+  });
+
   const getCheckout = React.useCallback(() => api.getCheckout({ id }), [id]);
   const {
     state: fetchedCheckout,
@@ -56,6 +71,15 @@ export default function FoodCheckout() {
     pullFromState: "checkout",
     location,
   });
+
+  const runSetter = React.useCallback(
+    (name, set, value) => {
+      clearErrors(name);
+      setValue(name, value);
+      set(value);
+    },
+    [clearErrors, setValue]
+  );
 
   const [checkoutMutations, setCheckoutMutations] = React.useState({});
   const checkout = merge({}, fetchedCheckout, checkoutMutations);
@@ -80,8 +104,7 @@ export default function FoodCheckout() {
   if (loading || isEmpty(checkout)) {
     return <PageLoader buffered />;
   }
-  function handleSubmit(e) {
-    e.preventDefault();
+  function handleSubmitInner() {
     screenLoader.turnOn();
     api
       .completeCheckout({
@@ -100,47 +123,54 @@ export default function FoodCheckout() {
         showErrorToast(e, { extract: true });
       });
   }
-
   return (
     <>
       <LayoutContainer gutters>
         <LinearBreadcrumbs back={`/cart/${checkout.offering.id}`} />
       </LayoutContainer>
-      {checkout.requiresPaymentInstrument && (
-        <>
-          <LayoutContainer gutters className="mb-4">
-            <CheckoutPayment
-              checkout={checkout}
-              selectedInstrument={chosenInstrument}
-              onSelectedInstrumentChange={(pi) => setManuallySelectedInstrument(pi)}
-              onCheckoutChange={(attrs) =>
-                setCheckoutMutations({ ...checkoutMutations, ...attrs })
-              }
-            />
-          </LayoutContainer>
-          <hr />
-        </>
-      )}
-      <LayoutContainer gutters className="mb-4 mt-4">
-        <CheckoutFulfillment
-          checkout={checkout}
-          onCheckoutChange={(attrs) =>
-            setCheckoutMutations({ ...checkoutMutations, ...attrs })
-          }
-        />
-      </LayoutContainer>
-      <hr />
-      <LayoutContainer gutters className="mb-4 mt-4">
-        <CheckoutItems checkout={checkout} />
-      </LayoutContainer>
-      <hr />
-      <LayoutContainer gutters className="mb-4 mt-4">
-        <OrderSummary
-          checkout={checkout}
-          chosenInstrument={chosenInstrument}
-          onSubmit={handleSubmit}
-        />
-      </LayoutContainer>
+      <Form noValidate onSubmit={handleSubmit(handleSubmitInner)}>
+        {checkout.requiresPaymentInstrument && (
+          <>
+            <LayoutContainer gutters className="mb-4">
+              <CheckoutPayment
+                checkout={checkout}
+                selectedInstrument={chosenInstrument}
+                onSelectedInstrumentChange={(pi) =>
+                  runSetter("paymentOption", setManuallySelectedInstrument, pi)
+                }
+                onCheckoutChange={(attrs) =>
+                  setCheckoutMutations({ ...checkoutMutations, ...attrs })
+                }
+                register={register}
+                errors={errors}
+              />
+            </LayoutContainer>
+            <hr />
+          </>
+        )}
+        <LayoutContainer gutters className="mb-4 mt-4">
+          <CheckoutFulfillment
+            checkout={checkout}
+            showErrorToast={showErrorToast}
+            register={register}
+            errors={errors}
+            onCheckoutChange={(attrs) =>
+              runSetter("fulfillmentOption", setCheckoutMutations, {
+                ...checkoutMutations,
+                ...attrs,
+              })
+            }
+          />
+        </LayoutContainer>
+        <hr />
+        <LayoutContainer gutters className="mb-4 mt-4">
+          <CheckoutItems checkout={checkout} />
+        </LayoutContainer>
+        <hr />
+        <LayoutContainer gutters className="mb-4 mt-4">
+          <OrderSummary checkout={checkout} chosenInstrument={chosenInstrument} />
+        </LayoutContainer>
+      </Form>
     </>
   );
 }
@@ -150,24 +180,45 @@ function CheckoutPayment({
   selectedInstrument,
   onSelectedInstrumentChange,
   onCheckoutChange,
+  register,
+  errors,
 }) {
+  const paymentValidationInputName = "paymentInputBackupValidationError";
+  const isInvalid = !!errors[paymentValidationInputName];
   const { isPaymentMethodSupported } = useBackendGlobals();
   const addPaymentLinks = (
     <>
       {isPaymentMethodSupported("card") && (
-        <Link to={`/add-card?returnToImmediate=/checkout/${checkout.id}`}>
+        <Link
+          to={`/add-card?returnToImmediate=/checkout/${checkout.id}`}
+          className={clsx(isInvalid && "link-danger")}
+        >
           <i className="bi bi-credit-card me-2" />
           {t("food:add_card")}
         </Link>
       )}
       {isPaymentMethodSupported("bank_account") && (
-        <Link to={`/link-bank-account?returnTo=/checkout/${checkout.id}`}>
+        <Link
+          to={`/link-bank-account?returnTo=/checkout/${checkout.id}`}
+          className={clsx(isInvalid && "link-danger")}
+        >
           <i className="bi bi-bank2 me-2" />
           {t("payments:link_bank_account")}
         </Link>
       )}
     </>
   );
+  function handleChange(e) {
+    const instrumentKey = e.target.value;
+    const instrument = checkout.availablePaymentInstruments.find(
+      (pi) => pi.key === instrumentKey
+    );
+    onSelectedInstrumentChange(instrument);
+  }
+  const inputs = checkout.availablePaymentInstruments.map((pi) => ({
+    id: pi.key,
+    label: <PaymentLabel {...pi} />,
+  }));
   return (
     <Col xs={12}>
       <h5>{t("food:payment_title")}</h5>
@@ -175,54 +226,42 @@ function CheckoutPayment({
         <Stack gap={2}>
           <span className="small text-secondary">{t("food:link_new_payment")}</span>
           {addPaymentLinks}
+          <PaymentsInputValidationMessage
+            name={paymentValidationInputName}
+            register={register}
+            errors={errors}
+          />
         </Stack>
       )}
       {!isEmpty(checkout.availablePaymentInstruments) && (
         <Stack gap={2}>
-          <Form>
-            <Form.Group>
-              {checkout.availablePaymentInstruments.map((pi) => (
-                <PaymentInstrumentRadio
-                  key={pi.key}
-                  id={pi.key}
-                  instrument={pi}
-                  checked={pi.key === selectedInstrument?.key}
-                  onChange={() => onSelectedInstrumentChange(pi)}
-                />
-              ))}
-            </Form.Group>
-          </Form>
-          <Form>
-            <Form.Group>
-              <Form.Check
-                id="savePayment"
-                name="savePayment"
-                label={t("food:save_payment")}
-                checked={checkout.savePaymentInstrument}
-                onChange={(e) =>
-                  onCheckoutChange({ savePaymentInstrument: e.target.checked })
-                }
-              ></Form.Check>
-            </Form.Group>
-          </Form>
+          <Form.Group>
+            <FormRadioInputs
+              inputs={inputs}
+              name="paymentOption"
+              selected={selectedInstrument?.key}
+              register={register}
+              errors={errors}
+              onChange={handleChange}
+              required
+            />
+          </Form.Group>
+          <Form.Group>
+            <Form.Check
+              id="savePayment"
+              name="savePayment"
+              label={t("food:save_payment")}
+              checked={checkout.savePaymentInstrument}
+              onChange={(e) =>
+                onCheckoutChange({ savePaymentInstrument: e.target.checked })
+              }
+            ></Form.Check>
+          </Form.Group>
           <div>{t("food:link_new_payment", { context: "or" })}</div>
           {addPaymentLinks}
         </Stack>
       )}
     </Col>
-  );
-}
-
-function PaymentInstrumentRadio({ id, instrument, checked, onChange }) {
-  return (
-    <Form.Check
-      id={id}
-      type="radio"
-      name="paymentOption"
-      label={<PaymentLabel {...instrument} />}
-      checked={checked}
-      onChange={onChange}
-    />
   );
 }
 
@@ -244,39 +283,55 @@ function PaymentLabel({ institution, last4, name }) {
   );
 }
 
-function CheckoutFulfillment({ checkout, onCheckoutChange }) {
+function CheckoutFulfillment({ checkout, onCheckoutChange, register, errors }) {
+  const handleCheckoutChange = (e) => {
+    const id = Number(e.target.value);
+    if (checkout.fulfillmentOptionId === id) {
+      return;
+    }
+    // We save the fulfillment choice, but it is only a convenience-
+    // because we also submit the option id
+    // when completing the checkout, we don't need to worry about any failures or latency
+    // when saving the selected option.
+    onCheckoutChange({ fulfillmentOptionId: id });
+    idempotency.runAsync("update-checkout-fulfillment", () =>
+      api.updateCheckoutFulfillment({ checkoutId: checkout.id, optionId: id })
+    );
+  };
+  const inputs = checkout.availableFulfillmentOptions.map((fo) => ({
+    id: fo.id,
+    label: <FulfillmentOptionLabel {...fo} />,
+  }));
   return (
-    <Col xs={12}>
+    <Col xs={12} className="position-relative">
       <h5>{checkout.offering.fulfillmentPrompt}</h5>
-      <Form noValidate>
-        <Form.Group>
-          {checkout.availableFulfillmentOptions.map((fo) => (
-            <Form.Check
-              key={fo.id}
-              id={fo.id}
-              name={fo.description}
-              type="radio"
-              label={
-                <>
-                  {fo.description}
-                  {fo.address?.oneLineAddress && (
-                    <ExternalLink
-                      href={`https://www.google.com/maps/place/${fo.address.oneLineAddress}`}
-                      className="ms-1 nowrap"
-                    >
-                      <i className="bi bi-geo-alt-fill me-1"></i>
-                      {t("food:address")}
-                    </ExternalLink>
-                  )}
-                </>
-              }
-              checked={checkout.fulfillmentOptionId === fo.id}
-              onChange={() => onCheckoutChange({ fulfillmentOptionId: fo.id })}
-            />
-          ))}
-        </Form.Group>
-      </Form>
+      <FormRadioInputs
+        inputs={inputs}
+        name="fulfillmentOption"
+        selected={checkout.fulfillmentOptionId}
+        register={register}
+        errors={errors}
+        onChange={(e) => handleCheckoutChange(e)}
+        required
+      />
     </Col>
+  );
+}
+
+function FulfillmentOptionLabel({ description, address }) {
+  return (
+    <>
+      {description}
+      {address?.oneLineAddress && (
+        <ExternalLink
+          href={`https://www.google.com/maps/place/${address.oneLineAddress}`}
+          className="ms-1 nowrap"
+        >
+          <i className="bi bi-geo-alt-fill me-1"></i>
+          {t("food:address")}
+        </ExternalLink>
+      )}
+    </>
   );
 }
 
@@ -300,15 +355,11 @@ function CheckoutItems({ checkout }) {
   );
 }
 
-function OrderSummary({ checkout, chosenInstrument, onSubmit }) {
+function OrderSummary({ checkout, chosenInstrument }) {
   const itemCount = sum(map(checkout.items, "quantity"));
-  const canPlace =
-    checkout.fulfillmentOptionId &&
-    (chosenInstrument || !checkout.requiresPaymentInstrument);
   // We only handle this reason explicitly; other reasons, assume we can still submit,
   // and if there's an error we'll deal with it.
   const showSubmit = checkout.checkoutProhibitedReason !== "charging_prohibited";
-
   return (
     <Col xs={12}>
       <h5>{t("food:order_summary_title")}</h5>
@@ -384,9 +435,6 @@ function OrderSummary({ checkout, chosenInstrument, onSubmit }) {
             </p>
             <FormButtons
               primaryProps={{
-                onClick: onSubmit,
-                disabled: !canPlace,
-                type: "button",
                 variant: "success",
                 children: t("food:order_button"),
               }}
@@ -452,5 +500,32 @@ function CheckoutItem({ item }) {
         )}
       </Stack>
     </Col>
+  );
+}
+
+/**
+ * The payments component, when it's empty, shows two links.
+ * If someone submits, and nothing is selected, we want to show an error,
+ * just like if it was a radiobutton group with nothing selected.
+ * However these are not inputs, so the validation system doesn't work.
+ * We have to create a fake input (with d-none) and then show the error message.
+ */
+function PaymentsInputValidationMessage({ name, register, errors }) {
+  const registerOptions = { required: true };
+  const message = useValidationError(name, errors, registerOptions, {
+    required: "forms:invalid_required",
+  });
+  return (
+    <>
+      <input {...register(name, registerOptions)} className="d-none" required />
+      {message && (
+        <>
+          <ScrollTopOnMount />
+          <Form.Control.Feedback type="invalid" className="d-block">
+            {message}
+          </Form.Control.Feedback>
+        </>
+      )}
+    </>
   );
 }

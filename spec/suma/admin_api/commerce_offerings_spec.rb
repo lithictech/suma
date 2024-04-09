@@ -235,8 +235,7 @@ RSpec.describe Suma::AdminAPI::CommerceOfferings, :db do
     it "errors with a 409 if a foreign key constraint is violated" do
       offering = Suma::Fixtures.offering.create
       ful_opt = Suma::Fixtures.offering_fulfillment_option.create(offering:)
-
-      Suma::Fixtures.checkout.create(fulfillment_option: ful_opt)
+      Suma::Fixtures.checkout.with_fulfillment_option(ful_opt).create
 
       post "/v1/commerce_offerings/#{offering.id}", fulfillment_options: {}
 

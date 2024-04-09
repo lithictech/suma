@@ -151,11 +151,23 @@ RSpec.describe Suma::API::Commerce, :db do
           items: contain_exactly(include(quantity: 2, product: include(product_id: product.id))),
           payment_instrument: nil,
           available_payment_instruments: [],
-          fulfillment_option_id: fulfillment.id,
+          fulfillment_option_id: nil,
           available_fulfillment_options: contain_exactly(include(id: fulfillment.id)),
         )
       expect(other_member_checkout.refresh).to be_soft_deleted
       expect(completed_checkout.refresh).to_not be_soft_deleted
+    end
+
+    it "starts a checkout with fulfillment option from a previously editable checkout" do
+      noneditable_checkout = Suma::Fixtures.checkout(cart:).with_fulfillment_option(fulfillment).complete.create
+      existing_editable_checkout = Suma::Fixtures.checkout(cart:).with_fulfillment_option(fulfillment).create
+
+      post "/v1/commerce/offerings/#{offering.id}/checkout"
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.that_includes(
+        fulfillment_option_id: existing_editable_checkout.fulfillment_option.id,
+      )
     end
 
     it "errors if there are no items in the cart" do
@@ -241,6 +253,33 @@ RSpec.describe Suma::API::Commerce, :db do
       get "/v1/commerce/checkouts/#{checkout.id}"
 
       expect(last_response).to have_status(403)
+    end
+  end
+
+  describe "POST /v1/commerce/checkouts/:id/modify_fulfillment" do
+    let(:offering) { Suma::Fixtures.offering.create }
+    let!(:fulfillment) { Suma::Fixtures.offering_fulfillment_option(offering:).create }
+    let(:product) { Suma::Fixtures.product.category(:food).create }
+    let!(:offering_product) { Suma::Fixtures.offering_product(product:, offering:).create }
+    let(:cart) { Suma::Fixtures.cart(offering:, member:).with_product(product, 2).create }
+    let(:checkout) { Suma::Fixtures.checkout(cart:).populate_items.create }
+
+    it "updates the fulfillment option" do
+      newopt = Suma::Fixtures.offering_fulfillment_option(offering:).create
+
+      post "/v1/commerce/checkouts/#{checkout.id}/modify_fulfillment", option_id: newopt.id
+
+      expect(last_response).to have_status(200)
+      expect(checkout.refresh).to have_attributes(fulfillment_option: be === newopt)
+    end
+
+    it "400s if the given ID is not an available fulfillment option" do
+      opt = Suma::Fixtures.offering_fulfillment_option(offering: checkout.cart.offering).create
+      opt.soft_delete
+
+      post "/v1/commerce/checkouts/#{checkout.id}/modify_fulfillment", option_id: opt.id
+
+      expect(last_response).to have_status(400)
     end
   end
 
@@ -342,12 +381,32 @@ RSpec.describe Suma::API::Commerce, :db do
       expect(checkout.refresh).to have_attributes(fulfillment_option: be === newopt)
     end
 
-    it "errors if the fulfillment option is not available" do
-      newopt = Suma::Fixtures.offering_fulfillment_option.create
+    it "does not modify fulfillment option if not passed" do
+      opt = Suma::Fixtures.offering_fulfillment_option(offering:).create
+      checkout.update(fulfillment_option: opt)
 
-      post "/v1/commerce/checkouts/#{checkout.id}/complete", charge_amount_cents: cost, fulfillment_option_id: newopt.id
+      post "/v1/commerce/checkouts/#{checkout.id}/complete", charge_amount_cents: cost
 
-      expect(last_response).to have_status(403)
+      expect(last_response).to have_status(200)
+      expect(checkout.refresh).to have_attributes(fulfillment_option: be === opt)
+    end
+
+    it "errors if a nil fulfillment empty is passed" do
+      post "/v1/commerce/checkouts/#{checkout.id}/complete", charge_amount_cents: cost, fulfillment_option_id: nil
+
+      expect(last_response).to have_status(400)
+      expect(last_response).to have_json_body.that_includes(error: include(code: "validation_error"))
+    end
+
+    it "errors if fulfillment option id is invalid" do
+      invalid_option = Suma::Fixtures.offering_fulfillment_option.create
+
+      post "/v1/commerce/checkouts/#{checkout.id}/complete",
+           charge_amount_cents: cost,
+           fulfillment_option_id: invalid_option.id
+
+      expect(last_response).to have_status(400)
+      expect(last_response).to have_json_body.that_includes(error: include(code: "validation_error"))
     end
 
     it "errors if max quantity is exceeded" do
@@ -360,7 +419,9 @@ RSpec.describe Suma::API::Commerce, :db do
     end
 
     it "deletes the payment instrument if it is not being saved" do
-      post "/v1/commerce/checkouts/#{checkout.id}/complete", charge_amount_cents: cost, save_payment_instrument: false
+      post "/v1/commerce/checkouts/#{checkout.id}/complete",
+           charge_amount_cents: cost,
+           save_payment_instrument: false
 
       expect(last_response).to have_status(200)
       expect(card.refresh).to be_soft_deleted
@@ -482,6 +543,7 @@ RSpec.describe Suma::API::Commerce, :db do
       post "/v1/commerce/orders/#{order.id}/modify_fulfillment", option_id: opt.id
 
       expect(last_response).to have_status(400)
+      expect(last_response).to have_json_body.that_includes(error: include(code: "validation_error"))
     end
   end
 
