@@ -1,16 +1,28 @@
 import * as Sentry from "@sentry/browser";
 
 /**
- * Call cb(Sentry), and console log if there is any sort of error.
- * @param {function(Sentry)} cb
+ * Shim Sentry because if we expose it outside of this module
+ * (like `cb(Sentry)` in `withSentry`) it does not get tree shaken,
+ * so is much larger than it should be.
+ *
+ * Add more shim methods as needed.
+ */
+class SentryShim {
+  captureMessage(message, context) {
+    return Sentry.captureMessage(message, context);
+  }
+  captureException(ex, hint) {
+    return Sentry.captureException(ex, hint);
+  }
+}
+
+/**
+ * Call cb(SentryShim), and console log if there is any sort of error.
+ * @param {function(SentryShim)} cb
  */
 export function withSentry(cb) {
-  if (!Sentry) {
-    console.warn("sentry was not available");
-    return;
-  }
   try {
-    cb(Sentry);
+    cb(new SentryShim());
   } catch (e) {
     console.error("Error calling Sentry:", e);
   }
