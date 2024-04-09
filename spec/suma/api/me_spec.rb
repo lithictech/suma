@@ -104,6 +104,15 @@ RSpec.describe Suma::API::Me, :db do
       expect(last_response).to have_status(200)
       expect(member.refresh.legal_entity.address).to have_attributes(address1: "123 Main")
     end
+
+    it "can create an organization membership for the member" do
+      org = Suma::Fixtures.organization.create(name: "Hacienda ABC")
+
+      post "/v1/me/update", name: "Hassan", organization: org.name
+
+      expect(last_response).to have_status(200)
+      expect(Suma::Organization::Membership.last).to have_attributes(member:)
+    end
   end
 
   describe "POST /v1/me/language" do

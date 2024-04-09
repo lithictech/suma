@@ -8,7 +8,9 @@ import useAsyncFetch from "../shared/react/useAsyncFetch";
 import { extractErrorCode } from "../state/useError";
 import useUser from "../state/useUser";
 import React from "react";
+import ButtonGroup from "react-bootstrap/ButtonGroup";
 import Col from "react-bootstrap/Col";
+import Dropdown from "react-bootstrap/Dropdown";
 import Form from "react-bootstrap/Form";
 import Row from "react-bootstrap/Row";
 import { useForm } from "react-hook-form";
@@ -34,6 +36,7 @@ export default function OnboardingSignup() {
   const [city, setCity] = React.useState("");
   const [state, setState] = React.useState("");
   const [zipCode, setZipCode] = React.useState("");
+  const [organization, setOrganization] = React.useState("");
   const handleFormSubmit = () => {
     api
       .updateMe({
@@ -45,6 +48,7 @@ export default function OnboardingSignup() {
           state_or_province: state,
           postal_code: zipCode,
         },
+        organization: organization?.trim(),
       })
       .then((r) => {
         setUser(r.data);
@@ -62,7 +66,7 @@ export default function OnboardingSignup() {
   };
 
   const handleInputChange = (e, set) => {
-    runSetter(e.target.name, set, e.target.value);
+    runSetter(e.target.name, set, e.target.value || "");
   };
 
   const handleZipChange = (e) => {
@@ -70,11 +74,18 @@ export default function OnboardingSignup() {
     runSetter(e.target.name, setZipCode, v);
   };
 
+  const handleOrganizationChange = (set, value) => {
+    runSetter("organization", set, value);
+  };
+
   const { state: supportedGeographies } = useAsyncFetch(api.getSupportedGeographies, {
     default: {},
     pickData: true,
   });
-
+  const { state: supportedOrganizations } = useAsyncFetch(api.getSupportedOrganizations, {
+    default: {},
+    pickData: true,
+  });
   return (
     <>
       <h2 className="page-header">{t("onboarding:enroll_title")}</h2>
@@ -138,12 +149,11 @@ export default function OnboardingSignup() {
             <option disabled value="">
               {t("forms:choose_state")}
             </option>
-            {!!supportedGeographies.provinces &&
-              supportedGeographies.provinces.map((state) => (
-                <option key={state.value} value={state.value}>
-                  {state.label}
-                </option>
-              ))}
+            {supportedGeographies.provinces?.map((state) => (
+              <option key={state.value} value={state.value}>
+                {state.label}
+              </option>
+            ))}
           </FormControlGroup>
           <FormControlGroup
             as={Col}
@@ -160,6 +170,37 @@ export default function OnboardingSignup() {
             onChange={handleZipChange}
           />
         </Row>
+        <FormControlGroup
+          name="organization"
+          label={t("forms:organization_label")}
+          required
+          register={register}
+          errors={errors}
+          value={organization}
+          onChange={(e) => handleOrganizationChange(setOrganization, e.target.value)}
+          append={
+            <Dropdown
+              as={ButtonGroup}
+              onSelect={(v) => handleOrganizationChange(setOrganization, v)}
+            >
+              <Dropdown.Toggle className="fs-6 rounded-0">
+                {t("forms:choose")}
+              </Dropdown.Toggle>
+              <Dropdown.Menu align="end">
+                {supportedOrganizations.items?.map((name) => (
+                  <Dropdown.Item
+                    key={name}
+                    eventKey={name}
+                    active={name === organization}
+                  >
+                    {name}
+                  </Dropdown.Item>
+                ))}
+              </Dropdown.Menu>
+            </Dropdown>
+          }
+          text={t("forms:organization_helper_text")}
+        />
         <FormError error={error} />
         <FormButtons
           variant="outline-primary"

@@ -121,4 +121,16 @@ RSpec.describe Suma::API::Meta, :db do
       expect(last_response).to have_json_body.that_includes({lat: 45.4805, lng: -122.6363})
     end
   end
+
+  describe "GET /v1/meta/supported_organizations" do
+    it "returns supported organizations" do
+      orgs = Array.new(3) { Suma::Fixtures.organization.create }
+      org_names = orgs.map(&:name)
+
+      get "/v1/meta/supported_organizations"
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.that_includes(items: org_names)
+    end
+  end
 end

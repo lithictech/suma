@@ -6,7 +6,7 @@ Sequel.migration do
       primary_key :id
       timestamptz :created_at, null: false, default: Sequel.function(:now)
       timestamptz :updated_at
-      text :name, null: false
+      text :name, null: false, unique: true
     end
 
     create_table(:organization_memberships) do

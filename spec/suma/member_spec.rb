@@ -333,4 +333,21 @@ RSpec.describe "Suma::Member", :db do
       )
     end
   end
+
+  describe "affiliate_membership", reset_configuration: Suma::Payment do
+    let(:member) { Suma::Fixtures.member.create }
+
+    it "creates membership if organization exists" do
+      org = Suma::Fixtures.organization.create
+      result = member.affiliate_membership(org.name)
+      expect(result).to have_attributes(member:, organization: org)
+      expect(result.class.to_s).to be === "Suma::Organization::Membership"
+    end
+
+    it "create member activity summary if organization does not exist" do
+      external_name = "External Org"
+      member.affiliate_membership(external_name)
+      expect(member.activities.last.summary).to eq("Onboarded with optional affiliated organization: #{external_name}")
+    end
+  end
 end
