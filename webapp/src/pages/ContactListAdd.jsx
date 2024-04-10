@@ -3,6 +3,7 @@ import ContactListTags from "../components/ContactListTags";
 import FormButtons from "../components/FormButtons";
 import FormControlGroup from "../components/FormControlGroup";
 import FormError from "../components/FormError";
+import OrganizationInputDropdown from "../components/OrganizationInputDropdown";
 import SignupAgreement from "../components/SignupAgreement";
 import { t } from "../localization";
 import useI18Next from "../localization/useI18Next";
@@ -35,6 +36,7 @@ export default function ContactListAdd() {
   const [name, setName] = React.useState("");
   const [phone, setPhone] = React.useState("");
   const [referral, setReferral] = React.useState("");
+  const [organizationName, setOrganizationName] = React.useState("");
   const [agreementChecked, setAgreementChecked] = React.useState(false);
   const handleFormSubmit = () => {
     api
@@ -45,6 +47,7 @@ export default function ContactListAdd() {
         timezone: dayjs.tz.guess(),
         event_name: eventName,
         channel: referral,
+        organizationName: organizationName.trim(),
       })
       .then(() => {
         navigate(
@@ -70,6 +73,10 @@ export default function ContactListAdd() {
 
   const handlePhoneChange = (e, set) => {
     runSetter(e.target.name, set, maskPhoneNumber(e.target.value, phone));
+  };
+
+  const handleOrganizationChange = (set, value) => {
+    runSetter("organizationName", set, value);
   };
   return (
     <>
@@ -123,6 +130,16 @@ export default function ContactListAdd() {
             ))}
           </FormControlGroup>
         </Row>
+        <div className="mb-3">
+          <OrganizationInputDropdown
+            organizationName={organizationName}
+            onOrganizationNameChange={(name) =>
+              handleOrganizationChange(setOrganizationName, name)
+            }
+            register={register}
+            errors={errors}
+          />
+        </div>
         <SignupAgreement
           checked={agreementChecked}
           onCheckedChanged={setAgreementChecked}

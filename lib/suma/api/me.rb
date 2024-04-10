@@ -40,7 +40,17 @@ class Suma::API::Me < Suma::API::V1
           member.legal_entity.address = Suma::Address.lookup(params[:address])
           save_or_error!(member.legal_entity)
         end
-        member.affiliate_membership(params[:organization_name]) if params.key?(:organization_name)
+        if params.key?(:organization_name)
+          mem_org_membership = member.create_organization_membership(params[:organization_name])
+          if mem_org_membership.nil?
+            member.add_activity(
+              message_name: "affiliatedorganization",
+              summary: "Added external affiliated organization: #{params[:organization_name]}",
+              subject_type: "Suma::Member",
+              subject_id: member.id,
+            )
+          end
+        end
       end
       status 200
       present member, with: CurrentMemberEntity, env:

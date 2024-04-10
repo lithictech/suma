@@ -176,15 +176,10 @@ class Suma::Member < Suma::Postgres::Model(:members)
     to_remove.each { |c| self.remove_role(c) }
   end
 
-  def affiliate_membership(organization_name)
+  def create_organization_membership(organization_name)
     organization = Suma::Organization[name: organization_name]
-    return Suma::Organization::Membership.create(member: self, organization:) if organization
-    self.add_activity(
-      message_name: "onboarding_organization_added",
-      summary: "Onboarded with optional affiliated organization: #{organization_name}",
-      subject_type: "Suma::Member",
-      subject_id: self.id,
-    )
+    return if organization.nil?
+    return Suma::Organization::Membership.create(member: self, organization:)
   end
 
   def greeting

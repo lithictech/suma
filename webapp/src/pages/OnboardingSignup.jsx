@@ -2,6 +2,7 @@ import api from "../api";
 import FormButtons from "../components/FormButtons";
 import FormControlGroup from "../components/FormControlGroup";
 import FormError from "../components/FormError";
+import OrganizationInputDropdown from "../components/OrganizationInputDropdown";
 import { mdp, t } from "../localization";
 import keepDigits from "../modules/keepDigits";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
@@ -79,10 +80,6 @@ export default function OnboardingSignup() {
   };
 
   const { state: supportedGeographies } = useAsyncFetch(api.getSupportedGeographies, {
-    default: {},
-    pickData: true,
-  });
-  const { state: supportedOrganizations } = useAsyncFetch(api.getSupportedOrganizations, {
     default: {},
     pickData: true,
   });
@@ -170,36 +167,13 @@ export default function OnboardingSignup() {
             onChange={handleZipChange}
           />
         </Row>
-        <FormControlGroup
-          name="organizationName"
-          label={t("forms:organization_label")}
-          required
+        <OrganizationInputDropdown
+          organizationName={organizationName}
+          onOrganizationNameChange={(name) =>
+            handleOrganizationChange(setOrganizationName, name)
+          }
           register={register}
           errors={errors}
-          value={organizationName}
-          onChange={(e) => handleOrganizationChange(setOrganizationName, e.target.value)}
-          append={
-            <Dropdown
-              as={ButtonGroup}
-              onSelect={(v) => handleOrganizationChange(setOrganizationName, v)}
-            >
-              <Dropdown.Toggle className="fs-6 rounded-0">
-                {t("forms:choose")}
-              </Dropdown.Toggle>
-              <Dropdown.Menu align="end">
-                {supportedOrganizations.items?.map((name) => (
-                  <Dropdown.Item
-                    key={name}
-                    eventKey={name}
-                    active={name === organizationName}
-                  >
-                    {name}
-                  </Dropdown.Item>
-                ))}
-              </Dropdown.Menu>
-            </Dropdown>
-          }
-          text={t("forms:organization_helper_text")}
         />
         <FormError error={error} />
         <FormButtons
