@@ -36,7 +36,7 @@ export default function OnboardingSignup() {
   const [city, setCity] = React.useState("");
   const [state, setState] = React.useState("");
   const [zipCode, setZipCode] = React.useState("");
-  const [organization, setOrganization] = React.useState("");
+  const [organizationName, setOrganizationName] = React.useState("");
   const handleFormSubmit = () => {
     api
       .updateMe({
@@ -48,7 +48,7 @@ export default function OnboardingSignup() {
           state_or_province: state,
           postal_code: zipCode,
         },
-        organization: organization?.trim(),
+        organizationName: organizationName?.trim(),
       })
       .then((r) => {
         setUser(r.data);
@@ -75,7 +75,7 @@ export default function OnboardingSignup() {
   };
 
   const handleOrganizationChange = (set, value) => {
-    runSetter("organization", set, value);
+    runSetter("organizationName", set, value);
   };
 
   const { state: supportedGeographies } = useAsyncFetch(api.getSupportedGeographies, {
@@ -171,17 +171,17 @@ export default function OnboardingSignup() {
           />
         </Row>
         <FormControlGroup
-          name="organization"
+          name="organizationName"
           label={t("forms:organization_label")}
           required
           register={register}
           errors={errors}
-          value={organization}
-          onChange={(e) => handleOrganizationChange(setOrganization, e.target.value)}
+          value={organizationName}
+          onChange={(e) => handleOrganizationChange(setOrganizationName, e.target.value)}
           append={
             <Dropdown
               as={ButtonGroup}
-              onSelect={(v) => handleOrganizationChange(setOrganization, v)}
+              onSelect={(v) => handleOrganizationChange(setOrganizationName, v)}
             >
               <Dropdown.Toggle className="fs-6 rounded-0">
                 {t("forms:choose")}
@@ -191,7 +191,7 @@ export default function OnboardingSignup() {
                   <Dropdown.Item
                     key={name}
                     eventKey={name}
-                    active={name === organization}
+                    active={name === organizationName}
                   >
                     {name}
                   </Dropdown.Item>
