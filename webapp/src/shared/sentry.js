@@ -52,7 +52,7 @@ export function initSentry({
     environment,
     allowUrls,
     sampleRate: 1.0,
-    integrations: [new Sentry.browserTracingIntegration()],
+    integrations: [Sentry.browserTracingIntegration()],
     ...rest,
   });
   if (application) {
