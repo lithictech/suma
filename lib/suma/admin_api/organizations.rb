@@ -13,5 +13,19 @@ class Suma::AdminAPI::Organizations < Suma::AdminAPI::V1
       OrganizationEntity,
       search_params: [:name],
     )
+
+    Suma::AdminAPI::CommonEndpoints.get_one(self, Suma::Organization, OrganizationEntity)
+
+    Suma::AdminAPI::CommonEndpoints.create(self, Suma::Organization, OrganizationEntity) do
+      params do
+        requires :name, type: String, allow_blank: false
+      end
+    end
+
+    Suma::AdminAPI::CommonEndpoints.update self, Suma::Organization, OrganizationEntity do
+      params do
+        optional :name, type: String, allow_blank: false
+      end
+    end
   end
 end

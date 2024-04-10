@@ -169,6 +169,9 @@ export default {
     post(`/adminapi/v1/members/${id}/eligibilities`, data),
 
   getOrganizations: (data) => get(`/adminapi/v1/organizations`, data),
+  getOrganization: ({ id }) => get(`/adminapi/v1/organizations/${id}`),
+  createOrganization: (data) => post("/adminapi/v1/organizations/create", data),
+  updateOrganization: ({ id, ...data }) => post(`/adminapi/v1/organizations/${id}`, data),
 
   searchProducts: (data) => post(`/adminapi/v1/search/products`, data),
   searchOfferings: (data) => post(`/adminapi/v1/search/offerings`, data),

@@ -8,8 +8,7 @@ export default function OrganizationListPage() {
   return (
     <ResourceList
       apiList={api.getOrganizations}
-      // TODO: Add create route and components
-      // toCreate="/organization/new"
+      toCreate="/organization/new"
       title="Organizations"
       canSearch
       columns={[

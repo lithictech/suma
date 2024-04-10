@@ -59,4 +59,51 @@ RSpec.describe Suma::AdminAPI::Organizations, :db do
       end
     end
   end
+
+  describe "POST /v1/organizations/create" do
+    it "creates a organization" do
+      post "/v1/organizations/create", name: "Hacienda"
+
+      expect(last_response).to have_status(200)
+      expect(Suma::Organization.all).to have_length(1)
+    end
+  end
+
+  describe "GET /v1/organization/:id" do
+    it "returns the organization" do
+      organization = Suma::Fixtures.organization.create
+      member = Suma::Fixtures.member.create
+      membership = Suma::Fixtures.organization_membership.create(member:, organization:)
+
+      get "/v1/organizations/#{organization.id}"
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.that_includes(
+        id: organization.id,
+        memberships: contain_exactly(
+          include(
+            id: membership.id,
+            member: include(id: member.id),
+          ),
+        ),
+      )
+    end
+
+    it "403s if the item does not exist" do
+      get "/v1/organizations/0"
+
+      expect(last_response).to have_status(403)
+    end
+  end
+
+  describe "POST /v1/organizations/:id" do
+    it "updates an organization" do
+      org = Suma::Fixtures.organization.create
+
+      post "/v1/organizations/#{org.id}", name: "hacienda abc"
+
+      expect(last_response).to have_status(200)
+      expect(org.refresh).to have_attributes(name: "hacienda abc")
+    end
+  end
 end
