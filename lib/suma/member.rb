@@ -174,6 +174,7 @@ class Suma::Member < Suma::Postgres::Model(:members)
     to_add = Suma::Role.where(id: ids).exclude(id: self.roles_dataset.select(:id))
     to_add.each { |c| self.add_role(c) }
     to_remove.each { |c| self.remove_role(c) }
+  end
 
   def affiliate_membership(organization_name)
     organization = Suma::Organization[name: organization_name]
