@@ -37,7 +37,8 @@ module Suma::SpecHelpers::Integration
   end
 
   module_function def url(more)
-    return "#{Suma.api_url}#{more}"
+    u = Suma.api_url.gsub(%r{/api$}, "")
+    return "#{u}#{more}"
   end
 
   module_function def parse_cookie(resp)
@@ -75,7 +76,11 @@ module Suma::SpecHelpers::Integration
       member.save_changes
     end
 
-    resp = post("/api/v1/auth", body: {phone: member.us_phone, password: pw})
+    resp = post("/api/v1/auth/start", body: {phone: member.us_phone, timezone: "America/Los_Angeles"})
+    expect(resp).to party_status(200)
+
+    me = Suma::Member[phone: member.phone]
+    resp = post("/api/v1/auth/verify", body: {phone: member.us_phone, token: me.reset_codes.last.token})
     expect(resp).to party_status(200)
 
     return member
