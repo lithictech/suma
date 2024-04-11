@@ -5,7 +5,6 @@ import FormControlGroup from "./FormControlGroup";
 import React from "react";
 import ButtonGroup from "react-bootstrap/ButtonGroup";
 import Dropdown from "react-bootstrap/Dropdown";
-import Form from "react-bootstrap/Form";
 
 export default function OrganizationInputDropdown({
   organizationName,

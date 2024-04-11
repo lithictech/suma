@@ -234,4 +234,25 @@ RSpec.describe Suma::AdminAPI::Members, :db do
       expect(last_response).to have_status(403)
     end
   end
+
+  describe "DELETE /v1/members/:id/memberships" do
+    it "removes member organization memberships with ids" do
+      member = Suma::Fixtures.member.create
+      membership = Suma::Fixtures.organization_membership.create(member:)
+
+      delete "/v1/members/#{member.id}/remove_memberships", membership_ids: [membership.id]
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.
+        that_includes(memberships: have_length(0))
+    end
+
+    it "403s if membership does not exist" do
+      member = Suma::Fixtures.member.create
+
+      delete "/v1/members/#{member.id}/remove_memberships", membership_ids: [0]
+
+      expect(last_response).to have_status(403)
+    end
+  end
 end

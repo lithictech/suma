@@ -14,13 +14,14 @@ import Money from "../shared/react/Money";
 import SafeExternalLink from "../shared/react/SafeExternalLink";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
 import CancelIcon from "@mui/icons-material/Cancel";
+import CheckIcon from "@mui/icons-material/Check";
+import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import SaveIcon from "@mui/icons-material/Save";
 import { Divider, Typography, MenuItem, Select, Switch, Chip } from "@mui/material";
 import Button from "@mui/material/Button";
 import IconButton from "@mui/material/IconButton";
 import { makeStyles } from "@mui/styles";
-import _ from "lodash";
 import capitalize from "lodash/capitalize";
 import isEmpty from "lodash/isEmpty";
 import React from "react";
@@ -112,6 +113,11 @@ export default function MemberDetailPage() {
               memberId={id}
               replaceMemberData={setModel}
             />
+            <OrganizationMemberships
+              memberships={model.memberships}
+              replaceModelData={setModel}
+              memberId={model.id}
+            />
             <Activities activities={model.activities} />
             <Orders orders={model.orders} />
             <Charges charges={model.charges} />
@@ -176,7 +182,7 @@ function EligibilityConstraints({ memberConstraints, memberId, replaceMemberData
 
   if (!editing) {
     const properties = [];
-    if (_.isEmpty(memberConstraints)) {
+    if (isEmpty(memberConstraints)) {
       properties.push({
         label: "*",
         value:
@@ -261,7 +267,7 @@ function EligibilityConstraints({ memberConstraints, memberId, replaceMemberData
   const availableConstraints = eligibilityConstraints.items.filter(
     (c) => !existingConstraintIds.includes(c.id)
   );
-  if (!_.isEmpty(availableConstraints)) {
+  if (!isEmpty(availableConstraints)) {
     properties.push({
       label: "Add Constraint",
       children: (
@@ -331,6 +337,99 @@ function Activities({ activities }) {
         </span>,
       ]}
     />
+  );
+}
+
+function OrganizationMemberships({ memberships, replaceModelData, memberId }) {
+  const title = "Organization Memberships";
+  const [editing, setEditing] = React.useState(false);
+  const [updatedMemberships, setUpdatedMemberships] = React.useState([]);
+  const [membershipIdsToDelete, setMembershipIdsToDelete] = React.useState([]);
+  const { enqueueErrorSnackbar } = useErrorSnackbar();
+
+  if (isEmpty(memberships)) {
+    return null;
+  }
+
+  function startEditing() {
+    setEditing(true);
+    setUpdatedMemberships(memberships);
+  }
+
+  if (!editing) {
+    const properties = [];
+    memberships.forEach((m) =>
+      properties.push({
+        label: <AdminLink model={m}>{m.organization.name}</AdminLink>,
+        value: <CheckIcon />,
+      })
+    );
+    return (
+      <div>
+        <DetailGrid
+          title={
+            <>
+              {title}
+              <IconButton onClick={startEditing}>
+                <EditIcon color="info" />
+              </IconButton>
+            </>
+          }
+          properties={properties}
+        />
+      </div>
+    );
+  }
+
+  function discardChanges() {
+    setUpdatedMemberships([]);
+    setEditing(false);
+  }
+
+  function saveChanges() {
+    api
+      .deleteMemberOrganizationMemberships({
+        id: memberId,
+        membershipIds: membershipIdsToDelete,
+      })
+      .then((r) => {
+        replaceModelData(r.data);
+        setEditing(false);
+      })
+      .catch(enqueueErrorSnackbar);
+  }
+
+  function deleteConstraint(id) {
+    setMembershipIdsToDelete([id, ...membershipIdsToDelete]);
+    setUpdatedMemberships(updatedMemberships.filter((c) => c.id !== id));
+  }
+
+  const properties = updatedMemberships.map((c) => ({
+    label: c.organization.name,
+    children: (
+      <IconButton onClick={() => deleteConstraint(c.id)}>
+        <DeleteIcon color="error" />
+      </IconButton>
+    ),
+  }));
+
+  return (
+    <div>
+      <DetailGrid
+        title={
+          <>
+            {title}
+            <IconButton onClick={saveChanges}>
+              <SaveIcon color="success" />
+            </IconButton>
+            <IconButton onClick={discardChanges}>
+              <CancelIcon color="error" />
+            </IconButton>
+          </>
+        }
+        properties={properties}
+      />
+    </div>
   );
 }
 

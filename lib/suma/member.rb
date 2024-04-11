@@ -86,6 +86,7 @@ class Suma::Member < Suma::Postgres::Model(:members)
   one_to_many :commerce_carts, class: "Suma::Commerce::Cart"
   one_to_many :anon_proxy_contacts, class: "Suma::AnonProxy::MemberContact"
   one_to_many :anon_proxy_vendor_accounts, class: "Suma::AnonProxy::VendorAccount"
+  one_to_many :memberships, class: "Suma::Organization::Membership"
 
   Suma::Eligibility::Constraint::STATUSES.each do |mt|
     many_to_many "#{mt}_eligibility_constraints".to_sym,

@@ -92,6 +92,7 @@ class Suma::AdminAPI::Members < Suma::AdminAPI::V1
     expose :message_deliveries, with: MessageDeliveryEntity
     expose :preferences!, as: :preferences, with: PreferencesEntity
     expose :anon_proxy_vendor_accounts, as: :vendor_accounts, with: MemberVendorAccountEntity
+    expose :memberships, with: DetailedMembershipEntity
   end
 
   ALL_TIMEZONES = Set.new(TZInfo::Timezone.all_identifiers)
@@ -214,6 +215,23 @@ class Suma::AdminAPI::Members < Suma::AdminAPI::V1
             subject_id: member.id,
           )
         end
+        status 200
+        present member, with: DetailedMemberEntity
+      end
+
+      params do
+        requires :membership_ids, type: Array[Integer], coerce_with: CommaSepArray[Integer]
+      end
+      delete :remove_memberships do
+        member = lookup_member!
+        params[:membership_ids].each do |id|
+          Suma::Organization::Membership[id] or adminerror!(403, "Unknown organization membership: #{id}")
+        end
+        member.db.transaction do
+          to_remove = member.memberships_dataset.where(id: params[:membership_ids])
+          to_remove.each(&:destroy)
+        end
+
         status 200
         present member, with: DetailedMemberEntity
       end
