@@ -60,6 +60,8 @@ class Suma::Service < Grape::API
 
     setting :verify_localized_response_codes, false
 
+    setting :swagger_enabled, ENV["RACK_ENV"] == "development"
+
     after_configured do
       self.cors_origins += DEFAULT_CORS_ORIGINS
       self.localized_error_codes = if self.verify_localized_response_codes
