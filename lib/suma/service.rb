@@ -111,6 +111,8 @@ class Suma::Service < Grape::API
 
   # Add some context to Sentry on each request.
   before do
+    # In some cases, like Grape::Swagger, this runs in a Grape::API rather than a Suma::Service
+    next unless respond_to?(:current_member?)
     member = current_member?
     admin = admin_member?
     Sentry.configure_scope do |scope|
