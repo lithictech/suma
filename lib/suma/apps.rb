@@ -63,6 +63,8 @@ module Suma::Apps
     mount Suma::API::Payments
     mount Suma::API::Preferences
     mount Suma::API::Webhookdb
+    add_swagger_documentation(mount_path: "/swagger", info: {title: "Suma App API"}) if
+      Suma::Service.swagger_enabled
   end
 
   class AdminAPI < Suma::Service
@@ -84,6 +86,8 @@ module Suma::Apps
     mount Suma::AdminAPI::Roles
     mount Suma::AdminAPI::Search
     mount Suma::AdminAPI::Vendors
+    add_swagger_documentation(mount_path: "/swagger", info: {title: "Suma Admin API"}) if
+      Suma::Service.swagger_enabled
   end
 
   SidekiqWeb = Rack::Builder.new do
@@ -164,18 +168,5 @@ module Suma::Apps
     use(Rack::SslEnforcer, redirect_html: false) if Suma::Service.enforce_ssl
     use Rack::SimpleRedirect, routes: {/.*/ => ->(env) { "/app#{env['REQUEST_PATH']}" }}, status: 302
     run Rack::LambdaApp.new(->(_) { raise "Should not see this" })
-  end
-
-  MOUNT_PATHS = {
-    API => "/api",
-    AdminAPI => "/adminapi",
-  }.freeze
-
-  # View swagger docs at /swagger/doc
-  class Swagger < Grape::API
-    [API, AdminAPI].each do |api|
-      mount({api => MOUNT_PATHS.fetch(api)})
-    end
-    add_swagger_documentation(mount_path: "/doc")
   end
 end

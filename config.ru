@@ -14,7 +14,7 @@ Suma::Async.setup_web
 map "/api" do
   run Suma::Apps::API.build_app
 end
-map Suma::Apps::MOUNT_PATHS.fetch(Suma::Apps::AdminAPI) do
+map "/adminapi" do
   run Suma::Apps::AdminAPI.build_app
 end
 map Suma::Apps::WEB_MOUNT_PATH do
@@ -25,10 +25,5 @@ map "/admin" do
 end
 map "/sidekiq" do
   run Suma::Apps::SidekiqWeb.to_app
-end
-if Suma::Service.swagger_enabled
-  map "/swagger" do
-    run Suma::Apps::Swagger
-  end
 end
 run Suma::Apps::Root.to_app
