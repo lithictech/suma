@@ -104,6 +104,10 @@ class Suma::Member < Suma::Postgres::Model(:members)
     def with_normalized_phone(*phones)
       return self.where(phone: phones)
     end
+
+    def active
+      return self.where(soft_deleted_at: nil)
+    end
   end
 
   def self.with_normalized_phone(p)
@@ -235,6 +239,11 @@ class Suma::Member < Suma::Postgres::Model(:members)
   def default_payment_instrument
     # In the future we can let them set a default, for now we don't expect many folks to have multiple.
     return self.usable_payment_instruments.first
+  end
+
+  def search_label
+    lbl = "(#{self.id}) #{self.name}"
+    return lbl
   end
 
   # @return [Suma::Member::StripeAttributes]

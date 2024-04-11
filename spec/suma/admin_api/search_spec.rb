@@ -6,7 +6,7 @@ RSpec.describe Suma::AdminAPI::Search, :db do
   include Rack::Test::Methods
 
   let(:app) { described_class.build_app }
-  let(:admin) { Suma::Fixtures.member.admin.create }
+  let(:admin) { Suma::Fixtures.member.admin.create(name: "Bob") }
 
   before(:each) do
     login_as_admin(admin)
@@ -213,6 +213,70 @@ RSpec.describe Suma::AdminAPI::Search, :db do
 
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.that_includes(items: have_same_ids_as(v2, v1).ordered)
+    end
+  end
+
+  describe "POST /v1/search/members" do
+    it "returns matching active members" do
+      m1 = Suma::Fixtures.member.create(name: "Hector Gambino")
+      m2 = Suma::Fixtures.member.create(name: "test")
+      inactive = Suma::Fixtures.member.create(name: "hector")
+      inactive.soft_delete
+
+      post "/v1/search/members", q: "hector"
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.that_includes(items: have_same_ids_as(m1))
+    end
+
+    it "returns matching members label" do
+      m1 = Suma::Fixtures.member.create(name: "Hector Gambino")
+
+      post "/v1/search/members", q: "hector"
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.that_includes(items: [include(label: "(#{m1.id}) #{m1.name}")])
+    end
+
+    it "returns all results in descending order if no query" do
+      m1 = Suma::Fixtures.member.create(name: "x member")
+      m2 = Suma::Fixtures.member.create(name: "a member")
+
+      post "/v1/search/members"
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.that_includes(items: have_same_ids_as(m2, admin, m1).ordered)
+    end
+  end
+
+  describe "POST /v1/search/organizations" do
+    it "returns matching organizations" do
+      m1 = Suma::Fixtures.organization.create(name: "hacienda abc")
+      m2 = Suma::Fixtures.organization.create(name: "test")
+
+      post "/v1/search/organizations", q: "hacienda"
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.that_includes(items: have_same_ids_as(m1))
+    end
+
+    it "returns matching organizations label" do
+      m1 = Suma::Fixtures.organization.create(name: "Hacienda Abc")
+
+      post "/v1/search/organizations", q: "hac"
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.that_includes(items: [include(label: "Hacienda Abc")])
+    end
+
+    it "returns all results in descending order if no query" do
+      m1 = Suma::Fixtures.organization.create(name: "x organization")
+      m2 = Suma::Fixtures.organization.create(name: "an org")
+
+      post "/v1/search/organizations"
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.that_includes(items: have_same_ids_as(m2, m1).ordered)
     end
   end
 end

@@ -21,7 +21,7 @@ export default function OrganizationDetailPage() {
       {(model) => (
         <>
           <RelatedList
-            title="Memberships"
+            title={`Memberships ${model.memberships.length}`}
             rows={model.memberships}
             headers={["Id", "Member", "Created At", "Updated At"]}
             keyRowAttr="id"

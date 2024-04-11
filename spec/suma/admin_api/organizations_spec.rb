@@ -69,7 +69,7 @@ RSpec.describe Suma::AdminAPI::Organizations, :db do
     end
   end
 
-  describe "GET /v1/organization/:id" do
+  describe "GET /v1/organizations/:id" do
     it "returns the organization" do
       organization = Suma::Fixtures.organization.create
       member = Suma::Fixtures.member.create

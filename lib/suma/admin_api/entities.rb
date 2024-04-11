@@ -274,4 +274,8 @@ module Suma::AdminAPI::Entities
     expose :name
     expose :memberships, with: MembershipEntity
   end
+
+  class DetailedMembershipEntity < MembershipEntity
+    expose :organization, with: OrganizationEntity
+  end
 end

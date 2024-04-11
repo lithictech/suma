@@ -16,4 +16,10 @@ module Suma::Fixtures::Organizations
   before_saving do |instance|
     instance
   end
+
+  decorator :with_membership, presave: true do |m={}|
+    m = Suma::Fixtures.organization_membership.create(m) unless
+      m.is_a?(Suma::Organization::Membership)
+    self.add_membership(m)
+  end
 end

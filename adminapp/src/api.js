@@ -173,6 +173,15 @@ export default {
   createOrganization: (data) => post("/adminapi/v1/organizations/create", data),
   updateOrganization: ({ id, ...data }) => post(`/adminapi/v1/organizations/${id}`, data),
 
+  getOrganizationMemberships: (data) =>
+    get(`/adminapi/v1/organization_memberships`, data),
+  getOrganizationMembership: ({ id }) =>
+    get(`/adminapi/v1/organization_memberships/${id}`),
+  createOrganizationMembership: (data) =>
+    post("/adminapi/v1/organization_memberships/create", data),
+  updateOrganizationMembership: ({ id, ...data }) =>
+    post(`/adminapi/v1/organization_memberships/${id}`, data),
+
   searchProducts: (data) => post(`/adminapi/v1/search/products`, data),
   searchOfferings: (data) => post(`/adminapi/v1/search/offerings`, data),
   searchPaymentInstruments: (data) =>
@@ -181,6 +190,8 @@ export default {
   searchLedgersLookup: (data) => post(`/adminapi/v1/search/ledgers/lookup`, data),
   searchTranslations: (data) => post(`/adminapi/v1/search/translations`, data),
   searchVendors: (data) => post(`/adminapi/v1/search/vendors`, data),
+  searchMembers: (data) => post(`/adminapi/v1/search/members`, data),
+  searchOrganizations: (data) => post(`/adminapi/v1/search/organizations`, data),
 
   /**
    * Return an API url.
