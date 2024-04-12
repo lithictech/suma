@@ -258,6 +258,19 @@ RSpec.describe "Suma::Postgres::Model", :db do
       end.to publish("suma.postgres.testingpixie.destroyed", match_array([instance.id, include("id", "name")]))
     end
 
+    it "uses the model pk" do
+      subclass = create_model(:nonid_pk) do
+        primary_key :mypk
+      end
+      instance = subclass.new
+      expect do
+        instance.save_changes
+      end.to publish(
+        /suma\.spechelpers\.postgres\.models\.testtablenonidpk\d+\.created/,
+        match([be_an(Integer), hash_including("mypk")]),
+      )
+    end
+
     it "can publish pgrange fields" do
       t1 = Time.parse("2011-01-01T00:00:00Z")
       t2 = Time.parse("2012-01-01T00:00:00Z")

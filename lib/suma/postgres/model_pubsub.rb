@@ -49,19 +49,19 @@ module Suma::Postgres::ModelPubsub
     # Sequel hook -- send an asynchronous event after the model is saved.
     def after_create
       super
-      self.publish_deferred("created", self.id, self._clean_payload(self.values))
+      self.publish_deferred("created", self.pk, self._clean_payload(self.values))
     end
 
     # Sequel hook -- send an asynchronous event after the save is committed.
     def after_update
       super
-      self.publish_deferred("updated", self.id, self._clean_payload(self.previous_changes, values_are_pairs: true))
+      self.publish_deferred("updated", self.pk, self._clean_payload(self.previous_changes, values_are_pairs: true))
     end
 
     # Sequel hook -- send an event after a transaction that destroys the object is committed.
     def after_destroy
       super
-      self.publish_deferred("destroyed", self.id, self._clean_payload(self.values))
+      self.publish_deferred("destroyed", self.pk, self._clean_payload(self.values))
     end
 
     def _clean_payload(h, values_are_pairs: false)
