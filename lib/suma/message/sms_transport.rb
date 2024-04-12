@@ -114,6 +114,7 @@ class Suma::Message::SmsTransport < Suma::Message::Transport
 
   FATAL_TWILIO_ERROR_CODES = {
     60_200 => "twilio_invalid_phone_number",
+    "60200" => "twilio_invalid_phone_number",
   }.freeze
 
   def add_bodies(delivery, content)
