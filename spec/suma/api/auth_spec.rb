@@ -273,7 +273,8 @@ RSpec.describe Suma::API::Auth, :db, reset_configuration: Suma::Member do
 
       it "does not update member" do
         m = Suma::Fixtures.member.create(phone: 12_223_334_455, name: "Amabo")
-        post("/v1/auth/contact_list", name: "Obama", phone: "(222) 333-4444", timezone:, channel: "instagram", organization: {name: "external org"})
+        post("/v1/auth/contact_list", name: "Obama", phone: "(222) 333-4444", timezone:, channel: "instagram",
+                                      organization: {name: "external org"},)
 
         expect(last_response).to have_status(200)
         expect(m).to have_attributes(phone: "12223334455", name: "Amabo")
@@ -281,7 +282,8 @@ RSpec.describe Suma::API::Auth, :db, reset_configuration: Suma::Member do
 
       it "does not create new member referral" do
         Suma::Fixtures.member.create(phone: 12_223_334_444)
-        post("/v1/auth/contact_list", name: "Obama", phone: "(222) 333-4444", timezone:, channel: "instagram", organization: {name: "external org"})
+        post("/v1/auth/contact_list", name: "Obama", phone: "(222) 333-4444", timezone:, channel: "instagram",
+                                      organization: {name: "external org"},)
 
         expect(last_response).to have_status(200)
         expect(Suma::Member::Referral.all.count).to be(0)
