@@ -14,8 +14,6 @@ import Money from "../shared/react/Money";
 import SafeExternalLink from "../shared/react/SafeExternalLink";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
 import CancelIcon from "@mui/icons-material/Cancel";
-import CheckIcon from "@mui/icons-material/Check";
-import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import SaveIcon from "@mui/icons-material/Save";
 import { Divider, Typography, MenuItem, Select, Switch, Chip } from "@mui/material";
@@ -113,11 +111,7 @@ export default function MemberDetailPage() {
               memberId={id}
               replaceMemberData={setModel}
             />
-            <OrganizationMemberships
-              memberships={model.memberships}
-              replaceModelData={setModel}
-              memberId={model.id}
-            />
+            <OrganizationMemberships memberships={model.memberships} />
             <Activities activities={model.activities} />
             <Orders orders={model.orders} />
             <Charges charges={model.charges} />
@@ -322,6 +316,22 @@ function ConstraintStatus({ activeStatus, statuses, onChange }) {
   );
 }
 
+function OrganizationMemberships({ memberships }) {
+  return (
+    <RelatedList
+      title="Organization Memberships"
+      headers={["Id", "Created At", "Organization"]}
+      rows={memberships}
+      keyRowAttr="id"
+      toCells={(row) => [
+        <AdminLink key="id" model={row} />,
+        dayjs(row.createdAt).format("lll"),
+        <AdminLink model={row.organization}>{row.organization.name}</AdminLink>,
+      ]}
+    />
+  );
+}
+
 function Activities({ activities }) {
   return (
     <RelatedList
@@ -337,99 +347,6 @@ function Activities({ activities }) {
         </span>,
       ]}
     />
-  );
-}
-
-function OrganizationMemberships({ memberships, replaceModelData, memberId }) {
-  const title = "Organization Memberships";
-  const [editing, setEditing] = React.useState(false);
-  const [updatedMemberships, setUpdatedMemberships] = React.useState([]);
-  const [membershipIdsToDelete, setMembershipIdsToDelete] = React.useState([]);
-  const { enqueueErrorSnackbar } = useErrorSnackbar();
-
-  if (isEmpty(memberships)) {
-    return null;
-  }
-
-  function startEditing() {
-    setEditing(true);
-    setUpdatedMemberships(memberships);
-  }
-
-  if (!editing) {
-    const properties = [];
-    memberships.forEach((m) =>
-      properties.push({
-        label: <AdminLink model={m}>{m.organization.name}</AdminLink>,
-        value: <CheckIcon />,
-      })
-    );
-    return (
-      <div>
-        <DetailGrid
-          title={
-            <>
-              {title}
-              <IconButton onClick={startEditing}>
-                <EditIcon color="info" />
-              </IconButton>
-            </>
-          }
-          properties={properties}
-        />
-      </div>
-    );
-  }
-
-  function discardChanges() {
-    setUpdatedMemberships([]);
-    setEditing(false);
-  }
-
-  function saveChanges() {
-    api
-      .deleteMemberOrganizationMemberships({
-        id: memberId,
-        membershipIds: membershipIdsToDelete,
-      })
-      .then((r) => {
-        replaceModelData(r.data);
-        setEditing(false);
-      })
-      .catch(enqueueErrorSnackbar);
-  }
-
-  function deleteConstraint(id) {
-    setMembershipIdsToDelete([id, ...membershipIdsToDelete]);
-    setUpdatedMemberships(updatedMemberships.filter((c) => c.id !== id));
-  }
-
-  const properties = updatedMemberships.map((c) => ({
-    label: c.organization.name,
-    children: (
-      <IconButton onClick={() => deleteConstraint(c.id)}>
-        <DeleteIcon color="error" />
-      </IconButton>
-    ),
-  }));
-
-  return (
-    <div>
-      <DetailGrid
-        title={
-          <>
-            {title}
-            <IconButton onClick={saveChanges}>
-              <SaveIcon color="success" />
-            </IconButton>
-            <IconButton onClick={discardChanges}>
-              <CancelIcon color="error" />
-            </IconButton>
-          </>
-        }
-        properties={properties}
-      />
-    </div>
   );
 }
 

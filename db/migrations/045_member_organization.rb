@@ -15,7 +15,7 @@ Sequel.migration do
       timestamptz :updated_at
 
       foreign_key :member_id, :members, null: false, index: true
-      foreign_key :organization_id, :organizations, null: false, index: true, unique: true
+      foreign_key :organization_id, :organizations, null: false, index: true
       index [:member_id, :organization_id], unique: true
     end
   end

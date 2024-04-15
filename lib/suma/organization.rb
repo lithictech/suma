@@ -9,7 +9,5 @@ class Suma::Organization < Suma::Postgres::Model(:organizations)
 
   one_to_many :memberships, class: "Suma::Organization::Membership"
 
-  def self.supported_organizations = self.all.map(&:name)
-
   def rel_admin_link = "/organization/#{self.id}"
 end

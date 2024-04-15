@@ -333,19 +333,4 @@ RSpec.describe "Suma::Member", :db do
       )
     end
   end
-
-  describe "create_organization_membership", reset_configuration: Suma::Payment do
-    let(:member) { Suma::Fixtures.member.create }
-
-    it "creates membership if organization exists" do
-      org = Suma::Fixtures.organization.create
-      result = member.create_organization_membership(org.name)
-      expect(result).to have_attributes(member:, organization: org)
-      expect(result.class.to_s).to be === "Suma::Organization::Membership"
-    end
-
-    it "return nil if organization does not exist" do
-      expect(member.create_organization_membership("non-existent org name")).to be_nil
-    end
-  end
 end

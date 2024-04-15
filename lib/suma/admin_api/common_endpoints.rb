@@ -106,7 +106,13 @@ module Suma::AdminAPI::CommonEndpoints
             association_class(assoc).new
           end
           update_model(assoc_model, mparams, save: false)
-          m.send(assoc[:add_method], assoc_model)
+          begin
+            m.send(assoc[:add_method], assoc_model)
+          rescue Sequel::UniqueConstraintViolation => e
+            msg = "One of these resources could not be added because it's values already exists in the database. " \
+                  "If you need more help, please contact a developer."
+            merror!(409, msg, code: "unique_constraint_violation", more: {exception: e.message}, skip_loc_check: true)
+          end
         end
         begin
           unseen_children.values.each(&:destroy)

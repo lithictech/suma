@@ -108,14 +108,14 @@ RSpec.describe Suma::API::Me, :db do
     it "can create an organization membership for the member" do
       org = Suma::Fixtures.organization.create(name: "Hacienda ABC")
 
-      post "/v1/me/update", organization_name: org.name
+      post "/v1/me/update", organization: {name: org.name}
 
       expect(last_response).to have_status(200)
       expect(Suma::Organization::Membership.last).to have_attributes(member:, organization: org)
     end
 
     it "creates member summary if organization does not exist" do
-      post "/v1/me/update", organization_name: "external org"
+      post "/v1/me/update", organization: {name: "external org"}
 
       expect(last_response).to have_status(200)
       expect(member.activities.last.summary).to eq("Added external affiliated organization: external org")

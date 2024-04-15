@@ -106,8 +106,8 @@ class Suma::Member < Suma::Postgres::Model(:members)
       return self.where(phone: phones)
     end
 
-    def active
-      return self.where(soft_deleted_at: nil)
+    def usable
+      return self.not_soft_deleted
     end
   end
 
@@ -179,12 +179,6 @@ class Suma::Member < Suma::Postgres::Model(:members)
     to_add = Suma::Role.where(id: ids).exclude(id: self.roles_dataset.select(:id))
     to_add.each { |c| self.add_role(c) }
     to_remove.each { |c| self.remove_role(c) }
-  end
-
-  def create_organization_membership(organization_name)
-    organization = Suma::Organization[name: organization_name]
-    return if organization.nil?
-    return Suma::Organization::Membership.create(member: self, organization:)
   end
 
   def greeting

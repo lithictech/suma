@@ -65,6 +65,15 @@ class Suma::AdminAPI::Members < Suma::AdminAPI::V1
     expose :subscriptions, with: PreferencesSubscriptionEntity
   end
 
+  class SimpleOrganizationEntity < BaseEntity
+    expose :id
+    expose :name
+  end
+
+  class SimpleMembershipEntity < MembershipEntity
+    expose :organization, with: SimpleOrganizationEntity
+  end
+
   class DetailedMemberEntity < MemberEntity
     include Suma::AdminAPI::Entities
     include AutoExposeDetail
@@ -92,7 +101,7 @@ class Suma::AdminAPI::Members < Suma::AdminAPI::V1
     expose :message_deliveries, with: MessageDeliveryEntity
     expose :preferences!, as: :preferences, with: PreferencesEntity
     expose :anon_proxy_vendor_accounts, as: :vendor_accounts, with: MemberVendorAccountEntity
-    expose :memberships, with: DetailedMembershipEntity
+    expose :memberships, with: SimpleMembershipEntity
   end
 
   ALL_TIMEZONES = Set.new(TZInfo::Timezone.all_identifiers)
@@ -164,6 +173,10 @@ class Suma::AdminAPI::Members < Suma::AdminAPI::V1
             use :address
           end
         end
+        optional :memberships, type: Array[JSON] do
+          optional(:member, type: JSON) { use :model_with_id }
+          optional(:organization, type: JSON) { use :model_with_id }
+        end
       end
     end
 
@@ -215,23 +228,6 @@ class Suma::AdminAPI::Members < Suma::AdminAPI::V1
             subject_id: member.id,
           )
         end
-        status 200
-        present member, with: DetailedMemberEntity
-      end
-
-      params do
-        requires :membership_ids, type: Array[Integer], coerce_with: CommaSepArray[Integer]
-      end
-      delete :remove_memberships do
-        member = lookup_member!
-        params[:membership_ids].each do |id|
-          Suma::Organization::Membership[id] or adminerror!(403, "Unknown organization membership: #{id}")
-        end
-        member.db.transaction do
-          to_remove = member.memberships_dataset.where(id: params[:membership_ids])
-          to_remove.each(&:destroy)
-        end
-
         status 200
         present member, with: DetailedMemberEntity
       end

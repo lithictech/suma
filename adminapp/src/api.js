@@ -167,8 +167,6 @@ export default {
   updateMember: ({ id, ...data }) => post(`/adminapi/v1/members/${id}`, data),
   changeMemberEligibility: ({ id, ...data }) =>
     post(`/adminapi/v1/members/${id}/eligibilities`, data),
-  deleteMemberOrganizationMemberships: ({ id, ...data }) =>
-    del(`/adminapi/v1/members/${id}/remove_memberships`, data),
 
   getOrganizations: (data) => get(`/adminapi/v1/organizations`, data),
   getOrganization: ({ id }) => get(`/adminapi/v1/organizations/${id}`),

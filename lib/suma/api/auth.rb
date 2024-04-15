@@ -97,12 +97,15 @@ class Suma::API::Auth < Suma::API::V1
       requires :timezone, type: String, values: ALL_TIMEZONES
       optional :event_name, type: String
       optional :language, type: String, values: Suma::I18n.enabled_locale_codes
-      optional :organization_name, type: String, allow_blank: false
+      optional :organization, type: JSON do
+        optional :name, type: String, allow_blank: false
+      end
     end
     post :contact_list do
       guard_authed!
       Suma::Member.db.transaction do
         member = Suma::Member.with_us_phone(params[:phone])
+        org_name = params[:organization][:name]
         if member.nil?
           member = Suma::Member.new(
             phone: params[:phone],
@@ -111,8 +114,8 @@ class Suma::API::Auth < Suma::API::V1
             timezone: params[:timezone],
           )
           save_or_error!(member)
-          org_name = params[:organization_name]
-          mem_org_membership = member.create_organization_membership(org_name) if org_name
+          org = Suma::Organization[name: org_name]
+          mem_org_membership = member.add_membership(organization: org) if org
           Suma::Member::Referral.create(
             member:,
             channel: params[:channel],
@@ -131,7 +134,7 @@ class Suma::API::Auth < Suma::API::V1
           member.add_activity(
             message_name: "added_to_contact_list",
             summary: "Added to contact list (channel: #{params[:channel]}, event_name: #{params[:event_name] || ''}, " \
-                     "organization_name: #{params[:organization_name]})",
+                     "organization_name: #{org_name})",
             subject_type: "Suma::Member",
             subject_id: member.id,
           )

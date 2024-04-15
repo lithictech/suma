@@ -173,6 +173,55 @@ RSpec.describe Suma::AdminAPI::Members, :db do
       )
     end
 
+    it "removes/updates/creates memberships for the member if given" do
+      member = Suma::Fixtures.member.create
+      membership_to_delete = Suma::Fixtures.organization_membership(member:).create
+      membership_to_update = Suma::Fixtures.organization_membership(member:).create
+      new_org = Suma::Fixtures.organization.create(name: "Affordable Housing Program")
+      org_update = Suma::Fixtures.organization.create
+
+      post "/v1/members/#{member.id}",
+           memberships: [
+             {
+               id: membership_to_update.id,
+               organization: {id: org_update.id, name: org_update.name},
+               member: {id: member.id},
+             },
+             {
+               organization: {id: new_org.id, name: new_org.name},
+               member: {id: member.id},
+             },
+           ]
+
+      expect(last_response).to have_status(200)
+      expect(member.memberships).to have_length(2)
+      expect(member.memberships[0]).to have_attributes(id: membership_to_update.id, organization: org_update)
+      expect(member.memberships[1]).to have_attributes(organization: new_org)
+      expect(membership_to_delete).to be_destroyed
+    end
+
+    it "errors with a 409 if a unique constraint is violated" do
+      member = Suma::Fixtures.member.create
+      organization = Suma::Fixtures.organization.create
+      membership = Suma::Fixtures.organization_membership(member:, organization:).create
+
+      post "/v1/members/#{member.id}",
+           memberships: [
+             {
+               id: membership.id,
+               organization: {id: organization.id, name: organization.name},
+               member: {id: member.id},
+             },
+             {
+               organization: {id: organization.id},
+               member: {id: member.id},
+             },
+           ]
+
+      expect(last_response).to have_status(409)
+      expect(last_response).to have_json_body.that_includes(error: include(message: /could not be added/))
+    end
+
     it "reassigns legal entity if just an ID is given" do
       legal_entity1 = Suma::Fixtures.legal_entity.create
       legal_entity2 = Suma::Fixtures.legal_entity.create
@@ -230,27 +279,6 @@ RSpec.describe Suma::AdminAPI::Members, :db do
       member = Suma::Fixtures.member.create
 
       post "/v1/members/#{member.id}/eligibilities", {values: [{constraint_id: 0, status: "pending"}]}
-
-      expect(last_response).to have_status(403)
-    end
-  end
-
-  describe "DELETE /v1/members/:id/memberships" do
-    it "removes member organization memberships with ids" do
-      member = Suma::Fixtures.member.create
-      membership = Suma::Fixtures.organization_membership.create(member:)
-
-      delete "/v1/members/#{member.id}/remove_memberships", membership_ids: [membership.id]
-
-      expect(last_response).to have_status(200)
-      expect(last_response).to have_json_body.
-        that_includes(memberships: have_length(0))
-    end
-
-    it "403s if membership does not exist" do
-      member = Suma::Fixtures.member.create
-
-      delete "/v1/members/#{member.id}/remove_memberships", membership_ids: [0]
 
       expect(last_response).to have_status(403)
     end

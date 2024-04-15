@@ -57,7 +57,8 @@ class Suma::API::Meta < Suma::API::V1
 
     get :supported_organizations do
       use_http_expires_caching 2.days
-      present_collection Suma::Organization.supported_organizations
+      all_org_names = Suma::Organization.all.map(&:name)
+      present_collection all_org_names
     end
   end
 end

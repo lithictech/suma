@@ -24,8 +24,8 @@ RSpec.describe Suma::AdminAPI::OrganizationMemberships, :db do
   describe "GET /v1/organization_memberships/:id" do
     it "returns an organization membership" do
       member = Suma::Fixtures.member.create
-      membership = Suma::Fixtures.organization_membership.create(member:)
-      org = Suma::Fixtures.organization.with_membership(membership).create
+      org = Suma::Fixtures.organization.create
+      membership = Suma::Fixtures.organization_membership(member:, organization: org).create
 
       get "/v1/organization_memberships/#{membership.id}"
 

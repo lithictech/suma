@@ -9,11 +9,11 @@ class Suma::AdminAPI::Search < Suma::AdminAPI::V1
 
   resource :search do
     helpers do
-      def ds_search_or_order_by_name(ds, params)
-        if (namelike = search_param_to_sql(params, :name, param: :q))
+      def ds_search_or_order_by(column_sym, ds, params)
+        if (namelike = search_param_to_sql(params, column_sym, param: :q))
           return ds.where(namelike)
         end
-        return ds.order(:name)
+        return ds.order(column_sym)
       end
     end
     resource :ledgers do
@@ -187,7 +187,7 @@ class Suma::AdminAPI::Search < Suma::AdminAPI::V1
     end
     post :vendors do
       ds = Suma::Vendor.dataset
-      ds = ds_search_or_order_by_name(ds, params)
+      ds = ds_search_or_order_by(:name, ds, params)
       ds = ds.limit(15)
       status 200
       present_collection ds, with: SearchVendorEntity
@@ -197,8 +197,8 @@ class Suma::AdminAPI::Search < Suma::AdminAPI::V1
       optional :q, type: String
     end
     post :members do
-      ds = Suma::Member.active
-      ds = ds_search_or_order_by_name(ds, params)
+      ds = Suma::Member.usable
+      ds = ds_search_or_order_by(:name, ds, params)
       ds = ds.limit(15)
       status 200
       present_collection ds, with: SearchMemberEntity
@@ -209,7 +209,7 @@ class Suma::AdminAPI::Search < Suma::AdminAPI::V1
     end
     post :organizations do
       ds = Suma::Organization.dataset
-      ds = ds_search_or_order_by_name(ds, params)
+      ds = ds_search_or_order_by(:name, ds, params)
       ds = ds.limit(15)
       status 200
       present_collection ds, with: SearchOrganizationEntity
