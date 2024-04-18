@@ -358,4 +358,34 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
       end.to perform_async_job(Suma::Async::TopicShim)
     end
   end
+
+  describe "MemberOnboardingVerifiedDispatch" do
+    it "dispatches an SMS to the member preferred messaging" do
+      member = Suma::Fixtures.member(phone: "12223334444").create
+
+      expect do
+        member.onboarding_verified_at = Time.now
+        member.save_changes
+      end.to perform_async_job(Suma::Async::MemberOnboardingVerifiedDispatch)
+
+      expect(Suma::Message::Delivery.all).to contain_exactly(
+        have_attributes(
+          template: "onboarding_verification",
+          transport_type: "sms",
+          to: "12223334444",
+        ),
+      )
+    end
+
+    it "noops if member is already verified" do
+      member = Suma::Fixtures.member(phone: "12223334444").onboarding_verified.create
+
+      member.onboarding_verified_at = Time.now
+      expect do
+        member.save_changes
+      end.to perform_async_job(Suma::Async::MemberOnboardingVerifiedDispatch)
+
+      expect(Suma::Message::Delivery.all).to be_empty
+    end
+  end
 end
