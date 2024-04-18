@@ -14,7 +14,11 @@ class Suma::Async::MemberOnboardingVerifiedDispatch
     case event.payload[1]
       when changed(:onboarding_verified_at, from: nil)
         Suma::Idempotency.once_ever.under_key("member-#{member.id}-onboarding-verified-dispatch") do
-          msg = Suma::Messages::OnboardingVerification.new(member)
+          msg = Suma::Messages::SingleValue.new(
+            "",
+            "onboarding_verification",
+            Suma.app_url,
+          )
           member.message_preferences!.dispatch(msg)
         end
     end
