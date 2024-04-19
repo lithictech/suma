@@ -35,8 +35,9 @@ export default function OnboardingSignup() {
   const [city, setCity] = React.useState("");
   const [state, setState] = React.useState("");
   const [zipCode, setZipCode] = React.useState("");
-  const [organizationName, setOrganizationName] = React.useState("");
+  const [organization, setOrganization] = React.useState({ name: "" });
   const handleFormSubmit = () => {
+    organization.name = organization.name.trim();
     api
       .updateMe({
         name: name,
@@ -47,7 +48,7 @@ export default function OnboardingSignup() {
           state_or_province: state,
           postal_code: zipCode,
         },
-        organizationName: organizationName?.trim(),
+        organization,
       })
       .then((r) => {
         setUser(r.data);
@@ -73,8 +74,8 @@ export default function OnboardingSignup() {
     runSetter(e.target.name, setZipCode, v);
   };
 
-  const handleOrganizationChange = (set, value) => {
-    runSetter("organizationName", set, value);
+  const handleOrganizationChange = (set, org) => {
+    runSetter("organization", set, org);
   };
 
   const { state: supportedGeographies } = useAsyncFetch(api.getSupportedGeographies, {
@@ -166,10 +167,8 @@ export default function OnboardingSignup() {
           />
         </Row>
         <OrganizationInputDropdown
-          organizationName={organizationName}
-          onOrganizationNameChange={(name) =>
-            handleOrganizationChange(setOrganizationName, name)
-          }
+          organization={organization}
+          onOrganizationChange={(org) => handleOrganizationChange(setOrganization, org)}
           register={register}
           errors={errors}
         />

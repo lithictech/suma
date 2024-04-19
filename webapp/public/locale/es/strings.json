@@ -226,6 +226,7 @@
     "name": "Nombre",
     "nickname": "Apodo",
     "nickname_caption": "El nombre utilizado para referirse a la cuenta.",
+    "option_unsure": "No estoy seguro(a)",
     "organization_helper_text": "Esto lo hace elegible para nuestros programas, elija entre organizaciones existentes o escriba el suyo propio.",
     "organization_label": "Organización Afiliada",
     "paper_check_link": "[cómo encontrar los datos bancarios en un cheque de papel](##check-details 'Detalles de cheque de papel')",
