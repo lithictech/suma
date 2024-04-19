@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require "amigo/job"
-require "suma/messages/onboarding_verification"
 
 class Suma::Async::MemberOnboardingVerifiedDispatch
   extend Amigo::Job
