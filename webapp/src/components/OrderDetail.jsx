@@ -30,6 +30,12 @@ export default function OrderDetail({ order, setOrder, gutters }) {
             <h3 className="mb-1">{t("food:order_serial", { serial: order.serial })}</h3>
             {dayjs(order.createdAt).format("lll")}
           </div>
+          <PressAndHoldToClaim
+            id={order.id}
+            canClaim={order.canClaim}
+            fulfilledAt={order.fulfilledAt}
+            onOrderClaim={(o) => setOrder(o)}
+          />
           <p className="mb-0">
             {t("food:labels:price", { price: order.customerCost })}
             {order.customerCost.cents !== order.undiscountedCost.cents && (
@@ -49,9 +55,7 @@ export default function OrderDetail({ order, setOrder, gutters }) {
             ))}
             <br />
           </p>
-          <div>
-            <FulfillmentOption order={order} onOrderUpdated={setOrder} />
-          </div>
+          <FulfillmentOption order={order} onOrderUpdated={setOrder} />
           {!order.canClaim && order.fulfilledAt && (
             <Alert variant="info" className="mb-0">
               <ScrollTopOnMount />
@@ -88,12 +92,6 @@ export default function OrderDetail({ order, setOrder, gutters }) {
             </Stack>
           ))}
         </Stack>
-        <PressAndHoldToClaim
-          id={order.id}
-          canClaim={order.canClaim}
-          fulfilledAt={order.fulfilledAt}
-          onOrderClaim={(o) => setOrder(o)}
-        />
       </LayoutContainer>
     </>
   );
@@ -106,11 +104,16 @@ function FulfillmentOption({ order, onOrderUpdated }) {
   const { showErrorToast } = useErrorToast();
 
   if (isEmpty(order.fulfillmentOptionsForEditing)) {
+    if (!order.fulfillmentOption) {
+      return null;
+    }
     return (
-      <>
+      <div>
         <h6 className="fw-bold">{order.fulfillmentConfirmation}</h6>
-        <span>{order.fulfillmentOption.description}</span>
-      </>
+        {order.fulfillmentOption.description && (
+          <span>{order.fulfillmentOption.description}</span>
+        )}
+      </div>
     );
   }
 
@@ -207,7 +210,7 @@ function PressAndHoldToClaim({ id, canClaim, fulfilledAt, onOrderClaim }) {
   };
   return (
     <div className="text-center">
-      <Alert variant="info mt-3 mb-0">
+      <Alert variant="info mb-0">
         <p className="small mb-0">{t("food:claiming_instructions")}</p>
         <PressAndHold size={200} onHeld={handleOrderClaim}>
           {mdx("food:press_and_hold", {

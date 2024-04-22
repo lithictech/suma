@@ -1,19 +1,20 @@
 import api from "../api";
 import ErrorScreen from "../components/ErrorScreen";
-import FormButtons from "../components/FormButtons";
 import LayoutContainer from "../components/LayoutContainer";
 import PageLoader from "../components/PageLoader";
 import RLink from "../components/RLink";
 import SumaImage from "../components/SumaImage";
-import { t } from "../localization";
+import { md, t } from "../localization";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
+import useUser from "../state/useUser";
 import React from "react";
 import Alert from "react-bootstrap/Alert";
-import Col from "react-bootstrap/Col";
+import Button from "react-bootstrap/Button";
 import Stack from "react-bootstrap/Stack";
 import { useLocation, useParams } from "react-router-dom";
 
 export default function FoodCheckoutConfirmation() {
+  const { user } = useUser();
   const { id } = useParams();
   const location = useLocation();
   const getCheckoutConfirmation = React.useCallback(
@@ -49,30 +50,43 @@ export default function FoodCheckoutConfirmation() {
         <p className="mb-0">{t("food:confirmation_subtitle")}</p>
       </div>
       <LayoutContainer gutters top>
-        <h4 className="mb-3">{t("food:checkout_items_title")}</h4>
+        <h4 className="mb-3">{t("food:confirmation_my_order")}</h4>
         {items.map((p, idx) => (
           <Item key={idx} item={p} />
         ))}
+        {user.unclaimedOrdersCount !== 0 && (
+          <div className="button-stack my-4">
+            <Button variant="success" href="/unclaimed-orders" as={RLink}>
+              {t("food:unclaimed_order_history_title")}
+            </Button>
+          </div>
+        )}
+        {offering.fulfillmentInstructions && (
+          <p className="lead">{offering.fulfillmentInstructions}</p>
+        )}
       </LayoutContainer>
-      <hr />
+      <hr className="my-4" />
+      {fulfillmentOption && (
+        <>
+          <LayoutContainer gutters>
+            <h4>{offering.fulfillmentConfirmation}</h4>
+            <p>{fulfillmentOption.description}</p>
+          </LayoutContainer>
+          <hr className="my-4" />
+        </>
+      )}
       <LayoutContainer gutters>
-        <h4>{offering.fulfillmentConfirmation}</h4>
-        <p>{fulfillmentOption.description}</p>
+        <h4>{t("food:confirmation_transportation_title")}</h4>
+        <p className="mb-0">{t("food:confirmation_transportation_subtitle")}</p>
+        <div className="button-stack mt-3 mb-4">
+          <Button href="/mobility" as={RLink}>
+            <i className="bi bi-scooter me-2"></i>
+            {t("food:mobility_options")}
+          </Button>
+        </div>
       </LayoutContainer>
-      <hr />
-      <LayoutContainer gutters>
-        <p>{t("food:confirmation_message")}</p>
-        <FormButtons
-          className="mt-2"
-          primaryProps={{
-            type: "button",
-            variant: "outline-secondary",
-            children: t("common:go_home"),
-            href: "/dashboard",
-            as: RLink,
-          }}
-        />
-      </LayoutContainer>
+      <hr className="my-4" />
+      <LayoutContainer gutters>{md("food:confirmation_help")}</LayoutContainer>
     </>
   );
 }
@@ -80,22 +94,20 @@ export default function FoodCheckoutConfirmation() {
 function Item({ item }) {
   const { product, quantity } = item;
   return (
-    <>
-      <Col xs={12} className="mb-3">
-        <Stack direction="horizontal" gap={3} className="align-items-start">
-          <SumaImage
-            image={product.images[0]}
-            alt={product.name}
-            className="rounded"
-            w={90}
-            h={90}
-          />
-          <Stack>
-            <p className="mb-0 lead">{product.name}</p>
-            <p className="text-secondary">{t("food:quantity", { quantity: quantity })}</p>
-          </Stack>
-        </Stack>
-      </Col>
-    </>
+    <Stack direction="horizontal" gap={3} className="mb-3 align-items-start">
+      <SumaImage
+        image={product.images[0]}
+        alt={product.name}
+        className="rounded"
+        w={90}
+        h={90}
+      />
+      <Stack>
+        <p className="mb-0 lead">{product.name}</p>
+        <p className="text-secondary mb-0">
+          {t("food:quantity", { quantity: quantity })}
+        </p>
+      </Stack>
+    </Stack>
   );
 }

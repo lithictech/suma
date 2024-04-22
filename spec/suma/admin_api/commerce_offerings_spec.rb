@@ -71,6 +71,7 @@ RSpec.describe Suma::AdminAPI::CommerceOfferings, :db do
            image: image,
            description: {en: "EN test", es: "ES test"},
            fulfillment_prompt: {en: "EN prompt", es: "ES prompt"},
+           fulfillment_instructions: {en: "", es: ""},
            fulfillment_confirmation: {en: "EN confirmation", es: "ES confirmation"},
            fulfillment_options: {
              "0" => {

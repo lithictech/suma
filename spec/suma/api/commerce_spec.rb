@@ -138,10 +138,7 @@ RSpec.describe Suma::API::Commerce, :db do
     let!(:offering_product) { Suma::Fixtures.offering_product(product:, offering:).create }
     let!(:cart) { Suma::Fixtures.cart(offering:, member:).with_product(product, 2).create }
 
-    it "starts a checkout and soft deletes any pending checkouts" do
-      other_member_checkout = Suma::Fixtures.checkout(cart: Suma::Fixtures.cart(member:).create).create
-      completed_checkout = Suma::Fixtures.checkout(cart:).completed.create
-
+    it "creates a checkout" do
       post "/v1/commerce/offerings/#{offering.id}/checkout"
 
       expect(last_response).to have_status(200)
@@ -151,23 +148,8 @@ RSpec.describe Suma::API::Commerce, :db do
           items: contain_exactly(include(quantity: 2, product: include(product_id: product.id))),
           payment_instrument: nil,
           available_payment_instruments: [],
-          fulfillment_option_id: nil,
           available_fulfillment_options: contain_exactly(include(id: fulfillment.id)),
         )
-      expect(other_member_checkout.refresh).to be_soft_deleted
-      expect(completed_checkout.refresh).to_not be_soft_deleted
-    end
-
-    it "starts a checkout with fulfillment option from a previously editable checkout" do
-      noneditable_checkout = Suma::Fixtures.checkout(cart:).with_fulfillment_option(fulfillment).complete.create
-      existing_editable_checkout = Suma::Fixtures.checkout(cart:).with_fulfillment_option(fulfillment).create
-
-      post "/v1/commerce/offerings/#{offering.id}/checkout"
-
-      expect(last_response).to have_status(200)
-      expect(last_response).to have_json_body.that_includes(
-        fulfillment_option_id: existing_editable_checkout.fulfillment_option.id,
-      )
     end
 
     it "errors if there are no items in the cart" do
@@ -391,11 +373,11 @@ RSpec.describe Suma::API::Commerce, :db do
       expect(checkout.refresh).to have_attributes(fulfillment_option: be === opt)
     end
 
-    it "errors if a nil fulfillment empty is passed" do
+    it "allows a nil fulfillment option" do
       post "/v1/commerce/checkouts/#{checkout.id}/complete", charge_amount_cents: cost, fulfillment_option_id: nil
 
-      expect(last_response).to have_status(400)
-      expect(last_response).to have_json_body.that_includes(error: include(code: "validation_error"))
+      expect(last_response).to have_status(200)
+      expect(checkout.refresh).to have_attributes(fulfillment_option_id: nil)
     end
 
     it "errors if fulfillment option id is invalid" do
@@ -494,13 +476,18 @@ RSpec.describe Suma::API::Commerce, :db do
   describe "GET /v1/commerce/orders/unclaimed" do
     it "returns orders available to claim" do
       o1 = Suma::Fixtures.order.as_purchased_by(member).claimable.create
-      o2 = Suma::Fixtures.order.as_purchased_by(member).claimed.create
+      o2 = Suma::Fixtures.order.as_purchased_by(member).claimable.create
+      o2.checkout.update(fulfillment_option_id: nil)
+      o3 = Suma::Fixtures.order.as_purchased_by(member).claimed.create
+      # only show orders with checkout option of 'pickup' type
+      o4 = Suma::Fixtures.order.as_purchased_by(member).claimable.create
+      o4.checkout.fulfillment_option.update(type: "delivery")
 
       get "/v1/commerce/orders/unclaimed"
 
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.that_includes(
-        items: have_same_ids_as(o1).ordered,
+        items: have_same_ids_as(o2, o1).ordered,
       )
     end
   end

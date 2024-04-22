@@ -17,6 +17,7 @@ module Suma::Fixtures::Offerings
     instance.description ||= Suma::Fixtures.translated_text.create
     instance.fulfillment_prompt ||= Suma::Fixtures.translated_text.create
     instance.fulfillment_confirmation ||= Suma::Fixtures.translated_text.create
+    instance.fulfillment_instructions ||= Suma::Fixtures.translated_text.create
     instance
   end
 

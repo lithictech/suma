@@ -48,6 +48,14 @@ export default function OfferingDetailPage() {
         { label: "Fulfillment Prompt (En)", value: model.fulfillmentPrompt.en },
         { label: "Fulfillment Prompt (Es)", value: model.fulfillmentPrompt.es },
         {
+          label: "Fulfillment Instructions (En)",
+          value: model.fulfillmentInstructions.en,
+        },
+        {
+          label: "Fulfillment Instructions (Es)",
+          value: model.fulfillmentInstructions.es,
+        },
+        {
           label: "Fulfillment Confirmation (En)",
           value: model.fulfillmentConfirmation.en,
         },

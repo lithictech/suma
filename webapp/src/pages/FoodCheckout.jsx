@@ -29,7 +29,6 @@ import merge from "lodash/merge";
 import sum from "lodash/sum";
 import React from "react";
 import Alert from "react-bootstrap/Alert";
-import Col from "react-bootstrap/Col";
 import Form from "react-bootstrap/Form";
 import Stack from "react-bootstrap/Stack";
 import { useForm } from "react-hook-form";
@@ -148,26 +147,30 @@ export default function FoodCheckout() {
             <hr />
           </>
         )}
-        <LayoutContainer gutters className="mb-4 mt-4">
-          <CheckoutFulfillment
-            checkout={checkout}
-            showErrorToast={showErrorToast}
-            register={register}
-            errors={errors}
-            onCheckoutChange={(attrs) =>
-              runSetter("fulfillmentOption", setCheckoutMutations, {
-                ...checkoutMutations,
-                ...attrs,
-              })
-            }
-          />
-        </LayoutContainer>
-        <hr />
-        <LayoutContainer gutters className="mb-4 mt-4">
+        {!isEmpty(checkout.availableFulfillmentOptions) && (
+          <>
+            <LayoutContainer gutters className="my-4">
+              <CheckoutFulfillment
+                checkout={checkout}
+                showErrorToast={showErrorToast}
+                register={register}
+                errors={errors}
+                onCheckoutChange={(attrs) =>
+                  runSetter("fulfillmentOption", setCheckoutMutations, {
+                    ...checkoutMutations,
+                    ...attrs,
+                  })
+                }
+              />
+            </LayoutContainer>
+            <hr />
+          </>
+        )}
+        <LayoutContainer gutters className="my-4">
           <CheckoutItems checkout={checkout} />
         </LayoutContainer>
         <hr />
-        <LayoutContainer gutters className="mb-4 mt-4">
+        <LayoutContainer gutters className="my-4">
           <OrderSummary checkout={checkout} chosenInstrument={chosenInstrument} />
         </LayoutContainer>
       </Form>
@@ -220,7 +223,7 @@ function CheckoutPayment({
     label: <PaymentLabel {...pi} />,
   }));
   return (
-    <Col xs={12}>
+    <>
       <h5>{t("food:payment_title")}</h5>
       {isEmpty(checkout.availablePaymentInstruments) && (
         <Stack gap={2}>
@@ -261,7 +264,7 @@ function CheckoutPayment({
           {addPaymentLinks}
         </Stack>
       )}
-    </Col>
+    </>
   );
 }
 
@@ -303,8 +306,13 @@ function CheckoutFulfillment({ checkout, onCheckoutChange, register, errors }) {
     label: <FulfillmentOptionLabel {...fo} />,
   }));
   return (
-    <Col xs={12} className="position-relative">
-      <h5>{checkout.offering.fulfillmentPrompt}</h5>
+    <>
+      {checkout.offering.fulfillmentPrompt && (
+        <h5>{checkout.offering.fulfillmentPrompt}</h5>
+      )}
+      {checkout.offering.fulfillmentInstructions && (
+        <p className="mb-2">{checkout.offering.fulfillmentInstructions}</p>
+      )}
       <FormRadioInputs
         inputs={inputs}
         name="fulfillmentOption"
@@ -312,9 +320,8 @@ function CheckoutFulfillment({ checkout, onCheckoutChange, register, errors }) {
         register={register}
         errors={errors}
         onChange={(e) => handleCheckoutChange(e)}
-        required
       />
-    </Col>
+    </>
   );
 }
 
@@ -337,7 +344,7 @@ function FulfillmentOptionLabel({ description, address }) {
 
 function CheckoutItems({ checkout }) {
   return (
-    <Col>
+    <>
       <h5>{t("food:checkout_items_title")}</h5>
       {checkout.items?.map((it, idx) => {
         return (
@@ -347,11 +354,13 @@ function CheckoutItems({ checkout }) {
           </React.Fragment>
         );
       })}
-      <RLink to={`/cart/${checkout.offering.id}`}>
-        <i className="bi bi-pencil-fill me-2" />
-        {t("food:edit_quantities")}
-      </RLink>
-    </Col>
+      <div className="mt-3">
+        <RLink to={`/cart/${checkout.offering.id}`}>
+          <i className="bi bi-pencil-fill me-2" />
+          {t("food:edit_quantities")}
+        </RLink>
+      </div>
+    </>
   );
 }
 
@@ -361,7 +370,7 @@ function OrderSummary({ checkout, chosenInstrument }) {
   // and if there's an error we'll deal with it.
   const showSubmit = checkout.checkoutProhibitedReason !== "charging_prohibited";
   return (
-    <Col xs={12}>
+    <>
       <h5>{t("food:order_summary_title")}</h5>
       <div>
         <SummaryLine
@@ -442,7 +451,7 @@ function OrderSummary({ checkout, chosenInstrument }) {
           </>
         )}
       </div>
-    </Col>
+    </>
   );
 }
 
@@ -461,45 +470,41 @@ function SummaryLine({ label, price, subtract, className, credit }) {
 function CheckoutItem({ item }) {
   const { product, quantity } = item;
   return (
-    <Col className="mb-3">
-      <Stack direction="horizontal" gap={3} className="align-items-start">
-        <SumaImage
-          image={product.images[0]}
-          alt={product.name}
-          className="rounded"
-          w={80}
-          h={80}
-        />
-        {product.outOfStock ? (
-          <Stack>
-            <h6 className="mb-2">{product.name}</h6>
-            <p className="text-secondary mb-0">{t("food:sold_out")}</p>
-          </Stack>
-        ) : (
-          <>
-            <Stack className="justify-content-between">
-              <h6 className="mb-0">{product.name}</h6>
-              <p className="text-secondary mb-0">
-                <small>
-                  {t("food:from_vendor", { vendorName: product.vendor.name })}
-                </small>
-              </p>
-              <div className="text-secondary mb-0 lh-1">
-                <small>{t("food:quantity", { quantity: quantity })}</small>
-              </div>
-            </Stack>
-            <div className="text-end">
-              <FoodPrice
-                undiscountedPrice={product.undiscountedPrice}
-                isDiscounted={product.isDiscounted}
-                displayableCashPrice={product.displayableCashPrice}
-                direction="vertical"
-              />
+    <Stack direction="horizontal" gap={3} className="align-items-start">
+      <SumaImage
+        image={product.images[0]}
+        alt={product.name}
+        className="rounded"
+        w={80}
+        h={80}
+      />
+      {product.outOfStock ? (
+        <Stack>
+          <h6 className="mb-2">{product.name}</h6>
+          <p className="text-secondary mb-0">{t("food:sold_out")}</p>
+        </Stack>
+      ) : (
+        <>
+          <Stack className="justify-content-between">
+            <h6 className="mb-0">{product.name}</h6>
+            <p className="text-secondary mb-0">
+              <small>{t("food:from_vendor", { vendorName: product.vendor.name })}</small>
+            </p>
+            <div className="text-secondary mb-0 lh-1">
+              <small>{t("food:quantity", { quantity: quantity })}</small>
             </div>
-          </>
-        )}
-      </Stack>
-    </Col>
+          </Stack>
+          <div className="text-end">
+            <FoodPrice
+              undiscountedPrice={product.undiscountedPrice}
+              isDiscounted={product.isDiscounted}
+              displayableCashPrice={product.displayableCashPrice}
+              direction="vertical"
+            />
+          </div>
+        </>
+      )}
+    </Stack>
   );
 }
 

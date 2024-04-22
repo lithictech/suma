@@ -16,11 +16,12 @@ class Suma::AdminAPI::CommerceOfferings < Suma::AdminAPI::V1
     expose :total_item_count
   end
 
-  class DetailedEntity < OfferingEntity
+  class DetailedOfferingEntity < OfferingEntity
     include Suma::AdminAPI::Entities
     include AutoExposeDetail
     expose :description, with: TranslatedTextEntity
     expose :fulfillment_prompt, with: TranslatedTextEntity
+    expose :fulfillment_instructions, with: TranslatedTextEntity
     expose :fulfillment_confirmation, with: TranslatedTextEntity
     expose :fulfillment_options, with: OfferingFulfillmentOptionEntity
     expose :begin_fulfillment_at
@@ -80,14 +81,15 @@ class Suma::AdminAPI::CommerceOfferings < Suma::AdminAPI::V1
     Suma::AdminAPI::CommonEndpoints.create(
       self,
       Suma::Commerce::Offering,
-      DetailedEntity,
+      DetailedOfferingEntity,
     ) do
       params do
         requires :image, type: File
         requires(:description, type: JSON) { use :translated_text }
-        requires(:fulfillment_prompt, type: JSON) { use :translated_text }
-        requires(:fulfillment_confirmation, type: JSON) { use :translated_text }
-        requires :fulfillment_options,
+        optional(:fulfillment_prompt, type: JSON) { use :translated_text, allow_blank: true  }
+        optional(:fulfillment_instructions, type: JSON) { use :translated_text, allow_blank: true  }
+        optional(:fulfillment_confirmation, type: JSON) { use :translated_text, allow_blank: true  }
+        optional :fulfillment_options,
                  type: Array,
                  coerce_with: proc { |s| s.values.each_with_index.map { |fo, ordinal| fo.merge(ordinal:) } } do
           requires :type, type: String, values: Suma::Commerce::OfferingFulfillmentOption::TYPES
@@ -103,18 +105,19 @@ class Suma::AdminAPI::CommerceOfferings < Suma::AdminAPI::V1
       end
     end
 
-    Suma::AdminAPI::CommonEndpoints.get_one(self, Suma::Commerce::Offering, DetailedEntity)
+    Suma::AdminAPI::CommonEndpoints.get_one(self, Suma::Commerce::Offering, DetailedOfferingEntity)
 
     Suma::AdminAPI::CommonEndpoints.update(
       self,
       Suma::Commerce::Offering,
-      DetailedEntity,
+      DetailedOfferingEntity,
     ) do
       params do
         optional :image, type: File
         optional(:description, type: JSON) { use :translated_text }
-        optional(:fulfillment_prompt, type: JSON) { use :translated_text }
-        optional(:fulfillment_confirmation, type: JSON) { use :translated_text }
+        optional(:fulfillment_prompt, type: JSON) { use :translated_text, allow_blank: true }
+        optional(:fulfillment_instructions, type: JSON) { use :translated_text, allow_blank: true }
+        optional(:fulfillment_confirmation, type: JSON) { use :translated_text, allow_blank: true }
         optional :fulfillment_options,
                  type: Array,
                  coerce_with: proc { |s| s.values.each_with_index.map { |fo, ordinal| fo.merge(ordinal:) } } do
@@ -158,7 +161,7 @@ class Suma::AdminAPI::CommerceOfferings < Suma::AdminAPI::V1
         )
 
         status 200
-        present offering, with: DetailedEntity
+        present offering, with: DetailedOfferingEntity
       end
 
       resource :picklist do

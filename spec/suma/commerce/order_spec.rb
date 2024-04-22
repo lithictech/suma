@@ -140,7 +140,7 @@ RSpec.describe "Suma::Commerce::Order", :db do
 
       order.refresh
       order.checkout.fulfillment_option = nil
-      expect(order).to_not be_can_claim
+      expect(order).to be_can_claim
 
       order.refresh
       expect(order).to be_can_claim
