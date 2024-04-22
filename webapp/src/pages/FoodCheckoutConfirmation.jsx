@@ -5,8 +5,9 @@ import LayoutContainer from "../components/LayoutContainer";
 import PageLoader from "../components/PageLoader";
 import RLink from "../components/RLink";
 import SumaImage from "../components/SumaImage";
-import { t } from "../localization";
+import { md, t } from "../localization";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
+import useUser from "../state/useUser";
 import React from "react";
 import Alert from "react-bootstrap/Alert";
 import Col from "react-bootstrap/Col";
@@ -14,6 +15,7 @@ import Stack from "react-bootstrap/Stack";
 import { useLocation, useParams } from "react-router-dom";
 
 export default function FoodCheckoutConfirmation() {
+  const { user } = useUser();
   const { id } = useParams();
   const location = useLocation();
   const getCheckoutConfirmation = React.useCallback(
@@ -49,30 +51,52 @@ export default function FoodCheckoutConfirmation() {
         <p className="mb-0">{t("food:confirmation_subtitle")}</p>
       </div>
       <LayoutContainer gutters top>
-        <h4 className="mb-3">{t("food:checkout_items_title")}</h4>
+        <h4 className="mb-3">{t("food:confirmation_my_order")}</h4>
         {items.map((p, idx) => (
           <Item key={idx} item={p} />
         ))}
+        {user.unclaimedOrdersCount !== 0 && (
+          <FormButtons
+            className="mb-4"
+            primaryProps={{
+              type: "button",
+              variant: "success",
+              children: t("food:unclaimed_order_history_title"),
+              href: "/unclaimed-orders",
+              as: RLink,
+            }}
+          />
+        )}
+        {offering.fulfillmentInstructions && (
+          <p className="lead">{offering.fulfillmentInstructions}</p>
+        )}
       </LayoutContainer>
-      <hr />
+      <hr className="my-4" />
       <LayoutContainer gutters>
         <h4>{offering.fulfillmentConfirmation}</h4>
         <p>{fulfillmentOption.description}</p>
       </LayoutContainer>
-      <hr />
+      <hr className="my-4" />
       <LayoutContainer gutters>
-        <p>{t("food:confirmation_message")}</p>
+        <h4>{t("food:confirmation_transportation_title")}</h4>
+        <p className="mb-0">{t("food:confirmation_transportation_subtitle")}</p>
         <FormButtons
-          className="mt-2"
           primaryProps={{
             type: "button",
-            variant: "outline-secondary",
-            children: t("common:go_home"),
-            href: "/dashboard",
+            variant: "primary",
+            children: (
+              <>
+                <i className="bi bi-scooter me-2"></i>
+                {t("food:mobility_options")}
+              </>
+            ),
+            href: "/mobility",
             as: RLink,
           }}
         />
       </LayoutContainer>
+      <hr className="my-4" />
+      <LayoutContainer gutters>{md("food:confirmation_help")}</LayoutContainer>
     </>
   );
 }
@@ -92,7 +116,9 @@ function Item({ item }) {
           />
           <Stack>
             <p className="mb-0 lead">{product.name}</p>
-            <p className="text-secondary">{t("food:quantity", { quantity: quantity })}</p>
+            <p className="text-secondary mb-0">
+              {t("food:quantity", { quantity: quantity })}
+            </p>
           </Stack>
         </Stack>
       </Col>
