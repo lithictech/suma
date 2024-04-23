@@ -105,6 +105,10 @@ function FulfillmentOption({ order, onOrderUpdated }) {
   const [optionId, setOptionId] = React.useState(0);
   const { showErrorToast } = useErrorToast();
 
+  if (!order.fulfillmentOption) {
+    return null;
+  }
+
   if (isEmpty(order.fulfillmentOptionsForEditing)) {
     return (
       <>

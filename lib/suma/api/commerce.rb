@@ -95,8 +95,10 @@ class Suma::API::Commerce < Suma::API::V1
               payment_instrument: member.default_payment_instrument,
               save_payment_instrument: member.default_payment_instrument.present?,
             )
-            if existing_editable_checkout&.fulfillment_option
-              checkout.update(fulfillment_option: existing_editable_checkout.fulfillment_option)
+            if offering.fulfillment_options.one?
+              checkout.update(fulfillment_option: offering.fulfillment_options.first)
+            elsif (fulfillment_option = existing_editable_checkout&.fulfillment_option)
+              checkout.update(fulfillment_option:)
             end
             ctx = new_context
             merror!(409, "no items in cart", code: "checkout_no_items") if cart.items.empty?
@@ -165,7 +167,7 @@ class Suma::API::Commerce < Suma::API::V1
             checkout.payment_instrument = instrument if instrument
           end
 
-          if params.key?(:fulfillment_option_id)
+          if params[:fulfillment_option_id]
             set_fulfillment_or_error(checkout, params[:fulfillment_option_id], checkout.available_fulfillment_options)
           end
 
