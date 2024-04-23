@@ -61,30 +61,7 @@ export default function OfferingForm({
             fullWidth
             value={resource.description}
             required
-            placeholder="foo"
             onChange={(v) => setField("description", v)}
-          />
-        </ResponsiveStack>
-        <FormLabel>Fulfillment Prompt ("how do you want to get your stuff?")</FormLabel>
-        <ResponsiveStack>
-          <MultiLingualText
-            {...register("fulfillmentPrompt")}
-            label="Fulfillment Prompt"
-            fullWidth
-            value={resource.fulfillmentPrompt}
-            required
-            onChange={(v) => setField("fulfillmentPrompt", v)}
-          />
-        </ResponsiveStack>
-        <FormLabel>Fulfillment Confirmation ("how you're getting your stuff")</FormLabel>
-        <ResponsiveStack>
-          <MultiLingualText
-            {...register("fulfillmentConfirmation")}
-            label="Fulfillment Confirmation"
-            fullWidth
-            value={resource.fulfillmentConfirmation}
-            required
-            onChange={(v) => setField("fulfillmentConfirmation", v)}
           />
         </ResponsiveStack>
         <FormLabel>Timings</FormLabel>
@@ -139,6 +116,38 @@ export default function OfferingForm({
           />
         </ResponsiveStack>
         <Divider />
+        <FormLabel>Fulfillment Prompt ("how do you want to get your stuff?")</FormLabel>
+        <ResponsiveStack>
+          <MultiLingualText
+            {...register("fulfillmentPrompt")}
+            label="Fulfillment Prompt"
+            fullWidth
+            value={resource.fulfillmentPrompt}
+            onChange={(v) => setField("fulfillmentPrompt", v)}
+          />
+        </ResponsiveStack>
+        <FormLabel>
+          Fulfillment Instructions ("pickup your vouchers with suma staff at...")
+        </FormLabel>
+        <ResponsiveStack>
+          <MultiLingualText
+            {...register("fulfillmentInstructions")}
+            label="Fulfillment Instructions"
+            fullWidth
+            value={resource.fulfillmentInstructions}
+            onChange={(v) => setField("fulfillmentInstructions", v)}
+          />
+        </ResponsiveStack>
+        <FormLabel>Fulfillment Confirmation ("how you're getting your stuff")</FormLabel>
+        <ResponsiveStack>
+          <MultiLingualText
+            {...register("fulfillmentConfirmation")}
+            label="Fulfillment Confirmation"
+            fullWidth
+            value={resource.fulfillmentConfirmation}
+            onChange={(v) => setField("fulfillmentConfirmation", v)}
+          />
+        </ResponsiveStack>
         <FormLabel>Fulfillment Options</FormLabel>
         <FulfillmentOptions
           options={resource.fulfillmentOptions}
