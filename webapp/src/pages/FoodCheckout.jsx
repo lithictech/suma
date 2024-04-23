@@ -299,7 +299,12 @@ function CheckoutFulfillment({ checkout, onCheckoutChange, register, errors }) {
   }));
   return (
     <LayoutContainer gutters className="my-4">
-      <h5>{checkout.offering.fulfillmentPrompt}</h5>
+      {checkout.offering.fulfillmentPrompt && (
+        <h5>{checkout.offering.fulfillmentPrompt}</h5>
+      )}
+      {checkout.offering.fulfillmentInstructions && (
+        <p>{checkout.offering.fulfillmentInstructions}</p>
+      )}
       <FormRadioInputs
         inputs={inputs}
         name="fulfillmentOption"
