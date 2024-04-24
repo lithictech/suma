@@ -25,6 +25,7 @@ module Suma::Async
     "suma/async/emailer",
     "suma/async/ensure_default_member_ledgers_on_create",
     "suma/async/funding_transaction_processor",
+    "suma/async/member_onboarding_verified_dispatch",
     "suma/async/message_dispatched",
     "suma/async/offering_schedule_fulfillment",
     "suma/async/order_confirmation",
@@ -34,7 +35,6 @@ module Suma::Async
     "suma/async/stripe_refunds_backfiller",
     "suma/async/sync_lime_free_bike_status_gbfs",
     "suma/async/sync_lime_geofencing_zones_gbfs",
-    "suma/async/topic_shim",
     "suma/async/upsert_frontapp_contact",
   ].freeze
 

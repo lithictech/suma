@@ -347,15 +347,33 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
     end
   end
 
-  describe "TopicShim" do
-    it "shims onboarding verified" do
-      u = Suma::Fixtures.member.create
+  describe "MemberOnboardingVerifiedDispatch" do
+    let(:member) { Suma::Fixtures.member.create }
+
+    it "dispatches an SMS to the member preferred messaging" do
       expect do
-        u.onboarding_verified_at = Time.now
-        expect do
-          u.save_changes
-        end.to publish("suma.member.verified", [u.id])
-      end.to perform_async_job(Suma::Async::TopicShim)
+        member.update(onboarding_verified_at: Time.now)
+      end.to perform_async_job(Suma::Async::MemberOnboardingVerifiedDispatch)
+
+      expect(Suma::Message::Delivery.all).to contain_exactly(
+        have_attributes(template: "onboarding_verification"),
+      )
+    end
+
+    it "noops if member is not currently verified" do
+      expect do
+        member.publish_immediate("updated", member.pk, {onboarding_verified_at: [nil, Time.now.iso8601]})
+      end.to perform_async_job(Suma::Async::MemberOnboardingVerifiedDispatch)
+
+      expect(Suma::Message::Delivery.all).to be_empty
+    end
+
+    it "noops if the verification is older than the past week" do
+      expect do
+        member.update(onboarding_verified_at: 8.days.ago)
+      end.to perform_async_job(Suma::Async::MemberOnboardingVerifiedDispatch)
+
+      expect(Suma::Message::Delivery.all).to be_empty
     end
   end
 end
