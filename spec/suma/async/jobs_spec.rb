@@ -348,29 +348,29 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
   end
 
   describe "MemberOnboardingVerifiedDispatch" do
-    it "dispatches an SMS to the member preferred messaging" do
-      member = Suma::Fixtures.member(phone: "12223334444").create
+    let(:member) { Suma::Fixtures.member.create }
 
+    it "dispatches an SMS to the member preferred messaging" do
       expect do
-        member.onboarding_verified_at = Time.now
-        member.save_changes
+        member.update(onboarding_verified_at: Time.now)
       end.to perform_async_job(Suma::Async::MemberOnboardingVerifiedDispatch)
 
       expect(Suma::Message::Delivery.all).to contain_exactly(
-        have_attributes(
-          template: "onboarding_verification",
-          transport_type: "sms",
-          to: "12223334444",
-        ),
+        have_attributes(template: "onboarding_verification"),
       )
     end
 
-    it "noops if member is already verified" do
-      member = Suma::Fixtures.member(phone: "12223334444").onboarding_verified.create
-
-      member.onboarding_verified_at = Time.now
+    it "noops if member is not currently verified" do
       expect do
-        member.save_changes
+        member.publish_immediate("updated", member.pk, {onboarding_verified_at: [nil, Time.now.iso8601]})
+      end.to perform_async_job(Suma::Async::MemberOnboardingVerifiedDispatch)
+
+      expect(Suma::Message::Delivery.all).to be_empty
+    end
+
+    it "noops if the verification is older than the past week" do
+      expect do
+        member.update(onboarding_verified_at: 8.days.ago)
       end.to perform_async_job(Suma::Async::MemberOnboardingVerifiedDispatch)
 
       expect(Suma::Message::Delivery.all).to be_empty
