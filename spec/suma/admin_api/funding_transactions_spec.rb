@@ -79,8 +79,9 @@ RSpec.describe Suma::AdminAPI::FundingTransactions, :db do
   end
 
   describe "POST /v1/funding_transactions/create_for_self" do
-    it "creates the funding and book transaction to the instrument owner cash ledger" do
-      member = Suma::Fixtures.member.create
+    let(:member) { Suma::Fixtures.member.create }
+
+    it "using a bank account creates the funding and book transaction to the instrument owner cash ledger" do
       ba = Suma::Fixtures.bank_account.member(member).verified.create
 
       Suma::Payment::FundingTransaction.force_fake(Suma::Payment::FakeStrategy.create.not_ready) do
@@ -95,6 +96,36 @@ RSpec.describe Suma::AdminAPI::FundingTransactions, :db do
       expect(member.payment_account.originated_funding_transactions).to contain_exactly(
         have_attributes(status: "created", originated_book_transaction: be_present),
       )
+    end
+
+    it "using a card creates the funding and book transaction to the instrument owner cash ledger" do
+      card = Suma::Fixtures.card.member(member).create
+
+      Suma::Payment::FundingTransaction.force_fake(Suma::Payment::FakeStrategy.create.not_ready) do
+        post "/v1/funding_transactions/create_for_self",
+             amount: {cents: 500, currency: "USD"},
+             payment_instrument_id: card.id,
+             payment_method_type: card.payment_method_type
+      end
+
+      expect(last_response).to have_status(200)
+      expect(last_response.headers).to include("Created-Resource-Admin")
+      expect(member.payment_account.originated_funding_transactions).to contain_exactly(
+        have_attributes(status: "created", originated_book_transaction: be_present),
+      )
+    end
+
+    it "errors if the instrument is not usable" do
+      card = Suma::Fixtures.card.member(member).create
+
+      Suma::Payment::FundingTransaction.force_fake(Suma::Payment::FakeStrategy.create.invalid) do
+        post "/v1/funding_transactions/create_for_self",
+             amount: {cents: 500, currency: "USD"},
+             payment_instrument_id: card.id,
+             payment_method_type: card.payment_method_type
+      end
+
+      expect(last_response).to have_status(409)
     end
   end
 end

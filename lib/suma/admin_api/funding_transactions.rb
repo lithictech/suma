@@ -35,17 +35,23 @@ class Suma::AdminAPI::FundingTransactions < Suma::AdminAPI::V1
       instrument_ds = case params[:payment_method_type]
         when "bank_account"
           Suma::Payment::BankAccount.dataset
+        when "card"
+          Suma::Payment::Card.dataset
         else
           raise "Invalid payment_method_type"
       end
       (instrument = instrument_ds[params[:payment_instrument_id]]) or forbidden!
       c = instrument.member
-      fx = Suma::Payment::FundingTransaction.start_and_transfer(
-        c,
-        amount: params[:amount],
-        instrument:,
-        apply_at: Time.now,
-      )
+      begin
+        fx = Suma::Payment::FundingTransaction.start_and_transfer(
+          c,
+          amount: params[:amount],
+          instrument:,
+          apply_at: Time.now,
+        )
+      rescue Suma::Payment::Invalid => e
+        merror!(409, e.message, code: "invalid_funding_instrument", skip_loc_check: true)
+      end
       created_resource_headers(fx.id, fx.admin_link)
       status 200
       present fx, with: DetailedFundingTransactionEntity
