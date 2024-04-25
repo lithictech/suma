@@ -179,8 +179,8 @@ RSpec.describe Suma::AdminAPI::CommerceOfferings, :db do
       expect(last_response).to have_status(200)
       expect(to_remove).to be_destroyed
       expect(o.refresh.fulfillment_options).to contain_exactly(
-        have_attributes(id: to_update.id, description: have_attributes(en: "EN updated")),
-        have_attributes(description: have_attributes(en: "EN added")),
+        have_attributes(id: to_update.id, ordinal: 0, description: have_attributes(en: "EN updated")),
+        have_attributes(ordinal: 1, description: have_attributes(en: "EN added")),
       )
     end
 

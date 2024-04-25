@@ -1,6 +1,15 @@
 # frozen_string_literal: true
 
 module Suma::AdminAPI::CommonEndpoints
+  class ThrowNeedsRollback < StandardError
+    attr_reader :thrown
+
+    def initialize(thrown)
+      @thrown = thrown
+      super("for flow control :(")
+    end
+  end
+
   module MutationHelpers
     def association_class?(h, cls) = h[:class] == cls || h[:class_name] == cls.to_s
     def association_class(h) = h[:class] || Kernel.const_get(h[:class_name])
@@ -36,6 +45,9 @@ module Suma::AdminAPI::CommonEndpoints
             # If we're passing in a hash like {id:}, we just want to replace the FK.
             # If the hash includes more fields, it'll get caught by the else which replaces
             # and updates the association.
+            # The params block will determine whether 1) we are only setting :id,
+            # like assigning a Vendor to a Product, or
+            # 2) we're also updating the FK, like updating Inventory on a Product.
             fk_attrs[assoc[:key]] = v[:id]
           else
             to_one_assocs_and_params << [assoc, v]
@@ -105,6 +117,33 @@ module Suma::AdminAPI::CommonEndpoints
         end
       end
     end
+
+    # Roll back the transaction if an error is returned by the block.
+    # Because the block can catch a database error and call `error!` (which calls `throw(:error, {...})` in Grape),
+    # such as due to an FK violation,
+    # the exception doesn't bubble up to Sequel's DB#transaction.
+    # This means DB#transaction tries to commit a transaction, but if there is a database error,
+    # the commit fails.
+    #
+    # This code has to go through some workarounds to:
+    # - Catch a throw(:error)
+    # - Re-raise it so Sequel sees the exception and rolls back the transaction
+    # - Catch the exception, and re-throw the error, so Grape sees it.
+    #
+    # In theory, this code should be moved to more general helpers-
+    # there is some risk that we could be calling `error!` in our services,
+    # and getting outer transactions committed.
+    # In practice this is very rare, and the complexity of model updates in CommonEndpoints is the first time
+    # it's come up. But still, we should consider using this instead of normal db.transaction in the API.
+    def _throwsafe_transaction(db, &)
+      db.transaction do
+        caught = catch(:error, &)
+        raise ThrowNeedsRollback, caught if status >= 400
+        caught
+      end
+    rescue ThrowNeedsRollback => e
+      throw :error, e.thrown
+    end
   end
 
   def self.list(route_def, model_type, entity, search_params: [], translation_search_params: [])
@@ -153,9 +192,9 @@ module Suma::AdminAPI::CommonEndpoints
       helpers MutationHelpers
       yield
       post :create do
-        model_type.db.transaction do
+        _throwsafe_transaction(model_type.db) do
           m = model_type.new
-          update_model(m, params)
+          update_model(m, declared_and_provided_params(params))
           created_resource_headers(m.id, m.admin_link)
           status 200
           present m, with: entity
@@ -165,24 +204,23 @@ module Suma::AdminAPI::CommonEndpoints
   end
 
   def self.update(route_def, model_type, entity, around: nil, &)
+    around ||= ->(*, &b) { b.call }
     route_def.instance_exec do
       route_param :id, type: Integer do
         helpers MutationHelpers
         yield
         post do
-          # model_type.db.transaction do
-          (m = model_type[params[:id]]) or forbidden!
-          if around
+          _throwsafe_transaction(model_type.db) do
+            (m = model_type[params[:id]]) or forbidden!
             around.call(self, m) do
-              update_model(m, params)
+              # Must be done INSIDE of 'around' in case it modifies `params`.
+              dparams = declared_and_provided_params(params)
+              update_model(m, dparams)
             end
-          else
-            update_model(m, params)
+            created_resource_headers(m.id, m.admin_link)
+            status 200
+            present m, with: entity
           end
-          created_resource_headers(m.id, m.admin_link)
-          status 200
-          present m, with: entity
-          # end
         end
       end
     end
