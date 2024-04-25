@@ -239,10 +239,35 @@ module Suma::Service::Helpers
   end
 
   def declared_and_provided_params(params, exclude: [])
+    params = params.deep_dup
     decl = declared(params)
     exclude.each { |k| decl.delete(k) }
-    decl.delete_if { |k| !params.key?(k) }
-    return decl
+    _remove_provided_keys_not_declared(params, decl)
+    return params
+  end
+
+  # Given the provided params, remove any keys that aren't declared.
+  # We know at this point the hashes have a consistent structure (in terms of hash and array keys)
+  # because of Grape's validation; but we need to, for example, make sure:
+  # - Only provided params are used (declared will have a field for every parameter)
+  # - If x:nil is passed for a JSON param, x:nil is used. declared may have x:{id:nil, name:nil}, etc.
+  private def _remove_provided_keys_not_declared(provided, declared)
+    # noinspection RubyCaseWithoutElseBlockInspection
+    case provided
+      when Hash
+        provided.each_key do |key|
+          if declared.key?(key)
+            _remove_provided_keys_not_declared(provided[key], declared[key])
+          else
+            provided.delete(key)
+          end
+        end
+      when Array
+        # We know these are the same length since declared is based on provided params.
+        provided.each_with_index do |provided_item, idx|
+          _remove_provided_keys_not_declared(provided_item, declared[idx])
+        end
+    end
   end
 
   params :money do

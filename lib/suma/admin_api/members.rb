@@ -157,6 +157,7 @@ class Suma::AdminAPI::Members < Suma::AdminAPI::V1
         end
         optional :onboarding_verified, type: Boolean
         optional :legal_entity, type: JSON do
+          optional :id, type: Integer
           optional :name, type: String
           optional :address, type: JSON do
             use :address

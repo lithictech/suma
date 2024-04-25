@@ -217,6 +217,22 @@ class Suma::API::TestService < Suma::Service
         raise ArgumentError, "invalid behavior"
     end
   end
+
+  params do
+    optional :fk, type: JSON do
+      optional :id
+    end
+    optional :fk_arr, type: Array do
+      optional :id
+      optional :sub_fk, type: JSON do
+        optional :id
+      end
+    end
+  end
+  post :declared_provided_params do
+    p = declared_and_provided_params(params)
+    present p
+  end
 end
 
 RSpec.describe Suma::Service, :db do
@@ -1005,6 +1021,37 @@ RSpec.describe Suma::Service, :db do
         expect(last_response.headers).to include("Cache-Control" => "public")
         expect(last_response.headers).to_not have_key("Transfer-Encoding")
       end
+    end
+  end
+
+  describe "declared_and_provided_params" do
+    it "returns only declared and provided params" do
+      post "/declared_provided_params",
+           {
+             other: 1,
+             other2: nil,
+             other_fk: {id: 1},
+             fk: {id: 2, name: "a"},
+             fk_arr: [
+               {id: 3, name: "b"},
+               {id: 4, sub_fk: {id: 5, name: "c"}},
+               {id: 6, sub_fk: nil},
+               {id: nil},
+             ],
+           }
+
+      expect(last_response).to have_status(201)
+      expect(last_response_json_body).to eq(
+        {
+          fk: {id: 2},
+          fk_arr: [
+            {id: 3},
+            {id: 4, sub_fk: {id: 5}},
+            {id: 6, sub_fk: nil},
+            {id: nil},
+          ],
+        },
+      )
     end
   end
 end

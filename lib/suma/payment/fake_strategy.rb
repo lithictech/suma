@@ -68,6 +68,10 @@ class Suma::Payment::FakeStrategy < Suma::Postgres::Model(:payment_fake_strategi
         set_response(:ready_to_collect_funds?, false).
         set_response(:ready_to_send_funds?, false)
   end
+
+  def invalid
+    return self.set_response(:check_validity, ["fake invalid"])
+  end
 end
 
 # Table: payment_fake_strategies

@@ -75,7 +75,9 @@ RSpec.describe Suma::AdminAPI::CommerceProducts, :db do
            name: {en: "EN name", es: "ES name"},
            description: {en: "EN description", es: "ES description"},
            our_cost: {cents: 2400},
-           vendor: {id: vs.vendor.id},
+           # Include 'name' to represent how this comes through on create better.
+           # We make sure the name doesn't get set, as it isn't a declared parameter.
+           vendor: {id: vs.vendor.id, name: "X"},
            vendor_service_categories: {"0" => {id: cat.id}}
 
       expect(last_response).to have_status(200)
@@ -83,6 +85,7 @@ RSpec.describe Suma::AdminAPI::CommerceProducts, :db do
       p = Suma::Commerce::Product.first
       expect(Suma::Commerce::Product.all).to have_length(1)
       expect(p).to have_attributes(our_cost: cost("$24"))
+      expect(vs.vendor.refresh).to_not have_attributes(name: "X")
     end
   end
 
@@ -129,6 +132,17 @@ RSpec.describe Suma::AdminAPI::CommerceProducts, :db do
 
       expect(last_response).to have_status(200)
       expect(product.inventory.refresh).to have_attributes(quantity_on_hand: 201)
+    end
+
+    it "does not update undeclared params" do
+      product = Suma::Fixtures.product.create
+      v2 = Suma::Fixtures.vendor.create
+
+      post "/v1/commerce_products/#{product.id}", vendor: {id: v2.id, name: "X"}
+
+      expect(last_response).to have_status(200)
+      expect(product.refresh).to have_attributes(vendor: be === v2)
+      expect(v2.refresh).to_not have_attributes(name: "X")
     end
   end
 end

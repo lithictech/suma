@@ -97,7 +97,7 @@ RSpec.describe Suma::AdminAPI::PaymentTriggers, :db do
            match_multiplier: 2.5,
            maximum_cumulative_subsidy_cents: 500,
            memo: {en: "hello", es: "hola"},
-           originating_ledger_id: orig.id,
+           originating_ledger: {id: orig.id},
            receiving_ledger_name: "Subsidy",
            receiving_ledger_contribution_text: {en: "Memo En", es: "Memo Es"}
 
