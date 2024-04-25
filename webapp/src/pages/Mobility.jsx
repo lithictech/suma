@@ -1,9 +1,10 @@
 import mobilityHeaderImage from "../assets/images/onboarding-mobility.jpg";
 import LayoutContainer from "../components/LayoutContainer";
+import { MdLink } from "../components/SumaMarkdown";
 import WaitingListPage from "../components/WaitingListPage";
 import Map from "../components/mobilitymap/Map";
 import config from "../config";
-import { t } from "../localization";
+import { mdx, t } from "../localization";
 import React from "react";
 
 export default function Mobility() {
@@ -12,6 +13,17 @@ export default function Mobility() {
       <LayoutContainer top gutters>
         <h5>{t("mobility:title")}</h5>
         <p className="text-secondary">{t("mobility:intro")}</p>
+        <hr />
+        {mdx("mobility:ride_connection_notice", {
+          overrides: {
+            a: { component: MdLink },
+            p: {
+              props: {
+                className: " text-secondary",
+              },
+            },
+          },
+        })}
       </LayoutContainer>
       <Map />
     </>

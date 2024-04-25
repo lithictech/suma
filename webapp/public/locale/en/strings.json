@@ -265,6 +265,7 @@
     "mobility_start_and_per_minute": "{{surchargeCents, sumaCurrency}} to unlock, {{unitCents, sumaCurrency}} per minute",
     "relink_private_account_with_vendor": "If you are signed out, you can [re-link your {{vendorName}} account](/private-accounts).",
     "reserve_scooter": "Reserve Scooter",
+    "ride_connection_notice": "suma partnered with Ride Connection to provide transportation options for the elderly and people with disabilities.\n\nCall [503-226-0700](tel:503-226-0700) or [click here](https://rideconnection.org/services__blank__) to see their services.",
     "setup_private_account_with_vendor": "To get started, we'll set up a private account for you with {{vendorName}}.",
     "suma_help_email": "[apphelp@mysuma.org](mailto:apphelp@mysuma.org 'suma help email')",
     "title": "Mobility Services",

@@ -265,6 +265,7 @@
     "mobility_start_and_per_minute": "{{surchargeCents, sumaCurrency}} para iniciar, {{unitCents, sumaCurrency}} por minuto",
     "relink_private_account_with_vendor": "Si no ha iniciado sesión, puede [volver a vincular su cuenta de {{vendorName}}](/private-accounts).",
     "reserve_scooter": "Reservar una patineta eléctrica",
+    "ride_connection_notice": "suma se asoció con Ride Connection para ofrecer opciones de transporte para personas mayores y con discapacidades.\n\nLlame al [503-226-0700](tel:503-226-0700) o [haga clic aquí](https://rideconnection.org/services__blank__) para ver sus servicios.",
     "setup_private_account_with_vendor": "Para comenzar, configuraremos una cuenta privada para usted con {{vendorName}}.",
     "suma_help_email": "[apphelp@mysuma.org](mailto:apphelp@mysuma.org 'correo electrónico de ayuda de suma')",
     "title": "Servicios de movilidad",
