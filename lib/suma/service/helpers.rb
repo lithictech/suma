@@ -331,9 +331,10 @@ module Suma::Service::Helpers
     optional :lng, type: Float
   end
 
-  params :translated_text do
-    requires :en, type: String, allow_blank: false
-    requires :es, type: String, allow_blank: false
+  params :translated_text do |options|
+    blank = options[:allow_blank] || false
+    requires :en, type: String, allow_blank: blank
+    requires :es, type: String, allow_blank: blank
   end
 
   params :model_with_id do

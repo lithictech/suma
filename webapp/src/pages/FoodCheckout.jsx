@@ -311,7 +311,7 @@ function CheckoutFulfillment({ checkout, onCheckoutChange, register, errors }) {
         <h5>{checkout.offering.fulfillmentPrompt}</h5>
       )}
       {checkout.offering.fulfillmentInstructions && (
-        <p>{checkout.offering.fulfillmentInstructions}</p>
+        <p className="mb-2">{checkout.offering.fulfillmentInstructions}</p>
       )}
       <FormRadioInputs
         inputs={inputs}

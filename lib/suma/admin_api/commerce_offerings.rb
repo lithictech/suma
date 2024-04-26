@@ -86,18 +86,9 @@ class Suma::AdminAPI::CommerceOfferings < Suma::AdminAPI::V1
       params do
         requires :image, type: File
         requires(:description, type: JSON) { use :translated_text }
-        requires :fulfillment_prompt, type: JSON do
-          requires :en, type: String, allow_blank: true
-          requires :es, type: String, allow_blank: true
-        end
-        requires :fulfillment_instructions, type: JSON do
-          requires :en, type: String, allow_blank: true
-          requires :es, type: String, allow_blank: true
-        end
-        requires :fulfillment_confirmation, type: JSON do
-          requires :en, type: String, allow_blank: true
-          requires :es, type: String, allow_blank: true
-        end
+        optional(:fulfillment_prompt, type: JSON) { use :translated_text, allow_blank: true  }
+        optional(:fulfillment_instructions, type: JSON) { use :translated_text, allow_blank: true  }
+        optional(:fulfillment_confirmation, type: JSON) { use :translated_text, allow_blank: true  }
         optional :fulfillment_options,
                  type: Array,
                  coerce_with: proc { |s| s.values.each_with_index.map { |fo, ordinal| fo.merge(ordinal:) } } do
@@ -124,18 +115,9 @@ class Suma::AdminAPI::CommerceOfferings < Suma::AdminAPI::V1
       params do
         optional :image, type: File
         optional(:description, type: JSON) { use :translated_text }
-        optional :fulfillment_prompt, type: JSON do
-          requires :en, type: String, allow_blank: true
-          requires :es, type: String, allow_blank: true
-        end
-        optional :fulfillment_instructions, type: JSON do
-          requires :en, type: String, allow_blank: true
-          requires :es, type: String, allow_blank: true
-        end
-        optional :fulfillment_confirmation, type: JSON do
-          requires :en, type: String, allow_blank: true
-          requires :es, type: String, allow_blank: true
-        end
+        optional(:fulfillment_prompt, type: JSON) { use :translated_text, allow_blank: true }
+        optional(:fulfillment_instructions, type: JSON) { use :translated_text, allow_blank: true }
+        optional(:fulfillment_confirmation, type: JSON) { use :translated_text, allow_blank: true }
         optional :fulfillment_options,
                  type: Array,
                  coerce_with: proc { |s| s.values.each_with_index.map { |fo, ordinal| fo.merge(ordinal:) } } do

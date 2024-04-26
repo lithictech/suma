@@ -42,7 +42,7 @@ export default function FoodCheckoutConfirmation() {
   if (loading) {
     return <PageLoader buffered />;
   }
-  const { items, offering } = checkout;
+  const { fulfillmentOption, items, offering } = checkout;
   return (
     <>
       <div className="bg-success text-white p-4">
@@ -71,8 +71,17 @@ export default function FoodCheckoutConfirmation() {
         )}
       </LayoutContainer>
       <hr className="my-4" />
+      {fulfillmentOption && (
+        <>
+          <LayoutContainer gutters>
+            <h4>{offering.fulfillmentConfirmation}</h4>
+            <p>{fulfillmentOption.description}</p>
+          </LayoutContainer>
+          <hr className="my-4" />
+        </>
+      )}
       <LayoutContainer gutters>
-        <h4>{offering.fulfillmentConfirmation}</h4>
+        <h4>{t("food:confirmation_transportation_title")}</h4>
         <p className="mb-0">{t("food:confirmation_transportation_subtitle")}</p>
         <FormButtons
           primaryProps={{
