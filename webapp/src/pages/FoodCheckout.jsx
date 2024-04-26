@@ -130,41 +130,49 @@ export default function FoodCheckout() {
       <Form noValidate onSubmit={handleSubmit(handleSubmitInner)}>
         {checkout.requiresPaymentInstrument && (
           <>
-            <CheckoutPayment
-              checkout={checkout}
-              selectedInstrument={chosenInstrument}
-              onSelectedInstrumentChange={(pi) =>
-                runSetter("paymentOption", setManuallySelectedInstrument, pi)
-              }
-              onCheckoutChange={(attrs) =>
-                setCheckoutMutations({ ...checkoutMutations, ...attrs })
-              }
-              register={register}
-              errors={errors}
-            />
+            <LayoutContainer gutters className="mb-4">
+              <CheckoutPayment
+                checkout={checkout}
+                selectedInstrument={chosenInstrument}
+                onSelectedInstrumentChange={(pi) =>
+                  runSetter("paymentOption", setManuallySelectedInstrument, pi)
+                }
+                onCheckoutChange={(attrs) =>
+                  setCheckoutMutations({ ...checkoutMutations, ...attrs })
+                }
+                register={register}
+                errors={errors}
+              />
+            </LayoutContainer>
             <hr />
           </>
         )}
         {!isEmpty(checkout.availableFulfillmentOptions) && (
           <>
-            <CheckoutFulfillment
-              checkout={checkout}
-              showErrorToast={showErrorToast}
-              register={register}
-              errors={errors}
-              onCheckoutChange={(attrs) =>
-                runSetter("fulfillmentOption", setCheckoutMutations, {
-                  ...checkoutMutations,
-                  ...attrs,
-                })
-              }
-            />
+            <LayoutContainer gutters className="my-4">
+              <CheckoutFulfillment
+                checkout={checkout}
+                showErrorToast={showErrorToast}
+                register={register}
+                errors={errors}
+                onCheckoutChange={(attrs) =>
+                  runSetter("fulfillmentOption", setCheckoutMutations, {
+                    ...checkoutMutations,
+                    ...attrs,
+                  })
+                }
+              />
+            </LayoutContainer>
             <hr />
           </>
         )}
-        <CheckoutItems checkout={checkout} />
+        <LayoutContainer gutters className="my-4">
+          <CheckoutItems checkout={checkout} />
+        </LayoutContainer>
         <hr />
-        <OrderSummary checkout={checkout} chosenInstrument={chosenInstrument} />
+        <LayoutContainer gutters className="my-4">
+          <OrderSummary checkout={checkout} chosenInstrument={chosenInstrument} />
+        </LayoutContainer>
       </Form>
     </>
   );
@@ -215,7 +223,7 @@ function CheckoutPayment({
     label: <PaymentLabel {...pi} />,
   }));
   return (
-    <LayoutContainer gutters className="mb-4">
+    <>
       <h5>{t("food:payment_title")}</h5>
       {isEmpty(checkout.availablePaymentInstruments) && (
         <Stack gap={2}>
@@ -256,7 +264,7 @@ function CheckoutPayment({
           {addPaymentLinks}
         </Stack>
       )}
-    </LayoutContainer>
+    </>
   );
 }
 
@@ -298,7 +306,7 @@ function CheckoutFulfillment({ checkout, onCheckoutChange, register, errors }) {
     label: <FulfillmentOptionLabel {...fo} />,
   }));
   return (
-    <LayoutContainer gutters className="my-4">
+    <>
       {checkout.offering.fulfillmentPrompt && (
         <h5>{checkout.offering.fulfillmentPrompt}</h5>
       )}
@@ -313,7 +321,7 @@ function CheckoutFulfillment({ checkout, onCheckoutChange, register, errors }) {
         errors={errors}
         onChange={(e) => handleCheckoutChange(e)}
       />
-    </LayoutContainer>
+    </>
   );
 }
 
@@ -336,7 +344,7 @@ function FulfillmentOptionLabel({ description, address }) {
 
 function CheckoutItems({ checkout }) {
   return (
-    <LayoutContainer gutters className="my-4">
+    <>
       <h5>{t("food:checkout_items_title")}</h5>
       {checkout.items?.map((it, idx) => {
         return (
@@ -352,7 +360,7 @@ function CheckoutItems({ checkout }) {
           {t("food:edit_quantities")}
         </RLink>
       </div>
-    </LayoutContainer>
+    </>
   );
 }
 
@@ -362,7 +370,7 @@ function OrderSummary({ checkout, chosenInstrument }) {
   // and if there's an error we'll deal with it.
   const showSubmit = checkout.checkoutProhibitedReason !== "charging_prohibited";
   return (
-    <LayoutContainer gutters className="my-4">
+    <>
       <h5>{t("food:order_summary_title")}</h5>
       <div>
         <SummaryLine
@@ -443,7 +451,7 @@ function OrderSummary({ checkout, chosenInstrument }) {
           </>
         )}
       </div>
-    </LayoutContainer>
+    </>
   );
 }
 

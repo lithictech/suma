@@ -10,7 +10,6 @@ import useAsyncFetch from "../shared/react/useAsyncFetch";
 import useUser from "../state/useUser";
 import React from "react";
 import Alert from "react-bootstrap/Alert";
-import Col from "react-bootstrap/Col";
 import Stack from "react-bootstrap/Stack";
 import { useLocation, useParams } from "react-router-dom";
 
@@ -43,7 +42,7 @@ export default function FoodCheckoutConfirmation() {
   if (loading) {
     return <PageLoader buffered />;
   }
-  const { fulfillmentOption, items, offering } = checkout;
+  const { items, offering } = checkout;
   return (
     <>
       <div className="bg-success text-white p-4">
@@ -62,7 +61,7 @@ export default function FoodCheckoutConfirmation() {
               type: "button",
               variant: "success",
               children: t("food:unclaimed_order_history_title"),
-              href: "/unclaimed-orders",
+              to: "/unclaimed-orders",
               as: RLink,
             }}
           />
@@ -72,17 +71,8 @@ export default function FoodCheckoutConfirmation() {
         )}
       </LayoutContainer>
       <hr className="my-4" />
-      {fulfillmentOption && (
-        <>
-          <LayoutContainer gutters>
-            <h4>{offering.fulfillmentConfirmation}</h4>
-            <p>{fulfillmentOption.description}</p>
-          </LayoutContainer>
-          <hr className="my-4" />
-        </>
-      )}
       <LayoutContainer gutters>
-        <h4>{t("food:confirmation_transportation_title")}</h4>
+        <h4>{offering.fulfillmentConfirmation}</h4>
         <p className="mb-0">{t("food:confirmation_transportation_subtitle")}</p>
         <FormButtons
           primaryProps={{
@@ -94,7 +84,7 @@ export default function FoodCheckoutConfirmation() {
                 {t("food:mobility_options")}
               </>
             ),
-            href: "/mobility",
+            to: "/mobility",
             as: RLink,
           }}
         />
@@ -108,24 +98,20 @@ export default function FoodCheckoutConfirmation() {
 function Item({ item }) {
   const { product, quantity } = item;
   return (
-    <>
-      <Col xs={12} className="mb-3">
-        <Stack direction="horizontal" gap={3} className="align-items-start">
-          <SumaImage
-            image={product.images[0]}
-            alt={product.name}
-            className="rounded"
-            w={90}
-            h={90}
-          />
-          <Stack>
-            <p className="mb-0 lead">{product.name}</p>
-            <p className="text-secondary mb-0">
-              {t("food:quantity", { quantity: quantity })}
-            </p>
-          </Stack>
-        </Stack>
-      </Col>
-    </>
+    <Stack direction="horizontal" gap={3} className="mb-3 align-items-start">
+      <SumaImage
+        image={product.images[0]}
+        alt={product.name}
+        className="rounded"
+        w={90}
+        h={90}
+      />
+      <Stack>
+        <p className="mb-0 lead">{product.name}</p>
+        <p className="text-secondary mb-0">
+          {t("food:quantity", { quantity: quantity })}
+        </p>
+      </Stack>
+    </Stack>
   );
 }

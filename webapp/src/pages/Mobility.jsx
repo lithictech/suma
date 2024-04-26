@@ -12,14 +12,12 @@ export default function Mobility() {
     <>
       <LayoutContainer top gutters>
         <h5>{t("mobility:title")}</h5>
-        <p className="text-secondary">{t("mobility:intro")}</p>
-        <hr />
-        {mdx("mobility:ride_connection_notice", {
+        {mdx("mobility:intro", {
           overrides: {
             a: { component: MdLink },
             p: {
               props: {
-                className: " text-secondary",
+                className: "text-secondary",
               },
             },
           },
