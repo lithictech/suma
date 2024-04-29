@@ -5,6 +5,7 @@ require "suma/postgres/model"
 
 class Suma::Commerce::Cart < Suma::Postgres::Model(:commerce_carts)
   class ProductUnavailable < StandardError; end
+  class EmptyCart < StandardError; end
 
   class ActualProductUnavailable < ProductUnavailable
     def initialize(product, offering)
@@ -171,6 +172,46 @@ class Suma::Commerce::Cart < Suma::Postgres::Model(:commerce_carts)
       md5 << item.timestamp.to_s
     end
     return md5.hexdigest
+  end
+
+  # Create a checkout from this cart.
+  # Soft delete other editable checkouts before creating a new one.
+  # When only one offering fulfillment option exists, use it, otherwise,
+  # use one from a previously editable checkout (member chose option).
+  # Ensure we raise if checkout is empty, we have unavailable products or
+  # there are insufficient item quantities available.
+  # @param [Suma::Payment::CalculationContext] context The calculation context used in the API level.
+  #   Used for consistent timing.
+  def create_checkout(context)
+    self.db.transaction do
+      self.lock!
+      existing_editable_checkout = self.checkouts_dataset.find(&:editable?)
+
+      self.member.commerce_carts.map(&:checkouts).flatten.select(&:editable?).each(&:soft_delete)
+
+      fulfillment_option = if self.offering.fulfillment_options.one?
+                             self.offering.fulfillment_options.first
+      elsif (existing_option = existing_editable_checkout&.fulfillment_option)
+        existing_option
+      end
+      checkout = Suma::Commerce::Checkout.create(
+        cart: self,
+        payment_instrument: self.member.default_payment_instrument,
+        save_payment_instrument: self.member.default_payment_instrument.present?,
+        fulfillment_option: fulfillment_option || nil,
+      )
+
+      raise EmptyCart, "no items available to checkout" if self.items.empty?
+      self.items.each do |item|
+        raise ActualProductUnavailable.new(item.product, self.offering) unless item.available_at?(context.apply_at)
+        max_available = item.cart.max_quantity_for(item.offering_product)
+        msg = "product #{item.product.name.en} quantity #{item.quantity} > max of #{max_available}"
+        raise Suma::Commerce::Checkout::MaxQuantityExceeded, msg if item.quantity > max_available
+        checkout.add_item({cart_item: item, offering_product: item.offering_product})
+      end
+
+      return checkout
+    end
   end
 end
 

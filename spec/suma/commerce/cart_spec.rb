@@ -219,4 +219,57 @@ RSpec.describe "Suma::Commerce::Cart", :db do
       expect(described_class[item.id]).to have_attributes(offering_product: be === op) # non-eager loading
     end
   end
+
+  describe "create_checkout" do
+    let(:member) { Suma::Fixtures.member.registered_as_stripe_customer.create }
+    let(:offering) { Suma::Fixtures.offering.create(max_ordered_items_cumulative: 20, max_ordered_items_per_member: 5) }
+    let!(:fulfillment) { Suma::Fixtures.offering_fulfillment_option(offering:).create }
+    let(:product) { Suma::Fixtures.product.with_categories.create }
+    let!(:offering_product) { Suma::Fixtures.offering_product(product:, offering:).create }
+    let!(:cart) { Suma::Fixtures.cart(offering:, member:).with_product(product, 2).create }
+
+    def create_checkout(cart_: cart)
+      context = Suma::Payment::CalculationContext.new(Time.now)
+      cart_.create_checkout(context)
+    end
+
+    it "soft deletes any pending checkouts" do
+      other_member_checkout = Suma::Fixtures.checkout(cart: Suma::Fixtures.cart(member:).create).create
+      completed_checkout = Suma::Fixtures.checkout(cart:).completed.create
+
+      create_checkout
+
+      expect(other_member_checkout.refresh).to be_soft_deleted
+      expect(completed_checkout.refresh).to_not be_soft_deleted
+    end
+
+    it "starts a checkout with the only offering fulfillment option available" do
+      expect(create_checkout.fulfillment_option).to eq(offering.fulfillment_options.first)
+    end
+
+    it "starts a checkout with fulfillment option from a previously editable checkout" do
+      noneditable_checkout = Suma::Fixtures.checkout(cart:).with_fulfillment_option(fulfillment).complete.create
+      existing_editable_checkout = Suma::Fixtures.checkout(cart:).with_fulfillment_option(fulfillment).create
+
+      expect(create_checkout.fulfillment_option).to eq(existing_editable_checkout.fulfillment_option)
+    end
+
+    it "raises if there are no items in the cart" do
+      cart.items.first.delete
+
+      expect { create_checkout }.to raise_error(described_class::EmptyCart)
+    end
+
+    it "raises if the available inventory is insufficient for what is in the cart" do
+      offering.update(max_ordered_items_per_member: 1)
+
+      expect { create_checkout }.to raise_error(Suma::Commerce::Checkout::MaxQuantityExceeded)
+    end
+
+    it "raises if any product is no longer available due to offering reasons" do
+      offering_product.delete
+
+      expect { create_checkout }.to raise_error(described_class::ProductUnavailable)
+    end
+  end
 end

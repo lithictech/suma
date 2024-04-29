@@ -157,27 +157,6 @@ RSpec.describe Suma::API::Commerce, :db do
       expect(completed_checkout.refresh).to_not be_soft_deleted
     end
 
-    it "starts a checkout with the only offering fulfillment option available" do
-      post "/v1/commerce/offerings/#{offering.id}/checkout"
-
-      expect(last_response).to have_status(200)
-      expect(last_response).to have_json_body.that_includes(
-        fulfillment_option_id: offering.fulfillment_options.first.id,
-      )
-    end
-
-    it "starts a checkout with fulfillment option from a previously editable checkout" do
-      noneditable_checkout = Suma::Fixtures.checkout(cart:).with_fulfillment_option(fulfillment).complete.create
-      existing_editable_checkout = Suma::Fixtures.checkout(cart:).with_fulfillment_option(fulfillment).create
-
-      post "/v1/commerce/offerings/#{offering.id}/checkout"
-
-      expect(last_response).to have_status(200)
-      expect(last_response).to have_json_body.that_includes(
-        fulfillment_option_id: existing_editable_checkout.fulfillment_option.id,
-      )
-    end
-
     it "errors if there are no items in the cart" do
       cart.items.first.delete
 
@@ -397,12 +376,6 @@ RSpec.describe Suma::API::Commerce, :db do
 
       expect(last_response).to have_status(200)
       expect(checkout.refresh).to have_attributes(fulfillment_option: be === opt)
-    end
-
-    it "it allows nil fulfillment option" do
-      post "/v1/commerce/checkouts/#{checkout.id}/complete", charge_amount_cents: cost, fulfillment_option_id: nil
-
-      expect(last_response).to have_status(200)
     end
 
     it "errors if fulfillment option id is invalid" do

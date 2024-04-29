@@ -79,39 +79,18 @@ class Suma::API::Commerce < Suma::API::V1
           offering = lookup_offering!
           check_eligibility!(offering, member)
           cart = lookup_cart!(offering)
-          cart.db.transaction do
-            cart.lock!
-            # TODO: All of this logic about creating a checkout should move to the model and be tested there,
-            # it's too much for the API level.
-            # - Other editable checkouts are soft deleted
-            # - The checkout is created with the right params and checkout items
-            # - Errors if any item is unavailable
-            # - Errors if any item has insufficient quantity available
-            # - Errors if checking out an empty cart
-            existing_editable_checkout = cart.checkouts_dataset.find(&:editable?)
-            cart.member.commerce_carts.map(&:checkouts).flatten.select(&:editable?).each(&:soft_delete)
-            checkout = Suma::Commerce::Checkout.create(
-              cart:,
-              payment_instrument: member.default_payment_instrument,
-              save_payment_instrument: member.default_payment_instrument.present?,
-            )
-            if offering.fulfillment_options.one?
-              checkout.update(fulfillment_option: offering.fulfillment_options.first)
-            elsif (fulfillment_option = existing_editable_checkout&.fulfillment_option)
-              checkout.update(fulfillment_option:)
-            end
-            ctx = new_context
-            merror!(409, "no items in cart", code: "checkout_no_items") if cart.items.empty?
-            cart.items.each do |item|
-              merror!(409, "product unavailable", code: "invalid_order_quantity") unless
-                item.available_at?(ctx.apply_at)
-              max_available = item.cart.max_quantity_for(item.offering_product)
-              merror!(409, "max quantity exceeded", code: "invalid_order_quantity") if item.quantity > max_available
-              checkout.add_item({cart_item: item, offering_product: item.offering_product})
-            end
-            status 200
-            present checkout, with: CheckoutEntity, cart:, context: ctx
+          ctx = new_context
+          begin
+            checkout = cart.create_checkout(ctx)
+          rescue Suma::Commerce::Cart::EmptyCart
+            merror!(409, "no items in cart", code: "checkout_no_items")
+          rescue Suma::Commerce::Cart::ProductUnavailable
+            merror!(409, "product unavailable", code: "invalid_order_quantity")
+          rescue Suma::Commerce::Checkout::MaxQuantityExceeded
+            merror!(409, "max quantity exceeded", code: "invalid_order_quantity")
           end
+          status 200
+          present checkout, with: CheckoutEntity, cart:, context: ctx
         end
       end
     end
