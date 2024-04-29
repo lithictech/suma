@@ -234,6 +234,7 @@ RSpec.describe Suma::API::Auth, :db, reset_configuration: Suma::Member do
         expect(last_response).to have_status(200)
         expect(Suma::Member.all).to contain_exactly(have_attributes(name: "Obama", phone: "12223334444"))
         expect(Suma::Member::Referral.last).to have_attributes(member_id: Suma::Member.last.id)
+        expect(Suma::Member::Activity.last.summary).to eq("Created from referral API")
       end
 
       it "sets the language" do
@@ -269,6 +270,19 @@ RSpec.describe Suma::API::Auth, :db, reset_configuration: Suma::Member do
 
         expect(last_response).to have_status(200)
         expect(Suma::Member::Referral.all.count).to be(0)
+      end
+    end
+
+    describe "with an organization name" do
+      it "adds a membership" do
+        org = Suma::Fixtures.organization.create
+        post("/v1/auth/contact_list", name: "Obama", phone: "(222) 333-4444", timezone:, channel: "instagram",
+                                      organization_name: org.name,)
+
+        expect(last_response).to have_status(200)
+        expect(Suma::Member.last.organization_memberships).to contain_exactly(
+          have_attributes(unverified_organization_name: org.name),
+        )
       end
     end
   end

@@ -86,6 +86,7 @@ class Suma::Member < Suma::Postgres::Model(:members)
   one_to_many :commerce_carts, class: "Suma::Commerce::Cart"
   one_to_many :anon_proxy_contacts, class: "Suma::AnonProxy::MemberContact"
   one_to_many :anon_proxy_vendor_accounts, class: "Suma::AnonProxy::VendorAccount"
+  one_to_many :organization_memberships, class: "Suma::Organization::Membership"
 
   Suma::Eligibility::Constraint::STATUSES.each do |mt|
     many_to_many "#{mt}_eligibility_constraints".to_sym,
@@ -231,6 +232,11 @@ class Suma::Member < Suma::Postgres::Model(:members)
     return self.usable_payment_instruments.first
   end
 
+  def search_label
+    lbl = "(#{self.id}) #{self.name}"
+    return lbl
+  end
+
   # @return [Suma::Member::StripeAttributes]
   def stripe
     return @stripe ||= Suma::Member::StripeAttributes.new(self)
@@ -246,6 +252,19 @@ class Suma::Member < Suma::Postgres::Model(:members)
   end
   alias message_preferences preferences
   alias message_preferences! preferences!
+
+  #
+  # :section: Organizations
+  #
+
+  def ensure_membership_in_organization(org_name)
+    org_name = org_name.strip
+    got = self.organization_memberships.find do |om|
+      om.unverified_organization_name == org_name || om.verified_organization&.name == org_name
+    end
+    return got if got
+    return self.add_organization_membership(unverified_organization_name: org_name)
+  end
 
   #
   # :section: Masking

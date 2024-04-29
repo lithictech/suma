@@ -262,4 +262,16 @@ module Suma::AdminAPI::Entities
     expose_translated :caption
     expose :url, &self.delegate_to(:uploaded_file, :absolute_url)
   end
+
+  class OrganizationEntity < BaseEntity
+    include AutoExposeBase
+    expose :name
+  end
+
+  class OrganizationMembershipEntity < BaseEntity
+    include AutoExposeBase
+    expose :member, with: MemberEntity
+    expose :verified_organization, with: OrganizationEntity
+    expose :unverified_organization_name
+  end
 end

@@ -104,6 +104,15 @@ RSpec.describe Suma::API::Me, :db do
       expect(last_response).to have_status(200)
       expect(member.refresh.legal_entity.address).to have_attributes(address1: "123 Main")
     end
+
+    it "ensures an organization membership with the given name" do
+      post "/v1/me/update", organization_name: "Hacienda ABC"
+
+      expect(last_response).to have_status(200)
+      expect(member.organization_memberships).to contain_exactly(
+        have_attributes(unverified_organization_name: "Hacienda ABC"),
+      )
+    end
   end
 
   describe "POST /v1/me/language" do

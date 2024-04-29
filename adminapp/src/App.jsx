@@ -27,6 +27,14 @@ import OfferingProductDetailPage from "./pages/OfferingProductDetailPage";
 import OfferingProductEditPage from "./pages/OfferingProductEditPage";
 import OrderDetailPage from "./pages/OrderDetailPage";
 import OrderListPage from "./pages/OrderListPage";
+import OrganizationCreatePage from "./pages/OrganizationCreatePage";
+import OrganizationDetailPage from "./pages/OrganizationDetailPage";
+import OrganizationEditPage from "./pages/OrganizationEditPage";
+import OrganizationListPage from "./pages/OrganizationListPage";
+import OrganizationMembershipCreatePage from "./pages/OrganizationMembershipCreatePage";
+import OrganizationMembershipDetailPage from "./pages/OrganizationMembershipDetailPage";
+import OrganizationMembershipEditPage from "./pages/OrganizationMembershipEditPage";
+import OrganizationMembershipListPage from "./pages/OrganizationMembershipListPage";
 import PaymentTriggerCreatePage from "./pages/PaymentTriggerCreatePage";
 import PaymentTriggerDetailPage from "./pages/PaymentTriggerDetailPage";
 import PaymentTriggerEditPage from "./pages/PaymentTriggerEditPage";
@@ -393,6 +401,62 @@ function PageSwitch() {
         exact
         path="/member/:id/edit"
         element={renderWithHocs(redirectIfUnauthed, withLayout(), MemberEditPage)}
+      />
+      <Route
+        exact
+        path="/organizations"
+        element={renderWithHocs(redirectIfUnauthed, withLayout(), OrganizationListPage)}
+      />
+      <Route
+        exact
+        path="/organization/:id"
+        element={renderWithHocs(redirectIfUnauthed, withLayout(), OrganizationDetailPage)}
+      />
+      <Route
+        exact
+        path="/organization/new"
+        element={renderWithHocs(redirectIfUnauthed, withLayout(), OrganizationCreatePage)}
+      />
+      <Route
+        exact
+        path="/organization/:id/edit"
+        element={renderWithHocs(redirectIfUnauthed, withLayout(), OrganizationEditPage)}
+      />
+      <Route
+        exact
+        path="/memberships"
+        element={renderWithHocs(
+          redirectIfUnauthed,
+          withLayout(),
+          OrganizationMembershipListPage
+        )}
+      />
+      <Route
+        exact
+        path="/membership/:id"
+        element={renderWithHocs(
+          redirectIfUnauthed,
+          withLayout(),
+          OrganizationMembershipDetailPage
+        )}
+      />
+      <Route
+        exact
+        path="/membership/new"
+        element={renderWithHocs(
+          redirectIfUnauthed,
+          withLayout(),
+          OrganizationMembershipCreatePage
+        )}
+      />
+      <Route
+        exact
+        path="/membership/:id/edit"
+        element={renderWithHocs(
+          redirectIfUnauthed,
+          withLayout(),
+          OrganizationMembershipEditPage
+        )}
       />
       <Route
         exact

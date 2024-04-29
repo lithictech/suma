@@ -8,6 +8,14 @@ class Suma::AdminAPI::Search < Suma::AdminAPI::V1
   include Suma::AdminAPI::Entities
 
   resource :search do
+    helpers do
+      def ds_search_or_order_by(column_sym, ds, params)
+        if (namelike = search_param_to_sql(params, column_sym, param: :q))
+          return ds.where(namelike)
+        end
+        return ds.order(column_sym)
+      end
+    end
     resource :ledgers do
       params do
         optional :q, type: String
@@ -179,14 +187,32 @@ class Suma::AdminAPI::Search < Suma::AdminAPI::V1
     end
     post :vendors do
       ds = Suma::Vendor.dataset
-      ds = if (namelike = search_param_to_sql(params, :name, param: :q))
-             ds.where(namelike)
-      else
-        ds.order(:name)
-      end
+      ds = ds_search_or_order_by(:name, ds, params)
       ds = ds.limit(15)
       status 200
       present_collection ds, with: SearchVendorEntity
+    end
+
+    params do
+      optional :q, type: String
+    end
+    post :members do
+      ds = Suma::Member.dataset.not_soft_deleted
+      ds = ds_search_or_order_by(:name, ds, params)
+      ds = ds.limit(15)
+      status 200
+      present_collection ds, with: SearchMemberEntity
+    end
+
+    params do
+      optional :q, type: String
+    end
+    post :organizations do
+      ds = Suma::Organization.dataset
+      ds = ds_search_or_order_by(:name, ds, params)
+      ds = ds.limit(15)
+      status 200
+      present_collection ds, with: SearchOrganizationEntity
     end
   end
 
@@ -235,6 +261,22 @@ class Suma::AdminAPI::Search < Suma::AdminAPI::V1
     expose :id
     expose :slug
     expose :admin_link
+    expose :name, as: :label
+  end
+
+  class SearchMemberEntity < BaseEntity
+    expose :key, &self.delegate_to(:id, :to_s)
+    expose :id
+    expose :admin_link
+    expose :name
+    expose :search_label, as: :label
+  end
+
+  class SearchOrganizationEntity < BaseEntity
+    expose :key, &self.delegate_to(:id, :to_s)
+    expose :id
+    expose :admin_link
+    expose :name
     expose :name, as: :label
   end
 end

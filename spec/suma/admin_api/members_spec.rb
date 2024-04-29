@@ -173,6 +173,47 @@ RSpec.describe Suma::AdminAPI::Members, :db do
       )
     end
 
+    it "removes/updates/creates memberships for the member if given" do
+      member = Suma::Fixtures.member.create
+      fac = Suma::Fixtures.organization_membership(member:)
+      membership_to_delete = fac.verified.create
+      membership_to_update = fac.verified.create
+      unverified_membership_to_verify = fac.unverified.create
+      unverified_membership_no_update = fac.unverified.create
+      new_org = Suma::Fixtures.organization.create(name: "Affordable Housing Program")
+      org_update1 = Suma::Fixtures.organization.create
+      org_update2 = Suma::Fixtures.organization.create
+      org_for_new_membership = Suma::Fixtures.organization.create
+
+      post "/v1/members/#{member.id}",
+           organization_memberships: [
+             {
+               id: membership_to_update.id,
+               verified_organization: {id: org_update1.id},
+             },
+             {
+               id: unverified_membership_to_verify.id,
+               verified_organization: {id: org_update2.id},
+             },
+             {
+               id: unverified_membership_no_update.id,
+               verified_organization: nil,
+             },
+             {
+               verified_organization: {id: org_for_new_membership.id},
+             },
+           ]
+
+      expect(last_response).to have_status(200)
+      expect(membership_to_delete).to be_destroyed
+      expect(member.refresh.organization_memberships).to contain_exactly(
+        have_attributes(id: membership_to_update.id, verified_organization: be === org_update1),
+        have_attributes(id: unverified_membership_to_verify.id, verified_organization: be === org_update2),
+        have_attributes(id: unverified_membership_no_update.id, verified_organization: nil),
+        have_attributes(verified_organization: be === org_for_new_membership),
+      )
+    end
+
     it "reassigns legal entity if just an ID is given" do
       legal_entity1 = Suma::Fixtures.legal_entity.create
       legal_entity2 = Suma::Fixtures.legal_entity.create

@@ -2,6 +2,7 @@ import api from "../api";
 import FormButtons from "../components/FormButtons";
 import FormControlGroup from "../components/FormControlGroup";
 import FormError from "../components/FormError";
+import OrganizationInputDropdown from "../components/OrganizationInputDropdown";
 import { mdp, t } from "../localization";
 import keepDigits from "../modules/keepDigits";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
@@ -34,6 +35,7 @@ export default function OnboardingSignup() {
   const [city, setCity] = React.useState("");
   const [state, setState] = React.useState("");
   const [zipCode, setZipCode] = React.useState("");
+  const [organizationName, setOrganizationName] = React.useState("");
   const handleFormSubmit = () => {
     api
       .updateMe({
@@ -45,6 +47,7 @@ export default function OnboardingSignup() {
           state_or_province: state,
           postal_code: zipCode,
         },
+        organizationName,
       })
       .then((r) => {
         setUser(r.data);
@@ -62,7 +65,7 @@ export default function OnboardingSignup() {
   };
 
   const handleInputChange = (e, set) => {
-    runSetter(e.target.name, set, e.target.value);
+    runSetter(e.target.name, set, e.target.value || "");
   };
 
   const handleZipChange = (e) => {
@@ -74,7 +77,6 @@ export default function OnboardingSignup() {
     default: {},
     pickData: true,
   });
-
   return (
     <>
       <h2 className="page-header">{t("onboarding:enroll_title")}</h2>
@@ -138,12 +140,11 @@ export default function OnboardingSignup() {
             <option disabled value="">
               {t("forms:choose_state")}
             </option>
-            {!!supportedGeographies.provinces &&
-              supportedGeographies.provinces.map((state) => (
-                <option key={state.value} value={state.value}>
-                  {state.label}
-                </option>
-              ))}
+            {supportedGeographies.provinces?.map((state) => (
+              <option key={state.value} value={state.value}>
+                {state.label}
+              </option>
+            ))}
           </FormControlGroup>
           <FormControlGroup
             as={Col}
@@ -160,6 +161,14 @@ export default function OnboardingSignup() {
             onChange={handleZipChange}
           />
         </Row>
+        <OrganizationInputDropdown
+          organizationName={organizationName}
+          onOrganizationNameChange={(name) =>
+            runSetter("organizationName", setOrganizationName, name)
+          }
+          register={register}
+          errors={errors}
+        />
         <FormError error={error} />
         <FormButtons
           variant="outline-primary"

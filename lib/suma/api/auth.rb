@@ -97,6 +97,7 @@ class Suma::API::Auth < Suma::API::V1
       requires :timezone, type: String, values: ALL_TIMEZONES
       optional :event_name, type: String
       optional :language, type: String, values: Suma::I18n.enabled_locale_codes
+      optional :organization_name, type: String
     end
     post :contact_list do
       guard_authed!
@@ -130,6 +131,7 @@ class Suma::API::Auth < Suma::API::V1
             subject_id: member.id,
           )
         end
+        member.ensure_membership_in_organization(params[:organization_name]) if params.key?(:organization_name)
         status 200
       end
     end

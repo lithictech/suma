@@ -333,4 +333,31 @@ RSpec.describe "Suma::Member", :db do
       )
     end
   end
+
+  describe "organizations" do
+    describe "ensure_membership_in_organization" do
+      let(:m) { Suma::Fixtures.member.create }
+      let(:o) { Suma::Fixtures.organization.create }
+
+      it "reuses an existing verified membership" do
+        membership = m.add_organization_membership(verified_organization: o)
+        expect(m.ensure_membership_in_organization(o.name)).to be === membership
+      end
+
+      it "reuses an existing unverified membership" do
+        membership = m.add_organization_membership(unverified_organization_name: o.name)
+        expect(m.ensure_membership_in_organization(o.name)).to be === membership
+      end
+
+      it "creates a new unverified membership" do
+        membership = m.ensure_membership_in_organization(o.name)
+        expect(membership).to have_attributes(member: be === m, verified?: false)
+      end
+
+      it "strips whitespace" do
+        membership = m.ensure_membership_in_organization(" abc ")
+        expect(membership).to have_attributes(unverified_organization_name: "abc")
+      end
+    end
+  end
 end

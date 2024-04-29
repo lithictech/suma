@@ -54,5 +54,11 @@ class Suma::API::Meta < Suma::API::V1
       resp = {lat: r.fetch("lat"), lng: r.fetch("lon")}
       present(resp)
     end
+
+    get :supported_organizations do
+      use_http_expires_caching 30.minutes
+      orgs = Suma::Organization.order(:name).all.map { |o| {name: o.name} }
+      present_collection orgs
+    end
   end
 end

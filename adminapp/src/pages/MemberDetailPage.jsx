@@ -20,7 +20,6 @@ import { Divider, Typography, MenuItem, Select, Switch, Chip } from "@mui/materi
 import Button from "@mui/material/Button";
 import IconButton from "@mui/material/IconButton";
 import { makeStyles } from "@mui/styles";
-import _ from "lodash";
 import capitalize from "lodash/capitalize";
 import isEmpty from "lodash/isEmpty";
 import React from "react";
@@ -112,6 +111,7 @@ export default function MemberDetailPage() {
               memberId={id}
               replaceMemberData={setModel}
             />
+            <OrganizationMemberships memberships={model.organizationMemberships} />
             <Activities activities={model.activities} />
             <Orders orders={model.orders} />
             <Charges charges={model.charges} />
@@ -176,7 +176,7 @@ function EligibilityConstraints({ memberConstraints, memberId, replaceMemberData
 
   if (!editing) {
     const properties = [];
-    if (_.isEmpty(memberConstraints)) {
+    if (isEmpty(memberConstraints)) {
       properties.push({
         label: "*",
         value:
@@ -261,7 +261,7 @@ function EligibilityConstraints({ memberConstraints, memberId, replaceMemberData
   const availableConstraints = eligibilityConstraints.items.filter(
     (c) => !existingConstraintIds.includes(c.id)
   );
-  if (!_.isEmpty(availableConstraints)) {
+  if (!isEmpty(availableConstraints)) {
     properties.push({
       label: "Add Constraint",
       children: (
@@ -313,6 +313,28 @@ function ConstraintStatus({ activeStatus, statuses, onChange }) {
         ))}
       </Select>
     </div>
+  );
+}
+
+function OrganizationMemberships({ memberships }) {
+  return (
+    <RelatedList
+      title="Organization Memberships"
+      headers={["Id", "Created At", "Organization"]}
+      rows={memberships}
+      keyRowAttr="id"
+      toCells={(row) => [
+        <AdminLink key="id" model={row} />,
+        dayjs(row.createdAt).format("lll"),
+        row.verifiedOrganization ? (
+          <AdminLink model={row.verifiedOrganization}>
+            {row.verifiedOrganization.name}
+          </AdminLink>
+        ) : (
+          row.unverifiedOrganizationName
+        ),
+      ]}
+    />
   );
 }
 
