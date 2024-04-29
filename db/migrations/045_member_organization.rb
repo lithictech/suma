@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "sequel/unambiguous_constraint"
+
 Sequel.migration do
   change do
     create_table(:organizations) do
@@ -14,9 +16,13 @@ Sequel.migration do
       timestamptz :created_at, null: false, default: Sequel.function(:now)
       timestamptz :updated_at
 
-      foreign_key :member_id, :members, null: false, index: true
       foreign_key :organization_id, :organizations, null: false, index: true
-      index [:member_id, :organization_id], unique: true
+      foreign_key :verified_member_id, :members, index: true
+      foreign_key :unverified_member_id, :members, index: true
+      constraint(
+        :unambiguous_member,
+        Sequel.unambiguous_constraint([:verified_member_id, :unverified_member_id]),
+      )
     end
   end
 end

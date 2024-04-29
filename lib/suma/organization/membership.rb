@@ -7,8 +7,11 @@ class Suma::Organization::Membership < Suma::Postgres::Model(:organization_membe
   include Suma::AdminLinked
   plugin :timestamps
 
-  many_to_one :organization, key: :organization_id, class: "Suma::Organization"
-  many_to_one :member, class: "Suma::Member"
+  many_to_one :organization, class: "Suma::Organization"
+  many_to_one :verified_member, class: "Suma::Member"
+  many_to_one :unverified_member, class: "Suma::Member"
+
+  def member = self.verified_member || self.unverified_member
 
   def rel_admin_link = "/membership/#{self.id}"
 end

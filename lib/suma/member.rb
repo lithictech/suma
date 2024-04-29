@@ -86,7 +86,8 @@ class Suma::Member < Suma::Postgres::Model(:members)
   one_to_many :commerce_carts, class: "Suma::Commerce::Cart"
   one_to_many :anon_proxy_contacts, class: "Suma::AnonProxy::MemberContact"
   one_to_many :anon_proxy_vendor_accounts, class: "Suma::AnonProxy::VendorAccount"
-  one_to_many :memberships, class: "Suma::Organization::Membership"
+  one_to_many :verified_organization_memberships, class: "Suma::Organization::Membership", key: :verified_member_id
+  one_to_many :unverified_organization_memberships, class: "Suma::Organization::Membership", key: :unverified_member_id
 
   Suma::Eligibility::Constraint::STATUSES.each do |mt|
     many_to_many "#{mt}_eligibility_constraints".to_sym,
@@ -104,10 +105,6 @@ class Suma::Member < Suma::Postgres::Model(:members)
 
     def with_normalized_phone(*phones)
       return self.where(phone: phones)
-    end
-
-    def usable
-      return self.not_soft_deleted
     end
   end
 
@@ -256,6 +253,18 @@ class Suma::Member < Suma::Postgres::Model(:members)
   end
   alias message_preferences preferences
   alias message_preferences! preferences!
+
+  #
+  # :section: Organizations
+  #
+
+  def all_organization_memberships = self.verified_organization_memberships + self.unverified_organization_memberships
+
+  def ensure_membership_in_organization(org)
+    got = self.all_organization_memberships.find { |om| om.organization === org }
+    return got if got
+    return self.add_unverified_organization_membership(organization: org)
+  end
 
   #
   # :section: Masking

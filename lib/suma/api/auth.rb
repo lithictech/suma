@@ -97,15 +97,13 @@ class Suma::API::Auth < Suma::API::V1
       requires :timezone, type: String, values: ALL_TIMEZONES
       optional :event_name, type: String
       optional :language, type: String, values: Suma::I18n.enabled_locale_codes
-      optional :organization, type: JSON do
-        optional :name, type: String, allow_blank: false
-      end
+      optional :organization_name, type: String
     end
     post :contact_list do
       guard_authed!
       Suma::Member.db.transaction do
         member = Suma::Member.with_us_phone(params[:phone])
-        org_name = params[:organization][:name]
+        org = Suma::Organization[name: params[:organization_name]]
         if member.nil?
           member = Suma::Member.new(
             phone: params[:phone],
@@ -114,18 +112,14 @@ class Suma::API::Auth < Suma::API::V1
             timezone: params[:timezone],
           )
           save_or_error!(member)
-          org = Suma::Organization[name: org_name]
-          mem_org_membership = member.add_membership(organization: org) if org
           Suma::Member::Referral.create(
             member:,
             channel: params[:channel],
             event_name: params[:event_name] || "",
           )
-          summary = ["Created from referral API"]
-          summary << "with external affiliated organization: #{org_name}" if mem_org_membership.nil? && org_name
           member.add_activity(
             message_name: "registered",
-            summary: summary.join(" "),
+            summary: "Created from referral API",
             subject_type: "Suma::Member",
             subject_id: member.id,
           )
@@ -133,12 +127,12 @@ class Suma::API::Auth < Suma::API::V1
         else
           member.add_activity(
             message_name: "added_to_contact_list",
-            summary: "Added to contact list (channel: #{params[:channel]}, event_name: #{params[:event_name] || ''}, " \
-                     "organization_name: #{org_name})",
+            summary: "Added to contact list (channel: #{params[:channel]}, event_name: #{params[:event_name] || ''})",
             subject_type: "Suma::Member",
             subject_id: member.id,
           )
         end
+        member.ensure_membership_in_organization(org) if org
         status 200
       end
     end

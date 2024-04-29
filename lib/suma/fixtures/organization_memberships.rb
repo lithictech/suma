@@ -14,7 +14,17 @@ module Suma::Fixtures::OrganizationMemberships
 
   before_saving do |instance|
     instance.organization ||= Suma::Fixtures.organization.create
-    instance.member ||= Suma::Fixtures.member.create
+    raise "must call .verified or .unverified" if instance.member.nil?
     instance
+  end
+
+  decorator :verified do |o={}|
+    o = Suma::Fixtures.member(o).create unless o.is_a?(Suma::Member)
+    self.verified_member = o
+  end
+
+  decorator :unverified do |o={}|
+    o = Suma::Fixtures.member(o).create unless o.is_a?(Suma::Member)
+    self.unverified_member = o
   end
 end

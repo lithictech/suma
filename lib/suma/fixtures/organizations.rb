@@ -16,4 +16,14 @@ module Suma::Fixtures::Organizations
   before_saving do |instance|
     instance
   end
+
+  decorator :with_verified_membership, presave: true do |member={}|
+    member = Suma::Fixtures.member(**member).create unless member.is_a?(Suma::Member)
+    self.add_membership(verified_member: member)
+  end
+
+  decorator :with_unverified_membership, presave: true do |member={}|
+    member = Suma::Fixtures.member(**member).create unless member.is_a?(Suma::Member)
+    self.add_membership(unverified_member: member)
+  end
 end

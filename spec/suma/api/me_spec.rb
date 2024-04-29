@@ -105,7 +105,7 @@ RSpec.describe Suma::API::Me, :db do
       expect(member.refresh.legal_entity.address).to have_attributes(address1: "123 Main")
     end
 
-    it "can create an organization membership for the member" do
+    it "ensures an organization for the " do
       org = Suma::Fixtures.organization.create(name: "Hacienda ABC")
 
       post "/v1/me/update", organization: {name: org.name}

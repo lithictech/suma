@@ -227,33 +227,19 @@ RSpec.describe Suma::API::Auth, :db, reset_configuration: Suma::Member do
     end
 
     describe "when the phone number does not exist" do
-      it "creates a member, organization membership and referral with the given phone number and parameters" do
-        org = Suma::Fixtures.organization.create
+      it "creates a member and referral with the given phone number and parameters" do
         post("/v1/auth/contact_list", name: "Obama", phone: "(222) 333-4444", timezone:, channel: "instagram",
-                                      event_name: "marketplace_event_123", organization: {name: org.name},)
+                                      event_name: "marketplace_event_123",)
 
         expect(last_response).to have_status(200)
         expect(Suma::Member.all).to contain_exactly(have_attributes(name: "Obama", phone: "12223334444"))
         expect(Suma::Member::Referral.last).to have_attributes(member_id: Suma::Member.last.id)
-        expect(Suma::Organization::Membership.last).to have_attributes(
-          member_id: Suma::Member.last.id,
-          organization: org,
-        )
         expect(Suma::Member::Activity.last.summary).to eq("Created from referral API")
-      end
-
-      it "adds external organization name to summary when it does not exist" do
-        post("/v1/auth/contact_list", name: "Obama", phone: "(222) 333-4444", timezone:, channel: "instagram",
-                                      event_name: "marketplace_event_123", organization: {name: "external org name"},)
-
-        expect(last_response).to have_status(200)
-        summary = "Created from referral API with external affiliated organization: external org name"
-        expect(Suma::Member::Activity.last.summary).to eq(summary)
       end
 
       it "sets the language" do
         post("/v1/auth/contact_list", name: "Obama", phone: "(222) 333-4444", timezone:, channel: "instagram",
-                                      language: "es", organization: {name: "org name"},)
+                                      language: "es",)
 
         expect(last_response).to have_status(200)
         expect(Suma::Member.last.message_preferences!).to have_attributes(preferred_language: "es")
@@ -264,17 +250,15 @@ RSpec.describe Suma::API::Auth, :db, reset_configuration: Suma::Member do
       it "creates a member activity for contact list sign up" do
         m = Suma::Fixtures.member.create(phone: 12_223_334_444)
         post("/v1/auth/contact_list", name: "Obama", phone: "(222) 333-4444", timezone:, channel: "instagram",
-                                      event_name: "marketplace_event_123", organization: {name: "external org"},)
-        summary = "Added to contact list (channel: instagram, event_name: marketplace_event_123, " \
-                  "organization_name: external org)"
+                                      event_name: "marketplace_event_123",)
+        summary = "Added to contact list (channel: instagram, event_name: marketplace_event_123)"
         expect(m.activities.last).to have_attributes(summary:)
         expect(last_response).to have_status(200)
       end
 
       it "does not update member" do
         m = Suma::Fixtures.member.create(phone: 12_223_334_455, name: "Amabo")
-        post("/v1/auth/contact_list", name: "Obama", phone: "(222) 333-4444", timezone:, channel: "instagram",
-                                      organization: {name: "external org"},)
+        post("/v1/auth/contact_list", name: "Obama", phone: "(222) 333-4444", timezone:, channel: "instagram")
 
         expect(last_response).to have_status(200)
         expect(m).to have_attributes(phone: "12223334455", name: "Amabo")
@@ -282,11 +266,30 @@ RSpec.describe Suma::API::Auth, :db, reset_configuration: Suma::Member do
 
       it "does not create new member referral" do
         Suma::Fixtures.member.create(phone: 12_223_334_444)
-        post("/v1/auth/contact_list", name: "Obama", phone: "(222) 333-4444", timezone:, channel: "instagram",
-                                      organization: {name: "external org"},)
+        post("/v1/auth/contact_list", name: "Obama", phone: "(222) 333-4444", timezone:, channel: "instagram")
 
         expect(last_response).to have_status(200)
         expect(Suma::Member::Referral.all.count).to be(0)
+      end
+    end
+
+    describe "with an organization name" do
+      it "adds a membership if the org exists" do
+        org = Suma::Fixtures.organization.create
+        post("/v1/auth/contact_list", name: "Obama", phone: "(222) 333-4444", timezone:, channel: "instagram",
+                                      organization_name: org.name,)
+
+        expect(last_response).to have_status(200)
+        expect(org.unverified_memberships).to contain_exactly(have_attributes(member: have_attributes(name: "Obama")))
+      end
+
+      it "noops if the org does not exist" do
+        me = Suma::Fixtures.member.create
+        post("/v1/auth/contact_list", name: "Obama", phone: me.phone, timezone:, channel: "instagram",
+                                      organization_name: "abcd",)
+
+        expect(last_response).to have_status(200)
+        expect(me.all_organization_memberships).to be_empty
       end
     end
   end
