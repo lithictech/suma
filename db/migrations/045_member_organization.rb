@@ -16,12 +16,13 @@ Sequel.migration do
       timestamptz :created_at, null: false, default: Sequel.function(:now)
       timestamptz :updated_at
 
-      foreign_key :organization_id, :organizations, null: false, index: true
-      foreign_key :verified_member_id, :members, index: true
-      foreign_key :unverified_member_id, :members, index: true
+      foreign_key :verified_organization_id, :organizations, index: true
+      text :unverified_organization_name
+
+      foreign_key :member_id, :members, index: true
       constraint(
-        :unambiguous_member,
-        Sequel.unambiguous_constraint([:verified_member_id, :unverified_member_id]),
+        :unambiguous_verification_status,
+        Sequel.unambiguous_constraint([:verified_organization_id, :unverified_organization_name]),
       )
     end
   end

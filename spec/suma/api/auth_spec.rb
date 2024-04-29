@@ -274,22 +274,15 @@ RSpec.describe Suma::API::Auth, :db, reset_configuration: Suma::Member do
     end
 
     describe "with an organization name" do
-      it "adds a membership if the org exists" do
+      it "adds a membership" do
         org = Suma::Fixtures.organization.create
         post("/v1/auth/contact_list", name: "Obama", phone: "(222) 333-4444", timezone:, channel: "instagram",
                                       organization_name: org.name,)
 
         expect(last_response).to have_status(200)
-        expect(org.unverified_memberships).to contain_exactly(have_attributes(member: have_attributes(name: "Obama")))
-      end
-
-      it "noops if the org does not exist" do
-        me = Suma::Fixtures.member.create
-        post("/v1/auth/contact_list", name: "Obama", phone: me.phone, timezone:, channel: "instagram",
-                                      organization_name: "abcd",)
-
-        expect(last_response).to have_status(200)
-        expect(me.all_organization_memberships).to be_empty
+        expect(Suma::Member.last.organization_memberships).to contain_exactly(
+          have_attributes(unverified_organization_name: org.name),
+        )
       end
     end
   end

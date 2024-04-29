@@ -24,16 +24,6 @@ RSpec.describe "Suma::Member", :db do
 
       expect(member.orders).to contain_exactly(be === o)
     end
-
-    it "has verified and unverified organization memberships" do
-      me = Suma::Fixtures.member.create
-      verified_org = Suma::Fixtures.organization.create
-      unverified_org = Suma::Fixtures.organization.create
-      verified_mem = me.add_verified_organization_membership(organization: verified_org)
-      unverified_mem = me.add_unverified_organization_membership(organization: unverified_org)
-      expect(verified_org.verified_memberships).to have_same_ids_as(verified_mem)
-      expect(unverified_org.unverified_memberships).to have_same_ids_as(unverified_mem)
-    end
   end
 
   describe "greeting" do
@@ -349,18 +339,18 @@ RSpec.describe "Suma::Member", :db do
       let(:m) { Suma::Fixtures.member.create }
       let(:o) { Suma::Fixtures.organization.create }
       it "reuses an existing verified membership" do
-        membership = m.add_verified_organization_membership(organization: o)
-        expect(m.ensure_membership_in_organization(o)).to be === membership
+        membership = m.add_organization_membership(verified_organization: o)
+        expect(m.ensure_membership_in_organization(o.name)).to be === membership
       end
 
       it "reuses an existing unverified membership" do
-        membership = m.add_unverified_organization_membership(organization: o)
-        expect(m.ensure_membership_in_organization(o)).to be === membership
+        membership = m.add_organization_membership(unverified_organization_name: o.name)
+        expect(m.ensure_membership_in_organization(o.name)).to be === membership
       end
 
       it "creates a new unverified membership" do
-        membership = m.ensure_membership_in_organization(o)
-        expect(membership.unverified_member).to be === m
+        membership = m.ensure_membership_in_organization(o.name)
+        expect(membership).to have_attributes(member: be === m, verified?: false)
       end
     end
   end

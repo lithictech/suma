@@ -29,31 +29,18 @@ class Suma::API::Me < Suma::API::V1
       optional :address, type: JSON do
         use :address
       end
-      optional :organization, type: JSON do
-        optional :name, type: String, allow_blank: false
-      end
+      optional :organization_name, type: String, allow_blank: false
     end
     post :update do
       member = current_member
       member.db.transaction do
-        set_declared(member, params, ignore: [:address, :organization])
+        set_declared(member, params, ignore: [:address, :organization_name])
         save_or_error!(member)
         if params.key?(:address)
           member.legal_entity.address = Suma::Address.lookup(params[:address])
           save_or_error!(member.legal_entity)
         end
-        if params.key?(:organization)
-          org = Suma::Organization[name: params[:organization][:name]]
-          membership = member.add_membership(organization: org) if org
-          if membership.nil?
-            member.add_activity(
-              message_name: "affiliatedorganization",
-              summary: "Added external affiliated organization: #{params[:organization][:name]}",
-              subject_type: "Suma::Member",
-              subject_id: member.id,
-            )
-          end
-        end
+        member.ensure_membership_in_organization(params[:organization_name]) if params.key?(:organization_name)
       end
       status 200
       present member, with: CurrentMemberEntity, env:

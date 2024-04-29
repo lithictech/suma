@@ -103,7 +103,6 @@ class Suma::API::Auth < Suma::API::V1
       guard_authed!
       Suma::Member.db.transaction do
         member = Suma::Member.with_us_phone(params[:phone])
-        org = Suma::Organization[name: params[:organization_name]]
         if member.nil?
           member = Suma::Member.new(
             phone: params[:phone],
@@ -132,7 +131,7 @@ class Suma::API::Auth < Suma::API::V1
             subject_id: member.id,
           )
         end
-        member.ensure_membership_in_organization(org) if org
+        member.ensure_membership_in_organization(params[:organization_name]) if params.key?(:organization_name)
         status 200
       end
     end
