@@ -65,15 +65,6 @@ class Suma::AdminAPI::Members < Suma::AdminAPI::V1
     expose :subscriptions, with: PreferencesSubscriptionEntity
   end
 
-  class SimpleOrganizationEntity < BaseEntity
-    expose :id
-    expose :name
-  end
-
-  class SimpleMembershipEntity < MembershipEntity
-    expose :organization, with: SimpleOrganizationEntity
-  end
-
   class DetailedMemberEntity < MemberEntity
     include Suma::AdminAPI::Entities
     include AutoExposeDetail
@@ -101,7 +92,7 @@ class Suma::AdminAPI::Members < Suma::AdminAPI::V1
     expose :message_deliveries, with: MessageDeliveryEntity
     expose :preferences!, as: :preferences, with: PreferencesEntity
     expose :anon_proxy_vendor_accounts, as: :vendor_accounts, with: MemberVendorAccountEntity
-    expose :memberships, with: SimpleMembershipEntity
+    expose :organization_memberships, with: OrganizationMembershipEntity
   end
 
   ALL_TIMEZONES = Set.new(TZInfo::Timezone.all_identifiers)
@@ -173,9 +164,9 @@ class Suma::AdminAPI::Members < Suma::AdminAPI::V1
             use :address
           end
         end
-        optional :memberships, type: Array[JSON] do
-          optional(:member, type: JSON) { use :model_with_id }
-          optional(:organization, type: JSON) { use :model_with_id }
+        optional :organization_memberships, type: Array[JSON] do
+          optional :id, type: Integer
+          optional(:verified_organization, type: JSON) { use :model_with_id }
         end
       end
     end

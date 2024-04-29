@@ -263,19 +263,15 @@ module Suma::AdminAPI::Entities
     expose :url, &self.delegate_to(:uploaded_file, :absolute_url)
   end
 
-  class MembershipEntity < BaseEntity
-    include AutoExposeBase
-    expose :id
-    expose :member, with: MemberEntity
-  end
-
   class OrganizationEntity < BaseEntity
     include AutoExposeBase
     expose :name
-    expose :memberships, with: MembershipEntity
   end
 
-  class DetailedMembershipEntity < MembershipEntity
-    expose :organization, with: OrganizationEntity
+  class OrganizationMembershipEntity < BaseEntity
+    include AutoExposeBase
+    expose :member, with: MemberEntity
+    expose :verified_organization, with: OrganizationEntity
+    expose :unverified_organization_name
   end
 end

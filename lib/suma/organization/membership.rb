@@ -13,5 +13,10 @@ class Suma::Organization::Membership < Suma::Postgres::Model(:organization_membe
   def verified? = !self.verified_organization.nil?
   def unverified? = !self.verified?
 
+  def verified_organization_id=(id)
+    self.unverified_organization_name = nil unless id.nil?
+    self[:verified_organization_id] = id
+  end
+
   def rel_admin_link = "/membership/#{self.id}"
 end

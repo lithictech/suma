@@ -197,7 +197,7 @@ class Suma::AdminAPI::Search < Suma::AdminAPI::V1
       optional :q, type: String
     end
     post :members do
-      ds = Suma::Member.usable
+      ds = Suma::Member.dataset.not_soft_deleted
       ds = ds_search_or_order_by(:name, ds, params)
       ds = ds.limit(15)
       status 200

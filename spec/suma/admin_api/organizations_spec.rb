@@ -72,20 +72,14 @@ RSpec.describe Suma::AdminAPI::Organizations, :db do
   describe "GET /v1/organizations/:id" do
     it "returns the organization" do
       organization = Suma::Fixtures.organization.create
-      member = Suma::Fixtures.member.create
-      membership = Suma::Fixtures.organization_membership.create(member:, organization:)
+      membership = Suma::Fixtures.organization_membership.verified(organization).create
 
       get "/v1/organizations/#{organization.id}"
 
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.that_includes(
         id: organization.id,
-        memberships: contain_exactly(
-          include(
-            id: membership.id,
-            member: include(id: member.id),
-          ),
-        ),
+        memberships: have_same_ids_as(membership),
       )
     end
 

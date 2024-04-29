@@ -175,51 +175,43 @@ RSpec.describe Suma::AdminAPI::Members, :db do
 
     it "removes/updates/creates memberships for the member if given" do
       member = Suma::Fixtures.member.create
-      membership_to_delete = Suma::Fixtures.organization_membership(member:).create
-      membership_to_update = Suma::Fixtures.organization_membership(member:).create
+      fac = Suma::Fixtures.organization_membership(member:)
+      membership_to_delete = fac.verified.create
+      membership_to_update = fac.verified.create
+      unverified_membership_to_verify = fac.unverified.create
+      unverified_membership_no_update = fac.unverified.create
       new_org = Suma::Fixtures.organization.create(name: "Affordable Housing Program")
-      org_update = Suma::Fixtures.organization.create
+      org_update1 = Suma::Fixtures.organization.create
+      org_update2 = Suma::Fixtures.organization.create
+      org_for_new_membership = Suma::Fixtures.organization.create
 
       post "/v1/members/#{member.id}",
-           memberships: [
+           organization_memberships: [
              {
                id: membership_to_update.id,
-               organization: {id: org_update.id, name: org_update.name},
-               member: {id: member.id},
+               verified_organization: {id: org_update1.id},
              },
              {
-               organization: {id: new_org.id, name: new_org.name},
-               member: {id: member.id},
+               id: unverified_membership_to_verify.id,
+               verified_organization: {id: org_update2.id},
+             },
+             {
+               id: unverified_membership_no_update.id,
+               verified_organization: nil,
+             },
+             {
+               verified_organization: {id: org_for_new_membership.id},
              },
            ]
 
       expect(last_response).to have_status(200)
-      expect(member.memberships).to have_length(2)
-      expect(member.memberships[0]).to have_attributes(id: membership_to_update.id, organization: org_update)
-      expect(member.memberships[1]).to have_attributes(organization: new_org)
       expect(membership_to_delete).to be_destroyed
-    end
-
-    it "errors with a 409 if a unique constraint is violated" do
-      member = Suma::Fixtures.member.create
-      organization = Suma::Fixtures.organization.create
-      membership = Suma::Fixtures.organization_membership(member:, organization:).create
-
-      post "/v1/members/#{member.id}",
-           memberships: [
-             {
-               id: membership.id,
-               organization: {id: organization.id, name: organization.name},
-               member: {id: member.id},
-             },
-             {
-               organization: {id: organization.id},
-               member: {id: member.id},
-             },
-           ]
-
-      expect(last_response).to have_status(409)
-      expect(last_response).to have_json_body.that_includes(error: include(message: /could not be added/))
+      expect(member.refresh.organization_memberships).to contain_exactly(
+        have_attributes(id: membership_to_update.id, verified_organization: be === org_update1),
+        have_attributes(id: unverified_membership_to_verify.id, verified_organization: be === org_update2),
+        have_attributes(id: unverified_membership_no_update.id, verified_organization: nil),
+        have_attributes(verified_organization: be === org_for_new_membership),
+      )
     end
 
     it "reassigns legal entity if just an ID is given" do
