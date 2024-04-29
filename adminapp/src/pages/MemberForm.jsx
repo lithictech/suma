@@ -78,8 +78,8 @@ export default function MemberForm({
         />
         <Divider />
         <OrganizationMemberships
-          memberships={resource.memberships}
-          setMemberships={(ms) => setField("memberships", ms)}
+          memberships={resource.organizationMemberships}
+          setMemberships={(ms) => setField("organizationMemberships", ms)}
           memberId={resource.id}
         />
       </Stack>
@@ -141,7 +141,10 @@ function Roles({ roles, availableRoles, setRoles }) {
 }
 function OrganizationMemberships({ memberships, setMemberships, memberId }) {
   // Include member id to associate with a new membership
-  const initialOrganizationMembership = { organization: {}, member: { id: memberId } };
+  const initialOrganizationMembership = {
+    verifiedOrganization: {},
+    member: { id: memberId },
+  };
   const handleAdd = () => {
     setMemberships([...memberships, initialOrganizationMembership]);
   };
@@ -170,7 +173,17 @@ function OrganizationMemberships({ memberships, setMemberships, memberId }) {
   );
 }
 
-function Membership({ index, organization, onChange, onRemove }) {
+function Membership({
+  index,
+  verifiedOrganization,
+  unverifiedOrganizationName,
+  onChange,
+  onRemove,
+}) {
+  let orgText = "The organization the member is a part of.";
+  if (unverifiedOrganizationName) {
+    orgText += ` The member has identified themselves with '${unverifiedOrganizationName}.'`;
+  }
   return (
     <Box sx={{ p: 2, border: "1px dashed grey" }}>
       <Stack
@@ -179,7 +192,7 @@ function Membership({ index, organization, onChange, onRemove }) {
         mb={2}
         sx={{ justifyContent: "space-between", alignItems: "center" }}
       >
-        <FormLabel>Membership {index}</FormLabel>
+        <FormLabel>Membership {index + 1}</FormLabel>
         <Button onClick={(e) => onRemove(e)} variant="warning" sx={{ marginLeft: "5px" }}>
           <Icon color="warning">
             <DeleteIcon />
@@ -189,13 +202,13 @@ function Membership({ index, organization, onChange, onRemove }) {
       </Stack>
       <AutocompleteSearch
         label="Organization"
-        helperText="Organization that member is elgible for"
-        value={organization?.name}
+        helperText={orgText}
+        value={verifiedOrganization?.name}
         fullWidth
         required
         search={api.searchOrganizations}
         style={{ flex: 1 }}
-        onValueSelect={(org) => onChange({ organization: org })}
+        onValueSelect={(org) => onChange({ verifiedOrganization: org })}
       />
     </Box>
   );

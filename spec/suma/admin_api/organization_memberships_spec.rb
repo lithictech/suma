@@ -72,12 +72,10 @@ RSpec.describe Suma::AdminAPI::OrganizationMemberships, :db do
       membership = Suma::Fixtures.organization_membership.unverified.create
       new_org = Suma::Fixtures.organization.create
 
-      post "/v1/organization_memberships/#{membership.id}",
-           member: {id: admin.id, name: "abc"},
-           verified_organization: {id: new_org.id}
+      post "/v1/organization_memberships/#{membership.id}", verified_organization: {id: new_org.id}
 
       expect(last_response).to have_status(200)
-      expect(membership.refresh).to have_attributes(member: admin, verified_organization: new_org)
+      expect(membership.refresh).to have_attributes(verified_organization: new_org)
     end
   end
 end

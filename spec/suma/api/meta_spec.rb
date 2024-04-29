@@ -124,13 +124,14 @@ RSpec.describe Suma::API::Meta, :db do
 
   describe "GET /v1/meta/supported_organizations" do
     it "returns supported organizations" do
-      orgs = Array.new(3) { Suma::Fixtures.organization.create }
-      org_names = orgs.map(&:name)
+      orgb = Suma::Fixtures.organization.create(name: "b")
+      orgc = Suma::Fixtures.organization.create(name: "c")
+      orga = Suma::Fixtures.organization.create(name: "a")
 
       get "/v1/meta/supported_organizations"
 
       expect(last_response).to have_status(200)
-      expect(last_response).to have_json_body.that_includes(items: org_names)
+      expect(last_response).to have_json_body.that_includes(items: [{name: "a"}, {name: "b"}, {name: "c"}])
     end
   end
 end

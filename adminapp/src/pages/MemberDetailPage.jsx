@@ -111,7 +111,7 @@ export default function MemberDetailPage() {
               memberId={id}
               replaceMemberData={setModel}
             />
-            <OrganizationMemberships memberships={model.memberships} />
+            <OrganizationMemberships memberships={model.organizationMemberships} />
             <Activities activities={model.activities} />
             <Orders orders={model.orders} />
             <Charges charges={model.charges} />
@@ -326,7 +326,13 @@ function OrganizationMemberships({ memberships }) {
       toCells={(row) => [
         <AdminLink key="id" model={row} />,
         dayjs(row.createdAt).format("lll"),
-        <AdminLink model={row.organization}>{row.organization.name}</AdminLink>,
+        row.verifiedOrganization ? (
+          <AdminLink model={row.verifiedOrganization}>
+            {row.verifiedOrganization.name}
+          </AdminLink>
+        ) : (
+          row.unverifiedOrganizationName
+        ),
       ]}
     />
   );

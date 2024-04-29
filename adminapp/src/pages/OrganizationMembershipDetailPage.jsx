@@ -23,12 +23,16 @@ export default function OrganizationMembershipDetailPage() {
           ),
         },
         {
-          label: "Organization",
+          label: "Verified Organization",
           value: (
-            <AdminLink key="member" model={model.organization}>
-              {model.organization.name}
+            <AdminLink key="org" model={model.verifiedOrganization}>
+              {model.verifiedOrganization?.name}
             </AdminLink>
           ),
+        },
+        {
+          label: "Unverified Organization",
+          value: model.unverifiedOrganizationName,
         },
       ]}
     />

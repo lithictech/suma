@@ -33,7 +33,6 @@ class Suma::AdminAPI::OrganizationMemberships < Suma::AdminAPI::V1
       OrganizationMembershipEntity,
     ) do
       params do
-        requires(:member, type: JSON) { use :model_with_id }
         optional(:verified_organization, type: JSON) { use :model_with_id }
         optional :unverified_organization_name, type: String
       end

@@ -1,3 +1,4 @@
+import setRef from "../shared/setRef";
 import useValidationError from "../state/useValidationError";
 import FormText from "./FormText";
 import isString from "lodash/isString";
@@ -80,7 +81,7 @@ export default function FormControlGroup({
     <C
       ref={(r) => {
         registerRef(r);
-        inputRef && inputRef(r);
+        setRef(inputRef, r);
       }}
       {...registerRest}
       name={name}

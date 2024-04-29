@@ -258,6 +258,7 @@ class Suma::Member < Suma::Postgres::Model(:members)
   #
 
   def ensure_membership_in_organization(org_name)
+    org_name = org_name.strip
     got = self.organization_memberships.find do |om|
       om.unverified_organization_name == org_name || om.verified_organization&.name == org_name
     end

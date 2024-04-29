@@ -7,8 +7,8 @@ import ButtonGroup from "react-bootstrap/ButtonGroup";
 import Dropdown from "react-bootstrap/Dropdown";
 
 export default function OrganizationInputDropdown({
-  organization,
-  onOrganizationChange,
+  organizationName,
+  onOrganizationNameChange,
   register,
   errors,
 }) {
@@ -16,38 +16,59 @@ export default function OrganizationInputDropdown({
     default: {},
     pickData: true,
   });
+  const inputRef = React.useRef();
+  const supportedOrgNames = supportedOrganizations.items?.map(({ name }) => name) || [];
+  const unaffiliated = t("forms:option_unaffiliated");
+  const isPreselectedOrg =
+    organizationName === unaffiliated || supportedOrgNames.includes(organizationName);
+  function handleSelect(v) {
+    if (v === t("forms:option_not_listed")) {
+      onOrganizationNameChange("");
+      inputRef.current.disabled = false;
+      inputRef.current.focus();
+    } else {
+      onOrganizationNameChange(v);
+    }
+  }
   return (
     <FormControlGroup
-      name="organization"
+      inputRef={inputRef}
+      name="organizationName"
       label={t("forms:organization_label")}
       required
+      disabled={isPreselectedOrg}
       register={register}
       errors={errors}
-      value={organization.name}
-      onChange={(e) => onOrganizationChange({ name: e.target.value })}
+      value={organizationName}
+      onChange={(e) => onOrganizationNameChange(e.target.value)}
       append={
-        <Dropdown as={ButtonGroup} onSelect={(v) => onOrganizationChange({ name: v })}>
+        <Dropdown as={ButtonGroup} onSelect={handleSelect}>
           <Dropdown.Toggle className="fs-6 rounded-0">
             {t("forms:choose")}
           </Dropdown.Toggle>
           <Dropdown.Menu align="end">
-            {supportedOrganizations.items?.map((name) => (
-              <>
-                <Dropdown.Item
-                  key={name}
-                  eventKey={name}
-                  active={name === organization.name}
-                >
-                  {name}
-                </Dropdown.Item>
-              </>
+            {supportedOrgNames.map((name) => (
+              <Dropdown.Item
+                key={name}
+                eventKey={name}
+                active={name === organizationName}
+              >
+                {name}
+              </Dropdown.Item>
             ))}
+            <Dropdown.Divider />
             <Dropdown.Item
-              key={t("forms:option_unsure")}
-              eventKey={t("forms:option_unsure")}
-              active={t("forms:option_unsure") === organization.name}
+              key={t("forms:option_not_listed")}
+              eventKey={t("forms:option_not_listed")}
             >
-              {t("forms:option_unsure")}
+              {t("forms:option_not_listed")}
+            </Dropdown.Item>
+            <Dropdown.Item
+              key={unaffiliated}
+              eventKey={unaffiliated}
+              active={unaffiliated === organizationName}
+            >
+              {unaffiliated}
             </Dropdown.Item>
           </Dropdown.Menu>
         </Dropdown>

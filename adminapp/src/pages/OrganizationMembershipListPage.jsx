@@ -29,9 +29,12 @@ export default function OrganizationMembershipListPage() {
           id: "organization",
           label: "Organization",
           align: "left",
-          render: (c) => (
-            <AdminLink model={c.organization}>{c.organization.name}</AdminLink>
-          ),
+          render: (c) =>
+            c.verifiedOrganization ? (
+              <AdminLink model={c.organization}>{c.verifiedOrganization.name}</AdminLink>
+            ) : (
+              c.unverifiedOrganizationName
+            ),
         },
         {
           id: "created_at",

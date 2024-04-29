@@ -76,6 +76,9 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
         c.payment_method_types = ["bank_account", "card"]
         c.ordinal = 1
       end
+
+      Suma::Organization.find_or_create(name: "Affordable Housing")
+      Suma::Organization.find_or_create(name: "Homes for All")
     end
   end
 

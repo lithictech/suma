@@ -36,10 +36,9 @@ export default function ContactListAdd() {
   const [name, setName] = React.useState("");
   const [phone, setPhone] = React.useState("");
   const [referral, setReferral] = React.useState("");
-  const [organization, setOrganization] = React.useState({ name: "" });
+  const [organizationName, setOrganizationName] = React.useState("");
   const [agreementChecked, setAgreementChecked] = React.useState(false);
   const handleFormSubmit = () => {
-    organization.name = organization.name.trim();
     api
       .authContactList({
         name,
@@ -48,7 +47,7 @@ export default function ContactListAdd() {
         timezone: dayjs.tz.guess(),
         event_name: eventName,
         channel: referral,
-        organization,
+        organizationName,
       })
       .then(() => {
         navigate(
@@ -76,9 +75,6 @@ export default function ContactListAdd() {
     runSetter(e.target.name, set, maskPhoneNumber(e.target.value, phone));
   };
 
-  const handleOrganizationChange = (set, org) => {
-    runSetter("organization", set, org);
-  };
   return (
     <>
       <h2 className="page-header">{t("contact_list:signup_title")}</h2>
@@ -133,8 +129,10 @@ export default function ContactListAdd() {
         </Row>
         <div className="mb-3">
           <OrganizationInputDropdown
-            organization={organization}
-            onOrganizationChange={(org) => handleOrganizationChange(setOrganization, org)}
+            organizationName={organizationName}
+            onOrganizationNameChange={(v) =>
+              runSetter("organizationName", setOrganizationName, v)
+            }
             register={register}
             errors={errors}
           />

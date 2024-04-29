@@ -113,13 +113,6 @@ RSpec.describe Suma::API::Me, :db do
         have_attributes(unverified_organization_name: "Hacienda ABC"),
       )
     end
-
-    it "creates member summary if organization does not exist" do
-      post "/v1/me/update", organization: {name: "external org"}
-
-      expect(last_response).to have_status(200)
-      expect(member.activities.last.summary).to eq("Added external affiliated organization: external org")
-    end
   end
 
   describe "POST /v1/me/language" do
