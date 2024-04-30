@@ -143,22 +143,6 @@ function AppRoutes() {
             MarkdownContent
           )}
         />
-        <Route
-          path="/terms-of-sale-holiday-2022"
-          exact
-          element={renderWithHocs(
-            withProps({ namespace: "terms_of_sale_holiday_2022" }),
-            MarkdownContent
-          )}
-        />
-        <Route
-          path="/terms-of-sale-summer-2023"
-          exact
-          element={renderWithHocs(
-            withProps({ namespace: "terms_of_sale_summer_2023" }),
-            MarkdownContent
-          )}
-        />
 
         <Route
           path="/start"
