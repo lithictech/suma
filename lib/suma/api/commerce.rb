@@ -146,7 +146,7 @@ class Suma::API::Commerce < Suma::API::V1
             checkout.payment_instrument = instrument if instrument
           end
 
-          if params.key?(:fulfillment_option_id)
+          unless params[:fulfillment_option_id].nil?
             set_fulfillment_or_error(checkout, params[:fulfillment_option_id], checkout.available_fulfillment_options)
           end
 

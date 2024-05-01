@@ -55,9 +55,7 @@ export default function OrderDetail({ order, setOrder, gutters }) {
             ))}
             <br />
           </p>
-          <div>
-            <FulfillmentOption order={order} onOrderUpdated={setOrder} />
-          </div>
+          <FulfillmentOption order={order} onOrderUpdated={setOrder} />
           {!order.canClaim && order.fulfilledAt && (
             <Alert variant="info" className="mb-0">
               <ScrollTopOnMount />
@@ -105,16 +103,17 @@ function FulfillmentOption({ order, onOrderUpdated }) {
   const [optionId, setOptionId] = React.useState(0);
   const { showErrorToast } = useErrorToast();
 
-  if (!order.fulfillmentOption) {
-    return null;
-  }
-
   if (isEmpty(order.fulfillmentOptionsForEditing)) {
+    if (!order.fulfillmentOption) {
+      return null;
+    }
     return (
-      <>
+      <div>
         <h6 className="fw-bold">{order.fulfillmentConfirmation}</h6>
-        <span>{order.fulfillmentOption.description}</span>
-      </>
+        {order.fulfillmentOption.description && (
+          <span>{order.fulfillmentOption.description}</span>
+        )}
+      </div>
     );
   }
 

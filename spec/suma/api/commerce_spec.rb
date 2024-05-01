@@ -378,6 +378,13 @@ RSpec.describe Suma::API::Commerce, :db do
       expect(checkout.refresh).to have_attributes(fulfillment_option: be === opt)
     end
 
+    it "allows a nil fulfillment option" do
+      post "/v1/commerce/checkouts/#{checkout.id}/complete", charge_amount_cents: cost, fulfillment_option_id: nil
+
+      expect(last_response).to have_status(200)
+      expect(checkout.refresh).to have_attributes(fulfillment_option_id: nil)
+    end
+
     it "errors if fulfillment option id is invalid" do
       invalid_option = Suma::Fixtures.offering_fulfillment_option.create
 
@@ -474,13 +481,18 @@ RSpec.describe Suma::API::Commerce, :db do
   describe "GET /v1/commerce/orders/unclaimed" do
     it "returns orders available to claim" do
       o1 = Suma::Fixtures.order.as_purchased_by(member).claimable.create
-      o2 = Suma::Fixtures.order.as_purchased_by(member).claimed.create
+      o2 = Suma::Fixtures.order.as_purchased_by(member).claimable.create
+      o2.checkout.update(fulfillment_option_id: nil)
+      o3 = Suma::Fixtures.order.as_purchased_by(member).claimed.create
+      # only show orders with checkout option of 'pickup' type
+      o4 = Suma::Fixtures.order.as_purchased_by(member).claimable.create
+      o4.checkout.fulfillment_option.update(type: "delivery")
 
       get "/v1/commerce/orders/unclaimed"
 
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.that_includes(
-        items: have_same_ids_as(o1).ordered,
+        items: have_same_ids_as(o2, o1).ordered,
       )
     end
   end

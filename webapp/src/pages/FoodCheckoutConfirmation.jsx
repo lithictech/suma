@@ -1,6 +1,5 @@
 import api from "../api";
 import ErrorScreen from "../components/ErrorScreen";
-import FormButtons from "../components/FormButtons";
 import LayoutContainer from "../components/LayoutContainer";
 import PageLoader from "../components/PageLoader";
 import RLink from "../components/RLink";
@@ -10,6 +9,7 @@ import useAsyncFetch from "../shared/react/useAsyncFetch";
 import useUser from "../state/useUser";
 import React from "react";
 import Alert from "react-bootstrap/Alert";
+import Button from "react-bootstrap/Button";
 import Stack from "react-bootstrap/Stack";
 import { useLocation, useParams } from "react-router-dom";
 
@@ -55,16 +55,11 @@ export default function FoodCheckoutConfirmation() {
           <Item key={idx} item={p} />
         ))}
         {user.unclaimedOrdersCount !== 0 && (
-          <FormButtons
-            className="mb-4"
-            primaryProps={{
-              type: "button",
-              variant: "success",
-              children: t("food:unclaimed_order_history_title"),
-              to: "/unclaimed-orders",
-              as: RLink,
-            }}
-          />
+          <div className="button-stack my-4">
+            <Button variant="success" href="/unclaimed-orders" as={RLink}>
+              {t("food:unclaimed_order_history_title")}
+            </Button>
+          </div>
         )}
         {offering.fulfillmentInstructions && (
           <p className="lead">{offering.fulfillmentInstructions}</p>
@@ -83,20 +78,12 @@ export default function FoodCheckoutConfirmation() {
       <LayoutContainer gutters>
         <h4>{t("food:confirmation_transportation_title")}</h4>
         <p className="mb-0">{t("food:confirmation_transportation_subtitle")}</p>
-        <FormButtons
-          primaryProps={{
-            type: "button",
-            variant: "primary",
-            children: (
-              <>
-                <i className="bi bi-scooter me-2"></i>
-                {t("food:mobility_options")}
-              </>
-            ),
-            to: "/mobility",
-            as: RLink,
-          }}
-        />
+        <div className="button-stack mt-3 mb-4">
+          <Button href="/mobility" as={RLink}>
+            <i className="bi bi-scooter me-2"></i>
+            {t("food:mobility_options")}
+          </Button>
+        </div>
       </LayoutContainer>
       <hr className="my-4" />
       <LayoutContainer gutters>{md("food:confirmation_help")}</LayoutContainer>

@@ -45,7 +45,10 @@ class Suma::Commerce::Order < Suma::Postgres::Model(:commerce_orders)
     def available_to_claim
       return self.uncanceled.where(
         fulfillment_status: ["fulfilling"],
-        checkout: Suma::Commerce::Checkout.where(fulfillment_option: Suma::Commerce::OfferingFulfillmentOption.pickup),
+        checkout: Suma::Commerce::Checkout.where(
+          Sequel[fulfillment_option_id: nil] |
+            Sequel[fulfillment_option: Suma::Commerce::OfferingFulfillmentOption.pickup],
+        ),
       )
     end
 
@@ -216,7 +219,9 @@ class Suma::Commerce::Order < Suma::Postgres::Model(:commerce_orders)
   end
 
   def can_claim?
-    return self.fulfillment_status == "fulfilling" && self.checkout.fulfillment_option&.pickup?
+    checkout_option = self.checkout.fulfillment_option
+    return self.fulfillment_status == "fulfilling" && checkout_option.pickup? unless checkout_option.nil?
+    return self.fulfillment_status == "fulfilling"
   end
 end
 
