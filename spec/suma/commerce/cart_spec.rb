@@ -248,6 +248,8 @@ RSpec.describe "Suma::Commerce::Cart", :db do
     end
 
     it "starts a checkout with fulfillment option from a previously editable checkout" do
+      # add multiple options to offering to then set the existing checkout option
+      Suma::Fixtures.offering_fulfillment_option(offering:).create
       noneditable_checkout = Suma::Fixtures.checkout(cart:).with_fulfillment_option(fulfillment).complete.create
       existing_editable_checkout = Suma::Fixtures.checkout(cart:).with_fulfillment_option(fulfillment).create
 
