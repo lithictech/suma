@@ -138,10 +138,7 @@ RSpec.describe Suma::API::Commerce, :db do
     let!(:offering_product) { Suma::Fixtures.offering_product(product:, offering:).create }
     let!(:cart) { Suma::Fixtures.cart(offering:, member:).with_product(product, 2).create }
 
-    it "starts a checkout and soft deletes any pending checkouts" do
-      other_member_checkout = Suma::Fixtures.checkout(cart: Suma::Fixtures.cart(member:).create).create
-      completed_checkout = Suma::Fixtures.checkout(cart:).completed.create
-
+    it "creates a checkout" do
       post "/v1/commerce/offerings/#{offering.id}/checkout"
 
       expect(last_response).to have_status(200)
@@ -153,8 +150,6 @@ RSpec.describe Suma::API::Commerce, :db do
           available_payment_instruments: [],
           available_fulfillment_options: contain_exactly(include(id: fulfillment.id)),
         )
-      expect(other_member_checkout.refresh).to be_soft_deleted
-      expect(completed_checkout.refresh).to_not be_soft_deleted
     end
 
     it "errors if there are no items in the cart" do

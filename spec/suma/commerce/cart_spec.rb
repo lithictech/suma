@@ -258,19 +258,21 @@ RSpec.describe "Suma::Commerce::Cart", :db do
 
     it "raises if there are no items in the cart" do
       cart.items.first.delete
-
       expect { create_checkout }.to raise_error(described_class::EmptyCart)
     end
 
     it "raises if the available inventory is insufficient for what is in the cart" do
       offering.update(max_ordered_items_per_member: 1)
-
       expect { create_checkout }.to raise_error(Suma::Commerce::Checkout::MaxQuantityExceeded)
     end
 
-    it "raises if any product is no longer available due to offering reasons" do
+    it "raises if any product is no longer available due to deleted offering" do
       offering_product.delete
+      expect { create_checkout }.to raise_error(described_class::ProductUnavailable)
+    end
 
+    it "raises if any product is no longer available due to closed offering" do
+      offering.update(period_end: 1.day.ago)
       expect { create_checkout }.to raise_error(described_class::ProductUnavailable)
     end
   end
