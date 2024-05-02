@@ -13,7 +13,6 @@ class Suma::API::Commerce < Suma::API::V1
       def new_context = Suma::Payment::CalculationContext.new(Time.now)
 
       def set_fulfillment_or_error(checkout, option_id, options)
-        puts checkout.fulfillment_option
         allow_nil = checkout.fulfillment_option.nil? && option_id.nil?
         valid_option = allow_nil || options.any? { |o| o.id == option_id }
         invalid!("Not a valid fulfillment option") unless valid_option
