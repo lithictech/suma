@@ -30,6 +30,17 @@ RSpec.describe "Suma::Payment::Ledger", :db do
     end
   end
 
+  describe "transactions?" do
+    it "knows if it has at least one transaction" do
+      x = Suma::Fixtures.book_transaction.create
+      expect(x.receiving_ledger).to be_any_transactions
+      expect(x.originating_ledger).to be_any_transactions
+
+      led = Suma::Fixtures.ledger.create
+      expect(led).to_not be_any_transactions
+    end
+  end
+
   describe "balance" do
     let(:ledger) { Suma::Fixtures.ledger.create }
 
