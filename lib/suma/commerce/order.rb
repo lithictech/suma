@@ -219,9 +219,11 @@ class Suma::Commerce::Order < Suma::Postgres::Model(:commerce_orders)
   end
 
   def can_claim?
+    return false unless self.fulfillment_status == "fulfilling"
     checkout_option = self.checkout.fulfillment_option
-    return self.fulfillment_status == "fulfilling" && checkout_option.pickup? unless checkout_option.nil?
-    return self.fulfillment_status == "fulfilling"
+    # There isn't a logical reason 'no fulfillment option' means 'claimable',
+    # but that's what we're going with for now.
+    return checkout_option.nil? || checkout_option.pickup?
   end
 end
 
