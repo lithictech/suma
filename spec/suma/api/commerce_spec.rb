@@ -373,11 +373,23 @@ RSpec.describe Suma::API::Commerce, :db do
       expect(checkout.refresh).to have_attributes(fulfillment_option: be === opt)
     end
 
-    it "allows a nil fulfillment option" do
+    it "allows a nil fulfillment option only if checkout option is nil" do
+      checkout.update(fulfillment_option: nil)
+
       post "/v1/commerce/checkouts/#{checkout.id}/complete", charge_amount_cents: cost, fulfillment_option_id: nil
 
       expect(last_response).to have_status(200)
       expect(checkout.refresh).to have_attributes(fulfillment_option_id: nil)
+    end
+
+    it "errors if nil fulfillment option is passed and checkout has existing option" do
+      existing_opt = Suma::Fixtures.offering_fulfillment_option(offering:).create
+      checkout.update(fulfillment_option: existing_opt)
+
+      post "/v1/commerce/checkouts/#{checkout.id}/complete", charge_amount_cents: cost, fulfillment_option_id: nil
+
+      expect(last_response).to have_status(400)
+      expect(last_response).to have_json_body.that_includes(error: include(code: "validation_error"))
     end
 
     it "errors if fulfillment option id is invalid" do
