@@ -53,6 +53,19 @@ class Suma::Payment::Ledger < Suma::Postgres::Model(:payment_ledgers)
       order(*self.class.combined_dataset_sorter(id))
   end
 
+  # These are used for #transactions? to avoid writing a custom eager loader.
+  # If we need this sort of thing more in the future, we can refactor it as needed,
+  # it's sort of hacky.
+  # NOTE: The Sequel[true] is due to some internal bug in Sequel we haven't looked into.
+  # But without it, the 'originated_book_transactions' and 'received_book_transactions' datasets
+  # get messed up, probably due to an issue in the tactical eager loader,
+  # and you'll see tests fail.
+  one_to_one :one_originated_book_transaction, clone: :originated_book_transactions, limit: 1, conditions: Sequel[true]
+  one_to_one :one_received_book_transaction, clone: :received_book_transactions, limit: 1, conditions: Sequel[true]
+
+  # True if the ledger has any lines, false if not.
+  def any_transactions? = !(self.one_originated_book_transaction || self.one_received_book_transaction).nil?
+
   def balance
     credits = self.received_book_transactions.sum(Money.new(0), &:amount)
     debits = self.originated_book_transactions.sum(Money.new(0), &:amount)

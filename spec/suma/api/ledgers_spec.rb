@@ -32,6 +32,9 @@ RSpec.describe Suma::API::Ledgers, :db do
       led2 = Suma::Fixtures.ledger.member(member).create(name: "B")
       recent_xaction = bookfac.from(led1).create(apply_at: 20.days.ago, amount_cents: 100)
       old_xaction = bookfac.to(led1).create(apply_at: 80.days.ago, amount_cents: 400)
+      # Make led2 non-empty
+      bookfac.from(led2).create(amount_cents: 200)
+      bookfac.to(led2).create(amount_cents: 200)
 
       get "/v1/ledgers/overview"
 
@@ -49,6 +52,20 @@ RSpec.describe Suma::API::Ledgers, :db do
             include(amount: cost("$4"), at: match_time(old_xaction.apply_at)),
           ],
         ),
+      )
+    end
+
+    it "excludes ledgers with no transactions" do
+      zero_balance = Suma::Fixtures.ledger.member(member).create
+      no_xactions = Suma::Fixtures.ledger.member(member).create
+      bookfac.from(zero_balance).create(amount_cents: 100)
+      bookfac.to(zero_balance).create(amount_cents: 100)
+
+      get "/v1/ledgers/overview"
+
+      expect(last_response).to have_status(200)
+      expect(last_response_json_body).to include(
+        ledgers: have_same_ids_as(zero_balance),
       )
     end
   end
