@@ -64,11 +64,11 @@ export default function OrderDetailPage() {
               { label: "Instrument", value: checkout.paymentInstrument?.adminLabel },
               {
                 label: "Fulfillment (En)",
-                value: checkout.fulfillmentOption.description.en,
+                value: checkout.fulfillmentOption?.description.en,
               },
               {
                 label: "Fulfillment (Es)",
-                value: checkout.fulfillmentOption.description.es,
+                value: checkout.fulfillmentOption?.description.es,
               },
             ]}
           />
