@@ -258,7 +258,7 @@
     "do_not_ride_intro": "You cannot ride in this area. We may take action for repeated violations.",
     "do_not_ride_title": "Please do not ride here",
     "end_trip": "End Trip",
-    "intro": "Ride with enhanced privacy and better prices.\n\nSuma partners with Ride Connection to provide transportation options for the elderly and people with disabilities. Call [503-226-0700](tel:503-226-0700) or [click here](https://rideconnection.org/services__blank__) to see their services.\n\nWe team up with Lime to provide free rides to suma users. To get started, click on a e-scooter below or learn more on our [FAQ](https://mysuma.org/lime-faq-en/__blank__).",
+    "intro": "Ride with enhanced privacy and better prices.\n\nSuma partners with Ride Connection to provide transportation options for the elderly and people with disabilities. Call [503-226-0700](tel:503-226-0700) or [click here](https://rideconnection.org/services__blank__) to see their services.\n\nWe team up with Lime to provide free rides to suma users. To get started, click on a e-scooter below or learn more on our [FAQ](https://mysuma.org/transportation-faq-en/__blank__).",
     "locate_me": "Locate me",
     "mobility_start_and_per_minute": "{{surchargeCents, sumaCurrency}} to unlock, {{unitCents, sumaCurrency}} per minute",
     "relink_private_account_with_vendor": "If you are signed out, you can [re-link your {{vendorName}} account](/private-accounts).",
