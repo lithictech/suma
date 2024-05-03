@@ -178,7 +178,14 @@ function PrivateAccount({ account, onHelp }) {
   if (buttonStatus === INITIAL) {
     content = (
       <Stack direction="horizontal" gap={2} className="justify-content-center mb-1">
-        <Button onClick={handleInitialClick}>{t("private_accounts:link_app")}</Button>
+        <Button
+          variant={success.isOff ? "primary" : "secondary"}
+          onClick={handleInitialClick}
+        >
+          {success.isOff
+            ? t("private_accounts:link_app")
+            : t("private_accounts:relink_app")}
+        </Button>
         <Button variant="outline-primary" onClick={() => onHelp()}>
           {t("common:help")}
         </Button>
@@ -218,7 +225,7 @@ function PrivateAccount({ account, onHelp }) {
       >
         <span>
           <i className="bi bi-phone-vibrate d-inline me-2"></i>
-          {t("private_accounts:success")}
+          {t("private_accounts:success_instructions")}
         </span>
       </Alert>
       {content}

@@ -54,7 +54,7 @@ export default function Dashboard() {
           <SeeAlsoAlert
             variant="info"
             textVariant="muted"
-            label={t("dashboard:check_available_for_purchase")}
+            label={t("dashboard:check_available_food")}
             alertClass={Boolean(mobilityVehiclesAvailable) && "mb-0"}
             iconClass="bi-bag-fill"
             show={!isEmpty(offerings)}
@@ -63,7 +63,7 @@ export default function Dashboard() {
           <SeeAlsoAlert
             variant="info"
             textVariant="muted"
-            label={t("dashboard:get_rolling_with_discounts")}
+            label={t("dashboard:check_available_mobility")}
             iconClass="bi-scooter"
             show={Boolean(mobilityVehiclesAvailable)}
             to="/mobility"

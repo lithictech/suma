@@ -126,24 +126,29 @@ RSpec.describe "Suma::Commerce::Order", :db do
       expect(order).to transition_on(:claim).to("fulfilled")
     end
 
-    it "can only be claimed if the fulfillment exists, is of type pickup and the order is fulfilling" do
-      order.update(fulfillment_status: "fulfilling")
-      order.checkout.fulfillment_option.update(type: "pickup")
-      expect(order).to be_can_claim
+    it "can be claimed if the order is fulfilling and there is no fulfillment option" do
+      order.update(fulfillment_status: "fulfilled")
+      expect(order).to_not be_can_claim
 
       order.fulfillment_status = "unfulfilled"
       expect(order).to_not be_can_claim
 
-      order.refresh
-      order.checkout.fulfillment_option.type = "delivery"
-      expect(order).to_not be_can_claim
+      order.update(fulfillment_status: "fulfilling")
+      expect(order).to be_can_claim
 
       order.refresh
       order.checkout.fulfillment_option = nil
       expect(order).to be_can_claim
+    end
+
+    it "can be claimed if the order is fulfilling and there is a fulfillment option of type pickup" do
+      order.update(fulfillment_status: "fulfilling")
+      order.checkout.fulfillment_option.update(type: "pickup")
+      expect(order).to be_can_claim
 
       order.refresh
-      expect(order).to be_can_claim
+      order.checkout.fulfillment_option.type = "delivery"
+      expect(order).to_not be_can_claim
     end
 
     it "can begin fulfillment of orders with a past or nil fulfillment time and valid status" do

@@ -3,7 +3,7 @@ import AnimatedCheckmark from "../components/AnimatedCheckmark";
 import FormSaveCancel from "../components/FormSaveCancel";
 import LayoutContainer from "../components/LayoutContainer";
 import SumaImage from "../components/SumaImage";
-import { mdx, t } from "../localization";
+import { md, mdx, t } from "../localization";
 import { dayjs } from "../modules/dayConfig";
 import ScrollTopOnMount from "../shared/ScrollToTopOnMount";
 import Money from "../shared/react/Money";
@@ -57,24 +57,26 @@ export default function OrderDetail({ order, setOrder, gutters }) {
           </p>
           <FulfillmentOption order={order} onOrderUpdated={setOrder} />
           {!order.canClaim && order.fulfilledAt && (
-            <Alert variant="info" className="mb-0">
-              <ScrollTopOnMount />
-              <Stack direction="horizontal" gap={3}>
-                {t("food:claimed_on", {
-                  fulfilledAt: dayjs(order.fulfilledAt).format("lll"),
-                })}
-                <div className="ms-auto">
-                  <AnimatedCheckmark />
-                </div>
-              </Stack>
-            </Alert>
+            <>
+              <Alert variant="info" className="mb-0">
+                <ScrollTopOnMount />
+                <Stack direction="horizontal" gap={3}>
+                  {t("food:claimed_on", {
+                    fulfilledAt: dayjs(order.fulfilledAt).format("lll"),
+                  })}
+                  <div className="ms-auto">
+                    <AnimatedCheckmark />
+                  </div>
+                </Stack>
+              </Alert>
+              <SumaImage
+                image={order.image}
+                w={350}
+                height={150}
+                className="rounded responsive-wide-image"
+              />
+            </>
           )}
-          <SumaImage
-            image={order.image}
-            w={350}
-            height={150}
-            className="rounded responsive-wide-image"
-          />
           <hr className="my-0" />
           <Card.Text className="h4 mb-0">
             {t("food:labels:items_count", { itemCount: order.items.length })}
@@ -185,12 +187,12 @@ function FulfillmentOption({ order, onOrderUpdated }) {
   );
 }
 
-function PressAndHoldToClaim({ id, canClaim, fulfilledAt, onOrderClaim }) {
+function PressAndHoldToClaim({ id, canClaim, onOrderClaim }) {
   const screenLoader = useScreenLoader();
   const { showErrorToast } = useErrorToast();
   const { handleUpdateCurrentMember } = useUser();
 
-  if (!canClaim || (!canClaim && !fulfilledAt)) {
+  if (!canClaim) {
     return null;
   }
 
@@ -211,7 +213,7 @@ function PressAndHoldToClaim({ id, canClaim, fulfilledAt, onOrderClaim }) {
   return (
     <div className="text-center">
       <Alert variant="info mb-0">
-        <p className="small mb-0">{t("food:claiming_instructions")}</p>
+        <p className="small mb-0">{md("food:claiming_instructions")}</p>
         <PressAndHold size={200} onHeld={handleOrderClaim}>
           {mdx("food:press_and_hold", {
             overrides: {
@@ -223,7 +225,6 @@ function PressAndHoldToClaim({ id, canClaim, fulfilledAt, onOrderClaim }) {
             },
           })}
         </PressAndHold>
-        <p className="small mb-0">{t("food:button_press_warning")}</p>
       </Alert>
     </div>
   );
