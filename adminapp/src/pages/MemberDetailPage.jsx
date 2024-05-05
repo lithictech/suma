@@ -414,11 +414,12 @@ function Charges({ charges }) {
   return (
     <RelatedList
       title="Charges"
-      headers={["Id", "At", "Undiscounted Total", "Opaque Id"]}
+      headers={["Id", "At", "Discounted Total", "Undiscounted Total", "Opaque Id"]}
       rows={charges}
       toCells={(row) => [
         row.id,
         dayjs(row.createdAt).format("lll"),
+        <Money key={3}>{row.discountedSubtotal}</Money>,
         <Money key={3}>{row.undiscountedSubtotal}</Money>,
         row.opaqueId,
       ]}
