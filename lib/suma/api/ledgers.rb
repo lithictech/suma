@@ -11,6 +11,8 @@ class Suma::API::Ledgers < Suma::API::V1
     get :overview do
       me = current_member
       ledgers = (me.payment_account&.ledgers || []).select(&:any_transactions?)
+      # Always include the general cash ledger first
+      ledgers.unshift(me.payment_account.cash_ledger!) unless ledgers.include?(me.payment_account&.cash_ledger!)
       lv = Suma::Payment::LedgersView.new(ledgers)
       first_page = []
       page_count = 0
