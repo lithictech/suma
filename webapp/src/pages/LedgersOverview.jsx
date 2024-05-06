@@ -90,7 +90,7 @@ export default function LedgersOverview() {
   if (ledgersOverviewLoading && ledgerLinesFetch) {
     return <PageLoader buffered />;
   }
-  if (!isEmpty(ledgersOverview.ledgers)) {
+  if (isEmpty(ledgersOverview.ledgers)) {
     return (
       <LayoutContainer top>
         <ErrorScreen />
