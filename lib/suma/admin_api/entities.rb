@@ -138,6 +138,7 @@ module Suma::AdminAPI::Entities
   class ChargeEntity < BaseEntity
     include AutoExposeBase
     expose :opaque_id
+    expose :discounted_subtotal, with: MoneyEntity
     expose :undiscounted_subtotal, with: MoneyEntity
   end
 

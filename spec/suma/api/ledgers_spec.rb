@@ -27,6 +27,19 @@ RSpec.describe Suma::API::Ledgers, :db do
       )
     end
 
+    it "always includes cash ledger when it exists" do
+      led = Suma::Payment.ensure_cash_ledger(member)
+
+      get "/v1/ledgers/overview"
+
+      expect(last_response).to have_status(200)
+      expect(last_response_json_body).to include(
+        ledgers: contain_exactly(include(id: led.id, name: "Cash")),
+        first_ledger_page_count: 1,
+        first_ledger_lines_first_page: [],
+      )
+    end
+
     it "returns an overview of all ledgers and items from the first ledger" do
       led1 = Suma::Fixtures.ledger.member(member).create(name: "A")
       led2 = Suma::Fixtures.ledger.member(member).create(name: "B")

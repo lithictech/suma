@@ -1,4 +1,5 @@
 import api from "../api";
+import ErrorScreen from "../components/ErrorScreen";
 import ForwardBackPagination from "../components/ForwardBackPagination";
 import LayoutContainer from "../components/LayoutContainer";
 import LinearBreadcrumbs from "../components/LinearBreadcrumbs";
@@ -86,6 +87,16 @@ export default function LedgersOverview() {
     ledgerLinesFetch({ id: led.id, page: 1 });
   };
 
+  if (ledgersOverviewLoading && ledgerLinesFetch) {
+    return <PageLoader buffered />;
+  }
+  if (isEmpty(ledgersOverview.ledgers)) {
+    return (
+      <LayoutContainer top>
+        <ErrorScreen />
+      </LayoutContainer>
+    );
+  }
   return (
     <>
       <LayoutContainer gutters top>
@@ -93,25 +104,19 @@ export default function LedgersOverview() {
         <h2 className="page-header">{t("payments:ledger_transactions")}</h2>
         <p>{t("payments:ledgers_intro")}</p>
       </LayoutContainer>
-      {ledgersOverview.ledgers ? (
-        <>
-          <Header
-            activeLedger={activeLedger}
-            totalBalance={ledgersOverview.totalBalance}
-            ledgers={ledgersOverview.ledgers}
-            onLedgerSelected={handleSelected}
-          />
-          <LedgerLines
-            lines={activeLines}
-            linesPage={page}
-            linesPageCount={ledgerLines.pageCount || ledgersOverview.firstLedgerPageCount}
-            linesLoading={ledgersOverviewLoading || ledgerLinesLoading}
-            onLinesPageChange={handleLinesPageChange}
-          />
-        </>
-      ) : (
-        <PageLoader buffered />
-      )}
+      <Header
+        activeLedger={activeLedger}
+        totalBalance={ledgersOverview.totalBalance}
+        ledgers={ledgersOverview.ledgers}
+        onLedgerSelected={handleSelected}
+      />
+      <LedgerLines
+        lines={activeLines}
+        linesPage={page}
+        linesPageCount={ledgerLines.pageCount || ledgersOverview.firstLedgerPageCount}
+        linesLoading={ledgersOverviewLoading || ledgerLinesLoading}
+        onLinesPageChange={handleLinesPageChange}
+      />
     </>
   );
 }
