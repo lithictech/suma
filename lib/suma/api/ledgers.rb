@@ -10,7 +10,7 @@ class Suma::API::Ledgers < Suma::API::V1
     desc "Return an overview of cash ledger and ledgers with transactions including balances, and recent transactions."
     get :overview do
       me = current_member
-      ledgers = (me.payment_account&.ledgers || []).select { |led| led.any_transactions? || led.name === "Cash" }
+      ledgers = (me.payment_account&.ledgers || []).select { |led| led.any_transactions? || led.slug === "cash" }
       lv = Suma::Payment::LedgersView.new(ledgers)
       first_page = []
       page_count = 0

@@ -113,7 +113,9 @@ export default function LedgersOverview() {
           />
         </>
       ) : (
-        <p className="text-center mx-3">{t("payments:no_ledgers_warning")}</p>
+        <p className="text-center mx-3 text-danger">
+          {t("errors:something_went_wrong_title")}
+        </p>
       )}
     </>
   );
