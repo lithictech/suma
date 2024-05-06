@@ -7,7 +7,7 @@ RSpec.describe Suma::API::Ledgers, :db do
   include Rack::Test::Methods
 
   let(:app) { described_class.build_app }
-  let(:member) { Suma::Fixtures.member.with_cash_ledger.create }
+  let(:member) { Suma::Fixtures.member.create }
   let(:bookfac) { Suma::Fixtures.book_transaction }
 
   before(:each) do
@@ -15,24 +15,36 @@ RSpec.describe Suma::API::Ledgers, :db do
   end
 
   describe "GET /v1/ledgers/overview" do
-    it "always includes cash ledger" do
+    it "handles no ledgers" do
       get "/v1/ledgers/overview"
 
       expect(last_response).to have_status(200)
       expect(last_response_json_body).to include(
-        ledgers: contain_exactly(
-          include(id: member.payment_account.cash_ledger.id, name: "Cash"),
-        ),
+        ledgers: [],
+        total_balance: cost("$0"),
+        first_ledger_page_count: 0,
+        first_ledger_lines_first_page: [],
+      )
+    end
+
+    it "always includes cash ledger when it exists" do
+      led = Suma::Payment.ensure_cash_ledger(member)
+
+      get "/v1/ledgers/overview"
+
+      expect(last_response).to have_status(200)
+      expect(last_response_json_body).to include(
+        ledgers: contain_exactly(include(id: led.id, name: "Cash")),
         first_ledger_page_count: 1,
         first_ledger_lines_first_page: [],
       )
     end
 
     it "returns an overview of all ledgers and items from the first ledger" do
-      cash_led = member.payment_account.cash_ledger
+      led1 = Suma::Fixtures.ledger.member(member).create(name: "A")
       led2 = Suma::Fixtures.ledger.member(member).create(name: "B")
-      recent_xaction = bookfac.from(cash_led).create(apply_at: 20.days.ago, amount_cents: 100)
-      old_xaction = bookfac.to(cash_led).create(apply_at: 80.days.ago, amount_cents: 400)
+      recent_xaction = bookfac.from(led1).create(apply_at: 20.days.ago, amount_cents: 100)
+      old_xaction = bookfac.to(led1).create(apply_at: 80.days.ago, amount_cents: 400)
       # Make led2 non-empty
       bookfac.from(led2).create(amount_cents: 200)
       bookfac.to(led2).create(amount_cents: 200)
@@ -42,7 +54,7 @@ RSpec.describe Suma::API::Ledgers, :db do
       expect(last_response).to have_status(200)
       expect(last_response_json_body).to include(
         ledgers: contain_exactly(
-          include(id: cash_led.id, name: "Cash", balance: cost("$3")),
+          include(id: led1.id, name: "A", balance: cost("$3")),
           include(id: led2.id, name: "B", balance: cost("$0")),
         ),
         total_balance: cost("$3"),
@@ -57,7 +69,6 @@ RSpec.describe Suma::API::Ledgers, :db do
     end
 
     it "excludes ledgers with no transactions" do
-      general_cash = member.payment_account.cash_ledger
       zero_balance = Suma::Fixtures.ledger.member(member).create
       no_xactions = Suma::Fixtures.ledger.member(member).create
       bookfac.from(zero_balance).create(amount_cents: 100)
@@ -67,7 +78,7 @@ RSpec.describe Suma::API::Ledgers, :db do
 
       expect(last_response).to have_status(200)
       expect(last_response_json_body).to include(
-        ledgers: have_same_ids_as(general_cash, zero_balance),
+        ledgers: have_same_ids_as(zero_balance),
       )
     end
   end

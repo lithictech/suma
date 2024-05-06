@@ -86,6 +86,9 @@ export default function LedgersOverview() {
     ledgerLinesFetch({ id: led.id, page: 1 });
   };
 
+  if (ledgersOverviewLoading && ledgerLinesFetch) {
+    return <PageLoader buffered />;
+  }
   return (
     <>
       <LayoutContainer gutters top>
@@ -93,7 +96,7 @@ export default function LedgersOverview() {
         <h2 className="page-header">{t("payments:ledger_transactions")}</h2>
         <p>{t("payments:ledgers_intro")}</p>
       </LayoutContainer>
-      {ledgersOverview.ledgers ? (
+      {!isEmpty(ledgersOverview.ledgers) ? (
         <>
           <Header
             activeLedger={activeLedger}
@@ -110,7 +113,7 @@ export default function LedgersOverview() {
           />
         </>
       ) : (
-        <PageLoader buffered />
+        <p className="text-center mx-3">{t("payments:no_ledgers_warning")}</p>
       )}
     </>
   );
