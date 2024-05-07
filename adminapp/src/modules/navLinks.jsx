@@ -7,7 +7,7 @@ import HomeIcon from "@mui/icons-material/Home";
 import KeyIcon from "@mui/icons-material/Key";
 import MailIcon from "@mui/icons-material/Mail";
 import ManageAccountsIcon from "@mui/icons-material/ManageAccounts";
-import PaymentsIcon from '@mui/icons-material/Payments';
+import PaymentsIcon from "@mui/icons-material/Payments";
 import PersonIcon from "@mui/icons-material/Person";
 import PortraitIcon from "@mui/icons-material/Portrait";
 import SellIcon from "@mui/icons-material/Sell";
