@@ -185,16 +185,19 @@ module Suma::AdminAPI::Entities
     expose :actor, with: AuditMemberEntity
   end
 
-  class DetailedPaymentAccountLedgerEntity < BaseEntity
+  class PaymentAccountLedgerEntity < BaseEntity
     include AutoExposeBase
-    include AutoExposeDetail
     expose :currency
-    expose :vendor_service_categories, with: VendorServiceCategoryEntity
-    expose :combined_book_transactions, with: BookTransactionEntity
     expose :balance, with: MoneyEntity
     expose :label do |inst|
       inst.vendor_service_categories.map(&:name).sort.join(", ")
     end
+  end
+
+  class DetailedPaymentAccountLedgerEntity < PaymentAccountLedgerEntity
+    include AutoExposeDetail
+    expose :vendor_service_categories, with: VendorServiceCategoryEntity
+    expose :combined_book_transactions, with: BookTransactionEntity
   end
 
   class DetailedPaymentAccountEntity < BaseEntity
