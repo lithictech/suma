@@ -145,7 +145,6 @@ module Suma::AdminAPI::Entities
   class SimpleLedgerEntity < BaseEntity
     include AutoExposeBase
     expose :name
-    expose :account_name, &self.delegate_to(:account, :display_name)
     expose :admin_label
   end
 

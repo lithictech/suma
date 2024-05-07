@@ -83,7 +83,7 @@ export default function BookTransactionListPage() {
             align: "center",
             render: (c) => (
               <AdminLink model={c.originatingLedger}>
-                {c.originatingLedger.accountName}
+                {c.originatingLedger.adminLabel}
               </AdminLink>
             ),
           },
@@ -93,7 +93,7 @@ export default function BookTransactionListPage() {
             align: "center",
             render: (c) => (
               <AdminLink model={c.receivingLedger}>
-                {c.receivingLedger.accountName}
+                {c.receivingLedger.adminLabel}
               </AdminLink>
             ),
           },
