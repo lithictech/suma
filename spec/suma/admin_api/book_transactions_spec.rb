@@ -87,6 +87,21 @@ RSpec.describe Suma::AdminAPI::BookTransactions, :db do
         ),
       )
     end
+
+    it "adds the admin member as the transaction actor" do
+      b1 = Suma::Fixtures.book_transaction.create
+      corn = Suma::Fixtures.vendor_service_category.create
+
+      post "/v1/book_transactions/create",
+           originating_ledger_id: b1.originating_ledger_id,
+           receiving_ledger_id: b1.receiving_ledger_id,
+           amount: {cents: 100},
+           memo: {en: "hello", es: "hola"},
+           vendor_service_category_slug: corn.slug
+
+      expect(last_response).to have_status(200)
+      expect(b1.refresh.originating_ledger.combined_book_transactions.first.actor).to eq(admin)
+    end
   end
 
   describe "GET /v1/book_transactions/:id" do

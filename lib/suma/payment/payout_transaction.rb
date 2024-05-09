@@ -118,7 +118,7 @@ class Suma::Payment::PayoutTransaction < Suma::Postgres::Model(:payment_payout_t
     #
     # The created payout will always have an +originated_book_transaction+ created
     # from the original payment account's cash ledger, to the platform ledger,
-    # to represent the withdrawl of funds.
+    # to represent the withdrawal of funds.
     #
     # Additionally, if apply_credit is true, a +credited_book_transaction+ is created
     # from the platform cash ledger to the original payment account's cash ledger,
@@ -149,6 +149,7 @@ class Suma::Payment::PayoutTransaction < Suma::Postgres::Model(:payment_payout_t
           memo: refund_memo,
         )
         member_ledger = Suma::Payment.ensure_cash_ledger(funding_transaction.originating_payment_account)
+        actor = funding_transaction.originating_payment_account.member
         crediting_book_transaction = nil
         if apply_credit
           crediting_book_transaction = Suma::Payment::BookTransaction.create(
@@ -161,6 +162,7 @@ class Suma::Payment::PayoutTransaction < Suma::Postgres::Model(:payment_payout_t
               en: "Credit from suma",
               es: "Crédito de suma",
             ),
+            actor:,
           )
         end
         originated_book_transaction = Suma::Payment::BookTransaction.create(
@@ -170,6 +172,7 @@ class Suma::Payment::PayoutTransaction < Suma::Postgres::Model(:payment_payout_t
           receiving_ledger: px.platform_ledger,
           associated_vendor_service_category:,
           memo: refund_memo,
+          actor:,
         )
         px.update(
           refunded_funding_transaction: funding_transaction,

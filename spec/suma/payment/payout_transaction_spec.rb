@@ -62,6 +62,7 @@ RSpec.describe "Suma::Payment::PayoutTransaction", :db, reset_configuration: Sum
         apply_at: now,
         apply_credit: true,
       )
+      actor = fx.originating_payment_account.member
       expect(px).to have_attributes(
         status: "created",
         refunded_funding_transaction: be === fx,
@@ -75,6 +76,7 @@ RSpec.describe "Suma::Payment::PayoutTransaction", :db, reset_configuration: Sum
         apply_at: match_time(now),
         memo: have_attributes(en: "Credit from suma"),
         originating_ledger: px.platform_ledger,
+        actor:,
       )
       expect(px.originated_book_transaction).to have_attributes(
         amount: cost("$5"),
@@ -82,6 +84,7 @@ RSpec.describe "Suma::Payment::PayoutTransaction", :db, reset_configuration: Sum
         apply_at: be > px.crediting_book_transaction.apply_at,
         memo: have_attributes(en: "Refund sent to My Savings x-1234"),
         receiving_ledger: px.platform_ledger,
+        actor:,
       )
       # Balance is still $7.50 because the user was credited.
       expect(fx.originating_payment_account).to have_attributes(total_balance: cost("$7.50"))

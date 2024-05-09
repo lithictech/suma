@@ -105,11 +105,12 @@ RSpec.describe "Suma::Payment::FundingTransaction", :db, reset_configuration: Su
         instrument: bank_account,
         strategy: Suma::Payment::FakeStrategy.create.not_ready,
         apply_at: now,
+        actor: member,
       )
       expect(fx).to have_attributes(status: "created")
       expect(member.payment_account.originated_funding_transactions).to contain_exactly(be === fx)
       expect(member.payment_account.cash_ledger.received_book_transactions).to contain_exactly(
-        have_attributes(amount: cost("$5"), apply_at: match_time(now)),
+        have_attributes(amount: cost("$5"), apply_at: match_time(now), actor: member),
       )
       expect(member.payment_account).to have_attributes(total_balance: cost("$5"))
     end

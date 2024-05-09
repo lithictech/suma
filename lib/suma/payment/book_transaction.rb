@@ -29,6 +29,7 @@ class Suma::Payment::BookTransaction < Suma::Postgres::Model(:payment_book_trans
                left_key: :book_transaction_id
   one_to_one :triggered_by,
              class: "Suma::Payment::Trigger::Execution"
+  many_to_one :actor, class: "Suma::Member"
 
   def initialize(*)
     super
