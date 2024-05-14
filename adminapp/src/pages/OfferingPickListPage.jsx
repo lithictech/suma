@@ -30,9 +30,6 @@ import { useParams } from "react-router-dom";
  * 'pick' list. The second table renders the quantity for each unique product
  * and fulfillment option, aka the 'pack' list. The last table shows all orders
  * information including their fulfillment status.
- *
- * The backend supports offerings with no fulfillment options so it is also
- * supported here.
  * @returns {JSX.Element}
  */
 export default function OfferingPickListPage() {
@@ -101,9 +98,10 @@ export default function OfferingPickListPage() {
     productIdsAndQuantities[pid] ||= 0;
     productIdsAndQuantities[pid] += quantity;
     // Represent no fulfillment with zero index
-    fulfillmentIdsAndProductQuantities[fulfillmentOption?.id || 0] ||= {};
-    fulfillmentIdsAndProductQuantities[fulfillmentOption?.id || 0][pid] ||= 0;
-    fulfillmentIdsAndProductQuantities[fulfillmentOption?.id || 0][pid] += quantity;
+    const fulfillmentOptionId = fulfillmentOption?.id || 0;
+    fulfillmentIdsAndProductQuantities[fulfillmentOptionId] ||= {};
+    fulfillmentIdsAndProductQuantities[fulfillmentOptionId][pid] ||= 0;
+    fulfillmentIdsAndProductQuantities[fulfillmentOptionId][pid] += quantity;
   });
   const fulfillmentAndProductQuantityRows = [];
   Object.entries(fulfillmentIdsAndProductQuantities).forEach(([fid, pq]) => {
