@@ -1,4 +1,6 @@
 import api from "../api";
+import AdminLink from "../components/AdminLink";
+import BoolCheckmark from "../components/BoolCheckmark";
 import DetailGrid from "../components/DetailGrid";
 import LedgerBookTransactionsRelatedList from "../components/LedgerBookTransactionRelatedList";
 import RelatedList from "../components/RelatedList";
@@ -10,8 +12,6 @@ import { CircularProgress } from "@mui/material";
 import isEmpty from "lodash/isEmpty";
 import React from "react";
 import { useParams } from "react-router-dom";
-import AdminLink from "../components/AdminLink";
-import BoolCheckmark from "../components/BoolCheckmark";
 
 export default function PaymentLedgerDetailPage() {
   const { enqueueErrorSnackbar } = useErrorSnackbar();
@@ -38,8 +38,17 @@ export default function PaymentLedgerDetailPage() {
               { label: "Name", value: ledger.label },
               { label: "Currency", value: ledger.currency },
               { label: "Balance", value: <Money>{ledger.balance}</Money> },
-              { label: "Platform Account?", value: <BoolCheckmark>{ledger.isPlatformAccount}</BoolCheckmark> },
-              { label: "Member", hideEmpty: true, value: ledger.member ? <AdminLink model={ledger.member}>{ledger.member.name}</AdminLink> : undefined },
+              {
+                label: "Platform Account?",
+                value: <BoolCheckmark>{ledger.isPlatformAccount}</BoolCheckmark>,
+              },
+              {
+                label: "Member",
+                hideEmpty: true,
+                value: ledger.member ? (
+                  <AdminLink model={ledger.member}>{ledger.member.name}</AdminLink>
+                ) : undefined,
+              },
             ]}
           />
           <RelatedList
