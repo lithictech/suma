@@ -7,12 +7,12 @@ import useAsyncFetch from "../shared/react/useAsyncFetch";
 import useListQueryControls from "../shared/react/useListQueryControls";
 import React from "react";
 
-export default function PlatformLedgerListPage() {
+export default function PaymentLedgerListPage() {
   const { page, perPage, search, order, orderBy, setListQueryParams } =
     useListQueryControls();
 
   const getPlatformLedgers = React.useCallback(() => {
-    return api.getPlatformLedgers({
+    return api.getPaymentLedgers({
       page: page + 1,
       perPage,
       search,
@@ -35,7 +35,7 @@ export default function PlatformLedgerListPage() {
       search={search}
       order={order}
       orderBy={orderBy}
-      title="Platform Account Ledgers"
+      title="Payment Ledgers"
       listResponse={listResponse}
       listLoading={listLoading}
       tableProps={{ sx: { minWidth: 650 }, size: "small" }}
@@ -45,17 +45,25 @@ export default function PlatformLedgerListPage() {
           id: "id",
           label: "ID",
           align: "center",
+          sortable: true,
           render: (c) => <AdminLink model={c} />,
         },
         {
           id: "created_at",
           label: "Created At",
           align: "center",
+          sortable: true,
           render: (c) => dayjs(c.createdAt).format("lll"),
+        },
+        {
+          id: "member",
+          label: "Member",
+          render: (c) => <AdminLink model={c.member}>{c.member?.name}</AdminLink>,
         },
         {
           id: "name",
           label: "Name",
+          sortable: true,
           render: (c) => <AdminLink model={c}>{c.label}</AdminLink>,
         },
         {

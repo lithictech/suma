@@ -27,8 +27,8 @@ export default [
     icon: <AssignmentIndIcon />,
   },
   {
-    label: "Platform Ledgers",
-    href: "/platform-ledgers",
+    label: "Payment Ledgers",
+    href: "/payment-ledgers",
     icon: <PaymentsIcon />,
   },
   {

@@ -41,8 +41,8 @@ import PaymentTriggerEditPage from "./pages/PaymentTriggerEditPage";
 import PaymentTriggerListPage from "./pages/PaymentTriggerListPage";
 import PayoutTransactionDetailPage from "./pages/PayoutTransactionDetailPage";
 import PayoutTransactionListPage from "./pages/PayoutTransactionListPage";
-import PlatformLedgerDetailPage from "./pages/PlatformLedgerDetailPage";
-import PlatformLedgerListPage from "./pages/PlatformLedgerListPage";
+import PlatformLedgerDetailPage from "./pages/PaymentLedgerDetailPage";
+import PaymentLedgerListPage from "./pages/PaymentLedgerListPage";
 import ProductCreatePage from "./pages/ProductCreatePage";
 import ProductDetailPage from "./pages/ProductDetailPage";
 import ProductEditPage from "./pages/ProductEditPage";
@@ -257,12 +257,12 @@ function PageSwitch() {
       />
       <Route
         exact
-        path="/platform-ledgers"
-        element={renderWithHocs(redirectIfUnauthed, withLayout(), PlatformLedgerListPage)}
+        path="/payment-ledgers"
+        element={renderWithHocs(redirectIfUnauthed, withLayout(), PaymentLedgerListPage)}
       />
       <Route
         exact
-        path="/platform-ledger/:id"
+        path="/payment-ledger/:id"
         element={renderWithHocs(
           redirectIfUnauthed,
           withLayout(),

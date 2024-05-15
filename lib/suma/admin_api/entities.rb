@@ -191,12 +191,14 @@ module Suma::AdminAPI::Entities
     expose :label do |inst|
       inst.vendor_service_categories.map(&:name).sort.join(", ")
     end
+    expose :member, with: MemberEntity, &self.delegate_to(:account, :member)
   end
 
   class DetailedPaymentAccountLedgerEntity < PaymentAccountLedgerEntity
     include AutoExposeDetail
     expose :vendor_service_categories, with: VendorServiceCategoryEntity
     expose :combined_book_transactions, with: BookTransactionEntity
+    expose :is_platform_account, &self.delegate_to(:account, :is_platform_account)
   end
 
   class DetailedPaymentAccountEntity < BaseEntity

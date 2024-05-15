@@ -10,15 +10,17 @@ import { CircularProgress } from "@mui/material";
 import isEmpty from "lodash/isEmpty";
 import React from "react";
 import { useParams } from "react-router-dom";
+import AdminLink from "../components/AdminLink";
+import BoolCheckmark from "../components/BoolCheckmark";
 
-export default function PlatformLedgerDetailPage() {
+export default function PaymentLedgerDetailPage() {
   const { enqueueErrorSnackbar } = useErrorSnackbar();
   let { id } = useParams();
   id = Number(id);
-  const getPlatformLedger = React.useCallback(() => {
-    return api.getPlatformLedger({ id }).catch((e) => enqueueErrorSnackbar(e));
+  const getPaymentLedger = React.useCallback(() => {
+    return api.getPaymentLedger({ id }).catch((e) => enqueueErrorSnackbar(e));
   }, [id, enqueueErrorSnackbar]);
-  const { state: ledger, loading: ledgerLoading } = useAsyncFetch(getPlatformLedger, {
+  const { state: ledger, loading: ledgerLoading } = useAsyncFetch(getPaymentLedger, {
     default: {},
     pickData: true,
   });
@@ -29,13 +31,15 @@ export default function PlatformLedgerDetailPage() {
       {!isEmpty(ledger) && (
         <>
           <DetailGrid
-            title={`Platform Ledger ${id}`}
+            title={`Ledger ${id}`}
             properties={[
               { label: "ID", value: id },
               { label: "Created At", value: dayjs(ledger.createdAt) },
               { label: "Name", value: ledger.label },
               { label: "Currency", value: ledger.currency },
               { label: "Balance", value: <Money>{ledger.balance}</Money> },
+              { label: "Platform Account?", value: <BoolCheckmark>{ledger.isPlatformAccount}</BoolCheckmark> },
+              { label: "Member", hideEmpty: true, value: ledger.member ? <AdminLink model={ledger.member}>{ledger.member.name}</AdminLink> : undefined },
             ]}
           />
           <RelatedList
