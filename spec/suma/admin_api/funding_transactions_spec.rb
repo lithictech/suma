@@ -115,7 +115,7 @@ RSpec.describe Suma::AdminAPI::FundingTransactions, :db do
       )
     end
 
-    it "adds the admin member as the funding book transaction actor" do
+    it "knows the actor for the funding book transaction" do
       card = Suma::Fixtures.card.member(member).create
       Suma::Payment::FundingTransaction.force_fake(Suma::Payment::FakeStrategy.create.not_ready) do
         post "/v1/funding_transactions/create_for_self",

@@ -234,7 +234,6 @@ class Suma::Commerce::Checkout < Suma::Postgres::Model(:commerce_checkouts)
           amount: contrib_collection.remainder,
           instrument: self.payment_instrument,
           apply_at:,
-          actor: self.cart.member,
         )
         charge.add_associated_funding_transaction(funding)
       end

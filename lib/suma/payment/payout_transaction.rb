@@ -149,7 +149,6 @@ class Suma::Payment::PayoutTransaction < Suma::Postgres::Model(:payment_payout_t
           memo: refund_memo,
         )
         member_ledger = Suma::Payment.ensure_cash_ledger(funding_transaction.originating_payment_account)
-        actor = funding_transaction.originating_payment_account.member
         crediting_book_transaction = nil
         if apply_credit
           crediting_book_transaction = Suma::Payment::BookTransaction.create(
@@ -162,7 +161,7 @@ class Suma::Payment::PayoutTransaction < Suma::Postgres::Model(:payment_payout_t
               en: "Credit from suma",
               es: "Crédito de suma",
             ),
-            actor:,
+            actor: Suma::Payment::BookTransaction.current_actor,
           )
         end
         originated_book_transaction = Suma::Payment::BookTransaction.create(
@@ -172,7 +171,7 @@ class Suma::Payment::PayoutTransaction < Suma::Postgres::Model(:payment_payout_t
           receiving_ledger: px.platform_ledger,
           associated_vendor_service_category:,
           memo: refund_memo,
-          actor:,
+          actor: Suma::Payment::BookTransaction.current_actor,
         )
         px.update(
           refunded_funding_transaction: funding_transaction,

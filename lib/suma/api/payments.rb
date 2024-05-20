@@ -24,7 +24,6 @@ class Suma::API::Payments < Suma::API::V1
         amount: params[:amount],
         instrument:,
         apply_at: Time.now,
-        actor: c,
       )
       add_current_member_header
       status 200

@@ -49,7 +49,7 @@ class Suma::AdminAPI::BookTransactions < Suma::AdminAPI::V1
         receiving_ledger: receiving,
         associated_vendor_service_category: vsc,
         memo: Suma::TranslatedText.find_or_create(**params[:memo]),
-        actor: admin_member,
+        actor: Suma::Payment::BookTransaction.current_actor,
       )
       created_resource_headers(bx.id, bx.admin_link)
       status 200

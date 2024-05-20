@@ -169,7 +169,7 @@ RSpec.describe "Suma::Payment::Trigger", :db do
             originating_ledger: be === t.originating_ledger,
             receiving_ledger: account.ledgers(reload: true).first,
             triggered_by: be === executions[0],
-            actor: account.ledgers.first.account.member,
+            actor: nil,
           ),
         )
       end

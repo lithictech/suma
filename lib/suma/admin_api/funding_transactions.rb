@@ -48,7 +48,6 @@ class Suma::AdminAPI::FundingTransactions < Suma::AdminAPI::V1
           amount: params[:amount],
           instrument:,
           apply_at: Time.now,
-          actor: admin_member,
         )
       rescue Suma::Payment::Invalid => e
         merror!(409, e.message, code: "invalid_funding_instrument", skip_loc_check: true)

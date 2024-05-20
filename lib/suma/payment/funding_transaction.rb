@@ -117,7 +117,7 @@ class Suma::Payment::FundingTransaction < Suma::Postgres::Model(:payment_funding
 
     # Like +start_new+, but also creates a +BookTransaction+ that moves funds
     # from the platform cash ledger into the cash ledger on payment_account.
-    def start_and_transfer(payment_account, amount:, apply_at:, actor:, instrument: nil, strategy: nil)
+    def start_and_transfer(payment_account, amount:, apply_at:, instrument: nil, strategy: nil)
       receiving_ledger = Suma::Payment.ensure_cash_ledger(payment_account)
       vendor_service_category = Suma::Vendor::ServiceCategory.cash
       self.db.transaction do
@@ -129,7 +129,7 @@ class Suma::Payment::FundingTransaction < Suma::Postgres::Model(:payment_funding
           receiving_ledger:,
           associated_vendor_service_category: vendor_service_category,
           memo: fx.memo,
-          actor:,
+          actor: Suma::Payment::BookTransaction.current_actor,
         )
         fx.update(originated_book_transaction:)
         fx

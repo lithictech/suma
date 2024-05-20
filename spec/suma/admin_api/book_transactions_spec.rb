@@ -88,7 +88,7 @@ RSpec.describe Suma::AdminAPI::BookTransactions, :db do
       )
     end
 
-    it "adds the admin member as the transaction actor" do
+    it "adds the correct actor of the transaction" do
       b1 = Suma::Fixtures.book_transaction.create
       corn = Suma::Fixtures.vendor_service_category.create
 
