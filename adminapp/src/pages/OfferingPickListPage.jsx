@@ -24,6 +24,14 @@ import uniqBy from "lodash/uniqBy";
 import React from "react";
 import { useParams } from "react-router-dom";
 
+/**
+ * Returns offering pick pack list of an offerings products and fulfillment
+ * options. The first table renders each product and their quantity, aka the
+ * 'pick' list. The second table renders the quantity for each unique product
+ * and fulfillment option, aka the 'pack' list. The last table shows all orders
+ * information including their fulfillment status.
+ * @returns {JSX.Element}
+ */
 export default function OfferingPickListPage() {
   const { enqueueErrorSnackbar } = useErrorSnackbar();
   let { id } = useParams();
@@ -42,13 +50,21 @@ export default function OfferingPickListPage() {
     label: oi.offeringProduct.product.name,
     value: oi.offeringProduct.product.id,
   }));
-  const fulfillmentChoices = picklist.orderItems.map((oi) => ({
-    label: oi.fulfillmentOption.description,
-    value: oi.fulfillmentOption.id,
-  }));
-  function selectFilterMenuItems(allChoices) {
+  let fulfillmentChoices = picklist.orderItems
+    .filter((oi) => oi.fulfillmentOption)
+    .map((oi) => ({
+      label: oi.fulfillmentOption.description,
+      value: oi.fulfillmentOption.id,
+    }));
+  function selectFilterMenuItems(allChoices, isFulfillment) {
     const ch = sortBy(uniqBy(allChoices, "value"), "label");
-    const withEmpty = [{ label: "All", value: null }, ...ch];
+    const withEmpty = [{ label: "All", value: null }];
+    const noProductFulfillment = picklist.orderItems.some((oi) => !oi.fulfillmentOption);
+    if (isFulfillment && noProductFulfillment) {
+      withEmpty.push({ label: "No Fulfillment", value: "none" }, ...ch);
+    } else {
+      withEmpty.push(...ch);
+    }
     return withEmpty.map(({ label, value }) => (
       <MenuItem key={value} value={value}>
         {label}
@@ -60,7 +76,12 @@ export default function OfferingPickListPage() {
     [selectedProduct]
   );
   const fulfillmentOptMatches = React.useCallback(
-    (fo) => !selectedFulfillment || fo.id === Number(selectedFulfillment),
+    (fo) => {
+      if (selectedFulfillment === "none") {
+        return fo === null;
+      }
+      return !selectedFulfillment || fo?.id === Number(selectedFulfillment);
+    },
     [selectedFulfillment]
   );
   const matchingItems = (picklist.orderItems || []).filter(
@@ -76,9 +97,11 @@ export default function OfferingPickListPage() {
     const pid = offeringProduct.product.id;
     productIdsAndQuantities[pid] ||= 0;
     productIdsAndQuantities[pid] += quantity;
-    fulfillmentIdsAndProductQuantities[fulfillmentOption.id] ||= {};
-    fulfillmentIdsAndProductQuantities[fulfillmentOption.id][pid] ||= 0;
-    fulfillmentIdsAndProductQuantities[fulfillmentOption.id][pid] += quantity;
+    // Represent no fulfillment with zero index
+    const fulfillmentOptionId = fulfillmentOption?.id || 0;
+    fulfillmentIdsAndProductQuantities[fulfillmentOptionId] ||= {};
+    fulfillmentIdsAndProductQuantities[fulfillmentOptionId][pid] ||= 0;
+    fulfillmentIdsAndProductQuantities[fulfillmentOptionId][pid] += quantity;
   });
   const fulfillmentAndProductQuantityRows = [];
   Object.entries(fulfillmentIdsAndProductQuantities).forEach(([fid, pq]) => {
@@ -105,7 +128,7 @@ export default function OfferingPickListPage() {
                 label="Product"
                 onChange={(e) => setSearchParam("product", e.target.value || null)}
               >
-                {selectFilterMenuItems(productChoices)}
+                {selectFilterMenuItems(productChoices, false)}
               </Select>
             </FormControl>
             <FormControl sx={{ flex: 1, maxWidth: 300 }}>
@@ -115,7 +138,7 @@ export default function OfferingPickListPage() {
                 label="Fulfillment"
                 onChange={(e) => setSearchParam("fulfillment", e.target.value || null)}
               >
-                {selectFilterMenuItems(fulfillmentChoices)}
+                {selectFilterMenuItems(fulfillmentChoices, true)}
               </Select>
             </FormControl>
           </Stack>
@@ -162,7 +185,7 @@ export default function OfferingPickListPage() {
                 field: "fulfillmentOption",
                 headerName: "Fulfillment",
                 width: 350,
-                renderCell: ({ value }) => value.description,
+                renderCell: ({ value }) => (value ? value.description : "-"),
               },
               {
                 field: "quantity",
@@ -171,7 +194,7 @@ export default function OfferingPickListPage() {
               },
             ]}
             rows={fulfillmentAndProductQuantityRows}
-            getRowId={(row) => `${row.product.id}-${row.fulfillmentOption.id}`}
+            getRowId={(row) => `${row.product.id}-${row.fulfillmentOption?.id || 0}`}
             {...commonTableProps}
           />
           <StripedDataGrid
@@ -218,7 +241,7 @@ export default function OfferingPickListPage() {
                 field: "fulfillmentOption",
                 headerName: "Fulfillment",
                 width: 250,
-                renderCell: ({ value }) => value.description,
+                renderCell: ({ value }) => (value ? value.description : "-"),
               },
               {
                 field: "status",
