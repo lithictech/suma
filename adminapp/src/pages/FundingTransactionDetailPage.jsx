@@ -70,6 +70,13 @@ export default function FundingTransactionDetailPage() {
                   </AdminLink>
                 ),
               },
+              {
+                label: "Actor",
+                hideEmpty: true,
+                value: originated.actor ? (
+                  <AdminLink model={originated.actor}>{originated.actor.name}</AdminLink>
+                ) : undefined,
+              },
             ]}
           />
           <ExternalLinks externalLinks={xaction.externalLinks} />

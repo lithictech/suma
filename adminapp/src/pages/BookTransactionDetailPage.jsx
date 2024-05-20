@@ -61,6 +61,13 @@ export default function BookTransactionDetailPage() {
                   </AdminLink>
                 ),
               },
+              {
+                label: "Actor",
+                hideEmpty: true,
+                value: xaction.actor ? (
+                  <AdminLink model={xaction.actor}>{xaction.actor.name}</AdminLink>
+                ) : undefined,
+              },
             ]}
           />
           <RelatedList

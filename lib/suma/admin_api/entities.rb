@@ -182,6 +182,7 @@ module Suma::AdminAPI::Entities
     expose :associated_vendor_service_category, with: VendorServiceCategoryEntity
     expose :originating_ledger, with: SimpleLedgerEntity
     expose :receiving_ledger, with: SimpleLedgerEntity
+    expose :actor, with: AuditMemberEntity
   end
 
   class DetailedPaymentAccountLedgerEntity < BaseEntity

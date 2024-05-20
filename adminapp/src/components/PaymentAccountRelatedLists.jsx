@@ -48,6 +48,7 @@ export default function PaymentAccountRelatedLists({ paymentAccount }) {
             "Created",
             "Applied",
             "Amount",
+            "Actor",
             "Category",
             "Originating",
             "Receiving",
@@ -63,6 +64,7 @@ export default function PaymentAccountRelatedLists({ paymentAccount }) {
                 ? scaleMoney(row.amount, -1)
                 : row.amount}
             </Money>,
+            <AdminLink model={row.actor}>{row.actor?.name}</AdminLink>,
             row.associatedVendorServiceCategory?.name,
             <AdminLink key="originating" model={row.originatingLedger}>
               {row.originatingLedger.adminLabel}
