@@ -35,6 +35,8 @@ import OrganizationMembershipCreatePage from "./pages/OrganizationMembershipCrea
 import OrganizationMembershipDetailPage from "./pages/OrganizationMembershipDetailPage";
 import OrganizationMembershipEditPage from "./pages/OrganizationMembershipEditPage";
 import OrganizationMembershipListPage from "./pages/OrganizationMembershipListPage";
+import PaymentLedgerDetailPage from "./pages/PaymentLedgerDetailPage";
+import PaymentLedgerListPage from "./pages/PaymentLedgerListPage";
 import PaymentTriggerCreatePage from "./pages/PaymentTriggerCreatePage";
 import PaymentTriggerDetailPage from "./pages/PaymentTriggerDetailPage";
 import PaymentTriggerEditPage from "./pages/PaymentTriggerEditPage";
@@ -252,6 +254,20 @@ function PageSwitch() {
         exact
         path="/payment-trigger/:id/edit"
         element={renderWithHocs(redirectIfUnauthed, withLayout(), PaymentTriggerEditPage)}
+      />
+      <Route
+        exact
+        path="/payment-ledgers"
+        element={renderWithHocs(redirectIfUnauthed, withLayout(), PaymentLedgerListPage)}
+      />
+      <Route
+        exact
+        path="/payment-ledger/:id"
+        element={renderWithHocs(
+          redirectIfUnauthed,
+          withLayout(),
+          PaymentLedgerDetailPage
+        )}
       />
       <Route
         exact

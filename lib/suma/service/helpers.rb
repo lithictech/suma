@@ -184,9 +184,9 @@ module Suma::Service::Helpers
     return dataset.paginate(params[:page], params[:per_page])
   end
 
-  def order(dataset, params)
+  def order(dataset, params, disambiguator: :id)
     expr = params[:order_direction] == :asc ? Sequel.asc(params[:order_by]) : Sequel.desc(params[:order_by])
-    return dataset.order(expr, Sequel.desc(:id))
+    return dataset.order(expr, Sequel.desc(disambiguator))
   end
 
   def use_http_expires_caching(expiration)
@@ -305,7 +305,7 @@ module Suma::Service::Helpers
   end
 
   params :ordering do |options|
-    default_order_by = options[:default] || :created_at
+    default_order_by = options.key?(:default) ? options[:defualt] : :created_at
     order_by_values = options[:values] || options[:model]&.columns
     raise "Must provide :values or :model for possible orderings" unless order_by_values
     optional :order_by, type: Symbol, values: order_by_values, default: default_order_by

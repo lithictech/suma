@@ -31,6 +31,7 @@ export default function BookTransactionDetailPage() {
             title={`Book Transaction ${id}`}
             properties={[
               { label: "ID", value: id },
+              { label: "Created At", value: dayjs(xaction.createdAt) },
               { label: "Apply At", value: dayjs(xaction.applyAt) },
               { label: "Amount", value: <Money>{xaction.amount}</Money> },
               { label: "Category", value: xaction.associatedVendorServiceCategory?.name },

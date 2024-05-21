@@ -105,6 +105,9 @@ export default {
   getPayoutTransaction: ({ id, ...data }) =>
     get(`/adminapi/v1/payout_transactions/${id}`, data),
 
+  getPaymentLedgers: (data) => get(`/adminapi/v1/payment_ledgers`, data),
+  getPaymentLedger: ({ id, ...data }) => get(`/adminapi/v1/payment_ledgers/${id}`, data),
+
   getPaymentTriggers: (data) => get(`/adminapi/v1/payment_triggers`, data),
   createPaymentTrigger: (data) => post(`/adminapi/v1/payment_triggers/create`, data),
   getPaymentTrigger: ({ id, ...data }) =>
