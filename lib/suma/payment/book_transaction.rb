@@ -114,9 +114,14 @@ class Suma::Payment::BookTransaction < Suma::Postgres::Model(:payment_book_trans
       self.receiving_ledger_id == self.originating_ledger_id
   end
 
+  def before_create
+    self.actor ||= self.class._current_actor
+    super
+  end
+
   # Get the actor of a transaction. Return admin, member or nil,
   # in that order. Nil means the transaction was not a part of a request.
-  def self.current_actor
+  def self._current_actor
     # rubocop:disable Performance/ReverseFirst
     return Suma.request_user_and_admin.compact.reverse.first
     # rubocop:enable Performance/ReverseFirst

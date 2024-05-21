@@ -129,7 +129,6 @@ class Suma::Payment::FundingTransaction < Suma::Postgres::Model(:payment_funding
           receiving_ledger:,
           associated_vendor_service_category: vendor_service_category,
           memo: fx.memo,
-          actor: Suma::Payment::BookTransaction.current_actor,
         )
         fx.update(originated_book_transaction:)
         fx

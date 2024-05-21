@@ -149,7 +149,6 @@ class Suma::Payment::Account < Suma::Postgres::Model(:payment_accounts)
         receiving_ledger: Suma::Payment::Account.lookup_platform_vendor_service_category_ledger(c.category),
         associated_vendor_service_category: c.category,
         memo:,
-        actor: Suma::Payment::BookTransaction.current_actor,
       )
     end
     return xactions

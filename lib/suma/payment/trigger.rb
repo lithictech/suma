@@ -80,7 +80,6 @@ class Suma::Payment::Trigger < Suma::Postgres::Model(:payment_triggers)
           originating_ledger: step.trigger.originating_ledger,
           receiving_ledger: step.receiving_ledger,
           memo: step.trigger.memo,
-          actor: Suma::Payment::BookTransaction.current_actor,
         )
         Suma::Payment::Trigger::Execution.create(book_transaction:, trigger: step.trigger)
       end
