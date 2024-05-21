@@ -39,15 +39,12 @@ export default function PaymentLedgerDetailPage() {
               { label: "Currency", value: ledger.currency },
               { label: "Balance", value: <Money>{ledger.balance}</Money> },
               {
-                label: "Platform Account?",
-                value: <BoolCheckmark>{ledger.isPlatformAccount}</BoolCheckmark>,
-              },
-              {
                 label: "Member",
-                hideEmpty: true,
-                value: ledger.member ? (
+                value: ledger.isPlatformAccount ? (
+                  "(Platform)"
+                ) : (
                   <AdminLink model={ledger.member}>{ledger.member.name}</AdminLink>
-                ) : undefined,
+                ),
               },
             ]}
           />
