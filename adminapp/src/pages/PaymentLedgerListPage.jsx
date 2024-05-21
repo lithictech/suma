@@ -11,7 +11,7 @@ export default function PaymentLedgerListPage() {
   const { page, perPage, search, order, orderBy, setListQueryParams } =
     useListQueryControls();
 
-  const getPlatformLedgers = React.useCallback(() => {
+  const getPaymentLedgers = React.useCallback(() => {
     return api.getPaymentLedgers({
       page: page + 1,
       perPage,
@@ -20,13 +20,10 @@ export default function PaymentLedgerListPage() {
       orderDirection: order,
     });
   }, [order, orderBy, page, perPage, search]);
-  const { state: listResponse, loading: listLoading } = useAsyncFetch(
-    getPlatformLedgers,
-    {
-      default: {},
-      pickData: true,
-    }
-  );
+  const { state: listResponse, loading: listLoading } = useAsyncFetch(getPaymentLedgers, {
+    default: {},
+    pickData: true,
+  });
 
   return (
     <ResourceTable
@@ -49,22 +46,20 @@ export default function PaymentLedgerListPage() {
           render: (c) => <AdminLink model={c} />,
         },
         {
-          id: "created_at",
-          label: "Created At",
-          align: "center",
+          id: "name",
+          label: "Name",
           sortable: true,
-          render: (c) => dayjs(c.createdAt).format("lll"),
+          render: (c) => <AdminLink model={c}>{c.name}</AdminLink>,
         },
         {
           id: "member",
           label: "Member",
-          render: (c) => <AdminLink model={c.member}>{c.member?.name}</AdminLink>,
-        },
-        {
-          id: "name",
-          label: "Name",
-          sortable: true,
-          render: (c) => <AdminLink model={c}>{c.label}</AdminLink>,
+          render: (c) =>
+            c.isPlatformAccount ? (
+              "(Platform)"
+            ) : (
+              <AdminLink model={c.member}>{c.member?.name}</AdminLink>
+            ),
         },
         {
           id: "balance",

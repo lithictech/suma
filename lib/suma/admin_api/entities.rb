@@ -145,6 +145,7 @@ module Suma::AdminAPI::Entities
   class SimpleLedgerEntity < BaseEntity
     include AutoExposeBase
     expose :name
+    expose :account_name, &self.delegate_to(:account, :display_name)
     expose :admin_label
   end
 
@@ -184,21 +185,16 @@ module Suma::AdminAPI::Entities
     expose :actor, with: AuditMemberEntity
   end
 
-  class PaymentAccountLedgerEntity < BaseEntity
+  class DetailedPaymentAccountLedgerEntity < BaseEntity
     include AutoExposeBase
+    include AutoExposeDetail
     expose :currency
+    expose :vendor_service_categories, with: VendorServiceCategoryEntity
+    expose :combined_book_transactions, with: BookTransactionEntity
     expose :balance, with: MoneyEntity
     expose :label do |inst|
       inst.vendor_service_categories.map(&:name).sort.join(", ")
     end
-    expose :member, with: MemberEntity, &self.delegate_to(:account, :member)
-  end
-
-  class DetailedPaymentAccountLedgerEntity < PaymentAccountLedgerEntity
-    include AutoExposeDetail
-    expose :vendor_service_categories, with: VendorServiceCategoryEntity
-    expose :combined_book_transactions, with: BookTransactionEntity
-    expose :is_platform_account, &self.delegate_to(:account, :is_platform_account)
   end
 
   class DetailedPaymentAccountEntity < BaseEntity

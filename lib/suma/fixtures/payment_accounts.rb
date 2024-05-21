@@ -16,4 +16,8 @@ module Suma::Fixtures::PaymentAccounts
     instance.member ||= Suma::Fixtures.member.create
     instance
   end
+
+  decorator :platform do |is=true|
+    self.is_platform_account = is
+  end
 end

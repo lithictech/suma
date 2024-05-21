@@ -35,7 +35,7 @@ import OrganizationMembershipCreatePage from "./pages/OrganizationMembershipCrea
 import OrganizationMembershipDetailPage from "./pages/OrganizationMembershipDetailPage";
 import OrganizationMembershipEditPage from "./pages/OrganizationMembershipEditPage";
 import OrganizationMembershipListPage from "./pages/OrganizationMembershipListPage";
-import PlatformLedgerDetailPage from "./pages/PaymentLedgerDetailPage";
+import PaymentLedgerDetailPage from "./pages/PaymentLedgerDetailPage";
 import PaymentLedgerListPage from "./pages/PaymentLedgerListPage";
 import PaymentTriggerCreatePage from "./pages/PaymentTriggerCreatePage";
 import PaymentTriggerDetailPage from "./pages/PaymentTriggerDetailPage";
@@ -266,7 +266,7 @@ function PageSwitch() {
         element={renderWithHocs(
           redirectIfUnauthed,
           withLayout(),
-          PlatformLedgerDetailPage
+          PaymentLedgerDetailPage
         )}
       />
       <Route

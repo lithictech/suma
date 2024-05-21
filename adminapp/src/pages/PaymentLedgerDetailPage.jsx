@@ -35,7 +35,7 @@ export default function PaymentLedgerDetailPage() {
             properties={[
               { label: "ID", value: id },
               { label: "Created At", value: dayjs(ledger.createdAt) },
-              { label: "Name", value: ledger.label },
+              { label: "Name", value: ledger.name },
               { label: "Currency", value: ledger.currency },
               { label: "Balance", value: <Money>{ledger.balance}</Money> },
               {
