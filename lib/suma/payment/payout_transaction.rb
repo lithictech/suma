@@ -118,7 +118,7 @@ class Suma::Payment::PayoutTransaction < Suma::Postgres::Model(:payment_payout_t
     #
     # The created payout will always have an +originated_book_transaction+ created
     # from the original payment account's cash ledger, to the platform ledger,
-    # to represent the withdrawl of funds.
+    # to represent the withdrawal of funds.
     #
     # Additionally, if apply_credit is true, a +credited_book_transaction+ is created
     # from the platform cash ledger to the original payment account's cash ledger,
