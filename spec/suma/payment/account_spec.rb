@@ -159,21 +159,18 @@ RSpec.describe "Suma::Payment::Account", :db do
           receiving_ledger: be === recip,
           associated_vendor_service_category: be === food,
           amount: cost("$2"),
-          actor: nil,
         ),
         have_attributes(
           originating_ledger: be === ledgers[1],
           receiving_ledger: be === recip,
           associated_vendor_service_category: be === food,
           amount: cost("$2"),
-          actor: nil,
         ),
         have_attributes(
           originating_ledger: be === ledgers[2],
           receiving_ledger: be === recip,
           associated_vendor_service_category: be === food,
           amount: cost("$2"),
-          actor: nil,
         ),
       )
     end

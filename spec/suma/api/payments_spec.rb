@@ -31,7 +31,7 @@ RSpec.describe Suma::API::Payments, :db do
         have_attributes(status: "created", originated_book_transaction: be_present),
       )
       expect(member.payment_account.cash_ledger.received_book_transactions).to contain_exactly(
-        have_attributes(amount: cost("$5"), actor: member),
+        have_attributes(amount: cost("$5")),
       )
       expect(member.payment_account).to have_attributes(total_balance: cost("$5"))
     end

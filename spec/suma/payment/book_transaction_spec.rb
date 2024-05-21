@@ -3,6 +3,18 @@
 RSpec.describe "Suma::Payment::BookTransaction", :db do
   let(:described_class) { Suma::Payment::BookTransaction }
 
+  it "sets the current actor appropriately" do
+    expect(Suma::Fixtures.book_transaction.create.actor).to be_nil
+    user = Suma::Fixtures.member.create
+    admin = Suma::Fixtures.member.create
+    Suma.set_request_user_and_admin(user, nil) do
+      expect(Suma::Fixtures.book_transaction.create.actor).to be === user
+    end
+    Suma.set_request_user_and_admin(user, admin) do
+      expect(Suma::Fixtures.book_transaction.create.actor).to be === admin
+    end
+  end
+
   describe "associations" do
     let(:b) { Suma::Fixtures.book_transaction.create }
     it "knows about the funding transaction that originated the receiver" do

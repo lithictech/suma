@@ -115,16 +115,20 @@ class Suma::Payment::BookTransaction < Suma::Postgres::Model(:payment_book_trans
   end
 
   def before_create
-    self.actor ||= self.class._current_actor
+    self.actor ||= self.class.current_actor
     super
   end
 
-  # Get the actor of a transaction. Return admin, member or nil,
+  # Return the current actor. If the action happened by request of an admin,
+  # they are the actor. Otherwise the actor is the user making a request.
+  # If the transaction was created outside of a request, such as through
+  # a backend process, the actor is nil.
   # in that order. Nil means the transaction was not a part of a request.
-  def self._current_actor
-    # rubocop:disable Performance/ReverseFirst
-    return Suma.request_user_and_admin.compact.reverse.first
-    # rubocop:enable Performance/ReverseFirst
+  def self.current_actor
+    user, admin = Suma.request_user_and_admin
+    return admin unless admin.nil?
+    return user unless user.nil?
+    return nil
   end
 end
 

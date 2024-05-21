@@ -115,19 +115,6 @@ RSpec.describe Suma::AdminAPI::FundingTransactions, :db do
       )
     end
 
-    it "knows the actor for the funding book transaction" do
-      card = Suma::Fixtures.card.member(member).create
-      Suma::Payment::FundingTransaction.force_fake(Suma::Payment::FakeStrategy.create.not_ready) do
-        post "/v1/funding_transactions/create_for_self",
-             amount: {cents: 500, currency: "USD"},
-             payment_instrument_id: card.id,
-             payment_method_type: card.payment_method_type
-      end
-
-      expect(last_response).to have_status(200)
-      expect(member.payment_account.cash_ledger.received_book_transactions.first.actor).to eq(admin)
-    end
-
     it "errors if the instrument is not usable" do
       card = Suma::Fixtures.card.member(member).create
 
