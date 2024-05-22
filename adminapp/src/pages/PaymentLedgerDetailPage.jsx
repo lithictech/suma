@@ -1,6 +1,5 @@
 import api from "../api";
 import AdminLink from "../components/AdminLink";
-import BoolCheckmark from "../components/BoolCheckmark";
 import DetailGrid from "../components/DetailGrid";
 import LedgerBookTransactionsRelatedList from "../components/LedgerBookTransactionRelatedList";
 import RelatedList from "../components/RelatedList";

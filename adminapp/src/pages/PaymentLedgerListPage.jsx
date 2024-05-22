@@ -1,7 +1,6 @@
 import api from "../api";
 import AdminLink from "../components/AdminLink";
 import ResourceTable from "../components/ResourceTable";
-import { dayjs } from "../modules/dayConfig";
 import Money from "../shared/react/Money";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
 import useListQueryControls from "../shared/react/useListQueryControls";
