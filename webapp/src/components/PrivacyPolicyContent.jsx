@@ -89,7 +89,7 @@ export default function PrivacyPolicyContent({ mobile }) {
                 <Stack gap={3}>
                   <TabLink
                     label={t("overview:faq")}
-                    to={`https://mysuma.org/sumaplatform/${language}-faq`}
+                    to={`https://mysuma.org/faq-${language}`}
                   />
                   <TabLink
                     label={t("overview:contact_us")}
