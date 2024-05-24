@@ -45,7 +45,7 @@ class Suma::API::Auth < Suma::API::V1
             subject_id: member.id,
           )
         end
-        member.add_reset_code({transport: "sms"})
+        Suma::Member::ResetCode.replace_active(member, transport: "sms")
         member.message_preferences!.update(preferred_language: params[:language]) if params[:language].present?
         status 200
         present member, with: AuthFlowMemberEntity

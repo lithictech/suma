@@ -25,4 +25,12 @@ module Suma::Fixtures::ResetCodes
   decorator :email do
     self.transport = "email"
   end
+
+  decorator :expired do
+    self.expire_at = Faker::Number.between(from: 1, to: 100).minutes.ago
+  end
+
+  decorator :used do
+    self.used = true
+  end
 end

@@ -165,7 +165,7 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
     it "dispatches the code" do
       member = Suma::Fixtures.member(phone: "12223334444").create
       expect do
-        member.add_reset_code(token: "12345", transport: "sms")
+        Suma::Member::ResetCode.replace_active(member, token: "12345", transport: "sms")
       end.to perform_async_job(Suma::Async::ResetCodeCreateDispatch)
 
       expect(Suma::Message::Delivery.all).to contain_exactly(
