@@ -33,7 +33,15 @@ class Suma::Member::Exporter
     got = CSV.generate do |csv|
       csv << HEADERS.map(&:first)
       @dataset.paged_each do |m|
-        row = coercers.map { |c| c[m] }
+        row = coercers.map do |c|
+          v = c[m]
+          # If the string starts with an equal sign, add a space before it,
+          # so spreadsheet programs will not evaluate it as a macro
+          # which can be confusing (name of "=1+1" would appear as "2")
+          # and potentially dangerous.
+          v = " #{v}" if v.respond_to?(:start_with?) && v.start_with?("=")
+          v
+        end
         csv << row
       end
     end
