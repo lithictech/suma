@@ -66,7 +66,7 @@ RSpec.describe "Suma::Member::ResetCode", :db do
     let(:member) { Suma::Fixtures.member(phone:, email:).create }
 
     it "can send the code via sms" do
-      code = member.add_reset_code(token: "12345", transport: "sms")
+      code = Suma::Fixtures.reset_code.create(member:, token: "12345", transport: "sms")
       code.dispatch_message
 
       expect(Suma::Message::Delivery.all).to contain_exactly(
@@ -83,7 +83,7 @@ RSpec.describe "Suma::Member::ResetCode", :db do
 
     it "can send the code via email" do
       member.message_preferences!.update(preferred_language: "es")
-      code = member.add_reset_code(token: "12345", transport: "email")
+      code = Suma::Fixtures.reset_code.create(member:, token: "12345", transport: "email")
       code.dispatch_message
 
       expect(Suma::Message::Delivery.all).to contain_exactly(
@@ -94,6 +94,26 @@ RSpec.describe "Suma::Member::ResetCode", :db do
           bodies: include(have_attributes(mediatype: "subject", content: "Su código de verificación suma")),
         ),
       )
+    end
+  end
+
+  describe "::replace_active" do
+    it "creates a new reset code with the given params and expires all usable ones to the same transport" do
+      fac = Suma::Fixtures.reset_code(member:, transport: "sms")
+      used = fac.used.create
+      expired = fac.expired.create
+      valid_email = fac.create(transport: "email")
+      valid_sms_other_member = fac.create(member: Suma::Fixtures.member.create)
+      valid_sms = fac.create
+
+      new = described_class.replace_active(member, token: "abc", transport: "sms")
+      expect(new).to have_attributes(token: "abc")
+      # Ensure these do not change
+      expect(described_class[used.id]).to have_attributes(expire_at: used.expire_at)
+      expect(described_class[expired.id]).to have_attributes(expire_at: expired.expire_at)
+      expect(described_class[valid_email.id]).to have_attributes(expire_at: valid_email.expire_at)
+      # Ensure this one expired
+      expect(described_class[valid_sms.id]).to have_attributes(expire_at: match_time(:now))
     end
   end
 end

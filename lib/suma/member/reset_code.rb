@@ -19,6 +19,13 @@ class Suma::Member::ResetCode < Suma::Postgres::Model(:member_reset_codes)
     end
   end
 
+  def self.replace_active(member, transport:, **options)
+    self.db.transaction do
+      member.reset_codes_dataset.where(transport:).usable.update(expire_at: Sequel.function(:now))
+      return self.create(member:, transport:, **options)
+    end
+  end
+
   # Invoke the given block with the reset code referred to by token.
   # Raise Unusable if code is unusable.
   def self.use_code_with_token(token)
