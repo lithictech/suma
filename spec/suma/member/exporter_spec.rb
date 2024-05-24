@@ -31,4 +31,10 @@ RSpec.describe Suma::Member::Exporter, :db do
     LINES
     expect(csv).to eq(lines)
   end
+
+  it "adds a space before values that start with an equal sign to avoid exporing a macro" do
+    member = Suma::Fixtures.member.create(name: "=1+1")
+    csv = described_class.new(Suma::Member.dataset).to_csv
+    expect(csv).to include("#{member.id}, =1+1")
+  end
 end
