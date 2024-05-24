@@ -33,6 +33,7 @@ class Suma::API::Commerce < Suma::API::V1
         helpers do
           def lookup_offering!
             (offering = Suma::Commerce::Offering[params[:offering_id]]) or forbidden!
+            check_eligibility!(offering, current_member)
             return offering
           end
 
@@ -76,9 +77,7 @@ class Suma::API::Commerce < Suma::API::V1
         end
 
         post :checkout do
-          member = current_member
           offering = lookup_offering!
-          check_eligibility!(offering, member)
           cart = lookup_cart!(offering)
           ctx = new_context
           begin
