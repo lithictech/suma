@@ -93,6 +93,15 @@ RSpec.describe Suma::API::Commerce, :db do
       get "/v1/commerce/offerings/#{offering.id}"
       expect(last_response).to have_status(401)
     end
+
+    it "403s if the member cannot access the offering due to constraints" do
+      offering.add_eligibility_constraint(Suma::Fixtures.eligibility_constraint.create)
+
+      get "/v1/commerce/offerings/#{offering.id}"
+
+      expect(last_response).to have_status(403)
+      expect(last_response).to have_json_body.that_includes(error: include(code: "eligibility_violation"))
+    end
   end
 
   describe "PUT /v1/commerce/offerings/:id/cart/item" do
@@ -120,7 +129,7 @@ RSpec.describe Suma::API::Commerce, :db do
       )
     end
 
-    it "returns a 409 for product unavailable" do
+    it "409s for product unavailable" do
       offering_product.delete
 
       put "/v1/commerce/offerings/#{offering.id}/cart/item", product_id: product.id, quantity: 2, timestamp: 1
@@ -128,6 +137,15 @@ RSpec.describe Suma::API::Commerce, :db do
       expect(last_response).to have_status(409)
       expect(last_response).to have_json_body.
         that_includes(error: include(code: "product_unavailable"))
+    end
+
+    it "403s if the member cannot access the offering due to constraints" do
+      offering.add_eligibility_constraint(Suma::Fixtures.eligibility_constraint.create)
+
+      put "/v1/commerce/offerings/#{offering.id}/cart/item", product_id: product.id, quantity: 2
+
+      expect(last_response).to have_status(403)
+      expect(last_response).to have_json_body.that_includes(error: include(code: "eligibility_violation"))
     end
   end
 
@@ -162,7 +180,7 @@ RSpec.describe Suma::API::Commerce, :db do
         that_includes(error: include(code: "checkout_no_items"))
     end
 
-    it "errors if the available inventory is insufficient for what is in the cart" do
+    it "409s if the available inventory is insufficient for what is in the cart" do
       offering.update(max_ordered_items_per_member: 1)
 
       post "/v1/commerce/offerings/#{offering.id}/checkout"
@@ -172,7 +190,7 @@ RSpec.describe Suma::API::Commerce, :db do
         that_includes(error: include(code: "invalid_order_quantity", message: "max quantity exceeded"))
     end
 
-    it "errors if any product is no longer available due to offering reasons" do
+    it "409s if any product is no longer available due to offering reasons" do
       offering_product.delete
 
       post "/v1/commerce/offerings/#{offering.id}/checkout"
@@ -182,7 +200,7 @@ RSpec.describe Suma::API::Commerce, :db do
         that_includes(error: include(code: "invalid_order_quantity", message: "product unavailable"))
     end
 
-    it "errors if the member cannot access the offering due to constraints" do
+    it "403s if the member cannot access the offering due to constraints" do
       offering.add_eligibility_constraint(Suma::Fixtures.eligibility_constraint.create)
 
       post "/v1/commerce/offerings/#{offering.id}/checkout"
@@ -191,7 +209,7 @@ RSpec.describe Suma::API::Commerce, :db do
       expect(last_response).to have_json_body.that_includes(error: include(code: "eligibility_violation"))
     end
 
-    it "errors if offering is closed" do
+    it "409s if offering is closed" do
       offering.update(period_end: 1.day.ago)
 
       post "/v1/commerce/offerings/#{offering.id}/checkout"
@@ -213,7 +231,7 @@ RSpec.describe Suma::API::Commerce, :db do
       expect(last_response).to have_json_body.that_includes(id: checkout.id)
     end
 
-    it "errors if the checkout is not editable" do
+    it "403s if the checkout is not editable" do
       checkout.soft_delete
 
       get "/v1/commerce/checkouts/#{checkout.id}"
@@ -221,7 +239,7 @@ RSpec.describe Suma::API::Commerce, :db do
       expect(last_response).to have_status(403)
     end
 
-    it "errors if the checkout does not belong to the member" do
+    it "403s if the checkout does not belong to the member" do
       checkout.cart.update(member: Suma::Fixtures.member.create)
 
       get "/v1/commerce/checkouts/#{checkout.id}"
@@ -229,7 +247,7 @@ RSpec.describe Suma::API::Commerce, :db do
       expect(last_response).to have_status(403)
     end
 
-    it "errors if the checkout has no items" do
+    it "403s if the checkout has no items" do
       checkout.items_dataset.delete
 
       get "/v1/commerce/checkouts/#{checkout.id}"
@@ -293,7 +311,7 @@ RSpec.describe Suma::API::Commerce, :db do
       expect(checkout.refresh).to be_completed
     end
 
-    it "errors if checkout is prohibited" do
+    it "409s if checkout is prohibited" do
       checkout.soft_delete
 
       post "/v1/commerce/checkouts/#{checkout.id}/complete", charge_amount_cents: cost
@@ -313,7 +331,7 @@ RSpec.describe Suma::API::Commerce, :db do
       expect(checkout.refresh).to have_attributes(payment_instrument: be === newcard)
     end
 
-    it "errors if the member does not own the instrument" do
+    it "403s if the member does not own the instrument" do
       newcard = Suma::Fixtures.card.create
 
       post "/v1/commerce/checkouts/#{checkout.id}/complete",
@@ -323,7 +341,7 @@ RSpec.describe Suma::API::Commerce, :db do
       expect(last_response).to have_status(403)
     end
 
-    it "errors if the instrument is soft deleted" do
+    it "403s if the instrument is soft deleted" do
       newcard = Suma::Fixtures.card.create
       newcard.soft_delete
 
@@ -343,7 +361,7 @@ RSpec.describe Suma::API::Commerce, :db do
       expect(last_response).to have_status(200)
     end
 
-    it "errors if the checkout does not point to a payment instrument when required" do
+    it "409s if the checkout does not point to a payment instrument when required" do
       checkout.update(payment_instrument: nil)
 
       post "/v1/commerce/checkouts/#{checkout.id}/complete", charge_amount_cents: cost
@@ -382,7 +400,7 @@ RSpec.describe Suma::API::Commerce, :db do
       expect(checkout.refresh).to have_attributes(fulfillment_option_id: nil)
     end
 
-    it "errors if nil fulfillment option is passed and checkout has existing option" do
+    it "400s if nil fulfillment option is passed and checkout has existing option" do
       existing_opt = Suma::Fixtures.offering_fulfillment_option(offering:).create
       checkout.update(fulfillment_option: existing_opt)
 
@@ -392,7 +410,7 @@ RSpec.describe Suma::API::Commerce, :db do
       expect(last_response).to have_json_body.that_includes(error: include(code: "validation_error"))
     end
 
-    it "errors if fulfillment option id is invalid" do
+    it "400s if fulfillment option id is invalid" do
       invalid_option = Suma::Fixtures.offering_fulfillment_option.create
 
       post "/v1/commerce/checkouts/#{checkout.id}/complete",
@@ -403,7 +421,7 @@ RSpec.describe Suma::API::Commerce, :db do
       expect(last_response).to have_json_body.that_includes(error: include(code: "validation_error"))
     end
 
-    it "errors if max quantity is exceeded" do
+    it "403s if max quantity is exceeded" do
       offering.update(max_ordered_items_cumulative: 1)
 
       post "/v1/commerce/checkouts/#{checkout.id}/complete", charge_amount_cents: cost
@@ -421,7 +439,7 @@ RSpec.describe Suma::API::Commerce, :db do
       expect(card.refresh).to be_soft_deleted
     end
 
-    it "errors if the member cannot access the offering due to constraints" do
+    it "403s if the member cannot access the offering due to constraints" do
       offering.add_eligibility_constraint(Suma::Fixtures.eligibility_constraint.create)
 
       post "/v1/commerce/checkouts/#{checkout.id}/complete", charge_amount_cents: cost
@@ -445,13 +463,13 @@ RSpec.describe Suma::API::Commerce, :db do
         that_includes(id: checkout.id)
     end
 
-    it "errors if the checkout is not completed" do
+    it "403s if the checkout is not completed" do
       get "/v1/commerce/checkouts/#{checkout.id}/confirmation"
 
       expect(last_response).to have_status(403)
     end
 
-    it "errors if the checkout does not belong to the member" do
+    it "403s if the checkout does not belong to the member" do
       checkout.cart.update(member: Suma::Fixtures.member.create)
 
       get "/v1/commerce/checkouts/#{checkout.id}/confirmation"
@@ -459,7 +477,7 @@ RSpec.describe Suma::API::Commerce, :db do
       expect(last_response).to have_status(403)
     end
 
-    it "errors if the checkout is more than 2 days old" do
+    it "403s if the checkout is more than 2 days old" do
       checkout.update(created_at: 3.days.ago)
 
       get "/v1/commerce/checkouts/#{checkout.id}/confirmation"
