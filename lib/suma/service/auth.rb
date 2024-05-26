@@ -81,6 +81,25 @@ class Suma::Service::Auth
 
   Warden::Manager.serialize_into_session(&:id)
   Warden::Manager.serialize_from_session { |id| Suma::Member[id] }
+  Warden::Manager.after_set_user do |_user, auth, opts|
+    # Store the 'last access' timestamp for this user session, and refresh it on every request.
+    # If the timestamp is too old, reject the session.
+    # This avoids a replay attack using an old cookie; even though the cookie itself gets an expires_at,
+    # it can still be reused by an attacker later. Since the contents of the cookie are encrypted,
+    # they cannot modify the last_access value stored in the session.
+    scope = opts[:scope]
+    # If there is no last_access timestamp, this is the initial session auth, or it's a legacy cookie (pre-May 2024).
+    # Since we don't want to log everyone out when this ships, we allow these legacy sessions to continue.
+    if (ts = auth.session(scope)["last_access"])
+      ts = Time.parse(ts)
+      expire_at = ts + Suma::Service.max_session_age
+      if Time.now > expire_at
+        auth.logout(scope)
+        throw(:warden, scope:, reason: "Cookie expired")
+      end
+    end
+    auth.session(scope)["last_access"] = Time.now.iso8601
+  end
 
   Warden::Strategies.add(:password, PasswordStrategy)
   Warden::Strategies.add(:admin_password, AdminPasswordStrategy)

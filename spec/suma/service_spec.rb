@@ -149,6 +149,16 @@ class Suma::API::TestService < Suma::Service
     status 200
   end
 
+  params do
+    requires :id
+  end
+  post :set_member do
+    m = Suma::Member[params[:id]]
+    set_member(m)
+    m2 = current_member
+    present({id: m2.id})
+  end
+
   get :current_member do
     c = current_member
     header "Test-TLS-User-Id", Thread.current[:suma_request_user]&.id&.to_s
@@ -731,6 +741,42 @@ RSpec.describe Suma::Service, :db do
       get "/current_member"
       expect(last_response).to have_status(401)
       expect(last_response.cookies).to be_empty
+    end
+
+    describe "session validation", reset_configuration: described_class do
+      before(:each) do
+        post "/set_member", id: member.id
+        expect(last_response).to have_status(201)
+        # At this point, the cookie will have a 30 day expiration, but now we need to check the 'user auth age' logic.
+        # Set the max_session_age (used for that check) to be shorter than it was,
+        # since trying to do this all through the front door is extremely hard (Rack::Test won't send the expired cookie).
+        # The shortened max_session_age here means 1) the expires_at of the cookie is still valid, which is good
+        # because we want to assume the expires_at is always valid for this, and
+        # 2) we can use Timecop to check the rest of the behavior, around extending the auth date
+        # and failing if it's too old.
+        described_class.max_session_age = 60
+        # Sanity check to make sure everything works.
+        get "/current_member"
+        expect(last_response).to have_status(200)
+      end
+
+      it "fails if the user authed more than the session age ago" do
+        Timecop.travel(90.seconds.from_now) { get "/current_member" }
+        expect(last_response).to have_status(401)
+      end
+
+      it "sets the last auth time to extend the session duration on each authed request" do
+        Timecop.travel(30.seconds.from_now) { get "/current_member" }
+        expect(last_response).to have_status(200)
+        Timecop.travel(61.seconds.from_now) { get "/current_member" }
+        expect(last_response).to have_status(200)
+        Timecop.travel(90.seconds.from_now) { get "/current_member" }
+        expect(last_response).to have_status(200)
+        Timecop.travel(125.seconds.from_now) { get "/current_member" }
+        expect(last_response).to have_status(200)
+        Timecop.travel(200.seconds.from_now) { get "/current_member" }
+        expect(last_response).to have_status(401)
+      end
     end
 
     it "returns the impersonated user (even if deleted)" do
