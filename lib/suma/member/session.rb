@@ -20,6 +20,7 @@ class Suma::Member::Session < Suma::Postgres::Model(:member_sessions)
     self.validates_presence :peer_ip
     self.validates_presence :user_agent
     self.validates_presence :member_id
+    # self.validates_presence :opaque_id
   end
 end
 

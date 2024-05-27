@@ -84,7 +84,7 @@ class Suma::API::Auth < Suma::API::V1
     end
 
     delete do
-      delete_session_cookies
+      logout
       status 204
       body ""
     end

@@ -735,12 +735,11 @@ RSpec.describe Suma::Service, :db do
       expect(last_response).to have_status(401)
     end
 
-    it "errors and clears cookies if the user is deleted" do
+    it "errors if the user is deleted" do
       login_as(member)
       member.soft_delete
       get "/current_member"
       expect(last_response).to have_status(401)
-      expect(last_response.cookies).to be_empty
     end
 
     describe "session validation", reset_configuration: described_class do
@@ -786,15 +785,14 @@ RSpec.describe Suma::Service, :db do
       expect(last_response).to have_json_body.that_includes(id: member.id)
     end
 
-    it "errors and clears cookies if the admin impersonating a user is deleted" do
+    it "401s if the admin impersonating a user is deleted" do
       impersonate(admin:, target: member)
       admin.soft_delete
       get "/current_member"
       expect(last_response).to have_status(401)
-      expect(last_response.cookies).to be_empty
     end
 
-    it "errors if the admin impersonating a user does not have the admin role" do
+    it "401s if the admin impersonating a user does not have the admin role" do
       impersonate(admin:, target: member)
       admin.remove_all_roles
       get "/current_member"
@@ -838,7 +836,6 @@ RSpec.describe Suma::Service, :db do
       admin.soft_delete
       get "/current_member_safe"
       expect(last_response).to have_status(401)
-      expect(last_response.cookies).to be_empty
     end
   end
 
@@ -858,20 +855,18 @@ RSpec.describe Suma::Service, :db do
       expect(last_response).to have_status(401)
     end
 
-    it "errors and clears cookies if the admin is deleted" do
+    it "401s if the admin is deleted" do
       login_as_admin(admin)
       admin.soft_delete
       get "/admin_member"
       expect(last_response).to have_status(401)
-      expect(last_response.cookies).to be_empty
     end
 
-    it "errors and clears cookies if the admin does not have the role" do
+    it "401s if the admin does not have the role" do
       login_as_admin(admin)
       admin.remove_all_roles
       get "/admin_member"
       expect(last_response).to have_status(401)
-      expect(last_response.cookies).to be_empty
     end
 
     it "returns the admin, even while impersonating" do
@@ -899,20 +894,18 @@ RSpec.describe Suma::Service, :db do
       expect(last_response).to have_json_body.that_includes(id: nil)
     end
 
-    it "errors and clears cookies if the admin is deleted" do
+    it "errors if the admin is deleted" do
       login_as_admin(admin)
       admin.soft_delete
       get "/admin_member_safe"
       expect(last_response).to have_status(401)
-      expect(last_response.cookies).to be_empty
     end
 
-    it "errors and clears cookies if the admin does not have the role" do
+    it "errors if the admin does not have the role" do
       login_as_admin(admin)
       admin.remove_all_roles
       get "/admin_member_safe"
       expect(last_response).to have_status(401)
-      expect(last_response.cookies).to be_empty
     end
 
     it "returns the admin, even while impersonating" do

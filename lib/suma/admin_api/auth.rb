@@ -31,7 +31,7 @@ class Suma::AdminAPI::Auth < Suma::AdminAPI::BaseV1
     end
 
     delete do
-      delete_session_cookies
+      logout
       status 204
       body ""
     end
@@ -40,7 +40,7 @@ class Suma::AdminAPI::Auth < Suma::AdminAPI::BaseV1
     resource :impersonate do
       desc "Remove any active impersonation and return the admin member."
       delete do
-        Suma::Service::Auth::Impersonation.new(env["warden"]).off(admin_member)
+        Suma::Service::Auth::Impersonation.new(env.fetch("yosoy")).off(admin_member)
 
         status 200
         present admin_member, with: CurrentMemberEntity, env:
@@ -51,7 +51,7 @@ class Suma::AdminAPI::Auth < Suma::AdminAPI::BaseV1
         post do
           (target = Suma::Member[params[:member_id]]) or forbidden!
 
-          Suma::Service::Auth::Impersonation.new(env["warden"]).on(target)
+          Suma::Service::Auth::Impersonation.new(env["yosoy"]).on(target)
 
           status 200
           present admin_member, with: CurrentMemberEntity, env:

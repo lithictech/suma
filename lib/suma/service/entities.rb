@@ -89,7 +89,7 @@ module Suma::Service::Entities
     end
     protected def impersonation(env=nil)
       env ||= options[:env]
-      return @impersonation ||= Suma::Service::Auth::Impersonation.new(env["warden"])
+      return @impersonation ||= Suma::Service::Auth::Impersonation.new(env.fetch("yosoy"))
     end
   end
 

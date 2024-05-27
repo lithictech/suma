@@ -14,6 +14,7 @@ module Suma::Fixtures::Sessions
   base :session do
     self.peer_ip ||= Faker::Internet.ip_v4_address
     self.user_agent ||= Faker::Internet.user_agent
+    self.opaque_id ||= SecureRandom.uuid
   end
 
   before_saving do |instance|

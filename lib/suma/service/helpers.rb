@@ -16,36 +16,34 @@ module Suma::Service::Helpers
     return Suma::Service.logger
   end
 
+  # Error if there is already an authed user.
   def guard_authed!
     merror!(409, "You are already signed in. Please sign out first.", code: "auth_conflict") if
       current_member?
   end
 
+  # Get the current auth manager in the environment.
+  # @return [Suma::Service::Auth::Manager]
+  def yosoy = env.fetch("yosoy")
+
   # Return the currently-authenticated user,
   # or respond with a 401 if there is no authenticated user.
   def current_member
-    return _check_member_deleted(env["warden"].authenticate!(scope: :member), admin_member?)
+    return _check_member_deleted(yosoy.authenticated!(:member), admin_member?)
   end
 
   # Return the currently-authenticated user,
   # or respond nil if there is no authenticated user.
   def current_member?
-    return _check_member_deleted(env["warden"].user(scope: :member), admin_member?)
+    return _check_member_deleted(yosoy.authenticated?(:member), admin_member?)
   end
 
   def admin_member
-    return _check_member_deleted(env["warden"].authenticate!(scope: :admin), nil)
+    return _check_member_deleted(yosoy.authenticated!(:admin), nil)
   end
 
   def admin_member?
-    return _check_member_deleted(env["warden"].authenticate(scope: :admin), nil)
-  end
-
-  def authenticate!
-    warden = env["warden"]
-    user = warden.authenticate!(scope: :member)
-    warden.set_user(user, scope: :admin) if user.admin?
-    return user
+    return _check_member_deleted(yosoy.authenticated?(:admin), nil)
   end
 
   # Handle denying authentication if the given user cannot auth.
@@ -68,38 +66,31 @@ module Suma::Service::Helpers
   # trying to auth/check auth for a user without knowing the secret.
   def _check_member_deleted(user, potential_admin)
     return nil if user.nil?
-    if potential_admin && (potential_admin.soft_deleted? || !potential_admin.roles.include?(Suma::Role.admin_role))
-      delete_session_cookies
-      unauthenticated!
-    end
-    if user.soft_deleted? && potential_admin.nil?
-      delete_session_cookies
-      unauthenticated!
-    end
+    unauthenticated! if
+      potential_admin && (potential_admin.soft_deleted? || !potential_admin.roles.include?(Suma::Role.admin_role))
+    unauthenticated! if user.soft_deleted? && potential_admin.nil?
     return user
   end
 
-  def delete_session_cookies
-    # Nope, cannot do this through Warden easily.
-    # And really we should have server-based sessions we can expire,
-    # but in the meantime, stomp on the cookie hard.
-    options = env[Rack::RACK_SESSION_OPTIONS]
-    options[:drop] = true
-
-    # Rack sends a cookie with an empty session, but let's tell the browser to actually delete the cookie.
-    cookies.delete(Suma::Service::SESSION_COOKIE, domain: options[:domain], path: options[:path])
-    # Set this header to tell the client to delete everything.
-    header "Clear-Site-Data", "*"
+  def logout
+    yosoy.logout
+    # warden = env.fetch('yosoy').logout
+    # options = env[Rack::RACK_SESSION_OPTIONS]
+    # options[:drop] = true
+    #
+    # # Rack sends a cookie with an empty session, but let's tell the browser to actually delete the cookie.
+    # cookies.delete(Suma::Service::SESSION_COOKIE, domain: options[:domain], path: options[:path])
+    # # Set this header to tell the client to delete everything.
+    # header "Clear-Site-Data", "*"
   end
 
   def set_member(member)
-    warden = env["warden"]
-    warden.set_user(member, scope: :member)
-    warden.set_user(member, scope: :admin) if member.admin?
+    yosoy.set_user(member, :member)
+    yosoy.set_user(member, :admin) if member.admin?
   end
 
-  def current_session_id
-    return env["rack.session"].id
+  def unauthenticated!
+    yosoy.unauthenticated!
   end
 
   def check_role!(member, role_name)
@@ -121,15 +112,6 @@ module Suma::Service::Helpers
 
   def adminerror!(status, message, code: "admin", more: {})
     merror!(status, message, code:, more:, skip_loc_check: true)
-  end
-
-  def unauthenticated!
-    merror!(401, "Unauthenticated", code: "unauthenticated")
-  end
-
-  def unauthenticated_with_message!(msg)
-    env["suma.authfailuremessage"] = msg
-    unauthenticated!
   end
 
   def forbidden!(message="Forbidden")

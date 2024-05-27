@@ -4,7 +4,6 @@ require "appydays/loggable"
 require "pathname"
 require "rack/test"
 require "rspec"
-require "warden"
 require "yajl"
 
 require "suma/spec_helpers"
@@ -12,12 +11,7 @@ require "suma/spec_helpers"
 module Suma::SpecHelpers::Service
   def self.included(context)
     context.include(SumaTestMethods)
-
-    ::Warden.test_mode!
-
     super
-
-    context.after(:each) { Warden.test_reset! }
   end
 
   def last_session_id
@@ -26,31 +20,29 @@ module Suma::SpecHelpers::Service
     return session["session_id"]
   end
 
-  def login_as(member, opts=nil)
-    opts ||= {scope: :member}
-    Warden.on_next_request do |proxy|
-      opts[:event] ||= :authentication
-      proxy.set_user(member, opts)
+  def login_as(member, scope: :member)
+    Suma::Yosoy.on_next_request do |proxy|
+      proxy.set_user(member, scope)
     end
   end
 
-  def login_as_admin(member, opts={})
-    login_as(member, opts.merge(scope: :member))
-    login_as(member, opts.merge(scope: :admin))
+  def login_as_admin(member)
+    login_as(member, scope: :member)
+    login_as(member, scope: :admin)
   end
 
   def impersonate(admin: nil, target: nil)
     admin ||= Suma::Fixtures.member.admin.create
     target ||= Suma::Fixtures.member.create
-    Warden.on_next_request do |proxy|
-      proxy.set_user(admin, event: :authentication, scope: :admin)
-      proxy.set_user(target, event: :authentication, scope: :member)
+    Suma::Yosoy.on_next_request do |proxy|
+      proxy.set_user(admin, :admin)
+      proxy.set_user(target, :member)
       Suma::Service::Auth::Impersonation.new(proxy).on(target)
     end
   end
 
   def logout(*scopes)
-    Warden.on_next_request do |proxy|
+    Suma::Yosoy.on_next_request do |proxy|
       proxy.logout(*scopes)
     end
   end
