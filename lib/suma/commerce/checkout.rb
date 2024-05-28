@@ -169,6 +169,7 @@ class Suma::Commerce::Checkout < Suma::Postgres::Model(:commerce_checkouts)
       self.cart.lock!
       # Locking the checkout ensures we don't process it multiple times as a race
       self.lock!
+      raise Suma::Member::ReadOnlyMode if self.cart.member.read_only_reason === "read_only_unverified"
       # This isn't ideal- it'd be better
       if (prohibition_reason = self.cost_info(at: apply_at).checkout_prohibited_reason)
         raise Prohibited.new(

@@ -6,7 +6,7 @@ RSpec.describe Suma::API::Commerce, :db do
   include Rack::Test::Methods
 
   let(:app) { described_class.build_app }
-  let(:member) { Suma::Fixtures.member.with_cash_ledger.create }
+  let(:member) { Suma::Fixtures.member.onboarding_verified.with_cash_ledger.create }
 
   before(:each) do
     login_as(member)
@@ -309,6 +309,15 @@ RSpec.describe Suma::API::Commerce, :db do
       expect(checkout.order).to be_a(Suma::Commerce::Order)
       expect(cart.refresh.items).to be_empty
       expect(checkout.refresh).to be_completed
+    end
+
+    it "403s if checkout is prohibited due to member unverified status" do
+      member.update(onboarding_verified_at: nil)
+
+      post "/v1/commerce/checkouts/#{checkout.id}/complete", charge_amount_cents: cost
+
+      expect(last_response).to have_status(403)
+      expect(last_response).to have_json_body.that_includes(error: include(code: "read_only_unverified"))
     end
 
     it "409s if checkout is prohibited" do

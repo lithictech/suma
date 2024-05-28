@@ -92,6 +92,7 @@ RSpec.describe "Suma::Commerce::Cart", :db do
 
     def create_fake_order(cart)
       member = cart.member
+      member.update(onboarding_verified_at: Time.now)
       Suma::Fixtures::Members.register_as_stripe_customer(member)
       Suma::Payment.ensure_cash_ledger(member)
       card = Suma::Fixtures.card.member(member).create
