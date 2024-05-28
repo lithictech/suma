@@ -70,36 +70,6 @@ module Suma::Service::Helpers
     return m
   end
 
-  # Handle denying authentication if the given session is valid for auth.
-  # That is:
-  # - if we have an admin, but they should not be (deleted or missing role), throw unauthed error.
-  # - if current user is nil, return nil, since the caller can handle it.
-  # - if current user is deleted and there is no admin, throw unauthed error.
-  # - if current user is deleted and admin is deleted, throw unauthed error.
-  # - otherwise, return current user.
-  #
-  # The scenarios this covers are:
-  # - Normal users cannot auth if deleted.
-  # - Admins can sudo deleted users, and current_member still works.
-  # - Deleted admins cannot auth or get their sudo'ed user.
-  #
-  # NOTE: It is safe to throw unauthed errors for deleted users-
-  # this does not expose whether a user exists or not,
-  # because the only way to call this is via cookies,
-  # and cookies are encrypted. So it is impossible to force requests
-  # trying to auth/check auth for a user without knowing the secret.
-  #
-  # @param session [Suma::Member::Session,nil]
-  # @param potential_admin [Suma::Member,nil]
-  def _check_member_deleted(session, potential_admin)
-    return nil if session.nil?
-    unauthenticated! if
-      potential_admin && (potential_admin.soft_deleted? || !potential_admin.admin?)
-    member = session.member
-    unauthenticated! if member.soft_deleted? && potential_admin.nil?
-    return member
-  end
-
   def logout
     current_session?&.mark_logged_out&.save_changes
     options = env[Rack::RACK_SESSION_OPTIONS]
