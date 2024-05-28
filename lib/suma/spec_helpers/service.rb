@@ -20,31 +20,25 @@ module Suma::SpecHelpers::Service
     return session["session_id"]
   end
 
-  def login_as(member, scope: :member)
+  def login_as(member_or_session)
+    session = member_or_session
+    session = Suma::Fixtures.session.for(session).create if session.is_a?(Suma::Member)
     Suma::Yosoy.on_next_request do |proxy|
-      proxy.set_user(member, scope)
+      proxy.set_authenticated_object(session)
     end
-  end
-
-  def login_as_admin(member)
-    login_as(member, scope: :member)
-    login_as(member, scope: :admin)
   end
 
   def impersonate(admin: nil, target: nil)
     admin ||= Suma::Fixtures.member.admin.create
     target ||= Suma::Fixtures.member.create
+    session = Suma::Fixtures.session.for(admin).impersonating(target).create
     Suma::Yosoy.on_next_request do |proxy|
-      proxy.set_user(admin, :admin)
-      proxy.set_user(target, :member)
-      Suma::Service::Auth::Impersonation.new(proxy).on(target)
+      proxy.set_authenticated_object(session)
     end
   end
 
-  def logout(*scopes)
-    Suma::Yosoy.on_next_request do |proxy|
-      proxy.logout(*scopes)
-    end
+  def logout
+    Suma::Yosoy.on_next_request(&:logout)
   end
 
   # RSpec matcher for matching Rack::Test response body

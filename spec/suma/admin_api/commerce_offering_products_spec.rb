@@ -10,7 +10,7 @@ RSpec.describe Suma::AdminAPI::CommerceOfferingProducts, :db do
   let(:admin) { Suma::Fixtures.member.admin.create }
 
   before(:each) do
-    login_as_admin(admin)
+    login_as(admin)
   end
 
   describe "POST /v1/commerce_offering_products/create" do

@@ -93,7 +93,7 @@ module Suma::API::Entities
     expose :read_only_reason
     expose :usable_payment_instruments, with: PaymentInstrumentEntity
     expose :admin_member, expose_nil: false, with: Suma::Service::Entities::CurrentMember do |_|
-      self.impersonation.is? ? self.impersonation.admin_member : nil
+      self.current_session.impersonation? ? self.current_session.member : nil
     end
     expose :show_private_accounts do |m|
       !Suma::AnonProxy::VendorAccount.for(m).empty?

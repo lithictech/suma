@@ -22,31 +22,55 @@ module Suma::Service::Helpers
       current_member?
   end
 
-  # Get the current auth manager in the environment.
-  # @return [Suma::Service::Auth::Manager]
+  def rack_session = env.fetch("rack.session")
+  # @return [Suma::Yosoy::Proxy]
   def yosoy = env.fetch("yosoy")
+  # @return [String]
+  def current_session_id = rack_session.session_id
+  # @return [Suma::Member::Session]
+  def current_session = yosoy.authenticated_object!
+  # @return [Suma::Member::Session,nil]
+  def current_session? = yosoy.authenticated_object?
 
   # Return the currently-authenticated user,
   # or respond with a 401 if there is no authenticated user.
+  # @return [Suma::Member]
   def current_member
-    return _check_member_deleted(yosoy.authenticated!(:member), admin_member?)
+    m = current_member?
+    unauthenticated! unless m
+    return m
   end
 
   # Return the currently-authenticated user,
   # or respond nil if there is no authenticated user.
+  # @return [Suma::Member,nil]
   def current_member?
-    return _check_member_deleted(yosoy.authenticated?(:member), admin_member?)
+    return nil unless (cs = current_session?)
+    if cs.impersonation?
+      unauthenticated! unless cs.member.admin?
+      return cs.impersonating
+    end
+    unauthenticated! if cs.member.soft_deleted?
+    return cs.member
   end
 
+  # @return [Suma::Member]
   def admin_member
-    return _check_member_deleted(yosoy.authenticated!(:admin), nil)
+    m = admin_member?
+    unauthenticated! unless m
+    return m
   end
 
+  # @return [Suma::Member,nil]
   def admin_member?
-    return _check_member_deleted(yosoy.authenticated?(:admin), nil)
+    return nil unless (cs = current_session?)
+    m = cs.member
+    return nil unless m.admin?
+    unauthenticated! if m.soft_deleted?
+    return m
   end
 
-  # Handle denying authentication if the given user cannot auth.
+  # Handle denying authentication if the given session is valid for auth.
   # That is:
   # - if we have an admin, but they should not be (deleted or missing role), throw unauthed error.
   # - if current user is nil, return nil, since the caller can handle it.
@@ -64,29 +88,31 @@ module Suma::Service::Helpers
   # because the only way to call this is via cookies,
   # and cookies are encrypted. So it is impossible to force requests
   # trying to auth/check auth for a user without knowing the secret.
-  def _check_member_deleted(user, potential_admin)
-    return nil if user.nil?
+  #
+  # @param session [Suma::Member::Session,nil]
+  # @param potential_admin [Suma::Member,nil]
+  def _check_member_deleted(session, potential_admin)
+    return nil if session.nil?
     unauthenticated! if
-      potential_admin && (potential_admin.soft_deleted? || !potential_admin.roles.include?(Suma::Role.admin_role))
-    unauthenticated! if user.soft_deleted? && potential_admin.nil?
-    return user
+      potential_admin && (potential_admin.soft_deleted? || !potential_admin.admin?)
+    member = session.member
+    unauthenticated! if member.soft_deleted? && potential_admin.nil?
+    return member
   end
 
   def logout
-    yosoy.logout
-    # warden = env.fetch('yosoy').logout
-    # options = env[Rack::RACK_SESSION_OPTIONS]
-    # options[:drop] = true
-    #
-    # # Rack sends a cookie with an empty session, but let's tell the browser to actually delete the cookie.
-    # cookies.delete(Suma::Service::SESSION_COOKIE, domain: options[:domain], path: options[:path])
-    # # Set this header to tell the client to delete everything.
-    # header "Clear-Site-Data", "*"
+    current_session?&.mark_logged_out&.save_changes
+    options = env[Rack::RACK_SESSION_OPTIONS]
+    options[:drop] = true
+
+    # Rack sends a cookie with an empty session, but let's tell the browser to actually delete the cookie.
+    cookies.delete(Suma::Service::SESSION_COOKIE, domain: options[:domain], path: options[:path])
+    # Set this header to tell the client to delete everything.
+    header "Clear-Site-Data", "*"
   end
 
-  def set_member(member)
-    yosoy.set_user(member, :member)
-    yosoy.set_user(member, :admin) if member.admin?
+  def set_session(session)
+    yosoy.set_authenticated_object(session)
   end
 
   def unauthenticated!

@@ -11,7 +11,7 @@ RSpec.describe Suma::AdminAPI::PaymentLedgers, :db do
   let(:platform_account) { Suma::Fixtures.payment_account.platform.create }
 
   before(:each) do
-    login_as_admin(admin)
+    login_as(admin)
   end
 
   describe "GET /v1/payment_ledgers" do

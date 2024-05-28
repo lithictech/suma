@@ -89,7 +89,7 @@ module Suma::Service::Middleware
   class RequestLogger < Appydays::Loggable::RequestLogger
     def request_tags(env)
       tags = super
-      tags[:member_id] = env["yosoy"].authenticated?(:member)&.id || 0
+      tags[:member_id] = env["yosoy"].authenticated_object?&.member_id || 0
       return tags
     end
   end

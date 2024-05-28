@@ -10,7 +10,7 @@ RSpec.describe Suma::AdminAPI::Members, :db do
   let(:admin) { Suma::Fixtures.member.admin.create }
 
   before(:each) do
-    login_as_admin(admin)
+    login_as(admin)
   end
 
   describe "GET /v1/members" do
@@ -112,7 +112,6 @@ RSpec.describe Suma::AdminAPI::Members, :db do
     end
 
     it "represents detailed info" do
-      Suma::Fixtures.session(member: admin, peer_ip: "1.2.3.4").create
       cash_ledger = Suma::Fixtures.ledger.member(admin).category(:cash).create
       charge1 = Suma::Fixtures.charge(member: admin).create
       charge1.add_book_transaction(Suma::Fixtures.book_transaction.from(cash_ledger).create)
@@ -121,7 +120,7 @@ RSpec.describe Suma::AdminAPI::Members, :db do
 
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.that_includes(
-        sessions: contain_exactly(include(ip_lookup_link: "https://whatismyipaddress.com/ip/1.2.3.4")),
+        sessions: contain_exactly(include(:ip_lookup_link)),
       )
     end
   end

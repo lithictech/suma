@@ -25,7 +25,8 @@ class Suma::AdminAPI::Auth < Suma::AdminAPI::BaseV1
         merror!(403, "Those credentials are invalid or that email is not in our system.", code: "invalid_credentials")
       end
       merror!(403, "This account is not an administrator.", code: "invalid_permissions") unless me.admin?
-      set_member(me)
+      session = me.add_session(**Suma::Member::Session.params_for_request(request))
+      set_session(session)
       status 200
       present admin_member, with: CurrentMemberEntity, env:
     end
@@ -40,8 +41,7 @@ class Suma::AdminAPI::Auth < Suma::AdminAPI::BaseV1
     resource :impersonate do
       desc "Remove any active impersonation and return the admin member."
       delete do
-        Suma::Service::Auth::Impersonation.new(env.fetch("yosoy")).off(admin_member)
-
+        current_session.unimpersonate.save_changes
         status 200
         present admin_member, with: CurrentMemberEntity, env:
       end
@@ -50,9 +50,7 @@ class Suma::AdminAPI::Auth < Suma::AdminAPI::BaseV1
         desc "Impersonate a member"
         post do
           (target = Suma::Member[params[:member_id]]) or forbidden!
-
-          Suma::Service::Auth::Impersonation.new(env["yosoy"]).on(target)
-
+          current_session.impersonate(target).save_changes
           status 200
           present admin_member, with: CurrentMemberEntity, env:
         end

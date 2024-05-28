@@ -7,7 +7,7 @@ RSpec.describe Suma::AdminAPI::OrganizationMemberships, :db do
   let(:admin) { Suma::Fixtures.member.admin.create }
 
   before(:each) do
-    login_as_admin(admin)
+    login_as(admin)
   end
 
   describe "GET /v1/organization_memberships" do

@@ -63,7 +63,7 @@ RSpec.describe Suma::API::Me, :db do
       let(:admin) { Suma::Fixtures.member.admin.create }
       before(:each) do
         logout
-        login_as_admin(admin)
+        login_as(admin)
       end
 
       it "returns the impersonated user if they are impersonated" do

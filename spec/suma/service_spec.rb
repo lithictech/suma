@@ -19,7 +19,8 @@ class Suma::API::TestService < Suma::Service
   end
 
   finally do
-    Suma::API::TestService.global_shim[:sentry_scope] = Sentry.get_current_scope
+    Suma::API::TestService.global_shim[:sentry_scope] = Sentry.get_current_scope if
+      Suma::API::TestService.global_shim
   end
 
   post :echo do
@@ -154,7 +155,8 @@ class Suma::API::TestService < Suma::Service
   end
   post :set_member do
     m = Suma::Member[params[:id]]
-    set_member(m)
+    ses = Suma::Fixtures.session.for(m).create
+    set_session(ses)
     m2 = current_member
     present({id: m2.id})
   end
@@ -742,6 +744,14 @@ RSpec.describe Suma::Service, :db do
       expect(last_response).to have_status(401)
     end
 
+    it "errors if the session is logged out" do
+      session = Suma::Fixtures.session.for(member).create
+      login_as(session)
+      session.mark_logged_out.save_changes
+      get "/current_member"
+      expect(last_response).to have_status(401)
+    end
+
     describe "session validation", reset_configuration: described_class do
       before(:each) do
         post "/set_member", id: member.id
@@ -844,7 +854,7 @@ RSpec.describe Suma::Service, :db do
     let(:admin) { Suma::Fixtures.member.admin.create }
 
     it "looks up the logged in admin" do
-      login_as_admin(admin)
+      login_as(admin)
       get "/admin_member"
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.that_includes(id: admin.id)
@@ -856,14 +866,14 @@ RSpec.describe Suma::Service, :db do
     end
 
     it "401s if the admin is deleted" do
-      login_as_admin(admin)
+      login_as(admin)
       admin.soft_delete
       get "/admin_member"
       expect(last_response).to have_status(401)
     end
 
     it "401s if the admin does not have the role" do
-      login_as_admin(admin)
+      login_as(admin)
       admin.remove_all_roles
       get "/admin_member"
       expect(last_response).to have_status(401)
@@ -882,7 +892,7 @@ RSpec.describe Suma::Service, :db do
     let(:admin) { Suma::Fixtures.member.admin.create }
 
     it "looks up the logged in admin" do
-      login_as_admin(admin)
+      login_as(admin)
       get "/admin_member_safe"
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.that_includes(id: admin.id)
@@ -894,18 +904,19 @@ RSpec.describe Suma::Service, :db do
       expect(last_response).to have_json_body.that_includes(id: nil)
     end
 
-    it "errors if the admin is deleted" do
-      login_as_admin(admin)
+    it "401s if the admin is deleted" do
+      login_as(admin)
       admin.soft_delete
       get "/admin_member_safe"
       expect(last_response).to have_status(401)
     end
 
-    it "errors if the admin does not have the role" do
-      login_as_admin(admin)
+    it "uses nil if the admin does not have the role" do
+      login_as(admin)
       admin.remove_all_roles
       get "/admin_member_safe"
-      expect(last_response).to have_status(401)
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.that_includes(id: nil)
     end
 
     it "returns the admin, even while impersonating" do

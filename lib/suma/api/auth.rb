@@ -77,8 +77,8 @@ class Suma::API::Auth < Suma::API::V1
         merror!(403, "Sorry, that token is invalid or the phone number is not in our system.", code: "invalid_otp")
       end
 
-      set_member(me)
-      create_session(me)
+      session = create_session(me)
+      set_session(session)
       status 200
       present me, with: CurrentMemberEntity, env:
     end

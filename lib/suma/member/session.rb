@@ -7,6 +7,7 @@ class Suma::Member::Session < Suma::Postgres::Model(:member_sessions)
   plugin :timestamps
 
   many_to_one :member, class: Suma::Member
+  many_to_one :impersonating, class: Suma::Member
 
   def self.params_for_request(request)
     return {
@@ -15,12 +16,46 @@ class Suma::Member::Session < Suma::Postgres::Model(:member_sessions)
     }
   end
 
+  dataset_module do
+    def valid
+      return self.where(logged_out_at: nil)
+    end
+  end
+
+  def initialize(*)
+    super
+    self[:token] ||= "ses_#{SecureRandom.uuid}"
+  end
+
+  def logged_out? = !!self.logged_out_at
+
+  def mark_logged_out
+    self.logged_out_at = Time.now
+    return self
+  end
+
+  def impersonate(member)
+    self.impersonating = member
+    return self
+  end
+
+  def unimpersonate
+    self.impersonating = nil
+    return self
+  end
+
+  def impersonation? = !self.impersonating_id.nil?
+
+  # If this session is impersonating someone, the character is the member being impersonated.
+  # If this session is not impersonating, the member is the character.
+  # def character = self.impersonation? ? self.impersonating : self.member
+
   def validate
     super
     self.validates_presence :peer_ip
     self.validates_presence :user_agent
     self.validates_presence :member_id
-    # self.validates_presence :opaque_id
+    self.validates_presence :token
   end
 end
 

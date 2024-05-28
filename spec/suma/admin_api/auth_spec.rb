@@ -12,7 +12,7 @@ RSpec.describe Suma::AdminAPI::Auth, :db do
 
   describe "GET /v1/auth" do
     it "200s if the member is an admin and authed as an admin" do
-      login_as_admin(admin)
+      login_as(admin)
 
       get "/v1/auth"
 
@@ -21,7 +21,7 @@ RSpec.describe Suma::AdminAPI::Auth, :db do
     end
 
     it "returns the admin member, even if impersonated" do
-      login_as_admin(admin)
+      login_as(admin)
 
       target = Suma::Fixtures.member.create
       post "/v1/auth/impersonate/#{target.id}"
@@ -39,16 +39,8 @@ RSpec.describe Suma::AdminAPI::Auth, :db do
       expect(last_response).to have_status(401)
     end
 
-    it "401s if the member did not auth as an admin (even if they are now)" do
-      login_as(admin)
-
-      get "/v1/auth"
-
-      expect(last_response).to have_status(401)
-    end
-
     it "401s if the member has authed as an admin but no longer has the role" do
-      login_as_admin(admin)
+      login_as(admin)
       admin.remove_role(Suma::Role.admin_role)
 
       get "/v1/auth"
@@ -101,12 +93,14 @@ RSpec.describe Suma::AdminAPI::Auth, :db do
 
   describe "DELETE /v1/auth" do
     it "removes the cookies and marks the session deleted" do
+      login_as(admin)
+
       delete "/v1/auth"
 
       expect(last_response).to have_status(204)
       expect(last_response["Set-Cookie"]).to include("=deleted; path=/; expires=Thu, 01 Jan 1970 00:00:00")
       expect(last_response["Clear-Site-Data"]).to eq("*")
-      expect(admin.sessions.last).to be_logged_out
+      expect(admin.sessions_dataset.last).to be_logged_out
     end
   end
 
@@ -114,7 +108,7 @@ RSpec.describe Suma::AdminAPI::Auth, :db do
     let(:target) { Suma::Fixtures.member.create }
 
     it "impersonates the given member" do
-      login_as_admin(admin)
+      login_as(admin)
 
       post "/v1/auth/impersonate/#{target.id}"
 
@@ -124,7 +118,7 @@ RSpec.describe Suma::AdminAPI::Auth, :db do
     end
 
     it "replaces an existing impersonated member" do
-      login_as_admin(admin)
+      login_as(admin)
       post "/v1/auth/impersonate/#{target.id}"
 
       other_target = Suma::Fixtures.member.create
@@ -136,7 +130,7 @@ RSpec.describe Suma::AdminAPI::Auth, :db do
     end
 
     it "403s if the member does not exist" do
-      login_as_admin(admin)
+      login_as(admin)
 
       post "/v1/auth/impersonate/0"
 
@@ -144,7 +138,7 @@ RSpec.describe Suma::AdminAPI::Auth, :db do
     end
 
     it "401s if the authed member is not an admin" do
-      login_as_admin(target)
+      login_as(target)
 
       post "/v1/auth/impersonate/#{target.id}"
 
@@ -154,7 +148,7 @@ RSpec.describe Suma::AdminAPI::Auth, :db do
 
   describe "DELETE /v1/auth/impersonate" do
     it "unimpersonates an impersonated member" do
-      login_as_admin(admin)
+      login_as(admin)
 
       target = Suma::Fixtures.member.create
       post "/v1/auth/impersonate/#{target.id}"
@@ -167,7 +161,7 @@ RSpec.describe Suma::AdminAPI::Auth, :db do
     end
 
     it "noops if no member is impersonated" do
-      login_as_admin(admin)
+      login_as(admin)
 
       delete "/v1/auth/impersonate"
       expect(last_response).to have_status(200)
@@ -176,7 +170,7 @@ RSpec.describe Suma::AdminAPI::Auth, :db do
     end
 
     it "401s if the authed member is not an admin" do
-      login_as_admin(Suma::Fixtures.member.create)
+      login_as(Suma::Fixtures.member.create)
 
       delete "/v1/auth/impersonate"
 
