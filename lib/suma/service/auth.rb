@@ -3,7 +3,23 @@
 require "suma/yosoy"
 
 module Suma::Service::Auth
-  X = 1
+  class LegacySessionAdapterMiddleware
+    def initialize(app)
+      @app = app
+    end
+
+    def call(env)
+      rack_session = env["rack.session"]
+      if (legacy_member_key = rack_session["warden.user.member.key"])
+        if (member = Suma::Member[legacy_member_key])
+          dbsession = member.add_session(**Suma::Member::Session.params_for_request(Rack::Request.new(env)))
+          rack_session["yosoy.key"] = dbsession.token
+        end
+        rack_session.delete("warden.user.member.key")
+      end
+      @app.call(env)
+    end
+  end
 
   class Middleware < Suma::Yosoy::Middleware
     def serialize_into_session(session, _env) = session.token

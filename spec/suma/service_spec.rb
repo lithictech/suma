@@ -696,7 +696,7 @@ RSpec.describe Suma::Service, :db do
       expect(last_response).to have_status(500)
     end
 
-    it "errors if the member does not have a matching role" do
+    it "403s if the member does not have a matching role" do
       Suma::Role.create(name: "testing")
       login_as(member)
       get "/rolecheck"
@@ -732,24 +732,49 @@ RSpec.describe Suma::Service, :db do
       expect(Thread.current[:request_admin]).to be_nil
     end
 
-    it "errors if no logged in user" do
+    it "401s if no logged in user" do
       get "/current_member"
       expect(last_response).to have_status(401)
     end
 
-    it "errors if the user is deleted" do
+    it "401s if the user is deleted" do
       login_as(member)
       member.soft_delete
       get "/current_member"
       expect(last_response).to have_status(401)
     end
 
-    it "errors if the session is logged out" do
+    it "401s if the session is logged out" do
       session = Suma::Fixtures.session.for(member).create
       login_as(session)
       session.mark_logged_out.save_changes
       get "/current_member"
       expect(last_response).to have_status(401)
+    end
+
+    describe "with a legacy session" do
+      it "creates a new session and uses the new session format" do
+        # Need to set the id explicitly since the hash is appended to the cookie value string,
+        # and we're using a verbatim value rather than dynamically creating the encrypted cookie string.
+        member.this.update(id: 131)
+        member = Suma::Member[131]
+        Suma::Service.cookie_config[:coder].encode(
+          {
+            "session_id" => "e77affbdceca795a52e890e1a7565f2026907ebdf6b0b2724003249b6d57e8d5",
+            "_" => "_",
+            "warden.user.member.key" => 131,
+          },
+        )
+        header(
+          "Cookie",
+          # rubocop:disable Layout/LineLength
+          "suma.session=eJwNzFEKgzAMANC75FskjaaxXqY0JgURHVjGGLK7r1%2Fv7z3QvLX9deXdYAUXKbWqbb4VSVyYfEnooQhHroQUE4qr1aioJDQjTjQnjcbiizEMkHuTu59ym1%2Fju%2Fk9nn5q5%2FAvrGEKvz9CAyMe--18911f8d554fe3fea8ab59eda6d1f99ff6afcdcf",
+          # rubocop:enable Layout/LineLength
+        )
+        get "/current_member"
+        expect(last_response).to have_status(200)
+        expect(member.refresh.sessions).to include(have_attributes(token: start_with("ses_")))
+      end
     end
 
     describe "session validation", reset_configuration: described_class do
@@ -827,7 +852,7 @@ RSpec.describe Suma::Service, :db do
       expect(last_response).to have_json_body.that_includes(id: nil)
     end
 
-    it "errors and clears cookies if the user is deleted" do
+    it "401s and clears cookies if the user is deleted" do
       login_as(member)
       member.soft_delete
       get "/current_member_safe"
@@ -841,7 +866,7 @@ RSpec.describe Suma::Service, :db do
       expect(last_response).to have_json_body.that_includes(id: member.id)
     end
 
-    it "errors if the admin impersonating a user is deleted/missing role" do
+    it "401s if the admin impersonating a user is deleted/missing role" do
       impersonate(admin:, target: member)
       admin.soft_delete
       get "/current_member_safe"
@@ -860,7 +885,7 @@ RSpec.describe Suma::Service, :db do
       expect(last_response).to have_json_body.that_includes(id: admin.id)
     end
 
-    it "errors if no logged in admin" do
+    it "401s if no logged in admin" do
       get "/admin_member"
       expect(last_response).to have_status(401)
     end
