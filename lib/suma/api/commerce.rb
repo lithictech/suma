@@ -375,9 +375,6 @@ class Suma::API::Commerce < Suma::API::V1
     expose :requires_payment_instrument do |_object|
       self.cost_info.requires_payment_instrument?
     end
-    expose :checkout_prohibited_reason do |_object|
-      self.cost_info.checkout_prohibited_reason
-    end
     expose :existing_funds_available, with: ChargeContributionEntity do |_object|
       self.cost_info.existing_funds_available
     end
