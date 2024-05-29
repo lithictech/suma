@@ -5,6 +5,9 @@
 # This just manages authentication, not authorization,
 # and does not manage application-level concerns like OTPs, password reset, etc.
 class Suma::Yosoy
+  class Error < StandardError; end
+  class UnhandledReason < Error; end
+
   class << self
     attr_accessor :_on_next_request
 
@@ -76,16 +79,25 @@ class Suma::Yosoy
         @app.call(env)
       end
       case result
+        when nil
+          reason = :unauthenticated
+          extra = {}
         when Hash
-          tag = result.delete(:tag)
+          reason = result.delete(:reason)
           extra = result
         when Symbol
           extra = {}
-          tag = result
+          reason = result
       else
           return result
       end
-      response = self.send(tag, **extra)
+      unless self.respond_to?(reason)
+        msg = "#{self.class.name || 'Your custom Yosoy middleware'} does not support the thrown reason :#{reason}. " \
+              "Use a supported reason (like :unauthenticated), " \
+              "or implement the method ##{reason} to return a Rack response."
+        raise UnhandledReason, msg
+      end
+      response = self.send(reason, **extra)
       return response
     end
 
@@ -146,14 +158,15 @@ class Suma::Yosoy
     def set_authenticated_object(object)
       key = @middleware.serialize_into_session(object, @env)
       self.rack_session["yosoy.key"] = key
+      self._mark_last_access
     end
 
     def unauthenticated!(**kw)
       self.throw!(:unauthenticated, **kw)
     end
 
-    def throw!(tag, **kw)
-      throw(@middleware.throw_key, {tag:, **kw})
+    def throw!(reason, **kw)
+      throw(@middleware.throw_key, {reason:, **kw})
     end
 
     # Store the 'last access' timestamp for this scope session, and refresh it on every authed request.
@@ -178,7 +191,7 @@ class Suma::Yosoy
       expire_at = ts + self.middleware.inactivity_timeout
       return unless Time.now > expire_at
       self.logout
-      self.unauthenticated!(reason: "Cookie expired")
+      self.unauthenticated!(message: "Cookie expired")
     end
 
     def logout
@@ -201,6 +214,7 @@ class Suma::Yosoy
 
     def new(app)
       @app = app
+      return self
     end
 
     def call(env)
