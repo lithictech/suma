@@ -11,6 +11,7 @@ import RLink from "../components/RLink";
 import SumaImage from "../components/SumaImage";
 import { md, t } from "../localization";
 import idempotency from "../modules/idempotency";
+import readOnlyReason from "../modules/readOnlyReason";
 import ScrollTopOnMount from "../shared/ScrollToTopOnMount";
 import { anyMoney } from "../shared/money";
 import Money from "../shared/react/Money";
@@ -368,7 +369,10 @@ function OrderSummary({ checkout, chosenInstrument }) {
   const itemCount = sum(map(checkout.items, "quantity"));
   // We only handle this reason explicitly; other reasons, assume we can still submit,
   // and if there's an error we'll deal with it.
-  const showSubmit = checkout.checkoutProhibitedReason !== "charging_prohibited";
+  const { user } = useUser();
+  const memberUnverified = readOnlyReason(user, "read_only_unverified");
+  const showSubmit =
+    checkout.checkoutProhibitedReason !== "charging_prohibited" && !memberUnverified;
   return (
     <>
       <h5>{t("food:order_summary_title")}</h5>
@@ -418,6 +422,11 @@ function OrderSummary({ checkout, chosenInstrument }) {
               className="text-success"
             />
           </>
+        )}
+        {memberUnverified && (
+          <Alert variant="danger" className="mt-3">
+            {readOnlyReason(user, "read_only_unverified")}
+          </Alert>
         )}
         {checkout.checkoutProhibitedReason === "charging_prohibited" && (
           <Alert variant="warning" className="mt-3">
