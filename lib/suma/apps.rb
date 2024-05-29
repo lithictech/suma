@@ -126,7 +126,7 @@ module Suma::Apps
       "VITE_RELEASE" => "sumaweb@" + vars[:release_version],
       "NODE_ENV" => vars[:node_env],
     }.merge(Rack::DynamicConfigWriter.pick_env("VITE_"))
-    dw.emplace(env)
+    return dw.emplace(env)
   end
 
   def self.emplace_dynamic_config_adminapp
@@ -140,7 +140,7 @@ module Suma::Apps
       "VITE_RELEASE" => "sumaadmin@" + vars[:release_version],
       "NODE_ENV" => vars[:node_env],
     }.merge(Rack::DynamicConfigWriter.pick_env("VITE_"))
-    dw.emplace(env)
+    return dw.emplace(env)
   end
 
   def self._dynamic_config_common_vars
@@ -151,11 +151,41 @@ module Suma::Apps
     }
   end
 
+  # Return the CSP for the self-hosted frontends. Note that these frontends are always served from the API
+  # so 'self' will cover API calls for things like images too.
+  def self.generate_csp(inline_scripts: [], script_hashes: [], rest: {})
+    safe_domains = "'self' mysuma.org *.mysuma.org"
+    script_hashes += inline_scripts.map { |s| Digest::SHA256.base64digest(s) }
+    script_src = +"script-src #{safe_domains}"
+    script_hashes.each do |h|
+      script_src << " 'sha256-#{h}'"
+    end
+    parts = [
+      "default-src #{safe_domains}",
+      "img-src #{safe_domains} data:",
+      script_src,
+    ]
+    rest.each do |k, v|
+      parts << "#{k} #{safe_domains} #{v}"
+    end
+    return parts.join("; ")
+  end
+
   WEB_MOUNT_PATH = "/app"
 
   Web = Rack::Builder.new do
-    Suma::Apps.emplace_dynamic_config
-    # self.use Rack::Csp, policy: "default-src 'self' mysuma.org *.mysuma.org; img-src 'self' data:"
+    script = Suma::Apps.emplace_dynamic_config
+    self.use(
+      Rack::Csp,
+      policy: {
+        safe: "'self' mysuma.org *.mysuma.org",
+        inline_scripts: [script],
+        img_data: true,
+        script_hashes: [
+          "LBhIXaZs9tt7PWqnY6MLCXALqvwEhOT0W2UhOduXXtY=", # Service worker loader inline script
+        ],
+      },
+    )
     Rack::SpaApp.run_spa_app(
       self,
       "build-webapp",
@@ -165,8 +195,19 @@ module Suma::Apps
   end
 
   Admin = Rack::Builder.new do
-    Suma::Apps.emplace_dynamic_config_adminapp
-    # self.use Rack::Csp, policy: "default-src 'self'; img-src 'self' data:"
+    script = Suma::Apps.emplace_dynamic_config_adminapp
+    self.use(
+      Rack::Csp,
+      policy: {
+        safe: "'self' mysuma.org *.mysuma.org",
+        inline_scripts: [script],
+        img_data: true,
+        parts: {
+          "style-src-elem" => "<SAFE> fonts.googleapis.com 'unsafe-inline'",
+          "font-src" => "<SAFE> fonts.gstatic.com",
+        },
+      },
+    )
     Rack::SpaApp.run_spa_app(self, "build-adminapp", enforce_ssl: Suma::Service.enforce_ssl)
   end
 
