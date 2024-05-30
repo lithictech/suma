@@ -112,6 +112,7 @@ class Suma::Commerce::Checkout < Suma::Postgres::Model(:commerce_checkouts)
     def requires_payment_instrument? = !self.chargeable_total.zero?
 
     def checkout_prohibited_reason
+      return :member_unverified if @checkout.cart.member.read_only_reason === "read_only_unverified"
       return :offering_products_unavailable if @checkout.cart.items.select { |ci| ci.available_at?(@apply_at) }.empty?
       return :requires_payment_instrument if self.requires_payment_instrument? && !@checkout.payment_instrument
       return :not_editable unless @checkout.editable?

@@ -368,7 +368,7 @@ function OrderSummary({ checkout, chosenInstrument }) {
   const itemCount = sum(map(checkout.items, "quantity"));
   // We only handle this reason explicitly; other reasons, assume we can still submit,
   // and if there's an error we'll deal with it.
-  const showSubmit = checkout.checkoutProhibitedReason !== "charging_prohibited";
+  const showSubmit = checkout.checkoutProhibitedReason !== "member_unverified";
   return (
     <>
       <h5>{t("food:order_summary_title")}</h5>
@@ -396,7 +396,6 @@ function OrderSummary({ checkout, chosenInstrument }) {
           <SummaryLine key={name} label={name} price={amount} subtract credit />
         ))}
         <hr className="mt-1 mb-2" />
-
         {checkout.requiresPaymentInstrument ? (
           <>
             <SummaryLine
@@ -411,30 +410,15 @@ function OrderSummary({ checkout, chosenInstrument }) {
             )}
           </>
         ) : (
-          <>
-            <SummaryLine
-              label={t("food:labels:chargeable_total")}
-              price={checkout.chargeableTotal}
-              className="text-success"
-            />
-          </>
+          <SummaryLine
+            label={t("food:labels:chargeable_total")}
+            price={checkout.chargeableTotal}
+            className="text-success"
+          />
         )}
-        {checkout.checkoutProhibitedReason === "charging_prohibited" && (
-          <Alert variant="warning" className="mt-3">
-            <p>
-              <i className="bi bi-exclamation-circle me-2 fs-5 d-inline"></i>
-              {t("food:insufficient_funds_alert")}
-            </p>
-            <p>{t("food:return_to_dashboard_alert")}</p>
-            <FormButtons
-              primaryProps={{
-                href: "/dashboard",
-                variant: "primary",
-                type: "button",
-                children: t("common:go_to_dashboard"),
-                as: RLink,
-              }}
-            ></FormButtons>
+        {checkout.checkoutProhibitedReason === "member_unverified" && (
+          <Alert variant="danger" className="mt-3">
+            {t("errors:read_only_unverified")}
           </Alert>
         )}
         {showSubmit && (
@@ -447,7 +431,7 @@ function OrderSummary({ checkout, chosenInstrument }) {
                 variant: "success",
                 children: t("food:order_button"),
               }}
-            ></FormButtons>
+            />
           </>
         )}
       </div>

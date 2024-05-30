@@ -70,7 +70,7 @@ RSpec.describe "Suma::Commerce::Checkout", :db do
   end
 
   describe "checkout_prohibited_reason" do
-    let(:member) { Suma::Fixtures.member.create }
+    let(:member) { Suma::Fixtures.member.onboarding_verified.create }
     let(:offering) { Suma::Fixtures.offering.create }
     let(:cart) { Suma::Fixtures.cart(member:, offering:).with_any_product.create }
     let(:checkout) { Suma::Fixtures.checkout(cart:).populate_items.with_payment_instrument.create }
@@ -104,10 +104,15 @@ RSpec.describe "Suma::Commerce::Checkout", :db do
       offering.update(period_end: 1.day.ago)
       expect(prohibited_reason).to eq(:offering_products_unavailable)
     end
+
+    it "is :member_unverified if the cart member is unverified" do
+      cart.member.update(onboarding_verified_at: nil)
+      expect(prohibited_reason).to eq(:member_unverified)
+    end
   end
 
   describe "create_order" do
-    let(:member) { Suma::Fixtures.member.registered_as_stripe_customer.create }
+    let(:member) { Suma::Fixtures.member.onboarding_verified.registered_as_stripe_customer.create }
     let(:offering) { Suma::Fixtures.offering.create }
     let!(:fulfillment) { Suma::Fixtures.offering_fulfillment_option(offering:).create }
     let(:product) { Suma::Fixtures.product.category(:food).create }
@@ -129,7 +134,7 @@ RSpec.describe "Suma::Commerce::Checkout", :db do
       checkout_.create_order(apply_at: Time.now, cash_charge_amount: amount)
     end
 
-    it "errors if charging is prohibited" do
+    it "raises if charging is prohibited" do
       checkout.soft_delete
       expect { create_order }.to raise_error(described_class::Prohibited, /not_editable/)
     end
@@ -236,7 +241,7 @@ RSpec.describe "Suma::Commerce::Checkout", :db do
         cash_vsc = Suma::Vendor::ServiceCategory.cash
         food_vsc = Suma::Fixtures.vendor_service_category(name: "Food", parent: cash_vsc).create
         holidaymeal_vsc = Suma::Fixtures.vendor_service_category(name: "Holiday Special", parent: food_vsc).create
-        member = Suma::Fixtures.member.create
+        member = Suma::Fixtures.member.onboarding_verified.create
 
         cash_ledger = Suma::Payment.ensure_cash_ledger(member)
         ledger_fac = Suma::Fixtures.ledger.member(member)
@@ -306,7 +311,7 @@ RSpec.describe "Suma::Commerce::Checkout", :db do
         top_vsc = Suma::Fixtures.vendor_service_category(name: "Everything").create
         mid_vsc = Suma::Fixtures.vendor_service_category(name: "Food", parent: top_vsc).create
         low_vsc = Suma::Fixtures.vendor_service_category(name: "Organic", parent: mid_vsc).create
-        member = Suma::Fixtures.member.create
+        member = Suma::Fixtures.member.onboarding_verified.create
 
         cash_ledger = Suma::Payment.ensure_cash_ledger(member)
         top_ledger = Suma::Fixtures.ledger.member(member).with_categories(top_vsc).create
