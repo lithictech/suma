@@ -157,8 +157,6 @@ class Suma::API::Commerce < Suma::API::V1
             checkout.save_changes
             begin
               checkout.create_order(apply_at: now, cash_charge_amount: Money.new(params[:charge_amount_cents]))
-            rescue Suma::Member::ReadOnlyMode
-              merror!(403, "member unverified", code: "read_only_unverified")
             rescue Suma::Commerce::Checkout::Prohibited => e
               merror!(409, "Checkout prohibited: #{e.reason}", code: "checkout_fatal_error")
             rescue Suma::Commerce::Checkout::MaxQuantityExceeded
@@ -374,6 +372,9 @@ class Suma::API::Commerce < Suma::API::V1
     end
     expose :requires_payment_instrument do |_object|
       self.cost_info.requires_payment_instrument?
+    end
+    expose :checkout_prohibited_reason do |_object|
+      self.cost_info.checkout_prohibited_reason
     end
     expose :existing_funds_available, with: ChargeContributionEntity do |_object|
       self.cost_info.existing_funds_available

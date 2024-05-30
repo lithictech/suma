@@ -112,6 +112,7 @@ class Suma::Commerce::Checkout < Suma::Postgres::Model(:commerce_checkouts)
     def requires_payment_instrument? = !self.chargeable_total.zero?
 
     def checkout_prohibited_reason
+      return :member_unverified if @checkout.cart.member.read_only_reason === "read_only_unverified"
       return :offering_products_unavailable if @checkout.cart.items.select { |ci| ci.available_at?(@apply_at) }.empty?
       return :requires_payment_instrument if self.requires_payment_instrument? && !@checkout.payment_instrument
       return :not_editable unless @checkout.editable?
@@ -169,7 +170,6 @@ class Suma::Commerce::Checkout < Suma::Postgres::Model(:commerce_checkouts)
       self.cart.lock!
       # Locking the checkout ensures we don't process it multiple times as a race
       self.lock!
-      raise Suma::Member::ReadOnlyMode if self.cart.member.read_only_reason === "read_only_unverified"
       # This isn't ideal- it'd be better
       if (prohibition_reason = self.cost_info(at: apply_at).checkout_prohibited_reason)
         raise Prohibited.new(

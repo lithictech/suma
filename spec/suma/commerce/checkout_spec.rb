@@ -104,6 +104,11 @@ RSpec.describe "Suma::Commerce::Checkout", :db do
       offering.update(period_end: 1.day.ago)
       expect(prohibited_reason).to eq(:offering_products_unavailable)
     end
+
+    it "is :member_unverified if the cart member is unverified" do
+      cart.member.update(onboarding_verified_at: nil)
+      expect(prohibited_reason).to eq(:member_unverified)
+    end
   end
 
   describe "create_order" do
@@ -132,15 +137,6 @@ RSpec.describe "Suma::Commerce::Checkout", :db do
     it "raises if charging is prohibited" do
       checkout.soft_delete
       expect { create_order }.to raise_error(described_class::Prohibited, /not_editable/)
-    end
-
-    it "raises if member is unverified" do
-      unverified = Suma::Fixtures.member.registered_as_stripe_customer.with_cash_ledger.create
-      card = Suma::Fixtures.card.member(unverified).create
-      cart = Suma::Fixtures.cart(offering:, member: unverified).with_product(product, 2).create
-      checkout = Suma::Fixtures.checkout(cart:, card:).populate_items.create
-
-      expect { create_order(checkout_: checkout) }.to raise_error(Suma::Member::ReadOnlyMode)
     end
 
     it "creates the order from the checkout" do

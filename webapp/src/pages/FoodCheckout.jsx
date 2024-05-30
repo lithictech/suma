@@ -11,7 +11,6 @@ import RLink from "../components/RLink";
 import SumaImage from "../components/SumaImage";
 import { md, t } from "../localization";
 import idempotency from "../modules/idempotency";
-import readOnlyReason from "../modules/readOnlyReason";
 import ScrollTopOnMount from "../shared/ScrollToTopOnMount";
 import { anyMoney } from "../shared/money";
 import Money from "../shared/react/Money";
@@ -369,8 +368,7 @@ function OrderSummary({ checkout, chosenInstrument }) {
   const itemCount = sum(map(checkout.items, "quantity"));
   // We only handle this reason explicitly; other reasons, assume we can still submit,
   // and if there's an error we'll deal with it.
-  const { user } = useUser();
-  const memberUnverified = readOnlyReason(user, "read_only_unverified");
+  const showSubmit = checkout.checkoutProhibitedReason !== "member_unverified";
   return (
     <>
       <h5>{t("food:order_summary_title")}</h5>
@@ -418,11 +416,12 @@ function OrderSummary({ checkout, chosenInstrument }) {
             className="text-success"
           />
         )}
-        {memberUnverified ? (
+        {checkout.checkoutProhibitedReason === "member_unverified" && (
           <Alert variant="danger" className="mt-3">
-            {memberUnverified}
+            {t("errors:read_only_unverified")}
           </Alert>
-        ) : (
+        )}
+        {showSubmit && (
           <>
             <p className="small text-secondary mt-2">
               {md("food:terms_of_use_agreement")}
