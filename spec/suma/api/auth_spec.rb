@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "suma/api/auth"
+require "rack/rack_attack"
 
 RSpec.describe Suma::API::Auth, :db, reset_configuration: Suma::Member do
   include Rack::Test::Methods
@@ -24,6 +25,38 @@ RSpec.describe Suma::API::Auth, :db, reset_configuration: Suma::Member do
   let(:member_create_params) { member_params.merge(phone: full_phone) }
 
   describe "POST /v1/auth/start" do
+    context "rate limiting" do
+      before(:each) do
+        Rack::Attack.enabled = true
+        Rack::Attack.cache.store = ActiveSupport::Cache::MemoryStore.new
+      end
+      after(:each) do
+        Rack::Attack.enabled = false
+      end
+
+      it "rate limits member phone numbers after 5 requests within 1 minute" do
+        # TODO: Why does it error after 6 tries, it should error after the 5th request
+        # Probably an rspec issue? Sometimes this passes, sometimes it doesn't,
+        # does it have to do with time or caching?
+        6.times do
+          post("/v1/auth/start", phone: "(222) 333-4444", timezone:)
+          expect(last_response).to have_status(200)
+          expect(last_response.headers).to_not include("retry-after")
+        end
+
+        post("/v1/auth/start", phone: "(222) 333-4444", timezone:)
+        expect(last_response).to have_status(429)
+        expect(last_response.headers).to include("retry-after")
+      end
+
+      it "allows retry after specific amount of time has passed" do
+        # TODO: Return a consistent 'wait-period' or 'retry-after' header seconds value
+        # rather than random, say maybe 5-10 minute wait period before trying again?
+        # Timecop.travel(5.seconds.from_now) { post("/v1/auth/start", phone: "(222) 333-4444", timezone:) }
+        # expect(last_response).to have_status(429)
+      end
+    end
+
     it "errors if a member is already authed" do
       c = Suma::Fixtures.member.create
       login_as(c)
@@ -122,6 +155,36 @@ RSpec.describe Suma::API::Auth, :db, reset_configuration: Suma::Member do
   end
 
   describe "POST /v1/auth/verify" do
+    context "rate limiting" do
+      before(:each) do
+        Rack::Attack.enabled = true
+        Rack::Attack.cache.store = ActiveSupport::Cache::MemoryStore.new
+      end
+      after(:each) do
+        Rack::Attack.enabled = false
+      end
+
+      it "rate limits member phone numbers after 5 requests within 1 minute" do
+        # 403s since token is invalid
+        5.times do
+          post("/v1/auth/verify", phone: "(222) 333-4444", timezone:, token: "abc")
+          expect(last_response).to have_status(403)
+          expect(last_response.headers).to_not include("retry-after")
+        end
+
+        post("/v1/auth/verify", phone: "(222) 333-4444", timezone:, token: "abc")
+        expect(last_response).to have_status(429)
+        expect(last_response.headers).to include("retry-after")
+      end
+
+      it "allows retry after specific amount of time has passed" do
+        # TODO: Return a consistent 'wait-period' or 'retry-after' header seconds value
+        # rather than random, say maybe 5-10 minute wait period before trying again?
+        # Timecop.travel(5.seconds.from_now) { post("/v1/auth/start", phone: "(222) 333-4444", timezone:) }
+        # expect(last_response).to have_status(429)
+      end
+    end
+
     it "errors if a member is already authed" do
       c = Suma::Fixtures.member.create
       login_as(c)

@@ -3,10 +3,12 @@
 require "grape"
 require "name_of_person"
 require "suma/api"
+require "rack/rack_attack"
 
 class Suma::API::Auth < Suma::API::V1
   include Suma::Service::Types
   include Suma::API::Entities
+  use Rack::RackAttack
 
   ALL_TIMEZONES = Set.new(TZInfo::Timezone.all_identifiers)
 
