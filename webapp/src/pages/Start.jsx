@@ -10,6 +10,7 @@ import { maskPhoneNumber } from "../modules/maskPhoneNumber";
 import { Logger } from "../shared/logger";
 import useToggle from "../shared/react/useToggle";
 import { extractErrorCode, useError } from "../state/useError";
+import get from "lodash/get";
 import React, { useState } from "react";
 import Form from "react-bootstrap/Form";
 import { useForm } from "react-hook-form";
@@ -60,10 +61,16 @@ export default function Start() {
         })
       )
       .catch((err) => {
-        setError(extractErrorCode(err));
+        const errorCode = extractErrorCode(err);
+        if (errorCode === "too_many_requests") {
+          const retryAfter = get(err, "response.data.error.retryAfter");
+          setError(<>{t(`errors:${errorCode}`, { retryAfter: retryAfter })}</>);
+        } else {
+          setError(errorCode);
+        }
         submitDisabled.turnOff();
         inputDisabled.turnOff();
-        if (extractErrorCode(err) === "auth_conflict") {
+        if (errorCode === "auth_conflict") {
           logger.error("Unexpected auth conflict");
           window.location.reload();
         }

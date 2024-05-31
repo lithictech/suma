@@ -26,6 +26,9 @@ RSpec.describe Suma::API::Auth, :db, reset_configuration: Suma::Member do
 
   describe "POST /v1/auth/start" do
     context "rate limiting" do
+      let(:rate_limit) { 5 }
+      let(:rate_period) { 1.minute }
+
       before(:each) do
         Rack::Attack.enabled = true
         Rack::Attack.cache.store = ActiveSupport::Cache::MemoryStore.new
@@ -34,26 +37,53 @@ RSpec.describe Suma::API::Auth, :db, reset_configuration: Suma::Member do
         Rack::Attack.enabled = false
       end
 
-      it "rate limits member phone numbers after 5 requests within 1 minute" do
-        # TODO: Why does it error after 6 tries, it should error after the 5th request
-        # Probably an rspec issue? Sometimes this passes, sometimes it doesn't,
-        # does it have to do with time or caching?
-        6.times do
+      it "rate limits member phone numbers after 5 requests" do
+        rate_limit.times do
           post("/v1/auth/start", phone: "(222) 333-4444", timezone:)
           expect(last_response).to have_status(200)
-          expect(last_response.headers).to_not include("retry-after")
+        end
+        post("/v1/auth/start", phone: "(222) 333-4444", timezone:)
+        expect(last_response).to have_status(429)
+      end
+
+      it "allows retry after specific amount of time has passed" do
+        rate_limit.times do
+          post("/v1/auth/start", phone: "(222) 333-4444", timezone:)
+          expect(last_response).to have_status(200)
+        end
+        # Since retry_after calculation happens in the middleware level,
+        # freeze time and return the calculation to be accurate
+        retry_after = 0
+        Timecop.freeze do
+          now = Time.now.to_i
+          retry_after = rate_period - (now % rate_period)
+          post("/v1/auth/start", phone: "(222) 333-4444", timezone:)
+          expect(last_response).to have_status(429)
+          expect(last_response.body).to include("retry_after")
+        end
+
+        Timecop.travel(Time.at(Time.now.to_i + retry_after)) do
+          post("/v1/auth/start", phone: "(222) 333-4444", timezone:)
+          expect(last_response).to have_status(200)
+        end
+      end
+
+      it "does not throttle requests from diff phone numbers with the same ip address" do
+        rate_limit.times do
+          post("/v1/auth/start", phone: "(222) 333-4444", timezone:)
+          expect(last_response).to have_status(200)
         end
 
         post("/v1/auth/start", phone: "(222) 333-4444", timezone:)
         expect(last_response).to have_status(429)
-        expect(last_response.headers).to include("retry-after")
+
+        post("/v1/auth/start", phone: "(444) 555-5555", timezone:)
+        expect(last_response).to have_status(200)
       end
 
-      it "allows retry after specific amount of time has passed" do
-        # TODO: Return a consistent 'wait-period' or 'retry-after' header seconds value
-        # rather than random, say maybe 5-10 minute wait period before trying again?
-        # Timecop.travel(5.seconds.from_now) { post("/v1/auth/start", phone: "(222) 333-4444", timezone:) }
-        # expect(last_response).to have_status(429)
+      it "does not throttle requests from diff ip addresses with the same phone number" do
+        # TODO: figure out how to change IP address here, passing through
+        # post request headers does not seem to work
       end
     end
 
@@ -178,10 +208,6 @@ RSpec.describe Suma::API::Auth, :db, reset_configuration: Suma::Member do
       end
 
       it "allows retry after specific amount of time has passed" do
-        # TODO: Return a consistent 'wait-period' or 'retry-after' header seconds value
-        # rather than random, say maybe 5-10 minute wait period before trying again?
-        # Timecop.travel(5.seconds.from_now) { post("/v1/auth/start", phone: "(222) 333-4444", timezone:) }
-        # expect(last_response).to have_status(429)
       end
     end
 

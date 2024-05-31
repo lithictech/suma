@@ -78,18 +78,10 @@ module Suma::Service::Middleware
 
   # Must initialize Rack::Attack rate limiting config here
   def self.add_rack_attack_middleware(builder)
+    Rack::Attack.cache.store = ActiveSupport::Cache::MemoryStore.new
     Rack::Attack.enabled = true
     Rack::Attack.throttled_response_retry_after_header = true
-
-    # Cache defaults to rails cache.
-    # TODO: Figure how to setup production redis store, Suma::Redis.cache doesn't have store
-    # We might have to install a new redis store gem or set it up another way,
-    # either way, this can't be nil in production, it must have a cache store (and useful to expire after some time)
-    if Suma::RACK_ENV == "development"
-      Rack::Attack.cache.store = ActiveSupport::Cache::MemoryStore.new
-    else
-      Rack::Attack.cache.store = ActiveSupport::Cache::MemoryStore.new
-    end
+    # Configure memory store since rack attack cache defaults to Rails.cache
     builder.use Rack::Attack
   end
 

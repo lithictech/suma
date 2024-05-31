@@ -106,6 +106,7 @@
     "role_check": "$t(strings:errors:invalid_permissions)",
     "something_went_wrong_body": "Sorry, something went wrong. Let's go to your home screen so you can try again.",
     "something_went_wrong_title": "Something went wrong",
+    "too_many_requests": "You have made too many requests in a short period of time. Please try again after {{retryAfter}} seconds.",
     "unauthenticated": "You must be log in to proceed.",
     "unhandled_error": "Sorry, something went wrong. Please try again.",
     "validation_error": "Some fields were left blank, please fill in all required fields and try again.",
