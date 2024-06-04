@@ -205,12 +205,28 @@ RSpec.describe Suma::API::Auth, :db, reset_configuration: Suma::Member do
   end
 
   describe "DELETE /v1/auth" do
-    it "removes the cookies" do
-      delete "/v1/auth"
+    describe "without an authed user" do
+      it "removes the cookies" do
+        delete "/v1/auth"
 
-      expect(last_response).to have_status(204)
-      expect(last_response["Set-Cookie"]).to include("=deleted; path=/; expires=Thu, 01 Jan 1970 00:00:00")
-      expect(last_response["Clear-Site-Data"]).to eq("*")
+        expect(last_response).to have_status(204)
+        expect(last_response["Set-Cookie"]).to include("=deleted; path=/; expires=Thu, 01 Jan 1970 00:00:00")
+        expect(last_response["Clear-Site-Data"]).to eq("*")
+      end
+    end
+
+    describe "with an authed user" do
+      it "removes the cookies and marks the session deleted" do
+        session = Suma::Fixtures.session.create
+        login_as(session)
+
+        delete "/v1/auth"
+
+        expect(last_response).to have_status(204)
+        expect(last_response["Set-Cookie"]).to include("=deleted; path=/; expires=Thu, 01 Jan 1970 00:00:00")
+        expect(last_response["Clear-Site-Data"]).to eq("*")
+        expect(session.refresh).to be_logged_out
+      end
     end
   end
 

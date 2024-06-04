@@ -19,7 +19,8 @@ class Suma::API::TestService < Suma::Service
   end
 
   finally do
-    Suma::API::TestService.global_shim[:sentry_scope] = Sentry.get_current_scope
+    Suma::API::TestService.global_shim[:sentry_scope] = Sentry.get_current_scope if
+      Suma::API::TestService.global_shim
   end
 
   post :echo do
@@ -147,6 +148,17 @@ class Suma::API::TestService < Suma::Service
   get :rolecheck do
     check_role!(current_member, "testing")
     status 200
+  end
+
+  params do
+    requires :id
+  end
+  post :set_member do
+    m = Suma::Member[params[:id]]
+    ses = Suma::Fixtures.session.for(m).create
+    set_session(ses)
+    m2 = current_member
+    present({id: m2.id})
   end
 
   get :current_member do
@@ -684,7 +696,7 @@ RSpec.describe Suma::Service, :db do
       expect(last_response).to have_status(500)
     end
 
-    it "errors if the member does not have a matching role" do
+    it "403s if the member does not have a matching role" do
       Suma::Role.create(name: "testing")
       login_as(member)
       get "/rolecheck"
@@ -720,17 +732,85 @@ RSpec.describe Suma::Service, :db do
       expect(Thread.current[:request_admin]).to be_nil
     end
 
-    it "errors if no logged in user" do
+    it "401s if no logged in user" do
       get "/current_member"
       expect(last_response).to have_status(401)
     end
 
-    it "errors and clears cookies if the user is deleted" do
+    it "401s if the user is deleted" do
       login_as(member)
       member.soft_delete
       get "/current_member"
       expect(last_response).to have_status(401)
-      expect(last_response.cookies).to be_empty
+    end
+
+    it "401s if the session is logged out" do
+      session = Suma::Fixtures.session.for(member).create
+      login_as(session)
+      session.mark_logged_out.save_changes
+      get "/current_member"
+      expect(last_response).to have_status(401)
+    end
+
+    describe "with a legacy session" do
+      it "creates a new session and uses the new session format" do
+        # Need to set the id explicitly since the hash is appended to the cookie value string,
+        # and we're using a verbatim value rather than dynamically creating the encrypted cookie string.
+        member.this.update(id: 131)
+        member = Suma::Member[131]
+        Suma::Service.cookie_config[:coder].encode(
+          {
+            "session_id" => "e77affbdceca795a52e890e1a7565f2026907ebdf6b0b2724003249b6d57e8d5",
+            "_" => "_",
+            "warden.user.member.key" => 131,
+          },
+        )
+        header(
+          "Cookie",
+          # rubocop:disable Layout/LineLength
+          "suma.session=eJwNzFEKgzAMANC75FskjaaxXqY0JgURHVjGGLK7r1%2Fv7z3QvLX9deXdYAUXKbWqbb4VSVyYfEnooQhHroQUE4qr1aioJDQjTjQnjcbiizEMkHuTu59ym1%2Fju%2Fk9nn5q5%2FAvrGEKvz9CAyMe--18911f8d554fe3fea8ab59eda6d1f99ff6afcdcf",
+          # rubocop:enable Layout/LineLength
+        )
+        get "/current_member"
+        expect(last_response).to have_status(200)
+        expect(member.refresh.sessions).to include(have_attributes(token: start_with("ses_")))
+      end
+    end
+
+    describe "session validation", reset_configuration: described_class do
+      before(:each) do
+        post "/set_member", id: member.id
+        expect(last_response).to have_status(201)
+        # At this point, the cookie will have a 30 day expiration, but now we need to check the 'user auth age' logic.
+        # Set the max_session_age (used for that check) to be shorter than it was,
+        # since trying to do this all through the front door is extremely hard (Rack::Test won't send the expired cookie).
+        # The shortened max_session_age here means 1) the expires_at of the cookie is still valid, which is good
+        # because we want to assume the expires_at is always valid for this, and
+        # 2) we can use Timecop to check the rest of the behavior, around extending the auth date
+        # and failing if it's too old.
+        described_class.max_session_age = 60
+        # Sanity check to make sure everything works.
+        get "/current_member"
+        expect(last_response).to have_status(200)
+      end
+
+      it "fails if the user authed more than the session age ago" do
+        Timecop.travel(90.seconds.from_now) { get "/current_member" }
+        expect(last_response).to have_status(401)
+      end
+
+      it "sets the last auth time to extend the session duration on each authed request" do
+        Timecop.travel(30.seconds.from_now) { get "/current_member" }
+        expect(last_response).to have_status(200)
+        Timecop.travel(61.seconds.from_now) { get "/current_member" }
+        expect(last_response).to have_status(200)
+        Timecop.travel(90.seconds.from_now) { get "/current_member" }
+        expect(last_response).to have_status(200)
+        Timecop.travel(125.seconds.from_now) { get "/current_member" }
+        expect(last_response).to have_status(200)
+        Timecop.travel(200.seconds.from_now) { get "/current_member" }
+        expect(last_response).to have_status(401)
+      end
     end
 
     it "returns the impersonated user (even if deleted)" do
@@ -740,15 +820,14 @@ RSpec.describe Suma::Service, :db do
       expect(last_response).to have_json_body.that_includes(id: member.id)
     end
 
-    it "errors and clears cookies if the admin impersonating a user is deleted" do
+    it "401s if the admin impersonating a user is deleted" do
       impersonate(admin:, target: member)
       admin.soft_delete
       get "/current_member"
       expect(last_response).to have_status(401)
-      expect(last_response.cookies).to be_empty
     end
 
-    it "errors if the admin impersonating a user does not have the admin role" do
+    it "401s if the admin impersonating a user does not have the admin role" do
       impersonate(admin:, target: member)
       admin.remove_all_roles
       get "/current_member"
@@ -773,7 +852,7 @@ RSpec.describe Suma::Service, :db do
       expect(last_response).to have_json_body.that_includes(id: nil)
     end
 
-    it "errors and clears cookies if the user is deleted" do
+    it "401s and clears cookies if the user is deleted" do
       login_as(member)
       member.soft_delete
       get "/current_member_safe"
@@ -787,12 +866,11 @@ RSpec.describe Suma::Service, :db do
       expect(last_response).to have_json_body.that_includes(id: member.id)
     end
 
-    it "errors if the admin impersonating a user is deleted/missing role" do
+    it "401s if the admin impersonating a user is deleted/missing role" do
       impersonate(admin:, target: member)
       admin.soft_delete
       get "/current_member_safe"
       expect(last_response).to have_status(401)
-      expect(last_response.cookies).to be_empty
     end
   end
 
@@ -801,31 +879,29 @@ RSpec.describe Suma::Service, :db do
     let(:admin) { Suma::Fixtures.member.admin.create }
 
     it "looks up the logged in admin" do
-      login_as_admin(admin)
+      login_as(admin)
       get "/admin_member"
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.that_includes(id: admin.id)
     end
 
-    it "errors if no logged in admin" do
+    it "401s if no logged in admin" do
       get "/admin_member"
       expect(last_response).to have_status(401)
     end
 
-    it "errors and clears cookies if the admin is deleted" do
-      login_as_admin(admin)
+    it "401s if the admin is deleted" do
+      login_as(admin)
       admin.soft_delete
       get "/admin_member"
       expect(last_response).to have_status(401)
-      expect(last_response.cookies).to be_empty
     end
 
-    it "errors and clears cookies if the admin does not have the role" do
-      login_as_admin(admin)
+    it "401s if the admin does not have the role" do
+      login_as(admin)
       admin.remove_all_roles
       get "/admin_member"
       expect(last_response).to have_status(401)
-      expect(last_response.cookies).to be_empty
     end
 
     it "returns the admin, even while impersonating" do
@@ -841,7 +917,7 @@ RSpec.describe Suma::Service, :db do
     let(:admin) { Suma::Fixtures.member.admin.create }
 
     it "looks up the logged in admin" do
-      login_as_admin(admin)
+      login_as(admin)
       get "/admin_member_safe"
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.that_includes(id: admin.id)
@@ -853,20 +929,19 @@ RSpec.describe Suma::Service, :db do
       expect(last_response).to have_json_body.that_includes(id: nil)
     end
 
-    it "errors and clears cookies if the admin is deleted" do
-      login_as_admin(admin)
+    it "401s if the admin is deleted" do
+      login_as(admin)
       admin.soft_delete
       get "/admin_member_safe"
       expect(last_response).to have_status(401)
-      expect(last_response.cookies).to be_empty
     end
 
-    it "errors and clears cookies if the admin does not have the role" do
-      login_as_admin(admin)
+    it "uses nil if the admin does not have the role" do
+      login_as(admin)
       admin.remove_all_roles
       get "/admin_member_safe"
-      expect(last_response).to have_status(401)
-      expect(last_response.cookies).to be_empty
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.that_includes(id: nil)
     end
 
     it "returns the admin, even while impersonating" do

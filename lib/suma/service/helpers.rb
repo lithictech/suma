@@ -16,73 +16,62 @@ module Suma::Service::Helpers
     return Suma::Service.logger
   end
 
+  # Error if there is already an authed user.
   def guard_authed!
     merror!(409, "You are already signed in. Please sign out first.", code: "auth_conflict") if
       current_member?
   end
 
+  def rack_session = env.fetch("rack.session")
+  # @return [Suma::Yosoy::Proxy]
+  def yosoy = env.fetch("yosoy")
+  # @return [String]
+  def current_session_id = rack_session.session_id
+  # @return [Suma::Member::Session]
+  def current_session = yosoy.authenticated_object!
+  # @return [Suma::Member::Session,nil]
+  def current_session? = yosoy.authenticated_object?
+
   # Return the currently-authenticated user,
   # or respond with a 401 if there is no authenticated user.
+  # @return [Suma::Member]
   def current_member
-    return _check_member_deleted(env["warden"].authenticate!(scope: :member), admin_member?)
+    m = current_member?
+    unauthenticated! unless m
+    return m
   end
 
   # Return the currently-authenticated user,
   # or respond nil if there is no authenticated user.
+  # @return [Suma::Member,nil]
   def current_member?
-    return _check_member_deleted(env["warden"].user(scope: :member), admin_member?)
+    return nil unless (cs = current_session?)
+    if cs.impersonation?
+      unauthenticated! unless cs.member.admin?
+      return cs.impersonating
+    end
+    unauthenticated! if cs.member.soft_deleted?
+    return cs.member
   end
 
+  # @return [Suma::Member]
   def admin_member
-    return _check_member_deleted(env["warden"].authenticate!(scope: :admin), nil)
+    m = admin_member?
+    unauthenticated! unless m
+    return m
   end
 
+  # @return [Suma::Member,nil]
   def admin_member?
-    return _check_member_deleted(env["warden"].authenticate(scope: :admin), nil)
+    return nil unless (cs = current_session?)
+    m = cs.member
+    return nil unless m.admin?
+    unauthenticated! if m.soft_deleted?
+    return m
   end
 
-  def authenticate!
-    warden = env["warden"]
-    user = warden.authenticate!(scope: :member)
-    warden.set_user(user, scope: :admin) if user.admin?
-    return user
-  end
-
-  # Handle denying authentication if the given user cannot auth.
-  # That is:
-  # - if we have an admin, but they should not be (deleted or missing role), throw unauthed error.
-  # - if current user is nil, return nil, since the caller can handle it.
-  # - if current user is deleted and there is no admin, throw unauthed error.
-  # - if current user is deleted and admin is deleted, throw unauthed error.
-  # - otherwise, return current user.
-  #
-  # The scenarios this covers are:
-  # - Normal users cannot auth if deleted.
-  # - Admins can sudo deleted users, and current_member still works.
-  # - Deleted admins cannot auth or get their sudo'ed user.
-  #
-  # NOTE: It is safe to throw unauthed errors for deleted users-
-  # this does not expose whether a user exists or not,
-  # because the only way to call this is via cookies,
-  # and cookies are encrypted. So it is impossible to force requests
-  # trying to auth/check auth for a user without knowing the secret.
-  def _check_member_deleted(user, potential_admin)
-    return nil if user.nil?
-    if potential_admin && (potential_admin.soft_deleted? || !potential_admin.roles.include?(Suma::Role.admin_role))
-      delete_session_cookies
-      unauthenticated!
-    end
-    if user.soft_deleted? && potential_admin.nil?
-      delete_session_cookies
-      unauthenticated!
-    end
-    return user
-  end
-
-  def delete_session_cookies
-    # Nope, cannot do this through Warden easily.
-    # And really we should have server-based sessions we can expire,
-    # but in the meantime, stomp on the cookie hard.
+  def logout
+    current_session?&.mark_logged_out&.save_changes
     options = env[Rack::RACK_SESSION_OPTIONS]
     options[:drop] = true
 
@@ -92,14 +81,12 @@ module Suma::Service::Helpers
     header "Clear-Site-Data", "*"
   end
 
-  def set_member(member)
-    warden = env["warden"]
-    warden.set_user(member, scope: :member)
-    warden.set_user(member, scope: :admin) if member.admin?
+  def set_session(session)
+    yosoy.set_authenticated_object(session)
   end
 
-  def current_session_id
-    return env["rack.session"].id
+  def unauthenticated!
+    yosoy.unauthenticated!
   end
 
   def check_role!(member, role_name)
@@ -121,15 +108,6 @@ module Suma::Service::Helpers
 
   def adminerror!(status, message, code: "admin", more: {})
     merror!(status, message, code:, more:, skip_loc_check: true)
-  end
-
-  def unauthenticated!
-    merror!(401, "Unauthenticated", code: "unauthenticated")
-  end
-
-  def unauthenticated_with_message!(msg)
-    env["suma.authfailuremessage"] = msg
-    unauthenticated!
   end
 
   def forbidden!(message="Forbidden")

@@ -8,7 +8,6 @@ require "sentry-ruby"
 require "sequel"
 require "sequel/adapters/postgres"
 require "set"
-require "warden"
 
 require "suma"
 require "suma/i18n"
@@ -107,7 +106,12 @@ class Suma::Service < Grape::API
     return {error:}
   end
 
-  Grape::Middleware::Auth::Strategies.add(:admin, Suma::Service::Auth::Admin)
+  # Middleware to use for Grape admin auth.
+  # See https://github.com/ruby-grape/grape#register-custom-middleware-for-authentication
+  Grape::Middleware::Auth::Strategies.add(
+    :admin,
+    Suma::Yosoy::BlockAuthenticatorMiddleware.new(->(proxy) { proxy.authenticated_object!.member.admin? }),
+  )
 
   # Add some context to Sentry on each request.
   before do

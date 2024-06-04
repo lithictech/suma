@@ -313,8 +313,6 @@ GEM
       unf_ext
     unf_ext (0.0.8.2)
     unicode-display_width (2.4.2)
-    warden (1.2.9)
-      rack (>= 2.0.9)
     webmock (3.19.1)
       addressable (>= 2.8.0)
       crack (>= 0.3.2)
@@ -402,7 +400,6 @@ DEPENDENCIES
   stripe
   timecop
   twilio-ruby (~> 5.74)
-  warden
   webmock
   yajl-ruby
 

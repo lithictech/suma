@@ -17,7 +17,7 @@ module Suma::Service::Middleware
     self.add_ssl_middleware(builder) if Suma::Service.enforce_ssl
     self.add_session_middleware(builder)
     self.add_security_middleware(builder)
-    Suma::Service::Auth.add_warden_middleware(builder)
+    self.add_auth_middleware(builder)
     self.add_etag_middleware(builder)
     builder.use(RequestLogger)
   end
@@ -64,6 +64,11 @@ module Suma::Service::Middleware
     # builder.use Rack::Protection, except: :session_hijacking
   end
 
+  def self.add_auth_middleware(builder)
+    builder.use Suma::Service::Auth::LegacySessionAdapterMiddleware
+    builder.use Suma::Service::Auth::Middleware
+  end
+
   def self.add_etag_middleware(builder)
     builder.use Rack::ConditionalGet
     builder.use Rack::ETag
@@ -85,7 +90,7 @@ module Suma::Service::Middleware
   class RequestLogger < Appydays::Loggable::RequestLogger
     def request_tags(env)
       tags = super
-      tags[:member_id] = env["warden"].user(:member)&.id || 0
+      tags[:member_id] = env["yosoy"].authenticated_object?&.member_id || 0
       return tags
     end
   end

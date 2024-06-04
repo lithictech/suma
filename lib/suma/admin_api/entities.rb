@@ -36,7 +36,7 @@ module Suma::AdminAPI::Entities
 
   class CurrentMemberEntity < Suma::Service::Entities::CurrentMember
     expose :impersonating, with: Suma::Service::Entities::CurrentMember do |_|
-      self.impersonation.is? ? self.impersonation.current_member : nil
+      self.current_session.impersonating
     end
   end
 

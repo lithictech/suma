@@ -9,7 +9,7 @@ RSpec.describe Suma::AdminAPI::Search, :db do
   let(:admin) { Suma::Fixtures.member.admin.create(name: "Bob") }
 
   before(:each) do
-    login_as_admin(admin)
+    login_as(admin)
   end
 
   describe "POST /v1/search/ledgers" do
