@@ -41,4 +41,13 @@ RSpec.describe Suma::Sentry, reset_configuration: Suma::Sentry do
       expect(described_class).to_not be_enabled
     end
   end
+
+  describe "dsn_host" do
+    it "is nil if unconfigured, present if set" do
+      described_class.dsn = ""
+      expect(described_class.dsn_host).to be_nil
+      described_class.dsn = "https://1234.ingest.sentry.io/a/b/c?x=1"
+      expect(described_class.dsn_host).to eq("1234.ingest.sentry.io")
+    end
+  end
 end

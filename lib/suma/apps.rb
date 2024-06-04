@@ -126,7 +126,7 @@ module Suma::Apps
       "VITE_RELEASE" => "sumaweb@" + vars[:release_version],
       "NODE_ENV" => vars[:node_env],
     }.merge(Rack::DynamicConfigWriter.pick_env("VITE_"))
-    dw.emplace(env)
+    return dw.emplace(env)
   end
 
   def self.emplace_dynamic_config_adminapp
@@ -140,7 +140,7 @@ module Suma::Apps
       "VITE_RELEASE" => "sumaadmin@" + vars[:release_version],
       "NODE_ENV" => vars[:node_env],
     }.merge(Rack::DynamicConfigWriter.pick_env("VITE_"))
-    dw.emplace(env)
+    return dw.emplace(env)
   end
 
   def self._dynamic_config_common_vars
@@ -154,8 +154,16 @@ module Suma::Apps
   WEB_MOUNT_PATH = "/app"
 
   Web = Rack::Builder.new do
-    Suma::Apps.emplace_dynamic_config
-    # self.use Rack::Csp, policy: "default-src 'self' mysuma.org *.mysuma.org; img-src 'self' data:"
+    script = Suma::Apps.emplace_dynamic_config
+    self.use(
+      Rack::Csp,
+      policy: {
+        safe: ["'self' mysuma.org *.mysuma.org", Suma::Sentry.dsn_host],
+        inline_scripts: [script],
+        img_data: true,
+        script_hashes: Rack::Csp.extract_script_hashes(File.read("build-webapp/index.html")),
+      },
+    )
     Rack::SpaApp.run_spa_app(
       self,
       "build-webapp",
@@ -165,8 +173,19 @@ module Suma::Apps
   end
 
   Admin = Rack::Builder.new do
-    Suma::Apps.emplace_dynamic_config_adminapp
-    # self.use Rack::Csp, policy: "default-src 'self'; img-src 'self' data:"
+    script = Suma::Apps.emplace_dynamic_config_adminapp
+    self.use(
+      Rack::Csp,
+      policy: {
+        safe: ["'self' mysuma.org *.mysuma.org", Suma::Sentry.dsn_host],
+        inline_scripts: [script],
+        img_data: true,
+        parts: {
+          "style-src-elem" => "<SAFE> fonts.googleapis.com 'unsafe-inline'",
+          "font-src" => "<SAFE> fonts.gstatic.com",
+        },
+      },
+    )
     Rack::SpaApp.run_spa_app(self, "build-adminapp", enforce_ssl: Suma::Service.enforce_ssl)
   end
 

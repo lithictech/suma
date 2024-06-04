@@ -31,4 +31,9 @@ module Suma::Sentry
   def self.enabled?
     return self.dsn.present?
   end
+
+  def self.dsn_host
+    return nil unless self.enabled?
+    return URI(self.dsn).host
+  end
 end

@@ -42,6 +42,7 @@ class Rack::DynamicConfigWriter
       doc.at("head").prepend_child("<script>#{script}</script>")
       File.write(@index_html_path, doc.serialize)
     end
+    return script
   end
 
   protected def prepare
