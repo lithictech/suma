@@ -42,6 +42,7 @@ class Rack::Csp
       img_data: false,
       parts: {}
     )
+      safe = safe.compact.join(" ") if safe.respond_to?(:to_ary)
       @safe = safe
       @inline_scripts = inline_scripts
       @script_hashes = script_hashes

@@ -151,26 +151,6 @@ module Suma::Apps
     }
   end
 
-  # Return the CSP for the self-hosted frontends. Note that these frontends are always served from the API
-  # so 'self' will cover API calls for things like images too.
-  def self.generate_csp(inline_scripts: [], script_hashes: [], rest: {})
-    safe_domains = "'self' mysuma.org *.mysuma.org"
-    script_hashes += inline_scripts.map { |s| Digest::SHA256.base64digest(s) }
-    script_src = +"script-src #{safe_domains}"
-    script_hashes.each do |h|
-      script_src << " 'sha256-#{h}'"
-    end
-    parts = [
-      "default-src #{safe_domains}",
-      "img-src #{safe_domains} data:",
-      script_src,
-    ]
-    rest.each do |k, v|
-      parts << "#{k} #{safe_domains} #{v}"
-    end
-    return parts.join("; ")
-  end
-
   WEB_MOUNT_PATH = "/app"
 
   Web = Rack::Builder.new do
@@ -178,7 +158,7 @@ module Suma::Apps
     self.use(
       Rack::Csp,
       policy: {
-        safe: "'self' mysuma.org *.mysuma.org",
+        safe: ["'self' mysuma.org *.mysuma.org", Suma::Sentry.dsn_host],
         inline_scripts: [script],
         img_data: true,
         script_hashes: [
@@ -199,7 +179,7 @@ module Suma::Apps
     self.use(
       Rack::Csp,
       policy: {
-        safe: "'self' mysuma.org *.mysuma.org",
+        safe: ["'self' mysuma.org *.mysuma.org", Suma::Sentry.dsn_host],
         inline_scripts: [script],
         img_data: true,
         parts: {

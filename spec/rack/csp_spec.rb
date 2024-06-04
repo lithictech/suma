@@ -18,6 +18,11 @@ RSpec.describe Rack::Csp do
     expect(csp(mw)).to eq("default-src 'self'")
   end
 
+  it "can use an array for safe values" do
+    mw = described_class.new(app, policy: {safe: ["'self'", "x.y", nil, "'keyword'"]})
+    expect(csp(mw)).to eq("default-src 'self' x.y 'keyword'; img-src 'self' x.y 'keyword'; script-src 'self' x.y 'keyword'")
+  end
+
   it "can use a custom header name" do
     mw = described_class.new(app, header: "Content-Security-Policy-Report-Only")
     resp = mw.call(req)
