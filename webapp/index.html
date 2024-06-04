@@ -37,9 +37,8 @@
   <body>
     <div id="root"></div>
     <script type="module" src="/src/index.jsx"></script>
-    <script type="text/javascript">
+    <script type="text/javascript" data-csp="ok">
       // AddToHomeScreen service worker must register here.
-      // IMPORTANT: Update the hash in apps.rb if this script changes, otherwise the CSP will not run it.
       if ("serviceWorker" in navigator) {
         window.addEventListener("load", () => {
           navigator.serviceWorker

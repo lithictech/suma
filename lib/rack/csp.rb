@@ -16,6 +16,12 @@ class Rack::Csp
     [status, headers, body]
   end
 
+  def self.extract_script_hashes(html, xpath: "//script[@data-csp='ok']")
+    doc = Nokogiri::HTML5.parse(html)
+    elements = doc.xpath(xpath)
+    return elements.map { |s| Digest::SHA256.base64digest(s) }
+  end
+
   class Policy
     attr_reader :safe, :inline_scripts, :script_hashes, :img_data, :parts
 

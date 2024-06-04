@@ -105,5 +105,22 @@ RSpec.describe Rack::Csp do
     )
     expect(csp(mw)).to eq("default-src 'self'; img-src images; script-src 'self'; font-src fonts")
   end
+
+  describe "extract_script_hashes" do
+    it "returns base64 hashes of elements matching the xpath (<script data-csp='ok'>)" do
+      html = <<~HTML
+        <html>
+          <script>alert('no attr')</script>
+          <script data-csp="ok">alert('ok')</script>
+          <script data-csp="ok">alert('ok2')</script>
+          <script data-csp="">alert('not ok')</script>
+          <div data-csp="ok">not a script</div>
+        </html>
+      HTML
+      expect(described_class.extract_script_hashes(html)).to eq(
+        ["GhSELej6D4No8Cu4c6BlA7SQooAXc4iM9HQ5s9uW7Gw=", "xi7KGU6bmso/fXSy1Ch4jpjavgXhfiFMPTIOoCPA5EQ="],
+      )
+    end
+  end
 end
 # rubocop:enable Layout/LineLength
