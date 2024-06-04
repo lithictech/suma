@@ -78,6 +78,17 @@ RSpec.describe Rack::Csp do
     expect(csp(mw)).to eq("default-src 'self'; img-src hi 'self' bye; script-src 'self'")
   end
 
+  it "does not mutate the default safe string" do
+    mw = described_class.new(
+      app,
+      policy: described_class::Policy.new(
+        safe: ["'self'", "x.y"],
+        img_data: true,
+      ),
+    )
+    expect(csp(mw)).to eq("default-src 'self' x.y; img-src 'self' x.y data:; script-src 'self' x.y")
+  end
+
   it "can use a policy hash, where string keys are used as additional policy fields" do
     mw = described_class.new(
       app,

@@ -62,10 +62,10 @@ class Rack::Csp
       all_script_hashes = script_hashes
       all_script_hashes += inline_scripts.map { |s| Digest::SHA256.base64digest(s) }
 
-      img_src = +safe
+      img_src = +safe.dup
       img_src << " data:" if img_data
 
-      script_src = +safe
+      script_src = +safe.dup
       all_script_hashes.each do |h|
         script_src << " 'sha256-"
         script_src << h
