@@ -8,7 +8,6 @@ require "suma/i18n"
 
 class Suma::API::Meta < Suma::API::V1
   include Suma::API::Entities
-  use Rack::RemoteIp
 
   resource :meta do
     get :supported_geographies do
@@ -48,7 +47,7 @@ class Suma::API::Meta < Suma::API::V1
     get :geolocate_ip do
       # Do not cache this endpoint.
       # The IP can change and is an implicit dependency of the call.
-      remote_ip = env["remote_ip"].to_s
+      remote_ip = env["rack.remote_ip"].to_s
       got = Suma::Http.get("http://ip-api.com/json/#{remote_ip}", logger: self.logger)
       r = got.parsed_response
       resp = {lat: r.fetch("lat"), lng: r.fetch("lon")}

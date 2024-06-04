@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require "suma/api/auth"
-require "rack/auth_rate_limit"
 require "suma/http"
 
 RSpec.describe Suma::API::Auth, :db, reset_configuration: Suma::Member do
@@ -26,73 +25,6 @@ RSpec.describe Suma::API::Auth, :db, reset_configuration: Suma::Member do
   let(:member_create_params) { member_params.merge(phone: full_phone) }
 
   describe "POST /v1/auth/start" do
-    context "rate limiting" do
-      let(:rate_limit) { 5 }
-      let(:rate_period) { 1.hour }
-
-      before(:each) do
-        Rack::Attack.enabled = true
-        Rack::Attack.cache.store = ActiveSupport::Cache::MemoryStore.new
-      end
-      after(:each) do
-        Rack::Attack.enabled = false
-      end
-
-      it "rate limits member phone numbers after 5 requests" do
-        rate_limit.times do
-          post("/v1/auth/start", phone: "(222) 333-4444", timezone:)
-          expect(last_response).to have_status(200)
-        end
-        post("/v1/auth/start", phone: "(222) 333-4444", timezone:)
-        expect(last_response).to have_status(429)
-      end
-
-      it "allows retry after specific amount of time has passed" do
-        rate_limit.times do
-          post("/v1/auth/start", phone: "(222) 333-4444", timezone:)
-          expect(last_response).to have_status(200)
-        end
-        # Since retry_after calculation happens in the middleware level,
-        # freeze time and return the calculation to be accurate
-        retry_after = 0
-        Timecop.freeze do
-          now = Time.now.to_i
-          retry_after = rate_period - (now % rate_period)
-          post("/v1/auth/start", phone: "(222) 333-4444", timezone:)
-          expect(last_response).to have_status(429)
-          expect(last_response).to have_json_body.that_includes(error: include(retry_after: retry_after.to_s))
-        end
-        Timecop.travel(Time.at(Time.now.to_i + retry_after)) do
-          post("/v1/auth/start", phone: "(222) 333-4444", timezone:)
-          expect(last_response).to have_status(200)
-        end
-      end
-
-      it "does not throttle requests from diff phone numbers with the same ip address" do
-        rate_limit.times do
-          post("/v1/auth/start", phone: "(222) 333-4444", timezone:)
-          expect(last_response).to have_status(200)
-        end
-
-        post("/v1/auth/start", phone: "(222) 333-4444", timezone:)
-        expect(last_response).to have_status(429)
-
-        post("/v1/auth/start", phone: "(444) 555-5555", timezone:)
-        expect(last_response).to have_status(200)
-      end
-
-      it "does not throttle requests from diff ip addresses with the same phone number" do
-        rate_limit.times do
-          header "REMOTE_ADDR", "1.2.3.4"
-          post("/v1/auth/start", phone: "(222) 333-4444", timezone:)
-          expect(last_response).to have_status(200)
-        end
-        header "REMOTE_ADDR", "1.4.3.2"
-        post("/v1/auth/start", phone: "(222) 333-4444", timezone:)
-        expect(last_response).to have_status(200)
-      end
-    end
-
     it "errors if a member is already authed" do
       c = Suma::Fixtures.member.create
       login_as(c)
@@ -188,33 +120,47 @@ RSpec.describe Suma::API::Auth, :db, reset_configuration: Suma::Member do
         expect(c.refresh.message_preferences!).to have_attributes(preferred_language: "es")
       end
     end
-  end
 
-  describe "POST /v1/auth/verify" do
-    context "rate limiting" do
+    context "rate limiting", reset_configuration: Suma::RackAttack do
       before(:each) do
-        Rack::Attack.enabled = true
-        Rack::Attack.cache.store = ActiveSupport::Cache::MemoryStore.new
-      end
-      after(:each) do
-        Rack::Attack.enabled = false
+        Suma::RackAttack.reconfigure(enabled: true)
       end
 
-      it "rate limits member phone numbers after 5 requests within 1 minute" do
-        # 403s since token is invalid
-        5.times do
-          post("/v1/auth/verify", phone: "(222) 333-4444", timezone:, token: "abc")
-          expect(last_response).to have_status(403)
+      it "rate limits requests to a particular phone number" do
+        3.times do
+          post("/v1/auth/start", phone: "(222) 333-4444", timezone:)
+          expect(last_response).to have_status(200)
         end
-
-        post("/v1/auth/verify", phone: "(222) 333-4444", timezone:, token: "abc")
+        post("/v1/auth/start", phone: "(222) 333-4444", timezone:)
         expect(last_response).to have_status(429)
       end
 
-      it "allows retry after specific amount of time has passed" do
+      it "rate limits requests from a particular IP" do
+        3.times do |i|
+          post("/v1/auth/start", phone: "(#{i}22) 333-4444", timezone:)
+          expect(last_response).to have_status(200)
+        end
+        post("/v1/auth/start", phone: "(422) 333-4444", timezone:)
+        expect(last_response).to have_status(429)
+      end
+
+      it "skips the phone check if the body does not parse as json" do
+        20.times do |i|
+          post("/v1/auth/start", "abc", {"REMOTE_ADDR" => "1.2.3.#{i}"})
+          expect(last_response).to have_status(400)
+        end
+      end
+
+      it "skips the phone check if the body does not contain a valid phone" do
+        20.times do |i|
+          post("/v1/auth/start", {phone: "abc", timezone:}, {"REMOTE_ADDR" => "1.2.3.#{i}"})
+          expect(last_response).to have_status(400)
+        end
       end
     end
+  end
 
+  describe "POST /v1/auth/verify" do
     it "errors if a member is already authed" do
       c = Suma::Fixtures.member.create
       login_as(c)
@@ -294,6 +240,23 @@ RSpec.describe Suma::API::Auth, :db, reset_configuration: Suma::Member do
 
       expect(last_response).to have_status(403)
       expect(last_response).to have_json_body.that_includes(error: include(code: "invalid_otp"))
+    end
+
+    context "rate limiting", reset_configuration: Suma::RackAttack do
+      before(:each) do
+        Suma::RackAttack.reconfigure(enabled: true)
+      end
+
+      it "rate limits member phone numbers after max attempts succeeded" do
+        4.times do
+          post("/v1/auth/verify", phone: "(222) 333-4444", timezone:, token: "abc")
+          # 403s since token is invalid
+          expect(last_response).to have_status(403)
+        end
+
+        post("/v1/auth/verify", phone: "(222) 333-4444", timezone:, token: "abc")
+        expect(last_response).to have_status(429)
+      end
     end
   end
 

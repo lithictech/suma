@@ -1,12 +1,14 @@
 # frozen_string_literal: true
 
-require "rack/attack"
 require "rack/cors"
 require "rack/protection"
+require "rack/remote_ip"
 require "rack/ssl-enforcer"
 require "sentry-ruby"
 require "appydays/loggable/request_logger"
 require "sequel/sequel_translated_text"
+
+require "suma/rack_attack"
 
 require "suma/service" unless defined?(Suma::Service)
 
@@ -16,11 +18,11 @@ module Suma::Service::Middleware
     self.add_common_middleware(builder)
     self.add_dev_middleware(builder) if Suma::Service.devmode
     self.add_ssl_middleware(builder) if Suma::Service.enforce_ssl
+    self.add_rate_limiting_middleware(builder)
     self.add_session_middleware(builder)
     self.add_security_middleware(builder)
     self.add_auth_middleware(builder)
     self.add_etag_middleware(builder)
-    self.add_rack_attack_middleware(builder)
     builder.use(RequestLogger)
   end
 
@@ -42,6 +44,7 @@ module Suma::Service::Middleware
     builder.use(Rack::Chunked)
     builder.use(Rack::Deflater)
     builder.use(Sentry::Rack::CaptureExceptions)
+    builder.use(Rack::RemoteIp)
     builder.use(SequelTranslatedText::RackMiddleware, languages: Suma::I18n.enabled_locale_codes.map(&:to_sym))
   end
 
@@ -77,10 +80,7 @@ module Suma::Service::Middleware
   end
 
   # Must initialize Rack::Attack rate limiting config here
-  def self.add_rack_attack_middleware(builder)
-    Rack::Attack.cache.store = ActiveSupport::Cache::MemoryStore.new
-    Rack::Attack.enabled = true
-    # Configure memory store since rack attack cache defaults to Rails.cache
+  def self.add_rate_limiting_middleware(builder)
     builder.use Rack::Attack
   end
 

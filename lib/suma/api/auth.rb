@@ -3,12 +3,10 @@
 require "grape"
 require "name_of_person"
 require "suma/api"
-require "rack/auth_rate_limit"
 
 class Suma::API::Auth < Suma::API::V1
   include Suma::Service::Types
   include Suma::API::Entities
-  use Rack::AuthRateLimit
 
   ALL_TIMEZONES = Set.new(TZInfo::Timezone.all_identifiers)
 
@@ -25,6 +23,32 @@ class Suma::API::Auth < Suma::API::V1
       requires :timezone, type: String, values: ALL_TIMEZONES
       optional :language, type: String, values: Suma::I18n.enabled_locale_codes
       optional :terms_agreed, type: Boolean
+    end
+    Suma::RackAttack.throttle_many(
+      "/auth/sms_bomb_to_phone",
+      # Users should not need more than 3 of these within a minute.
+      {limit: 3, period: 1.minute},
+      # Prevent malicious use by rate limiting across a longer period.
+      {limit: 10, period: 1.hour},
+    ) do |request|
+      next unless request.path.include?("/v1/auth/start")
+      begin
+        params = JSON.parse(request.body.read)
+      rescue JSON::ParserError
+        next nil
+      end
+      request.body.rewind
+      phone = Suma::PhoneNumber::US.normalize(params["phone"])
+      Suma::PhoneNumber::US.valid_normalized?(phone) ? phone : nil
+    end
+    Suma::RackAttack.throttle_many(
+      "/auth/sms_bomb_from_ip",
+      # Same limits as above
+      {limit: 3, period: 1.minute},
+      {limit: 10, period: 1.hour},
+    ) do |request|
+      next unless request.path.include?("/v1/auth/start")
+      request.env.fetch("rack.remote_ip")
     end
     post :start do
       guard_authed!
@@ -57,6 +81,16 @@ class Suma::API::Auth < Suma::API::V1
     params do
       requires :phone, us_phone: true, type: String, coerce_with: NormalizedPhone
       requires :token, type: String, allow_blank: false
+    end
+    Suma::RackAttack.throttle_many(
+      "/auth/reset_code_enumeration",
+      # Users should only need 4 attempts within a couple minutes to check a code
+      {limit: 4, period: 2.minutes},
+      # Codes expire after 15 minutes anyway, don't allow more than a reasonable number of attempts
+      {limit: 8, period: 20.minutes},
+    ) do |request|
+      next unless request.path.include?("/v1/auth/verify")
+      request.env.fetch("rack.remote_ip")
     end
     post :verify do
       guard_authed!
