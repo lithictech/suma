@@ -160,8 +160,10 @@ module Suma::Apps
       policy: {
         safe: ["'self' mysuma.org *.mysuma.org", Suma::Sentry.dsn_host],
         inline_scripts: [script],
-        img_data: true,
         script_hashes: Rack::Csp.extract_script_hashes(File.read("build-webapp/index.html")),
+        parts: {
+          "img-src" => "'self' mysuma.org *.mysuma.org data: api.mapbox.com",
+        },
       },
     )
     Rack::SpaApp.run_spa_app(

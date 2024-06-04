@@ -8,20 +8,21 @@ import { mdx, t } from "../localization";
 import React from "react";
 
 export default function Mobility() {
+  const introMd = mdx("mobility:intro", {
+    overrides: {
+      a: { component: MdLink },
+      p: {
+        props: {
+          className: "text-secondary",
+        },
+      },
+    },
+  });
   return config.featureMobility ? (
     <>
       <LayoutContainer top gutters>
         <h5>{t("mobility:title")}</h5>
-        {mdx("mobility:intro", {
-          overrides: {
-            a: { component: MdLink },
-            p: {
-              props: {
-                className: "text-secondary",
-              },
-            },
-          },
-        })}
+        {introMd}
       </LayoutContainer>
       <Map />
     </>
@@ -32,7 +33,7 @@ export default function Mobility() {
         imgSrc={mobilityHeaderImage}
         imgAlt="Scooter Mobility"
         title={t("mobility:title")}
-        text={t("mobility:intro")}
+        text={introMd}
       />
     </div>
   );
