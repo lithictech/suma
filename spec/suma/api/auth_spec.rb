@@ -1,7 +1,8 @@
 # frozen_string_literal: true
 
 require "suma/api/auth"
-require "rack/rack_attack"
+require "rack/auth_rate_limit"
+require "suma/http"
 
 RSpec.describe Suma::API::Auth, :db, reset_configuration: Suma::Member do
   include Rack::Test::Methods
@@ -27,7 +28,7 @@ RSpec.describe Suma::API::Auth, :db, reset_configuration: Suma::Member do
   describe "POST /v1/auth/start" do
     context "rate limiting" do
       let(:rate_limit) { 5 }
-      let(:rate_period) { 1.minute }
+      let(:rate_period) { 1.hour }
 
       before(:each) do
         Rack::Attack.enabled = true
@@ -59,9 +60,8 @@ RSpec.describe Suma::API::Auth, :db, reset_configuration: Suma::Member do
           retry_after = rate_period - (now % rate_period)
           post("/v1/auth/start", phone: "(222) 333-4444", timezone:)
           expect(last_response).to have_status(429)
-          expect(last_response.body).to include("retry_after")
+          expect(last_response).to have_json_body.that_includes(error: include(retry_after: retry_after.to_s))
         end
-
         Timecop.travel(Time.at(Time.now.to_i + retry_after)) do
           post("/v1/auth/start", phone: "(222) 333-4444", timezone:)
           expect(last_response).to have_status(200)
@@ -82,8 +82,14 @@ RSpec.describe Suma::API::Auth, :db, reset_configuration: Suma::Member do
       end
 
       it "does not throttle requests from diff ip addresses with the same phone number" do
-        # TODO: figure out how to change IP address here, passing through
-        # post request headers does not seem to work
+        rate_limit.times do
+          header "REMOTE_ADDR", "1.2.3.4"
+          post("/v1/auth/start", phone: "(222) 333-4444", timezone:)
+          expect(last_response).to have_status(200)
+        end
+        header "REMOTE_ADDR", "1.4.3.2"
+        post("/v1/auth/start", phone: "(222) 333-4444", timezone:)
+        expect(last_response).to have_status(200)
       end
     end
 
@@ -199,12 +205,10 @@ RSpec.describe Suma::API::Auth, :db, reset_configuration: Suma::Member do
         5.times do
           post("/v1/auth/verify", phone: "(222) 333-4444", timezone:, token: "abc")
           expect(last_response).to have_status(403)
-          expect(last_response.headers).to_not include("retry-after")
         end
 
         post("/v1/auth/verify", phone: "(222) 333-4444", timezone:, token: "abc")
         expect(last_response).to have_status(429)
-        expect(last_response.headers).to include("retry-after")
       end
 
       it "allows retry after specific amount of time has passed" do

@@ -80,7 +80,6 @@ module Suma::Service::Middleware
   def self.add_rack_attack_middleware(builder)
     Rack::Attack.cache.store = ActiveSupport::Cache::MemoryStore.new
     Rack::Attack.enabled = true
-    Rack::Attack.throttled_response_retry_after_header = true
     # Configure memory store since rack attack cache defaults to Rails.cache
     builder.use Rack::Attack
   end
