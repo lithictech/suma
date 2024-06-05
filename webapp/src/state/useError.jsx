@@ -1,3 +1,4 @@
+import { t } from "../localization";
 import { Logger } from "../shared/logger";
 import get from "lodash/get";
 import isString from "lodash/isString";
@@ -44,3 +45,21 @@ export function extractErrorCode(error) {
 }
 
 const defaultCode = "unhandled_error";
+
+/**
+ * Use extractErrorCode to get the code for error,
+ * then render it in a localized element.
+ * Uses special casing to localize the error message
+ * using information returned from 'error'.
+ * @param error
+ * @returns {JSX.Element}
+ */
+export function extractLocalizedError(error) {
+  const code = extractErrorCode(error);
+  const opts = {};
+  if (code === "too_many_requests") {
+    opts.seconds = Number(get(error, "response.data.error.retryAfter", 60));
+  }
+  const msg = t(`errors:${code}`, opts);
+  return <>{msg}</>;
+}

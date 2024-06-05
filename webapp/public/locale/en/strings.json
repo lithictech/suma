@@ -1,11 +1,6 @@
 {
   "auth": {
     "agree_aria_label": "Agree to terms",
-    "minutes_and_seconds": "{{minutes}} and {{seconds}}",
-    "minutes_one": "{{count}} minute",
-    "minutes_other": "{{count}} minutes",
-    "seconds_one": "{{count}} second",
-    "seconds_other": "{{count}} seconds",
     "sign_up_agreement": "I accept and agree to suma’s [Terms of Use](/terms-of-use) and [Privacy Policy](/privacy-policy). I also agree to receive periodic SMS and/or MMS messages from suma. Message and data rates may apply. Message frequency may vary depending on your activity and settings. Text HELP for more information. Text STOP to stop receiving messages."
   },
   "common": {
@@ -111,7 +106,7 @@
     "role_check": "$t(strings:errors:invalid_permissions)",
     "something_went_wrong_body": "Sorry, something went wrong. Let's go to your home screen so you can try again.",
     "something_went_wrong_title": "Something went wrong",
-    "too_many_requests": "You have made too many requests in a short period of time. Please try again after {{retryAfter}}.",
+    "too_many_requests": "You have made too many requests in a short period of time. Please try again after {{seconds}} seconds.",
     "unauthenticated": "You must be log in to proceed.",
     "unhandled_error": "Sorry, something went wrong. Please try again.",
     "validation_error": "Some fields were left blank, please fill in all required fields and try again.",

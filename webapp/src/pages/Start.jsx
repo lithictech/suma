@@ -3,14 +3,13 @@ import FormButtons from "../components/FormButtons";
 import FormControlGroup from "../components/FormControlGroup";
 import FormError from "../components/FormError";
 import SignupAgreement from "../components/SignupAgreement";
-import TooManyRequestsError from "../components/TooManyRequestsError";
 import { t } from "../localization";
 import useI18Next from "../localization/useI18Next";
 import { dayjs } from "../modules/dayConfig";
 import { maskPhoneNumber } from "../modules/maskPhoneNumber";
 import { Logger } from "../shared/logger";
 import useToggle from "../shared/react/useToggle";
-import { extractErrorCode, useError } from "../state/useError";
+import { extractErrorCode, extractLocalizedError, useError } from "../state/useError";
 import React, { useState } from "react";
 import Form from "react-bootstrap/Form";
 import { useForm } from "react-hook-form";
@@ -45,7 +44,7 @@ export default function Start() {
   const handleSubmitForm = () => {
     submitDisabled.turnOn();
     inputDisabled.turnOn();
-    setError();
+    setError(null);
     api
       .authStart({
         phone,
@@ -62,15 +61,10 @@ export default function Start() {
         })
       )
       .catch((err) => {
-        const errorCode = extractErrorCode(err);
-        if (errorCode === "too_many_requests") {
-          setError(<TooManyRequestsError error={err} />);
-        } else {
-          setError(errorCode);
-        }
+        setError(extractLocalizedError(err));
         submitDisabled.turnOff();
         inputDisabled.turnOff();
-        if (errorCode === "auth_conflict") {
+        if (extractErrorCode(err) === "auth_conflict") {
           logger.error("Unexpected auth conflict");
           window.location.reload();
         }
