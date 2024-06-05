@@ -119,6 +119,44 @@ RSpec.describe Suma::API::Auth, :db, reset_configuration: Suma::Member do
         expect(c.refresh.message_preferences!).to have_attributes(preferred_language: "es")
       end
     end
+
+    context "rate limiting", reset_configuration: Suma::RackAttack do
+      before(:each) do
+        Suma::RackAttack.reconfigure(enabled: true)
+      end
+
+      it "rate limits requests to a particular phone number" do
+        3.times do
+          post("/v1/auth/start", phone: "(222) 333-4444", timezone:)
+          expect(last_response).to have_status(200)
+        end
+        post("/v1/auth/start", phone: "(222) 333-4444", timezone:)
+        expect(last_response).to have_status(429)
+      end
+
+      it "rate limits requests from a particular IP" do
+        3.times do |i|
+          post("/v1/auth/start", phone: "(#{i}22) 333-4444", timezone:)
+          expect(last_response).to have_status(200)
+        end
+        post("/v1/auth/start", phone: "(422) 333-4444", timezone:)
+        expect(last_response).to have_status(429)
+      end
+
+      it "skips the phone check if the body does not parse as json" do
+        20.times do |i|
+          post("/v1/auth/start", "abc", {"REMOTE_ADDR" => "1.2.3.#{i}"})
+          expect(last_response).to have_status(400)
+        end
+      end
+
+      it "skips the phone check if the body does not contain a valid phone" do
+        20.times do |i|
+          post("/v1/auth/start", {phone: "abc", timezone:}, {"REMOTE_ADDR" => "1.2.3.#{i}"})
+          expect(last_response).to have_status(400)
+        end
+      end
+    end
   end
 
   describe "POST /v1/auth/verify" do
@@ -201,6 +239,23 @@ RSpec.describe Suma::API::Auth, :db, reset_configuration: Suma::Member do
 
       expect(last_response).to have_status(403)
       expect(last_response).to have_json_body.that_includes(error: include(code: "invalid_otp"))
+    end
+
+    context "rate limiting", reset_configuration: Suma::RackAttack do
+      before(:each) do
+        Suma::RackAttack.reconfigure(enabled: true)
+      end
+
+      it "rate limits member phone numbers after max attempts succeeded" do
+        4.times do
+          post("/v1/auth/verify", phone: "(222) 333-4444", timezone:, token: "abc")
+          # 403s since token is invalid
+          expect(last_response).to have_status(403)
+        end
+
+        post("/v1/auth/verify", phone: "(222) 333-4444", timezone:, token: "abc")
+        expect(last_response).to have_status(429)
+      end
     end
   end
 

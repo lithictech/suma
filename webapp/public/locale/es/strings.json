@@ -106,6 +106,7 @@
     "role_check": "$t(strings:errors:invalid_permissions)",
     "something_went_wrong_body": "Lo sentimos, algo salió mal. Vuelve a la página principal para intentar de nuevo.",
     "something_went_wrong_title": "Algo salió mal.",
+    "too_many_requests": "Ha realizado demasiadas solicitudes en un corto período de tiempo. Por favor inténtelo de nuevo después de {{seconds}} segundos.",
     "unauthenticated": "Debe iniciar una sesión para proceder.",
     "unhandled_error": "Lo sentimos, algo salió mal. Intenta de nuevo.",
     "validation_error": "Algunos campos de texto están en blanco, introducza los datos requeridos e intente de nuevo.",

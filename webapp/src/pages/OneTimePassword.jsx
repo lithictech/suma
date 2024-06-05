@@ -5,7 +5,7 @@ import FormSuccess from "../components/FormSuccess";
 import { t } from "../localization";
 import { dayjs } from "../modules/dayConfig";
 import { maskPhoneNumber } from "../modules/maskPhoneNumber";
-import { extractErrorCode, useError } from "../state/useError";
+import { extractErrorCode, extractLocalizedError, useError } from "../state/useError";
 import useLoginRedirectLink from "../state/useLoginRedirectLink";
 import useUser from "../state/useUser";
 import React from "react";
@@ -95,7 +95,7 @@ const OneTimePassword = () => {
   const handleOtpSubmit = (e) => {
     e.preventDefault();
     submitRef.current.disabled = true;
-    setError();
+    setError(null);
     api
       .authVerify({ phone: phoneNumber, token: otpChars.join("") })
       .then((r) => {
@@ -112,7 +112,7 @@ const OneTimePassword = () => {
       .catch((err) => {
         setOtpChars(new Array(6).fill(""));
         setMessage(null);
-        setError(extractErrorCode(err));
+        setError(extractLocalizedError(err));
         const firstOtpField = document.getElementById("otpContainer").firstChild;
         firstOtpField.focus();
       });
@@ -131,7 +131,7 @@ const OneTimePassword = () => {
       })
       .catch((err) => {
         setMessage(null);
-        setError(extractErrorCode(err));
+        setError(extractLocalizedError(err));
       });
   };
 

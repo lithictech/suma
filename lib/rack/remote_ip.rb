@@ -74,7 +74,7 @@ class Rack::RemoteIp
   # requests. For those requests that do need to know the IP, the
   # GetIp#calculate_ip method will calculate the memoized client IP address.
   def call(env)
-    env["remote_ip"] = GetIp.new(env, self.check_ip, self.proxies)
+    env["rack.remote_ip"] = GetIp.new(env, self.check_ip, self.proxies)
     @app.call(env)
   end
 

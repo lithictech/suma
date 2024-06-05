@@ -189,6 +189,8 @@ GEM
     rack (2.2.8)
     rack-accept (0.4.5)
       rack (>= 0.4)
+    rack-attack (6.7.0)
+      rack (>= 1.0, < 4)
     rack-cors (2.0.1)
       rack (>= 2.0.0)
     rack-protection (3.1.0)
@@ -364,6 +366,7 @@ DEPENDENCIES
   pry
   pry-clipboard2
   puma
+  rack-attack
   rack-cors
   rack-protection
   rack-ssl-enforcer
