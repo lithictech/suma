@@ -3,6 +3,7 @@ import FormButtons from "../components/FormButtons";
 import FormControlGroup from "../components/FormControlGroup";
 import FormError from "../components/FormError";
 import SignupAgreement from "../components/SignupAgreement";
+import TooManyRequestsError from "../components/TooManyRequestsError";
 import { t } from "../localization";
 import useI18Next from "../localization/useI18Next";
 import { dayjs } from "../modules/dayConfig";
@@ -10,7 +11,6 @@ import { maskPhoneNumber } from "../modules/maskPhoneNumber";
 import { Logger } from "../shared/logger";
 import useToggle from "../shared/react/useToggle";
 import { extractErrorCode, useError } from "../state/useError";
-import get from "lodash/get";
 import React, { useState } from "react";
 import Form from "react-bootstrap/Form";
 import { useForm } from "react-hook-form";
@@ -45,6 +45,7 @@ export default function Start() {
   const handleSubmitForm = () => {
     submitDisabled.turnOn();
     inputDisabled.turnOn();
+    setError();
     api
       .authStart({
         phone,
@@ -63,8 +64,7 @@ export default function Start() {
       .catch((err) => {
         const errorCode = extractErrorCode(err);
         if (errorCode === "too_many_requests") {
-          const retryAfter = get(err, "response.data.error.retryAfter");
-          setError(<>{t(`errors:${errorCode}`, { retryAfter: retryAfter })}</>);
+          setError(<TooManyRequestsError error={err} />);
         } else {
           setError(errorCode);
         }

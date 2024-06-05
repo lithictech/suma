@@ -2,6 +2,7 @@ import api from "../api";
 import FormButtons from "../components/FormButtons";
 import FormError from "../components/FormError";
 import FormSuccess from "../components/FormSuccess";
+import TooManyRequestsError from "../components/TooManyRequestsError";
 import { t } from "../localization";
 import { dayjs } from "../modules/dayConfig";
 import { maskPhoneNumber } from "../modules/maskPhoneNumber";
@@ -112,7 +113,11 @@ const OneTimePassword = () => {
       .catch((err) => {
         setOtpChars(new Array(6).fill(""));
         setMessage(null);
-        setError(extractErrorCode(err));
+        if (extractErrorCode(err) === "too_many_requests") {
+          setError(<TooManyRequestsError error={err} />);
+        } else {
+          setError(extractErrorCode(err));
+        }
         const firstOtpField = document.getElementById("otpContainer").firstChild;
         firstOtpField.focus();
       });
@@ -121,7 +126,6 @@ const OneTimePassword = () => {
   const handleResend = () => {
     setOtpChars(new Array(6).fill(""));
     setError(null);
-    setMessage(["otp:code_resent", { phone: maskPhoneNumber(phoneNumber) }]);
     const firstOtpField = document.getElementById("otpContainer").firstChild;
     firstOtpField.focus();
     api
@@ -129,9 +133,16 @@ const OneTimePassword = () => {
         phone: phoneNumber,
         timezone: dayjs.tz.guess(),
       })
+      .then(() => {
+        setMessage(["otp:code_resent", { phone: maskPhoneNumber(phoneNumber) }]);
+      })
       .catch((err) => {
         setMessage(null);
-        setError(extractErrorCode(err));
+        if (extractErrorCode(err) === "too_many_requests") {
+          setError(<TooManyRequestsError error={err} />);
+        } else {
+          setError(extractErrorCode(err));
+        }
       });
   };
 

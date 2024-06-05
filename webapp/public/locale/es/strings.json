@@ -1,6 +1,11 @@
 {
   "auth": {
     "agree_aria_label": "Aceptar los terminos",
+    "minutes_and_seconds": "{{minutes}} y {{seconds}}",
+    "minutes_one": "{{count}} minuto",
+    "minutes_other": "{{count}} minutos",
+    "seconds_one": "{{count}} segundo",
+    "seconds_other": "{{count}} segundos",
     "sign_up_agreement": "Acepto y estoy de acuerdo con suma's [Términos de uso](/términos-de-uso) y [Política de privacidad](/privacy-policy). También acepto recibir SMS y/o MMS periódicos de suma. Se pueden aplicar tarifas de mensajes y datos. La frecuencia de los mensajes puede variar según su actividad y configuración. Envíe HELP para obtener más información. Envíe STOP para dejar de recibir mensajes."
   },
   "common": {
@@ -106,6 +111,7 @@
     "role_check": "$t(strings:errors:invalid_permissions)",
     "something_went_wrong_body": "Lo sentimos, algo salió mal. Vuelve a la página principal para intentar de nuevo.",
     "something_went_wrong_title": "Algo salió mal.",
+    "too_many_requests": "Ha realizado demasiadas solicitudes en un corto período de tiempo. Por favor inténtelo de nuevo después de {{retryAfter}}.",
     "unauthenticated": "Debe iniciar una sesión para proceder.",
     "unhandled_error": "Lo sentimos, algo salió mal. Intenta de nuevo.",
     "validation_error": "Algunos campos de texto están en blanco, introducza los datos requeridos e intente de nuevo.",
