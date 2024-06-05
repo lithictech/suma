@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require "suma/api/auth"
-require "suma/http"
 
 RSpec.describe Suma::API::Auth, :db, reset_configuration: Suma::Member do
   include Rack::Test::Methods
