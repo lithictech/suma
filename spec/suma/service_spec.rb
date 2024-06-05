@@ -211,6 +211,14 @@ class Suma::API::TestService < Suma::Service
     status 200
   end
 
+  Rack::Attack.throttle("/test/rate_limited", limit: 1, period: 30) do |req|
+    req.path == "/rate_limited" ? "test" : nil
+  end
+  get :rate_limited do
+    status 200
+    present {}
+  end
+
   params do
     requires :behavior, values: ["stream", "present"]
     requires :addcache, type: Boolean
@@ -1044,6 +1052,28 @@ RSpec.describe Suma::Service, :db do
       get "/language_with_block"
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.that_includes(othername: "English")
+    end
+  end
+
+  describe "rate limiting", reset_configuration: Suma::RackAttack do
+    it "returns a 429 with headers and body" do
+      Suma::RackAttack.reconfigure(enabled: true)
+      Timecop.freeze("2024-01-01T12:00:12Z") do
+        get "/rate_limited"
+        expect(last_response).to have_status(200)
+        get "/rate_limited"
+        expect(last_response).to have_status(429)
+        expect(last_response.headers).to include("Retry-After" => "18")
+        expect(last_response).to have_json_body.
+          that_includes(
+            error: {
+              retry_after: "18",
+              message: "Rate limited",
+              status: 429,
+              code: "too_many_requests",
+            },
+          )
+      end
     end
   end
 
