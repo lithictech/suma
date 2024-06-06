@@ -5,7 +5,7 @@ import FormSuccess from "../components/FormSuccess";
 import { t } from "../localization";
 import { dayjs } from "../modules/dayConfig";
 import { maskPhoneNumber } from "../modules/maskPhoneNumber";
-import { extractErrorCode, extractLocalizedError, useError } from "../state/useError";
+import { extractLocalizedError, useError } from "../state/useError";
 import useLoginRedirectLink from "../state/useLoginRedirectLink";
 import useUser from "../state/useUser";
 import React from "react";

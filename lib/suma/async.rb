@@ -9,6 +9,7 @@ require "sidekiq"
 require "sidekiq-unique-jobs"
 
 require "suma"
+require "suma/redis"
 
 Sidekiq.strict_args!(true)
 
