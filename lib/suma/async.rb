@@ -59,12 +59,7 @@ module Suma::Async
     after_configured do
       # Very hard to to test this, so it's not tested.
       url = self.sidekiq_redis_provider.present? ? ENV.fetch(self.sidekiq_redis_provider, nil) : self.sidekiq_redis_url
-      redis_params = {url:}
-      if url.start_with?("rediss:") && ENV["HEROKU_APP_ID"]
-        # rediss: schema is Redis with SSL. They use self-signed certs, so we have to turn off SSL verification.
-        # There is not a clear KB on this, you have to piece it together from Heroku and Sidekiq docs.
-        redis_params[:ssl_params] = {verify_mode: OpenSSL::SSL::VERIFY_NONE}
-      end
+      redis_params = Suma::Redis.conn_params(url)
       Sidekiq.configure_server do |config|
         config.redis = redis_params
         config.options[:job_logger] = Suma::Async::JobLogger

@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "rack/attack"
+require "suma/redis"
 
 module Suma::RackAttack
   include Appydays::Configurable
@@ -21,7 +22,7 @@ module Suma::RackAttack
       redis_url = self.redis_provider.present? ? ENV.fetch(self.redis_provider, nil) : self.redis_url
       Rack::Attack.cache.store =
         if redis_url.present?
-          ActiveSupport::Cache::RedisCacheStore.new(url: redis_url)
+          ActiveSupport::Cache::RedisCacheStore.new(**Suma::Redis.conn_params(redis_url))
         elsif self.enabled
           ActiveSupport::Cache::MemoryStore.new
         end
