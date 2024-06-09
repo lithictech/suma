@@ -163,6 +163,7 @@ module Suma::Apps
         script_hashes: Rack::Csp.extract_script_hashes(File.read("build-webapp/index.html")),
         parts: {
           "img-src" => "'self' mysuma.org *.mysuma.org data: api.mapbox.com",
+          "connect-src" => "<SAFE> api.stripe.com",
         },
       },
     )
