@@ -126,8 +126,8 @@ RSpec.describe Suma::API::Auth, :db, reset_configuration: Suma::Member do
       end
 
       it "rate limits requests to a particular phone number" do
-        3.times do
-          post("/v1/auth/start", phone: "(222) 333-4444", timezone:)
+        3.times do |i|
+          post("/v1/auth/start", {phone: "(222) 333-4444", timezone:}, {"rack.remote_ip" => "1.2.3.#{i}"})
           expect(last_response).to have_status(200)
         end
         post("/v1/auth/start", phone: "(222) 333-4444", timezone:)
@@ -246,14 +246,23 @@ RSpec.describe Suma::API::Auth, :db, reset_configuration: Suma::Member do
         Suma::RackAttack.reconfigure(enabled: true)
       end
 
-      it "rate limits member phone numbers after max attempts succeeded" do
-        4.times do
-          post("/v1/auth/verify", phone: "(222) 333-4444", timezone:, token: "abc")
+      it "rate limits from a particular IP" do
+        4.times do |i|
+          post("/v1/auth/verify", phone: "(#{i}22) 333-4444", token: "abc")
           # 403s since token is invalid
           expect(last_response).to have_status(403)
         end
 
-        post("/v1/auth/verify", phone: "(222) 333-4444", timezone:, token: "abc")
+        post("/v1/auth/verify", phone: "(222) 333-4444", token: "abc")
+        expect(last_response).to have_status(429)
+      end
+
+      it "rate limits requests to a particular phone number" do
+        50.times do |i|
+          post("/v1/auth/verify", {phone: "(222) 333-4444", token: "abc"}, {"rack.remote_ip" => "1.2.3.#{i}"})
+          expect(last_response).to have_status(403)
+        end
+        post("/v1/auth/verify", phone: "(222) 333-4444", token: "abc")
         expect(last_response).to have_status(429)
       end
     end
