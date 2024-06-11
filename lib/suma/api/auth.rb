@@ -16,6 +16,17 @@ class Suma::API::Auth < Suma::API::V1
     end
   end
 
+  def self.extract_phone_from_request(request)
+    begin
+      params = JSON.parse(request.body.read)
+    rescue JSON::ParserError
+      return nil
+    end
+    request.body.rewind
+    phone = Suma::PhoneNumber::US.normalize(params["phone"])
+    return Suma::PhoneNumber::US.valid_normalized?(phone) ? phone : nil
+  end
+
   resource :auth do
     desc "Start the authentication process"
     params do
@@ -32,15 +43,9 @@ class Suma::API::Auth < Suma::API::V1
       {limit: 10, period: 1.hour},
     ) do |request|
       next unless request.path.include?("/v1/auth/start")
-      begin
-        params = JSON.parse(request.body.read)
-      rescue JSON::ParserError
-        next nil
-      end
-      request.body.rewind
-      phone = Suma::PhoneNumber::US.normalize(params["phone"])
-      Suma::PhoneNumber::US.valid_normalized?(phone) ? phone : nil
+      Suma::API::Auth.extract_phone_from_request(request)
     end
+
     Suma::RackAttack.throttle_many(
       "/auth/sms_bomb_from_ip",
       # Same limits as above
@@ -91,6 +96,14 @@ class Suma::API::Auth < Suma::API::V1
     ) do |request|
       next unless request.path.include?("/v1/auth/verify")
       request.env.fetch("rack.remote_ip")
+    end
+    Suma::RackAttack.throttle_many(
+      "/auth/distributed_reset_code_enumeration",
+      # Prevent a determined attacker with distributed IPs from being able to test many codes for a phone number.
+      {limit: 50, period: 20.minutes},
+    ) do |request|
+      next unless request.path.include?("/v1/auth/verify")
+      Suma::API::Auth.extract_phone_from_request(request)
     end
     post :verify do
       guard_authed!
