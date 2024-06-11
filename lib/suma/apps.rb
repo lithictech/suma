@@ -7,6 +7,7 @@ require "rack/csp"
 require "rack/dynamic_config_writer"
 require "rack/lambda_app"
 require "rack/service_worker_allowed"
+require "rack/simple_headers"
 require "rack/simple_redirect"
 require "rack/spa_app"
 require "rack/spa_rewrite"
@@ -152,6 +153,17 @@ module Suma::Apps
   end
 
   WEB_MOUNT_PATH = "/app"
+  SECURITY_HEADERS = {
+    "X-Frame-Options" => "DENY",
+    "X-Content-Type-Options" => "nosniff",
+    "Referrer-Policy" => "strict-origin-when-cross-origin",
+    # A new policy can be generated at https://www.permissionspolicy.com/
+    # Use all Standardized Features for 'self', along with whatever experimental features seem useful
+    # to prohibit any cross-origin resources from accessing.
+    # rubocop:disable Layout/LineLength
+    "Permissions-Policy" => "accelerometer=(self), ambient-light-sensor=(self), autoplay=(self), battery=(self), camera=(self), cross-origin-isolated=(self), display-capture=(self), document-domain=(self), encrypted-media=(self), execution-while-not-rendered=(self), execution-while-out-of-viewport=(self), fullscreen=(self), geolocation=(self), gyroscope=(self), keyboard-map=(self), magnetometer=(self), microphone=(self), midi=(self), navigation-override=(self), payment=(self), picture-in-picture=(self), publickey-credentials-get=(self), screen-wake-lock=(self), sync-xhr=(self), usb=(self), web-share=(self), xr-spatial-tracking=(self), clipboard-read=(self), clipboard-write=(self)",
+    # rubocop:enable Layout/LineLength
+  }.freeze
 
   Web = Rack::Builder.new do
     script = Suma::Apps.emplace_dynamic_config
@@ -164,9 +176,11 @@ module Suma::Apps
         parts: {
           "img-src" => "'self' mysuma.org *.mysuma.org data: api.mapbox.com",
           "connect-src" => "<SAFE> api.stripe.com",
+          "frame-ancestors" => "'none'",
         },
       },
     )
+    self.use(Rack::SimpleHeaders, SECURITY_HEADERS)
     Rack::SpaApp.run_spa_app(
       self,
       "build-webapp",
@@ -186,9 +200,11 @@ module Suma::Apps
         parts: {
           "style-src-elem" => "<SAFE> fonts.googleapis.com 'unsafe-inline'",
           "font-src" => "<SAFE> fonts.gstatic.com",
+          "frame-ancestors" => "'none'",
         },
       },
     )
+    self.use(Rack::SimpleHeaders, SECURITY_HEADERS)
     Rack::SpaApp.run_spa_app(self, "build-adminapp", enforce_ssl: Suma::Service.enforce_ssl)
   end
 
