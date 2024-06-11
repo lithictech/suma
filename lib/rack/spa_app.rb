@@ -8,7 +8,7 @@ require "rack/spa_rewrite"
 class Rack::SpaApp
   def self.dependencies(build_folder, immutable: true, enforce_ssl: true, service_worker_allowed: nil)
     result = []
-    result << [Rack::SslEnforcer, {redirect_html: false}] if enforce_ssl
+    result << [Rack::SslEnforcer, {redirect_html: false, hsts: true}] if enforce_ssl
     result << [Rack::ConditionalGet, {}]
     result << [Rack::ETag, {}]
     result << [Rack::Immutable, {match: immutable.is_a?(TrueClass) ? nil : immutable}] if immutable
