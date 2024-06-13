@@ -16,7 +16,7 @@ class Suma::API::Preferences < Suma::API::V1
           subscr = member.preferences!.subscription(k)
           invalid!("subscription #{k} is invalid") if subscr.nil?
           subscr.set_from_opted_in(optin)
-          member.oye.upsert_sms_status if k === Suma::Oye.sms_marketing_preferences_key
+          subscr.sync_oye_contact_marketing_preferences
         end
         member.preferences.save_changes
       end

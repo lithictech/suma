@@ -3,6 +3,7 @@
 require "suma/i18n"
 require "suma/postgres"
 require "suma/message"
+require "suma/oye"
 
 class Suma::Message::Preferences < Suma::Postgres::Model(:message_preferences)
   plugin :timestamps
@@ -16,6 +17,10 @@ class Suma::Message::Preferences < Suma::Postgres::Model(:message_preferences)
 
     def set_from_opted_in(optin)
       self.model.set(self.optout_field => !optin)
+    end
+
+    def sync_oye_contact_marketing_preferences
+      self.model.member.oye.upsert_sms_status if self.key === Suma::Oye.sms_marketing_preferences_key
     end
   end
 
