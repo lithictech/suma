@@ -446,4 +446,35 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
       expect(Suma::Message::Delivery.all).to be_empty
     end
   end
+
+  describe "Suma::Async::SyncOyeContactSmsPreferences", reset_configuration: Suma::Oye do
+    it "sync oye contact sms preferences with member" do
+      Suma::Oye.auth_token = "fake token"
+      member = Suma::Fixtures.member.create(phone: "12223335555", oye_contact_id: "1")
+      get_contacts_req = stub_request(:get, "https://app.oyetext.org/api/v1/contacts").
+        to_return(fixture_response("oye/contacts_get"), status: 200)
+
+      Suma::Async::SyncOyeContactSmsPreferences.new.perform(true)
+      expect(get_contacts_req).to have_been_made
+      expect(member.oye.marketing_subscription).to have_attributes(opted_in: false)
+    end
+
+    it "updates member contact id when member is found by phone number" do
+      Suma::Oye.auth_token = "fake token"
+      member = Suma::Fixtures.member.create(phone: "12223334444")
+      get_contacts_req = stub_request(:get, "https://app.oyetext.org/api/v1/contacts").
+        to_return(fixture_response("oye/contacts_get"), status: 200)
+      Suma::Async::SyncOyeContactSmsPreferences.new.perform(true)
+
+      expect(get_contacts_req).to have_been_made
+      expect(member.refresh).to have_attributes(oye_contact_id: "1")
+      expect(member.oye.marketing_subscription).to have_attributes(opted_in: false)
+    end
+
+    it "noops if Oye is not configured" do
+      expect do
+        Suma::Async::SyncOyeContactSmsPreferences.new.perform(true)
+      end.to_not raise_error
+    end
+  end
 end

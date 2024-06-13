@@ -6,12 +6,16 @@ module Suma::Oye
   include Appydays::Configurable
   include Appydays::Loggable
 
-  SMS_STATUS_OPT_OUT = "inactive"
-  SMS_STATUS_OPT_IN = "active"
+  OPTIN_STATUS = "active"
+  OPTOUT_STATUS = "inactive"
 
-  STATUS = {
-    SMS_STATUS_OPT_OUT => false,
-    SMS_STATUS_OPT_IN => true,
+  TO_OYE_STATUS = {
+    true => OPTIN_STATUS,
+    false => OPTOUT_STATUS,
+  }.freeze
+  TO_SUMA_STATUS = {
+    OPTIN_STATUS => true,
+    OPTOUT_STATUS => false,
   }.freeze
 
   UNCONFIGURED_ORGANIZATION_AUTH_TOKEN = "get-from-oyetext-add-to-env"
@@ -45,5 +49,28 @@ module Suma::Oye
       logger: self.logger,
     )
     return response.parsed_response
+  end
+
+  # Syncs oye contact sms preferences with suma member preferences.
+  # If member can't be found by contact id, check phone number and
+  # update their contact id if member is found.
+  # Update member marketing sms preferences when available.
+  def self.sync_contact_sms_preferences
+    contacts = self.get_contacts
+    contacts.each do |c|
+      member = Suma::Member[oye_contact_id: c.fetch("id")]
+      unless member
+        phone = Suma::PhoneNumber::US.normalize(c.fetch("number"))
+        next unless Suma::PhoneNumber::US.valid_normalized?(phone)
+        next unless (member = Suma::Member[phone:])
+        member.update(oye_contact_id: c.fetch("id").to_s)
+      end
+      next if member.nil?
+      member_subscr = member.oye.marketing_subscription
+      contact_opted_in = TO_SUMA_STATUS.fetch(c.fetch("status"))
+      next if contact_opted_in === member_subscr[:opted_in]
+      member_subscr.set_from_opted_in(TO_SUMA_STATUS.fetch(c.fetch("status")))
+      member.preferences.save_changes
+    end
   end
 end

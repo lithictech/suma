@@ -55,7 +55,8 @@ RSpec.describe Suma::API::Preferences, :db do
       expect(member.preferences.refresh).to have_attributes(account_updates_optout: true)
     end
 
-    it "sync oye contact sms preferences when marketing key is passed" do
+    it "sync sms preferences with oye contact when marketing key is passed" do
+      Suma::Oye.auth_token = "fake token"
       member.update(oye_contact_id: "1")
       contact_status_update_req = stub_request(:put, "https://app.oyetext.org/api/v1/contacts/bulk_update").
         to_return(fixture_response("oye/bulk_update_contacts"), status: 200)
@@ -67,6 +68,23 @@ RSpec.describe Suma::API::Preferences, :db do
       expect(last_response).to have_status(200)
       expect(contact_status_update_req).to have_been_made
       expect(member.preferences.refresh).to have_attributes(marketing_optout: true)
+    end
+
+    it "updates contact id on member if it is blank" do
+      Suma::Oye.auth_token = "fake token"
+      member.update(phone: "12223334444", oye_contact_id: "")
+      get_contacts_req = stub_request(:get, "https://app.oyetext.org/api/v1/contacts").
+        to_return(fixture_response("oye/contacts_get"), status: 200)
+      status_update_req = stub_request(:put, "https://app.oyetext.org/api/v1/contacts/bulk_update").
+        to_return(fixture_response("oye/bulk_update_contacts"), status: 200)
+
+      post "/v1/preferences/public",
+           access_token: member.preferences!.access_token,
+           subscriptions: {marketing: false}
+
+      expect(get_contacts_req).to have_been_made
+      expect(status_update_req).to have_been_made
+      expect(member.refresh).to have_attributes(oye_contact_id: "1")
     end
 
     it "401s for an invalid access token" do

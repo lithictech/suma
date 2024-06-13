@@ -7,7 +7,7 @@
     "created_at": "Mon, 03 Jun 2024 16:20:39.567013000 EDT -04:00",
     "updated_at": "Mon, 03 Jun 2024 16:20:39.567013000 EDT -04:00",
     "organization_id": "1",
-    "status": "active",
+    "status": "inactive",
     "state": null,
     "aasm_state": null,
     "state_metadata": null,
