@@ -269,6 +269,11 @@ class Suma::Member < Suma::Postgres::Model(:members)
     return @frontapp ||= Suma::Member::FrontappAttributes.new(self)
   end
 
+  # @return [Suma::Member::OyeAttributes]
+  def oye
+    return @oye ||= Suma::Member::OyeAttributes.new(self)
+  end
+
   def preferences!
     return self.preferences ||= Suma::Message::Preferences.find_or_create_or_find(member: self)
   end
@@ -420,6 +425,7 @@ require "suma/member/exporter"
 require "suma/member/frontapp_attributes"
 require "suma/member/role_access"
 require "suma/member/stripe_attributes"
+require "suma/member/oye_attributes"
 
 # Table: members
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------

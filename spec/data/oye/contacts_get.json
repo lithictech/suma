@@ -1,0 +1,32 @@
+[
+  {
+    "id": "1",
+    "number": "+12223334444",
+    "first_name": "Hola",
+    "last_name": "Adios",
+    "created_at": "Mon, 03 Jun 2024 16:20:39.567013000 EDT -04:00",
+    "updated_at": "Mon, 03 Jun 2024 16:20:39.567013000 EDT -04:00",
+    "organization_id": "1",
+    "status": "active",
+    "state": null,
+    "aasm_state": null,
+    "state_metadata": null,
+    "language": "",
+    "eid": ""
+  },
+  {
+    "id": "2",
+    "number": "+12223335555",
+    "first_name": "Bonjour",
+    "last_name": "Aurevoir",
+    "created_at": "Mon, 03 Jun 2024 16:20:39.567013000 EDT -04:00",
+    "updated_at": "Mon, 03 Jun 2024 16:20:39.567013000 EDT -04:00",
+    "organization_id": "1",
+    "status": "inactive",
+    "state": null,
+    "aasm_state": null,
+    "state_metadata": null,
+    "language": "",
+    "eid": ""
+  }
+]

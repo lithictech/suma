@@ -50,9 +50,20 @@ class Suma::Message::Preferences < Suma::Postgres::Model(:message_preferences)
       opted_in: !self.account_updates_optout,
       editable_state: "on",
     )
-    groups << SubscriptionGroup.new(key: :marketing, opted_in: false, editable_state: "hidden")
+    groups << SubscriptionGroup.new(
+      model: self,
+      optout_field: :marketing_optout,
+      key: :marketing,
+      opted_in: !self.marketing_optout,
+      editable_state: "on",
+    )
     groups << SubscriptionGroup.new(key: :security, opted_in: true, editable_state: "off")
     return groups
+  end
+
+  # @return [SubscriptionGroup]
+  def subscription(key)
+    return self.subscriptions.find { |g| g.key == key && g.editable? }
   end
 
   def public_url = "#{Suma.app_url}/preferences-public?token=#{self.access_token}"
