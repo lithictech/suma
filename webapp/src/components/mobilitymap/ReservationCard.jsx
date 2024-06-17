@@ -15,7 +15,6 @@ import Card from "react-bootstrap/Card";
  * @param vehicle {{rate, vendorService}}
  * @param onReserve {function({rate, vendorService})} Called with the vehicle the user wants to return.
  * @param reserveError {*} Error returned if making the reservation fails.
- * @param canReserve {boolean} True if the vehicle can be reserved from the card.
  */
 export default function ReservationCard({
   active,

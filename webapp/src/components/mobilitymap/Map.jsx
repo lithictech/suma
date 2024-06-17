@@ -14,7 +14,7 @@ import ReservationCard from "./ReservationCard";
 import TripCard from "./TripCard";
 import React from "react";
 
-export default function Map() {
+export default function Map({ onLocationPermissionsDenied }) {
   const { appNav, topNav } = useGlobalViewState();
   const mapRef = React.useRef();
   const { user, handleUpdateCurrentMember } = useUser();
@@ -70,6 +70,7 @@ export default function Map() {
       // If finding the location fails, geolocate the IP instead.
       // Don't locate if we have a cached location though, just use
       // where the map was last left.
+      onLocationPermissionsDenied();
       if (cachedLocation) {
         return;
       }
@@ -84,7 +85,7 @@ export default function Map() {
           setError("unhandled_error");
         });
     },
-    [setError]
+    [setError, onLocationPermissionsDenied]
   );
 
   const handleReserve = React.useCallback(
