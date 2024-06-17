@@ -112,19 +112,28 @@ export default function PrivateAccountsList() {
 function PrivateAccount({ account, onHelp }) {
   const { vendorImage } = account;
   const [buttonStatus, setButtonStatus] = React.useState(INITIAL);
+  const pollingController = React.useRef(null);
   const [error, setError] = useError(null);
   const success = useToggle(false);
 
+  useMountEffect(() => {
+    return () => {
+      if (pollingController.current) {
+        pollingController.current.abort();
+      }
+    };
+  });
+
   const pollingCallback = React.useCallback(() => {
     // Abort any ongoing request when we unmount.
-    const controller = new AbortController();
+    pollingController.current = new AbortController();
     function pollAndReplace() {
       return (
         api
           // Poll with a timeout, in case the server stops responding we want to try again.
           .pollForNewPrivateAccountMagicLink(
             { id: account.id },
-            { timeout: 30000, signal: controller.signal }
+            { timeout: 12000, signal: pollingController.current.signal }
           )
           .then((r) => {
             if (r.data.foundChange) {
@@ -147,9 +156,6 @@ function PrivateAccount({ account, onHelp }) {
       );
     }
     pollAndReplace();
-    return () => {
-      controller.abort();
-    };
   }, [account.id, success]);
 
   function handleInitialClick(e) {
