@@ -37,7 +37,7 @@ class Suma::Commerce::CartItem < Suma::Postgres::Model(:commerce_cart_items)
 
   def available_at?(at)
     return false if self.offering_product.nil?
-    return false unless self.offering_product.offering.period.cover?(at)
+    return false unless self.offering_product.offering.available_at?(at)
     return self.offering_product.available?
   end
 end

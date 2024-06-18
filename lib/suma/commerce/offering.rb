@@ -164,6 +164,10 @@ class Suma::Commerce::Offering < Suma::Postgres::Model(:commerce_offerings)
     return !self.begin_fulfillment_at.nil?
   end
 
+  def available_at?(t)
+    return self.period.cover?(t)
+  end
+
   # Call begin_fulfillment on all orders, if this is a 'timed fulfillment' offering.
   # Untimed offerings must have their orders processed manually.
   def begin_order_fulfillment(now:)
