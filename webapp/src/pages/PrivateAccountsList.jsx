@@ -133,7 +133,7 @@ function PrivateAccount({ account, onHelp }) {
           // Poll with a timeout, in case the server stops responding we want to try again.
           .pollForNewPrivateAccountMagicLink(
             { id: account.id },
-            { timeout: 12000, signal: pollingController.current.signal }
+            { timeout: 30000, signal: pollingController.current.signal }
           )
           .then((r) => {
             if (r.data.foundChange) {
