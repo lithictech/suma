@@ -1,10 +1,13 @@
 import api from "../api";
+import foodHeaderImage from "../assets/images/onboarding-food.jpg";
 import AddToHomescreen from "../components/AddToHomescreen";
+import ExternalLink from "../components/ExternalLink";
 import LayoutContainer from "../components/LayoutContainer";
 import OfferingCard from "../components/OfferingCard";
 import PageLoader from "../components/PageLoader";
 import SeeAlsoAlert from "../components/SeeAlsoAlert";
 import { t } from "../localization";
+import externalLinks from "../modules/externalLinks";
 import readOnlyReason from "../modules/readOnlyReason";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
 import useUser from "../state/useUser";
@@ -69,7 +72,16 @@ export default function Dashboard() {
         offerings={dashboard.offerings}
         mobilityVehiclesAvailable={dashboard.mobilityVehiclesAvailable}
       />
-      <LayoutContainer gutters>
+      <img src={foodHeaderImage} alt={t("food:title")} className="thin-header-image" />
+      <LayoutContainer gutters top>
+        <h5 className="lead mb-3">
+          Helping our community save money on things you buy the most- all in one place.
+        </h5>
+        <div className="d-flex justify-content-end">
+          <ExternalLink href={externalLinks.sumaIntroLink} className="btn btn-secondary">
+            About suma
+          </ExternalLink>
+        </div>
         <AddToHomescreen />
       </LayoutContainer>
       {dashboardLoading ? (
@@ -81,7 +93,7 @@ export default function Dashboard() {
             {data.items.map(({ title, items }) => (
               <HamburgerSection key={title} title={title}>
                 {items.map((item) => (
-                  <OfferingCard key={item.id} {...item} />
+                  <OfferingCard key={item.id} {...item} className="border-0" />
                 ))}
               </HamburgerSection>
             ))}
@@ -146,13 +158,14 @@ function TopAlerts({ offerings, mobilityVehiclesAvailable }) {
             textVariant="muted"
             label={t("dashboard:check_available_mobility")}
             iconClass="bi-scooter"
+            alertClass="mb-0"
             show={Boolean(mobilityVehiclesAvailable)}
             to="/mobility"
           />
         </>
       ) : (
         <SeeAlsoAlert
-          alertClass="blinking-alert"
+          alertClass="blinking-alert mb-0"
           variant="success"
           label={t("dashboard:claim_orders")}
           iconClass="bi-bag-check-fill"
