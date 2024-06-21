@@ -80,6 +80,8 @@ class Suma::API::Me < Suma::API::V1
     include Suma::API::Entities
     expose :id
     expose_translated :description
+    expose :period_end, as: :closes_at
+    expose :image, with: Suma::API::Entities::ImageEntity, &self.delegate_to(:images?, :first)
   end
 
   class DashboardLedgerLineEntity < BaseEntity
