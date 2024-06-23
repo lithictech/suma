@@ -11,28 +11,26 @@ class Suma::AnonProxy::MessageHandler::Lime < Suma::AnonProxy::MessageHandler
     return message.from == NOREPLY
   end
 
-  ACCESS_CODE_TOKEN_RE = %r{copy and paste this code:</\w+>\s*<\w+.*>(\w+)</\w+>}
-  ACCESS_CODE_LINK_RE = %r{(https://limebike\.app\.link/login\?magic_link_token=\w+)}
-  ACCESS_CODE_EMAIL_VERIFY_LINK_RE = %r{(https://limebike\.app\.link/email_verification\?authentication_code=\w+)}
+  ACCESS_CODE_LINK_RE = %r{(https://limebike\.app\.link/login\?magic_link_token=)(\w+)}
+  ACCESS_CODE_EMAIL_VERIFY_LINK_RE = %r{(https://limebike\.app\.link/email_verification\?authentication_code=)(\w+)}
+  ACCESS_CODE_API_SIGNIN_RE = %r{(https://web-production\.lime\.bike/api/rider/v2/magic-challenge\?magic_link_token=)(\w+)}
 
   # @param vendor_account_message [Suma::AnonProxy::VendorAccountMessage]
   # @return [Suma::AnonProxy::MessageHandler::Result]
   def handle(vendor_account_message)
     result = Suma::AnonProxy::MessageHandler::Result.new
-    unless (ac_token_match = ACCESS_CODE_TOKEN_RE.match(vendor_account_message.message_content))
+    magic_link = nil
+    token = nil
+    [ACCESS_CODE_LINK_RE, ACCESS_CODE_EMAIL_VERIFY_LINK_RE, ACCESS_CODE_API_SIGNIN_RE].each do |re|
+      link_matchdata = re.match(vendor_account_message.message_content)
+      next unless link_matchdata
+      magic_link = link_matchdata[0]
+      token = link_matchdata[2]
+    end
+    if magic_link.nil?
       result.handled = false
       return result
     end
-    token = ac_token_match[1]
-    link_md = nil
-    [ACCESS_CODE_LINK_RE, ACCESS_CODE_EMAIL_VERIFY_LINK_RE].each do |re|
-      link_md = re.match(vendor_account_message.message_content)
-      break if link_md
-    end
-    if link_md.nil?
-      raise "Could not find a magic link in the message content: #{vendor_account_message.message_content}"
-    end
-    magic_link = link_md[1]
     vendor_account_message.vendor_account.replace_access_code(token, magic_link).save_changes
     msg = Suma::Messages::SingleValue.new(
       "anon_proxy",

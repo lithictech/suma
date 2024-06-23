@@ -96,6 +96,7 @@ RSpec.describe Suma::AnonProxy::MessageHandler, :db do
     end
     let(:signin_message) { create_message("webhookdb/lime_access_code_postmark_email") }
     let(:confirm_message) { create_message("webhookdb/lime_access_code_confirm_postmark_email") }
+    let(:api_signin_message) { create_message("webhookdb/lime_access_code_api_signin_postmark_email") }
 
     it "handles messages from no-reply" do
       expect(lime).to be_can_handle(signin_message)
@@ -108,7 +109,7 @@ RSpec.describe Suma::AnonProxy::MessageHandler, :db do
       )
       expect(got).to have_attributes(vendor_account:, outbound_delivery: nil)
       expect(vendor_account.refresh).to have_attributes(
-        latest_access_code: "M1ZgpMepjL5kX9XgzCmnsBKQ",
+        latest_access_code: "M1ZgpMepjL5kW9XgzCmnsBKQ",
         latest_access_code_magic_link: "https://limebike.app.link/login?magic_link_token=M1ZgpMepjL5kW9XgzCmnsBKQ",
         latest_access_code_set_at: match_time(:now),
       )
@@ -133,8 +134,29 @@ RSpec.describe Suma::AnonProxy::MessageHandler, :db do
       )
     end
 
+    it "parses the lime api signin message" do
+      got = Suma::AnonProxy::MessageHandler.handle(
+        Suma::AnonProxy::Relay.create!("fake-relay"),
+        api_signin_message,
+      )
+      expect(got).to have_attributes(vendor_account:, outbound_delivery: nil)
+      expect(vendor_account.refresh).to have_attributes(
+        latest_access_code: "M1ZgpMepjL5kX9XgzCmnsBKQ",
+        latest_access_code_magic_link: "https://web-production.lime.bike/api/rider/v2/magic-challenge?magic_link_token=M1ZgpMepjL5kX9XgzCmnsBKQ",
+        latest_access_code_set_at: match_time(:now),
+      )
+      expect(vendor_account.contact.member.message_deliveries.last).to have_attributes(
+        template: "anon_proxy/lime-deep-link-access-code",
+        transport_type: "sms",
+        transport_service: "signalwire",
+      )
+    end
+
     it "noops if we do not recognize the message" do
-      signin_message.content.gsub!(/copy and paste/, "foo and bar")
+      signin_message.content.gsub!(
+        "https://limebike.app.link/login?magic_link_token=M1ZgpMepjL5kW9XgzCmnsBKQ",
+        "https://limebike.app.link/login?totall_normal_token=M1ZgpMepjL5kW9XgzCmnsBKQ",
+      )
       got = Suma::AnonProxy::MessageHandler.handle(
         Suma::AnonProxy::Relay.create!("fake-relay"),
         signin_message,
