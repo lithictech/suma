@@ -120,7 +120,7 @@ export default function VendorAccountDetailPage() {
               row.messageTo,
               row.messageHandlerKey,
               row.relayKey,
-              dayjs(row.messageTimestamp).format("lll"),
+              dayjs(row.timestamp).format("lll"),
             ]}
           />
         </>
