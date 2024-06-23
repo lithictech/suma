@@ -95,12 +95,13 @@ RSpec.describe Suma::AnonProxy::MessageHandler, :db do
       )
     end
     let(:signin_message) { create_message("webhookdb/lime_access_code_postmark_email") }
+    let(:confirm_message) { create_message("webhookdb/lime_access_code_confirm_postmark_email") }
 
     it "handles messages from no-reply" do
       expect(lime).to be_can_handle(signin_message)
     end
 
-    it "parses an access code and assigns it to the vendor account, and sends it via SMS" do
+    it "parses an access code and assigns it to the vendor account" do
       got = Suma::AnonProxy::MessageHandler.handle(
         Suma::AnonProxy::Relay.create!("fake-relay"),
         signin_message,
@@ -108,7 +109,21 @@ RSpec.describe Suma::AnonProxy::MessageHandler, :db do
       expect(got).to have_attributes(vendor_account:, outbound_delivery: nil)
       expect(vendor_account.refresh).to have_attributes(
         latest_access_code: "M1ZgpMepjL5kX9XgzCmnsBKQ",
-        latest_access_code_magic_link: "https://web-production.lime.bike/api/rider/v2/magic-challenge?magic_link_token=M1ZgpMepjL5kX9XgzCmnsBKQ",
+        latest_access_code_magic_link: "https://limebike.app.link/login?magic_link_token=M1ZgpMepjL5kW9XgzCmnsBKQ",
+        latest_access_code_set_at: match_time(:now),
+      )
+    end
+
+    it "parses an confirmation access code code, assigns it to the vendor account, and sends it via SMS" do
+      got = Suma::AnonProxy::MessageHandler.handle(
+        Suma::AnonProxy::Relay.create!("fake-relay"),
+        confirm_message,
+      )
+      expect(got).to have_attributes(vendor_account:, outbound_delivery: nil)
+      expect(vendor_account.refresh).to have_attributes(
+        latest_access_code: "hXYamQ1JGVifc6xuMv6qUrLZ",
+        latest_access_code_magic_link:
+          "https://limebike.app.link/email_verification?authentication_code=hXYamQ1JGVifc6xuMv6qUrLZ",
         latest_access_code_set_at: match_time(:now),
       )
       expect(vendor_account.contact.member.message_deliveries.last).to have_attributes(
@@ -119,7 +134,7 @@ RSpec.describe Suma::AnonProxy::MessageHandler, :db do
     end
 
     it "noops if we do not recognize the message" do
-      signin_message.content.gsub!(/magic_link_token/, "foo and bar")
+      signin_message.content.gsub!(/copy and paste/, "foo and bar")
       got = Suma::AnonProxy::MessageHandler.handle(
         Suma::AnonProxy::Relay.create!("fake-relay"),
         signin_message,

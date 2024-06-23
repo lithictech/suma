@@ -11,8 +11,9 @@ class Suma::AnonProxy::MessageHandler::Lime < Suma::AnonProxy::MessageHandler
     return message.from == NOREPLY
   end
 
-  ACCESS_CODE_TOKEN_RE = /magic_link_token=(\w+)/
-  ACCESS_CODE_LINK_RE = %r{(https://web-production\.lime\.bike/api/rider/v2/magic-challenge\?magic_link_token=\w+)}
+  ACCESS_CODE_TOKEN_RE = %r{copy and paste this code:</\w+>\s*<\w+.*>(\w+)</\w+>}
+  ACCESS_CODE_LINK_RE = %r{(https://limebike\.app\.link/login\?magic_link_token=\w+)}
+  ACCESS_CODE_EMAIL_VERIFY_LINK_RE = %r{(https://limebike\.app\.link/email_verification\?authentication_code=\w+)}
 
   # @param vendor_account_message [Suma::AnonProxy::VendorAccountMessage]
   # @return [Suma::AnonProxy::MessageHandler::Result]
@@ -22,10 +23,15 @@ class Suma::AnonProxy::MessageHandler::Lime < Suma::AnonProxy::MessageHandler
       result.handled = false
       return result
     end
-    unless (link_md = ACCESS_CODE_LINK_RE.match(vendor_account_message.message_content))
+    token = ac_token_match[1]
+    link_md = nil
+    [ACCESS_CODE_LINK_RE, ACCESS_CODE_EMAIL_VERIFY_LINK_RE].each do |re|
+      link_md = re.match(vendor_account_message.message_content)
+      break if link_md
+    end
+    if link_md.nil?
       raise "Could not find a magic link in the message content: #{vendor_account_message.message_content}"
     end
-    token = ac_token_match[1]
     magic_link = link_md[1]
     vendor_account_message.vendor_account.replace_access_code(token, magic_link).save_changes
     msg = Suma::Messages::SingleValue.new(
