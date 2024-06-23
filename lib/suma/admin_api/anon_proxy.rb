@@ -9,7 +9,7 @@ class Suma::AdminAPI::AnonProxy < Suma::AdminAPI::V1
 
   class VendorAccountMessageEntity < BaseEntity
     include Suma::AdminAPI::Entities
-    expose :id
+    include AutoExposeBase
     expose :message_from
     expose :message_to
     expose :message_content
@@ -20,7 +20,7 @@ class Suma::AdminAPI::AnonProxy < Suma::AdminAPI::V1
 
   class AnonProxyMemberContactEntity < BaseEntity
     include Suma::AdminAPI::Entities
-    expose :id
+    include AutoExposeBase
     expose :member, with: MemberEntity
     expose :phone
     expose :email
