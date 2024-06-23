@@ -10,6 +10,7 @@ class Suma::AdminAPI::AnonProxy < Suma::AdminAPI::V1
   class VendorAccountMessageEntity < BaseEntity
     include Suma::AdminAPI::Entities
     expose :id
+    expose :created_at
     expose :message_from
     expose :message_to
     expose :message_content
