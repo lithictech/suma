@@ -208,8 +208,18 @@ RSpec.describe Suma::API::Commerce, :db do
         that_includes(error: include(code: "invalid_order_quantity", message: "max quantity exceeded"))
     end
 
-    it "409s if any product is no longer available due to offering reasons" do
+    it "409s if any product is unavailable due to offering reasons" do
       offering_product.delete
+
+      post "/v1/commerce/offerings/#{offering.id}/checkout"
+
+      expect(last_response).to have_status(409)
+      expect(last_response).to have_json_body.
+        that_includes(error: include(code: "invalid_order_quantity", message: "product unavailable"))
+    end
+
+    it "409s if product is unavailable due to it being closed" do
+      offering_product.update(closed_at: 1.day.ago)
 
       post "/v1/commerce/offerings/#{offering.id}/checkout"
 
