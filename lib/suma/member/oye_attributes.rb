@@ -24,7 +24,7 @@ class Suma::Member::OyeAttributes
 
   def _update_contact_status
     marketing_subscr = self.marketing_subscription
-    oye_sms_status = Suma::Oye::TO_OYE_STATUS.fetch(marketing_subscr[:opted_in])
+    oye_sms_status = Suma::Oye::STATUS_MATCH.invert.fetch(marketing_subscr[:opted_in])
     Suma::Oye.bulk_update_contacts(contacts: [{id: self.contact_id, status: oye_sms_status}])
   end
 

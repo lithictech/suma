@@ -9,11 +9,7 @@ module Suma::Oye
   OPTIN_STATUS = "active"
   OPTOUT_STATUS = "inactive"
 
-  TO_OYE_STATUS = {
-    true => OPTIN_STATUS,
-    false => OPTOUT_STATUS,
-  }.freeze
-  TO_SUMA_STATUS = {
+  STATUS_MATCH = {
     OPTIN_STATUS => true,
     OPTOUT_STATUS => false,
   }.freeze
@@ -67,9 +63,9 @@ module Suma::Oye
       end
       next if member.nil?
       member_subscr = member.oye.marketing_subscription
-      contact_opted_in = TO_SUMA_STATUS.fetch(c.fetch("status"))
-      next if contact_opted_in === member_subscr[:opted_in]
-      member_subscr.set_from_opted_in(TO_SUMA_STATUS.fetch(c.fetch("status")))
+      member_opted_in = STATUS_MATCH.fetch(c.fetch("status"))
+      next if member_opted_in === member_subscr[:opted_in]
+      member_subscr.set_from_opted_in(member_opted_in)
       member.preferences.save_changes
     end
   end
