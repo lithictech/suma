@@ -12,6 +12,7 @@ import ScrollTopOnMount from "../shared/ScrollToTopOnMount";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
 import useMountEffect from "../shared/react/useMountEffect";
 import useToggle from "../shared/react/useToggle";
+import useUnmountEffect from "../shared/react/useUnmountEffect";
 import { useError } from "../state/useError";
 import { CanceledError } from "axios";
 import get from "lodash/get";
@@ -112,20 +113,16 @@ export default function PrivateAccountsList() {
 function PrivateAccount({ account, onHelp }) {
   const { vendorImage } = account;
   const [buttonStatus, setButtonStatus] = React.useState(INITIAL);
-  const pollingController = React.useRef(null);
+  const pollingController = React.useRef(new AbortController());
   const [error, setError] = useError(null);
   const success = useToggle(false);
 
-  useMountEffect(() => {
-    return () => {
-      if (pollingController.current) {
-        pollingController.current.abort();
-      }
-    };
+  useUnmountEffect(() => {
+    pollingController.current.abort();
   });
 
   const pollingCallback = React.useCallback(() => {
-    // Abort any ongoing request when we unmount.
+    pollingController.current.abort();
     pollingController.current = new AbortController();
     function pollAndReplace() {
       return (
