@@ -261,6 +261,8 @@
     "end_trip": "Finalizar el viaje",
     "intro": "Viaja con más seguridad y mejores precios.\n\nSuma está asociado con Ride Connection para ofrecer opciones de transporte para personas mayores y con discapacidades. Llame al [503-226-0700](tel:503-226-0700) o [haga clic aquí](https://rideconnection.org/services__blank__) para ver sus servicios.\n\nNos asociamos con Lime para ofrecer viajes gratuitos a los usuarios de suma. Para comenzar, haga clic en una patineta eléctrica abajo o obtenga más información en nuestras [Preguntas Frecuentes](https://mysuma.org/transportation-faq-es/__blank__).",
     "locate_me": "Localizarme",
+    "location_permissions_denied": "Se niegan los permisos de ubicación en el mapa. Suma intentará encontrar la ubicación más cercana. Por favor, permita permisos de ubicación del navegador para suma.",
+    "location_permissions_denied_instructions": "Se niegan los permisos de ubicación en el mapa. Suma intentará encontrar la ubicación más cercana. [Haga clic aquí]({{instructionsUrl}}) para obtener instrucciones sobre cómo permitir el permiso de ubicación para suma.",
     "mobility_start_and_per_minute": "{{surchargeCents, sumaCurrency}} para iniciar, {{unitCents, sumaCurrency}} por minuto",
     "relink_private_account_with_vendor": "Si no ha iniciado sesión, puede [volver a vincular su cuenta de {{vendorName}}](/private-accounts).",
     "reserve_scooter": "Reservar una patineta eléctrica",

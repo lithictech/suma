@@ -15,7 +15,7 @@ export default class MapBuilder {
   constructor(host) {
     this.mapHost = host;
     this._l = leaflet;
-    this._minZoom = 13;
+    this._minZoom = 8;
     this._maxZoom = 23;
     this._zoomTo = 20;
     this._mapCache = localStorageCache.getItem("mobilityMapCache", {});
@@ -36,7 +36,6 @@ export default class MapBuilder {
         zoomOutTitle: t("mobility:zoom_out"),
       })
       .addTo(this._map);
-    this.newLocateControl().addTo(this._map);
     this.updateLastExtendedVehicleBounds();
     this.updateLastExtendedStaticBounds();
     this._restrictedAreasGroup = this._l.layerGroup();
@@ -454,6 +453,8 @@ export default class MapBuilder {
       })
       .on("locationfound", (location) => {
         if (!lastLoc) {
+          // Add location centering button
+          this.newLocateControl().addTo(this._map);
           lastLoc = location.latlng;
           movementLine = this._l.polyline([[lastLoc.lat, lastLoc.lng]]);
           this._locationMarker = this._l.animatedMarker(movementLine.getLatLngs(), {
@@ -479,7 +480,10 @@ export default class MapBuilder {
           this._map.addLayer(this._locationMarker);
           this._lastLocation = location.latlng;
           this.setLocationEventHandlers();
-          this.centerLocation({ ...lastLoc, targetZoom: this._getLocationZoom() });
+          if (!this._clickedVehicle) {
+            // Prevent centering if vehicle is focused
+            this.centerLocation({ ...lastLoc, targetZoom: this._getLocationZoom() });
+          }
           onLocationFound(location);
         }
         if (
