@@ -480,8 +480,8 @@ export default class MapBuilder {
           this._map.addLayer(this._locationMarker);
           this._lastLocation = location.latlng;
           this.setLocationEventHandlers();
-          // Prevent centering if vehicle is focused
           if (!this._clickedVehicle) {
+            // Prevent centering if vehicle is focused
             this.centerLocation({ ...lastLoc, targetZoom: this._getLocationZoom() });
           }
           onLocationFound(location);

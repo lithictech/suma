@@ -11,7 +11,7 @@ import React from "react";
 import Alert from "react-bootstrap/Alert";
 
 export default function Mobility() {
-  const [locationPermissionsError, setLocationPermissionsError] = useError(null);
+  const [locationPermissionsError, setLocationPermissionsError] = useError("");
   const introMd = mdx("mobility:intro", {
     overrides: {
       a: { component: MdLink },
@@ -23,15 +23,20 @@ export default function Mobility() {
     },
   });
   const handleLocationPermissionsDenied = React.useCallback(() => {
-    api.getUserAgent().then((r) => {
-      let instructionsUrl = getLocationPermissionsInstructionsUrl(r.data);
-      let localizedError = t("mobility:location_permissions_denied");
-      if (instructionsUrl) {
+    api
+      .getUserAgent()
+      .then((r) => {
+        const instructionsUrl = getLocationPermissionsInstructionsUrl(r.data);
+        if (!instructionsUrl) {
+          throw new Error("unhandled user agent");
+        }
         const opts = { context: "instructions", instructionsUrl: instructionsUrl };
-        localizedError = md("mobility:location_permissions_denied", opts);
-      }
-      setLocationPermissionsError(localizedError);
-    });
+        const localizedError = md("mobility:location_permissions_denied", opts);
+        setLocationPermissionsError(localizedError);
+      })
+      .catch(() => {
+        setLocationPermissionsError(t("mobility:location_permissions_denied"));
+      });
   }, [setLocationPermissionsError]);
 
   return config.featureMobility ? (
@@ -43,7 +48,7 @@ export default function Mobility() {
           <Alert variant="warning">{locationPermissionsError}</Alert>
         )}
       </LayoutContainer>
-      <Map onLocationPermissionsDenied={() => handleLocationPermissionsDenied()} />
+      <Map onLocationPermissionsDenied={handleLocationPermissionsDenied} />
     </>
   ) : (
     <div className="pb-4">
@@ -60,38 +65,27 @@ export default function Mobility() {
 
 /**
  * Returns browser location permissions instructions url if found or null.
- * @param browser User agent
+ * @param {object} browser Backend response
  * @returns {string|null}
  */
 function getLocationPermissionsInstructionsUrl(browser) {
   const device = browser.device.toLowerCase();
-  let url = null;
-  if (!browser || device === "Unknown") {
-    return url;
-  }
-  // Using chrome in ios/android/desktop
   if (device === "chrome") {
+    // Using chrome in ios/android/desktop
     if (browser.isIos) {
-      url =
-        "https://support.google.com/chrome/answer/142065?hl=en&co=GENIE.Platform%3DiOS";
+      return "https://support.google.com/chrome/answer/142065?hl=en&co=GENIE.Platform%3DiOS";
     } else if (browser.isAndroid) {
-      url =
-        "https://support.google.com/chrome/answer/142065?hl=en&co=GENIE.Platform%3DAndroid";
+      return "https://support.google.com/chrome/answer/142065?hl=en&co=GENIE.Platform%3DAndroid";
     } else {
-      url =
-        "https://support.google.com/chrome/answer/142065?hl=en&co=GENIE.Platform%3DDesktop";
+      return "https://support.google.com/chrome/answer/142065?hl=en&co=GENIE.Platform%3DDesktop";
     }
-    return url;
-  }
-  // Using ios/safari, android, firefox device browsers
-  if (browser.isIos || device === "safari") {
-    url =
-      "https://support.apple.com/guide/personal-safety/manage-location-services-settings-ips9bf20ad2f/web";
+  } else if (browser.isIos || device === "safari") {
+    // Using ios/safari, android, firefox device browsers
+    return "https://support.apple.com/guide/personal-safety/manage-location-services-settings-ips9bf20ad2f/web";
   } else if (browser.isAndroid) {
-    url = "https://support.google.com/accounts/answer/6179507?hl=en";
+    return "https://support.google.com/accounts/answer/6179507?hl=en";
   } else if (device === "firefox") {
-    url =
-      "https://support.mozilla.org/en-US/kb/does-firefox-share-my-location-websites#w_how-do-i-undo-a-permission-granted-to-a-site";
+    return "https://support.mozilla.org/en-US/kb/does-firefox-share-my-location-websites#w_how-do-i-undo-a-permission-granted-to-a-site";
   }
-  return url;
+  return null;
 }
