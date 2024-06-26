@@ -94,6 +94,15 @@ RSpec.describe Suma::API::Commerce, :db do
       expect(last_response).to have_status(401)
     end
 
+    it "403s if offering is closed" do
+      offering.update(period_end: 1.days.ago)
+
+      get "/v1/commerce/offerings/#{offering.id}"
+
+      expect(last_response).to have_status(403)
+      expect(last_response).to have_json_body.that_includes(error: include(code: "forbidden"))
+    end
+
     it "403s if the member cannot access the offering due to constraints" do
       offering.add_eligibility_constraint(Suma::Fixtures.eligibility_constraint.create)
 
@@ -137,6 +146,15 @@ RSpec.describe Suma::API::Commerce, :db do
       expect(last_response).to have_status(409)
       expect(last_response).to have_json_body.
         that_includes(error: include(code: "product_unavailable"))
+    end
+
+    it "403s if offering is closed" do
+      offering.update(period_end: 1.day.ago)
+
+      put "/v1/commerce/offerings/#{offering.id}/cart/item", product_id: product.id, quantity: 2, timestamp: 1
+
+      expect(last_response).to have_status(403)
+      expect(last_response).to have_json_body.that_includes(error: include(code: "forbidden"))
     end
 
     it "403s if the member cannot access the offering due to constraints" do
@@ -190,8 +208,18 @@ RSpec.describe Suma::API::Commerce, :db do
         that_includes(error: include(code: "invalid_order_quantity", message: "max quantity exceeded"))
     end
 
-    it "409s if any product is no longer available due to offering reasons" do
+    it "409s if any product is unavailable due to offering reasons" do
       offering_product.delete
+
+      post "/v1/commerce/offerings/#{offering.id}/checkout"
+
+      expect(last_response).to have_status(409)
+      expect(last_response).to have_json_body.
+        that_includes(error: include(code: "invalid_order_quantity", message: "product unavailable"))
+    end
+
+    it "409s if product is unavailable due to it being closed" do
+      offering_product.update(closed_at: 1.day.ago)
 
       post "/v1/commerce/offerings/#{offering.id}/checkout"
 
@@ -209,14 +237,13 @@ RSpec.describe Suma::API::Commerce, :db do
       expect(last_response).to have_json_body.that_includes(error: include(code: "eligibility_violation"))
     end
 
-    it "409s if offering is closed" do
+    it "403s if offering is closed" do
       offering.update(period_end: 1.day.ago)
 
       post "/v1/commerce/offerings/#{offering.id}/checkout"
 
-      expect(last_response).to have_status(409)
-      expect(last_response).to have_json_body.
-        that_includes(error: include(code: "invalid_order_quantity", message: "product unavailable"))
+      expect(last_response).to have_status(403)
+      expect(last_response).to have_json_body.that_includes(error: include(code: "forbidden"))
     end
   end
 

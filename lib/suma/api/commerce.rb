@@ -10,7 +10,9 @@ class Suma::API::Commerce < Suma::API::V1
 
   resource :commerce do
     helpers do
-      def new_context = Suma::Payment::CalculationContext.new(Time.now)
+      def new_context(t)
+        return Suma::Payment::CalculationContext.new(t)
+      end
 
       def set_fulfillment_or_error(checkout, option_id, options)
         allow_nil = checkout.fulfillment_option.nil? && option_id.nil?
@@ -31,8 +33,9 @@ class Suma::API::Commerce < Suma::API::V1
 
       route_param :offering_id, type: Integer do
         helpers do
-          def lookup_offering!
+          def lookup_offering!(t)
             (offering = Suma::Commerce::Offering[params[:offering_id]]) or forbidden!
+            forbidden! unless offering.available_at?(t)
             check_eligibility!(offering, current_member)
             return offering
           end
@@ -47,11 +50,12 @@ class Suma::API::Commerce < Suma::API::V1
         # paginated items after the first page.
         get do
           current_member
-          offering = lookup_offering!
+          t = Time.now
+          offering = lookup_offering!(t)
           items = offering.offering_products_dataset.available.all
           cart = lookup_cart!(offering)
           vendors = items.map { |v| v.product.vendor }.uniq(&:id)
-          present offering, with: OfferingWithContextEntity, cart:, items:, vendors:, context: new_context
+          present offering, with: OfferingWithContextEntity, cart:, items:, vendors:, context: new_context(t)
         end
 
         resource :cart do
@@ -61,7 +65,8 @@ class Suma::API::Commerce < Suma::API::V1
             optional :timestamp, type: Float, allow_blank: true
           end
           put :item do
-            offering = lookup_offering!
+            t = Time.now
+            offering = lookup_offering!(t)
             cart = lookup_cart!(offering)
             product = Suma::Commerce::Product[params[:product_id]]
             begin
@@ -72,14 +77,15 @@ class Suma::API::Commerce < Suma::API::V1
               self.logger.info "out_of_order_update", product_id: product&.id, quantity: params[:quantity]
               nil
             end
-            present cart, with: CartEntity, context: new_context
+            present cart, with: CartEntity, context: new_context(t)
           end
         end
 
         post :checkout do
-          offering = lookup_offering!
+          t = Time.now
+          offering = lookup_offering!(t)
           cart = lookup_cart!(offering)
-          ctx = new_context
+          ctx = new_context(t)
           begin
             checkout = cart.create_checkout(ctx)
           rescue Suma::Commerce::Cart::EmptyCart
@@ -114,7 +120,7 @@ class Suma::API::Commerce < Suma::API::V1
 
         get do
           checkout = lookup_editable!
-          present checkout, with: CheckoutEntity, cart: checkout.cart, context: new_context
+          present checkout, with: CheckoutEntity, cart: checkout.cart, context: new_context(Time.now)
         end
 
         params do
@@ -125,7 +131,7 @@ class Suma::API::Commerce < Suma::API::V1
           set_fulfillment_or_error(checkout, params[:option_id], checkout.available_fulfillment_options)
           checkout.save_changes
           status 200
-          present checkout, with: CheckoutEntity, cart: checkout.cart, context: new_context
+          present checkout, with: CheckoutEntity, cart: checkout.cart, context: new_context(Time.now)
         end
 
         params do
