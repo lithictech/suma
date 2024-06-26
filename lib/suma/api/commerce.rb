@@ -10,7 +10,7 @@ class Suma::API::Commerce < Suma::API::V1
 
   resource :commerce do
     helpers do
-      def new_context(t=Time.now)
+      def new_context(t)
         return Suma::Payment::CalculationContext.new(t)
       end
 
@@ -120,7 +120,7 @@ class Suma::API::Commerce < Suma::API::V1
 
         get do
           checkout = lookup_editable!
-          present checkout, with: CheckoutEntity, cart: checkout.cart, context: new_context
+          present checkout, with: CheckoutEntity, cart: checkout.cart, context: new_context(Time.now)
         end
 
         params do
@@ -131,7 +131,7 @@ class Suma::API::Commerce < Suma::API::V1
           set_fulfillment_or_error(checkout, params[:option_id], checkout.available_fulfillment_options)
           checkout.save_changes
           status 200
-          present checkout, with: CheckoutEntity, cart: checkout.cart, context: new_context
+          present checkout, with: CheckoutEntity, cart: checkout.cart, context: new_context(Time.now)
         end
 
         params do
