@@ -205,8 +205,7 @@ class Suma::Commerce::Checkout < Suma::Postgres::Model(:commerce_checkouts)
 
       # This will make member subledgers have a positive balance.
       # It will not debit the subledgers or cash ledger.
-      Suma::Payment::Trigger.gather(self.cart.member.payment_account!, apply_at:).
-        funding_plan(cash_charge_amount).
+      Suma::Payment::Trigger::Plan.new(steps: predicted_contrib.relevant_trigger_steps).
         execute(ledgers: predicted_contrib.all.map(&:ledger), at: apply_at)
 
       # See how much the member needs to pay across cash and noncash ledgers,

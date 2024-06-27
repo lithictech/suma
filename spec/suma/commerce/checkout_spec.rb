@@ -307,6 +307,51 @@ RSpec.describe "Suma::Commerce::Checkout", :db do
         )
       end
 
+      it "charges the correct amount when dealing with multiple triggers" do
+        cash_vsc = Suma::Vendor::ServiceCategory.cash
+        fm_intro_vsc = Suma::Fixtures.vendor_service_category(name: "FM Intro", parent: cash_vsc).create
+        fm_match_vsc = Suma::Fixtures.vendor_service_category(name: "FM Match", parent: cash_vsc).create
+
+        member = Suma::Fixtures.member.onboarding_verified.create
+        cash_ledger = Suma::Payment.ensure_cash_ledger(member)
+        ledger_fac = Suma::Fixtures.ledger.member(member)
+        intro_ledger = ledger_fac.with_categories(fm_intro_vsc).create(name: "intro")
+        match_ledger = ledger_fac.with_categories(fm_match_vsc).create(name: "match")
+
+        intro_platform_led = Suma::Fixtures.ledger.with_categories(fm_intro_vsc).
+          create(name: "intro", account: platform_cash_ledger.account)
+        match_platform_led = Suma::Fixtures.ledger.with_categories(fm_match_vsc).
+          create(name: "match", account: platform_cash_ledger.account)
+
+        offering = Suma::Fixtures.offering.create
+        intro_product = Suma::Fixtures.product.with_categories(fm_intro_vsc).create
+        intro_op = Suma::Fixtures.offering_product(product: intro_product, offering:).costing("$24", "24").create
+        match_product = Suma::Fixtures.product.with_categories(fm_match_vsc).create
+        match_product.inventory!.update(max_quantity_per_member_per_offering: 400)
+        match_op = Suma::Fixtures.offering_product(product: match_product, offering:).costing("$2", "$2").create
+
+        intro_trigger = Suma::Fixtures.payment_trigger.matching(3.8).up_to(money("38")).from(intro_platform_led).create
+        matched_trigger = Suma::Fixtures.payment_trigger.matching(1).up_to(money("15")).from(match_platform_led).create
+
+        cart = Suma::Fixtures.cart(offering:, member:).
+          with_product(intro_product, 1).
+          with_product(match_product, 15).
+          create
+        checkout = Suma::Fixtures.checkout(cart:, card: Suma::Fixtures.card.member(member).create).
+          populate_items.
+          create
+
+        # $54 total = $30 in match vouchers + $24 in intro vouchers
+        # $20 charge = $15 match voucher cash cost + $5 into voucher cash cost
+        order = create_order(money("$20"), checkout_: checkout)
+        expect(order.charges).to contain_exactly(have_attributes(discounted_subtotal: cost("$54")))
+        expect(order.charges.first.book_transactions).to contain_exactly(
+          have_attributes(amount: cost("$20"), originating_ledger: be === cash_ledger),
+          have_attributes(amount: cost("$19"), originating_ledger: be === intro_ledger),
+          have_attributes(amount: cost("$15"), originating_ledger: be === match_ledger),
+        )
+      end
+
       it "does not debit unused, but potentially useful, ledgers" do
         top_vsc = Suma::Fixtures.vendor_service_category(name: "Everything").create
         mid_vsc = Suma::Fixtures.vendor_service_category(name: "Food", parent: top_vsc).create
