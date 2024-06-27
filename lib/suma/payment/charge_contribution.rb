@@ -82,6 +82,7 @@ class Suma::Payment::ChargeContribution < Suma::TypedStruct
     return self.class.new(**p)
   end
 
+  # Collection of related charge contributions from various ledgers.
   class Collection < Suma::TypedStruct
     # @return [Suma::Payment::CalculationContext]
     attr_reader :context
@@ -97,13 +98,30 @@ class Suma::Payment::ChargeContribution < Suma::TypedStruct
     # @return [Array<Suma::Payment::ChargeContribution>]
     attr_reader :rest
 
+    # If, when calculating the collection, some total could not be reached,
+    # +remainder+ should be set to indicate the unreached portion.
     # @return [Money]
     attr_accessor :remainder
+
+    # If, when calculating the collection, payment trigger contributions were used,
+    # these were the steps relating to the contributions.
+    # @return [Array<Suma::Payment::Trigger::Step>]
+    attr_accessor :relevant_trigger_steps
+
+    # @param [Suma::Payment::Trigger::Plan] funding_plan
+    # @return [self]
+    def set_relevant_trigger_steps_from(funding_plan)
+      candidate_ledger_ids = self.all.map { |c| c.ledger.id }.to_set
+      self.relevant_trigger_steps = funding_plan.steps.select do |st|
+        candidate_ledger_ids.include?(st.receiving_ledger.id)
+      end
+      return self
+    end
 
     def remainder? = !self.remainder.zero?
 
     def _defaults
-      return {remainder: Money.new(0), rest: []}
+      return {remainder: Money.new(0), rest: [], relevant_trigger_steps: []}
     end
 
     # @param cash [:first,:last] Where to include the cash contribution in the list of all.
@@ -144,10 +162,12 @@ class Suma::Payment::ChargeContribution < Suma::TypedStruct
         cash: collections[0].cash.dup,
         rest: collections[0].rest.map(&:dup),
         remainder: collections[0].remainder,
+        relevant_trigger_steps: collections[0].relevant_trigger_steps.dup,
       )
       collections[1..].each do |col|
         result.cash.mutate_amount(result.cash.amount + col.cash.amount)
         result.remainder += col.remainder
+        result.relevant_trigger_steps.concat(col.relevant_trigger_steps)
         col.rest.each do |c|
           other_contrib = result.rest.find do |r|
             r.ledger === c.ledger && r.category === c.category
@@ -236,6 +256,7 @@ class Suma::Payment::ChargeContribution < Suma::TypedStruct
         has_vnd_svc_categories,
         amount,
       )
+      candidate_charges.set_relevant_trigger_steps_from(subsidy_plan)
       # Figure out how much 'additional' cash is needed, by taking the amount we need to cover the bill,
       # and subtracting what we'd contribute without any additional funds (this is normally the balance).
       # If the additional funds we need to charge, is equal to the candidate, then this is ideal, because:
