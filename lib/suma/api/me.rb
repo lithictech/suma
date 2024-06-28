@@ -47,7 +47,7 @@ class Suma::API::Me < Suma::API::V1
     end
 
     get :dashboard do
-      d = Suma::Member::Dashboard.new(current_member)
+      d = Suma::Member::Dashboard.new(current_member, at: Time.now)
       present d, with: MemberDashboardEntity
     end
 
@@ -89,12 +89,25 @@ class Suma::API::Me < Suma::API::V1
     expose_translated :memo
   end
 
+  class VendibleEntity < BaseEntity
+    include Suma::API::Entities
+    expose_translated :name
+    expose :until
+    expose :image, with: ImageEntity
+  end
+
+  class VendibleGroupEntity < BaseEntity
+    expose_translated :name, &self.delegate_to(:group, :name)
+    expose :vendibles, with: VendibleEntity
+  end
+
   class MemberDashboardEntity < BaseEntity
     include Suma::API::Entities
     expose :payment_account_balance, with: MoneyEntity
     expose :lifetime_savings, with: MoneyEntity
     expose :ledger_lines, with: DashboardLedgerLineEntity
-    expose :offerings, with: AvailableOfferingEntity, &self.delegate_to(:offerings)
+    expose :next_offerings, as: :offerings, with: AvailableOfferingEntity
     expose :mobility_available?, as: :mobility_vehicles_available
+    expose :vendible_groupings, as: :vendible_groups, with: VendibleGroupEntity
   end
 end

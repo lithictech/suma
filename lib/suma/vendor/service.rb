@@ -12,6 +12,11 @@ class Suma::Vendor::Service < Suma::Postgres::Model(:vendor_services)
   plugin :timestamps
   plugin :tstzrange_fields, :period
 
+  many_to_many :vendible_groups,
+               class: "Suma::Vendible::Group",
+               join_table: :vendible_groups_vendor_services,
+               left_key: :service_id,
+               right_key: :group_id
 
   many_to_one :vendor, key: :vendor_id, class: "Suma::Vendor"
 
