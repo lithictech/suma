@@ -3,10 +3,15 @@
 require "suma/eligibility/has_constraints"
 require "suma/mobility/vendor_adapter"
 require "suma/postgres/model"
+require "suma/image"
 require "suma/vendor/has_service_categories"
 
 class Suma::Vendor::Service < Suma::Postgres::Model(:vendor_services)
+  include Suma::Image::AssociatedMixin
+
   plugin :timestamps
+  plugin :tstzrange_fields, :period
+
 
   many_to_one :vendor, key: :vendor_id, class: "Suma::Vendor"
 
@@ -35,6 +40,10 @@ class Suma::Vendor::Service < Suma::Postgres::Model(:vendor_services)
 
     def with_category(slug)
       return self.where(categories: Suma::Vendor::ServiceCategory.where(slug:))
+    end
+
+    def available_at(t)
+      return self.where(Sequel.pg_range(:period).contains(Sequel.cast(t, :timestamptz)))
     end
   end
 

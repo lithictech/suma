@@ -102,6 +102,7 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
         external_name: "Demo E-Scooter",
         constraints: [{"form_factor" => "scooter", "propulsion_type" => "electric"}],
         mobility_vendor_adapter_key: "demo_deeplink",
+        period: Time.now..1.year.from_now,
       )
       svc.add_category(Suma::Vendor::ServiceCategory.create(name: "Mobility", parent: cash_category))
       svc.add_rate(rate)

@@ -9,8 +9,7 @@ module Suma::Fixtures::Offerings
   fixtured_class Suma::Commerce::Offering
 
   base :offering do
-    self.period ||=
-      Faker::Number.between(from: 50, to: 2).days.ago..Faker::Number.between(from: 2, to: 50).days.from_now
+    self.period ||= Faker::Suma.number(50..2).days.ago..Faker::Suma.number(2..50).days.from_now
   end
 
   before_saving do |instance|
@@ -46,5 +45,9 @@ module Suma::Fixtures::Offerings
 
   decorator :with_constraints, presave: true do |*constraints|
     constraints.each { |c| self.add_eligibility_constraint(c) }
+  end
+
+  decorator :with_image, presave: true do |o={}|
+    Suma::Fixtures.image.for(self).create(o)
   end
 end
