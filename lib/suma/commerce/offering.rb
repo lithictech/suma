@@ -166,6 +166,8 @@ class Suma::Commerce::Offering < Suma::Postgres::Model(:commerce_offerings)
 
   def rel_admin_link = "/offering/#{self.id}"
 
+  def rel_app_link = "/food/#{self.id}"
+
   def timed?
     return !self.begin_fulfillment_at.nil?
   end

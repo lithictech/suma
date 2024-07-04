@@ -96,6 +96,7 @@ class Suma::API::Me < Suma::API::V1
     expose_translated :name
     expose :until
     expose :image, with: ImageEntity
+    expose :link
   end
 
   class VendibleGroupEntity < BaseEntity

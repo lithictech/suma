@@ -23,49 +23,6 @@ export default function Dashboard() {
     default: {},
     pickData: true,
   });
-  const data = {
-    items: [
-      {
-        title: "Farmers Market",
-        items: [
-          {
-            id: 1,
-            description: "Holiday Demo",
-            closesAt: Date.now(),
-            image: first(dashboard.offerings)?.image,
-          },
-          {
-            id: 2,
-            description: "SJFM",
-            closesAt: Date.now(),
-            image: first(dashboard.offerings)?.image,
-          },
-        ],
-      },
-      {
-        title: "Lime Scooter Rides",
-        items: [
-          {
-            id: 1,
-            description: "Free Lime Scooter Rides",
-            closesAt: Date.now(),
-            image: first(dashboard.offerings)?.image,
-          },
-        ],
-      },
-      {
-        title: "Transportation",
-        items: [
-          {
-            id: 1,
-            description: "Ride Connection Partnership",
-            closesAt: Date.now(),
-            image: first(dashboard.offerings)?.image,
-          },
-        ],
-      },
-    ],
-  };
   return (
     <>
       <TopAlerts
@@ -74,12 +31,13 @@ export default function Dashboard() {
       />
       <img src={foodHeaderImage} alt={t("food:title")} className="thin-header-image" />
       <LayoutContainer gutters top>
-        <h5 className="lead mb-3">
-          Helping our community save money on things you buy the most- all in one place.
-        </h5>
+        <h5 className="lead mb-3">{t("dashboard:intro")}</h5>
         <div className="d-flex justify-content-end">
-          <ExternalLink href={externalLinks.sumaIntroLink} className="btn btn-secondary">
-            About suma
+          <ExternalLink
+            href={externalLinks.sumaIntroLink}
+            className="btn btn-sm btn-outline-info"
+          >
+            {t("dashboard:about_suma")}
           </ExternalLink>
         </div>
         <AddToHomescreen />
@@ -88,12 +46,12 @@ export default function Dashboard() {
         <PageLoader buffered />
       ) : (
         <LayoutContainer top gutters>
-          <h4>Current Offerings:</h4>
+          <h4>Current Offerings</h4>
           <Stack gap={3}>
-            {data.items.map(({ title, items }) => (
-              <HamburgerSection key={title} title={title}>
-                {items.map((item) => (
-                  <OfferingCard key={item.id} {...item} className="border-0" />
+            {dashboard.vendibleGroups.map(({ name, vendibles }) => (
+              <HamburgerSection key={name} name={name}>
+                {vendibles.map((v) => (
+                  <OfferingCard key={v.name} {...v} className="border-0" />
                 ))}
               </HamburgerSection>
             ))}
@@ -104,15 +62,15 @@ export default function Dashboard() {
   );
 }
 
-function HamburgerSection({ title, children }) {
+function HamburgerSection({ name, children }) {
   if (!children) {
     return null;
   }
   return (
-    <div className="position-relative bg-primary rounded-5 p-3 pt-5 mt-4">
-      <h3 className="border border-2 border-dark rounded-5 bg-white py-2 px-3 position-absolute hamburger-title">
-        {title}
-      </h3>
+    <div className="position-relative bg-primary rounded-5 p-3 pt-5 mt-4 w-100">
+      <h4 className="border border-2 border-dark rounded-5 bg-white py-2 px-3 position-absolute text-truncate hamburger-header">
+        {name}
+      </h4>
       <Stack gap={3}>{children}</Stack>
     </div>
   );

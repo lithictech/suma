@@ -14,6 +14,9 @@ class Suma::Vendible < Suma::TypedStruct
   # @return [Suma::Image]
   attr_accessor :image
 
+  # @return [String] relative app link
+  attr_accessor :link
+
   class << self
     # @param [Suma::Commerce::Offering] o
     # @return [Suma::Vendible]
@@ -22,6 +25,7 @@ class Suma::Vendible < Suma::TypedStruct
         name: o.description,
         until: o.period_end,
         image: o.image?,
+        link: o.rel_app_link,
       )
     end
 
@@ -32,6 +36,7 @@ class Suma::Vendible < Suma::TypedStruct
         name: Suma::TranslatedText.new(all: vs.external_name).freeze,
         until: vs.period_end,
         image: vs.image?,
+        link: vs.rel_app_link,
       )
     end
 

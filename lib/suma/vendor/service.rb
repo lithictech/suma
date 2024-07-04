@@ -82,6 +82,8 @@ class Suma::Vendor::Service < Suma::Postgres::Model(:vendor_services)
       constraint.all? { |k, v| hash[k] == v && hash.key?(k) }
     end
   end
+
+  def rel_app_link = "/mobility"
 end
 
 # Table: vendor_services

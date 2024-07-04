@@ -8,31 +8,31 @@ import Card from "react-bootstrap/Card";
 import Stack from "react-bootstrap/Stack";
 import { Link } from "react-router-dom";
 
-export default function OfferingCard({ id, description, image, closesAt, className }) {
+export default function OfferingCard({ name, image, until, link, className }) {
   return (
     <Card className={clsx("rounded-5", className)}>
-      <Card.Body className="p-0">
+      <Card.Body className="p-2">
         <Stack direction="horizontal" gap={3}>
-          <Link to={`/food/${id}`} className="flex-shrink-0">
+          <Link to={link} className="flex-shrink-0">
             <SumaImage
               image={image}
               width={100}
               h={80}
-              alt={description}
+              alt={name}
               className="rounded-5"
             />
           </Link>
           <div>
             <Card.Link
               as={RLink}
-              href={`/food/${id}`}
+              href={link}
               state={{ fromIndex: true }}
               className="h6 mb-0"
             >
-              {description}
+              {name}
             </Card.Link>
             <Card.Text className="text-secondary small">
-              {t("food:available_until")} {dayjs(closesAt).format("ll")}
+              {t("food:available_until", { date: dayjs(until).format("ll") })}
             </Card.Text>
           </div>
         </Stack>

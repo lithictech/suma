@@ -22,6 +22,7 @@ RSpec.describe Suma::Vendible, db: true do
       name: be === o.description,
       until: o.period.end,
       image: be_a(Suma::Image),
+      link: "/food/#{o.id}",
     )
   end
 
@@ -32,6 +33,7 @@ RSpec.describe Suma::Vendible, db: true do
       name: have_attributes(en: o.external_name, es: o.external_name),
       until: o.period.end,
       image: be_a(Suma::Image),
+      link: "/mobility",
     )
   end
 
