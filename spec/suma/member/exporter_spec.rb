@@ -34,11 +34,15 @@ RSpec.describe Suma::Member::Exporter, :db do
 
   it "adds UNSAFE before values that start with an equal sign to avoid exporing a macro" do
     member1 = Suma::Fixtures.member.create(name: "=1+1")
-    member2 = Suma::Fixtures.member.create(name: " =1+1")
-    member3 = Suma::Fixtures.member.create(name: "\t=1+1")
+    member2 = Suma::Fixtures.member.create(name: "==1+1")
+    member3 = Suma::Fixtures.member.create(name: " =1+1")
+    member4 = Suma::Fixtures.member.create(name: "  =1+1")
+    member5 = Suma::Fixtures.member.create(name: "\t=1+1")
     csv = described_class.new(Suma::Member.dataset).to_csv
     expect(csv).to include("#{member1.id},UNSAFE=1+1")
-    expect(csv).to include("#{member2.id},UNSAFE =1+1")
-    expect(csv).to include("#{member3.id},UNSAFE\t=1+1")
+    expect(csv).to include("#{member2.id},UNSAFE==1+1")
+    expect(csv).to include("#{member3.id},UNSAFE =1+1")
+    expect(csv).to include("#{member4.id},UNSAFE  =1+1")
+    expect(csv).to include("#{member5.id},UNSAFE\t=1+1")
   end
 end
