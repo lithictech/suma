@@ -40,7 +40,8 @@ class Suma::Member::Exporter
           # which can be confusing (name of "=1+1" would appear as "2")
           # and potentially dangerous. A space or tab char is not enough
           # to prevent macros for some csv software like Numbers app on mac.
-          v = "UNSAFE#{v}" if v.respond_to?(:match?) && /^\s*=/.match?(v)
+          unsafe_match = v =~ /^\s*=/
+          v = "UNSAFE#{v}" unless unsafe_match.nil?
           v
         end
         csv << row
