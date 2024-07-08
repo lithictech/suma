@@ -125,9 +125,18 @@ module Suma::AdminAPI::Entities
     expose :slug
   end
 
+  class VendorServiceRateEntity < BaseEntity
+    include AutoExposeBase
+    expose :name
+    expose :unit_amount, with: MoneyEntity
+    expose :surcharge, with: MoneyEntity
+    expose :unit_offset
+    expose :undiscounted_amount, with: MoneyEntity, &self.delegate_to(:undiscounted_rate, :unit_amount, safe: true)
+    expose :undiscounted_surcharge, with: MoneyEntity, &self.delegate_to(:undiscounted_rate, :surcharge, safe: true)
+  end
+
   class VendorConfigurationEntity < BaseEntity
     include AutoExposeBase
-    expose :id
     expose :vendor, with: VendorEntity
     expose :app_install_link
     expose :uses_email
@@ -281,5 +290,20 @@ module Suma::AdminAPI::Entities
     expose :id
     expose :admin_link
     expose_translated :name
+  end
+
+  class MobilityTripEntity < BaseEntity
+    include AutoExposeBase
+    expose :vehicle_id
+    expose :vendor_service, as: :provider, with: VendorServiceEntity
+    expose :vendor_service_rate, as: :rate, with: VendorServiceRateEntity
+    expose :begin_lat
+    expose :begin_lng
+    expose :began_at
+    expose :end_lat
+    expose :end_lng
+    expose :ended_at
+    expose :total_cost, with: MoneyEntity, &self.delegate_to(:charge, :discounted_subtotal, safe: true)
+    expose :discount_amount, with: MoneyEntity, &self.delegate_to(:charge, :discount_amount, safe: true)
   end
 end

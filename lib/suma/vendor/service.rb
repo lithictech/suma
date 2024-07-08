@@ -5,8 +5,10 @@ require "suma/mobility/vendor_adapter"
 require "suma/postgres/model"
 require "suma/image"
 require "suma/vendor/has_service_categories"
+require "suma/admin_linked"
 
 class Suma::Vendor::Service < Suma::Postgres::Model(:vendor_services)
+  include Suma::AdminLinked
   include Suma::Image::AssociatedMixin
 
   plugin :timestamps
@@ -30,6 +32,8 @@ class Suma::Vendor::Service < Suma::Postgres::Model(:vendor_services)
                join_table: :vendor_service_vendor_service_rates,
                left_key: :vendor_service_id,
                right_key: :vendor_service_rate_id
+
+  one_to_many :mobility_trips, class: "Suma::Mobility::Trip", key: :vendor_service_id
 
   many_to_many :eligibility_constraints,
                class: "Suma::Eligibility::Constraint",
@@ -82,6 +86,8 @@ class Suma::Vendor::Service < Suma::Postgres::Model(:vendor_services)
       constraint.all? { |k, v| hash[k] == v && hash.key?(k) }
     end
   end
+
+  def rel_admin_link = "/vendor-service/#{self.id}"
 
   def rel_app_link = "/mobility"
 end

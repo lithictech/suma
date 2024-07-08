@@ -1,5 +1,6 @@
 import AccountBalanceIcon from "@mui/icons-material/AccountBalance";
 import AccountBalanceWalletIcon from "@mui/icons-material/AccountBalanceWallet";
+import AddBusinessIcon from "@mui/icons-material/AddBusiness";
 import AssignmentIndIcon from "@mui/icons-material/AssignmentInd";
 import AutoModeIcon from "@mui/icons-material/AutoMode";
 import CorporateFareIcon from "@mui/icons-material/CorporateFare";
@@ -80,6 +81,11 @@ export default [
     label: "Vendor Configurations",
     href: "/vendor-configurations",
     icon: <ManageAccountsIcon />,
+  },
+  {
+    label: "Vendor Services",
+    href: "/vendor-services",
+    icon: <AddBusinessIcon />,
   },
   {
     label: "Eligibility Constraints",

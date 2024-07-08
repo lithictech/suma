@@ -56,6 +56,8 @@ import VendorCreatePage from "./pages/VendorCreatePage";
 import VendorDetailPage from "./pages/VendorDetailPage";
 import VendorEditPage from "./pages/VendorEditPage";
 import VendorListPage from "./pages/VendorListPage";
+import VendorServiceDetailPage from "./pages/VendorServiceDetailPage";
+import VendorServiceListPage from "./pages/VendorServiceListPage";
 import applyHocs from "./shared/applyHocs";
 import { installPromiseExtras } from "./shared/bluejay";
 import ClientsideSearchParamsProvider from "./shared/react/ClientsideSearchParamsProvider";
@@ -391,6 +393,20 @@ function PageSwitch() {
           redirectIfUnauthed,
           withLayout(),
           VendorConfigurationDetailPage
+        )}
+      />
+      <Route
+        exact
+        path="/vendor-services"
+        element={renderWithHocs(redirectIfUnauthed, withLayout(), VendorServiceListPage)}
+      />
+      <Route
+        exact
+        path="/vendor-service/:id"
+        element={renderWithHocs(
+          redirectIfUnauthed,
+          withLayout(),
+          VendorServiceDetailPage
         )}
       />
       <Route

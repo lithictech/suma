@@ -156,6 +156,9 @@ export default {
   getVendor: ({ id, ...data }) => get(`/adminapi/v1/vendors/${id}`, data),
   updateVendor: ({ id, ...data }) => post(`/adminapi/v1/vendors/${id}`, data),
 
+  getVendorServices: (data) => get(`/adminapi/v1/vendor_services`, data),
+  getVendorService: ({ id, ...data }) => get(`/adminapi/v1/vendor_services/${id}`, data),
+
   getVendorAccounts: (data) => get("/adminapi/v1/anon_proxy/vendor_accounts", data),
   getVendorAccount: ({ id, data }) =>
     get(`/adminapi/v1/anon_proxy/vendor_accounts/${id}`, data),

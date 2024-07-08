@@ -52,6 +52,7 @@ require "suma/admin_api/roles"
 require "suma/admin_api/search"
 require "suma/admin_api/vendors"
 require "suma/admin_api/vendible_groups"
+require "suma/admin_api/vendor_services"
 require "suma/admin_api/anon_proxy"
 
 require "suma/url_shortener"
@@ -98,6 +99,7 @@ module Suma::Apps
     mount Suma::AdminAPI::Search
     mount Suma::AdminAPI::Vendors
     mount Suma::AdminAPI::VendibleGroups
+    mount Suma::AdminAPI::VendorServices
     add_swagger_documentation(mount_path: "/swagger", info: {title: "Suma Admin API"}) if
       Suma::Service.swagger_enabled
   end
