@@ -276,4 +276,10 @@ module Suma::AdminAPI::Entities
     expose :verified_organization, with: OrganizationEntity
     expose :unverified_organization_name
   end
+
+  class VendibleGroupEntity < BaseEntity
+    expose :id
+    expose :admin_link
+    expose_translated :name
+  end
 end
