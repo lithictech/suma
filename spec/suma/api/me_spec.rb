@@ -138,7 +138,7 @@ RSpec.describe Suma::API::Me, :db do
           payment_account_balance: cost("$27"),
           lifetime_savings: cost("$0"),
           ledger_lines: have_length(1),
-          vendible_groups: have_length(1),
+          vendible_groupings: have_length(1),
         )
     end
   end

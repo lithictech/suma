@@ -99,7 +99,7 @@ class Suma::API::Me < Suma::API::V1
     expose :link
   end
 
-  class VendibleGroupEntity < BaseEntity
+  class VendibleGroupingEntity < BaseEntity
     expose_translated :name, &self.delegate_to(:group, :name)
     expose :vendibles, with: VendibleEntity
   end
@@ -111,6 +111,6 @@ class Suma::API::Me < Suma::API::V1
     expose :ledger_lines, with: DashboardLedgerLineEntity
     expose :next_offerings, as: :offerings, with: AvailableOfferingEntity
     expose :mobility_available?, as: :mobility_vehicles_available
-    expose :vendible_groupings, as: :vendible_groups, with: VendibleGroupEntity
+    expose :vendible_groupings, with: VendibleGroupingEntity
   end
 end

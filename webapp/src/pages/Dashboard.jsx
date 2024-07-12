@@ -48,7 +48,7 @@ export default function Dashboard() {
         <LayoutContainer top gutters>
           <h4>Current Offerings</h4>
           <Stack gap={3}>
-            {dashboard.vendibleGroups.map(({ name, vendibles }) => (
+            {dashboard.vendibleGroupings.map(({ name, vendibles }) => (
               <HamburgerSection key={name} name={name}>
                 {vendibles.map((v) => (
                   <OfferingCard key={v.name} {...v} className="border-0" />
