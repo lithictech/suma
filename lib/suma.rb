@@ -60,7 +60,8 @@ module Suma
     setting :log_format, nil
     setting :app_url, "http://localhost:22004"
     setting :admin_url, "http://localhost:22014"
-    setting :api_url, "http://localhost:#{ENV.fetch('PORT', 22_001)}/api"
+    setting :api_host, "http://localhost:#{ENV.fetch('PORT', 22_001)}"
+    setting :api_url, ENV.fetch("SUMA_API_HOST", "http://localhost:#{ENV.fetch('PORT', 22_001)}") + "/api"
     setting :default_currency, "USD", side_effect: ->(v) { Money.default_currency = v }
     setting :bust_idempotency, false
     setting :use_globals_cache, false
