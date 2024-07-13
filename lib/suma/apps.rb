@@ -11,6 +11,7 @@ require "rack/simple_headers"
 require "rack/simple_redirect"
 require "rack/spa_app"
 require "rack/spa_rewrite"
+require "url_shortener/rack_app"
 require "sidekiq/web"
 
 require "suma/api"
@@ -51,6 +52,8 @@ require "suma/admin_api/roles"
 require "suma/admin_api/search"
 require "suma/admin_api/vendors"
 require "suma/admin_api/anon_proxy"
+
+require "suma/url_shortener"
 
 module Suma::Apps
   class API < Suma::Service
@@ -112,6 +115,11 @@ module Suma::Apps
     end
     use Rack::Session::Cookie, secret: Suma::Service.session_secret, same_site: true, max_age: 86_400
     run Sidekiq::Web
+  end
+
+  UrlRedirects = Rack::Builder.new do
+    shortener = Suma::UrlShortener.new_shortener
+    run ::UrlShortener::RackApp.new(shortener)
   end
 
   def self.emplace_dynamic_config

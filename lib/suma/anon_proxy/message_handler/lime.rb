@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "suma/messages/single_value"
+require "suma/url_shortener"
 
 class Suma::AnonProxy::MessageHandler::Lime < Suma::AnonProxy::MessageHandler
   def key = "lime"
@@ -31,11 +32,12 @@ class Suma::AnonProxy::MessageHandler::Lime < Suma::AnonProxy::MessageHandler
       result.handled = false
       return result
     end
-    vendor_account_message.vendor_account.replace_access_code(token, magic_link).save_changes
+    shortened_link = Suma::UrlShortener.shortener.shorten(magic_link).url
+    vendor_account_message.vendor_account.replace_access_code(token, shortened_link).save_changes
     msg = Suma::Messages::SingleValue.new(
       "anon_proxy",
       "lime-deep-link-access-code",
-      magic_link,
+      shortened_link,
     )
     vendor_account_message.vendor_account.member.message_preferences!.dispatch(msg)
     result.handled = true
