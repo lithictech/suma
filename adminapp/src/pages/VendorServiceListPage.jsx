@@ -31,11 +31,16 @@ export default function VendorServiceListPage() {
           render: (c) => <AdminLink model={c.vendor}>{c.vendor.name}</AdminLink>,
         },
         {
-          id: "created_at",
-          label: "Created",
-          align: "left",
-          sortable: true,
-          render: (c) => dayjs(c.createdAt).format("lll"),
+          id: "period_begin",
+          label: "Opens",
+          align: "center",
+          render: (c) => dayjs(c.periodBegin).format("l"),
+        },
+        {
+          id: "period_end",
+          label: "Closes",
+          align: "center",
+          render: (c) => dayjs(c.periodEnd).format("l"),
         },
       ]}
     />

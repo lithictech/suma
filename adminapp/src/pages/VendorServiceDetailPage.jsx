@@ -4,6 +4,7 @@ import RelatedList from "../components/RelatedList";
 import ResourceDetail from "../components/ResourceDetail";
 import { dayjs } from "../modules/dayConfig";
 import Money from "../shared/react/Money";
+import SumaImage from "../shared/react/SumaImage";
 import React from "react";
 
 export default function VendorServiceDetailPage() {
@@ -14,6 +15,19 @@ export default function VendorServiceDetailPage() {
       properties={(model) => [
         { label: "ID", value: model.id },
         { label: "Created At", value: dayjs(model.createdAt) },
+        {
+          label: "Image",
+          value: (
+            <SumaImage
+              image={model.image}
+              alt={model.image.name}
+              className="w-100"
+              params={{ crop: "center" }}
+              h={225}
+              width={225}
+            />
+          ),
+        },
         { label: "Name", value: model.name },
         { label: "Internal Name", value: model.internalName },
         { label: "Mobility Vendor Adapter Key", value: model.mobilityVendorAdapterKey },
@@ -21,6 +35,8 @@ export default function VendorServiceDetailPage() {
           label: "Vendor",
           value: <AdminLink model={model.vendor}>{model.vendor?.name}</AdminLink>,
         },
+        { label: "Opening Date", value: dayjs(model.periodBegin) },
+        { label: "Closing Date", value: dayjs(model.periodEnd) },
       ]}
     >
       {(model, setModel) => (

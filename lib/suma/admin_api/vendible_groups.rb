@@ -6,9 +6,19 @@ require "suma/admin_api"
 class Suma::AdminAPI::VendibleGroups < Suma::AdminAPI::V1
   include Suma::AdminAPI::Entities
 
+  class VendibleEntity < BaseEntity
+    include Suma::AdminAPI::Entities
+    expose :key, &self.delegate_to(:name, :en)
+    expose :name, with: TranslatedTextEntity
+    expose :until
+    expose :image, with: ImageEntity
+    expose :link
+  end
+
   class DetailedVendibleGroupEntity < VendibleGroupEntity
     include Suma::AdminAPI::Entities
     expose :commerce_offerings, with: OfferingEntity
+    expose :vendibles, with: VendibleEntity
     expose :vendor_services, with: VendorServiceEntity
   end
 
@@ -20,14 +30,11 @@ class Suma::AdminAPI::VendibleGroups < Suma::AdminAPI::V1
     end
     get do
       ds = Suma::Vendible::Group.dataset
-      search_exprs = []
       if (name_en_like = search_param_to_sql(params, :name_en))
         name_es_like = search_param_to_sql(params, :name_es)
-        search_exprs << name_en_like
-        search_exprs << name_es_like
         ds = ds.translation_join(:name, [:en, :es])
+        ds = ds.reduce_expr(:|, [name_en_like, name_es_like])
       end
-      ds = ds.reduce_expr(:|, search_exprs)
       ds = order(ds, params)
       ds = paginate(ds, params)
       present_collection ds, with: VendibleGroupEntity

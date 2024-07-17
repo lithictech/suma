@@ -6,6 +6,7 @@ import AutoModeIcon from "@mui/icons-material/AutoMode";
 import CorporateFareIcon from "@mui/icons-material/CorporateFare";
 import HomeIcon from "@mui/icons-material/Home";
 import KeyIcon from "@mui/icons-material/Key";
+import ListAltIcon from "@mui/icons-material/ListAlt";
 import MailIcon from "@mui/icons-material/Mail";
 import ManageAccountsIcon from "@mui/icons-material/ManageAccounts";
 import PaymentsIcon from "@mui/icons-material/Payments";
@@ -86,6 +87,11 @@ export default [
     label: "Vendor Services",
     href: "/vendor-services",
     icon: <AddBusinessIcon />,
+  },
+  {
+    label: "Vendible Groups",
+    href: "/vendible-groups",
+    icon: <ListAltIcon />,
   },
   {
     label: "Eligibility Constraints",

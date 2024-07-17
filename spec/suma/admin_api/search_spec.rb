@@ -279,4 +279,66 @@ RSpec.describe Suma::AdminAPI::Search, :db do
       expect(last_response).to have_json_body.that_includes(items: have_same_ids_as(m2, m1).ordered)
     end
   end
+
+  describe "POST /v1/search/vendor_services" do
+    it "returns matching vendor services" do
+      vs1 = Suma::Fixtures.vendor_service.create(external_name: "ride connection")
+      vs2 = Suma::Fixtures.organization.create(name: "test")
+
+      post "/v1/search/vendor_services", q: "ride connection"
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.that_includes(items: have_same_ids_as(vs1))
+    end
+
+    it "returns matching vendor services label" do
+      Suma::Fixtures.vendor_service.create(external_name: "Ride connection")
+
+      post "/v1/search/vendor_services", q: "ride"
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.that_includes(items: [include(label: "Ride connection")])
+    end
+
+    it "returns all results in descending order if no query" do
+      vs1 = Suma::Fixtures.vendor_service.create(external_name: "x vendor service")
+      vs2 = Suma::Fixtures.vendor_service.create(external_name: "a vendor service")
+
+      post "/v1/search/vendor_services"
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.that_includes(items: have_same_ids_as(vs2, vs1).ordered)
+    end
+  end
+
+  describe "POST /v1/search/commerce_offerings" do
+    it "returns matching commerce offerings" do
+      o1 = Suma::Fixtures.offering.create(description: Suma::Fixtures.translated_text.create(en: "Summer FM EN"))
+      o2 = Suma::Fixtures.offering.create(description: Suma::Fixtures.translated_text.create(en: "test"))
+
+      post "/v1/search/commerce_offerings", q: "sum"
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.that_includes(items: have_same_ids_as(o1))
+    end
+
+    it "returns matching vendor services label" do
+      Suma::Fixtures.offering.create(description: Suma::Fixtures.translated_text.create(en: "December Holidays"))
+
+      post "/v1/search/commerce_offerings", q: "holi"
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.that_includes(items: [include(label: "December Holidays")])
+    end
+
+    it "returns all results in descending order if no query" do
+      o1 = Suma::Fixtures.offering.create(description: Suma::Fixtures.translated_text.create(en: "x holiday"))
+      o2 = Suma::Fixtures.offering.create(description: Suma::Fixtures.translated_text.create(en: "a holiday"))
+
+      post "/v1/search/commerce_offerings"
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.that_includes(items: have_same_ids_as(o2, o1).ordered)
+    end
+  end
 end

@@ -98,6 +98,7 @@ RSpec.describe Suma::AdminAPI::VendibleGroups, :db do
         id: group.id,
         commerce_offerings: contain_exactly(include(id: o.id)),
         vendor_services: contain_exactly(include(id: vs.id)),
+        vendibles: contain_exactly(include(key: o.description.en), include(key: vs.external_name)),
       )
     end
 

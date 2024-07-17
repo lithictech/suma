@@ -13,6 +13,7 @@ class Suma::AdminAPI::VendorServices < Suma::AdminAPI::V1
     expose :vendor_service_categories, as: :categories, with: VendorServiceCategoryEntity
     expose :rates, with: VendorServiceRateEntity
     expose :mobility_trips, with: MobilityTripEntity
+    expose :image, with: ImageEntity, &self.delegate_to(:images?, :first)
   end
 
   resource :vendor_services do

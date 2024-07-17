@@ -29,6 +29,16 @@ class Suma::Vendible::Group < Suma::Postgres::Model(:vendible_groups)
                left_key: :group_id,
                right_key: :offering_id
 
+  # All the vendible items or goods for this group.
+  # @return [Array<Suma::Vendible>]
+  def vendibles
+    vendibles = (self.commerce_offerings + self.vendor_services).map do |it|
+      Suma::Vendible.from(it)
+    end
+    vendibles.sort_by! { |v| [v.name.en, v.until] }
+    return vendibles
+  end
+
   def replace_commerce_offerings(offerings)
     self.replace_association_models(offerings, :commerce_offerings)
   end

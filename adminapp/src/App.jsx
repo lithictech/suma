@@ -48,6 +48,10 @@ import ProductDetailPage from "./pages/ProductDetailPage";
 import ProductEditPage from "./pages/ProductEditPage";
 import ProductListPage from "./pages/ProductListPage";
 import SignInPage from "./pages/SignInPage";
+import VendibleGroupCreatePage from "./pages/VendibleGroupCreatePage";
+import VendibleGroupDetailPage from "./pages/VendibleGroupDetailPage";
+import VendibleGroupEditPage from "./pages/VendibleGroupEditPage";
+import VendibleGroupListPage from "./pages/VendibleGroupListPage";
 import VendorAccountDetailPage from "./pages/VendorAccountDetailPage";
 import VendorAccountListPage from "./pages/VendorAccountListPage";
 import VendorConfigurationDetailPage from "./pages/VendorConfigurationDetailPage";
@@ -362,6 +366,34 @@ function PageSwitch() {
         exact
         path="/vendor/:id/edit"
         element={renderWithHocs(redirectIfUnauthed, withLayout(), VendorEditPage)}
+      />
+      <Route
+        exact
+        path="/vendible-groups"
+        element={renderWithHocs(redirectIfUnauthed, withLayout(), VendibleGroupListPage)}
+      />
+      <Route
+        exact
+        path="/vendible-group/new"
+        element={renderWithHocs(
+          redirectIfUnauthed,
+          withLayout(),
+          VendibleGroupCreatePage
+        )}
+      />
+      <Route
+        exact
+        path="/vendible-group/:id"
+        element={renderWithHocs(
+          redirectIfUnauthed,
+          withLayout(),
+          VendibleGroupDetailPage
+        )}
+      />
+      <Route
+        exact
+        path="/vendible-group/:id/edit"
+        element={renderWithHocs(redirectIfUnauthed, withLayout(), VendibleGroupEditPage)}
       />
       <Route
         exact

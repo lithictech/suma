@@ -117,6 +117,8 @@ module Suma::AdminAPI::Entities
     expose :external_name, as: :name
     expose :vendor, with: VendorEntity
     expose :eligibility_constraints, with: EligibilityConstraintEntity
+    expose :period_begin
+    expose :period_end
   end
 
   class VendorServiceCategoryEntity < BaseEntity
@@ -289,7 +291,8 @@ module Suma::AdminAPI::Entities
   class VendibleGroupEntity < BaseEntity
     expose :id
     expose :admin_link
-    expose_translated :name
+    expose :name, with: TranslatedTextEntity
+    expose :ordinal
   end
 
   class MobilityTripEntity < BaseEntity
