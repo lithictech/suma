@@ -39,9 +39,7 @@ export default function VendibleGroupDetailPage() {
             headers={["Id", "Name", "Vendor", "Opening Date", "Closing Date"]}
             keyRowAttr="id"
             toCells={(row) => [
-              <AdminLink key="id" model={row}>
-                {row.id}
-              </AdminLink>,
+              <AdminLink key="id" model={row} />,
               <AdminLink key="name" model={row}>
                 {row.name}
               </AdminLink>,

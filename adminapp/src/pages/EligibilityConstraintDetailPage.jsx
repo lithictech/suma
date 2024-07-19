@@ -27,13 +27,9 @@ export default function EligibilityConstraintDetailPage() {
             keyRowAttr="id"
             headers={["Id", "Created", "Description", "Opens", "Closes"]}
             toCells={(row) => [
-              <AdminLink key={row.id} model={row}>
-                {row.id}
-              </AdminLink>,
+              <AdminLink model={row} />,
               dayjs(row.createdAt).format("lll"),
-              <AdminLink key={row.id} model={row}>
-                {row.description.en}
-              </AdminLink>,
+              <AdminLink model={row}>{row.description.en}</AdminLink>,
               dayjs(row.periodBegin).format("lll"),
               dayjs(row.periodEnd).format("lll"),
             ]}
@@ -44,11 +40,9 @@ export default function EligibilityConstraintDetailPage() {
             keyRowAttr="id"
             headers={["Id", "Created", "Vendor", "Name"]}
             toCells={(row) => [
-              row.id,
+              <AdminLink model={row} />,
               dayjs(row.createdAt).format("lll"),
-              <AdminLink key={row.id} model={row.vendor}>
-                {row.vendor.name}
-              </AdminLink>,
+              <AdminLink model={row.vendor}>{row.vendor.name}</AdminLink>,
               row.name,
             ]}
           />
@@ -68,9 +62,7 @@ export default function EligibilityConstraintDetailPage() {
             toCells={(row) => [
               <AdminLink model={row} />,
               dayjs(row.createdAt).format("lll"),
-              <AdminLink key={row.vendor.name} model={row.vendor}>
-                {row.vendor.name}
-              </AdminLink>,
+              <AdminLink model={row.vendor}>{row.vendor.name}</AdminLink>,
               <SafeExternalLink key={1} href={row.appInstallLink}>
                 {row.appInstallLink}
               </SafeExternalLink>,

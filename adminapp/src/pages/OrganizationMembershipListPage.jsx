@@ -31,7 +31,9 @@ export default function OrganizationMembershipListPage() {
           align: "left",
           render: (c) =>
             c.verifiedOrganization ? (
-              <AdminLink model={c.organization}>{c.verifiedOrganization.name}</AdminLink>
+              <AdminLink model={c.verifiedOrganization}>
+                {c.verifiedOrganization.name}
+              </AdminLink>
             ) : (
               c.unverifiedOrganizationName
             ),

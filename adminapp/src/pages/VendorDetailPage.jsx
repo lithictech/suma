@@ -30,7 +30,7 @@ export default function VendorDetailPage() {
             headers={["Id", "Name", "Eligibility Constraints"]}
             keyRowAttr="id"
             toCells={(row) => [
-              <AdminLink model={row}>{row.id}</AdminLink>,
+              <AdminLink model={row} />,
               <AdminLink model={row}>{row.name}</AdminLink>,
               row.eligibilityConstraints.map((ec) => (
                 <AdminLink
