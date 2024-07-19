@@ -135,33 +135,18 @@ class Suma::AdminAPI::CommerceOfferings < Suma::AdminAPI::V1
       end
     end
 
+    Suma::AdminAPI::CommonEndpoints.eligibilities(
+      self,
+      Suma::Commerce::Offering,
+      DetailedOfferingEntity,
+    )
+
     route_param :id, type: Integer do
       helpers do
         def lookup
           (co = Suma::Commerce::Offering[params[:id]]) or forbidden!
           return co
         end
-      end
-
-      params do
-        requires :constraint_ids, type: Array[Integer], coerce_with: CommaSepArray[Integer]
-      end
-      post :eligibilities do
-        offering = lookup
-        params[:constraint_ids].each do |id|
-          Suma::Eligibility::Constraint[id] or adminerror!(403, "Unknown eligibility constraint: #{id}")
-        end
-        offering.replace_eligibility_constraints(params[:constraint_ids])
-        summary = offering.eligibility_constraints_dataset.select_map(:name).join(", ")
-        admin_member.add_activity(
-          message_name: "eligibilitychange",
-          summary: "Admin #{admin_member.email} modified eligibilities of #{offering.description.en}: #{summary}",
-          subject_type: offering.model,
-          subject_id: offering.id,
-        )
-
-        status 200
-        present offering, with: DetailedOfferingEntity
       end
 
       resource :picklist do

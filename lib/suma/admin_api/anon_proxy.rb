@@ -67,6 +67,12 @@ class Suma::AdminAPI::AnonProxy < Suma::AdminAPI::V1
         Suma::AnonProxy::VendorConfiguration, VendorConfigurationEntity,
       )
 
+      Suma::AdminAPI::CommonEndpoints.eligibilities(
+        self,
+        Suma::AnonProxy::VendorConfiguration,
+        DetailedVendorConfigurationEntity,
+      )
+
       route_param :id, type: Integer do
         params do
           requires :constraint_ids, type: Array[Integer], coerce_with: CommaSepArray[Integer]

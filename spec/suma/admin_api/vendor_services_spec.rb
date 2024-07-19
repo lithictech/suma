@@ -89,4 +89,27 @@ RSpec.describe Suma::AdminAPI::VendorServices, :db do
       expect(last_response).to have_status(403)
     end
   end
+
+  describe "POST /v1/vendor_services/:id/eligibilities" do
+    it "replaces the eligibilities" do
+      ec = Suma::Fixtures.eligibility_constraint.create
+      to_add = Suma::Fixtures.eligibility_constraint.create
+      vs = Suma::Fixtures.vendor_service.with_constraints(ec).create
+
+      post "/v1/vendor_services/#{vs.id}/eligibilities", {constraint_ids: [to_add.id]}
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.that_includes(id: vs.id)
+      expect(last_response).to have_json_body.
+        that_includes(eligibility_constraints: contain_exactly(include(id: to_add.id)))
+    end
+
+    it "403s if the constraint does not exist" do
+      vs = Suma::Fixtures.vendor_service.create
+
+      post "/v1/vendor_services/#{vs.id}/eligibilities", {constraint_ids: [0]}
+
+      expect(last_response).to have_status(403)
+    end
+  end
 end

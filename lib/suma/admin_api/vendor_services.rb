@@ -25,5 +25,11 @@ class Suma::AdminAPI::VendorServices < Suma::AdminAPI::V1
     )
 
     Suma::AdminAPI::CommonEndpoints.get_one(self, Suma::Vendor::Service, DetailedVendorServiceEntity)
+
+    Suma::AdminAPI::CommonEndpoints.eligibilities(
+      self,
+      Suma::Vendor::Service,
+      DetailedVendorServiceEntity,
+    )
   end
 end

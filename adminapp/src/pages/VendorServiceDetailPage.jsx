@@ -1,5 +1,6 @@
 import api from "../api";
 import AdminLink from "../components/AdminLink";
+import EligibilityConstraints from "../components/EligibilityConstraints";
 import RelatedList from "../components/RelatedList";
 import ResourceDetail from "../components/ResourceDetail";
 import { dayjs } from "../modules/dayConfig";
@@ -41,6 +42,12 @@ export default function VendorServiceDetailPage() {
     >
       {(model, setModel) => (
         <>
+          <EligibilityConstraints
+            modelId={model.id}
+            constraints={model.eligibilityConstraints}
+            makeUpdateRequest={api.updateVendorServiceEligibilityConstraints}
+            replaceModelData={setModel}
+          />
           <RelatedList
             title="Categories"
             rows={model.categories}
