@@ -185,6 +185,16 @@ RSpec.describe Suma::AdminAPI::CommerceOfferings, :db do
       )
     end
 
+    it "handles removing all resources from an empty array" do
+      o = Suma::Fixtures.offering.create
+      Array.new(2) { o.add_fulfillment_option(Suma::Fixtures.offering_fulfillment_option.create) }
+
+      post "/v1/commerce_offerings/#{o.id}", fulfillment_options: "[]"
+
+      expect(last_response).to have_status(200)
+      expect(o.refresh.fulfillment_options).to be_empty
+    end
+
     it "handles create/remove/update of sub-nested resources" do
       o = Suma::Fixtures.offering.create
       address_to_remove = Suma::Fixtures.address.create

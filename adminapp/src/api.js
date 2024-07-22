@@ -24,15 +24,19 @@ const post = (path, params, opts) => {
   return instance.post(path, params, opts);
 };
 const postForm = (path, params, opts) => {
-  const paramsUsingEmptyStr = transform(params, (result, value, key) => {
-    // null gets stripped out of the form data, so we can end up with an empty form data body, which is an error.
+  const paramsUsingStrippedValues = transform(params, (result, value, key) => {
+    // null and empty arrays gets stripped out of the form data, so we can end up with an
+    // empty form data body, which is an error.
     // We only need to worry about this at the top level- if a nested object field is null,
     // it'll get converted to empty string in visitor (or automatically by axios).
     // Axios form serialization is finnicky so there's a good change this code
     // will be incorrect in a future upgrade.
     result[key] = value === null ? "" : value;
+    if (value instanceof Array && value.length === 0) {
+      result[key] = "[]";
+    }
   });
-  return instance.postForm(path, paramsUsingEmptyStr, opts);
+  return instance.postForm(path, paramsUsingStrippedValues, opts);
 };
 const patch = (path, params, opts) => {
   return instance.patch(path, params, opts);

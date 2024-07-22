@@ -120,7 +120,10 @@ class Suma::AdminAPI::CommerceOfferings < Suma::AdminAPI::V1
         optional(:fulfillment_confirmation, type: JSON) { use :translated_text, allow_blank: true }
         optional :fulfillment_options,
                  type: Array,
-                 coerce_with: proc { |s| s.values.each_with_index.map { |fo, ordinal| fo.merge(ordinal:) } } do
+                 coerce_with: (lambda do |s|
+                   # multipart empty arrays are stringified
+                   return s === "[]" ? [] : s.values.each_with_index.map { |fo, ordinal| fo.merge(ordinal:) }
+                 end) do
           optional :id, type: Integer
           requires :type, type: String, values: Suma::Commerce::OfferingFulfillmentOption::TYPES
           requires(:description, type: JSON) { use :translated_text }
