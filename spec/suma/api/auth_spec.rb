@@ -171,12 +171,25 @@ RSpec.describe Suma::API::Auth, :db, reset_configuration: Suma::Member do
         that_includes(error: include(message: "You are already signed in. Please sign out first."))
     end
 
-    it "returns 200 and creates a session if the phone number and OTP are valid" do
-      c = Suma::Fixtures.member(phone: full_phone).create
+    it "returns 200 if twilio verification code is valid" do
+      c = Suma::Fixtures.member.with_phone("15554443210").create
       code = Suma::Fixtures.reset_code(member: c).sms.create
+      req = stub_twilio_verification_check(status: 200)
 
       post("/v1/auth/verify", phone: c.phone, token: code.token)
 
+      expect(req).to have_been_made
+      expect(last_response).to have_status(200)
+    end
+
+    it "returns 200 and creates a session if the phone number and OTP are valid" do
+      c = Suma::Fixtures.member(phone: full_phone).create
+      code = Suma::Fixtures.reset_code(member: c).sms.create
+      req = stub_twilio_verification_check(status: 200)
+
+      post("/v1/auth/verify", phone: c.phone, token: code.token)
+
+      expect(req).to have_been_made
       expect(last_response).to have_status(200)
       expect(last_response).to have_session_cookie.with_payload_key("warden.user.member.key")
       expect(last_response).to have_json_body.
@@ -223,22 +236,47 @@ RSpec.describe Suma::API::Auth, :db, reset_configuration: Suma::Member do
     end
 
     it "returns 403 if the phone number does not map to a member" do
+      req = stub_twilio_verification_check(status: 200)
       code = Suma::Fixtures.reset_code.sms.create
 
       post("/v1/auth/verify", phone: "15551112222", token: code.token)
 
+      expect(req).to have_been_made
       expect(last_response).to have_status(403)
       expect(last_response).to have_json_body.that_includes(error: include(code: "invalid_otp"))
     end
 
     it "returns 403 if the OTP is not valid for the phone number" do
+      req = stub_twilio_verification_check(status: 200)
       code = Suma::Fixtures.reset_code.sms.create
       code.expire!
 
       post("/v1/auth/verify", phone: code.member.phone, token: code.token)
 
+      expect(req).to have_been_made
       expect(last_response).to have_status(403)
       expect(last_response).to have_json_body.that_includes(error: include(code: "invalid_otp"))
+    end
+
+    it "returns 403 if the twilio verification check code is invalid" do
+      code = Suma::Fixtures.reset_code.sms.create
+      req = stub_twilio_verification_check(status: 200, fixture: "twilio/post_verification_check_invalid")
+
+      post("/v1/auth/verify", phone: code.member.phone, token: code.token)
+
+      expect(req).to have_been_made
+      expect(last_response).to have_status(403)
+      expect(last_response).to have_json_body.that_includes(error: include(code: "invalid_otp"))
+    end
+
+    it "raises other twilio verification check errors" do
+      code = Suma::Fixtures.reset_code.sms.create
+      req = stub_twilio_verification_check(status: 500, body: "error")
+
+      post("/v1/auth/verify", phone: code.member.phone, token: code.token)
+
+      expect(req).to have_been_made
+      expect(last_response).to have_status(500)
     end
 
     context "rate limiting", reset_configuration: Suma::RackAttack do
@@ -247,6 +285,7 @@ RSpec.describe Suma::API::Auth, :db, reset_configuration: Suma::Member do
       end
 
       it "rate limits from a particular IP" do
+        req = stub_twilio_verification_check(status: 200)
         4.times do |i|
           post("/v1/auth/verify", phone: "(#{i}22) 333-4444", token: "abc")
           # 403s since token is invalid
@@ -258,10 +297,12 @@ RSpec.describe Suma::API::Auth, :db, reset_configuration: Suma::Member do
       end
 
       it "rate limits requests to a particular phone number" do
+        stub_twilio_verification_check(status: 200)
         50.times do |i|
           post("/v1/auth/verify", {phone: "(222) 333-4444", token: "abc"}, {"rack.remote_ip" => "1.2.3.#{i}"})
           expect(last_response).to have_status(403)
         end
+
         post("/v1/auth/verify", phone: "(222) 333-4444", token: "abc")
         expect(last_response).to have_status(429)
       end

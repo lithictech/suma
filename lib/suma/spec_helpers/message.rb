@@ -41,4 +41,20 @@ module Suma::SpecHelpers::Message
     )
     return req
   end
+
+  module_function def stub_twilio_verification_check(opts={})
+    opts[:fixture] ||= "twilio/post_verification_check"
+    opts[:status] ||= 200
+
+    if (body = opts[:body]).nil?
+      body = load_fixture_data(opts[:fixture])
+    end
+
+    req = stub_request(:post, "https://verify.twilio.com/v2/Services/VA555test/VerificationCheck")
+    req = req.to_return(
+      status: opts[:status],
+      body: body.to_json,
+    )
+    return req
+  end
 end

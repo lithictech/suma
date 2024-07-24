@@ -40,4 +40,14 @@ module Suma::Twilio
         verifications(ve_id).
         update(**kw)
   end
+
+  # Once we send verification, a verification check will complete
+  # the verification lifecycle and prevent being rate limited by Twilio
+  def self.check_verification(to, code:)
+    return self.client.verify.
+        v2.
+        services(self.verification_sid).
+        verification_checks.
+        create(to:, code:)
+  end
 end

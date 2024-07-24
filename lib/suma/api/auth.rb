@@ -118,6 +118,7 @@ class Suma::API::Auth < Suma::API::V1
         elsif Suma::Member.matches_allowlist?(me, Suma::Member.skip_verification_allowlist)
           nil
         else
+          Suma::Member::ResetCode.valid_verification_check!(params[:phone], params[:token])
           Suma::Member::ResetCode.use_code_with_token(params[:token]) do |code|
             raise Suma::Member::ResetCode::Unusable unless code.member === me
           end

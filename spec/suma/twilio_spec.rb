@@ -13,4 +13,15 @@ RSpec.describe Suma::Twilio, :db do
       expect(result).to have_attributes(sid: "VE123")
     end
   end
+
+  describe "check_verification" do
+    it "checks the verification code" do
+      req = stub_request(:post, "https://verify.twilio.com/v2/Services/VA555test/VerificationCheck").
+        with(body: {"To" => "+15554443210", "Code" => "123456"}).
+        to_return(status: 200, body: load_fixture_data("twilio/post_verification_check", raw: true))
+      result = described_class.check_verification("+15554443210", code: "123456")
+      expect(req).to have_been_made
+      expect(result).to have_attributes(sid: "VE123", valid: true)
+    end
+  end
 end

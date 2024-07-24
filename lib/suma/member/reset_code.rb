@@ -40,6 +40,21 @@ class Suma::Member::ResetCode < Suma::Postgres::Model(:member_reset_codes)
     end
   end
 
+  def self.valid_verification_check!(phone, code)
+    begin
+      phone = Suma::PhoneNumber.format_e164(phone)
+      response = Suma::Twilio.check_verification(phone, code:)
+    rescue Twilio::REST::RestError => e
+      if e.code === 404
+        self.logger.warn("not_found", phone:, error: e.response.body)
+        raise Unusable
+      end
+      raise(e)
+    end
+    raise Unusable unless response.valid === true
+    return response
+  end
+
   def initialize(*)
     super
     self.token ||= Array.new(6) { rand(0..9) }.join
