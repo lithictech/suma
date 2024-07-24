@@ -174,7 +174,9 @@ RSpec.describe Suma::API::Auth, :db, reset_configuration: Suma::Member do
     it "returns 200 if twilio verification code is valid" do
       c = Suma::Fixtures.member.with_phone("15554443210").create
       code = Suma::Fixtures.reset_code(member: c).sms.create
-      req = stub_twilio_verification_check(status: 200)
+      req = stub_request(:post, "https://verify.twilio.com/v2/Services/VA555test/VerificationCheck").
+        with(body: {"To" => "+#{c.phone}", "Code" => code.token}).
+        to_return(status: 200, body: load_fixture_data("twilio/post_verification_check", raw: true))
 
       post("/v1/auth/verify", phone: c.phone, token: code.token)
 
