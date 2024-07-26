@@ -32,12 +32,11 @@ class Suma::AnonProxy::MessageHandler::Lime < Suma::AnonProxy::MessageHandler
       result.handled = false
       return result
     end
-    shortened_link = Suma::UrlShortener.shortener.shorten(magic_link).url
-    vendor_account_message.vendor_account.replace_access_code(token, shortened_link).save_changes
+    vendor_account_message.vendor_account.replace_access_code(token, magic_link).save_changes
     msg = Suma::Messages::SingleValue.new(
       "anon_proxy",
       "lime-deep-link-access-code",
-      shortened_link,
+      magic_link,
     )
     vendor_account_message.vendor_account.member.message_preferences!.dispatch(msg)
     result.handled = true
