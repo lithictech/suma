@@ -70,8 +70,7 @@ module Suma::Service::Middleware
   end
 
   def self.add_auth_middleware(builder)
-    builder.use Suma::Service::Auth::LegacySessionAdapterMiddleware
-    builder.use Suma::Service::Auth::Middleware
+    builder.use Suma::Service::Auth
   end
 
   def self.add_etag_middleware(builder)
