@@ -19,8 +19,8 @@ class Suma::Message::Preferences < Suma::Postgres::Model(:message_preferences)
       self.model.set(self.optout_field => !optin)
     end
 
-    def sync_oye_contact_marketing_preferences
-      self.model.member.oye.upsert_sms_status if self.key === Suma::Oye.sms_marketing_preferences_key
+    def update_oye_contact_marketing_preferences
+      self.model.member.oye.update_contact_sms_status if self.key === Suma::Oye.sms_marketing_preferences_key
     end
   end
 

@@ -8,23 +8,16 @@ class Suma::Member::OyeAttributes
     @marketing_key = Suma::Oye.sms_marketing_preferences_key
   end
 
-  # If contact ID is missing, add it to member. Always update oye contact
-  # sms preferences so that member sms preferences stay in sync.
-  def upsert_sms_status
+  # If contact ID is missing, attempt to find and add it to member.
+  # Only sync/update contact status when contact ID is set.
+  def update_contact_sms_status
     return unless Suma::Oye.configured?
-    self._add_contact_id if self.contact_id.blank?
-    self._update_contact_status
-  end
-
-  def _add_contact_id
-    contacts = Suma::Oye.get_contacts
-    return unless (contact = contacts.find { |c| Suma::PhoneNumber::US.normalize(c.fetch("number")) === @member.phone })
-    @member.update(oye_contact_id: contact.fetch("id").to_s)
-  end
-
-  def _update_contact_status
-    marketing_subscr = self.marketing_subscription
-    oye_sms_status = Suma::Oye::STATUS_MATCH.invert.fetch(marketing_subscr[:opted_in])
+    if self.contact_id.blank?
+      contacts = Suma::Oye.get_contacts(Suma::PhoneNumber.format_e164(@member.phone))
+      return if contacts.empty?
+      @member.update(oye_contact_id: contacts.first.fetch("id").to_s)
+    end
+    oye_sms_status = Suma::Oye::STATUS_MATCH.invert.fetch(self.marketing_subscription[:opted_in])
     Suma::Oye.bulk_update_contacts(contacts: [{id: self.contact_id, status: oye_sms_status}])
   end
 

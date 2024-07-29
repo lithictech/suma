@@ -30,9 +30,12 @@ module Suma::Oye
     }
   end
 
-  def self.get_contacts
+  # Query contacts by phone number, first name or last name
+  def self.get_contacts(search=nil)
+    query = {}
+    query = query.merge(search:) unless search.nil?
     response = Suma::Http.get(
-      self.api_root + "/contacts", headers: self.api_headers, logger: self.logger,
+      self.api_root + "/contacts", query, headers: self.api_headers, logger: self.logger,
     )
     return response.parsed_response
   end
@@ -55,7 +58,7 @@ module Suma::Oye
     contacts = self.get_contacts
     contacts.each do |c|
       member = Suma::Member[oye_contact_id: c.fetch("id")]
-      unless member
+      if member.nil?
         phone = Suma::PhoneNumber::US.normalize(c.fetch("number"))
         next unless Suma::PhoneNumber::US.valid_normalized?(phone)
         next unless (member = Suma::Member[phone:])
