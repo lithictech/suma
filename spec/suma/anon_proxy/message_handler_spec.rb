@@ -115,8 +115,12 @@ RSpec.describe Suma::AnonProxy::MessageHandler, :db do
       expect(got).to have_attributes(vendor_account:, outbound_delivery: nil)
       expect(vendor_account.refresh).to have_attributes(
         latest_access_code: "M1ZgpMepjL5kW9XgzCmnsBKQ",
-        latest_access_code_magic_link: start_with("https://limebike.app.link/login?magic_link_token"),
+        latest_access_code_magic_link: start_with("http://localhost:22001/r/"),
         latest_access_code_set_at: match_time(:now),
+      )
+      expect(Suma::UrlShortener.shortener.dataset.order(:inserted_at).last).to include(
+        url: "https://limebike.app.link/login?magic_link_token=M1ZgpMepjL5kW9XgzCmnsBKQ",
+        short_id: vendor_account.latest_access_code_magic_link.split("/").last,
       )
     end
 
@@ -128,7 +132,9 @@ RSpec.describe Suma::AnonProxy::MessageHandler, :db do
       expect(got).to have_attributes(vendor_account:, outbound_delivery: nil)
       expect(vendor_account.refresh).to have_attributes(
         latest_access_code: "hXYamQ1JGVifc6xuMv6qUrLZ",
-        latest_access_code_magic_link: "https://limebike.app.link/email_verification?authentication_code=hXYamQ1JGVifc6xuMv6qUrLZ",
+        latest_access_code_magic_link: be_a_shortlink_to(
+          "https://limebike.app.link/email_verification?authentication_code=hXYamQ1JGVifc6xuMv6qUrLZ",
+        ),
         latest_access_code_set_at: match_time(:now),
       )
       expect(vendor_account.contact.member.message_deliveries.last).to have_attributes(
@@ -146,7 +152,7 @@ RSpec.describe Suma::AnonProxy::MessageHandler, :db do
       expect(got).to have_attributes(vendor_account:, outbound_delivery: nil)
       expect(vendor_account.refresh).to have_attributes(
         latest_access_code: "M1ZgpMepjL5kX9XgzCmnsBKQ",
-        latest_access_code_magic_link: "https://web-production.lime.bike/api/rider/v2/magic-challenge?magic_link_token=M1ZgpMepjL5kX9XgzCmnsBKQ",
+        latest_access_code_magic_link: be_a_shortlink_to("https://web-production.lime.bike/api/rider/v2/magic-challenge?magic_link_token=M1ZgpMepjL5kX9XgzCmnsBKQ"),
         latest_access_code_set_at: match_time(:now),
       )
       expect(vendor_account.contact.member.message_deliveries.last).to have_attributes(
