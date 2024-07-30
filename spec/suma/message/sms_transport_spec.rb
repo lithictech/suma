@@ -17,6 +17,14 @@ RSpec.describe Suma::Message::SmsTransport, :db, reset_configuration: Suma::Mess
     end
   end
 
+  describe "verification ID parsing" do
+    it "errors for an unknown ID format" do
+      expect do
+        described_class.transport_message_id_to_verification_id("X-123-1")
+      end.to raise_error(described_class::UnknownVerificationId)
+    end
+  end
+
   describe "send!" do
     it "sends message via transport" do
       req = stub_signalwire_sms(sid: "SMXYZ").
@@ -78,8 +86,9 @@ RSpec.describe Suma::Message::SmsTransport, :db, reset_configuration: Suma::Mess
           to_return(status: 200, body: load_fixture_data("twilio/post_verification", raw: true))
         delivery = delivery_fac.sms("+15554443210", "Your suma verification code is: 12345").create
         result = described_class.new.send!(delivery)
-        expect(result).to eq("VE123-1")
+        expect(result).to eq("TV-VE123-1")
         expect(req).to have_been_made
+        expect(described_class.transport_message_id_to_verification_id(result)).to eq("VE123")
       end
 
       it "errors if the verification template is used but no code can be extracted" do
@@ -122,7 +131,7 @@ RSpec.describe Suma::Message::SmsTransport, :db, reset_configuration: Suma::Mess
           sms("+15554443210", "Your suma verification code is: 12345").
           create(template: "verification", template_language: "es")
         result = described_class.new.send!(delivery)
-        expect(result).to eq("VE123-1")
+        expect(result).to eq("TV-VE123-1")
         expect(req).to have_been_made
       end
 

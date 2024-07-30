@@ -71,4 +71,10 @@ module Suma::Fixtures::MessageDeliveries
   decorator :extra do |k, v|
     self.extra_fields[k.to_s] = v
   end
+
+  decorator :sent_to_verification do |verification_sid="VE#{SecureRandom.hex(4)}"|
+    self.transport_type = "sms"
+    self.template = Suma::Message::SmsTransport.verification_template
+    self.transport_message_id = Suma::Message::SmsTransport.verification_transport_message_id(verification_sid, "1")
+  end
 end

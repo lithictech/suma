@@ -178,6 +178,52 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
     end
   end
 
+  describe "ResetCodeUpdateTwilio" do
+    let(:member) { Suma::Fixtures.member(phone: "12223334444").create }
+    let(:fac) { Suma::Fixtures.reset_code(member:).sms }
+
+    it "noops if the code has no delivery or has an invalid message id" do
+      no_delivery = fac.create
+      bad_msg_id = fac.create
+      bad_msg_id.update(message_delivery: Suma::Fixtures.message_delivery.create(transport_message_id: "MSGID"))
+      expect do
+        no_delivery.expire!
+        bad_msg_id.expire!
+      end.to perform_async_job(Suma::Async::ResetCodeUpdateTwilio)
+    end
+
+    it "noops if the reset code message delivery does not use the verification template" do
+      message_delivery = Suma::Fixtures.message_delivery.sent_to_verification.create
+      message_delivery.update(template: "alt-verification")
+      code = fac.create(message_delivery:)
+
+      expect do
+        code.use!
+      end.to perform_async_job(Suma::Async::ResetCodeUpdateTwilio)
+    end
+
+    it "tells twilio about used and canceled codes" do
+      req123 = stub_request(:post, "https://verify.twilio.com/v2/Services/VA555test/Verifications/VE123").
+        with(body: {"Status" => "canceled"}).
+        to_return(status: 200, body: "{}")
+      req456 = stub_request(:post, "https://verify.twilio.com/v2/Services/VA555test/Verifications/VE456").
+        with(body: {"Status" => "approved"}).
+        to_return(status: 200, body: "{}")
+
+      pending = fac.create
+      pending.update(message_delivery: Suma::Fixtures.message_delivery.sent_to_verification("VE123").create)
+      using = fac.create
+      using.update(message_delivery: Suma::Fixtures.message_delivery.sent_to_verification("VE456").create)
+
+      expect do
+        Suma::Member::ResetCode.use_code_with_token(using.token) { nil }
+      end.to perform_async_job(Suma::Async::ResetCodeUpdateTwilio)
+
+      expect(req123).to have_been_made
+      expect(req456).to have_been_made
+    end
+  end
+
   describe "StripeRefundsBackfiller" do
     it "syncs refunds" do
       Suma::Webhookdb.stripe_refunds_dataset.insert(
