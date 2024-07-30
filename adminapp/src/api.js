@@ -1,6 +1,7 @@
 import config from "./config";
 import relativeLink from "./modules/relativeLink";
 import apiBase from "./shared/apiBase";
+import isArray from "lodash/isArray";
 import transform from "lodash/transform";
 
 const instance = apiBase.create(config.apiHost, {
@@ -25,15 +26,19 @@ const post = (path, params, opts) => {
 };
 const postForm = (path, params, opts) => {
   const paramsUsingStrippedValues = transform(params, (result, value, key) => {
-    // null and empty arrays gets stripped out of the form data, so we can end up with an
-    // empty form data body, which is an error.
+    // null gets stripped out of the form data, so we can end up with an empty form data body, which is an error.
     // We only need to worry about this at the top level- if a nested object field is null,
     // it'll get converted to empty string in visitor (or automatically by axios).
     // Axios form serialization is finnicky so there's a good change this code
     // will be incorrect in a future upgrade.
     result[key] = value === null ? "" : value;
-    if (value instanceof Array && value.length === 0) {
-      result[key] = "[]";
+    // If an array is empty, it can't be submitted in the multipart form because there are no items to submit.
+    // See https://axios-http.com/docs/multipart;
+    // for example,we can't do `formData.append('arr2[0]', '1');`, because arr2 is empty.
+    // In this case, add a special <key>_doemptyarray key to the form;
+    // the API endpoints look for this special key and will empty-out the array if present.
+    if (isArray(value) && value.length === 0) {
+      result[`${key}_doemptyarray`] = true;
     }
   });
   return instance.postForm(path, paramsUsingStrippedValues, opts);

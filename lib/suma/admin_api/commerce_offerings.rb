@@ -89,7 +89,9 @@ class Suma::AdminAPI::CommerceOfferings < Suma::AdminAPI::V1
         optional(:fulfillment_prompt, type: JSON) { use :translated_text, allow_blank: true  }
         optional(:fulfillment_instructions, type: JSON) { use :translated_text, allow_blank: true  }
         optional(:fulfillment_confirmation, type: JSON) { use :translated_text, allow_blank: true  }
-        optional :fulfillment_options, type: Array, coerce_with: MultipartArray do
+        optional :fulfillment_options,
+                 type: Array,
+                 coerce_with: proc { |s| s.values.each_with_index.map { |fo, ordinal| fo.merge(ordinal:) } } do
           requires :type, type: String, values: Suma::Commerce::OfferingFulfillmentOption::TYPES
           requires(:description, type: JSON) { use :translated_text }
           optional(:address, type: JSON) { use :address }
@@ -116,7 +118,9 @@ class Suma::AdminAPI::CommerceOfferings < Suma::AdminAPI::V1
         optional(:fulfillment_prompt, type: JSON) { use :translated_text, allow_blank: true }
         optional(:fulfillment_instructions, type: JSON) { use :translated_text, allow_blank: true }
         optional(:fulfillment_confirmation, type: JSON) { use :translated_text, allow_blank: true }
-        optional :fulfillment_options, type: Array, coerce_with: MultipartArray do
+        optional :fulfillment_options,
+                 type: Array,
+                 coerce_with: proc { |s| s.values.each_with_index.map { |fo, ordinal| fo.merge(ordinal:) } } do
           optional :id, type: Integer
           requires :type, type: String, values: Suma::Commerce::OfferingFulfillmentOption::TYPES
           requires(:description, type: JSON) { use :translated_text }

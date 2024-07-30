@@ -59,13 +59,4 @@ module Suma::Service::Types
       return arr.map { |v| Integer(v) }
     end
   end
-
-  class MultipartArray
-    def self.parse(value)
-      # multipart empty arrays are stringified
-      return [] if value === "[]"
-      # supports adding ordinal per array index
-      return value.values.each_with_index.map { |fo, ordinal| fo.merge(ordinal:) }
-    end
-  end
 end
