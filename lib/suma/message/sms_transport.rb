@@ -10,6 +10,8 @@ class Suma::Message::SmsTransport < Suma::Message::Transport
   include Appydays::Configurable
   include Appydays::Loggable
 
+  class UnknownVerificationId < StandardError; end
+
   register_transport(:sms)
 
   configurable(:sms) do
@@ -23,6 +25,35 @@ class Suma::Message::SmsTransport < Suma::Message::Transport
     setting :verification_code_regex, '\b(\d+)\b'
     # If set, disable SMS (but allow verifications)
     setting :provider_disabled, false
+  end
+
+  class << self
+    # Return true if the delivery uses the verification template.
+    # @param d [Suma::Message::Delivery]
+    def verification_delivery?(d) = d.template == self.verification_template
+
+    # Given the response from the verification service (like a Twilio response),
+    # return a suitable string for the delivery's +transport_message_id+ column.
+    # The value returned from this must be parseable back into a verification service ID
+    # in +transport_message_id_to_verification_id+.
+    # @return [String]
+    def verification_transport_message_id(sid, sid_disambiguator)
+      vtmid = "TV-#{sid}-#{sid_disambiguator}"
+      return vtmid
+    end
+
+    # Given a +transport_message_id+, return an ID that can be used for the verification service.
+    # If the ID cannot be verified, raise an error.
+    # @param tmid [String]
+    # @return [String]
+    def transport_message_id_to_verification_id(tmid)
+      if tmid.starts_with?("TV-")
+        part = tmid[3..]
+        idpart = part.rpartition("-")[0]
+        return idpart
+      end
+      raise UnknownVerificationId, "Could not figure out how to parse a verification id from #{tmid}"
+    end
   end
 
   attr_accessor :allowlist
@@ -67,7 +98,7 @@ class Suma::Message::SmsTransport < Suma::Message::Transport
       self.allowlisted_phone?(to_phone)
 
     body = delivery.bodies.first.content
-    if delivery.template == self.class.verification_template
+    if self.class.verification_delivery?(delivery)
       self.logger.info("send_verification_sms", to: to_phone)
       rmatch = Regexp.new(self.class.verification_code_regex).match(body.strip)
       raise "Cannot extract verification code from '#{body}' using '#{self.class.verification_code_regex}'" if
@@ -84,7 +115,7 @@ class Suma::Message::SmsTransport < Suma::Message::Transport
       # If we send the reset code multiple times with multiple deliveries,
       # we get the same SID/message id, but different attempts. Disambiguate them,
       # since we expect message ids to be empty.
-      sid = "#{response.sid}-#{response.send_code_attempts.length}"
+      sid = self.class.verification_transport_message_id(response.sid, response.send_code_attempts.length.to_s)
     elsif self.class.provider_disabled
       self.logger.warn("sms_provider_disabled", phone: to_phone, body:)
       raise Suma::Message::Transport::UndeliverableRecipient, "SMS provider disabled"

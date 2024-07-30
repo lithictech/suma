@@ -12,16 +12,17 @@ class Suma::Member::ResetCode < Suma::Postgres::Model(:member_reset_codes)
   plugin :timestamps
 
   many_to_one :member, class: Suma::Member
+  many_to_one :message_delivery, class: "Suma::Message::Delivery"
 
   dataset_module do
     def usable
-      return self.where(Sequel[used: false] & Sequel.expr { expire_at > Sequel.function(:now) })
+      return self.where(Sequel[used: false, canceled: false] & Sequel.expr { expire_at > Time.now })
     end
   end
 
   def self.replace_active(member, transport:, **options)
     self.db.transaction do
-      member.reset_codes_dataset.where(transport:).usable.update(expire_at: Sequel.function(:now))
+      member.reset_codes_dataset.where(transport:).usable.each(&:expire!)
       return self.create(member:, transport:, **options)
     end
   end
@@ -47,34 +48,31 @@ class Suma::Member::ResetCode < Suma::Postgres::Model(:member_reset_codes)
   end
 
   def expire!
-    self.update(expire_at: Time.now)
+    self.update(expire_at: Time.now, canceled: true)
     return self
   end
 
-  def expired?
-    return self.expire_at < Time.now
-  end
+  def expired? = self.expire_at < Time.now
 
   def use!
-    now = Time.now
-    self.member.reset_codes_dataset.usable.update(expire_at: now)
-    self.update(used: true, expire_at: now)
+    self.member.reset_codes_dataset.usable.exclude(id: self.id).each(&:expire!)
+    self.update(used: true, expire_at: Time.now)
     return self
   end
 
-  def used?
-    return self.used
-  end
+  def used? = self.used
 
   def usable?
     return false if self.used?
     return !self.expired?
   end
 
+  def canceled? = self.canceled
+
   def dispatch_message
     msg = Suma::Messages::Verification.new(self)
     msg.language = self.member.message_preferences!.preferred_language
-    case self.transport
+    self.message_delivery = case self.transport
       when "sms"
         msg.dispatch_sms(self.member)
       when "email"
@@ -82,6 +80,7 @@ class Suma::Member::ResetCode < Suma::Postgres::Model(:member_reset_codes)
       else
         raise TypeError, "Unknown transport for #{self.inspect}"
     end
+    self.save_changes
   end
 
   #

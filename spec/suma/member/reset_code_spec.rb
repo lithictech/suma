@@ -17,11 +17,13 @@ RSpec.describe "Suma::Member::ResetCode", :db do
     expect(reset_code).to be_usable
     expect(reset_code).to_not be_expired
     expect(reset_code).to_not be_used
+    expect(reset_code).to_not be_canceled
     reset_code.expire!
     expect(reset_code.expire_at).to be_within(1.minute).of(Time.now)
     expect(reset_code).to_not be_usable
     expect(reset_code).to be_expired
     expect(reset_code).to_not be_used
+    expect(reset_code).to be_canceled
   end
 
   describe "using" do
@@ -41,12 +43,21 @@ RSpec.describe "Suma::Member::ResetCode", :db do
       expect(other_code).to be_usable
       expect(other_code).to_not be_expired
       expect(other_code).to_not be_used
+      expect(other_code).to_not be_canceled
 
       reset_code.use!
+
       expect(other_code.refresh.expire_at).to be_within(1.minute).of(Time.now)
       expect(other_code).to_not be_usable
       expect(other_code).to be_expired
       expect(other_code).to_not be_used
+      expect(other_code).to be_canceled
+
+      expect(reset_code.refresh.expire_at).to be_within(1.minute).of(Time.now)
+      expect(reset_code).to_not be_usable
+      expect(reset_code).to be_expired
+      expect(reset_code).to be_used
+      expect(reset_code).to_not be_canceled
     end
   end
 
@@ -94,6 +105,7 @@ RSpec.describe "Suma::Member::ResetCode", :db do
           bodies: include(have_attributes(mediatype: "subject", content: "Su código de verificación suma")),
         ),
       )
+      expect(code.refresh.message_delivery).to be === Suma::Message::Delivery.first
     end
   end
 
@@ -109,11 +121,11 @@ RSpec.describe "Suma::Member::ResetCode", :db do
       new = described_class.replace_active(member, token: "abc", transport: "sms")
       expect(new).to have_attributes(token: "abc")
       # Ensure these do not change
-      expect(described_class[used.id]).to have_attributes(expire_at: used.expire_at)
-      expect(described_class[expired.id]).to have_attributes(expire_at: expired.expire_at)
-      expect(described_class[valid_email.id]).to have_attributes(expire_at: valid_email.expire_at)
+      expect(described_class[used.id]).to have_attributes(expire_at: used.expire_at, canceled: false)
+      expect(described_class[expired.id]).to have_attributes(expire_at: expired.expire_at, canceled: false)
+      expect(described_class[valid_email.id]).to have_attributes(expire_at: valid_email.expire_at, canceled: false)
       # Ensure this one expired
-      expect(described_class[valid_sms.id]).to have_attributes(expire_at: match_time(:now))
+      expect(described_class[valid_sms.id]).to have_attributes(expire_at: match_time(:now), canceled: true)
     end
   end
 end
