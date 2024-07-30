@@ -760,6 +760,31 @@ RSpec.describe Suma::Service, :db do
       expect(last_response).to have_status(401)
     end
 
+    describe "with a legacy session" do
+      it "creates a new session and uses the new session format" do
+        # Need to set the id explicitly since the hash is appended to the cookie value string,
+        # and we're using a verbatim value rather than dynamically creating the encrypted cookie string.
+        member.this.update(id: 131)
+        member = Suma::Member[131]
+        Suma::Service.cookie_config[:coder].encode(
+          {
+            "session_id" => "e77affbdceca795a52e890e1a7565f2026907ebdf6b0b2724003249b6d57e8d5",
+            "_" => "_",
+            "warden.user.member.key" => 131,
+          },
+        )
+        header(
+          "Cookie",
+          # rubocop:disable Layout/LineLength
+          "suma.session=eJwNzFEKgzAMANC75FskjaaxXqY0JgURHVjGGLK7r1%2Fv7z3QvLX9deXdYAUXKbWqbb4VSVyYfEnooQhHroQUE4qr1aioJDQjTjQnjcbiizEMkHuTu59ym1%2Fju%2Fk9nn5q5%2FAvrGEKvz9CAyMe--18911f8d554fe3fea8ab59eda6d1f99ff6afcdcf",
+          # rubocop:enable Layout/LineLength
+        )
+        get "/current_member"
+        expect(last_response).to have_status(200)
+        expect(member.refresh.sessions).to include(have_attributes(token: start_with("ses_")))
+      end
+    end
+
     describe "session validation", reset_configuration: described_class do
       before(:each) do
         post "/set_member", id: member.id
