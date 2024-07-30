@@ -13,6 +13,7 @@ module Suma::UrlShortener
     setting :table, :url_shortener
     setting :not_found_url, "https://mysuma.org/404"
     setting :byte_size, 2
+    setting :disabled, false
   end
 
   class << self
@@ -29,7 +30,12 @@ module Suma::UrlShortener
       return ::UrlShortener.new(**opts)
     end
 
+    def enabled? = !self.disabled
+
     # @return [UrlShortener]
-    def shortener = @shortener ||= new_shortener
+    def shortener
+      return nil unless self.enabled?
+      return @shortener ||= new_shortener
+    end
   end
 end

@@ -124,6 +124,20 @@ RSpec.describe Suma::AnonProxy::MessageHandler, :db do
       )
     end
 
+    it "can skip url shortening", reset_configuration: Suma::UrlShortener do
+      Suma::UrlShortener.disabled = true
+      got = Suma::AnonProxy::MessageHandler.handle(
+        Suma::AnonProxy::Relay.create!("fake-relay"),
+        signin_message,
+      )
+      expect(got).to have_attributes(vendor_account:, outbound_delivery: nil)
+      expect(vendor_account.refresh).to have_attributes(
+        latest_access_code: "M1ZgpMepjL5kW9XgzCmnsBKQ",
+        latest_access_code_magic_link: start_with("https://limebike.app.link"),
+        latest_access_code_set_at: match_time(:now),
+      )
+    end
+
     it "parses an confirmation access code code, assigns it to the vendor account, and sends it via SMS" do
       got = Suma::AnonProxy::MessageHandler.handle(
         Suma::AnonProxy::Relay.create!("fake-relay"),
