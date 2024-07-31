@@ -72,29 +72,6 @@ class Suma::AdminAPI::AnonProxy < Suma::AdminAPI::V1
         Suma::AnonProxy::VendorConfiguration,
         DetailedVendorConfigurationEntity,
       )
-
-      route_param :id, type: Integer do
-        params do
-          requires :constraint_ids, type: Array[Integer], coerce_with: CommaSepArray[Integer]
-        end
-        post :eligibilities do
-          config = Suma::AnonProxy::VendorConfiguration[params[:id]]
-          params[:constraint_ids].each do |id|
-            Suma::Eligibility::Constraint[id] or adminerror!(403, "Unknown eligibility constraint: #{id}")
-          end
-          config.replace_eligibility_constraints(params[:constraint_ids])
-          summary = config.eligibility_constraints_dataset.select_map(:name).join(", ")
-          admin_member.add_activity(
-            message_name: "eligibilitychange",
-            summary: "Admin #{admin_member.email} modified eligibilities of #{config.model}[#{config.id}]: #{summary}",
-            subject_type: config.model,
-            subject_id: config.id,
-          )
-
-          status 200
-          present config, with: DetailedVendorConfigurationEntity
-        end
-      end
     end
   end
 end

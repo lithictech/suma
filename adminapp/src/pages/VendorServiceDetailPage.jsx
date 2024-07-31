@@ -80,6 +80,40 @@ export default function VendorServiceDetailPage() {
               <Money key="undiscounted_surcharge">{row.undiscountedSurcharge}</Money>,
             ]}
           />
+          <RelatedList
+            title="Mobility Trips"
+            rows={model.mobilityTrips}
+            headers={[
+              "Id",
+              "Created",
+              "Vehicle Id",
+              "Rate",
+              "Began",
+              "Ended",
+              "Begin Latitude",
+              "Begin Longitude",
+              "Ending Latitude",
+              "Ending Longitude",
+              "Total Cost",
+              "Discount Amount",
+            ]}
+            keyRowAttr="id"
+            toCells={(row) => [
+              row.id,
+              dayjs(row.createdAt).format("lll"),
+              row.vehicleId,
+              row.rate.name,
+              // This formatting shows date and time with seconds
+              dayjs(row.beganAt).format("ll LTS"),
+              dayjs(row.endedAt).format("ll LTS"),
+              row.beginLat,
+              row.beginLng,
+              row.endLat,
+              row.endLng,
+              <Money>{row.totalCost}</Money>,
+              <Money>{row.discountAmount}</Money>,
+            ]}
+          />
         </>
       )}
     </ResourceDetail>
