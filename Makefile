@@ -84,7 +84,7 @@ integration-test-task:
 	INTEGRATION_TESTS=true bundle exec rake specs:integration
 
 annotate:
-	LOG_LEVEL=info bundle exec rake annotate
+	RACK_ENV=test LOG_LEVEL=info bundle exec rake annotate
 
 psql: cmd-exists-pgcli
 	pgcli postgres://suma:suma@localhost:22005/suma
