@@ -5,9 +5,9 @@ require "sequel/plugins/association_array_replacer"
 RSpec.describe Sequel::Plugins::AssociationArrayReplacer, :db do
   before(:all) do
     @db = Suma::Postgres::Model.db
-    @db.create_table(:items, temp: true) do
+    @db.create_table(:arrayreplacertest, temp: true) do
       primary_key :id
-      foreign_key :parent_id, :items
+      foreign_key :parent_id, :arrayreplacertest
     end
   end
   after(:all) do
@@ -17,7 +17,7 @@ RSpec.describe Sequel::Plugins::AssociationArrayReplacer, :db do
   describe "configuration" do
     it "errors if the pks plugin is not loaded" do
       expect do
-        Class.new(Sequel::Model(:items)) do
+        Class.new(Sequel::Model(:arrayreplacertest)) do
           one_to_many :others, key: :parent_id, class: self
           plugin :association_array_replacer, :others
         end
@@ -26,7 +26,7 @@ RSpec.describe Sequel::Plugins::AssociationArrayReplacer, :db do
 
     it "errors for an invalid association" do
       expect do
-        Class.new(Sequel::Model(:items)) do
+        Class.new(Sequel::Model(:arrayreplacertest)) do
           plugin :association_pks
           plugin :association_array_replacer, :others
         end
@@ -35,7 +35,7 @@ RSpec.describe Sequel::Plugins::AssociationArrayReplacer, :db do
   end
 
   it "allows replacement of an _to_many array" do
-    cls = Class.new(Sequel::Model(:items)) do
+    cls = Class.new(Sequel::Model(:arrayreplacertest)) do
       plugin :association_pks
       one_to_many :others, key: :parent_id, class: self
       plugin :association_array_replacer, :others
