@@ -10,17 +10,11 @@ import { Link } from "react-router-dom";
 
 export default function VendibleCard({ name, image, until, link, className }) {
   return (
-    <Card className={clsx("rounded-5", className)}>
+    <Card className={clsx(className)}>
       <Card.Body className="p-2">
         <Stack direction="horizontal" gap={3}>
           <Link to={link} className="flex-shrink-0">
-            <SumaImage
-              image={image}
-              width={100}
-              h={80}
-              alt={name}
-              className="rounded-5"
-            />
+            <SumaImage image={image} width={100} h={80} alt={name} />
           </Link>
           <div>
             <Card.Link

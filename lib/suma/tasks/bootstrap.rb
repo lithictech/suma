@@ -25,6 +25,7 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
       Mobility.new.fixture
       AnonProxy.new.fixture
       Commerce.new.fixture
+      Vendible.new.fixture
     end
   end
 
@@ -398,6 +399,23 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
         receiving_ledger_name: "Farmers Market Match Demo",
         receiving_ledger_contribution_text: Suma::TranslatedText.find_or_create(en: "FM Match", es: "FM Match (es)"),
       )
+    end
+  end
+
+  class Vendible
+    def fixture
+      lime_name = Suma::TranslatedText.find_or_create(en: "Lime Scooter Rides", es: "Lime Scooter Rides (ES)")
+      lime_group = Suma::Vendible::Group.find_or_create(name: lime_name)
+      if lime_group.vendor_services.empty?
+        vs = Suma::Vendor::Service[internal_name: "Demo Mobility Deeplink"]
+        lime_group.add_vendor_service(vs)
+      end
+
+      fm_name = Suma::TranslatedText.find_or_create(en: "Farmers Markets", es: "Farmers Markets (ES)")
+      fm_group = Suma::Vendible::Group.find_or_create(name: fm_name)
+      return unless fm_group.commerce_offerings.empty?
+      fm_group.add_commerce_offering(Suma::Commerce::Offering[confirmation_template: "2022-12-pilot-confirmation"])
+      fm_group.add_commerce_offering(Suma::Commerce::Offering[confirmation_template: "2023-07-pilot-confirmation"])
     end
   end
 end

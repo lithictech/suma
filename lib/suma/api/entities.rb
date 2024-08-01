@@ -35,7 +35,7 @@ module Suma::API::Entities
   end
 
   class VendibleEntity < BaseEntity
-    expose :name
+    expose_translated :name
     expose :until
     expose :image, with: ImageEntity
     expose :link
