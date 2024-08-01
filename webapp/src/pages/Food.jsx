@@ -41,11 +41,9 @@ export default function Food() {
           <>
             <h4 className="mb-3">{t("food:current_offerings")}</h4>
             <Stack gap={3}>
-              {items.map((o) => {
-                console.log(o, o.vendible);
-
-                return <VendibleCard key={o.id} {...o.vendible} />;
-              })}
+              {items.map((o) => (
+                <VendibleCard key={o.id} {...o.vendible} />
+              ))}
             </Stack>
           </>
         ) : (

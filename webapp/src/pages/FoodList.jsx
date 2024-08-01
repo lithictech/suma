@@ -52,7 +52,7 @@ export default function FoodList() {
   if (loading) {
     return <PageLoader buffered />;
   }
-  const title = makeTitle(offering.name, t("food:title"));
+  const title = makeTitle(offering.description, t("food:title"));
   return (
     <>
       <Helmet>
@@ -73,7 +73,7 @@ export default function FoodList() {
         startElement={<LinearBreadcrumbs back="/food" noBottom />}
       />
       <LayoutContainer gutters>
-        <h2 className="mb-3">{offering.name}</h2>
+        <h2 className="mb-3">{offering.description}</h2>
         {isEmpty(products) ? (
           <>
             {t("food:no_products")}
