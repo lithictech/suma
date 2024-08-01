@@ -104,6 +104,24 @@ RSpec.describe Suma::AdminAPI::CommerceOfferings, :db do
       expect(off.fulfillment_options[0]).to have_attributes(address: be_present, ordinal: 0)
       expect(off.fulfillment_options[1]).to have_attributes(address: be_nil, ordinal: 1)
     end
+
+    it "handles the fulfillment_options_doemptyarray: param" do
+      photo_file = File.open("spec/data/images/photo.png", "rb")
+      image = Rack::Test::UploadedFile.new(photo_file, "image/png", true)
+
+      post "/v1/commerce_offerings/create",
+           image:,
+           description: {en: "EN test", es: "ES test"},
+           fulfillment_prompt: {en: "EN prompt", es: "ES prompt"},
+           fulfillment_instructions: {en: "", es: ""},
+           fulfillment_confirmation: {en: "EN confirmation", es: "ES confirmation"},
+           fulfillment_options_doemptyarray: true,
+           period_begin: "2023-07-01T00:00:00-0700",
+           period_end: "2023-10-01T00:00:00-0700"
+
+      expect(last_response).to have_status(200)
+      expect(Suma::Commerce::Offering.first).to have_attributes(fulfillment_options: be_empty)
+    end
   end
 
   describe "GET /v1/commerce_offerings/:id" do
@@ -183,6 +201,16 @@ RSpec.describe Suma::AdminAPI::CommerceOfferings, :db do
         have_attributes(id: to_update.id, ordinal: 0, description: have_attributes(en: "EN updated")),
         have_attributes(ordinal: 1, description: have_attributes(en: "EN added")),
       )
+    end
+
+    it "handles the fulfillment_options_doemptyarray: param" do
+      o = Suma::Fixtures.offering.create
+      o.add_fulfillment_option(Suma::Fixtures.offering_fulfillment_option.create)
+
+      post "/v1/commerce_offerings/#{o.id}", fulfillment_options_doemptyarray: true
+
+      expect(last_response).to have_status(200)
+      expect(o.refresh.fulfillment_options).to be_empty
     end
 
     it "handles create/remove/update of sub-nested resources" do

@@ -21,16 +21,20 @@ module Suma::AdminAPI::CommonEndpoints
     end
 
     def update_model(m, orig_params, save: true)
-      params = orig_params.deep_symbolize_keys
-      params.delete(:id)
+      # orig_params: the declared parameters passed in
+      # cparams: the cleaned orig_params
+      # mparams: the model association params
+      cparams = orig_params.deep_symbolize_keys
+      cparams.delete(:id)
+      _handle_doemptyarray_params(params, cparams)
       mtype = m.class
       images = []
       to_many_assocs_and_args = []
       to_one_assocs_and_params = []
       fk_attrs = {}
-      params.to_a.each do |(k, v)|
+      cparams.to_a.each do |(k, v)|
         next unless (assoc = mtype.association_reflections[k])
-        params.delete(k)
+        cparams.delete(k)
         if assoc[:type].to_s.end_with?("_to_one")
           if v.nil?
             fk_attrs[assoc[:name]] = nil
@@ -56,7 +60,7 @@ module Suma::AdminAPI::CommonEndpoints
           to_many_assocs_and_args << [assoc, v]
         end
       end
-      m.set(model_field_params(m, params))
+      m.set(model_field_params(m, cparams))
       m.set(fk_attrs)
       save_or_error!(m) if save
       images.each { |im| m.add_image(im) }
@@ -144,6 +148,16 @@ module Suma::AdminAPI::CommonEndpoints
     rescue ThrowNeedsRollback => e
       throw :error, e.thrown
     end
+
+    def _handle_doemptyarray_params(all_params, cparams)
+      suffix = "_doemptyarray"
+      suffix_len = suffix.length
+      all_params.each do |k, v|
+        next unless k.end_with?(suffix) && v
+        raw_array_key = k[...-suffix_len]
+        cparams[raw_array_key.to_sym] = []
+      end
+    end
   end
 
   def self.list(route_def, model_type, entity, search_params: [], translation_search_params: [])
@@ -187,14 +201,19 @@ module Suma::AdminAPI::CommonEndpoints
     end
   end
 
-  def self.create(route_def, model_type, entity, &)
+  def self.create(route_def, model_type, entity, around: nil, &)
+    around ||= ->(*, &b) { b.call }
     route_def.instance_exec do
       helpers MutationHelpers
       yield
       post :create do
         _throwsafe_transaction(model_type.db) do
           m = model_type.new
-          update_model(m, declared_and_provided_params(params))
+          around.call(self, m) do
+            # Must be done INSIDE of 'around' in case it modifies `params`.
+            dparams = declared_and_provided_params(params)
+            update_model(m, dparams)
+          end
           created_resource_headers(m.id, m.admin_link)
           status 200
           present m, with: entity
