@@ -55,6 +55,7 @@ end
 #  commerce_offering_fulfillment_options | commerce_offering_fulfillment_options_description_id_fkey   | (description_id) REFERENCES translated_texts(id)
 #  commerce_offerings                    | commerce_offerings_description_id_fkey                      | (description_id) REFERENCES translated_texts(id)
 #  commerce_offerings                    | commerce_offerings_fulfillment_confirmation_id_fkey         | (fulfillment_confirmation_id) REFERENCES translated_texts(id)
+#  commerce_offerings                    | commerce_offerings_fulfillment_instructions_id_fkey         | (fulfillment_instructions_id) REFERENCES translated_texts(id)
 #  commerce_offerings                    | commerce_offerings_fulfillment_prompt_id_fkey               | (fulfillment_prompt_id) REFERENCES translated_texts(id)
 #  commerce_products                     | commerce_products_description_id_fkey                       | (description_id) REFERENCES translated_texts(id)
 #  commerce_products                     | commerce_products_name_id_fkey                              | (name_id) REFERENCES translated_texts(id)

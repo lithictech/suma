@@ -289,7 +289,7 @@ end
 #  bank_account_id         | integer                  |
 #  card_id                 | integer                  |
 #  save_payment_instrument | boolean                  | NOT NULL DEFAULT false
-#  fulfillment_option_id   | integer                  | NOT NULL
+#  fulfillment_option_id   | integer                  |
 # Indexes:
 #  commerce_checkouts_pkey          | PRIMARY KEY btree (id)
 #  commerce_checkouts_cart_id_index | UNIQUE btree (cart_id) WHERE completed_at IS NULL AND soft_deleted_at IS NULL

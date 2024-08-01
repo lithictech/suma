@@ -198,12 +198,14 @@ require "suma/commerce/offering_picklist"
 #  fulfillment_confirmation_id  | integer                  | NOT NULL
 #  max_ordered_items_cumulative | integer                  |
 #  max_ordered_items_per_member | integer                  |
+#  fulfillment_instructions_id  | integer                  | NOT NULL
 # Indexes:
 #  commerce_offerings_pkey                       | PRIMARY KEY btree (id)
 #  commerce_offerings_begin_fulfillment_at_index | btree (begin_fulfillment_at)
 # Foreign key constraints:
 #  commerce_offerings_description_id_fkey              | (description_id) REFERENCES translated_texts(id)
 #  commerce_offerings_fulfillment_confirmation_id_fkey | (fulfillment_confirmation_id) REFERENCES translated_texts(id)
+#  commerce_offerings_fulfillment_instructions_id_fkey | (fulfillment_instructions_id) REFERENCES translated_texts(id)
 #  commerce_offerings_fulfillment_prompt_id_fkey       | (fulfillment_prompt_id) REFERENCES translated_texts(id)
 # Referenced By:
 #  commerce_carts                        | commerce_carts_offering_id_fkey                        | (offering_id) REFERENCES commerce_offerings(id)

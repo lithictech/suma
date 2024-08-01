@@ -134,5 +134,6 @@ end
 #  message_deliveries_recipient_id_fkey | (recipient_id) REFERENCES members(id) ON DELETE SET NULL
 # Referenced By:
 #  anon_proxy_vendor_account_messages | anon_proxy_vendor_account_messages_outbound_delivery_id_fkey | (outbound_delivery_id) REFERENCES message_deliveries(id)
+#  member_reset_codes                 | member_reset_codes_message_delivery_id_fkey                  | (message_delivery_id) REFERENCES message_deliveries(id)
 #  message_bodies                     | message_bodies_delivery_id_fkey                              | (delivery_id) REFERENCES message_deliveries(id) ON DELETE CASCADE
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------

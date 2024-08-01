@@ -146,6 +146,7 @@ end
 #  amount_cents                          | integer                  | NOT NULL
 #  amount_currency                       | text                     | NOT NULL
 #  memo_id                               | integer                  | NOT NULL
+#  actor_id                              | integer                  |
 # Indexes:
 #  payment_book_transactions_pkey                        | PRIMARY KEY btree (id)
 #  payment_book_transactions_originating_ledger_id_index | btree (originating_ledger_id)
@@ -153,6 +154,7 @@ end
 # Check constraints:
 #  amount_not_negative | (amount_cents >= 0)
 # Foreign key constraints:
+#  payment_book_transactions_actor_id_fkey                         | (actor_id) REFERENCES members(id) ON DELETE SET NULL
 #  payment_book_transactions_associated_vendor_service_catego_fkey | (associated_vendor_service_category_id) REFERENCES vendor_service_categories(id)
 #  payment_book_transactions_memo_id_fkey                          | (memo_id) REFERENCES translated_texts(id)
 #  payment_book_transactions_originating_ledger_id_fkey            | (originating_ledger_id) REFERENCES payment_ledgers(id)
