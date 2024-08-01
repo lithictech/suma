@@ -263,13 +263,15 @@ class Suma::API::Commerce < Suma::API::V1
 
   class OfferingEntity < BaseEntity
     expose :id
-    expose_translated :description, as: :name
+    expose_translated :description
     expose_translated :fulfillment_prompt
     expose_translated :fulfillment_confirmation
     expose_translated :fulfillment_instructions
-    expose :period_end, as: :until
+    expose :period_end, as: :closes_at
     expose :image, with: Suma::API::Entities::ImageEntity, &self.delegate_to(:images?, :first)
-    expose :rel_app_link, as: :link
+    expose :vendible, with: Suma::API::Entities::VendibleEntity do |inst|
+      Suma::Vendible.from_commerce_offering(inst)
+    end
   end
 
   class BaseOfferingProductEntity < BaseEntity

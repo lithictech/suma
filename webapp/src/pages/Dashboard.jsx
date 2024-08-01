@@ -3,9 +3,9 @@ import foodHeaderImage from "../assets/images/onboarding-food.jpg";
 import AddToHomescreen from "../components/AddToHomescreen";
 import ExternalLink from "../components/ExternalLink";
 import LayoutContainer from "../components/LayoutContainer";
-import OfferingCard from "../components/OfferingCard";
 import PageLoader from "../components/PageLoader";
 import SeeAlsoAlert from "../components/SeeAlsoAlert";
+import VendibleCard from "../components/VendibleCard";
 import { t } from "../localization";
 import externalLinks from "../modules/externalLinks";
 import readOnlyReason from "../modules/readOnlyReason";
@@ -51,7 +51,7 @@ export default function Dashboard() {
             {dashboard.vendibleGroupings.map(({ name, vendibles }) => (
               <HamburgerSection key={name} name={name}>
                 {vendibles.map((v) => (
-                  <OfferingCard key={v.name} {...v} className="border-0" />
+                  <VendibleCard key={v.name} {...v.vendible} className="border-0" />
                 ))}
               </HamburgerSection>
             ))}

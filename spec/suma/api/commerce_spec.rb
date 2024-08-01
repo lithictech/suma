@@ -61,7 +61,7 @@ RSpec.describe Suma::API::Commerce, :db do
 
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.that_includes(
-        offering: include(id: offering.id, name: offering.description.en),
+        offering: include(id: offering.id, description: offering.description.en),
         cart: include(items: []),
         vendors: contain_exactly(include(id: vendor.id)),
       )

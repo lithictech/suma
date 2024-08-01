@@ -8,7 +8,7 @@ import Card from "react-bootstrap/Card";
 import Stack from "react-bootstrap/Stack";
 import { Link } from "react-router-dom";
 
-export default function OfferingCard({ name, image, until, link, className }) {
+export default function VendibleCard({ name, image, until, link, className }) {
   return (
     <Card className={clsx("rounded-5", className)}>
       <Card.Body className="p-2">

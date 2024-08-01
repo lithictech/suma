@@ -2,9 +2,9 @@ import api from "../api";
 import foodHeaderImage from "../assets/images/onboarding-food.jpg";
 import ErrorScreen from "../components/ErrorScreen";
 import LayoutContainer from "../components/LayoutContainer";
-import OfferingCard from "../components/OfferingCard";
 import PageLoader from "../components/PageLoader";
 import RLink from "../components/RLink";
+import VendibleCard from "../components/VendibleCard";
 import WaitingListPage from "../components/WaitingListPage";
 import { t } from "../localization";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
@@ -42,7 +42,7 @@ export default function Food() {
             <h4 className="mb-3">{t("food:current_offerings")}</h4>
             <Stack gap={3}>
               {items.map((o) => (
-                <OfferingCard key={o.id} {...o} />
+                <VendibleCard key={o.id} {...o.vendible} />
               ))}
             </Stack>
           </>
