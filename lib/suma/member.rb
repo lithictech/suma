@@ -43,6 +43,7 @@ class Suma::Member < Suma::Postgres::Model(:members)
 
   plugin :timestamps
   plugin :soft_deletes
+  plugin :association_pks
 
   one_to_many :activities, class: "Suma::Member::Activity", order: Sequel.desc([:created_at, :id])
   many_through_many :bank_accounts,
@@ -99,6 +100,8 @@ class Suma::Member < Suma::Postgres::Model(:members)
                  right_key: :constraint_id,
                  left_key: "#{mt}_member_id".to_sym
   end
+
+  plugin :association_array_replacer, :roles
 
   dataset_module do
     def with_email(*emails)
@@ -171,14 +174,6 @@ class Suma::Member < Suma::Postgres::Model(:members)
     self.associations.delete(:pending_eligibility_constraints)
     self.associations.delete(:rejected_eligibility_constraints)
     return self
-  end
-
-  def replace_roles(roles)
-    ids = roles.map(&:id)
-    to_remove = self.roles_dataset.exclude(id: ids)
-    to_add = Suma::Role.where(id: ids).exclude(id: self.roles_dataset.select(:id))
-    to_add.each { |c| self.add_role(c) }
-    to_remove.each { |c| self.remove_role(c) }
   end
 
   def greeting

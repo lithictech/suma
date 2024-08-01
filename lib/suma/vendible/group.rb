@@ -16,6 +16,7 @@ class Suma::Vendible::Group < Suma::Postgres::Model(:vendible_groups)
   include Suma::AdminLinked
 
   plugin :translated_text, :name, Suma::TranslatedText
+  plugin :association_pks
 
   many_to_many :vendor_services,
                class: "Suma::Vendor::Service",
@@ -29,6 +30,8 @@ class Suma::Vendible::Group < Suma::Postgres::Model(:vendible_groups)
                left_key: :group_id,
                right_key: :offering_id
 
+  plugin :association_array_replacer, :vendor_services, :commerce_offerings
+
   # All the vendible items or goods for this group.
   # @return [Array<Suma::Vendible>]
   def vendibles
@@ -37,28 +40,6 @@ class Suma::Vendible::Group < Suma::Postgres::Model(:vendible_groups)
     end
     vendibles.sort_by! { |v| [v.name.en, v.until] }
     return vendibles
-  end
-
-  def replace_commerce_offerings(offerings)
-    self.replace_association_models(offerings, :commerce_offerings)
-  end
-
-  def replace_vendor_services(services)
-    self.replace_association_models(services, :vendor_services)
-  end
-
-  def replace_association_models(models, assoc_name)
-    self.db.transaction do
-      model_ids = models.map(&:id)
-      assoc_ref = self.class.association_reflections.fetch(assoc_name)
-      assoc_class = assoc_ref.fetch(:class_name).constantize
-      assoc_dataset = self.send(assoc_ref.fetch(:dataset_method))
-
-      to_remove = assoc_dataset.exclude(id: model_ids)
-      to_add = assoc_class.where(id: model_ids).exclude(id: assoc_dataset.select(:id))
-      to_add.each { |model| self.send(assoc_ref.fetch(:add_method), model) }
-      to_remove.each { |model| self.send(assoc_ref.fetch(:remove_method), model) }
-    end
   end
 
   def rel_admin_link = "/vendible-group/#{self.id}"
