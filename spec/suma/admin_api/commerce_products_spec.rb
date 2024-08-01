@@ -111,7 +111,6 @@ RSpec.describe Suma::AdminAPI::CommerceProducts, :db do
       photo_file = File.open("spec/data/images/photo.png", "rb")
       image = Rack::Test::UploadedFile.new(photo_file, "image/png", true)
       product = Suma::Fixtures.product.create
-      product.add_image({uploaded_file: Suma::Fixtures.uploaded_file.create})
 
       post "/v1/commerce_products/#{product.id}",
            image: image,

@@ -6,9 +6,9 @@ RSpec.describe "Suma::Commerce::Product", :db do
   describe "images" do
     it "orders images by ordinal" do
       p = Suma::Fixtures.product.create
-      i1 = p.add_image({uploaded_file: Suma::Fixtures.uploaded_file.create, ordinal: 1})
-      i3 = p.add_image({uploaded_file: Suma::Fixtures.uploaded_file.create, ordinal: 3})
-      i2 = p.add_image({uploaded_file: Suma::Fixtures.uploaded_file.create, ordinal: 2})
+      i1 = Suma::Fixtures.image.for(p).create(ordinal: 1)
+      i3 = Suma::Fixtures.image.for(p).create(ordinal: 3)
+      i2 = Suma::Fixtures.image.for(p).create(ordinal: 2)
       expect(p.refresh.images).to have_same_ids_as(i1, i2, i3)
     end
   end

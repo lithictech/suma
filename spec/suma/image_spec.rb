@@ -7,9 +7,9 @@ RSpec.describe "Suma::Image", :db do
     describe "images" do
       it "orders images by ordinal" do
         p = Suma::Fixtures.offering.create
-        i3 = p.add_image({uploaded_file: Suma::Fixtures.uploaded_file.create, ordinal: 3})
-        i1 = p.add_image({uploaded_file: Suma::Fixtures.uploaded_file.create, ordinal: 1})
-        i2 = p.add_image({uploaded_file: Suma::Fixtures.uploaded_file.create, ordinal: 2})
+        i3 = Suma::Fixtures.image.for(p).create(ordinal: 3)
+        i1 = Suma::Fixtures.image.for(p).create(ordinal: 1)
+        i2 = Suma::Fixtures.image.for(p).create(ordinal: 2)
         expect(p.refresh.images).to have_same_ids_as(i1, i2, i3)
         expect(p.image).to be === i1
       end
@@ -36,8 +36,7 @@ RSpec.describe "Suma::Image", :db do
   ].each do |(assoc, fac)|
     it "handles the #{assoc} association" do
       related = fac.create
-      img = described_class.new
-      img.associated_object = related
+      img = Suma::Fixtures.image.for(related).create
       expect(img.associated_object).to be(related)
 
       img.associated_object = nil

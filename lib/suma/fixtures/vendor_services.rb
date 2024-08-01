@@ -37,10 +37,6 @@ module Suma::Fixtures::VendorServices
     end
   end
 
-  decorator :with_image, presave: true do |o={}|
-    Suma::Fixtures.image.for(self).create(o)
-  end
-
   decorator :with_constraints, presave: true do |*constraints|
     constraints.each { |c| self.add_eligibility_constraint(c) }
   end

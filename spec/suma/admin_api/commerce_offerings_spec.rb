@@ -179,9 +179,9 @@ RSpec.describe Suma::AdminAPI::CommerceOfferings, :db do
     end
 
     it "handles create/remove/update of nested resources" do
-      o = Suma::Fixtures.offering.create
-      to_remove = o.add_fulfillment_option(Suma::Fixtures.offering_fulfillment_option.create)
-      to_update = o.add_fulfillment_option(Suma::Fixtures.offering_fulfillment_option.create)
+      to_remove = Suma::Fixtures.offering_fulfillment_option.create
+      to_update = Suma::Fixtures.offering_fulfillment_option.create
+      o = Suma::Fixtures.offering.with_fulfillment(to_remove).with_fulfillment(to_update).create
       post "/v1/commerce_offerings/#{o.id}",
            fulfillment_options: {
              "0" => {
@@ -204,8 +204,7 @@ RSpec.describe Suma::AdminAPI::CommerceOfferings, :db do
     end
 
     it "handles the fulfillment_options_doemptyarray: param" do
-      o = Suma::Fixtures.offering.create
-      o.add_fulfillment_option(Suma::Fixtures.offering_fulfillment_option.create)
+      o = Suma::Fixtures.offering.with_fulfillment.create
 
       post "/v1/commerce_offerings/#{o.id}", fulfillment_options_doemptyarray: true
 
@@ -214,13 +213,11 @@ RSpec.describe Suma::AdminAPI::CommerceOfferings, :db do
     end
 
     it "handles create/remove/update of sub-nested resources" do
-      o = Suma::Fixtures.offering.create
-      address_to_remove = Suma::Fixtures.address.create
-      address_to_update = Suma::Fixtures.address.create
-
-      remove = o.add_fulfillment_option(Suma::Fixtures.offering_fulfillment_option.create(address: address_to_remove))
-      update = o.add_fulfillment_option(Suma::Fixtures.offering_fulfillment_option.create(address: address_to_update))
-      add = o.add_fulfillment_option(Suma::Fixtures.offering_fulfillment_option.create)
+      address = Suma::Fixtures.address.create
+      remove = Suma::Fixtures.offering_fulfillment_option.create(address:)
+      update = Suma::Fixtures.offering_fulfillment_option.create(address:)
+      add = Suma::Fixtures.offering_fulfillment_option.create
+      o = Suma::Fixtures.offering.with_fulfillment(add).with_fulfillment(remove).with_fulfillment(update).create
 
       post "/v1/commerce_offerings/#{o.id}",
            fulfillment_options: {
@@ -262,8 +259,8 @@ RSpec.describe Suma::AdminAPI::CommerceOfferings, :db do
     end
 
     it "errors with a 409 if a foreign key constraint is violated" do
-      offering = Suma::Fixtures.offering.create
-      ful_opt = Suma::Fixtures.offering_fulfillment_option.create(offering:)
+      ful_opt = Suma::Fixtures.offering_fulfillment_option.create
+      offering = Suma::Fixtures.offering.with_fulfillment(ful_opt).create
       Suma::Fixtures.checkout.with_fulfillment_option(ful_opt).create
 
       post "/v1/commerce_offerings/#{offering.id}", fulfillment_options: {}
