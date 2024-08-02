@@ -114,6 +114,7 @@ export default function AddToHomescreen() {
   return (
     <Alert
       variant="primary"
+      className="mt-4 mb-2"
       show={shouldPrompt}
       onClose={() => setShouldPrompt(false)}
       dismissible
