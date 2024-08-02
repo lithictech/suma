@@ -117,6 +117,8 @@ module Suma::AdminAPI::Entities
     expose :external_name, as: :name
     expose :vendor, with: VendorEntity
     expose :eligibility_constraints, with: EligibilityConstraintEntity
+    expose :period_begin
+    expose :period_end
   end
 
   class VendorServiceCategoryEntity < BaseEntity
@@ -125,9 +127,18 @@ module Suma::AdminAPI::Entities
     expose :slug
   end
 
+  class VendorServiceRateEntity < BaseEntity
+    include AutoExposeBase
+    expose :name
+    expose :unit_amount, with: MoneyEntity
+    expose :surcharge, with: MoneyEntity
+    expose :unit_offset
+    expose :undiscounted_amount, with: MoneyEntity, &self.delegate_to(:undiscounted_rate, :unit_amount, safe: true)
+    expose :undiscounted_surcharge, with: MoneyEntity, &self.delegate_to(:undiscounted_rate, :surcharge, safe: true)
+  end
+
   class VendorConfigurationEntity < BaseEntity
     include AutoExposeBase
-    expose :id
     expose :vendor, with: VendorEntity
     expose :app_install_link
     expose :uses_email
@@ -275,5 +286,12 @@ module Suma::AdminAPI::Entities
     expose :member, with: MemberEntity
     expose :verified_organization, with: OrganizationEntity
     expose :unverified_organization_name
+  end
+
+  class VendibleGroupEntity < BaseEntity
+    expose :id
+    expose :admin_link
+    expose :name, with: TranslatedTextEntity
+    expose :ordinal
   end
 end

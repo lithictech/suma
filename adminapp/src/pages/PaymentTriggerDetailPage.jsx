@@ -64,20 +64,6 @@ export default function PaymentTriggerDetailPage() {
             ]}
           />
           <RelatedList
-            title="Vendor Services"
-            rows={model.services}
-            keyRowAttr="id"
-            headers={["Id", "Created", "Vendor", "Name"]}
-            toCells={(row) => [
-              row.id,
-              dayjs(row.createdAt).format("lll"),
-              <AdminLink key={row.id} model={row.vendor}>
-                {row.vendor.name}
-              </AdminLink>,
-              row.name,
-            ]}
-          />
-          <RelatedList
             title="Vendor Configurations"
             rows={model.configurations}
             keyRowAttr="id"

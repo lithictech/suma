@@ -63,11 +63,12 @@
     "success_intro": "¡Gracias por registrarte y bienvenido a la app suma!\n\n¡Ya estás inscrito en nuestra comunidad! Lo informaremos sobre todos los proyectos futuros, las oportunidades de ahorro de dinero y cómo completar el proceso de inscripción en la aplicación. Para obtener más información sobre suma, visite nuestro sitio web en $t(strings:common:mysuma_website_link), o visítenos en nuestras redes sociales usando el enlace abajo. ¡Nos hablamos pronto!"
   },
   "dashboard": {
-    "check_available_food": "Ver nuestras ofertas de mercados de agrícola.",
+    "about_suma": "Acerca de Suma",
     "check_available_mobility": "Ver nuestras opciones de transporte.",
     "check_ongoing_trip": "Tienes un viaje en curso. Asegúrate de finalizarlo al terminar el viaje.",
     "check_ongoing_trip_button": "Ver Mi Viaje",
     "claim_orders": "Tu pedido está listo para ser recogido.",
+    "intro": "Ayudando a nuestra comunidad a ahorrar dinero en las cosas que compra con más frecuencia, todo en un solo lugar.",
     "lifetime_savings": "Ahorros de Suma",
     "no_money": "No has añadido ni gastado fondos de tu cuenta.",
     "payment_account_balance": "Saldo Disponible",
@@ -120,7 +121,7 @@
     "add_to_cart": "Añadir al carrito",
     "address": "Dirección",
     "available_offerings": "Ofertas disponibles",
-    "available_until": "Hasta",
+    "available_until": "Hasta {{date}}",
     "cart_available_credit": "Crédito disponible: **{{amount, sumaCurrency}}**",
     "cart_cash_cost": "Costo para usted: **{{amount, sumaCurrency}}**",
     "cart_item_loading": "Cart item loading",

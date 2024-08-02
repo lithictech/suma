@@ -48,6 +48,10 @@ import ProductDetailPage from "./pages/ProductDetailPage";
 import ProductEditPage from "./pages/ProductEditPage";
 import ProductListPage from "./pages/ProductListPage";
 import SignInPage from "./pages/SignInPage";
+import VendibleGroupCreatePage from "./pages/VendibleGroupCreatePage";
+import VendibleGroupDetailPage from "./pages/VendibleGroupDetailPage";
+import VendibleGroupEditPage from "./pages/VendibleGroupEditPage";
+import VendibleGroupListPage from "./pages/VendibleGroupListPage";
 import VendorAccountDetailPage from "./pages/VendorAccountDetailPage";
 import VendorAccountListPage from "./pages/VendorAccountListPage";
 import VendorConfigurationDetailPage from "./pages/VendorConfigurationDetailPage";
@@ -56,6 +60,8 @@ import VendorCreatePage from "./pages/VendorCreatePage";
 import VendorDetailPage from "./pages/VendorDetailPage";
 import VendorEditPage from "./pages/VendorEditPage";
 import VendorListPage from "./pages/VendorListPage";
+import VendorServiceDetailPage from "./pages/VendorServiceDetailPage";
+import VendorServiceListPage from "./pages/VendorServiceListPage";
 import applyHocs from "./shared/applyHocs";
 import { installPromiseExtras } from "./shared/bluejay";
 import ClientsideSearchParamsProvider from "./shared/react/ClientsideSearchParamsProvider";
@@ -363,6 +369,34 @@ function PageSwitch() {
       />
       <Route
         exact
+        path="/vendible-groups"
+        element={renderWithHocs(redirectIfUnauthed, withLayout(), VendibleGroupListPage)}
+      />
+      <Route
+        exact
+        path="/vendible-group/new"
+        element={renderWithHocs(
+          redirectIfUnauthed,
+          withLayout(),
+          VendibleGroupCreatePage
+        )}
+      />
+      <Route
+        exact
+        path="/vendible-group/:id"
+        element={renderWithHocs(
+          redirectIfUnauthed,
+          withLayout(),
+          VendibleGroupDetailPage
+        )}
+      />
+      <Route
+        exact
+        path="/vendible-group/:id/edit"
+        element={renderWithHocs(redirectIfUnauthed, withLayout(), VendibleGroupEditPage)}
+      />
+      <Route
+        exact
         path="/vendor-accounts"
         element={renderWithHocs(redirectIfUnauthed, withLayout(), VendorAccountListPage)}
       />
@@ -391,6 +425,20 @@ function PageSwitch() {
           redirectIfUnauthed,
           withLayout(),
           VendorConfigurationDetailPage
+        )}
+      />
+      <Route
+        exact
+        path="/vendor-services"
+        element={renderWithHocs(redirectIfUnauthed, withLayout(), VendorServiceListPage)}
+      />
+      <Route
+        exact
+        path="/vendor-service/:id"
+        element={renderWithHocs(
+          redirectIfUnauthed,
+          withLayout(),
+          VendorServiceDetailPage
         )}
       />
       <Route

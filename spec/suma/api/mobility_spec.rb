@@ -46,7 +46,7 @@ RSpec.describe Suma::API::Mobility, :db do
       expect(last_response_json_body).to_not include(:escooter, :ebike)
     end
 
-    it "is limited to vendor services available to the user" do
+    it "is limited to vendor services active and available to the user" do
       constraint = Suma::Fixtures.eligibility_constraint.create
       vendor_service = Suma::Fixtures.vendor_service.mobility.with_constraints(constraint).create
 
@@ -65,6 +65,12 @@ RSpec.describe Suma::API::Mobility, :db do
 
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.that_includes(escooter: have_length(1))
+
+      vendor_service.update(period_end: 2.days.ago)
+      get "/v1/mobility/map", sw: [15, 110], ne: [25, 125]
+
+      expect(last_response).to have_status(200)
+      expect(last_response_json_body).to_not include(:escooter, :ebike)
     end
 
     it "handles coordinate precision" do

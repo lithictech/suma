@@ -1,9 +1,11 @@
 # frozen_string_literal: true
 
 require "suma/admin_linked"
+require "suma/image"
 require "suma/postgres/model"
 
 class Suma::Vendor < Suma::Postgres::Model(:vendors)
+  include Suma::Image::AssociatedMixin
   include Suma::AdminLinked
 
   plugin :timestamps
@@ -11,7 +13,6 @@ class Suma::Vendor < Suma::Postgres::Model(:vendors)
   one_to_one :payment_account, class: "Suma::Payment::Account"
   one_to_many :services, class: "Suma::Vendor::Service"
   one_to_many :configurations, class: "Suma::AnonProxy::VendorConfiguration"
-  one_to_many :images, class: "Suma::Image"
   one_to_many :products, class: "Suma::Commerce::Product"
 
   def before_create

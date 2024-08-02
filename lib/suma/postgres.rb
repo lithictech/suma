@@ -92,10 +92,12 @@ module Suma::Postgres
     "suma/payment/payout_transaction",
     "suma/payment/payout_transaction/audit_log",
     "suma/payment/payout_transaction/stripe_charge_refund_strategy",
+
     # Move this out of alphabetical order since it requires
     # all transaction types to be loaded (fake strategy
     # are used for testing funding and outgoing transactions).
     "suma/payment/fake_strategy",
+
     "suma/payment/ledger",
     "suma/payment/account",
     "suma/payment/trigger",
@@ -106,6 +108,7 @@ module Suma::Postgres
     "suma/supported_geography",
     "suma/translated_text",
     "suma/uploaded_file",
+    "suma/vendible/group",
     "suma/vendor",
     "suma/vendor/service",
     "suma/vendor/service_category",

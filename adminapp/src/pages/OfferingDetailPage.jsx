@@ -24,12 +24,6 @@ export default function OfferingDetailPage() {
       properties={(model) => [
         { label: "ID", value: model.id },
         { label: "Created At", value: dayjs(model.createdAt) },
-        { label: "Opening Date", value: dayjs(model.periodBegin) },
-        { label: "Closing Date", value: dayjs(model.periodEnd) },
-        {
-          label: "Begin Fulfillment At",
-          value: model.beginFulfillmentAt && dayjs(model.beginFulfillmentAt),
-        },
         {
           label: "Image",
           value: (
@@ -42,6 +36,12 @@ export default function OfferingDetailPage() {
               width={225}
             />
           ),
+        },
+        { label: "Opening Date", value: dayjs(model.periodBegin) },
+        { label: "Closing Date", value: dayjs(model.periodEnd) },
+        {
+          label: "Begin Fulfillment At",
+          value: model.beginFulfillmentAt && dayjs(model.beginFulfillmentAt),
         },
         { label: "Description (En)", value: model.description.en },
         { label: "Description (Es)", value: model.description.es },

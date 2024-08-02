@@ -8,20 +8,32 @@ class Suma::Image < Suma::Postgres::Model(:images)
   plugin :soft_deletes
   plugin :translated_text, :caption, Suma::TranslatedText
 
-  many_to_one :commerce_offering, class: "Suma::Commerce::Offering"
-  many_to_one :commerce_product, class: "Suma::Commerce::Product"
   many_to_one :uploaded_file, class: "Suma::UploadedFile"
 
-  def associated_object = self.commerce_offering || self.commerce_product
+  # Associated objects
+  many_to_one :commerce_offering, class: "Suma::Commerce::Offering"
+  many_to_one :commerce_product, class: "Suma::Commerce::Product"
+  many_to_one :vendor, class: "Suma::Vendor"
+  many_to_one :vendor_service, class: "Suma::Vendor::Service"
+
+  def associated_object = self.commerce_product || self.commerce_offering || self.vendor_service || self.vendor
 
   def associated_object=(o)
+    self.commerce_offering = nil
+    self.commerce_product = nil
+    self.vendor = nil
+    self.vendor_service = nil
     case o
+        when nil
+          nil
         when Suma::Commerce::Offering
           self.commerce_offering = o
-          self.commerce_product = nil
         when Suma::Commerce::Product
-          self.commerce_offering = nil
           self.commerce_product = o
+        when Suma::Vendor
+          self.vendor = o
+        when Suma::Vendor::Service
+          self.vendor_service = o
       else
           raise TypeError, "invalid associated object type: #{o}"
       end
@@ -48,6 +60,9 @@ class Suma::Image < Suma::Postgres::Model(:images)
         else
           self.images
         end
+      end
+      m.define_method(:image?) do
+        self.images.first || Suma::Image.no_image_available
       end
     end
   end

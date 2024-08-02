@@ -29,5 +29,9 @@ module Faker::Suma
       end
       return s
     end
+
+    def number(r)
+      return Faker::Number.between(from: r.begin, to: r.end)
+    end
   end
 end

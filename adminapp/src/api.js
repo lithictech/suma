@@ -156,6 +156,17 @@ export default {
   getVendor: ({ id, ...data }) => get(`/adminapi/v1/vendors/${id}`, data),
   updateVendor: ({ id, ...data }) => post(`/adminapi/v1/vendors/${id}`, data),
 
+  getVendibleGroups: (data) => get(`/adminapi/v1/vendible_groups`, data),
+  createVendibleGroup: (data) => post("/adminapi/v1/vendible_groups/create", data),
+  getVendibleGroup: ({ id, ...data }) => get(`/adminapi/v1/vendible_groups/${id}`, data),
+  updateVendibleGroup: ({ id, ...data }) =>
+    post(`/adminapi/v1/vendible_groups/${id}`, data),
+
+  getVendorServices: (data) => get(`/adminapi/v1/vendor_services`, data),
+  getVendorService: ({ id, ...data }) => get(`/adminapi/v1/vendor_services/${id}`, data),
+  updateVendorServiceEligibilityConstraints: ({ id, ...data }) =>
+    post(`/adminapi/v1/vendor_services/${id}/eligibilities`, data),
+
   getVendorAccounts: (data) => get("/adminapi/v1/anon_proxy/vendor_accounts", data),
   getVendorAccount: ({ id, data }) =>
     get(`/adminapi/v1/anon_proxy/vendor_accounts/${id}`, data),
@@ -204,6 +215,8 @@ export default {
   searchVendors: (data) => post(`/adminapi/v1/search/vendors`, data),
   searchMembers: (data) => post(`/adminapi/v1/search/members`, data),
   searchOrganizations: (data) => post(`/adminapi/v1/search/organizations`, data),
+  searchVendorServices: (data) => post(`/adminapi/v1/search/vendor_services`, data),
+  searchCommerceOffering: (data) => post(`/adminapi/v1/search/commerce_offerings`, data),
 
   /**
    * Return an API url.

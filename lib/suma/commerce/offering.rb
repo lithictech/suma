@@ -18,6 +18,12 @@ class Suma::Commerce::Offering < Suma::Postgres::Model(:commerce_offerings)
   plugin :translated_text, :fulfillment_confirmation, Suma::TranslatedText
   plugin :translated_text, :fulfillment_instructions, Suma::TranslatedText
 
+  many_to_many :vendible_groups,
+               class: "Suma::Vendible::Group",
+               join_table: :vendible_groups_commerce_offerings,
+               left_key: :offering_id,
+               right_key: :group_id
+
   one_to_many :fulfillment_options, class: "Suma::Commerce::OfferingFulfillmentOption"
   one_to_many :offering_products, class: "Suma::Commerce::OfferingProduct"
   one_to_many :carts, class: "Suma::Commerce::Cart"
@@ -159,6 +165,8 @@ class Suma::Commerce::Offering < Suma::Postgres::Model(:commerce_offerings)
   # @return [Integer]
 
   def rel_admin_link = "/offering/#{self.id}"
+
+  def rel_app_link = "/food/#{self.id}"
 
   def timed?
     return !self.begin_fulfillment_at.nil?

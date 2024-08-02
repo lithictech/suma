@@ -9,8 +9,7 @@ module Suma::Fixtures::Offerings
   fixtured_class Suma::Commerce::Offering
 
   base :offering do
-    self.period ||=
-      Faker::Number.between(from: 50, to: 2).days.ago..Faker::Number.between(from: 2, to: 50).days.from_now
+    self.period ||= Faker::Suma.number(50..2).days.ago..Faker::Suma.number(2..50).days.from_now
   end
 
   before_saving do |instance|
@@ -25,18 +24,15 @@ module Suma::Fixtures::Offerings
     self.description = Suma::Fixtures.translated_text.create(en:, es: es || "(ES) #{en}")
   end
 
-  decorator :period do |begin_time, end_time|
-    self.period = Sequel::Postgres::PGRange.new(begin_time, end_time)
-  end
-
   decorator :closed do
     self.period_begin = 4.days.ago
     self.period_end = 2.days.ago
   end
 
-  decorator :with_fulfillment, presave: true do |options|
-    Suma::Fixtures.offering_fulfillment_option(options).create(offering: self) unless
-      options.is_a?(Suma::Commerce::OfferingFulfillmentOption)
+  decorator :with_fulfillment, presave: true do |o={}|
+    o = Suma::Fixtures.offering_fulfillment_option(o).create(offering: self) unless
+      o.is_a?(Suma::Commerce::OfferingFulfillmentOption)
+    self.add_fulfillment_option(o)
   end
 
   decorator :timed_fulfillment do |t=nil|

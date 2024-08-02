@@ -63,11 +63,12 @@
     "success_intro": "Thank you for signing up, and welcome to the suma app!\n\nWe will update you on all future projects, money saving opportunities, and how to complete the app enrollment process. To learn more about suma, visit our website at $t(strings:common:mysuma_website_link), or check us out on our social media using the link below. Chat soon!"
   },
   "dashboard": {
-    "check_available_food": "Check out our farmers market offerings.",
+    "about_suma": "About Suma",
     "check_available_mobility": "Check out our transportation options.",
     "check_ongoing_trip": "You have an ongoing trip. Please make sure you end it when you are finished with your ride!",
     "check_ongoing_trip_button": "See My Trip",
     "claim_orders": "Your order is ready for pickup.",
+    "intro": "Helping our community save money on things you buy the most- all in one place.",
     "lifetime_savings": "Suma Savings",
     "no_money": "You haven't added or spent any money.",
     "payment_account_balance": "Available Balance",
@@ -110,7 +111,7 @@
     "something_went_wrong_body": "Sorry, something went wrong. Let's go to your home screen so you can try again.",
     "something_went_wrong_title": "Something went wrong",
     "too_many_requests": "You have made too many requests in a short period of time. Please try again after {{seconds}} seconds.",
-    "unauthenticated": "You must be log in to proceed.",
+    "unauthenticated": "You must be logged in to proceed.",
     "unhandled_error": "Sorry, something went wrong. Please try again.",
     "validation_error": "Some fields were left blank, please fill in all required fields and try again.",
     "vehicle_not_found": "No vehicle found in this location."
@@ -120,7 +121,7 @@
     "add_to_cart": "Add to cart",
     "address": "Address",
     "available_offerings": "Available Offerings",
-    "available_until": "Until",
+    "available_until": "Until {{date}}",
     "cart_available_credit": "Available credit: **{{amount, sumaCurrency}}**",
     "cart_cash_cost": "Cost to you: **{{amount, sumaCurrency}}**",
     "cart_item_loading": "Cart item loading",

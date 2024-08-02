@@ -12,6 +12,7 @@ module Suma::Fixtures::VendorServices
   base :vendor_service do
     self.internal_name ||= Faker::Commerce.product_name
     self.external_name ||= self.internal_name.downcase
+    self.period ||= Faker::Suma.number(50..2).days.ago..Faker::Suma.number(2..50).days.from_now
   end
 
   before_saving do |instance|

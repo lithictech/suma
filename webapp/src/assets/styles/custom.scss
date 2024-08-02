@@ -9,14 +9,6 @@
     min-height: 100vh;
 }
 
-.nowrap {
-    white-space: nowrap;
-}
-
-.border-radius-0 {
-    border-radius: 0 !important;
-}
-
 .table-flush {
     > tbody > tr > td:first-child, > thead > tr > th {
         padding-left: map-get($spacers, 4) !important;

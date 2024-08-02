@@ -283,7 +283,7 @@ module Suma::Service::Helpers
   end
 
   params :ordering do |options|
-    default_order_by = options.key?(:default) ? options[:defualt] : :created_at
+    default_order_by = options.key?(:default) ? options[:default] : :created_at
     order_by_values = options[:values] || options[:model]&.columns
     raise "Must provide :values or :model for possible orderings" unless order_by_values
     optional :order_by, type: Symbol, values: order_by_values, default: default_order_by

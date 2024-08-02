@@ -214,6 +214,33 @@ class Suma::AdminAPI::Search < Suma::AdminAPI::V1
       status 200
       present_collection ds, with: SearchOrganizationEntity
     end
+
+    params do
+      optional :q, type: String
+    end
+    post :vendor_services do
+      ds = Suma::Vendor::Service.dataset
+      ds = ds_search_or_order_by(:external_name, ds, params)
+      ds = ds.limit(15)
+      status 200
+      present_collection ds, with: SearchVendorServiceEntity
+    end
+
+    params do
+      optional :q, type: String
+    end
+    post :commerce_offerings do
+      ds = Suma::Commerce::Offering.dataset
+      if (description_en_like = search_param_to_sql(params, :description_en, param: :q))
+        description_es_like = search_param_to_sql(params, :description_es, param: :q)
+        ds = ds.translation_join(:description, [:en, :es])
+        ds = ds.reduce_expr(:|, [description_en_like, description_es_like])
+      end
+      ds = ds.order(Sequel.desc(:id), Sequel.desc(:id))
+      ds = ds.limit(15)
+      status 200
+      present_collection ds, with: SearchCommerceOfferingEntity
+    end
   end
 
   class SearchLedgerEntity < BaseEntity
@@ -278,5 +305,21 @@ class Suma::AdminAPI::Search < Suma::AdminAPI::V1
     expose :admin_link
     expose :name
     expose :name, as: :label
+  end
+
+  class SearchVendorServiceEntity < BaseEntity
+    expose :key, &self.delegate_to(:id, :to_s)
+    expose :id
+    expose :admin_link
+    expose :external_name, as: :name
+    expose :external_name, as: :label
+  end
+
+  class SearchCommerceOfferingEntity < BaseEntity
+    expose :key, &self.delegate_to(:id, :to_s)
+    expose :id
+    expose :admin_link
+    expose :name, &self.delegate_to(:description, :en)
+    expose :label, &self.delegate_to(:description, :en)
   end
 end

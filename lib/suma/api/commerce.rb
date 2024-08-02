@@ -269,6 +269,9 @@ class Suma::API::Commerce < Suma::API::V1
     expose_translated :fulfillment_instructions
     expose :period_end, as: :closes_at
     expose :image, with: Suma::API::Entities::ImageEntity, &self.delegate_to(:images?, :first)
+    expose :vendible, with: Suma::API::Entities::VendibleEntity do |inst|
+      Suma::Vendible.from_commerce_offering(inst)
+    end
   end
 
   class BaseOfferingProductEntity < BaseEntity

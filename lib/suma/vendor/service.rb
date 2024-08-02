@@ -3,10 +3,22 @@
 require "suma/eligibility/has_constraints"
 require "suma/mobility/vendor_adapter"
 require "suma/postgres/model"
+require "suma/image"
 require "suma/vendor/has_service_categories"
+require "suma/admin_linked"
 
 class Suma::Vendor::Service < Suma::Postgres::Model(:vendor_services)
+  include Suma::AdminLinked
+  include Suma::Image::AssociatedMixin
+
   plugin :timestamps
+  plugin :tstzrange_fields, :period
+
+  many_to_many :vendible_groups,
+               class: "Suma::Vendible::Group",
+               join_table: :vendible_groups_vendor_services,
+               left_key: :service_id,
+               right_key: :group_id
 
   many_to_one :vendor, key: :vendor_id, class: "Suma::Vendor"
 
@@ -20,6 +32,8 @@ class Suma::Vendor::Service < Suma::Postgres::Model(:vendor_services)
                join_table: :vendor_service_vendor_service_rates,
                left_key: :vendor_service_id,
                right_key: :vendor_service_rate_id
+
+  one_to_many :mobility_trips, class: "Suma::Mobility::Trip", key: :vendor_service_id
 
   many_to_many :eligibility_constraints,
                class: "Suma::Eligibility::Constraint",
@@ -35,6 +49,10 @@ class Suma::Vendor::Service < Suma::Postgres::Model(:vendor_services)
 
     def with_category(slug)
       return self.where(categories: Suma::Vendor::ServiceCategory.where(slug:))
+    end
+
+    def available_at(t)
+      return self.where(Sequel.pg_range(:period).contains(Sequel.cast(t, :timestamptz)))
     end
   end
 
@@ -68,6 +86,10 @@ class Suma::Vendor::Service < Suma::Postgres::Model(:vendor_services)
       constraint.all? { |k, v| hash[k] == v && hash.key?(k) }
     end
   end
+
+  def rel_admin_link = "/vendor-service/#{self.id}"
+
+  def rel_app_link = "/mobility"
 end
 
 # Table: vendor_services

@@ -34,6 +34,13 @@ module Suma::API::Entities
     expose :url, &self.delegate_to(:uploaded_file, :absolute_url)
   end
 
+  class VendibleEntity < BaseEntity
+    expose_translated :name
+    expose :until
+    expose :image, with: ImageEntity
+    expose :link
+  end
+
   class PaymentInstrumentEntity < BaseEntity
     expose :id
     expose :created_at
@@ -59,6 +66,9 @@ module Suma::API::Entities
     expose :external_name, as: :name
     expose :vendor_name, &self.delegate_to(:vendor, :name)
     expose :vendor_slug, &self.delegate_to(:vendor, :slug)
+    expose :vendible, with: VendibleEntity do |inst|
+      Suma::Vendible.from_vendor_service(inst)
+    end
   end
 
   class MobilityTripEntity < BaseEntity

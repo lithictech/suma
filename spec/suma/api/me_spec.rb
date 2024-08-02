@@ -128,12 +128,18 @@ RSpec.describe Suma::API::Me, :db do
     it "returns the dashboard" do
       cash_ledger = Suma::Fixtures.ledger.member(member).category(:cash).create
       Suma::Fixtures.book_transaction.to(cash_ledger).create(amount: money("$27"))
+      Suma::Fixtures.vendible_group.with_offering.create
 
       get "/v1/me/dashboard"
 
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.
-        that_includes(payment_account_balance: cost("$27"), lifetime_savings: cost("$0"), ledger_lines: have_length(1))
+        that_includes(
+          payment_account_balance: cost("$27"),
+          lifetime_savings: cost("$0"),
+          ledger_lines: have_length(1),
+          vendible_groupings: have_length(1),
+        )
     end
   end
 
