@@ -20,11 +20,11 @@ fmt-all:
 	@cd adminapp && make fmt && make lint
 
 up:
-	docker-compose up -d
+	docker compose up -d
 up-staging: cmd-exists-heroku
 	heroku ps:scale web=1 worker=1 --app=$(staging_app)
 down:
-	docker-compose stop
+	docker compose stop
 down-staging: cmd-exists-heroku
 	heroku ps:scale web=0 worker=0 --app=$(staging_app)
 
@@ -132,8 +132,8 @@ restore-db-from-dump:
 
 
 reinit-db-from-dump:
-	docker-compose down -v
-	docker-compose up -d
+	docker compose down -v
+	docker compose up -d
 	sleep 5
 	make restore-db-from-dump
 	@echo "Remember to migrate your test DB before running tests by running 'make migrate-test'"
