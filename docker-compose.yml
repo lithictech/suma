@@ -1,6 +1,6 @@
 services:
   db:
-    image: "postgres:14"
+    image: "postgres:16"
     ports:
       - "22005:5432"
     environment:
@@ -8,7 +8,7 @@ services:
       POSTGRES_PASSWORD: 'suma'
       POSTGRES_DB: 'suma'
   test_db:
-    image: "postgres:14"
+    image: "postgres:16"
     ports:
       - "22006:5432"
     environment:
@@ -16,6 +16,6 @@ services:
       POSTGRES_PASSWORD: 'suma'
       POSTGRES_DB: 'suma_test'
   sidekiq_redis:
-    image: "redis:6"
+    image: "redis:7"
     ports:
       - "22007:6379"
