@@ -21,7 +21,7 @@ jobs:
       - name: Install dependencies
         run: sudo apt-get install --fix-missing -yqq -o Acquire::Retries=3 libvips libpq-dev
       - name: Start backing services
-        run: docker-compose up -d
+        run: docker compose up -d
       - name: Run rubocop
         run: bundle exec rubocop
       - name: Wait for services to come up
