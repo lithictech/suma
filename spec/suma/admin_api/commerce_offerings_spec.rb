@@ -217,7 +217,7 @@ RSpec.describe Suma::AdminAPI::CommerceOfferings, :db do
       remove = Suma::Fixtures.offering_fulfillment_option.create(address:)
       update = Suma::Fixtures.offering_fulfillment_option.create(address:)
       add = Suma::Fixtures.offering_fulfillment_option.create
-      o = Suma::Fixtures.offering.with_fulfillment(add).with_fulfillment(remove).with_fulfillment(update).create
+      o = Suma::Fixtures.offering.with_fulfillment(remove).with_fulfillment(update).create
 
       post "/v1/commerce_offerings/#{o.id}",
            fulfillment_options: {
