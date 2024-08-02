@@ -53,13 +53,23 @@ module Suma::Http
 
   def self.post(url, body={}, headers: {}, **options, &block)
     raise ArgumentError, "must pass :logger keyword" unless options.key?(:logger)
+    opts = self.common_opts(body, headers, options)
+    return self.execute("post", url, **opts, &block)
+  end
+
+  def self.put(url, body={}, headers: {}, **options, &block)
+    raise ArgumentError, "must pass :logger keyword" unless options.key?(:logger)
+    opts = self.common_opts(body, headers, options)
+    return self.execute("put", url, **opts, &block)
+  end
+
+  def self.common_opts(body, headers, options)
     headers["Content-Type"] ||= "application/json"
     unless body.is_a?(String)
       body = body.to_json if headers["Content-Type"].include?("json")
       body = URI.encode_www_form(body) if headers["Content-Type"] == "application/x-www-form-urlencoded"
     end
-    opts = {body:, headers:}.merge(**options)
-    return self.execute("post", url, **opts, &block)
+    return {body:, headers:}.merge(**options)
   end
 
   def self.execute(method, url, **options, &)

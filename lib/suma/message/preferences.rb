@@ -3,6 +3,7 @@
 require "suma/i18n"
 require "suma/postgres"
 require "suma/message"
+require "suma/oye"
 
 class Suma::Message::Preferences < Suma::Postgres::Model(:message_preferences)
   plugin :timestamps
@@ -16,6 +17,10 @@ class Suma::Message::Preferences < Suma::Postgres::Model(:message_preferences)
 
     def set_from_opted_in(optin)
       self.model.set(self.optout_field => !optin)
+    end
+
+    def update_oye_contact_marketing_preferences
+      self.model.member.oye.update_contact_sms_status if self.key === Suma::Oye.sms_marketing_preferences_key
     end
   end
 
@@ -50,9 +55,20 @@ class Suma::Message::Preferences < Suma::Postgres::Model(:message_preferences)
       opted_in: !self.account_updates_optout,
       editable_state: "on",
     )
-    groups << SubscriptionGroup.new(key: :marketing, opted_in: false, editable_state: "hidden")
+    groups << SubscriptionGroup.new(
+      model: self,
+      optout_field: :marketing_optout,
+      key: :marketing,
+      opted_in: !self.marketing_optout,
+      editable_state: "on",
+    )
     groups << SubscriptionGroup.new(key: :security, opted_in: true, editable_state: "off")
     return groups
+  end
+
+  # @return [SubscriptionGroup]
+  def subscription(key)
+    return self.subscriptions.find { |g| g.key == key && g.editable? }
   end
 
   def public_url = "#{Suma.app_url}/preferences-public?token=#{self.access_token}"

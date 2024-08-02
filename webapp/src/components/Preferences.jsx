@@ -38,7 +38,11 @@ export default function Preferences({ user, onApiSubmit, children, onSaved }) {
             subscriptionKey={sub.key}
             optedIn={optedIn}
             editableState={sub.editableState}
-            onCheckChange={(ch) => setSubscriptions({ [sub.key]: ch })}
+            onCheckChange={(ch) =>
+              setSubscriptions((prev) => {
+                return { ...prev, [sub.key]: ch };
+              })
+            }
           />
         );
       })}
