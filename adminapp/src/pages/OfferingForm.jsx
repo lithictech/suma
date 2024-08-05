@@ -46,13 +46,10 @@ export default function OfferingForm({
     >
       <Stack spacing={2}>
         <ImageFileInput
-          image={resource.image instanceof Blob && resource.image}
+          image={resource.image}
           onImageChange={(f) => setField("image", f)}
           required={isCreate}
         />
-        {resource.image?.url && (
-          <img src={resource.image.url} alt={resource.image.caption} />
-        )}
         <FormLabel>Description (text in offering list)</FormLabel>
         <ResponsiveStack>
           <MultiLingualText

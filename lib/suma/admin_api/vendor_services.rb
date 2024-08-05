@@ -23,6 +23,7 @@ class Suma::AdminAPI::VendorServices < Suma::AdminAPI::V1
 
   class DetailedVendorServiceEntity < VendorServiceEntity
     include Suma::AdminAPI::Entities
+    expose :external_name
     expose :internal_name
     expose :mobility_vendor_adapter_key
     expose :vendor_service_categories, as: :categories, with: VendorServiceCategoryEntity
@@ -38,9 +39,15 @@ class Suma::AdminAPI::VendorServices < Suma::AdminAPI::V1
       VendorServiceEntity,
       search_params: [:internal_name, :external_name],
     )
-
     Suma::AdminAPI::CommonEndpoints.get_one(self, Suma::Vendor::Service, DetailedVendorServiceEntity)
-
+    Suma::AdminAPI::CommonEndpoints.update(self, Suma::Vendor::Service, DetailedVendorServiceEntity) do
+      params do
+        optional :image, type: File
+        optional :external_name, type: String
+        optional :period_begin, type: Time
+        optional :period_end, type: Time
+      end
+    end
     Suma::AdminAPI::CommonEndpoints.eligibilities(
       self,
       Suma::Vendor::Service,

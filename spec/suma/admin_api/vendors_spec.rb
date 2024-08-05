@@ -8,6 +8,8 @@ RSpec.describe Suma::AdminAPI::Vendors, :db do
 
   let(:app) { described_class.build_app }
   let(:admin) { Suma::Fixtures.member.admin.create }
+  let(:photo_file) { File.open("spec/data/images/photo.png", "rb") }
+  let(:image) { Rack::Test::UploadedFile.new(photo_file, "image/png", true) }
 
   before(:each) do
     login_as(admin)
@@ -63,7 +65,7 @@ RSpec.describe Suma::AdminAPI::Vendors, :db do
 
   describe "POST /v1/vendors/create" do
     it "creates a vendor" do
-      post "/v1/vendors/create", name: "test"
+      post "/v1/vendors/create", name: "test", image: image
 
       expect(last_response).to have_status(200)
       expect(Suma::Vendor.all).to have_length(1)
@@ -103,7 +105,7 @@ RSpec.describe Suma::AdminAPI::Vendors, :db do
     it "updates a vendor" do
       v = Suma::Fixtures.vendor.create
 
-      post "/v1/vendors/#{v.id}", name: "test"
+      post "/v1/vendors/#{v.id}", name: "test", image: image
 
       expect(last_response).to have_status(200)
       expect(v.refresh).to have_attributes(name: "test")
