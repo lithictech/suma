@@ -39,13 +39,10 @@ export default function ProductForm({
     >
       <Stack spacing={2}>
         <ImageFileInput
-          image={resource.image instanceof Blob && resource.image}
+          image={resource.image}
           onImageChange={(f) => setField("image", f)}
           required={isCreate}
         />
-        {resource.image?.url && (
-          <img src={resource.image.url} alt={resource.image.caption} />
-        )}
         <Stack spacing={2}>
           <FormLabel>Name:</FormLabel>
           <ResponsiveStack>

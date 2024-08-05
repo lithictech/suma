@@ -152,9 +152,9 @@ export default {
     post(`/adminapi/v1/commerce_offering_products/${id}`, data),
 
   getVendors: (data) => get(`/adminapi/v1/vendors`, data),
-  createVendor: (data) => post("/adminapi/v1/vendors/create", data),
+  createVendor: (data) => postForm("/adminapi/v1/vendors/create", data),
   getVendor: ({ id, ...data }) => get(`/adminapi/v1/vendors/${id}`, data),
-  updateVendor: ({ id, ...data }) => post(`/adminapi/v1/vendors/${id}`, data),
+  updateVendor: ({ id, ...data }) => postForm(`/adminapi/v1/vendors/${id}`, data),
 
   getVendibleGroups: (data) => get(`/adminapi/v1/vendible_groups`, data),
   createVendibleGroup: (data) => post("/adminapi/v1/vendible_groups/create", data),
@@ -164,6 +164,8 @@ export default {
 
   getVendorServices: (data) => get(`/adminapi/v1/vendor_services`, data),
   getVendorService: ({ id, ...data }) => get(`/adminapi/v1/vendor_services/${id}`, data),
+  updateVendorService: ({ id, ...data }) =>
+    postForm(`/adminapi/v1/vendor_services/${id}`, data),
   updateVendorServiceEligibilityConstraints: ({ id, ...data }) =>
     post(`/adminapi/v1/vendor_services/${id}/eligibilities`, data),
 

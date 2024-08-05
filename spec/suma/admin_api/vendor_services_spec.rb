@@ -90,6 +90,23 @@ RSpec.describe Suma::AdminAPI::VendorServices, :db do
     end
   end
 
+  describe "POST /v1/vendor_services/:id" do
+    it "updates a vendor service" do
+      v = Suma::Fixtures.vendor_service.create
+      photo_file = File.open("spec/data/images/photo.png", "rb")
+      image = Rack::Test::UploadedFile.new(photo_file, "image/png", true)
+
+      post "/v1/vendor_services/#{v.id}",
+           external_name: "test",
+           image: image,
+           period_begin: "2024-07-01T00:00:00-0700",
+           period_end: "2024-10-01T00:00:00-0700"
+
+      expect(last_response).to have_status(200)
+      expect(v.refresh).to have_attributes(external_name: "test")
+    end
+  end
+
   describe "POST /v1/vendor_services/:id/eligibilities" do
     it "replaces the eligibilities" do
       ec = Suma::Fixtures.eligibility_constraint.create

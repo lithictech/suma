@@ -1,10 +1,12 @@
 import FormLayout from "../components/FormLayout";
-import { TextField } from "@mui/material";
+import ImageFileInput from "../components/ImageFileInput";
+import { Stack, TextField } from "@mui/material";
 import React from "react";
 
 export default function VendorForm({
   isCreate,
   resource,
+  setField,
   setFieldFromInput,
   register,
   isBusy,
@@ -19,14 +21,21 @@ export default function VendorForm({
       onSubmit={onSubmit}
       isBusy={isBusy}
     >
-      <TextField
-        {...register("name")}
-        label="Name"
-        name="name"
-        value={resource.name}
-        fullWidth
-        onChange={setFieldFromInput}
-      />
+      <Stack spacing={2}>
+        <ImageFileInput
+          image={resource.image}
+          required={isCreate}
+          onImageChange={(f) => setField("image", f)}
+        />
+        <TextField
+          {...register("name")}
+          label="Name"
+          name="name"
+          value={resource.name}
+          fullWidth
+          onChange={setFieldFromInput}
+        />
+      </Stack>
     </FormLayout>
   );
 }

@@ -4,7 +4,6 @@ import VendorForm from "./VendorForm";
 import React from "react";
 
 export default function VendorCreatePage() {
-  const empty = { name: "" };
-
+  const empty = { image: null, name: "" };
   return <ResourceCreate empty={empty} apiCreate={api.createVendor} Form={VendorForm} />;
 }

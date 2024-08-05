@@ -12,6 +12,7 @@ class Suma::AdminAPI::Vendors < Suma::AdminAPI::V1
     expose :services, with: VendorServiceEntity
     expose :products, with: ProductEntity
     expose :configurations, with: VendorConfigurationEntity
+    expose :image, with: ImageEntity, &self.delegate_to(:images?, :first)
   end
 
   resource :vendors do
@@ -24,6 +25,7 @@ class Suma::AdminAPI::Vendors < Suma::AdminAPI::V1
 
     Suma::AdminAPI::CommonEndpoints.create(self, Suma::Vendor, DetailedVendorEntity) do
       params do
+        requires :image, type: File
         requires :name, type: String, allow_blank: false
       end
     end
@@ -32,6 +34,7 @@ class Suma::AdminAPI::Vendors < Suma::AdminAPI::V1
 
     Suma::AdminAPI::CommonEndpoints.update self, Suma::Vendor, DetailedVendorEntity do
       params do
+        optional :image, type: File
         optional :name, type: String, allow_blank: false
       end
     end

@@ -5,6 +5,7 @@ import RelatedList from "../components/RelatedList";
 import ResourceDetail from "../components/ResourceDetail";
 import { dayjs } from "../modules/dayConfig";
 import SafeExternalLink from "../shared/react/SafeExternalLink";
+import SumaImage from "../shared/react/SumaImage";
 import theme from "../theme";
 import map from "lodash/map";
 import React from "react";
@@ -18,6 +19,19 @@ export default function VendorDetailPage() {
       properties={(model) => [
         { label: "ID", value: model.id },
         { label: "Created At", value: dayjs(model.createdAt) },
+        {
+          label: "Image",
+          value: (
+            <SumaImage
+              image={model.image}
+              alt={model.image.name}
+              className="w-100"
+              params={{ crop: "center" }}
+              h={225}
+              width={225}
+            />
+          ),
+        },
         { label: "Name", value: model.name },
         { label: "Slug", value: model.slug },
       ]}

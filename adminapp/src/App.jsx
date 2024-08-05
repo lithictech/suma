@@ -61,6 +61,7 @@ import VendorDetailPage from "./pages/VendorDetailPage";
 import VendorEditPage from "./pages/VendorEditPage";
 import VendorListPage from "./pages/VendorListPage";
 import VendorServiceDetailPage from "./pages/VendorServiceDetailPage";
+import VendorServiceEditPage from "./pages/VendorServiceEditPage";
 import VendorServiceListPage from "./pages/VendorServiceListPage";
 import applyHocs from "./shared/applyHocs";
 import { installPromiseExtras } from "./shared/bluejay";
@@ -440,6 +441,11 @@ function PageSwitch() {
           withLayout(),
           VendorServiceDetailPage
         )}
+      />
+      <Route
+        exact
+        path="/vendor-service/:id/edit"
+        element={renderWithHocs(redirectIfUnauthed, withLayout(), VendorServiceEditPage)}
       />
       <Route
         exact
