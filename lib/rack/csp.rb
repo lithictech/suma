@@ -23,7 +23,7 @@ class Rack::Csp
   end
 
   class Policy
-    attr_reader :safe, :inline_scripts, :script_hashes, :img_data, :parts
+    attr_reader :safe, :inline_scripts, :script_hashes, :img_data, :img_blob, :parts
 
     def self.from_hash(h)
       explicit_parts = h[:parts]
@@ -46,6 +46,7 @@ class Rack::Csp
       inline_scripts: [],
       script_hashes: [],
       img_data: false,
+      img_blob: false,
       parts: {}
     )
       safe = safe.compact.join(" ") if safe.respond_to?(:to_ary)
@@ -53,6 +54,7 @@ class Rack::Csp
       @inline_scripts = inline_scripts
       @script_hashes = script_hashes
       @img_data = img_data
+      @img_blob = img_blob
       @parts = parts
     end
 
@@ -64,6 +66,7 @@ class Rack::Csp
 
       img_src = +safe.dup
       img_src << " data:" if img_data
+      img_src << " blob:" if img_blob
 
       script_src = +safe.dup
       all_script_hashes.each do |h|
