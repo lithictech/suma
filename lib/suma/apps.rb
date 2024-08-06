@@ -209,6 +209,7 @@ module Suma::Apps
         safe: ["'self' mysuma.org *.mysuma.org", Suma::Sentry.dsn_host],
         inline_scripts: [script],
         img_data: true,
+        img_blob: true,
         parts: {
           "style-src-elem" => "<SAFE> fonts.googleapis.com 'unsafe-inline'",
           "font-src" => "<SAFE> fonts.gstatic.com",

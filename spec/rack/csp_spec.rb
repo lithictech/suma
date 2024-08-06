@@ -36,6 +36,11 @@ RSpec.describe Rack::Csp do
     expect(csp(mw)).to eq("hi")
   end
 
+  it "can set image blob with the policy hash settings" do
+    mw = described_class.new(app, policy: {img_blob: true})
+    expect(csp(mw)).to eq("default-src 'self'; img-src 'self' blob:; script-src 'self'")
+  end
+
   it "can use a policy object" do
     mw = described_class.new(app, policy: described_class::Policy.new)
     expect(csp(mw)).to eq("default-src 'self'; img-src 'self'; script-src 'self'")
