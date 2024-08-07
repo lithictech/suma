@@ -9,22 +9,8 @@ class Suma::Member::Dashboard
     @at = at
   end
 
-  def payment_account_balance
-    pa = @member.payment_account
-    return Money.new(0) if pa.nil?
-    return pa.total_balance
-  end
-
   def lifetime_savings
     return @member.charges.sum(Money.new(0), &:discount_amount)
-  end
-
-  def ledger_lines
-    if @ledger_lines.nil?
-      pa = @member.payment_account
-      @ledger_lines = pa.nil? ? [] : Suma::Payment::LedgersView.new(pa.ledgers).recent_lines
-    end
-    return @ledger_lines
   end
 
   def next_offerings(limit: 2) = self.offerings.take(limit)
