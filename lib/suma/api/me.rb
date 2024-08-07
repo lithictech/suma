@@ -106,9 +106,7 @@ class Suma::API::Me < Suma::API::V1
 
   class MemberDashboardEntity < BaseEntity
     include Suma::API::Entities
-    expose :payment_account_balance, with: MoneyEntity
     expose :lifetime_savings, with: MoneyEntity
-    expose :ledger_lines, with: DashboardLedgerLineEntity
     expose :next_offerings, as: :offerings, with: AvailableOfferingEntity
     expose :mobility_available?, as: :mobility_vehicles_available
     expose :vendible_groupings, with: VendibleGroupingEntity
