@@ -4,8 +4,9 @@ class Suma::Payment::LedgersView
   attr_reader :ledgers
   attr_accessor :minimum_recent_lines
 
-  def initialize(ledgers, now: Time.now)
-    @ledgers = ledgers || []
+  def initialize(ledgers=[], member:, now: Time.now)
+    @ledgers = ledgers
+    @member = member
     @now = now
     @minimum_recent_lines = 10
   end
@@ -14,8 +15,12 @@ class Suma::Payment::LedgersView
     return self.ledgers.sum(Money.new(0), &:balance)
   end
 
+  def lifetime_savings
+    return @member.charges.sum(Money.new(0), &:discount_amount)
+  end
+
   class RecentLine < Suma::TypedStruct
-    attr_accessor :amount, :apply_at, :memo
+    attr_accessor :id, :amount, :apply_at, :memo, :opaque_id, :usage_details
 
     def directed? = true
   end
@@ -57,7 +62,15 @@ class Suma::Payment::LedgersView
       if (recent_line = merged[key])
         recent_line.amount += bx.amount
       else
-        merged[key] = RecentLine.new(amount: bx.amount, apply_at: bx.apply_at, memo: bx.memo)
+        merged[key] =
+          RecentLine.new(
+            id: bx.id,
+            amount: bx.amount,
+            apply_at: bx.apply_at,
+            memo: bx.memo,
+            opaque_id: bx.opaque_id,
+            usage_details: bx.usage_details,
+          )
       end
     end
     # Sort lines by recency, then within the same instant:

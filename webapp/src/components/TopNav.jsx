@@ -144,7 +144,7 @@ function AuthedUserButtons({ className, user, onCollapse }) {
       <NavLinkButton
         href="/ledgers"
         icon="clock-history"
-        label="Transaction History"
+        label={t("payments:ledger_transactions")}
         onNoChangeClick={onCollapse}
       />
       <NavLinkButton
