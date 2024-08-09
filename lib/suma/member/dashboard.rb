@@ -9,12 +9,6 @@ class Suma::Member::Dashboard
     @at = at
   end
 
-  def lifetime_savings
-    return @member.charges.sum(Money.new(0), &:discount_amount)
-  end
-
-  def next_offerings(limit: 2) = self.offerings.take(limit)
-
   def offerings
     return @offerings ||= Suma::Commerce::Offering.
         available_at(@at).
@@ -31,14 +25,6 @@ class Suma::Member::Dashboard
 
   def vendor_services
     return @vendor_services ||= self.vendor_services_dataset.order { upper(period) }.all
-  end
-
-  def mobility_available?
-    if @mobility_available.nil?
-      vehicles = Suma::Mobility::Vehicle.where(vendor_service: self.vendor_services_dataset)
-      @mobility_available = !vehicles.empty?
-    end
-    return @mobility_available
   end
 
   def vendible_groupings

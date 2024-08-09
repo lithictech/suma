@@ -76,14 +76,6 @@ class Suma::API::Me < Suma::API::V1
     end
   end
 
-  class AvailableOfferingEntity < BaseEntity
-    include Suma::API::Entities
-    expose :id
-    expose_translated :description
-    expose :period_end, as: :closes_at
-    expose :image, with: Suma::API::Entities::ImageEntity, &self.delegate_to(:images?, :first)
-  end
-
   class DashboardLedgerLineEntity < BaseEntity
     include Suma::API::Entities
     include LedgerLineAmountMixin
@@ -106,9 +98,6 @@ class Suma::API::Me < Suma::API::V1
 
   class MemberDashboardEntity < BaseEntity
     include Suma::API::Entities
-    expose :lifetime_savings, with: MoneyEntity
-    expose :next_offerings, as: :offerings, with: AvailableOfferingEntity
-    expose :mobility_available?, as: :mobility_vehicles_available
     expose :vendible_groupings, with: VendibleGroupingEntity
   end
 end

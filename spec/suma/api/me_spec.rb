@@ -133,7 +133,6 @@ RSpec.describe Suma::API::Me, :db do
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.
         that_includes(
-          lifetime_savings: cost("$0"),
           vendible_groupings: have_length(1),
         )
     end
