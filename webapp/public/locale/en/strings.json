@@ -306,6 +306,7 @@
     "cards": "Cards",
     "check_details_subtitle": "At the bottom of your check are three sets of numbers. The first is the 9-digit routing number. The second is your account number. The third, which you can ignore, is your check number.",
     "check_details_title": "What is my Account Number?",
+    "first_page": "‹ First Page",
     "funds": "Funds",
     "ledger_balance": "Funds on Suma",
     "ledger_label": "{{amount, sumaCurrency}} - {{label}}",
@@ -319,6 +320,7 @@
     "no_bank_accounts_warning": "You don't have any bank accounts linked.",
     "no_cards_warning": "You don't have any credit or debit cards linked.",
     "no_money": "You haven't added or spent any money.",
+    "page_not_found": "No results for this page. Please return to the first page.",
     "payment_account_pending": "Pending",
     "payment_account_verified": "Verified",
     "payment_intro": {

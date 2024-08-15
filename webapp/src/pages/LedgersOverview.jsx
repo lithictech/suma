@@ -17,6 +17,7 @@ import find from "lodash/find";
 import first from "lodash/first";
 import isEmpty from "lodash/isEmpty";
 import React from "react";
+import Button from "react-bootstrap/Button";
 import Dropdown from "react-bootstrap/Dropdown";
 import Stack from "react-bootstrap/Stack";
 import Table from "react-bootstrap/Table";
@@ -47,42 +48,29 @@ export default function LedgersOverview() {
     ? find(ledgersOverview.ledgers, { id: ledgerIdParam })
     : firstLedger;
 
-  // Onmount or when we hit the 'back' button, we need to fetch lines
-  // in case the page or ledger id changed.
   React.useEffect(() => {
     if (!activeLedger || !ledgerIdParam) {
       return;
     }
-    if (ledgerLines.ledgerId !== ledgerIdParam) {
-      ledgerLinesFetch({ id: ledgerIdParam, page: 1 });
-    } else if (ledgerLines.currentPage !== page + 1) {
+    if (ledgerLines.currentPage !== page + 1) {
+      // fetch onmount and when changing pages
       ledgerLinesFetch({ id: activeLedger.id, page: page + 1 });
+    } else if (ledgerLines.ledgerId !== ledgerIdParam) {
+      // fetch when selecting a ledger
+      ledgerLinesFetch({ id: ledgerIdParam, page: 1 });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeLedger, page, ledgerIdParam]);
 
-  const activeLines = activeLedger
-    ? ledgerLines.items || []
-    : ledgersOverview.recentLines;
-
-  const handleLinesPageChange = (pg) => {
-    setListQueryParams({ page: pg });
-    ledgerLinesFetch({ id: activeLedger.id, page: pg + 1 });
-  };
-
-  const handleSelected = (ledgerId) => {
-    // setting ledgerId to 0 signals that there is no active ledger
-    // and allows to show recent lines
-    setListQueryParams({ page: 0 }, { ledger: ledgerId });
-    if (ledgerId && activeLedger?.id !== ledgerId) {
-      ledgerLinesFetch({ id: ledgerId, page: 1 });
-    }
-  };
+  const showRecentLines = hasRecentLines && !ledgerIdParam;
+  const activeLines = showRecentLines
+    ? ledgersOverview.recentLines
+    : ledgerLines.items || [];
 
   if (ledgersOverviewLoading && ledgerLinesFetch) {
     return <PageLoader buffered />;
   }
-  const noLedgerFound = ledgerIdParam && !activeLedger && isEmpty(ledgerLines);
+  const noLedgerFound = ledgerIdParam && !activeLedger;
   if (isEmpty(ledgersOverview.ledgers) || noLedgerFound) {
     return (
       <LayoutContainer top>
@@ -102,16 +90,21 @@ export default function LedgersOverview() {
         totalBalance={ledgersOverview.totalBalance}
         lifetimeSavings={ledgersOverview.lifetimeSavings}
         hasRecentLines={hasRecentLines}
-        showRecentLines={hasRecentLines && !ledgerIdParam}
+        showRecentLines={showRecentLines}
         ledgers={ledgersOverview.ledgers}
-        onLedgerSelected={handleSelected}
+        // setting id to 0 means no active ledger and allows to show recent lines
+        onLedgerSelected={(ledgerId) =>
+          setListQueryParams({ page: 0 }, { ledger: ledgerId })
+        }
       />
       <LedgerLines
         lines={activeLines}
-        linesPage={page}
+        linesPage={ledgerLines.currentPage || 0}
         linesPageCount={ledgerLines.pageCount || 0}
         linesLoading={ledgersOverviewLoading || ledgerLinesLoading}
-        onLinesPageChange={handleLinesPageChange}
+        hasMorePages={ledgerLines.hasMore}
+        showRecentLines={showRecentLines}
+        onLinesPageChange={(pg) => setListQueryParams({ page: pg })}
       />
     </>
   );
@@ -201,9 +194,26 @@ const LedgerLines = ({
   linesPage,
   linesPageCount,
   linesLoading,
+  hasMorePages,
+  showRecentLines,
   onLinesPageChange,
 }) => {
   const { selectedHashItem, onHashItemSelected } = useHashSelector(lines, "opaqueId");
+  const withinPageCountLimits = linesPage >= 1 && linesPage <= linesPageCount;
+  if (withinPageCountLimits && isEmpty(lines)) {
+    return (
+      <LayoutContainer className="text-center">{t("payments:no_money")}</LayoutContainer>
+    );
+  } else if (!withinPageCountLimits && !showRecentLines) {
+    return (
+      <LayoutContainer gutters className="text-center">
+        <p className="mt-4">{t("payments:page_not_found")}</p>
+        <Button variant="outline-primary btn-sm" onClick={() => onLinesPageChange(0)}>
+          {t("payments:first_page")}
+        </Button>
+      </LayoutContainer>
+    );
+  }
   return (
     <div className="position-relative">
       {linesLoading && <PageLoader overlay />}
@@ -245,15 +255,14 @@ const LedgerLines = ({
         </tbody>
       </Table>
       <LayoutContainer gutters>
-        {!isEmpty(lines) ? (
+        {!showRecentLines && (
           <ForwardBackPagination
             page={linesPage}
             pageCount={linesPageCount}
+            hasMorePages={hasMorePages}
             onPageChange={onLinesPageChange}
             scrollTop={140}
           />
-        ) : (
-          <p className="text-center">{t("payments:no_money")}</p>
         )}
       </LayoutContainer>
       <LedgerItemModal

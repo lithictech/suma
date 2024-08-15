@@ -49,8 +49,6 @@ RSpec.describe Suma::Payment::LedgersView, :db do
   end
 
   describe "recent_lines" do
-    # let(:account) { Suma::Fixtures.payment_account.create }
-    # let(:member) { account.member }
     let!(:cash_ledger) { Suma::Fixtures.ledger(account:).category(:cash).create(name: "Dolla") }
     let!(:grocery_ledger) { Suma::Fixtures.ledger(account:).category(:food).create(name: "Grub") }
 

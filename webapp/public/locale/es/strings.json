@@ -306,6 +306,7 @@
     "cards": "Tarjetas",
     "check_details_subtitle": "Al calce de un cheque a tres conjuntos numericos. El primero es el número de ruta de 9 dígitos. El segundo es tu número de cuenta. El tercero, que puedes ignorar, es el número del cheque.",
     "check_details_title": "¿Cuál es mi número de cuenta?",
+    "first_page": "‹ Primera Página",
     "funds": "Fondos",
     "ledger_balance": "Fondos en Suma",
     "ledger_label": "{{amount, sumaCurrency}} - {{label}}",
@@ -319,6 +320,7 @@
     "no_bank_accounts_warning": "No tienes una cuenta bancaria vinculada.",
     "no_cards_warning": "No tienes ninguna tarjeta de crédito o débito vinculada.",
     "no_money": "No has añadido ni gastado fondos de tu cuenta.",
+    "page_not_found": "No hay resultados para esta página. Por favor, vuelva a la primera página.",
     "payment_account_pending": "Pendiente",
     "payment_account_verified": "Verificado",
     "payment_intro": {
