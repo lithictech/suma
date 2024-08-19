@@ -6,7 +6,6 @@ import RLink from "../components/RLink";
 import { md, t } from "../localization";
 import { extractErrorCode, useError } from "../state/useError";
 import useScreenLoader from "../state/useScreenLoader";
-import useUser from "../state/useUser";
 import isEmpty from "lodash/isEmpty";
 import React from "react";
 import Button from "react-bootstrap/Button";
@@ -18,7 +17,6 @@ export default function FundingAddCard() {
   const returnTo = params.get("returnTo");
   const returnToImmediate = params.get("returnToImmediate");
   const [submitSuccessful, setSubmitSuccessful] = React.useState(null);
-  const { handleUpdateCurrentMember } = useUser();
   const screenLoader = useScreenLoader();
   const [error, setError] = useError();
 
@@ -28,7 +26,6 @@ export default function FundingAddCard() {
       setError("");
       api
         .createCardStripe({ token: stripeToken })
-        .tap(handleUpdateCurrentMember)
         .then((r) => {
           if (returnToImmediate) {
             navigate(
@@ -44,7 +41,7 @@ export default function FundingAddCard() {
         .catch((e) => setError(extractErrorCode(e)))
         .finally(screenLoader.turnOff);
     },
-    [handleUpdateCurrentMember, navigate, returnToImmediate, screenLoader, setError]
+    [navigate, returnToImmediate, screenLoader, setError]
   );
 
   return (

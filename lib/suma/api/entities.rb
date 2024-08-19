@@ -101,7 +101,6 @@ module Suma::API::Entities
     expose :ongoing_trip
     expose :read_only_mode?, as: :read_only_mode
     expose :read_only_reason
-    expose :usable_payment_instruments, with: PaymentInstrumentEntity
     expose :admin_member, expose_nil: false, with: Suma::Service::Entities::CurrentMember do |_|
       self.current_session.impersonation? ? self.current_session.member : nil
     end

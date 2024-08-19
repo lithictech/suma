@@ -10,7 +10,6 @@ import { Logger } from "../shared/logger";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
 import { extractErrorCode, useError } from "../state/useError";
 import useScreenLoader from "../state/useScreenLoader";
-import useUser from "../state/useUser";
 import filter from "lodash/filter";
 import find from "lodash/find";
 import first from "lodash/first";
@@ -23,11 +22,27 @@ const logger = new Logger("addfunds");
 
 export default function FundingAddFunds() {
   const [error, setError] = useError();
-  const { user, handleUpdateCurrentMember } = useUser();
   const [params] = useSearchParams();
   const navigate = useNavigate();
   const [amountCents, setAmountCents] = React.useState(0);
   const [selectedCurrencyCode] = React.useState("");
+
+  const getPaymentInstrument = React.useCallback(
+    () =>
+      api.getPaymentInstrument({
+        id: params.get("id"),
+        paymentMethodType: params.get("paymentMethodType"),
+      }),
+    [params]
+  );
+  const {
+    state: instrument,
+    loading: instrumentLoading,
+    error: instrumentError,
+  } = useAsyncFetch(getPaymentInstrument, {
+    default: {},
+    pickData: true,
+  });
 
   const {
     state: currenciesResp,
@@ -37,11 +52,6 @@ export default function FundingAddFunds() {
     default: { items: [] },
     pickData: true,
   });
-  const instrument =
-    find(user.usablePaymentInstruments, {
-      id: Number(params.get("id")),
-      paymentMethodType: params.get("paymentMethodType"),
-    }) || {};
   const screenLoader = useScreenLoader();
   // Once we have multiple currencies, we'll need to figure out how to select one
   const validCurrencies = filter(currenciesResp.items, (c) =>
@@ -89,7 +99,6 @@ export default function FundingAddFunds() {
           paymentInstrumentId: instrument.id,
           paymentMethodType: instrument.paymentMethodType,
         })
-        .tap(handleUpdateCurrentMember)
         .then(() => navigate(`/dashboard`, { replace: true }))
         .catch((e) => {
           setError(extractErrorCode(e));
@@ -98,16 +107,14 @@ export default function FundingAddFunds() {
     );
   };
 
-  if (currenciesLoading) {
+  if (instrumentLoading || currenciesLoading) {
     return <ScreenLoader show />;
   }
-  if (currenciesError) {
+  if (instrumentError || currenciesError) {
     return <ErrorScreen />;
   }
   if (!instrument.id) {
-    logger
-      .context({ instruments: user.usablePaymentInstruments })
-      .error("instrument_not_found");
+    logger.error("instrument_not_found");
     return <ErrorScreen />;
   }
   if (!selectedCurrency) {

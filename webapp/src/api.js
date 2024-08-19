@@ -87,6 +87,10 @@ export default {
   claimOrder: ({ orderId, ...data }) =>
     post(`/api/v1/commerce/orders/${orderId}/claim`, data),
 
+  getPaymentInstrument: ({ id, ...data }) =>
+    get(`/api/v1/payment_instruments/${id}`, data),
+  getPaymentInstruments: (data) => get(`/api/v1/payment_instruments`, data),
+
   createBankAccount: (data) =>
     post(`/api/v1/payment_instruments/bank_accounts/create`, data),
   deleteBankAccount: (data) =>

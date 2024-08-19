@@ -25,7 +25,6 @@ class Suma::API::Payments < Suma::API::V1
         instrument:,
         apply_at: Time.now,
       )
-      add_current_member_header
       status 200
       present fx, with: FundingTransactionEntity
     end

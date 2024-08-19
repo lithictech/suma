@@ -12,7 +12,6 @@ import keepDigits from "../modules/keepDigits";
 import useHashToggle from "../shared/react/useHashToggle";
 import { extractErrorCode, useError } from "../state/useError";
 import useScreenLoader from "../state/useScreenLoader";
-import useUser from "../state/useUser";
 import isEmpty from "lodash/isEmpty";
 import React from "react";
 import Button from "react-bootstrap/Button";
@@ -74,7 +73,6 @@ function LinkBankAccount({ onSuccess, returnTo }) {
     mode: "all",
   });
   const [error, setError] = useError();
-  const { user, setUser, handleUpdateCurrentMember } = useUser();
 
   const screenLoader = useScreenLoader();
   const showCheckModalToggle = useHashToggle("check-details");
@@ -99,11 +97,9 @@ function LinkBankAccount({ onSuccess, returnTo }) {
         accountNumber,
         accountType,
       })
-      .tap(handleUpdateCurrentMember)
-      .then((r) => {
-        setUser({ ...user, usablePaymentInstruments: r.data.allPaymentInstruments });
-        onSuccess({ instrumentId: r.data.id, instrumentType: r.data.paymentMethodType });
-      })
+      .then((r) =>
+        onSuccess({ instrumentId: r.data.id, instrumentType: r.data.paymentMethodType })
+      )
       .catch((e) => setError(extractErrorCode(e)))
       .finally(screenLoader.turnOff);
   };

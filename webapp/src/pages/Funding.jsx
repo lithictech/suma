@@ -5,21 +5,32 @@ import LinearBreadcrumbs from "../components/LinearBreadcrumbs";
 import RLink from "../components/RLink";
 import config from "../config";
 import { md, t } from "../localization";
+import useAsyncFetch from "../shared/react/useAsyncFetch";
 import useToggle from "../shared/react/useToggle";
 import useBackendGlobals from "../state/useBackendGlobals";
 import { extractErrorCode, useError } from "../state/useError";
 import useScreenLoader from "../state/useScreenLoader";
-import useUser from "../state/useUser";
 import filter from "lodash/filter";
 import React from "react";
 import Button from "react-bootstrap/Button";
 import Card from "react-bootstrap/Card";
 import Dropdown from "react-bootstrap/Dropdown";
 import Modal from "react-bootstrap/Modal";
+import ErrorScreen from "../components/ErrorScreen";
 
 export default function Funding() {
-  const { user } = useUser();
   const { isPaymentMethodSupported } = useBackendGlobals();
+  const { state: paymentInstruments, replaceState: replaceInstruments, error } = useAsyncFetch(
+    api.getPaymentInstruments,
+    {
+      default: { items: [] },
+      pickData: true,
+    }
+  );
+  if (error) {
+    return <ErrorScreen />
+  }
+  const instruments = paymentInstruments.items;
   return (
     <>
       <LinearBreadcrumbs back />
@@ -27,17 +38,20 @@ export default function Funding() {
       <p>{md("payments:payment_intro.intro")}</p>
       <p id="some">{md("payments:payment_intro.privacy_statement")}</p>
       {isPaymentMethodSupported("bank_account") && (
-        <BankAccountsCard instruments={user.usablePaymentInstruments} />
+        <BankAccountsCard
+          instruments={instruments}
+          replaceInstruments={replaceInstruments}
+        />
       )}
       {isPaymentMethodSupported("card") && (
-        <CardsCard instruments={user.usablePaymentInstruments} />
+        <CardsCard instruments={instruments} replaceInstruments={replaceInstruments} />
       )}
       <AdditionalSourcesCard />
     </>
   );
 }
 
-function BankAccountsCard({ instruments }) {
+function BankAccountsCard({ instruments, replaceInstruments }) {
   const bankAccounts = filter(instruments, { paymentMethodType: "bank_account" });
   return (
     <PaymentsCard header={t("payments:bank_accounts")}>
@@ -51,7 +65,11 @@ function BankAccountsCard({ instruments }) {
       ) : (
         <>
           {bankAccounts.map((ba) => (
-            <InstrumentLine key={ba.id} instrument={ba} />
+            <InstrumentLine
+              key={ba.id}
+              instrument={ba}
+              replaceInstruments={replaceInstruments}
+            />
           ))}
           <hr className="my-4" />
           <Button variant="outline-primary" href="/link-bank-account" as={RLink}>
@@ -63,7 +81,7 @@ function BankAccountsCard({ instruments }) {
   );
 }
 
-function InstrumentLine({ instrument }) {
+function InstrumentLine({ instrument, replaceInstruments }) {
   const showDelete = useToggle(false);
   return (
     <Card className="text-start mb-3 funding-card-border-radius shadow-sm">
@@ -123,6 +141,7 @@ function InstrumentLine({ instrument }) {
             )}
             <DeleteInstrument
               instrument={instrument}
+              replaceInstruments={replaceInstruments}
               apiMethod={
                 instrument.paymentMethodType === "card"
                   ? api.deleteCard
@@ -137,7 +156,7 @@ function InstrumentLine({ instrument }) {
   );
 }
 
-function DeleteInstrument({ instrument, apiMethod, showDelete }) {
+function DeleteInstrument({ instrument, replaceInstruments, apiMethod, showDelete }) {
   return (
     <>
       <Dropdown as="span">
@@ -152,6 +171,7 @@ function DeleteInstrument({ instrument, apiMethod, showDelete }) {
       </Dropdown>
       <DeleteInstrumentModal
         instrument={instrument}
+        replaceInstruments={replaceInstruments}
         apiMethod={apiMethod}
         toggle={showDelete}
       />
@@ -159,8 +179,7 @@ function DeleteInstrument({ instrument, apiMethod, showDelete }) {
   );
 }
 
-function DeleteInstrumentModal({ instrument, apiMethod, toggle }) {
-  const { user, setUser } = useUser();
+function DeleteInstrumentModal({ instrument, replaceInstruments, apiMethod, toggle }) {
   const [error, setError] = useError();
   const screenLoader = useScreenLoader();
 
@@ -168,9 +187,7 @@ function DeleteInstrumentModal({ instrument, apiMethod, toggle }) {
     screenLoader.turnOn();
     e.preventDefault();
     apiMethod({ id: instrument.id })
-      .then((r) =>
-        setUser({ ...user, usablePaymentInstruments: r.data.allPaymentInstruments })
-      )
+      .then((r) => replaceInstruments({ items: r.data.allPaymentInstruments }))
       .catch((e) => setError(extractErrorCode(e)))
       .finally(screenLoader.turnOff);
   }
@@ -202,7 +219,7 @@ function DeleteInstrumentModal({ instrument, apiMethod, toggle }) {
   );
 }
 
-function CardsCard({ instruments }) {
+function CardsCard({ instruments, replaceInstruments }) {
   const cards = filter(instruments, { paymentMethodType: "card" });
   return (
     <PaymentsCard header={t("payments:cards")}>
@@ -216,7 +233,11 @@ function CardsCard({ instruments }) {
       ) : (
         <>
           {cards.map((c) => (
-            <InstrumentLine key={c.id} instrument={c} />
+            <InstrumentLine
+              key={c.id}
+              instrument={c}
+              replaceInstruments={replaceInstruments}
+            />
           ))}
           <hr className="my-4" />
           <Button variant="outline-primary" href="/add-card" as={RLink}>

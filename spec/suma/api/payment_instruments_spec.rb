@@ -14,6 +14,32 @@ RSpec.describe Suma::API::PaymentInstruments, :db, reset_configuration: Suma::Pa
     login_as(member)
   end
 
+  describe "GET /v1/payment_instruments" do
+    it "returns all payment instruments" do
+      card = card_fac.create
+      bank = bank_fac.create
+
+      get "/v1/payment_instruments"
+
+      expect(last_response).to have_json_body.
+        that_includes(items: have_same_ids_as(bank.id, card.id))
+    end
+  end
+
+  describe "GET /v1/payment_instruments/:id" do
+    it "returns the payment instrument that has a 'card' payment method type" do
+      card = card_fac.create
+      get "/v1/payment_instruments/#{card.id}", payment_method_type: "card"
+      expect(last_response).to have_json_body.that_includes(id: card.id)
+    end
+
+    it "returns the payment instrument that has a 'bank_account' payment method type" do
+      bank = bank_fac.create
+      get "/v1/payment_instruments/#{bank.id}", payment_method_type: "bank_account"
+      expect(last_response).to have_json_body.that_includes(id: bank.id)
+    end
+  end
+
   describe "POST /v1/payment_instruments/bank_accounts/create" do
     let(:account_number) { "99988877" }
     let(:routing_number) { "111222333" }
@@ -23,13 +49,12 @@ RSpec.describe Suma::API::PaymentInstruments, :db, reset_configuration: Suma::Pa
       post("/v1/payment_instruments/bank_accounts/create", name: "Foo", account_number:, routing_number:, account_type:)
 
       expect(last_response).to have_status(200)
-      expect(last_response.headers).to include("Suma-Current-Member")
+      # expect(last_response.headers).to include("Suma-Current-Member")
       expect(member.refresh.bank_accounts).to contain_exactly(
         have_attributes(name: "Foo", account_number:, routing_number:, verified?: false),
       )
       ba = member.bank_accounts.first
-      expect(last_response).to have_json_body.
-        that_includes(id: ba.id, all_payment_instruments: have_same_ids_as(ba))
+      expect(last_response).to have_json_body.that_includes(id: ba.id)
     end
 
     it "verifies the account automatically if autoverify is enabled" do
@@ -105,13 +130,12 @@ RSpec.describe Suma::API::PaymentInstruments, :db, reset_configuration: Suma::Pa
 
       expect(last_response).to have_status(200)
       expect(reqs).to all(have_been_made)
-      expect(last_response.headers).to include("Suma-Current-Member")
       expect(member.refresh.cards).to contain_exactly(
         have_attributes(stripe_id: "card_1CgQyH2eZvKYlo2CYkDQhvma"),
       )
       card = member.cards.first
       expect(last_response).to have_json_body.
-        that_includes(id: card.id, all_payment_instruments: have_same_ids_as(card))
+        that_includes(id: card.id)
     end
 
     it "handles a customer who is already registered" do

@@ -6,6 +6,26 @@ class Suma::API::PaymentInstruments < Suma::API::V1
   include Suma::API::Entities
 
   resource :payment_instruments do
+    get do
+      status 200
+      present_collection current_member.usable_payment_instruments, with: PaymentInstrumentEntity
+    end
+    route_param :id, type: Integer do
+      params do
+        requires :payment_method_type, type: String, values: ["bank_account", "card"]
+      end
+      get do
+        instrument_ds = case params[:payment_method_type]
+            when "bank_account"
+              Suma::Payment::BankAccount.dataset
+            when "card"
+              Suma::Payment::Card.dataset
+          end
+        (instrument = instrument_ds[params[:id]]) or forbidden!
+        present instrument, with: PaymentInstrumentEntity
+      end
+    end
+
     resource :bank_accounts do
       params do
         requires :name, type: String, allow_blank: false
@@ -34,13 +54,8 @@ class Suma::API::PaymentInstruments < Suma::API::V1
         end
         set_declared(ba, params)
         save_or_error!(ba)
-        add_current_member_header
         status 200
-        present(
-          ba,
-          with: MutationPaymentInstrumentEntity,
-          all_payment_instruments: c.usable_payment_instruments,
-        )
+        present(ba, with: PaymentInstrumentEntity)
       end
 
       route_param :id, type: Integer do
@@ -83,13 +98,8 @@ class Suma::API::PaymentInstruments < Suma::API::V1
             stripe_json: stripe_card.to_json,
           )
         end
-        add_current_member_header
         status 200
-        present(
-          card,
-          with: MutationPaymentInstrumentEntity,
-          all_payment_instruments: me.usable_payment_instruments,
-        )
+        present(card, with: PaymentInstrumentEntity)
       end
       route_param :id, type: Integer do
         helpers do

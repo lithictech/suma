@@ -12,5 +12,4 @@ export default useUser;
  * @property {boolean} ongoingTrip
  * @property {boolean} readOnlyMode
  * @property {string} readOnlyReason
- * @property {Array<object>} usablePaymentInstruments
  */
