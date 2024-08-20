@@ -128,6 +128,20 @@ RSpec.describe Suma::API::PaymentInstruments, :db, reset_configuration: Suma::Pa
       )
     end
 
+    it "409s if the card already exists with the given card fingerprint" do
+      token_req = stub_request(:get, "https://api.stripe.com/v1/tokens/tok_1AWuxsJd4nFN3COfSKY8195M").
+        to_return(fixture_response("stripe/token"))
+      # match the card fingerprint with the token fingerprint req
+      Suma::Fixtures.card.member(member).with_stripe({fingerprint: "EL88ufXeYTG02LOU"}).create
+
+      member.update(stripe_customer_json: load_fixture_data("stripe/customer"))
+      post "/v1/payment_instruments/cards/create_stripe", token: load_fixture_data("stripe/token.json", raw: true)
+
+      expect(token_req).to have_been_made
+      expect(last_response).to have_status(409)
+      expect(last_response).to have_json_body.that_includes(error: include(code: "conflicting_stripe_card"))
+    end
+
     it "errors if Stripe errors on card create" do
       req = stub_request(:post, "https://api.stripe.com/v1/customers/cus_D6eGmbqyejk8s9/sources").
         to_return(fixture_response("stripe/charge_error", status: 402))

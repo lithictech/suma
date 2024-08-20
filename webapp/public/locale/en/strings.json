@@ -88,6 +88,7 @@
     "checkout_fatal_error": "Sorry, something went wrong trying to check out. Please go back and try again.",
     "checkout_no_items": "There are no items in your cart, or all of your items are unavailable. Please go back and try again.",
     "conflicting_bank_account": "You already have a bank account with that account and routing number. Please go back, or enter new account details.",
+    "conflicting_stripe_card": "You already have a card with that information. Please go back or enter new account details.",
     "disambiguation_required": "$t(strings:errors:unhandled_error)",
     "eligibility_violation": "$t(strings:errors:unhandled_error)",
     "forbidden": "You are forbidden from accessing these resources.",

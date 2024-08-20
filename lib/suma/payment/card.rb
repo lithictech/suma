@@ -49,6 +49,7 @@ class Suma::Payment::Card < Suma::Postgres::Model(:payment_cards)
   end
 
   def stripe_id = self.stripe_json.fetch("id")
+  def fingerprint = self.stripe_json.fetch("fingerprint")
   def last4  = self.stripe_json.fetch("last4")
   def brand  = self.stripe_json.fetch("brand")
   def name = "#{self.brand} x-#{self.last4}"
