@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require "grape"
-require "name_of_person"
 require "suma/api"
 
 class Suma::API::Auth < Suma::API::V1
