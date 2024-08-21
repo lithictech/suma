@@ -407,7 +407,7 @@ DEPENDENCIES
   yajl-ruby
 
 RUBY VERSION
-   ruby 3.1.2p20
+   ruby 3.3.4p94
 
 BUNDLED WITH
-   2.4.5
+   2.5.6
