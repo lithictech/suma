@@ -26,7 +26,7 @@ module Suma::ImageProcessor
     return Vips::Image.new_from_buffer(b, "")
   end
 
-  def self.process(file: nil, buffer: nil, **opts)
+  def self.process(file: nil, buffer: nil, **)
     vimg = if file
              self.from_file(file)
     elsif buffer
@@ -34,7 +34,7 @@ module Suma::ImageProcessor
     else
       raise ArgumentError, "file or buffer must be provided"
     end
-    ip = self.prepare(vimg, **opts)
+    ip = self.prepare(vimg, **)
     return ip.call
   end
 
@@ -63,7 +63,7 @@ module Suma::ImageProcessor
       resize ||= RESIZE_VALUES.first
       raise InvalidOption.new("resize", resize) unless RESIZE_VALUES.include?(resize)
 
-      v = v.send("resize_to_#{resize}", w, h, crop:)
+      v = v.send(:"resize_to_#{resize}", w, h, crop:)
     end
     if quality
       raise InvalidOption.new("quality", quality) unless (1..100).cover?(quality)

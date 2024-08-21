@@ -118,7 +118,7 @@ class Suma::Payment::Ledger < Suma::Postgres::Model(:payment_ledgers)
     service_cat_ids = has_vnd_svc_categories.vendor_service_categories.map(&:id)
     return self.vendor_service_categories.find do |c|
       chain_ids = c.tsort.map(&:id)
-      !(service_cat_ids & chain_ids).empty?
+      service_cat_ids.intersect?(chain_ids)
     end
   end
 

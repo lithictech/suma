@@ -98,7 +98,7 @@ RSpec.describe Suma::AdminAPI::VendorServices, :db do
 
       post "/v1/vendor_services/#{v.id}",
            external_name: "test",
-           image: image,
+           image:,
            period_begin: "2024-07-01T00:00:00-0700",
            period_end: "2024-10-01T00:00:00-0700"
 

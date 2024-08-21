@@ -199,7 +199,7 @@ module Suma::Service::Helpers
   def set_one_relation(model, params, key, id_key: :id)
     return unless params.key?(key)
     value = params.delete(key).delete(id_key)
-    model.send("#{key}_#{id_key}=", value)
+    model.send(:"#{key}_#{id_key}=", value)
   end
 
   # Set the provided, declared/valid parameters in params on model.

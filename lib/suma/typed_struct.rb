@@ -7,7 +7,7 @@ class Suma::TypedStruct
   def initialize(**kwargs)
     self._defaults.merge(kwargs).each do |k, v|
       raise TypeError, "invalid struct field #{k}" unless self.respond_to?(k)
-      self.instance_variable_set("@#{k}".to_sym, v)
+      self.instance_variable_set(:"@#{k}", v)
     end
   end
 

@@ -189,10 +189,10 @@ module Suma::Postgres::ModelUtilities
   def with_setting(key, value)
     old = self.send(key)
     begin
-      self.send("#{key}=", value)
+      self.send(:"#{key}=", value)
       return yield
     ensure
-      self.send("#{key}=", old)
+      self.send(:"#{key}=", old)
     end
   end
 
@@ -203,7 +203,7 @@ module Suma::Postgres::ModelUtilities
         v.blank? || k.to_s.end_with?("_currency")
       end
       begin
-        encrypted = self.class.send(:column_encryption_metadata).map { |(col, _)| col.to_s }.to_set
+        encrypted = self.class.send(:column_encryption_metadata).to_set { |(col, _)| col.to_s }
       rescue NoMethodError
         encrypted = Set.new
       end

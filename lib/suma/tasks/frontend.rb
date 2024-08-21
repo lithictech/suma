@@ -6,7 +6,7 @@ require "suma/tasks"
 
 class Suma::Tasks::Frontend < Rake::TaskLib
   def initialize
-    super()
+    super
     namespace :frontend do
       task :build_webapp do
         self.runcmd("bin/build-webapp")

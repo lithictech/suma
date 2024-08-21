@@ -7,7 +7,7 @@ require "suma/tasks"
 # rubocop:disable Layout/LineLength
 class Suma::Tasks::Bootstrap < Rake::TaskLib
   def initialize
-    super()
+    super
     desc "Bootstrap a new database so you can use the app."
     task :bootstrap do
       raise "only run this in development" unless Suma::RACK_ENV == "development"

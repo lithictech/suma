@@ -23,14 +23,14 @@ module Sequel::Plugins::TranslatedText
       end
 
       text_model_class.define_method(:string=) do |val|
-        self.send("#{SequelTranslatedText.language!}=", val)
+        self.send(:"#{SequelTranslatedText.language!}=", val)
       end
     end
 
     model.instance_eval do
       define_method(:before_create) do
         if self[key].nil?
-          self.send("#{association_name}=", text_model_class.create)
+          self.send(:"#{association_name}=", text_model_class.create)
         else
           self.send(association_name).save_changes
         end
@@ -47,15 +47,15 @@ module Sequel::Plugins::TranslatedText
         super(*args)
       end
 
-      define_method("#{association_name}_string") do
+      define_method(:"#{association_name}_string") do
         return self.send(association_name)&.string || ""
       end
 
-      define_method("#{association_name}_string=") do |val|
+      define_method(:"#{association_name}_string=") do |val|
         txt = self.send(association_name)
         if txt.nil?
           txt = text_model_class.create
-          self.send("#{association_name}=", txt)
+          self.send(:"#{association_name}=", txt)
         end
         txt.string = val
       end

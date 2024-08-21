@@ -46,12 +46,12 @@ module Suma::Http
     raise Error, response
   end
 
-  def self.get(url, query={}, **options, &)
-    opts = {query:, headers: {}}.merge(**options)
+  def self.get(url, query={}, **, &)
+    opts = {query:, headers: {}}.merge(**)
     return self.execute("get", url, **opts, &)
   end
 
-  def self.post(url, body={}, headers: {}, **options, &block)
+  def self.post(url, body={}, headers: {}, **options, &)
     raise ArgumentError, "must pass :logger keyword" unless options.key?(:logger)
     headers["Content-Type"] ||= "application/json"
     unless body.is_a?(String)
@@ -59,7 +59,7 @@ module Suma::Http
       body = URI.encode_www_form(body) if headers["Content-Type"] == "application/x-www-form-urlencoded"
     end
     opts = {body:, headers:}.merge(**options)
-    return self.execute("post", url, **opts, &block)
+    return self.execute("post", url, **opts, &)
   end
 
   def self.execute(method, url, **options, &)

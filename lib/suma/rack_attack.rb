@@ -32,7 +32,7 @@ module Suma::RackAttack
   # TODO: Move into Configurable
   def self.reconfigure(**kw)
     kw.each do |k, v|
-      self.send("#{k}=", v)
+      self.send(:"#{k}=", v)
     end
     self.run_after_configured_hooks
   end

@@ -65,7 +65,7 @@ RSpec.describe Suma::AdminAPI::Vendors, :db do
 
   describe "POST /v1/vendors/create" do
     it "creates a vendor" do
-      post "/v1/vendors/create", name: "test", image: image
+      post("/v1/vendors/create", name: "test", image:)
 
       expect(last_response).to have_status(200)
       expect(Suma::Vendor.all).to have_length(1)
@@ -105,7 +105,7 @@ RSpec.describe Suma::AdminAPI::Vendors, :db do
     it "updates a vendor" do
       v = Suma::Fixtures.vendor.create
 
-      post "/v1/vendors/#{v.id}", name: "test", image: image
+      post("/v1/vendors/#{v.id}", name: "test", image:)
 
       expect(last_response).to have_status(200)
       expect(v.refresh).to have_attributes(name: "test")

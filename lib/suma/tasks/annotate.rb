@@ -6,7 +6,7 @@ require "suma/tasks"
 
 class Suma::Tasks::Annotate < Rake::TaskLib
   def initialize
-    super()
+    super
     desc "Update model annotations"
     task :annotate do
       unless `git diff`.blank?

@@ -71,7 +71,7 @@ RSpec.describe Suma::AdminAPI::CommerceProducts, :db do
       vs = Suma::Fixtures.vendor_service.create
 
       post "/v1/commerce_products/create",
-           image: image,
+           image:,
            name: {en: "EN name", es: "ES name"},
            description: {en: "EN description", es: "ES description"},
            our_cost: {cents: 2400},
@@ -113,7 +113,7 @@ RSpec.describe Suma::AdminAPI::CommerceProducts, :db do
       product = Suma::Fixtures.product.create
 
       post "/v1/commerce_products/#{product.id}",
-           image: image,
+           image:,
            our_cost: {cents: 2400},
            inventory: {quantity_on_hand: 2}
 

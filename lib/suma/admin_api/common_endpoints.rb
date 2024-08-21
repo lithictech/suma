@@ -16,7 +16,7 @@ module Suma::AdminAPI::CommonEndpoints
 
     def model_field_params(m, p)
       mp = p.dup
-      mp.delete_if { |k| !m.respond_to?("#{k}=") }
+      mp.delete_if { |k| !m.respond_to?(:"#{k}=") }
       return mp
     end
 
@@ -113,7 +113,7 @@ module Suma::AdminAPI::CommonEndpoints
           m.send(assoc[:add_method], assoc_model)
         end
         begin
-          unseen_children.values.each(&:destroy)
+          unseen_children.each_value(&:destroy)
         rescue Sequel::ForeignKeyConstraintViolation => e
           msg = "One of these resources could not be removed because it is used elsewhere. " \
                 "Please modify it instead. If you need more help, please contact a developer."

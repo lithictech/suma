@@ -20,9 +20,9 @@ module Suma::Payment
   class UnsupportedMethod < Error; end
 
   configurable(:payments) do
-    setting :autoverify_account_numbers, [], convert: ->(s) { s.split }
+    setting :autoverify_account_numbers, [], convert: lambda(&:split)
     setting :minimum_funding_amount_cents, 500
-    setting :supported_methods, ["bank_account", "card"], convert: ->(s) { s.split }
+    setting :supported_methods, ["bank_account", "card"], convert: lambda(&:split)
   end
 
   APPROXIMATE_ACH_SCHEDULE = Biz::Schedule.new do |config|

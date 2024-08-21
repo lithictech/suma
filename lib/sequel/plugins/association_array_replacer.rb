@@ -1,4 +1,4 @@
-# frozen-string-literal: true
+# frozen_string_literal: true
 
 module Sequel::Plugins::AssociationArrayReplacer
   def self.configure(model, *associations)
@@ -9,10 +9,10 @@ module Sequel::Plugins::AssociationArrayReplacer
       raise Sequel::Error, "#{name} is not a valid association" unless refcls
       refcls[:delay_pks] = false
 
-      setter_method = "replace_#{name}".to_sym
+      setter_method = :"replace_#{name}"
       # To make this safe in the wild (outside this repo),
       # we need to look at the association_pk method name, rather than re-derive it here.
-      pk_setter = "#{name.to_s.singularize}_pks=".to_sym
+      pk_setter = :"#{name.to_s.singularize}_pks="
       refcls[:association_array_replacer_method] = setter_method
       refcls[:association_array_pk_setter_method] = setter_method
       model.define_method setter_method do |array|

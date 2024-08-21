@@ -17,8 +17,8 @@ module Suma::SimpleRegistry
     return r
   end
 
-  def registry_create!(key, *args)
+  def registry_create!(key, *)
     x = self.registry_lookup!(key)
-    return x.new(*args)
+    return x.new(*)
   end
 end

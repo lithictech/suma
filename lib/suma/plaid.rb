@@ -12,6 +12,6 @@ module Suma::Plaid
     setting :app_url, "https://dashboard.plaid.com"
     setting :sync_institutions, false
     setting :bulk_sync_sleep, 1
-    setting :supported_country_codes, ["US"], convert: ->(s) { s.split }
+    setting :supported_country_codes, ["US"], convert: lambda(&:split)
   end
 end

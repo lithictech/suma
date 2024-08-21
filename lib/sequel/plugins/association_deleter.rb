@@ -1,4 +1,4 @@
-# frozen-string-literal: true
+# frozen_string_literal: true
 
 module Sequel::Plugins::AssociationDeleter
   def self.configure(model, *associations)
@@ -9,7 +9,7 @@ module Sequel::Plugins::AssociationDeleter
         msg = "association_deleter many only be used for one_to_many but #{name} is a #{refcls[:type]}"
         raise Sequel::Error, msg
       end
-      delete_all_method = "delete_all_#{name}".to_sym
+      delete_all_method = :"delete_all_#{name}"
       ds_method = refcls.fetch(:dataset_method)
       refcls[:association_deleter_delete_all_method] = delete_all_method
       model.define_method delete_all_method do

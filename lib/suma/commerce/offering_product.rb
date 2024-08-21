@@ -66,8 +66,8 @@ class Suma::Commerce::OfferingProduct < Suma::Postgres::Model(:commerce_offering
 
   # Helper to use when we want to modify an offering product.
   # Should only be needed for testing.
-  def update_without_validate(**kwargs)
-    self.set(**kwargs)
+  def update_without_validate(**)
+    self.set(**)
     return self.save_changes(validate: false)
   end
 

@@ -108,8 +108,7 @@ module Suma::Fixtures::Members
     "email" => nil,
     "invoice_prefix" => "A6D2E24",
     "livemode" => false,
-    "metadata" => {
-    },
+    "metadata" => {},
     "shipping" => nil,
     "sources" => {
       "object" => "list",

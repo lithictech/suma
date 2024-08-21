@@ -1,10 +1,11 @@
 # frozen_string_literal: true
 
 source "https://rubygems.org"
-ruby "3.1.2"
+ruby "3.3.4"
 
-gem "activesupport"
+gem "activesupport", "~> 7.2"
 gem "appydays", "~> 0.7"
+gem "base64"
 gem "bcrypt"
 gem "biz"
 gem "browser"
@@ -16,13 +17,12 @@ gem "grape-entity"
 gem "grape_logging"
 gem "grape-swagger"
 gem "holidays"
-gem "httparty"
+gem "httparty", "~> 0.22"
 gem "image_processing", "~> 1.0"
 gem "liquid"
 gem "mimemagic"
 gem "monetize"
 gem "money"
-gem "name_of_person"
 gem "nokogiri"
 gem "parser"
 gem "pg"
@@ -73,12 +73,12 @@ group :test_group do
   gem "rspec-eventually"
   gem "rspec-json_expectations"
   gem "rspec-temp_dir"
-  gem "rubocop", "~> 1.31.1"
+  gem "rubocop", "~> 1.65.1"
   gem "rubocop-performance", require: false
   gem "rubocop-rake", require: false
   gem "rubocop-sequel", require: false
   gem "simplecov", require: false
   gem "simplecov-cobertura"
   gem "timecop"
-  gem "webmock"
+  gem "webmock", "~> 3.23"
 end

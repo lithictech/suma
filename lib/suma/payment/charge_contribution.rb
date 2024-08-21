@@ -111,7 +111,7 @@ class Suma::Payment::ChargeContribution < Suma::TypedStruct
     # @param [Suma::Payment::Trigger::Plan] funding_plan
     # @return [self]
     def set_relevant_trigger_steps_from(funding_plan)
-      candidate_ledger_ids = self.all.map { |c| c.ledger.id }.to_set
+      candidate_ledger_ids = self.all.to_set { |c| c.ledger.id }
       self.relevant_trigger_steps = funding_plan.steps.select do |st|
         candidate_ledger_ids.include?(st.receiving_ledger.id)
       end

@@ -40,7 +40,7 @@ RSpec.describe "Suma::Image", :db do
       expect(img.associated_object).to be(related)
 
       img.associated_object = nil
-      img.send("#{assoc}=", related)
+      img.send(:"#{assoc}=", related)
       expect(img.send(assoc)).to be(related)
       expect(img.associated_object).to be(related)
     end

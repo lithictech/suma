@@ -60,10 +60,10 @@ RSpec.describe Suma::Vendible, db: true do
       vs1c = Suma::Fixtures.vendor_service.create(external_name: "ccc")
       vs_no_group = Suma::Fixtures.vendor_service.create
 
-      vg2 = Suma::Fixtures.vendible_group.with(o2).named("vg2").create(ordinal: 2)
-      vg1 = Suma::Fixtures.vendible_group.with(o1a_late, o1a_early, o1d, vs1c, vs1b).named("vg1").create(ordinal: 1)
+      vg2 = Suma::Fixtures.vendible_group.with_(o2).named("vg2").create(ordinal: 2)
+      vg1 = Suma::Fixtures.vendible_group.with_(o1a_late, o1a_early, o1d, vs1c, vs1b).named("vg1").create(ordinal: 1)
       vg3 = Suma::Fixtures.vendible_group.named("vg3").create(ordinal: 3)
-      vg4 = Suma::Fixtures.vendible_group.with(o1a_early).named("vg4").create(ordinal: 4)
+      vg4 = Suma::Fixtures.vendible_group.with_(o1a_early).named("vg4").create(ordinal: 4)
 
       grp = described_class.groupings([o1d, o1a_early, o1a_late, o2, vs1b, vs1c, vs_no_group])
       expect(grp).to match(
