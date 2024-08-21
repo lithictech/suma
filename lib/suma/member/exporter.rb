@@ -6,16 +6,16 @@ class Suma::Member::Exporter
   end
 
   HEADERS = [
-    ["Id", ->(m) { m.id }],
-    ["Name", ->(m) { m.name }],
+    ["Id", lambda(&:id)],
+    ["Name", lambda(&:name)],
     ["Lang", ->(m) { m.message_preferences&.preferred_language }],
     ["Channel", ->(m) { m.referral&.channel }],
     ["Event", ->(m) { m.referral&.event_name }],
     ["Phone", lambda { |m|
                 m.soft_deleted? ? m.phone : Suma::PhoneNumber::US.format(m.phone)
               },],
-    ["IntlPhone", ->(m) { m.phone }],
-    ["Email", ->(m) { m.email }],
+    ["IntlPhone", lambda(&:phone)],
+    ["Email", lambda(&:email)],
     ["Address1", ->(m) { m.legal_entity.address&.address1 }],
     ["Address2", ->(m) { m.legal_entity.address&.address2 }],
     ["City", ->(m) { m.legal_entity.address&.city }],
@@ -25,7 +25,7 @@ class Suma::Member::Exporter
     ["Verified", ->(m) { m.onboarding_verified_at ? true : false }],
     ["Eligibility Constraints", ->(m) { m.verified_eligibility_constraints.map(&:name).join("|") }],
     ["Deleted", ->(m) { m.soft_deleted_at ? true : false }],
-    ["Timezone", ->(m) { m.timezone }],
+    ["Timezone", lambda(&:timezone)],
   ].freeze
 
   def to_csv

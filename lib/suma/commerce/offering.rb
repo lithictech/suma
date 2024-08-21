@@ -150,7 +150,7 @@ class Suma::Commerce::Offering < Suma::Postgres::Model(:commerce_offerings)
   end
 
   # Total items ordered across all orders, excluding canceled.
-  def total_ordered_items = total_ordered_items_by_member.values.sum(0)
+  def total_ordered_items = total_ordered_items_by_member.values.sum
 
   dataset_module do
     def available_at(t)

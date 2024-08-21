@@ -3,7 +3,7 @@
 source "https://rubygems.org"
 ruby "3.3.4"
 
-gem "activesupport", '~> 7.2'
+gem "activesupport", "~> 7.2"
 gem "appydays", "~> 0.7"
 gem "base64"
 gem "bcrypt"
@@ -81,5 +81,5 @@ group :test_group do
   gem "simplecov", require: false
   gem "simplecov-cobertura"
   gem "timecop"
-  gem "webmock", '~> 3.23'
+  gem "webmock", "~> 3.23"
 end

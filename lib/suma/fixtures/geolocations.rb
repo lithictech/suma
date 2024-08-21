@@ -25,7 +25,7 @@ module Suma::Fixtures::Geolocations
 
   decorator :from_geo_hash do |h|
     h.each do |k, v|
-      m = "#{k}=".to_sym
+      m = :"#{k}="
       self.send(m, v) if self.respond_to?(m)
     end
   end

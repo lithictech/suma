@@ -6,7 +6,7 @@ require "liquid"
 class Suma::Liquid::Partial < Liquid::Include
   def initialize(tag_name, name, options)
     name = "'partials/#{Regexp.last_match(1)}'" if name =~ /['"]([a-z0-9_]+)['"]/
-    super(tag_name, name, options)
+    super
   end
 end
 Liquid::Template.register_tag("partial", Suma::Liquid::Partial)

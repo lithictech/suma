@@ -6,7 +6,7 @@ require "suma/tasks"
 
 class Suma::Tasks::Sidekiq < Rake::TaskLib
   def initialize
-    super()
+    super
     namespace :sidekiq do
       desc "Clear the Sidekiq redis DB (flushdb). " \
            "Only use on local, and only for legit reasons, " \

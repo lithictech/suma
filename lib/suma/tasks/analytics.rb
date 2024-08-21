@@ -6,7 +6,7 @@ require "suma/tasks"
 
 class Suma::Tasks::Analytics < Rake::TaskLib
   def initialize
-    super()
+    super
     namespace :analytics do
       desc "Truncate all analytics tables."
       task :truncate do

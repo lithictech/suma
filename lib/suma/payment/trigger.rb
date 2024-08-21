@@ -71,7 +71,7 @@ class Suma::Payment::Trigger < Suma::Postgres::Model(:payment_triggers)
     # what is actually being purchased.
     # @return [Array<Suma::Payment::Trigger::Execution>]
     def execute(ledgers:, at:)
-      led_ids = ledgers.map(&:id).to_set
+      led_ids = ledgers.to_set(&:id)
       executions = self.steps.filter_map do |step|
         next unless led_ids.include?(step.receiving_ledger.id)
         book_transaction = Suma::Payment::BookTransaction.create(

@@ -18,7 +18,7 @@ RSpec.describe Rack::SimpleRedirect do
   end
 
   it "redirects callable matches" do
-    mw = described_class.new(app, routes: {(->(env) { env["PATH_INFO"] == "/x" }) => "/a"})
+    mw = described_class.new(app, routes: {->(env) { env["PATH_INFO"] == "/x" } => "/a"})
     expect(mw.call(Rack::MockRequest.env_for("/x"))).to eq([302, {"Location" => "/a"}, []])
     expect(mw.call(Rack::MockRequest.env_for("/xy"))).to eq([200, {}, "success"])
   end

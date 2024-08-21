@@ -6,7 +6,7 @@ require "suma/tasks"
 
 class Suma::Tasks::Message < Rake::TaskLib
   def initialize
-    super()
+    super
     namespace :message do
       desc "Render the specified message using the given language and transport. " \
            "If :out is - or blank, write to stdout, otherwise treat it as a filename."

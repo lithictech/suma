@@ -6,7 +6,7 @@ require "suma/tasks"
 
 class Suma::Tasks::Heroku < Rake::TaskLib
   def initialize
-    super()
+    super
     namespace :heroku do
       desc "Post to Slack if the number of dynos is not what is expected"
       task :check_dynos do

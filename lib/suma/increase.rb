@@ -106,7 +106,7 @@ class Suma::Increase
     return false unless status == "submitted"
     cutoff = Suma::Biztime.roll_days(
       Suma::Payment::APPROXIMATE_ACH_SCHEDULE,
-      (Time.parse(ach_transfer_json["created_at"])).in_time_zone(member_timezone),
+      Time.parse(ach_transfer_json["created_at"]).in_time_zone(member_timezone),
       days: 5,
     )
     return now > cutoff

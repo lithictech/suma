@@ -7,7 +7,6 @@ require "pg"
 require "sentry-ruby"
 require "sequel"
 require "sequel/adapters/postgres"
-require "set"
 
 require "suma"
 require "suma/i18n"

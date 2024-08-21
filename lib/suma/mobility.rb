@@ -40,7 +40,7 @@ module Suma::Mobility
   # would be modified to {c:[45_000_000,-120_000_000], o:[60, 60]}.
   def self.offset_disambiguated_vehicles(map_vehicles)
     all_vehicles = map_vehicles.values.flatten
-    all_vehicles.group_by { |v| v[:c] }.each do |_, shared_loc_vehicles|
+    all_vehicles.group_by { |v| v[:c] }.each_value do |shared_loc_vehicles|
       next if shared_loc_vehicles.count <= 1
       # For each vehicle occupying the same point,
       # we want to offset each one around a circle, equidistant from

@@ -30,7 +30,7 @@ module Suma::I18n
 
   configurable(:i18n) do
     setting :base_locale_code, "en"
-    setting :enabled_locale_codes, ["en", "es"], convert: ->(s) { s.split }
+    setting :enabled_locale_codes, ["en", "es"], convert: lambda(&:split)
 
     after_configured do
       @enabled_locales = self.enabled_locale_codes.map { |c| SUPPORTED_LOCALES.fetch(c) }

@@ -6,7 +6,7 @@ require "suma/tasks"
 
 class Suma::Tasks::I18n < Rake::TaskLib
   def initialize
-    super()
+    super
     namespace :i18n do
       desc "Reformat all locale JSON files to standard spacing and alphabetized keys."
       task :format do

@@ -68,7 +68,7 @@ RSpec.describe Suma::AdminAPI::CommerceOfferings, :db do
       image = Rack::Test::UploadedFile.new(photo_file, "image/png", true)
 
       post "/v1/commerce_offerings/create",
-           image: image,
+           image:,
            description: {en: "EN test", es: "ES test"},
            fulfillment_prompt: {en: "EN prompt", es: "ES prompt"},
            fulfillment_instructions: {en: "", es: ""},
@@ -158,7 +158,7 @@ RSpec.describe Suma::AdminAPI::CommerceOfferings, :db do
       new_period_begin = Time.parse("2023-12-10T08:00:00-0700")
       new_period_end = Time.parse("2023-12-15T05:00:00-0700")
       post "/v1/commerce_offerings/#{o.id}",
-           image: image,
+           image:,
            description: {en: "EN test", es: "ES test"},
            fulfillment_options: {
              "0" => {

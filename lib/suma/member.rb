@@ -19,9 +19,9 @@ class Suma::Member < Suma::Postgres::Model(:members)
   class ReadOnlyMode < RuntimeError; end
 
   configurable(:member) do
-    setting :onboard_allowlist, [], convert: ->(s) { s.split }
-    setting :skip_verification_allowlist, [], convert: ->(s) { s.split }
-    setting :superadmin_allowlist, [], convert: ->(s) { s.split }
+    setting :onboard_allowlist, [], convert: lambda(&:split)
+    setting :skip_verification_allowlist, [], convert: lambda(&:split)
+    setting :superadmin_allowlist, [], convert: lambda(&:split)
   end
 
   # The bcrypt hash cost. Changing this would invalidate all passwords!
@@ -94,11 +94,11 @@ class Suma::Member < Suma::Postgres::Model(:members)
   one_to_many :organization_memberships, class: "Suma::Organization::Membership"
 
   Suma::Eligibility::Constraint::STATUSES.each do |mt|
-    many_to_many "#{mt}_eligibility_constraints".to_sym,
+    many_to_many :"#{mt}_eligibility_constraints",
                  class: "Suma::Eligibility::Constraint",
                  join_table: :eligibility_member_associations,
                  right_key: :constraint_id,
-                 left_key: "#{mt}_member_id".to_sym
+                 left_key: :"#{mt}_member_id"
   end
 
   plugin :association_array_replacer, :roles
@@ -150,7 +150,7 @@ class Suma::Member < Suma::Postgres::Model(:members)
   def eligibility_constraints_with_status
     result = []
     Suma::Eligibility::Constraint::STATUSES.each do |status|
-      constraints = self.send("#{status}_eligibility_constraints")
+      constraints = self.send(:"#{status}_eligibility_constraints")
       result += constraints.map { |c| {constraint: c, status:} }
     end
     return result
@@ -167,7 +167,7 @@ class Suma::Member < Suma::Postgres::Model(:members)
         },
       ).insert(
         constraint_id: constraint.id,
-        "#{group}_member_id".to_sym => self.id,
+        "#{group}_member_id": self.id,
       )
     self.publish_deferred("eligibilitychanged", self.id)
     self.associations.delete(:verified_eligibility_constraints)

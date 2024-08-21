@@ -94,7 +94,7 @@ module Suma::SpecHelpers::Postgres
   # and has a #name method.
   # Call #trash_class to make the class anonymous (remove the constant, have the name return nil)
   # so it can be ignored as an anonymous class.
-  module_function def create_model(name, model_class: nil, &block)
+  module_function def create_model(name, model_class: nil, &)
     Suma::SpecHelpers::Postgres.current_test_model_uid += 1
     model_class ||= Suma::Postgres::Model
     qualifier = Sequel
@@ -104,11 +104,11 @@ module Suma::SpecHelpers::Postgres
       model_class.create_schema!(qualifier)
       prefix = name[1]
     end
-    table_name = "testtable_#{prefix}_#{Suma::SpecHelpers::Postgres.current_test_model_uid}".to_sym
+    table_name = :"testtable_#{prefix}_#{Suma::SpecHelpers::Postgres.current_test_model_uid}"
     qualified_name = qualifier[table_name]
 
     model_class.logger.info "Creating table: %p" % [qualified_name]
-    model_class.db.create_table!(qualified_name, &block)
+    model_class.db.create_table!(qualified_name, &)
     clsname = table_name.to_s.classify
     clsfqn = "#{Suma::SpecHelpers::Postgres::Models}::#{clsname}"
     cls = Class.new(model_class.Model(qualified_name)) do

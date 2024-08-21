@@ -32,7 +32,7 @@ module Suma::Eligibility::HasConstraints
   module InstanceMethods
     def eligible_to?(member)
       return true if self.eligibility_constraints.empty?
-      member_ids = member.verified_eligibility_constraints.map(&:id).to_set
+      member_ids = member.verified_eligibility_constraints.to_set(&:id)
       return self.eligibility_constraints.any? { |ec| member_ids.include?(ec.id) }
     end
 
