@@ -14,11 +14,7 @@ class Suma::API::Ledgers < Suma::API::V1
         led.any_transactions? || led.vendor_service_categories.first&.slug === "cash"
       end
       lv = Suma::Payment::LedgersView.new(ledgers, member: me)
-      present(
-        lv,
-        with: LedgersViewEntity,
-        first_page_count: 0,
-      )
+      present(lv, with: LedgersViewEntity)
     end
 
     route_param :id, type: Integer do
