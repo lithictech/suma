@@ -25,7 +25,7 @@ module Suma::Fixtures::VendibleGroups
     self.add_vendor_service(o)
   end
 
-  decorator :with, presave: true do |*objs|
+  decorator :with_, presave: true do |*objs|
     objs.each { |o| o.add_vendible_group(self) }
   end
 

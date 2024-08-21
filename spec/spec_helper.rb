@@ -33,7 +33,8 @@ Suma.load_app
 Suma::Fixtures.load_all
 
 RSpec.configure do |config|
-  config.full_backtrace = true
+  # Set this in .env.test.local if you want to show full error messages
+  config.full_backtrace = ENV["RSPEC_FULL_BACKTRACE"]
 
   RSpec::Support::ObjectFormatter.default_instance.max_formatted_output_length = 3000
 
