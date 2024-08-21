@@ -104,13 +104,17 @@ Style/Documentation:
 Style/FormatString:
   EnforcedStyle: percent
 Style/NumericPredicate:
-  IgnoredMethods: ['where']
+  AllowedMethods: ['where']
   Exclude:
     - "db/migrations/*"
+Style/RedundantArrayConstructor:
+  Enabled: false # Disabled due to Grape `type: Array[Flat]` usage.
 Style/RedundantReturn:
   Enabled: false
 Style/RedundantSelf:
   Enabled: false
+Style/ReturnNilInPredicateMethodDefinition:
+  Enabled: false # We usually do this but not always.
 Style/StringConcatenation:
   Enabled: false
 Style/StringLiterals:
