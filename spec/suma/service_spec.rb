@@ -533,21 +533,21 @@ RSpec.describe Suma::Service, :db do
   end
 
   describe "Sentry integration" do
-    before(:each) do
+    around(:each) do |example|
       # We need to fake doing what Sentry would be doing for initialization,
       # so we can assert it has the right data in its scope.
-      hub = Sentry::Hub.new(
-        Sentry::Client.new(Sentry::Configuration.new),
-        Sentry::Scope.new,
-      )
+      config = Sentry::Configuration.new
+      client = Sentry::Client.new(config)
+      hub = Sentry::Hub.new(client, Sentry::Scope.new)
       expect(Sentry).to_not be_initialized
       Sentry.instance_variable_set(:@main_hub, hub)
       expect(Sentry).to be_initialized
-    end
-
-    after(:each) do
+      Sentry.instance_variable_set(:@session_flusher, Sentry::SessionFlusher.new(config, client))
+      example.run
+    ensure
       Sentry.instance_variable_set(:@main_hub, nil)
       expect(Sentry).to_not be_initialized
+      Sentry.instance_variable_set(:@session_flusher, nil)
     end
 
     it "reports errors to Sentry if devmode is off and Sentry is enabled" do
