@@ -68,7 +68,7 @@ class Suma::API::Images < Suma::API::V1
     post do
       created_by = current_member
       allowed_roles = Set.new([Suma::Role.admin_role, Suma::Role.upload_files_role])
-      allowed = (allowed_roles & created_by.roles).any?
+      allowed = allowed_roles.intersect?(created_by.roles)
       merror!(403, "You are not allowed to upload images", code: "forbidden") unless allowed
       uf = Suma::UploadedFile.create_from_multipart(params[:file], created_by:)
       use_http_expires_caching(24.hours)

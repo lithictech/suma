@@ -109,7 +109,6 @@ class Suma::API::Auth < Suma::API::V1
       guard_authed!
       me = Suma::Member.with_us_phone(params[:phone])
       begin
-        Suma::Member::ResetCode::Unusable if me.nil?
         if Suma::Member.matches_allowlist?(me, Suma::Member.superadmin_allowlist)
           me.update(onboarding_verified_at: Time.now) unless me.onboarding_verified?
           me.ensure_role(Suma::Role.admin_role)

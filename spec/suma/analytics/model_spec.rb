@@ -29,7 +29,7 @@ RSpec.describe "Suma::Analytics::Model", :db do
       subclass = analytics_model("ToRowsHash")
       subclass.instance_eval do
         unique_key :member_id
-        denormalize Suma::Member, with: ->(m) do {member_id: m.id, phone: m.phone} end
+        denormalize Suma::Member, with: ->(m) { {member_id: m.id, phone: m.phone} }
       end
       m = Suma::Fixtures.member.create(phone: "12223334444")
       expect(subclass.to_rows(m)).to eq([{member_id: m.id, phone: "12223334444"}])
@@ -86,7 +86,7 @@ RSpec.describe "Suma::Analytics::Model", :db do
       subclass = analytics_model("MissingUniqueKey")
       subclass.instance_eval do
         unique_key :member_id
-        denormalize Suma::Member, with: ->(m) do {phone: m.phone} end
+        denormalize Suma::Member, with: ->(m) { {phone: m.phone} }
       end
       m = Suma::Fixtures.member.create
       expect { subclass.to_rows(m) }.to raise_error(/table's unique key :member_id/)
