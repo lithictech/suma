@@ -16,18 +16,34 @@ class Suma::AdminAPI::Organizations < Suma::AdminAPI::V1
       self,
       Suma::Organization,
       DetailedOrganizationEntity,
+      access: Suma::Member::RoleAccess::ADMIN_MEMBERS,
       search_params: [:name],
     )
 
-    Suma::AdminAPI::CommonEndpoints.get_one(self, Suma::Organization, DetailedOrganizationEntity)
+    Suma::AdminAPI::CommonEndpoints.get_one(
+      self,
+      Suma::Organization,
+      DetailedOrganizationEntity,
+      access: Suma::Member::RoleAccess::ADMIN_MEMBERS,
+    )
 
-    Suma::AdminAPI::CommonEndpoints.create(self, Suma::Organization, DetailedOrganizationEntity) do
+    Suma::AdminAPI::CommonEndpoints.create(
+      self,
+      Suma::Organization,
+      DetailedOrganizationEntity,
+      access: Suma::Member::RoleAccess::ADMIN_MANAGEMENT,
+    ) do
       params do
         requires :name, type: String, allow_blank: false
       end
     end
 
-    Suma::AdminAPI::CommonEndpoints.update self, Suma::Organization, DetailedOrganizationEntity do
+    Suma::AdminAPI::CommonEndpoints.update(
+      self,
+      Suma::Organization,
+      DetailedOrganizationEntity,
+      access: Suma::Member::RoleAccess::ADMIN_MANAGEMENT,
+    ) do
       params do
         optional :name, type: String, allow_blank: false
       end

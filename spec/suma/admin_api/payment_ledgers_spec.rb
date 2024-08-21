@@ -15,6 +15,15 @@ RSpec.describe Suma::AdminAPI::PaymentLedgers, :db do
   end
 
   describe "GET /v1/payment_ledgers" do
+    it "errors without role access" do
+      replace_roles(admin, Suma::Role.cache.noop_admin)
+
+      get "/v1/payment_ledgers"
+
+      expect(last_response).to have_status(403)
+      expect(last_response).to have_json_body.that_includes(error: include(code: "role_check"))
+    end
+
     describe "ordering" do
       let!(:pe1) { Suma::Fixtures.ledger.create(account: platform_account) }
       let!(:non_pe1) { Suma::Fixtures.ledger.create }

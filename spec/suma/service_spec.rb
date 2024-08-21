@@ -145,8 +145,11 @@ class Suma::API::TestService < Suma::Service
     present ({x: Date.new(2020, 4, 23)}), with: EtaggedEntity
   end
 
+  params do
+    optional :key
+  end
   get :rolecheck do
-    check_role!(current_member, "testing")
+    check_role_access!(current_member, :read, params[:key] || :admin_access)
     status 200
   end
 
@@ -691,26 +694,25 @@ RSpec.describe Suma::Service, :db do
   describe "role checking" do
     let(:member) { Suma::Fixtures.member.create }
 
-    it "passes if the member has a matching role" do
-      member.add_role(Suma::Role.create(name: "testing"))
+    it "passes if the member has access" do
+      member.add_role(Suma::Role.cache.readonly_admin)
       login_as(member)
       get "/rolecheck"
       expect(last_response).to have_status(200)
     end
 
-    it "errors if no role with that name exists" do
+    it "errors if no role access key with that name exists" do
       login_as(member)
-      get "/rolecheck"
+      get "/rolecheck", key: "foo"
       expect(last_response).to have_status(500)
     end
 
-    it "403s if the member does not have a matching role" do
-      Suma::Role.create(name: "testing")
+    it "403s if the member does not have access" do
       login_as(member)
       get "/rolecheck"
       expect(last_response).to have_json_body.that_includes(
         error: {
-          message: "Sorry, this action is unavailable.",
+          message: "You are not permitted to read on admin_access",
           status: 403,
           code: "role_check",
         },

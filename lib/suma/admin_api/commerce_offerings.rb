@@ -75,6 +75,7 @@ class Suma::AdminAPI::CommerceOfferings < Suma::AdminAPI::V1
       self,
       Suma::Commerce::Offering,
       ListCommerceOfferingEntity,
+      access: Suma::Member::RoleAccess::ADMIN_COMMERCE,
       translation_search_params: [:description],
     )
 
@@ -82,6 +83,7 @@ class Suma::AdminAPI::CommerceOfferings < Suma::AdminAPI::V1
       self,
       Suma::Commerce::Offering,
       DetailedOfferingEntity,
+      access: Suma::Member::RoleAccess::ADMIN_COMMERCE,
     ) do
       params do
         requires :image, type: File
@@ -105,12 +107,18 @@ class Suma::AdminAPI::CommerceOfferings < Suma::AdminAPI::V1
       end
     end
 
-    Suma::AdminAPI::CommonEndpoints.get_one(self, Suma::Commerce::Offering, DetailedOfferingEntity)
+    Suma::AdminAPI::CommonEndpoints.get_one(
+      self,
+      Suma::Commerce::Offering,
+      DetailedOfferingEntity,
+      access: Suma::Member::RoleAccess::ADMIN_COMMERCE,
+    )
 
     Suma::AdminAPI::CommonEndpoints.update(
       self,
       Suma::Commerce::Offering,
       DetailedOfferingEntity,
+      access: Suma::Member::RoleAccess::ADMIN_COMMERCE,
     ) do
       params do
         optional :image, type: File
@@ -139,6 +147,7 @@ class Suma::AdminAPI::CommerceOfferings < Suma::AdminAPI::V1
       self,
       Suma::Commerce::Offering,
       DetailedOfferingEntity,
+      access: Suma::Member::RoleAccess::ADMIN_COMMERCE,
     )
 
     route_param :id, type: Integer do
@@ -151,6 +160,7 @@ class Suma::AdminAPI::CommerceOfferings < Suma::AdminAPI::V1
 
       resource :picklist do
         get do
+          check_role_access!(admin_member, :read, :admin_commerce)
           offering = lookup
           picklist = Suma::Commerce::OfferingPicklist.new(offering).build
           present picklist, with: PicklistEntity

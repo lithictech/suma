@@ -17,15 +17,31 @@ class Suma::AdminAPI::EligibilityConstraints < Suma::AdminAPI::V1
     Suma::AdminAPI::CommonEndpoints.list(
       self,
       Suma::Eligibility::Constraint, EligibilityConstraintEntity,
+      access: Suma::Member::RoleAccess::ADMIN_ACCESS,
       search_params: [:name],
     )
-    Suma::AdminAPI::CommonEndpoints.create self, Suma::Eligibility::Constraint, DetailedEligibilityConstraintEntity do
+    Suma::AdminAPI::CommonEndpoints.create(
+      self,
+      Suma::Eligibility::Constraint,
+      DetailedEligibilityConstraintEntity,
+      access: Suma::Member::RoleAccess::ADMIN_MANAGEMENT,
+    ) do
       params do
         requires :name, type: String, allow_blank: false
       end
     end
-    Suma::AdminAPI::CommonEndpoints.get_one self, Suma::Eligibility::Constraint, DetailedEligibilityConstraintEntity
-    Suma::AdminAPI::CommonEndpoints.update self, Suma::Eligibility::Constraint, DetailedEligibilityConstraintEntity do
+    Suma::AdminAPI::CommonEndpoints.get_one(
+      self,
+      Suma::Eligibility::Constraint,
+      DetailedEligibilityConstraintEntity,
+      access: Suma::Member::RoleAccess::ADMIN_ACCESS,
+    )
+    Suma::AdminAPI::CommonEndpoints.update(
+      self,
+      Suma::Eligibility::Constraint,
+      DetailedEligibilityConstraintEntity,
+      access: Suma::Member::RoleAccess::ADMIN_MANAGEMENT,
+    ) do
       params do
         optional :name, type: String, allow_blank: false
       end

@@ -143,8 +143,18 @@ class Suma::Member < Suma::Postgres::Model(:members)
     self.add_role(role) unless self.roles_dataset[role.id]
   end
 
-  def admin?
-    return self.roles.include?(Suma::Role.admin_role)
+  # Return the +Suma::Member::RoleAccess+ for the member.
+  # If a block is given, evaluate it in the context of the role access.
+  #
+  # @example
+  #     can_read = member.role_access { read?(admin_system) }
+  #     can_write = member.role_access.write?(:admin_system)
+  #
+  # @return [Suma::Member::RoleAccess]
+  def role_access(&)
+    ra = Suma::Member::RoleAccess.new(self)
+    return ra.instance_eval(&) if block_given?
+    return ra
   end
 
   def eligibility_constraints_with_status
@@ -397,6 +407,7 @@ end
 
 require "suma/member/exporter"
 require "suma/member/frontapp_attributes"
+require "suma/member/role_access"
 require "suma/member/stripe_attributes"
 
 # Table: members

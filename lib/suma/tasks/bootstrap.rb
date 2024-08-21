@@ -57,7 +57,7 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
         c.phone = ADMIN_PHONE
         c.onboarding_verified_at = Time.now
       end
-      admin.ensure_role(Suma::Role.admin_role)
+      admin.ensure_role(Suma::Role.cache.admin)
       Suma::Payment.ensure_cash_ledger(admin)
 
       usa = Suma::SupportedGeography.find_or_create(label: "USA", value: "United States of America", type: "country")

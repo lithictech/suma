@@ -21,6 +21,7 @@ class Suma::AdminAPI::FundingTransactions < Suma::AdminAPI::V1
       self,
       Suma::Payment::FundingTransaction,
       FundingTransactionEntity,
+      access: Suma::Member::RoleAccess::ADMIN_PAYMENTS,
       translation_search_params: [:memo],
     )
 
@@ -32,6 +33,7 @@ class Suma::AdminAPI::FundingTransactions < Suma::AdminAPI::V1
       end
     end
     post :create_for_self do
+      check_role_access!(admin_member, :write, :admin_payments)
       instrument_ds = case params[:payment_method_type]
         when "bank_account"
           Suma::Payment::BankAccount.dataset
@@ -58,7 +60,10 @@ class Suma::AdminAPI::FundingTransactions < Suma::AdminAPI::V1
     end
 
     Suma::AdminAPI::CommonEndpoints.get_one(
-      self, Suma::Payment::FundingTransaction, DetailedFundingTransactionEntity,
+      self,
+      Suma::Payment::FundingTransaction,
+      DetailedFundingTransactionEntity,
+      access: Suma::Member::RoleAccess::ADMIN_PAYMENTS,
     )
   end
 end

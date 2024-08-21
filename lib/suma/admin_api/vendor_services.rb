@@ -37,10 +37,21 @@ class Suma::AdminAPI::VendorServices < Suma::AdminAPI::V1
       self,
       Suma::Vendor::Service,
       VendorServiceEntity,
+      access: Suma::Member::RoleAccess::ADMIN_COMMERCE,
       search_params: [:internal_name, :external_name],
     )
-    Suma::AdminAPI::CommonEndpoints.get_one(self, Suma::Vendor::Service, DetailedVendorServiceEntity)
-    Suma::AdminAPI::CommonEndpoints.update(self, Suma::Vendor::Service, DetailedVendorServiceEntity) do
+    Suma::AdminAPI::CommonEndpoints.get_one(
+      self,
+      Suma::Vendor::Service,
+      DetailedVendorServiceEntity,
+      access: Suma::Member::RoleAccess::ADMIN_COMMERCE,
+    )
+    Suma::AdminAPI::CommonEndpoints.update(
+      self,
+      Suma::Vendor::Service,
+      DetailedVendorServiceEntity,
+      access: Suma::Member::RoleAccess::ADMIN_COMMERCE,
+    ) do
       params do
         optional :image, type: File
         optional :external_name, type: String
@@ -52,6 +63,7 @@ class Suma::AdminAPI::VendorServices < Suma::AdminAPI::V1
       self,
       Suma::Vendor::Service,
       DetailedVendorServiceEntity,
+      access: Suma::Member::RoleAccess::ADMIN_COMMERCE,
     )
   end
 end

@@ -24,11 +24,13 @@ class Suma::AdminAPI::MessageDeliveries < Suma::AdminAPI::V1
       self,
       Suma::Message::Delivery,
       MessageDeliveryEntity,
+      access: Suma::Member::RoleAccess::ADMIN_MEMBERS,
       search_params: [:to, :template],
     )
 
     desc "Return the delivery with the last ID"
     get :last do
+      check_role_access!(admin_member, :read, :admin_members)
       delivery = Suma::Message::Delivery.last
       present delivery, with: MessageDeliveryWithBodiesEntity
     end
@@ -37,6 +39,7 @@ class Suma::AdminAPI::MessageDeliveries < Suma::AdminAPI::V1
       self,
       Suma::Message::Delivery,
       MessageDeliveryWithBodiesEntity,
+      access: Suma::Member::RoleAccess::ADMIN_MEMBERS,
     )
   end
 end

@@ -37,7 +37,7 @@ module Suma::Fixtures::Members
   end
 
   decorator :admin, presave: true do
-    self.add_role(Suma::Role.admin_role)
+    self.add_role(Suma::Role.cache.admin)
   end
 
   decorator :with_role, presave: true do |role|

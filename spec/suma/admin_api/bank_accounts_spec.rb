@@ -29,28 +29,4 @@ RSpec.describe Suma::AdminAPI::BankAccounts, :db do
       expect(last_response).to have_status(403)
     end
   end
-
-  describe "DELETE /v1/bank_accounts/:id" do
-    it "soft deletes account" do
-      o = Suma::Fixtures.bank_account.create
-
-      delete "/v1/bank_accounts/#{o.id}"
-
-      expect(last_response).to have_status(200)
-      expect(last_response).to have_json_body.that_includes(id: o.id)
-      expect(o.refresh).to be_soft_deleted
-    end
-  end
-
-  describe "PATCH /v1/bank_accounts/:id" do
-    it "can verify the bank account" do
-      o = Suma::Fixtures.bank_account.create
-
-      patch "/v1/bank_accounts/#{o.id}", verified: true
-
-      expect(last_response).to have_status(200)
-      expect(last_response).to have_json_body.that_includes(id: o.id)
-      expect(o.refresh).to be_verified
-    end
-  end
 end

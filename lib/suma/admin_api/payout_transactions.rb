@@ -22,11 +22,15 @@ class Suma::AdminAPI::PayoutTransactions < Suma::AdminAPI::V1
       self,
       Suma::Payment::PayoutTransaction,
       PayoutTransactionEntity,
+      access: Suma::Member::RoleAccess::ADMIN_PAYMENTS,
       translation_search_params: [:memo],
     )
 
     Suma::AdminAPI::CommonEndpoints.get_one(
-      self, Suma::Payment::PayoutTransaction, DetailedPayoutTransactionEntity,
+      self,
+      Suma::Payment::PayoutTransaction,
+      DetailedPayoutTransactionEntity,
+      access: Suma::Member::RoleAccess::ADMIN_PAYMENTS,
     )
   end
 end

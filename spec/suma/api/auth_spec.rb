@@ -218,7 +218,7 @@ RSpec.describe Suma::API::Auth, :db, reset_configuration: Suma::Member do
       expect(last_response).to have_session_cookie.with_payload_key("warden.user.member.key")
       expect(c.refresh).to have_attributes(
         onboarding_verified?: true,
-        roles: include(Suma::Role.admin_role),
+        roles: include(Suma::Role.cache.admin),
       )
     end
 

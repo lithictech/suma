@@ -24,7 +24,9 @@ class Suma::AdminAPI::BookTransactions < Suma::AdminAPI::V1
   resource :book_transactions do
     Suma::AdminAPI::CommonEndpoints.list(
       self,
-      Suma::Payment::BookTransaction, BookTransactionEntity,
+      Suma::Payment::BookTransaction,
+      BookTransactionEntity,
+      access: Suma::Member::RoleAccess::ADMIN_PAYMENTS,
       search_params: [:opaque_id],
       translation_search_params: [:memo],
     )
@@ -39,6 +41,7 @@ class Suma::AdminAPI::BookTransactions < Suma::AdminAPI::V1
       end
     end
     post :create do
+      check_role_access!(admin_member, :write, :admin_payments)
       (originating = Suma::Payment::Ledger[params[:originating_ledger_id]]) or forbidden!
       (receiving = Suma::Payment::Ledger[params[:receiving_ledger_id]]) or forbidden!
       (vsc = Suma::Vendor::ServiceCategory[slug: params[:vendor_service_category_slug]]) or forbidden!
@@ -55,6 +58,11 @@ class Suma::AdminAPI::BookTransactions < Suma::AdminAPI::V1
       present bx, with: DetailedBookTransactionEntity
     end
 
-    Suma::AdminAPI::CommonEndpoints.get_one self, Suma::Payment::BookTransaction, DetailedBookTransactionEntity
+    Suma::AdminAPI::CommonEndpoints.get_one(
+      self,
+      Suma::Payment::BookTransaction,
+      DetailedBookTransactionEntity,
+      access: Suma::Member::RoleAccess::ADMIN_PAYMENTS,
+    )
   end
 end

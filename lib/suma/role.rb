@@ -5,16 +5,39 @@ require "suma/postgres/model"
 class Suma::Role < Suma::Postgres::Model(:roles)
   include Suma::AdminLinked
 
-  def self.admin_role
-    return Suma.cached_get("role_admin") do
-      self.find_or_create_or_find(name: "admin")
+  class Cache
+    # :section: App Roles
+
+    # Can use the POST /v1/images endpoint to upload files.
+    def upload_files = get("upload_files")
+
+    # :section: Admin Roles
+
+    # Can access the FULL suite of admin capabilities.
+    def admin = get("admin")
+
+    # Can modify admin member information, and view non-privileged areas of admin.
+    def onboarding_manager = get("onboarding_manager")
+
+    # Can read, but not write, all of admin.
+    # Mostly used for testing purposes but could also be used to give people readonly access.
+    def readonly_admin = get("admin_readonly")
+
+    # Used only for testing. Has access to admin but not resources.
+    def noop_admin = get("admin_noop")
+
+    def get(name)
+      name = name.to_s if name.is_a?(Symbol)
+      return Suma.cached_get("role_#{name}") do
+        Suma::Role.find_or_create_or_find(name:)
+      end
     end
   end
 
-  def self.upload_files_role
-    return Suma.cached_get("role_upload_files") do
-      Suma::Role.find_or_create_or_find(name: "upload_files")
-    end
+  class << self
+    # Return a cache of roles lookups.
+    # Generally callers should use +Suma::Member::RoleAccess+ rather than look at roles directly.
+    def cache = @cache ||= Cache.new
   end
 
   many_to_many :members,

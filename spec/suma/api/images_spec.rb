@@ -62,7 +62,7 @@ RSpec.describe Suma::API::Images, :db do
     it "uploads a file" do
       file = Rack::Test::UploadedFile.new(photo_file, "image/png", true)
 
-      member.add_role Suma::Role.admin_role
+      member.add_role Suma::Role.cache.admin
       post "/v1/images", {file:}
 
       expect(last_response).to have_status(200)
@@ -78,7 +78,7 @@ RSpec.describe Suma::API::Images, :db do
     it "allows a user with the upload_files role" do
       file = Rack::Test::UploadedFile.new(photo_file, "image/png", true)
 
-      member.add_role Suma::Role.upload_files_role
+      member.add_role Suma::Role.cache.upload_files
       post "/v1/images", {file:}
 
       expect(last_response).to have_status(200)

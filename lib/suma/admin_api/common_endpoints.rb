@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "suma/admin_api"
+
 module Suma::AdminAPI::CommonEndpoints
   class ThrowNeedsRollback < StandardError
     attr_reader :thrown
@@ -160,7 +162,7 @@ module Suma::AdminAPI::CommonEndpoints
     end
   end
 
-  def self.list(route_def, model_type, entity, search_params: [], translation_search_params: [])
+  def self.list(route_def, model_type, entity, access:, search_params: [], translation_search_params: [])
     # TODO: translation join doesn't work for multiple search terms
     raise ArgumentError("translation join does not work for multiple search terms") if
       translation_search_params.length > 1
@@ -172,6 +174,7 @@ module Suma::AdminAPI::CommonEndpoints
         use :searchable
       end
       get do
+        check_role_access!(admin_member, :read, access)
         ds = model_type.dataset
         search_exprs = search_params.map { |p| search_param_to_sql(params, p) }
         translation_search_params.each do |p|
@@ -190,10 +193,11 @@ module Suma::AdminAPI::CommonEndpoints
     end
   end
 
-  def self.get_one(route_def, model_type, entity)
+  def self.get_one(route_def, model_type, entity, access:)
     route_def.instance_exec do
       route_param :id, type: Integer do
         get do
+          check_role_access!(admin_member, :read, access)
           (m = model_type[params[:id]]) or forbidden!
           present m, with: entity
         end
@@ -201,12 +205,13 @@ module Suma::AdminAPI::CommonEndpoints
     end
   end
 
-  def self.create(route_def, model_type, entity, around: nil, &)
+  def self.create(route_def, model_type, entity, access:, around: nil, &)
     around ||= ->(*, &b) { b.call }
     route_def.instance_exec do
       helpers MutationHelpers
       yield
       post :create do
+        check_role_access!(admin_member, :write, access)
         _throwsafe_transaction(model_type.db) do
           m = model_type.new
           around.call(self, m) do
@@ -222,13 +227,14 @@ module Suma::AdminAPI::CommonEndpoints
     end
   end
 
-  def self.update(route_def, model_type, entity, around: nil, &)
+  def self.update(route_def, model_type, entity, access:, around: nil, &)
     around ||= ->(*, &b) { b.call }
     route_def.instance_exec do
       route_param :id, type: Integer do
         helpers MutationHelpers
         yield
         post do
+          check_role_access!(admin_member, :write, access)
           _throwsafe_transaction(model_type.db) do
             (m = model_type[params[:id]]) or forbidden!
             around.call(self, m) do
@@ -245,7 +251,7 @@ module Suma::AdminAPI::CommonEndpoints
     end
   end
 
-  def self.eligibilities(route_def, model_type, entity)
+  def self.eligibilities(route_def, model_type, entity, access:)
     route_def.instance_exec do
       route_param :id, type: Integer do
         helpers MutationHelpers
@@ -253,6 +259,7 @@ module Suma::AdminAPI::CommonEndpoints
           requires :constraint_ids, type: Array[Integer], coerce_with: Suma::Service::Types::CommaSepArray[Integer]
         end
         post :eligibilities do
+          check_role_access!(admin_member, :write, access)
           _throwsafe_transaction(model_type.db) do
             (m = model_type[params[:id]]) or forbidden!
             params[:constraint_ids].each do |id|

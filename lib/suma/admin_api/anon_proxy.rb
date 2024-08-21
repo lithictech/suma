@@ -51,26 +51,39 @@ class Suma::AdminAPI::AnonProxy < Suma::AdminAPI::V1
 
   resource :anon_proxy do
     resource :vendor_accounts do
-      Suma::AdminAPI::CommonEndpoints.get_one self, Suma::AnonProxy::VendorAccount, DetailedVendorAccountEntity
+      Suma::AdminAPI::CommonEndpoints.get_one(
+        self,
+        Suma::AnonProxy::VendorAccount,
+        DetailedVendorAccountEntity,
+        access: Suma::Member::RoleAccess::ADMIN_MEMBERS,
+      )
       Suma::AdminAPI::CommonEndpoints.list(
         self,
         Suma::AnonProxy::VendorAccount, VendorAccountEntity,
+        access: Suma::Member::RoleAccess::ADMIN_MEMBERS,
         search_params: [:latest_access_code_magic_link, :latest_access_code],
       )
     end
 
     resource :vendor_configurations do
-      Suma::AdminAPI::CommonEndpoints.get_one self, Suma::AnonProxy::VendorConfiguration,
-                                              DetailedVendorConfigurationEntity
+      Suma::AdminAPI::CommonEndpoints.get_one(
+        self,
+        Suma::AnonProxy::VendorConfiguration,
+        DetailedVendorConfigurationEntity,
+        access: Suma::Member::RoleAccess::ADMIN_MEMBERS,
+      )
       Suma::AdminAPI::CommonEndpoints.list(
         self,
-        Suma::AnonProxy::VendorConfiguration, VendorConfigurationEntity,
+        Suma::AnonProxy::VendorConfiguration,
+        VendorConfigurationEntity,
+        access: Suma::Member::RoleAccess::ADMIN_MEMBERS,
       )
 
       Suma::AdminAPI::CommonEndpoints.eligibilities(
         self,
         Suma::AnonProxy::VendorConfiguration,
         DetailedVendorConfigurationEntity,
+        access: Suma::Member::RoleAccess::ADMIN_MEMBERS,
       )
     end
   end

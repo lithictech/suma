@@ -106,6 +106,7 @@ class Suma::AdminAPI::Members < Suma::AdminAPI::V1
       optional :download, type: String, values: ["csv"]
     end
     get do
+      check_role_access!(admin_member, :read, :admin_members)
       ds = Suma::Member.dataset
       if (email_like = search_param_to_sql(params, :email))
         name_like = search_param_to_sql(params, :name)
@@ -126,11 +127,17 @@ class Suma::AdminAPI::Members < Suma::AdminAPI::V1
       end
     end
 
-    Suma::AdminAPI::CommonEndpoints.get_one self, Suma::Member, DetailedMemberEntity
+    Suma::AdminAPI::CommonEndpoints.get_one(
+      self,
+      Suma::Member,
+      DetailedMemberEntity,
+      access: Suma::Member::RoleAccess::ADMIN_MEMBERS,
+    )
     Suma::AdminAPI::CommonEndpoints.update(
       self,
       Suma::Member,
       DetailedMemberEntity,
+      access: Suma::Member::RoleAccess::ADMIN_MEMBERS,
       around: lambda do |rt, m, &block|
         roles = rt.params.delete(:roles)
         block.call
@@ -180,6 +187,7 @@ class Suma::AdminAPI::Members < Suma::AdminAPI::V1
       end
 
       post :close do
+        check_role_access!(admin_member, :write, :admin_members)
         member = lookup_member!
         admin = admin_member
         member.db.transaction do
@@ -202,6 +210,7 @@ class Suma::AdminAPI::Members < Suma::AdminAPI::V1
         end
       end
       post :eligibilities do
+        check_role_access!(admin_member, :write, :admin_members)
         member = lookup_member!
         admin = admin_member
         member.db.transaction do

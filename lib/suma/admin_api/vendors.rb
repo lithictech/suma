@@ -20,19 +20,35 @@ class Suma::AdminAPI::Vendors < Suma::AdminAPI::V1
       self,
       Suma::Vendor,
       VendorEntity,
+      access: Suma::Member::RoleAccess::ADMIN_COMMERCE,
       search_params: [:name, :slug],
     )
 
-    Suma::AdminAPI::CommonEndpoints.create(self, Suma::Vendor, DetailedVendorEntity) do
+    Suma::AdminAPI::CommonEndpoints.create(
+      self,
+      Suma::Vendor,
+      DetailedVendorEntity,
+      access: Suma::Member::RoleAccess::ADMIN_COMMERCE,
+    ) do
       params do
         requires :image, type: File
         requires :name, type: String, allow_blank: false
       end
     end
 
-    Suma::AdminAPI::CommonEndpoints.get_one(self, Suma::Vendor, DetailedVendorEntity)
+    Suma::AdminAPI::CommonEndpoints.get_one(
+      self,
+      Suma::Vendor,
+      DetailedVendorEntity,
+      access: Suma::Member::RoleAccess::ADMIN_COMMERCE,
+    )
 
-    Suma::AdminAPI::CommonEndpoints.update self, Suma::Vendor, DetailedVendorEntity do
+    Suma::AdminAPI::CommonEndpoints.update(
+      self,
+      Suma::Vendor,
+      DetailedVendorEntity,
+      access: Suma::Member::RoleAccess::ADMIN_COMMERCE,
+    ) do
       params do
         optional :image, type: File
         optional :name, type: String, allow_blank: false
