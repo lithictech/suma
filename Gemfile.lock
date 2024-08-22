@@ -380,9 +380,9 @@ DEPENDENCIES
   premailer
   pry
   pry-clipboard2
-  puma (~> 6.4.2)
+  puma (~> 6.4)
   rack-attack
-  rack-cors (~> 2.0.2)
+  rack-cors (~> 2.0)
   rack-protection
   rack-ssl-enforcer
   rack-test
@@ -407,10 +407,10 @@ DEPENDENCIES
   sequel-state-machine (~> 1.4)
   sequel-tstzrange-fields
   sequel_pg
-  sidekiq (~> 6.5.10)
+  sidekiq (~> 6.5)
   sidekiq-amigo (>= 1.7.0)
   sidekiq-cron
-  sidekiq-unique-jobs (~> 7.1.33)
+  sidekiq-unique-jobs (~> 7.1)
   signalwire
   simplecov
   simplecov-cobertura
