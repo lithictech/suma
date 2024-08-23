@@ -1,3 +1,4 @@
+import useRoleAccess from "../hooks/useRoleAccess";
 import CancelIcon from "@mui/icons-material/Cancel";
 import EditIcon from "@mui/icons-material/Edit";
 import SaveIcon from "@mui/icons-material/Save";
@@ -9,6 +10,7 @@ import React from "react";
  * 'display' rendering gets an Edit icon.
  * 'edit' rendering gets Save and Cancel icons.
  *
+ * @param resource Resource type, like 'member'.
  * @param renderDisplay Value to be used when not in editing mode. An Edit icon is added to the right.
  * @param renderEdit Function to be called with (editingState, setEditingState) when in edit mode.
  *   This usually renders an Input that calls setEditingState when it changes.
@@ -19,11 +21,13 @@ import React from "react";
  *   when the save button is pressed.
  */
 export default function InlineEditField({
+  resource,
   renderDisplay,
   renderEdit,
   initialEditingState,
   onSave,
 }) {
+  const { canWriteResource } = useRoleAccess();
   const [editing, setEditing] = React.useState(false);
   const [editingState, setEditingState] = React.useState(initialEditingState);
   function startEditing(e) {
@@ -37,6 +41,9 @@ export default function InlineEditField({
   function discardChanges(e) {
     setEditing(false);
     setEditingState(initialEditingState); // Not strictly needed
+  }
+  if (!canWriteResource(resource)) {
+    return <div>{renderDisplay}</div>;
   }
   if (!editing) {
     return (

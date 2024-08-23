@@ -35,7 +35,6 @@ class Suma::AdminAPI::CommerceProducts < Suma::AdminAPI::V1
       self,
       Suma::Commerce::Product,
       ProductEntity,
-      access: Suma::Member::RoleAccess::ADMIN_COMMERCE,
       translation_search_params: [:name],
     )
 
@@ -43,7 +42,6 @@ class Suma::AdminAPI::CommerceProducts < Suma::AdminAPI::V1
       self,
       Suma::Commerce::Product,
       DetailedEntity,
-      access: Suma::Member::RoleAccess::ADMIN_COMMERCE,
     ) do
       params do
         requires :image, type: File
@@ -65,14 +63,12 @@ class Suma::AdminAPI::CommerceProducts < Suma::AdminAPI::V1
       self,
       Suma::Commerce::Product,
       DetailedEntity,
-      access: Suma::Member::RoleAccess::ADMIN_COMMERCE,
     )
 
     Suma::AdminAPI::CommonEndpoints.update(
       self,
       Suma::Commerce::Product,
       DetailedEntity,
-      access: Suma::Member::RoleAccess::ADMIN_COMMERCE,
     ) do
       params do
         optional :image, type: File

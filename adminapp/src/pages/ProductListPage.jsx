@@ -7,9 +7,9 @@ import React from "react";
 export default function ProductListPage() {
   return (
     <ResourceList
+      resource="product"
       apiList={api.getCommerceProducts}
       toCreate="/product/new"
-      title="Products"
       canSearch
       columns={[
         {

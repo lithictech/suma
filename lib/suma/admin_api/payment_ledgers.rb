@@ -58,7 +58,6 @@ class Suma::AdminAPI::PaymentLedgers < Suma::AdminAPI::V1
       self,
       Suma::Payment::Ledger,
       DetailedLedgerEntity,
-      access: Suma::Member::RoleAccess::ADMIN_PAYMENTS,
     )
   end
 end

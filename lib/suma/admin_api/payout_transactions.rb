@@ -22,7 +22,6 @@ class Suma::AdminAPI::PayoutTransactions < Suma::AdminAPI::V1
       self,
       Suma::Payment::PayoutTransaction,
       PayoutTransactionEntity,
-      access: Suma::Member::RoleAccess::ADMIN_PAYMENTS,
       translation_search_params: [:memo],
     )
 
@@ -30,7 +29,6 @@ class Suma::AdminAPI::PayoutTransactions < Suma::AdminAPI::V1
       self,
       Suma::Payment::PayoutTransaction,
       DetailedPayoutTransactionEntity,
-      access: Suma::Member::RoleAccess::ADMIN_PAYMENTS,
     )
   end
 end

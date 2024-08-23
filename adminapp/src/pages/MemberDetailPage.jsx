@@ -8,6 +8,7 @@ import PaymentAccountRelatedLists from "../components/PaymentAccountRelatedLists
 import RelatedList from "../components/RelatedList";
 import ResourceDetail from "../components/ResourceDetail";
 import useErrorSnackbar from "../hooks/useErrorSnackbar";
+import useRoleAccess from "../hooks/useRoleAccess";
 import { useUser } from "../hooks/user";
 import { dayjs } from "../modules/dayConfig";
 import Money from "../shared/react/Money";
@@ -43,8 +44,8 @@ export default function MemberDetailPage() {
       </Typography>
       <Divider />
       <ResourceDetail
+        resource="member"
         apiGet={api.getMember}
-        title={(model) => `Account Information  ${model.id}`}
         toEdit={(model) => `/member/${model.id}/edit?edit=true`}
         properties={(model, replaceState) => [
           { label: "ID", value: model.id },
@@ -58,6 +59,7 @@ export default function MemberDetailPage() {
             label: "Verified",
             children: (
               <InlineEditField
+                resource="member"
                 renderDisplay={
                   model.onboardingVerifiedAt
                     ? dayjs(model.onboardingVerifiedAt).format("lll")
@@ -108,7 +110,7 @@ export default function MemberDetailPage() {
             <LegalEntity {...model.legalEntity} />
             <EligibilityConstraints
               memberConstraints={model.eligibilityConstraints}
-              memberId={id}
+              memberId={model.id}
               replaceMemberData={setModel}
             />
             <OrganizationMemberships memberships={model.organizationMemberships} />
@@ -159,6 +161,7 @@ function EligibilityConstraints({ memberConstraints, memberId, replaceMemberData
   const [updatedConstraints, setUpdatedConstraints] = React.useState([]);
   const [newConstraint, setNewConstraint] = React.useState({});
   const { enqueueErrorSnackbar } = useErrorSnackbar();
+  const { canWriteResource } = useRoleAccess();
 
   const { state: eligibilityConstraints, loading: eligibilityConstraintsLoading } =
     useAsyncFetch(api.getEligibilityConstraintsMeta, {
@@ -200,9 +203,11 @@ function EligibilityConstraints({ memberConstraints, memberId, replaceMemberData
           title={
             <>
               Eligibility Constraints
-              <IconButton onClick={startEditing}>
-                <EditIcon color="info" />
-              </IconButton>
+              {canWriteResource("member") && (
+                <IconButton onClick={startEditing}>
+                  <EditIcon color="info" />
+                </IconButton>
+              )}
             </>
           }
           properties={properties}
@@ -522,20 +527,26 @@ function VendorAccounts({ vendorAccounts }) {
 function ImpersonateButton({ id }) {
   const { enqueueErrorSnackbar } = useErrorSnackbar();
   const { user, setUser } = useUser();
+  const { canWrite } = useRoleAccess();
   const classes = useStyles();
 
   function handleImpersonate() {
     api
       .impersonate({ id })
       .then((r) => setUser(r.data))
-      .catch((e) => enqueueErrorSnackbar(e));
+      .catch(enqueueErrorSnackbar);
   }
   function handleUnimpersonate() {
     api
       .unimpersonate()
       .then((r) => setUser(r.data))
-      .catch((e) => enqueueErrorSnackbar(e));
+      .catch(enqueueErrorSnackbar);
   }
+
+  if (!canWrite("impersonate")) {
+    return null;
+  }
+
   if (user.impersonating) {
     return (
       <Button

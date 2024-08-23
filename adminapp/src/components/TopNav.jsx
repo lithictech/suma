@@ -1,6 +1,6 @@
 import api from "../api";
 import useErrorSnackbar from "../hooks/useErrorSnackbar";
-import navLinks from "../modules/navLinks";
+import useNavLinks from "../hooks/useNavLinks";
 import useToggle from "../shared/react/useToggle";
 import refreshAsync from "../shared/refreshAsync";
 import Link from "./Link";
@@ -114,6 +114,7 @@ function SlidingNavDrawer({ open, onClose }) {
 }
 
 function DrawerContents() {
+  const navLinks = useNavLinks();
   return (
     <Box md={{ width: drawerWidth }} role="presentation">
       <Toolbar />

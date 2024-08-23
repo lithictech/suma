@@ -20,7 +20,6 @@ class Suma::AdminAPI::Roles < Suma::AdminAPI::V1
       self,
       Suma::Role,
       DetailedRoleEntity,
-      access: Suma::Member::RoleAccess::ADMIN_MANAGEMENT,
     ) do
       params do
         requires :name, type: String, allow_blank: false
@@ -31,14 +30,12 @@ class Suma::AdminAPI::Roles < Suma::AdminAPI::V1
       self,
       Suma::Role,
       DetailedRoleEntity,
-      access: Suma::Member::RoleAccess::ADMIN_ACCESS,
     )
 
     Suma::AdminAPI::CommonEndpoints.update(
       self,
       Suma::Role,
       DetailedRoleEntity,
-      access: Suma::Member::RoleAccess::ADMIN_MANAGEMENT,
     ) do
       params do
         optional :name, type: String, allow_blank: false

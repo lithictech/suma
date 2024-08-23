@@ -1,79 +1,61 @@
 import api from "../api";
 import AdminLink from "../components/AdminLink";
-import DetailGrid from "../components/DetailGrid";
 import RelatedList from "../components/RelatedList";
-import useErrorSnackbar from "../hooks/useErrorSnackbar";
+import ResourceDetail from "../components/ResourceDetail";
 import { dayjs } from "../modules/dayConfig";
 import Money from "../shared/react/Money";
-import useAsyncFetch from "../shared/react/useAsyncFetch";
-import { CircularProgress } from "@mui/material";
-import isEmpty from "lodash/isEmpty";
 import React from "react";
-import { useParams } from "react-router-dom";
 
 export default function BookTransactionDetailPage() {
-  const { enqueueErrorSnackbar } = useErrorSnackbar();
-  let { id } = useParams();
-  id = Number(id);
-  const getBookTransaction = React.useCallback(() => {
-    return api.getBookTransaction({ id }).catch((e) => enqueueErrorSnackbar(e));
-  }, [id, enqueueErrorSnackbar]);
-  const { state: xaction, loading: xactionLoading } = useAsyncFetch(getBookTransaction, {
-    default: {},
-    pickData: true,
-  });
   return (
-    <>
-      {xactionLoading && <CircularProgress />}
-      {!isEmpty(xaction) && (
-        <div>
-          <DetailGrid
-            title={`Book Transaction ${id}`}
-            properties={[
-              { label: "ID", value: id },
-              { label: "Created At", value: dayjs(xaction.createdAt) },
-              { label: "Apply At", value: dayjs(xaction.applyAt) },
-              { label: "Amount", value: <Money>{xaction.amount}</Money> },
-              { label: "Category", value: xaction.associatedVendorServiceCategory?.name },
-              { label: "External Id", value: xaction.opaqueId },
-              { label: `Memo (En)`, value: xaction.memo.en },
-              { label: `Memo (Es)`, value: xaction.memo.es },
-              {
-                label: "Originating",
-                value: (
-                  <AdminLink model={xaction.originatingLedger}>
-                    {xaction.originatingLedger.adminLabel}
-                  </AdminLink>
-                ),
-              },
-              {
-                label: "Receiving",
-                value: (
-                  <AdminLink model={xaction.receivingLedger}>
-                    {xaction.receivingLedger.adminLabel}
-                  </AdminLink>
-                ),
-              },
-              xaction.triggeredBy && {
-                label: "Triggered by",
-                value: (
-                  <AdminLink model={xaction.triggeredBy}>
-                    {xaction.triggeredBy.label}
-                  </AdminLink>
-                ),
-              },
-              {
-                label: "Actor",
-                hideEmpty: true,
-                value: xaction.actor ? (
-                  <AdminLink model={xaction.actor}>{xaction.actor.name}</AdminLink>
-                ) : undefined,
-              },
-            ]}
-          />
+    <ResourceDetail
+      resource="book_transaction"
+      apiGet={api.getBookTransaction}
+      properties={(model) => [
+        { label: "ID", value: model.id },
+        { label: "Created At", value: dayjs(model.createdAt) },
+        { label: "Apply At", value: dayjs(model.applyAt) },
+        { label: "Amount", value: <Money>{model.amount}</Money> },
+        { label: "Category", value: model.associatedVendorServiceCategory?.name },
+        { label: "External Id", value: model.opaqueId },
+        { label: `Memo (En)`, value: model.memo.en },
+        { label: `Memo (Es)`, value: model.memo.es },
+        {
+          label: "Originating",
+          value: (
+            <AdminLink model={model.originatingLedger}>
+              {model.originatingLedger.adminLabel}
+            </AdminLink>
+          ),
+        },
+        {
+          label: "Receiving",
+          value: (
+            <AdminLink model={model.receivingLedger}>
+              {model.receivingLedger.adminLabel}
+            </AdminLink>
+          ),
+        },
+        model.triggeredBy && {
+          label: "Triggered by",
+          value: (
+            <AdminLink model={model.triggeredBy}>{model.triggeredBy.label}</AdminLink>
+          ),
+        },
+        {
+          label: "Actor",
+          hideEmpty: true,
+          value: model.actor ? (
+            <AdminLink model={model.actor}>{model.actor.name}</AdminLink>
+          ) : undefined,
+        },
+      ]}
+    >
+      {(model) => (
+        <>
           <RelatedList
             title="Funding Transactions"
-            rows={xaction.fundingTransactions}
+            rows={model.fundingTransactions}
             headers={["Id", "Created", "Status", "Amount"]}
             keyRowAttr="id"
             toCells={(row) => [
@@ -86,7 +68,7 @@ export default function BookTransactionDetailPage() {
           <RelatedList
             title="Charges"
             headers={["Id", "At", "Undiscounted Total", "Opaque Id"]}
-            rows={xaction.charges}
+            rows={model.charges}
             toCells={(row) => [
               row.id,
               dayjs(row.createdAt).format("lll"),
@@ -94,8 +76,8 @@ export default function BookTransactionDetailPage() {
               row.opaqueId,
             ]}
           />
-        </div>
+        </>
       )}
-    </>
+    </ResourceDetail>
   );
 }

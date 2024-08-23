@@ -1,4 +1,5 @@
 import useErrorSnackbar from "../hooks/useErrorSnackbar";
+import useRoleAccess from "../hooks/useRoleAccess";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
 import DetailGrid from "./DetailGrid";
 import Link from "./Link";
@@ -7,11 +8,20 @@ import { CircularProgress } from "@mui/material";
 import IconButton from "@mui/material/IconButton";
 import isEmpty from "lodash/isEmpty";
 import isFunction from "lodash/isFunction";
+import startCase from "lodash/startCase";
 import React from "react";
 import { useParams } from "react-router-dom";
 
-export default function ResourceDetail({ apiGet, title, properties, toEdit, children }) {
+export default function ResourceDetail({
+  resource,
+  apiGet,
+  title,
+  properties,
+  toEdit,
+  children,
+}) {
   const { enqueueErrorSnackbar } = useErrorSnackbar();
+  const { canWriteResource } = useRoleAccess();
   let { id } = useParams();
   id = Number(id);
   const getResource = React.useCallback(() => {
@@ -25,13 +35,18 @@ export default function ResourceDetail({ apiGet, title, properties, toEdit, chil
     console.error("ResourceDetail children must be a function");
     return null;
   }
+  title = title || ((m) => `${startCase(resource)} ${m.id}`);
   return (
     <>
       {loading && <CircularProgress />}
       {!isEmpty(state) && (
         <div>
           <DetailGrid
-            title={<Title toEdit={toEdit && toEdit(state)}>{title(state)}</Title>}
+            title={
+              <Title toEdit={canWriteResource(resource) && toEdit && toEdit(state)}>
+                {title(state)}
+              </Title>
+            }
             properties={properties(state, replaceState)}
           />
           {children && children(state, replaceState)}

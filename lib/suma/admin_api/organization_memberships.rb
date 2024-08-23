@@ -11,21 +11,18 @@ class Suma::AdminAPI::OrganizationMemberships < Suma::AdminAPI::V1
       self,
       Suma::Organization::Membership,
       OrganizationMembershipEntity,
-      access: Suma::Member::RoleAccess::ADMIN_MEMBERS,
     )
 
     Suma::AdminAPI::CommonEndpoints.list(
       self,
       Suma::Organization::Membership,
       OrganizationMembershipEntity,
-      access: Suma::Member::RoleAccess::ADMIN_MEMBERS,
     )
 
     Suma::AdminAPI::CommonEndpoints.create(
       self,
       Suma::Organization::Membership,
       OrganizationMembershipEntity,
-      access: Suma::Member::RoleAccess::ADMIN_MEMBERS,
     ) do
       params do
         requires(:member, type: JSON) { use :model_with_id }
@@ -38,7 +35,6 @@ class Suma::AdminAPI::OrganizationMemberships < Suma::AdminAPI::V1
       self,
       Suma::Organization::Membership,
       OrganizationMembershipEntity,
-      access: Suma::Member::RoleAccess::ADMIN_MEMBERS,
     ) do
       params do
         optional(:verified_organization, type: JSON) { use :model_with_id }

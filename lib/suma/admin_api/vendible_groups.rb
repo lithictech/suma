@@ -45,7 +45,6 @@ class Suma::AdminAPI::VendibleGroups < Suma::AdminAPI::V1
       self,
       Suma::Vendible::Group,
       DetailedVendibleGroupEntity,
-      access: Suma::Member::RoleAccess::ADMIN_COMMERCE,
     ) do
       params do
         requires(:name, type: JSON) { use :translated_text }
@@ -62,14 +61,12 @@ class Suma::AdminAPI::VendibleGroups < Suma::AdminAPI::V1
       self,
       Suma::Vendible::Group,
       DetailedVendibleGroupEntity,
-      access: Suma::Member::RoleAccess::ADMIN_COMMERCE,
     )
 
     Suma::AdminAPI::CommonEndpoints.update(
       self,
       Suma::Vendible::Group,
       DetailedVendibleGroupEntity,
-      access: Suma::Member::RoleAccess::ADMIN_COMMERCE,
       around: lambda do |rt, m, &block|
         offerings = rt.params.delete(:commerce_offerings)
         vendor_services = rt.params.delete(:vendor_services)

@@ -1,5 +1,6 @@
 import api from "../api";
 import useErrorSnackbar from "../hooks/useErrorSnackbar";
+import useRoleAccess from "../hooks/useRoleAccess";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
 import AdminLink from "./AdminLink";
 import DetailGrid from "./DetailGrid";
@@ -14,11 +15,13 @@ import _ from "lodash";
 import React from "react";
 
 export default function EligibilityConstraints({
+  resource,
   constraints,
   modelId,
   replaceModelData,
   makeUpdateRequest,
 }) {
+  const { canWriteResource } = useRoleAccess();
   const [editing, setEditing] = React.useState(false);
   const [updatedConstraints, setUpdatedConstraints] = React.useState([]);
   const [newConstraintId, setNewConstraintId] = React.useState(0);
@@ -56,9 +59,11 @@ export default function EligibilityConstraints({
           title={
             <>
               Eligibility Constraints
-              <IconButton onClick={startEditing}>
-                <EditIcon color="info" />
-              </IconButton>
+              {canWriteResource(resource) && (
+                <IconButton onClick={startEditing}>
+                  <EditIcon color="info" />
+                </IconButton>
+              )}
             </>
           }
           properties={properties}

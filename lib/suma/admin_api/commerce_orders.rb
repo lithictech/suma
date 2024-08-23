@@ -54,13 +54,11 @@ class Suma::AdminAPI::CommerceOrders < Suma::AdminAPI::V1
       self,
       Suma::Commerce::Order,
       ListOrderEntity,
-      access: Suma::Member::RoleAccess::ADMIN_COMMERCE,
     )
     Suma::AdminAPI::CommonEndpoints.get_one(
       self,
       Suma::Commerce::Order,
       DetailedCommerceOrderEntity,
-      access: Suma::Member::RoleAccess::ADMIN_COMMERCE,
     )
   end
 end

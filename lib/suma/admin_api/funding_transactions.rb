@@ -21,7 +21,6 @@ class Suma::AdminAPI::FundingTransactions < Suma::AdminAPI::V1
       self,
       Suma::Payment::FundingTransaction,
       FundingTransactionEntity,
-      access: Suma::Member::RoleAccess::ADMIN_PAYMENTS,
       translation_search_params: [:memo],
     )
 
@@ -63,7 +62,6 @@ class Suma::AdminAPI::FundingTransactions < Suma::AdminAPI::V1
       self,
       Suma::Payment::FundingTransaction,
       DetailedFundingTransactionEntity,
-      access: Suma::Member::RoleAccess::ADMIN_PAYMENTS,
     )
   end
 end

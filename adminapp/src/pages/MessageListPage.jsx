@@ -1,43 +1,16 @@
 import api from "../api";
 import AdminLink from "../components/AdminLink";
-import ResourceTable from "../components/ResourceTable";
+import ResourceList from "../components/ResourceList";
 import { dayjs } from "../modules/dayConfig";
 import dateFormat from "../shared/dateFormat";
-import useAsyncFetch from "../shared/react/useAsyncFetch";
-import useListQueryControls from "../shared/react/useListQueryControls";
 import React from "react";
 
 export default function MessageListPage() {
-  const { page, perPage, order, orderBy, setListQueryParams } = useListQueryControls();
-
-  const getMessageDeliveries = React.useCallback(() => {
-    return api.getMessageDeliveries({
-      page: page + 1,
-      perPage,
-      orderBy,
-      orderDirection: order,
-    });
-  }, [order, orderBy, page, perPage]);
-
-  const { state: listResponse, loading: listLoading } = useAsyncFetch(
-    getMessageDeliveries,
-    {
-      default: {},
-      pickData: true,
-    }
-  );
   return (
-    <ResourceTable
-      disableSearch
-      page={page}
-      perPage={perPage}
-      order={order}
-      orderBy={orderBy}
-      title="Messages"
-      listResponse={listResponse}
-      listLoading={listLoading}
-      tableProps={{ sx: { minWidth: 650 }, size: "small" }}
-      onParamsChange={setListQueryParams}
+    <ResourceList
+      resource="message_delivery"
+      apiList={api.getMessageDeliveries}
+      canSearch={false}
       columns={[
         {
           id: "id",

@@ -16,7 +16,6 @@ class Suma::AdminAPI::Organizations < Suma::AdminAPI::V1
       self,
       Suma::Organization,
       DetailedOrganizationEntity,
-      access: Suma::Member::RoleAccess::ADMIN_MEMBERS,
       search_params: [:name],
     )
 
@@ -24,14 +23,12 @@ class Suma::AdminAPI::Organizations < Suma::AdminAPI::V1
       self,
       Suma::Organization,
       DetailedOrganizationEntity,
-      access: Suma::Member::RoleAccess::ADMIN_MEMBERS,
     )
 
     Suma::AdminAPI::CommonEndpoints.create(
       self,
       Suma::Organization,
       DetailedOrganizationEntity,
-      access: Suma::Member::RoleAccess::ADMIN_MANAGEMENT,
     ) do
       params do
         requires :name, type: String, allow_blank: false
@@ -42,7 +39,6 @@ class Suma::AdminAPI::Organizations < Suma::AdminAPI::V1
       self,
       Suma::Organization,
       DetailedOrganizationEntity,
-      access: Suma::Member::RoleAccess::ADMIN_MANAGEMENT,
     ) do
       params do
         optional :name, type: String, allow_blank: false

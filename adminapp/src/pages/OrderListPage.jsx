@@ -1,39 +1,15 @@
 import api from "../api";
 import AdminLink from "../components/AdminLink";
-import ResourceTable from "../components/ResourceTable";
+import ResourceList from "../components/ResourceList";
 import { dayjs } from "../modules/dayConfig";
-import useAsyncFetch from "../shared/react/useAsyncFetch";
-import useListQueryControls from "../shared/react/useListQueryControls";
 import React from "react";
 
 export default function OrderListPage() {
-  const { page, perPage, order, orderBy, setListQueryParams } = useListQueryControls();
-
-  const getCommerceOrders = React.useCallback(() => {
-    return api.getCommerceOrders({
-      page: page + 1,
-      perPage,
-      orderBy,
-      orderDirection: order,
-    });
-  }, [order, orderBy, page, perPage]);
-
-  const { state: listResponse, loading: listLoading } = useAsyncFetch(getCommerceOrders, {
-    default: {},
-    pickData: true,
-  });
   return (
-    <ResourceTable
-      disableSearch
-      page={page}
-      perPage={perPage}
-      order={order}
-      orderBy={orderBy}
-      title="Orders"
-      listResponse={listResponse}
-      listLoading={listLoading}
-      tableProps={{ sx: { minWidth: 650 }, size: "small" }}
-      onParamsChange={setListQueryParams}
+    <ResourceList
+      resource="order"
+      apiList={api.getCommerceOrders}
+      canSearch={false}
       columns={[
         {
           id: "id",

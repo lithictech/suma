@@ -11,8 +11,8 @@ import React from "react";
 export default function VendorServiceDetailPage() {
   return (
     <ResourceDetail
+      resource="vendor_service"
       apiGet={api.getVendorService}
-      title={(model) => `Vendor Service ${model.id}`}
       toEdit={(model) => `/vendor-service/${model.id}/edit`}
       properties={(model) => [
         { label: "ID", value: model.id },
@@ -24,9 +24,8 @@ export default function VendorServiceDetailPage() {
               image={model.image}
               alt={model.image.name}
               className="w-100"
-              params={{ crop: "center" }}
-              h={225}
-              width={225}
+              params={{ crop: "none" }}
+              h={150}
             />
           ),
         },
@@ -44,6 +43,7 @@ export default function VendorServiceDetailPage() {
       {(model, setModel) => (
         <>
           <EligibilityConstraints
+            resource="vendor_service"
             modelId={model.id}
             constraints={model.eligibilityConstraints}
             makeUpdateRequest={api.updateVendorServiceEligibilityConstraints}

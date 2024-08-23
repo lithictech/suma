@@ -1,3 +1,4 @@
+import useRoleAccess from "../hooks/useRoleAccess";
 import { dayjs } from "../modules/dayConfig";
 import { formatMoney } from "../shared/money";
 import Money from "../shared/react/Money";
@@ -11,34 +12,47 @@ import map from "lodash/map";
 import React from "react";
 
 export default function PaymentAccountRelatedLists({ paymentAccount }) {
+  const { canWriteResource } = useRoleAccess();
   if (!paymentAccount) {
     return null;
   }
+  const canCreateBook = canWriteResource("book_transaction");
+  const headers = ["Id", "Currency", "Categories", "Balance"];
+  if (canCreateBook) {
+    headers.push("New Transaction");
+  }
+
   return (
     <>
       <RelatedList
         title={`Ledgers - ${formatMoney(paymentAccount.totalBalance)}`}
-        headers={["Id", "Currency", "Categories", "Balance", "New Transaction"]}
+        headers={headers}
         rows={paymentAccount.ledgers}
         keyRowAttr="id"
-        toCells={(row) => [
-          <AdminLink key="id" model={row} />,
-          row.currency,
-          map(row.vendorServiceCategories, "name").join(", "),
-          <Money key="balance">{row.balance}</Money>,
-          <Link
-            key="transaction"
-            to={`/book-transaction/new?originatingLedgerId=0&receivingLedgerId=${
-              row.id
-            }&vendorServiceCategorySlug=${get(
-              first(row.vendorServiceCategories),
-              "slug"
-            )}`}
-          >
-            Add Book Credit
-          </Link>,
-          row.softDeletedAt ? dayjs(row.softDeletedAt).format("lll") : "",
-        ]}
+        toCells={(row) => {
+          const cells = [
+            <AdminLink key="id" model={row} />,
+            row.currency,
+            map(row.vendorServiceCategories, "name").join(", "),
+            <Money key="balance">{row.balance}</Money>,
+          ];
+          if (canCreateBook) {
+            cells.push(
+              <Link
+                key="transaction"
+                to={`/book-transaction/new?originatingLedgerId=0&receivingLedgerId=${
+                  row.id
+                }&vendorServiceCategorySlug=${get(
+                  first(row.vendorServiceCategories),
+                  "slug"
+                )}`}
+              >
+                Add Book Credit
+              </Link>
+            );
+          }
+          return cells;
+        }}
       />
       {paymentAccount.ledgers.map((ledger) => (
         <LedgerBookTransactionsRelatedList

@@ -22,7 +22,6 @@ class Suma::AdminAPI::CommerceOfferingProducts < Suma::AdminAPI::V1
       self,
       Suma::Commerce::OfferingProduct,
       DetailedCommerceOfferingProductEntity,
-      access: Suma::Member::RoleAccess::ADMIN_COMMERCE,
     ) do
       params do
         requires(:offering, type: JSON) { use :model_with_id }
@@ -36,7 +35,6 @@ class Suma::AdminAPI::CommerceOfferingProducts < Suma::AdminAPI::V1
       self,
       Suma::Commerce::OfferingProduct,
       DetailedCommerceOfferingProductEntity,
-      access: Suma::Member::RoleAccess::ADMIN_COMMERCE,
     )
 
     route_param :id, type: Integer do

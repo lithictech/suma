@@ -68,8 +68,6 @@ class Suma::Member::RoleAccess
     if member.roles.include?(Suma::Role.cache.onboarding_manager)
       self.add_feature(ADMIN_ACCESS, true, true)
       self.add_feature(ADMIN_MEMBERS, true, true)
-      self.add_feature(ADMIN_COMMERCE, true, false)
-      self.add_feature(ADMIN_PAYMENTS, true, false)
     end
     # rubocop:enable Style/GuardClause, Style/IfUnlessModifier
   end

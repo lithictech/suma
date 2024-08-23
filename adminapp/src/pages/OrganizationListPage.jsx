@@ -7,6 +7,7 @@ import React from "react";
 export default function OrganizationListPage() {
   return (
     <ResourceList
+      resource="organization"
       apiList={api.getOrganizations}
       toCreate="/organization/new"
       title="Organizations"

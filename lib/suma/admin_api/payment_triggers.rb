@@ -33,7 +33,6 @@ class Suma::AdminAPI::PaymentTriggers < Suma::AdminAPI::V1
       self,
       Suma::Payment::Trigger,
       PaymentTriggerEntity,
-      access: Suma::Member::RoleAccess::ADMIN_PAYMENTS,
       translation_search_params: [:memo],
     )
 
@@ -41,14 +40,12 @@ class Suma::AdminAPI::PaymentTriggers < Suma::AdminAPI::V1
       self,
       Suma::Payment::Trigger,
       DetailedPaymentTriggerEntity,
-      access: Suma::Member::RoleAccess::ADMIN_PAYMENTS,
     )
 
     Suma::AdminAPI::CommonEndpoints.create(
       self,
       Suma::Payment::Trigger,
       DetailedPaymentTriggerEntity,
-      access: Suma::Member::RoleAccess::ADMIN_MANAGEMENT,
     ) do
       params do
         requires :label, type: String
@@ -67,7 +64,6 @@ class Suma::AdminAPI::PaymentTriggers < Suma::AdminAPI::V1
       self,
       Suma::Payment::Trigger,
       PaymentTriggerEntity,
-      access: Suma::Member::RoleAccess::ADMIN_MANAGEMENT,
     ) do
       params do
         optional :label, type: String

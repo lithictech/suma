@@ -9,8 +9,8 @@ import React from "react";
 export default function OfferingProductDetailPage() {
   return (
     <ResourceDetail
+      resource="offering_product"
       apiGet={api.getCommerceOfferingProduct}
-      title={(model) => `Offering Product ${model.id}`}
       toEdit={(model) => `/offering-product/${model.id}/edit?edit=true`}
       properties={(model) => [
         { label: "ID", value: model.id },

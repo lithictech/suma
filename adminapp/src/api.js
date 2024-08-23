@@ -89,6 +89,7 @@ export default {
     get(`/adminapi/v1/meta/vendor_service_categories`, data),
   getEligibilityConstraintsMeta: (data) =>
     get(`/adminapi/v1/meta/eligibility_constraints`, data),
+  getResourceAccessMeta: (data) => get(`/adminapi/v1/meta/resource_access`, data),
 
   getEligibilityConstraints: (data) => get(`/adminapi/v1/eligibility_constraints`, data),
   createEligibilityConstraint: (data) =>

@@ -131,13 +131,11 @@ class Suma::AdminAPI::Members < Suma::AdminAPI::V1
       self,
       Suma::Member,
       DetailedMemberEntity,
-      access: Suma::Member::RoleAccess::ADMIN_MEMBERS,
     )
     Suma::AdminAPI::CommonEndpoints.update(
       self,
       Suma::Member,
       DetailedMemberEntity,
-      access: Suma::Member::RoleAccess::ADMIN_MEMBERS,
       around: lambda do |rt, m, &block|
         roles = rt.params.delete(:roles)
         block.call

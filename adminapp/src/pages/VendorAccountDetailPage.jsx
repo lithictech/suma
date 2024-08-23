@@ -11,8 +11,8 @@ import React from "react";
 export default function VendorAccountDetailPage() {
   return (
     <ResourceDetail
+      resource="vendor_account"
       apiGet={api.getVendorAccount}
-      title={(model) => `Vendor Account ${model.id}`}
       properties={(model) => [
         { label: "ID", value: model.id },
         { label: "Created At", value: dayjs(model.createdAt) },

@@ -24,7 +24,6 @@ class Suma::AdminAPI::MessageDeliveries < Suma::AdminAPI::V1
       self,
       Suma::Message::Delivery,
       MessageDeliveryEntity,
-      access: Suma::Member::RoleAccess::ADMIN_MEMBERS,
       search_params: [:to, :template],
     )
 
@@ -39,7 +38,6 @@ class Suma::AdminAPI::MessageDeliveries < Suma::AdminAPI::V1
       self,
       Suma::Message::Delivery,
       MessageDeliveryWithBodiesEntity,
-      access: Suma::Member::RoleAccess::ADMIN_MEMBERS,
     )
   end
 end

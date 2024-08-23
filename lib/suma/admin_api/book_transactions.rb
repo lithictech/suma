@@ -26,7 +26,6 @@ class Suma::AdminAPI::BookTransactions < Suma::AdminAPI::V1
       self,
       Suma::Payment::BookTransaction,
       BookTransactionEntity,
-      access: Suma::Member::RoleAccess::ADMIN_PAYMENTS,
       search_params: [:opaque_id],
       translation_search_params: [:memo],
     )
@@ -62,7 +61,6 @@ class Suma::AdminAPI::BookTransactions < Suma::AdminAPI::V1
       self,
       Suma::Payment::BookTransaction,
       DetailedBookTransactionEntity,
-      access: Suma::Member::RoleAccess::ADMIN_PAYMENTS,
     )
   end
 end

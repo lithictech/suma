@@ -7,6 +7,7 @@ import React from "react";
 export default function OrganizationMembershipDetailPage() {
   return (
     <ResourceDetail
+      resource="organization_membership"
       apiGet={api.getOrganizationMembership}
       title={(model) => `Organization Membership ${model.id}`}
       toEdit={(model) => `/membership/${model.id}/edit`}

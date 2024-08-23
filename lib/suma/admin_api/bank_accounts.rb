@@ -18,7 +18,6 @@ class Suma::AdminAPI::BankAccounts < Suma::AdminAPI::V1
       self,
       Suma::Payment::BankAccount,
       DetailedBankAccountEntity,
-      access: Suma::Member::RoleAccess::ADMIN_MEMBERS,
     )
   end
 end

@@ -9,8 +9,8 @@ import React from "react";
 export default function VendibleGroupDetailPage() {
   return (
     <ResourceDetail
+      resource="vendible_group"
       apiGet={api.getVendibleGroup}
-      title={(model) => `Vendible Group ${model.id}`}
       toEdit={(model) => `/vendible-group/${model.id}/edit`}
       properties={(model) => [
         { label: "ID", value: model.id },
@@ -60,9 +60,8 @@ export default function VendibleGroupDetailPage() {
                 image={row.image}
                 alt={row.image.name}
                 className="w-100"
-                params={{ crop: "center" }}
+                params={{ crop: "none" }}
                 h={50}
-                width={50}
               />,
               row.name.en,
               row.name.es,

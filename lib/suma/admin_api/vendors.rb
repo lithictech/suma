@@ -20,7 +20,6 @@ class Suma::AdminAPI::Vendors < Suma::AdminAPI::V1
       self,
       Suma::Vendor,
       VendorEntity,
-      access: Suma::Member::RoleAccess::ADMIN_COMMERCE,
       search_params: [:name, :slug],
     )
 
@@ -28,7 +27,6 @@ class Suma::AdminAPI::Vendors < Suma::AdminAPI::V1
       self,
       Suma::Vendor,
       DetailedVendorEntity,
-      access: Suma::Member::RoleAccess::ADMIN_COMMERCE,
     ) do
       params do
         requires :image, type: File
@@ -40,14 +38,12 @@ class Suma::AdminAPI::Vendors < Suma::AdminAPI::V1
       self,
       Suma::Vendor,
       DetailedVendorEntity,
-      access: Suma::Member::RoleAccess::ADMIN_COMMERCE,
     )
 
     Suma::AdminAPI::CommonEndpoints.update(
       self,
       Suma::Vendor,
       DetailedVendorEntity,
-      access: Suma::Member::RoleAccess::ADMIN_COMMERCE,
     ) do
       params do
         optional :image, type: File
