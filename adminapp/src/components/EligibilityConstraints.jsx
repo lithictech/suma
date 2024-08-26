@@ -1,17 +1,20 @@
 import api from "../api";
+import { useGlobalApiState } from "../hooks/globalApiState";
 import useErrorSnackbar from "../hooks/useErrorSnackbar";
 import useRoleAccess from "../hooks/useRoleAccess";
-import useAsyncFetch from "../shared/react/useAsyncFetch";
+import useToggle from "../shared/react/useToggle";
 import AdminLink from "./AdminLink";
-import DetailGrid from "./DetailGrid";
+import AddCircleOutlinedIcon from "@mui/icons-material/AddCircleOutlined";
 import CancelIcon from "@mui/icons-material/Cancel";
-import CheckIcon from "@mui/icons-material/Check";
-import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
+import RemoveCircleOutlinedIcon from "@mui/icons-material/RemoveCircleOutlined";
 import SaveIcon from "@mui/icons-material/Save";
-import { MenuItem, Select } from "@mui/material";
+import { Chip, Stack, Typography } from "@mui/material";
+import Box from "@mui/material/Box";
 import IconButton from "@mui/material/IconButton";
 import _ from "lodash";
+import map from "lodash/map";
+import merge from "lodash/merge";
 import React from "react";
 
 export default function EligibilityConstraints({
@@ -22,133 +25,128 @@ export default function EligibilityConstraints({
   makeUpdateRequest,
 }) {
   const { canWriteResource } = useRoleAccess();
-  const [editing, setEditing] = React.useState(false);
-  const [updatedConstraints, setUpdatedConstraints] = React.useState([]);
-  const [newConstraintId, setNewConstraintId] = React.useState(0);
+  const editing = useToggle(false);
+  // When we're editing, and something is toggled on and off, set the new state here.
+  const [newConstraintStates, setNewConstraintStates] = React.useState({});
   const { enqueueErrorSnackbar } = useErrorSnackbar();
 
-  const { state: eligibilityConstraints, loading: eligibilityConstraintsLoading } =
-    useAsyncFetch(api.getEligibilityConstraintsMeta, {
-      pickData: true,
-    });
+  const allConstraints = useGlobalApiState(api.getEligibilityConstraintsMeta, null, {
+    pick: (r) => r.data.items,
+  });
 
-  function startEditing() {
-    setEditing(true);
-    setUpdatedConstraints(constraints);
-    setNewConstraintId(eligibilityConstraints[0]?.id);
+  function toggleEditing() {
+    editing.toggle();
+    setNewConstraintStates({});
   }
 
-  if (!editing) {
-    const properties = [];
+  const combinedConstraintStates = {};
+  constraints.forEach((c) => (combinedConstraintStates[c.id] = true));
+  merge(combinedConstraintStates, newConstraintStates);
+
+  if (editing.isOff) {
+    const displayables = [];
     if (_.isEmpty(constraints)) {
-      properties.push({
-        label: "*",
-        value: "Offering has no constraints. All members can access it.",
+      // Show a chip if there are no constraints.
+      displayables.push({
+        label: "* Resource has no constraints. All members can access it.",
+        variant: "outlined",
+        color: "success",
       });
     } else {
-      constraints.forEach((constraint) =>
-        properties.push({
-          label: <AdminLink model={constraint}>{constraint.name}</AdminLink>,
-          value: <CheckIcon />,
+      // Show a chip for ALL constraints, with the color indicating
+      // whether the constraint is associated with the resource.
+      // If all constraints aren't loaded yet,
+      // show just the ones associated with the resource.
+      const iterableConstraints = allConstraints || constraints;
+      iterableConstraints?.forEach((c) =>
+        displayables.push({
+          label: c.name,
+          component: AdminLink,
+          model: c,
+          color: combinedConstraintStates[c.id] ? "success" : "muted",
+          variant: "outlined",
+          sx: {
+            "& .MuiChip-label": {
+              fontWeight: combinedConstraintStates[c.id] ? "bold" : null,
+            },
+          },
         })
       );
     }
     return (
-      <div>
-        <DetailGrid
-          title={
-            <>
-              Eligibility Constraints
-              {canWriteResource(resource) && (
-                <IconButton onClick={startEditing}>
-                  <EditIcon color="info" />
-                </IconButton>
-              )}
-            </>
-          }
-          properties={properties}
-        />
-      </div>
+      <Box mt={2}>
+        <Typography variant="h6" gutterBottom mb={2}>
+          Eligibility Constraints
+          {canWriteResource(resource) && (
+            <IconButton onClick={toggleEditing}>
+              <EditIcon color="info" />
+            </IconButton>
+          )}
+        </Typography>
+        <Stack direction="row" gap={1} sx={{ marginY: 1, flexWrap: "wrap" }}>
+          {displayables.map(({ label, ...rest }) => (
+            <Chip key={label} label={label} clickable {...rest} />
+          ))}
+        </Stack>
+      </Box>
     );
   }
 
-  if (eligibilityConstraintsLoading) {
-    return "Loading...";
-  }
-
-  function discardChanges() {
-    setUpdatedConstraints([]);
-    setEditing(false);
-  }
-
   function saveChanges() {
-    const constraintIds = updatedConstraints.map((c) => c.id);
-    if (newConstraintId) {
-      constraintIds.push(newConstraintId);
-    }
-    makeUpdateRequest({
-      id: modelId,
-      constraintIds,
-    })
+    const constraintIds = map(combinedConstraintStates, (state, cid) =>
+      state ? cid : null
+    ).filter(Boolean);
+    makeUpdateRequest({ id: modelId, constraintIds })
       .then((r) => {
         replaceModelData(r.data);
-        setEditing(false);
+        toggleEditing();
       })
       .catch(enqueueErrorSnackbar);
   }
 
-  function deleteConstraint(id) {
-    setUpdatedConstraints(updatedConstraints.filter((c) => c.id !== id));
-  }
-
-  const properties = updatedConstraints.map((c) => ({
-    label: c.name,
-    children: (
-      <IconButton onClick={() => deleteConstraint(c.id)}>
-        <DeleteIcon color="error" />
-      </IconButton>
-    ),
-  }));
-
-  const existingConstraintIds = constraints.map((c) => c.id);
-  const availableConstraints = eligibilityConstraints.items.filter(
-    (c) => !existingConstraintIds.includes(c.id)
-  );
-  if (!_.isEmpty(availableConstraints)) {
-    properties.push({
-      label: "Add Constraint",
-      children: (
-        <div>
-          <Select
-            value={newConstraintId || ""}
-            onChange={(e) => setNewConstraintId(Number(e.target.value))}
-          >
-            {availableConstraints.map((c) => (
-              <MenuItem key={c.id} value={c.id}>
-                {c.name}
-              </MenuItem>
-            ))}
-          </Select>
-        </div>
-      ),
+  function handleClick(c) {
+    setNewConstraintStates({
+      ...newConstraintStates,
+      [c.id]: !combinedConstraintStates[c.id],
     });
   }
+
+  const loading = !allConstraints;
   return (
-    <div>
-      <DetailGrid
-        title={
-          <>
-            Eligibility Constraints
-            <IconButton onClick={saveChanges}>
-              <SaveIcon color="success" />
-            </IconButton>
-            <IconButton onClick={discardChanges}>
-              <CancelIcon color="error" />
-            </IconButton>
-          </>
-        }
-        properties={properties}
-      />
-    </div>
+    <Box mt={2}>
+      <Typography variant="h6" gutterBottom mb={2}>
+        Eligibility Constraints{" "}
+        {!loading && (
+          <IconButton onClick={saveChanges}>
+            <SaveIcon color="success" />
+          </IconButton>
+        )}
+        <IconButton onClick={toggleEditing}>
+          <CancelIcon color="error" />
+        </IconButton>
+      </Typography>
+      {!loading && (
+        <Stack direction="row" gap={1} sx={{ marginY: 1, flexWrap: "wrap" }}>
+          {allConstraints.map((c) => (
+            <Chip
+              key={c.id}
+              label={c.name}
+              clickable
+              color={combinedConstraintStates[c.id] ? "success" : "secondary"}
+              variant="solid"
+              onClick={() => handleClick(c)}
+              onDelete={() => handleClick(c)}
+              deleteIcon={
+                combinedConstraintStates[c.id] ? (
+                  <RemoveCircleOutlinedIcon />
+                ) : (
+                  <AddCircleOutlinedIcon />
+                )
+              }
+            />
+          ))}
+        </Stack>
+      )}
+    </Box>
   );
 }
