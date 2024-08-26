@@ -1,4 +1,5 @@
 import api from "../api";
+import { useGlobalApiState } from "../hooks/globalApiState";
 import { FormControl, FormHelperText, InputLabel, MenuItem, Select } from "@mui/material";
 import find from "lodash/find";
 import map from "lodash/map";
@@ -8,7 +9,11 @@ const VendorServiceCategorySelect = React.forwardRef(function VendorServiceCateg
   { value, defaultValue, helperText, label, className, style, onChange, ...rest },
   ref
 ) {
-  const [categories, setCategories] = React.useState([{ slug: "cash", label: "Cash" }]);
+  const categories = useGlobalApiState(
+    api.getVendorServiceCategories,
+    [{ slug: "cash", label: "Cash" }],
+    { pick: (r) => r.data.items }
+  );
 
   const handleChange = React.useCallback(
     (slug) => {
@@ -17,12 +22,6 @@ const VendorServiceCategorySelect = React.forwardRef(function VendorServiceCateg
     },
     [categories, onChange]
   );
-
-  React.useEffect(() => {
-    api.getVendorServiceCategories().then((r) => {
-      setCategories(r.data.items);
-    });
-  }, []);
 
   React.useEffect(() => {
     if (map(categories, "slug").includes(defaultValue)) {

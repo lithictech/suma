@@ -1,17 +1,12 @@
 import api from "../api";
+import { useGlobalApiState } from "./globalApiState";
 import { useUser } from "./user";
 import camelCase from "lodash/camelCase";
 import React from "react";
 
 export default function useRoleAccess() {
   const { user } = useUser();
-  const [resourceAccess, setResourceAccess] = React.useState(null);
-
-  React.useEffect(() => {
-    api.getResourceAccessMeta().then((r) => {
-      setResourceAccess(r.data);
-    });
-  }, []);
+  const resourceAccess = useGlobalApiState(api.getResourceAccessMeta, null);
 
   const can = React.useCallback(
     (key, rw) => {

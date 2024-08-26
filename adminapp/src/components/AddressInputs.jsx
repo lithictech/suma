@@ -1,6 +1,6 @@
 import api from "../api";
+import { useGlobalApiState } from "../hooks/globalApiState";
 import formHelpers from "../modules/formHelpers";
-import useMountEffect from "../shared/react/useMountEffect";
 import ResponsiveStack from "./ResponsiveStack";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -50,17 +50,7 @@ export default function AddressInputs({ address, onFieldChange }) {
 }
 
 function AddressFields({ address, onFieldChange }) {
-  const [supportedGeographies, setSupportedGeographies] = React.useState({});
-
-  useMountEffect(() => {
-    api
-      .getSupportedGeographies()
-      .then(api.pickData)
-      .then((data) => {
-        setSupportedGeographies(data);
-      });
-  }, []);
-
+  const supportedGeographies = useGlobalApiState(api.getSupportedGeographies, {});
   if (!address) {
     return null;
   }

@@ -3,6 +3,7 @@ import AddressInputs from "../components/AddressInputs";
 import AutocompleteSearch from "../components/AutocompleteSearch";
 import FormLayout from "../components/FormLayout";
 import ResponsiveStack from "../components/ResponsiveStack";
+import { useGlobalApiState } from "../hooks/globalApiState";
 import useRoleAccess from "../hooks/useRoleAccess";
 import mergeAt from "../shared/mergeAt";
 import withoutAt from "../shared/withoutAt";
@@ -23,7 +24,6 @@ import {
   Typography,
 } from "@mui/material";
 import Button from "@mui/material/Button";
-import map from "lodash/map";
 import merge from "lodash/merge";
 import React from "react";
 
@@ -87,13 +87,7 @@ export default function MemberForm({
 
 function Roles({ roles, setRoles }) {
   const { canWriteResource } = useRoleAccess();
-  const [allRoles, setAllRoles] = React.useState(null);
-
-  React.useEffect(() => {
-    api.getRoles().then((r) => {
-      setAllRoles(r.data.items);
-    });
-  }, []);
+  const allRoles = useGlobalApiState(api.getRoles, null, { pick: (r) => r.data.items });
 
   if (!canWriteResource("role")) {
     return null;
