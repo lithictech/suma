@@ -9,8 +9,7 @@ export default function OrganizationMembershipDetailPage() {
     <ResourceDetail
       resource="organization_membership"
       apiGet={api.getOrganizationMembership}
-      title={(model) => `Organization Membership ${model.id}`}
-      toEdit={(model) => `/membership/${model.id}/edit`}
+      canEdit
       properties={(model) => [
         { label: "ID", value: model.id },
         { label: "Created At", value: dayjs(model.createdAt) },

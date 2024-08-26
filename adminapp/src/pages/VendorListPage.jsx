@@ -9,7 +9,7 @@ export default function VendorListPage() {
     <ResourceList
       resource="vendor"
       apiList={api.getVendors}
-      toCreate="/vendor/new"
+      canCreate
       canSearch
       columns={[
         {

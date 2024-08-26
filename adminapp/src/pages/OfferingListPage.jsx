@@ -9,7 +9,7 @@ export default function OfferingListPage() {
     <ResourceList
       resource="offering"
       apiList={api.getCommerceOfferings}
-      toCreate="/offering/new"
+      canCreate
       canSearch
       columns={[
         {

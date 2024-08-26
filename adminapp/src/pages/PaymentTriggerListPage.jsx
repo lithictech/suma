@@ -8,8 +8,8 @@ export default function PaymentTriggerListPage() {
   return (
     <ResourceList
       resource="payment_trigger"
-      toCreate="/payment-trigger/new"
       apiList={api.getPaymentTriggers}
+      canCreate
       canSearch
       columns={[
         {

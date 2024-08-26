@@ -46,7 +46,7 @@ export default function MemberDetailPage() {
       <ResourceDetail
         resource="member"
         apiGet={api.getMember}
-        toEdit={(model) => `/member/${model.id}/edit?edit=true`}
+        canEdit
         properties={(model, replaceState) => [
           { label: "ID", value: model.id },
           { label: "Name", value: model.name },

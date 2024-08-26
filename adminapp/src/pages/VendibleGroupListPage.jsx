@@ -8,7 +8,7 @@ export default function VendibleGroupListPage() {
     <ResourceList
       resource="vendible_group"
       apiList={api.getVendibleGroups}
-      toCreate="/vendible-group/new"
+      canCreate
       canSearch
       columns={[
         {

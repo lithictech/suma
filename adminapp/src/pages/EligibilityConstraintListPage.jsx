@@ -10,7 +10,7 @@ export default function EligibilityConstraintListPage() {
     <ResourceList
       resource="eligibility_constraint"
       apiList={api.getEligibilityConstraints}
-      toCreate="/constraint/new"
+      canCreate
       canSearch
       columns={[
         {

@@ -13,7 +13,7 @@ export default function VendorServiceDetailPage() {
     <ResourceDetail
       resource="vendor_service"
       apiGet={api.getVendorService}
-      toEdit={(model) => `/vendor-service/${model.id}/edit`}
+      canEdit
       properties={(model) => [
         { label: "ID", value: model.id },
         { label: "Created At", value: dayjs(model.createdAt) },

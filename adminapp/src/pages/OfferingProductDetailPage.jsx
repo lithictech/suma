@@ -11,7 +11,7 @@ export default function OfferingProductDetailPage() {
     <ResourceDetail
       resource="offering_product"
       apiGet={api.getCommerceOfferingProduct}
-      toEdit={(model) => `/offering-product/${model.id}/edit?edit=true`}
+      canEdit
       properties={(model) => [
         { label: "ID", value: model.id },
         { label: "Created At", value: dayjs(model.createdAt) },

@@ -9,8 +9,7 @@ export default function OrganizationMembershipListPage() {
     <ResourceList
       resource="organization_membership"
       apiList={api.getOrganizationMemberships}
-      toCreate="/membership/new"
-      title="Organization Memberships"
+      canCreate
       canSearch
       columns={[
         {

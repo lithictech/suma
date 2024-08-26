@@ -11,7 +11,7 @@ export default function VendibleGroupDetailPage() {
     <ResourceDetail
       resource="vendible_group"
       apiGet={api.getVendibleGroup}
-      toEdit={(model) => `/vendible-group/${model.id}/edit`}
+      canEdit
       properties={(model) => [
         { label: "ID", value: model.id },
         { label: "Name EN", value: model.name.en },

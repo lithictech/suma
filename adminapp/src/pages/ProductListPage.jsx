@@ -9,7 +9,7 @@ export default function ProductListPage() {
     <ResourceList
       resource="product"
       apiList={api.getCommerceProducts}
-      toCreate="/product/new"
+      canCreate
       canSearch
       columns={[
         {

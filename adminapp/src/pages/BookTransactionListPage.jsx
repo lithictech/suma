@@ -10,7 +10,7 @@ export default function BookTransactionListPage() {
     <ResourceList
       resource="book_transaction"
       apiList={api.getBookTransactions}
-      toCreate="/book-transaction/new"
+      canCreate
       canSearch
       columns={[
         {

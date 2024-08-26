@@ -4,6 +4,7 @@ import Link from "../components/Link";
 import ResourceTable from "../components/ResourceTable";
 import useRoleAccess from "../hooks/useRoleAccess";
 import pluralize from "../modules/pluralize";
+import { resourceCreateRoute } from "../modules/resourceRoutes";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
 import useListQueryControls from "../shared/react/useListQueryControls";
 import startCase from "lodash/startCase";
@@ -12,8 +13,8 @@ import React from "react";
 export default function ResourceList({
   resource,
   apiList,
-  toCreate,
   title,
+  canCreate,
   canSearch,
   columns,
   csvDownloadUrl,
@@ -41,7 +42,7 @@ export default function ResourceList({
 
   let downloadUrl = null;
   if (csvDownloadUrl) {
-    downloadUrl = api.makeUrl("/adminapi/v1/members", {
+    downloadUrl = api.makeUrl(csvDownloadUrl, {
       order,
       orderBy,
       search,
@@ -51,8 +52,8 @@ export default function ResourceList({
 
   return (
     <>
-      {canWriteResource(resource) && toCreate && (
-        <FabAdd component={Link} href={toCreate} />
+      {canCreate && canWriteResource(resource) && (
+        <FabAdd component={Link} href={resourceCreateRoute(resource)} />
       )}
       <ResourceTable
         page={page}

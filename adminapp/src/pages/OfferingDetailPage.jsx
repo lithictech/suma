@@ -22,7 +22,7 @@ export default function OfferingDetailPage() {
     <ResourceDetail
       resource="offering"
       apiGet={api.getCommerceOffering}
-      toEdit={(model) => `/offering/${model.id}/edit`}
+      canEdit
       properties={(model) => [
         { label: "ID", value: model.id },
         { label: "Created At", value: dayjs(model.createdAt) },

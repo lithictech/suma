@@ -12,7 +12,7 @@ export default function PaymentTriggerDetailPage() {
     <ResourceDetail
       resource="payment_trigger"
       apiGet={api.getPaymentTrigger}
-      toEdit={(model) => `/payment-trigger/${model.id}/edit`}
+      canEdit
       properties={(model) => [
         { label: "ID", value: model.id },
         { label: "Label", value: model.label },

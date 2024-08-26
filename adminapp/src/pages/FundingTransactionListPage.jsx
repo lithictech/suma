@@ -11,7 +11,7 @@ export default function FundingTransactionListPage() {
       resource="funding_transaction"
       apiList={api.getFundingTransactions}
       canSearch
-      toCreate="/funding-transaction/new"
+      canCreate
       columns={[
         {
           id: "id",

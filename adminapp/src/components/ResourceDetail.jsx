@@ -1,5 +1,6 @@
 import useErrorSnackbar from "../hooks/useErrorSnackbar";
 import useRoleAccess from "../hooks/useRoleAccess";
+import { resourceEditRoute } from "../modules/resourceRoutes";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
 import DetailGrid from "./DetailGrid";
 import Link from "./Link";
@@ -17,7 +18,7 @@ export default function ResourceDetail({
   apiGet,
   title,
   properties,
-  toEdit,
+  canEdit,
   children,
 }) {
   const { enqueueErrorSnackbar } = useErrorSnackbar();
@@ -43,7 +44,13 @@ export default function ResourceDetail({
         <div>
           <DetailGrid
             title={
-              <Title toEdit={canWriteResource(resource) && toEdit && toEdit(state)}>
+              <Title
+                toEdit={
+                  canEdit &&
+                  canWriteResource(resource) &&
+                  resourceEditRoute(resource, state)
+                }
+              >
                 {title(state)}
               </Title>
             }
