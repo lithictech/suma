@@ -158,6 +158,29 @@ RSpec.describe Suma::AdminAPI::Members, :db do
       expect(member.refresh.activities).to contain_exactly(have_attributes(message_name: "rolechange"))
     end
 
+    describe "with an admin who cannot modify roles" do
+      let(:to_add) { Suma::Role.create(name: "to_add") }
+      let(:member) { Suma::Fixtures.member.create }
+      before(:each) do
+        admin.remove_all_roles
+        admin.add_role(Suma::Role.cache.onboarding_manager)
+      end
+
+      it "errors if updating roles" do
+        post "/v1/members/#{member.id}", roles: [{id: to_add.id}]
+
+        expect(last_response).to have_status(403)
+        expect(last_response).to have_json_body.that_includes(error: include(code: "role_check"))
+      end
+
+      it "succeeds if not updating roles" do
+        post "/v1/members/#{member.id}", name: "hello"
+
+        expect(last_response).to have_status(200)
+        expect(member.refresh).to have_attributes(name: "hello")
+      end
+    end
+
     it "updates legal entity if given" do
       legal_entity = Suma::Fixtures.legal_entity.create
       member = Suma::Fixtures.member.with_legal_entity(legal_entity).create

@@ -208,6 +208,8 @@ export default {
   updateOrganizationMembership: ({ id, ...data }) =>
     post(`/adminapi/v1/organization_memberships/${id}`, data),
 
+  getRoles: (data) => get("/adminapi/v1/roles", data),
+
   searchProducts: (data) => post(`/adminapi/v1/search/products`, data),
   searchOfferings: (data) => post(`/adminapi/v1/search/offerings`, data),
   searchPaymentInstruments: (data) =>

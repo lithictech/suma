@@ -13,6 +13,7 @@ class Suma::AdminAPI::Roles < Suma::AdminAPI::V1
     get do
       check_role_access!(admin_member, :read, :admin_access) # This will always pass but better to be explicit
       ds = Suma::Role.dataset.order(:name)
+      use_http_expires_caching 2.hours
       present_collection ds, with: Suma::AdminAPI::Entities::RoleEntity
     end
 

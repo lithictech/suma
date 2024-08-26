@@ -43,6 +43,7 @@ module Suma::AdminAPI::Entities
   class RoleEntity < BaseEntity
     expose :id
     expose :name
+    expose :label
   end
 
   class PaymentInstrumentEntity < BaseEntity

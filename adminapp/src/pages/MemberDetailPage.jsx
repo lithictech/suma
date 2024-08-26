@@ -21,7 +21,6 @@ import { Divider, Typography, MenuItem, Select, Switch, Chip } from "@mui/materi
 import Button from "@mui/material/Button";
 import IconButton from "@mui/material/IconButton";
 import { makeStyles } from "@mui/styles";
-import capitalize from "lodash/capitalize";
 import isEmpty from "lodash/isEmpty";
 import React from "react";
 import { formatPhoneNumberIntl } from "react-phone-number-input";
@@ -87,7 +86,7 @@ export default function MemberDetailPage() {
           {
             label: "Roles",
             children: model.roles.map((role) => (
-              <Chip key={role.id} label={capitalize(role.name)} sx={{ mr: 0.5 }} />
+              <Chip key={role.id} label={role.label} sx={{ mr: 0.5 }} />
             )),
             hideEmpty: true,
           },

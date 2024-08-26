@@ -3,6 +3,7 @@ import AddressInputs from "../components/AddressInputs";
 import AutocompleteSearch from "../components/AutocompleteSearch";
 import FormLayout from "../components/FormLayout";
 import ResponsiveStack from "../components/ResponsiveStack";
+import useRoleAccess from "../hooks/useRoleAccess";
 import mergeAt from "../shared/mergeAt";
 import withoutAt from "../shared/withoutAt";
 import theme from "../theme";
@@ -12,6 +13,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import {
   Box,
   Chip,
+  CircularProgress,
   Divider,
   FormHelperText,
   FormLabel,
@@ -21,7 +23,7 @@ import {
   Typography,
 } from "@mui/material";
 import Button from "@mui/material/Button";
-import isEmpty from "lodash/isEmpty";
+import map from "lodash/map";
 import merge from "lodash/merge";
 import React from "react";
 
@@ -63,11 +65,7 @@ export default function MemberForm({
             onChange={setFieldFromInput}
           />
         </ResponsiveStack>
-        <Roles
-          roles={resource.roles}
-          availableRoles={resource.availableRoles}
-          setRoles={(r) => setField("roles", r)}
-        />
+        <Roles roles={resource.roles} setRoles={(r) => setField("roles", r)} />
         <Divider />
         <FormLabel>Legal Entity</FormLabel>
         <AddressInputs
@@ -87,7 +85,20 @@ export default function MemberForm({
   );
 }
 
-function Roles({ roles, availableRoles, setRoles }) {
+function Roles({ roles, setRoles }) {
+  const { canWriteResource } = useRoleAccess();
+  const [allRoles, setAllRoles] = React.useState(null);
+
+  React.useEffect(() => {
+    api.getRoles().then((r) => {
+      setAllRoles(r.data.items);
+    });
+  }, []);
+
+  if (!canWriteResource("role")) {
+    return null;
+  }
+
   function deleteRole(id) {
     const newRoles = roles.filter((c) => c.id !== id);
     setRoles(newRoles);
@@ -98,10 +109,9 @@ function Roles({ roles, availableRoles, setRoles }) {
     setRoles(newRoles);
   }
 
-  const exisitingRoleIds = roles.map((c) => c.id);
-  availableRoles = availableRoles.filter((c) => !exisitingRoleIds.includes(c.id));
+  const hasRoleIds = new Set();
+  roles.forEach((r) => hasRoleIds.add(r.id));
 
-  const noRoles = isEmpty(roles) && isEmpty(availableRoles);
   return (
     <Box>
       <FormLabel>Roles</FormLabel>
@@ -109,28 +119,23 @@ function Roles({ roles, availableRoles, setRoles }) {
         If you remove special roles like "admin", you will be logged out of this account.
       </FormHelperText>
       <Stack direction="row" spacing={1} sx={{ mt: theme.spacing(1) }}>
-        {roles.map(({ id, name }) => (
-          <Chip
-            key={id}
-            label={name}
-            color="success"
-            title="Delete Role"
-            onClick={() => deleteRole(id)}
-            onDelete={() => deleteRole(id)}
-          />
-        ))}
-        {!isEmpty(availableRoles) &&
-          availableRoles.map((role) => (
+        {allRoles === null && <CircularProgress />}
+        {allRoles?.map((r) => {
+          const hasRole = hasRoleIds.has(r.id);
+          const handler = hasRole ? () => deleteRole(r.id) : () => handleAdd(r);
+          return (
             <Chip
-              key={role.id}
-              label={role.name}
-              deleteIcon={<AddCircleOutlineIcon />}
-              title="Add Role"
-              onClick={() => handleAdd(role)}
-              onDelete={() => handleAdd(role)}
+              key={r.id}
+              label={r.label}
+              color={hasRole ? "success" : undefined}
+              title={hasRole ? "Delete Role" : "Add Role"}
+              deleteIcon={hasRole ? null : <AddCircleOutlineIcon />}
+              onClick={handler}
+              onDelete={handler}
             />
-          ))}
-        {noRoles && (
+          );
+        })}
+        {allRoles === [] && (
           <Typography>
             * No roles available, ask developers for help if you see this
           </Typography>
