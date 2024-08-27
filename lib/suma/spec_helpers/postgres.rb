@@ -147,6 +147,11 @@ module Suma::SpecHelpers::Postgres
     return o.class.dataset.where(id: o.id).all.first
   end
 
+  module_function def replace_roles(m, *roles)
+    m.remove_all_roles
+    roles.each { |r| m.add_role(r) }
+  end
+
   #
   # Custom matchers
   #

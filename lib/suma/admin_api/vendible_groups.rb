@@ -29,6 +29,7 @@ class Suma::AdminAPI::VendibleGroups < Suma::AdminAPI::V1
       use :searchable
     end
     get do
+      check_role_access!(admin_member, :read, :admin_commerce)
       ds = Suma::Vendible::Group.dataset
       if (name_en_like = search_param_to_sql(params, :name_en))
         name_es_like = search_param_to_sql(params, :name_es)
@@ -40,7 +41,11 @@ class Suma::AdminAPI::VendibleGroups < Suma::AdminAPI::V1
       present_collection ds, with: VendibleGroupEntity
     end
 
-    Suma::AdminAPI::CommonEndpoints.create(self, Suma::Vendible::Group, DetailedVendibleGroupEntity) do
+    Suma::AdminAPI::CommonEndpoints.create(
+      self,
+      Suma::Vendible::Group,
+      DetailedVendibleGroupEntity,
+    ) do
       params do
         requires(:name, type: JSON) { use :translated_text }
         optional :commerce_offerings, type: Array[JSON] do
@@ -52,7 +57,11 @@ class Suma::AdminAPI::VendibleGroups < Suma::AdminAPI::V1
       end
     end
 
-    Suma::AdminAPI::CommonEndpoints.get_one(self, Suma::Vendible::Group, DetailedVendibleGroupEntity)
+    Suma::AdminAPI::CommonEndpoints.get_one(
+      self,
+      Suma::Vendible::Group,
+      DetailedVendibleGroupEntity,
+    )
 
     Suma::AdminAPI::CommonEndpoints.update(
       self,

@@ -19,7 +19,9 @@ class Suma::AdminAPI::CommerceOfferingProducts < Suma::AdminAPI::V1
 
   resource :commerce_offering_products do
     Suma::AdminAPI::CommonEndpoints.create(
-      self, Suma::Commerce::OfferingProduct, DetailedCommerceOfferingProductEntity,
+      self,
+      Suma::Commerce::OfferingProduct,
+      DetailedCommerceOfferingProductEntity,
     ) do
       params do
         requires(:offering, type: JSON) { use :model_with_id }
@@ -30,7 +32,9 @@ class Suma::AdminAPI::CommerceOfferingProducts < Suma::AdminAPI::V1
     end
 
     Suma::AdminAPI::CommonEndpoints.get_one(
-      self, Suma::Commerce::OfferingProduct, DetailedCommerceOfferingProductEntity,
+      self,
+      Suma::Commerce::OfferingProduct,
+      DetailedCommerceOfferingProductEntity,
     )
 
     route_param :id, type: Integer do
@@ -40,6 +44,7 @@ class Suma::AdminAPI::CommerceOfferingProducts < Suma::AdminAPI::V1
         at_least_one_of :customer_price, :undiscounted_price
       end
       post do
+        check_role_access!(admin_member, :write, :admin_commerce)
         Suma::Commerce::OfferingProduct.db.transaction do
           (m = Suma::Commerce::OfferingProduct[params[:id]]) or forbidden!
           new_op = m.with_changes(

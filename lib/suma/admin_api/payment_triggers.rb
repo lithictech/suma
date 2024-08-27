@@ -36,7 +36,11 @@ class Suma::AdminAPI::PaymentTriggers < Suma::AdminAPI::V1
       translation_search_params: [:memo],
     )
 
-    Suma::AdminAPI::CommonEndpoints.get_one(self, Suma::Payment::Trigger, DetailedPaymentTriggerEntity)
+    Suma::AdminAPI::CommonEndpoints.get_one(
+      self,
+      Suma::Payment::Trigger,
+      DetailedPaymentTriggerEntity,
+    )
 
     Suma::AdminAPI::CommonEndpoints.create(
       self,
@@ -72,14 +76,6 @@ class Suma::AdminAPI::PaymentTriggers < Suma::AdminAPI::V1
         optional :receiving_ledger_name, type: String
         optional(:receiving_ledger_contribution_text, type: JSON) { use :translated_text }
       end
-    end
-
-    params do
-      requires :member_id, type: Integer
-      requires :amount_cents, type: Integer
-      requires :as_of, type: Time
-    end
-    post :plan do
     end
   end
 end

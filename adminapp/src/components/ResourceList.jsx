@@ -1,11 +1,25 @@
+import api from "../api";
 import FabAdd from "../components/FabAdd";
 import Link from "../components/Link";
 import ResourceTable from "../components/ResourceTable";
+import useRoleAccess from "../hooks/useRoleAccess";
+import pluralize from "../modules/pluralize";
+import { resourceCreateRoute } from "../modules/resourceRoutes";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
 import useListQueryControls from "../shared/react/useListQueryControls";
+import startCase from "lodash/startCase";
 import React from "react";
 
-export default function ResourceList({ apiList, toCreate, title, canSearch, columns }) {
+export default function ResourceList({
+  resource,
+  apiList,
+  title,
+  canCreate,
+  canSearch,
+  columns,
+  csvDownloadUrl,
+}) {
+  const { canWriteResource } = useRoleAccess();
   const { page, perPage, search, order, orderBy, setListQueryParams } =
     useListQueryControls();
 
@@ -23,13 +37,29 @@ export default function ResourceList({ apiList, toCreate, title, canSearch, colu
     default: {},
     pickData: true,
   });
+
+  title = title || `${pluralize(startCase(resource))}`;
+
+  let downloadUrl = null;
+  if (csvDownloadUrl) {
+    downloadUrl = api.makeUrl(csvDownloadUrl, {
+      order,
+      orderBy,
+      search,
+      download: "csv",
+    });
+  }
+
   return (
     <>
-      {toCreate && <FabAdd component={Link} href={toCreate} />}
+      {canCreate && canWriteResource(resource) && (
+        <FabAdd component={Link} href={resourceCreateRoute(resource)} />
+      )}
       <ResourceTable
         page={page}
         perPage={perPage}
         search={canSearch ? search : undefined}
+        disableSearch={!canSearch}
         order={order}
         orderBy={orderBy}
         title={title}
@@ -38,6 +68,7 @@ export default function ResourceList({ apiList, toCreate, title, canSearch, colu
         tableProps={{ sx: { minWidth: 650 }, size: "small" }}
         onParamsChange={setListQueryParams}
         columns={columns}
+        downloadUrl={downloadUrl}
       />
     </>
   );

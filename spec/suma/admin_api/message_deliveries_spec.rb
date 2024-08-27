@@ -88,5 +88,14 @@ RSpec.describe Suma::AdminAPI::MessageDeliveries, :db do
       expect(last_response).to have_json_body.
         that_includes(id: d2.id)
     end
+
+    it "errors without role access" do
+      replace_roles(admin, Suma::Role.cache.noop_admin)
+
+      get "/v1/message_deliveries/last"
+
+      expect(last_response).to have_status(403)
+      expect(last_response).to have_json_body.that_includes(error: include(code: "role_check"))
+    end
   end
 end

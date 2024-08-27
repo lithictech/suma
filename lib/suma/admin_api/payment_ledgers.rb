@@ -31,6 +31,7 @@ class Suma::AdminAPI::PaymentLedgers < Suma::AdminAPI::V1
       use :searchable
     end
     get do
+      check_role_access!(admin_member, :read, :admin_payments)
       ds = Suma::Payment::Ledger.dataset
       if (search_expr = search_param_to_sql(params, :name))
         ds = ds.where(search_expr)
@@ -53,12 +54,10 @@ class Suma::AdminAPI::PaymentLedgers < Suma::AdminAPI::V1
       present_collection ds, with: LedgerEntity
     end
 
-    route_param :id, type: Integer do
-      get do
-        (led = Suma::Payment::Ledger[params[:id]]) or forbidden!
-        status 200
-        present led, with: DetailedLedgerEntity
-      end
-    end
+    Suma::AdminAPI::CommonEndpoints.get_one(
+      self,
+      Suma::Payment::Ledger,
+      DetailedLedgerEntity,
+    )
   end
 end

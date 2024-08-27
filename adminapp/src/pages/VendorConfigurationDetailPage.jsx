@@ -10,8 +10,8 @@ import React from "react";
 export default function VendorConfigurationDetailPage() {
   return (
     <ResourceDetail
+      resource="vendor_configuration"
       apiGet={api.getVendorConfiguration}
-      title={(model) => `Vendor Configuration ${model.id}`}
       properties={(model) => [
         { label: "ID", value: model.id },
         { label: "Created At", value: dayjs(model.createdAt) },
@@ -35,6 +35,7 @@ export default function VendorConfigurationDetailPage() {
       {(model, setModel) => (
         <>
           <EligibilityConstraints
+            resource="vendor_configuration"
             constraints={model.eligibilityConstraints}
             modelId={model.id}
             replaceModelData={setModel}

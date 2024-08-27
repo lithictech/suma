@@ -24,6 +24,15 @@ RSpec.describe Suma::AdminAPI::VendibleGroups, :db do
         that_includes(items: have_same_ids_as(*objs))
     end
 
+    it "errors without role access" do
+      replace_roles(admin, Suma::Role.cache.noop_admin)
+
+      get "/v1/vendible_groups"
+
+      expect(last_response).to have_status(403)
+      expect(last_response).to have_json_body.that_includes(error: include(code: "role_check"))
+    end
+
     it_behaves_like "an endpoint capable of search" do
       let(:url) { "/v1/vendible_groups" }
       let(:search_term) { "Market" }

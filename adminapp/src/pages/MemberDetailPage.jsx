@@ -4,23 +4,18 @@ import BoolCheckmark from "../components/BoolCheckmark";
 import Copyable from "../components/Copyable";
 import DetailGrid from "../components/DetailGrid";
 import InlineEditField from "../components/InlineEditField";
+import MemberEligibilityConstraints from "../components/MemberEligibilityConstraints";
 import PaymentAccountRelatedLists from "../components/PaymentAccountRelatedLists";
 import RelatedList from "../components/RelatedList";
 import ResourceDetail from "../components/ResourceDetail";
 import useErrorSnackbar from "../hooks/useErrorSnackbar";
+import useRoleAccess from "../hooks/useRoleAccess";
 import { useUser } from "../hooks/user";
 import { dayjs } from "../modules/dayConfig";
 import Money from "../shared/react/Money";
 import SafeExternalLink from "../shared/react/SafeExternalLink";
-import useAsyncFetch from "../shared/react/useAsyncFetch";
-import CancelIcon from "@mui/icons-material/Cancel";
-import EditIcon from "@mui/icons-material/Edit";
-import SaveIcon from "@mui/icons-material/Save";
-import { Divider, Typography, MenuItem, Select, Switch, Chip } from "@mui/material";
-import Button from "@mui/material/Button";
-import IconButton from "@mui/material/IconButton";
+import { Divider, Typography, Switch, Button, Chip } from "@mui/material";
 import { makeStyles } from "@mui/styles";
-import capitalize from "lodash/capitalize";
 import isEmpty from "lodash/isEmpty";
 import React from "react";
 import { formatPhoneNumberIntl } from "react-phone-number-input";
@@ -43,9 +38,9 @@ export default function MemberDetailPage() {
       </Typography>
       <Divider />
       <ResourceDetail
+        resource="member"
         apiGet={api.getMember}
-        title={(model) => `Account Information  ${model.id}`}
-        toEdit={(model) => `/member/${model.id}/edit?edit=true`}
+        canEdit
         properties={(model, replaceState) => [
           { label: "ID", value: model.id },
           { label: "Name", value: model.name },
@@ -58,6 +53,7 @@ export default function MemberDetailPage() {
             label: "Verified",
             children: (
               <InlineEditField
+                resource="member"
                 renderDisplay={
                   model.onboardingVerifiedAt
                     ? dayjs(model.onboardingVerifiedAt).format("lll")
@@ -85,7 +81,7 @@ export default function MemberDetailPage() {
           {
             label: "Roles",
             children: model.roles.map((role) => (
-              <Chip key={role.id} label={capitalize(role.name)} sx={{ mr: 0.5 }} />
+              <Chip key={role.id} label={role.label} sx={{ mr: 0.5 }} />
             )),
             hideEmpty: true,
           },
@@ -106,9 +102,9 @@ export default function MemberDetailPage() {
               ]}
             />
             <LegalEntity {...model.legalEntity} />
-            <EligibilityConstraints
+            <MemberEligibilityConstraints
               memberConstraints={model.eligibilityConstraints}
-              memberId={id}
+              memberId={model.id}
               replaceMemberData={setModel}
             />
             <OrganizationMemberships memberships={model.organizationMemberships} />
@@ -150,168 +146,6 @@ function LegalEntity({ address }) {
           { label: "Country", value: country },
         ]}
       />
-    </div>
-  );
-}
-
-function EligibilityConstraints({ memberConstraints, memberId, replaceMemberData }) {
-  const [editing, setEditing] = React.useState(false);
-  const [updatedConstraints, setUpdatedConstraints] = React.useState([]);
-  const [newConstraint, setNewConstraint] = React.useState({});
-  const { enqueueErrorSnackbar } = useErrorSnackbar();
-
-  const { state: eligibilityConstraints, loading: eligibilityConstraintsLoading } =
-    useAsyncFetch(api.getEligibilityConstraintsMeta, {
-      pickData: true,
-    });
-
-  function startEditing() {
-    setEditing(true);
-    setUpdatedConstraints(memberConstraints);
-    setNewConstraint({
-      status: "pending",
-      constraintId: eligibilityConstraints[0]?.id,
-    });
-  }
-
-  if (!editing) {
-    const properties = [];
-    if (isEmpty(memberConstraints)) {
-      properties.push({
-        label: "*",
-        value:
-          "Member has no constraints. They can access any goods and services that are unconstrained.",
-      });
-    } else {
-      memberConstraints.forEach(({ status, constraint }) =>
-        properties.push({
-          label: <AdminLink model={constraint}>{constraint.name}</AdminLink>,
-          value: (
-            <Typography variant="span" sx={{ lineHeight: "2.5!important" }}>
-              {status}
-            </Typography>
-          ),
-        })
-      );
-    }
-    return (
-      <div>
-        <DetailGrid
-          title={
-            <>
-              Eligibility Constraints
-              <IconButton onClick={startEditing}>
-                <EditIcon color="info" />
-              </IconButton>
-            </>
-          }
-          properties={properties}
-        />
-      </div>
-    );
-  }
-
-  if (eligibilityConstraintsLoading) {
-    return "Loading...";
-  }
-
-  function discardChanges() {
-    setUpdatedConstraints([]);
-    setEditing(false);
-  }
-
-  function saveChanges() {
-    const values = updatedConstraints.map((c) => ({
-      constraintId: c.constraint.id,
-      status: c.status,
-    }));
-    if (newConstraint.constraintId) {
-      values.push(newConstraint);
-    }
-    api
-      .changeMemberEligibility({
-        id: memberId,
-        values,
-      })
-      .then((r) => {
-        replaceMemberData(r.data);
-        setEditing(false);
-      })
-      .catch(enqueueErrorSnackbar);
-  }
-
-  function modifyConstraint(index, status) {
-    const newConstraints = [...updatedConstraints];
-    newConstraints[index] = { ...newConstraints[index], status };
-    setUpdatedConstraints(newConstraints);
-  }
-
-  const properties = updatedConstraints.map((c, idx) => ({
-    label: c.constraint.name,
-    children: (
-      <ConstraintStatus
-        activeStatus={c.status}
-        statuses={eligibilityConstraints.statuses}
-        onChange={(e) => modifyConstraint(idx, e.target.value)}
-      />
-    ),
-  }));
-
-  const existingConstraintIds = memberConstraints.map((c) => c.constraint.id);
-  const availableConstraints = eligibilityConstraints.items.filter(
-    (c) => !existingConstraintIds.includes(c.id)
-  );
-  if (!isEmpty(availableConstraints)) {
-    properties.push({
-      label: "Add Constraint",
-      children: (
-        <div>
-          <Select
-            value={newConstraint.constraintId || ""}
-            onChange={(e) =>
-              setNewConstraint({ ...newConstraint, constraintId: Number(e.target.value) })
-            }
-          >
-            {availableConstraints.map((c) => (
-              <MenuItem key={c.id} value={c.id}>
-                {c.name}
-              </MenuItem>
-            ))}
-          </Select>
-        </div>
-      ),
-    });
-  }
-  return (
-    <div>
-      <DetailGrid
-        title={
-          <>
-            Eligibility Constraints
-            <IconButton onClick={saveChanges}>
-              <SaveIcon color="success" />
-            </IconButton>
-            <IconButton onClick={discardChanges}>
-              <CancelIcon color="error" />
-            </IconButton>
-          </>
-        }
-        properties={properties}
-      />
-    </div>
-  );
-}
-
-function ConstraintStatus({ activeStatus, statuses, onChange }) {
-  return (
-    <div>
-      <Select value={activeStatus} onChange={onChange} size="small">
-        {statuses.map((status) => (
-          <MenuItem key={status} value={status}>
-            {status}
-          </MenuItem>
-        ))}
-      </Select>
     </div>
   );
 }
@@ -522,20 +356,26 @@ function VendorAccounts({ vendorAccounts }) {
 function ImpersonateButton({ id }) {
   const { enqueueErrorSnackbar } = useErrorSnackbar();
   const { user, setUser } = useUser();
+  const { canWrite } = useRoleAccess();
   const classes = useStyles();
 
   function handleImpersonate() {
     api
       .impersonate({ id })
       .then((r) => setUser(r.data))
-      .catch((e) => enqueueErrorSnackbar(e));
+      .catch(enqueueErrorSnackbar);
   }
   function handleUnimpersonate() {
     api
       .unimpersonate()
       .then((r) => setUser(r.data))
-      .catch((e) => enqueueErrorSnackbar(e));
+      .catch(enqueueErrorSnackbar);
   }
+
+  if (!canWrite("impersonate")) {
+    return null;
+  }
+
   if (user.impersonating) {
     return (
       <Button

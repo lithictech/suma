@@ -51,7 +51,11 @@ class Suma::AdminAPI::AnonProxy < Suma::AdminAPI::V1
 
   resource :anon_proxy do
     resource :vendor_accounts do
-      Suma::AdminAPI::CommonEndpoints.get_one self, Suma::AnonProxy::VendorAccount, DetailedVendorAccountEntity
+      Suma::AdminAPI::CommonEndpoints.get_one(
+        self,
+        Suma::AnonProxy::VendorAccount,
+        DetailedVendorAccountEntity,
+      )
       Suma::AdminAPI::CommonEndpoints.list(
         self,
         Suma::AnonProxy::VendorAccount, VendorAccountEntity,
@@ -60,11 +64,15 @@ class Suma::AdminAPI::AnonProxy < Suma::AdminAPI::V1
     end
 
     resource :vendor_configurations do
-      Suma::AdminAPI::CommonEndpoints.get_one self, Suma::AnonProxy::VendorConfiguration,
-                                              DetailedVendorConfigurationEntity
+      Suma::AdminAPI::CommonEndpoints.get_one(
+        self,
+        Suma::AnonProxy::VendorConfiguration,
+        DetailedVendorConfigurationEntity,
+      )
       Suma::AdminAPI::CommonEndpoints.list(
         self,
-        Suma::AnonProxy::VendorConfiguration, VendorConfigurationEntity,
+        Suma::AnonProxy::VendorConfiguration,
+        VendorConfigurationEntity,
       )
 
       Suma::AdminAPI::CommonEndpoints.eligibilities(

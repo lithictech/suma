@@ -6,9 +6,9 @@ import React from "react";
 export default function VendibleGroupListPage() {
   return (
     <ResourceList
+      resource="vendible_group"
       apiList={api.getVendibleGroups}
-      toCreate="/vendible-group/new"
-      title="Vendible Groups"
+      canCreate
       canSearch
       columns={[
         {

@@ -10,9 +10,9 @@ import React from "react";
 export default function EligibilityConstraintDetailPage() {
   return (
     <ResourceDetail
+      resource="eligibility_constraint"
       apiGet={api.getEligibilityConstraint}
-      title={(model) => `Eligibility Constraint ${model.id}`}
-      toEdit={(model) => `/constraint/${model.id}/edit`}
+      canEdit
       properties={(model) => [
         { label: "ID", value: model.id },
         { label: "Created At", value: dayjs(model.createdAt) },

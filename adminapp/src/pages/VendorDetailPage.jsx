@@ -13,9 +13,9 @@ import React from "react";
 export default function VendorDetailPage() {
   return (
     <ResourceDetail
+      resource="vendor"
       apiGet={api.getVendor}
-      title={(model) => `Vendor ${model.id}`}
-      toEdit={(model) => `/vendor/${model.id}/edit`}
+      canEdit
       properties={(model) => [
         { label: "ID", value: model.id },
         { label: "Created At", value: dayjs(model.createdAt) },
@@ -26,9 +26,8 @@ export default function VendorDetailPage() {
               image={model.image}
               alt={model.image.name}
               className="w-100"
-              params={{ crop: "center" }}
-              h={225}
-              width={225}
+              params={{ crop: "none" }}
+              h={60}
             />
           ),
         },

@@ -75,4 +75,15 @@ RSpec.describe Suma::AdminAPI::Meta, :db do
       )
     end
   end
+
+  describe "GET /v1/meta/resource_access" do
+    it "returns resource access info" do
+      get "/v1/meta/resource_access"
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.that_includes(
+        vendor_account: ["admin_commerce", "admin_commerce"],
+      )
+    end
+  end
 end

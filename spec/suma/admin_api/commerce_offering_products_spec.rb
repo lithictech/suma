@@ -59,5 +59,16 @@ RSpec.describe Suma::AdminAPI::CommerceOfferingProducts, :db do
         customer_price: cost("$19"), undiscounted_price: cost("$24"),
       )
     end
+
+    it "errors without role access" do
+      replace_roles(admin, Suma::Role.cache.readonly_admin)
+
+      post "/v1/commerce_offering_products/1",
+           customer_price: {cents: 1900},
+           undiscounted_price: {cents: 2400}
+
+      expect(last_response).to have_status(403)
+      expect(last_response).to have_json_body.that_includes(error: include(code: "role_check"))
+    end
   end
 end

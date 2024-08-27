@@ -50,7 +50,15 @@ class Suma::AdminAPI::CommerceOrders < Suma::AdminAPI::V1
   end
 
   resource :commerce_orders do
-    Suma::AdminAPI::CommonEndpoints.list self, Suma::Commerce::Order, ListOrderEntity
-    Suma::AdminAPI::CommonEndpoints.get_one self, Suma::Commerce::Order, DetailedCommerceOrderEntity
+    Suma::AdminAPI::CommonEndpoints.list(
+      self,
+      Suma::Commerce::Order,
+      ListOrderEntity,
+    )
+    Suma::AdminAPI::CommonEndpoints.get_one(
+      self,
+      Suma::Commerce::Order,
+      DetailedCommerceOrderEntity,
+    )
   end
 end

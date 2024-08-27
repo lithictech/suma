@@ -36,6 +36,11 @@ class Suma::AdminAPI::Meta < Suma::AdminAPI::V1
       present({items: ec, statuses: Suma::Eligibility::Constraint::STATUSES},
               with: EligibilityConstraintCollectionEntity,)
     end
+
+    get :resource_access do
+      use_http_expires_caching 12.hours
+      present Suma::AdminAPI::Access.as_json
+    end
   end
 
   class CurrencyEntity < BaseEntity

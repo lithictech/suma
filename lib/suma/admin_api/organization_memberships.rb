@@ -7,7 +7,11 @@ class Suma::AdminAPI::OrganizationMemberships < Suma::AdminAPI::V1
   include Suma::AdminAPI::Entities
 
   resource :organization_memberships do
-    Suma::AdminAPI::CommonEndpoints.get_one(self, Suma::Organization::Membership, OrganizationMembershipEntity)
+    Suma::AdminAPI::CommonEndpoints.get_one(
+      self,
+      Suma::Organization::Membership,
+      OrganizationMembershipEntity,
+    )
 
     Suma::AdminAPI::CommonEndpoints.list(
       self,

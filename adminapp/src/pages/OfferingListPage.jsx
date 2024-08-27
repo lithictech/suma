@@ -7,9 +7,9 @@ import React from "react";
 export default function OfferingListPage() {
   return (
     <ResourceList
+      resource="offering"
       apiList={api.getCommerceOfferings}
-      toCreate="/offering/new"
-      title="Offerings"
+      canCreate
       canSearch
       columns={[
         {

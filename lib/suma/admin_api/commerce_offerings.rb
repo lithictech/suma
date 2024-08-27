@@ -105,7 +105,11 @@ class Suma::AdminAPI::CommerceOfferings < Suma::AdminAPI::V1
       end
     end
 
-    Suma::AdminAPI::CommonEndpoints.get_one(self, Suma::Commerce::Offering, DetailedOfferingEntity)
+    Suma::AdminAPI::CommonEndpoints.get_one(
+      self,
+      Suma::Commerce::Offering,
+      DetailedOfferingEntity,
+    )
 
     Suma::AdminAPI::CommonEndpoints.update(
       self,
@@ -151,6 +155,7 @@ class Suma::AdminAPI::CommerceOfferings < Suma::AdminAPI::V1
 
       resource :picklist do
         get do
+          check_role_access!(admin_member, :read, :admin_commerce)
           offering = lookup
           picklist = Suma::Commerce::OfferingPicklist.new(offering).build
           present picklist, with: PicklistEntity

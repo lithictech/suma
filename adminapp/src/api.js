@@ -89,6 +89,7 @@ export default {
     get(`/adminapi/v1/meta/vendor_service_categories`, data),
   getEligibilityConstraintsMeta: (data) =>
     get(`/adminapi/v1/meta/eligibility_constraints`, data),
+  getResourceAccessMeta: (data) => get(`/adminapi/v1/meta/resource_access`, data),
 
   getEligibilityConstraints: (data) => get(`/adminapi/v1/eligibility_constraints`, data),
   createEligibilityConstraint: (data) =>
@@ -206,6 +207,8 @@ export default {
     post("/adminapi/v1/organization_memberships/create", data),
   updateOrganizationMembership: ({ id, ...data }) =>
     post(`/adminapi/v1/organization_memberships/${id}`, data),
+
+  getRoles: (data) => get("/adminapi/v1/roles", data),
 
   searchProducts: (data) => post(`/adminapi/v1/search/products`, data),
   searchOfferings: (data) => post(`/adminapi/v1/search/offerings`, data),

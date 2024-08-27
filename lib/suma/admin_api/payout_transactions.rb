@@ -26,7 +26,9 @@ class Suma::AdminAPI::PayoutTransactions < Suma::AdminAPI::V1
     )
 
     Suma::AdminAPI::CommonEndpoints.get_one(
-      self, Suma::Payment::PayoutTransaction, DetailedPayoutTransactionEntity,
+      self,
+      Suma::Payment::PayoutTransaction,
+      DetailedPayoutTransactionEntity,
     )
   end
 end

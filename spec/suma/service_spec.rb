@@ -145,8 +145,11 @@ class Suma::API::TestService < Suma::Service
     present ({x: Date.new(2020, 4, 23)}), with: EtaggedEntity
   end
 
+  params do
+    optional :key
+  end
   get :rolecheck do
-    check_role!(current_member, "testing")
+    check_role_access!(current_member, :read, params[:key] || :admin_access)
     status 200
   end
 
@@ -533,21 +536,21 @@ RSpec.describe Suma::Service, :db do
   end
 
   describe "Sentry integration" do
-    before(:each) do
+    around(:each) do |example|
       # We need to fake doing what Sentry would be doing for initialization,
       # so we can assert it has the right data in its scope.
-      hub = Sentry::Hub.new(
-        Sentry::Client.new(Sentry::Configuration.new),
-        Sentry::Scope.new,
-      )
+      config = Sentry::Configuration.new
+      client = Sentry::Client.new(config)
+      hub = Sentry::Hub.new(client, Sentry::Scope.new)
       expect(Sentry).to_not be_initialized
       Sentry.instance_variable_set(:@main_hub, hub)
       expect(Sentry).to be_initialized
-    end
-
-    after(:each) do
+      Sentry.instance_variable_set(:@session_flusher, Sentry::SessionFlusher.new(config, client))
+      example.run
+    ensure
       Sentry.instance_variable_set(:@main_hub, nil)
       expect(Sentry).to_not be_initialized
+      Sentry.instance_variable_set(:@session_flusher, nil)
     end
 
     it "reports errors to Sentry if devmode is off and Sentry is enabled" do
@@ -691,26 +694,25 @@ RSpec.describe Suma::Service, :db do
   describe "role checking" do
     let(:member) { Suma::Fixtures.member.create }
 
-    it "passes if the member has a matching role" do
-      member.add_role(Suma::Role.create(name: "testing"))
+    it "passes if the member has access" do
+      member.add_role(Suma::Role.cache.readonly_admin)
       login_as(member)
       get "/rolecheck"
       expect(last_response).to have_status(200)
     end
 
-    it "errors if no role with that name exists" do
+    it "errors if no role access key with that name exists" do
       login_as(member)
-      get "/rolecheck"
+      get "/rolecheck", key: "foo"
       expect(last_response).to have_status(500)
     end
 
-    it "403s if the member does not have a matching role" do
-      Suma::Role.create(name: "testing")
+    it "403s if the member does not have access" do
       login_as(member)
       get "/rolecheck"
       expect(last_response).to have_json_body.that_includes(
         error: {
-          message: "Sorry, this action is unavailable.",
+          message: "You are not permitted to read on admin_access",
           status: 403,
           code: "role_check",
         },

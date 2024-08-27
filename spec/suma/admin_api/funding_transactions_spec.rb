@@ -127,5 +127,17 @@ RSpec.describe Suma::AdminAPI::FundingTransactions, :db do
 
       expect(last_response).to have_status(409)
     end
+
+    it "errors without role access" do
+      replace_roles(admin, Suma::Role.cache.noop_admin)
+
+      post "/v1/funding_transactions/create_for_self",
+           amount: {cents: 500, currency: "USD"},
+           payment_instrument_id: 1,
+           payment_method_type: "card"
+
+      expect(last_response).to have_status(403)
+      expect(last_response).to have_json_body.that_includes(error: include(code: "role_check"))
+    end
   end
 end

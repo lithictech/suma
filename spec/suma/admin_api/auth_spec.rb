@@ -39,9 +39,9 @@ RSpec.describe Suma::AdminAPI::Auth, :db do
       expect(last_response).to have_status(401)
     end
 
-    it "401s if the member has authed as an admin but no longer has the role" do
+    it "401s if the member has authed as an admin but no longer has admin access" do
       login_as(admin)
-      admin.remove_role(Suma::Role.admin_role)
+      admin.remove_role(Suma::Role.cache.admin)
 
       get "/v1/auth"
 
@@ -65,7 +65,7 @@ RSpec.describe Suma::AdminAPI::Auth, :db do
 
       expect(last_response).to have_status(403)
       expect(last_response).to have_json_body.
-        that_includes(error: include(code: "invalid_permissions"))
+        that_includes(error: include(code: "role_check"))
     end
 
     it "returns 200 and creates a session if the email and password are valid" do
@@ -143,6 +143,17 @@ RSpec.describe Suma::AdminAPI::Auth, :db do
       post "/v1/auth/impersonate/#{target.id}"
 
       expect(last_response).to have_status(401)
+    end
+
+    it "403s if the authed member does not have the ability to impersonate" do
+      admin.remove_role(Suma::Role.cache.admin)
+      admin.add_role(Suma::Role.cache.readonly_admin)
+      login_as(admin)
+
+      post "/v1/auth/impersonate/#{target.id}"
+
+      expect(last_response).to have_status(403)
+      expect(last_response).to have_json_body.that_includes(error: include(code: "role_check"))
     end
   end
 

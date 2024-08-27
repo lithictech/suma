@@ -7,8 +7,8 @@ import React from "react";
 export default function VendorServiceListPage() {
   return (
     <ResourceList
+      resource="vendor_service"
       apiList={api.getVendorServices}
-      title="Vendor Services"
       canSearch
       columns={[
         {

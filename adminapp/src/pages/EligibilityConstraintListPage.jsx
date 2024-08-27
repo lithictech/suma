@@ -8,9 +8,9 @@ import React from "react";
 export default function EligibilityConstraintListPage() {
   return (
     <ResourceList
+      resource="eligibility_constraint"
       apiList={api.getEligibilityConstraints}
-      toCreate="/constraint/new"
-      title="Eligibility Constraints"
+      canCreate
       canSearch
       columns={[
         {

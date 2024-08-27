@@ -10,9 +10,9 @@ import React from "react";
 export default function PaymentTriggerDetailPage() {
   return (
     <ResourceDetail
+      resource="payment_trigger"
       apiGet={api.getPaymentTrigger}
-      title={(model) => `Payment Trigger ${model.id}`}
-      toEdit={(model) => `/payment-trigger/${model.id}/edit`}
+      canEdit
       properties={(model) => [
         { label: "ID", value: model.id },
         { label: "Label", value: model.label },

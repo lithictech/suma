@@ -312,5 +312,14 @@ RSpec.describe Suma::AdminAPI::CommerceOfferings, :db do
 
       expect(last_response).to have_status(403)
     end
+
+    it "errors without role access" do
+      replace_roles(admin, Suma::Role.cache.noop_admin)
+
+      get "/v1/commerce_offerings/1/picklist"
+
+      expect(last_response).to have_status(403)
+      expect(last_response).to have_json_body.that_includes(error: include(code: "role_check"))
+    end
   end
 end

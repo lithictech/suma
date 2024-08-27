@@ -3,6 +3,7 @@ import AdminLink from "../components/AdminLink";
 import Link from "../components/Link";
 import RelatedList from "../components/RelatedList";
 import ResourceDetail from "../components/ResourceDetail";
+import useRoleAccess from "../hooks/useRoleAccess";
 import { dayjs } from "../modules/dayConfig";
 import createRelativeUrl from "../shared/createRelativeUrl";
 import Money from "../shared/react/Money";
@@ -11,11 +12,12 @@ import ListAltIcon from "@mui/icons-material/ListAlt";
 import React from "react";
 
 export default function ProductDetailPage() {
+  const { canWriteResource } = useRoleAccess();
   return (
     <ResourceDetail
+      resource="product"
       apiGet={api.getCommerceProduct}
-      title={(model) => `Product ${model.id}`}
-      toEdit={(model) => `/product/${model.id}/edit`}
+      canEdit
       properties={(model) => [
         { label: "ID", value: model.id },
         { label: "Created At", value: dayjs(model.createdAt) },
@@ -26,9 +28,8 @@ export default function ProductDetailPage() {
               image={model.image}
               alt={model.image.name}
               className="w-100"
-              params={{ crop: "center" }}
-              h={225}
-              width={225}
+              params={{ crop: "none" }}
+              h={150}
             />
           ),
         },
@@ -55,7 +56,7 @@ export default function ProductDetailPage() {
           label: "Quantity Pending Fulfillment",
           value: model.inventory.quantityPendingFulfillment,
         },
-        {
+        canWriteResource("offering_product") && {
           label: "Create Offering Product",
           value: (
             <Link

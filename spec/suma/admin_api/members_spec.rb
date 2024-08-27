@@ -24,6 +24,15 @@ RSpec.describe Suma::AdminAPI::Members, :db do
         that_includes(items: have_same_ids_as(admin, *u))
     end
 
+    it "errors without role access" do
+      replace_roles(admin, Suma::Role.cache.noop_admin)
+
+      get "/v1/members"
+
+      expect(last_response).to have_status(403)
+      expect(last_response).to have_json_body.that_includes(error: include(code: "role_check"))
+    end
+
     it_behaves_like "an endpoint capable of search" do
       let(:url) { "/v1/members" }
       let(:search_term) { "ZIM" }
@@ -149,6 +158,29 @@ RSpec.describe Suma::AdminAPI::Members, :db do
       expect(member.refresh.activities).to contain_exactly(have_attributes(message_name: "rolechange"))
     end
 
+    describe "with an admin who cannot modify roles" do
+      let(:to_add) { Suma::Role.create(name: "to_add") }
+      let(:member) { Suma::Fixtures.member.create }
+      before(:each) do
+        admin.remove_all_roles
+        admin.add_role(Suma::Role.cache.onboarding_manager)
+      end
+
+      it "errors if updating roles" do
+        post "/v1/members/#{member.id}", roles: [{id: to_add.id}]
+
+        expect(last_response).to have_status(403)
+        expect(last_response).to have_json_body.that_includes(error: include(code: "role_check"))
+      end
+
+      it "succeeds if not updating roles" do
+        post "/v1/members/#{member.id}", name: "hello"
+
+        expect(last_response).to have_status(200)
+        expect(member.refresh).to have_attributes(name: "hello")
+      end
+    end
+
     it "updates legal entity if given" do
       legal_entity = Suma::Fixtures.legal_entity.create
       member = Suma::Fixtures.member.with_legal_entity(legal_entity).create
@@ -252,6 +284,15 @@ RSpec.describe Suma::AdminAPI::Members, :db do
       expect(last_response).to have_status(200)
       expect(Suma::Member.last.activities).to contain_exactly(have_attributes(message_name: "accountclosed"))
     end
+
+    it "errors without role access" do
+      replace_roles(admin, Suma::Role.cache.readonly_admin)
+
+      post "/v1/members/1/close"
+
+      expect(last_response).to have_status(403)
+      expect(last_response).to have_json_body.that_includes(error: include(code: "role_check"))
+    end
   end
 
   describe "POST /v1/members/:id/eligibilities" do
@@ -272,6 +313,15 @@ RSpec.describe Suma::AdminAPI::Members, :db do
       post "/v1/members/#{member.id}/eligibilities", {values: [{constraint_id: 0, status: "pending"}]}
 
       expect(last_response).to have_status(403)
+    end
+
+    it "errors without role access" do
+      replace_roles(admin, Suma::Role.cache.readonly_admin)
+
+      post "/v1/members/1/eligibilities", {values: []}
+
+      expect(last_response).to have_status(403)
+      expect(last_response).to have_json_body.that_includes(error: include(code: "role_check"))
     end
   end
 end

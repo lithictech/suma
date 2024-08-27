@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+require "suma/admin_api"
+require "suma/admin_api/access"
+
 module Suma::AdminAPI::CommonEndpoints
   class ThrowNeedsRollback < StandardError
     attr_reader :thrown
@@ -172,6 +175,8 @@ module Suma::AdminAPI::CommonEndpoints
         use :searchable
       end
       get do
+        access = Suma::AdminAPI::Access.read_key(model_type)
+        check_role_access!(admin_member, :read, access)
         ds = model_type.dataset
         search_exprs = search_params.map { |p| search_param_to_sql(params, p) }
         translation_search_params.each do |p|
@@ -194,6 +199,8 @@ module Suma::AdminAPI::CommonEndpoints
     route_def.instance_exec do
       route_param :id, type: Integer do
         get do
+          access = Suma::AdminAPI::Access.read_key(model_type)
+          check_role_access!(admin_member, :read, access)
           (m = model_type[params[:id]]) or forbidden!
           present m, with: entity
         end
@@ -207,6 +214,8 @@ module Suma::AdminAPI::CommonEndpoints
       helpers MutationHelpers
       yield
       post :create do
+        access = Suma::AdminAPI::Access.write_key(model_type)
+        check_role_access!(admin_member, :write, access)
         _throwsafe_transaction(model_type.db) do
           m = model_type.new
           around.call(self, m) do
@@ -229,6 +238,8 @@ module Suma::AdminAPI::CommonEndpoints
         helpers MutationHelpers
         yield
         post do
+          access = Suma::AdminAPI::Access.write_key(model_type)
+          check_role_access!(admin_member, :write, access)
           _throwsafe_transaction(model_type.db) do
             (m = model_type[params[:id]]) or forbidden!
             around.call(self, m) do
@@ -253,6 +264,8 @@ module Suma::AdminAPI::CommonEndpoints
           requires :constraint_ids, type: Array[Integer], coerce_with: Suma::Service::Types::CommaSepArray[Integer]
         end
         post :eligibilities do
+          access = Suma::AdminAPI::Access.write_key(model_type)
+          check_role_access!(admin_member, :write, access)
           _throwsafe_transaction(model_type.db) do
             (m = model_type[params[:id]]) or forbidden!
             params[:constraint_ids].each do |id|

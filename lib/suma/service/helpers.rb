@@ -47,7 +47,7 @@ module Suma::Service::Helpers
   def current_member?
     return nil unless (cs = current_session?)
     if cs.impersonation?
-      unauthenticated! unless cs.member.admin?
+      unauthenticated! unless cs.member.role_access { read?(impersonate) }
       return cs.impersonating
     end
     unauthenticated! if cs.member.soft_deleted?
@@ -65,7 +65,7 @@ module Suma::Service::Helpers
   def admin_member?
     return nil unless (cs = current_session?)
     m = cs.member
-    return nil unless m.admin?
+    return nil unless m.role_access { read?(admin_access) }
     unauthenticated! if m.soft_deleted?
     return m
   end
@@ -89,12 +89,9 @@ module Suma::Service::Helpers
     yosoy.unauthenticated!
   end
 
-  def check_role!(member, role_name)
-    has_role = member.roles.find { |r| r.name == role_name }
-    return if has_role
-    role_exists = !Suma::Role.where(name: role_name).empty?
-    raise "The role '#{role_name}' does not exist so cannot be checked. You need to create it first." unless role_exists
-    merror!(403, "Sorry, this action is unavailable.", code: "role_check")
+  def check_role_access!(member, rw, key)
+    return if member.role_access.can?(rw, key)
+    merror!(403, "You are not permitted to #{rw} on #{key}", code: "role_check")
   end
 
   def merror!(status, message, code:, more: {}, skip_loc_check: false)

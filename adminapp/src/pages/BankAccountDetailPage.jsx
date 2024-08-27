@@ -1,74 +1,52 @@
 import api from "../api";
 import AdminLink from "../components/AdminLink";
 import DetailGrid from "../components/DetailGrid";
-import useErrorSnackbar from "../hooks/useErrorSnackbar";
+import ResourceDetail from "../components/ResourceDetail";
 import { dayjs } from "../modules/dayConfig";
-import useAsyncFetch from "../shared/react/useAsyncFetch";
-import { Divider, CircularProgress, Typography } from "@mui/material";
 import isEmpty from "lodash/isEmpty";
 import React from "react";
-import { useParams } from "react-router-dom";
 
 export default function BankAccountDetailPage() {
-  const { enqueueErrorSnackbar } = useErrorSnackbar();
-  let { id } = useParams();
-  id = Number(id);
-  const getBankAccount = React.useCallback(() => {
-    return api.getBankAccount({ id }).catch((e) => enqueueErrorSnackbar(e));
-  }, [id, enqueueErrorSnackbar]);
-  const { state: bankAccount, loading: bankAccountLoading } = useAsyncFetch(
-    getBankAccount,
-    {
-      default: {},
-      pickData: true,
-    }
-  );
-
   return (
-    <>
-      {bankAccountLoading && <CircularProgress />}
-      {!isEmpty(bankAccount) && (
-        <div>
-          <Typography variant="h5" gutterBottom>
-            Bank Account {id}
-          </Typography>
-          <Divider />
-          <DetailGrid
-            title="Account Information"
-            properties={[
-              { label: "ID", value: id },
-              { label: "Account Name", value: bankAccount.name },
-              { label: "Created At", value: dayjs(bankAccount.createdAt) },
-              {
-                label: "Deleted At",
-                value: bankAccount.softDeletedAt ? dayjs(bankAccount.softDeletedAt) : "",
-              },
-              {
-                label: "Verified At",
-                value: bankAccount.verifiedAt
-                  ? dayjs(bankAccount.verifiedAt).format("lll")
-                  : "(not verified)",
-              },
-              { label: "Routing Number", value: bankAccount.routingNumber },
-              { label: "Account Number", value: bankAccount.accountNumber },
-              { label: "Account Type", value: bankAccount.accountType },
-              {
-                label: "Member",
-                value: (
-                  <AdminLink model={bankAccount.member}>
-                    ({bankAccount.member.id}) {bankAccount.member.name}
-                  </AdminLink>
-                ),
-              },
-            ]}
-          />
+    <ResourceDetail
+      resource="bank_account"
+      apiGet={api.getBankAccount}
+      properties={(model) => [
+        { label: "ID", value: model.id },
+        { label: "Account Name", value: model.name },
+        { label: "Created At", value: dayjs(model.createdAt) },
+        {
+          label: "Deleted At",
+          value: model.softDeletedAt ? dayjs(model.softDeletedAt) : "",
+        },
+        {
+          label: "Verified At",
+          value: model.verifiedAt
+            ? dayjs(model.verifiedAt).format("lll")
+            : "(not verified)",
+        },
+        { label: "Routing Number", value: model.routingNumber },
+        { label: "Account Number", value: model.accountNumber },
+        { label: "Account Type", value: model.accountType },
+        model.member && {
+          label: "Member",
+          value: (
+            <AdminLink model={model.member}>
+              ({model.member.id}) {model.member.name}
+            </AdminLink>
+          ),
+        },
+      ]}
+    >
+      {(model) => (
+        <>
           <LegalEntity
-            address={bankAccount.legalEntity.address}
-            name={bankAccount.legalEntity.name}
+            address={model.legalEntity.address}
+            name={model.legalEntity.name}
           />
-        </div>
+        </>
       )}
-    </>
+    </ResourceDetail>
   );
 }
 

@@ -7,9 +7,9 @@ import React from "react";
 export default function OrganizationMembershipListPage() {
   return (
     <ResourceList
+      resource="organization_membership"
       apiList={api.getOrganizationMemberships}
-      toCreate="/membership/new"
-      title="Organization Memberships"
+      canCreate
       canSearch
       columns={[
         {

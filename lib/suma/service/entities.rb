@@ -84,9 +84,7 @@ module Suma::Service::Entities
     expose :name
     expose :us_phone, as: :phone
     expose :onboarded?, as: :onboarded
-    expose :roles do |instance|
-      instance.roles.map(&:name)
-    end
+    expose :role_access, &self.delegate_to(:role_access, :as_json)
     protected def current_session
       env = options.fetch(:env)
       yosoy = env.fetch("yosoy")

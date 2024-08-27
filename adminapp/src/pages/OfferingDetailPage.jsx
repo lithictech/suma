@@ -4,6 +4,7 @@ import EligibilityConstraints from "../components/EligibilityConstraints";
 import Link from "../components/Link";
 import RelatedList from "../components/RelatedList";
 import ResourceDetail from "../components/ResourceDetail";
+import useRoleAccess from "../hooks/useRoleAccess";
 import { dayjs } from "../modules/dayConfig";
 import oneLineAddress from "../modules/oneLineAddress";
 import createRelativeUrl from "../shared/createRelativeUrl";
@@ -16,11 +17,12 @@ import React from "react";
 
 export default function OfferingDetailPage() {
   const classes = useStyles();
+  const { canWriteResource } = useRoleAccess();
   return (
     <ResourceDetail
+      resource="offering"
       apiGet={api.getCommerceOffering}
-      title={(model) => `Offering ${model.id}`}
-      toEdit={(model) => `/offering/${model.id}/edit`}
+      canEdit
       properties={(model) => [
         { label: "ID", value: model.id },
         { label: "Created At", value: dayjs(model.createdAt) },
@@ -31,9 +33,8 @@ export default function OfferingDetailPage() {
               image={model.image}
               alt={model.image.name}
               className="w-100"
-              params={{ crop: "center" }}
-              h={225}
-              width={225}
+              params={{ crop: "none" }}
+              h={150}
             />
           ),
         },
@@ -82,7 +83,7 @@ export default function OfferingDetailPage() {
             "-"
           ),
         },
-        {
+        canWriteResource("offering_product") && {
           label: "Create Offering Product",
           value: (
             <Link
@@ -113,6 +114,7 @@ export default function OfferingDetailPage() {
             ]}
           />
           <EligibilityConstraints
+            resource="offering"
             constraints={model.eligibilityConstraints}
             modelId={model.id}
             replaceModelData={setModel}

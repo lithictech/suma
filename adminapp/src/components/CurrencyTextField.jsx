@@ -1,5 +1,6 @@
 import api from "../api";
 import config from "../config";
+import { useGlobalApiState } from "../hooks/globalApiState";
 import parseCurrency from "../modules/parseCurrency";
 import { formatMoney } from "../shared/money";
 import { InputAdornment, TextField } from "@mui/material";
@@ -11,17 +12,13 @@ const CurrencyTextField = React.forwardRef(function CurrencyTextField(
   ref
 ) {
   const classes = useStyles();
-  const [currencies, setCurrencies] = React.useState([config.defaultCurrency]);
+  const currencies = useGlobalApiState(api.getCurrencies, [config.defaultCurrency], {
+    pick: (r) => r.data.items,
+  });
   const currency = currencies.find(({ code }) => money.currency === code);
   const [value, setValue] = React.useState(
     money.cents ? formatMoney(money, { noCurrency: true }) : ""
   );
-
-  React.useEffect(() => {
-    api.getCurrencies().then((r) => {
-      setCurrencies(r.data.items);
-    });
-  }, []);
 
   function handleChange(e) {
     setValue(e.target.value);

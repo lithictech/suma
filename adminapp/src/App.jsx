@@ -1,4 +1,5 @@
 import { redirectIfAuthed, redirectIfUnauthed } from "./hocs/authRedirects";
+import { GlobalApiStateProvider } from "./hooks/globalApiState";
 import { UserProvider } from "./hooks/user";
 import BankAccountDetailPage from "./pages/BankAccountDetailPage";
 import BookTransactionCreatePage from "./pages/BookTransactionCreatePage";
@@ -85,12 +86,14 @@ export default function App() {
       <LocalizationProvider dateAdapter={AdapterDayjs}>
         <SnackbarProvider>
           <UserProvider>
-            <Router basename={import.meta.env.BASE_URL}>
-              <ClientsideSearchParamsProvider>
-                <NavSwitch />
-                <PageSwitch />
-              </ClientsideSearchParamsProvider>
-            </Router>
+            <GlobalApiStateProvider>
+              <Router basename={import.meta.env.BASE_URL}>
+                <ClientsideSearchParamsProvider>
+                  <NavSwitch />
+                  <PageSwitch />
+                </ClientsideSearchParamsProvider>
+              </Router>
+            </GlobalApiStateProvider>
           </UserProvider>
         </SnackbarProvider>
       </LocalizationProvider>

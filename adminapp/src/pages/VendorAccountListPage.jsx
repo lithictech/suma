@@ -8,8 +8,8 @@ import React from "react";
 export default function VendorAccountListPage() {
   return (
     <ResourceList
+      resource="vendor_account"
       apiList={api.getVendorAccounts}
-      title="Vendor Accounts"
       canSearch
       columns={[
         {

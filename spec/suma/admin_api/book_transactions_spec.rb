@@ -87,6 +87,19 @@ RSpec.describe Suma::AdminAPI::BookTransactions, :db do
         ),
       )
     end
+
+    it "errors without role access" do
+      replace_roles(admin, Suma::Role.cache.readonly_admin)
+      post "/v1/book_transactions/create",
+           originating_ledger_id: 1,
+           receiving_ledger_id: 2,
+           amount: {cents: 100},
+           memo: {en: "hello", es: "hola"},
+           vendor_service_category_slug: "corn"
+
+      expect(last_response).to have_status(403)
+      expect(last_response).to have_json_body.that_includes(error: include(code: "role_check"))
+    end
   end
 
   describe "GET /v1/book_transactions/:id" do

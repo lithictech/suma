@@ -110,7 +110,7 @@ class Suma::API::Auth < Suma::API::V1
       begin
         if Suma::Member.matches_allowlist?(me, Suma::Member.superadmin_allowlist)
           me.update(onboarding_verified_at: Time.now) unless me.onboarding_verified?
-          me.ensure_role(Suma::Role.admin_role)
+          me.ensure_role(Suma::Role.cache.admin)
         elsif Suma::Member.matches_allowlist?(me, Suma::Member.onboard_allowlist)
           me.update(onboarding_verified_at: Time.now) unless me.onboarding_verified?
         elsif Suma::Member.matches_allowlist?(me, Suma::Member.skip_verification_allowlist)

@@ -59,7 +59,11 @@ class Suma::AdminAPI::CommerceProducts < Suma::AdminAPI::V1
       end
     end
 
-    Suma::AdminAPI::CommonEndpoints.get_one(self, Suma::Commerce::Product, DetailedEntity)
+    Suma::AdminAPI::CommonEndpoints.get_one(
+      self,
+      Suma::Commerce::Product,
+      DetailedEntity,
+    )
 
     Suma::AdminAPI::CommonEndpoints.update(
       self,

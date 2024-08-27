@@ -109,7 +109,9 @@ class Suma::Service < Grape::API
   # See https://github.com/ruby-grape/grape#register-custom-middleware-for-authentication
   Grape::Middleware::Auth::Strategies.add(
     :admin,
-    Suma::Yosoy::BlockAuthenticatorMiddleware.new(->(proxy) { proxy.authenticated_object!.member.admin? }),
+    Suma::Yosoy::BlockAuthenticatorMiddleware.new(lambda { |proxy|
+                                                    proxy.authenticated_object!.member.role_access.read?(:admin_access)
+                                                  }),
   )
 
   # Add some context to Sentry on each request.

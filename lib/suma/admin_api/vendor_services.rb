@@ -39,8 +39,16 @@ class Suma::AdminAPI::VendorServices < Suma::AdminAPI::V1
       VendorServiceEntity,
       search_params: [:internal_name, :external_name],
     )
-    Suma::AdminAPI::CommonEndpoints.get_one(self, Suma::Vendor::Service, DetailedVendorServiceEntity)
-    Suma::AdminAPI::CommonEndpoints.update(self, Suma::Vendor::Service, DetailedVendorServiceEntity) do
+    Suma::AdminAPI::CommonEndpoints.get_one(
+      self,
+      Suma::Vendor::Service,
+      DetailedVendorServiceEntity,
+    )
+    Suma::AdminAPI::CommonEndpoints.update(
+      self,
+      Suma::Vendor::Service,
+      DetailedVendorServiceEntity,
+    ) do
       params do
         optional :image, type: File
         optional :external_name, type: String

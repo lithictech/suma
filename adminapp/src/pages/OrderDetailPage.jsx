@@ -3,78 +3,69 @@ import AdminLink from "../components/AdminLink";
 import AuditLogs from "../components/AuditLogs";
 import DetailGrid from "../components/DetailGrid";
 import RelatedList from "../components/RelatedList";
-import useErrorSnackbar from "../hooks/useErrorSnackbar";
+import ResourceDetail from "../components/ResourceDetail";
 import { dayjs } from "../modules/dayConfig";
 import Money from "../shared/react/Money";
-import useAsyncFetch from "../shared/react/useAsyncFetch";
-import { CircularProgress } from "@mui/material";
-import isEmpty from "lodash/isEmpty";
 import React from "react";
-import { useParams } from "react-router-dom";
 
 export default function OrderDetailPage() {
-  const { enqueueErrorSnackbar } = useErrorSnackbar();
-  let { id } = useParams();
-  id = Number(id);
-  const getOrder = React.useCallback(() => {
-    return api.getCommerceOrder({ id }).catch((e) => enqueueErrorSnackbar(e));
-  }, [id, enqueueErrorSnackbar]);
-  const { state: order, loading: orderLoading } = useAsyncFetch(getOrder, {
-    default: {},
-    pickData: true,
-  });
-  const checkout = order.checkout || {};
   return (
-    <>
-      {orderLoading && <CircularProgress />}
-      {!isEmpty(order) && (
-        <div>
-          <DetailGrid
-            title={`Order ${order.serial}`}
-            properties={[
-              { label: "ID", value: id },
-              {
-                label: "Member",
-                value: (
-                  <AdminLink key="member" model={order.member}>
-                    {order.member.name}
-                  </AdminLink>
-                ),
-              },
-              { label: "Created At", value: dayjs(order.createdAt) },
-              {
-                label: "Status",
-                value: order.statusLabel,
-              },
-              { label: "Total Paid", value: <Money>{order.paidAmount}</Money> },
-              { label: "Total Charged", value: <Money>{order.fundedAmount}</Money> },
-            ]}
-          />
+    <ResourceDetail
+      resource="order"
+      title={(model) => `Order ${model.serial}`}
+      apiGet={api.getCommerceOrder}
+      properties={(model) => [
+        { label: "ID", value: model.id },
+        {
+          label: "Member",
+          value: (
+            <AdminLink key="member" model={model.member}>
+              {model.member.name}
+            </AdminLink>
+          ),
+        },
+        { label: "Created At", value: dayjs(model.createdAt) },
+        {
+          label: "Status",
+          value: model.statusLabel,
+        },
+        { label: "Total Paid", value: <Money>{model.paidAmount}</Money> },
+        { label: "Total Charged", value: <Money>{model.fundedAmount}</Money> },
+      ]}
+    >
+      {(model) => (
+        <>
           <DetailGrid
             title="Checkout Details"
             properties={[
               {
                 label: "Undiscounted Cost",
-                value: <Money>{checkout.undiscountedCost}</Money>,
+                value: <Money>{model.checkout.undiscountedCost}</Money>,
               },
-              { label: "Customer Cost", value: <Money>{checkout.customerCost}</Money> },
-              { label: "Handling", value: <Money>{checkout.handling}</Money> },
-              { label: "Tax", value: <Money>{checkout.tax}</Money> },
-              { label: "Total", value: <Money>{checkout.total}</Money> },
-              { label: "Instrument", value: checkout.paymentInstrument?.adminLabel },
+              {
+                label: "Customer Cost",
+                value: <Money>{model.checkout.customerCost}</Money>,
+              },
+              { label: "Handling", value: <Money>{model.checkout.handling}</Money> },
+              { label: "Tax", value: <Money>{model.checkout.tax}</Money> },
+              { label: "Total", value: <Money>{model.checkout.total}</Money> },
+              {
+                label: "Instrument",
+                value: model.checkout.paymentInstrument?.adminLabel,
+              },
               {
                 label: "Fulfillment (En)",
-                value: checkout.fulfillmentOption?.description.en,
+                value: model.checkout.fulfillmentOption?.description.en,
               },
               {
                 label: "Fulfillment (Es)",
-                value: checkout.fulfillmentOption?.description.es,
+                value: model.checkout.fulfillmentOption?.description.es,
               },
             ]}
           />
           <RelatedList
             title="Items"
-            rows={order.items}
+            rows={model.items}
             headers={[
               "Quantity",
               "Offering Product",
@@ -95,9 +86,9 @@ export default function OrderDetailPage() {
               </Money>,
             ]}
           />
-          <AuditLogs auditLogs={order.auditLogs} />
-        </div>
+          <AuditLogs auditLogs={model.auditLogs} />
+        </>
       )}
-    </>
+    </ResourceDetail>
   );
 }

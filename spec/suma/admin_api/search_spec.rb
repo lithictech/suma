@@ -23,6 +23,15 @@ RSpec.describe Suma::AdminAPI::Search, :db do
       expect(last_response).to have_json_body.that_includes(items: have_same_ids_as(o1))
     end
 
+    it "errors without role access" do
+      replace_roles(admin, Suma::Role.cache.noop_admin)
+
+      post "/v1/search/ledgers", q: "abc"
+
+      expect(last_response).to have_status(403)
+      expect(last_response).to have_json_body.that_includes(error: include(code: "role_check"))
+    end
+
     describe "with the words 'platform' or 'suma' in the search string" do
       it "replaces the words 'platform' and 'suma' with the platform account" do
         o1 = Suma::Fixtures.ledger.create(name: "abc")
@@ -71,9 +80,27 @@ RSpec.describe Suma::AdminAPI::Search, :db do
         platform_by_category: match(cash: include(id: platform.id)),
       )
     end
+
+    it "errors without role access" do
+      replace_roles(admin, Suma::Role.cache.noop_admin)
+
+      post "/v1/search/ledgers/lookup", ids: [], platform_categories: []
+
+      expect(last_response).to have_status(403)
+      expect(last_response).to have_json_body.that_includes(error: include(code: "role_check"))
+    end
   end
 
   describe "POST /v1/search/payment_instruments" do
+    it "errors without role access" do
+      replace_roles(admin, Suma::Role.cache.noop_admin)
+
+      post "/v1/search/payment_instruments", q: "abc"
+
+      expect(last_response).to have_status(403)
+      expect(last_response).to have_json_body.that_includes(error: include(code: "role_check"))
+    end
+
     it "returns matching bank accounts" do
       o1 = Suma::Fixtures.bank_account.verified.create(name: "abc")
       o2 = Suma::Fixtures.bank_account.verified.create(name: "xyz")
@@ -173,6 +200,15 @@ RSpec.describe Suma::AdminAPI::Search, :db do
   end
 
   describe "POST /v1/search/offerings" do
+    it "errors without role access" do
+      replace_roles(admin, Suma::Role.cache.noop_admin)
+
+      post "/v1/search/offerings", q: "abc"
+
+      expect(last_response).to have_status(403)
+      expect(last_response).to have_json_body.that_includes(error: include(code: "role_check"))
+    end
+
     it "returns matching offerings" do
       o1 = Suma::Fixtures.offering.create(description: Suma::Fixtures.translated_text(en: "abc farmers market").create)
       o2 = Suma::Fixtures.offering.create(description: Suma::Fixtures.translated_text(en: "test").create)
@@ -195,6 +231,15 @@ RSpec.describe Suma::AdminAPI::Search, :db do
   end
 
   describe "POST /v1/search/vendors" do
+    it "errors without role access" do
+      replace_roles(admin, Suma::Role.cache.noop_admin)
+
+      post "/v1/search/vendors"
+
+      expect(last_response).to have_status(403)
+      expect(last_response).to have_json_body.that_includes(error: include(code: "role_check"))
+    end
+
     it "returns matching vendors" do
       v1 = Suma::Fixtures.vendor.create(name: "abc farmers market")
       v2 = Suma::Fixtures.vendor.create(name: "test")
@@ -217,6 +262,15 @@ RSpec.describe Suma::AdminAPI::Search, :db do
   end
 
   describe "POST /v1/search/members" do
+    it "errors without role access" do
+      replace_roles(admin, Suma::Role.cache.noop_admin)
+
+      post "/v1/search/members", q: "hector"
+
+      expect(last_response).to have_status(403)
+      expect(last_response).to have_json_body.that_includes(error: include(code: "role_check"))
+    end
+
     it "returns matching active members" do
       m1 = Suma::Fixtures.member.create(name: "Hector Gambino")
       m2 = Suma::Fixtures.member.create(name: "test")
@@ -250,6 +304,15 @@ RSpec.describe Suma::AdminAPI::Search, :db do
   end
 
   describe "POST /v1/search/organizations" do
+    it "errors without role access" do
+      replace_roles(admin, Suma::Role.cache.noop_admin)
+
+      post "/v1/search/organizations"
+
+      expect(last_response).to have_status(403)
+      expect(last_response).to have_json_body.that_includes(error: include(code: "role_check"))
+    end
+
     it "returns matching organizations" do
       m1 = Suma::Fixtures.organization.create(name: "hacienda abc")
       m2 = Suma::Fixtures.organization.create(name: "test")
@@ -281,6 +344,15 @@ RSpec.describe Suma::AdminAPI::Search, :db do
   end
 
   describe "POST /v1/search/vendor_services" do
+    it "errors without role access" do
+      replace_roles(admin, Suma::Role.cache.noop_admin)
+
+      post "/v1/search/vendor_services", q: "ride"
+
+      expect(last_response).to have_status(403)
+      expect(last_response).to have_json_body.that_includes(error: include(code: "role_check"))
+    end
+
     it "returns matching vendor services" do
       vs1 = Suma::Fixtures.vendor_service.create(external_name: "ride connection")
       vs2 = Suma::Fixtures.organization.create(name: "test")
@@ -312,6 +384,15 @@ RSpec.describe Suma::AdminAPI::Search, :db do
   end
 
   describe "POST /v1/search/commerce_offerings" do
+    it "errors without role access" do
+      replace_roles(admin, Suma::Role.cache.noop_admin)
+
+      post "/v1/search/commerce_offerings", q: "sum"
+
+      expect(last_response).to have_status(403)
+      expect(last_response).to have_json_body.that_includes(error: include(code: "role_check"))
+    end
+
     it "returns matching commerce offerings" do
       o1 = Suma::Fixtures.offering.create(description: Suma::Fixtures.translated_text.create(en: "Summer FM EN"))
       o2 = Suma::Fixtures.offering.create(description: Suma::Fixtures.translated_text.create(en: "test"))

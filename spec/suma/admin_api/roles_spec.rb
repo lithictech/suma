@@ -22,7 +22,7 @@ RSpec.describe Suma::AdminAPI::Roles, :db do
 
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.
-        that_includes(items: have_same_ids_as(Suma::Role.admin_role, b, c, d).ordered)
+        that_includes(items: have_same_ids_as(Suma::Role.order(:name).all).ordered)
     end
   end
 
