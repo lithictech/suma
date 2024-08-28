@@ -129,7 +129,7 @@ function Roles({ roles, setRoles }) {
             />
           );
         })}
-        {allRoles === [] && (
+        {allRoles && allRoles.length === 0 && (
           <Typography>
             * No roles available, ask developers for help if you see this
           </Typography>
