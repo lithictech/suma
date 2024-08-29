@@ -444,6 +444,7 @@ class Suma::API::Commerce < Suma::API::V1
     include Suma::API::Entities
     expose :items, with: OrderHistoryItemEntity, &self.delegate_to(:checkout, :items)
     expose :offering_id, &self.delegate_to(:checkout, :cart, :offering_id)
+    expose_translated :offering_description, &self.delegate_to(:checkout, :cart, :offering, :description)
     expose_translated :fulfillment_confirmation,
                       &self.delegate_to(:checkout, :cart, :offering, :fulfillment_confirmation)
     expose :fulfillment_option, with: FulfillmentOptionEntity, &self.delegate_to(:checkout, :fulfillment_option)

@@ -33,7 +33,7 @@ export default function OrderDetail({ order, setOrder, gutters }) {
           <PressAndHoldToClaim
             id={order.id}
             canClaim={order.canClaim}
-            fulfilledAt={order.fulfilledAt}
+            offeringDescription={order.offeringDescription}
             onOrderClaim={(o) => setOrder(o)}
           />
           <p className="mb-0">
@@ -61,7 +61,8 @@ export default function OrderDetail({ order, setOrder, gutters }) {
               <Alert variant="info" className="mb-0">
                 <ScrollTopOnMount />
                 <Stack direction="horizontal" gap={3}>
-                  {t("food:claimed_on", {
+                  {t("food:order_for_claimed_on", {
+                    offeringDescription: order.offeringDescription,
                     fulfilledAt: dayjs(order.fulfilledAt).format("lll"),
                   })}
                   <div className="ms-auto">
@@ -187,7 +188,7 @@ function FulfillmentOption({ order, onOrderUpdated }) {
   );
 }
 
-function PressAndHoldToClaim({ id, canClaim, onOrderClaim }) {
+function PressAndHoldToClaim({ id, canClaim, offeringDescription, onOrderClaim }) {
   const screenLoader = useScreenLoader();
   const { showErrorToast } = useErrorToast();
   const { handleUpdateCurrentMember } = useUser();
@@ -213,7 +214,9 @@ function PressAndHoldToClaim({ id, canClaim, onOrderClaim }) {
   return (
     <div className="text-center">
       <Alert variant="info mb-0">
-        <p className="small mb-0">{md("food:claiming_instructions")}</p>
+        <p className="small mb-0">
+          {md("food:claiming_instructions", { offeringDescription: offeringDescription })}
+        </p>
         <PressAndHold size={200} onHeld={handleOrderClaim}>
           {mdx("food:press_and_hold", {
             overrides: {
