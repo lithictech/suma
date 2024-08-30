@@ -14,6 +14,11 @@ RSpec.describe Suma::API::PaymentInstruments, :db, reset_configuration: Suma::Pa
     login_as(member)
   end
 
+  def stub_token_req
+    return stub_request(:get, "https://api.stripe.com/v1/tokens/tok_1AWuxsJd4nFN3COfSKY8195M").
+        to_return(fixture_response("stripe/token"))
+  end
+
   describe "POST /v1/payment_instruments/bank_accounts/create" do
     let(:account_number) { "99988877" }
     let(:routing_number) { "111222333" }
@@ -95,6 +100,7 @@ RSpec.describe Suma::API::PaymentInstruments, :db, reset_configuration: Suma::Pa
   describe "POST /v1/payment_instruments/cards/create_stripe" do
     it "creates a customer and card using a Stripe token" do
       reqs = [
+        stub_token_req,
         stub_request(:post, "https://api.stripe.com/v1/customers").
           to_return(fixture_response("stripe/customer")),
         stub_request(:post, "https://api.stripe.com/v1/customers/cus_D6eGmbqyejk8s9/sources").
@@ -115,6 +121,7 @@ RSpec.describe Suma::API::PaymentInstruments, :db, reset_configuration: Suma::Pa
     end
 
     it "handles a customer who is already registered" do
+      token_req = stub_token_req
       req = stub_request(:post, "https://api.stripe.com/v1/customers/cus_D6eGmbqyejk8s9/sources").
         to_return(fixture_response("stripe/card"))
 
@@ -122,13 +129,50 @@ RSpec.describe Suma::API::PaymentInstruments, :db, reset_configuration: Suma::Pa
       post "/v1/payment_instruments/cards/create_stripe", token: load_fixture_data("stripe/token.json", raw: true)
 
       expect(last_response).to have_status(200)
+      expect(token_req).to have_been_made
       expect(req).to have_been_made
       expect(member.refresh.cards).to contain_exactly(
         have_attributes(stripe_id: "card_1CgQyH2eZvKYlo2CYkDQhvma"),
       )
     end
 
+    describe "with a token that has a fingerprint matching an existing card" do
+      let!(:existing_card) { Suma::Fixtures.card.member(member).with_stripe({fingerprint: "EL88ufXeYTG02LOU"}).create }
+
+      before(:each) do
+        member.update(stripe_customer_json: load_fixture_data("stripe/customer"))
+      end
+
+      it "returns the existing card" do
+        token_req = stub_token_req
+
+        post "/v1/payment_instruments/cards/create_stripe", token: load_fixture_data("stripe/token", raw: true)
+
+        expect(token_req).to have_been_made
+        expect(last_response).to have_status(200)
+        expect(last_response).to have_json_body.that_includes(id: existing_card.id)
+        expect(member.legal_entity.cards_dataset.all).to have_length(1)
+      end
+
+      it "creates a new card if the existing card is not usable" do
+        existing_card.soft_delete
+
+        token_req = stub_token_req
+        add_card_req = stub_request(:post, "https://api.stripe.com/v1/customers/cus_D6eGmbqyejk8s9/sources").
+          to_return(fixture_response("stripe/card"))
+
+        post "/v1/payment_instruments/cards/create_stripe", token: load_fixture_data("stripe/token", raw: true)
+
+        expect(token_req).to have_been_made
+        expect(add_card_req).to have_been_made
+        expect(last_response).to have_status(200)
+        expect(last_response).to have_json_body.that_includes(id: be > existing_card.id)
+        expect(member.legal_entity.cards_dataset.all).to have_length(2)
+      end
+    end
+
     it "errors if Stripe errors on card create" do
+      token_req = stub_token_req
       req = stub_request(:post, "https://api.stripe.com/v1/customers/cus_D6eGmbqyejk8s9/sources").
         to_return(fixture_response("stripe/charge_error", status: 402))
 
@@ -136,6 +180,7 @@ RSpec.describe Suma::API::PaymentInstruments, :db, reset_configuration: Suma::Pa
 
       post "/v1/payment_instruments/cards/create_stripe", token: load_fixture_data("stripe/token.json", raw: true)
 
+      expect(token_req).to have_been_made
       expect(req).to have_been_made
       expect(last_response).to have_status(402)
       expect(last_response).to have_json_body.

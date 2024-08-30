@@ -88,6 +88,7 @@
     "checkout_fatal_error": "Lo sentimos, algo salió mal al intentar comprobarlo. Por favor, regrese y vuelva a intentarlo.",
     "checkout_no_items": "No hay artículos en su carrito, o ninguno de sus artículos está disponible. Por favor, regrese y vuelva a intentarlo.",
     "conflicting_bank_account": "Tienes una cuenta bancaria con ese número de cuenta y clave bancaria ya. Intenta de nuevo, o entre los datos de otra cuenta.",
+    "conflicting_stripe_card": "Tienes una tarjeta con esa información ya. Intenta de nuevo, o entre los datos de otra cuenta.",
     "disambiguation_required": "$t(strings:errors:unhandled_error)",
     "eligibility_violation": "$t(strings:errors:unhandled_error)",
     "forbidden": "Acceso a estos recursos está restringido.",
