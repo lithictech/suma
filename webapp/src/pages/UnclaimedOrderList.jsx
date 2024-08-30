@@ -96,7 +96,9 @@ function ClaimedOrderModal({ claimedOrder, onHide }) {
   return (
     <Modal show={!isEmpty(claimedOrder)} onHide={onHide} centered>
       <Modal.Header closeButton>
-        <Modal.Title>{t("food:order_claimed")}</Modal.Title>
+        <Modal.Title>
+          {t("food:order_claimed", { serial: claimedOrder.serial })}
+        </Modal.Title>
       </Modal.Header>
       <Modal.Body>
         <div className="mt-4 d-flex justify-content-center align-items-center flex-column">
@@ -104,7 +106,7 @@ function ClaimedOrderModal({ claimedOrder, onHide }) {
           <AnimatedCheckmark />
           <p className="mt-2 fs-4 w-75 text-center">
             {t("food:order_for_claimed_on", {
-              serial: claimedOrder.serial,
+              offeringDescription: claimedOrder.offeringDescription,
               fulfilledAt: dayjs(claimedOrder.fulfilledAt).format("lll"),
             })}
           </p>
