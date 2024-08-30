@@ -11,6 +11,7 @@ import externalLinks from "../modules/externalLinks";
 import readOnlyReason from "../modules/readOnlyReason";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
 import useUser from "../state/useUser";
+import isEmpty from "lodash/isEmpty";
 import React from "react";
 import Alert from "react-bootstrap/Alert";
 import Stack from "react-bootstrap/Stack";
@@ -38,9 +39,8 @@ export default function Dashboard() {
         </div>
         <AddToHomescreen />
       </LayoutContainer>
-      {dashboardLoading ? (
-        <PageLoader buffered />
-      ) : (
+      {dashboardLoading && <PageLoader buffered />}
+      {!isEmpty(dashboard.vendibleGroupings) && (
         <LayoutContainer top gutters>
           <Stack gap={3}>
             {dashboard.vendibleGroupings.map(({ name, vendibles }) => (
