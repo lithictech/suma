@@ -46,16 +46,18 @@ export default function LedgersOverview() {
   activeLedger = activeLedger || RECENT_LINES_LEDGER;
 
   React.useEffect(() => {
-    if (!ledgerIdParam) {
+    if (!activeLedger.id) {
       return;
     }
-    if (ledgerLines.currentPage !== page + 1) {
-      // Fetch lines when the page changes. This needs to come first
-      // to avoid a double fetch due to query param state issues.
-      ledgerLinesFetch({ id: activeLedger.id, page: page + 1 });
-    } else if (ledgerLines.ledgerId !== ledgerIdParam) {
-      // Fetch the first page of items for the new ledger when the id changes.
+    if (isEmpty(ledgerLines)) {
+      // Initial load should fetch whatever page is in the url
+      ledgerLinesFetch({ id: ledgerIdParam, page: page + 1 });
+    } else if (ledgerLines.ledgerId !== activeLedger.id) {
+      // When the ID changes, fetch the first page. The call to setListQueryParams has already set page:0.
       ledgerLinesFetch({ id: ledgerIdParam, page: 1 });
+    } else if (ledgerLines.currentPage !== page + 1) {
+      // Happens when paginating.
+      ledgerLinesFetch({ id: ledgerIdParam, page: page + 1 });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeLedger, page, ledgerIdParam]);
@@ -82,20 +84,36 @@ export default function LedgersOverview() {
             setListQueryParams({ page: 0 }, { ledger: ledgerId })
           }
         />
-        {recentLinesSelected && (
-          <RecentLinesSubheader
-            totalBalance={ledgersOverview.totalBalance}
-            lifetimeSavings={ledgersOverview.lifetimeSavings}
-          />
-        )}
       </LayoutContainer>
-      <LedgerLines
-        lines={activeLines}
-        linesPage={page}
-        linesPageCount={ledgerLines.pageCount}
-        linesLoading={ledgersOverviewLoading || ledgerLinesLoading}
-        onLinesPageChange={(pg) => setListQueryParams({ page: pg })}
-      />
+      {recentLinesSelected ? (
+        <>
+          <LayoutContainer gutters>
+            <RecentLinesSubheader
+              totalBalance={ledgersOverview.totalBalance}
+              lifetimeSavings={ledgersOverview.lifetimeSavings}
+            />
+          </LayoutContainer>
+          <LedgerLinesTable
+            lines={ledgersOverview.recentLines}
+            linesLoading={ledgersOverviewLoading}
+          />
+        </>
+      ) : (
+        <>
+          <LedgerLinesTable
+            lines={activeLines}
+            linesLoading={ledgersOverviewLoading || ledgerLinesLoading}
+          />
+          <LayoutContainer gutters>
+            <ForwardBackPagination
+              page={page}
+              pageCount={ledgerLines.pageCount}
+              onPageChange={(pg) => setListQueryParams({ page: pg })}
+              scrollTop={140}
+            />
+          </LayoutContainer>
+        </>
+      )}
     </>
   );
 }
@@ -138,7 +156,7 @@ function LedgerSelect({ activeLedger, ledgers, onLedgerSelected }) {
             key={led.id}
             as={Stack}
             title={led.contributionText}
-            active={activeLedger?.id === led.id}
+            active={activeLedger.id === led.id}
             className="overflow-hidden"
             onClick={() => onLedgerSelected(led.id)}
           >
@@ -172,31 +190,8 @@ function RecentLinesSubheader({ totalBalance, lifetimeSavings }) {
   );
 }
 
-const LedgerLines = ({
-  lines,
-  linesPage,
-  linesPageCount,
-  linesLoading,
-  onLinesPageChange,
-}) => {
+function LedgerLinesTable({ lines, linesLoading }) {
   const { selectedHashItem, onHashItemSelected } = useHashSelector(lines, "opaqueId");
-  let footer = null;
-  if (!isEmpty(lines) && !linesLoading) {
-    footer = (
-      <LayoutContainer gutters>
-        {!isEmpty(lines) ? (
-          <ForwardBackPagination
-            page={linesPage}
-            pageCount={linesPageCount}
-            onPageChange={onLinesPageChange}
-            scrollTop={140}
-          />
-        ) : (
-          <p className="text-center">{t("dashboard:no_money")}</p>
-        )}
-      </LayoutContainer>
-    );
-  }
   return (
     <div className="position-relative">
       {linesLoading && <PageLoader overlay />}
@@ -239,11 +234,10 @@ const LedgerLines = ({
           ))}
         </tbody>
       </Table>
-      {footer}
       <LedgerItemModal
         item={selectedHashItem}
         onClose={() => onHashItemSelected(null, null)}
       />
     </div>
   );
-};
+}
