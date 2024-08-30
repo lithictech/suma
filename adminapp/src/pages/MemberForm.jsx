@@ -7,7 +7,6 @@ import { useGlobalApiState } from "../hooks/globalApiState";
 import useRoleAccess from "../hooks/useRoleAccess";
 import mergeAt from "../shared/mergeAt";
 import withoutAt from "../shared/withoutAt";
-import theme from "../theme";
 import AddIcon from "@mui/icons-material/Add";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -112,7 +111,7 @@ function Roles({ roles, setRoles }) {
       <FormHelperText>
         If you remove special roles like "admin", you will be logged out of this account.
       </FormHelperText>
-      <Stack direction="row" spacing={1} sx={{ mt: theme.spacing(1) }}>
+      <Stack direction="row" gap={1} sx={{ marginTop: 1, flexWrap: "wrap" }}>
         {allRoles === null && <CircularProgress />}
         {allRoles?.map((r) => {
           const hasRole = hasRoleIds.has(r.id);
@@ -129,7 +128,7 @@ function Roles({ roles, setRoles }) {
             />
           );
         })}
-        {allRoles === [] && (
+        {allRoles && allRoles.length === 0 && (
           <Typography>
             * No roles available, ask developers for help if you see this
           </Typography>
