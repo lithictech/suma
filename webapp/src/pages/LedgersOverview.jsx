@@ -1,6 +1,4 @@
 import api from "../api";
-import AddFundsLinkButton from "../components/AddFundsLinkButton";
-import ErrorScreen from "../components/ErrorScreen";
 import ForwardBackPagination from "../components/ForwardBackPagination";
 import LayoutContainer from "../components/LayoutContainer";
 import LinearBreadcrumbs from "../components/LinearBreadcrumbs";
@@ -14,10 +12,8 @@ import useListQueryControls from "../shared/react/useListQueryControls";
 import clsx from "clsx";
 import dayjs from "dayjs";
 import find from "lodash/find";
-import first from "lodash/first";
 import isEmpty from "lodash/isEmpty";
 import React from "react";
-import Button from "react-bootstrap/Button";
 import Dropdown from "react-bootstrap/Dropdown";
 import Stack from "react-bootstrap/Stack";
 import Table from "react-bootstrap/Table";
@@ -40,85 +36,76 @@ export default function LedgersOverview() {
     pickData: true,
     doNotFetchOnInit: true,
   });
-  const ledgerIdParam = Number(params.get("ledger"));
-  const hasRecentLines = !isEmpty(ledgersOverview.recentLines);
-  // when we have recent lines, we dont want an active ledger
-  const firstLedger = hasRecentLines ? undefined : first(ledgersOverview.ledgers);
-  const activeLedger = ledgerIdParam
-    ? find(ledgersOverview.ledgers, { id: ledgerIdParam })
-    : firstLedger;
+  const ledgerIdParam = Number(params.get("ledger")) || 0;
+
+  // If we don't have a ledgerId parameter, or it's invalid, use 'recent lines'.
+  let activeLedger;
+  if (ledgerIdParam) {
+    activeLedger = find(ledgersOverview.ledgers, { id: ledgerIdParam });
+  }
+  activeLedger = activeLedger || RECENT_LINES_LEDGER;
 
   React.useEffect(() => {
-    if (!activeLedger || !ledgerIdParam) {
+    if (!ledgerIdParam) {
       return;
     }
     if (ledgerLines.currentPage !== page + 1) {
-      // fetch onmount and when changing pages
+      // Fetch lines when the page changes. This needs to come first
+      // to avoid a double fetch due to query param state issues.
       ledgerLinesFetch({ id: activeLedger.id, page: page + 1 });
     } else if (ledgerLines.ledgerId !== ledgerIdParam) {
-      // fetch when selecting a ledger
+      // Fetch the first page of items for the new ledger when the id changes.
       ledgerLinesFetch({ id: ledgerIdParam, page: 1 });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeLedger, page, ledgerIdParam]);
 
-  const showRecentLines = hasRecentLines && !ledgerIdParam;
-  const activeLines = showRecentLines
+  const recentLinesSelected = activeLedger === RECENT_LINES_LEDGER;
+  const activeLines = recentLinesSelected
     ? ledgersOverview.recentLines
     : ledgerLines.items || [];
 
   if (ledgersOverviewLoading && ledgerLinesFetch) {
     return <PageLoader buffered />;
   }
-  const noLedgerFound = ledgerIdParam && !activeLedger;
-  if (isEmpty(ledgersOverview.ledgers) || noLedgerFound) {
-    return (
-      <LayoutContainer top>
-        <ErrorScreen />
-      </LayoutContainer>
-    );
-  }
+
   return (
     <>
       <LayoutContainer gutters top>
         <LinearBreadcrumbs back="/dashboard" />
         <h2 className="page-header">{t("payments:ledger_transactions")}</h2>
         <p>{t("payments:ledgers_intro")}</p>
+        <LedgerSelect
+          activeLedger={activeLedger}
+          ledgers={ledgersOverview.ledgers}
+          onLedgerSelected={(ledgerId) =>
+            setListQueryParams({ page: 0 }, { ledger: ledgerId })
+          }
+        />
+        {recentLinesSelected && (
+          <RecentLinesSubheader
+            totalBalance={ledgersOverview.totalBalance}
+            lifetimeSavings={ledgersOverview.lifetimeSavings}
+          />
+        )}
       </LayoutContainer>
-      <Header
-        activeLedger={activeLedger}
-        totalBalance={ledgersOverview.totalBalance}
-        lifetimeSavings={ledgersOverview.lifetimeSavings}
-        hasRecentLines={hasRecentLines}
-        showRecentLines={showRecentLines}
-        ledgers={ledgersOverview.ledgers}
-        // setting id to 0 means no active ledger and allows to show recent lines
-        onLedgerSelected={(ledgerId) =>
-          setListQueryParams({ page: 0 }, { ledger: ledgerId })
-        }
-      />
       <LedgerLines
         lines={activeLines}
-        linesPage={ledgerLines.currentPage || 0}
-        linesPageCount={ledgerLines.pageCount || 0}
+        linesPage={page}
+        linesPageCount={ledgerLines.pageCount}
         linesLoading={ledgersOverviewLoading || ledgerLinesLoading}
-        hasMorePages={ledgerLines.hasMore}
-        showRecentLines={showRecentLines}
         onLinesPageChange={(pg) => setListQueryParams({ page: pg })}
       />
     </>
   );
 }
 
-function Header({
-  totalBalance,
-  lifetimeSavings,
-  activeLedger,
-  ledgers,
-  hasRecentLines,
-  showRecentLines,
-  onLedgerSelected,
-}) {
+// 'Fake' ledger we can use as the active ledger to indicate
+// we should show recent lines instead.
+const RECENT_LINES_LEDGER = { id: 0 };
+
+function LedgerSelect({ activeLedger, ledgers, onLedgerSelected }) {
+  const showRecentLines = activeLedger === RECENT_LINES_LEDGER;
   const selectedLedgerLabel = showRecentLines
     ? t("payments:recent_ledger_lines")
     : t("payments:ledger_label", {
@@ -126,66 +113,62 @@ function Header({
         label: activeLedger.contributionText,
       });
   return (
-    <LayoutContainer gutters>
-      <div className="d-flex justify-content-between pb-2 align-items-start">
-        <div>
-          <h3>
-            <Money>{totalBalance}</Money>
-          </h3>
-          <p className="m-0 mb-2">{t("payments:total_balance")}</p>
-          <AddFundsLinkButton />
-        </div>
-        <div className="text-end">
-          <h3>
-            <Money>{lifetimeSavings}</Money>
-          </h3>
-          <p className="m-0">{t("payments:lifetime_savings")}</p>
-        </div>
-      </div>
-      <Dropdown drop="down" className="mb-2">
-        <Dropdown.Toggle
-          className="w-100 dropdown-toggle-hide d-flex flex-row justify-content-between align-items-center"
-          title={selectedLedgerLabel}
+    <Dropdown drop="down" className="mb-2">
+      <Dropdown.Toggle
+        className="w-100 dropdown-toggle-hide d-flex flex-row justify-content-between align-items-center"
+        title={selectedLedgerLabel}
+      >
+        <Stack direction="horizontal" gap="2" className="overflow-hidden">
+          {selectedLedgerLabel}
+        </Stack>
+        <div className="dropdown-toggle-manual"></div>
+      </Dropdown.Toggle>
+      <Dropdown.Menu className="w-100">
+        <Dropdown.Item
+          as={Stack}
+          title={t("payments:recent_ledger_lines")}
+          active={showRecentLines}
+          className="overflow-hidden"
+          onClick={() => onLedgerSelected(0)}
         >
-          <Stack direction="horizontal" gap={2} className="overflow-hidden">
-            {selectedLedgerLabel}
-          </Stack>
-          <div className="dropdown-toggle-manual"></div>
-        </Dropdown.Toggle>
-        <Dropdown.Menu className="w-100">
-          {hasRecentLines && (
-            <>
-              <Dropdown.Item
-                as={Stack}
-                title={t("payments:recent_ledger_lines")}
-                active={showRecentLines}
-                className="overflow-hidden"
-                onClick={() => onLedgerSelected(0)}
-              >
-                {t("payments:recent_ledger_lines")}
-              </Dropdown.Item>
-              <Dropdown.Divider />
-            </>
-          )}
-          <Dropdown.Header>{t("payments:payment_title")}</Dropdown.Header>
-          {ledgers.map((led) => (
-            <Dropdown.Item
-              key={led.id}
-              as={Stack}
-              title={led.contributionText}
-              active={activeLedger?.id === led.id}
-              className="overflow-hidden"
-              onClick={() => onLedgerSelected(led.id)}
-            >
-              {t("payments:ledger_label", {
-                amount: led.balance,
-                label: led.contributionText,
-              })}
-            </Dropdown.Item>
-          ))}
-        </Dropdown.Menu>
-      </Dropdown>
-    </LayoutContainer>
+          {t("payments:recent_ledger_lines")}
+        </Dropdown.Item>
+        {ledgers.map((led) => (
+          <Dropdown.Item
+            key={led.id}
+            as={Stack}
+            title={led.contributionText}
+            active={activeLedger?.id === led.id}
+            className="overflow-hidden"
+            onClick={() => onLedgerSelected(led.id)}
+          >
+            {t("payments:ledger_label", {
+              amount: led.balance,
+              label: led.contributionText,
+            })}
+          </Dropdown.Item>
+        ))}
+      </Dropdown.Menu>
+    </Dropdown>
+  );
+}
+
+function RecentLinesSubheader({ totalBalance, lifetimeSavings }) {
+  return (
+    <div className="d-flex justify-content-between align-items-start mt-3">
+      <div>
+        <h3>
+          <Money>{totalBalance}</Money>
+        </h3>
+        <p className="m-0 mb-2">{t("payments:total_balance")}</p>
+      </div>
+      <div className="text-end">
+        <h3>
+          <Money>{lifetimeSavings}</Money>
+        </h3>
+        <p className="m-0">{t("payments:lifetime_savings")}</p>
+      </div>
+    </div>
   );
 }
 
@@ -194,23 +177,23 @@ const LedgerLines = ({
   linesPage,
   linesPageCount,
   linesLoading,
-  hasMorePages,
-  showRecentLines,
   onLinesPageChange,
 }) => {
   const { selectedHashItem, onHashItemSelected } = useHashSelector(lines, "opaqueId");
-  const withinPageCountLimits = linesPage >= 1 && linesPage <= linesPageCount;
-  if (withinPageCountLimits && isEmpty(lines)) {
-    return (
-      <LayoutContainer className="text-center">{t("payments:no_money")}</LayoutContainer>
-    );
-  } else if (!withinPageCountLimits && !showRecentLines) {
-    return (
-      <LayoutContainer gutters className="text-center">
-        <p className="mt-4">{t("payments:page_not_found")}</p>
-        <Button variant="outline-primary btn-sm" onClick={() => onLinesPageChange(0)}>
-          {t("payments:first_page")}
-        </Button>
+  let footer = null;
+  if (!isEmpty(lines) && !linesLoading) {
+    footer = (
+      <LayoutContainer gutters>
+        {!isEmpty(lines) ? (
+          <ForwardBackPagination
+            page={linesPage}
+            pageCount={linesPageCount}
+            onPageChange={onLinesPageChange}
+            scrollTop={140}
+          />
+        ) : (
+          <p className="text-center">{t("dashboard:no_money")}</p>
+        )}
       </LayoutContainer>
     );
   }
@@ -239,7 +222,9 @@ const LedgerLines = ({
                     >
                       <strong>{dayjs(line.at).format("lll")}</strong>
                     </a>
-                    <div>{line.memo}</div>
+                    <div>
+                      {line.id} {line.memo}
+                    </div>
                   </div>
                   <Money
                     className={clsx(
@@ -254,17 +239,7 @@ const LedgerLines = ({
           ))}
         </tbody>
       </Table>
-      <LayoutContainer gutters>
-        {!showRecentLines && (
-          <ForwardBackPagination
-            page={linesPage}
-            pageCount={linesPageCount}
-            hasMorePages={hasMorePages}
-            onPageChange={onLinesPageChange}
-            scrollTop={140}
-          />
-        )}
-      </LayoutContainer>
+      {footer}
       <LedgerItemModal
         item={selectedHashItem}
         onClose={() => onHashItemSelected(null, null)}
