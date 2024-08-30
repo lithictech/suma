@@ -75,20 +75,20 @@ class Suma::API::PaymentInstruments < Suma::API::V1
         me = current_member
         merror!(402, "Card creation not supported", code: "forbidden") unless
           Suma::Payment.method_supported?("card")
+        me.stripe.ensure_registered_as_customer
         card = me.db.transaction do
-          me.stripe.ensure_registered_as_customer
           # token fingerprint is not passed through params
           # for security reasons, fetch it with stripe API instead
-          tok_fingerprint = me.stripe.get_token(params[:token][:id]).try(:card).try(:fingerprint)
-          existing_card = me.legal_entity.cards_dataset.all.find { |c| c.fingerprint === tok_fingerprint }
-          if existing_card.nil?
+          tok_fingerprint = Stripe::Token.retrieve(params[:token][:id]).card.fingerprint
+          existing_card = me.legal_entity.cards_dataset.usable.all.find { |c| c.fingerprint === tok_fingerprint }
+          if existing_card
+            existing_card
+          else
             stripe_card = me.stripe.register_card_for_charges(params[:token][:id])
             Suma::Payment::Card.create(
               legal_entity: me.legal_entity,
               stripe_json: stripe_card.to_json,
             )
-          else
-            merror!(409, "Card with that info already exists", code: "conflicting_stripe_card")
           end
         end
         add_current_member_header

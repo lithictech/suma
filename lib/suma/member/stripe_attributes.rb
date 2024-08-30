@@ -95,8 +95,4 @@ class Suma::Member::StripeAttributes
     )
     self.update_customer_json(cust)
   end
-
-  def get_token(token_id)
-    return Stripe::Token.retrieve(token_id)
-  end
 end
