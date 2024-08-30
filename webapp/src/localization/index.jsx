@@ -115,6 +115,6 @@ function compileStringAsync(str, cb) {
     });
     const div = document.createElement("div");
     const root = ReactDOMClient.createRoot(div);
-    root.render(<div ref={(r) => r && cb(r.innerText)}>{compiledMdToJsx}</div>);
+    root.render(<div ref={(r) => r && cb(r.innerHTML)}>{compiledMdToJsx}</div>);
   }, 0);
 }
