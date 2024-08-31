@@ -35,6 +35,7 @@ export default function LedgersOverview() {
     default: {},
     pickData: true,
     doNotFetchOnInit: true,
+    cache: true,
   });
   const ledgerIdParam = Number(params.get("ledger")) || 0;
 
