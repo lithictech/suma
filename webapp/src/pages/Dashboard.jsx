@@ -17,10 +17,22 @@ import Stack from "react-bootstrap/Stack";
 import { Link } from "react-router-dom";
 
 export default function Dashboard() {
-  const { state: dashboard, loading: dashboardLoading } = useAsyncFetch(api.dashboard, {
+  const {
+    state: dashboard,
+    loading: dashboardLoading,
+    error: dashboardError,
+  } = useAsyncFetch(api.dashboard, {
     default: {},
     pickData: true,
   });
+  if (dashboardError) {
+    return (
+      <LayoutContainer top>
+        <h2>{t("errors:something_went_wrong_title")}</h2>
+        <p>{t("errors:unhandled_error")}</p>
+      </LayoutContainer>
+    );
+  }
   return (
     <>
       <TopAlerts />
@@ -42,7 +54,7 @@ export default function Dashboard() {
         <PageLoader buffered />
       ) : (
         <LayoutContainer top gutters>
-          <Stack gap={3}>
+          <Stack gap="3">
             {dashboard.vendibleGroupings.map(({ name, vendibles }) => (
               <HamburgerSection key={name} name={name}>
                 {vendibles.map((v) => (
