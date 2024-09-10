@@ -27,22 +27,17 @@ class Suma::Mobility::Gbfs::VendorSync
       update = {}
       rows.first.each_key { |c| insert[c] = c }
       @component.sync_columns.each { |c| update[c] = Sequel[source_alias][c] }
-      # TODO: values must be passed as (1, 2), (3, 8) but the lit method converts array to ((1, 2), (3, 8))
-      # This merge execution will fail, needs to be formatted correctly. The advantage of using `.lit`
-      # is that row values are automatically formatted correctly, take this as example:
-      # {"web" => "https://abc.com"} -> '{"web": "https://abc.com"}'::jsonb
-      # The other alternative for merge_using +source+ is to build a temporary table
       @component.model.dataset.
         merge_using(
           Sequel.as(
-            Sequel.lit("VALUES ?", rows.map(&:values)).with_parens,
+            Sequel.lit(["VALUES ", *Array.new(rows.count - 1) { "," }], *rows.map(&:values)).with_parens,
             source_alias,
             rows.first.keys,
           ),
-          Sequel[@component.model.table_name][@component.id_column] => Sequel[source_alias][@component.id_column],
+          Sequel[@component.model.table_name][:id] => Sequel[source_alias][:id],
         ).
-        merge_insert(insert).
         merge_update(update).
+        merge_insert(insert).
         merge
     end
     return rows.length

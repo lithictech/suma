@@ -29,7 +29,7 @@ class Suma::Mobility::Gbfs::FreeBikeStatus < Suma::Mobility::Gbfs::ComponentSync
         vehicle_id: bike["bike_id"],
         vehicle_type: "escooter",
         vendor_service_id: vendor_service.id,
-        battery_level:,
+        battery_level: Sequel.cast(battery_level, :smallint),
         rental_uris: Sequel.pg_jsonb(bike["rental_uris"] || {}),
       }
       yield row

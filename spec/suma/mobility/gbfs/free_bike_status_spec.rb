@@ -69,6 +69,9 @@ RSpec.describe Suma::Mobility::Gbfs::FreeBikeStatus, :db do
         loc(12.34, 56.78).
         escooter.
         create(vehicle_id: "ghi799", battery_level: 0, rental_uris: {"web" => "update.me"})
+      Suma::Fixtures.mobility_vehicle(vendor_service: vs).
+        escooter.
+        create(vehicle_id: "ghi555")
       sync_gbfs
       expect(Suma::Mobility::Vehicle.all).to contain_exactly(
         have_attributes(
