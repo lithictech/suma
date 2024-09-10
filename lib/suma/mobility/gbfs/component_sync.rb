@@ -5,4 +5,5 @@ class Suma::Mobility::Gbfs::ComponentSync
   def before_sync(client); end
   def model = raise NotImplementedError
   def yield_rows(_vendor_service) = raise NotImplementedError
+  def external_id_column = raise NotImplementedError
 end

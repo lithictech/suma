@@ -4,6 +4,7 @@ require "suma/mobility/gbfs/component_sync"
 
 class Suma::Mobility::Gbfs::GeofencingZone < Suma::Mobility::Gbfs::ComponentSync
   def model = Suma::Mobility::RestrictedArea
+  def external_id_column = :unique_id
 
   def before_sync(client)
     @zones = client.fetch_geofencing_zones.dig("data", "geofencing_zones")

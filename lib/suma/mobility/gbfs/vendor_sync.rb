@@ -18,8 +18,30 @@ class Suma::Mobility::Gbfs::VendorSync
       @component.yield_rows(vs) { |r| rows << r }
     end
     @component.model.db.transaction do
-      @component.model.where(vendor_service: @mobility_services).delete
-      @component.model.dataset.insert_conflict.multi_insert(rows)
+      if rows.empty?
+        @component.model.where(vendor_service: @mobility_services).delete
+        return 0
+      end
+      source_alias = :source
+      external_id_col = @component.external_id_column
+      insert = rows.first.each_key.to_h { |c| [c, c] }
+      update = rows.first.each_key.to_h { |c| [c, Sequel[source_alias][c]] }
+      update.delete(external_id_col)
+      @component.model.dataset.
+        merge_using(
+          Sequel.as(
+            @component.model.dataset.db.values(rows.map(&:values)),
+            source_alias,
+            rows.first.keys,
+          ),
+          Sequel[@component.model.table_name][external_id_col] => Sequel[source_alias][external_id_col],
+        ).
+        merge_update(update).
+        merge_insert(insert).
+        merge
+      found_ids = rows.map { |r| r[external_id_col] }
+      # Use MERGE WHEN NOT MATCHED BY SOURCE in Postgres 17 when available, after late 2024
+      @component.model.where(vendor_service: @mobility_services).exclude(external_id_col => found_ids).delete
     end
     return rows.length
   end
