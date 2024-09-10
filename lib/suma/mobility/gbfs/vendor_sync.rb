@@ -23,22 +23,24 @@ class Suma::Mobility::Gbfs::VendorSync
         return 0
       end
       source_alias = :source
-      insert = {}
-      update = {}
-      rows.first.each_key { |c| insert[c] = c }
-      @component.sync_columns.each { |c| update[c] = Sequel[source_alias][c] }
+      external_id_col = @component.external_id_column
+      insert = rows.first.each_key.to_h { |c| [c, c] }
+      update = rows.first.each_key.to_h { |c| [c, Sequel[source_alias][c]] }
+      update.delete(external_id_col)
       @component.model.dataset.
         merge_using(
           Sequel.as(
-            Sequel.lit(["VALUES ", *Array.new(rows.count - 1) { "," }], *rows.map(&:values)).with_parens,
+            @component.model.dataset.db.values(rows.map(&:values)),
             source_alias,
             rows.first.keys,
           ),
-          Sequel[@component.model.table_name][:id] => Sequel[source_alias][:id],
+          Sequel[@component.model.table_name][external_id_col] => Sequel[source_alias][external_id_col],
         ).
         merge_update(update).
         merge_insert(insert).
         merge
+      found_ids = rows.map { |r| r[external_id_col] }
+      @component.model.where(vendor_service: @mobility_services).exclude(external_id_col => found_ids).delete
     end
     return rows.length
   end

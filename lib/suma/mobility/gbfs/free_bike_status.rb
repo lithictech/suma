@@ -4,8 +4,7 @@ require "suma/mobility/gbfs/component_sync"
 
 class Suma::Mobility::Gbfs::FreeBikeStatus < Suma::Mobility::Gbfs::ComponentSync
   def model = Suma::Mobility::Vehicle
-  def id_column = :vehicle_id
-  def sync_columns = [:lat, :lng, :battery_level, :rental_uris]
+  def external_id_column = :vehicle_id
 
   def before_sync(client)
     @bikes = client.fetch_free_bike_status.dig("data", "bikes")
