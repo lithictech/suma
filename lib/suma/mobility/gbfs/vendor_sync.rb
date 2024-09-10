@@ -40,6 +40,7 @@ class Suma::Mobility::Gbfs::VendorSync
         merge_insert(insert).
         merge
       found_ids = rows.map { |r| r[external_id_col] }
+      # Use MERGE WHEN NOT MATCHED BY SOURCE in Postgres 17 when available, after late 2024
       @component.model.where(vendor_service: @mobility_services).exclude(external_id_col => found_ids).delete
     end
     return rows.length
