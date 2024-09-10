@@ -50,8 +50,10 @@ const useAsyncFetch = (makeRequest, options) => {
         cacheKey = "" + makeRequest + JSON.stringify(args);
         if (cacheRef.current[cacheKey]) {
           return Promise.delay(200).then(() => {
+            const st = cacheRef.current[cacheKey];
+            setState(st);
             setLoading(false);
-            return cacheRef.current[cacheKey];
+            return st;
           });
         }
       }

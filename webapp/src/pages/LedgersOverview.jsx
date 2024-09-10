@@ -98,6 +98,9 @@ export default function LedgersOverview() {
             lines={ledgersOverview.recentLines}
             linesLoading={ledgersOverviewLoading}
           />
+          {isEmpty(ledgersOverview.recentLines) && (
+            <p className="text-center">{t("payments:no_transaction_history")}</p>
+          )}
         </>
       ) : (
         <>
@@ -218,9 +221,7 @@ function LedgerLinesTable({ lines, linesLoading }) {
                     >
                       <strong>{dayjs(line.at).format("lll")}</strong>
                     </a>
-                    <div>
-                      {line.id} {line.memo}
-                    </div>
+                    <div>{line.memo}</div>
                   </div>
                   <Money
                     className={clsx(
