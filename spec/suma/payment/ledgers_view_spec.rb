@@ -3,8 +3,22 @@
 require "suma/payment/ledgers_view"
 
 RSpec.describe Suma::Payment::LedgersView, :db do
+  let(:account) { Suma::Fixtures.payment_account.create }
+  let(:member) { account.member }
+
+  before(:each) do
+    # a language must be set since we call the recent_lines method
+    # that returns book transactions containing usage_details, which returns
+    # translated memo string that checks for SequelTranslatedText.language!
+    SequelTranslatedText.language = :en
+  end
+
+  after(:each) do
+    SequelTranslatedText.language = nil
+  end
+
   it "can represent empty ledgers" do
-    d = described_class.new([])
+    d = described_class.new(member: Suma::Fixtures.member.create)
     expect(d).to have_attributes(
       total_balance: cost("$0"),
       recent_lines: [],
@@ -13,14 +27,13 @@ RSpec.describe Suma::Payment::LedgersView, :db do
   end
 
   it "can represent ledgers and transactions" do
-    account = Suma::Fixtures.payment_account.create
     cash_ledger = Suma::Fixtures.ledger(account:).category(:cash).create(name: "Dolla")
     grocery_ledger = Suma::Fixtures.ledger(account:).category(:food).create(name: "Grub")
     Suma::Fixtures.book_transaction.from(cash_ledger).create(amount: money("$20"), apply_at: 20.days.ago)
     Suma::Fixtures.book_transaction.from(grocery_ledger).create(amount: money("$5"), apply_at: 21.days.ago)
     Suma::Fixtures.book_transaction.from(grocery_ledger).create(amount: money("$1"), apply_at: 80.days.ago)
     Suma::Fixtures.book_transaction.to(cash_ledger).create(amount: money("$27"))
-    d = described_class.new(account.ledgers)
+    d = described_class.new(account.ledgers, member:)
     d.minimum_recent_lines = 3
     expect(d).to have_attributes(
       total_balance: cost("$1"),
@@ -36,12 +49,11 @@ RSpec.describe Suma::Payment::LedgersView, :db do
   end
 
   describe "recent_lines" do
-    let(:account) { Suma::Fixtures.payment_account.create }
     let!(:cash_ledger) { Suma::Fixtures.ledger(account:).category(:cash).create(name: "Dolla") }
     let!(:grocery_ledger) { Suma::Fixtures.ledger(account:).category(:food).create(name: "Grub") }
 
     it "includes the last 60 days of transactions" do
-      d = described_class.new(account.ledgers)
+      d = described_class.new(account.ledgers, member:)
       d.minimum_recent_lines = 2
 
       Suma::Fixtures.book_transaction.to(cash_ledger).create(amount: money("$1"))
@@ -61,7 +73,7 @@ RSpec.describe Suma::Payment::LedgersView, :db do
     end
 
     it "always includes a minimum number of transactions if not enough are recent" do
-      d = described_class.new(account.ledgers)
+      d = described_class.new(account.ledgers, member:)
       d.minimum_recent_lines = 3
 
       Suma::Fixtures.book_transaction.to(cash_ledger).create(amount: money("$1"))
@@ -102,7 +114,7 @@ RSpec.describe Suma::Payment::LedgersView, :db do
       fac.create(amount: money("$5"), apply_at: tm20, memo: m3)
       fac.create(amount: money("$5"), apply_at: tm20, memo: m1)
       fac.create(amount: money("$5"), apply_at: tm20, memo: m2)
-      expect(described_class.new(account.ledgers).recent_lines).to match(
+      expect(described_class.new(account.ledgers, member:).recent_lines).to match(
         [
           have_attributes(amount: cost("$1")),
           have_attributes(amount: cost("$100")),
@@ -134,7 +146,7 @@ RSpec.describe Suma::Payment::LedgersView, :db do
       fac.create(amount: money("$1000"), apply_at: t1, memo: m2)
       fac.create(amount: money("$10000"), apply_at: t2, memo: m2)
       fac.create(amount: money("$100000"), apply_at: t2, memo: m2)
-      expect(described_class.new(account.ledgers).recent_lines).to contain_exactly(
+      expect(described_class.new(account.ledgers, member:).recent_lines).to contain_exactly(
         have_attributes(amount: cost("$11"), apply_at: match_time(t1), memo: be === m1),
         have_attributes(amount: cost("$100"), apply_at: match_time(t2), memo: be === m1),
         have_attributes(amount: cost("$1000"), apply_at: match_time(t1), memo: be === m2),

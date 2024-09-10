@@ -22,8 +22,8 @@ RSpec.describe Suma::API::Ledgers, :db do
       expect(last_response_json_body).to include(
         ledgers: [],
         total_balance: cost("$0"),
-        first_ledger_page_count: 0,
-        first_ledger_lines_first_page: [],
+        lifetime_savings: cost("$0"),
+        recent_lines: [],
       )
     end
 
@@ -35,19 +35,20 @@ RSpec.describe Suma::API::Ledgers, :db do
       expect(last_response).to have_status(200)
       expect(last_response_json_body).to include(
         ledgers: contain_exactly(include(id: led.id, name: "Cash")),
-        first_ledger_page_count: 1,
-        first_ledger_lines_first_page: [],
+        recent_lines: [],
       )
     end
 
-    it "returns an overview of all ledgers and items from the first ledger" do
+    it "returns an overview of all ledgers, recent transactions and total balances" do
       led1 = Suma::Fixtures.ledger.member(member).create(name: "A")
       led2 = Suma::Fixtures.ledger.member(member).create(name: "B")
-      recent_xaction = bookfac.from(led1).create(apply_at: 20.days.ago, amount_cents: 100)
-      old_xaction = bookfac.to(led1).create(apply_at: 80.days.ago, amount_cents: 400)
-      # Make led2 non-empty
-      bookfac.from(led2).create(amount_cents: 200)
-      bookfac.to(led2).create(amount_cents: 200)
+      charge = Suma::Fixtures.charge(member:).create(undiscounted_subtotal: money("$30"))
+      led1_recent_xaction = bookfac.from(led1).create(apply_at: 20.days.ago, amount_cents: 100)
+      led1_old_xaction = bookfac.to(led1).create(apply_at: 80.days.ago, amount_cents: 400)
+      charge.add_book_transaction(led1_recent_xaction)
+      charge.add_book_transaction(led1_old_xaction)
+      led2_recent_xaction = bookfac.from(led2).create(apply_at: 5.days.ago, amount_cents: 200)
+      led2_old_xaction = bookfac.to(led2).create(apply_at: 10.days.ago, amount_cents: 500)
 
       get "/v1/ledgers/overview"
 
@@ -55,14 +56,16 @@ RSpec.describe Suma::API::Ledgers, :db do
       expect(last_response_json_body).to include(
         ledgers: contain_exactly(
           include(id: led1.id, name: "A", balance: cost("$3")),
-          include(id: led2.id, name: "B", balance: cost("$0")),
+          include(id: led2.id, name: "B", balance: cost("$3")),
         ),
-        total_balance: cost("$3"),
-        first_ledger_page_count: 1,
-        first_ledger_lines_first_page: match(
+        total_balance: cost("$6"),
+        lifetime_savings: cost("$25"),
+        recent_lines: match(
           [
-            include(amount: cost("-$1"), at: match_time(recent_xaction.apply_at)),
-            include(amount: cost("$4"), at: match_time(old_xaction.apply_at)),
+            include(amount: cost("-$2"), at: match_time(led2_recent_xaction.apply_at)),
+            include(amount: cost("$5"), at: match_time(led2_old_xaction.apply_at)),
+            include(amount: cost("-$1"), at: match_time(led1_recent_xaction.apply_at)),
+            include(amount: cost("$4"), at: match_time(led1_old_xaction.apply_at)),
           ],
         ),
       )
