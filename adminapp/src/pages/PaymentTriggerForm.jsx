@@ -4,11 +4,11 @@ import CurrencyTextField from "../components/CurrencyTextField";
 import FormLayout from "../components/FormLayout";
 import MultiLingualText from "../components/MultiLingualText";
 import ResponsiveStack from "../components/ResponsiveStack";
+import SafeDateTimePicker from "../components/SafeDateTimePicker";
 import config from "../config";
-import { dayjsOrNull, formatOrNull } from "../modules/dayConfig";
+import { formatOrNull } from "../modules/dayConfig";
 import { intToMoney } from "../shared/money";
 import { TextField, Stack, FormHelperText } from "@mui/material";
-import { DateTimePicker } from "@mui/x-date-pickers";
 import React from "react";
 
 export default function PaymentTriggerForm({
@@ -39,19 +39,15 @@ export default function PaymentTriggerForm({
           onChange={setFieldFromInput}
         />
         <ResponsiveStack>
-          <DateTimePicker
+          <SafeDateTimePicker
             label="Active starting"
-            value={dayjsOrNull(resource.activeDuringBegin)}
-            closeOnSelect
+            value={resource.activeDuringBegin}
             onChange={(v) => setField("activeDuringBegin", formatOrNull(v))}
-            sx={{ width: "100%" }}
           />
-          <DateTimePicker
+          <SafeDateTimePicker
             label="Active ending"
-            value={dayjsOrNull(resource.activeDuringEnd)}
+            value={resource.activeDuringEnd}
             onChange={(v) => setField("activeDuringEnd", formatOrNull(v))}
-            closeOnSelect
-            sx={{ width: "100%" }}
           />
         </ResponsiveStack>
         <ResponsiveStack>
