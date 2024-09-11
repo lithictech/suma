@@ -22,10 +22,16 @@ export default function SafeDateTimePicker({ value, seconds, views, sx, ...rest 
   }
   value = dayjsOrNull(value);
   if (!views.includes("seconds")) {
-    value = value.second(0);
+    value = value?.second(0);
   }
   return (
-    <DateTimePicker value={value} closeOnSelect sx={{ width: "100%", ...sx }} {...rest} />
+    <DateTimePicker
+      value={value}
+      views={views}
+      closeOnSelect
+      sx={{ width: "100%", ...sx }}
+      {...rest}
+    />
   );
 }
 
