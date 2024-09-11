@@ -24,6 +24,8 @@ class Suma::Async::ResetCodeUpdateTwilio
       md &&
         # email codes aren't using twilio verify, at least not yet (and probably never)
         md.transport_type == "sms" &&
+        # deliveries can potentially be aborted therefore a having nil message id
+        md.transport_message_id &&
         # We can send verifications using alternative templates; only the verification template uses
         # the 'send via twilio verify' logic in SmsTransport, so we only update twilio when we use that template.
         Suma::Message::SmsTransport.verification_delivery?(md)

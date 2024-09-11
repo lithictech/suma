@@ -192,6 +192,14 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
       end.to perform_async_job(Suma::Async::ResetCodeUpdateTwilio)
     end
 
+    it "noops if the reset code message delivery transport message id is nil" do
+      template = Suma::Message::SmsTransport.verification_template
+      code = fac.create(message_delivery: Suma::Fixtures.message_delivery.via("sms").create(template:))
+      expect do
+        code.expire!
+      end.to perform_async_job(Suma::Async::ResetCodeUpdateTwilio)
+    end
+
     it "noops if the reset code message delivery does not use the verification template" do
       message_delivery = Suma::Fixtures.message_delivery.sent_to_verification.create
       message_delivery.update(template: "alt-verification")
