@@ -210,4 +210,97 @@ RSpec.describe Suma::I18n, :db do
       expect(File.read(dst)).to eq("{\n  \"contents\": \"# title\\n\\nfirst \\\"para\"\n}")
     end
   end
+
+  describe "rewrite_resource_files" do
+    it "rewrites resource json to output json" do
+      src = described_class::LOCALE_DIR + "en/foo.json"
+      dst = described_class::LOCALE_DIR + "en/out/foo.out.json"
+      resource_json = {
+        s1: "S1",
+        group1: {s2: "S2", g2: {s3: "S3", md1: "**hello**"}},
+        plain: "fish chips",
+        amp: "fish & chips",
+        entity: "fish « chips",
+        md: "fish **and** chips",
+      }
+      File.write(src, resource_json.to_json)
+      described_class.rewrite_resource_files
+      expect(File.read(dst)).to include('"s1":["s","S1"]')
+    end
+  end
+
+  describe "ResourceRewriter" do
+    def rewrite(s)
+      return described_class::ResourceRewriter.new.to_output({s:}.to_json).fetch("s")
+    end
+
+    it "calculates a filename" do
+      pth = described_class::ResourceRewriter.new.output_path_for("en/strings.json")
+      expect(pth.to_s).to eq("en/out/strings.out.json")
+    end
+    it "writes simple strings" do
+      expect(rewrite("abc d")).to eq([:s, "abc d"])
+      expect(rewrite("a")).to eq([:s, "a"])
+    end
+
+    it "trims spaces" do
+      expect(rewrite("")).to eq([:s, ""])
+      expect(rewrite(" ")).to eq([:s, ""])
+      expect(rewrite(" a ")).to eq([:s, "a"])
+    end
+
+    it "writes markdown strings" do
+      expect(rewrite("**x**")).to eq([:m, "**x**"])
+      expect(rewrite("a *x* z")).to eq([:m, "a *x* z"])
+    end
+
+    it "writes multiline markdown strings" do
+      expect(rewrite("x\ny")).to eq([:s, "x\ny"])
+      expect(rewrite("x\n\ny")).to eq([:mp, "x\n\ny"])
+    end
+
+    it "rewrites interpolated strings" do
+      expect(rewrite("{{x}}")).to eq([:s, "@%", {k: "x"}])
+      expect(rewrite("{{x.y.z}}")).to eq([:s, "@%", {k: "x.y.z"}])
+      expect(rewrite("{{x-2_3:y:z}}")).to eq([:s, "@%", {k: "x-2_3:y:z"}])
+      expect(rewrite("{{ x}} y")).to eq([:s, "@% y", {k: "x"}])
+      expect(rewrite("{{ x }} *{{y}}*")).to eq([:m, "@% *@%*", {k: "x"}, {k: "y"}])
+    end
+
+    it "rewrites interpolated strings with a formatter" do
+      expect(rewrite("{{x,currency}}")).to eq([:s, "@%", {f: "currency", k: "x"}])
+      expect(rewrite("{{ x, currency}} y")).to eq([:s, "@% y", {f: "currency", k: "x"}])
+      expect(rewrite("{{ x, currency }} *{{y,time }}*")).to eq(
+        [:m, "@% *@%*", {f: "currency", k: "x"}, {f: "time", k: "y"}],
+      )
+    end
+
+    it "rewrites strings referencing other strings" do
+      expect(rewrite("$t(xy)")).to eq([:s, "@%", {t: "xy"}])
+      expect(rewrite("$t(x.y)")).to eq([:s, "@%", {t: "x.y"}])
+      expect(rewrite("$t(x-2_3:y:z)")).to eq([:s, "@%", {t: "x-2_3:y:z"}])
+      expect(rewrite("a $t(xy) c")).to eq([:s, "a @% c", {t: "xy"}])
+      expect(rewrite("a *$t(xy)* $t(c)")).to eq([:m, "a *@%* @%", {t: "xy"}, {t: "c"}])
+    end
+
+    it "handles unicode" do
+      expect(rewrite("🤣$t(xyz)🤣{{abc}}🤣")).to eq([:s, "🤣@%🤣@%🤣", {t: "xyz"}, {k: "abc"}])
+    end
+
+    it "errors if the placeholder is used in a resource string" do
+      expect do
+        rewrite("hi @%")
+      end.to raise_error(described_class::InvalidInput)
+    end
+
+    it "errors if the json is not strings and hashes only" do
+      expect do
+        described_class::ResourceRewriter.new.to_output({s: ["abc"]}.to_json)
+      end.to raise_error(described_class::InvalidInput)
+    end
+
+    it "uses the higher-complexity plain/md/multiline renderer if a reference key uses it" do
+      # TODO
+    end
+  end
 end
