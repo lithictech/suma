@@ -7,7 +7,7 @@ import LinearBreadcrumbs from "../components/LinearBreadcrumbs";
 import PageLoader from "../components/PageLoader";
 import RLink from "../components/RLink";
 import SumaImage from "../components/SumaImage";
-import { md, t } from "../localization";
+import { t } from "../localization";
 import { anyMoney } from "../shared/money";
 import useErrorToast from "../state/useErrorToast";
 import useOffering from "../state/useOffering";
@@ -82,21 +82,21 @@ export default function FoodCart() {
         {!isEmpty(items) ? (
           <Stack gap={2} className="align-items-end">
             <div>
-              {md("food:subtotal_items", {
+              {t("food:subtotal_items", {
                 totalItems: items.length,
                 customerCost: cart.customerCost,
               })}
             </div>
             {anyMoney(cart.noncashLedgerContributionAmount) && (
               <div className="text-success">
-                {md("food:cart_available_credit", {
+                {t("food:cart_available_credit", {
                   amount: cart.noncashLedgerContributionAmount,
                 })}
               </div>
             )}
             {anyMoney(cart.cashCost) && (
               <div>
-                {md("food:cart_cash_cost", {
+                {t("food:cart_cash_cost", {
                   amount: cart.cashCost,
                 })}
               </div>

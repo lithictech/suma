@@ -3,7 +3,7 @@ import FormButtons from "../components/FormButtons";
 import FormControlGroup from "../components/FormControlGroup";
 import FormError from "../components/FormError";
 import OrganizationInputDropdown from "../components/OrganizationInputDropdown";
-import { mdp, t } from "../localization";
+import { t } from "../localization";
 import keepDigits from "../modules/keepDigits";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
 import { extractErrorCode } from "../state/useError";
@@ -80,7 +80,7 @@ export default function OnboardingSignup() {
   return (
     <>
       <h2 className="page-header">{t("onboarding:enroll_title")}</h2>
-      {mdp("onboarding:enroll_intro")}
+      {t("onboarding:enroll_intro")}
       <Form noValidate onSubmit={handleSubmit(handleFormSubmit)}>
         <FormControlGroup
           className="mb-3"

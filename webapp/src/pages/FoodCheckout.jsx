@@ -9,7 +9,7 @@ import LinearBreadcrumbs from "../components/LinearBreadcrumbs";
 import PageLoader from "../components/PageLoader";
 import RLink from "../components/RLink";
 import SumaImage from "../components/SumaImage";
-import { md, t } from "../localization";
+import { t } from "../localization";
 import idempotency from "../modules/idempotency";
 import ScrollTopOnMount from "../shared/ScrollToTopOnMount";
 import { anyMoney } from "../shared/money";
@@ -424,7 +424,7 @@ function OrderSummary({ checkout, chosenInstrument }) {
         {showSubmit && (
           <>
             <p className="small text-secondary mt-2">
-              {md("food:terms_of_use_agreement")}
+              {t("food:terms_of_use_agreement")}
             </p>
             <FormButtons
               primaryProps={{

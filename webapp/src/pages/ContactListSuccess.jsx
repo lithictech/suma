@@ -1,7 +1,7 @@
 import ContactListTags from "../components/ContactListTags";
 import RLink from "../components/RLink";
-import { md, t } from "../localization";
-import useI18Next from "../localization/useI18Next";
+import { t } from "../localization";
+import useI18n from "../localization/useI18n";
 import React from "react";
 import Button from "react-bootstrap/Button";
 import Container from "react-bootstrap/Container";
@@ -9,10 +9,10 @@ import { useSearchParams } from "react-router-dom";
 
 export default function ContactListSuccess() {
   const [params] = useSearchParams();
-  const { changeLanguage } = useI18Next();
+  const { changeLanguage } = useI18n();
   return (
     <Container className="text-center">
-      {md("contact_list:success_intro")}
+      {t("contact_list:success_intro")}
       <div className="button-stack">
         <Button
           href={

@@ -1,23 +1,23 @@
 import { t } from "../localization";
-import useI18Next from "../localization/useI18Next";
+import useI18n from "../localization/useI18n";
 import React from "react";
 import Button from "react-bootstrap/Button";
 
 export default function TranslationToggle({ classes }) {
-  const { language } = useI18Next();
+  const { currentLanguage } = useI18n();
   return (
     <div className={classes}>
-      {language !== "en" ? (
+      {currentLanguage !== "en" ? (
         <Translate
           to="en"
-          label={t("common:in_english")}
-          title={t("common:translate_to_english")}
+          label={t("common.in_english")}
+          title={t("common.translate_to_english")}
         />
       ) : (
         <Translate
           to="es"
-          label={t("common:in_spanish")}
-          title={t("common:translate_to_spanish")}
+          label={t("common.in_spanish")}
+          title={t("common.translate_to_spanish")}
         />
       )}
     </div>
@@ -25,7 +25,7 @@ export default function TranslationToggle({ classes }) {
 }
 
 const Translate = ({ to, label, title }) => {
-  const { changeLanguage } = useI18Next();
+  const { changeLanguage } = useI18n();
   return (
     <Button variant="link" onClick={() => changeLanguage(to)} title={title}>
       <i className="bi bi-translate"></i> <i>{label}</i>

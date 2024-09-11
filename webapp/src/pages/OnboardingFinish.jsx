@@ -1,5 +1,5 @@
 import RLink from "../components/RLink";
-import { mdp, t } from "../localization";
+import { t } from "../localization";
 import useUser from "../state/useUser";
 import React from "react";
 import Button from "react-bootstrap/Button";
@@ -11,7 +11,7 @@ export default function OnboardingFinish() {
       {user.onboarded ? (
         <p>{t("onboarding:finish_onboarded")}</p>
       ) : (
-        mdp("onboarding:finish")
+        t("onboarding:finish")
       )}
       <div className="button-stack">
         <Button href="/dashboard" variant="outline-primary" className="mt-3" as={RLink}>

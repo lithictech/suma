@@ -1,6 +1,6 @@
 import api from "../../api";
 import config from "../../config";
-import { md } from "../../localization";
+import { t } from "../../localization";
 import MapBuilder from "../../modules/mapBuilder";
 import readOnlyReason from "../../modules/readOnlyReason";
 import useMountEffect from "../../shared/react/useMountEffect";
@@ -36,7 +36,7 @@ export default function Map({ onLocationPermissionsDenied }) {
         return;
       }
       if (config.featureMobilityRestricted) {
-        setError(md("errors:mobility_coming_soon"));
+        setError(t("errors:mobility_coming_soon"));
         return;
       }
       const { loc, provider, disambiguator, type } = mapVehicle;

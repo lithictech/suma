@@ -4,7 +4,7 @@ import FormControlGroup from "../components/FormControlGroup";
 import FormError from "../components/FormError";
 import SignupAgreement from "../components/SignupAgreement";
 import { t } from "../localization";
-import useI18Next from "../localization/useI18Next";
+import useI18n from "../localization/useI18n";
 import { dayjs } from "../modules/dayConfig";
 import { maskPhoneNumber } from "../modules/maskPhoneNumber";
 import { Logger } from "../shared/logger";
@@ -16,7 +16,7 @@ import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 
 export default function Start() {
-  const { language } = useI18Next();
+  const { currentLanguage } = useI18n();
   const navigate = useNavigate();
   const submitDisabled = useToggle(false);
   const inputDisabled = useToggle(false);
@@ -49,7 +49,7 @@ export default function Start() {
       .authStart({
         phone,
         timezone: dayjs.tz.guess(),
-        language,
+        language: currentLanguage,
         termsAgreed: true,
       })
       .then((r) =>

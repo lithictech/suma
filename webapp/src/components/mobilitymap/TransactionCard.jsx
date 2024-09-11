@@ -1,4 +1,4 @@
-import { md, t } from "../../localization";
+import { t } from "../../localization";
 import FormError from "../FormError";
 import CardOverlay from "./CardOverlay";
 import React from "react";
@@ -9,7 +9,7 @@ const TransactionCard = ({ endTrip, onCloseTrip, error }) => {
   const handleClose = () => onCloseTrip();
   return (
     <CardOverlay>
-      {md("mobility:trip_ended", {
+      {t("mobility:trip_ended", {
         vendor: provider.vendorName,
         totalCost: totalCost,
         discountAmount: discountAmount,

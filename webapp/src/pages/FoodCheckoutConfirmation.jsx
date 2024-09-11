@@ -4,7 +4,7 @@ import LayoutContainer from "../components/LayoutContainer";
 import PageLoader from "../components/PageLoader";
 import RLink from "../components/RLink";
 import SumaImage from "../components/SumaImage";
-import { md, t } from "../localization";
+import { t } from "../localization";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
 import useUser from "../state/useUser";
 import React from "react";
@@ -86,7 +86,7 @@ export default function FoodCheckoutConfirmation() {
         </div>
       </LayoutContainer>
       <hr className="my-4" />
-      <LayoutContainer gutters>{md("food:confirmation_help")}</LayoutContainer>
+      <LayoutContainer gutters>{t("food:confirmation_help")}</LayoutContainer>
     </>
   );
 }
