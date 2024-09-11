@@ -1,10 +1,10 @@
 import FormLayout from "../components/FormLayout";
 import ImageFileInput from "../components/ImageFileInput";
 import ResponsiveStack from "../components/ResponsiveStack";
-import { dayjsOrNull, formatOrNull } from "../modules/dayConfig";
+import SafeDateTimePicker from "../components/SafeDateTimePicker";
+import { formatOrNull } from "../modules/dayConfig";
 import RemoveIcon from "@mui/icons-material/Remove";
 import { Stack, TextField } from "@mui/material";
-import { DateTimePicker } from "@mui/x-date-pickers";
 import React from "react";
 
 export default function VendorServiceForm({
@@ -40,19 +40,15 @@ export default function VendorServiceForm({
           onChange={setFieldFromInput}
         />
         <ResponsiveStack alignItems="center" divider={<RemoveIcon />}>
-          <DateTimePicker
+          <SafeDateTimePicker
             label="Open Date"
-            value={dayjsOrNull(resource.periodBegin)}
-            closeOnSelect
+            value={resource.periodBegin}
             onChange={(v) => setField("periodBegin", formatOrNull(v))}
-            sx={{ width: "100%" }}
           />
-          <DateTimePicker
+          <SafeDateTimePicker
             label="Close Date"
-            value={dayjsOrNull(resource.periodEnd)}
+            value={resource.periodEnd}
             onChange={(v) => setField("periodEnd", formatOrNull(v))}
-            closeOnSelect
-            sx={{ width: "100%" }}
           />
         </ResponsiveStack>
       </Stack>

@@ -3,7 +3,8 @@ import FormLayout from "../components/FormLayout";
 import ImageFileInput from "../components/ImageFileInput";
 import MultiLingualText from "../components/MultiLingualText";
 import ResponsiveStack from "../components/ResponsiveStack";
-import { dayjsOrNull, formatOrNull } from "../modules/dayConfig";
+import SafeDateTimePicker from "../components/SafeDateTimePicker";
+import { formatOrNull } from "../modules/dayConfig";
 import formHelpers from "../modules/formHelpers";
 import mergeAt from "../shared/mergeAt";
 import withoutAt from "../shared/withoutAt";
@@ -24,7 +25,6 @@ import {
   TextField,
 } from "@mui/material";
 import Box from "@mui/material/Box";
-import { DateTimePicker } from "@mui/x-date-pickers";
 import React from "react";
 
 export default function OfferingForm({
@@ -66,26 +66,21 @@ export default function OfferingForm({
           Orders can be placed between the offering begin and end times.
         </FormHelperText>
         <ResponsiveStack alignItems="center" divider={<RemoveIcon />}>
-          <DateTimePicker
+          <SafeDateTimePicker
             label="Open offering *"
-            value={dayjsOrNull(resource.periodBegin)}
-            closeOnSelect
+            value={resource.periodBegin}
             onChange={(v) => setField("periodBegin", formatOrNull(v))}
-            sx={{ width: "100%" }}
           />
-          <DateTimePicker
+          <SafeDateTimePicker
             label="Close offering *"
-            value={dayjsOrNull(resource.periodEnd)}
+            value={resource.periodEnd}
             onChange={(v) => setField("periodEnd", formatOrNull(v))}
-            closeOnSelect
-            sx={{ width: "100%" }}
           />
         </ResponsiveStack>
-        <DateTimePicker
+        <SafeDateTimePicker
           label="Begin Fulfillment At"
-          value={dayjsOrNull(resource.beginFulfillmentAt)}
+          value={resource.beginFulfillmentAt}
           onChange={(v) => setField("beginFulfillmentAt", formatOrNull(v))}
-          closeOnSelect
           sx={{ width: { xs: "100%", sm: "50%" } }}
         />
         <FormHelperText>
