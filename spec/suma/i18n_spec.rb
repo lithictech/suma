@@ -300,7 +300,49 @@ RSpec.describe Suma::I18n, :db do
     end
 
     it "uses the higher-complexity plain/md/multiline renderer if a reference key uses it" do
-      # TODO
+      strings = {
+        base: "abc",
+        md: "a *b* c",
+        mdp: "a\n\nb",
+        ref_plain: "$t(base) $t(base)",
+        ref_md: "$t(base) $t(md)",
+        ref_mdp: "$t(base) $t(mdp)",
+        ref_mdp_deep: "$t(ref_mdp)",
+        a: {b: {c: "*c*"}},
+        ref_deep: "$t(a.b.c)",
+      }
+      got = described_class::ResourceRewriter.new.to_output(strings.to_json)
+      expect(got).to eq(
+        {
+          "base" => [:s, "abc"],
+          "md" => [:m, "a *b* c"],
+          "mdp" => [:mp, "a\n\nb"],
+          "ref_plain" => [:s, "@% @%", {t: "base"}, {t: "base"}],
+          "ref_md" => [:m, "@% @%", {t: "base"}, {t: "md"}],
+          "ref_mdp" => [:mp, "@% @%", {t: "base"}, {t: "mdp"}],
+          "ref_mdp_deep" => [:mp, "@%", {t: "ref_mdp"}],
+          "a" => {"b" => {"c" => [:m, "*c*"]}},
+          "ref_deep" => [:m, "@%", {t: "a.b.c"}],
+        },
+      )
+    end
+
+    it "uses high-complexity formatters, even when refs are out-of-order" do
+      strings = {
+        s0: "xy",
+        s1: "$t(s2)",
+        s2: "*$t(s3)*",
+        s3: "$t(s0)\n\nhi",
+      }
+      got = described_class::ResourceRewriter.new.to_output(strings.to_json)
+      expect(got).to eq(
+        {
+          "s0" => [:s, "xy"],
+          "s1" => [:mp, "@%", {t: "s2"}],
+          "s2" => [:mp, "*@%*", {t: "s3"}],
+          "s3" => [:mp, "@%\n\nhi", {t: "s0"}],
+        },
+      )
     end
   end
 end
