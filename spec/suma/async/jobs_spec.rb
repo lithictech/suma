@@ -182,13 +182,17 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
     let(:member) { Suma::Fixtures.member(phone: "12223334444").create }
     let(:fac) { Suma::Fixtures.reset_code(member:).sms }
 
-    it "noops if the code has no delivery or has an invalid message id" do
+    it "noops if the code has no delivery, has an invalid message id or the delivery was aborted" do
       no_delivery = fac.create
       bad_msg_id = fac.create
       bad_msg_id.update(message_delivery: Suma::Fixtures.message_delivery.create(transport_message_id: "MSGID"))
+      template = Suma::Message::SmsTransport.verification_template
+      message_delivery = Suma::Fixtures.message_delivery.via("sms").create(template:, transport_message_id: nil)
+      nil_msg_id = fac.create(message_delivery:)
       expect do
         no_delivery.expire!
         bad_msg_id.expire!
+        nil_msg_id.expire!
       end.to perform_async_job(Suma::Async::ResetCodeUpdateTwilio)
     end
 
