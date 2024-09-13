@@ -397,5 +397,40 @@
     "intro": "Suma wants to make it easy for you to save money on your utility bills and make our communities more resilient against extreme weather and climate change.\n\nSign up for our free waiting list to help us build a community of members and to show that everyone deserves clean and affordable energy.",
     "page_title": "Utilities",
     "title": "Utilities"
+  },
+  "survey": {
+    "member_description": {
+      "label": "Which option describes you best?",
+      "community":"Community member",
+      "government": "Government",
+      "non_profit":"Non-profit",
+      "philanthropy":"Philanthropy",
+      "for_profit":"For profit"
+    },
+    "household_utilities": {
+      "label": "Check the box for all the utilities at your household",
+      "pacific_power": "Pacific Power",
+      "pge": "PGE",
+      "nw_natural": "NW Natural",
+      "comcast": "Comcast",
+      "centurylink": "CenturyLink",
+      "frontier": "Frontier",
+      "verizon": "Verizon"
+    },
+    "want_to_learn": {
+      "label": "I want to learn more about the suma app so I can:",
+      "save": "Save money on {{feature}}",
+      "connect_resources":"Connect suma users to additional resources",
+      "partner": "Bring my grocery onto the app",
+      "grant_support": "Support the app with grant funds"
+    },
+    "shop_for_food": {
+      "label": "Where do you shop for food (check all that apply)",
+      "fred_meyer": "Fred meyer",
+      "safeway": "Safeway",
+      "albertsons": "Albertsons",
+      "winco": "Winco",
+      "market": "Tienda, bodega or other cultural market"
+    }
   }
 }

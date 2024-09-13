@@ -4,16 +4,17 @@ import LayoutContainer from "../components/LayoutContainer";
 import PageLoader from "../components/PageLoader";
 import RLink from "../components/RLink";
 import { t } from "../localization";
+import Survey from "./Survey";
 import React from "react";
 import Button from "react-bootstrap/Button";
 
 export default function WaitingListPage({ feature, imgSrc, imgAlt, title, text }) {
   const [loading, setLoading] = React.useState(false);
   const [finished, setFinished] = React.useState(false);
-  const handleClick = (e) => {
+  const handleSubmit = (e, surveyJson) => {
     setLoading(true);
     e.preventDefault();
-    api.joinWaitlist({ feature }).finally(() => setFinished(true));
+    api.joinWaitlist({ feature, surveyJson }).finally(() => setFinished(true));
   };
   let content;
   if (finished) {
@@ -22,7 +23,9 @@ export default function WaitingListPage({ feature, imgSrc, imgAlt, title, text }
         <div>
           <AnimatedCheckmark scale={2} />
         </div>
-        <p className="mt-4 mb-0 lead checkmark__text">{t("common:waitlisted")}</p>
+        <p className="mt-4 mb-0 text-center lead checkmark__text">
+          {t("common:waitlisted")}
+        </p>
         <div className="button-stack mt-4 w-100">
           <Button variant="outline-primary" href="/dashboard" as={RLink}>
             {t("common:go_home")}
@@ -37,11 +40,7 @@ export default function WaitingListPage({ feature, imgSrc, imgAlt, title, text }
       <>
         <h2>{title}</h2>
         {text}
-        <div className="button-stack mt-4">
-          <Button variant="outline-primary" onClick={handleClick}>
-            {t("common:join_waitlist")}
-          </Button>{" "}
-        </div>
+        <Survey feature={feature} onSubmit={(e, survey) => handleSubmit(e, survey)} />
       </>
     );
   }

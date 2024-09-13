@@ -397,5 +397,40 @@
     "intro": "Suma quiere facilitarle el ahorro de dinero en sus facturas de servicios públicos y hacer que nuestras comunidades sean más resilientes frente al clima extremo y el cambio climático.\n\nRegístrese en nuestra lista de espera gratuita para ayudarnos a construir una comunidad de miembros y demostrar que todos merecen energía limpia y asequible.",
     "page_title": "Servicios públicos",
     "title": "Utilidades"
+  },
+  "survey": {
+    "member_description": {
+      "label": "¿Qué opción lo describe mejor?",
+      "community":"Miembro de la comunidad",
+      "government": "Gobierno",
+      "non_profit":"Organización sin fines de lucro",
+      "philanthropy":"Filantropía",
+      "for_profit":"Negocio"
+    },
+    "household_utilities": {
+      "label": "Marque la casilla para todos los servicios públicos en su hogar",
+      "pacific_power": "Pacific Power",
+      "pge": "PGE",
+      "nw_natural": "NW Natural",
+      "comcast": "Comcast",
+      "centurylink": "CenturyLink",
+      "frontier": "Frontier",
+      "verizon": "Verizon"
+    },
+    "want_to_learn": {
+      "label": "Quiero obtener más información sobre la aplicación suma para poder:",
+      "save": "Ahorrar dinero en {{feature}}",
+      "connect_resources":"Conectar a los usuarios de suma con recursos adicionales",
+      "partner": "Incorporar mi servicio público a la aplicación",
+      "grant_support": "Apoyar la aplicación con fondos donados"
+    },
+    "shop_for_food": {
+      "label": "Dónde compra alimentos (marque todo lo que corresponda)",
+      "fred_meyer": "Fred meyer",
+      "safeway": "Safeway",
+      "albertsons": "Albertsons",
+      "winco": "Winco",
+      "market": "Tienda, bodega u otro mercado cultural"
+    }
   }
 }
