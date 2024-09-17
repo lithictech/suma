@@ -109,12 +109,14 @@ export default function LedgersOverview() {
             linesLoading={ledgersOverviewLoading || ledgerLinesLoading}
           />
           <LayoutContainer gutters>
-            <ForwardBackPagination
-              page={page}
-              pageCount={ledgerLines.pageCount}
-              onPageChange={(pg) => setListQueryParams({ page: pg })}
-              scrollTop={140}
-            />
+            {!isEmpty(activeLines) && (
+              <ForwardBackPagination
+                page={page}
+                pageCount={ledgerLines.pageCount}
+                onPageChange={(pg) => setListQueryParams({ page: pg })}
+                scrollTop={140}
+              />
+            )}
           </LayoutContainer>
         </>
       )}
