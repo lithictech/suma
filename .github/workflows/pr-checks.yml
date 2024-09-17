@@ -24,6 +24,8 @@ jobs:
         run: docker compose up -d
       - name: Run rubocop
         run: bundle exec rubocop
+      - name: Check i18n files have not changed
+        run: make i18n-format && git diff --quiet || echo "localized strings changed, run 'make i18n-format' and check in the result"
       - name: Wait for services to come up
         run: sleep 0
       - name: Run specs

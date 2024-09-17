@@ -3,7 +3,7 @@ import AnimatedCheckmark from "../components/AnimatedCheckmark";
 import FormSaveCancel from "../components/FormSaveCancel";
 import LayoutContainer from "../components/LayoutContainer";
 import SumaImage from "../components/SumaImage";
-import { md, mdx, t } from "../localization";
+import { t } from "../localization";
 import { dayjs } from "../modules/dayConfig";
 import ScrollTopOnMount from "../shared/ScrollToTopOnMount";
 import Money from "../shared/react/Money";
@@ -215,18 +215,24 @@ function PressAndHoldToClaim({ id, canClaim, offeringDescription, onOrderClaim }
     <div className="text-center">
       <Alert variant="info mb-0">
         <p className="small mb-0">
-          {md("food:claiming_instructions", { offeringDescription: offeringDescription })}
+          {t("food:claiming_instructions", { offeringDescription: offeringDescription })}
         </p>
         <PressAndHold size={200} onHeld={handleOrderClaim}>
-          {mdx("food:press_and_hold", {
-            overrides: {
-              p: {
-                props: {
-                  className: "mb-0 fs-6",
+          {t(
+            "food:press_and_hold",
+            {},
+            {
+              markdown: {
+                overrides: {
+                  p: {
+                    props: {
+                      className: "mb-0 fs-6",
+                    },
+                  },
                 },
               },
-            },
-          })}
+            }
+          )}
         </PressAndHold>
       </Alert>
     </div>

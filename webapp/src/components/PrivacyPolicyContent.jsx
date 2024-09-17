@@ -18,12 +18,12 @@ import LayoutContainer from "../components/LayoutContainer";
 import ScreenLoader from "../components/ScreenLoader";
 import { Lookup, t as loct } from "../localization";
 import { useCurrentLanguage } from "../localization/currentLanguage";
+import useI18n from "../localization/useI18n";
 import useMountEffect from "../shared/react/useMountEffect";
 import useGlobalViewState from "../state/useGlobalViewState";
 import TranslationToggle from "./TranslationToggle";
 import ScrollSpy from "bootstrap/js/src/scrollspy";
 import clsx from "clsx";
-import i18n from "i18next";
 import React from "react";
 import Col from "react-bootstrap/Col";
 import Container from "react-bootstrap/Container";
@@ -35,16 +35,17 @@ import { Helmet } from "react-helmet-async";
 
 export default function PrivacyPolicyContent({ mobile }) {
   mobile = Boolean(mobile);
-  const [i18nextLoading, setI18NextLoading] = React.useState(true);
+  const [i18nLoading, setI18nLoading] = React.useState(true);
+  const { loadLanguageFile } = useI18n();
   const [language] = useCurrentLanguage();
   const { topNav } = useGlobalViewState();
   const topNavHeight = topNav?.clientHeight - 1 || 0;
 
   useMountEffect(() => {
-    i18n.loadNamespaces("privacy-policy-strings").then(() => setI18NextLoading(false));
+    loadLanguageFile("privacy-policy-strings").then(() => setI18nLoading(false));
   });
 
-  if (i18nextLoading) {
+  if (i18nLoading) {
     return <ScreenLoader show />;
   }
   return (
@@ -155,9 +156,9 @@ export default function PrivacyPolicyContent({ mobile }) {
               mobile={mobile}
               sectionKey="sections:information_collected"
               list={[
-                md("sections:information_collected:list:registration"),
-                md("sections:information_collected:list:vendors"),
-                md("sections:information_collected:list:subsidy"),
+                t("sections:information_collected:list:registration"),
+                t("sections:information_collected:list:vendors"),
+                t("sections:information_collected:list:subsidy"),
               ]}
             />
             <PrivacyPolicySection
@@ -165,9 +166,9 @@ export default function PrivacyPolicyContent({ mobile }) {
               sectionKey="sections:methods_of_collection"
               img={methodsOfCollection}
               list={[
-                md("sections:methods_of_collection:list:registration_page"),
-                md("sections:methods_of_collection:list:cookies"),
-                md("sections:methods_of_collection:list:community_partners"),
+                t("sections:methods_of_collection:list:registration_page"),
+                t("sections:methods_of_collection:list:cookies"),
+                t("sections:methods_of_collection:list:community_partners"),
               ]}
             />
             <PrivacyPolicySection
@@ -213,8 +214,8 @@ export default function PrivacyPolicyContent({ mobile }) {
               sectionKey="sections:third_party_access"
               img={thirdPartyAcceess}
               list={[
-                md("sections:third_party_access:list:service_providers"),
-                md("sections:third_party_access:list:with_your_consent"),
+                t("sections:third_party_access:list:service_providers"),
+                t("sections:third_party_access:list:with_your_consent"),
                 <>
                   {t("sections:third_party_access:list:personal_information") + " "}
                   <a href={makeSectionHashtag("sections:methods_of_information_usage")}>
@@ -257,7 +258,7 @@ export default function PrivacyPolicyContent({ mobile }) {
               sectionKey="sections:business_transfer"
               img={businessTransfer}
               list={[
-                md("sections:business_transfer:list:email"),
+                t("sections:business_transfer:list:email"),
                 t("sections:business_transfer:list:opt_out"),
               ]}
             />
@@ -279,15 +280,15 @@ export default function PrivacyPolicyContent({ mobile }) {
             <PrivacyPolicySection
               mobile={mobile}
               sectionKey="sections:future_changes_to_policy"
-              p={md("sections:future_changes_to_policy:paragraph")}
+              p={t("sections:future_changes_to_policy:paragraph")}
               img={policyChanges}
             >
-              <p>{md("sections:future_changes_to_policy:conclusion")}</p>
+              <p>{t("sections:future_changes_to_policy:conclusion")}</p>
             </PrivacyPolicySection>
             <PrivacyPolicySection
               mobile={mobile}
               sectionKey="sections:contact_information"
-              p={md("sections:contact_information:paragraph")}
+              p={t("sections:contact_information:paragraph")}
             />
           </Container>
         </LayoutContainer>
@@ -335,7 +336,7 @@ const TableOfContentsNav = ({ mobile }) => {
             ></i>
           </Navbar.Toggle>
           <Navbar.Brand className="me-auto d-flex align-items-center">
-            {t("common:table_of_contents")}
+            {t("common.table_of_contents")}
           </Navbar.Brand>
         </Container>
       )}
@@ -460,4 +461,3 @@ const navLinkSectionKeys = [
 
 const lu = new Lookup("privacy-policy-strings");
 const t = lu.t;
-const md = lu.md;

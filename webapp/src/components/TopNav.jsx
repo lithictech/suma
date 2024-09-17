@@ -1,6 +1,6 @@
 import sumaLogo from "../assets/images/suma-logo-plain-128.png";
 import { t } from "../localization";
-import useI18Next from "../localization/useI18Next";
+import useI18n from "../localization/useI18n";
 import signOut from "../modules/signOut";
 import useBackendGlobals from "../state/useBackendGlobals";
 import useGlobalViewState from "../state/useGlobalViewState";
@@ -9,7 +9,6 @@ import useUser from "../state/useUser";
 import ExternalLink from "./ExternalLink";
 import RLink from "./RLink";
 import clsx from "clsx";
-import i18next from "i18next";
 import React from "react";
 import Button from "react-bootstrap/Button";
 import ButtonGroup from "react-bootstrap/ButtonGroup";
@@ -97,7 +96,7 @@ export default function TopNav() {
 
 function LanguageButtons({ className }) {
   const { supportedLocales } = useBackendGlobals();
-  const { changeLanguage } = useI18Next();
+  const { currentLanguage, changeLanguage } = useI18n();
   if (!supportedLocales.items) {
     return null;
   }
@@ -107,7 +106,7 @@ function LanguageButtons({ className }) {
         <Button
           key={code}
           variant="outline-primary"
-          className={clsx(i18next.language === code && "active-outline-button")}
+          className={clsx(currentLanguage === code && "active-outline-button")}
           onClick={() => changeLanguage(code)}
         >
           {native}
@@ -216,7 +215,7 @@ function NavFooter({ className }) {
       </div>
       <div className={rowCls}>
         <Link to="/terms-of-use" className={linkCls}>
-          {t("common:terms_of_use")}
+          {t("common.terms_of_use")}
         </Link>
       </div>
       <div className={rowCls}>

@@ -7,7 +7,7 @@ import LinearBreadcrumbs from "../components/LinearBreadcrumbs";
 import PageLoader from "../components/PageLoader";
 import SumaImage from "../components/SumaImage";
 import SumaMarkdown from "../components/SumaMarkdown";
-import { mdp, t } from "../localization";
+import { t } from "../localization";
 import ScrollTopOnMount from "../shared/ScrollToTopOnMount";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
 import useMountEffect from "../shared/react/useMountEffect";
@@ -104,7 +104,7 @@ export default function PrivateAccountsList() {
           </Stack>
         </LayoutContainer>
       ) : (
-        <LayoutContainer>{mdp("private_accounts:no_private_accounts")}</LayoutContainer>
+        <LayoutContainer>{t("private_accounts:no_private_accounts")}</LayoutContainer>
       )}
     </>
   );

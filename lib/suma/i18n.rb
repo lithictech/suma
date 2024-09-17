@@ -1,9 +1,10 @@
 # frozen_string_literal: true
 
+require "appydays/configurable"
 require "csv"
 require "fileutils"
 require "nokogiri"
-require "appydays/configurable"
+require "redcarpet"
 require "sequel/sequel_translated_text"
 
 require "suma"
@@ -280,12 +281,22 @@ module Suma::I18n
     Dir.glob(LOCALE_DIR + "**/source/*.md") do |path|
       md = File.read(path)
       src_start_idx = path.rindex("/source/")
-      basename = File.basename(path)[...-3]
+      basename = File.basename(path, ".*")
       newpath = path[..src_start_idx] + basename + ".json"
-
       contents = Yajl::Encoder.encode({contents: md}, pretty: true, indent: "  ")
+      File.write(newpath, contents)
+    end
+  end
 
+  def self.rewrite_resource_files
+    rewriter = ResourceRewriter.new
+    Dir.glob(LOCALE_DIR + "{#{SUPPORTED_LOCALES.keys.join(',')}}/*.json") do |path|
+      newpath = rewriter.output_path_for(path)
+      contents = Yajl::Encoder.encode(rewriter.to_output(File.read(path)))
+      newpath.dirname.mkpath
       File.write(newpath, contents)
     end
   end
 end
+
+require "suma/i18n/resource_rewriter"

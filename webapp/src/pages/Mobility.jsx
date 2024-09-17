@@ -5,23 +5,29 @@ import { MdLink } from "../components/SumaMarkdown";
 import WaitingListPage from "../components/WaitingListPage";
 import Map from "../components/mobilitymap/Map";
 import config from "../config";
-import { md, mdx, t } from "../localization";
+import { t } from "../localization";
 import { useError } from "../state/useError";
 import React from "react";
 import Alert from "react-bootstrap/Alert";
 
 export default function Mobility() {
   const [locationPermissionsError, setLocationPermissionsError] = useError("");
-  const introMd = mdx("mobility:intro", {
-    overrides: {
-      a: { component: MdLink },
-      p: {
-        props: {
-          className: "text-secondary",
+  const introMd = t(
+    "mobility:intro",
+    {},
+    {
+      markdown: {
+        overrides: {
+          a: { component: MdLink },
+          p: {
+            props: {
+              className: "text-secondary",
+            },
+          },
         },
       },
-    },
-  });
+    }
+  );
   const handleLocationPermissionsDenied = React.useCallback(() => {
     api
       .getUserAgent()
@@ -31,7 +37,7 @@ export default function Mobility() {
           throw new Error("unhandled user agent");
         }
         const opts = { context: "instructions", instructionsUrl: instructionsUrl };
-        const localizedError = md("mobility:location_permissions_denied", opts);
+        const localizedError = t("mobility:location_permissions_denied", opts);
         setLocationPermissionsError(localizedError);
       })
       .catch(() => {

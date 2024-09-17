@@ -6,7 +6,7 @@ import FormError from "../components/FormError";
 import OrganizationInputDropdown from "../components/OrganizationInputDropdown";
 import SignupAgreement from "../components/SignupAgreement";
 import { t } from "../localization";
-import useI18Next from "../localization/useI18Next";
+import useI18n from "../localization/useI18n";
 import { dayjs } from "../modules/dayConfig";
 import { maskPhoneNumber } from "../modules/maskPhoneNumber";
 import { extractErrorCode, useError } from "../state/useError";
@@ -21,7 +21,7 @@ export default function ContactListAdd() {
   const [params] = useSearchParams();
   const eventName = params.get("eventName") || "";
   const navigate = useNavigate();
-  const { language } = useI18Next();
+  const { currentLanguage } = useI18n();
   const {
     register,
     handleSubmit,
@@ -43,7 +43,7 @@ export default function ContactListAdd() {
       .authContactList({
         name,
         phone,
-        language,
+        language: currentLanguage,
         timezone: dayjs.tz.guess(),
         event_name: eventName,
         channel: referral,

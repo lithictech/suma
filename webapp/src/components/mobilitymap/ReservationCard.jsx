@@ -1,4 +1,4 @@
-import { mdp, t } from "../../localization";
+import { t } from "../../localization";
 import FormError from "../FormError";
 import PageLoader from "../PageLoader";
 import RLink from "../RLink";
@@ -64,10 +64,10 @@ export default function ReservationCard({
     action = (
       <>
         <Button size="sm" variant="success" className="w-100" href={vehicle.deeplink}>
-          {t("common:open_app")} <i className="ms-2 bi bi-box-arrow-up-right"></i>
+          {t("common.open_app")} <i className="ms-2 bi bi-box-arrow-up-right"></i>
         </Button>
         <div className="mt-2">
-          {mdp("mobility:relink_private_account_with_vendor", {
+          {t("mobility:relink_private_account_with_vendor", {
             vendorName: vehicle.vendorService.vendorName,
           })}
         </div>

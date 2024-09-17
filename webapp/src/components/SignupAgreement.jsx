@@ -1,4 +1,4 @@
-import { mdp, t } from "../localization";
+import { t } from "../localization";
 import React from "react";
 import Form from "react-bootstrap/Form";
 
@@ -13,7 +13,7 @@ export default function SignupAgreement({ checked, onCheckedChanged, ...rest }) 
         {...rest}
       />
       <div id="signup-agreement" className="ms-2 text-secondary small">
-        {mdp("auth:sign_up_agreement", { buttonLabel: t("forms:continue") })}
+        {t("auth:sign_up_agreement", { buttonLabel: t("forms:continue") })}
       </div>
     </div>
   );

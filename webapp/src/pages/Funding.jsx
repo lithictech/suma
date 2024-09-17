@@ -4,7 +4,7 @@ import FormError from "../components/FormError";
 import LinearBreadcrumbs from "../components/LinearBreadcrumbs";
 import RLink from "../components/RLink";
 import config from "../config";
-import { md, t } from "../localization";
+import { t } from "../localization";
 import useToggle from "../shared/react/useToggle";
 import useBackendGlobals from "../state/useBackendGlobals";
 import { extractErrorCode, useError } from "../state/useError";
@@ -24,8 +24,8 @@ export default function Funding() {
     <>
       <LinearBreadcrumbs back />
       <h2 className="page-header">{t("payments:payment_title")}</h2>
-      <p>{md("payments:payment_intro.intro")}</p>
-      <p id="some">{md("payments:payment_intro.privacy_statement")}</p>
+      <p>{t("payments:payment_intro.intro")}</p>
+      <p id="some">{t("payments:payment_intro.privacy_statement")}</p>
       {isPaymentMethodSupported("bank_account") && (
         <BankAccountsCard instruments={user.usablePaymentInstruments} />
       )}

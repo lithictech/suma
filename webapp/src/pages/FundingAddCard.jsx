@@ -3,7 +3,7 @@ import AddCreditCard from "../components/AddCreditCard";
 import GoHome from "../components/GoHome";
 import LinearBreadcrumbs from "../components/LinearBreadcrumbs";
 import RLink from "../components/RLink";
-import { md, t } from "../localization";
+import { t } from "../localization";
 import { extractErrorCode, useError } from "../state/useError";
 import useScreenLoader from "../state/useScreenLoader";
 import useUser from "../state/useUser";
@@ -55,7 +55,7 @@ export default function FundingAddCard() {
         <>
           <LinearBreadcrumbs back={returnTo || true} />
           <h2 className="page-header">{t("payments:add_card")}</h2>
-          <p>{md("payments:payment_intro.privacy_statement")}</p>
+          <p>{t("payments:payment_intro.privacy_statement")}</p>
           <AddCreditCard
             error={error}
             setError={setError}
