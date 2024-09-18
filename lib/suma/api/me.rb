@@ -52,18 +52,6 @@ class Suma::API::Me < Suma::API::V1
     end
 
     params do
-      requires :feature, type: String, values: ["food", "utilities", "mobility"]
-    end
-    post :waitlist do
-      member = current_member
-      member.db[:member_key_values].
-        insert_conflict.
-        insert(member_id: member.id, key: "waitlist_#{params[:feature]}")
-      status 200
-      present member, with: CurrentMemberEntity, env:
-    end
-
-    params do
       requires :language, values: ["en", "es"]
     end
     post :language do

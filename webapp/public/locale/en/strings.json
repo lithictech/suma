@@ -23,7 +23,6 @@
     "in_english": "English",
     "in_spanish": "En Español",
     "install_suma": "Install Suma",
-    "join_waitlist": "Join Waiting List",
     "learn_more": "Learn More",
     "logout": "Logout",
     "mysuma_website_link": "[www.mysuma.org](https://www.mysuma.org 'mysuma.org homepage')",
@@ -42,7 +41,6 @@
     "translate_to_english": "Translate to English",
     "translate_to_spanish": "Traducir al Español",
     "view_all": "View all",
-    "waitlisted": "Great! You are on the waiting list and we'll let you know when it's available.",
     "welcome_to_suma": "Welcome to Suma!",
     "whats_this": "What's this?"
   },
@@ -160,7 +158,6 @@
     "link_new_payment_or": "Or, link a new payment method to pay for this order.",
     "mobility_options": "Mobility Options",
     "no_cart_items": "This cart does not have any items.",
-    "no_offerings": "There are no food offerings currently available, please check back later.",
     "no_orders": "You haven’t place any orders yet.",
     "no_orders_to_claim": "You have no orders to claim.",
     "no_products": "There were no products found, this offering might be closed.",
@@ -397,40 +394,5 @@
     "intro": "Suma wants to make it easy for you to save money on your utility bills and make our communities more resilient against extreme weather and climate change.\n\nSign up for our free waiting list to help us build a community of members and to show that everyone deserves clean and affordable energy.",
     "page_title": "Utilities",
     "title": "Utilities"
-  },
-  "survey": {
-    "member_description": {
-      "label": "Which option describes you best?",
-      "community":"Community member",
-      "government": "Government",
-      "non_profit":"Non-profit",
-      "philanthropy":"Philanthropy",
-      "for_profit":"For profit"
-    },
-    "household_utilities": {
-      "label": "Check the box for all the utilities at your household",
-      "pacific_power": "Pacific Power",
-      "pge": "PGE",
-      "nw_natural": "NW Natural",
-      "comcast": "Comcast",
-      "centurylink": "CenturyLink",
-      "frontier": "Frontier",
-      "verizon": "Verizon"
-    },
-    "want_to_learn": {
-      "label": "I want to learn more about the suma app so I can:",
-      "save": "Save money on {{feature}}",
-      "connect_resources":"Connect suma users to additional resources",
-      "partner": "Bring my grocery onto the app",
-      "grant_support": "Support the app with grant funds"
-    },
-    "shop_for_food": {
-      "label": "Where do you shop for food (check all that apply)",
-      "fred_meyer": "Fred meyer",
-      "safeway": "Safeway",
-      "albertsons": "Albertsons",
-      "winco": "Winco",
-      "market": "Tienda, bodega or other cultural market"
-    }
   }
 }
