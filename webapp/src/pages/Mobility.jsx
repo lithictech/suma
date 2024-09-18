@@ -1,8 +1,9 @@
 import api from "../api";
 import mobilityHeaderImage from "../assets/images/onboarding-mobility.jpg";
+import FeaturePageHeader from "../components/FeaturePageHeader";
 import LayoutContainer from "../components/LayoutContainer";
 import { MdLink } from "../components/SumaMarkdown";
-import WaitingListPage from "../components/WaitingListPage";
+import WaitingList from "../components/WaitingList";
 import Map from "../components/mobilitymap/Map";
 import config from "../config";
 import { t } from "../localization";
@@ -11,23 +12,25 @@ import React from "react";
 import Alert from "react-bootstrap/Alert";
 
 export default function Mobility() {
+  if (!config.featureMobility) {
+    return (
+      <FeaturePageHeader imgSrc={mobilityHeaderImage} imgAlt={t("mobility:title")}>
+        <WaitingList
+          title={t("mobility:title")}
+          text={t("mobility:intro")}
+          survey={{
+            topic: "mobility_waitlist",
+            questions: [],
+          }}
+        />
+      </FeaturePageHeader>
+    );
+  }
+  return <MobilityImpl />;
+}
+
+function MobilityImpl() {
   const [locationPermissionsError, setLocationPermissionsError] = useError("");
-  const introMd = t(
-    "mobility:intro",
-    {},
-    {
-      markdown: {
-        overrides: {
-          a: { component: MdLink },
-          p: {
-            props: {
-              className: "text-secondary",
-            },
-          },
-        },
-      },
-    }
-  );
   const handleLocationPermissionsDenied = React.useCallback(() => {
     api
       .getUserAgent()
@@ -45,27 +48,32 @@ export default function Mobility() {
       });
   }, [setLocationPermissionsError]);
 
-  return config.featureMobility ? (
+  return (
     <>
       <LayoutContainer top gutters>
         <h5>{t("mobility:title")}</h5>
-        {introMd}
+        {t(
+          "mobility:intro",
+          {},
+          {
+            markdown: {
+              overrides: {
+                a: { component: MdLink },
+                p: {
+                  props: {
+                    className: "text-secondary",
+                  },
+                },
+              },
+            },
+          }
+        )}
         {locationPermissionsError && (
           <Alert variant="warning">{locationPermissionsError}</Alert>
         )}
       </LayoutContainer>
       <Map onLocationPermissionsDenied={handleLocationPermissionsDenied} />
     </>
-  ) : (
-    <div className="pb-4">
-      <WaitingListPage
-        feature="mobility"
-        imgSrc={mobilityHeaderImage}
-        imgAlt="Scooter Mobility"
-        title={t("mobility:title")}
-        text={introMd}
-      />
-    </div>
   );
 }
 

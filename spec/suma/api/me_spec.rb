@@ -59,6 +59,19 @@ RSpec.describe Suma::API::Me, :db do
         that_includes(ongoing_trip: include(id: trip.id))
     end
 
+    it "returns other useful information (order history, completed surveys, etc)" do
+      member.db[:member_surveys].insert(member_id: member.id, topic: "testing")
+      Suma::Fixtures.order.as_purchased_by(member).create
+
+      get "/v1/me"
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.that_includes(
+        finished_survey_topics: ["testing"],
+        has_order_history: true,
+      )
+    end
+
     describe "when authed as an admin" do
       let(:admin) { Suma::Fixtures.member.admin.create }
       before(:each) do
@@ -135,36 +148,6 @@ RSpec.describe Suma::API::Me, :db do
         that_includes(
           vendible_groupings: have_length(1),
         )
-    end
-  end
-
-  describe "POST /v1/me/waitlist" do
-    def keyvalues_ds
-      return member.db[:member_key_values].where(member_id: member.id)
-    end
-
-    it "marks the user as waitlisted for the given feature" do
-      post "/v1/me/waitlist", feature: "food"
-      expect(last_response).to have_status(200)
-      post "/v1/me/waitlist", feature: "utilities"
-      expect(last_response).to have_status(200)
-      post "/v1/me/waitlist", feature: "mobility"
-      expect(last_response).to have_status(200)
-      expect(keyvalues_ds.all).to contain_exactly(
-        include(key: "waitlist_food"),
-        include(key: "waitlist_utilities"),
-        include(key: "waitlist_mobility"),
-      )
-    end
-
-    it "does not update an existing feature" do
-      post "/v1/me/waitlist", feature: "food"
-      expect(last_response).to have_status(200)
-      expect(keyvalues_ds.all).to contain_exactly(include(key: "waitlist_food"))
-
-      post "/v1/me/waitlist", feature: "food"
-      expect(last_response).to have_status(200)
-      expect(keyvalues_ds.all).to contain_exactly(include(key: "waitlist_food"))
     end
   end
 end

@@ -44,7 +44,6 @@ export default {
   getMe: (data) => get(`/api/v1/me`, data),
   updateMe: (data) => post(`/api/v1/me/update`, data),
   changeLanguage: (data) => post(`/api/v1/me/language`, data),
-  joinWaitlist: (data) => post(`/api/v1/me/waitlist`, data),
   getSupportedGeographies: (data) => get(`/api/v1/meta/supported_geographies`, data),
   getSupportedLocales: (data) => get(`/api/v1/meta/supported_locales`, data),
   getSupportedCurrencies: (data) => get(`/api/v1/meta/supported_currencies`, data),
@@ -113,4 +112,6 @@ export default {
   getPreferencesPublic: (data) => get("/api/v1/preferences/public", data),
   updatePreferencesPublic: (data) => post("/api/v1/preferences/public", data),
   updatePreferences: (data) => post("/api/v1/preferences", data),
+
+  completeSurvey: (data) => post(`/api/v1/surveys`, data),
 };

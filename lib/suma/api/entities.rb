@@ -109,6 +109,12 @@ module Suma::API::Entities
       !Suma::AnonProxy::VendorAccount.for(m).empty?
     end
     expose :preferences!, as: :preferences, with: MemberPreferencesEntity
+    expose :has_order_history do |m|
+      !m.orders_dataset.empty?
+    end
+    expose :finished_survey_topics do |m|
+      m.db[:member_surveys].where(member_id: m.id).select_map(:topic).sort
+    end
   end
 
   class LedgerLineUsageDetailsEntity < Grape::Entity

@@ -1,4 +1,5 @@
 import get from "lodash/get";
+import isEmpty from "lodash/isEmpty";
 
 class I18n {
   constructor() {
@@ -14,9 +15,9 @@ class I18n {
    * @param {string} key Identify the formatter (ie, "currency").
    * @param {function} func Called with the resolved value.
    */
-  addFormatter(key, func) {
+  addFormatter = (key, func) => {
     this.formatters[key] = func;
-  }
+  };
 
   /**
    * When a formatted strings file is loaded (see i18n.rb), add it here.
@@ -24,14 +25,14 @@ class I18n {
    * @param {string} namespace name of the file ("strings")
    * @param {object} body Contents of the loaded file.
    */
-  putFile(language, namespace, body) {
+  putFile = (language, namespace, body) => {
     if (!this.language) {
       this.language = language;
     }
     const strings = this.cache[language] || {};
     strings[namespace] = body;
     this.cache[language] = strings;
-  }
+  };
 
   /**
    * Return true if the file has been added.
@@ -40,7 +41,7 @@ class I18n {
    * @param {string} namespace
    * @returns {boolean}
    */
-  hasFile(language, namespace) {
+  hasFile = (language, namespace) => {
     const strings = this.cache[language];
     if (!strings) {
       return false;
@@ -49,7 +50,7 @@ class I18n {
       return false;
     }
     return true;
-  }
+  };
 
   /**
    * Given a localization key like "strings.dashboard.hello",
@@ -60,14 +61,23 @@ class I18n {
    * @param {object} opts Options to pass to the interpolator.
    *   For example, a string like "Hello, {{name}}" would be called with
    *   `t("dashboard.greeting", {name: user.name})`.
-   * @returns {*|*[]} Tuple of the formatter ("m", "mp", or "s")
+   * @returns {Array<string>} Tuple of the formatter ("m", "mp", or "s")
    *   and the resolved string.
    */
-  resolve(key, opts) {
+  resolve = (key, opts) => {
     const fqn = this.fqn(key);
     const value = get(this.cache, fqn);
     if (!value) {
-      return key;
+      if (!isEmpty(this.cache)) {
+        // If the key isn't found, use string formatting on the key.
+        // Do not warn if this happens while we're still initializing languages
+        // (cache is empty until first file is loaded).
+        console.log(
+          `localization key '${fqn}' not found, maybe you need to run 'make i18n-format'`,
+          this.cache
+        );
+      }
+      return ["s", key];
     }
     // eslint-disable-next-line no-unused-vars
     const [formatter, template, ...locOpts] = value;
@@ -93,19 +103,19 @@ class I18n {
       finalStr = finalStr.replace("@%", resolved);
     });
     return [formatter, finalStr];
-  }
+  };
 
-  formatter(key) {
+  formatter = (key) => {
     const fqn = this.fqn(key, "0");
     return get(this.cache, fqn);
-  }
+  };
 
-  t(key, opts) {
+  t = (key, opts) => {
     const [, str] = this.resolve(key, opts);
     return str;
-  }
+  };
 
-  fqn(...args) {
+  fqn = (...args) => {
     // TODO: Delete this (and add a check)
     // when we're ready to mass-update all localization keys.
     // The 'convert : to ,' causes a lot of extra string copies.
@@ -113,7 +123,7 @@ class I18n {
     const suffix = args.join(".");
     const fqn = `${this.language}.${suffix}`;
     return fqn;
-  }
+  };
 }
 
 const instance = new I18n();

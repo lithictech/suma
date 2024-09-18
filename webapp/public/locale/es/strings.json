@@ -23,7 +23,6 @@
     "in_english": "English",
     "in_spanish": "En Español",
     "install_suma": "Instalar suma",
-    "join_waitlist": "Unirse a la lista de espera",
     "learn_more": "Más información",
     "logout": "Cerrar sesión",
     "mysuma_website_link": "[www.mysuma.org](https://www.mysuma.org 'mysuma.org inicio')",
@@ -42,7 +41,6 @@
     "translate_to_english": "Translate to English",
     "translate_to_spanish": "Traducir al Español",
     "view_all": "Ver todos",
-    "waitlisted": "¡Excelente! Estás en la lista de espera y te avisaremos cuando esté disponible.",
     "welcome_to_suma": "¡Bienvenido a Suma!",
     "whats_this": "¿Qué es esto?"
   },
@@ -160,7 +158,6 @@
     "link_new_payment_or": "O vincula un nuevo método de pago para pagar este pedido.",
     "mobility_options": "Opciones de movilidad",
     "no_cart_items": "Este carrito no tiene ningún artículo.",
-    "no_offerings": "No hay ofertas de alimentos disponibles actualmente, vuelva a consultar más tarde.",
     "no_orders": "Aún no ha realizado ningún pedido.",
     "no_orders_to_claim": "No hay pedidos para reclamar.",
     "no_products": "No se encontraron productos, esta oferta podría estar cerrada.",
