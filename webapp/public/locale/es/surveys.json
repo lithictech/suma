@@ -1,0 +1,45 @@
+{
+  "food_learn_more": {
+    "connect_resources": "Conectar a los usuarios de suma con recursos adicionales",
+    "grant_support": "Apoyar la aplicación con fondos donados",
+    "label": "Quiero obtener más información sobre la aplicación suma para poder:",
+    "partner": "Incorporar mi servicio público a la aplicación",
+    "save": "Ahorrar dinero en comida"
+  },
+  "food_options": {
+    "albertsons": "Albertsons",
+    "fred_meyer": "Fred meyer",
+    "label": "Dónde compra alimentos (marque todo lo que corresponda)",
+    "market": "Tienda, bodega u otro mercado cultural",
+    "safeway": "Safeway",
+    "winco": "Winco"
+  },
+  "join_waitlist": "Join Waiting List",
+  "member_type": {
+    "community": "Miembro de la comunidad",
+    "for_profit": "Negocio",
+    "government": "Gobierno",
+    "label": "¿Qué opción lo describe mejor?",
+    "non_profit": "Organización sin fines de lucro",
+    "philanthropy": "Filantropía"
+  },
+  "utilities_learn_more": {
+    "connect_resources": "Conectar a los usuarios de suma con recursos adicionales",
+    "grant_support": "Apoyar la aplicación con fondos donados",
+    "label": "Quiero obtener más información sobre la aplicación suma para poder:",
+    "partner": "Incorporar mi servicio público a la aplicación",
+    "save": "Ahorrar dinero en servicios públicos"
+  },
+  "utilities_options": {
+    "centurylink": "CenturyLink",
+    "comcast": "Comcast",
+    "frontier": "Frontier",
+    "label": "Marque la casilla para todos los servicios públicos en su hogar",
+    "nw_natural": "NW Natural",
+    "pacific_power": "Pacific Power",
+    "pge": "PGE",
+    "verizon": "Verizon"
+  },
+  "waitlist_joined": "¡Excelente! Estás en la lista de espera y te avisaremos cuando esté disponible.",
+  "waitlisted_already": "Ya estás en la lista de espera. ¡Te avisaremos cuando tengamos una actualización!"
+}

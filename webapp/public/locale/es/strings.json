@@ -23,7 +23,6 @@
     "in_english": "English",
     "in_spanish": "En Español",
     "install_suma": "Instalar suma",
-    "join_waitlist": "Unirse a la lista de espera",
     "learn_more": "Más información",
     "logout": "Cerrar sesión",
     "mysuma_website_link": "[www.mysuma.org](https://www.mysuma.org 'mysuma.org inicio')",
@@ -42,7 +41,6 @@
     "translate_to_english": "Translate to English",
     "translate_to_spanish": "Traducir al Español",
     "view_all": "Ver todos",
-    "waitlisted": "¡Excelente! Estás en la lista de espera y te avisaremos cuando esté disponible.",
     "welcome_to_suma": "¡Bienvenido a Suma!",
     "whats_this": "¿Qué es esto?"
   },
@@ -369,41 +367,6 @@
     "relink_app": "Volver a Vincular",
     "success_instructions": "Le enviamos un mensaje de texto, haga clic en el enlace del texto para iniciar esta app.",
     "vendor_private_accounts": "Cuentas Privadas de {{vendorName}}"
-  },
-  "survey": {
-    "household_utilities": {
-      "centurylink": "CenturyLink",
-      "comcast": "Comcast",
-      "frontier": "Frontier",
-      "label": "Marque la casilla para todos los servicios públicos en su hogar",
-      "nw_natural": "NW Natural",
-      "pacific_power": "Pacific Power",
-      "pge": "PGE",
-      "verizon": "Verizon"
-    },
-    "member_description": {
-      "community": "Miembro de la comunidad",
-      "for_profit": "Negocio",
-      "government": "Gobierno",
-      "label": "¿Qué opción lo describe mejor?",
-      "non_profit": "Organización sin fines de lucro",
-      "philanthropy": "Filantropía"
-    },
-    "shop_for_food": {
-      "albertsons": "Albertsons",
-      "fred_meyer": "Fred meyer",
-      "label": "Dónde compra alimentos (marque todo lo que corresponda)",
-      "market": "Tienda, bodega u otro mercado cultural",
-      "safeway": "Safeway",
-      "winco": "Winco"
-    },
-    "want_to_learn": {
-      "connect_resources": "Conectar a los usuarios de suma con recursos adicionales",
-      "grant_support": "Apoyar la aplicación con fondos donados",
-      "label": "Quiero obtener más información sobre la aplicación suma para poder:",
-      "partner": "Incorporar mi servicio público a la aplicación",
-      "save": "Ahorrar dinero en {{feature}}"
-    }
   },
   "titles": {
     "contact_list": "Lista de contactos",

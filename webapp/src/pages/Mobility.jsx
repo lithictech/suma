@@ -14,7 +14,7 @@ import Alert from "react-bootstrap/Alert";
 export default function Mobility() {
   if (!config.featureMobility) {
     return (
-      <FeaturePageHeader imgSrc={mobilityHeaderImage} imgAlt="Scooter Mobility">
+      <FeaturePageHeader imgSrc={mobilityHeaderImage} imgAlt={t("mobility:title")}>
         <WaitingList
           title={t("mobility:title")}
           text={t("mobility:intro")}

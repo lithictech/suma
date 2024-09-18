@@ -6,7 +6,7 @@ import React from "react";
 
 export default function Utilities() {
   return (
-    <FeaturePageHeader imgSrc={utilitiesHeaderImage} imgAlt="Solar Panels">
+    <FeaturePageHeader imgSrc={utilitiesHeaderImage} imgAlt={t("utilities:page_title")}>
       <WaitingList
         title={t("utilities:page_title")}
         text={t("utilities:intro")}
