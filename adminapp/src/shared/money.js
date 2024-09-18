@@ -4,6 +4,20 @@ import merge from "lodash/merge";
 
 const logger = new Logger("money");
 
+/**
+ * @typedef MoneyEntity
+ * @property {number} cents
+ * @property {string} currency
+ */
+
+/**
+ * @param {MoneyEntity} entity
+ * @param {object=} options
+ * @param {boolean=} options.rounded If true, use smart rounding.
+ *   0 cents will use no extra digits (ie, $1) and nonzero cents
+ *   will have 2 extra digits (ie, $1.05). Ie, you'll never get $1.00.
+ * @returns {string}
+ */
 export const formatMoney = (entity, options) => {
   let formatterOpts = null;
   if (get(options, "rounded")) {
@@ -21,6 +35,13 @@ export const formatMoney = (entity, options) => {
   return formatter.format(entity.cents / 100.0);
 };
 
+/**
+ * Return a MoneyEntity with the given fraction, which represents dollars
+ * (ie, 1.5 is $1.50).
+ * @param {number} f
+ * @param {string} currency
+ * @returns {MoneyEntity}
+ */
 export function floatToMoney(f, currency) {
   return {
     cents: f * 100,
@@ -28,13 +49,27 @@ export function floatToMoney(f, currency) {
   };
 }
 
+/**
+ * Return a MoneyEntity with the given cents and currency.
+ * @param {number} cents
+ * @param {string} currency
+ * @returns {MoneyEntity}
+ */
 export function intToMoney(cents, currency) {
   return {
-    cents: cents,
+    cents,
     currency,
   };
 }
 
+/**
+ * Apply a two-operand mathematical function to the two monies.
+ * Money entities must have the same currency.
+ * @param {MoneyEntity} m1
+ * @param {MoneyEntity} m2
+ * @param {function} t
+ * @returns {MoneyEntity}
+ */
 export function mathMoney(m1, m2, t) {
   // noinspection JSUnresolvedVariable
   if (window.__DEV__) {
@@ -48,14 +83,30 @@ export function mathMoney(m1, m2, t) {
   };
 }
 
+/**
+ * @param {MoneyEntity} m1
+ * @param {MoneyEntity} m2
+ * @returns {MoneyEntity}
+ */
 export function addMoney(m1, m2) {
   return mathMoney(m1, m2, (x, y) => x + y);
 }
 
+/**
+ * @param {MoneyEntity} m1
+ * @param {MoneyEntity} m2
+ * @returns {MoneyEntity}
+ */
 export function subtractMoney(m1, m2) {
   return mathMoney(m1, m2, (x, y) => x - y);
 }
 
+/**
+ * Multiply the number of cents by the given factor.
+ * @param {MoneyEntity} m
+ * @param {number} n
+ * @returns {MoneyEntity}
+ */
 export function scaleMoney(m, n) {
   return {
     cents: m.cents * n,
@@ -63,6 +114,11 @@ export function scaleMoney(m, n) {
   };
 }
 
+/**
+ * Return true if m is present and its cents are non-zero.
+ * @param {MoneyEntity} m
+ * @returns {boolean}
+ */
 export function anyMoney(m) {
   if (!m) {
     return false;

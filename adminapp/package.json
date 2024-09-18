@@ -2,6 +2,9 @@
   "name": "suma-admin",
   "version": "0.1.0",
   "private": true,
+  "engines": {
+    "node": "22.x"
+  },
   "dependencies": {
     "@date-io/dayjs": "^2.16.0",
     "@emotion/react": "^11.10.5",

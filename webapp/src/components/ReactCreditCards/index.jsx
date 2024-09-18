@@ -1,5 +1,4 @@
 import Payment from "payment";
-import PropTypes from "prop-types";
 import React from "react";
 
 export default class ReactCreditCards extends React.Component {
@@ -8,23 +7,23 @@ export default class ReactCreditCards extends React.Component {
     this.setCards();
   }
 
-  static propTypes = {
-    acceptedCards: PropTypes.array,
-    callback: PropTypes.func,
-    cvc: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
-    expiry: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
-    focused: PropTypes.string,
-    issuer: PropTypes.string,
-    locale: PropTypes.shape({
-      valid: PropTypes.string,
-    }),
-    name: PropTypes.string.isRequired,
-    number: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
-    placeholders: PropTypes.shape({
-      name: PropTypes.string,
-    }),
-    preview: PropTypes.bool,
-  };
+  // static propTypes = {
+  //   acceptedCards: PropTypes.array,
+  //   callback: PropTypes.func,
+  //   cvc: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+  //   expiry: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+  //   focused: PropTypes.string,
+  //   issuer: PropTypes.string,
+  //   locale: PropTypes.shape({
+  //     valid: PropTypes.string,
+  //   }),
+  //   name: PropTypes.string.isRequired,
+  //   number: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+  //   placeholders: PropTypes.shape({
+  //     name: PropTypes.string,
+  //   }),
+  //   preview: PropTypes.bool,
+  // };
 
   static defaultProps = {
     acceptedCards: [],

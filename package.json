@@ -1,6 +1,6 @@
 {
   "engines": {
-    "node": "16.x"
+    "node": "22.x"
   },
   "scripts": {
     "build": "echo 'use Makefile to build frontends'"
