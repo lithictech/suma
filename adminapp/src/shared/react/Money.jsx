@@ -1,7 +1,15 @@
 import { formatMoney } from "../money";
-import PropTypes from "prop-types";
+import clsx from "clsx";
 import React from "react";
 
+/**
+ * @param {MoneyEntity} value
+ * @param children
+ * @param {string=} className
+ * @param {boolean} accounting
+ * @param as
+ * @param rest
+ */
 export default function Money({ value, children, className, accounting, as, ...rest }) {
   let entity = value || children;
   if (!entity) {
@@ -14,15 +22,5 @@ export default function Money({ value, children, className, accounting, as, ...r
     ch = formatMoney(entity, rest);
   }
   const As = as || "span";
-  return <As className={className}>{ch}</As>;
+  return <As className={clsx("nowrap", className)}>{ch}</As>;
 }
-
-Money.propTypes = {
-  value: PropTypes.shape({
-    cents: PropTypes.number,
-    currency: PropTypes.string,
-  }),
-  children: PropTypes.any,
-  className: PropTypes.string,
-  rounded: PropTypes.bool,
-};

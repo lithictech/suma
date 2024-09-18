@@ -3,6 +3,6 @@ set -e
 
 cd adminapp
 # Need dev deps to build
-npm install --production=false
+npm install
 export NODE_ENV=${RACK_ENV}
 npm run build
