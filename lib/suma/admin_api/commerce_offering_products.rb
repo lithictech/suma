@@ -26,8 +26,8 @@ class Suma::AdminAPI::CommerceOfferingProducts < Suma::AdminAPI::V1
       params do
         requires(:offering, type: JSON) { use :model_with_id }
         requires(:product, type: JSON) { use :model_with_id }
-        requires(:customer_price, allow_blank: false, type: JSON) { use :funding_money }
-        requires(:undiscounted_price, allow_blank: false, type: JSON) { use :funding_money }
+        requires(:customer_price, allow_blank: false, type: JSON) { use :money }
+        requires(:undiscounted_price, allow_blank: false, type: JSON) { use :money }
       end
     end
 
@@ -39,8 +39,8 @@ class Suma::AdminAPI::CommerceOfferingProducts < Suma::AdminAPI::V1
 
     route_param :id, type: Integer do
       params do
-        optional(:customer_price, allow_blank: false, type: JSON) { use :funding_money }
-        optional(:undiscounted_price, allow_blank: false, type: JSON) { use :funding_money }
+        optional(:customer_price, allow_blank: false, type: JSON) { use :money }
+        optional(:undiscounted_price, allow_blank: false, type: JSON) { use :money }
         at_least_one_of :customer_price, :undiscounted_price
       end
       post do

@@ -27,9 +27,7 @@ class Suma::AdminAPI::FundingTransactions < Suma::AdminAPI::V1
     desc "Create a funding transaction and book transfer for the given instrument and its owner's cash ledger."
     params do
       use :payment_instrument
-      requires :amount, allow_blank: false, type: JSON do
-        use :funding_money
-      end
+      requires(:amount, allow_blank: false, type: JSON) { use :money }
     end
     post :create_for_self do
       check_role_access!(admin_member, :write, :admin_payments)

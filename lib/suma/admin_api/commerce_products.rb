@@ -47,7 +47,7 @@ class Suma::AdminAPI::CommerceProducts < Suma::AdminAPI::V1
         requires :image, type: File
         requires(:name, type: JSON) { use :translated_text }
         requires(:description, type: JSON) { use :translated_text }
-        requires(:our_cost, type: JSON) { use :funding_money }
+        requires(:our_cost, type: JSON) { use :money }
         requires(:vendor, type: JSON) { use :model_with_id }
         optional(:vendor_service_categories, type: Array, coerce_with: lambda(&:values)) { use :model_with_id }
         optional :inventory, type: JSON do
@@ -74,7 +74,7 @@ class Suma::AdminAPI::CommerceProducts < Suma::AdminAPI::V1
         optional :image, type: File
         optional(:name, type: JSON) { use :translated_text }
         optional(:description, type: JSON) { use :translated_text }
-        optional(:our_cost, type: JSON) { use :funding_money }
+        optional(:our_cost, type: JSON) { use :money }
         optional(:vendor, type: JSON) { use :model_with_id }
         optional(:vendor_service_categories, type: Array, coerce_with: lambda(&:values)) { use :model_with_id }
         optional :inventory, type: JSON do
