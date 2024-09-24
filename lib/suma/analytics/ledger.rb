@@ -7,20 +7,19 @@ class Suma::Analytics::Ledger < Suma::Analytics::Model(Sequel[:analytics][:ledge
 
   destroy_from Suma::Payment::Ledger
 
-  denormalize Suma::Payment::BookTransaction, with: :denormalize_booking_transaction
+  denormalize Suma::Payment::Ledger, with: :denormalize_ledger
 
-  def self.denormalize_booking_transaction(bx)
-    return [bx.originating_ledger, bx.receiving_ledger].map do |led|
-      {
-        ledger_id: led.id,
-        payment_account_id: led.account_id,
-        member_id: led.account.member_id,
-        name: led.name,
-        balance: led.balance,
-        total_credits: led.received_book_transactions.sum(Money.new(0), &:amount),
-        total_debits: led.originated_book_transactions.sum(Money.new(0), &:amount),
-      }
-    end
+  def self.denormalize_ledger(led)
+    return {
+      ledger_id: led.id,
+      payment_account_id: led.account_id,
+      member_id: led.account.member_id,
+      name: led.name,
+      balance: led.balance,
+      total_credits: led.received_book_transactions.sum(Money.new(0), &:amount),
+      total_debits: led.originated_book_transactions.sum(Money.new(0), &:amount),
+      categories: led.vendor_service_categories.map(&:name).sort,
+    }
   end
 end
 
