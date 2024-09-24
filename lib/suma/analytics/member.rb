@@ -11,7 +11,7 @@ class Suma::Analytics::Member < Suma::Analytics::Model(Sequel[:analytics][:membe
     :created_at,
     :soft_deleted_at,
     :phone,
-    [:email, ->(m) { m.email&.downcase }],
+    [:email, :email],
     :name,
     :timezone,
   ]

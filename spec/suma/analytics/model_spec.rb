@@ -43,14 +43,22 @@ RSpec.describe "Suma::Analytics::Model", :db do
           [:member_id, :id],
           :phone,
           [:email, ->(m) { m.email.upcase }],
+          [:name, [:name, :downcase]],
+          [:nil_shorthand, [:onboarding_verified_at, :iso8601]],
         ]
       end
-      m = Suma::Fixtures.member.create(phone: "12223334444", email: "a@b.c")
-      expect(subclass.to_rows(m)).to eq([{
-                                          member_id: m.id,
-                                          phone: "12223334444",
-                                          email: "A@B.C",
-                                        }])
+      m = Suma::Fixtures.member.create(phone: "12223334444", email: "a@b.c", name: "Hi")
+      expect(subclass.to_rows(m)).to eq(
+        [
+          {
+            member_id: m.id,
+            phone: "12223334444",
+            email: "A@B.C",
+            name: "hi",
+            nil_shorthand: nil,
+          },
+        ],
+      )
     end
 
     it "errors for an invalid handler shorthand type" do
@@ -76,10 +84,14 @@ RSpec.describe "Suma::Analytics::Model", :db do
         ]
       end
       m = Suma::Fixtures.member.create
-      expect(subclass.to_rows(m)).to eq([{
-                                          member_id: m.id,
-                                          amount: 1.11,
-                                        }])
+      expect(subclass.to_rows(m)).to eq(
+        [
+          {
+            member_id: m.id,
+            amount: 1.11,
+          },
+        ],
+      )
     end
 
     it "errors if a row does not include the unique key" do
@@ -90,6 +102,53 @@ RSpec.describe "Suma::Analytics::Model", :db do
       end
       m = Suma::Fixtures.member.create
       expect { subclass.to_rows(m) }.to raise_error(/table's unique key :member_id/)
+    end
+
+    it "pulls the current language from the translated text field" do
+      subclass = analytics_model("TranslatedModel") do
+        decimal :caption
+      end
+      subclass.instance_eval do
+        unique_key :image_id
+        denormalize Suma::Image, with: [
+          [:image_id, :id],
+          :caption,
+        ]
+      end
+      o = Suma::Fixtures.image.create
+      o.caption.update(es: "foo", en: "bar")
+      SequelTranslatedText.language(:es) do
+        expect(subclass.to_rows(o)).to contain_exactly(hash_including(caption: "foo"))
+      end
+    end
+
+    it "wraps non-empty as a pg_array" do
+      subclass = analytics_model("ArrayModel") do
+        column :categories, "text[]"
+      end
+      subclass.instance_eval do
+        unique_key :objid
+        denormalize Suma::Payment::Ledger, with: [
+          [:objid, :id],
+          [:categories, ->(*) { ["a", "b"] }],
+        ]
+      end
+      o = Suma::Fixtures.ledger.create
+      expect(subclass.to_rows(o)).to contain_exactly(
+        hash_including(categories: be_a(Sequel::Postgres::PGArray).and(eq(["a", "b"]))),
+      )
+
+      subclass.instance_eval do
+        unique_key :objid
+        denormalize Suma::Payment::Ledger, with: [
+          [:objid, :id],
+          [:categories, ->(*) { [] }],
+        ]
+      end
+      o = Suma::Fixtures.ledger.create
+      expect(subclass.to_rows(o)).to contain_exactly(
+        hash_including(categories: not_be_a(Sequel::Postgres::PGArray).and(be_empty)),
+      )
     end
   end
 

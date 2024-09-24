@@ -17,8 +17,10 @@ module Suma::Analytics
       eligible_olap_classes = self.olap_classes.select { |d| d.denormalize_from?(model_cls) }
       olap_classes = olap_classes.nil? ? eligible_olap_classes : (olap_classes & eligible_olap_classes)
       return nil if olap_classes.empty?
-      row_groups = olap_classes.map do |olap_cls|
-        oltp_models.flat_map { |o| olap_cls.to_rows(o) }
+      row_groups = SequelTranslatedText.language(SequelTranslatedText.default_language) do
+        olap_classes.map do |olap_cls|
+          oltp_models.flat_map { |o| olap_cls.to_rows(o) }
+        end
       end
       upserting = olap_classes.zip(row_groups)
       upserting.each { |(m, rows)| m.upsert_rows(*rows) }
