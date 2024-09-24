@@ -111,12 +111,52 @@ RSpec.describe Suma::Analytics, :db do
   end
 
   describe "Ledger" do
-    it "can denormalize from book transactions" do
-      o = Suma::Fixtures.book_transaction.create
+    it "denormalizes from ledgers" do
+      o = Suma::Fixtures.ledger.create
       Suma::Analytics.upsert_from_transactional_model(o)
       expect(Suma::Analytics::Ledger.dataset.all).to contain_exactly(
-        include(ledger_id: o.receiving_ledger_id),
-        include(ledger_id: o.originating_ledger_id),
+        include(ledger_id: o.id),
+      )
+    end
+  end
+
+  describe "BookTransaction" do
+    it "denormalizes from book transactions" do
+      o = Suma::Fixtures.book_transaction.create
+      Suma::Analytics.upsert_from_transactional_model(o)
+      expect(Suma::Analytics::BookTransaction.dataset.all).to contain_exactly(
+        include(book_transaction_id: o.id),
+      )
+    end
+  end
+
+  describe "Charge" do
+    it "denormalizes from charges" do
+      o = Suma::Fixtures.charge.create
+      Suma::Analytics.upsert_from_transactional_model(o)
+      expect(Suma::Analytics::Charge.dataset.all).to contain_exactly(
+        include(charge_id: o.id),
+      )
+    end
+  end
+
+  describe "FundingTransaction" do
+    it "denormalizes from funding transactions" do
+      o = Suma::Fixtures.funding_transaction.with_fake_strategy.create
+      o.strategy.set_response(:originating_instrument, Suma::Fixtures.card.create)
+      Suma::Analytics.upsert_from_transactional_model(o)
+      expect(Suma::Analytics::FundingTransaction.dataset.all).to contain_exactly(
+        include(funding_transaction_id: o.id),
+      )
+    end
+  end
+
+  describe "PayoutTransactions" do
+    it "denormalizes from payout transactions" do
+      o = Suma::Fixtures.payout_transaction.with_fake_strategy.create
+      Suma::Analytics.upsert_from_transactional_model(o)
+      expect(Suma::Analytics::PayoutTransaction.dataset.all).to contain_exactly(
+        include(payout_transaction_id: o.id),
       )
     end
   end
