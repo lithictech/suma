@@ -56,8 +56,12 @@ class Suma::Analytics::Model
     #   - A +Symbol+, which identifies the method, called with the transactional model instance.
     #   - A +Proc+, called with the transactional model instance.
     #   - An +Array+, which is a shorthand for denormalization. Each item in the array is one of:
-    #     - A +Symbol+, like `:name`, which would add a cell for `name=model.name`.
-    #     - A tuple of symbols, like `[:id, :member_id]`, which would add a cell for `member_id=model.id`.
+    #     - A +Symbol+, like `:name`,
+    #       which would add a cell for `name=model.name`.
+    #     - A tuple of symbols, like `[:id, :member_id]`,
+    #       which would add a cell for `member_id=model_id`.
+    #     - A tuple of a symbol and a symbol array, like `[:id, [:member, :id]]`,
+    #       which would add a cell for `member_id=member.id`.
     #     - A tuple of a symbol and proc, like `[:email, ->(m) { m.email.upcase }]`,
     #       called with the model instance, which would add a cell like `email='A@B.C'`.
     def denormalize(transactional_model_class, with:)
@@ -86,7 +90,17 @@ class Suma::Analytics::Model
           msg = "#{self}: all rows need a key with the table's unique key #{unique_key.inspect}: #{row}"
           raise Suma::InvalidPostcondition, msg
         end
-        row.transform_values! { |v| v.is_a?(Money) ? v.to_f : v }
+        row.transform_values! do |v|
+          if v.is_a?(Money)
+            v.to_f
+          elsif v.is_a?(Suma::TranslatedText)
+            v.current
+          elsif v.is_a?(Array) && !v.empty?
+            Sequel.pg_array(v)
+          else
+            v
+          end
+        end
       end
       return rows
     end
@@ -100,7 +114,16 @@ class Suma::Analytics::Model
               when Symbol
                 [item, o.send(item)]
               when Array
-                val = item[1].is_a?(Symbol) ? o.send(item[1]) : item[1].call(o)
+                val = if item[1].is_a?(Symbol)
+                        o.send(item[1])
+                elsif item[1].is_a?(Proc)
+                  item[1].call(o)
+                else
+                  item[1].reduce(o) do |memo, sym|
+                    break nil if memo.nil?
+                    memo.send(sym)
+                  end
+                end
                 [item[0], val]
               else
                 raise TypeError, "invalid denormalizer shorthand: #{item.inspect}"

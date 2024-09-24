@@ -13,6 +13,7 @@ module Suma::Fixtures::Images
 
   before_saving do |instance|
     instance.uploaded_file ||= Suma::Fixtures.uploaded_file.create
+    instance.associated_object ||= Suma::Fixtures.vendor.create
     instance
   end
 

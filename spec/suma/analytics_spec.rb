@@ -17,6 +17,15 @@ RSpec.describe Suma::Analytics, :db do
     it "noops if models is empty" do
       expect { described_class.upsert_from_transactional_model([]) }.to_not raise_error
     end
+
+    it "sets the current language while upserting and pulls it from a translated text field" do
+      m = Suma::Fixtures.book_transaction.create
+      m.memo.update(en: "this is the memo")
+      described_class.upsert_from_transactional_model(m)
+      expect(Suma::Analytics::BookTransaction.all).to contain_exactly(
+        have_attributes(memo: "this is the memo"),
+      )
+    end
   end
 
   describe "destroy_from_transactional_model" do

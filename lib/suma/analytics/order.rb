@@ -11,7 +11,7 @@ class Suma::Analytics::Order < Suma::Analytics::Model(Sequel[:analytics][:orders
     :created_at,
     :order_status,
     :fulfillment_status,
-    [:member_id, ->(o) { o.checkout.cart.member_id }],
+    [:member_id, [:checkout, :cart, :member_id]],
     :undiscounted_cost,
     :customer_cost,
     :savings,
