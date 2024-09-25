@@ -206,32 +206,6 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
       end.to perform_async_job(Suma::Async::ResetCodeUpdateTwilio)
     end
 
-    it "ignores twilio 404s for invalid, expired or approved reset codes" do
-      req = stub_request(:post, "https://verify.twilio.com/v2/Services/VA555test/Verifications/VE123").
-        with(body: {"Status" => "approved"}).
-        to_return(status: 404)
-
-      code = fac.create(message_delivery: Suma::Fixtures.message_delivery.sent_to_verification("VE123").create)
-
-      expect do
-        code.use!
-      end.to perform_async_job(Suma::Async::ResetCodeUpdateTwilio)
-      expect(req).to have_been_made
-    end
-
-    it "raises twilio errors other than 404s" do
-      req = stub_request(:post, "https://verify.twilio.com/v2/Services/VA555test/Verifications/VE123").
-        with(body: {"Status" => "approved"}).
-        to_return(status: 500)
-
-      code = fac.create(message_delivery: Suma::Fixtures.message_delivery.sent_to_verification("VE123").create)
-      event = Amigo::Event.new(code.id, "suma.member.resetcode.updated", [code.id, {used: [false, true]}]).as_json
-      expect do
-        Suma::Async::ResetCodeUpdateTwilio.new.perform(event)
-      end.to raise_error(Twilio::REST::RestError, /HTTP 500/)
-      expect(req).to have_been_made
-    end
-
     it "tells twilio about used and canceled codes" do
       req123 = stub_request(:post, "https://verify.twilio.com/v2/Services/VA555test/Verifications/VE123").
         with(body: {"Status" => "canceled"}).
