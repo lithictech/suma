@@ -13,4 +13,33 @@ RSpec.describe Suma::Twilio, :db do
       expect(result).to have_attributes(sid: "VE123")
     end
   end
+
+  describe "update_verification" do
+    it "sends the update" do
+      req = stub_request(:post, "https://verify.twilio.com/v2/Services/VA555test/Verifications/VE123").
+        with(body: {"Status" => "approved"}).
+        to_return(status: 200, body: load_fixture_data("twilio/post_verification", raw: true))
+      result = described_class.update_verification("VE123", status: "approved")
+      expect(req).to have_been_made
+      expect(result).to have_attributes(sid: "VE123")
+    end
+
+    it "raises twilio errors other than 404s" do
+      req404 = stub_request(:post, "https://verify.twilio.com/v2/Services/VA555test/Verifications/VE404").
+        with(body: {"Status" => "approved"}).
+        to_return(status: 404)
+      req500 = stub_request(:post, "https://verify.twilio.com/v2/Services/VA555test/Verifications/VE500").
+        with(body: {"Status" => "approved"}).
+        to_return(status: 500)
+
+      expect do
+        described_class.update_verification("VE404", status: "approved")
+      end.to_not raise_error
+      expect(req404).to have_been_made
+      expect do
+        described_class.update_verification("VE500", status: "approved")
+      end.to raise_error(Twilio::REST::TwilioError, /500/)
+      expect(req500).to have_been_made
+    end
+  end
 end
