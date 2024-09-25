@@ -34,10 +34,15 @@ module Suma::Twilio
 
   # Update the verification. Usually used to change the status (status: 'canceled' or 'approved') of reset codes.
   def self.update_verification(ve_id, kw)
-    return self.client.verify.
-        v2.
-        services(self.verification_sid).
-        verifications(ve_id).
-        update(**kw)
+    response = self.client.verify.
+      v2.
+      services(self.verification_sid).
+      verifications(ve_id).
+      update(**kw)
+    return response
+  rescue Twilio::REST::RestError => e
+    # ignore 404s, it means twilio has approved, expired or invalidated the code already
+    # https://www.twilio.com/docs/verify/api/verification-check#check-a-verification
+    raise(e) unless e.code === 404
   end
 end

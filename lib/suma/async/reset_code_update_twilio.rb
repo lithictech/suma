@@ -30,12 +30,6 @@ class Suma::Async::ResetCodeUpdateTwilio
         # the 'send via twilio verify' logic in SmsTransport, so we only update twilio when we use that template.
         Suma::Message::SmsTransport.verification_delivery?(md)
     verification_id = Suma::Message::SmsTransport.transport_message_id_to_verification_id(md.transport_message_id)
-    begin
-      Suma::Twilio.update_verification(verification_id, status:)
-    rescue Twilio::REST::RestError => e
-      # 404 means twilio has approved, expired or invalidated the code already
-      # https://www.twilio.com/docs/verify/api/verification-check#check-a-verification
-      nil if e.code === 404
-    end
+    Suma::Twilio.update_verification(verification_id, status:)
   end
 end
