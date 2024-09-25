@@ -60,4 +60,17 @@ RSpec.describe "Suma::Eligibility", :db do
       )
     end
   end
+
+  describe "Constraint" do
+    describe "assign_to_admins" do
+      it "assigns the constraint to only admins" do
+        admin = Suma::Fixtures.member.admin.create
+        member = Suma::Fixtures.member.create
+        Suma::Fixtures.eligibility_constraint.create
+        Suma::Eligibility::Constraint.assign_to_admins
+        expect(admin.refresh.eligibility_constraints_with_status).to have_length(1)
+        expect(member.refresh.eligibility_constraints_with_status).to be_empty
+      end
+    end
+  end
 end

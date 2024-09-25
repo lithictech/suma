@@ -36,6 +36,8 @@ module Suma::Redis
     end
   end
 
+  # @param [Array<String>] parts
+  # @return [String]
   def self.cache_key(parts)
     tail = parts.join("/")
     return "cache/#{tail}"

@@ -29,21 +29,6 @@ class Suma::Increase
     return response.parsed_response
   end
 
-  def self.update_ach_route(ach_route_id, status: nil, name: nil)
-    body = {}
-    body[:status] = status if status
-    body[:name] = name if name
-    raise "Body cannot be empty" if body.blank?
-    response = Suma::Http.execute(
-      :patch,
-      self.host + "/routes/achs/#{ach_route_id}",
-      body:,
-      headers: self.headers,
-      logger: self.logger,
-    )
-    return response.parsed_response
-  end
-
   def self._create_ach_transfer(account_number:, routing_number:, amount_cents:, memo:)
     body = {
       account_id: self.platform_account_id,

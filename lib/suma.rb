@@ -24,6 +24,9 @@ module Suma
   include Appydays::Loggable
   include Appydays::Configurable
 
+  require "suma/method_utilities"
+  extend Suma::MethodUtilities
+
   # Error raised when we cannot take an action
   # because some condition has not been set up right.
   class InvalidPrecondition < RuntimeError; end
@@ -52,6 +55,9 @@ module Suma
 
   DATA_DIR = Pathname(__FILE__).dirname.parent + "data"
 
+  singleton_attr_reader :globals_cache
+  @globals_cache = {}
+
   configurable(:suma) do
     setting :log_level_override,
             nil,
@@ -66,10 +72,11 @@ module Suma
     setting :bust_idempotency, false
     setting :use_globals_cache, false
     setting :operator_name, "suma"
-  end
 
-  require "suma/method_utilities"
-  extend Suma::MethodUtilities
+    after_configured do
+      Suma.globals_cache.clear
+    end
+  end
 
   require "suma/sentry"
 
@@ -86,9 +93,6 @@ module Suma
   #
   # :section: Globals cache
   #
-
-  singleton_attr_reader :globals_cache
-  @globals_cache = {}
 
   # If globals caching is enabled, see if there is a cached value under +key+
   # and return it if so. If there is not, evaluate the given block and store that value.
@@ -123,18 +127,6 @@ module Suma
     key << "-" << parts.map(&:to_s).join("-") unless parts.empty?
 
     return key
-  end
-
-  #
-  # :section: Unambiguous/promo code chars
-  #
-
-  # Remove ambiguous characters (L, I, 1 or 0, O) and vowels from possible codes
-  # to avoid creating ambiguous codes or real words.
-  UNAMBIGUOUS_CHARS = "CDFGHJKMNPQRTVWXYZ23469".chars.freeze
-
-  def self.take_unambiguous_chars(n)
-    return Array.new(n) { UNAMBIGUOUS_CHARS.sample }.join
   end
 
   # Convert a string into something we consistently use for slugs:
@@ -189,7 +181,6 @@ module Suma
   def self.as_ary(x)  = x.respond_to?(:to_ary) ? x : [x]
 end
 
-require "suma/aggregate_result"
 require "suma/phone_number"
 require "suma/typed_struct"
 

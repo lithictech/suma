@@ -7,9 +7,13 @@ RSpec.describe Rack::LambdaApp do
 
   let(:app) { ->(_env) { [200, {}, "success"] } }
 
-  subject { described_class.new(->(_env) { [429, {}, "teapot"] }).new(app) }
-
   it "proxies to the lambda" do
-    expect(subject.call(env)).to eq([429, {}, "teapot"])
+    lambda_app = described_class.new(->(_env) { [429, {}, "teapot"] }).new(app)
+    expect(lambda_app.call(env)).to eq([429, {}, "teapot"])
+  end
+
+  it "calls the next app if the lambda returns falsey" do
+    lambda_app = described_class.new(->(_env) { false }).new(app)
+    expect(lambda_app.call(env)).to eq([200, {}, "success"])
   end
 end

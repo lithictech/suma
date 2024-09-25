@@ -22,7 +22,7 @@ class Suma::Eligibility::Constraint < Suma::Postgres::Model(:eligibility_constra
 
   def self.assign_to_admins
     ec = self.all
-    admins = Suma::Member.where(roles: Suma::Role.admin_role)
+    admins = Suma::Member.where(roles: Suma::Role.cache.admin)
     admins.each do |m|
       ec.each do |e|
         m.replace_eligibility_constraint(e, "verified")

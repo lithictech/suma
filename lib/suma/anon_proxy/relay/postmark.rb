@@ -15,11 +15,4 @@ class Suma::AnonProxy::Relay::Postmark < Suma::AnonProxy::Relay
       timestamp: row.fetch(:timestamp),
     )
   end
-
-  def lookup_member(to)
-    id = to[1..].split("@").first
-    m = Suma::Member[id: id.to_i]
-    return m if m
-    raise Suma::InvalidPostcondition, "no valid member #{id} parsed from #{to}"
-  end
 end

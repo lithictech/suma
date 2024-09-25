@@ -18,9 +18,11 @@ class Suma::Async::ProcessAnonProxyInboundWebhookdbRelays
     return "process-anon-proxy-inbound-relays-#{relay.key}"
   end
 
+  def advisory_lock(db: Suma::Member.db) = Sequel::AdvisoryLock.new(db, 2_000_123_654)
+
   def _perform
     # This can be enqueued from cron, and also explicitly, so it needs an exclusive lock.
-    alock = Sequel::AdvisoryLock.new(Suma::Member.db, 2_000_123_654)
+    alock = self.advisory_lock
     performed, _ = alock.with_lock? do
       self._inner_perform
     end

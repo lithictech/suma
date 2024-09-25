@@ -33,21 +33,4 @@ class Rack::SimpleRedirect
     return route.match?(path) if route.is_a?(Regexp)
     return route.call(env)
   end
-
-  def _check_routes_opts(h)
-    h.each do |k, v|
-      case k
-        when String, Regexp, Proc
-          nil
-        else
-          raise "SimpleRedirect routes keys must be strings, regexes, or procs"
-      end
-      case v
-        when String, Proc
-          nil
-        else
-          raise "SimpleRedirect routes values must be strings or procs"
-      end
-    end
-  end
 end

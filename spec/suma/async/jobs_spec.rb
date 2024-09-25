@@ -56,6 +56,16 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
     end
   end
 
+  describe "Emailer" do
+    it "sends emails" do
+      d = Suma::Fixtures.message_delivery.create
+      Timecop.freeze do
+        Suma::Async::Emailer.new.perform
+        expect(d.refresh).to have_attributes(sent_at: match_time(:now))
+      end
+    end
+  end
+
   describe "EnsureDefaultMemberLedgersOnCreate" do
     it "creates ledgers" do
       expect do
@@ -394,6 +404,16 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
       # Ensure we keep track of what's been synced
       Suma::Async::ProcessAnonProxyInboundWebhookdbRelays.new.perform(true)
       expect(Suma::AnonProxy::MessageHandler::Fake.handled).to have_length(1)
+    end
+
+    it "reschedules for the future if the advisory lock is taken" do
+      expect(Suma::Async::ProcessAnonProxyInboundWebhookdbRelays).to receive(:perform_in)
+      j = Suma::Async::ProcessAnonProxyInboundWebhookdbRelays.new
+      Sequel.connect(Suma::Postgres::Model.uri) do |db|
+        j.advisory_lock(db:).with_lock do
+          j.perform(true)
+        end
+      end
     end
   end
 

@@ -5,26 +5,6 @@ require "tempfile"
 require "suma"
 
 RSpec.describe Suma do
-  describe "configuration" do
-    before do
-      @env = ENV.fetch(described_class::CONFIG_ENV_VAR, nil)
-      @tempfiles = []
-    end
-
-    after do
-      ENV[described_class::CONFIG_ENV_VAR] = @end
-      @tempfiles.each { |t| t.close(true) }
-    end
-
-    def new_tmp
-      tmp = Tempfile.new("suma-spec")
-      @tempfiles << tmp
-      yield(tmp) if block_given?
-      tmp.flush
-      return tmp
-    end
-  end
-
   describe "load_fixture_data" do
     it "loads plain-text fixture data" do
       data = load_fixture_data("plain.txt")
@@ -188,6 +168,37 @@ RSpec.describe Suma do
       expect(Suma.as_ary(h)).to contain_exactly(be h)
       a = [1, 2, 3]
       expect(Suma.as_ary(a)).to be(a)
+    end
+  end
+
+  describe "cached_get", reset_configuration: described_class do
+    key = "k"
+    before(:each) do
+      @cnt = 0
+      @cb = lambda do
+        @cnt += 1
+        "x"
+      end
+    end
+
+    it "uses the cache if the key is present" do
+      described_class.use_globals_cache = true
+      expect(described_class.cached_get(key, &@cb)).to eq("x")
+      expect(@cnt).to eq(1)
+      expect(described_class.cached_get(key, &@cb)).to eq("x")
+      expect(@cnt).to eq(1)
+      described_class.cached_get("z", &@cb)
+      expect(@cnt).to eq(2)
+    end
+
+    it "does not use the cache if not enabled" do
+      described_class.use_globals_cache = false
+      expect(described_class.cached_get(key, &@cb)).to eq("x")
+      expect(@cnt).to eq(1)
+      expect(described_class.cached_get(key, &@cb)).to eq("x")
+      expect(@cnt).to eq(2)
+      described_class.cached_get("z", &@cb)
+      expect(@cnt).to eq(3)
     end
   end
 end

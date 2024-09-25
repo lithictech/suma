@@ -320,12 +320,6 @@ class Suma::Member < Suma::Postgres::Model(:members)
     return self.encrypted_password == unencrypted
   end
 
-  protected def new_password_matches?(unencrypted)
-    existing_pw = BCrypt::Password.new(self.password_digest)
-    new_pw = self.digest_password(unencrypted)
-    return existing_pw == new_pw
-  end
-
   ### Raise if +unencrypted+ password does not meet complexity requirements.
   protected def check_password_complexity(unencrypted)
     raise Suma::Member::InvalidPassword, "password must be at least %d characters." % [MIN_PASSWORD_LENGTH] if
