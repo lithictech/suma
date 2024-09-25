@@ -6,6 +6,8 @@ class Rack::SpaRewrite
   ALLOWED_VERBS = ["GET", "HEAD", "OPTIONS"].freeze
   ALLOW_HEADER = ALLOWED_VERBS.join(", ")
 
+  attr_reader :index_mtime
+
   def initialize(app, index_path:, html_only:)
     @app = app
     @index_path = index_path

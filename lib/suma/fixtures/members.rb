@@ -46,26 +46,17 @@ module Suma::Fixtures::Members
     self.add_role(role)
   end
 
-  decorator :with_dob do
-    self.dob = Faker::Date.birthday
-  end
-
   decorator :with_email do |username=nil|
     self.email = (username || Faker::Internet.username) + "@example.com"
   end
 
   decorator :with_phone, presave: true do |phone=nil|
-    self.phone = phone || Faker::PhoneNumber.cell_phone
+    self.phone = phone || Faker::Suma.us_phone
   end
 
   decorator :with_legal_entity do |opts={}|
     opts = Suma::Fixtures.legal_entity.create(opts) unless opts.is_a?(Suma::LegalEntity)
     self.legal_entity = opts
-  end
-
-  decorator :link_legal_entity, presave: true do |opts={}|
-    opts = Suma::Fixtures.legal_entity.create(opts) unless opts.is_a?(Suma::LegalEntity)
-    self.add_linked_legal_entity(opts)
   end
 
   decorator :onboarding_verified do |t=Time.now|

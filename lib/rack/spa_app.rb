@@ -4,6 +4,7 @@ require "rack/immutable"
 require "rack/lambda_app"
 require "rack/simple_redirect"
 require "rack/spa_rewrite"
+require "rack/ssl-enforcer"
 
 class Rack::SpaApp
   def self.dependencies(build_folder, immutable: true, enforce_ssl: true, service_worker_allowed: nil)

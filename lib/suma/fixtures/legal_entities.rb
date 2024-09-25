@@ -17,18 +17,8 @@ module Suma::Fixtures::LegalEntities
   end
 
   decorator :with_contact_info do |o={}|
-    o[:contact_first_name] ||= Faker::Name.first_name
-    o[:contact_first_name] ||= Faker::Name.first_name
-    o[:contact_last_name] ||= Faker::Name.last_name
-    o[:company_name] ||= Faker::Company.name
-    o[:email] ||= Faker::Internet.email
-    o[:phone] ||= Faker.us_phone
-    o[:type] ||= "TEST"
+    o[:name] ||= Faker::Name.name
     self.set(**o)
-  end
-
-  decorator :linked_to, presave: true do |member|
-    member.add_linked_legal_entity(self)
   end
 
   decorator :with_address do |a={}|

@@ -19,6 +19,18 @@ RSpec.describe Rack::SpaRewrite do
     FileUtils.touch index_path, mtime: Time.parse("2022-10-30T00:00:00Z")
   end
 
+  describe "getting the index mod time" do
+    it "gets the file mod time" do
+      mw = described_class.new(app, index_path:, html_only: true)
+      expect(mw).to have_attributes(index_mtime: match_time("2022-10-30T00:00:00Z"))
+    end
+
+    it "uses 0 if the index file does not exist" do
+      mw = described_class.new(app, index_path: "/dev/does-not-exist/null", html_only: true)
+      expect(mw).to have_attributes(index_mtime: match_time(0))
+    end
+  end
+
   it "handles GETs" do
     mw = described_class.new(app, index_path:, html_only: false)
     expect(mw.call(Rack::MockRequest.env_for("/w", method: :get))).to eq(

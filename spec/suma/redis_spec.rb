@@ -22,4 +22,10 @@ RSpec.describe Suma::Redis do
       ENV.delete("HEROKU_APP_ID")
     end
   end
+
+  describe "cache_key" do
+    it "returns a key" do
+      expect(Suma::Redis.cache_key(["x", "y"])).to eq("cache/x/y")
+    end
+  end
 end

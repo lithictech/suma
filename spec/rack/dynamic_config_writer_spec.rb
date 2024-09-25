@@ -48,4 +48,15 @@ RSpec.describe Rack::DynamicConfigWriter do
     dcw.emplace({"x" => "3"})
     expect(File.read(index)).to eq("<html><head><script>globals.x={\"x\":\"3\"}</script></head><body></body></html>")
   end
+
+  describe "pick_env" do
+    let(:env) { {"FOO1" => "x1", "FOO2" => "x2", "BAR2" => "y2"} }
+    it "picks keys with a prefix" do
+      expect(described_class.pick_env("FOO", env)).to eq({"FOO1" => "x1", "FOO2" => "x2"})
+    end
+
+    it "picks keys matching a regex" do
+      expect(described_class.pick_env(/2/, env)).to eq({"FOO2" => "x2", "BAR2" => "y2"})
+    end
+  end
 end

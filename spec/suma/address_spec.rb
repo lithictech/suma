@@ -1,11 +1,20 @@
 # frozen_string_literal: true
 
-require "geokit"
-
 RSpec.describe "Suma::Address", :db do
   let(:described_class) { Suma::Address }
 
   let(:geoloc) { Suma::Fixtures.geolocation }
+
+  it "can be inspected" do
+    a = Suma::Fixtures.address.create
+    expect(a.inspect).to include(a.address1)
+    expect(a.location_string).to eq("")
+
+    a = Suma::Fixtures.address.with_geocoding_data.create
+    expect(a.location_string).to match(/\[\d+\.\d+°[NS], \d+\.\d+°[EW]\]/)
+
+    expect(Suma::Address.empty.inspect).to include("Suma::Address")
+  end
 
   it "can be limited to instances that are geocoded in the US" do
     us_geoloc = geoloc.successful.instance

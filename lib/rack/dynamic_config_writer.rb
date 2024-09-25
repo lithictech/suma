@@ -50,8 +50,8 @@ class Rack::DynamicConfigWriter
     FileUtils.move(@index_html_path, @index_html_backup)
   end
 
-  def self.pick_env(regex_or_prefix)
-    return ENV.to_a.select { |(k, _v)| k.start_with?(regex_or_prefix) }.to_h if regex_or_prefix.is_a?(String)
-    return ENV.to_a.select { |(k, _v)| regex_or_prefix.match?(k) }.to_h
+  def self.pick_env(regex_or_prefix, env=ENV)
+    return env.to_a.select { |(k, _v)| k.start_with?(regex_or_prefix) }.to_h if regex_or_prefix.is_a?(String)
+    return env.to_a.select { |(k, _v)| regex_or_prefix.match?(k) }.to_h
   end
 end

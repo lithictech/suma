@@ -23,13 +23,6 @@ module Suma::Fixtures::Geolocations
     self.precision = "address"
   end
 
-  decorator :from_geo_hash do |h|
-    h.each do |k, v|
-      m = :"#{k}="
-      self.send(m, v) if self.respond_to?(m)
-    end
-  end
-
   decorator :mork_and_mindys_house do
     self.lat = 40.021391
     self.lng = -105.274983

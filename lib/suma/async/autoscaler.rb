@@ -15,6 +15,8 @@ module Suma::Async::Autoscaler
   end
 
   class << self
+    attr_reader :instance
+
     def start
       raise "already started" unless @instance.nil?
 

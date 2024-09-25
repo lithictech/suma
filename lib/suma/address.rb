@@ -50,12 +50,6 @@ class Suma::Address < Suma::Postgres::Model(:addresses)
       return self.where(Sequel.pg_jsonb(:geocoder_data).extract_text("country_code") => "US")
     end
 
-    ### Limit results to those with geocoder data that's at one of the given
-    ### +precisions+.
-    def with_geocoder_precision(*precisions)
-      return self.where(Sequel.pg_jsonb(:geocoder_data).extract_text("precision") => precisions)
-    end
-
     ### Limit results to those which have failed geocoding (success is false).
     def failed_geocoding
       return self.where(Sequel.pg_jsonb(:geocoder_data).extract_text("success") => "false")
@@ -187,18 +181,6 @@ class Suma::Address < Suma::Postgres::Model(:addresses)
       end
   end
 
-  def lat=(*)
-    raise "Must be set through geocoder_data="
-  end
-
-  def lng=(*)
-    raise "Must be set through geocoder_data="
-  end
-
-  def suggested_bounds_nesw=(*)
-    raise "Must be set through geocoder_data="
-  end
-
   ### Return the address as a single line in a String.
   def one_line_address(include_country: true)
     one_line_address = [
@@ -231,7 +213,7 @@ class Suma::Address < Suma::Postgres::Model(:addresses)
   ### Return the address's geographic location if it has one as a human-readable
   ### latitude and longitude. Returns +nil+ if the Address doesn't have a location.
   def location_string
-    return unless self.lat
+    return "" unless self.lat
     return "[%0.2f°%s, %0.2f°%s]" % [
       self.lat.abs,
       self.lat.positive? ? "N" : "S",
