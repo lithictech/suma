@@ -39,7 +39,7 @@ export default function TopNav() {
           as={RLink}
         >
           <img
-            alt="MySuma logo"
+            alt={t("common:suma_logo")}
             src={sumaLogo}
             width="50"
             className="d-inline-block align-top me-2"

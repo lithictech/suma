@@ -1,4 +1,5 @@
 import loaderRing from "../assets/images/loader-ring.svg";
+import { t } from "../localization";
 import clsx from "clsx";
 import React from "react";
 
@@ -20,7 +21,7 @@ export default function ScreenLoader({ show }) {
       )}
     >
       <div className="screen-loader-centerer">
-        <img src={loaderRing} alt="loading" />
+        <img src={loaderRing} alt={t("common:loading_icon")} />
       </div>
     </div>
   );

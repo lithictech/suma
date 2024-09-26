@@ -36,7 +36,11 @@ export default function Dashboard() {
   return (
     <>
       <TopAlerts />
-      <img src={foodHeaderImage} alt={t("food:title")} className="thin-header-image" />
+      <img
+        src={foodHeaderImage}
+        alt={t("food:local_food_stand")}
+        className="thin-header-image"
+      />
       <LayoutContainer gutters top>
         <div className="font-serif lead d-flex flex-column gap-3">
           <p className="mb-0">{t("dashboard:intro")}</p>

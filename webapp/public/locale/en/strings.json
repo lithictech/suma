@@ -1,4 +1,12 @@
 {
+  "alts": {
+    "business_transfer": "Two business buildings with arrows pointing to each other",
+    "check_detail_example": "Bank check showing the location of the routing number at the bottom left, account number at the bottom center, and check number at the bottom right",
+    "local_food_stand": "Market stand showing fresh fruit and vegetables",
+    "person_riding_scooter": "Person in a blue bike helmet and pink facemask riding an electric scooter down a one way street",
+    "solar_panels": "Solar panels in a field of purple flowers",
+    "suma_logo": "Suma logo showing an ear of corn on top of a coin, all within a circle and gold shaded"
+  },
   "auth": {
     "agree_aria_label": "Agree to terms",
     "sign_up_agreement": "I accept and agree to suma’s [Terms of Use](/terms-of-use) and [Privacy Policy](/privacy-policy). I also agree to receive periodic SMS and/or MMS messages from suma. Message and data rates may apply. Message frequency may vary depending on your activity and settings. Text HELP for more information. Text STOP to stop receiving messages."
@@ -202,7 +210,6 @@
     "bank_account_type": "Account Type",
     "bank_account_type_caption": "Choose which type of account this is. If you're not sure, use Checking.",
     "card_number": "Card Number",
-    "check_detail": "check detail",
     "checking": "Checking",
     "choose_organization": "Choose Affiliated Organization...",
     "choose_state": "Choose state...",

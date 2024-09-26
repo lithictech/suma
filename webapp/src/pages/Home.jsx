@@ -13,7 +13,12 @@ export default function Home() {
   return (
     <Container>
       <div className="text-center">
-        <img src={sumaLogo} alt="MySuma Logo" className="p-4" style={{ width: 250 }} />
+        <img
+          src={sumaLogo}
+          alt={t("common:suma_logo")}
+          className="p-4"
+          style={{ width: 250 }}
+        />
         <h1 className="mb-4">{t("common:welcome_to_suma")}</h1>
         <div className="button-stack">
           <Button href="/start" variant="outline-primary" as={RLink} className="w-75">
