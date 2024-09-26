@@ -277,7 +277,7 @@ function PaymentLabel({ institution, last4, name }) {
           className="me-2"
           style={{ width: "28px" }}
           src={`${institution.logoSrc}`}
-          alt={institution.name}
+          alt={t("payments:payment_institution_logo", { institution: institution.name })}
         />
       )}
       <span className="me-1">{name}</span>

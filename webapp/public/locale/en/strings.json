@@ -24,6 +24,7 @@
     "in_spanish": "En Español",
     "install_suma": "Install Suma",
     "learn_more": "Learn More",
+    "loading_icon": "Loading Icon",
     "logout": "Logout",
     "mysuma_website_link": "[www.mysuma.org](https://www.mysuma.org 'mysuma.org homepage')",
     "next": "Next",
@@ -37,6 +38,7 @@
     "scooter_cost": "{{startCost, sumaCurrency}} to start then {{costPerMinute, sumaCurrency}}/min + taxes",
     "suma_help_email": "[apphelp@mysuma.org](mailto:apphelp@mysuma.org 'suma help email')",
     "suma_help_number": "[971-351-7862](tel:971-351-7862)",
+    "suma_logo": "Suma Logo",
     "terms_of_use": "Terms of Use",
     "translate_to_english": "Translate to English",
     "translate_to_spanish": "Traducir al Español",
@@ -112,6 +114,7 @@
   },
   "food": {
     "add_card": "Add debit/credit card",
+    "add_icon": "Add Icon",
     "add_to_cart": "Add to cart",
     "address": "Address",
     "available_offerings": "Available Offerings",
@@ -156,6 +159,7 @@
     },
     "link_new_payment": "Link a new payment method to pay for this order.",
     "link_new_payment_or": "Or, link a new payment method to pay for this order.",
+    "local_food_stand": "Local Food Market Stand",
     "mobility_options": "Mobility Options",
     "no_cart_items": "This cart does not have any items.",
     "no_orders": "You haven’t place any orders yet.",
@@ -184,6 +188,7 @@
     "subsidy_and_discount_applied": "{{discountAmount, sumaCurrency}} discount from {{vendorName}} and {{subsidyAmount, sumaCurrency}} suma subsidy credit",
     "subsidy_applied": "{{subsidyAmount, sumaCurrency}} suma subsidy credit",
     "subtotal_items": "Subtotal ({{totalItems}} items): **{{customerCost, sumaCurrency}}**",
+    "subtract_icon": "Subtract Icon",
     "terms_of_use_agreement": "By clicking \"place order\" you agree to suma's [Terms of Use](/terms-of-use__blank__).",
     "title": "Food",
     "total": "{{total, sumaCurrency}}",
@@ -202,7 +207,7 @@
     "bank_account_type": "Account Type",
     "bank_account_type_caption": "Choose which type of account this is. If you're not sure, use Checking.",
     "card_number": "Card Number",
-    "check_detail": "check detail",
+    "check_detail": "Bank Check Details",
     "checking": "Checking",
     "choose_organization": "Choose Affiliated Organization...",
     "choose_state": "Choose state...",
@@ -261,8 +266,11 @@
     "location_permissions_denied": "Map location permissions are denied. Suma will attempt to find your nearest location. Please allow browser location permissions for suma.",
     "location_permissions_denied_instructions": "Map location permissions are denied. Suma will attempt to find your nearest location. [Click here]({{instructionsUrl}}) for instructions on allowing location permission for suma.",
     "mobility_start_and_per_minute": "{{surchargeCents, sumaCurrency}} to unlock, {{unitCents, sumaCurrency}} per minute",
+    "person_riding_scooter": "Person Riding Electric Scooter",
     "relink_private_account_with_vendor": "If you are signed out, you can [re-link your {{vendorName}} account](/private-accounts).",
     "reserve_scooter": "Reserve Scooter",
+    "scooter_icon": "Scooter Icon",
+    "scooter_icon_container": "Scooter Icon Container",
     "setup_private_account_with_vendor": "To get started, we'll set up a private account for you with {{vendorName}}.",
     "title": "Mobility Services",
     "trip_ended": "Your trip with {{vendor}} has ended.\n\nWe used {{totalCost, sumaCurrency}} of your Suma balance for this trip.\n\nYou saved {{discountAmount, sumaCurrency}}.",
@@ -319,6 +327,7 @@
     "no_transaction_history": "You haven't added or spent any money.",
     "payment_account_pending": "Pending",
     "payment_account_verified": "Verified",
+    "payment_institution_logo": "{{ institution }} Logo",
     "payment_intro": {
       "intro": "To add money to your account, you'll need at least one *funding source*. Usually this is a bank account, but other options maybe available to you below.",
       "privacy_statement": "Your financial information is secured using **bank-level encryption** and **never shared without your consent**. Please see [Suma's Privacy Policy]({{ externalLinks.privacyPolicy }}) for more details about how we protect and use your financial information."
@@ -393,6 +402,7 @@
   "utilities": {
     "intro": "Suma wants to make it easy for you to save money on your utility bills and make our communities more resilient against extreme weather and climate change.\n\nSign up for our free waiting list to help us build a community of members and to show that everyone deserves clean and affordable energy.",
     "page_title": "Utilities",
+    "solar_panels": "Solar Panels",
     "title": "Utilities"
   }
 }

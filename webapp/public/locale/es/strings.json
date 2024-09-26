@@ -24,6 +24,7 @@
     "in_spanish": "En Español",
     "install_suma": "Instalar suma",
     "learn_more": "Más información",
+    "loading_icon": "Símbolo De Carga",
     "logout": "Cerrar sesión",
     "mysuma_website_link": "[www.mysuma.org](https://www.mysuma.org 'mysuma.org inicio')",
     "next": "Siguiente",
@@ -37,6 +38,7 @@
     "scooter_cost": "{{startCost, sumaCurrency}} para empezar, y luego {{costPerMinute, sumaCurrency}}/min + impuestos",
     "suma_help_email": "[apphelp@mysuma.org](mailto:apphelp@mysuma.org 'correo electrónico de ayuda de suma')",
     "suma_help_number": "[971-351-7862](tel:971-351-7862)",
+    "suma_logo": "Logo De Suma",
     "terms_of_use": "Términos de Uso",
     "translate_to_english": "Translate to English",
     "translate_to_spanish": "Traducir al Español",
@@ -112,6 +114,7 @@
   },
   "food": {
     "add_card": "Añadir tarjeta de débito/crédito",
+    "add_icon": "Símbolo De Agregar",
     "add_to_cart": "Añadir al carrito",
     "address": "Dirección",
     "available_offerings": "Ofertas disponibles",
@@ -156,6 +159,7 @@
     },
     "link_new_payment": "Vincule un nuevo método de pago para pagar este pedido.",
     "link_new_payment_or": "O vincula un nuevo método de pago para pagar este pedido.",
+    "local_food_stand": "Puesto De Comida Local En El Mercado",
     "mobility_options": "Opciones de movilidad",
     "no_cart_items": "Este carrito no tiene ningún artículo.",
     "no_orders": "Aún no ha realizado ningún pedido.",
@@ -184,6 +188,7 @@
     "subsidy_and_discount_applied": "{{discountAmount, sumaCurrency}} descuento de {{vendorName}} y {{subsidyAmount, sumaCurrency}} suma subsidio crédito",
     "subsidy_applied": "{{subsidyAmount, sumaCurrency}} suma subsidio crédito",
     "subtotal_items": "Subtotal ({{totalItems}} artículos): **{{customerCost, sumaCurrency}} **",
+    "subtract_icon": "Símbolo De Restar",
     "terms_of_use_agreement": "Al hacer clic en \"realizar pedido\" usted acepta los [Términos de uso](/terms-of-use__blank__) de suma.",
     "title": "Comida",
     "total": "{{total, sumaCurrency}}",
@@ -202,7 +207,7 @@
     "bank_account_type": "Tipo de cuenta",
     "bank_account_type_caption": "Elegir el tipo de cuenta. Si no estás seguro, elige Cheques",
     "card_number": "Número de tarjeta",
-    "check_detail": "Detallos de cheque",
+    "check_detail": "Detalles De Cheque Bancario",
     "checking": "Cheques",
     "choose_organization": "Elegir Organización Afiliada...",
     "choose_state": "Elegir Estado...",
@@ -261,8 +266,11 @@
     "location_permissions_denied": "Se niegan los permisos de ubicación en el mapa. Suma intentará encontrar la ubicación más cercana. Por favor, permita permisos de ubicación del navegador para suma.",
     "location_permissions_denied_instructions": "Se niegan los permisos de ubicación en el mapa. Suma intentará encontrar la ubicación más cercana. [Haga clic aquí]({{instructionsUrl}}) para obtener instrucciones sobre cómo permitir el permiso de ubicación para suma.",
     "mobility_start_and_per_minute": "{{surchargeCents, sumaCurrency}} para iniciar, {{unitCents, sumaCurrency}} por minuto",
+    "person_riding_scooter": "Persona Conduciendo Una Patineta Eléctrica",
     "relink_private_account_with_vendor": "Si no ha iniciado sesión, puede [volver a vincular su cuenta de {{vendorName}}](/private-accounts).",
     "reserve_scooter": "Reservar una patineta eléctrica",
+    "scooter_icon": "Símbolo De Patineta",
+    "scooter_icon_container": "Contenedor De Símbolo De Patineta",
     "setup_private_account_with_vendor": "Para comenzar, configuraremos una cuenta privada para usted con {{vendorName}}.",
     "title": "Servicios de movilidad",
     "trip_ended": "Tu viaje con {{vendor}} ah terminado.\n\nUsamos {{totalCost, sumaCurrency}} de su saldo de Suma.\n\nSalvaste {{discountAmount, sumaCurrency}}.",
@@ -319,6 +327,7 @@
     "no_transaction_history": "No has añadido ni gastado fondos de tu cuenta.",
     "payment_account_pending": "Pendiente",
     "payment_account_verified": "Verificado",
+    "payment_institution_logo": "Logo De {{ institution }}",
     "payment_intro": {
       "intro": "Para añadir fondos a tu cuenta, se requiere por lo menos una *fuente de financiamiento*. Por lo regular, es una cuenta bancaria, pero pueda haber otras opciones abajo.",
       "privacy_statement": "Su información financiera está protegida mediante **cifrado de nivel bancario** y **nunca se compartirá sin su consentimiento**. Consulte la [Política de privacidad de Suma]({{externalLinks.privacyPolicy}}) para más información sobre cómo usamos y protegemos su información financiera."
@@ -393,6 +402,7 @@
   "utilities": {
     "intro": "Suma quiere facilitarle el ahorro de dinero en sus facturas de servicios públicos y hacer que nuestras comunidades sean más resilientes frente al clima extremo y el cambio climático.\n\nRegístrese en nuestra lista de espera gratuita para ayudarnos a construir una comunidad de miembros y demostrar que todos merecen energía limpia y asequible.",
     "page_title": "Servicios públicos",
+    "solar_panels": "Paneles Solares",
     "title": "Utilidades"
   }
 }

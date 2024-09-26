@@ -120,7 +120,12 @@ export default function AddToHomescreen() {
       dismissible
     >
       <Alert.Heading>
-        <img src={sumaLogo} alt="MySuma Logo" className="me-2" style={{ width: 50 }} />
+        <img
+          src={sumaLogo}
+          alt={t("common:suma_logo")}
+          className="me-2"
+          style={{ width: 50 }}
+        />
         {t("common:add_to_homescreen")}
       </Alert.Heading>
       <p>{t("common:add_to_homescreen_intro")}</p>

@@ -32,7 +32,7 @@ export default function Food() {
   }
   if (offeringsLoading) {
     return (
-      <FeaturePageHeader imgSrc={foodHeaderImage} imgAlt={t("food:title")}>
+      <FeaturePageHeader imgSrc={foodHeaderImage} imgAlt={t("food:local_food_stand")}>
         <PageLoader buffered />
       </FeaturePageHeader>
     );
@@ -40,7 +40,7 @@ export default function Food() {
   const { items } = offerings;
   if (isEmpty(items)) {
     return (
-      <FeaturePageHeader imgSrc={foodHeaderImage} imgAlt={t("food:title")}>
+      <FeaturePageHeader imgSrc={foodHeaderImage} imgAlt={t("food:local_food_stand")}>
         <WaitingList title={t("food:title")} text={t("food:intro")} survey={surveySpec} />
         <OrderHistoryLink />
       </FeaturePageHeader>
@@ -48,7 +48,7 @@ export default function Food() {
   }
   return (
     <>
-      <FeaturePageHeader imgSrc={foodHeaderImage} imgAlt={t("food:title")}>
+      <FeaturePageHeader imgSrc={foodHeaderImage} imgAlt={t("food:local_food_stand")}>
         <h2>{t("food:title")}</h2>
         <p className="mb-0">{t("food:intro")}</p>
       </FeaturePageHeader>
