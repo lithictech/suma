@@ -24,10 +24,11 @@ RSpec.describe Suma::Twilio, :db do
       expect(result).to have_attributes(sid: "VE123")
     end
 
-    it "raises twilio errors other than 404s" do
+    it "raises twilio errors other than code 20404" do
       req404 = stub_request(:post, "https://verify.twilio.com/v2/Services/VA555test/Verifications/VE404").
         with(body: {"Status" => "approved"}).
-        to_return(status: 404)
+        # twilios API error codes are passed in the body
+        to_return(status: 404, body: {code: 20_404}.to_json)
       req500 = stub_request(:post, "https://verify.twilio.com/v2/Services/VA555test/Verifications/VE500").
         with(body: {"Status" => "approved"}).
         to_return(status: 500)

@@ -41,8 +41,12 @@ module Suma::Twilio
       update(**kw)
     return response
   rescue Twilio::REST::RestError => e
-    # ignore 404s, it means twilio has approved, expired or invalidated the code already
+    # ignores 20404s, it means twilio has approved, expired or invalidated the code already
     # https://www.twilio.com/docs/verify/api/verification-check#check-a-verification
-    raise(e) unless e.code === 404
+    raise(e) unless IGNORE_TWILIO_ERROR_CODES[e.code]
   end
+
+  IGNORE_TWILIO_ERROR_CODES = {
+    20_404 => "twilio_resource_not_found",
+  }.freeze
 end
