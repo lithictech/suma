@@ -114,7 +114,6 @@
   },
   "food": {
     "add_card": "Añadir tarjeta de débito/crédito",
-    "add_icon": "Símbolo De Agregar",
     "add_to_cart": "Añadir al carrito",
     "address": "Dirección",
     "available_offerings": "Ofertas disponibles",
@@ -188,7 +187,6 @@
     "subsidy_and_discount_applied": "{{discountAmount, sumaCurrency}} descuento de {{vendorName}} y {{subsidyAmount, sumaCurrency}} suma subsidio crédito",
     "subsidy_applied": "{{subsidyAmount, sumaCurrency}} suma subsidio crédito",
     "subtotal_items": "Subtotal ({{totalItems}} artículos): **{{customerCost, sumaCurrency}} **",
-    "subtract_icon": "Símbolo De Restar",
     "terms_of_use_agreement": "Al hacer clic en \"realizar pedido\" usted acepta los [Términos de uso](/terms-of-use__blank__) de suma.",
     "title": "Comida",
     "total": "{{total, sumaCurrency}}",

@@ -114,7 +114,6 @@
   },
   "food": {
     "add_card": "Add debit/credit card",
-    "add_icon": "Add Icon",
     "add_to_cart": "Add to cart",
     "address": "Address",
     "available_offerings": "Available Offerings",
@@ -188,7 +187,6 @@
     "subsidy_and_discount_applied": "{{discountAmount, sumaCurrency}} discount from {{vendorName}} and {{subsidyAmount, sumaCurrency}} suma subsidy credit",
     "subsidy_applied": "{{subsidyAmount, sumaCurrency}} suma subsidy credit",
     "subtotal_items": "Subtotal ({{totalItems}} items): **{{customerCost, sumaCurrency}}**",
-    "subtract_icon": "Subtract Icon",
     "terms_of_use_agreement": "By clicking \"place order\" you agree to suma's [Terms of Use](/terms-of-use__blank__).",
     "title": "Food",
     "total": "{{total, sumaCurrency}}",
