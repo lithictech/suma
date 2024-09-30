@@ -377,7 +377,7 @@ function OrderSummary({ checkout, chosenInstrument }) {
           label={t("food:labels:items_count", { itemCount: itemCount })}
           price={checkout.undiscountedCost}
         />
-        <SummaryLine label="Handling" price={checkout.handling} />
+        <SummaryLine label={t("food:labels:handling")} price={checkout.handling} />
         {anyMoney(checkout.savings) && (
           <SummaryLine
             label={t("food:labels:total_savings")}
