@@ -11,11 +11,13 @@
     "community_driven_intro": "Suma developed our privacy policy for and with community members. Our work started with students at the Ida B. Wells Just Data Lab where we explored best and worst privacy policy practices. From there, we wanted to hear what community had to say about our findings and engaged in conversations with community members across Portland. Their ideas, opinions, and thoughts have been incorporated in our policy at every level.",
     "community_driven_title": "Community Driven",
     "consent": {
+      "image_alt": "Two Parties Shaking Hands In Agreement.",
       "statement": "Suma asks for consent from our users and gives the option for users to change their mind",
       "title": "Consent"
     },
     "contact_us": "Contact us",
     "education": {
+      "image_alt": "Stacked Books With An Apple On Top.",
       "statement": "Suma seeks to keep our users in the know and explains how and why we need or use your data",
       "title": "Education"
     },
@@ -24,16 +26,19 @@
     "jump_to_privacy_policy": "Click to jump to suma's privacy policy",
     "title": "Overview",
     "transparency": {
+      "image_alt": "Two Crossed Circles With Right Side Transparent.",
       "statement": "Suma collects minimal personal data from users with no hidden tricks in the fine print",
       "title": "Transparency"
     },
     "trust": {
+      "image_alt": "Hands Securing Private Information On A Device.",
       "statement": "Suma seeks to build trust with those we serve and overcome the privacy concerns preventing community from using tech",
       "title": "Trust"
     }
   },
   "sections": {
     "business_transfer": {
+      "image_alt": "Two Business Buildings With Arrows Pointing From One To The Other.",
       "list": {
         "email": "we will let you know about the change by email and/or by posting a notice on the suma platform’s homepage ($t(privacy-policy-strings:links:suma_platform_homepage)); and",
         "opt_out": "you will have the chance to opt out before information about you becomes subject to a different privacy policy"
@@ -42,10 +47,12 @@
       "title": "Business transfers"
     },
     "children_under_13": {
+      "image_alt": "A Parent And Their Child Holding Each Others Hands.",
       "paragraph": "The suma platform is not intended for children under 13 years of age. We do not knowingly collect personal information from children under 13. If you are under 13, please do not provide any information on the suma platform.",
       "title": "Children under 13"
     },
     "communications": {
+      "image_alt": "Two People Conversing With Chat Boxes Above Them.",
       "list": {
         "platform_communications": "you cannot opt out of in-platform communications.",
         "service_messages": "you cannot opt out of receiving service messages from us, including privacy policy updates, security notices and legal notices.",
@@ -60,6 +67,7 @@
     },
     "cookies_policy": {
       "conclusion": "The suma platform only uses essential cookies known as “Session Cookies,” which allow the suma platform to know who you are signed in as. These essential session cookies are required for the platform to work properly. Session Cookies expire periodically as well as when you log out of the suma platform. The suma platform does not use persistent, optional or non-essential cookies.",
+      "image_alt": "A Browser With An Internet Cookie In The Middle.",
       "paragraph": "We use cookies to help us manage the platform. Cookies are small text files that are stored on your device when you visit the suma platform. A cookie contains a unique code, which we use to recognize your device when you return to the suma platform.",
       "title": "Cookies policy"
     },
@@ -67,6 +75,7 @@
     "effective": "Effective:",
     "future_changes_to_policy": {
       "conclusion": "You can always find the most recent version of the suma platform privacy policy at $t(privacy-policy-strings:links:suma_privacy_policy). Please contact $t(privacy-policy-strings:links:suma_help_email) for any questions or concerns regarding our policy changes.",
+      "image_alt": "A Small Shield With A Checkmark In Front Of A Policy Being Written With A Pen.",
       "paragraph": "We may change the suma platform privacy policy from time to time. If we do change the suma platform privacy policy, we will let you know about the change by email and/or by posting a notice on the suma platform’s homepage $t(privacy-policy-strings:links:suma_platform_homepage). This notice will let you know what is changing and why it is changing. We will provide this notice at least 30 days before the changes take effect unless the law requires a different notice period. You will have the chance to consent to the changes at your first login to the platform after the changes take effect. If you do not consent to the changes, you will not be able to use the platform.",
       "title": "Future changes to policy"
     },
@@ -84,6 +93,7 @@
       "title": "Information retention, requests and removal"
     },
     "methods_of_collection": {
+      "image_alt": "A Folder Collecting A Personal File.",
       "list": {
         "community_partners": "**Community Partners:** We collect information from community partners (such as Hacienda CDC, Proud Ground, Home Forward, others) to help us qualify you for vendor discounts on the suma platform as well as to secure outside funding that reduces the cost of goods and services on the suma platform.",
         "cookies": "**Cookies and Log Files:** We use cookies so we know when you are logged in and we use log files to understand your activity on the platform. Please see our cookies policy to learn about the cookies we use and why.",
@@ -93,10 +103,12 @@
       "title": "How do we collect your personal information?"
     },
     "methods_of_information_usage": {
+      "image_alt": "A Person And Personal Information Documents Beside Them.",
       "paragraph": "We use personal information to power suma platform services, to qualify you for platform vendor discounts, to support subsidy from outside organizations, to communicate with you, for security and fraud prevention, and to comply with the law:",
       "title": "How do we use your personal information?"
     },
     "third_party_access": {
+      "image_alt": "Two People And A Open Lock In Between.",
       "list": {
         "personal_information": "For details on how we share certain personal information with platform vendors or subsidy providers, and how we may share certain personal information to comply with the law or resolve disputes, refer to",
         "service_providers": "**Service providers:** These are providers who help us operate the suma platform, and include payment processors and facilitators, and cloud hosting services",
@@ -122,6 +134,7 @@
       "title": "Comply with the law"
     },
     "information_removal": {
+      "image_alt": "Cleaning Up A Data Container.",
       "list": {
         "deleting_certain_data": "we may not be able to delete certain data because of legal, regulatory or subsidy reporting requirements, for purposes of safety, security, and fraud prevention, or because of an issue relating to your account such as an outstanding credit or an unresolved claim or dispute",
         "deleting_your_account": "deleting your account may not free up your email address or phone number for reuse on a new account"
@@ -130,6 +143,7 @@
       "title": "Information removal"
     },
     "information_retention": {
+      "image_alt": "A Shield With A Checkmark In Front Of A Data Container.",
       "list": {
         "information_driven_business_decisions": "making information-driven business decisions about new platform features and offerings",
         "legal_obligations": "complying with our legal obligations",

@@ -122,11 +122,13 @@ export default function PrivacyPolicyContent({ mobile }) {
                 mobile={mobile}
                 sectionKey="overview:transparency"
                 img={transparencyIcon}
+                imgAlt={t("overview:transparency:image_alt")}
               />
               <PedalCol
                 mobile={mobile}
                 sectionKey="overview:consent"
                 img={consentIcon}
+                imgAlt={t("overview:consent:image_alt")}
                 right={true}
               />
             </Row>
@@ -135,11 +137,13 @@ export default function PrivacyPolicyContent({ mobile }) {
                 mobile={mobile}
                 sectionKey="overview:education"
                 img={educationIcon}
+                imgAlt={t("overview:education:image_alt")}
               />
               <PedalCol
                 mobile={mobile}
                 sectionKey="overview:trust"
                 img={trustIcon}
+                imgAlt={t("overview:trust:image_alt")}
                 right={true}
               />
             </Row>
@@ -165,6 +169,7 @@ export default function PrivacyPolicyContent({ mobile }) {
               mobile={mobile}
               sectionKey="sections:methods_of_collection"
               img={methodsOfCollection}
+              imgAlt={t("sections:methods_of_collection:image_alt")}
               list={[
                 t("sections:methods_of_collection:list:registration_page"),
                 t("sections:methods_of_collection:list:cookies"),
@@ -175,6 +180,7 @@ export default function PrivacyPolicyContent({ mobile }) {
               mobile={mobile}
               sectionKey="sections:methods_of_information_usage"
               img={methodsOfInformationUsage}
+              imgAlt="sections:methods_of_information_usage:image_alt"
             >
               <PrivacyPolicySection mobile={mobile} sectionKey="subsections:services" />
               <PrivacyPolicySection
@@ -206,6 +212,7 @@ export default function PrivacyPolicyContent({ mobile }) {
               mobile={mobile}
               sectionKey="sections:cookies_policy"
               img={cookiesPolicy}
+              imgAlt="sections:cookies_policy:image_alt"
             >
               <p>{t("sections:cookies_policy:conclusion")}</p>
             </PrivacyPolicySection>
@@ -213,6 +220,7 @@ export default function PrivacyPolicyContent({ mobile }) {
               mobile={mobile}
               sectionKey="sections:third_party_access"
               img={thirdPartyAcceess}
+              imgAlt={t("sections:third_party_access:image_alt")}
               list={[
                 t("sections:third_party_access:list:service_providers"),
                 t("sections:third_party_access:list:with_your_consent"),
@@ -232,6 +240,7 @@ export default function PrivacyPolicyContent({ mobile }) {
                 mobile={mobile}
                 sectionKey="subsections:information_retention"
                 img={informationRetention}
+                imgAlt={t("subsections:information_retention:image_alt")}
                 list={[
                   t("subsections:information_retention:list:qualifications"),
                   t("subsections:information_retention:list:maintain_performance"),
@@ -247,6 +256,7 @@ export default function PrivacyPolicyContent({ mobile }) {
                 mobile={mobile}
                 sectionKey="subsections:information_removal"
                 img={informationRemoval}
+                imgAlt={t("subsections:information_retention:image_alt")}
                 list={[
                   t("subsections:information_removal:list:deleting_your_account"),
                   t("subsections:information_removal:list:deleting_certain_data"),
@@ -257,6 +267,7 @@ export default function PrivacyPolicyContent({ mobile }) {
               mobile={mobile}
               sectionKey="sections:business_transfer"
               img={businessTransfer}
+              imgAlt={t("sections:business_transfer:image_alt")}
               list={[
                 t("sections:business_transfer:list:email"),
                 t("sections:business_transfer:list:opt_out"),
@@ -266,11 +277,13 @@ export default function PrivacyPolicyContent({ mobile }) {
               mobile={mobile}
               sectionKey="sections:children_under_13"
               img={childrenUnder13}
+              imgAlt={t("sections:children_under_13:image_alt")}
             />
             <PrivacyPolicySection
               mobile={mobile}
               sectionKey="sections:communications"
               img={communication}
+              imgAlt={t("sections:communications:image_alt")}
               list={[
                 t("sections:communications:list:platform_communications"),
                 t("sections:communications:list:service_messages"),
@@ -282,6 +295,7 @@ export default function PrivacyPolicyContent({ mobile }) {
               sectionKey="sections:future_changes_to_policy"
               p={t("sections:future_changes_to_policy:paragraph")}
               img={policyChanges}
+              imgAlt={t("sections:future_changes_to_policy:image_alt")}
             >
               <p>{t("sections:future_changes_to_policy:conclusion")}</p>
             </PrivacyPolicySection>
@@ -368,7 +382,7 @@ const TabLink = ({ to, label }) => {
   );
 };
 
-const PedalCol = ({ sectionKey, img, right, mobile }) => {
+const PedalCol = ({ sectionKey, img, imgAlt, right, mobile }) => {
   const title = t(sectionKey + ":title");
   return (
     <Col xs={12} className={clsx("mb-4", !mobile && "mb-lg-0 px-sm-5 px-lg-2 col-lg-6")}>
@@ -379,7 +393,7 @@ const PedalCol = ({ sectionKey, img, right, mobile }) => {
       >
         <img
           src={img}
-          alt={title}
+          alt={imgAlt}
           className={clsx(right && "order-last", right && !mobile && "order-lg-last")}
         />
         <div
@@ -397,7 +411,7 @@ const PedalCol = ({ sectionKey, img, right, mobile }) => {
   );
 };
 
-const PrivacyPolicySection = ({ p, img, list, sectionKey, children, mobile }) => {
+const PrivacyPolicySection = ({ p, img, imgAlt, list, sectionKey, children, mobile }) => {
   const subsection = sectionKey.startsWith("sub");
   const id = subsection ? undefined : makeSectionId(sectionKey);
   const title = t(sectionKey + ":title");
@@ -415,7 +429,7 @@ const PrivacyPolicySection = ({ p, img, list, sectionKey, children, mobile }) =>
       {img && (
         <img
           src={img}
-          alt={title}
+          alt={imgAlt}
           className={clsx(
             "privacy-policy-image d-block ms-4 mb-4",
             !mobile && "float-md-end mx-md-4"
