@@ -96,12 +96,22 @@ module Suma::API::Entities
     expose :subscriptions, with: PreferencesSubscriptionEntity
   end
 
+  class ProgramEnrollmentEntity < BaseEntity
+    expose_translated :name, &self.delegate_to(:program, :name)
+    expose_translated :description, &self.delegate_to(:program, :description)
+    expose :image, with: ImageEntity, &self.delegate_to(:program, :image?)
+    expose :is_utility, &self.delegate_to(:program, :is_utility)
+  end
+
   class CurrentMemberEntity < Suma::Service::Entities::CurrentMember
     expose :unclaimed_orders_count, &self.delegate_to(:orders_dataset, :available_to_claim, :count)
     expose :ongoing_trip
     expose :read_only_mode?, as: :read_only_mode
     expose :read_only_reason
     expose :usable_payment_instruments, with: PaymentInstrumentEntity
+    expose :active_programs, with: ProgramEnrollmentEntity do |m|
+      m.program_enrollments_dataset.active.all
+    end
     expose :admin_member, expose_nil: false, with: Suma::Service::Entities::CurrentMember do |_|
       self.current_session.impersonation? ? self.current_session.member : nil
     end
