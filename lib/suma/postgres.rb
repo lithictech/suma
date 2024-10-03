@@ -91,6 +91,8 @@ module Suma::Postgres
     "suma/payment/payout_transaction",
     "suma/payment/payout_transaction/audit_log",
     "suma/payment/payout_transaction/stripe_charge_refund_strategy",
+    "suma/program",
+    "suma/program/enrollment",
 
     # Move this out of alphabetical order since it requires
     # all transaction types to be loaded (fake strategy
