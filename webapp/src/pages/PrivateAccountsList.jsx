@@ -7,7 +7,7 @@ import LinearBreadcrumbs from "../components/LinearBreadcrumbs";
 import PageLoader from "../components/PageLoader";
 import SumaImage from "../components/SumaImage";
 import SumaMarkdown from "../components/SumaMarkdown";
-import { t } from "../localization";
+import { imageAltT, t } from "../localization";
 import ScrollTopOnMount from "../shared/ScrollToTopOnMount";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
 import useMountEffect from "../shared/react/useMountEffect";
@@ -202,7 +202,7 @@ function PrivateAccount({ account, onHelp }) {
             <h5>{t("private_accounts:polling")}</h5>
             <p>{t("private_accounts:polling_detail")}</p>
           </div>
-          <img src={loaderRing} width="80" height="80" alt={t("common:loading_icon")} />
+          <img src={loaderRing} width="80" height="80" alt={imageAltT("loading_icon")} />
         </Stack>
       </Alert>
     );

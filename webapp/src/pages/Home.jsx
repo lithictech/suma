@@ -3,7 +3,7 @@ import AddToHomescreen from "../components/AddToHomescreen";
 import ExternalLink from "../components/ExternalLink";
 import RLink from "../components/RLink";
 import TranslationToggle from "../components/TranslationToggle";
-import { t } from "../localization";
+import { imageAltT, t } from "../localization";
 import externalLinks from "../modules/externalLinks";
 import React from "react";
 import Button from "react-bootstrap/Button";
@@ -15,7 +15,7 @@ export default function Home() {
       <div className="text-center">
         <img
           src={sumaLogo}
-          alt={t("common:suma_logo")}
+          alt={imageAltT("suma_logo")}
           className="p-4"
           style={{ width: 250 }}
         />

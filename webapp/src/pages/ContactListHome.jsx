@@ -1,7 +1,7 @@
 import sumaLogo from "../assets/images/suma-logo-word-512.png";
 import ContactListTags from "../components/ContactListTags";
 import RLink from "../components/RLink";
-import { t } from "../localization";
+import { imageAltT, t } from "../localization";
 import useI18n from "../localization/useI18n";
 import useBackendGlobals from "../state/useBackendGlobals";
 import React from "react";
@@ -15,7 +15,7 @@ export default function ContactListHome() {
     <Container className="text-center">
       <img
         src={sumaLogo}
-        alt={t("common:suma_logo")}
+        alt={imageAltT("suma_logo")}
         className="p-4"
         style={{ width: 250 }}
       />

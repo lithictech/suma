@@ -4,7 +4,7 @@ import FormError from "../components/FormError";
 import LinearBreadcrumbs from "../components/LinearBreadcrumbs";
 import RLink from "../components/RLink";
 import config from "../config";
-import { t } from "../localization";
+import { imageAltT, t } from "../localization";
 import useToggle from "../shared/react/useToggle";
 import useBackendGlobals from "../state/useBackendGlobals";
 import { extractErrorCode, useError } from "../state/useError";
@@ -75,7 +75,7 @@ function InstrumentLine({ instrument }) {
                 className="me-2"
                 width="28px"
                 src={`${instrument.institution.logoSrc}`}
-                alt={t("payments:payment_institution_logo", {
+                alt={imageAltT("payment_institution_logo", {
                   institution: instrument.institution.name,
                 })}
               />

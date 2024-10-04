@@ -7,7 +7,7 @@ import GoHome from "../components/GoHome";
 import LinearBreadcrumbs from "../components/LinearBreadcrumbs";
 import RLink from "../components/RLink";
 import config from "../config";
-import { t } from "../localization";
+import { imageAltT, t } from "../localization";
 import keepDigits from "../modules/keepDigits";
 import useHashToggle from "../shared/react/useHashToggle";
 import { extractErrorCode, useError } from "../state/useError";
@@ -242,7 +242,7 @@ function LinkBankAccount({ onSuccess, returnTo }) {
             <p>{t("payments:check_details_subtitle")}</p>
             <img
               src={bankAccountCheckDetails}
-              alt={t("payments:check_detail")}
+              alt={imageAltT("check_detail_example")}
               className="w-100"
             />
           </Modal.Body>
