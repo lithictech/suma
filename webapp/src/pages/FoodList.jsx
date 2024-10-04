@@ -100,7 +100,7 @@ function Product({ product, offeringId }) {
   return (
     <Col xs={6} className="mb-4">
       <div className="position-relative">
-        <SumaImage image={images[0]} alt={name} className="w-100" w={225} h={150} />
+        <SumaImage image={images[0]} className="w-100" w={225} h={150} />
         <h5 className="mb-2 mt-2">{name}</h5>
         {outOfStock ? (
           <p className="text-secondary">{t("food:sold_out")}</p>

@@ -455,13 +455,7 @@ function CheckoutItem({ item }) {
   const { product, quantity } = item;
   return (
     <Stack direction="horizontal" gap={3} className="align-items-start">
-      <SumaImage
-        image={product.images[0]}
-        alt={product.name}
-        className="rounded"
-        w={80}
-        h={80}
-      />
+      <SumaImage image={product.images[0]} className="rounded" w={80} h={80} />
       {product.outOfStock ? (
         <Stack>
           <h6 className="mb-2">{product.name}</h6>
