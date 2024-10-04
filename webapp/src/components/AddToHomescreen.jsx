@@ -1,6 +1,6 @@
 import sumaLogo from "../assets/images/suma-logo-word-512.png";
 import config from "../config";
-import { t } from "../localization";
+import { imageAltT, t } from "../localization";
 import useLocalStorageState from "../shared/react/useLocalStorageState";
 import useToggle from "../shared/react/useToggle";
 import PageLoader from "./PageLoader";
@@ -120,7 +120,12 @@ export default function AddToHomescreen() {
       dismissible
     >
       <Alert.Heading>
-        <img src={sumaLogo} alt="MySuma Logo" className="me-2" style={{ width: 50 }} />
+        <img
+          src={sumaLogo}
+          alt={imageAltT("suma_logo")}
+          className="me-2"
+          style={{ width: 50 }}
+        />
         {t("common:add_to_homescreen")}
       </Alert.Heading>
       <p>{t("common:add_to_homescreen_intro")}</p>

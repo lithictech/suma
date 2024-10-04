@@ -2,6 +2,7 @@ import SumaMarkdown from "../components/SumaMarkdown";
 import externalLinks from "../modules/externalLinks";
 import { Logger } from "../shared/logger";
 import i18n from "./i18n";
+import { capitalize } from "lodash";
 import React from "react";
 
 const runChecks = import.meta.env.DEV;
@@ -67,3 +68,19 @@ export class Lookup {
 
 const lu = new Lookup("strings");
 export const t = lu.t;
+
+/**
+ * Applies image alt 'best practices' to localization strings like
+ * punctuation and capitalization, then returns it.
+ * @param altKey the key to find the localized string
+ * @param i18noptions
+ * @returns {string} i18n localized alt string
+ */
+export function imageAltT(altKey, i18noptions = {}) {
+  let altStr = t("alts." + altKey, i18noptions);
+  const lastChar = altStr[altStr.length - 1];
+  if (lastChar !== ".") {
+    altStr += ".";
+  }
+  return capitalize(altStr);
+}

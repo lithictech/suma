@@ -95,13 +95,7 @@ function Item({ item }) {
   const { product, quantity } = item;
   return (
     <Stack direction="horizontal" gap={3} className="mb-3 align-items-start">
-      <SumaImage
-        image={product.images[0]}
-        alt={product.name}
-        className="rounded"
-        w={90}
-        h={90}
-      />
+      <SumaImage image={product.images[0]} className="rounded" w={90} h={90} />
       <Stack>
         <p className="mb-0 lead">{product.name}</p>
         <p className="text-secondary mb-0">

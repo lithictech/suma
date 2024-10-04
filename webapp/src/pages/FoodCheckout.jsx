@@ -9,7 +9,7 @@ import LinearBreadcrumbs from "../components/LinearBreadcrumbs";
 import PageLoader from "../components/PageLoader";
 import RLink from "../components/RLink";
 import SumaImage from "../components/SumaImage";
-import { t } from "../localization";
+import { imageAltT, t } from "../localization";
 import idempotency from "../modules/idempotency";
 import ScrollTopOnMount from "../shared/ScrollToTopOnMount";
 import { anyMoney } from "../shared/money";
@@ -277,7 +277,7 @@ function PaymentLabel({ institution, last4, name }) {
           className="me-2"
           style={{ width: "28px" }}
           src={`${institution.logoSrc}`}
-          alt={institution.name}
+          alt={imageAltT("payment_institution_logo", { institution: institution.name })}
         />
       )}
       <span className="me-1">{name}</span>
@@ -377,7 +377,7 @@ function OrderSummary({ checkout, chosenInstrument }) {
           label={t("food:labels:items_count", { itemCount: itemCount })}
           price={checkout.undiscountedCost}
         />
-        <SummaryLine label="Handling" price={checkout.handling} />
+        <SummaryLine label={t("food:labels:handling")} price={checkout.handling} />
         {anyMoney(checkout.savings) && (
           <SummaryLine
             label={t("food:labels:total_savings")}
@@ -455,13 +455,7 @@ function CheckoutItem({ item }) {
   const { product, quantity } = item;
   return (
     <Stack direction="horizontal" gap={3} className="align-items-start">
-      <SumaImage
-        image={product.images[0]}
-        alt={product.name}
-        className="rounded"
-        w={80}
-        h={80}
-      />
+      <SumaImage image={product.images[0]} className="rounded" w={80} h={80} />
       {product.outOfStock ? (
         <Stack>
           <h6 className="mb-2">{product.name}</h6>
