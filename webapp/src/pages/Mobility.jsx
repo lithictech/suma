@@ -6,7 +6,7 @@ import { MdLink } from "../components/SumaMarkdown";
 import WaitingList from "../components/WaitingList";
 import Map from "../components/mobilitymap/Map";
 import config from "../config";
-import { t } from "../localization";
+import { imageAltT, t } from "../localization";
 import { useError } from "../state/useError";
 import React from "react";
 import Alert from "react-bootstrap/Alert";
@@ -16,7 +16,7 @@ export default function Mobility() {
     return (
       <FeaturePageHeader
         imgSrc={mobilityHeaderImage}
-        imgAlt={t("mobility:person_riding_scooter")}
+        imgAlt={imageAltT("person_riding_scooter")}
       >
         <WaitingList
           title={t("mobility:title")}

@@ -55,8 +55,8 @@ export default class MapBuilder {
     });
     this._scooterIcon = this._l.divIcon({
       html: `
-        <img src="${scooterContainer}" alt={t("mobility:scooter_icon_container")}/>
-        <img src="${scooterIcon}" class="mobility-map-icon-img" alt={t("mobility:scooter_icon")}/>
+        <img src="${scooterContainer}" alt=""/>
+        <img src="${scooterIcon}" class="mobility-map-icon-img" alt=""/>
       `,
       className: "mobility-map-icon",
       iconSize: [43.4, 52.6],

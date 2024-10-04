@@ -6,7 +6,7 @@ import LayoutContainer from "../components/LayoutContainer";
 import PageLoader from "../components/PageLoader";
 import SeeAlsoAlert from "../components/SeeAlsoAlert";
 import VendibleCard from "../components/VendibleCard";
-import { t } from "../localization";
+import { imageAltT, t } from "../localization";
 import externalLinks from "../modules/externalLinks";
 import readOnlyReason from "../modules/readOnlyReason";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
@@ -38,7 +38,7 @@ export default function Dashboard() {
       <TopAlerts />
       <img
         src={foodHeaderImage}
-        alt={t("food:local_food_stand")}
+        alt={imageAltT("local_food_stand")}
         className="thin-header-image"
       />
       <LayoutContainer gutters top>

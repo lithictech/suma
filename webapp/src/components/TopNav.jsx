@@ -1,5 +1,5 @@
 import sumaLogo from "../assets/images/suma-logo-plain-128.png";
-import { t } from "../localization";
+import { imageAltT, t } from "../localization";
 import useI18n from "../localization/useI18n";
 import signOut from "../modules/signOut";
 import useBackendGlobals from "../state/useBackendGlobals";
@@ -39,7 +39,7 @@ export default function TopNav() {
           as={RLink}
         >
           <img
-            alt={t("common:suma_logo")}
+            alt={imageAltT("suma_logo")}
             src={sumaLogo}
             width="50"
             className="d-inline-block align-top me-2"

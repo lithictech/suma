@@ -16,7 +16,7 @@ import "../assets/styles/privacy-policy.scss";
 import ELink from "../components/ELink";
 import LayoutContainer from "../components/LayoutContainer";
 import ScreenLoader from "../components/ScreenLoader";
-import { Lookup, t as loct } from "../localization";
+import { imageAltT, Lookup, t as loct } from "../localization";
 import { useCurrentLanguage } from "../localization/currentLanguage";
 import useI18n from "../localization/useI18n";
 import useMountEffect from "../shared/react/useMountEffect";
@@ -122,13 +122,13 @@ export default function PrivacyPolicyContent({ mobile }) {
                 mobile={mobile}
                 sectionKey="overview:transparency"
                 img={transparencyIcon}
-                imgAlt={t("overview:transparency:image_alt")}
+                imgAlt={imageAltT("privacy_transparency")}
               />
               <PedalCol
                 mobile={mobile}
                 sectionKey="overview:consent"
                 img={consentIcon}
-                imgAlt={t("overview:consent:image_alt")}
+                imgAlt={imageAltT("privacy_consent")}
                 right={true}
               />
             </Row>
@@ -137,13 +137,13 @@ export default function PrivacyPolicyContent({ mobile }) {
                 mobile={mobile}
                 sectionKey="overview:education"
                 img={educationIcon}
-                imgAlt={t("overview:education:image_alt")}
+                imgAlt={imageAltT("privacy_education")}
               />
               <PedalCol
                 mobile={mobile}
                 sectionKey="overview:trust"
                 img={trustIcon}
-                imgAlt={t("overview:trust:image_alt")}
+                imgAlt={imageAltT("privacy_trust")}
                 right={true}
               />
             </Row>
@@ -169,7 +169,7 @@ export default function PrivacyPolicyContent({ mobile }) {
               mobile={mobile}
               sectionKey="sections:methods_of_collection"
               img={methodsOfCollection}
-              imgAlt={t("sections:methods_of_collection:image_alt")}
+              imgAlt={imageAltT("information_collection")}
               list={[
                 t("sections:methods_of_collection:list:registration_page"),
                 t("sections:methods_of_collection:list:cookies"),
@@ -180,7 +180,7 @@ export default function PrivacyPolicyContent({ mobile }) {
               mobile={mobile}
               sectionKey="sections:methods_of_information_usage"
               img={methodsOfInformationUsage}
-              imgAlt="sections:methods_of_information_usage:image_alt"
+              imgAlt={imageAltT("information_usage")}
             >
               <PrivacyPolicySection mobile={mobile} sectionKey="subsections:services" />
               <PrivacyPolicySection
@@ -212,7 +212,7 @@ export default function PrivacyPolicyContent({ mobile }) {
               mobile={mobile}
               sectionKey="sections:cookies_policy"
               img={cookiesPolicy}
-              imgAlt="sections:cookies_policy:image_alt"
+              imgAlt={imageAltT("cookies_policy")}
             >
               <p>{t("sections:cookies_policy:conclusion")}</p>
             </PrivacyPolicySection>
@@ -220,7 +220,7 @@ export default function PrivacyPolicyContent({ mobile }) {
               mobile={mobile}
               sectionKey="sections:third_party_access"
               img={thirdPartyAcceess}
-              imgAlt={t("sections:third_party_access:image_alt")}
+              imgAlt={imageAltT("third_party_access")}
               list={[
                 t("sections:third_party_access:list:service_providers"),
                 t("sections:third_party_access:list:with_your_consent"),
@@ -240,7 +240,7 @@ export default function PrivacyPolicyContent({ mobile }) {
                 mobile={mobile}
                 sectionKey="subsections:information_retention"
                 img={informationRetention}
-                imgAlt={t("subsections:information_retention:image_alt")}
+                imgAlt={imageAltT("information_retention")}
                 list={[
                   t("subsections:information_retention:list:qualifications"),
                   t("subsections:information_retention:list:maintain_performance"),
@@ -256,7 +256,7 @@ export default function PrivacyPolicyContent({ mobile }) {
                 mobile={mobile}
                 sectionKey="subsections:information_removal"
                 img={informationRemoval}
-                imgAlt={t("subsections:information_retention:image_alt")}
+                imgAlt={imageAltT("information_removal")}
                 list={[
                   t("subsections:information_removal:list:deleting_your_account"),
                   t("subsections:information_removal:list:deleting_certain_data"),
@@ -267,7 +267,7 @@ export default function PrivacyPolicyContent({ mobile }) {
               mobile={mobile}
               sectionKey="sections:business_transfer"
               img={businessTransfer}
-              imgAlt={t("sections:business_transfer:image_alt")}
+              imgAlt={imageAltT("business_transfer")}
               list={[
                 t("sections:business_transfer:list:email"),
                 t("sections:business_transfer:list:opt_out"),
@@ -277,13 +277,13 @@ export default function PrivacyPolicyContent({ mobile }) {
               mobile={mobile}
               sectionKey="sections:children_under_13"
               img={childrenUnder13}
-              imgAlt={t("sections:children_under_13:image_alt")}
+              imgAlt={imageAltT("children_under_13")}
             />
             <PrivacyPolicySection
               mobile={mobile}
               sectionKey="sections:communications"
               img={communication}
-              imgAlt={t("sections:communications:image_alt")}
+              imgAlt={imageAltT("communications")}
               list={[
                 t("sections:communications:list:platform_communications"),
                 t("sections:communications:list:service_messages"),
@@ -295,7 +295,7 @@ export default function PrivacyPolicyContent({ mobile }) {
               sectionKey="sections:future_changes_to_policy"
               p={t("sections:future_changes_to_policy:paragraph")}
               img={policyChanges}
-              imgAlt={t("sections:future_changes_to_policy:image_alt")}
+              imgAlt={imageAltT("future_changes_to_policy")}
             >
               <p>{t("sections:future_changes_to_policy:conclusion")}</p>
             </PrivacyPolicySection>

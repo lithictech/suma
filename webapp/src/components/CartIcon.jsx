@@ -1,5 +1,5 @@
 import loaderRing from "../assets/images/loader-ring.svg";
-import { t } from "../localization";
+import { imageAltT } from "../localization";
 import clsx from "clsx";
 import React from "react";
 
@@ -34,7 +34,7 @@ export default function CartIcon({ className, cart }) {
           "cart-icon-loader start-50 translate-middle-x h-100",
           cartLoading && "loading"
         )}
-        alt={t("food:cart_item_loading")}
+        alt={imageAltT("cart_item_loading")}
       />
     </span>
   );

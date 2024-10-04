@@ -1,4 +1,27 @@
 {
+  "alts": {
+    "business_transfer": "Two business buildings with arrows pointing to each other",
+    "check_detail_example": "Example of bank check details",
+    "children_under_13": "A parent and their child holding each others hands",
+    "communications": "Suma staff and suma member communicating with chat boxes",
+    "cookies_policy": "A browser with an Internet Cookie in the middle",
+    "future_changes_to_policy": "A small shield with a checkmark protecting changes of a privacy policy",
+    "information_collection": "A folder collecting a personal file",
+    "information_removal": "Cleaning up a data container",
+    "information_retention": "A shield with a checkmark protecting a data container",
+    "information_usage": "A person and their personal information documents",
+    "loading_icon": "Loading icon",
+    "local_food_stand": "Local food market stand",
+    "payment_institution_logo": "{{ institution }} logo",
+    "person_riding_scooter": "Person riding electric scooter",
+    "privacy_consent": "Two parties shaking hands in agreement",
+    "privacy_education": "Stacked books with an apple on top",
+    "privacy_transparency": "Two crossed circles with right side transparent",
+    "privacy_trust": "Suma staff securing private information on a device",
+    "solar_panels": "Solar panels",
+    "suma_logo": "Suma logo",
+    "third_party_access": "Two people and a open lock in between"
+  },
   "auth": {
     "agree_aria_label": "Agree to terms",
     "sign_up_agreement": "I accept and agree to suma’s [Terms of Use](/terms-of-use) and [Privacy Policy](/privacy-policy). I also agree to receive periodic SMS and/or MMS messages from suma. Message and data rates may apply. Message frequency may vary depending on your activity and settings. Text HELP for more information. Text STOP to stop receiving messages."
@@ -24,7 +47,6 @@
     "in_spanish": "En Español",
     "install_suma": "Install Suma",
     "learn_more": "Learn More",
-    "loading_icon": "Loading Icon",
     "logout": "Logout",
     "mysuma_website_link": "[www.mysuma.org](https://www.mysuma.org 'mysuma.org homepage')",
     "next": "Next",
@@ -38,7 +60,6 @@
     "scooter_cost": "{{startCost, sumaCurrency}} to start then {{costPerMinute, sumaCurrency}}/min + taxes",
     "suma_help_email": "[apphelp@mysuma.org](mailto:apphelp@mysuma.org 'suma help email')",
     "suma_help_number": "[971-351-7862](tel:971-351-7862)",
-    "suma_logo": "Suma Logo",
     "terms_of_use": "Terms of Use",
     "translate_to_english": "Translate to English",
     "translate_to_spanish": "Traducir al Español",
@@ -158,7 +179,6 @@
     },
     "link_new_payment": "Link a new payment method to pay for this order.",
     "link_new_payment_or": "Or, link a new payment method to pay for this order.",
-    "local_food_stand": "Local Food Market Stand",
     "mobility_options": "Mobility Options",
     "no_cart_items": "This cart does not have any items.",
     "no_orders": "You haven’t place any orders yet.",
@@ -205,7 +225,6 @@
     "bank_account_type": "Account Type",
     "bank_account_type_caption": "Choose which type of account this is. If you're not sure, use Checking.",
     "card_number": "Card Number",
-    "check_detail": "Bank Check Details",
     "checking": "Checking",
     "choose_organization": "Choose Affiliated Organization...",
     "choose_state": "Choose state...",
@@ -264,7 +283,6 @@
     "location_permissions_denied": "Map location permissions are denied. Suma will attempt to find your nearest location. Please allow browser location permissions for suma.",
     "location_permissions_denied_instructions": "Map location permissions are denied. Suma will attempt to find your nearest location. [Click here]({{instructionsUrl}}) for instructions on allowing location permission for suma.",
     "mobility_start_and_per_minute": "{{surchargeCents, sumaCurrency}} to unlock, {{unitCents, sumaCurrency}} per minute",
-    "person_riding_scooter": "Person Riding Electric Scooter",
     "relink_private_account_with_vendor": "If you are signed out, you can [re-link your {{vendorName}} account](/private-accounts).",
     "reserve_scooter": "Reserve Scooter",
     "scooter_icon": "Scooter Icon",
@@ -325,7 +343,6 @@
     "no_transaction_history": "You haven't added or spent any money.",
     "payment_account_pending": "Pending",
     "payment_account_verified": "Verified",
-    "payment_institution_logo": "{{ institution }} Logo",
     "payment_intro": {
       "intro": "To add money to your account, you'll need at least one *funding source*. Usually this is a bank account, but other options maybe available to you below.",
       "privacy_statement": "Your financial information is secured using **bank-level encryption** and **never shared without your consent**. Please see [Suma's Privacy Policy]({{ externalLinks.privacyPolicy }}) for more details about how we protect and use your financial information."
@@ -400,7 +417,6 @@
   "utilities": {
     "intro": "Suma wants to make it easy for you to save money on your utility bills and make our communities more resilient against extreme weather and climate change.\n\nSign up for our free waiting list to help us build a community of members and to show that everyone deserves clean and affordable energy.",
     "page_title": "Utilities",
-    "solar_panels": "Solar Panels",
     "title": "Utilities"
   }
 }
