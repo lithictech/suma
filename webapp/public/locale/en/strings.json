@@ -90,7 +90,7 @@
     "invalid_order_quantity": "Sorry, one or more of the items in your order are unavailable. Please go back to your cart and try again.",
     "invalid_otp": "That token is not valid. Enter it again, or request a new code.",
     "invalid_permissions": "You are not allowed to do that.",
-    "mobility_coming_soon": "Thank you for your interest! We’re currently fixing an issue with our e-scooter integration. We’re aiming to have it back shortly.\n\nEmail us at $t(strings:common:suma_help_email) if you’re interested in helping us test our upcoming mobility options.",
+    "mobility_coming_soon": "Thank you for your interest! We’re currently fixing an issue with our e-scooter integration. We’re aiming to have it back shortly.\n\nEmail us if you have any questions, please.",
     "network_error": "There was a network error. Connect to the internet and try again.",
     "no_active_trip": "There is no trip currently active.",
     "ongoing_trip": "You must end your ongoing trip before starting a new one.",
