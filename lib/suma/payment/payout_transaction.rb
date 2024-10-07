@@ -88,13 +88,22 @@ class Suma::Payment::PayoutTransaction < Suma::Postgres::Model(:payment_payout_t
     # Create a new payout transaction with the given parameters.
     # @param payment_account [Suma::Payment::Account] For the member/vendor/etc who is associated with this payout.
     # @param amount [Money] Amount of the payout.
-    # @param strategy [Suma::Payment::PayoutTransaction::Strategy] Strategy to use for the payout.
-    #   This must be passed in, since some payouts (like refunds) cannot be inferred by an instrument.
-    #   When we need to find the strategy based on an instrument instead, we can add a method to do the inference
-    #   (like exists in `FundingStrategy::start_new`).
+    # @param stripe_charge_id [String] Stripe charge id to use.
+    #   Uses a Charge refund strategy for stripe charges.
+    # @param strategy [Suma::Payment::PayoutTransaction::Strategy] Explicit override to use this strategy.
+    #   When using a FakeStrategy, pass it in this way.
     # @return [Suma::Payment::PayoutTransaction]
-    def start_new(payment_account, amount:, strategy:, memo: nil)
+    def start_new(payment_account, amount:, strategy: nil, stripe_charge_id: nil, memo: nil)
+      if strategy.nil?
+        strategy = @fake_strategy.respond_to?(:call) ? @fake_strategy.call : @fake_strategy
+      end
       self.db.transaction do
+        if strategy.nil?
+          raise ArgumentError, ":stripe_charge_id must be provided if :strategy is not" if stripe_charge_id.nil?
+          strategy = Suma::Payment::PayoutTransaction::StripeChargeRefundStrategy.create(stripe_charge_id:)
+        end
+        raise StrategyUnavailable, "cannot determine valid funding strategy for given arguments" unless strategy
+
         platform_ledger = Suma::Payment.ensure_cash_ledger(Suma::Payment::Account.lookup_platform_account)
         strategy.check_validity!
         memo ||= Suma::TranslatedText.create(
@@ -135,17 +144,18 @@ class Suma::Payment::PayoutTransaction < Suma::Postgres::Model(:payment_payout_t
     # no credit would be given.
     #
     # @return [Suma::Payment::PayoutTransaction]
-    def initiate_refund(funding_transaction, amount:, apply_at:, strategy:, apply_credit:)
+    def initiate_refund(funding_transaction, amount:, apply_at:, apply_credit:, stripe_charge_id: nil, strategy: nil)
       self.db.transaction do
         associated_vendor_service_category = Suma::Vendor::ServiceCategory.cash
         refund_memo = Suma::TranslatedText.create(
           en: "Refund sent to #{funding_transaction.strategy.originating_instrument.simple_label}",
           es: "Reembolso enviado a #{funding_transaction.strategy.originating_instrument.simple_label}",
         )
-        px = Suma::Payment::PayoutTransaction.start_new(
+        px = self.start_new(
           funding_transaction.originating_payment_account,
           amount:,
           strategy:,
+          stripe_charge_id:,
           memo: refund_memo,
         )
         member_ledger = Suma::Payment.ensure_cash_ledger(funding_transaction.originating_payment_account)

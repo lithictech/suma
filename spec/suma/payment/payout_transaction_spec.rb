@@ -24,6 +24,37 @@ RSpec.describe "Suma::Payment::PayoutTransaction", :db, reset_configuration: Sum
       )
     end
 
+    it "uses a charge refund strategy if originating from a stripe charge" do
+      member = Suma::Fixtures.member.registered_as_stripe_customer.create
+      card = Suma::Fixtures.card.member(member).create
+      funding_strategy = Suma::Payment::FundingTransaction::StripeCardStrategy.create(
+        originating_card: Suma::Fixtures.card.create,
+        charge_json: {id: "ch_1"}.to_json,
+      )
+      funding_xaction = Suma::Fixtures.funding_transaction.create(
+        amount: 500,
+        stripe_card_strategy: funding_strategy,
+        originating_payment_account: Suma::Fixtures.payment_account.create(member:),
+      )
+      req = stub_request(:post, "https://api.stripe.com/v1/refunds").
+        to_return(fixture_response("stripe/refund"))
+      payout_xaction = described_class.start_new(
+        funding_xaction.originating_payment_account,
+        amount: 200,
+        stripe_charge_id: "ch_1",
+        memo: Suma::Fixtures.translated_text.create,
+      )
+
+      expect(payout_xaction).to have_attributes(
+        status: "sending",
+        originating_payment_account: be === funding_xaction.originating_payment_account,
+        platform_ledger: be === Suma::Payment::Account.lookup_platform_account.cash_ledger!,
+        strategy: be_a(Suma::Payment::PayoutTransaction::StripeChargeRefundStrategy),
+      )
+      expect(payout_xaction.strategy).to have_attributes(stripe_charge_id: "ch_1")
+      expect(req).to have_been_made
+    end
+
     it "tries to send funds if the strategy says it is ready to send funds" do
       strategy = Suma::Payment::FakeStrategy.create
       strategy.set_response(:check_validity, [])

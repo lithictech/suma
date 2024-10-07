@@ -77,4 +77,55 @@ RSpec.describe Suma::AdminAPI::PayoutTransactions, :db do
       expect(last_response).to have_status(403)
     end
   end
+
+  describe "GET /v1/payout_transactions/stripe_refund" do
+    let(:stripe_charge_id) { "ch_1" }
+    let(:funding_strategy) do
+      Suma::Payment::FundingTransaction::StripeCardStrategy.create(
+        originating_card: Suma::Fixtures.card.create,
+        charge_json: {id: stripe_charge_id}.to_json,
+      )
+    end
+    let(:amount) { {cents: 500, currency: "USD"} }
+
+    it "using a stripe charge creates the payout and book transaction to the instrument owner cash ledger" do
+      member = Suma::Fixtures.member.create
+      Suma::Fixtures.funding_transaction.create(
+        stripe_card_strategy: funding_strategy,
+        originating_payment_account: Suma::Fixtures.payment_account.create(member:),
+      )
+
+      Suma::Payment::PayoutTransaction.force_fake(Suma::Payment::FakeStrategy.create.not_ready) do
+        post "/v1/payout_transactions/stripe_refund", amount:, stripe_charge_id:
+      end
+
+      expect(last_response).to have_status(200)
+      expect(last_response.headers).to include("Created-Resource-Admin")
+      expect(member.payment_account.originated_payout_transactions).to contain_exactly(
+        have_attributes(status: "created", originated_book_transaction: be_present),
+      )
+    end
+
+    it "409s if the instrument is not usable" do
+      Suma::Fixtures.funding_transaction.create(stripe_card_strategy: funding_strategy)
+
+      Suma::Payment::PayoutTransaction.force_fake(Suma::Payment::FakeStrategy.create.invalid) do
+        post "/v1/payout_transactions/stripe_refund", amount:, stripe_charge_id:
+      end
+      expect(last_response).to have_status(409)
+    end
+
+    it "403s if funding strategy does not exist with a invalid stripe charge" do
+      post "/v1/payout_transactions/stripe_refund", amount:, stripe_charge_id: "ch_invalid"
+    end
+
+    it "403s without role access" do
+      replace_roles(admin, Suma::Role.cache.noop_admin)
+
+      post "/v1/payout_transactions/stripe_refund", amount: {cents: 500, currency: "USD"}, stripe_charge_id: "ch_1"
+
+      expect(last_response).to have_status(403)
+      expect(last_response).to have_json_body.that_includes(error: include(code: "role_check"))
+    end
+  end
 end

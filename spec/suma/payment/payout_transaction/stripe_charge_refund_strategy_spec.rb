@@ -18,16 +18,22 @@ RSpec.describe "Suma::Payment::PayoutTransaction::StripeChargeRefundStrategy", :
   end
 
   describe "send_funds" do
-    it "raises if no refund is set" do
-      expect { strategy.send_funds }.to raise_error(described_class::WorkInProgressImplementation)
+    it "creates stripe refund for a charge" do
+      xaction.update(amount_cents: 2000)
+      req = stub_request(:post, "https://api.stripe.com/v1/refunds").
+        with(
+          body: hash_including(
+            "charge" => stripe_charge_id,
+            "amount" => "2000",
+          ),
+        ).to_return(**fixture_response("stripe/refund"))
+
+      expect(strategy.send_funds).to eq(true)
+      expect(req).to have_been_made
+      expect(strategy.refund_id).to eq("re_1Nispe2eZvKYlo2Cd31jOCgZ")
     end
 
-    it "raises if a not-succeeded refund is set" do
-      strategy.refund_json = {"id" => "re_abc"}.to_json
-      expect { strategy.send_funds }.to raise_error(described_class::WorkInProgressImplementation)
-    end
-
-    it "noops if a refund is present" do
+    it "noops if a refund is present and has 'succeeded' status" do
       strategy.refund_json = {"id" => "re_abc", "status" => "succeeded"}.to_json
       expect(strategy.send_funds).to eq(false)
     end

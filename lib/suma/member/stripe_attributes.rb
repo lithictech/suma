@@ -83,6 +83,26 @@ class Suma::Member::StripeAttributes
     )
   end
 
+  def refund_charge(charge_id:, amount:, idempotency_key:, metadata: {})
+    metadata = Suma::Stripe.default_metadata.merge(
+      {
+        suma_charge_id: charge_id,
+        suma_member_id: @member.id,
+        suma_member_name: @member.name,
+      },
+      metadata,
+    )
+    return Stripe::Refund.create(
+      {
+        charge: charge_id,
+        amount: amount.cents,
+        metadata:,
+      }, {
+        idempotency_key:,
+      },
+    )
+  end
+
   def update_card(card:, exp_month:, exp_year:)
     raise Suma::InvalidPrecondition, "card owner must be member" unless card.member === @member
     cust = Stripe::Customer.update_source(

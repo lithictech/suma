@@ -91,6 +91,32 @@ RSpec.describe Suma::Member::StripeAttributes, :db do
     end
   end
 
+  describe "refund creation" do
+    let(:member) { Suma::Fixtures.member.registered_as_stripe_customer.create }
+    let(:card) { Suma::Fixtures.card.member(member).create }
+
+    it "refunds a charge" do
+      req = stub_request(:post, "https://api.stripe.com/v1/refunds").
+        with(
+          body: hash_including(
+            {"amount" => "200", "charge" => "ch_1"},
+          ),
+          headers: {"Idempotency-Key" => "key"},
+          ).to_return(fixture_response("stripe/refund"))
+
+      charge = member.stripe.refund_charge(charge_id: "ch_1", amount: Money.new(200), idempotency_key: "key")
+      expect(charge.id).to eq("re_1Nispe2eZvKYlo2Cd31jOCgZ")
+      expect(req).to have_been_made
+    end
+
+    it "errors if the charge does not belong to the member" do
+      card = Suma::Fixtures.card.create
+      expect do
+        member.stripe.charge_card(card:, amount: Money.new(200), memo: "hi", idempotency_key: "idk")
+      end.to raise_error(Suma::InvalidPrecondition)
+    end
+  end
+
   describe "card update" do
     let(:member) { Suma::Fixtures.member.registered_as_stripe_customer.create }
     let(:card) { Suma::Fixtures.card.member(member).create }

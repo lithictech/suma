@@ -9,9 +9,6 @@ class Suma::Payment::PayoutTransaction::StripeChargeRefundStrategy <
   Suma::Postgres::Model(:payment_payout_transaction_stripe_charge_refund_strategies)
   include Suma::Payment::PayoutTransaction::Strategy
 
-  # Don't use a NotImplementedError since that's used for abstract methods.
-  class WorkInProgressImplementation < StandardError; end
-
   one_to_one :payout_transaction, class: "Suma::Payment::PayoutTransaction"
 
   def short_name
@@ -30,7 +27,15 @@ class Suma::Payment::PayoutTransaction::StripeChargeRefundStrategy <
 
   def send_funds
     return false if self.refund_id.present? && self.refund_json["status"] == "succeeded"
-    raise WorkInProgressImplementation, "we currently only support succeeded refunds already created in Stripe"
+    refund = self.payout_transaction.originating_payment_account.member.stripe.refund_charge(
+      charge_id: self.stripe_charge_id,
+      amount: self.payout_transaction.amount,
+      idempotency_key: Suma.idempotency_key(self, "refund"),
+      metadata: {suma_payout_transaction_id: self.payout_transaction.id},
+    )
+    self.refund_json = refund.as_json
+    refund_id_set!
+    return true
   end
 
   def funds_settled?
