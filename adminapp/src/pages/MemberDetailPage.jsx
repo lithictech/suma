@@ -14,7 +14,12 @@ import { useUser } from "../hooks/user";
 import { dayjs } from "../modules/dayConfig";
 import Money from "../shared/react/Money";
 import SafeExternalLink from "../shared/react/SafeExternalLink";
-import { Divider, Typography, Switch, Button, Chip } from "@mui/material";
+import useToggle from "../shared/react/useToggle";
+import theme from "../theme";
+import EditIcon from "@mui/icons-material/Edit";
+import { Divider, Typography, Switch, Button, Chip, Modal } from "@mui/material";
+import Box from "@mui/material/Box";
+import IconButton from "@mui/material/IconButton";
 import { makeStyles } from "@mui/styles";
 import isEmpty from "lodash/isEmpty";
 import React from "react";
@@ -96,8 +101,13 @@ export default function MemberDetailPage() {
                 { label: "Created At", value: dayjs(model.createdAt) },
                 {
                   label: "Deleted At",
-                  value: model.softDeletedAt && dayjs(model.softDeletedAt),
-                  hideEmpty: true,
+                  value: (
+                    <InlineSoftDelete
+                      id={model.id}
+                      softDeletedAt={model.softDeletedAt}
+                      onSoftDelete={(member) => setModel(member)}
+                    />
+                  ),
                 },
               ]}
             />
@@ -405,8 +415,85 @@ function ImpersonateButton({ id }) {
   );
 }
 
+function InlineSoftDelete({ id, softDeletedAt, onSoftDelete }) {
+  const { enqueueErrorSnackbar } = useErrorSnackbar();
+  const showModal = useToggle(false);
+  const classes = useStyles();
+  const handleDelete = () => {
+    api
+      .softDeleteMember({ id: id })
+      .then((r) => {
+        onSoftDelete(r.data);
+        showModal.turnOff();
+      })
+      .catch(enqueueErrorSnackbar);
+  };
+  const { canWrite } = useRoleAccess();
+  let display = "-";
+  if (canWrite("admin_members")) {
+    display = (
+      <>
+        -{" "}
+        <IconButton onClick={() => showModal.turnOn()}>
+          <EditIcon color="info" />
+        </IconButton>
+      </>
+    );
+  }
+  return (
+    <>
+      {softDeletedAt ? dayjs(softDeletedAt).format("lll") : display}
+      <Modal open={showModal.isOn}>
+        <Box className={classes.softDeleteModalBox}>
+          <Typography variant="h6">Confirm soft deletion</Typography>
+          <Typography sx={{ mt: 1 }} color="error">
+            Member deletion CANNOT be undone. Ensure that you know what you are doing
+            before continuing.
+          </Typography>
+          <Typography sx={{ mt: 1 }}>
+            "Soft delete" means an account is closed indefinitely but keeps some important
+            records attached to the account in case we need to use the data. It deletes
+            the members phone number and replaces it with an unreachable number that
+            cannot be logged into for security reasons.
+          </Typography>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              marginTop: theme.spacing(2),
+            }}
+          >
+            <Button onClick={handleDelete} variant="contained" color="error" size="small">
+              Soft Delete Member {id}
+            </Button>
+            <Button
+              variant="outlined"
+              color="secondary"
+              size="small"
+              onClick={() => showModal.turnOff()}
+            >
+              Cancel
+            </Button>
+          </div>
+        </Box>
+      </Modal>
+    </>
+  );
+}
+
 const useStyles = makeStyles((theme) => ({
   impersonate: {
     marginLeft: theme.spacing(2),
+  },
+  softDeleteModalBox: {
+    position: "absolute",
+    top: "50%",
+    left: "50%",
+    transform: "translate(-50%, -50%)",
+    width: 500,
+    padding: "1rem",
+    backgroundColor: "white",
+    boxShadow: 24,
+    borderRadius: theme.spacing(1),
   },
 }));
