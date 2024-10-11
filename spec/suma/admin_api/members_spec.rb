@@ -138,11 +138,11 @@ RSpec.describe Suma::AdminAPI::Members, :db do
     it "updates the member" do
       member = Suma::Fixtures.member.create
 
-      post "/v1/members/#{member.id}", name: "b 2", email: "b@gmail.com"
+      post "/v1/members/#{member.id}", name: "b 2", email: "b@gmail.com", phone: "12223334444"
 
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.
-        that_includes(id: member.id, name: "b 2", email: "b@gmail.com")
+        that_includes(id: member.id, name: "b 2", email: "b@gmail.com", phone: "12223334444")
     end
 
     it "replaces roles if given" do

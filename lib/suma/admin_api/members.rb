@@ -154,7 +154,7 @@ class Suma::AdminAPI::Members < Suma::AdminAPI::V1
         optional :name, type: String
         optional :note, type: String
         optional :email, type: String
-        optional :phone, type: Integer
+        optional :phone, us_phone: true, type: String, coerce_with: NormalizedPhone
         optional :timezone, type: String, values: ALL_TIMEZONES
         optional :roles, type: Array[JSON] do
           use :model_with_id
