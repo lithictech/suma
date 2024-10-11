@@ -72,7 +72,7 @@ export default function MemberForm({
           type="tel"
           variant="outlined"
           fullWidth
-          helperText="10-digit US phone number. US numbers begin with 1."
+          helperText="11-digit US phone number, begins with 1."
           onChange={setFieldFromInput}
         />
         <Roles roles={resource.roles} setRoles={(r) => setField("roles", r)} />
