@@ -186,4 +186,72 @@ RSpec.describe Suma::Http do
       )
     end
   end
+
+  describe "proxying", reset_configuration: Suma::Http do
+    let(:http_proxy_url) { "http://secureuser:securepass@us-east-static.superproxy.com:1234" }
+    let(:proxy_parts) do
+      {
+        http_proxyaddr: "us-east-static.superproxy.com",
+        http_proxypass: "securepass",
+        http_proxyport: 1234,
+        http_proxyuser: "secureuser",
+      }
+    end
+    let(:logger) { nil }
+    let(:proxy_url_envvar) { "HTTPTEST_PROXYVAR_URL" }
+
+    after(:each) do
+      ENV.delete(proxy_url_envvar)
+    end
+
+    it "uses the passed http_proxy_url" do
+      req = stub_request(:post, "https://a.b").to_return(status: 200, body: "abc")
+      expect(HTTParty::ConnectionAdapter).to receive(:call).
+        with(anything, hash_including(proxy_parts)).
+        and_call_original
+      described_class.post("https://a.b", logger:, http_proxy_url:)
+      expect(req).to have_been_made
+    end
+
+    it "uses the proxy specified in the env var in config" do
+      ENV[proxy_url_envvar] = http_proxy_url
+      described_class.reset_configuration(proxy_vars_for_hosts: {"xy" => "abcd", "a.b" => proxy_url_envvar})
+      req = stub_request(:post, "https://a.b").to_return(status: 200, body: "abc")
+      expect(HTTParty::ConnectionAdapter).to receive(:call).
+        with(anything, hash_including(proxy_parts)).
+        and_call_original
+      described_class.post("https://a.b", logger:)
+      expect(req).to have_been_made
+    end
+
+    it "prefers the passed proxy over the specified proxy" do
+      described_class.reset_configuration(proxy_vars_for_hosts: {"a.b" => "abcd"})
+      req = stub_request(:post, "https://a.b").to_return(status: 200, body: "abc")
+      expect(HTTParty::ConnectionAdapter).to receive(:call).
+        with(anything, hash_including(proxy_parts)).
+        and_call_original
+      described_class.post("https://a.b", logger:, http_proxy_url:)
+      expect(req).to have_been_made
+    end
+
+    it "can specify no proxy as an override to the configured proxy" do
+      described_class.reset_configuration(proxy_vars_for_hosts: {"a.b" => proxy_url_envvar})
+      req = stub_request(:post, "https://a.b").to_return(status: 200, body: "abc")
+      expect(HTTParty::ConnectionAdapter).to receive(:call).
+        with(anything, hash_not_including(:http_proxyaddr)).
+        and_call_original
+      described_class.post("https://a.b", logger:, http_proxy_url: false)
+      expect(req).to have_been_made
+    end
+
+    it "errors if the expected proxy env var is not present" do
+      described_class.reset_configuration(proxy_vars_for_hosts: {"a.b" => proxy_url_envvar})
+      expect do
+        described_class.post("https://a.b", logger:)
+      end.to raise_error(
+        KeyError, "env var SUMAHTTP_PROXY_VARS_FOR_HOSTS for host a.b referred to " \
+                  "HTTPTEST_PROXYVAR_URL, but HTTPTEST_PROXYVAR_URL is not set in the environment",
+      )
+    end
+  end
 end
