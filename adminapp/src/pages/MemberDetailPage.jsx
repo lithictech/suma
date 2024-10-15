@@ -23,7 +23,7 @@ import IconButton from "@mui/material/IconButton";
 import { makeStyles } from "@mui/styles";
 import isEmpty from "lodash/isEmpty";
 import React from "react";
-import { formatPhoneNumberIntl } from "react-phone-number-input";
+import { formatPhoneNumber, formatPhoneNumberIntl } from "react-phone-number-input";
 import { useParams } from "react-router-dom";
 
 export default function MemberDetailPage() {
@@ -104,6 +104,8 @@ export default function MemberDetailPage() {
                   value: (
                     <InlineSoftDelete
                       id={model.id}
+                      name={model.name}
+                      phone={formatPhoneNumber("+" + model.phone)}
                       softDeletedAt={model.softDeletedAt}
                       onSoftDelete={(member) => setModel(member)}
                     />
@@ -415,7 +417,7 @@ function ImpersonateButton({ id }) {
   );
 }
 
-function InlineSoftDelete({ id, softDeletedAt, onSoftDelete }) {
+function InlineSoftDelete({ id, name, phone, softDeletedAt, onSoftDelete }) {
   const { enqueueErrorSnackbar } = useErrorSnackbar();
   const showModal = useToggle(false);
   const classes = useStyles();
@@ -464,7 +466,7 @@ function InlineSoftDelete({ id, softDeletedAt, onSoftDelete }) {
             }}
           >
             <Button onClick={handleDelete} variant="contained" color="error" size="small">
-              Soft Delete Member {id}
+              Soft Delete {name} {phone}
             </Button>
             <Button
               variant="outlined"
