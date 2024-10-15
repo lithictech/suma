@@ -104,7 +104,7 @@ export default function MemberDetailPage() {
                   value: (
                     <InlineSoftDelete
                       id={model.id}
-                      name={model.name}
+                      name={model.name.split(" ").slice(0, 2).join(" ")}
                       phone={formatPhoneNumber("+" + model.phone)}
                       softDeletedAt={model.softDeletedAt}
                       onSoftDelete={(member) => setModel(member)}
@@ -435,7 +435,7 @@ function InlineSoftDelete({ id, name, phone, softDeletedAt, onSoftDelete }) {
   if (canWrite("admin_members")) {
     display = (
       <>
-        -{" "}
+        {"- "}
         <IconButton onClick={() => showModal.turnOn()}>
           <EditIcon color="info" />
         </IconButton>
