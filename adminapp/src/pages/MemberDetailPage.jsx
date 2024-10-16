@@ -15,10 +15,18 @@ import { dayjs } from "../modules/dayConfig";
 import Money from "../shared/react/Money";
 import SafeExternalLink from "../shared/react/SafeExternalLink";
 import useToggle from "../shared/react/useToggle";
-import theme from "../theme";
-import EditIcon from "@mui/icons-material/Edit";
-import { Divider, Typography, Switch, Button, Chip, Modal } from "@mui/material";
-import Box from "@mui/material/Box";
+import DeleteIcon from "@mui/icons-material/Delete";
+import {
+  Divider,
+  Typography,
+  Switch,
+  Button,
+  Chip,
+  DialogTitle,
+  Dialog,
+  DialogContent,
+  DialogActions,
+} from "@mui/material";
 import IconButton from "@mui/material/IconButton";
 import { makeStyles } from "@mui/styles";
 import isEmpty from "lodash/isEmpty";
@@ -104,7 +112,7 @@ export default function MemberDetailPage() {
                   value: (
                     <InlineSoftDelete
                       id={model.id}
-                      name={model.name.split(" ").slice(0, 2).join(" ")}
+                      name={model.name}
                       phone={formatPhoneNumber("+" + model.phone)}
                       softDeletedAt={model.softDeletedAt}
                       onSoftDelete={(member) => setModel(member)}
@@ -420,7 +428,6 @@ function ImpersonateButton({ id }) {
 function InlineSoftDelete({ id, name, phone, softDeletedAt, onSoftDelete }) {
   const { enqueueErrorSnackbar } = useErrorSnackbar();
   const showModal = useToggle(false);
-  const classes = useStyles();
   const handleDelete = () => {
     api
       .softDeleteMember({ id: id })
@@ -437,7 +444,7 @@ function InlineSoftDelete({ id, name, phone, softDeletedAt, onSoftDelete }) {
       <>
         {"- "}
         <IconButton onClick={() => showModal.turnOn()}>
-          <EditIcon color="info" />
+          <DeleteIcon color="error" />
         </IconButton>
       </>
     );
@@ -445,40 +452,38 @@ function InlineSoftDelete({ id, name, phone, softDeletedAt, onSoftDelete }) {
   return (
     <>
       {softDeletedAt ? dayjs(softDeletedAt).format("lll") : display}
-      <Modal open={showModal.isOn}>
-        <Box className={classes.softDeleteModalBox}>
-          <Typography variant="h6">Confirm soft deletion</Typography>
+      <Dialog open={showModal.isOn} onClose={showModal.turnOff}>
+        <DialogTitle>Confirm Soft Deletion</DialogTitle>
+        <DialogContent>
           <Typography sx={{ mt: 1 }} color="error">
             Member deletion CANNOT be undone. Ensure that you know what you are doing
             before continuing.
           </Typography>
           <Typography sx={{ mt: 1 }}>
             "Soft delete" means an account is closed indefinitely but keeps some important
-            records attached to the account in case we need to use the data. It deletes
-            the members phone number and replaces it with an unreachable number that
-            cannot be logged into for security reasons.
+            records attached to the account in case we need to refer to past data. It
+            replaces the member's phone and email with unreachable values, preventing any
+            further account access.
           </Typography>
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              marginTop: theme.spacing(2),
-            }}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleDelete} variant="contained" color="error" size="small">
+            Soft Delete
+            <br />
+            {name}
+            <br />
+            {phone}
+          </Button>
+          <Button
+            variant="outlined"
+            color="secondary"
+            size="small"
+            onClick={showModal.turnOff}
           >
-            <Button onClick={handleDelete} variant="contained" color="error" size="small">
-              Soft Delete {name} {phone}
-            </Button>
-            <Button
-              variant="outlined"
-              color="secondary"
-              size="small"
-              onClick={() => showModal.turnOff()}
-            >
-              Cancel
-            </Button>
-          </div>
-        </Box>
-      </Modal>
+            Cancel
+          </Button>
+        </DialogActions>
+      </Dialog>
     </>
   );
 }
@@ -486,16 +491,5 @@ function InlineSoftDelete({ id, name, phone, softDeletedAt, onSoftDelete }) {
 const useStyles = makeStyles((theme) => ({
   impersonate: {
     marginLeft: theme.spacing(2),
-  },
-  softDeleteModalBox: {
-    position: "absolute",
-    top: "50%",
-    left: "50%",
-    transform: "translate(-50%, -50%)",
-    width: 500,
-    padding: "1rem",
-    backgroundColor: "white",
-    boxShadow: 24,
-    borderRadius: theme.spacing(1),
   },
 }));
