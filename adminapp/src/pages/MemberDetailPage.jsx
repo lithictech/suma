@@ -14,11 +14,24 @@ import { useUser } from "../hooks/user";
 import { dayjs } from "../modules/dayConfig";
 import Money from "../shared/react/Money";
 import SafeExternalLink from "../shared/react/SafeExternalLink";
-import { Divider, Typography, Switch, Button, Chip } from "@mui/material";
+import useToggle from "../shared/react/useToggle";
+import DeleteIcon from "@mui/icons-material/Delete";
+import {
+  Divider,
+  Typography,
+  Switch,
+  Button,
+  Chip,
+  DialogTitle,
+  Dialog,
+  DialogContent,
+  DialogActions,
+} from "@mui/material";
+import IconButton from "@mui/material/IconButton";
 import { makeStyles } from "@mui/styles";
 import isEmpty from "lodash/isEmpty";
 import React from "react";
-import { formatPhoneNumberIntl } from "react-phone-number-input";
+import { formatPhoneNumber, formatPhoneNumberIntl } from "react-phone-number-input";
 import { useParams } from "react-router-dom";
 
 export default function MemberDetailPage() {
@@ -96,8 +109,15 @@ export default function MemberDetailPage() {
                 { label: "Created At", value: dayjs(model.createdAt) },
                 {
                   label: "Deleted At",
-                  value: model.softDeletedAt && dayjs(model.softDeletedAt),
-                  hideEmpty: true,
+                  value: (
+                    <InlineSoftDelete
+                      id={model.id}
+                      name={model.name}
+                      phone={formatPhoneNumber("+" + model.phone)}
+                      softDeletedAt={model.softDeletedAt}
+                      onSoftDelete={(member) => setModel(member)}
+                    />
+                  ),
                 },
               ]}
             />
@@ -402,6 +422,69 @@ function ImpersonateButton({ id }) {
     >
       Impersonate
     </Button>
+  );
+}
+
+function InlineSoftDelete({ id, name, phone, softDeletedAt, onSoftDelete }) {
+  const { enqueueErrorSnackbar } = useErrorSnackbar();
+  const showModal = useToggle(false);
+  const handleDelete = () => {
+    api
+      .softDeleteMember({ id: id })
+      .then((r) => {
+        onSoftDelete(r.data);
+        showModal.turnOff();
+      })
+      .catch(enqueueErrorSnackbar);
+  };
+  const { canWrite } = useRoleAccess();
+  let display = "-";
+  if (canWrite("admin_members")) {
+    display = (
+      <>
+        {"- "}
+        <IconButton onClick={() => showModal.turnOn()}>
+          <DeleteIcon color="error" />
+        </IconButton>
+      </>
+    );
+  }
+  return (
+    <>
+      {softDeletedAt ? dayjs(softDeletedAt).format("lll") : display}
+      <Dialog open={showModal.isOn} onClose={showModal.turnOff}>
+        <DialogTitle>Confirm Soft Deletion</DialogTitle>
+        <DialogContent>
+          <Typography sx={{ mt: 1 }} color="error">
+            Member deletion CANNOT be undone. Ensure that you know what you are doing
+            before continuing.
+          </Typography>
+          <Typography sx={{ mt: 1 }}>
+            "Soft delete" means an account is closed indefinitely but keeps some important
+            records attached to the account in case we need to refer to past data. It
+            replaces the member's phone and email with unreachable values, preventing any
+            further account access.
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleDelete} variant="contained" color="error" size="small">
+            Soft Delete
+            <br />
+            {name}
+            <br />
+            {phone}
+          </Button>
+          <Button
+            variant="outlined"
+            color="secondary"
+            size="small"
+            onClick={showModal.turnOff}
+          >
+            Cancel
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </>
   );
 }
 

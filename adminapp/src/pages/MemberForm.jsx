@@ -36,7 +36,7 @@ export default function MemberForm({
 }) {
   return (
     <FormLayout
-      title={"Update Member"}
+      title="Update Member"
       subtitle="Edit member account information"
       onSubmit={onSubmit}
       isBusy={isBusy}
@@ -64,6 +64,17 @@ export default function MemberForm({
             onChange={setFieldFromInput}
           />
         </ResponsiveStack>
+        <TextField
+          {...register("phone")}
+          label="Phone"
+          name="phone"
+          value={resource.phone || ""}
+          type="tel"
+          variant="outlined"
+          fullWidth
+          helperText="11-digit US phone number, begins with 1."
+          onChange={setFieldFromInput}
+        />
         <Roles roles={resource.roles} setRoles={(r) => setField("roles", r)} />
         <Divider />
         <FormLabel>Legal Entity</FormLabel>

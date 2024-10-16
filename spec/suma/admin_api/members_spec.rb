@@ -138,11 +138,22 @@ RSpec.describe Suma::AdminAPI::Members, :db do
     it "updates the member" do
       member = Suma::Fixtures.member.create
 
-      post "/v1/members/#{member.id}", name: "b 2", email: "b@gmail.com"
+      post "/v1/members/#{member.id}", name: "b 2", email: "b@gmail.com", phone: "12223334444"
 
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.
-        that_includes(id: member.id, name: "b 2", email: "b@gmail.com")
+        that_includes(id: member.id, name: "b 2", email: "b@gmail.com", phone: "12223334444")
+    end
+
+    it "400s if a phone number is taken, with instructions message for admins" do
+      member = Suma::Fixtures.member.create
+      member_taken = Suma::Fixtures.member.create(phone: "15553335555")
+
+      post "/v1/members/#{member.id}", phone: member_taken.phone
+
+      expect(last_response).to have_status(400)
+      message = /duplicate a member, make sure that you soft-delete their account first/
+      expect(last_response).to have_json_body.that_includes(error: include(message:))
     end
 
     it "replaces roles if given" do

@@ -389,7 +389,11 @@ class Suma::Member < Suma::Postgres::Model(:members)
   def validate
     super
     self.validates_presence(:phone)
-    self.validates_unique(:phone)
+    self.validates_unique(
+      :phone,
+      message: "is already taken. If you're trying to duplicate a member, " \
+               "make sure that you soft-delete their account first.",
+    )
     unless self.soft_deleted?
       self.validates_format(Suma::PhoneNumber::US::REGEXP, :phone, message: "is not an 11 digit US phone number")
     end
