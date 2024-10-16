@@ -1,5 +1,4 @@
 import loaderRing from "../assets/images/loader-ring.svg";
-import { imageAltT } from "../localization";
 import clsx from "clsx";
 import React from "react";
 
@@ -31,12 +30,7 @@ export default function PageLoader({ overlay, buffered, className }) {
   );
   return (
     <div className={clsx("text-center")}>
-      <img
-        src={loaderRing}
-        alt={imageAltT("loading_icon")}
-        className={cls}
-        style={{ maxWidth: 150 }}
-      />
+      <img src={loaderRing} alt="" className={cls} style={{ maxWidth: 150 }} />
     </div>
   );
 }

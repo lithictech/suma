@@ -9,7 +9,7 @@ import LinearBreadcrumbs from "../components/LinearBreadcrumbs";
 import PageLoader from "../components/PageLoader";
 import RLink from "../components/RLink";
 import SumaImage from "../components/SumaImage";
-import { imageAltT, t } from "../localization";
+import { t } from "../localization";
 import idempotency from "../modules/idempotency";
 import ScrollTopOnMount from "../shared/ScrollToTopOnMount";
 import { anyMoney } from "../shared/money";
@@ -277,7 +277,7 @@ function PaymentLabel({ institution, last4, name }) {
           className="me-2"
           style={{ width: "28px" }}
           src={`${institution.logoSrc}`}
-          alt={imageAltT("payment_institution_logo", { institution: institution.name })}
+          alt=""
         />
       )}
       <span className="me-1">{name}</span>
