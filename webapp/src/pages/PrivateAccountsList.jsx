@@ -202,12 +202,7 @@ function PrivateAccount({ account, onHelp }) {
             <h5>{t("private_accounts:polling")}</h5>
             <p>{t("private_accounts:polling_detail")}</p>
           </div>
-          <img
-            src={loaderRing}
-            width="80"
-            height="80"
-            alt={t("private_accounts:polling")}
-          />
+          <img src={loaderRing} width="80" height="80" alt="" />
         </Stack>
       </Alert>
     );

@@ -1,4 +1,11 @@
 {
+  "alts": {
+    "check_detail_example": "Cheque bancario que muestra la ubicación del número de ruta en la esquina inferior izquierda, el número de cuenta en la parte inferior central y el número de cheque en la parte inferior derecha",
+    "local_food_stand": "Puesto de mercado que muestra frutas y verduras frescas",
+    "person_riding_scooter": "Persona con casco de bicicleta azul y mascarilla rosa conduciendo un patinete eléctrico por una calle de un solo sentido",
+    "solar_panels": "Paneles solares en un campo de flores violetas",
+    "suma_logo": "Logo de suma que muestra una mazorca de maíz encima de una moneda, todo dentro de un círculo y sombreado en dorado"
+  },
   "auth": {
     "agree_aria_label": "Aceptar los terminos",
     "sign_up_agreement": "Acepto y estoy de acuerdo con suma's [Términos de uso](/términos-de-uso) y [Política de privacidad](/privacy-policy). También acepto recibir SMS y/o MMS periódicos de suma. Se pueden aplicar tarifas de mensajes y datos. La frecuencia de los mensajes puede variar según su actividad y configuración. Envíe HELP para obtener más información. Envíe STOP para dejar de recibir mensajes."
@@ -202,7 +209,6 @@
     "bank_account_type": "Tipo de cuenta",
     "bank_account_type_caption": "Elegir el tipo de cuenta. Si no estás seguro, elige Cheques",
     "card_number": "Número de tarjeta",
-    "check_detail": "Detallos de cheque",
     "checking": "Cheques",
     "choose_organization": "Elegir Organización Afiliada...",
     "choose_state": "Elegir Estado...",

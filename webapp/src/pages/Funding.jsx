@@ -75,7 +75,7 @@ function InstrumentLine({ instrument }) {
                 className="me-2"
                 width="28px"
                 src={`${instrument.institution.logoSrc}`}
-                alt={instrument.institution.name}
+                alt=""
               />
             ) : (
               <i className="bi bi-bank2 me-2"></i>

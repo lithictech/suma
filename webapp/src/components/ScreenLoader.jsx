@@ -20,7 +20,7 @@ export default function ScreenLoader({ show }) {
       )}
     >
       <div className="screen-loader-centerer">
-        <img src={loaderRing} alt="loading" />
+        <img src={loaderRing} alt="" />
       </div>
     </div>
   );

@@ -30,7 +30,7 @@ export default function PageLoader({ overlay, buffered, className }) {
   );
   return (
     <div className={clsx("text-center")}>
-      <img src={loaderRing} alt="loading" className={cls} style={{ maxWidth: 150 }} />
+      <img src={loaderRing} alt="" className={cls} style={{ maxWidth: 150 }} />
     </div>
   );
 }
