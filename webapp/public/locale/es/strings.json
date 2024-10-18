@@ -1,8 +1,11 @@
 {
   "alts": {
+    "add_to_cart": "Añadir al carrito",
+    "cart_item_loading": "Cart item loading",
     "check_detail_example": "Cheque bancario que muestra la ubicación del número de ruta en la esquina inferior izquierda, el número de cuenta en la parte inferior central y el número de cheque en la parte inferior derecha",
     "local_food_stand": "Puesto de mercado que muestra frutas y verduras frescas",
     "person_riding_scooter": "Persona con casco de bicicleta azul y mascarilla rosa conduciendo un patinete eléctrico por una calle de un solo sentido",
+    "remove_from_cart": "Eliminar del carrito",
     "solar_panels": "Paneles solares en un campo de flores violetas",
     "suma_logo": "Logo de suma que muestra una mazorca de maíz encima de una moneda, todo dentro de un círculo y sombreado en dorado"
   },
@@ -125,7 +128,6 @@
     "available_until": "Hasta {{date}}",
     "cart_available_credit": "Crédito disponible: **{{amount, sumaCurrency}}**",
     "cart_cash_cost": "Costo para usted: **{{amount, sumaCurrency}}**",
-    "cart_item_loading": "Cart item loading",
     "cart_title": "Carrito de Compra",
     "charge_to": "Cargar a {{instrumentName}}",
     "checkout": "Finalizar",
@@ -183,7 +185,6 @@
     "price": "precio",
     "price_times_quantity": "{{price, sumaCurrency}} x {{quantity}}",
     "quantity": "Cantidad: {{quantity}}",
-    "remove_from_cart": "Eliminar del carrito",
     "return_to_dashboard_alert": "Por favor regrese al inicio para agregar más fondos o edite las cantidades del carrito para reducir el costo.",
     "save_payment": "Guardar para pedidos futuros",
     "shop": "Comprar",
