@@ -1,8 +1,11 @@
 {
   "alts": {
+    "add_to_cart": "Add to cart",
+    "cart_item_loading": "Cart item loading",
     "check_detail_example": "Bank check showing the location of the routing number at the bottom left, account number at the bottom center, and check number at the bottom right",
     "local_food_stand": "Market stand showing fresh fruit and vegetables",
     "person_riding_scooter": "Person in a blue bike helmet and pink facemask riding an electric scooter down a one way street",
+    "remove_from_cart": "Remove from cart",
     "solar_panels": "Solar panels in a field of purple flowers",
     "suma_logo": "Suma logo showing an ear of corn on top of a coin, all within a circle and gold shaded"
   },
@@ -125,7 +128,6 @@
     "available_until": "Until {{date}}",
     "cart_available_credit": "Available credit: **{{amount, sumaCurrency}}**",
     "cart_cash_cost": "Cost to you: **{{amount, sumaCurrency}}**",
-    "cart_item_loading": "Cart item loading",
     "cart_title": "Shopping Cart",
     "charge_to": "Charge to {{instrumentName}}",
     "checkout": "Checkout",
@@ -183,7 +185,6 @@
     "price": "Price",
     "price_times_quantity": "{{price, sumaCurrency}} x {{quantity}}",
     "quantity": "Quantity: {{quantity}}",
-    "remove_from_cart": "Remove from cart",
     "return_to_dashboard_alert": "Please return to the dashboard to add more funds or edit the cart quantities to lower your cost.",
     "save_payment": "Save for future orders",
     "shop": "Shop",

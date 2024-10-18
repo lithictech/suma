@@ -91,7 +91,7 @@ export default function FoodCartWidget({ product, size, onQuantityChange }) {
           <Button
             onClick={() => handleQuantityChange(quantity - 1)}
             className={btnClasses}
-            title={t("food:remove_from_cart")}
+            title={imageAltT("remove_from_cart")}
           >
             <img src={subtractIcon} alt={imageAltT("remove_from_cart")} width="32px" />
           </Button>
@@ -117,13 +117,17 @@ export default function FoodCartWidget({ product, size, onQuantityChange }) {
       <Button
         onClick={() => handleQuantityChange(quantity + 1)}
         className={clsx(btnClasses, quantity === maxQuantity && "disabled", "nowrap")}
-        title={t("food:add_to_cart")}
+        title={imageAltT("add_to_cart")}
       >
-        <img src={addIcon} alt={imageAltT("add_to_cart")} width="32px" />
-        {size === "lg" && quantity === 0 && (
-          <span className="text-capitalize fs-5 align-middle ms-1 pe-2">
-            {t("food:add_to_cart")}
-          </span>
+        {size === "lg" && quantity === 0 ? (
+          <>
+            <img src={addIcon} alt="" width="32px" />
+            <span className="text-capitalize fs-5 align-middle ms-1 pe-2">
+              {t("food:add_to_cart")}
+            </span>
+          </>
+        ) : (
+          <img src={addIcon} alt={imageAltT("add_to_cart")} width="32px" />
         )}
       </Button>
     </ButtonGroup>
