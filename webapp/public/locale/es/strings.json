@@ -118,8 +118,6 @@
     "vehicle_not_found": "No se encuentra un vehículo en este lugar."
   },
   "food": {
-    "cart_item_loading": "Cart item loading",
-    "remove_from_cart": "Eliminar del carrito",
     "add_card": "Añadir tarjeta de débito/crédito",
     "add_to_cart": "Añadir al carrito",
     "address": "Dirección",
@@ -184,6 +182,7 @@
     "price": "precio",
     "price_times_quantity": "{{price, sumaCurrency}} x {{quantity}}",
     "quantity": "Cantidad: {{quantity}}",
+    "remove_from_cart": "Eliminar del carrito",
     "return_to_dashboard_alert": "Por favor regrese al inicio para agregar más fondos o edite las cantidades del carrito para reducir el costo.",
     "save_payment": "Guardar para pedidos futuros",
     "shop": "Comprar",

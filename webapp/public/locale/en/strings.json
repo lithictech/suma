@@ -118,10 +118,8 @@
     "vehicle_not_found": "No vehicle found in this location."
   },
   "food": {
-    "add_to_cart": "Add to cart",
-    "cart_item_loading": "Cart item loading",
-    "remove_from_cart": "Remove from cart",
     "add_card": "Add debit/credit card",
+    "add_to_cart": "Add to cart",
     "address": "Address",
     "available_offerings": "Available Offerings",
     "available_until": "Until {{date}}",
@@ -184,6 +182,7 @@
     "price": "Price",
     "price_times_quantity": "{{price, sumaCurrency}} x {{quantity}}",
     "quantity": "Quantity: {{quantity}}",
+    "remove_from_cart": "Remove from cart",
     "return_to_dashboard_alert": "Please return to the dashboard to add more funds or edit the cart quantities to lower your cost.",
     "save_payment": "Save for future orders",
     "shop": "Shop",
