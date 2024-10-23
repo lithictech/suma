@@ -206,7 +206,6 @@ module Suma::SpecHelpers::Service
     ### Return +false+ after setting the failure message to +message+.
     protected def fail_with(message)
       @failure_description = message
-      self.logger.error "Failing with: %s" % [message]
       return false
     end
 

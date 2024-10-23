@@ -95,7 +95,9 @@ module Suma::Message
   end
 
   def self.send_unsent
-    Suma::Message::Delivery.unsent.each(&:send!)
+    unsent = Suma::Message::Delivery.unsent.to_a
+    unsent.each(&:send!)
+    return unsent
   end
 
   class InvalidTransportError < StandardError; end

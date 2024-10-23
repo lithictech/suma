@@ -19,6 +19,7 @@ module Suma::Async
   extend Suma::MethodUtilities
 
   require "suma/async/job_logger"
+  require "suma/async/job_utils"
 
   # Registry of all jobs that will be required when the async system is started/run.
   JOBS = [

@@ -40,7 +40,6 @@ module Suma::SpecHelpers::Postgres
       if setting && setting != :no_transaction
         Suma::SpecHelpers::Postgres.wrap_example_in_transactions(example)
       else
-        Suma::Postgres.logger.debug "Running spec without a transaction"
         example.run
       end
       has_leaked = SNIFF_LEAKY_TESTS && (
@@ -77,7 +76,6 @@ module Suma::SpecHelpers::Postgres
 
     dbs = txn_classes.map(&:db) + [Suma::Webhookdb.connection]
     wrapped_proc = dbs.inject(example.method(:run)) do |callback, db|
-      Suma::Postgres.logger.debug "DB: Running with an outer transaction"
       proc { db.transaction(auto_savepoint: :only, rollback: :always, &callback) }
     end
     wrapped_proc.call
@@ -107,7 +105,7 @@ module Suma::SpecHelpers::Postgres
     table_name = :"testtable_#{prefix}_#{Suma::SpecHelpers::Postgres.current_test_model_uid}"
     qualified_name = qualifier[table_name]
 
-    model_class.logger.info "Creating table: %p" % [qualified_name]
+    model_class.logger.info "creating_table", table_name: qualified_name
     model_class.db.create_table!(qualified_name, &)
     clsname = table_name.to_s.classify
     clsfqn = "#{Suma::SpecHelpers::Postgres::Models}::#{clsname}"

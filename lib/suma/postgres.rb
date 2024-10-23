@@ -135,7 +135,6 @@ module Suma::Postgres
   ### Register the given +superclass+ as a base class for a set of models, for operations
   ### which should happen on all the current database connections.
   def self.register_model_superclass(superclass)
-    self.logger.debug "Registered model superclass: %p" % [superclass]
     self.model_superclasses << superclass
   end
 
@@ -146,8 +145,6 @@ module Suma::Postgres
 
   ### Add a +path+ to require once the database connection is set.
   def self.register_model(path)
-    self.logger.debug "Registered model for requiring: %s" % [path]
-
     # If the connection's set, require the path immediately.
     if self.model_superclasses.any?(&:db)
       Appydays::Loggable[self].silence(:fatal) do

@@ -105,8 +105,6 @@ class Suma::Postgres::Model
   #
   #   end
   def self.add_extensions(*modules)
-    self.logger.info "Adding extensions to %p: %p" % [self, modules]
-
     modules.each do |mod|
       include(mod)
       if mod.const_defined?(:ClassMethods)

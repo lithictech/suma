@@ -141,19 +141,10 @@ module Suma::Postgres::ModelUtilities
 
       # Include associated classes for which this model class's table has a
       # foreign key
-      model_class.association_reflections.each do |name, config|
+      model_class.association_reflections.each_value do |config|
         next if config[:polymorphic]
-
         associated_class = Object.const_get(config[:class_name])
-
-        if config[:type] == :many_to_one
-          self.logger.debug "  %p#%s is dependent on %p" %
-            [model_class, name, associated_class]
-          yield(associated_class)
-        else
-          self.logger.debug "  %p#%s is *not* dependent on %p" %
-            [model_class, name, associated_class]
-        end
+        yield(associated_class) if config[:type] == :many_to_one
       end
     end
   end
