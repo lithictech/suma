@@ -1,11 +1,8 @@
 {
   "alts": {
-    "add_to_cart": "Añadir al carrito",
-    "cart_item_loading": "Cart item loading",
     "check_detail_example": "Cheque bancario que muestra la ubicación del número de ruta en la esquina inferior izquierda, el número de cuenta en la parte inferior central y el número de cheque en la parte inferior derecha",
     "local_food_stand": "Puesto de mercado que muestra frutas y verduras frescas",
     "person_riding_scooter": "Persona con casco de bicicleta azul y mascarilla rosa conduciendo un patinete eléctrico por una calle de un solo sentido",
-    "remove_from_cart": "Eliminar del carrito",
     "solar_panels": "Paneles solares en un campo de flores violetas",
     "suma_logo": "Logo de suma que muestra una mazorca de maíz encima de una moneda, todo dentro de un círculo y sombreado en dorado"
   },
@@ -121,6 +118,8 @@
     "vehicle_not_found": "No se encuentra un vehículo en este lugar."
   },
   "food": {
+    "cart_item_loading": "Cart item loading",
+    "remove_from_cart": "Eliminar del carrito",
     "add_card": "Añadir tarjeta de débito/crédito",
     "add_to_cart": "Añadir al carrito",
     "address": "Dirección",

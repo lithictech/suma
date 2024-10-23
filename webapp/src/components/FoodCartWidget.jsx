@@ -2,7 +2,7 @@ import api from "../api";
 import addIcon from "../assets/images/food-widget-add.svg";
 import subtractIcon from "../assets/images/food-widget-subtract.svg";
 import xIcon from "../assets/images/ui-x-thick.svg";
-import { imageAltT, t } from "../localization";
+import { t } from "../localization";
 import useErrorToast from "../state/useErrorToast";
 import useOffering from "../state/useOffering";
 import clsx from "clsx";
@@ -73,7 +73,7 @@ export default function FoodCartWidget({ product, size, onQuantityChange }) {
           {quantity > 0 && (
             <img
               src={xIcon}
-              alt={imageAltT("remove_from_cart")}
+              alt={t("food:remove_from_cart")}
               width="20px"
               className="ms-1"
             />
@@ -91,9 +91,9 @@ export default function FoodCartWidget({ product, size, onQuantityChange }) {
           <Button
             onClick={() => handleQuantityChange(quantity - 1)}
             className={btnClasses}
-            title={imageAltT("remove_from_cart")}
+            title={t("food:remove_from_cart")}
           >
-            <img src={subtractIcon} alt={imageAltT("remove_from_cart")} width="32px" />
+            <img src={subtractIcon} alt={t("food:remove_from_cart")} width="32px" />
           </Button>
           <Dropdown
             as={ButtonGroup}
@@ -117,17 +117,17 @@ export default function FoodCartWidget({ product, size, onQuantityChange }) {
       <Button
         onClick={() => handleQuantityChange(quantity + 1)}
         className={clsx(btnClasses, quantity === maxQuantity && "disabled", "nowrap")}
-        title={imageAltT("add_to_cart")}
+        title={t("food:add_to_cart")}
       >
-        {size === "lg" && quantity === 0 ? (
-          <>
-            <img src={addIcon} alt="" width="32px" />
-            <span className="text-capitalize fs-5 align-middle ms-1 pe-2">
-              {t("food:add_to_cart")}
-            </span>
-          </>
-        ) : (
-          <img src={addIcon} alt={imageAltT("add_to_cart")} width="32px" />
+        <img src={addIcon} alt={t("food:add_to_cart")} width="32px" />
+        {size === "lg" && quantity === 0 && (
+          <span
+            className="text-capitalize fs-5 align-middle ms-1 pe-2"
+            // Image always has alt text, do not have screen readers read it twice
+            aria-hidden="true"
+          >
+            {t("food:add_to_cart")}
+          </span>
         )}
       </Button>
     </ButtonGroup>

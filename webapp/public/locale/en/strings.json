@@ -1,11 +1,8 @@
 {
   "alts": {
-    "add_to_cart": "Add to cart",
-    "cart_item_loading": "Cart item loading",
     "check_detail_example": "Bank check showing the location of the routing number at the bottom left, account number at the bottom center, and check number at the bottom right",
     "local_food_stand": "Market stand showing fresh fruit and vegetables",
     "person_riding_scooter": "Person in a blue bike helmet and pink facemask riding an electric scooter down a one way street",
-    "remove_from_cart": "Remove from cart",
     "solar_panels": "Solar panels in a field of purple flowers",
     "suma_logo": "Suma logo showing an ear of corn on top of a coin, all within a circle and gold shaded"
   },
@@ -121,8 +118,10 @@
     "vehicle_not_found": "No vehicle found in this location."
   },
   "food": {
-    "add_card": "Add debit/credit card",
     "add_to_cart": "Add to cart",
+    "cart_item_loading": "Cart item loading",
+    "remove_from_cart": "Remove from cart",
+    "add_card": "Add debit/credit card",
     "address": "Address",
     "available_offerings": "Available Offerings",
     "available_until": "Until {{date}}",
