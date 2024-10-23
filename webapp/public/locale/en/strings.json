@@ -125,7 +125,6 @@
     "available_until": "Until {{date}}",
     "cart_available_credit": "Available credit: **{{amount, sumaCurrency}}**",
     "cart_cash_cost": "Cost to you: **{{amount, sumaCurrency}}**",
-    "cart_item_loading": "Cart item loading",
     "cart_title": "Shopping Cart",
     "charge_to": "Charge to {{instrumentName}}",
     "checkout": "Checkout",
