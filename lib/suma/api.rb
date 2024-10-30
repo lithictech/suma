@@ -47,7 +47,7 @@ module Suma::API
           end
 
           def check_eligibility!(receiver, member)
-            return if receiver.eligible_to?(member)
+            return if receiver.eligible_to?(member, as_of: current_time)
             merror!(403, "Member cannot access due to constraints", code: "eligibility_violation")
           end
         end

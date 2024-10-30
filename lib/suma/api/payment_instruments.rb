@@ -30,7 +30,7 @@ class Suma::API::PaymentInstruments < Suma::API::V1
           merror!(409, "Bank account with that info already exists", code: "conflicting_bank_account")
         end
         if Suma::Payment.autoverify_account_numbers.any? { |ptrn| File.fnmatch(ptrn, account_number) }
-          ba.verified_at ||= Time.now
+          ba.verified_at ||= current_time
         end
         set_declared(ba, params)
         save_or_error!(ba)

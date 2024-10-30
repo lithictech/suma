@@ -100,6 +100,7 @@ module Suma::API::Entities
     expose_translated :name, &self.delegate_to(:program, :name)
     expose_translated :description, &self.delegate_to(:program, :description)
     expose :image, with: ImageEntity, &self.delegate_to(:program, :image?)
+    expose :period, with: TimeRangeEntity, &self.delegate_to(:program, :period)
   end
 
   class CurrentMemberEntity < Suma::Service::Entities::CurrentMember
@@ -109,13 +110,13 @@ module Suma::API::Entities
     expose :read_only_reason
     expose :usable_payment_instruments, with: PaymentInstrumentEntity
     expose :active_programs, with: ProgramEnrollmentEntity do |m, opts|
-      m.program_enrollments_dataset.active(as_of: opts[:env].fetch(:now)).all
+      m.program_enrollments_dataset.active(as_of: opts[:env].fetch("now")).all
     end
     expose :admin_member, expose_nil: false, with: Suma::Service::Entities::CurrentMember do |_|
       self.current_session.impersonation? ? self.current_session.member : nil
     end
-    expose :show_private_accounts do |m|
-      !Suma::AnonProxy::VendorAccount.for(m).empty?
+    expose :show_private_accounts do |m, opts|
+      !Suma::AnonProxy::VendorAccount.for(m, as_of: opts[:env].fetch("now")).empty?
     end
     expose :preferences!, as: :preferences, with: MemberPreferencesEntity
     expose :has_order_history do |m|

@@ -47,8 +47,8 @@ RSpec.describe Suma::API::Mobility, :db do
     end
 
     it "is limited to vendor services active and available to the user" do
-      constraint = Suma::Fixtures.eligibility_constraint.create
-      vendor_service = Suma::Fixtures.vendor_service.mobility.with_constraints(constraint).create
+      program = Suma::Fixtures.program.create
+      vendor_service = Suma::Fixtures.vendor_service.mobility.with_programs(program).create
 
       Suma::Fixtures.mobility_vehicle(vendor_service:).
         loc(20, 120).
@@ -60,7 +60,7 @@ RSpec.describe Suma::API::Mobility, :db do
       expect(last_response).to have_status(200)
       expect(last_response_json_body).to_not include(:escooter, :ebike)
 
-      member.add_verified_eligibility_constraint(constraint)
+      Suma::Fixtures.program_enrollment.create(program:, member:)
       get "/v1/mobility/map", sw: [15, 110], ne: [25, 125]
 
       expect(last_response).to have_status(200)
@@ -408,8 +408,8 @@ RSpec.describe Suma::API::Mobility, :db do
       expect(last_response).to have_json_body.that_includes(error: include(code: "rate_not_found"))
     end
 
-    it "errors if the member cannot access the service due to constraints" do
-      vendor_service.add_eligibility_constraint(Suma::Fixtures.eligibility_constraint.create)
+    it "errors if the member cannot access the service due to eligibility" do
+      vendor_service.add_program(Suma::Fixtures.program.create)
 
       post "/v1/mobility/begin_trip",
            provider_id: vehicle.vendor_service_id, vehicle_id: vehicle.vehicle_id, rate_id: rate.id

@@ -27,9 +27,8 @@ class Suma::Member::Dashboard
     return @vendor_services ||= self.vendor_services_dataset.order { upper(period) }.all
   end
 
-  def programs
-    # TODO: Only unique programs
-    #  and I think we can remove the vendor_services/offerings and just serve them from programs
-    return @programs ||= @member.program_enrollments_dataset.active(as_of: @at).all.map(&:program)
+  def program_enrollments
+    # TODO: I think we can remove the vendor_services/offerings and just return this?
+    return @program_enrollments ||= @member.program_enrollments_dataset.active(as_of: @at).all
   end
 end

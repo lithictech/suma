@@ -47,7 +47,7 @@ class Suma::API::Me < Suma::API::V1
     end
 
     get :dashboard do
-      d = Suma::Member::Dashboard.new(current_member, at: Time.now)
+      d = Suma::Member::Dashboard.new(current_member, at: current_time)
       present d, with: MemberDashboardEntity
     end
 
@@ -71,21 +71,7 @@ class Suma::API::Me < Suma::API::V1
     expose_translated :memo
   end
 
-  class VendibleEntity < BaseEntity
-    include Suma::API::Entities
-    expose_translated :name
-    expose :until
-    expose :image, with: ImageEntity
-    expose :link
-  end
-
-  class VendibleGroupingEntity < BaseEntity
-    expose_translated :name, &self.delegate_to(:group, :name)
-    expose :vendibles, with: VendibleEntity
-  end
-
   class MemberDashboardEntity < BaseEntity
-    include Suma::API::Entities
-    expose :vendible_groupings, with: VendibleGroupingEntity
+    expose :program_enrollments, as: :programs, with: Suma::API::Entities::ProgramEnrollmentEntity
   end
 end

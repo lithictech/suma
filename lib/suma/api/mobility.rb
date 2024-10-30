@@ -17,12 +17,15 @@ class Suma::API::Mobility < Suma::API::V1
     end
     get :map do
       me = current_member
-      now = Time.now
       min_lat, min_lng = params[:sw]
       max_lat, max_lng = params[:ne]
       ds = Suma::Mobility::Vehicle.search(min_lat:, min_lng:, max_lat:, max_lng:)
       ds = ds.where(vehicle_type: params[:types]) if params.key?(:types)
-      ds = ds.where(vendor_service: Suma::Vendor::Service.dataset.mobility.eligible_to(me).available_at(now))
+      vendor_services = Suma::Vendor::Service.dataset.
+        mobility.
+        eligible_to(me, as_of: current_time).
+        available_at(current_time)
+      ds = ds.where(vendor_service: vendor_services)
       ds = ds.order(:id)
       vnd_services = []
       map_obj = {}

@@ -4,6 +4,8 @@ RSpec.describe "Suma::AnonProxy::VendorAccount", :db do
   let(:described_class) { Suma::AnonProxy::VendorAccount }
 
   describe "::for" do
+    let(:as_of) { Time.now }
+
     it "returns existing enabled vendor accounts and creates new for configured vendors" do
       member = Suma::Fixtures.member.onboarding_verified.create
       cfg_fac = Suma::Fixtures.anon_proxy_vendor_configuration
@@ -14,7 +16,7 @@ RSpec.describe "Suma::AnonProxy::VendorAccount", :db do
       good_vacct = Suma::Fixtures.anon_proxy_vendor_account(member:, configuration: vc_with_acct).create
       disabled_vacct = Suma::Fixtures.anon_proxy_vendor_account(member:, configuration: vc_disabled_with_acct).create
 
-      got = described_class.for(member)
+      got = described_class.for(member, as_of:)
       expect(got).to contain_exactly(
         be === good_vacct,
         have_attributes(configuration: be === vc_without_acct),
@@ -24,27 +26,31 @@ RSpec.describe "Suma::AnonProxy::VendorAccount", :db do
     it "is empty if the member is unverified" do
       member = Suma::Fixtures.member.create
       Suma::Fixtures.anon_proxy_vendor_configuration.create
-      expect(described_class.for(member)).to be_empty
+      expect(described_class.for(member, as_of:)).to be_empty
 
       member.onboarding_verified = true
-      expect(described_class.for(member)).to have_length(1)
+      expect(described_class.for(member, as_of:)).to have_length(1)
     end
 
-    it "applies eligibility constraints" do
+    it "applies program eligibility" do
       member = Suma::Fixtures.member.onboarding_verified.create
       cfg = Suma::Fixtures.anon_proxy_vendor_configuration.create
-      constraint = Suma::Fixtures.eligibility_constraint.create
+      program = Suma::Fixtures.program.create
 
-      # No constraints means everyone can access
-      expect(described_class.for(member.refresh)).to contain_exactly(have_attributes(configuration: be === cfg))
+      # No programs means everyone can access
+      expect(described_class.for(member.refresh, as_of:)).to contain_exactly(
+        have_attributes(configuration: be === cfg),
+      )
 
-      # Constrained restricts access
-      cfg.add_eligibility_constraint(constraint)
-      expect(described_class.for(member.refresh)).to be_empty
+      # Having program restricts access
+      cfg.add_program(program)
+      expect(described_class.for(member.refresh, as_of:)).to be_empty
 
       # Member can now access
-      member.add_verified_eligibility_constraint(constraint)
-      expect(described_class.for(member.refresh)).to contain_exactly(have_attributes(configuration: be === cfg))
+      Suma::Fixtures.program_enrollment.create(program:, member:)
+      expect(described_class.for(member.refresh, as_of:)).to contain_exactly(
+        have_attributes(configuration: be === cfg),
+      )
     end
   end
 

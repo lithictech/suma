@@ -141,14 +141,14 @@ RSpec.describe Suma::API::Me, :db do
 
   describe "GET /v1/me/dashboard" do
     it "returns the dashboard" do
-      Suma::Fixtures.vendible_group.with_offering.create
+      Suma::Fixtures.program_enrollment.create(member:)
 
       get "/v1/me/dashboard"
 
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.
         that_includes(
-          vendible_groupings: have_length(1),
+          programs: have_length(1),
         )
     end
   end

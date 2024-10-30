@@ -405,17 +405,21 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
   class Programs
     def fixture
       lime_name = Suma::TranslatedText.find_or_create(en: "Lime Scooter Rides", es: "Lime Scooter Rides (ES)")
-      lime_group = Suma::Vendible::Group.find_or_create(name: lime_name)
-      if lime_group.vendor_services.empty?
+      scooter_program = Suma::Program.find_or_create(name: lime_name) do |g|
+        g.period = 1.year.ago..1.year.from_now
+      end
+      if scooter_program.vendor_services.empty?
         vs = Suma::Vendor::Service[internal_name: "Demo Mobility Deeplink"]
-        lime_group.add_vendor_service(vs)
+        scooter_program.add_vendor_service(vs)
       end
 
       fm_name = Suma::TranslatedText.find_or_create(en: "Farmers Markets", es: "Farmers Markets (ES)")
-      fm_group = Suma::Vendible::Group.find_or_create(name: fm_name)
-      return unless fm_group.commerce_offerings.empty?
-      fm_group.add_commerce_offering(Suma::Commerce::Offering[confirmation_template: "2022-12-pilot-confirmation"])
-      fm_group.add_commerce_offering(Suma::Commerce::Offering[confirmation_template: "2023-07-pilot-confirmation"])
+      fm_program = Suma::Program.find_or_create(name: fm_name) do |g|
+        g.period = 1.year.ago..1.year.from_now
+      end
+      return unless fm_program.commerce_offerings.empty?
+      fm_program.add_commerce_offering(Suma::Commerce::Offering[confirmation_template: "2022-12-pilot-confirmation"])
+      fm_program.add_commerce_offering(Suma::Commerce::Offering[confirmation_template: "2023-07-pilot-confirmation"])
     end
   end
 end
