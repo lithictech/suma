@@ -44,7 +44,7 @@ RSpec.describe Suma::AdminAPI::PaymentTriggers, :db do
     it_behaves_like "an endpoint with pagination" do
       let(:url) { "/v1/payment_triggers" }
       def make_item(i)
-        # Sorting is newest first, so the first items we create need to the the oldest.
+        # Sorting is newest first, so the first items we create need to the oldest.
         created = Time.now - i.days
         return Suma::Fixtures.payment_trigger.create(created_at: created)
       end

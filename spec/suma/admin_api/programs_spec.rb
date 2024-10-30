@@ -3,7 +3,7 @@
 require "suma/admin_api/programs"
 require "suma/api/behaviors"
 
-RSpec.describe Suma::AdminAPI::Programs, :db, skip: "rewrite this for programs" do
+RSpec.describe Suma::AdminAPI::Programs, :db do
   include Rack::Test::Methods
 
   let(:app) { described_class.build_app }
@@ -13,11 +13,11 @@ RSpec.describe Suma::AdminAPI::Programs, :db, skip: "rewrite this for programs" 
     login_as(admin)
   end
 
-  describe "GET /v1/vendible_groups" do
-    it "returns all vendors" do
-      objs = Array.new(2) { Suma::Fixtures.vendible_group.create }
+  describe "GET /v1/programs" do
+    it "returns all programs" do
+      objs = Array.new(2) { Suma::Fixtures.program.create }
 
-      get "/v1/vendible_groups"
+      get "/v1/programs"
 
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.
@@ -27,53 +27,55 @@ RSpec.describe Suma::AdminAPI::Programs, :db, skip: "rewrite this for programs" 
     it "errors without role access" do
       replace_roles(admin, Suma::Role.cache.noop_admin)
 
-      get "/v1/vendible_groups"
+      get "/v1/programs"
 
       expect(last_response).to have_status(403)
       expect(last_response).to have_json_body.that_includes(error: include(code: "role_check"))
     end
 
     it_behaves_like "an endpoint capable of search" do
-      let(:url) { "/v1/vendible_groups" }
-      let(:search_term) { "Market" }
+      let(:url) { "/v1/programs" }
+      let(:search_term) { "water" }
 
       def make_matching_items
         return [
-          Suma::Fixtures.vendible_group(name: translated_text("Summer Farmers Market")).create,
+          Suma::Fixtures.program(name: translated_text("Portland Water Bureau")).create,
         ]
       end
 
       def make_non_matching_items
         return [
-          Suma::Fixtures.vendible_group(name: translated_text("wibble wobble")).create,
+          Suma::Fixtures.program(name: translated_text("wibble wobble")).create,
         ]
       end
     end
 
     it_behaves_like "an endpoint with pagination" do
-      let(:url) { "/v1/vendible_groups" }
+      let(:url) { "/v1/programs" }
       def make_item(i)
-        # Sorting is newest first, so the first items we create need to the the oldest.
+        # Sorting is newest first, so the first items we create need to the oldest.
         ordinal = 0 - i
-        return Suma::Fixtures.vendible_group.create(ordinal:)
+        return Suma::Fixtures.program.create(ordinal:)
       end
     end
 
     it_behaves_like "an endpoint with member-supplied ordering" do
-      let(:url) { "/v1/vendible_groups" }
+      let(:url) { "/v1/programs" }
       let(:order_by_field) { "id" }
       def make_item(_i)
-        return Suma::Fixtures.vendible_group.create
+        return Suma::Fixtures.program.create
       end
     end
   end
 
-  describe "POST /v1/vendible_groups/create" do
-    it "creates a vendible group" do
+  describe "POST /v1/program/create" do
+    it "creates a program" do
       existing_offering = Suma::Fixtures.offering.create
       existing_vs = Suma::Fixtures.vendor_service.create
-      post "/v1/vendible_groups/create",
-           name: {en: "test", es: "testo"},
+      post "/v1/programs/create",
+           name: {en: "test", es: "examen"},
+           period_begin: "2024-07-01T00:00:00-0700",
+           period_end: "2024-10-01T00:00:00-0700",
            commerce_offerings: [
              {
                id: existing_offering.id,
@@ -86,7 +88,7 @@ RSpec.describe Suma::AdminAPI::Programs, :db, skip: "rewrite this for programs" 
            ]
 
       expect(last_response).to have_status(200)
-      expect(Suma::Vendible::Group.all).to have_length(1)
+      expect(Suma::Program.all).to have_length(1)
       expect(last_response).to have_json_body.that_includes(
         commerce_offerings: contain_exactly(include(id: existing_offering.id)),
         vendor_services: contain_exactly(include(id: existing_vs.id)),
@@ -94,37 +96,37 @@ RSpec.describe Suma::AdminAPI::Programs, :db, skip: "rewrite this for programs" 
     end
   end
 
-  describe "GET /v1/vendible_groups/:id" do
-    it "returns the vendible group" do
+  describe "GET /v1/programs/:id" do
+    it "returns the program" do
       o = Suma::Fixtures.offering.create
       vs = Suma::Fixtures.vendor_service.create
-      group = Suma::Fixtures.vendible_group.with_offering(o).with_vendor_service(vs).create
+      program = Suma::Fixtures.program.with_offering(o).with_vendor_service(vs).create
 
-      get "/v1/vendible_groups/#{group.id}"
+      get "/v1/programs/#{program.id}"
 
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.that_includes(
-        id: group.id,
+        id: program.id,
         commerce_offerings: contain_exactly(include(id: o.id)),
         vendor_services: contain_exactly(include(id: vs.id)),
-        vendibles: contain_exactly(include(key: o.description.en), include(key: vs.external_name)),
+        components: contain_exactly(include(key: o.description.en), include(key: vs.external_name)),
       )
     end
 
     it "403s if the item does not exist" do
-      get "/v1/vendible_groups/0"
+      get "/v1/programs/0"
 
       expect(last_response).to have_status(403)
     end
   end
 
-  describe "POST /v1/vendible_group/:id" do
-    it "updates a vendible group" do
-      group = Suma::Fixtures.vendible_group.create
-      post "/v1/vendible_groups/#{group.id}", name: {en: "group A", es: "grupo A"}
+  describe "POST /v1/programs/:id" do
+    it "updates a program" do
+      program = Suma::Fixtures.program.create
+      post "/v1/programs/#{program.id}", name: {en: "pwb program", es: "pwb programa"}
 
       expect(last_response).to have_status(200)
-      expect(group.refresh).to have_attributes(name: have_attributes(en: "group A"))
+      expect(program.refresh).to have_attributes(name: have_attributes(en: "pwb program"))
     end
 
     it "handles adding and removing nested resources" do
@@ -134,9 +136,9 @@ RSpec.describe Suma::AdminAPI::Programs, :db, skip: "rewrite this for programs" 
       vs_fac = Suma::Fixtures.vendor_service
       vs_to_remove = vs_fac.create
       vs_to_add = vs_fac.create
-      group = Suma::Fixtures.vendible_group.with_offering(offering_to_remove).with_vendor_service(vs_to_remove).create
+      program = Suma::Fixtures.program.with_offering(offering_to_remove).with_vendor_service(vs_to_remove).create
 
-      post "/v1/vendible_groups/#{group.id}",
+      post "/v1/programs/#{program.id}",
            commerce_offerings: [
              {
                id: offering_to_add.id,
@@ -149,10 +151,10 @@ RSpec.describe Suma::AdminAPI::Programs, :db, skip: "rewrite this for programs" 
            ]
 
       expect(last_response).to have_status(200)
-      expect(group.refresh.commerce_offerings).to contain_exactly(
+      expect(program.refresh.commerce_offerings).to contain_exactly(
         have_attributes(id: offering_to_add.id),
       )
-      expect(group.refresh.vendor_services).to contain_exactly(
+      expect(program.refresh.vendor_services).to contain_exactly(
         have_attributes(id: vs_to_add.id),
       )
     end

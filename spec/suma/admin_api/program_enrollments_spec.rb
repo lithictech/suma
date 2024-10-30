@@ -1,111 +1,81 @@
 # frozen_string_literal: true
 
 require "suma/admin_api/program_enrollments"
-require "suma/api/behaviors"
 
-RSpec.describe Suma::AdminAPI::ProgramEnrollments, :db, skip: "implement this" do
-  it "does a thing" do
+RSpec.describe Suma::AdminAPI::ProgramEnrollments, :db do
+  include Rack::Test::Methods
+
+  let(:app) { described_class.build_app }
+  let(:admin) { Suma::Fixtures.member.admin.create }
+
+  before(:each) do
+    login_as(admin)
   end
-  # include Rack::Test::Methods
-  #
-  # let(:app) { described_class.build_app }
-  # let(:admin) { Suma::Fixtures.member.admin.create }
-  #
-  # before(:each) do
-  #   login_as(admin)
-  # end
-  #
-  # describe "GET /v1/eligibility_constraints" do
-  #   it "returns all eligibility constraints" do
-  #     objs = Array.new(2) { Suma::Fixtures.eligibility_constraint.create }
-  #
-  #     get "/v1/eligibility_constraints"
-  #
-  #     expect(last_response).to have_status(200)
-  #     expect(last_response).to have_json_body.
-  #       that_includes(items: have_same_ids_as(*objs))
-  #   end
-  #
-  #   it_behaves_like "an endpoint capable of search" do
-  #     let(:url) { "/v1/eligibility_constraints" }
-  #     let(:search_term) { "Lime" }
-  #
-  #     def make_matching_items
-  #       return [
-  #         Suma::Fixtures.eligibility_constraint(name: "Lime eScooters").create,
-  #       ]
-  #     end
-  #
-  #     def make_non_matching_items
-  #       return [
-  #         Suma::Fixtures.eligibility_constraint(name: translated_text("wibble wobble")).create,
-  #       ]
-  #     end
-  #   end
-  #
-  #   it_behaves_like "an endpoint with pagination" do
-  #     let(:url) { "/v1/eligibility_constraints" }
-  #     def make_item(i)
-  #       # Sorting is newest first, so the first items we create need to the the oldest.
-  #       created = Time.now - i.days
-  #       return Suma::Fixtures.eligibility_constraint.create(created_at: created)
-  #     end
-  #   end
-  #
-  #   it_behaves_like "an endpoint with member-supplied ordering" do
-  #     let(:url) { "/v1/eligibility_constraints" }
-  #     let(:order_by_field) { "id" }
-  #     def make_item(_i)
-  #       return Suma::Fixtures.eligibility_constraint.create(
-  #         created_at: Time.now + rand(1..100).days,
-  #       )
-  #     end
-  #   end
-  # end
-  #
-  # describe "POST /v1/eligibility_constraints/create" do
-  #   it "creates the constraint" do
-  #     post "/v1/eligibility_constraints/create", name: "Test constraint"
-  #
-  #     expect(last_response).to have_status(200)
-  #     expect(last_response.headers).to include("Created-Resource-Admin")
-  #     expect(Suma::Eligibility::Constraint.all).to have_length(1)
-  #   end
-  # end
-  #
-  # describe "GET /v1/eligibility_constraints/:id" do
-  #   it "returns the eligibility constraint" do
-  #     ec = Suma::Fixtures.eligibility_constraint.create
-  #     offering_objs = Array.new(2) { Suma::Fixtures.offering.with_constraints(ec).create }
-  #     vendor_service_objs = Array.new(2) { Suma::Fixtures.vendor_service.with_constraints(ec).create }
-  #     configuration_objs = Array.new(2) { Suma::Fixtures.anon_proxy_vendor_configuration.with_constraints(ec).create }
-  #
-  #     get "/v1/eligibility_constraints/#{ec.id}"
-  #
-  #     expect(last_response).to have_status(200)
-  #     expect(last_response).to have_json_body.that_includes(
-  #       id: ec.id,
-  #       offerings: have_same_ids_as(*offering_objs),
-  #       services: have_same_ids_as(*vendor_service_objs),
-  #       configurations: have_same_ids_as(*configuration_objs),
-  #     )
-  #   end
-  #
-  #   it "403s if the item does not exist" do
-  #     get "/v1/eligibility_constraints/0"
-  #
-  #     expect(last_response).to have_status(403)
-  #   end
-  # end
-  #
-  # describe "POST /v1/eligibility_constraints/:id" do
-  #   it "updates the constraint" do
-  #     ec = Suma::Fixtures.eligibility_constraint.create
-  #     post "/v1/eligibility_constraints/#{ec.id}", name: "Test"
-  #
-  #     expect(last_response).to have_status(200)
-  #     expect(last_response.headers).to include("Created-Resource-Admin")
-  #     expect(ec.refresh).to have_attributes(name: "Test")
-  #   end
-  # end
+
+  describe "GET /v1/program_enrollments" do
+    it "returns all programs enrollments" do
+      objs = Array.new(2) { Suma::Fixtures.program_enrollment.create }
+
+      get "/v1/program_enrollments"
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.
+        that_includes(items: have_same_ids_as(*objs))
+    end
+  end
+
+  describe "POST /v1/program_enrollments/create" do
+    it "creates the program enrollment for member" do
+      member = Suma::Fixtures.member.create
+      program = Suma::Fixtures.program.create
+
+      post "/v1/program_enrollments/create", program_id: program.id, member_id: member.id
+
+      expect(last_response).to have_status(200)
+      expect(last_response.headers).to include("Created-Resource-Admin")
+      expect(Suma::Program::Enrollment.all).to have_length(1)
+    end
+
+    it "creates the program enrollment for organization" do
+      organization = Suma::Fixtures.organization.create
+      program = Suma::Fixtures.program.create
+
+      post "/v1/program_enrollments/create", program_id: program.id, organization_id: organization.id
+
+      expect(last_response).to have_status(200)
+      expect(last_response.headers).to include("Created-Resource-Admin")
+      expect(Suma::Program::Enrollment.all).to have_length(1)
+    end
+  end
+
+  describe "GET /v1/program_enrollments/:id" do
+    it "returns the program enrollment" do
+      enrollment = Suma::Fixtures.program_enrollment.create
+
+      get "/v1/program_enrollments/#{enrollment.id}"
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.that_includes(
+        id: enrollment.id,
+        member: include(id: enrollment.member.id),
+      )
+    end
+
+    it "403s if the item does not exist" do
+      get "/v1/program_enrollments/0"
+
+      expect(last_response).to have_status(403)
+    end
+  end
+
+  describe "POST /v1/program_enrollments/:id" do
+    it "updates a program enrollment" do
+      enrollment = Suma::Fixtures.program_enrollment.unapproved.create
+
+      post "/v1/program_enrollments/#{enrollment.id}", approved_at: "2024-07-01T00:00:00-0700"
+
+      expect(last_response).to have_status(200)
+      expect(enrollment.refresh).to have_attributes(approved_at: match_time("2024-07-01T00:00:00-0700"))
+    end
+  end
 end

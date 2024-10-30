@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require "grape"
 require "suma/admin_api"
 
 class Suma::AdminAPI::Programs < Suma::AdminAPI::V1
@@ -48,6 +49,8 @@ class Suma::AdminAPI::Programs < Suma::AdminAPI::V1
     ) do
       params do
         requires(:name, type: JSON) { use :translated_text }
+        requires :period_begin, type: Time
+        requires :period_end, type: Time
         optional :commerce_offerings, type: Array[JSON] do
           use :model_with_id
         end
