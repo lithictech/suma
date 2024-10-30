@@ -53,7 +53,6 @@ require "suma/admin_api/program_enrollments"
 require "suma/admin_api/roles"
 require "suma/admin_api/search"
 require "suma/admin_api/vendors"
-require "suma/admin_api/vendible_groups"
 require "suma/admin_api/vendor_services"
 require "suma/admin_api/anon_proxy"
 
@@ -88,7 +87,6 @@ module Suma::Apps
     mount Suma::AdminAPI::CommerceOrders
     mount Suma::AdminAPI::CommerceProducts
     mount Suma::AdminAPI::CommerceOfferingProducts
-    mount Suma::AdminAPI::EligibilityConstraints
     mount Suma::AdminAPI::FundingTransactions
     mount Suma::AdminAPI::Members
     mount Suma::AdminAPI::MessageDeliveries
