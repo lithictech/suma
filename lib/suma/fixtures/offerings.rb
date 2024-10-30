@@ -40,7 +40,7 @@ module Suma::Fixtures::Offerings
     self.begin_fulfillment_at = t
   end
 
-  decorator :with_constraints, presave: true do |*constraints|
-    constraints.each { |c| self.add_eligibility_constraint(c) }
+  decorator :with_programs, presave: true do |*programs|
+    programs.each { |p| self.add_program(p) }
   end
 end

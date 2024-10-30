@@ -39,7 +39,6 @@ require "suma/admin_api/commerce_offerings"
 require "suma/admin_api/commerce_orders"
 require "suma/admin_api/commerce_products"
 require "suma/admin_api/commerce_offering_products"
-require "suma/admin_api/eligibility_constraints"
 require "suma/admin_api/funding_transactions"
 require "suma/admin_api/members"
 require "suma/admin_api/message_deliveries"
@@ -49,6 +48,8 @@ require "suma/admin_api/organization_memberships"
 require "suma/admin_api/payment_ledgers"
 require "suma/admin_api/payment_triggers"
 require "suma/admin_api/payout_transactions"
+require "suma/admin_api/programs"
+require "suma/admin_api/program_enrollments"
 require "suma/admin_api/roles"
 require "suma/admin_api/search"
 require "suma/admin_api/vendors"
@@ -97,10 +98,11 @@ module Suma::Apps
     mount Suma::AdminAPI::PaymentLedgers
     mount Suma::AdminAPI::PaymentTriggers
     mount Suma::AdminAPI::PayoutTransactions
+    mount Suma::AdminAPI::Programs
+    mount Suma::AdminAPI::ProgramEnrollments
     mount Suma::AdminAPI::Roles
     mount Suma::AdminAPI::Search
     mount Suma::AdminAPI::Vendors
-    mount Suma::AdminAPI::VendibleGroups
     mount Suma::AdminAPI::VendorServices
     add_swagger_documentation(mount_path: "/swagger", info: {title: "Suma Admin API"}) if
       Suma::Service.swagger_enabled

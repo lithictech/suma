@@ -25,7 +25,7 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
       Mobility.new.fixture
       AnonProxy.new.fixture
       Commerce.new.fixture
-      Vendible.new.fixture
+      Programs.new.fixture
     end
   end
 
@@ -402,7 +402,7 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
     end
   end
 
-  class Vendible
+  class Programs
     def fixture
       lime_name = Suma::TranslatedText.find_or_create(en: "Lime Scooter Rides", es: "Lime Scooter Rides (ES)")
       lime_group = Suma::Vendible::Group.find_or_create(name: lime_name)

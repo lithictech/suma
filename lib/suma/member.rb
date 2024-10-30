@@ -94,13 +94,13 @@ class Suma::Member < Suma::Postgres::Model(:members)
   one_to_many :anon_proxy_vendor_accounts, class: "Suma::AnonProxy::VendorAccount"
   one_to_many :organization_memberships, class: "Suma::Organization::Membership"
 
-  Suma::Eligibility::Constraint::STATUSES.each do |mt|
-    many_to_many :"#{mt}_eligibility_constraints",
-                 class: "Suma::Eligibility::Constraint",
-                 join_table: :eligibility_member_associations,
-                 right_key: :constraint_id,
-                 left_key: :"#{mt}_member_id"
-  end
+  # Suma::Eligibility::Constraint::STATUSES.each do |mt|
+  #   many_to_many :"#{mt}_eligibility_constraints",
+  #                class: "Suma::Eligibility::Constraint",
+  #                join_table: :eligibility_member_associations,
+  #                right_key: :constraint_id,
+  #                left_key: :"#{mt}_member_id"
+  # end
 
   plugin :association_array_replacer, :roles
 
@@ -156,35 +156,6 @@ class Suma::Member < Suma::Postgres::Model(:members)
     ra = Suma::Member::RoleAccess.new(self)
     return ra.instance_eval(&) if block_given?
     return ra
-  end
-
-  def eligibility_constraints_with_status
-    result = []
-    Suma::Eligibility::Constraint::STATUSES.each do |status|
-      constraints = self.send(:"#{status}_eligibility_constraints")
-      result += constraints.map { |c| {constraint: c, status:} }
-    end
-    return result
-  end
-
-  def replace_eligibility_constraint(constraint, group)
-    self.db[:eligibility_member_associations].
-      insert_conflict(
-        constraint: :unique_member,
-        update: {
-          verified_member_id: Sequel[:excluded][:verified_member_id],
-          pending_member_id: Sequel[:excluded][:pending_member_id],
-          rejected_member_id: Sequel[:excluded][:rejected_member_id],
-        },
-      ).insert(
-        constraint_id: constraint.id,
-        "#{group}_member_id": self.id,
-      )
-    self.publish_deferred("eligibilitychanged", self.id)
-    self.associations.delete(:verified_eligibility_constraints)
-    self.associations.delete(:pending_eligibility_constraints)
-    self.associations.delete(:rejected_eligibility_constraints)
-    return self
   end
 
   def greeting

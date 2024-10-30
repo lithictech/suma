@@ -256,26 +256,27 @@ module Suma::AdminAPI::CommonEndpoints
     end
   end
 
-  def self.eligibilities(route_def, model_type, entity)
+  def self.programs_update(route_def, model_type, entity)
     route_def.instance_exec do
       route_param :id, type: Integer do
         helpers MutationHelpers
         params do
-          requires :constraint_ids, type: Array[Integer], coerce_with: Suma::Service::Types::CommaSepArray[Integer]
+          requires :program_ids, type: Array[Integer], coerce_with: Suma::Service::Types::CommaSepArray[Integer]
         end
-        post :eligibilities do
+        post :programs do
           access = Suma::AdminAPI::Access.write_key(model_type)
           check_role_access!(admin_member, :write, access)
           _throwsafe_transaction(model_type.db) do
             (m = model_type[params[:id]]) or forbidden!
-            params[:constraint_ids].each do |id|
-              Suma::Eligibility::Constraint[id] or adminerror!(403, "Unknown eligibility constraint: #{id}")
+            params[:program_ids].each do |id|
+              Suma::Program[id] or adminerror!(403, "Unknown program: #{id}")
             end
-            m.replace_eligibility_constraints(params[:constraint_ids])
-            summary = m.eligibility_constraints_dataset.select_map(:name).join(", ")
+            m.program_pks = (params[:program_ids])
+            m.save_changes
+            summary = m.programs.map { |p| p.name.en }.join(", ")
             admin_member.add_activity(
-              message_name: "eligibilitychange",
-              summary: "Admin #{admin_member.email} modified eligibilities of #{m.model}[#{m.id}]: #{summary}",
+              message_name: "programchange",
+              summary: "Admin #{admin_member.email} modified programs of #{m.model}[#{m.id}]: #{summary}",
               subject_type: m.model,
               subject_id: m.id,
             )

@@ -41,11 +41,6 @@ class Suma::AdminAPI::Members < Suma::AdminAPI::V1
     expose :offering, with: OfferingEntity, &self.delegate_to(:checkout, :cart, :offering)
   end
 
-  class MemberEligibilityConstraintEntity < BaseEntity
-    expose :status
-    expose :constraint, with: Suma::AdminAPI::Entities::EligibilityConstraintEntity
-  end
-
   class MemberVendorAccountEntity < BaseEntity
     include Suma::AdminAPI::Entities
     include AutoExposeBase
@@ -78,10 +73,7 @@ class Suma::AdminAPI::Members < Suma::AdminAPI::V1
     expose :payment_account, with: DetailedPaymentAccountEntity
     expose :bank_accounts, with: PaymentInstrumentEntity
     expose :charges, with: ChargeEntity
-    expose :eligibility_constraints,
-           with: MemberEligibilityConstraintEntity,
-           &self.delegate_to(:eligibility_constraints_with_status)
-
+    expose :program_enrollments, with: ProgramEnrollmentEntity
     expose :activities, with: MemberActivityEntity
     expose :reset_codes, with: MemberResetCodeEntity
     expose :sessions, with: MemberSessionEntity
@@ -206,6 +198,7 @@ class Suma::AdminAPI::Members < Suma::AdminAPI::V1
         end
       end
       post :eligibilities do
+        # TODO: How do we want to manage member program enrollments?
         check_role_access!(admin_member, :write, :admin_members)
         member = lookup_member!
         admin = admin_member

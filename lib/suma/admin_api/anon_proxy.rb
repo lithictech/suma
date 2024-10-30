@@ -37,7 +37,7 @@ class Suma::AdminAPI::AnonProxy < Suma::AdminAPI::V1
 
   class DetailedVendorConfigurationEntity < VendorConfigurationEntity
     include Suma::AdminAPI::Entities
-    expose :eligibility_constraints, with: EligibilityConstraintEntity
+    expose :programs, with: ProgramEntity
   end
 
   class DetailedVendorAccountEntity < VendorAccountEntity
@@ -75,7 +75,7 @@ class Suma::AdminAPI::AnonProxy < Suma::AdminAPI::V1
         VendorConfigurationEntity,
       )
 
-      Suma::AdminAPI::CommonEndpoints.eligibilities(
+      Suma::AdminAPI::CommonEndpoints.programs_update(
         self,
         Suma::AnonProxy::VendorConfiguration,
         DetailedVendorConfigurationEntity,

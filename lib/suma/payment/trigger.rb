@@ -12,12 +12,11 @@ class Suma::Payment::Trigger < Suma::Postgres::Model(:payment_triggers)
 
   many_to_one :originating_ledger, class: "Suma::Payment::Ledger"
 
-  many_to_many :eligibility_constraints,
-               class: "Suma::Eligibility::Constraint",
-               join_table: :eligibility_payment_trigger_associations,
-               right_key: :constraint_id,
+  many_to_many :programs,
+               class: "Suma::Program",
+               join_table: :programs_payment_triggers,
                left_key: :trigger_id
-  include Suma::Eligibility::HasConstraints
+  include Suma::Program::Has
 
   one_to_many :executions, class: "Suma::Payment::Trigger::Execution"
 
@@ -27,15 +26,15 @@ class Suma::Payment::Trigger < Suma::Postgres::Model(:payment_triggers)
       return self.where(Sequel.pg_range(:active_during).contains(Sequel.cast(t, :timestamptz)))
     end
 
-    # Limit dataset to rows where 1) there are no trigger constraints, meaning everyone can use it,
-    # or 2) the verified member constraints and the trigger constraints overlap.
-    def eligible_to_member(member)
-      constraint_ids = member.verified_eligibility_constraints.map(&:id)
-      no_constraint = Sequel[:id] !~ self.db[:eligibility_payment_trigger_associations].select(:trigger_id)
-      has_constraint = Sequel[id: self.db[:eligibility_payment_trigger_associations].
-        where(constraint_id: constraint_ids).
+    # Limit dataset to rows where:
+    # 1) the trigger is not assigned to any program, meaning everyone can use it,
+    # or 2) the member has an active enrollment in the trigger program.
+    def eligible_to_member(member, as_of:)
+      no_programs = Sequel[:id] !~ self.db[:programs_payment_triggers].select(:trigger_id)
+      has_program = Sequel[id: self.db[:programs_payment_triggers].
+        where(program_id: member.program_enrollments_dataset.active(as_of:).select(:program_id)).
         select(:trigger_id)]
-      return self.where(no_constraint | has_constraint)
+      return self.where(no_programs | has_program)
     end
   end
 
@@ -44,7 +43,7 @@ class Suma::Payment::Trigger < Suma::Postgres::Model(:payment_triggers)
   # @param [Suma::Payment::Account] account
   # @return [Collection]
   def self.gather(account, apply_at:)
-    triggers = self.dataset.active_at(apply_at).eligible_to_member(account.member).all
+    triggers = self.dataset.active_at(apply_at).eligible_to_member(account.member, as_of: apply_at).all
     return Collection.new(account:, triggers:, apply_at:)
   end
 

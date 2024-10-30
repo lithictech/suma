@@ -28,7 +28,7 @@ class Suma::AdminAPI::CommerceOfferings < Suma::AdminAPI::V1
     expose :image, with: ImageEntity, &self.delegate_to(:images?, :first)
     expose :offering_products, with: OfferingProductEntity
     expose :orders, with: OrderInOfferingEntity
-    expose :eligibility_constraints, with: EligibilityConstraintEntity
+    expose :programs, with: ProgramEntity
     expose :max_ordered_items_cumulative
     expose :max_ordered_items_per_member
   end
@@ -139,7 +139,7 @@ class Suma::AdminAPI::CommerceOfferings < Suma::AdminAPI::V1
       end
     end
 
-    Suma::AdminAPI::CommonEndpoints.eligibilities(
+    Suma::AdminAPI::CommonEndpoints.programs_update(
       self,
       Suma::Commerce::Offering,
       DetailedOfferingEntity,

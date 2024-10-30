@@ -29,4 +29,22 @@ module Suma::Fixtures::Programs
   decorator :future do
     self.period_begin = 1.day.from_now
   end
+
+  decorator :with_offering, presave: true do |o={}|
+    o = Suma::Fixtures.offering(o).create unless o.is_a?(Suma::Commerce::Offering)
+    self.add_commerce_offering(o)
+  end
+
+  decorator :with_vendor_service, presave: true do |o={}|
+    o = Suma::Fixtures.vendor_service(o).create unless o.is_a?(Suma::Vendor::Service)
+    self.add_vendor_service(o)
+  end
+
+  decorator :with_, presave: true do |*objs|
+    objs.each { |o| o.add_program(self) }
+  end
+
+  decorator :named do |en, es: nil|
+    self.name = Suma::Fixtures.translated_text.create(en:, es: es || "(ES) #{en}")
+  end
 end

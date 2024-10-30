@@ -46,6 +46,16 @@ module Suma::AdminAPI::Entities
     expose :label
   end
 
+  class ImageEntity < BaseEntity
+    expose_translated :caption
+    expose :url, &self.delegate_to(:uploaded_file, :absolute_url)
+  end
+
+  class OrganizationEntity < BaseEntity
+    include AutoExposeBase
+    expose :name
+  end
+
   class PaymentInstrumentEntity < BaseEntity
     include AutoExposeBase
     expose :payment_method_type
@@ -103,9 +113,23 @@ module Suma::AdminAPI::Entities
     expose :account_type
   end
 
-  class EligibilityConstraintEntity < BaseEntity
+  class ProgramEntity < BaseEntity
     include AutoExposeBase
+    expose :admin_link
     expose :name
+    expose :description
+    expose :period, with: TimeRangeEntity
+    expose :ordinal
+  end
+
+  class ProgramEnrollmentEntity < BaseEntity
+    include AutoExposeBase
+    expose :admin_link
+    expose :program, with: ProgramEntity
+    expose :member, with: MemberEntity
+    expose :organization, with: OrganizationEntity
+    expose :approved_at
+    expose :unenrolled_at
   end
 
   class VendorEntity < BaseEntity
@@ -117,7 +141,7 @@ module Suma::AdminAPI::Entities
     include AutoExposeBase
     expose :external_name, as: :name
     expose :vendor, with: VendorEntity
-    expose :eligibility_constraints, with: EligibilityConstraintEntity
+    expose :programs, with: ProgramEntity
     expose :period_begin
     expose :period_end
   end
@@ -272,27 +296,10 @@ module Suma::AdminAPI::Entities
     expose :member, with: MemberEntity, &self.delegate_to(:checkout, :cart, :member)
   end
 
-  class ImageEntity < BaseEntity
-    expose_translated :caption
-    expose :url, &self.delegate_to(:uploaded_file, :absolute_url)
-  end
-
-  class OrganizationEntity < BaseEntity
-    include AutoExposeBase
-    expose :name
-  end
-
   class OrganizationMembershipEntity < BaseEntity
     include AutoExposeBase
     expose :member, with: MemberEntity
     expose :verified_organization, with: OrganizationEntity
     expose :unverified_organization_name
-  end
-
-  class VendibleGroupEntity < BaseEntity
-    expose :id
-    expose :admin_link
-    expose :name, with: TranslatedTextEntity
-    expose :ordinal
   end
 end

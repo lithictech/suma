@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
-require "suma/eligibility/has_constraints"
+require "suma/admin_linked"
+require "suma/image"
 require "suma/mobility/vendor_adapter"
 require "suma/postgres/model"
-require "suma/image"
+require "suma/program/has"
 require "suma/vendor/has_service_categories"
-require "suma/admin_linked"
 
 class Suma::Vendor::Service < Suma::Postgres::Model(:vendor_services)
   include Suma::AdminLinked
@@ -13,12 +13,7 @@ class Suma::Vendor::Service < Suma::Postgres::Model(:vendor_services)
 
   plugin :timestamps
   plugin :tstzrange_fields, :period
-
-  many_to_many :vendible_groups,
-               class: "Suma::Vendible::Group",
-               join_table: :vendible_groups_vendor_services,
-               left_key: :service_id,
-               right_key: :group_id
+  plugin :association_pks
 
   many_to_one :vendor, key: :vendor_id, class: "Suma::Vendor"
 
@@ -35,12 +30,11 @@ class Suma::Vendor::Service < Suma::Postgres::Model(:vendor_services)
 
   one_to_many :mobility_trips, class: "Suma::Mobility::Trip", key: :vendor_service_id
 
-  many_to_many :eligibility_constraints,
-               class: "Suma::Eligibility::Constraint",
-               join_table: :eligibility_vendor_service_associations,
-               right_key: :constraint_id,
+  many_to_many :programs,
+               class: "Suma::Program",
+               join_table: :programs_vendor_services,
                left_key: :service_id
-  include Suma::Eligibility::HasConstraints
+  include Suma::Program::Has
 
   dataset_module do
     def mobility

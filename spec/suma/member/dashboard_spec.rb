@@ -11,18 +11,17 @@ RSpec.describe Suma::Member::Dashboard, :db do
     expect(d).to have_attributes(vendor_services: [], offerings: [])
   end
 
-  it "includes vendible groupings for eligible vendor services and offerings" do
+  it "includes programs for eligible vendor services and offerings" do
     vs = Suma::Fixtures.vendor_service.mobility.create
     off = Suma::Fixtures.offering.create
-    vg1 = Suma::Fixtures.vendible_group.with_(vs).create
-    vg2 = Suma::Fixtures.vendible_group.with_(off).create
+    prog1 = Suma::Fixtures.program.with_(vs).create
+    prog2 = Suma::Fixtures.program.with_(off).create
+    Suma::Fixtures.program_enrollment.create(program: prog1, member:)
+    Suma::Fixtures.program_enrollment.create(program: prog2, member:)
     expect(described_class.new(member, at: now)).to have_attributes(
       offerings: have_same_ids_as(off),
       vendor_services: have_same_ids_as(vs),
-      vendible_groupings: contain_exactly(
-        have_attributes(group: vg1),
-        have_attributes(group: vg2),
-      ),
+      programs: have_same_ids_as(prog1, prog2),
     )
   end
 end

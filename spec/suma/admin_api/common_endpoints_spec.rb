@@ -115,8 +115,7 @@ RSpec.describe Suma::AdminAPI::CommonEndpoints, :db do
   describe "get_one" do
     it "returns the resource" do
       v = Suma::Fixtures.vendor.create
-      constraint = Suma::Fixtures.eligibility_constraint.create
-      service = Suma::Fixtures.vendor_service.with_constraints(constraint).create(vendor: v)
+      service = Suma::Fixtures.vendor_service.create(vendor: v)
       product_objs = Array.new(2) { Suma::Fixtures.product.create(vendor: v) }
 
       get "/v1/vendors/#{v.id}"
@@ -124,12 +123,7 @@ RSpec.describe Suma::AdminAPI::CommonEndpoints, :db do
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.that_includes(
         id: v.id,
-        services: contain_exactly(
-          include(
-            id: service.id,
-            eligibility_constraints: contain_exactly(include(id: constraint.id)),
-          ),
-        ),
+        services: have_same_ids_as(service),
         products: have_same_ids_as(*product_objs),
       )
     end

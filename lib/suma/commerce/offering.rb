@@ -2,9 +2,9 @@
 
 require "suma/admin_linked"
 require "suma/commerce"
-require "suma/eligibility/has_constraints"
 require "suma/image"
 require "suma/postgres/model"
+require "suma/program/has"
 require "suma/translated_text"
 
 class Suma::Commerce::Offering < Suma::Postgres::Model(:commerce_offerings)
@@ -13,27 +13,27 @@ class Suma::Commerce::Offering < Suma::Postgres::Model(:commerce_offerings)
 
   plugin :timestamps
   plugin :tstzrange_fields, :period
+  plugin :association_pks
   plugin :translated_text, :description, Suma::TranslatedText
   plugin :translated_text, :fulfillment_prompt, Suma::TranslatedText
   plugin :translated_text, :fulfillment_confirmation, Suma::TranslatedText
   plugin :translated_text, :fulfillment_instructions, Suma::TranslatedText
 
-  many_to_many :vendible_groups,
-               class: "Suma::Vendible::Group",
-               join_table: :vendible_groups_commerce_offerings,
+  many_to_many :programs,
+               class: "Suma::Program",
+               join_table: :programs_commerce_offerings,
                left_key: :offering_id,
-               right_key: :group_id
+               right_key: :program_id
 
   one_to_many :fulfillment_options, class: "Suma::Commerce::OfferingFulfillmentOption"
   one_to_many :offering_products, class: "Suma::Commerce::OfferingProduct"
   one_to_many :carts, class: "Suma::Commerce::Cart"
 
-  many_to_many :eligibility_constraints,
-               class: "Suma::Eligibility::Constraint",
-               join_table: :eligibility_offering_associations,
-               right_key: :constraint_id,
+  many_to_many :programs,
+               class: "Suma::Program",
+               join_table: :programs_commerce_offerings,
                left_key: :offering_id
-  include Suma::Eligibility::HasConstraints
+  include Suma::Program::Has
 
   many_through_many :products,
                     [

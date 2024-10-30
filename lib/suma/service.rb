@@ -114,6 +114,12 @@ class Suma::Service < Grape::API
                                                   }),
   )
 
+  # Set a :now key in the env which we can use across the request.
+  # This avoids many different definitions of 'now' within an endpoint/entity.
+  before do
+    env[:now] = Time.now
+  end
+
   # Add some context to Sentry on each request.
   before do
     # In some cases, like Grape::Swagger, this runs in a Grape::API rather than a Suma::Service

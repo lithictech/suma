@@ -9,11 +9,11 @@ RSpec.describe "Suma::Payment::Trigger", :db do
     expect(pa).to be_a(described_class)
   end
 
-  it "knows its constraints" do
-    con = Suma::Fixtures.eligibility_constraint.create
-    tr = Suma::Fixtures.payment_trigger.matching.with_constraints(con).create
-    expect(tr.eligibility_constraints).to contain_exactly(be === con)
-    expect(con.payment_triggers).to contain_exactly(be === tr)
+  it "knows its programs" do
+    pr = Suma::Fixtures.program.create
+    tr = Suma::Fixtures.payment_trigger.matching.with_programs(pr).create
+    expect(tr.programs).to contain_exactly(be === pr)
+    expect(pr.payment_triggers).to contain_exactly(be === tr)
   end
 
   describe "funding_plan" do
@@ -77,8 +77,8 @@ RSpec.describe "Suma::Payment::Trigger", :db do
       )
     end
 
-    describe "when no constraints are set" do
-      it "does not exclude based on constraints" do
+    describe "when no the trigger has no programs" do
+      it "does not exclude based on programs" do
         t = Suma::Fixtures.payment_trigger.matching.create
         plan = described_class.gather(account, apply_at:).funding_plan(money("$10"))
         expect(plan.steps).to contain_exactly(
@@ -87,19 +87,19 @@ RSpec.describe "Suma::Payment::Trigger", :db do
       end
     end
 
-    describe "when constraints are set" do
-      let!(:constraint) { Suma::Fixtures.eligibility_constraint.create }
-      let!(:tr) { Suma::Fixtures.payment_trigger.matching.with_constraints(constraint).create }
+    describe "when the trigger is in a program" do
+      let!(:program) { Suma::Fixtures.program.create }
+      let!(:tr) { Suma::Fixtures.payment_trigger.matching.with_programs(program).create }
 
-      it "excludes the trigger if the subject that does not satisfy constraints" do
-        account.member.replace_eligibility_constraint(constraint, "pending")
-        account.member.replace_eligibility_constraint(Suma::Fixtures.eligibility_constraint.create, "verified")
+      it "excludes the trigger if the subject does not have an active enrollment in an overlapping program" do
+        unenrolled = Suma::Fixtures.program_enrollment.unenrolled.create(member: account.member, program:)
+        different_program = Suma::Fixtures.program_enrollment.create(member: account.member)
         plan = described_class.gather(account, apply_at:).funding_plan(money("$10"))
         expect(plan.steps).to be_empty
       end
 
-      it "includes the trigger if the subject satisfies constraints" do
-        account.member.replace_eligibility_constraint(constraint, "verified")
+      it "includes the trigger if the subject has an active enrollment in the trigger program" do
+        Suma::Fixtures.program_enrollment.create(member: account.member, program:)
         plan = described_class.gather(account, apply_at:).funding_plan(money("$10"))
         expect(plan.steps).to contain_exactly(have_attributes(trigger: tr))
       end

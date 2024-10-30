@@ -34,7 +34,7 @@ module Suma::API::Entities
     expose :url, &self.delegate_to(:uploaded_file, :absolute_url)
   end
 
-  class VendibleEntity < BaseEntity
+  class ProgramComponentEntity < BaseEntity
     expose_translated :name
     expose :until
     expose :image, with: ImageEntity
@@ -66,8 +66,8 @@ module Suma::API::Entities
     expose :external_name, as: :name
     expose :vendor_name, &self.delegate_to(:vendor, :name)
     expose :vendor_slug, &self.delegate_to(:vendor, :slug)
-    expose :vendible, with: VendibleEntity do |inst|
-      Suma::Vendible.from_vendor_service(inst)
+    expose :program_component, with: ProgramComponentEntity do |inst|
+      Suma::Program::Component.from_vendor_service(inst)
     end
   end
 
@@ -100,7 +100,6 @@ module Suma::API::Entities
     expose_translated :name, &self.delegate_to(:program, :name)
     expose_translated :description, &self.delegate_to(:program, :description)
     expose :image, with: ImageEntity, &self.delegate_to(:program, :image?)
-    expose :is_utility, &self.delegate_to(:program, :is_utility)
   end
 
   class CurrentMemberEntity < Suma::Service::Entities::CurrentMember
@@ -109,8 +108,8 @@ module Suma::API::Entities
     expose :read_only_mode?, as: :read_only_mode
     expose :read_only_reason
     expose :usable_payment_instruments, with: PaymentInstrumentEntity
-    expose :active_programs, with: ProgramEnrollmentEntity do |m|
-      m.program_enrollments_dataset.active.all
+    expose :active_programs, with: ProgramEnrollmentEntity do |m, opts|
+      m.program_enrollments_dataset.active(as_of: opts[:env].fetch(:now)).all
     end
     expose :admin_member, expose_nil: false, with: Suma::Service::Entities::CurrentMember do |_|
       self.current_session.impersonation? ? self.current_session.member : nil

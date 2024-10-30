@@ -62,20 +62,6 @@ RSpec.describe Suma::AdminAPI::Meta, :db do
     end
   end
 
-  describe "GET /v1/meta/eligibility_constraints" do
-    it "returns categories" do
-      a = Suma::Fixtures.eligibility_constraint.create
-
-      get "/v1/meta/eligibility_constraints"
-
-      expect(last_response).to have_status(200)
-      expect(last_response).to have_json_body.that_includes(
-        :statuses,
-        items: have_same_ids_as(a),
-      )
-    end
-  end
-
   describe "GET /v1/meta/resource_access" do
     it "returns resource access info" do
       get "/v1/meta/resource_access"

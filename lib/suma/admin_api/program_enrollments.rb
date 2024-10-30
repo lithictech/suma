@@ -1,12 +1,11 @@
 # frozen_string_literal: true
 
-require "grape"
 require "suma/admin_api"
 
-class Suma::AdminAPI::VendibleGroups < Suma::AdminAPI::V1
+class Suma::AdminAPI::ProgramEnrollments < Suma::AdminAPI::V1
   include Suma::AdminAPI::Entities
 
-  class VendibleEntity < BaseEntity
+  class ProgramComponentEntity < BaseEntity
     include Suma::AdminAPI::Entities
     expose :key, &self.delegate_to(:name, :en)
     expose :name, with: TranslatedTextEntity
@@ -15,22 +14,23 @@ class Suma::AdminAPI::VendibleGroups < Suma::AdminAPI::V1
     expose :link
   end
 
-  class DetailedVendibleGroupEntity < VendibleGroupEntity
+  class DetailedProgramEntity < ProgramEntity
     include Suma::AdminAPI::Entities
+    include AutoExposeDetail
     expose :commerce_offerings, with: OfferingEntity
-    expose :vendibles, with: VendibleEntity
     expose :vendor_services, with: VendorServiceEntity
+    expose :components, with: ProgramComponentEntity
   end
 
-  resource :vendible_groups do
+  resource :programs do
     params do
       use :pagination
-      use :ordering, model: Suma::Vendible::Group, default: :ordinal
+      use :ordering, model: Suma::Program, default: :ordinal
       use :searchable
     end
     get do
       check_role_access!(admin_member, :read, :admin_commerce)
-      ds = Suma::Vendible::Group.dataset
+      ds = Suma::Program.dataset
       if (name_en_like = search_param_to_sql(params, :name_en))
         name_es_like = search_param_to_sql(params, :name_es)
         ds = ds.translation_join(:name, [:en, :es])
@@ -38,13 +38,13 @@ class Suma::AdminAPI::VendibleGroups < Suma::AdminAPI::V1
       end
       ds = order(ds, params)
       ds = paginate(ds, params)
-      present_collection ds, with: VendibleGroupEntity
+      present_collection ds, with: ProgramEntity
     end
 
     Suma::AdminAPI::CommonEndpoints.create(
       self,
-      Suma::Vendible::Group,
-      DetailedVendibleGroupEntity,
+      Suma::Program,
+      DetailedProgramEntity,
     ) do
       params do
         requires(:name, type: JSON) { use :translated_text }
@@ -59,14 +59,14 @@ class Suma::AdminAPI::VendibleGroups < Suma::AdminAPI::V1
 
     Suma::AdminAPI::CommonEndpoints.get_one(
       self,
-      Suma::Vendible::Group,
-      DetailedVendibleGroupEntity,
+      Suma::Program,
+      DetailedProgramEntity,
     )
 
     Suma::AdminAPI::CommonEndpoints.update(
       self,
-      Suma::Vendible::Group,
-      DetailedVendibleGroupEntity,
+      Suma::Program,
+      DetailedProgramEntity,
       around: lambda do |rt, m, &block|
         offerings = rt.params.delete(:commerce_offerings)
         vendor_services = rt.params.delete(:vendor_services)

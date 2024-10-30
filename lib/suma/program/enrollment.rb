@@ -5,10 +5,20 @@ require "suma/postgres/model"
 class Suma::Program::Enrollment < Suma::Postgres::Model(:program_enrollments)
   many_to_one :program, class: "Suma::Program"
   many_to_one :member, class: "Suma::Member"
+  many_to_one :organization, class: "Suma::Organization"
 
   dataset_module do
-    def active
-      return self.where(program: Suma::Program.dataset.active, unenrolled_at: nil).exclude(approved_at: nil)
+    def enrolled(as_of:)
+      return self.
+          # Approved at some point before now
+          where(Sequel[:approved_at] <= as_of).
+          # Never unenrolled, or unenrolled in the future
+          where(Sequel[unenrolled_at: nil] | (Sequel[:unenrolled_at] > as_of))
     end
+
+    def active(as_of:) = self.where(program: Suma::Program.dataset.active).enrolled(as_of:)
   end
+
+  # @return [Suma::Member,Suma::Organization]
+  def enrollee = self.member || self.organization
 end

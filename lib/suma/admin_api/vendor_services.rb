@@ -56,7 +56,7 @@ class Suma::AdminAPI::VendorServices < Suma::AdminAPI::V1
         optional :period_end, type: Time
       end
     end
-    Suma::AdminAPI::CommonEndpoints.eligibilities(
+    Suma::AdminAPI::CommonEndpoints.programs_update(
       self,
       Suma::Vendor::Service,
       DetailedVendorServiceEntity,

@@ -12,7 +12,7 @@ module Suma::Fixtures::ProgramEnrollments
   end
 
   before_saving do |instance|
-    instance.member ||= Suma::Fixtures.member.create
+    instance.member ||= Suma::Fixtures.member.create if instance.organization_id.nil?
     instance.program ||= Suma::Fixtures.program.create
     instance
   end
@@ -21,15 +21,7 @@ module Suma::Fixtures::ProgramEnrollments
     self.approved_at = nil
   end
 
-  decorator :unenrolled do |at=Time.now|
+  decorator :unenrolled do |at=1.minute.ago|
     self.unenrolled_at = at
-  end
-
-  decorator :expired do
-    self.period_end = 1.second.ago
-  end
-
-  decorator :future do
-    self.period_begin = 1.day.from_now
   end
 end

@@ -3,7 +3,6 @@
 require "suma/admin_linked"
 require "suma/anon_proxy"
 require "suma/postgres"
-require "suma/eligibility/has_constraints"
 
 class Suma::AnonProxy::VendorAccount < Suma::Postgres::Model(:anon_proxy_vendor_accounts)
   include Suma::AdminLinked

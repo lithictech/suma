@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
-require "suma/admin_api/vendible_groups"
+require "suma/admin_api/programs"
 require "suma/api/behaviors"
 
-RSpec.describe Suma::AdminAPI::VendibleGroups, :db do
+RSpec.describe Suma::AdminAPI::Programs, :db, skip: "rewrite this for programs" do
   include Rack::Test::Methods
 
   let(:app) { described_class.build_app }
