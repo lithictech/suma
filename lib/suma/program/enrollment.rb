@@ -9,6 +9,8 @@ class Suma::Program::Enrollment < Suma::Postgres::Model(:program_enrollments)
   many_to_one :program, class: "Suma::Program"
   many_to_one :member, class: "Suma::Member"
   many_to_one :organization, class: "Suma::Organization"
+  many_to_one :approved_by, class: "Suma::Member"
+  many_to_one :unenrolled_by, class: "Suma::Member"
 
   dataset_module do
     def enrolled(as_of:)
@@ -20,6 +22,22 @@ class Suma::Program::Enrollment < Suma::Postgres::Model(:program_enrollments)
     end
 
     def active(as_of:) = self.where(program: Suma::Program.dataset.active(as_of:)).enrolled(as_of:)
+  end
+
+  def approved?
+    return self.approved_at ? true : false
+  end
+
+  def approved=(v)
+    self.approved_at = v ? Time.now : nil
+  end
+
+  def unenrolled?
+    return self.unenrolled_at ? true : false
+  end
+
+  def unenrolled=(v)
+    self.unenrolled_at = v ? Time.now : nil
   end
 
   # @return [Suma::Member,Suma::Organization]

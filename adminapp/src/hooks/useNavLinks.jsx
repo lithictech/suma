@@ -106,6 +106,11 @@ export default function useNavLinks() {
         icon: <ListAltIcon />,
       },
       management && {
+        label: "Program Enrollments",
+        href: "/program-enrollments",
+        icon: <ListAltIcon />,
+      },
+      management && {
         label: "Eligibility Constraints",
         href: "/constraints",
         icon: <KeyIcon />,

@@ -50,9 +50,9 @@ Sequel.migration do
       )
 
       timestamptz :approved_at
-      foreign_key :approved_by, :members, on_delete: :set_null
+      foreign_key :approved_by_id, :members, on_delete: :set_null
       timestamptz :unenrolled_at
-      foreign_key :unenrolled_by, :members, on_delete: :set_null
+      foreign_key :unenrolled_by_id, :members, on_delete: :set_null
     end
 
     alter_table(:images) do

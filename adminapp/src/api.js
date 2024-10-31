@@ -162,6 +162,14 @@ export default {
   getProgram: ({ id, ...data }) => get(`/adminapi/v1/programs/${id}`, data),
   updateProgram: ({ id, ...data }) => postForm(`/adminapi/v1/programs/${id}`, data),
 
+  getProgramEnrollments: (data) => get(`/adminapi/v1/program_enrollments`, data),
+  createProgramEnrollment: (data) =>
+    postForm("/adminapi/v1/program_enrollments/create", data),
+  getProgramEnrollment: ({ id, ...data }) =>
+    get(`/adminapi/v1/program_enrollments/${id}`, data),
+  updateProgramEnrollment: ({ id, ...data }) =>
+    postForm(`/adminapi/v1/program_enrollments/${id}`, data),
+
   getVendorServices: (data) => get(`/adminapi/v1/vendor_services`, data),
   getVendorService: ({ id, ...data }) => get(`/adminapi/v1/vendor_services/${id}`, data),
   updateVendorService: ({ id, ...data }) =>
@@ -222,6 +230,7 @@ export default {
   searchOrganizations: (data) => post(`/adminapi/v1/search/organizations`, data),
   searchVendorServices: (data) => post(`/adminapi/v1/search/vendor_services`, data),
   searchCommerceOffering: (data) => post(`/adminapi/v1/search/commerce_offerings`, data),
+  searchPrograms: (data) => post(`/adminapi/v1/search/programs`, data),
 
   /**
    * Return an API url.

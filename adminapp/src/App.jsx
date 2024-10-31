@@ -51,6 +51,9 @@ import ProductListPage from "./pages/ProductListPage";
 import ProgramCreatePage from "./pages/ProgramCreatePage";
 import ProgramDetailPage from "./pages/ProgramDetailPage";
 import ProgramEditPage from "./pages/ProgramEditPage";
+import ProgramEnrollmentCreatePage from "./pages/ProgramEnrollmentCreatePage";
+import ProgramEnrollmentDetailPage from "./pages/ProgramEnrollmentDetailPage";
+import ProgramEnrollmentListPage from "./pages/ProgramEnrollmentListPage";
 import ProgramListPage from "./pages/ProgramListPage";
 import SignInPage from "./pages/SignInPage";
 import VendorAccountDetailPage from "./pages/VendorAccountDetailPage";
@@ -390,6 +393,33 @@ function PageSwitch() {
         exact
         path="/program/:id/edit"
         element={renderWithHocs(redirectIfUnauthed, withLayout(), ProgramEditPage)}
+      />
+      <Route
+        exact
+        path="/program-enrollments"
+        element={renderWithHocs(
+          redirectIfUnauthed,
+          withLayout(),
+          ProgramEnrollmentListPage
+        )}
+      />
+      <Route
+        exact
+        path="/program-enrollment/new"
+        element={renderWithHocs(
+          redirectIfUnauthed,
+          withLayout(),
+          ProgramEnrollmentCreatePage
+        )}
+      />
+      <Route
+        exact
+        path="/program-enrollment/:id"
+        element={renderWithHocs(
+          redirectIfUnauthed,
+          withLayout(),
+          ProgramEnrollmentDetailPage
+        )}
       />
       <Route
         exact

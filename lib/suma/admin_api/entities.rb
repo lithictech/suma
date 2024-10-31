@@ -45,6 +45,11 @@ module Suma::AdminAPI::Entities
     expose :label
   end
 
+  class TranslatedTextEntity < BaseEntity
+    expose :en
+    expose :es
+  end
+
   class ImageEntity < BaseEntity
     expose_translated :caption
     expose :url, &self.delegate_to(:uploaded_file, :absolute_url)
@@ -114,8 +119,8 @@ module Suma::AdminAPI::Entities
 
   class ProgramEntity < BaseEntity
     include AutoExposeBase
-    expose :name
-    expose :description
+    expose :name, with: TranslatedTextEntity
+    expose :description, with: TranslatedTextEntity
     expose :period_begin
     expose :period_end
     expose :ordinal
@@ -203,11 +208,6 @@ module Suma::AdminAPI::Entities
     expose :classification
     expose :amount, with: MoneyEntity
     expose :originating_payment_account, with: SimplePaymentAccountEntity
-  end
-
-  class TranslatedTextEntity < BaseEntity
-    expose :en
-    expose :es
   end
 
   class BookTransactionEntity < BaseEntity

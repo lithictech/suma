@@ -252,6 +252,23 @@ class Suma::AdminAPI::Search < Suma::AdminAPI::V1
       status 200
       present_collection ds, with: SearchCommerceOfferingEntity
     end
+
+    params do
+      optional :q, type: String
+    end
+    post :programs do
+      check_role_access!(admin_member, :read, :admin_management)
+      ds = Suma::Program.dataset
+      if (name_en_like = search_param_to_sql(params, :name_en, param: :q))
+        name_es_like = search_param_to_sql(params, :name_es, param: :q)
+        ds = ds.translation_join(:name, [:en, :es])
+        ds = ds.reduce_expr(:|, [name_en_like, name_es_like])
+      end
+      ds = ds.order(Sequel.desc(:id), Sequel.desc(:id))
+      ds = ds.limit(15)
+      status 200
+      present_collection ds, with: SearchProgramEntity
+    end
   end
 
   class SearchLedgerEntity < BaseEntity
@@ -332,5 +349,13 @@ class Suma::AdminAPI::Search < Suma::AdminAPI::V1
     expose :admin_link
     expose :name, &self.delegate_to(:description, :en)
     expose :label, &self.delegate_to(:description, :en)
+  end
+
+  class SearchProgramEntity < BaseEntity
+    expose :key, &self.delegate_to(:id, :to_s)
+    expose :id
+    expose :admin_link
+    expose :name, &self.delegate_to(:name, :en)
+    expose :label, &self.delegate_to(:name, :en)
   end
 end

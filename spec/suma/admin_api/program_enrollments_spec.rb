@@ -29,7 +29,7 @@ RSpec.describe Suma::AdminAPI::ProgramEnrollments, :db do
       member = Suma::Fixtures.member.create
       program = Suma::Fixtures.program.create
 
-      post "/v1/program_enrollments/create", program_id: program.id, member_id: member.id
+      post "/v1/program_enrollments/create", program: {id: program.id}, member: {id: member.id}
 
       expect(last_response).to have_status(200)
       expect(last_response.headers).to include("Created-Resource-Admin")
@@ -40,7 +40,7 @@ RSpec.describe Suma::AdminAPI::ProgramEnrollments, :db do
       organization = Suma::Fixtures.organization.create
       program = Suma::Fixtures.program.create
 
-      post "/v1/program_enrollments/create", program_id: program.id, organization_id: organization.id
+      post "/v1/program_enrollments/create", program: {id: program.id}, organization: {id: organization.id}
 
       expect(last_response).to have_status(200)
       expect(last_response.headers).to include("Created-Resource-Admin")
@@ -72,10 +72,15 @@ RSpec.describe Suma::AdminAPI::ProgramEnrollments, :db do
     it "updates a program enrollment" do
       enrollment = Suma::Fixtures.program_enrollment.unapproved.create
 
-      post "/v1/program_enrollments/#{enrollment.id}", approved_at: "2024-07-01T00:00:00-0700"
+      post "/v1/program_enrollments/#{enrollment.id}", approved: true, approved_by: {id: admin.id}
 
       expect(last_response).to have_status(200)
-      expect(enrollment.refresh).to have_attributes(approved_at: match_time("2024-07-01T00:00:00-0700"))
+      expect(last_response).to have_json_body.that_includes(
+        approved: true,
+        approved_by: include(id: admin.id),
+        unenrolled: false,
+        unenrolled_by: be_nil,
+      )
     end
   end
 end
