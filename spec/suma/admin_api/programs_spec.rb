@@ -95,8 +95,8 @@ RSpec.describe Suma::AdminAPI::Programs, :db do
       expect(last_response).to have_status(200)
       expect(Suma::Program.all).to have_length(1)
       expect(last_response).to have_json_body.that_includes(
-        commerce_offerings: contain_exactly(include(id: existing_offering.id)),
-        vendor_services: contain_exactly(include(id: existing_vs.id)),
+        commerce_offerings: contain_exactly(include(id: offering.id)),
+        vendor_services: contain_exactly(include(id: vendor_service.id)),
       )
     end
   end
