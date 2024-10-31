@@ -7,7 +7,6 @@ require "suma/service/entities"
 module Suma::AdminAPI::Entities
   MoneyEntity = Suma::Service::Entities::Money
   LegalEntityEntity = Suma::Service::Entities::LegalEntityEntity
-  TimeRangeEntity = Suma::Service::Entities::TimeRange
   AddressEntity = Suma::Service::Entities::Address
 
   class BaseEntity < Suma::Service::Entities::Base; end
@@ -117,7 +116,8 @@ module Suma::AdminAPI::Entities
     include AutoExposeBase
     expose :name
     expose :description
-    expose :period, with: TimeRangeEntity
+    expose :period_begin
+    expose :period_end
     expose :ordinal
     expose :app_link
   end

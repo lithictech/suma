@@ -10,6 +10,7 @@ export default function ProgramCreatePage() {
     image: null,
     name: formHelpers.initialTranslation,
     description: formHelpers.initialTranslation,
+    appLink: "",
     periodBegin: dayjs().format(),
     periodEnd: dayjs().add(1, "day").format(),
     vendorServices: [],

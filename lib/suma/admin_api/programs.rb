@@ -42,6 +42,7 @@ class Suma::AdminAPI::Programs < Suma::AdminAPI::V1
         requires :image, type: File
         requires(:name, type: JSON) { use :translated_text }
         requires(:description, type: JSON) { use :translated_text }
+        requires :app_link, type: String
         requires :period_begin, type: Time
         requires :period_end, type: Time
         optional :commerce_offerings, type: Array[JSON] do
@@ -81,6 +82,7 @@ class Suma::AdminAPI::Programs < Suma::AdminAPI::V1
         optional :image, type: File
         optional(:name, type: JSON) { use :translated_text }
         optional(:description, type: JSON) { use :translated_text }
+        optional :app_link, type: String
         optional :period_begin, type: Time
         optional :period_end, type: Time
         optional :commerce_offerings, type: Array[JSON] do

@@ -33,6 +33,7 @@ export default function ProgramDetailPage() {
         { label: "Description ES", value: model.description.es },
         { label: "Opening Date", value: dayjs(model.periodBegin) },
         { label: "Closing Date", value: dayjs(model.periodEnd) },
+        { label: "App Link", value: model.appLink },
         { label: "Ordinal", value: model.ordinal },
       ]}
     >
@@ -65,25 +66,6 @@ export default function ProgramDetailPage() {
               </AdminLink>,
               dayjs(row.periodBegin).format("lll"),
               dayjs(row.periodEnd).format("lll"),
-            ]}
-          />
-          <RelatedList
-            title={`Program Components (Dashboard View)`}
-            rows={model.components}
-            headers={["Image", "Name EN", "Name ES", "Until", "App Relative Link"]}
-            keyRowAttr="key"
-            toCells={(row) => [
-              <SumaImage
-                image={row.image}
-                alt={row.image.name}
-                className="w-100"
-                params={{ crop: "none" }}
-                h={50}
-              />,
-              row.name.en,
-              row.name.es,
-              dayjs(row.until).format("lll"),
-              row.link,
             ]}
           />
         </>

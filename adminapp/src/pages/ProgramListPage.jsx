@@ -26,6 +26,13 @@ export default function ProgramListPage() {
           render: (c) => <AdminLink model={c}>{c.name.en}</AdminLink>,
         },
         {
+          id: "app_link",
+          label: "App Link",
+          align: "left",
+          render: (c) => c.appLink,
+          hideEmpty: true,
+        },
+        {
           id: "period_begin",
           label: "Opens",
           align: "center",

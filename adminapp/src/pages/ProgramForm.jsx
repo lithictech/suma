@@ -11,7 +11,7 @@ import withoutAt from "../shared/withoutAt";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
 import RemoveIcon from "@mui/icons-material/Remove";
-import { Box, FormHelperText, FormLabel, Icon, Stack } from "@mui/material";
+import { Box, FormHelperText, FormLabel, Icon, Stack, TextField } from "@mui/material";
 import Button from "@mui/material/Button";
 import React from "react";
 
@@ -19,6 +19,7 @@ export default function ProgramForm({
   isCreate,
   resource,
   setField,
+  setFieldFromInput,
   register,
   isBusy,
   onSubmit,
@@ -61,9 +62,18 @@ export default function ProgramForm({
             onChange={(v) => setField("description", v)}
           />
         </ResponsiveStack>
+        <FormLabel>App Link</FormLabel>
+        <TextField
+          {...register("appLink")}
+          fullWidth
+          value={resource.appLink}
+          label="App link"
+          onChange={setFieldFromInput}
+          helperText="Useful for linking members to promotion pages, '/food/1' would link to 'app.mysuma.org/app/food/1'."
+        />
         <FormLabel>Timings</FormLabel>
         <FormHelperText>
-          Member or organization can access a program between the begin and end times.
+          Member or organization can access a program between the open and close times.
         </FormHelperText>
         <ResponsiveStack alignItems="center" divider={<RemoveIcon />}>
           <SafeDateTimePicker
