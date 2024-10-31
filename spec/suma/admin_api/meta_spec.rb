@@ -62,6 +62,21 @@ RSpec.describe Suma::AdminAPI::Meta, :db do
     end
   end
 
+  describe "GET /v1/meta/programs" do
+    it "returns categories" do
+      p1 = Suma::Fixtures.program.create(name: Suma::Fixtures.translated_text.create(en: "b"))
+      p2 = Suma::Fixtures.program.create(name: Suma::Fixtures.translated_text.create(en: "a"))
+      p3 = Suma::Fixtures.program.create(name: Suma::Fixtures.translated_text.create(en: "c"))
+
+      get "/v1/meta/programs"
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.that_includes(
+        items: have_same_ids_as(p2, p1, p3).ordered,
+      )
+    end
+  end
+
   describe "GET /v1/meta/resource_access" do
     it "returns resource access info" do
       get "/v1/meta/resource_access"

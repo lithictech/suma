@@ -32,8 +32,9 @@ class Suma::AdminAPI::Meta < Suma::AdminAPI::V1
     end
 
     get :programs do
-      # TODO: Sort on name
-      ds = Suma::Program.dataset.order(:name).all
+      ds = Suma::Program.dataset
+      ds = ds.translation_join(:name, [:en])
+      ds = ds.order(:name_en)
       present_collection ds, with: SlimProgramEntity
     end
 
