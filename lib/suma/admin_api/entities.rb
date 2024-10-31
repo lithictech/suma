@@ -135,6 +135,9 @@ module Suma::AdminAPI::Entities
     expose :organization, with: OrganizationEntity
     expose :approved_at
     expose :unenrolled_at
+    expose :program_active do |pe|
+      pe.program_active_at?(Time.now)
+    end
   end
 
   class VendorEntity < BaseEntity

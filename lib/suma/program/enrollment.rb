@@ -24,6 +24,10 @@ class Suma::Program::Enrollment < Suma::Postgres::Model(:program_enrollments)
     def active(as_of:) = self.where(program: Suma::Program.dataset.active(as_of:)).enrolled(as_of:)
   end
 
+  def program_active_at?(t)
+    return self.program.period.cover?(t)
+  end
+
   def approved?
     return self.approved_at ? true : false
   end

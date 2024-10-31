@@ -1,12 +1,12 @@
 import api from "../api";
 import AdminLink from "../components/AdminLink";
+import Programs from "../components/Programs";
 import RelatedList from "../components/RelatedList";
 import ResourceDetail from "../components/ResourceDetail";
 import { dayjs } from "../modules/dayConfig";
 import { formatMoney, intToMoney } from "../shared/money";
 import SafeExternalLink from "../shared/react/SafeExternalLink";
 import React from "react";
-import Programs from "../components/Programs";
 
 export default function PaymentTriggerDetailPage() {
   return (

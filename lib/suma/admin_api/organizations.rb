@@ -9,6 +9,7 @@ class Suma::AdminAPI::Organizations < Suma::AdminAPI::V1
   class DetailedOrganizationEntity < OrganizationEntity
     include Suma::AdminAPI::Entities
     expose :memberships, with: OrganizationMembershipEntity
+    expose :program_enrollments, with: ProgramEnrollmentEntity
   end
 
   resource :organizations do
