@@ -82,16 +82,16 @@ RSpec.describe Suma::AdminAPI::Programs, :db do
            app_link: "/food/1",
            period_begin: "2024-07-01T00:00:00-0700",
            period_end: "2024-10-01T00:00:00-0700",
-           commerce_offerings: [
-             {
+           commerce_offerings: {
+             "0" => {
                id: offering.id,
              },
-           ],
-           vendor_services: [
-             {
+           },
+           vendor_services: {
+             "0" => {
                id: vendor_service.id,
              },
-           ]
+           }
 
       expect(last_response).to have_status(200)
       expect(Suma::Program.all).to have_length(1)
@@ -144,16 +144,16 @@ RSpec.describe Suma::AdminAPI::Programs, :db do
       program = Suma::Fixtures.program.with_offering(offering_to_remove).with_vendor_service(vs_to_remove).create
 
       post "/v1/programs/#{program.id}",
-           commerce_offerings: [
-             {
+           commerce_offerings: {
+             "0" => {
                id: offering_to_add.id,
              },
-           ],
-           vendor_services: [
-             {
+           },
+           vendor_services: {
+             "0" => {
                id: vs_to_add.id,
              },
-           ]
+           }
 
       expect(last_response).to have_status(200)
       expect(program.refresh.commerce_offerings).to contain_exactly(

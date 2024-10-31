@@ -45,10 +45,10 @@ class Suma::AdminAPI::Programs < Suma::AdminAPI::V1
         requires :app_link, type: String
         requires :period_begin, type: Time
         requires :period_end, type: Time
-        optional :commerce_offerings, type: Array[JSON] do
+        optional :commerce_offerings, type: Array, coerce_with: proc(&:values) do
           use :model_with_id
         end
-        optional :vendor_services, type: Array[JSON] do
+        optional :vendor_services, type: Array, coerce_with: proc(&:values) do
           use :model_with_id
         end
       end
@@ -85,10 +85,10 @@ class Suma::AdminAPI::Programs < Suma::AdminAPI::V1
         optional :app_link, type: String
         optional :period_begin, type: Time
         optional :period_end, type: Time
-        optional :commerce_offerings, type: Array[JSON] do
+        optional :commerce_offerings, type: Array, coerce_with: proc(&:values) do
           use :model_with_id
         end
-        optional :vendor_services, type: Array[JSON] do
+        optional :vendor_services, type: Array, coerce_with: proc(&:values) do
           use :model_with_id
         end
       end
