@@ -19,7 +19,7 @@ class Suma::Program::Enrollment < Suma::Postgres::Model(:program_enrollments)
           where(Sequel[unenrolled_at: nil] | (Sequel[:unenrolled_at] > as_of))
     end
 
-    def active(as_of:) = self.where(program: Suma::Program.dataset.active).enrolled(as_of:)
+    def active(as_of:) = self.where(program: Suma::Program.dataset.active(as_of:)).enrolled(as_of:)
   end
 
   # @return [Suma::Member,Suma::Organization]

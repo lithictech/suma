@@ -14,6 +14,8 @@ Sequel.migration do
       tstzrange :period, null: false
 
       float :ordinal, null: false, default: 0
+
+      text :app_link, null: false, default: ""
     end
 
     create_join_table(
@@ -66,18 +68,22 @@ Sequel.migration do
   end
 
   down do
-    # alter_table(:images) do
-    #   drop_constraint(:unambiguous_relation)
-    #   drop_column(:program_id)
-    #   add_constraint(
-    #     :unambiguous_relation,
-    #     Sequel.unambiguous_constraint(
-    #       [:commerce_product_id, :commerce_offering_id, :vendor_id, :vendor_service_id],
-    #     ),
-    #   )
-    # end
-    #
-    # drop_table(:program_enrollments)
-    # drop_table(:programs)
+    alter_table(:images) do
+      drop_constraint(:unambiguous_relation)
+      drop_column(:program_id)
+      add_constraint(
+        :unambiguous_relation,
+        Sequel.unambiguous_constraint(
+          [:commerce_product_id, :commerce_offering_id, :vendor_id, :vendor_service_id],
+        ),
+      )
+    end
+
+    drop_table(:program_enrollments)
+    drop_table(:programs_vendor_services)
+    drop_table(:programs_commerce_offerings)
+    drop_table(:programs_anon_proxy_vendor_configurations)
+    drop_table(:programs_payment_triggers)
+    drop_table(:programs)
   end
 end

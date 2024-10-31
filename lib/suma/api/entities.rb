@@ -91,6 +91,7 @@ module Suma::API::Entities
     expose :image, with: ImageEntity, &self.delegate_to(:program, :image?)
     expose :period_begin, &self.delegate_to(:program, :period, :begin)
     expose :period_end, &self.delegate_to(:program, :period, :end)
+    expose :app_link, &self.delegate_to(:program, :app_link)
   end
 
   class CurrentMemberEntity < Suma::Service::Entities::CurrentMember

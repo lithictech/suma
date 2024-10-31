@@ -115,11 +115,11 @@ module Suma::AdminAPI::Entities
 
   class ProgramEntity < BaseEntity
     include AutoExposeBase
-    expose :admin_link
     expose :name
     expose :description
     expose :period, with: TimeRangeEntity
     expose :ordinal
+    expose :app_link
   end
 
   class ProgramEnrollmentEntity < BaseEntity

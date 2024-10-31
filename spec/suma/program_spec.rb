@@ -23,7 +23,7 @@ RSpec.describe "Suma::Program", :db do
         Suma::Fixtures.program.expired.create
         Suma::Fixtures.program.future.create
         active = Suma::Fixtures.program.create
-        expect(described_class.active.all).to have_same_ids_as(active)
+        expect(described_class.active(as_of: Time.now).all).to have_same_ids_as(active)
       end
     end
   end

@@ -37,13 +37,14 @@ class Suma::Program < Suma::Postgres::Model(:programs)
   plugin :association_array_replacer, :vendor_services, :commerce_offerings
 
   dataset_module do
-    def active(as_of: Time.now)
+    def active(as_of:)
       return self.where { (lower(period) < as_of) & (upper(period) > as_of) }
     end
   end
 
   def enrollment_for(o, as_of:, include: :active)
-    # TODO: Do not use dataset for this, we may need to call it many times
+    # Use datasets for these checks, since otherwise we'd need to load a bunch of organization memberships,
+    # which could be very memory-intensive.
     ds = if o.is_a?(Suma::Member)
            self.enrollments_dataset.
              where(
