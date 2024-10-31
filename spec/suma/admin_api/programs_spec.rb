@@ -114,7 +114,6 @@ RSpec.describe Suma::AdminAPI::Programs, :db do
         id: program.id,
         commerce_offerings: contain_exactly(include(id: o.id)),
         vendor_services: contain_exactly(include(id: vs.id)),
-        components: contain_exactly(include(key: o.description.en), include(key: vs.external_name)),
       )
     end
 

@@ -8,7 +8,7 @@ RSpec.describe Suma::Member::Dashboard, :db do
 
   it "can represent a blank/empty member" do
     d = described_class.new(member, at: now)
-    expect(d).to have_attributes(vendor_services: [], offerings: [])
+    expect(d).to have_attributes(program_enrollments: [])
   end
 
   it "includes enrolled programs" do

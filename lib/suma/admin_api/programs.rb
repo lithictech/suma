@@ -6,22 +6,12 @@ require "suma/admin_api"
 class Suma::AdminAPI::Programs < Suma::AdminAPI::V1
   include Suma::AdminAPI::Entities
 
-  class ProgramComponentEntity < BaseEntity
-    include Suma::AdminAPI::Entities
-    expose :key, &self.delegate_to(:name, :en)
-    expose :name, with: TranslatedTextEntity
-    expose :until
-    expose :image, with: ImageEntity
-    expose :link
-  end
-
   class DetailedProgramEntity < ProgramEntity
     include Suma::AdminAPI::Entities
     include AutoExposeDetail
     expose :image, with: ImageEntity, &self.delegate_to(:images?, :first)
     expose :commerce_offerings, with: OfferingEntity
     expose :vendor_services, with: VendorServiceEntity
-    expose :components, with: ProgramComponentEntity
   end
 
   resource :programs do

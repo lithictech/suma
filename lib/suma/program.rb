@@ -42,15 +42,6 @@ class Suma::Program < Suma::Postgres::Model(:programs)
     end
   end
 
-  # @return [Array<Suma::Program::Component>]
-  def components
-    result = (self.commerce_offerings + self.vendor_services).map do |it|
-      Suma::Program::Component.from(it)
-    end
-    result.sort_by! { |v| [v.name.en, v.until] }
-    return result
-  end
-
   def enrollment_for(o, as_of:, include: :active)
     # TODO: Do not use dataset for this, we may need to call it many times
     ds = if o.is_a?(Suma::Member)
@@ -71,5 +62,4 @@ class Suma::Program < Suma::Postgres::Model(:programs)
   def rel_admin_link = "/program/#{self.id}"
 end
 
-require "suma/program/component"
 require "suma/program/has"
