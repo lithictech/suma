@@ -10,7 +10,6 @@ class Suma::Member::Dashboard
   end
 
   def program_enrollments
-    # TODO: I think we can remove the vendor_services/offerings and just return this?
     return @program_enrollments ||= @member.program_enrollments_dataset.active(as_of: @at).all
   end
 end
