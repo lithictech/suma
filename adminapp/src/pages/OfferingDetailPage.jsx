@@ -1,7 +1,7 @@
 import api from "../api";
 import AdminLink from "../components/AdminLink";
-import EligibilityConstraints from "../components/EligibilityConstraints";
 import Link from "../components/Link";
+import Programs from "../components/Programs";
 import RelatedList from "../components/RelatedList";
 import ResourceDetail from "../components/ResourceDetail";
 import useRoleAccess from "../hooks/useRoleAccess";
@@ -113,12 +113,12 @@ export default function OfferingDetailPage() {
               row.address && oneLineAddress(row.address, false),
             ]}
           />
-          <EligibilityConstraints
+          <Programs
             resource="offering"
-            constraints={model.eligibilityConstraints}
+            programs={model.programs}
             modelId={model.id}
             replaceModelData={setModel}
-            makeUpdateRequest={api.updateOfferingEligibilityConstraints}
+            makeUpdateRequest={api.updateOfferingPrograms}
           />
           <RelatedList
             title={`Offering Products (${model.offeringProducts.length})`}

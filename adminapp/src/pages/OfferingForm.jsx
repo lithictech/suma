@@ -40,7 +40,7 @@ export default function OfferingForm({
     <FormLayout
       title={isCreate ? "Create an Offering" : "Update Offering"}
       subtitle="Offerings holds products that can be ordered at checkout. They are only available
-        for a defined time. Add eligibility constraints in the details page after creating it."
+        for a defined time. Add offering into a program in the details page after creating it."
       onSubmit={onSubmit}
       isBusy={isBusy}
     >

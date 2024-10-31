@@ -6,10 +6,6 @@ import BookTransactionCreatePage from "./pages/BookTransactionCreatePage";
 import BookTransactionDetailPage from "./pages/BookTransactionDetailPage";
 import BookTransactionListPage from "./pages/BookTransactionListPage";
 import DashboardPage from "./pages/DashboardPage";
-import EligibilityConstraintCreatePage from "./pages/EligibilityConstraintCreatePage";
-import EligibilityConstraintDetailPage from "./pages/EligibilityConstraintDetailPage";
-import EligibilityConstraintEditPage from "./pages/EligibilityConstraintEditPage";
-import EligibilityConstraintListPage from "./pages/EligibilityConstraintListPage";
 import FundingTransactionCreatePage from "./pages/FundingTransactionCreatePage";
 import FundingTransactionDetailPage from "./pages/FundingTransactionDetailPage";
 import FundingTransactionListPage from "./pages/FundingTransactionListPage";
@@ -131,42 +127,6 @@ function PageSwitch() {
         exact
         path="/bank-account/:id"
         element={renderWithHocs(redirectIfUnauthed, withLayout(), BankAccountDetailPage)}
-      />
-      <Route
-        exact
-        path="/constraints"
-        element={renderWithHocs(
-          redirectIfUnauthed,
-          withLayout(),
-          EligibilityConstraintListPage
-        )}
-      />
-      <Route
-        exact
-        path="/constraint/new"
-        element={renderWithHocs(
-          redirectIfUnauthed,
-          withLayout(),
-          EligibilityConstraintCreatePage
-        )}
-      />
-      <Route
-        exact
-        path="/constraint/:id"
-        element={renderWithHocs(
-          redirectIfUnauthed,
-          withLayout(),
-          EligibilityConstraintDetailPage
-        )}
-      />
-      <Route
-        exact
-        path="/constraint/:id/edit"
-        element={renderWithHocs(
-          redirectIfUnauthed,
-          withLayout(),
-          EligibilityConstraintEditPage
-        )}
       />
       <Route
         exact

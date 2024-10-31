@@ -5,9 +5,9 @@ import AddBusinessIcon from "@mui/icons-material/AddBusiness";
 import AssignmentIndIcon from "@mui/icons-material/AssignmentInd";
 import AutoModeIcon from "@mui/icons-material/AutoMode";
 import CorporateFareIcon from "@mui/icons-material/CorporateFare";
+import EventAvailableIcon from "@mui/icons-material/EventAvailable";
 import HomeIcon from "@mui/icons-material/Home";
-import KeyIcon from "@mui/icons-material/Key";
-import ListAltIcon from "@mui/icons-material/ListAlt";
+import HowToRegIcon from "@mui/icons-material/HowToReg";
 import MailIcon from "@mui/icons-material/Mail";
 import ManageAccountsIcon from "@mui/icons-material/ManageAccounts";
 import PaymentsIcon from "@mui/icons-material/Payments";
@@ -100,20 +100,15 @@ export default function useNavLinks() {
         href: "/vendor-services",
         icon: <AddBusinessIcon />,
       },
-      commerce && {
+      management && {
         label: "Programs",
         href: "/programs",
-        icon: <ListAltIcon />,
+        icon: <EventAvailableIcon />,
       },
       management && {
         label: "Program Enrollments",
         href: "/program-enrollments",
-        icon: <ListAltIcon />,
-      },
-      management && {
-        label: "Eligibility Constraints",
-        href: "/constraints",
-        icon: <KeyIcon />,
+        icon: <HowToRegIcon />,
       },
       members && {
         label: "Messages",

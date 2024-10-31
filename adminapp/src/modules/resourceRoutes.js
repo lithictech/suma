@@ -2,7 +2,6 @@ import camelCase from "lodash/camelCase";
 import kebabCase from "lodash/kebabCase";
 
 const mapping = {
-  eligibilityConstraint: "constraint",
   organizationMembership: "membership",
 };
 

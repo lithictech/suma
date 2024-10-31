@@ -63,7 +63,7 @@ RSpec.describe Suma::AdminAPI::Meta, :db do
   end
 
   describe "GET /v1/meta/programs" do
-    it "returns categories" do
+    it "returns programs" do
       p1 = Suma::Fixtures.program.create(name: Suma::Fixtures.translated_text.create(en: "b"))
       p2 = Suma::Fixtures.program.create(name: Suma::Fixtures.translated_text.create(en: "a"))
       p3 = Suma::Fixtures.program.create(name: Suma::Fixtures.translated_text.create(en: "c"))

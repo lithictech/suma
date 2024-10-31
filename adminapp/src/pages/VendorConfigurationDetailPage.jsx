@@ -1,7 +1,7 @@
 import api from "../api";
 import AdminLink from "../components/AdminLink";
 import BoolCheckmark from "../components/BoolCheckmark";
-import EligibilityConstraints from "../components/EligibilityConstraints";
+import Programs from "../components/Programs";
 import ResourceDetail from "../components/ResourceDetail";
 import { dayjs } from "../modules/dayConfig";
 import SafeExternalLink from "../shared/react/SafeExternalLink";
@@ -34,12 +34,12 @@ export default function VendorConfigurationDetailPage() {
     >
       {(model, setModel) => (
         <>
-          <EligibilityConstraints
+          <Programs
             resource="vendor_configuration"
-            constraints={model.eligibilityConstraints}
+            programs={model.programs}
             modelId={model.id}
             replaceModelData={setModel}
-            makeUpdateRequest={api.updateVendorConfigurationEligibilityConstraints}
+            makeUpdateRequest={api.updateVendorConfigurationPrograms}
           />
         </>
       )}

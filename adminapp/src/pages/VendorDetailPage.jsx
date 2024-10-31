@@ -7,7 +7,6 @@ import { dayjs } from "../modules/dayConfig";
 import SafeExternalLink from "../shared/react/SafeExternalLink";
 import SumaImage from "../shared/react/SumaImage";
 import theme from "../theme";
-import map from "lodash/map";
 import React from "react";
 
 export default function VendorDetailPage() {
@@ -40,18 +39,18 @@ export default function VendorDetailPage() {
           <RelatedList
             title="Services"
             rows={model.services}
-            headers={["Id", "Name", "Eligibility Constraints"]}
+            headers={["Id", "Name", "Programs"]}
             keyRowAttr="id"
             toCells={(row) => [
               <AdminLink model={row} />,
               <AdminLink model={row}>{row.name}</AdminLink>,
-              row.eligibilityConstraints.map((ec) => (
+              row.programs.map((pro) => (
                 <AdminLink
-                  key={ec.name}
-                  model={ec}
+                  key={pro.name.en}
+                  model={pro}
                   sx={{ marginRight: theme.spacing(1) }}
                 >
-                  {ec.name}
+                  {pro.name.en}
                 </AdminLink>
               )),
             ]}
@@ -88,7 +87,6 @@ export default function VendorDetailPage() {
               <AdminLink key="id" model={row} />,
               dayjs(row.createdAt).format("lll"),
               row.name.en,
-              map(row.eligibilityConstraints, "name"),
             ]}
           />
         </>
