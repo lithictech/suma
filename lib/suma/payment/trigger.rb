@@ -6,6 +6,7 @@ class Suma::Payment::Trigger < Suma::Postgres::Model(:payment_triggers)
   include Suma::AdminLinked
 
   plugin :timestamps
+  plugin :association_pks
   plugin :tstzrange_fields, :active_during
   plugin :translated_text, :memo, Suma::TranslatedText
   plugin :translated_text, :receiving_ledger_contribution_text, Suma::TranslatedText

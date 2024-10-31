@@ -68,6 +68,18 @@ export default function ProgramDetailPage() {
               dayjs(row.periodEnd).format("lll"),
             ]}
           />
+          <RelatedList
+            title={`Payment Triggers (${model.paymentTriggers?.length})`}
+            rows={model.paymentTriggers}
+            headers={["Id", "Label", "Opening Date", "Closing Date"]}
+            keyRowAttr="id"
+            toCells={(row) => [
+              <AdminLink key="id" model={row} />,
+              <AdminLink model={row}>{row.label}</AdminLink>,
+              dayjs(row.activeDuringBegin).format("lll"),
+              dayjs(row.activeDuringEnd).format("lll"),
+            ]}
+          />
         </>
       )}
     </ResourceDetail>

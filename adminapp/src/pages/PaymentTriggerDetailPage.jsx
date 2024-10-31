@@ -6,6 +6,7 @@ import { dayjs } from "../modules/dayConfig";
 import { formatMoney, intToMoney } from "../shared/money";
 import SafeExternalLink from "../shared/react/SafeExternalLink";
 import React from "react";
+import Programs from "../components/Programs";
 
 export default function PaymentTriggerDetailPage() {
   return (
@@ -46,8 +47,15 @@ export default function PaymentTriggerDetailPage() {
         },
       ]}
     >
-      {(model) => (
+      {(model, setModel) => (
         <>
+          <Programs
+            resource="payment_trigger"
+            programs={model.programs}
+            modelId={model.id}
+            replaceModelData={setModel}
+            makeUpdateRequest={api.updatePaymentTriggerPrograms}
+          />
           <RelatedList
             title="Executions"
             rows={model.executions}

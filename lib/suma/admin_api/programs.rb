@@ -12,6 +12,7 @@ class Suma::AdminAPI::Programs < Suma::AdminAPI::V1
     expose :image, with: ImageEntity, &self.delegate_to(:images?, :first)
     expose :commerce_offerings, with: OfferingEntity
     expose :vendor_services, with: VendorServiceEntity
+    expose :payment_triggers, with: PaymentTriggerEntity
   end
 
   resource :programs do
