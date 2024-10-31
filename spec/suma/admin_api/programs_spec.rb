@@ -70,20 +70,25 @@ RSpec.describe Suma::AdminAPI::Programs, :db do
 
   describe "POST /v1/program/create" do
     it "creates a program" do
-      existing_offering = Suma::Fixtures.offering.create
-      existing_vs = Suma::Fixtures.vendor_service.create
+      photo_file = File.open("spec/data/images/photo.png", "rb")
+      image = Rack::Test::UploadedFile.new(photo_file, "image/png", true)
+      offering = Suma::Fixtures.offering.create
+      vendor_service = Suma::Fixtures.vendor_service.create
+
       post "/v1/programs/create",
+           image:,
            name: {en: "test", es: "examen"},
+           description: {en: "a description", es: "una descripcion"},
            period_begin: "2024-07-01T00:00:00-0700",
            period_end: "2024-10-01T00:00:00-0700",
            commerce_offerings: [
              {
-               id: existing_offering.id,
+               id: offering.id,
              },
            ],
            vendor_services: [
              {
-               id: existing_vs.id,
+               id: vendor_service.id,
              },
            ]
 

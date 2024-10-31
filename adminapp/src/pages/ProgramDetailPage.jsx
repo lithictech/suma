@@ -6,16 +6,33 @@ import { dayjs } from "../modules/dayConfig";
 import SumaImage from "../shared/react/SumaImage";
 import React from "react";
 
-export default function VendibleGroupDetailPage() {
+export default function ProgramDetailPage() {
   return (
     <ResourceDetail
-      resource="vendible_group"
-      apiGet={api.getVendibleGroup}
+      resource="program"
+      apiGet={api.getProgram}
       canEdit
       properties={(model) => [
         { label: "ID", value: model.id },
+        { label: "Created At", value: dayjs(model.createdAt) },
+        {
+          label: "Image",
+          value: (
+            <SumaImage
+              image={model.image}
+              alt=""
+              className="w-100"
+              params={{ crop: "none" }}
+              h={150}
+            />
+          ),
+        },
         { label: "Name EN", value: model.name.en },
         { label: "Name ES", value: model.name.es },
+        { label: "Description EN", value: model.description.en },
+        { label: "Description ES", value: model.description.es },
+        { label: "Opening Date", value: dayjs(model.periodBegin) },
+        { label: "Closing Date", value: dayjs(model.periodEnd) },
         { label: "Ordinal", value: model.ordinal },
       ]}
     >
@@ -51,8 +68,8 @@ export default function VendibleGroupDetailPage() {
             ]}
           />
           <RelatedList
-            title={`Vendibles Displayed (Dashboard)`}
-            rows={model.vendibles}
+            title={`Program Components (Dashboard View)`}
+            rows={model.components}
             headers={["Image", "Name EN", "Name ES", "Until", "App Relative Link"]}
             keyRowAttr="key"
             toCells={(row) => [

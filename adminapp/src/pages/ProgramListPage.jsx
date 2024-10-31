@@ -1,13 +1,14 @@
 import api from "../api";
 import AdminLink from "../components/AdminLink";
 import ResourceList from "../components/ResourceList";
+import { dayjs } from "../modules/dayConfig";
 import React from "react";
 
-export default function VendibleGroupListPage() {
+export default function ProgramListPage() {
   return (
     <ResourceList
-      resource="vendible_group"
-      apiList={api.getVendibleGroups}
+      resource="program"
+      apiList={api.getPrograms}
       canCreate
       canSearch
       columns={[
@@ -23,6 +24,18 @@ export default function VendibleGroupListPage() {
           label: "Name",
           align: "left",
           render: (c) => <AdminLink model={c}>{c.name.en}</AdminLink>,
+        },
+        {
+          id: "period_begin",
+          label: "Opens",
+          align: "center",
+          render: (c) => dayjs(c.periodBegin).format("l"),
+        },
+        {
+          id: "period_end",
+          label: "Closes",
+          align: "center",
+          render: (c) => dayjs(c.periodEnd).format("l"),
         },
       ]}
     />

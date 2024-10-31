@@ -18,6 +18,7 @@ class Suma::AdminAPI::Programs < Suma::AdminAPI::V1
   class DetailedProgramEntity < ProgramEntity
     include Suma::AdminAPI::Entities
     include AutoExposeDetail
+    expose :image, with: ImageEntity, &self.delegate_to(:images?, :first)
     expose :commerce_offerings, with: OfferingEntity
     expose :vendor_services, with: VendorServiceEntity
     expose :components, with: ProgramComponentEntity
@@ -48,7 +49,9 @@ class Suma::AdminAPI::Programs < Suma::AdminAPI::V1
       DetailedProgramEntity,
     ) do
       params do
+        requires :image, type: File
         requires(:name, type: JSON) { use :translated_text }
+        requires(:description, type: JSON) { use :translated_text }
         requires :period_begin, type: Time
         requires :period_end, type: Time
         optional :commerce_offerings, type: Array[JSON] do
@@ -85,7 +88,11 @@ class Suma::AdminAPI::Programs < Suma::AdminAPI::V1
       end,
     ) do
       params do
+        optional :image, type: File
         optional(:name, type: JSON) { use :translated_text }
+        optional(:description, type: JSON) { use :translated_text }
+        optional :period_begin, type: Time
+        optional :period_end, type: Time
         optional :commerce_offerings, type: Array[JSON] do
           use :model_with_id
         end

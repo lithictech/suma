@@ -157,11 +157,10 @@ export default {
   getVendor: ({ id, ...data }) => get(`/adminapi/v1/vendors/${id}`, data),
   updateVendor: ({ id, ...data }) => postForm(`/adminapi/v1/vendors/${id}`, data),
 
-  getVendibleGroups: (data) => get(`/adminapi/v1/vendible_groups`, data),
-  createVendibleGroup: (data) => post("/adminapi/v1/vendible_groups/create", data),
-  getVendibleGroup: ({ id, ...data }) => get(`/adminapi/v1/vendible_groups/${id}`, data),
-  updateVendibleGroup: ({ id, ...data }) =>
-    post(`/adminapi/v1/vendible_groups/${id}`, data),
+  getPrograms: (data) => get(`/adminapi/v1/programs`, data),
+  createProgram: (data) => postForm("/adminapi/v1/programs/create", data),
+  getProgram: ({ id, ...data }) => get(`/adminapi/v1/programs/${id}`, data),
+  updateProgram: ({ id, ...data }) => postForm(`/adminapi/v1/programs/${id}`, data),
 
   getVendorServices: (data) => get(`/adminapi/v1/vendor_services`, data),
   getVendorService: ({ id, ...data }) => get(`/adminapi/v1/vendor_services/${id}`, data),

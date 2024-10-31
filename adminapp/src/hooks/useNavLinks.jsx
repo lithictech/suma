@@ -101,8 +101,8 @@ export default function useNavLinks() {
         icon: <AddBusinessIcon />,
       },
       commerce && {
-        label: "Vendible Groups",
-        href: "/vendible-groups",
+        label: "Programs",
+        href: "/programs",
         icon: <ListAltIcon />,
       },
       management && {

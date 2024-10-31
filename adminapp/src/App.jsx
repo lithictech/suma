@@ -48,11 +48,11 @@ import ProductCreatePage from "./pages/ProductCreatePage";
 import ProductDetailPage from "./pages/ProductDetailPage";
 import ProductEditPage from "./pages/ProductEditPage";
 import ProductListPage from "./pages/ProductListPage";
+import ProgramCreatePage from "./pages/ProgramCreatePage";
+import ProgramDetailPage from "./pages/ProgramDetailPage";
+import ProgramEditPage from "./pages/ProgramEditPage";
+import ProgramListPage from "./pages/ProgramListPage";
 import SignInPage from "./pages/SignInPage";
-import VendibleGroupCreatePage from "./pages/VendibleGroupCreatePage";
-import VendibleGroupDetailPage from "./pages/VendibleGroupDetailPage";
-import VendibleGroupEditPage from "./pages/VendibleGroupEditPage";
-import VendibleGroupListPage from "./pages/VendibleGroupListPage";
 import VendorAccountDetailPage from "./pages/VendorAccountDetailPage";
 import VendorAccountListPage from "./pages/VendorAccountListPage";
 import VendorConfigurationDetailPage from "./pages/VendorConfigurationDetailPage";
@@ -373,31 +373,23 @@ function PageSwitch() {
       />
       <Route
         exact
-        path="/vendible-groups"
-        element={renderWithHocs(redirectIfUnauthed, withLayout(), VendibleGroupListPage)}
+        path="/programs"
+        element={renderWithHocs(redirectIfUnauthed, withLayout(), ProgramListPage)}
       />
       <Route
         exact
-        path="/vendible-group/new"
-        element={renderWithHocs(
-          redirectIfUnauthed,
-          withLayout(),
-          VendibleGroupCreatePage
-        )}
+        path="/program/new"
+        element={renderWithHocs(redirectIfUnauthed, withLayout(), ProgramCreatePage)}
       />
       <Route
         exact
-        path="/vendible-group/:id"
-        element={renderWithHocs(
-          redirectIfUnauthed,
-          withLayout(),
-          VendibleGroupDetailPage
-        )}
+        path="/program/:id"
+        element={renderWithHocs(redirectIfUnauthed, withLayout(), ProgramDetailPage)}
       />
       <Route
         exact
-        path="/vendible-group/:id/edit"
-        element={renderWithHocs(redirectIfUnauthed, withLayout(), VendibleGroupEditPage)}
+        path="/program/:id/edit"
+        element={renderWithHocs(redirectIfUnauthed, withLayout(), ProgramEditPage)}
       />
       <Route
         exact

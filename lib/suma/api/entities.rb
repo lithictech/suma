@@ -9,7 +9,6 @@ module Suma::API::Entities
   AddressEntity = Suma::Service::Entities::Address
   LegalEntityEntity = Suma::Service::Entities::LegalEntityEntity
   MoneyEntity = Suma::Service::Entities::Money
-  TimeRangeEntity = Suma::Service::Entities::TimeRange
 
   class BaseEntity < Suma::Service::Entities::Base; end
 
@@ -100,7 +99,8 @@ module Suma::API::Entities
     expose_translated :name, &self.delegate_to(:program, :name)
     expose_translated :description, &self.delegate_to(:program, :description)
     expose :image, with: ImageEntity, &self.delegate_to(:program, :image?)
-    expose :period, with: TimeRangeEntity, &self.delegate_to(:program, :period)
+    expose :period_begin, &self.delegate_to(:program, :period, :begin)
+    expose :period_end, &self.delegate_to(:program, :period, :end)
   end
 
   class CurrentMemberEntity < Suma::Service::Entities::CurrentMember
