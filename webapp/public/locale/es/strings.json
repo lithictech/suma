@@ -69,10 +69,12 @@
   },
   "dashboard": {
     "about_suma": "Acerca de Suma",
+    "availableCash": "Efectivo disponible: {{balance, sumaCurrency}}",
     "check_ongoing_trip": "Tienes un viaje en curso. Asegúrate de finalizarlo al terminar el viaje.",
     "check_ongoing_trip_button": "Ver Mi Viaje",
     "claim_orders": "Tu pedido está listo para ser recogido.",
-    "intro": "Ayudando a nuestra comunidad a ahorrar dinero en las cosas que compra con más frecuencia - todo en un solo lugar."
+    "intro": "Ayudando a nuestra comunidad a ahorrar dinero en las cosas que compra con más frecuencia - todo en un solo lugar.",
+    "program_ends": "Programa termina {{date}}"
   },
   "errors": {
     "auth_conflict": "Ya tienes una sesión activa, debes cerrar esa sesión primero.",

@@ -92,6 +92,7 @@ module Suma::API::Entities
     expose :period_begin, &self.delegate_to(:program, :period, :begin)
     expose :period_end, &self.delegate_to(:program, :period, :end)
     expose :app_link, &self.delegate_to(:program, :app_link)
+    expose_translated :app_link_text, &self.delegate_to(:program, :app_link_text)
   end
 
   class CurrentMemberEntity < Suma::Service::Entities::CurrentMember

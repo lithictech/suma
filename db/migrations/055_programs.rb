@@ -16,6 +16,7 @@ Sequel.migration do
       float :ordinal, null: false, default: 0
 
       text :app_link, null: false, default: ""
+      foreign_key :app_link_text_id, :translated_texts, null: false
     end
 
     create_join_table(

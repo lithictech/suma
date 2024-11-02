@@ -9,6 +9,10 @@ class Suma::Member::Dashboard
     @at = at
   end
 
+  def cash_balance
+    return @member.payment_account!.cash_ledger!.balance
+  end
+
   def program_enrollments
     return @program_enrollments ||= @member.program_enrollments_dataset.active(as_of: @at).all
   end

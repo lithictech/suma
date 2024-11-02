@@ -3,12 +3,12 @@
 require "suma/member/dashboard"
 
 RSpec.describe Suma::Member::Dashboard, :db do
-  let(:member) { Suma::Fixtures.member.create }
+  let(:member) { Suma::Fixtures.member.with_cash_ledger.create }
   let(:now) { Time.now }
 
   it "can represent a blank/empty member" do
     d = described_class.new(member, at: now)
-    expect(d).to have_attributes(program_enrollments: [])
+    expect(d).to have_attributes(cash_balance: money("$0"), program_enrollments: [])
   end
 
   it "includes enrolled programs" do

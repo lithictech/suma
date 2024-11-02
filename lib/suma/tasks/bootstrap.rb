@@ -406,7 +406,10 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
     def fixture
       lime_name = Suma::TranslatedText.find_or_create(en: "Lime Scooter Rides", es: "Lime Scooter Rides (ES)")
       scooter_program = Suma::Program.find_or_create(name: lime_name) do |g|
+        g.description = Suma::TranslatedText.find_or_create(en: "Ride electric scooters", es: "Ride electric scooters (ES)")
         g.period = 1.year.ago..1.year.from_now
+        g.app_link = "/mobility"
+        g.app_link_text = Suma::TranslatedText.find_or_create(en: "Check out scooter map", es: "Check out scooter map (ES)")
       end
       if scooter_program.vendor_services.empty?
         vs = Suma::Vendor::Service[internal_name: "Demo Mobility Deeplink"]
@@ -415,7 +418,10 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
 
       fm_name = Suma::TranslatedText.find_or_create(en: "Farmers Markets", es: "Farmers Markets (ES)")
       fm_program = Suma::Program.find_or_create(name: fm_name) do |g|
+        g.description = Suma::TranslatedText.find_or_create(en: "Get subsidized local food", es: "Get subsidized local food (ES)")
         g.period = 1.year.ago..1.year.from_now
+        g.app_link = "/food"
+        g.app_link_text = Suma::TranslatedText.find_or_create(en: "See offering", es: "See offering (ES)")
       end
       return unless fm_program.commerce_offerings.empty?
       fm_program.add_commerce_offering(Suma::Commerce::Offering[confirmation_template: "2022-12-pilot-confirmation"])

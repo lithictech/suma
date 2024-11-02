@@ -64,10 +64,8 @@ class Suma::API::Me < Suma::API::V1
     end
   end
 
-  class DashboardProgramEnrollmentEntity < Suma::API::Entities::ProgramEnrollmentEntity
-  end
-
   class DashboardEntity < BaseEntity
-    expose :program_enrollments, as: :programs, with: DashboardProgramEnrollmentEntity
+    expose :cash_balance, with: Suma::API::Entities::MoneyEntity
+    expose :program_enrollments, as: :programs, with: Suma::API::Entities::ProgramEnrollmentEntity
   end
 end

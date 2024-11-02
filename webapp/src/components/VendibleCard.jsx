@@ -8,25 +8,31 @@ import Card from "react-bootstrap/Card";
 import Stack from "react-bootstrap/Stack";
 import { Link } from "react-router-dom";
 
-export default function VendibleCard({ name, image, until, link, className }) {
+export default function VendibleCard({
+  description,
+  image,
+  closesAt,
+  appLink,
+  className,
+}) {
   return (
     <Card className={clsx(className)}>
       <Card.Body className="p-2">
         <Stack direction="horizontal" gap={3}>
-          <Link to={link} className="flex-shrink-0">
+          <Link to={appLink} className="flex-shrink-0">
             <SumaImage image={image} width={100} h={80} />
           </Link>
           <div>
             <Card.Link
               as={RLink}
-              href={link}
+              href={appLink}
               state={{ fromIndex: true }}
               className="h6 mb-0"
             >
-              {name}
+              {description}
             </Card.Link>
             <Card.Text className="text-secondary small">
-              {t("food:available_until", { date: dayjs(until).format("ll") })}
+              {t("food:available_until", { date: dayjs(closesAt).format("ll") })}
             </Card.Text>
           </div>
         </Stack>

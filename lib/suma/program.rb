@@ -12,6 +12,7 @@ class Suma::Program < Suma::Postgres::Model(:programs)
   plugin :tstzrange_fields, :period
   plugin :translated_text, :name, Suma::TranslatedText
   plugin :translated_text, :description, Suma::TranslatedText
+  plugin :translated_text, :app_link_text, Suma::TranslatedText
   plugin :association_pks
 
   one_to_many :enrollments,

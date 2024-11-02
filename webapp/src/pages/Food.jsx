@@ -56,8 +56,8 @@ export default function Food() {
       <LayoutContainer gutters>
         <h4 className="mb-3">{t("food:current_offerings")}</h4>
         <Stack gap={3}>
-          {items.map((o) => (
-            <VendibleCard key={o.id} {...o.vendible} />
+          {items.map((it) => (
+            <VendibleCard key={it.id} {...it} />
           ))}
         </Stack>
       </LayoutContainer>
