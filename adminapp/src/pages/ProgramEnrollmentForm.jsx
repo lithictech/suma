@@ -4,7 +4,14 @@ import FormLayout from "../components/FormLayout";
 import ResponsiveStack from "../components/ResponsiveStack";
 import useMountEffect from "../shared/react/useMountEffect";
 import CompareArrowsIcon from "@mui/icons-material/CompareArrows";
-import { FormLabel, Stack } from "@mui/material";
+import {
+  FormControl,
+  FormControlLabel,
+  FormLabel,
+  Radio,
+  RadioGroup,
+  Stack,
+} from "@mui/material";
 import React from "react";
 import { useSearchParams } from "react-router-dom";
 
@@ -17,18 +24,22 @@ export default function ProgramEnrollmentForm({
   onSubmit,
 }) {
   const [searchParams] = useSearchParams();
+  const searchMemberId = Number(searchParams.get("memberId") || -1);
+  const searchOrgId = Number(searchParams.get("organizationId") || -1);
+  const [enrolleeType, setEnrolleeType] = React.useState(
+    searchMemberId > 0 ? "member" : "organization"
+  );
+  const fixedEnrollee = searchMemberId > 0 || searchOrgId > 0;
   useMountEffect(() => {
     if (searchParams.get("edit")) {
       return;
     }
-    const memberId = Number(searchParams.get("memberId") || -1);
-    const organizationId = Number(searchParams.get("organizationId") || -1);
-    if (memberId > 0) {
-      setField("member", { id: memberId, label: searchParams.get("memberLabel") });
+    if (searchMemberId > 0) {
+      setField("member", { id: searchMemberId, label: searchParams.get("memberLabel") });
     }
-    if (organizationId > 0) {
+    if (searchOrgId > 0) {
       setField("organization", {
-        id: organizationId,
+        id: searchOrgId,
         label: searchParams.get("organizationLabel"),
       });
     }
@@ -55,33 +66,50 @@ export default function ProgramEnrollmentForm({
           searchEmpty
           onValueSelect={(p) => setField("program", p)}
         />
-        <FormLabel>Enrollee(s)</FormLabel>
-        <ResponsiveStack alignItems="center" divider={<CompareArrowsIcon />}>
+        <FormControl disabled={fixedEnrollee}>
+          <FormLabel>Enrollee Type</FormLabel>
+          <RadioGroup
+            value={enrolleeType}
+            row
+            onChange={(e) => setEnrolleeType(e.target.value)}
+          >
+            <FormControlLabel value="member" control={<Radio />} label="Member" />
+            <FormControlLabel
+              value="organization"
+              control={<Radio />}
+              label="Organization"
+            />
+          </RadioGroup>
+        </FormControl>
+        {enrolleeType === "member" ? (
           <AutocompleteSearch
+            key="member"
             {...register("member")}
             label="Member"
             helperText="Who can access this program?"
             value={resource.member?.label || ""}
             fullWidth
             search={api.searchMembers}
-            disabled={!!resource.organization.id}
+            disabled={fixedEnrollee}
             style={{ flex: 1 }}
             onValueSelect={(mem) => setField("member", mem)}
             onTextChange={() => setField("member", {})}
           />
+        ) : (
           <AutocompleteSearch
+            key="org"
             {...register("organization")}
             label="Organization"
             helperText="What organization can access this program?"
             value={resource.organization.label || ""}
             fullWidth
-            disabled={!!resource.member.id}
+            disabled={fixedEnrollee}
             search={api.searchOrganizations}
             style={{ flex: 1 }}
             onValueSelect={(org) => setField("organization", org)}
             onTextChange={() => setField("organization", {})}
           />
-        </ResponsiveStack>
+        )}
       </Stack>
     </FormLayout>
   );

@@ -4,7 +4,6 @@ import BoolCheckmark from "../components/BoolCheckmark";
 import Copyable from "../components/Copyable";
 import DetailGrid from "../components/DetailGrid";
 import InlineEditField from "../components/InlineEditField";
-import Link from "../components/Link";
 import PaymentAccountRelatedLists from "../components/PaymentAccountRelatedLists";
 import RelatedList from "../components/RelatedList";
 import ResourceDetail from "../components/ResourceDetail";
@@ -17,7 +16,6 @@ import Money from "../shared/react/Money";
 import SafeExternalLink from "../shared/react/SafeExternalLink";
 import useToggle from "../shared/react/useToggle";
 import DeleteIcon from "@mui/icons-material/Delete";
-import ListAltIcon from "@mui/icons-material/ListAlt";
 import {
   Divider,
   Typography,
@@ -37,7 +35,6 @@ import { formatPhoneNumber, formatPhoneNumberIntl } from "react-phone-number-inp
 import { useParams } from "react-router-dom";
 
 export default function MemberDetailPage() {
-  const { canWriteResource } = useRoleAccess();
   const { enqueueErrorSnackbar } = useErrorSnackbar();
   let { id } = useParams();
   id = Number(id);
@@ -101,20 +98,6 @@ export default function MemberDetailPage() {
             )),
             hideEmpty: true,
           },
-          canWriteResource("member") && {
-            label: "Enroll in program",
-            value: (
-              <Link
-                to={createRelativeUrl(`/program-enrollment/new`, {
-                  memberId: model.id,
-                  memberLabel: `(${model.id}) ${model.name}`,
-                })}
-              >
-                <ListAltIcon sx={{ verticalAlign: "middle", marginRight: "5px" }} />
-                Enroll in program
-              </Link>
-            ),
-          },
         ]}
       >
         {(model, setModel) => (
@@ -139,7 +122,10 @@ export default function MemberDetailPage() {
               ]}
             />
             <LegalEntity {...model.legalEntity} />
-            <MemberProgramEnrollments enrollments={model.programEnrollments} />
+            <MemberProgramEnrollments
+              member={model}
+              enrollments={model.programEnrollments}
+            />
             <OrganizationMemberships memberships={model.organizationMemberships} />
             <Activities activities={model.activities} />
             <Orders orders={model.orders} />
@@ -183,12 +169,18 @@ function LegalEntity({ address }) {
   );
 }
 
-function MemberProgramEnrollments({ enrollments }) {
+function MemberProgramEnrollments({ member, enrollments }) {
   return (
     <RelatedList
       title="Program Enrollments"
       headers={["Id", "Program", "Program Active", "Approved At", "Unenrolled At"]}
       rows={enrollments}
+      addNewLabel="Enroll in another program"
+      addNewLink={createRelativeUrl(`/program-enrollment/new`, {
+        memberId: member.id,
+        memberLabel: `(${member.id}) ${member.name}`,
+      })}
+      addNewRole="member"
       keyRowAttr="id"
       toCells={(row) => [
         <AdminLink key="id" model={row} />,

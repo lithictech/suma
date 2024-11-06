@@ -32,16 +32,19 @@ export default function ProgramEnrollmentDetailPage() {
           label: "Program Name ES",
           value: <AdminLink model={model.program}>{model.program.name.es}</AdminLink>,
         },
-        {
-          label: "Member",
-          value: <AdminLink model={model.member}>{model.member?.name}</AdminLink>,
-        },
-        {
-          label: "Organization",
-          value: (
-            <AdminLink model={model.organization}>{model.organization?.name}</AdminLink>
-          ),
-        },
+        model.member
+          ? {
+              label: "Enrolled Member",
+              value: <AdminLink model={model.member}>{model.member?.name}</AdminLink>,
+            }
+          : {
+              label: "Enrolled Organization",
+              value: (
+                <AdminLink model={model.organization}>
+                  {model.organization?.name}
+                </AdminLink>
+              ),
+            },
         {
           label: "Approved",
           children: (

@@ -41,18 +41,26 @@ Sequel.migration do
       timestamptz :created_at, null: false, default: Sequel.function(:now)
       timestamptz :updated_at
 
-      foreign_key :program_id, :programs, null: false, on_delete: :cascade
+      foreign_key :program_id, :programs, null: false, on_delete: :cascade, index: true
 
-      foreign_key :member_id, :members, on_delete: :cascade
-      foreign_key :organization_id, :organizations, on_delete: :cascade
+      foreign_key :member_id, :members, on_delete: :cascade, index: true
+      foreign_key :organization_id, :organizations, on_delete: :cascade, index: true
       constraint(
         :one_enrollee_set,
         Sequel.unambiguous_constraint([:member_id, :organization_id]),
       )
 
-      timestamptz :approved_at
+      index [
+        Sequel.function(:coalesce, :member_id, 0),
+        Sequel.function(:coalesce, :organization_id, 0),
+        :program_id,
+      ],
+            name: :unique_enrollee_in_program_idx,
+            unique: true
+
+      timestamptz :approved_at, index: true
       foreign_key :approved_by_id, :members, on_delete: :set_null
-      timestamptz :unenrolled_at
+      timestamptz :unenrolled_at, index: true
       foreign_key :unenrolled_by_id, :members, on_delete: :set_null
     end
 
