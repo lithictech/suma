@@ -13,6 +13,7 @@ class Suma::AdminAPI::Programs < Suma::AdminAPI::V1
     expose :commerce_offerings, with: OfferingEntity
     expose :vendor_services, with: VendorServiceEntity
     expose :payment_triggers, with: PaymentTriggerEntity
+    expose :enrollments, with: ProgramEnrollmentEntity
   end
 
   resource :programs do

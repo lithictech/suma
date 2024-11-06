@@ -22,6 +22,7 @@ export default function ProgramEnrollmentForm({
   onSubmit,
 }) {
   const [searchParams] = useSearchParams();
+  const searchProgramId = Number(searchParams.get("programId") || -1);
   const searchEnrolleeId = Number(searchParams.get("enrolleeId") || -1);
   const searchEnrolleeType = searchParams.get("enrolleeType");
   const [enrolleeType, setEnrolleeType] = React.useState(searchEnrolleeType || "member");
@@ -30,6 +31,12 @@ export default function ProgramEnrollmentForm({
   useMountEffect(() => {
     if (searchParams.get("edit")) {
       return;
+    }
+    if (searchProgramId > 0) {
+      setField("program", {
+        id: searchProgramId,
+        label: searchParams.get("programLabel"),
+      });
     }
     if (searchEnrolleeId > 0) {
       setField(searchEnrolleeType, {
@@ -61,6 +68,7 @@ export default function ProgramEnrollmentForm({
           fullWidth
           required
           search={api.searchPrograms}
+          disabled={searchProgramId > 0}
           style={{ flex: 1 }}
           searchEmpty
           onValueSelect={(p) => setField("program", p)}

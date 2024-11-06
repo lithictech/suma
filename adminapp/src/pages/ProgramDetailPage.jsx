@@ -2,7 +2,8 @@ import api from "../api";
 import AdminLink from "../components/AdminLink";
 import RelatedList from "../components/RelatedList";
 import ResourceDetail from "../components/ResourceDetail";
-import { dayjs } from "../modules/dayConfig";
+import { dayjs, dayjsOrNull } from "../modules/dayConfig";
+import createRelativeUrl from "../shared/createRelativeUrl";
 import SumaImage from "../shared/react/SumaImage";
 import React from "react";
 
@@ -78,6 +79,25 @@ export default function ProgramDetailPage() {
               <AdminLink model={row}>{row.label}</AdminLink>,
               dayjs(row.activeDuringBegin).format("lll"),
               dayjs(row.activeDuringEnd).format("lll"),
+            ]}
+          />
+          <RelatedList
+            title="Program Enrollments"
+            headers={["Id", "Member", "Organization", "Approved At", "Unenrolled At"]}
+            rows={model.enrollments}
+            addNewLabel="Enroll member or organization"
+            addNewLink={createRelativeUrl(`/program-enrollment/new`, {
+              programId: model.id,
+              programLabel: `(${model.id}) ${model.name.en}`,
+            })}
+            addNewRole="program"
+            keyRowAttr="id"
+            toCells={(row) => [
+              <AdminLink key="id" model={row} />,
+              <AdminLink model={row.member}>{row.member?.name}</AdminLink>,
+              <AdminLink model={row.organization}>{row.organization?.name}</AdminLink>,
+              dayjsOrNull(row.approvedAt)?.format("lll"),
+              dayjsOrNull(row.unenrolledAt)?.format("lll"),
             ]}
           />
         </>
