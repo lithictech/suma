@@ -176,6 +176,15 @@ module Suma
     end
   end
 
+  # Return the time of the request, or Time.now.
+  # Each request sets 'now' so it can be passed into the model layer,
+  # or used in the model layer if absolutely necessary, like in an association.
+  def self.request_now = Thread.current[:suma_request_now] || Time.now
+
+  def self.set_request_now(t)
+    Thread.current[:suma_request_now] = t
+  end
+
   def self.bool?(v) = [true, false].include?(v)
 
   def self.as_ary(x)  = x.respond_to?(:to_ary) ? x : [x]

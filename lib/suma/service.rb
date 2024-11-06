@@ -117,7 +117,9 @@ class Suma::Service < Grape::API
   # Set a 'now' key in the env which we can use across the request.
   # This avoids many different definitions of 'now' within an endpoint/entity.
   before do
-    env["now"] = Time.now
+    t = Time.now
+    env["now"] = t
+    Suma.set_request_now(t)
   end
 
   # Add some context to Sentry on each request.
@@ -220,5 +222,6 @@ class Suma::Service < Grape::API
 
   finally do
     Suma.set_request_user_and_admin(nil, nil)
+    Suma.set_request_now(nil)
   end
 end
