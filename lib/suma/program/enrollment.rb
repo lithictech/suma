@@ -22,25 +22,6 @@ class Suma::Program::Enrollment < Suma::Postgres::Model(:program_enrollments)
     end
 
     def active(as_of:) = self.where(program: Suma::Program.dataset.active(as_of:)).enrolled(as_of:)
-
-    def for_member(member)
-      verified_org_ids = Suma::Organization::Membership.
-        verified.
-        where(member:).
-        select(:verified_organization_id)
-      ds = self.where(Sequel[member:] | Sequel[organization_id: verified_org_ids])
-      ds = ds.
-        left_join(:organization_memberships, {verified_organization_id: :organization_id}).
-        select(
-          Sequel[:program_enrollments][Sequel.lit("*")],
-          Sequel.function(
-            :coalesce,
-            Sequel[:program_enrollments][:member_id],
-            Sequel[:organization_memberships][:member_id],
-          ).as(:actual_member_id),
-        )
-      return ds
-    end
   end
 
   def program_active_at?(t)

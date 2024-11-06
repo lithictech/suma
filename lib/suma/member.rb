@@ -69,6 +69,7 @@ class Suma::Member < Suma::Postgres::Model(:members)
   one_to_many :message_deliveries, key: :recipient_id, class: "Suma::Message::Delivery"
   one_to_one :preferences, class: "Suma::Message::Preferences"
   one_to_one :ongoing_trip, class: "Suma::Mobility::Trip", conditions: {ended_at: nil}
+  one_to_many :program_enrollments, class: "Suma::Program::Enrollment"
   many_through_many :orders,
                     [
                       [:commerce_carts, :member_id, :id],
@@ -93,45 +94,13 @@ class Suma::Member < Suma::Postgres::Model(:members)
   one_to_many :anon_proxy_vendor_accounts, class: "Suma::AnonProxy::VendorAccount"
   one_to_many :organization_memberships, class: "Suma::Organization::Membership"
 
-  one_to_many :direct_program_enrollments, class: "Suma::Program::Enrollment"
-  many_through_many :program_enrollments_via_organizations,
-                    [
-                      [:organization_memberships, :member_id, :verified_organization_id],
-                    ],
-                    class: "Suma::Program::Enrollment",
-                    left_primary_key: :id,
-                    right_primary_key: :organization_id,
-                    read_only: true
-
-  one_to_many :active_program_enrollments,
-              class: "Suma::Program::Enrollment",
-              read_only: true,
-              key: :id,
-              dataset: lambda {
-                Suma::Member.where(id: self.id).
-                  with_program_enrollment_in(Suma::Program.dataset, as_of: Suma.request_now,)
-                # org_ids = self.organization_memberships_dataset.verified.select(:verified_organization_id)
-                # Suma::Program::Enrollment.active(as_of: Suma.request_now).
-                #   where(Sequel[member: self] | Sequel[organization_id: org_ids])
-              },
-              eager_loader: (proc do |eo|
-                eo[:rows].each { |p| p.associations[:active_program_enrollments] = [] }
-                eo[:id_map].keys
-                Suma::Program::Enrollment.
-                  active(as_of: Suma.request_now).
-                #   left_join(:organization_memberships, {verified_organization_id: :organization_id}).
-                #   where(
-                #     Sequel[Sequel[:program_enrollments][:member_id] => member_id] |
-                #       Sequel[Sequel[:organization_memberships][:member_id] => member_id],
-                #   ).select(
-                #     Sequel[:program_enrollments][Sequel.lit("*")],
-                #     Sequel[:organization_memberships][:member_id].as(:membership_member_id),
-                #   )
-                ds.all do |en|
-                  m = eo[:id_map][en.member_id || en[:membership_member_id]].first
-                  m.associations[:active_program_enrollments] << en
-                end
-              end)
+  # Suma::Eligibility::Constraint::STATUSES.each do |mt|
+  #   many_to_many :"#{mt}_eligibility_constraints",
+  #                class: "Suma::Eligibility::Constraint",
+  #                join_table: :eligibility_member_associations,
+  #                right_key: :constraint_id,
+  #                left_key: :"#{mt}_member_id"
+  # end
 
   plugin :association_array_replacer, :roles
 
@@ -143,43 +112,6 @@ class Suma::Member < Suma::Postgres::Model(:members)
 
     def with_normalized_phone(*phones)
       return self.where(phone: phones)
-    end
-
-    def with_active_program_enrollment_in(program)
-      verified_org_ids = Suma::Organization::Membership.
-        verified.
-        where(member: self).
-        select(:verified_organization_id)
-      Suma::Program::Enrollment.active(as_of:).
-        where(program:).
-        where(Sequel[member: self] | Sequel[organization_id: verified_org_ids])
-    end
-
-    def with_program_enrollment_in(program, as_of: nil)
-      # verified_org_ids = Suma::Organization::Membership.
-      #   verified.
-      #   where(member: self).
-      #   select(:verified_organization_id)
-      # enrollments = Suma::Program::Enrollment.
-      #   where(program:).
-      #   where(Sequel[member: self] | Sequel[organization_id: verified_org_ids])
-      # enrollments = enrollments.active(as_of:) if as_of
-      # enrollments = enrollments.
-      #   left_join(:organization_memberships, {verified_organization_id: :organization_id}).
-      #   select(
-      #     Sequel.function(
-      #       :coalesce,
-      #       Sequel[:program_enrollments][:member_id],
-      #       Sequel[:organization_memberships][:member_id],
-      #     ).as(:actual_member_id),
-      #   )
-      ds = Suma::Program::Enrollment.for_member(self)
-      ds = ds.where(program:)
-      ds = ds.active(as_of:) if as_of
-      # We have a joined dataset here, we need to just re-select the column we want,
-      # using its alias.
-      clean_ds = ds.db.from(ds).select(:actual_member_id)
-      return self.where(id: clean_ds)
     end
   end
 

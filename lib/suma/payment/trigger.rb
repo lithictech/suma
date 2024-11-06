@@ -26,6 +26,17 @@ class Suma::Payment::Trigger < Suma::Postgres::Model(:payment_triggers)
     def active_at(t)
       return self.where(Sequel.pg_range(:active_during).contains(Sequel.cast(t, :timestamptz)))
     end
+
+    # Limit dataset to rows where:
+    # 1) the trigger is not assigned to any program, meaning everyone can use it,
+    # or 2) the member has an active enrollment in the trigger program.
+    def eligible_to_member(member, as_of:)
+      no_programs = Sequel[:id] !~ self.db[:programs_payment_triggers].select(:trigger_id)
+      has_program = Sequel[id: self.db[:programs_payment_triggers].
+        where(program_id: member.program_enrollments_dataset.active(as_of:).select(:program_id)).
+        select(:trigger_id)]
+      return self.where(no_programs | has_program)
+    end
   end
 
   # Gather a series of triggers applying to a payment account
@@ -33,7 +44,7 @@ class Suma::Payment::Trigger < Suma::Postgres::Model(:payment_triggers)
   # @param [Suma::Payment::Account] account
   # @return [Collection]
   def self.gather(account, apply_at:)
-    triggers = self.dataset.active_at(apply_at).eligible_to(account.member, as_of: apply_at).all
+    triggers = self.dataset.active_at(apply_at).eligible_to_member(account.member, as_of: apply_at).all
     return Collection.new(account:, triggers:, apply_at:)
   end
 
