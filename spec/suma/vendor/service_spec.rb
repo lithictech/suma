@@ -39,6 +39,19 @@ RSpec.describe "Suma::Vendor::Service", :db do
     end
   end
 
+  describe "associations" do
+    it "knows its program enrollments" do
+      e1 = Suma::Fixtures.program_enrollment.create
+      e2 = Suma::Fixtures.program_enrollment.create
+      e3 = Suma::Fixtures.program_enrollment.create
+
+      o = Suma::Fixtures.vendor_service.create
+      o.add_program(e1.program)
+      o.add_program(e2.program)
+      expect(o.program_enrollments).to have_same_ids_as(e1, e2)
+    end
+  end
+
   describe "one_rate" do
     let(:vs) { Suma::Fixtures.vendor_service.create }
 

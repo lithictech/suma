@@ -10,6 +10,16 @@ module Suma::Program::Has
     raise TypeError, "#{mod} must define a :programs method or association" unless
       mod.instance_methods.include?(:programs)
     mod.dataset_module DatasetMethods
+
+    assoc = mod.association_reflections[:programs]
+    mod.many_through_many :program_enrollments,
+                          [
+                            [assoc[:join_table], assoc[:left_key], :program_id],
+                          ],
+                          class: "Suma::Program::Enrollment",
+                          left_primary_key: :id,
+                          right_primary_key: :program_id,
+                          read_only: true
     mod.include InstanceMethods
   end
 
@@ -17,15 +27,10 @@ module Suma::Program::Has
     def eligible_to(member, as_of:)
       # Include all rows that have no programs
       unconstrained = Sequel.~(programs: Suma::Program.dataset)
-      if member.program_enrollments_dataset.active(as_of:).empty?
-        # If the member has no constraints, return all offerings that also have no constraints.
-        return self.where(unconstrained)
-      end
-      # Include all rows where the member has overlapping programs.
-      member_programs = member.program_enrollments_dataset.active(as_of:)
-      overlapping = Sequel[programs: Suma::Program.where(id: member_programs.select(:program_id))]
-      ds = self.where(unconstrained | overlapping)
-      puts ds.sql
+      ds = self.where(
+        unconstrained |
+        Sequel[program_enrollments: member.combined_program_enrollments_dataset.active(as_of:)],
+      )
       return ds
     end
   end
@@ -34,7 +39,7 @@ module Suma::Program::Has
     def eligible_to?(member, as_of:)
       programs = self.programs_dataset.active(as_of:).all
       return true if programs.empty?
-      return programs.any? { |p| p.enrollment_for(member, as_of:) }
+      return !self.program_enrollments_dataset.active(as_of:).for_members(member).empty?
     end
   end
 end

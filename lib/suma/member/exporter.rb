@@ -24,7 +24,7 @@ class Suma::Member::Exporter
     ["Country", ->(m) { m.legal_entity.address&.country }],
     ["Verified", ->(m) { m.onboarding_verified_at ? true : false }],
     ["Programs", lambda do |m|
-      m.program_enrollments_dataset.active(as_of: Time.now).all.map { |e| e.program.name.en }.sort.join("|")
+      m.combined_program_enrollments_dataset.active(as_of: Time.now).all.map { |e| e.program.name.en }.sort.join("|")
     end,],
     ["Deleted", ->(m) { m.soft_deleted_at ? true : false }],
     ["Timezone", lambda(&:timezone)],

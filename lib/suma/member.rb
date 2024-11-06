@@ -69,7 +69,6 @@ class Suma::Member < Suma::Postgres::Model(:members)
   one_to_many :message_deliveries, key: :recipient_id, class: "Suma::Message::Delivery"
   one_to_one :preferences, class: "Suma::Message::Preferences"
   one_to_one :ongoing_trip, class: "Suma::Mobility::Trip", conditions: {ended_at: nil}
-  one_to_many :program_enrollments, class: "Suma::Program::Enrollment"
   many_through_many :orders,
                     [
                       [:commerce_carts, :member_id, :id],
@@ -94,13 +93,32 @@ class Suma::Member < Suma::Postgres::Model(:members)
   one_to_many :anon_proxy_vendor_accounts, class: "Suma::AnonProxy::VendorAccount"
   one_to_many :organization_memberships, class: "Suma::Organization::Membership"
 
-  # Suma::Eligibility::Constraint::STATUSES.each do |mt|
-  #   many_to_many :"#{mt}_eligibility_constraints",
-  #                class: "Suma::Eligibility::Constraint",
-  #                join_table: :eligibility_member_associations,
-  #                right_key: :constraint_id,
-  #                left_key: :"#{mt}_member_id"
-  # end
+  one_to_many :direct_program_enrollments, class: "Suma::Program::Enrollment"
+  many_through_many :program_enrollments_via_organizations,
+                    [
+                      [:organization_memberships, :member_id, :verified_organization_id],
+                    ],
+                    class: "Suma::Program::Enrollment",
+                    left_primary_key: :id,
+                    right_primary_key: :organization_id,
+                    read_only: true
+
+  one_to_many :combined_program_enrollments,
+              class: "Suma::Program::Enrollment",
+              read_only: true,
+              key: :id,
+              dataset: lambda {
+                self.direct_program_enrollments_dataset.union(self.program_enrollments_via_organizations_dataset,
+                                                              alias: :program_enrollments,)
+              },
+              eager_loader: (proc do |eo|
+                eo[:rows].each { |p| p.associations[:combined_program_enrollments] = [] }
+                ds = Suma::Program::Enrollment.for_members(self.where(id: eo[:id_map].keys))
+                ds.all do |en|
+                  m = eo[:id_map][en.member_id || en.values.fetch(:annotated_member_id)].first
+                  m.associations[:combined_program_enrollments] << en
+                end
+              end)
 
   plugin :association_array_replacer, :roles
 

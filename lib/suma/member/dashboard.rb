@@ -14,6 +14,6 @@ class Suma::Member::Dashboard
   end
 
   def program_enrollments
-    return @program_enrollments ||= @member.program_enrollments_dataset.active(as_of: @at).all
+    return @program_enrollments ||= @member.combined_program_enrollments_dataset.active(as_of: @at).all
   end
 end

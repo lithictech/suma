@@ -57,6 +57,17 @@ RSpec.describe "Suma::Commerce::Offering", :db do
       expect(refetch_for_eager(empty_offering).total_ordered_items).to eq(0)
       expect(refetch_for_eager(empty_offering).total_ordered_items_by_member).to eq({})
     end
+
+    it "knows its program enrollments" do
+      e1 = Suma::Fixtures.program_enrollment.create
+      e2 = Suma::Fixtures.program_enrollment.create
+      e3 = Suma::Fixtures.program_enrollment.create
+
+      o = Suma::Fixtures.offering.create
+      o.add_program(e1.program)
+      o.add_program(e2.program)
+      expect(o.program_enrollments).to have_same_ids_as(e1, e2)
+    end
   end
 
   describe "datasets" do

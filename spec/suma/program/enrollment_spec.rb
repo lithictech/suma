@@ -9,8 +9,7 @@ RSpec.describe "Suma::Program::Enrollment", :db do
         expired = Suma::Fixtures.program.expired.create
         future = Suma::Fixtures.program.future.create
         active = Suma::Fixtures.program.create
-        member = Suma::Fixtures.member.create
-        fac = Suma::Fixtures.program_enrollment(member:)
+        fac = Suma::Fixtures.program_enrollment
         unapproved = fac.unapproved.create(program: active)
         approved_in_future = fac.create(program: active, approved_at: 2.days.from_now)
         unenrolled = fac.unenrolled.create(program: active)

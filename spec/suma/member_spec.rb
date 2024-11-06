@@ -331,4 +331,29 @@ RSpec.describe "Suma::Member", :db do
       end
     end
   end
+
+  describe "enrollments" do
+    let(:member) { Suma::Fixtures.member.create }
+    let(:organization) { Suma::Fixtures.organization.create }
+
+    it "can fetch direct enrollments" do
+      e = Suma::Fixtures.program_enrollment(member:).create
+      expect(member.direct_program_enrollments_dataset.all).to have_same_ids_as(e)
+    end
+
+    it "can fetch organization enrollments" do
+      Suma::Fixtures.organization_membership(member:).verified(organization).create
+      e = Suma::Fixtures.program_enrollment(organization:).create
+      expect(member.program_enrollments_via_organizations_dataset.all).to have_same_ids_as(e)
+    end
+
+    it "can fetch direct and organizational enrollments" do
+      Suma::Fixtures.organization_membership(member:).verified(organization).create
+      active_via_member = Suma::Fixtures.program_enrollment(member:).create
+      active_via_org = Suma::Fixtures.program_enrollment(organization:).create
+      expect(member.combined_program_enrollments_dataset.all).to have_same_ids_as(active_via_member, active_via_org)
+      eagered_member = Suma::Member.all.first
+      expect(eagered_member.combined_program_enrollments).to have_same_ids_as(active_via_member, active_via_org)
+    end
+  end
 end
