@@ -14,27 +14,24 @@ module Suma::Program::Has
   end
 
   module DatasetMethods
+    # Limit the dataset to rows which are related to rows which have no program,
+    # or have a program overlapping with the member's active program enrollments.
     def eligible_to(member, as_of:)
-      # Include all rows that have no programs
       unconstrained = Sequel.~(programs: Suma::Program.dataset)
-      if member.program_enrollments_dataset.active(as_of:).empty?
-        # If the member has no constraints, return all offerings that also have no constraints.
-        return self.where(unconstrained)
-      end
-      # Include all rows where the member has overlapping programs.
-      member_programs = member.program_enrollments_dataset.active(as_of:)
-      overlapping = Sequel[programs: Suma::Program.where(id: member_programs.select(:program_id))]
-      ds = self.where(unconstrained | overlapping)
-      puts ds.sql
+      # member_program_ids = Suma::Member.member.active_program_enrollments_dataset.select(:program_id)
+      # ds = self.where(unconstrained | Sequel[programs: Suma::Program.where(id: member_program_ids)])
+      ds = self.where(
+        unconstrained |
+          Sequel[program_enrollments: member.combined_program_enrollments_dataset.active(as_of:)]
+      )
       return ds
     end
   end
 
   module InstanceMethods
     def eligible_to?(member, as_of:)
-      programs = self.programs_dataset.active(as_of:).all
-      return true if programs.empty?
-      return programs.any? { |p| p.enrollment_for(member, as_of:) }
+      # return !self.class.eligible_to(member, as_of:).where(id: self.id).empty?
+      return !self.program_enrollments_dataset.active(as_of:).for_members(member).empty?
     end
   end
 end
