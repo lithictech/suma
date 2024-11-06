@@ -143,16 +143,6 @@ class Suma::Payment::Trigger < Suma::Postgres::Model(:payment_triggers)
     return ledger
   end
 
-  def member_passes_constraints?(member_id, constraint_name)
-    return true if constraint_name.blank?
-    constraints_ds = Suma::Eligibility::Constraint.where(name: constraint_name)
-    member_passes_constraints = !Suma::Member.
-      where(id: member_id).
-      where(verified_eligibility_constraints: constraints_ds).
-      empty?
-    return member_passes_constraints
-  end
-
   def rel_admin_link = "/payment-trigger/#{self.id}"
 
   # @!attribute label
