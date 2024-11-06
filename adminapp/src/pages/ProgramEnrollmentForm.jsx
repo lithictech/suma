@@ -1,9 +1,7 @@
 import api from "../api";
 import AutocompleteSearch from "../components/AutocompleteSearch";
 import FormLayout from "../components/FormLayout";
-import ResponsiveStack from "../components/ResponsiveStack";
 import useMountEffect from "../shared/react/useMountEffect";
-import CompareArrowsIcon from "@mui/icons-material/CompareArrows";
 import {
   FormControl,
   FormControlLabel,
@@ -24,26 +22,27 @@ export default function ProgramEnrollmentForm({
   onSubmit,
 }) {
   const [searchParams] = useSearchParams();
-  const searchMemberId = Number(searchParams.get("memberId") || -1);
-  const searchOrgId = Number(searchParams.get("organizationId") || -1);
-  const [enrolleeType, setEnrolleeType] = React.useState(
-    searchMemberId > 0 ? "member" : "organization"
-  );
-  const fixedEnrollee = searchMemberId > 0 || searchOrgId > 0;
+  const searchEnrolleeId = Number(searchParams.get("enrolleeId") || -1);
+  const searchEnrolleeType = searchParams.get("enrolleeType");
+  const [enrolleeType, setEnrolleeType] = React.useState(searchEnrolleeType || "member");
+  const fixedEnrollee = searchEnrolleeId > 0;
+
   useMountEffect(() => {
     if (searchParams.get("edit")) {
       return;
     }
-    if (searchMemberId > 0) {
-      setField("member", { id: searchMemberId, label: searchParams.get("memberLabel") });
-    }
-    if (searchOrgId > 0) {
-      setField("organization", {
-        id: searchOrgId,
-        label: searchParams.get("organizationLabel"),
+    if (searchEnrolleeId > 0) {
+      setField(searchEnrolleeType, {
+        id: searchEnrolleeId,
+        label: searchParams.get("enrolleeLabel"),
       });
     }
   }, [searchParams]);
+
+  const handleEnrolleeTypeChange = (e) => {
+    setEnrolleeType(e.target.value);
+    setField(enrolleeType, {});
+  };
   return (
     <FormLayout
       title={isCreate ? "Create a Program Enrollment" : "Update a Program Enrollment"}
@@ -68,11 +67,7 @@ export default function ProgramEnrollmentForm({
         />
         <FormControl disabled={fixedEnrollee}>
           <FormLabel>Enrollee Type</FormLabel>
-          <RadioGroup
-            value={enrolleeType}
-            row
-            onChange={(e) => setEnrolleeType(e.target.value)}
-          >
+          <RadioGroup value={enrolleeType} row onChange={handleEnrolleeTypeChange}>
             <FormControlLabel value="member" control={<Radio />} label="Member" />
             <FormControlLabel
               value="organization"
@@ -100,7 +95,7 @@ export default function ProgramEnrollmentForm({
             key="org"
             {...register("organization")}
             label="Organization"
-            helperText="What organization can access this program?"
+            helperText="What members in this organization can access this program?"
             value={resource.organization.label || ""}
             fullWidth
             disabled={fixedEnrollee}

@@ -1,17 +1,12 @@
 import api from "../api";
 import AdminLink from "../components/AdminLink";
-import BoolCheckmark from "../components/BoolCheckmark";
-import Link from "../components/Link";
+import ProgramEnrollmentRelatedList from "../components/ProgramEnrollmentRelatedList";
 import RelatedList from "../components/RelatedList";
 import ResourceDetail from "../components/ResourceDetail";
-import useRoleAccess from "../hooks/useRoleAccess";
-import { dayjs, dayjsOrNull } from "../modules/dayConfig";
-import createRelativeUrl from "../shared/createRelativeUrl";
-import ListAltIcon from "@mui/icons-material/ListAlt";
+import { dayjs } from "../modules/dayConfig";
 import React from "react";
 
 export default function OrganizationDetailPage() {
-  const { canWriteResource } = useRoleAccess();
   return (
     <ResourceDetail
       resource="organization"
@@ -22,36 +17,14 @@ export default function OrganizationDetailPage() {
         { label: "Created At", value: dayjs(model.createdAt) },
         { label: "Updated At", value: dayjs(model.updatedAt) },
         { label: "Name", value: model.name },
-        canWriteResource("member") && {
-          label: "Enroll in program",
-          value: (
-            <Link
-              to={createRelativeUrl(`/program-enrollment/new`, {
-                organizationId: model.id,
-                organizationLabel: `(${model.id}) ${model.name}`,
-              })}
-            >
-              <ListAltIcon sx={{ verticalAlign: "middle", marginRight: "5px" }} />
-              Enroll in program
-            </Link>
-          ),
-        },
       ]}
     >
       {(model) => (
         <>
-          <RelatedList
-            title="Program Enrollments"
-            headers={["Id", "Program", "Program Active", "Approved At", "Unenrolled At"]}
-            rows={model.programEnrollments}
-            keyRowAttr="id"
-            toCells={(row) => [
-              <AdminLink key="id" model={row} />,
-              <AdminLink model={row.program}>{row.program.name.en}</AdminLink>,
-              <BoolCheckmark>{row.programActive}</BoolCheckmark>,
-              dayjsOrNull(row.approvedAt)?.format("lll"),
-              dayjsOrNull(row.unenrolledAt)?.format("lll"),
-            ]}
+          <ProgramEnrollmentRelatedList
+            model={model}
+            resource="organization"
+            enrollments={model.programEnrollments}
           />
           <RelatedList
             title={`Memberships (${model.memberships.length})`}

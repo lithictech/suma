@@ -5,13 +5,13 @@ import Copyable from "../components/Copyable";
 import DetailGrid from "../components/DetailGrid";
 import InlineEditField from "../components/InlineEditField";
 import PaymentAccountRelatedLists from "../components/PaymentAccountRelatedLists";
+import ProgramEnrollmentRelatedList from "../components/ProgramEnrollmentRelatedList";
 import RelatedList from "../components/RelatedList";
 import ResourceDetail from "../components/ResourceDetail";
 import useErrorSnackbar from "../hooks/useErrorSnackbar";
 import useRoleAccess from "../hooks/useRoleAccess";
 import { useUser } from "../hooks/user";
-import { dayjs, dayjsOrNull } from "../modules/dayConfig";
-import createRelativeUrl from "../shared/createRelativeUrl";
+import { dayjs } from "../modules/dayConfig";
 import Money from "../shared/react/Money";
 import SafeExternalLink from "../shared/react/SafeExternalLink";
 import useToggle from "../shared/react/useToggle";
@@ -122,9 +122,10 @@ export default function MemberDetailPage() {
               ]}
             />
             <LegalEntity {...model.legalEntity} />
-            <MemberProgramEnrollments
-              member={model}
-              enrollments={model.programEnrollments}
+            <ProgramEnrollmentRelatedList
+              model={model}
+              resource="member"
+              enrollments={model.directProgramEnrollments}
             />
             <OrganizationMemberships memberships={model.organizationMemberships} />
             <Activities activities={model.activities} />
@@ -166,30 +167,6 @@ function LegalEntity({ address }) {
         ]}
       />
     </div>
-  );
-}
-
-function MemberProgramEnrollments({ member, enrollments }) {
-  return (
-    <RelatedList
-      title="Program Enrollments"
-      headers={["Id", "Program", "Program Active", "Approved At", "Unenrolled At"]}
-      rows={enrollments}
-      addNewLabel="Enroll in another program"
-      addNewLink={createRelativeUrl(`/program-enrollment/new`, {
-        memberId: member.id,
-        memberLabel: `(${member.id}) ${member.name}`,
-      })}
-      addNewRole="member"
-      keyRowAttr="id"
-      toCells={(row) => [
-        <AdminLink key="id" model={row} />,
-        <AdminLink model={row.program}>{row.program.name.en}</AdminLink>,
-        <BoolCheckmark>{row.programActive}</BoolCheckmark>,
-        dayjsOrNull(row.approvedAt)?.format("lll"),
-        dayjsOrNull(row.unenrolledAt)?.format("lll"),
-      ]}
-    />
   );
 }
 
