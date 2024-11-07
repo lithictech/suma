@@ -272,7 +272,7 @@ class Suma::API::Commerce < Suma::API::V1
     expose_translated :description, &self.delegate_to(:product, :description)
     expose :offering_id
     expose :product_id, &self.delegate_to(:product, :id)
-    expose :vendor_id, &self.delegate_to(:product, :vendor_id)
+    expose :vendor, with: VendorEntity, &self.delegate_to(:product, :vendor)
     expose :images, with: Suma::API::Entities::ImageEntity, &self.delegate_to(:product, :images?)
   end
 

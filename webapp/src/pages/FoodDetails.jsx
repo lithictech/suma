@@ -51,7 +51,7 @@ export default function FoodDetails() {
       </LayoutContainer>
     );
   }
-  const vendor = find(vendors, (v) => v.id === product.vendorId);
+  const vendor = find(vendors, (v) => v.id === product.vendor.id);
   const title = makeTitle(product.name, vendor.name, t("food:title"));
   return (
     <>

@@ -98,25 +98,24 @@ export default function FoodList() {
 function Product({ product, offeringId }) {
   const { productId, name, images, outOfStock } = product;
   return (
-    <Col xs={6} className="mb-4">
-      <div className="position-relative">
-        <SumaImage image={images[0]} className="w-100" w={225} h={150} />
-        <h5 className="mb-2 mt-2">{name}</h5>
-        {outOfStock ? (
-          <p className="text-secondary">{t("food:sold_out")}</p>
-        ) : (
-          <>
-            <FoodPrice
-              fs={5}
-              className="gap-2"
-              isDiscounted={product.isDiscounted}
-              undiscountedPrice={product.undiscountedPrice}
-              displayableCashPrice={product.displayableCashPrice}
-            />
-          </>
-        )}
-        <Link to={`/product/${offeringId}/${productId}`} className="stretched-link" />
-      </div>
+    <Col xs={6} className="mb-4 border-bottom border-secondary border-opacity-50 position-relative">
+      <SumaImage image={images[0]} className="w-100" w={225} h={150} />
+      <h5 className="mb-2 mt-2">{name}</h5>
+      <p className="my-2">{ product.vendor.name}</p>
+      {outOfStock ? (
+        <p className="mb-3 text-secondary">{t("food:sold_out")}</p>
+      ) : (
+        <>
+          <FoodPrice
+            fs={5}
+            className="mb-3 gap-2"
+            isDiscounted={product.isDiscounted}
+            undiscountedPrice={product.undiscountedPrice}
+            displayableCashPrice={product.displayableCashPrice}
+          />
+        </>
+      )}
+      <Link to={`/product/${offeringId}/${productId}`} className="stretched-link" />
     </Col>
   );
 }
