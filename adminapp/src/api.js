@@ -192,8 +192,6 @@ export default {
   getMember: ({ id, ...data }) => get(`/adminapi/v1/members/${id}`, data),
   updateMember: ({ id, ...data }) => post(`/adminapi/v1/members/${id}`, data),
   softDeleteMember: ({ id, ...data }) => post(`/adminapi/v1/members/${id}/close`, data),
-  changeMemberEligibility: ({ id, ...data }) =>
-    post(`/adminapi/v1/members/${id}/eligibilities`, data),
 
   getOrganizations: (data) => get(`/adminapi/v1/organizations`, data),
   getOrganization: ({ id }) => get(`/adminapi/v1/organizations/${id}`),

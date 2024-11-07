@@ -4,6 +4,7 @@ import RelatedList from "../components/RelatedList";
 import ResourceDetail from "../components/ResourceDetail";
 import { dayjs, dayjsOrNull } from "../modules/dayConfig";
 import createRelativeUrl from "../shared/createRelativeUrl";
+import SafeExternalLink from "../shared/react/SafeExternalLink";
 import SumaImage from "../shared/react/SumaImage";
 import React from "react";
 
@@ -79,6 +80,33 @@ export default function ProgramDetailPage() {
               <AdminLink model={row}>{row.label}</AdminLink>,
               dayjs(row.activeDuringBegin).format("lll"),
               dayjs(row.activeDuringEnd).format("lll"),
+            ]}
+          />
+          <RelatedList
+            title={`Vendor Configurations (${model.configurations?.length})`}
+            rows={model.configurations}
+            keyRowAttr="id"
+            headers={[
+              "Id",
+              "Created",
+              "Vendor",
+              "App Install Link",
+              "Uses Email",
+              "Uses SMS",
+              "Enabled",
+            ]}
+            toCells={(row) => [
+              <AdminLink model={row} />,
+              dayjs(row.createdAt).format("lll"),
+              <AdminLink key={row.vendor.name} model={row.vendor}>
+                {row.vendor.name}
+              </AdminLink>,
+              <SafeExternalLink key={1} href={row.appInstallLink}>
+                {row.appInstallLink}
+              </SafeExternalLink>,
+              row.usesEmail ? "Yes" : "No",
+              row.usesSms ? "Yes" : "No",
+              row.enabled ? "Yes" : "No",
             ]}
           />
           <RelatedList

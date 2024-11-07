@@ -4,7 +4,6 @@ import Link from "../components/Link";
 import Programs from "../components/Programs";
 import RelatedList from "../components/RelatedList";
 import ResourceDetail from "../components/ResourceDetail";
-import useRoleAccess from "../hooks/useRoleAccess";
 import { dayjs } from "../modules/dayConfig";
 import oneLineAddress from "../modules/oneLineAddress";
 import createRelativeUrl from "../shared/createRelativeUrl";
@@ -17,7 +16,6 @@ import React from "react";
 
 export default function OfferingDetailPage() {
   const classes = useStyles();
-  const { canWriteResource } = useRoleAccess();
   return (
     <ResourceDetail
       resource="offering"
@@ -83,20 +81,6 @@ export default function OfferingDetailPage() {
             "-"
           ),
         },
-        canWriteResource("offering_product") && {
-          label: "Create Offering Product",
-          value: (
-            <Link
-              to={createRelativeUrl(`/offering-product/new`, {
-                offeringId: model.id,
-                offeringLabel: model.description.en,
-              })}
-            >
-              <ListAltIcon sx={{ verticalAlign: "middle", marginRight: "5px" }} />
-              Create Offering Product
-            </Link>
-          ),
-        },
       ]}
     >
       {(model, setModel) => (
@@ -122,6 +106,12 @@ export default function OfferingDetailPage() {
           />
           <RelatedList
             title={`Offering Products (${model.offeringProducts.length})`}
+            addNewLabel="Create Offering Product"
+            addNewLink={createRelativeUrl("/offering-product/new", {
+              offeringId: model.id,
+              offeringLabel: model.description.en,
+            })}
+            addNewRole="offering_product"
             rows={model.offeringProducts}
             headers={["Id", "Name", "Vendor", "Customer Price", "Full Price"]}
             keyRowAttr="id"
