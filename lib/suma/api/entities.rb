@@ -101,9 +101,6 @@ module Suma::API::Entities
     expose :read_only_mode?, as: :read_only_mode
     expose :read_only_reason
     expose :usable_payment_instruments, with: PaymentInstrumentEntity
-    expose :active_programs, with: ProgramEnrollmentEntity do |m, opts|
-      m.combined_program_enrollments_dataset.active(as_of: opts[:env].fetch("now")).all
-    end
     expose :admin_member, expose_nil: false, with: Suma::Service::Entities::CurrentMember do |_|
       self.current_session.impersonation? ? self.current_session.member : nil
     end

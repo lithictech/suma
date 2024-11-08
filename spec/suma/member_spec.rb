@@ -355,5 +355,16 @@ RSpec.describe "Suma::Member", :db do
       eagered_member = Suma::Member.all.first
       expect(eagered_member.combined_program_enrollments).to have_same_ids_as(active_via_member, active_via_org)
     end
+
+    it "filters combined enrollments having the same program" do
+      o = Suma::Fixtures.organization.with_membership_of(member).create
+      program = Suma::Fixtures.program.create
+      member_enrollment = Suma::Fixtures.program_enrollment.create(member:, program:)
+      org_enrollment = Suma::Fixtures.program_enrollment.create(organization: o, program:)
+
+      # Prefer the member/direct enrollment over the org/indirect enrollment
+      expect(member.combined_program_enrollments_dataset.all).to have_same_ids_as(member_enrollment)
+      expect(Suma::Member.all.last.combined_program_enrollments).to have_same_ids_as(member_enrollment)
+    end
   end
 end

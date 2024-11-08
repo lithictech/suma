@@ -108,12 +108,23 @@ class Suma::Member < Suma::Postgres::Model(:members)
               read_only: true,
               key: :id,
               dataset: lambda {
-                self.direct_program_enrollments_dataset.union(self.program_enrollments_via_organizations_dataset,
-                                                              alias: :program_enrollments,)
+                # Prefer direct enrollments over indirect ones.
+                # The org enrollments being second in the UNION means
+                # direct enrollments will be chosen with the DISTINCT.
+                self.direct_program_enrollments_dataset.union(
+                  self.program_enrollments_via_organizations_dataset,
+                  alias: :program_enrollments,
+                ).distinct(:program_id)
               },
               eager_loader: (proc do |eo|
                 eo[:rows].each { |p| p.associations[:combined_program_enrollments] = [] }
-                ds = Suma::Program::Enrollment.for_members(self.where(id: eo[:id_map].keys))
+                ds = Suma::Program::Enrollment.dataset.
+                  for_members(self.where(id: eo[:id_map].keys)).
+                  # Get unique enrollments for a program. Prefer direct/member enrollments,
+                  # so sort the rows by member_id so NULL member_id rows (indirect/org enrollments)
+                  # sort last and are eliminated by the DISTINCT.
+                  order(:program_id, :member_id).
+                  distinct(:program_id)
                 ds.all do |en|
                   m = eo[:id_map][en.member_id || en.values.fetch(:annotated_member_id)].first
                   m.associations[:combined_program_enrollments] << en

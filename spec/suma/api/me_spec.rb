@@ -62,14 +62,12 @@ RSpec.describe Suma::API::Me, :db do
     it "returns other useful information (order history, completed surveys, etc)" do
       member.db[:member_surveys].insert(member_id: member.id, topic: "testing")
       Suma::Fixtures.order.as_purchased_by(member).create
-      program_enrollment = Suma::Fixtures.program_enrollment.create(member:)
 
       get "/v1/me"
 
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.that_includes(
         finished_survey_topics: ["testing"],
-        active_programs: include(include(name: program_enrollment.program.name.en)),
         has_order_history: true,
       )
     end
