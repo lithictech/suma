@@ -36,6 +36,8 @@ export default function ProgramDetailPage() {
         { label: "Opening Date", value: dayjs(model.periodBegin) },
         { label: "Closing Date", value: dayjs(model.periodEnd) },
         { label: "App Link", value: model.appLink },
+        { label: "App Link Text EN", value: model.appLinkText.en },
+        { label: "App Link Text ES", value: model.appLinkText.es },
         { label: "Ordinal", value: model.ordinal },
       ]}
     >

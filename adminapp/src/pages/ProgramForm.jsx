@@ -63,14 +63,28 @@ export default function ProgramForm({
           />
         </ResponsiveStack>
         <FormLabel>App Link</FormLabel>
+        <FormHelperText>
+          Useful for linking members to promotion pages, '/food/1' would link to
+          'app.mysuma.org/app/food/1'.
+        </FormHelperText>
         <TextField
           {...register("appLink")}
           fullWidth
           value={resource.appLink}
           label="App link"
           onChange={setFieldFromInput}
-          helperText="Useful for linking members to promotion pages, '/food/1' would link to 'app.mysuma.org/app/food/1'."
+          required
         />
+        <ResponsiveStack>
+          <MultiLingualText
+            {...register("app_link_text")}
+            label="App Link Text"
+            fullWidth
+            value={resource.appLinkText}
+            required
+            onChange={(v) => setField("appLinkText", v)}
+          />
+        </ResponsiveStack>
         <FormLabel>Timings</FormLabel>
         <FormHelperText>
           Member or organization can access a program between the open and close times.

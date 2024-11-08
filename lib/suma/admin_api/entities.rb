@@ -125,6 +125,7 @@ module Suma::AdminAPI::Entities
     expose :period_end
     expose :ordinal
     expose :app_link
+    expose :app_link_text, with: TranslatedTextEntity
   end
 
   class ProgramEnrollmentEntity < BaseEntity
