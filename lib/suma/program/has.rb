@@ -37,9 +37,7 @@ module Suma::Program::Has
 
   module InstanceMethods
     def eligible_to?(member, as_of:)
-      programs = self.programs_dataset.active(as_of:).all
-      return true if programs.empty?
-      return !self.program_enrollments_dataset.active(as_of:).for_members(member).empty?
+      return !self.class.where(id: self.id).eligible_to(member, as_of:).empty?
     end
   end
 end
