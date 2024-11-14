@@ -74,9 +74,20 @@ Sequel.migration do
         ),
       )
     end
+
+    alter_table(:organization_memberships) do
+      add_unique_constraint(
+        [:member_id, :verified_organization_id],
+        name: :unique_member_verified_organization,
+      )
+    end
   end
 
   down do
+    alter_table(:organization_memberships) do
+      drop_constraint(:unique_member_verified_organization)
+    end
+
     alter_table(:images) do
       drop_constraint(:unambiguous_relation)
       drop_column(:program_id)
