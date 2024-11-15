@@ -63,6 +63,11 @@ RSpec.describe "Suma::Commerce::Order", :db do
       expect(order.fulfillment_options_for_editing).to have_same_ids_as(*offering.fulfillment_options)
     end
 
+    it "excludes nil checkout option" do
+      order.checkout.update(fulfillment_option: nil)
+      expect(order.fulfillment_options_for_editing).to have_same_ids_as(*offering.fulfillment_options)
+    end
+
     it "is empty for a non-unfulfilled order" do
       order.fulfillment_status = "fulfilling"
       expect(order.fulfillment_options_for_editing).to be_empty

@@ -168,7 +168,9 @@ class Suma::Commerce::Order < Suma::Postgres::Model(:commerce_orders)
   def fulfillment_options_for_editing
     return [] unless self.unfulfilled?
     opts = self.checkout.available_fulfillment_options
-    opts.prepend(self.checkout.fulfillment_option) unless opts.any? { |opt| opt === self.checkout.fulfillment_option }
+    if (checkout_opt = self.checkout.fulfillment_option) && opts.none? { |opt| opt === checkout_opt }
+      opts.prepend(checkout_opt)
+    end
     return opts
   end
 
