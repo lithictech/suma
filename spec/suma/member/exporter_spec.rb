@@ -12,21 +12,17 @@ RSpec.describe Suma::Member::Exporter, :db do
     allfields.legal_entity.update(address:)
     allfields.message_preferences!
 
-    eligibility_constraints = [
-      Suma::Fixtures.eligibility_constraint.create(name: "Homes, Oregon"),
-      Suma::Fixtures.eligibility_constraint.create(name: "Casa, Oregon"),
-    ]
-    eligibility_constraints.each do |constraint|
-      allfields.add_verified_eligibility_constraint(constraint)
-    end
+    enrollment_fac = Suma::Fixtures.program_enrollment(member: allfields)
+    enrollment_fac.create(program: Suma::Fixtures.program.named("Homes, Oregon").create)
+    enrollment_fac.create(program: Suma::Fixtures.program.named("Casa, Oregon").create)
 
     plain = Suma::Fixtures.member.create(name: "XYZ", phone: "12223339999", email: "x@y.z")
     plain.soft_delete
 
     csv = described_class.new(Suma::Member.dataset).to_csv
     lines = <<~LINES
-      Id,Name,Lang,Channel,Event,Phone,IntlPhone,Email,Address1,Address2,City,State,Zip,Country,Verified,Eligibility Constraints,Deleted,Timezone
-      #{allfields.id},ABC,en,chan,ev,(222) 333-4444,12223334444,a@b.c,123 Main,"",Portland,Oregon,97214,US,true,"Homes, Oregon|Casa, Oregon",false,America/Los_Angeles
+      Id,Name,Lang,Channel,Event,Phone,IntlPhone,Email,Address1,Address2,City,State,Zip,Country,Verified,Programs,Deleted,Timezone
+      #{allfields.id},ABC,en,chan,ev,(222) 333-4444,12223334444,a@b.c,123 Main,"",Portland,Oregon,97214,US,true,"Casa, Oregon|Homes, Oregon",false,America/Los_Angeles
       #{plain.id},XYZ,,,,#{plain.phone},#{plain.phone},#{plain.email},,,,,,,false,"",true,America/Los_Angeles
     LINES
     expect(csv).to eq(lines)

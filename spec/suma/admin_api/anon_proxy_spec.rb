@@ -93,9 +93,8 @@ RSpec.describe Suma::AdminAPI::AnonProxy, :db do
 
   describe "GET /v1/anon_proxy/vendor_configurations/:id" do
     it "returns the anon proxy vendor configuration" do
-      ec = Suma::Fixtures.eligibility_constraint.create
       vendor = Suma::Fixtures.vendor.create
-      config = Suma::Fixtures.anon_proxy_vendor_configuration.with_constraints(ec).create(vendor:)
+      config = Suma::Fixtures.anon_proxy_vendor_configuration.create(vendor:)
 
       get "/v1/anon_proxy/vendor_configurations/#{config.id}"
 
@@ -103,29 +102,28 @@ RSpec.describe Suma::AdminAPI::AnonProxy, :db do
       expect(last_response).to have_json_body.that_includes(
         id: config.id,
         vendor: include(id: vendor.id),
-        eligibility_constraints: contain_exactly(include(id: ec.id)),
       )
     end
   end
 
-  describe "POST /v1/anon_proxy/vendor_configurations/:id/eligibilities" do
-    it "replaces the eligibilities" do
-      ec = Suma::Fixtures.eligibility_constraint.create
-      to_add = Suma::Fixtures.eligibility_constraint.create
-      config = Suma::Fixtures.anon_proxy_vendor_configuration.with_constraints(ec).create
+  describe "POST /v1/anon_proxy/vendor_configurations/:id/programs" do
+    it "replaces the programs" do
+      pr = Suma::Fixtures.program.create
+      to_add = Suma::Fixtures.program.create
+      config = Suma::Fixtures.anon_proxy_vendor_configuration.with_programs(pr).create
 
-      post "/v1/anon_proxy/vendor_configurations/#{config.id}/eligibilities", {constraint_ids: [to_add.id]}
+      post "/v1/anon_proxy/vendor_configurations/#{config.id}/programs", {program_ids: [to_add.id]}
 
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.that_includes(id: config.id)
       expect(last_response).to have_json_body.
-        that_includes(eligibility_constraints: contain_exactly(include(id: to_add.id)))
+        that_includes(programs: have_same_ids_as(to_add))
     end
 
     it "403s if the constraint does not exist" do
       config = Suma::Fixtures.anon_proxy_vendor_configuration.create
 
-      post "/v1/anon_proxy/vendor_configurations/#{config.id}/eligibilities", {constraint_ids: [0]}
+      post "/v1/anon_proxy/vendor_configurations/#{config.id}/programs", {program_ids: [0]}
 
       expect(last_response).to have_status(403)
     end

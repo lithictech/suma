@@ -93,13 +93,43 @@ class Suma::Member < Suma::Postgres::Model(:members)
   one_to_many :anon_proxy_vendor_accounts, class: "Suma::AnonProxy::VendorAccount"
   one_to_many :organization_memberships, class: "Suma::Organization::Membership"
 
-  Suma::Eligibility::Constraint::STATUSES.each do |mt|
-    many_to_many :"#{mt}_eligibility_constraints",
-                 class: "Suma::Eligibility::Constraint",
-                 join_table: :eligibility_member_associations,
-                 right_key: :constraint_id,
-                 left_key: :"#{mt}_member_id"
-  end
+  one_to_many :direct_program_enrollments, class: "Suma::Program::Enrollment"
+  many_through_many :program_enrollments_via_organizations,
+                    [
+                      [:organization_memberships, :member_id, :verified_organization_id],
+                    ],
+                    class: "Suma::Program::Enrollment",
+                    left_primary_key: :id,
+                    right_primary_key: :organization_id,
+                    read_only: true
+
+  one_to_many :combined_program_enrollments,
+              class: "Suma::Program::Enrollment",
+              read_only: true,
+              key: :id,
+              dataset: lambda {
+                # Prefer direct enrollments over indirect ones.
+                # The org enrollments being second in the UNION means
+                # direct enrollments will be chosen with the DISTINCT.
+                self.direct_program_enrollments_dataset.union(
+                  self.program_enrollments_via_organizations_dataset,
+                  alias: :program_enrollments,
+                ).distinct(:program_id)
+              },
+              eager_loader: (proc do |eo|
+                eo[:rows].each { |p| p.associations[:combined_program_enrollments] = [] }
+                ds = Suma::Program::Enrollment.dataset.
+                  for_members(self.where(id: eo[:id_map].keys)).
+                  # Get unique enrollments for a program. Prefer direct/member enrollments,
+                  # so sort the rows by member_id so NULL member_id rows (indirect/org enrollments)
+                  # sort last and are eliminated by the DISTINCT.
+                  order(:program_id, :member_id).
+                  distinct(:program_id)
+                ds.all do |en|
+                  m = eo[:id_map][en.member_id || en.values.fetch(:annotated_member_id)].first
+                  m.associations[:combined_program_enrollments] << en
+                end
+              end)
 
   plugin :association_array_replacer, :roles
 
@@ -155,35 +185,6 @@ class Suma::Member < Suma::Postgres::Model(:members)
     ra = Suma::Member::RoleAccess.new(self)
     return ra.instance_eval(&) if block_given?
     return ra
-  end
-
-  def eligibility_constraints_with_status
-    result = []
-    Suma::Eligibility::Constraint::STATUSES.each do |status|
-      constraints = self.send(:"#{status}_eligibility_constraints")
-      result += constraints.map { |c| {constraint: c, status:} }
-    end
-    return result
-  end
-
-  def replace_eligibility_constraint(constraint, group)
-    self.db[:eligibility_member_associations].
-      insert_conflict(
-        constraint: :unique_member,
-        update: {
-          verified_member_id: Sequel[:excluded][:verified_member_id],
-          pending_member_id: Sequel[:excluded][:pending_member_id],
-          rejected_member_id: Sequel[:excluded][:rejected_member_id],
-        },
-      ).insert(
-        constraint_id: constraint.id,
-        "#{group}_member_id": self.id,
-      )
-    self.publish_deferred("eligibilitychanged", self.id)
-    self.associations.delete(:verified_eligibility_constraints)
-    self.associations.delete(:pending_eligibility_constraints)
-    self.associations.delete(:rejected_eligibility_constraints)
-    return self
   end
 
   def greeting

@@ -20,24 +20,35 @@ RSpec.describe "Suma::Vendor::Service", :db do
   end
 
   describe "datasets" do
-    it "can find rows available to a member based on constraints" do
-      mem_no_constraints = Suma::Fixtures.member.create
-      mem_verified_constraint = Suma::Fixtures.member.create
-      mem_rejected_constraint = Suma::Fixtures.member.create
+    it "can find rows available to a member based on program enrollment" do
+      mem_no_programs = Suma::Fixtures.member.create
+      mem_enrolled = Suma::Fixtures.member.create
+      mem_unenrolled = Suma::Fixtures.member.create
 
-      constraint = Suma::Fixtures.eligibility_constraint.create
-      mem_verified_constraint.add_verified_eligibility_constraint(constraint)
-      mem_rejected_constraint.add_rejected_eligibility_constraint(constraint)
+      program = Suma::Fixtures.program.create
+      Suma::Fixtures.program_enrollment.create(program:, member: mem_enrolled)
+      Suma::Fixtures.program_enrollment.unenrolled.create(program:, member: mem_unenrolled)
 
-      no_constraint = Suma::Fixtures.vendor_service.create
-      with_constraint = Suma::Fixtures.vendor_service.with_constraints(constraint).create
+      no_programs = Suma::Fixtures.vendor_service.create
+      with_program = Suma::Fixtures.vendor_service.with_programs(program).create
 
-      expect(described_class.eligible_to(mem_no_constraints).all).to have_same_ids_as(no_constraint)
-      expect(described_class.eligible_to(mem_verified_constraint).all).to have_same_ids_as(
-        no_constraint,
-        with_constraint,
-      )
-      expect(described_class.eligible_to(mem_rejected_constraint).all).to have_same_ids_as(no_constraint)
+      as_of = Time.now
+      expect(described_class.eligible_to(mem_no_programs, as_of:).all).to have_same_ids_as(no_programs)
+      expect(described_class.eligible_to(mem_enrolled, as_of:).all).to have_same_ids_as(no_programs, with_program)
+      expect(described_class.eligible_to(mem_unenrolled, as_of:).all).to have_same_ids_as(no_programs)
+    end
+  end
+
+  describe "associations" do
+    it "knows its program enrollments" do
+      e1 = Suma::Fixtures.program_enrollment.create
+      e2 = Suma::Fixtures.program_enrollment.create
+      e3 = Suma::Fixtures.program_enrollment.create
+
+      o = Suma::Fixtures.vendor_service.create
+      o.add_program(e1.program)
+      o.add_program(e2.program)
+      expect(o.program_enrollments).to have_same_ids_as(e1, e2)
     end
   end
 

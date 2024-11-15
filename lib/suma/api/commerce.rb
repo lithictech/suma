@@ -10,8 +10,8 @@ class Suma::API::Commerce < Suma::API::V1
 
   resource :commerce do
     helpers do
-      def new_context(t)
-        return Suma::Payment::CalculationContext.new(t)
+      def new_context
+        return Suma::Payment::CalculationContext.new(current_time)
       end
 
       def set_fulfillment_or_error(checkout, option_id, options)
@@ -26,8 +26,7 @@ class Suma::API::Commerce < Suma::API::V1
       desc "Return all commerce offerings that are not closed"
       get do
         me = current_member
-        t = Time.now
-        ds = Suma::Commerce::Offering.available_at(t).eligible_to(me)
+        ds = Suma::Commerce::Offering.available_at(current_time).eligible_to(me, as_of: current_time)
         present_collection ds, with: OfferingEntity
       end
 
@@ -50,12 +49,11 @@ class Suma::API::Commerce < Suma::API::V1
         # paginated items after the first page.
         get do
           current_member
-          t = Time.now
-          offering = lookup_offering!(t)
+          offering = lookup_offering!(current_time)
           items = offering.offering_products_dataset.available.all
           cart = lookup_cart!(offering)
           vendors = items.map { |v| v.product.vendor }.uniq(&:id)
-          present offering, with: OfferingWithContextEntity, cart:, items:, vendors:, context: new_context(t)
+          present offering, with: OfferingWithContextEntity, cart:, items:, vendors:, context: new_context
         end
 
         resource :cart do
@@ -65,8 +63,7 @@ class Suma::API::Commerce < Suma::API::V1
             optional :timestamp, type: Float, allow_blank: true
           end
           put :item do
-            t = Time.now
-            offering = lookup_offering!(t)
+            offering = lookup_offering!(current_time)
             cart = lookup_cart!(offering)
             product = Suma::Commerce::Product[params[:product_id]]
             begin
@@ -77,15 +74,14 @@ class Suma::API::Commerce < Suma::API::V1
               self.logger.info "out_of_order_update", product_id: product&.id, quantity: params[:quantity]
               nil
             end
-            present cart, with: CartEntity, context: new_context(t)
+            present cart, with: CartEntity, context: new_context
           end
         end
 
         post :checkout do
-          t = Time.now
-          offering = lookup_offering!(t)
+          offering = lookup_offering!(current_time)
           cart = lookup_cart!(offering)
-          ctx = new_context(t)
+          ctx = new_context
           begin
             checkout = cart.create_checkout(ctx)
           rescue Suma::Commerce::Cart::EmptyCart
@@ -120,7 +116,7 @@ class Suma::API::Commerce < Suma::API::V1
 
         get do
           checkout = lookup_editable!
-          present checkout, with: CheckoutEntity, cart: checkout.cart, context: new_context(Time.now)
+          present checkout, with: CheckoutEntity, cart: checkout.cart, context: new_context
         end
 
         params do
@@ -131,7 +127,7 @@ class Suma::API::Commerce < Suma::API::V1
           set_fulfillment_or_error(checkout, params[:option_id], checkout.available_fulfillment_options)
           checkout.save_changes
           status 200
-          present checkout, with: CheckoutEntity, cart: checkout.cart, context: new_context(Time.now)
+          present checkout, with: CheckoutEntity, cart: checkout.cart, context: new_context
         end
 
         params do
@@ -145,9 +141,8 @@ class Suma::API::Commerce < Suma::API::V1
         post :complete do
           member = current_member
           checkout = lookup!
-          now = Time.now
           check_eligibility!(checkout.cart.offering, member)
-          if checkout.cost_info(at: now).requires_payment_instrument?
+          if checkout.cost_info(at: current_time).requires_payment_instrument?
             instrument = find_payment_instrument?(member, params[:payment_instrument])
             checkout.payment_instrument = instrument if instrument
           end
@@ -162,7 +157,7 @@ class Suma::API::Commerce < Suma::API::V1
           checkout.db.transaction do
             checkout.save_changes
             begin
-              checkout.create_order(apply_at: now, cash_charge_amount: Money.new(params[:charge_amount_cents]))
+              checkout.create_order(apply_at: current_time, cash_charge_amount: Money.new(params[:charge_amount_cents]))
             rescue Suma::Commerce::Checkout::Prohibited => e
               merror!(409, "Checkout prohibited: #{e.reason}", code: "checkout_fatal_error")
             rescue Suma::Commerce::Checkout::MaxQuantityExceeded
@@ -177,7 +172,7 @@ class Suma::API::Commerce < Suma::API::V1
         get :confirmation do
           checkout = lookup!
           forbidden! unless checkout.completed?
-          forbidden! unless checkout.expose_for_confirmation?(Time.now)
+          forbidden! unless checkout.expose_for_confirmation?(current_time)
           present checkout, with: CheckoutConfirmationEntity, cart: checkout.cart
         end
       end
@@ -269,9 +264,7 @@ class Suma::API::Commerce < Suma::API::V1
     expose_translated :fulfillment_instructions
     expose :period_end, as: :closes_at
     expose :image, with: Suma::API::Entities::ImageEntity, &self.delegate_to(:images?, :first)
-    expose :vendible, with: Suma::API::Entities::VendibleEntity do |inst|
-      Suma::Vendible.from_commerce_offering(inst)
-    end
+    expose :rel_app_link, as: :app_link
   end
 
   class BaseOfferingProductEntity < BaseEntity
@@ -279,7 +272,7 @@ class Suma::API::Commerce < Suma::API::V1
     expose_translated :description, &self.delegate_to(:product, :description)
     expose :offering_id
     expose :product_id, &self.delegate_to(:product, :id)
-    expose :vendor_id, &self.delegate_to(:product, :vendor_id)
+    expose :vendor, with: VendorEntity, &self.delegate_to(:product, :vendor)
     expose :images, with: Suma::API::Entities::ImageEntity, &self.delegate_to(:product, :images?)
   end
 

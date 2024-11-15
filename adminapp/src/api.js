@@ -87,17 +87,8 @@ export default {
   getSupportedGeographies: (data) => get(`/adminapi/v1/meta/geographies`, data),
   getVendorServiceCategories: (data) =>
     get(`/adminapi/v1/meta/vendor_service_categories`, data),
-  getEligibilityConstraintsMeta: (data) =>
-    get(`/adminapi/v1/meta/eligibility_constraints`, data),
+  getProgramsMeta: (data) => get(`/adminapi/v1/meta/programs`, data),
   getResourceAccessMeta: (data) => get(`/adminapi/v1/meta/resource_access`, data),
-
-  getEligibilityConstraints: (data) => get(`/adminapi/v1/eligibility_constraints`, data),
-  createEligibilityConstraint: (data) =>
-    post(`/adminapi/v1/eligibility_constraints/create`, data),
-  getEligibilityConstraint: ({ id, ...data }) =>
-    get(`/adminapi/v1/eligibility_constraints/${id}`, data),
-  updateEligibilityConstraint: ({ id, ...data }) =>
-    post(`/adminapi/v1/eligibility_constraints/${id}`, data),
 
   getBankAccount: ({ id, ...data }) => get(`/adminapi/v1/bank_accounts/${id}`, data),
 
@@ -124,6 +115,8 @@ export default {
     get(`/adminapi/v1/payment_triggers/${id}`, data),
   updatePaymentTrigger: ({ id, ...data }) =>
     post(`/adminapi/v1/payment_triggers/${id}`, data),
+  updatePaymentTriggerPrograms: ({ id, ...data }) =>
+    post(`/adminapi/v1/payment_triggers/${id}/programs`, data),
 
   getCommerceOfferings: (data) => get("/adminapi/v1/commerce_offerings", data),
   getCommerceOffering: ({ id, ...data }) =>
@@ -132,8 +125,8 @@ export default {
     postForm("/adminapi/v1/commerce_offerings/create", data),
   updateCommerceOffering: ({ id, ...data }) =>
     postForm(`/adminapi/v1/commerce_offerings/${id}`, data),
-  updateOfferingEligibilityConstraints: ({ id, ...data }) =>
-    post(`/adminapi/v1/commerce_offerings/${id}/eligibilities`, data),
+  updateOfferingPrograms: ({ id, ...data }) =>
+    post(`/adminapi/v1/commerce_offerings/${id}/programs`, data),
   getCommerceOfferingPickList: ({ id, ...data }) =>
     get(`/adminapi/v1/commerce_offerings/${id}/picklist`, data),
 
@@ -157,18 +150,25 @@ export default {
   getVendor: ({ id, ...data }) => get(`/adminapi/v1/vendors/${id}`, data),
   updateVendor: ({ id, ...data }) => postForm(`/adminapi/v1/vendors/${id}`, data),
 
-  getVendibleGroups: (data) => get(`/adminapi/v1/vendible_groups`, data),
-  createVendibleGroup: (data) => post("/adminapi/v1/vendible_groups/create", data),
-  getVendibleGroup: ({ id, ...data }) => get(`/adminapi/v1/vendible_groups/${id}`, data),
-  updateVendibleGroup: ({ id, ...data }) =>
-    post(`/adminapi/v1/vendible_groups/${id}`, data),
+  getPrograms: (data) => get(`/adminapi/v1/programs`, data),
+  createProgram: (data) => postForm("/adminapi/v1/programs/create", data),
+  getProgram: ({ id, ...data }) => get(`/adminapi/v1/programs/${id}`, data),
+  updateProgram: ({ id, ...data }) => postForm(`/adminapi/v1/programs/${id}`, data),
+
+  getProgramEnrollments: (data) => get(`/adminapi/v1/program_enrollments`, data),
+  createProgramEnrollment: (data) =>
+    postForm("/adminapi/v1/program_enrollments/create", data),
+  getProgramEnrollment: ({ id, ...data }) =>
+    get(`/adminapi/v1/program_enrollments/${id}`, data),
+  updateProgramEnrollment: ({ id, ...data }) =>
+    postForm(`/adminapi/v1/program_enrollments/${id}`, data),
 
   getVendorServices: (data) => get(`/adminapi/v1/vendor_services`, data),
   getVendorService: ({ id, ...data }) => get(`/adminapi/v1/vendor_services/${id}`, data),
   updateVendorService: ({ id, ...data }) =>
     postForm(`/adminapi/v1/vendor_services/${id}`, data),
-  updateVendorServiceEligibilityConstraints: ({ id, ...data }) =>
-    post(`/adminapi/v1/vendor_services/${id}/eligibilities`, data),
+  updateVendorServicePrograms: ({ id, ...data }) =>
+    post(`/adminapi/v1/vendor_services/${id}/programs`, data),
 
   getVendorAccounts: (data) => get("/adminapi/v1/anon_proxy/vendor_accounts", data),
   getVendorAccount: ({ id, data }) =>
@@ -178,8 +178,8 @@ export default {
     get("/adminapi/v1/anon_proxy/vendor_configurations", data),
   getVendorConfiguration: ({ id, data }) =>
     get(`/adminapi/v1/anon_proxy/vendor_configurations/${id}`, data),
-  updateVendorConfigurationEligibilityConstraints: ({ id, ...data }) =>
-    post(`/adminapi/v1/anon_proxy/vendor_configurations/${id}/eligibilities`, data),
+  updateVendorConfigurationPrograms: ({ id, ...data }) =>
+    post(`/adminapi/v1/anon_proxy/vendor_configurations/${id}/programs`, data),
 
   getCommerceOrders: (data) => get(`/adminapi/v1/commerce_orders`, data),
   getCommerceOrder: ({ id, ...data }) => get(`/adminapi/v1/commerce_orders/${id}`, data),
@@ -192,8 +192,6 @@ export default {
   getMember: ({ id, ...data }) => get(`/adminapi/v1/members/${id}`, data),
   updateMember: ({ id, ...data }) => post(`/adminapi/v1/members/${id}`, data),
   softDeleteMember: ({ id, ...data }) => post(`/adminapi/v1/members/${id}/close`, data),
-  changeMemberEligibility: ({ id, ...data }) =>
-    post(`/adminapi/v1/members/${id}/eligibilities`, data),
 
   getOrganizations: (data) => get(`/adminapi/v1/organizations`, data),
   getOrganization: ({ id }) => get(`/adminapi/v1/organizations/${id}`),
@@ -223,6 +221,7 @@ export default {
   searchOrganizations: (data) => post(`/adminapi/v1/search/organizations`, data),
   searchVendorServices: (data) => post(`/adminapi/v1/search/vendor_services`, data),
   searchCommerceOffering: (data) => post(`/adminapi/v1/search/commerce_offerings`, data),
+  searchPrograms: (data) => post(`/adminapi/v1/search/programs`, data),
 
   /**
    * Return an API url.

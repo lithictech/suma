@@ -11,8 +11,9 @@ class Suma::API::AnonProxy < Suma::API::V1
     resource :vendor_accounts do
       get do
         member = current_member
+        vas = Suma::AnonProxy::VendorAccount.for(member, as_of: current_time)
         status 200
-        present_collection Suma::AnonProxy::VendorAccount.for(member), with: AnonProxyVendorAccountEntity
+        present_collection vas, with: AnonProxyVendorAccountEntity
       end
 
       route_param :id, type: Integer do
@@ -35,7 +36,7 @@ class Suma::API::AnonProxy < Suma::API::V1
           present(
             apva,
             with: MutationAnonProxyVendorAccountEntity,
-            all_vendor_accounts: Suma::AnonProxy::VendorAccount.for(current_member),
+            all_vendor_accounts: Suma::AnonProxy::VendorAccount.for(current_member, as_of: current_time),
           )
         end
 
@@ -49,7 +50,7 @@ class Suma::API::AnonProxy < Suma::API::V1
             skip_error: true,
             **areq,
           )
-          apva.update(latest_access_code_requested_at: Time.now) if got.code < 300
+          apva.update(latest_access_code_requested_at: current_time) if got.code < 300
           status got.code
           present got.parsed_response
         end

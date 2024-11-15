@@ -3,34 +3,29 @@
 require "grape"
 require "suma/admin_api"
 
-class Suma::AdminAPI::VendibleGroups < Suma::AdminAPI::V1
+class Suma::AdminAPI::Programs < Suma::AdminAPI::V1
   include Suma::AdminAPI::Entities
 
-  class VendibleEntity < BaseEntity
+  class DetailedProgramEntity < ProgramEntity
     include Suma::AdminAPI::Entities
-    expose :key, &self.delegate_to(:name, :en)
-    expose :name, with: TranslatedTextEntity
-    expose :until
-    expose :image, with: ImageEntity
-    expose :link
-  end
-
-  class DetailedVendibleGroupEntity < VendibleGroupEntity
-    include Suma::AdminAPI::Entities
+    include AutoExposeDetail
+    expose :image, with: ImageEntity, &self.delegate_to(:images?, :first)
     expose :commerce_offerings, with: OfferingEntity
-    expose :vendibles, with: VendibleEntity
     expose :vendor_services, with: VendorServiceEntity
+    expose :anon_proxy_vendor_configurations, as: :configurations, with: VendorConfigurationEntity
+    expose :payment_triggers, with: PaymentTriggerEntity
+    expose :enrollments, with: ProgramEnrollmentEntity
   end
 
-  resource :vendible_groups do
+  resource :programs do
     params do
       use :pagination
-      use :ordering, model: Suma::Vendible::Group, default: :ordinal
+      use :ordering, model: Suma::Program, default: :ordinal
       use :searchable
     end
     get do
       check_role_access!(admin_member, :read, :admin_commerce)
-      ds = Suma::Vendible::Group.dataset
+      ds = Suma::Program.dataset
       if (name_en_like = search_param_to_sql(params, :name_en))
         name_es_like = search_param_to_sql(params, :name_es)
         ds = ds.translation_join(:name, [:en, :es])
@@ -38,20 +33,26 @@ class Suma::AdminAPI::VendibleGroups < Suma::AdminAPI::V1
       end
       ds = order(ds, params)
       ds = paginate(ds, params)
-      present_collection ds, with: VendibleGroupEntity
+      present_collection ds, with: ProgramEntity
     end
 
     Suma::AdminAPI::CommonEndpoints.create(
       self,
-      Suma::Vendible::Group,
-      DetailedVendibleGroupEntity,
+      Suma::Program,
+      DetailedProgramEntity,
     ) do
       params do
+        requires :image, type: File
         requires(:name, type: JSON) { use :translated_text }
-        optional :commerce_offerings, type: Array[JSON] do
+        requires(:description, type: JSON) { use :translated_text }
+        requires :app_link, type: String
+        requires(:app_link_text, type: JSON) { use :translated_text }
+        requires :period_begin, type: Time
+        requires :period_end, type: Time
+        optional :commerce_offerings, type: Array, coerce_with: proc(&:values) do
           use :model_with_id
         end
-        optional :vendor_services, type: Array[JSON] do
+        optional :vendor_services, type: Array, coerce_with: proc(&:values) do
           use :model_with_id
         end
       end
@@ -59,14 +60,14 @@ class Suma::AdminAPI::VendibleGroups < Suma::AdminAPI::V1
 
     Suma::AdminAPI::CommonEndpoints.get_one(
       self,
-      Suma::Vendible::Group,
-      DetailedVendibleGroupEntity,
+      Suma::Program,
+      DetailedProgramEntity,
     )
 
     Suma::AdminAPI::CommonEndpoints.update(
       self,
-      Suma::Vendible::Group,
-      DetailedVendibleGroupEntity,
+      Suma::Program,
+      DetailedProgramEntity,
       around: lambda do |rt, m, &block|
         offerings = rt.params.delete(:commerce_offerings)
         vendor_services = rt.params.delete(:vendor_services)
@@ -82,11 +83,17 @@ class Suma::AdminAPI::VendibleGroups < Suma::AdminAPI::V1
       end,
     ) do
       params do
+        optional :image, type: File
         optional(:name, type: JSON) { use :translated_text }
-        optional :commerce_offerings, type: Array[JSON] do
+        optional(:description, type: JSON) { use :translated_text }
+        optional :app_link, type: String
+        optional(:app_link_text, type: JSON) { use :translated_text }
+        optional :period_begin, type: Time
+        optional :period_end, type: Time
+        optional :commerce_offerings, type: Array, coerce_with: proc(&:values) do
           use :model_with_id
         end
-        optional :vendor_services, type: Array[JSON] do
+        optional :vendor_services, type: Array, coerce_with: proc(&:values) do
           use :model_with_id
         end
       end

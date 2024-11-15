@@ -8,6 +8,7 @@ class Suma::Organization < Suma::Postgres::Model(:organizations)
   plugin :timestamps
 
   one_to_many :memberships, class: "Suma::Organization::Membership", key: :verified_organization_id
+  one_to_many :program_enrollments, class: "Suma::Program::Enrollment"
 
   def rel_admin_link = "/organization/#{self.id}"
 end

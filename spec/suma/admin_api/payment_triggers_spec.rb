@@ -44,7 +44,7 @@ RSpec.describe Suma::AdminAPI::PaymentTriggers, :db do
     it_behaves_like "an endpoint with pagination" do
       let(:url) { "/v1/payment_triggers" }
       def make_item(i)
-        # Sorting is newest first, so the first items we create need to the the oldest.
+        # Sorting is newest first, so the first items we create need to the oldest.
         created = Time.now - i.days
         return Suma::Fixtures.payment_trigger.create(created_at: created)
       end
@@ -125,6 +125,29 @@ RSpec.describe Suma::AdminAPI::PaymentTriggers, :db do
 
       expect(last_response).to have_status(200)
       expect(o.refresh).to have_attributes(label: "test")
+    end
+  end
+
+  describe "POST /v1/payment_triggers/:id/programs" do
+    it "replaces the programs" do
+      pr = Suma::Fixtures.program.create
+      to_add = Suma::Fixtures.program.create
+      pt = Suma::Fixtures.payment_trigger.with_programs(pr).create
+
+      post "/v1/payment_triggers/#{pt.id}/programs", {program_ids: [to_add.id]}
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.that_includes(id: pt.id)
+      expect(last_response).to have_json_body.
+        that_includes(programs: contain_exactly(include(id: to_add.id)))
+    end
+
+    it "403s if the program does not exist" do
+      pt = Suma::Fixtures.payment_trigger.create
+
+      post "/v1/payment_triggers/#{pt.id}/programs", {program_ids: [0]}
+
+      expect(last_response).to have_status(403)
     end
   end
 end

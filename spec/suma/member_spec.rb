@@ -270,35 +270,6 @@ RSpec.describe "Suma::Member", :db do
     end
   end
 
-  describe "eligibility_constraints_with_status" do
-    it "gets member unified eligibility constraints" do
-      m = Suma::Fixtures.member.onboarding_verified.create
-      pending = Suma::Fixtures.eligibility_constraint.create
-      verified = Suma::Fixtures.eligibility_constraint.create
-      m.replace_eligibility_constraint(pending, :pending)
-      m.replace_eligibility_constraint(verified, :verified)
-
-      expect(m.eligibility_constraints_with_status).to contain_exactly(
-        include(
-          constraint: be === pending,
-          status: "pending",
-        ),
-        include(
-          constraint: be === verified,
-          status: "verified",
-        ),
-      )
-    end
-
-    it "publishes an event", :async, :do_not_defer_events do
-      m = Suma::Fixtures.member.onboarding_verified.create
-      pending = Suma::Fixtures.eligibility_constraint.create
-      expect do
-        m.replace_eligibility_constraint(pending, :pending)
-      end.to publish("suma.member.eligibilitychanged", [m.id])
-    end
-  end
-
   describe "masking" do
     it "masks name/phone/email" do
       mem = described_class.new
@@ -358,6 +329,42 @@ RSpec.describe "Suma::Member", :db do
         membership = m.ensure_membership_in_organization(" abc ")
         expect(membership).to have_attributes(unverified_organization_name: "abc")
       end
+    end
+  end
+
+  describe "enrollments" do
+    let(:member) { Suma::Fixtures.member.create }
+    let(:organization) { Suma::Fixtures.organization.create }
+
+    it "can fetch direct enrollments" do
+      e = Suma::Fixtures.program_enrollment(member:).create
+      expect(member.direct_program_enrollments_dataset.all).to have_same_ids_as(e)
+    end
+
+    it "can fetch organization enrollments" do
+      Suma::Fixtures.organization_membership(member:).verified(organization).create
+      e = Suma::Fixtures.program_enrollment(organization:).create
+      expect(member.program_enrollments_via_organizations_dataset.all).to have_same_ids_as(e)
+    end
+
+    it "can fetch direct and organizational enrollments" do
+      Suma::Fixtures.organization_membership(member:).verified(organization).create
+      active_via_member = Suma::Fixtures.program_enrollment(member:).create
+      active_via_org = Suma::Fixtures.program_enrollment(organization:).create
+      expect(member.combined_program_enrollments_dataset.all).to have_same_ids_as(active_via_member, active_via_org)
+      eagered_member = Suma::Member.all.first
+      expect(eagered_member.combined_program_enrollments).to have_same_ids_as(active_via_member, active_via_org)
+    end
+
+    it "filters combined enrollments having the same program" do
+      o = Suma::Fixtures.organization.with_membership_of(member).create
+      program = Suma::Fixtures.program.create
+      member_enrollment = Suma::Fixtures.program_enrollment.create(member:, program:)
+      org_enrollment = Suma::Fixtures.program_enrollment.create(organization: o, program:)
+
+      # Prefer the member/direct enrollment over the org/indirect enrollment
+      expect(member.combined_program_enrollments_dataset.all).to have_same_ids_as(member_enrollment)
+      expect(Suma::Member.all.last.combined_program_enrollments).to have_same_ids_as(member_enrollment)
     end
   end
 end

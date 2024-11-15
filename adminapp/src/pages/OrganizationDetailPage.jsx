@@ -1,5 +1,6 @@
 import api from "../api";
 import AdminLink from "../components/AdminLink";
+import ProgramEnrollmentRelatedList from "../components/ProgramEnrollmentRelatedList";
 import RelatedList from "../components/RelatedList";
 import ResourceDetail from "../components/ResourceDetail";
 import { dayjs } from "../modules/dayConfig";
@@ -20,13 +21,18 @@ export default function OrganizationDetailPage() {
     >
       {(model) => (
         <>
+          <ProgramEnrollmentRelatedList
+            model={model}
+            resource="organization"
+            enrollments={model.programEnrollments}
+          />
           <RelatedList
             title={`Memberships (${model.memberships.length})`}
             rows={model.memberships}
             headers={["Id", "Member", "Created At", "Updated At"]}
             keyRowAttr="id"
             toCells={(row) => [
-              row.id,
+              <AdminLink model={row} />,
               <AdminLink key="member" model={row.member}>
                 {row.member.name}
               </AdminLink>,

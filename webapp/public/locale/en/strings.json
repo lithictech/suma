@@ -69,10 +69,12 @@
   },
   "dashboard": {
     "about_suma": "About Suma",
+    "availableCash": "Available cash: {{balance, sumaCurrency}}",
     "check_ongoing_trip": "You have an ongoing trip. Please make sure you end it when you are finished with your ride!",
     "check_ongoing_trip_button": "See My Trip",
     "claim_orders": "Your order is ready for pickup.",
-    "intro": "Helping our community save money on things you buy the most - all in one place."
+    "intro": "Helping our community save money on things you buy the most - all in one place.",
+    "program_ends": "Program ends {{ date }}"
   },
   "errors": {
     "auth_conflict": "You are already signed in. Please sign out first.",

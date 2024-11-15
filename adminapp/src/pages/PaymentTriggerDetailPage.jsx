@@ -1,5 +1,6 @@
 import api from "../api";
 import AdminLink from "../components/AdminLink";
+import Programs from "../components/Programs";
 import RelatedList from "../components/RelatedList";
 import ResourceDetail from "../components/ResourceDetail";
 import { dayjs } from "../modules/dayConfig";
@@ -46,8 +47,15 @@ export default function PaymentTriggerDetailPage() {
         },
       ]}
     >
-      {(model) => (
+      {(model, setModel) => (
         <>
+          <Programs
+            resource="payment_trigger"
+            programs={model.programs}
+            modelId={model.id}
+            replaceModelData={setModel}
+            makeUpdateRequest={api.updatePaymentTriggerPrograms}
+          />
           <RelatedList
             title="Executions"
             rows={model.executions}

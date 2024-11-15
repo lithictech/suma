@@ -37,7 +37,7 @@ module Suma::Fixtures::VendorServices
     end
   end
 
-  decorator :with_constraints, presave: true do |*constraints|
-    constraints.each { |c| self.add_eligibility_constraint(c) }
+  decorator :with_programs, presave: true do |*programs|
+    programs.each { |c| self.add_program(c) }
   end
 end

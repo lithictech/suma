@@ -16,7 +16,6 @@ class Suma::AdminAPI::Access
     Suma::Commerce::Offering => [:offering, COMMERCE, COMMERCE],
     Suma::Commerce::Order => [:order, COMMERCE, COMMERCE],
     Suma::Commerce::Product => [:product, COMMERCE, COMMERCE],
-    Suma::Eligibility::Constraint => [:eligibility_constraint, ALL, MANAGEMENT],
     Suma::Payment::FundingTransaction => [:funding_transaction, PAYMENTS, PAYMENTS],
     Suma::Member => [:member, MEMBERS, MEMBERS],
     Suma::Message::Delivery => [:message_delivery, MEMBERS, MANAGEMENT],
@@ -25,8 +24,9 @@ class Suma::AdminAPI::Access
     Suma::Payment::Ledger => [:ledger, PAYMENTS, PAYMENTS],
     Suma::Payment::Trigger => [:payment_trigger, PAYMENTS, MANAGEMENT],
     Suma::Payment::PayoutTransaction => [:payout_transaction, PAYMENTS, PAYMENTS],
+    Suma::Program => [:program, ALL, MANAGEMENT],
+    Suma::Program::Enrollment => [:program_enrollment, ALL, MANAGEMENT],
     Suma::Role => [:role, ALL, MANAGEMENT],
-    Suma::Vendible::Group => [:vendible_group, COMMERCE, COMMERCE],
     Suma::Vendor::Service => [:vendor_service, COMMERCE, COMMERCE],
     Suma::Vendor => [:vendor, COMMERCE, MANAGEMENT],
   }.freeze

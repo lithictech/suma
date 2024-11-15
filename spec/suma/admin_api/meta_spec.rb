@@ -62,16 +62,17 @@ RSpec.describe Suma::AdminAPI::Meta, :db do
     end
   end
 
-  describe "GET /v1/meta/eligibility_constraints" do
-    it "returns categories" do
-      a = Suma::Fixtures.eligibility_constraint.create
+  describe "GET /v1/meta/programs" do
+    it "returns programs" do
+      p1 = Suma::Fixtures.program.create(name: Suma::Fixtures.translated_text.create(en: "b"))
+      p2 = Suma::Fixtures.program.create(name: Suma::Fixtures.translated_text.create(en: "a"))
+      p3 = Suma::Fixtures.program.create(name: Suma::Fixtures.translated_text.create(en: "c"))
 
-      get "/v1/meta/eligibility_constraints"
+      get "/v1/meta/programs"
 
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.that_includes(
-        :statuses,
-        items: have_same_ids_as(a),
+        items: have_same_ids_as(p2, p1, p3).ordered,
       )
     end
   end

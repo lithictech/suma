@@ -103,8 +103,8 @@ RSpec.describe Suma::API::Commerce, :db do
       expect(last_response).to have_json_body.that_includes(error: include(code: "forbidden"))
     end
 
-    it "403s if the member cannot access the offering due to constraints" do
-      offering.add_eligibility_constraint(Suma::Fixtures.eligibility_constraint.create)
+    it "403s if the member cannot access the offering due to eligibility" do
+      offering.add_program(Suma::Fixtures.program.create)
 
       get "/v1/commerce/offerings/#{offering.id}"
 
@@ -157,8 +157,8 @@ RSpec.describe Suma::API::Commerce, :db do
       expect(last_response).to have_json_body.that_includes(error: include(code: "forbidden"))
     end
 
-    it "403s if the member cannot access the offering due to constraints" do
-      offering.add_eligibility_constraint(Suma::Fixtures.eligibility_constraint.create)
+    it "403s if the member cannot access the offering due to eligibility" do
+      offering.add_program(Suma::Fixtures.program.create)
 
       put "/v1/commerce/offerings/#{offering.id}/cart/item", product_id: product.id, quantity: 2
 
@@ -228,8 +228,8 @@ RSpec.describe Suma::API::Commerce, :db do
         that_includes(error: include(code: "invalid_order_quantity", message: "product unavailable"))
     end
 
-    it "403s if the member cannot access the offering due to constraints" do
-      offering.add_eligibility_constraint(Suma::Fixtures.eligibility_constraint.create)
+    it "403s if the member cannot access the offering due to eligibility" do
+      offering.add_program(Suma::Fixtures.program.create)
 
       post "/v1/commerce/offerings/#{offering.id}/checkout"
 
@@ -466,8 +466,8 @@ RSpec.describe Suma::API::Commerce, :db do
       expect(card.refresh).to be_soft_deleted
     end
 
-    it "403s if the member cannot access the offering due to constraints" do
-      offering.add_eligibility_constraint(Suma::Fixtures.eligibility_constraint.create)
+    it "403s if the member cannot access the offering due to eligibility" do
+      offering.add_program(Suma::Fixtures.program.create)
 
       post "/v1/commerce/checkouts/#{checkout.id}/complete", charge_amount_cents: cost
 

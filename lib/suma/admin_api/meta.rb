@@ -31,10 +31,11 @@ class Suma::AdminAPI::Meta < Suma::AdminAPI::V1
       present_collection sc, with: HierarchicalCategoryEntity
     end
 
-    get :eligibility_constraints do
-      ec = Suma::Eligibility::Constraint.dataset.order(:name).all
-      present({items: ec, statuses: Suma::Eligibility::Constraint::STATUSES},
-              with: EligibilityConstraintCollectionEntity,)
+    get :programs do
+      ds = Suma::Program.dataset
+      ds = ds.translation_join(:name, [:en])
+      ds = ds.order(:name_en)
+      present_collection ds, with: SlimProgramEntity
     end
 
     get :resource_access do
@@ -55,8 +56,11 @@ class Suma::AdminAPI::Meta < Suma::AdminAPI::V1
     expose :full_label, as: :label
   end
 
-  class EligibilityConstraintCollectionEntity < BaseEntity
-    expose :items, with: Suma::AdminAPI::Entities::EligibilityConstraintEntity
-    expose :statuses
+  class SlimProgramEntity < BaseEntity
+    include Suma::AdminAPI::Entities
+    include AutoExposeBase
+    expose :name do |o|
+      o.name.en
+    end
   end
 end

@@ -1,35 +1,45 @@
 import api from "../api";
 import AutocompleteSearch from "../components/AutocompleteSearch";
 import FormLayout from "../components/FormLayout";
+import ImageFileInput from "../components/ImageFileInput";
 import MultiLingualText from "../components/MultiLingualText";
 import ResponsiveStack from "../components/ResponsiveStack";
+import SafeDateTimePicker from "../components/SafeDateTimePicker";
+import { formatOrNull } from "../modules/dayConfig";
 import mergeAt from "../shared/mergeAt";
 import withoutAt from "../shared/withoutAt";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
-import { Box, FormLabel, Icon, Stack } from "@mui/material";
+import RemoveIcon from "@mui/icons-material/Remove";
+import { Box, FormHelperText, FormLabel, Icon, Stack, TextField } from "@mui/material";
 import Button from "@mui/material/Button";
 import React from "react";
 
-export default function VendibleGroupForm({
+export default function ProgramForm({
   isCreate,
   resource,
   setField,
+  setFieldFromInput,
   register,
   isBusy,
   onSubmit,
 }) {
   return (
     <FormLayout
-      title={isCreate ? "Create a Vendible Group" : "Update a Vendible Group"}
-      subtitle="Groupings of things that can be sold or offered by suma.
-      This is usually things like grouping commerce offerings into 'Farmers Markets'.
-      They are displayed to member dashboards. Commerce offerings and vendor services
-      are the available vendibles that can be added to this group."
+      title={isCreate ? "Create a Program" : "Update a Program"}
+      subtitle="Programs represent goods that can be sold or offered by suma.
+      They contain goods and services like food offerings and third-party services, e.g. Lime.
+      They are displayed to member dashboards. You can enroll members or organizations into a program
+      by later creating a Program Enrollment."
       onSubmit={onSubmit}
       isBusy={isBusy}
     >
       <Stack spacing={2}>
+        <ImageFileInput
+          image={resource.image}
+          onImageChange={(f) => setField("image", f)}
+          required={isCreate}
+        />
         <FormLabel>Name</FormLabel>
         <ResponsiveStack>
           <MultiLingualText
@@ -39,6 +49,56 @@ export default function VendibleGroupForm({
             value={resource.name}
             required
             onChange={(v) => setField("name", v)}
+          />
+        </ResponsiveStack>
+        <FormLabel>Description</FormLabel>
+        <ResponsiveStack>
+          <MultiLingualText
+            {...register("description")}
+            label="Description"
+            fullWidth
+            value={resource.description}
+            required
+            onChange={(v) => setField("description", v)}
+          />
+        </ResponsiveStack>
+        <FormLabel>App Link</FormLabel>
+        <FormHelperText>
+          Useful for linking members to promotion pages, '/food/1' would link to
+          'app.mysuma.org/app/food/1'.
+        </FormHelperText>
+        <TextField
+          {...register("appLink")}
+          fullWidth
+          value={resource.appLink}
+          label="App link"
+          onChange={setFieldFromInput}
+          required
+        />
+        <ResponsiveStack>
+          <MultiLingualText
+            {...register("app_link_text")}
+            label="App Link Text"
+            fullWidth
+            value={resource.appLinkText}
+            required
+            onChange={(v) => setField("appLinkText", v)}
+          />
+        </ResponsiveStack>
+        <FormLabel>Timings</FormLabel>
+        <FormHelperText>
+          Member or organization can access a program between the open and close times.
+        </FormHelperText>
+        <ResponsiveStack alignItems="center" divider={<RemoveIcon />}>
+          <SafeDateTimePicker
+            label="Program Opens *"
+            value={resource.periodBegin}
+            onChange={(v) => setField("periodBegin", formatOrNull(v))}
+          />
+          <SafeDateTimePicker
+            label="Program Closes *"
+            value={resource.periodEnd}
+            onChange={(v) => setField("periodEnd", formatOrNull(v))}
           />
         </ResponsiveStack>
         <ModelItems

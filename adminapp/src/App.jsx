@@ -6,10 +6,6 @@ import BookTransactionCreatePage from "./pages/BookTransactionCreatePage";
 import BookTransactionDetailPage from "./pages/BookTransactionDetailPage";
 import BookTransactionListPage from "./pages/BookTransactionListPage";
 import DashboardPage from "./pages/DashboardPage";
-import EligibilityConstraintCreatePage from "./pages/EligibilityConstraintCreatePage";
-import EligibilityConstraintDetailPage from "./pages/EligibilityConstraintDetailPage";
-import EligibilityConstraintEditPage from "./pages/EligibilityConstraintEditPage";
-import EligibilityConstraintListPage from "./pages/EligibilityConstraintListPage";
 import FundingTransactionCreatePage from "./pages/FundingTransactionCreatePage";
 import FundingTransactionDetailPage from "./pages/FundingTransactionDetailPage";
 import FundingTransactionListPage from "./pages/FundingTransactionListPage";
@@ -48,11 +44,14 @@ import ProductCreatePage from "./pages/ProductCreatePage";
 import ProductDetailPage from "./pages/ProductDetailPage";
 import ProductEditPage from "./pages/ProductEditPage";
 import ProductListPage from "./pages/ProductListPage";
+import ProgramCreatePage from "./pages/ProgramCreatePage";
+import ProgramDetailPage from "./pages/ProgramDetailPage";
+import ProgramEditPage from "./pages/ProgramEditPage";
+import ProgramEnrollmentCreatePage from "./pages/ProgramEnrollmentCreatePage";
+import ProgramEnrollmentDetailPage from "./pages/ProgramEnrollmentDetailPage";
+import ProgramEnrollmentListPage from "./pages/ProgramEnrollmentListPage";
+import ProgramListPage from "./pages/ProgramListPage";
 import SignInPage from "./pages/SignInPage";
-import VendibleGroupCreatePage from "./pages/VendibleGroupCreatePage";
-import VendibleGroupDetailPage from "./pages/VendibleGroupDetailPage";
-import VendibleGroupEditPage from "./pages/VendibleGroupEditPage";
-import VendibleGroupListPage from "./pages/VendibleGroupListPage";
 import VendorAccountDetailPage from "./pages/VendorAccountDetailPage";
 import VendorAccountListPage from "./pages/VendorAccountListPage";
 import VendorConfigurationDetailPage from "./pages/VendorConfigurationDetailPage";
@@ -128,42 +127,6 @@ function PageSwitch() {
         exact
         path="/bank-account/:id"
         element={renderWithHocs(redirectIfUnauthed, withLayout(), BankAccountDetailPage)}
-      />
-      <Route
-        exact
-        path="/constraints"
-        element={renderWithHocs(
-          redirectIfUnauthed,
-          withLayout(),
-          EligibilityConstraintListPage
-        )}
-      />
-      <Route
-        exact
-        path="/constraint/new"
-        element={renderWithHocs(
-          redirectIfUnauthed,
-          withLayout(),
-          EligibilityConstraintCreatePage
-        )}
-      />
-      <Route
-        exact
-        path="/constraint/:id"
-        element={renderWithHocs(
-          redirectIfUnauthed,
-          withLayout(),
-          EligibilityConstraintDetailPage
-        )}
-      />
-      <Route
-        exact
-        path="/constraint/:id/edit"
-        element={renderWithHocs(
-          redirectIfUnauthed,
-          withLayout(),
-          EligibilityConstraintEditPage
-        )}
       />
       <Route
         exact
@@ -373,31 +336,50 @@ function PageSwitch() {
       />
       <Route
         exact
-        path="/vendible-groups"
-        element={renderWithHocs(redirectIfUnauthed, withLayout(), VendibleGroupListPage)}
+        path="/programs"
+        element={renderWithHocs(redirectIfUnauthed, withLayout(), ProgramListPage)}
       />
       <Route
         exact
-        path="/vendible-group/new"
+        path="/program/new"
+        element={renderWithHocs(redirectIfUnauthed, withLayout(), ProgramCreatePage)}
+      />
+      <Route
+        exact
+        path="/program/:id"
+        element={renderWithHocs(redirectIfUnauthed, withLayout(), ProgramDetailPage)}
+      />
+      <Route
+        exact
+        path="/program/:id/edit"
+        element={renderWithHocs(redirectIfUnauthed, withLayout(), ProgramEditPage)}
+      />
+      <Route
+        exact
+        path="/program-enrollments"
         element={renderWithHocs(
           redirectIfUnauthed,
           withLayout(),
-          VendibleGroupCreatePage
+          ProgramEnrollmentListPage
         )}
       />
       <Route
         exact
-        path="/vendible-group/:id"
+        path="/program-enrollment/new"
         element={renderWithHocs(
           redirectIfUnauthed,
           withLayout(),
-          VendibleGroupDetailPage
+          ProgramEnrollmentCreatePage
         )}
       />
       <Route
         exact
-        path="/vendible-group/:id/edit"
-        element={renderWithHocs(redirectIfUnauthed, withLayout(), VendibleGroupEditPage)}
+        path="/program-enrollment/:id"
+        element={renderWithHocs(
+          redirectIfUnauthed,
+          withLayout(),
+          ProgramEnrollmentDetailPage
+        )}
       />
       <Route
         exact

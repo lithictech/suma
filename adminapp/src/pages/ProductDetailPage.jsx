@@ -1,18 +1,14 @@
 import api from "../api";
 import AdminLink from "../components/AdminLink";
-import Link from "../components/Link";
 import RelatedList from "../components/RelatedList";
 import ResourceDetail from "../components/ResourceDetail";
-import useRoleAccess from "../hooks/useRoleAccess";
 import { dayjs } from "../modules/dayConfig";
 import createRelativeUrl from "../shared/createRelativeUrl";
 import Money from "../shared/react/Money";
 import SumaImage from "../shared/react/SumaImage";
-import ListAltIcon from "@mui/icons-material/ListAlt";
 import React from "react";
 
 export default function ProductDetailPage() {
-  const { canWriteResource } = useRoleAccess();
   return (
     <ResourceDetail
       resource="product"
@@ -56,33 +52,23 @@ export default function ProductDetailPage() {
           label: "Quantity Pending Fulfillment",
           value: model.inventory.quantityPendingFulfillment,
         },
-        canWriteResource("offering_product") && {
-          label: "Create Offering Product",
-          value: (
-            <Link
-              to={createRelativeUrl(`/offering-product/new`, {
-                productId: model.id,
-                productLabel: model.name.en,
-              })}
-            >
-              <ListAltIcon sx={{ verticalAlign: "middle", marginRight: "5px" }} />
-              Create Offering Product
-            </Link>
-          ),
-        },
       ]}
     >
       {(model) => (
         <>
           <RelatedList
-            title={`Offering Products`}
+            title={`Offering Products (${model.offeringProducts?.length})`}
+            addNewLabel="Create Offering Product"
+            addNewLink={createRelativeUrl("/offering-product/new", {
+              productId: model.id,
+              productLabel: model.name.en,
+            })}
+            addNewRole="offering_product"
             rows={model.offeringProducts}
             headers={["Id", "Customer Price", "Full Price", "Offering", "Closed"]}
             keyRowAttr="id"
             toCells={(row) => [
-              <AdminLink key={row.id} model={row}>
-                {row.id}
-              </AdminLink>,
+              <AdminLink key={row.id} model={row} />,
               <Money key="customer_price">{row.customerPrice}</Money>,
               <Money key="undiscounted_price">{row.undiscountedPrice}</Money>,
               <AdminLink key="offering" model={row.offering}>
@@ -92,7 +78,7 @@ export default function ProductDetailPage() {
             ]}
           />
           <RelatedList
-            title="Orders"
+            title={`Orders (${model.orders?.length})`}
             rows={model.orders}
             headers={["Id", "Created At", "Status", "Member"]}
             keyRowAttr="id"

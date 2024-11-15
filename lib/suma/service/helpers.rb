@@ -22,6 +22,8 @@ module Suma::Service::Helpers
       current_member?
   end
 
+  def current_time = env.fetch("now")
+
   def rack_session = env.fetch("rack.session")
   # @return [Suma::Yosoy::Proxy]
   def yosoy = env.fetch("yosoy")

@@ -17,7 +17,7 @@ class Suma::Member::RoleAccess
   ADMIN_COMMERCE = :admin_commerce
   # Access payments (book, funding, refunds, etc) information.
   ADMIN_PAYMENTS = :admin_payments
-  # Access privileged areas of admin, like creating new eligibility constraints,
+  # Access privileged areas of admin, like creating new programs,
   # that most users do not need to do.
   ADMIN_MANAGEMENT = :admin_management
 

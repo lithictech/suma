@@ -3,7 +3,6 @@
 require "suma/admin_linked"
 require "suma/anon_proxy"
 require "suma/postgres"
-require "suma/eligibility/has_constraints"
 
 class Suma::AnonProxy::VendorAccount < Suma::Postgres::Model(:anon_proxy_vendor_accounts)
   include Suma::AdminLinked
@@ -30,10 +29,10 @@ class Suma::AnonProxy::VendorAccount < Suma::Postgres::Model(:anon_proxy_vendor_
     # using all configured services. Exclude vendor accounts for disabled services.
     # @param member [Suma::Member]
     # @return [Array<Suma::AnonProxy::VendorAccount>]
-    def for(member)
+    def for(member, as_of:)
       return [] unless member.onboarding_verified?
 
-      ds = Suma::AnonProxy::VendorConfiguration.enabled.eligible_to(member)
+      ds = Suma::AnonProxy::VendorConfiguration.enabled.eligible_to(member, as_of:)
       valid_configs = ds.
         all.
         index_by(&:id)

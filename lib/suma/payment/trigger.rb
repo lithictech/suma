@@ -6,18 +6,18 @@ class Suma::Payment::Trigger < Suma::Postgres::Model(:payment_triggers)
   include Suma::AdminLinked
 
   plugin :timestamps
+  plugin :association_pks
   plugin :tstzrange_fields, :active_during
   plugin :translated_text, :memo, Suma::TranslatedText
   plugin :translated_text, :receiving_ledger_contribution_text, Suma::TranslatedText
 
   many_to_one :originating_ledger, class: "Suma::Payment::Ledger"
 
-  many_to_many :eligibility_constraints,
-               class: "Suma::Eligibility::Constraint",
-               join_table: :eligibility_payment_trigger_associations,
-               right_key: :constraint_id,
+  many_to_many :programs,
+               class: "Suma::Program",
+               join_table: :programs_payment_triggers,
                left_key: :trigger_id
-  include Suma::Eligibility::HasConstraints
+  include Suma::Program::Has
 
   one_to_many :executions, class: "Suma::Payment::Trigger::Execution"
 
@@ -26,17 +26,6 @@ class Suma::Payment::Trigger < Suma::Postgres::Model(:payment_triggers)
     def active_at(t)
       return self.where(Sequel.pg_range(:active_during).contains(Sequel.cast(t, :timestamptz)))
     end
-
-    # Limit dataset to rows where 1) there are no trigger constraints, meaning everyone can use it,
-    # or 2) the verified member constraints and the trigger constraints overlap.
-    def eligible_to_member(member)
-      constraint_ids = member.verified_eligibility_constraints.map(&:id)
-      no_constraint = Sequel[:id] !~ self.db[:eligibility_payment_trigger_associations].select(:trigger_id)
-      has_constraint = Sequel[id: self.db[:eligibility_payment_trigger_associations].
-        where(constraint_id: constraint_ids).
-        select(:trigger_id)]
-      return self.where(no_constraint | has_constraint)
-    end
   end
 
   # Gather a series of triggers applying to a payment account
@@ -44,7 +33,7 @@ class Suma::Payment::Trigger < Suma::Postgres::Model(:payment_triggers)
   # @param [Suma::Payment::Account] account
   # @return [Collection]
   def self.gather(account, apply_at:)
-    triggers = self.dataset.active_at(apply_at).eligible_to_member(account.member).all
+    triggers = self.dataset.active_at(apply_at).eligible_to(account.member, as_of: apply_at).all
     return Collection.new(account:, triggers:, apply_at:)
   end
 
@@ -141,16 +130,6 @@ class Suma::Payment::Trigger < Suma::Postgres::Model(:payment_triggers)
       ledger.add_vendor_service_category(vsc)
     end
     return ledger
-  end
-
-  def member_passes_constraints?(member_id, constraint_name)
-    return true if constraint_name.blank?
-    constraints_ds = Suma::Eligibility::Constraint.where(name: constraint_name)
-    member_passes_constraints = !Suma::Member.
-      where(id: member_id).
-      where(verified_eligibility_constraints: constraints_ds).
-      empty?
-    return member_passes_constraints
   end
 
   def rel_admin_link = "/payment-trigger/#{self.id}"

@@ -64,8 +64,8 @@ RSpec.describe Suma::AdminAPI::VendorServices, :db do
   describe "GET /v1/vendor_services/:id" do
     it "returns the vendor service" do
       vendor = Suma::Fixtures.vendor.create
-      constraint = Suma::Fixtures.eligibility_constraint.create
-      service = Suma::Fixtures.vendor_service.mobility.with_constraints(constraint).create(vendor:)
+      program = Suma::Fixtures.program.create
+      service = Suma::Fixtures.vendor_service.mobility.with_programs(program).create(vendor:)
       rate = Suma::Fixtures.vendor_service_rate.surcharge.for_service(service).create
       trip = Suma::Fixtures.mobility_trip.create(vendor_service: service)
 
@@ -75,11 +75,11 @@ RSpec.describe Suma::AdminAPI::VendorServices, :db do
       expect(last_response).to have_json_body.that_includes(
         id: service.id,
         vendor: include(id: vendor.id),
-        eligibility_constraints: contain_exactly(include(id: constraint.id)),
+        programs: have_same_ids_as(program),
         mobility_vendor_adapter_key: "fake",
         categories: contain_exactly(include(name: "Mobility")),
-        rates: contain_exactly(include(id: rate.id)),
-        mobility_trips: contain_exactly(include(id: trip.id)),
+        rates: have_same_ids_as(rate),
+        mobility_trips: have_same_ids_as(trip),
       )
     end
 
@@ -107,24 +107,24 @@ RSpec.describe Suma::AdminAPI::VendorServices, :db do
     end
   end
 
-  describe "POST /v1/vendor_services/:id/eligibilities" do
-    it "replaces the eligibilities" do
-      ec = Suma::Fixtures.eligibility_constraint.create
-      to_add = Suma::Fixtures.eligibility_constraint.create
-      vs = Suma::Fixtures.vendor_service.with_constraints(ec).create
+  describe "POST /v1/vendor_services/:id/programs" do
+    it "replaces the programs" do
+      pr = Suma::Fixtures.program.create
+      to_add = Suma::Fixtures.program.create
+      vs = Suma::Fixtures.vendor_service.with_programs(pr).create
 
-      post "/v1/vendor_services/#{vs.id}/eligibilities", {constraint_ids: [to_add.id]}
+      post "/v1/vendor_services/#{vs.id}/programs", {program_ids: [to_add.id]}
 
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.that_includes(id: vs.id)
       expect(last_response).to have_json_body.
-        that_includes(eligibility_constraints: contain_exactly(include(id: to_add.id)))
+        that_includes(programs: contain_exactly(include(id: to_add.id)))
     end
 
-    it "403s if the constraint does not exist" do
+    it "403s if the program does not exist" do
       vs = Suma::Fixtures.vendor_service.create
 
-      post "/v1/vendor_services/#{vs.id}/eligibilities", {constraint_ids: [0]}
+      post "/v1/vendor_services/#{vs.id}/programs", {program_ids: [0]}
 
       expect(last_response).to have_status(403)
     end

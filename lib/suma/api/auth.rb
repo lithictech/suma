@@ -109,10 +109,10 @@ class Suma::API::Auth < Suma::API::V1
       me = Suma::Member.with_us_phone(params[:phone])
       begin
         if Suma::Member.matches_allowlist?(me, Suma::Member.superadmin_allowlist)
-          me.update(onboarding_verified_at: Time.now) unless me.onboarding_verified?
+          me.update(onboarding_verified_at: current_time) unless me.onboarding_verified?
           me.ensure_role(Suma::Role.cache.admin)
         elsif Suma::Member.matches_allowlist?(me, Suma::Member.onboard_allowlist)
-          me.update(onboarding_verified_at: Time.now) unless me.onboarding_verified?
+          me.update(onboarding_verified_at: current_time) unless me.onboarding_verified?
         elsif Suma::Member.matches_allowlist?(me, Suma::Member.skip_verification_allowlist)
           nil
         else

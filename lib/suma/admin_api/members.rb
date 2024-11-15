@@ -41,11 +41,6 @@ class Suma::AdminAPI::Members < Suma::AdminAPI::V1
     expose :offering, with: OfferingEntity, &self.delegate_to(:checkout, :cart, :offering)
   end
 
-  class MemberEligibilityConstraintEntity < BaseEntity
-    expose :status
-    expose :constraint, with: Suma::AdminAPI::Entities::EligibilityConstraintEntity
-  end
-
   class MemberVendorAccountEntity < BaseEntity
     include Suma::AdminAPI::Entities
     include AutoExposeBase
@@ -78,10 +73,7 @@ class Suma::AdminAPI::Members < Suma::AdminAPI::V1
     expose :payment_account, with: DetailedPaymentAccountEntity
     expose :bank_accounts, with: PaymentInstrumentEntity
     expose :charges, with: ChargeEntity
-    expose :eligibility_constraints,
-           with: MemberEligibilityConstraintEntity,
-           &self.delegate_to(:eligibility_constraints_with_status)
-
+    expose :direct_program_enrollments, with: ProgramEnrollmentEntity
     expose :activities, with: MemberActivityEntity
     expose :reset_codes, with: MemberResetCodeEntity
     expose :sessions, with: MemberSessionEntity
@@ -194,35 +186,6 @@ class Suma::AdminAPI::Members < Suma::AdminAPI::V1
             subject_id: member.id,
           )
           member.soft_delete unless member.soft_deleted?
-        end
-        status 200
-        present member, with: DetailedMemberEntity
-      end
-
-      params do
-        requires :values, type: Array[JSON] do
-          requires :constraint_id, type: Integer
-          requires :status, values: ["verified", "pending", "rejected"]
-        end
-      end
-      post :eligibilities do
-        check_role_access!(admin_member, :write, :admin_members)
-        member = lookup_member!
-        admin = admin_member
-        member.db.transaction do
-          summary = []
-          params[:values].each do |h|
-            ec = Suma::Eligibility::Constraint[h[:constraint_id]] or
-              adminerror!(403, "Unknown eligibility constraint: #{h[:constraint_id]}")
-            member.replace_eligibility_constraint(ec, h[:status])
-            summary << "#{ec.name} => #{h[:status]}"
-          end
-          member.add_activity(
-            message_name: "eligibilitychange",
-            summary: "Admin #{admin.email} modified eligibilities of #{member.email}: #{summary.join(', ')}",
-            subject_type: "Suma::Member",
-            subject_id: member.id,
-          )
         end
         status 200
         present member, with: DetailedMemberEntity

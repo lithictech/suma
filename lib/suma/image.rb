@@ -15,14 +15,18 @@ class Suma::Image < Suma::Postgres::Model(:images)
   many_to_one :commerce_product, class: "Suma::Commerce::Product"
   many_to_one :vendor, class: "Suma::Vendor"
   many_to_one :vendor_service, class: "Suma::Vendor::Service"
+  many_to_one :program, class: "Suma::Program"
 
-  def associated_object = self.commerce_product || self.commerce_offering || self.vendor_service || self.vendor
+  def associated_object
+    return self.commerce_product || self.commerce_offering || self.vendor_service || self.vendor || self.program
+  end
 
   def associated_object=(o)
     self.commerce_offering = nil
     self.commerce_product = nil
     self.vendor = nil
     self.vendor_service = nil
+    self.program = nil
     case o
         when nil
           nil
@@ -34,6 +38,8 @@ class Suma::Image < Suma::Postgres::Model(:images)
           self.vendor = o
         when Suma::Vendor::Service
           self.vendor_service = o
+        when Suma::Program
+          self.program = o
       else
           raise TypeError, "invalid associated object type: #{o}"
       end

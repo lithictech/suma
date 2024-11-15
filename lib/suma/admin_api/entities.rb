@@ -7,7 +7,6 @@ require "suma/service/entities"
 module Suma::AdminAPI::Entities
   MoneyEntity = Suma::Service::Entities::Money
   LegalEntityEntity = Suma::Service::Entities::LegalEntityEntity
-  TimeRangeEntity = Suma::Service::Entities::TimeRange
   AddressEntity = Suma::Service::Entities::Address
 
   class BaseEntity < Suma::Service::Entities::Base; end
@@ -44,6 +43,21 @@ module Suma::AdminAPI::Entities
     expose :id
     expose :name
     expose :label
+  end
+
+  class TranslatedTextEntity < BaseEntity
+    expose :en
+    expose :es
+  end
+
+  class ImageEntity < BaseEntity
+    expose_translated :caption
+    expose :url, &self.delegate_to(:uploaded_file, :absolute_url)
+  end
+
+  class OrganizationEntity < BaseEntity
+    include AutoExposeBase
+    expose :name
   end
 
   class PaymentInstrumentEntity < BaseEntity
@@ -103,9 +117,28 @@ module Suma::AdminAPI::Entities
     expose :account_type
   end
 
-  class EligibilityConstraintEntity < BaseEntity
+  class ProgramEntity < BaseEntity
     include AutoExposeBase
-    expose :name
+    expose :name, with: TranslatedTextEntity
+    expose :description, with: TranslatedTextEntity
+    expose :period_begin
+    expose :period_end
+    expose :ordinal
+    expose :app_link
+    expose :app_link_text, with: TranslatedTextEntity
+  end
+
+  class ProgramEnrollmentEntity < BaseEntity
+    include AutoExposeBase
+    expose :admin_link
+    expose :program, with: ProgramEntity
+    expose :member, with: MemberEntity
+    expose :organization, with: OrganizationEntity
+    expose :approved_at
+    expose :unenrolled_at
+    expose :program_active do |pe|
+      pe.program_active_at?(Time.now)
+    end
   end
 
   class VendorEntity < BaseEntity
@@ -117,7 +150,7 @@ module Suma::AdminAPI::Entities
     include AutoExposeBase
     expose :external_name, as: :name
     expose :vendor, with: VendorEntity
-    expose :eligibility_constraints, with: EligibilityConstraintEntity
+    expose :programs, with: ProgramEntity
     expose :period_begin
     expose :period_end
   end
@@ -179,11 +212,6 @@ module Suma::AdminAPI::Entities
     expose :classification
     expose :amount, with: MoneyEntity
     expose :originating_payment_account, with: SimplePaymentAccountEntity
-  end
-
-  class TranslatedTextEntity < BaseEntity
-    expose :en
-    expose :es
   end
 
   class BookTransactionEntity < BaseEntity
@@ -272,27 +300,10 @@ module Suma::AdminAPI::Entities
     expose :member, with: MemberEntity, &self.delegate_to(:checkout, :cart, :member)
   end
 
-  class ImageEntity < BaseEntity
-    expose_translated :caption
-    expose :url, &self.delegate_to(:uploaded_file, :absolute_url)
-  end
-
-  class OrganizationEntity < BaseEntity
-    include AutoExposeBase
-    expose :name
-  end
-
   class OrganizationMembershipEntity < BaseEntity
     include AutoExposeBase
     expose :member, with: MemberEntity
     expose :verified_organization, with: OrganizationEntity
     expose :unverified_organization_name
-  end
-
-  class VendibleGroupEntity < BaseEntity
-    expose :id
-    expose :admin_link
-    expose :name, with: TranslatedTextEntity
-    expose :ordinal
   end
 end

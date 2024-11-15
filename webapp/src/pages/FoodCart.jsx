@@ -62,7 +62,7 @@ export default function FoodCart() {
           <Stack gap={4}>
             {items.map((item) => {
               const product = productsById[item.productId];
-              const vendor = vendorsById[product.vendorId];
+              const vendor = vendorsById[product.vendor.id];
               return (
                 <CartItem
                   key={product.name}

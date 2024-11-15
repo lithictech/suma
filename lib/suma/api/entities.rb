@@ -9,7 +9,6 @@ module Suma::API::Entities
   AddressEntity = Suma::Service::Entities::Address
   LegalEntityEntity = Suma::Service::Entities::LegalEntityEntity
   MoneyEntity = Suma::Service::Entities::Money
-  TimeRangeEntity = Suma::Service::Entities::TimeRange
 
   class BaseEntity < Suma::Service::Entities::Base; end
 
@@ -32,13 +31,6 @@ module Suma::API::Entities
   class ImageEntity < BaseEntity
     expose_translated :caption
     expose :url, &self.delegate_to(:uploaded_file, :absolute_url)
-  end
-
-  class VendibleEntity < BaseEntity
-    expose_translated :name
-    expose :until
-    expose :image, with: ImageEntity
-    expose :link
   end
 
   class PaymentInstrumentEntity < BaseEntity
@@ -66,9 +58,6 @@ module Suma::API::Entities
     expose :external_name, as: :name
     expose :vendor_name, &self.delegate_to(:vendor, :name)
     expose :vendor_slug, &self.delegate_to(:vendor, :slug)
-    expose :vendible, with: VendibleEntity do |inst|
-      Suma::Vendible.from_vendor_service(inst)
-    end
   end
 
   class MobilityTripEntity < BaseEntity
@@ -96,6 +85,16 @@ module Suma::API::Entities
     expose :subscriptions, with: PreferencesSubscriptionEntity
   end
 
+  class ProgramEnrollmentEntity < BaseEntity
+    expose_translated :name, &self.delegate_to(:program, :name)
+    expose_translated :description, &self.delegate_to(:program, :description)
+    expose :image, with: ImageEntity, &self.delegate_to(:program, :image?)
+    expose :period_begin, &self.delegate_to(:program, :period, :begin)
+    expose :period_end, &self.delegate_to(:program, :period, :end)
+    expose :app_link, &self.delegate_to(:program, :app_link)
+    expose_translated :app_link_text, &self.delegate_to(:program, :app_link_text)
+  end
+
   class CurrentMemberEntity < Suma::Service::Entities::CurrentMember
     expose :unclaimed_orders_count, &self.delegate_to(:orders_dataset, :available_to_claim, :count)
     expose :ongoing_trip
@@ -105,8 +104,8 @@ module Suma::API::Entities
     expose :admin_member, expose_nil: false, with: Suma::Service::Entities::CurrentMember do |_|
       self.current_session.impersonation? ? self.current_session.member : nil
     end
-    expose :show_private_accounts do |m|
-      !Suma::AnonProxy::VendorAccount.for(m).empty?
+    expose :show_private_accounts do |m, opts|
+      !Suma::AnonProxy::VendorAccount.for(m, as_of: opts[:env].fetch("now")).empty?
     end
     expose :preferences!, as: :preferences, with: MemberPreferencesEntity
     expose :has_order_history do |m|

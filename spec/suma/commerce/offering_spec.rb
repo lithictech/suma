@@ -57,6 +57,17 @@ RSpec.describe "Suma::Commerce::Offering", :db do
       expect(refetch_for_eager(empty_offering).total_ordered_items).to eq(0)
       expect(refetch_for_eager(empty_offering).total_ordered_items_by_member).to eq({})
     end
+
+    it "knows its program enrollments" do
+      e1 = Suma::Fixtures.program_enrollment.create
+      e2 = Suma::Fixtures.program_enrollment.create
+      e3 = Suma::Fixtures.program_enrollment.create
+
+      o = Suma::Fixtures.offering.create
+      o.add_program(e1.program)
+      o.add_program(e2.program)
+      expect(o.program_enrollments).to have_same_ids_as(e1, e2)
+    end
   end
 
   describe "datasets" do
@@ -67,36 +78,37 @@ RSpec.describe "Suma::Commerce::Offering", :db do
       expect(described_class.available_at(5.days.from_now).all).to be_empty
     end
 
-    it "can find offerings eligible to a member based on constraints" do
+    it "can find offerings eligible to a member based on programs" do
+      as_of = Time.now
       mem_no_constraints = Suma::Fixtures.member.create
-      mem_verified_constraint = Suma::Fixtures.member.create
-      mem_pending_constraint = Suma::Fixtures.member.create
-      mem_rejected_constraint = Suma::Fixtures.member.create
+      member_in_program = Suma::Fixtures.member.create
+      member_unapproved = Suma::Fixtures.member.create
+      member_unenrolled = Suma::Fixtures.member.create
 
-      constraint = Suma::Fixtures.eligibility_constraint.create
-      mem_verified_constraint.add_verified_eligibility_constraint(constraint)
-      mem_pending_constraint.add_pending_eligibility_constraint(constraint)
-      mem_rejected_constraint.add_rejected_eligibility_constraint(constraint)
+      program = Suma::Fixtures.program.create
+      Suma::Fixtures.program_enrollment(member: member_in_program, program:).create
+      Suma::Fixtures.program_enrollment(member: member_unapproved, program:).unapproved.create
+      Suma::Fixtures.program_enrollment(member: member_unenrolled, program:).unenrolled.create
 
-      no_constraint = Suma::Fixtures.offering.create
-      with_constraint = Suma::Fixtures.offering.with_constraints(constraint).create
+      no_program = Suma::Fixtures.offering.create
+      with_program = Suma::Fixtures.offering.with_programs(program).create
 
-      expect(described_class.eligible_to(mem_no_constraints).all).to have_same_ids_as(no_constraint)
-      expect(described_class.eligible_to(mem_verified_constraint).all).to have_same_ids_as(
-        no_constraint,
-        with_constraint,
+      expect(described_class.eligible_to(mem_no_constraints, as_of:).all).to have_same_ids_as(no_program)
+      expect(described_class.eligible_to(member_in_program, as_of:).all).to have_same_ids_as(
+        no_program,
+        with_program,
       )
-      expect(described_class.eligible_to(mem_pending_constraint).all).to have_same_ids_as(no_constraint)
-      expect(described_class.eligible_to(mem_rejected_constraint).all).to have_same_ids_as(no_constraint)
+      expect(described_class.eligible_to(member_unapproved, as_of:).all).to have_same_ids_as(no_program)
+      expect(described_class.eligible_to(member_unenrolled, as_of:).all).to have_same_ids_as(no_program)
 
       # Test the instance methods
-      expect(no_constraint).to be_eligible_to(mem_no_constraints)
-      expect(no_constraint).to be_eligible_to(mem_verified_constraint)
-      expect(no_constraint).to be_eligible_to(mem_pending_constraint)
+      expect(no_program).to be_eligible_to(mem_no_constraints, as_of:)
+      expect(no_program).to be_eligible_to(member_in_program, as_of:)
+      expect(no_program).to be_eligible_to(member_unapproved, as_of:)
 
-      expect(with_constraint).to_not be_eligible_to(mem_no_constraints)
-      expect(with_constraint).to be_eligible_to(mem_verified_constraint)
-      expect(with_constraint).to_not be_eligible_to(mem_pending_constraint)
+      expect(with_program).to_not be_eligible_to(mem_no_constraints, as_of:)
+      expect(with_program).to be_eligible_to(member_in_program, as_of:)
+      expect(with_program).to_not be_eligible_to(member_unapproved, as_of:)
     end
   end
 

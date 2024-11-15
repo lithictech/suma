@@ -4,8 +4,8 @@ import BoolCheckmark from "../components/BoolCheckmark";
 import Copyable from "../components/Copyable";
 import DetailGrid from "../components/DetailGrid";
 import InlineEditField from "../components/InlineEditField";
-import MemberEligibilityConstraints from "../components/MemberEligibilityConstraints";
 import PaymentAccountRelatedLists from "../components/PaymentAccountRelatedLists";
+import ProgramEnrollmentRelatedList from "../components/ProgramEnrollmentRelatedList";
 import RelatedList from "../components/RelatedList";
 import ResourceDetail from "../components/ResourceDetail";
 import useErrorSnackbar from "../hooks/useErrorSnackbar";
@@ -122,10 +122,10 @@ export default function MemberDetailPage() {
               ]}
             />
             <LegalEntity {...model.legalEntity} />
-            <MemberEligibilityConstraints
-              memberConstraints={model.eligibilityConstraints}
-              memberId={model.id}
-              replaceMemberData={setModel}
+            <ProgramEnrollmentRelatedList
+              model={model}
+              resource="member"
+              enrollments={model.directProgramEnrollments}
             />
             <OrganizationMemberships memberships={model.organizationMemberships} />
             <Activities activities={model.activities} />

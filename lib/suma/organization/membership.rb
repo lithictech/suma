@@ -10,6 +10,10 @@ class Suma::Organization::Membership < Suma::Postgres::Model(:organization_membe
   many_to_one :verified_organization, class: "Suma::Organization"
   many_to_one :member, class: "Suma::Member"
 
+  dataset_module do
+    def verified = self.exclude(verified_organization_id: nil)
+  end
+
   def verified? = !self.verified_organization.nil?
   def unverified? = !self.verified?
 
