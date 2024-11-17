@@ -2,7 +2,9 @@ import api from "../api";
 import AutocompleteSearch from "../components/AutocompleteSearch";
 import FormLayout from "../components/FormLayout";
 import ResponsiveStack from "../components/ResponsiveStack";
+import useMountEffect from "../shared/react/useMountEffect";
 import React from "react";
+import { useSearchParams } from "react-router-dom";
 
 export default function OrganizationMembershipForm({
   isCreate,
@@ -12,6 +14,26 @@ export default function OrganizationMembershipForm({
   isBusy,
   onSubmit,
 }) {
+  const [searchParams] = useSearchParams();
+  useMountEffect(() => {
+    if (searchParams.get("edit")) {
+      return;
+    }
+    const memberId = Number(searchParams.get("memberId") || -1);
+    const organizationId = Number(searchParams.get("organizationId") || -1);
+    if (memberId > 0) {
+      setField("member", {
+        id: memberId,
+        label: searchParams.get("memberLabel"),
+      });
+    }
+    if (organizationId > 0) {
+      setField("verifiedOrganization", {
+        id: organizationId,
+        label: searchParams.get("organizationLabel"),
+      });
+    }
+  }, [searchParams]);
   let orgText = "The organization the member is a part of.";
   if (resource.unverifiedOrganizationName) {
     orgText += ` The member has identified themselves with '${resource.unverifiedOrganizationName}.'`;
@@ -42,7 +64,9 @@ export default function OrganizationMembershipForm({
           {...register("organization")}
           label="Organization"
           helperText={orgText}
-          value={resource.verifiedOrganization?.name}
+          value={
+            resource.verifiedOrganization?.label || resource.verifiedOrganization?.name
+          }
           fullWidth
           required
           search={api.searchOrganizations}

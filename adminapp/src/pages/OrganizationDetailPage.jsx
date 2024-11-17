@@ -4,6 +4,7 @@ import ProgramEnrollmentRelatedList from "../components/ProgramEnrollmentRelated
 import RelatedList from "../components/RelatedList";
 import ResourceDetail from "../components/ResourceDetail";
 import { dayjs } from "../modules/dayConfig";
+import createRelativeUrl from "../shared/createRelativeUrl";
 import React from "react";
 
 export default function OrganizationDetailPage() {
@@ -29,6 +30,12 @@ export default function OrganizationDetailPage() {
           <RelatedList
             title={`Memberships (${model.memberships.length})`}
             rows={model.memberships}
+            addNewLabel="Create another membership"
+            addNewLink={createRelativeUrl(`/membership/new`, {
+              organizationId: model.id,
+              organizationLabel: `(${model.id}) ${model.name || "Name Unavailable"}`,
+            })}
+            addNewRole="organizationMembership"
             headers={["Id", "Member", "Created At", "Updated At"]}
             keyRowAttr="id"
             toCells={(row) => [

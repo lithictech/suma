@@ -60,6 +60,14 @@ class Suma::AdminAPI::Members < Suma::AdminAPI::V1
     expose :subscriptions, with: PreferencesSubscriptionEntity
   end
 
+  class DetailedOrganizationEntity < OrganizationEntity
+    expose :program_enrollments, as: :programs, with: Suma::AdminAPI::Entities::ProgramEnrollmentEntity
+  end
+
+  class DetailedOrganizationMembershipEntity < OrganizationMembershipEntity
+    expose :verified_organization, with: DetailedOrganizationEntity
+  end
+
   class DetailedMemberEntity < MemberEntity
     include Suma::AdminAPI::Entities
     include AutoExposeDetail
@@ -81,7 +89,7 @@ class Suma::AdminAPI::Members < Suma::AdminAPI::V1
     expose :message_deliveries, with: MessageDeliveryEntity
     expose :preferences!, as: :preferences, with: PreferencesEntity
     expose :anon_proxy_vendor_accounts, as: :vendor_accounts, with: MemberVendorAccountEntity
-    expose :organization_memberships, with: OrganizationMembershipEntity
+    expose :organization_memberships, with: DetailedOrganizationMembershipEntity
   end
 
   ALL_TIMEZONES = Set.new(TZInfo::Timezone.all_identifiers)
