@@ -299,4 +299,5 @@ module Suma::I18n
   end
 end
 
+require "suma/i18n/formatter"
 require "suma/i18n/resource_rewriter"

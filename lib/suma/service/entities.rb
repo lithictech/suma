@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "grape_entity"
+require "suma/i18n/formatter"
 
 module Suma::Service::Entities
   class Money < Grape::Entity
@@ -56,7 +57,9 @@ module Suma::Service::Entities
         else
           instance.send(name)
         end
-        txt&.string || ""
+        s = txt&.string || ""
+        i18n_fmt = Suma::I18n::Formatter.for(s)
+        "#{i18n_fmt.flag}#{s}"
       end
     end
   end

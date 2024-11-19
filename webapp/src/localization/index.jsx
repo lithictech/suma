@@ -84,3 +84,27 @@ export function imageAltT(altKey, i18noptions = {}) {
   }
   return capitalize(altStr);
 }
+
+/**
+ * Render the dynamic translated string.
+ * Use the formatter specified by the flag at the start of the string.
+ * See Suma::I18n::ResourceRewriter for more info.
+ * @param {string} s
+ * @return {string|JSX.Element}
+ */
+export function dt(s) {
+  if (!s) {
+    return s;
+  }
+  const flag = s[0];
+  if (flag === "\u200C") {
+    return (
+      <SumaMarkdown options={{ forceWrapper: true, wrapper: React.Fragment }}>
+        {s.slice(1)}
+      </SumaMarkdown>
+    );
+  } else if (flag === "\u200D") {
+    return <SumaMarkdown options={{ forceBlock: true }}>{s.slice(1)}</SumaMarkdown>;
+  }
+  return s;
+}

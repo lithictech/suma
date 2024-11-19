@@ -6,7 +6,7 @@ import LayoutContainer from "../components/LayoutContainer";
 import LinearBreadcrumbs from "../components/LinearBreadcrumbs";
 import PageLoader from "../components/PageLoader";
 import SumaImage from "../components/SumaImage";
-import { t } from "../localization";
+import { dt, t } from "../localization";
 import makeTitle from "../modules/makeTitle";
 import { anyMoney, intToMoney } from "../shared/money";
 import Money from "../shared/react/Money";
@@ -109,7 +109,7 @@ export default function FoodDetails() {
         <Row>
           <h5>{t("food:from_vendor", { vendorName: vendor.name })}</h5>
           <h4>{t("food:details_header")}</h4>
-          <p>{product.description}</p>
+          <div>{dt(product.description)}</div>
         </Row>
       </LayoutContainer>
     </>

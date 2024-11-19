@@ -1,36 +1,12 @@
 # frozen_string_literal: true
 
-require "appydays/configurable"
-require "csv"
-require "fileutils"
-require "nokogiri"
-require "redcarpet"
-require "sequel/sequel_translated_text"
-
-require "suma"
-require "suma/message"
+require "suma/i18n/formatter"
 
 # Processes normal resource strings into a frontend-readable format.
 # Note the output file is JSON-based, but also as compact as possible.
 # In the future we could move to a binary format but it's probably not worth it in terms of complexity for now.
 class Suma::I18n::ResourceRewriter
-  Formatter = Struct.new(:symbol, :weight)
-
-  # The localized string can be used verbatim.
-  FORMATTER_STR = Formatter.new(symbol: :s, weight: 10)
-  # The localized string should be rendered with markdown.
-  # There should usually be NO outer paragraph tag (see +FORMATTER_MD_MULTILINE+).
-  #
-  # Note that, if a localized string is plain (+FORMATTER_STR+),
-  # but nests to another string (+KEY_LOCALIZE+) that uses +FORMATTER_MD+,
-  # the 'nesting' outer string will also get a +FORMATTER_MD+.
-  FORMATTER_MD = Formatter.new(symbol: :m, weight: 20)
-  # The localized string should be rendered with markdown, WITH paragraph tags around each paragraph.
-  FORMATTER_MD_MULTILINE = Formatter.new(symbol: :mp, weight: 30)
-
   def initialize
-    # noinspection RubyArgCount
-    @redcarpet = Redcarpet::Markdown.new(Redcarpet::Render::HTML.new)
     # As we process the hash, keep a map of the strings, to the $t nestings the string depends on.
     # Then in a second pass, we deeply resolve the nestings to find the right formatter.
     @nestings = NestingMap.new
@@ -52,14 +28,6 @@ class Suma::I18n::ResourceRewriter
     self.process_hash(rstrings.deep_dup, path: [])
     result = self.process_hash(rstrings, path: [])
     return result
-  end
-
-  def formatter_for(s)
-    s = s.strip
-    md = @redcarpet.render(s)
-    return FORMATTER_STR if md.blank? || md == "<p>#{s}</p>\n"
-    return FORMATTER_MD_MULTILINE if s.include?("\n\n")
-    return FORMATTER_MD
   end
 
   def process_hash(h, path:)
@@ -106,7 +74,7 @@ class Suma::I18n::ResourceRewriter
     raise Suma::I18n::InvalidInput, "resource strings cannot contain #{PLACEHOLDER}" if s.include?(PLACEHOLDER)
     s = s.strip
     # Get the formatter for this 'naive' string. We'll do recursive nesting later.
-    @nestings.put(path, self.formatter_for(s))
+    @nestings.put(path, Suma::I18n::Formatter.for(s))
     cleaned_bytes = []
     args = []
     scanner = StringScanner.new(s)

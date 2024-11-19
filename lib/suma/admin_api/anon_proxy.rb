@@ -38,6 +38,7 @@ class Suma::AdminAPI::AnonProxy < Suma::AdminAPI::V1
   class DetailedVendorConfigurationEntity < VendorConfigurationEntity
     include Suma::AdminAPI::Entities
     expose :programs, with: ProgramEntity
+    expose :instructions, with: TranslatedTextEntity
   end
 
   class DetailedVendorAccountEntity < VendorAccountEntity

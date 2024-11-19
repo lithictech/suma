@@ -59,6 +59,7 @@ export default function ProgramForm({
             fullWidth
             value={resource.description}
             required
+            multiline
             onChange={(v) => setField("description", v)}
           />
         </ResponsiveStack>

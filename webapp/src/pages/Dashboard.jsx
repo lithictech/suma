@@ -7,7 +7,7 @@ import PageLoader from "../components/PageLoader";
 import RLink from "../components/RLink";
 import SeeAlsoAlert from "../components/SeeAlsoAlert";
 import SumaImage from "../components/SumaImage";
-import { imageAltT, t } from "../localization";
+import { dt, imageAltT, t } from "../localization";
 import { dayjs } from "../modules/dayConfig";
 import externalLinks from "../modules/externalLinks";
 import readOnlyReason from "../modules/readOnlyReason";
@@ -131,7 +131,7 @@ function ProgramCard({ name, description, image, periodEnd, appLink, appLinkText
           style={{ maxWidth: "100%" }}
         />
       </Link>
-      <p className="mt-3">{description}</p>
+      <div className="mt-3">{dt(description)}</div>
       <p className="small">
         {t("dashboard:program_ends", { date: dayjs(periodEnd).format("ll") })}
       </p>

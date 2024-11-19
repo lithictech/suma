@@ -58,6 +58,7 @@ export default function OfferingForm({
             fullWidth
             value={resource.description}
             required
+            multiline
             onChange={(v) => setField("description", v)}
           />
         </ResponsiveStack>

@@ -64,6 +64,7 @@ export default function ProductForm({
             fullWidth
             value={resource.description}
             required
+            multiline
             onChange={(v) => setField("description", v)}
           />
         </Stack>
