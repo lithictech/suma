@@ -214,6 +214,15 @@ class Suma::API::TestService < Suma::Service
     status 200
   end
 
+  class ProductEntity < Suma::Service::Entities::Base
+    expose_translated :name
+  end
+  get :markdown_translation do
+    (product = Suma::Commerce::Product[params[:id]]) or forbidden!
+    present(product, with: ProductEntity)
+    status 200
+  end
+
   Rack::Attack.throttle("/test/rate_limited", limit: 1, period: 30) do |req|
     req.path == "/rate_limited" ? "test" : nil
   end
@@ -1029,6 +1038,21 @@ RSpec.describe Suma::Service, :db do
       get "/language_with_block"
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.that_includes(othername: "English")
+    end
+
+    it "includes a ZWNJ if the text in the database is probably markdown" do
+      p = Suma::Fixtures.product.create
+      p.name.update(en: "Tacos")
+
+      get "/markdown_translation", id: p.id
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.that_includes(name: "Tacos")
+
+      p.name.update(en: "Ta**co**s")
+
+      get "/markdown_translation", id: p.id
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.that_includes(name: "\u200CTa**co**s")
     end
   end
 

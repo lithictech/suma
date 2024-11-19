@@ -238,6 +238,7 @@ RSpec.describe Suma::I18n, :db do
       pth = described_class::ResourceRewriter.new.output_path_for("en/strings.json")
       expect(pth.to_s).to eq("en/out/strings.out.json")
     end
+
     it "writes simple strings" do
       expect(rewrite("abc d")).to eq([:s, "abc d"])
       expect(rewrite("a")).to eq([:s, "a"])
@@ -343,6 +344,31 @@ RSpec.describe Suma::I18n, :db do
           "s3" => [:mp, "@%\n\nhi", {t: "s0"}],
         },
       )
+    end
+  end
+
+  describe "Formatter" do
+    it "can figure out the formatter for a string" do
+      expect(described_class::Formatter.for("ab")).to eq(described_class::Formatter::STR)
+      expect(described_class::Formatter.for("a **b**")).to eq(described_class::Formatter::MD)
+      expect(described_class::Formatter.for("a\n\nz\n\n-b\n-c\n")).to eq(described_class::Formatter::MD_MULTILINE)
+      expect(described_class::Formatter.for("hi\n\n- a\n- b")).to eq(described_class::Formatter::MD_MULTILINE)
+      expect(described_class::Formatter.for("hi\n- a\n- b")).to eq(described_class::Formatter::STR)
+      expect(described_class::Formatter.for("- a\n- b")).to eq(described_class::Formatter::MD_MULTILINE)
+      expect(described_class::Formatter.for("hi\n1. a\n2. b")).to eq(described_class::Formatter::STR)
+      expect(described_class::Formatter.for("hi\n\n1. a\n2. b")).to eq(described_class::Formatter::MD_MULTILINE)
+      expect(described_class::Formatter.for("1. a\n2. b")).to eq(described_class::Formatter::MD_MULTILINE)
+    end
+
+    it "uses an LRU" do
+      orig_size = described_class::Formatter.lru.size
+      s1 = SecureRandom.hex
+      s2 = SecureRandom.hex
+      expect(described_class::Formatter.for(s1)).to eq(described_class::Formatter::STR)
+      expect(described_class::Formatter.for(s1)).to eq(described_class::Formatter::STR)
+      expect(described_class::Formatter.lru).to have_attributes(size: orig_size + 1)
+      expect(described_class::Formatter.for(s2)).to eq(described_class::Formatter::STR)
+      expect(described_class::Formatter.lru).to have_attributes(size: orig_size + 2)
     end
   end
 end
