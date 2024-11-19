@@ -123,7 +123,11 @@ class Suma::Commerce::Cart < Suma::Postgres::Model(:commerce_carts)
     end
 
     if (max_offering_per_member = offering.max_ordered_items_per_member)
-      purchase_limits << (max_offering_per_member - offering.total_ordered_items_by_member.fetch(self.member_id, 0))
+      total_ordered = offering.total_ordered_items_by_member.fetch(self.member_id, 0)
+      # We can only order as much of this item as items we haven't already ordered
+      remaining_to_be_ordered = max_offering_per_member - total_ordered
+      quantity_of_other_items_in_cart = self.items.reject { |ci| ci.product === product }.sum(0, &:quantity)
+      purchase_limits << (remaining_to_be_ordered - quantity_of_other_items_in_cart)
     end
 
     limited_max = purchase_limits.min

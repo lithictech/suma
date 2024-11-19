@@ -152,6 +152,25 @@ RSpec.describe "Suma::Commerce::Cart", :db do
         order.update(order_status: "canceled")
         expect(cart.refresh.max_quantity_for(offering_product.refresh)).to eq(50)
       end
+
+      it "returns the quantity of other items in the cart" do
+        product2 = Suma::Fixtures.product.with_categories.create
+        offering_product2 = Suma::Fixtures.offering_product(offering:, product: product2).create
+
+        offering.update(max_ordered_items_per_member: 5)
+        expect(cart.refresh.max_quantity_for(offering_product)).to eq(5)
+        expect(cart.refresh.max_quantity_for(offering_product2)).to eq(5)
+
+        # Add two of product1 to the cart, still have a max of 5 for product1, but 3 for product2
+        cart.add_item(product:, quantity: 2, timestamp: 0)
+        expect(cart.refresh.max_quantity_for(offering_product.refresh)).to eq(5)
+        expect(cart.refresh.max_quantity_for(offering_product2.refresh)).to eq(3)
+
+        # Add 1 of product2, now max for product1 goes down 1, but max for product2 does not change
+        cart.add_item(product: product2, quantity: 1, timestamp: 0)
+        expect(cart.refresh.max_quantity_for(offering_product.refresh)).to eq(4)
+        expect(cart.refresh.max_quantity_for(offering_product2.refresh)).to eq(3)
+      end
     end
 
     describe "with limited inventory" do
