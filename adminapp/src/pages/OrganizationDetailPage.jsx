@@ -33,7 +33,7 @@ export default function OrganizationDetailPage() {
             addNewLabel="Create another membership"
             addNewLink={createRelativeUrl(`/membership/new`, {
               organizationId: model.id,
-              organizationLabel: `(${model.id}) ${model.name || "Name Unavailable"}`,
+              organizationLabel: `(${model.id}) ${model.name || "-"}`,
             })}
             addNewRole="organizationMembership"
             headers={["Id", "Member", "Created At", "Updated At"]}
