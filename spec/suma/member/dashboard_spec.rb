@@ -20,10 +20,9 @@ RSpec.describe Suma::Member::Dashboard, :db do
   end
 
   it "sorts enrollments by program ordinal" do
-    program_fac = Suma::Fixtures.program
-    p3 = program_fac.create(ordinal: 3)
-    p2 = program_fac.create(ordinal: 2)
-    p1 = program_fac.create(ordinal: 1)
+    p3 = Suma::Fixtures.program.create(ordinal: 3)
+    p1 = Suma::Fixtures.program.create(ordinal: 1)
+    p2 = Suma::Fixtures.program.create(ordinal: 2)
     pe3 = Suma::Fixtures.program_enrollment.create(member:, program: p3)
     pe1 = Suma::Fixtures.program_enrollment.create(member:, program: p1)
     pe2 = Suma::Fixtures.program_enrollment.create(member:, program: p2)
