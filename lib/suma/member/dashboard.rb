@@ -14,6 +14,7 @@ class Suma::Member::Dashboard
   end
 
   def program_enrollments
-    return @program_enrollments ||= @member.combined_program_enrollments_dataset.active(as_of: @at).all
+    enrollments = @member.combined_program_enrollments_dataset.active(as_of: @at)
+    return @program_enrollments ||= enrollments.sort_by { |pe| pe.program.ordinal }
   end
 end
