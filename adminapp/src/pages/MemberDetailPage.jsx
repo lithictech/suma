@@ -178,12 +178,12 @@ function OrganizationMemberships({ memberships, model }) {
   return (
     <RelatedList
       title="Organization Memberships"
-      headers={["Id", "Created At", "Organization", "Organization Programs"]}
+      headers={["Id", "Created At", "Organization"]}
       rows={memberships}
       addNewLabel="Create another membership"
       addNewLink={createRelativeUrl(`/membership/new`, {
         memberId: model.id,
-        memberLabel: `(${model.id}) ${model.name || "Name Unavailable"}`,
+        memberLabel: `(${model.id}) ${model.name || "-"}`,
       })}
       addNewRole="organizationMembership"
       keyRowAttr="id"
@@ -197,12 +197,6 @@ function OrganizationMemberships({ memberships, model }) {
         ) : (
           row.unverifiedOrganizationName
         ),
-        row.verifiedOrganization?.programs?.map((program, idx) => (
-          <React.Fragment key={idx}>
-            <AdminLink model={program}>{program.program.name.en}</AdminLink>
-            {row.verifiedOrganization?.programs.length > idx + 1 && ", "}
-          </React.Fragment>
-        )),
       ]}
     />
   );

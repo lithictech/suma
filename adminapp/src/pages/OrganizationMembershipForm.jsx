@@ -24,13 +24,13 @@ export default function OrganizationMembershipForm({
     if (memberId > 0) {
       setField("member", {
         id: memberId,
-        label: searchParams.get("memberLabel"),
+        name: searchParams.get("memberLabel"),
       });
     }
     if (organizationId > 0) {
       setField("verifiedOrganization", {
         id: organizationId,
-        label: searchParams.get("organizationLabel"),
+        name: searchParams.get("organizationLabel"),
       });
     }
   }, [searchParams]);
@@ -52,26 +52,24 @@ export default function OrganizationMembershipForm({
           {...register("member")}
           label="Member"
           helperText="The member who is in an organization."
-          value={resource.member?.label || resource.member?.name}
+          value={resource.member?.name}
           disabled={!isCreate}
           required={isCreate}
           search={api.searchMembers}
           fullWidth
           style={{ flex: 1 }}
-          onValueSelect={(m) => setField("member", { id: m.id })}
+          onValueSelect={(m) => setField("member", m)}
         />
         <AutocompleteSearch
           {...register("organization")}
           label="Organization"
           helperText={orgText}
-          value={
-            resource.verifiedOrganization?.label || resource.verifiedOrganization?.name
-          }
+          value={resource.verifiedOrganization?.name}
           fullWidth
           required
           search={api.searchOrganizations}
           style={{ flex: 1 }}
-          onValueSelect={(org) => setField("verifiedOrganization", { id: org.id })}
+          onValueSelect={(org) => setField("verifiedOrganization", org)}
         />
       </ResponsiveStack>
     </FormLayout>
