@@ -7,6 +7,7 @@ module Suma::Async::Autoscaler
   include Appydays::Configurable
 
   configurable(:autoscaler) do
+    setting :enabled, true
     setting :latency_threshold, 5
     setting :alert_interval, 120
     setting :poll_interval, 30
@@ -18,6 +19,7 @@ module Suma::Async::Autoscaler
     attr_reader :instance
 
     def start
+      return false unless self.enabled
       raise "already started" unless @instance.nil?
 
       @instance = Amigo::Autoscaler.new(
