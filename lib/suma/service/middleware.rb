@@ -9,6 +9,7 @@ require "appydays/loggable/request_logger"
 require "sequel/sequel_translated_text"
 
 require "suma/rack_attack"
+require "suma/performance"
 
 require "suma/service" unless defined?(Suma::Service)
 
@@ -24,6 +25,7 @@ module Suma::Service::Middleware
     self.add_auth_middleware(builder)
     self.add_etag_middleware(builder)
     builder.use(RequestLogger)
+    builder.use(Suma::Performance::RackMiddleware, logger: Suma::Service.logger)
   end
 
   def self.add_cors_middleware(builder)
