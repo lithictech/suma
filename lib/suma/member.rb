@@ -114,7 +114,8 @@ class Suma::Member < Suma::Postgres::Model(:members)
                 self.direct_program_enrollments_dataset.union(
                   self.program_enrollments_via_organizations_dataset,
                   alias: :program_enrollments,
-                ).distinct(:program_id)
+                ).order(:program_id, :member_id).
+                  distinct(:program_id)
               },
               eager_loader: (proc do |eo|
                 eo[:rows].each { |p| p.associations[:combined_program_enrollments] = [] }
