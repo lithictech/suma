@@ -127,7 +127,7 @@ function FulfillmentOption({ order, onOrderUpdated }) {
             variant="link"
             className={clsx(
               "p-0 ms-2",
-              order.fulfillmentOptionsForEditing.length === 1 && "opacity-0"
+              order.fulfillmentOptionsForEditing.length === 1 && "opacity-0 disabled"
             )}
             onClick={() => {
               setOptionId(order.fulfillmentOption.id);
