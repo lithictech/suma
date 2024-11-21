@@ -57,27 +57,25 @@ export default function OrderDetail({ order, setOrder, gutters }) {
           </p>
           <FulfillmentOption order={order} onOrderUpdated={setOrder} />
           {!order.canClaim && order.fulfilledAt && (
-            <>
-              <Alert variant="info" className="mb-0">
-                <ScrollTopOnMount />
-                <Stack direction="horizontal" gap={3}>
-                  {t("food:order_for_claimed_on", {
-                    offeringDescription: order.offeringDescription,
-                    fulfilledAt: dayjs(order.fulfilledAt).format("lll"),
-                  })}
-                  <div className="ms-auto">
-                    <AnimatedCheckmark />
-                  </div>
-                </Stack>
-              </Alert>
-              <SumaImage
-                image={order.image}
-                w={350}
-                height={150}
-                className="rounded responsive-wide-image"
-              />
-            </>
+            <Alert variant="info" className="mb-0">
+              <ScrollTopOnMount />
+              <Stack direction="horizontal" gap={3}>
+                {t("food:order_for_claimed_on", {
+                  offeringDescription: order.offeringDescription,
+                  fulfilledAt: dayjs(order.fulfilledAt).format("lll"),
+                })}
+                <div className="ms-auto">
+                  <AnimatedCheckmark />
+                </div>
+              </Stack>
+            </Alert>
           )}
+          <SumaImage
+            image={order.image}
+            w={350}
+            height={150}
+            className="rounded responsive-wide-image"
+          />
           <hr className="my-0" />
           <Card.Text className="h4 mb-0">
             {t("food:labels:items_count", { itemCount: order.items.length })}
