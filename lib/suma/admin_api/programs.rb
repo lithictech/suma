@@ -49,6 +49,7 @@ class Suma::AdminAPI::Programs < Suma::AdminAPI::V1
         requires(:app_link_text, type: JSON) { use :translated_text }
         requires :period_begin, type: Time
         requires :period_end, type: Time
+        optional :ordinal, type: Integer
         optional :commerce_offerings, type: Array, coerce_with: proc(&:values) do
           use :model_with_id
         end
@@ -90,6 +91,7 @@ class Suma::AdminAPI::Programs < Suma::AdminAPI::V1
         optional(:app_link_text, type: JSON) { use :translated_text }
         optional :period_begin, type: Time
         optional :period_end, type: Time
+        optional :ordinal, type: Integer
         optional :commerce_offerings, type: Array, coerce_with: proc(&:values) do
           use :model_with_id
         end

@@ -102,6 +102,16 @@ export default function ProgramForm({
             onChange={(v) => setField("periodEnd", formatOrNull(v))}
           />
         </ResponsiveStack>
+        <FormLabel>Ordering</FormLabel>
+        <TextField
+          name="ordinal"
+          value={resource.ordinal}
+          type="number"
+          label="Ordinal"
+          helperText="Lists programs from higher to lower ordinal values in the dashboard."
+          sx={{ width: { xs: "100%", sm: "50%" } }}
+          onChange={setFieldFromInput}
+        />
         <ModelItems
           title="Vendor Service"
           items={resource.vendorServices}

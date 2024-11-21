@@ -16,6 +16,7 @@ export default function ProgramCreatePage() {
     periodEnd: dayjs().add(1, "day").format(),
     vendorServices: [],
     commerceOfferings: [],
+    ordinal: 0,
   };
   return (
     <ResourceCreate empty={empty} apiCreate={api.createProgram} Form={ProgramForm} />
