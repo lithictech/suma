@@ -42,6 +42,13 @@ class Suma::API::Commerce < Suma::API::V1
           def lookup_cart!(offering)
             return Suma::Commerce::Cart.lookup(member: current_member, offering:)
           end
+
+          def present_offering(offering)
+            items = offering.offering_products_dataset.available.all
+            cart = lookup_cart!(offering)
+            vendors = items.map { |v| v.product.vendor }.uniq(&:id)
+            present offering, with: OfferingWithContextEntity, cart:, items:, vendors:, context: new_context
+          end
         end
 
         # Return offering and product info.
@@ -50,10 +57,7 @@ class Suma::API::Commerce < Suma::API::V1
         get do
           current_member
           offering = lookup_offering!(current_time)
-          items = offering.offering_products_dataset.available.all
-          cart = lookup_cart!(offering)
-          vendors = items.map { |v| v.product.vendor }.uniq(&:id)
-          present offering, with: OfferingWithContextEntity, cart:, items:, vendors:, context: new_context
+          present_offering(offering)
         end
 
         resource :cart do
@@ -74,7 +78,7 @@ class Suma::API::Commerce < Suma::API::V1
               self.logger.info "out_of_order_update", product_id: product&.id, quantity: params[:quantity]
               nil
             end
-            present cart, with: CartEntity, context: new_context
+            present_offering(offering)
           end
         end
 
@@ -254,6 +258,7 @@ class Suma::API::Commerce < Suma::API::V1
     expose :cash_cost, with: Suma::Service::Entities::Money do |inst, opts|
       inst.cost_info(opts.fetch(:context)).cash_cost
     end
+    expose :cart_full?, as: :cart_full
   end
 
   class OfferingEntity < BaseEntity

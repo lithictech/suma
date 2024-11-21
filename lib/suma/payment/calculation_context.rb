@@ -19,10 +19,22 @@ class Suma::Payment::CalculationContext
     @apply_at = apply_at
     @adjustments = adjustments.freeze
     @adjustments_computed = adjustments_computed.freeze
+    @cache = {}
   end
 
   # @return [Time]
   attr_reader :apply_at
+
+  # Invoke the yielded block to get the value stored at key,
+  # and then return that value for the lifetime of the context.
+  # Can be used to avoid re-querying the database when the same database-querying method
+  # needs to be called many times.
+  def cached_get(key, &)
+    return @cache[key] if @cache.include?(key)
+    v = yield
+    @cache[key] = v
+    return v
+  end
 
   # Return the balance of the given ledger after adjustments (see +apply+).
   # @param [Suma::Payment::Ledger] ledger

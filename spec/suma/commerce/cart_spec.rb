@@ -153,7 +153,7 @@ RSpec.describe "Suma::Commerce::Cart", :db do
         expect(cart.refresh.max_quantity_for(offering_product.refresh)).to eq(50)
       end
 
-      it "returns the quantity of other items in the cart" do
+      it "factors in the quantity of other items in the cart" do
         product2 = Suma::Fixtures.product.with_categories.create
         offering_product2 = Suma::Fixtures.offering_product(offering:, product: product2).create
 
@@ -191,6 +191,32 @@ RSpec.describe "Suma::Commerce::Cart", :db do
         expect(cart.refresh.max_quantity_for(offering_product)).to eq(6)
         offering.update(max_ordered_items_cumulative: 5)
         expect(cart.refresh.max_quantity_for(offering_product)).to eq(5)
+      end
+    end
+
+    describe "cart_full?" do
+      it "is true when nothing else can be added to cart due to offering limits" do
+        expect(cart.refresh).to_not be_cart_full
+        offering.update(max_ordered_items_cumulative: 2)
+        expect(cart.refresh).to_not be_cart_full
+        create_fake_order(Suma::Fixtures.cart.with_product(product, 2).create(offering:))
+        # Cart cannot be full if there are no items at all
+        expect(cart.refresh).to_not be_cart_full
+        offering.update(max_ordered_items_cumulative: 4)
+        item = cart.add_item(product:, quantity: 1, timestamp: 0)
+        expect(cart.refresh).to_not be_cart_full
+        item.update(quantity: 2)
+        expect(cart.refresh).to be_cart_full
+
+        offering.update(max_ordered_items_cumulative: nil)
+        offering.update(max_ordered_items_per_member: 2)
+        expect(cart.refresh).to be_cart_full
+        # This will put two in the background
+        create_fake_order(cart)
+        offering.update(max_ordered_items_per_member: 3)
+        expect(cart.refresh).to_not be_cart_full
+        cart.add_item(product:, quantity: 1, timestamp: 0)
+        expect(cart.refresh).to be_cart_full
       end
     end
   end

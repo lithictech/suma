@@ -123,7 +123,8 @@ RSpec.describe Suma::API::Commerce, :db do
 
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.that_includes(
-        items: contain_exactly(include(product_id: product.id, quantity: 2)),
+        :offering,
+        cart: include(items: contain_exactly(include(product_id: product.id, quantity: 2))),
       )
     end
 
@@ -134,7 +135,8 @@ RSpec.describe Suma::API::Commerce, :db do
 
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.that_includes(
-        items: contain_exactly(include(product_id: product.id, quantity: 10)),
+        :offering,
+        cart: include(items: contain_exactly(include(product_id: product.id, quantity: 10))),
       )
     end
 

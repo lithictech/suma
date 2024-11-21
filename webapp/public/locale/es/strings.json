@@ -127,6 +127,7 @@
     "available_until": "Hasta {{date}}",
     "cart_available_credit": "Crédito disponible: **{{amount, sumaCurrency}}**",
     "cart_cash_cost": "Costo para usted: **{{amount, sumaCurrency}}**",
+    "cart_full": "Carrito lleno",
     "cart_title": "Carrito de Compra",
     "charge_to": "Cargar a {{instrumentName}}",
     "checkout": "Finalizar",

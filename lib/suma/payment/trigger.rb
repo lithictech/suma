@@ -32,20 +32,21 @@ class Suma::Payment::Trigger < Suma::Postgres::Model(:payment_triggers)
   # so they can be used multiple times with different amounts.
   # @param [Suma::Payment::Account] account
   # @return [Collection]
-  def self.gather(account, apply_at:)
-    triggers = self.dataset.active_at(apply_at).eligible_to(account.member, as_of: apply_at).all
-    return Collection.new(account:, triggers:, apply_at:)
+  def self.gather(account, active_as_of:)
+    triggers = self.dataset.active_at(active_as_of).eligible_to(account.member, as_of: active_as_of).all
+    return Collection.new(account:, triggers:)
   end
 
   class Collection < Suma::TypedStruct
-    attr_reader :account, :apply_at, :triggers
+    attr_reader :account, :triggers
 
     # Figure out what transactions are going to be created based on a funding transaction
     # of the given +amount+ to the +account+ (ie, if I pay in cash, what subsidy do I get).
+    # @param context [Suma::Payment::CalculationContext]
     # @param [Money] amount
     # @return [Plan]
-    def funding_plan(amount)
-      steps = self.triggers.map { |t| t.funding_plan(self.account, amount, apply_at: self.apply_at) }
+    def funding_plan(context, amount)
+      steps = self.triggers.map { |t| t.funding_plan(context, self.account, amount) }
       return Plan.new(steps:)
     end
   end
@@ -90,10 +91,11 @@ class Suma::Payment::Trigger < Suma::Postgres::Model(:payment_triggers)
     attr_accessor :trigger
   end
 
+  # @param context [Suma::Payment::CalculationContext]
   # @param [Suma::Payment::Account] account
   # @param [Money] amount
   # @return [PlanStep]
-  def funding_plan(account, amount, apply_at:)
+  def funding_plan(context, account, amount)
     receiving = self.ensure_receiving_ledger(account)
     subsidy = Money.new(
       Money.new(amount.cents * self.match_multiplier, amount.currency).round_to_nearest_cash_value,
@@ -101,11 +103,13 @@ class Suma::Payment::Trigger < Suma::Postgres::Model(:payment_triggers)
     )
     if self.maximum_cumulative_subsidy_cents
       max_subsidy_cents = self.maximum_cumulative_subsidy_cents
-      cents_received_already = Suma::Payment::Trigger::Execution.where(trigger: self).
-        join(
-          Suma::Payment::BookTransaction.where(receiving_ledger: receiving),
-          {id: :book_transaction_id},
-        ).sum(:amount_cents)
+      cents_received_already = context.cached_get("trigger-funded-amt-from-#{self.id}-to-#{receiving.id}") do
+        Suma::Payment::Trigger::Execution.where(trigger: self).
+          join(
+            Suma::Payment::BookTransaction.where(receiving_ledger: receiving),
+            {id: :book_transaction_id},
+          ).sum(:amount_cents)
+      end
       max_subsidy_cents -= cents_received_already if cents_received_already
       max_subsidy = Money.new(max_subsidy_cents, subsidy.currency)
       subsidy = [subsidy, max_subsidy].min
@@ -113,7 +117,7 @@ class Suma::Payment::Trigger < Suma::Postgres::Model(:payment_triggers)
     return PlanStep.new(
       receiving_ledger: receiving,
       amount: subsidy,
-      apply_at:,
+      apply_at: context.apply_at,
       trigger: self,
     )
   end

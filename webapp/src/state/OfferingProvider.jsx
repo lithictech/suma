@@ -41,34 +41,48 @@ export default function OfferingProvider({ children }) {
     doNotFetchOnInit: true,
   });
 
+  const setOfferingFromResponse = React.useCallback((data) => {
+    setOfferingInner(data.offering);
+    setVendorsInner(data.vendors);
+    setCartInner(data.cart);
+    setProductsInner(data.items);
+  }, []);
+
   const initializeToOffering = React.useCallback(
     (offeringId) => {
       asyncFetch(offeringId).then((resp) => {
         if (resp === NOOP) {
           return;
         }
-        setOfferingInner(resp.data.offering);
-        setVendorsInner(resp.data.vendors);
-        setCartInner(resp.data.cart);
-        setProductsInner(resp.data.items);
+        setOfferingFromResponse(resp.data);
       });
     },
-    [asyncFetch, setCartInner]
+    [asyncFetch, setOfferingFromResponse]
   );
 
   const value = React.useMemo(
     () => ({
       initializeToOffering,
       offering,
+      setOfferingFromResponse,
       vendors,
       products,
       cart,
-      setCart: setCartInner,
       loading,
       error,
       reset,
     }),
-    [cart, error, initializeToOffering, loading, offering, products, reset, vendors]
+    [
+      cart,
+      error,
+      initializeToOffering,
+      loading,
+      offering,
+      setOfferingFromResponse,
+      products,
+      reset,
+      vendors,
+    ]
   );
 
   return <OfferingContext.Provider value={value}>{children}</OfferingContext.Provider>;

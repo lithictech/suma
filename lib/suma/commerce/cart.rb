@@ -134,6 +134,30 @@ class Suma::Commerce::Cart < Suma::Postgres::Model(:commerce_carts)
     return limited_max.nil? ? DEFAULT_MAX_QUANTITY : limited_max
   end
 
+  # Return true if nothing else can fit into our cart.
+  # This is the case when:
+  # - The number of items in the cart equals the number of items still available to order in the offering,
+  #   indicating we cannot order any more items.
+  def cart_full?
+    items_in_cart = self.items.sum(0, &:quantity)
+    # Carts without items should never be considered full
+    return false if items_in_cart.zero?
+
+    offering = self.offering
+    max_limits_of_cart_item_quantity = []
+    if offering.max_ordered_items_cumulative
+      max_limits_of_cart_item_quantity << (offering.max_ordered_items_cumulative - offering.total_ordered_items)
+    end
+    if offering.max_ordered_items_per_member
+      total_ordered = offering.total_ordered_items_by_member.fetch(self.member_id, 0)
+      max_limits_of_cart_item_quantity << (offering.max_ordered_items_per_member - total_ordered)
+    end
+    return false if max_limits_of_cart_item_quantity.empty?
+    max_items_in_cart = max_limits_of_cart_item_quantity.min
+
+    return true if items_in_cart >= max_items_in_cart
+  end
+
   class CostInfo
     def initialize(cart, context)
       @cart = cart
