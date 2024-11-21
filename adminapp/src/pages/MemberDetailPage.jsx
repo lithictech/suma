@@ -12,6 +12,7 @@ import useErrorSnackbar from "../hooks/useErrorSnackbar";
 import useRoleAccess from "../hooks/useRoleAccess";
 import { useUser } from "../hooks/user";
 import { dayjs } from "../modules/dayConfig";
+import createRelativeUrl from "../shared/createRelativeUrl";
 import Money from "../shared/react/Money";
 import SafeExternalLink from "../shared/react/SafeExternalLink";
 import useToggle from "../shared/react/useToggle";
@@ -127,7 +128,10 @@ export default function MemberDetailPage() {
               resource="member"
               enrollments={model.directProgramEnrollments}
             />
-            <OrganizationMemberships memberships={model.organizationMemberships} />
+            <OrganizationMemberships
+              memberships={model.organizationMemberships}
+              model={model}
+            />
             <Activities activities={model.activities} />
             <Orders orders={model.orders} />
             <Charges charges={model.charges} />
@@ -170,12 +174,18 @@ function LegalEntity({ address }) {
   );
 }
 
-function OrganizationMemberships({ memberships }) {
+function OrganizationMemberships({ memberships, model }) {
   return (
     <RelatedList
       title="Organization Memberships"
       headers={["Id", "Created At", "Organization"]}
       rows={memberships}
+      addNewLabel="Create another membership"
+      addNewLink={createRelativeUrl(`/membership/new`, {
+        memberId: model.id,
+        memberLabel: `(${model.id}) ${model.name || "-"}`,
+      })}
+      addNewRole="organizationMembership"
       keyRowAttr="id"
       toCells={(row) => [
         <AdminLink key="id" model={row} />,
@@ -232,6 +242,7 @@ function Sessions({ sessions }) {
     <RelatedList
       title="Sessions"
       headers={["Started", "IP", "User Agent"]}
+      keyRowAttr="id"
       rows={sessions}
       toCells={(row) => [
         dayjs(row.createdAt).format("lll"),
