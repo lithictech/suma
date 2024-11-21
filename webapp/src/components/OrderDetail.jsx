@@ -3,7 +3,7 @@ import AnimatedCheckmark from "../components/AnimatedCheckmark";
 import FormSaveCancel from "../components/FormSaveCancel";
 import LayoutContainer from "../components/LayoutContainer";
 import SumaImage from "../components/SumaImage";
-import { t } from "../localization";
+import { dt, t } from "../localization";
 import { dayjs } from "../modules/dayConfig";
 import ScrollTopOnMount from "../shared/ScrollToTopOnMount";
 import Money from "../shared/react/Money";
@@ -91,7 +91,7 @@ export default function OrderDetail({ order, setOrder, gutters }) {
                   quantity,
                 })}
               </div>
-              <div className="text-secondary">{description}</div>
+              <div className="text-secondary">{dt(description)}</div>
             </Stack>
           ))}
         </Stack>
