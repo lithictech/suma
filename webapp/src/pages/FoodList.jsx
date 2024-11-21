@@ -5,6 +5,7 @@ import LayoutContainer from "../components/LayoutContainer";
 import LinearBreadcrumbs from "../components/LinearBreadcrumbs";
 import PageLoader from "../components/PageLoader";
 import RLink from "../components/RLink";
+import SoldOutText from "../components/SoldOutText";
 import SumaImage from "../components/SumaImage";
 import { t } from "../localization";
 import makeTitle from "../modules/makeTitle";
@@ -86,7 +87,12 @@ export default function FoodList() {
         ) : (
           <Row>
             {products.map((p) => (
-              <Product key={p.productId} offeringId={offeringId} product={p} />
+              <Product
+                key={p.productId}
+                cart={cart}
+                offeringId={offeringId}
+                product={p}
+              />
             ))}
           </Row>
         )}
@@ -95,7 +101,7 @@ export default function FoodList() {
   );
 }
 
-function Product({ product, offeringId }) {
+function Product({ product, offeringId, cart }) {
   const { productId, name, images, outOfStock } = product;
   return (
     <Col
@@ -106,7 +112,9 @@ function Product({ product, offeringId }) {
       <h5 className="mb-2 mt-2">{name}</h5>
       <p className="my-2">{product.vendor.name}</p>
       {outOfStock ? (
-        <p className="mb-3 text-secondary">{t("food:sold_out")}</p>
+        <p className="mb-3 text-secondary">
+          <SoldOutText cart={cart} product={product} />
+        </p>
       ) : (
         <>
           <FoodPrice

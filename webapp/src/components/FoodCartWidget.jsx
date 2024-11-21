@@ -5,6 +5,7 @@ import xIcon from "../assets/images/ui-x-thick.svg";
 import { t } from "../localization";
 import useErrorToast from "../state/useErrorToast";
 import useOffering from "../state/useOffering";
+import SoldOutText from "./SoldOutText";
 import clsx from "clsx";
 import find from "lodash/find";
 import noop from "lodash/noop";
@@ -17,7 +18,7 @@ import Dropdown from "react-bootstrap/Dropdown";
 export default function FoodCartWidget({ product, size, onQuantityChange }) {
   size = size || "sm";
   const btnClasses = sizeClasses[size];
-  const { offering, cart, setCart } = useOffering();
+  const { offering, cart, setOfferingFromResponse } = useOffering();
   const { showErrorToast } = useErrorToast();
 
   const changeAbortController = React.useRef(new AbortController());
@@ -40,11 +41,11 @@ export default function FoodCartWidget({ product, size, onQuantityChange }) {
         timestamp: Date.now(),
       })
       .then(api.pickData)
-      .then((cart) => {
+      .then((data) => {
         if (thisAbortCtrl.signal.aborted) {
           return;
         }
-        setCart(cart);
+        setOfferingFromResponse(data);
         setQuantity(q);
         if (onQuantityChange) {
           onQuantityChange(q);
@@ -68,7 +69,7 @@ export default function FoodCartWidget({ product, size, onQuantityChange }) {
           onClick={quantity > 0 ? () => handleQuantityChange(0) : noop}
         >
           <span className="text-capitalize fs-5 align-middle mx-1">
-            {t("food:sold_out")}
+            <SoldOutText cart={cart} product={product} />
           </span>
           {quantity > 0 && (
             <img

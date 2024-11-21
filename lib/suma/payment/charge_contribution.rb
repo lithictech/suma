@@ -240,13 +240,15 @@ class Suma::Payment::ChargeContribution < Suma::TypedStruct
     original_cash_balance = [context.balance(cash), Money.new(0, amount.currency)].min
 
     # We'll need to run triggers to calculate subsidy.
-    triggers = Suma::Payment::Trigger.gather(account, apply_at: context.apply_at)
+    triggers = context.cached_get("triggers-#{account.id}") do
+      Suma::Payment::Trigger.gather(account, active_as_of: context.apply_at)
+    end
     # Bisect until we find a funding amount that results in no remainder,
     # and no leftover cash.
     candidate = amount
     loop_number = 1
     loop do
-      subsidy_plan = triggers.funding_plan(candidate)
+      subsidy_plan = triggers.funding_plan(context, candidate)
       candidate_charges = self.find_actual_contributions(
         context.apply_credits(
           {ledger: cash, amount: candidate + -original_cash_balance},

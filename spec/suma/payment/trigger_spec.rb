@@ -3,6 +3,7 @@
 RSpec.describe "Suma::Payment::Trigger", :db do
   let(:described_class) { Suma::Payment::Trigger }
   let(:apply_at) { Time.now }
+  let(:context) { Suma::Payment::CalculationContext.new(apply_at) }
 
   it "can be fixtured" do
     pa = Suma::Fixtures.payment_trigger.create
@@ -31,16 +32,17 @@ RSpec.describe "Suma::Payment::Trigger", :db do
 
   describe "funding_plan" do
     let(:account) { Suma::Fixtures.payment_account.create }
+    let(:active_as_of) { apply_at }
 
     it "returns an empty plan if there are no triggers" do
-      plan = described_class.gather(account, apply_at:).funding_plan(money("$10"))
+      plan = described_class.gather(account, active_as_of:).funding_plan(context, money("$10"))
       expect(plan.steps).to be_empty
     end
 
     it "uses a plan step for each matching trigger" do
       t1 = Suma::Fixtures.payment_trigger.create
       t2 = Suma::Fixtures.payment_trigger.create
-      plan = described_class.gather(account, apply_at:).funding_plan(money("$10"))
+      plan = described_class.gather(account, active_as_of:).funding_plan(context, money("$10"))
       expect(plan.steps).to contain_exactly(
         have_attributes(trigger: be === t1),
         have_attributes(trigger: be === t2),
@@ -49,18 +51,18 @@ RSpec.describe "Suma::Payment::Trigger", :db do
 
     it "considers only active triggers" do
       t = Suma::Fixtures.payment_trigger.create
-      plan = described_class.gather(account, apply_at:).funding_plan(money("$10"))
+      plan = described_class.gather(account, active_as_of:).funding_plan(context, money("$10"))
       expect(plan.steps).to have_length(1)
 
       t.update(active_during_end: 1.minute.ago)
-      plan = described_class.gather(account, apply_at:).funding_plan(money("$10"))
+      plan = described_class.gather(account, active_as_of:).funding_plan(context, money("$10"))
       expect(plan.steps).to be_empty
     end
 
     it "reuses an existing ledger with the trigger receiving ledger name" do
       receiving = Suma::Fixtures.ledger(account:).create(name: "testledger")
       t = Suma::Fixtures.payment_trigger.create(receiving_ledger_name: "testledger")
-      plan = described_class.gather(account, apply_at:).funding_plan(money("$10"))
+      plan = described_class.gather(account, active_as_of:).funding_plan(context, money("$10"))
       expect(plan.steps).to contain_exactly(
         have_attributes(
           receiving_ledger: receiving,
@@ -74,7 +76,7 @@ RSpec.describe "Suma::Payment::Trigger", :db do
       vsc = Suma::Fixtures.vendor_service_category.create
       originating_ledger = Suma::Fixtures.ledger.with_categories(vsc).create
       t = Suma::Fixtures.payment_trigger.create(originating_ledger:, receiving_ledger_name: "testledger")
-      plan = described_class.gather(account, apply_at:).funding_plan(money("$10"))
+      plan = described_class.gather(account, active_as_of:).funding_plan(context, money("$10"))
       expect(plan.steps).to contain_exactly(
         have_attributes(trigger: t),
       )
@@ -93,7 +95,7 @@ RSpec.describe "Suma::Payment::Trigger", :db do
     describe "when no the trigger has no programs" do
       it "does not exclude based on programs" do
         t = Suma::Fixtures.payment_trigger.matching.create
-        plan = described_class.gather(account, apply_at:).funding_plan(money("$10"))
+        plan = described_class.gather(account, active_as_of:).funding_plan(context, money("$10"))
         expect(plan.steps).to contain_exactly(
           have_attributes(trigger: t),
         )
@@ -107,13 +109,13 @@ RSpec.describe "Suma::Payment::Trigger", :db do
       it "excludes the trigger if the subject does not have an active enrollment in an overlapping program" do
         unenrolled = Suma::Fixtures.program_enrollment.unenrolled.create(member: account.member, program:)
         different_program = Suma::Fixtures.program_enrollment.create(member: account.member)
-        plan = described_class.gather(account, apply_at:).funding_plan(money("$10"))
+        plan = described_class.gather(account, active_as_of:).funding_plan(context, money("$10"))
         expect(plan.steps).to be_empty
       end
 
       it "includes the trigger if the subject has an active enrollment in the trigger program" do
         Suma::Fixtures.program_enrollment.create(member: account.member, program:)
-        plan = described_class.gather(account, apply_at:).funding_plan(money("$10"))
+        plan = described_class.gather(account, active_as_of:).funding_plan(context, money("$10"))
         expect(plan.steps).to contain_exactly(have_attributes(trigger: tr))
       end
     end
@@ -121,7 +123,7 @@ RSpec.describe "Suma::Payment::Trigger", :db do
     describe "when max subsidy cents are set" do
       it "will not subsidize a ledger balance above the maximum" do
         t = Suma::Fixtures.payment_trigger.matching.up_to(money("$20")).create
-        plan = described_class.gather(account, apply_at:).funding_plan(money("$100"))
+        plan = described_class.gather(account, active_as_of:).funding_plan(context, money("$100"))
         expect(plan.steps).to contain_exactly(
           have_attributes(amount: money("$20"), trigger: t),
         )
@@ -140,7 +142,7 @@ RSpec.describe "Suma::Payment::Trigger", :db do
         )
         unassociated_book_xaction = Suma::Fixtures.book_transaction.to(receiving).create(amount: money("$0.50"))
 
-        plan = described_class.gather(account, apply_at:).funding_plan(money("$100"))
+        plan = described_class.gather(account, active_as_of:).funding_plan(context, money("$100"))
         expect(plan.steps).to contain_exactly(
           have_attributes(amount: money("$13"), trigger: t),
         )
@@ -149,7 +151,7 @@ RSpec.describe "Suma::Payment::Trigger", :db do
 
     it "applies the match ratio to the planned amount" do
       t = Suma::Fixtures.payment_trigger.matching(0.5).create
-      plan = described_class.gather(account, apply_at:).funding_plan(money("$15"))
+      plan = described_class.gather(account, active_as_of:).funding_plan(context, money("$15"))
       expect(plan.steps).to contain_exactly(
         have_attributes(amount: money("$7.50"), trigger: t),
       )
@@ -157,7 +159,7 @@ RSpec.describe "Suma::Payment::Trigger", :db do
 
     it "rounds the match ratio to the nearest cent" do
       t = Suma::Fixtures.payment_trigger.matching(0.3333).create
-      plan = described_class.gather(account, apply_at:).funding_plan(money("$3.33"))
+      plan = described_class.gather(account, active_as_of:).funding_plan(context, money("$3.33"))
       expect(plan.steps).to contain_exactly(
         have_attributes(amount: money("$1.11"), trigger: t),
       )
@@ -170,7 +172,7 @@ RSpec.describe "Suma::Payment::Trigger", :db do
 
       it "creates book transactions and related trigger executions" do
         t = Suma::Fixtures.payment_trigger.matching(0.5).create
-        plan = described_class.gather(account, apply_at:).funding_plan(money("$15"))
+        plan = described_class.gather(account, active_as_of: apply_at).funding_plan(context, money("$15"))
         now = 1.hour.ago
         executions = plan.execute(ledgers: account.ledgers, at: now)
         expect(executions).to have_length(1)
@@ -189,7 +191,7 @@ RSpec.describe "Suma::Payment::Trigger", :db do
       it "does not execute the trigger if the trigger ledger is not passed in" do
         Suma::Fixtures.payment_trigger.create
         Suma::Fixtures.payment_trigger.create
-        plan = described_class.gather(account, apply_at:).funding_plan(money("$15"))
+        plan = described_class.gather(account, active_as_of: apply_at).funding_plan(context, money("$15"))
         expect(plan.steps).to have_length(2)
         expect(account.ledgers).to have_length(2)
         step = plan.steps.first
