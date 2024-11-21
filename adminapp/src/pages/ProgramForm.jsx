@@ -52,17 +52,15 @@ export default function ProgramForm({
           />
         </ResponsiveStack>
         <FormLabel>Description</FormLabel>
-        <ResponsiveStack>
-          <MultiLingualText
-            {...register("description")}
-            label="Description"
-            fullWidth
-            value={resource.description}
-            required
-            multiline
-            onChange={(v) => setField("description", v)}
-          />
-        </ResponsiveStack>
+        <MultiLingualText
+          {...register("description")}
+          label="Description"
+          fullWidth
+          value={resource.description}
+          required
+          multiline
+          onChange={(v) => setField("description", v)}
+        />
         <FormLabel>App Link</FormLabel>
         <FormHelperText>
           Useful for linking members to promotion pages, '/food/1' would link to
