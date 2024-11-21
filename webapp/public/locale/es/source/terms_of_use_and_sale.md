@@ -1,6 +1,6 @@
 # Términos de Uso de Suma
 
-Última modificación: 17 de noviembre de 2023
+Última modificación: 19 de noviembre de 2024
 
 ### Aceptación de los Términos de Uso
 

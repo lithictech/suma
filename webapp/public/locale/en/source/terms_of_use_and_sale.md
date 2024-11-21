@@ -1,6 +1,6 @@
 # Suma Terms of Use
 
-Last Modified: November 17, 2023
+Last Modified: November 19, 2024
 
 ### Acceptance of the Terms of Use
 
