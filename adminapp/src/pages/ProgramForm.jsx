@@ -52,17 +52,15 @@ export default function ProgramForm({
           />
         </ResponsiveStack>
         <FormLabel>Description</FormLabel>
-        <ResponsiveStack>
-          <MultiLingualText
-            {...register("description")}
-            label="Description"
-            fullWidth
-            value={resource.description}
-            required
-            multiline
-            onChange={(v) => setField("description", v)}
-          />
-        </ResponsiveStack>
+        <MultiLingualText
+          {...register("description")}
+          label="Description"
+          fullWidth
+          value={resource.description}
+          required
+          multiline
+          onChange={(v) => setField("description", v)}
+        />
         <FormLabel>App Link</FormLabel>
         <FormHelperText>
           Useful for linking members to promotion pages, '/food/1' would link to
@@ -102,6 +100,16 @@ export default function ProgramForm({
             onChange={(v) => setField("periodEnd", formatOrNull(v))}
           />
         </ResponsiveStack>
+        <FormLabel>Ordering</FormLabel>
+        <TextField
+          name="ordinal"
+          value={resource.ordinal}
+          type="number"
+          label="Ordinal"
+          helperText="Programs are listed from lower to higher ordinal values in the dashboard."
+          sx={{ width: { xs: "100%", sm: "50%" } }}
+          onChange={setFieldFromInput}
+        />
         <ModelItems
           title="Vendor Service"
           items={resource.vendorServices}
