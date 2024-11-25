@@ -57,6 +57,8 @@ class Suma::Message::Preferences < Suma::Postgres::Model(:message_preferences)
 
   def public_url = "#{Suma.app_url}/preferences-public?token=#{self.access_token}"
 
+  def preferred_language_name = Browser::AcceptLanguage.parse(self.preferred_language).first.name
+
   def validate
     super
     self.validates_includes Suma::I18n.enabled_locale_codes, :preferred_language

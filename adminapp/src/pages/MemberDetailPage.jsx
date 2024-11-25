@@ -106,6 +106,10 @@ export default function MemberDetailPage() {
             <DetailGrid
               title="Other Information"
               properties={[
+                {
+                  label: "Preferred Language",
+                  value: model.preferences.preferredLanguageName,
+                },
                 { label: "Timezone", value: model.timezone },
                 { label: "Created At", value: dayjs(model.createdAt) },
                 {
