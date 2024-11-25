@@ -302,6 +302,7 @@ module Suma::AdminAPI::Entities
 
   class OrganizationMembershipEntity < BaseEntity
     include AutoExposeBase
+    include AutoExposeDetail
     expose :member, with: MemberEntity
     expose :verified_organization, with: OrganizationEntity
     expose :unverified_organization_name

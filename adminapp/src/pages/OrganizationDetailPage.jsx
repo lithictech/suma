@@ -3,7 +3,7 @@ import AdminLink from "../components/AdminLink";
 import ProgramEnrollmentRelatedList from "../components/ProgramEnrollmentRelatedList";
 import RelatedList from "../components/RelatedList";
 import ResourceDetail from "../components/ResourceDetail";
-import { dayjs } from "../modules/dayConfig";
+import { dayjs, dayjsOrNull } from "../modules/dayConfig";
 import createRelativeUrl from "../shared/createRelativeUrl";
 import React from "react";
 
@@ -16,7 +16,7 @@ export default function OrganizationDetailPage() {
       properties={(model) => [
         { label: "ID", value: model.id },
         { label: "Created At", value: dayjs(model.createdAt) },
-        { label: "Updated At", value: dayjs(model.updatedAt) },
+        { label: "Updated At", value: dayjsOrNull(model.updatedAt) },
         { label: "Name", value: model.name },
       ]}
     >
@@ -36,7 +36,7 @@ export default function OrganizationDetailPage() {
               organizationLabel: `(${model.id}) ${model.name || "-"}`,
             })}
             addNewRole="organizationMembership"
-            headers={["Id", "Member", "Created At", "Updated At"]}
+            headers={["Id", "Member", "Created At"]}
             keyRowAttr="id"
             toCells={(row) => [
               <AdminLink model={row} />,
@@ -44,7 +44,6 @@ export default function OrganizationDetailPage() {
                 {row.member.name}
               </AdminLink>,
               dayjs(row.createdAt).format("lll"),
-              dayjs(row.updatedAt).format("lll"),
             ]}
           />
         </>
