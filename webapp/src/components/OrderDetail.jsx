@@ -105,17 +105,7 @@ function FulfillmentOption({ order, onOrderUpdated }) {
   const { showErrorToast } = useErrorToast();
 
   if (isEmpty(order.fulfillmentOptionsForEditing)) {
-    if (!order.fulfillmentOption) {
-      return null;
-    }
-    return (
-      <div>
-        <h6 className="fw-bold">{order.fulfillmentConfirmation}</h6>
-        {order.fulfillmentOption.description && (
-          <span>{order.fulfillmentOption.description}</span>
-        )}
-      </div>
-    );
+    return null;
   }
 
   if (editing.isOff) {
