@@ -101,7 +101,7 @@ export default function OrderDetail({ order, setOrder, gutters }) {
 function FulfillmentOption({ order, onOrderUpdated }) {
   const editing = useToggle(false);
   const screenLoader = useScreenLoader();
-  const [optionId, setOptionId] = React.useState(0);
+  const [optionId, setOptionId] = React.useState(order.fulfillmentOption?.id || 0);
   const { showErrorToast } = useErrorToast();
 
   if (isEmpty(order.fulfillmentOptionsForEditing)) {
@@ -127,17 +127,16 @@ function FulfillmentOption({ order, onOrderUpdated }) {
             variant="link"
             className={clsx(
               "p-0 ms-2",
-              order.fulfillmentOptionsForEditing.length === 1 && "opacity-0 disabled"
+              !order.editableFulfillmentOption && "opacity-0 disabled"
             )}
-            onClick={() => {
-              setOptionId(order.fulfillmentOption.id);
-              editing.turnOn();
-            }}
+            onClick={editing.turnOn}
           >
-            <i className="bi bi-pencil-fill"></i>
+            <i className="bi bi-pencil-fill" />
           </Button>
         </h6>
-        {order.fulfillmentOption.description}
+        {order.fulfillmentOption?.description || (
+          <span className="text-secondary">{t("food:no_option_chosen")}</span>
+        )}
       </span>
     );
   }

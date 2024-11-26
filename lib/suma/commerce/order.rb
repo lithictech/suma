@@ -174,6 +174,12 @@ class Suma::Commerce::Order < Suma::Postgres::Model(:commerce_orders)
     return opts
   end
 
+  def editable_fulfillment_option?
+    return false if self.fulfillment_options_for_editing.count.zero?
+    return true if self.checkout.fulfillment_option.nil?
+    return !self.fulfillment_options_for_editing.one?
+  end
+
   def apply_fulfillment_quantity_changes
     self.items_and_product_inventories.each do |ci, inv|
       inv.quantity_on_hand -= ci.quantity if inv.limited_quantity?

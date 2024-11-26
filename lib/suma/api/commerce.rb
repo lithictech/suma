@@ -447,6 +447,7 @@ class Suma::API::Commerce < Suma::API::V1
                       &self.delegate_to(:checkout, :cart, :offering, :fulfillment_confirmation)
     expose :fulfillment_option, with: FulfillmentOptionEntity, &self.delegate_to(:checkout, :fulfillment_option)
     expose :fulfillment_options_for_editing, with: FulfillmentOptionEntity
+    expose :editable_fulfillment_option?, as: :editable_fulfillment_option
 
     expose :order_status
     expose :can_claim?, as: :can_claim
