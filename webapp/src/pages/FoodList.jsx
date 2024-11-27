@@ -102,13 +102,13 @@ export default function FoodList() {
 }
 
 function Product({ product, offeringId, cart }) {
-  const { productId, name, images, outOfStock } = product;
+  const { productId, name, image, outOfStock } = product;
   return (
     <Col
       xs={6}
       className="mb-4 border-bottom border-secondary border-opacity-50 position-relative"
     >
-      <SumaImage image={images[0]} className="w-100" w={225} h={150} />
+      <SumaImage image={image} className="w-100" w={225} h={150} />
       <h5 className="mb-2 mt-2">{name}</h5>
       <p className="my-2">{product.vendor.name}</p>
       {outOfStock ? (

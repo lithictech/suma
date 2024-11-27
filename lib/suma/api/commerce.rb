@@ -268,7 +268,7 @@ class Suma::API::Commerce < Suma::API::V1
     expose_translated :fulfillment_confirmation
     expose_translated :fulfillment_instructions
     expose :period_end, as: :closes_at
-    expose :image, with: Suma::API::Entities::ImageEntity, &self.delegate_to(:images?, :first)
+    expose :image, with: Suma::API::Entities::ImageEntity, &self.delegate_to(:images?, :last)
     expose :rel_app_link, as: :app_link
   end
 
@@ -278,7 +278,7 @@ class Suma::API::Commerce < Suma::API::V1
     expose :offering_id
     expose :product_id, &self.delegate_to(:product, :id)
     expose :vendor, with: VendorEntity, &self.delegate_to(:product, :vendor)
-    expose :images, with: Suma::API::Entities::ImageEntity, &self.delegate_to(:product, :images?)
+    expose :image, with: Suma::API::Entities::ImageEntity, &self.delegate_to(:product, :images?, :last)
   end
 
   class PricedOfferingProductEntity < BaseOfferingProductEntity
@@ -434,7 +434,7 @@ class Suma::API::Commerce < Suma::API::V1
     expose :quantity
     expose_translated :name, &self.delegate_to(:offering_product, :product, :name)
     expose_translated :description, &self.delegate_to(:offering_product, :product, :description)
-    expose :image, with: ImageEntity, &self.delegate_to(:offering_product, :product, :images?, :first)
+    expose :image, with: ImageEntity, &self.delegate_to(:offering_product, :product, :images?, :last)
     expose :customer_price, with: MoneyEntity, &self.delegate_to(:offering_product, :customer_price)
   end
 

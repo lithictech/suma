@@ -25,7 +25,7 @@ class Suma::AdminAPI::CommerceOfferings < Suma::AdminAPI::V1
     expose :fulfillment_confirmation, with: TranslatedTextEntity
     expose :fulfillment_options, with: OfferingFulfillmentOptionEntity
     expose :begin_fulfillment_at
-    expose :image, with: ImageEntity, &self.delegate_to(:images?, :first)
+    expose :image, with: ImageEntity, &self.delegate_to(:images?, :last)
     expose :offering_products, with: OfferingProductEntity
     expose :orders, with: OrderInOfferingEntity
     expose :programs, with: ProgramEntity
