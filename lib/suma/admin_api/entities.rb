@@ -136,6 +136,7 @@ module Suma::AdminAPI::Entities
     expose :program, with: ProgramEntity
     expose :member, with: MemberEntity
     expose :organization, with: OrganizationEntity
+    expose :role, with: RoleEntity
     expose :approved_at
     expose :unenrolled_at
     expose :program_active do |pe|

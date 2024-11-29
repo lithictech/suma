@@ -8,6 +8,7 @@ class Suma::Program::Enrollment < Suma::Postgres::Model(:program_enrollments)
 
   many_to_one :program, class: "Suma::Program"
   many_to_one :member, class: "Suma::Member"
+  many_to_one :role, class: "Suma::Role"
   many_to_one :organization, class: "Suma::Organization"
   many_to_one :approved_by, class: "Suma::Member"
   many_to_one :unenrolled_by, class: "Suma::Member"
@@ -28,18 +29,25 @@ class Suma::Program::Enrollment < Suma::Postgres::Model(:program_enrollments)
         verified.
         where(member:).
         select(:verified_organization_id)
-      ds = self.where(Sequel[member:] | Sequel[organization_id: verified_org_ids])
+      ds = self.where(
+        Sequel[member:] |
+        Sequel[organization_id: verified_org_ids] |
+          Sequel[role: Suma::Role.dataset.where(members: member)],
+      )
       ds = ds.
         left_join(
           :organization_memberships,
           {verified_organization_id: Sequel[:program_enrollments][:organization_id]},
-          qualify: :deep,
+        ).left_join(
+          :roles_members,
+          {role_id: Sequel[:program_enrollments][:role_id]},
         ).select(
           Sequel[:program_enrollments][Sequel.lit("*")],
           Sequel.function(
             :coalesce,
             Sequel[:program_enrollments][:member_id],
             Sequel[:organization_memberships][:member_id],
+            Sequel[:roles_members][:member_id],
           ).as(:annotated_member_id),
         )
       return ds

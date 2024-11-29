@@ -46,6 +46,17 @@ RSpec.describe Suma::AdminAPI::ProgramEnrollments, :db do
       expect(last_response.headers).to include("Created-Resource-Admin")
       expect(Suma::Program::Enrollment.all).to have_length(1)
     end
+
+    it "creates the program enrollment for role" do
+      role = Suma::Role.create(name: "test")
+      program = Suma::Fixtures.program.create
+
+      post "/v1/program_enrollments/create", program: {id: program.id}, role: {id: role.id}
+
+      expect(last_response).to have_status(200)
+      expect(last_response.headers).to include("Created-Resource-Admin")
+      expect(Suma::Program::Enrollment.all).to have_length(1)
+    end
   end
 
   describe "GET /v1/program_enrollments/:id" do
