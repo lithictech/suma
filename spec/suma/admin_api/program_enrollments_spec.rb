@@ -68,7 +68,7 @@ RSpec.describe Suma::AdminAPI::ProgramEnrollments, :db do
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.that_includes(
         id: enrollment.id,
-        member: include(id: enrollment.member.id),
+        enrollee: include(id: enrollment.member.id),
       )
     end
 
