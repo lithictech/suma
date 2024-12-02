@@ -24,7 +24,7 @@ RSpec.describe Suma::API::AnonProxy, :db do
       expect(last_response).to have_json_body.
         that_includes(items: contain_exactly(
           include(id: va.id),
-          include(vendor_slug: vc.vendor.slug),
+          include(:vendor_image),
         ))
     end
 
