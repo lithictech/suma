@@ -219,6 +219,7 @@ export default {
   searchVendors: (data) => post(`/adminapi/v1/search/vendors`, data),
   searchMembers: (data) => post(`/adminapi/v1/search/members`, data),
   searchOrganizations: (data) => post(`/adminapi/v1/search/organizations`, data),
+  searchRoles: (data) => post(`/adminapi/v1/search/roles`, data),
   searchVendorServices: (data) => post(`/adminapi/v1/search/vendor_services`, data),
   searchCommerceOffering: (data) => post(`/adminapi/v1/search/commerce_offerings`, data),
   searchPrograms: (data) => post(`/adminapi/v1/search/programs`, data),

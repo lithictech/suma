@@ -74,8 +74,10 @@ class Suma::Program::Enrollment < Suma::Postgres::Model(:program_enrollments)
     self.unenrolled_at = v ? Time.now : nil
   end
 
-  # @return [Suma::Member,Suma::Organization]
-  def enrollee = self.member || self.organization
+  # @return [Suma::Member,Suma::Organization,Suma::Role]
+  def enrollee = self.member || self.organization || self.role
+
+  def enrollee_type = self.enrollee.class.name.demodulize
 
   def rel_admin_link = "/program-enrollment/#{self.id}"
 end

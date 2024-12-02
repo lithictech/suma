@@ -113,9 +113,9 @@ export default function ProgramDetailPage() {
           />
           <RelatedList
             title="Program Enrollments"
-            headers={["Id", "Member", "Organization", "Approved At", "Unenrolled At"]}
+            headers={["Id", "Enrollee", "Enrollee Type", "Approved At", "Unenrolled At"]}
             rows={model.enrollments}
-            addNewLabel="Enroll member or organization"
+            addNewLabel="Enroll member, organization or role"
             addNewLink={createRelativeUrl(`/program-enrollment/new`, {
               programId: model.id,
               programLabel: `(${model.id}) ${model.name.en}`,
@@ -124,8 +124,8 @@ export default function ProgramDetailPage() {
             keyRowAttr="id"
             toCells={(row) => [
               <AdminLink key="id" model={row} />,
-              <AdminLink model={row.member}>{row.member?.name}</AdminLink>,
-              <AdminLink model={row.organization}>{row.organization?.name}</AdminLink>,
+              <AdminLink model={row.enrollee}>{row.enrollee?.name}</AdminLink>,
+              row.enrolleeType,
               dayjsOrNull(row.approvedAt)?.format("lll"),
               dayjsOrNull(row.unenrolledAt)?.format("lll"),
             ]}

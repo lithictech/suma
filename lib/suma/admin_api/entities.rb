@@ -130,13 +130,19 @@ module Suma::AdminAPI::Entities
     expose :app_link_text, with: TranslatedTextEntity
   end
 
+  class ProgramEnrolleeEntity < BaseEntity
+    include AutoExposeBase
+    expose :name do |inst|
+      inst.is_a?(Suma::Role) ? inst.name.titleize : inst.name
+    end
+  end
+
   class ProgramEnrollmentEntity < BaseEntity
     include AutoExposeBase
     expose :admin_link
     expose :program, with: ProgramEntity
-    expose :member, with: MemberEntity
-    expose :organization, with: OrganizationEntity
-    expose :role, with: RoleEntity
+    expose :enrollee, with: ProgramEnrolleeEntity
+    expose :enrollee_type
     expose :approved_at
     expose :unenrolled_at
     expose :program_active do |pe|

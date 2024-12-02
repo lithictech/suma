@@ -26,19 +26,17 @@ export default function ProgramEnrollmentListPage() {
           render: (c) => <AdminLink model={c.program}>{c.program.name.en}</AdminLink>,
         },
         {
-          id: "member",
-          label: "Member",
+          id: "enrollee",
+          label: "Enrollee",
           align: "left",
-          render: (c) => <AdminLink model={c.member}>{c.member?.name}</AdminLink>,
+          render: (c) => <AdminLink model={c.enrollee}>{c.enrollee?.name}</AdminLink>,
           hideEmpty: true,
         },
         {
-          id: "organization",
-          label: "Organization",
+          id: "enrollee_type",
+          label: "Enrollee Type",
           align: "left",
-          render: (c) => (
-            <AdminLink model={c.organization}>{c.organization?.name}</AdminLink>
-          ),
+          render: (c) => c.enrolleeType,
           hideEmpty: true,
         },
         {

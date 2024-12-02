@@ -227,6 +227,20 @@ class Suma::AdminAPI::Search < Suma::AdminAPI::V1
     params do
       optional :q, type: String
     end
+    post :roles do
+      check_role_access!(admin_member, :read, :admin_members)
+      # role names are sluggified by default.
+      params[:q] = Suma.to_slug(params[:q]) if params[:q].present?
+      ds = Suma::Role.dataset
+      ds = ds_search_or_order_by(:name, ds, params)
+      ds = ds.limit(15)
+      status 200
+      present_collection ds, with: SearchRoleEntity
+    end
+
+    params do
+      optional :q, type: String
+    end
     post :vendor_services do
       check_role_access!(admin_member, :read, :admin_commerce)
       ds = Suma::Vendor::Service.dataset
@@ -333,6 +347,14 @@ class Suma::AdminAPI::Search < Suma::AdminAPI::V1
     expose :admin_link
     expose :name
     expose :name, as: :label
+  end
+
+  class SearchRoleEntity < BaseEntity
+    expose :key, &self.delegate_to(:id, :to_s)
+    expose :id
+    expose :admin_link
+    expose :name
+    expose :label
   end
 
   class SearchVendorServiceEntity < BaseEntity
