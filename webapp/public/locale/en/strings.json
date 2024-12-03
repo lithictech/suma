@@ -167,6 +167,7 @@
     "link_new_payment_or": "Or, link a new payment method to pay for this order.",
     "mobility_options": "Mobility Options",
     "no_cart_items": "This cart does not have any items.",
+    "no_option_chosen": "No option chosen",
     "no_orders": "You haven’t place any orders yet.",
     "no_orders_to_claim": "You have no orders to claim.",
     "no_products": "There were no products found, this offering might be closed.",

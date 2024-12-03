@@ -12,7 +12,6 @@ import useErrorToast from "../state/useErrorToast";
 import useScreenLoader from "../state/useScreenLoader";
 import useUser from "../state/useUser";
 import PressAndHold from "./PressAndHold";
-import clsx from "clsx";
 import isEmpty from "lodash/isEmpty";
 import React from "react";
 import Alert from "react-bootstrap/Alert";
@@ -106,14 +105,14 @@ function FulfillmentOption({ order, onOrderUpdated }) {
 
   if (isEmpty(order.fulfillmentOptionsForEditing)) {
     if (!order.fulfillmentOption) {
+      // No options, and nothing is selected, so nothing to show
       return null;
     }
+    // No options, but something is selected, so show it
     return (
       <div>
         <h6 className="fw-bold">{order.fulfillmentConfirmation}</h6>
-        {order.fulfillmentOption.description && (
-          <span>{order.fulfillmentOption.description}</span>
-        )}
+        <span>{order.fulfillmentOption.description}</span>
       </div>
     );
   }
@@ -123,21 +122,22 @@ function FulfillmentOption({ order, onOrderUpdated }) {
       <span>
         <h6 className="fw-bold lh-lg">
           {order.fulfillmentConfirmation}
-          <Button
-            variant="link"
-            className={clsx(
-              "p-0 ms-2",
-              order.fulfillmentOptionsForEditing.length === 1 && "opacity-0 disabled"
-            )}
-            onClick={() => {
-              setOptionId(order.fulfillmentOption.id);
-              editing.turnOn();
-            }}
-          >
-            <i className="bi bi-pencil-fill"></i>
-          </Button>
+          {order.fulfillmentOptionEditable && (
+            <Button
+              variant="link"
+              className="p-0 ms-2"
+              onClick={() => {
+                setOptionId(order.fulfillmentOption?.id || 0);
+                editing.turnOn();
+              }}
+            >
+              <i className="bi bi-pencil-fill" />
+            </Button>
+          )}
         </h6>
-        {order.fulfillmentOption.description}
+        {order.fulfillmentOption?.description || (
+          <span className="text-secondary">{t("food:no_option_chosen")}</span>
+        )}
       </span>
     );
   }

@@ -41,7 +41,7 @@
     "test": "vitest --passWithNoTests --globals",
     "prettier-check": "prettier --no-error-on-unmatched-pattern --check '*.{jsx,js}' './tools/*.{jsx,js}' './src/**/*.{jsx,js}'",
     "prettier-fix": "prettier --no-error-on-unmatched-pattern --write '*.{jsx,js}' './tools/*.{jsx,js}' './src/**/*.{jsx,js}'",
-    "eslint-check": "eslint --ext .js,.jsx --no-error-on-unmatched-pattern '*.js' './tools/' './src/'",
+    "eslint-check": "eslint --ext .js,.jsx --max-warnings=0 --no-error-on-unmatched-pattern '*.js' './tools/' './src/'",
     "eslint-fix": "eslint --ext .js,.jsx --no-error-on-unmatched-pattern --fix '*.js' './tools/' './src/'"
   },
   "eslintConfig": {
