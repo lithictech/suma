@@ -164,6 +164,17 @@ RSpec.describe Suma::AdminAPI::CommonEndpoints, :db do
       expect(v.refresh).to have_attributes(name: "test")
     end
 
+    it "replaces an existing image" do
+      v = Suma::Fixtures.vendor.create
+      old_image = Suma::Fixtures.image.for(v).create
+
+      post("/v1/vendors/#{v.id}", image:)
+
+      expect(last_response).to have_status(200)
+      expect(v.refresh.images).to have_length(1)
+      expect(v.images.first).to have_attributes(id: be > old_image.id)
+    end
+
     it "403s if the resource does not exist" do
       post "/v1/vendors/0"
 

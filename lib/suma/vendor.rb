@@ -5,7 +5,7 @@ require "suma/image"
 require "suma/postgres/model"
 
 class Suma::Vendor < Suma::Postgres::Model(:vendors)
-  include Suma::Image::AssociatedMixin
+  include Suma::Image::SingleAssociatedMixin
   include Suma::AdminLinked
 
   plugin :timestamps

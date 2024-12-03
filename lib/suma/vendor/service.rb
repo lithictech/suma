@@ -9,7 +9,7 @@ require "suma/vendor/has_service_categories"
 
 class Suma::Vendor::Service < Suma::Postgres::Model(:vendor_services)
   include Suma::AdminLinked
-  include Suma::Image::AssociatedMixin
+  include Suma::Image::SingleAssociatedMixin
 
   plugin :timestamps
   plugin :tstzrange_fields, :period

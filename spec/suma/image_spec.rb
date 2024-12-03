@@ -28,6 +28,36 @@ RSpec.describe "Suma::Image", :db do
     end
   end
 
+  describe "SingleAssociatedMixin" do
+    it "returns the first image of the array" do
+      o = Suma::Fixtures.vendor.create
+      img1 = Suma::Fixtures.image.for(o).create
+      img2 = Suma::Fixtures.image.for(o).create
+      expect(o.images).to have_same_ids_as(img1, img2)
+      expect(o.image).to be === img1
+    end
+
+    it "replaces all images when setting" do
+      o = Suma::Fixtures.vendor.create
+      img1 = Suma::Fixtures.image.for(o).create
+      img2 = Suma::Fixtures.image.for(o).create
+      # Access this to cache the association to make sure it gets busted/set
+      expect(o.images).to have_same_ids_as(img1, img2)
+      im = Suma::Fixtures.image.create(uploaded_file: Suma::Fixtures.uploaded_file.create)
+      o.image = im
+      img3 = o.image
+      expect(img3.vendor).to be === o
+      expect(img3).to have_attributes(id: be > img2.id)
+      expect(o.images).to have_same_ids_as(img3)
+      expect(o.images).to have_same_ids_as(img3)
+      expect(o.refresh.images_dataset.all).to have_same_ids_as(img3)
+
+      # Make sure setting the same image doesn't accidentally delete it when clearing out existing ones
+      o.image = img3
+      expect(o.images_dataset.all).to have_same_ids_as(img3)
+    end
+  end
+
   [
     [:commerce_offering, Suma::Fixtures.offering],
     [:commerce_product, Suma::Fixtures.product],

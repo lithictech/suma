@@ -57,9 +57,11 @@ class Suma::Image < Suma::Postgres::Model(:images)
 
   module AssociatedMixin
     def self.included(m)
-      key = m.name.gsub("Suma::", "").gsub("::", "_").underscore + "_id"
-      m.one_to_many :images, key: key.to_sym, class: "Suma::Image", order: [:ordinal, :id]
-      m.one_to_one :image, key: key.to_sym, class: "Suma::Image", order: [:ordinal, :id], read_only: true
+      key_rel = m.name.gsub("Suma::", "").gsub("::", "_").underscore.to_sym
+      key_col = :"#{key_rel}_id"
+      m.one_to_many :images, key: key_col, class: "Suma::Image", order: [:ordinal, :id]
+      m.define_singleton_method(:images_reverse_association_name) { key_rel }
+      m.define_singleton_method(:images_reverse_association_column) { key_col }
       m.define_method(:images?) do
         if self.images.empty?
           [Suma::Image.no_image_available]
@@ -69,6 +71,31 @@ class Suma::Image < Suma::Postgres::Model(:images)
       end
       m.define_method(:image?) do
         self.images.first || Suma::Image.no_image_available
+      end
+    end
+  end
+
+  # Mixin for models that should only have a single image.
+  # The difference from +AssociatedMixin+ is that there is an +image+ accessor
+  # (which will return the first image),
+  # and the +image=+ accessor will destroy any existing image.
+  module SingleAssociatedMixin
+    def self.included(m)
+      m.include(AssociatedMixin)
+      m.one_to_one :image,
+                   key: m.images_reverse_association_column,
+                   class: "Suma::Image",
+                   order: [:ordinal, :id],
+                   read_only: true
+      m.define_method(:image=) do |im|
+        # We want to save the image to make setting the one-to-one simpler.
+        im.update(m.images_reverse_association_name => self)
+        # Delete all the existing images other than what we've set
+        self.images_dataset.exclude(id: im.id).delete
+        # Set the cached values, including the array which we know now has just one item
+        self.associations[:images] = [im]
+        self.associations[:image] = im
+        im
       end
     end
   end
