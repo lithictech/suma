@@ -174,10 +174,13 @@ class Suma::Commerce::Order < Suma::Postgres::Model(:commerce_orders)
     return opts
   end
 
-  def editable_fulfillment_option?
-    return false if self.fulfillment_options_for_editing.count.zero?
-    return true if self.checkout.fulfillment_option.nil?
-    return !self.fulfillment_options_for_editing.one?
+  # Return true if the order's fulfillment option is editable.
+  # It is editable when there are any options to choose from,
+  # that is not the currently chosen option.
+  def fulfillment_option_editable?
+    opts = self.fulfillment_options_for_editing
+    opts.delete(self.checkout.fulfillment_option)
+    return opts.any?
   end
 
   def apply_fulfillment_quantity_changes

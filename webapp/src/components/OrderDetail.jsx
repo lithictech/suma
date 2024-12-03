@@ -105,7 +105,17 @@ function FulfillmentOption({ order, onOrderUpdated }) {
   const { showErrorToast } = useErrorToast();
 
   if (isEmpty(order.fulfillmentOptionsForEditing)) {
-    return null;
+    if (!order.fulfillmentOption) {
+      // No options, and nothing is selected, so nothing to show
+      return null;
+    }
+    // No options, but something is selected, so show it
+    return (
+      <div>
+        <h6 className="fw-bold">{order.fulfillmentConfirmation}</h6>
+        <span>{order.fulfillmentOption.description}</span>
+      </div>
+    );
   }
 
   if (editing.isOff) {
@@ -113,16 +123,18 @@ function FulfillmentOption({ order, onOrderUpdated }) {
       <span>
         <h6 className="fw-bold lh-lg">
           {order.fulfillmentConfirmation}
-          <Button
-            variant="link"
-            className={clsx(
-              "p-0 ms-2",
-              !order.editableFulfillmentOption && "opacity-0 disabled"
-            )}
-            onClick={editing.turnOn}
-          >
-            <i className="bi bi-pencil-fill" />
-          </Button>
+          {order.fulfillmentOptionEditable && (
+            <Button
+              variant="link"
+              className="p-0 ms-2"
+              onClick={() => {
+                setOptionId(order.fulfillmentOption?.id || 0);
+                editing.turnOn();
+              }}
+            >
+              <i className="bi bi-pencil-fill" />
+            </Button>
+          )}
         </h6>
         {order.fulfillmentOption?.description || (
           <span className="text-secondary">{t("food:no_option_chosen")}</span>

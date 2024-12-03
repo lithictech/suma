@@ -79,7 +79,7 @@ RSpec.describe "Suma::Commerce::Order", :db do
     end
   end
 
-  describe "editable_fulfillment_option?" do
+  describe "fulfillment_option_editable?" do
     let(:offering) { Suma::Fixtures.offering.create }
     let(:order) do
       checkout = Suma::Fixtures.checkout(cart: Suma::Fixtures.cart(offering:).create).completed.create
@@ -89,18 +89,18 @@ RSpec.describe "Suma::Commerce::Order", :db do
     it "returns false if there are no options in the offering" do
       order.checkout.update(fulfillment_option: nil)
       order.checkout.cart.offering.fulfillment_options.each(&:soft_delete)
-      expect(order.editable_fulfillment_option?).to be_falsey
+      expect(order).to_not be_fulfillment_option_editable
     end
 
     it "returns true when no option is chosen and theres at least one available" do
       order.checkout.update(fulfillment_option: nil)
-      expect(order.editable_fulfillment_option?).to be_truthy
+      expect(order).to be_fulfillment_option_editable
     end
 
     it "returns true when option is chosen and there are more than one available" do
-      expect(order.editable_fulfillment_option?).to be_falsey
+      expect(order).to_not be_fulfillment_option_editable
       another_option = Suma::Fixtures.offering_fulfillment_option.create(offering:)
-      expect(order.editable_fulfillment_option?).to be_truthy
+      expect(order).to be_fulfillment_option_editable
     end
   end
 
