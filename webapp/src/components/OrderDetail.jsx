@@ -101,7 +101,7 @@ export default function OrderDetail({ order, setOrder, gutters }) {
 function FulfillmentOption({ order, onOrderUpdated }) {
   const editing = useToggle(false);
   const screenLoader = useScreenLoader();
-  const [optionId, setOptionId] = React.useState(order.fulfillmentOption?.id || 0);
+  const [optionId, setOptionId] = React.useState(0);
   const { showErrorToast } = useErrorToast();
 
   if (isEmpty(order.fulfillmentOptionsForEditing)) {
