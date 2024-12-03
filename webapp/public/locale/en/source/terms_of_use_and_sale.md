@@ -63,7 +63,7 @@ The information presented on or through the Website is made available solely for
 
 We may update the content on this Website from time to time, but its content is not necessarily complete or up-to-date. Any of the material on the Website may be out of date at any given time, and we are under no obligation to update such material.
 
-## Information About You and Your Visits to the Website
+### Information About You and Your Visits to the Website
 
 All information we collect on this Website is subject to our Privacy Policy [https://app.mysuma.org/app/privacy-policy](https://app.mysuma.org/app/privacy-policy__blank__ 'suma privacy policy'). By using the Website, you consent to all actions taken by us with respect to your information in compliance with the Privacy Policy.
 
@@ -110,6 +110,7 @@ The limitation of liability set out above does not apply to liability resulting 
 THE FOREGOING DOES NOT AFFECT ANY LIABILITY THAT CANNOT BE EXCLUDED OR LIMITED UNDER APPLICABLE LAW.
 
 ### Indemnification
+
 You agree to defend, indemnify, and hold harmless the Company, its affiliates, licensors, and service providers, and its and their respective officers, directors, employees, contractors, agents, licensors, suppliers, successors, and assigns from and against any claims, liabilities, damages, judgments, awards, losses, costs, expenses, or fees (including reasonable attorneys' fees) arising out of or relating to your violation of these Terms of Use or your use of the Website, including, but not limited to, your User Contributions, any use of the Website's content, services, and products other than as expressly authorized in these Terms of Use, or your use of any information obtained from the Website.
 
 ### Governing Law and Jurisdiction
@@ -131,6 +132,7 @@ The Terms of Use, our Privacy Policy, and Terms of Sale constitute the sole and 
 ### Your Comments and Concerns
 
 This Website is operated by suma 7450 N Charleston Ave, Portland, OR 97203.
+
 All other feedback, comments, requests for technical support, and other communications relating to the Website should be directed to: [apphelp@mysuma.org](mailto:apphelp@mysuma.org 'suma help email').
 
 <br />
@@ -219,10 +221,10 @@ These additional terms and conditions ("Addendum to the Terms of Sale" or "Adden
 
 **2) Prices:** For the duration of the 2024 Suma Holiday Special Program only, the price of each Product offered by Tienda Doña Maria is as follows:
 
-a.  "Sweet Pack":  five dollars ($5.00);
+a. "Sweet Pack":  five dollars ($5.00);
 
-b.  "Savory Pack":  five dollars ($5.00);
+b. "Savory Pack":  five dollars ($5.00);
 
-c.  Simultaneous purchase of "Sweet Pack" and "Savory Pack":  ten dollars ($10.00).
+c. Simultaneous purchase of "Sweet Pack" and "Savory Pack":  ten dollars ($10.00).
 
 **3) Delivery and Title:**  For all Products purchased from Tienda Doña Maria, Buyers will collect purchased Products from Tienda Doña Maria’s market location, located at 6784 NE Killingsworth Street, Portland, Oregon 97218. Buyers may collect purchased Products beginning December 17, 2024, and ending December 21, 2024, during Tienda Doña Maria’s normal business hours. Buyers will communicate and coordinate with Tienda Doña Maria directly to collect and retrieve any purchased Products. Title and risk of loss pass to Buyer upon Buyer’s collection of Products from Tienda Doña Maria’s business location.
