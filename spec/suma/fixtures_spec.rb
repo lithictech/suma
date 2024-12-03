@@ -15,7 +15,7 @@ RSpec.describe Suma::Fixtures do
     Suma::Fixtures.bank_account.with_legal_entity.create
     Suma::Fixtures.card.with_legal_entity.create
     Suma::Fixtures.funding_transaction.with_fake_strategy.member(member).create
-    Suma::Fixtures.geolocation.latlng(10, 2).create
+    Suma::Fixtures.geolocation.latlng(10, 2).instance
     Suma::Fixtures.legal_entity.with_contact_info.with_address.create
     Suma::Fixtures.member_activity.create
     Suma::Fixtures.member.password.plus_sign.with_email.with_phone.terms_agreed.create
