@@ -353,23 +353,14 @@ RSpec.describe Suma::AdminAPI::Search, :db do
       expect(last_response).to have_json_body.that_includes(error: include(code: "role_check"))
     end
 
-    it "returns matching roles" do
-      r1 = Suma::Role.create(name: "spongebob")
+    it "returns matching roles, using slug naming" do
+      r1 = Suma::Role.create(name: "sponge_bob")
       r2 = Suma::Role.create(name: "patrick")
 
-      post "/v1/search/roles", q: "bob"
+      post "/v1/search/roles", q: "sponge bob"
 
       expect(last_response).to have_status(200)
-      expect(last_response).to have_json_body.that_includes(items: have_same_ids_as(r1))
-    end
-
-    it "returns matching roles label" do
-      Suma::Role.create(name: "hard worker")
-
-      post "/v1/search/roles", q: "hard"
-
-      expect(last_response).to have_status(200)
-      expect(last_response).to have_json_body.that_includes(items: [include(label: "Hard Worker")])
+      expect(last_response).to have_json_body.that_includes(items: [include(id: r1.id, label: "Sponge Bob")])
     end
 
     it "returns all results in descending order if no query" do

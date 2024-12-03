@@ -78,4 +78,19 @@ RSpec.describe "Suma::Program::Enrollment", :db do
       expect(pe.program.enrollment_for(m, as_of:, include: :all)).to be === pe
     end
   end
+
+  it "can describe its enrollees" do
+    pe = Suma::Fixtures.program_enrollment.instance
+    member = Suma::Fixtures.member.create
+    organization = Suma::Fixtures.organization.create
+    role = Suma::Role.create(name: "test role")
+    pe.set(member:)
+    expect(pe).to have_attributes(enrollee_type: "Member", enrollee: be === member)
+    pe.set(member: nil, organization:)
+    expect(pe).to have_attributes(enrollee_type: "Organization", enrollee: be === organization)
+    pe.set(organization: nil, role:)
+    expect(pe).to have_attributes(enrollee_type: "Role", enrollee: be === role)
+    pe.set(role: nil)
+    expect(pe).to have_attributes(enrollee_type: "NilClass", enrollee: nil)
+  end
 end

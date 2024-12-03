@@ -368,19 +368,37 @@ RSpec.describe "Suma::Member", :db do
                                                                               active_via_role,)
     end
 
-    it "filters combined enrollments having the same program" do
-      r = Suma::Role.create(name: "role access")
-      member.add_role(r)
-      o = Suma::Fixtures.organization.with_membership_of(member).create
-      program = Suma::Fixtures.program.create
-      # Create the enrollments in a random order to ensure we don't depend on random/chance ordering
-      [{member:}, {organization: o}, {role: r}].shuffle.each do |p|
-        Suma::Fixtures.program_enrollment.create(program:, **p)
+    describe "with redundant enrollment directly, and through org and role" do
+      it "returns the direct enrollment" do
+        r = Suma::Role.create(name: "role access")
+        member.add_role(r)
+        o = Suma::Fixtures.organization.with_membership_of(member).create
+        program = Suma::Fixtures.program.create
+        # Create the enrollments in a random order to ensure we don't depend on random/chance ordering
+        [{member:}, {organization: o}, {role: r}].shuffle.each do |p|
+          Suma::Fixtures.program_enrollment.create(program:, **p)
+        end
+        member_enrollment = member.direct_program_enrollments.first
+        # Prefer the member/direct enrollment over the org/indirect enrollment
+        expect(member.combined_program_enrollments_dataset.all).to have_same_ids_as(member_enrollment)
+        expect(Suma::Member.all.last.combined_program_enrollments).to have_same_ids_as(member_enrollment)
       end
-      member_enrollment = member.direct_program_enrollments.first
-      # Prefer the member/direct enrollment over the org/indirect enrollment
-      expect(member.combined_program_enrollments_dataset.all).to have_same_ids_as(member_enrollment)
-      expect(Suma::Member.all.last.combined_program_enrollments).to have_same_ids_as(member_enrollment)
+    end
+
+    describe "with redudant enrollment through org and role" do
+      it "returns the org enrollment" do
+        r = Suma::Role.create(name: "role access")
+        member.add_role(r)
+        o = Suma::Fixtures.organization.with_membership_of(member).create
+        program = Suma::Fixtures.program.create
+        # Create the enrollments in a random order to ensure we don't depend on random/chance ordering
+        [{organization: o}, {role: r}].shuffle.each do |p|
+          Suma::Fixtures.program_enrollment.create(program:, **p)
+        end
+        org_enrollment = member.program_enrollments_via_organizations.first
+        expect(member.combined_program_enrollments_dataset.all).to have_same_ids_as(org_enrollment)
+        expect(Suma::Member.all.last.combined_program_enrollments).to have_same_ids_as(org_enrollment)
+      end
     end
   end
 end
