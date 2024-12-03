@@ -8,7 +8,7 @@ require "suma/program/has"
 require "suma/translated_text"
 
 class Suma::Commerce::Offering < Suma::Postgres::Model(:commerce_offerings)
-  include Suma::Image::AssociatedMixin
+  include Suma::Image::SingleAssociatedMixin
   include Suma::AdminLinked
 
   plugin :timestamps

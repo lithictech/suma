@@ -26,12 +26,11 @@ module Suma::AdminAPI::CommonEndpoints
     def update_model(m, orig_params, save: true)
       # orig_params: the declared parameters passed in
       # cparams: the cleaned orig_params
-      # mparams: the model association params
+      # mparams: the model association params (or an instance of the associated model)
       cparams = orig_params.deep_symbolize_keys
       cparams.delete(:id)
       _handle_doemptyarray_params(params, cparams)
       mtype = m.class
-      images = []
       to_many_assocs_and_args = []
       to_one_assocs_and_params = []
       fk_attrs = {}
@@ -47,7 +46,7 @@ module Suma::AdminAPI::CommonEndpoints
             fk_attrs[assoc[:name]] = Suma::Address.lookup(v)
           elsif association_class?(assoc, Suma::Image)
             uf = Suma::UploadedFile.create_from_multipart(v)
-            images << Suma::Image.new(uploaded_file: uf)
+            to_one_assocs_and_params << [assoc, Suma::Image.new(uploaded_file: uf)]
           elsif v.key?(:id) && v.one?
             # If we're passing in a hash like {id:}, we just want to replace the FK.
             # If the hash includes more fields, it'll get caught by the else which replaces
@@ -66,7 +65,6 @@ module Suma::AdminAPI::CommonEndpoints
       m.set(model_field_params(m, cparams))
       m.set(fk_attrs)
       save_or_error!(m) if save
-      images.each { |im| m.add_image(im) }
       to_one_assocs_and_params.each do |(assoc, mparams)|
         # We're updating a child resource through its parent.
         #
@@ -84,6 +82,13 @@ module Suma::AdminAPI::CommonEndpoints
         # Logically we handle them both similarly, with the difference being where the FK is set.
 
         assoc_cls = association_class(assoc)
+        if mparams.is_a?(assoc_cls)
+          # If we passed in an unsaved instance of the associated model (like a vendor's image),
+          # set the reverse association (like 'mparams.vendor = m'), save it, and move on.
+          m.send(:"#{assoc[:name]}=", mparams)
+          mparams.save_changes
+          next
+        end
         fk_model = if (passed_fk_pk = mparams.delete(assoc_cls.primary_key))
                      assoc_cls.find!(assoc_cls.primary_key => passed_fk_pk)
         else

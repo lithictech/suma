@@ -6,7 +6,7 @@ require "suma/postgres/model"
 
 class Suma::Program < Suma::Postgres::Model(:programs)
   include Suma::AdminLinked
-  include Suma::Image::AssociatedMixin
+  include Suma::Image::SingleAssociatedMixin
 
   plugin :timestamps
   plugin :tstzrange_fields, :period

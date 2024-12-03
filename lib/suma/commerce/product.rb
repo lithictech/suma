@@ -7,7 +7,7 @@ require "suma/vendor/has_service_categories"
 require "suma/admin_linked"
 
 class Suma::Commerce::Product < Suma::Postgres::Model(:commerce_products)
-  include Suma::Image::AssociatedMixin
+  include Suma::Image::SingleAssociatedMixin
   include Suma::AdminLinked
 
   plugin :timestamps
