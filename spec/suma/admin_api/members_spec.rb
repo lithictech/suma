@@ -124,12 +124,14 @@ RSpec.describe Suma::AdminAPI::Members, :db do
       cash_ledger = Suma::Fixtures.ledger.member(admin).category(:cash).create
       charge1 = Suma::Fixtures.charge(member: admin).create
       charge1.add_book_transaction(Suma::Fixtures.book_transaction.from(cash_ledger).create)
+      admin.preferences!.update(preferred_language: "es")
 
       get "/v1/members/#{admin.id}"
 
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.that_includes(
         sessions: contain_exactly(include(:ip_lookup_link)),
+        preferences: include(preferred_language_name: "Spanish"),
       )
     end
   end

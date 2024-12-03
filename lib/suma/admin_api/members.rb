@@ -58,6 +58,7 @@ class Suma::AdminAPI::Members < Suma::AdminAPI::V1
   class PreferencesEntity < BaseEntity
     expose :public_url
     expose :subscriptions, with: PreferencesSubscriptionEntity
+    expose :preferred_language_name
   end
 
   class DetailedMemberEntity < MemberEntity
