@@ -39,12 +39,6 @@ module Suma::I18n
     end
   end
 
-  def self.locale_or_default(locale_code)
-    locale = Suma::I18n::SUPPORTED_LOCALES.fetch(locale_code)
-    default = Suma::I18n::SUPPORTED_LOCALES.fetch(self.base_locale_code)
-    return [locale, default].compact.first
-  end
-
   def self.reformat_files
     Dir.glob(LOCALE_DIR + "**/*.json") do |path|
       self.reformat_file(path)
