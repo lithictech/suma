@@ -4,8 +4,10 @@ require "suma/admin_api"
 
 class Suma::AdminAPI::ProgramEnrollments < Suma::AdminAPI::V1
   include Suma::AdminAPI::Entities
+
   class DetailedProgramEnrollmentEntity < ProgramEnrollmentEntity
     include Suma::AdminAPI::Entities
+    include AutoExposeDetail
     expose :approved?, as: :approved
     expose :approved_by, with: MemberEntity
     expose :unenrolled?, as: :unenrolled

@@ -18,7 +18,7 @@ export default function PaymentTriggerDetailPage() {
         { label: "ID", value: model.id },
         { label: "Label", value: model.label },
         { label: "Created At", value: dayjs(model.createdAt) },
-        { label: "Updated At", value: model.updatedAt && dayjs(model.updatedAt) },
+        { label: "Updated At", value: dayjs(model.updatedAt) },
         { label: "Starting", value: dayjs(model.activeDuringBegin) },
         { label: "Ending", value: dayjs(model.activeDuringEnd) },
         { label: "Match Multiplier", value: model.matchMultiplier },

@@ -25,7 +25,9 @@ module Suma::AdminAPI::Entities
   # detailed entities, or limited lists.
   module AutoExposeDetail
     def self.included(ctx)
-      ctx.expose :updated_at, if: ->(o) { o.respond_to?(:updated_at) }
+      ctx.expose :updated_at, if: ->(o) { o.respond_to?(:updated_at) } do |inst|
+        inst.updated_at || inst.created_at
+      end
       # Always expose an external links array when we mix this in
       ctx.expose :external_links do |inst|
         inst.respond_to?(:external_links) ? inst.external_links : []

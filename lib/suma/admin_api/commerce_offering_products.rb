@@ -9,6 +9,7 @@ class Suma::AdminAPI::CommerceOfferingProducts < Suma::AdminAPI::V1
   class DetailedCommerceOfferingProductEntity < BaseEntity
     include Suma::AdminAPI::Entities
     include AutoExposeBase
+    include AutoExposeDetail
     expose :offering, with: OfferingEntity
     expose :product, with: ProductEntity
     expose :customer_price, with: MoneyEntity

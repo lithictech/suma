@@ -9,6 +9,7 @@ class Suma::AdminAPI::VendorServices < Suma::AdminAPI::V1
   class DetailedMobilityTripEntity < BaseEntity
     include Suma::AdminAPI::Entities
     include AutoExposeBase
+    include AutoExposeDetail
     expose :vehicle_id
     expose :vendor_service_rate, as: :rate, with: VendorServiceRateEntity
     expose :begin_lat
@@ -23,6 +24,7 @@ class Suma::AdminAPI::VendorServices < Suma::AdminAPI::V1
 
   class DetailedVendorServiceEntity < VendorServiceEntity
     include Suma::AdminAPI::Entities
+    include AutoExposeDetail
     expose :external_name
     expose :internal_name
     expose :mobility_vendor_adapter_key

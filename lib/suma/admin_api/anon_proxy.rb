@@ -37,12 +37,14 @@ class Suma::AdminAPI::AnonProxy < Suma::AdminAPI::V1
 
   class DetailedVendorConfigurationEntity < VendorConfigurationEntity
     include Suma::AdminAPI::Entities
+    include AutoExposeDetail
     expose :programs, with: ProgramEntity
     expose :instructions, with: TranslatedTextEntity
   end
 
   class DetailedVendorAccountEntity < VendorAccountEntity
     include Suma::AdminAPI::Entities
+    include AutoExposeDetail
     expose :latest_access_code
     expose :latest_access_code_set_at
     expose :latest_access_code_requested_at

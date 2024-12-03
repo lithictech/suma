@@ -36,7 +36,7 @@ export default function OrganizationDetailPage() {
               organizationLabel: `(${model.id}) ${model.name || "-"}`,
             })}
             addNewRole="organizationMembership"
-            headers={["Id", "Member", "Created At", "Updated At"]}
+            headers={["Id", "Member", "Created At"]}
             keyRowAttr="id"
             toCells={(row) => [
               <AdminLink model={row} />,
@@ -44,7 +44,6 @@ export default function OrganizationDetailPage() {
                 {row.member.name}
               </AdminLink>,
               dayjs(row.createdAt).format("lll"),
-              dayjs(row.updatedAt).format("lll"),
             ]}
           />
         </>
