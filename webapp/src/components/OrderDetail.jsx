@@ -12,7 +12,6 @@ import useErrorToast from "../state/useErrorToast";
 import useScreenLoader from "../state/useScreenLoader";
 import useUser from "../state/useUser";
 import PressAndHold from "./PressAndHold";
-import clsx from "clsx";
 import isEmpty from "lodash/isEmpty";
 import React from "react";
 import Alert from "react-bootstrap/Alert";
