@@ -1,7 +1,7 @@
 import api from "../api";
 import AdminLink from "../components/AdminLink";
 import ResourceDetail from "../components/ResourceDetail";
-import { dayjs, dayjsOrNull } from "../modules/dayConfig";
+import { dayjs } from "../modules/dayConfig";
 import React from "react";
 
 export default function OrganizationMembershipDetailPage() {
@@ -13,7 +13,7 @@ export default function OrganizationMembershipDetailPage() {
       properties={(model) => [
         { label: "ID", value: model.id },
         { label: "Created At", value: dayjs(model.createdAt) },
-        { label: "Updated At", value: dayjsOrNull(model.updatedAt) },
+        { label: "Updated At", value: dayjs(model.updatedAt) },
         {
           label: "Member",
           value: (

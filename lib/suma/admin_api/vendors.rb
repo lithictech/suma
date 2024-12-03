@@ -8,6 +8,7 @@ class Suma::AdminAPI::Vendors < Suma::AdminAPI::V1
 
   class DetailedVendorEntity < VendorEntity
     include Suma::AdminAPI::Entities
+    include AutoExposeDetail
     expose :slug
     expose :services, with: VendorServiceEntity
     expose :products, with: ProductEntity

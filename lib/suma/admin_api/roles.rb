@@ -6,7 +6,11 @@ require "suma/admin_api"
 
 class Suma::AdminAPI::Roles < Suma::AdminAPI::V1
   class RoleEntity < Suma::AdminAPI::Entities::RoleEntity; end
-  class DetailedRoleEntity < RoleEntity; end
+
+  class DetailedRoleEntity < RoleEntity
+    include Suma::AdminAPI::Entities
+    include AutoExposeDetail
+  end
 
   resource :roles do
     desc "Return all roles, ordered by name"

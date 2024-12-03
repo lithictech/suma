@@ -3,7 +3,7 @@ import AdminLink from "../components/AdminLink";
 import ProgramEnrollmentRelatedList from "../components/ProgramEnrollmentRelatedList";
 import RelatedList from "../components/RelatedList";
 import ResourceDetail from "../components/ResourceDetail";
-import { dayjs, dayjsOrNull } from "../modules/dayConfig";
+import { dayjs } from "../modules/dayConfig";
 import createRelativeUrl from "../shared/createRelativeUrl";
 import React from "react";
 
@@ -16,7 +16,7 @@ export default function OrganizationDetailPage() {
       properties={(model) => [
         { label: "ID", value: model.id },
         { label: "Created At", value: dayjs(model.createdAt) },
-        { label: "Updated At", value: dayjsOrNull(model.updatedAt) },
+        { label: "Updated At", value: dayjs(model.updatedAt) },
         { label: "Name", value: model.name },
       ]}
     >

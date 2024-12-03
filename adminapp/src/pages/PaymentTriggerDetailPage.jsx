@@ -3,7 +3,7 @@ import AdminLink from "../components/AdminLink";
 import Programs from "../components/Programs";
 import RelatedList from "../components/RelatedList";
 import ResourceDetail from "../components/ResourceDetail";
-import { dayjs, dayjsOrNull } from "../modules/dayConfig";
+import { dayjs } from "../modules/dayConfig";
 import { formatMoney, intToMoney } from "../shared/money";
 import SafeExternalLink from "../shared/react/SafeExternalLink";
 import React from "react";
@@ -18,7 +18,7 @@ export default function PaymentTriggerDetailPage() {
         { label: "ID", value: model.id },
         { label: "Label", value: model.label },
         { label: "Created At", value: dayjs(model.createdAt) },
-        { label: "Updated At", value: dayjsOrNull(model.updatedAt) },
+        { label: "Updated At", value: dayjs(model.updatedAt) },
         { label: "Starting", value: dayjs(model.activeDuringBegin) },
         { label: "Ending", value: dayjs(model.activeDuringEnd) },
         { label: "Match Multiplier", value: model.matchMultiplier },
