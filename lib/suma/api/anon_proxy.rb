@@ -110,7 +110,8 @@ class Suma::API::AnonProxy < Suma::API::V1
       instance.latest_access_code_is_recent? ? instance.latest_access_code_magic_link : nil
     end
     expose :vendor_name, &self.delegate_to(:configuration, :vendor, :name)
-    expose :vendor_image, with: ImageEntity, &self.delegate_to(:configuration, :vendor, :images?, :last)
+    expose :vendor_slug, &self.delegate_to(:configuration, :vendor, :slug)
+    expose :vendor_image, with: ImageEntity, &self.delegate_to(:configuration, :vendor, :images, :first)
   end
 
   class MutationAnonProxyVendorAccountEntity < AnonProxyVendorAccountEntity

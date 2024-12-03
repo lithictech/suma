@@ -88,7 +88,7 @@ module Suma::API::Entities
   class ProgramEnrollmentEntity < BaseEntity
     expose_translated :name, &self.delegate_to(:program, :name)
     expose_translated :description, &self.delegate_to(:program, :description)
-    expose :image, with: ImageEntity, &self.delegate_to(:program, :images?, :last)
+    expose :image, with: ImageEntity, &self.delegate_to(:program, :image?)
     expose :period_begin, &self.delegate_to(:program, :period, :begin)
     expose :period_end, &self.delegate_to(:program, :period, :end)
     expose :app_link, &self.delegate_to(:program, :app_link)

@@ -69,7 +69,7 @@ export default function FoodDetails() {
         </Row>
       </LayoutContainer>
       <SumaImage
-        image={product.image}
+        image={product.images[0]}
         className="w-100"
         params={{ crop: "center" }}
         h={325}

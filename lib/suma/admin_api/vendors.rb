@@ -12,7 +12,7 @@ class Suma::AdminAPI::Vendors < Suma::AdminAPI::V1
     expose :services, with: VendorServiceEntity
     expose :products, with: ProductEntity
     expose :configurations, with: VendorConfigurationEntity
-    expose :image, with: ImageEntity, &self.delegate_to(:images?, :last)
+    expose :image, with: ImageEntity, &self.delegate_to(:images?, :first)
   end
 
   resource :vendors do
