@@ -343,6 +343,38 @@ RSpec.describe Suma::AdminAPI::Search, :db do
     end
   end
 
+  describe "POST /v1/search/roles" do
+    it "errors without role access" do
+      replace_roles(admin, Suma::Role.cache.noop_admin)
+
+      post "/v1/search/roles"
+
+      expect(last_response).to have_status(403)
+      expect(last_response).to have_json_body.that_includes(error: include(code: "role_check"))
+    end
+
+    it "returns matching roles, using slug naming" do
+      r1 = Suma::Role.create(name: "sponge_bob")
+      r2 = Suma::Role.create(name: "patrick")
+
+      post "/v1/search/roles", q: "sponge bob"
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.that_includes(items: [include(id: r1.id, label: "Sponge Bob")])
+    end
+
+    it "returns all results in descending order if no query" do
+      r1 = Suma::Role.create(name: "x role")
+      r2 = Suma::Role.create(name: "addmin")
+
+      post "/v1/search/roles"
+
+      expect(last_response).to have_status(200)
+      expect(last_response_json_body[:items].first).to include(name: r2.name)
+      expect(last_response_json_body[:items].last).to include(name: r1.name)
+    end
+  end
+
   describe "POST /v1/search/vendor_services" do
     it "errors without role access" do
       replace_roles(admin, Suma::Role.cache.noop_admin)

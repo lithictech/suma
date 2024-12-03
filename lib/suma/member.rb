@@ -103,6 +103,15 @@ class Suma::Member < Suma::Postgres::Model(:members)
                     right_primary_key: :organization_id,
                     read_only: true
 
+  many_through_many :program_enrollments_via_roles,
+                    [
+                      [:roles_members, :member_id, :role_id],
+                    ],
+                    class: "Suma::Program::Enrollment",
+                    left_primary_key: :id,
+                    right_primary_key: :role_id,
+                    read_only: true
+
   one_to_many :combined_program_enrollments,
               class: "Suma::Program::Enrollment",
               read_only: true,
@@ -114,8 +123,10 @@ class Suma::Member < Suma::Postgres::Model(:members)
                 self.direct_program_enrollments_dataset.union(
                   self.program_enrollments_via_organizations_dataset,
                   alias: :program_enrollments,
-                ).order(:program_id, :member_id).
-                  distinct(:program_id)
+                ).union(
+                  self.program_enrollments_via_roles_dataset,
+                  alias: :program_enrollments,
+                ).order(:program_id, :member_id, :organization_id).distinct(:program_id)
               },
               eager_loader: (proc do |eo|
                 eo[:rows].each { |p| p.associations[:combined_program_enrollments] = [] }
@@ -124,7 +135,7 @@ class Suma::Member < Suma::Postgres::Model(:members)
                   # Get unique enrollments for a program. Prefer direct/member enrollments,
                   # so sort the rows by member_id so NULL member_id rows (indirect/org enrollments)
                   # sort last and are eliminated by the DISTINCT.
-                  order(:program_id, :member_id).
+                  order(:program_id, :member_id, :organization_id).
                   distinct(:program_id)
                 ds.all do |en|
                   m = eo[:id_map][en.member_id || en.values.fetch(:annotated_member_id)].first

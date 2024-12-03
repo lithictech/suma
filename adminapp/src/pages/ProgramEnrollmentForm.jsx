@@ -53,9 +53,9 @@ export default function ProgramEnrollmentForm({
   return (
     <FormLayout
       title={isCreate ? "Create a Program Enrollment" : "Update a Program Enrollment"}
-      subtitle="Program enrollment that are approved gives access to a member
-      or members in an organization to resources connected with an active program.
-      After creation, you can approve the enrollment and/or unenroll."
+      subtitle="Program enrollment that are approved gives access to a member,
+      members in an organization, or members with a role to resources connected
+      with an active program. After creation, you can approve the enrollment and/or unenroll."
       onSubmit={onSubmit}
       isBusy={isBusy}
     >
@@ -82,15 +82,16 @@ export default function ProgramEnrollmentForm({
               control={<Radio />}
               label="Organization"
             />
+            <FormControlLabel value="role" control={<Radio />} label="Role" />
           </RadioGroup>
         </FormControl>
-        {enrolleeType === "member" ? (
+        {enrolleeType === "member" && (
           <AutocompleteSearch
             key="member"
             {...register("member")}
             label="Member"
             helperText="Who can access this program?"
-            value={resource.member?.label || ""}
+            value={resource.member.label || ""}
             fullWidth
             search={api.searchMembers}
             disabled={fixedEnrollee}
@@ -98,7 +99,8 @@ export default function ProgramEnrollmentForm({
             onValueSelect={(mem) => setField("member", mem)}
             onTextChange={() => setField("member", {})}
           />
-        ) : (
+        )}
+        {enrolleeType === "organization" && (
           <AutocompleteSearch
             key="org"
             {...register("organization")}
@@ -111,6 +113,22 @@ export default function ProgramEnrollmentForm({
             style={{ flex: 1 }}
             onValueSelect={(org) => setField("organization", org)}
             onTextChange={() => setField("organization", {})}
+          />
+        )}
+        {enrolleeType === "role" && (
+          <AutocompleteSearch
+            key="role"
+            {...register("role")}
+            label="Role"
+            helperText="What members with this role can access this program?"
+            value={resource.role.label || ""}
+            fullWidth
+            search={api.searchRoles}
+            searchEmpty={true}
+            disabled={fixedEnrollee}
+            style={{ flex: 1 }}
+            onValueSelect={(role) => setField("role", role)}
+            onTextChange={() => setField("role", {})}
           />
         )}
       </Stack>

@@ -44,6 +44,8 @@ class Suma::Role < Suma::Postgres::Model(:roles)
                class: "Suma::Member",
                join_table: :roles_members
 
+  one_to_many :program_enrollments, class: "Suma::Program::Enrollment"
+
   def rel_admin_link = "/role/#{self.id}"
 
   def label = self.name.titleize

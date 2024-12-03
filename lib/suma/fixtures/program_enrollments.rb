@@ -12,7 +12,7 @@ module Suma::Fixtures::ProgramEnrollments
   end
 
   before_saving do |instance|
-    instance.member ||= Suma::Fixtures.member.create if instance.organization_id.nil?
+    instance.member ||= Suma::Fixtures.member.create if instance.organization_id.nil? && instance.role_id.nil?
     instance.program ||= Suma::Fixtures.program.create
     instance
   end

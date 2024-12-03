@@ -8,6 +8,7 @@ export default function ProgramEnrollmentCreatePage() {
     program: {},
     member: {},
     organization: {},
+    role: {},
   };
   return (
     <ResourceCreate

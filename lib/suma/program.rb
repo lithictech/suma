@@ -46,16 +46,20 @@ class Suma::Program < Suma::Postgres::Model(:programs)
   def enrollment_for(o, as_of:, include: :active)
     # Use datasets for these checks, since otherwise we'd need to load a bunch of organization memberships,
     # which could be very memory-intensive.
-    ds = if o.is_a?(Suma::Member)
-           self.enrollments_dataset.
-             where(
-               Sequel[member: o] |
-                 Sequel[organization_id: o.organization_memberships_dataset.verified.select(:verified_organization_id)],
-             )
-    elsif o.is_a?(Suma::Organization)
-      self.enrollments_dataset.where(organization: o)
-    else
-      raise TypeError, "unhandled type: #{o.class}"
+    ds = case o
+      when Suma::Member
+        self.enrollments_dataset.
+          where(
+            Sequel[member: o] |
+            Sequel[organization_id: o.organization_memberships_dataset.verified.select(:verified_organization_id)] |
+            Sequel[role_id: o.roles_dataset.select(:id)],
+          )
+      when Suma::Organization
+        self.enrollments_dataset.where(organization: o)
+      when Suma::Role
+        self.enrollments_dataset.where(role: o)
+     else
+        raise TypeError, "unhandled type: #{o.class}"
     end
     ds = ds.active(as_of:) unless include == :all
     return ds.first

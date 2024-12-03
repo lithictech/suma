@@ -30,7 +30,8 @@ class Suma::AdminAPI::ProgramEnrollments < Suma::AdminAPI::V1
         requires(:program, type: JSON) { use :model_with_id }
         optional(:member, type: JSON) { use :model_with_id }
         optional(:organization, type: JSON) { use :model_with_id }
-        exactly_one_of :member, :organization
+        optional(:role, type: JSON) { use :model_with_id }
+        exactly_one_of :member, :organization, :role
       end
     end
 

@@ -23,7 +23,7 @@ RSpec.describe "Suma::Program::Enrollment", :db do
     end
   end
 
-  it "can enroll members and organizations" do
+  it "can enroll members, organizations and roles" do
     org1 = Suma::Fixtures.organization.create
     org1_mem1 = Suma::Fixtures.organization_membership.verified(org1).create
     org1_mem2 = Suma::Fixtures.organization_membership.verified(org1).create
@@ -31,9 +31,13 @@ RSpec.describe "Suma::Program::Enrollment", :db do
     org2 = Suma::Fixtures.organization.create
     org2_mem1 = Suma::Fixtures.organization_membership.verified(org2).create
 
+    role = Suma::Role.create(name: "test")
+    member_with_role = Suma::Fixtures.member.with_role(role).create
+
     program = Suma::Fixtures.program.create
     member_enrollment = Suma::Fixtures.program_enrollment(program:, member: org1_mem1.member).create
     org_enrollment = Suma::Fixtures.program_enrollment(program:, organization: org2).create
+    role_enrollment = Suma::Fixtures.program_enrollment(program:, role:).create
     as_of = Time.now
     # This member should find the direct enrollment
     expect(program.enrollment_for(org1_mem1.member, as_of:)).to be === member_enrollment
@@ -44,6 +48,9 @@ RSpec.describe "Suma::Program::Enrollment", :db do
     # The organization and its members should all find the enrollment
     expect(program.enrollment_for(org2_mem1.member, as_of:)).to be === org_enrollment
     expect(program.enrollment_for(org2, as_of:)).to be === org_enrollment
+
+    expect(program.enrollment_for(member_with_role, as_of:)).to be === role_enrollment
+    expect(program.enrollment_for(role, as_of:)).to be === role_enrollment
   end
 
   describe "enrollment_for" do
@@ -70,5 +77,20 @@ RSpec.describe "Suma::Program::Enrollment", :db do
       expect(pe.program.enrollment_for(m, as_of:)).to be_nil
       expect(pe.program.enrollment_for(m, as_of:, include: :all)).to be === pe
     end
+  end
+
+  it "can describe its enrollees" do
+    pe = Suma::Fixtures.program_enrollment.instance
+    member = Suma::Fixtures.member.create
+    organization = Suma::Fixtures.organization.create
+    role = Suma::Role.create(name: "test role")
+    pe.set(member:)
+    expect(pe).to have_attributes(enrollee_type: "Member", enrollee: be === member)
+    pe.set(member: nil, organization:)
+    expect(pe).to have_attributes(enrollee_type: "Organization", enrollee: be === organization)
+    pe.set(organization: nil, role:)
+    expect(pe).to have_attributes(enrollee_type: "Role", enrollee: be === role)
+    pe.set(role: nil)
+    expect(pe).to have_attributes(enrollee_type: "NilClass", enrollee: nil)
   end
 end
