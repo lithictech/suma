@@ -113,7 +113,7 @@ export default class MapBuilder {
       this._locationAccuracyCircle._path.classList.remove(
         "mobility-location-accuracy-circle-transition"
       );
-      this._locationMarker.getElement().style.transition = "none";
+      this.setLocationMarkerTransition("none");
     });
     this._map.on("zoomend", () => {
       if (!this._locationAccuracyCircle || !this._locationMarker) {
@@ -123,9 +123,20 @@ export default class MapBuilder {
         this._locationAccuracyCircle._path.classList.add(
           "mobility-location-accuracy-circle-transition"
         );
-        this._locationMarker.getElement().style.transition = "all 1000ms linear 0s";
+        this.setLocationMarkerTransition("all 1000ms linear 0s");
       }, 250);
     });
+  }
+
+  setLocationMarkerTransition(value) {
+    const el = this._locationMarker.getElement();
+    if (!el) {
+      // Leaflet can fire its event though the DOM element is gone by the time
+      // the zoomstart/zoomend callback is actually called.
+      // To reproduce, load the map and then go to a different tab.
+      return;
+    }
+    el.style.transition = value;
   }
 
   setMapEventHandlers() {
