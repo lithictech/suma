@@ -3,9 +3,9 @@ import AdminLink from "../components/AdminLink";
 import BoolCheckmark from "../components/BoolCheckmark";
 import RelatedList from "../components/RelatedList";
 import ResourceDetail from "../components/ResourceDetail";
+import SumaImage from "../components/SumaImage";
 import { dayjs } from "../modules/dayConfig";
 import SafeExternalLink from "../shared/react/SafeExternalLink";
-import SumaImage from "../shared/react/SumaImage";
 import theme from "../theme";
 import React from "react";
 

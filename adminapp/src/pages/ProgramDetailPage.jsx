@@ -2,10 +2,10 @@ import api from "../api";
 import AdminLink from "../components/AdminLink";
 import RelatedList from "../components/RelatedList";
 import ResourceDetail from "../components/ResourceDetail";
+import SumaImage from "../components/SumaImage";
 import { dayjs, dayjsOrNull } from "../modules/dayConfig";
 import createRelativeUrl from "../shared/createRelativeUrl";
 import SafeExternalLink from "../shared/react/SafeExternalLink";
-import SumaImage from "../shared/react/SumaImage";
 import React from "react";
 
 export default function ProgramDetailPage() {
