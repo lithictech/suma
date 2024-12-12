@@ -3,9 +3,9 @@ import AdminLink from "../components/AdminLink";
 import Programs from "../components/Programs";
 import RelatedList from "../components/RelatedList";
 import ResourceDetail from "../components/ResourceDetail";
+import SumaImage from "../components/SumaImage";
 import { dayjs } from "../modules/dayConfig";
 import Money from "../shared/react/Money";
-import SumaImage from "../shared/react/SumaImage";
 import React from "react";
 
 export default function VendorServiceDetailPage() {
