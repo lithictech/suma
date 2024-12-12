@@ -129,7 +129,7 @@ function CartItem({ offeringId, product, vendor }) {
   return (
     <Stack direction="horizontal" gap={3} className="align-items-start">
       <Link to={`/product/${offeringId}/${productId}`}>
-        <SumaImage image={images[0]} className="w-100" w={100} h={100} />
+        <SumaImage image={images[0]} width={100} height={100} variant="dark" />
       </Link>
       <div>
         <Link to={`/product/${offeringId}/${productId}`}>

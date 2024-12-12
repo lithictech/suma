@@ -213,6 +213,7 @@ function PrivateAccount({ account, onHelp }) {
         image={vendorImage}
         height={80}
         params={{ crop: "none", fmt: "png", flatten: [255, 255, 255] }}
+        variant="dark"
         className="mb-3"
       />
       <Alert

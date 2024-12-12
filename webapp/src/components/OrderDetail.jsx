@@ -74,6 +74,7 @@ export default function OrderDetail({ order, setOrder, gutters }) {
             w={350}
             height={150}
             className="rounded responsive-wide-image"
+            variant="dark"
           />
           <hr className="my-0" />
           <Card.Text className="h4 mb-0">

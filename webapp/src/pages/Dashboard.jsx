@@ -125,10 +125,10 @@ function ProgramCard({ name, description, image, periodEnd, appLink, appLinkText
       <Link to={appLink} className="flex-shrink-0 overflow-hidden position-relative">
         <SumaImage
           image={image}
-          h={200}
           w={500}
+          height={200}
           params={{ crop: "entropy", resize: "fill" }}
-          style={{ maxWidth: "100%" }}
+          style={{ maxWidth: "100%", objectFit: "cover" }}
         />
       </Link>
       <div className="mt-3">{dt(description)}</div>

@@ -20,7 +20,7 @@ export default function VendibleCard({
       <Card.Body className="p-2">
         <Stack direction="horizontal" gap={3}>
           <Link to={appLink} className="flex-shrink-0">
-            <SumaImage image={image} width={100} h={80} />
+            <SumaImage image={image} width={100} h={80} variant="dark" />
           </Link>
           <div>
             <Card.Link

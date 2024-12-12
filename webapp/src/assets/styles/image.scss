@@ -1,0 +1,8 @@
+@import "./theme.scss";
+
+:root {
+  --image-loader-dark1: #{rgba($primary, 0.1)};
+  --image-loader-dark2: #{rgba($primary, 0.3)};
+  --image-loader-light1: #{rgba($white, 0.1)};
+  --image-loader-light2: #{rgba($white, 0.3)};
+}

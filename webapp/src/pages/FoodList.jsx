@@ -108,7 +108,7 @@ function Product({ product, offeringId, cart }) {
       xs={6}
       className="mb-4 border-bottom border-secondary border-opacity-50 position-relative"
     >
-      <SumaImage image={images[0]} className="w-100" w={225} h={150} />
+      <SumaImage image={images[0]} className="w-100" width={225} h={150} variant="dark" />
       <h5 className="mb-2 mt-2">{name}</h5>
       <p className="my-2">{product.vendor.name}</p>
       {outOfStock ? (
