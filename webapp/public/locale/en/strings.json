@@ -94,6 +94,7 @@
     "disambiguation_required": "$t(strings:errors:unhandled_error)",
     "eligibility_violation": "$t(strings:errors:unhandled_error)",
     "forbidden": "You are forbidden from accessing these resources.",
+    "image_load_failed": "Image failed to load",
     "impossible_phone_number": "That doesn't look like a real phone number.",
     "invalid_credentials": "Sorry, that information is not correct.",
     "invalid_order_quantity": "Sorry, one or more of the items in your order are unavailable. Please go back to your cart and try again.",

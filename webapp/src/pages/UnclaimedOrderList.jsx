@@ -118,7 +118,7 @@ function ClaimedOrderModal({ claimedOrder, onHide }) {
                     <SumaImage
                       image={image}
                       width={80}
-                      h={80}
+                      height={80}
                       className="border rounded"
                     />
                     <div className="text-align-start">

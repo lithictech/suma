@@ -97,7 +97,13 @@ function Order({
     <Card>
       <Card.Body>
         <Stack direction="horizontal" gap={3}>
-          <SumaImage image={image} width={80} h={80} className="border rounded" />
+          <SumaImage
+            image={image}
+            width={80}
+            height={80}
+            className="border rounded"
+            variant="dark"
+          />
           <div>
             <Card.Link
               as={RLink}

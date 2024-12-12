@@ -94,6 +94,7 @@
     "disambiguation_required": "$t(strings:errors:unhandled_error)",
     "eligibility_violation": "$t(strings:errors:unhandled_error)",
     "forbidden": "Acceso a estos recursos está restringido.",
+    "image_load_failed": "Imagen no se pudo cargar",
     "impossible_phone_number": "Este número de teléfono no es valido.",
     "invalid_credentials": "Lo sentimos, estos datos están erroneos.",
     "invalid_order_quantity": "Lo sentimos, uno o más de los artículos de su pedido no están disponibles. Vuelve a tu carrito e inténtalo de nuevo.",
