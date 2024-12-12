@@ -62,7 +62,7 @@ module Suma::Http
       return self.execute("get", url, **opts, &)
     end
 
-    def post(url, body={}, headers: {}, **options, &)
+    def post(url, body={}, headers: {}, method: :post, **options, &)
       raise ArgumentError, "must pass :logger keyword" unless options.key?(:logger)
       headers["Content-Type"] ||= "application/json"
       unless body.is_a?(String)
@@ -70,7 +70,7 @@ module Suma::Http
         body = URI.encode_www_form(body) if headers["Content-Type"] == "application/x-www-form-urlencoded"
       end
       opts = {body:, headers:}.merge(**options)
-      return self.execute("post", url, **opts, &)
+      return self.execute(method, url, **opts, &)
     end
 
     # Invoke HTTParty to make the http request.

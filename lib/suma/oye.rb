@@ -41,9 +41,10 @@ module Suma::Oye
   end
 
   def self.bulk_update_contacts(contacts:)
-    response = Suma::Http.put(
+    response = Suma::Http.post(
       self.api_root + "/contacts/bulk_update",
       {contacts:},
+      method: :put,
       headers: self.api_headers,
       logger: self.logger,
     )
