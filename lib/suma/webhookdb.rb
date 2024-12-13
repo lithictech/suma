@@ -8,17 +8,11 @@ module Suma::Webhookdb
   class << self
     attr_accessor :connection
 
-    def dataset_for_table(table)
-      return self.connection[Sequel[self.schema][table]]
-    end
+    def dataset_for_table(table) = self.connection[Sequel[self.schema][table]]
 
-    def postmark_inbound_messages_dataset
-      return self.dataset_for_table(self.postmark_inbound_messages_table)
-    end
-
-    def stripe_refunds_dataset
-      return self.dataset_for_table(self.stripe_refunds_table)
-    end
+    def postmark_inbound_messages_dataset = self.dataset_for_table(self.postmark_inbound_messages_table)
+    def stripe_refunds_dataset = self.dataset_for_table(self.stripe_refunds_table)
+    def signalwire_messages_dataset = self.dataset_for_table(self.signalwire_messages_table)
   end
 
   configurable(:webhookdb) do
@@ -28,6 +22,8 @@ module Suma::Webhookdb
     setting :postmark_inbound_messages_secret, "fakesecret-#{SecureRandom.hex(3)}"
     setting :stripe_refunds_table, :stripe_refund_v1_fixture
     setting :stripe_refunds_secret, "fakesecret-#{SecureRandom.hex(3)}"
+    setting :signalwire_messages_table, :signalwire_message_v1_fixture
+    setting :signalwire_messages_secret, "fakesecret-#{SecureRandom.hex(3)}"
 
     after_configured do
       self.connection = Sequel.connect(self.database_url, extensions: [:pg_json])
