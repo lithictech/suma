@@ -52,7 +52,7 @@ RSpec.describe Suma::API::Preferences, :db do
           subscriptions: include(hash_including({key: "account_updates", opted_in: false, editable_state: "on"})),
         ),
       )
-      expect(member.preferences.refresh).to have_attributes(account_updates_optout: true)
+      expect(member.preferences.refresh).to have_attributes(account_updates_sms_optout: true)
     end
 
     it "401s for an invalid access token" do
@@ -97,7 +97,7 @@ RSpec.describe Suma::API::Preferences, :db do
           subscriptions: include(hash_including({key: "account_updates", opted_in: false, editable_state: "on"})),
         ),
       )
-      expect(member.preferences.refresh).to have_attributes(account_updates_optout: true)
+      expect(member.preferences.refresh).to have_attributes(account_updates_sms_optout: true)
     end
 
     it "401s if the user cannot auth" do

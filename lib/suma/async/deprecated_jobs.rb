@@ -12,4 +12,5 @@ Amigo::DeprecatedJobs.install(
   # Then it can be deleted later.
   "Async::AutomationTriggerRunner",
   "Async::TopicShim",
+  "Async::UpsertFrontappContact",
 )

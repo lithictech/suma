@@ -13,7 +13,6 @@ RSpec.describe Suma::Member::FrontappAttributes, :db do
             {"source" => "phone", "handle" => member.phone},
             {"source" => "email", "handle" => member.email},
           ],
-          "custom_fields" => {},
         )).to_return(fixture_response("front/contact"))
 
       member.frontapp.upsert_contact
@@ -27,7 +26,6 @@ RSpec.describe Suma::Member::FrontappAttributes, :db do
         with(body: hash_including(
           "name" => member.name,
           "links" => [member.admin_link],
-          "custom_fields" => {},
         )).to_return(status: 200)
       handles_url = "https://api2.frontapp.com/contacts/#{member.frontapp_contact_id}/handles"
       handle_req = stub_request(:post, handles_url).
@@ -51,7 +49,6 @@ RSpec.describe Suma::Member::FrontappAttributes, :db do
         with(body: hash_including(
           "name" => member.name,
           "links" => [member.admin_link],
-          "custom_fields" => {},
         )).to_return(status: 200)
 
       member.frontapp.upsert_contact

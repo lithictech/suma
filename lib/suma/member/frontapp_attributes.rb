@@ -32,12 +32,10 @@ class Suma::Member::FrontappAttributes
   end
 
   def _contact_body
-    # In the future, we would look at things like organizations to add custom fields,
-    # like the housing partner they are a part of.
-    custom_fields = {}
     body = {
       links: [@member.admin_link],
-      custom_fields:,
+      # NOTE: Setting things like customFields or groupNames will REPLACE existing ones,
+      # so be very careful if we end up using them.
     }
     body[:name] = @member.name if @member.name.present?
     body

@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
 require "suma/async"
-require "suma/frontapp"
-require "suma/lime"
 require "suma/messages/specs"
 require "rspec/eventually"
 
@@ -75,6 +73,133 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
       c = Suma::Member.last
       expect(c).to have_attributes(payment_account: be_present)
       expect(c.payment_account.ledgers).to have_length(1)
+    end
+  end
+
+  describe "FrontappMarketingOptinSync", reset_configuration: Suma::Frontapp do
+    before(:each) do
+      Suma::Frontapp.auth_token = "faketoken"
+      Suma::Frontapp.marketing_sms_list_id = "smslist"
+      Suma::Frontapp.marketing_email_list_id = "emaillist"
+    end
+
+    let(:member) { Suma::Fixtures.member.create(frontapp_contact_id: "crd_123") }
+
+    def create_prefs(**kw) = Suma::Message::Preferences.create(member:, **kw)
+
+    it "adds the member to the sms marketing list on optin" do
+      req = stub_request(:post, "https://api2.frontapp.com/contact_groups/smslist/contacts").
+        with(body: "{\"contact_ids\":[\"crd_123\"]}").
+        to_return(json_response({}))
+
+      prefs = create_prefs(marketing_sms_optout: true)
+      expect do
+        prefs.update(marketing_sms_optout: false)
+      end.to perform_async_job(Suma::Async::FrontappMarketingOptinSync)
+
+      expect(req).to have_been_made
+    end
+
+    it "removes a member from the sms marketing list on optout" do
+      req = stub_request(:delete, "https://api2.frontapp.com/contact_groups/smslist/contacts").
+        with(body: "{\"contact_ids\":[\"crd_123\"]}").
+        to_return(json_response({}))
+
+      prefs = create_prefs(marketing_sms_optout: false)
+      expect do
+        prefs.update(marketing_sms_optout: true)
+      end.to perform_async_job(Suma::Async::FrontappMarketingOptinSync)
+
+      expect(req).to have_been_made
+    end
+
+    it "adds a member to the email marketing list on optin" do
+      req = stub_request(:post, "https://api2.frontapp.com/contact_groups/emaillist/contacts").
+        with(body: "{\"contact_ids\":[\"crd_123\"]}").
+        to_return(json_response({}))
+
+      prefs = create_prefs(marketing_email_optout: true)
+      expect do
+        prefs.update(marketing_email_optout: false)
+      end.to perform_async_job(Suma::Async::FrontappMarketingOptinSync)
+
+      expect(req).to have_been_made
+    end
+
+    it "removes a member from the email marketing list on optout" do
+      req = stub_request(:delete, "https://api2.frontapp.com/contact_groups/emaillist/contacts").
+        with(body: "{\"contact_ids\":[\"crd_123\"]}").
+        to_return(json_response({}))
+
+      prefs = create_prefs(marketing_email_optout: false)
+      expect do
+        prefs.update(marketing_email_optout: true)
+      end.to perform_async_job(Suma::Async::FrontappMarketingOptinSync)
+
+      expect(req).to have_been_made
+    end
+
+    it "can modify multiple fields in the same change" do
+      reqsms = stub_request(:delete, "https://api2.frontapp.com/contact_groups/smslist/contacts").
+        with(body: "{\"contact_ids\":[\"crd_123\"]}").
+        to_return(json_response({}))
+      reqemail = stub_request(:post, "https://api2.frontapp.com/contact_groups/emaillist/contacts").
+        with(body: "{\"contact_ids\":[\"crd_123\"]}").
+        to_return(json_response({}))
+
+      prefs = create_prefs(marketing_sms_optout: false, marketing_email_optout: true)
+      expect do
+        prefs.update(marketing_sms_optout: true, marketing_email_optout: false)
+      end.to perform_async_job(Suma::Async::FrontappMarketingOptinSync)
+
+      expect(reqsms).to have_been_made
+      expect(reqemail).to have_been_made
+    end
+
+    it "noops if Front is not configured" do
+      Suma::Frontapp.auth_token = ""
+      prefs = create_prefs(marketing_sms_optout: false)
+      expect do
+        prefs.update(marketing_sms_optout: true)
+      end.to perform_async_job(Suma::Async::FrontappMarketingOptinSync)
+    end
+
+    it "noops on sms change if the list id is not configured" do
+      Suma::Frontapp.marketing_sms_list_id = ""
+      prefs = create_prefs(marketing_sms_optout: false)
+      expect do
+        prefs.update(marketing_sms_optout: true)
+      end.to perform_async_job(Suma::Async::FrontappMarketingOptinSync)
+    end
+
+    it "noops on email change if the list id is not configured" do
+      Suma::Frontapp.marketing_email_list_id = ""
+      prefs = create_prefs(marketing_email_optout: true)
+      expect do
+        prefs.update(marketing_email_optout: false)
+      end.to perform_async_job(Suma::Async::FrontappMarketingOptinSync)
+    end
+  end
+
+  describe "FrontappUpsertContact", reset_configuration: Suma::Frontapp do
+    it "upserts front contacts" do
+      Suma::Frontapp.auth_token = "fake token"
+      req = stub_request(:post, "https://api2.frontapp.com/contacts").
+        to_return(fixture_response("front/contact"))
+
+      member = nil
+      expect do
+        member = Suma::Fixtures.member.create
+      end.to perform_async_job(Suma::Async::FrontappUpsertContact)
+
+      expect(req).to have_been_made
+      expect(member.refresh).to have_attributes(frontapp_contact_id: "crd_123")
+    end
+
+    it "noops if Front is not configured" do
+      expect do
+        Suma::Fixtures.member.create
+      end.to perform_async_job(Suma::Async::FrontappUpsertContact)
     end
   end
 
@@ -307,28 +432,6 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
       expect do
         Suma::Async::SyncLimeGeofencingZonesGbfs.new.perform(true)
       end.to_not raise_error
-    end
-  end
-
-  describe "UpsertFrontappContact", reset_configuration: Suma::Frontapp do
-    it "upserts front contacts" do
-      Suma::Frontapp.auth_token = "fake token"
-      req = stub_request(:post, "https://api2.frontapp.com/contacts").
-        to_return(fixture_response("front/contact"))
-
-      member = nil
-      expect do
-        member = Suma::Fixtures.member.create
-      end.to perform_async_job(Suma::Async::UpsertFrontappContact)
-
-      expect(req).to have_been_made
-      expect(member.refresh).to have_attributes(frontapp_contact_id: "crd_123")
-    end
-
-    it "noops if Front is not configured" do
-      expect do
-        Suma::Fixtures.member.create
-      end.to perform_async_job(Suma::Async::UpsertFrontappContact)
     end
   end
 

@@ -2,7 +2,7 @@
 
 require "amigo/job"
 
-class Suma::Async::UpsertFrontappContact
+class Suma::Async::FrontappUpsertContact
   extend Amigo::Job
 
   on(/^suma\.member\.(created|updated)$/)
@@ -16,6 +16,4 @@ class Suma::Async::UpsertFrontappContact
     end
     member.frontapp.upsert_contact
   end
-
-  Amigo.register_job(self)
 end
