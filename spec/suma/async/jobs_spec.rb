@@ -363,6 +363,22 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
     end
   end
 
+  describe "SignalwireProcessOptouts" do
+    it "syncs refunds" do
+      member = Suma::Fixtures.member.create
+      Suma::Webhookdb.signalwire_messages_dataset.insert(
+        signalwire_id: "msg1",
+        date_created: 4.days.ago,
+        direction: "inbound",
+        from: "+" + member.phone,
+        to: Suma::Signalwire.marketing_number,
+        data: {body: "stop"}.to_json,
+      )
+      Suma::Async::SignalwireProcessOptouts.new.perform
+      expect(member.refresh.preferences!).to have_attributes(marketing_sms_optout: true)
+    end
+  end
+
   describe "StripeRefundsBackfiller" do
     it "syncs refunds" do
       Suma::Webhookdb.stripe_refunds_dataset.insert(
