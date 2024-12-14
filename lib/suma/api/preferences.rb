@@ -13,9 +13,10 @@ class Suma::API::Preferences < Suma::API::V1
         params[:subscriptions].each do |k, optin|
           k = k.to_sym
           invalid!("subscription value #{k} must be a bool") unless Suma.bool?(optin)
-          subscr = member.preferences!.subscriptions.find { |g| g.key == k && g.editable? }
+          subscr = member.preferences!.subscription(k)
           invalid!("subscription #{k} is invalid") if subscr.nil?
           subscr.set_from_opted_in(optin)
+          subscr.update_oye_contact_marketing_preferences
         end
         member.preferences.save_changes
       end

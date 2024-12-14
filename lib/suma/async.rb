@@ -39,6 +39,7 @@ module Suma::Async
     "suma/async/stripe_refunds_backfiller",
     "suma/async/sync_lime_free_bike_status_gbfs",
     "suma/async/sync_lime_geofencing_zones_gbfs",
+    "suma/async/sync_oye_contact_sms_preferences",
     "suma/async/upsert_frontapp_contact",
   ].freeze
 
