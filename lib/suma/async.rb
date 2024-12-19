@@ -27,7 +27,7 @@ module Suma::Async
     "suma/async/deprecated_jobs",
     "suma/async/emailer",
     "suma/async/ensure_default_member_ledgers_on_create",
-    "suma/async/frontapp_marketing_optin_sync",
+    "suma/async/frontapp_list_sync",
     "suma/async/frontapp_upsert_contact",
     "suma/async/funding_transaction_processor",
     "suma/async/member_onboarding_verified_dispatch",

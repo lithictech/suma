@@ -18,7 +18,7 @@ RSpec.describe Suma::API::Preferences, :db do
         preferences: include(
           subscriptions: [
             {key: "account_updates", opted_in: true, editable_state: "on"},
-            {key: "marketing", opted_in: false, editable_state: "hidden"},
+            {key: "marketing", opted_in: true, editable_state: "on"},
             {key: "security", opted_in: true, editable_state: "off"},
           ],
         ),
