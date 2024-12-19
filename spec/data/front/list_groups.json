@@ -1,0 +1,19 @@
+{
+  "_links": {
+    "self": "https://yourCompany.api.frontapp.com/contact_groups"
+  },
+  "_results": [
+    {
+      "_links": {
+        "self": "https://yourCompany.api.frontapp.com/contact_groups/grp_3j342",
+        "related": {
+          "contacts": "https://yourCompany.api.frontapp.com/contact_groups/grp_3j342/contacts",
+          "owner": "https://yourCompany.api.frontapp.com/teammates/tea_e35u"
+        }
+      },
+      "id": "grp_3j342",
+      "name": "Party Planning Committee",
+      "is_private": false
+    }
+  ]
+}
