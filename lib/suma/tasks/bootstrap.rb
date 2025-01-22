@@ -85,39 +85,68 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
 
   class Mobility < Common
     def fixture
-      vs = self.create_vendor_service
-      self.sync_bikes(vs)
+      lime_vs = self.create_vendor_service(
+        vendor_name: "Lime",
+        rate_name: "Demo Scooter Rate",
+        internal_name: "Lime Demo Mobility Deeplink",
+        external_name: "Lime Demo E-Scooter",
+        constraints: [{"form_factor" => "scooter", "propulsion_type" => "electric"}],
+        rate_surcharge: Money.new(50),
+        rate_unit_amount: Money.new(7),
+        mobility_vendor_adapter_key: "lime_deeplink",
+      )
+      lyft_vs = self.create_vendor_service(
+        vendor_name: "Lyft",
+        internal_name: "Lyft Demo Mobility Deeplink",
+        external_name: "Lyft Demo E-Bike",
+        constraints: [{"form_factor" => "bicycle", "propulsion_type" => "electric_assist"}],
+        rate_name: "Demo Bike Rate",
+        rate_surcharge: Money.new(30),
+        rate_unit_amount: Money.new(10),
+        mobility_vendor_adapter_key: "lyft_deeplink",
+      )
+      self.sync_bikes(vendor_service: lime_vs, vehicle_type: "escooter")
+      self.sync_bikes(vendor_service: lyft_vs, vehicle_type: "ebike")
     end
 
-    protected def create_vendor_service
-      vendor = Suma::Vendor.create(name: "Demo Mobility")
+    protected def create_vendor_service(
+      vendor_name:,
+      internal_name:,
+      external_name:,
+      constraints:,
+      rate_name:,
+      rate_surcharge:,
+      rate_unit_amount:,
+      mobility_vendor_adapter_key:
+    )
+      vendor = Suma::Vendor.create(name: vendor_name)
       rate = Suma::Vendor::ServiceRate.create(
-        name: "Demo Scooter Rate",
+        name: rate_name,
         localization_key: "mobility_start_and_per_minute",
-        surcharge: Money.new(50),
-        unit_amount: Money.new(7),
+        surcharge: rate_surcharge,
+        unit_amount: rate_unit_amount,
       )
       svc = Suma::Vendor::Service.create(
         vendor:,
-        internal_name: "Demo Mobility Deeplink",
-        external_name: "Demo E-Scooter",
-        constraints: [{"form_factor" => "scooter", "propulsion_type" => "electric"}],
-        mobility_vendor_adapter_key: "demo_deeplink",
+        internal_name:,
+        external_name:,
+        constraints:,
+        mobility_vendor_adapter_key:,
         period: Time.now..1.year.from_now,
       )
-      svc.add_category(Suma::Vendor::ServiceCategory.create(name: "Mobility", parent: cash_category))
+      svc.add_category(Suma::Vendor::ServiceCategory.find_or_create(name: "Mobility", parent: cash_category))
       svc.add_rate(rate)
       return svc
     end
 
-    protected def sync_bikes(vendor_service)
+    protected def sync_bikes(vendor_service:, vehicle_type:)
       my_ip = Suma::Http.get("http://whatismyip.akamai.com", logger: nil).body
       my_geo = Suma::Http.get("http://ip-api.com/json/#{my_ip}", logger: nil)
       require "suma/fixtures/mobility_vehicles"
       Suma::Fixtures.mobility_vehicle(
         lat: my_geo.parsed_response.fetch("lat"),
         lng: my_geo.parsed_response.fetch("lon"),
-        vehicle_type: "escooter",
+        vehicle_type:,
         vendor_service:,
       ).create
     end
@@ -129,30 +158,31 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
     end
 
     protected def setup_private_accounts
-      vendor = Suma::Vendor[name: "Demo Mobility"]
-      Suma::AnonProxy::VendorConfiguration.create(vendor:) do |vc|
-        vc.enabled = true
-        vc.uses_email = true
-        vc.uses_sms = false
-        vc.message_handler_key = "fake"
-        vc.app_install_link = "https://mysuma.org"
-        vc.auth_url = "https://mysuma.org"
-        vc.auth_body_template = ""
-        vc.auth_headers = {}
-        vc.instructions = Suma::TranslatedText.find_or_create(
-          en: <<~MD,
-            1. Step 1 en
-            1. Step 2 en
-            1. Step 3 en
-            1. Step 4 en
-          MD
-          es: <<~MD,
-            1. Step 1 es
-            1. Step 2 es
-            1. Step 3 es
-            1. Step 4 es
-          MD
-        )
+      [Suma::Vendor[name: "Lime"], Suma::Vendor[name: "Lyft"]].each do |vendor|
+        Suma::AnonProxy::VendorConfiguration.find_or_create(vendor:) do |vc|
+          vc.enabled = true
+          vc.uses_email = true
+          vc.uses_sms = false
+          vc.message_handler_key = "fake"
+          vc.app_install_link = "https://mysuma.org"
+          vc.auth_url = "https://mysuma.org"
+          vc.auth_body_template = ""
+          vc.auth_headers = {}
+          vc.instructions = Suma::TranslatedText.find_or_create(
+            en: <<~MD,
+              1. Step 1 en
+              1. Step 2 en
+              1. Step 3 en
+              1. Step 4 en
+            MD
+            es: <<~MD,
+              1. Step 1 es
+              1. Step 2 es
+              1. Step 3 es
+              1. Step 4 es
+            MD
+          )
+        end
       end
     end
   end
@@ -404,16 +434,22 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
 
   class Programs
     def fixture
-      lime_name = Suma::TranslatedText.find_or_create(en: "Lime Scooter Rides", es: "Lime Scooter Rides (ES)")
-      scooter_program = Suma::Program.find_or_create(name: lime_name) do |g|
-        g.description = Suma::TranslatedText.find_or_create(en: "Ride electric scooters", es: "Ride electric scooters (ES)")
-        g.period = 1.year.ago..1.year.from_now
-        g.app_link = "/mobility"
-        g.app_link_text = Suma::TranslatedText.find_or_create(en: "Check out scooter map", es: "Check out scooter map (ES)")
-      end
-      if scooter_program.vendor_services.empty?
-        vs = Suma::Vendor::Service[internal_name: "Demo Mobility Deeplink"]
-        scooter_program.add_vendor_service(vs)
+      vehicle_programs = [
+        {name: "Lime Scooter Rides", internal_name: "Lime Demo Mobility Deeplink"},
+        {name: "Lyft Bike Rides", internal_name: "Lime Demo Mobility Deeplink"},
+      ]
+      vehicle_programs.each do |p|
+        name = Suma::TranslatedText.find_or_create(en: p[:name], es: "#{p[:name]} (ES)")
+        program = Suma::Program.find_or_create(name:) do |g|
+          g.description = Suma::TranslatedText.find_or_create(en: "Ride electric scooters", es: "Ride electric scooters (ES)")
+          g.period = 1.year.ago..1.year.from_now
+          g.app_link = "/mobility"
+          g.app_link_text = Suma::TranslatedText.find_or_create(en: "Check out mobility map", es: "Check out mobility map (ES)")
+        end
+        if program.vendor_services.empty?
+          vs = Suma::Vendor::Service[internal_name: p[:internal_name]]
+          program.add_vendor_service(vs)
+        end
       end
 
       fm_name = Suma::TranslatedText.find_or_create(en: "Farmers Markets", es: "Farmers Markets (ES)")
