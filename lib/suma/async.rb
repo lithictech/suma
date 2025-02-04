@@ -27,6 +27,8 @@ module Suma::Async
     "suma/async/deprecated_jobs",
     "suma/async/emailer",
     "suma/async/ensure_default_member_ledgers_on_create",
+    "suma/async/frontapp_list_sync",
+    "suma/async/frontapp_upsert_contact",
     "suma/async/funding_transaction_processor",
     "suma/async/member_onboarding_verified_dispatch",
     "suma/async/message_dispatched",
@@ -36,10 +38,10 @@ module Suma::Async
     "suma/async/process_anon_proxy_inbound_webhookdb_relays",
     "suma/async/reset_code_create_dispatch",
     "suma/async/reset_code_update_twilio",
+    "suma/async/signalwire_process_optouts",
     "suma/async/stripe_refunds_backfiller",
     "suma/async/sync_lime_free_bike_status_gbfs",
     "suma/async/sync_lime_geofencing_zones_gbfs",
-    "suma/async/upsert_frontapp_contact",
   ].freeze
 
   configurable(:async) do

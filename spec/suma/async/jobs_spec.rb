@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
 require "suma/async"
-require "suma/frontapp"
-require "suma/lime"
 require "suma/messages/specs"
 require "rspec/eventually"
 
@@ -75,6 +73,55 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
       c = Suma::Member.last
       expect(c).to have_attributes(payment_account: be_present)
       expect(c.payment_account.ledgers).to have_length(1)
+    end
+  end
+
+  describe "FrontappListSync", reset_configuration: Suma::Frontapp do
+    before(:each) do
+      Suma::Frontapp.auth_token = "faketoken"
+      Suma::Frontapp.list_sync_enabled = true
+    end
+
+    it "syncs marketing lists" do
+      get_req = stub_request(:get, "https://api2.frontapp.com/contact_groups").
+        to_return(
+          json_response({}),
+          json_response({}),
+        )
+      Suma::Async::FrontappListSync.new.perform
+      expect(get_req).to have_been_made.times(2)
+    end
+
+    it "noops if sync not enabled" do
+      Suma::Frontapp.list_sync_enabled = false
+      expect { Suma::Async::FrontappListSync.new.perform }.to_not raise_error
+    end
+
+    it "noops if client not configured" do
+      Suma::Frontapp.auth_token = ""
+      expect { Suma::Async::FrontappListSync.new.perform }.to_not raise_error
+    end
+  end
+
+  describe "FrontappUpsertContact", reset_configuration: Suma::Frontapp do
+    it "upserts front contacts" do
+      Suma::Frontapp.auth_token = "fake token"
+      req = stub_request(:post, "https://api2.frontapp.com/contacts").
+        to_return(fixture_response("front/contact"))
+
+      member = nil
+      expect do
+        member = Suma::Fixtures.member.create
+      end.to perform_async_job(Suma::Async::FrontappUpsertContact)
+
+      expect(req).to have_been_made
+      expect(member.refresh).to have_attributes(frontapp_contact_id: "crd_123")
+    end
+
+    it "noops if Front is not configured" do
+      expect do
+        Suma::Fixtures.member.create
+      end.to perform_async_job(Suma::Async::FrontappUpsertContact)
     end
   end
 
@@ -238,6 +285,22 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
     end
   end
 
+  describe "SignalwireProcessOptouts" do
+    it "syncs refunds" do
+      member = Suma::Fixtures.member.create
+      Suma::Webhookdb.signalwire_messages_dataset.insert(
+        signalwire_id: "msg1",
+        date_created: 4.days.ago,
+        direction: "inbound",
+        from: "+" + member.phone,
+        to: Suma::Signalwire.marketing_number,
+        data: {body: "stop"}.to_json,
+      )
+      Suma::Async::SignalwireProcessOptouts.new.perform
+      expect(member.refresh.preferences!).to have_attributes(marketing_sms_optout: true)
+    end
+  end
+
   describe "StripeRefundsBackfiller" do
     it "syncs refunds" do
       Suma::Webhookdb.stripe_refunds_dataset.insert(
@@ -307,28 +370,6 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
       expect do
         Suma::Async::SyncLimeGeofencingZonesGbfs.new.perform(true)
       end.to_not raise_error
-    end
-  end
-
-  describe "UpsertFrontappContact", reset_configuration: Suma::Frontapp do
-    it "upserts front contacts" do
-      Suma::Frontapp.auth_token = "fake token"
-      req = stub_request(:post, "https://api2.frontapp.com/contacts").
-        to_return(fixture_response("front/contact"))
-
-      member = nil
-      expect do
-        member = Suma::Fixtures.member.create
-      end.to perform_async_job(Suma::Async::UpsertFrontappContact)
-
-      expect(req).to have_been_made
-      expect(member.refresh).to have_attributes(frontapp_contact_id: "crd_123")
-    end
-
-    it "noops if Front is not configured" do
-      expect do
-        Suma::Fixtures.member.create
-      end.to perform_async_job(Suma::Async::UpsertFrontappContact)
     end
   end
 

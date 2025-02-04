@@ -62,6 +62,12 @@ module Suma::SpecHelpers
     return {status:, body: respbody, headers:}
   end
 
+  module_function def json_response(body={}, status: 200, headers: {})
+    headers["Content-Type"] = "application/json"
+    body = body.to_json
+    return {status:, body:, headers:}
+  end
+
   module_function def money(x, *more)
     return x if x.is_a?(Money)
     return Monetize.parse!(x) if x.is_a?(String)

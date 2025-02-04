@@ -15,11 +15,12 @@ module Suma::Frontapp
     # @return [Frontapp::Client]
     attr_accessor :client
 
-    def configured? = self.auth_token != UNCONFIGURED_AUTH_TOKEN
+    def configured? = self.auth_token != UNCONFIGURED_AUTH_TOKEN && self.auth_token.present?
   end
 
   configurable(:frontapp) do
     setting :auth_token, UNCONFIGURED_AUTH_TOKEN
+    setting :list_sync_enabled, false
 
     after_configured do
       self.client = Frontapp::Client.new(auth_token: self.auth_token, user_agent: Suma::Http.user_agent)

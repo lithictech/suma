@@ -4,6 +4,8 @@ require "suma/i18n"
 require "suma/postgres"
 require "suma/message"
 
+# TODO: We have some assumptions about SMS right now; when we add in email support into the UI,
+# stuff like subscription groups will need per-channel optin/out behavior.
 class Suma::Message::Preferences < Suma::Postgres::Model(:message_preferences)
   plugin :timestamps
 
@@ -45,12 +47,18 @@ class Suma::Message::Preferences < Suma::Postgres::Model(:message_preferences)
     groups = []
     groups << SubscriptionGroup.new(
       model: self,
-      optout_field: :account_updates_optout,
+      optout_field: :account_updates_sms_optout,
       key: :account_updates,
-      opted_in: !self.account_updates_optout,
+      opted_in: !self.account_updates_sms_optout,
       editable_state: "on",
     )
-    groups << SubscriptionGroup.new(key: :marketing, opted_in: false, editable_state: "hidden")
+    groups << SubscriptionGroup.new(
+      model: self,
+      optout_field: :marketing_sms_optout,
+      key: :marketing,
+      opted_in: !self.marketing_sms_optout,
+      editable_state: "on",
+    )
     groups << SubscriptionGroup.new(key: :security, opted_in: true, editable_state: "off")
     return groups
   end
@@ -67,6 +75,29 @@ class Suma::Message::Preferences < Suma::Postgres::Model(:message_preferences)
     super
     self.validates_includes Suma::I18n.enabled_locale_codes, :preferred_language
   end
+
+  # @!attribute sms_enabled
+  # True if the member has a phone number and is okay receiving SMS.
+  # Note that if sms_enabled is false, it will override any 'true' settings on individual subscription groups.
+  # @return [TrueClass,FalseClass]
+
+  # @!attribute email_enabled
+  # True if the member has an email and can receive emails.
+  # Note that if email_enabled is false, it will override any 'true' settings on individual subscription groups.
+  # @return [TrueClass,FalseClass]
+
+  # @!attribute account_updates_sms_optout
+  # True if the user has opted out of receiving account update messages via SMS.
+  # @return [TrueClass,FalseClass]
+
+  # @!attribute account_updates_email_optout
+  # @return [TrueClass,FalseClass]
+
+  # @!attribute marketing_sms_optout
+  # @return [TrueClass,FalseClass]
+
+  # @!attribute marketing_email_optout
+  # @return [TrueClass,FalseClass]
 end
 
 # Table: message_preferences

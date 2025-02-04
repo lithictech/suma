@@ -9,10 +9,16 @@ module Suma::Signalwire
   include Appydays::Configurable
   include Appydays::Loggable
 
+  SPLIT_WORDS = ->(s) { s.split.map(&:strip) }
+
   configurable(:signalwire) do
     setting :api_token, "sw-test-token"
     setting :project_id, "sw-test-project"
     setting :space_url, "sumafaketest.signalwire.com"
+    setting :marketing_number, ""
+    setting :message_marketing_sms_unsubscribe_keywords, ["STOP", "UNSUBSCRIBE", "ALTO"], convert: SPLIT_WORDS
+    setting :message_marketing_sms_resubscribe_keywords, ["START", "RESUBSCRIBE", "COMENZAR"], convert: SPLIT_WORDS
+    setting :message_marketing_sms_help_keywords, ["HELP", "AYUDA"], convert: SPLIT_WORDS
 
     after_configured do
       @client = Signalwire::REST::Client.new(self.project_id, self.api_token, signalwire_space_url: self.space_url)
