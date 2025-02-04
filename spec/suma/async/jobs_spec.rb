@@ -410,7 +410,7 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
       member = nil
       expect do
         member = Suma::Fixtures.member.create
-      end.to perform_async_job(Suma::Async::UpsertFrontappContact)
+      end.to perform_async_job(Suma::Async::FrontappUpsertContact)
 
       expect(req).to have_been_made
       expect(member.refresh).to have_attributes(frontapp_contact_id: "crd_123")
