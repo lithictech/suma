@@ -15,6 +15,12 @@ module Suma::Mobility
   # 0.0000080 degrees is about 1 meter.
   SPIDERIFY_OFFSET_MAGNITUDE = 0.000016
 
+  EBIKE = :ebike
+  ESCOOTER = :escooter
+  BIKE = :bike
+
+  class UnknownVehicleType < ArgumentError; end
+
   def self.coord2int(c)
     raise OutOfBounds, "#{c} must be between -180 and 180" unless COORD_RANGE.cover?(c)
     return (c * COORD2INT_FACTOR).to_i

@@ -382,7 +382,7 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
     end
 
     it "sync lyft scooters gbfs" do
-      Suma::Lyft.auth_token = "fake token"
+      Suma::Lyft.sync_enabled = true
       free_bike_status_req = stub_request(:get, "https://gbfs.lyft.com/gbfs/2.3/pdx/en/free_bike_status.json").
         to_return(fixture_response("lime/free_bike_status"))
       vehicle_types_req = stub_request(:get, "https://gbfs.lyft.com/gbfs/2.3/pdx/en/vehicle_types.json").

@@ -11,7 +11,7 @@ class Suma::Async::SyncLyftFreeBikeStatusGbfs
   splay 0.seconds
 
   def _perform
-    return unless Suma::Lyft.configured?
+    return unless Suma::Lyft.sync_enabled
     Suma::Mobility::Gbfs::VendorSync.new(
       client: Suma::Lyft.gbfs_http_client,
       vendor: Suma::Lyft.mobility_vendor,
