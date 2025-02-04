@@ -1,8 +1,8 @@
 import api from "../api";
-import scooterIcon from "../assets/images/escooter.png";
-import bikeIcon from "../assets/images/ebike.png";
-import limeVehicleContainer from "../assets/images/lime-vehicle-container.png";
-import lyftVehicleContainer from "../assets/images/lyft-vehicle-container.png";
+import biketownEbikeIcon from "../assets/images/biketown-ebike.png";
+import limeEscooterIcon from "../assets/images/lime-escooter.png";
+import unknownVehicleIcon from "../assets/images/loader-ring.svg";
+import scooterContainer from "../assets/images/scooter-container.svg";
 import config from "../config";
 import { t } from "../localization";
 import { localStorageCache } from "../shared/localStorageHelper";
@@ -12,6 +12,22 @@ import "leaflet.markercluster/dist/MarkerCluster.css";
 import "leaflet.markercluster/dist/leaflet.markercluster";
 import "leaflet/dist/leaflet.css";
 import isUndefined from "lodash/isUndefined";
+
+// Build a map of vehicle type to vehicle service internal name.
+// If we add more services, we need to adjust this map.
+// This isn't ideal, because it ties built assets to dynamic data in the database,
+// but it avoids having to serve images from the backend for vehicle icons.
+// This is significant in terms of network issues, so we'll take the tradeoff for now.
+// But in the future, we may need to move to having the vendor service store a reference
+// to an image, so these icons can be loaded dynamically.
+const iconNameLookup = {
+  ebike: {
+    biketown_demo_mobility_deeplink: biketownEbikeIcon,
+  },
+  escooter: {
+    lime_demo_mobility_deeplink: limeEscooterIcon,
+  },
+};
 
 export default class MapBuilder {
   constructor(host) {
@@ -269,17 +285,13 @@ export default class MapBuilder {
     }
     lat = lat * precisionFactor;
     lng = lng * precisionFactor;
-    const vehicleSet = {
-      ebike: `<img src="${bikeIcon}" class="mobility-map-icon-img" alt="" />`,
-      escooter: `<img src="${scooterIcon}" class="mobility-map-icon-img" alt="" />`,
-    }
-    const vendorIconSet = {
-      lyft: `<img src="${lyftVehicleContainer}" alt="" class="w-100"/>`,
-      lime: `<img src="${limeVehicleContainer}" alt="" class="w-100"/>`,
-    }
-    const vendorName = vehicleProvider.vendorSlug.split("_")[0];
+    const vehicleImg =
+      (iconNameLookup[vehicleType] || {})[vehicleProvider.slug] || unknownVehicleIcon;
     const vehicleIcon = this._l.divIcon({
-      html: vendorIconSet[vendorName] + vehicleSet[vehicleType],
+      html: `
+        <img src="${scooterContainer}" alt=""/>
+        <img src="${vehicleImg}" class="mobility-map-icon-img" alt=""/>
+      `,
       className: "mobility-map-icon",
       iconSize: [43.4, 52.6],
       iconAnchor: [21.7, 52.6],

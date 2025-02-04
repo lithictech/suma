@@ -85,23 +85,23 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
 
   class Mobility < Common
     def fixture
-      lime_vs = self.create_vendor_service(
+      lime_vs = self.create_mobility_vendor_service(
         vendor_name: "Lime",
         rate_name: "Demo Scooter Rate",
-        internal_name: "Lime Demo Mobility Deeplink",
+        internal_name: "lime_demo_mobility_deeplink",
         external_name: "Lime Demo E-Scooter",
         constraints: [{"form_factor" => "scooter", "propulsion_type" => "electric"}],
-        rate_surcharge: Money.new(50),
+        rate_surcharge: Money.new(0),
         rate_unit_amount: Money.new(7),
         mobility_vendor_adapter_key: "lime_deeplink",
       )
-      lyft_vs = self.create_vendor_service(
+      lyft_vs = self.create_mobility_vendor_service(
         vendor_name: "Lyft",
-        internal_name: "Lyft Demo Mobility Deeplink",
-        external_name: "Lyft Demo E-Bike",
+        internal_name: "biketown_demo_mobility_deeplink",
+        external_name: "Biketown Demo E-Bike",
         constraints: [{"form_factor" => "bicycle", "propulsion_type" => "electric_assist"}],
         rate_name: "Demo Bike Rate",
-        rate_surcharge: Money.new(30),
+        rate_surcharge: Money.new(0),
         rate_unit_amount: Money.new(10),
         mobility_vendor_adapter_key: "lyft_deeplink",
       )
@@ -109,7 +109,7 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
       self.sync_bikes(vendor_service: lyft_vs, vehicle_type: "ebike")
     end
 
-    protected def create_vendor_service(
+    protected def create_mobility_vendor_service(
       vendor_name:,
       internal_name:,
       external_name:,
@@ -434,22 +434,20 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
 
   class Programs
     def fixture
-      vehicle_programs = [
-        {name: "Lime Scooter Rides", internal_name: "Lime Demo Mobility Deeplink"},
-        {name: "Lyft Bike Rides", internal_name: "Lime Demo Mobility Deeplink"},
-      ]
-      vehicle_programs.each do |p|
-        name = Suma::TranslatedText.find_or_create(en: p[:name], es: "#{p[:name]} (ES)")
-        program = Suma::Program.find_or_create(name:) do |g|
-          g.description = Suma::TranslatedText.find_or_create(en: "Ride electric scooters", es: "Ride electric scooters (ES)")
-          g.period = 1.year.ago..1.year.from_now
-          g.app_link = "/mobility"
-          g.app_link_text = Suma::TranslatedText.find_or_create(en: "Check out mobility map", es: "Check out mobility map (ES)")
-        end
-        if program.vendor_services.empty?
-          vs = Suma::Vendor::Service[internal_name: p[:internal_name]]
-          program.add_vendor_service(vs)
-        end
+      mobility_program_name = Suma::TranslatedText.find_or_create(en: "Micromobility", es: "Micromobility (ES)")
+      mobility_program = Suma::Program.find_or_create(name: mobility_program_name) do |g|
+        g.description = Suma::TranslatedText.find_or_create(en: "Ride electric bikes and scooters", es: "Ride electric bikes and scooters (ES)")
+        g.period = 1.year.ago..1.year.from_now
+        g.app_link = "/mobility"
+        g.app_link_text = Suma::TranslatedText.find_or_create(en: "Check out mobility map", es: "Check out mobility map (ES)")
+      end
+      mobility_program.add_enrollment(role: Suma::Role.cache.admin, approved_at: Time.now) unless
+        mobility_program.enrollments.any? { |e| e.role === Suma::Role.cache.admin }
+
+      # Matches the vendor services fixtured previously
+      ["lime_demo_mobility_deeplink", "biketown_demo_mobility_deeplink"].each do |internal_name|
+        vs = Suma::Vendor::Service[internal_name:]
+        mobility_program.add_vendor_service(vs) unless mobility_program.vendor_services.any? { |v| v === vs }
       end
 
       fm_name = Suma::TranslatedText.find_or_create(en: "Farmers Markets", es: "Farmers Markets (ES)")
