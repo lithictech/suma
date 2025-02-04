@@ -35,6 +35,10 @@ module Suma
   # something we expect to have changed has not changed.
   class InvalidPostcondition < RuntimeError; end
 
+  # Error raised when a thing that should always be the case,
+  # is not the case. Should never be seen in the course of normal execution.
+  class InvariantViolation < RuntimeError; end
+
   class ResourceForbidden < RuntimeError; end
 
   # The owner of objects that should be the same,

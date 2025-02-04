@@ -93,4 +93,17 @@ RSpec.describe Suma::Message::SignalwireWebhookdbOptoutProcessor, :db, reset_con
       have_attributes(recipient: be === member, template: "sms_compliance/help"),
     )
   end
+
+  describe "msgtype" do
+    it "errors for a row that matches no keywords" do
+      expect { described_class.new(now: Time.now).msgtype("foo") }.to raise_error(Suma::InvariantViolation)
+    end
+  end
+
+  describe "run" do
+    it "errors for a malformed signalwire 'from' number" do
+      Suma::Webhookdb.signalwire_messages_dataset.insert(messagerow("msg", from: "12223334444"))
+      expect { described_class.new(now: Time.now).run }.to raise_error(Suma::InvariantViolation)
+    end
+  end
 end

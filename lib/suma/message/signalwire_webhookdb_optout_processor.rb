@@ -57,6 +57,6 @@ class Suma::Message::SignalwireWebhookdbOptoutProcessor
     return :optout if Suma::Signalwire.message_marketing_sms_unsubscribe_keywords.include?(b)
     return :optin if Suma::Signalwire.message_marketing_sms_resubscribe_keywords.include?(b)
     return :help if Suma::Signalwire.message_marketing_sms_help_keywords.include?(b)
-    raise "Unhandled body, should not have been selected: #{body}"
+    raise Suma::InvariantViolation, "Unhandled body, should not have been selected: #{body}"
   end
 end
