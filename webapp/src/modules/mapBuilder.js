@@ -1,6 +1,8 @@
 import api from "../api";
-import scooterIcon from "../assets/images/kick-scooter.png";
-import scooterContainer from "../assets/images/scooter-container.svg";
+import scooterIcon from "../assets/images/escooter.png";
+import bikeIcon from "../assets/images/ebike.png";
+import limeVehicleContainer from "../assets/images/lime-vehicle-container.png";
+import lyftVehicleContainer from "../assets/images/lyft-vehicle-container.png";
 import config from "../config";
 import { t } from "../localization";
 import { localStorageCache } from "../shared/localStorageHelper";
@@ -52,15 +54,6 @@ export default class MapBuilder {
           className: "mobility-map-cluster-icon",
         });
       },
-    });
-    this._scooterIcon = this._l.divIcon({
-      html: `
-        <img src="${scooterContainer}" alt=""/>
-        <img src="${scooterIcon}" class="mobility-map-icon-img" alt=""/>
-      `,
-      className: "mobility-map-icon",
-      iconSize: [43.4, 52.6],
-      iconAnchor: [21.7, 52.6],
     });
     this._lastLocation = null;
     this._locationMarker = null;
@@ -234,7 +227,7 @@ export default class MapBuilder {
           id,
           bike,
           vehicleType,
-          data.providers,
+          data.providers[bike.p],
           precisionFactor
         );
         if (!currentMarkersIds.includes(id)) {
@@ -267,7 +260,7 @@ export default class MapBuilder {
     this._clickedVehicle = null;
   }
 
-  createVehicleMarker(id, bike, vehicleType, providers, precisionFactor) {
+  createVehicleMarker(id, bike, vehicleType, vehicleProvider, precisionFactor) {
     // calculate lat, lng offsets when available
     let [lat, lng] = bike.c;
     if (bike.o) {
@@ -276,10 +269,25 @@ export default class MapBuilder {
     }
     lat = lat * precisionFactor;
     lng = lng * precisionFactor;
+    const vehicleSet = {
+      ebike: `<img src="${bikeIcon}" class="mobility-map-icon-img" alt="" />`,
+      escooter: `<img src="${scooterIcon}" class="mobility-map-icon-img" alt="" />`,
+    }
+    const vendorIconSet = {
+      lyft: `<img src="${lyftVehicleContainer}" alt="" class="w-100"/>`,
+      lime: `<img src="${limeVehicleContainer}" alt="" class="w-100"/>`,
+    }
+    const vendorName = vehicleProvider.vendorSlug.split("_")[0];
+    const vehicleIcon = this._l.divIcon({
+      html: vendorIconSet[vendorName] + vehicleSet[vehicleType],
+      className: "mobility-map-icon",
+      iconSize: [43.4, 52.6],
+      iconAnchor: [21.7, 52.6],
+    });
     return this._l
       .marker([lat, lng], {
         id,
-        icon: this._scooterIcon,
+        icon: vehicleIcon,
         riseOnHover: true,
       })
       .on("click", (e) => {
@@ -288,7 +296,7 @@ export default class MapBuilder {
           loc: bike.c,
           type: vehicleType,
           disambiguator: bike.d,
-          provider: providers[bike.p],
+          provider: vehicleProvider,
         };
         this._onVehicleClick(mapVehicle);
         this._clickedVehicle = e.target;
