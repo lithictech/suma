@@ -24,5 +24,6 @@ on_worker_boot do
     Suma::Postgres.each_model_superclass do |modelclass|
       modelclass.db&.disconnect
     end
+    Suma::UploadedFile.blob_database.disconnect
   end
 end
