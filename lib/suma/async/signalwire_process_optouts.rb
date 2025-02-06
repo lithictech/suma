@@ -12,6 +12,7 @@ class Suma::Async::SignalwireProcessOptouts
   splay 60
 
   def _perform
+    return unless Suma::Message::SignalwireWebhookdbOptoutProcessor.configured?
     Suma::Message::SignalwireWebhookdbOptoutProcessor.new(now: Time.now).run
   end
 end

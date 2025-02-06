@@ -288,19 +288,35 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
     end
   end
 
-  describe "SignalwireProcessOptouts" do
+  describe "SignalwireProcessOptouts", reset_configuration: Suma::Signalwire do
     it "syncs refunds" do
+      Suma::Signalwire.marketing_number = "+12225550000"
       member = Suma::Fixtures.member.create
       Suma::Webhookdb.signalwire_messages_dataset.insert(
         signalwire_id: "msg1",
         date_created: 4.days.ago,
         direction: "inbound",
         from: "+" + member.phone,
-        to: Suma::Signalwire.marketing_number,
+        to: "+12225550000",
+        data: {body: "stop"}.to_json,
+      )
+      expect(member.refresh.preferences!).to have_attributes(marketing_sms_optout: false)
+      Suma::Async::SignalwireProcessOptouts.new.perform
+      expect(member.refresh.preferences!).to have_attributes(marketing_sms_optout: true)
+    end
+
+    it "noops if signalwire marketing number not configured" do
+      member = Suma::Fixtures.member.create
+      Suma::Webhookdb.signalwire_messages_dataset.insert(
+        signalwire_id: "msg1",
+        date_created: 4.days.ago,
+        direction: "inbound",
+        from: "+" + member.phone,
+        to: "+12225550000",
         data: {body: "stop"}.to_json,
       )
       Suma::Async::SignalwireProcessOptouts.new.perform
-      expect(member.refresh.preferences!).to have_attributes(marketing_sms_optout: true)
+      expect(member.refresh.preferences!).to have_attributes(marketing_sms_optout: false)
     end
   end
 

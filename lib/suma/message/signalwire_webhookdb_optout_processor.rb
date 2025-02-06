@@ -3,6 +3,8 @@
 class Suma::Message::SignalwireWebhookdbOptoutProcessor
   include Appydays::Loggable
 
+  def self.configured? = Suma::Signalwire.marketing_number.present?
+
   OPTINOUT = [:optout, :optin].freeze
 
   def initialize(now:)
@@ -10,6 +12,8 @@ class Suma::Message::SignalwireWebhookdbOptoutProcessor
   end
 
   def run
+    raise Suma::InvalidPrecondition, "SIGNALWIRE_MARKETING_NUMBER must be set to process optouts" unless
+      self.class.configured?
     rows = self.fetch_rows
     rows.each do |row|
       from = row.fetch(:from)

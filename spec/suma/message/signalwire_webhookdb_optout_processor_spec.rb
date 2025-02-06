@@ -68,6 +68,13 @@ RSpec.describe Suma::Message::SignalwireWebhookdbOptoutProcessor, :db, reset_con
     expect(member.refresh.preferences!).to have_attributes(marketing_sms_optout: false)
   end
 
+  it "errors if the marketing number is not set" do
+    Suma::Signalwire.marketing_number = ""
+    expect do
+      described_class.new(now: Time.now).run
+    end.to raise_error(/must be set/)
+  end
+
   it "processes texts in order, to handle multiple actions from the same number" do
     member = Suma::Fixtures.member.create(phone: member_phone)
 
