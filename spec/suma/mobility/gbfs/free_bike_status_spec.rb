@@ -29,7 +29,7 @@ RSpec.describe Suma::Mobility::Gbfs::FreeBikeStatus, :db do
             "lon" => 56.80,
             "is_reserved" => false,
             "is_disabled" => false,
-            "vehicle_type_id" => "abc123",
+            "vehicle_type_id" => "def456",
             "current_range_meters" => 6543.0,
           },
         ],
@@ -46,8 +46,15 @@ RSpec.describe Suma::Mobility::Gbfs::FreeBikeStatus, :db do
           {
             "vehicle_type_id" => "abc123",
             "form_factor" => "scooter",
-            "propulsion_type" => "human",
+            "propulsion_type" => "electric",
             "name" => "Example E-scooter V2",
+            "max_range_meters" => 12_000.0,
+          },
+          {
+            "vehicle_type_id" => "def456",
+            "form_factor" => "bicycle",
+            "propulsion_type" => "electric_assist",
+            "name" => "Example E-bike V2",
             "max_range_meters" => 12_000.0,
           },
         ],
@@ -79,6 +86,7 @@ RSpec.describe Suma::Mobility::Gbfs::FreeBikeStatus, :db do
           lat: 12.11,
           lng: 56.81,
           vendor_service: be === vs,
+          vehicle_type: "escooter",
           battery_level: 42,
           rental_uris: {"web" => "https://foo.bar"},
         ),
@@ -87,6 +95,7 @@ RSpec.describe Suma::Mobility::Gbfs::FreeBikeStatus, :db do
           lat: 12.38,
           lng: 56.80,
           vendor_service: be === vs,
+          vehicle_type: "ebike",
           battery_level: 55,
           rental_uris: {},
         ),
@@ -99,7 +108,6 @@ RSpec.describe Suma::Mobility::Gbfs::FreeBikeStatus, :db do
       sync_gbfs
       expect(Suma::Mobility::Vehicle.all).to contain_exactly(
         have_attributes(vehicle_id: "ghi799"),
-        have_attributes(vehicle_id: "ghi700"),
       )
     end
 
@@ -122,6 +130,22 @@ RSpec.describe Suma::Mobility::Gbfs::FreeBikeStatus, :db do
         have_attributes(vehicle_id: "ghi799", battery_level: nil),
         have_attributes(vehicle_id: "ghi700", battery_level: nil),
       )
+    end
+  end
+
+  describe "derive_vehicle_type" do
+    it "maps known vehicle types" do
+      ebike = {"form_factor" => "bicycle", "propulsion_type" => "electric_assist", "vehicle_type_id" => "2"}
+      escooter = {"form_factor" => "scooter", "propulsion_type" => "electric", "vehicle_type_id" => "3"}
+      bike = {"form_factor" => "bicycle", "propulsion_type" => "human", "vehicle_type_id" => "1"}
+      expect(described_class.derive_vehicle_type(ebike)).to eq(Suma::Mobility::EBIKE)
+      expect(described_class.derive_vehicle_type(escooter)).to eq(Suma::Mobility::ESCOOTER)
+      expect(described_class.derive_vehicle_type(bike)).to eq(Suma::Mobility::BIKE)
+    end
+
+    it "raises an error for unhandled vehicle types" do
+      vt = {"form_factor" => "cart", "propulsion_type" => "feet", "vehicle_type_id" => "3"}
+      expect { described_class.derive_vehicle_type(vt) }.to raise_error(Suma::Mobility::UnknownVehicleType)
     end
   end
 end

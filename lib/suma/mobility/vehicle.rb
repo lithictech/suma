@@ -21,7 +21,7 @@ class Suma::Mobility::Vehicle < Suma::Postgres::Model(:mobility_vehicles)
   end
 
   def to_api_location
-    return [Suma::Mobility.coord2int(self.lat), Suma::Mobility.coord2int(self.lng)]
+    return [self.lat_int, self.lng_int]
   end
 
   FALLBACK_DEEP_LINK_URL = "#{Suma.app_url}/error".freeze
@@ -43,6 +43,12 @@ class Suma::Mobility::Vehicle < Suma::Postgres::Model(:mobility_vehicles)
     end
     Sentry.capture_message("Cannot find rental URIs for a user agent: #{user_agent}, #{uris}")
     return FALLBACK_DEEP_LINK_URL
+  end
+
+  def before_save
+    self.lat_int = Suma::Mobility.coord2int(self.lat)
+    self.lng_int = Suma::Mobility.coord2int(self.lng)
+    super
   end
 end
 

@@ -1,6 +1,9 @@
 # frozen_string_literal: true
 
 require "suma/async"
+require "suma/frontapp"
+require "suma/lime"
+require "suma/lyft"
 require "suma/messages/specs"
 require "rspec/eventually"
 
@@ -370,6 +373,53 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
       expect do
         Suma::Async::SyncLimeGeofencingZonesGbfs.new.perform(true)
       end.to_not raise_error
+    end
+  end
+
+  describe "SyncLyftFreeBikeStatusGbfs", reset_configuration: Suma::Lyft do
+    before(:each) do
+      Suma::Fixtures.vendor_service(vendor: Suma::Lyft.mobility_vendor).mobility.create
+    end
+
+    it "sync lyft scooters gbfs" do
+      Suma::Lyft.sync_enabled = true
+      free_bike_status_req = stub_request(:get, "https://gbfs.lyft.com/gbfs/2.3/pdx/en/free_bike_status.json").
+        to_return(fixture_response("lime/free_bike_status"))
+      vehicle_types_req = stub_request(:get, "https://gbfs.lyft.com/gbfs/2.3/pdx/en/vehicle_types.json").
+        to_return(fixture_response("lime/vehicle_types"))
+
+      Suma::Async::SyncLyftFreeBikeStatusGbfs.new.perform(true)
+      expect(free_bike_status_req).to have_been_made
+      expect(vehicle_types_req).to have_been_made
+      expect(Suma::Mobility::Vehicle.all).to have_length(1)
+    end
+
+    it "noops if Lyft is not configured" do
+      expect do
+        Suma::Async::SyncLyftFreeBikeStatusGbfs.new.perform(true)
+      end.to_not raise_error
+    end
+  end
+
+  describe "UpsertFrontappContact", reset_configuration: Suma::Frontapp do
+    it "upserts front contacts" do
+      Suma::Frontapp.auth_token = "fake token"
+      req = stub_request(:post, "https://api2.frontapp.com/contacts").
+        to_return(fixture_response("front/contact"))
+
+      member = nil
+      expect do
+        member = Suma::Fixtures.member.create
+      end.to perform_async_job(Suma::Async::FrontappUpsertContact)
+
+      expect(req).to have_been_made
+      expect(member.refresh).to have_attributes(frontapp_contact_id: "crd_123")
+    end
+
+    it "noops if Front is not configured" do
+      expect do
+        Suma::Fixtures.member.create
+      end.to perform_async_job(Suma::Async::UpsertFrontappContact)
     end
   end
 

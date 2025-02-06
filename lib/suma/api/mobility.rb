@@ -86,8 +86,8 @@ class Suma::API::Mobility < Suma::API::V1
     get :vehicle do
       member = current_member
       matches = Suma::Mobility::Vehicle.where(
-        lat: Suma::Mobility.int2coord(params[:loc][0]),
-        lng: Suma::Mobility.int2coord(params[:loc][1]),
+        lat_int: params[:loc][0],
+        lng_int: params[:loc][1],
         vendor_service_id: params[:provider_id],
         vehicle_type: params[:type],
       ).all

@@ -10,9 +10,9 @@ RSpec.describe Suma::Tasks::Bootstrap, :db do
       to_return(status: 200, body: {lat: "45", lon: "-120"}.to_json, headers: {"Content-Type" => "application/json"})
     expect { described_class.new.run_task }.to_not raise_error
     expect(Suma::Member.all).to have_length(1)
-    expect(Suma::Mobility::Vehicle.all).to have_length(1)
+    expect(Suma::Mobility::Vehicle.all).to have_length(2)
     expect(Suma::Commerce::Offering.all).to have_length(2)
-    expect(req_ip).to have_been_made
-    expect(req_loc).to have_been_made
+    expect(req_ip).to have_been_made.times(2)
+    expect(req_loc).to have_been_made.times(2)
   end
 end

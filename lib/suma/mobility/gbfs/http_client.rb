@@ -16,9 +16,9 @@ class Suma::Mobility::Gbfs::HttpClient < Suma::Mobility::Gbfs::Client
   end
 
   def headers
-    return {
-      "Authorization" => "Bearer #{self.auth_token}",
-    }
+    h = {}
+    h["Authorization"] = "Bearer #{self.auth_token}" if self.auth_token
+    return h
   end
 
   def fetch_geofencing_zones

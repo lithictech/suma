@@ -56,6 +56,7 @@ module Suma::API::Entities
   class VendorServiceEntity < BaseEntity
     expose :id
     expose :external_name, as: :name
+    expose :internal_name, as: :slug
     expose :vendor_name, &self.delegate_to(:vendor, :name)
     expose :vendor_slug, &self.delegate_to(:vendor, :slug)
   end

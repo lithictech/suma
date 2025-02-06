@@ -42,6 +42,7 @@ module Suma::Async
     "suma/async/stripe_refunds_backfiller",
     "suma/async/sync_lime_free_bike_status_gbfs",
     "suma/async/sync_lime_geofencing_zones_gbfs",
+    "suma/async/sync_lyft_free_bike_status_gbfs",
   ].freeze
 
   configurable(:async) do

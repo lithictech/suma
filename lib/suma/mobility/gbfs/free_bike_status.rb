@@ -25,13 +25,24 @@ class Suma::Mobility::Gbfs::FreeBikeStatus < Suma::Mobility::Gbfs::ComponentSync
       row = {
         lat: bike["lat"],
         lng: bike["lon"],
+        lat_int: Suma::Mobility.coord2int(bike["lat"]),
+        lng_int: Suma::Mobility.coord2int(bike["lon"]),
         vehicle_id: bike["bike_id"],
-        vehicle_type: "escooter",
+        vehicle_type: self.class.derive_vehicle_type(vehicle_type).to_s,
         vendor_service_id: vendor_service.id,
         battery_level: Sequel.cast(battery_level, :smallint),
         rental_uris: Sequel.pg_jsonb(bike["rental_uris"] || {}),
       }
       yield row
     end
+  end
+
+  def self.derive_vehicle_type(vehicle_type_json)
+    ff = vehicle_type_json.fetch("form_factor")
+    pt = vehicle_type_json.fetch("propulsion_type")
+    return Suma::Mobility::EBIKE if ff == "bicycle" && pt == "electric_assist"
+    return Suma::Mobility::ESCOOTER if ff == "scooter" && pt == "electric"
+    return Suma::Mobility::BIKE if ff == "bicycle" && pt == "human"
+    raise Suma::Mobility::UnknownVehicleType, "Cannot map vehicle type for form_factor #{ff}, propulsion_type: #{pt}"
   end
 end
