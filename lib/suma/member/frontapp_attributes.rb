@@ -8,7 +8,7 @@ class Suma::Member::FrontappAttributes
   end
 
   def upsert_contact
-    if self.contact_id.blank?
+    if @member.frontapp_contact_id.blank?
       self._create_contact
     else
       self._update_contact
@@ -20,6 +20,9 @@ class Suma::Member::FrontappAttributes
     contact = Suma::Frontapp.client.create_contact!(self._contact_body.merge(handles: self._contact_handles))
     @member.update(frontapp_contact_id: contact.fetch("id"))
     return contact
+  rescue Frontapp::ConflictError => e
+    @member.update(frontapp_contact_id: e.message)
+    self._update_contact
   end
 
   def _update_contact
@@ -29,6 +32,9 @@ class Suma::Member::FrontappAttributes
     handles.each do |h|
       Suma::Frontapp.client.add_contact_handle!(self.contact_id, h)
     end
+  rescue Frontapp::NotFoundError
+    @member.update(frontapp_contact_id: "")
+    self._create_contact
   end
 
   def _contact_body
@@ -49,6 +55,6 @@ class Suma::Member::FrontappAttributes
   end
 
   def contact_id
-    @member.frontapp_contact_id
+    return "alt:phone:#{Suma::PhoneNumber.format_e164(@member.phone)}"
   end
 end
