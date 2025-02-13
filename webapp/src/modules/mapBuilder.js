@@ -250,19 +250,16 @@ export default class MapBuilder {
     // Add new list of markers that are not in the current list
     mcg.addLayers(applicableMarkers, { chunkedLoading: true });
 
-    // Remove current markers that are not in the new list
+    // Remove current markers that are not in the new list or
+    // current out-of-bound markers that are not in the new bounds
     const removableCurrentMarkers = currentMarkers.filter(
-      (marker) => !allNewMarkersIds.includes(marker.options.id)
+      (marker) =>
+        !allNewMarkersIds.includes(marker.options.id) || !bounds.contains(marker._latlng)
     );
-    // Remove current out-of-bound markers that are not in the new bounds
-    const removableOutOfBoundMarkers = currentMarkers.filter(
-      (marker) => !bounds.contains(marker._latlng)
-    );
-    const removableMarkers = removableCurrentMarkers.concat(removableOutOfBoundMarkers);
-    mcg.removeLayers(removableMarkers, { chunkedLoading: true });
+    mcg.removeLayers(removableCurrentMarkers, { chunkedLoading: true });
 
     // Close the map reserve card if the marker for a scooter is now gone
-    const isVehicleRemoved = removableMarkers.find(
+    const isVehicleRemoved = removableCurrentMarkers.find(
       (marker) => this._clickedVehicle?.options.id === marker.options.id
     );
     if (!this._clickedVehicle || !isVehicleRemoved) {
