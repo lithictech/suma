@@ -228,14 +228,9 @@ export default class MapBuilder {
     const precisionFactor = 1 / data.precision;
     const applicableMarkers = [];
     const allNewMarkersIds = [];
-    const leftoverMarkers = [];
-    // First: Removes markers that are not present in the bounds
-    const removableMarkers = mcg
-      .getLayers()
-      .filter((marker) => !bounds.contains(marker._latlng));
-    mcg.removeLayers(removableMarkers, { chunkedLoading: true });
-    // Second: Add markers for ids that are missing
-    const currentMarkersIds = mcg.getLayers().map((marker) => marker.options.id);
+    const currentMarkers = mcg.getLayers();
+    const currentMarkersIds = currentMarkers.map((marker) => marker.options.id);
+    // Create new vehicle markers
     ["ebike", "escooter"].forEach((vehicleType) => {
       data[vehicleType]?.forEach((bike) => {
         const id = `${bike.p}-${bike.c[0]}-${bike.c[1]}${bike.d ? "-" + bike.d : ""}`;
@@ -248,24 +243,26 @@ export default class MapBuilder {
         );
         if (!currentMarkersIds.includes(id)) {
           applicableMarkers.push(marker);
-        } else {
-          leftoverMarkers.push(marker);
         }
         allNewMarkersIds.push(id);
       });
     });
+    // Add new list of markers that are not in the current list
     mcg.addLayers(applicableMarkers, { chunkedLoading: true });
-    // Third: Remove *leftover* markers that are not present in the new list of ids
-    // Leftover markers are visible in new bounds but might not exist in new list of ids,
-    // therefor we should remove the non-existing leftover marker(s)
-    const removableLeftoverMarkers = leftoverMarkers.filter(
+
+    // Remove current markers that are not in the new list
+    const removableCurrentMarkers = currentMarkers.filter(
       (marker) => !allNewMarkersIds.includes(marker.options.id)
     );
-    mcg.removeLayers(removableLeftoverMarkers, { chunkedLoading: true });
+    // Remove current out-of-bound markers that are not in the new bounds
+    const removableOutOfBoundMarkers = currentMarkers.filter(
+      (marker) => !bounds.contains(marker._latlng)
+    );
+    const removableMarkers = removableCurrentMarkers.concat(removableOutOfBoundMarkers);
+    mcg.removeLayers(removableMarkers, { chunkedLoading: true });
 
-    // Fourth: Close the map reserve card if the marker for a scooter is now gone
-    const removedMarkers = removableMarkers.concat(removableLeftoverMarkers);
-    const isVehicleRemoved = removedMarkers.find(
+    // Close the map reserve card if the marker for a scooter is now gone
+    const isVehicleRemoved = removableMarkers.find(
       (marker) => this._clickedVehicle?.options.id === marker.options.id
     );
     if (!this._clickedVehicle || !isVehicleRemoved) {
