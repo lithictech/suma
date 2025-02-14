@@ -12,6 +12,9 @@ RSpec.describe Suma::Frontapp::ListSync, :db, reset_configuration: Suma::Frontap
 
   describe "syncing lists" do
     it "creates the specified lists in Front" do
+      m = Suma::Fixtures.member.onboarding_verified.create(frontapp_contact_id: "crd_123")
+      m.preferences!
+
       get_groups = stub_request(:get, "https://api2.frontapp.com/contact_groups").
         to_return(
           json_response({}),
@@ -28,11 +31,8 @@ RSpec.describe Suma::Frontapp::ListSync, :db, reset_configuration: Suma::Frontap
         with(body: "{\"name\":\"Marketing - SMS - English\"}").
         to_return(json_response({}))
       add_ids = stub_request(:post, "https://api2.frontapp.com/contact_groups/grp_en/contacts").
-        with(body: "{\"contact_ids\":[\"crd_123\"]}").
+        with(body: "{\"contact_ids\":[\"alt:phone:+#{m.phone}\"]}").
         to_return(json_response({}))
-
-      m = Suma::Fixtures.member.onboarding_verified.create(frontapp_contact_id: "crd_123")
-      m.preferences!
 
       described_class.new(now:).run
 
@@ -42,6 +42,9 @@ RSpec.describe Suma::Frontapp::ListSync, :db, reset_configuration: Suma::Frontap
     end
 
     it "first deletes lists with the same name" do
+      m = Suma::Fixtures.member.onboarding_verified.create(frontapp_contact_id: "crd_123")
+      m.preferences!
+
       get_groups = stub_request(:get, "https://api2.frontapp.com/contact_groups").
         to_return(
           json_response(
@@ -67,11 +70,8 @@ RSpec.describe Suma::Frontapp::ListSync, :db, reset_configuration: Suma::Frontap
         with(body: "{\"name\":\"Marketing - SMS - English\"}").
         to_return(json_response({}))
       add_ids = stub_request(:post, "https://api2.frontapp.com/contact_groups/grp_en2/contacts").
-        with(body: "{\"contact_ids\":[\"crd_123\"]}").
+        with(body: "{\"contact_ids\":[\"alt:phone:+#{m.phone}\"]}").
         to_return(json_response({}))
-
-      m = Suma::Fixtures.member.onboarding_verified.create(frontapp_contact_id: "crd_123")
-      m.preferences!
 
       described_class.new(now:).run
 
