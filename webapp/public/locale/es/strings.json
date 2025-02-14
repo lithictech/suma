@@ -295,7 +295,7 @@
   "otp": {
     "code_resent": "Nuevo código enviado a {{phone}}.",
     "did_not_receive": "¿No recibiste un mensaje de texto?",
-    "enter_code": "Introduzca el código",
+    "enter_code": "Introduzca código {{index}}",
     "enter_code_sent_to": "Introducir el código que enviamos",
     "send_new_code": "Enviar un nuevo código",
     "verify": "Verificar",

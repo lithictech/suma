@@ -36,6 +36,8 @@ const OneTimePassword = () => {
 
     const onlyDigits = /^\d+$/.test(value);
     if (!onlyDigits) {
+      // Reset any non-digits to previous value
+      setOtpChars(setCharAt(otpChars, otpChars[index], index));
       return;
     }
 
@@ -160,7 +162,7 @@ const OneTimePassword = () => {
             {otpChars.map((data, index) => (
               <input
                 className="otp-field mb-2 p-1"
-                type="text"
+                type="numbers"
                 name="otp"
                 // Must use the OTP length here, so any input can capture the full paste.
                 maxLength={OTP_LENGTH}
@@ -169,11 +171,11 @@ const OneTimePassword = () => {
                 value={data}
                 placeholder="&middot;"
                 onInput={(e) => handleOtpChange(e, index)}
-                onPaste={handleOtpPaste}
                 onKeyDown={(e) => handleOtpKeyDown(e, index)}
+                onPaste={handleOtpPaste}
                 onFocus={(e) => e.target.select()}
                 autoFocus={index === 0}
-                aria-label={t("otp:enter_code") + (index + 1)}
+                aria-label={t("otp:enter_code", { index: index + 1 })}
                 autoComplete="one-time-code"
               />
             ))}
