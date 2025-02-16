@@ -98,7 +98,7 @@ class Suma::Mobility::Trip < Suma::Postgres::Model(:mobility_trips)
           es: "Suma Movilidad - #{self.vendor_service.external_name}",
         ),
       )
-      xactions.each { |x| self.charge.add_book_transaction(x) }
+      xactions.each { |x| self.charge.add_line_item(book_transaction: x) }
       return self.charge
     end
   end

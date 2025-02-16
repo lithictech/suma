@@ -123,7 +123,7 @@ RSpec.describe Suma::AdminAPI::Members, :db do
     it "represents detailed info" do
       cash_ledger = Suma::Fixtures.ledger.member(admin).category(:cash).create
       charge1 = Suma::Fixtures.charge(member: admin).create
-      charge1.add_book_transaction(Suma::Fixtures.book_transaction.from(cash_ledger).create)
+      charge1.add_line_item(book_transaction: Suma::Fixtures.book_transaction.from(cash_ledger).create)
       admin.preferences!.update(preferred_language: "es")
 
       get "/v1/members/#{admin.id}"

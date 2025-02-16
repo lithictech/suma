@@ -274,28 +274,24 @@ class Suma::Lyft::Pass
         self.logger.debug("ride_already_exists", ride_id:)
         raise Sequel::Rollback
       end
-      money = ride_resp.fetch("money")
       charge = Suma::Charge.create(
         mobility_trip: trip,
-        undiscounted_subtotal: Money.new(money.fetch("amount"), money.fetch("currency")),
+        undiscounted_subtotal: self._money2money(ride_resp),
         member:,
       )
-      contrib_coll = member.payment_account!.calculate_charge_contributions(
-        Suma::Payment::CalculationContext.new(Time.at(ride_resp.fetch("created_at_ms") / 1000)),
-        vendor_service,
-        Money.new(0),
-      )
-      contrib = contrib_coll.all(cash: :last).first.dup(amount: Money.new(0))
-      xactions = member.payment_account.debit_contributions(
-        [contrib],
-        memo: Suma::TranslatedText.create(
-          en: "Suma Mobility - #{vendor_service.external_name}",
-          es: "Suma Movilidad - #{vendor_service.external_name}",
-        ),
-      )
-      xactions.each { |x| charge.add_book_transaction(x) }
+      ride.fetch("line_items").each do |li|
+        charge.add_off_platform_line_item(
+          amount: self._money2money(li),
+          memo: Suma::TranslatedText.create(all: li.fetch("title")),
+        )
+      end
       return charge
     end
+  end
+
+  def _money2money(h)
+    money = h.fetch("money")
+    return Money.new(money.fetch("amount"), money.fetch("currency"))
   end
 
   def extract_cookie(resp, key)

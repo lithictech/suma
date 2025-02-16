@@ -329,11 +329,18 @@ RSpec.describe Suma::Lyft::Pass, :db, reset_configuration: Suma::Lyft do
       }
     end
 
-    it "inserts a trip, charge, and book transaction for the member" do
+    it "inserts a trip, charge, and line items for the member" do
       member = Suma::Fixtures.member.with_cash_ledger.create(email: "fakeuser@mysuma.org")
       Suma::Fixtures.vendor_service.mobility.create(vendor: Suma::Lyft.mobility_vendor)
       charge = instance.upsert_ride_as_trip(ride)
       expect(charge).to have_attributes(member:)
+      expect(charge.on_platform_line_items).to be_empty
+      expect(charge.off_platform_line_items).to contain_exactly(
+        have_attributes(amount: cost("$1")),
+        have_attributes(amount: cost("$3.85")),
+        have_attributes(amount: cost("$1")),
+        have_attributes(amount: cost("-$5.85")),
+      )
     end
 
     it "logs and noops if a trip with the external trip/ride id already exists" do

@@ -3,6 +3,25 @@
 require "suma/postgres/model"
 require "suma/admin_linked"
 
+# Charges represent something a member was charged for,
+# on or off platform. They are *not* part of the payment system;
+# they are a higher-level representation of a charge,
+# linked to something like a commerce order or mobility trip.
+#
+# Each charge may have one or more 'line items'.
+# Each line item represents some part of the charge.
+#
+# Line items may represent on-platform funds flows (book transactions),
+# like the money moved from each ledger to pay for an order
+# that was paid from multiple ledgers (cash, subsidy, etc.).
+#
+# Line items may also represent off-platform funds flows,
+# where there are no funds flows to represent. These are 'self'
+# line items, which do not point to a book transaction
+# (each line item can have 'self' data, or point to a book transaction).
+# An example would be when we have a user account linked to
+# an external vendor like Lyft, and Lyft handles all charging;
+# suma is there as an intermediary but is not in the funds flow.
 class Suma::Charge < Suma::Postgres::Model(:charges)
   include Suma::AdminLinked
 
@@ -12,11 +31,15 @@ class Suma::Charge < Suma::Postgres::Model(:charges)
   many_to_one :member, class: "Suma::Member"
   many_to_one :mobility_trip, class: "Suma::Mobility::Trip"
   many_to_one :commerce_order, class: "Suma::Commerce::Order"
-  many_to_many :book_transactions,
-               class: "Suma::Payment::BookTransaction",
-               join_table: :charges_payment_book_transactions,
-               left_key: :charge_id,
-               right_key: :book_transaction_id
+  one_to_many :line_items, class: "Suma::Charge::LineItem"
+  one_to_many :on_platform_line_items,
+              class: "Suma::Charge::LineItem",
+              conditions: Sequel[:book_transaction_id] !~ nil,
+              readonly: true
+  one_to_many :off_platform_line_items,
+              class: "Suma::Charge::LineItem",
+              conditions: Sequel[:book_transaction_id] =~ nil,
+              readonly: true
   # Keep track of any synchronous funding transactions
   # that were caused due to this charge. There is NOT a direct linkage
   # in ledgering terms- this is rather modeling the user experience
@@ -35,7 +58,7 @@ class Suma::Charge < Suma::Postgres::Model(:charges)
   end
 
   def discounted_subtotal
-    return self.book_transactions.sum(Money.new(0), &:amount)
+    return self.line_items.sum(Money.new(0), &:amount)
   end
 
   def discount_amount
@@ -43,6 +66,12 @@ class Suma::Charge < Suma::Postgres::Model(:charges)
   end
 
   def rel_admin_link = "/charge/#{self.id}"
+
+  def add_off_platform_line_item(amount:, memo:, **kw)
+    li = Suma::Charge::LineItem.create_self(charge: self, amount:, memo:, **kw)
+    self.associations.delete(:off_platform_line_items)
+    return li
+  end
 end
 
 # Table: charges
