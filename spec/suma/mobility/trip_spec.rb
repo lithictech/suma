@@ -88,7 +88,7 @@ RSpec.describe "Suma::Mobility::Trip", :db do
         undiscounted_subtotal: cost("$1.62"),
         discounted_subtotal: cost("$1.20"),
       )
-      expect(trip.charge.book_transactions).to have_length(1)
+      expect(trip.charge.line_items).to have_length(1)
     end
 
     it "charges the mobility ledger if there is a balance" do
@@ -103,7 +103,7 @@ RSpec.describe "Suma::Mobility::Trip", :db do
         undiscounted_subtotal: cost("$0.70"),
         discounted_subtotal: cost("$0.70"),
       )
-      expect(trip.charge.book_transactions).to contain_exactly(
+      expect(trip.charge.line_items.map(&:book_transaction)).to contain_exactly(
         have_attributes(
           originating_ledger: member.payment_account.mobility_ledger!,
           receiving_ledger: Suma::Payment::Account.lookup_platform_vendor_service_category_ledger(mobility),
@@ -120,7 +120,7 @@ RSpec.describe "Suma::Mobility::Trip", :db do
         ongoing.
         create(began_at: 211.seconds.ago, vendor_service_rate: rate, member:)
       trip.end_trip(lat: 1, lng: 2)
-      expect(trip.charge.book_transactions).to contain_exactly(
+      expect(trip.charge.line_items.map(&:book_transaction)).to contain_exactly(
         have_attributes(
           originating_ledger: member.payment_account.cash_ledger!,
           receiving_ledger: Suma::Payment::Account.lookup_platform_vendor_service_category_ledger(cash),
@@ -141,7 +141,7 @@ RSpec.describe "Suma::Mobility::Trip", :db do
           create(began_at: 6.minutes.ago, vendor_service_rate: rate, member:)
         trip.end_trip(lat: 1, lng: 2)
         expect(trip.charge).to have_attributes(discounted_subtotal: cost("$0"))
-        expect(trip.charge.book_transactions).to contain_exactly(
+        expect(trip.charge.line_items.map(&:book_transaction)).to contain_exactly(
           have_attributes(
             originating_ledger: be === mobility_ledger,
             amount: cost("$0"),
@@ -161,7 +161,7 @@ RSpec.describe "Suma::Mobility::Trip", :db do
           create(began_at: 6.minutes.ago, vendor_service_rate: rate, member:)
         trip.end_trip(lat: 1, lng: 2)
         expect(trip.charge).to have_attributes(discounted_subtotal: cost("$0"))
-        expect(trip.charge.book_transactions).to contain_exactly(
+        expect(trip.charge.line_items.map(&:book_transaction)).to contain_exactly(
           have_attributes(
             originating_ledger: be === cash_ledger,
             amount: cost("$0"),

@@ -143,7 +143,7 @@ class Suma::Commerce::Order < Suma::Postgres::Model(:commerce_orders)
   def cash_paid
     cash = self.member.payment_account&.cash_ledger
     return self.charges.sum(Money.new(0)) do |ch|
-      ch.book_transactions.
+      ch.line_items.map(&:book_transaction).
           select { |x| x.originating_ledger === cash }.
           sum(Money.new(0), &:amount)
     end

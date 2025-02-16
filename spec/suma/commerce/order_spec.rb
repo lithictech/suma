@@ -22,7 +22,7 @@ RSpec.describe "Suma::Commerce::Order", :db do
   it "knows how much was paid" do
     charge = Suma::Fixtures.charge.create
     bx = Suma::Fixtures.book_transaction.create(amount: money("$12.50"))
-    charge.add_book_transaction(bx)
+    charge.add_line_item(book_transaction: bx)
     o = Suma::Fixtures.order.create
     expect(o.paid_amount).to cost("$0")
     o.add_charge(charge)
@@ -44,8 +44,8 @@ RSpec.describe "Suma::Commerce::Order", :db do
     cash = Suma::Payment.ensure_cash_ledger(charge.member)
     bxcash = Suma::Fixtures.book_transaction.from(cash).create(amount: money("$12.50"))
     bxnoncash = Suma::Fixtures.book_transaction.from({account: cash.account}).create(amount: money("$5"))
-    charge.add_book_transaction(bxcash)
-    charge.add_book_transaction(bxnoncash)
+    charge.add_line_item(book_transaction: bxcash)
+    charge.add_line_item(book_transaction: bxnoncash)
     o = Suma::Fixtures.order.as_purchased_by(charge.member).create
     o.add_charge(charge)
     expect(o.cash_paid).to cost("$12.50")
