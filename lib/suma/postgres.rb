@@ -64,6 +64,7 @@ module Suma::Postgres
     "suma/commerce/order_audit_log",
     "suma/commerce/product",
     "suma/commerce/product_inventory",
+    "suma/external_credential",
     "suma/image",
     "suma/member",
     "suma/member/activity",

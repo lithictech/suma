@@ -33,6 +33,7 @@ module Suma::SpecHelpers
     path = TEST_DATA_DIR + "#{name}.yaml" unless path.exist? || !File.extname(name).empty?
     path = TEST_DATA_DIR + "#{name}.yml" unless path.exist? || !File.extname(name).empty?
     path = TEST_DATA_DIR + "#{name}.xml" unless path.exist? || !File.extname(name).empty?
+    path = TEST_DATA_DIR + "#{name}.txt" unless path.exist? || !File.extname(name).empty?
 
     rawdata = path.read(encoding: "utf-8")
 
