@@ -8,7 +8,7 @@ class Suma::Tasks::Integration < Rake::TaskLib
   def initialize
     super
     namespace :integration do
-      desc "Run the LyftPass auth and access to make sure it's working."
+      desc "Run the LyftPass sync."
       task :lyftpass do
         require "suma"
         Suma.load_app
@@ -18,9 +18,10 @@ class Suma::Tasks::Integration < Rake::TaskLib
           authorization: Suma::Lyft.pass_authorization,
           org_id: Suma::Lyft.pass_org_id,
           account_id: Suma::Lyft.pass_account_id,
+          vendor_service_rate: Suma::Vendor::ServiceRate.find!(Suma::Lyft.pass_vendor_service_rate_id),
         )
         lp.authenticate
-        puts lp.fetch_rides
+        lp.sync_trips
       end
     end
   end

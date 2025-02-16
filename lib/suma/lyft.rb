@@ -15,6 +15,7 @@ module Suma::Lyft
     setting :pass_email, ""
     setting :pass_org_id, ""
     setting :pass_account_id, ""
+    setting :pass_vendor_service_rate_id, 0
   end
 
   VENDOR_NAME = "Lyft"

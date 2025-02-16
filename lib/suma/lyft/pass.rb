@@ -18,15 +18,17 @@ class Suma::Lyft::Pass
         authorization: Suma::Lyft.pass_authorization,
         org_id: Suma::Lyft.pass_org_id,
         account_id: Suma::Lyft.pass_account_id,
+        vendor_service_rate: Suma::Vendor::ServiceRate[Suma::Lyft.pass_vendor_service_rate_id],
       )
     end
   end
 
   attr_reader :credential
 
-  def initialize(email:, authorization:, org_id:, account_id:)
+  def initialize(email:, authorization:, org_id:, account_id:, vendor_service_rate:)
     @email = email
     @org_id = org_id
+    @vendor_service_rate = vendor_service_rate
     # No idea where this is coming from yet
     @authorization = authorization
     @account_id = account_id
@@ -222,6 +224,78 @@ class Suma::Lyft::Pass
       logger: self.logger,
     )
     return rides_resp.parsed_response
+  end
+
+  def fetch_ride(tx_id)
+    resp = Suma::Http.get(
+      "https://www.lyft.com/v1/enterprise-insights/detail/transactions-legacy/#{tx_id}",
+      headers: self.auth_headers,
+      logger: self.logger,
+    )
+    return resp.parsed_response
+  end
+
+  def sync_trips
+    rides = self.fetch_rides
+    tx_ids = rides.fetch("results").map { |r| r["transactions.id"] }
+    tx_ids.each do |txid|
+      ride = self.fetch_ride(txid)
+      self.upsert_ride_as_trip(ride)
+    end
+  end
+
+  def upsert_ride_as_trip(ride_resp)
+    ride = ride_resp.fetch("ride")
+    rider_email = ride.fetch("rider").fetch("email_address")
+    ride_id = ride.fetch("ride_id")
+    if (member = Suma::Member.with_email(rider_email)).nil?
+      self.logger.warn("no_member_for_rider", ride_id:, rider_email:)
+      return nil
+    end
+    vendor_service = @vendor_service_rate.services_dataset.where(vendor: Suma::Lyft.mobility_vendor).first or
+      raise Suma::InvalidPrecondition, "No mobility vendor service for Lyft vendor and configured rate"
+    member.db.transaction(savepoint: true) do
+      begin
+        # noinspection RubyArgCount
+        trip = Suma::Mobility::Trip.create(
+          member:,
+          vehicle_id: ride_id,
+          external_trip_id: ride_id,
+          vendor_service:,
+          vendor_service_rate: @vendor_service_rate,
+          begin_lat: 0,
+          begin_lng: 0,
+          began_at: Time.at(ride.fetch("pickup").fetch("timestamp_ms") / 1000),
+          end_lat: 0,
+          end_lng: 0,
+          ended_at: Time.at(ride.fetch("dropoff").fetch("timestamp_ms") / 1000),
+        )
+      rescue Sequel::UniqueConstraintViolation
+        self.logger.debug("ride_already_exists", ride_id:)
+        raise Sequel::Rollback
+      end
+      money = ride_resp.fetch("money")
+      charge = Suma::Charge.create(
+        mobility_trip: trip,
+        undiscounted_subtotal: Money.new(money.fetch("amount"), money.fetch("currency")),
+        member:,
+      )
+      contrib_coll = member.payment_account!.calculate_charge_contributions(
+        Suma::Payment::CalculationContext.new(Time.at(ride_resp.fetch("created_at_ms") / 1000)),
+        vendor_service,
+        Money.new(0),
+      )
+      contrib = contrib_coll.all(cash: :last).first.dup(amount: Money.new(0))
+      xactions = member.payment_account.debit_contributions(
+        [contrib],
+        memo: Suma::TranslatedText.create(
+          en: "Suma Mobility - #{vendor_service.external_name}",
+          es: "Suma Movilidad - #{vendor_service.external_name}",
+        ),
+      )
+      xactions.each { |x| charge.add_book_transaction(x) }
+      return charge
+    end
   end
 
   def extract_cookie(resp, key)
