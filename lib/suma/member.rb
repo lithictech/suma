@@ -461,12 +461,12 @@ require "suma/member/stripe_attributes"
 #  eligibility_member_associations        | eligibility_member_associations_rejected_member_id_fkey | (rejected_member_id) REFERENCES members(id)
 #  eligibility_member_associations        | eligibility_member_associations_verified_member_id_fkey | (verified_member_id) REFERENCES members(id)
 #  member_activities                      | member_activities_member_id_fkey                        | (member_id) REFERENCES members(id) ON DELETE CASCADE
-#  member_key_values                      | member_key_values_member_id_fkey                        | (member_id) REFERENCES members(id) ON DELETE CASCADE
 #  member_linked_legal_entities           | member_linked_legal_entities_member_id_fkey             | (member_id) REFERENCES members(id)
 #  member_referrals                       | member_referral_member_id_fkey                          | (member_id) REFERENCES members(id) ON DELETE CASCADE
 #  member_reset_codes                     | member_reset_codes_member_id_fkey                       | (member_id) REFERENCES members(id) ON DELETE CASCADE
 #  member_sessions                        | member_sessions_impersonating_id_fkey                   | (impersonating_id) REFERENCES members(id) ON DELETE SET NULL
 #  member_sessions                        | member_sessions_member_id_fkey                          | (member_id) REFERENCES members(id) ON DELETE CASCADE
+#  member_surveys                         | member_surveys_member_id_fkey                           | (member_id) REFERENCES members(id)
 #  message_deliveries                     | message_deliveries_recipient_id_fkey                    | (recipient_id) REFERENCES members(id) ON DELETE SET NULL
 #  message_preferences                    | message_preferences_member_id_fkey                      | (member_id) REFERENCES members(id)
 #  mobility_trips                         | mobility_trips_member_id_fkey                           | (member_id) REFERENCES members(id)
@@ -475,6 +475,9 @@ require "suma/member/stripe_attributes"
 #  payment_book_transactions              | payment_book_transactions_actor_id_fkey                 | (actor_id) REFERENCES members(id) ON DELETE SET NULL
 #  payment_funding_transaction_audit_logs | payment_funding_transaction_audit_logs_actor_id_fkey    | (actor_id) REFERENCES members(id) ON DELETE SET NULL
 #  payment_payout_transaction_audit_logs  | payment_payout_transaction_audit_logs_actor_id_fkey     | (actor_id) REFERENCES members(id) ON DELETE SET NULL
+#  program_enrollments                    | program_enrollments_approved_by_id_fkey                 | (approved_by_id) REFERENCES members(id) ON DELETE SET NULL
+#  program_enrollments                    | program_enrollments_member_id_fkey                      | (member_id) REFERENCES members(id) ON DELETE CASCADE
+#  program_enrollments                    | program_enrollments_unenrolled_by_id_fkey               | (unenrolled_by_id) REFERENCES members(id) ON DELETE SET NULL
 #  roles_members                          | roles_members_member_id_fkey                            | (member_id) REFERENCES members(id)
 #  uploaded_files                         | uploaded_files_created_by_id_fkey                       | (created_by_id) REFERENCES members(id)
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------

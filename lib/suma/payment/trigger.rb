@@ -179,4 +179,5 @@ end
 # Referenced By:
 #  eligibility_payment_trigger_associations | eligibility_payment_trigger_associations_trigger_id_fkey | (trigger_id) REFERENCES payment_triggers(id)
 #  payment_trigger_executions               | payment_trigger_executions_trigger_id_fkey               | (trigger_id) REFERENCES payment_triggers(id)
+#  programs_payment_triggers                | programs_payment_triggers_trigger_id_fkey                | (trigger_id) REFERENCES payment_triggers(id)
 # ---------------------------------------------------------------------------------------------------------------------------------------------------

@@ -63,6 +63,8 @@ end
 #  vendor_service_id | integer  | NOT NULL
 #  battery_level     | smallint |
 #  rental_uris       | jsonb    | NOT NULL DEFAULT '{}'::jsonb
+#  lat_int           | integer  | NOT NULL
+#  lng_int           | integer  | NOT NULL
 # Indexes:
 #  mobility_vehicles_pkey                    | PRIMARY KEY btree (id)
 #  mobility_vehicles_vendor_service_id_index | btree (vendor_service_id)

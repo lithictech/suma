@@ -66,4 +66,8 @@ end
 #  payment_payout_transactions           | payment_payout_transactions_memo_id_fkey                    | (memo_id) REFERENCES translated_texts(id)
 #  payment_triggers                      | payment_triggers_memo_id_fkey                               | (memo_id) REFERENCES translated_texts(id)
 #  payment_triggers                      | payment_triggers_receiving_ledger_contribution_text_id_fkey | (receiving_ledger_contribution_text_id) REFERENCES translated_texts(id)
+#  programs                              | programs_app_link_text_id_fkey                              | (app_link_text_id) REFERENCES translated_texts(id)
+#  programs                              | programs_description_id_fkey                                | (description_id) REFERENCES translated_texts(id)
+#  programs                              | programs_name_id_fkey                                       | (name_id) REFERENCES translated_texts(id)
+#  vendible_groups                       | vendible_groups_name_id_fkey                                | (name_id) REFERENCES translated_texts(id)
 # ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------

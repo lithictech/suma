@@ -221,4 +221,6 @@ require "suma/commerce/offering_picklist"
 #  commerce_offering_products            | commerce_offering_products_offering_id_fkey            | (offering_id) REFERENCES commerce_offerings(id)
 #  eligibility_offering_associations     | eligibility_offering_associations_offering_id_fkey     | (offering_id) REFERENCES commerce_offerings(id)
 #  images                                | images_commerce_offering_id_fkey                       | (commerce_offering_id) REFERENCES commerce_offerings(id)
+#  programs_commerce_offerings           | programs_commerce_offerings_offering_id_fkey           | (offering_id) REFERENCES commerce_offerings(id)
+#  vendible_groups_commerce_offerings    | vendible_groups_commerce_offerings_offering_id_fkey    | (offering_id) REFERENCES commerce_offerings(id)
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------

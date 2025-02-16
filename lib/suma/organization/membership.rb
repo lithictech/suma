@@ -36,6 +36,7 @@ end
 #  member_id                    | integer                  |
 # Indexes:
 #  organization_memberships_pkey                           | PRIMARY KEY btree (id)
+#  unique_member_membership_in_verified_organization       | UNIQUE btree (member_id, verified_organization_id)
 #  organization_memberships_member_id_index                | btree (member_id)
 #  organization_memberships_verified_organization_id_index | btree (verified_organization_id)
 # Check constraints:

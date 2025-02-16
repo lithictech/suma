@@ -97,6 +97,7 @@ end
 #  external_name               | text                     | NOT NULL
 #  mobility_vendor_adapter_key | text                     | NOT NULL DEFAULT ''::text
 #  constraints                 | jsonb                    | DEFAULT '[]'::jsonb
+#  period                      | tstzrange                | NOT NULL
 # Indexes:
 #  vendor_services_pkey            | PRIMARY KEY btree (id)
 #  vendor_services_vendor_id_index | btree (vendor_id)
@@ -104,9 +105,12 @@ end
 #  vendor_services_vendor_id_fkey | (vendor_id) REFERENCES vendors(id) ON DELETE CASCADE
 # Referenced By:
 #  eligibility_vendor_service_associations   | eligibility_vendor_service_associations_service_id_fkey    | (service_id) REFERENCES vendor_services(id)
+#  images                                    | images_vendor_service_id_fkey                              | (vendor_service_id) REFERENCES vendor_services(id)
 #  mobility_restricted_areas                 | mobility_restricted_areas_vendor_service_id_fkey           | (vendor_service_id) REFERENCES vendor_services(id)
 #  mobility_trips                            | mobility_trips_vendor_service_id_fkey                      | (vendor_service_id) REFERENCES vendor_services(id) ON DELETE RESTRICT
 #  mobility_vehicles                         | mobility_vehicles_vendor_service_id_fkey                   | (vendor_service_id) REFERENCES vendor_services(id) ON DELETE CASCADE
+#  programs_vendor_services                  | programs_vendor_services_service_id_fkey                   | (service_id) REFERENCES vendor_services(id)
+#  vendible_groups_vendor_services           | vendible_groups_vendor_services_service_id_fkey            | (service_id) REFERENCES vendor_services(id)
 #  vendor_service_categories_vendor_services | vendor_service_categories_vendor_services_service_id_fkey  | (service_id) REFERENCES vendor_services(id)
 #  vendor_service_vendor_service_rates       | vendor_service_vendor_service_rates_vendor_service_id_fkey | (vendor_service_id) REFERENCES vendor_services(id)
 # -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------

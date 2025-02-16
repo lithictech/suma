@@ -66,4 +66,5 @@ end
 # Referenced By:
 #  anon_proxy_vendor_accounts                               | anon_proxy_vendor_accounts_configuration_id_fkey                | (configuration_id) REFERENCES anon_proxy_vendor_configurations(id) ON DELETE CASCADE
 #  eligibility_anon_proxy_vendor_configuration_associations | eligibility_anon_proxy_vendor_configurati_configuration_id_fkey | (configuration_id) REFERENCES anon_proxy_vendor_configurations(id)
+#  programs_anon_proxy_vendor_configurations                | programs_anon_proxy_vendor_configurations_configuration_id_fkey | (configuration_id) REFERENCES anon_proxy_vendor_configurations(id)
 # ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------

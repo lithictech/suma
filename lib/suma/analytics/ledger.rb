@@ -34,6 +34,7 @@ end
 #  balance            | numeric |
 #  total_credits      | numeric |
 #  total_debits       | numeric |
+#  categories         | text[]  |
 # Indexes:
 #  ledgers_pkey          | PRIMARY KEY btree (pk)
 #  ledgers_ledger_id_key | UNIQUE btree (ledger_id)
