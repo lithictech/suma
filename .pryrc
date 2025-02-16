@@ -38,3 +38,10 @@ def repl
   Suma::Fixtures.load_all
   return true
 end
+
+def viewhtml(s)
+  md5 = Digest::MD5.hexdigest(s)
+  path = Pathname(Dir.mktmpdir("viewhtml")).join("#{md5}.html").to_s
+  File.write(path, s)
+  `open #{path}`
+end
