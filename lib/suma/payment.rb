@@ -58,15 +58,18 @@ module Suma::Payment
     return self.supported_methods.include?(x.to_s)
   end
 
+  # Return parameter if it's a payment account, or use it to find/create a payment account if it's a member.
+  def self.as_account(member_or_payment_account)
+    return Suma::Payment::Account.find_or_create_or_find(member: member_or_payment_account) if
+      member_or_payment_account.is_a?(Suma::Member)
+    return member_or_payment_account
+  end
+
   # Every member should have a 'cash' ledger that is used for almost every service
   # (except those that do not have a 'cash' category, which is rare but possible,
   # if a vendor wants to be paid only in scrip or something else).
   def self.ensure_cash_ledger(member_or_payment_account)
-    payment_account = if member_or_payment_account.is_a?(Suma::Member)
-                        Suma::Payment::Account.find_or_create_or_find(member: member_or_payment_account)
-    else
-      member_or_payment_account
-    end
+    payment_account = self.as_account(member_or_payment_account)
     payment_account.ensure_cash_ledger
   end
 end

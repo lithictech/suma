@@ -152,9 +152,7 @@ class Suma::API::Mobility < Suma::API::V1
   end
 
   class MobilityMapVendorServiceEntity < VendorServiceEntity
-    expose :zero_balance_ok do |instance|
-      instance.rates.first&.surcharge&.zero? || false
-    end
+    expose :charge_after_fulfillment, as: :zero_balance_ok
   end
 
   class MobilityMapEntity < BaseEntity

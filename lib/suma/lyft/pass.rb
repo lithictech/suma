@@ -26,11 +26,22 @@ class Suma::Lyft::Pass
   attr_reader :credential
 
   def initialize(email:, authorization:, org_id:, account_id:, vendor_service_rate:)
+    raise ArgumentError, "email cannot be blank" if email.blank?
+    raise ArgumentError, "authorization cannot be blank" if authorization.blank?
+    raise ArgumentError, "org_id cannot be blank" if org_id.blank?
+    raise ArgumentError, "account_id cannot be blank" if account_id.blank?
+    raise ArgumentError, "vendor_service_rate cannot be nil" if vendor_service_rate.nil?
     @email = email
     @org_id = org_id
     @vendor_service_rate = vendor_service_rate
+    @vendor_service = Suma::Vendor::Service.where(
+      vendor: Suma::Lyft.mobility_vendor,
+      mobility_vendor_adapter_key: "lyft_deeplink",
+    ).first or
+      raise Suma::InvalidPrecondition, "No mobility vendor service for Lyft vendor and configured rate"
     # No idea where this is coming from yet
     @authorization = authorization
+    # Or this one, it's not the user or org id
     @account_id = account_id
     @credential = nil
   end
@@ -252,33 +263,29 @@ class Suma::Lyft::Pass
       self.logger.warn("no_member_for_rider", ride_id:, rider_email:)
       return nil
     end
-    vendor_service = @vendor_service_rate.services_dataset.where(vendor: Suma::Lyft.mobility_vendor).first or
-      raise Suma::InvalidPrecondition, "No mobility vendor service for Lyft vendor and configured rate"
     member.db.transaction(savepoint: true) do
       begin
-        # noinspection RubyArgCount
-        trip = Suma::Mobility::Trip.create(
+        trip = Suma::Mobility::Trip.start_trip(
           member:,
           vehicle_id: ride_id,
-          external_trip_id: ride_id,
-          vendor_service:,
-          vendor_service_rate: @vendor_service_rate,
-          begin_lat: 0,
-          begin_lng: 0,
-          began_at: Time.at(ride.fetch("pickup").fetch("timestamp_ms") / 1000),
+          vendor_service: @vendor_service,
+          rate: @vendor_service_rate,
+          lat: 0,
+          lng: 0,
+          at: Time.at(ride.fetch("pickup").fetch("timestamp_ms") / 1000),
+          # Set this to ensure the ride shows as ended and doesn't hit a unique constraint
+          # on the active trip.
+          ended_at: Time.at(ride.fetch("dropoff").fetch("timestamp_ms") / 1000),
           end_lat: 0,
           end_lng: 0,
-          ended_at: Time.at(ride.fetch("dropoff").fetch("timestamp_ms") / 1000),
+          external_trip_id: ride_id,
         )
       rescue Sequel::UniqueConstraintViolation
         self.logger.debug("ride_already_exists", ride_id:)
         raise Sequel::Rollback
       end
-      charge = Suma::Charge.create(
-        mobility_trip: trip,
-        undiscounted_subtotal: self._money2money(ride_resp),
-        member:,
-      )
+
+      charge = trip.end_trip(lat: 0, lng: 0, adapter_kw: {ride_response: ride_resp})
       ride.fetch("line_items").each do |li|
         charge.add_off_platform_line_item(
           amount: self._money2money(li),

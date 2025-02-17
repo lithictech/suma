@@ -97,13 +97,7 @@ RSpec.describe Suma::API::Mobility, :db do
       expect(last_response).to have_status(200)
       expect(last_response_json_body).to include(providers: contain_exactly(include(zero_balance_ok: false)))
 
-      rate = Suma::Fixtures.vendor_service_rate.surcharge.for_service(vendor_service).create
-
-      get "/v1/mobility/map", sw: [15, 110], ne: [25, 125]
-      expect(last_response).to have_status(200)
-      expect(last_response_json_body).to include(providers: contain_exactly(include(zero_balance_ok: false)))
-
-      rate.update(surcharge_cents: 0)
+      vendor_service.update(charge_after_fulfillment: true)
 
       get "/v1/mobility/map", sw: [15, 110], ne: [25, 125]
       expect(last_response).to have_status(200)
