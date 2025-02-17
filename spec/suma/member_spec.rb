@@ -181,20 +181,13 @@ RSpec.describe "Suma::Member", :db do
       expect(c).to have_attributes(read_only_reason: "read_only_technical_error")
     end
 
-    it "is true if the member has a $0 balance" do
-      c = Suma::Fixtures.member.onboarding_verified.create
-      Suma::Payment::Account.create(member: c)
-      expect(c).to be_read_only_mode
-      expect(c).to have_attributes(read_only_reason: "read_only_zero_balance")
-    end
-
     it "is true if the member has not been verified" do
       c = Suma::Fixtures.member.with_cash_ledger(amount: money("$5")).create
       expect(c).to be_read_only_mode
       expect(c).to have_attributes(read_only_reason: "read_only_unverified")
     end
 
-    it "is false if the member is verified and has a balance" do
+    it "is false if the member is verified and has a payment account" do
       c = Suma::Fixtures.member.onboarding_verified.with_cash_ledger(amount: money("$5")).create
       expect(c).to have_attributes(read_only_reason: nil, read_only_mode?: false)
     end

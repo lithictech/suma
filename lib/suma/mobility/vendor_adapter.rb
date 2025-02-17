@@ -13,7 +13,9 @@ module Suma::Mobility::VendorAdapter
     :duration_minutes,
     :end_time,
     keyword_init: true,
-  )
+  ) do
+    def cost = Money.new(self.cost_cents, self.cost_currency)
+  end
 
   class << self
     def create(name)
@@ -24,10 +26,14 @@ module Suma::Mobility::VendorAdapter
   # Begin the trip with the underlying vendor.
   # Used for MaaS and Proxy adapters. See /docs/mobility.md.
   # @param [Suma::Mobility::Trip]
+  # @return [Suma::Mobility::VendorAdapter::BeginTripResult]
   def begin_trip(trip) = raise NotImplementedError
   # End a trip. See #begin_trip.
+  # Adapters used only in specific scenarios (like backfilling trips
+  # made off-platform) may take additional keyword arguments.
   # @param [Suma::Mobility::Trip]
-  def end_trip(trip) = raise NotImplementedError
+  # @return [Suma::Mobility::VendorAdapter::EndTripResult]
+  def end_trip(trip, **) = raise NotImplementedError
 
   # Should be true for Deep Link adapters. See /docs/mobility.md.
   # @param [true,false]

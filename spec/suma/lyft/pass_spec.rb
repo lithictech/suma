@@ -13,7 +13,13 @@ RSpec.describe Suma::Lyft::Pass, :db, reset_configuration: Suma::Lyft do
     Suma::Lyft.pass_account_id = "5678"
 
     @vendor_service_rate = Suma::Fixtures.vendor_service_rate.create
-    @vendor_service = Suma::Fixtures.vendor_service.mobility.create(vendor: Suma::Lyft.mobility_vendor)
+    @vendor_service = Suma::Fixtures.vendor_service.
+      mobility.
+      create(
+        vendor: Suma::Lyft.mobility_vendor,
+        mobility_vendor_adapter_key: "lyft_deeplink",
+        charge_after_fulfillment: true,
+      )
     @vendor_service_rate.add_service(@vendor_service)
     Suma::Lyft.pass_vendor_service_rate_id = @vendor_service_rate.id
 
@@ -40,6 +46,31 @@ RSpec.describe Suma::Lyft::Pass, :db, reset_configuration: Suma::Lyft do
         },
       }.to_json,
     )
+  end
+
+  it "errors if any configuration is missing" do
+    Suma::Lyft.pass_authorization = ""
+    expect { Suma::Lyft::Pass.from_config }.to raise_error(/authorization cannot be blank/)
+    Suma::Lyft.pass_authorization = "x"
+
+    Suma::Lyft.pass_email = ""
+    expect { Suma::Lyft::Pass.from_config }.to raise_error(/email cannot be blank/)
+    Suma::Lyft.pass_email = "x"
+
+    Suma::Lyft.pass_org_id = ""
+    expect { Suma::Lyft::Pass.from_config }.to raise_error(/org_id cannot be blank/)
+    Suma::Lyft.pass_org_id = "x"
+
+    Suma::Lyft.pass_account_id = ""
+    expect { Suma::Lyft::Pass.from_config }.to raise_error(/account_id cannot be blank/)
+    Suma::Lyft.pass_account_id = "x"
+
+    Suma::Lyft.pass_vendor_service_rate_id = 0
+    expect { Suma::Lyft::Pass.from_config }.to raise_error(/vendor_service_rate cannot be nil/)
+    Suma::Lyft.pass_vendor_service_rate_id = @vendor_service_rate.id
+
+    @vendor_service.update(mobility_vendor_adapter_key: "lyft_deeplink-fake")
+    expect { Suma::Lyft::Pass.from_config }.to raise_error(/No mobility vendor service for Lyft vendor/)
   end
 
   describe "find_credential" do
@@ -329,13 +360,23 @@ RSpec.describe Suma::Lyft::Pass, :db, reset_configuration: Suma::Lyft do
       }
     end
 
+    let(:member) do
+      Suma::Fixtures.member.
+        onboarding_verified.
+        registered_as_stripe_customer.
+        with_cash_ledger.
+        create(email: "fakeuser@mysuma.org")
+    end
+
     it "inserts a trip, charge, and line items for the member" do
-      member = Suma::Fixtures.member.with_cash_ledger.create(email: "fakeuser@mysuma.org")
-      Suma::Fixtures.vendor_service.mobility.create(vendor: Suma::Lyft.mobility_vendor)
+      Suma::Fixtures.card.member(member).create
+
       charge = instance.upsert_ride_as_trip(ride)
       expect(charge).to have_attributes(member:)
-      expect(charge.on_platform_line_items).to be_empty
-      expect(charge.off_platform_line_items).to contain_exactly(
+      expect(charge.associated_funding_transactions).to contain_exactly(
+        have_attributes(amount: cost("$5.85")),
+      )
+      expect(charge.line_items).to contain_exactly(
         have_attributes(amount: cost("$1")),
         have_attributes(amount: cost("$3.85")),
         have_attributes(amount: cost("$1")),
@@ -344,8 +385,7 @@ RSpec.describe Suma::Lyft::Pass, :db, reset_configuration: Suma::Lyft do
     end
 
     it "logs and noops if a trip with the external trip/ride id already exists" do
-      Suma::Fixtures.member.with_cash_ledger.create(email: "fakeuser@mysuma.org")
-      Suma::Fixtures.vendor_service.mobility.create(vendor: Suma::Lyft.mobility_vendor)
+      Suma::Fixtures.card.member(member).create
       expect(instance.upsert_ride_as_trip(ride)).to be_a(Suma::Charge)
       logs = capture_logs_from(described_class.logger, level: :debug, formatter: :json) do
         expect(instance.upsert_ride_as_trip(ride)).to be_nil
@@ -355,6 +395,12 @@ RSpec.describe Suma::Lyft::Pass, :db, reset_configuration: Suma::Lyft do
       )
     end
 
+    it "does not treat the trip as ongoing (to avoid unique constraint violation)" do
+      Suma::Fixtures.mobility_trip.ongoing.create(member:)
+      Suma::Fixtures.card.member(member).create
+      expect(instance.upsert_ride_as_trip(ride)).to be_a(Suma::Charge)
+    end
+
     it "logs and noops if there is no member for the email" do
       logs = capture_logs_from(described_class.logger, level: :debug, formatter: :json) do
         expect(instance.upsert_ride_as_trip(ride)).to be_nil
@@ -362,14 +408,6 @@ RSpec.describe Suma::Lyft::Pass, :db, reset_configuration: Suma::Lyft do
       expect(logs).to include(
         include_json(message: eq("no_member_for_rider")),
       )
-    end
-
-    it "errors if there is no lyft mobility vendor service category" do
-      Suma::Fixtures.member.with_cash_ledger.create(email: "fakeuser@mysuma.org")
-      @vendor_service.remove_all_rates
-      expect do
-        instance.upsert_ride_as_trip(ride)
-      end.to raise_error(/No mobility vendor service for Lyft vendor/)
     end
   end
 end

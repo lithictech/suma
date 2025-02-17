@@ -77,7 +77,7 @@ class Suma::Payment::FundingTransaction < Suma::Postgres::Model(:payment_funding
     # @param [Suma::Payment::FundingTransaction::Strategy] strategy Explicit override to use this strategy.
     #   When using a FakeStrategy, pass it in this way.
     # @return [Suma::Payment::FundingTransaction]
-    def start_new(payment_account, amount:, instrument: nil, originating_ip: nil, strategy: nil)
+    def start_new(payment_account, amount:, instrument: nil, originating_ip: nil, strategy: nil, collect: true)
       if strategy.nil?
         strategy = @fake_strategy.respond_to?(:call) ? @fake_strategy.call : @fake_strategy
       end
@@ -110,18 +110,19 @@ class Suma::Payment::FundingTransaction < Suma::Postgres::Model(:payment_funding
           strategy:,
         )
         xaction.save_changes
-        xaction.process(:collect_funds) if xaction.strategy.ready_to_collect_funds?
+        xaction.process(:collect_funds) if collect && xaction.strategy.ready_to_collect_funds?
         return xaction
       end
     end
 
     # Like +start_new+, but also creates a +BookTransaction+ that moves funds
     # from the platform cash ledger into the cash ledger on payment_account.
-    def start_and_transfer(payment_account, amount:, apply_at:, instrument: nil, strategy: nil)
-      receiving_ledger = Suma::Payment.ensure_cash_ledger(payment_account)
+    def start_and_transfer(member_or_payment_account, amount:, apply_at:, instrument: nil, strategy: nil)
+      receiving_ledger = Suma::Payment.ensure_cash_ledger(member_or_payment_account)
       vendor_service_category = Suma::Vendor::ServiceCategory.cash
       self.db.transaction do
-        fx = Suma::Payment::FundingTransaction.start_new(receiving_ledger.account, amount:, instrument:, strategy:)
+        # collect should always be true, since making the funds available implies we try to collect them.
+        fx = self.start_new(receiving_ledger.account, amount:, instrument:, strategy:, collect: true)
         originated_book_transaction = Suma::Payment::BookTransaction.create(
           apply_at:,
           amount: fx.amount,

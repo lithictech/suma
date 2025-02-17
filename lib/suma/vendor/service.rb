@@ -64,6 +64,12 @@ class Suma::Vendor::Service < Suma::Postgres::Model(:vendor_services)
     return r.first
   end
 
+  def guard_zero_balance!(member)
+    return if self.charge_after_fulfillment
+    return if (pa = member.payment_account) && pa && pa.total_balance > Money.new(0)
+    raise Suma::Member::ReadOnlyMode, "read_only_zero_balance"
+  end
+
   # A hash is said to satisfy the vendor service constraints
   # if any of the constraints have all of their keys and values present in the hash.
   #

@@ -46,6 +46,22 @@ Sequel.migration do
     from(:charge_line_items).multi_insert(rows)
 
     drop_table(:charges_payment_book_transactions)
+
+    alter_table(:vendor_services) do
+      add_column :charge_after_fulfillment, :boolean, default: false, null: false
+    end
+
+    alter_table(:mobility_trips) do
+      add_column :opaque_id, :text, unique: true
+    end
+
+    from(:mobility_trips).multi_insert(from(:mobility_trips).all.map do |t|
+      t.merge!(opaque_id: Suma::Secureid.new_opaque_id("trp"))
+    end)
+
+    alter_table(:mobility_trips) do
+      set_column_not_null :opaque_id
+    end
   end
 
   down do
@@ -56,5 +72,12 @@ Sequel.migration do
     from(:charges_payment_book_transactions).multi_insert(from(:charge_line_items).all)
     drop_table(:charge_line_items)
     drop_table(:external_credentials)
+
+    alter_table(:vendor_services) do
+      drop_column :charge_after_fulfillment
+    end
+    alter_table(:mobility_trips) do
+      drop_column :opaque_id
+    end
   end
 end
