@@ -100,7 +100,7 @@ export default function VendorServiceDetailPage() {
             ]}
             keyRowAttr="id"
             toCells={(row) => [
-              row.id,
+              <AdminLink key="id" model={row} />,
               dayjs(row.createdAt).format("lll"),
               row.vehicleId,
               row.rate.name,

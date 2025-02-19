@@ -8,9 +8,15 @@ class Suma::AdminAPI::MobilityTrips < Suma::AdminAPI::V1
 
   class DetailedMobilityTripEntity < MobilityTripEntity
     include Suma::AdminAPI::Entities
-    expose :vendor_service, with: VendorServiceEntity
+    include AutoExposeDetail
+    expose :external_trip_id
+    expose :begin_lat
+    expose :begin_lng
+    expose :end_lat
+    expose :end_lng
+    expose :vendor_service_rate, as: :rate, with: VendorServiceRateEntity
+    expose :discount_amount, with: MoneyEntity, &self.delegate_to(:charge, :discount_amount, safe: true)
     expose :charge, with: ChargeEntity
-    expose :member, with: MemberEntity
   end
 
   resource :mobility_trips do
@@ -18,7 +24,7 @@ class Suma::AdminAPI::MobilityTrips < Suma::AdminAPI::V1
       self,
       Suma::Mobility::Trip,
       MobilityTripEntity,
-      search_params: [:external_trip_id],
+      search_params: [:external_trip_id, :vehicle_id],
     )
     Suma::AdminAPI::CommonEndpoints.get_one(
       self,
@@ -31,14 +37,12 @@ class Suma::AdminAPI::MobilityTrips < Suma::AdminAPI::V1
       DetailedMobilityTripEntity,
     ) do
       params do
-        optional :period_begin, type: Time
-        optional :period_end, type: Time
-        optional :begin_lat, type: Integer
-        optional :begin_lng, type: Integer
-        optional :end_lat, type: Integer
-        optional :end_lng, type: Integer
         optional :began_at, type: Time
         optional :ended_at, type: Time
+        optional :begin_lat, type: Float
+        optional :begin_lng, type: Float
+        optional :end_lat, type: Float
+        optional :end_lng, type: Float
       end
     end
   end

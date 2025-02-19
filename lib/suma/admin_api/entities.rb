@@ -198,17 +198,12 @@ module Suma::AdminAPI::Entities
 
   class MobilityTripEntity < BaseEntity
     include AutoExposeBase
-    include AutoExposeDetail
     expose :vehicle_id
-    expose :begin_lat
-    expose :begin_lng
     expose :began_at
-    expose :end_lat
-    expose :end_lng
     expose :ended_at
-    expose :vendor_service_rate, as: :rate, with: VendorServiceRateEntity
+    expose :member, with: MemberEntity
+    expose :vendor_service, with: VendorServiceEntity
     expose :total_cost, with: MoneyEntity, &self.delegate_to(:charge, :discounted_subtotal, safe: true)
-    expose :discount_amount, with: MoneyEntity, &self.delegate_to(:charge, :discount_amount, safe: true)
   end
 
   class SimpleLedgerEntity < BaseEntity

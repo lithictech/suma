@@ -207,6 +207,11 @@ export default {
   updateOrganizationMembership: ({ id, ...data }) =>
     post(`/adminapi/v1/organization_memberships/${id}`, data),
 
+  getMobilityTrips: (data) => get(`/adminapi/v1/mobility_trips`, data),
+  getMobilityTrip: ({ id, ...data }) => get(`/adminapi/v1/mobility_trips/${id}`, data),
+  updateMobilityTrip: ({ id, ...data }) =>
+    post(`/adminapi/v1/mobility_trips/${id}`, data),
+
   getRoles: (data) => get("/adminapi/v1/roles", data),
 
   searchProducts: (data) => post(`/adminapi/v1/search/products`, data),

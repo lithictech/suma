@@ -114,7 +114,7 @@ class Suma::Mobility::Trip < Suma::Postgres::Model(:mobility_trips)
     return x
   end
 
-  def rel_admin_link = "/mobility/trips/#{self.id}"
+  def rel_admin_link = "/mobility-trip/#{self.id}"
 end
 
 # Table: mobility_trips

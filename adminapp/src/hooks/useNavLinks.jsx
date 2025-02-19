@@ -4,6 +4,7 @@ import AccountBalanceWalletIcon from "@mui/icons-material/AccountBalanceWallet";
 import AddBusinessIcon from "@mui/icons-material/AddBusiness";
 import AssignmentIndIcon from "@mui/icons-material/AssignmentInd";
 import AutoModeIcon from "@mui/icons-material/AutoMode";
+import BikeScooterIcon from "@mui/icons-material/BikeScooter";
 import CorporateFareIcon from "@mui/icons-material/CorporateFare";
 import EventAvailableIcon from "@mui/icons-material/EventAvailable";
 import HomeIcon from "@mui/icons-material/Home";
@@ -84,6 +85,11 @@ export default function useNavLinks() {
         label: "Orders",
         href: "/orders",
         icon: <ShoppingBagIcon />,
+      },
+      management && {
+        label: "Mobility Trips",
+        href: "/mobility-trips",
+        icon: <BikeScooterIcon />,
       },
       commerce && {
         label: "Vendor Accounts",

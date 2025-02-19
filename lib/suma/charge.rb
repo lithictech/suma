@@ -42,7 +42,7 @@ class Suma::Charge < Suma::Postgres::Model(:charges)
     return self.undiscounted_subtotal - self.discounted_subtotal
   end
 
-  def rel_admin_link = "/charges/#{self.id}"
+  def rel_admin_link = "/charge/#{self.id}"
 end
 
 # Table: charges

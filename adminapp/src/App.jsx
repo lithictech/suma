@@ -14,6 +14,9 @@ import MemberEditPage from "./pages/MemberEditPage";
 import MemberListPage from "./pages/MemberListPage";
 import MessageDetailPage from "./pages/MessageDetailPage";
 import MessageListPage from "./pages/MessageListPage";
+import MobilityTripDetailPage from "./pages/MobilityTripDetailPage";
+import MobilityTripEditPage from "./pages/MobilityTripEditPage";
+import MobilityTripListPage from "./pages/MobilityTripListPage";
 import OfferingCreatePage from "./pages/OfferingCreatePage";
 import OfferingDetailPage from "./pages/OfferingDetailPage";
 import OfferingEditPage from "./pages/OfferingEditPage";
@@ -242,6 +245,22 @@ function PageSwitch() {
           PaymentLedgerDetailPage
         )}
       />
+      <Route
+        exact
+        path="/mobility-trips"
+        element={renderWithHocs(redirectIfUnauthed, withLayout(), MobilityTripListPage)}
+      />
+      <Route
+        exact
+        path="/mobility-trip/:id"
+        element={renderWithHocs(redirectIfUnauthed, withLayout(), MobilityTripDetailPage)}
+      />
+      <Route
+        exact
+        path="/mobility-trip/:id/edit"
+        element={renderWithHocs(redirectIfUnauthed, withLayout(), MobilityTripEditPage)}
+      />
+
       <Route
         exact
         path="/offerings"
