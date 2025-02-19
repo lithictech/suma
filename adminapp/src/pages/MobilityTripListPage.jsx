@@ -59,7 +59,7 @@ export default function MobilityTripListPage() {
           id: "ended_at",
           label: "Ended",
           align: "center",
-          render: (c) => dayjs(c.endedAt).format("ll LTS"),
+          render: (c) => (c.endedAt ? dayjs(c.endedAt).format("ll LTS") : "Ongoing"),
         },
         {
           id: "total_cost",

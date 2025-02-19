@@ -36,11 +36,14 @@ export default function MobilityTripDetailPage() {
         { label: "Vehicle ID", value: model.vehicleId },
         { label: "External Trip ID", value: model.externalTripId },
         { label: "Started At", value: dayjs(model.beganAt).format("ll LTS") },
-        { label: "Ended At", value: dayjs(model.endedAt).format("ll LTS") },
+        {
+          label: "Ended At",
+          value: model.endedAt ? dayjs(model.endedAt).format("ll LTS") : "Ongoing",
+        },
         { label: "Start Lat", value: model.beginLat },
         { label: "Start Lng", value: model.beginLng },
-        { label: "End Lat", value: model.endLat },
-        { label: "End Lng", value: model.endLng },
+        { label: "End Lat", value: model.endLat, hideEmpty: true },
+        { label: "End Lng", value: model.endLng, hideEmpty: true },
         { label: "Total Cost", value: <Money>{model.totalCost}</Money> },
         { label: "Discount Amount", value: <Money>{model.discountAmount}</Money> },
       ]}

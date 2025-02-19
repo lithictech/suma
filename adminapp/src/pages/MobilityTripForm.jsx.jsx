@@ -10,6 +10,7 @@ export default function MobilityTripForm({
   isCreate,
   resource,
   setField,
+  setFieldFromInput,
   isBusy,
   onSubmit,
 }) {
@@ -28,11 +29,13 @@ export default function MobilityTripForm({
           <SafeDateTimePicker
             label="Trip Started"
             value={resource.beganAt}
+            seconds={true}
             onChange={(v) => setField("beganAt", formatOrNull(v))}
           />
           <SafeDateTimePicker
             label="Trip Ended"
             value={resource.endedAt}
+            seconds={true}
             onChange={(v) => setField("endedAt", formatOrNull(v))}
           />
         </ResponsiveStack>
@@ -40,42 +43,42 @@ export default function MobilityTripForm({
         <ResponsiveStack>
           <TextField
             name="beginLat"
-            value={Number(resource.beginLat) || 0}
+            value={resource.beginLat || 0}
             inputProps={latInputProps}
             fullWidth
             type="number"
             label="Starting Latitude"
-            onChange={(e) => setField("beginLat", Number(e.target.value))}
+            onChange={setFieldFromInput}
           />
           <TextField
             name="beginLng"
-            value={Number(resource.beginLng) || 0}
+            value={resource.beginLng || 0}
             inputProps={lngInputProps}
             fullWidth
             type="number"
             label="Starting Longitude"
-            onChange={(e) => setField("beginLng", Number(e.target.value))}
+            onChange={setFieldFromInput}
           />
         </ResponsiveStack>
         <Divider />
         <ResponsiveStack>
           <TextField
             name="endLat"
-            value={Number(resource.endLat) || 0}
+            value={resource.endLat || 0}
             inputProps={latInputProps}
             fullWidth
             type="number"
             label="Ending Latitude"
-            onChange={(e) => setField("endLat", Number(e.target.value))}
+            onChange={setFieldFromInput}
           />
           <TextField
             name="endLng"
-            value={Number(resource.endLng) || 0}
+            value={resource.endLng || 0}
             inputProps={lngInputProps}
             fullWidth
             type="number"
             label="Ending Longitude"
-            onChange={(e) => setField("endLng", Number(e.target.value))}
+            onChange={setFieldFromInput}
           />
         </ResponsiveStack>
       </Stack>

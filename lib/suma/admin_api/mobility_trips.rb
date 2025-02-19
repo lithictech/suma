@@ -12,8 +12,8 @@ class Suma::AdminAPI::MobilityTrips < Suma::AdminAPI::V1
     expose :external_trip_id
     expose :begin_lat
     expose :begin_lng
-    expose :end_lat
-    expose :end_lng
+    expose :end_lat, expose_nil: false
+    expose :end_lng, expose_nil: false
     expose :vendor_service_rate, as: :rate, with: VendorServiceRateEntity
     expose :discount_amount, with: MoneyEntity, &self.delegate_to(:charge, :discount_amount, safe: true)
     expose :charge, with: ChargeEntity
