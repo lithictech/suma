@@ -16,11 +16,16 @@ class Suma::AdminAPI::Charges < Suma::AdminAPI::V1
     expose :associated_funding_transactions, with: FundingTransactionEntity
   end
 
+  class ChargeEntityWithMember < ChargeEntity
+    include Suma::AdminAPI::Entities
+    expose :member, with: MemberEntity
+  end
+
   resource :charges do
     Suma::AdminAPI::CommonEndpoints.list(
       self,
       Suma::Charge,
-      ChargeEntity,
+      ChargeEntityWithMember,
       search_params: [:opaque_id],
     )
 

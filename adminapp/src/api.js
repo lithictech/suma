@@ -106,6 +106,9 @@ export default {
   getPayoutTransaction: ({ id, ...data }) =>
     get(`/adminapi/v1/payout_transactions/${id}`, data),
 
+  getCharges: (data) => get(`/adminapi/v1/charges`, data),
+  getCharge: ({ id, ...data }) => get(`/adminapi/v1/charges/${id}`, data),
+
   getPaymentLedgers: (data) => get(`/adminapi/v1/payment_ledgers`, data),
   getPaymentLedger: ({ id, ...data }) => get(`/adminapi/v1/payment_ledgers/${id}`, data),
 

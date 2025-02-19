@@ -5,6 +5,8 @@ import BankAccountDetailPage from "./pages/BankAccountDetailPage";
 import BookTransactionCreatePage from "./pages/BookTransactionCreatePage";
 import BookTransactionDetailPage from "./pages/BookTransactionDetailPage";
 import BookTransactionListPage from "./pages/BookTransactionListPage";
+import ChargeDetailPage from "./pages/ChargeDetailPage";
+import ChargeListPage from "./pages/ChargeListPage";
 import DashboardPage from "./pages/DashboardPage";
 import FundingTransactionCreatePage from "./pages/FundingTransactionCreatePage";
 import FundingTransactionDetailPage from "./pages/FundingTransactionDetailPage";
@@ -130,6 +132,16 @@ function PageSwitch() {
         exact
         path="/bank-account/:id"
         element={renderWithHocs(redirectIfUnauthed, withLayout(), BankAccountDetailPage)}
+      />
+      <Route
+        exact
+        path="/charges"
+        element={renderWithHocs(redirectIfUnauthed, withLayout(), ChargeListPage)}
+      />
+      <Route
+        exact
+        path="/charge/:id"
+        element={renderWithHocs(redirectIfUnauthed, withLayout(), ChargeDetailPage)}
       />
       <Route
         exact
