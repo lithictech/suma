@@ -286,7 +286,7 @@ function Charges({ charges }) {
       headers={["Id", "At", "Discounted Total", "Undiscounted Total", "Opaque Id"]}
       rows={charges}
       toCells={(row) => [
-        row.id,
+        <AdminLink model={row} />,
         dayjs(row.createdAt).format("lll"),
         <Money key={3}>{row.discountedSubtotal}</Money>,
         <Money key={3}>{row.undiscountedSubtotal}</Money>,

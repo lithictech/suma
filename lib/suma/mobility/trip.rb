@@ -2,8 +2,10 @@
 
 require "suma/mobility"
 require "suma/postgres/model"
+require "suma/admin_linked"
 
 class Suma::Mobility::Trip < Suma::Postgres::Model(:mobility_trips)
+  include Suma::AdminLinked
   class OngoingTrip < StandardError; end
 
   plugin :timestamps
@@ -111,6 +113,8 @@ class Suma::Mobility::Trip < Suma::Postgres::Model(:mobility_trips)
     x = x.round
     return x
   end
+
+  def rel_admin_link = "/mobility-trip/#{self.id}"
 end
 
 # Table: mobility_trips

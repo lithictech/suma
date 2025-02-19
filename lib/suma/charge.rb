@@ -1,8 +1,11 @@
 # frozen_string_literal: true
 
 require "suma/postgres/model"
+require "suma/admin_linked"
 
 class Suma::Charge < Suma::Postgres::Model(:charges)
+  include Suma::AdminLinked
+
   plugin :timestamps
   plugin :money_fields, :undiscounted_subtotal
 
@@ -38,6 +41,8 @@ class Suma::Charge < Suma::Postgres::Model(:charges)
   def discount_amount
     return self.undiscounted_subtotal - self.discounted_subtotal
   end
+
+  def rel_admin_link = "/charge/#{self.id}"
 end
 
 # Table: charges

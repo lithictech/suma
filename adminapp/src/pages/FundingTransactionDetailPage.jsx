@@ -16,6 +16,14 @@ export default function FundingTransactionDetailPage() {
       properties={(model) => [
         { label: "ID", value: model.id },
         { label: "Created At", value: dayjs(model.createdAt) },
+        {
+          label: "Originating Payment Account",
+          value: (
+            <AdminLink model={model.originatingPaymentAccount}>
+              {model.originatingPaymentAccount.displayName}
+            </AdminLink>
+          ),
+        },
         { label: "Status", value: model.status },
         { label: "Amount", value: <Money>{model.amount}</Money> },
         { label: "Memo", value: model.memo },

@@ -4,6 +4,7 @@ import AccountBalanceWalletIcon from "@mui/icons-material/AccountBalanceWallet";
 import AddBusinessIcon from "@mui/icons-material/AddBusiness";
 import AssignmentIndIcon from "@mui/icons-material/AssignmentInd";
 import AutoModeIcon from "@mui/icons-material/AutoMode";
+import BikeScooterIcon from "@mui/icons-material/BikeScooter";
 import CorporateFareIcon from "@mui/icons-material/CorporateFare";
 import EventAvailableIcon from "@mui/icons-material/EventAvailable";
 import HomeIcon from "@mui/icons-material/Home";
@@ -13,6 +14,7 @@ import ManageAccountsIcon from "@mui/icons-material/ManageAccounts";
 import PaymentsIcon from "@mui/icons-material/Payments";
 import PersonIcon from "@mui/icons-material/Person";
 import PortraitIcon from "@mui/icons-material/Portrait";
+import ReceiptIcon from "@mui/icons-material/Receipt";
 import SellIcon from "@mui/icons-material/Sell";
 import ShoppingBagIcon from "@mui/icons-material/ShoppingBag";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
@@ -44,6 +46,11 @@ export default function useNavLinks() {
         label: "Ledgers",
         href: "/payment-ledgers",
         icon: <PaymentsIcon />,
+      },
+      payments && {
+        label: "Charges",
+        href: "/charges",
+        icon: <ReceiptIcon />,
       },
       payments && {
         label: "Book Transactions",
@@ -84,6 +91,11 @@ export default function useNavLinks() {
         label: "Orders",
         href: "/orders",
         icon: <ShoppingBagIcon />,
+      },
+      management && {
+        label: "Mobility Trips",
+        href: "/mobility-trips",
+        icon: <BikeScooterIcon />,
       },
       commerce && {
         label: "Vendor Accounts",

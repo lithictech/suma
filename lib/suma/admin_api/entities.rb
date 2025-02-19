@@ -196,6 +196,16 @@ module Suma::AdminAPI::Entities
     expose :undiscounted_subtotal, with: MoneyEntity
   end
 
+  class MobilityTripEntity < BaseEntity
+    include AutoExposeBase
+    expose :vehicle_id
+    expose :began_at
+    expose :ended_at
+    expose :member, with: MemberEntity
+    expose :vendor_service, with: VendorServiceEntity
+    expose :total_cost, with: MoneyEntity, &self.delegate_to(:charge, :discounted_subtotal, safe: true)
+  end
+
   class SimpleLedgerEntity < BaseEntity
     include AutoExposeBase
     expose :name

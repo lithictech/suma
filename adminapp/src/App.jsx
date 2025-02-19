@@ -5,6 +5,8 @@ import BankAccountDetailPage from "./pages/BankAccountDetailPage";
 import BookTransactionCreatePage from "./pages/BookTransactionCreatePage";
 import BookTransactionDetailPage from "./pages/BookTransactionDetailPage";
 import BookTransactionListPage from "./pages/BookTransactionListPage";
+import ChargeDetailPage from "./pages/ChargeDetailPage";
+import ChargeListPage from "./pages/ChargeListPage";
 import DashboardPage from "./pages/DashboardPage";
 import FundingTransactionCreatePage from "./pages/FundingTransactionCreatePage";
 import FundingTransactionDetailPage from "./pages/FundingTransactionDetailPage";
@@ -14,6 +16,9 @@ import MemberEditPage from "./pages/MemberEditPage";
 import MemberListPage from "./pages/MemberListPage";
 import MessageDetailPage from "./pages/MessageDetailPage";
 import MessageListPage from "./pages/MessageListPage";
+import MobilityTripDetailPage from "./pages/MobilityTripDetailPage";
+import MobilityTripEditPage from "./pages/MobilityTripEditPage";
+import MobilityTripListPage from "./pages/MobilityTripListPage";
 import OfferingCreatePage from "./pages/OfferingCreatePage";
 import OfferingDetailPage from "./pages/OfferingDetailPage";
 import OfferingEditPage from "./pages/OfferingEditPage";
@@ -130,6 +135,16 @@ function PageSwitch() {
       />
       <Route
         exact
+        path="/charges"
+        element={renderWithHocs(redirectIfUnauthed, withLayout(), ChargeListPage)}
+      />
+      <Route
+        exact
+        path="/charge/:id"
+        element={renderWithHocs(redirectIfUnauthed, withLayout(), ChargeDetailPage)}
+      />
+      <Route
+        exact
         path="/funding-transactions"
         element={renderWithHocs(
           redirectIfUnauthed,
@@ -242,6 +257,22 @@ function PageSwitch() {
           PaymentLedgerDetailPage
         )}
       />
+      <Route
+        exact
+        path="/mobility-trips"
+        element={renderWithHocs(redirectIfUnauthed, withLayout(), MobilityTripListPage)}
+      />
+      <Route
+        exact
+        path="/mobility-trip/:id"
+        element={renderWithHocs(redirectIfUnauthed, withLayout(), MobilityTripDetailPage)}
+      />
+      <Route
+        exact
+        path="/mobility-trip/:id/edit"
+        element={renderWithHocs(redirectIfUnauthed, withLayout(), MobilityTripEditPage)}
+      />
+
       <Route
         exact
         path="/offerings"

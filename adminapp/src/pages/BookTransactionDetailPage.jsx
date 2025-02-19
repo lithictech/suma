@@ -70,7 +70,7 @@ export default function BookTransactionDetailPage() {
             headers={["Id", "At", "Undiscounted Total", "Opaque Id"]}
             rows={model.charges}
             toCells={(row) => [
-              row.id,
+              <AdminLink model={row} />,
               dayjs(row.createdAt).format("lll"),
               <Money key={3}>{row.undiscountedSubtotal}</Money>,
               row.opaqueId,

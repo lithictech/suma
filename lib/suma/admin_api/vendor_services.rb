@@ -6,19 +6,14 @@ require "suma/admin_api"
 class Suma::AdminAPI::VendorServices < Suma::AdminAPI::V1
   include Suma::AdminAPI::Entities
 
-  class DetailedMobilityTripEntity < BaseEntity
+  class DetailedMobilityTripEntity < MobilityTripEntity
     include Suma::AdminAPI::Entities
-    include AutoExposeBase
     include AutoExposeDetail
-    expose :vehicle_id
-    expose :vendor_service_rate, as: :rate, with: VendorServiceRateEntity
     expose :begin_lat
     expose :begin_lng
-    expose :began_at
     expose :end_lat
     expose :end_lng
-    expose :ended_at
-    expose :total_cost, with: MoneyEntity, &self.delegate_to(:charge, :discounted_subtotal, safe: true)
+    expose :vendor_service_rate, as: :rate, with: VendorServiceRateEntity
     expose :discount_amount, with: MoneyEntity, &self.delegate_to(:charge, :discount_amount, safe: true)
   end
 

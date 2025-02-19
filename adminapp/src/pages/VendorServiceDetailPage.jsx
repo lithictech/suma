@@ -100,13 +100,13 @@ export default function VendorServiceDetailPage() {
             ]}
             keyRowAttr="id"
             toCells={(row) => [
-              row.id,
+              <AdminLink key="id" model={row} />,
               dayjs(row.createdAt).format("lll"),
               row.vehicleId,
               row.rate.name,
               // This formatting shows date and time with seconds
               dayjs(row.beganAt).format("ll LTS"),
-              dayjs(row.endedAt).format("ll LTS"),
+              row.endedAt ? dayjs(row.endedAt).format("ll LTS") : "Ongoing",
               row.beginLat,
               row.beginLng,
               row.endLat,
