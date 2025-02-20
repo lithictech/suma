@@ -164,6 +164,12 @@ module Suma::AdminAPI::Entities
     expose :period_end
   end
 
+  class SimpleVendorServiceEntity < BaseEntity
+    include AutoExposeBase
+    expose :external_name, as: :name
+    expose :vendor, with: VendorEntity
+  end
+
   class VendorServiceCategoryEntity < BaseEntity
     expose :id
     expose :name
@@ -202,7 +208,7 @@ module Suma::AdminAPI::Entities
     expose :began_at
     expose :ended_at
     expose :member, with: MemberEntity
-    expose :vendor_service, with: VendorServiceEntity
+    expose :vendor_service, with: SimpleVendorServiceEntity
     expose :total_cost, with: MoneyEntity, &self.delegate_to(:charge, :discounted_subtotal, safe: true)
   end
 
