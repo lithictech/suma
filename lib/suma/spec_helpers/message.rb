@@ -41,4 +41,21 @@ module Suma::SpecHelpers::Message
     )
     return req
   end
+
+  module_function def fetch_last_email
+    old = WebMock::Config.instance.allow
+    mpurl = Suma::Message::EmailTransport.mailpit_url
+    getopts = {timeout: 5, logger: nil}
+    WebMock::Config.instance.allow = mpurl
+    begin
+      list_resp = Suma::Http.get("#{mpurl}/api/v1/messages", {limit: 1}, **getopts)
+      msg = list_resp.parsed_response.fetch("messages").first
+      msgid = msg.fetch("ID")
+      headers_resp = Suma::Http.get("#{mpurl}/api/v1/message/#{msgid}/headers", **getopts)
+      msg["Headers"] = headers_resp.parsed_response
+      return msg
+    ensure
+      WebMock::Config.instance.allow = old
+    end
+  end
 end
