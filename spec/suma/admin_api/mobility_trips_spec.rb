@@ -14,6 +14,7 @@ RSpec.describe Suma::AdminAPI::MobilityTrips, :db do
   end
 
   def format_to_zone(t, tz: "UTC")
+    tz = ActiveSupport::TimeZone.new(tz)
     return t.in_time_zone(tz).strftime("%FT%T.%L%:z")
   end
 
