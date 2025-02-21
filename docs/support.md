@@ -28,16 +28,6 @@ to send messages you compose in Front through Signalwire, and update SMS replies
 Ultimately how you send and sync messages is outside the scope of this document,
 but just don't use the default Front channel to do it.
 
-Aside from that, list management requires more configuration, since we have to manage subscribes and unsubscribes.
-
-Create two lists, one for SMS and another for Email:
-
-- Create a List in Front, from <https://app.frontapp.com/contacts-manager/contacts/lists/all>.
-  Call it something like "SMS Marketing".
-- Then, click on the list. In the URL will be an ID, like `19062177`.
-- Copy this ID, and set `FRONTAPP_MARKETING_SMS_LIST_ID` to it, to identify the list to store subscribed contacts.
-- Create another list called something like "Email Marketing", copy its ID, and set `FRONTAPP_MARKETING_EMAIL_LIST_ID` to it.
-
 Whenever fields on `Suma::Message::Preferences` are modified, Suma will update the lists the member's Front Contact is on.
 
 ## Updating Suma Preferences from Email/SMS
