@@ -58,6 +58,7 @@ class Suma::AnonProxy::VendorAccount < Suma::Postgres::Model(:anon_proxy_vendor_
 
   def email = self.configuration.uses_email? ? self.contact_email : nil
   def email_required? = self.configuration.uses_email? && self.contact_email.nil?
+  def email_verification_required? = self.configuration.email_verification_required && self.contact_email.nil?
 
   def address = self.email || self.sms
   def address_required? = self.email_required? || self.sms_required?

@@ -168,6 +168,11 @@ class Suma::Member < Suma::Postgres::Model(:members)
     return self.dataset.with_email(e).first
   end
 
+  def self.faked_unreachable_email
+    # example.com is an unreachable email domain https://en.wikipedia.org/wiki/example.com
+    return "#{Time.now.to_f}@example.com"
+  end
+
   def self.matches_allowlist?(member, allowlist)
     return allowlist.any? do |pattern|
       File.fnmatch(pattern, member.phone || "") || File.fnmatch(pattern, member.email || "")
@@ -371,15 +376,21 @@ class Suma::Member < Suma::Postgres::Model(:members)
 
   ### Soft-delete hook -- prep the user for deletion.
   def before_soft_delete
-    self.email = "#{Time.now.to_f}+#{self[:email]}"
     self.password = "aA1!#{SecureRandom.hex(8)}"
-    self.note = (self.note + "\nOriginal phone: #{self.phone}").strip
+    self.note = (self.note + "\nOriginal phone: #{self.phone}" + "\nOriginal email: #{self.email}").strip
     # To make sure we clear out the phone, use +37-(13 chars).
     # But we do need to make sure no one already has this phone number.
     loop do
       new_phone = Suma::PhoneNumber.faked_unreachable_phone
       next unless Suma::Member.where(phone: new_phone).empty?
       self.phone = new_phone
+      break
+    end
+    # Similarly, use example.com email domain and make sure no-one has this email.
+    loop do
+      new_email = Suma::Member.faked_unreachable_email
+      next unless Suma::Member.with_email(new_email).nil?
+      self.email = new_email
       break
     end
     super
@@ -413,6 +424,8 @@ class Suma::Member < Suma::Postgres::Model(:members)
     return if self[:email].nil?
     self.validates_unique(:email)
     self.validates_operator(:==, self.email.downcase.strip, :email)
+    return if self.soft_deleted?
+    self.validates_format(URI::MailTo::EMAIL_REGEXP, :email, message: "is not a valid email address")
   end
 end
 

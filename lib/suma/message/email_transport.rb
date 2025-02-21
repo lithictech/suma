@@ -37,6 +37,14 @@ class Suma::Message::EmailTransport < Suma::Message::Transport
     # Only really used during testing and development.
     # We don't expect this to be running in production.
     setting :mailpit_url, "http://localhost:22008"
+
+    setting :verification_template, "verification"
+  end
+
+  class << self
+    # Return true if the delivery uses the verification template.
+    # @param d [Suma::Message::Delivery]
+    def verification_delivery?(d) = d.template == self.verification_template
   end
 
   def type

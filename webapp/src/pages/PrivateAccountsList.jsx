@@ -1,6 +1,7 @@
 import api from "../api";
 import loaderRing from "../assets/images/loader-ring.svg";
 import ErrorScreen from "../components/ErrorScreen";
+import FormControlGroup from "../components/FormControlGroup";
 import FormError from "../components/FormError";
 import LayoutContainer from "../components/LayoutContainer";
 import LinearBreadcrumbs from "../components/LinearBreadcrumbs";
@@ -17,12 +18,15 @@ import { useError } from "../state/useError";
 import { CanceledError } from "axios";
 import get from "lodash/get";
 import isEmpty from "lodash/isEmpty";
-import React from "react";
+import React, { useState } from "react";
+import { FormText } from "react-bootstrap";
 import Alert from "react-bootstrap/Alert";
 import Button from "react-bootstrap/Button";
 import Card from "react-bootstrap/Card";
+import Form from "react-bootstrap/Form";
 import Modal from "react-bootstrap/Modal";
 import Stack from "react-bootstrap/Stack";
+import { useForm } from "react-hook-form";
 
 export default function PrivateAccountsList() {
   const {
@@ -112,7 +116,9 @@ export default function PrivateAccountsList() {
 
 function PrivateAccount({ account, onHelp }) {
   const { vendorImage } = account;
-  const [buttonStatus, setButtonStatus] = React.useState(INITIAL);
+  const [buttonStatus, setButtonStatus] = React.useState(
+    account.emailVerificationRequired ? EMAIL_VERIFICATION : INITIAL
+  );
   const pollingController = React.useRef(new AbortController());
   const [error, setError] = useError(null);
   const success = useToggle(false);
@@ -124,6 +130,7 @@ function PrivateAccount({ account, onHelp }) {
   const pollingCallback = React.useCallback(() => {
     pollingController.current.abort();
     pollingController.current = new AbortController();
+
     function pollAndReplace() {
       return (
         api
@@ -152,6 +159,7 @@ function PrivateAccount({ account, onHelp }) {
           })
       );
     }
+
     pollAndReplace();
   }, [account.id, success]);
 
@@ -177,8 +185,20 @@ function PrivateAccount({ account, onHelp }) {
       });
   }
 
+  function handleEmailSubmitForm() {
+    // :post to :start_email API
+    // API 200 status, then set buttonStatus, else show error.
+    setButtonStatus(EMAIL_TOKEN_VERIFICATION);
+  }
+
   let content;
-  if (buttonStatus === INITIAL) {
+  if (buttonStatus === EMAIL_VERIFICATION) {
+    content = (
+      <EmailVerificationForm onHandleSubmitForm={handleEmailSubmitForm} onHelp={onHelp} />
+    );
+  } else if (buttonStatus === EMAIL_TOKEN_VERIFICATION) {
+    content = <TokenVerificationForm />;
+  } else if (buttonStatus === INITIAL) {
     content = (
       <Stack direction="horizontal" gap={2} className="justify-content-center mb-1">
         <Button
@@ -194,7 +214,7 @@ function PrivateAccount({ account, onHelp }) {
         </Button>
       </Stack>
     );
-  } else {
+  } else if (buttonStatus === POLLING) {
     content = (
       <Alert variant="info" className="w-100 mb-0">
         <Stack direction="horizontal" gap={3}>
@@ -233,5 +253,62 @@ function PrivateAccount({ account, onHelp }) {
   );
 }
 
-const INITIAL = 1;
-const POLLING = 2;
+function EmailVerificationForm({ onHandleSubmitForm, onHelp }) {
+  // const [error, setError] = useError();
+  const [email, setEmail] = useState("");
+
+  const {
+    register,
+    handleSubmit,
+    clearErrors,
+    setValue,
+    formState: { errors },
+  } = useForm({
+    mode: "all",
+  });
+
+  const handleEmailChange = (e) => {
+    clearErrors();
+    setValue("email", e.target.value);
+    setEmail(e.target.value);
+  };
+
+  return (
+    <Form noValidate onSubmit={handleSubmit(onHandleSubmitForm)}>
+      <FormText id="emailRequired">
+        This vendor service requires that you verify your active personal email. We will
+        send you a verification code to confirm the email.
+      </FormText>
+      <FormControlGroup
+        className="mb-3"
+        type="email"
+        name="email"
+        label="Email"
+        register={register}
+        errors={errors}
+        value={email}
+        aria-describedby="emailRequired"
+        autoComplete="email"
+        required
+        onChange={(e) => handleEmailChange(e)}
+      />
+      <Stack direction="horizontal" gap={2} className="justify-content-center mb-1">
+        <Button variant="primary" type="submit">
+          Send Email
+        </Button>
+        <Button variant="outline-primary" type="button" onClick={() => onHelp()}>
+          {t("common:help")}
+        </Button>
+      </Stack>
+    </Form>
+  );
+}
+
+function TokenVerificationForm() {
+  return "Token verification form goes here.";
+}
+
+const EMAIL_VERIFICATION = 1;
+const EMAIL_TOKEN_VERIFICATION = 2;
+const INITIAL = 3;
+const POLLING = 4;

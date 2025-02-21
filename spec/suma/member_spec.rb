@@ -230,27 +230,21 @@ RSpec.describe "Suma::Member", :db do
   end
 
   describe "soft deleting" do
-    it "sets email and password" do
-      c = Suma::Fixtures.member(email: "a@b.c", password: "password").create
+    it "sets password" do
+      c = Suma::Fixtures.member(password: "password").create
       expect do
         c.soft_delete
       end.to(change { c.password_digest })
-      expect(c.email).to match(/^[0-9]+\.[0-9]+\+a@b\.c$/)
     end
 
-    it "sets phone to an invalid, unused phone number" do
-      c = Suma::Fixtures.member(phone: "15551234567").create
+    it "sets phone and email to an invalid, unused value" do
+      c = Suma::Fixtures.member(phone: "15551234567", email: "a@b.c").create
       c.soft_delete
       expect(c.phone).to_not eq("15551234567")
       expect(c.phone).to have_length(15)
-      expect(c.note).to include("15551234567")
-    end
-
-    it "can retrieve the display email" do
-      c = Suma::Fixtures.member(email: "x@y.com").create
-      expect(c.display_email).to eq("x@y.com")
-      c.soft_delete
-      expect(c.display_email).to eq("x@y.com")
+      expect(c.email).to_not eq("a@b.c")
+      expect(c.email).to match(/^[0-9]+\.[0-9]+@example\.com$/)
+      expect(c.note).to include("15551234567", "a@b.c")
     end
   end
 
@@ -399,6 +393,18 @@ RSpec.describe "Suma::Member", :db do
         expect(member.combined_program_enrollments_dataset.all).to have_same_ids_as(org_enrollment)
         expect(Suma::Member.all.last.combined_program_enrollments).to have_same_ids_as(org_enrollment)
       end
+    end
+  end
+
+  describe "validations" do
+    it "raises for invalid email addresses" do
+      member_fac = Suma::Fixtures.member
+      expect { member_fac.create(email: "+_$%&./=^`{}|~@b.c") }.to_not raise_error
+      expect { member_fac.create(email: "a@b") }.to_not raise_error
+      expect { member_fac.create(email: "a@") }.to raise_error(Sequel::ValidationFailed)
+      expect { member_fac.create(email: "a@.com") }.to raise_error(Sequel::ValidationFailed)
+      expect { member_fac.create(email: "ab.c") }.to raise_error(Sequel::ValidationFailed)
+      expect { member_fac.create(email: "@b.c") }.to raise_error(Sequel::ValidationFailed)
     end
   end
 end

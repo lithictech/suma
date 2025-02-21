@@ -1,11 +1,23 @@
 # frozen_string_literal: true
 
 require "suma/api"
+require "suma/service/types"
 
 require "suma/async/process_anon_proxy_inbound_webhookdb_relays"
 
 class Suma::API::AnonProxy < Suma::API::V1
+  include Suma::Service::Types
   include Suma::API::Entities
+
+  def self.extract_email_from_request(request)
+    begin
+      params = JSON.parse(request.body.read)
+    rescue JSON::ParserError
+      return nil
+    end
+    request.body.rewind
+    return params["email"]
+  end
 
   resource :anon_proxy do
     resource :vendor_accounts do
@@ -29,6 +41,95 @@ class Suma::API::AnonProxy < Suma::API::V1
           end
         end
 
+        params do
+          requires :email, type: String, coerce_with: NormalizedEmail
+        end
+        Suma::RackAttack.throttle_many(
+          "/anon_proxy/message_bomb_to_email",
+          # Users should not need more than 3 of these within a minute.
+          {limit: 3, period: 1.minute},
+          # Prevent malicious use by rate limiting across a longer period.
+          {limit: 10, period: 1.hour},
+        ) do |request|
+          next unless request.path.include?("/v1/anon_proxy/vendor_accounts/#{request.params[:id]}/start_email")
+          Suma::API::AnonProxy.extract_email_from_request(request)
+        end
+        Suma::RackAttack.throttle_many(
+          "/anon_proxy/email_bomb_from_ip",
+          # Same limits as above
+          {limit: 3, period: 1.minute},
+          {limit: 10, period: 1.hour},
+        ) do |request|
+          next unless request.path.include?("/v1/anon_proxy/vendor_accounts/#{request.params[:id]}/start_email")
+          request.env.fetch("rack.remote_ip")
+        end
+        post :start_email do
+          apva = lookup
+          member = current_member
+          member.update(email: params["email"])
+          Suma::Member::ResetCode.replace_active(member, transport: "email")
+          status 200
+          present(
+            apva,
+            with: MutationAnonProxyVendorAccountEntity,
+            all_vendor_accounts: Suma::AnonProxy::VendorAccount.for(current_member, as_of: current_time),
+          )
+        end
+
+        params do
+          requires :email, type: String, coerce_with: NormalizedEmail
+          requires :token, type: String, allow_blank: false
+        end
+        Suma::RackAttack.throttle_many(
+          "/anon_proxy/reset_code_enumeration",
+          # Users should only need 4 attempts within a couple minutes to check a code
+          {limit: 4, period: 2.minutes},
+          # Codes expire after 15 minutes anyway, don't allow more than a reasonable number of attempts
+          {limit: 8, period: 20.minutes},
+        ) do |request|
+          check_path = "/v1/anon_proxy/vendor_accounts/#{request.params[:id]}/start_email_verification"
+          next unless request.path.include?(check_path)
+          request.env.fetch("rack.remote_ip")
+        end
+        Suma::RackAttack.throttle_many(
+          "/anon_proxy/distributed_reset_code_enumeration",
+          # Prevent a determined attacker with distributed IPs from being able to test many codes for a phone number.
+          {limit: 50, period: 20.minutes},
+        ) do |request|
+          check_path = "/v1/anon_proxy/vendor_accounts/#{request.params[:id]}/start_email_verification"
+          next unless request.path.include?(check_path)
+          Suma::API::AnonProxy.extract_email_from_request(request)
+        end
+        post :verify_email do
+          # Here member must pass in email so we can search the member.
+          Suma::Member::ResetCode.use_code_with_token(params[:token]) do |code|
+            md = code.message_delivery
+            unless (code.member === current_member) &&
+                (current_member === params[:email]) &&
+                # It's possible for a code to be expired before we have even sent the delivery
+                md &&
+                # Verification must happen through 'email' transport
+                md.transport_type == "email" &&
+                # deliveries can potentially be aborted therefore a having nil message id
+                md.transport_message_id &&
+                # Verification must happen through the verification template
+                Suma::Message::EmailTransport.verification_delivery?(md)
+              merror!(403, "Sorry, that token is invalid or the email is not in our system.", code: "invalid_otp")
+            end
+          end
+          apva = lookup
+          contact = Suma::AnonProxy::MemberContact.create(
+            member: apva.member,
+            email: params[:email],
+            relay_key: "fake-relay",
+          )
+          apva.contact = contact
+          apva.save_changes
+
+          # status 200
+          # present apva
+        end
+
         post :configure do
           apva = lookup
           apva.provision_contact
@@ -42,6 +143,9 @@ class Suma::API::AnonProxy < Suma::API::V1
 
         post :make_auth_request do
           apva = lookup
+          # lp = Suma::Lyft::Pass.from_config
+          # lp.authenticate
+          # lp.send_lyftpass_invitation_to_member
           areq = apva.auth_request
           got = Suma::Http.execute(
             areq.delete(:http_method).downcase.to_sym,
@@ -97,6 +201,7 @@ class Suma::API::AnonProxy < Suma::API::V1
     expose :id
     expose :email
     expose :email_required?, as: :email_required
+    expose :email_verification_required?, as: :email_verification_required
     expose :sms
     expose :sms_required?, as: :sms_required
     expose :address
