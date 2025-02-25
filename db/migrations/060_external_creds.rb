@@ -55,9 +55,11 @@ Sequel.migration do
       add_column :opaque_id, :text, unique: true
     end
 
-    from(:mobility_trips).multi_insert(from(:mobility_trips).all.map do |t|
-      t.merge!(opaque_id: Suma::Secureid.new_opaque_id("trp"))
-    end)
+    from(:mobility_trips).each do |t|
+      id = t.delete(:id)
+      t[:opaque_id] = Suma::Secureid.new_opaque_id("trp")
+      from(:mobility_trips).where(id:).update(t)
+    end
 
     alter_table(:mobility_trips) do
       set_column_not_null :opaque_id
@@ -69,8 +71,11 @@ Sequel.migration do
       {charge_id: :charges, book_transaction_id: :payment_book_transactions},
       name: :charges_payment_book_transactions,
     )
-    from(:charges_payment_book_transactions).multi_insert(from(:charge_line_items).all)
+    from(:charges_payment_book_transactions).multi_insert(
+      from(:charge_line_items).exclude(book_transaction_id: nil).select(:charge_id, :book_transaction_id).all,
+    )
     drop_table(:charge_line_items)
+    drop_table(:charge_line_item_self_datas)
     drop_table(:external_credentials)
 
     alter_table(:vendor_services) do

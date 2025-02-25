@@ -159,7 +159,6 @@ module Suma::AdminAPI::Entities
     include AutoExposeBase
     expose :external_name, as: :name
     expose :vendor, with: VendorEntity
-    expose :programs, with: ProgramEntity
     expose :period_begin
     expose :period_end
   end
@@ -199,18 +198,24 @@ module Suma::AdminAPI::Entities
   class MobilityTripEntity < BaseEntity
     include AutoExposeBase
     expose :vehicle_id
+    expose :begin_lat
+    expose :begin_lng
     expose :began_at
+    expose :end_lat
+    expose :end_lng
     expose :ended_at
     expose :member, with: MemberEntity
     expose :vendor_service, with: VendorServiceEntity
+    expose :vendor_service_rate, with: VendorServiceRateEntity
     expose :total_cost, with: MoneyEntity, &self.delegate_to(:charge, :discounted_subtotal, safe: true)
   end
 
   class ChargeLineItemEntity < BaseEntity
     include AutoExposeBase
-    expose :charge, with: ChargeEntity
+    expose :charge_id
     expose :amount, with: MoneyEntity
     expose :memo, with: TranslatedTextEntity
+    expose :book_transaction_id
   end
 
   class SimpleLedgerEntity < BaseEntity

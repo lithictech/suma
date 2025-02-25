@@ -13,6 +13,7 @@ class Suma::Tasks::Integration < Rake::TaskLib
         require "suma"
         Suma.load_app
         require "suma/lyft/pass"
+        Suma::Vendor::Service.where(mobility_vendor_adapter_key: "lyft_deeplink").update(charge_after_fulfillment: true)
         lp = Suma::Lyft::Pass.new(
           email: Suma::Lyft.pass_email,
           authorization: Suma::Lyft.pass_authorization,
