@@ -289,10 +289,10 @@ class Suma::Lyft::Pass
 
   def upsert_ride_as_trip(ride_resp)
     ride = ride_resp.fetch("ride")
-    rider_email = ride.fetch("rider").fetch("email_address")
+    rider_phone = ride.fetch("rider").fetch("phone_number")
     ride_id = ride.fetch("ride_id")
-    if (member = Suma::Member.with_email(rider_email)).nil?
-      self.logger.warn("no_member_for_rider", ride_id:, rider_email:)
+    if (member = Suma::Member.with_normalized_phone(rider_phone.delete_prefix("+"))).nil?
+      self.logger.warn("no_member_for_rider", ride_id:, rider_phone:)
       return nil
     end
     member.db.transaction(savepoint: true) do

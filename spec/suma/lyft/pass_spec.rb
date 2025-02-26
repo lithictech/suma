@@ -317,7 +317,7 @@ RSpec.describe Suma::Lyft::Pass, :db, reset_configuration: Suma::Lyft do
               "ride_id" => "2000855261394541610",
               "ride_type_description" => "E-Bike",
               "rideable_type" => "ELECTRIC_BIKE",
-              "rider" => {"email_address" => "fakeuser@mysuma.org", "full_name" => nil, "phone_number" => nil},
+              "rider" => {"email_address" => nil, "full_name" => nil, "phone_number" => "+15552223333"},
               "was_canceled" => false,
             },
             "txnhub_transaction_id" => "2000859286786636076",
@@ -352,7 +352,7 @@ RSpec.describe Suma::Lyft::Pass, :db, reset_configuration: Suma::Lyft do
           "ride_id" => "2000855261394541610",
           "ride_type_description" => "E-Bike",
           "rideable_type" => "ELECTRIC_BIKE",
-          "rider" => {"email_address" => "fakeuser@mysuma.org", "full_name" => nil, "phone_number" => nil},
+          "rider" => {"email_address" => nil, "full_name" => nil, "phone_number" => "+15552223333"},
           "was_canceled" => false,
         },
         "txnhub_transaction_id" => "2000859286786636076",
@@ -365,7 +365,7 @@ RSpec.describe Suma::Lyft::Pass, :db, reset_configuration: Suma::Lyft do
         onboarding_verified.
         registered_as_stripe_customer.
         with_cash_ledger.
-        create(email: "fakeuser@mysuma.org")
+        create(phone: "15552223333")
     end
 
     it "inserts a trip, charge, and line items for the member" do
