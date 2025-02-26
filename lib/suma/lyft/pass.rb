@@ -3,6 +3,10 @@
 require "suma/lyft"
 require "appydays/loggable"
 
+# Integrates with the Lyft Pass (Business) system.
+# Can log into Lyft using the configured username, find the auth token in the sent email,
+# then exchange it for an access code to hit the API.
+# From the API, we find all rides taken for the configured program
 class Suma::Lyft::Pass
   include Appydays::Loggable
 
@@ -17,35 +21,61 @@ class Suma::Lyft::Pass
         email: Suma::Lyft.pass_email,
         authorization: Suma::Lyft.pass_authorization,
         org_id: Suma::Lyft.pass_org_id,
-        account_id: Suma::Lyft.pass_account_id,
-        vendor_service_rate: Suma::Vendor::ServiceRate[Suma::Lyft.pass_vendor_service_rate_id],
+        program_id: Suma::Lyft.pass_program_id,
+        vendor_service_rate: Suma::Vendor::ServiceRate.find!(Suma::Lyft.pass_vendor_service_rate_id),
       )
     end
   end
 
+  # After +authenticate+ is called, credential will be a valid credential.
+  # @return [Suma::ExternalCredential]
   attr_reader :credential
 
-  def initialize(email:, authorization:, org_id:, account_id:, vendor_service_rate:)
+  # Email for the Business account.
+  # It will be logged in remotely, it is suggested to create a separate user account for this programmatic access.
+  attr_reader :email
+
+  # This is the Authorization header value in Lyft requests.
+  # Get from the browser console during the authentication flow.
+  # It's like "Basic d0dldWh2RF5MNmNwOllicHpWdnN0Y2E1UW1NTWVlUVJ2dnI1ZUl0UTI5S1JR"
+  attr_reader :authorization
+
+  # The Lyft org ID.
+  # Go to https://business.lyft.com/organization/mysumaorg/lyft-pass/transactions,
+  # then look for the request to https://www.lyft.com/v1/enterprise-insights/search/transactions
+  # in the console. Grab the organization id from the query params.
+  attr_reader :org_id
+
+  # The lyft program (account) ID.
+  # Grab it from the body of the GraphQL request to https://www.lyft.com/v1/enterprise-insights/search/transactions.
+  # Or you can go to https://business.lyft.com/organization/mysumaorg/lyft-pass/transactions,
+  # select the Program, and grab the ID from the accountId query param.
+  attr_reader :program_id
+
+  # @return [Suma::Vendor::ServiceRate]
+  attr_reader :vendor_service_rate
+
+  def initialize(email:, authorization:, org_id:, program_id:, vendor_service_rate:)
     raise ArgumentError, "email cannot be blank" if email.blank?
     raise ArgumentError, "authorization cannot be blank" if authorization.blank?
     raise ArgumentError, "org_id cannot be blank" if org_id.blank?
-    raise ArgumentError, "account_id cannot be blank" if account_id.blank?
+    raise ArgumentError, "program_id cannot be blank" if program_id.blank?
     raise ArgumentError, "vendor_service_rate cannot be nil" if vendor_service_rate.nil?
     @email = email
     @org_id = org_id
     @vendor_service_rate = vendor_service_rate
+    @program_id = program_id
     @vendor_service = Suma::Vendor::Service.where(
       vendor: Suma::Lyft.mobility_vendor,
       mobility_vendor_adapter_key: "lyft_deeplink",
     ).first or
       raise Suma::InvalidPrecondition, "No mobility vendor service for Lyft vendor and configured rate"
-    # No idea where this is coming from yet
+    # No idea what this actually is, if it changes, etc.
     @authorization = authorization
-    # Or this one, it's not the user or org id
-    @account_id = account_id
     @credential = nil
   end
 
+  # @return [Suma::ExternalCredential,nil]
   def find_credential
     return Suma::ExternalCredential.
         where(service: CREDENTIAL_SERVICE).
@@ -53,16 +83,17 @@ class Suma::Lyft::Pass
         first
   end
 
+  # @return [Suma::ExternalCredential]
   def authenticate
-    @credential = find_credential
-    return if @credential
-    self.authenticate!
+    @credential = self.find_credential || self.authenticate!
+    return @credential
   end
 
   def debug(_resp)
     # puts resp.headers, resp.body
   end
 
+  # @return [Suma::ExternalCredential]
   def authenticate!
     auth_started_at = Time.now - 5.seconds # 5 seconds for clock drift
     # Arrive at the webpage that prompts for your email
@@ -173,6 +204,7 @@ class Suma::Lyft::Pass
     )
     updated_credential.save_changes
     @credential = updated_credential
+    return updated_credential
   end
 
   def auth_headers
@@ -202,7 +234,7 @@ class Suma::Lyft::Pass
                   "bool" => {
                     "should" => {
                       "terms" => {
-                        "transactions.account_id" => [@account_id],
+                        "transactions.account_id" => [@program_id],
                       },
                     },
                   },

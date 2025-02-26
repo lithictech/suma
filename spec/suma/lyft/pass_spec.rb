@@ -10,7 +10,7 @@ RSpec.describe Suma::Lyft::Pass, :db, reset_configuration: Suma::Lyft do
     Suma::Lyft.pass_authorization = "Basic xyz"
     Suma::Lyft.pass_email = "a@b.c"
     Suma::Lyft.pass_org_id = "1234"
-    Suma::Lyft.pass_account_id = "5678"
+    Suma::Lyft.pass_program_id = "5678"
 
     @vendor_service_rate = Suma::Fixtures.vendor_service_rate.create
     @vendor_service = Suma::Fixtures.vendor_service.
@@ -61,12 +61,12 @@ RSpec.describe Suma::Lyft::Pass, :db, reset_configuration: Suma::Lyft do
     expect { Suma::Lyft::Pass.from_config }.to raise_error(/org_id cannot be blank/)
     Suma::Lyft.pass_org_id = "x"
 
-    Suma::Lyft.pass_account_id = ""
-    expect { Suma::Lyft::Pass.from_config }.to raise_error(/account_id cannot be blank/)
-    Suma::Lyft.pass_account_id = "x"
+    Suma::Lyft.pass_program_id = ""
+    expect { Suma::Lyft::Pass.from_config }.to raise_error(/program_id cannot be blank/)
+    Suma::Lyft.pass_program_id = "x"
 
     Suma::Lyft.pass_vendor_service_rate_id = 0
-    expect { Suma::Lyft::Pass.from_config }.to raise_error(/vendor_service_rate cannot be nil/)
+    expect { Suma::Lyft::Pass.from_config }.to raise_error(/No row matching/)
     Suma::Lyft.pass_vendor_service_rate_id = @vendor_service_rate.id
 
     @vendor_service.update(mobility_vendor_adapter_key: "lyft_deeplink-fake")
