@@ -210,14 +210,6 @@ module Suma::AdminAPI::Entities
     expose :total_cost, with: MoneyEntity, &self.delegate_to(:charge, :discounted_subtotal, safe: true)
   end
 
-  class ChargeLineItemEntity < BaseEntity
-    include AutoExposeBase
-    expose :charge_id
-    expose :amount, with: MoneyEntity
-    expose :memo, with: TranslatedTextEntity
-    expose :book_transaction_id
-  end
-
   class SimpleLedgerEntity < BaseEntity
     include AutoExposeBase
     expose :name
@@ -336,5 +328,13 @@ module Suma::AdminAPI::Entities
     expose :member, with: MemberEntity
     expose :verified_organization, with: OrganizationEntity
     expose :unverified_organization_name
+  end
+
+  class ChargeLineItemEntity < BaseEntity
+    include AutoExposeBase
+    expose :charge_id
+    expose :amount, with: MoneyEntity
+    expose :memo, with: TranslatedTextEntity
+    expose :book_transaction, with: BookTransactionEntity
   end
 end
