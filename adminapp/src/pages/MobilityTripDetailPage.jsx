@@ -34,6 +34,7 @@ export default function MobilityTripDetailPage() {
           ),
         },
         { label: "Vehicle ID", value: model.vehicleId },
+        { label: "Opaque ID", value: model.opaqueId },
         { label: "External Trip ID", value: model.externalTripId },
         { label: "Started At", value: dayjs(model.beganAt).format("ll LTS") },
         {

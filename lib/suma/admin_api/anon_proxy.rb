@@ -38,6 +38,7 @@ class Suma::AdminAPI::AnonProxy < Suma::AdminAPI::V1
   class DetailedVendorConfigurationEntity < VendorConfigurationEntity
     include Suma::AdminAPI::Entities
     include AutoExposeDetail
+    expose :auth_to_vendor_key
     expose :programs, with: ProgramEntity
     expose :instructions, with: TranslatedTextEntity
   end
