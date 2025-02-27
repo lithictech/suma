@@ -56,21 +56,38 @@ RSpec.describe Suma::Mobility::VendorAdapter, :db do
         Suma::Mobility::VendorAdapter::Fake.uses_deep_linking = true
       end
 
-      it "is true when there is no account" do
+      it "is true when there is no vendor account" do
         expect(ad).to be_anon_proxy_vendor_account_requires_attention(member)
       end
-      it "is true when the account is not configured" do
-        va = Suma::Fixtures.anon_proxy_vendor_account(member:).create
-        Suma::Mobility::VendorAdapter::Fake.find_anon_proxy_vendor_account_results << va
-        expect(ad).to be_anon_proxy_vendor_account_requires_attention(member)
+
+      describe "when the vendor config requires an anonymous address (private account)" do
+        let(:va) { Suma::Fixtures.anon_proxy_vendor_account(member:).with_configuration(uses_sms: true).create }
+
+        it "is true when the account is missing an address" do
+          Suma::Mobility::VendorAdapter::Fake.find_anon_proxy_vendor_account_results << va
+          expect(ad).to be_anon_proxy_vendor_account_requires_attention(member)
+        end
+
+        it "is false if the account has an address" do
+          va.update(contact: Suma::Fixtures.anon_proxy_member_contact(member:).email.create)
+          Suma::Mobility::VendorAdapter::Fake.find_anon_proxy_vendor_account_results << va
+          expect(ad).to be_anon_proxy_vendor_account_requires_attention(member)
+        end
       end
-      it "is false if the account is configured" do
-        va = Suma::Fixtures.anon_proxy_vendor_account(member:).
-          with_contact(Suma::Fixtures.anon_proxy_member_contact(member:).email.create).
-          with_configuration(uses_email: true).
-          create
-        Suma::Mobility::VendorAdapter::Fake.find_anon_proxy_vendor_account_results << va
-        expect(ad).to_not be_anon_proxy_vendor_account_requires_attention(member)
+
+      describe "when the vendor config uses registration (linked account)" do
+        let(:va) { Suma::Fixtures.anon_proxy_vendor_account(member:).create }
+
+        it "is true if the account is not registered" do
+          Suma::Mobility::VendorAdapter::Fake.find_anon_proxy_vendor_account_results << va
+          expect(ad).to be_anon_proxy_vendor_account_requires_attention(member)
+        end
+
+        it "is false if the account is registered" do
+          va.update(registered_with_vendor: "no-id")
+          Suma::Mobility::VendorAdapter::Fake.find_anon_proxy_vendor_account_results << va
+          expect(ad).to_not be_anon_proxy_vendor_account_requires_attention(member)
+        end
       end
     end
   end

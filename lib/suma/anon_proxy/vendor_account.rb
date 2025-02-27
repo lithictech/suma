@@ -87,8 +87,7 @@ class Suma::AnonProxy::VendorAccount < Suma::Postgres::Model(:anon_proxy_vendor_
   end
 
   def auth_to_vendor
-    atv = Suma::AnonProxy::AuthToVendor.create!(self.configuration.auth_to_vendor_key, vendor_account: self)
-    atv.auth
+    return Suma::AnonProxy::AuthToVendor.create!(self.configuration.auth_to_vendor_key, vendor_account: self)
   end
 
   def replace_access_code(code, magic_link, at: Time.now)

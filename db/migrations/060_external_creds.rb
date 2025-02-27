@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-require "sequel/all_or_none_constraint"
 require "sequel/unambiguous_constraint"
+require "sequel/null_or_present_constraint"
 require "suma/secureid"
 
 Sequel.migration do
@@ -65,14 +65,38 @@ Sequel.migration do
 
     alter_table(:anon_proxy_vendor_configurations) do
       add_column :auth_to_vendor_key, :text
+      add_foreign_key :linked_success_instructions_id, :translated_texts
     end
-    from(:anon_proxy_vendor_configurations).update(auth_to_vendor_key: "http")
+    linked_success_instructions_id = from(:translated_texts).insert(
+      en: "We sent you a text, please click the link to open the Lime app.",
+      es: "We sent you a text, please click the link to open the Lime app.",
+    )
+    from(:anon_proxy_vendor_configurations).update(
+      auth_to_vendor_key: "lime",
+      linked_success_instructions_id:,
+    )
     alter_table(:anon_proxy_vendor_configurations) do
       set_column_not_null :auth_to_vendor_key
-      set_column_default :auth_http_method, ""
-      set_column_default :auth_url, ""
-      set_column_default :auth_headers, "{}"
-      set_column_default :auth_body_template, ""
+      set_column_not_null :linked_success_instructions_id
+
+      drop_column :auth_http_method
+      drop_column :auth_url
+      drop_column :auth_headers
+      drop_column :auth_body_template
+
+      add_column :uses_registration, :boolean, default: false, null: false
+      drop_constraint(:unambiguous_contact_type)
+      add_constraint(
+        :unambiguous_contact_type,
+        Sequel.unambiguous_bool_constraint([:uses_email, :uses_sms, :uses_registration]),
+      )
+    end
+    alter_table(:anon_proxy_vendor_accounts) do
+      add_column :registered_with_vendor, :text
+      add_constraint(
+        :non_empty_vendor_registration,
+        Sequel.null_or_present_constraint(:registered_with_vendor),
+      )
     end
   end
 
@@ -96,6 +120,19 @@ Sequel.migration do
     end
     alter_table(:anon_proxy_vendor_configurations) do
       drop_column :auth_to_vendor_key
+      drop_column :linked_success_instructions_id
+      drop_column :uses_registration
+      add_constraint(
+        :unambiguous_contact_type,
+        Sequel.unambiguous_bool_constraint([:uses_email, :uses_sms]),
+      )
+      add_column :auth_http_method, :text
+      add_column :auth_url, :text
+      add_column :auth_headers, :text
+      add_column :auth_body_template, :text
+    end
+    alter_table(:anon_proxy_vendor_accounts) do
+      drop_column :registered_with_vendor
     end
   end
 end

@@ -8,4 +8,6 @@ class Suma::AnonProxy::AuthToVendor::LyftPass < Suma::AnonProxy::AuthToVendor
     lp.authenticate
     lp.invite_member(self.vendor_account.member)
   end
+
+  def need_polling? = false
 end

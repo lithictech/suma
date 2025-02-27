@@ -10,6 +10,7 @@ class Suma::AnonProxy::VendorConfiguration < Suma::Postgres::Model(:anon_proxy_v
   include Suma::AdminLinked
   plugin :timestamps
   plugin :translated_text, :instructions, Suma::TranslatedText
+  plugin :translated_text, :linked_success_instructions, Suma::TranslatedText
   plugin :association_pks
 
   many_to_one :vendor, class: "Suma::Vendor"
@@ -27,13 +28,33 @@ class Suma::AnonProxy::VendorConfiguration < Suma::Postgres::Model(:anon_proxy_v
     end
   end
 
+  # True if the vendor uses a proxied email for communication.
   def uses_email? = self.uses_email
+  # True if the vendor uses a proxied phone number for communication.
   def uses_sms? = self.uses_sms
-  def enabled? = self.enabled
+  # True if the vendor requires the member be registered in their system with their real email or phone.
+  def uses_registration? = self.uses_registration
 
-  def auth_headers_label
-    self.auth_headers.to_s
+  def uses_email=(v)
+    self.set_uses(:email, v)
   end
+
+  def uses_sms=(v)
+    self.set_uses(:sms, v)
+  end
+
+  def uses_registration=(v)
+    self.set_uses(:registration, v)
+  end
+
+  private def set_uses(t, v)
+    [:email, :sms, :registration].each { |k| self[:"uses_#{k}"] = false }
+    self[:"uses_#{t}"] = v
+  end
+
+
+  # True if the instance is enabled/should show in the UI.
+  def enabled? = self.enabled
 
   def rel_admin_link = "/vendor-configuration/#{self.id}"
 end

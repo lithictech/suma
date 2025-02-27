@@ -29,28 +29,12 @@ class Suma::API::AnonProxy < Suma::API::V1
           end
         end
 
-        post :configure do
-          apva = lookup
-          apva.provision_contact
-          status 200
-          present(
-            apva,
-            with: MutationAnonProxyVendorAccountEntity,
-            all_vendor_accounts: Suma::AnonProxy::VendorAccount.for(current_member, as_of: current_time),
-          )
-        end
-
         post :make_auth_request do
           apva = lookup
-          begin
-            apva.auth_to_vendor
-          rescue StandardError => e
-            Sentry.capture_exception(e)
-            merror!(500, e.to_s, code: "unhandled_error")
-          end
+          apva.auth_to_vendor.auth
           apva.update(latest_access_code_requested_at: current_time)
           status 200
-          present({})
+          present apva, with: AnonProxyVendorAccountEntity
         end
 
         # Endpoint for long-polling for a new magic link for a vendor account.
@@ -58,6 +42,12 @@ class Suma::API::AnonProxy < Suma::API::V1
         # we want to be as light as possible on the user's device.
         post :poll_for_new_magic_link do
           apva = lookup
+          unless apva.auth_to_vendor.needs_polling?
+            resp = {vendor_account: apva, found_change: true}
+            status 200
+            present(resp, with: AnonProxyVendorAccountPollResultEntity)
+            break
+          end
           started_polling = Time.now
           found_change = false
           loop do
@@ -111,15 +101,12 @@ class Suma::API::AnonProxy < Suma::API::V1
     expose :vendor_image, with: ImageEntity, &self.delegate_to(:configuration, :vendor, :images, :first)
   end
 
-  class MutationAnonProxyVendorAccountEntity < AnonProxyVendorAccountEntity
-    include Suma::API::Entities
-    expose :all_vendor_accounts, with: AnonProxyVendorAccountEntity do |_inst, opts|
-      opts.fetch(:all_vendor_accounts)
-    end
-  end
-
   class AnonProxyVendorAccountPollResultEntity < BaseEntity
+    include Suma::API::Entities
     expose :found_change
+    expose_translated :success_instructions do |inst|
+      inst.fetch(:vendor_account).configuration.linked_success_instructions
+    end
     expose :vendor_account, with: AnonProxyVendorAccountEntity
   end
 end

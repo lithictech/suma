@@ -56,7 +56,7 @@ RSpec.describe "Suma::AnonProxy::VendorAccount", :db do
 
   describe "email and sms" do
     it "finds the member contact with an email or sms" do
-      vc = Suma::Fixtures.anon_proxy_vendor_configuration(uses_sms: false, uses_email: true).create
+      vc = Suma::Fixtures.anon_proxy_vendor_configuration.email.create
       va = Suma::Fixtures.anon_proxy_vendor_account(configuration: vc).create
       expect(va).to have_attributes(
         sms: nil,
@@ -64,7 +64,7 @@ RSpec.describe "Suma::AnonProxy::VendorAccount", :db do
         email: nil,
         email_required?: true,
       )
-      vc.set(uses_sms: true, uses_email: false)
+      vc.uses_sms = true
       expect(va).to have_attributes(
         sms: nil,
         sms_required?: true,

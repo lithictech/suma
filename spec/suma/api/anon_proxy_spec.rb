@@ -11,6 +11,7 @@ RSpec.describe Suma::API::AnonProxy, :db do
 
   before(:each) do
     login_as(member)
+    Suma::AnonProxy::AuthToVendor::Fake.reset
   end
 
   describe "GET /v1/anon_proxy/vendor_accounts" do
@@ -45,6 +46,7 @@ RSpec.describe Suma::API::AnonProxy, :db do
       # If any test is slow, it's because we're hitting this unexpectedly
       Suma::AnonProxy.access_code_poll_timeout = 10
       Suma::AnonProxy.access_code_poll_interval = 0
+      Suma::AnonProxy::AuthToVendor::Fake.needs_polling = true
     end
     after(:each) do
       Suma::AnonProxy.reset_configuration
@@ -91,101 +93,102 @@ RSpec.describe Suma::API::AnonProxy, :db do
       expect(last_response).to have_json_body.
         that_includes(found_change: false, vendor_account: include(id: va.id))
     end
+
+    it "returns immediately if the vendor does not need polling" do
+      Suma::AnonProxy::AuthToVendor::Fake.needs_polling = false
+
+      va = Suma::Fixtures.anon_proxy_vendor_account(member:).create
+
+      post "/v1/anon_proxy/vendor_accounts/#{va.id}/poll_for_new_magic_link"
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.
+        that_includes(found_change: true)
+    end
   end
 
-  describe "POST /v1/anon_proxy/vendor_accounts/:id/configure" do
-    let(:configuration) { Suma::Fixtures.anon_proxy_vendor_configuration.email.create }
-    let!(:va) { Suma::Fixtures.anon_proxy_vendor_account(member:, configuration:).create }
+  # describe "POST /v1/anon_proxy/vendor_accounts/:id/configure" do
+  #   let(:configuration) { Suma::Fixtures.anon_proxy_vendor_configuration.email.create }
+  #   let!(:va) { Suma::Fixtures.anon_proxy_vendor_account(member:, configuration:).create }
+  #
+  #
+  #   it "provisions the email or phone number member contact" do
+  #     post "/v1/anon_proxy/vendor_accounts/#{va.id}/configure"
+  #
+  #     expect(last_response).to have_status(200)
+  #     expect(last_response).to have_json_body.
+  #       that_includes(id: va.id, all_vendor_accounts: have_same_ids_as(va))
+  #
+  #     expect(va.refresh.contact).to have_attributes(email: "u#{member.id}@example.com")
+  #   end
+  #
+  #   it "noops if the account is already configured" do
+  #     contact = Suma::Fixtures.anon_proxy_member_contact(member:).email.create
+  #     va.update(contact:)
+  #
+  #     post "/v1/anon_proxy/vendor_accounts/#{va.id}/configure"
+  #
+  #     expect(last_response).to have_status(200)
+  #     expect(last_response).to have_json_body.
+  #       that_includes(id: va.id, all_vendor_accounts: have_same_ids_as(va))
+  #
+  #     expect(va.refresh.contact).to be === contact
+  #   end
+  # end
+
+  describe "POST /v1/anon_proxy/vendor_accounts/:id/make_auth_request" do
+    let!(:va) do
+      Suma::Fixtures.anon_proxy_vendor_account.
+        with_configuration(auth_to_vendor_key: "fake").
+        with_contact(email: "a@b.c").
+        create(member:)
+    end
 
     it "403s if the account does not belong to the member" do
       va.update(member: Suma::Fixtures.member.create)
 
-      post "/v1/anon_proxy/vendor_accounts/#{va.id}/configure"
+      post "/v1/anon_proxy/vendor_accounts/#{va.id}/make_auth_request"
 
       expect(last_response).to have_status(403)
       expect(last_response).to have_json_body.that_includes(error: include(message: match(/No anonymous proxy/)))
     end
 
     it "409s if the configuration is not enabled" do
-      configuration.update(enabled: false)
+      va.configuration.update(enabled: false)
 
-      post "/v1/anon_proxy/vendor_accounts/#{va.id}/configure"
+      post "/v1/anon_proxy/vendor_accounts/#{va.id}/make_auth_request"
 
       expect(last_response).to have_status(409)
       expect(last_response).to have_json_body.that_includes(error: include(message: match(/config is not enabled/)))
     end
 
-    it "provisions the email or phone number member contact" do
-      post "/v1/anon_proxy/vendor_accounts/#{va.id}/configure"
-
-      expect(last_response).to have_status(200)
-      expect(last_response).to have_json_body.
-        that_includes(id: va.id, all_vendor_accounts: have_same_ids_as(va))
-
-      expect(va.refresh.contact).to have_attributes(email: "u#{member.id}@example.com")
-    end
-
-    it "noops if the account is already configured" do
-      contact = Suma::Fixtures.anon_proxy_member_contact(member:).email.create
-      va.update(contact:)
-
-      post "/v1/anon_proxy/vendor_accounts/#{va.id}/configure"
-
-      expect(last_response).to have_status(200)
-      expect(last_response).to have_json_body.
-        that_includes(id: va.id, all_vendor_accounts: have_same_ids_as(va))
-
-      expect(va.refresh.contact).to be === contact
-    end
-
-    it "formats the account address instructions" do
-      contact = Suma::Fixtures.anon_proxy_member_contact(member:).email("x@y.z").create
-      va.update(contact:)
-      configuration.update(instructions: Suma::TranslatedText.create(en: "see this: %{address}"))
-
-      post "/v1/anon_proxy/vendor_accounts/#{va.id}/configure"
-
-      expect(last_response).to have_status(200)
-      expect(last_response).to have_json_body.
-        that_includes(instructions: "see this: x@y.z")
-    end
-  end
-
-  describe "POST /v1/anon_proxy/vendor_accounts/:id/make_auth_request" do
-    let!(:va) do
-      Suma::Fixtures.anon_proxy_vendor_account.with_configuration(
-        auth_to_vendor_key: "http",
-        auth_url: "https://x.y",
-        auth_http_method: "POST",
-        auth_headers: {"X-Y" => "b"},
-      ).with_contact(email: "a@b.c").
-        create(member:)
-    end
-
     it "auths to vendor and marks the code as requested" do
-      req = stub_request(:post, "https://x.y/").
-        with(
-          body: '{"email":"a@b.c","phone":""}',
-          headers: {"X-Y" => "b"},
-        ).
-        to_return(status: 202, body: '{"o":"k"}', headers: {"Content-Type" => "application/json"})
-
       post "/v1/anon_proxy/vendor_accounts/#{va.id}/make_auth_request"
 
       expect(last_response).to have_status(200)
-      expect(req).to have_been_made
       expect(va.refresh).to have_attributes(latest_access_code_requested_at: match_time(:now))
+      expect(Suma::AnonProxy::AuthToVendor::Fake.calls).to eq(1)
     end
 
     it "errors and does not mark code requested on error" do
-      req = stub_request(:post, "https://x.y/").
-        to_return(status: 400, body: '{"n":"o"}', headers: {"Content-Type" => "application/json"})
+      Suma::AnonProxy::AuthToVendor::Fake.auth = proc { raise "hello!" }
 
       post "/v1/anon_proxy/vendor_accounts/#{va.id}/make_auth_request"
 
       expect(last_response).to have_status(500)
-      expect(req).to have_been_made
       expect(va.refresh).to have_attributes(latest_access_code_requested_at: nil)
+    end
+
+    it "formats the account address instructions" do
+      va.configuration.update(uses_email: true, instructions: Suma::TranslatedText.create(en: "see this: %{address}"))
+      contact = Suma::Fixtures.anon_proxy_member_contact(member:).email("x@y.z").create
+      va.update(contact:)
+
+      post "/v1/anon_proxy/vendor_accounts/#{va.id}/make_auth_request"
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.
+        that_includes(instructions: "see this: x@y.z")
     end
   end
 

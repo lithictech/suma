@@ -8,8 +8,8 @@ class Suma::AnonProxy::AuthToVendor
   require_relative "auth_to_vendor/fake"
   register(:fake, Fake)
 
-  require_relative "auth_to_vendor/http"
-  register(:http, Http)
+  require_relative "auth_to_vendor/lime"
+  register(:lime, Lime)
 
   require_relative "auth_to_vendor/lyft_pass"
   register(:lyft_pass, LyftPass)
@@ -28,4 +28,9 @@ class Suma::AnonProxy::AuthToVendor
 
   # Run the auth in the vendor system (send magic link email, associate the Suma member with the vendor backend, etc.)
   def auth = raise NotImplementedError
+
+  # True if the client should poll for an access code set on the vendor account,
+  # or false if the linking is immediate.
+  # @return [true,false]
+  def needs_polling? = raise NotImplementedError
 end

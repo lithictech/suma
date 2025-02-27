@@ -48,6 +48,7 @@ module Suma::Mobility::VendorAdapter
     return false unless self.uses_deep_linking?
     account = self.find_anon_proxy_vendor_account(member)
     return true if account.nil?
+    return account.registered_with_vendor.blank? if account.configuration.uses_registration?
     return account.address_required?
   end
 
