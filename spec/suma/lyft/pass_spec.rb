@@ -410,5 +410,38 @@ RSpec.describe Suma::Lyft::Pass, :db, reset_configuration: Suma::Lyft do
       )
     end
   end
+
+  describe "invite_member" do
+    let(:member) do
+      Suma::Fixtures.member.
+        onboarding_verified.
+        registered_as_stripe_customer.
+        with_cash_ledger.
+        create(phone: "15552223333")
+    end
+
+    it "sends an invite to the member" do
+      insert_valid_credential
+      req = stub_request(:post, "https://www.lyft.com/api/rideprograms/enrollment/bulk/invite").
+        with(
+          body: {
+            enrollment_users: [
+              {custom_field_value_key_value_pairs: [], user_identifier: {phone_number: "+15552223333"}},
+            ],
+            ride_program_id: "5678",
+          }.to_json,
+          headers: {"Origin" => "https://business.lyft.com"},
+        ).
+        to_return(
+          status: 200,
+          body: {invalid_user_identifiers: []}.to_json,
+          headers: {"Content-Type" => "application/json"},
+        )
+
+      instance.authenticate
+      instance.invite_member(member)
+      expect(req).to have_been_made
+    end
+  end
 end
 # rubocop:enable Layout/LineLength

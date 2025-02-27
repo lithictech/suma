@@ -154,6 +154,7 @@ RSpec.describe Suma::API::AnonProxy, :db do
   describe "POST /v1/anon_proxy/vendor_accounts/:id/make_auth_request" do
     let!(:va) do
       Suma::Fixtures.anon_proxy_vendor_account.with_configuration(
+        auth_to_vendor_key: "http",
         auth_url: "https://x.y",
         auth_http_method: "POST",
         auth_headers: {"X-Y" => "b"},
@@ -161,7 +162,7 @@ RSpec.describe Suma::API::AnonProxy, :db do
         create(member:)
     end
 
-    it "proxies the request and marks the code as requested" do
+    it "auths to vendor and marks the code as requested" do
       req = stub_request(:post, "https://x.y/").
         with(
           body: '{"email":"a@b.c","phone":""}',
@@ -171,8 +172,7 @@ RSpec.describe Suma::API::AnonProxy, :db do
 
       post "/v1/anon_proxy/vendor_accounts/#{va.id}/make_auth_request"
 
-      expect(last_response).to have_status(202)
-      expect(last_response).to have_json_body.that_includes(o: "k")
+      expect(last_response).to have_status(200)
       expect(req).to have_been_made
       expect(va.refresh).to have_attributes(latest_access_code_requested_at: match_time(:now))
     end
@@ -183,8 +183,7 @@ RSpec.describe Suma::API::AnonProxy, :db do
 
       post "/v1/anon_proxy/vendor_accounts/#{va.id}/make_auth_request"
 
-      expect(last_response).to have_status(400)
-      expect(last_response).to have_json_body.that_includes(n: "o")
+      expect(last_response).to have_status(500)
       expect(req).to have_been_made
       expect(va.refresh).to have_attributes(latest_access_code_requested_at: nil)
     end

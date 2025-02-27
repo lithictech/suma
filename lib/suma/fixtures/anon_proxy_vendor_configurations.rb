@@ -12,6 +12,7 @@ module Suma::Fixtures::AnonProxyVendorConfigurations
     self.uses_email = Suma::Fixtures.nilor(self.uses_email, [true, false].sample)
     self.uses_sms = Suma::Fixtures.nilor(self.uses_sms, !self.uses_email)
     self.enabled = Suma::Fixtures.nilor(self.enabled, true)
+    self.auth_to_vendor_key ||= "fake"
     self.message_handler_key ||= "fake-handler"
     self.auth_http_method ||= "POST"
     self.auth_url ||= "https://fakevendor.app.mysuma.org/signup"

@@ -54,15 +54,25 @@ Sequel.migration do
     alter_table(:mobility_trips) do
       add_column :opaque_id, :text, unique: true
     end
-
     from(:mobility_trips).each do |t|
       id = t.delete(:id)
       t[:opaque_id] = Suma::Secureid.new_opaque_id("trp")
       from(:mobility_trips).where(id:).update(t)
     end
-
     alter_table(:mobility_trips) do
       set_column_not_null :opaque_id
+    end
+
+    alter_table(:anon_proxy_vendor_configurations) do
+      add_column :auth_to_vendor_key, :text
+    end
+    from(:anon_proxy_vendor_configurations).update(auth_to_vendor_key: "http")
+    alter_table(:anon_proxy_vendor_configurations) do
+      set_column_not_null :auth_to_vendor_key
+      set_column_default :auth_http_method, ""
+      set_column_default :auth_url, ""
+      set_column_default :auth_headers, "{}"
+      set_column_default :auth_body_template, ""
     end
   end
 
@@ -83,6 +93,9 @@ Sequel.migration do
     end
     alter_table(:mobility_trips) do
       drop_column :opaque_id
+    end
+    alter_table(:anon_proxy_vendor_configurations) do
+      drop_column :auth_to_vendor_key
     end
   end
 end

@@ -42,17 +42,15 @@ class Suma::API::AnonProxy < Suma::API::V1
 
         post :make_auth_request do
           apva = lookup
-          areq = apva.auth_request
-          got = Suma::Http.execute(
-            areq.delete(:http_method).downcase.to_sym,
-            areq.delete(:url),
-            logger: self.logger,
-            skip_error: true,
-            **areq,
-          )
-          apva.update(latest_access_code_requested_at: current_time) if got.code < 300
-          status got.code
-          present got.parsed_response
+          begin
+            apva.auth_to_vendor
+          rescue StandardError => e
+            Sentry.capture_exception(e)
+            merror!(500, e.to_s, code: "unhandled_error")
+          end
+          apva.update(latest_access_code_requested_at: current_time)
+          status 200
+          present({})
         end
 
         # Endpoint for long-polling for a new magic link for a vendor account.
@@ -105,7 +103,6 @@ class Suma::API::AnonProxy < Suma::API::V1
       txt = va.configuration.instructions.string
       txt % {address: va.address || ""}
     end
-    expose :auth_request
     expose :magic_link do |instance|
       instance.latest_access_code_is_recent? ? instance.latest_access_code_magic_link : nil
     end

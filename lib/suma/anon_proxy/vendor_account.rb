@@ -79,9 +79,16 @@ class Suma::AnonProxy::VendorAccount < Suma::Postgres::Model(:anon_proxy_vendor_
         end
         self.contact = contact
         self.save_changes
+      elsif self.sms_required?
+        raise NotImplementedError, "this is not supported yet"
       end
     end
     return self.contact
+  end
+
+  def auth_to_vendor
+    atv = Suma::AnonProxy::AuthToVendor.create!(self.configuration.auth_to_vendor_key, vendor_account: self)
+    atv.auth
   end
 
   def replace_access_code(code, magic_link, at: Time.now)
@@ -114,21 +121,6 @@ class Suma::AnonProxy::VendorAccount < Suma::Postgres::Model(:anon_proxy_vendor_
       bodies << body.content if body
     end
     return bodies
-  end
-
-  AuthRequest = Struct.new(:url, :http_method, :body, :headers)
-
-  # Return the fields needed to make an auth request.
-  # Return nil if the contact is not yet set on the account.
-  # @return [AuthRequest,nil]
-  def auth_request
-    body = self.configuration.auth_body_template % {email: self.contact_email, phone: self.contact_phone}
-    return {
-      url: self.configuration.auth_url,
-      http_method: self.configuration.auth_http_method,
-      headers: self.configuration.auth_headers.to_h,
-      body:,
-    }
   end
 
   def rel_admin_link = "/vendor-account/#{self.id}"

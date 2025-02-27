@@ -97,7 +97,7 @@ class Suma::Lyft::Pass
   def authenticate!
     auth_started_at = Time.now - 5.seconds # 5 seconds for clock drift
     # Arrive at the webpage that prompts for your email
-    login_get_resp = Suma::Http.get("https://account.lyft.com/auth/email", logger: nil)
+    login_get_resp = Suma::Http.get("https://account.lyft.com/auth/email", logger: self.logger)
     self.debug(login_get_resp)
     session_id = extract_cookie(login_get_resp, "sessId")
 
@@ -326,6 +326,23 @@ class Suma::Lyft::Pass
       end
       return charge
     end
+  end
+
+  def invite_member(member)
+    Suma::Http.post(
+      "https://www.lyft.com/api/rideprograms/enrollment/bulk/invite",
+      {
+        enrollment_users: [
+          {
+            custom_field_value_key_value_pairs: [],
+            user_identifier: {phone_number: "+#{member.phone}"},
+          },
+        ],
+        ride_program_id: @program_id,
+      },
+      headers: self.auth_headers,
+      logger: self.logger,
+    )
   end
 
   def _money2money(h)

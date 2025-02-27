@@ -163,11 +163,9 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
           vc.enabled = true
           vc.uses_email = true
           vc.uses_sms = false
+          vc.auth_to_vendor_key = "fake"
           vc.message_handler_key = "fake"
           vc.app_install_link = "https://mysuma.org"
-          vc.auth_url = "https://mysuma.org"
-          vc.auth_body_template = ""
-          vc.auth_headers = {}
           vc.instructions = Suma::TranslatedText.find_or_create(
             en: <<~MD,
               1. Step 1 en
