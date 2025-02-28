@@ -83,16 +83,7 @@ class Suma::API::AnonProxy < Suma::API::V1
   class AnonProxyVendorAccountEntity < BaseEntity
     include Suma::API::Entities
     expose :id
-    expose :email
-    expose :email_required?, as: :email_required
-    expose :sms
-    expose :sms_required?, as: :sms_required
-    expose :address
-    expose :address_required?, as: :address_required
-    expose :instructions do |va|
-      txt = va.configuration.instructions.string
-      txt % {address: va.address || ""}
-    end
+    expose_translated :instructions, &self.delegate_to(:configuration, :instructions)
     expose :magic_link do |instance|
       instance.latest_access_code_is_recent? ? instance.latest_access_code_magic_link : nil
     end

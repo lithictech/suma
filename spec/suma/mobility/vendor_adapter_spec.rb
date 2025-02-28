@@ -60,34 +60,16 @@ RSpec.describe Suma::Mobility::VendorAdapter, :db do
         expect(ad).to be_anon_proxy_vendor_account_requires_attention(member)
       end
 
-      describe "when the vendor config requires an anonymous address (private account)" do
-        let(:va) { Suma::Fixtures.anon_proxy_vendor_account(member:).with_configuration(uses_sms: true).create }
+      it "delegates to the vendor account configuration" do
+        va = Suma::Fixtures.anon_proxy_vendor_account(member:).create
 
-        it "is true when the account is missing an address" do
-          Suma::Mobility::VendorAdapter::Fake.find_anon_proxy_vendor_account_results << va
-          expect(ad).to be_anon_proxy_vendor_account_requires_attention(member)
-        end
+        Suma::AnonProxy::AuthToVendor::Fake.needs_attention = true
+        Suma::Mobility::VendorAdapter::Fake.find_anon_proxy_vendor_account_results << va
+        expect(ad).to be_anon_proxy_vendor_account_requires_attention(member)
 
-        it "is false if the account has an address" do
-          va.update(contact: Suma::Fixtures.anon_proxy_member_contact(member:).email.create)
-          Suma::Mobility::VendorAdapter::Fake.find_anon_proxy_vendor_account_results << va
-          expect(ad).to be_anon_proxy_vendor_account_requires_attention(member)
-        end
-      end
-
-      describe "when the vendor config uses registration (linked account)" do
-        let(:va) { Suma::Fixtures.anon_proxy_vendor_account(member:).create }
-
-        it "is true if the account is not registered" do
-          Suma::Mobility::VendorAdapter::Fake.find_anon_proxy_vendor_account_results << va
-          expect(ad).to be_anon_proxy_vendor_account_requires_attention(member)
-        end
-
-        it "is false if the account is registered" do
-          va.update(registered_with_vendor: "no-id")
-          Suma::Mobility::VendorAdapter::Fake.find_anon_proxy_vendor_account_results << va
-          expect(ad).to_not be_anon_proxy_vendor_account_requires_attention(member)
-        end
+        Suma::AnonProxy::AuthToVendor::Fake.needs_attention = false
+        Suma::Mobility::VendorAdapter::Fake.find_anon_proxy_vendor_account_results << va
+        expect(ad).to_not be_anon_proxy_vendor_account_requires_attention(member)
       end
     end
   end

@@ -57,22 +57,6 @@ export default function VendorAccountDetailPage() {
                   ),
                 },
                 {
-                  label: "App Install Link",
-                  value: (
-                    <SafeExternalLink href={model.configuration.appInstallLink}>
-                      {model.configuration.appInstallLink}
-                    </SafeExternalLink>
-                  ),
-                },
-                {
-                  label: "Uses SMS?",
-                  value: <BoolCheckmark>{model.configuration.usesSms}</BoolCheckmark>,
-                },
-                {
-                  label: "Uses Email?",
-                  value: <BoolCheckmark>{model.configuration.usesEmail}</BoolCheckmark>,
-                },
-                {
                   label: "Enabled?",
                   value: <BoolCheckmark>{model.configuration.enabled}</BoolCheckmark>,
                 },
@@ -84,14 +68,6 @@ export default function VendorAccountDetailPage() {
               title="Member Contact"
               properties={[
                 { label: "ID", value: model.contact.id },
-                {
-                  label: "Member",
-                  value: (
-                    <AdminLink model={model.contact.member}>
-                      {model.contact.member.name}
-                    </AdminLink>
-                  ),
-                },
                 { label: "Email", value: model.contact.email },
                 { label: "Phone", value: model.contact.phone },
                 { label: "Relay Key", value: model.contact.relayKey },

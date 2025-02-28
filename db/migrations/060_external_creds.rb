@@ -69,7 +69,7 @@ Sequel.migration do
     end
     linked_success_instructions_id = from(:translated_texts).insert(
       en: "We sent you a text, please click the link to open the Lime app.",
-      es: "We sent you a text, please click the link to open the Lime app.",
+      es: "Le enviamos un mensaje de texto, haga clic en el enlace del texto para iniciar esta app.",
     )
     from(:anon_proxy_vendor_configurations).update(
       auth_to_vendor_key: "lime",
@@ -84,12 +84,8 @@ Sequel.migration do
       drop_column :auth_headers
       drop_column :auth_body_template
 
-      add_column :uses_registration, :boolean, default: false, null: false
-      drop_constraint(:unambiguous_contact_type)
-      add_constraint(
-        :unambiguous_contact_type,
-        Sequel.unambiguous_bool_constraint([:uses_email, :uses_sms, :uses_registration]),
-      )
+      drop_column :uses_sms
+      drop_column :uses_email
     end
     alter_table(:anon_proxy_vendor_accounts) do
       add_column :registered_with_vendor, :text
@@ -122,14 +118,12 @@ Sequel.migration do
       drop_column :auth_to_vendor_key
       drop_column :linked_success_instructions_id
       drop_column :uses_registration
-      add_constraint(
-        :unambiguous_contact_type,
-        Sequel.unambiguous_bool_constraint([:uses_email, :uses_sms]),
-      )
       add_column :auth_http_method, :text
       add_column :auth_url, :text
       add_column :auth_headers, :text
       add_column :auth_body_template, :text
+      add_column :uses_sms, :boolean, default: false, null: false
+      add_column :uses_email, :boolean, default: false, null: false
     end
     alter_table(:anon_proxy_vendor_accounts) do
       drop_column :registered_with_vendor

@@ -183,8 +183,7 @@ module Suma::AdminAPI::Entities
     include AutoExposeBase
     expose :vendor, with: VendorEntity
     expose :app_install_link
-    expose :uses_email
-    expose :uses_sms
+    expose :auth_to_vendor_key
     expose :enabled
   end
 

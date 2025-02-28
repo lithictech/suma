@@ -9,9 +9,6 @@ module Suma::Fixtures::AnonProxyVendorConfigurations
   fixtured_class Suma::AnonProxy::VendorConfiguration
 
   base :anon_proxy_vendor_configuration do
-    self.uses_email ||= false
-    self.uses_sms ||= false
-    self.uses_registration ||= !self.uses_sms && !self.uses_email ? true : false
     self.enabled = Suma::Fixtures.nilor(self.enabled, true)
     self.auth_to_vendor_key ||= "fake"
     self.message_handler_key ||= "fake-handler"
@@ -27,14 +24,6 @@ module Suma::Fixtures::AnonProxyVendorConfigurations
 
   decorator :disabled do
     self.enabled = false
-  end
-
-  decorator :sms do
-    self.uses_sms = true
-  end
-
-  decorator :email do
-    self.uses_email = true
   end
 
   decorator :with_programs, presave: true do |*programs|

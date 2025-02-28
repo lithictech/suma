@@ -28,31 +28,6 @@ class Suma::AnonProxy::VendorConfiguration < Suma::Postgres::Model(:anon_proxy_v
     end
   end
 
-  # True if the vendor uses a proxied email for communication.
-  def uses_email? = self.uses_email
-  # True if the vendor uses a proxied phone number for communication.
-  def uses_sms? = self.uses_sms
-  # True if the vendor requires the member be registered in their system with their real email or phone.
-  def uses_registration? = self.uses_registration
-
-  def uses_email=(v)
-    self.set_uses(:email, v)
-  end
-
-  def uses_sms=(v)
-    self.set_uses(:sms, v)
-  end
-
-  def uses_registration=(v)
-    self.set_uses(:registration, v)
-  end
-
-  private def set_uses(t, v)
-    [:email, :sms, :registration].each { |k| self[:"uses_#{k}"] = false }
-    self[:"uses_#{t}"] = v
-  end
-
-
   # True if the instance is enabled/should show in the UI.
   def enabled? = self.enabled
 

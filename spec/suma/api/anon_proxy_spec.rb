@@ -28,17 +28,6 @@ RSpec.describe Suma::API::AnonProxy, :db do
           include(vendor_slug: vc.vendor.slug),
         ))
     end
-
-    it "can use a default address in formatted instructions" do
-      instructions = Suma::TranslatedText.create(en: "see this: %{address}")
-      Suma::Fixtures.anon_proxy_vendor_configuration.create(instructions:)
-
-      get "/v1/anon_proxy/vendor_accounts"
-
-      expect(last_response).to have_status(200)
-      expect(last_response).to have_json_body.
-        that_includes(items: contain_exactly(include(instructions: "see this: ")))
-    end
   end
 
   describe "POST /v1/anon_proxy/vendor_accounts/:id/poll_for_new_magic_link" do
@@ -107,35 +96,6 @@ RSpec.describe Suma::API::AnonProxy, :db do
     end
   end
 
-  # describe "POST /v1/anon_proxy/vendor_accounts/:id/configure" do
-  #   let(:configuration) { Suma::Fixtures.anon_proxy_vendor_configuration.email.create }
-  #   let!(:va) { Suma::Fixtures.anon_proxy_vendor_account(member:, configuration:).create }
-  #
-  #
-  #   it "provisions the email or phone number member contact" do
-  #     post "/v1/anon_proxy/vendor_accounts/#{va.id}/configure"
-  #
-  #     expect(last_response).to have_status(200)
-  #     expect(last_response).to have_json_body.
-  #       that_includes(id: va.id, all_vendor_accounts: have_same_ids_as(va))
-  #
-  #     expect(va.refresh.contact).to have_attributes(email: "u#{member.id}@example.com")
-  #   end
-  #
-  #   it "noops if the account is already configured" do
-  #     contact = Suma::Fixtures.anon_proxy_member_contact(member:).email.create
-  #     va.update(contact:)
-  #
-  #     post "/v1/anon_proxy/vendor_accounts/#{va.id}/configure"
-  #
-  #     expect(last_response).to have_status(200)
-  #     expect(last_response).to have_json_body.
-  #       that_includes(id: va.id, all_vendor_accounts: have_same_ids_as(va))
-  #
-  #     expect(va.refresh.contact).to be === contact
-  #   end
-  # end
-
   describe "POST /v1/anon_proxy/vendor_accounts/:id/make_auth_request" do
     let!(:va) do
       Suma::Fixtures.anon_proxy_vendor_account.
@@ -177,18 +137,6 @@ RSpec.describe Suma::API::AnonProxy, :db do
 
       expect(last_response).to have_status(500)
       expect(va.refresh).to have_attributes(latest_access_code_requested_at: nil)
-    end
-
-    it "formats the account address instructions" do
-      va.configuration.update(uses_email: true, instructions: Suma::TranslatedText.create(en: "see this: %{address}"))
-      contact = Suma::Fixtures.anon_proxy_member_contact(member:).email("x@y.z").create
-      va.update(contact:)
-
-      post "/v1/anon_proxy/vendor_accounts/#{va.id}/make_auth_request"
-
-      expect(last_response).to have_status(200)
-      expect(last_response).to have_json_body.
-        that_includes(instructions: "see this: x@y.z")
     end
   end
 

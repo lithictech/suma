@@ -161,8 +161,6 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
       [Suma::Vendor[name: "Lime"], Suma::Vendor[name: "Lyft"]].each do |vendor|
         Suma::AnonProxy::VendorConfiguration.find_or_create(vendor:) do |vc|
           vc.enabled = true
-          vc.uses_email = true
-          vc.uses_sms = false
           vc.auth_to_vendor_key = "fake"
           vc.message_handler_key = "fake"
           vc.app_install_link = "https://mysuma.org"

@@ -50,17 +50,17 @@ class Suma::AnonProxy::VendorAccount < Suma::Postgres::Model(:anon_proxy_vendor_
     end
   end
 
-  def contact_phone = self.contact&.phone
-  def contact_email = self.contact&.email
-
-  def sms = self.configuration.uses_sms? ? self.contact_phone : nil
-  def sms_required? = self.configuration.uses_sms? && self.contact_phone.nil?
-
-  def email = self.configuration.uses_email? ? self.contact_email : nil
-  def email_required? = self.configuration.uses_email? && self.contact_email.nil?
-
-  def address = self.email || self.sms
-  def address_required? = self.email_required? || self.sms_required?
+  # def contact_phone = self.contact&.phone
+  # def contact_email = self.contact&.email
+  #
+  # def sms = self.configuration.uses_sms? ? self.contact_phone : nil
+  # def sms_required? = self.configuration.uses_sms? && self.contact_phone.nil?
+  #
+  # def email = self.configuration.uses_email? ? self.contact_email : nil
+  # def email_required? = self.configuration.uses_email? && self.contact_email.nil?
+  #
+  # def address = self.email || self.sms
+  # def address_required? = self.email_required? || self.sms_required?
 
   # Ensure that the right member contacts exist for what the vendor configuration needs.
   # For example, this may create a phone number in our SMS provider if needed,
@@ -69,15 +69,7 @@ class Suma::AnonProxy::VendorAccount < Suma::Postgres::Model(:anon_proxy_vendor_
     self.db.transaction do
       self.lock!
       if self.email_required?
-        unless (contact = self.member.anon_proxy_contacts.find(&:email?))
-          email = Suma::AnonProxy::Relay.active_email_relay.provision(self.member)
-          contact = Suma::AnonProxy::MemberContact.create(
-            member: self.member,
-            email:,
-            relay_key: Suma::AnonProxy::Relay.active_email_relay_key,
-          )
-        end
-        self.contact = contact
+
         self.save_changes
       elsif self.sms_required?
         raise NotImplementedError, "this is not supported yet"
@@ -86,6 +78,7 @@ class Suma::AnonProxy::VendorAccount < Suma::Postgres::Model(:anon_proxy_vendor_
     return self.contact
   end
 
+  # @return [Suma::AnonProxy::AuthToVendor]
   def auth_to_vendor
     return Suma::AnonProxy::AuthToVendor.create!(self.configuration.auth_to_vendor_key, vendor_account: self)
   end
