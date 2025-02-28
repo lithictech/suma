@@ -11,7 +11,7 @@ RSpec.describe Suma::Fixtures do
     # This is gross, but we want to have coverage of fixtures. Ideally each decorator is tested
     # but in many cases it isn't really worth it.
     member = Suma::Fixtures.member.create
-    Suma::Fixtures.anon_proxy_vendor_configuration.sms.create
+    Suma::Fixtures.anon_proxy_vendor_configuration.disabled.with_programs({}).create
     Suma::Fixtures.bank_account.with_legal_entity.create
     Suma::Fixtures.card.with_legal_entity.create
     Suma::Fixtures.funding_transaction.with_fake_strategy.member(member).create

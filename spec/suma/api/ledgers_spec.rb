@@ -45,8 +45,8 @@ RSpec.describe Suma::API::Ledgers, :db do
       charge = Suma::Fixtures.charge(member:).create(undiscounted_subtotal: money("$30"))
       led1_recent_xaction = bookfac.from(led1).create(apply_at: 20.days.ago, amount_cents: 100)
       led1_old_xaction = bookfac.to(led1).create(apply_at: 80.days.ago, amount_cents: 400)
-      charge.add_book_transaction(led1_recent_xaction)
-      charge.add_book_transaction(led1_old_xaction)
+      charge.add_line_item(book_transaction: led1_recent_xaction)
+      charge.add_line_item(book_transaction: led1_old_xaction)
       led2_recent_xaction = bookfac.from(led2).create(apply_at: 5.days.ago, amount_cents: 200)
       led2_old_xaction = bookfac.to(led2).create(apply_at: 10.days.ago, amount_cents: 500)
 

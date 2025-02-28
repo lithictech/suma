@@ -95,11 +95,15 @@ RSpec.describe Suma::AdminAPI::MobilityTrips, :db do
       trip = Suma::Fixtures.mobility_trip.create
 
       post "/v1/mobility_trips/#{trip.id}",
+           begin_lat: 1,
+           begin_lng: 1,
+           end_lat: 2,
+           end_lng: 2,
            began_at: "2024-07-01T00:00:00-0700",
-           begin_lat: 1.2345
+           ended_at: "2024-07-01T00:00:00-0700"
 
       expect(last_response).to have_status(200)
-      expect(trip.refresh).to have_attributes(begin_lat: 1.2345)
+      expect(trip.refresh).to have_attributes(begin_lat: 1, end_lat: 2)
     end
   end
 end

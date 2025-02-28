@@ -12,7 +12,6 @@ export default function ChargeDetailPage() {
     <ResourceDetail
       resource="charge"
       apiGet={api.getCharge}
-      canEdit
       properties={(model) => [
         { label: "ID", value: model.id },
         { label: "Created At", value: dayjs(model.createdAt) },
@@ -79,34 +78,26 @@ export default function ChargeDetailPage() {
             />
           )}
           <RelatedList
-            title="Book Transactions"
-            headers={[
-              "Id",
-              "Applied",
-              "Amount",
-              "Originating",
-              "Receiving",
-              "Memo",
-              "Actor",
-            ]}
-            rows={model.bookTransactions}
+            title="Line Items"
+            headers={["Id", "Amount", "Memo", "Originating", "Receiving"]}
+            rows={model.lineItems}
             keyRowAttr="id"
             toCells={(row) => [
-              <AdminLink key="id" model={row} />,
-              dayjs(row.applyAt).format("lll"),
+              row.id,
               <Money key="amt" accounting>
                 {row.amount}
               </Money>,
-              <AdminLink key="originating" model={row.originatingLedger}>
-                {row.originatingLedger.adminLabel}
-              </AdminLink>,
-              <AdminLink key="receiving" model={row.receivingLedger}>
-                {row.receivingLedger.adminLabel}
-              </AdminLink>,
               row.memo.en,
-              <AdminLink key="actor" model={row.actor}>
-                {row.actor.name}
-              </AdminLink>,
+              row.bookTransaction && (
+                <AdminLink key="originating" model={row.bookTransaction}>
+                  {row.bookTransaction.originatingLedger.adminLabel}
+                </AdminLink>
+              ),
+              row.bookTransaction && (
+                <AdminLink key="receiving" model={row.bookTransaction}>
+                  {row.bookTransaction.receivingLedger.adminLabel}
+                </AdminLink>
+              ),
             ]}
           />
           <RelatedList

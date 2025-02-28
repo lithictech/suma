@@ -1,6 +1,7 @@
 import api from "../api";
 import AdminLink from "../components/AdminLink";
 import ResourceList from "../components/ResourceList";
+import { dayjs } from "../modules/dayConfig";
 import Money from "../shared/react/Money";
 import React from "react";
 
@@ -25,10 +26,10 @@ export default function ChargeListPage() {
           render: (c) => <AdminLink model={c.member}>{c.member.name}</AdminLink>,
         },
         {
-          id: "opaque_id",
-          label: "Opaque ID",
+          id: "created_at",
+          label: "Created",
           align: "left",
-          render: (c) => c.opaqueId,
+          render: (c) => dayjs(c.createdAt).format("lll"),
         },
         {
           id: "discounted_subtotal",

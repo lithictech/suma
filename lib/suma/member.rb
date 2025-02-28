@@ -16,7 +16,15 @@ class Suma::Member < Suma::Postgres::Model(:members)
   include Suma::AdminLinked
 
   class InvalidPassword < RuntimeError; end
-  class ReadOnlyMode < RuntimeError; end
+
+  class ReadOnlyMode < RuntimeError
+    attr_reader :reason
+
+    def initialize(reason)
+      @reason = reason
+      super("Member is in read-only mode: #{reason}")
+    end
+  end
 
   configurable(:member) do
     setting :onboard_allowlist, [], convert: lambda(&:split)
@@ -220,7 +228,6 @@ class Suma::Member < Suma::Postgres::Model(:members)
   def read_only_reason
     return "read_only_unverified" if self.onboarding_verified_at.nil?
     return "read_only_technical_error" if self.payment_account.nil?
-    return "read_only_zero_balance" if self.payment_account.total_balance <= Money.new(0)
     return nil
   end
 

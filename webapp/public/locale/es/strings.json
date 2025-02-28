@@ -375,7 +375,6 @@
     "polling_detail": "Esto puede tardar hasta un minuto.",
     "recent_messages_from_vendor": "Mensajes recientes de {{vendorName}}",
     "relink_app": "Volver a Vincular",
-    "success_instructions": "Le enviamos un mensaje de texto, haga clic en el enlace del texto para iniciar esta app.",
     "vendor_private_accounts": "Cuentas Privadas de {{vendorName}}"
   },
   "titles": {

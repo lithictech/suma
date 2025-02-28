@@ -20,6 +20,8 @@ require "suma/tasks/frontend"
 Suma::Tasks::Frontend.new
 require "suma/tasks/i18n"
 Suma::Tasks::I18n.new
+require "suma/tasks/integration"
+Suma::Tasks::Integration.new
 require "suma/tasks/release"
 Suma::Tasks::Release.new
 require "suma/tasks/message"

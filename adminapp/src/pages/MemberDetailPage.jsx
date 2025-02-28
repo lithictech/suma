@@ -195,7 +195,7 @@ function OrganizationMemberships({ memberships, model }) {
         <AdminLink key="id" model={row} />,
         dayjs(row.createdAt).format("lll"),
         row.verifiedOrganization ? (
-          <AdminLink model={row.verifiedOrganization}>
+          <AdminLink key="org" model={row.verifiedOrganization}>
             {row.verifiedOrganization.name}
           </AdminLink>
         ) : (
@@ -235,7 +235,7 @@ function ResetCodes({ resetCodes }) {
         dayjs(row.createdAt).format("lll"),
         dayjs(row.expireAt).format("lll"),
         row.token,
-        <BoolCheckmark key={4}>{row.used}</BoolCheckmark>,
+        <BoolCheckmark key="used">{row.used}</BoolCheckmark>,
       ]}
     />
   );
@@ -250,7 +250,7 @@ function Sessions({ sessions }) {
       rows={sessions}
       toCells={(row) => [
         dayjs(row.createdAt).format("lll"),
-        <SafeExternalLink key={2} href={row.ipLookupLink}>
+        <SafeExternalLink key="ip" href={row.ipLookupLink}>
           {row.peerIp}
         </SafeExternalLink>,
         row.userAgent,
@@ -284,12 +284,13 @@ function Charges({ charges }) {
     <RelatedList
       title="Charges"
       headers={["Id", "At", "Discounted Total", "Undiscounted Total", "Opaque Id"]}
+      keyRowAttr="id"
       rows={charges}
       toCells={(row) => [
-        <AdminLink model={row} />,
+        <AdminLink key="id" model={row} />,
         dayjs(row.createdAt).format("lll"),
-        <Money key={3}>{row.discountedSubtotal}</Money>,
-        <Money key={3}>{row.undiscountedSubtotal}</Money>,
+        <Money key="disc">{row.discountedSubtotal}</Money>,
+        <Money key="undisc">{row.undiscountedSubtotal}</Money>,
         row.opaqueId,
       ]}
     />
@@ -327,7 +328,7 @@ function MessagePreferences({ preferences }) {
         keyRowAttr="key"
         toCells={(row) => [
           row.key,
-          <BoolCheckmark key={2}>{row.optedIn}</BoolCheckmark>,
+          <BoolCheckmark key="optedin">{row.optedIn}</BoolCheckmark>,
           row.editableState,
         ]}
       />
@@ -376,10 +377,10 @@ function VendorAccounts({ vendorAccounts }) {
       toCells={(row) => [
         <AdminLink key="id" model={row} />,
         dayjs(row.createdAt).format("lll"),
-        <AdminLink key="id" model={row.vendor}>
+        <AdminLink key="vendor" model={row.vendor}>
           {row.vendor.name}
         </AdminLink>,
-        <SafeExternalLink href={row.latestAccessCodeMagicLink}>
+        <SafeExternalLink key="link" href={row.latestAccessCodeMagicLink}>
           {row.latestAccessCodeMagicLink}
         </SafeExternalLink>,
         row.latestAccessCode,

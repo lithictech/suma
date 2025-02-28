@@ -38,7 +38,7 @@ class Suma::AdminAPI::Access
     def write_key(resource) = can?(resource, 2)
 
     private def can?(resource, idx)
-      v = MAPPING[resource] or return false
+      v = MAPPING.fetch(resource)
       key = v[idx]
       return key
     end

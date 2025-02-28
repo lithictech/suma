@@ -48,6 +48,7 @@ export default function Programs({
     if (_.isEmpty(programs)) {
       // Show a chip if there are no programs.
       displayables.push({
+        key: 0,
         label: "* Resource has no programs. All members and organizations can access it.",
         variant: "outlined",
         color: "success",
@@ -60,6 +61,7 @@ export default function Programs({
       const iterablePrograms = allPrograms || programs;
       iterablePrograms?.forEach((c) =>
         displayables.push({
+          key: c.id,
           label: c.name.en || c.name,
           component: AdminLink,
           model: c,
@@ -84,8 +86,8 @@ export default function Programs({
           )}
         </Typography>
         <Stack direction="row" gap={1} sx={{ marginY: 1, flexWrap: "wrap" }}>
-          {displayables.map(({ label, ...rest }) => (
-            <Chip key={label} label={label} clickable {...rest} />
+          {displayables.map(({ label, key, ...rest }) => (
+            <Chip key={key} label={label} clickable {...rest} />
           ))}
         </Stack>
       </Box>

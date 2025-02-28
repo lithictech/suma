@@ -39,59 +39,41 @@ export default function VendorAccountDetailPage() {
           label: "Latest Access Code Set At",
           value: model.latestAccessCodeSetAt ? dayjs(model.latestAccessCodeSetAt) : "",
         },
+        {
+          label: "Registered with Vendor",
+          value: model.registeredWithVendor,
+        },
       ]}
     >
       {(model) => (
         <>
-          {model.configuration && (
-            <DetailGrid
-              title="Configuration"
-              properties={[
-                { label: "ID", value: <AdminLink model={model.configuration} /> },
-                {
-                  label: "Vendor",
-                  value: (
-                    <AdminLink model={model.configuration.vendor}>
-                      {model.configuration.vendor?.name}
-                    </AdminLink>
-                  ),
-                },
-                {
-                  label: "App Install Link",
-                  value: (
-                    <SafeExternalLink href={model.configuration.appInstallLink}>
-                      {model.configuration.appInstallLink}
-                    </SafeExternalLink>
-                  ),
-                },
-                {
-                  label: "Uses SMS?",
-                  value: <BoolCheckmark>{model.configuration.usesSms}</BoolCheckmark>,
-                },
-                {
-                  label: "Uses Email?",
-                  value: <BoolCheckmark>{model.configuration.usesEmail}</BoolCheckmark>,
-                },
-                {
-                  label: "Enabled?",
-                  value: <BoolCheckmark>{model.configuration.enabled}</BoolCheckmark>,
-                },
-              ]}
-            />
-          )}
+          <DetailGrid
+            title="Configuration"
+            properties={[
+              { label: "ID", value: <AdminLink model={model.configuration} /> },
+              {
+                label: "Vendor",
+                value: (
+                  <AdminLink model={model.configuration.vendor}>
+                    {model.configuration.vendor?.name}
+                  </AdminLink>
+                ),
+              },
+              {
+                label: "Auth to Vendor",
+                value: model.configuration.authToVendorKey,
+              },
+              {
+                label: "Enabled?",
+                value: <BoolCheckmark>{model.configuration.enabled}</BoolCheckmark>,
+              },
+            ]}
+          />
           {model.contact && (
             <DetailGrid
               title="Member Contact"
               properties={[
                 { label: "ID", value: model.contact.id },
-                {
-                  label: "Member",
-                  value: (
-                    <AdminLink model={model.contact.member}>
-                      {model.contact.member.name}
-                    </AdminLink>
-                  ),
-                },
                 { label: "Email", value: model.contact.email },
                 { label: "Phone", value: model.contact.phone },
                 { label: "Relay Key", value: model.contact.relayKey },

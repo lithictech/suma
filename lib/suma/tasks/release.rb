@@ -17,15 +17,19 @@ class Suma::Tasks::Release < Rake::TaskLib
     namespace :release do
       desc "Set every user password to #{PASSWORD}."
       task :prepare_prod_db_for_testing do
-        Suma.load_app
+        # Do NOT use load_app. We may have local migrations not applied to the dump,
+        # and we'll error trying to load those models.
+        require "suma/member"
         m = Suma::Member.new
         m.password = PASSWORD
-        Suma::Member.dataset.update(
-          password_digest: m.password_digest,
-          stripe_customer_json: nil,
-          frontapp_contact_id: "",
-        )
-        Suma::Member.where(email: "admin@lithic.tech").update(soft_deleted_at: nil)
+        Sequel.connect(Suma::Postgres::Model.uri) do |conn|
+          conn[:members].update(
+            password_digest: m.password_digest,
+            stripe_customer_json: nil,
+            frontapp_contact_id: "",
+          )
+          conn[:members].where(email: "admin@lithic.tech").update(soft_deleted_at: nil)
+        end
       end
     end
   end

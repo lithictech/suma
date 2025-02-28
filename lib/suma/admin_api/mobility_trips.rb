@@ -10,6 +10,7 @@ class Suma::AdminAPI::MobilityTrips < Suma::AdminAPI::V1
     include Suma::AdminAPI::Entities
     include AutoExposeDetail
     expose :external_trip_id
+    expose :opaque_id
     expose :begin_lat
     expose :begin_lng
     expose :end_lat, expose_nil: false

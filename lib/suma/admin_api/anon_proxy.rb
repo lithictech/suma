@@ -40,6 +40,7 @@ class Suma::AdminAPI::AnonProxy < Suma::AdminAPI::V1
     include AutoExposeDetail
     expose :programs, with: ProgramEntity
     expose :instructions, with: TranslatedTextEntity
+    expose :linked_success_instructions, with: TranslatedTextEntity
   end
 
   class DetailedVendorAccountEntity < VendorAccountEntity
@@ -49,6 +50,7 @@ class Suma::AdminAPI::AnonProxy < Suma::AdminAPI::V1
     expose :latest_access_code_set_at
     expose :latest_access_code_requested_at
     expose :latest_access_code_magic_link
+    expose :registered_with_vendor
     expose :contact, with: AnonProxyMemberContactEntity
   end
 

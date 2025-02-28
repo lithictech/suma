@@ -99,6 +99,8 @@ class Suma::AnonProxy::MessageHandler
   register(Fake.new.key, Fake)
   require_relative "message_handler/lime"
   register(Lime.new.key, Lime)
+  require_relative "message_handler/noop"
+  register(Noop.new.key, Noop)
 
   # @return [Suma::AnonProxy::MessageHandler]
   def self.create!(key)

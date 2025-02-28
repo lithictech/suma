@@ -12,7 +12,7 @@ class Suma::AdminAPI::Charges < Suma::AdminAPI::V1
     expose :member, with: MemberEntity
     expose :mobility_trip, with: MobilityTripEntity
     expose :commerce_order, with: OrderEntity
-    expose :book_transactions, with: BookTransactionEntity
+    expose :line_items, with: ChargeLineItemEntity
     expose :associated_funding_transactions, with: FundingTransactionEntity
   end
 
