@@ -11,6 +11,6 @@ class Suma::AnonProxy::AuthToVendor::LyftPass < Suma::AnonProxy::AuthToVendor
     self.vendor_account.update(registered_with_vendor: Time.now.iso8601)
   end
 
-  def need_polling? = false
+  def needs_polling? = false
   def needs_attention? = self.vendor_account.registered_with_vendor.blank?
 end

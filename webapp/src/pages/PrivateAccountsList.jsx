@@ -110,11 +110,12 @@ export default function PrivateAccountsList() {
 }
 
 function PrivateAccount({ account, onHelp }) {
-  const { vendorImage } = account;
+  const { registeredWithVendor, vendorImage } = account;
   const [buttonStatus, setButtonStatus] = React.useState(INITIAL);
   const pollingController = React.useRef(new AbortController());
   const [error, setError] = useError(null);
   const [pollingSuccess, setPollingSuccess] = React.useState(null);
+  const isLinked = pollingSuccess || registeredWithVendor;
 
   useUnmountEffect(() => {
     pollingController.current.abort();
@@ -175,13 +176,8 @@ function PrivateAccount({ account, onHelp }) {
   if (buttonStatus === INITIAL) {
     content = (
       <Stack direction="horizontal" gap={2} className="justify-content-center mb-1">
-        <Button
-          variant={pollingSuccess ? "secondary" : "primary"}
-          onClick={handleInitialClick}
-        >
-          {pollingSuccess
-            ? t("private_accounts:relink_app")
-            : t("private_accounts:link_app")}
+        <Button variant={isLinked ? "secondary" : "primary"} onClick={handleInitialClick}>
+          {isLinked ? t("private_accounts:relink_app") : t("private_accounts:link_app")}
         </Button>
         <Button variant="outline-primary" onClick={() => onHelp()}>
           {t("common:help")}
@@ -218,7 +214,7 @@ function PrivateAccount({ account, onHelp }) {
       >
         <span>
           <i className="bi bi-phone-vibrate d-inline me-2"></i>
-          {pollingSuccess.successInstructions}
+          {pollingSuccess?.successInstructions}
         </span>
       </Alert>
       {content}

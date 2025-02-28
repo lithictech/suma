@@ -6,8 +6,17 @@ RSpec.describe Suma::AnonProxy::AuthToVendor, :db do
   end
   let(:auth_to_vendor_key) { raise NotImplementedError }
 
+  shared_examples_for "an AuthToVendor" do
+    it "responds to the necessary methods" do
+      atv = va.auth_to_vendor
+      expect { atv.needs_polling? }.to_not raise_error
+      expect { atv.needs_attention? }.to_not raise_error
+    end
+  end
+
   describe "ensure_anonymous_email_contact" do
     let(:auth_to_vendor_key) { "fake" }
+
     it "creates a new member with an anonymous email contact" do
       va.auth_to_vendor.ensure_anonymous_email_contact
       expect(va.contact).to have_attributes(email: "u#{va.member.id}@example.com")
@@ -24,6 +33,8 @@ RSpec.describe Suma::AnonProxy::AuthToVendor, :db do
   describe "Fake" do
     let(:auth_to_vendor_key) { "fake" }
 
+    it_behaves_like "an AuthToVendor"
+
     it "increments the call count" do
       Suma::AnonProxy::AuthToVendor::Fake.reset
       expect do
@@ -34,6 +45,8 @@ RSpec.describe Suma::AnonProxy::AuthToVendor, :db do
 
   describe "Lime" do
     let(:auth_to_vendor_key) { "lime" }
+
+    it_behaves_like "an AuthToVendor"
 
     it "auths by sending a magic link request to the anonymous member email" do
       contact = Suma::Fixtures.anon_proxy_member_contact(member: va.member).email("a@b.c").create
@@ -95,6 +108,8 @@ RSpec.describe Suma::AnonProxy::AuthToVendor, :db do
       @vendor_service_rate.add_service(@vendor_service)
       Suma::Lyft.pass_vendor_service_rate_id = @vendor_service_rate.id
     end
+
+    it_behaves_like "an AuthToVendor"
 
     it "sends an invitation request to Lyft" do
       req = stub_request(:post, "https://www.lyft.com/api/rideprograms/enrollment/bulk/invite").

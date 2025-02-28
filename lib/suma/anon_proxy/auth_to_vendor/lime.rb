@@ -17,6 +17,6 @@ class Suma::AnonProxy::AuthToVendor::Lime < Suma::AnonProxy::AuthToVendor
     )
   end
 
-  def need_polling? = true
+  def needs_polling? = true
   def needs_attention? = self.vendor_account.contact.nil?
 end

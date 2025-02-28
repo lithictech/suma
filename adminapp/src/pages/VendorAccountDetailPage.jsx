@@ -39,30 +39,36 @@ export default function VendorAccountDetailPage() {
           label: "Latest Access Code Set At",
           value: model.latestAccessCodeSetAt ? dayjs(model.latestAccessCodeSetAt) : "",
         },
+        {
+          label: "Registered with Vendor",
+          value: model.registeredWithVendor,
+        },
       ]}
     >
       {(model) => (
         <>
-          {model.configuration && (
-            <DetailGrid
-              title="Configuration"
-              properties={[
-                { label: "ID", value: <AdminLink model={model.configuration} /> },
-                {
-                  label: "Vendor",
-                  value: (
-                    <AdminLink model={model.configuration.vendor}>
-                      {model.configuration.vendor?.name}
-                    </AdminLink>
-                  ),
-                },
-                {
-                  label: "Enabled?",
-                  value: <BoolCheckmark>{model.configuration.enabled}</BoolCheckmark>,
-                },
-              ]}
-            />
-          )}
+          <DetailGrid
+            title="Configuration"
+            properties={[
+              { label: "ID", value: <AdminLink model={model.configuration} /> },
+              {
+                label: "Vendor",
+                value: (
+                  <AdminLink model={model.configuration.vendor}>
+                    {model.configuration.vendor?.name}
+                  </AdminLink>
+                ),
+              },
+              {
+                label: "Auth to Vendor",
+                value: model.configuration.authToVendorKey,
+              },
+              {
+                label: "Enabled?",
+                value: <BoolCheckmark>{model.configuration.enabled}</BoolCheckmark>,
+              },
+            ]}
+          />
           {model.contact && (
             <DetailGrid
               title="Member Contact"

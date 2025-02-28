@@ -50,38 +50,12 @@ class Suma::AnonProxy::VendorAccount < Suma::Postgres::Model(:anon_proxy_vendor_
     end
   end
 
-  # def contact_phone = self.contact&.phone
-  # def contact_email = self.contact&.email
-  #
-  # def sms = self.configuration.uses_sms? ? self.contact_phone : nil
-  # def sms_required? = self.configuration.uses_sms? && self.contact_phone.nil?
-  #
-  # def email = self.configuration.uses_email? ? self.contact_email : nil
-  # def email_required? = self.configuration.uses_email? && self.contact_email.nil?
-  #
-  # def address = self.email || self.sms
-  # def address_required? = self.email_required? || self.sms_required?
-
-  # Ensure that the right member contacts exist for what the vendor configuration needs.
-  # For example, this may create a phone number in our SMS provider if needed,
-  # and the member does not have one; or insert a database object with the member's email.
-  def provision_contact
-    self.db.transaction do
-      self.lock!
-      if self.email_required?
-
-        self.save_changes
-      elsif self.sms_required?
-        raise NotImplementedError, "this is not supported yet"
-      end
-    end
-    return self.contact
-  end
-
   # @return [Suma::AnonProxy::AuthToVendor]
   def auth_to_vendor
     return Suma::AnonProxy::AuthToVendor.create!(self.configuration.auth_to_vendor_key, vendor_account: self)
   end
+
+  def registered_with_vendor? = self.registered_with_vendor.present?
 
   def replace_access_code(code, magic_link, at: Time.now)
     self.set(
