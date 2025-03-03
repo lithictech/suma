@@ -21,6 +21,11 @@ class Suma::Mobility::Trip < Suma::Postgres::Model(:mobility_trips)
     end
   end
 
+  def initialize(*)
+    super
+    self.opaque_id ||= Suma::Secureid.new_opaque_id("trp")
+  end
+
   def self.start_trip_from_vehicle(member:, vehicle:, rate:, at: Time.now)
     return self.start_trip(
       member:,
@@ -33,8 +38,9 @@ class Suma::Mobility::Trip < Suma::Postgres::Model(:mobility_trips)
     )
   end
 
-  def self.start_trip(member:, vehicle_id:, vendor_service:, rate:, lat:, lng:, at: Time.now)
+  def self.start_trip(member:, vehicle_id:, vendor_service:, rate:, lat:, lng:, at: Time.now, **kw)
     member.read_only_mode!
+    vendor_service.guard_zero_balance!(member)
     self.db.transaction(savepoint: true) do
       # noinspection RubyArgCount
       trip = self.new(
@@ -45,6 +51,7 @@ class Suma::Mobility::Trip < Suma::Postgres::Model(:mobility_trips)
         begin_lat: lat,
         begin_lng: lng,
         began_at: at,
+        **kw,
       )
       vendor_service.mobility_adapter.begin_trip(trip)
       trip.save_changes
@@ -55,50 +62,54 @@ class Suma::Mobility::Trip < Suma::Postgres::Model(:mobility_trips)
     end
   end
 
-  def end_trip(lat:, lng:)
-    # TODO: Not sure how to handle API multiple calls to a 3rd party service for the same trip,
+  def end_trip(lat:, lng:, at: Time.now, adapter_kw: {})
+    # Not sure how to handle API multiple calls to a 3rd party service for the same trip,
     # or if we lose track of something (out of sync between us and service).
-    # We can work this out more clearly once we have a real provider to work with.
-    result = self.vendor_service.mobility_adapter.end_trip(self)
+    # We can work this out more clearly once we have more providers to work with.
+    result = self.vendor_service.mobility_adapter.end_trip(self, **adapter_kw)
     # This would be bad, but we should know when it happens and pick up the pieces
     # instead of trying to figure out a solution to an impossible problem.
-    raise Suma::InvalidPostcondition, "negative trip cost for #{self.inspect}" if result.cost_cents.negative?
+    raise Suma::InvalidPostcondition, "negative trip cost for #{self.inspect}" if result.cost.negative?
     self.db.transaction do
       self.update(end_lat: lat, end_lng: lng, ended_at: result.end_time)
-      # The calculated rate can be different than the service actually
+      # The calculated rate can be different from the service actually
       # charges us, so if we aren't using a discount, always use
       # what we end up getting actually charged.
       undiscounted_subtotal = if self.vendor_service_rate.undiscounted_rate.nil?
-                                Money.new(result.cost_cents, result.cost_currency)
-      else
-        self.vendor_service_rate.calculate_undiscounted_total(self.rate_units)
-      end
+                                result.cost
+                              else
+                                self.vendor_service_rate.calculate_undiscounted_total(self.rate_units)
+                              end
       self.charge = Suma::Charge.create(
         mobility_trip: self,
         undiscounted_subtotal:,
         member: self.member,
       )
-      result_cost = Money.new(result.cost_cents, result.cost_currency)
       contrib_coll = self.member.payment_account!.calculate_charge_contributions(
-        Suma::Payment::CalculationContext.new(Time.now),
+        Suma::Payment::CalculationContext.new(at),
         self.vendor_service,
-        result_cost,
+        result.cost,
       )
       debitable_contribs = contrib_coll.all.select(&:amount?)
-      if debitable_contribs.empty?
-        # We always need a debit. If there are no debitable contributions, make a fake one for $0
-        # using the first non-cash category.
-        # I am not 100% certain this is what we want to do, don't be surprised if we need to revisit this.
-        debitable_contribs = [contrib_coll.all(cash: :last).first.dup(amount: Money.new(0))]
-      end
-      xactions = self.member.payment_account.debit_contributions(
+      book_xactions = self.member.payment_account.debit_contributions(
         debitable_contribs,
-        memo: Suma::TranslatedText.create(
-          en: "Suma Mobility - #{self.vendor_service.external_name}",
-          es: "Suma Movilidad - #{self.vendor_service.external_name}",
-        ),
+        memo: Suma::TranslatedText.create(all: "#{self.vendor_service.external_name} - #{self.opaque_id}"),
       )
-      xactions.each { |x| self.charge.add_book_transaction(x) }
+      book_xactions.each { |x| self.charge.add_line_item(book_transaction: x) }
+      if contrib_coll.remainder?
+        instrument = self.member.default_payment_instrument or
+          raise Suma::InvalidPrecondition, "member #{self.member.id} has no payment instrument"
+        # If we have a remainder, we need to create a funding transaction to cover it.
+        # Since the ride already happened, we want to collect this later, not now-
+        # if the funding fails, we handle it like any other fialed funding.
+        funding = Suma::Payment::FundingTransaction.start_new(
+          Suma::Payment.as_account(self.member),
+          amount: contrib_coll.remainder,
+          instrument:,
+          collect: false,
+        )
+        self.charge.add_associated_funding_transaction(funding)
+      end
       return self.charge
     end
   end

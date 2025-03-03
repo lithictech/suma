@@ -54,66 +54,6 @@ RSpec.describe "Suma::AnonProxy::VendorAccount", :db do
     end
   end
 
-  describe "email and sms" do
-    it "finds the member contact with an email or sms" do
-      vc = Suma::Fixtures.anon_proxy_vendor_configuration(uses_sms: false, uses_email: true).create
-      va = Suma::Fixtures.anon_proxy_vendor_account(configuration: vc).create
-      expect(va).to have_attributes(
-        sms: nil,
-        sms_required?: false,
-        email: nil,
-        email_required?: true,
-      )
-      vc.set(uses_sms: true, uses_email: false)
-      expect(va).to have_attributes(
-        sms: nil,
-        sms_required?: true,
-        email: nil,
-        email_required?: false,
-      )
-      mc = Suma::Fixtures.anon_proxy_member_contact(email: "a@b.c", member: va.member).create
-      va.contact = mc
-      expect(va).to have_attributes(
-        sms: nil,
-        sms_required?: true,
-        email: nil,
-        email_required?: false,
-      )
-      mc.set(email: nil, phone: "12223334444")
-      expect(va).to have_attributes(
-        sms: "12223334444",
-        sms_required?: false,
-        email: nil,
-        email_required?: false,
-      )
-    end
-  end
-
-  describe "#provision_contact" do
-    let!(:va) { Suma::Fixtures.anon_proxy_vendor_account(configuration:).create }
-
-    describe "using email" do
-      let(:configuration) { Suma::Fixtures.anon_proxy_vendor_configuration.email.create }
-
-      it "provisions a new email contact" do
-        c = va.provision_contact
-        expect(c).to be_a(Suma::AnonProxy::MemberContact)
-        expect(c).to have_attributes(
-          member: be === va.member,
-          email: "u#{va.member.id}@example.com",
-          phone: nil,
-          relay_key: "fake-relay",
-        )
-      end
-
-      it "noops for an existing member contact" do
-        mc = Suma::Fixtures.anon_proxy_member_contact.email.create(member: va.member)
-        c = va.provision_contact
-        expect(c).to be === mc
-      end
-    end
-  end
-
   describe "recent_message_text_bodies" do
     let(:va) { Suma::Fixtures.anon_proxy_vendor_account.create }
 
@@ -151,34 +91,6 @@ RSpec.describe "Suma::AnonProxy::VendorAccount", :db do
       expect(va.latest_access_code_is_recent?).to equal(false)
       va.replace_access_code("abc", "https://lime.app/magic_link_token=abc")
       expect(va.latest_access_code_is_recent?).to equal(true)
-    end
-  end
-
-  describe "auth_request" do
-    let(:va) do
-      Suma::Fixtures.anon_proxy_vendor_account.with_configuration(
-        auth_url: "https://x.y",
-        auth_http_method: "POST",
-        auth_headers: {"X-Y" => "b"},
-      ).create
-    end
-
-    it "returns the auth fields for the configuration" do
-      expect(va.auth_request).to include(
-        http_method: "POST",
-        url: "https://x.y",
-        headers: {"X-Y" => "b"},
-        body: '{"email":"","phone":""}',
-      )
-    end
-
-    it "can render phone and email" do
-      va.contact = Suma::Fixtures.anon_proxy_member_contact.create
-      va.contact.email = "x@y.z"
-      va.contact.phone = "12223334444"
-      expect(va.auth_request).to include(
-        body: '{"email":"x@y.z","phone":"12223334444"}',
-      )
     end
   end
 end

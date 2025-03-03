@@ -52,4 +52,29 @@ RSpec.describe Suma::Postgres do
 
     expect(described_class.registered_models).to include("spacemonkeys")
   end
+
+  it "can iterate classes" do
+    described_class.registered_models.replace(@original_models)
+    described_class.model_superclasses.replace(@original_superclasses)
+
+    sup = described_class.each_model_superclass.to_a
+    expect(sup).to include(described_class::Model)
+
+    models = []
+    described_class.each_model_class { |c| models << c }
+    expect(models).to include(Suma::Member)
+  end
+
+  describe "now_sql" do
+    it "uses Ruby now" do
+      t1 = Timecop.travel("2020-01-30T12:00:00Z") do
+        described_class::Model.db[described_class.now_sql].sql
+      end
+      t2 = Timecop.travel("2020-02-15T12:00:00Z") do
+        described_class::Model.db[described_class.now_sql].sql
+      end
+      expect(t1).to start_with("SELECT * FROM CAST('2020-01-30")
+      expect(t2).to start_with("SELECT * FROM CAST('2020-02-15")
+    end
+  end
 end

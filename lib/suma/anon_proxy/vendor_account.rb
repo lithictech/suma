@@ -50,39 +50,12 @@ class Suma::AnonProxy::VendorAccount < Suma::Postgres::Model(:anon_proxy_vendor_
     end
   end
 
-  def contact_phone = self.contact&.phone
-  def contact_email = self.contact&.email
-
-  def sms = self.configuration.uses_sms? ? self.contact_phone : nil
-  def sms_required? = self.configuration.uses_sms? && self.contact_phone.nil?
-
-  def email = self.configuration.uses_email? ? self.contact_email : nil
-  def email_required? = self.configuration.uses_email? && self.contact_email.nil?
-
-  def address = self.email || self.sms
-  def address_required? = self.email_required? || self.sms_required?
-
-  # Ensure that the right member contacts exist for what the vendor configuration needs.
-  # For example, this may create a phone number in our SMS provider if needed,
-  # and the member does not have one; or insert a database object with the member's email.
-  def provision_contact
-    self.db.transaction do
-      self.lock!
-      if self.email_required?
-        unless (contact = self.member.anon_proxy_contacts.find(&:email?))
-          email = Suma::AnonProxy::Relay.active_email_relay.provision(self.member)
-          contact = Suma::AnonProxy::MemberContact.create(
-            member: self.member,
-            email:,
-            relay_key: Suma::AnonProxy::Relay.active_email_relay_key,
-          )
-        end
-        self.contact = contact
-        self.save_changes
-      end
-    end
-    return self.contact
+  # @return [Suma::AnonProxy::AuthToVendor]
+  def auth_to_vendor
+    return Suma::AnonProxy::AuthToVendor.create!(self.configuration.auth_to_vendor_key, vendor_account: self)
   end
+
+  def registered_with_vendor? = self.registered_with_vendor.present?
 
   def replace_access_code(code, magic_link, at: Time.now)
     self.set(
@@ -114,21 +87,6 @@ class Suma::AnonProxy::VendorAccount < Suma::Postgres::Model(:anon_proxy_vendor_
       bodies << body.content if body
     end
     return bodies
-  end
-
-  AuthRequest = Struct.new(:url, :http_method, :body, :headers)
-
-  # Return the fields needed to make an auth request.
-  # Return nil if the contact is not yet set on the account.
-  # @return [AuthRequest,nil]
-  def auth_request
-    body = self.configuration.auth_body_template % {email: self.contact_email, phone: self.contact_phone}
-    return {
-      url: self.configuration.auth_url,
-      http_method: self.configuration.auth_http_method,
-      headers: self.configuration.auth_headers.to_h,
-      body:,
-    }
   end
 
   def rel_admin_link = "/vendor-account/#{self.id}"

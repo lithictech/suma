@@ -30,5 +30,6 @@ module Suma::AnonProxy
   end
 end
 
+require "suma/anon_proxy/auth_to_vendor"
 require "suma/anon_proxy/relay"
 require "suma/anon_proxy/message_handler"

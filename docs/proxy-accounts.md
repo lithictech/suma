@@ -7,44 +7,57 @@ An example would be renting a Lyft e-bike,
 which is done via deep linking, rather than booking the ride
 within the Suma app itself.
 
-In these cases, we have the member sign up with the vendor using
-an email or phone number that Suma provisions,
-**not** the member's actual email or phone number.
+In these cases, there are two possibilities:
 
-The Suma backend 'proxies' messages from the vendor (email or SMS)
+1. We have the member sign up with the vendor using an email or phone number that Suma provisions,
+  **not** the member's actual email or phone number. We call these **"Private Accounts"**.
+2. We link the member's Suma account and a vendor account with the same email or phone number.
+   These do not provide depersonalization/anonymization. We call these **"Linked Accounts"**.
+
+The mechanics of these are very similar, and mostly just changes the UX.
+But we can explain them with examples.
+
+## Linked Accounts
+
+Linked accounts are pretty simple. In these cases, Suma has some relationship with the vendor
+that allows Suma to enroll its members in some special vendor programs.
+An example would be enrolling Suma members in Lyft Pass, giving them a discounted rate for mobility trips.
+
+In these cases, when the user Links their account, we will invite the user with the same email or phone number
+to join our Suma account. This will usually do something like:
+
+- User presses 'link account' in the UI.
+- Suma backend automation adds the member's phone number to a special discount program with the vendor, like Lyft Pass.
+- Lyft automatically sends a notification to the user about the invitation.
+- Suma's UI tells the user to look out for a message and open the app.
+- Member opens the Lyft app and see their new access.
+
+Note that because we didn't initially plan on non-anonymized accounts,
+the code namespace is "anonymous proxy", even though these accounts aren't anonymized,
+and are not really proxied.
+
+## Private Accounts
+
+With private accounts, the account in the vendors system is NOT the actual Suma member email or password.
+Instead, the Suma backend 'proxies' messages from the vendor (email or SMS)
 and sends them onto the Suma member (usually SMS).
 
 This keeps member data private on Suma's systems.
 Note that other concerns, like liability waivers and vendor complaints against members,
 must be worked out beforehand, between the platform operator and the vendor.
 
-We call these 'anonymized proxy vendor accounts', or 'vendor accounts' for short.
-In the UI we call them 'private accounts', though this may change.
+An example of Private Accounts would be associating Suma with Lime:
 
-## User/Data Flow
-
-This is the core data flow around authentication between Suma and a vendor's system:
-
-- We have a 'private accounts' area of the UI with available vendors,
-  like Lyft and Lime.
-- Members can 'create a private account' for each vendor, or see the email/phone associated with the account.
-  - Creating a private account with provision a 'proxy' SMS number for the member,
-    and/or assign them an email like `u100@in.mysuma.org`, depending on what the vendor uses for signup.
-  - Email is preferred since it's basically free.
-- Each vendor in the list has instructions on how to sign up using the member's proxy phone number or email.
-- We always listen for incoming emails or SMS. When they come in,
-  we see who they were addressed to to look up the member with that proxy address.
-- We extract information from the message, and send it via SMS to the member's real number,
-  so they member can see it.
-  - For example, Lime may send an email with an auth token; we extract the token and send it to the member's phone number,
-    like 'Your Lime code is abc123'.
-- The member sees an auth token SMS from Suma; copies the token; and pastes it into the vendor's app
-  to verify the proxy address.
-- Member uses the vendor's app as normal, but the vendor doesn't know who they are directly.
+- The member should not be signed in to Lime.
+- The member presses the button to link/open their Lime account.
+- Suma makes a request for a 'magic link' signup/sign-in to an email like `m5@in.mysuma.org`
+- Suma parses the incoming email and sends the private link to the member via SMS.
+- The member clicks on the private link, and is signed in to Lime as `m5@in.mysuma.org`.
+- Lime does not know anything about the member.
 
 ## Architecture
 
-There are two main chunks to how Private Accounts work.
+There are two main chunks to how Private and Linked Accounts work.
 The `Suma::AnonProxy` namespace contains most of this code.
 
 The first chunk are the database models that are surfaced in the UI,
@@ -53,7 +66,8 @@ which represent the vendors which support private accounts
 and a member's account within a vendor's service (`VendorAccount`):
 
 - `AnonProxy::MemberContact` contains an email or phone number associated with the member. 
-  - Each member can have any number of emails and phone numbers, though one of each is normal.
+  - Each member can have any number of proxy emails and phone numbers,
+    though it wouldn't be very useful to have multiple email addresses or phone numbers.
   - The member contact stores the name of a `Relay`, like Postmark or Twilio.
     This is the underlying provider working with the address,
     and is used when processing inbound messages.
@@ -61,13 +75,17 @@ and a member's account within a vendor's service (`VendorAccount`):
   work for a particular vendor. For example, if Lime uses email for its account,
   there would be a Vendor Configuration associated to that vendor,
   which says that email is used for the private accounts.
-- `AnonProxy::VendorAccount` is the member account in the vendor's service.
+  The Vendor Configuration also describes how to auth to the vendor,
+  whether it's something like an HTTP request to request a magic link,
+  or custom code like for Lyft Pass.
+- `AnonProxy::VendorAccount` represents the Suma member's account in the vendor's service.
   It points to a single `VendorConfiguration`, which specifies the behavior,
   and a `MemberContact`, which should match the sms or phone requirement
-  (ie, an SMS member contact should be used with a 'uses SMS' vendor configuration).
+  (ie, an SMS member contact should be used with a 'uses SMS' Vendor Configuration).
 
-The second chunk are the mechanics used for the actual proxying;
+The second chunk  of complexity are the mechanics used for the actual proxying;
 that is, forwarding messages from vendors to Suma members.
+Note these are only needed for Private Accounts, not Linked Accounts.
 There are a lot more moving parts here:
 
 - We have several `Relay` implementations, like `Postmark` or `Twilio`.

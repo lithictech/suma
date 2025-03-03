@@ -11,7 +11,6 @@ import { t } from "../localization";
 import ScrollTopOnMount from "../shared/ScrollToTopOnMount";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
 import useMountEffect from "../shared/react/useMountEffect";
-import useToggle from "../shared/react/useToggle";
 import useUnmountEffect from "../shared/react/useUnmountEffect";
 import { useError } from "../state/useError";
 import { CanceledError } from "axios";
@@ -111,11 +110,12 @@ export default function PrivateAccountsList() {
 }
 
 function PrivateAccount({ account, onHelp }) {
-  const { vendorImage } = account;
+  const { registeredWithVendor, vendorImage } = account;
   const [buttonStatus, setButtonStatus] = React.useState(INITIAL);
   const pollingController = React.useRef(new AbortController());
   const [error, setError] = useError(null);
-  const success = useToggle(false);
+  const [pollingSuccess, setPollingSuccess] = React.useState(null);
+  const isLinked = pollingSuccess || registeredWithVendor;
 
   useUnmountEffect(() => {
     pollingController.current.abort();
@@ -136,7 +136,7 @@ function PrivateAccount({ account, onHelp }) {
             if (r.data.foundChange) {
               // Turn this off before navigating in case promise callbacks don't run.
               window.setTimeout(() => setButtonStatus(INITIAL), 100);
-              success.turnOn();
+              setPollingSuccess(r.data);
             } else {
               pollAndReplace();
             }
@@ -153,26 +153,21 @@ function PrivateAccount({ account, onHelp }) {
       );
     }
     pollAndReplace();
-  }, [account.id, success]);
+  }, [account.id]);
 
   function handleInitialClick(e) {
     e.preventDefault();
-    success.turnOff();
+    setPollingSuccess(null);
     setError(null);
     setButtonStatus(POLLING);
     api
-      .configurePrivateAccount({ id: account.id })
-      .then(async () => {
-        try {
-          await api.makePrivateAccountAuthRequest({ id: account.id });
-        } catch (e) {
-          console.error(get(e, "response.data") || e);
-          return Promise.reject(<span>{t("private_accounts.auth_error")}</span>);
-        }
+      .makePrivateAccountAuthRequest({ id: account.id })
+      .then(() => {
         pollingCallback();
       })
       .catch((e) => {
-        setError(e);
+        console.error(get(e, "response.data") || e);
+        setError(<span>{t("private_accounts.auth_error")}</span>);
         setButtonStatus(INITIAL);
       });
   }
@@ -181,13 +176,8 @@ function PrivateAccount({ account, onHelp }) {
   if (buttonStatus === INITIAL) {
     content = (
       <Stack direction="horizontal" gap={2} className="justify-content-center mb-1">
-        <Button
-          variant={success.isOff ? "primary" : "secondary"}
-          onClick={handleInitialClick}
-        >
-          {success.isOff
-            ? t("private_accounts:link_app")
-            : t("private_accounts:relink_app")}
+        <Button variant={isLinked ? "secondary" : "primary"} onClick={handleInitialClick}>
+          {isLinked ? t("private_accounts:relink_app") : t("private_accounts:link_app")}
         </Button>
         <Button variant="outline-primary" onClick={() => onHelp()}>
           {t("common:help")}
@@ -218,13 +208,13 @@ function PrivateAccount({ account, onHelp }) {
       />
       <Alert
         variant="success"
-        show={success.isOn}
-        onClose={() => success.turnOff()}
+        show={!!pollingSuccess}
+        onClose={() => setPollingSuccess(null)}
         dismissible
       >
         <span>
           <i className="bi bi-phone-vibrate d-inline me-2"></i>
-          {t("private_accounts:success_instructions")}
+          {pollingSuccess?.successInstructions}
         </span>
       </Alert>
       {content}

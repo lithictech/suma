@@ -88,7 +88,9 @@ RSpec.describe "Suma::Mobility::Trip", :db do
         undiscounted_subtotal: cost("$1.62"),
         discounted_subtotal: cost("$1.20"),
       )
-      expect(trip.charge.book_transactions).to have_length(1)
+      expect(trip.charge.line_items).to contain_exactly(
+        have_attributes(book_transaction: have_attributes(amount: cost("$1.20"))),
+      )
     end
 
     it "charges the mobility ledger if there is a balance" do
@@ -103,12 +105,12 @@ RSpec.describe "Suma::Mobility::Trip", :db do
         undiscounted_subtotal: cost("$0.70"),
         discounted_subtotal: cost("$0.70"),
       )
-      expect(trip.charge.book_transactions).to contain_exactly(
+      expect(trip.charge.line_items.map(&:book_transaction)).to contain_exactly(
         have_attributes(
           originating_ledger: member.payment_account.mobility_ledger!,
           receiving_ledger: Suma::Payment::Account.lookup_platform_vendor_service_category_ledger(mobility),
           amount: cost("$0.70"),
-          memo: have_attributes(en: "Suma Mobility - Super Scoot"),
+          memo: have_attributes(en: start_with("Super Scoot - trp_")),
           associated_vendor_service_category: be === mobility,
         ),
       )
@@ -120,55 +122,60 @@ RSpec.describe "Suma::Mobility::Trip", :db do
         ongoing.
         create(began_at: 211.seconds.ago, vendor_service_rate: rate, member:)
       trip.end_trip(lat: 1, lng: 2)
-      expect(trip.charge.book_transactions).to contain_exactly(
+      expect(trip.charge.line_items.map(&:book_transaction)).to contain_exactly(
         have_attributes(
           originating_ledger: member.payment_account.cash_ledger!,
           receiving_ledger: Suma::Payment::Account.lookup_platform_vendor_service_category_ledger(cash),
           amount: cost("$0.70"),
-          memo: have_attributes(en: "Suma Mobility - Super Scoot"),
+          memo: have_attributes(en: start_with("Super Scoot - trp_")),
           associated_vendor_service_category: be === cash,
         ),
       )
+      expect(trip.charge.associated_funding_transactions).to be_empty
     end
 
-    describe "for a $0 trip" do
-      it "creates a $0 mobility transaction on the best non-cash ledger" do
-        Suma::Payment.ensure_cash_ledger(member)
-        member.refresh
-        rate = Suma::Fixtures.vendor_service_rate.unit_amount(0).surcharge(0).create
-        trip = Suma::Fixtures.mobility_trip.
+    describe "when there is a remaining cost to charge the member" do
+      let(:rate) { Suma::Fixtures.vendor_service_rate.unit_amount(0).surcharge(200_00).create }
+      let(:trip) do
+        Suma::Fixtures.mobility_trip(vendor_service:).
           ongoing.
-          create(began_at: 6.minutes.ago, vendor_service_rate: rate, member:)
-        trip.end_trip(lat: 1, lng: 2)
-        expect(trip.charge).to have_attributes(discounted_subtotal: cost("$0"))
-        expect(trip.charge.book_transactions).to contain_exactly(
-          have_attributes(
-            originating_ledger: be === mobility_ledger,
-            amount: cost("$0"),
-            associated_vendor_service_category: be === mobility,
-          ),
-        )
+          create(began_at: 211.seconds.ago, vendor_service_rate: rate, member:)
       end
 
-      it "uses the cash ledger if there is no more specific ledger" do
-        mobility_ledger.remove_all_vendor_service_categories
-        mobility_ledger.destroy
-        cash_ledger = Suma::Payment.ensure_cash_ledger(member)
-        member.refresh
-        rate = Suma::Fixtures.vendor_service_rate.unit_amount(0).surcharge(0).create
-        trip = Suma::Fixtures.mobility_trip.
-          ongoing.
-          create(began_at: 6.minutes.ago, vendor_service_rate: rate, member:)
+      it "creates a funding transaction against the default payment instrument" do
+        Suma::Fixtures::Members.register_as_stripe_customer(member)
+        Suma::Fixtures.card.member(member).create
+
         trip.end_trip(lat: 1, lng: 2)
-        expect(trip.charge).to have_attributes(discounted_subtotal: cost("$0"))
-        expect(trip.charge.book_transactions).to contain_exactly(
+        expect(trip.charge.associated_funding_transactions).to contain_exactly(
+          have_attributes(amount: cost("$185")),
+        )
+        expect(trip.charge.line_items.map(&:book_transaction)).to contain_exactly(
           have_attributes(
-            originating_ledger: be === cash_ledger,
-            amount: cost("$0"),
+            originating_ledger: member.payment_account.cash_ledger!,
+            receiving_ledger: Suma::Payment::Account.lookup_platform_vendor_service_category_ledger(cash),
+            amount: cost("$15"),
+            memo: have_attributes(en: start_with("Super Scoot - trp_")),
             associated_vendor_service_category: be === cash,
           ),
         )
       end
+
+      it "errors if there is no payment instrument" do
+        expect { trip.end_trip(lat: 1, lng: 2) }.to raise_error(/has no payment instrument/)
+      end
+    end
+
+    it "does not create any book transactions for a $0 trip cost" do
+      Suma::Payment.ensure_cash_ledger(member)
+      member.refresh
+      rate = Suma::Fixtures.vendor_service_rate.unit_amount(0).surcharge(0).create
+      trip = Suma::Fixtures.mobility_trip.
+        ongoing.
+        create(began_at: 6.minutes.ago, vendor_service_rate: rate, member:)
+      trip.end_trip(lat: 1, lng: 2)
+      expect(trip.charge).to have_attributes(discounted_subtotal: cost("$0"))
+      expect(trip.charge.line_items).to be_empty
     end
   end
 

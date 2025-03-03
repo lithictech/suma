@@ -31,7 +31,8 @@ export default function VendorServiceDetailPage() {
         },
         { label: "Name", value: model.name },
         { label: "Internal Name", value: model.internalName },
-        { label: "Mobility Vendor Adapter Key", value: model.mobilityVendorAdapterKey },
+        { label: "Mobility Vendor Adapter", value: model.mobilityVendorAdapterKey },
+        { label: "Charge After Fulfillment", value: model.chargeAfterFulfillment },
         {
           label: "Vendor",
           value: <AdminLink model={model.vendor}>{model.vendor?.name}</AdminLink>,

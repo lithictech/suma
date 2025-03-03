@@ -49,6 +49,16 @@ RSpec.describe "Suma::Commerce::Checkout", :db do
     end
   end
 
+  describe "payment_instrument" do
+    it "errors for an invalid instrument" do
+      co = Suma::Fixtures.checkout.instance
+      co.payment_instrument = Suma::Fixtures.card.create
+      expect do
+        co.payment_instrument = Suma::Fixtures.member.create
+      end.to raise_error(TypeError, /Unhandled payment instrument/)
+    end
+  end
+
   describe "requires_payment_instrument?" do
     let(:member) { Suma::Fixtures.member.registered_as_stripe_customer.create }
     let(:offering) { Suma::Fixtures.offering.create }
@@ -284,7 +294,7 @@ RSpec.describe "Suma::Commerce::Checkout", :db do
           discounted_subtotal: customer_cost,
           undiscounted_subtotal: cost("$1555"),
         )
-        expect(order.charges.first.book_transactions).to contain_exactly(
+        expect(order.charges.first.line_items.map(&:book_transaction)).to contain_exactly(
           have_attributes(amount: cost("$3"), originating_ledger: be === food_ledger),
           have_attributes(amount: cost("$0.30"), originating_ledger: be === holidaymeal_ledger),
           have_attributes(amount: cost("$1240.70"), originating_ledger: be === cash_ledger),
@@ -345,7 +355,7 @@ RSpec.describe "Suma::Commerce::Checkout", :db do
         # $20 charge = $15 match voucher cash cost + $5 into voucher cash cost
         order = create_order(money("$20"), checkout_: checkout)
         expect(order.charges).to contain_exactly(have_attributes(discounted_subtotal: cost("$54")))
-        expect(order.charges.first.book_transactions).to contain_exactly(
+        expect(order.charges.first.line_items.map(&:book_transaction)).to contain_exactly(
           have_attributes(amount: cost("$20"), originating_ledger: be === cash_ledger),
           have_attributes(amount: cost("$19"), originating_ledger: be === intro_ledger),
           have_attributes(amount: cost("$15"), originating_ledger: be === match_ledger),
@@ -381,7 +391,7 @@ RSpec.describe "Suma::Commerce::Checkout", :db do
           discounted_subtotal: cost("40"),
           undiscounted_subtotal: cost("$50"),
         )
-        expect(order.charges.first.book_transactions).to contain_exactly(
+        expect(order.charges.first.line_items.map(&:book_transaction)).to contain_exactly(
           have_attributes(originating_ledger: be === cash_ledger, amount: cost("$40")),
         )
         expect(member.payment_account.all_book_transactions(reload: true)).to contain_exactly(

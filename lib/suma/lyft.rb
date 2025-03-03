@@ -11,6 +11,11 @@ module Suma::Lyft
   configurable(:lyft) do
     setting :gbfs_root, "https://gbfs.lyft.com/gbfs/2.3/pdx/en"
     setting :sync_enabled, false
+    setting :pass_authorization, ""
+    setting :pass_email, ""
+    setting :pass_org_id, ""
+    setting :pass_program_id, ""
+    setting :pass_vendor_service_rate_id, 0
   end
 
   VENDOR_NAME = "Lyft"

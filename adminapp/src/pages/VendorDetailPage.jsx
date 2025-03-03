@@ -5,8 +5,6 @@ import RelatedList from "../components/RelatedList";
 import ResourceDetail from "../components/ResourceDetail";
 import SumaImage from "../components/SumaImage";
 import { dayjs } from "../modules/dayConfig";
-import SafeExternalLink from "../shared/react/SafeExternalLink";
-import theme from "../theme";
 import React from "react";
 
 export default function VendorDetailPage() {
@@ -39,42 +37,22 @@ export default function VendorDetailPage() {
           <RelatedList
             title="Services"
             rows={model.services}
-            headers={["Id", "Name", "Programs"]}
+            headers={["Id", "Name"]}
             keyRowAttr="id"
             toCells={(row) => [
               <AdminLink model={row} />,
               <AdminLink model={row}>{row.name}</AdminLink>,
-              row.programs.map((pro) => (
-                <AdminLink
-                  key={pro.name.en}
-                  model={pro}
-                  sx={{ marginRight: theme.spacing(1) }}
-                >
-                  {pro.name.en}
-                </AdminLink>
-              )),
             ]}
           />
           <RelatedList
             title="Configuration"
             rows={model.configurations}
-            headers={[
-              "Id",
-              "Vendor",
-              "App Install Link",
-              "Enabled?",
-              "Uses Email?",
-              "Uses SMS?",
-            ]}
+            headers={["Id", "Vendor", "Auth to Vendor", "Enabled?"]}
             keyRowAttr="id"
             toCells={(row) => [
               <AdminLink key="id" model={row} />,
               row.vendor.name,
-              <SafeExternalLink href={row.appInstallLink}>
-                {row.appInstallLink}
-              </SafeExternalLink>,
-              <BoolCheckmark>{row.usesSMS}</BoolCheckmark>,
-              <BoolCheckmark>{row.usesEmail}</BoolCheckmark>,
+              row.authToVendorKey,
               <BoolCheckmark>{row.enabled}</BoolCheckmark>,
             ]}
           />

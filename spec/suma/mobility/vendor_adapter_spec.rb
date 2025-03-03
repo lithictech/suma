@@ -56,19 +56,18 @@ RSpec.describe Suma::Mobility::VendorAdapter, :db do
         Suma::Mobility::VendorAdapter::Fake.uses_deep_linking = true
       end
 
-      it "is true when there is no account" do
+      it "is true when there is no vendor account" do
         expect(ad).to be_anon_proxy_vendor_account_requires_attention(member)
       end
-      it "is true when the account is not configured" do
+
+      it "delegates to the vendor account configuration" do
         va = Suma::Fixtures.anon_proxy_vendor_account(member:).create
+
+        Suma::AnonProxy::AuthToVendor::Fake.needs_attention = true
         Suma::Mobility::VendorAdapter::Fake.find_anon_proxy_vendor_account_results << va
         expect(ad).to be_anon_proxy_vendor_account_requires_attention(member)
-      end
-      it "is false if the account is configured" do
-        va = Suma::Fixtures.anon_proxy_vendor_account(member:).
-          with_contact(Suma::Fixtures.anon_proxy_member_contact(member:).email.create).
-          with_configuration(uses_email: true).
-          create
+
+        Suma::AnonProxy::AuthToVendor::Fake.needs_attention = false
         Suma::Mobility::VendorAdapter::Fake.find_anon_proxy_vendor_account_results << va
         expect(ad).to_not be_anon_proxy_vendor_account_requires_attention(member)
       end

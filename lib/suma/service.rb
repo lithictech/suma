@@ -189,8 +189,8 @@ class Suma::Service < Grape::API
   rescue_from Suma::Member::ReadOnlyMode do |e|
     merror!(
       409,
-      "Member is in read-only mode and cannot be updated: #{e.message}",
-      code: e.message,
+      "Member is in read-only mode and cannot be updated: #{e.reason}",
+      code: e.reason,
     )
   end
 

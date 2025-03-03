@@ -375,7 +375,6 @@
     "polling_detail": "This can take up to a minute.",
     "recent_messages_from_vendor": "Recent Messages from {{vendorName}}",
     "relink_app": "Re-link App",
-    "success_instructions": "We sent you a text, please click the link in the text to launch this app.",
     "vendor_private_accounts": "{{vendorName}} Private Accounts"
   },
   "titles": {

@@ -10,6 +10,7 @@ class Suma::AnonProxy::VendorConfiguration < Suma::Postgres::Model(:anon_proxy_v
   include Suma::AdminLinked
   plugin :timestamps
   plugin :translated_text, :instructions, Suma::TranslatedText
+  plugin :translated_text, :linked_success_instructions, Suma::TranslatedText
   plugin :association_pks
 
   many_to_one :vendor, class: "Suma::Vendor"
@@ -27,13 +28,8 @@ class Suma::AnonProxy::VendorConfiguration < Suma::Postgres::Model(:anon_proxy_v
     end
   end
 
-  def uses_email? = self.uses_email
-  def uses_sms? = self.uses_sms
+  # True if the instance is enabled/should show in the UI.
   def enabled? = self.enabled
-
-  def auth_headers_label
-    self.auth_headers.to_s
-  end
 
   def rel_admin_link = "/vendor-configuration/#{self.id}"
 end

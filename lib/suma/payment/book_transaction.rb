@@ -22,11 +22,8 @@ class Suma::Payment::BookTransaction < Suma::Postgres::Model(:payment_book_trans
   one_to_one :credited_payout_transaction,
              class: "Suma::Payment::PayoutTransaction",
              key: :crediting_book_transaction_id
-  many_to_many :charges,
-               class: "Suma::Charge",
-               join_table: :charges_payment_book_transactions,
-               right_key: :charge_id,
-               left_key: :book_transaction_id
+  one_to_one :charge_line_item,
+             class: "Suma::Charge::LineItem"
   one_to_one :triggered_by,
              class: "Suma::Payment::Trigger::Execution"
   many_to_one :actor, class: "Suma::Member"
@@ -78,7 +75,7 @@ class Suma::Payment::BookTransaction < Suma::Postgres::Model(:payment_book_trans
   # @return [Array<UsageDetails>]
   def usage_details
     result = []
-    result.concat(charges.map do |ch|
+    if (ch = self.charge_line_item&.charge)
       code = "misc"
       service_name = self.memo.string
       if ch.mobility_trip
@@ -88,13 +85,13 @@ class Suma::Payment::BookTransaction < Suma::Postgres::Model(:payment_book_trans
         code = "commerce_order"
         service_name = ch.commerce_order.checkout.cart.offering.description.string
       end
-      UsageDetails.new(
+      result << UsageDetails.new(
         code, {
           discount_amount: Suma::Moneyutil.to_h(ch.discount_amount),
           service_name:,
         },
       )
-    end)
+    end
 
     if (fx = self.originating_funding_transaction)
       result << UsageDetails.new("funding", {account_label: fx.strategy.originating_instrument.simple_label})

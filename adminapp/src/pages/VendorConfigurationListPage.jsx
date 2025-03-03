@@ -26,16 +26,10 @@ export default function VendorConfigurationListPage() {
           render: (c) => <AdminLink model={c.vendor}>{c.vendor.name}</AdminLink>,
         },
         {
-          id: "uses_sms",
-          label: "Uses SMS?",
+          id: "auth_to_vendor_key",
+          label: "Auth To Vendor",
           align: "center",
-          render: (c) => <BoolCheckmark>{c.usesSms}</BoolCheckmark>,
-        },
-        {
-          id: "uses_email",
-          label: "Uses Email?",
-          align: "center",
-          render: (c) => <BoolCheckmark>{c.usesEmail}</BoolCheckmark>,
+          render: (c) => c.authToVendorKey,
         },
         {
           id: "enabled",

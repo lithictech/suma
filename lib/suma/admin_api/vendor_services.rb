@@ -20,9 +20,11 @@ class Suma::AdminAPI::VendorServices < Suma::AdminAPI::V1
   class DetailedVendorServiceEntity < VendorServiceEntity
     include Suma::AdminAPI::Entities
     include AutoExposeDetail
+    expose :programs, with: ProgramEntity
     expose :external_name
     expose :internal_name
     expose :mobility_vendor_adapter_key
+    expose :charge_after_fulfillment
     expose :vendor_service_categories, as: :categories, with: VendorServiceCategoryEntity
     expose :rates, with: VendorServiceRateEntity
     expose :mobility_trips, with: DetailedMobilityTripEntity

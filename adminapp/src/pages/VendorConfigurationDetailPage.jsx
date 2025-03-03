@@ -27,11 +27,18 @@ export default function VendorConfigurationDetailPage() {
             </SafeExternalLink>
           ),
         },
-        { label: "Uses SMS?", value: <BoolCheckmark>{model.usesSms}</BoolCheckmark> },
-        { label: "Uses Email?", value: <BoolCheckmark>{model.usesEmail}</BoolCheckmark> },
-        { label: "Enabled?", value: <BoolCheckmark>{model.enabled}</BoolCheckmark> },
+        { label: "Auth-to-Vendor", value: model.authToVendorKey },
+        { label: "Enabled", value: <BoolCheckmark>{model.enabled}</BoolCheckmark> },
         { label: "Instructions (En)", value: model.instructions.en },
         { label: "Instructions (Es)", value: model.instructions.es },
+        {
+          label: "Linked Success Instructions (En)",
+          value: model.linkedSuccessInstructions.en,
+        },
+        {
+          label: "Linked Success Instructions (Es)",
+          value: model.linkedSuccessInstructions.es,
+        },
       ]}
     >
       {(model, setModel) => (
