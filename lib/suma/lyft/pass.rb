@@ -219,6 +219,8 @@ class Suma::Lyft::Pass
   end
 
   def fetch_rides
+    # TODO: We need to paginate the rides and stop when we find one we've already processed.
+    # For now, assume we're not taking a page of rides (50) within a sync period (20 minutes).
     rides_resp = Suma::Http.post(
       "https://www.lyft.com/v1/enterprise-insights/search/transactions?organization_id=#{@org_id}&start_time=1546300800000",
       {

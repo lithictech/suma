@@ -154,6 +154,53 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
     end
   end
 
+  describe "LyftPassTripSync", reset_configuration: Suma::Lyft do
+    it "syncs trips" do
+      Suma::Lyft.pass_authorization = "Basic xyz"
+      Suma::Lyft.pass_email = "a@b.c"
+      Suma::Lyft.pass_org_id = "1234"
+      Suma::Lyft.pass_program_id = "5678"
+
+      vendor_service_rate = Suma::Fixtures.vendor_service_rate.create
+      vendor_service_rate.add_service(
+        Suma::Fixtures.vendor_service.create(
+          vendor: Suma::Lyft.mobility_vendor, mobility_vendor_adapter_key: "lyft_deeplink",
+        ),
+      )
+      Suma::Lyft.pass_vendor_service_rate_id = vendor_service_rate.id
+
+      Suma::ExternalCredential.create(
+        service: "lyft-pass-access-token",
+        expires_at: 5.hours.from_now,
+        data: {cookies: {}}.to_json,
+      )
+
+      req = stub_request(:post, "https://www.lyft.com/v1/enterprise-insights/search/transactions?organization_id=1234&start_time=1546300800000").
+        to_return(
+          status: 200,
+          headers: {
+            "Content-Type" => "application/json",
+          },
+          body: {
+            "aggs" => {},
+            "next_token" => nil,
+            "results" => [],
+            "total_results" => 0,
+          }.to_json,
+        )
+
+      Suma::Async::LyftPassTripSync.new.perform
+
+      expect(req).to have_been_made
+    end
+
+    it "noops if not configured" do
+      expect do
+        Suma::Async::LyftPassTripSync.new.perform
+      end.to_not raise_error
+    end
+  end
+
   describe "MessageDispatched", messaging: true do
     it "sends the delivery on create" do
       email = "wibble@lithic.tech"
