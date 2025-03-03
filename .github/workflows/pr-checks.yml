@@ -53,7 +53,7 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: 22.9
-      - uses: actions/cache@v1
+      - uses: actions/cache@v4
         with:
           path: ~/.npm
           key: node-${{ hashFiles('**/package-lock.json') }}
@@ -76,7 +76,7 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: 22.9
-      - uses: actions/cache@v1
+      - uses: actions/cache@v4
         with:
           path: ~/.npm
           key: node-${{ hashFiles('**/package-lock.json') }}
