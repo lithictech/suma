@@ -5,8 +5,6 @@ import RelatedList from "../components/RelatedList";
 import ResourceDetail from "../components/ResourceDetail";
 import SumaImage from "../components/SumaImage";
 import { dayjs } from "../modules/dayConfig";
-import SafeExternalLink from "../shared/react/SafeExternalLink";
-import theme from "../theme";
 import React from "react";
 
 export default function VendorDetailPage() {
