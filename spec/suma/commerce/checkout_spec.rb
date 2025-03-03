@@ -49,6 +49,16 @@ RSpec.describe "Suma::Commerce::Checkout", :db do
     end
   end
 
+  describe "payment_instrument" do
+    it "errors for an invalid instrument" do
+      co = Suma::Fixtures.checkout.instance
+      co.payment_instrument = Suma::Fixtures.card.create
+      expect do
+        co.payment_instrument = Suma::Fixtures.member.create
+      end.to raise_error(TypeError, /Unhandled payment instrument/)
+    end
+  end
+
   describe "requires_payment_instrument?" do
     let(:member) { Suma::Fixtures.member.registered_as_stripe_customer.create }
     let(:offering) { Suma::Fixtures.offering.create }

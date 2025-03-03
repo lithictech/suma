@@ -58,7 +58,7 @@ class Suma::Commerce::Checkout < Suma::Postgres::Model(:commerce_checkouts)
         self.bank_account = nil
         self.card = pi
       else
-        raise "Unhandled payment instrument: #{pi.inspect}"
+        raise TypeError, "Unhandled payment instrument: #{pi.inspect}"
     end
   end
 

@@ -53,6 +53,13 @@ RSpec.describe "Suma::Payment::BookTransaction", :db do
       expect { debit.amount = money("$1") }.to raise_error(FrozenError)
       expect { debit.save_changes }.to raise_error(Sequel::Error, /save frozen object/)
     end
+
+    it "errors for an invalid ledger" do
+      bt = Suma::Fixtures.book_transaction.create(amount: money("$10"))
+      expect do
+        bt.directed(Suma::Fixtures.ledger.create)
+      end.to raise_error(ArgumentError, /is not associated/)
+    end
   end
 
   describe "usage_code" do
@@ -139,6 +146,13 @@ RSpec.describe "Suma::Payment::BookTransaction", :db do
           have_attributes(code: "unknown", args: {memo: "Shoni"}),
         ),
       )
+    end
+  end
+
+  describe "debug_description" do
+    it "renders the transaction" do
+      bt = Suma::Fixtures.book_transaction.create
+      expect(bt.debug_description).to start_with("BookTransaction[")
     end
   end
 
