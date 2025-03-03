@@ -67,14 +67,16 @@ Sequel.migration do
       add_column :auth_to_vendor_key, :text
       add_foreign_key :linked_success_instructions_id, :translated_texts
     end
-    linked_success_instructions_id = from(:translated_texts).insert(
-      en: "We sent you a text, please click the link to open the Lime app.",
-      es: "Le enviamos un mensaje de texto, haga clic en el enlace del texto para iniciar esta app.",
-    )
-    from(:anon_proxy_vendor_configurations).update(
-      auth_to_vendor_key: "lime",
-      linked_success_instructions_id:,
-    )
+    if ENV["RACK_ENV"] != "test"
+      linked_success_instructions_id = from(:translated_texts).insert(
+        en: "We sent you a text, please click the link to open the Lime app.",
+        es: "Le enviamos un mensaje de texto, haga clic en el enlace del texto para iniciar esta app.",
+      )
+      from(:anon_proxy_vendor_configurations).update(
+        auth_to_vendor_key: "lime",
+        linked_success_instructions_id:,
+      )
+    end
     alter_table(:anon_proxy_vendor_configurations) do
       set_column_not_null :auth_to_vendor_key
       set_column_not_null :linked_success_instructions_id
