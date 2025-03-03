@@ -24,6 +24,13 @@ module Suma::Fixtures::ChargeLineItems
   end
 
   decorator :self_data do |opts={}|
+    if opts.is_a?(Hash)
+      opts = {}.merge(
+        amount_cents: Faker::Number.between(from: 100, to: 100_00),
+        amount_currency: "USD",
+        memo: Suma::Fixtures.translated_text(all: Faker::Lorem.words(number: 3).join(" ")).create,
+      ).merge(opts)
+    end
     opts = Suma::Charge::LineItemSelfData.create(opts) unless opts.is_a?(Suma::Charge::LineItemSelfData)
     self.self_data = opts
   end

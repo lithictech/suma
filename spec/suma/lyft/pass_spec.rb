@@ -332,6 +332,77 @@ RSpec.describe Suma::Lyft::Pass, :db, reset_configuration: Suma::Lyft do
     end
   end
 
+  describe "sync_trips" do
+    it "fetches and upserts rides" do
+      insert_valid_credential
+      rides_req = stub_request(:post, "https://www.lyft.com/v1/enterprise-insights/search/transactions?organization_id=1234&start_time=1546300800000").
+        to_return(
+          status: 200,
+          headers: {"Content-Type" => "application/json"},
+          body: {
+            "aggs" => {},
+            "next_token" => nil,
+            "results" =>
+              [
+                {
+                  "dropped_off_at_iso" => "2024-10-05T14:50:42-07:00",
+                  "enterprise_product_type" => "Lyft Pass",
+                  "picked_up_at_iso" => "2024-10-05T14:40:19-07:00",
+                  "requested_at_iso" => "2024-10-05T14:40:16-07:00",
+                  "requested_at_iso[utc_offset]" => "UTC-0700",
+                  "transactions.amount" => "5.85",
+                  "transactions.currency" => "USD",
+                  "transactions.id" => "txnhub:1000000037255551881",
+                  "transactions.transaction_type" => "Charge",
+                  "transactions.txn_reporting_timestamp" => "2024-10-05T21:55:55.514000+0000",
+                  "transportation_id" => "2000855261394541610",
+                  "transportation_sub_type" => "E-Bike",
+                  "transportation_type" => "Bikes & Scooters",
+                },
+              ],
+            "total_results" => 1,
+          }.to_json,
+        )
+      ride_req = stub_request(:get, "https://www.lyft.com/v1/enterprise-insights/detail/transactions-legacy/txnhub:1000000037255551881").
+        to_return(
+          status: 200,
+          headers: {"Content-Type" => "application/json"},
+          body: {
+            "created_at_ms" => 1_728_165_355_514,
+            "money" => {"amount" => 585, "currency" => "USD", "exponent" => 2},
+            "ride" => {
+              "distance" => 1.649999976158142,
+              "dropoff" => {"address" => nil, "iso_timestamp" => "2024-10-05T14:50:42-07:00", "timestamp_ms" => 1_728_165_042_000},
+              "line_items" => [],
+              "map_image_url" => nil,
+              "pickup" => {"address" => nil, "iso_timestamp" => "2024-10-05T14:40:19-07:00", "timestamp_ms" => 1_728_164_419_000},
+              "request" => {"iso_timestamp" => "2024-10-05T14:40:16-07:00", "timestamp_ms" => 1_728_164_416_000},
+              "ride_id" => "2000855261394541610",
+              "ride_type_description" => "E-Bike",
+              "rideable_type" => "ELECTRIC_BIKE",
+              "rider" => {"email_address" => nil, "full_name" => nil, "phone_number" => "+15552223333"},
+              "was_canceled" => false,
+            },
+            "txnhub_transaction_id" => "2000859286786636076",
+            "user_name" => "",
+          }.to_json,
+        )
+      member = Suma::Fixtures.member.
+        onboarding_verified.
+        registered_as_stripe_customer.
+        with_cash_ledger.
+        create(phone: "15552223333")
+
+      instance.authenticate
+      instance.sync_trips
+      expect(rides_req).to have_been_made
+      expect(ride_req).to have_been_made
+      expect(Suma::Mobility::Trip.all).to contain_exactly(
+        have_attributes(external_trip_id: "2000855261394541610", member: be === member),
+      )
+    end
+  end
+
   describe "upsert_ride_as_trip" do
     let(:ride) do
       {

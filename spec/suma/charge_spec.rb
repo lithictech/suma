@@ -30,5 +30,11 @@ RSpec.describe "Suma::Charge", :db do
       expect { li.update(book_transaction:) }.to raise_error(Sequel::CheckConstraintViolation)
       described_class.create(charge:, book_transaction:)
     end
+
+    it "can be fixtured" do
+      Suma::Fixtures.charge_line_item.create
+      Suma::Fixtures.charge_line_item.self_data.create
+      Suma::Fixtures.charge_line_item.book_transaction.create
+    end
   end
 end
