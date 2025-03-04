@@ -1,6 +1,10 @@
 # frozen_string_literal: true
 
+require "appydays/loggable"
+
 class Suma::Frontapp::ListSync
+  include Appydays::Loggable
+
   RECENTLY_UNVERIFIED_CUTOFF = 2.weeks
 
   def initialize(now:)
@@ -14,22 +18,35 @@ class Suma::Frontapp::ListSync
     # The easiest way to bulk-replace all the contacts is to delete and recreate the group
     groups_to_replace = groups.select { |g| spec_names.include?(g.fetch("name")) }
     groups_to_replace.each do |group|
+      self.logger.info("deleting_front_group",
+                       group_id: group.fetch("id"),
+                       group_name: group.fetch("name"),)
       Suma::Frontapp.client.delete_contact_group!(group.fetch("id"))
     end
     specs_with_members = specs.reject { |sp| sp.dataset.empty? }
     # Since create contact group does not return the ID, we create and then re-fetch
     specs_with_members.each do |spec|
+      self.logger.info("creating_front_contact_group", group_name: spec.full_name)
       Suma::Frontapp.client.create_contact_group!(name: spec.full_name)
     end
     # Find the group we just created, and add all the contacts do it
     groups = Suma::Frontapp.client.contact_groups
+    self.logger.info("listed_front_contact_groups", group_count: groups.count)
     specs_with_members.each do |spec|
       existing_group = groups.find { |g| g.fetch("name") == spec.full_name }
       raise Suma::InvalidPostcondition, "cannot find the group we just created: #{spec.full_name}" if
         existing_group.nil?
-      contact_ids = spec.dataset.select_map(:frontapp_contact_id)
+      contact_ids = spec.dataset.select_map(:phone).map { |p| Suma::Frontapp.contact_alt_handle(:phone, p) }
       next if contact_ids.empty?
-      Suma::Frontapp.client.add_contacts_to_contact_group!(existing_group.fetch("id"), {contact_ids:})
+      self.logger.info(
+        "updating_front_contact_group",
+        group_id: existing_group.fetch("id"),
+        group_name: existing_group.fetch("name"),
+        contact_ids: contact_ids.size,
+      )
+      contact_ids.each_slice(300) do |slice|
+        Suma::Frontapp.client.add_contacts_to_contact_group!(existing_group.fetch("id"), {contact_ids: slice})
+      end
     end
   end
 
@@ -77,7 +94,6 @@ class Suma::Frontapp::ListSync
       )
       @dataset = self.dataset.
         not_soft_deleted.
-        exclude(frontapp_contact_id: "").
         where(preferences: preferences_ds)
     end
 

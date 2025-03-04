@@ -7,27 +7,34 @@ class Suma::Member::FrontappAttributes
     @member = member
   end
 
+  # Upsert the Front contact making sure we use existing contacts with the same phone/email,
+  # merging them as needed.
   def upsert_contact
-    if self.contact_id.blank?
-      self._create_contact
-    else
-      self._update_contact
-    end
-    return
-  end
-
-  def _create_contact
-    contact = Suma::Frontapp.client.create_contact!(self._contact_body.merge(handles: self._contact_handles))
-    @member.update(frontapp_contact_id: contact.fetch("id"))
-    return contact
+    # If this fails for a conflict, the email and/or phone are in use already.
+    Suma::Frontapp.client.create_contact!(self._contact_body.merge(handles: self._contact_handles))
+  rescue Frontapp::ConflictError
+    self._update_contact
   end
 
   def _update_contact
-    Suma::Frontapp.client.update_contact!(self.contact_id, self._contact_body)
-    return if (handles = self._contact_handles).empty?
+    email_contact = self._get_contact_by_alt_id(:email, @member.email)
+    phone_contact = self._get_contact_by_alt_id(:phone, @member.phone)
 
-    handles.each do |h|
-      Suma::Frontapp.client.add_contact_handle!(self.contact_id, h)
+    raise Suma::InvalidPostcondition, "should not have reached this code if phone and email are not in use" if
+      email_contact.nil? && phone_contact.nil?
+
+    updateable_contact = phone_contact || email_contact
+    if email_contact && phone_contact && email_contact.fetch("id") != phone_contact.fetch("id")
+      # We have both contacts, so need to merge them into one.
+      updateable_contact = Suma::Frontapp.client.create(
+        "contacts/merge",
+        {contact_ids: [phone_contact.fetch("id"), email_contact.fetch("id")]},
+      )
+    end
+
+    Suma::Frontapp.client.update_contact!(updateable_contact.fetch("id"), self._contact_body)
+    self._contact_handles.each do |h|
+      Suma::Frontapp.client.add_contact_handle!(updateable_contact.fetch("id"), h)
     end
   end
 
@@ -48,7 +55,13 @@ class Suma::Member::FrontappAttributes
     h
   end
 
-  def contact_id
-    @member.frontapp_contact_id
+  def _get_contact_by_alt_id(source, value)
+    return nil if value.blank?
+    h = Suma::Frontapp.contact_alt_handle(source, value)
+    begin
+      return Suma::Frontapp.client.get_contact(h)
+    rescue Frontapp::NotFoundError
+      return nil
+    end
   end
 end

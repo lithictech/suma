@@ -1,0 +1,7 @@
+{
+  "_error": {
+    "status": 409,
+    "title": "Conflict",
+    "message": "Your request contains a conflict with the contact(s): crd_123"
+  }
+}

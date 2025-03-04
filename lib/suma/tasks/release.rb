@@ -26,7 +26,6 @@ class Suma::Tasks::Release < Rake::TaskLib
           conn[:members].update(
             password_digest: m.password_digest,
             stripe_customer_json: nil,
-            frontapp_contact_id: "",
           )
           conn[:members].where(email: "admin@lithic.tech").update(soft_deleted_at: nil)
         end

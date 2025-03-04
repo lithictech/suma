@@ -12,6 +12,9 @@ RSpec.describe Suma::Frontapp::ListSync, :db, reset_configuration: Suma::Frontap
 
   describe "syncing lists" do
     it "creates the specified lists in Front" do
+      m = Suma::Fixtures.member.onboarding_verified.create
+      m.preferences!
+
       get_groups = stub_request(:get, "https://api2.frontapp.com/contact_groups").
         to_return(
           json_response({}),
@@ -28,11 +31,8 @@ RSpec.describe Suma::Frontapp::ListSync, :db, reset_configuration: Suma::Frontap
         with(body: "{\"name\":\"Marketing - SMS - English\"}").
         to_return(json_response({}))
       add_ids = stub_request(:post, "https://api2.frontapp.com/contact_groups/grp_en/contacts").
-        with(body: "{\"contact_ids\":[\"crd_123\"]}").
+        with(body: "{\"contact_ids\":[\"alt:phone:#{m.phone}\"]}").
         to_return(json_response({}))
-
-      m = Suma::Fixtures.member.onboarding_verified.create(frontapp_contact_id: "crd_123")
-      m.preferences!
 
       described_class.new(now:).run
 
@@ -42,6 +42,9 @@ RSpec.describe Suma::Frontapp::ListSync, :db, reset_configuration: Suma::Frontap
     end
 
     it "first deletes lists with the same name" do
+      m = Suma::Fixtures.member.onboarding_verified.create
+      m.preferences!
+
       get_groups = stub_request(:get, "https://api2.frontapp.com/contact_groups").
         to_return(
           json_response(
@@ -67,11 +70,8 @@ RSpec.describe Suma::Frontapp::ListSync, :db, reset_configuration: Suma::Frontap
         with(body: "{\"name\":\"Marketing - SMS - English\"}").
         to_return(json_response({}))
       add_ids = stub_request(:post, "https://api2.frontapp.com/contact_groups/grp_en2/contacts").
-        with(body: "{\"contact_ids\":[\"crd_123\"]}").
+        with(body: "{\"contact_ids\":[\"alt:phone:#{m.phone}\"]}").
         to_return(json_response({}))
-
-      m = Suma::Fixtures.member.onboarding_verified.create(frontapp_contact_id: "crd_123")
-      m.preferences!
 
       described_class.new(now:).run
 
@@ -133,21 +133,18 @@ RSpec.describe Suma::Frontapp::ListSync, :db, reset_configuration: Suma::Frontap
   end
 
   describe "ListSpec" do
-    it "dataset include only transport-enabled, undeleted members with a front id" do
-      m = Suma::Fixtures.member.create(frontapp_contact_id: "crd_1")
+    it "dataset include only transport-enabled, undeleted members" do
+      m = Suma::Fixtures.member.create
       Suma::Message::Preferences.create(member: m)
 
-      disabled = Suma::Fixtures.member.create(frontapp_contact_id: "crd_5")
+      disabled = Suma::Fixtures.member.create
       Suma::Message::Preferences.create(member: disabled, sms_enabled: false)
 
-      deleted = Suma::Fixtures.member.create(frontapp_contact_id: "crd_5")
+      deleted = Suma::Fixtures.member.create
       deleted.soft_delete
       Suma::Message::Preferences.create(member: deleted)
 
-      no_front_id = Suma::Fixtures.member.create(frontapp_contact_id: "")
-      Suma::Message::Preferences.create(member: no_front_id)
-
-      es = Suma::Fixtures.member.create(frontapp_contact_id: "crd_6")
+      es = Suma::Fixtures.member.create
       Suma::Message::Preferences.create(member: es, preferred_language: "es")
 
       spec = described_class::ListSpec.new(
@@ -159,13 +156,13 @@ RSpec.describe Suma::Frontapp::ListSync, :db, reset_configuration: Suma::Frontap
 
   describe "list segmentation" do
     it "includes opted-in marketing lists" do
-      en_member = Suma::Fixtures.member.create(frontapp_contact_id: "crd_1")
+      en_member = Suma::Fixtures.member.create
       Suma::Message::Preferences.create(member: en_member, preferred_language: "en")
 
-      es_member = Suma::Fixtures.member.create(frontapp_contact_id: "crd_2")
+      es_member = Suma::Fixtures.member.create
       Suma::Message::Preferences.create(member: es_member, preferred_language: "es")
 
-      unsubscribed = Suma::Fixtures.member.create(frontapp_contact_id: "crd_3")
+      unsubscribed = Suma::Fixtures.member.create
       Suma::Message::Preferences.create(member: unsubscribed, preferred_language: "en", marketing_sms_optout: true)
 
       specs = described_class.new(now:).gather_list_specs
@@ -176,16 +173,16 @@ RSpec.describe Suma::Frontapp::ListSync, :db, reset_configuration: Suma::Frontap
     end
 
     it "includes recently unverified users" do
-      en_member = Suma::Fixtures.member.create(frontapp_contact_id: "crd_123")
+      en_member = Suma::Fixtures.member.create
       Suma::Message::Preferences.create(member: en_member, preferred_language: "en")
 
-      es_member = Suma::Fixtures.member.create(frontapp_contact_id: "crd_123")
+      es_member = Suma::Fixtures.member.create
       Suma::Message::Preferences.create(member: es_member, preferred_language: "es")
 
-      verified = Suma::Fixtures.member.onboarding_verified.create(frontapp_contact_id: "crd_123")
+      verified = Suma::Fixtures.member.onboarding_verified.create
       Suma::Message::Preferences.create(member: verified)
 
-      old = Suma::Fixtures.member.create(frontapp_contact_id: "crd_123", created_at: 2.months.ago)
+      old = Suma::Fixtures.member.create(created_at: 2.months.ago)
       Suma::Message::Preferences.create(member: old)
 
       specs = described_class.new(now:).gather_list_specs
@@ -196,10 +193,10 @@ RSpec.describe Suma::Frontapp::ListSync, :db, reset_configuration: Suma::Frontap
     end
 
     it "includes per-organization list" do
-      en_member = Suma::Fixtures.member.create(frontapp_contact_id: "crd_123")
+      en_member = Suma::Fixtures.member.create
       Suma::Message::Preferences.create(member: en_member, preferred_language: "en")
 
-      es_member = Suma::Fixtures.member.create(frontapp_contact_id: "crd_123")
+      es_member = Suma::Fixtures.member.create
       Suma::Message::Preferences.create(member: es_member, preferred_language: "es")
 
       o1 = Suma::Fixtures.organization.create(name: "Org 1")
