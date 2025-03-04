@@ -118,7 +118,6 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
       end.to perform_async_job(Suma::Async::FrontappUpsertContact)
 
       expect(req).to have_been_made
-      expect(member.refresh).to have_attributes(frontapp_contact_id: "crd_123")
     end
 
     it "noops if Front is not configured" do
@@ -470,13 +469,11 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
       req = stub_request(:post, "https://api2.frontapp.com/contacts").
         to_return(fixture_response("front/contact"))
 
-      member = nil
       expect do
-        member = Suma::Fixtures.member.create
+        Suma::Fixtures.member.create
       end.to perform_async_job(Suma::Async::FrontappUpsertContact)
 
       expect(req).to have_been_made
-      expect(member.refresh).to have_attributes(frontapp_contact_id: "crd_123")
     end
 
     it "noops if Front is not configured" do

@@ -27,7 +27,7 @@ class Suma::Frontapp::ListSync
       existing_group = groups.find { |g| g.fetch("name") == spec.full_name }
       raise Suma::InvalidPostcondition, "cannot find the group we just created: #{spec.full_name}" if
         existing_group.nil?
-      contact_ids = spec.dataset.all.map { |m| m.frontapp.contact_id }
+      contact_ids = spec.dataset.select_map(:phone).map { |p| Suma::Frontapp.contact_alt_handle(:phone, p) }
       next if contact_ids.empty?
       Suma::Frontapp.client.add_contacts_to_contact_group!(existing_group.fetch("id"), {contact_ids:})
     end
@@ -77,7 +77,6 @@ class Suma::Frontapp::ListSync
       )
       @dataset = self.dataset.
         not_soft_deleted.
-        exclude(frontapp_contact_id: "").
         where(preferences: preferences_ds)
     end
 

@@ -16,6 +16,10 @@ module Suma::Frontapp
     attr_accessor :client
 
     def configured? = self.auth_token != UNCONFIGURED_AUTH_TOKEN && self.auth_token.present?
+
+    # @param [:email,:phone] source
+    # @param [String] value
+    def contact_alt_handle(source, value) = "alt:#{source}:#{value}"
   end
 
   configurable(:frontapp) do
