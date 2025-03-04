@@ -463,9 +463,11 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
     end
   end
 
-  describe "UpsertFrontappContact", reset_configuration: Suma::Frontapp do
-    it "upserts front contacts" do
+  describe "FrontappUpsertContact", reset_configuration: Suma::Frontapp do
+    before(:each) do
       Suma::Frontapp.auth_token = "fake token"
+    end
+    it "upserts front contacts" do
       req = stub_request(:post, "https://api2.frontapp.com/contacts").
         to_return(fixture_response("front/contact"))
 
@@ -477,9 +479,18 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
     end
 
     it "noops if Front is not configured" do
+      Suma::Frontapp.auth_token = ""
       expect do
         Suma::Fixtures.member.create
-      end.to perform_async_job(Suma::Async::UpsertFrontappContact)
+      end.to perform_async_job(Suma::Async::FrontappUpsertContact)
+    end
+
+    it "noops if the update does not change meaningful fields" do
+      m = Suma::Fixtures.member.create
+      m.updated_at = 3.minutes.from_now
+      expect do
+        m.save_changes
+      end.to perform_async_job(Suma::Async::FrontappUpsertContact)
     end
   end
 
