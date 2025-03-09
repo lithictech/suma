@@ -3,7 +3,6 @@
 require "grape"
 
 require "suma/api"
-require "suma/member/dashboard"
 
 class Suma::API::Me < Suma::API::V1
   include Suma::API::Entities
@@ -46,11 +45,6 @@ class Suma::API::Me < Suma::API::V1
       present member, with: CurrentMemberEntity, env:
     end
 
-    get :dashboard do
-      d = Suma::Member::Dashboard.new(current_member, at: current_time)
-      present d, with: DashboardEntity
-    end
-
     params do
       requires :language, values: ["en", "es"]
     end
@@ -62,10 +56,5 @@ class Suma::API::Me < Suma::API::V1
       status 200
       present member, with: CurrentMemberEntity, env:
     end
-  end
-
-  class DashboardEntity < BaseEntity
-    expose :cash_balance, with: Suma::API::Entities::MoneyEntity
-    expose :program_enrollments, as: :programs, with: Suma::API::Entities::ProgramEnrollmentEntity
   end
 end
