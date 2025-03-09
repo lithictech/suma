@@ -19,15 +19,14 @@ class Suma::Commerce::Offering < Suma::Postgres::Model(:commerce_offerings)
   plugin :translated_text, :fulfillment_confirmation, Suma::TranslatedText
   plugin :translated_text, :fulfillment_instructions, Suma::TranslatedText
 
-  many_to_many :programs,
-               class: "Suma::Program",
-               join_table: :programs_commerce_offerings,
-               left_key: :offering_id,
-               right_key: :program_id
-
   one_to_many :fulfillment_options, class: "Suma::Commerce::OfferingFulfillmentOption"
   one_to_many :offering_products, class: "Suma::Commerce::OfferingProduct"
   one_to_many :carts, class: "Suma::Commerce::Cart"
+  many_to_many :map_locations,
+               class: "Suma::MapLocation",
+               join_table: :map_locations_commerce_offerings,
+               left_key: :offering_id,
+               right_key: :map_location_id
 
   many_to_many :programs,
                class: "Suma::Program",
