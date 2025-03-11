@@ -155,6 +155,12 @@ class Suma::Commerce::Offering < Suma::Postgres::Model(:commerce_offerings)
     def available_at(t)
       return self.where(Sequel.pg_range(:period).contains(Sequel.cast(t, :timestamptz)))
     end
+
+    def for_map_display_to(member, as_of:, min_lat:, min_lng:, max_lat:, max_lng:)
+      ds = self.available_at(as_of).eligible_to(member, as_of:)
+      map_locs_ds = Suma::MapLocation.search(min_lat:, min_lng:, max_lat:, max_lng:)
+      return ds.where(map_locations: map_locs_ds)
+    end
   end
 
   # @!attribute max_ordered_items_cumulative

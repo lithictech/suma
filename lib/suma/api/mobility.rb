@@ -68,12 +68,16 @@ class Suma::API::Mobility < Suma::API::V1
       requires :ne, type: Array[BigDecimal], coerce_with: DecimalLocation
     end
     get :map_features do
-      current_member
+      me = current_member
       min_lat, min_lng = params[:sw]
       max_lat, max_lng = params[:ne]
-      ds = Suma::Mobility::RestrictedArea.intersecting(ne: [max_lat, max_lng], sw: [min_lat, min_lng])
-      ds = ds.order(:id)
-      result = {restrictions: ds.all}
+      restrictions_ds = Suma::Mobility::RestrictedArea.intersecting(ne: [max_lat, max_lng], sw: [min_lat, min_lng])
+      offerings_ds = Suma::Commerce::Offering.
+        for_map_display_to(me, as_of: current_time, min_lat:, min_lng:, max_lat:, max_lng:)
+      result = {
+        restrictions: restrictions_ds.order(:id).all,
+        commerce_offerings: offerings_ds.all,
+      }
       present result, with: MobilityMapFeaturesEntity
     end
 
@@ -174,8 +178,18 @@ class Suma::API::Mobility < Suma::API::V1
     expose :bounds_numeric, as: :bounds
   end
 
+  class MobilityMapProgramEntity < BaseEntity
+    expose :id
+    expose_translated :description
+    expose :period_end, as: :closes_at
+    expose :image, with: Suma::API::Entities::ImageEntity, &self.delegate_to(:images?, :first)
+    expose :rel_app_link, as: :app_link
+    expose :map_locations, with: Suma::API::Entities::MapLocationEntity
+  end
+
   class MobilityMapFeaturesEntity < BaseEntity
     expose :restrictions, with: MobilityMapRestrictionEntity
+    expose :programs, with: MobilityMapProgramEntity
   end
 
   class MobilityVehicleEntity < BaseEntity
