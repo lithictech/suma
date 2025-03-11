@@ -110,6 +110,28 @@ RSpec.describe "Suma::Commerce::Offering", :db do
       expect(with_program).to be_eligible_to(member_in_program, as_of:)
       expect(with_program).to_not be_eligible_to(member_unapproved, as_of:)
     end
+
+    it "can find offerings for display on the map" do
+      as_of = Time.now
+      program = Suma::Fixtures.program.create
+      member = Suma::Fixtures.member.create
+      Suma::Fixtures.program_enrollment(member:, program:).create
+
+      in_loc = Suma::Fixtures.map_location.at(20, 120).create
+      out_loc = Suma::Fixtures.map_location.at(50, 120).create
+
+      other_program = Suma::Fixtures.offering.with_programs(Suma::Fixtures.program.create).create
+      other_program.add_map_location(in_loc)
+      in_program = Suma::Fixtures.offering.with_programs(program).create
+      in_program.add_map_location(in_loc)
+      bad_loc_program = Suma::Fixtures.offering.with_programs(program).create
+      bad_loc_program.add_map_location(out_loc)
+      unavailable = Suma::Fixtures.offering.with_programs(program).closed.create
+      unavailable.add_map_location(in_loc)
+
+      ds = described_class.for_map_display_to(member, as_of:, min_lat: 15, max_lat: 25, min_lng: 110, max_lng: 130)
+      expect(ds.all).to have_same_ids_as(in_program)
+    end
   end
 
   describe "#begin_order_fulfillment" do
