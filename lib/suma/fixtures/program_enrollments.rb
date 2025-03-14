@@ -24,4 +24,9 @@ module Suma::Fixtures::ProgramEnrollments
   decorator :unenrolled do |at=1.minute.ago|
     self.unenrolled_at = at
   end
+
+  decorator :in do |program={}|
+    program = Suma::Fixtures.program(program).create unless program.is_a?(Suma::Program)
+    self.program = program
+  end
 end

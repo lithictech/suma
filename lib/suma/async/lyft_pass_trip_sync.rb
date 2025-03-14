@@ -13,6 +13,8 @@ class Suma::Async::LyftPassTripSync
     return if Suma::Lyft.pass_email.blank?
     lp = Suma::Lyft::Pass.from_config
     lp.authenticate
-    lp.sync_trips
+    Suma::Lyft::Pass.programs_dataset.each do |program|
+      lp.sync_trips(program.lyft_pass_program_id)
+    end
   end
 end

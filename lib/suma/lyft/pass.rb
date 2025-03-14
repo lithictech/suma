@@ -15,15 +15,31 @@ class Suma::Lyft::Pass
   # should be thrown out for a new credential.
   EXPIRES_AT_FUZZ = 30.minutes
 
+  PROGRAMS_CACHE_TTL = 30.minutes
+
   class << self
     def from_config
       return self.new(
         email: Suma::Lyft.pass_email,
         authorization: Suma::Lyft.pass_authorization,
         org_id: Suma::Lyft.pass_org_id,
-        program_id: Suma::Lyft.pass_program_id,
         vendor_service_rate: Suma::Vendor::ServiceRate.find!(Suma::Lyft.pass_vendor_service_rate_id),
       )
+    end
+
+    def programs_dataset = Suma::Program.exclude(lyft_pass_program_id: "")
+
+    # Cache +programs_dataset+ for +PROGRAMS_CACHE_TTL+.
+    # We use the list in certain app code that doesn't really fit with normal eager loading,
+    # so this is sort of a gross workaround. Can adjust it in the future,
+    # like if programs and AnonProxy get more tightly integrated.
+    def programs_cached(now: Time.now)
+      cached_at = Suma.cached_get("lyft-pass-programs-cached-at") { nil }
+      if cached_at.nil? || cached_at < (now - PROGRAMS_CACHE_TTL)
+        Suma.cached_set("lyft-pass-programs-cached-at", now)
+        Suma.cached_set("lyft-pass-programs-cached", nil, delete: true)
+      end
+      return Suma.cached_get("lyft-pass-programs-cached") { self.programs_dataset.all }
     end
   end
 
@@ -46,25 +62,17 @@ class Suma::Lyft::Pass
   # in the console. Grab the organization id from the query params.
   attr_reader :org_id
 
-  # The lyft program (account) ID.
-  # Grab it from the body of the GraphQL request to https://www.lyft.com/v1/enterprise-insights/search/transactions.
-  # Or you can go to https://business.lyft.com/organization/mysumaorg/lyft-pass/transactions,
-  # select the Program, and grab the ID from the accountId query param.
-  attr_reader :program_id
-
   # @return [Suma::Vendor::ServiceRate]
   attr_reader :vendor_service_rate
 
-  def initialize(email:, authorization:, org_id:, program_id:, vendor_service_rate:)
+  def initialize(email:, authorization:, org_id:, vendor_service_rate:)
     raise ArgumentError, "email cannot be blank" if email.blank?
     raise ArgumentError, "authorization cannot be blank" if authorization.blank?
     raise ArgumentError, "org_id cannot be blank" if org_id.blank?
-    raise ArgumentError, "program_id cannot be blank" if program_id.blank?
     raise ArgumentError, "vendor_service_rate cannot be nil" if vendor_service_rate.nil?
     @email = email
     @org_id = org_id
     @vendor_service_rate = vendor_service_rate
-    @program_id = program_id
     @vendor_service = Suma::Vendor::Service.where(
       vendor: Suma::Lyft.mobility_vendor,
       mobility_vendor_adapter_key: "lyft_deeplink",
@@ -218,7 +226,7 @@ class Suma::Lyft::Pass
     return h
   end
 
-  def fetch_rides
+  def fetch_rides(program_id)
     # TODO: We need to paginate the rides and stop when we find one we've already processed.
     # For now, assume we're not taking a page of rides (50) within a sync period (20 minutes).
     rides_resp = Suma::Http.post(
@@ -236,7 +244,7 @@ class Suma::Lyft::Pass
                   "bool" => {
                     "should" => {
                       "terms" => {
-                        "transactions.account_id" => [@program_id],
+                        "transactions.account_id" => [program_id],
                       },
                     },
                   },
@@ -280,8 +288,8 @@ class Suma::Lyft::Pass
     return resp.parsed_response
   end
 
-  def sync_trips
-    rides = self.fetch_rides
+  def sync_trips(program_id)
+    rides = self.fetch_rides(program_id)
     tx_ids = rides.fetch("results").map { |r| r["transactions.id"] }
     tx_ids.each do |txid|
       ride = self.fetch_ride(txid)
@@ -330,7 +338,7 @@ class Suma::Lyft::Pass
     end
   end
 
-  def invite_member(member)
+  def invite_member(member, program_id:)
     Suma::Http.post(
       "https://www.lyft.com/api/rideprograms/enrollment/bulk/invite",
       {
@@ -340,7 +348,7 @@ class Suma::Lyft::Pass
             user_identifier: {phone_number: "+#{member.phone}"},
           },
         ],
-        ride_program_id: @program_id,
+        ride_program_id: program_id,
       },
       headers: self.auth_headers,
       logger: self.logger,

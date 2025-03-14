@@ -48,7 +48,7 @@ RSpec.describe Suma::Mobility::VendorAdapter, :db do
     let(:ad) { Suma::Mobility::VendorAdapter::Fake.new }
 
     it "is false if not using deep linking" do
-      expect(ad).to_not be_anon_proxy_vendor_account_requires_attention(member)
+      expect(ad).to_not be_anon_proxy_vendor_account_requires_attention(member, now: Time.now)
     end
 
     describe "when using deep linking" do
@@ -57,7 +57,7 @@ RSpec.describe Suma::Mobility::VendorAdapter, :db do
       end
 
       it "is true when there is no vendor account" do
-        expect(ad).to be_anon_proxy_vendor_account_requires_attention(member)
+        expect(ad).to be_anon_proxy_vendor_account_requires_attention(member, now: Time.now)
       end
 
       it "delegates to the vendor account configuration" do
@@ -65,11 +65,11 @@ RSpec.describe Suma::Mobility::VendorAdapter, :db do
 
         Suma::AnonProxy::AuthToVendor::Fake.needs_attention = true
         Suma::Mobility::VendorAdapter::Fake.find_anon_proxy_vendor_account_results << va
-        expect(ad).to be_anon_proxy_vendor_account_requires_attention(member)
+        expect(ad).to be_anon_proxy_vendor_account_requires_attention(member, now: Time.now)
 
         Suma::AnonProxy::AuthToVendor::Fake.needs_attention = false
         Suma::Mobility::VendorAdapter::Fake.find_anon_proxy_vendor_account_results << va
-        expect(ad).to_not be_anon_proxy_vendor_account_requires_attention(member)
+        expect(ad).to_not be_anon_proxy_vendor_account_requires_attention(member, now: Time.now)
       end
     end
   end

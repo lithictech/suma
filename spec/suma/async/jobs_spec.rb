@@ -158,7 +158,6 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
       Suma::Lyft.pass_authorization = "Basic xyz"
       Suma::Lyft.pass_email = "a@b.c"
       Suma::Lyft.pass_org_id = "1234"
-      Suma::Lyft.pass_program_id = "5678"
 
       vendor_service_rate = Suma::Fixtures.vendor_service_rate.create
       vendor_service_rate.add_service(
@@ -167,6 +166,7 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
         ),
       )
       Suma::Lyft.pass_vendor_service_rate_id = vendor_service_rate.id
+      Suma::Fixtures.program.create(lyft_pass_program_id: "5678")
 
       Suma::ExternalCredential.create(
         service: "lyft-pass-access-token",

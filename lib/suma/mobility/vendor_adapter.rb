@@ -44,11 +44,11 @@ module Suma::Mobility::VendorAdapter
   # @return [nil,Suma::AnonProxy::VendorAccount]
   def find_anon_proxy_vendor_account(member) = raise NotImplementedError
 
-  def anon_proxy_vendor_account_requires_attention?(member)
+  def anon_proxy_vendor_account_requires_attention?(member, now:)
     return false unless self.uses_deep_linking?
     account = self.find_anon_proxy_vendor_account(member)
     return true if account.nil?
-    return account.auth_to_vendor.needs_attention?
+    return account.auth_to_vendor.needs_attention?(now:)
   end
 
   require_relative "vendor_adapter/fake"
