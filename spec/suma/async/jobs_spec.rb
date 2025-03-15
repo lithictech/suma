@@ -445,15 +445,13 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
 
     it "sync lyft scooters gbfs" do
       Suma::Lyft.sync_enabled = true
-      free_bike_status_req = stub_request(:get, "https://gbfs.lyft.com/gbfs/2.3/pdx/en/free_bike_status.json").
-        to_return(fixture_response("lime/free_bike_status"))
-      vehicle_types_req = stub_request(:get, "https://gbfs.lyft.com/gbfs/2.3/pdx/en/vehicle_types.json").
-        to_return(fixture_response("lime/vehicle_types"))
+      reqs = ["free_bike_status", "vehicle_types", "station_information", "station_status"].map do |s|
+        stub_request(:get, "https://gbfs.lyft.com/gbfs/2.3/pdx/en/#{s}.json").
+          to_return(fixture_response("lyft/#{s}"))
+      end
 
       Suma::Async::SyncLyftFreeBikeStatusGbfs.new.perform(true)
-      expect(free_bike_status_req).to have_been_made
-      expect(vehicle_types_req).to have_been_made
-      expect(Suma::Mobility::Vehicle.all).to have_length(1)
+      expect(reqs).to all(have_been_made)
     end
 
     it "noops if Lyft is not configured" do

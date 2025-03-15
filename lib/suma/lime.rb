@@ -27,9 +27,16 @@ module Suma::Lime
     end
   end
 
+  class LimeGbfsHttpClient < Suma::Mobility::Gbfs::HttpClient
+    # Lime 404's on these. Maybe we should be looking at the gbfs meta/index file to see what's supported.
+    # Can add in the future.
+    def fetch_station_status = nil
+    def fetch_station_information = nil
+  end
+
   # @return [Suma::Mobility::Gbfs::HttpClient]
   def self.gbfs_http_client
-    return Suma::Mobility::Gbfs::HttpClient.new(api_host: self.gbfs_root, auth_token: self.auth_token)
+    return LimeGbfsHttpClient.new(api_host: self.gbfs_root, auth_token: self.auth_token)
   end
 
   def self.api_headers
