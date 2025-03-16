@@ -5,6 +5,7 @@ import DetailGrid from "../components/DetailGrid";
 import RelatedList from "../components/RelatedList";
 import ResourceDetail from "../components/ResourceDetail";
 import { dayjs } from "../modules/dayConfig";
+import formatDate from "../modules/formatDate";
 import SafeExternalLink from "../shared/react/SafeExternalLink";
 import React from "react";
 
@@ -31,13 +32,11 @@ export default function VendorAccountDetailPage() {
         { label: "Latest Access Code", value: model.latestAccessCode },
         {
           label: "Latest Access Code Requested At",
-          value: model.latestAccessCodeRequestedAt
-            ? dayjs(model.latestAccessCodeRequestedAt)
-            : "",
+          value: formatDate(model.latestAccessCodeRequestedAt),
         },
         {
           label: "Latest Access Code Set At",
-          value: model.latestAccessCodeSetAt ? dayjs(model.latestAccessCodeSetAt) : "",
+          value: formatDate(model.latestAccessCodeSetAt),
         },
         {
           label: "Registered with Vendor",
@@ -96,13 +95,13 @@ export default function VendorAccountDetailPage() {
             keyRowAttr="id"
             toCells={(row) => [
               row.id,
-              dayjs(row.createdAt).format("lll"),
+              formatDate(row.createdAt),
               row.messageContent,
               row.messageFrom,
               row.messageTo,
               row.messageHandlerKey,
               row.relayKey,
-              dayjs(row.messageTimestamp).format("lll"),
+              formatDate(row.messageTimestamp),
             ]}
           />
         </>

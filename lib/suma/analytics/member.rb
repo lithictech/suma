@@ -11,9 +11,10 @@ class Suma::Analytics::Member < Suma::Analytics::Model(Sequel[:analytics][:membe
     :created_at,
     :soft_deleted_at,
     :phone,
-    [:email, :email],
+    :email,
     :name,
     :timezone,
+    [:onboarding_verified, ->(m) { m.onboarding_verified_at ? true : false }],
   ]
 
   denormalize Suma::Commerce::Order, with: :denormalize_order
@@ -22,6 +23,13 @@ class Suma::Analytics::Member < Suma::Analytics::Model(Sequel[:analytics][:membe
     member = order.checkout.cart.member
     return {member_id: member.id, order_count: member.orders_dataset.count}
   end
+
+  denormalize Suma::Message::Preferences, with: [
+    :member_id,
+    :preferred_language,
+    :account_updates_sms_optout,
+    :marketing_sms_optout,
+  ]
 end
 
 # Table: analytics.members

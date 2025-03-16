@@ -4,6 +4,7 @@ import Programs from "../components/Programs";
 import RelatedList from "../components/RelatedList";
 import ResourceDetail from "../components/ResourceDetail";
 import { dayjs } from "../modules/dayConfig";
+import formatDate from "../modules/formatDate";
 import { formatMoney, intToMoney } from "../shared/money";
 import SafeExternalLink from "../shared/react/SafeExternalLink";
 import React from "react";
@@ -65,7 +66,7 @@ export default function PaymentTriggerDetailPage() {
               <AdminLink key="bookx" model={row}>
                 {row.bookTransactionId}
               </AdminLink>,
-              dayjs(row.at).format("lll"),
+              formatDate(row.at),
               <AdminLink key="recledger" model={row}>
                 {row.receivingLedger.adminLabel}
               </AdminLink>,
@@ -86,7 +87,7 @@ export default function PaymentTriggerDetailPage() {
             ]}
             toCells={(row) => [
               row.id,
-              dayjs(row.createdAt).format("lll"),
+              formatDate(row.createdAt),
               <AdminLink key={row.vendor.name} model={row.vendor}>
                 {row.vendor.name}
               </AdminLink>,

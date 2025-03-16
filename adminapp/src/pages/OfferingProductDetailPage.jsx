@@ -3,6 +3,7 @@ import AdminLink from "../components/AdminLink";
 import RelatedList from "../components/RelatedList";
 import ResourceDetail from "../components/ResourceDetail";
 import { dayjs } from "../modules/dayConfig";
+import formatDate from "../modules/formatDate";
 import Money from "../shared/react/Money";
 import React from "react";
 
@@ -49,7 +50,7 @@ export default function OfferingProductDetailPage() {
           keyRowAttr="id"
           toCells={(row) => [
             <AdminLink key="id" model={row} />,
-            dayjs(row.createdAt).format("lll"),
+            formatDate(row.createdAt),
             <AdminLink key="mem" model={row.member}>
               {row.member.name}
             </AdminLink>,

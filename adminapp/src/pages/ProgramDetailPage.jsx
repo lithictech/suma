@@ -4,6 +4,7 @@ import RelatedList from "../components/RelatedList";
 import ResourceDetail from "../components/ResourceDetail";
 import SumaImage from "../components/SumaImage";
 import { dayjs, dayjsOrNull } from "../modules/dayConfig";
+import formatDate from "../modules/formatDate";
 import createRelativeUrl from "../shared/createRelativeUrl";
 import SafeExternalLink from "../shared/react/SafeExternalLink";
 import React from "react";
@@ -51,8 +52,8 @@ export default function ProgramDetailPage() {
             toCells={(row) => [
               <AdminLink key="id" model={row} />,
               <AdminLink model={row}>{row.description.en}</AdminLink>,
-              dayjs(row.periodBegin).format("lll"),
-              dayjs(row.periodEnd).format("lll"),
+              formatDate(row.periodBegin),
+              formatDate(row.periodEnd),
             ]}
           />
           <RelatedList
@@ -68,8 +69,8 @@ export default function ProgramDetailPage() {
               <AdminLink key="vendor_name" model={row.vendor}>
                 {row.vendor.name}
               </AdminLink>,
-              dayjs(row.periodBegin).format("lll"),
-              dayjs(row.periodEnd).format("lll"),
+              formatDate(row.periodBegin),
+              formatDate(row.periodEnd),
             ]}
           />
           <RelatedList
@@ -80,8 +81,8 @@ export default function ProgramDetailPage() {
             toCells={(row) => [
               <AdminLink key="id" model={row} />,
               <AdminLink model={row}>{row.label}</AdminLink>,
-              dayjs(row.activeDuringBegin).format("lll"),
-              dayjs(row.activeDuringEnd).format("lll"),
+              formatDate(row.activeDuringBegin),
+              formatDate(row.activeDuringEnd),
             ]}
           />
           <RelatedList
@@ -99,7 +100,7 @@ export default function ProgramDetailPage() {
             ]}
             toCells={(row) => [
               <AdminLink model={row} />,
-              dayjs(row.createdAt).format("lll"),
+              formatDate(row.createdAt),
               <AdminLink key={row.vendor.name} model={row.vendor}>
                 {row.vendor.name}
               </AdminLink>,

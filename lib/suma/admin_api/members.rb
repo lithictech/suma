@@ -68,7 +68,6 @@ class Suma::AdminAPI::Members < Suma::AdminAPI::V1
     expose :note
     expose :roles, with: RoleEntity
     expose :onboarding_verified?, as: :onboarding_verified
-    expose :onboarding_verified_at
 
     expose :legal_entity, with: LegalEntityEntity
     expose :payment_account, with: DetailedPaymentAccountEntity

@@ -1,7 +1,7 @@
 import api from "../api";
 import AdminLink from "../components/AdminLink";
 import ResourceList from "../components/ResourceList";
-import { dayjs } from "../modules/dayConfig";
+import formatDate from "../modules/formatDate";
 import React from "react";
 
 export default function OrderListPage() {
@@ -23,7 +23,7 @@ export default function OrderListPage() {
           label: "Created",
           align: "left",
           sortable: true,
-          render: (c) => dayjs(c.createdAt).format("lll"),
+          render: (c) => formatDate(c.createdAt),
         },
         {
           id: "member",

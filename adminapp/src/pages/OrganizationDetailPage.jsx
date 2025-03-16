@@ -4,6 +4,7 @@ import ProgramEnrollmentRelatedList from "../components/ProgramEnrollmentRelated
 import RelatedList from "../components/RelatedList";
 import ResourceDetail from "../components/ResourceDetail";
 import { dayjs } from "../modules/dayConfig";
+import formatDate from "../modules/formatDate";
 import createRelativeUrl from "../shared/createRelativeUrl";
 import React from "react";
 
@@ -43,7 +44,7 @@ export default function OrganizationDetailPage() {
               <AdminLink key="member" model={row.member}>
                 {row.member.name}
               </AdminLink>,
-              dayjs(row.createdAt).format("lll"),
+              formatDate(row.createdAt),
             ]}
           />
         </>

@@ -1,7 +1,7 @@
 import api from "../api";
 import AdminLink from "../components/AdminLink";
 import ResourceDetail from "../components/ResourceDetail";
-import dateFormat from "../shared/dateFormat";
+import formatDate from "../modules/formatDate";
 import { Typography } from "@mui/material";
 import Box from "@mui/material/Box";
 import React from "react";
@@ -20,9 +20,9 @@ export default function MessageDetailPage() {
         },
         { label: "MessageId", value: model.transportMessageId },
         { label: "Template", value: model.template },
-        { label: "CreatedAt", value: dateFormat(model.createdAt, "lll") },
-        { label: "SentAt", value: dateFormat(model.sentAt, "lll") },
-        { label: "AbortedAt", value: dateFormat(model.abortedAt, "lll") },
+        { label: "CreatedAt", value: formatDate(model.createdAt) },
+        { label: "SentAt", value: formatDate(model.sentAt) },
+        { label: "AbortedAt", value: formatDate(model.abortedAt) },
         model.recipient && {
           label: "Recipient",
           value: (

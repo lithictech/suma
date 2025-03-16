@@ -12,6 +12,7 @@ import useErrorSnackbar from "../hooks/useErrorSnackbar";
 import useRoleAccess from "../hooks/useRoleAccess";
 import { useUser } from "../hooks/user";
 import { dayjs } from "../modules/dayConfig";
+import formatDate from "../modules/formatDate";
 import createRelativeUrl from "../shared/createRelativeUrl";
 import Money from "../shared/react/Money";
 import SafeExternalLink from "../shared/react/SafeExternalLink";
@@ -68,11 +69,7 @@ export default function MemberDetailPage() {
             children: (
               <InlineEditField
                 resource="member"
-                renderDisplay={
-                  model.onboardingVerifiedAt
-                    ? dayjs(model.onboardingVerifiedAt).format("lll")
-                    : "-"
-                }
+                renderDisplay={formatDate(model.onboardingVerifiedAt)}
                 initialEditingState={{ id: model.id }}
                 renderEdit={(st, set) => {
                   const mem = { ...model, ...st };
@@ -193,7 +190,7 @@ function OrganizationMemberships({ memberships, model }) {
       keyRowAttr="id"
       toCells={(row) => [
         <AdminLink key="id" model={row} />,
-        dayjs(row.createdAt).format("lll"),
+        formatDate(row.createdAt),
         row.verifiedOrganization ? (
           <AdminLink key="org" model={row.verifiedOrganization}>
             {row.verifiedOrganization.name}
@@ -214,7 +211,7 @@ function Activities({ activities }) {
       rows={activities}
       keyRowAttr="id"
       toCells={(row) => [
-        dayjs(row.createdAt).format("lll"),
+        formatDate(row.createdAt),
         row.summary,
         <span key="msg">
           {row.messageName} / <code>{JSON.stringify(row.messageVars)}</code>
@@ -232,8 +229,8 @@ function ResetCodes({ resetCodes }) {
       rows={resetCodes}
       keyRowAttr="id"
       toCells={(row) => [
-        dayjs(row.createdAt).format("lll"),
-        dayjs(row.expireAt).format("lll"),
+        formatDate(row.createdAt),
+        formatDate(row.expireAt),
         row.token,
         <BoolCheckmark key="used">{row.used}</BoolCheckmark>,
       ]}
@@ -249,7 +246,7 @@ function Sessions({ sessions }) {
       keyRowAttr="id"
       rows={sessions}
       toCells={(row) => [
-        dayjs(row.createdAt).format("lll"),
+        formatDate(row.createdAt),
         <SafeExternalLink key="ip" href={row.ipLookupLink}>
           {row.peerIp}
         </SafeExternalLink>,
@@ -268,7 +265,7 @@ function Orders({ orders }) {
       keyRowAttr="id"
       toCells={(row) => [
         <AdminLink key="id" model={row} />,
-        dayjs(row.createdAt).format("lll"),
+        formatDate(row.createdAt),
         row.totalItemCount,
         <AdminLink key="off" model={row.offering}>
           {row.offering.description.en}
@@ -288,7 +285,7 @@ function Charges({ charges }) {
       rows={charges}
       toCells={(row) => [
         <AdminLink key="id" model={row} />,
-        dayjs(row.createdAt).format("lll"),
+        formatDate(row.createdAt),
         <Money key="disc">{row.discountedSubtotal}</Money>,
         <Money key="undisc">{row.undiscountedSubtotal}</Money>,
         row.opaqueId,
@@ -307,8 +304,8 @@ function BankAccounts({ bankAccounts }) {
       toCells={(row) => [
         <AdminLink key="id" model={row} />,
         row.adminLabel,
-        dayjs(row.createdAt).format("lll"),
-        row.softDeletedAt ? dayjs(row.softDeletedAt).format("lll") : "",
+        formatDate(row.createdAt),
+        formatDate(row.softDeletedAt),
       ]}
     />
   );
@@ -352,8 +349,8 @@ function MessageDeliveries({ messageDeliveries }) {
       keyRowAttr="id"
       toCells={(row) => [
         <AdminLink key="id" model={row} />,
-        dayjs(row.createdAt).format("lll"),
-        row.sentAt ? dayjs(row.sentAt).format("lll") : "<unsent>",
+        formatDate(row.createdAt),
+        formatDate(row.sentAt, { default: "<unsent>" }),
         row.template,
         row.to,
       ]}
@@ -376,7 +373,7 @@ function VendorAccounts({ vendorAccounts }) {
       keyRowAttr="id"
       toCells={(row) => [
         <AdminLink key="id" model={row} />,
-        dayjs(row.createdAt).format("lll"),
+        formatDate(row.createdAt),
         <AdminLink key="vendor" model={row.vendor}>
           {row.vendor.name}
         </AdminLink>,
@@ -467,7 +464,7 @@ function InlineSoftDelete({ id, name, phone, softDeletedAt, onSoftDelete }) {
   }
   return (
     <>
-      {softDeletedAt ? dayjs(softDeletedAt).format("lll") : display}
+      {formatDate(softDeletedAt, { default: display })}
       <Dialog open={showModal.isOn} onClose={showModal.turnOff}>
         <DialogTitle>Confirm Soft Deletion</DialogTitle>
         <DialogContent>

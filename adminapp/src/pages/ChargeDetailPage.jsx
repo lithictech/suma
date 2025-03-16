@@ -4,6 +4,7 @@ import DetailGrid from "../components/DetailGrid";
 import RelatedList from "../components/RelatedList";
 import ResourceDetail from "../components/ResourceDetail";
 import { dayjs } from "../modules/dayConfig";
+import formatDate from "../modules/formatDate";
 import Money from "../shared/react/Money";
 import React from "react";
 
@@ -42,7 +43,7 @@ export default function ChargeDetailPage() {
                 { label: "ID", value: <AdminLink model={model.mobilityTrip} /> },
                 {
                   label: "Created At",
-                  value: dayjs(model.mobilityTrip.createdAt).format("lll"),
+                  value: formatDate(model.mobilityTrip.createdAt),
                 },
                 { label: "Vehicle ID", value: model.mobilityTrip.vehicleId },
                 {
@@ -55,11 +56,11 @@ export default function ChargeDetailPage() {
                 },
                 {
                   label: "Started",
-                  value: dayjs(model.mobilityTrip.createdAt).format("ll LTS"),
+                  value: formatDate(model.mobilityTrip.createdAt, { template: "ll LTS" }),
                 },
                 {
                   label: "Ended",
-                  value: dayjs(model.mobilityTrip.createdAt).format("ll LTS"),
+                  value: formatDate(model.mobilityTrip.createdAt, { template: "ll LTS" }),
                 },
               ]}
             />
@@ -71,7 +72,7 @@ export default function ChargeDetailPage() {
                 { label: "ID", value: <AdminLink model={model.commerceOrder} /> },
                 {
                   label: "Created At",
-                  value: dayjs(model.commerceOrder.createdAt).format("lll"),
+                  value: formatDate(model.commerceOrder.createdAt),
                 },
                 { label: "Status", value: model.commerceOrder.statusLabel },
               ]}
@@ -107,7 +108,7 @@ export default function ChargeDetailPage() {
             keyRowAttr="id"
             toCells={(row) => [
               <AdminLink key="id" model={row} />,
-              dayjs(row.createdAt).format("lll"),
+              formatDate(row.createdAt),
               row.status,
               <Money key="amt">{row.amount}</Money>,
               <AdminLink model={row.originatingPaymentAccount}>

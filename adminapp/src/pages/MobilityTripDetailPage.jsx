@@ -3,6 +3,7 @@ import AdminLink from "../components/AdminLink";
 import DetailGrid from "../components/DetailGrid";
 import ResourceDetail from "../components/ResourceDetail";
 import { dayjs } from "../modules/dayConfig";
+import formatDate from "../modules/formatDate";
 import Money from "../shared/react/Money";
 import React from "react";
 
@@ -36,10 +37,10 @@ export default function MobilityTripDetailPage() {
         { label: "Vehicle ID", value: model.vehicleId },
         { label: "Opaque ID", value: model.opaqueId },
         { label: "External Trip ID", value: model.externalTripId },
-        { label: "Started At", value: dayjs(model.beganAt).format("ll LTS") },
+        { label: "Started At", value: formatDate(model.beganAt, { template: "ll LTS" }) },
         {
           label: "Ended At",
-          value: model.endedAt ? dayjs(model.endedAt).format("ll LTS") : "Ongoing",
+          value: formatDate(model.endedAt, { template: "ll LTS", default: "Ongoing" }),
         },
         { label: "Start Lat", value: model.beginLat },
         { label: "Start Lng", value: model.beginLng },
@@ -58,7 +59,7 @@ export default function MobilityTripDetailPage() {
                 { label: "ID", value: <AdminLink model={model.charge} /> },
                 {
                   label: "Created At",
-                  value: dayjs(model.charge.createdAt).format("lll"),
+                  value: formatDate(model.charge.createdAt),
                 },
                 { label: "Opaque ID", value: model.charge.opaqueId },
                 {
@@ -77,7 +78,7 @@ export default function MobilityTripDetailPage() {
             properties={[
               { label: "Id", value: model.rate.id },
               { label: "Name", value: model.rate.name },
-              { label: "Created", value: dayjs(model.rate.createdAt).format("lll") },
+              { label: "Created", value: formatDate(model.rate.createdAt) },
               { label: "Unit Amount", value: <Money>{model.rate.unitAmount}</Money> },
               { label: "Surcharge", value: <Money>{model.rate.surcharge}</Money> },
               { label: "Unit Offset", value: model.rate.unitOffset },

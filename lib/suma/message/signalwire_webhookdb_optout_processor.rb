@@ -36,12 +36,14 @@ class Suma::Message::SignalwireWebhookdbOptoutProcessor
   end
 
   def fetch_rows
+    raise Suma::InvalidPrecondition, "Suma::Signalwire.marketing_number cannot have a + prefix" if
+      Suma::Signalwire.marketing_number.starts_with?("+")
     cutoff = @now - 1.week
     ds = Suma::Webhookdb.signalwire_messages_dataset
     ds = ds.where { date_created > cutoff }
     ds = ds.where(
       direction: "inbound",
-      to: Suma::Signalwire.marketing_number,
+      to: "+" + Suma::Signalwire.marketing_number,
     )
     keywords = Suma::Signalwire.message_marketing_sms_unsubscribe_keywords +
       Suma::Signalwire.message_marketing_sms_resubscribe_keywords +

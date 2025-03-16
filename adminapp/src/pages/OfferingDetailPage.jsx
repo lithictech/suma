@@ -6,6 +6,7 @@ import RelatedList from "../components/RelatedList";
 import ResourceDetail from "../components/ResourceDetail";
 import SumaImage from "../components/SumaImage";
 import { dayjs } from "../modules/dayConfig";
+import formatDate from "../modules/formatDate";
 import oneLineAddress from "../modules/oneLineAddress";
 import createRelativeUrl from "../shared/createRelativeUrl";
 import Money from "../shared/react/Money";
@@ -133,7 +134,7 @@ export default function OfferingDetailPage() {
             keyRowAttr="id"
             toCells={(row) => [
               <AdminLink key="id" model={row} />,
-              dayjs(row.createdAt).format("lll"),
+              formatDate(row.createdAt),
               <AdminLink key="mem" model={row.member}>
                 {row.member.name}
               </AdminLink>,

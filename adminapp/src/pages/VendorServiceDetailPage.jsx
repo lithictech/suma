@@ -5,6 +5,7 @@ import RelatedList from "../components/RelatedList";
 import ResourceDetail from "../components/ResourceDetail";
 import SumaImage from "../components/SumaImage";
 import { dayjs } from "../modules/dayConfig";
+import formatDate from "../modules/formatDate";
 import Money from "../shared/react/Money";
 import React from "react";
 
@@ -73,7 +74,7 @@ export default function VendorServiceDetailPage() {
             keyRowAttr="id"
             toCells={(row) => [
               row.id,
-              dayjs(row.createdAt).format("lll"),
+              formatDate(row.createdAt),
               row.name,
               <Money key="unit_amount">{row.unitAmount}</Money>,
               <Money key="surcharge">{row.surcharge}</Money>,
@@ -102,12 +103,12 @@ export default function VendorServiceDetailPage() {
             keyRowAttr="id"
             toCells={(row) => [
               <AdminLink key="id" model={row} />,
-              dayjs(row.createdAt).format("lll"),
+              formatDate(row.createdAt),
               row.vehicleId,
               row.rate.name,
               // This formatting shows date and time with seconds
-              dayjs(row.beganAt).format("ll LTS"),
-              row.endedAt ? dayjs(row.endedAt).format("ll LTS") : "Ongoing",
+              formatDate(row.beganAt, { template: "ll LTS" }),
+              formatDate(row.endedAt, { template: "ll LTS", default: "Ongoing" }),
               row.beginLat,
               row.beginLng,
               row.endLat,

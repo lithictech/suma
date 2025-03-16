@@ -4,6 +4,7 @@ import RelatedList from "../components/RelatedList";
 import ResourceDetail from "../components/ResourceDetail";
 import SumaImage from "../components/SumaImage";
 import { dayjs } from "../modules/dayConfig";
+import formatDate from "../modules/formatDate";
 import createRelativeUrl from "../shared/createRelativeUrl";
 import Money from "../shared/react/Money";
 import React from "react";
@@ -84,7 +85,7 @@ export default function ProductDetailPage() {
             keyRowAttr="id"
             toCells={(row) => [
               <AdminLink key="id" model={row} />,
-              dayjs(row.createdAt).format("lll"),
+              formatDate(row.createdAt),
               row.orderStatus,
               <AdminLink key="member" model={row.member}>
                 {row.member.name}

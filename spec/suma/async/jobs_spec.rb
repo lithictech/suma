@@ -200,6 +200,28 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
     end
   end
 
+  describe "MembershipVerifiedOnboardingVerify" do
+    let(:membership) { Suma::Fixtures.organization_membership.unverified.create }
+    let(:org) { Suma::Fixtures.organization.create }
+
+    it "sets the member verified when a membership is verified" do
+      expect do
+        membership.update(verified_organization: org)
+      end.to perform_async_job(Suma::Async::MembershipVerifiedVerifyOnboarding)
+
+      expect(membership.refresh.member).to be_onboarding_verified
+    end
+
+    it "noops if the membership is not verified" do
+      membership.update(verified_organization: org)
+      expect do
+        membership.update(verified_organization_id: nil, unverified_organization_name: "hi")
+      end.to perform_async_job(Suma::Async::MembershipVerifiedVerifyOnboarding)
+
+      expect(membership.refresh.member).to_not be_onboarding_verified
+    end
+  end
+
   describe "MessageDispatched", messaging: true do
     it "sends the delivery on create" do
       email = "wibble@lithic.tech"
@@ -336,7 +358,7 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
 
   describe "SignalwireProcessOptouts", reset_configuration: Suma::Signalwire do
     it "syncs refunds" do
-      Suma::Signalwire.marketing_number = "+12225550000"
+      Suma::Signalwire.marketing_number = "12225550000"
       member = Suma::Fixtures.member.create
       Suma::Webhookdb.signalwire_messages_dataset.insert(
         signalwire_id: "msg1",

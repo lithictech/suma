@@ -97,6 +97,7 @@ module Suma::AdminAPI::Entities
     expose :name
     expose :phone
     expose :timezone
+    expose :onboarding_verified_at
   end
 
   class MessageDeliveryEntity < BaseEntity

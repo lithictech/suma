@@ -5,6 +5,7 @@ import RelatedList from "../components/RelatedList";
 import ResourceDetail from "../components/ResourceDetail";
 import SumaImage from "../components/SumaImage";
 import { dayjs } from "../modules/dayConfig";
+import formatDate from "../modules/formatDate";
 import React from "react";
 
 export default function VendorDetailPage() {
@@ -63,7 +64,7 @@ export default function VendorDetailPage() {
             keyRowAttr="id"
             toCells={(row) => [
               <AdminLink key="id" model={row} />,
-              dayjs(row.createdAt).format("lll"),
+              formatDate(row.createdAt),
               row.name.en,
             ]}
           />

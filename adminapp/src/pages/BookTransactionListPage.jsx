@@ -1,7 +1,7 @@
 import api from "../api";
 import AdminLink from "../components/AdminLink";
 import ResourceList from "../components/ResourceList";
-import { dayjs } from "../modules/dayConfig";
+import formatDate from "../modules/formatDate";
 import Money from "../shared/react/Money";
 import React from "react";
 
@@ -25,7 +25,7 @@ export default function BookTransactionListPage() {
           label: "Apply At",
           align: "center",
           sortable: true,
-          render: (c) => dayjs(c.applyAt).format("lll"),
+          render: (c) => formatDate(c.applyAt),
         },
         {
           id: "amount",
