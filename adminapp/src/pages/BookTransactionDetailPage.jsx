@@ -3,6 +3,7 @@ import AdminLink from "../components/AdminLink";
 import RelatedList from "../components/RelatedList";
 import ResourceDetail from "../components/ResourceDetail";
 import { dayjs } from "../modules/dayConfig";
+import formatDate from "../modules/formatDate";
 import Money from "../shared/react/Money";
 import React from "react";
 
@@ -60,7 +61,7 @@ export default function BookTransactionDetailPage() {
             keyRowAttr="id"
             toCells={(row) => [
               <AdminLink key="id" model={row} />,
-              dayjs(row.createdAt).format("lll"),
+              formatDate(row.createdAt),
               row.status,
               <Money key="amt">{row.amount}</Money>,
             ]}
@@ -71,7 +72,7 @@ export default function BookTransactionDetailPage() {
             rows={model.charges}
             toCells={(row) => [
               <AdminLink model={row} />,
-              dayjs(row.createdAt).format("lll"),
+              formatDate(row.createdAt),
               <Money key={3}>{row.undiscountedSubtotal}</Money>,
               row.opaqueId,
             ]}

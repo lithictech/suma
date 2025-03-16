@@ -1,7 +1,7 @@
 import api from "../api";
 import AdminLink from "../components/AdminLink";
 import ResourceList from "../components/ResourceList";
-import { dayjs } from "../modules/dayConfig";
+import formatDate from "../modules/formatDate";
 import React from "react";
 
 export default function ProgramListPage() {
@@ -36,13 +36,13 @@ export default function ProgramListPage() {
           id: "period_begin",
           label: "Opens",
           align: "center",
-          render: (c) => dayjs(c.periodBegin).format("l"),
+          render: (c) => formatDate(c.periodBegin, { template: "l" }),
         },
         {
           id: "period_end",
           label: "Closes",
           align: "center",
-          render: (c) => dayjs(c.periodEnd).format("l"),
+          render: (c) => formatDate(c.periodEnd, { template: "l" }),
         },
       ]}
     />

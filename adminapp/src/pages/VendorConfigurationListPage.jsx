@@ -2,7 +2,7 @@ import api from "../api";
 import AdminLink from "../components/AdminLink";
 import BoolCheckmark from "../components/BoolCheckmark";
 import ResourceList from "../components/ResourceList";
-import { dayjs } from "../modules/dayConfig";
+import formatDate from "../modules/formatDate";
 import React from "react";
 
 export default function VendorConfigurationListPage() {
@@ -42,7 +42,7 @@ export default function VendorConfigurationListPage() {
           label: "Created",
           align: "left",
           sortable: true,
-          render: (c) => dayjs(c.createdAt).format("lll"),
+          render: (c) => formatDate(c.createdAt),
         },
       ]}
     />

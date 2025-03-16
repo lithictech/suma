@@ -2,7 +2,6 @@ import api from "../api";
 import AdminLink from "../components/AdminLink";
 import ResourceList from "../components/ResourceList";
 import Unavailable from "../components/Unavailable";
-import { dayjs } from "../modules/dayConfig";
 import formatDate from "../modules/formatDate";
 import React from "react";
 import { formatPhoneNumber } from "react-phone-number-input";

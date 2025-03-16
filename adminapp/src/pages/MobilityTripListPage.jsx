@@ -1,7 +1,7 @@
 import api from "../api";
 import AdminLink from "../components/AdminLink";
 import ResourceList from "../components/ResourceList";
-import { dayjs } from "../modules/dayConfig";
+import formatDate from "../modules/formatDate";
 import Money from "../shared/react/Money";
 import React from "react";
 
@@ -53,13 +53,14 @@ export default function MobilityTripListPage() {
           id: "began_at",
           label: "Began",
           align: "center",
-          render: (c) => dayjs(c.beganAt).format("ll LTS"),
+          render: (c) => formatDate(c.beganAt, { template: "ll LTS" }),
         },
         {
           id: "ended_at",
           label: "Ended",
           align: "center",
-          render: (c) => (c.endedAt ? dayjs(c.endedAt).format("ll LTS") : "Ongoing"),
+          render: (c) =>
+            formatDate(c.endedAt, { template: "ll LTS", default: "Ongoing" }),
         },
         {
           id: "total_cost",

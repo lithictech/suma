@@ -5,6 +5,7 @@ import ResourceDetail from "../components/ResourceDetail";
 import useErrorSnackbar from "../hooks/useErrorSnackbar";
 import { useUser } from "../hooks/user";
 import { dayjs } from "../modules/dayConfig";
+import formatDate from "../modules/formatDate";
 import { Switch } from "@mui/material";
 import React from "react";
 
@@ -41,9 +42,7 @@ export default function ProgramEnrollmentDetailPage() {
           children: (
             <InlineEditField
               resource="program_enrollment"
-              renderDisplay={
-                model.approvedAt ? dayjs(model.approvedAt).format("lll") : "-"
-              }
+              renderDisplay={formatDate(model.approvedAt)}
               initialEditingState={{ id: model.id }}
               renderEdit={(st, set) => {
                 const enrollment = { ...model, ...st };
@@ -75,9 +74,7 @@ export default function ProgramEnrollmentDetailPage() {
           children: (
             <InlineEditField
               resource="program_enrollment"
-              renderDisplay={
-                model.unenrolledAt ? dayjs(model.unenrolledAt).format("lll") : "-"
-              }
+              renderDisplay={formatDate(model.unenrolledAt)}
               initialEditingState={{ id: model.id }}
               renderEdit={(st, set) => {
                 const enrollment = { ...model, ...st };
