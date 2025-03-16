@@ -5,7 +5,7 @@ require "appydays/loggable"
 class Suma::Frontapp::ListSync
   include Appydays::Loggable
 
-  RECENTLY_UNVERIFIED_CUTOFF = 2.weeks
+  RECENTLY_UNVERIFIED_CUTOFF_DAYS = 30
 
   def initialize(now:)
     @now = now
@@ -18,9 +18,7 @@ class Suma::Frontapp::ListSync
     # The easiest way to bulk-replace all the contacts is to delete and recreate the group
     groups_to_replace = groups.select { |g| spec_names.include?(g.fetch("name")) }
     groups_to_replace.each do |group|
-      self.logger.info("deleting_front_group",
-                       group_id: group.fetch("id"),
-                       group_name: group.fetch("name"),)
+      self.logger.info("deleting_front_group", group_id: group.fetch("id"), group_name: group.fetch("name"))
       Suma::Frontapp.client.delete_contact_group!(group.fetch("id"))
     end
     specs_with_members = specs.reject { |sp| sp.dataset.empty? }
@@ -61,9 +59,18 @@ class Suma::Frontapp::ListSync
     )
     result.concat(
       ListSpec.for_languages(
-        name: "Unverified",
+        name: "Unverified, last #{RECENTLY_UNVERIFIED_CUTOFF_DAYS} days",
         transport: :sms,
-        dataset: Suma::Member.where { created_at > RECENTLY_UNVERIFIED_CUTOFF.ago }.where(onboarding_verified_at: nil),
+        dataset: Suma::Member.
+          where { created_at > RECENTLY_UNVERIFIED_CUTOFF_DAYS.days.ago }.
+          where(onboarding_verified_at: nil),
+      ),
+    )
+    result.concat(
+      ListSpec.for_languages(
+        name: "Unverified, All time",
+        transport: :sms,
+        dataset: Suma::Member.where(onboarding_verified_at: nil),
       ),
     )
     Suma::Organization.all.each do |org|

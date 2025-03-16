@@ -186,8 +186,8 @@ RSpec.describe Suma::Frontapp::ListSync, :db, reset_configuration: Suma::Frontap
       Suma::Message::Preferences.create(member: old)
 
       specs = described_class.new(now:).gather_list_specs
-      en = specs.find { |s| s.full_name == "Unverified - SMS - English" }
-      es = specs.find { |s| s.full_name == "Unverified - SMS - Spanish" }
+      en = specs.find { |s| s.full_name == "Unverified, last 30 days - SMS - English" }
+      es = specs.find { |s| s.full_name == "Unverified, last 30 days - SMS - Spanish" }
       expect(en.dataset.all).to have_same_ids_as(en_member)
       expect(es.dataset.all).to have_same_ids_as(es_member)
     end
