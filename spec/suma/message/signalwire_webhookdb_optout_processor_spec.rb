@@ -4,7 +4,7 @@ require "suma/message/signalwire_webhookdb_optout_processor"
 
 RSpec.describe Suma::Message::SignalwireWebhookdbOptoutProcessor, :db, reset_configuration: Suma::Signalwire do
   before(:each) do
-    Suma::Signalwire.marketing_number = "+12225550000"
+    Suma::Signalwire.marketing_number = "12225550000"
   end
 
   let(:member_phone) { "14445556666" }
@@ -15,11 +15,18 @@ RSpec.describe Suma::Message::SignalwireWebhookdbOptoutProcessor, :db, reset_con
       date_created: 4.days.ago,
       direction: "inbound",
       from: "+12225551234",
-      to: Suma::Signalwire.marketing_number,
+      to: "+" + Suma::Signalwire.marketing_number,
       data: {body:}.to_json,
     }
     r.merge!(**kw)
     return r
+  end
+
+  it "errors if the signalwire marketing number starts with a +" do
+    Suma::Signalwire.marketing_number = "+12225550000"
+    expect do
+      described_class.new(now: Time.now).fetch_rows
+    end.to raise_error(Suma::InvalidPrecondition, /cannot have a/)
   end
 
   it "finds potential unsubscribe rows from the last week" do

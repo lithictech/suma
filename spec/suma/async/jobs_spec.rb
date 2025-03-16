@@ -336,7 +336,7 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
 
   describe "SignalwireProcessOptouts", reset_configuration: Suma::Signalwire do
     it "syncs refunds" do
-      Suma::Signalwire.marketing_number = "+12225550000"
+      Suma::Signalwire.marketing_number = "12225550000"
       member = Suma::Fixtures.member.create
       Suma::Webhookdb.signalwire_messages_dataset.insert(
         signalwire_id: "msg1",
