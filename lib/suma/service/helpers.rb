@@ -161,8 +161,17 @@ module Suma::Service::Helpers
     return dataset.paginate(params[:page], params[:per_page])
   end
 
+  # Order the database. By default, use descending nulls last.
+  # If order_direction is :asc, use ascending nulls first.
   def order(dataset, params, disambiguator: :id)
-    expr = params[:order_direction] == :asc ? Sequel.asc(params[:order_by]) : Sequel.desc(params[:order_by])
+    if params[:order_direction] == :asc
+      m = :asc
+      nulls = :first
+    else
+      nulls = :last
+      m = :desc
+    end
+    expr = Sequel.send(m, params[:order_by], nulls:)
     return dataset.order(expr, Sequel.desc(disambiguator))
   end
 

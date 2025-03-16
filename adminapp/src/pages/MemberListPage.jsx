@@ -3,6 +3,7 @@ import AdminLink from "../components/AdminLink";
 import ResourceList from "../components/ResourceList";
 import Unavailable from "../components/Unavailable";
 import { dayjs } from "../modules/dayConfig";
+import formatDate from "../modules/formatDate";
 import React from "react";
 import { formatPhoneNumber } from "react-phone-number-input";
 
@@ -39,7 +40,14 @@ export default function MemberListPage() {
           label: "Registered",
           align: "left",
           sortable: true,
-          render: (c) => dayjs(c.createdAt).format("lll"),
+          render: (c) => formatDate(c.createdAt),
+        },
+        {
+          id: "onboarding_verified_at",
+          label: "Verified",
+          align: "left",
+          sortable: true,
+          render: (c) => formatDate(c.onboardingVerifiedAt),
         },
       ]}
     />
