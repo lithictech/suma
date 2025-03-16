@@ -177,6 +177,7 @@ GEM
       ast (~> 2.4.1)
       racc
     pg (1.5.4)
+    pgvector (0.3.2)
     phony (2.20.7)
     platform-api (3.5.0)
       heroics (~> 0.1.1)
@@ -195,6 +196,7 @@ GEM
     public_suffix (5.0.3)
     puma (6.4.2)
       nio4r (~> 2.0)
+    pycall (1.5.2)
     raabro (1.4.0)
     racc (1.8.1)
     rack (2.2.9)
@@ -377,12 +379,14 @@ DEPENDENCIES
   nokogiri
   parser
   pg
+  pgvector
   phony
   platform-api
   premailer
   pry
   pry-clipboard2
   puma (~> 6.4)
+  pycall
   rack-attack
   rack-cors (~> 2.0)
   rack-protection

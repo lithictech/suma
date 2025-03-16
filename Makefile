@@ -9,6 +9,7 @@ MESSAGE_TRANSPORT ?=
 
 install:
 	bundle install
+	pip install -r requirements.txt
 cop:
 	bundle exec rubocop
 fix:
