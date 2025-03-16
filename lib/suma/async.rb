@@ -32,6 +32,7 @@ module Suma::Async
     "suma/async/funding_transaction_processor",
     "suma/async/lyft_pass_trip_sync",
     "suma/async/member_onboarding_verified_dispatch",
+    "suma/async/membership_verified_verify_onboarding",
     "suma/async/message_dispatched",
     "suma/async/offering_schedule_fulfillment",
     "suma/async/order_confirmation",
