@@ -10,6 +10,7 @@ class Suma::AdminAPI::Programs < Suma::AdminAPI::V1
     include Suma::AdminAPI::Entities
     include AutoExposeDetail
     expose :image, with: ImageEntity, &self.delegate_to(:images?, :first)
+    expose :lyft_pass_program_id
     expose :commerce_offerings, with: OfferingEntity
     expose :vendor_services, with: VendorServiceEntity
     expose :anon_proxy_vendor_configurations, as: :configurations, with: VendorConfigurationEntity

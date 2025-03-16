@@ -101,7 +101,7 @@ class Suma::API::Mobility < Suma::API::V1
       else
         vehicle = matches[0]
       end
-      present vehicle, with: MobilityVehicleEntity, member:, request:
+      present vehicle, with: MobilityVehicleEntity, member:, request:, current_time:
     end
 
     params do
@@ -192,7 +192,8 @@ class Suma::API::Mobility < Suma::API::V1
     end
     expose :goto_private_account do |vehicle, options|
       member = options.fetch(:member)
-      vehicle.vendor_service.mobility_adapter.anon_proxy_vendor_account_requires_attention?(member)
+      now = options.fetch(:current_time)
+      vehicle.vendor_service.mobility_adapter.anon_proxy_vendor_account_requires_attention?(member, now:)
     end
   end
 end

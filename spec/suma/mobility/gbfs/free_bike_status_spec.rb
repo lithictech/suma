@@ -66,8 +66,8 @@ RSpec.describe Suma::Mobility::Gbfs::FreeBikeStatus, :db do
     let(:vs) { Suma::Fixtures.vendor_service.mobility.create }
     let(:vendor) { vs.vendor }
 
-    def sync_gbfs
-      client = Suma::Mobility::Gbfs::FakeClient.new(fake_free_bike_status_json:, fake_vehicle_types_json:)
+    def sync_gbfs(**kw)
+      client = Suma::Mobility::Gbfs::FakeClient.new(fake_free_bike_status_json:, fake_vehicle_types_json:, **kw)
       Suma::Mobility::Gbfs::VendorSync.new(client:, vendor:, component: described_class.new).sync_all
     end
 
@@ -129,6 +129,106 @@ RSpec.describe Suma::Mobility::Gbfs::FreeBikeStatus, :db do
       expect(Suma::Mobility::Vehicle.all).to contain_exactly(
         have_attributes(vehicle_id: "ghi799", battery_level: nil),
         have_attributes(vehicle_id: "ghi700", battery_level: nil),
+      )
+    end
+
+    it "creates vehicles from stations" do
+      fake_station_information_json = {
+        "last_updated" => 1_742_061_563,
+        "ttl" => 60,
+        "version" => "2.3",
+        "data" => {
+          "stations" => [
+            {
+              "lat" => 45.53434532,
+              "address" => "123 Main St",
+              "capacity" => 5,
+              "lon" => -122.6848841,
+              "station_id" => "station1",
+              "name" => "Main 567",
+              "rental_uris" => {
+                "ios" => "https://pdx.lft.to/lastmile_qr_scan",
+                "android" => "https://pdx.lft.to/lastmile_qr_scan",
+              },
+            },
+            {
+              "lat" => 45.5604984,
+              "address" => "456 Main st",
+              "capacity" => 3,
+              "lon" => -122.6621038,
+              "station_id" => "station2",
+              "name" => "Main 456",
+              "rental_uris" => {
+                "ios" => "https://pdx.lft.to/lastmile_qr_scan",
+                "android" => "https://pdx.lft.to/lastmile_qr_scan",
+              },
+            },
+
+          ],
+        },
+      }
+      fake_station_status_json = {
+        "data" => {
+          "stations" => [
+            {
+              "is_renting" => 1,
+              "is_installed" => 1,
+              "is_returning" => 1,
+              "last_reported" => 1_721_678_338,
+              "station_id" => "station1",
+              "vehicle_types_available" => [
+                {"vehicle_type_id" => "abc123", "count" => 1},
+                {"vehicle_type_id" => "def456", "count" => 2},
+              ],
+              "num_bikes_available" => 3,
+            },
+            {
+              "is_renting" => 1,
+              "is_installed" => 1,
+              "is_returning" => 1,
+              "last_reported" => 1_721_678_249,
+              "station_id" => "station2",
+              "vehicle_types_available" => [
+                {"vehicle_type_id" => "abc123", "count" => 1},
+                {"vehicle_type_id" => "def456", "count" => 2},
+              ],
+              "num_bikes_available" => 3,
+            },
+            {
+              "is_renting" => 0,
+              "is_installed" => 1,
+              "is_returning" => 1,
+              "last_reported" => 1_721_678_249,
+              "num_ebikes_available" => 4,
+              "station_id" => "not_renting",
+              "vehicle_types_available" => [
+                {"vehicle_type_id" => "abc123", "count" => 10},
+                {"vehicle_type_id" => "def456", "count" => 10},
+              ],
+              "num_bikes_available" => 20,
+            },
+          ],
+        },
+        "last_updated" => 1_742_061_744,
+        "ttl" => 60,
+        "version" => "2.3",
+      }
+      fake_free_bike_status_json["data"]["bikes"].clear
+      sync_gbfs(fake_station_information_json:, fake_station_status_json:)
+      expect(Suma::Mobility::Vehicle.all).to contain_exactly(
+        have_attributes(
+          lat_int: 455_604_984,
+          lng_int: -1_226_621_038,
+          vehicle_type: "escooter",
+          vehicle_id: "station2-abc123-0",
+
+          rental_uris: {"ios" => "https://pdx.lft.to/lastmile_qr_scan", "android" => "https://pdx.lft.to/lastmile_qr_scan"},
+        ),
+        have_attributes(vehicle_type: "escooter", vehicle_id: "station1-abc123-0"),
+        have_attributes(vehicle_type: "ebike", vehicle_id: "station1-def456-1"),
+        have_attributes(vehicle_type: "ebike", vehicle_id: "station2-def456-0"),
+        have_attributes(vehicle_type: "ebike", vehicle_id: "station2-def456-1"),
+        have_attributes(vehicle_type: "ebike", vehicle_id: "station1-def456-0"),
       )
     end
   end

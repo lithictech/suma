@@ -200,5 +200,13 @@ RSpec.describe Suma do
       described_class.cached_get("z", &@cb)
       expect(@cnt).to eq(3)
     end
+
+    it "can set/delete a key" do
+      described_class.use_globals_cache = true
+      described_class.cached_set(key, "x")
+      expect(described_class.cached_get(key) { nil }).to eq("x")
+      described_class.cached_set(key, nil, delete: true)
+      expect(described_class.cached_get(key) { nil }).to be_nil
+    end
   end
 end

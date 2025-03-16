@@ -158,7 +158,6 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
       Suma::Lyft.pass_authorization = "Basic xyz"
       Suma::Lyft.pass_email = "a@b.c"
       Suma::Lyft.pass_org_id = "1234"
-      Suma::Lyft.pass_program_id = "5678"
 
       vendor_service_rate = Suma::Fixtures.vendor_service_rate.create
       vendor_service_rate.add_service(
@@ -167,6 +166,7 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
         ),
       )
       Suma::Lyft.pass_vendor_service_rate_id = vendor_service_rate.id
+      Suma::Fixtures.program.create(lyft_pass_program_id: "5678")
 
       Suma::ExternalCredential.create(
         service: "lyft-pass-access-token",
@@ -445,15 +445,13 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
 
     it "sync lyft scooters gbfs" do
       Suma::Lyft.sync_enabled = true
-      free_bike_status_req = stub_request(:get, "https://gbfs.lyft.com/gbfs/2.3/pdx/en/free_bike_status.json").
-        to_return(fixture_response("lime/free_bike_status"))
-      vehicle_types_req = stub_request(:get, "https://gbfs.lyft.com/gbfs/2.3/pdx/en/vehicle_types.json").
-        to_return(fixture_response("lime/vehicle_types"))
+      reqs = ["free_bike_status", "vehicle_types", "station_information", "station_status"].map do |s|
+        stub_request(:get, "https://gbfs.lyft.com/gbfs/2.3/pdx/en/#{s}.json").
+          to_return(fixture_response("lyft/#{s}"))
+      end
 
       Suma::Async::SyncLyftFreeBikeStatusGbfs.new.perform(true)
-      expect(free_bike_status_req).to have_been_made
-      expect(vehicle_types_req).to have_been_made
-      expect(Suma::Mobility::Vehicle.all).to have_length(1)
+      expect(reqs).to all(have_been_made)
     end
 
     it "noops if Lyft is not configured" do

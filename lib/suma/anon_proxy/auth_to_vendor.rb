@@ -35,7 +35,7 @@ class Suma::AnonProxy::AuthToVendor
   def needs_polling? = raise NotImplementedError
   # True if the vendor account needs attention; like if it needs to be created
   # or relinked.
-  def needs_attention? = raise NotImplementedError
+  def needs_attention?(now:) = raise NotImplementedError
 
   # Helper for AuthToVendor implementations that use anonymous emails.
   def ensure_anonymous_email_contact

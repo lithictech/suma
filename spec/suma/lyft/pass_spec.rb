@@ -10,7 +10,6 @@ RSpec.describe Suma::Lyft::Pass, :db, reset_configuration: Suma::Lyft do
     Suma::Lyft.pass_authorization = "Basic xyz"
     Suma::Lyft.pass_email = "a@b.c"
     Suma::Lyft.pass_org_id = "1234"
-    Suma::Lyft.pass_program_id = "5678"
 
     @vendor_service_rate = Suma::Fixtures.vendor_service_rate.create
     @vendor_service = Suma::Fixtures.vendor_service.
@@ -61,16 +60,31 @@ RSpec.describe Suma::Lyft::Pass, :db, reset_configuration: Suma::Lyft do
     expect { Suma::Lyft::Pass.from_config }.to raise_error(/org_id cannot be blank/)
     Suma::Lyft.pass_org_id = "x"
 
-    Suma::Lyft.pass_program_id = ""
-    expect { Suma::Lyft::Pass.from_config }.to raise_error(/program_id cannot be blank/)
-    Suma::Lyft.pass_program_id = "x"
-
     Suma::Lyft.pass_vendor_service_rate_id = 0
     expect { Suma::Lyft::Pass.from_config }.to raise_error(/No row matching/)
     Suma::Lyft.pass_vendor_service_rate_id = @vendor_service_rate.id
 
     @vendor_service.update(mobility_vendor_adapter_key: "lyft_deeplink-fake")
     expect { Suma::Lyft::Pass.from_config }.to raise_error(/No mobility vendor service for Lyft vendor/)
+  end
+
+  describe "programs" do
+    it "returns suma programs with a lyft pass id set" do
+      p1 = Suma::Fixtures.program.create
+      p2 = Suma::Fixtures.program.create(lyft_pass_program_id: "abc")
+      expect(described_class.programs_dataset.all).to have_same_ids_as(p2)
+    end
+
+    it "caches program lookups for 30 minutes" do
+      Suma.use_globals_cache = true
+      p1 = Suma::Fixtures.program.create(lyft_pass_program_id: "abc")
+      expect(described_class.programs_cached).to have_same_ids_as(p1)
+      p2 = Suma::Fixtures.program.create(lyft_pass_program_id: "abcd")
+      expect(described_class.programs_cached).to have_same_ids_as(p1)
+      expect(described_class.programs_cached(now: 40.minutes.from_now)).to have_same_ids_as(p1, p2)
+    ensure
+      Suma.reset_configuration
+    end
   end
 
   describe "find_credential" do
@@ -273,13 +287,13 @@ RSpec.describe Suma::Lyft::Pass, :db, reset_configuration: Suma::Lyft do
         )
 
       instance.authenticate
-      got = instance.fetch_rides
+      got = instance.fetch_rides("5678")
       expect(req).to have_been_made
       expect(got).to include("results" => have_length(2))
     end
 
     it "errors if not authed" do
-      expect { instance.fetch_rides }.to raise_error(/must call authenticate/)
+      expect { instance.fetch_rides("5678") }.to raise_error(/must call authenticate/)
     end
   end
 
@@ -394,7 +408,7 @@ RSpec.describe Suma::Lyft::Pass, :db, reset_configuration: Suma::Lyft do
         create(phone: "15552223333")
 
       instance.authenticate
-      instance.sync_trips
+      instance.sync_trips("5678")
       expect(rides_req).to have_been_made
       expect(ride_req).to have_been_made
       expect(Suma::Mobility::Trip.all).to contain_exactly(
@@ -510,7 +524,7 @@ RSpec.describe Suma::Lyft::Pass, :db, reset_configuration: Suma::Lyft do
         )
 
       instance.authenticate
-      instance.invite_member(member)
+      instance.invite_member(member, program_id: "5678")
       expect(req).to have_been_made
     end
   end

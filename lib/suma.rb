@@ -111,6 +111,15 @@ module Suma
     return result
   end
 
+  # Force-set a value in the cache.
+  def self.cached_set(key, value, delete: false)
+    if delete
+      self.globals_cache.delete(key)
+      return
+    end
+    self.globals_cache[key] = value
+  end
+
   #
   # :section: Errors
   #

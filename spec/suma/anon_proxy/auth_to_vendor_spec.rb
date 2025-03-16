@@ -4,13 +4,14 @@ RSpec.describe Suma::AnonProxy::AuthToVendor, :db do
   let(:va) do
     Suma::Fixtures.anon_proxy_vendor_account.with_configuration(auth_to_vendor_key:).create
   end
+  let(:member) { va.member }
   let(:auth_to_vendor_key) { raise NotImplementedError }
 
   shared_examples_for "an AuthToVendor" do
     it "responds to the necessary methods" do
       atv = va.auth_to_vendor
       expect { atv.needs_polling? }.to_not raise_error
-      expect { atv.needs_attention? }.to_not raise_error
+      expect { atv.needs_attention?(now: Time.now) }.to_not raise_error
     end
   end
 
@@ -75,9 +76,9 @@ RSpec.describe Suma::AnonProxy::AuthToVendor, :db do
     end
 
     it "needs attention if there is no member contact" do
-      expect(va.auth_to_vendor).to be_needs_attention
+      expect(va.auth_to_vendor).to be_needs_attention(now: Time.now)
       va.auth_to_vendor.ensure_anonymous_email_contact
-      expect(va.auth_to_vendor).to_not be_needs_attention
+      expect(va.auth_to_vendor).to_not be_needs_attention(now: Time.now)
     end
   end
 
@@ -96,7 +97,6 @@ RSpec.describe Suma::AnonProxy::AuthToVendor, :db do
       Suma::Lyft.pass_authorization = "Basic xyz"
       Suma::Lyft.pass_email = "a@b.c"
       Suma::Lyft.pass_org_id = "1234"
-      Suma::Lyft.pass_program_id = "5678"
       @vendor_service_rate = Suma::Fixtures.vendor_service_rate.create
       @vendor_service = Suma::Fixtures.vendor_service.
         mobility.
@@ -111,26 +111,64 @@ RSpec.describe Suma::AnonProxy::AuthToVendor, :db do
 
     it_behaves_like "an AuthToVendor"
 
-    it "sends an invitation request to Lyft" do
+    it "sends an invitation request to Lyft for each program the user has available" do
       req = stub_request(:post, "https://www.lyft.com/api/rideprograms/enrollment/bulk/invite").
         to_return(status: 200)
 
-      t = Time.now
-      Timecop.freeze(t) { va.auth_to_vendor.auth }
+      Timecop.freeze("2022-12-15T12:00:15Z") do
+        # Enroll only in the program the user is in, with a lyft pass program id
+        not_enrolled = Suma::Fixtures.program.create(lyft_pass_program_id: "12")
+        enrolled = Suma::Fixtures.program_enrollment(member:).in(lyft_pass_program_id: "34").create
+        nogood = Suma::Fixtures.program_enrollment(member:).in(lyft_pass_program_id: "56").unapproved.create
+        no_program = Suma::Fixtures.program_enrollment(member:).create
+        va.auth_to_vendor.auth
+      end
       expect(req).to have_been_made
-      expect(va).to have_attributes(registered_with_vendor: t.iso8601)
+      expect(va).to have_attributes(registered_with_vendor: '{"34":"2022-12-15T12:00:15Z"}')
     end
 
-    it "noops if the account is already registered" do
+    it "noops if there are no programs" do
+      Suma::ExternalCredential.dataset.delete
+      va.auth_to_vendor.auth
+      expect(va).to have_attributes(registered_with_vendor: "{}")
+    end
+
+    it "does not re-register the account if the member already registered with that program" do
+      req = stub_request(:post, "https://www.lyft.com/api/rideprograms/enrollment/bulk/invite").
+        to_return(status: 200)
+
+      Timecop.freeze("2020-01-15T12:00:00Z") do
+        Suma::Fixtures.program_enrollment(member:).in(lyft_pass_program_id: "34").create
+        Suma::Fixtures.program_enrollment(member:).in(lyft_pass_program_id: "56").create
+        va.update(registered_with_vendor: '{"34":""}')
+        va.auth_to_vendor.auth
+      end
+      expect(req).to have_been_made
+      expect(va).to have_attributes(registered_with_vendor: '{"34":"","56":"2020-01-15T12:00:00Z"}')
+    end
+
+    it "handles invalid JSON in registered_with_vendor" do
       va.update(registered_with_vendor: "abc")
       va.auth_to_vendor.auth
-      expect(va).to have_attributes(registered_with_vendor: "abc")
+      expect(va).to have_attributes(registered_with_vendor: "{}")
+
+      va.update(registered_with_vendor: "[]")
+      va.auth_to_vendor.auth
+      expect(va).to have_attributes(registered_with_vendor: "{}")
     end
 
-    it "needs attention if the user is not registered" do
-      expect(va.auth_to_vendor).to be_needs_attention
-      va.update(registered_with_vendor: "x")
-      expect(va.auth_to_vendor).to_not be_needs_attention
+    it "needs attention if the user is not registered in an available program" do
+      expect(va.auth_to_vendor).to be_needs_attention(now: Time.now)
+      va.update(registered_with_vendor: "{}")
+      expect(va.auth_to_vendor).to_not be_needs_attention(now: Time.now)
+
+      Suma::Fixtures.program_enrollment(member:).in(lyft_pass_program_id: "5678").create
+      expect(va.auth_to_vendor).to be_needs_attention(now: Time.now)
+      va.update(registered_with_vendor: '{"5678":""}')
+      expect(va.auth_to_vendor).to_not be_needs_attention(now: Time.now)
+
+      Suma::Fixtures.program_enrollment(member:).in(lyft_pass_program_id: "1234").create
+      expect(va.auth_to_vendor).to be_needs_attention(now: Time.now)
     end
   end
 end
