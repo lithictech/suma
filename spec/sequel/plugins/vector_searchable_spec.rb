@@ -16,12 +16,12 @@ RSpec.describe "sequel-vector-searchable" do
       column :embeddings, Sequel.lit("vector(384)")
       text :embeddings_hash
     end
-    SequelVectorSearchable::Indexing.mode = :off
+    SequelVectorSearchable.indexing_mode = :off
   end
 
   after(:all) do
     @db.disconnect
-    SequelVectorSearchable::Indexing.mode = :off
+    SequelVectorSearchable.indexing_mode = :off
   end
 
   before(:each) do
@@ -49,7 +49,7 @@ RSpec.describe "sequel-vector-searchable" do
   describe "configuration" do
     it "errors for an invalid index mode" do
       expect do
-        SequelVectorSearchable::Indexing.mode = :x
+        SequelVectorSearchable.indexing_mode = :x
       end.to raise_error(/must be one of/)
     end
 
@@ -65,17 +65,9 @@ RSpec.describe "sequel-vector-searchable" do
       m = Class.new(Sequel::Model(:svs_tester)) do
         plugin :vector_searchable
       end
+      SequelVectorSearchable.searchable_models.delete(m) # Don't leave this sitting around
       o = m.new
       expect { o.vector_search_text }.to raise_error(NotImplementedError)
-    end
-
-    it "errors if setup is called from the non-main thread" do
-      t = Thread.new do
-        Thread.current.report_on_exception = false
-        Thread.current.abort_on_exception = true
-        SequelVectorSearchable::Embeddings.setup
-      end
-      expect { t.join }.to raise_error(/must be called on the main thread/)
     end
   end
 
@@ -93,7 +85,7 @@ RSpec.describe "sequel-vector-searchable" do
 
   describe "indexing" do
     before(:each) do
-      SequelVectorSearchable::Indexing.mode = :sync
+      SequelVectorSearchable.indexing_mode = :sync
     end
 
     it "happens after create" do
@@ -115,30 +107,30 @@ RSpec.describe "sequel-vector-searchable" do
 
   describe "mode" do
     it "does not index when :off" do
-      SequelVectorSearchable::Indexing.mode = :off
+      SequelVectorSearchable.indexing_mode = :off
       model.create(name: "ciri")
       expect(getvector).to be_nil
     end
 
     it "indexes when :sync" do
-      SequelVectorSearchable::Indexing.mode = :sync
+      SequelVectorSearchable.indexing_mode = :sync
       model.create(name: "ciri")
       expect(getvector).to be_present
     end
 
     it "indexes in a pool when :async" do
-      SequelVectorSearchable::Indexing.mode = :async
+      SequelVectorSearchable.indexing_mode = :async
       model.create(name: "ciri")
       sleep 1
-      SequelVectorSearchable::Indexing.threadpool.shutdown
-      SequelVectorSearchable::Indexing.threadpool.wait_for_termination
+      SequelVectorSearchable.threadpool.shutdown
+      SequelVectorSearchable.threadpool.wait_for_termination
       expect(getvector).to be_present
     end
   end
 
   describe "reindexing" do
     it "can reindex all subclasses" do
-      SequelVectorSearchable::Indexing.mode = :sync
+      SequelVectorSearchable.indexing_mode = :sync
       m1 = Class.new(Sequel::Model(:svs_tester)) do
         plugin :vector_searchable
         def vector_search_text = "hello"
@@ -154,7 +146,7 @@ RSpec.describe "sequel-vector-searchable" do
       expect(@db[:svs_tester].where(embeddings: nil).all).to be_empty
       @db[:svs_tester].update(embeddings: nil)
       expect(@db[:svs_tester].where(embeddings: nil).all).to have_length(2)
-      SequelVectorSearchable::Indexing.reindex_all
+      SequelVectorSearchable.reindex_all
       expect(@db[:svs_tester].where(embeddings: nil).all).to be_empty
     end
   end

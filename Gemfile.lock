@@ -196,7 +196,6 @@ GEM
     public_suffix (5.0.3)
     puma (6.4.2)
       nio4r (~> 2.0)
-    pycall (1.5.2)
     raabro (1.4.0)
     racc (1.8.1)
     rack (2.2.9)
@@ -386,7 +385,6 @@ DEPENDENCIES
   pry
   pry-clipboard2
   puma (~> 6.4)
-  pycall
   rack-attack
   rack-cors (~> 2.0)
   rack-protection

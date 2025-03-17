@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require "ostruct"
 require "rspec/matchers/fail_matchers"
 
 require "suma/spec_helpers/service"

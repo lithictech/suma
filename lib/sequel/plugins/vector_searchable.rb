@@ -9,9 +9,7 @@ module Sequel::Plugins::VectorSearchable
     hash_column: :embeddings_hash,
   }.freeze
 
-  def self.apply(*)
-    # SequelVectorSearchable::Embeddings.setup
-  end
+  def self.apply(*); end
 
   def self.configure(model, opts=DEFAULT_OPTIONS)
     opts = DEFAULT_OPTIONS.merge(opts)
@@ -23,7 +21,7 @@ module Sequel::Plugins::VectorSearchable
 
   module DatasetMethods
     def vector_search(q, distance: "euclidean")
-      embeddings = SequelVectorSearchable::Embeddings.get(q)
+      embeddings = SequelVectorSearchable.embeddings_generator.get_embeddings(q)
       return self.nearest_neighbors(self.model.vector_search_vector_column, Pgvector.encode(embeddings), distance:)
     end
   end
@@ -40,7 +38,7 @@ module Sequel::Plugins::VectorSearchable
       return did
     end
 
-    def vector_search_remodel(model_pk)
+    def vector_search_reindex_model(model_pk)
       m = self.with_pk!(model_pk)
       m.vector_search_reindex
       return m
@@ -59,21 +57,18 @@ module Sequel::Plugins::VectorSearchable
     end
 
     def _run_after_model_hook
-      if SequelVectorSearchable::Indexing.mode == :async
-        # Setup must always happen in the main thread
-        SequelVectorSearchable::Embeddings.setup
+      if SequelVectorSearchable.indexing_mode == :async
         # We must refetch the model to index since it happens on another thread.
-        SequelVectorSearchable::Indexing.threadpool.post do
-          self.model.vector_search_remodel(self.pk)
+        SequelVectorSearchable.threadpool.post do
+          self.model.vector_search_reindex_model(self.pk)
         end
-
-      elsif SequelVectorSearchable::Indexing.mode == :sync
+      elsif SequelVectorSearchable.indexing_mode == :sync
         self.vector_search_reindex
       end
     end
 
     def vector_search_reindex
-      em = SequelVectorSearchable::Embeddings.get(self.vector_search_text)
+      em = SequelVectorSearchable.embeddings_generator.get_embeddings(self.vector_search_text)
       self.this.update(self.model.vector_search_vector_column => Pgvector.encode(em))
     end
 
