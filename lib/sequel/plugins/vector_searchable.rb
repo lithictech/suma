@@ -5,8 +5,8 @@ require "pgvector"
 
 module Sequel::Plugins::VectorSearchable
   DEFAULT_OPTIONS = {
-    vector_column: :embeddings,
-    hash_column: :embeddings_hash,
+    vector_column: :embedding,
+    hash_column: :embedding_hash,
   }.freeze
 
   def self.apply(*); end
@@ -21,8 +21,8 @@ module Sequel::Plugins::VectorSearchable
 
   module DatasetMethods
     def vector_search(q, distance: "euclidean")
-      embeddings = SequelVectorSearchable.embeddings_generator.get_embeddings(q)
-      return self.nearest_neighbors(self.model.vector_search_vector_column, Pgvector.encode(embeddings), distance:)
+      embedding = SequelVectorSearchable.embedding_generator.get_embedding(q)
+      return self.nearest_neighbors(self.model.vector_search_vector_column, Pgvector.encode(embedding), distance:)
     end
   end
 
@@ -69,9 +69,9 @@ module Sequel::Plugins::VectorSearchable
 
     def vector_search_reindex
       text = self.vector_search_text
-      new_hash = "#{SequelVectorSearchable.embeddings_generator.model_name}-#{Digest::MD5.hexdigest(text)}"
+      new_hash = "#{SequelVectorSearchable.embedding_generator.model_name}-#{Digest::MD5.hexdigest(text)}"
       return if new_hash == self.send(self.model.vector_search_hash_column)
-      em = SequelVectorSearchable.embeddings_generator.get_embeddings(text)
+      em = SequelVectorSearchable.embedding_generator.get_embedding(text)
       self.this.update(
         self.model.vector_search_vector_column => Pgvector.encode(em),
         self.model.vector_search_hash_column => new_hash,

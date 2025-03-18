@@ -14,8 +14,8 @@ RSpec.describe "sequel-vector-searchable" do
       text :desc
       integer :parent_id
       text :unrelated
-      column :embeddings, Sequel.lit("vector(384)")
-      text :embeddings_hash
+      column :embedding, Sequel.lit("vector(384)")
+      text :embedding_hash
     end
     SequelVectorSearchable.indexing_mode = :off
     @searchable = SequelVectorSearchable.searchable_models.dup
@@ -88,9 +88,9 @@ RSpec.describe "sequel-vector-searchable" do
   end
 
   it "restarts a process on broken pipe" do
-    SequelVectorSearchable.embeddings_generator.get_embeddings("abc")
-    Process.kill("TERM", SequelVectorSearchable.embeddings_generator.process.fetch(:pid))
-    expect { SequelVectorSearchable.embeddings_generator.get_embeddings("abc") }.to_not raise_error
+    SequelVectorSearchable.embedding_generator.get_embedding("abc")
+    Process.kill("TERM", SequelVectorSearchable.embedding_generator.process.fetch(:pid))
+    expect { SequelVectorSearchable.embedding_generator.get_embedding("abc") }.to_not raise_error
   end
 
   describe "indexing" do
@@ -100,28 +100,28 @@ RSpec.describe "sequel-vector-searchable" do
 
     it "happens after create" do
       geralt = model.create(name: "Geralt", desc: "Rivia")
-      expect(geralt.refresh).to have_attributes(embeddings: have_length(384))
+      expect(geralt.refresh).to have_attributes(embedding: have_length(384))
     end
 
     it "happens after update" do
       geralt = model.create(name: "Geralt", desc: "Rivia")
-      geralt.this.update(embeddings: nil)
-      expect(geralt.refresh.values[:embeddings]).to be_nil
+      geralt.this.update(embedding: nil)
+      expect(geralt.refresh.values[:embedding]).to be_nil
       geralt.update(name: "Ciri")
-      expect(geralt.refresh).to have_attributes(embeddings: have_length(384))
+      expect(geralt.refresh).to have_attributes(embedding: have_length(384))
     end
 
     it "noops if the text did not change" do
       geralt = model.create(name: "Geralt", desc: "Rivia")
-      geralt.this.update(embeddings: nil)
-      expect(geralt.refresh.values[:embeddings]).to be_nil
+      geralt.this.update(embedding: nil)
+      expect(geralt.refresh.values[:embedding]).to be_nil
       geralt.update(unrelated: "Ciri")
-      expect(geralt.refresh.values[:embeddings]).to be_nil
+      expect(geralt.refresh.values[:embedding]).to be_nil
     end
   end
 
   def getvector
-    return @db[:svs_tester].order(:id).select(:embeddings).all.map { |row| row[:embeddings] }.first
+    return @db[:svs_tester].order(:id).select(:embedding).all.map { |row| row[:embedding] }.first
   end
 
   describe "mode" do
@@ -162,11 +162,11 @@ RSpec.describe "sequel-vector-searchable" do
       m2.dataset = @db[:svs_tester]
       m1.create(name: "x")
       m2.create(name: "y")
-      expect(@db[:svs_tester].where(embeddings: nil).all).to be_empty
-      @db[:svs_tester].update(embeddings: nil, embeddings_hash: nil)
-      expect(@db[:svs_tester].where(embeddings: nil).all).to have_length(2)
+      expect(@db[:svs_tester].where(embedding: nil).all).to be_empty
+      @db[:svs_tester].update(embedding: nil, embedding_hash: nil)
+      expect(@db[:svs_tester].where(embedding: nil).all).to have_length(2)
       SequelVectorSearchable.reindex_all
-      expect(@db[:svs_tester].where(embeddings: nil).all).to be_empty
+      expect(@db[:svs_tester].where(embedding: nil).all).to be_empty
     end
   end
 end

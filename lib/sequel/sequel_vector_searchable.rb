@@ -38,20 +38,20 @@ module SequelVectorSearchable
     # Set your own threadpool.
     attr_writer :threadpool
 
-    # Embeddings generator instance.
+    # Embedding generator instance.
     # Set this to use another generator, like for an API.
-    # @return [EmbeddingsGenerator]
-    def embeddings_generator = @embeddings_generator ||= SubprocSentenceTransformerGenerator.new
+    # @return [EmbeddingGenerator]
+    def embedding_generator = @embedding_generator ||= SubprocSentenceTransformerGenerator.new
 
     # Set your own generator.
-    attr_writer :embeddings_generator
+    attr_writer :embedding_generator
   end
 
-  class EmbeddingsGenerator
+  class EmbeddingGenerator
     def model_name = raise NotImplementedError
-    # Return the embeddings vector (array of floats) for the text.
+    # Return the embedding vector (array of floats) for the text.
     # @return [Array<Float>]
-    def get_embeddings(_text) = raise NotImplementedError
+    def get_embedding(_text) = raise NotImplementedError
   end
 
   # Use a model from the sentence-transformers Python module,
@@ -70,8 +70,8 @@ module SequelVectorSearchable
   # paraphrase-MiniLM-L3-v2     | 384    | ~45MB  | Lightweight search, similarity  | Extremely efficient
   # facebook/distilroberta-base | 768    | ~250MB | Text classification, NLI        | Moderate
   # t5-small                    | 512    | ~250MB | Summarization, classification   | Moderate
-  # distilgpt2                  | 768    | ~250MB | Text generation, embeddings     | Moderate
-  class SubprocSentenceTransformerGenerator < EmbeddingsGenerator
+  # distilgpt2                  | 768    | ~250MB | Text generation, embedding     | Moderate
+  class SubprocSentenceTransformerGenerator < EmbeddingGenerator
     include Appydays::Loggable
 
     DEFAULT_MODEL = "all-MiniLM-L6-v2"
@@ -85,13 +85,13 @@ module SequelVectorSearchable
       @mutex = Thread::Mutex.new
     end
 
-    def get_embeddings(text)
+    def get_embedding(text)
       return @mutex.synchronize do
-        self._get_embeddings(text, retrying: false)
+        self._get_embedding(text, retrying: false)
       end
     end
 
-    def _get_embeddings(text, retrying:)
+    def _get_embedding(text, retrying:)
       env = {"MODEL_NAME" => @model_name, "COMMAND_SEP" => @command_sep}
       if @stdout.nil?
         # @stdin, @stdout, @process = Open3.popen2(env, "python", "-c", PYTHON, "r+")
@@ -101,7 +101,7 @@ module SequelVectorSearchable
         self.logger.info("started_python_model_process", python_pid: @process.fetch(:pid))
       end
       text = text.strip
-      self.logger.debug("encoding_model_embeddings", text:)
+      self.logger.debug("encoding_model_embedding", text:)
       begin
         self._write_stdin(text)
         resp_json = self._read_stdout
@@ -109,10 +109,10 @@ module SequelVectorSearchable
         raise e if retrying
         self.logger.warn("python_process_broken", exception_class: e.class.name)
         @stdout = nil
-        return self._get_embeddings(text, retrying: true)
+        return self._get_embedding(text, retrying: true)
       end
       resp = JSON.parse(resp_json)
-      embeddings = resp.fetch("embeddings")
+      embedding = resp.fetch("embedding")
 
       if Suma::RACK_ENV != "production"
         cleaned_sent = text.gsub(/\s/, "")
@@ -127,8 +127,8 @@ module SequelVectorSearchable
           raise msg
         end
       end
-      self.logger.debug("encoded_model_embeddings", text:, vector_size: embeddings.size)
-      return embeddings
+      self.logger.debug("encoded_model_embedding", text:, vector_size: embedding.size)
+      return embedding
     end
 
     def _write_stdin(text)

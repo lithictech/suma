@@ -43,7 +43,7 @@ while True:
     try:
         inp = read_input()
         enc = encode(inp)
-        resp = {"embeddings": enc, "input": inp}
+        resp = {"embedding": enc, "input": inp}
         write_output(json.dumps(resp))
     except (BrokenPipeError, IOError):
         sys.exit(0)
