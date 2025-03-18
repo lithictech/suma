@@ -68,8 +68,14 @@ module Sequel::Plugins::VectorSearchable
     end
 
     def vector_search_reindex
-      em = SequelVectorSearchable.embeddings_generator.get_embeddings(self.vector_search_text)
-      self.this.update(self.model.vector_search_vector_column => Pgvector.encode(em))
+      text = self.vector_search_text
+      new_hash = "#{SequelVectorSearchable.embeddings_generator.model_name}-#{Digest::MD5.hexdigest(text)}"
+      return if new_hash == self.send(self.model.vector_search_hash_column)
+      em = SequelVectorSearchable.embeddings_generator.get_embeddings(text)
+      self.this.update(
+        self.model.vector_search_vector_column => Pgvector.encode(em),
+        self.model.vector_search_hash_column => new_hash,
+      )
     end
 
     def vector_search_text = raise NotImplementedError

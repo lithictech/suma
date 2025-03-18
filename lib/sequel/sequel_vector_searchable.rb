@@ -48,6 +48,7 @@ module SequelVectorSearchable
   end
 
   class EmbeddingsGenerator
+    def model_name = raise NotImplementedError
     # Return the embeddings vector (array of floats) for the text.
     # @return [Array<Float>]
     def get_embeddings(_text) = raise NotImplementedError
@@ -75,14 +76,14 @@ module SequelVectorSearchable
 
     DEFAULT_MODEL = "all-MiniLM-L6-v2"
 
-    def initialize(name=nil)
+    attr_reader :model_name, :process
+
+    def initialize(model_name=nil)
       super()
-      @name = name || DEFAULT_MODEL
+      @model_name = model_name || DEFAULT_MODEL
       @command_sep = SecureRandom.hex(4)
       @mutex = Thread::Mutex.new
     end
-
-    attr_reader :process
 
     def get_embeddings(text)
       return @mutex.synchronize do
@@ -91,7 +92,7 @@ module SequelVectorSearchable
     end
 
     def _get_embeddings(text, retrying:)
-      env = {"MODEL_NAME" => @name, "COMMAND_SEP" => @command_sep}
+      env = {"MODEL_NAME" => @model_name, "COMMAND_SEP" => @command_sep}
       if @stdout.nil?
         # @stdin, @stdout, @process = Open3.popen2(env, "python", "-c", PYTHON, "r+")
         @stdin, @stdout, @stderr, @process = Open3.popen3(env, "python", "-c", PYTHON, "r+")

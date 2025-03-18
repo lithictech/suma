@@ -13,10 +13,12 @@ RSpec.describe "sequel-vector-searchable" do
       text :name
       text :desc
       integer :parent_id
+      text :unrelated
       column :embeddings, Sequel.lit("vector(384)")
       text :embeddings_hash
     end
     SequelVectorSearchable.indexing_mode = :off
+    @searchable = SequelVectorSearchable.searchable_models.dup
   end
 
   after(:all) do
@@ -26,6 +28,11 @@ RSpec.describe "sequel-vector-searchable" do
 
   before(:each) do
     @db[:svs_tester].truncate
+    SequelVectorSearchable.searchable_models.clear
+  end
+
+  after(:each) do
+    SequelVectorSearchable.searchable_models.replace(@searchable)
   end
 
   let(:model) do
@@ -93,14 +100,23 @@ RSpec.describe "sequel-vector-searchable" do
 
     it "happens after create" do
       geralt = model.create(name: "Geralt", desc: "Rivia")
-      expect(model.dataset.vector_search("geralt").all).to have_same_ids_as(geralt)
+      expect(geralt.refresh).to have_attributes(embeddings: have_length(384))
     end
 
     it "happens after update" do
       geralt = model.create(name: "Geralt", desc: "Rivia")
-      expect(geralt).to receive(:vector_search_reindex).and_call_original
+      geralt.this.update(embeddings: nil)
+      expect(geralt.refresh.values[:embeddings]).to be_nil
       geralt.update(name: "Ciri")
-      expect(model.dataset.vector_search("ciri").all).to have_same_ids_as(geralt)
+      expect(geralt.refresh).to have_attributes(embeddings: have_length(384))
+    end
+
+    it "noops if the text did not change" do
+      geralt = model.create(name: "Geralt", desc: "Rivia")
+      geralt.this.update(embeddings: nil)
+      expect(geralt.refresh.values[:embeddings]).to be_nil
+      geralt.update(unrelated: "Ciri")
+      expect(geralt.refresh.values[:embeddings]).to be_nil
     end
   end
 
@@ -147,7 +163,7 @@ RSpec.describe "sequel-vector-searchable" do
       m1.create(name: "x")
       m2.create(name: "y")
       expect(@db[:svs_tester].where(embeddings: nil).all).to be_empty
-      @db[:svs_tester].update(embeddings: nil)
+      @db[:svs_tester].update(embeddings: nil, embeddings_hash: nil)
       expect(@db[:svs_tester].where(embeddings: nil).all).to have_length(2)
       SequelVectorSearchable.reindex_all
       expect(@db[:svs_tester].where(embeddings: nil).all).to be_empty
