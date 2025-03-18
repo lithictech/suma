@@ -23,34 +23,14 @@ module Sequel::Plugins::HybridSearchable
     model.plugin :pgvector, model.hybrid_search_vector_column
   end
 
-  module ClassMethods
-    attr_accessor :hybrid_search_content_column,
-                  :hybrid_search_vector_column,
-                  :hybrid_search_hash_column,
-                  :hybrid_search_language
-
-    def hybrid_search_reindex_all
-      did = 0
-      self.dataset.paged_each do |m|
-        m.hybrid_search_reindex
-        did += 1
-      end
-      return did
-    end
-
-    def hybrid_search_reindex_model(model_pk)
-      m = self.with_pk!(model_pk)
-      m.hybrid_search_reindex
-      return m
-    end
-
+  module DatasetMethods
     def hybrid_search(q, limit: 10, outer_limit_multiplier: 4)
       outer_limit = limit * outer_limit_multiplier
       query_embedding = SequelHybridSearchable.embedding_generator.get_embedding(q)
-      pk = self.primary_key
-      tbl = self.table_name
-      vec_col = self.hybrid_search_vector_column
-      content_col = self.hybrid_search_content_column
+      pk = self.model.primary_key
+      tbl = self.model.table_name
+      vec_col = self.model.hybrid_search_vector_column
+      content_col = self.model.hybrid_search_content_column
       # Based on https://github.com/pgvector/pgvector-python/blob/master/examples/hybrid_search/rrf.py
       sql = <<~SQL
         WITH semantic_search AS (
@@ -70,13 +50,13 @@ module Sequel::Plugins::HybridSearchable
             COALESCE(semantic_search.id, keyword_search.id) AS #{pk},
             COALESCE(1.0 / (? + semantic_search.rank), 0.0) +
               COALESCE(1.0 / (? + keyword_search.rank), 0.0) AS score
-        FROM semantic_search
-        FULL OUTER JOIN keyword_search ON semantic_search.id = keyword_search.id
+        FROM keyword_search
+        JOIN semantic_search ON semantic_search.id = keyword_search.id
         ORDER BY score DESC
         LIMIT #{limit}
       SQL
       vec = Pgvector.encode(query_embedding)
-      lang = self.hybrid_search_language
+      lang = self.model.hybrid_search_language
       k = 60
       args = [
         vec, vec,
@@ -87,11 +67,35 @@ module Sequel::Plugins::HybridSearchable
         k,
         k,
       ]
-      ds = self.db.fetch(sql, *args)
-      ids = ds.all.map { |r| r[:id] }
-      results = self.where(pk => ids).all
-      results.sort_by! { |r| ids.find_index(r[pk]) }
-      return results
+      search_ds = self.db.fetch(sql, *args)
+      # We could use a CTE but let's do this for now instead.
+      search_ids = search_ds.select_map(pk)
+      return self.model.dataset.where(pk => []) if search_ids.empty?
+      model_ds = self.model.where(pk => search_ids).
+        order(Sequel.function(:ARRAY_POSITION, Sequel.pg_array(search_ids), pk))
+      return model_ds
+    end
+  end
+
+  module ClassMethods
+    attr_accessor :hybrid_search_content_column,
+                  :hybrid_search_vector_column,
+                  :hybrid_search_hash_column,
+                  :hybrid_search_language
+
+    def hybrid_search_reindex_all
+      did = 0
+      self.dataset.paged_each do |m|
+        m.hybrid_search_reindex
+        did += 1
+      end
+      return did
+    end
+
+    def hybrid_search_reindex_model(model_pk)
+      m = self.with_pk!(model_pk)
+      m.hybrid_search_reindex
+      return m
     end
   end
 

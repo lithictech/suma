@@ -47,7 +47,6 @@ RSpec.describe "sequel-hybrid-searchable" do
           id: #{self.id}
           name: #{self.name}
           description: #{self.desc}
-          parent name: #{self.parent&.name}"
         TEXT
       end
     end
@@ -89,8 +88,7 @@ RSpec.describe "sequel-hybrid-searchable" do
     ciri = model.create(name: "Rivia", desc: "Ciri")
     model.hybrid_search_reindex_all
 
-    expect(model.hybrid_search("test models named 'geralt'").all).to have_same_ids_as(geralt, ciri).ordered
-    expect(model.hybrid_search("test models named 'ciri'").all).to have_same_ids_as(ciri, geralt).ordered
+    expect(model.dataset.hybrid_search("test model").all).to have_same_ids_as(geralt, ciri)
   end
 
   it "restarts the embedding generator process on broken pipe" do
@@ -103,9 +101,27 @@ RSpec.describe "sequel-hybrid-searchable" do
     it "performs a hybrid semantic and keyword search" do
       geralt = model.create(name: "Geralt", desc: "Rivia")
       ciri = model.create(name: "Rivia", desc: "Ciri")
-      got = model.hybrid_search("test models named 'geralt'").first
+      model.hybrid_search_reindex_all
+
+      got = model.dataset.hybrid_search("test models named 'geralt'").first
       expect(got).to be_a(model)
       expect(got).to have_attributes(id: geralt.id, name: "Geralt")
+    end
+
+    it "only includes results matching the keyword search" do
+      geralt = model.create(name: "Geralt", desc: "Rivia")
+      ciri = model.create(name: "Rivia", desc: "Ciri")
+      model.hybrid_search_reindex_all
+
+      got = model.dataset.hybrid_search("geralt").all
+      expect(got).to have_same_ids_as(geralt)
+    end
+
+    it "handles an empty search result" do
+      expect(model.dataset.hybrid_search("matchnothing").all).to be_empty
+      model.create(name: "Geralt", desc: "Rivia")
+      model.hybrid_search_reindex_all
+      expect(model.dataset.hybrid_search("matchnothing").all).to be_empty
     end
   end
 
