@@ -34,11 +34,11 @@ RSpec.describe "sequel-vector-searchable" do
       many_to_one :parent, class: self
       def vector_search_text
         return <<~TEXT
-          This is a test model. it may have a parent which is also a test model. It has the following fields:
+          This is a test model. It has the following fields:
           id: #{self.id}
           name: #{self.name}
           description: #{self.desc}
-          parent id: #{self.parent_id}"
+          parent name: #{self.parent&.name}"
         TEXT
       end
     end
@@ -76,11 +76,14 @@ RSpec.describe "sequel-vector-searchable" do
     ciri = model.create(name: "Rivia", desc: "Ciri")
     model.vector_search_reindex_all
 
-    # expect(model.dataset.vector_search("test models with the name field 'geralt'").all).to have_same_ids_as(geralt)
-    # expect(model.dataset.vector_search("with the name or description 'rivia'").all).to have_same_ids_as(geralt, ciri)
-    # ciri.update(name: "Ciri")
-    # model.vector_search_remodel(ciri.pk)
-    # expect(model.dataset.vector_search("with the name or description 'rivia'").all).to have_same_ids_as(geralt)
+    expect(model.dataset.vector_search("test models named 'geralt'").all).to have_same_ids_as(geralt, ciri).ordered
+    expect(model.dataset.vector_search("test models named 'ciri'").all).to have_same_ids_as(ciri, geralt).ordered
+  end
+
+  it "restarts a process on broken pipe" do
+    SequelVectorSearchable.embeddings_generator.get_embeddings("abc")
+    Process.kill("TERM", SequelVectorSearchable.embeddings_generator.process.fetch(:pid))
+    expect { SequelVectorSearchable.embeddings_generator.get_embeddings("abc") }.to_not raise_error
   end
 
   describe "indexing" do

@@ -1,6 +1,8 @@
 services:
   db:
-    image: "postgres:16"
+    build:
+      context: .
+      dockerfile: ./docker/pg.Dockerfile
     ports:
       - "22005:5432"
     environment:

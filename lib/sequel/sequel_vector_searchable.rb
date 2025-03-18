@@ -1,8 +1,11 @@
 # frozen_string_literal: true
 
 require "open3"
+require "appydays/loggable"
 
 module SequelVectorSearchable
+  include Appydays::Loggable
+
   VERSION = "0.0.1"
   INDEXING_MODES = [:async, :sync, :off].freeze
   INDEXING_DEFAULT_MODE = :async
@@ -68,54 +71,80 @@ module SequelVectorSearchable
   # t5-small                    | 512    | ~250MB | Summarization, classification   | Moderate
   # distilgpt2                  | 768    | ~250MB | Text generation, embeddings     | Moderate
   class SubprocSentenceTransformerGenerator < EmbeddingsGenerator
+    include Appydays::Loggable
+
     DEFAULT_MODEL = "all-MiniLM-L6-v2"
 
     def initialize(name=nil)
       super()
       @name = name || DEFAULT_MODEL
+      @command_sep = SecureRandom.hex(4)
+      @mutex = Thread::Mutex.new
     end
+
+    attr_reader :process
 
     def get_embeddings(text)
-      env = {"MODEL_NAME" => @name}
-      @stdin, @stdout, @wait_thr = Open3.popen2e(env, "python", "-c", PYTHON, "r+") if @stdout.nil?
-      at_exit do
-        @wait_thr.kill
+      return @mutex.synchronize do
+        self._get_embeddings(text, retrying: false)
       end
-      @stdin.puts "#{text}\n"
-      @stdin.flush
-      embed_json = @stdout.readline.strip
-      embeds = JSON.parse(embed_json)
-      return embeds
     end
 
-    PYTHON = <<~PYTHON
-      import json
-      import os
-      import sentence_transformers
-      import sys
-      import torch
+    def _get_embeddings(text, retrying:)
+      env = {"MODEL_NAME" => @name, "COMMAND_SEP" => @command_sep}
+      if @stdout.nil?
+        # @stdin, @stdout, @process = Open3.popen2(env, "python", "-c", PYTHON, "r+")
+        @stdin, @stdout, @stderr, @process = Open3.popen3(env, "python", "-c", PYTHON, "r+")
+        @stdin.sync = true
+        @stdout.sync = true
+        self.logger.info("started_python_model_process", python_pid: @process.fetch(:pid))
+      end
+      text = text.strip
+      self.logger.debug("encoding_model_embeddings", text:)
+      begin
+        self._write_stdin(text)
+        resp_json = self._read_stdout
+      rescue Errno::EPIPE, EOFError => e
+        raise e if retrying
+        self.logger.warn("python_process_broken", exception_class: e.class.name)
+        @stdout = nil
+        return self._get_embeddings(text, retrying: true)
+      end
+      resp = JSON.parse(resp_json)
+      embeddings = resp.fetch("embeddings")
 
-      model_name = os.getenv("MODEL_NAME")
-      if not model_name:
-          raise "Must set MODEL_NAME env var"
+      if Suma::RACK_ENV != "production"
+        cleaned_sent = text.gsub(/\s/, "")
+        cleaned_got = resp.fetch("input").gsub(/\s/, "")
+        sent_md5 = Digest::MD5.hexdigest(cleaned_sent)
+        got_md5 = Digest::MD5.hexdigest(cleaned_got)
+        if sent_md5 != got_md5
+          msg = "Protocol issue: Sent: (#{sent_md5})\n" \
+                "#{cleaned_sent.inspect}\n" \
+                "Got: (#{got_md5})\n" \
+                "#{cleaned_got.inspect}"
+          raise msg
+        end
+      end
+      self.logger.debug("encoded_model_embeddings", text:, vector_size: embeddings.size)
+      return embeddings
+    end
 
-      model = sentence_transformers.SentenceTransformer(model_name, device="cpu")
-      model = model.to(dtype=torch.float16)
+    def _write_stdin(text)
+      @stdin.puts text
+      @stdin.puts "\n#{@command_sep}\n"
+      @stdin.flush
+    end
 
+    def _read_stdout
+      accum = []
+      loop do
+        line = @stdout.readline.strip
+        return accum.join("\n") if line == @command_sep
+        accum << line
+      end
+    end
 
-      def encode(txt):
-          return model.encode(txt).tolist()
-
-
-      while True:
-          try:
-              inp = sys.stdin.readline().strip()
-              enc = encode(inp)
-              sys.stdout.write(json.dumps(enc))
-              sys.stdout.write("\\n")
-              sys.stdout.flush()
-          except (BrokenPipeError, IOError):
-              sys.exit(0)
-    PYTHON
+    PYTHON = File.read(__FILE__.gsub(/\.rb$/, ".py"))
   end
 end

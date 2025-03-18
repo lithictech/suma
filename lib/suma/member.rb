@@ -52,6 +52,7 @@ class Suma::Member < Suma::Postgres::Model(:members)
   plugin :timestamps
   plugin :soft_deletes
   plugin :association_pks
+  plugin :vector_searchable
 
   one_to_many :activities, class: "Suma::Member::Activity", order: Sequel.desc([:created_at, :id])
   many_through_many :bank_accounts,
@@ -397,6 +398,21 @@ class Suma::Member < Suma::Postgres::Model(:members)
     orig_name = self.previous_changes&.fetch(:name, [])&.first || self.name
     change_name = self.legal_entity.name.blank? || self.legal_entity.name == orig_name
     self.legal_entity.update(name: self.name) if change_name
+  end
+
+  def vector_search_text
+    orgnames = self.organization_memberships.map { |m| m.verified_organization&.name }.select(&:itself).join(", ")
+    lines = [
+      "I am a Member.",
+      "My name is #{self.name}.",
+      "My phone number is #{self.phone}.",
+      "My email address is #{self.email}.",
+      "I was created on #{self.created_at.httpdate}.",
+      !self.onboarding_verified? && "My identity has not been verified",
+      "I am a member of #{self.organization_memberships.count} organizations.",
+      orgnames.present? && "The organizations I am a member of are: #{orgnames}",
+    ]
+    return lines.select(&:present?).join("\n")
   end
 
   ### Soft-delete hook -- expire unused, unexpired reset codes and
