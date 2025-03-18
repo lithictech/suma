@@ -17,9 +17,7 @@ RSpec.describe "sequel-hybrid-searchable" do
       text :search_content
       column :search_embedding, Sequel.lit("vector(384)")
       text :search_hash
-      column :search_tsv,
-             "tsvector",
-             generated_always_as: Sequel.function(:to_tsvector, "english", Sequel[:search_content])
+      index Sequel.function(:to_tsvector, "english", :search_content)
     end
     SequelHybridSearchable.indexing_mode = :off
     @searchable = SequelHybridSearchable.searchable_models.dup
@@ -69,13 +67,11 @@ RSpec.describe "sequel-hybrid-searchable" do
         plugin :hybrid_searchable,
                content_column: :ccol,
                vector_column: :vcol,
-               hash_column: :hcol,
-               tsvector_column: :tcol
+               hash_column: :hcol
       end
       expect(m.hybrid_search_content_column).to eq(:ccol)
       expect(m.hybrid_search_vector_column).to eq(:vcol)
       expect(m.hybrid_search_hash_column).to eq(:hcol)
-      expect(m.hybrid_search_tsvector_column).to eq(:tcol)
     end
 
     it "errors if hybrid_search_text is not defined" do

@@ -394,4 +394,12 @@ RSpec.describe "Suma::Member", :db do
       end
     end
   end
+
+  describe "search" do
+    it "can generate a document" do
+      m = Suma::Fixtures.member.create
+      Suma::Fixtures.organization_membership.verified.create(member: m)
+      expect(m.hybrid_search_text).to include(m.name)
+    end
+  end
 end

@@ -8,7 +8,6 @@ module Sequel::Plugins::HybridSearchable
     content_column: :search_content,
     vector_column: :search_embedding,
     hash_column: :search_hash,
-    tsvector_column: :search_tsv,
     language: "english",
   }.freeze
 
@@ -19,7 +18,6 @@ module Sequel::Plugins::HybridSearchable
     model.hybrid_search_content_column = opts[:content_column]
     model.hybrid_search_vector_column = opts[:vector_column]
     model.hybrid_search_hash_column = opts[:hash_column]
-    model.hybrid_search_tsvector_column = opts[:tsvector_column]
     model.hybrid_search_language = opts[:language]
     SequelHybridSearchable.searchable_models << model
     model.plugin :pgvector, model.hybrid_search_vector_column
@@ -78,7 +76,6 @@ module Sequel::Plugins::HybridSearchable
     attr_accessor :hybrid_search_content_column,
                   :hybrid_search_vector_column,
                   :hybrid_search_hash_column,
-                  :hybrid_search_tsvector_column,
                   :hybrid_search_language
 
     def hybrid_search_reindex_all
