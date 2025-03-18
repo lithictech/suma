@@ -401,17 +401,28 @@ class Suma::Member < Suma::Postgres::Model(:members)
   end
 
   def hybrid_search_text
-    orgnames = self.organization_memberships.map { |m| m.verified_organization&.name }.select(&:itself).join(", ")
+    begin
+      phone = self.phone.present? && Suma::PhoneNumber::US.format(self.phone)
+    rescue ArgumentError
+      phone = nil
+    end
     lines = [
       "I am a Member.",
       "My name is #{self.name}.",
-      "My phone number is #{self.phone}.",
-      "My email address is #{self.email}.",
+      !phone && "I do not have a phone number.",
+      phone && "My phone number is #{phone}.",
+      self.email.blank? && "I do not have an email address.",
+      self.email.present? && "My email address is #{self.email}.",
       "I was created on #{self.created_at.httpdate}.",
-      !self.onboarding_verified? && "My identity has not been verified",
+      !self.onboarding_verified? && "My identity has not been verified.",
+      self.soft_deleted? && "I have been deleted.",
+      self.roles.include?(Suma::Role.cache.admin) && "I am an administrator.",
       "I am a member of #{self.organization_memberships.count} organizations.",
-      orgnames.present? && "The organizations I am a member of are: #{orgnames}",
     ]
+    self.organization_memberships.each do |m|
+      (n = m.verified_organization&.name) or next
+      lines << "I am a member of the organization named #{n}."
+    end
     return lines.select(&:present?).join("\n")
   end
 

@@ -94,6 +94,7 @@ module SequelHybridSearchable
     def _get_embedding(text, retrying:)
       env = {"MODEL_NAME" => @model_name, "COMMAND_SEP" => @command_sep}
       if @stdout.nil?
+        # Use popen2 so Python will inherit Ruby stderr, and we can see what it's logging out.
         # @stdin, @stdout, @process = Open3.popen2(env, "python", "-c", PYTHON, "r+")
         @stdin, @stdout, @stderr, @process = Open3.popen3(env, "python", "-c", PYTHON, "r+")
         @stdin.sync = true
@@ -132,6 +133,7 @@ module SequelHybridSearchable
     end
 
     def _write_stdin(text)
+      self._clear_stderr
       @stdin.puts text
       @stdin.puts "\n#{@command_sep}\n"
       @stdin.flush
@@ -144,6 +146,15 @@ module SequelHybridSearchable
         return accum.join("\n") if line == @command_sep
         accum << line
       end
+    end
+
+    def _clear_stderr
+      # Make sure we empty stderr, or Python will end up blocking witing for Ruby to read it.
+      loop do
+        @stderr.read_nonblock(1024)
+      end
+    rescue IO::EAGAINWaitReadable
+      return
     end
 
     PYTHON = File.read(__FILE__.gsub(/\.rb$/, ".py"))

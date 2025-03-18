@@ -89,8 +89,8 @@ RSpec.describe "sequel-hybrid-searchable" do
     ciri = model.create(name: "Rivia", desc: "Ciri")
     model.hybrid_search_reindex_all
 
-    expect(model.dataset.hybrid_search("test models named 'geralt'").all).to have_same_ids_as(geralt, ciri).ordered
-    expect(model.dataset.hybrid_search("test models named 'ciri'").all).to have_same_ids_as(ciri, geralt).ordered
+    expect(model.hybrid_search("test models named 'geralt'").all).to have_same_ids_as(geralt, ciri).ordered
+    expect(model.hybrid_search("test models named 'ciri'").all).to have_same_ids_as(ciri, geralt).ordered
   end
 
   it "restarts the embedding generator process on broken pipe" do
@@ -103,10 +103,9 @@ RSpec.describe "sequel-hybrid-searchable" do
     it "performs a hybrid semantic and keyword search" do
       geralt = model.create(name: "Geralt", desc: "Rivia")
       ciri = model.create(name: "Rivia", desc: "Ciri")
-      model.hybrid_search_reindex_all
-
-      expect(model.dataset.hybrid_search("test models named 'geralt'").all).to have_same_ids_as(geralt, ciri).ordered
-      expect(model.dataset.hybrid_search("test models named 'ciri'").all).to have_same_ids_as(ciri, geralt).ordered
+      got = model.hybrid_search("test models named 'geralt'").first
+      expect(got).to be_a(model)
+      expect(got).to have_attributes(id: geralt.id, name: "Geralt")
     end
   end
 
@@ -184,6 +183,14 @@ RSpec.describe "sequel-hybrid-searchable" do
       expect(@db[:svs_tester].where(search_embedding: nil).all).to have_length(2)
       SequelHybridSearchable.reindex_all
       expect(@db[:svs_tester].where(search_embedding: nil).all).to be_empty
+    end
+  end
+
+  describe "subprocess embeddings generator" do
+    it "does not block on stderr filling up" do
+      Array.new(1000) do |i|
+        SequelHybridSearchable.embedding_generator.get_embedding(i.to_s)
+      end
     end
   end
 end

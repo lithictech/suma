@@ -23,55 +23,6 @@ module Sequel::Plugins::HybridSearchable
     model.plugin :pgvector, model.hybrid_search_vector_column
   end
 
-  module DatasetMethods
-    def hybrid_search(q, limit: 10, outer_limit_multiplier: 4)
-      outer_limit = limit * outer_limit_multiplier
-      query_embedding = SequelHybridSearchable.embedding_generator.get_embedding(q)
-      pk = self.model.primary_key
-      tbl = self.model.table_name
-      vec_col = self.model.hybrid_search_vector_column
-      content_col = self.model.hybrid_search_content_column
-      # Based on https://github.com/pgvector/pgvector-python/blob/master/examples/hybrid_search/rrf.py
-      sql = <<~SQL
-        WITH semantic_search AS (
-            SELECT #{pk} as id, RANK () OVER (ORDER BY #{vec_col} <=> ?) AS rank
-            FROM #{tbl}
-            ORDER BY #{vec_col} <=> ?
-            LIMIT #{outer_limit}
-        ),
-        keyword_search AS (
-            SELECT #{pk} as id, RANK () OVER (ORDER BY ts_rank_cd(to_tsvector(?, #{content_col}), query) DESC)
-            FROM #{tbl}, plainto_tsquery(?, ?) query
-            WHERE to_tsvector(?, #{content_col}) @@ query
-            ORDER BY ts_rank_cd(to_tsvector(?, #{content_col}), query) DESC
-            LIMIT #{outer_limit}
-        )
-        SELECT
-            COALESCE(semantic_search.id, keyword_search.id) AS id,
-            COALESCE(1.0 / (? + semantic_search.rank), 0.0) +
-            COALESCE(1.0 / (? + keyword_search.rank), 0.0) AS score
-        FROM semantic_search
-        FULL OUTER JOIN keyword_search ON semantic_search.id = keyword_search.id
-        ORDER BY score DESC
-        LIMIT #{limit}
-      SQL
-      vec = Pgvector.encode(query_embedding)
-      lang = self.model.hybrid_search_language
-      k = 60
-      args = [
-        vec, vec,
-        lang,
-        lang, q,
-        lang,
-        lang,
-        k,
-        k,
-      ]
-      ds = self.db.fetch(sql, *args)
-      return ds
-    end
-  end
-
   module ClassMethods
     attr_accessor :hybrid_search_content_column,
                   :hybrid_search_vector_column,
@@ -91,6 +42,56 @@ module Sequel::Plugins::HybridSearchable
       m = self.with_pk!(model_pk)
       m.hybrid_search_reindex
       return m
+    end
+
+    def hybrid_search(q, limit: 10, outer_limit_multiplier: 4)
+      outer_limit = limit * outer_limit_multiplier
+      query_embedding = SequelHybridSearchable.embedding_generator.get_embedding(q)
+      pk = self.primary_key
+      tbl = self.table_name
+      vec_col = self.hybrid_search_vector_column
+      content_col = self.hybrid_search_content_column
+      # Based on https://github.com/pgvector/pgvector-python/blob/master/examples/hybrid_search/rrf.py
+      sql = <<~SQL
+        WITH semantic_search AS (
+            SELECT #{pk} as id, RANK () OVER (ORDER BY #{vec_col} <=> ?) AS rank
+            FROM #{tbl}
+            ORDER BY #{vec_col} <=> ?
+            LIMIT #{outer_limit}
+        ),
+        keyword_search AS (
+            SELECT #{pk} as id, RANK () OVER (ORDER BY ts_rank_cd(to_tsvector(?, #{content_col}), query) DESC)
+            FROM #{tbl}, plainto_tsquery(?, ?) query
+            WHERE to_tsvector(?, #{content_col}) @@ query
+            ORDER BY ts_rank_cd(to_tsvector(?, #{content_col}), query) DESC
+            LIMIT #{outer_limit}
+        )
+        SELECT
+            COALESCE(semantic_search.id, keyword_search.id) AS #{pk},
+            COALESCE(1.0 / (? + semantic_search.rank), 0.0) +
+              COALESCE(1.0 / (? + keyword_search.rank), 0.0) AS score
+        FROM semantic_search
+        FULL OUTER JOIN keyword_search ON semantic_search.id = keyword_search.id
+        ORDER BY score DESC
+        LIMIT #{limit}
+      SQL
+      vec = Pgvector.encode(query_embedding)
+      lang = self.hybrid_search_language
+      k = 60
+      args = [
+        vec, vec,
+        lang,
+        lang, q,
+        lang,
+        lang,
+        k,
+        k,
+      ]
+      ds = self.db.fetch(sql, *args)
+      ids = ds.all.map { |r| r[:id] }
+      results = self.where(pk => ids).all
+      results.sort_by! { |r| ids.find_index(r[pk]) }
+      return results
     end
   end
 
