@@ -97,10 +97,21 @@ RSpec.describe "sequel-hybrid-searchable" do
     expect(model.dataset.hybrid_search("test models named 'ciri'").all).to have_same_ids_as(ciri, geralt).ordered
   end
 
-  it "restarts a process on broken pipe" do
+  it "restarts the embedding generator process on broken pipe" do
     SequelHybridSearchable.embedding_generator.get_embedding("abc")
     Process.kill("TERM", SequelHybridSearchable.embedding_generator.process.fetch(:pid))
     expect { SequelHybridSearchable.embedding_generator.get_embedding("abc") }.to_not raise_error
+  end
+
+  describe "search" do
+    it "performs a hybrid semantic and keyword search" do
+      geralt = model.create(name: "Geralt", desc: "Rivia")
+      ciri = model.create(name: "Rivia", desc: "Ciri")
+      model.hybrid_search_reindex_all
+
+      expect(model.dataset.hybrid_search("test models named 'geralt'").all).to have_same_ids_as(geralt, ciri).ordered
+      expect(model.dataset.hybrid_search("test models named 'ciri'").all).to have_same_ids_as(ciri, geralt).ordered
+    end
   end
 
   describe "indexing" do

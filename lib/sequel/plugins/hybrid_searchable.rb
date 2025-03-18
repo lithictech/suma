@@ -9,6 +9,7 @@ module Sequel::Plugins::HybridSearchable
     vector_column: :search_embedding,
     hash_column: :search_hash,
     tsvector_column: :search_tsv,
+    language: "english",
   }.freeze
 
   def self.apply(*); end
@@ -19,14 +20,57 @@ module Sequel::Plugins::HybridSearchable
     model.hybrid_search_vector_column = opts[:vector_column]
     model.hybrid_search_hash_column = opts[:hash_column]
     model.hybrid_search_tsvector_column = opts[:tsvector_column]
+    model.hybrid_search_language = opts[:language]
     SequelHybridSearchable.searchable_models << model
     model.plugin :pgvector, model.hybrid_search_vector_column
   end
 
   module DatasetMethods
-    def hybrid_search(q, distance: "euclidean")
-      embedding = SequelHybridSearchable.embedding_generator.get_embedding(q)
-      return self.nearest_neighbors(self.model.hybrid_search_vector_column, Pgvector.encode(embedding), distance:)
+    def hybrid_search(q, limit: 10, outer_limit_multiplier: 4)
+      outer_limit = limit * outer_limit_multiplier
+      query_embedding = SequelHybridSearchable.embedding_generator.get_embedding(q)
+      pk = self.model.primary_key
+      tbl = self.model.table_name
+      vec_col = self.model.hybrid_search_vector_column
+      content_col = self.model.hybrid_search_content_column
+      # Based on https://github.com/pgvector/pgvector-python/blob/master/examples/hybrid_search/rrf.py
+      sql = <<~SQL
+        WITH semantic_search AS (
+            SELECT #{pk} as id, RANK () OVER (ORDER BY #{vec_col} <=> ?) AS rank
+            FROM #{tbl}
+            ORDER BY #{vec_col} <=> ?
+            LIMIT #{outer_limit}
+        ),
+        keyword_search AS (
+            SELECT #{pk} as id, RANK () OVER (ORDER BY ts_rank_cd(to_tsvector(?, #{content_col}), query) DESC)
+            FROM #{tbl}, plainto_tsquery(?, ?) query
+            WHERE to_tsvector(?, #{content_col}) @@ query
+            ORDER BY ts_rank_cd(to_tsvector(?, #{content_col}), query) DESC
+            LIMIT #{outer_limit}
+        )
+        SELECT
+            COALESCE(semantic_search.id, keyword_search.id) AS id,
+            COALESCE(1.0 / (? + semantic_search.rank), 0.0) +
+            COALESCE(1.0 / (? + keyword_search.rank), 0.0) AS score
+        FROM semantic_search
+        FULL OUTER JOIN keyword_search ON semantic_search.id = keyword_search.id
+        ORDER BY score DESC
+        LIMIT #{limit}
+      SQL
+      vec = Pgvector.encode(query_embedding)
+      lang = self.model.hybrid_search_language
+      k = 60
+      args = [
+        vec, vec,
+        lang,
+        lang, q,
+        lang,
+        lang,
+        k,
+        k,
+      ]
+      ds = self.db.fetch(sql, *args)
+      return ds
     end
   end
 
@@ -34,7 +78,8 @@ module Sequel::Plugins::HybridSearchable
     attr_accessor :hybrid_search_content_column,
                   :hybrid_search_vector_column,
                   :hybrid_search_hash_column,
-                  :hybrid_search_tsvector_column
+                  :hybrid_search_tsvector_column,
+                  :hybrid_search_language
 
     def hybrid_search_reindex_all
       did = 0
