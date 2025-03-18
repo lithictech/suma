@@ -52,7 +52,7 @@ class Suma::Member < Suma::Postgres::Model(:members)
   plugin :timestamps
   plugin :soft_deletes
   plugin :association_pks
-  plugin :vector_searchable
+  plugin :hybrid_searchable
 
   one_to_many :activities, class: "Suma::Member::Activity", order: Sequel.desc([:created_at, :id])
   many_through_many :bank_accounts,
@@ -400,7 +400,7 @@ class Suma::Member < Suma::Postgres::Model(:members)
     self.legal_entity.update(name: self.name) if change_name
   end
 
-  def vector_search_text
+  def hybrid_search_text
     orgnames = self.organization_memberships.map { |m| m.verified_organization&.name }.select(&:itself).join(", ")
     lines = [
       "I am a Member.",

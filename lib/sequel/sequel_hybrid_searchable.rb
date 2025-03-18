@@ -3,7 +3,7 @@
 require "open3"
 require "appydays/loggable"
 
-module SequelVectorSearchable
+module SequelHybridSearchable
   include Appydays::Loggable
 
   VERSION = "0.0.1"
@@ -12,7 +12,7 @@ module SequelVectorSearchable
 
   class << self
     def searchable_models = @searchable_models ||= []
-    def reindex_all = self.searchable_models.sum(&:vector_search_reindex_all)
+    def reindex_all = self.searchable_models.sum(&:hybrid_search_reindex_all)
 
     def indexing_mode = @indexing_mode || INDEXING_DEFAULT_MODE
 
