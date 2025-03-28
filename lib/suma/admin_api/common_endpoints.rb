@@ -168,34 +168,47 @@ module Suma::AdminAPI::CommonEndpoints
     end
   end
 
-  def self.list(route_def, model_type, entity, search_params: [], translation_search_params: [])
-    # TODO: translation join doesn't work for multiple search terms
-    raise ArgumentError("translation join does not work for multiple search terms") if
-      translation_search_params.length > 1
-
+  def self.list(
+    route_def,
+    model_type,
+    entity,
+    exporter: nil
+  )
     route_def.instance_exec do
       params do
         use :pagination
         use :ordering, model: model_type
         use :searchable
+        optional :download, type: String, values: ["csv"]
       end
       get do
         access = Suma::AdminAPI::Access.read_key(model_type)
         check_role_access!(admin_member, :read, access)
+        download = params[:download]
+
         ds = model_type.dataset
-        search_exprs = search_params.map { |p| search_param_to_sql(params, p) }
-        translation_search_params.each do |p|
-          en_like = search_param_to_sql(params, :"#{p}_en")
-          next unless en_like
-          es_like = search_param_to_sql(params, :"#{p}_es")
-          search_exprs << en_like
-          search_exprs << es_like
-          ds = ds.translation_join(p, [:en, :es])
+        if (search = params[:search]).present?
+          # Hybrid search handles order and pagination.
+          # Return 1k results if we're downloading, otherwise do normal pagination.
+          ds = download ? ds.hybrid_search(search, limit: 1000) : hybrid_search(ds, params)
+        elsif download
+          # If downloading, do not paginate, but do order.
+          ds = order(ds, params)
+        else
+          # Normal order and pagination.
+          ds = order(ds, params)
+          ds = paginate(ds, params)
         end
-        ds = ds.reduce_expr(:|, search_exprs)
-        ds = order(ds, params)
-        ds = paginate(ds, params)
-        present_collection ds, with: entity
+
+        if download
+          csv = exporter.new(ds).to_csv
+          env["api.format"] = :binary
+          content_type "text/csv"
+          body csv
+          header["Content-Disposition"] = "attachment; filename=suma-members-export.csv"
+        else
+          present_collection ds, with: entity
+        end
       end
     end
   end

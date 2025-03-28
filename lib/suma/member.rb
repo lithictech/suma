@@ -126,7 +126,7 @@ class Suma::Member < Suma::Postgres::Model(:members)
               read_only: true,
               key: :id,
               dataset: lambda {
-                # Prefer direct enrollments over indirect ones.
+                # Prefer direct enrollments to indirect ones.
                 # The org enrollments being second in the UNION means
                 # direct enrollments will be chosen with the DISTINCT.
                 self.direct_program_enrollments_dataset.union(
@@ -406,23 +406,24 @@ class Suma::Member < Suma::Postgres::Model(:members)
     rescue ArgumentError
       phone = nil
     end
+    orgnames = self.organization_memberships.map(&:verified_organization).select(&:itself).map(&:name)
     lines = [
-      "I am a Member.",
-      "My name is #{self.name}.",
-      !phone && "I do not have a phone number.",
-      phone && "My phone number is #{phone}.",
-      self.email.blank? && "I do not have an email address.",
-      self.email.present? && "My email address is #{self.email}.",
-      "I was created on #{self.created_at.httpdate}.",
+      "I am a Member. I have the following fields:",
+      "Name: #{self.name}",
+      "Phone number: #{phone}",
+      "Email address: #{self.email}",
+      "Created at: #{self.created_at.httpdate}",
+      "Note: #{self.note}",
+      "Organization memberships: #{self.organization_memberships.map { |om| om.verified_organization.name }}",
+      "Roles: #{self.roles.map(&:name)}",
+      "The following facts are known about me:",
       !self.onboarding_verified? && "My identity has not been verified.",
       self.soft_deleted? && "I have been deleted.",
       self.roles.include?(Suma::Role.cache.admin) && "I am an administrator.",
       "I am a member of #{self.organization_memberships.count} organizations.",
+      "I have been assigned #{self.roles.count} roles.",
     ]
-    self.organization_memberships.each do |m|
-      (n = m.verified_organization&.name) or next
-      lines << "I am a member of the organization named #{n}."
-    end
+    lines.concat(orgnames.map { |n| "I am a verified member of the organization named #{n}." })
     return lines.select(&:present?).join("\n")
   end
 

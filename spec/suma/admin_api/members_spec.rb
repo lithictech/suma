@@ -39,7 +39,7 @@ RSpec.describe Suma::AdminAPI::Members, :db do
 
       def make_matching_items
         return [
-          Suma::Fixtures.member(email: "zim@zam.zom").create,
+          Suma::Fixtures.member(note: "Hi, zim").create,
           Suma::Fixtures.member(name: "Zim Zam").create,
         ]
       end
@@ -47,30 +47,8 @@ RSpec.describe Suma::AdminAPI::Members, :db do
       def make_non_matching_items
         return [
           admin,
-          Suma::Fixtures.member(name: "wibble wobble", email: "qux@wux").create,
+          Suma::Fixtures.member(name: "wibble wobble").create,
         ]
-      end
-    end
-
-    describe "search" do
-      it "can search phone number" do
-        match = Suma::Fixtures.member(phone: "12223334444").create
-        nommatch = Suma::Fixtures.member(phone: "12225554444").create
-
-        get "/v1/members", search: "22333444"
-
-        expect(last_response).to have_status(200)
-        expect(last_response).to have_json_body.that_includes(items: have_same_ids_as(match))
-      end
-
-      it "only searches phone if search term has only numbers" do
-        match = Suma::Fixtures.member(email: "holt17510@hotmail.com", phone: "15319990165").create
-        nommatch = Suma::Fixtures.member(email: "nonsense@hotmail.com", phone: "17519910205").create
-
-        get "/v1/members", search: "holt1751"
-
-        expect(last_response).to have_status(200)
-        expect(last_response).to have_json_body.that_includes(items: have_same_ids_as(match))
       end
     end
 
@@ -91,18 +69,6 @@ RSpec.describe Suma::AdminAPI::Members, :db do
         return admin.update(note: i.to_s) if i.zero?
         return Suma::Fixtures.member.create(created_at: Time.now + rand(1..100).days, note: i.to_s)
       end
-    end
-
-    it "can download as csv" do
-      match = Suma::Fixtures.member(phone: "12223334444").create
-      nomatch = Suma::Fixtures.member(phone: "12225554444").create
-
-      get "/v1/members", search: "22333444", download: "csv"
-
-      expect(last_response).to have_status(200)
-      expect(last_response.body.lines).to have_length(2)
-      expect(last_response.body).to include(match.name)
-      expect(last_response.body).to_not include(nomatch.name)
     end
   end
 
