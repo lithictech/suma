@@ -24,8 +24,6 @@ jobs:
         run: sudo apt-get update -yqq -o Acquire::Retries=3
       - name: Install dependencies
         run: sudo apt-get install --fix-missing -yqq -o Acquire::Retries=3 libvips libpq-dev
-      - name: Install Python dependencies
-        run: pip install -r requirements.txt
       - name: Start backing services
         run: docker compose up -d
       - name: Run rubocop

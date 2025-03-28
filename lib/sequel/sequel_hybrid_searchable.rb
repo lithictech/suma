@@ -75,14 +75,21 @@ module SequelHybridSearchable
     include Appydays::Loggable
 
     DEFAULT_MODEL = "all-MiniLM-L6-v2"
+    PIP_DEPS = "sentence_transformers==3.4.1"
 
     attr_reader :model_name, :process
 
-    def initialize(model_name=nil)
+    # Create a new instance.
+    # @param model_name [String] Default to +DEFAULT_MODEL+.
+    # @param pip_install If true, run pip install before starting Python.
+    #   If false, assume the necessary +PIP_DEPS+ are already installed.
+    #   These are quite big, so we install them at runtime.
+    def initialize(model_name=nil, pip_install: true)
       super()
       @model_name = model_name || DEFAULT_MODEL
       @command_sep = SecureRandom.hex(4)
       @mutex = Thread::Mutex.new
+      @pip_install = pip_install
     end
 
     def get_embedding(text)
@@ -94,6 +101,10 @@ module SequelHybridSearchable
     def _get_embedding(text, retrying:)
       env = {"MODEL_NAME" => @model_name, "COMMAND_SEP" => @command_sep}
       if @stdout.nil?
+        if @pip_install
+          _, sterr, status = Open3.capture3(env, "pip", "install", PIP_DEPS)
+          raise "Unexpected exit status from pip: #{status}, #{sterr}" if status.exitstatus.nonzero?
+        end
         # Use popen2 so Python will inherit Ruby stderr, and we can see what it's logging out.
         # @stdin, @stdout, @process = Open3.popen2(env, "python", "-c", PYTHON, "r+")
         @stdin, @stdout, @stderr, @process = Open3.popen3(env, "python", "-c", PYTHON, "r+")
