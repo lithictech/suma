@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 source "https://rubygems.org"
-ruby "3.3.4"
+ruby "3.3.7"
 
 gem "activesupport", "~> 7.2"
 gem "appydays", "~> 0.7"
