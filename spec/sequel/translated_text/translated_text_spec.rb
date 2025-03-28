@@ -4,16 +4,18 @@ require "sequel/plugins/translated_text"
 
 RSpec.describe SequelTranslatedText, :db do
   before(:all) do
-    @db = Suma::Postgres::Model.db
-    @db.create_table(:translated_texts, temp: true) do
+    @db = Sequel.connect(ENV.fetch("DATABASE_URL"))
+    @db.drop_table?(:test_articles)
+    @db.drop_table?(:test_translated_texts)
+    @db.create_table(:test_translated_texts) do
       primary_key :id
       text :en
       text :fr
     end
-    @db.create_table(:articles, temp: true) do
+    @db.create_table(:test_articles) do
       primary_key :id
-      foreign_key :title_id, :translated_texts, null: true
-      foreign_key :text_id, :translated_texts, null: true
+      foreign_key :title_id, :test_translated_texts, null: true
+      foreign_key :text_id, :test_translated_texts, null: true
     end
   end
   after(:all) do
@@ -22,7 +24,7 @@ RSpec.describe SequelTranslatedText, :db do
   end
 
   before(:each) do
-    c = Class.new(Sequel::Model(:translated_texts)) do
+    c = Class.new(Sequel::Model(:test_translated_texts)) do
     end
     stub_const("TranslatedTextEx", c)
   end
@@ -36,7 +38,7 @@ RSpec.describe SequelTranslatedText, :db do
 
   describe "plugin" do
     it "can specify just the model to use to store translated text" do
-      cls = Class.new(Sequel::Model(:articles)) do
+      cls = Class.new(Sequel::Model(:test_articles)) do
         plugin :translated_text, :text, TranslatedTextEx
       end
       a = cls.new
@@ -46,7 +48,7 @@ RSpec.describe SequelTranslatedText, :db do
     end
 
     it "can add the reverse association" do
-      cls = Class.new(Sequel::Model(:articles)) do
+      cls = Class.new(Sequel::Model(:test_articles)) do
         plugin :translated_text, :title, TranslatedTextEx, reverse: :article
       end
       a = cls.create
@@ -55,22 +57,24 @@ RSpec.describe SequelTranslatedText, :db do
     end
 
     it "adds a join_translated dataset that joins desired columns" do
-      cls = Class.new(Sequel::Model(:articles)) do
+      cls = Class.new(Sequel::Model(:test_articles)) do
         plugin :translated_text, :text, TranslatedTextEx
       end
       x = cls.create(text: TranslatedTextEx.create(en: "x"))
       y = cls.create(text: TranslatedTextEx.create(en: "y"))
       q = cls.dataset.translation_join(:text, [:en, :fr])
-      expect(q.sql).to eq('SELECT * FROM (SELECT "articles".*, "text"."en" AS "text_en", "text"."fr" AS "text_fr" ' \
-                          'FROM "articles" INNER JOIN "translated_texts" AS "text" ' \
-                          'ON ("text"."id" = "articles"."text_id")) AS "t1"')
+      expect(q.sql).to eq(
+        'SELECT * FROM (SELECT "test_articles".*, "text"."en" AS "text_en", "text"."fr" AS "text_fr" ' \
+        'FROM "test_articles" INNER JOIN "test_translated_texts" AS "text" ' \
+        'ON ("text"."id" = "test_articles"."text_id")) AS "t1"',
+      )
       expect(q.where(text_en: "x").all).to contain_exactly(be === x)
       expect(q.where(id: -1).all).to be_empty # Ensure we don't get ambiguous columns
     end
   end
 
   it "can set and reset the language context" do
-    cls = Class.new(Sequel::Model(:articles)) do
+    cls = Class.new(Sequel::Model(:test_articles)) do
       plugin :translated_text, :text, TranslatedTextEx
     end
     a = cls.create
@@ -102,7 +106,7 @@ RSpec.describe SequelTranslatedText, :db do
   end
 
   it "uses a thread local context" do
-    cls = Class.new(Sequel::Model(:articles)) do
+    cls = Class.new(Sequel::Model(:test_articles)) do
       plugin :translated_text, :text, TranslatedTextEx
     end
     a = cls.create
@@ -124,7 +128,7 @@ RSpec.describe SequelTranslatedText, :db do
   end
 
   it "can get and set text field via value before it is saved" do
-    cls = Class.new(Sequel::Model(:articles)) do
+    cls = Class.new(Sequel::Model(:test_articles)) do
       plugin :translated_text, :text, TranslatedTextEx
     end
     a = cls.new
@@ -138,7 +142,7 @@ RSpec.describe SequelTranslatedText, :db do
   end
 
   it "saves the text field when the instance is saved" do
-    cls = Class.new(Sequel::Model(:articles)) do
+    cls = Class.new(Sequel::Model(:test_articles)) do
       plugin :translated_text, :text, TranslatedTextEx
     end
     a = cls.new
@@ -154,7 +158,7 @@ RSpec.describe SequelTranslatedText, :db do
   end
 
   it "defaults to the default language" do
-    cls = Class.new(Sequel::Model(:articles)) do
+    cls = Class.new(Sequel::Model(:test_articles)) do
       plugin :translated_text, :text, TranslatedTextEx
     end
     a = cls.create
@@ -173,7 +177,7 @@ RSpec.describe SequelTranslatedText, :db do
     let(:env) { Rack::MockRequest.env_for }
     let(:app) do
       lambda do |_env|
-        cls = Class.new(Sequel::Model(:articles)) do
+        cls = Class.new(Sequel::Model(:test_articles)) do
           plugin :translated_text, :text, TranslatedTextEx
         end
         a = cls.create
@@ -216,7 +220,7 @@ RSpec.describe SequelTranslatedText, :db do
 
   describe "SequelTranslatedText::Model" do
     it "provides an :all param that sets all language columns" do
-      c = Class.new(Sequel::Model(:translated_texts)) do
+      c = Class.new(Sequel::Model(:test_translated_texts)) do
         include SequelTranslatedText::Model
       end
       c = c.create(all: "foo")
@@ -224,7 +228,7 @@ RSpec.describe SequelTranslatedText, :db do
     end
 
     it "can limit the all languages columns if `all_languages` is defined" do
-      c = Class.new(Sequel::Model(:translated_texts)) do
+      c = Class.new(Sequel::Model(:test_translated_texts)) do
         include SequelTranslatedText::Model
         def all_languages
           return [:fr]
@@ -235,7 +239,7 @@ RSpec.describe SequelTranslatedText, :db do
     end
 
     it "adds a :current method that returns the configured language" do
-      c = Class.new(Sequel::Model(:translated_texts)) do
+      c = Class.new(Sequel::Model(:test_translated_texts)) do
         include SequelTranslatedText::Model
       end
       c = c.create(en: "english", fr: "french")

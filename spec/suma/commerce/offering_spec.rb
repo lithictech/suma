@@ -113,7 +113,7 @@ RSpec.describe "Suma::Commerce::Offering", :db do
   end
 
   describe "#begin_order_fulfillment" do
-    now = Time.now
+    let(:now) { Time.now }
     it "begins fulfillment on qualifying orders" do
       o1 = Suma::Fixtures.order.as_purchased_by(Suma::Fixtures.member.create).create
       offering = o1.checkout.cart.offering

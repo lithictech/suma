@@ -4,11 +4,12 @@ require "sequel/plugins/association_deleter"
 
 RSpec.describe Sequel::Plugins::AssociationDeleter, :db do
   before(:all) do
-    @db = Suma::Postgres::Model.db
-    @db.create_table(:items, temp: true) do
+    @db = Sequel.connect(ENV.fetch("DATABASE_URL"))
+    @db.drop_table?(:test_items)
+    @db.create_table(:test_items) do
       primary_key :id
-      foreign_key :parent1_id, :items
-      foreign_key :parent2_id, :items
+      foreign_key :parent1_id, :test_items
+      foreign_key :parent2_id, :test_items
     end
   end
   after(:all) do
@@ -17,7 +18,7 @@ RSpec.describe Sequel::Plugins::AssociationDeleter, :db do
 
   describe "plugin" do
     it "specifies associations to have a deleter" do
-      cls = Class.new(Sequel::Model(:items)) do
+      cls = Class.new(Sequel::Model(:test_items)) do
         many_to_one :parent1, key: :parent1_id, class: self
         one_to_many :children1, key: :parent1_id, class: self
 
@@ -51,7 +52,7 @@ RSpec.describe Sequel::Plugins::AssociationDeleter, :db do
     end
 
     it "can call the deleter method explicitly" do
-      cls = Class.new(Sequel::Model(:items)) do
+      cls = Class.new(Sequel::Model(:test_items)) do
         many_to_one :parent1, key: :parent1_id, class: self
         one_to_many :children1, key: :parent1_id, class: self
         plugin :association_deleter
@@ -70,13 +71,13 @@ RSpec.describe Sequel::Plugins::AssociationDeleter, :db do
 
     it "errors if invalid associations are passed in" do
       expect do
-        Class.new(Sequel::Model(:items)) do
+        Class.new(Sequel::Model(:test_items)) do
           plugin :association_deleter, :not_an_assoc
         end
       end.to raise_error(Sequel::Error, /not_an_assoc is not a valid association/)
 
       expect do
-        Class.new(Sequel::Model(:items)) do
+        Class.new(Sequel::Model(:test_items)) do
           many_to_one :parent, key: :parent1_id, class: self
           plugin :association_deleter, :parent
         end
