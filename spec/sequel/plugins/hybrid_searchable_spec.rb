@@ -13,6 +13,7 @@ RSpec.describe "sequel-hybrid-searchable" do
       text :name
       text :desc
       integer :parent_id
+      timestamptz :created_at
       text :unrelated
       text :search_content
       column :search_embedding, Sequel.lit("vector(384)")
@@ -31,6 +32,7 @@ RSpec.describe "sequel-hybrid-searchable" do
   before(:each) do
     @db[:svs_tester].truncate
     SequelHybridSearchable.searchable_models.clear
+    SequelHybridSearchable.indexing_mode = :off
   end
 
   after(:each) do
@@ -47,6 +49,7 @@ RSpec.describe "sequel-hybrid-searchable" do
           id: #{self.id}
           name: #{self.name}
           description: #{self.desc}
+          created_at: #{self.created_at&.iso8601}
         TEXT
       end
     end
@@ -88,7 +91,7 @@ RSpec.describe "sequel-hybrid-searchable" do
     ciri = model.create(name: "Rivia", desc: "Ciri")
     model.hybrid_search_reindex_all
 
-    expect(model.dataset.hybrid_search("test model").all).to have_same_ids_as(geralt, ciri)
+    expect(model.dataset.hybrid_search("tester", limit: 10).all).to have_same_ids_as(geralt, ciri)
   end
 
   it "restarts the embedding generator process on broken pipe" do
@@ -103,7 +106,7 @@ RSpec.describe "sequel-hybrid-searchable" do
       ciri = model.create(name: "Rivia", desc: "Ciri")
       model.hybrid_search_reindex_all
 
-      got = model.dataset.hybrid_search("test models named 'geralt'").first
+      got = model.dataset.hybrid_search("test models named 'geralt'", limit: 10).first
       expect(got).to be_a(model)
       expect(got).to have_attributes(id: geralt.id, name: "Geralt")
     end
@@ -113,15 +116,47 @@ RSpec.describe "sequel-hybrid-searchable" do
       ciri = model.create(name: "Rivia", desc: "Ciri")
       model.hybrid_search_reindex_all
 
-      got = model.dataset.hybrid_search("geralt").all
+      got = model.dataset.hybrid_search("geralt", limit: 10).all
       expect(got).to have_same_ids_as(geralt)
     end
 
     it "handles an empty search result" do
-      expect(model.dataset.hybrid_search("matchnothing").all).to be_empty
+      expect(model.dataset.hybrid_search("matchnothing", limit: 10).all).to be_empty
       model.create(name: "Geralt", desc: "Rivia")
       model.hybrid_search_reindex_all
-      expect(model.dataset.hybrid_search("matchnothing").all).to be_empty
+      expect(model.dataset.hybrid_search("matchnothing", limit: 10).all).to be_empty
+    end
+
+    it "uses OR for the keyword search (instead of 'AND')" do
+      m1 = model.create(name: "Tim 1")
+      m2 = model.create(name: "Tim 2")
+      m3 = model.create(name: "Barry")
+      model.hybrid_search_reindex_all
+
+      got = model.dataset.hybrid_search("Tim and here is a bunch of extra text", limit: 50).all
+      expect(got).to have_same_ids_as(m2, m1)
+
+      got = model.dataset.hybrid_search("Barry Tim", limit: 50).all
+      expect(got).to have_same_ids_as(m1, m2, m3)
+    end
+
+    it "can paginate" do
+      models = Array.new(5) { |i| model.create(name: "Tim", created_at: i.days.ago) }
+      model.hybrid_search_reindex_all
+
+      q = "testers named Tim, ordered by their created_at field"
+      # We cannot rely on the ordering here, unfortunately. So just capture the full ordering.
+      rows = model.dataset.hybrid_search(q, limit: 50).all
+      expect(rows).to have_same_ids_as(models)
+
+      page = model.dataset.hybrid_search(q, limit: 2).all
+      expect(page).to have_same_ids_as(rows[0], rows[1]).ordered
+
+      page = model.dataset.hybrid_search(q, limit: 2, offset: 2).all
+      expect(page).to have_same_ids_as(rows[2], rows[3]).ordered
+
+      page = model.dataset.hybrid_search(q, limit: 2, offset: 4).all
+      expect(page).to have_same_ids_as(rows[4]).ordered
     end
   end
 
@@ -149,6 +184,13 @@ RSpec.describe "sequel-hybrid-searchable" do
       expect(geralt.refresh.values[:search_embedding]).to be_nil
       geralt.update(unrelated: "Ciri")
       expect(geralt.refresh.values[:search_embedding]).to be_nil
+    end
+
+    it "sets the search content to just values after a colon" do
+      geralt = model.create(name: "Geralt")
+      expect(geralt.refresh).to have_attributes(search_content: match(/svs tester\n\d+\nGeralt/))
+      geralt.update(desc: "of Rivia")
+      expect(geralt.refresh).to have_attributes(search_content: match(/svs tester\n\d+\nGeralt\nof Rivia/))
     end
   end
 
@@ -207,6 +249,18 @@ RSpec.describe "sequel-hybrid-searchable" do
       Array.new(1000) do |i|
         SequelHybridSearchable.embedding_generator.get_embedding(i.to_s)
       end
+    end
+  end
+
+  describe "patches" do
+    it "fixes pgvector decode on a nil emebedding" do
+      m = model.create(search_embedding: nil)
+      expect(m).to have_attributes(search_embedding: nil)
+      expect(m.refresh).to have_attributes(search_embedding: nil)
+
+      m.update(search_embedding: [1] * 384)
+      expect(m).to have_attributes(search_embedding: [1] * 384)
+      expect(m.refresh).to have_attributes(search_embedding: [1] * 384)
     end
   end
 end

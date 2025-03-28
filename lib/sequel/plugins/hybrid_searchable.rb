@@ -24,8 +24,28 @@ module Sequel::Plugins::HybridSearchable
   end
 
   module DatasetMethods
-    def hybrid_search(q, limit: 10, outer_limit_multiplier: 4)
+    # Run a hybrid search. A hybrid search is a combination of:
+    # Keyword search: Any term in the query +q+ must be present in the row's search content.
+    # Semantic search: Get the embeddings for query +q+ and run a RAG against the row embeddings.
+    # This means that:
+    # - Only rows that match a word in +q+ will be returned
+    #   (so use the table name to find all results, like 'Users named Tim').
+    # - Rows with better keyword matches will rank higher.
+    # - Rows with better semantic matches will rank higher (though keywords are more important).
+    #
+    # Pagination can be used with offset/limit.
+    # The +outer_limit_multiplier+ is used for the 'inner' semantic and keyword queries;
+    # that is, they will rank +limit*outer_limit_multiplier+ results,
+    # before limiting the final result.
+    #
+    # Note that calculating later pages may get very slow,
+    # even moreso than normal offset/limit pagination,
+    # which has this problem (since skipped rows still need to be ranked).
+    # To avoid this, you can use cursor-based pagination by filtering the dataset,
+    # like `ds.where { id > last_result_id }.hybrid_search(...)`.
+    def hybrid_search(q, limit:, outer_limit_multiplier: 4, offset: 0)
       outer_limit = limit * outer_limit_multiplier
+      outer_limit += offset * outer_limit_multiplier
       query_embedding = SequelHybridSearchable.embedding_generator.get_embedding(q)
       pk = self.model.primary_key
       tbl = self.model.table_name
@@ -41,7 +61,7 @@ module Sequel::Plugins::HybridSearchable
         ),
         keyword_search AS (
             SELECT #{pk} as id, RANK () OVER (ORDER BY ts_rank_cd(to_tsvector(?, #{content_col}), query) DESC)
-            FROM #{tbl}, plainto_tsquery(?, ?) query
+            FROM #{tbl}, websearch_to_tsquery(?, ?) query
             WHERE to_tsvector(?, #{content_col}) @@ query
             ORDER BY ts_rank_cd(to_tsvector(?, #{content_col}), query) DESC
             LIMIT #{outer_limit}
@@ -54,14 +74,21 @@ module Sequel::Plugins::HybridSearchable
         JOIN semantic_search ON semantic_search.id = keyword_search.id
         ORDER BY score DESC
         LIMIT #{limit}
+        OFFSET #{offset}
       SQL
       vec = Pgvector.encode(query_embedding)
       lang = self.model.hybrid_search_language
+      # Queries look like "users named Tim who were created in the last 5 days".
+      # We need to use an OR against all words (rather than AND/FOLLOWED BY),
+      # so that relevant terms like 'Tim' are matched, but irrelevant ones like 'days' are not.
+      # This depends on only using as tsvector the unique/dynamic content for each row's search text,
+      # so 'Tim' is present for rows with the name 'Tim'.
+      processed_query = q.gsub(" ", " OR ")
       k = 60
       args = [
         vec, vec,
         lang,
-        lang, q,
+        lang, processed_query,
         lang,
         lang,
         k,
@@ -126,13 +153,48 @@ module Sequel::Plugins::HybridSearchable
       new_hash = "#{SequelHybridSearchable.embedding_generator.model_name}-#{Digest::MD5.hexdigest(text)}"
       return if new_hash == self.send(self.model.hybrid_search_hash_column)
       em = SequelHybridSearchable.embedding_generator.get_embedding(text)
+      content = self._hybrid_search_text_to_storage(text)
       self.this.update(
-        self.model.hybrid_search_content_column => text,
+        self.model.hybrid_search_content_column => content,
         self.model.hybrid_search_vector_column => Pgvector.encode(em),
         self.model.hybrid_search_hash_column => new_hash,
       )
     end
 
     def hybrid_search_text = raise NotImplementedError
+
+    # For the search/text content, only include tokens which come after ':' if present.
+    # These fields are the dynamically determined ones so are the only ones
+    # relevant for keyword searches.
+    def _hybrid_search_text_to_storage(text)
+      # Always include the model name so things like 'Users named Tim' will find all users (and rank Tim more highly),
+      # while 'Tim' will only find users with the literal 'Tim'.
+      content = [self.model.table_name.to_s.gsub(/[^a-zA-Z]/, " ")]
+      text.lines.each do |li|
+        idx = li.index(":")
+        next nil if idx.nil?
+        s = li[idx + 1..].strip
+        next if s.blank?
+        content << s
+      end
+      return content.join("\n")
+    end
+  end
+end
+
+# Patch pgvector to handle nil column values.
+module Pgvector
+  class << self
+    alias original_encode encode
+    def encode(data)
+      return nil if data.nil?
+      return original_encode(data)
+    end
+
+    alias original_decode decode
+    def decode(string)
+      return nil if string.nil?
+      return original_decode(string)
+    end
   end
 end
