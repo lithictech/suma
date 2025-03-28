@@ -186,30 +186,22 @@ module Suma::AdminAPI::CommonEndpoints
       get do
         access = Suma::AdminAPI::Access.read_key(model_type)
         check_role_access!(admin_member, :read, access)
-        download = params[:download]
-        orderfunc = ordering || method(:order)
-
         ds = model_type.dataset
-        if (search = params[:search]).present?
-          # Hybrid search handles order and pagination.
-          # Return 1k results if we're downloading, otherwise do normal pagination.
-          ds = download ? ds.hybrid_search(search, limit: 1000) : hybrid_search(ds, params)
-        elsif download
-          # If downloading, do not paginate, but do order.
-          ds = orderfunc.call(ds, params)
-        else
-          # Normal order and pagination.
-          ds = orderfunc.call(ds, params)
-          ds = paginate(ds, params)
-        end
-
-        if download
+        ds = if params[:search].present?
+               hybrid_search(ds, params)
+             elsif ordering
+               ordering.call(ds, params)
+             else
+               order(ds, params)
+             end
+        if params[:download]
           csv = exporter.new(ds).to_csv
           env["api.format"] = :binary
           content_type "text/csv"
           body csv
           header["Content-Disposition"] = "attachment; filename=suma-members-export.csv"
         else
+          ds = paginate(ds, params)
           present_collection ds, with: entity
         end
       end

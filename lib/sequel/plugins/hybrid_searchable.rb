@@ -45,54 +45,62 @@ module Sequel::Plugins::HybridSearchable
       vec_col = self.model.hybrid_search_vector_column
       content_col = self.model.hybrid_search_content_column
       q = q.strip
-      # Match certain queries against all rows, requires an OR 1=1 on the filter
-      matchall = q.blank? || q == "*" ? " OR 1=1" : ""
-      # Based on https://github.com/pgvector/pgvector-python/blob/master/examples/hybrid_search/rrf.py
-      sql = <<~SQL
-        WITH semantic_search AS (
-            SELECT #{pk} as id, RANK () OVER (ORDER BY #{vec_col} <=> ?) AS rank
-            FROM #{tbl}
-            ORDER BY #{vec_col} <=> ?
-        ),
-        keyword_search AS (
-            SELECT #{pk} as id, RANK () OVER (ORDER BY ts_rank_cd(to_tsvector(?, #{content_col}), query) DESC)
-            FROM #{tbl}, websearch_to_tsquery(?, ?) query
-            WHERE to_tsvector(?, #{content_col}) @@ query#{matchall}
-            ORDER BY ts_rank_cd(to_tsvector(?, #{content_col}), query) DESC
-        )
-        SELECT
-            COALESCE(semantic_search.id, keyword_search.id) AS #{pk},
-            COALESCE(1.0 / (? + semantic_search.rank), 0.0) +
-              COALESCE(1.0 / (? + keyword_search.rank), 0.0) AS score
-        FROM keyword_search
-        JOIN semantic_search ON semantic_search.id = keyword_search.id
-        ORDER BY score DESC
-      SQL
       vec = Pgvector.encode(query_embedding)
       lang = self.model.hybrid_search_language
+      # Match certain queries against all rows, requires an OR 1=1 on the filter
+      matchall = q.blank? || q == "*" ? " OR 1=1" : ""
       # Queries look like "users named Tim who were created in the last 5 days".
       # We need to use an OR against all words (rather than AND/FOLLOWED BY),
       # so that relevant terms like 'Tim' are matched, but irrelevant ones like 'days' are not.
       # This depends on only using as tsvector the unique/dynamic content for each row's search text,
       # so 'Tim' is present for rows with the name 'Tim'.
       processed_query = q.gsub(" ", " OR ")
+      # Not sure what this value is
       k = 60
-      args = [
-        vec, vec,
-        lang,
-        lang, processed_query,
-        lang,
-        lang,
-        k,
-        k,
-      ]
-      search_ds = self.db.fetch(sql, *args)
-      # We could use a CTE but let's do this for now instead.
-      search_ids = search_ds.select_map(pk)
-      return self.model.dataset.where(pk => []) if search_ids.empty?
-      model_ds = self.model.where(pk => search_ids).
-        order(Sequel.function(:ARRAY_POSITION, Sequel.pg_array(search_ids), pk))
-      return model_ds
+      # Based on https://github.com/pgvector/pgvector-python/blob/master/examples/hybrid_search/rrf.py
+      # With changes to get it to work as a standard dataset.
+      # First, get a dataset which filters out non-matching rows,
+      # and selects the text ranking of each matched row, along with the pk of the row.
+
+      # In our queries, it helps to refer to a 'query' value
+      table_and_tsquery = Sequel.function(:websearch_to_tsquery, lang, processed_query).as(:query)
+
+      # Establish the filter to limit rows in the keyword (and semantic) query.
+      matches_tsquery = Sequel.lit("to_tsvector(?, #{content_col}) @@ query#{matchall}", lang)
+
+      # Rank text-filtered rows based on their text match.
+      kw_search = self.model.
+        from(tbl, table_and_tsquery).
+        where(matches_tsquery).
+        select(
+          Sequel[pk].as(:id),
+          Sequel.function(:rank).
+            over(order: Sequel.lit("ts_rank_cd(to_tsvector(?, #{content_col}), query) DESC", lang)).
+            as(:rank),
+        )
+
+      # Now for semantic search. We still need to do the keyword matching,
+      # so we only rank rows that are possible search candidates.
+      semantic_search = self.model.
+        from(tbl, table_and_tsquery).
+        where(matches_tsquery).
+        select(
+          Sequel[pk].as(:id),
+          Sequel.function(:rank).
+            over(order: Sequel.lit("#{vec_col} <=> ?", vec)).
+            as(:rank),
+        )
+
+      # Now join on our two queries, and order it based on their combined ranking.
+      rank_order = Sequel.lit(
+        "COALESCE(1.0 / (? + semantic_search.rank), 0.0) + " \
+        "COALESCE(1.0 / (? + kw_search.rank), 0.0)", k, k,
+      )
+      ds = self.model.
+        join(kw_search.as(:kw_search), id: pk).
+        join(semantic_search.as(:semantic_search), id: pk).
+        order(rank_order)
+      return ds
     end
   end
 

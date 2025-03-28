@@ -164,11 +164,7 @@ module Suma::Service::Helpers
   def order(*) = Suma::Service::Helpers.order(*)
 
   def hybrid_search(dataset, params)
-    return dataset.hybrid_search(
-      params.fetch(:search),
-      limit: params.fetch(:per_page),
-      offset: (params.fetch(:page) - 1) * params.fetch(:per_page),
-    )
+    return dataset.hybrid_search(params.fetch(:search))
   end
 
   def use_http_expires_caching(expiration)

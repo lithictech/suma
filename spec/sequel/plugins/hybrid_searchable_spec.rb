@@ -150,22 +150,22 @@ RSpec.describe "sequel-hybrid-searchable" do
       expect(got).to have_same_ids_as(m1, m2, m3)
     end
 
-    xit "can paginate" do
+    it "can be paginated" do
       models = Array.new(5) { |i| model.create(name: "Tim", created_at: i.days.ago) }
       model.hybrid_search_reindex_all
 
       q = "testers named Tim, ordered by their created_at field"
-      # We cannot rely on the ordering here, unfortunately. So just capture the full ordering.
+      # We cannot rely on the ordering here, unfortunately. So just capture the rows and use their order.
       rows = model.dataset.hybrid_search(q).all
       expect(rows).to have_same_ids_as(models)
 
-      page = model.dataset.hybrid_search(q, limit: 2).all
+      page = model.dataset.hybrid_search(q).limit(2, 0).all
       expect(page).to have_same_ids_as(rows[0], rows[1]).ordered
 
-      page = model.dataset.hybrid_search(q, limit: 2, offset: 2).all
+      page = model.dataset.hybrid_search(q).limit(2, 2).all
       expect(page).to have_same_ids_as(rows[2], rows[3]).ordered
 
-      page = model.dataset.hybrid_search(q, limit: 2, offset: 4).all
+      page = model.dataset.hybrid_search(q).limit(2, 4).all
       expect(page).to have_same_ids_as(rows[4]).ordered
     end
   end
