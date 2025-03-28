@@ -28,7 +28,7 @@ Sequel.migration do
         add_column :search_hash, :text
         add_index Sequel.function(:to_tsvector, "english", :search_content),
                   name: :"#{tbl}_search_content_tsvector_index",
-                  using: :gin
+                  type: :gin
       end
     end
   end
@@ -38,7 +38,6 @@ Sequel.migration do
         drop_column :search_content
         drop_column :search_embedding
         drop_column :search_hash
-        drop_column :search_tsvector
       end
     end
   end
