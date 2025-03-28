@@ -267,6 +267,30 @@ RSpec.describe "sequel-hybrid-searchable" do
     end
   end
 
+  describe "api embeddings generator" do
+    before(:all) do
+      chdir = Dir.pwd + "/aiapi"
+      _, stderr, status = Open3.capture3("pip", "install", "-r", "requirements.txt", chdir:)
+      raise "Pip install failed with #{status.exitstatus}: #{stderr}" unless status.success?
+      _, _, _, @status = Open3.popen3("python", "-m", "gunicorn", "--bind", "0.0.0.0:22009", "server:app", chdir:)
+      sleep(2)
+    end
+
+    after(:all) do
+      Process.kill("TERM", @status.pid) if @status
+    end
+
+    before(:each) do
+      WebMock.allow_net_connect!
+    end
+
+    it "calls the service" do
+      gen = SequelHybridSearchable::ApiEmbeddingGenerator.new("http://localhost:22009")
+      got = gen.get_embedding("hello")
+      expect(got).to have_length(be > 4)
+    end
+  end
+
   describe "patches" do
     it "fixes pgvector decode on a nil emebedding" do
       m = model.create(search_embedding: nil)

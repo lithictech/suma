@@ -39,6 +39,7 @@ module SequelHybridSearchable
 
     # Embedding generator instance.
     # Must be set before the plugin is used.
+    # @return [EmbeddingGenerator]
     attr_accessor :embedding_generator
   end
 
