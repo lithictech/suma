@@ -47,6 +47,7 @@
     {"url": "heroku-community/apt"},
     {"url": "heroku/ruby"},
     {"url": "heroku/nodejs"},
+    {"url": "heroku/python"},
     {"url": "https://github.com/weibeld/heroku-buildpack-run.git"},
     {"url": "wonderbly/post-build-clean"}
   ]
