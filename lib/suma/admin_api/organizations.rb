@@ -18,7 +18,6 @@ class Suma::AdminAPI::Organizations < Suma::AdminAPI::V1
       self,
       Suma::Organization,
       DetailedOrganizationEntity,
-      search_params: [:name],
     )
 
     Suma::AdminAPI::CommonEndpoints.get_one(

@@ -51,7 +51,7 @@ RSpec.describe Suma::AdminAPI::CommonEndpoints, :db do
 
     it_behaves_like "an endpoint capable of search" do
       let(:url) { "/v1/vendors" }
-      let(:search_term) { "johns_farm" }
+      let(:search_term) { "johns farm" }
 
       def make_matching_items
         return [
@@ -61,7 +61,7 @@ RSpec.describe Suma::AdminAPI::CommonEndpoints, :db do
 
       def make_non_matching_items
         return [
-          Suma::Fixtures.vendor(name: translated_text("wibble wobble")).create,
+          Suma::Fixtures.vendor(name: "wibble wobble").create,
         ]
       end
     end

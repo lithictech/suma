@@ -172,12 +172,14 @@ module Suma::AdminAPI::CommonEndpoints
     route_def,
     model_type,
     entity,
-    exporter: nil
+    exporter: Suma::Exporter::Placeholder,
+    ordering_kw: {},
+    ordering: nil
   )
     route_def.instance_exec do
       params do
         use :pagination
-        use :ordering, model: model_type
+        use :ordering, model: model_type, **ordering_kw
         use :searchable
         optional :download, type: String, values: ["csv"]
       end
@@ -185,6 +187,7 @@ module Suma::AdminAPI::CommonEndpoints
         access = Suma::AdminAPI::Access.read_key(model_type)
         check_role_access!(admin_member, :read, access)
         download = params[:download]
+        orderfunc = ordering || method(:order)
 
         ds = model_type.dataset
         if (search = params[:search]).present?
@@ -193,10 +196,10 @@ module Suma::AdminAPI::CommonEndpoints
           ds = download ? ds.hybrid_search(search, limit: 1000) : hybrid_search(ds, params)
         elsif download
           # If downloading, do not paginate, but do order.
-          ds = order(ds, params)
+          ds = orderfunc.call(ds, params)
         else
           # Normal order and pagination.
-          ds = order(ds, params)
+          ds = orderfunc.call(ds, params)
           ds = paginate(ds, params)
         end
 

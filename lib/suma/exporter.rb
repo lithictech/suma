@@ -30,4 +30,13 @@ class Suma::Exporter
     end
     return got
   end
+
+  class Placeholder < Suma::Exporter
+    def headers
+      [
+        ["Id", lambda(&:pk)],
+        ["Note", ->(*) { "Placeholder exporter, ask devs to add support" }],
+      ]
+    end
+  end
 end

@@ -23,8 +23,10 @@ require "suma/admin_linked"
 # an external vendor like Lyft, and Lyft handles all charging;
 # suma is there as an intermediary but is not in the funds flow.
 class Suma::Charge < Suma::Postgres::Model(:charges)
+  include Suma::Postgres::HybridSearchHelpers
   include Suma::AdminLinked
 
+  plugin :hybrid_searchable
   plugin :timestamps
   plugin :money_fields, :undiscounted_subtotal
 
@@ -71,6 +73,23 @@ class Suma::Charge < Suma::Postgres::Model(:charges)
     li = Suma::Charge::LineItem.create_self(charge: self, amount:, memo:, **kw)
     self.associations.delete(:off_platform_line_items)
     return li
+  end
+
+  def hybrid_search_fields
+    return [
+      :opaque_id,
+      :undiscounted_subtotal,
+      :undiscounted_subtotal,
+      :discount_amount,
+      :member,
+    ]
+  end
+
+  def hybrid_search_facts
+    return [
+      self.commerce_order && "I am for a commerce order.",
+      self.mobility_trip && "I am for a mobility trip.",
+    ]
   end
 end
 

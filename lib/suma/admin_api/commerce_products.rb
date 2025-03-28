@@ -35,7 +35,6 @@ class Suma::AdminAPI::CommerceProducts < Suma::AdminAPI::V1
       self,
       Suma::Commerce::Product,
       ProductEntity,
-      translation_search_params: [:name],
     )
 
     Suma::AdminAPI::CommonEndpoints.create(

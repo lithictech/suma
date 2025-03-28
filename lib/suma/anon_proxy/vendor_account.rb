@@ -5,10 +5,13 @@ require "suma/anon_proxy"
 require "suma/postgres"
 
 class Suma::AnonProxy::VendorAccount < Suma::Postgres::Model(:anon_proxy_vendor_accounts)
+  include Suma::Postgres::HybridSearchHelpers
   include Suma::AdminLinked
   RECENT_ACCESS_CODE_CUTOFF = 10.minutes
 
   plugin :timestamps
+
+  plugin :hybrid_searchable
 
   # @!attribute member
   # @return [Suma::Member]
@@ -90,6 +93,15 @@ class Suma::AnonProxy::VendorAccount < Suma::Postgres::Model(:anon_proxy_vendor_
   end
 
   def rel_admin_link = "/vendor-account/#{self.id}"
+
+  def hybrid_search_fields
+    return [
+      :latest_access_code_magic_link,
+      :latest_access_code,
+      :member,
+      ["Vendor", self.configuration.vendor.name],
+    ]
+  end
 end
 
 # Table: anon_proxy_vendor_accounts

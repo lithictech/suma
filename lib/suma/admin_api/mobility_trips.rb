@@ -25,7 +25,6 @@ class Suma::AdminAPI::MobilityTrips < Suma::AdminAPI::V1
       self,
       Suma::Mobility::Trip,
       MobilityTripEntity,
-      search_params: [:external_trip_id, :vehicle_id],
     )
     Suma::AdminAPI::CommonEndpoints.get_one(
       self,

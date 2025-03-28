@@ -22,7 +22,6 @@ class Suma::AdminAPI::PayoutTransactions < Suma::AdminAPI::V1
       self,
       Suma::Payment::PayoutTransaction,
       PayoutTransactionEntity,
-      translation_search_params: [:memo],
     )
 
     Suma::AdminAPI::CommonEndpoints.get_one(

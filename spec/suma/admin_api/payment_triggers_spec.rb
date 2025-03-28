@@ -30,7 +30,7 @@ RSpec.describe Suma::AdminAPI::PaymentTriggers, :db do
 
       def make_matching_items
         return [
-          Suma::Fixtures.payment_trigger(memo: translated_text("zim@zam.zom")).create,
+          Suma::Fixtures.payment_trigger(memo: translated_text("zim zam zom")).create,
         ]
       end
 

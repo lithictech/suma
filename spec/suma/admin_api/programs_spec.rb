@@ -24,22 +24,13 @@ RSpec.describe Suma::AdminAPI::Programs, :db do
         that_includes(items: have_same_ids_as(*objs))
     end
 
-    it "errors without role access" do
-      replace_roles(admin, Suma::Role.cache.noop_admin)
-
-      get "/v1/programs"
-
-      expect(last_response).to have_status(403)
-      expect(last_response).to have_json_body.that_includes(error: include(code: "role_check"))
-    end
-
     it_behaves_like "an endpoint capable of search" do
       let(:url) { "/v1/programs" }
-      let(:search_term) { "water" }
+      let(:search_term) { "zibble" }
 
       def make_matching_items
         return [
-          Suma::Fixtures.program(name: translated_text("Portland Water Bureau")).create,
+          Suma::Fixtures.program(name: translated_text("zibble zabble")).create,
         ]
       end
 

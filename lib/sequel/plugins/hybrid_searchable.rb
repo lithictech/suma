@@ -173,8 +173,6 @@ module Sequel::Plugins::HybridSearchable
       )
     end
 
-    def hybrid_search_text = raise NotImplementedError
-
     # For the search/text content, only include tokens which come after ':' if present.
     # These fields are the dynamically determined ones so are the only ones
     # relevant for keyword searches.

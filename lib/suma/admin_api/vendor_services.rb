@@ -36,7 +36,6 @@ class Suma::AdminAPI::VendorServices < Suma::AdminAPI::V1
       self,
       Suma::Vendor::Service,
       VendorServiceEntity,
-      search_params: [:internal_name, :external_name],
     )
     Suma::AdminAPI::CommonEndpoints.get_one(
       self,

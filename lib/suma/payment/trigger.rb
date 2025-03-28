@@ -3,8 +3,10 @@
 require "suma/postgres/model"
 
 class Suma::Payment::Trigger < Suma::Postgres::Model(:payment_triggers)
+  include Suma::Postgres::HybridSearchHelpers
   include Suma::AdminLinked
 
+  plugin :hybrid_searchable
   plugin :timestamps
   plugin :association_pks
   plugin :tstzrange_fields, :active_during
@@ -137,6 +139,17 @@ class Suma::Payment::Trigger < Suma::Postgres::Model(:payment_triggers)
   end
 
   def rel_admin_link = "/payment-trigger/#{self.id}"
+
+  def hybrid_search_fields
+    return [
+      :label,
+      :active_during_begin,
+      :active_during_end,
+      :memo,
+      :receiving_ledger_name,
+      ["Originating ledger", self.originating_ledger.admin_label],
+    ]
+  end
 
   # @!attribute label
   # Admin-facing name for the automation.

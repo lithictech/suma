@@ -30,7 +30,7 @@ RSpec.describe Suma::AdminAPI::BookTransactions, :db do
 
       def make_matching_items
         return [
-          Suma::Fixtures.book_transaction(memo: translated_text("zim@zam.zom")).create,
+          Suma::Fixtures.book_transaction(memo: translated_text("zim zam zom")).create,
           Suma::Fixtures.book_transaction(opaque_id: "Zim Zam").create,
         ]
       end

@@ -75,7 +75,6 @@ class Suma::AdminAPI::CommerceOfferings < Suma::AdminAPI::V1
       self,
       Suma::Commerce::Offering,
       ListCommerceOfferingEntity,
-      translation_search_params: [:description],
     )
 
     Suma::AdminAPI::CommonEndpoints.create(

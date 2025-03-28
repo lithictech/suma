@@ -8,11 +8,13 @@ require "suma/payment"
 require "suma/payment/external_transaction"
 
 class Suma::Payment::PayoutTransaction < Suma::Postgres::Model(:payment_payout_transactions)
+  include Suma::Postgres::HybridSearchHelpers
   include Suma::AdminLinked
   include Suma::Payment::ExternalTransaction
 
   class SendFundsFailed < Suma::StateMachine::FailedTransition; end
 
+  plugin :hybrid_searchable
   plugin :state_machine
   plugin :timestamps
   plugin :money_fields, :amount
@@ -239,6 +241,15 @@ class Suma::Payment::PayoutTransaction < Suma::Postgres::Model(:payment_payout_t
   def put_into_review(message, opts={})
     self._put_into_review_helper(message, opts)
     return super
+  end
+
+  def hybrid_search_fields
+    return [
+      :status,
+      :amount,
+      :classification,
+      :memo,
+    ]
   end
 end
 

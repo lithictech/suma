@@ -5,8 +5,7 @@ require "sequel/sequel_hybrid_searchable"
 
 RSpec.describe "sequel-hybrid-searchable" do
   before(:all) do
-    dburl = ENV.fetch("DATABASE_URL", nil)
-    @db = Sequel.connect(dburl)
+    @db = Sequel.connect(ENV.fetch("DATABASE_URL"))
     @db.drop_table?(:svs_tester)
     @db.create_table(:svs_tester) do
       primary_key :id
@@ -82,7 +81,7 @@ RSpec.describe "sequel-hybrid-searchable" do
       end
       SequelHybridSearchable.searchable_models.delete(m) # Don't leave this sitting around
       o = m.new
-      expect { o.hybrid_search_text }.to raise_error(NotImplementedError)
+      expect { o.hybrid_search_text }.to raise_error(NoMethodError)
     end
   end
 

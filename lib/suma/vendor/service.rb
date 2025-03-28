@@ -8,9 +8,11 @@ require "suma/program/has"
 require "suma/vendor/has_service_categories"
 
 class Suma::Vendor::Service < Suma::Postgres::Model(:vendor_services)
+  include Suma::Postgres::HybridSearchHelpers
   include Suma::AdminLinked
   include Suma::Image::SingleAssociatedMixin
 
+  plugin :hybrid_searchable
   plugin :timestamps
   plugin :tstzrange_fields, :period
   plugin :association_pks
@@ -90,6 +92,18 @@ class Suma::Vendor::Service < Suma::Postgres::Model(:vendor_services)
   def rel_admin_link = "/vendor-service/#{self.id}"
 
   def rel_app_link = "/mobility"
+
+  def hybrid_search_fields
+    return [
+      :id,
+      :created_at,
+      :internal_name,
+      :external_name,
+      :period_begin,
+      :period_end,
+      :vendor,
+    ]
+  end
 end
 
 # Table: vendor_services

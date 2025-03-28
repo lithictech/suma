@@ -1,12 +1,13 @@
 # frozen_string_literal: true
 
 require "suma/postgres/model"
-
 require "suma/message"
 
 class Suma::Message::Delivery < Suma::Postgres::Model(:message_deliveries)
+  include Suma::Postgres::HybridSearchHelpers
   include Suma::AdminLinked
 
+  plugin :hybrid_searchable
   plugin :timestamps
 
   many_to_one :recipient, class: "Suma::Member"
@@ -72,6 +73,17 @@ class Suma::Message::Delivery < Suma::Postgres::Model(:message_deliveries)
 
   def rel_admin_link
     return "/message/#{self.id}"
+  end
+
+  def hybrid_search_fields
+    return [
+      :template,
+      :transport_type,
+      :transport_service,
+      :transport_message_id,
+      :to,
+      :template_language,
+    ]
   end
 
   def self.lookup_template_class(name)

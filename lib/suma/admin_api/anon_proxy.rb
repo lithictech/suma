@@ -63,8 +63,8 @@ class Suma::AdminAPI::AnonProxy < Suma::AdminAPI::V1
       )
       Suma::AdminAPI::CommonEndpoints.list(
         self,
-        Suma::AnonProxy::VendorAccount, VendorAccountEntity,
-        search_params: [:latest_access_code_magic_link, :latest_access_code],
+        Suma::AnonProxy::VendorAccount,
+        VendorAccountEntity,
       )
     end
 

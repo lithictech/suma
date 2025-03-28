@@ -14,6 +14,7 @@ class Suma::Member < Suma::Postgres::Model(:members)
   include Appydays::Configurable
   include Suma::Payment::HasAccount
   include Suma::AdminLinked
+  include Suma::Postgres::HybridSearchHelpers
 
   class InvalidPassword < RuntimeError; end
 
@@ -400,23 +401,27 @@ class Suma::Member < Suma::Postgres::Model(:members)
     self.legal_entity.update(name: self.name) if change_name
   end
 
-  def hybrid_search_text
+  def hybrid_search_fields
     begin
       phone = self.phone.present? && Suma::PhoneNumber::US.format(self.phone)
     rescue ArgumentError
       phone = nil
     end
     orgnames = self.organization_memberships.map(&:verified_organization).select(&:itself).map(&:name)
+    return [
+      :name,
+      ["Phone number", phone],
+      ["Email address", self.email],
+      :created_at,
+      :note,
+      ["Organization memberships", orgnames],
+      ["Roles", self.roles.map(&:name)],
+    ]
+  end
+
+  def hybrid_search_facts
+    orgnames = self.organization_memberships.map(&:verified_organization).select(&:itself).map(&:name)
     lines = [
-      "I am a Member. I have the following fields:",
-      "Name: #{self.name}",
-      "Phone number: #{phone}",
-      "Email address: #{self.email}",
-      "Created at: #{self.created_at.httpdate}",
-      "Note: #{self.note}",
-      "Organization memberships: #{self.organization_memberships.map { |om| om.verified_organization.name }}",
-      "Roles: #{self.roles.map(&:name)}",
-      "The following facts are known about me:",
       !self.onboarding_verified? && "My identity has not been verified.",
       self.soft_deleted? && "I have been deleted.",
       self.roles.include?(Suma::Role.cache.admin) && "I am an administrator.",
@@ -424,7 +429,7 @@ class Suma::Member < Suma::Postgres::Model(:members)
       "I have been assigned #{self.roles.count} roles.",
     ]
     lines.concat(orgnames.map { |n| "I am a verified member of the organization named #{n}." })
-    return lines.select(&:present?).join("\n")
+    return lines
   end
 
   ### Soft-delete hook -- expire unused, unexpired reset codes and

@@ -8,9 +8,11 @@ require "suma/program/has"
 require "suma/translated_text"
 
 class Suma::Commerce::Offering < Suma::Postgres::Model(:commerce_offerings)
+  include Suma::Postgres::HybridSearchHelpers
   include Suma::Image::SingleAssociatedMixin
   include Suma::AdminLinked
 
+  plugin :hybrid_searchable
   plugin :timestamps
   plugin :tstzrange_fields, :period
   plugin :association_pks
@@ -187,6 +189,14 @@ class Suma::Commerce::Offering < Suma::Postgres::Model(:commerce_offerings)
       count += 1 if o.process(:begin_fulfillment)
     end
     return count
+  end
+
+  def hybrid_search_fields
+    return [
+      :description,
+      :period_begin,
+      :period_end,
+    ]
   end
 end
 

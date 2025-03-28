@@ -147,7 +147,7 @@ module Suma::Service::Helpers
 
   # Order the database. By default, use descending nulls last.
   # If order_direction is :asc, use ascending nulls first.
-  def order(dataset, params, disambiguator: :id)
+  def self.order(dataset, params, disambiguator: :id)
     if params[:order_direction] == :asc
       m = :asc
       nulls = :first
@@ -158,6 +158,10 @@ module Suma::Service::Helpers
     expr = Sequel.send(m, params[:order_by], nulls:)
     return dataset.order(expr, Sequel.desc(disambiguator))
   end
+
+  # Order the database. By default, use descending nulls last.
+  # If order_direction is :asc, use ascending nulls first.
+  def order(*) = Suma::Service::Helpers.order(*)
 
   def hybrid_search(dataset, params)
     return dataset.hybrid_search(
