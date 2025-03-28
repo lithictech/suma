@@ -121,11 +121,10 @@ module SequelHybridSearchable
         sent_md5 = Digest::MD5.hexdigest(cleaned_sent)
         got_md5 = Digest::MD5.hexdigest(cleaned_got)
         if sent_md5 != got_md5
-          msg = "Protocol issue: Sent: (#{sent_md5})\n" \
+          raise "Protocol issue: Sent: (#{sent_md5})\n" \
                 "#{cleaned_sent.inspect}\n" \
                 "Got: (#{got_md5})\n" \
                 "#{cleaned_got.inspect}"
-          raise msg
         end
       end
       self.logger.debug("encoded_model_embedding", text:, vector_size: embedding.size)

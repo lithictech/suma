@@ -397,7 +397,17 @@ RSpec.describe "Suma::Member", :db do
     end
   end
 
-  it_behaves_like "a hybrid searchable object" do
-    let(:instance) { Suma::Fixtures.organization_membership.verified.create.member }
+  describe "hybrid search" do
+    it_behaves_like "a hybrid searchable object" do
+      let(:instance) { Suma::Fixtures.organization_membership.verified.create.member }
+    end
+
+    it "handles a bad or missing phone number" do
+      m = Suma::Fixtures.member.email.instance(phone: "555")
+      expect(m.hybrid_search_text).to match(/Phone number: 555/)
+
+      m = Suma::Fixtures.member.email.instance(phone: nil)
+      expect(m.hybrid_search_text).to match(/Phone number: /)
+    end
   end
 end

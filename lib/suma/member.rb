@@ -403,9 +403,9 @@ class Suma::Member < Suma::Postgres::Model(:members)
 
   def hybrid_search_fields
     begin
-      phone = self.phone.present? && Suma::PhoneNumber::US.format(self.phone)
+      phone = self.phone.present? ? Suma::PhoneNumber::US.format(self.phone) : ""
     rescue ArgumentError
-      phone = nil
+      phone = self.phone
     end
     orgnames = self.organization_memberships.map(&:verified_organization).select(&:itself).map(&:name)
     return [
