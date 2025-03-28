@@ -127,6 +127,17 @@ RSpec.describe "sequel-hybrid-searchable" do
       expect(model.dataset.hybrid_search("matchnothing", limit: 10).all).to be_empty
     end
 
+    it "returns all results on empty or asterik" do
+      geralt = model.create(name: "Geralt")
+      ciri = model.create(name: "Ciri")
+      model.hybrid_search_reindex_all
+
+      got = model.dataset.hybrid_search("  ", limit: 10).all
+      expect(got).to have_same_ids_as(geralt, ciri)
+      got = model.dataset.hybrid_search(" * ", limit: 10).all
+      expect(got).to have_same_ids_as(geralt, ciri)
+    end
+
     it "uses OR for the keyword search (instead of 'AND')" do
       m1 = model.create(name: "Tim 1")
       m2 = model.create(name: "Tim 2")

@@ -51,7 +51,23 @@ module Sequel::Plugins::HybridSearchable
       tbl = self.model.table_name
       vec_col = self.model.hybrid_search_vector_column
       content_col = self.model.hybrid_search_content_column
+      q = q.strip
       # Based on https://github.com/pgvector/pgvector-python/blob/master/examples/hybrid_search/rrf.py
+      kw_sql = if q.blank? || q == "*"
+                 <<~SQL
+                   SELECT #{pk} as id, 0 as rank
+                   FROM #{tbl}
+                   LIMIT #{limit} -- ? ? ? ? ?
+                 SQL
+      else
+        <<~SQL
+          SELECT #{pk} as id, RANK () OVER (ORDER BY ts_rank_cd(to_tsvector(?, #{content_col}), query) DESC)
+          FROM #{tbl}, websearch_to_tsquery(?, ?) query
+          WHERE to_tsvector(?, #{content_col}) @@ query
+          ORDER BY ts_rank_cd(to_tsvector(?, #{content_col}), query) DESC
+          LIMIT #{outer_limit}
+        SQL
+      end
       sql = <<~SQL
         WITH semantic_search AS (
             SELECT #{pk} as id, RANK () OVER (ORDER BY #{vec_col} <=> ?) AS rank
@@ -60,11 +76,7 @@ module Sequel::Plugins::HybridSearchable
             LIMIT #{outer_limit}
         ),
         keyword_search AS (
-            SELECT #{pk} as id, RANK () OVER (ORDER BY ts_rank_cd(to_tsvector(?, #{content_col}), query) DESC)
-            FROM #{tbl}, websearch_to_tsquery(?, ?) query
-            WHERE to_tsvector(?, #{content_col}) @@ query
-            ORDER BY ts_rank_cd(to_tsvector(?, #{content_col}), query) DESC
-            LIMIT #{outer_limit}
+            #{kw_sql}
         )
         SELECT
             COALESCE(semantic_search.id, keyword_search.id) AS #{pk},
