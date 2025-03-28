@@ -33,19 +33,12 @@ module Sequel::Plugins::HybridSearchable
     # - Rows with better keyword matches will rank higher.
     # - Rows with better semantic matches will rank higher (though keywords are more important).
     #
-    # Pagination can be used with offset/limit.
-    # The +outer_limit_multiplier+ is used for the 'inner' semantic and keyword queries;
-    # that is, they will rank +limit*outer_limit_multiplier+ results,
-    # before limiting the final result.
-    #
-    # Note that calculating later pages may get very slow,
+    # Limit/offset pagination may get very slow,
     # even moreso than normal offset/limit pagination,
     # which has this problem (since skipped rows still need to be ranked).
     # To avoid this, you can use cursor-based pagination by filtering the dataset,
     # like `ds.where { id > last_result_id }.hybrid_search(...)`.
-    def hybrid_search(q, limit:, outer_limit_multiplier: 4, offset: 0)
-      outer_limit = limit * outer_limit_multiplier
-      outer_limit += offset * outer_limit_multiplier
+    def hybrid_search(q)
       query_embedding = SequelHybridSearchable.embedding_generator.get_embedding(q)
       pk = self.model.primary_key
       tbl = self.model.table_name
@@ -60,14 +53,12 @@ module Sequel::Plugins::HybridSearchable
             SELECT #{pk} as id, RANK () OVER (ORDER BY #{vec_col} <=> ?) AS rank
             FROM #{tbl}
             ORDER BY #{vec_col} <=> ?
-            LIMIT #{outer_limit}
         ),
         keyword_search AS (
             SELECT #{pk} as id, RANK () OVER (ORDER BY ts_rank_cd(to_tsvector(?, #{content_col}), query) DESC)
             FROM #{tbl}, websearch_to_tsquery(?, ?) query
             WHERE to_tsvector(?, #{content_col}) @@ query#{matchall}
             ORDER BY ts_rank_cd(to_tsvector(?, #{content_col}), query) DESC
-            LIMIT #{outer_limit}
         )
         SELECT
             COALESCE(semantic_search.id, keyword_search.id) AS #{pk},
@@ -76,8 +67,6 @@ module Sequel::Plugins::HybridSearchable
         FROM keyword_search
         JOIN semantic_search ON semantic_search.id = keyword_search.id
         ORDER BY score DESC
-        LIMIT #{limit}
-        OFFSET #{offset}
       SQL
       vec = Pgvector.encode(query_embedding)
       lang = self.model.hybrid_search_language
