@@ -50,6 +50,11 @@ class Suma::Postgres::Model
     setting :encryption_key_0, "Tc3X6zkxXgZfHE81MFz2EILStV++BuQY"
     # rubocop:enable Naming/VariableNumber
 
+    # Valid values are:
+    # - subprocess
+    # - api
+    setting :hybrid_search_embedding_generator, nil
+
     after_configured do
       options = {
         logger: [self.logger],
@@ -68,6 +73,13 @@ class Suma::Postgres::Model
       db.extension(:pg_interval)
       db.extension(:pretty_table)
       self.db = db
+      if self.hybrid_search_embedding_generator == "subprocess"
+        require "sequel/sequel_hybrid_searchable/subproc_sentence_transformer_generator"
+        SequelHybridSearchable.embedding_generator = SequelHybridSearchable::SubprocSentenceTransformerGenerator.new
+      elsif self.hybrid_search_embedding_generator == "api"
+        require "sequel/sequel_hybrid_searchable/api_embedding_generator"
+        SequelHybridSearchable.embedding_generator = SequelHybridSearchable::ApiEmbeddingGenerator.new
+      end
     end
   end
 

@@ -113,7 +113,7 @@ RSpec.shared_examples "an endpoint capable of search" do
   let(:ok_status) { 200 }
   let(:http_method) { :get }
 
-  it "returns only matching items" do
+  it "returns only matching items", :hybrid_search do
     matched = make_matching_items
     unmatched = make_non_matching_items
     matched.first.class.hybrid_search_reindex_all
@@ -124,7 +124,7 @@ RSpec.shared_examples "an endpoint capable of search" do
     expect(last_response_json_body[:items]).to have_same_ids_as(matched)
   end
 
-  it "returns all results with a match-all (whitespace, asterik) string" do
+  it "returns all results with a match-all (whitespace, asterik) string", :hybrid_search do
     matched = make_matching_items
     unmatched = make_non_matching_items
     matched.first.class.hybrid_search_reindex_all
@@ -135,7 +135,7 @@ RSpec.shared_examples "an endpoint capable of search" do
     expect(last_response_json_body[:items]).to have_same_ids_as(matched + unmatched)
   end
 
-  it "downloads filtered items" do
+  it "downloads filtered items", :hybrid_search do
     matched = make_matching_items
     unmatched = make_non_matching_items
     matched.first.class.hybrid_search_reindex_all

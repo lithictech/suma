@@ -2,6 +2,8 @@
 
 require "sequel"
 require "sequel/sequel_hybrid_searchable"
+require "sequel/sequel_hybrid_searchable/subproc_sentence_transformer_generator"
+require "sequel/sequel_hybrid_searchable/api_embedding_generator"
 
 RSpec.describe "sequel-hybrid-searchable" do
   before(:all) do
@@ -26,12 +28,14 @@ RSpec.describe "sequel-hybrid-searchable" do
   after(:all) do
     @db.disconnect
     SequelHybridSearchable.indexing_mode = :off
+    SequelHybridSearchable.embedding_generator = nil
   end
 
   before(:each) do
     @db[:svs_tester].truncate
     SequelHybridSearchable.searchable_models.clear
     SequelHybridSearchable.indexing_mode = :off
+    SequelHybridSearchable.embedding_generator = SequelHybridSearchable::SubprocSentenceTransformerGenerator
   end
 
   after(:each) do
@@ -91,12 +95,6 @@ RSpec.describe "sequel-hybrid-searchable" do
     model.hybrid_search_reindex_all
 
     expect(model.dataset.hybrid_search("tester").all).to have_same_ids_as(geralt, ciri)
-  end
-
-  it "restarts the embedding generator process on broken pipe" do
-    SequelHybridSearchable.embedding_generator.get_embedding("abc")
-    Process.kill("TERM", SequelHybridSearchable.embedding_generator.process.fetch(:pid))
-    expect { SequelHybridSearchable.embedding_generator.get_embedding("abc") }.to_not raise_error
   end
 
   describe "search" do
@@ -255,6 +253,13 @@ RSpec.describe "sequel-hybrid-searchable" do
   end
 
   describe "subprocess embeddings generator" do
+    it "restarts the embedding generator process on broken pipe" do
+      gen = SequelHybridSearchable::SubprocSentenceTransformerGenerator.instance
+      gen.get_embedding("abc")
+      Process.kill("TERM", gen.process.fetch(:pid))
+      expect { gen.get_embedding("abc") }.to_not raise_error
+    end
+
     it "does not block on stderr filling up" do
       Array.new(1000) do |i|
         SequelHybridSearchable.embedding_generator.get_embedding(i.to_s)

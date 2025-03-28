@@ -18,12 +18,6 @@ preload_app!
 require "suma/async/autoscaler"
 Suma::Async::Autoscaler.start
 
-Thread.new do
-  # Preload the embeddings generator so it's available on the first call.
-  require "sequel/sequel_hybrid_searchable"
-  SequelHybridSearchable.embedding_generator.get_embedding("")
-end
-
 on_worker_boot do
   SemanticLogger.reopen if defined?(SemanticLogger)
   if defined?(Suma::Postgres)
