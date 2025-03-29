@@ -147,7 +147,7 @@ module Suma::Service::Helpers
 
   # Order the database. By default, use descending nulls last.
   # If order_direction is :asc, use ascending nulls first.
-  def self.order(dataset, params, disambiguator: :id)
+  def order(dataset, params, disambiguator: Sequel[dataset.model.table_name][dataset.model.primary_key])
     if params[:order_direction] == :asc
       m = :asc
       nulls = :first
@@ -159,9 +159,15 @@ module Suma::Service::Helpers
     return dataset.order(expr, Sequel.desc(disambiguator))
   end
 
-  # Order the database. By default, use descending nulls last.
-  # If order_direction is :asc, use ascending nulls first.
-  def order(*) = Suma::Service::Helpers.order(*)
+  # Return true if the key was passed in the GET query params
+  # or POST body. false if not passed.
+  # This is the only way to know if a param was passed,
+  # rather than set by a default value in a Grape parameter block.
+  # `params` and `declared` include default parameterw.
+  def param_passed?(key)
+    key = key.to_s
+    return request.GET.key?(key) || request.POST.key?(key)
+  end
 
   def hybrid_search(dataset, params)
     return dataset.hybrid_search(params.fetch(:search))

@@ -187,13 +187,15 @@ module Suma::AdminAPI::CommonEndpoints
         access = Suma::AdminAPI::Access.read_key(model_type)
         check_role_access!(admin_member, :read, access)
         ds = model_type.dataset
-        ds = if params[:search].present?
-               hybrid_search(ds, params)
-             elsif ordering
-               ordering.call(ds, params)
-             else
-               order(ds, params)
-             end
+        if params[:search].present?
+          ds = hybrid_search(ds, params)
+          # Override the hybrid search ranking if an explicit ordering is passed.
+          ds = order(ds, params) if param_passed?(:order_by)
+        elsif ordering
+          ds = self.instance_exec(ds, params, &ordering)
+        else
+          ds = order(ds, params)
+        end
         if params[:download]
           csv = exporter.new(ds).to_csv
           env["api.format"] = :binary

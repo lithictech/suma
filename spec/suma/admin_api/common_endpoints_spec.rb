@@ -49,6 +49,23 @@ RSpec.describe Suma::AdminAPI::CommonEndpoints, :db do
       expect(last_response).to have_json_body.that_includes(error: include(code: "role_check"))
     end
 
+    it "can specify a custom ordering along with search", :hybrid_search do
+      geralt = Suma::Fixtures.vendor.create(name: "Geralt of Rivia")
+      ciri = Suma::Fixtures.vendor.create(name: "Ciri of Rivia")
+      yen = Suma::Fixtures.vendor.create(name: "Yennefer of Vengerburg")
+      Suma::Vendor.hybrid_search_reindex_all
+
+      get "/v1/vendors", search: "Rivia"
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.that_includes(items: have_same_ids_as(geralt, ciri).ordered)
+
+      get "/v1/vendors", search: "Rivia", order_by: "name", order_direction: "asc"
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.that_includes(items: have_same_ids_as(ciri, geralt).ordered)
+    end
+
     it_behaves_like "an endpoint capable of search" do
       let(:url) { "/v1/vendors" }
       let(:search_term) { "johns farm" }
