@@ -37,7 +37,7 @@ module Suma::Message
 
   # Create a Suma::Message::Delivery ready to deliver (rendered, all bodies set up)
   # using the given transport_type to the given user.
-  def self.dispatch(template, to, transport_type)
+  def self.dispatch(template, to, transport_type, extra_fields: {})
     (transport = Suma::Message::Transport.for(transport_type)) or
       raise InvalidTransportError, "Invalid transport #{transport_type}"
     recipient = transport.recipient(to)
@@ -52,7 +52,7 @@ module Suma::Message
         transport_service: transport.service,
         to: recipient.to,
         recipient: recipient.member,
-        extra_fields: template.extra_fields,
+        extra_fields: template.extra_fields.merge(extra_fields),
       )
       transport.add_bodies(delivery, contents)
       delivery.publish_deferred("dispatched", delivery.id)

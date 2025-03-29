@@ -91,7 +91,8 @@ class Suma::Message::SmsTransport < Suma::Message::Transport
     raise Suma::Message::Transport::Error, "Could not format phone number" if
       to_phone.nil?
 
-    (from_phone = Suma::PhoneNumber.format_e164(self.class.from)) or
+    from_phone = delivery.extra_fields.fetch("from", self.class.from)
+    (from_phone = Suma::PhoneNumber.format_e164(from_phone)) or
       raise Suma::InvalidPrecondition, "SMS_TRANSPORT_FROM is invalid"
 
     raise Suma::Message::Transport::UndeliverableRecipient, "Number '#{to_phone}' not allowlisted" unless

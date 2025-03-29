@@ -106,6 +106,10 @@ RSpec.describe Suma::Message::SignalwireWebhookdbOptoutProcessor, :db, reset_con
       have_attributes(recipient: be === member, template: "sms_compliance/optin"),
       have_attributes(recipient: be === member, template: "sms_compliance/help"),
     )
+    expect(Suma::Message::Delivery.first).to have_attributes(
+      transport_service: "signalwire",
+      extra_fields: hash_including("from" => Suma::Signalwire.marketing_number),
+    )
   end
 
   describe "msgtype" do
