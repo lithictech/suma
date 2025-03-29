@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "open3"
+require "sequel/sequel_hybrid_searchable"
 
 # Use a model from the sentence-transformers Python module,
 # and call it through a subprocess.

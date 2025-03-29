@@ -269,10 +269,15 @@ RSpec.describe "sequel-hybrid-searchable" do
 
   describe "api embeddings generator" do
     before(:all) do
+      @apikey = "rubytest"
       chdir = Dir.pwd + "/aiapi"
       _, stderr, status = Open3.capture3("pip", "install", "-r", "requirements.txt", chdir:)
       raise "Pip install failed with #{status.exitstatus}: #{stderr}" unless status.success?
-      _, _, _, @status = Open3.popen3("python", "-m", "gunicorn", "--bind", "0.0.0.0:22009", "server:app", chdir:)
+      _, _, _, @status = Open3.popen3(
+        {"API_KEY" => @apikey},
+        "python", "-m", "gunicorn", "--bind", "0.0.0.0:22009", "server:app",
+        chdir:,
+      )
       sleep(2)
     end
 
@@ -285,9 +290,16 @@ RSpec.describe "sequel-hybrid-searchable" do
     end
 
     it "calls the service" do
-      gen = SequelHybridSearchable::ApiEmbeddingGenerator.new("http://localhost:22009")
+      gen = SequelHybridSearchable::ApiEmbeddingGenerator.new("http://localhost:22009", api_key: @apikey)
       got = gen.get_embedding("hello")
       expect(got).to have_length(be > 4)
+    end
+
+    it "errors for an invalid api key" do
+      gen = SequelHybridSearchable::ApiEmbeddingGenerator.new("http://localhost:22009", api_key: "badkey")
+      expect do
+        gen.get_embedding("hello")
+      end.to raise_error(/Invalid Api-Key header/)
     end
   end
 

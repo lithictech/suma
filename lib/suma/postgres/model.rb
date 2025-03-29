@@ -54,6 +54,8 @@ class Suma::Postgres::Model
     # - subprocess
     # - api
     setting :hybrid_search_embedding_generator, nil
+    setting :hybrid_search_aiapi_host, nil
+    setting :hybrid_search_aiapi_key, "fake-key"
 
     after_configured do
       options = {
@@ -78,7 +80,11 @@ class Suma::Postgres::Model
         SequelHybridSearchable.embedding_generator = SequelHybridSearchable::SubprocSentenceTransformerGenerator.new
       elsif self.hybrid_search_embedding_generator == "api"
         require "sequel/sequel_hybrid_searchable/api_embedding_generator"
-        SequelHybridSearchable.embedding_generator = SequelHybridSearchable::ApiEmbeddingGenerator.new
+        raise "Must set SUMA_DB_HYBRID_SEARCH_AIAPI_HOST" if self.hybrid_search_aiapi_host.blank?
+        SequelHybridSearchable.embedding_generator = SequelHybridSearchable::ApiEmbeddingGenerator.new(
+          self.hybrid_search_aiapi_host,
+          api_key: self.hybrid_search_aiapi_key,
+        )
       end
     end
   end
