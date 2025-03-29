@@ -125,7 +125,7 @@ download-production-dump:
 
 restore-db-from-dump:
 	@mkdir -p temp
-	@PGPASSWORD=suma psql postgres://suma:suma@localhost:22005/suma -c "CREATE SCHEMA IF NOT EXISTS heroku_ext"
+	@PGPASSWORD=suma psql postgres://suma:suma@localhost:22005/suma -c "CREATE SCHEMA IF NOT EXISTS heroku_ext; ALTER DATABASE suma SET search_path TO public,heroku_ext;"
 	PGPASSWORD=suma pg_restore --clean --no-acl --no-owner -h 127.0.0.1 -p 22005 -U suma -d suma temp/latest.dump || true
 	@PGPASSWORD=suma psql postgres://suma:suma@localhost:22005/suma -c "ALTER EXTENSION citext SET SCHEMA public"
 	@bundle exec rake release:prepare_prod_db_for_testing
