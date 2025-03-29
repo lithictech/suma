@@ -207,6 +207,9 @@ end
 #  originating_ip                 | inet                     |
 #  stripe_card_strategy_id        | integer                  |
 #  memo_id                        | integer                  | NOT NULL
+#  search_content                 | text                     |
+#  search_embedding               | vector(384)              |
+#  search_hash                    | text                     |
 # Indexes:
 #  payment_funding_transactions_pkey                               | PRIMARY KEY btree (id)
 #  payment_funding_transactions_fake_strategy_id_key               | UNIQUE btree (fake_strategy_id)
@@ -215,6 +218,7 @@ end
 #  payment_funding_transactions_stripe_card_strategy_id_key        | UNIQUE btree (stripe_card_strategy_id)
 #  payment_funding_transactions_originating_payment_account_id_ind | btree (originating_payment_account_id)
 #  payment_funding_transactions_platform_ledger_id_index           | btree (platform_ledger_id)
+#  payment_funding_transactions_search_content_tsvector_index      | gin (to_tsvector('english'::regconfig, search_content))
 # Check constraints:
 #  amount_positive      | (amount_cents > 0)
 #  unambiguous_strategy | (fake_strategy_id IS NOT NULL AND increase_ach_strategy_id IS NULL AND stripe_card_strategy_id IS NULL OR fake_strategy_id IS NULL AND increase_ach_strategy_id IS NOT NULL AND stripe_card_strategy_id IS NULL OR fake_strategy_id IS NULL AND increase_ach_strategy_id IS NULL AND stripe_card_strategy_id IS NOT NULL)

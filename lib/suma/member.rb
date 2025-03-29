@@ -480,12 +480,15 @@ require "suma/member/stripe_attributes"
 #  legal_entity_id        | integer                  | NOT NULL
 #  terms_agreed           | date                     |
 #  stripe_customer_json   | jsonb                    |
-#  frontapp_contact_id    | text                     | NOT NULL DEFAULT ''::text
 #  lime_user_id           | text                     | NOT NULL DEFAULT ''::text
+#  search_content         | text                     |
+#  search_embedding       | vector(384)              |
+#  search_hash            | text                     |
 # Indexes:
-#  members_pkey      | PRIMARY KEY btree (id)
-#  members_email_key | UNIQUE btree (email)
-#  members_phone_key | UNIQUE btree (phone)
+#  members_pkey                          | PRIMARY KEY btree (id)
+#  members_email_key                     | UNIQUE btree (email)
+#  members_phone_key                     | UNIQUE btree (phone)
+#  members_search_content_tsvector_index | gin (to_tsvector('english'::regconfig, search_content))
 # Check constraints:
 #  email_present           | (email IS NULL OR length(email::text) > 0)
 #  lowercase_nospace_email | (email::text = btrim(lower(email::text)))

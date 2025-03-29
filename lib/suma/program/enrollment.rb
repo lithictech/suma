@@ -117,15 +117,19 @@ end
 #  unenrolled_at    | timestamp with time zone |
 #  unenrolled_by_id | integer                  |
 #  role_id          | integer                  |
+#  search_content   | text                     |
+#  search_embedding | vector(384)              |
+#  search_hash      | text                     |
 # Indexes:
-#  program_enrollments_pkey                  | PRIMARY KEY btree (id)
-#  unique_enrollee_in_program_idx            | UNIQUE btree (COALESCE(member_id, 0), COALESCE(organization_id, 0), COALESCE(role_id, 0), program_id)
-#  program_enrollments_approved_at_index     | btree (approved_at)
-#  program_enrollments_member_id_index       | btree (member_id)
-#  program_enrollments_organization_id_index | btree (organization_id)
-#  program_enrollments_program_id_index      | btree (program_id)
-#  program_enrollments_role_id_index         | btree (role_id)
-#  program_enrollments_unenrolled_at_index   | btree (unenrolled_at)
+#  program_enrollments_pkey                          | PRIMARY KEY btree (id)
+#  unique_enrollee_in_program_idx                    | UNIQUE btree (COALESCE(member_id, 0), COALESCE(organization_id, 0), COALESCE(role_id, 0), program_id)
+#  program_enrollments_approved_at_index             | btree (approved_at)
+#  program_enrollments_member_id_index               | btree (member_id)
+#  program_enrollments_organization_id_index         | btree (organization_id)
+#  program_enrollments_program_id_index              | btree (program_id)
+#  program_enrollments_role_id_index                 | btree (role_id)
+#  program_enrollments_search_content_tsvector_index | gin (to_tsvector('english'::regconfig, search_content))
+#  program_enrollments_unenrolled_at_index           | btree (unenrolled_at)
 # Check constraints:
 #  one_enrollee_set | (member_id IS NOT NULL AND organization_id IS NULL AND role_id IS NULL OR member_id IS NULL AND organization_id IS NOT NULL AND role_id IS NULL OR member_id IS NULL AND organization_id IS NULL AND role_id IS NOT NULL)
 # Foreign key constraints:

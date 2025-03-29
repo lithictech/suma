@@ -138,11 +138,15 @@ end
 #  sent_at              | timestamp with time zone |
 #  aborted_at           | timestamp with time zone |
 #  template_language    | text                     | NOT NULL DEFAULT ''::text
+#  search_content       | text                     |
+#  search_embedding     | vector(384)              |
+#  search_hash          | text                     |
 # Indexes:
-#  message_deliveries_pkey                     | PRIMARY KEY btree (id)
-#  message_deliveries_transport_message_id_key | UNIQUE btree (transport_message_id)
-#  message_deliveries_recipient_id_index       | btree (recipient_id)
-#  message_deliveries_sent_at_index            | btree (sent_at)
+#  message_deliveries_pkey                          | PRIMARY KEY btree (id)
+#  message_deliveries_transport_message_id_key      | UNIQUE btree (transport_message_id)
+#  message_deliveries_recipient_id_index            | btree (recipient_id)
+#  message_deliveries_search_content_tsvector_index | gin (to_tsvector('english'::regconfig, search_content))
+#  message_deliveries_sent_at_index                 | btree (sent_at)
 # Foreign key constraints:
 #  message_deliveries_recipient_id_fkey | (recipient_id) REFERENCES members(id) ON DELETE SET NULL
 # Referenced By:

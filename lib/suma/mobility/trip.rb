@@ -157,11 +157,17 @@ end
 #  vendor_service_rate_id | integer                  | NOT NULL
 #  member_id              | integer                  | NOT NULL
 #  external_trip_id       | text                     |
+#  opaque_id              | text                     | NOT NULL
+#  search_content         | text                     |
+#  search_embedding       | vector(384)              |
+#  search_hash            | text                     |
 # Indexes:
 #  mobility_trips_pkey                               | PRIMARY KEY btree (id)
 #  mobility_trips_external_trip_id_key               | UNIQUE btree (external_trip_id)
+#  mobility_trips_opaque_id_key                      | UNIQUE btree (opaque_id)
 #  one_active_ride_per_member                        | UNIQUE btree (member_id) WHERE ended_at IS NULL
 #  mobility_trips_member_id_index                    | btree (member_id)
+#  mobility_trips_search_content_tsvector_index      | gin (to_tsvector('english'::regconfig, search_content))
 #  mobility_trips_vehicle_id_vendor_service_id_index | btree (vehicle_id, vendor_service_id)
 # Check constraints:
 #  end_fields_set_together | (end_lat IS NULL AND end_lng IS NULL AND ended_at IS NULL OR end_lat IS NOT NULL AND end_lng IS NOT NULL AND ended_at IS NOT NULL)

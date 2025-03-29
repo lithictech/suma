@@ -116,9 +116,14 @@ end
 #  mobility_vendor_adapter_key | text                     | NOT NULL DEFAULT ''::text
 #  constraints                 | jsonb                    | DEFAULT '[]'::jsonb
 #  period                      | tstzrange                | NOT NULL
+#  charge_after_fulfillment    | boolean                  | NOT NULL DEFAULT false
+#  search_content              | text                     |
+#  search_embedding            | vector(384)              |
+#  search_hash                 | text                     |
 # Indexes:
-#  vendor_services_pkey            | PRIMARY KEY btree (id)
-#  vendor_services_vendor_id_index | btree (vendor_id)
+#  vendor_services_pkey                          | PRIMARY KEY btree (id)
+#  vendor_services_search_content_tsvector_index | gin (to_tsvector('english'::regconfig, search_content))
+#  vendor_services_vendor_id_index               | btree (vendor_id)
 # Foreign key constraints:
 #  vendor_services_vendor_id_fkey | (vendor_id) REFERENCES vendors(id) ON DELETE CASCADE
 # Referenced By:

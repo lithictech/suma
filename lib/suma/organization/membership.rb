@@ -52,10 +52,14 @@ end
 #  verified_organization_id     | integer                  |
 #  unverified_organization_name | text                     |
 #  member_id                    | integer                  |
+#  search_content               | text                     |
+#  search_embedding             | vector(384)              |
+#  search_hash                  | text                     |
 # Indexes:
 #  organization_memberships_pkey                           | PRIMARY KEY btree (id)
 #  unique_member_membership_in_verified_organization       | UNIQUE btree (member_id, verified_organization_id)
 #  organization_memberships_member_id_index                | btree (member_id)
+#  organization_memberships_search_content_tsvector_index  | gin (to_tsvector('english'::regconfig, search_content))
 #  organization_memberships_verified_organization_id_index | btree (verified_organization_id)
 # Check constraints:
 #  unambiguous_verification_status | (verified_organization_id IS NOT NULL AND unverified_organization_name IS NULL OR verified_organization_id IS NULL AND unverified_organization_name IS NOT NULL)

@@ -75,8 +75,12 @@ end
 #  our_cost_currency | text                     | NOT NULL
 #  name_id           | integer                  | NOT NULL
 #  description_id    | integer                  | NOT NULL
+#  search_content    | text                     |
+#  search_embedding  | vector(384)              |
+#  search_hash       | text                     |
 # Indexes:
-#  commerce_products_pkey | PRIMARY KEY btree (id)
+#  commerce_products_pkey                          | PRIMARY KEY btree (id)
+#  commerce_products_search_content_tsvector_index | gin (to_tsvector('english'::regconfig, search_content))
 # Foreign key constraints:
 #  commerce_products_description_id_fkey | (description_id) REFERENCES translated_texts(id)
 #  commerce_products_name_id_fkey        | (name_id) REFERENCES translated_texts(id)

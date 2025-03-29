@@ -117,6 +117,10 @@ end
 #  latest_access_code_set_at       | timestamp with time zone |
 #  latest_access_code_requested_at | timestamp with time zone |
 #  latest_access_code_magic_link   | text                     |
+#  registered_with_vendor          | text                     |
+#  search_content                  | text                     |
+#  search_embedding                | vector(384)              |
+#  search_hash                     | text                     |
 # Indexes:
 #  anon_proxy_vendor_accounts_pkey                             | PRIMARY KEY btree (id)
 #  anon_proxy_vendor_accounts_configuration_id_contact_id_key  | UNIQUE btree (configuration_id, contact_id)
@@ -124,8 +128,10 @@ end
 #  anon_proxy_vendor_accounts_configuration_id_index           | btree (configuration_id)
 #  anon_proxy_vendor_accounts_contact_id_index                 | btree (contact_id)
 #  anon_proxy_vendor_accounts_member_id_index                  | btree (member_id)
+#  anon_proxy_vendor_accounts_search_content_tsvector_index    | gin (to_tsvector('english'::regconfig, search_content))
 # Check constraints:
 #  consistent_latest_access_code      | (latest_access_code IS NULL AND latest_access_code_set_at IS NULL OR latest_access_code IS NOT NULL AND latest_access_code_set_at IS NOT NULL)
+#  non_empty_vendor_registration      | (registered_with_vendor IS NULL OR registered_with_vendor <> ''::text)
 #  null_or_present_latest_access_code | (latest_access_code IS NULL OR latest_access_code <> ''::text)
 # Foreign key constraints:
 #  anon_proxy_vendor_accounts_configuration_id_fkey | (configuration_id) REFERENCES anon_proxy_vendor_configurations(id) ON DELETE CASCADE

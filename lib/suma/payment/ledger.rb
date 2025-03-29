@@ -163,10 +163,14 @@ end
 #  name                 | text                     | NOT NULL
 #  account_id           | integer                  | NOT NULL
 #  contribution_text_id | integer                  | NOT NULL
+#  search_content       | text                     |
+#  search_embedding     | vector(384)              |
+#  search_hash          | text                     |
 # Indexes:
-#  payment_ledgers_pkey                | PRIMARY KEY btree (id)
-#  payment_ledgers_account_id_name_key | UNIQUE btree (account_id, name)
-#  payment_ledgers_account_id_index    | btree (account_id)
+#  payment_ledgers_pkey                          | PRIMARY KEY btree (id)
+#  payment_ledgers_account_id_name_key           | UNIQUE btree (account_id, name)
+#  payment_ledgers_account_id_index              | btree (account_id)
+#  payment_ledgers_search_content_tsvector_index | gin (to_tsvector('english'::regconfig, search_content))
 # Foreign key constraints:
 #  payment_ledgers_account_id_fkey           | (account_id) REFERENCES payment_accounts(id)
 #  payment_ledgers_contribution_text_id_fkey | (contribution_text_id) REFERENCES translated_texts(id)

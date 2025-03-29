@@ -217,9 +217,13 @@ require "suma/commerce/offering_picklist"
 #  max_ordered_items_cumulative | integer                  |
 #  max_ordered_items_per_member | integer                  |
 #  fulfillment_instructions_id  | integer                  | NOT NULL
+#  search_content               | text                     |
+#  search_embedding             | vector(384)              |
+#  search_hash                  | text                     |
 # Indexes:
-#  commerce_offerings_pkey                       | PRIMARY KEY btree (id)
-#  commerce_offerings_begin_fulfillment_at_index | btree (begin_fulfillment_at)
+#  commerce_offerings_pkey                          | PRIMARY KEY btree (id)
+#  commerce_offerings_begin_fulfillment_at_index    | btree (begin_fulfillment_at)
+#  commerce_offerings_search_content_tsvector_index | gin (to_tsvector('english'::regconfig, search_content))
 # Foreign key constraints:
 #  commerce_offerings_description_id_fkey              | (description_id) REFERENCES translated_texts(id)
 #  commerce_offerings_fulfillment_confirmation_id_fkey | (fulfillment_confirmation_id) REFERENCES translated_texts(id)

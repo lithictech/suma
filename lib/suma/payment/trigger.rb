@@ -183,8 +183,12 @@ end
 #  originating_ledger_id                 | integer                  | NOT NULL
 #  receiving_ledger_name                 | text                     | NOT NULL
 #  receiving_ledger_contribution_text_id | integer                  | NOT NULL
+#  search_content                        | text                     |
+#  search_embedding                      | vector(384)              |
+#  search_hash                           | text                     |
 # Indexes:
-#  payment_triggers_pkey | PRIMARY KEY btree (id)
+#  payment_triggers_pkey                          | PRIMARY KEY btree (id)
+#  payment_triggers_search_content_tsvector_index | gin (to_tsvector('english'::regconfig, search_content))
 # Foreign key constraints:
 #  payment_triggers_memo_id_fkey                               | (memo_id) REFERENCES translated_texts(id)
 #  payment_triggers_originating_ledger_id_fkey                 | (originating_ledger_id) REFERENCES payment_ledgers(id)

@@ -270,6 +270,9 @@ end
 #  originated_book_transaction_id   | integer                  |
 #  fake_strategy_id                 | integer                  |
 #  stripe_charge_refund_strategy_id | integer                  |
+#  search_content                   | text                     |
+#  search_embedding                 | vector(384)              |
+#  search_hash                      | text                     |
 # Indexes:
 #  payment_payout_transactions_pkey                                | PRIMARY KEY btree (id)
 #  payment_payout_transactions_crediting_book_transaction_id_key   | UNIQUE btree (crediting_book_transaction_id)
@@ -278,6 +281,7 @@ end
 #  payment_payout_transactions_stripe_charge_refund_strategy_i_key | UNIQUE btree (stripe_charge_refund_strategy_id)
 #  payment_payout_transactions_originating_payment_account_id_inde | btree (originating_payment_account_id)
 #  payment_payout_transactions_platform_ledger_id_index            | btree (platform_ledger_id)
+#  payment_payout_transactions_search_content_tsvector_index       | gin (to_tsvector('english'::regconfig, search_content))
 # Check constraints:
 #  amount_positive      | (amount_cents > 0)
 #  refund_fields_valid  | (refunded_funding_transaction_id IS NOT NULL AND crediting_book_transaction_id IS NOT NULL AND originated_book_transaction_id IS NOT NULL OR refunded_funding_transaction_id IS NULL AND crediting_book_transaction_id IS NULL AND originated_book_transaction_id IS NULL OR refunded_funding_transaction_id IS NULL AND crediting_book_transaction_id IS NULL AND originated_book_transaction_id IS NOT NULL OR refunded_funding_transaction_id IS NOT NULL AND crediting_book_transaction_id IS NULL AND originated_book_transaction_id IS NOT NULL)
