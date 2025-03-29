@@ -155,8 +155,8 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
 
   describe "HybridSearchReindex" do
     it "reindexes all models if called without an argument" do
-      expect(SequelHybridSearchable.searchable_models).to be_present
-      SequelHybridSearchable.searchable_models.each do |model|
+      expect(SequelHybridSearch.searchable_models).to be_present
+      SequelHybridSearch.searchable_models.each do |model|
         expect(model).to receive(:hybrid_search_reindex_all).and_return(0)
       end
       Suma::Async::HybridSearchReindex.new.perform

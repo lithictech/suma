@@ -5,11 +5,11 @@ require "suma/image"
 require "suma/postgres/model"
 
 class Suma::Program < Suma::Postgres::Model(:programs)
-  include Suma::Postgres::HybridSearchHelpers
+  include Suma::Postgres::HybridSearch
   include Suma::AdminLinked
   include Suma::Image::SingleAssociatedMixin
 
-  plugin :hybrid_searchable
+  plugin :hybrid_search
   plugin :timestamps
   plugin :tstzrange_fields, :period
   plugin :translated_text, :name, Suma::TranslatedText

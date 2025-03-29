@@ -1,15 +1,15 @@
 # frozen_string_literal: true
 
 require "open3"
-require "sequel/sequel_hybrid_searchable"
+require "sequel/sequel_hybrid_search"
 
 # Call the aiapi Python service defined in this repo.
 # Pass it a model name from the sentence-transformers Python module
 # and some text, and get back embeddings.
 #
-# See +SequelHybridSearchable::SubprocSentenceTransformerGenerator+
+# See +SequelHybridSearch::SubprocSentenceTransformerGenerator+
 # for potential models and caveats about vector sizes.
-class SequelHybridSearchable::ApiEmbeddingGenerator < SequelHybridSearchable::EmbeddingGenerator
+class SequelHybridSearch::ApiEmbeddingGenerator < SequelHybridSearch::EmbeddingGenerator
   include Appydays::Loggable
 
   DEFAULT_MODEL = "all-MiniLM-L12-v2"

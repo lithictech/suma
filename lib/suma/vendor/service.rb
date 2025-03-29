@@ -8,11 +8,11 @@ require "suma/program/has"
 require "suma/vendor/has_service_categories"
 
 class Suma::Vendor::Service < Suma::Postgres::Model(:vendor_services)
-  include Suma::Postgres::HybridSearchHelpers
+  include Suma::Postgres::HybridSearch
   include Suma::AdminLinked
   include Suma::Image::SingleAssociatedMixin
 
-  plugin :hybrid_searchable
+  plugin :hybrid_search
   plugin :timestamps
   plugin :tstzrange_fields, :period
   plugin :association_pks

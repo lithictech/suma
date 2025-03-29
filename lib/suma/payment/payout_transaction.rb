@@ -8,13 +8,13 @@ require "suma/payment"
 require "suma/payment/external_transaction"
 
 class Suma::Payment::PayoutTransaction < Suma::Postgres::Model(:payment_payout_transactions)
-  include Suma::Postgres::HybridSearchHelpers
+  include Suma::Postgres::HybridSearch
   include Suma::AdminLinked
   include Suma::Payment::ExternalTransaction
 
   class SendFundsFailed < Suma::StateMachine::FailedTransition; end
 
-  plugin :hybrid_searchable
+  plugin :hybrid_search
   plugin :state_machine
   plugin :timestamps
   plugin :money_fields, :amount

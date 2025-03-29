@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.describe Suma::Postgres::HybridSearchHelpers do
+RSpec.describe Suma::Postgres::HybridSearch do
   describe "configuration" do
     before(:each) do
       described_class.reset_configuration
@@ -10,17 +10,17 @@ RSpec.describe Suma::Postgres::HybridSearchHelpers do
     end
 
     it "sets the embedding generator to nil if not configured" do
-      SequelHybridSearchable.embedding_generator = 5
+      SequelHybridSearch.embedding_generator = 5
       described_class.embedding_generator = nil
       described_class.run_after_configured_hooks
-      expect(SequelHybridSearchable.embedding_generator).to be_nil
+      expect(SequelHybridSearch.embedding_generator).to be_nil
     end
 
     it "configures the hybrid search subproc embedding generator" do
       described_class.embedding_generator = "subprocess"
       described_class.run_after_configured_hooks
-      expect(SequelHybridSearchable.embedding_generator).to be_a(
-        SequelHybridSearchable::SubprocSentenceTransformerGenerator,
+      expect(SequelHybridSearch.embedding_generator).to be_a(
+        SequelHybridSearch::SubprocSentenceTransformerGenerator,
       )
     end
 
@@ -29,10 +29,10 @@ RSpec.describe Suma::Postgres::HybridSearchHelpers do
       described_class.aiapi_host = "http://a.b"
       described_class.aiapi_key = "apikey"
       described_class.run_after_configured_hooks
-      expect(SequelHybridSearchable.embedding_generator).to be_a(
-        SequelHybridSearchable::ApiEmbeddingGenerator,
+      expect(SequelHybridSearch.embedding_generator).to be_a(
+        SequelHybridSearch::ApiEmbeddingGenerator,
       )
-      expect(SequelHybridSearchable.embedding_generator).to have_attributes(
+      expect(SequelHybridSearch.embedding_generator).to have_attributes(
         host: "http://a.b",
         api_key: "apikey",
       )

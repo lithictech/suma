@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module Suma::Postgres::HybridSearchHelpers
+module Suma::Postgres::HybridSearch
   include Appydays::Configurable
 
   configurable(:hybrid_search) do
@@ -20,23 +20,23 @@ module Suma::Postgres::HybridSearchHelpers
 
     after_configured do
       if self.embedding_generator == "subprocess"
-        require "sequel/sequel_hybrid_searchable/subproc_sentence_transformer_generator"
-        SequelHybridSearchable.embedding_generator = SequelHybridSearchable::SubprocSentenceTransformerGenerator.new(
+        require "sequel/sequel_hybrid_search/subproc_sentence_transformer_generator"
+        SequelHybridSearch.embedding_generator = SequelHybridSearch::SubprocSentenceTransformerGenerator.new(
           self.model,
         )
       elsif self.embedding_generator == "api"
-        require "sequel/sequel_hybrid_searchable/api_embedding_generator"
+        require "sequel/sequel_hybrid_search/api_embedding_generator"
         require "suma/http"
         raise "Must set SUMA_DB_HYBRID_SEARCH_AIAPI_HOST" if self.aiapi_host.blank?
-        SequelHybridSearchable.embedding_generator = SequelHybridSearchable::ApiEmbeddingGenerator.new(
+        SequelHybridSearch.embedding_generator = SequelHybridSearch::ApiEmbeddingGenerator.new(
           self.aiapi_host,
           api_key: self.aiapi_key,
           user_agent: Suma::Http.user_agent,
           model_name: self.model,
         )
       else
-        require "sequel/sequel_hybrid_searchable"
-        SequelHybridSearchable.embedding_generator = nil
+        require "sequel/sequel_hybrid_search"
+        SequelHybridSearch.embedding_generator = nil
       end
     end
   end

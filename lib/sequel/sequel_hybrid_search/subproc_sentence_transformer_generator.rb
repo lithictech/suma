@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require "open3"
-require "sequel/sequel_hybrid_searchable"
+require "sequel/sequel_hybrid_search"
 
 # Use a model from the sentence-transformers Python module,
 # and call it through a subprocess.
@@ -20,7 +20,7 @@ require "sequel/sequel_hybrid_searchable"
 # facebook/distilroberta-base | 768    | ~250MB | Text classification, NLI        | Moderate
 # t5-small                    | 512    | ~250MB | Summarization, classification   | Moderate
 # distilgpt2                  | 768    | ~250MB | Text generation, embedding     | Moderate
-class SequelHybridSearchable::SubprocSentenceTransformerGenerator < SequelHybridSearchable::EmbeddingGenerator
+class SequelHybridSearch::SubprocSentenceTransformerGenerator < SequelHybridSearch::EmbeddingGenerator
   include Appydays::Loggable
 
   DEFAULT_MODEL = "all-MiniLM-L6-v2"

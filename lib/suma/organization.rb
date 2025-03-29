@@ -4,10 +4,10 @@ require "suma/postgres/model"
 require "suma/admin_linked"
 
 class Suma::Organization < Suma::Postgres::Model(:organizations)
-  include Suma::Postgres::HybridSearchHelpers
+  include Suma::Postgres::HybridSearch
   include Suma::AdminLinked
 
-  plugin :hybrid_searchable
+  plugin :hybrid_search
   plugin :timestamps
 
   one_to_many :memberships, class: "Suma::Organization::Membership", key: :verified_organization_id

@@ -5,11 +5,11 @@ require "suma/image"
 require "suma/postgres/model"
 
 class Suma::Vendor < Suma::Postgres::Model(:vendors)
-  include Suma::Postgres::HybridSearchHelpers
+  include Suma::Postgres::HybridSearch
   include Suma::Image::SingleAssociatedMixin
   include Suma::AdminLinked
 
-  plugin :hybrid_searchable
+  plugin :hybrid_search
   plugin :timestamps
 
   one_to_one :payment_account, class: "Suma::Payment::Account"

@@ -3,10 +3,10 @@
 require "suma/postgres/model"
 
 class Suma::Payment::Trigger < Suma::Postgres::Model(:payment_triggers)
-  include Suma::Postgres::HybridSearchHelpers
+  include Suma::Postgres::HybridSearch
   include Suma::AdminLinked
 
-  plugin :hybrid_searchable
+  plugin :hybrid_search
   plugin :timestamps
   plugin :association_pks
   plugin :tstzrange_fields, :active_during

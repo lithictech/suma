@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
-require "sequel/sequel_hybrid_searchable"
+require "sequel/sequel_hybrid_search"
 require "pgvector"
 
-module Sequel::Plugins::HybridSearchable
+module Sequel::Plugins::HybridSearch
   DEFAULT_OPTIONS = {
     content_column: :search_content,
     vector_column: :search_embedding,
@@ -19,7 +19,7 @@ module Sequel::Plugins::HybridSearchable
     model.hybrid_search_vector_column = opts[:vector_column]
     model.hybrid_search_hash_column = opts[:hash_column]
     model.hybrid_search_language = opts[:language]
-    SequelHybridSearchable.searchable_models << model
+    SequelHybridSearch.searchable_models << model
     model.plugin :pgvector, model.hybrid_search_vector_column
   end
 
@@ -39,7 +39,7 @@ module Sequel::Plugins::HybridSearchable
     # To avoid this, you can use cursor-based pagination by filtering the dataset,
     # like `ds.where { id > last_result_id }.hybrid_search(...)`.
     def hybrid_search(q)
-      query_embedding = SequelHybridSearchable.embedding_generator.get_embedding(q)
+      query_embedding = SequelHybridSearch.embedding_generator.get_embedding(q)
       pk = self.model.primary_key
       tbl = self.model.table_name
       vec_col = self.model.hybrid_search_vector_column
@@ -96,7 +96,7 @@ module Sequel::Plugins::HybridSearchable
       rff_k = 60
       rank_order = Sequel.lit(
         "COALESCE(1.0 / (#{rff_k} + semantic_search.rank), 0.0) + " \
-        "COALESCE(1.0 / (#{rff_k} + kw_search.rank), 0.0)",
+        "COALESCE(1.0 / (#{rff_k} + kw_search.rank), 0.0) DESC",
       )
       ds = self.model.
         join(kw_search.as(:kw_search), id: pk).
@@ -141,21 +141,21 @@ module Sequel::Plugins::HybridSearchable
     end
 
     def _run_after_model_hook
-      if SequelHybridSearchable.indexing_mode == :async
+      if SequelHybridSearch.indexing_mode == :async
         # We must refetch the model to index since it happens on another thread.
-        SequelHybridSearchable.threadpool.post do
+        SequelHybridSearch.threadpool.post do
           self.model.hybrid_search_reindex_model(self.pk)
         end
-      elsif SequelHybridSearchable.indexing_mode == :sync
+      elsif SequelHybridSearch.indexing_mode == :sync
         self.hybrid_search_reindex
       end
     end
 
     def hybrid_search_reindex
       text = self.hybrid_search_text
-      new_hash = "#{SequelHybridSearchable.embedding_generator.model_name}-#{Digest::MD5.hexdigest(text)}"
+      new_hash = "#{SequelHybridSearch.embedding_generator.model_name}-#{Digest::MD5.hexdigest(text)}"
       return if new_hash == self.send(self.model.hybrid_search_hash_column)
-      em = SequelHybridSearchable.embedding_generator.get_embedding(text)
+      em = SequelHybridSearch.embedding_generator.get_embedding(text)
       content = self._hybrid_search_text_to_storage(text)
       self.this.update(
         self.model.hybrid_search_content_column => content,

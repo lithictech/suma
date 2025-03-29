@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 require "sequel"
-require "sequel/sequel_hybrid_searchable"
-require "sequel/sequel_hybrid_searchable/subproc_sentence_transformer_generator"
-require "sequel/sequel_hybrid_searchable/api_embedding_generator"
+require "sequel/sequel_hybrid_search"
+require "sequel/sequel_hybrid_search/subproc_sentence_transformer_generator"
+require "sequel/sequel_hybrid_search/api_embedding_generator"
 
 RSpec.describe "sequel-hybrid-searchable" do
   before(:all) do
@@ -21,30 +21,30 @@ RSpec.describe "sequel-hybrid-searchable" do
       text :search_hash
       index Sequel.function(:to_tsvector, "english", :search_content)
     end
-    SequelHybridSearchable.indexing_mode = :off
-    @searchable = SequelHybridSearchable.searchable_models.dup
+    SequelHybridSearch.indexing_mode = :off
+    @searchable = SequelHybridSearch.searchable_models.dup
   end
 
   after(:all) do
     @db.disconnect
-    SequelHybridSearchable.indexing_mode = :off
-    SequelHybridSearchable.embedding_generator = nil
+    SequelHybridSearch.indexing_mode = :off
+    SequelHybridSearch.embedding_generator = nil
   end
 
   before(:each) do
     @db[:svs_tester].truncate
-    SequelHybridSearchable.searchable_models.clear
-    SequelHybridSearchable.indexing_mode = :off
-    SequelHybridSearchable.embedding_generator = SequelHybridSearchable::SubprocSentenceTransformerGenerator
+    SequelHybridSearch.searchable_models.clear
+    SequelHybridSearch.indexing_mode = :off
+    SequelHybridSearch.embedding_generator = SequelHybridSearch::SubprocSentenceTransformerGenerator
   end
 
   after(:each) do
-    SequelHybridSearchable.searchable_models.replace(@searchable)
+    SequelHybridSearch.searchable_models.replace(@searchable)
   end
 
   let(:model) do
     m = Class.new(Sequel::Model(:svs_tester)) do
-      plugin :hybrid_searchable
+      plugin :hybrid_search
       many_to_one :parent, class: self
       def hybrid_search_text
         return <<~TEXT
@@ -63,13 +63,13 @@ RSpec.describe "sequel-hybrid-searchable" do
   describe "configuration" do
     it "errors for an invalid index mode" do
       expect do
-        SequelHybridSearchable.indexing_mode = :x
+        SequelHybridSearch.indexing_mode = :x
       end.to raise_error(/must be one of/)
     end
 
     it "can define custom options" do
       m = Class.new(Sequel::Model(:svs_tester)) do
-        plugin :hybrid_searchable,
+        plugin :hybrid_search,
                content_column: :ccol,
                vector_column: :vcol,
                hash_column: :hcol
@@ -81,9 +81,9 @@ RSpec.describe "sequel-hybrid-searchable" do
 
     it "errors if hybrid_search_text is not defined" do
       m = Class.new(Sequel::Model(:svs_tester)) do
-        plugin :hybrid_searchable
+        plugin :hybrid_search
       end
-      SequelHybridSearchable.searchable_models.delete(m) # Don't leave this sitting around
+      SequelHybridSearch.searchable_models.delete(m) # Don't leave this sitting around
       o = m.new
       expect { o.hybrid_search_text }.to raise_error(NoMethodError)
     end
@@ -170,7 +170,7 @@ RSpec.describe "sequel-hybrid-searchable" do
 
   describe "indexing" do
     before(:each) do
-      SequelHybridSearchable.indexing_mode = :sync
+      SequelHybridSearch.indexing_mode = :sync
     end
 
     it "happens after create" do
@@ -208,37 +208,37 @@ RSpec.describe "sequel-hybrid-searchable" do
 
   describe "mode" do
     it "does not index when :off" do
-      SequelHybridSearchable.indexing_mode = :off
+      SequelHybridSearch.indexing_mode = :off
       model.create(name: "ciri")
       expect(getvector).to be_nil
     end
 
     it "indexes when :sync" do
-      SequelHybridSearchable.indexing_mode = :sync
+      SequelHybridSearch.indexing_mode = :sync
       model.create(name: "ciri")
       expect(getvector).to be_present
     end
 
     it "indexes in a pool when :async" do
-      SequelHybridSearchable.indexing_mode = :async
+      SequelHybridSearch.indexing_mode = :async
       model.create(name: "ciri")
       sleep 1
-      SequelHybridSearchable.threadpool.shutdown
-      SequelHybridSearchable.threadpool.wait_for_termination
+      SequelHybridSearch.threadpool.shutdown
+      SequelHybridSearch.threadpool.wait_for_termination
       expect(getvector).to be_present
     end
   end
 
   describe "reindexing" do
     it "can reindex all subclasses" do
-      SequelHybridSearchable.indexing_mode = :sync
+      SequelHybridSearch.indexing_mode = :sync
       m1 = Class.new(Sequel::Model(:svs_tester)) do
-        plugin :hybrid_searchable
+        plugin :hybrid_search
         def hybrid_search_text = "hello"
       end
       m1.dataset = @db[:svs_tester]
       m2 = Class.new(Sequel::Model(:svs_tester)) do
-        plugin :hybrid_searchable
+        plugin :hybrid_search
         def hybrid_search_text = "hello"
       end
       m2.dataset = @db[:svs_tester]
@@ -247,14 +247,14 @@ RSpec.describe "sequel-hybrid-searchable" do
       expect(@db[:svs_tester].where(search_embedding: nil).all).to be_empty
       @db[:svs_tester].update(search_embedding: nil, search_hash: nil)
       expect(@db[:svs_tester].where(search_embedding: nil).all).to have_length(2)
-      SequelHybridSearchable.reindex_all
+      SequelHybridSearch.reindex_all
       expect(@db[:svs_tester].where(search_embedding: nil).all).to be_empty
     end
   end
 
   describe "subprocess embeddings generator" do
     it "restarts the embedding generator process on broken pipe" do
-      gen = SequelHybridSearchable::SubprocSentenceTransformerGenerator.instance
+      gen = SequelHybridSearch::SubprocSentenceTransformerGenerator.instance
       gen.get_embedding("abc")
       Process.kill("TERM", gen.process.fetch(:pid))
       expect { gen.get_embedding("abc") }.to_not raise_error
@@ -262,7 +262,7 @@ RSpec.describe "sequel-hybrid-searchable" do
 
     it "does not block on stderr filling up" do
       Array.new(1000) do |i|
-        SequelHybridSearchable.embedding_generator.get_embedding(i.to_s)
+        SequelHybridSearch.embedding_generator.get_embedding(i.to_s)
       end
     end
   end
@@ -290,13 +290,13 @@ RSpec.describe "sequel-hybrid-searchable" do
     end
 
     it "calls the service" do
-      gen = SequelHybridSearchable::ApiEmbeddingGenerator.new("http://localhost:22009", api_key: @apikey)
+      gen = SequelHybridSearch::ApiEmbeddingGenerator.new("http://localhost:22009", api_key: @apikey)
       got = gen.get_embedding("hello")
       expect(got).to have_length(be > 4)
     end
 
     it "errors for an invalid api key" do
-      gen = SequelHybridSearchable::ApiEmbeddingGenerator.new("http://localhost:22009", api_key: "badkey")
+      gen = SequelHybridSearch::ApiEmbeddingGenerator.new("http://localhost:22009", api_key: "badkey")
       expect do
         gen.get_embedding("hello")
       end.to raise_error(/Invalid Api-Key header/)

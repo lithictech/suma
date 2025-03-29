@@ -226,4 +226,4 @@ module Suma::Postgres
   end
 end
 
-require "suma/postgres/hybrid_search_helpers"
+require "suma/postgres/hybrid_search"
