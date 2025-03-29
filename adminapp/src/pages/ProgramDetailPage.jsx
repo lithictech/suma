@@ -40,6 +40,7 @@ export default function ProgramDetailPage() {
         { label: "App Link Text EN", value: model.appLinkText.en },
         { label: "App Link Text ES", value: model.appLinkText.es },
         { label: "Ordinal", value: model.ordinal },
+        { label: "Lyft Pass Program", value: model.lyftPassProgramId },
       ]}
     >
       {(model) => (

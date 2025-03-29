@@ -107,7 +107,17 @@ export default function ProgramForm({
           type="number"
           label="Ordinal"
           helperText="Programs are listed from lower to higher ordinal values in the dashboard."
-          sx={{ width: { xs: "100%", sm: "50%" } }}
+          fullWidth
+          onChange={setFieldFromInput}
+        />
+        <FormLabel>Other</FormLabel>
+        <TextField
+          {...register("lyftPassProgramId")}
+          label="Lyft Pass Program"
+          name="lyftPassProgramId"
+          value={resource.lyftPassProgramId}
+          helperText="Set this for programs that are for Lyft Pass enrollment."
+          fullWidth
           onChange={setFieldFromInput}
         />
         <ModelItems

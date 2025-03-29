@@ -40,6 +40,7 @@ class Suma::AdminAPI::Programs < Suma::AdminAPI::V1
         requires :period_begin, type: Time
         requires :period_end, type: Time
         optional :ordinal, type: Integer
+        optional :lyft_pass_program_id, type: String
         optional :commerce_offerings, type: Array, coerce_with: proc(&:values) do
           use :model_with_id
         end
@@ -82,6 +83,7 @@ class Suma::AdminAPI::Programs < Suma::AdminAPI::V1
         optional :period_begin, type: Time
         optional :period_end, type: Time
         optional :ordinal, type: Integer
+        optional :lyft_pass_program_id, type: String
         optional :commerce_offerings, type: Array, coerce_with: proc(&:values) do
           use :model_with_id
         end
