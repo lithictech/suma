@@ -4,17 +4,26 @@ module Suma::Postgres::HybridSearchHelpers
   include Appydays::Configurable
 
   configurable(:hybrid_search) do
+    # When changing this:
+    # - All vectors should be regenerated, using Suma::Async::HybridSearchReindex
+    # - The model must use the same vector size (like vector(384)).
+    #   If the vector size is changing, database migrations must be done.
+    setting :model, "all-MiniLM-L12-v2"
+
     # Valid values are:
     # - subprocess
     # - api
     setting :embedding_generator, nil
+
     setting :aiapi_host, nil
     setting :aiapi_key, "fake-key"
 
     after_configured do
       if self.embedding_generator == "subprocess"
         require "sequel/sequel_hybrid_searchable/subproc_sentence_transformer_generator"
-        SequelHybridSearchable.embedding_generator = SequelHybridSearchable::SubprocSentenceTransformerGenerator
+        SequelHybridSearchable.embedding_generator = SequelHybridSearchable::SubprocSentenceTransformerGenerator.new(
+          self.model,
+        )
       elsif self.embedding_generator == "api"
         require "sequel/sequel_hybrid_searchable/api_embedding_generator"
         require "suma/http"
@@ -23,6 +32,7 @@ module Suma::Postgres::HybridSearchHelpers
           self.aiapi_host,
           api_key: self.aiapi_key,
           user_agent: Suma::Http.user_agent,
+          model_name: self.model,
         )
       else
         require "sequel/sequel_hybrid_searchable"

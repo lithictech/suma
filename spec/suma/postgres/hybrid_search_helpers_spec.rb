@@ -19,7 +19,7 @@ RSpec.describe Suma::Postgres::HybridSearchHelpers do
     it "configures the hybrid search subproc embedding generator" do
       described_class.embedding_generator = "subprocess"
       described_class.run_after_configured_hooks
-      expect(SequelHybridSearchable.embedding_generator).to eq(
+      expect(SequelHybridSearchable.embedding_generator).to be_a(
         SequelHybridSearchable::SubprocSentenceTransformerGenerator,
       )
     end
