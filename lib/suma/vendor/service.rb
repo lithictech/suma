@@ -95,8 +95,6 @@ class Suma::Vendor::Service < Suma::Postgres::Model(:vendor_services)
 
   def hybrid_search_fields
     return [
-      :id,
-      :created_at,
       :internal_name,
       :external_name,
       :period_begin,

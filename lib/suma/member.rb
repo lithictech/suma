@@ -412,17 +412,18 @@ class Suma::Member < Suma::Postgres::Model(:members)
       :name,
       ["Phone number", phone],
       ["Email address", self.email],
-      :created_at,
       :note,
       ["Organization memberships", orgnames],
       ["Roles", self.roles.map(&:name)],
+      ["Verified", self.onboarding_verified? ? "Verified" : "Unverified"],
+      ["Deleted", self.soft_deleted? ? "Deleted" : "Undeleted"],
     ]
   end
 
   def hybrid_search_facts
     orgnames = self.organization_memberships.map(&:verified_organization).select(&:itself).map(&:name)
     lines = [
-      !self.onboarding_verified? && "My identity has not been verified.",
+      self.onboarding_verified? ? "My identify has been verified" : "My identity is unverified.",
       self.soft_deleted? && "I have been deleted.",
       self.roles.include?(Suma::Role.cache.admin) && "I am an administrator.",
       "I am a member of #{self.organization_memberships.count} organizations.",

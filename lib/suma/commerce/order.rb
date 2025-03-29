@@ -6,9 +6,11 @@ require "suma/admin_linked"
 
 class Suma::Commerce::Order < Suma::Postgres::Model(:commerce_orders)
   include Suma::AdminLinked
+  include Suma::Postgres::HybridSearch
 
   FULFILLABLE_ORDER_STATUSES = ["open", "completed"].freeze
 
+  plugin :hybrid_search
   plugin :state_machine
   plugin :timestamps
 
@@ -235,6 +237,15 @@ class Suma::Commerce::Order < Suma::Postgres::Model(:commerce_orders)
     # There isn't a logical reason 'no fulfillment option' means 'claimable',
     # but that's what we're going with for now.
     return checkout_option.nil? || checkout_option.pickup?
+  end
+
+  def hybrid_search_fields
+    return [
+      :order_status,
+      :fulfillment_status,
+      :member,
+      :external_id,
+    ]
   end
 end
 

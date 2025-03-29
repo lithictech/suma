@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "suma/admin_api/organization_memberships"
+require "suma/api/behaviors"
 
 RSpec.describe Suma::AdminAPI::OrganizationMemberships, :db do
   let(:app) { described_class.build_app }
@@ -18,6 +19,23 @@ RSpec.describe Suma::AdminAPI::OrganizationMemberships, :db do
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.
         that_includes(items: have_same_ids_as(*memberships))
+    end
+
+    it_behaves_like "an endpoint capable of search" do
+      let(:url) { "/v1/organization_memberships" }
+      let(:search_term) { "abcdefg" }
+
+      def make_matching_items
+        return [
+          Suma::Fixtures.organization_membership.unverified("abcdefg").create,
+        ]
+      end
+
+      def make_non_matching_items
+        return [
+          Suma::Fixtures.organization_membership.unverified("wibble").create,
+        ]
+      end
     end
   end
 

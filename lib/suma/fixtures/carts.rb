@@ -17,6 +17,11 @@ module Suma::Fixtures::Carts
     instance
   end
 
+  decorator :member do |member={}|
+    member = Suma::Fixtures.member.create(member) unless member.is_a?(Suma::Member)
+    self.member = member
+  end
+
   decorator :with_product, presave: true do |product, quantity=1, **opts|
     self.add_item(product:, quantity:, timestamp: 0, **opts)
   end

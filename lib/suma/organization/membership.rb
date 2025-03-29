@@ -5,6 +5,9 @@ require "suma/admin_linked"
 
 class Suma::Organization::Membership < Suma::Postgres::Model(:organization_memberships)
   include Suma::AdminLinked
+  include Suma::Postgres::HybridSearch
+
+  plugin :hybrid_search
   plugin :timestamps
 
   many_to_one :verified_organization, class: "Suma::Organization"
@@ -23,6 +26,21 @@ class Suma::Organization::Membership < Suma::Postgres::Model(:organization_membe
   end
 
   def rel_admin_link = "/membership/#{self.id}"
+
+  def hybrid_search_fields
+    return [
+      self.verified? && :verified_organization,
+      self.unverified? && :unverified_organization_name,
+      :member,
+    ]
+  end
+
+  def hybrid_search_facts
+    return [
+      self.verified? && "I am verified.",
+      self.unverified? && "I am unverified.",
+    ]
+  end
 end
 
 # Table: organization_memberships

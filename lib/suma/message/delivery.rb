@@ -82,6 +82,7 @@ class Suma::Message::Delivery < Suma::Postgres::Model(:message_deliveries)
       :transport_service,
       :transport_message_id,
       :to,
+      :recipient,
       :template_language,
     ]
   end

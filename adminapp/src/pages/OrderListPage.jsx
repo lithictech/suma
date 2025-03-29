@@ -9,7 +9,7 @@ export default function OrderListPage() {
     <ResourceList
       resource="order"
       apiList={api.getCommerceOrders}
-      canSearch={false}
+      canSearch
       columns={[
         {
           id: "id",

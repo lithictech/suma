@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.describe Suma::Postgres::HybridSearch do
+RSpec.describe Suma::Postgres::HybridSearch, :db do
   describe "configuration" do
     before(:each) do
       described_class.reset_configuration
@@ -44,6 +44,20 @@ RSpec.describe Suma::Postgres::HybridSearch do
       expect do
         described_class.run_after_configured_hooks
       end.to raise_error(/SUMA_DB_HYBRID_SEARCH_AIAPI_HOST/)
+    end
+  end
+
+  describe "hybrid search text" do
+    it "adds standard fields" do
+      m = Suma::Fixtures.member.create
+      expect(m.hybrid_search_text).to include("Id: #{m.id}")
+      expect(m.hybrid_search_text).to include("Created at:")
+    end
+
+    it "formats times" do
+      m = Suma::Fixtures.member.create
+      m.created_at = Time.parse("2023-01-01T12:00:00Z")
+      expect(m.hybrid_search_text).to include("Created at: Sunday, January 1, 2023, 12:00:00 GMT")
     end
   end
 end

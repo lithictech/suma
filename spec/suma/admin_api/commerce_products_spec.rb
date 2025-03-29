@@ -31,14 +31,12 @@ RSpec.describe Suma::AdminAPI::CommerceProducts, :db do
       def make_matching_items
         return [
           Suma::Fixtures.product(name: translated_text("ZIM zam")).create,
-          # Suma::Fixtures.product(description: translated_text("zim")).create,
         ]
       end
 
       def make_non_matching_items
         return [
           Suma::Fixtures.product(name: translated_text("wibble wobble")).create,
-          # Suma::Fixtures.product(description: translated_text("wibble wobble")).create,
         ]
       end
     end
