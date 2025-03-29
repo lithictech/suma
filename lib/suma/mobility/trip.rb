@@ -5,12 +5,12 @@ require "suma/postgres/model"
 require "suma/admin_linked"
 
 class Suma::Mobility::Trip < Suma::Postgres::Model(:mobility_trips)
-  include Suma::Postgres::HybridSearchHelpers
+  include Suma::Postgres::HybridSearch
   include Suma::AdminLinked
 
   class OngoingTrip < StandardError; end
 
-  plugin :hybrid_searchable
+  plugin :hybrid_search
   plugin :timestamps
 
   many_to_one :vendor_service, key: :vendor_service_id, class: "Suma::Vendor::Service"

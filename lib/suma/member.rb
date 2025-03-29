@@ -14,7 +14,7 @@ class Suma::Member < Suma::Postgres::Model(:members)
   include Appydays::Configurable
   include Suma::Payment::HasAccount
   include Suma::AdminLinked
-  include Suma::Postgres::HybridSearchHelpers
+  include Suma::Postgres::HybridSearch
 
   class InvalidPassword < RuntimeError; end
 
@@ -53,7 +53,7 @@ class Suma::Member < Suma::Postgres::Model(:members)
   plugin :timestamps
   plugin :soft_deletes
   plugin :association_pks
-  plugin :hybrid_searchable
+  plugin :hybrid_search
 
   one_to_many :activities, class: "Suma::Member::Activity", order: Sequel.desc([:created_at, :id])
   many_through_many :bank_accounts,

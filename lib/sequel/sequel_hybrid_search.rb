@@ -2,7 +2,7 @@
 
 require "appydays/loggable"
 
-module SequelHybridSearchable
+module SequelHybridSearch
   include Appydays::Loggable
 
   VERSION = "0.0.1"

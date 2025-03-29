@@ -4,10 +4,10 @@ require "suma/postgres/model"
 require "suma/message"
 
 class Suma::Message::Delivery < Suma::Postgres::Model(:message_deliveries)
-  include Suma::Postgres::HybridSearchHelpers
+  include Suma::Postgres::HybridSearch
   include Suma::AdminLinked
 
-  plugin :hybrid_searchable
+  plugin :hybrid_search
   plugin :timestamps
 
   many_to_one :recipient, class: "Suma::Member"

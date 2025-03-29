@@ -10,7 +10,7 @@ class Suma::Async::HybridSearchReindex
 
   def perform(*arg)
     if arg.empty?
-      reindexed = SequelHybridSearchable.reindex_all
+      reindexed = SequelHybridSearch.reindex_all
       Suma::Async::JobLogger.set_job_tags(result: "reindexed_all_models", model_count: reindexed)
       return
     end

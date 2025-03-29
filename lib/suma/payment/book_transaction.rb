@@ -4,10 +4,10 @@ require "suma/admin_linked"
 require "suma/payment"
 
 class Suma::Payment::BookTransaction < Suma::Postgres::Model(:payment_book_transactions)
-  include Suma::Postgres::HybridSearchHelpers
+  include Suma::Postgres::HybridSearch
   include Suma::AdminLinked
 
-  plugin :hybrid_searchable
+  plugin :hybrid_search
   plugin :timestamps
   plugin :money_fields, :amount
   plugin :translated_text, :memo, Suma::TranslatedText
