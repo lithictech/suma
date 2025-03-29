@@ -29,10 +29,9 @@ class Suma::AdminAPI::PaymentLedgers < Suma::AdminAPI::V1
       self,
       Suma::Payment::Ledger,
       LedgerEntity,
-      ordering_kw: {default: nil},
       ordering: lambda do |ds, params|
-        if params[:order_by]
-          ds = Suma::Service::Helpers.order(ds, params)
+        if param_passed?(:order_by)
+          ds = order(ds, params)
         else
           # Default ordering is to put platform accounts first, then order by created at,
           # since we likely only have a few platform accounts.
@@ -40,7 +39,7 @@ class Suma::AdminAPI::PaymentLedgers < Suma::AdminAPI::V1
           # then unselect the addition columns via select_all when reselecting the model.
           params[:order_by] = [:is_platform_account, Sequel[:payment_ledgers][:created_at]]
           ds = ds.join(:payment_accounts, {id: :account_id})
-          ds = Suma::Service::Helpers.order(ds, params, disambiguator: Sequel[:payment_ledgers][:id])
+          ds = order(ds, params, disambiguator: Sequel[:payment_ledgers][:id])
           ds = ds.select_all(:payment_ledgers)
         end
         ds
