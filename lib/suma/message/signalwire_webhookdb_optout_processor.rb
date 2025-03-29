@@ -25,12 +25,16 @@ class Suma::Message::SignalwireWebhookdbOptoutProcessor
       Suma::Idempotency.once_ever.transaction_ok.under_key("sw-whdb-optout-#{row.fetch(:signalwire_id)}") do
         msgtype = self.msgtype(row.fetch(:body))
         member.message_preferences!.update(marketing_sms_optout: msgtype == :optout) if OPTINOUT.include?(msgtype)
-        msg = Suma::Messages::SingleValue.new(
+        message = Suma::Messages::SingleValue.new(
           "sms_compliance",
           msgtype.to_s,
           "",
         )
-        member.message_preferences!.dispatch(msg)
+        # Dispatch this directly, without taking into account customer optout preferences,
+        # since we always want to send this.
+        message.language = member.message_preferences!.preferred_language
+        extra_fields = {from: Suma::Signalwire.marketing_number}
+        Suma::Message.dispatch(message, member, :sms, extra_fields:)
       end
     end
   end

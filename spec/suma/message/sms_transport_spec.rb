@@ -35,6 +35,16 @@ RSpec.describe Suma::Message::SmsTransport, :db, reset_configuration: Suma::Mess
       expect(req).to have_been_made
     end
 
+    it "can override the from number using an extra field" do
+      req = stub_signalwire_sms(sid: "SMXYZ").
+        with(body: {"Body" => "hello", "From" => "+19998887777", "To" => "+15554443210"})
+      delivery = Suma::Fixtures.message_delivery.sms("+15554443210", "hello").
+        create(extra_fields: {"from" => "19998887777"})
+      result = described_class.new.send!(delivery)
+      expect(result).to eq("SMXYZ")
+      expect(req).to have_been_made
+    end
+
     it "formats the provided phone number" do
       req = stub_signalwire_sms.
         with(body: {"Body" => "hello", "From" => "+15554443333", "To" => "+15554443210"})
