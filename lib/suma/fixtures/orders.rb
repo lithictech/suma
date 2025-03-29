@@ -16,8 +16,8 @@ module Suma::Fixtures::Orders
     instance
   end
 
-  decorator :as_purchased_by do |member|
-    cart = Suma::Fixtures.cart(member:).with_any_product.create
+  decorator :as_purchased_by do |member={}|
+    cart = Suma::Fixtures.cart.member(member).with_any_product.create
     self.checkout = Suma::Fixtures.checkout(cart:).with_payment_instrument.populate_items.completed.create
   end
 

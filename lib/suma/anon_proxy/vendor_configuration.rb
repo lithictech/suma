@@ -8,10 +8,13 @@ require "suma/translated_text"
 
 class Suma::AnonProxy::VendorConfiguration < Suma::Postgres::Model(:anon_proxy_vendor_configurations)
   include Suma::AdminLinked
+  include Suma::Postgres::HybridSearch
+
+  plugin :association_pks
+  plugin :hybrid_search
   plugin :timestamps
   plugin :translated_text, :instructions, Suma::TranslatedText
   plugin :translated_text, :linked_success_instructions, Suma::TranslatedText
-  plugin :association_pks
 
   many_to_one :vendor, class: "Suma::Vendor"
   one_to_many :accounts, class: "Suma::AnonProxy::VendorAccount", key: :configuration_id
@@ -32,6 +35,13 @@ class Suma::AnonProxy::VendorConfiguration < Suma::Postgres::Model(:anon_proxy_v
   def enabled? = self.enabled
 
   def rel_admin_link = "/vendor-configuration/#{self.id}"
+
+  def hybrid_search_fields
+    return [
+      :vendor,
+      ["Programs", self.programs.map(&:name)],
+    ]
+  end
 end
 
 # Table: anon_proxy_vendor_configurations

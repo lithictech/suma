@@ -29,4 +29,9 @@ module Suma::Fixtures::AnonProxyVendorConfigurations
   decorator :with_programs, presave: true do |*programs|
     programs.each { |c| self.add_program(c) }
   end
+
+  decorator :vendor do |vendor={}|
+    vendor = Suma::Fixtures.vendor.create(vendor) unless vendor.is_a?(Suma::Vendor)
+    self.vendor = vendor
+  end
 end

@@ -5,6 +5,10 @@ require "suma/admin_linked"
 
 class Suma::Program::Enrollment < Suma::Postgres::Model(:program_enrollments)
   include Suma::AdminLinked
+  include Suma::Postgres::HybridSearch
+
+  plugin :hybrid_search
+  plugin :timestamps
 
   many_to_one :program, class: "Suma::Program"
   many_to_one :member, class: "Suma::Member"
@@ -80,6 +84,23 @@ class Suma::Program::Enrollment < Suma::Postgres::Model(:program_enrollments)
   def enrollee_type = self.enrollee.class.name.demodulize
 
   def rel_admin_link = "/program-enrollment/#{self.id}"
+
+  def hybrid_search_fields
+    return [
+      :program,
+      :enrollee,
+      :enrollee_type,
+    ]
+  end
+
+  def hybrid_search_facts
+    return [
+      self.approved? && "I have been approved.",
+      !self.approved? && "I have not been approved.",
+      !self.unenrolled? && "I am enrolled.",
+      self.unenrolled? && "I have been unenrolled.",
+    ]
+  end
 end
 
 # Table: program_enrollments

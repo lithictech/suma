@@ -47,6 +47,8 @@ module Suma::Postgres::HybridSearch
     ]
     if (fields = self.hybrid_search_fields).present?
       lines << "I have the following fields:"
+      fields.unshift(:created_at) if !fields.include?(self.class.primary_key) && self.respond_to?(:created_at)
+      fields.unshift(self.class.primary_key) unless fields.include?(self.class.primary_key)
       fields.each do |field|
         if field.is_a?(Symbol)
           k = field.to_s.humanize
@@ -54,10 +56,10 @@ module Suma::Postgres::HybridSearch
         else
           k, v = field
         end
-        v = v.httpdate if v.respond_to?(:httpdate)
+        v = v.utc.strftime("%A, %B %-d, %Y, %k:%M:%S GMT") if v.respond_to?(:strftime)
         v = v.format if v.is_a?(Money)
-        v = v.en if v.is_a?(Suma::TranslatedText)
         v = v.name if v.respond_to?(:name)
+        v = v.en if v.is_a?(Suma::TranslatedText)
         lines << "#{k}: #{v}"
       end
     end

@@ -89,6 +89,23 @@ RSpec.describe Suma::AdminAPI::AnonProxy, :db do
       expect(last_response).to have_json_body.
         that_includes(items: have_same_ids_as(*objs))
     end
+
+    it_behaves_like "an endpoint capable of search" do
+      let(:url) { "/v1/anon_proxy/vendor_configurations" }
+      let(:search_term) { "abcdefg" }
+
+      def make_matching_items
+        return [
+          Suma::Fixtures.anon_proxy_vendor_configuration.vendor(name: "abcdefg").create,
+        ]
+      end
+
+      def make_non_matching_items
+        return [
+          Suma::Fixtures.anon_proxy_vendor_configuration.vendor(name: "wibble").create,
+        ]
+      end
+    end
   end
 
   describe "GET /v1/anon_proxy/vendor_configurations/:id" do

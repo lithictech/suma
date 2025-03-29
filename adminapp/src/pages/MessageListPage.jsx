@@ -9,7 +9,7 @@ export default function MessageListPage() {
     <ResourceList
       resource="message_delivery"
       apiList={api.getMessageDeliveries}
-      canSearch={false}
+      canSearch
       columns={[
         {
           id: "id",

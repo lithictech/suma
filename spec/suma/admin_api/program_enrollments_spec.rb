@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "suma/admin_api/program_enrollments"
+require "suma/api/behaviors"
 
 RSpec.describe Suma::AdminAPI::ProgramEnrollments, :db do
   include Rack::Test::Methods
@@ -21,6 +22,23 @@ RSpec.describe Suma::AdminAPI::ProgramEnrollments, :db do
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.
         that_includes(items: have_same_ids_as(*objs))
+    end
+
+    it_behaves_like "an endpoint capable of search" do
+      let(:url) { "/v1/program_enrollments" }
+      let(:search_term) { "abcdefg" }
+
+      def make_matching_items
+        return [
+          Suma::Fixtures.program_enrollment.in(Suma::Fixtures.program.named("abcdefg").create).create,
+        ]
+      end
+
+      def make_non_matching_items
+        return [
+          Suma::Fixtures.program_enrollment.in(Suma::Fixtures.program.named("wibble").create).create,
+        ]
+      end
     end
   end
 

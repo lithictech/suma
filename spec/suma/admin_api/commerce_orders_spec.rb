@@ -42,6 +42,23 @@ RSpec.describe Suma::AdminAPI::CommerceOrders, :db do
         )
       end
     end
+
+    it_behaves_like "an endpoint capable of search" do
+      let(:url) { "/v1/commerce_orders" }
+      let(:search_term) { "abcdefg" }
+
+      def make_matching_items
+        return [
+          Suma::Fixtures.order.as_purchased_by(name: "abcdefg").create,
+        ]
+      end
+
+      def make_non_matching_items
+        return [
+          Suma::Fixtures.order.as_purchased_by(name: "wibble").create,
+        ]
+      end
+    end
   end
 
   describe "GET /v1/commerce_orders/:id" do
