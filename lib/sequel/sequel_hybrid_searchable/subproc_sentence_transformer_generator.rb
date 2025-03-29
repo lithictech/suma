@@ -23,7 +23,7 @@ require "sequel/sequel_hybrid_searchable"
 class SequelHybridSearchable::SubprocSentenceTransformerGenerator < SequelHybridSearchable::EmbeddingGenerator
   include Appydays::Loggable
 
-  DEFAULT_MODEL = "all-MiniLM-L6-v2"
+  DEFAULT_MODEL = "all-MiniLM-L12-v2"
   PIP_DEPS = "sentence_transformers==3.4.1"
 
   class << self
