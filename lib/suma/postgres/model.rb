@@ -79,6 +79,7 @@ class Suma::Postgres::Model
       "pgcrypto",
       "btree_gist",
       "pg_trgm",
+      "vector",
     ]
   end
 
