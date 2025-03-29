@@ -1,6 +1,34 @@
 # frozen_string_literal: true
 
 module Suma::Postgres::HybridSearchHelpers
+  include Appydays::Configurable
+
+  configurable(:hybrid_search) do
+    # Valid values are:
+    # - subprocess
+    # - api
+    setting :embedding_generator, nil
+    setting :aiapi_host, nil
+    setting :aiapi_key, "fake-key"
+
+    after_configured do
+      if self.embedding_generator == "subprocess"
+        require "sequel/sequel_hybrid_searchable/subproc_sentence_transformer_generator"
+        SequelHybridSearchable.embedding_generator = SequelHybridSearchable::SubprocSentenceTransformerGenerator
+      elsif self.embedding_generator == "api"
+        require "sequel/sequel_hybrid_searchable/api_embedding_generator"
+        raise "Must set SUMA_DB_HYBRID_SEARCH_AIAPI_HOST" if self.aiapi_host.blank?
+        SequelHybridSearchable.embedding_generator = SequelHybridSearchable::ApiEmbeddingGenerator.new(
+          self.aiapi_host,
+          api_key: self.aiapi_key,
+        )
+      else
+        require "sequel/sequel_hybrid_searchable"
+        SequelHybridSearchable.embedding_generator = nil
+      end
+    end
+  end
+
   def hybrid_search_text
     lines = [
       "I am a #{self.class.name.gsub('::', ' ')}.",

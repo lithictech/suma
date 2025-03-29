@@ -8,7 +8,7 @@ class SequelHybridSearchable::ApiEmbeddingGenerator < SequelHybridSearchable::Em
 
   DEFAULT_MODEL = "all-MiniLM-L12-v2"
 
-  attr_reader :model_name
+  attr_reader :model_name, :host, :api_key
 
   # Create a new instance.
   # @param model_name [String] Default to +DEFAULT_MODEL+.
