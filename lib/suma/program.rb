@@ -5,9 +5,11 @@ require "suma/image"
 require "suma/postgres/model"
 
 class Suma::Program < Suma::Postgres::Model(:programs)
+  include Suma::Postgres::HybridSearchHelpers
   include Suma::AdminLinked
   include Suma::Image::SingleAssociatedMixin
 
+  plugin :hybrid_searchable
   plugin :timestamps
   plugin :tstzrange_fields, :period
   plugin :translated_text, :name, Suma::TranslatedText
@@ -66,6 +68,15 @@ class Suma::Program < Suma::Postgres::Model(:programs)
   end
 
   def rel_admin_link = "/program/#{self.id}"
+
+  def hybrid_search_fields
+    return [
+      :name,
+      :description,
+      :period_begin,
+      :period_end,
+    ]
+  end
 end
 
 require "suma/program/has"

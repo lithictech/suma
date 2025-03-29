@@ -26,7 +26,7 @@ RSpec.describe Suma::AdminAPI::Charges, :db do
 
     it_behaves_like "an endpoint capable of search" do
       let(:url) { "/v1/charges" }
-      let(:search_term) { "abcd" }
+      let(:search_term) { "abcdefg" }
 
       def make_matching_items
         return [Suma::Fixtures.charge(opaque_id: "abcdefg").create]

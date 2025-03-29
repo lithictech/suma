@@ -74,6 +74,7 @@ class Suma::Postgres::Model
   def self.extensions
     return [
       "citext",
+      "vector",
       "pg_stat_statements",
       "pgcrypto",
       "btree_gist",

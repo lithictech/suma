@@ -87,7 +87,7 @@ RSpec.describe Suma::API::Ledgers, :db do
   end
 
   describe "GET /v1/ledgers/:id/lines" do
-    it_behaves_like "an endpoint with pagination" do
+    it_behaves_like "an endpoint with pagination", download: false do
       let(:ledger) { Suma::Fixtures.ledger.member(member).create }
       let(:url) { "/v1/ledgers/#{ledger.id}/lines" }
       def make_item(i)

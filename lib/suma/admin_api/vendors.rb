@@ -21,7 +21,6 @@ class Suma::AdminAPI::Vendors < Suma::AdminAPI::V1
       self,
       Suma::Vendor,
       VendorEntity,
-      search_params: [:name, :slug],
     )
 
     Suma::AdminAPI::CommonEndpoints.create(

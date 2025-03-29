@@ -198,6 +198,11 @@ module Suma::Postgres::ModelUtilities
       rescue NoMethodError
         encrypted = Set.new
       end
+      begin
+        vector_col = self.class.send(:hybrid_search_vector_column).to_s
+      rescue NoMethodError
+        nil
+      end
       values = values.map do |(k, v)|
         k = k.to_s
         v = if v.is_a?(Time)
@@ -236,6 +241,9 @@ module Suma::Postgres::ModelUtilities
           end
           safe ||= "#{unenc[..2]}...#{unenc[-3..]}"
           safe.inspect
+        elsif k == vector_col
+          # The vector array may already be encoded to a string, so just return the db column type, like 'vector(384)'.
+          self.class.db_schema.fetch(vector_col.to_sym).fetch(:db_type)
         else
           v.inspect
         end

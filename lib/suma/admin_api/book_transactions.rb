@@ -26,8 +26,6 @@ class Suma::AdminAPI::BookTransactions < Suma::AdminAPI::V1
       self,
       Suma::Payment::BookTransaction,
       BookTransactionEntity,
-      search_params: [:opaque_id],
-      translation_search_params: [:memo],
     )
 
     params do

@@ -26,7 +26,6 @@ class Suma::AdminAPI::Charges < Suma::AdminAPI::V1
       self,
       Suma::Charge,
       ChargeEntityWithMember,
-      search_params: [:opaque_id],
     )
 
     Suma::AdminAPI::CommonEndpoints.get_one(

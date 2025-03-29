@@ -30,7 +30,7 @@ RSpec.describe Suma::AdminAPI::PayoutTransactions, :db do
 
       def make_matching_items
         return [
-          Suma::Fixtures.payout_transaction(memo: translated_text("zim@zam.zom")).with_fake_strategy.create,
+          Suma::Fixtures.payout_transaction(memo: translated_text("zim zam zom")).with_fake_strategy.create,
         ]
       end
 

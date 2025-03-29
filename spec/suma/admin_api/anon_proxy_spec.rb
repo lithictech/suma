@@ -30,7 +30,7 @@ RSpec.describe Suma::AdminAPI::AnonProxy, :db do
 
       def make_matching_items
         return [
-          Suma::Fixtures.anon_proxy_vendor_account.with_access_code("abc123").create,
+          Suma::Fixtures.anon_proxy_vendor_account.with_access_code("abc  123").create,
         ]
       end
 

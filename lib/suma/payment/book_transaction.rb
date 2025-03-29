@@ -4,8 +4,10 @@ require "suma/admin_linked"
 require "suma/payment"
 
 class Suma::Payment::BookTransaction < Suma::Postgres::Model(:payment_book_transactions)
+  include Suma::Postgres::HybridSearchHelpers
   include Suma::AdminLinked
 
+  plugin :hybrid_searchable
   plugin :timestamps
   plugin :money_fields, :amount
   plugin :translated_text, :memo, Suma::TranslatedText
@@ -103,6 +105,16 @@ class Suma::Payment::BookTransaction < Suma::Postgres::Model(:payment_book_trans
 
     result << UsageDetails.new("unknown", {memo: self.memo.string}) if result.empty?
     return result
+  end
+
+  def hybrid_search_fields
+    return [
+      :opaque_id,
+      ["Originating ledger", self.originating_ledger.admin_label],
+      ["Receiving ledger", self.receiving_ledger.admin_label],
+      :memo,
+      :amount,
+    ]
   end
 
   def validate

@@ -1,6 +1,8 @@
 services:
   db:
-    image: "postgres:16"
+    build:
+      context: .
+      dockerfile: ./docker/pg.Dockerfile
     ports:
       - "22005:5432"
     environment:
@@ -8,7 +10,9 @@ services:
       POSTGRES_PASSWORD: 'suma'
       POSTGRES_DB: 'suma'
   test_db:
-    image: "postgres:16"
+    build:
+      context: .
+      dockerfile: ./docker/pg.Dockerfile
     ports:
       - "22006:5432"
     environment:

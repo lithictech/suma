@@ -177,6 +177,7 @@ GEM
       ast (~> 2.4.1)
       racc
     pg (1.5.4)
+    pgvector (0.3.2)
     phony (2.20.7)
     platform-api (3.5.0)
       heroics (~> 0.1.1)
@@ -377,6 +378,7 @@ DEPENDENCIES
   nokogiri
   parser
   pg
+  pgvector
   phony
   platform-api
   premailer
@@ -425,7 +427,7 @@ DEPENDENCIES
   yajl-ruby
 
 RUBY VERSION
-   ruby 3.3.4p94
+   ruby 3.3.7p123
 
 BUNDLED WITH
    2.5.6

@@ -363,6 +363,15 @@ RSpec.describe "Suma::Postgres::Model", :db do
       ba.account_number = "postgres://user:pass@localhost:1234/db"
       expect(ba.inspect).to include('account_number: "postgres://*:*@localhost')
     end
+
+    it "shows the embedding size" do
+      m = Suma::Fixtures.member.create(search_embedding: nil)
+      expect(m.inspect).to_not include("search_embedding")
+      m.search_embedding = []
+      expect(m.inspect).to include("search_embedding: vector(384)")
+      m.search_embedding = [1, 2, 3]
+      expect(m.inspect).to include("search_embedding: vector(384)")
+    end
   end
 
   describe "resource_lock!" do

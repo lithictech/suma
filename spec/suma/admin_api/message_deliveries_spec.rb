@@ -31,14 +31,14 @@ RSpec.describe Suma::AdminAPI::MessageDeliveries, :db do
 
       def make_matching_items
         return [
-          Suma::Fixtures.message_delivery(to: "ZIM@zam.com").create,
-          Suma::Fixtures.message_delivery(template: "zim_zam").create,
+          Suma::Fixtures.message_delivery(to: "ZIM zam com").create,
+          Suma::Fixtures.message_delivery(template: "zim zam").create,
         ]
       end
 
       def make_non_matching_items
         return [
-          Suma::Fixtures.message_delivery(to: "zam@zam.com", template: "zam_zam").create,
+          Suma::Fixtures.message_delivery(to: "zam zam com", template: "zam zam").create,
         ]
       end
     end

@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative "behaviors"
+
 RSpec.describe "Suma::Member", :db do
   let(:described_class) { Suma::Member }
 
@@ -392,6 +394,20 @@ RSpec.describe "Suma::Member", :db do
         expect(member.combined_program_enrollments_dataset.all).to have_same_ids_as(org_enrollment)
         expect(Suma::Member.all.last.combined_program_enrollments).to have_same_ids_as(org_enrollment)
       end
+    end
+  end
+
+  describe "hybrid search" do
+    it_behaves_like "a hybrid searchable object" do
+      let(:instance) { Suma::Fixtures.organization_membership.verified.create.member }
+    end
+
+    it "handles a bad or missing phone number" do
+      m = Suma::Fixtures.member.email.instance(phone: "555")
+      expect(m.hybrid_search_text).to match(/Phone number: 555/)
+
+      m = Suma::Fixtures.member.email.instance(phone: nil)
+      expect(m.hybrid_search_text).to match(/Phone number: /)
     end
   end
 end

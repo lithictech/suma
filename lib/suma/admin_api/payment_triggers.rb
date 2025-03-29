@@ -34,7 +34,6 @@ class Suma::AdminAPI::PaymentTriggers < Suma::AdminAPI::V1
       self,
       Suma::Payment::Trigger,
       PaymentTriggerEntity,
-      translation_search_params: [:memo],
     )
 
     Suma::AdminAPI::CommonEndpoints.get_one(

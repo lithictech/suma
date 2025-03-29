@@ -19,23 +19,12 @@ class Suma::AdminAPI::Programs < Suma::AdminAPI::V1
   end
 
   resource :programs do
-    params do
-      use :pagination
-      use :ordering, model: Suma::Program, default: :ordinal
-      use :searchable
-    end
-    get do
-      check_role_access!(admin_member, :read, :admin_commerce)
-      ds = Suma::Program.dataset
-      if (name_en_like = search_param_to_sql(params, :name_en))
-        name_es_like = search_param_to_sql(params, :name_es)
-        ds = ds.translation_join(:name, [:en, :es])
-        ds = ds.reduce_expr(:|, [name_en_like, name_es_like])
-      end
-      ds = order(ds, params)
-      ds = paginate(ds, params)
-      present_collection ds, with: ProgramEntity
-    end
+    Suma::AdminAPI::CommonEndpoints.list(
+      self,
+      Suma::Program,
+      ProgramEntity,
+      ordering_kw: {default: :ordinal},
+    )
 
     Suma::AdminAPI::CommonEndpoints.create(
       self,

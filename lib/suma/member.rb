@@ -14,6 +14,7 @@ class Suma::Member < Suma::Postgres::Model(:members)
   include Appydays::Configurable
   include Suma::Payment::HasAccount
   include Suma::AdminLinked
+  include Suma::Postgres::HybridSearchHelpers
 
   class InvalidPassword < RuntimeError; end
 
@@ -52,6 +53,7 @@ class Suma::Member < Suma::Postgres::Model(:members)
   plugin :timestamps
   plugin :soft_deletes
   plugin :association_pks
+  plugin :hybrid_searchable
 
   one_to_many :activities, class: "Suma::Member::Activity", order: Sequel.desc([:created_at, :id])
   many_through_many :bank_accounts,
@@ -125,7 +127,7 @@ class Suma::Member < Suma::Postgres::Model(:members)
               read_only: true,
               key: :id,
               dataset: lambda {
-                # Prefer direct enrollments over indirect ones.
+                # Prefer direct enrollments to indirect ones.
                 # The org enrollments being second in the UNION means
                 # direct enrollments will be chosen with the DISTINCT.
                 self.direct_program_enrollments_dataset.union(
@@ -397,6 +399,37 @@ class Suma::Member < Suma::Postgres::Model(:members)
     orig_name = self.previous_changes&.fetch(:name, [])&.first || self.name
     change_name = self.legal_entity.name.blank? || self.legal_entity.name == orig_name
     self.legal_entity.update(name: self.name) if change_name
+  end
+
+  def hybrid_search_fields
+    begin
+      phone = self.phone.present? ? Suma::PhoneNumber::US.format(self.phone) : ""
+    rescue ArgumentError
+      phone = self.phone
+    end
+    orgnames = self.organization_memberships.map(&:verified_organization).select(&:itself).map(&:name)
+    return [
+      :name,
+      ["Phone number", phone],
+      ["Email address", self.email],
+      :created_at,
+      :note,
+      ["Organization memberships", orgnames],
+      ["Roles", self.roles.map(&:name)],
+    ]
+  end
+
+  def hybrid_search_facts
+    orgnames = self.organization_memberships.map(&:verified_organization).select(&:itself).map(&:name)
+    lines = [
+      !self.onboarding_verified? && "My identity has not been verified.",
+      self.soft_deleted? && "I have been deleted.",
+      self.roles.include?(Suma::Role.cache.admin) && "I am an administrator.",
+      "I am a member of #{self.organization_memberships.count} organizations.",
+      "I have been assigned #{self.roles.count} roles.",
+    ]
+    lines.concat(orgnames.map { |n| "I am a verified member of the organization named #{n}." })
+    return lines
   end
 
   ### Soft-delete hook -- expire unused, unexpired reset codes and

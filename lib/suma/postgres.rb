@@ -225,3 +225,5 @@ module Suma::Postgres
     return db.after_commit(&block)
   end
 end
+
+require "suma/postgres/hybrid_search_helpers"

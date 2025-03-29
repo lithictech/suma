@@ -4,8 +4,10 @@ require "suma/admin_linked"
 require "suma/payment"
 
 class Suma::Payment::Ledger < Suma::Postgres::Model(:payment_ledgers)
+  include Suma::Postgres::HybridSearchHelpers
   include Suma::AdminLinked
 
+  plugin :hybrid_searchable
   plugin :timestamps
   plugin :translated_text, :contribution_text, Suma::TranslatedText
 
@@ -132,6 +134,22 @@ class Suma::Payment::Ledger < Suma::Postgres::Model(:payment_ledgers)
 
   def search_label
     return self.admin_label
+  end
+
+  def hybrid_search_fields
+    return [
+      :name,
+      :contribution_text,
+      ["Owner", self.account.display_name],
+    ]
+  end
+
+  def hybrid_search_facts
+    return [
+      self.account.platform_account? && "I belong to the platform account",
+      self.account.member && "I belong to a member",
+      self.account.vendor && "I belong to a vendor",
+    ]
   end
 end
 

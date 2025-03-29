@@ -21,7 +21,6 @@ class Suma::AdminAPI::FundingTransactions < Suma::AdminAPI::V1
       self,
       Suma::Payment::FundingTransaction,
       FundingTransactionEntity,
-      translation_search_params: [:memo],
     )
 
     desc "Create a funding transaction and book transfer for the given instrument and its owner's cash ledger."

@@ -5,9 +5,12 @@ require "suma/postgres/model"
 require "suma/admin_linked"
 
 class Suma::Mobility::Trip < Suma::Postgres::Model(:mobility_trips)
+  include Suma::Postgres::HybridSearchHelpers
   include Suma::AdminLinked
+
   class OngoingTrip < StandardError; end
 
+  plugin :hybrid_searchable
   plugin :timestamps
 
   many_to_one :vendor_service, key: :vendor_service_id, class: "Suma::Vendor::Service"
@@ -126,6 +129,15 @@ class Suma::Mobility::Trip < Suma::Postgres::Model(:mobility_trips)
   end
 
   def rel_admin_link = "/mobility-trip/#{self.id}"
+
+  def hybrid_search_fields
+    return [
+      :external_trip_id,
+      :vehicle_id,
+      :member,
+      ["Vendor", self.vendor_service.vendor.name],
+    ]
+  end
 end
 
 # Table: mobility_trips

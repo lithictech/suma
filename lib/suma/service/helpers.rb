@@ -124,22 +124,6 @@ module Suma::Service::Helpers
     return search_to_sql(params[param]&.strip, column)
   end
 
-  # If the search string is only digits (and spaces),
-  # return a term used to search the given column.
-  # We only search phone if the term is digit-only
-  # because otherwise we'd need to remove non-digits from the term,
-  # which would mean emails-with-numbers could match phone.
-  # That is, '11552' would look for '11552' in phone (and email),
-  # so match '11552555555' and 'rob11552@gmail.com'.
-  # But we want the term 'rob11552' to match 'rob11552@gmail.com'
-  # but NOT match '11552555555'.
-  def phone_search_param_to_sql(params, column: :phone, param: :search)
-    term = (params[param] || "").strip.gsub(/\s/, "")
-    only_digits = term.match?(/^[0-9]+$/)
-    return nil unless only_digits
-    return search_to_sql(term, column)
-  end
-
   def search_to_sql(search_value, column)
     return nil if search_value.blank? || search_value == "*"
     term = "%#{search_value.strip}%"
@@ -163,7 +147,7 @@ module Suma::Service::Helpers
 
   # Order the database. By default, use descending nulls last.
   # If order_direction is :asc, use ascending nulls first.
-  def order(dataset, params, disambiguator: :id)
+  def self.order(dataset, params, disambiguator: :id)
     if params[:order_direction] == :asc
       m = :asc
       nulls = :first
@@ -173,6 +157,14 @@ module Suma::Service::Helpers
     end
     expr = Sequel.send(m, params[:order_by], nulls:)
     return dataset.order(expr, Sequel.desc(disambiguator))
+  end
+
+  # Order the database. By default, use descending nulls last.
+  # If order_direction is :asc, use ascending nulls first.
+  def order(*) = Suma::Service::Helpers.order(*)
+
+  def hybrid_search(dataset, params)
+    return dataset.hybrid_search(params.fetch(:search))
   end
 
   def use_http_expires_caching(expiration)

@@ -32,6 +32,10 @@ module Suma::SpecHelpers::Postgres
     context.before(:each) do |example|
       Suma::Postgres.unsafe_skip_transaction_check = true if example.metadata[:no_transaction_check]
       Suma::Postgres.do_not_defer_events = true if example.metadata[:do_not_defer_events]
+      if example.metadata[:hybrid_search]
+        require "sequel/sequel_hybrid_searchable/subproc_sentence_transformer_generator"
+        SequelHybridSearchable.embedding_generator = SequelHybridSearchable::SubprocSentenceTransformerGenerator
+      end
     end
 
     context.around(:each) do |example|
@@ -56,6 +60,7 @@ module Suma::SpecHelpers::Postgres
     context.after(:each) do |example|
       Suma::Postgres.do_not_defer_events = false if example.metadata[:do_not_defer_events]
       Suma::Postgres.unsafe_skip_transaction_check = false if example.metadata[:no_transaction_check]
+      SequelHybridSearchable.embedding_generator = nil if example.metadata[:hybrid_search]
 
       truncate_all if example.metadata[:db] == :no_transaction
     end

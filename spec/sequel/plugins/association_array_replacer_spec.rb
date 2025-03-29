@@ -4,8 +4,9 @@ require "sequel/plugins/association_array_replacer"
 
 RSpec.describe Sequel::Plugins::AssociationArrayReplacer, :db do
   before(:all) do
-    @db = Suma::Postgres::Model.db
-    @db.create_table(:arrayreplacertest, temp: true) do
+    @db = Sequel.connect(ENV.fetch("DATABASE_URL"))
+    @db.drop_table?(:arrayreplacertest)
+    @db.create_table(:arrayreplacertest) do
       primary_key :id
       foreign_key :parent_id, :arrayreplacertest
     end

@@ -87,34 +87,12 @@ class Suma::AdminAPI::Members < Suma::AdminAPI::V1
   ALL_TIMEZONES = Set.new(TZInfo::Timezone.all_identifiers)
 
   resource :members do
-    desc "Return all members, newest first"
-    params do
-      use :pagination
-      use :ordering, model: Suma::Member
-      use :searchable
-      optional :download, type: String, values: ["csv"]
-    end
-    get do
-      check_role_access!(admin_member, :read, :admin_members)
-      ds = Suma::Member.dataset
-      if (email_like = search_param_to_sql(params, :email))
-        name_like = search_param_to_sql(params, :name)
-        phone_like = phone_search_param_to_sql(params)
-        ds = ds.where(email_like | name_like | phone_like)
-      end
-      ds = order(ds, params)
-
-      if params[:download]
-        csv = Suma::Member::Exporter.new(ds).to_csv
-        env["api.format"] = :binary
-        content_type "text/csv"
-        body csv
-        header["Content-Disposition"] = "attachment; filename=suma-members-export.csv"
-      else
-        ds = paginate(ds, params)
-        present_collection ds, with: MemberEntity
-      end
-    end
+    Suma::AdminAPI::CommonEndpoints.list(
+      self,
+      Suma::Member,
+      MemberEntity,
+      exporter: Suma::Member::Exporter,
+    )
 
     Suma::AdminAPI::CommonEndpoints.get_one(
       self,

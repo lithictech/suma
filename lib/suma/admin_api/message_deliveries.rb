@@ -24,7 +24,6 @@ class Suma::AdminAPI::MessageDeliveries < Suma::AdminAPI::V1
       self,
       Suma::Message::Delivery,
       MessageDeliveryEntity,
-      search_params: [:to, :template],
     )
 
     desc "Return the delivery with the last ID"

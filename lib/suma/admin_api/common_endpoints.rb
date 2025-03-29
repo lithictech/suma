@@ -168,34 +168,42 @@ module Suma::AdminAPI::CommonEndpoints
     end
   end
 
-  def self.list(route_def, model_type, entity, search_params: [], translation_search_params: [])
-    # TODO: translation join doesn't work for multiple search terms
-    raise ArgumentError("translation join does not work for multiple search terms") if
-      translation_search_params.length > 1
-
+  def self.list(
+    route_def,
+    model_type,
+    entity,
+    exporter: Suma::Exporter::Placeholder,
+    ordering_kw: {},
+    ordering: nil
+  )
     route_def.instance_exec do
       params do
         use :pagination
-        use :ordering, model: model_type
+        use :ordering, model: model_type, **ordering_kw
         use :searchable
+        optional :download, type: String, values: ["csv"]
       end
       get do
         access = Suma::AdminAPI::Access.read_key(model_type)
         check_role_access!(admin_member, :read, access)
         ds = model_type.dataset
-        search_exprs = search_params.map { |p| search_param_to_sql(params, p) }
-        translation_search_params.each do |p|
-          en_like = search_param_to_sql(params, :"#{p}_en")
-          next unless en_like
-          es_like = search_param_to_sql(params, :"#{p}_es")
-          search_exprs << en_like
-          search_exprs << es_like
-          ds = ds.translation_join(p, [:en, :es])
+        ds = if params[:search].present?
+               hybrid_search(ds, params)
+             elsif ordering
+               ordering.call(ds, params)
+             else
+               order(ds, params)
+             end
+        if params[:download]
+          csv = exporter.new(ds).to_csv
+          env["api.format"] = :binary
+          content_type "text/csv"
+          body csv
+          header["Content-Disposition"] = "attachment; filename=suma-members-export.csv"
+        else
+          ds = paginate(ds, params)
+          present_collection ds, with: entity
         end
-        ds = ds.reduce_expr(:|, search_exprs)
-        ds = order(ds, params)
-        ds = paginate(ds, params)
-        present_collection ds, with: entity
       end
     end
   end
