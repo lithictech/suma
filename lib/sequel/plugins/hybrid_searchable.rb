@@ -55,8 +55,6 @@ module Sequel::Plugins::HybridSearchable
       # This depends on only using as tsvector the unique/dynamic content for each row's search text,
       # so 'Tim' is present for rows with the name 'Tim'.
       processed_query = q.gsub(" ", " OR ")
-      # Not sure what this value is
-      k = 60
       # Based on https://github.com/pgvector/pgvector-python/blob/master/examples/hybrid_search/rrf.py
       # With changes to get it to work as a standard dataset.
       # First, get a dataset which filters out non-matching rows,
@@ -92,9 +90,13 @@ module Sequel::Plugins::HybridSearchable
         )
 
       # Now join on our two queries, and order it based on their combined ranking.
+      # This is RFF, as well explained here:
+      # https://jkatz05.com/post/postgres/hybrid-search-postgres-pgvector/
+      # Not sure what this value is
+      rff_k = 60
       rank_order = Sequel.lit(
-        "COALESCE(1.0 / (? + semantic_search.rank), 0.0) + " \
-        "COALESCE(1.0 / (? + kw_search.rank), 0.0)", k, k,
+        "COALESCE(1.0 / (#{rff_k} + semantic_search.rank), 0.0) + " \
+        "COALESCE(1.0 / (#{rff_k} + kw_search.rank), 0.0)",
       )
       ds = self.model.
         join(kw_search.as(:kw_search), id: pk).

@@ -3,6 +3,12 @@
 require "open3"
 require "sequel/sequel_hybrid_searchable"
 
+# Call the aiapi Python service defined in this repo.
+# Pass it a model name from the sentence-transformers Python module
+# and some text, and get back embeddings.
+#
+# See +SequelHybridSearchable::SubprocSentenceTransformerGenerator+
+# for potential models and caveats about vector sizes.
 class SequelHybridSearchable::ApiEmbeddingGenerator < SequelHybridSearchable::EmbeddingGenerator
   include Appydays::Loggable
 
