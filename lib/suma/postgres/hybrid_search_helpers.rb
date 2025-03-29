@@ -17,10 +17,12 @@ module Suma::Postgres::HybridSearchHelpers
         SequelHybridSearchable.embedding_generator = SequelHybridSearchable::SubprocSentenceTransformerGenerator
       elsif self.embedding_generator == "api"
         require "sequel/sequel_hybrid_searchable/api_embedding_generator"
+        require "suma/http"
         raise "Must set SUMA_DB_HYBRID_SEARCH_AIAPI_HOST" if self.aiapi_host.blank?
         SequelHybridSearchable.embedding_generator = SequelHybridSearchable::ApiEmbeddingGenerator.new(
           self.aiapi_host,
           api_key: self.aiapi_key,
+          user_agent: Suma::Http.user_agent,
         )
       else
         require "sequel/sequel_hybrid_searchable"

@@ -12,11 +12,12 @@ class SequelHybridSearchable::ApiEmbeddingGenerator < SequelHybridSearchable::Em
 
   # Create a new instance.
   # @param model_name [String] Default to +DEFAULT_MODEL+.
-  def initialize(host, api_key:, model_name: nil)
+  def initialize(host, api_key:, model_name: nil, user_agent: nil)
     super()
     @host = host
     @api_key = api_key
     @model_name = model_name || DEFAULT_MODEL
+    @user_agent = user_agent
   end
 
   def get_embedding(text)
@@ -27,6 +28,7 @@ class SequelHybridSearchable::ApiEmbeddingGenerator < SequelHybridSearchable::Em
       "Content-Type" => "application/json",
       "Api-Key" => @api_key,
     }
+    headers["User-Agent"] = @user_agent if @user_agent
     resp = Net::HTTP.post(url, body, headers)
     raise "request failed: #{resp.code} #{resp.body}" unless resp.code == "200"
     rbody = JSON.parse(resp.body)
