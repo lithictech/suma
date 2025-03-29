@@ -9,4 +9,11 @@ RSpec.shared_examples "a hybrid searchable object" do
     t = instance.hybrid_search_text
     expect(t).to be_present
   end
+
+  it "can bulk reindex", hybrid_search: true do
+    t = instance
+    expect(t).to have_attributes(search_content: nil)
+    instance.class.hybrid_search_reindex_all
+    expect(t.refresh).to have_attributes(search_content: be_present)
+  end
 end

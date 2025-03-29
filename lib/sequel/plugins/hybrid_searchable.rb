@@ -112,7 +112,8 @@ module Sequel::Plugins::HybridSearchable
 
     def hybrid_search_reindex_all
       did = 0
-      self.dataset.paged_each do |m|
+      enum = self.dataset.respond_to?(:each_cursor_page) ? :each_cursor_page : :paged_each
+      self.dataset.send(enum) do |m|
         m.hybrid_search_reindex
         did += 1
       end
