@@ -22,6 +22,14 @@ import StorefrontIcon from "@mui/icons-material/Storefront";
 import TollIcon from "@mui/icons-material/Toll";
 import React from "react";
 
+/**
+ * Calculate the nav items available to the current member,
+ * based on roles.
+ * Nav links is an array, where each item has:
+ * - title, used as the list subheader, which can be empty.
+ * - items, which always has at least one item.
+ * @returns {({title: string, items: [{label: string, href: string, icon: JSX.Element}]})[]}
+ */
 export default function useNavLinks() {
   const { canRead } = useRoleAccess();
   const links = React.useMemo(() => {
@@ -30,105 +38,136 @@ export default function useNavLinks() {
     const commerce = canRead("admin_commerce");
     const management = canRead("admin_management");
     const r = [
-      { label: "Home", href: "/dashboard", icon: <HomeIcon /> },
-      members && { label: "Members", href: "/members", icon: <PersonIcon /> },
-      members && {
-        label: "Organizations",
-        href: "/organizations",
-        icon: <CorporateFareIcon />,
+      {
+        title: "",
+        items: [{ label: "Home", href: "/dashboard", icon: <HomeIcon /> }].filter(
+          Boolean
+        ),
       },
-      members && {
-        label: "Organization Memberships",
-        href: "/memberships",
-        icon: <AssignmentIndIcon />,
+      {
+        title: "Accounts",
+        items: [
+          members && { label: "Members", href: "/members", icon: <PersonIcon /> },
+          members && {
+            label: "Organizations",
+            href: "/organizations",
+            icon: <CorporateFareIcon />,
+          },
+          members && {
+            label: "Organization Memberships",
+            href: "/memberships",
+            icon: <AssignmentIndIcon />,
+          },
+        ].filter(Boolean),
       },
-      payments && {
-        label: "Ledgers",
-        href: "/payment-ledgers",
-        icon: <PaymentsIcon />,
+      {
+        title: "Payments",
+        items: [
+          payments && {
+            label: "Ledgers",
+            href: "/payment-ledgers",
+            icon: <PaymentsIcon />,
+          },
+          payments && {
+            label: "Charges",
+            href: "/charges",
+            icon: <ReceiptIcon />,
+          },
+          payments && {
+            label: "Book Transactions",
+            href: "/book-transactions",
+            icon: <AccountBalanceWalletIcon />,
+          },
+          payments && {
+            label: "Funding Transactions",
+            href: "/funding-transactions",
+            icon: <AccountBalanceIcon />,
+          },
+          payments && {
+            label: "Payout Transactions",
+            href: "/payout-transactions",
+            icon: <TollIcon />,
+          },
+          management && {
+            label: "Payment Triggers",
+            href: "/payment-triggers",
+            icon: <AutoModeIcon />,
+          },
+        ].filter(Boolean),
       },
-      payments && {
-        label: "Charges",
-        href: "/charges",
-        icon: <ReceiptIcon />,
+
+      {
+        title: "Commerce",
+        items: [
+          commerce && {
+            label: "Offerings",
+            href: "/offerings",
+            icon: <ShoppingCartIcon />,
+          },
+          commerce && {
+            label: "Products",
+            href: "/products",
+            icon: <SellIcon />,
+          },
+          commerce && {
+            label: "Orders",
+            href: "/orders",
+            icon: <ShoppingBagIcon />,
+          },
+          management && {
+            label: "Mobility Trips",
+            href: "/mobility-trips",
+            icon: <BikeScooterIcon />,
+          },
+        ].filter(Boolean),
       },
-      payments && {
-        label: "Book Transactions",
-        href: "/book-transactions",
-        icon: <AccountBalanceWalletIcon />,
+      {
+        title: "Vendor Management",
+        items: [
+          commerce && {
+            label: "Vendors",
+            href: "/vendors",
+            icon: <StorefrontIcon />,
+          },
+          commerce && {
+            label: "External Accounts",
+            href: "/vendor-accounts",
+            icon: <PortraitIcon />,
+          },
+          commerce && {
+            label: "External Account Configs",
+            href: "/vendor-configurations",
+            icon: <ManageAccountsIcon />,
+          },
+          commerce && {
+            label: "Vendor Services",
+            href: "/vendor-services",
+            icon: <AddBusinessIcon />,
+          },
+        ].filter(Boolean),
       },
-      payments && {
-        label: "Funding Transactions",
-        href: "/funding-transactions",
-        icon: <AccountBalanceIcon />,
-      },
-      payments && {
-        label: "Payout Transactions",
-        href: "/payout-transactions",
-        icon: <TollIcon />,
-      },
-      management && {
-        label: "Payment Triggers",
-        href: "/payment-triggers",
-        icon: <AutoModeIcon />,
-      },
-      commerce && {
-        label: "Vendors",
-        href: "/vendors",
-        icon: <StorefrontIcon />,
-      },
-      commerce && {
-        label: "Products",
-        href: "/products",
-        icon: <SellIcon />,
-      },
-      commerce && {
-        label: "Offerings",
-        href: "/offerings",
-        icon: <ShoppingCartIcon />,
-      },
-      commerce && {
-        label: "Orders",
-        href: "/orders",
-        icon: <ShoppingBagIcon />,
-      },
-      management && {
-        label: "Mobility Trips",
-        href: "/mobility-trips",
-        icon: <BikeScooterIcon />,
-      },
-      commerce && {
-        label: "Vendor Accounts",
-        href: "/vendor-accounts",
-        icon: <PortraitIcon />,
-      },
-      commerce && {
-        label: "Vendor Configurations",
-        href: "/vendor-configurations",
-        icon: <ManageAccountsIcon />,
-      },
-      commerce && {
-        label: "Vendor Services",
-        href: "/vendor-services",
-        icon: <AddBusinessIcon />,
-      },
-      management && {
-        label: "Programs",
-        href: "/programs",
-        icon: <EventAvailableIcon />,
-      },
-      management && {
-        label: "Program Enrollments",
-        href: "/program-enrollments",
-        icon: <HowToRegIcon />,
-      },
-      members && {
-        label: "Messages",
-        href: "/messages",
-        icon: <MailIcon />,
+      {
+        title: "Platform",
+        items: [
+          management && {
+            label: "Programs",
+            href: "/programs",
+            icon: <EventAvailableIcon />,
+          },
+          management && {
+            label: "Program Enrollments",
+            href: "/program-enrollments",
+            icon: <HowToRegIcon />,
+          },
+          members && {
+            label: "Messages",
+            href: "/messages",
+            icon: <MailIcon />,
+          },
+        ].filter(Boolean),
       },
     ];
-    return r.filter(Boolean);
+    return r.filter((t) => t.items.length > 0);
   }, [canRead]);
   return links;
 }

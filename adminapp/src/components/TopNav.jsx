@@ -4,6 +4,7 @@ import useNavLinks from "../hooks/useNavLinks";
 import useToggle from "../shared/react/useToggle";
 import refreshAsync from "../shared/refreshAsync";
 import Link from "./Link";
+import Help from "@mui/icons-material/Help";
 import MenuIcon from "@mui/icons-material/Menu";
 import {
   Drawer,
@@ -12,6 +13,7 @@ import {
   ListItemButton,
   ListItemIcon,
   ListItemText,
+  ListSubheader,
   useMediaQuery,
 } from "@mui/material";
 import AppBar from "@mui/material/AppBar";
@@ -119,15 +121,43 @@ function DrawerContents() {
     <Box md={{ width: drawerWidth }} role="presentation">
       <Toolbar />
       <Divider />
+      {navLinks.map(({ title, items }) => {
+        return (
+          <List
+            key={title}
+            subheader={
+              title && <ListSubheader sx={{ lineHeight: "unset" }}>{title}</ListSubheader>
+            }
+          >
+            {items.map(({ label, href, icon }) => (
+              <ListItem key={label} disablePadding>
+                <ListItemButton
+                  component={Link}
+                  href={href}
+                  sx={{ paddingTop: 0.75, paddingBottom: 0.75 }}
+                >
+                  <ListItemIcon>{icon}</ListItemIcon>
+                  <ListItemText primary={label} />
+                </ListItemButton>
+              </ListItem>
+            ))}
+          </List>
+        );
+      })}
+      <Divider />
       <List>
-        {navLinks.map(({ label, href, icon }) => (
-          <ListItem key={label} disablePadding>
-            <ListItemButton component={Link} href={href}>
-              <ListItemIcon>{icon}</ListItemIcon>
-              <ListItemText primary={label} />
-            </ListItemButton>
-          </ListItem>
-        ))}
+        <ListItem disablePadding>
+          <ListItemButton
+            href="https://github.com/lithictech/suma/blob/main/docs/admin-glossary.md"
+            target="_blank"
+            sx={{ paddingTop: 0.75, paddingBottom: 0.75 }}
+          >
+            <ListItemIcon>
+              <Help />
+            </ListItemIcon>
+            <ListItemText primary="View Docs" />
+          </ListItemButton>
+        </ListItem>
       </List>
     </Box>
   );
