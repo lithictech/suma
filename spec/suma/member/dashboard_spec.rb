@@ -3,7 +3,7 @@
 require "suma/member/dashboard"
 
 RSpec.describe Suma::Member::Dashboard, :db do
-  let(:member) { Suma::Fixtures.member.with_cash_ledger.create }
+  let(:member) { Suma::Fixtures.member.create }
   let(:now) { Time.now }
 
   it "can represent a blank/empty member" do
