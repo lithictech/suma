@@ -1,15 +1,14 @@
 import api from "../api";
 import mobilityHeaderImage from "../assets/images/onboarding-mobility.jpg";
 import FeaturePageHeader from "../components/FeaturePageHeader";
-import LayoutContainer from "../components/LayoutContainer";
 import { MdLink } from "../components/SumaMarkdown";
 import WaitingList from "../components/WaitingList";
 import Map from "../components/mobilitymap/Map";
 import config from "../config";
 import { imageAltT, t } from "../localization";
 import { useError } from "../state/useError";
+import clsx from "clsx";
 import React from "react";
-import Alert from "react-bootstrap/Alert";
 
 export default function Mobility() {
   if (!config.featureMobility) {
@@ -52,31 +51,28 @@ function MobilityImpl() {
   }, [setLocationPermissionsError]);
 
   return (
-    <>
-      <LayoutContainer top gutters>
-        <h5>{t("mobility:title")}</h5>
-        {t(
-          "mobility:intro",
-          {},
-          {
-            markdown: {
-              overrides: {
-                a: { component: MdLink },
-                p: {
-                  props: {
-                    className: "text-secondary",
+    <div className="position-relative">
+      <Map onLocationPermissionsDenied={handleLocationPermissionsDenied} />
+      <Drawer className={locationPermissionsError && "bg-warning"}>
+        {locationPermissionsError ||
+          t(
+            "mobility:intro",
+            {},
+            {
+              markdown: {
+                overrides: {
+                  a: { component: MdLink },
+                  p: {
+                    props: {
+                      className: "text-secondary",
+                    },
                   },
                 },
               },
-            },
-          }
-        )}
-        {locationPermissionsError && (
-          <Alert variant="warning">{locationPermissionsError}</Alert>
-        )}
-      </LayoutContainer>
-      <Map onLocationPermissionsDenied={handleLocationPermissionsDenied} />
-    </>
+            }
+          )}
+      </Drawer>
+    </div>
   );
 }
 
@@ -105,4 +101,8 @@ function getLocationPermissionsInstructionsUrl(browser) {
     return "https://support.mozilla.org/en-US/kb/does-firefox-share-my-location-websites#w_how-do-i-undo-a-permission-granted-to-a-site";
   }
   return null;
+}
+
+function Drawer({ children, className }) {
+  return <div className={clsx("mobility-drawer", className)}>{children}</div>;
 }

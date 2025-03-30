@@ -1,5 +1,25 @@
 @import "./theme";
 
+.mobility-drawer {
+  position: absolute;
+  top: 0;
+  width: calc(100% - 4px);
+  left: 2px;
+  padding: map-get($spacers, 4);
+  background-color: map-get($theme-colors, "light");
+  border-bottom-left-radius: $border-radius * 4;
+  border-bottom-right-radius: $border-radius * 4;
+  z-index: 1000;
+}
+
+.leaflet-control-container {
+  .leaflet-bottom {
+    /* Raise this above the browser controls that may open
+    and would sit on top of the map. */
+    bottom: 100px;
+  }
+}
+
 .leaflet-container {
   font-family: $font-family-sans-serif !important;
   font-size: 0.85rem;

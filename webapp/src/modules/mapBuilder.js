@@ -42,7 +42,10 @@ export default class MapBuilder {
       localStorageCache.setItem("mobilityMapCache", this._mapCache);
     };
     this._latOffset = 0.00004;
-    this._map = this._l.map(this.mapHost, { zoomControl: false });
+    this._map = this._l.map(this.mapHost, {
+      attributionControl: false,
+      zoomControl: false,
+    });
     this._map.setView(
       [this._mapCache.lat || 45.5152, this._mapCache.lng || -122.6784],
       this._mapCache.zoom || this._minZoom
