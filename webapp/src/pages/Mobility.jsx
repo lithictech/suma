@@ -42,7 +42,10 @@ function MobilityImpl() {
           throw new Error("unhandled user agent");
         }
         const opts = { context: "instructions", instructionsUrl: instructionsUrl };
-        const localizedError = t("mobility:location_permissions_denied", opts);
+        const localizedError = t(
+          "mobility:location_permissions_denied_instructions",
+          opts
+        );
         setLocationPermissionsError(localizedError);
       })
       .catch(() => {
@@ -53,7 +56,7 @@ function MobilityImpl() {
   return (
     <div className="position-relative">
       <Map onLocationPermissionsDenied={handleLocationPermissionsDenied} />
-      <Drawer className={locationPermissionsError && "bg-warning"}>
+      <Drawer className={locationPermissionsError && "bg-warning text-links-dark"}>
         {locationPermissionsError ||
           t(
             "mobility:intro",
