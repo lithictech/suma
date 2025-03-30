@@ -231,10 +231,10 @@ RSpec.describe Suma::API::Mobility, :db do
 
   describe "GET /v1/mobility/map_features" do
     it "returns the location of restricted areas within the given bounds" do
-      ra1 = Suma::Fixtures.mobility_restricted_area.
+      inbounds = Suma::Fixtures.mobility_restricted_area.
         latlng_bounds(sw: [20, 120], ne: [50, 150]).
         create(restriction: "do-not-park-or-ride")
-      ra2 = Suma::Fixtures.mobility_restricted_area.
+      outofbounds = Suma::Fixtures.mobility_restricted_area.
         latlng_bounds(sw: [30, 130], ne: [50, 150]).
         create(restriction: "do-not-park")
 
@@ -264,6 +264,18 @@ RSpec.describe Suma::API::Mobility, :db do
             },
           ],
         )
+    end
+
+    it "returns the offerings within the given bounds" do
+      inbounds = Suma::Fixtures.offering.located(20, 120).create
+      outbounds = Suma::Fixtures.offering.located(20, 130).create
+      not_located = Suma::Fixtures.offering.create
+
+      get "/v1/mobility/map_features", sw: [15, 110], ne: [25, 125]
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.
+        that_includes(commerce_offerings: have_same_ids_as(inbounds))
     end
 
     it "401s if not logged in" do

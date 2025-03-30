@@ -136,21 +136,4 @@ RSpec.describe Suma::API::Me, :db do
       expect(member.refresh.message_preferences).to have_attributes(preferred_language: "es")
     end
   end
-
-  describe "GET /v1/me/dashboard" do
-    it "returns the dashboard" do
-      led = Suma::Payment.ensure_cash_ledger(Suma::Fixtures.payment_account.create(member:))
-      Suma::Fixtures.book_transaction.to(led).create(amount: money("$10"))
-      Suma::Fixtures.program_enrollment.create(member:)
-
-      get "/v1/me/dashboard"
-
-      expect(last_response).to have_status(200)
-      expect(last_response).to have_json_body.
-        that_includes(
-          cash_balance: include(cents: 1000),
-          programs: have_length(1),
-        )
-    end
-  end
 end

@@ -43,4 +43,8 @@ module Suma::Fixtures::Offerings
   decorator :with_programs, presave: true do |*programs|
     programs.each { |p| self.add_program(p) }
   end
+
+  decorator :located, presave: true do |lat, lng|
+    self.add_map_location(lat:, lng:)
+  end
 end

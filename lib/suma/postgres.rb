@@ -68,6 +68,7 @@ module Suma::Postgres
     "suma/commerce/product_inventory",
     "suma/external_credential",
     "suma/image",
+    "suma/map_location",
     "suma/member",
     "suma/member/activity",
     "suma/member/referral",
