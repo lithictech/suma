@@ -266,7 +266,7 @@
     "do_not_ride_intro": "You cannot ride in this area. We may take action for repeated violations.",
     "do_not_ride_title": "Please do not ride here",
     "end_trip": "End Trip",
-    "intro": "Ride with enhanced privacy and better prices.\n\nSuma partners with Ride Connection to provide transportation options for the elderly and people with disabilities. Call [503-226-0700](tel:503-226-0700) or [click here](https://rideconnection.org/services__blank__) to see their services.\n\nWe're teaming up with Lime to provide free rides to suma users this summer. Lime rides are a new feature and we welcome your feedback via text at $t(strings:common:suma_help_number) or email at $t(strings:common:suma_help_email). To get started, click on a e-scooter below or learn more on our $t(strings:common:faq).",
+    "intro": "Ride with enhanced privacy and better prices. To get started, click on a vehicle or learn more on our $t(strings:common:faq).",
     "locate_me": "Locate me",
     "location_permissions_denied": "Map location permissions are denied. Suma will attempt to find your nearest location. Please allow browser location permissions for suma.",
     "location_permissions_denied_instructions": "Map location permissions are denied. Suma will attempt to find your nearest location. [Click here]({{instructionsUrl}}) for instructions on allowing location permission for suma.",

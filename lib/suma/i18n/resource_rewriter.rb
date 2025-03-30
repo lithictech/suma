@@ -4,29 +4,50 @@ require "suma/i18n/formatter"
 
 # Processes normal resource strings into a frontend-readable format.
 # Note the output file is JSON-based, but also as compact as possible.
-# In the future we could move to a binary format but it's probably not worth it in terms of complexity for now.
+# In the future we could move to a binary forma,  but it's probably not worth it in terms of complexity for now.
 class Suma::I18n::ResourceRewriter
+  class << self
+    def rewrite_resource_files(paths)
+      rewriter = self.new
+      resource_files = paths.map { |p| ResourceFile.new(p, File.read(p)) }
+      rewriter.prime(*resource_files)
+      resource_files.each do |rf|
+        result = rewriter.to_output(rf)
+        contents = Yajl::Encoder.encode(result)
+        newpath = rf.output_path
+        newpath.dirname.mkpath
+        File.write(newpath.to_s, contents)
+      end
+    end
+  end
+
   def initialize
     # As we process the hash, keep a map of the strings, to the $t nestings the string depends on.
     # Then in a second pass, we deeply resolve the nestings to find the right formatter.
     @nestings = NestingMap.new
+    @primed ||= {}
   end
 
-  def output_path_for(path)
-    path = Pathname.new(path)
-    purename = path.basename(".*")
-    return path.parent + "out" + "#{purename}.out.json"
+  # The first time, we fill up the translation nestings,
+  # the second time, we can resolve them.
+  # This could be a lot faster (we throw away most of what we do on the first pass)
+  # but since this isn't a runtime method it isn't that important.
+  def prime(*resource_files)
+    resource_files.each do |rf|
+      self._to_output(rf)
+      @primed[rf.namespace] = true
+    end
   end
 
-  def to_output(resource_json_str)
-    rstrings = Yajl::Parser.parse(resource_json_str)
-    @nestings.clear
-    # The first time, we fill up the translation nestings,
-    # the second time, we can resolve them.
-    # This could be a lot faster (we throw away most of what we do on the first pass)
-    # but since this isn't a runtime method it isn't that important.
-    self.process_hash(rstrings.deep_dup, path: [])
-    result = self.process_hash(rstrings, path: [])
+  # Return the output for a resource file.
+  def to_output(resource_file)
+    raise Suma::InvalidPrecondition, "Must call #prime with '#{resource_file.namespace}' resource file" unless
+      @primed.key?(resource_file.namespace)
+    return self._to_output(resource_file)
+  end
+
+  def _to_output(resource_file)
+    result = self.process_hash(resource_file.strings, path: [resource_file.namespace])
     return result
   end
 
@@ -119,7 +140,7 @@ class Suma::I18n::ResourceRewriter
       @h[key] ||= Nesting.new(key, formatter)
     end
 
-    def key(path) = path.is_a?(String) ? path : path.join(".")
+    def key(path) = path.is_a?(String) ? path.tr(":", ".") : path.join(".")
 
     def add_dep(path, d) = self.get(path).dependencies << d
 
@@ -154,6 +175,27 @@ class Suma::I18n::ResourceRewriter
       @key = key
       @formatter = formatter
       @dependencies = []
+    end
+  end
+
+  # Represent a resource file, like 'strings.json'.
+  # +path+ is the path of the read file (empty string for fake file is fine),
+  # +str+ is the contents of the resource file, which will be parsed as json.
+  class ResourceFile
+    # Path the caller says the resource file lives at.
+    attr_accessor :path
+    # Output path, which is based on the input path.
+    attr_accessor :output_path
+    # Namespace ('strings' for 'strings.json').
+    attr_accessor :namespace
+    # Parsed contents of the input string.
+    attr_accessor :strings
+
+    def initialize(path, str)
+      @path = Pathname.new(path)
+      @namespace = @path.basename(".*")
+      @output_path = Pathname(path).parent + "out" + "#{@namespace}.out.json"
+      @strings = Yajl::Parser.parse(str)
     end
   end
 end

@@ -230,12 +230,19 @@ RSpec.describe Suma::I18n, :db do
   end
 
   describe "ResourceRewriter" do
+    def resfile(ns, h)
+      return described_class::ResourceRewriter::ResourceFile.new(ns, h.to_json)
+    end
+
     def rewrite(s)
-      return described_class::ResourceRewriter.new.to_output({s:}.to_json).fetch("s")
+      rr = described_class::ResourceRewriter.new
+      rf = resfile("strings", {s:})
+      rr.prime(rf)
+      return rr.to_output(rf).fetch("s")
     end
 
     it "calculates a filename" do
-      pth = described_class::ResourceRewriter.new.output_path_for("en/strings.json")
+      pth = described_class::ResourceRewriter::ResourceFile.new("en/strings.json", "{}").output_path
       expect(pth.to_s).to eq("en/out/strings.out.json")
     end
 
@@ -296,7 +303,7 @@ RSpec.describe Suma::I18n, :db do
 
     it "errors if the json is not strings and hashes only" do
       expect do
-        described_class::ResourceRewriter.new.to_output({s: ["abc"]}.to_json)
+        described_class::ResourceRewriter.new.prime(resfile("test", {s: ["abc"]}))
       end.to raise_error(described_class::InvalidInput)
     end
 
@@ -305,25 +312,27 @@ RSpec.describe Suma::I18n, :db do
         base: "abc",
         md: "a *b* c",
         mdp: "a\n\nb",
-        ref_plain: "$t(base) $t(base)",
-        ref_md: "$t(base) $t(md)",
-        ref_mdp: "$t(base) $t(mdp)",
-        ref_mdp_deep: "$t(ref_mdp)",
+        ref_plain: "$t(test.base) $t(test.base)",
+        ref_md: "$t(test.base) $t(test.md)",
+        ref_mdp: "$t(test.base) $t(test.mdp)",
+        ref_mdp_deep: "$t(test.ref_mdp)",
         a: {b: {c: "*c*"}},
-        ref_deep: "$t(a.b.c)",
+        ref_deep: "$t(test.a.b.c)",
       }
-      got = described_class::ResourceRewriter.new.to_output(strings.to_json)
+      rr = described_class::ResourceRewriter.new
+      rr.prime(resfile("test", strings))
+      got = rr.to_output(resfile("test", strings))
       expect(got).to eq(
         {
           "base" => [:s, "abc"],
           "md" => [:m, "a *b* c"],
           "mdp" => [:mp, "a\n\nb"],
-          "ref_plain" => [:s, "@% @%", {t: "base"}, {t: "base"}],
-          "ref_md" => [:m, "@% @%", {t: "base"}, {t: "md"}],
-          "ref_mdp" => [:mp, "@% @%", {t: "base"}, {t: "mdp"}],
-          "ref_mdp_deep" => [:mp, "@%", {t: "ref_mdp"}],
+          "ref_plain" => [:s, "@% @%", {t: "test.base"}, {t: "test.base"}],
+          "ref_md" => [:m, "@% @%", {t: "test.base"}, {t: "test.md"}],
+          "ref_mdp" => [:mp, "@% @%", {t: "test.base"}, {t: "test.mdp"}],
+          "ref_mdp_deep" => [:mp, "@%", {t: "test.ref_mdp"}],
           "a" => {"b" => {"c" => [:m, "*c*"]}},
-          "ref_deep" => [:m, "@%", {t: "a.b.c"}],
+          "ref_deep" => [:m, "@%", {t: "test.a.b.c"}],
         },
       )
     end
@@ -331,19 +340,63 @@ RSpec.describe Suma::I18n, :db do
     it "uses high-complexity formatters, even when refs are out-of-order" do
       strings = {
         s0: "xy",
-        s1: "$t(s2)",
-        s2: "*$t(s3)*",
-        s3: "$t(s0)\n\nhi",
+        s1: "$t(test.s2)",
+        s2: "*$t(test.s3)*",
+        s3: "$t(test.s0)\n\nhi",
       }
-      got = described_class::ResourceRewriter.new.to_output(strings.to_json)
+      rr = described_class::ResourceRewriter.new
+      rr.prime(resfile("test", strings))
+      got = rr.to_output(resfile("test", strings))
       expect(got).to eq(
         {
           "s0" => [:s, "xy"],
-          "s1" => [:mp, "@%", {t: "s2"}],
-          "s2" => [:mp, "*@%*", {t: "s3"}],
-          "s3" => [:mp, "@%\n\nhi", {t: "s0"}],
+          "s1" => [:mp, "@%", {t: "test.s2"}],
+          "s2" => [:mp, "*@%*", {t: "test.s3"}],
+          "s3" => [:mp, "@%\n\nhi", {t: "test.s0"}],
         },
       )
+    end
+
+    it "finds refs across namespaces" do
+      strings1 = {
+        s1: "$t(test2.s1)",
+      }
+      strings2 = {
+        s1: "*hi*",
+      }
+      rr = described_class::ResourceRewriter.new
+      rr.prime(resfile("test1", strings1), resfile("test2", strings2))
+      got1 = rr.to_output(resfile("test1", strings1))
+      got2 = rr.to_output(resfile("test2", strings2))
+      expect(got2).to eq({"s1" => [:m, "*hi*"]})
+      expect(got1).to eq({"s1" => [:m, "@%", {t: "test2.s1"}]})
+    end
+
+    it "handles and fixes colon-separated path names" do
+      strings = {
+        s1: "$t(test:s2)",
+        s2: "*hi*",
+      }
+      rr = described_class::ResourceRewriter.new
+      rr.prime(resfile("test", strings))
+      got = rr.to_output(resfile("test", strings))
+      expect(got).to eq({"s1" => [:m, "@%", {t: "test:s2"}], "s2" => [:m, "*hi*"]})
+    end
+
+    it "errors if to_output is called without being primed" do
+      rr = described_class::ResourceRewriter.new
+      rf1 = resfile("test1", {})
+      rf2 = resfile("test2", {})
+      expect do
+        rr.to_output(rf1)
+      end.to raise_error(Suma::InvalidPrecondition, /Must call #prime with 'test1' resource file/)
+      rr.prime(rf1)
+      expect { rr.to_output(rf1) }.to_not raise_error
+      expect do
+        rr.to_output(rf2)
+      end.to raise_error(Suma::InvalidPrecondition, /Must call #prime with 'test2' resource file/)
+      rr.prime(rf2)
+      expect { rr.to_output(rf2) }.to_not raise_error
     end
   end
 

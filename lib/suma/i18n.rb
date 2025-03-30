@@ -289,13 +289,8 @@ module Suma::I18n
   end
 
   def self.rewrite_resource_files
-    rewriter = ResourceRewriter.new
-    Dir.glob(LOCALE_DIR + "{#{SUPPORTED_LOCALES.keys.join(',')}}/*.json") do |path|
-      newpath = rewriter.output_path_for(path)
-      contents = Yajl::Encoder.encode(rewriter.to_output(File.read(path)))
-      newpath.dirname.mkpath
-      File.write(newpath, contents)
-    end
+    paths = Dir.glob(LOCALE_DIR + "{#{SUPPORTED_LOCALES.keys.join(',')}}/*.json").to_a
+    ResourceRewriter.rewrite_resource_files(paths)
   end
 end
 
