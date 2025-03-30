@@ -10,6 +10,13 @@ class Suma::Member::Dashboard
   end
 
   def cash_balance
+    # The dashboard is the first thing people see after signing up,
+    # and it's possible workers are slow. This would cause an error.
+    # So make sure they have a ledger at this point.
+    # We don't want to create the ledger for every member,
+    # since it would be an issue for tests and all code that never
+    # has to worry about a ledger.
+    Suma::Payment.ensure_cash_ledger(@member)
     return @member.payment_account!.cash_ledger!.balance
   end
 

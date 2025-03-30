@@ -85,6 +85,7 @@ export default function OnboardingSignup() {
         <FormControlGroup
           className="mb-3"
           name="name"
+          autoComplete="name"
           label={t("forms:name")}
           required
           register={register}
@@ -95,6 +96,7 @@ export default function OnboardingSignup() {
         <FormControlGroup
           className="mb-3"
           name="address"
+          autoComplete="address-line1"
           label={t("forms:address1")}
           type="text"
           required
@@ -106,6 +108,7 @@ export default function OnboardingSignup() {
         <FormControlGroup
           className="mb-3"
           name="address2"
+          autoComplete="address-line2"
           label={t("forms:address2")}
           type="text"
           register={register}
@@ -116,6 +119,7 @@ export default function OnboardingSignup() {
         <FormControlGroup
           className="mb-3"
           name="city"
+          autoComplete="address-level2"
           label={t("forms:city")}
           type="text"
           required
@@ -149,6 +153,8 @@ export default function OnboardingSignup() {
           <FormControlGroup
             as={Col}
             name="zip"
+            autoComplete="postal-code"
+            inputMode="numeric"
             label={t("forms:zip")}
             type="text"
             pattern="^[0-9]{5}(?:-[0-9]{4})?$"

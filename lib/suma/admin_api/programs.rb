@@ -35,8 +35,8 @@ class Suma::AdminAPI::Programs < Suma::AdminAPI::V1
         requires :image, type: File
         requires(:name, type: JSON) { use :translated_text }
         requires(:description, type: JSON) { use :translated_text }
-        requires :app_link, type: String
-        requires(:app_link_text, type: JSON) { use :translated_text }
+        optional :app_link, type: String
+        optional(:app_link_text, type: JSON) { use :translated_text, allow_blank: true }
         requires :period_begin, type: Time
         requires :period_end, type: Time
         optional :ordinal, type: Integer
