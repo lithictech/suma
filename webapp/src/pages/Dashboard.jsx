@@ -117,12 +117,16 @@ function TopAlerts() {
 }
 
 function ProgramCard({ name, description, image, periodEnd, appLink, appLinkText }) {
+  const ImageComp = appLink ? Link : "div";
+  const HeaderComp = appLink ? RLink : React.Fragment;
   return (
     <div className="position-relative bg-primary rounded-2 p-3 pt-5 mt-4 w-100">
-      <h5 className="border border-2 border-dark rounded-2 bg-white py-2 px-3 position-absolute text-truncate hamburger-header">
-        {name}
-      </h5>
-      <Link to={appLink} className="flex-shrink-0 overflow-hidden position-relative">
+      <HeaderComp to={appLink}>
+        <h5 className="border border-2 border-dark rounded-2 bg-white py-2 px-3 position-absolute text-truncate program-card-title">
+          {name}
+        </h5>
+      </HeaderComp>
+      <ImageComp to={appLink} className="flex-shrink-0 overflow-hidden position-relative">
         <SumaImage
           image={image}
           w={500}
@@ -130,21 +134,23 @@ function ProgramCard({ name, description, image, periodEnd, appLink, appLinkText
           params={{ crop: "entropy", resize: "fill" }}
           style={{ maxWidth: "100%", objectFit: "cover" }}
         />
-      </Link>
-      <div className="mt-3">{dt(description)}</div>
-      <p className="small">
+      </ImageComp>
+      <div className="mt-3 text-links-dark">{dt(description)}</div>
+      <p className="mt-1 mb-0 small">
         {t("dashboard:program_ends", { date: dayjs(periodEnd).format("ll") })}
       </p>
-      <Button
-        as={RLink}
-        href={appLink}
-        state={{ fromIndex: true }}
-        variant="outline-dark"
-        className="h6 mb-0"
-        size="sm"
-      >
-        {appLinkText} <i className="bi bi-arrow-right-circle-fill ms-1"></i>
-      </Button>
+      {appLink && (
+        <Button
+          as={RLink}
+          href={appLink}
+          state={{ fromIndex: true }}
+          variant="outline-dark"
+          className="h6 mb-0 mt-3"
+          size="sm"
+        >
+          {appLinkText} <i className="bi bi-arrow-right-circle-fill ms-1"></i>
+        </Button>
+      )}
     </div>
   );
 }

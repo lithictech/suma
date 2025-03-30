@@ -72,7 +72,6 @@ export default function ProgramForm({
           value={resource.appLink}
           label="App link"
           onChange={setFieldFromInput}
-          required
         />
         <ResponsiveStack>
           <MultiLingualText
@@ -80,7 +79,6 @@ export default function ProgramForm({
             label="App Link Text"
             fullWidth
             value={resource.appLinkText}
-            required
             onChange={(v) => setField("appLinkText", v)}
           />
         </ResponsiveStack>
