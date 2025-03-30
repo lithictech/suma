@@ -18,9 +18,6 @@
     "@mui/x-date-pickers": "^6.15.0",
     "@sentry/browser": "^7.102.0",
     "@sentry/tracing": "^7.102.0",
-    "@testing-library/jest-dom": "^5.16.5",
-    "@testing-library/react": "^13.4.0",
-    "@testing-library/user-event": "^14.4.3",
     "axios": "^1.2.3",
     "clsx": "^1.2.1",
     "dayjs": "^1.11.7",
@@ -63,6 +60,10 @@
     ]
   },
   "devDependencies": {
+    "@babel/core": "^7.26.10",
+    "@testing-library/jest-dom": "^5.16.5",
+    "@testing-library/react": "^13.4.0",
+    "@testing-library/user-event": "^14.4.3",
     "@trivago/prettier-plugin-sort-imports": "^4.0.0",
     "@vitejs/plugin-react": "^4.1.0",
     "eslint": "^8.51.0",
@@ -71,6 +72,6 @@
     "vite-bundle-visualizer": "^0.10.0",
     "vite-plugin-eslint": "^1.8.1",
     "vite-plugin-svgr": "^4.1.0",
-    "vitest": "^0.34.6"
+    "vitest": "^3.0.9"
   }
 }
