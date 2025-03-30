@@ -1,4 +1,4 @@
-const { networkInterfaces } = require("os");
+import { networkInterfaces } from "os";
 
 const results = {};
 for (const [name, nets] of Object.entries(networkInterfaces())) {

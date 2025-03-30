@@ -1,4 +1,4 @@
-const fs = require("fs");
+import fs from "fs";
 
 const nodeVersion = fs
   .readFileSync("../.tool-versions")
