@@ -18,6 +18,8 @@ fmt-all:
 	@make fmt
 	@cd webapp && make fmt && make lint
 	@cd adminapp && make fmt && make lint
+audit:
+	@bundle-audit check || echo "Try running 'bundle update --conservative <gem>' on vulnerable gems to update just the Gemfile.lock"
 
 up:
 	docker compose up -d
