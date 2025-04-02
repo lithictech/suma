@@ -122,6 +122,16 @@ class Suma::Member < Suma::Postgres::Model(:members)
                     right_primary_key: :role_id,
                     read_only: true
 
+  many_through_many :program_enrollments_via_organization_roles,
+                    [
+                      [:organization_memberships, :member_id, :verified_organization_id],
+                      [:roles_organizations, :organization_id, :role_id],
+                    ],
+                    class: "Suma::Program::Enrollment",
+                    left_primary_key: :id,
+                    right_primary_key: :role_id,
+                    read_only: true
+
   one_to_many :combined_program_enrollments,
               class: "Suma::Program::Enrollment",
               read_only: true,
@@ -136,7 +146,11 @@ class Suma::Member < Suma::Postgres::Model(:members)
                 ).union(
                   self.program_enrollments_via_roles_dataset,
                   alias: :program_enrollments,
-                ).order(:program_id, :member_id, :organization_id).distinct(:program_id)
+                ).union(
+                  self.program_enrollments_via_organization_roles_dataset,
+                  alias: :program_enrollments,
+                ).order(:program_id, :member_id, :organization_id).
+                  distinct(:program_id)
               },
               eager_loader: (proc do |eo|
                 eo[:rows].each { |p| p.associations[:combined_program_enrollments] = [] }

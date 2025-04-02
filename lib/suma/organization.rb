@@ -12,6 +12,7 @@ class Suma::Organization < Suma::Postgres::Model(:organizations)
 
   one_to_many :memberships, class: "Suma::Organization::Membership", key: :verified_organization_id
   one_to_many :program_enrollments, class: "Suma::Program::Enrollment"
+  many_to_many :roles, class: "Suma::Role", join_table: :roles_organizations
 
   def rel_admin_link = "/organization/#{self.id}"
 

@@ -28,33 +28,50 @@ class Suma::Program::Enrollment < Suma::Postgres::Model(:program_enrollments)
 
     def active(as_of:) = self.where(program: Suma::Program.dataset.active(as_of:)).enrolled(as_of:)
 
-    def for_members(member)
+    def for_members(members)
+      # To find the enrollments for some members, and track the enrollment back to a member,
+      # we need to assemble a big set of JOINs. For example, we need to know what member id is related
+      # to a program enrollment, based on the enrollment->role->organization role->organization->membership->member.
+      # See also: Member combined_program_enrollments dataset, which is able to do this with a UNION instead
+      # so is significantly simpler (since that doesn't need to relate things back to a user).
       verified_org_ids = Suma::Organization::Membership.
         verified.
-        where(member:).
+        where(member: members).
         select(:verified_organization_id)
-      ds = self.where(
-        Sequel[member:] |
-        Sequel[organization_id: verified_org_ids] |
-          Sequel[role: Suma::Role.dataset.where(members: member)],
-      )
-      ds = ds.
+      member_ids = members.is_a?(Array) ? members.map(&:id) : members.select(:id)
+      full = self.
         left_join(
-          :organization_memberships,
-          {verified_organization_id: Sequel[:program_enrollments][:organization_id]},
-        ).left_join(
-          :roles_members,
+          self.db[:roles_members].
+            where(member_id: member_ids).
+            as(:jrolemembers),
           {role_id: Sequel[:program_enrollments][:role_id]},
-        ).select(
-          Sequel[:program_enrollments][Sequel.lit("*")],
-          Sequel.function(
-            :coalesce,
-            Sequel[:program_enrollments][:member_id],
-            Sequel[:organization_memberships][:member_id],
-            Sequel[:roles_members][:member_id],
-          ).as(:annotated_member_id),
+        ).left_join(
+          self.db[:roles_organizations].
+            where(organization_id: verified_org_ids).
+            left_join(
+              self.db[:organization_memberships],
+              {verified_organization_id: Sequel[:roles_organizations][:organization_id]},
+            ).as(:jroleorgs),
+          {role_id: Sequel[:program_enrollments][:role_id]},
+        ).left_join(
+          self.db[:organization_memberships].
+            where(verified_organization_id: verified_org_ids).
+            as(:jorgmembers),
+          {verified_organization_id: Sequel[:program_enrollments][:organization_id]},
         )
-      return ds
+      coalesce_member_id = Sequel.function(
+        :coalesce,
+        Sequel[:program_enrollments][:member_id],
+        Sequel[:jorgmembers][:member_id],
+        Sequel[:jrolemembers][:member_id],
+        Sequel[:jroleorgs][:member_id],
+      )
+      annotated = full.select(
+        Sequel[:program_enrollments][Sequel.lit("*")],
+        coalesce_member_id.as(:annotated_member_id),
+      )
+      limited = annotated.where(coalesce_member_id => member_ids)
+      return limited
     end
   end
 
