@@ -19,6 +19,11 @@ RSpec.describe Suma::Member::Dashboard, :db do
     )
   end
 
+  it "adds the member role by default" do
+    described_class.new(member, at: now).program_enrollments
+    expect(member.roles).to include(Suma::Role.cache.member)
+  end
+
   it "sorts enrollments by program ordinal" do
     p3 = Suma::Fixtures.program.create(ordinal: 3)
     p1 = Suma::Fixtures.program.create(ordinal: 1)

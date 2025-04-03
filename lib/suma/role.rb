@@ -8,6 +8,9 @@ class Suma::Role < Suma::Postgres::Model(:roles)
   class Cache
     # :section: App Roles
 
+    # Everyone has the member role.
+    def member = get("member")
+
     # Can use the POST /v1/images endpoint to upload files.
     def upload_files = get("upload_files")
 
