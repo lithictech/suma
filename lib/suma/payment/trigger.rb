@@ -1,10 +1,12 @@
 # frozen_string_literal: true
 
 require "suma/postgres/model"
+require "suma/has_activity_audit"
 
 class Suma::Payment::Trigger < Suma::Postgres::Model(:payment_triggers)
   include Suma::Postgres::HybridSearch
   include Suma::AdminLinked
+  include Suma::HasActivityAudit
 
   plugin :hybrid_search
   plugin :timestamps

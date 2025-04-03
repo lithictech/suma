@@ -91,6 +91,15 @@ module Suma::AdminAPI::Entities
     expose :actor, with: AuditMemberEntity
   end
 
+  class ActivityEntity < BaseEntity
+    include Suma::AdminAPI::Entities
+    include AutoExposeBase
+    expose :member, with: AuditMemberEntity
+    expose :message_name
+    expose :message_vars
+    expose :summary
+  end
+
   class MemberEntity < BaseEntity
     include AutoExposeBase
     expose :email

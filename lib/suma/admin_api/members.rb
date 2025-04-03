@@ -8,14 +8,6 @@ class Suma::AdminAPI::Members < Suma::AdminAPI::V1
   include Suma::Service::Types
   include Suma::AdminAPI::Entities
 
-  class MemberActivityEntity < BaseEntity
-    include Suma::AdminAPI::Entities
-    include AutoExposeBase
-    expose :message_name
-    expose :message_vars
-    expose :summary
-  end
-
   class MemberResetCodeEntity < BaseEntity
     include Suma::AdminAPI::Entities
     include AutoExposeBase
@@ -74,7 +66,7 @@ class Suma::AdminAPI::Members < Suma::AdminAPI::V1
     expose :bank_accounts, with: PaymentInstrumentEntity
     expose :charges, with: ChargeEntity
     expose :direct_program_enrollments, with: ProgramEnrollmentEntity
-    expose :activities, with: MemberActivityEntity
+    expose :activities, with: ActivityEntity
     expose :reset_codes, with: MemberResetCodeEntity
     expose :sessions, with: MemberSessionEntity
     expose :orders, with: MemberOrderEntity
@@ -110,12 +102,10 @@ class Suma::AdminAPI::Members < Suma::AdminAPI::V1
           rt.check_role_access!(rt.admin_member, :write, :admin_management)
           role_models = Suma::Role.where(id: roles.map { |r| r[:id] }).all
           m.replace_roles(role_models)
-          summary = m.roles.map(&:name).join(", ")
-          m.add_activity(
-            message_name: "rolechange",
-            summary: "Admin #{rt.admin_member.email} modified roles of #{m.class.name}[#{m.id}]: #{summary}",
-            subject_type: m.class.name,
-            subject_id: m.id,
+          m.audit_activity(
+            "rolechange",
+            member: rt.admin_member,
+            action: m.roles.map(&:name).join(", "),
           )
         end
       end,
@@ -157,11 +147,10 @@ class Suma::AdminAPI::Members < Suma::AdminAPI::V1
         member = lookup_member!
         admin = admin_member
         member.db.transaction do
-          member.add_activity(
-            message_name: "accountclosed",
-            summary: "Admin #{admin.email} closed member #{member.email} account",
-            subject_type: "Suma::Member",
-            subject_id: member.id,
+          member.audit_activity(
+            "accountclosed",
+            member: admin,
+            prefix: "Admin #{admin.email} closed member #{member.email} account",
           )
           member.soft_delete unless member.soft_deleted?
         end

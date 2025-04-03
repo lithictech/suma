@@ -6,6 +6,7 @@ require "suma/admin_linked"
 class Suma::Organization < Suma::Postgres::Model(:organizations)
   include Suma::Postgres::HybridSearch
   include Suma::AdminLinked
+  include Suma::HasActivityAudit
 
   plugin :hybrid_search
   plugin :timestamps

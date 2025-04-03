@@ -1,9 +1,10 @@
 # frozen_string_literal: true
 
 require "suma/admin_linked"
+require "suma/postgres/model"
 require "suma/commerce"
 require "suma/image"
-require "suma/postgres/model"
+require "suma/has_activity_audit"
 require "suma/program/has"
 require "suma/translated_text"
 
@@ -11,6 +12,7 @@ class Suma::Commerce::Offering < Suma::Postgres::Model(:commerce_offerings)
   include Suma::Postgres::HybridSearch
   include Suma::Image::SingleAssociatedMixin
   include Suma::AdminLinked
+  include Suma::HasActivityAudit
 
   plugin :hybrid_search
   plugin :timestamps

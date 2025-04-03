@@ -2,6 +2,7 @@
 
 require "suma/admin_linked"
 require "suma/image"
+require "suma/has_activity_audit"
 require "suma/mobility/vendor_adapter"
 require "suma/postgres/model"
 require "suma/program/has"
@@ -11,6 +12,7 @@ class Suma::Vendor::Service < Suma::Postgres::Model(:vendor_services)
   include Suma::Postgres::HybridSearch
   include Suma::AdminLinked
   include Suma::Image::SingleAssociatedMixin
+  include Suma::HasActivityAudit
 
   plugin :hybrid_search
   plugin :timestamps

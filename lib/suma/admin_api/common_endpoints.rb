@@ -288,12 +288,10 @@ module Suma::AdminAPI::CommonEndpoints
             end
             m.program_pks = (params[:program_ids])
             m.save_changes
-            summary = m.programs.map { |p| p.name.en }.join(", ")
-            admin_member.add_activity(
-              message_name: "programchange",
-              summary: "Admin #{admin_member.email} modified programs of #{m.model}[#{m.id}]: #{summary}",
-              subject_type: m.model,
-              subject_id: m.id,
+            m.audit_activity(
+              "programchange",
+              member: admin_member,
+              action: m.programs.map { |p| p.name.en }.join(", "),
             )
             status 200
             present m, with: entity

@@ -5,6 +5,7 @@ require "bcrypt"
 require "openssl"
 
 require "suma/admin_linked"
+require "suma/has_activity_audit"
 require "suma/payment/has_account"
 require "suma/postgres/model"
 require "suma/secureid"
@@ -15,6 +16,7 @@ class Suma::Member < Suma::Postgres::Model(:members)
   include Suma::Payment::HasAccount
   include Suma::AdminLinked
   include Suma::Postgres::HybridSearch
+  include Suma::HasActivityAudit
 
   class InvalidPassword < RuntimeError; end
 

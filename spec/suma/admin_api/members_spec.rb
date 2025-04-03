@@ -134,7 +134,7 @@ RSpec.describe Suma::AdminAPI::Members, :db do
 
       expect(last_response).to have_status(200)
       expect(member.refresh.roles.map(&:name)).to contain_exactly("existing", "to_add")
-      expect(member.refresh.activities).to contain_exactly(have_attributes(message_name: "rolechange"))
+      expect(member.refresh.audit_activities).to contain_exactly(have_attributes(message_name: "rolechange"))
     end
 
     describe "with an admin who cannot modify roles" do
@@ -261,7 +261,7 @@ RSpec.describe Suma::AdminAPI::Members, :db do
       post "/v1/members/#{member.id}/close"
 
       expect(last_response).to have_status(200)
-      expect(Suma::Member.last.activities).to contain_exactly(have_attributes(message_name: "accountclosed"))
+      expect(Suma::Member.last.audit_activities).to contain_exactly(have_attributes(message_name: "accountclosed"))
     end
 
     it "errors without role access" do
