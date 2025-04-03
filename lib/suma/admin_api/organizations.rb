@@ -11,6 +11,7 @@ class Suma::AdminAPI::Organizations < Suma::AdminAPI::V1
     include AutoExposeDetail
     expose :memberships, with: OrganizationMembershipEntity
     expose :program_enrollments, with: ProgramEnrollmentEntity
+    expose :audit_activities, with: ActivityEntity
   end
 
   resource :organizations do

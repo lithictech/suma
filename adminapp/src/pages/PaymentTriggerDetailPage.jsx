@@ -1,5 +1,6 @@
 import api from "../api";
 import AdminLink from "../components/AdminLink";
+import AuditActivityList from "../components/AuditActivityList";
 import Programs from "../components/Programs";
 import RelatedList from "../components/RelatedList";
 import ResourceDetail from "../components/ResourceDetail";
@@ -60,6 +61,7 @@ export default function PaymentTriggerDetailPage() {
           <RelatedList
             title="Executions"
             rows={model.executions}
+            showMore
             keyRowAttr="id"
             headers={["Id", "At", "To"]}
             toCells={(row) => [
@@ -99,6 +101,7 @@ export default function PaymentTriggerDetailPage() {
               row.enabled ? "Yes" : "No",
             ]}
           />
+          <AuditActivityList activities={model.auditActivities} />
         </>
       )}
     </ResourceDetail>

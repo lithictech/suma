@@ -13,6 +13,7 @@ class Suma::AdminAPI::FundingTransactions < Suma::AdminAPI::V1
     expose_translated :memo
     expose :platform_ledger, with: SimpleLedgerEntity
     expose :originated_book_transaction, with: BookTransactionEntity
+    expose :audit_activities, with: ActivityEntity
     expose :audit_logs, with: AuditLogEntity
   end
 

@@ -61,12 +61,13 @@ class Suma::AdminAPI::Members < Suma::AdminAPI::V1
     expose :roles, with: RoleEntity
     expose :onboarding_verified?, as: :onboarding_verified
 
+    expose :activities, with: ActivityEntity
+    expose :audit_activities, with: ActivityEntity
     expose :legal_entity, with: LegalEntityEntity
     expose :payment_account, with: DetailedPaymentAccountEntity
     expose :bank_accounts, with: PaymentInstrumentEntity
     expose :charges, with: ChargeEntity
     expose :direct_program_enrollments, with: ProgramEnrollmentEntity
-    expose :activities, with: ActivityEntity
     expose :reset_codes, with: MemberResetCodeEntity
     expose :sessions, with: MemberSessionEntity
     expose :orders, with: MemberOrderEntity

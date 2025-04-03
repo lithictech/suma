@@ -1,5 +1,6 @@
 import api from "../api";
 import AdminLink from "../components/AdminLink";
+import AuditActivityList from "../components/AuditActivityList";
 import Programs from "../components/Programs";
 import RelatedList from "../components/RelatedList";
 import ResourceDetail from "../components/ResourceDetail";
@@ -117,6 +118,7 @@ export default function VendorServiceDetailPage() {
               <Money>{row.discountAmount}</Money>,
             ]}
           />
+          <AuditActivityList activities={model.auditActivities} />
         </>
       )}
     </ResourceDetail>

@@ -1,5 +1,6 @@
 import api from "../api";
 import AdminLink from "../components/AdminLink";
+import AuditActivityList from "../components/AuditActivityList";
 import Link from "../components/Link";
 import Programs from "../components/Programs";
 import RelatedList from "../components/RelatedList";
@@ -130,6 +131,7 @@ export default function OfferingDetailPage() {
           <RelatedList
             title={`Orders (${model.orders.length})`}
             rows={model.orders}
+            showMore
             headers={["Id", "Created", "Member", "Items", "Status"]}
             keyRowAttr="id"
             toCells={(row) => [
@@ -142,6 +144,7 @@ export default function OfferingDetailPage() {
               row.statusLabel,
             ]}
           />
+          <AuditActivityList activities={model.auditActivities} />
         </>
       )}
     </ResourceDetail>
