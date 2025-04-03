@@ -23,6 +23,10 @@ class Suma::Analytics::Order < Suma::Analytics::Model(Sequel[:analytics][:orders
     :paid_cost,
     :cash_paid,
     :noncash_paid,
+    [:offering_id, [:checkout, :cart, :offering_id]],
+    [:offering_name, [:checkout, :cart, :offering, :description, :en]],
+    [:offering_begin, [:checkout, :cart, :offering, :period, :begin]],
+    [:offering_end, [:checkout, :cart, :offering, :period, :end]],
   ]
 end
 
