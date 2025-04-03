@@ -74,6 +74,13 @@ RSpec.describe Suma::Analytics, :db do
       expect(Suma::Analytics::Member.all).to have_length(0)
       expect(Suma::Analytics::Order.all).to have_length(2)
     end
+
+    it "can reimport a specific olap model" do
+      Suma::Fixtures.order.create
+      Suma::Analytics::Order.reimport
+      expect(Suma::Analytics::Member.all).to have_length(0)
+      expect(Suma::Analytics::Order.all).to have_length(1)
+    end
   end
 
   describe "Member" do

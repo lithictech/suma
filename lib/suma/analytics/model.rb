@@ -40,6 +40,10 @@ class Suma::Analytics::Model
   end
 
   module ClassMethods
+    def reimport
+      Suma::Analytics.reimport_all(olap_classes: self)
+    end
+
     def unique_key(sym=nil)
       @unique_key = sym unless sym.nil?
       return @unique_key
