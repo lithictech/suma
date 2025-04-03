@@ -1,10 +1,12 @@
 import FormLayout from "../components/FormLayout";
+import RoleEditor from "../components/RoleEditor";
 import { TextField } from "@mui/material";
 import React from "react";
 
 export default function OrganizationForm({
   isCreate,
   resource,
+  setField,
   setFieldFromInput,
   register,
   isBusy,
@@ -31,6 +33,7 @@ export default function OrganizationForm({
         required
         onChange={setFieldFromInput}
       />
+      <RoleEditor roles={resource.roles} setRoles={(r) => setField("roles", r)} />
     </FormLayout>
   );
 }

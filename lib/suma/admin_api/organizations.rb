@@ -9,9 +9,10 @@ class Suma::AdminAPI::Organizations < Suma::AdminAPI::V1
   class DetailedOrganizationEntity < OrganizationEntity
     include Suma::AdminAPI::Entities
     include AutoExposeDetail
+    expose :audit_activities, with: ActivityEntity
     expose :memberships, with: OrganizationMembershipEntity
     expose :program_enrollments, with: ProgramEnrollmentEntity
-    expose :audit_activities, with: ActivityEntity
+    expose :roles, with: RoleEntity
   end
 
   resource :organizations do
@@ -41,9 +42,25 @@ class Suma::AdminAPI::Organizations < Suma::AdminAPI::V1
       self,
       Suma::Organization,
       DetailedOrganizationEntity,
+      around: lambda do |rt, m, &block|
+        roles = rt.params.delete(:roles)
+        block.call
+        if roles
+          role_models = Suma::Role.where(id: roles.map { |r| r[:id] }).all
+          m.replace_roles(role_models)
+          m.audit_activity(
+            "rolechange",
+            member: rt.admin_member,
+            action: m.roles.map(&:name).join(", "),
+          )
+        end
+      end,
     ) do
       params do
         optional :name, type: String, allow_blank: false
+        optional :roles, type: Array[JSON] do
+          use :model_with_id
+        end
       end
     end
   end

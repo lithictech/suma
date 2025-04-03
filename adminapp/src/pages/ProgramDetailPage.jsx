@@ -48,6 +48,7 @@ export default function ProgramDetailPage() {
           <RelatedList
             title={`Commerce Offerings (${model.commerceOfferings?.length})`}
             rows={model.commerceOfferings}
+            showMore
             headers={["Id", "Description", "Opening Date", "Closing Date"]}
             keyRowAttr="id"
             toCells={(row) => [
@@ -60,6 +61,7 @@ export default function ProgramDetailPage() {
           <RelatedList
             title={`Vendor Services (${model.vendorServices?.length})`}
             rows={model.vendorServices}
+            showMore
             headers={["Id", "Name", "Vendor", "Opening Date", "Closing Date"]}
             keyRowAttr="id"
             toCells={(row) => [
@@ -77,6 +79,7 @@ export default function ProgramDetailPage() {
           <RelatedList
             title={`Payment Triggers (${model.paymentTriggers?.length})`}
             rows={model.paymentTriggers}
+            showMore
             headers={["Id", "Label", "Opening Date", "Closing Date"]}
             keyRowAttr="id"
             toCells={(row) => [
@@ -89,6 +92,7 @@ export default function ProgramDetailPage() {
           <RelatedList
             title={`Vendor Configurations (${model.configurations?.length})`}
             rows={model.configurations}
+            showMore
             keyRowAttr="id"
             headers={[
               "Id",
@@ -117,6 +121,7 @@ export default function ProgramDetailPage() {
             title="Program Enrollments"
             headers={["Id", "Enrollee", "Enrollee Type", "Approved At", "Unenrolled At"]}
             rows={model.enrollments}
+            showMore
             addNewLabel="Enroll member, organization or role"
             addNewLink={createRelativeUrl(`/program-enrollment/new`, {
               programId: model.id,
