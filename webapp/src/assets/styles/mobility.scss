@@ -98,21 +98,6 @@
   transform: translate(-50%, -50%);
 }
 
-.mobility-overlay-card {
-  /* zIndex higher than map (400) */
-  z-index: 401;
-  position: absolute !important;
-  top: 10px;
-  left: 50%;
-  width: 300px;
-  margin: 0 auto;
-  transform: translate(-50%, 0%);
-}
-
-.mobility-overlay-card-loading-icon {
-  width: 38px;
-}
-
 .mobility-location-marker-icon {
   width: 16px;
   height: 16px;

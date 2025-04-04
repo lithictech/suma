@@ -4,28 +4,22 @@ import { dayjs } from "../../modules/dayConfig";
 import { extractErrorCode, useError } from "../../state/useError";
 import useUser from "../../state/useUser";
 import FormError from "../FormError";
-import PageLoader from "../PageLoader";
-import CardOverlay from "./CardOverlay";
-import TransactionCard from "./TransactionCard";
+import DrawerContents from "./DrawerContents";
+import DrawerLoading from "./DrawerLoading";
+import DrawerTitle from "./DrawerTitle";
+import PostTrip from "./PostTrip";
 import React from "react";
 import Button from "react-bootstrap/Button";
-import Card from "react-bootstrap/Card";
 
-const TripCard = ({ active, trip, onCloseTrip, onEndTrip, lastLocation }) => {
+export default function Trip({ trip, onCloseTrip, onEndTrip, lastLocation }) {
   const { handleUpdateCurrentMember } = useUser();
   const [endTrip, setEndTrip] = React.useState(null);
   const [error, setError] = useError();
-  if (!active) {
-    return null;
-  }
   if (!endTrip && !lastLocation) {
-    return (
-      <CardOverlay>
-        <PageLoader />
-      </CardOverlay>
-    );
+    return <DrawerLoading />;
   }
   const handleEndTrip = () => {
+    setError("");
     api
       .endMobilityTrip({
         lat: lastLocation.latlng.lat,
@@ -45,16 +39,16 @@ const TripCard = ({ active, trip, onCloseTrip, onEndTrip, lastLocation }) => {
   return (
     <>
       {endTrip && (
-        <TransactionCard endTrip={endTrip} error={error} onCloseTrip={handleCloseTrip} />
+        <PostTrip endTrip={endTrip} error={error} onCloseTrip={handleCloseTrip} />
       )}
       {trip && !endTrip && lastLocation && (
-        <CardOverlay>
-          <Card.Title className="mb-2">{trip.provider.name}</Card.Title>
-          <Card.Text className="text-muted">
+        <DrawerContents>
+          <DrawerTitle>{trip.provider.name}</DrawerTitle>
+          <p className="text-muted">
             {t("mobility:trip_started_at", {
               at: dayjs(trip.beganAt).format("LT"),
             })}
-          </Card.Text>
+          </p>
           <FormError error={error} />
           <Button
             size="sm"
@@ -64,10 +58,8 @@ const TripCard = ({ active, trip, onCloseTrip, onEndTrip, lastLocation }) => {
           >
             {t("mobility:end_trip")}
           </Button>
-        </CardOverlay>
+        </DrawerContents>
       )}
     </>
   );
-};
-
-export default TripCard;
+}

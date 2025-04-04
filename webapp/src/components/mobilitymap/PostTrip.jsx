@@ -1,14 +1,14 @@
 import { t } from "../../localization";
 import FormError from "../FormError";
-import CardOverlay from "./CardOverlay";
+import DrawerContents from "./DrawerContents";
 import React from "react";
 import Button from "react-bootstrap/Button";
 
-const TransactionCard = ({ endTrip, onCloseTrip, error }) => {
+export default function PostTrip({ endTrip, onCloseTrip, error }) {
   const { totalCost, discountAmount, provider } = endTrip;
   const handleClose = () => onCloseTrip();
   return (
-    <CardOverlay>
+    <DrawerContents>
       {t("mobility:trip_ended", {
         vendor: provider.vendorName,
         totalCost: totalCost,
@@ -23,8 +23,6 @@ const TransactionCard = ({ endTrip, onCloseTrip, error }) => {
       >
         {t("common:close")}
       </Button>
-    </CardOverlay>
+    </DrawerContents>
   );
-};
-
-export default TransactionCard;
+}

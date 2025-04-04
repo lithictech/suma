@@ -9,12 +9,13 @@ import useGlobalViewState from "../../state/useGlobalViewState";
 import useUser from "../../state/useUser";
 import AddFundsLinkButton from "../AddFundsLinkButton";
 import FormError from "../FormError";
-import CardOverlay from "./CardOverlay";
-import ReservationCard from "./ReservationCard";
-import TripCard from "./TripCard";
+import { MdLink } from "../SumaMarkdown";
+import Drawer from "./Drawer";
+import PreTrip from "./PreTrip";
+import Trip from "./Trip";
 import React from "react";
 
-export default function Map({ onLocationPermissionsDenied }) {
+export default function Map() {
   const { appNav, topNav } = useGlobalViewState();
   const mapRef = React.useRef();
   const { user, handleUpdateCurrentMember } = useUser();
@@ -24,6 +25,7 @@ export default function Map({ onLocationPermissionsDenied }) {
   const [lastMarkerLocation, setLastMarkerLocation] = React.useState(null);
   const [ongoingTrip, setOngoingTrip] = React.useState(user.ongoingTrip);
   const [reserveError, setReserveError] = useError();
+  const [locationPermissionsError, setLocationPermissionsError] = useError("");
   const [error, setError] = useError();
 
   const handleVehicleClick = React.useCallback(
@@ -65,12 +67,33 @@ export default function Map({ onLocationPermissionsDenied }) {
     (lastLocation) => setLastMarkerLocation(lastLocation),
     []
   );
+
+  const handleLocationPermissionDeniedSetText = React.useCallback(() => {
+    api
+      .getUserAgent()
+      .then((r) => {
+        const instructionsUrl = getLocationPermissionsInstructionsUrl(r.data);
+        if (!instructionsUrl) {
+          throw new Error("unhandled user agent");
+        }
+        const opts = { context: "instructions", instructionsUrl: instructionsUrl };
+        const localizedError = t(
+          "mobility:location_permissions_denied_instructions",
+          opts
+        );
+        setLocationPermissionsError(localizedError);
+      })
+      .catch(() => {
+        setLocationPermissionsError(t("mobility:location_permissions_denied"));
+      });
+  }, [setLocationPermissionsError]);
+
   const handleLocationError = React.useCallback(
     (map, { cachedLocation }) => {
+      handleLocationPermissionDeniedSetText();
       // If finding the location fails, geolocate the IP instead.
       // Don't locate if we have a cached location though, just use
       // where the map was last left.
-      onLocationPermissionsDenied();
       if (cachedLocation) {
         return;
       }
@@ -85,7 +108,7 @@ export default function Map({ onLocationPermissionsDenied }) {
           setError("unhandled_error");
         });
     },
-    [setError, onLocationPermissionsDenied]
+    [handleLocationPermissionDeniedSetText, setError]
   );
 
   const handleReserve = React.useCallback(
@@ -120,7 +143,7 @@ export default function Map({ onLocationPermissionsDenied }) {
     setOngoingTrip(null);
   }, []);
 
-  // On mount, load the map. It's very important that any dependencies (like onLocationFound, etc)
+  // On mount, load the map. It's very important that any dependencies (like onLocationFound, etc.)
   // are constant callbacks (ie they have no or only constant dependencies).
   useMountEffect(() => {
     if (!mapRef.current) {
@@ -163,25 +186,10 @@ export default function Map({ onLocationPermissionsDenied }) {
 
   const navsHeight = (topNav?.clientHeight || 0) + (appNav?.clientHeight || 0);
 
-  return (
-    <div className="position-relative">
-      <div ref={mapRef} style={{ height: `calc(100vh - ${navsHeight}px` }} />
-      <ReservationCard
-        active={Boolean(selectedMapVehicle) && !ongoingTrip && !error}
-        loading={selectedMapVehicle && !loadedVehicle}
-        vehicle={loadedVehicle}
-        reserveError={reserveError}
-        onReserve={handleReserve}
-      />
-      <TripCard
-        active={ongoingTrip && !error}
-        lastLocation={lastMarkerLocation}
-        trip={ongoingTrip}
-        onCloseTrip={handleCloseTrip}
-        onEndTrip={handleEndTrip}
-      />
-      {error && (
-        <CardOverlay>
+  const drawerContent = (() => {
+    if (error) {
+      return (
+        <>
           <FormError error={error} noMargin component="div" />
           {!config.featureMobilityRestricted &&
             readOnlyReason(user, "read_only_zero_balance") && (
@@ -189,8 +197,85 @@ export default function Map({ onLocationPermissionsDenied }) {
                 <AddFundsLinkButton />
               </div>
             )}
-        </CardOverlay>
-      )}
+        </>
+      );
+    }
+    if (ongoingTrip) {
+      return (
+        <Trip
+          lastLocation={lastMarkerLocation}
+          trip={ongoingTrip}
+          onCloseTrip={handleCloseTrip}
+          onEndTrip={handleEndTrip}
+        />
+      );
+    }
+    if (selectedMapVehicle) {
+      return (
+        <PreTrip
+          loading={selectedMapVehicle && !loadedVehicle}
+          vehicle={loadedVehicle}
+          reserveError={reserveError}
+          onReserve={handleReserve}
+        />
+      );
+    }
+    if (locationPermissionsError) {
+      return locationPermissionsError;
+    }
+    return defaultDrawerContents();
+  })();
+
+  return (
+    <div className="position-relative">
+      <Drawer>{drawerContent}</Drawer>
+      <div ref={mapRef} style={{ height: `calc(100vh - ${navsHeight}px` }} />
     </div>
   );
+}
+
+function defaultDrawerContents() {
+  return t(
+    "mobility:intro",
+    {},
+    {
+      markdown: {
+        overrides: {
+          a: { component: MdLink },
+          p: {
+            props: {
+              className: "text-secondary",
+            },
+          },
+        },
+      },
+    }
+  );
+}
+
+/**
+ * Returns browser location permissions instructions url if found or null.
+ * @param {object} browser Backend response
+ * @returns {string|null}
+ */
+function getLocationPermissionsInstructionsUrl(browser) {
+  const device = browser.device.toLowerCase();
+  if (device === "chrome") {
+    // Using chrome in ios/android/desktop
+    if (browser.isIos) {
+      return "https://support.google.com/chrome/answer/142065?hl=en&co=GENIE.Platform%3DiOS";
+    } else if (browser.isAndroid) {
+      return "https://support.google.com/chrome/answer/142065?hl=en&co=GENIE.Platform%3DAndroid";
+    } else {
+      return "https://support.google.com/chrome/answer/142065?hl=en&co=GENIE.Platform%3DDesktop";
+    }
+  } else if (browser.isIos || device === "safari") {
+    // Using ios/safari, android, firefox device browsers
+    return "https://support.apple.com/guide/personal-safety/manage-location-services-settings-ips9bf20ad2f/web";
+  } else if (browser.isAndroid) {
+    return "https://support.google.com/accounts/answer/6179507?hl=en";
+  } else if (device === "firefox") {
+    return "https://support.mozilla.org/en-US/kb/does-firefox-share-my-location-websites#w_how-do-i-undo-a-permission-granted-to-a-site";
+  }
+  return null;
 }

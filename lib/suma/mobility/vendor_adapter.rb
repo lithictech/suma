@@ -60,4 +60,6 @@ module Suma::Mobility::VendorAdapter
   register("lime_maas", Suma::Mobility::VendorAdapter::LimeMaas)
   require_relative "vendor_adapter/lyft_deeplink"
   register("lyft_deeplink", Suma::Mobility::VendorAdapter::LyftDeeplink)
+  require_relative "vendor_adapter/internal"
+  register("internal", Suma::Mobility::VendorAdapter::Internal)
 end

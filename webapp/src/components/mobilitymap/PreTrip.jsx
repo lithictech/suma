@@ -1,37 +1,23 @@
 import { t } from "../../localization";
 import FormError from "../FormError";
-import PageLoader from "../PageLoader";
 import RLink from "../RLink";
-import CardOverlay from "./CardOverlay";
+import DrawerContents from "./DrawerContents";
+import DrawerLoading from "./DrawerLoading";
+import DrawerTitle from "./DrawerTitle";
 import React from "react";
 import Button from "react-bootstrap/Button";
-import Card from "react-bootstrap/Card";
 
 /**
  * Card that shows when you click a scooter on the map.
  *
- * @param active {boolean}
  * @param loading {boolean}
  * @param vehicle {{rate, vendorService}}
  * @param onReserve {function({rate, vendorService})} Called with the vehicle the user wants to return.
  * @param reserveError {*} Error returned if making the reservation fails.
  */
-export default function ReservationCard({
-  active,
-  loading,
-  vehicle,
-  onReserve,
-  reserveError,
-}) {
-  if (!active) {
-    return null;
-  }
+export default function PreTrip({ loading, vehicle, onReserve, reserveError }) {
   if (loading) {
-    return (
-      <CardOverlay>
-        <PageLoader />
-      </CardOverlay>
-    );
+    return <DrawerLoading />;
   }
   const { rate, vendorService } = vehicle;
   const { localizationVars: locVars } = rate;
@@ -51,7 +37,7 @@ export default function ReservationCard({
         </p>
         <Button
           size="sm"
-          variant="outline-primary"
+          variant="primary"
           className="w-100"
           href="/private-accounts"
           as={RLink}
@@ -82,9 +68,9 @@ export default function ReservationCard({
   }
 
   return (
-    <CardOverlay>
-      <Card.Title className="mb-2">{vendorService.name}</Card.Title>
-      <Card.Text className="text-muted">
+    <DrawerContents>
+      <DrawerTitle>{vendorService.name}</DrawerTitle>
+      <p className="text-muted">
         {t("mobility:" + rate.localizationKey, {
           surchargeCents: {
             cents: locVars.surchargeCents,
@@ -95,9 +81,9 @@ export default function ReservationCard({
             currency: locVars.unitCurrency,
           },
         })}
-      </Card.Text>
+      </p>
       <FormError error={reserveError} />
       {action}
-    </CardOverlay>
+    </DrawerContents>
   );
 }
