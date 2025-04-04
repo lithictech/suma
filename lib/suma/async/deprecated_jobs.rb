@@ -11,6 +11,7 @@ Amigo::DeprecatedJobs.install(
   # So, make the class exist, but noop so it won't be scheduled and won't be retried.
   # Then it can be deleted later.
   "Async::AutomationTriggerRunner",
-  "Async::TopicShim",
+  "Async::EnsureDefaultMemberLedgersOnCreate",
+  "Async::UpsertFrontappContact",
   "Async::UpsertFrontappContact",
 )

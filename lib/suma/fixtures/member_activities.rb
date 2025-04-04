@@ -20,4 +20,9 @@ module Suma::Fixtures::MemberActivities
     instance.member ||= Suma::Fixtures.member.create
     instance
   end
+
+  decorator :subject do |m|
+    self.subject_type = m.class.name
+    self.subject_id = m.id.to_s
+  end
 end

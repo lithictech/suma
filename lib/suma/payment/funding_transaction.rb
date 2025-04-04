@@ -4,12 +4,14 @@ require "state_machines"
 
 require "suma/admin_linked"
 require "suma/state_machine"
+require "suma/has_activity_audit"
 require "suma/payment"
 require "suma/payment/external_transaction"
 
 class Suma::Payment::FundingTransaction < Suma::Postgres::Model(:payment_funding_transactions)
   include Suma::Postgres::HybridSearch
   include Suma::AdminLinked
+  include Suma::HasActivityAudit
   include Suma::Payment::ExternalTransaction
 
   class CollectFundsFailed < Suma::StateMachine::FailedTransition; end
@@ -161,11 +163,10 @@ class Suma::Payment::FundingTransaction < Suma::Postgres::Model(:payment_funding
       self.logger.error("collect_funds_error", error: e)
       return self.put_into_review("Error collecting funds", exception: e)
     end
-    if collected
-      self.originating_payment_account.member&.add_activity(
-        message_name: "fundscollecting",
-        subject_type: self.class.name,
-        subject_id: self.id,
+    if collected && (member = self.originating_payment_account.member)
+      self.audit_activity(
+        "fundscollecting",
+        member:,
         summary: "FundingTransaction[#{self.id}] started collecting funds",
       )
     end

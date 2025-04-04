@@ -350,17 +350,34 @@ RSpec.describe "Suma::Member", :db do
       expect(member.program_enrollments_via_roles_dataset.all).to have_same_ids_as(e)
     end
 
-    it "can fetch direct, role-based and organizational enrollments" do
+    it "can fetch organization role enrollments" do
+      role = Suma::Role.create(name: "test")
+      organization.add_role(role)
+      Suma::Fixtures.organization_membership(member:).verified(organization).create
+      e = Suma::Fixtures.program_enrollment(role:).create
+      expect(member.program_enrollments_via_organization_roles_dataset.all).to have_same_ids_as(e)
+    end
+
+    it "can fetch direct, role-based, organizational, and organizational role based enrollments" do
       Suma::Fixtures.organization_membership(member:).verified(organization).create
       member.add_role(role)
+      org_role = Suma::Role.create(name: "org_test_role")
+      org_with_role = Suma::Fixtures.organization.create
+      org_with_role.add_role(org_role)
+      Suma::Fixtures.organization_membership(member:).verified(org_with_role).create
+
       active_via_member = Suma::Fixtures.program_enrollment(member:).create
       active_via_org = Suma::Fixtures.program_enrollment(organization:).create
       active_via_role = Suma::Fixtures.program_enrollment(role:).create
-      expect(member.combined_program_enrollments_dataset.all).to have_same_ids_as(active_via_member, active_via_org,
-                                                                                  active_via_role,)
+      active_via_org_role = Suma::Fixtures.program_enrollment(role: org_role).create
+      expect(member.combined_program_enrollments_dataset.all).to have_same_ids_as(
+        active_via_member, active_via_org, active_via_role, active_via_org_role,
+      )
+
       eagered_member = Suma::Member.all.first
-      expect(eagered_member.combined_program_enrollments).to have_same_ids_as(active_via_member, active_via_org,
-                                                                              active_via_role,)
+      expect(eagered_member.combined_program_enrollments).to have_same_ids_as(
+        active_via_member, active_via_org, active_via_role, active_via_org_role,
+      )
     end
 
     describe "with redundant enrollment directly, and through org and role" do

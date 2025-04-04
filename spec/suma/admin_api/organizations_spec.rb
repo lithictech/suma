@@ -99,5 +99,20 @@ RSpec.describe Suma::AdminAPI::Organizations, :db do
       expect(last_response).to have_status(200)
       expect(org.refresh).to have_attributes(name: "hacienda abc")
     end
+
+    it "replaces roles if given" do
+      existing = Suma::Role.create(name: "existing")
+      to_remove = Suma::Role.create(name: "to_remove")
+      to_add = Suma::Role.create(name: "to_add")
+      org = Suma::Fixtures.organization.create
+      org.add_role(existing)
+      org.add_role(to_remove)
+
+      post "/v1/organizations/#{org.id}", roles: [{id: existing.id}, {id: to_add.id}]
+
+      expect(last_response).to have_status(200)
+      expect(org.refresh.roles.map(&:name)).to contain_exactly("existing", "to_add")
+      expect(org.refresh.audit_activities).to contain_exactly(have_attributes(message_name: "rolechange"))
+    end
   end
 end

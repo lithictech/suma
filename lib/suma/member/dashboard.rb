@@ -21,6 +21,8 @@ class Suma::Member::Dashboard
   end
 
   def program_enrollments
+    # Similar to the cash ledger, make sure every member gets a member role by default.
+    Suma::Role.cache.member.ensure!(@member)
     return @program_enrollments ||= @member.combined_program_enrollments_dataset.active(as_of: @at).
         all.sort_by { |pe| pe.program.ordinal }
   end

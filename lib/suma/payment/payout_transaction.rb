@@ -4,12 +4,14 @@ require "state_machines"
 
 require "suma/admin_linked"
 require "suma/state_machine"
+require "suma/has_activity_audit"
 require "suma/payment"
 require "suma/payment/external_transaction"
 
 class Suma::Payment::PayoutTransaction < Suma::Postgres::Model(:payment_payout_transactions)
   include Suma::Postgres::HybridSearch
   include Suma::AdminLinked
+  include Suma::HasActivityAudit
   include Suma::Payment::ExternalTransaction
 
   class SendFundsFailed < Suma::StateMachine::FailedTransition; end
@@ -223,11 +225,10 @@ class Suma::Payment::PayoutTransaction < Suma::Postgres::Model(:payment_payout_t
       self.logger.error("send_funds_error", error: e)
       return self.put_into_review("Error sending funds", exception: e)
     end
-    if sent
-      self.originating_payment_account.member&.add_activity(
-        message_name: "fundssending",
-        subject_type: self.class.name,
-        subject_id: self.id,
+    if sent && (member = self.originating_payment_account.member)
+      self.audit_activity(
+        "fundssending",
+        member:,
         summary: "PayoutTransaction[#{self.id}] started sending funds",
       )
     end

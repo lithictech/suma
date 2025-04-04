@@ -20,6 +20,7 @@ class Suma::AdminAPI::VendorServices < Suma::AdminAPI::V1
   class DetailedVendorServiceEntity < VendorServiceEntity
     include Suma::AdminAPI::Entities
     include AutoExposeDetail
+    expose :audit_activities, with: ActivityEntity
     expose :programs, with: ProgramEntity
     expose :external_name
     expose :internal_name

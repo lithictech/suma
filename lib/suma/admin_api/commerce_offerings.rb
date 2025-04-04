@@ -19,6 +19,7 @@ class Suma::AdminAPI::CommerceOfferings < Suma::AdminAPI::V1
   class DetailedOfferingEntity < OfferingEntity
     include Suma::AdminAPI::Entities
     include AutoExposeDetail
+    expose :audit_activities, with: ActivityEntity
     expose :description, with: TranslatedTextEntity
     expose :fulfillment_prompt, with: TranslatedTextEntity
     expose :fulfillment_instructions, with: TranslatedTextEntity

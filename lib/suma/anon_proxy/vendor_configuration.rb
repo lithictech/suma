@@ -2,13 +2,15 @@
 
 require "suma/admin_linked"
 require "suma/anon_proxy"
-require "suma/postgres"
+require "suma/postgres/model"
+require "suma/has_activity_audit"
 require "suma/program/has"
 require "suma/translated_text"
 
 class Suma::AnonProxy::VendorConfiguration < Suma::Postgres::Model(:anon_proxy_vendor_configurations)
   include Suma::AdminLinked
   include Suma::Postgres::HybridSearch
+  include Suma::HasActivityAudit
 
   plugin :association_pks
   plugin :hybrid_search

@@ -1,5 +1,6 @@
 import api from "../api";
 import AdminLink from "../components/AdminLink";
+import AuditActivityList from "../components/AuditActivityList";
 import BoolCheckmark from "../components/BoolCheckmark";
 import Copyable from "../components/Copyable";
 import DetailGrid from "../components/DetailGrid";
@@ -143,6 +144,7 @@ export default function MemberDetailPage() {
             <MessageDeliveries messageDeliveries={model.messageDeliveries} />
             <Sessions sessions={model.sessions} />
             <ResetCodes resetCodes={model.resetCodes} />
+            <AuditActivityList activities={model.auditActivities} />
           </>
         )}
       </ResourceDetail>
@@ -209,6 +211,7 @@ function Activities({ activities }) {
       title="Activities"
       headers={["At", "Summary", "Message"]}
       rows={activities}
+      showMore
       keyRowAttr="id"
       toCells={(row) => [
         formatDate(row.createdAt),
@@ -227,6 +230,7 @@ function ResetCodes({ resetCodes }) {
       title="Login Codes"
       headers={["Sent", "Expires", "Token", "Used"]}
       rows={resetCodes}
+      showMore
       keyRowAttr="id"
       toCells={(row) => [
         formatDate(row.createdAt),
@@ -245,6 +249,7 @@ function Sessions({ sessions }) {
       headers={["Started", "IP", "User Agent"]}
       keyRowAttr="id"
       rows={sessions}
+      showMore
       toCells={(row) => [
         formatDate(row.createdAt),
         <SafeExternalLink key="ip" href={row.ipLookupLink}>
@@ -346,6 +351,7 @@ function MessageDeliveries({ messageDeliveries }) {
       title="Message Deliveries"
       headers={["Id", "Created", "Sent", "Template", "To"]}
       rows={messageDeliveries}
+      showMore
       keyRowAttr="id"
       toCells={(row) => [
         <AdminLink key="id" model={row} />,

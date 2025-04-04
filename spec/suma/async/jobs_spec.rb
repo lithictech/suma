@@ -67,18 +67,6 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
     end
   end
 
-  describe "EnsureDefaultMemberLedgersOnCreate" do
-    it "creates ledgers" do
-      expect do
-        Suma::Fixtures.member.create
-      end.to perform_async_job(Suma::Async::EnsureDefaultMemberLedgersOnCreate)
-
-      c = Suma::Member.last
-      expect(c).to have_attributes(payment_account: be_present)
-      expect(c.payment_account.ledgers).to have_length(1)
-    end
-  end
-
   describe "FrontappListSync", reset_configuration: Suma::Frontapp do
     before(:each) do
       Suma::Frontapp.auth_token = "faketoken"
@@ -213,6 +201,19 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
       expect do
         Suma::Async::LyftPassTripSync.new.perform
       end.to_not raise_error
+    end
+  end
+
+  describe "MemberDefaultRelation" do
+    it "creates ledgers and roles" do
+      expect do
+        Suma::Fixtures.member.create
+      end.to perform_async_job(Suma::Async::MemberDefaultRelations)
+
+      c = Suma::Member.last
+      expect(c).to have_attributes(payment_account: be_present)
+      expect(c.payment_account.ledgers).to have_length(1)
+      expect(c.roles).to have_same_ids_as(Suma::Role.cache.member)
     end
   end
 

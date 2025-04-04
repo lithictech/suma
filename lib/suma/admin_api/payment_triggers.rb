@@ -19,6 +19,7 @@ class Suma::AdminAPI::PaymentTriggers < Suma::AdminAPI::V1
   class DetailedPaymentTriggerEntity < PaymentTriggerEntity
     include Suma::AdminAPI::Entities
     include AutoExposeDetail
+    expose :audit_activities, with: ActivityEntity
     expose :match_multiplier
     expose :maximum_cumulative_subsidy_cents
     expose :memo, with: TranslatedTextEntity

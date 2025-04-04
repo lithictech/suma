@@ -38,6 +38,7 @@ class Suma::AdminAPI::AnonProxy < Suma::AdminAPI::V1
   class DetailedVendorConfigurationEntity < VendorConfigurationEntity
     include Suma::AdminAPI::Entities
     include AutoExposeDetail
+    expose :audit_activities, with: ActivityEntity
     expose :programs, with: ProgramEntity
     expose :instructions, with: TranslatedTextEntity
     expose :linked_success_instructions, with: TranslatedTextEntity

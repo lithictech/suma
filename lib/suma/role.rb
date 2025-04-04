@@ -8,6 +8,9 @@ class Suma::Role < Suma::Postgres::Model(:roles)
   class Cache
     # :section: App Roles
 
+    # Everyone has the member role.
+    def member = get("member")
+
     # Can use the POST /v1/images endpoint to upload files.
     def upload_files = get("upload_files")
 
@@ -43,12 +46,27 @@ class Suma::Role < Suma::Postgres::Model(:roles)
   many_to_many :members,
                class: "Suma::Member",
                join_table: :roles_members
+  many_to_many :organizations,
+               class: "Suma::Organization",
+               join_table: :roles_organizations
 
   one_to_many :program_enrollments, class: "Suma::Program::Enrollment"
 
   def rel_admin_link = "/role/#{self.id}"
 
   def label = self.name.titleize
+
+  # Ensure the argument has the receiver role.
+  def ensure!(has_role)
+    return false if has_role.roles.any? { |r| r === self }
+    self.db.transaction(savepoint: true) do
+      has_role.add_role(self)
+    end
+    return true
+  rescue Sequel::UniqueConstraintViolation
+    has_role.associations.delete(:roles)
+    return false
+  end
 end
 
 # Table: roles

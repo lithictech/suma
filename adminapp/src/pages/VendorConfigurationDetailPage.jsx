@@ -1,5 +1,6 @@
 import api from "../api";
 import AdminLink from "../components/AdminLink";
+import AuditActivityList from "../components/AuditActivityList";
 import BoolCheckmark from "../components/BoolCheckmark";
 import Programs from "../components/Programs";
 import ResourceDetail from "../components/ResourceDetail";
@@ -50,6 +51,7 @@ export default function VendorConfigurationDetailPage() {
             replaceModelData={setModel}
             makeUpdateRequest={api.updateVendorConfigurationPrograms}
           />
+          <AuditActivityList activities={model.auditActivities} />
         </>
       )}
     </ResourceDetail>
