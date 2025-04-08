@@ -11,6 +11,7 @@ class Suma::Organization::Membership < Suma::Postgres::Model(:organization_membe
   plugin :timestamps
 
   many_to_one :verified_organization, class: "Suma::Organization"
+  many_to_one :former_organization, class: "Suma::Organization"
   many_to_one :member, class: "Suma::Member"
 
   dataset_module do
@@ -23,6 +24,20 @@ class Suma::Organization::Membership < Suma::Postgres::Model(:organization_membe
   def verified_organization_id=(id)
     self.unverified_organization_name = nil unless id.nil?
     self[:verified_organization_id] = id
+  end
+
+  def remove_from_organization(now: Time.now)
+    raise Suma::InvalidPrecondition, "verified_organization must be set" if self.verified_organization_id.nil?
+    self.former_organization = self.verified_organization
+    self.formerly_in_organization_at = now
+    self.verified_organization = nil
+    return self.former_organization
+  end
+
+  def membership_type
+    return "verified" if self.verified_organization
+    return "removed" if self.former_organization
+    return "unverified"
   end
 
   def rel_admin_link = "/membership/#{self.id}"

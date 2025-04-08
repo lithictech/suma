@@ -193,16 +193,31 @@ function OrganizationMemberships({ memberships, model }) {
       toCells={(row) => [
         <AdminLink key="id" model={row} />,
         formatDate(row.createdAt),
-        row.verifiedOrganization ? (
-          <AdminLink key="org" model={row.verifiedOrganization}>
-            {row.verifiedOrganization.name}
-          </AdminLink>
-        ) : (
-          row.unverifiedOrganizationName
-        ),
+        membershipOrgCell(row),
       ]}
     />
   );
+}
+
+function membershipOrgCell(row) {
+  if (row.verifiedOrganization) {
+    return (
+      <AdminLink key="org" model={row.verifiedOrganization}>
+        {row.verifiedOrganization.name}
+      </AdminLink>
+    );
+  }
+  if (row.formerOrganization) {
+    return (
+      <AdminLink key="org" model={row.formerOrganization}>
+        {row.formerOrganization?.name} (removed{" "}
+        {formatDate(row.formerlyInOrganizationAt, { template: "l" })})
+      </AdminLink>
+    );
+  }
+  if (row.unverifiedOrganizationName) {
+    return row.unverifiedOrganizationName;
+  }
 }
 
 function Activities({ activities }) {

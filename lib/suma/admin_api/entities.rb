@@ -337,6 +337,9 @@ module Suma::AdminAPI::Entities
     expose :member, with: MemberEntity
     expose :verified_organization, with: OrganizationEntity
     expose :unverified_organization_name
+    expose :former_organization, with: OrganizationEntity
+    expose :formerly_in_organization_at
+    expose :membership_type
   end
 
   class ChargeLineItemEntity < BaseEntity
