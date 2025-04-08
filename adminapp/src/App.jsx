@@ -56,6 +56,10 @@ import ProgramEnrollmentCreatePage from "./pages/ProgramEnrollmentCreatePage";
 import ProgramEnrollmentDetailPage from "./pages/ProgramEnrollmentDetailPage";
 import ProgramEnrollmentListPage from "./pages/ProgramEnrollmentListPage";
 import ProgramListPage from "./pages/ProgramListPage";
+import RoleCreatePage from "./pages/RoleCreatePage";
+import RoleDetailPage from "./pages/RoleDetailPage";
+import RoleEditPage from "./pages/RoleEditPage";
+import RoleListPage from "./pages/RoleListPage";
 import SignInPage from "./pages/SignInPage";
 import VendorAccountDetailPage from "./pages/VendorAccountDetailPage";
 import VendorAccountListPage from "./pages/VendorAccountListPage";
@@ -553,6 +557,26 @@ function PageSwitch() {
         exact
         path="/message/:id"
         element={renderWithHocs(redirectIfUnauthed, withLayout(), MessageDetailPage)}
+      />
+      <Route
+        exact
+        path="/roles"
+        element={renderWithHocs(redirectIfUnauthed, withLayout(), RoleListPage)}
+      />
+      <Route
+        exact
+        path="/role/new"
+        element={renderWithHocs(redirectIfUnauthed, withLayout(), RoleCreatePage)}
+      />
+      <Route
+        exact
+        path="/role/:id"
+        element={renderWithHocs(redirectIfUnauthed, withLayout(), RoleDetailPage)}
+      />
+      <Route
+        exact
+        path="/role/:id/edit"
+        element={renderWithHocs(redirectIfUnauthed, withLayout(), RoleEditPage)}
       />
       <Route
         path="/*"

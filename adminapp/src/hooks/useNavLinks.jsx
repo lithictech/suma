@@ -9,6 +9,7 @@ import CorporateFareIcon from "@mui/icons-material/CorporateFare";
 import EventAvailableIcon from "@mui/icons-material/EventAvailable";
 import HomeIcon from "@mui/icons-material/Home";
 import HowToRegIcon from "@mui/icons-material/HowToReg";
+import KeyIcon from "@mui/icons-material/Key";
 import MailIcon from "@mui/icons-material/Mail";
 import ManageAccountsIcon from "@mui/icons-material/ManageAccounts";
 import PaymentsIcon from "@mui/icons-material/Payments";
@@ -163,6 +164,11 @@ export default function useNavLinks() {
             label: "Messages",
             href: "/messages",
             icon: <MailIcon />,
+          },
+          management && {
+            label: "Roles",
+            href: "/roles",
+            icon: <KeyIcon />,
           },
         ].filter(Boolean),
       },

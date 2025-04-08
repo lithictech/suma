@@ -5,11 +5,17 @@ require "grape"
 require "suma/admin_api"
 
 class Suma::AdminAPI::Roles < Suma::AdminAPI::V1
-  class RoleEntity < Suma::AdminAPI::Entities::RoleEntity; end
+  class RoleEntity < Suma::AdminAPI::Entities::RoleEntity
+    include Suma::AdminAPI::Entities::AutoExposeBase
+  end
 
   class DetailedRoleEntity < RoleEntity
     include Suma::AdminAPI::Entities
     include AutoExposeDetail
+
+    expose :members, with: Suma::AdminAPI::Entities::MemberEntity
+    expose :organizations, with: Suma::AdminAPI::Entities::OrganizationEntity
+    expose :program_enrollments, with: Suma::AdminAPI::Entities::ProgramEnrollmentEntity
   end
 
   resource :roles do
@@ -18,7 +24,7 @@ class Suma::AdminAPI::Roles < Suma::AdminAPI::V1
       check_role_access!(admin_member, :read, :admin_access) # This will always pass but better to be explicit
       ds = Suma::Role.dataset.order(:name)
       use_http_expires_caching 2.hours
-      present_collection ds, with: Suma::AdminAPI::Entities::RoleEntity
+      present_collection ds, with: RoleEntity
     end
 
     Suma::AdminAPI::CommonEndpoints.create(
