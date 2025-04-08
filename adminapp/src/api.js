@@ -215,7 +215,10 @@ export default {
   updateMobilityTrip: ({ id, ...data }) =>
     post(`/adminapi/v1/mobility_trips/${id}`, data),
 
-  getRoles: (data) => get("/adminapi/v1/roles", data),
+  getRoles: (data) => get(`/adminapi/v1/roles`, data),
+  createRole: (data) => postForm("/adminapi/v1/roles/create", data),
+  getRole: ({ id, ...data }) => get(`/adminapi/v1/roles/${id}`, data),
+  updateRole: ({ id, ...data }) => postForm(`/adminapi/v1/roles/${id}`, data),
 
   searchProducts: (data) => post(`/adminapi/v1/search/products`, data),
   searchOfferings: (data) => post(`/adminapi/v1/search/offerings`, data),
