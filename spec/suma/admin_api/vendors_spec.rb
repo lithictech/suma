@@ -105,4 +105,17 @@ RSpec.describe Suma::AdminAPI::Vendors, :db do
       expect(v.refresh).to have_attributes(name: "test")
     end
   end
+
+  describe "POST /v1/vendors/:id/destroy" do
+    it "destroys a vendor" do
+      v = Suma::Fixtures.vendor.create
+      # Need to destroy this for the destroy to work. Probably shouldn't create this automatically.
+      v.payment_account.destroy
+
+      post "/v1/vendors/#{v.id}/destroy"
+
+      expect(last_response).to have_status(200)
+      expect(v).to be_destroyed
+    end
+  end
 end

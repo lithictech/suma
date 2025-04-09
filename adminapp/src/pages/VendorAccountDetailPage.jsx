@@ -14,6 +14,7 @@ export default function VendorAccountDetailPage() {
     <ResourceDetail
       resource="vendor_account"
       apiGet={api.getVendorAccount}
+      apiDelete={api.destroyVendorAccount}
       properties={(model) => [
         { label: "ID", value: model.id },
         { label: "Created At", value: dayjs(model.createdAt) },
@@ -72,7 +73,7 @@ export default function VendorAccountDetailPage() {
             <DetailGrid
               title="Member Contact"
               properties={[
-                { label: "ID", value: model.contact.id },
+                { label: "ID", value: <AdminLink model={model.contact} /> },
                 { label: "Email", value: model.contact.email },
                 { label: "Phone", value: model.contact.phone },
                 { label: "Relay Key", value: model.contact.relayKey },
@@ -82,6 +83,7 @@ export default function VendorAccountDetailPage() {
           <RelatedList
             title="Messages"
             rows={model.messages}
+            showMore
             headers={[
               "Id",
               "Created",

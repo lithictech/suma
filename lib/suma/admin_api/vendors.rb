@@ -50,5 +50,11 @@ class Suma::AdminAPI::Vendors < Suma::AdminAPI::V1
         optional :name, type: String, allow_blank: false
       end
     end
+
+    Suma::AdminAPI::CommonEndpoints.destroy(
+      self,
+      Suma::Vendor,
+      DetailedVendorEntity,
+    )
   end
 end

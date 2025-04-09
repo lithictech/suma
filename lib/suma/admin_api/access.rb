@@ -8,6 +8,7 @@ class Suma::AdminAPI::Access
   MANAGEMENT = Suma::Member::RoleAccess::ADMIN_MANAGEMENT
 
   MAPPING = {
+    Suma::AnonProxy::MemberContact => [:anon_member_contact, COMMERCE, MANAGEMENT],
     Suma::AnonProxy::VendorAccount => [:vendor_account, COMMERCE, COMMERCE],
     Suma::AnonProxy::VendorConfiguration => [:vendor_configuration, COMMERCE, COMMERCE],
     Suma::Payment::BankAccount => [:bank_account, MEMBERS, MEMBERS],

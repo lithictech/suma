@@ -271,6 +271,21 @@ module Suma::AdminAPI::CommonEndpoints
     end
   end
 
+  def self.destroy(route_def, model_type, entity)
+    route_def.instance_exec do
+      route_param :id, type: Integer do
+        post :destroy do
+          access = Suma::AdminAPI::Access.write_key(model_type)
+          check_role_access!(admin_member, :write, access)
+          (m = model_type[params[:id]]) or forbidden!
+          m.destroy
+          status 200
+          present m, with: entity
+        end
+      end
+    end
+  end
+
   def self.programs_update(route_def, model_type, entity)
     route_def.instance_exec do
       route_param :id, type: Integer do

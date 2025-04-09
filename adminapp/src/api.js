@@ -176,6 +176,8 @@ export default {
   getVendorAccounts: (data) => get("/adminapi/v1/anon_proxy/vendor_accounts", data),
   getVendorAccount: ({ id, data }) =>
     get(`/adminapi/v1/anon_proxy/vendor_accounts/${id}`, data),
+  destroyVendorAccount: ({ id, data }) =>
+    post(`/adminapi/v1/anon_proxy/vendor_accounts/${id}/destroy`, data),
 
   getVendorConfigurations: (data) =>
     get("/adminapi/v1/anon_proxy/vendor_configurations", data),
@@ -183,6 +185,14 @@ export default {
     get(`/adminapi/v1/anon_proxy/vendor_configurations/${id}`, data),
   updateVendorConfigurationPrograms: ({ id, ...data }) =>
     post(`/adminapi/v1/anon_proxy/vendor_configurations/${id}/programs`, data),
+
+  getAnonMemberContacts: (data) => get(`/adminapi/v1/anon_proxy/member_contacts`, data),
+  createAnonMemberContact: (data) =>
+    postForm("/adminapi/v1/anon_proxy/member_contacts/create", data),
+  getAnonMemberContact: ({ id, ...data }) =>
+    get(`/adminapi/v1/anon_proxy/member_contacts/${id}`, data),
+  updateAnonMemberContact: ({ id, ...data }) =>
+    postForm(`/adminapi/v1/anon_proxy/member_contacts/${id}`, data),
 
   getCommerceOrders: (data) => get(`/adminapi/v1/commerce_orders`, data),
   getCommerceOrder: ({ id, ...data }) => get(`/adminapi/v1/commerce_orders/${id}`, data),
