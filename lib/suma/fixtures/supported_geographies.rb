@@ -9,9 +9,9 @@ module Suma::Fixtures::SupportedGeographies
   fixtured_class Suma::SupportedGeography
 
   base :supported_geography do
-    self.value ||= Faker::Address.state
+    self.value ||= Faker::Address.country
     self.label ||= self.value
-    self.type ||= "province"
+    self.type ||= "country" # Default to country so we don't need a parent
   end
 
   decorator :state do |value=Faker::Address.state, label=nil|

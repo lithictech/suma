@@ -18,7 +18,7 @@ class Suma::AdminAPI::AnonProxy < Suma::AdminAPI::V1
     expose :message_handler_key
   end
 
-  class AnonProxyMemberContactEntity < BaseEntity
+  class MemberContactEntity < BaseEntity
     include Suma::AdminAPI::Entities
     include AutoExposeBase
     expose :member, with: MemberEntity
@@ -52,20 +52,32 @@ class Suma::AdminAPI::AnonProxy < Suma::AdminAPI::V1
     expose :latest_access_code_requested_at
     expose :latest_access_code_magic_link
     expose :registered_with_vendor
-    expose :contact, with: AnonProxyMemberContactEntity
+    expose :contact, with: MemberContactEntity
+  end
+
+  class DetailedMemberContactEntity < MemberContactEntity
+    include Suma::AdminAPI::Entities
+    include AutoExposeDetail
+
+    expose :vendor_accounts, with: VendorAccountEntity
   end
 
   resource :anon_proxy do
     resource :vendor_accounts do
+      Suma::AdminAPI::CommonEndpoints.list(
+        self,
+        Suma::AnonProxy::VendorAccount,
+        VendorAccountEntity,
+      )
       Suma::AdminAPI::CommonEndpoints.get_one(
         self,
         Suma::AnonProxy::VendorAccount,
         DetailedVendorAccountEntity,
       )
-      Suma::AdminAPI::CommonEndpoints.list(
+      Suma::AdminAPI::CommonEndpoints.destroy(
         self,
         Suma::AnonProxy::VendorAccount,
-        VendorAccountEntity,
+        DetailedVendorAccountEntity,
       )
     end
 
@@ -86,6 +98,32 @@ class Suma::AdminAPI::AnonProxy < Suma::AdminAPI::V1
         Suma::AnonProxy::VendorConfiguration,
         DetailedVendorConfigurationEntity,
       )
+    end
+
+    resource :member_contacts do
+      Suma::AdminAPI::CommonEndpoints.list(
+        self,
+        Suma::AnonProxy::MemberContact,
+        MemberContactEntity,
+      )
+
+      Suma::AdminAPI::CommonEndpoints.get_one(
+        self,
+        Suma::AnonProxy::MemberContact,
+        DetailedMemberContactEntity,
+      )
+
+      Suma::AdminAPI::CommonEndpoints.update(
+        self,
+        Suma::AnonProxy::MemberContact,
+        DetailedMemberContactEntity,
+      ) do
+        params do
+          # We can only safely change email, since phone may need to be provisioned
+          # and the other fields are technical.
+          optional :email, type: String
+        end
+      end
     end
   end
 end

@@ -21,4 +21,22 @@ RSpec.describe "Suma::Organization::Membership", :db do
       end.to raise_error(/unambiguous_verification_status/)
     end
   end
+
+  describe "remove_from_organization" do
+    it "sets the former org to the verified org and sets verified org nil" do
+      org = Suma::Fixtures.organization.create
+      m = Suma::Fixtures.organization_membership.verified(org).create
+      m.remove_from_organization
+      expect(m).to have_attributes(
+        verified_organization: nil,
+        former_organization: be === org,
+        formerly_in_organization_at: match_time(:now),
+      )
+    end
+
+    it "errors if there is no verified org" do
+      m = Suma::Fixtures.organization_membership.unverified.create
+      expect { m.remove_from_organization }.to raise_error(Suma::InvalidPrecondition)
+    end
+  end
 end

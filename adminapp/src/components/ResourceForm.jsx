@@ -48,6 +48,15 @@ export default function ResourceForm({ InnerForm, baseResource, isCreate, applyC
     [setField]
   );
 
+  const clearField = React.useCallback(
+    (f) => {
+      const newChanges = assign({}, changes);
+      delete newChanges[f];
+      setChanges(newChanges);
+    },
+    [changes]
+  );
+
   const resource = mergeWith({}, baseResource, changes, (obj, src) => {
     // Since `_.merge()` only merges array indexes and does not replace arrays,
     // we need to check for empty arrays and return them, also return src when
@@ -67,6 +76,7 @@ export default function ResourceForm({ InnerForm, baseResource, isCreate, applyC
       setFields={setChanges}
       setField={setField}
       setFieldFromInput={setFieldFromInput}
+      clearField={clearField}
       register={register}
       isBusy={isBusy}
       onSubmit={handleSubmit(submitter)}

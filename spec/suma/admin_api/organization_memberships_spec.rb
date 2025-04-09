@@ -86,7 +86,17 @@ RSpec.describe Suma::AdminAPI::OrganizationMemberships, :db do
   end
 
   describe "POST /v1/organization_memberships/:id" do
-    it "updates an organization membership" do
+    it "can update the unverified name" do
+      membership = Suma::Fixtures.organization_membership.unverified.create
+
+      post "/v1/organization_memberships/#{membership.id}", unverified_organization_name: "new name"
+
+      expect(last_response).to have_status(200)
+      expect(membership.refresh).to have_attributes(unverified_organization_name: "new name")
+      expect(membership.member.audit_activities).to be_empty
+    end
+
+    it "updates an organization membership from unverified to verified" do
       membership = Suma::Fixtures.organization_membership.unverified.create
       new_org = Suma::Fixtures.organization.create
 
@@ -94,6 +104,27 @@ RSpec.describe Suma::AdminAPI::OrganizationMemberships, :db do
 
       expect(last_response).to have_status(200)
       expect(membership.refresh).to have_attributes(verified_organization: new_org)
+      expect(membership.verified_organization.audit_activities).to contain_exactly(
+        have_attributes(summary: /performed addmember /),
+      )
+      expect(membership.member.audit_activities).to contain_exactly(
+        have_attributes(summary: /performed beginmembership /),
+      )
     end
+  end
+
+  it "updates from verified to removed" do
+    membership = Suma::Fixtures.organization_membership.verified.create
+
+    post "/v1/organization_memberships/#{membership.id}", remove_from_organization: true
+
+    expect(last_response).to have_status(200)
+    expect(membership.refresh).to have_attributes(former_organization: be_present, verified_organization: nil)
+    expect(membership.former_organization.audit_activities).to contain_exactly(
+      have_attributes(summary: /performed removemember /),
+    )
+    expect(membership.member.audit_activities).to contain_exactly(
+      have_attributes(summary: /performed endmembership /),
+    )
   end
 end

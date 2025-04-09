@@ -1,6 +1,9 @@
 import { redirectIfAuthed, redirectIfUnauthed } from "./hocs/authRedirects";
 import { GlobalApiStateProvider } from "./hooks/globalApiState";
 import { UserProvider } from "./hooks/user";
+import AnonMemberContactDetailPage from "./pages/AnonMemberContactDetailPage";
+import AnonMemberContactEditPage from "./pages/AnonMemberContactEditPage";
+import AnonMemberContactListPage from "./pages/AnonMemberContactListPage";
 import BankAccountDetailPage from "./pages/BankAccountDetailPage";
 import BookTransactionCreatePage from "./pages/BookTransactionCreatePage";
 import BookTransactionDetailPage from "./pages/BookTransactionDetailPage";
@@ -131,6 +134,33 @@ function PageSwitch() {
         exact
         path="/dashboard"
         element={renderWithHocs(redirectIfUnauthed, withLayout(), DashboardPage)}
+      />
+      <Route
+        exact
+        path="/anon-member-contacts"
+        element={renderWithHocs(
+          redirectIfUnauthed,
+          withLayout(),
+          AnonMemberContactListPage
+        )}
+      />
+      <Route
+        exact
+        path="/anon-member-contact/:id"
+        element={renderWithHocs(
+          redirectIfUnauthed,
+          withLayout(),
+          AnonMemberContactDetailPage
+        )}
+      />
+      <Route
+        exact
+        path="/anon-member-contact/:id/edit"
+        element={renderWithHocs(
+          redirectIfUnauthed,
+          withLayout(),
+          AnonMemberContactEditPage
+        )}
       />
       <Route
         exact

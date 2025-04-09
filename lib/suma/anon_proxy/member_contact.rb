@@ -1,16 +1,27 @@
 # frozen_string_literal: true
 
+require "suma/admin_linked"
 require "suma/postgres"
 require "suma/anon_proxy"
 
 class Suma::AnonProxy::MemberContact < Suma::Postgres::Model(:anon_proxy_member_contacts)
+  include Suma::AdminLinked
+  include Suma::Postgres::HybridSearch
+
+  plugin :hybrid_search
   plugin :timestamps
 
   many_to_one :member, class: "Suma::Member"
-  one_to_many :vendor_accounts, class: "Suma::AnonProxy::VendorAccount"
+  one_to_many :vendor_accounts, class: "Suma::AnonProxy::VendorAccount", key: :contact_id
 
   def phone? = !!self.phone
   def email? = !!self.email
+
+  def rel_admin_link = "/anon-member-contact/#{self.id}"
+
+  def hybrid_search_fields
+    return [:member, :phone, :email]
+  end
 end
 
 # Table: anon_proxy_member_contacts

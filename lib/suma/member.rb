@@ -430,6 +430,7 @@ class Suma::Member < Suma::Postgres::Model(:members)
       ["Email address", self.email],
       :note,
       ["Organization memberships", orgnames],
+      ["Anonymous Contacts", self.anon_proxy_contacts.map { |c| c.phone || c.email }],
       ["Roles", self.roles.map(&:name)],
       ["Verified", self.onboarding_verified? ? "Verified" : "Unverified"],
       ["Deleted", self.soft_deleted? ? "Deleted" : "Undeleted"],

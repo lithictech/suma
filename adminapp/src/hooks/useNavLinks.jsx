@@ -5,6 +5,7 @@ import AddBusinessIcon from "@mui/icons-material/AddBusiness";
 import AssignmentIndIcon from "@mui/icons-material/AssignmentInd";
 import AutoModeIcon from "@mui/icons-material/AutoMode";
 import BikeScooterIcon from "@mui/icons-material/BikeScooter";
+import ContactlessIcon from "@mui/icons-material/Contactless";
 import CorporateFareIcon from "@mui/icons-material/CorporateFare";
 import EventAvailableIcon from "@mui/icons-material/EventAvailable";
 import HomeIcon from "@mui/icons-material/Home";
@@ -139,6 +140,11 @@ export default function useNavLinks() {
             label: "External Account Configs",
             href: "/vendor-configurations",
             icon: <ManageAccountsIcon />,
+          },
+          commerce && {
+            label: "Anon Member Contacts",
+            href: "/anon-member-contacts",
+            icon: <ContactlessIcon />,
           },
           commerce && {
             label: "Vendor Services",

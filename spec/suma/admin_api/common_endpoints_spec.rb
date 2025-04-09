@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require "suma/admin_api/anon_proxy"
 require "suma/admin_api/common_endpoints"
 require "suma/admin_api/vendors"
 require "suma/api/behaviors"
@@ -212,6 +213,44 @@ RSpec.describe Suma::AdminAPI::CommonEndpoints, :db do
 
       v = Suma::Fixtures.vendor.create
       post("/v1/vendors/#{v.id}", name: "test")
+
+      expect(last_response).to have_status(403)
+      expect(last_response).to have_json_body.that_includes(error: include(code: "role_check"))
+    end
+  end
+
+  describe "destroy" do
+    it "destroys and returns the resource" do
+      v = Suma::Fixtures.vendor.create
+      # Need to destroy this for the destroy to work. Probably shouldn't create this automatically.
+      v.payment_account.destroy
+
+      post "/v1/vendors/#{v.id}/destroy"
+
+      expect(last_response).to have_status(200)
+      expect(v).to be_destroyed
+    end
+
+    it "403s if the resource does not exist" do
+      post "/v1/vendors/0/destroy"
+
+      expect(last_response).to have_status(403)
+    end
+
+    it "401s if the user does not have admin access" do
+      replace_admin_role(nil)
+
+      r = Suma::Fixtures.vendor.create
+      post "/v1/vendors/#{r.id}/destroy"
+
+      expect(last_response).to have_status(401)
+    end
+
+    it "403s if the user cannot read the resource" do
+      replace_admin_role(Suma::Role.cache.noop_admin)
+
+      r = Suma::Fixtures.vendor.create
+      post "/v1/vendors/#{r.id}/destroy"
 
       expect(last_response).to have_status(403)
       expect(last_response).to have_json_body.that_includes(error: include(code: "role_check"))

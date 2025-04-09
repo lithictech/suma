@@ -2,12 +2,23 @@
 
 require "suma/fixtures"
 
-RSpec.describe Suma::Fixtures do
+RSpec.describe Suma::Fixtures, db: true  do
   it "sets the path prefix for fixtures" do
     expect(described_class.fixture_path_prefix).to eq("suma/fixtures")
   end
 
-  it "can call all decorators (improve fixture coverage)", db: true do
+  describe "can fixture" do
+    standard_modules = Suma::Fixtures.fixture_modules
+    standard_modules.each do |mod|
+      it mod.to_s do
+        factory = mod.base_factory
+        factory = mod.ensure_fixturable(factory)
+        factory.create
+      end
+    end
+  end
+
+  it "can call all decorators (improve fixture coverage)" do
     # This is gross, but we want to have coverage of fixtures. Ideally each decorator is tested
     # but in many cases it isn't really worth it.
     member = Suma::Fixtures.member.create
@@ -25,5 +36,11 @@ RSpec.describe Suma::Fixtures do
     Suma::Fixtures.reset_code.email.create
     Suma::Fixtures.translated_text.empty.create
     Suma::Fixtures.uploaded_file.uploaded_1x1_png.uploaded_bytes("x", "text/plain").create
+  end
+
+  it "keeps track of fixture and fixtured classes" do
+    expect(Suma::Fixtures.fixture_modules).to include(Suma::Fixtures::Members)
+    expect(Suma::Fixtures.fixtured_classes).to include(Suma::Member)
+    expect(Suma::Fixtures.fixture_module_for(Suma::Member)).to eq(Suma::Fixtures::Members)
   end
 end

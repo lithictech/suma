@@ -9,6 +9,10 @@ module Suma::Fixtures::OrganizationMemberships
 
   fixtured_class Suma::Organization::Membership
 
+  class << self
+    def ensure_fixturable(factory) = super.unverified
+  end
+
   base :organization_membership do
   end
 
