@@ -8,6 +8,10 @@ module Suma::Fixtures::PayoutTransactions
 
   fixtured_class Suma::Payment::PayoutTransaction
 
+  class << self
+    def ensure_fixturable(factory) = super.with_fake_strategy
+  end
+
   base :payout_transaction do
     self.amount_cents ||= Faker::Number.between(from: 100, to: 100_00)
     self.amount_currency ||= "USD"

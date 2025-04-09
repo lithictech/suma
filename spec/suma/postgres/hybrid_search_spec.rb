@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative "../behaviors"
+
 RSpec.describe Suma::Postgres::HybridSearch, :db do
   describe "configuration" do
     before(:each) do
@@ -58,6 +60,20 @@ RSpec.describe Suma::Postgres::HybridSearch, :db do
       m = Suma::Fixtures.member.create
       m.created_at = Time.parse("2023-01-01T12:00:00Z")
       expect(m.hybrid_search_text).to include("Created at: Sunday, January 1, 2023, 12:00:00 GMT")
+    end
+  end
+
+  describe "all hybrid searchable models" do
+    SequelHybridSearch.searchable_models.each do |m|
+      describe m.name do
+        it_behaves_like "a hybrid searchable object" do
+          let(:instance) do
+            mod = Suma::Fixtures.fixture_module_for(m)
+            fac = mod.ensure_fixturable(mod.base_factory)
+            fac.create
+          end
+        end
+      end
     end
   end
 end
