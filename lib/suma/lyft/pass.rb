@@ -226,7 +226,7 @@ class Suma::Lyft::Pass
     return h
   end
 
-  def fetch_rides(program_id)
+  def fetch_rides(account_id)
     # TODO: We need to paginate the rides and stop when we find one we've already processed.
     # For now, assume we're not taking a page of rides (50) within a sync period (20 minutes).
     rides_resp = Suma::Http.post(
@@ -244,7 +244,7 @@ class Suma::Lyft::Pass
                   "bool" => {
                     "should" => {
                       "terms" => {
-                        "transactions.account_id" => [program_id],
+                        "transactions.account_id" => [account_id],
                       },
                     },
                   },
@@ -279,6 +279,16 @@ class Suma::Lyft::Pass
     return rides_resp.parsed_response
   end
 
+  def fetch_account_id_for_program_id(program_id)
+    resp = Suma::Http.post(
+      "https://www.lyft.com/v1/enterprise/external/get-program",
+      {program_identifier: {program_slug: program_id}},
+      headers: self.auth_headers,
+      logger: self.logger,
+    )
+    return resp.parsed_response.fetch("program").fetch("lyft_id")
+  end
+
   def fetch_ride(tx_id)
     resp = Suma::Http.get(
       "https://www.lyft.com/v1/enterprise-insights/detail/transactions-legacy/#{tx_id}",
@@ -289,11 +299,18 @@ class Suma::Lyft::Pass
   end
 
   def sync_trips(program_id)
-    rides = self.fetch_rides(program_id)
-    tx_ids = rides.fetch("results").map { |r| r["transactions.id"] }
-    tx_ids.each do |txid|
-      ride = self.fetch_ride(txid)
-      self.upsert_ride_as_trip(ride)
+    self.with_log_tags(lyft_program_id: program_id) do
+      account_id = self.fetch_account_id_for_program_id(program_id)
+      self.with_log_tags(lyft_account_id: account_id) do
+        rides = self.fetch_rides(account_id)
+        tx_ids = rides.fetch("results").map { |r| r["transactions.id"] }
+        tx_ids.each do |txid|
+          self.with_log_tags(lyft_transaction_id: txid) do
+            ride = self.fetch_ride(txid)
+            self.upsert_ride_as_trip(ride)
+          end
+        end
+      end
     end
   end
 
@@ -339,6 +356,7 @@ class Suma::Lyft::Pass
   end
 
   def invite_member(member, program_id:)
+    self.logger.info "inviting_lyft_pass", member_id: member.id, lyft_program_id: program_id, phone: member.phone
     Suma::Http.post(
       "https://www.lyft.com/api/rideprograms/enrollment/bulk/invite",
       {

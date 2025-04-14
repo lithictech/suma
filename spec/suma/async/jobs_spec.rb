@@ -178,7 +178,13 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
         data: {cookies: {}}.to_json,
       )
 
-      req = stub_request(:post, "https://www.lyft.com/v1/enterprise-insights/search/transactions?organization_id=1234&start_time=1546300800000").
+      program_req = stub_request(:post, "https://www.lyft.com/v1/enterprise/external/get-program").
+        to_return(
+          status: 200,
+          headers: {"Content-Type" => "application/json"},
+          body: {program: {lyft_id: "9999"}}.to_json,
+        )
+      rides_req = stub_request(:post, "https://www.lyft.com/v1/enterprise-insights/search/transactions?organization_id=1234&start_time=1546300800000").
         to_return(
           status: 200,
           headers: {
@@ -194,7 +200,8 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
 
       Suma::Async::LyftPassTripSync.new.perform
 
-      expect(req).to have_been_made
+      expect(program_req).to have_been_made
+      expect(rides_req).to have_been_made
     end
 
     it "noops if not configured" do
