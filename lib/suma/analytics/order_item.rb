@@ -18,9 +18,18 @@ class Suma::Analytics::OrderItem < Suma::Analytics::Model(Sequel[:analytics][:or
         created_at: order.created_at,
         order_id: order.id,
         member_id: member.id,
+        quantity: ci.quantity,
         undiscounted_cost: ci.undiscounted_cost,
         customer_cost: ci.customer_cost,
         savings: ci.savings,
+        product_id: ci.offering_product.product_id,
+        product_name: ci.offering_product.product.name.en,
+        vendor_id: ci.offering_product.product.vendor_id,
+        vendor_name: ci.offering_product.product.vendor.name,
+        offering_id: ci.checkout.cart.offering_id,
+        offering_name: ci.checkout.cart.offering.description.en,
+        offering_begin: ci.checkout.cart.offering.period.begin,
+        offering_end: ci.checkout.cart.offering.period.end,
       }
     end
   end
