@@ -82,16 +82,30 @@ class Suma::AdminAPI::AnonProxy < Suma::AdminAPI::V1
     end
 
     resource :vendor_configurations do
-      Suma::AdminAPI::CommonEndpoints.get_one(
-        self,
-        Suma::AnonProxy::VendorConfiguration,
-        DetailedVendorConfigurationEntity,
-      )
       Suma::AdminAPI::CommonEndpoints.list(
         self,
         Suma::AnonProxy::VendorConfiguration,
         VendorConfigurationEntity,
       )
+
+      Suma::AdminAPI::CommonEndpoints.get_one(
+        self,
+        Suma::AnonProxy::VendorConfiguration,
+        DetailedVendorConfigurationEntity,
+      )
+
+      Suma::AdminAPI::CommonEndpoints.update(
+        self,
+        Suma::AnonProxy::VendorConfiguration,
+        DetailedVendorConfigurationEntity,
+      ) do
+        params do
+          optional :enabled, type: Boolean
+          optional :app_install_link, type: String
+          optional(:instructions, type: JSON) { use :translated_text }
+          optional(:linked_success_instructions, type: JSON) { use :translated_text }
+        end
+      end
 
       Suma::AdminAPI::CommonEndpoints.programs_update(
         self,
