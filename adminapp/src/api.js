@@ -174,15 +174,17 @@ export default {
     post(`/adminapi/v1/vendor_services/${id}/programs`, data),
 
   getVendorAccounts: (data) => get("/adminapi/v1/anon_proxy/vendor_accounts", data),
-  getVendorAccount: ({ id, data }) =>
+  getVendorAccount: ({ id, ...data }) =>
     get(`/adminapi/v1/anon_proxy/vendor_accounts/${id}`, data),
-  destroyVendorAccount: ({ id, data }) =>
+  destroyVendorAccount: ({ id, ...data }) =>
     post(`/adminapi/v1/anon_proxy/vendor_accounts/${id}/destroy`, data),
 
   getVendorConfigurations: (data) =>
     get("/adminapi/v1/anon_proxy/vendor_configurations", data),
-  getVendorConfiguration: ({ id, data }) =>
+  getVendorConfiguration: ({ id, ...data }) =>
     get(`/adminapi/v1/anon_proxy/vendor_configurations/${id}`, data),
+  updateVendorConfiguration: ({ id, ...data }) =>
+    postForm(`/adminapi/v1/anon_proxy/vendor_configurations/${id}`, data),
   updateVendorConfigurationPrograms: ({ id, ...data }) =>
     post(`/adminapi/v1/anon_proxy/vendor_configurations/${id}/programs`, data),
 

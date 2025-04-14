@@ -12,6 +12,7 @@ export default function VendorConfigurationDetailPage() {
   return (
     <ResourceDetail
       resource="vendor_configuration"
+      canEdit
       apiGet={api.getVendorConfiguration}
       properties={(model) => [
         { label: "ID", value: model.id },
