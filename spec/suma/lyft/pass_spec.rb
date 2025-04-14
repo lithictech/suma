@@ -349,32 +349,92 @@ RSpec.describe Suma::Lyft::Pass, :db, reset_configuration: Suma::Lyft do
   describe "sync_trips" do
     it "fetches and upserts rides" do
       insert_valid_credential
-      rides_req = stub_request(:post, "https://www.lyft.com/v1/enterprise-insights/search/transactions?organization_id=1234&start_time=1546300800000").
+      program_req = stub_request(:post, "https://www.lyft.com/v1/enterprise/external/get-program").
+        with(body: {program_identifier: {program_slug: "5678"}}.to_json).
         to_return(
           status: 200,
           headers: {"Content-Type" => "application/json"},
           body: {
-            "aggs" => {},
-            "next_token" => nil,
-            "results" =>
+            program: {
+              created_at: "2025-04-01T16:47:44.474Z",
+              legacy_status: "enabled",
+              lyft_id: "9999",
+              name: "Pilot 2",
+              parent_org: {lyft_id: "09876", name: "My Org", slug: "myorg"},
+              program_type: 1,
+              reporting_email: [""],
+              slug: "myorg__pilot-2",
+              status: 2,
+            },
+          }.to_json,
+        )
+
+      rides_req = stub_request(:post, "https://www.lyft.com/v1/enterprise-insights/search/transactions?organization_id=1234&start_time=1546300800000").
+        with(
+          body: {
+            "size" => 50,
+            "next_token" => "",
+            "aggs" => nil,
+            "query" => {
+              "bool" => {"must" => [
+                {
+                  "nested" => {
+                    "path" => "transactions",
+                    "query" => {
+                      "bool" => {
+                        "should" => {"terms" => {"transactions.account_id" => ["9999"]}},
+                      },
+                    },
+                  },
+                },
+              ]},
+            },
+            "include" => [
+              "enterprise_product_type",
+              "transportation_id",
+              "transportation_type",
+              "transportation_sub_type",
+              "transportation_mode",
+              "transactions.amount",
+              "transactions.currency",
+              "transactions.id",
+              "transactions.transaction_type",
+              "transactions.txn_reporting_timestamp",
+              "requested_at_iso",
+              "requested_at_iso[utc_offset]",
+              "canceled_at_iso",
+              "picked_up_at_iso",
+              "dropped_off_at_iso",
+              "user_full_name",
+            ],
+            "sort" => [{"requested_at_utc" => {"order" => "desc"}}],
+          },
+        ).
+        to_return(
+          status: 200,
+          headers: {"Content-Type" => "application/json"},
+          body: {
+            aggs: {},
+            next_token: nil,
+            results:
               [
                 {
-                  "dropped_off_at_iso" => "2024-10-05T14:50:42-07:00",
-                  "enterprise_product_type" => "Lyft Pass",
-                  "picked_up_at_iso" => "2024-10-05T14:40:19-07:00",
-                  "requested_at_iso" => "2024-10-05T14:40:16-07:00",
-                  "requested_at_iso[utc_offset]" => "UTC-0700",
-                  "transactions.amount" => "5.85",
-                  "transactions.currency" => "USD",
-                  "transactions.id" => "txnhub:1000000037255551881",
-                  "transactions.transaction_type" => "Charge",
-                  "transactions.txn_reporting_timestamp" => "2024-10-05T21:55:55.514000+0000",
-                  "transportation_id" => "2000855261394541610",
-                  "transportation_sub_type" => "E-Bike",
-                  "transportation_type" => "Bikes & Scooters",
+                  dropped_off_at_iso: "2024-10-05T14:50:42-07:00",
+                  enterprise_product_type: "Lyft Pass",
+                  picked_up_at_iso: "2024-10-05T14:40:19-07:00",
+                  requested_at_iso: "2024-10-05T14:40:16-07:00",
+                  "requested_at_iso[utc_offset]": "UTC-0700",
+                  "transactions.amount": "5.85",
+                  "transactions.currency": "USD",
+                  "transactions.id": "txnhub:1000000037255551881",
+                  "transactions.transaction_type": "Charge",
+                  "transactions.txn_reporting_timestamp": "2024-10-05T21:55:55.514000+0000",
+                  transportation_id: "2000855261394541610",
+                  transportation_sub_type: "E-Bike",
+                  transportation_type: "Bikes & Scooters",
                 },
               ],
-            "total_results" => 1,
+            total_results: 1,
           }.to_json,
         )
       ride_req = stub_request(:get, "https://www.lyft.com/v1/enterprise-insights/detail/transactions-legacy/txnhub:1000000037255551881").
@@ -409,6 +469,7 @@ RSpec.describe Suma::Lyft::Pass, :db, reset_configuration: Suma::Lyft do
 
       instance.authenticate
       instance.sync_trips("5678")
+      expect(program_req).to have_been_made
       expect(rides_req).to have_been_made
       expect(ride_req).to have_been_made
       expect(Suma::Mobility::Trip.all).to contain_exactly(

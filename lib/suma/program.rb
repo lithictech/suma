@@ -77,6 +77,12 @@ class Suma::Program < Suma::Postgres::Model(:programs)
       :period_end,
     ]
   end
+
+  # @!attribute lyft_pass_program_id
+  # The program ID from Lyft. It is used for enrollment in the program.
+  # This is the '1234' in the URL at a URL like
+  # https://business.lyft.com/organization/myspecialorg/lyft-pass/programs/1234/overview.
+  # @return [String]
 end
 
 require "suma/program/has"
