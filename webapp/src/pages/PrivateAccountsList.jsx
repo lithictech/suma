@@ -6,8 +6,7 @@ import LayoutContainer from "../components/LayoutContainer";
 import LinearBreadcrumbs from "../components/LinearBreadcrumbs";
 import PageLoader from "../components/PageLoader";
 import SumaImage from "../components/SumaImage";
-import SumaMarkdown from "../components/SumaMarkdown";
-import { t } from "../localization";
+import { dt, t } from "../localization";
 import ScrollTopOnMount from "../shared/ScrollToTopOnMount";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
 import useMountEffect from "../shared/react/useMountEffect";
@@ -79,7 +78,7 @@ export default function PrivateAccountsList() {
         <Modal.Body>
           <div className="d-flex justify-content-center align-items-center flex-column m-2">
             <ScrollTopOnMount />
-            <SumaMarkdown>{modalAccount?.instructions}</SumaMarkdown>
+            {dt(modalAccount?.instructions)}
             <div className="d-flex justify-content-end mt-2">
               <Button variant="outline-secondary" onClick={() => setModalAccount(null)}>
                 {t("common:close")}
