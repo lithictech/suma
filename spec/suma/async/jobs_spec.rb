@@ -178,18 +178,17 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
         data: {cookies: {}}.to_json,
       )
 
-      program_req = stub_request(:post, "https://www.lyft.com/v1/enterprise/external/get-program").
+      program_req = stub_request(:post, "https://www.lyft.com/api/rideprograms/ride-program").
         to_return(
           status: 200,
           headers: {"Content-Type" => "application/json"},
-          body: {program: {lyft_id: "9999"}}.to_json,
+          # Not bothering to include th eentire response here, it's pretty big.
+          body: {ride_program: {owner: {id: "9999"}}}.to_json,
         )
       rides_req = stub_request(:post, "https://www.lyft.com/v1/enterprise-insights/search/transactions?organization_id=1234&start_time=1546300800000").
         to_return(
           status: 200,
-          headers: {
-            "Content-Type" => "application/json",
-          },
+          headers: {"Content-Type" => "application/json"},
           body: {
             "aggs" => {},
             "next_token" => nil,
