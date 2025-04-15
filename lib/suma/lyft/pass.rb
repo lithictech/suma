@@ -281,12 +281,12 @@ class Suma::Lyft::Pass
 
   def fetch_account_id_for_program_id(program_id)
     resp = Suma::Http.post(
-      "https://www.lyft.com/v1/enterprise/external/get-program",
-      {program_identifier: {program_slug: program_id}},
+      "https://www.lyft.com/api/rideprograms/ride-program",
+      {ride_program_id: program_id},
       headers: self.auth_headers,
       logger: self.logger,
     )
-    return resp.parsed_response.fetch("program").fetch("lyft_id")
+    return resp.parsed_response.fetch("ride_program").fetch("owner").fetch("id")
   end
 
   def fetch_ride(tx_id)

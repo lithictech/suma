@@ -349,24 +349,12 @@ RSpec.describe Suma::Lyft::Pass, :db, reset_configuration: Suma::Lyft do
   describe "sync_trips" do
     it "fetches and upserts rides" do
       insert_valid_credential
-      program_req = stub_request(:post, "https://www.lyft.com/v1/enterprise/external/get-program").
-        with(body: {program_identifier: {program_slug: "5678"}}.to_json).
+      program_req = stub_request(:post, "https://www.lyft.com/api/rideprograms/ride-program").
+        with(body: {ride_program_id: "5678"}.to_json).
         to_return(
           status: 200,
           headers: {"Content-Type" => "application/json"},
-          body: {
-            program: {
-              created_at: "2025-04-01T16:47:44.474Z",
-              legacy_status: "enabled",
-              lyft_id: "9999",
-              name: "Pilot 2",
-              parent_org: {lyft_id: "09876", name: "My Org", slug: "myorg"},
-              program_type: 1,
-              reporting_email: [""],
-              slug: "myorg__pilot-2",
-              status: 2,
-            },
-          }.to_json,
+          body: {ride_program: {owner: {id: "9999"}}}.to_json,
         )
 
       rides_req = stub_request(:post, "https://www.lyft.com/v1/enterprise-insights/search/transactions?organization_id=1234&start_time=1546300800000").
