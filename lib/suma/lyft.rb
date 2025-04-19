@@ -1,12 +1,7 @@
 # frozen_string_literal: true
 
-require "suma/mobility/gbfs"
-
-require "suma/http"
-
 module Suma::Lyft
   include Appydays::Configurable
-  include Appydays::Loggable
 
   configurable(:lyft) do
     # ID of the Vendor to use for deeplinking into the Lyft app.

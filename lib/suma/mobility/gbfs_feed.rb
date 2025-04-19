@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "suma/mobility"
+require "suma/mobility/gbfs"
 require "suma/postgres/model"
 
 class Suma::Mobility::GbfsFeed < Suma::Postgres::Model(:mobility_gbfs_feeds)

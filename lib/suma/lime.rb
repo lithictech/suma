@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require "suma/mobility/gbfs"
-
 require "suma/http"
 
 module Suma::Lime

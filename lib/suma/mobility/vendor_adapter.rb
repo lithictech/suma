@@ -54,6 +54,8 @@ module Suma::Mobility::VendorAdapter
   require_relative "vendor_adapter/fake"
   register("fake", Suma::Mobility::VendorAdapter::Fake)
   register("demo_deeplink", Suma::Mobility::VendorAdapter::Fake)
+  require_relative "vendor_adapter/biketown_deeplink"
+  register("biketown_deeplink", Suma::Mobility::VendorAdapter::BiketownDeeplink)
   require_relative "vendor_adapter/lime_deeplink"
   register("lime_deeplink", Suma::Mobility::VendorAdapter::LimeDeeplink)
   require_relative "vendor_adapter/lime_maas"
