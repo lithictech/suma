@@ -221,7 +221,6 @@ RSpec.describe Suma::Mobility::Gbfs::FreeBikeStatus, :db do
           lng_int: -1_226_621_038,
           vehicle_type: "escooter",
           vehicle_id: "station2-abc123-0",
-
           rental_uris: {"ios" => "https://pdx.lft.to/lastmile_qr_scan", "android" => "https://pdx.lft.to/lastmile_qr_scan"},
         ),
         have_attributes(vehicle_type: "escooter", vehicle_id: "station1-abc123-0"),

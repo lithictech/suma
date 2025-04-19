@@ -27,6 +27,12 @@ class Suma::Mobility::Vehicle < Suma::Postgres::Model(:mobility_vehicles)
   FALLBACK_DEEP_LINK_URL = "#{Suma.app_url}/error".freeze
 
   def deep_link_for_user_agent(user_agent)
+    u = self._deep_link_for_user_agent(user_agent)
+    u = self._canonicalize(u)
+    return u
+  end
+
+  def _deep_link_for_user_agent(user_agent)
     return nil unless self.vendor_service.mobility_adapter.uses_deep_linking?
     browser = Browser.new(user_agent || "", accept_language: "en-us")
     uris = self.rental_uris
@@ -43,6 +49,28 @@ class Suma::Mobility::Vehicle < Suma::Postgres::Model(:mobility_vehicles)
     end
     Sentry.capture_message("Cannot find rental URIs for a user agent: #{user_agent}, #{uris}")
     return FALLBACK_DEEP_LINK_URL
+  end
+
+  def _canonicalize(url)
+    return url unless url
+    return _canonicalize_biketown(url)
+  end
+
+  # Biketown URLs are sneaky: they are operated by Lyft, but we always want to open the Biketown app.
+  # Any ebikes that use one of the Portland-specific URLs should be canonicalized into a URL
+  # which opens Biketown. The only one that opens Lyft as of 4/18/2025 is "lyft.biketownpdx.com,"
+  # but we canonicalize the others anyway.
+  # To see Biketown app behavior (including deeplinks), you can inspect the APK in Android Studio
+  # (rename the .apkx to .zip and extract it first).
+  def _canonicalize_biketown(url)
+    return url unless self.vehicle_type == "ebike"
+    uri = URI(url)
+    # noinspection RubyCaseWithoutElseBlockInspection
+    case uri.host
+        when "biketownpdx.com", "pdx.lft.to", "lyft.biketownpdx.com"
+          uri.host = "www.biketownpdx.com"
+      end
+    return uri.to_s
   end
 
   def before_save
