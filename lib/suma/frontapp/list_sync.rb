@@ -43,9 +43,21 @@ class Suma::Frontapp::ListSync
         contact_ids: contact_ids.size,
       )
       contact_ids.each_slice(300) do |slice|
-        Suma::Frontapp.client.add_contacts_to_contact_group!(existing_group.fetch("id"), {contact_ids: slice})
+        self._add_contacts_with_upsert(existing_group.fetch("id"), slice)
       end
     end
+  end
+
+  def _add_contacts_with_upsert(group_id, contact_ids, retrying_phone: nil)
+    Suma::Frontapp.client.add_contacts_to_contact_group!(group_id, {contact_ids:})
+  rescue Frontapp::NotFoundError => e
+    missing_phone = /Unknown contact ID alt:phone:(\d+)/.match(e.message)&.captures&.first
+    raise e if missing_phone.nil?
+    raise e if missing_phone == retrying_phone
+    member = Suma::Member[phone: missing_phone]
+    raise Suma::InvariantViolation, "no member with phone #{missing_phone}" if member.nil?
+    member.frontapp.upsert_contact
+    self._add_contacts_with_upsert(group_id, contact_ids, retrying_phone: missing_phone)
   end
 
   def gather_list_specs
