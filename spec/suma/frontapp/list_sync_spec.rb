@@ -130,6 +130,97 @@ RSpec.describe Suma::Frontapp::ListSync, :db, reset_configuration: Suma::Frontap
 
       expect(get_groups).to have_been_made.times(2)
     end
+
+    describe "when a contact is missing" do
+      def create_member
+        m = Suma::Fixtures.member.onboarding_verified.create
+        m.preferences!
+        return m
+      end
+
+      it "upserts them and retries" do
+        m_fail1 = create_member
+        m_succeed = create_member
+        m_fail2 = create_member
+
+        get_groups = stub_request(:get, "https://api2.frontapp.com/contact_groups").
+          to_return(
+            json_response({}),
+            json_response({_results: [{id: "grp_en", name: "Marketing - SMS - English"}]}),
+          )
+        create_en_group = stub_request(:post, "https://api2.frontapp.com/contact_groups").
+          with(body: "{\"name\":\"Marketing - SMS - English\"}").
+          to_return(json_response({}))
+        add_ids = stub_request(:post, "https://api2.frontapp.com/contact_groups/grp_en/contacts").
+          with(body: {
+                 contact_ids: [
+                   "alt:phone:#{m_fail1.phone}",
+                   "alt:phone:#{m_succeed.phone}",
+                   "alt:phone:#{m_fail2.phone}",
+                 ],
+               }).
+          to_return(
+            json_response(
+              {_error: {status: 404, title: "Not found", message: "Unknown contact ID alt:phone:#{m_fail1.phone}"}},
+              status: 404,
+            ),
+            json_response(
+              {_error: {status: 404, title: "Not found", message: "Unknown contact ID alt:phone:#{m_fail2.phone}"}},
+              status: 404,
+            ),
+            json_response({}),
+          )
+        create_missing1 = stub_request(:post, "https://api2.frontapp.com/contacts").
+          with(body: hash_including("name" => m_fail1.name)).
+          to_return(fixture_response("front/contact"))
+        create_missing2 = stub_request(:post, "https://api2.frontapp.com/contacts").
+          with(body: hash_including("name" => m_fail2.name)).
+          to_return(fixture_response("front/contact"))
+
+        described_class.new(now:).run
+
+        expect(get_groups).to have_been_made.times(2)
+        expect(create_en_group).to have_been_made
+        expect(add_ids).to have_been_made.times(3)
+        expect(create_missing1).to have_been_made
+        expect(create_missing2).to have_been_made
+      end
+
+      it "fails if the next call adds with the same account" do
+        m_fail1 = create_member
+
+        get_groups = stub_request(:get, "https://api2.frontapp.com/contact_groups").
+          to_return(
+            json_response({}),
+            json_response({_results: [{id: "grp_en", name: "Marketing - SMS - English"}]}),
+          )
+        create_en_group = stub_request(:post, "https://api2.frontapp.com/contact_groups").
+          with(body: "{\"name\":\"Marketing - SMS - English\"}").
+          to_return(json_response({}))
+        add_ids = stub_request(:post, "https://api2.frontapp.com/contact_groups/grp_en/contacts").
+          with(body: {contact_ids: ["alt:phone:#{m_fail1.phone}"]}).
+          to_return(
+            json_response(
+              {_error: {status: 404, title: "Not found", message: "Unknown contact ID alt:phone:#{m_fail1.phone}"}},
+              status: 404,
+            ),
+            json_response(
+              {_error: {status: 404, title: "Not found", message: "Unknown contact ID alt:phone:#{m_fail1.phone}"}},
+              status: 404,
+            ),
+          )
+        create_missing1 = stub_request(:post, "https://api2.frontapp.com/contacts").
+          with(body: hash_including("name" => m_fail1.name)).
+          to_return(fixture_response("front/contact"))
+
+        expect { described_class.new(now:).run }.to raise_error(Frontapp::NotFoundError)
+
+        expect(get_groups).to have_been_made.times(2)
+        expect(create_en_group).to have_been_made
+        expect(add_ids).to have_been_made.times(2)
+        expect(create_missing1).to have_been_made
+      end
+    end
   end
 
   describe "ListSpec" do
