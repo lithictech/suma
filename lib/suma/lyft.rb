@@ -10,8 +10,6 @@ module Suma::Lyft
     setting :pass_authorization, ""
     setting :pass_email, ""
     setting :pass_org_id, ""
-    setting :pass_vendor_slug, "lyft"
-    setting :pass_vendor_service_rate_id, 0
   end
 
   # @return [Suma::Vendor]

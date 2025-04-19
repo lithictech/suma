@@ -163,15 +163,11 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
       Suma::Lyft.pass_email = "a@b.c"
       Suma::Lyft.pass_org_id = "1234"
 
-      vendor = Suma::Fixtures.vendor.create
-      Suma::Lyft.pass_vendor_slug = vendor.slug
-
-      vendor_service_rate = Suma::Fixtures.vendor_service_rate.create
-      vendor_service_rate.add_service(
-        Suma::Fixtures.vendor_service.create(vendor:, mobility_vendor_adapter_key: "lyft_deeplink"),
+      Suma::Fixtures.program.create(
+        lyft_pass_program_id: "5678",
+        vendor_service: Suma::Fixtures.vendor_service.create,
+        vendor_service_rate: Suma::Fixtures.vendor_service_rate.create,
       )
-      Suma::Lyft.pass_vendor_service_rate_id = vendor_service_rate.id
-      Suma::Fixtures.program.create(lyft_pass_program_id: "5678")
 
       Suma::ExternalCredential.create(
         service: "lyft-pass-access-token",
@@ -183,7 +179,7 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
         to_return(
           status: 200,
           headers: {"Content-Type" => "application/json"},
-          # Not bothering to include th eentire response here, it's pretty big.
+          # Not bothering to include the entire response here, it's pretty big.
           body: {ride_program: {owner: {id: "9999"}}}.to_json,
         )
       rides_req = stub_request(:post, "https://www.lyft.com/v1/enterprise-insights/search/transactions?organization_id=1234&start_time=1546300800000").

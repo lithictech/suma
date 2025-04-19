@@ -23,8 +23,6 @@ class Suma::Lyft::Pass
         email: Suma::Lyft.pass_email,
         authorization: Suma::Lyft.pass_authorization,
         org_id: Suma::Lyft.pass_org_id,
-        vendor: Suma::Vendor.find!(slug: Suma::Lyft.pass_vendor_slug),
-        vendor_service_rate: Suma::Vendor::ServiceRate.find!(Suma::Lyft.pass_vendor_service_rate_id),
       )
     end
 
@@ -63,23 +61,19 @@ class Suma::Lyft::Pass
   # in the console. Grab the organization id from the query params.
   attr_reader :org_id
 
+  # Trips are associated with this vendor service.
+  # @return [Suma::Vendor::Service]
+  attr_reader :vendor_service
+
   # @return [Suma::Vendor::ServiceRate]
   attr_reader :vendor_service_rate
 
-  def initialize(email:, authorization:, org_id:, vendor:, vendor_service_rate:)
+  def initialize(email:, authorization:, org_id:)
     raise ArgumentError, "email cannot be blank" if email.blank?
     raise ArgumentError, "authorization cannot be blank" if authorization.blank?
     raise ArgumentError, "org_id cannot be blank" if org_id.blank?
-    raise ArgumentError, "vendor cannot be nil" if vendor.nil?
-    raise ArgumentError, "vendor_service_rate cannot be nil" if vendor_service_rate.nil?
     @email = email
     @org_id = org_id
-    @vendor_service_rate = vendor_service_rate
-    @vendor_service = Suma::Vendor::Service.where(
-      vendor:,
-      mobility_vendor_adapter_key: "lyft_deeplink",
-    ).first or
-      raise Suma::InvalidPrecondition, "No mobility vendor service for Lyft vendor and configured rate"
     # No idea what this actually is, if it changes, etc.
     @authorization = authorization
     @credential = nil
@@ -300,7 +294,16 @@ class Suma::Lyft::Pass
     return resp.parsed_response
   end
 
-  def sync_trips(program_id)
+  def sync_trips_from_program(program)
+    ip = Suma::InvalidPrecondition
+    self.sync_trips(
+      program_id: (program.lyft_pass_program_id or raise ip, "program must have lyft_pass_program_id set"),
+      vendor_service: (program.vendor_service or raise ip, "program must have vendor_service set"),
+      vendor_service_rate: (program.vendor_service_rate or raise ip, "program must have vendor_service_rate set"),
+    )
+  end
+
+  def sync_trips(program_id:, vendor_service:, vendor_service_rate:)
     self.with_log_tags(lyft_program_id: program_id) do
       account_id = self.fetch_account_id_for_program_id(program_id)
       self.with_log_tags(lyft_account_id: account_id) do
@@ -309,14 +312,14 @@ class Suma::Lyft::Pass
         tx_ids.each do |txid|
           self.with_log_tags(lyft_transaction_id: txid) do
             ride = self.fetch_ride(txid)
-            self.upsert_ride_as_trip(ride)
+            self.upsert_ride_as_trip(ride, vendor_service:, vendor_service_rate:)
           end
         end
       end
     end
   end
 
-  def upsert_ride_as_trip(ride_resp)
+  def upsert_ride_as_trip(ride_resp, vendor_service:, vendor_service_rate:)
     ride = ride_resp.fetch("ride")
     rider_phone = ride.fetch("rider").fetch("phone_number")
     ride_id = ride.fetch("ride_id")
@@ -329,8 +332,8 @@ class Suma::Lyft::Pass
         trip = Suma::Mobility::Trip.start_trip(
           member:,
           vehicle_id: ride_id,
-          vendor_service: @vendor_service,
-          rate: @vendor_service_rate,
+          vendor_service:,
+          rate: vendor_service_rate,
           lat: 0,
           lng: 0,
           at: Time.at(ride.fetch("pickup").fetch("timestamp_ms") / 1000),
