@@ -1,6 +1,6 @@
 # Suma Terms of Use
 
-Last Modified: November 19, 2024
+Last Modified: April 19, 2025
 
 ### Acceptance of the Terms of Use
 
@@ -228,3 +228,55 @@ b. "Savory Pack":  five dollars ($5.00);
 c. Simultaneous purchase of "Sweet Pack" and "Savory Pack":  ten dollars ($10.00).
 
 **3) Delivery and Title:**  For all Products purchased from Tienda Doña Maria, Buyers will collect purchased Products from Tienda Doña Maria’s market location, located at 6784 NE Killingsworth Street, Portland, Oregon 97218. Buyers may collect purchased Products beginning December 17, 2024, and ending December 21, 2024, during Tienda Doña Maria’s normal business hours. Buyers will communicate and coordinate with Tienda Doña Maria directly to collect and retrieve any purchased Products. Title and risk of loss pass to Buyer upon Buyer’s collection of Products from Tienda Doña Maria’s business location.
+
+<br />
+
+---
+
+<br />
+
+# Lyft BIKETOWN E-Scooter and E-Bike Pilot Program
+
+This addendum ("Addendum") to the Suma Terms of Use governs participation in the Lyft BIKETOWN E-Scooter and E-Bike Pilot Program ("**Biketown Pilot** **Program**") conducted by Lyft, Inc. (“Lyft”) in collaboration with suma and its affiliates (“**suma**”), where Lyft’s BIKETOWN-for-All e-scooters and e-bikes are available to rent through the suma app. This Addendum is between Biketown Pilot Program participants (“**you**” or “**your**”) and suma. In the instance of a conflict between this Addendum and the Suma Terms of Use, the terms and conditions of this Addendum control with regard to the Biketown Pilot Program.
+
+**1\) Description of Biketown Pilot Program.** Suma plans to provide reduced-cost e-bike and e-scooter rental services (“**Services**”) to eligible Portland residents through a partnership with Lyft. Biketown Pilot Program participants will test this service in compliance with this Addendum. Participants will also receive safety training and provide Biketown Pilot Program feedback during the Biketown Pilot Program Term.
+
+**2\)** **Eligibility.** To be eligible to participate in the Biketown Pilot Program, you must:
+
+* Be at least sixteen (16) years of age or older;
+
+* Receive SNAP benefits, utility assistance (LIHEAP), unemployment assistance, affordable housing assistance, or be an Oregon Health Plan member, Pell Grant recipient, or income-eligible TriMet Honored Citizen;
+
+* Have a validated suma account;
+
+* Satisfy Lyft’s eligibility requirements as contained in the [Lyft Terms of Service](https://www.lyft.com/terms).
+
+Suma app users who are not eligible to participate in the Biketown Pilot Program will not be able to see Biketown e-bikes or vehicles in the suma app and will not be able to access Biketown Pilot Program services during the Biketown Pilot Program Term.
+
+**3\) Term.** The Biketown Pilot Program will run from April 1, 2025, through July 30, 2025 (“**Term**”).
+
+**4\) Credits**. Each month for three (3) months, you will receive eighty-five dollars ($85.00) in Biketown Pilot Program credit. This credit will be available in your suma account to spend on Biketown Pilot Program e-bike and e-scooter rides only. Credits will not be expendable after July 30, 2025\. When each new month of your participation in the Biketown Pilot Programs begins, you will automatically receive a new allotment of Biketown Pilot Program credits. If you use all of your credits either before new credits are added to your account or after you receive your last allowance of credits, then you may use your personal credit or debit card to purchase additional Biketown Pilot Program e-bike or e-scooter rides through the suma app on an as-requested basis. You will not be able to purchase additional discounted e-bike or e-scooter rides as part of the Biketown Pilot Program after July 30, 2025\.
+
+These credits have no cash value or any other value outside of the suma app, are not transferable or refundable, and are not redeemable for cash. Even on the suma app, Biketown Pilot Program credits do not have a cash value. They do not operate or serve as stored value facilities in any way. You may not sell, transfer, trade, gift, or otherwise exchange Biketown Pilot Program credits. Biketown Pilot Program credits do not roll-over from month-to-month. Unused credits will expire at the end of each month and all credits will expire at the end of the Term.
+
+**5\) Payments.** You will pay for e-scooter or e-bike rides through the suma app with your monthly Biketown Pilot Program credit, which will automatically be applied to your suma account. Credits are deducted from your account as you reserve available e-bikes and e-scooters.
+
+**6\) Pricing.** Your suma account will be charged whenever you ride a Biketown Pilot Program e-bike or e-scooter during the Term. E-bike rides cost $0.05 per minute, and e-scooters rides cost $0.07 per minute. Biketown Pilot Program charges will be applied against your eighty-five dollars ($85.00) monthly credit first. Unlocking the e-bike or e-scooter is free of charge for Biketown Pilot Program participants. Out-of-station parking costs $1.00 each time you park an e-bike or e-scooter in a non-free zone, which will be labeled as such in the app.
+
+**7\) Returns and Exchanges.** All e-bike and e-scooter rides and services provided during the Biketown Pilot Program are final and non-refundable nor exchangeable.
+
+These Biketown Pilot Program credits can only be used for the limited purpose of booking eligible e-bikes and e-scooters through the suma app.
+
+**8\) DISCLAIMERS.** YOU ACKNOWLEDGE THAT THE SERVICES PROVIDED DURING THE BIKETOWN PILOT PROGRAM ARE "AS IS." SUMA MAKES NO REPRESENTATIONS OR WARRANTIES WITH RESPECT TO THE SERVICES, WHETHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO, IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE. SUMA DISCLAIMS ANY AND ALL LIABILITY ARISING OUT OF OR RELATED TO THE SERVICES PROVIDED DURING THE BIKETOWN PILOT PROGRAM.
+
+**9\) LIMITATION OF LIABILITY.** TO THE FULLEST EXTENT PROVIDED BY LAW, IN NO EVENT WILL SUMA, ITS AFFILIATES, OR THEIR LICENSORS, SERVICE PROVIDERS, EMPLOYEES, AGENTS, OFFICERS, OR DIRECTORS BE LIABLE FOR DAMAGES OF ANY KIND, UNDER ANY LEGAL THEORY, ARISING OUT OF OR IN CONNECTION WITH YOUR PARTICIPATION IN, OR INABILITY TO PARTICIPATE IN, THE BIKETOWN PILOT PROGRAM, ANY SERVICES ASSOCIATED WITH IT, OR SUCH OTHER SERVICES, INCLUDING ANY DIRECT, INDIRECT, SPECIAL, INCIDENTAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES, INCLUDING BUT NOT LIMITED TO, PERSONAL INJURY, PAIN AND SUFFERING, EMOTIONAL DISTRESS, LOSS OF PROFITS, LOSS OF USE, LOSS OF DATA, AND WHETHER CAUSED BY TORT (INCLUDING NEGLIGENCE), BREACH OF CONTRACT, OR OTHERWISE, EVEN IF FORESEEABLE.
+
+THE LIMITATION OF LIABILITY SET OUT ABOVE DOES NOT APPLY TO LIABILITY RESULTING FROM OUR GROSS NEGLIGENCE OR WILLFUL MISCONDUCT OR DEATH OR BODILY INJURY CAUSED BY PRODUCTS YOU PROPERLY USE AS PART OF THE BIKETOWN PILOT PROGRAM.
+
+**10\) Force Majeure.** Suma is not liable for failure to fulfill its obligations under this Addendum or for delays due to causes beyond suma’s reasonable control, including but not limited to, acts of God, natural or artificial disaster, riot, war, strike, delay by carrier, shortage of services, acts or omissions of other parties, acts or omissions of civil or military authority, government priorities, changes in law, material shortages, fire, strikes, floods, epidemics, quarantine restrictions, acts of terrorism, delays in transportation, or inability to obtain labor, materials, or services through its regular sources, which shall be considered as an event of force majeure excusing suma from performance and barring remedies for non-performance.
+
+**12\) Assignment.** You may not assign any rights or obligations under this Addendum.
+
+**13\) Governing Law.** All matters relating to the Biketown Pilot Program or this Addendum, and any dispute or claim arising therefrom or related thereto (in each case, including non-contractual disputes or claims), are governed by and construed in accordance with the laws of the State of Oregon without giving effect to any choice or conflict of law provision or rule (whether of the State of Oregon or any other jurisdiction). Any legal suit, action, or proceeding arising out of, or related to, the Biketown Pilot Program or this Addendum shall be instituted exclusively in the federal courts of the United States or the courts of the State of Oregon, in each case located in the City of Portland and County of Multnomah, although we retain the right to bring any suit, action, or proceeding against you for breach of this Addendum in your country of residence or any other relevant country. You waive any and all objections to the exercise of jurisdiction over you by such courts and to venue in such courts.
+
+**14\) Assent to Addendum and Pass-Through Terms.** By participating in the Biketown Pilot Program, you agree to the terms and conditions of this Addendum, the suma Terms of Use located at [https://app.mysuma.org/app/terms-of-use](https://app.mysuma.org/app/terms-of-use), the suma Privacy Policy located at [https://app.mysuma.org/app/privacy-policy](https://app.mysuma.org/app/privacy-policy), the Lyft Business Terms located at [https://go.lyftbusiness.com/terms-of-service](https://go.lyftbusiness.com/terms-of-service), and the Lyft Terms of Service located at [https://www.lyft.com/terms](https://www.lyft.com/terms), including, but not limited to, their limitation of liability provisions.

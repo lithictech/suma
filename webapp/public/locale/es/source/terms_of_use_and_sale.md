@@ -1,6 +1,6 @@
 # Términos de Uso de Suma
 
-Última modificación: 19 de noviembre de 2024
+Última modificación: 19 de abril de 2025
 
 ### Aceptación de los Términos de Uso
 
@@ -228,3 +228,55 @@ b. "Paquete Sabroso": cinco dólares ($5.00);
 c. Compra simultánea de "Paquete Dulce" y "Paquete Sabroso": diez dólares ($10.00).
 
 **3) Entrega y Título:** Para todos los Productos comprados en Tienda Doña Maria, los Compradores recogerán los Productos comprados en el mercado de Tienda Doña Maria, ubicado en 6784 NE Killingsworth Street, Portland, Oregon 97218. Los Compradores podrán recoger los Productos comprados a partir del 17 de diciembre de 2024 y hasta el 21 de diciembre de 2024, durante el horario comercial habitual de Tienda Doña María. Los compradores se comunicarán y coordinarán con la Tienda Doña María directamente para recoger y recuperar los Productos comprados. El título y el riesgo de pérdida pasan al Comprador al momento de la recolección de los Productos por parte del Comprador en la ubicación comercial de Tienda Doña María.
+
+<br />
+
+---
+
+<br />
+
+# Programa piloto de bicicletas eléctricas y patinetas eléctricas BIKETOWN de Lyft
+
+Este anexo ("Anexo") a los Términos de uso de Suma rige la participación en el Programa piloto de bicicletas eléctricas y scooters eléctricos BIKETOWN de Lyft ("**Piloto de Biketown** **Programa**") realizado por Lyft, Inc. ("Lyft") en colaboración con suma y sus afiliados ("**suma**"), donde las patinetas eléctricas y bicicletas eléctricas BIKETOWN-for-All de Lyft están disponibles para alquilar a través de la aplicación suma. Este Anexo es entre los participantes del Programa Piloto Biketown ("**tú**" o "**su**") y suma. En caso de conflicto entre este Anexo y los Términos de uso de Suma, los términos y condiciones de este Anexo controlan con respecto al Programa Piloto de Biketown.
+
+**1\) Descripción del Programa Piloto Biketown.** Suma planea brindar servicios de alquiler de patinetas eléctricas y bicicletas eléctricas a costo reducido (“**Servicios**") a los residentes elegibles de Portland a través de una asociación con Lyft. Los participantes del Programa Piloto de Biketown probarán este servicio de conformidad con este Anexo. Los participantes también recibirán capacitación en seguridad y brindarán comentarios sobre el Programa Piloto de Biketown durante el término del Programa Piloto de Biketown.
+
+**2\)** **Elegibilidad.** Para ser elegible para participar en el Programa Piloto de Biketown, debe:
+
+* Tener al menos dieciséis (16) años de edad o más;
+
+* Recibir beneficios SNAP, asistencia con servicios públicos (LIHEAP), asistencia por desempleo, asistencia para vivienda asequible o ser miembro del Plan de Salud de Oregón, beneficiario de la Beca Pell o Ciudadano de Honor de TriMet elegible por sus ingresos;
+
+* Tener una cuenta suma validada;
+
+* Satisfacer los requisitos de elegibilidad de Lyft según lo dispuesto en el [Términos de servicio de Lyft](https://www.lyft.com/terms).
+
+Los usuarios de la aplicación Suma que no sean elegibles para participar en el Programa Piloto de Biketown no podrán ver las bicicletas eléctricas o los vehículos de Biketown en la aplicación suma y no podrán acceder a los servicios del Programa Piloto de Biketown durante el término del Programa Piloto de Biketown.
+
+**3\) Término.** El Programa Piloto Biketown se ejecutará desde el 1 de abril de 2025 hasta el 30 de julio de 2025 ("**Término**”).
+
+**4\) Créditos**. Cada mes durante tres (3) meses, recibirá ochenta y cinco dólares ($85,00) en crédito del Programa Piloto de Biketown. Este crédito estará disponible en su cuenta suma para gastarlo en paseos en patinetas eléctricas o bicicletas eléctricas del Programa Piloto Biketown únicamente. Los créditos no serán prescindibles después del 30 de julio de 2025\. Cuando comience cada nuevo mes de su participación en los Programas Piloto de Biketown, recibirá automáticamente una nueva asignación de créditos del Programa Piloto de Biketown. Si usa todos sus créditos antes de que se agreguen nuevos créditos a su cuenta o después de recibir su última asignación de créditos, puede usar su tarjeta de crédito o débito personal para comprar paseos adicionales en patinetas eléctricas y bicicletas eléctricas del Programa Piloto de Biketown a través de la aplicación suma, según lo solicite. No podrá comprar viajes adicionales en patinetas eléctricas o bicicletas eléctricas con descuento como parte del Programa Piloto de Biketown después del 30 de julio de 2025\.
+
+Estos créditos no tienen valor en efectivo ni ningún otro valor fuera de la aplicación suma, no son transferibles ni reembolsables y no son canjeables por efectivo. Incluso en la aplicación suma, los créditos del Programa Piloto Biketown no tienen valor en efectivo. No operan ni sirven como instalaciones de valor almacenado de ninguna manera. No puede vender, transferir, intercambiar, regalar ni intercambiar de otro modo créditos del Programa Piloto de Biketown. Los créditos del Programa Piloto de Biketown no se acumulan de mes a mes. Los créditos no utilizados vencerán al final de cada mes y todos los créditos vencerán al final del término.
+
+**5\) Pagos.** Pagará los paseos patinetas eléctricas o bicicletas eléctricas a través de la aplicación suma con su crédito mensual del Programa Piloto Biketown, que se aplicará automáticamente a su cuenta suma. Los créditos se deducen de su cuenta al reservar bicicletas eléctricas y scooters eléctricos disponibles.
+
+**6\) Precios.** Se cargará a su cuenta suma cada vez que utilice una bicicleta eléctrica o un scooter eléctrico del Programa Piloto de Biketown durante el Término. Los paseos en bicicletas eléctricas cuestan $0,05 por minuto y los paseos en scooters eléctricos cuestan $0,07 por minuto. Los cargos del programa piloto de Biketown se aplicarán primero a su crédito mensual de ochenta y cinco dólares ($85,00). Desbloquear la bicicleta eléctrica o la patineta eléctrica es gratuito para los participantes del Programa Piloto de Biketown. El estacionamiento fuera de la estación cuesta $1,00 cada vez que estacionas una bicicleta eléctrica o una patineta eléctrica en una zona no libre, que estará etiquetada como tal en la aplicación.
+
+**7\) Devoluciones y Cambios.** Todos los viajes y servicios en bicicletas eléctricas y scooters eléctricos proporcionados durante el Programa Piloto de Biketown son finales y no reembolsables ni intercambiables.
+
+Estos créditos del Programa Piloto de Biketown solo se pueden utilizar con el propósito limitado de reservar bicicletas y patinetas eléctricas elegibles a través de la aplicación suma.
+
+**8\) DESCARGOS DE RESPONSABILIDAD.** USTED RECONOCE QUE LOS SERVICIOS PROPORCIONADOS DURANTE EL PROGRAMA PILOTO DE BIKETOWN SON "TAL CUAL". SUMA NO HACE DECLARACIONES NI GARANTÍAS CON RESPECTO A LOS SERVICIOS, YA SEA EXPRESAS O IMPLÍCITAS, INCLUYENDO, PERO NO LIMITADO A, GARANTÍAS IMPLÍCITAS DE COMERCIABILIDAD E IDONEIDAD PARA UN PROPÓSITO PARTICULAR. SUMA RENUNCIA A TODA RESPONSABILIDAD DERIVADA DE O RELACIONADA CON LOS SERVICIOS PROPORCIONADOS DURANTE EL PROGRAMA PILOTO DE BIKETOWN.
+
+**9\) LIMITACIÓN DE RESPONSABILIDAD.** EN LA MEDIDA MÁXIMA DISPUESTA POR LA LEY, EN NINGÚN CASO SUMA, SUS AFILIADOS O SUS LICENCIANTES, PROVEEDORES DE SERVICIOS, EMPLEADOS, AGENTES, FUNCIONARIOS O DIRECTORES SERÁN RESPONSABLES POR DAÑOS DE NINGÚN TIPO, BAJO CUALQUIER TEORÍA LEGAL, QUE SURJAN DE O EN RELACIÓN CON SU PARTICIPACIÓN O INCAPACIDAD DE PARTICIPAR. EN EL PROGRAMA PILOTO DE BIKETOWN, CUALQUIER SERVICIO ASOCIADO CON ÉL O TALES OTROS SERVICIOS, INCLUYENDO CUALQUIER DAÑO DIRECTO, INDIRECTO, ESPECIAL, INCIDENTAL, CONSECUENTE O PUNITIVO, INCLUYENDO, PERO NO LIMITADO A, LESIONES PERSONALES, DOLOR Y SUFRIMIENTO, ANGUSTIA EMOCIONAL, PÉRDIDA DE GANANCIAS, PÉRDIDA DE USO, PÉRDIDA DE DATOS Y YA SEA CAUSADO POR AGRAVIO (INCLUIDA NEGLIGENCIA), INCUMPLIMIENTO DE CONTRATO O DE OTRA MANERA, INCLUSO SI ES PREVISIBLE.
+
+LA LIMITACIÓN DE RESPONSABILIDAD ESTABLECIDA ANTERIORMENTE NO SE APLICA A LA RESPONSABILIDAD QUE RESULTE DE NUESTRA NEGLIGENCIA GRAVE O MALA CONDUCTA INTENCIONAL O MUERTE O LESIONES CORPORALES CAUSADAS POR PRODUCTOS QUE USTED UTILIZA CORRECTAMENTE COMO PARTE DEL PROGRAMA PILOTO DE BIKETOWN.
+
+**10\) Fuerza Mayor.** Suma no es responsable por el incumplimiento de sus obligaciones bajo este Anexo o por retrasos debidos a causas fuera del control razonable de suma, incluidos, entre otros, casos fortuitos, desastres naturales o artificiales, disturbios, guerras, huelgas, retrasos por parte del transportista, escasez de servicios, actos u omisiones de otras partes, actos u omisiones de autoridades civiles o militares, prioridades gubernamentales, cambios en la ley, escasez de materiales, incendios, huelgas, inundaciones, epidemias, restricciones de cuarentena, actos de terrorismo, retrasos en el transporte, o imposibilidad de obtener mano de obra, materiales o servicios a través de sus fuentes habituales, lo que se considerará como un evento de fuerza mayor que exime a suma del desempeño y excluye recursos por incumplimiento.
+
+**12\) Asignación.** No puede ceder ningún derecho u obligación en virtud de este Anexo.
+
+**13\) Ley Aplicable.** Todos los asuntos relacionados con el Programa Piloto de Biketown o este Anexo, y cualquier disputa o reclamo que surja del mismo o esté relacionado con el mismo (en cada caso, incluidas las disputas o reclamos no contractuales), se rigen e interpretan de acuerdo con las leyes del Estado de Oregon sin dar efecto a ninguna disposición o regla de elección o conflicto de leyes (ya sea del Estado de Oregon o de cualquier otra jurisdicción). Cualquier demanda, acción o procedimiento legal que surja de, o esté relacionado con, el Programa Piloto de Biketown o este Anexo se iniciará exclusivamente en los tribunales federales de los Estados Unidos o los tribunales del Estado de Oregón, en cada caso ubicados en la ciudad de Portland y el Condado de Multnomah, aunque nos reservamos el derecho de entablar cualquier demanda, acción o procedimiento en su contra por incumplimiento de este Anexo en su país de residencia o cualquier otro país relevante. Usted renuncia a todas y cada una de las objeciones al ejercicio de jurisdicción sobre usted por parte de dichos tribunales y al lugar de competencia en dichos tribunales.
+
+**14\) Consentimiento al Anexo y Términos de Transferencia.** Al participar en el Programa Piloto de Biketown, usted acepta los términos y condiciones de este Anexo, los Términos de Uso suma ubicados en [https://app.mysuma.org/app/terms-of-use](https://app.mysuma.org/app/terms-of-use), la Política de Privacidad de suma ubicada en [https://app.mysuma.org/app/privacy-policy](https://app.mysuma.org/app/privacy-policy), los Términos comerciales de Lyft ubicados en [https://go.lyftbusiness.com/terms-of-service](https://go.lyftbusiness.com/terms-of-service)y los Términos de servicio de Lyft ubicados en [https://www.lyft.com/terms](https://www.lyft.com/terms), incluidas, entre otras, sus disposiciones de limitación de responsabilidad.

@@ -8,7 +8,7 @@
   },
   "auth": {
     "agree_aria_label": "Aceptar los terminos",
-    "sign_up_agreement": "Acepto y estoy de acuerdo con suma's [Términos de uso](/términos-de-uso) y [Política de privacidad](/privacy-policy). También acepto recibir SMS y/o MMS periódicos de suma. Se pueden aplicar tarifas de mensajes y datos. La frecuencia de los mensajes puede variar según su actividad y configuración. Envíe HELP para obtener más información. Envíe STOP para dejar de recibir mensajes."
+    "sign_up_agreement": "Acepto y estoy de acuerdo con suma's [Términos de uso](/terms-of-use) y [Política de privacidad](/privacy-policy). También acepto recibir SMS y/o MMS periódicos de suma. Se pueden aplicar tarifas de mensajes y datos. La frecuencia de los mensajes puede variar según su actividad y configuración. Envíe HELP para obtener más información. Envíe STOP para dejar de recibir mensajes."
   },
   "common": {
     "add_to_homescreen": "Agregar a pantalla principal",
