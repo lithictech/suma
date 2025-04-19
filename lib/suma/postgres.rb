@@ -78,6 +78,7 @@ module Suma::Postgres
     "suma/message/body",
     "suma/message/delivery",
     "suma/message/preferences",
+    "suma/mobility/gbfs_feed",
     "suma/mobility/restricted_area",
     "suma/mobility/trip",
     "suma/mobility/vehicle",

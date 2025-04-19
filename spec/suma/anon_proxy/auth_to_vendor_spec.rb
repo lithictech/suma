@@ -97,16 +97,6 @@ RSpec.describe Suma::AnonProxy::AuthToVendor, :db do
       Suma::Lyft.pass_authorization = "Basic xyz"
       Suma::Lyft.pass_email = "a@b.c"
       Suma::Lyft.pass_org_id = "1234"
-      @vendor_service_rate = Suma::Fixtures.vendor_service_rate.create
-      @vendor_service = Suma::Fixtures.vendor_service.
-        mobility.
-        create(
-          vendor: Suma::Lyft.mobility_vendor,
-          mobility_vendor_adapter_key: "lyft_deeplink",
-          charge_after_fulfillment: true,
-        )
-      @vendor_service_rate.add_service(@vendor_service)
-      Suma::Lyft.pass_vendor_service_rate_id = @vendor_service_rate.id
     end
 
     it_behaves_like "an AuthToVendor"

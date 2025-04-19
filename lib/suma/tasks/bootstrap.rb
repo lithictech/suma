@@ -95,6 +95,7 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
         rate_unit_amount: Money.new(7),
         mobility_vendor_adapter_key: "lime_deeplink",
       )
+      # Lime: "https://data.lime.bike/api/partners/v2/gbfs_transit"
       lyft_vs = self.create_mobility_vendor_service(
         vendor_name: "Lyft",
         internal_name: "biketown_demo_mobility_deeplink",
@@ -104,6 +105,10 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
         rate_surcharge: Money.new(0),
         rate_unit_amount: Money.new(10),
         mobility_vendor_adapter_key: "lyft_deeplink",
+      )
+      Suma::Mobility::GbfsFeed.create(
+        feed_root_url: "https://gbfs.lyft.com/gbfs/2.3/pdx/en",
+        vendor: lyft_vs.vendor,
       )
       self.sync_bikes(vendor_service: lime_vs, vehicle_type: "escooter")
       self.sync_bikes(vendor_service: lyft_vs, vehicle_type: "ebike")

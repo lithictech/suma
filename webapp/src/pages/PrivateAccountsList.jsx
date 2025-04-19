@@ -62,7 +62,7 @@ export default function PrivateAccountsList() {
   return (
     <>
       <LayoutContainer gutters top>
-        <LinearBreadcrumbs back="/dashboard" />
+        <LinearBreadcrumbs back />
         <h2>{t("titles:private_accounts")}</h2>
         <p className="text-secondary">{t("private_accounts:intro")}</p>
       </LayoutContainer>
@@ -197,13 +197,14 @@ function PrivateAccount({ account, onHelp }) {
     );
   }
   return (
-    <Stack direction="vertical" className="align-items-start">
+    <Stack direction="vertical" className="align-items-center">
       <SumaImage
         image={vendorImage}
-        height={80}
+        h={80}
         params={{ crop: "none", fmt: "png", flatten: [255, 255, 255] }}
         variant="dark"
-        className="mb-3"
+        className="mb-4"
+        style={{ maxWidth: "100%" }}
       />
       <Alert
         variant="success"

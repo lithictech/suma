@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require "suma/mobility/gbfs"
-
 require "suma/http"
 
 module Suma::Lime
@@ -12,31 +10,16 @@ module Suma::Lime
 
   configurable(:lime) do
     setting :api_root, "https://external-api.lime.bike/api/maas/v1/partner"
-    setting :gbfs_root, "https://data.lime.bike/api/partners/v2/gbfs_transit"
     setting :auth_token, UNCONFIGURED_AUTH_TOKEN
+    # Slug of the Vendor to use for deeplinking into the Lime app.
+    setting :deeplink_vendor_slug, "lime"
   end
-
-  def self.configured? = self.auth_token != UNCONFIGURED_AUTH_TOKEN
-
-  VENDOR_NAME = "Lime"
 
   # @return [Suma::Vendor]
-  def self.mobility_vendor
-    return Suma.cached_get("lime_mobility_vendor") do
-      Suma::Vendor.find_or_create_or_find(name: VENDOR_NAME)
+  def self.deeplink_vendor
+    return Suma.cached_get("lime_deeplink_vendor") do
+      Suma::Vendor.find!(slug: self.deeplink_vendor_slug)
     end
-  end
-
-  class LimeGbfsHttpClient < Suma::Mobility::Gbfs::HttpClient
-    # Lime 404's on these. Maybe we should be looking at the gbfs meta/index file to see what's supported.
-    # Can add in the future.
-    def fetch_station_status = nil
-    def fetch_station_information = nil
-  end
-
-  # @return [Suma::Mobility::Gbfs::HttpClient]
-  def self.gbfs_http_client
-    return LimeGbfsHttpClient.new(api_host: self.gbfs_root, auth_token: self.auth_token)
   end
 
   def self.api_headers

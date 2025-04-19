@@ -26,26 +26,20 @@ RSpec.describe Suma::Mobility::Gbfs::HttpClient do
       expect(got).to eq({"x" => 1})
       expect(req).to have_been_made
     end
-  end
 
-  describe "lime" do
-    it "returns nil for station information and status" do
-      req = stub_request(:get, "https://data.lime.bike/api/partners/v2/gbfs_transit/free_bike_status.json").
-        to_return(json_response({x: 1}))
-      expect(Suma::Lime.gbfs_http_client.fetch_free_bike_status).to eq({"x" => 1})
+    it "returns nil for a 404" do
+      req = stub_request(:get, "https://mysuma.org/foo.json").
+        to_return(status: 404)
+
+      expect(client.fetch_json("foo")).to be_nil
       expect(req).to have_been_made
-      expect(Suma::Lime.gbfs_http_client.fetch_station_information).to be_nil
-      expect(Suma::Lime.gbfs_http_client.fetch_station_status).to be_nil
     end
-  end
 
-  describe "lyft" do
-    it "fetches" do
-      req = stub_request(:get, "https://gbfs.lyft.com/gbfs/2.3/pdx/en/station_information.json").
-        to_return(json_response({x: 1}))
+    it "raises other http errors" do
+      req = stub_request(:get, "https://mysuma.org/foo.json").
+        to_return(status: 403)
 
-      expect(Suma::Lyft.gbfs_http_client.fetch_station_information).to eq({"x" => 1})
-      expect(req).to have_been_made
+      expect { client.fetch_json("foo") }.to raise_error(Suma::Http::Error)
     end
   end
 end

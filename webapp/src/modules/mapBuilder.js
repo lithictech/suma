@@ -22,10 +22,10 @@ import isUndefined from "lodash/isUndefined";
 // to an image, so these icons can be loaded dynamically.
 const iconNameLookup = {
   ebike: {
-    biketown_demo_mobility_deeplink: biketownEbikeIcon,
+    biketown: biketownEbikeIcon,
   },
   escooter: {
-    lime_demo_mobility_deeplink: limeEscooterIcon,
+    lime: limeEscooterIcon,
   },
 };
 
@@ -289,7 +289,8 @@ export default class MapBuilder {
     lat = lat * precisionFactor;
     lng = lng * precisionFactor;
     const vehicleImg =
-      (iconNameLookup[vehicleType] || {})[vehicleProvider.slug] || unknownVehicleIcon;
+      (iconNameLookup[vehicleType] || {})[vehicleProvider.vendorSlug] ||
+      unknownVehicleIcon;
     const vehicleIcon = this._l.divIcon({
       html: `
         <img src="${scooterContainer}" alt=""/>

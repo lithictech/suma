@@ -58,5 +58,23 @@ RSpec.describe "Suma::Mobility::Vehicle", :db do
       expect(Sentry).to receive(:capture_message)
       expect(v.deep_link_for_user_agent(desktop_ua)).to eq("http://localhost:22004/error")
     end
+
+    it "uses Biketown urls if the vendor is Biketown and the vehicle is an ebike" do
+      Suma::Mobility::VendorAdapter::Fake.uses_deep_linking = true
+      v.vehicle_type = "ebike"
+      canonical = "https://www.biketownpdx.com/lastmile_qr_scan"
+      v.rental_uris = {"android" => canonical}
+      expect(v.deep_link_for_user_agent(android_ua)).to eq(canonical)
+      v.rental_uris = {"android" => "https://biketownpdx.com/lastmile_qr_scan"}
+      expect(v.deep_link_for_user_agent(android_ua)).to eq(canonical)
+      v.rental_uris = {"android" => "https://pdx.lft.to/lastmile_qr_scan"}
+      expect(v.deep_link_for_user_agent(android_ua)).to eq(canonical)
+      v.rental_uris = {"android" => "https://lyft.biketownpdx.com/lastmile_qr_scan"}
+      expect(v.deep_link_for_user_agent(android_ua)).to eq(canonical)
+
+      v.vehicle_type = "escooter"
+      v.rental_uris = {"android" => "https://lyft.biketownpdx.com/lastmile_qr_scan"}
+      expect(v.deep_link_for_user_agent(android_ua)).to eq("https://lyft.biketownpdx.com/lastmile_qr_scan")
+    end
   end
 end

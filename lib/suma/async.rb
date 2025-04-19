@@ -29,6 +29,8 @@ module Suma::Async
     "suma/async/frontapp_list_sync",
     "suma/async/frontapp_upsert_contact",
     "suma/async/funding_transaction_processor",
+    "suma/async/gbfs_sync_enqueue",
+    "suma/async/gbfs_sync_run",
     "suma/async/hybrid_search_reindex",
     "suma/async/lyft_pass_trip_sync",
     "suma/async/member_default_relations",
@@ -43,9 +45,6 @@ module Suma::Async
     "suma/async/reset_code_update_twilio",
     "suma/async/signalwire_process_optouts",
     "suma/async/stripe_refunds_backfiller",
-    "suma/async/sync_lime_free_bike_status_gbfs",
-    "suma/async/sync_lime_geofencing_zones_gbfs",
-    "suma/async/sync_lyft_free_bike_status_gbfs",
   ].freeze
 
   configurable(:async) do
