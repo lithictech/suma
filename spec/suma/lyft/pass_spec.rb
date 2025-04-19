@@ -11,11 +11,14 @@ RSpec.describe Suma::Lyft::Pass, :db, reset_configuration: Suma::Lyft do
     Suma::Lyft.pass_email = "a@b.c"
     Suma::Lyft.pass_org_id = "1234"
 
+    @vendor = Suma::Fixtures.vendor.create
+    Suma::Lyft.pass_vendor_slug = @vendor.slug
+
     @vendor_service_rate = Suma::Fixtures.vendor_service_rate.create
     @vendor_service = Suma::Fixtures.vendor_service.
       mobility.
       create(
-        vendor: Suma::Lyft.mobility_vendor,
+        vendor: @vendor,
         mobility_vendor_adapter_key: "lyft_deeplink",
         charge_after_fulfillment: true,
       )

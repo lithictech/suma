@@ -11,7 +11,7 @@ class Suma::Lyft::Pass
   include Appydays::Loggable
 
   CREDENTIAL_SERVICE = "lyft-pass-access-token"
-  # Credentials that expire before this far from now,
+  # Credentials that expire before this far from now
   # should be thrown out for a new credential.
   EXPIRES_AT_FUZZ = 30.minutes
 
@@ -23,6 +23,7 @@ class Suma::Lyft::Pass
         email: Suma::Lyft.pass_email,
         authorization: Suma::Lyft.pass_authorization,
         org_id: Suma::Lyft.pass_org_id,
+        vendor: Suma::Vendor.find!(slug: Suma::Lyft.pass_vendor_slug),
         vendor_service_rate: Suma::Vendor::ServiceRate.find!(Suma::Lyft.pass_vendor_service_rate_id),
       )
     end
@@ -31,7 +32,7 @@ class Suma::Lyft::Pass
 
     # Cache +programs_dataset+ for +PROGRAMS_CACHE_TTL+.
     # We use the list in certain app code that doesn't really fit with normal eager loading,
-    # so this is sort of a gross workaround. Can adjust it in the future,
+    # so this is sort of a gross work-around. Can adjust it in the future,
     # like if programs and AnonProxy get more tightly integrated.
     def programs_cached(now: Time.now)
       cached_at = Suma.cached_get("lyft-pass-programs-cached-at") { nil }
@@ -43,7 +44,7 @@ class Suma::Lyft::Pass
     end
   end
 
-  # After +authenticate+ is called, credential will be a valid credential.
+  # After +authenticate+ is called, the credential will be a valid credential.
   # @return [Suma::ExternalCredential]
   attr_reader :credential
 
@@ -65,16 +66,17 @@ class Suma::Lyft::Pass
   # @return [Suma::Vendor::ServiceRate]
   attr_reader :vendor_service_rate
 
-  def initialize(email:, authorization:, org_id:, vendor_service_rate:)
+  def initialize(email:, authorization:, org_id:, vendor:, vendor_service_rate:)
     raise ArgumentError, "email cannot be blank" if email.blank?
     raise ArgumentError, "authorization cannot be blank" if authorization.blank?
     raise ArgumentError, "org_id cannot be blank" if org_id.blank?
+    raise ArgumentError, "vendor cannot be nil" if vendor.nil?
     raise ArgumentError, "vendor_service_rate cannot be nil" if vendor_service_rate.nil?
     @email = email
     @org_id = org_id
     @vendor_service_rate = vendor_service_rate
     @vendor_service = Suma::Vendor::Service.where(
-      vendor: Suma::Lyft.mobility_vendor,
+      vendor:,
       mobility_vendor_adapter_key: "lyft_deeplink",
     ).first or
       raise Suma::InvalidPrecondition, "No mobility vendor service for Lyft vendor and configured rate"

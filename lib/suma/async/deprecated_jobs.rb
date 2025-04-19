@@ -14,4 +14,7 @@ Amigo::DeprecatedJobs.install(
   "Async::EnsureDefaultMemberLedgersOnCreate",
   "Async::UpsertFrontappContact",
   "Async::UpsertFrontappContact",
+  "Async::SyncLimeFreeBikeStatusGbfs",
+  "Async::SyncLimeGeofencingZonesGbfs",
+  "Async::SyncLyftFreeBikeStatusGbfs",
 )

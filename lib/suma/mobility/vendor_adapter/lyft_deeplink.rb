@@ -9,7 +9,7 @@ class Suma::Mobility::VendorAdapter::LyftDeeplink
   def uses_deep_linking? = true
 
   def find_anon_proxy_vendor_account(member)
-    vendor = Suma::Vendor.where(name: Suma::Lyft::VENDOR_NAME)
+    vendor = Suma::Lyft.deeplink_vendor
     configuration = Suma::AnonProxy::VendorConfiguration.where(vendor:)
     account = Suma::AnonProxy::VendorAccount.where(configuration:, member:)
     return account.first

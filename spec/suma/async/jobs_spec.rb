@@ -163,11 +163,12 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
       Suma::Lyft.pass_email = "a@b.c"
       Suma::Lyft.pass_org_id = "1234"
 
+      vendor = Suma::Fixtures.vendor.create
+      Suma::Lyft.pass_vendor_slug = vendor.slug
+
       vendor_service_rate = Suma::Fixtures.vendor_service_rate.create
       vendor_service_rate.add_service(
-        Suma::Fixtures.vendor_service.create(
-          vendor: Suma::Lyft.mobility_vendor, mobility_vendor_adapter_key: "lyft_deeplink",
-        ),
+        Suma::Fixtures.vendor_service.create(vendor:, mobility_vendor_adapter_key: "lyft_deeplink"),
       )
       Suma::Lyft.pass_vendor_service_rate_id = vendor_service_rate.id
       Suma::Fixtures.program.create(lyft_pass_program_id: "5678")
@@ -433,75 +434,39 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
     end
   end
 
-  describe "SyncLimeFreeBikeStatusGbfs", reset_configuration: Suma::Lime do
-    before(:each) do
-      Suma::Fixtures.vendor_service(vendor: Suma::Lime.mobility_vendor).mobility.create
-    end
-
-    it "sync lime scooters gbfs" do
-      Suma::Lime.auth_token = "fake token"
-      free_bike_status_req = stub_request(:get, "https://data.lime.bike/api/partners/v2/gbfs_transit/free_bike_status.json").
-        to_return(fixture_response("lime/free_bike_status"))
-      vehicle_types_req = stub_request(:get, "https://data.lime.bike/api/partners/v2/gbfs_transit/vehicle_types.json").
-        to_return(fixture_response("lime/vehicle_types"))
-
-      Suma::Async::SyncLimeFreeBikeStatusGbfs.new.perform(true)
-      expect(free_bike_status_req).to have_been_made
-      expect(vehicle_types_req).to have_been_made
-      expect(Suma::Mobility::Vehicle.all).to have_length(1)
-    end
-
-    it "noops if Lime is not configured" do
-      expect do
-        Suma::Async::SyncLimeFreeBikeStatusGbfs.new.perform(true)
-      end.to_not raise_error
+  describe "GbfsSyncEnqueue" do
+    it "enqueues syncs for all feeds and components requiring a sync" do
+      feed = Suma::Fixtures.mobility_gbfs_feed.create(free_bike_status_enabled: true)
+      expect(Suma::Async::GbfsSyncRun).to receive(:perform_async).with(feed.id, "free_bike_status")
+      Suma::Async::GbfsSyncEnqueue.new.perform(true)
     end
   end
 
-  describe "SyncLimeGeofencingZonesGbfs", reset_configuration: Suma::Lime do
-    before(:each) do
-      Suma::Fixtures.vendor_service(vendor: Suma::Lime.mobility_vendor).mobility.create
-    end
+  describe "GbfsSyncRun" do
+    let(:vendor_service) { Suma::Fixtures.vendor_service.mobility.create }
+    let(:vendor) { vendor_service.vendor }
 
     it "sync geofencing zones gbfs" do
-      Suma::Lime.auth_token = "fake token"
-      geofencing_zone_req = stub_request(:get, "https://data.lime.bike/api/partners/v2/gbfs_transit/geofencing_zones.json").
+      geofencing_zone_req = stub_request(:get, "https://fake.mysuma.org/geofencing_zones.json").
         to_return(fixture_response("lime/geofencing_zone"))
-      vehicle_types_req = stub_request(:get, "https://data.lime.bike/api/partners/v2/gbfs_transit/vehicle_types.json").
+      vehicle_types_req = stub_request(:get, "https://fake.mysuma.org/vehicle_types.json").
         to_return(fixture_response("lime/vehicle_types"))
 
-      Suma::Async::SyncLimeGeofencingZonesGbfs.new.perform(true)
+      feed = Suma::Fixtures.mobility_gbfs_feed.create(
+        vendor:,
+        feed_root_url: "https://fake.mysuma.org",
+        geofencing_zones_enabled: true,
+      )
+      Suma::Async::GbfsSyncRun.new.perform(feed.id, "geofencing_zones")
       expect(geofencing_zone_req).to have_been_made
       expect(vehicle_types_req).to have_been_made
       expect(Suma::Mobility::RestrictedArea.all).to have_length(1)
     end
 
-    it "noops if Lime is not configured" do
+    it "noops if the sync is not configured" do
+      feed = Suma::Fixtures.mobility_gbfs_feed.create
       expect do
-        Suma::Async::SyncLimeGeofencingZonesGbfs.new.perform(true)
-      end.to_not raise_error
-    end
-  end
-
-  describe "SyncLyftFreeBikeStatusGbfs", reset_configuration: Suma::Lyft do
-    before(:each) do
-      Suma::Fixtures.vendor_service(vendor: Suma::Lyft.mobility_vendor).mobility.create
-    end
-
-    it "sync lyft scooters gbfs" do
-      Suma::Lyft.sync_enabled = true
-      reqs = ["free_bike_status", "vehicle_types", "station_information", "station_status"].map do |s|
-        stub_request(:get, "https://gbfs.lyft.com/gbfs/2.3/pdx/en/#{s}.json").
-          to_return(fixture_response("lyft/#{s}"))
-      end
-
-      Suma::Async::SyncLyftFreeBikeStatusGbfs.new.perform(true)
-      expect(reqs).to all(have_been_made)
-    end
-
-    it "noops if Lyft is not configured" do
-      expect do
-        Suma::Async::SyncLyftFreeBikeStatusGbfs.new.perform(true)
+        Suma::Async::GbfsSyncRun.new.perform(feed.id, :free_bike_status)
       end.to_not raise_error
     end
   end

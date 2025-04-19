@@ -9,7 +9,7 @@ class Suma::Mobility::VendorAdapter::LimeDeeplink
   def uses_deep_linking? = true
 
   def find_anon_proxy_vendor_account(member)
-    vendor = Suma::Vendor.where(name: Suma::Lime::VENDOR_NAME)
+    vendor = Suma::Lime.deeplink_vendor
     configuration = Suma::AnonProxy::VendorConfiguration.where(vendor:)
     account = Suma::AnonProxy::VendorAccount.where(configuration:, member:)
     return account.first

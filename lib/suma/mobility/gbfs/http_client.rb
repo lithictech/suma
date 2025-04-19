@@ -22,11 +22,18 @@ class Suma::Mobility::Gbfs::HttpClient < Suma::Mobility::Gbfs::Client
   end
 
   def fetch_json(part)
-    response = Suma::Http.get(
-      "#{self.api_host}/#{part}.json",
-      headers: self.headers,
-      logger: self.logger,
-    )
+    begin
+      response = Suma::Http.get(
+        "#{self.api_host}/#{part}.json",
+        headers: self.headers,
+        logger: self.logger,
+      )
+    rescue Suma::Http::Error => e
+      # 404's usually mean the item isn't supported (i.e., status_information for a dockless feed).
+      # This could be made faster in the future and checked in the gbfs.json file first, but for now let's just 404.
+      return nil if e.status == 404
+      raise e
+    end
     return response.parsed_response
   end
 
