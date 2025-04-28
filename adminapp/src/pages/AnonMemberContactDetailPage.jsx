@@ -23,23 +23,20 @@ export default function AnonMemberContactDetailPage() {
         },
       ]}
     >
-      {(model) => (
-        <>
-          <RelatedList
-            title="Extenal Accounts"
-            rows={model.vendorAccounts}
-            showMore
-            headers={["Id", "Vendor"]}
-            keyRowAttr="id"
-            toCells={(row) => [
-              <AdminLink model={row} />,
-              <AdminLink model={row.configuration.vendor?.name}>
-                {row.configuration.vendor?.name}
-              </AdminLink>,
-            ]}
-          />
-        </>
-      )}
+      {(model) => [
+        <RelatedList
+          title="Extenal Accounts"
+          rows={model.vendorAccounts}
+          headers={["Id", "Vendor"]}
+          keyRowAttr="id"
+          toCells={(row) => [
+            <AdminLink model={row} />,
+            <AdminLink model={row.configuration.vendor?.name}>
+              {row.configuration.vendor?.name}
+            </AdminLink>,
+          ]}
+        />,
+      ]}
     </ResourceDetail>
   );
 }

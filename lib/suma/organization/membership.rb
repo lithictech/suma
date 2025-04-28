@@ -18,8 +18,9 @@ class Suma::Organization::Membership < Suma::Postgres::Model(:organization_membe
     def verified = self.exclude(verified_organization_id: nil)
   end
 
-  def verified? = !self.verified_organization.nil?
-  def unverified? = !self.verified?
+  def verified? = !self.verified_organization_id.nil?
+  def unverified? = self.unverified_organization_name.to_s != ""
+  def removed? = !self.former_organization_id.nil?
 
   def verified_organization_id=(id)
     self.unverified_organization_name = nil unless id.nil?
@@ -38,6 +39,11 @@ class Suma::Organization::Membership < Suma::Postgres::Model(:organization_membe
     return "verified" if self.verified_organization
     return "removed" if self.former_organization
     return "unverified"
+  end
+
+  def matched_organization
+    return nil unless self.unverified?
+    return Suma::Organization[name: self.unverified_organization_name]
   end
 
   def rel_admin_link = "/membership/#{self.id}"

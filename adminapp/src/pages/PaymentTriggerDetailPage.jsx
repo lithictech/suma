@@ -49,61 +49,58 @@ export default function PaymentTriggerDetailPage() {
         },
       ]}
     >
-      {(model, setModel) => (
-        <>
-          <Programs
-            resource="payment_trigger"
-            programs={model.programs}
-            modelId={model.id}
-            replaceModelData={setModel}
-            makeUpdateRequest={api.updatePaymentTriggerPrograms}
-          />
-          <RelatedList
-            title="Executions"
-            rows={model.executions}
-            showMore
-            keyRowAttr="id"
-            headers={["Id", "At", "To"]}
-            toCells={(row) => [
-              <AdminLink key="bookx" model={row}>
-                {row.bookTransactionId}
-              </AdminLink>,
-              formatDate(row.at),
-              <AdminLink key="recledger" model={row}>
-                {row.receivingLedger.adminLabel}
-              </AdminLink>,
-            ]}
-          />
-          <RelatedList
-            title="Vendor Configurations"
-            rows={model.configurations}
-            keyRowAttr="id"
-            headers={[
-              "Id",
-              "Created",
-              "Vendor",
-              "App Install Link",
-              "Uses Email",
-              "Uses SMS",
-              "Enabled",
-            ]}
-            toCells={(row) => [
-              row.id,
-              formatDate(row.createdAt),
-              <AdminLink key={row.vendor.name} model={row.vendor}>
-                {row.vendor.name}
-              </AdminLink>,
-              <SafeExternalLink key={1} href={row.appInstallLink}>
-                {row.appInstallLink}
-              </SafeExternalLink>,
-              row.usesEmail ? "Yes" : "No",
-              row.usesSms ? "Yes" : "No",
-              row.enabled ? "Yes" : "No",
-            ]}
-          />
-          <AuditActivityList activities={model.auditActivities} />
-        </>
-      )}
+      {(model, setModel) => [
+        <Programs
+          resource="payment_trigger"
+          programs={model.programs}
+          modelId={model.id}
+          replaceModelData={setModel}
+          makeUpdateRequest={api.updatePaymentTriggerPrograms}
+        />,
+        <RelatedList
+          title="Executions"
+          rows={model.executions}
+          keyRowAttr="id"
+          headers={["Id", "At", "To"]}
+          toCells={(row) => [
+            <AdminLink key="bookx" model={row}>
+              {row.bookTransactionId}
+            </AdminLink>,
+            formatDate(row.at),
+            <AdminLink key="recledger" model={row}>
+              {row.receivingLedger.adminLabel}
+            </AdminLink>,
+          ]}
+        />,
+        <RelatedList
+          title="Vendor Configurations"
+          rows={model.configurations}
+          keyRowAttr="id"
+          headers={[
+            "Id",
+            "Created",
+            "Vendor",
+            "App Install Link",
+            "Uses Email",
+            "Uses SMS",
+            "Enabled",
+          ]}
+          toCells={(row) => [
+            row.id,
+            formatDate(row.createdAt),
+            <AdminLink key={row.vendor.name} model={row.vendor}>
+              {row.vendor.name}
+            </AdminLink>,
+            <SafeExternalLink key={1} href={row.appInstallLink}>
+              {row.appInstallLink}
+            </SafeExternalLink>,
+            row.usesEmail ? "Yes" : "No",
+            row.usesSms ? "Yes" : "No",
+            row.enabled ? "Yes" : "No",
+          ]}
+        />,
+        <AuditActivityList activities={model.auditActivities} />,
+      ]}
     </ResourceDetail>
   );
 }

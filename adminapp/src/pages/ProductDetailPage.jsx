@@ -55,45 +55,43 @@ export default function ProductDetailPage() {
         },
       ]}
     >
-      {(model) => (
-        <>
-          <RelatedList
-            title={`Offering Products (${model.offeringProducts?.length})`}
-            addNewLabel="Create Offering Product"
-            addNewLink={createRelativeUrl("/offering-product/new", {
-              productId: model.id,
-              productLabel: model.name.en,
-            })}
-            addNewRole="offering_product"
-            rows={model.offeringProducts}
-            headers={["Id", "Customer Price", "Full Price", "Offering", "Closed"]}
-            keyRowAttr="id"
-            toCells={(row) => [
-              <AdminLink key={row.id} model={row} />,
-              <Money key="customer_price">{row.customerPrice}</Money>,
-              <Money key="undiscounted_price">{row.undiscountedPrice}</Money>,
-              <AdminLink key="offering" model={row.offering}>
-                {row.offering.description.en}
-              </AdminLink>,
-              row.isClosed ? dayjs(row.closedAt).format("lll") : "",
-            ]}
-          />
-          <RelatedList
-            title={`Orders (${model.orders?.length})`}
-            rows={model.orders}
-            headers={["Id", "Created At", "Status", "Member"]}
-            keyRowAttr="id"
-            toCells={(row) => [
-              <AdminLink key="id" model={row} />,
-              formatDate(row.createdAt),
-              row.orderStatus,
-              <AdminLink key="member" model={row.member}>
-                {row.member.name}
-              </AdminLink>,
-            ]}
-          />
-        </>
-      )}
+      {(model) => [
+        <RelatedList
+          title={`Offering Products (${model.offeringProducts?.length})`}
+          addNewLabel="Create Offering Product"
+          addNewLink={createRelativeUrl("/offering-product/new", {
+            productId: model.id,
+            productLabel: model.name.en,
+          })}
+          addNewRole="offering_product"
+          rows={model.offeringProducts}
+          headers={["Id", "Customer Price", "Full Price", "Offering", "Closed"]}
+          keyRowAttr="id"
+          toCells={(row) => [
+            <AdminLink key={row.id} model={row} />,
+            <Money key="customer_price">{row.customerPrice}</Money>,
+            <Money key="undiscounted_price">{row.undiscountedPrice}</Money>,
+            <AdminLink key="offering" model={row.offering}>
+              {row.offering.description.en}
+            </AdminLink>,
+            row.isClosed ? dayjs(row.closedAt).format("lll") : "",
+          ]}
+        />,
+        <RelatedList
+          title={`Orders (${model.orders?.length})`}
+          rows={model.orders}
+          headers={["Id", "Created At", "Status", "Member"]}
+          keyRowAttr="id"
+          toCells={(row) => [
+            <AdminLink key="id" model={row} />,
+            formatDate(row.createdAt),
+            row.orderStatus,
+            <AdminLink key="member" model={row.member}>
+              {row.member.name}
+            </AdminLink>,
+          ]}
+        />,
+      ]}
     </ResourceDetail>
   );
 }

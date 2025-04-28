@@ -1,5 +1,9 @@
 import { dayjs } from "../modules/dayConfig";
-import { Grid, Typography, Box } from "@mui/material";
+import { Typography, Card, CardContent } from "@mui/material";
+import Table from "@mui/material/Table";
+import TableBody from "@mui/material/TableBody";
+import TableCell from "@mui/material/TableCell";
+import TableRow from "@mui/material/TableRow";
 import isBoolean from "lodash/isBoolean";
 import isEmpty from "lodash/isEmpty";
 import isUndefined from "lodash/isUndefined";
@@ -23,25 +27,29 @@ export default function DetailGrid({ title, properties }) {
       return !isEmpty(children);
     });
   return (
-    <Box mt={2}>
-      {title && (
-        <Typography variant="h6" gutterBottom mb={2}>
-          {title}
-        </Typography>
-      )}
-      <Grid container spacing={2} alignItems="center" justifyContent="flex-end">
-        {usedProperties.map(({ label, value, children }, index) => (
-          <React.Fragment key={index}>
-            <Grid item xs={4} sm={3} lg={2} sx={{ paddingTop: "5px!important" }}>
-              <Label>{label}</Label>
-            </Grid>
-            <Grid item xs={8} sm={9} lg={10} sx={{ paddingTop: "5px!important" }}>
-              <Value value={value}>{children}</Value>
-            </Grid>
-          </React.Fragment>
-        ))}
-      </Grid>
-    </Box>
+    <Card>
+      <CardContent sx={{ padding: 4 }}>
+        {title && (
+          <Typography variant="h6" gutterBottom mb={2}>
+            {title}
+          </Typography>
+        )}
+        <Table size="small">
+          <TableBody>
+            {usedProperties.map(({ label, value, children }, index) => (
+              <TableRow key={index}>
+                <TableCell sx={{ padding: 0.25, border: "none" }}>
+                  <Label>{label}</Label>
+                </TableCell>
+                <TableCell sx={{ padding: 0.25, border: "none" }}>
+                  <Value value={value}>{children}</Value>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </CardContent>
+    </Card>
   );
 }
 

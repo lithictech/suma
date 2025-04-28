@@ -170,7 +170,14 @@ module Suma::Service::Helpers
   end
 
   def hybrid_search(dataset, params)
-    return dataset.hybrid_search(params.fetch(:search))
+    search = params.fetch(:search)
+    # Convert US-formatted phone numbers to E164 format (no leading country code)
+    # so they can be matched more explicitly. Otherwise, the spaces in the phone number
+    # are split as tokens, and we get bad results.
+    search = search.gsub(/\(\d\d\d\) \d\d\d-\d\d\d\d/) do |match|
+      match.gsub(/\D/, "")
+    end
+    return dataset.hybrid_search(search)
   end
 
   def use_http_expires_caching(expiration)

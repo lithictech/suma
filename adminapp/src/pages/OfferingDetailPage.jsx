@@ -85,68 +85,65 @@ export default function OfferingDetailPage() {
         },
       ]}
     >
-      {(model, setModel) => (
-        <>
-          <RelatedList
-            title="Fulfillment Options"
-            rows={model.fulfillmentOptions}
-            headers={["Id", "Description", "Type", "Address"]}
-            keyRowAttr="id"
-            toCells={(row) => [
-              row.id,
-              row.description.en,
-              row.type,
-              row.address && oneLineAddress(row.address, false),
-            ]}
-          />
-          <Programs
-            resource="offering"
-            programs={model.programs}
-            modelId={model.id}
-            replaceModelData={setModel}
-            makeUpdateRequest={api.updateOfferingPrograms}
-          />
-          <RelatedList
-            title={`Offering Products (${model.offeringProducts.length})`}
-            addNewLabel="Create Offering Product"
-            addNewLink={createRelativeUrl("/offering-product/new", {
-              offeringId: model.id,
-              offeringLabel: model.description.en,
-            })}
-            addNewRole="offering_product"
-            rows={model.offeringProducts}
-            headers={["Id", "Name", "Vendor", "Customer Price", "Full Price"]}
-            keyRowAttr="id"
-            rowClass={(row) => (row.closedAt ? classes.closed : "")}
-            toCells={(row) => [
-              <AdminLink key="id" model={row} />,
-              <AdminLink key="id" model={row}>
-                {row.productName}
-              </AdminLink>,
-              row.vendorName,
-              <Money key="customer_price">{row.customerPrice}</Money>,
-              <Money key="undiscounted_price">{row.undiscountedPrice}</Money>,
-            ]}
-          />
-          <RelatedList
-            title={`Orders (${model.orders.length})`}
-            rows={model.orders}
-            showMore
-            headers={["Id", "Created", "Member", "Items", "Status"]}
-            keyRowAttr="id"
-            toCells={(row) => [
-              <AdminLink key="id" model={row} />,
-              formatDate(row.createdAt),
-              <AdminLink key="mem" model={row.member}>
-                {row.member.name}
-              </AdminLink>,
-              row.totalItemCount,
-              row.statusLabel,
-            ]}
-          />
-          <AuditActivityList activities={model.auditActivities} />
-        </>
-      )}
+      {(model, setModel) => [
+        <RelatedList
+          title="Fulfillment Options"
+          rows={model.fulfillmentOptions}
+          headers={["Id", "Description", "Type", "Address"]}
+          keyRowAttr="id"
+          toCells={(row) => [
+            row.id,
+            row.description.en,
+            row.type,
+            row.address && oneLineAddress(row.address, false),
+          ]}
+        />,
+        <Programs
+          resource="offering"
+          programs={model.programs}
+          modelId={model.id}
+          replaceModelData={setModel}
+          makeUpdateRequest={api.updateOfferingPrograms}
+        />,
+        <RelatedList
+          title={`Offering Products (${model.offeringProducts.length})`}
+          addNewLabel="Create Offering Product"
+          addNewLink={createRelativeUrl("/offering-product/new", {
+            offeringId: model.id,
+            offeringLabel: model.description.en,
+          })}
+          addNewRole="offering_product"
+          rows={model.offeringProducts}
+          headers={["Id", "Name", "Vendor", "Customer Price", "Full Price"]}
+          keyRowAttr="id"
+          rowClass={(row) => (row.closedAt ? classes.closed : "")}
+          toCells={(row) => [
+            <AdminLink key="id" model={row} />,
+            <AdminLink key="id" model={row}>
+              {row.productName}
+            </AdminLink>,
+            row.vendorName,
+            <Money key="customer_price">{row.customerPrice}</Money>,
+            <Money key="undiscounted_price">{row.undiscountedPrice}</Money>,
+          ]}
+        />,
+        <RelatedList
+          title={`Orders (${model.orders.length})`}
+          rows={model.orders}
+          headers={["Id", "Created", "Member", "Items", "Status"]}
+          keyRowAttr="id"
+          toCells={(row) => [
+            <AdminLink key="id" model={row} />,
+            formatDate(row.createdAt),
+            <AdminLink key="mem" model={row.member}>
+              {row.member.name}
+            </AdminLink>,
+            row.totalItemCount,
+            row.statusLabel,
+          ]}
+        />,
+        <AuditActivityList activities={model.auditActivities} />,
+      ]}
     </ResourceDetail>
   );
 }

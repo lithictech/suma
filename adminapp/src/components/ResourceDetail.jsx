@@ -8,12 +8,14 @@ import Link from "./Link";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import {
+  Box,
   CircularProgress,
   Dialog,
   DialogActions,
   DialogContent,
   DialogContentText,
   DialogTitle,
+  Stack,
 } from "@mui/material";
 import Button from "@mui/material/Button";
 import IconButton from "@mui/material/IconButton";
@@ -49,34 +51,53 @@ export default function ResourceDetail({
     return null;
   }
   title = title || ((m) => `${startCase(resource)} ${m.id}`);
+
+  if (loading) {
+    return <CircularProgress />;
+  }
+  if (isEmpty(state)) {
+    return null;
+  }
+  const topCards = [
+    <DetailGrid
+      key={-1}
+      title={
+        <Title
+          onDelete={
+            apiDelete &&
+            (() => apiDelete({ id }).then(() => navigate(resourceListRoute(resource))))
+          }
+          toEdit={
+            canEdit && canWriteResource(resource) && resourceEditRoute(resource, state)
+          }
+        >
+          {title(state)}
+        </Title>
+      }
+      properties={properties(state, replaceState)}
+    />,
+  ];
+  const bottomComponents = [];
+  if (children) {
+    React.Children.forEach(children(state, replaceState), (c, i) => {
+      if (!c) {
+        return;
+      }
+      if (c.type.name === resourceSummaryTypeName || c.type.name === detailGridTypeName) {
+        topCards.push(<React.Fragment key={i}>{React.cloneElement(c)}</React.Fragment>);
+      } else {
+        bottomComponents.push(
+          <React.Fragment key={i}>{React.cloneElement(c)}</React.Fragment>
+        );
+      }
+    });
+  }
+
   return (
-    <>
-      {loading && <CircularProgress />}
-      {!isEmpty(state) && (
-        <div>
-          <DetailGrid
-            title={
-              <Title
-                onDelete={
-                  apiDelete &&
-                  (() =>
-                    apiDelete({ id }).then(() => navigate(resourceListRoute(resource))))
-                }
-                toEdit={
-                  canEdit &&
-                  canWriteResource(resource) &&
-                  resourceEditRoute(resource, state)
-                }
-              >
-                {title(state)}
-              </Title>
-            }
-            properties={properties(state, replaceState)}
-          />
-          {children && children(state, replaceState)}
-        </div>
-      )}
-    </>
+    <Stack gap={3}>
+      <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2 }}>{topCards}</Box>
+      {bottomComponents}
+    </Stack>
   );
 }
 
@@ -131,3 +152,10 @@ function Title({ toEdit, onDelete, children }) {
     </>
   );
 }
+
+export function ResourceSummary({ children }) {
+  return children;
+}
+
+const resourceSummaryTypeName = (<ResourceSummary />).type.name;
+const detailGridTypeName = (<DetailGrid properties={[]} />).type.name;

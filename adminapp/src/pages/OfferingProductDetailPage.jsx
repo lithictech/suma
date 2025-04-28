@@ -42,7 +42,7 @@ export default function OfferingProductDetailPage() {
         },
       ]}
     >
-      {(model) => (
+      {(model) => [
         <RelatedList
           title={`Orders (${model.orders.length})`}
           rows={model.orders}
@@ -57,8 +57,8 @@ export default function OfferingProductDetailPage() {
             row.totalItemCount,
             row.statusLabel,
           ]}
-        />
-      )}
+        />,
+      ]}
     </ResourceDetail>
   );
 }

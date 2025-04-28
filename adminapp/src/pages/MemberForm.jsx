@@ -1,15 +1,8 @@
-import api from "../api";
 import AddressInputs from "../components/AddressInputs";
-import AutocompleteSearch from "../components/AutocompleteSearch";
 import FormLayout from "../components/FormLayout";
 import ResponsiveStack from "../components/ResponsiveStack";
 import RoleEditor from "../components/RoleEditor";
-import mergeAt from "../shared/mergeAt";
-import withoutAt from "../shared/withoutAt";
-import AddIcon from "@mui/icons-material/Add";
-import DeleteIcon from "@mui/icons-material/Delete";
-import { Box, Divider, FormLabel, Icon, Stack, TextField } from "@mui/material";
-import Button from "@mui/material/Button";
+import { Divider, FormLabel, Stack, TextField } from "@mui/material";
 import merge from "lodash/merge";
 import React from "react";
 
@@ -71,88 +64,7 @@ export default function MemberForm({
             setField("legalEntity", merge(resource.legalEntity, addressObj))
           }
         />
-        <Divider />
-        <OrganizationMemberships
-          memberships={resource.organizationMemberships}
-          setMemberships={(ms) => setField("organizationMemberships", ms)}
-          memberId={resource.id}
-        />
       </Stack>
     </FormLayout>
-  );
-}
-
-function OrganizationMemberships({ memberships, setMemberships, memberId }) {
-  // Include member id to associate with a new membership
-  const initialOrganizationMembership = {
-    verifiedOrganization: {},
-    member: { id: memberId },
-  };
-  const handleAdd = () => {
-    setMemberships([...memberships, initialOrganizationMembership]);
-  };
-  const handleRemove = (index) => {
-    setMemberships(withoutAt(memberships, index));
-  };
-  function handleChange(index, fields) {
-    setMemberships(mergeAt(memberships, index, fields));
-  }
-  return (
-    <>
-      <FormLabel>Organization Memberships</FormLabel>
-      {memberships.map((o, i) => (
-        <Membership
-          key={i}
-          {...o}
-          index={i}
-          onChange={(fields) => handleChange(i, fields)}
-          onRemove={() => handleRemove(i)}
-        />
-      ))}
-      <Button onClick={handleAdd}>
-        <AddIcon /> Add Organization Membership
-      </Button>
-    </>
-  );
-}
-
-function Membership({
-  index,
-  verifiedOrganization,
-  unverifiedOrganizationName,
-  onChange,
-  onRemove,
-}) {
-  let orgText = "The organization the member is a part of.";
-  if (unverifiedOrganizationName) {
-    orgText += ` The member has identified themselves with '${unverifiedOrganizationName}.'`;
-  }
-  return (
-    <Box sx={{ p: 2, border: "1px dashed grey" }}>
-      <Stack
-        direction="row"
-        spacing={2}
-        mb={2}
-        sx={{ justifyContent: "space-between", alignItems: "center" }}
-      >
-        <FormLabel>Membership {index + 1}</FormLabel>
-        <Button onClick={(e) => onRemove(e)} variant="warning" sx={{ marginLeft: "5px" }}>
-          <Icon color="warning">
-            <DeleteIcon />
-          </Icon>
-          Remove
-        </Button>
-      </Stack>
-      <AutocompleteSearch
-        label="Organization"
-        helperText={orgText}
-        value={verifiedOrganization?.name}
-        fullWidth
-        required
-        search={api.searchOrganizations}
-        style={{ flex: 1 }}
-        onValueSelect={(org) => onChange({ verifiedOrganization: org })}
-      />
-    </Box>
   );
 }

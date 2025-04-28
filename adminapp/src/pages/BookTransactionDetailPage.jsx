@@ -52,33 +52,31 @@ export default function BookTransactionDetailPage() {
         },
       ]}
     >
-      {(model) => (
-        <>
-          <RelatedList
-            title="Funding Transactions"
-            rows={model.fundingTransactions}
-            headers={["Id", "Created", "Status", "Amount"]}
-            keyRowAttr="id"
-            toCells={(row) => [
-              <AdminLink key="id" model={row} />,
-              formatDate(row.createdAt),
-              row.status,
-              <Money key="amt">{row.amount}</Money>,
-            ]}
-          />
-          <RelatedList
-            title="Charges"
-            headers={["Id", "At", "Undiscounted Total", "Opaque Id"]}
-            rows={model.charges}
-            toCells={(row) => [
-              <AdminLink model={row} />,
-              formatDate(row.createdAt),
-              <Money key={3}>{row.undiscountedSubtotal}</Money>,
-              row.opaqueId,
-            ]}
-          />
-        </>
-      )}
+      {(model) => [
+        <RelatedList
+          title="Funding Transactions"
+          rows={model.fundingTransactions}
+          headers={["Id", "Created", "Status", "Amount"]}
+          keyRowAttr="id"
+          toCells={(row) => [
+            <AdminLink key="id" model={row} />,
+            formatDate(row.createdAt),
+            row.status,
+            <Money key="amt">{row.amount}</Money>,
+          ]}
+        />,
+        <RelatedList
+          title="Charges"
+          headers={["Id", "At", "Undiscounted Total", "Opaque Id"]}
+          rows={model.charges}
+          toCells={(row) => [
+            <AdminLink model={row} />,
+            formatDate(row.createdAt),
+            <Money key={3}>{row.undiscountedSubtotal}</Money>,
+            row.opaqueId,
+          ]}
+        />,
+      ]}
     </ResourceDetail>
   );
 }

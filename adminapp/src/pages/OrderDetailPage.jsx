@@ -33,62 +33,60 @@ export default function OrderDetailPage() {
         { label: "Total Charged", value: <Money>{model.fundedAmount}</Money> },
       ]}
     >
-      {(model) => (
-        <>
-          <DetailGrid
-            title="Checkout Details"
-            properties={[
-              {
-                label: "Undiscounted Cost",
-                value: <Money>{model.checkout.undiscountedCost}</Money>,
-              },
-              {
-                label: "Customer Cost",
-                value: <Money>{model.checkout.customerCost}</Money>,
-              },
-              { label: "Handling", value: <Money>{model.checkout.handling}</Money> },
-              { label: "Tax", value: <Money>{model.checkout.tax}</Money> },
-              { label: "Total", value: <Money>{model.checkout.total}</Money> },
-              {
-                label: "Instrument",
-                value: model.checkout.paymentInstrument?.adminLabel,
-              },
-              {
-                label: "Fulfillment (En)",
-                value: model.checkout.fulfillmentOption?.description.en,
-              },
-              {
-                label: "Fulfillment (Es)",
-                value: model.checkout.fulfillmentOption?.description.es,
-              },
-            ]}
-          />
-          <RelatedList
-            title="Items"
-            rows={model.items}
-            headers={[
-              "Quantity",
-              "Offering Product",
-              "Vendor",
-              "Customer Price",
-              "Full Price",
-            ]}
-            keyRowAttr="id"
-            toCells={(row) => [
-              row.quantity,
-              <AdminLink key="id" model={row.offeringProduct}>
-                {row.offeringProduct.productName}
-              </AdminLink>,
-              row.offeringProduct.vendorName,
-              <Money key="customer_price">{row.offeringProduct.customerPrice}</Money>,
-              <Money key="undiscounted_price">
-                {row.offeringProduct.undiscountedPrice}
-              </Money>,
-            ]}
-          />
-          <AuditLogs auditLogs={model.auditLogs} />
-        </>
-      )}
+      {(model) => [
+        <DetailGrid
+          title="Checkout Details"
+          properties={[
+            {
+              label: "Undiscounted Cost",
+              value: <Money>{model.checkout.undiscountedCost}</Money>,
+            },
+            {
+              label: "Customer Cost",
+              value: <Money>{model.checkout.customerCost}</Money>,
+            },
+            { label: "Handling", value: <Money>{model.checkout.handling}</Money> },
+            { label: "Tax", value: <Money>{model.checkout.tax}</Money> },
+            { label: "Total", value: <Money>{model.checkout.total}</Money> },
+            {
+              label: "Instrument",
+              value: model.checkout.paymentInstrument?.adminLabel,
+            },
+            {
+              label: "Fulfillment (En)",
+              value: model.checkout.fulfillmentOption?.description.en,
+            },
+            {
+              label: "Fulfillment (Es)",
+              value: model.checkout.fulfillmentOption?.description.es,
+            },
+          ]}
+        />,
+        <RelatedList
+          title="Items"
+          rows={model.items}
+          headers={[
+            "Quantity",
+            "Offering Product",
+            "Vendor",
+            "Customer Price",
+            "Full Price",
+          ]}
+          keyRowAttr="id"
+          toCells={(row) => [
+            row.quantity,
+            <AdminLink key="id" model={row.offeringProduct}>
+              {row.offeringProduct.productName}
+            </AdminLink>,
+            row.offeringProduct.vendorName,
+            <Money key="customer_price">{row.offeringProduct.customerPrice}</Money>,
+            <Money key="undiscounted_price">
+              {row.offeringProduct.undiscountedPrice}
+            </Money>,
+          ]}
+        />,
+        <AuditLogs auditLogs={model.auditLogs} />,
+      ]}
     </ResourceDetail>
   );
 }

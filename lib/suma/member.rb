@@ -418,10 +418,15 @@ class Suma::Member < Suma::Postgres::Model(:members)
   end
 
   def hybrid_search_fields
-    begin
-      phone = self.phone.present? ? Suma::PhoneNumber::US.format(self.phone) : ""
-    rescue ArgumentError
-      phone = self.phone
+    # If we have a US phone, use the phone number formatted, and E164 with and without country code.
+    # If it's empty or non-US, use the value verbatim.
+    if (phone = self.phone).present?
+      begin
+        us_phone = Suma::PhoneNumber::US.format(self.phone)
+        phone = "#{us_phone} #{self.phone} #{self.phone[1..]}"
+      rescue ArgumentError
+        nil
+      end
     end
     orgnames = self.organization_memberships.map(&:verified_organization).select(&:itself).map(&:name)
     return [

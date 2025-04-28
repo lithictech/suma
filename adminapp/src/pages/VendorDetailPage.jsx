@@ -33,43 +33,41 @@ export default function VendorDetailPage() {
         { label: "Slug", value: model.slug },
       ]}
     >
-      {(model) => (
-        <>
-          <RelatedList
-            title="Services"
-            rows={model.services}
-            headers={["Id", "Name"]}
-            keyRowAttr="id"
-            toCells={(row) => [
-              <AdminLink model={row} />,
-              <AdminLink model={row}>{row.name}</AdminLink>,
-            ]}
-          />
-          <RelatedList
-            title="Configuration"
-            rows={model.configurations}
-            headers={["Id", "Vendor", "Auth to Vendor", "Enabled?"]}
-            keyRowAttr="id"
-            toCells={(row) => [
-              <AdminLink key="id" model={row} />,
-              row.vendor.name,
-              row.authToVendorKey,
-              <BoolCheckmark>{row.enabled}</BoolCheckmark>,
-            ]}
-          />
-          <RelatedList
-            title="Products"
-            rows={model.products}
-            headers={["Id", "Created", "Name"]}
-            keyRowAttr="id"
-            toCells={(row) => [
-              <AdminLink key="id" model={row} />,
-              formatDate(row.createdAt),
-              row.name.en,
-            ]}
-          />
-        </>
-      )}
+      {(model) => [
+        <RelatedList
+          title="Services"
+          rows={model.services}
+          headers={["Id", "Name"]}
+          keyRowAttr="id"
+          toCells={(row) => [
+            <AdminLink model={row} />,
+            <AdminLink model={row}>{row.name}</AdminLink>,
+          ]}
+        />,
+        <RelatedList
+          title="Configuration"
+          rows={model.configurations}
+          headers={["Id", "Vendor", "Auth to Vendor", "Enabled?"]}
+          keyRowAttr="id"
+          toCells={(row) => [
+            <AdminLink key="id" model={row} />,
+            row.vendor.name,
+            row.authToVendorKey,
+            <BoolCheckmark>{row.enabled}</BoolCheckmark>,
+          ]}
+        />,
+        <RelatedList
+          title="Products"
+          rows={model.products}
+          headers={["Id", "Created", "Name"]}
+          keyRowAttr="id"
+          toCells={(row) => [
+            <AdminLink key="id" model={row} />,
+            formatDate(row.createdAt),
+            row.name.en,
+          ]}
+        />,
+      ]}
     </ResourceDetail>
   );
 }

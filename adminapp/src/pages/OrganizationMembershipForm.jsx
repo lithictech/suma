@@ -1,15 +1,19 @@
 import api from "../api";
 import AutocompleteSearch from "../components/AutocompleteSearch";
 import FormLayout from "../components/FormLayout";
+import {
+  OrganizationMembershipRemovedIcon,
+  OrganizationMembershipUnverifiedIcon,
+  OrganizationMembershipVerifiedIcon,
+} from "../components/OrganizationMembership";
 import useMountEffect from "../shared/react/useMountEffect";
 import {
   FormControl,
-  FormControlLabel,
   FormLabel,
-  Radio,
-  RadioGroup,
   Stack,
   TextField,
+  ToggleButton,
+  ToggleButtonGroup,
   Typography,
 } from "@mui/material";
 import React from "react";
@@ -33,15 +37,55 @@ export default function OrganizationMembershipForm({
   if (isCreate || resource.unverifiedOrganizationName) {
     // We can create an unverified or verified membership,
     // or modify an unverified into a verified.
-    membershipTypes.push({ label: "Unverified", value: "unverified" });
-    membershipTypes.push({ label: "Verified", value: "verified" });
+    membershipTypes.push({
+      label: (
+        <>
+          <OrganizationMembershipUnverifiedIcon />
+          Unverified
+        </>
+      ),
+      value: "unverified",
+    });
+    membershipTypes.push({
+      label: (
+        <>
+          <OrganizationMembershipVerifiedIcon />
+          Verified
+        </>
+      ),
+      value: "verified",
+    });
   } else if (resource.verifiedOrganization) {
     // We can remove a verified membership.
-    membershipTypes.push({ label: "Verified", value: "verified" });
-    membershipTypes.push({ label: "Removed", value: "removed" });
+    membershipTypes.push({
+      label: (
+        <>
+          <OrganizationMembershipVerifiedIcon />
+          Verified
+        </>
+      ),
+      value: "verified",
+    });
+    membershipTypes.push({
+      label: (
+        <>
+          <OrganizationMembershipRemovedIcon />
+          Removed
+        </>
+      ),
+      value: "removed",
+    });
   } else {
     // We cannot edit a removed membership.
-    membershipTypes.push({ label: "Removed", value: "removed" });
+    membershipTypes.push({
+      label: (
+        <>
+          <OrganizationMembershipRemovedIcon />
+          Removed
+        </>
+      ),
+      value: "removed",
+    });
   }
 
   useMountEffect(() => {
@@ -65,26 +109,29 @@ export default function OrganizationMembershipForm({
   }, [searchParams]);
 
   const handleTypeChange = React.useCallback(
-    (e) => {
-      const mt = e.target.value;
+    (e, mt) => {
       setMembershipType(mt);
       if (mt === "unverified") {
         // If we're choosing unverified, it can only be because we are currently unverified,
         // and may have chosen a verified org. If we did, remove the verified org.
         clearField("verifiedOrganization");
       } else if (mt === "verified") {
-        // If we're choosing verified, it could be because we're unverified->verified
-        // (so clear out any name change), or toggling back from 'removed'
-        // (so clear out the flag).
-        clearField("unverifiedOrganizationName");
-        clearField("removeFromOrganization");
+        // If we're choosing verified, it is because 1) we're unverified->verified.
+        // So clear out any unverified name change, and set verified to the matched org if there is one.
+        // clearField("unverifiedOrganizationName");
+        if (resource.matchedOrganization) {
+          setField("verifiedOrganization", resource.matchedOrganization);
+        }
+        // Or we're 2) toggling back from 'removed'.
+        // In which case, clear the 'remove' flag.
+        // clearField("removeFromOrganization");
       } else if (mt === "removed") {
         // If we're choosing removed, it can only be because we toggled to it from verified.
         // The org is already immutable; so just set the flag to remove the member.
         setField("removeFromOrganization", true);
       }
     },
-    [setField, clearField]
+    [clearField, resource.matchedOrganization, setField]
   );
 
   return (
@@ -110,18 +157,20 @@ export default function OrganizationMembershipForm({
           onValueSelect={(m) => setField("member", m)}
         />
         {membershipTypes.length > 0 && (
-          <FormControl disabled={membershipTypes.length === 1}>
-            <FormLabel>Membership Type</FormLabel>
-            <RadioGroup value={membershipType} row onChange={handleTypeChange}>
+          <FormControl>
+            <FormLabel sx={{ marginBottom: 1 }}>Membership Type</FormLabel>
+            <ToggleButtonGroup
+              exclusive
+              value={membershipType}
+              disabled={membershipTypes.length === 1}
+              onChange={handleTypeChange}
+            >
               {membershipTypes.map(({ label, value }) => (
-                <FormControlLabel
-                  key={value}
-                  value={value}
-                  control={<Radio />}
-                  label={label}
-                />
+                <ToggleButton key={value} value={value}>
+                  {label}
+                </ToggleButton>
               ))}
-            </RadioGroup>
+            </ToggleButtonGroup>
           </FormControl>
         )}
         {membershipType === "unverified" && (
@@ -159,6 +208,12 @@ export default function OrganizationMembershipForm({
               onValueSelect={(org) => setField("verifiedOrganization", org)}
             />
           </>
+        )}
+        {origMembershipType !== "removed" && membershipType === "removed" && (
+          <Typography>
+            Remove this member from the{" "}
+            <strong>{resource.verifiedOrganization.name}</strong> organization.
+          </Typography>
         )}
         {origMembershipType === "removed" && (
           <>

@@ -28,22 +28,20 @@ export default function PaymentLedgerDetailPage() {
         },
       ]}
     >
-      {(model) => (
-        <>
-          <RelatedList
-            title="Vendor Service Categories"
-            headers={["Id", "Name", "Slug"]}
-            rows={model.vendorServiceCategories}
-            keyRowAttr="id"
-            toCells={(row) => [row.id, row.name, row.slug]}
-          />
-          <LedgerBookTransactionsRelatedList
-            ledger={model}
-            title="Book Transactions"
-            rows={model.combinedBookTransactions}
-          />
-        </>
-      )}
+      {(model) => [
+        <RelatedList
+          title="Vendor Service Categories"
+          headers={["Id", "Name", "Slug"]}
+          rows={model.vendorServiceCategories}
+          keyRowAttr="id"
+          toCells={(row) => [row.id, row.name, row.slug]}
+        />,
+        <LedgerBookTransactionsRelatedList
+          ledger={model}
+          title="Book Transactions"
+          rows={model.combinedBookTransactions}
+        />,
+      ]}
     </ResourceDetail>
   );
 }
