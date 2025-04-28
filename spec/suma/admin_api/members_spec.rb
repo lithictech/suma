@@ -52,6 +52,18 @@ RSpec.describe Suma::AdminAPI::Members, :db do
       end
     end
 
+    it "will search a US phone number as an E164 form in search", :hybrid_search do
+      nomatch = Suma::Fixtures.member(phone: "13334445556").create
+      match = Suma::Fixtures.member(phone: "13334445555").create
+
+      Suma::Member.hybrid_search_reindex_all
+
+      get "/v1/members", search: "x (333) 444-5555 y"
+
+      expect(last_response).to have_status(200)
+      expect(last_response_json_body[:items]).to have_same_ids_as(match).ordered
+    end
+
     it_behaves_like "an endpoint with pagination" do
       let(:url) { "/v1/members" }
       def make_item(i)
