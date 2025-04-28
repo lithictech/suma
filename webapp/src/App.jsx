@@ -448,7 +448,6 @@ function AppRoutes() {
           exact
           element={renderWithHocs(
             redirectIfUnauthed,
-            redirectIfUnboarded,
             withScreenLoaderMount(),
             withMetatags({ title: t("titles.preferences") }),
             withLayout({ top: true, gutters: true }),
