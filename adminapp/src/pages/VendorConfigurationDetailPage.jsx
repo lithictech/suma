@@ -43,18 +43,16 @@ export default function VendorConfigurationDetailPage() {
         },
       ]}
     >
-      {(model, setModel) => (
-        <>
-          <Programs
-            resource="vendor_configuration"
-            programs={model.programs}
-            modelId={model.id}
-            replaceModelData={setModel}
-            makeUpdateRequest={api.updateVendorConfigurationPrograms}
-          />
-          <AuditActivityList activities={model.auditActivities} />
-        </>
-      )}
+      {(model, setModel) => [
+        <Programs
+          resource="vendor_configuration"
+          programs={model.programs}
+          modelId={model.id}
+          replaceModelData={setModel}
+          makeUpdateRequest={api.updateVendorConfigurationPrograms}
+        />,
+        <AuditActivityList activities={model.auditActivities} />,
+      ]}
     </ResourceDetail>
   );
 }

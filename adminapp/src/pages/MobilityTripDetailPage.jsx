@@ -50,50 +50,48 @@ export default function MobilityTripDetailPage() {
         { label: "Discount Amount", value: <Money>{model.discountAmount}</Money> },
       ]}
     >
-      {(model) => (
-        <>
-          {model.charge && (
-            <DetailGrid
-              title="Charge"
-              properties={[
-                { label: "ID", value: <AdminLink model={model.charge} /> },
-                {
-                  label: "Created At",
-                  value: formatDate(model.charge.createdAt),
-                },
-                { label: "Opaque ID", value: model.charge.opaqueId },
-                {
-                  label: "Discounted Subtotal",
-                  value: <Money>{model.charge.discountedSubtotal}</Money>,
-                },
-                {
-                  label: "Undiscounted Subtotal",
-                  value: <Money>{model.charge.undiscountedSubtotal}</Money>,
-                },
-              ]}
-            />
-          )}
+      {(model) => [
+        model.charge && (
           <DetailGrid
-            title="Rate"
+            title="Charge"
             properties={[
-              { label: "Id", value: model.rate.id },
-              { label: "Name", value: model.rate.name },
-              { label: "Created", value: formatDate(model.rate.createdAt) },
-              { label: "Unit Amount", value: <Money>{model.rate.unitAmount}</Money> },
-              { label: "Surcharge", value: <Money>{model.rate.surcharge}</Money> },
-              { label: "Unit Offset", value: model.rate.unitOffset },
+              { label: "ID", value: <AdminLink model={model.charge} /> },
               {
-                label: "Undiscounted Amount",
-                value: <Money>{model.rate.undiscountedAmount}</Money>,
+                label: "Created At",
+                value: formatDate(model.charge.createdAt),
+              },
+              { label: "Opaque ID", value: model.charge.opaqueId },
+              {
+                label: "Discounted Subtotal",
+                value: <Money>{model.charge.discountedSubtotal}</Money>,
               },
               {
-                label: "Undiscounted Surcharge",
-                value: <Money>{model.rate.undiscountedSurcharge}</Money>,
+                label: "Undiscounted Subtotal",
+                value: <Money>{model.charge.undiscountedSubtotal}</Money>,
               },
             ]}
           />
-        </>
-      )}
+        ),
+        <DetailGrid
+          title="Rate"
+          properties={[
+            { label: "Id", value: model.rate.id },
+            { label: "Name", value: model.rate.name },
+            { label: "Created", value: formatDate(model.rate.createdAt) },
+            { label: "Unit Amount", value: <Money>{model.rate.unitAmount}</Money> },
+            { label: "Surcharge", value: <Money>{model.rate.surcharge}</Money> },
+            { label: "Unit Offset", value: model.rate.unitOffset },
+            {
+              label: "Undiscounted Amount",
+              value: <Money>{model.rate.undiscountedAmount}</Money>,
+            },
+            {
+              label: "Undiscounted Surcharge",
+              value: <Money>{model.rate.undiscountedSurcharge}</Money>,
+            },
+          ]}
+        />,
+      ]}
     </ResourceDetail>
   );
 }

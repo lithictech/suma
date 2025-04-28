@@ -4,7 +4,7 @@ import Link from "./Link";
 import "./RelatedList.css";
 import SimpleTable from "./SimpleTable";
 import ListAltIcon from "@mui/icons-material/ListAlt";
-import Box from "@mui/material/Box";
+import { Card, CardContent } from "@mui/material";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
 import clsx from "clsx";
@@ -47,6 +47,9 @@ export default function RelatedList({
     [expanded]
   );
 
+  if (showMore === undefined) {
+    showMore = true;
+  }
   if (showMore === true) {
     showMore = DEFAULT_SHOW_MORE;
   }
@@ -63,28 +66,35 @@ export default function RelatedList({
     className = clsx(className, "related-list-table-overflow");
   }
   return (
-    <Box mt={5}>
-      <div ref={topRef} />
-      {title && (
-        <Typography variant="h6" gutterBottom>
-          {title}
-        </Typography>
-      )}
-      {addNew && (
-        <Link to={addNewLink}>
-          <ListAltIcon sx={{ verticalAlign: "middle", marginRight: "5px" }} />
-          {addNewLabel}
-        </Link>
-      )}
-      <SimpleTable tableProps={tableProps} rows={rows} className={className} {...rest} />
-      {showExpandCollapse && (
-        <div className="related-list-expandcollapse">
-          {rowsTrimmed && <div className="related-list-overlay"></div>}
-          <Button variant="link" onClick={handleExpandCollapse}>
-            {rowsTrimmed ? "Expand" : "Collapse"}
-          </Button>
-        </div>
-      )}
-    </Box>
+    <Card>
+      <CardContent>
+        <div ref={topRef} />
+        {title && (
+          <Typography variant="h6" gutterBottom>
+            {title}
+          </Typography>
+        )}
+        {addNew && (
+          <Link to={addNewLink}>
+            <ListAltIcon sx={{ verticalAlign: "middle", marginRight: "5px" }} />
+            {addNewLabel}
+          </Link>
+        )}
+        <SimpleTable
+          tableProps={tableProps}
+          rows={rows}
+          className={className}
+          {...rest}
+        />
+        {showExpandCollapse && (
+          <div className="related-list-expandcollapse">
+            {rowsTrimmed && <div className="related-list-overlay"></div>}
+            <Button variant="link" onClick={handleExpandCollapse}>
+              {rowsTrimmed ? "Expand" : "Collapse"}
+            </Button>
+          </div>
+        )}
+      </CardContent>
+    </Card>
   );
 }

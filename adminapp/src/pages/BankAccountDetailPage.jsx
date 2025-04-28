@@ -1,7 +1,7 @@
 import api from "../api";
 import AdminLink from "../components/AdminLink";
 import DetailGrid from "../components/DetailGrid";
-import ResourceDetail from "../components/ResourceDetail";
+import ResourceDetail, { ResourceSummary } from "../components/ResourceDetail";
 import { dayjs } from "../modules/dayConfig";
 import isEmpty from "lodash/isEmpty";
 import React from "react";
@@ -38,14 +38,14 @@ export default function BankAccountDetailPage() {
         },
       ]}
     >
-      {(model) => (
-        <>
+      {(model) => [
+        <ResourceSummary>
           <LegalEntity
             address={model.legalEntity.address}
             name={model.legalEntity.name}
           />
-        </>
-      )}
+        </ResourceSummary>,
+      ]}
     </ResourceDetail>
   );
 }

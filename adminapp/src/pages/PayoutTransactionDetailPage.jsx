@@ -27,70 +27,68 @@ export default function PayoutTransactionDetailPage() {
           originatedBookTransaction: originated,
           creditingBookTransaction: crediting,
         } = model;
-        return (
-          <>
+        return [
+          <DetailGrid
+            title="Originated Book Transaction"
+            properties={[
+              { label: "ID", value: <AdminLink model={originated} /> },
+              { label: "Apply At", value: dayjs(originated.applyAt) },
+              { label: "Amount", value: <Money>{originated.amount}</Money> },
+              {
+                label: "Category",
+                value: originated.associatedVendorServiceCategory?.name,
+              },
+              {
+                label: "Originating",
+                value: (
+                  <AdminLink model={originated.originatingLedger}>
+                    {originated.originatingLedger.adminLabel}
+                  </AdminLink>
+                ),
+              },
+              {
+                label: "Receiving",
+                value: (
+                  <AdminLink model={originated.receivingLedger}>
+                    {originated.receivingLedger.adminLabel}
+                  </AdminLink>
+                ),
+              },
+            ]}
+          />,
+          crediting && (
             <DetailGrid
-              title="Originated Book Transaction"
+              title="Crediting Book Transaction"
               properties={[
-                { label: "ID", value: <AdminLink model={originated} /> },
-                { label: "Apply At", value: dayjs(originated.applyAt) },
-                { label: "Amount", value: <Money>{originated.amount}</Money> },
+                { label: "ID", value: <AdminLink model={crediting} /> },
+                { label: "Apply At", value: dayjs(crediting.applyAt) },
+                { label: "Amount", value: <Money>{crediting.amount}</Money> },
                 {
                   label: "Category",
-                  value: originated.associatedVendorServiceCategory?.name,
+                  value: crediting.associatedVendorServiceCategory?.name,
                 },
                 {
                   label: "Originating",
                   value: (
-                    <AdminLink model={originated.originatingLedger}>
-                      {originated.originatingLedger.adminLabel}
+                    <AdminLink model={crediting.originatingLedger}>
+                      {crediting.originatingLedger.adminLabel}
                     </AdminLink>
                   ),
                 },
                 {
                   label: "Receiving",
                   value: (
-                    <AdminLink model={originated.receivingLedger}>
-                      {originated.receivingLedger.adminLabel}
+                    <AdminLink model={crediting.receivingLedger}>
+                      {crediting.receivingLedger.adminLabel}
                     </AdminLink>
                   ),
                 },
               ]}
             />
-            {crediting && (
-              <DetailGrid
-                title="Crediting Book Transaction"
-                properties={[
-                  { label: "ID", value: <AdminLink model={crediting} /> },
-                  { label: "Apply At", value: dayjs(crediting.applyAt) },
-                  { label: "Amount", value: <Money>{crediting.amount}</Money> },
-                  {
-                    label: "Category",
-                    value: crediting.associatedVendorServiceCategory?.name,
-                  },
-                  {
-                    label: "Originating",
-                    value: (
-                      <AdminLink model={crediting.originatingLedger}>
-                        {crediting.originatingLedger.adminLabel}
-                      </AdminLink>
-                    ),
-                  },
-                  {
-                    label: "Receiving",
-                    value: (
-                      <AdminLink model={crediting.receivingLedger}>
-                        {crediting.receivingLedger.adminLabel}
-                      </AdminLink>
-                    ),
-                  },
-                ]}
-              />
-            )}
-            <ExternalLinks externalLinks={model.externalLinks} />
-            <AuditLogs auditLogs={model.auditLogs} />
-          </>
-        );
+          ),
+          <ExternalLinks externalLinks={model.externalLinks} />,
+          <AuditLogs auditLogs={model.auditLogs} />,
+        ];
       }}
     </ResourceDetail>
   );

@@ -45,69 +45,66 @@ export default function VendorAccountDetailPage() {
         },
       ]}
     >
-      {(model) => (
-        <>
+      {(model) => [
+        <DetailGrid
+          title="Configuration"
+          properties={[
+            { label: "ID", value: <AdminLink model={model.configuration} /> },
+            {
+              label: "Vendor",
+              value: (
+                <AdminLink model={model.configuration.vendor}>
+                  {model.configuration.vendor?.name}
+                </AdminLink>
+              ),
+            },
+            {
+              label: "Auth to Vendor",
+              value: model.configuration.authToVendorKey,
+            },
+            {
+              label: "Enabled?",
+              value: <BoolCheckmark>{model.configuration.enabled}</BoolCheckmark>,
+            },
+          ]}
+        />,
+        model.contact && (
           <DetailGrid
-            title="Configuration"
+            title="Member Contact"
             properties={[
-              { label: "ID", value: <AdminLink model={model.configuration} /> },
-              {
-                label: "Vendor",
-                value: (
-                  <AdminLink model={model.configuration.vendor}>
-                    {model.configuration.vendor?.name}
-                  </AdminLink>
-                ),
-              },
-              {
-                label: "Auth to Vendor",
-                value: model.configuration.authToVendorKey,
-              },
-              {
-                label: "Enabled?",
-                value: <BoolCheckmark>{model.configuration.enabled}</BoolCheckmark>,
-              },
+              { label: "ID", value: <AdminLink model={model.contact} /> },
+              { label: "Email", value: model.contact.email },
+              { label: "Phone", value: model.contact.phone },
+              { label: "Relay Key", value: model.contact.relayKey },
             ]}
           />
-          {model.contact && (
-            <DetailGrid
-              title="Member Contact"
-              properties={[
-                { label: "ID", value: <AdminLink model={model.contact} /> },
-                { label: "Email", value: model.contact.email },
-                { label: "Phone", value: model.contact.phone },
-                { label: "Relay Key", value: model.contact.relayKey },
-              ]}
-            />
-          )}
-          <RelatedList
-            title="Messages"
-            rows={model.messages}
-            showMore
-            headers={[
-              "Id",
-              "Created",
-              "Content",
-              "From",
-              "To",
-              "Handler Key",
-              "Relay Key",
-              "Timestamp",
-            ]}
-            keyRowAttr="id"
-            toCells={(row) => [
-              row.id,
-              formatDate(row.createdAt),
-              row.messageContent,
-              row.messageFrom,
-              row.messageTo,
-              row.messageHandlerKey,
-              row.relayKey,
-              formatDate(row.messageTimestamp),
-            ]}
-          />
-        </>
-      )}
+        ),
+        <RelatedList
+          title="Messages"
+          rows={model.messages}
+          headers={[
+            "Id",
+            "Created",
+            "Content",
+            "From",
+            "To",
+            "Handler Key",
+            "Relay Key",
+            "Timestamp",
+          ]}
+          keyRowAttr="id"
+          toCells={(row) => [
+            row.id,
+            formatDate(row.createdAt),
+            row.messageContent,
+            row.messageFrom,
+            row.messageTo,
+            row.messageHandlerKey,
+            row.relayKey,
+            formatDate(row.messageTimestamp),
+          ]}
+        />,
+      ]}
     </ResourceDetail>
   );
 }

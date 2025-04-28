@@ -9,7 +9,6 @@ export default function AuditActivityList({ activities }) {
       title="Audit Activities"
       headers={["At", "Summary", "Message", "Member"]}
       rows={activities}
-      showMore
       keyRowAttr="id"
       toCells={(row) => [
         formatDate(row.createdAt),

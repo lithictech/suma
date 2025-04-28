@@ -15,40 +15,38 @@ export default function RoleDetailPage() {
         { label: "Name", value: model.name },
       ]}
     >
-      {(model, setModel) => (
-        <>
-          <RelatedList
-            title="Members"
-            rows={model.members}
-            headers={["Id", "Name", "Phone"]}
-            keyRowAttr="id"
-            toCells={(row) => [
-              <AdminLink key="id" model={row} />,
-              row.name,
-              formatPhoneNumber("+" + row.phone),
-            ]}
-          />
-          <RelatedList
-            title="Organizations"
-            rows={model.organizations}
-            headers={["Id", "Name"]}
-            keyRowAttr="id"
-            toCells={(row) => [<AdminLink key="id" model={row} />, row.name]}
-          />
-          <RelatedList
-            title="Program Enrollments"
-            rows={model.programEnrollments}
-            headers={["Id", "Program"]}
-            keyRowAttr="id"
-            toCells={(row) => [
-              <AdminLink key="id" model={row} />,
-              <AdminLink key="name" model={row.program}>
-                {row.program.name.en}
-              </AdminLink>,
-            ]}
-          />
-        </>
-      )}
+      {(model, setModel) => [
+        <RelatedList
+          title="Members"
+          rows={model.members}
+          headers={["Id", "Name", "Phone"]}
+          keyRowAttr="id"
+          toCells={(row) => [
+            <AdminLink key="id" model={row} />,
+            row.name,
+            formatPhoneNumber("+" + row.phone),
+          ]}
+        />,
+        <RelatedList
+          title="Organizations"
+          rows={model.organizations}
+          headers={["Id", "Name"]}
+          keyRowAttr="id"
+          toCells={(row) => [<AdminLink key="id" model={row} />, row.name]}
+        />,
+        <RelatedList
+          title="Program Enrollments"
+          rows={model.programEnrollments}
+          headers={["Id", "Program"]}
+          keyRowAttr="id"
+          toCells={(row) => [
+            <AdminLink key="id" model={row} />,
+            <AdminLink key="name" model={row.program}>
+              {row.program.name.en}
+            </AdminLink>,
+          ]}
+        />,
+      ]}
     </ResourceDetail>
   );
 }

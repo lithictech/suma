@@ -31,49 +31,45 @@ export default function FundingTransactionDetailPage() {
     >
       {(model) => {
         const originated = model.originatedBookTransaction;
-        return (
-          <>
-            <DetailGrid
-              title="Book Transaction"
-              properties={[
-                { label: "ID", value: <AdminLink model={originated} /> },
-                { label: "Apply At", value: dayjs(originated.applyAt) },
-                { label: "Amount", value: <Money>{originated.amount}</Money> },
-                {
-                  label: "Category",
-                  value: originated.associatedVendorServiceCategory.name,
-                },
-                {
-                  label: "Originating",
-                  value: (
-                    <AdminLink model={originated.originatingLedger}>
-                      {originated.originatingLedger.adminLabel}
-                    </AdminLink>
-                  ),
-                },
-                {
-                  label: "Receiving",
-                  value: (
-                    <AdminLink model={originated.receivingLedger}>
-                      {originated.receivingLedger.adminLabel}
-                    </AdminLink>
-                  ),
-                },
-                {
-                  label: "Actor",
-                  hideEmpty: true,
-                  value: originated.actor ? (
-                    <AdminLink model={originated.actor}>
-                      {originated.actor.name}
-                    </AdminLink>
-                  ) : undefined,
-                },
-              ]}
-            />
-            <ExternalLinks externalLinks={model.externalLinks} />
-            <AuditLogs auditLogs={model.auditLogs} />
-          </>
-        );
+        return [
+          <DetailGrid
+            title="Book Transaction"
+            properties={[
+              { label: "ID", value: <AdminLink model={originated} /> },
+              { label: "Apply At", value: dayjs(originated.applyAt) },
+              { label: "Amount", value: <Money>{originated.amount}</Money> },
+              {
+                label: "Category",
+                value: originated.associatedVendorServiceCategory.name,
+              },
+              {
+                label: "Originating",
+                value: (
+                  <AdminLink model={originated.originatingLedger}>
+                    {originated.originatingLedger.adminLabel}
+                  </AdminLink>
+                ),
+              },
+              {
+                label: "Receiving",
+                value: (
+                  <AdminLink model={originated.receivingLedger}>
+                    {originated.receivingLedger.adminLabel}
+                  </AdminLink>
+                ),
+              },
+              {
+                label: "Actor",
+                hideEmpty: true,
+                value: originated.actor ? (
+                  <AdminLink model={originated.actor}>{originated.actor.name}</AdminLink>
+                ) : undefined,
+              },
+            ]}
+          />,
+          <ExternalLinks externalLinks={model.externalLinks} />,
+          <AuditLogs auditLogs={model.auditLogs} />,
+        ];
       }}
     </ResourceDetail>
   );

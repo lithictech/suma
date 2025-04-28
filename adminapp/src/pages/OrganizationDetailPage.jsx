@@ -35,61 +35,57 @@ export default function OrganizationDetailPage() {
         },
       ]}
     >
-      {(model) => (
-        <>
-          <ProgramEnrollmentRelatedList
-            model={model}
-            resource="organization"
-            enrollments={model.programEnrollments}
-          />
-          <RelatedList
-            title={
-              <>
-                <OrganizationMembershipVerifiedIcon />
-                &nbsp;Memberships ({model.memberships.length}){" "}
-              </>
-            }
-            rows={model.memberships}
-            showMore
-            addNewLabel="Create another membership"
-            addNewLink={createRelativeUrl(`/membership/new`, {
-              organizationId: model.id,
-              organizationLabel: `(${model.id}) ${model.name || "-"}`,
-            })}
-            addNewRole="organizationMembership"
-            headers={["Id", "Member", "Added At"]}
-            keyRowAttr="id"
-            toCells={(row) => [
-              <AdminLink model={row} />,
-              <AdminLink key="member" model={row.member}>
-                {row.member.name}
-              </AdminLink>,
-              formatDate(row.createdAt),
-            ]}
-          />
-          <RelatedList
-            title={
-              <>
-                <OrganizationMembershipRemovedIcon />
-                &nbsp;Former Memberships ({model.formerMemberships.length})
-              </>
-            }
-            rows={model.formerMemberships}
-            showMore
-            headers={["Id", "Member", "Added At", "Removed At"]}
-            keyRowAttr="id"
-            toCells={(row) => [
-              <AdminLink model={row} />,
-              <AdminLink key="member" model={row.member}>
-                {row.member.name}
-              </AdminLink>,
-              formatDate(row.createdAt),
-              formatDate(row.formerlyInOrganizationAt),
-            ]}
-          />
-          <AuditActivityList activities={model.auditActivities} />
-        </>
-      )}
+      {(model) => [
+        <ProgramEnrollmentRelatedList
+          model={model}
+          resource="organization"
+          enrollments={model.programEnrollments}
+        />,
+        <RelatedList
+          title={
+            <>
+              <OrganizationMembershipVerifiedIcon />
+              &nbsp;Memberships ({model.memberships.length}){" "}
+            </>
+          }
+          rows={model.memberships}
+          addNewLabel="Create another membership"
+          addNewLink={createRelativeUrl(`/membership/new`, {
+            organizationId: model.id,
+            organizationLabel: `(${model.id}) ${model.name || "-"}`,
+          })}
+          addNewRole="organizationMembership"
+          headers={["Id", "Member", "Added At"]}
+          keyRowAttr="id"
+          toCells={(row) => [
+            <AdminLink model={row} />,
+            <AdminLink key="member" model={row.member}>
+              {row.member.name}
+            </AdminLink>,
+            formatDate(row.createdAt),
+          ]}
+        />,
+        <RelatedList
+          title={
+            <>
+              <OrganizationMembershipRemovedIcon />
+              &nbsp;Former Memberships ({model.formerMemberships.length})
+            </>
+          }
+          rows={model.formerMemberships}
+          headers={["Id", "Member", "Added At", "Removed At"]}
+          keyRowAttr="id"
+          toCells={(row) => [
+            <AdminLink model={row} />,
+            <AdminLink key="member" model={row.member}>
+              {row.member.name}
+            </AdminLink>,
+            formatDate(row.createdAt),
+            formatDate(row.formerlyInOrganizationAt),
+          ]}
+        />,
+        <AuditActivityList activities={model.auditActivities} />,
+      ]}
     </ResourceDetail>
   );
 }

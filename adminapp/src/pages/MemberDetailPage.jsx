@@ -9,7 +9,7 @@ import OrganizationMembership from "../components/OrganizationMembership";
 import PaymentAccountRelatedLists from "../components/PaymentAccountRelatedLists";
 import ProgramEnrollmentRelatedList from "../components/ProgramEnrollmentRelatedList";
 import RelatedList from "../components/RelatedList";
-import ResourceDetail from "../components/ResourceDetail";
+import ResourceDetail, { ResourceSummary } from "../components/ResourceDetail";
 import useErrorSnackbar from "../hooks/useErrorSnackbar";
 import useRoleAccess from "../hooks/useRoleAccess";
 import { useUser } from "../hooks/user";
@@ -21,7 +21,6 @@ import SafeExternalLink from "../shared/react/SafeExternalLink";
 import useToggle from "../shared/react/useToggle";
 import DeleteIcon from "@mui/icons-material/Delete";
 import {
-  Divider,
   Typography,
   Switch,
   Button,
@@ -53,7 +52,6 @@ export default function MemberDetailPage() {
       <Typography variant="h5" gutterBottom>
         Member Details <ImpersonateButton id={id} />
       </Typography>
-      <Divider />
       <ResourceDetail
         resource="member"
         apiGet={api.getMember}
@@ -100,8 +98,8 @@ export default function MemberDetailPage() {
           },
         ]}
       >
-        {(model, setModel) => (
-          <>
+        {(model, setModel) => [
+          <ResourceSummary>
             <DetailGrid
               title="Other Information"
               properties={[
@@ -125,29 +123,31 @@ export default function MemberDetailPage() {
                 },
               ]}
             />
+          </ResourceSummary>,
+          <ResourceSummary>
             <LegalEntity {...model.legalEntity} />
-            <ProgramEnrollmentRelatedList
-              model={model}
-              resource="member"
-              enrollments={model.directProgramEnrollments}
-            />
-            <OrganizationMemberships
-              memberships={model.organizationMemberships}
-              model={model}
-            />
-            <Activities activities={model.activities} />
-            <Orders orders={model.orders} />
-            <Charges charges={model.charges} />
-            <BankAccounts bankAccounts={model.bankAccounts} />
-            <PaymentAccountRelatedLists paymentAccount={model.paymentAccount} />
-            <VendorAccounts vendorAccounts={model.vendorAccounts} />
-            <MessagePreferences preferences={model.preferences} />
-            <MessageDeliveries messageDeliveries={model.messageDeliveries} />
-            <Sessions sessions={model.sessions} />
-            <ResetCodes resetCodes={model.resetCodes} />
-            <AuditActivityList activities={model.auditActivities} />
-          </>
-        )}
+          </ResourceSummary>,
+          <ProgramEnrollmentRelatedList
+            model={model}
+            resource="member"
+            enrollments={model.directProgramEnrollments}
+          />,
+          <OrganizationMemberships
+            memberships={model.organizationMemberships}
+            model={model}
+          />,
+          <Activities activities={model.activities} />,
+          <Orders orders={model.orders} />,
+          <Charges charges={model.charges} />,
+          <BankAccounts bankAccounts={model.bankAccounts} />,
+          <PaymentAccountRelatedLists paymentAccount={model.paymentAccount} />,
+          <VendorAccounts vendorAccounts={model.vendorAccounts} />,
+          <MessagePreferences preferences={model.preferences} />,
+          <MessageDeliveries messageDeliveries={model.messageDeliveries} />,
+          <Sessions sessions={model.sessions} />,
+          <ResetCodes resetCodes={model.resetCodes} />,
+          <AuditActivityList activities={model.auditActivities} />,
+        ]}
       </ResourceDetail>
     </>
   );
@@ -206,7 +206,6 @@ function Activities({ activities }) {
       title="Activities"
       headers={["At", "Summary", "Message"]}
       rows={activities}
-      showMore
       keyRowAttr="id"
       toCells={(row) => [
         formatDate(row.createdAt),
@@ -225,7 +224,6 @@ function ResetCodes({ resetCodes }) {
       title="Login Codes"
       headers={["Sent", "Expires", "Token", "Used"]}
       rows={resetCodes}
-      showMore
       keyRowAttr="id"
       toCells={(row) => [
         formatDate(row.createdAt),
@@ -244,7 +242,6 @@ function Sessions({ sessions }) {
       headers={["Started", "IP", "User Agent"]}
       keyRowAttr="id"
       rows={sessions}
-      showMore
       toCells={(row) => [
         formatDate(row.createdAt),
         <SafeExternalLink key="ip" href={row.ipLookupLink}>
@@ -346,7 +343,6 @@ function MessageDeliveries({ messageDeliveries }) {
       title="Message Deliveries"
       headers={["Id", "Created", "Sent", "Template", "To"]}
       rows={messageDeliveries}
-      showMore
       keyRowAttr="id"
       toCells={(row) => [
         <AdminLink key="id" model={row} />,
