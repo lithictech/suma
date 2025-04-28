@@ -9,6 +9,7 @@ class Suma::AdminAPI::Organizations < Suma::AdminAPI::V1
   class DetailedOrganizationEntity < OrganizationEntity
     include Suma::AdminAPI::Entities
     include AutoExposeDetail
+    expose :ordinal
     expose :audit_activities, with: ActivityEntity
     expose :memberships, with: OrganizationMembershipEntity
     expose :program_enrollments, with: ProgramEnrollmentEntity
@@ -35,6 +36,7 @@ class Suma::AdminAPI::Organizations < Suma::AdminAPI::V1
     ) do
       params do
         requires :name, type: String, allow_blank: false
+        optional :ordinal, type: Float, default: 0
       end
     end
 
@@ -58,6 +60,7 @@ class Suma::AdminAPI::Organizations < Suma::AdminAPI::V1
     ) do
       params do
         optional :name, type: String, allow_blank: false
+        optional :ordinal, type: Float, default: 0
         optional :roles, type: Array[JSON] do
           use :model_with_id
         end

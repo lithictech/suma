@@ -1,6 +1,6 @@
 import FormLayout from "../components/FormLayout";
 import RoleEditor from "../components/RoleEditor";
-import { TextField } from "@mui/material";
+import { Stack, TextField } from "@mui/material";
 import React from "react";
 
 export default function OrganizationForm({
@@ -22,18 +22,32 @@ export default function OrganizationForm({
       onSubmit={onSubmit}
       isBusy={isBusy}
     >
-      <TextField
-        {...register("name")}
-        label="Name"
-        name="name"
-        value={resource.name}
-        type="name"
-        variant="outlined"
-        fullWidth
-        required
-        onChange={setFieldFromInput}
-      />
-      <RoleEditor roles={resource.roles} setRoles={(r) => setField("roles", r)} />
+      <Stack spacing={2}>
+        <TextField
+          {...register("name")}
+          label="Name"
+          name="name"
+          value={resource.name}
+          type="name"
+          variant="outlined"
+          fullWidth
+          required
+          onChange={setFieldFromInput}
+        />
+        <TextField
+          {...register("ordinal")}
+          label="Ordinal"
+          helperText="The order in which organizations are displayed in the member onboarding flow, higher first."
+          name="ordinal"
+          value={resource.ordinal}
+          type="number"
+          variant="outlined"
+          fullWidth
+          required
+          onChange={setFieldFromInput}
+        />
+        <RoleEditor roles={resource.roles} setRoles={(r) => setField("roles", r)} />
+      </Stack>
     </FormLayout>
   );
 }

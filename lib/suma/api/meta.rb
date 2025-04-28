@@ -56,7 +56,8 @@ class Suma::API::Meta < Suma::API::V1
 
     get :supported_organizations do
       use_http_expires_caching 30.minutes
-      orgs = Suma::Organization.order(:name).all.map { |o| {name: o.name} }
+      ds = Suma::Organization.order(Sequel.desc(:ordinal), :name)
+      orgs = ds.select(:name).all.map { |o| {name: o.name} }
       present_collection orgs
     end
   end
