@@ -9,6 +9,7 @@ class Suma::AdminAPI::OrganizationMemberships < Suma::AdminAPI::V1
   class DetailedOrganizationMembershipEntity < OrganizationMembershipEntity
     include Suma::AdminAPI::Entities
     include AutoExposeDetail
+    expose :matched_organization, with: OrganizationEntity
   end
 
   resource :organization_memberships do

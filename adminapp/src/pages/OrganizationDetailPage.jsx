@@ -1,6 +1,10 @@
 import api from "../api";
 import AdminLink from "../components/AdminLink";
 import AuditActivityList from "../components/AuditActivityList";
+import {
+  OrganizationMembershipRemovedIcon,
+  OrganizationMembershipVerifiedIcon,
+} from "../components/OrganizationMembership";
 import ProgramEnrollmentRelatedList from "../components/ProgramEnrollmentRelatedList";
 import RelatedList from "../components/RelatedList";
 import ResourceDetail from "../components/ResourceDetail";
@@ -39,7 +43,12 @@ export default function OrganizationDetailPage() {
             enrollments={model.programEnrollments}
           />
           <RelatedList
-            title={`Memberships (${model.memberships.length})`}
+            title={
+              <>
+                <OrganizationMembershipVerifiedIcon />
+                &nbsp;Memberships ({model.memberships.length}){" "}
+              </>
+            }
             rows={model.memberships}
             showMore
             addNewLabel="Create another membership"
@@ -48,7 +57,7 @@ export default function OrganizationDetailPage() {
               organizationLabel: `(${model.id}) ${model.name || "-"}`,
             })}
             addNewRole="organizationMembership"
-            headers={["Id", "Member", "Created At"]}
+            headers={["Id", "Member", "Added At"]}
             keyRowAttr="id"
             toCells={(row) => [
               <AdminLink model={row} />,
@@ -56,6 +65,26 @@ export default function OrganizationDetailPage() {
                 {row.member.name}
               </AdminLink>,
               formatDate(row.createdAt),
+            ]}
+          />
+          <RelatedList
+            title={
+              <>
+                <OrganizationMembershipRemovedIcon />
+                &nbsp;Former Memberships ({model.formerMemberships.length})
+              </>
+            }
+            rows={model.formerMemberships}
+            showMore
+            headers={["Id", "Member", "Added At", "Removed At"]}
+            keyRowAttr="id"
+            toCells={(row) => [
+              <AdminLink model={row} />,
+              <AdminLink key="member" model={row.member}>
+                {row.member.name}
+              </AdminLink>,
+              formatDate(row.createdAt),
+              formatDate(row.formerlyInOrganizationAt),
             ]}
           />
           <AuditActivityList activities={model.auditActivities} />

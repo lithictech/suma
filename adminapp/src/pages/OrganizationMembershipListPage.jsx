@@ -1,5 +1,6 @@
 import api from "../api";
 import AdminLink from "../components/AdminLink";
+import OrganizationMembership from "../components/OrganizationMembership";
 import ResourceList from "../components/ResourceList";
 import formatDate from "../modules/formatDate";
 import React from "react";
@@ -29,14 +30,7 @@ export default function OrganizationMembershipListPage() {
           id: "organization",
           label: "Organization",
           align: "left",
-          render: (c) =>
-            c.verifiedOrganization ? (
-              <AdminLink model={c.verifiedOrganization}>
-                {c.verifiedOrganization.name}
-              </AdminLink>
-            ) : (
-              c.unverifiedOrganizationName
-            ),
+          render: (c) => <OrganizationMembership membership={c} />,
         },
         {
           id: "created_at",

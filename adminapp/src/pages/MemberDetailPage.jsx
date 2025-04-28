@@ -5,6 +5,7 @@ import BoolCheckmark from "../components/BoolCheckmark";
 import Copyable from "../components/Copyable";
 import DetailGrid from "../components/DetailGrid";
 import InlineEditField from "../components/InlineEditField";
+import OrganizationMembership from "../components/OrganizationMembership";
 import PaymentAccountRelatedLists from "../components/PaymentAccountRelatedLists";
 import ProgramEnrollmentRelatedList from "../components/ProgramEnrollmentRelatedList";
 import RelatedList from "../components/RelatedList";
@@ -193,31 +194,10 @@ function OrganizationMemberships({ memberships, model }) {
       toCells={(row) => [
         <AdminLink key="id" model={row} />,
         formatDate(row.createdAt),
-        membershipOrgCell(row),
+        <OrganizationMembership membership={row} detailed />,
       ]}
     />
   );
-}
-
-function membershipOrgCell(row) {
-  if (row.verifiedOrganization) {
-    return (
-      <AdminLink key="org" model={row.verifiedOrganization}>
-        {row.verifiedOrganization.name}
-      </AdminLink>
-    );
-  }
-  if (row.formerOrganization) {
-    return (
-      <AdminLink key="org" model={row.formerOrganization}>
-        {row.formerOrganization?.name} (removed{" "}
-        {formatDate(row.formerlyInOrganizationAt, { template: "l" })})
-      </AdminLink>
-    );
-  }
-  if (row.unverifiedOrganizationName) {
-    return row.unverifiedOrganizationName;
-  }
 }
 
 function Activities({ activities }) {

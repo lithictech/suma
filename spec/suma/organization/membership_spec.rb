@@ -39,4 +39,31 @@ RSpec.describe "Suma::Organization::Membership", :db do
       expect { m.remove_from_organization }.to raise_error(Suma::InvalidPrecondition)
     end
   end
+
+  it "has accessors about verified status" do
+    m = Suma::Fixtures.organization_membership.unverified.create
+    expect(m).to be_unverified
+    expect(m).to_not be_verified
+    expect(m).to_not be_removed
+    m.verified_organization = Suma::Fixtures.organization.create
+    expect(m).to_not be_unverified
+    expect(m).to be_verified
+    expect(m).to_not be_removed
+    m.remove_from_organization
+    expect(m).to_not be_unverified
+    expect(m).to_not be_verified
+    expect(m).to be_removed
+  end
+
+  describe "matched_organization" do
+    it "finds an org with the unverified name" do
+      o = Suma::Fixtures.organization.create
+      m = Suma::Fixtures.organization_membership.unverified.create
+      expect(m.matched_organization).to be_nil
+      m.unverified_organization_name = o.name
+      expect(m.matched_organization).to be === o
+      m.verified_organization = o
+      expect(m.matched_organization).to be_nil
+    end
+  end
 end

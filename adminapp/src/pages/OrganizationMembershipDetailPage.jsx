@@ -1,8 +1,8 @@
 import api from "../api";
 import AdminLink from "../components/AdminLink";
+import OrganizationMembership from "../components/OrganizationMembership";
 import ResourceDetail from "../components/ResourceDetail";
 import { dayjs } from "../modules/dayConfig";
-import formatDate from "../modules/formatDate";
 import React from "react";
 
 export default function OrganizationMembershipDetailPage() {
@@ -23,26 +23,9 @@ export default function OrganizationMembershipDetailPage() {
             </AdminLink>
           ),
         },
-        model.verifiedOrganization && {
-          label: "Verified Organization",
-          value: (
-            <AdminLink key="org" model={model.verifiedOrganization}>
-              {model.verifiedOrganization?.name}
-            </AdminLink>
-          ),
-        },
-        model.unverifiedOrganizationName && {
-          label: "Unverified Organization",
-          value: model.unverifiedOrganizationName,
-        },
-        model.formerOrganization && {
-          label: "Former Organization",
-          value: (
-            <AdminLink key="org" model={model.formerOrganization}>
-              {model.formerOrganization?.name} (removed{" "}
-              {formatDate(model.formerlyInOrganizationAt)})
-            </AdminLink>
-          ),
+        {
+          label: "Organization",
+          value: <OrganizationMembership membership={model} detailed />,
         },
       ]}
     />
