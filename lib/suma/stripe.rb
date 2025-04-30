@@ -39,10 +39,16 @@ module Suma::Stripe
     return true
   end
 
-  def self.default_metadata
-    return {
+  def self.build_metadata(relations=[])
+    h = {
       suma_api_version: Suma::VERSION,
     }
+    relations.select(&:itself).each do |r|
+      ns = r.class.name.split("::").last.underscore
+      h[:"suma_#{ns}_id"] = r.id
+      h[:"suma_#{ns}_name"] = r.name if r.respond_to?(:name) && r.name.present?
+    end
+    return h
   end
 
   # @param [Stripe::CardError] e

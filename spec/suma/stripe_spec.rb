@@ -16,4 +16,27 @@ RSpec.describe Suma::Stripe, :db do
       expect(Suma::Service.localized_error_codes).to be_include(described_class.localized_error_code(err))
     end
   end
+
+  describe "build_metadata" do
+    it "builds metadata for models" do
+      v = Suma::Fixtures.vendor.create
+      bx = Suma::Fixtures.book_transaction.create
+      expect(described_class.build_metadata).to eq({suma_api_version: "unknown-version"})
+      expect(described_class.build_metadata([v, nil])).to eq(
+        {
+          suma_api_version: "unknown-version",
+          suma_vendor_id: v.id,
+          suma_vendor_name: v.name,
+        },
+      )
+      expect(described_class.build_metadata([v, bx])).to eq(
+        {
+          suma_api_version: "unknown-version",
+          suma_vendor_id: v.id,
+          suma_vendor_name: v.name,
+          suma_book_transaction_id: bx.id,
+        },
+      )
+    end
+  end
 end
