@@ -105,6 +105,74 @@ RSpec.describe "Suma::Payment::PayoutTransaction", :db, reset_configuration: Sum
       # Balance is still $2.50 because the $5 refund was sent
       expect(fx.originating_payment_account).to have_attributes(total_balance: cost("$2.50"))
     end
+
+    describe "with a strategy of :infer" do
+      it "uses a StripeChargeRefundStrategy for a StripeCardStrategy" do
+        originating_card = Suma::Fixtures.card.create
+        stripe_card_strategy = Suma::Payment::FundingTransaction::StripeCardStrategy.create(
+          originating_card:,
+          charge_json: {"id" => "ch123"},
+        )
+        fx.update(fake_strategy: nil, stripe_card_strategy:)
+
+        req = stub_request(:post, "https://api.stripe.com/v1/refunds").
+          to_return(json_response(load_fixture_data("stripe/refund")))
+
+        px = described_class.initiate_refund(
+          fx,
+          amount: Money.new(500, "USD"),
+          strategy: :infer,
+          apply_at: now,
+          apply_credit: false,
+        )
+        expect(req).to have_been_made
+        expect(px).to have_attributes(
+          strategy: be_a(Suma::Payment::PayoutTransaction::StripeChargeRefundStrategy),
+        )
+        expect(px.strategy).to have_attributes(
+          stripe_charge_id: "ch123",
+          refund_id: "re_1Nispe2eZvKYlo2Cd31jOCgZ",
+        )
+      end
+
+      it "errors for an unrefundable strategy" do
+        expect do
+          described_class.initiate_refund(
+            fx,
+            amount: Money.new(500, "USD"),
+            strategy: :infer,
+            apply_at: now,
+            apply_credit: false,
+          )
+        end.to raise_error(/no refund strategy for funding strategy/)
+      end
+    end
+
+    describe "using apply_credit of :infer" do
+      it "treats apply_credit as false if there are no charges" do
+        described_class.initiate_refund(
+          fx,
+          amount: Money.new(500, "USD"),
+          strategy: Suma::Payment::FakeStrategy.create.not_ready,
+          apply_at: now,
+          apply_credit: :infer,
+        )
+        expect(fx.originating_payment_account).to have_attributes(total_balance: cost("$2.50"))
+      end
+
+      it "treats apply_credit as true if the funding transaction has an associated charge" do
+        charge = Suma::Fixtures.charge.create
+        charge.add_associated_funding_transaction(fx)
+        described_class.initiate_refund(
+          fx,
+          amount: Money.new(500, "USD"),
+          strategy: Suma::Payment::FakeStrategy.create.not_ready,
+          apply_at: now,
+          apply_credit: :infer,
+        )
+        expect(fx.originating_payment_account).to have_attributes(total_balance: cost("$7.50"))
+      end
+    end
   end
 
   describe "classification" do

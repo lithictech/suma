@@ -6,8 +6,8 @@ RSpec.describe "Suma::Payment::PayoutTransaction::StripeChargeRefundStrategy", :
   let(:described_class) { Suma::Payment::PayoutTransaction::StripeChargeRefundStrategy }
 
   let(:stripe_charge_id) { "ch_1" }
-  let(:strategy) { described_class.create(stripe_charge_id:) }
-  let(:xaction) { Suma::Fixtures.payout_transaction(strategy:).create }
+  let(:strategy) { xaction.strategy }
+  let(:xaction) { Suma::Fixtures.payout_transaction(strategy: described_class.create(stripe_charge_id:)).create }
 
   it_behaves_like "a payout transaction payment strategy"
 
@@ -18,16 +18,25 @@ RSpec.describe "Suma::Payment::PayoutTransaction::StripeChargeRefundStrategy", :
   end
 
   describe "send_funds" do
-    it "raises if no refund is set" do
-      expect { strategy.send_funds }.to raise_error(described_class::WorkInProgressImplementation)
+    it "creates a refund in Stripe if no refund is set" do
+      req = stub_request(:post, "https://api.stripe.com/v1/refunds").
+        with(body: hash_including("charge" => "ch_1")).
+        to_return(json_response(load_fixture_data("stripe/refund")))
+
+      expect(strategy.send_funds).to eq(true)
+      expect(req).to have_been_made
+      expect(strategy).to have_attributes(
+        stripe_charge_id: "ch_1",
+        refund_id: "re_1Nispe2eZvKYlo2Cd31jOCgZ",
+      )
     end
 
     it "raises if a not-succeeded refund is set" do
-      strategy.refund_json = {"id" => "re_abc"}.to_json
+      strategy.refund_json = {"id" => "re_abc", "status" => "pending"}.to_json
       expect { strategy.send_funds }.to raise_error(described_class::WorkInProgressImplementation)
     end
 
-    it "noops if a refund is present" do
+    it "noops if a succeeded refund is present" do
       strategy.refund_json = {"id" => "re_abc", "status" => "succeeded"}.to_json
       expect(strategy.send_funds).to eq(false)
     end

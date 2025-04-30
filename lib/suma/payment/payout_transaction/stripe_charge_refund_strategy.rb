@@ -29,8 +29,25 @@ class Suma::Payment::PayoutTransaction::StripeChargeRefundStrategy <
   def refund_id = self.refund_json&.fetch("id")
 
   def send_funds
-    return false if self.refund_id.present? && self.refund_json["status"] == "succeeded"
-    raise WorkInProgressImplementation, "we currently only support succeeded refunds already created in Stripe"
+    if self.refund_id.present?
+      return false if self.refund_json["status"] == "succeeded"
+      raise WorkInProgressImplementation, "handling not-succeeded refunds is not implemented"
+    end
+    refund = Stripe::Refund.create(
+      {
+        charge: self.stripe_charge_id,
+        metadata: Suma::Stripe.build_metadata(
+          [
+            self.payout_transaction.originating_payment_account.member,
+            self.payout_transaction,
+          ],
+        ),
+      },
+      idempotency_key: Suma.idempotency_key(self.payout_transaction, "refund"),
+    )
+    self.refund_json = refund.as_json
+    refund_id_set!
+    return true
   end
 
   def funds_settled?
@@ -91,16 +108,12 @@ class Suma::Payment::PayoutTransaction::StripeChargeRefundStrategy <
         existing_payout = Suma::Payment::PayoutTransaction[stripe_charge_refund_strategy: strat]
         next if existing_payout
 
-        # If this funding transaction was part of a charge, it was almost definitely used for some
-        # sort of purchase that has been partially or entirely refunded. In this case,
-        # apply a credit, as per the payment system docs.
-        apply_credit = !funding_strategy.funding_transaction.associated_charges_dataset.empty?
         px = Suma::Payment::PayoutTransaction.initiate_refund(
           funding_strategy.funding_transaction,
           amount: Money.new(refund_row.fetch(:amount)),
           apply_at: refund_row.fetch(:created),
           strategy: strat,
-          apply_credit:,
+          apply_credit: :infer,
         )
         # We only process succeeded refunds, so this transition should/must always succeed.
         px.must_process(:send_funds)

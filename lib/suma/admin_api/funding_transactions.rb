@@ -61,5 +61,31 @@ class Suma::AdminAPI::FundingTransactions < Suma::AdminAPI::V1
       Suma::Payment::FundingTransaction,
       DetailedFundingTransactionEntity,
     )
+
+    route_param :id, type: Integer do
+      params do
+        optional(:amount, allow_blank: false, type: JSON) { use :money }
+        optional :full, allow_blank: false, type: Boolean
+        exactly_one_of :amount, :full
+      end
+      post :refund do
+        check_role_access!(admin_member, :write, :admin_payments)
+
+        Suma::Payment::PayoutTransaction.db.transaction do
+          (fx = Suma::Payment::FundingTransaction[params[:id]]) or forbidden!
+          amount = params[:full] ? fx.amount : params[:amount]
+          px = Suma::Payment::PayoutTransaction.initiate_refund(
+            fx,
+            amount:,
+            apply_at: Time.now,
+            strategy: :infer,
+            apply_credit: :infer,
+          )
+          created_resource_headers(px.id, px.admin_link)
+          status 200
+          present px, with: PayoutTransactionEntity
+        end
+      end
+    end
   end
 end

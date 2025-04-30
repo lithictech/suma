@@ -27,7 +27,7 @@ class Suma::Payment::PayoutTransaction < Suma::Postgres::Model(:payment_payout_t
   # Represents the book transaction from the user's ledger to the platform ledger,
   # to represent that money is leaving their ledger and eventually the system.
   many_to_one :originated_book_transaction, class: "Suma::Payment::BookTransaction"
-  # Represent the book transaction from the platform ledger to the user's ledger,
+  # Represent the book transaction from the platform ledger to the user's ledger
   # to compensate them for a refund.
   many_to_one :crediting_book_transaction, class: "Suma::Payment::BookTransaction"
   # The funding transaction that acts as a refund, if any.
@@ -124,28 +124,59 @@ class Suma::Payment::PayoutTransaction < Suma::Postgres::Model(:payment_payout_t
     # from the original payment account's cash ledger, to the platform ledger,
     # to represent the withdrawal of funds.
     #
-    # Additionally, if apply_credit is true, a +credited_book_transaction+ is created
-    # from the platform cash ledger to the original payment account's cash ledger,
-    # representing a credit of any funds used for a purchase.
-    # The overall effect on the cash ledgers is a $0 balance change.
+    # @param funding_transaction [Suma::Payment::FundingTransaction]
+    # @param amount [Money]
+    # @param apply_at [Time]
+    # @param strategy [:infer,Suma::Payment::PayoutTransaction::Strategy] If the strateg is known,
+    #   pass it in. Otherwise, use +:infer+ to choose the payout strategy based on the funding strategy.
+    #   Usually the strategy is known when backfilling from an external system,
+    #   but is +:infer+ when running working from the funding transaction
+    #   (the refund being processed asynchronously later).
+    # @param apply_credit [true,false,:infer] If is true, a +credited_book_transaction+ is created
+    #   from the platform cash ledger to the original payment account's cash ledger,
+    #   representing a credit of any funds used for a purchase.
+    #   The overall effect on the cash ledgers is a $0 balance change.
     #
-    # If +apply_credit+ is false, no credited transaction is created.
-    # The overall effect is to subtract +amount+ from the original payment account's cash ledger's balance,
-    # and add it to the platform cash ledger's balance (at which point it leaves the system
-    # as part of the +PayoutTransaction+).
+    #   If +apply_credit+ is false, no credited transaction is created.
+    #   The overall effect is to subtract +amount+ from the original payment account's cash ledger's balance,
+    #   and add it to the platform cash ledger's balance (at which point it leaves the system
+    #   as part of the +PayoutTransaction+).
     #
-    # So, as a rule, if a funding transaction was part of a purchase (has a +Charge+, etc)
-    # a credit should be given; but if someone accidentally loaded money into their wallet,
-    # no credit would be given.
+    #   So, as a rule, if a funding transaction was part of a purchase (has a +Charge+, etc)
+    #   a credit should be given; but if someone accidentally loaded money into their wallet,
+    #   no credit would be given.
+    #
+    #   If +apply_credit+ is +:infer+, the rule of thumb is assumed.
+    #   +apply_credit+ will be true if there are any charges
+    #   associated with the funding transaction.
     #
     # @return [Suma::Payment::PayoutTransaction]
     def initiate_refund(funding_transaction, amount:, apply_at:, strategy:, apply_credit:)
+      if apply_credit == :infer
+        # If this funding transaction was part of a charge, it was almost definitely used for some
+        # sort of purchase that has been partially or entirely refunded. In this case,
+        # apply a credit, as per the payment system docs.
+        # See docs for more information.
+        apply_credit = !funding_transaction.associated_charges_dataset.empty?
+      end
       self.db.transaction do
         associated_vendor_service_category = Suma::Vendor::ServiceCategory.cash
         refund_memo = Suma::TranslatedText.create(
           en: "Refund sent to #{funding_transaction.strategy.originating_instrument.simple_label}",
           es: "Reembolso enviado a #{funding_transaction.strategy.originating_instrument.simple_label}",
         )
+        if strategy == :infer
+          strategy = case funding_transaction.strategy
+            when Suma::Payment::FundingTransaction::StripeCardStrategy
+              Suma::Payment::PayoutTransaction::StripeChargeRefundStrategy.create(
+                stripe_charge_id: funding_transaction.strategy.charge_id,
+              )
+            when Suma::Payment::FakeStrategy
+              funding_transaction.strategy
+            else
+              raise ArgumentError, "no refund strategy for funding strategy #{funding_transaction.strategy.inspect}"
+          end
+        end
         px = Suma::Payment::PayoutTransaction.start_new(
           funding_transaction.originating_payment_account,
           amount:,
@@ -168,7 +199,7 @@ class Suma::Payment::PayoutTransaction < Suma::Postgres::Model(:payment_payout_t
           )
         end
         originated_book_transaction = Suma::Payment::BookTransaction.create(
-          apply_at: apply_at + 0.001, # Apply 1ms later than the credit
+          apply_at: apply_at + 0.001, # Apply 1 ms later than the credit
           amount: px.amount,
           originating_ledger: member_ledger,
           receiving_ledger: px.platform_ledger,
