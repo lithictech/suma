@@ -11,6 +11,10 @@ class Suma::AdminAPI::FundingTransactions < Suma::AdminAPI::V1
     include Suma::AdminAPI::Entities
     include AutoExposeDetail
     expose_translated :memo
+    expose :can_refund?, as: :can_refund
+    expose :refundable_amount, with: MoneyEntity
+    expose :refunded_amount, with: MoneyEntity
+    expose :refund_payout_transactions, with: PayoutTransactionEntity
     expose :platform_ledger, with: SimpleLedgerEntity
     expose :originated_book_transaction, with: BookTransactionEntity
     expose :audit_activities, with: ActivityEntity
@@ -73,14 +77,18 @@ class Suma::AdminAPI::FundingTransactions < Suma::AdminAPI::V1
 
         Suma::Payment::PayoutTransaction.db.transaction do
           (fx = Suma::Payment::FundingTransaction[params[:id]]) or forbidden!
-          amount = params[:full] ? fx.amount : params[:amount]
-          px = Suma::Payment::PayoutTransaction.initiate_refund(
-            fx,
-            amount:,
-            apply_at: Time.now,
-            strategy: :infer,
-            apply_credit: :infer,
-          )
+          amount = params[:full] ? fx.refundable_amount : Suma::Moneyutil.from_h(params[:amount])
+          begin
+            px = Suma::Payment::PayoutTransaction.initiate_refund(
+              fx,
+              amount:,
+              apply_at: Time.now,
+              strategy: :infer,
+              apply_credit: :infer,
+            )
+          rescue Suma::Payment::PayoutTransaction::InvalidAmount => e
+            invalid!(e.to_s)
+          end
           created_resource_headers(px.id, px.admin_link)
           status 200
           present px, with: PayoutTransactionEntity

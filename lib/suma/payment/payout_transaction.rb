@@ -14,6 +14,7 @@ class Suma::Payment::PayoutTransaction < Suma::Postgres::Model(:payment_payout_t
   include Suma::HasActivityAudit
   include Suma::Payment::ExternalTransaction
 
+  class InvalidAmount < Suma::InvalidPrecondition; end
   class SendFundsFailed < Suma::StateMachine::FailedTransition; end
 
   plugin :hybrid_search
@@ -152,6 +153,11 @@ class Suma::Payment::PayoutTransaction < Suma::Postgres::Model(:payment_payout_t
     #
     # @return [Suma::Payment::PayoutTransaction]
     def initiate_refund(funding_transaction, amount:, apply_at:, strategy:, apply_credit:)
+      if amount > funding_transaction.refundable_amount
+        msg = "refund cannot be greater than unrefunded amount of #{funding_transaction.refundable_amount.format}"
+        raise InvalidAmount, msg
+      end
+
       if apply_credit == :infer
         # If this funding transaction was part of a charge, it was almost definitely used for some
         # sort of purchase that has been partially or entirely refunded. In this case,

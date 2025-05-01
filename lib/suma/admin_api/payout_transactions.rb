@@ -14,6 +14,7 @@ class Suma::AdminAPI::PayoutTransactions < Suma::AdminAPI::V1
     expose :platform_ledger, with: SimpleLedgerEntity
     expose :crediting_book_transaction, with: BookTransactionEntity
     expose :originated_book_transaction, with: BookTransactionEntity
+    expose :refunded_funding_transaction, with: FundingTransactionEntity
     expose :audit_activities, with: ActivityEntity
     expose :audit_logs, with: AuditLogEntity
   end

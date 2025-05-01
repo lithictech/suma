@@ -36,6 +36,7 @@ class Suma::Payment::PayoutTransaction::StripeChargeRefundStrategy <
     refund = Stripe::Refund.create(
       {
         charge: self.stripe_charge_id,
+        amount: self.payout_transaction.amount.cents,
         metadata: Suma::Stripe.build_metadata(
           [
             self.payout_transaction.originating_payment_account.member,

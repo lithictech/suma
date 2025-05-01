@@ -208,6 +208,27 @@ RSpec.describe "Suma::Payment::FundingTransaction", :db, reset_configuration: Su
     end
   end
 
+  describe "refunds" do
+    it "can be refunded until it has been fully refunded" do
+      card = Suma::Fixtures.card.create
+
+      fx = Suma::Fixtures.funding_transaction.with_fake_strategy.create(amount: money("$10"))
+      expect(fx).to be_can_refund
+      expect(fx).to have_attributes(refundable_amount: cost("$10"))
+      Suma::Fixtures::PayoutTransactions.refund_of(fx, card, amount: money("$1"))
+      expect(fx).to be_can_refund
+      expect(fx).to have_attributes(refundable_amount: cost("$9"))
+
+      Suma::Fixtures::PayoutTransactions.refund_of(fx, card, amount: money("$4"))
+      expect(fx).to be_can_refund
+      expect(fx).to have_attributes(refundable_amount: cost("$5"))
+
+      Suma::Fixtures::PayoutTransactions.refund_of(fx, card, amount: money("$5"))
+      expect(fx).to_not be_can_refund
+      expect(fx).to have_attributes(refundable_amount: cost("$0"))
+    end
+  end
+
   describe "hooks" do
     it "saves strategy changes after save" do
       payment = Suma::Fixtures.funding_transaction.with_fake_strategy.create

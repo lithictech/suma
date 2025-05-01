@@ -3,8 +3,10 @@ import AdminLink from "../components/AdminLink";
 import AuditLogs from "../components/AuditLogs";
 import DetailGrid from "../components/DetailGrid";
 import ExternalLinks from "../components/ExternalLinks";
+import RelatedList from "../components/RelatedList";
 import ResourceDetail from "../components/ResourceDetail";
 import { dayjs } from "../modules/dayConfig";
+import formatDate from "../modules/formatDate";
 import Money from "../shared/react/Money";
 import React from "react";
 
@@ -26,6 +28,10 @@ export default function FundingTransactionDetailPage() {
         },
         { label: "Status", value: model.status },
         { label: "Amount", value: <Money>{model.amount}</Money> },
+        model.refundedAmount.cents > 0 && {
+          label: "Refunded Amount",
+          value: <Money>{model.refundedAmount}</Money>,
+        },
         { label: "Memo", value: model.memo },
       ]}
     >
@@ -65,6 +71,27 @@ export default function FundingTransactionDetailPage() {
                   <AdminLink model={originated.actor}>{originated.actor.name}</AdminLink>
                 ) : undefined,
               },
+            ]}
+          />,
+          <RelatedList
+            title="Refund Payout Transactions"
+            rows={model.refundPayoutTransactions}
+            headers={["Id", "Created", "Amount"]}
+            keyRowAttr="id"
+            addNewLabel={model.canRefund && "Refund this transaction"}
+            addNewLink={
+              model.canRefund &&
+              `/funding-transaction/${
+                model.id
+              }/refund?refundableAmount=${encodeURIComponent(
+                JSON.stringify(model.refundableAmount)
+              )}`
+            }
+            addNewRole="payoutTransaction"
+            toCells={(row) => [
+              <AdminLink key="id" model={row} />,
+              formatDate(row.createdAt),
+              <Money key="amt">{row.amount}</Money>,
             ]}
           />,
           <ExternalLinks externalLinks={model.externalLinks} />,

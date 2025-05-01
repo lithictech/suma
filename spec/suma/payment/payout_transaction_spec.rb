@@ -106,6 +106,20 @@ RSpec.describe "Suma::Payment::PayoutTransaction", :db, reset_configuration: Sum
       expect(fx.originating_payment_account).to have_attributes(total_balance: cost("$2.50"))
     end
 
+    it "errors if the amount is greater than the refundable amount" do
+      fx.update(amount: money("$100"))
+      Suma::Fixtures::PayoutTransactions.refund_of(fx, Suma::Fixtures.card.create, amount: money("$5"))
+      expect do
+        described_class.initiate_refund(
+          fx,
+          amount: money("$100"),
+          strategy: Suma::Payment::FakeStrategy.create.not_ready,
+          apply_at: now,
+          apply_credit: false,
+        )
+      end.to raise_error(Suma::InvalidPrecondition, /refund cannot be greater than unrefunded amount of \$95\.00/)
+    end
+
     describe "with a strategy of :infer" do
       it "uses a StripeChargeRefundStrategy for a StripeCardStrategy" do
         originating_card = Suma::Fixtures.card.create
@@ -133,18 +147,6 @@ RSpec.describe "Suma::Payment::PayoutTransaction", :db, reset_configuration: Sum
           stripe_charge_id: "ch123",
           refund_id: "re_1Nispe2eZvKYlo2Cd31jOCgZ",
         )
-      end
-
-      it "errors for an unrefundable strategy" do
-        expect do
-          described_class.initiate_refund(
-            fx,
-            amount: Money.new(500, "USD"),
-            strategy: :infer,
-            apply_at: now,
-            apply_credit: false,
-          )
-        end.to raise_error(/no refund strategy for funding strategy/)
       end
     end
 

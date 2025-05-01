@@ -20,7 +20,7 @@ RSpec.describe "Suma::Payment::PayoutTransaction::StripeChargeRefundStrategy", :
   describe "send_funds" do
     it "creates a refund in Stripe if no refund is set" do
       req = stub_request(:post, "https://api.stripe.com/v1/refunds").
-        with(body: hash_including("charge" => "ch_1")).
+        with(body: hash_including("charge" => "ch_1", amount: xaction.amount.cents.to_s)).
         to_return(json_response(load_fixture_data("stripe/refund")))
 
       expect(strategy.send_funds).to eq(true)
