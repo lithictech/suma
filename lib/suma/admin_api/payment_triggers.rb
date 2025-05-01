@@ -73,7 +73,7 @@ class Suma::AdminAPI::PaymentTriggers < Suma::AdminAPI::V1
         optional :match_multiplier, type: Float
         optional :maximum_cumulative_subsidy_cents, type: Integer
         optional(:memo, type: JSON) { use :translated_text }
-        optional :originating_ledger_id, type: Integer
+        optional(:originating_ledger, type: JSON) { use :model_with_id }
         optional :receiving_ledger_name, type: String
         optional(:receiving_ledger_contribution_text, type: JSON) { use :translated_text }
       end
