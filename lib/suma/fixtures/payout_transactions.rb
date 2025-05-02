@@ -33,17 +33,19 @@ module Suma::Fixtures::PayoutTransactions
     self.fake_strategy = strategy
   end
 
-  def self.refund_of(fx, originating_instrument, apply_credit:, amount: fx.amount, apply_at: Time.now)
+  def self.refund_of(fx, originating_instrument, apply_credit: :infer, amount: fx.amount, apply_at: Time.now)
     fx.strategy.set_response(:originating_instrument, originating_instrument)
     strategy = Suma::Payment::FakeStrategy.new
     strategy.set_response(:check_validity, [])
     strategy.set_response(:ready_to_send_funds?, false)
-    return Suma::Payment::PayoutTransaction.initiate_refund(
+    px = Suma::Payment::PayoutTransaction.initiate_refund(
       fx,
       amount:,
       apply_at:,
       strategy:,
       apply_credit:,
     )
+    fx.associations.delete(:refund_payout_transactions)
+    return px
   end
 end

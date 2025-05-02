@@ -90,29 +90,4 @@ RSpec.describe Suma::Member::StripeAttributes, :db do
       end.to raise_error(Suma::InvalidPrecondition)
     end
   end
-
-  describe "card update" do
-    let(:member) { Suma::Fixtures.member.registered_as_stripe_customer.create }
-    let(:card) { Suma::Fixtures.card.member(member).create }
-
-    it "updates the card" do
-      url = "https://api.stripe.com/v1/customers/#{member.stripe.customer_id}/sources/card_1LxbQmAqRmWQecssc7Yf9Wr7"
-      req = stub_request(:post, url).
-        with(body: {"exp_month" => "12", "exp_year" => "2030"}).
-        to_return(fixture_response("stripe/customer"))
-
-      expect do
-        member.stripe.update_card(card:, exp_month: "12", exp_year: "2030")
-      end.to(change { member.updated_at })
-
-      expect(req).to have_been_made
-    end
-
-    it "errors if the card does not belong to the member" do
-      card = Suma::Fixtures.card.create
-      expect do
-        member.stripe.update_card(card:, exp_month: "12", exp_year: "2030")
-      end.to raise_error(Suma::InvalidPrecondition)
-    end
-  end
 end

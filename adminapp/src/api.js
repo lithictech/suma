@@ -102,6 +102,8 @@ export default {
     get(`/adminapi/v1/funding_transactions/${id}`, data),
   createForSelfFundingTransaction: (data) =>
     post(`/adminapi/v1/funding_transactions/create_for_self`, data),
+  refundFundingTransaction: ({ id, ...data }) =>
+    post(`/adminapi/v1/funding_transactions/${id}/refund`, data),
   getPayoutTransactions: (data) => get(`/adminapi/v1/payout_transactions`, data),
   getPayoutTransaction: ({ id, ...data }) =>
     get(`/adminapi/v1/payout_transactions/${id}`, data),

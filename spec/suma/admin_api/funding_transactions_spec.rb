@@ -140,4 +140,52 @@ RSpec.describe Suma::AdminAPI::FundingTransactions, :db do
       expect(last_response).to have_json_body.that_includes(error: include(code: "role_check"))
     end
   end
+
+  describe "POST /v1/funding_transactions/:id/refund" do
+    let(:instrument) { Suma::Fixtures.bank_account.create }
+    let(:fx) do
+      fx = Suma::Fixtures.funding_transaction.with_fake_strategy.create(amount: money("$10"))
+      fx.strategy.set_response(:originating_instrument, instrument)
+      fx.strategy.set_response(:check_validity, [])
+      fx.strategy.set_response(:ready_to_send_funds?, false)
+      fx
+    end
+
+    it "refunds the refundable amount amount if :full is passed" do
+      Suma::Fixtures::PayoutTransactions.refund_of(fx, Suma::Fixtures.card.create, amount: money("$1"))
+
+      post "/v1/funding_transactions/#{fx.id}/refund", full: true
+
+      expect(last_response).to have_status(200)
+      expect(last_response.headers).to include("Created-Resource-Admin")
+      px = Suma::Payment::PayoutTransaction.find!(id: last_response.headers["Created-Resource-Id"].to_i)
+      expect(px).to have_attributes(amount: cost("$9"))
+    end
+
+    it "can refund the specified amount" do
+      post "/v1/funding_transactions/#{fx.id}/refund", amount: {cents: 450, currency: "USD"}
+
+      expect(last_response).to have_status(200)
+      px = Suma::Payment::PayoutTransaction.where(refunded_funding_transaction: fx).first
+      expect(px).to_not be_nil
+      expect(px).to have_attributes(amount: cost("$4.50"))
+    end
+
+    it "errors if the refund amount is too high" do
+      post "/v1/funding_transactions/#{fx.id}/refund", amount: {cents: 1200, currency: "USD"}
+
+      expect(last_response).to have_status(400)
+      expect(last_response).to have_json_body.
+        that_includes(error: include(message: /Refund cannot be greater/))
+    end
+
+    it "errors without role access" do
+      replace_roles(admin, Suma::Role.cache.noop_admin)
+
+      post "/v1/funding_transactions/#{fx.id}/refund", full: true
+
+      expect(last_response).to have_status(403)
+      expect(last_response).to have_json_body.that_includes(error: include(code: "role_check"))
+    end
+  end
 end

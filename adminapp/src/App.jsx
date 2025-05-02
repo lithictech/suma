@@ -14,6 +14,7 @@ import DashboardPage from "./pages/DashboardPage";
 import FundingTransactionCreatePage from "./pages/FundingTransactionCreatePage";
 import FundingTransactionDetailPage from "./pages/FundingTransactionDetailPage";
 import FundingTransactionListPage from "./pages/FundingTransactionListPage";
+import FundingTransactionRefundPage from "./pages/FundingTransactionRefundPage";
 import MemberDetailPage from "./pages/MemberDetailPage";
 import MemberEditPage from "./pages/MemberEditPage";
 import MemberListPage from "./pages/MemberListPage";
@@ -203,6 +204,15 @@ function PageSwitch() {
           redirectIfUnauthed,
           withLayout(),
           FundingTransactionDetailPage
+        )}
+      />
+      <Route
+        exact
+        path="/funding-transaction/:id/refund"
+        element={renderWithHocs(
+          redirectIfUnauthed,
+          withLayout(),
+          FundingTransactionRefundPage
         )}
       />
       <Route

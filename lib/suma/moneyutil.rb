@@ -16,4 +16,8 @@ class Suma::Moneyutil
   def self.to_h(m)
     return {currency: m.currency.iso_code, cents: m.cents}
   end
+
+  def self.from_h(h)
+    return Money.new(h.fetch(:cents), h.fetch(:currency))
+  end
 end

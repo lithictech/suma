@@ -282,6 +282,32 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
     end
   end
 
+  describe "PayoutTransactionProcessor" do
+    it "processes all created and sending payout transactions" do
+      created = Suma::Fixtures.payout_transaction.with_fake_strategy.create
+      created.strategy.set_response(:ready_to_send_funds?, true)
+      created.strategy.set_response(:send_funds, true)
+      created.strategy.set_response(:funds_settled?, true)
+
+      sending = Suma::Fixtures.payout_transaction.with_fake_strategy.create(status: "sending")
+      sending.strategy.set_response(:ready_to_send_funds?, true)
+      sending.strategy.set_response(:send_funds, false)
+      sending.strategy.set_response(:funds_settled?, true)
+
+      stuck = Suma::Fixtures.payout_transaction.with_fake_strategy.create
+      stuck.strategy.set_response(:ready_to_send_funds?, true)
+      stuck.strategy.set_response(:send_funds, true)
+      stuck.strategy.set_response(:funds_settled?, false)
+
+      Suma::Async::PayoutTransactionProcessor.new.perform
+
+      # Was processed all the way through
+      expect(created.refresh).to have_attributes(status: "settled")
+      expect(sending.refresh).to have_attributes(status: "settled")
+      expect(stuck.refresh).to have_attributes(status: "sending")
+    end
+  end
+
   describe "PlaidUpdateInstitutions" do
     it "updates Plaid institutions" do
       Suma::Plaid.sync_institutions = true

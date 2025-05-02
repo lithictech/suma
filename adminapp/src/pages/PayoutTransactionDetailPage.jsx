@@ -26,8 +26,19 @@ export default function PayoutTransactionDetailPage() {
         const {
           originatedBookTransaction: originated,
           creditingBookTransaction: crediting,
+          refundedFundingTransaction: refund,
         } = model;
         return [
+          refund && (
+            <DetailGrid
+              title="Refunded Transaction"
+              properties={[
+                { label: "ID", value: <AdminLink model={refund} /> },
+                { label: "Created At", value: dayjs(refund.createdAt) },
+                { label: "Amount", value: <Money>{refund.amount}</Money> },
+              ]}
+            />
+          ),
           <DetailGrid
             title="Originated Book Transaction"
             properties={[

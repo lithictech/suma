@@ -14,14 +14,14 @@ class Suma::Member::StripeAttributes
   # https://stripe.com/docs/api#create_customer
   def register_as_customer
     return self.customer if self.registered_as_customer?
-
-    identity_info = {
-      email: @member.email,
-      description: @member.name,
-      metadata: Suma::Stripe.default_metadata.merge(suma_member_id: @member.id),
-    }
-    key = Suma.idempotency_key(@member, "customer")
-    customer = Stripe::Customer.create(identity_info, idempotency_key: key)
+    customer = Stripe::Customer.create(
+      {
+        email: @member.email,
+        description: @member.name,
+        metadata: Suma::Stripe.build_metadata([@member]),
+      },
+      idempotency_key: Suma.idempotency_key(@member, "customer"),
+    )
     self.update_customer_json(customer)
     return customer
   end
@@ -53,21 +53,18 @@ class Suma::Member::StripeAttributes
   # Create a Stripe Card for the member's Stripe Customer and return it.
   # https://stripe.com/docs/api#create_card
   def register_card_for_charges(token_str)
-    key = Suma.idempotency_key(@member, "card", token_str[-8..])
-    card = Stripe::Customer.create_source(self.customer_id, {source: token_str}, idempotency_key: key)
+    idempotency_key = Suma.idempotency_key(@member, "card", token_str[-8..])
+    metadata = Suma::Stripe.build_metadata([@member])
+    card = Stripe::Customer.create_source(
+      self.customer_id,
+      {source: token_str, metadata:},
+      idempotency_key:,
+    )
     return card
   end
 
   def charge_card(card:, amount:, memo:, idempotency_key:, params: {}, metadata: {})
     raise Suma::InvalidPrecondition, "card owner must be member" unless card.member === @member
-    metadata = Suma::Stripe.default_metadata.merge(
-      {
-        suma_card_id: card.id,
-        suma_member_id: @member.id,
-        suma_member_name: @member.name,
-      },
-      metadata,
-    )
     return Stripe::Charge.create(
       {
         amount: amount.cents,
@@ -75,24 +72,11 @@ class Suma::Member::StripeAttributes
         source: card.stripe_id,
         description: memo,
         customer: @member.stripe.customer_id,
-        metadata:,
+        metadata: Suma::Stripe.build_metadata([card, @member]).merge(metadata),
         **params,
       }, {
         idempotency_key:,
       },
     )
-  end
-
-  def update_card(card:, exp_month:, exp_year:)
-    raise Suma::InvalidPrecondition, "card owner must be member" unless card.member === @member
-    cust = Stripe::Customer.update_source(
-      self.customer_id,
-      card.stripe_id,
-      {
-        exp_month:,
-        exp_year:,
-      },
-    )
-    self.update_customer_json(cust)
   end
 end
