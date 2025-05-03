@@ -366,6 +366,7 @@ class Suma::Member < Suma::Postgres::Model(:members)
 
   def display_email
     return self.email unless self.soft_deleted?
+    return nil if self.email.nil?
     return self.email.split("+", 2)[1]
   end
 
@@ -396,7 +397,7 @@ class Suma::Member < Suma::Postgres::Model(:members)
 
   ### Soft-delete hook -- prep the user for deletion.
   def before_soft_delete
-    self.email = "#{Time.now.to_f}+#{self[:email]}"
+    self.email = "#{Time.now.to_f}+#{self[:email]}" if self.email
     self.password = "aA1!#{SecureRandom.hex(8)}"
     self.note = (self.note + "\nOriginal phone: #{self.phone}").strip
     # To make sure we clear out the phone, use +37-(13 chars).
