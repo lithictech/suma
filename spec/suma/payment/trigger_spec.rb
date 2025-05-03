@@ -206,4 +206,114 @@ RSpec.describe "Suma::Payment::Trigger", :db do
       end
     end
   end
+
+  describe "#subdivide" do
+    let(:tr) do
+      Suma::Fixtures.payment_trigger.create(
+        label: "MyTrigger",
+        active_during: Time.parse("2025-01-01T00:00:00Z")..Time.parse("2025-01-02T00:00:00Z"),
+      )
+    end
+
+    it "can subdivide evenly" do
+      created = tr.subdivide(amount: 6, unit: :hour)
+      expect(created).to have_length(4)
+      expect(created.first).to be === tr
+      expect(created).to match_array(
+        [
+          have_attributes(
+            label: "MyTrigger (hours 1-6)",
+            active_during_begin: match_time("2025-01-01T00:00:00Z"),
+            active_during_end: match_time("2025-01-01T06:00:00Z"),
+          ),
+          have_attributes(
+            label: "MyTrigger (hours 7-12)",
+            active_during_begin: match_time("2025-01-01T06:00:00Z"),
+            active_during_end: match_time("2025-01-01T12:00:00Z"),
+          ),
+          have_attributes(
+            label: "MyTrigger (hours 13-18)",
+            active_during_begin: match_time("2025-01-01T12:00:00Z"),
+            active_during_end: match_time("2025-01-01T18:00:00Z"),
+          ),
+          have_attributes(
+            label: "MyTrigger (hours 19-24)",
+            active_during_begin: match_time("2025-01-01T18:00:00Z"),
+            active_during_end: match_time("2025-01-02T00:00:00Z"),
+          ),
+        ],
+      )
+    end
+
+    it "returns [self] with an interval larger than the active_during" do
+      created = tr.subdivide(amount: 31, unit: :hour)
+      expect(created).to contain_exactly(be === tr)
+      expect(created.first).to have_attributes(
+        label: "MyTrigger",
+        active_during_begin: match_time("2025-01-01T00:00:00Z"),
+        active_during_end: match_time("2025-01-02T00:00:00Z"),
+      )
+    end
+
+    it "returns [self] with an interval equal to active_during" do
+      created = tr.subdivide(amount: 24, unit: :hour)
+      expect(created).to contain_exactly(be === tr)
+      expect(created.first).to have_attributes(
+        label: "MyTrigger",
+        active_during_begin: match_time("2025-01-01T00:00:00Z"),
+        active_during_end: match_time("2025-01-02T00:00:00Z"),
+      )
+    end
+
+    it "can subdivide with an interval that does not divide evenly into the active_during" do
+      created = tr.subdivide(amount: 13, unit: :hour)
+      expect(created).to have_length(2)
+      expect(created.first).to be === tr
+      expect(created).to match_array(
+        [
+          have_attributes(
+            label: "MyTrigger (hours 1-13)",
+            active_during_begin: match_time("2025-01-01T00:00:00Z"),
+            active_during_end: match_time("2025-01-01T13:00:00Z"),
+          ),
+          have_attributes(
+            label: "MyTrigger (hours 14-26)",
+            active_during_begin: match_time("2025-01-01T13:00:00Z"),
+            active_during_end: match_time("2025-01-02T00:00:00Z"),
+          ),
+        ],
+      )
+    end
+
+    it "uses a singular label when the amount is 1" do
+      tr.update(active_during_end: Time.parse("2025-01-01T04:00:00Z"))
+      created = tr.subdivide(amount: 1, unit: :hour)
+      expect(created).to have_length(4)
+      expect(created.first).to be === tr
+      expect(created).to match_array(
+        [
+          have_attributes(
+            label: "MyTrigger (hour 1)",
+            active_during_begin: match_time("2025-01-01T00:00:00Z"),
+            active_during_end: match_time("2025-01-01T01:00:00Z"),
+          ),
+          have_attributes(
+            label: "MyTrigger (hour 2)",
+            active_during_begin: match_time("2025-01-01T01:00:00Z"),
+            active_during_end: match_time("2025-01-01T02:00:00Z"),
+          ),
+          have_attributes(
+            label: "MyTrigger (hour 3)",
+            active_during_begin: match_time("2025-01-01T02:00:00Z"),
+            active_during_end: match_time("2025-01-01T03:00:00Z"),
+          ),
+          have_attributes(
+            label: "MyTrigger (hour 4)",
+            active_during_begin: match_time("2025-01-01T03:00:00Z"),
+            active_during_end: match_time("2025-01-01T04:00:00Z"),
+          ),
+        ],
+      )
+    end
+  end
 end

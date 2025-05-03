@@ -140,6 +140,49 @@ class Suma::Payment::Trigger < Suma::Postgres::Model(:payment_triggers)
     return ledger
   end
 
+  # Modify this instance so +active_during_end+ is +interval+ after +active_during_begin+.
+  # Create new trigger instances with the same values, but each one is +interval+ after the last.
+  # The last trigger has the same +active_during_end+ of the original instance.
+  # @param unit [Symbol] Must be an active support duration, like :week, :day, :month, etc.
+  # @param amount [Integer] Number of units in duration each resulting trigger is.
+  # @return [Array<Suma::Payment::Trigger>]
+  def subdivide(unit:, amount:)
+    interval = amount.send(unit)
+    created = [self]
+    return created if self.active_during_end <= (self.active_during_begin + interval)
+    unit_lbl = amount == 1 ? unit.to_s : unit.to_s.pluralize
+    self.db.transaction do
+      original_end = self.active_during_end
+      original_label = self.label
+      self.active_during_end = self.active_during_begin + interval
+      first_lbl_duration = amount == 1 ? "1" : "1-#{amount}"
+      self.label = "#{self.label} (#{unit_lbl} #{first_lbl_duration})"
+      self.save_changes
+      loop do
+        last_instance = created.last
+        if last_instance.active_during_end >= original_end
+          last_instance.active_during_end = original_end
+          break
+        end
+        tvals = self.values.dup
+        tvals.delete(:id)
+        instance = self.class.new(tvals)
+        interval_lbl = if amount == 1
+                         (created.count + 1).to_s
+                       else
+                         interval_start = created.count * amount
+                         "#{interval_start + 1}-#{interval_start + amount}"
+                        end
+        instance.label = "#{original_label} (#{unit_lbl} #{interval_lbl})"
+        instance.active_during_begin = last_instance.active_during_end
+        instance.active_during_end = instance.active_during_begin + interval
+        instance.save_changes
+        created << instance
+      end
+      return created
+    end
+  end
+
   def rel_admin_link = "/payment-trigger/#{self.id}"
 
   def hybrid_search_fields

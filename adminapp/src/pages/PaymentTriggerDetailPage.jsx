@@ -1,16 +1,20 @@
 import api from "../api";
 import AdminLink from "../components/AdminLink";
 import AuditActivityList from "../components/AuditActivityList";
+import Link from "../components/Link";
 import Programs from "../components/Programs";
 import RelatedList from "../components/RelatedList";
 import ResourceDetail from "../components/ResourceDetail";
+import useUrlMarshal from "../hooks/useUrlMarshal";
 import { dayjs } from "../modules/dayConfig";
 import formatDate from "../modules/formatDate";
 import { formatMoney, intToMoney } from "../shared/money";
 import SafeExternalLink from "../shared/react/SafeExternalLink";
+import HorizontalSplitIcon from "@mui/icons-material/HorizontalSplit";
 import React from "react";
 
 export default function PaymentTriggerDetailPage() {
+  const { marshalToUrl } = useUrlMarshal();
   return (
     <ResourceDetail
       resource="payment_trigger"
@@ -23,6 +27,20 @@ export default function PaymentTriggerDetailPage() {
         { label: "Updated At", value: dayjs(model.updatedAt) },
         { label: "Starting", value: dayjs(model.activeDuringBegin) },
         { label: "Ending", value: dayjs(model.activeDuringEnd) },
+        {
+          label: "Subdivide",
+          value: (
+            <Link
+              to={`/payment-trigger/${model.id}/subdivide?${marshalToUrl(
+                "model",
+                model
+              )}`}
+            >
+              <HorizontalSplitIcon sx={{ verticalAlign: "middle", marginRight: 1 }} />
+              Subdivide
+            </Link>
+          ),
+        },
         { label: "Match Multiplier", value: model.matchMultiplier },
         {
           label: "Max Subsidy",

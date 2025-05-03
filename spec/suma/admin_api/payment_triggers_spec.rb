@@ -150,4 +150,24 @@ RSpec.describe Suma::AdminAPI::PaymentTriggers, :db do
       expect(last_response).to have_status(403)
     end
   end
+
+  describe "POST /v1/payment_triggers/:id/subdivide" do
+    it "subdivides the trigger" do
+      pt = Suma::Fixtures.payment_trigger.create(
+        active_during: Time.parse("2024-04-01T00:00:00Z")..Time.parse("2024-04-20T00:00:00Z"),
+      )
+
+      post "/v1/payment_triggers/#{pt.id}/subdivide", amount: 2, unit: "week"
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.that_includes(id: pt.id)
+      expect(Suma::Payment::Trigger.all).to have_length(2)
+    end
+
+    it "403s if the trigger does not exist" do
+      post "/v1/payment_triggers/0/subdivide", amount: 1, unit: "day"
+
+      expect(last_response).to have_status(403)
+    end
+  end
 end

@@ -84,5 +84,19 @@ class Suma::AdminAPI::PaymentTriggers < Suma::AdminAPI::V1
       Suma::Payment::Trigger,
       DetailedPaymentTriggerEntity,
     )
+
+    route_param :id, type: Integer do
+      params do
+        requires :amount, type: Integer
+        requires :unit, type: Symbol, values: [:day, :week, :month]
+      end
+      post :subdivide do
+        (tr = Suma::Payment::Trigger[params[:id]]) or forbidden!
+        tr.subdivide(amount: params[:amount], unit: params[:unit])
+        created_resource_headers(tr.id, tr.admin_link)
+        status 200
+        present tr, with: DetailedPaymentTriggerEntity
+      end
+    end
   end
 end
