@@ -245,6 +245,13 @@ RSpec.describe "Suma::Member", :db do
       c.soft_delete
       expect(c.display_email).to eq("x@y.com")
     end
+
+    it "can handle a nil email" do
+      c = Suma::Fixtures.member.create.update(email: nil)
+      expect(c).to have_attributes(email: nil, display_email: nil)
+      c.soft_delete
+      expect(c).to have_attributes(email: nil, display_email: nil)
+    end
   end
 
   describe "requires_terms_agreement?" do
