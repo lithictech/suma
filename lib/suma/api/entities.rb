@@ -81,14 +81,16 @@ module Suma::API::Entities
     expose :vendor_service_rate, as: :rate, with: VendorServiceRateEntity
     expose :begin_lat
     expose :begin_lng
+    expose :begin_address_parsed, as: :begin_address
     expose :began_at
     expose :end_lat
     expose :end_lng
+    expose :end_address_parsed, as: :end_address
     expose :ended_at
     expose :ongoing?, as: :ongoing
     expose :charge, with: MobilityChargeEntity
     expose :duration_minutes, as: :minutes
-    # TODO: Fix up references to old fields
+    expose :image, with: ImageEntity
   end
 
   class PreferencesSubscriptionEntity < BaseEntity

@@ -72,6 +72,30 @@ RSpec.describe "Suma::UploadedFile", :db do
       uf = Suma::Fixtures.uploaded_file.create
       expect { uf.blob_stream }.to raise_error(described_class::MissingBlob)
     end
+
+    it "errors if the file is private and it has not been unlocked" do
+      uf = described_class.create_with_blob(bytes: png_1x1, content_type: "image/png")
+      uf.private = true
+      expect { uf.blob_stream }.to raise_error(described_class::PrivateFile)
+      uf.unlock_blob
+      expect { uf.blob_stream }.to_not raise_error
+    end
+  end
+
+  describe "validations" do
+    it "must have a creator if private" do
+      uf = Suma::Fixtures.uploaded_file.instance
+      uf.private = true
+      uf.created_by = nil
+      uf.validate
+      expect(uf.errors).to include(private: ["created_by must be set"])
+
+      uf = Suma::Fixtures.uploaded_file.instance
+      uf.private = true
+      uf.created_by = Suma::Fixtures.member.create
+      uf.validate
+      expect(uf.errors).to be_empty
+    end
   end
 
   describe "NoImageAvailable" do

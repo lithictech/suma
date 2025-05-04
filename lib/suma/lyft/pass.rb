@@ -322,9 +322,10 @@ class Suma::Lyft::Pass
 
   VEHICLE_TYPES_FOR_RIDEABLE_TYPES = {
     "ELECTRIC_BIKE" => Suma::Mobility::EBIKE,
+    "ELECTRIC_SCOOTER" => Suma::Mobility::ESCOOTER,
   }.freeze
 
-  def upsert_ride_as_trip(ride_resp, vendor_service:, vendor_service_rate:)
+  def upsert_ride_as_trip(ride_resp, vendor_service:, vendor_service_rate:, check_dupes: true)
     ride = ride_resp.fetch("ride")
     rider_phone = ride.fetch("rider").fetch("phone_number")
     ride_id = ride.fetch("ride_id")
@@ -332,6 +333,7 @@ class Suma::Lyft::Pass
       self.logger.warn("no_member_for_rider", ride_id:, rider_phone:)
       return nil
     end
+    return nil if check_dupes && !Suma::Mobility::Trip.where(external_trip_id: ride_id).empty?
     member.db.transaction(savepoint: true) do
       begin
         trip = Suma::Mobility::Trip.start_trip(
@@ -348,11 +350,28 @@ class Suma::Lyft::Pass
           ended_at: Time.at(ride.fetch("dropoff").fetch("timestamp_ms") / 1000),
           end_lat: 0,
           end_lng: 0,
+          begin_address: ride.fetch("pickup").fetch("address"),
+          end_address: ride.fetch("dropoff").fetch("address"),
           external_trip_id: ride_id,
         )
       rescue Sequel::UniqueConstraintViolation
         self.logger.debug("ride_already_exists", ride_id:)
         raise Sequel::Rollback
+      end
+
+      if (image_url = ride.fetch("map_image_url"))
+        resp = Suma::Http.get(image_url, logger: self.logger)
+        map_uf = Suma::UploadedFile.create_with_blob(
+          bytes: resp.body,
+          content_type: resp.headers["Content-Type"],
+          private: true,
+          created_by: member,
+        )
+        Suma::Image.create(
+          mobility_trip: trip,
+          uploaded_file: map_uf,
+          caption: Suma::TranslatedText.empty,
+        )
       end
 
       charge = trip.end_trip(lat: 0, lng: 0, adapter_kw: {ride_response: ride_resp})

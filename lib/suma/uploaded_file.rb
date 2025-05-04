@@ -8,6 +8,7 @@ class Suma::UploadedFile < Suma::Postgres::Model(:uploaded_files)
   extend Suma::MethodUtilities
 
   class MissingBlob < StandardError; end
+  class PrivateFile < StandardError; end
 
   plugin :timestamps
 
@@ -84,7 +85,20 @@ class Suma::UploadedFile < Suma::Postgres::Model(:uploaded_files)
     self.create(opts)
   end
 
+  # If true, +unlock_blob+ must be called to access +blob_stream+.
+  # Usually, private blobs can only be read by the uploaded file's +created_by+ or admins.
+  def private? = self.private
+
+  # Allow +blob_stream+ to be called. See +private?+.
+  def unlock_blob
+    @unlocked_blob = true
+    return self
+  end
+
   def blob_stream
+    if self.private? && !@unlocked_blob
+      raise PrivateFile, "unlock_blob must be called on private files before accessing blob_stream"
+    end
     if @_blob_bytes.nil? || @_blob_bytes_hash != self.sha256
       @_blob_bytes = self.class.blob_dataset.where(sha256: self.sha256).select_map(:bytes).first
       raise MissingBlob, "no blob in database for #{self.sha256}" if @_blob_bytes.nil?
@@ -95,6 +109,11 @@ class Suma::UploadedFile < Suma::Postgres::Model(:uploaded_files)
 
   def absolute_url
     return "#{Suma.api_url}/v1/images/#{self.opaque_id}"
+  end
+
+  def validate
+    super
+    errors.add(:private, "created_by must be set") if self.private? && self.created_by_id.nil?
   end
 
   class NoImageAvailable
@@ -115,6 +134,7 @@ class Suma::UploadedFile < Suma::Postgres::Model(:uploaded_files)
     def content_length = self.class.data[:bytes].size
     def blob_stream = StringIO.new(self.class.data[:bytes])
     def absolute_url = "#{Suma.api_url}/v1/images/missing"
+    def private? = false
   end
 end
 

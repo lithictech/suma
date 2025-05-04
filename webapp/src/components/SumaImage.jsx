@@ -17,6 +17,7 @@ import React from "react";
  * @param h The 'h' crop parameter.
  * @param width The image element width, AND the 'w' crop parameter if `w` is empty.
  * @param height The image element height, AND the 'h' crop parameter if `h` is empty.
+ * @param placeholderHeight Height for the placeholder/error elements. Defaults to height.
  * @param params Additional url params. `{crop: 'lower'}` would send `&crop=lower` for example.
  * @param alt Alt text to use. Overrides image.caption.
  * @param {'light'|'dark'} variant Version to use (use 'light' on a dark background, etc). Default to 'light'.
@@ -32,6 +33,7 @@ export default function SumaImage({
   h,
   width,
   height,
+  placeholderHeight,
   params,
   alt,
   variant,
@@ -39,9 +41,10 @@ export default function SumaImage({
   style,
   ...rest
 }) {
-  if (!width && !height) {
+  placeholderHeight = placeholderHeight || height;
+  if (!width && !placeholderHeight) {
     console.warn(
-      "SumaImage: 'height' or 'width' required to use loader and error placeholders."
+      "SumaImage: 'height', 'placeholderHeight', or 'width' required to use loader and error placeholders."
     );
   }
   const [loaded, setLoaded] = React.useState(false);
@@ -83,7 +86,7 @@ export default function SumaImage({
   }
   if (errored) {
     sty.width = width || "100%";
-    sty.height = height || h;
+    sty.height = placeholderHeight || h;
     const smallError = (width || w) < 120;
     return (
       <div
@@ -99,7 +102,7 @@ export default function SumaImage({
       {!loaded && (
         <div
           className={clsx(styles.loader, styles[`loader-${variant}`], className)}
-          style={{ ...sty, height: height || h, width: width || "100%" }}
+          style={{ ...sty, height: placeholderHeight || h, width: width || "100%" }}
         />
       )}
       <img

@@ -156,14 +156,15 @@ class Suma::API::Mobility < Suma::API::V1
       if collection.items.any?
         current_week_key = ""
         collection.items.each_with_index do |item, idx|
-          week_key = item.began_at.strftime("%Y-%U")
+          began_at = item.began_at.in_time_zone(member.timezone)
+          week_key = began_at.beginning_of_week.to_date.to_s
           if week_key == current_week_key
             weeks.last[:end_index] = idx
           else
             current_week_key = week_key
             weeks << {
-              begin_at: item.began_at.utc.beginning_of_week.to_date,
-              end_at: item.began_at.utc.end_of_week.to_date,
+              begin_at: began_at.beginning_of_week.to_date,
+              end_at: began_at.end_of_week.to_date,
               begin_index: idx,
               end_index: idx,
             }

@@ -7,6 +7,7 @@ require "suma/admin_linked"
 class Suma::Mobility::Trip < Suma::Postgres::Model(:mobility_trips)
   include Suma::Postgres::HybridSearch
   include Suma::AdminLinked
+  include Suma::Image::SingleAssociatedMixin
 
   class OngoingTrip < StandardError; end
 
@@ -138,6 +139,15 @@ class Suma::Mobility::Trip < Suma::Postgres::Model(:mobility_trips)
     x /= 60
     x = x.round
     return x
+  end
+
+  def begin_address_parsed = self.parse_address(self.begin_address)
+  def end_address_parsed = self.parse_address(self.end_address)
+
+  protected def parse_address(address)
+    return nil if address.blank?
+    part1, part2 = address.split(",", 2).map(&:strip)
+    return {part1:, part2: part2 || ""}
   end
 
   def rel_admin_link = "/mobility-trip/#{self.id}"

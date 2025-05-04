@@ -16,6 +16,7 @@ class Suma::Image < Suma::Postgres::Model(:images)
   many_to_one :vendor, class: "Suma::Vendor"
   many_to_one :vendor_service, class: "Suma::Vendor::Service"
   many_to_one :program, class: "Suma::Program"
+  many_to_one :mobility_trip, class: "Suma::Mobility::Trip"
 
   def associated_object
     return self.commerce_product || self.commerce_offering || self.vendor_service || self.vendor || self.program

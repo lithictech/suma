@@ -182,6 +182,23 @@ RSpec.describe "Suma::Mobility::Trip", :db do
     end
   end
 
+  describe "begin/end address" do
+    it "parses into a part1 and part2" do
+      trip = Suma::Fixtures.mobility_trip.create(
+        begin_address: "123 Main St, New York, NY 10001",
+        end_address: "456 Main St",
+      )
+      expect(trip.begin_address_parsed).to eq({part1: "123 Main St", part2: "New York, NY 10001"})
+      expect(trip.end_address_parsed).to eq({part1: "456 Main St", part2: ""})
+      trip.begin_address = trip.end_address = nil
+      expect(trip.begin_address_parsed).to be_nil
+      expect(trip.end_address_parsed).to be_nil
+      trip.begin_address = trip.end_address = " "
+      expect(trip.begin_address_parsed).to be_nil
+      expect(trip.end_address_parsed).to be_nil
+    end
+  end
+
   describe "validations" do
     it "fails if the member has multiple ongoing trips" do
       Suma::Fixtures.mobility_trip(member:).ended.create
