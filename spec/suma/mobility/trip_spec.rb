@@ -197,6 +197,13 @@ RSpec.describe "Suma::Mobility::Trip", :db do
       expect(trip.begin_address_parsed).to be_nil
       expect(trip.end_address_parsed).to be_nil
     end
+
+    it "removes the country from part2" do
+      trip = Suma::Fixtures.mobility_trip.create(
+        begin_address: "123 Main St, New York, NY 10001, United States",
+      )
+      expect(trip.begin_address_parsed).to eq({part1: "123 Main St", part2: "New York, NY 10001"})
+    end
   end
 
   describe "validations" do

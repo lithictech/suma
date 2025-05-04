@@ -147,7 +147,9 @@ class Suma::Mobility::Trip < Suma::Postgres::Model(:mobility_trips)
   protected def parse_address(address)
     return nil if address.blank?
     part1, part2 = address.split(",", 2).map(&:strip)
-    return {part1:, part2: part2 || ""}
+    part2 ||= ""
+    part2 = part2.gsub(/, United States$/, "")
+    return {part1:, part2:}
   end
 
   def rel_admin_link = "/mobility-trip/#{self.id}"
