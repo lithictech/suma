@@ -6,10 +6,12 @@ import { t } from "../localization";
 import { vehicleIconForVendorService } from "../modules/mobilityIconLookup.js";
 import Money from "../shared/react/Money.jsx";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
+import useUrlMarshal from "../shared/react/useUrlMarshal.js";
 import dayjs from "dayjs";
 import isEmpty from "lodash/isEmpty";
 import React from "react";
 import Stack from "react-bootstrap/Stack";
+import { Link } from "react-router-dom";
 
 export default function Trips() {
   const {
@@ -73,6 +75,7 @@ function Week({ items, beginAt, endAt, beginIndex, endIndex }) {
 }
 
 function Trip({ trip }) {
+  const { marshalToUrl } = useUrlMarshal();
   const { id, vehicleType, provider, beganAt, charge } = trip;
   // const trip = {
   //   id: 4,
@@ -109,28 +112,27 @@ function Trip({ trip }) {
   //   },
   // };
   return (
-    <Stack
-      direction="horizontal"
-      href={`/trips/${id}`}
-      className="justify-content-between p-3"
-    >
-      <Stack direction="horizontal" gap={3}>
-        <img
-          src={vehicleIconForVendorService(vehicleType, provider.slug)}
-          height={42}
-          className="trips-image-vehicle"
-        />
-        <Stack direction="vertical" className="small">
-          <div>
-            {provider.vendorName} {t(`trips:${vehicleType}`)} {t(`trips:ride`)} &bull;{" "}
-            {t(`trips:minutes`, { minutes: trip.minutes })}
-          </div>
-          <div className="text-muted">{dayjs(beganAt).format("MMM D, LT")}</div>
+    <Link to={`/trip/${id}?${marshalToUrl("trip", trip)}`} className="link-unstyled">
+      <Stack direction="horizontal" className="justify-content-between p-3">
+        <Stack direction="horizontal" gap={3}>
+          <img
+            src={vehicleIconForVendorService(vehicleType, provider.slug)}
+            alt={`${provider.slug} ${vehicleType}`}
+            height={42}
+            className="trips-image-vehicle"
+          />
+          <Stack direction="vertical" className="small">
+            <div>
+              {provider.vendorName} {t(`trips:${vehicleType}`)} {t(`trips:ride`)} &bull;{" "}
+              {t(`trips:minutes`, { minutes: trip.minutes })}
+            </div>
+            <div className="text-muted">{dayjs(beganAt).format("MMM D, LT")}</div>
+          </Stack>
         </Stack>
+        <div>
+          <Money>{charge.customerCost}</Money>
+        </div>
       </Stack>
-      <div>
-        <Money>{charge.customerCost}</Money>
-      </div>
-    </Stack>
+    </Link>
   );
 }

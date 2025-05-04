@@ -1,4 +1,4 @@
-import { base64decode, base64encode } from "../shared/base64";
+import { base64decode, base64encode } from "../base64";
 import React from "react";
 
 export default function useUrlMarshal() {
