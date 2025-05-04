@@ -1,7 +1,8 @@
 # frozen_string_literal: true
 
-require "suma/lyft"
 require "appydays/loggable"
+require "suma/lyft"
+require "suma/mobility"
 
 # Integrates with the Lyft Pass (Business) system.
 # Can log into Lyft using the configured username, find the auth token in the sent email,
@@ -319,6 +320,10 @@ class Suma::Lyft::Pass
     end
   end
 
+  VEHICLE_TYPES_FOR_RIDEABLE_TYPES = {
+    "ELECTRIC_BIKE" => Suma::Mobility::EBIKE,
+  }.freeze
+
   def upsert_ride_as_trip(ride_resp, vendor_service:, vendor_service_rate:)
     ride = ride_resp.fetch("ride")
     rider_phone = ride.fetch("rider").fetch("phone_number")
@@ -332,6 +337,7 @@ class Suma::Lyft::Pass
         trip = Suma::Mobility::Trip.start_trip(
           member:,
           vehicle_id: ride_id,
+          vehicle_type: VEHICLE_TYPES_FOR_RIDEABLE_TYPES.fetch(ride.fetch("rideable_type")),
           vendor_service:,
           rate: vendor_service_rate,
           lat: 0,

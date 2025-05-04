@@ -47,6 +47,12 @@ module Suma::API::Entities
     end
   end
 
+  class ChargeEntity < BaseEntity
+    expose :undiscounted_cost, with: MoneyEntity
+    expose :customer_cost, with: MoneyEntity
+    expose :savings, with: MoneyEntity
+  end
+
   class VendorServiceRateEntity < BaseEntity
     expose :id
     expose :localization_key
@@ -64,6 +70,7 @@ module Suma::API::Entities
   class MobilityTripEntity < BaseEntity
     expose :id
     expose :vehicle_id
+    expose :vehicle_type
     expose :vendor_service, as: :provider, with: VendorServiceEntity
     expose :vendor_service_rate, as: :rate, with: VendorServiceRateEntity
     expose :begin_lat
@@ -72,8 +79,10 @@ module Suma::API::Entities
     expose :end_lat
     expose :end_lng
     expose :ended_at
-    expose :total_cost, with: MoneyEntity, &self.delegate_to(:charge, :discounted_subtotal, safe: true)
-    expose :discount_amount, with: MoneyEntity, &self.delegate_to(:charge, :discount_amount, safe: true)
+    expose :ongoing?, as: :ongoing
+    expose :charge, with: ChargeEntity
+    expose :duration_minutes, as: :minutes
+    # TODO: Fix up references to old fields
   end
 
   class PreferencesSubscriptionEntity < BaseEntity

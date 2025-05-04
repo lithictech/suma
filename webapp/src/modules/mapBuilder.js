@@ -1,33 +1,15 @@
 import api from "../api";
-import biketownEbikeIcon from "../assets/images/biketown-ebike.png";
-import limeEscooterIcon from "../assets/images/lime-escooter.png";
-import unknownVehicleIcon from "../assets/images/loader-ring.svg";
 import scooterContainer from "../assets/images/scooter-container.svg";
 import config from "../config";
 import { t } from "../localization";
 import { localStorageCache } from "../shared/localStorageHelper";
+import { vehicleIconForVendorService } from "./mobilityIconLookup.js";
 import leaflet from "leaflet";
 import "leaflet.animatedmarker/src/AnimatedMarker";
 import "leaflet.markercluster/dist/MarkerCluster.css";
 import "leaflet.markercluster/dist/leaflet.markercluster";
 import "leaflet/dist/leaflet.css";
 import isUndefined from "lodash/isUndefined";
-
-// Build a map of vehicle type to vehicle service internal name.
-// If we add more services, we need to adjust this map.
-// This isn't ideal, because it ties built assets to dynamic data in the database,
-// but it avoids having to serve images from the backend for vehicle icons.
-// This is significant in terms of network issues, so we'll take the tradeoff for now.
-// But in the future, we may need to move to having the vendor service store a reference
-// to an image, so these icons can be loaded dynamically.
-const iconNameLookup = {
-  ebike: {
-    biketown: biketownEbikeIcon,
-  },
-  escooter: {
-    lime: limeEscooterIcon,
-  },
-};
 
 export default class MapBuilder {
   constructor(host) {
@@ -288,9 +270,7 @@ export default class MapBuilder {
     }
     lat = lat * precisionFactor;
     lng = lng * precisionFactor;
-    const vehicleImg =
-      (iconNameLookup[vehicleType] || {})[vehicleProvider.vendorSlug] ||
-      unknownVehicleIcon;
+    const vehicleImg = vehicleIconForVendorService(vehicleType, vehicleProvider.slug);
     const vehicleIcon = this._l.divIcon({
       html: `
         <img src="${scooterContainer}" alt=""/>

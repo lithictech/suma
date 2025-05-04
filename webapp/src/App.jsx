@@ -41,6 +41,7 @@ import PrivacyPolicy from "./pages/PrivacyPolicy";
 import PrivateAccountsList from "./pages/PrivateAccountsList";
 import Start from "./pages/Start";
 import Styleguide from "./pages/Styleguide";
+import Trips from "./pages/Trips";
 import UnclaimedOrderList from "./pages/UnclaimedOrderList";
 import Utilities from "./pages/Utilities";
 import applyHocs from "./shared/applyHocs";
@@ -441,6 +442,18 @@ function AppRoutes() {
             withMetatags({ title: t("titles.private_accounts") }),
             withLayout(),
             PrivateAccountsList
+          )}
+        />
+        <Route
+          path="/trips"
+          exact
+          element={renderWithHocs(
+            redirectIfUnauthed,
+            redirectIfUnboarded,
+            withScreenLoaderMount(),
+            withMetatags({ title: t("titles.trips") }),
+            withLayout({ top: true, gutters: false }),
+            Trips
           )}
         />
         <Route

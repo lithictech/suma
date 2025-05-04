@@ -397,7 +397,17 @@
     "private_accounts": "Private Accounts",
     "start": "Get Started",
     "suma_app": "Suma App",
-    "terms_of_use_and_sale": "Terms of Use"
+    "terms_of_use_and_sale": "Terms of Use",
+    "trips": "Micromobility Trips"
+  },
+  "trips": {
+    "bike": "Bike",
+    "ebike": "E-bike",
+    "empty": "You have not taken any trips.",
+    "escooter": "Scooter",
+    "intro": "View your ride history. Head over to the [Mobility](/mobility) page to take a ride",
+    "minutes": "{{minutes}} min",
+    "ride": "ride"
   },
   "utilities": {
     "intro": "Suma wants to make it easy for you to save money on your utility bills and make our communities more resilient against extreme weather and climate change.\n\nSign up for our free waiting list to help us build a community of members and to show that everyone deserves clean and affordable energy.",

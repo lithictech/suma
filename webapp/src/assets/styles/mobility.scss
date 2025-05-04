@@ -109,3 +109,15 @@
 .mobility-location-accuracy-circle-transition {
   transition: all 1000ms linear 0s;
 }
+
+.trips-image-vehicle {
+  border-radius: 50%;
+  background-color: $info-light;
+  padding: 2px;
+}
+
+.trips-week-divider {
+  background-color: $info-light;
+  height: map-get($spacers, 2);
+  width: 100%;
+}

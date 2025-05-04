@@ -78,6 +78,11 @@ class Suma::Mobility::Vehicle < Suma::Postgres::Model(:mobility_vehicles)
     self.lng_int = Suma::Mobility.coord2int(self.lng)
     super
   end
+
+  def validate
+    super
+    self.validates_includes Suma::Mobility::VEHICLE_TYPE_STRINGS, :vehicle_type
+  end
 end
 
 # Table: mobility_vehicles

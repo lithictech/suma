@@ -59,13 +59,16 @@ class Suma::Charge < Suma::Postgres::Model(:charges)
     self.opaque_id ||= Suma::Secureid.new_opaque_id("ch")
   end
 
-  def discounted_subtotal
-    return self.line_items.sum(Money.new(0), &:amount)
-  end
+  def discounted_subtotal = self.line_items.sum(Money.new(0), &:amount)
+  def discount_amount = self.undiscounted_subtotal - self.discounted_subtotal
 
-  def discount_amount
-    return self.undiscounted_subtotal - self.discounted_subtotal
-  end
+  #
+  # Use PricedItem aliases
+  #
+
+  alias undiscounted_cost undiscounted_subtotal
+  alias customer_cost discounted_subtotal
+  alias savings discount_amount
 
   def rel_admin_link = "/charge/#{self.id}"
 

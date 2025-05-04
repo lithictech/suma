@@ -16,6 +16,7 @@ RSpec.describe "Suma::Mobility::Trip", :db do
       trip = described_class.start_trip(
         member:,
         vehicle_id: "abcd",
+        vehicle_type: "ebike",
         vendor_service:,
         rate:,
         lat: 1.5,
@@ -25,6 +26,7 @@ RSpec.describe "Suma::Mobility::Trip", :db do
       expect(trip).to have_attributes(
         member:,
         vehicle_id: "abcd",
+        vehicle_type: "ebike",
         vendor_service:,
         vendor_service_rate: rate,
         begin_lat: 1.5,
@@ -38,6 +40,7 @@ RSpec.describe "Suma::Mobility::Trip", :db do
         trip = described_class.start_trip(
           member:,
           vehicle_id: "abcd",
+          vehicle_type: "ebike",
           vendor_service:,
           rate:,
           lat: 1.5,

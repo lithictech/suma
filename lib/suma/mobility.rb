@@ -18,6 +18,8 @@ module Suma::Mobility
   EBIKE = :ebike
   ESCOOTER = :escooter
   BIKE = :bike
+  VEHICLE_TYPES = [EBIKE, ESCOOTER, BIKE].freeze
+  VEHICLE_TYPE_STRINGS = VEHICLE_TYPES.map(&:to_s)
 
   class UnknownVehicleType < ArgumentError; end
 

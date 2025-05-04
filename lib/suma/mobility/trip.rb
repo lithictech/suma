@@ -19,9 +19,8 @@ class Suma::Mobility::Trip < Suma::Postgres::Model(:mobility_trips)
   one_to_one :charge, key: :mobility_trip_id, class: "Suma::Charge"
 
   dataset_module do
-    def ongoing
-      return self.where(ended_at: nil)
-    end
+    def ongoing = self.where(ended_at: nil)
+    def ended = self.exclude(ended_at: nil)
   end
 
   def initialize(*)
@@ -33,6 +32,7 @@ class Suma::Mobility::Trip < Suma::Postgres::Model(:mobility_trips)
     return self.start_trip(
       member:,
       vehicle_id: vehicle.vehicle_id,
+      vehicle_type: vehicle.vehicle_type,
       vendor_service: vehicle.vendor_service,
       rate:,
       lat: vehicle.lat,
@@ -41,7 +41,7 @@ class Suma::Mobility::Trip < Suma::Postgres::Model(:mobility_trips)
     )
   end
 
-  def self.start_trip(member:, vehicle_id:, vendor_service:, rate:, lat:, lng:, at: Time.now, **kw)
+  def self.start_trip(member:, vehicle_id:, vehicle_type:, vendor_service:, rate:, lat:, lng:, at: Time.now, **kw)
     member.read_only_mode!
     vendor_service.guard_zero_balance!(member)
     self.db.transaction(savepoint: true) do
@@ -49,6 +49,7 @@ class Suma::Mobility::Trip < Suma::Postgres::Model(:mobility_trips)
       trip = self.new(
         member:,
         vehicle_id:,
+        vehicle_type:,
         vendor_service:,
         vendor_service_rate: rate,
         begin_lat: lat,
@@ -117,8 +118,19 @@ class Suma::Mobility::Trip < Suma::Postgres::Model(:mobility_trips)
     end
   end
 
-  def ended?
-    return !self.ended_at.nil?
+  def ended? = !self.ended_at.nil?
+  def ongoing? = self.ended_at.nil?
+
+  def duration
+    return nil if self.ongoing?
+    return self.ended_at - self.began_at
+  end
+
+  def duration_minutes
+    return -1 if self.ongoing?
+    r = self.duration.to_i / 1.minute
+    r = 1 if r <= 0
+    return r
   end
 
   def rate_units
@@ -137,6 +149,11 @@ class Suma::Mobility::Trip < Suma::Postgres::Model(:mobility_trips)
       :member,
       ["Vendor", self.vendor_service.vendor.name],
     ]
+  end
+
+  def validate
+    super
+    self.validates_includes Suma::Mobility::VEHICLE_TYPE_STRINGS, :vehicle_type
   end
 end
 
