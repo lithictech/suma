@@ -122,9 +122,12 @@ function Trip({ trip }) {
             className="trips-image-vehicle"
           />
           <Stack direction="vertical" className="small">
-            <div>
-              {provider.vendorName} {t(`trips:${vehicleType}`)} {t(`trips:ride`)} &bull;{" "}
-              {t(`trips:minutes`, { minutes: trip.minutes })}
+            <div className="me-3">
+              {t("trips:ride_description", {
+                vendor: provider.vendorName,
+                vehicleType: t(`trips:${vehicleType}`),
+              })}{" "}
+              &bull; {t(`trips:minutes`, { minutes: trip.minutes })}
             </div>
             <div className="text-muted">{dayjs(beganAt).format("MMM D, LT")}</div>
           </Stack>
