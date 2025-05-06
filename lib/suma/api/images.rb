@@ -35,6 +35,13 @@ class Suma::API::Images < Suma::API::V1
         else
           (uf = Suma::UploadedFile[opaque_id: params[:opaque_id]]) or forbidden!
         end
+        if uf.private?
+          if uf.created_by_id == current_member.id
+            uf.unlock_blob
+          else
+            forbidden!
+          end
+        end
         if !params[:w] && !params[:h] && !format
           handle_response(uf) do
             uf.blob_stream.read

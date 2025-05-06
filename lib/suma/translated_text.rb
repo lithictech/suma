@@ -6,6 +6,15 @@ require "suma/postgres/model"
 class Suma::TranslatedText < Suma::Postgres::Model(:translated_texts)
   include SequelTranslatedText::Model
 
+  class << self
+    def empty
+      @empty ||= Suma.cached_get("translated_text_empty") do
+        self.find_or_create(en: "", es: "")
+      end
+      return @empty
+    end
+  end
+
   dataset_module do
     # Return a dataset with a full_text_search on a supported lang column like :en or :es.
     def search(col, q)

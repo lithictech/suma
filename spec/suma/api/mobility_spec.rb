@@ -2,6 +2,8 @@
 
 require "suma/api/mobility"
 
+require_relative "behaviors"
+
 RSpec.describe Suma::API::Mobility, :db do
   include Rack::Test::Methods
 
@@ -451,6 +453,49 @@ RSpec.describe Suma::API::Mobility, :db do
         undiscounted_subtotal: cost("$1.62"),
         discounted_subtotal: cost("$1.20"),
       )
+    end
+  end
+
+  describe "GET /v1/mobility/trips" do
+    let!(:member_ledger) { Suma::Fixtures.ledger.member(member).category(:mobility).create }
+
+    it "returns trips grouped by week" do
+      _ = Suma::Fixtures.mobility_trip.create
+      fac = Suma::Fixtures.mobility_trip(member:).ended
+      t1 = fac.create(began_at: Time.parse("2025-02-17T12:00:00Z"))
+      t2 = fac.create(began_at: Time.parse("2025-02-19T12:00:00Z"))
+      ongoing = fac.ongoing.create(began_at: Time.parse("2025-02-17T12:00:00Z"))
+      t3 = fac.create(began_at: Time.parse("2025-02-18T12:00:00Z"))
+      t4 = fac.create(began_at: Time.parse("2024-09-30T12:00:00Z"))
+
+      get "/v1/mobility/trips"
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.that_includes(
+        items: have_same_ids_as(t2, t3, t1, t4).ordered,
+        ongoing: include(id: ongoing.id),
+        weeks: [
+          {
+            begin_at: "2025-02-17",
+            end_at: "2025-02-23",
+            begin_index: 0,
+            end_index: 2,
+          },
+          {
+            begin_at: "2024-09-30",
+            end_at: "2024-10-06",
+            begin_index: 3,
+            end_index: 3,
+          },
+        ],
+      )
+    end
+
+    it_behaves_like "an endpoint with pagination", download: false do
+      let(:url) { "/v1/mobility/trips" }
+      def make_item(i)
+        return Suma::Fixtures.mobility_trip.ended.create(member:, began_at: Time.now - i.days)
+      end
     end
   end
 end

@@ -51,6 +51,38 @@ RSpec.describe Suma::API::Images, :db do
       expect(last_response.headers).to include("Content-Type" => "image/jpeg")
       expect(last_response.body).to have_length(be > 1000)
     end
+
+    describe "with a private uploaded file" do
+      it "401s if the user is not logged in" do
+        uf = Suma::Fixtures.uploaded_file.create(private: true, created_by: member)
+
+        get "/v1/images/#{uf.opaque_id}"
+
+        expect(last_response).to have_status(401)
+      end
+
+      it "403s for a private file the user did not create" do
+        login_as(member)
+
+        uf = Suma::Fixtures.uploaded_file.create(private: true, created_by: Suma::Fixtures.member.create)
+
+        get "/v1/images/#{uf.opaque_id}"
+
+        expect(last_response).to have_status(403)
+      end
+
+      it "returns a private file the user created" do
+        login_as(member)
+
+        uf = Suma::Fixtures.uploaded_file.uploaded_file(photo_file).create(private: true, created_by: member)
+
+        get "/v1/images/#{uf.opaque_id}"
+
+        expect(last_response).to have_status(200)
+        expect(last_response.headers).to include("Content-Type" => "image/png")
+        expect(last_response.body).to eq(photo_file.read)
+      end
+    end
   end
 
   describe "POST /v1/images" do

@@ -147,6 +147,12 @@ function AuthedUserButtons({ className, user, onCollapse }) {
         onNoChangeClick={onCollapse}
       />
       <NavLinkButton
+        href="/trips"
+        icon="scooter"
+        label={t("titles:trips")}
+        onNoChangeClick={onCollapse}
+      />
+      <NavLinkButton
         href="/preferences"
         icon="gear-fill"
         label={t("titles:preferences")}

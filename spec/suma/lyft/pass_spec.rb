@@ -524,13 +524,37 @@ RSpec.describe Suma::Lyft::Pass, :db, reset_configuration: Suma::Lyft do
         have_attributes(amount: cost("$1")),
         have_attributes(amount: cost("-$5.85")),
       )
+      expect(charge.mobility_trip).to have_attributes(
+        image: nil,
+        began_at: match_time("2024-10-05T14:40:19-07:00"),
+      )
+    end
+
+    it "will download and insert a map image if the url is set" do
+      Suma::Fixtures.card.member(member).create
+      ride["ride"]["map_image_url"] = "https://example.com/map.png"
+      stub_request(:get, "https://example.com/map.png").
+        to_return(status: 200, body: "xyz", headers: {"Content-Type" => "image/png"})
+
+      charge = instance.upsert_ride_as_trip(ride, vendor_service:, vendor_service_rate:)
+      expect(charge.mobility_trip).to have_attributes(
+        image: have_attributes(
+          uploaded_file: have_attributes(private: true, content_type: "image/png"),
+        ),
+      )
     end
 
     it "logs and noops if a trip with the external trip/ride id already exists" do
       Suma::Fixtures.card.member(member).create
       expect(instance.upsert_ride_as_trip(ride, vendor_service:, vendor_service_rate:)).to be_a(Suma::Charge)
+      expect(instance.upsert_ride_as_trip(ride, vendor_service:, vendor_service_rate:)).to be_nil
+    end
+
+    it "logs and noops if a trip with the external trip/ride id already exists (constraint violation)" do
+      Suma::Fixtures.card.member(member).create
+      expect(instance.upsert_ride_as_trip(ride, vendor_service:, vendor_service_rate:)).to be_a(Suma::Charge)
       logs = capture_logs_from(described_class.logger, level: :debug, formatter: :json) do
-        expect(instance.upsert_ride_as_trip(ride, vendor_service:, vendor_service_rate:)).to be_nil
+        expect(instance.upsert_ride_as_trip(ride, vendor_service:, vendor_service_rate:, check_dupes: false)).to be_nil
       end
       expect(logs).to include(
         include_json(message: eq("ride_already_exists")),

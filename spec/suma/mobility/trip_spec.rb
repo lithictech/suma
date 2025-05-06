@@ -16,6 +16,7 @@ RSpec.describe "Suma::Mobility::Trip", :db do
       trip = described_class.start_trip(
         member:,
         vehicle_id: "abcd",
+        vehicle_type: "ebike",
         vendor_service:,
         rate:,
         lat: 1.5,
@@ -25,6 +26,7 @@ RSpec.describe "Suma::Mobility::Trip", :db do
       expect(trip).to have_attributes(
         member:,
         vehicle_id: "abcd",
+        vehicle_type: "ebike",
         vendor_service:,
         vendor_service_rate: rate,
         begin_lat: 1.5,
@@ -38,6 +40,7 @@ RSpec.describe "Suma::Mobility::Trip", :db do
         trip = described_class.start_trip(
           member:,
           vehicle_id: "abcd",
+          vehicle_type: "ebike",
           vendor_service:,
           rate:,
           lat: 1.5,
@@ -176,6 +179,30 @@ RSpec.describe "Suma::Mobility::Trip", :db do
       trip.end_trip(lat: 1, lng: 2)
       expect(trip.charge).to have_attributes(discounted_subtotal: cost("$0"))
       expect(trip.charge.line_items).to be_empty
+    end
+  end
+
+  describe "begin/end address" do
+    it "parses into a part1 and part2" do
+      trip = Suma::Fixtures.mobility_trip.create(
+        begin_address: "123 Main St, New York, NY 10001",
+        end_address: "456 Main St",
+      )
+      expect(trip.begin_address_parsed).to eq({part1: "123 Main St", part2: "New York, NY 10001"})
+      expect(trip.end_address_parsed).to eq({part1: "456 Main St", part2: ""})
+      trip.begin_address = trip.end_address = nil
+      expect(trip.begin_address_parsed).to be_nil
+      expect(trip.end_address_parsed).to be_nil
+      trip.begin_address = trip.end_address = " "
+      expect(trip.begin_address_parsed).to be_nil
+      expect(trip.end_address_parsed).to be_nil
+    end
+
+    it "removes the country from part2" do
+      trip = Suma::Fixtures.mobility_trip.create(
+        begin_address: "123 Main St, New York, NY 10001, United States",
+      )
+      expect(trip.begin_address_parsed).to eq({part1: "123 Main St", part2: "New York, NY 10001"})
     end
   end
 

@@ -81,6 +81,7 @@ class Suma::Member < Suma::Postgres::Model(:members)
   one_to_many :message_deliveries, key: :recipient_id, class: "Suma::Message::Delivery"
   one_to_one :preferences, class: "Suma::Message::Preferences"
   one_to_one :ongoing_trip, class: "Suma::Mobility::Trip", conditions: {ended_at: nil}
+  one_to_many :mobility_trips, class: "Suma::Mobility::Trip"
   many_through_many :orders,
                     [
                       [:commerce_carts, :member_id, :id],

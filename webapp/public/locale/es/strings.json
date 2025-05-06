@@ -397,7 +397,23 @@
     "private_accounts": "Cuentas Privadas",
     "start": "Comenzar",
     "suma_app": "App de Suma",
-    "terms_of_use_and_sale": "Términos de Uso"
+    "terms_of_use_and_sale": "Términos de Uso",
+    "trip_detail": "Detalle del viaje",
+    "trips": "Viajes de micromovilidad"
+  },
+  "trips": {
+    "bike": "bici",
+    "ebike": "e-bicicleta",
+    "empty": "No has hecho ningún viaje.",
+    "end": "Fin",
+    "escooter": "scooter",
+    "intro": "Consulta tu historial de viajes. Visita la página de [movilidad](/mobility) para dar una vuelta.",
+    "minutes": "{{minutes}} minutos",
+    "payment": "Pago",
+    "ride_description": "Paseo en {{vehicleType}} de {{vendor}}",
+    "start": "Comenzar",
+    "thanks": "Gracias por viajar.",
+    "your_trip": "Tu viaje"
   },
   "utilities": {
     "intro": "Suma quiere facilitarle el ahorro de dinero en sus facturas de servicios públicos y hacer que nuestras comunidades sean más resilientes frente al clima extremo y el cambio climático.\n\nRegístrese en nuestra lista de espera gratuita para ayudarnos a construir una comunidad de miembros y demostrar que todos merecen energía limpia y asequible.",

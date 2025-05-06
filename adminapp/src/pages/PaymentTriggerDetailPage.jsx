@@ -5,11 +5,11 @@ import Link from "../components/Link";
 import Programs from "../components/Programs";
 import RelatedList from "../components/RelatedList";
 import ResourceDetail from "../components/ResourceDetail";
-import useUrlMarshal from "../hooks/useUrlMarshal";
 import { dayjs } from "../modules/dayConfig";
 import formatDate from "../modules/formatDate";
 import { formatMoney, intToMoney } from "../shared/money";
 import SafeExternalLink from "../shared/react/SafeExternalLink";
+import useUrlMarshal from "../shared/react/useUrlMarshal";
 import HorizontalSplitIcon from "@mui/icons-material/HorizontalSplit";
 import React from "react";
 

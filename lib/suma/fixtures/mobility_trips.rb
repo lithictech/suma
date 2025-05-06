@@ -14,6 +14,7 @@ module Suma::Fixtures::MobilityTrips
     self.begin_lng ||= Faker::Number.between(from: -180.0, to: 180.0)
     self.began_at ||= Time.now
     self.vehicle_id ||= SecureRandom.hex(8)
+    self.vehicle_type ||= Suma::Mobility::VEHICLE_TYPE_STRINGS.sample
   end
 
   before_saving do |instance|
@@ -27,6 +28,7 @@ module Suma::Fixtures::MobilityTrips
     self.begin_lat = v.lat
     self.begin_lng = v.lng
     self.vehicle_id = v.vehicle_id
+    self.vehicle_type = v.vehicle_type
     self.vendor_service = v.vendor_service
   end
 

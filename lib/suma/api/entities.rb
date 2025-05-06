@@ -61,19 +61,36 @@ module Suma::API::Entities
     expose :vendor_slug, &self.delegate_to(:vendor, :slug)
   end
 
+  class MobilityChargeLineItemEntity < BaseEntity
+    expose :amount, with: MoneyEntity
+    expose_translated :memo
+  end
+
+  class MobilityChargeEntity < BaseEntity
+    expose :undiscounted_cost, with: MoneyEntity
+    expose :customer_cost, with: MoneyEntity
+    expose :savings, with: MoneyEntity
+    expose :line_items, with: MobilityChargeLineItemEntity
+  end
+
   class MobilityTripEntity < BaseEntity
     expose :id
     expose :vehicle_id
+    expose :vehicle_type
     expose :vendor_service, as: :provider, with: VendorServiceEntity
     expose :vendor_service_rate, as: :rate, with: VendorServiceRateEntity
     expose :begin_lat
     expose :begin_lng
+    expose :begin_address_parsed, as: :begin_address
     expose :began_at
     expose :end_lat
     expose :end_lng
+    expose :end_address_parsed, as: :end_address
     expose :ended_at
-    expose :total_cost, with: MoneyEntity, &self.delegate_to(:charge, :discounted_subtotal, safe: true)
-    expose :discount_amount, with: MoneyEntity, &self.delegate_to(:charge, :discount_amount, safe: true)
+    expose :ongoing?, as: :ongoing
+    expose :charge, with: MobilityChargeEntity
+    expose :duration_minutes, as: :minutes
+    expose :image, with: ImageEntity
   end
 
   class PreferencesSubscriptionEntity < BaseEntity

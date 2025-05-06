@@ -142,6 +142,38 @@ class Suma::API::Mobility < Suma::API::V1
       status 200
       present trip, with: MobilityTripEntity
     end
+
+    params do
+      use :pagination
+    end
+    get :trips do
+      member = current_member
+      ds = member.mobility_trips_dataset.ended
+      ds = ds.order(Sequel.desc(:began_at), Sequel.desc(:id))
+      ds = paginate(ds, params)
+      collection = Suma::Service::Collection.from_dataset(ds)
+      weeks = []
+      if collection.items.any?
+        current_week_key = ""
+        collection.items.each_with_index do |item, idx|
+          began_at = item.began_at.in_time_zone(member.timezone)
+          week_key = began_at.beginning_of_week.to_date.to_s
+          if week_key == current_week_key
+            weeks.last[:end_index] = idx
+          else
+            current_week_key = week_key
+            weeks << {
+              begin_at: began_at.beginning_of_week.to_date,
+              end_at: began_at.end_of_week.to_date,
+              begin_index: idx,
+              end_index: idx,
+            }
+          end
+        end
+        weeks.last[:end_index] = collection.items.count - 1
+      end
+      present collection, with: MobilityTripCollectionEntity, ongoing: member.ongoing_trip, weeks:
+    end
   end
 
   class MobilityMapVehicleEntity < BaseEntity
@@ -194,6 +226,17 @@ class Suma::API::Mobility < Suma::API::V1
       member = options.fetch(:member)
       now = options.fetch(:current_time)
       vehicle.vendor_service.mobility_adapter.anon_proxy_vendor_account_requires_attention?(member, now:)
+    end
+  end
+
+  class MobilityTripCollectionEntity < Suma::Service::Collection::BaseEntity
+    include Suma::API::Entities
+    expose :items, with: MobilityTripEntity
+    expose :ongoing, with: MobilityTripEntity do |_, opts|
+      opts.fetch(:ongoing)
+    end
+    expose :weeks do |_, opts|
+      opts.fetch(:weeks)
     end
   end
 end
