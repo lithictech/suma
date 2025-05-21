@@ -51,6 +51,11 @@ class Suma::Payment::FundingTransaction::IncreaseAchStrategy <
     return false
   end
 
+  def funds_canceled?
+    # See https://github.com/lithictech/suma/issues/79
+    return false
+  end
+
   def ach_transfer_id
     return self.ach_transfer_json["id"]
   end

@@ -121,16 +121,19 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
       created.strategy.set_response(:ready_to_collect_funds?, true)
       created.strategy.set_response(:collect_funds, true)
       created.strategy.set_response(:funds_cleared?, true)
+      created.strategy.set_response(:funds_canceled?, false)
 
       collecting = Suma::Fixtures.funding_transaction.with_fake_strategy.create(status: "collecting")
       collecting.strategy.set_response(:ready_to_collect_funds?, true)
       collecting.strategy.set_response(:collect_funds, false)
       collecting.strategy.set_response(:funds_cleared?, true)
+      collecting.strategy.set_response(:funds_canceled?, false)
 
       stuck = Suma::Fixtures.funding_transaction.with_fake_strategy.create
       stuck.strategy.set_response(:ready_to_collect_funds?, true)
       stuck.strategy.set_response(:collect_funds, true)
       stuck.strategy.set_response(:funds_cleared?, false)
+      stuck.strategy.set_response(:funds_canceled?, false)
 
       Suma::Async::FundingTransactionProcessor.new.perform
 

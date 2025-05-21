@@ -8,6 +8,7 @@ RSpec.shared_examples "a funding transaction payment strategy" do
     run_error_test { strategy.ready_to_collect_funds? }
     run_error_test { strategy.collect_funds }
     run_error_test { strategy.funds_cleared? }
+    run_error_test { strategy.funds_canceled? }
   end
 
   def run_error_test

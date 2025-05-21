@@ -24,6 +24,7 @@ class Suma::Payment::FakeStrategy < Suma::Postgres::Model(:payment_fake_strategi
     :ready_to_collect_funds?,
     :collect_funds,
     :funds_cleared?,
+    :funds_canceled?,
     :ready_to_send_funds?,
     :send_funds,
     :funds_settled?,

@@ -52,6 +52,8 @@ class Suma::Payment::FundingTransaction < Suma::Postgres::Model(:payment_funding
     event :collect_funds do
       transition created: :collecting
       transition collecting: :cleared, if: :funds_cleared?
+      transition collecting: :canceled, if: :funds_canceled?
+      transition collecting: :needs_review, if: :flagging_for_review?
     end
 
     event :cancel do
@@ -181,9 +183,12 @@ class Suma::Payment::FundingTransaction < Suma::Postgres::Model(:payment_funding
     return super
   end
 
-  def funds_cleared?
-    return self.strategy.funds_cleared?
-  end
+  def funds_cleared? = self.strategy.funds_cleared?
+  def funds_canceled? = self.strategy.funds_canceled?
+
+  # Generic helper for when a strategy asks a transaction to move into +needs_review+,
+  # rather than the strategy calling a separate transition method on the transaction.
+  def flagging_for_review? = self.strategy.flagging_for_review?
 
   def put_into_review(message, opts={})
     self._put_into_review_helper(message, opts)

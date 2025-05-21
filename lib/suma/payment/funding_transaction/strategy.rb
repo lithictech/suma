@@ -7,25 +7,19 @@ module Suma::Payment::FundingTransaction::Strategy
   include Suma::ExternalLinks
 
   # @return Suma::Payment::Instrument
-  def originating_instrument
-    raise NotImplementedError
-  end
+  def originating_instrument = raise NotImplementedError
 
   # Return a string that summarizes the strategy.
   # Use whatever is most useful for an admin to see,
   # it does not have to be totally unambiguous.
-  def short_name
-    raise NotImplementedError
-  end
+  def short_name = raise NotImplementedError
 
   # Return an array of reasons this strategy is not valid
   # to be created. Usually this is something like an instrument
   # being soft deleted or not being registered in an external service;
   # these issues are terminal, so need to be reported.
   # @return [Array<String>]
-  def check_validity
-    raise NotImplementedError
-  end
+  def check_validity = raise NotImplementedError
 
   # Raise a Suma::Payment::Invalid error with the messages from check_validity.
   def check_validity!
@@ -37,9 +31,7 @@ module Suma::Payment::FundingTransaction::Strategy
   # Return true if we are ready to initiate
   # a debit from an external account to a credit to our platform account.
   # This could be things like checking to make sure funds are available in the external account.
-  def ready_to_collect_funds?
-    raise NotImplementedError
-  end
+  def ready_to_collect_funds? = raise NotImplementedError
 
   # Start a payment with the given details.
   # This method must be idempotent.
@@ -48,14 +40,24 @@ module Suma::Payment::FundingTransaction::Strategy
   # In the case of being unable to collect funds, one of two exceptions should be raised:
   # - Suma::Payment::FundingTransaction::CollectionFailed when the payment should move into a 'needs review' state,
   # - Any other exception type, in which case the collection will be retried.
-  def collect_funds
-    raise NotImplementedError
-  end
+  def collect_funds = raise NotImplementedError
 
   # Return true if our payment processor believes the funds have 'cleared'-
   # that is, the ACH debit we originated has shown up in our account
   # as an ACH credit.
-  def funds_cleared?
-    raise NotImplementedError
+  def funds_cleared? = raise NotImplementedError
+
+  # Return true if our payment processor has canceled or returned the funds.
+  # For example, Stripe has refunded a credit card charge.
+  # Implies no movement of money ended up taking place: it never ended up happening,
+  # or happened and was reversed.
+  def funds_canceled? = raise NotImplementedError
+
+  # Return true if one of the state transition methods has called +flag_for_review+.
+  # The state machines should move this instance into a 'needs review' state.
+  def flagging_for_review? = @flagging_for_review
+
+  def flag_for_review
+    @flagging_for_review = true
   end
 end
