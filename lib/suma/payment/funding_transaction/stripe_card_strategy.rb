@@ -11,9 +11,7 @@ class Suma::Payment::FundingTransaction::StripeCardStrategy <
   one_to_one :funding_transaction, class: "Suma::Payment::FundingTransaction"
   many_to_one :originating_card, class: "Suma::Payment::Card"
 
-  def originating_instrument
-    return self.originating_card
-  end
+  def originating_instrument = self.originating_card
 
   def short_name
     return "Stripe Card Funding"
@@ -45,24 +43,48 @@ class Suma::Payment::FundingTransaction::StripeCardStrategy <
       metadata: {suma_funding_transaction_id: self.funding_transaction.id},
     )
     self.charge_json = charge.as_json
-    charge_id_set!
+    charge_id_set!(Suma::InvalidPostcondition)
     return true
   end
 
   def funds_cleared?
-    raise Suma::InvalidPrecondition, "charge_json must be set" if self.charge_json.nil?
+    charge_id_set!(Suma::InvalidPrecondition)
     return true if self.charge_json["captured"]
-    charge = Stripe::Charge.capture(self.charge_id)
+    begin
+      charge = Stripe::Charge.capture(self.charge_id)
+    rescue Stripe::InvalidRequestError => e
+      if e.code == "charge_already_refunded"
+        # It's possible for the charge to be refunded before it is captured,
+        # in which case, we can pull a fresh version of the charge and see it's refunded,
+        # and the funding transaction will be canceled.
+        nil
+      elsif e.code == "charge_expired_for_capture"
+        # This should never happen, but it could if the payment processor is offline
+        # for a long time. We always want to know about these,
+        # but we'll probably just move them to 'canceled' manually.
+        self.flag_for_review
+        return false
+      else
+        raise e
+      end
+      charge = Stripe::Charge.retrieve(self.charge_id)
+    end
     self.charge_json = charge.as_json
-    charge_id_set!
-    return true
+    charge_id_set!(Suma::InvalidPostcondition)
+    return self.charge_json["captured"]
   end
 
-  private def charge_id_set!
+  def funds_canceled?
+    charge_id_set!(Suma::InvalidPrecondition)
+    # Handle only full refunds.
+    return self.charge_json["refunded"]
+  end
+
+  private def charge_id_set!(cls)
     return if self.charge_id.present?
-    msg = "Stripe charge idid not set after API call from #{self.class.name}[#{self.id}]. " \
+    msg = "Stripe charge id not set after API call from #{self.class.name}[#{self.id}]. " \
           "JSON: #{self.charge_json}"
-    raise Suma::InvalidPostcondition, msg
+    raise cls, msg
   end
 
   def _external_links_self

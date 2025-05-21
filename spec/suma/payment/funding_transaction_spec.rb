@@ -130,6 +130,7 @@ RSpec.describe "Suma::Payment::FundingTransaction", :db, reset_configuration: Su
         strategy.set_response(:collect_funds, true)
         expect(payment).to transition_on(:collect_funds).to("collecting")
         strategy.set_response(:funds_cleared?, false)
+        strategy.set_response(:funds_canceled?, false)
         expect(payment).to not_transition_on(:collect_funds)
 
         strategy.set_response(:funds_cleared?, true)
@@ -140,6 +141,7 @@ RSpec.describe "Suma::Payment::FundingTransaction", :db, reset_configuration: Su
         strategy.set_response(:ready_to_collect_funds?, true)
         strategy.set_response(:collect_funds, true)
         strategy.set_response(:funds_cleared?, false)
+        strategy.set_response(:funds_canceled?, false)
         expect(payment).to transition_on(:collect_funds).to("collecting")
         expect(member.refresh.activities).to have_length(1)
 
@@ -148,16 +150,25 @@ RSpec.describe "Suma::Payment::FundingTransaction", :db, reset_configuration: Su
         expect(member.refresh.activities).to have_length(1)
       end
 
-      it "transition to review needed if ready to collect funds fails terminally" do
+      it "transitions to review needed if ready to collect funds fails terminally" do
         strategy.set_response(:ready_to_collect_funds?, described_class::CollectFundsFailed.new("nope"))
         expect(payment).to transition_on(:collect_funds).to("needs_review")
       end
 
-      it "transition to review needed if funds fail to collect" do
+      it "transitions to review needed if funds fail to collect" do
         strategy.set_response(:ready_to_collect_funds?, true)
         strategy.set_response(:collect_funds, described_class::CollectFundsFailed.new("nope"))
         expect(payment).to transition_on(:collect_funds).to("needs_review")
         expect(payment.audit_logs.last.messages).to include("Error collecting funds: nope")
+      end
+
+      it "transitions to canceled if the funds have been canceled" do
+        strategy.set_response(:ready_to_collect_funds?, true)
+        strategy.set_response(:funds_cleared?, false)
+        strategy.set_response(:funds_canceled?, true)
+        strategy.set_response(:collect_funds, false)
+        expect(payment).to transition_on(:collect_funds).to("collecting")
+        expect(payment).to transition_on(:collect_funds).to("canceled")
       end
     end
 
