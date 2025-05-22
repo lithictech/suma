@@ -66,4 +66,37 @@ RSpec.describe "Suma::Organization::Membership", :db do
       expect(m.matched_organization).to be_nil
     end
   end
+
+  describe "after_save" do
+    it "ensures the member is onboarding verified when the membership is verified" do
+      m = Suma::Fixtures.organization_membership.unverified.create
+      expect(m.member).to_not be_onboarding_verified
+      m.update(verified_organization: Suma::Fixtures.organization.create)
+      expect(m.member).to be_onboarding_verified
+      expect(m.member.refresh).to be_onboarding_verified
+    end
+
+    it "ensures the member is verified if the membership is created as verified" do
+      m = Suma::Fixtures.organization_membership.verified.create
+      expect(m.member).to be_onboarding_verified
+    end
+
+    it "noops on an already verified member" do
+      t = Time.parse("2020-01-01T00:00:00Z")
+      member = Suma::Fixtures.member.create(onboarding_verified_at: t)
+      m = Suma::Fixtures.organization_membership.verified.create(member:)
+      expect(member.onboarding_verified_at).to eq(t)
+    end
+
+    it "does not verify the member if membership is not verified" do
+      m = Suma::Fixtures.organization_membership.unverified.create
+      expect(m.member).to_not be_onboarding_verified
+      m.update(
+        former_organization: Suma::Fixtures.organization.create,
+        formerly_in_organization_at: Time.now,
+        unverified_organization_name: nil,
+      )
+      expect(m.member).to_not be_onboarding_verified
+    end
+  end
 end
