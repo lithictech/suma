@@ -241,7 +241,11 @@ class Suma::Member < Suma::Postgres::Model(:members)
   end
 
   def onboarding_verified=(v)
-    self.onboarding_verified_at = v ? Time.now : nil
+    if v == true
+      self.onboarding_verified_at ||= Time.now
+    else
+      self.onboarding_verified_at = v
+    end
   end
 
   def read_only_reason

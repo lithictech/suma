@@ -62,6 +62,20 @@ class Suma::Organization::Membership < Suma::Postgres::Model(:organization_membe
       self.unverified? && "I am unverified.",
     ]
   end
+
+  def after_save
+    super
+    # When a membership is verified, we want to make sure the member is also onboarding verified.
+    # We must do this as part of a single backend operation, not an async job, since we want to make sure
+    # an API request that verifies a membership also verifies the user, otherwise they can be in
+    # an inconsistent state. Even though this inconsistent state isn't exactly wrong
+    # (and we shouldn't assume it's true, since onboarding and membership verifications are different things),
+    # it's so important for admins (and to some degree, common expectations)
+    # that we enforce it here and not elsewhere (like in an API endpoint).
+    return unless self.verified?
+    self.member.onboarding_verified = true
+    self.member.save_changes
+  end
 end
 
 # Table: organization_memberships
