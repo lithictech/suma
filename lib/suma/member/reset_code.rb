@@ -78,7 +78,7 @@ class Suma::Member::ResetCode < Suma::Postgres::Model(:member_reset_codes)
       when "email"
         msg.dispatch_email(self.member)
       else
-        raise TypeError, "Unknown transport for #{self.inspect}"
+        raise ArgumentError, "Unknown transport for #{self.inspect}"
     end
     self.save_changes
   end

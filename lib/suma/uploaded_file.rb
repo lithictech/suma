@@ -22,8 +22,8 @@ class Suma::UploadedFile < Suma::Postgres::Model(:uploaded_files)
   end
 
   def self.ensure_blobs_table
-    self.blob_database.create_schema?(@blob_table_ident) if @blob_table_ident.respond_to?(:column)
-    self.blob_database.create_table?(@blob_table_ident) do
+    self.blob_database.create_schema(@blob_table_schema, if_not_exists: true) if @blob_table_schema
+    self.blob_database.create_table(@blob_table_ident, if_not_exists: true) do
       primary_key :pk
       timestamptz :created_at, null: false, default: Sequel.function(:now)
       bytea :bytes, null: false
@@ -46,9 +46,11 @@ class Suma::UploadedFile < Suma::Postgres::Model(:uploaded_files)
         pool_timeout: self.blob_database_pool_timeout,
       )
       if self.blob_table.include?(".")
-        table, schema = self.blob_table.chars
-        @blob_table_ident = Sequel[schema.to_sym][table.to_sym]
+        schema, table = self.blob_table.split(".")
+        @blob_table_schema = Sequel[schema.to_sym]
+        @blob_table_ident = @blob_table_schema[table.to_sym]
       else
+        @blob_table_schema = nil
         @blob_table_ident = Sequel[self.blob_table.to_sym]
       end
       self.ensure_blobs_table

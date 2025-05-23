@@ -38,8 +38,10 @@ RSpec.describe Suma::Fixtures, db: true  do
     Suma::Fixtures.member_activity.create
     Suma::Fixtures.member.password.plus_sign.with_email.with_phone.terms_agreed.create
     Suma::Fixtures.message_delivery.extra("x", "y").create
+    Suma::Fixtures.offering.description("hello").create
     Suma::Fixtures.payment_trigger.inactive.create
     Suma::Fixtures.payout_transaction.with_fake_strategy.member(member).create
+    Suma::Fixtures.program.with_(Suma::Fixtures.offering.create).create
     Suma::Fixtures.reset_code.email.create
     Suma::Fixtures.translated_text.empty.create
     Suma::Fixtures.uploaded_file.uploaded_1x1_png.uploaded_bytes("x", "text/plain").create

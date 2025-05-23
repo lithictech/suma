@@ -34,7 +34,7 @@ class Suma::Message::EmailTransport < Suma::Message::Transport
   end
 
   def send!(_delivery)
-    raise "Email transport is not hooked up yet"
+    raise NotImplementedError, "Email transport is not hooked up yet"
   end
 
   def add_bodies(delivery, content)

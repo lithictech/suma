@@ -48,7 +48,7 @@ class Suma::Message::FakeTransport < Suma::Message::Transport
   def send!(delivery)
     Suma.logger.debug "Storing Delivery[%d] to %s as sent" % [delivery.id, delivery.to]
     Suma::Message::FakeTransport.sent_deliveries << delivery
-    Suma::Message::FakeTransport.send_callback&.call(delivery)
+    return Suma::Message::FakeTransport.send_callback.call(delivery) if Suma::Message::FakeTransport.send_callback
     return "#{delivery.id}-#{SecureRandom.hex(6)}"
   end
 end

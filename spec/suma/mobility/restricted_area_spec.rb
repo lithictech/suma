@@ -37,4 +37,43 @@ RSpec.describe "Suma::Mobility::RestrictedArea", :db do
       ).to have_attributes(bounds: {ne: [10, 5], sw: [-10, -5]})
     end
   end
+
+  describe "validations" do
+    it "requires a closed polygon with >= 3 sides" do
+      a = Suma::Fixtures.mobility_restricted_area.instance
+      a.multipolygon = Suma::Mobility::Gbfs::Geo.simple_multipolygon(
+        [
+          [0, 0],
+          [10, 0],
+          [0, 0],
+        ],
+      )
+      a.validate
+      expect(a.errors).to eq({multipolygon: ["requires at least 4 coordinates (closed triangle)"]})
+      a.errors.clear
+
+      a.multipolygon = Suma::Mobility::Gbfs::Geo.simple_multipolygon(
+        [
+          [0, 0],
+          [10, 0],
+          [11, 0],
+          [12, 0],
+        ],
+      )
+      a.validate
+      expect(a.errors).to eq({multipolygon: ["first and last coordinate must match (closed polygon)"]})
+      a.errors.clear
+
+      a.multipolygon = Suma::Mobility::Gbfs::Geo.simple_multipolygon(
+        [
+          [0, 0],
+          [10, 0],
+          [20, 0],
+          [0, 0],
+        ],
+      )
+      a.validate
+      expect(a.errors).to be_empty
+    end
+  end
 end

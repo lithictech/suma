@@ -43,4 +43,19 @@ RSpec.describe Suma::Message::EmailTransport, :db do
       expect(described_class.new.recipient("f@b.c")).to have_attributes(to: "f@b.c", member: nil)
     end
   end
+
+  describe "allowlisted" do
+    it "is false" do
+      d = Suma::Fixtures.message_delivery.email.create
+      expect(described_class.new.allowlisted?(d)).to be(false)
+    end
+  end
+
+  describe "send!" do
+    it "raises as not implemented" do
+      expect do
+        described_class.new.send!(Suma::Fixtures.message_delivery.email.create)
+      end.to raise_error(NotImplementedError)
+    end
+  end
 end

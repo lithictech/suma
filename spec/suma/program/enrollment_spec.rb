@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "suma/behaviors"
+
 RSpec.describe "Suma::Program::Enrollment", :db do
   let(:described_class) { Suma::Program::Enrollment }
 
@@ -92,5 +94,13 @@ RSpec.describe "Suma::Program::Enrollment", :db do
     expect(pe).to have_attributes(enrollee_type: "Role", enrollee: be === role)
     pe.set(role: nil)
     expect(pe).to have_attributes(enrollee_type: "NilClass", enrollee: nil)
+  end
+
+  it_behaves_like "has a timestamp predicate", "approved_at", "approved" do
+    let(:instance) { Suma::Fixtures.program_enrollment.instance }
+  end
+
+  it_behaves_like "has a timestamp predicate", "unenrolled_at", "unenrolled" do
+    let(:instance) { Suma::Fixtures.program_enrollment.instance }
   end
 end
