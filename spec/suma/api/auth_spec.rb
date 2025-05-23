@@ -18,10 +18,6 @@ RSpec.describe Suma::API::Auth, :db, reset_configuration: Suma::Member do
   let(:other_full_phone) { "11234567999" }
   let(:fmt_phone) { "(123) 456-7890" }
   let(:timezone) { "America/Juneau" }
-  let(:member_params) do
-    {name:, email:, phone:, password:, timezone:}
-  end
-  let(:member_create_params) { member_params.merge(phone: full_phone) }
 
   describe "POST /v1/auth/start" do
     it "errors if a member is already authed" do

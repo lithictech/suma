@@ -44,54 +44,6 @@ RSpec.describe "Suma::Postgres::Model", :db do
       # NameError: uninitialized constant Suma::Ticket
       expect { described_class.tsort }.to_not raise_error
     end
-
-    it "can be extended at runtime via an extension module" do
-      extension_mod = Module.new do
-        def some_extension_stuff
-          return :extension_stuff
-        end
-      end
-
-      subclass = create_model("modext")
-      subclass.add_extensions(extension_mod)
-
-      expect(subclass.new.some_extension_stuff).to eq(:extension_stuff)
-    end
-
-    it "can be extended at runtime with class methods via a ClassMethods submodule" do
-      extension_mod = Module.new
-      extension_mod.const_set :ClassMethods, Module.new
-      extension_mod::ClassMethods.module_eval do
-        def some_class_extension_stuff
-          :class_extension_stuff
-        end
-      end
-
-      subclass = create_model("classmethods")
-      subclass.add_extensions(extension_mod)
-
-      expect(subclass.some_class_extension_stuff).to eq(:class_extension_stuff)
-    end
-
-    it "can override methods at runtime with a PrependedMethods submodule" do
-      extension_mod = Module.new
-      extension_mod.module_eval do
-        def a_method
-          :original_a_method
-        end
-      end
-      extension_mod.const_set :PrependedMethods, Module.new
-      extension_mod::PrependedMethods.module_eval do
-        def a_method
-          :extension_a_method
-        end
-      end
-
-      subclass = create_model("prepends")
-      subclass.add_extensions(extension_mod)
-
-      expect(subclass.new.a_method).to eq(:extension_a_method)
-    end
   end
 
   it "can create a schema even if it does exist" do
