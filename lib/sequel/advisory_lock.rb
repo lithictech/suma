@@ -37,7 +37,7 @@ class Sequel::AdvisoryLock
     raise LocalJumpError unless block_given?
     # Lock and unlock must happen to the same session, so use synchronize.
     @db.synchronize do
-      @db.get(@locker)
+      self.lock
       begin
         return yield
       ensure
@@ -53,7 +53,7 @@ class Sequel::AdvisoryLock
   def with_lock?
     raise LocalJumpError unless block_given?
     @db.synchronize do
-      acquired = self.lock
+      acquired = self.trylock
       return false, nil unless acquired
       begin
         return true, yield
@@ -63,15 +63,8 @@ class Sequel::AdvisoryLock
     end
   end
 
-  def lock
-    @db.get(@locker)
-  end
-
-  def unlock
-    @db.get(@unlocker)
-  end
-
-  def unlock_all
-    @db.get(Sequel.function(:pg_advisory_unlock_all))
-  end
+  def trylock = @db.get(@trylocker)
+  def lock = @db.get(@locker)
+  def unlock = @db.get(@unlocker)
+  def unlock_all = @db.get(Sequel.function(:pg_advisory_unlock_all))
 end
