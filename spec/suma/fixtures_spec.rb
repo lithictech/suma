@@ -7,6 +7,13 @@ RSpec.describe Suma::Fixtures, db: true  do
     expect(described_class.fixture_path_prefix).to eq("suma/fixtures")
   end
 
+  describe "nilor" do
+    it "returns val if x is nil" do
+      expect(described_class.nilor(nil, 1)).to eq(1)
+      expect(described_class.nilor(false, 2)).to eq(false)
+    end
+  end
+
   describe "can fixture" do
     standard_modules = Suma::Fixtures.fixture_modules
     standard_modules.each do |mod|

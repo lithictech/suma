@@ -63,6 +63,7 @@ RSpec.describe "Suma::Image", :db do
     [:commerce_product, Suma::Fixtures.product],
     [:vendor, Suma::Fixtures.vendor],
     [:vendor_service, Suma::Fixtures.vendor_service],
+    [:program, Suma::Fixtures.program],
   ].each do |(assoc, fac)|
     it "handles the #{assoc} association" do
       related = fac.create

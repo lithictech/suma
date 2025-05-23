@@ -13,6 +13,10 @@ RSpec.describe Suma::MethodUtilities do
       singleton_predicate_reader :p
       @p = 10
       singleton_predicate_accessor :p
+
+      @w = 0
+      singleton_attr_writer :w
+      def self.w = @w * 10
     end
 
     expect(t.x).to eq(1)
@@ -22,5 +26,9 @@ RSpec.describe Suma::MethodUtilities do
     expect(t.p?).to be(true)
     t.p = nil
     expect(t.p?).to be(false)
+
+    expect(t.w).to eq(0)
+    t.w = 5
+    expect(t.w).to eq(50)
   end
 end

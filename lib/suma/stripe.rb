@@ -26,19 +26,6 @@ module Suma::Stripe
     end
   end
 
-  singleton_attr_accessor :unsafe_allow_transactions
-  @unsafe_allow_transactions = false
-  def self.check_transaction(db)
-    return true if self.unsafe_allow_transactions
-    if db.in_transaction?
-      msg = "Should not call Stripe while in a transaction, because a rollback due to a later error " \
-            "would lose the record of the Stripe change. Take this code out of a transaction, " \
-            "or make some modifications."
-      raise msg
-    end
-    return true
-  end
-
   def self.build_metadata(relations=[])
     h = {
       suma_api_version: Suma::VERSION,

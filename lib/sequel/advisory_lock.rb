@@ -22,6 +22,7 @@ class Sequel::AdvisoryLock
     return key2.nil? ? Sequel.function(name.to_sym, key1) : Sequel.function(name.to_sym, key1, key2)
   end
 
+  # Return the pg_locks dataset. If +this+ is true, limit the dataset to only the lock keyed by this instance.
   def dataset(this: false)
     ds = @db[:pg_locks]
     ds = ds.where(@cond) if this
@@ -52,7 +53,7 @@ class Sequel::AdvisoryLock
   def with_lock?
     raise LocalJumpError unless block_given?
     @db.synchronize do
-      acquired = @db.get(@trylocker)
+      acquired = self.lock
       return false, nil unless acquired
       begin
         return true, yield
@@ -60,6 +61,10 @@ class Sequel::AdvisoryLock
         self.unlock
       end
     end
+  end
+
+  def lock
+    @db.get(@locker)
   end
 
   def unlock
