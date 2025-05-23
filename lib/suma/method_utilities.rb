@@ -79,4 +79,17 @@ module Suma::MethodUtilities
 
     attr_predicate(attrname)
   end
+
+  module_function def timestamp_set?(o, attrname) = o.send(attrname) ? true : false
+
+  module_function def timestamp_set(o, attrname, v)
+    setter = :"#{attrname}="
+    if v == true
+      o.send(setter, o.send(attrname) || Time.now)
+    elsif v == false
+      o.send(setter, nil)
+    else
+      o.send(setter, v)
+    end
+  end
 end

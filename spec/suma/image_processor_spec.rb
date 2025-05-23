@@ -71,5 +71,9 @@ RSpec.describe Suma::ImageProcessor do
       expect { handle(format: :jpeg, quality: 0) }.to raise_error(described_class::InvalidOption)
       expect { handle(format: :jpeg, quality: 101) }.to raise_error(described_class::InvalidOption)
     end
+
+    it "errors for no file or buffer" do
+      expect { described_class.process }.to raise_error(ArgumentError, "file or buffer must be provided")
+    end
   end
 end

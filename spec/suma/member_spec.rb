@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "suma/behaviors"
+
 RSpec.describe "Suma::Member", :db do
   let(:described_class) { Suma::Member }
 
@@ -150,6 +152,19 @@ RSpec.describe "Suma::Member", :db do
     end
   end
 
+  it_behaves_like "has a timestamp predicate", "onboarding_verified_at", "onboarding_verified" do
+    let(:instance) { Suma::Fixtures.member.instance }
+  end
+
+  describe "phone number" do
+    it "formats the phone when setting us_phone" do
+      c = Suma::Fixtures.member.instance
+      c.us_phone = "555-123-4567"
+      expect(c.phone).to eq("15551234567")
+      expect(c.us_phone).to eq("(555) 123-4567")
+    end
+  end
+
   describe "legal entity" do
     let(:c) { Suma::Fixtures.member.with_legal_entity.instance }
 
@@ -190,6 +205,13 @@ RSpec.describe "Suma::Member", :db do
     it "is false if the member is verified and has a payment account" do
       c = Suma::Fixtures.member.onboarding_verified.with_cash_ledger(amount: money("$5")).create
       expect(c).to have_attributes(read_only_reason: nil, read_only_mode?: false)
+    end
+
+    it "raises for read_only_mode! if in read only" do
+      c = Suma::Fixtures.member.onboarding_verified.with_cash_ledger(amount: money("$5")).create
+      expect { c.read_only_mode! }.to_not raise_error
+      c.onboarding_verified = false
+      expect { c.read_only_mode! }.to raise_error(described_class::ReadOnlyMode)
     end
   end
 

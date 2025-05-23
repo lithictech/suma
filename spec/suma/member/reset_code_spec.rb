@@ -107,6 +107,12 @@ RSpec.describe "Suma::Member::ResetCode", :db do
       )
       expect(code.refresh.message_delivery).to be === Suma::Message::Delivery.first
     end
+
+    it "errors for an unknown transport" do
+      code = Suma::Fixtures.reset_code.create(member:, token: "12345", transport: "email")
+      code.transport = "unknown"
+      expect { code.dispatch_message }.to raise_error(ArgumentError, /Unknown transport/)
+    end
   end
 
   describe "::replace_active" do

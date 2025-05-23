@@ -236,16 +236,13 @@ class Suma::Member < Suma::Postgres::Model(:members)
     return self.name.present? && self.legal_entity.address_id.present?
   end
 
-  def onboarding_verified?
-    return self.onboarding_verified_at ? true : false
-  end
+  def onboarding_verified? = Suma::MethodUtilities.timestamp_set?(self, :onboarding_verified_at)
 
+  # Set +onboarding_verified_at+.
+  # If +v+ is +true+, set it to +Time.now+ if not already verified.
+  # If +v+ is +false+, set it to +nil+. Otherwise, set it to +v+.
   def onboarding_verified=(v)
-    if v == true
-      self.onboarding_verified_at ||= Time.now
-    else
-      self.onboarding_verified_at = v
-    end
+    Suma::MethodUtilities.timestamp_set(self, :onboarding_verified_at, v)
   end
 
   def read_only_reason

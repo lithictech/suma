@@ -22,6 +22,7 @@ class Sequel::AdvisoryLock
     return key2.nil? ? Sequel.function(name.to_sym, key1) : Sequel.function(name.to_sym, key1, key2)
   end
 
+  # Return the pg_locks dataset. If +this+ is true, limit the dataset to only the lock keyed by this instance.
   def dataset(this: false)
     ds = @db[:pg_locks]
     ds = ds.where(@cond) if this
@@ -36,7 +37,7 @@ class Sequel::AdvisoryLock
     raise LocalJumpError unless block_given?
     # Lock and unlock must happen to the same session, so use synchronize.
     @db.synchronize do
-      @db.get(@locker)
+      self.lock
       begin
         return yield
       ensure
@@ -52,7 +53,7 @@ class Sequel::AdvisoryLock
   def with_lock?
     raise LocalJumpError unless block_given?
     @db.synchronize do
-      acquired = @db.get(@trylocker)
+      acquired = self.trylock
       return false, nil unless acquired
       begin
         return true, yield
@@ -62,11 +63,8 @@ class Sequel::AdvisoryLock
     end
   end
 
-  def unlock
-    @db.get(@unlocker)
-  end
-
-  def unlock_all
-    @db.get(Sequel.function(:pg_advisory_unlock_all))
-  end
+  def trylock = @db.get(@trylocker)
+  def lock = @db.get(@locker)
+  def unlock = @db.get(@unlocker)
+  def unlock_all = @db.get(Sequel.function(:pg_advisory_unlock_all))
 end

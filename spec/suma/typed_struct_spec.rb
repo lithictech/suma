@@ -16,6 +16,8 @@ RSpec.describe Suma::TypedStruct do
       end
       expect(t.new(x: "x", y: :y).inspect).to eq('(a: :a, x: "x", y: :y, z: :z)')
       t.new.z = 5 # Used to hit coverage on the z= method
+      expect(t.new(x: 1).x).to eq(1)
+      expect(t.new(x: 1)[:x]).to eq(1)
     end
   end
 end

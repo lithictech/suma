@@ -79,20 +79,18 @@ class Suma::Program::Enrollment < Suma::Postgres::Model(:program_enrollments)
     return self.program.period.cover?(t)
   end
 
-  def approved?
-    return self.approved_at ? true : false
-  end
+  def approved? = Suma::MethodUtilities.timestamp_set?(self, :approved_at)
 
   def approved=(v)
-    self.approved_at = v ? Time.now : nil
+    Suma::MethodUtilities.timestamp_set(self, :approved_at, v)
   end
 
   def unenrolled?
-    return self.unenrolled_at ? true : false
+    Suma::MethodUtilities.timestamp_set?(self, :unenrolled_at)
   end
 
   def unenrolled=(v)
-    self.unenrolled_at = v ? Time.now : nil
+    Suma::MethodUtilities.timestamp_set(self, :unenrolled_at, v)
   end
 
   # @return [Suma::Member,Suma::Organization,Suma::Role]

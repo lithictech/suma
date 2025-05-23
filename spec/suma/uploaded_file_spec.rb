@@ -13,6 +13,22 @@ RSpec.describe "Suma::UploadedFile", :db do
     described_class.ensure_blobs_table
   end
 
+  describe "configuration" do
+    it "can create a plain table" do
+      described_class.blob_database << "DROP TABLE IF EXISTS uploaded_file_cfg_test"
+      described_class.blob_table = "uploaded_file_cfg_test"
+      described_class.run_after_configured_hooks
+      expect(described_class.blob_dataset.all).to be_empty
+    end
+
+    it "can create a schema and table" do
+      described_class.blob_database << "DROP SCHEMA IF EXISTS uploaded_file_testschema CASCADE"
+      described_class.blob_table = "uploaded_file_testschema.testtable"
+      described_class.run_after_configured_hooks
+      expect(described_class.blob_dataset.all).to be_empty
+    end
+  end
+
   describe "create_with_blob" do
     it "can create a new blob and image" do
       got = described_class.create_with_blob(bytes: png_1x1, content_type: "image/png")

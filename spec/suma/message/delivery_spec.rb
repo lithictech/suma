@@ -41,9 +41,12 @@ RSpec.describe "Suma::Message::Delivery", :db, :messaging do
 
   describe "body_with_mediatype!" do
     it "raises if no body matches the given " do
+      d = Suma::Fixtures.message_delivery.create
       expect do
-        Suma::Fixtures.message_delivery.create.body_with_mediatype!("abc")
+        d.body_with_mediatype!("abc")
       end.to raise_error(/has no body with mediatype/)
+      subj = d.add_body(mediatype: "abc", content: "Subject")
+      expect(d.body_with_mediatype!("abc")).to be === subj
     end
   end
 
@@ -87,6 +90,13 @@ RSpec.describe "Suma::Message::Delivery", :db, :messaging do
       Suma::Message::FakeTransport.send_callback = proc { raise Suma::Message::Transport::UndeliverableRecipient }
       expect(d.send!).to be === d
       expect(d).to have_attributes(sent_at: nil, transport_message_id: nil, aborted_at: be_within(5).of(Time.now))
+    end
+
+    it "sets a default transport message id if the transport returns none" do
+      d = Suma::Fixtures.message_delivery.create
+      Suma::Message::FakeTransport.send_callback = proc {}
+      expect(d.send!).to be === d
+      expect(d).to have_attributes(transport_message_id: "WARNING-NOT-SET")
     end
   end
 

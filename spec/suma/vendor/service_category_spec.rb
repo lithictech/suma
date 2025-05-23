@@ -34,13 +34,16 @@ RSpec.describe "Suma::Vendor::ServiceCategory", :db do
 
   describe "hierarchy_depth" do
     it "is correct" do
-      a1 = Suma::Fixtures.vendor_service_category.create
-      b1_a1 = Suma::Fixtures.vendor_service_category.create(parent: a1)
-      c1_b1 = Suma::Fixtures.vendor_service_category.create(parent: b1_a1)
+      a1 = Suma::Fixtures.vendor_service_category.create(name: "a")
+      b1_a1 = Suma::Fixtures.vendor_service_category.create(name: "b", parent: a1)
+      c1_b1 = Suma::Fixtures.vendor_service_category.create(name: "c", parent: b1_a1)
 
       expect(a1).to have_attributes(hierarchy_depth: 0)
+      expect(a1).to have_attributes(hierarchy_up: [a1])
       expect(b1_a1).to have_attributes(hierarchy_depth: 1)
+      expect(b1_a1).to have_attributes(hierarchy_up: [b1_a1, a1])
       expect(c1_b1).to have_attributes(hierarchy_depth: 2)
+      expect(c1_b1).to have_attributes(hierarchy_up: [c1_b1, b1_a1, a1])
     end
   end
 

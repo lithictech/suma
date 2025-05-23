@@ -83,43 +83,6 @@ class Suma::Postgres::Model
     ]
   end
 
-  # Add one or more extension +modules+ to the receiving class. This allows subsystems
-  # like Orders, etc. to decorate models outside of their purview
-  # without introducing unnecessary dependencies.
-  #
-  # Each one of the given +modules+ will be included in the receiving model class, and
-  # if it also contains a constant called ClassMethods, the model class will be
-  # also be extended with it.
-  #
-  # @example Add order methods to Suma::Member
-  #
-  #   module Suma::Orders::MemberExtensions
-  #
-  #       # Add some associations for Order models
-  #       def included( model )
-  #           super
-  #           model.one_to_many :orders, Sequel[:app][:orders]
-  #       end
-  #
-  #       def first_order
-  #           self.orders.first
-  #       end
-  #
-  #   end
-  def self.add_extensions(*modules)
-    modules.each do |mod|
-      include(mod)
-      if mod.const_defined?(:ClassMethods)
-        submod = mod.const_get(:ClassMethods)
-        self.extend(submod)
-      end
-      if mod.const_defined?(:PrependedMethods)
-        submod = mod.const_get(:PrependedMethods)
-        prepend(submod)
-      end
-    end
-  end
-
   plugin :column_encryption do |enc|
     enc.key 0, self.encryption_key_0
   end
