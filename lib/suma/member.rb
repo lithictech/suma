@@ -240,9 +240,14 @@ class Suma::Member < Suma::Postgres::Model(:members)
     return self.onboarding_verified_at ? true : false
   end
 
+  # Set +onboarding_verified_at+.
+  # If +v+ is +true+, set it to +Time.now+ if not already verified.
+  # If +v+ is +false+, set it to +nil+. Otherwise, set it to +v+.
   def onboarding_verified=(v)
     if v == true
       self.onboarding_verified_at ||= Time.now
+    elsif v == false
+      self.onboarding_verified_at = nil
     else
       self.onboarding_verified_at = v
     end

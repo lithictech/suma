@@ -150,6 +150,29 @@ RSpec.describe "Suma::Member", :db do
     end
   end
 
+  describe "onboarding_verified" do
+    it "is set to now the first time called with true" do
+      m = Suma::Fixtures.member.instance
+      expect(m.onboarding_verified_at).to be_nil
+      m.onboarding_verified = true
+      expect(m.onboarding_verified_at).to match_time(:now)
+      t = 4.hours.ago
+      m.onboarding_verified = t
+      expect(m.onboarding_verified_at).to match_time(t)
+      m.onboarding_verified = true
+      expect(m.onboarding_verified_at).to match_time(t)
+    end
+
+    it "can be set to false/nil" do
+      m = Suma::Fixtures.member(onboarding_verified_at: Time.now).instance
+      expect(m.onboarding_verified_at).to match_time(:now)
+      m.onboarding_verified = false
+      expect(m.onboarding_verified_at).to be_nil
+      m.onboarding_verified = nil
+      expect(m.onboarding_verified_at).to be_nil
+    end
+  end
+
   describe "legal entity" do
     let(:c) { Suma::Fixtures.member.with_legal_entity.instance }
 
