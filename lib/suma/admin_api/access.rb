@@ -21,7 +21,7 @@ class Suma::AdminAPI::Access
     Suma::Payment::FundingTransaction => [:funding_transaction, PAYMENTS, PAYMENTS],
     Suma::Member => [:member, MEMBERS, MEMBERS],
     Suma::Message::Delivery => [:message_delivery, MEMBERS, MANAGEMENT],
-    Suma::Mobility::Trip => [:mobility_trip, ALL, MANAGEMENT],
+    Suma::Mobility::Trip => [:mobility_trip, COMMERCE, MANAGEMENT],
     Suma::Organization::Membership => [:organization_membership, MEMBERS, MEMBERS],
     Suma::Organization => [:organization, MEMBERS, MANAGEMENT],
     Suma::Payment::Ledger => [:ledger, PAYMENTS, PAYMENTS],
