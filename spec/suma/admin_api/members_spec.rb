@@ -112,6 +112,41 @@ RSpec.describe Suma::AdminAPI::Members, :db do
         preferences: include(preferred_language_name: "Spanish"),
       )
     end
+
+    describe "reset codes" do
+      it "includes tokens if the admin has access" do
+        admin.remove_all_roles
+        admin.add_role(Suma::Role.cache.onboarding_manager)
+        admin.add_role(Suma::Role.cache.sensitive_messages)
+
+        rc = Suma::Fixtures.reset_code.create
+
+        get "/v1/members/#{rc.member.id}"
+
+        expect(last_response).to have_status(200)
+        expect(last_response).to have_json_body.that_includes(
+          reset_codes: contain_exactly(
+            include(token: rc.token),
+          ),
+        )
+      end
+
+      it "hides tokens if the admin does not have access" do
+        admin.remove_all_roles
+        admin.add_role(Suma::Role.cache.onboarding_manager)
+
+        rc = Suma::Fixtures.reset_code.create
+
+        get "/v1/members/#{rc.member.id}"
+
+        expect(last_response).to have_status(200)
+        expect(last_response).to have_json_body.that_includes(
+          reset_codes: contain_exactly(
+            include(token: "******"),
+          ),
+        )
+      end
+    end
   end
 
   describe "POST /v1/members/:id" do

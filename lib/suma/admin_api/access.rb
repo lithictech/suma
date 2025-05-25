@@ -5,6 +5,7 @@ class Suma::AdminAPI::Access
   MEMBERS = Suma::Member::RoleAccess::ADMIN_MEMBERS
   COMMERCE = Suma::Member::RoleAccess::ADMIN_COMMERCE
   PAYMENTS = Suma::Member::RoleAccess::ADMIN_PAYMENTS
+  SENSITIVE_MESSAGES = Suma::Member::RoleAccess::ADMIN_SENSITIVE_MESSAGES
   MANAGEMENT = Suma::Member::RoleAccess::ADMIN_MANAGEMENT
 
   MAPPING = {

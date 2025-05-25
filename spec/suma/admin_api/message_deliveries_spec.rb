@@ -75,6 +75,69 @@ RSpec.describe Suma::AdminAPI::MessageDeliveries, :db do
 
       expect(last_response).to have_status(403)
     end
+
+    it "includes sensitive bodies if the admin has access" do
+      admin.remove_all_roles
+      admin.add_role(Suma::Role.cache.onboarding_manager)
+      admin.add_role(Suma::Role.cache.sensitive_messages)
+
+      del = Suma::Fixtures.message_delivery.
+        with_body(mediatype: "subject", content: "unredacted").
+        with_body(mediatype: "text/plain", content: "super sensitive").
+        with_body(mediatype: "text/html", content: "<x>sensitive</x>").
+        create(sensitive: true)
+
+      get "/v1/message_deliveries/#{del.id}"
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.that_includes(
+        bodies: contain_exactly(
+          include(mediatype: "subject", content: "unredacted"),
+          include(mediatype: "text/plain", content: "super sensitive"),
+          include(mediatype: "text/html", content: "<x>sensitive</x>"),
+        ),
+      )
+    end
+
+    it "includes full bodies if the delivery is not sensitive" do
+      admin.remove_all_roles
+      admin.add_role(Suma::Role.cache.onboarding_manager)
+
+      del = Suma::Fixtures.message_delivery.
+        with_body(mediatype: "text/plain", content: "not sensitive").
+        create(sensitive: false)
+
+      get "/v1/message_deliveries/#{del.id}"
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.that_includes(
+        bodies: contain_exactly(
+          include(mediatype: "text/plain", content: "not sensitive"),
+        ),
+      )
+    end
+
+    it "includes redacted bodies if the admin does not have access" do
+      admin.remove_all_roles
+      admin.add_role(Suma::Role.cache.onboarding_manager)
+
+      del = Suma::Fixtures.message_delivery.
+        with_body(mediatype: "subject", content: "unredacted").
+        with_body(mediatype: "text/plain", content: "super sensitive").
+        with_body(mediatype: "text/html", content: "<x>sensitive</x>").
+        create(sensitive: true)
+
+      get "/v1/message_deliveries/#{del.id}"
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.that_includes(
+        bodies: contain_exactly(
+          include(mediatype: "subject", content: "unredacted"),
+          include(mediatype: "text/plain", content: "***"),
+          include(mediatype: "text/html", content: "***"),
+        ),
+      )
+    end
   end
 
   describe "GET /v1/message_deliveries/last" do

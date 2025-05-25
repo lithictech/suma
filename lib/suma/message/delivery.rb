@@ -29,6 +29,8 @@ class Suma::Message::Delivery < Suma::Postgres::Model(:message_deliveries)
     self[:extra_fields] ||= {}
   end
 
+  def sensitive? = self.sensitive
+
   def body_with_mediatype(mt)
     return self.bodies.find { |b| b.mediatype == mt }
   end

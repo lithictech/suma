@@ -17,6 +17,8 @@ class Suma::Member::RoleAccess
   ADMIN_COMMERCE = :admin_commerce
   # Access payments (book, funding, refunds, etc) information.
   ADMIN_PAYMENTS = :admin_payments
+  # Access sensitive messages, like verification codes.
+  ADMIN_SENSITIVE_MESSAGES = :admin_sensitive_messages
   # Access privileged areas of admin, like creating new programs,
   # that most users do not need to do.
   ADMIN_MANAGEMENT = :admin_management
@@ -28,6 +30,7 @@ class Suma::Member::RoleAccess
                    ADMIN_MEMBERS,
                    ADMIN_COMMERCE,
                    ADMIN_PAYMENTS,
+                   ADMIN_SENSITIVE_MESSAGES,
                    ADMIN_MANAGEMENT,
                  ]).freeze
 
@@ -37,6 +40,7 @@ class Suma::Member::RoleAccess
   def admin_members = ADMIN_MEMBERS
   def admin_commerce = ADMIN_COMMERCE
   def admin_payments = ADMIN_PAYMENTS
+  def admin_sensitive_messages = ADMIN_SENSITIVE_MESSAGES
   def admin_management = ADMIN_MANAGEMENT
 
   def initialize(member)
@@ -50,6 +54,7 @@ class Suma::Member::RoleAccess
       self.add_feature(ADMIN_MEMBERS, true, true)
       self.add_feature(ADMIN_COMMERCE, true, true)
       self.add_feature(ADMIN_PAYMENTS, true, true)
+      self.add_feature(ADMIN_SENSITIVE_MESSAGES, true, true)
       self.add_feature(ADMIN_MANAGEMENT, true, true)
     end
     if member.roles.include?(Suma::Role.cache.readonly_admin)
@@ -68,6 +73,9 @@ class Suma::Member::RoleAccess
     if member.roles.include?(Suma::Role.cache.onboarding_manager)
       self.add_feature(ADMIN_ACCESS, true, true)
       self.add_feature(ADMIN_MEMBERS, true, true)
+    end
+    if member.roles.include?(Suma::Role.cache.sensitive_messages)
+      self.add_feature(ADMIN_SENSITIVE_MESSAGES, true, false)
     end
     # rubocop:enable Style/GuardClause, Style/IfUnlessModifier
   end

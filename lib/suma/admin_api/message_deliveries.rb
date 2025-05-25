@@ -10,8 +10,14 @@ class Suma::AdminAPI::MessageDeliveries < Suma::AdminAPI::V1
   class MessageBodyEntity < BaseEntity
     include Suma::AdminAPI::Entities
     include AutoExposeBase
-    expose :content
     expose :mediatype
+    expose :content do |inst, opts|
+      ra = opts.fetch(:env).fetch("yosoy").authenticated_object!.member.role_access
+      expose_content = !inst.delivery.sensitive? ||
+        inst.mediatype == "subject" ||
+        ra.can?(:read, ra.admin_sensitive_messages)
+      expose_content ? inst.content : "***"
+    end
   end
 
   class MessageDeliveryWithBodiesEntity < MessageDeliveryEntity

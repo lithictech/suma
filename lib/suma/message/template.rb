@@ -35,9 +35,14 @@ class Suma::Message::Template
     return self.dispatch(to, transport: :sms)
   end
 
-  # Return true if the message templates support localization
+  # Return true if this message template supports localization
   # (different templates exist like basic.en.sms.liquid, etc).
   def localized? = false
+
+  # Return true if this message template contains sensitive information.
+  # Sensitive templates are not rendered in admin,
+  # except for users with the necessary role.
+  def sensitive? = false
 
   # The folder containing this template. Templates in the root template directory should use nil.
   def template_folder
