@@ -13,4 +13,3 @@ class Suma::Async::MemberDefaultRelations
     Suma::Role.cache.member.ensure!(c)
   end
 end
-j
