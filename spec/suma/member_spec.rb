@@ -28,16 +28,6 @@ RSpec.describe "Suma::Member", :db do
     end
   end
 
-  describe "greeting" do
-    it "uses the name if present" do
-      expect(described_class.new(name: "Huck Finn").greeting).to eq("Huck Finn")
-    end
-
-    it "uses the default if none can be parsed" do
-      expect(described_class.new.greeting).to eq("there")
-    end
-  end
-
   context "ensure_role" do
     let(:member) { Suma::Fixtures.member.create }
     let(:role) { Suma::Role.create(name: "member-test") }

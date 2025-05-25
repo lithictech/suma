@@ -14,11 +14,6 @@ module Suma::Message
     def name
       return @recipient.member&.name
     end
-
-    def greeting
-      return nil unless @recipient.member
-      return @recipient.member.greeting
-    end
   end
 
   class EnvironmentDrop < Liquid::Drop

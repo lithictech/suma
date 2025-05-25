@@ -226,10 +226,6 @@ class Suma::Member < Suma::Postgres::Model(:members)
     return ra
   end
 
-  def greeting
-    return self.name.blank? ? "there" : self.name
-  end
-
   def rel_admin_link = "/member/#{self.id}"
 
   def onboarded?
