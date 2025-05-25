@@ -300,7 +300,7 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
         postal_code: "97211",
       )
       offering_period = Sequel.pg_range(Time.now..1.year.from_now)
-      hero = self.create_uploaded_file("king-farmers-market-hero.png", "image/png")
+      hero = self.create_uploaded_file("king-farmers-market-hero.jpeg", "image/jpeg")
       first_time_buyers_logo = self.create_uploaded_file("farmers-market-first-time-buyers-logo.png", "image/png")
       returning_buyers_logo = self.create_uploaded_file("farmers-market-returning-buyers-logo.png", "image/png")
 

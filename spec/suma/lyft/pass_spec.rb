@@ -534,7 +534,7 @@ RSpec.describe Suma::Lyft::Pass, :db, reset_configuration: Suma::Lyft do
       Suma::Fixtures.card.member(member).create
       ride["ride"]["map_image_url"] = "https://example.com/map.png"
       stub_request(:get, "https://example.com/map.png").
-        to_return(status: 200, body: "xyz", headers: {"Content-Type" => "image/png"})
+        to_return(status: 200, body: Suma::SpecHelpers::PNG_1X1_BYTES, headers: {"Content-Type" => "image/png"})
 
       charge = instance.upsert_ride_as_trip(ride, vendor_service:, vendor_service_rate:)
       expect(charge.mobility_trip).to have_attributes(

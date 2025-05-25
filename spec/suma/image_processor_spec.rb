@@ -8,7 +8,7 @@ RSpec.describe Suma::ImageProcessor do
 
   describe "from_buffer" do
     it "loads an image source from a buffer" do
-      img = described_class.from_buffer(Suma::Fixtures::UploadedFiles::PNG_1X1_BYTES)
+      img = described_class.from_buffer(Suma::SpecHelpers::PNG_1X1_BYTES)
       expect(img.size).to eq([1, 1])
     end
   end

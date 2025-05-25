@@ -44,7 +44,8 @@ RSpec.describe Suma::Fixtures, db: true  do
     Suma::Fixtures.program.with_(Suma::Fixtures.offering.create).create
     Suma::Fixtures.reset_code.email.create
     Suma::Fixtures.translated_text.empty.create
-    Suma::Fixtures.uploaded_file.uploaded_1x1_png.uploaded_bytes("x", "text/plain").create
+    Suma::Fixtures.uploaded_file.uploaded_bytes("x", "text/plain").create
+    Suma::Fixtures.uploaded_file.uploaded_1x1_png.create
   end
 
   it "keeps track of fixture and fixtured classes" do

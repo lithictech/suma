@@ -9,8 +9,10 @@ class Suma::UploadedFile < Suma::Postgres::Model(:uploaded_files)
 
   class MissingBlob < StandardError; end
   class PrivateFile < StandardError; end
+  class MismatchedContentType < StandardError; end
 
   plugin :timestamps
+  plugin :immutable
 
   many_to_one :created_by, class: "Suma::Member"
 
@@ -74,14 +76,27 @@ class Suma::UploadedFile < Suma::Postgres::Model(:uploaded_files)
     return self.create_with_blob(bytes:, content_type:, filename: file[:filename], **params)
   end
 
-  def self.fields_with_blob(bytes:, content_type:)
+  def self.fields_with_blob(bytes:, content_type:, validate: true)
     opaque_id = Suma::Secureid.new_opaque_id("im")
+    self._validate_content_types(bytes, content_type) if validate
     sha256 = self.upsert_blob(bytes:)
     return {sha256:, opaque_id:, content_type:, content_length: bytes.size}
   end
 
-  def self.create_with_blob(bytes:, content_type:, **params)
-    fields = self.fields_with_blob(bytes:, content_type:)
+  # Before creating the file, validate that the given content type, and the magic number of the bytes,
+  # agree, or are at least safe for use.
+  def self._validate_content_types(bytes, ct)
+    magic_ct = MimeMagic.by_magic(bytes)
+    # Passed and actual match (or actual is more specific than passed), we're ok.
+    return if magic_ct&.child_of?(ct)
+    passed_ct = MimeMagic.new(ct)
+    # Passed is text, but passed could not be detected. That's okay, since text usually doesn't have magic numbers.
+    return if magic_ct.nil? && passed_ct.child_of?("text/plain")
+    raise MismatchedContentType, "expected content type '#{ct}' does not match derived '#{magic_ct || '(nil)'}'"
+  end
+
+  def self.create_with_blob(bytes:, content_type:, validate: true, **params)
+    fields = self.fields_with_blob(bytes:, content_type:, validate:)
     opts = fields.merge(params)
     opts[:filename] ||= "#{opts.fetch(:opaque_id)}.#{content_type.split('/').last}"
     self.create(opts)
@@ -101,6 +116,11 @@ class Suma::UploadedFile < Suma::Postgres::Model(:uploaded_files)
     if self.private? && !@unlocked_blob
       raise PrivateFile, "unlock_blob must be called on private files before accessing blob_stream"
     end
+    return self.blob_stream_unsafe
+  end
+
+  # Read and return the blob stream, without checking for 'private' access.
+  def blob_stream_unsafe
     if @_blob_bytes.nil? || @_blob_bytes_hash != self.sha256
       @_blob_bytes = self.class.blob_dataset.where(sha256: self.sha256).select_map(:bytes).first
       raise MissingBlob, "no blob in database for #{self.sha256}" if @_blob_bytes.nil?
@@ -116,6 +136,21 @@ class Suma::UploadedFile < Suma::Postgres::Model(:uploaded_files)
   def validate
     super
     errors.add(:private, "created_by must be set") if self.private? && self.created_by_id.nil?
+    validates_presence :filename
+    self._validate_filename_content_type_match
+  end
+
+  def _validate_filename_content_type_match
+    ext = File.extname(self.filename || "")
+    filename_ct = MimeMagic.by_extension(ext)
+    # We can't figure out the content type of the filename, so don't validate.
+    return if filename_ct.nil?
+    # If the filename is some type of the expected type, we're ok.
+    return if filename_ct.child_of?(self.content_type)
+    # If the expected type and the extension are the same, we're ok.
+    # This is mostly an issue for .html files and text/html. .html can be one of many mime types.
+    return if MimeMagic.new(self.content_type).subtype == ext[1..]
+    errors.add(:filename, "#{ext} content type '#{filename_ct}' must match '#{self.content_type}'")
   end
 
   class NoImageAvailable

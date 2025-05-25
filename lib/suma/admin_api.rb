@@ -39,6 +39,14 @@ module Suma::AdminAPI
           invalid!(e.to_s)
         end
 
+        rescue_from Sequel::ValidationFailed do |e|
+          invalid!(e.errors.full_messages, message: e.message)
+        end
+
+        rescue_from Suma::UploadedFile::MismatchedContentType do |e|
+          invalid!(e.message)
+        end
+
         before do
           Sentry.configure_scope do |scope|
             scope.set_tags(application: "admin-api")
