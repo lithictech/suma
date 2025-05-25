@@ -44,18 +44,41 @@ RSpec.describe "Suma::UploadedFile", :db do
     it "upserts the blob" do
       described_class.create_with_blob(bytes: png_1x1, content_type: "image/png")
       expect(described_class.blob_dataset.all).to have_length(1)
-      described_class.create_with_blob(bytes: png_1x1, content_type: "image/jpeg")
+      expect(described_class.dataset.all).to have_length(1)
+      # Ensure we only get one insert per-blob, no matter how many uploaded files we have.
+      described_class.create_with_blob(bytes: png_1x1, content_type: "image/jpeg", validate: false)
       expect(described_class.blob_dataset.all).to have_length(1)
+      expect(described_class.dataset.all).to have_length(2)
+    end
+
+    it "errors if the bytes and given content type have unmatched, unsafe content types" do
+      expect do
+        described_class.create_with_blob(bytes: png_1x1, content_type: "image/jpeg")
+      end.to raise_error(described_class::MismatchedContentType)
+      described_class.create_with_blob(bytes: "abc", content_type: "text/plain")
+      described_class.create_with_blob(bytes: "abc", content_type: "text/html")
+      described_class.create_with_blob(bytes: "<x></x>", content_type: "text/html")
+      described_class.create_with_blob(bytes: "<html></html>", content_type: "text/html")
+      described_class.create_with_blob(bytes: "<x></x>", content_type: "text/plain")
+      expect do
+        described_class.create_with_blob(bytes: png_1x1, content_type: "text/plain")
+      end.to raise_error(described_class::MismatchedContentType)
+      expect do
+        described_class.create_with_blob(bytes: "<html></html>", content_type: "application/javascript")
+      end.to raise_error(described_class::MismatchedContentType)
+      expect do
+        described_class.create_with_blob(bytes: png_1x1, content_type: "application/javascript")
+      end.to raise_error(described_class::MismatchedContentType)
     end
   end
 
   describe "create_from_multipart" do
     it "creates the image from Rack params" do
-      got = described_class.create_from_multipart({tempfile: StringIO.new(png_1x1), type: "ct"})
+      got = described_class.create_from_multipart({tempfile: StringIO.new(png_1x1), type: "image/png"})
       expect(got.values).to include(
         sha256: "4162c89ce573251b6b77c9f6cb627ba15ffdcd0fb11e06716e40f4ea0dd66f15",
-        content_type: "ct",
-        filename: "#{got.opaque_id}.ct",
+        content_type: "image/png",
+        filename: "#{got.opaque_id}.png",
       )
     end
 
@@ -112,6 +135,48 @@ RSpec.describe "Suma::UploadedFile", :db do
       uf.validate
       expect(uf.errors).to be_empty
     end
+
+    it "does not allow changes once saved" do
+      uf = Suma::Fixtures.uploaded_file.create
+      expect { uf.update(filename: "foo") }.to raise_error(FrozenError)
+    end
+
+    it "requires the filename and content type to be compatible" do
+      uf = Suma::Fixtures.uploaded_file.create
+      uf.filename = "foo.png"
+      uf.content_type = "image/jpeg"
+      uf.validate
+      expect(uf.errors).to include(filename: [".png content type 'image/png' must match 'image/jpeg'"])
+
+      uf.errors.clear
+      uf.filename = "foo"
+      uf.content_type = "image/jpeg"
+      uf.validate
+      expect(uf.errors).to be_empty
+
+      uf.errors.clear
+      uf.filename = "foo.csv"
+      uf.content_type = "text/plain"
+      uf.validate
+      expect(uf.errors).to be_empty
+
+      uf.errors.clear
+      uf.filename = "foo.csv"
+      uf.content_type = "text/html"
+      uf.validate
+      expect(uf.errors).to include(filename: [".csv content type 'text/csv' must match 'text/html'"])
+
+      # .html gets a content type of application/xhtml+xml from MimeMagic by default.
+      # Make sure .html works with various xml content types.
+      html_content_types = ["text/html", "application/xhtml+xml"]
+      html_content_types.each do |ct|
+        uf.errors.clear
+        uf.filename = "foo.html"
+        uf.content_type = ct
+        uf.validate
+        expect(uf.errors).to be_empty
+      end
+    end
   end
 
   describe "NoImageAvailable" do
@@ -128,5 +193,5 @@ RSpec.describe "Suma::UploadedFile", :db do
     end
   end
 
-  let(:png_1x1) { Suma::Fixtures::UploadedFiles::PNG_1X1_BYTES }
+  let(:png_1x1) { Suma::SpecHelpers::PNG_1X1_BYTES }
 end

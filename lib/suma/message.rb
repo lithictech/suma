@@ -53,6 +53,7 @@ module Suma::Message
         to: recipient.to,
         recipient: recipient.member,
         extra_fields: template.extra_fields.merge(extra_fields),
+        sensitive: template.sensitive?,
       )
       transport.add_bodies(delivery, contents)
       delivery.publish_deferred("dispatched", delivery.id)

@@ -18,21 +18,27 @@ module Suma::Fixtures::UploadedFiles
   end
 
   decorator :uploaded_1x1_png do
-    fields = Suma::UploadedFile.fields_with_blob(bytes: PNG_1X1_BYTES, content_type: "image/png")
+    fields = Suma::UploadedFile.fields_with_blob(bytes: Suma::SpecHelpers::PNG_1X1_BYTES, content_type: "image/png")
+    fields[:filename] = "#{self.opaque_id}.png"
     self.set(fields)
   end
 
-  decorator :uploaded_bytes do |bytes, content_type|
-    fields = Suma::UploadedFile.fields_with_blob(bytes:, content_type:)
+  decorator :uploaded_bytes do |bytes, content_type, filename: nil, **kw|
+    fields = Suma::UploadedFile.fields_with_blob(bytes:, content_type:, **kw)
+    fields[:filename] = filename || "#{self.opaque_id}.#{content_type.split('/').last}"
     self.set(fields)
   end
 
   decorator :uploaded_file do |f|
     content_type = MimeMagic.by_magic(File.open(f.path)).type
     fields = Suma::UploadedFile.fields_with_blob(bytes: f.read, content_type:)
+    fields[:filename] = Pathname(f.path).basename.to_s
     self.set(fields)
   end
 
-  PNG_1X1_BASE64 = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAABXWlDQ1BJQ0MgUHJvZmlsZQAAKJFtkDFLw1AUhU+0UmiDWFoEoUgcFIRaSnRyqxWq2CFUi1pwSF9rIrTxkUTESXdxUfEniD9A6OIgCM6CoODkpD9A6KIl3teoadUHl/txOPe+ywH6ZJ3zeghAw3LtYn5OWVsvK+EXRBCDjFHEdebwrKYVyILv3vtaD5BEv58Su9hS3EqP3I5LJ4f7r8mx+F9/z4tUaw6j/kGlMm67gJQh1nZdLviAOGHTUcSngg2fLwRXfL7qeFaKOeI74iFm6lXiZ+JUpUs3urhR32FfN4jr5ZpVWqY+TJVEAXkoKKEOFzZ04gXMU0b/z8x0ZnLYBsce+bdgwKRJBVlSOG2pES/CAkMaKWIVGSpVZP07w0BzKIfZI/qKB9pGArg0gUEWaBPHQCwK3JS5bus/yUqtkLM5rfocbQIDZ573tgqEJ4H2o+e9Nz2vfQ70PwHXrU92b2AplRAQjQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" # nolen
-  PNG_1X1_BYTES = Base64.decode64(PNG_1X1_BASE64)
+  decorator :private do |created_by=nil|
+    created_by ||= Suma::Fixtures.member.create
+    self.private = true
+    self.created_by = created_by
+  end
 end

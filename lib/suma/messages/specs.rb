@@ -4,13 +4,8 @@ require "suma/message/template"
 
 module Suma::Messages::Testers
   class Base < Suma::Message::Template
-    def template_folder
-      return "specs"
-    end
-
-    def layout
-      return nil
-    end
+    def template_folder = "specs"
+    def layout = nil
   end
 
   class Basic < Base
@@ -31,9 +26,7 @@ module Suma::Messages::Testers
   end
 
   class MissingField < Base
-    def template_name
-      return "with_field"
-    end
+    def template_name = "with_field"
   end
 
   class WithInclude < Base
@@ -46,13 +39,8 @@ module Suma::Messages::Testers
   end
 
   class WithLayout < Base
-    def template_name
-      return "basic"
-    end
-
-    def layout
-      return "standard"
-    end
+    def template_name = "basic"
+    def layout = return "standard"
   end
 
   class EatArgs < Base
@@ -60,12 +48,15 @@ module Suma::Messages::Testers
       super()
     end
 
-    def template_name
-      return "basic"
-    end
+    def template_name = "basic"
   end
 
   class Localized < Base
     def localized? = true
+  end
+
+  class Sensitive < Base
+    def template_name = "basic"
+    def sensitive? = true
   end
 end

@@ -12,9 +12,13 @@ class Suma::AdminAPI::Members < Suma::AdminAPI::V1
     include Suma::AdminAPI::Entities
     include AutoExposeBase
     expose :transport
-    expose :token
     expose :used
     expose :expire_at
+    expose :token do |inst, opts|
+      ra = opts.fetch(:env).fetch("yosoy").authenticated_object!.member.role_access
+      expose_token = ra.can?(:read, ra.admin_sensitive_messages)
+      expose_token ? inst.token : ("*" * inst.token.length)
+    end
   end
 
   class MemberSessionEntity < BaseEntity

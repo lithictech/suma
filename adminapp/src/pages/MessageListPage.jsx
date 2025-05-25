@@ -43,6 +43,12 @@ export default function MessageListPage() {
               c.to
             ),
         },
+        {
+          id: "template",
+          label: "Template",
+          align: "left",
+          render: (c) => c.template,
+        },
       ]}
     />
   );

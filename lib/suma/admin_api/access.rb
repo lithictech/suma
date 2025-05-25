@@ -5,6 +5,7 @@ class Suma::AdminAPI::Access
   MEMBERS = Suma::Member::RoleAccess::ADMIN_MEMBERS
   COMMERCE = Suma::Member::RoleAccess::ADMIN_COMMERCE
   PAYMENTS = Suma::Member::RoleAccess::ADMIN_PAYMENTS
+  SENSITIVE_MESSAGES = Suma::Member::RoleAccess::ADMIN_SENSITIVE_MESSAGES
   MANAGEMENT = Suma::Member::RoleAccess::ADMIN_MANAGEMENT
 
   MAPPING = {
@@ -21,7 +22,7 @@ class Suma::AdminAPI::Access
     Suma::Payment::FundingTransaction => [:funding_transaction, PAYMENTS, PAYMENTS],
     Suma::Member => [:member, MEMBERS, MEMBERS],
     Suma::Message::Delivery => [:message_delivery, MEMBERS, MANAGEMENT],
-    Suma::Mobility::Trip => [:mobility_trip, ALL, MANAGEMENT],
+    Suma::Mobility::Trip => [:mobility_trip, COMMERCE, MANAGEMENT],
     Suma::Organization::Membership => [:organization_membership, MEMBERS, MEMBERS],
     Suma::Organization => [:organization, MEMBERS, MANAGEMENT],
     Suma::Payment::Ledger => [:ledger, PAYMENTS, PAYMENTS],

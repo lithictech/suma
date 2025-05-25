@@ -21,6 +21,7 @@ RSpec.describe "Suma::Message", :db, :messaging do
         sent_at: nil,
         to: recipient.phone,
         recipient:,
+        sensitive: false,
       )
       expect(delivery.bodies).to have_length(be >= 1)
     end
@@ -59,6 +60,12 @@ RSpec.describe "Suma::Message", :db, :messaging do
       delivery = tmpl.dispatch("member@lithic.tech", transport: :sms)
       expect(delivery).to have_attributes(template_language: "fr")
       expect(delivery.bodies).to contain_exactly(have_attributes(content: match("french message")))
+    end
+
+    it "sets the delivery as sensitive if the template is sensitive" do
+      tmpl = Suma::Messages::Testers::Sensitive.new
+      delivery = tmpl.dispatch("member@lithic.tech", transport: :sms)
+      expect(delivery).to have_attributes(sensitive: true)
     end
 
     it "errors if no language is set and the template supports localization" do

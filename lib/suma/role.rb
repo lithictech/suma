@@ -22,6 +22,9 @@ class Suma::Role < Suma::Postgres::Model(:roles)
     # Can modify admin member information, and view non-privileged areas of admin.
     def onboarding_manager = get("onboarding_manager")
 
+    # Can view sensitive messages, like auth verification codes.
+    def sensitive_messages = get("sensitive_messages")
+
     # Can read, but not write, all of admin.
     # Mostly used for testing purposes but could also be used to give people readonly access.
     def readonly_admin = get("admin_readonly")

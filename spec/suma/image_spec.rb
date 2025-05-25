@@ -43,7 +43,7 @@ RSpec.describe "Suma::Image", :db do
       img2 = Suma::Fixtures.image.for(o).create
       # Access this to cache the association to make sure it gets busted/set
       expect(o.images).to have_same_ids_as(img1, img2)
-      im = Suma::Fixtures.image.create(uploaded_file: Suma::Fixtures.uploaded_file.create)
+      im = Suma::Fixtures.image.create(uploaded_file: Suma::Fixtures.uploaded_file.uploaded_1x1_png.create)
       o.image = im
       img3 = o.image
       expect(img3.vendor).to be === o
@@ -86,5 +86,53 @@ RSpec.describe "Suma::Image", :db do
     img.associated_object = nil
     expect(img.associated_object).to be_nil
     expect { img.associated_object = 5 }.to raise_error(TypeError, /invalid associated/)
+  end
+
+  describe "validations" do
+    let(:image_uf) { Suma::Fixtures.uploaded_file.uploaded_1x1_png.create }
+    let(:nonimage_uf) { Suma::Fixtures.uploaded_file.uploaded_bytes("xyz", "image/png", validate: false).create }
+
+    it "validates the uploaded file blob is an image on create" do
+      expect { Suma::Fixtures.image.create(uploaded_file: image_uf) }.to_not raise_error
+      expect do
+        Suma::Fixtures.image.create(uploaded_file: nonimage_uf)
+      end.to raise_error(Sequel::ValidationFailed, /uploaded_file is not an image/)
+
+      im = Suma::Fixtures.image.instance(vendor: Suma::Fixtures.vendor.create)
+      im.values[:uploaded_file_id] = nonimage_uf.id
+      expect { im.save_changes }.to raise_error(Sequel::ValidationFailed, /uploaded_file is not an image/)
+    end
+
+    it "validates the uploaded file blob is an image if uploaded_file_id is changed" do
+      img = Suma::Fixtures.image.create(uploaded_file: image_uf)
+      img_uf2 = Suma::Fixtures.uploaded_file.uploaded_1x1_png.create
+
+      expect do
+        img.update(uploaded_file: nonimage_uf)
+      end.to raise_error(Sequel::ValidationFailed, /uploaded_file is not an image/)
+      expect { img.update(uploaded_file: img_uf2) }.to_not raise_error
+    end
+
+    it "does not try to read the blob if the uploaded_file_id has not changed",
+       reset_configuration: Suma::UploadedFile do
+      img = Suma::Fixtures.image.create
+      img.refresh
+      Suma::UploadedFile.blob_dataset.where(sha256: img.uploaded_file.sha256).delete
+      expect { img.update(ordinal: 10) }.to_not raise_error
+    end
+
+    it "can validate a private uploaded file without leaving it unlocked" do
+      img2 = Suma::Fixtures.uploaded_file.uploaded_1x1_png.private.create
+      img2.refresh
+      img = Suma::Fixtures.image.create(uploaded_file: img2)
+      img.refresh
+      expect { img.update(ordinal: 10) }.to_not raise_error
+    end
+
+    it "requires an uploaded file" do
+      img = Suma::Fixtures.image.instance
+      img.uploaded_file = nil
+      expect { img.save_changes }.to raise_error(Sequel::ValidationFailed, /uploaded_file_id is not present/)
+    end
   end
 end

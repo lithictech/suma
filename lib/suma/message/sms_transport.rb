@@ -17,10 +17,10 @@ class Suma::Message::SmsTransport < Suma::Message::Transport
   configurable(:sms) do
     setting :allowlist, [], convert: ->(s) { s.split.map { |p| Suma::PhoneNumber.format_e164(p) || p } }
     setting :from, "15554443333"
-    # If set, any message deliveries using this template will use Signalwire verify, not normal SMS.
+    # If set, any message deliveries using this template will use Twilio Verify, not normal SMS.
     setting :verification_template, "verification"
     # This is used to extract the verification code from a template.
-    # Must be coordinated with with the code generator.
+    # Must be coordinated with the code generator.
     # Default: match a word of only digits, surrounded by spaces or line start/end.
     setting :verification_code_regex, '\b(\d+)\b'
     # If set, disable SMS (but allow verifications)

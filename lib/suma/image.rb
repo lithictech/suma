@@ -46,6 +46,16 @@ class Suma::Image < Suma::Postgres::Model(:images)
       end
   end
 
+  def validate
+    super
+    validates_presence :uploaded_file_id
+    return unless !self.errors[:uploaded_file_id] && (self.new? || self.changed_columns.include?(:uploaded_file_id))
+    # If we have an uploaded file, and our model is new, or the uploaded file has changed,
+    # verify it is indeed an image.
+    mt = MimeMagic.by_magic(self.uploaded_file.blob_stream_unsafe)
+    self.errors.add(:uploaded_file, "is not an image") unless mt&.image?
+  end
+
   class << self
     def no_image_available
       return @no_image_available if @no_image_available
