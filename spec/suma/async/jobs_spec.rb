@@ -210,6 +210,20 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
     end
   end
 
+  describe "MarketingSmsCampaignDispatch" do
+    it "dispatches pending campaign sms", :no_transaction_check, reset_configuration: Suma::Signalwire do
+      Suma::Signalwire.marketing_number = "12223334444"
+      d = Suma::Fixtures.marketing_sms_dispatch.create
+      req = stub_request(:post, "https://sumafaketest.signalwire.com/2010-04-01/Accounts/sw-test-project/Messages.json").
+        to_return(json_response(load_fixture_data("signalwire/send_message")))
+
+      Suma::Async::MarketingSmsCampaignDispatch.new.perform(Amigo::Event.new("", "", {}).as_json)
+
+      expect(req).to have_been_made
+      expect(d.refresh).to be_sent
+    end
+  end
+
   describe "MemberDefaultRelation" do
     it "creates ledgers and roles" do
       expect do

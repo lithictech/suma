@@ -22,6 +22,8 @@ class Suma::Member::RoleAccess
   # Access privileged areas of admin, like creating new programs,
   # that most users do not need to do.
   ADMIN_MANAGEMENT = :admin_management
+  # Can send bulk marketing messages via SMS.
+  MARKETING_SMS = :marketing_sms
 
   KEYS = Set.new([
                    UPLOAD_FILES,
@@ -32,6 +34,7 @@ class Suma::Member::RoleAccess
                    ADMIN_PAYMENTS,
                    ADMIN_SENSITIVE_MESSAGES,
                    ADMIN_MANAGEMENT,
+                   MARKETING_SMS,
                  ]).freeze
 
   def upload_files = UPLOAD_FILES
@@ -42,6 +45,7 @@ class Suma::Member::RoleAccess
   def admin_payments = ADMIN_PAYMENTS
   def admin_sensitive_messages = ADMIN_SENSITIVE_MESSAGES
   def admin_management = ADMIN_MANAGEMENT
+  def marketing_sms = MARKETING_SMS
 
   def initialize(member)
     @member = member
@@ -56,6 +60,7 @@ class Suma::Member::RoleAccess
       self.add_feature(ADMIN_PAYMENTS, true, true)
       self.add_feature(ADMIN_SENSITIVE_MESSAGES, true, true)
       self.add_feature(ADMIN_MANAGEMENT, true, true)
+      self.add_feature(MARKETING_SMS, true, true)
     end
     if member.roles.include?(Suma::Role.cache.readonly_admin)
       self.add_feature(ADMIN_ACCESS, true, false)
@@ -76,6 +81,9 @@ class Suma::Member::RoleAccess
     end
     if member.roles.include?(Suma::Role.cache.sensitive_messages)
       self.add_feature(ADMIN_SENSITIVE_MESSAGES, true, false)
+    end
+    if member.roles.include?(Suma::Role.cache.sms_marketing)
+      self.add_feature(MARKETING_SMS, true, true)
     end
     # rubocop:enable Style/GuardClause, Style/IfUnlessModifier
   end

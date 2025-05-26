@@ -33,6 +33,7 @@ module Suma::Async
     "suma/async/gbfs_sync_run",
     "suma/async/hybrid_search_reindex",
     "suma/async/lyft_pass_trip_sync",
+    "suma/async/marketing_sms_campaign_dispatch",
     "suma/async/member_default_relations",
     "suma/async/member_onboarding_verified_dispatch",
     "suma/async/message_dispatched",

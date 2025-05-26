@@ -25,6 +25,9 @@ class Suma::Role < Suma::Postgres::Model(:roles)
     # Can view sensitive messages, like auth verification codes.
     def sensitive_messages = get("sensitive_messages")
 
+    # Can send bulk marketing messages via SMS.
+    def sms_marketing = get("sms_marketing")
+
     # Can read, but not write, all of admin.
     # Mostly used for testing purposes but could also be used to give people readonly access.
     def readonly_admin = get("admin_readonly")

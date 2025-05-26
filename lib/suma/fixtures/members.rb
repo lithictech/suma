@@ -59,6 +59,10 @@ module Suma::Fixtures::Members
     self.legal_entity = opts
   end
 
+  decorator :with_preferences, presave: true do |opts={}|
+    Suma::Message::Preferences.create(member: self, **opts)
+  end
+
   decorator :onboarding_verified do |t=Time.now|
     self.onboarding_verified_at = t
   end
