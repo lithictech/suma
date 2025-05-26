@@ -21,7 +21,7 @@ class Suma::Marketing::List < Suma::Postgres::Model(:marketing_lists)
     # @param spec [Specification]
     def rebuild(spec)
       self.db.transaction do
-        list = self.find_or_create(name: spec.full_name, managed: true)
+        list = self.find_or_create(label: spec.full_label, managed: true)
         # Use MERGE WHEN NOT MATCHED BY SOURCE in Postgres 17 when available, after late 2024
         self.db[:marketing_lists_members].
           where(marketing_list_id: list.id).
@@ -47,13 +47,13 @@ class Suma::Marketing::List < Suma::Postgres::Model(:marketing_lists)
 
   def hybrid_search_fields
     return [
-      :name,
+      :label,
       :managed,
     ]
   end
 
   class Specification < Suma::TypedStruct
-    attr_reader :name, :transport, :language, :members_dataset
+    attr_reader :label, :transport, :language, :members_dataset
 
     def initialize(**kw)
       super
@@ -65,9 +65,9 @@ class Suma::Marketing::List < Suma::Postgres::Model(:marketing_lists)
         where(preferences: preferences_ds)
     end
 
-    def full_name
+    def full_label
       lang = Suma::I18n::SUPPORTED_LOCALES.fetch(self.language).language
-      "#{self.name} - #{self.transport.to_s.upcase} - #{lang}"
+      "#{self.label} - #{self.transport.to_s.upcase} - #{lang}"
     end
 
     def self.for_languages(**kw)
@@ -82,7 +82,7 @@ class Suma::Marketing::List < Suma::Postgres::Model(:marketing_lists)
       result = []
       result.concat(
         self.for_languages(
-          name: "Marketing",
+          label: "Marketing",
           transport: :sms,
           members_dataset: Suma::Member.
             where(preferences: Suma::Message::Preferences.where(marketing_sms_optout: false)),
@@ -90,7 +90,7 @@ class Suma::Marketing::List < Suma::Postgres::Model(:marketing_lists)
       )
       result.concat(
         self.for_languages(
-          name: "Unverified, last #{RECENTLY_UNVERIFIED_CUTOFF_DAYS} days",
+          label: "Unverified, last #{RECENTLY_UNVERIFIED_CUTOFF_DAYS} days",
           transport: :sms,
           members_dataset: Suma::Member.
             where { created_at > RECENTLY_UNVERIFIED_CUTOFF_DAYS.days.ago }.
@@ -99,7 +99,7 @@ class Suma::Marketing::List < Suma::Postgres::Model(:marketing_lists)
       )
       result.concat(
         self.for_languages(
-          name: "Unverified, All time",
+          label: "Unverified, All time",
           transport: :sms,
           members_dataset: Suma::Member.where(onboarding_verified_at: nil),
         ),
@@ -107,7 +107,7 @@ class Suma::Marketing::List < Suma::Postgres::Model(:marketing_lists)
       Suma::Organization.all.each do |org|
         result.concat(
           self.for_languages(
-            name: org.name,
+            label: org.name,
             transport: :sms,
             members_dataset: Suma::Member.where(organization_memberships: org.memberships_dataset),
           ),

@@ -360,6 +360,6 @@ module Suma::AdminAPI::Entities
   class SmsCampaignEntity < BaseEntity
     include AutoExposeBase
     expose :sent_at
-    expose :name
+    expose :label
   end
 end

@@ -9,7 +9,7 @@ Sequel.migration do
       timestamptz :created_at, null: false, default: Sequel.function(:now)
       timestamptz :updated_at
 
-      text :name, null: false
+      text :label, null: false
       boolean :managed, null: false, default: false
 
       column :search_content, :text
@@ -31,7 +31,7 @@ Sequel.migration do
       timestamptz :updated_at
       timestamptz :sent_at
 
-      text :name, null: false
+      text :label, null: false
 
       foreign_key :body_id, :translated_texts, null: false
 

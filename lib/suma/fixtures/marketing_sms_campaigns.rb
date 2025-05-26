@@ -8,7 +8,7 @@ module Suma::Fixtures::MarketingSmsCampaigns
   fixtured_class Suma::Marketing::SmsCampaign
 
   base :marketing_sms_campaign do
-    self.name ||= Faker::Lorem.words
+    self.label ||= Faker::Lorem.words
   end
 
   before_saving do |instance|

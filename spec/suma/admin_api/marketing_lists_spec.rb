@@ -30,13 +30,13 @@ RSpec.describe Suma::AdminAPI::MarketingLists, :db do
 
       def make_matching_items
         return [
-          Suma::Fixtures.marketing_list(name: "zim zam zom").create,
+          Suma::Fixtures.marketing_list(label: "zim zam zom").create,
         ]
       end
 
       def make_non_matching_items
         return [
-          Suma::Fixtures.marketing_list(name: "wibble wobble").create,
+          Suma::Fixtures.marketing_list(label: "wibble wobble").create,
         ]
       end
     end
@@ -52,9 +52,9 @@ RSpec.describe Suma::AdminAPI::MarketingLists, :db do
 
     it_behaves_like "an endpoint with member-supplied ordering" do
       let(:url) { "/v1/marketing_lists" }
-      let(:order_by_field) { "name" }
+      let(:order_by_field) { "label" }
       def make_item(i)
-        return Suma::Fixtures.marketing_list.create(name: i.to_s)
+        return Suma::Fixtures.marketing_list.create(label: i.to_s)
       end
     end
   end

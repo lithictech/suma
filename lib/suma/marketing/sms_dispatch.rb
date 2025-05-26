@@ -38,7 +38,7 @@ class Suma::Marketing::SmsDispatch < Suma::Postgres::Model(:marketing_sms_dispat
             member_id: dispatch.member.id,
             member_name: dispatch.member.name,
             campaign_id: dispatch.sms_campaign.id,
-            campaign: dispatch.sms_campaign.name,
+            campaign: dispatch.sms_campaign.label,
           }
           self.logger.error("dispatch_marketing_campaign_error", tags, e)
           Sentry.capture_exception(e, tags:)
@@ -47,9 +47,10 @@ class Suma::Marketing::SmsDispatch < Suma::Postgres::Model(:marketing_sms_dispat
         self.logger.info(
           "dispatched_marketing_campaign",
           member_id: dispatch.member.id,
-          campaign: dispatch.sms_campaign.name,
+          campaign: dispatch.sms_campaign.label,
           signalwire_message_id: sw_resp.sid,
         )
+        dispatch.transport_message_id = sw_resp.sid
         dispatch.sent = Time.now
         dispatch.save_changes
       end

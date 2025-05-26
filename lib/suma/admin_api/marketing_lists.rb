@@ -8,7 +8,7 @@ class Suma::AdminAPI::MarketingLists < Suma::AdminAPI::V1
   class ListEntity < BaseEntity
     include Suma::AdminAPI::Entities
     include AutoExposeBase
-    expose :name
+    expose :label
     expose :managed
   end
 

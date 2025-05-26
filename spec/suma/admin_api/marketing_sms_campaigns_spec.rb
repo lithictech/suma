@@ -30,13 +30,13 @@ RSpec.describe Suma::AdminAPI::MarketingSmsCampaigns, :db do
 
       def make_matching_items
         return [
-          Suma::Fixtures.marketing_sms_campaign(name: "zim zam zom").create,
+          Suma::Fixtures.marketing_sms_campaign(label: "zim zam zom").create,
         ]
       end
 
       def make_non_matching_items
         return [
-          Suma::Fixtures.marketing_sms_campaign(name: "wibble wobble").create,
+          Suma::Fixtures.marketing_sms_campaign(label: "wibble wobble").create,
         ]
       end
     end
@@ -52,9 +52,9 @@ RSpec.describe Suma::AdminAPI::MarketingSmsCampaigns, :db do
 
     it_behaves_like "an endpoint with member-supplied ordering" do
       let(:url) { "/v1/marketing_sms_campaigns" }
-      let(:order_by_field) { "name" }
+      let(:order_by_field) { "label" }
       def make_item(i)
-        return Suma::Fixtures.marketing_sms_campaign.create(name: i.to_s)
+        return Suma::Fixtures.marketing_sms_campaign.create(label: i.to_s)
       end
     end
   end
@@ -78,12 +78,12 @@ RSpec.describe Suma::AdminAPI::MarketingSmsCampaigns, :db do
 
   describe "POST /v1/marketing_sms_campaigns/create" do
     it "creates the object" do
-      post "/v1/marketing_sms_campaigns/create", name: "hi"
+      post "/v1/marketing_sms_campaigns/create", label: "hi"
 
       expect(last_response).to have_status(200)
       expect(last_response.headers).to include("Created-Resource-Admin")
       expect(Suma::Marketing::SmsCampaign[id: last_response_json_body[:id]]).to have_attributes(
-        name: "hi",
+        label: "hi",
       )
     end
   end
@@ -92,10 +92,10 @@ RSpec.describe Suma::AdminAPI::MarketingSmsCampaigns, :db do
     it "updates the object" do
       o = Suma::Fixtures.marketing_sms_campaign.create
 
-      post "/v1/marketing_sms_campaigns/#{o.id}", name: "test", body: {en: "entext", es: "estext"}
+      post "/v1/marketing_sms_campaigns/#{o.id}", label: "test", body: {en: "entext", es: "estext"}
 
       expect(last_response).to have_status(200)
-      expect(o.refresh).to have_attributes(name: "test", body: have_attributes(en: "entext", es: "estext"))
+      expect(o.refresh).to have_attributes(label: "test", body: have_attributes(en: "entext", es: "estext"))
     end
 
     it "replaces the lists" do

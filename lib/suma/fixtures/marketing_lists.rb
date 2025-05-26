@@ -8,7 +8,7 @@ module Suma::Fixtures::MarketingLists
   fixtured_class Suma::Marketing::List
 
   base :marketing_list do
-    self.name ||= Faker::Lorem.words
+    self.label ||= Faker::Lorem.words
   end
 
   before_saving do |instance|

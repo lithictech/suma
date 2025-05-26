@@ -66,7 +66,7 @@ class Suma::Marketing::SmsCampaign < Suma::Postgres::Model(:marketing_sms_campai
 
   def hybrid_search_fields
     return [
-      :name,
+      :label,
       :sent_at,
     ]
   end

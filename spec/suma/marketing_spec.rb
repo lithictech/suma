@@ -62,7 +62,7 @@ RSpec.describe Suma::Marketing, :db do
       es = Suma::Fixtures.member.with_preferences(preferred_language: "es").create
 
       spec = described_class::List::Specification.new(
-        name: "mylist", transport: :sms, members_dataset: Suma::Member.dataset, language: "en",
+        label: "mylist", transport: :sms, members_dataset: Suma::Member.dataset, language: "en",
       )
       expect(spec.members_dataset.all).to have_same_ids_as(m)
     end
@@ -78,8 +78,8 @@ RSpec.describe Suma::Marketing, :db do
       Suma::Message::Preferences.create(member: unsubscribed, preferred_language: "en", marketing_sms_optout: true)
 
       specs = described_class::List::Specification.gather_all
-      en = specs.find { |s| s.full_name == "Marketing - SMS - English" }
-      es = specs.find { |s| s.full_name == "Marketing - SMS - Spanish" }
+      en = specs.find { |s| s.full_label == "Marketing - SMS - English" }
+      es = specs.find { |s| s.full_label == "Marketing - SMS - Spanish" }
       expect(en.members_dataset.all).to have_same_ids_as(en_member)
       expect(es.members_dataset.all).to have_same_ids_as(es_member)
     end
@@ -98,8 +98,8 @@ RSpec.describe Suma::Marketing, :db do
       Suma::Message::Preferences.create(member: old)
 
       specs = described_class::List::Specification.gather_all
-      en = specs.find { |s| s.full_name == "Unverified, last 30 days - SMS - English" }
-      es = specs.find { |s| s.full_name == "Unverified, last 30 days - SMS - Spanish" }
+      en = specs.find { |s| s.full_label == "Unverified, last 30 days - SMS - English" }
+      es = specs.find { |s| s.full_label == "Unverified, last 30 days - SMS - Spanish" }
       expect(en.members_dataset.all).to have_same_ids_as(en_member)
       expect(es.members_dataset.all).to have_same_ids_as(es_member)
     end
@@ -118,10 +118,10 @@ RSpec.describe Suma::Marketing, :db do
       Suma::Fixtures.organization_membership.verified(o1).create(member: es_member)
 
       specs = described_class::List::Specification.gather_all
-      o1_en_spec = specs.find { |s| s.full_name == "Org 1 - SMS - English" }
-      o1_es_spec = specs.find { |s| s.full_name == "Org 1 - SMS - Spanish" }
-      o2_en_spec = specs.find { |s| s.full_name == "Org 2 - SMS - English" }
-      o2_es_spec = specs.find { |s| s.full_name == "Org 2 - SMS - Spanish" }
+      o1_en_spec = specs.find { |s| s.full_label == "Org 1 - SMS - English" }
+      o1_es_spec = specs.find { |s| s.full_label == "Org 1 - SMS - Spanish" }
+      o2_en_spec = specs.find { |s| s.full_label == "Org 2 - SMS - English" }
+      o2_es_spec = specs.find { |s| s.full_label == "Org 2 - SMS - Spanish" }
       expect(o1_en_spec.members_dataset.all).to have_same_ids_as(en_member)
       expect(o1_es_spec.members_dataset.all).to have_same_ids_as(es_member)
       expect(o2_en_spec.members_dataset.all).to have_same_ids_as(en_member)
@@ -135,11 +135,11 @@ RSpec.describe Suma::Marketing, :db do
       Suma::Message::Preferences.create(member:, preferred_language: "en")
 
       spec = described_class::List::Specification.new(
-        name: "mylist", transport: :sms, members_dataset: Suma::Member.dataset, language: "en",
+        label: "mylist", transport: :sms, members_dataset: Suma::Member.dataset, language: "en",
       )
       list = described_class::List.rebuild(spec)
       expect(list).to have_attributes(
-        name: "mylist - SMS - English",
+        label: "mylist - SMS - English",
         managed: true,
       )
       expect(list.members).to contain_exactly(be === member)
@@ -147,41 +147,41 @@ RSpec.describe Suma::Marketing, :db do
 
     it "deletes managed lists no longer in the specification" do
       spec1 = described_class::List::Specification.new(
-        name: "mylist1", transport: :sms, members_dataset: Suma::Member.dataset, language: "en",
+        label: "mylist1", transport: :sms, members_dataset: Suma::Member.dataset, language: "en",
       )
       spec2 = described_class::List::Specification.new(
-        name: "mylist2", transport: :sms, members_dataset: Suma::Member.dataset, language: "en",
+        label: "mylist2", transport: :sms, members_dataset: Suma::Member.dataset, language: "en",
       )
       spec3 = described_class::List::Specification.new(
-        name: "mylist3", transport: :sms, members_dataset: Suma::Member.dataset, language: "en",
+        label: "mylist3", transport: :sms, members_dataset: Suma::Member.dataset, language: "en",
       )
-      explicit_list = Suma::Fixtures.marketing_list.create(name: "customlist")
+      explicit_list = Suma::Fixtures.marketing_list.create(label: "customlist")
       lists = described_class::List.rebuild_all(spec1, spec2)
       expect(lists).to contain_exactly(
-        have_attributes(name: "mylist1 - SMS - English"),
-        have_attributes(name: "mylist2 - SMS - English"),
+        have_attributes(label: "mylist1 - SMS - English"),
+        have_attributes(label: "mylist2 - SMS - English"),
       )
       expect(described_class::List.all).to contain_exactly(
-        have_attributes(name: "mylist1 - SMS - English"),
-        have_attributes(name: "mylist2 - SMS - English"),
-        have_attributes(name: "customlist"),
+        have_attributes(label: "mylist1 - SMS - English"),
+        have_attributes(label: "mylist2 - SMS - English"),
+        have_attributes(label: "customlist"),
       )
 
       lists = described_class::List.rebuild_all(spec3, spec2)
       expect(lists).to contain_exactly(
-        have_attributes(name: "mylist3 - SMS - English"),
-        have_attributes(name: "mylist2 - SMS - English"),
+        have_attributes(label: "mylist3 - SMS - English"),
+        have_attributes(label: "mylist2 - SMS - English"),
       )
       expect(described_class::List.all).to contain_exactly(
-        have_attributes(name: "mylist3 - SMS - English"),
-        have_attributes(name: "mylist2 - SMS - English"),
-        have_attributes(name: "customlist"),
+        have_attributes(label: "mylist3 - SMS - English"),
+        have_attributes(label: "mylist2 - SMS - English"),
+        have_attributes(label: "customlist"),
       )
     end
 
     it "replaces list members on update" do
       spec = described_class::List::Specification.new(
-        name: "mylist", transport: :sms, members_dataset: Suma::Member.dataset, language: "en",
+        label: "mylist", transport: :sms, members_dataset: Suma::Member.dataset, language: "en",
       )
 
       member1 = Suma::Fixtures.member.create

@@ -31,7 +31,7 @@ class Suma::AdminAPI::MarketingSmsCampaigns < Suma::AdminAPI::V1
       DetailedSmsCampaignEntity,
     ) do
       params do
-        requires :name, type: String
+        requires :label, type: String
       end
     end
 
@@ -47,7 +47,7 @@ class Suma::AdminAPI::MarketingSmsCampaigns < Suma::AdminAPI::V1
       end,
     ) do
       params do
-        optional :name, type: String
+        optional :label, type: String
         optional(:body, type: JSON) { use :translated_text, allow_blank: true }
         optional :lists, type: Array
       end
