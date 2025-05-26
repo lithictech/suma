@@ -18,6 +18,7 @@ module Suma::Fixtures::MarketingSmsDispatches
 
   decorator :sent do |at=Time.now|
     self.sent_at = at
+    self.transport_message_id ||= SecureRandom.hex(2)
   end
 
   decorator :to do |opts={}|

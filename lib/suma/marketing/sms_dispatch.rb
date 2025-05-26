@@ -63,6 +63,20 @@ class Suma::Marketing::SmsDispatch < Suma::Postgres::Model(:marketing_sms_dispat
     Suma::MethodUtilities.timestamp_set(self, :sent_at, v)
   end
 
+  def transport_message_id=(v)
+    self.last_error = nil if v.present?
+    self[:transport_message_id] = v
+  end
+
+  # True if +sent_at+ is set, and +transport_message_id+ is empty (not nil),
+  # indicating we gave up trying to send.
+  def canceled? = self.sent? && self.transport_message_id == ""
+
+  def cancel
+    self.sent = true
+    self.transport_message_id = ""
+  end
+
   def rel_admin_link = "/marketing-sms-dispatch/#{self.id}"
 
   def hybrid_search_fields

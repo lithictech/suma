@@ -53,12 +53,19 @@ Sequel.migration do
     create_table(:marketing_sms_dispatches) do
       primary_key :id
       timestamptz :created_at, null: false, default: Sequel.function(:now)
+
       foreign_key :member_id, :members, null: false
       foreign_key :sms_campaign_id, :marketing_sms_campaigns, null: false
       unique [:member_id, :sms_campaign_id]
+
       timestamptz :sent_at
       text :transport_message_id
-      Sequel.all_or_none_constraint([:sent_at, :transport_message_id])
+      constraint(
+        :sent_at_transport_message_id_set_together,
+        Sequel.all_or_none_constraint([:sent_at, :transport_message_id]),
+      )
+
+      text :last_error
 
       column :search_content, :text
       column :search_embedding, "vector(384)"
