@@ -10,6 +10,7 @@ class Suma::AdminAPI::MarketingSmsCampaigns < Suma::AdminAPI::V1
     include AutoExposeDetail
     expose :created_by, with: MemberEntity
     expose :body, with: TranslatedTextEntity
+    expose :lists, with: MarketingListEntity
     expose :preview do |instance, opts|
       instance.preview(opts.fetch(:env).fetch("yosoy").authenticated_object!.member)
     end

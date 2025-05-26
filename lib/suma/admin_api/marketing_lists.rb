@@ -5,13 +5,6 @@ require "suma/admin_api"
 class Suma::AdminAPI::MarketingLists < Suma::AdminAPI::V1
   include Suma::AdminAPI::Entities
 
-  class ListEntity < BaseEntity
-    include Suma::AdminAPI::Entities
-    include AutoExposeBase
-    expose :label
-    expose :managed
-  end
-
   class MarketingMemberEntity < MemberEntity
     expose :id
     expose :name
@@ -19,7 +12,7 @@ class Suma::AdminAPI::MarketingLists < Suma::AdminAPI::V1
     expose :admin_link
   end
 
-  class DetailedListEntity < ListEntity
+  class DetailedListEntity < MarketingListEntity
     include Suma::AdminAPI::Entities
     include AutoExposeDetail
     expose :members, with: MarketingMemberEntity
@@ -30,7 +23,7 @@ class Suma::AdminAPI::MarketingLists < Suma::AdminAPI::V1
     Suma::AdminAPI::CommonEndpoints.list(
       self,
       Suma::Marketing::List,
-      ListEntity,
+      MarketingListEntity,
     )
 
     Suma::AdminAPI::CommonEndpoints.get_one(

@@ -357,6 +357,12 @@ module Suma::AdminAPI::Entities
     expose :admin_link
   end
 
+  class MarketingListEntity < BaseEntity
+    include AutoExposeBase
+    expose :label
+    expose :managed
+  end
+
   class MarketingSmsCampaignEntity < BaseEntity
     include AutoExposeBase
     expose :sent_at

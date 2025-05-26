@@ -1,18 +1,24 @@
 import api from "../api";
 import FormLayout from "../components/FormLayout";
-import MultiLingualText from "../components/MultiLingualText";
 import ResourceEdit from "../components/ResourceEdit";
 import ResponsiveStack from "../components/ResponsiveStack";
 import useErrorSnackbar from "../hooks/useErrorSnackbar";
+import useAsyncFetch from "../shared/react/useAsyncFetch";
+import withoutAt from "../shared/withoutAt";
 import {
   Card,
   CardContent,
+  Checkbox,
   FormLabel,
+  List,
+  ListItem,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
   Stack,
   TextField,
   Typography,
 } from "@mui/material";
-import Box from "@mui/material/Box";
 import debounce from "lodash/debounce";
 import React from "react";
 
@@ -89,6 +95,7 @@ function EditForm({ resource, setField, setFieldFromInput, register, isBusy, onS
             language="es"
           />
         </ResponsiveStack>
+        <MarketingLists lists={resource.lists} setLists={(v) => setField("lists", v)} />
       </Stack>
     </FormLayout>
   );
@@ -119,5 +126,54 @@ function BodyPreview({ register, resource, onBodyChange, language, preview }) {
         </CardContent>
       </Card>
     </Stack>
+  );
+}
+
+function MarketingLists({ lists, setLists }) {
+  const { enqueueErrorSnackbar } = useErrorSnackbar();
+  const getMarketingLists = React.useCallback(() => {
+    return api.getMarketingLists().catch(enqueueErrorSnackbar);
+  }, [enqueueErrorSnackbar]);
+  const { state: allLists } = useAsyncFetch(getMarketingLists, {
+    default: { items: [] },
+    pickData: true,
+  });
+
+  const checkedListIds = lists.map((l) => l.id);
+
+  const handleToggle = (value) => {
+    const existingCheckedIdx = checkedListIds.indexOf(value);
+    let newlyCheckedLists;
+    if (existingCheckedIdx > -1) {
+      newlyCheckedLists = withoutAt(lists, existingCheckedIdx);
+    } else {
+      newlyCheckedLists = [...lists, allLists.items.find((l) => l.id === value)];
+    }
+    setLists(newlyCheckedLists);
+  };
+
+  return (
+    <Card variant="outlined">
+      <CardContent>
+        <FormLabel>Recipient Lists</FormLabel>
+        <List dense>
+          {allLists.items.map(({ id, label }) => (
+            <ListItem key={id} disablePadding dense>
+              <ListItemButton dense onClick={() => handleToggle(id)}>
+                <ListItemIcon>
+                  <Checkbox
+                    edge="start"
+                    checked={checkedListIds.includes(id)}
+                    tabIndex={-1}
+                    disableRipple
+                  />
+                </ListItemIcon>
+                <ListItemText primary={label} />
+              </ListItemButton>
+            </ListItem>
+          ))}
+        </List>
+      </CardContent>
+    </Card>
   );
 }
