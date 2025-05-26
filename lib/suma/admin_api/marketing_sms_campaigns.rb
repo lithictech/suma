@@ -5,7 +5,7 @@ require "suma/admin_api"
 class Suma::AdminAPI::MarketingSmsCampaigns < Suma::AdminAPI::V1
   include Suma::AdminAPI::Entities
 
-  class DetailedSmsCampaignEntity < SmsCampaignEntity
+  class DetailedSmsCampaignEntity < MarketingSmsCampaignEntity
     include Suma::AdminAPI::Entities
     include AutoExposeDetail
     expose :created_by, with: MemberEntity
@@ -16,7 +16,7 @@ class Suma::AdminAPI::MarketingSmsCampaigns < Suma::AdminAPI::V1
     Suma::AdminAPI::CommonEndpoints.list(
       self,
       Suma::Marketing::SmsCampaign,
-      SmsCampaignEntity,
+      MarketingSmsCampaignEntity,
     )
 
     Suma::AdminAPI::CommonEndpoints.get_one(

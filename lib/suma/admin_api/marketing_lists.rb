@@ -23,6 +23,7 @@ class Suma::AdminAPI::MarketingLists < Suma::AdminAPI::V1
     include Suma::AdminAPI::Entities
     include AutoExposeDetail
     expose :members, with: MarketingMemberEntity
+    expose :sms_campaigns, with: MarketingSmsCampaignEntity
   end
 
   resource :marketing_lists do

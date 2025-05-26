@@ -39,6 +39,7 @@ export default function useNavLinks() {
     const payments = canRead("admin_payments");
     const commerce = canRead("admin_commerce");
     const management = canRead("admin_management");
+    const smsMarketing = canRead("marketing_sms");
     const r = [
       {
         title: "",
@@ -175,6 +176,22 @@ export default function useNavLinks() {
             label: "Roles",
             href: "/roles",
             icon: <KeyIcon />,
+          },
+        ].filter(Boolean),
+      },
+      smsMarketing && {
+        title: "Marketing",
+        items: [
+          { label: "Lists", href: "/marketing-lists", icon: <PersonIcon /> },
+          {
+            label: "SMS Campaigns",
+            href: "/marketing-sms-campaigns",
+            icon: <PersonIcon />,
+          },
+          {
+            label: "SMS Dispatches",
+            href: "/marketing-sms-dispatches",
+            icon: <PersonIcon />,
           },
         ].filter(Boolean),
       },

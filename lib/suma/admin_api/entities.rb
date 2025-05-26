@@ -353,11 +353,11 @@ module Suma::AdminAPI::Entities
   class MarketingMemberEntity < MemberEntity
     expose :id
     expose :name
-    expose :phone
+    expose :us_phone, as: :phone
     expose :admin_link
   end
 
-  class SmsCampaignEntity < BaseEntity
+  class MarketingSmsCampaignEntity < BaseEntity
     include AutoExposeBase
     expose :sent_at
     expose :label

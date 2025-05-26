@@ -157,6 +157,25 @@ export default {
   getVendor: ({ id, ...data }) => get(`/adminapi/v1/vendors/${id}`, data),
   updateVendor: ({ id, ...data }) => postForm(`/adminapi/v1/vendors/${id}`, data),
 
+  getMarketingLists: (data) => get(`/adminapi/v1/marketing_lists`, data),
+  getMarketingList: ({ id, ...data }) => get(`/adminapi/v1/marketing_lists/${id}`, data),
+
+  getMarketingSmsCampaigns: (data) => get(`/adminapi/v1/marketing_sms_campaigns`, data),
+  createMarketingSmsCampaign: (data) =>
+    postForm("/adminapi/v1/marketing_sms_campaigns/create", data),
+  getMarketingSmsCampaign: ({ id, ...data }) =>
+    get(`/adminapi/v1/marketing_sms_campaigns/${id}`, data),
+  updateMarketingSmsCampaign: ({ id, ...data }) =>
+    post(`/adminapi/v1/marketing_sms_campaigns/${id}`, data),
+  sendMarketingSmsCampaign: ({ id, ...data }) =>
+    post(`/adminapi/v1/marketing_sms_campaigns/${id}/send`, data),
+
+  getMarketingSmsDispatches: (data) => get(`/adminapi/v1/marketing_sms_dispatches`, data),
+  getMarketingSmsDispatch: ({ id, ...data }) =>
+    get(`/adminapi/v1/marketing_sms_dispatches/${id}`, data),
+  cancelMarketingSmsDispatch: ({ id, ...data }) =>
+    post(`/adminapi/v1/marketing_sms_dispatches/${id}/cancel`, data),
+
   getPrograms: (data) => get(`/adminapi/v1/programs`, data),
   createProgram: (data) => postForm("/adminapi/v1/programs/create", data),
   getProgram: ({ id, ...data }) => get(`/adminapi/v1/programs/${id}`, data),

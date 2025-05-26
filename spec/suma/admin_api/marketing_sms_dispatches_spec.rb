@@ -54,7 +54,7 @@ RSpec.describe Suma::AdminAPI::MarketingSmsDispatches, :db do
       let(:url) { "/v1/marketing_sms_dispatches" }
       let(:order_by_field) { "sent_at" }
       def make_item(i)
-        return Suma::Fixtures.marketing_sms_dispatch.create(sent_at: Time.at(i))
+        return Suma::Fixtures.marketing_sms_dispatch.sent(Time.at(i)).create
       end
     end
   end

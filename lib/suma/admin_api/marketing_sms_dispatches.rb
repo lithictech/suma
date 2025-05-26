@@ -10,7 +10,7 @@ class Suma::AdminAPI::MarketingSmsDispatches < Suma::AdminAPI::V1
     include AutoExposeBase
     expose :sent_at
     expose :member, with: MarketingMemberEntity
-    expose :sms_campaign, with: SmsCampaignEntity
+    expose :sms_campaign, with: MarketingSmsCampaignEntity
     expose :sent_at
     expose :transport_message_id
   end

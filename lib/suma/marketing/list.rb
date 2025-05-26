@@ -15,6 +15,11 @@ class Suma::Marketing::List < Suma::Postgres::Model(:marketing_lists)
                join_table: :marketing_lists_members,
                left_key: :marketing_list_id,
                right_key: :member_id
+  many_to_many :sms_campaigns,
+               class: "Suma::Marketing::SmsCampaign",
+               join_table: :marketing_lists_sms_campaigns,
+               left_key: :sms_campaign_id,
+               right_key: :list_id
 
   class << self
     # Rebuild the managed list specification (replace all members).
