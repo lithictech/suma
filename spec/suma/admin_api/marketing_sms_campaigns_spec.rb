@@ -112,4 +112,22 @@ RSpec.describe Suma::AdminAPI::MarketingSmsCampaigns, :db do
       expect(o.refresh.lists).to contain_exactly(be === newlist1, be === newlist2)
     end
   end
+
+  describe "POST /v1/marketing_sms_campaigns/:id/send" do
+    it "sends the campaign" do
+      o = Suma::Fixtures.marketing_sms_campaign.create
+
+      post "/v1/marketing_sms_campaigns/#{o.id}/send"
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.that_includes(id: o.id)
+      expect(o.refresh).to be_sent
+    end
+
+    it "403s if the trigger does not exist" do
+      post "/v1/marketing_sms_campaigns/0/send"
+
+      expect(last_response).to have_status(403)
+    end
+  end
 end

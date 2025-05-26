@@ -10,8 +10,9 @@ RSpec.describe Suma::Marketing, :db do
       list = Suma::Fixtures.marketing_list.create
       member = Suma::Fixtures.member.create
       list.add_member(member)
+      campaign.add_list(list)
       expect(Suma::Async::MarketingSmsCampaignDispatch).to receive(:perform_async)
-      campaign.dispatch(list)
+      campaign.dispatch
       expect(campaign).to be_sent
       expect(campaign.sms_dispatches).to contain_exactly(
         have_attributes(member: be === member, sent_at: nil),
@@ -23,11 +24,13 @@ RSpec.describe Suma::Marketing, :db do
       member2 = Suma::Fixtures.member.create
       list1 = Suma::Fixtures.marketing_list.members(member1).create
       list2 = Suma::Fixtures.marketing_list.members(member1, member2).create
+      campaign.add_list(list1)
+      campaign.add_list(list2)
       campaign.sms_dispatches # Cache this to make sure we clear it after dispatch
       # Ensure we do an upsert on the dispatches, not just getting unique members.
       Suma::Fixtures.marketing_sms_dispatch.create(sms_campaign: campaign, member: member2)
       expect(Suma::Async::MarketingSmsCampaignDispatch).to receive(:perform_async)
-      campaign.dispatch(list1, list2)
+      campaign.dispatch
       expect(campaign.sms_dispatches).to contain_exactly(
         have_attributes(member: be === member1),
         have_attributes(member: be === member2),

@@ -32,8 +32,8 @@ class Suma::Marketing::SmsCampaign < Suma::Postgres::Model(:marketing_sms_campai
 
   # Create +Suma::Marketing::SmsDispatch+ instances for each member in +lists+.
   # Enqueue the background job that sends the actual messages.
-  def dispatch(*lists)
-    members = lists.map(&:members).flatten.uniq
+  def dispatch
+    members = self.lists.map(&:members).flatten.uniq
     rows = members.map { |m| {member_id: m.id, sms_campaign_id: self.id} }
     Suma::Marketing::SmsDispatch.dataset.insert_conflict.multi_insert(rows)
     Suma::Async::MarketingSmsCampaignDispatch.perform_async

@@ -52,5 +52,15 @@ class Suma::AdminAPI::MarketingSmsCampaigns < Suma::AdminAPI::V1
         optional :lists, type: Array
       end
     end
+
+    route_param :id, type: Integer do
+      post :send do
+        (o = Suma::Marketing::SmsCampaign[params[:id]]) or forbidden!
+        o.dispatch
+        created_resource_headers(o.id, o.admin_link)
+        status 200
+        present o, with: DetailedSmsCampaignEntity
+      end
+    end
   end
 end
