@@ -29,7 +29,7 @@ RSpec.describe "Suma::Marketing::SmsDispatch", :db do
       inst.cancel
       expect(inst).to have_attributes(
         sent_at: match_time(:now),
-        transport_message_id: '',
+        transport_message_id: "",
       )
       expect(inst).to be_canceled
       inst.save_changes

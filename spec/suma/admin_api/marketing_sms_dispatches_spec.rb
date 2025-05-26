@@ -75,4 +75,30 @@ RSpec.describe Suma::AdminAPI::MarketingSmsDispatches, :db do
       expect(last_response).to have_status(403)
     end
   end
+
+  describe "POST /v1/marketing_sms_dispatches/:id/cancel" do
+    it "cancels the dispatch" do
+      o = Suma::Fixtures.marketing_sms_dispatch.create
+
+      post "/v1/marketing_sms_dispatches/#{o.id}/cancel"
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.that_includes(id: o.id)
+      expect(o.refresh).to be_canceled
+    end
+
+    it "errors if the dispatch is already sent" do
+      o = Suma::Fixtures.marketing_sms_dispatch.sent.create
+
+      post "/v1/marketing_sms_dispatches/#{o.id}/cancel"
+
+      expect(last_response).to have_status(409)
+    end
+
+    it "403s if the resource does not exist" do
+      post "/v1/marketing_sms_dispatches/0/cancel"
+
+      expect(last_response).to have_status(403)
+    end
+  end
 end

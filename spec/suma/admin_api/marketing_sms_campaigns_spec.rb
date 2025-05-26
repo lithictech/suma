@@ -124,7 +124,7 @@ RSpec.describe Suma::AdminAPI::MarketingSmsCampaigns, :db do
       expect(o.refresh).to be_sent
     end
 
-    it "403s if the trigger does not exist" do
+    it "403s if the resource does not exist" do
       post "/v1/marketing_sms_campaigns/0/send"
 
       expect(last_response).to have_status(403)

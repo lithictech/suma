@@ -32,5 +32,17 @@ class Suma::AdminAPI::MarketingSmsDispatches < Suma::AdminAPI::V1
       Suma::Marketing::SmsDispatch,
       DetailedSmsDispatchEntity,
     )
+
+    route_param :id, type: Integer do
+      post :cancel do
+        (o = Suma::Marketing::SmsDispatch[params[:id]]) or forbidden!
+        adminerror!(409, "Dispatch already sent") if o.sent?
+        o.cancel
+        o.save_changes
+        created_resource_headers(o.id, o.admin_link)
+        status 200
+        present o, with: DetailedSmsDispatchEntity
+      end
+    end
   end
 end
