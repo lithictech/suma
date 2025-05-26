@@ -4,6 +4,10 @@ require "suma/marketing"
 require "suma/postgres/model"
 
 class Suma::Marketing::SmsDispatch < Suma::Postgres::Model(:marketing_sms_dispatches)
+  include Suma::Postgres::HybridSearch
+  include Suma::AdminLinked
+
+  plugin :hybrid_search
   plugin :timestamps
 
   many_to_one :member, class: "Suma::Member"
@@ -56,5 +60,16 @@ class Suma::Marketing::SmsDispatch < Suma::Postgres::Model(:marketing_sms_dispat
 
   def sent=(v)
     Suma::MethodUtilities.timestamp_set(self, :sent_at, v)
+  end
+
+  def rel_admin_link = "/marketing-sms-dispatch/#{self.id}"
+
+  def hybrid_search_fields
+    return [
+      :member,
+      :sms_campaign,
+      :sent_at,
+      :transport_message_id,
+    ]
   end
 end

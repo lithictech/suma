@@ -7,6 +7,7 @@ class Suma::AdminAPI::Access
   PAYMENTS = Suma::Member::RoleAccess::ADMIN_PAYMENTS
   SENSITIVE_MESSAGES = Suma::Member::RoleAccess::ADMIN_SENSITIVE_MESSAGES
   MANAGEMENT = Suma::Member::RoleAccess::ADMIN_MANAGEMENT
+  MARKETING_SMS = Suma::Member::RoleAccess::MARKETING_SMS
 
   MAPPING = {
     Suma::AnonProxy::MemberContact => [:anon_member_contact, COMMERCE, MANAGEMENT],
@@ -20,6 +21,9 @@ class Suma::AdminAPI::Access
     Suma::Commerce::Order => [:order, COMMERCE, COMMERCE],
     Suma::Commerce::Product => [:product, COMMERCE, COMMERCE],
     Suma::Payment::FundingTransaction => [:funding_transaction, PAYMENTS, PAYMENTS],
+    Suma::Marketing::List => [:marketing_list, MARKETING_SMS, MARKETING_SMS],
+    Suma::Marketing::SmsCampaign => [:marketing_sms_campaign, MARKETING_SMS, MARKETING_SMS],
+    Suma::Marketing::SmsDispatch => [:marketing_sms_dispatch, MARKETING_SMS, MARKETING_SMS],
     Suma::Member => [:member, MEMBERS, MEMBERS],
     Suma::Message::Delivery => [:message_delivery, MEMBERS, MANAGEMENT],
     Suma::Mobility::Trip => [:mobility_trip, COMMERCE, MANAGEMENT],

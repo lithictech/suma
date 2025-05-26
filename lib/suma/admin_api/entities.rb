@@ -349,4 +349,17 @@ module Suma::AdminAPI::Entities
     expose :memo, with: TranslatedTextEntity
     expose :book_transaction, with: BookTransactionEntity
   end
+
+  class MarketingMemberEntity < MemberEntity
+    expose :id
+    expose :name
+    expose :phone
+    expose :admin_link
+  end
+
+  class SmsCampaignEntity < BaseEntity
+    include AutoExposeBase
+    expose :sent_at
+    expose :name
+  end
 end

@@ -12,6 +12,7 @@ RSpec.describe Suma::Marketing, :db do
       list.add_member(member)
       expect(Suma::Async::MarketingSmsCampaignDispatch).to receive(:perform_async)
       campaign.dispatch(list)
+      expect(campaign).to be_sent
       expect(campaign.sms_dispatches).to contain_exactly(
         have_attributes(member: be === member, sent_at: nil),
       )
@@ -259,6 +260,16 @@ RSpec.describe Suma::Marketing, :db do
         sent?: false,
         transport_message_id: nil,
       )
+    end
+  end
+
+  describe "Suma::Marketing::SmsCampaign" do
+    it "can add and remove lists" do
+      c = Suma::Fixtures.marketing_sms_campaign.create
+      expect(c.lists).to be_empty
+      l1 = Suma::Fixtures.marketing_list.create
+      c.add_list(l1)
+      expect(c.lists).to contain_exactly(l1)
     end
   end
 end

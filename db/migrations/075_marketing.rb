@@ -11,6 +11,13 @@ Sequel.migration do
 
       text :name, null: false
       boolean :managed, null: false, default: false
+
+      column :search_content, :text
+      column :search_embedding, "vector(384)"
+      column :search_hash, :text
+      index Sequel.function(:to_tsvector, "english", :search_content),
+            name: :marketing_lists_search_content_tsvector_index,
+            type: :gin
     end
 
     create_join_table(
@@ -28,7 +35,14 @@ Sequel.migration do
 
       foreign_key :body_id, :translated_texts, null: false
 
-      foreign_key :created_by, :members, on_delete: :set_null
+      foreign_key :created_by_id, :members, on_delete: :set_null
+
+      column :search_content, :text
+      column :search_embedding, "vector(384)"
+      column :search_hash, :text
+      index Sequel.function(:to_tsvector, "english", :search_content),
+            name: :marketing_sms_campaigns_search_content_tsvector_index,
+            type: :gin
     end
 
     create_join_table(
@@ -45,6 +59,13 @@ Sequel.migration do
       timestamptz :sent_at
       text :transport_message_id
       Sequel.all_or_none_constraint([:sent_at, :transport_message_id])
+
+      column :search_content, :text
+      column :search_embedding, "vector(384)"
+      column :search_hash, :text
+      index Sequel.function(:to_tsvector, "english", :search_content),
+            name: :marketing_sms_dispatches_search_content_tsvector_index,
+            type: :gin
     end
   end
 end

@@ -4,6 +4,10 @@ require "suma/marketing"
 require "suma/postgres/model"
 
 class Suma::Marketing::List < Suma::Postgres::Model(:marketing_lists)
+  include Suma::Postgres::HybridSearch
+  include Suma::AdminLinked
+
+  plugin :hybrid_search
   plugin :timestamps
 
   many_to_many :members,
@@ -37,6 +41,15 @@ class Suma::Marketing::List < Suma::Postgres::Model(:marketing_lists)
       self.where(managed: true).exclude(id: lists.map(&:id)).delete
       return lists
     end
+  end
+
+  def rel_admin_link = "/marketing-list/#{self.id}"
+
+  def hybrid_search_fields
+    return [
+      :name,
+      :managed,
+    ]
   end
 
   class Specification < Suma::TypedStruct

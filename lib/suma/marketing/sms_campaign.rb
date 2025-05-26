@@ -5,19 +5,30 @@ require "suma/postgres/model"
 require "suma/async/marketing_sms_campaign_dispatch"
 
 class Suma::Marketing::SmsCampaign < Suma::Postgres::Model(:marketing_sms_campaigns)
-  plugin :timestamps
+  include Suma::Postgres::HybridSearch
+  include Suma::AdminLinked
 
+  plugin :association_pks
+  plugin :hybrid_search
+  plugin :timestamps
   plugin :translated_text, :body, Suma::TranslatedText
 
   many_to_one :created_by, class: "Suma::Member"
 
   many_to_many :lists,
                class: "Suma::Marketing::List",
-               join_table: :marketing_lists_campaigns,
-               left_key: :list_id,
-               right_key: :campaign_id
+               join_table: :marketing_lists_sms_campaigns,
+               left_key: :sms_campaign_id,
+               right_key: :list_id
+  plugin :association_array_replacer, :lists
 
   one_to_many :sms_dispatches, class: "Suma::Marketing::SmsDispatch"
+
+  def sent? = Suma::MethodUtilities.timestamp_set?(self, :sent_at)
+
+  def sent=(v)
+    Suma::MethodUtilities.timestamp_set(self, :sent_at, v)
+  end
 
   # Create +Suma::Marketing::SmsDispatch+ instances for each member in +lists+.
   # Enqueue the background job that sends the actual messages.
@@ -27,6 +38,8 @@ class Suma::Marketing::SmsCampaign < Suma::Postgres::Model(:marketing_sms_campai
     Suma::Marketing::SmsDispatch.dataset.insert_conflict.multi_insert(rows)
     Suma::Async::MarketingSmsCampaignDispatch.perform_async
     self.associations.delete(:sms_dispatches)
+    self.sent = true
+    self.save_changes
     return members
   end
 
@@ -47,5 +60,14 @@ class Suma::Marketing::SmsCampaign < Suma::Postgres::Model(:marketing_sms_campai
     tmpl = Liquid::Template.parse(content)
     r = tmpl.render(ctx)
     return r
+  end
+
+  def rel_admin_link = "/marketing-sms-campaign/#{self.id}"
+
+  def hybrid_search_fields
+    return [
+      :name,
+      :sent_at,
+    ]
   end
 end

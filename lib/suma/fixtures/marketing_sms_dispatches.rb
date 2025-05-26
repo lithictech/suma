@@ -19,4 +19,9 @@ module Suma::Fixtures::MarketingSmsDispatches
   decorator :sent do |at=Time.now|
     self.sent_at = at
   end
+
+  decorator :to do |opts={}|
+    opts = Suma::Fixtures.member(**opts).create unless opts.is_a?(Suma::Member)
+    self.member = opts
+  end
 end
