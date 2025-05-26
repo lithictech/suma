@@ -10,6 +10,9 @@ class Suma::AdminAPI::MarketingSmsCampaigns < Suma::AdminAPI::V1
     include AutoExposeDetail
     expose :created_by, with: MemberEntity
     expose :body, with: TranslatedTextEntity
+    expose :preview do |instance, opts|
+      instance.preview(opts.fetch(:env).fetch("yosoy").authenticated_object!.member)
+    end
   end
 
   resource :marketing_sms_campaigns do
@@ -33,6 +36,16 @@ class Suma::AdminAPI::MarketingSmsCampaigns < Suma::AdminAPI::V1
       params do
         requires :label, type: String
       end
+    end
+
+    params do
+      requires :en, type: String
+      requires :es, type: String
+    end
+    post :preview do
+      preview = Suma::Marketing::SmsCampaign.preview(member: admin_member, en: params[:en], es: params[:es])
+      status 200
+      present preview
     end
 
     Suma::AdminAPI::CommonEndpoints.update(

@@ -322,6 +322,7 @@ GEM
       simplecov (~> 0.19)
     simplecov-html (0.12.3)
     simplecov_json_formatter (0.1.4)
+    smstools (0.2.2)
     state_machines (0.6.0)
     stripe (9.1.0)
     thor (1.3.1)
@@ -424,6 +425,7 @@ DEPENDENCIES
   signalwire
   simplecov
   simplecov-cobertura
+  smstools
   state_machines
   stripe
   timecop

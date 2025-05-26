@@ -37,8 +37,16 @@ export default function MarketingSmsCampaignDetailPage() {
           value: <AdminLink model={model.createdBy}>{model.createdBy?.name}</AdminLink>,
         },
         { label: "Sent At", value: formatDate(model.sentAt) },
-        { label: "Body (en)", value: model.body.en },
-        { label: "Body (es)", value: model.body.es },
+        { label: "English Body", value: model.body.en },
+        {
+          label: "English Payload",
+          value: `${model.preview.enPayload.characters} characters, ${model.preview.enPayload.segments} segments, $${model.preview.enPayload.cost} per SMS`,
+        },
+        { label: "Spanish Body", value: model.body.es },
+        {
+          label: "Spanish Payload",
+          value: `${model.preview.esPayload.characters} characters, ${model.preview.esPayload.segments} segments, $${model.preview.esPayload.cost} per SMS`,
+        },
       ]}
     >
       {(model, setModel) => [

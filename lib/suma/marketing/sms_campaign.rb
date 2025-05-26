@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "smstools"
+
 require "suma/marketing"
 require "suma/postgres/model"
 require "suma/async/marketing_sms_campaign_dispatch"
@@ -24,6 +26,40 @@ class Suma::Marketing::SmsCampaign < Suma::Postgres::Model(:marketing_sms_campai
 
   one_to_many :sms_dispatches, class: "Suma::Marketing::SmsDispatch"
 
+  class << self
+    def render(member:, content:)
+      ctx = {name: member&.name, phone: member&.us_phone, email: member&.email}
+      ctx.stringify_keys!
+      begin
+        tmpl = Liquid::Template.parse(content)
+      rescue Liquid::SyntaxError
+        return content
+      end
+      r = tmpl.render(ctx)
+      return r
+    end
+
+    def preview(member:, en:, es:)
+      en = self.render(member:, content: en)
+      es = self.render(member:, content: es)
+      return {
+        en:,
+        en_payload: self.inspect_payload(en),
+        es:,
+        es_payload: self.inspect_payload(es),
+      }
+    end
+
+    def inspect_payload(s)
+      ed = SmsTools::EncodingDetection.new s
+      return {
+        characters: ed.length,
+        segments: ed.concatenated_parts,
+        cost: ed.concatenated_parts * Suma::Signalwire::SMS_COST_PER_SEGMENT,
+      }
+    end
+  end
+
   def sent? = Suma::MethodUtilities.timestamp_set?(self, :sent_at)
 
   def sent=(v)
@@ -45,21 +81,15 @@ class Suma::Marketing::SmsCampaign < Suma::Postgres::Model(:marketing_sms_campai
 
   # Call +render+ for each supported language.
   def preview(member)
-    en = self.render(member:, language: :en)
-    es = self.render(member:, language: :es)
-    return {en:, es:}
+    return self.class.preview(member:, en: self.body.en, es: self.body.es)
   end
 
   # Render the campaign template in the given language.
   # If +language+ is nil, use the member's message preferences.
   def render(member:, language:)
     language ||= member.message_preferences!.preferred_language
-    ctx = {name: member&.name, phone: member&.us_phone, email: member&.email}
-    ctx.stringify_keys!
     content = self.body.send(language)
-    tmpl = Liquid::Template.parse(content)
-    r = tmpl.render(ctx)
-    return r
+    return self.class.render(member:, content:)
   end
 
   def rel_admin_link = "/marketing-sms-campaign/#{self.id}"

@@ -130,4 +130,15 @@ RSpec.describe Suma::AdminAPI::MarketingSmsCampaigns, :db do
       expect(last_response).to have_status(403)
     end
   end
+
+  describe "POST /v1/marketing_sms_campaigns/preview" do
+    it "previews the given body" do
+      admin.update(name: "jose")
+
+      post "/v1/marketing_sms_campaigns/preview", en: "hi {{name}}", es: "hola {{name}}"
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.that_includes(en: "hi jose")
+    end
+  end
 end

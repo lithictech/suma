@@ -11,6 +11,45 @@ RSpec.describe "Suma::Marketing::SmsCampaign", :db do
     expect(c.lists).to contain_exactly(l1)
   end
 
+  describe "rendering" do
+    it "returns the content if it does not parse correctly" do
+      s = described_class.render(member: nil, content: "hi {{ name")
+      expect(s).to eq("hi {{ name")
+      s = described_class.render(member: nil, content: "hi {{ name }}")
+      expect(s).to eq("hi ")
+    end
+  end
+
+  describe "counting segments and characters" do
+    it "counts GSM-7 messages correctly" do
+      # Less than a single segment
+      s = "abcd"
+      expect(described_class.inspect_payload(s)).to include(characters: 4, segments: 1)
+
+      # Max for a single segment
+      s = "a" * 160
+      expect(described_class.inspect_payload(s)).to include(characters: 160, segments: 1)
+
+      # multi-segment means each is 153 chars
+      s = "a" * 480
+      expect(described_class.inspect_payload(s)).to include(characters: 480, segments: 4)
+    end
+
+    it "counts Unicode messages correctly" do
+      # Less than a single segment
+      s = "\u1234abc"
+      expect(described_class.inspect_payload(s)).to include(characters: 4, segments: 1)
+
+      # Max for one Unicode segment
+      s = "\u1234" * 70
+      expect(described_class.inspect_payload(s)).to include(characters: 70, segments: 1)
+
+      # Multiple segments
+      s = "\u1234" + ("a" * 159)
+      expect(described_class.inspect_payload(s)).to include(characters: 160, segments: 3)
+    end
+  end
+
   describe "previewing" do
     it "can use a member" do
       c = Suma::Fixtures.marketing_sms_campaign.with_body("hello {{ name | default: 'there' }}", "hola {{name}}").create
