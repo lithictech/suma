@@ -103,6 +103,13 @@ RSpec.describe "Suma::Marketing::SmsDispatch", :db do
         transport_message_id: nil,
       )
     end
+
+    it "cancels if the body is empty" do
+      disp = Suma::Fixtures.marketing_sms_dispatch.create
+      disp.sms_campaign.body.update(en: "")
+      described_class.send_all
+      expect(disp.refresh).to be_canceled
+    end
   end
 
   describe "external links" do

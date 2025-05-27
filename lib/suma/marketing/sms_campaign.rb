@@ -101,13 +101,14 @@ class Suma::Marketing::SmsCampaign < Suma::Postgres::Model(:marketing_sms_campai
     members = self.lists.map(&:members).flatten.uniq
     result = PreReview.new(
       campaign: self,
-      total_recipients: members.count,
       list_labels: self.lists.map { |li| "#{li.label} (#{li.members.count})" }.sort,
     )
     members.each do |member|
       language = member.message_preferences!.preferred_language
       member_text = self.render(member:, language:)
+      next if member_text.blank?
       cost = Payload.parse(member_text).cost
+      result.total_recipients += 1
       result.total_cost += cost
       if language == "en"
         result.en_recipients += 1

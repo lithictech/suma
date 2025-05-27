@@ -160,6 +160,24 @@ RSpec.describe "Suma::Marketing::SmsCampaign", :db do
       )
     end
 
+    it "does not expect dispatches for blank bodies" do
+      list = Suma::Fixtures.marketing_list(label: "list").
+        members(
+          Suma::Fixtures.member.with_preferences(preferred_language: "en").create,
+          Suma::Fixtures.member.with_preferences(preferred_language: "es").create,
+        ).
+        create
+      campaign = Suma::Fixtures.marketing_sms_campaign.with_body(" ", "{{ name }}").create
+      campaign.add_list(list)
+      v = campaign.generate_review
+      expect(v).to have_attributes(
+        campaign: be === campaign,
+        en_recipients: 0,
+        es_recipients: 1,
+        total_recipients: 1,
+      )
+    end
+
     it "includes all expected post-review information" do
       list1 = Suma::Fixtures.marketing_list(label: "list1").create
       campaign = Suma::Fixtures.marketing_sms_campaign.create(sent_at: Time.now)

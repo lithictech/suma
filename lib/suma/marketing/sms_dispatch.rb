@@ -36,6 +36,10 @@ class Suma::Marketing::SmsDispatch < Suma::Postgres::Model(:marketing_sms_dispat
       marketing_number = Suma::PhoneNumber.format_e164(Suma::Signalwire.marketing_number)
       self.dataset.pending.each do |dispatch|
         body = dispatch.sms_campaign.render(member: dispatch.member, language: nil)
+        if body.blank?
+          dispatch.cancel.save_changes
+          next
+        end
         begin
           sw_resp = Suma::Signalwire.send_sms(
             marketing_number,
@@ -81,11 +85,13 @@ class Suma::Marketing::SmsDispatch < Suma::Postgres::Model(:marketing_sms_dispat
     self.sent_at = at
     self.transport_message_id = transport_message_id
     self.last_error = nil
+    return self
   end
 
   def cancel(at: Time.now)
     self.sent_at = at
     self.transport_message_id = ""
+    return self
   end
 
   def rel_admin_link = "/marketing-sms-dispatch/#{self.id}"
