@@ -11,6 +11,8 @@ module Suma::Signalwire
 
   SPLIT_WORDS = ->(s) { s.split.map(&:strip) }
 
+  SMS_COST_PER_SEGMENT = BigDecimal("0.00415")
+
   configurable(:signalwire) do
     setting :api_token, "sw-test-token"
     setting :project_id, "sw-test-project"

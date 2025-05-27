@@ -16,19 +16,18 @@ See `Suma::Frontapp` for more configuration options.
 ## Automatic Contact updating
 
 Whenever a `Suma::Member` is created or updated, we create or update the Front Contact.
-See `Suma::Async::FrontappUpsertContact` for more info.
+This includes when the member changes their preferred language, name, etc.
+It also adds easy links, like opening the member in Admin.
 
-## Automatic marketing List management
+## Automatic SMS/Front Sync
 
-**NOTE: Using Front for marketing requires the use of custom channels. You MUST NOT send marketing messages
-directly through Front's email system.**
-
-Instead, you can hook up a [Front Channel like WebhookDB/Signalwire](https://docs.webhookdb.com/guides/front-channel-signalwire/)
+You can hook up the [WebhookDB/Signalwire Front Channel](https://docs.webhookdb.com/guides/front-channel-signalwire/)
 to send messages you compose in Front through Signalwire, and update SMS replies into Front messages.
-Ultimately how you send and sync messages is outside the scope of this document,
-but just don't use the default Front channel to do it.
 
-Whenever fields on `Suma::Message::Preferences` are modified, Suma will update the lists the member's Front Contact is on.
+This is, strictly speaking, outside of Suma directly, but given the SMS-heavy nature of Suma,
+having this set up is useful.
+
+See the 'Marketing' document for additional tools for sending marketing messages.
 
 ## Updating Suma Preferences from Email/SMS
 
@@ -47,4 +46,3 @@ This requires a [Signalwire Messaging WebhookDB Integration](https://docs.webhoo
 - Whenenever a text with a HELP keyword (`SIGNALWIRE_MESSAGE_MARKETING_SMS_HELP_KEYWORDS`) is received, no action is taken.
   Instead, the Front channel will see the inbound message and create a Front conversation,
   which should be handled by a support agent.
-

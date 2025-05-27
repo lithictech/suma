@@ -147,6 +147,29 @@ export default function MemberDetailPage() {
           <Sessions sessions={model.sessions} />,
           <ResetCodes resetCodes={model.resetCodes} />,
           <AuditActivityList activities={model.auditActivities} />,
+          <RelatedList
+            title="Marketing Lists"
+            headers={["Id", "Label"]}
+            rows={model.marketingLists}
+            keyRowAttr="id"
+            toCells={(row) => [
+              <AdminLink model={row} />,
+              <AdminLink model={row}>{row.label}</AdminLink>,
+            ]}
+          />,
+          <RelatedList
+            title="Marketing SMS Dispatches"
+            headers={["Id", "Campaign", "Status", "Sent At", "Error"]}
+            rows={model.marketingSmsDispatches}
+            keyRowAttr="id"
+            toCells={(row) => [
+              <AdminLink model={row} />,
+              <AdminLink model={row.smsCampaign}>{row.smsCampaign.label}</AdminLink>,
+              row.status,
+              formatDate(row.sentAt),
+              row.lastError,
+            ]}
+          />,
         ]}
       </ResourceDetail>
     </>

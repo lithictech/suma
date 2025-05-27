@@ -44,6 +44,9 @@ require "suma/admin_api/funding_transactions"
 require "suma/admin_api/members"
 require "suma/admin_api/message_deliveries"
 require "suma/admin_api/meta"
+require "suma/admin_api/marketing_lists"
+require "suma/admin_api/marketing_sms_campaigns"
+require "suma/admin_api/marketing_sms_dispatches"
 require "suma/admin_api/mobility_trips"
 require "suma/admin_api/organizations"
 require "suma/admin_api/organization_memberships"
@@ -91,6 +94,9 @@ module Suma::Apps
     mount Suma::AdminAPI::CommerceProducts
     mount Suma::AdminAPI::CommerceOfferingProducts
     mount Suma::AdminAPI::FundingTransactions
+    mount Suma::AdminAPI::MarketingLists
+    mount Suma::AdminAPI::MarketingSmsCampaigns
+    mount Suma::AdminAPI::MarketingSmsDispatches
     mount Suma::AdminAPI::Members
     mount Suma::AdminAPI::MessageDeliveries
     mount Suma::AdminAPI::Meta
