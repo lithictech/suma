@@ -67,33 +67,6 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
     end
   end
 
-  describe "FrontappListSync", reset_configuration: Suma::Frontapp do
-    before(:each) do
-      Suma::Frontapp.auth_token = "faketoken"
-      Suma::Frontapp.list_sync_enabled = true
-    end
-
-    it "syncs marketing lists" do
-      get_req = stub_request(:get, "https://api2.frontapp.com/contact_groups").
-        to_return(
-          json_response({}),
-          json_response({}),
-        )
-      Suma::Async::FrontappListSync.new.perform
-      expect(get_req).to have_been_made.times(2)
-    end
-
-    it "noops if sync not enabled" do
-      Suma::Frontapp.list_sync_enabled = false
-      expect { Suma::Async::FrontappListSync.new.perform }.to_not raise_error
-    end
-
-    it "noops if client not configured" do
-      Suma::Frontapp.auth_token = ""
-      expect { Suma::Async::FrontappListSync.new.perform }.to_not raise_error
-    end
-  end
-
   describe "FrontappUpsertContact", reset_configuration: Suma::Frontapp do
     it "upserts front contacts" do
       Suma::Frontapp.auth_token = "fake token"
@@ -207,6 +180,13 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
       expect do
         Suma::Async::LyftPassTripSync.new.perform
       end.to_not raise_error
+    end
+  end
+
+  describe "MarketingListSync" do
+    it "syncs marketing lists" do
+      Suma::Async::MarketingListSync.new.perform
+      expect(Suma::Marketing::List.all).to include(have_attributes(label: "Marketing - SMS"))
     end
   end
 

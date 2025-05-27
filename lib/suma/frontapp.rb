@@ -24,7 +24,6 @@ module Suma::Frontapp
 
   configurable(:frontapp) do
     setting :auth_token, UNCONFIGURED_AUTH_TOKEN
-    setting :list_sync_enabled, false
 
     after_configured do
       self.client = Frontapp::Client.new(auth_token: self.auth_token, user_agent: Suma::Http.user_agent)
