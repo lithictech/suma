@@ -105,6 +105,8 @@ class Suma::Member < Suma::Postgres::Model(:members)
   one_to_many :anon_proxy_contacts, class: "Suma::AnonProxy::MemberContact"
   one_to_many :anon_proxy_vendor_accounts, class: "Suma::AnonProxy::VendorAccount"
   one_to_many :organization_memberships, class: "Suma::Organization::Membership"
+  many_to_many :marketing_lists, class: "Suma::Marketing::List", join_table: :marketing_lists_members
+  one_to_many :marketing_sms_dispatches, class: "Suma::Marketing::SmsDispatch"
 
   one_to_many :direct_program_enrollments, class: "Suma::Program::Enrollment"
   many_through_many :program_enrollments_via_organizations,

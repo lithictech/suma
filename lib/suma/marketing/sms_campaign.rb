@@ -20,8 +20,6 @@ class Suma::Marketing::SmsCampaign < Suma::Postgres::Model(:marketing_sms_campai
   many_to_many :lists,
                class: "Suma::Marketing::List",
                join_table: :marketing_lists_sms_campaigns,
-               left_key: :sms_campaign_id,
-               right_key: :list_id,
                order: :list_id
   plugin :association_array_replacer, :lists
 

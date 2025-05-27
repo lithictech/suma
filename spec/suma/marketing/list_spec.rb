@@ -11,6 +11,18 @@ RSpec.describe "Suma::Marketing::List", :db do
     expect { list.destroy }.to_not raise_error
   end
 
+  it "has members and campaigns associations" do
+    li = Suma::Fixtures.marketing_list.create
+    m = Suma::Fixtures.member.create
+    li.add_member(m)
+    expect(li.members).to contain_exactly(be === m)
+    expect(m.marketing_lists).to contain_exactly(be === li)
+    c = Suma::Fixtures.marketing_sms_campaign.create
+    li.add_sms_campaign(c)
+    expect(li.sms_campaigns).to contain_exactly(be === c)
+    expect(c.lists).to contain_exactly(be === li)
+  end
+
   describe "list specification" do
     it "includes only transport-enabled, undeleted members" do
       m = Suma::Fixtures.member.with_preferences.create

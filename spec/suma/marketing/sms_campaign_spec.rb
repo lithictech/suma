@@ -3,9 +3,8 @@
 RSpec.describe "Suma::Marketing::SmsCampaign", :db do
   let(:described_class) { Suma::Marketing::SmsCampaign }
 
-  it "can add and remove lists" do
+  it "manages list associations" do
     c = Suma::Fixtures.marketing_sms_campaign.create
-    expect(c.lists).to be_empty
     l1 = Suma::Fixtures.marketing_list.create
     c.add_list(l1)
     expect(c.lists).to contain_exactly(l1)

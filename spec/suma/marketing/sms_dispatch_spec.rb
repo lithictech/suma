@@ -3,6 +3,16 @@
 RSpec.describe "Suma::Marketing::SmsDispatch", :db do
   let(:described_class) { Suma::Marketing::SmsDispatch }
 
+  it "has members and campaigns associations" do
+    sms_campaign = Suma::Fixtures.marketing_sms_campaign.create
+    member = Suma::Fixtures.member.create
+    d = Suma::Fixtures.marketing_sms_dispatch.create(member:, sms_campaign:)
+    expect(d.member).to be === member
+    expect(member.marketing_sms_dispatches).to contain_exactly(be === d)
+    expect(d.sms_campaign).to be === sms_campaign
+    expect(sms_campaign.sms_dispatches).to contain_exactly(be === d)
+  end
+
   describe "validations" do
     it "requires transport message id and sent_at to be both sent or unsent" do
       inst = Suma::Fixtures.marketing_sms_dispatch.create

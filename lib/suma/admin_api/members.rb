@@ -79,6 +79,8 @@ class Suma::AdminAPI::Members < Suma::AdminAPI::V1
     expose :preferences!, as: :preferences, with: PreferencesEntity
     expose :anon_proxy_vendor_accounts, as: :vendor_accounts, with: MemberVendorAccountEntity
     expose :organization_memberships, with: OrganizationMembershipEntity
+    expose :marketing_lists, with: MarketingListEntity
+    expose :marketing_sms_dispatches, with: MarketingSmsDispatchEntity
   end
 
   ALL_TIMEZONES = Set.new(TZInfo::Timezone.all_identifiers)
