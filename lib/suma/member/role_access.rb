@@ -83,6 +83,8 @@ class Suma::Member::RoleAccess
       self.add_feature(ADMIN_SENSITIVE_MESSAGES, true, false)
     end
     if member.roles.include?(Suma::Role.cache.sms_marketing)
+      self.add_feature(ADMIN_ACCESS, true, true)
+      self.add_feature(ADMIN_MEMBERS, true, false)
       self.add_feature(MARKETING_SMS, true, true)
     end
     # rubocop:enable Style/GuardClause, Style/IfUnlessModifier
