@@ -60,10 +60,10 @@ class Suma::Marketing::SmsCampaign < Suma::Postgres::Model(:marketing_sms_campai
 
   # Create +Suma::Marketing::SmsDispatch+ instances for each member in +lists+.
   # Enqueue the background job that sends the actual messages.
-  # If the campaign is already sent, ONLY enqueue the background job.
+  # If the campaign is already sent (and +force+ is false), ONLY enqueue the background job.
   # This prevents any accidental additional dispatches as lists change.
-  def dispatch
-    if self.sent?
+  def dispatch(force: false)
+    if !force && self.sent?
       Suma::Async::MarketingSmsCampaignDispatch.perform_async
       return []
     end
@@ -90,12 +90,12 @@ class Suma::Marketing::SmsCampaign < Suma::Postgres::Model(:marketing_sms_campai
     return self.class.render(member:, content:)
   end
 
-  # Return the +Presend+ for this campaign.
+  # Return the +PreReview+ or +PostReview+ for this campaign.
   # It calculates all the SMS being sent for the members on the lists,
   # in their preferred language.
-  def generate_presend
+  def generate_review
     members = self.lists.map(&:members).flatten.uniq
-    result = Presend.new(
+    result = PreReview.new(
       campaign: self,
       total_recipient_count: members.count,
       list_labels: self.lists.map { |li| "#{li.label} (#{li.members.count})" }.sort,
@@ -138,7 +138,7 @@ class Suma::Marketing::SmsCampaign < Suma::Postgres::Model(:marketing_sms_campai
     end
   end
 
-  class Presend < Suma::TypedStruct
+  class PreReview < Suma::TypedStruct
     attr_accessor :campaign,
                   :list_labels,
                   :total_recipient_count,

@@ -131,11 +131,11 @@ RSpec.describe Suma::AdminAPI::MarketingSmsCampaigns, :db do
     end
   end
 
-  describe "GET /v1/marketing_sms_campaigns/:id/presend" do
-    it "returns the presend info" do
+  describe "GET /v1/marketing_sms_campaigns/:id/review" do
+    it "returns the review info" do
       o = Suma::Fixtures.marketing_sms_campaign.create
 
-      get "/v1/marketing_sms_campaigns/#{o.id}/presend"
+      get "/v1/marketing_sms_campaigns/#{o.id}/review"
 
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.that_includes(
@@ -146,7 +146,7 @@ RSpec.describe Suma::AdminAPI::MarketingSmsCampaigns, :db do
     end
 
     it "403s if the resource does not exist" do
-      get "/v1/marketing_sms_campaigns/0/presend"
+      get "/v1/marketing_sms_campaigns/0/review"
 
       expect(last_response).to have_status(403)
     end

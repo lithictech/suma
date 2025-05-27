@@ -13,10 +13,10 @@ export default function MarketingSmsCampaignSendPage() {
   const { isBusy, busy, notBusy } = useBusy();
   const navigate = useNavigate();
   const { id } = useParams();
-  const getMarketingSmsCampaignPresend = React.useCallback(() => {
-    return api.getMarketingSmsCampaignPresend({ id }).catch(enqueueErrorSnackbar);
+  const getMarketingSmsCampaignReview = React.useCallback(() => {
+    return api.getMarketingSmsCampaignReview({ id }).catch(enqueueErrorSnackbar);
   }, [enqueueErrorSnackbar, id]);
-  const { state, loading } = useAsyncFetch(getMarketingSmsCampaignPresend, {
+  const { state, loading } = useAsyncFetch(getMarketingSmsCampaignReview, {
     default: {},
     pickData: true,
   });

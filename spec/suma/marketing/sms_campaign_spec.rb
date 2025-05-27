@@ -131,7 +131,7 @@ RSpec.describe "Suma::Marketing::SmsCampaign", :db do
     end
   end
 
-  describe "presend verification" do
+  describe "review" do
     it "includes all expected information" do
       list1 = Suma::Fixtures.marketing_list(label: "list1").
         members(
@@ -147,7 +147,7 @@ RSpec.describe "Suma::Marketing::SmsCampaign", :db do
       campaign = Suma::Fixtures.marketing_sms_campaign.with_body("{{ name }}", "{{ name }}").create
       campaign.add_list(list1)
       campaign.add_list(list2)
-      v = campaign.generate_presend
+      v = campaign.generate_review
       expect(v).to have_attributes(
         campaign: be === campaign,
         en_recipient_count: 2,

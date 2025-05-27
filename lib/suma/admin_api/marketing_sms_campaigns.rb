@@ -26,7 +26,7 @@ class Suma::AdminAPI::MarketingSmsCampaigns < Suma::AdminAPI::V1
     expose :cost
   end
 
-  class SmsCampaignPresendEntity < BaseEntity
+  class SmsCampaignReviewEntity < BaseEntity
     include Suma::AdminAPI::Entities
     expose :campaign, with: MarketingSmsCampaignEntity
     expose :list_labels
@@ -90,11 +90,11 @@ class Suma::AdminAPI::MarketingSmsCampaigns < Suma::AdminAPI::V1
     end
 
     route_param :id, type: Integer do
-      get :presend do
+      get :review do
         (o = Suma::Marketing::SmsCampaign[params[:id]]) or forbidden!
-        r = o.generate_presend
+        r = o.generate_review
         status 200
-        present r, with: SmsCampaignPresendEntity
+        present r, with: SmsCampaignReviewEntity
       end
 
       post :send do
