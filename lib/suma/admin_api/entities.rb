@@ -368,4 +368,14 @@ module Suma::AdminAPI::Entities
     expose :sent_at
     expose :label
   end
+
+  class MarketingSmsDispatchEntity < BaseEntity
+    include Suma::AdminAPI::Entities
+    include AutoExposeBase
+    expose :member, with: MarketingMemberEntity
+    expose :sms_campaign, with: MarketingSmsCampaignEntity
+    expose :sent_at
+    expose :transport_message_id
+    expose :status
+  end
 end

@@ -131,6 +131,27 @@ RSpec.describe Suma::AdminAPI::MarketingSmsCampaigns, :db do
     end
   end
 
+  describe "GET /v1/marketing_sms_campaigns/:id/presend" do
+    it "returns the presend info" do
+      o = Suma::Fixtures.marketing_sms_campaign.create
+
+      get "/v1/marketing_sms_campaigns/#{o.id}/presend"
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.that_includes(
+        campaign: include(id: o.id),
+        total_cost: "0.0",
+        total_recipient_count: 0,
+      )
+    end
+
+    it "403s if the resource does not exist" do
+      get "/v1/marketing_sms_campaigns/0/presend"
+
+      expect(last_response).to have_status(403)
+    end
+  end
+
   describe "POST /v1/marketing_sms_campaigns/preview" do
     it "previews the given body" do
       admin.update(name: "jose")
@@ -138,7 +159,10 @@ RSpec.describe Suma::AdminAPI::MarketingSmsCampaigns, :db do
       post "/v1/marketing_sms_campaigns/preview", en: "hi {{name}}", es: "hola {{name}}"
 
       expect(last_response).to have_status(200)
-      expect(last_response).to have_json_body.that_includes(en: "hi jose")
+      expect(last_response).to have_json_body.that_includes(
+        en: "hi jose",
+        en_payload: include(characters: 7),
+      )
     end
   end
 end

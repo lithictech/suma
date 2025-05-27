@@ -40,7 +40,7 @@ export default function MarketingListDetailPage() {
         />,
         <RelatedList
           title="Campaigns"
-          rows={model.campaigns}
+          rows={model.smsCampaigns}
           headers={["Id", "Label", "Sent At"]}
           keyRowAttr="id"
           toCells={(row) => [

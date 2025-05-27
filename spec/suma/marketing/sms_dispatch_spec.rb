@@ -12,27 +12,33 @@ RSpec.describe "Suma::Marketing::SmsDispatch", :db do
       inst.refresh
       expect { inst.update(sent_at: Time.now, transport_message_id: "x") }.to_not raise_error
     end
+  end
 
-    it "clears out last_error when transport_message_id is set to non-nil" do
-      inst = Suma::Fixtures.marketing_sms_dispatch.create
-      inst.last_error = "oops"
-      inst.transport_message_id = ""
-      inst.transport_message_id = nil
-      expect(inst).to have_attributes(last_error: "oops")
-      inst.transport_message_id = "x"
-      expect(inst).to have_attributes(last_error: nil)
+  describe "status" do
+    let(:o) { Suma::Fixtures.marketing_sms_dispatch.instance }
+
+    it "can be pending, sent, and canceled" do
+      expect(o).to have_attributes(status: :pending)
+      o.cancel
+      expect(o).to have_attributes(status: :canceled)
+      o.set_sent("x")
+      expect(o).to have_attributes(status: :sent)
     end
 
     it "is canceled when sent and transport message id is blank" do
-      inst = Suma::Fixtures.marketing_sms_dispatch.create
-      expect(inst).to_not be_canceled
-      inst.cancel
-      expect(inst).to have_attributes(
+      expect(o).to_not be_canceled
+      o.cancel
+      expect(o).to have_attributes(
         sent_at: match_time(:now),
         transport_message_id: "",
       )
-      expect(inst).to be_canceled
-      inst.save_changes
+      expect(o).to be_canceled
+    end
+
+    it "clears last_error on successful send" do
+      o.last_error = "ooops"
+      o.set_sent("x")
+      expect(o).to have_attributes(last_error: nil)
     end
   end
 
@@ -71,10 +77,11 @@ RSpec.describe "Suma::Marketing::SmsDispatch", :db do
       )
     end
 
-    it "noops if the marketing number is not set" do
+    it "cancels dispatches if the marketing number is not set" do
       Suma::Signalwire.marketing_number = ""
-      Suma::Fixtures.marketing_sms_dispatch.create
-      expect { described_class.send_all }.to_not raise_error
+      d = Suma::Fixtures.marketing_sms_dispatch.create
+      described_class.send_all
+      expect(d.refresh).to be_canceled
     end
 
     it "handles errors by sending them to Sentry and moving on" do

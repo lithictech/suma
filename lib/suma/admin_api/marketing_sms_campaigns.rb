@@ -11,9 +11,31 @@ class Suma::AdminAPI::MarketingSmsCampaigns < Suma::AdminAPI::V1
     expose :created_by, with: MemberEntity
     expose :body, with: TranslatedTextEntity
     expose :lists, with: MarketingListEntity
+    expose :all_lists, with: MarketingListEntity do |_inst|
+      Suma::Marketing::List.dataset.order(:label).all
+    end
     expose :preview do |instance, opts|
       instance.preview(opts.fetch(:env).fetch("yosoy").authenticated_object!.member)
     end
+    expose :sms_dispatches, with: MarketingSmsDispatchEntity
+  end
+
+  class SmsCampaignPayloadEntity < BaseEntity
+    expose :characters
+    expose :segments
+    expose :cost
+  end
+
+  class SmsCampaignPresendEntity < BaseEntity
+    include Suma::AdminAPI::Entities
+    expose :campaign, with: MarketingSmsCampaignEntity
+    expose :list_labels
+    expose :total_recipient_count
+    expose :en_recipient_count
+    expose :es_recipient_count
+    expose :total_cost
+    expose :en_total_cost
+    expose :es_total_cost
   end
 
   resource :marketing_sms_campaigns do
@@ -68,6 +90,13 @@ class Suma::AdminAPI::MarketingSmsCampaigns < Suma::AdminAPI::V1
     end
 
     route_param :id, type: Integer do
+      get :presend do
+        (o = Suma::Marketing::SmsCampaign[params[:id]]) or forbidden!
+        r = o.generate_presend
+        status 200
+        present r, with: SmsCampaignPresendEntity
+      end
+
       post :send do
         (o = Suma::Marketing::SmsCampaign[params[:id]]) or forbidden!
         o.dispatch

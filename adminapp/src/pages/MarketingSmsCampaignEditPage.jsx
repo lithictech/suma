@@ -3,7 +3,6 @@ import FormLayout from "../components/FormLayout";
 import ResourceEdit from "../components/ResourceEdit";
 import ResponsiveStack from "../components/ResponsiveStack";
 import useErrorSnackbar from "../hooks/useErrorSnackbar";
-import useAsyncFetch from "../shared/react/useAsyncFetch";
 import withoutAt from "../shared/withoutAt";
 import {
   Card,
@@ -58,6 +57,12 @@ function EditForm({ resource, setField, setFieldFromInput, register, isBusy, onS
     [previewDebounced, resource.body, setField]
   );
 
+  if (resource.sentAt) {
+    return (
+      <Typography>This campaign has already been sent and cannot be edited.</Typography>
+    );
+  }
+
   return (
     <FormLayout
       title="Update SMS Campaign"
@@ -95,7 +100,11 @@ function EditForm({ resource, setField, setFieldFromInput, register, isBusy, onS
             language="es"
           />
         </ResponsiveStack>
-        <MarketingLists lists={resource.lists} setLists={(v) => setField("lists", v)} />
+        <MarketingLists
+          allLists={resource.allLists}
+          lists={resource.lists}
+          setLists={(v) => setField("lists", v)}
+        />
       </Stack>
     </FormLayout>
   );
@@ -129,16 +138,7 @@ function BodyPreview({ register, resource, onBodyChange, language, preview }) {
   );
 }
 
-function MarketingLists({ lists, setLists }) {
-  const { enqueueErrorSnackbar } = useErrorSnackbar();
-  const getMarketingLists = React.useCallback(() => {
-    return api.getMarketingLists().catch(enqueueErrorSnackbar);
-  }, [enqueueErrorSnackbar]);
-  const { state: allLists } = useAsyncFetch(getMarketingLists, {
-    default: { items: [] },
-    pickData: true,
-  });
-
+function MarketingLists({ allLists, lists, setLists }) {
   const checkedListIds = lists.map((l) => l.id);
 
   const handleToggle = (value) => {
@@ -147,7 +147,7 @@ function MarketingLists({ lists, setLists }) {
     if (existingCheckedIdx > -1) {
       newlyCheckedLists = withoutAt(lists, existingCheckedIdx);
     } else {
-      newlyCheckedLists = [...lists, allLists.items.find((l) => l.id === value)];
+      newlyCheckedLists = [...lists, allLists.find((l) => l.id === value)];
     }
     setLists(newlyCheckedLists);
   };
@@ -157,7 +157,7 @@ function MarketingLists({ lists, setLists }) {
       <CardContent>
         <FormLabel>Recipient Lists</FormLabel>
         <List dense>
-          {allLists.items.map(({ id, label }) => (
+          {allLists.map(({ id, label }) => (
             <ListItem key={id} disablePadding dense>
               <ListItemButton dense onClick={() => handleToggle(id)}>
                 <ListItemIcon>

@@ -21,6 +21,7 @@ import MarketingSmsCampaignCreatePage from "./pages/MarketingSmsCampaignCreatePa
 import MarketingSmsCampaignDetailPage from "./pages/MarketingSmsCampaignDetailPage";
 import MarketingSmsCampaignEditPage from "./pages/MarketingSmsCampaignEditPage";
 import MarketingSmsCampaignListPage from "./pages/MarketingSmsCampaignListPage";
+import MarketingSmsCampaignSendPage from "./pages/MarketingSmsCampaignSendPage";
 import MarketingSmsDispatchDetailPage from "./pages/MarketingSmsDispatchDetailPage";
 import MarketingSmsDispatchListPage from "./pages/MarketingSmsDispatchListPage";
 import MemberDetailPage from "./pages/MemberDetailPage";
@@ -695,6 +696,15 @@ function PageSwitch() {
           redirectIfUnauthed,
           withLayout(),
           MarketingSmsCampaignEditPage
+        )}
+      />
+      <Route
+        exact
+        path="/marketing-sms-campaign/:id/send"
+        element={renderWithHocs(
+          redirectIfUnauthed,
+          withLayout(),
+          MarketingSmsCampaignSendPage
         )}
       />
       <Route

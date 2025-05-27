@@ -24,29 +24,29 @@ RSpec.describe "Suma::Marketing::SmsCampaign", :db do
     it "counts GSM-7 messages correctly" do
       # Less than a single segment
       s = "abcd"
-      expect(described_class.inspect_payload(s)).to include(characters: 4, segments: 1)
+      expect(described_class::Payload.parse(s)).to have_attributes(characters: 4, segments: 1)
 
       # Max for a single segment
       s = "a" * 160
-      expect(described_class.inspect_payload(s)).to include(characters: 160, segments: 1)
+      expect(described_class::Payload.parse(s)).to have_attributes(characters: 160, segments: 1)
 
       # multi-segment means each is 153 chars
       s = "a" * 480
-      expect(described_class.inspect_payload(s)).to include(characters: 480, segments: 4)
+      expect(described_class::Payload.parse(s)).to have_attributes(characters: 480, segments: 4)
     end
 
     it "counts Unicode messages correctly" do
       # Less than a single segment
       s = "\u1234abc"
-      expect(described_class.inspect_payload(s)).to include(characters: 4, segments: 1)
+      expect(described_class::Payload.parse(s)).to have_attributes(characters: 4, segments: 1)
 
       # Max for one Unicode segment
       s = "\u1234" * 70
-      expect(described_class.inspect_payload(s)).to include(characters: 70, segments: 1)
+      expect(described_class::Payload.parse(s)).to have_attributes(characters: 70, segments: 1)
 
       # Multiple segments
       s = "\u1234" + ("a" * 159)
-      expect(described_class.inspect_payload(s)).to include(characters: 160, segments: 3)
+      expect(described_class::Payload.parse(s)).to have_attributes(characters: 160, segments: 3)
     end
   end
 
@@ -84,7 +84,7 @@ RSpec.describe "Suma::Marketing::SmsCampaign", :db do
       )
     end
 
-    it "does not duplicate members on multiple lists", :async do
+    it "does not duplicate members on multiple lists" do
       member1 = Suma::Fixtures.member.create
       member2 = Suma::Fixtures.member.create
       list1 = Suma::Fixtures.marketing_list.members(member1).create
@@ -99,6 +99,64 @@ RSpec.describe "Suma::Marketing::SmsCampaign", :db do
       expect(campaign.sms_dispatches).to contain_exactly(
         have_attributes(member: be === member1),
         have_attributes(member: be === member2),
+      )
+    end
+
+    it "upserts new rows if force is true" do
+      member1 = Suma::Fixtures.member.create
+      member2 = Suma::Fixtures.member.create
+      list1 = Suma::Fixtures.marketing_list.members(member1).create
+      campaign.add_list(list1)
+      expect(Suma::Async::MarketingSmsCampaignDispatch).to receive(:perform_async).twice
+      campaign.dispatch
+      expect(campaign.sms_dispatches).to contain_exactly(
+        have_attributes(member: be === member1),
+      )
+      campaign.refresh
+      list1.add_member(member2)
+      campaign.dispatch(force: true)
+      expect(campaign.sms_dispatches).to contain_exactly(
+        have_attributes(member: be === member1),
+        have_attributes(member: be === member2),
+      )
+    end
+
+    it "re-enqueues the job only if the campaign is already sent" do
+      list = Suma::Fixtures.marketing_list.members(Suma::Fixtures.member.create).create
+      campaign.add_list(list)
+      campaign.sent = true
+      expect(Suma::Async::MarketingSmsCampaignDispatch).to receive(:perform_async)
+      campaign.dispatch
+      expect(campaign.sms_dispatches).to be_empty
+    end
+  end
+
+  describe "presend verification" do
+    it "includes all expected information" do
+      list1 = Suma::Fixtures.marketing_list(label: "list1").
+        members(
+          Suma::Fixtures.member.with_preferences(preferred_language: "en").create,
+        ).
+        create
+      list2 = Suma::Fixtures.marketing_list(label: "list2").
+        members(
+          Suma::Fixtures.member(name: "n").with_preferences(preferred_language: "es").create,
+          Suma::Fixtures.member(name: "s" * 200).with_preferences(preferred_language: "en").create,
+        ).
+        create
+      campaign = Suma::Fixtures.marketing_sms_campaign.with_body("{{ name }}", "{{ name }}").create
+      campaign.add_list(list1)
+      campaign.add_list(list2)
+      v = campaign.generate_presend
+      expect(v).to have_attributes(
+        campaign: be === campaign,
+        en_recipient_count: 2,
+        en_total_cost: BigDecimal("0.01245"),
+        es_recipient_count: 1,
+        es_total_cost: BigDecimal("0.00415"),
+        list_labels: ["list1 (1)", "list2 (2)"],
+        total_cost: BigDecimal("0.0166"),
+        total_recipient_count: 3,
       )
     end
   end

@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "sequel/all_or_none_constraint"
+require "sequel/cascade_join_hash"
 
 Sequel.migration do
   change do
@@ -21,7 +22,7 @@ Sequel.migration do
     end
 
     create_join_table(
-      {marketing_list_id: :marketing_lists, member_id: :members},
+      Sequel.cascade_join_hash({marketing_list_id: :marketing_lists, member_id: :members}),
       name: :marketing_lists_members,
     )
 
@@ -46,7 +47,7 @@ Sequel.migration do
     end
 
     create_join_table(
-      {list_id: :marketing_lists, sms_campaign_id: :marketing_sms_campaigns},
+      Sequel.cascade_join_hash({list_id: :marketing_lists, sms_campaign_id: :marketing_sms_campaigns}),
       name: :marketing_lists_sms_campaigns,
     )
 

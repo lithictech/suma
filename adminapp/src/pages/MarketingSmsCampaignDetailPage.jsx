@@ -1,34 +1,20 @@
 import api from "../api";
 import AdminLink from "../components/AdminLink";
-import AuditActivityList from "../components/AuditActivityList";
-import InlineEditField from "../components/InlineEditField";
-import Programs from "../components/Programs";
+import Link from "../components/Link";
 import RelatedList from "../components/RelatedList";
 import ResourceDetail from "../components/ResourceDetail";
-import useErrorSnackbar from "../hooks/useErrorSnackbar";
-import { useUser } from "../hooks/user";
 import { dayjs } from "../modules/dayConfig";
 import formatDate from "../modules/formatDate";
-import SafeExternalLink from "../shared/react/SafeExternalLink";
-import MarketingSmsCampaignCreatePage from "./MarketingSmsCampaignCreatePage";
-import { Switch } from "@mui/material";
+import { Button } from "@mui/material";
 import React from "react";
 
 export default function MarketingSmsCampaignDetailPage() {
-  const { enqueueErrorSnackbar } = useErrorSnackbar();
-  const { user } = useUser();
-  const handleUpdateProgramEnrollment = (enrollment, replaceState) => {
-    return api
-      .updateProgramEnrollment(enrollment)
-      .then((r) => replaceState(r.data))
-      .catch(enqueueErrorSnackbar);
-  };
   return (
     <ResourceDetail
       resource="marketing_sms_campaign"
       apiGet={api.getMarketingSmsCampaign}
       canEdit
-      properties={(model, replaceModel) => [
+      properties={(model) => [
         { label: "ID", value: model.id },
         { label: "Label", value: model.label },
         { label: "Created At", value: dayjs(model.createdAt) },
@@ -49,7 +35,14 @@ export default function MarketingSmsCampaignDetailPage() {
         },
       ]}
     >
-      {(model, setModel) => [
+      {(model) => [
+        <Button
+          href={`/marketing-sms-campaign/${model.id}/send`}
+          variant="contained"
+          component={Link}
+        >
+          Review and {model.sentAt ? "Re-Send" : "Send"}
+        </Button>,
         <RelatedList
           title="Lists"
           rows={model.lists}
@@ -60,6 +53,20 @@ export default function MarketingSmsCampaignDetailPage() {
             <AdminLink key="label" model={row}>
               {row.label}
             </AdminLink>,
+          ]}
+        />,
+        <RelatedList
+          title="Dispatches"
+          rows={model.smsDispatches}
+          keyRowAttr="id"
+          headers={["Id", "Member", "Sent At", "Message ID"]}
+          toCells={(row) => [
+            <AdminLink key="id" model={row} />,
+            <AdminLink key="member" model={row.member}>
+              {row.member.name}
+            </AdminLink>,
+            formatDate(row.sentAt),
+            row.transportMessageId,
           ]}
         />,
       ]}

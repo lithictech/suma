@@ -171,6 +171,8 @@ export default {
     post(`/adminapi/v1/marketing_sms_campaigns/${id}/send`, data),
   previewMarketingSmsCampaign: (data) =>
     post(`/adminapi/v1/marketing_sms_campaigns/preview`, data),
+  getMarketingSmsCampaignPresend: ({ id, ...data }) =>
+    get(`/adminapi/v1/marketing_sms_campaigns/${id}/presend`, data),
 
   getMarketingSmsDispatches: (data) => get(`/adminapi/v1/marketing_sms_dispatches`, data),
   getMarketingSmsDispatch: ({ id, ...data }) =>

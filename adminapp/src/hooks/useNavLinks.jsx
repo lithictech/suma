@@ -13,13 +13,16 @@ import HowToRegIcon from "@mui/icons-material/HowToReg";
 import KeyIcon from "@mui/icons-material/Key";
 import MailIcon from "@mui/icons-material/Mail";
 import ManageAccountsIcon from "@mui/icons-material/ManageAccounts";
+import OutboxIcon from "@mui/icons-material/Outbox";
 import PaymentsIcon from "@mui/icons-material/Payments";
 import PersonIcon from "@mui/icons-material/Person";
 import PortraitIcon from "@mui/icons-material/Portrait";
 import ReceiptIcon from "@mui/icons-material/Receipt";
+import RecentActorsIcon from "@mui/icons-material/RecentActors";
 import SellIcon from "@mui/icons-material/Sell";
 import ShoppingBagIcon from "@mui/icons-material/ShoppingBag";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
+import SmsIcon from "@mui/icons-material/Sms";
 import StorefrontIcon from "@mui/icons-material/Storefront";
 import TollIcon from "@mui/icons-material/Toll";
 import React from "react";
@@ -182,16 +185,16 @@ export default function useNavLinks() {
       smsMarketing && {
         title: "Marketing",
         items: [
-          { label: "Lists", href: "/marketing-lists", icon: <PersonIcon /> },
+          { label: "Lists", href: "/marketing-lists", icon: <RecentActorsIcon /> },
           {
             label: "SMS Campaigns",
             href: "/marketing-sms-campaigns",
-            icon: <PersonIcon />,
+            icon: <SmsIcon />,
           },
           {
             label: "SMS Dispatches",
             href: "/marketing-sms-dispatches",
-            icon: <PersonIcon />,
+            icon: <OutboxIcon />,
           },
         ].filter(Boolean),
       },

@@ -2,15 +2,15 @@ import api from "../api";
 import AdminLink from "../components/AdminLink";
 import ResourceList from "../components/ResourceList";
 import { dayjsOrNull } from "../modules/dayConfig";
+import formatDate from "../modules/formatDate";
 import MarketingSmsCampaignCreatePage from "./MarketingSmsCampaignCreatePage";
 import React from "react";
 
 export default function MarketingSmsDispatchListPage() {
   return (
     <ResourceList
-      resource="program_enrollment"
-      apiList={api.getProgramEnrollments}
-      canCreate
+      resource="marketing_sms_dispatch"
+      apiList={api.getMarketingSmsDispatches}
       canSearch
       columns={[
         {
@@ -21,38 +21,30 @@ export default function MarketingSmsDispatchListPage() {
           render: (c) => <AdminLink model={c} />,
         },
         {
-          id: "program",
-          label: "Program",
+          id: "campaign",
+          label: "Campaign",
           align: "left",
-          render: (c) => <AdminLink model={c.program}>{c.program.name.en}</AdminLink>,
+          render: (c) => (
+            <AdminLink model={c.smsCampaign}>{c.smsCampaign.label}</AdminLink>
+          ),
         },
         {
-          id: "enrollee",
-          label: "Enrollee",
+          id: "member",
+          label: "Member",
           align: "left",
-          render: (c) => <AdminLink model={c.enrollee}>{c.enrollee?.name}</AdminLink>,
-          hideEmpty: true,
+          render: (c) => <AdminLink model={c.member}>{c.member.name}</AdminLink>,
         },
         {
-          id: "enrollee_type",
-          label: "Enrollee Type",
-          align: "left",
-          render: (c) => c.enrolleeType,
-          hideEmpty: true,
-        },
-        {
-          id: "approved_at",
-          label: "Approved",
-          align: "left",
-          render: (c) => dayjsOrNull(c.approvedAt)?.format("l"),
-          hideEmpty: true,
-        },
-        {
-          id: "unenrolled_at",
-          label: "Unenrolled",
+          id: "status",
+          label: "Status",
           align: "center",
-          render: (c) => dayjsOrNull(c.unenrolledAt)?.format("l"),
-          hideEmpty: true,
+          render: (c) => c.status,
+        },
+        {
+          id: "sent_at",
+          label: "Sent At",
+          align: "left",
+          render: (c) => formatDate(c.sentAt),
         },
       ]}
     />

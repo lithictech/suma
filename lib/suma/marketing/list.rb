@@ -14,12 +14,14 @@ class Suma::Marketing::List < Suma::Postgres::Model(:marketing_lists)
                class: "Suma::Member",
                join_table: :marketing_lists_members,
                left_key: :marketing_list_id,
-               right_key: :member_id
+               right_key: :member_id,
+               order: :member_id
   many_to_many :sms_campaigns,
                class: "Suma::Marketing::SmsCampaign",
                join_table: :marketing_lists_sms_campaigns,
-               left_key: :sms_campaign_id,
-               right_key: :list_id
+               left_key: :list_id,
+               right_key: :sms_campaign_id,
+               order: :sms_campaign_id
 
   class << self
     # Rebuild the managed list specification (replace all members).
@@ -58,12 +60,12 @@ class Suma::Marketing::List < Suma::Postgres::Model(:marketing_lists)
   end
 
   class Specification < Suma::TypedStruct
-    attr_reader :label, :transport, :language, :members_dataset
+    attr_reader :label, :transport, :members_dataset
 
     def initialize(**kw)
       super
       preferences_ds = Suma::Message::Preferences.where(
-        "#{self.transport}_enabled": true, preferred_language: self.language,
+        "#{self.transport}_enabled": true,
       )
       @members_dataset = self.members_dataset.
         not_soft_deleted.
@@ -71,51 +73,37 @@ class Suma::Marketing::List < Suma::Postgres::Model(:marketing_lists)
     end
 
     def full_label
-      lang = Suma::I18n::SUPPORTED_LOCALES.fetch(self.language).language
-      "#{self.label} - #{self.transport.to_s.upcase} - #{lang}"
-    end
-
-    def self.for_languages(**kw)
-      return Suma::I18n::SUPPORTED_LOCALES.values.map do |locale|
-        self.new(language: locale.code, **kw)
-      end
+      return "#{self.label} - #{self.transport.to_s.upcase}"
     end
 
     RECENTLY_UNVERIFIED_CUTOFF_DAYS = 30
 
     def self.gather_all
-      result = []
-      result.concat(
-        self.for_languages(
+      result = [
+        self.new(
           label: "Marketing",
           transport: :sms,
           members_dataset: Suma::Member.
             where(preferences: Suma::Message::Preferences.where(marketing_sms_optout: false)),
         ),
-      )
-      result.concat(
-        self.for_languages(
+        self.new(
           label: "Unverified, last #{RECENTLY_UNVERIFIED_CUTOFF_DAYS} days",
           transport: :sms,
           members_dataset: Suma::Member.
             where { created_at > RECENTLY_UNVERIFIED_CUTOFF_DAYS.days.ago }.
             where(onboarding_verified_at: nil),
         ),
-      )
-      result.concat(
-        self.for_languages(
+        self.new(
           label: "Unverified, All time",
           transport: :sms,
           members_dataset: Suma::Member.where(onboarding_verified_at: nil),
         ),
-      )
+      ]
       Suma::Organization.all.each do |org|
-        result.concat(
-          self.for_languages(
-            label: org.name,
-            transport: :sms,
-            members_dataset: Suma::Member.where(organization_memberships: org.memberships_dataset),
-          ),
+        result << self.new(
+          label: org.name,
+          transport: :sms,
+          members_dataset: Suma::Member.where(organization_memberships: org.memberships_dataset),
         )
       end
       return result

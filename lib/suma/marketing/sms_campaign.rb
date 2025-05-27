@@ -21,10 +21,11 @@ class Suma::Marketing::SmsCampaign < Suma::Postgres::Model(:marketing_sms_campai
                class: "Suma::Marketing::List",
                join_table: :marketing_lists_sms_campaigns,
                left_key: :sms_campaign_id,
-               right_key: :list_id
+               right_key: :list_id,
+               order: :list_id
   plugin :association_array_replacer, :lists
 
-  one_to_many :sms_dispatches, class: "Suma::Marketing::SmsDispatch"
+  one_to_many :sms_dispatches, class: "Suma::Marketing::SmsDispatch", order: :id
 
   class << self
     def render(member:, content:)
@@ -44,18 +45,9 @@ class Suma::Marketing::SmsCampaign < Suma::Postgres::Model(:marketing_sms_campai
       es = self.render(member:, content: es)
       return {
         en:,
-        en_payload: self.inspect_payload(en),
+        en_payload: Payload.parse(en),
         es:,
-        es_payload: self.inspect_payload(es),
-      }
-    end
-
-    def inspect_payload(s)
-      ed = SmsTools::EncodingDetection.new s
-      return {
-        characters: ed.length,
-        segments: ed.concatenated_parts,
-        cost: ed.concatenated_parts * Suma::Signalwire::SMS_COST_PER_SEGMENT,
+        es_payload: Payload.parse(es),
       }
     end
   end
@@ -68,14 +60,20 @@ class Suma::Marketing::SmsCampaign < Suma::Postgres::Model(:marketing_sms_campai
 
   # Create +Suma::Marketing::SmsDispatch+ instances for each member in +lists+.
   # Enqueue the background job that sends the actual messages.
+  # If the campaign is already sent, ONLY enqueue the background job.
+  # This prevents any accidental additional dispatches as lists change.
   def dispatch
+    if self.sent?
+      Suma::Async::MarketingSmsCampaignDispatch.perform_async
+      return []
+    end
     members = self.lists.map(&:members).flatten.uniq
     rows = members.map { |m| {member_id: m.id, sms_campaign_id: self.id} }
     Suma::Marketing::SmsDispatch.dataset.insert_conflict.multi_insert(rows)
-    Suma::Async::MarketingSmsCampaignDispatch.perform_async
-    self.associations.delete(:sms_dispatches)
     self.sent = true
     self.save_changes
+    self.associations.delete(:sms_dispatches)
+    Suma::Async::MarketingSmsCampaignDispatch.perform_async
     return members
   end
 
@@ -92,6 +90,32 @@ class Suma::Marketing::SmsCampaign < Suma::Postgres::Model(:marketing_sms_campai
     return self.class.render(member:, content:)
   end
 
+  # Return the +Presend+ for this campaign.
+  # It calculates all the SMS being sent for the members on the lists,
+  # in their preferred language.
+  def generate_presend
+    members = self.lists.map(&:members).flatten.uniq
+    result = Presend.new(
+      campaign: self,
+      total_recipient_count: members.count,
+      list_labels: self.lists.map { |li| "#{li.label} (#{li.members.count})" }.sort,
+    )
+    members.each do |member|
+      language = member.message_preferences!.preferred_language
+      member_text = self.render(member:, language:)
+      cost = Payload.parse(member_text).cost
+      result.total_cost += cost
+      if language == "en"
+        result.en_recipient_count += 1
+        result.en_total_cost += cost
+      else
+        result.es_recipient_count += 1
+        result.es_total_cost += cost
+      end
+    end
+    return result
+  end
+
   def rel_admin_link = "/marketing-sms-campaign/#{self.id}"
 
   def hybrid_search_fields
@@ -99,5 +123,41 @@ class Suma::Marketing::SmsCampaign < Suma::Postgres::Model(:marketing_sms_campai
       :label,
       :sent_at,
     ]
+  end
+
+  class Payload < Suma::TypedStruct
+    attr_reader :characters, :segments, :cost
+
+    def self.parse(s)
+      ed = SmsTools::EncodingDetection.new(s)
+      return self.new(
+        characters: ed.length,
+        segments: ed.concatenated_parts,
+        cost: ed.concatenated_parts * Suma::Signalwire::SMS_COST_PER_SEGMENT,
+      )
+    end
+  end
+
+  class Presend < Suma::TypedStruct
+    attr_accessor :campaign,
+                  :list_labels,
+                  :total_recipient_count,
+                  :en_recipient_count,
+                  :es_recipient_count,
+                  :total_cost,
+                  :en_total_cost,
+                  :es_total_cost
+
+    def _defaults
+      return {
+        list_labels: [],
+        total_recipient_count: 0,
+        en_recipient_count: 0,
+        es_recipient_count: 0,
+        total_cost: BigDecimal("0"),
+        en_total_cost: BigDecimal("0"),
+        es_total_cost: BigDecimal("0"),
+      }
+    end
   end
 end

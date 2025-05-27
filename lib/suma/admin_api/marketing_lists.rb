@@ -5,13 +5,6 @@ require "suma/admin_api"
 class Suma::AdminAPI::MarketingLists < Suma::AdminAPI::V1
   include Suma::AdminAPI::Entities
 
-  class MarketingMemberEntity < MemberEntity
-    expose :id
-    expose :name
-    expose :phone
-    expose :admin_link
-  end
-
   class DetailedListEntity < MarketingListEntity
     include Suma::AdminAPI::Entities
     include AutoExposeDetail

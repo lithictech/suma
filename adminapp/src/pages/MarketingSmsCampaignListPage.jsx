@@ -2,6 +2,7 @@ import api from "../api";
 import AdminLink from "../components/AdminLink";
 import ResourceList from "../components/ResourceList";
 import { dayjsOrNull } from "../modules/dayConfig";
+import formatDate from "../modules/formatDate";
 import MarketingSmsCampaignCreatePage from "./MarketingSmsCampaignCreatePage";
 import React from "react";
 
@@ -21,38 +22,16 @@ export default function MarketingSmsCampaignListPage() {
           render: (c) => <AdminLink model={c} />,
         },
         {
-          id: "program",
-          label: "Program",
+          id: "label",
+          label: "Label",
           align: "left",
-          render: (c) => <AdminLink model={c.program}>{c.program.name.en}</AdminLink>,
+          render: (c) => <AdminLink model={c}>{c.label}</AdminLink>,
         },
         {
-          id: "enrollee",
-          label: "Enrollee",
+          id: "sent_at",
+          label: "Sent At",
           align: "left",
-          render: (c) => <AdminLink model={c.enrollee}>{c.enrollee?.name}</AdminLink>,
-          hideEmpty: true,
-        },
-        {
-          id: "enrollee_type",
-          label: "Enrollee Type",
-          align: "left",
-          render: (c) => c.enrolleeType,
-          hideEmpty: true,
-        },
-        {
-          id: "approved_at",
-          label: "Approved",
-          align: "left",
-          render: (c) => dayjsOrNull(c.approvedAt)?.format("l"),
-          hideEmpty: true,
-        },
-        {
-          id: "unenrolled_at",
-          label: "Unenrolled",
-          align: "center",
-          render: (c) => dayjsOrNull(c.unenrolledAt)?.format("l"),
-          hideEmpty: true,
+          render: (c) => formatDate(c.sentAt),
         },
       ]}
     />

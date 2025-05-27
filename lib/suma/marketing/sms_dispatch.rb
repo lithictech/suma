@@ -19,11 +19,18 @@ class Suma::Marketing::SmsDispatch < Suma::Postgres::Model(:marketing_sms_dispat
 
   class << self
     def send_all
-      return if Suma::Signalwire.marketing_number.blank?
       Suma::Postgres.check_transaction(
         self.db,
         "cannot send sms while in a transaction due to potential progress loss",
       )
+      if Suma::Signalwire.marketing_number.blank?
+        self.logger.info("sms_dispatch_no_marketing_number")
+        self.dataset.pending.each do |dispatch|
+          dispatch.cancel
+          dispatch.save_changes
+        end
+        return
+      end
       marketing_number = Suma::PhoneNumber.format_e164(Suma::Signalwire.marketing_number)
       self.dataset.pending.each do |dispatch|
         body = dispatch.sms_campaign.render(member: dispatch.member, language: nil)
@@ -50,30 +57,32 @@ class Suma::Marketing::SmsDispatch < Suma::Postgres::Model(:marketing_sms_dispat
           campaign: dispatch.sms_campaign.label,
           signalwire_message_id: sw_resp.sid,
         )
-        dispatch.transport_message_id = sw_resp.sid
-        dispatch.sent = Time.now
+        dispatch.set_sent(sw_resp.sid)
         dispatch.save_changes
       end
     end
   end
 
-  def sent? = Suma::MethodUtilities.timestamp_set?(self, :sent_at)
-
-  def sent=(v)
-    Suma::MethodUtilities.timestamp_set(self, :sent_at, v)
+  def status
+    return :canceled if self.sent_at && self.transport_message_id == ""
+    return :sent if self.sent_at
+    return :pending
   end
 
-  def transport_message_id=(v)
-    self.last_error = nil if v.present?
-    self[:transport_message_id] = v
+  def sent? = self.status == :sent
+  def pending? = self.status == :pending
+  def canceled? = self.status == :canceled
+  def can_cancel? = self.status == :pending
+
+  def set_sent(transport_message_id, at: Time.now)
+    raise ArgumentError, "transport_message_id must be present" if transport_message_id.blank?
+    self.sent_at = at
+    self.transport_message_id = transport_message_id
+    self.last_error = nil
   end
 
-  # True if +sent_at+ is set, and +transport_message_id+ is empty (not nil),
-  # indicating we gave up trying to send.
-  def canceled? = self.sent? && self.transport_message_id == ""
-
-  def cancel
-    self.sent = true
+  def cancel(at: Time.now)
+    self.sent_at = at
     self.transport_message_id = ""
   end
 
