@@ -1,9 +1,7 @@
 import api from "../api";
 import AdminLink from "../components/AdminLink";
 import ResourceList from "../components/ResourceList";
-import { dayjsOrNull } from "../modules/dayConfig";
 import formatDate from "../modules/formatDate";
-import MarketingSmsCampaignCreatePage from "./MarketingSmsCampaignCreatePage";
 import React from "react";
 
 export default function MarketingSmsDispatchListPage() {

@@ -114,7 +114,7 @@ RSpec.describe Suma::AdminAPI::MarketingSmsCampaigns, :db do
   end
 
   describe "POST /v1/marketing_sms_campaigns/:id/send" do
-    it "sends the campaign" do
+    it "sends the campaign", :no_transaction_check do
       o = Suma::Fixtures.marketing_sms_campaign.create
 
       post "/v1/marketing_sms_campaigns/#{o.id}/send"

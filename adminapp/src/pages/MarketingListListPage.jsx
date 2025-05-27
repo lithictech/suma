@@ -1,7 +1,6 @@
 import api from "../api";
 import AdminLink from "../components/AdminLink";
 import ResourceList from "../components/ResourceList";
-import { dayjsOrNull } from "../modules/dayConfig";
 import React from "react";
 
 export default function MarketingListListPage() {
