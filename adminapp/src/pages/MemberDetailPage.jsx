@@ -159,12 +159,12 @@ export default function MemberDetailPage() {
           />,
           <RelatedList
             title="Marketing SMS Dispatches"
-            headers={["Id", "Campaign", "Status", "Sent At", "Error"]}
+            headers={["Id", "Broadcast", "Status", "Sent At", "Error"]}
             rows={model.marketingSmsDispatches}
             keyRowAttr="id"
             toCells={(row) => [
               <AdminLink model={row} />,
-              <AdminLink model={row.smsCampaign}>{row.smsCampaign.label}</AdminLink>,
+              <AdminLink model={row.smsBroadcast}>{row.smsBroadcast.label}</AdminLink>,
               row.status,
               formatDate(row.sentAt),
               row.lastError,

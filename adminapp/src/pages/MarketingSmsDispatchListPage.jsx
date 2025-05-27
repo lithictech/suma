@@ -19,11 +19,11 @@ export default function MarketingSmsDispatchListPage() {
           render: (c) => <AdminLink model={c} />,
         },
         {
-          id: "campaign",
-          label: "Campaign",
+          id: "broadcast",
+          label: "Broadcast",
           align: "left",
           render: (c) => (
-            <AdminLink model={c.smsCampaign}>{c.smsCampaign.label}</AdminLink>
+            <AdminLink model={c.smsBroadcast}>{c.smsBroadcast.label}</AdminLink>
           ),
         },
         {

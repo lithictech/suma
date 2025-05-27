@@ -2,10 +2,10 @@
 
 require "suma/admin_api"
 
-class Suma::AdminAPI::MarketingSmsCampaigns < Suma::AdminAPI::V1
+class Suma::AdminAPI::MarketingSmsBroadcasts < Suma::AdminAPI::V1
   include Suma::AdminAPI::Entities
 
-  class DetailedSmsCampaignEntity < MarketingSmsCampaignEntity
+  class DetailedSmsBroadcastEntity < MarketingSmsBroadcastEntity
     include Suma::AdminAPI::Entities
     include AutoExposeDetail
     expose :created_by, with: MemberEntity
@@ -20,15 +20,15 @@ class Suma::AdminAPI::MarketingSmsCampaigns < Suma::AdminAPI::V1
     expose :sms_dispatches, with: MarketingSmsDispatchEntity
   end
 
-  class SmsCampaignPayloadEntity < BaseEntity
+  class SmsBroadcastPayloadEntity < BaseEntity
     expose :characters
     expose :segments
     expose :cost
   end
 
-  class SmsCampaignPreReviewEntity < BaseEntity
+  class SmsBroadcastPreReviewEntity < BaseEntity
     include Suma::AdminAPI::Entities
-    expose :campaign, with: MarketingSmsCampaignEntity
+    expose :broadcast, with: MarketingSmsBroadcastEntity
     expose :list_labels
     expose :total_recipients
     expose :en_recipients
@@ -39,9 +39,9 @@ class Suma::AdminAPI::MarketingSmsCampaigns < Suma::AdminAPI::V1
     expose :pre_review?, as: :pre_review
   end
 
-  class SmsCampaignPostReviewEntity < BaseEntity
+  class SmsBroadcastPostReviewEntity < BaseEntity
     include Suma::AdminAPI::Entities
-    expose :campaign, with: MarketingSmsCampaignEntity
+    expose :broadcast, with: MarketingSmsBroadcastEntity
     expose :list_labels
     expose :total_recipients
     expose :delivered_recipients
@@ -52,23 +52,23 @@ class Suma::AdminAPI::MarketingSmsCampaigns < Suma::AdminAPI::V1
     expose :pre_review?, as: :pre_review
   end
 
-  resource :marketing_sms_campaigns do
+  resource :marketing_sms_broadcasts do
     Suma::AdminAPI::CommonEndpoints.list(
       self,
-      Suma::Marketing::SmsCampaign,
-      MarketingSmsCampaignEntity,
+      Suma::Marketing::SmsBroadcast,
+      MarketingSmsBroadcastEntity,
     )
 
     Suma::AdminAPI::CommonEndpoints.get_one(
       self,
-      Suma::Marketing::SmsCampaign,
-      DetailedSmsCampaignEntity,
+      Suma::Marketing::SmsBroadcast,
+      DetailedSmsBroadcastEntity,
     )
 
     Suma::AdminAPI::CommonEndpoints.create(
       self,
-      Suma::Marketing::SmsCampaign,
-      DetailedSmsCampaignEntity,
+      Suma::Marketing::SmsBroadcast,
+      DetailedSmsBroadcastEntity,
     ) do
       params do
         requires :label, type: String
@@ -80,15 +80,15 @@ class Suma::AdminAPI::MarketingSmsCampaigns < Suma::AdminAPI::V1
       requires :es, type: String
     end
     post :preview do
-      preview = Suma::Marketing::SmsCampaign.preview(member: admin_member, en: params[:en], es: params[:es])
+      preview = Suma::Marketing::SmsBroadcast.preview(member: admin_member, en: params[:en], es: params[:es])
       status 200
       present preview
     end
 
     Suma::AdminAPI::CommonEndpoints.update(
       self,
-      Suma::Marketing::SmsCampaign,
-      DetailedSmsCampaignEntity,
+      Suma::Marketing::SmsBroadcast,
+      DetailedSmsBroadcastEntity,
       around: lambda do |rt, m, &block|
         lists = rt.params.delete(:lists)
         block.call
@@ -105,19 +105,19 @@ class Suma::AdminAPI::MarketingSmsCampaigns < Suma::AdminAPI::V1
 
     route_param :id, type: Integer do
       get :review do
-        (o = Suma::Marketing::SmsCampaign[params[:id]]) or forbidden!
+        (o = Suma::Marketing::SmsBroadcast[params[:id]]) or forbidden!
         r = o.generate_review
-        entity = r.pre_review? ? SmsCampaignPreReviewEntity : SmsCampaignPostReviewEntity
+        entity = r.pre_review? ? SmsBroadcastPreReviewEntity : SmsBroadcastPostReviewEntity
         status 200
         present r, with: entity
       end
 
       post :send do
-        (o = Suma::Marketing::SmsCampaign[params[:id]]) or forbidden!
+        (o = Suma::Marketing::SmsBroadcast[params[:id]]) or forbidden!
         o.dispatch
         created_resource_headers(o.id, o.admin_link)
         status 200
-        present o, with: DetailedSmsCampaignEntity
+        present o, with: DetailedSmsBroadcastEntity
       end
     end
   end

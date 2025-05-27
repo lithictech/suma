@@ -160,19 +160,19 @@ export default {
   getMarketingLists: (data) => get(`/adminapi/v1/marketing_lists`, data),
   getMarketingList: ({ id, ...data }) => get(`/adminapi/v1/marketing_lists/${id}`, data),
 
-  getMarketingSmsCampaigns: (data) => get(`/adminapi/v1/marketing_sms_campaigns`, data),
-  createMarketingSmsCampaign: (data) =>
-    postForm("/adminapi/v1/marketing_sms_campaigns/create", data),
-  getMarketingSmsCampaign: ({ id, ...data }) =>
-    get(`/adminapi/v1/marketing_sms_campaigns/${id}`, data),
-  updateMarketingSmsCampaign: ({ id, ...data }) =>
-    post(`/adminapi/v1/marketing_sms_campaigns/${id}`, data),
-  sendMarketingSmsCampaign: ({ id, ...data }) =>
-    post(`/adminapi/v1/marketing_sms_campaigns/${id}/send`, data),
-  previewMarketingSmsCampaign: (data) =>
-    post(`/adminapi/v1/marketing_sms_campaigns/preview`, data),
-  getMarketingSmsCampaignReview: ({ id, ...data }) =>
-    get(`/adminapi/v1/marketing_sms_campaigns/${id}/review`, data),
+  getMarketingSmsBroadcasts: (data) => get(`/adminapi/v1/marketing_sms_broadcasts`, data),
+  createMarketingSmsBroadcast: (data) =>
+    postForm("/adminapi/v1/marketing_sms_broadcasts/create", data),
+  getMarketingSmsBroadcast: ({ id, ...data }) =>
+    get(`/adminapi/v1/marketing_sms_broadcasts/${id}`, data),
+  updateMarketingSmsBroadcast: ({ id, ...data }) =>
+    post(`/adminapi/v1/marketing_sms_broadcasts/${id}`, data),
+  sendMarketingSmsBroadcast: ({ id, ...data }) =>
+    post(`/adminapi/v1/marketing_sms_broadcasts/${id}/send`, data),
+  previewMarketingSmsBroadcast: (data) =>
+    post(`/adminapi/v1/marketing_sms_broadcasts/preview`, data),
+  getMarketingSmsBroadcastReview: ({ id, ...data }) =>
+    get(`/adminapi/v1/marketing_sms_broadcasts/${id}/review`, data),
 
   getMarketingSmsDispatches: (data) => get(`/adminapi/v1/marketing_sms_dispatches`, data),
   getMarketingSmsDispatch: ({ id, ...data }) =>

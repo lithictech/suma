@@ -4,7 +4,7 @@ import ResourceCreate from "../components/ResourceCreate";
 import { FormLabel, Stack, TextField } from "@mui/material";
 import React from "react";
 
-export default function MarketingSmsCampaignCreatePage() {
+export default function MarketingSmsBroadcastCreatePage() {
   const empty = {
     label: "",
   };
@@ -12,7 +12,7 @@ export default function MarketingSmsCampaignCreatePage() {
   return (
     <ResourceCreate
       empty={empty}
-      apiCreate={api.createMarketingSmsCampaign}
+      apiCreate={api.createMarketingSmsBroadcast}
       Form={CreateForm}
     />
   );
@@ -21,13 +21,13 @@ export default function MarketingSmsCampaignCreatePage() {
 function CreateForm({ resource, setFieldFromInput, register, isBusy, onSubmit }) {
   return (
     <FormLayout
-      title="Create an SMS Marketing Campaign"
-      subtitle="Campaigns are messages that can be sent to multiple members through Marketing Lists."
+      title="Create an SMS Marketing Broadcast"
+      subtitle="Broadcasts are messages that can be sent to multiple members through Marketing Lists."
       onSubmit={onSubmit}
       isBusy={isBusy}
     >
       <Stack spacing={2}>
-        <FormLabel>SMS Campaign</FormLabel>
+        <FormLabel>SMS Broadcast</FormLabel>
         <TextField
           {...register("label")}
           label="Label"

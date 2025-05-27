@@ -8,15 +8,15 @@ import { Button, CircularProgress, Stack, Typography } from "@mui/material";
 import React from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
-export default function MarketingSmsCampaignSendPage() {
+export default function MarketingSmsBroadcastSendPage() {
   const { enqueueErrorSnackbar } = useErrorSnackbar();
   const { isBusy, busy, notBusy } = useBusy();
   const navigate = useNavigate();
   const { id } = useParams();
-  const getMarketingSmsCampaignReview = React.useCallback(() => {
-    return api.getMarketingSmsCampaignReview({ id }).catch(enqueueErrorSnackbar);
+  const getMarketingSmsBroadcastReview = React.useCallback(() => {
+    return api.getMarketingSmsBroadcastReview({ id }).catch(enqueueErrorSnackbar);
   }, [enqueueErrorSnackbar, id]);
-  const { state, loading } = useAsyncFetch(getMarketingSmsCampaignReview, {
+  const { state, loading } = useAsyncFetch(getMarketingSmsBroadcastReview, {
     default: {},
     pickData: true,
   });
@@ -25,7 +25,7 @@ export default function MarketingSmsCampaignSendPage() {
     e.preventDefault();
     busy();
     api
-      .sendMarketingSmsCampaign({ id })
+      .sendMarketingSmsBroadcast({ id })
       .then(api.followRedirect(navigate))
       .tapCatch(notBusy)
       .catch(enqueueErrorSnackbar);
@@ -38,7 +38,7 @@ export default function MarketingSmsCampaignSendPage() {
   return (
     <Stack gap={3}>
       <DetailGrid
-        title={`Review ${state.campaign.label}`}
+        title={`Review ${state.broadcast.label}`}
         properties={
           state.preReview
             ? [
@@ -61,9 +61,9 @@ export default function MarketingSmsCampaignSendPage() {
               ]
         }
       />
-      {state.campaign.sentAt ? (
+      {state.broadcast.sentAt ? (
         <Typography>
-          This campaign has already been sent. Pressing 'Re-send' will try to re-send any
+          This broadcast has already been sent. Pressing 'Re-send' will try to re-send any
           failed dispatches, but will not add any recipients.
         </Typography>
       ) : (
@@ -73,7 +73,7 @@ export default function MarketingSmsCampaignSendPage() {
         </Typography>
       )}
       <Button variant="contained" onClick={handleSend}>
-        {state.campaign.sentAt ? "Re-send" : "Send"}
+        {state.broadcast.sentAt ? "Re-send" : "Send"}
       </Button>
     </Stack>
   );

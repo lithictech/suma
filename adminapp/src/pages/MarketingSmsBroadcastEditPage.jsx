@@ -21,11 +21,11 @@ import {
 import debounce from "lodash/debounce";
 import React from "react";
 
-export default function MarketingSmsCampaignEditPage() {
+export default function MarketingSmsBroadcastEditPage() {
   return (
     <ResourceEdit
-      apiGet={api.getMarketingSmsCampaign}
-      apiUpdate={api.updateMarketingSmsCampaign}
+      apiGet={api.getMarketingSmsBroadcast}
+      apiUpdate={api.updateMarketingSmsBroadcast}
       Form={EditForm}
     />
   );
@@ -40,7 +40,7 @@ function EditForm({ resource, setField, setFieldFromInput, register, isBusy, onS
       debounce(
         (body) =>
           api
-            .previewMarketingSmsCampaign(body)
+            .previewMarketingSmsBroadcast(body)
             .then((r) => setPreview(r.data))
             .catch(enqueueErrorSnackbar),
         500
@@ -59,21 +59,21 @@ function EditForm({ resource, setField, setFieldFromInput, register, isBusy, onS
 
   if (resource.sentAt) {
     return (
-      <Typography>This campaign has already been sent and cannot be edited.</Typography>
+      <Typography>This broadcast has already been sent and cannot be edited.</Typography>
     );
   }
 
   return (
     <FormLayout
-      title="Update SMS Campaign"
-      subtitle="Campaigns are sent to all members on all the associated lists.
+      title="Update SMS Broadcast"
+      subtitle="Broadcasts are sent to all members on all the associated lists.
       The body can use merge fields, including {{name}}, {{phone}}, and {{email}}.
       The body preview is done using your current user."
       onSubmit={onSubmit}
       isBusy={isBusy}
     >
       <Stack spacing={2}>
-        <FormLabel>SMS Campaign</FormLabel>
+        <FormLabel>SMS Broadcast</FormLabel>
         <TextField
           {...register("label")}
           label="Label"

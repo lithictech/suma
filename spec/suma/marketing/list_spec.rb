@@ -6,20 +6,20 @@ RSpec.describe "Suma::Marketing::List", :db do
   it "cascades deletes" do
     list = Suma::Fixtures.marketing_list.create
     list.add_member(Suma::Fixtures.member.create)
-    campaign = Suma::Fixtures.marketing_sms_campaign.create
-    campaign.add_list(list)
+    broadcast = Suma::Fixtures.marketing_sms_broadcast.create
+    broadcast.add_list(list)
     expect { list.destroy }.to_not raise_error
   end
 
-  it "has members and campaigns associations" do
+  it "has members and broadcasts associations" do
     li = Suma::Fixtures.marketing_list.create
     m = Suma::Fixtures.member.create
     li.add_member(m)
     expect(li.members).to contain_exactly(be === m)
     expect(m.marketing_lists).to contain_exactly(be === li)
-    c = Suma::Fixtures.marketing_sms_campaign.create
-    li.add_sms_campaign(c)
-    expect(li.sms_campaigns).to contain_exactly(be === c)
+    c = Suma::Fixtures.marketing_sms_broadcast.create
+    li.add_sms_broadcast(c)
+    expect(li.sms_broadcasts).to contain_exactly(be === c)
     expect(c.lists).to contain_exactly(be === li)
   end
 

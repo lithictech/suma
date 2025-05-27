@@ -11,7 +11,7 @@ module Suma::Fixtures::MarketingSmsDispatches
   end
 
   before_saving do |instance|
-    instance.sms_campaign ||= Suma::Fixtures.marketing_sms_campaign.create
+    instance.sms_broadcast ||= Suma::Fixtures.marketing_sms_broadcast.create
     instance.member ||= Suma::Fixtures.member.create
     instance
   end

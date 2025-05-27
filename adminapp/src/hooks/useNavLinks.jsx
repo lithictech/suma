@@ -187,8 +187,8 @@ export default function useNavLinks() {
         items: [
           { label: "Lists", href: "/marketing-lists", icon: <RecentActorsIcon /> },
           {
-            label: "SMS Campaigns",
-            href: "/marketing-sms-campaigns",
+            label: "SMS Broadcasts",
+            href: "/marketing-sms-broadcasts",
             icon: <SmsIcon />,
           },
           {

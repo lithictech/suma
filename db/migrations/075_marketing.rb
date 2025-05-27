@@ -26,7 +26,7 @@ Sequel.migration do
       name: :marketing_lists_members,
     )
 
-    create_table(:marketing_sms_campaigns) do
+    create_table(:marketing_sms_broadcasts) do
       primary_key :id
       timestamptz :created_at, null: false, default: Sequel.function(:now)
       timestamptz :updated_at
@@ -42,13 +42,13 @@ Sequel.migration do
       column :search_embedding, "vector(384)"
       column :search_hash, :text
       index Sequel.function(:to_tsvector, "english", :search_content),
-            name: :marketing_sms_campaigns_search_content_tsvector_index,
+            name: :marketing_sms_broadcasts_search_content_tsvector_index,
             type: :gin
     end
 
     create_join_table(
-      Sequel.cascade_join_hash({list_id: :marketing_lists, sms_campaign_id: :marketing_sms_campaigns}),
-      name: :marketing_lists_sms_campaigns,
+      Sequel.cascade_join_hash({list_id: :marketing_lists, sms_broadcast_id: :marketing_sms_broadcasts}),
+      name: :marketing_lists_sms_broadcasts,
     )
 
     create_table(:marketing_sms_dispatches) do
@@ -56,8 +56,8 @@ Sequel.migration do
       timestamptz :created_at, null: false, default: Sequel.function(:now)
 
       foreign_key :member_id, :members, null: false
-      foreign_key :sms_campaign_id, :marketing_sms_campaigns, null: false
-      unique [:member_id, :sms_campaign_id]
+      foreign_key :sms_broadcast_id, :marketing_sms_broadcasts, null: false
+      unique [:member_id, :sms_broadcast_id]
 
       timestamptz :sent_at
       text :transport_message_id

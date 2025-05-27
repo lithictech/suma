@@ -37,9 +37,9 @@ export default function MarketingSmsDispatchDetailPage() {
         { label: "ID", value: model.id },
         { label: "Created At", value: dayjs(model.createdAt) },
         {
-          label: "Campaign",
+          label: "Broadcast",
           value: (
-            <AdminLink model={model.smsCampaign}>{model.smsCampaign.label}</AdminLink>
+            <AdminLink model={model.smsBroadcast}>{model.smsBroadcast.label}</AdminLink>
           ),
         },
         {

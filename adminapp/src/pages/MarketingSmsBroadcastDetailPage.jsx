@@ -8,11 +8,11 @@ import formatDate from "../modules/formatDate";
 import { Button } from "@mui/material";
 import React from "react";
 
-export default function MarketingSmsCampaignDetailPage() {
+export default function MarketingSmsBroadcastDetailPage() {
   return (
     <ResourceDetail
-      resource="marketing_sms_campaign"
-      apiGet={api.getMarketingSmsCampaign}
+      resource="marketing_sms_broadcast"
+      apiGet={api.getMarketingSmsBroadcast}
       canEdit
       properties={(model) => [
         { label: "ID", value: model.id },
@@ -37,7 +37,7 @@ export default function MarketingSmsCampaignDetailPage() {
     >
       {(model) => [
         <Button
-          href={`/marketing-sms-campaign/${model.id}/send`}
+          href={`/marketing-sms-broadcast/${model.id}/send`}
           variant="contained"
           component={Link}
         >

@@ -3,7 +3,7 @@
 require "amigo/job"
 require "suma/async"
 
-class Suma::Async::MarketingSmsCampaignDispatch
+class Suma::Async::MarketingSmsBroadcastDispatch
   extend Amigo::Job
 
   def _perform(_event)

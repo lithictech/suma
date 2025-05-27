@@ -69,7 +69,7 @@ module Suma::Postgres
     "suma/external_credential",
     "suma/image",
     "suma/marketing/list",
-    "suma/marketing/sms_campaign",
+    "suma/marketing/sms_broadcast",
     "suma/marketing/sms_dispatch",
     "suma/member",
     "suma/member/activity",
