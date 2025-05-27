@@ -59,14 +59,15 @@ export default function MarketingSmsCampaignDetailPage() {
           title="Dispatches"
           rows={model.smsDispatches}
           keyRowAttr="id"
-          headers={["Id", "Member", "Sent At", "Message ID"]}
+          headers={["Id", "Member", "Status", "Message ID", "Error"]}
           toCells={(row) => [
             <AdminLink key="id" model={row} />,
             <AdminLink key="member" model={row.member}>
               {row.member.name}
             </AdminLink>,
-            formatDate(row.sentAt),
+            row.status,
             row.transportMessageId,
+            row.lastError,
           ]}
         />,
       ]}

@@ -1,5 +1,6 @@
 import api from "../api";
 import AdminLink from "../components/AdminLink";
+import ExternalLinks from "../components/ExternalLinks";
 import InlineEditField from "../components/InlineEditField";
 import ResourceDetail from "../components/ResourceDetail";
 import useBusy from "../hooks/useBusy";
@@ -51,6 +52,7 @@ export default function MarketingSmsDispatchDetailPage() {
         { label: "Status", value: model.status },
         { label: "Sent At", value: formatDate(model.sentAt) },
         { label: "Transport Message ID", value: model.transportMessageId },
+        { label: "Last Error", value: model.lastError },
       ]}
     >
       {(model, setModel) => [
@@ -65,6 +67,7 @@ export default function MarketingSmsDispatchDetailPage() {
             </Button>
           </div>
         ),
+        <ExternalLinks externalLinks={model.externalLinks} />,
       ]}
     </ResourceDetail>
   );

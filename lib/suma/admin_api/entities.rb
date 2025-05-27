@@ -377,5 +377,6 @@ module Suma::AdminAPI::Entities
     expose :sent_at
     expose :transport_message_id
     expose :status
+    expose :last_error
   end
 end

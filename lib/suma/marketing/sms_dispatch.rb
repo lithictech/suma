@@ -1,11 +1,13 @@
 # frozen_string_literal: true
 
+require "suma/external_links"
 require "suma/marketing"
 require "suma/postgres/model"
 
 class Suma::Marketing::SmsDispatch < Suma::Postgres::Model(:marketing_sms_dispatches)
   include Suma::Postgres::HybridSearch
   include Suma::AdminLinked
+  include Suma::ExternalLinks
 
   plugin :hybrid_search
   plugin :timestamps
@@ -94,6 +96,18 @@ class Suma::Marketing::SmsDispatch < Suma::Postgres::Model(:marketing_sms_dispat
       :sms_campaign,
       :sent_at,
       :transport_message_id,
+      :last_error,
+      :status,
+    ]
+  end
+
+  def _external_links_self
+    return [] if self.transport_message_id.blank?
+    return [
+      self._external_link(
+        "Signalwire Message",
+        "https://#{Suma::Signalwire.space_url}/logs/messages/#{self.transport_message_id}",
+      ),
     ]
   end
 end
