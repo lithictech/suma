@@ -4,9 +4,9 @@ require "smstools"
 
 require "suma/marketing"
 require "suma/postgres/model"
-require "suma/async/marketing_sms_campaign_dispatch"
+require "suma/async/marketing_sms_broadcast_dispatch"
 
-class Suma::Marketing::SmsCampaign < Suma::Postgres::Model(:marketing_sms_campaigns)
+class Suma::Marketing::SmsBroadcast < Suma::Postgres::Model(:marketing_sms_broadcasts)
   include Suma::Postgres::HybridSearch
   include Suma::AdminLinked
 
@@ -19,7 +19,7 @@ class Suma::Marketing::SmsCampaign < Suma::Postgres::Model(:marketing_sms_campai
 
   many_to_many :lists,
                class: "Suma::Marketing::List",
-               join_table: :marketing_lists_sms_campaigns,
+               join_table: :marketing_lists_sms_broadcasts,
                order: :list_id
   plugin :association_array_replacer, :lists
 
@@ -58,20 +58,20 @@ class Suma::Marketing::SmsCampaign < Suma::Postgres::Model(:marketing_sms_campai
 
   # Create +Suma::Marketing::SmsDispatch+ instances for each member in +lists+.
   # Enqueue the background job that sends the actual messages.
-  # If the campaign is already sent (and +force+ is false), ONLY enqueue the background job.
+  # If the broadcast is already sent (and +force+ is false), ONLY enqueue the background job.
   # This prevents any accidental additional dispatches as lists change.
   def dispatch(force: false)
     if !force && self.sent?
-      Suma::Async::MarketingSmsCampaignDispatch.perform_async
+      Suma::Async::MarketingSmsBroadcastDispatch.perform_async
       return []
     end
     members = self.lists.map(&:members).flatten.uniq
-    rows = members.map { |m| {member_id: m.id, sms_campaign_id: self.id} }
+    rows = members.map { |m| {member_id: m.id, sms_broadcast_id: self.id} }
     Suma::Marketing::SmsDispatch.dataset.insert_conflict.multi_insert(rows)
     self.sent = true
     self.save_changes
     self.associations.delete(:sms_dispatches)
-    Suma::Async::MarketingSmsCampaignDispatch.perform_async
+    Suma::Async::MarketingSmsBroadcastDispatch.perform_async
     return members
   end
 
@@ -80,7 +80,7 @@ class Suma::Marketing::SmsCampaign < Suma::Postgres::Model(:marketing_sms_campai
     return self.class.preview(member:, en: self.body.en, es: self.body.es)
   end
 
-  # Render the campaign template in the given language.
+  # Render the broadcast template in the given language.
   # If +language+ is nil, use the member's message preferences.
   def render(member:, language:)
     language ||= member.message_preferences!.preferred_language
@@ -88,7 +88,7 @@ class Suma::Marketing::SmsCampaign < Suma::Postgres::Model(:marketing_sms_campai
     return self.class.render(member:, content:)
   end
 
-  # Return the +PreReview+ or +PostReview+ for this campaign.
+  # Return the +PreReview+ or +PostReview+ for this broadcast.
   # It calculates all the SMS being sent for the members on the lists,
   # in their preferred language.
   def generate_review
@@ -98,7 +98,7 @@ class Suma::Marketing::SmsCampaign < Suma::Postgres::Model(:marketing_sms_campai
   def generate_pre_review
     members = self.lists.map(&:members).flatten.uniq
     result = PreReview.new(
-      campaign: self,
+      broadcast: self,
       list_labels: self.lists.map { |li| "#{li.label} (#{li.members.count})" }.sort,
     )
     members.each do |member|
@@ -129,7 +129,7 @@ class Suma::Marketing::SmsCampaign < Suma::Postgres::Model(:marketing_sms_campai
     failed_recipients = sw_payloads.count { |d| failed_status.include?(d.fetch("status")) }
     canceled_recipients = self.sms_dispatches.count(&:canceled?)
     result = PostReview.new(
-      campaign: self,
+      broadcast: self,
       total_recipients: self.sms_dispatches.count,
       list_labels: self.lists.map(&:label).sort,
       delivered_recipients:,
@@ -141,7 +141,7 @@ class Suma::Marketing::SmsCampaign < Suma::Postgres::Model(:marketing_sms_campai
     return result
   end
 
-  def rel_admin_link = "/marketing-sms-campaign/#{self.id}"
+  def rel_admin_link = "/marketing-sms-broadcast/#{self.id}"
 
   def hybrid_search_fields
     return [
@@ -164,7 +164,7 @@ class Suma::Marketing::SmsCampaign < Suma::Postgres::Model(:marketing_sms_campai
   end
 
   class PreReview < Suma::TypedStruct
-    attr_accessor :campaign,
+    attr_accessor :broadcast,
                   :list_labels,
                   :total_recipients,
                   :en_recipients,
@@ -189,7 +189,7 @@ class Suma::Marketing::SmsCampaign < Suma::Postgres::Model(:marketing_sms_campai
   end
 
   class PostReview < Suma::TypedStruct
-    attr_reader :campaign,
+    attr_reader :broadcast,
                 :list_labels,
                 :total_recipients,
                 :delivered_recipients,

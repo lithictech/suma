@@ -22,7 +22,7 @@ class Suma::AdminAPI::Access
     Suma::Commerce::Product => [:product, COMMERCE, COMMERCE],
     Suma::Payment::FundingTransaction => [:funding_transaction, PAYMENTS, PAYMENTS],
     Suma::Marketing::List => [:marketing_list, MARKETING_SMS, MARKETING_SMS],
-    Suma::Marketing::SmsCampaign => [:marketing_sms_campaign, MARKETING_SMS, MARKETING_SMS],
+    Suma::Marketing::SmsBroadcast => [:marketing_sms_broadcast, MARKETING_SMS, MARKETING_SMS],
     Suma::Marketing::SmsDispatch => [:marketing_sms_dispatch, MARKETING_SMS, MARKETING_SMS],
     Suma::Member => [:member, MEMBERS, MEMBERS],
     Suma::Message::Delivery => [:message_delivery, MEMBERS, MANAGEMENT],

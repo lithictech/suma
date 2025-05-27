@@ -2,12 +2,12 @@
 
 require "suma/fixtures"
 
-module Suma::Fixtures::MarketingSmsCampaigns
+module Suma::Fixtures::MarketingSmsBroadcasts
   extend Suma::Fixtures
 
-  fixtured_class Suma::Marketing::SmsCampaign
+  fixtured_class Suma::Marketing::SmsBroadcast
 
-  base :marketing_sms_campaign do
+  base :marketing_sms_broadcast do
     self.label ||= Faker::Lorem.words
   end
 

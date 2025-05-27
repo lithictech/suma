@@ -4,11 +4,11 @@ import ResourceList from "../components/ResourceList";
 import formatDate from "../modules/formatDate";
 import React from "react";
 
-export default function MarketingSmsCampaignListPage() {
+export default function MarketingSmsBroadcastListPage() {
   return (
     <ResourceList
-      resource="marketing_sms_campaign"
-      apiList={api.getMarketingSmsCampaigns}
+      resource="marketing_sms_broadcast"
+      apiList={api.getMarketingSmsBroadcasts}
       canCreate
       canSearch
       columns={[

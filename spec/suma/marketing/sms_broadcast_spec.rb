@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
-RSpec.describe "Suma::Marketing::SmsCampaign", :db do
-  let(:described_class) { Suma::Marketing::SmsCampaign }
+RSpec.describe "Suma::Marketing::SmsBroadcast", :db do
+  let(:described_class) { Suma::Marketing::SmsBroadcast }
 
   it "manages list associations" do
-    c = Suma::Fixtures.marketing_sms_campaign.create
+    c = Suma::Fixtures.marketing_sms_broadcast.create
     l1 = Suma::Fixtures.marketing_list.create
     c.add_list(l1)
     expect(c.lists).to contain_exactly(l1)
@@ -51,7 +51,8 @@ RSpec.describe "Suma::Marketing::SmsCampaign", :db do
 
   describe "previewing" do
     it "can use a member" do
-      c = Suma::Fixtures.marketing_sms_campaign.with_body("hello {{ name | default: 'there' }}", "hola {{name}}").create
+      c = Suma::Fixtures.marketing_sms_broadcast.with_body("hello {{ name | default: 'there' }}",
+                                                           "hola {{name}}",).create
       p = c.preview(Suma::Fixtures.member.create(name: "john"))
       expect(p[:en]).to eq("hello john")
       expect(p[:es]).to eq("hola john")
@@ -61,24 +62,24 @@ RSpec.describe "Suma::Marketing::SmsCampaign", :db do
     end
 
     it "can use nil" do
-      c = Suma::Fixtures.marketing_sms_campaign.with_body("hello {{ name | default: 'X' }}", "").create
+      c = Suma::Fixtures.marketing_sms_broadcast.with_body("hello {{ name | default: 'X' }}", "").create
       p = c.preview(nil)
       expect(p[:en]).to eq("hello X")
     end
   end
 
   describe "dispatching" do
-    let(:campaign) { Suma::Fixtures.marketing_sms_campaign.create }
+    let(:broadcast) { Suma::Fixtures.marketing_sms_broadcast.create }
 
-    it "dispatches a campaign to members of a list" do
+    it "dispatches a broadcast to members of a list" do
       list = Suma::Fixtures.marketing_list.create
       member = Suma::Fixtures.member.create
       list.add_member(member)
-      campaign.add_list(list)
-      expect(Suma::Async::MarketingSmsCampaignDispatch).to receive(:perform_async)
-      campaign.dispatch
-      expect(campaign).to be_sent
-      expect(campaign.sms_dispatches).to contain_exactly(
+      broadcast.add_list(list)
+      expect(Suma::Async::MarketingSmsBroadcastDispatch).to receive(:perform_async)
+      broadcast.dispatch
+      expect(broadcast).to be_sent
+      expect(broadcast.sms_dispatches).to contain_exactly(
         have_attributes(member: be === member, sent_at: nil),
       )
     end
@@ -88,14 +89,14 @@ RSpec.describe "Suma::Marketing::SmsCampaign", :db do
       member2 = Suma::Fixtures.member.create
       list1 = Suma::Fixtures.marketing_list.members(member1).create
       list2 = Suma::Fixtures.marketing_list.members(member1, member2).create
-      campaign.add_list(list1)
-      campaign.add_list(list2)
-      campaign.sms_dispatches # Cache this to make sure we clear it after dispatch
+      broadcast.add_list(list1)
+      broadcast.add_list(list2)
+      broadcast.sms_dispatches # Cache this to make sure we clear it after dispatch
       # Ensure we do an upsert on the dispatches, not just getting unique members.
-      Suma::Fixtures.marketing_sms_dispatch.create(sms_campaign: campaign, member: member2)
-      expect(Suma::Async::MarketingSmsCampaignDispatch).to receive(:perform_async)
-      campaign.dispatch
-      expect(campaign.sms_dispatches).to contain_exactly(
+      Suma::Fixtures.marketing_sms_dispatch.create(sms_broadcast: broadcast, member: member2)
+      expect(Suma::Async::MarketingSmsBroadcastDispatch).to receive(:perform_async)
+      broadcast.dispatch
+      expect(broadcast.sms_dispatches).to contain_exactly(
         have_attributes(member: be === member1),
         have_attributes(member: be === member2),
       )
@@ -105,28 +106,28 @@ RSpec.describe "Suma::Marketing::SmsCampaign", :db do
       member1 = Suma::Fixtures.member.create
       member2 = Suma::Fixtures.member.create
       list1 = Suma::Fixtures.marketing_list.members(member1).create
-      campaign.add_list(list1)
-      expect(Suma::Async::MarketingSmsCampaignDispatch).to receive(:perform_async).twice
-      campaign.dispatch
-      expect(campaign.sms_dispatches).to contain_exactly(
+      broadcast.add_list(list1)
+      expect(Suma::Async::MarketingSmsBroadcastDispatch).to receive(:perform_async).twice
+      broadcast.dispatch
+      expect(broadcast.sms_dispatches).to contain_exactly(
         have_attributes(member: be === member1),
       )
-      campaign.refresh
+      broadcast.refresh
       list1.add_member(member2)
-      campaign.dispatch(force: true)
-      expect(campaign.sms_dispatches).to contain_exactly(
+      broadcast.dispatch(force: true)
+      expect(broadcast.sms_dispatches).to contain_exactly(
         have_attributes(member: be === member1),
         have_attributes(member: be === member2),
       )
     end
 
-    it "re-enqueues the job only if the campaign is already sent" do
+    it "re-enqueues the job only if the broadcast is already sent" do
       list = Suma::Fixtures.marketing_list.members(Suma::Fixtures.member.create).create
-      campaign.add_list(list)
-      campaign.sent = true
-      expect(Suma::Async::MarketingSmsCampaignDispatch).to receive(:perform_async)
-      campaign.dispatch
-      expect(campaign.sms_dispatches).to be_empty
+      broadcast.add_list(list)
+      broadcast.sent = true
+      expect(Suma::Async::MarketingSmsBroadcastDispatch).to receive(:perform_async)
+      broadcast.dispatch
+      expect(broadcast.sms_dispatches).to be_empty
     end
   end
 
@@ -143,12 +144,12 @@ RSpec.describe "Suma::Marketing::SmsCampaign", :db do
           Suma::Fixtures.member(name: "s" * 200).with_preferences(preferred_language: "en").create,
         ).
         create
-      campaign = Suma::Fixtures.marketing_sms_campaign.with_body("{{ name }}", "{{ name }}").create
-      campaign.add_list(list1)
-      campaign.add_list(list2)
-      v = campaign.generate_review
+      broadcast = Suma::Fixtures.marketing_sms_broadcast.with_body("{{ name }}", "{{ name }}").create
+      broadcast.add_list(list1)
+      broadcast.add_list(list2)
+      v = broadcast.generate_review
       expect(v).to have_attributes(
-        campaign: be === campaign,
+        broadcast: be === broadcast,
         en_recipients: 2,
         en_total_cost: BigDecimal("0.01245"),
         es_recipients: 1,
@@ -166,11 +167,11 @@ RSpec.describe "Suma::Marketing::SmsCampaign", :db do
           Suma::Fixtures.member.with_preferences(preferred_language: "es").create,
         ).
         create
-      campaign = Suma::Fixtures.marketing_sms_campaign.with_body(" ", "{{ name }}").create
-      campaign.add_list(list)
-      v = campaign.generate_review
+      broadcast = Suma::Fixtures.marketing_sms_broadcast.with_body(" ", "{{ name }}").create
+      broadcast.add_list(list)
+      v = broadcast.generate_review
       expect(v).to have_attributes(
-        campaign: be === campaign,
+        broadcast: be === broadcast,
         en_recipients: 0,
         es_recipients: 1,
         total_recipients: 1,
@@ -179,11 +180,11 @@ RSpec.describe "Suma::Marketing::SmsCampaign", :db do
 
     it "includes all expected post-review information" do
       list1 = Suma::Fixtures.marketing_list(label: "list1").create
-      campaign = Suma::Fixtures.marketing_sms_campaign.create(sent_at: Time.now)
-      campaign.add_list(list1)
-      v = campaign.generate_review
+      broadcast = Suma::Fixtures.marketing_sms_broadcast.create(sent_at: Time.now)
+      broadcast.add_list(list1)
+      v = broadcast.generate_review
       expect(v).to have_attributes(
-        campaign: be === campaign,
+        broadcast: be === broadcast,
         list_labels: ["list1"],
         total_recipients: 0,
         delivered_recipients: 0,
@@ -192,7 +193,7 @@ RSpec.describe "Suma::Marketing::SmsCampaign", :db do
         actual_cost: BigDecimal("0.00"),
       )
 
-      dispatch_fac = Suma::Fixtures.marketing_sms_dispatch(sms_campaign: campaign)
+      dispatch_fac = Suma::Fixtures.marketing_sms_dispatch(sms_broadcast: broadcast)
       sent1 = dispatch_fac.sent("sw1").create
       sent2 = dispatch_fac.sent("sw2").create
       pending1 = dispatch_fac.sent("sw3").create
@@ -204,7 +205,7 @@ RSpec.describe "Suma::Marketing::SmsCampaign", :db do
       Suma::Webhookdb.signalwire_messages_dataset.insert(sw_row("sw3", "queued", 0.001))
       Suma::Webhookdb.signalwire_messages_dataset.insert(sw_row("sw4", "undelivered", 0.001))
 
-      v = campaign.generate_review
+      v = broadcast.generate_review
       expect(v).to have_attributes(
         total_recipients: 6,
         delivered_recipients: 2,

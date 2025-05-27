@@ -17,11 +17,11 @@ import FundingTransactionListPage from "./pages/FundingTransactionListPage";
 import FundingTransactionRefundPage from "./pages/FundingTransactionRefundPage";
 import MarketingListDetailPage from "./pages/MarketingListDetailPage";
 import MarketingListListPage from "./pages/MarketingListListPage";
-import MarketingSmsCampaignCreatePage from "./pages/MarketingSmsCampaignCreatePage";
-import MarketingSmsCampaignDetailPage from "./pages/MarketingSmsCampaignDetailPage";
-import MarketingSmsCampaignEditPage from "./pages/MarketingSmsCampaignEditPage";
-import MarketingSmsCampaignListPage from "./pages/MarketingSmsCampaignListPage";
-import MarketingSmsCampaignSendPage from "./pages/MarketingSmsCampaignSendPage";
+import MarketingSmsBroadcastCreatePage from "./pages/MarketingSmsBroadcastCreatePage";
+import MarketingSmsBroadcastDetailPage from "./pages/MarketingSmsBroadcastDetailPage";
+import MarketingSmsBroadcastEditPage from "./pages/MarketingSmsBroadcastEditPage";
+import MarketingSmsBroadcastListPage from "./pages/MarketingSmsBroadcastListPage";
+import MarketingSmsBroadcastSendPage from "./pages/MarketingSmsBroadcastSendPage";
 import MarketingSmsDispatchDetailPage from "./pages/MarketingSmsDispatchDetailPage";
 import MarketingSmsDispatchListPage from "./pages/MarketingSmsDispatchListPage";
 import MemberDetailPage from "./pages/MemberDetailPage";
@@ -664,47 +664,47 @@ function PageSwitch() {
 
       <Route
         exact
-        path="/marketing-sms-campaigns"
+        path="/marketing-sms-broadcasts"
         element={renderWithHocs(
           redirectIfUnauthed,
           withLayout(),
-          MarketingSmsCampaignListPage
+          MarketingSmsBroadcastListPage
         )}
       />
       <Route
         exact
-        path="/marketing-sms-campaign/new"
+        path="/marketing-sms-broadcast/new"
         element={renderWithHocs(
           redirectIfUnauthed,
           withLayout(),
-          MarketingSmsCampaignCreatePage
+          MarketingSmsBroadcastCreatePage
         )}
       />
       <Route
         exact
-        path="/marketing-sms-campaign/:id"
+        path="/marketing-sms-broadcast/:id"
         element={renderWithHocs(
           redirectIfUnauthed,
           withLayout(),
-          MarketingSmsCampaignDetailPage
+          MarketingSmsBroadcastDetailPage
         )}
       />
       <Route
         exact
-        path="/marketing-sms-campaign/:id/edit"
+        path="/marketing-sms-broadcast/:id/edit"
         element={renderWithHocs(
           redirectIfUnauthed,
           withLayout(),
-          MarketingSmsCampaignEditPage
+          MarketingSmsBroadcastEditPage
         )}
       />
       <Route
         exact
-        path="/marketing-sms-campaign/:id/send"
+        path="/marketing-sms-broadcast/:id/send"
         element={renderWithHocs(
           redirectIfUnauthed,
           withLayout(),
-          MarketingSmsCampaignSendPage
+          MarketingSmsBroadcastSendPage
         )}
       />
       <Route

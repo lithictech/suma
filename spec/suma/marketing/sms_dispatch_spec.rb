@@ -3,14 +3,14 @@
 RSpec.describe "Suma::Marketing::SmsDispatch", :db do
   let(:described_class) { Suma::Marketing::SmsDispatch }
 
-  it "has members and campaigns associations" do
-    sms_campaign = Suma::Fixtures.marketing_sms_campaign.create
+  it "has members and broadcasts associations" do
+    sms_broadcast = Suma::Fixtures.marketing_sms_broadcast.create
     member = Suma::Fixtures.member.create
-    d = Suma::Fixtures.marketing_sms_dispatch.create(member:, sms_campaign:)
+    d = Suma::Fixtures.marketing_sms_dispatch.create(member:, sms_broadcast:)
     expect(d.member).to be === member
     expect(member.marketing_sms_dispatches).to contain_exactly(be === d)
-    expect(d.sms_campaign).to be === sms_campaign
-    expect(sms_campaign.sms_dispatches).to contain_exactly(be === d)
+    expect(d.sms_broadcast).to be === sms_broadcast
+    expect(sms_broadcast.sms_dispatches).to contain_exactly(be === d)
   end
 
   describe "validations" do
@@ -60,10 +60,10 @@ RSpec.describe "Suma::Marketing::SmsDispatch", :db do
     it "sends the SMS through Signalwire using the member's preferred language" do
       en = Suma::Fixtures.member.with_preferences(preferred_language: "en").create(phone: "15556667777", name: "Eng")
       es = Suma::Fixtures.member.with_preferences(preferred_language: "es").create(phone: "15556669999", name: "Esp")
-      sms_campaign = Suma::Fixtures.marketing_sms_campaign.with_body("hi {{name}}", "hola {{name}}").create
+      sms_broadcast = Suma::Fixtures.marketing_sms_broadcast.with_body("hi {{name}}", "hola {{name}}").create
 
-      d_en = Suma::Fixtures.marketing_sms_dispatch.create(sms_campaign:, member: en)
-      d_es = Suma::Fixtures.marketing_sms_dispatch.create(sms_campaign:, member: es)
+      d_en = Suma::Fixtures.marketing_sms_dispatch.create(sms_broadcast:, member: en)
+      d_es = Suma::Fixtures.marketing_sms_dispatch.create(sms_broadcast:, member: es)
       # this is already sent so will be skipped
       d_sent = Suma::Fixtures.marketing_sms_dispatch.sent.create
       req_en = stub_request(:post, "https://sumafaketest.signalwire.com/2010-04-01/Accounts/sw-test-project/Messages.json").
@@ -116,7 +116,7 @@ RSpec.describe "Suma::Marketing::SmsDispatch", :db do
 
     it "cancels if the body is empty" do
       disp = Suma::Fixtures.marketing_sms_dispatch.create
-      disp.sms_campaign.body.update(en: "")
+      disp.sms_broadcast.body.update(en: "")
       described_class.send_all
       expect(disp.refresh).to be_canceled
     end

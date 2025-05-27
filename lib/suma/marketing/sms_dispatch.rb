@@ -13,7 +13,7 @@ class Suma::Marketing::SmsDispatch < Suma::Postgres::Model(:marketing_sms_dispat
   plugin :timestamps
 
   many_to_one :member, class: "Suma::Member"
-  many_to_one :sms_campaign, class: "Suma::Marketing::SmsCampaign"
+  many_to_one :sms_broadcast, class: "Suma::Marketing::SmsBroadcast"
 
   dataset_module do
     def pending = self.where(sent_at: nil)
@@ -35,7 +35,7 @@ class Suma::Marketing::SmsDispatch < Suma::Postgres::Model(:marketing_sms_dispat
       end
       marketing_number = Suma::PhoneNumber.format_e164(Suma::Signalwire.marketing_number)
       self.dataset.pending.each do |dispatch|
-        body = dispatch.sms_campaign.render(member: dispatch.member, language: nil)
+        body = dispatch.sms_broadcast.render(member: dispatch.member, language: nil)
         if body.blank?
           dispatch.cancel.save_changes
           next
@@ -50,17 +50,17 @@ class Suma::Marketing::SmsDispatch < Suma::Postgres::Model(:marketing_sms_dispat
           tags = {
             member_id: dispatch.member.id,
             member_name: dispatch.member.name,
-            campaign_id: dispatch.sms_campaign.id,
-            campaign: dispatch.sms_campaign.label,
+            broadcast_id: dispatch.sms_broadcast.id,
+            broadcast: dispatch.sms_broadcast.label,
           }
-          self.logger.error("dispatch_marketing_campaign_error", tags, e)
+          self.logger.error("dispatch_marketing_broadcast_error", tags, e)
           Sentry.capture_exception(e, tags:)
           next
         end
         self.logger.info(
-          "dispatched_marketing_campaign",
+          "dispatched_marketing_broadcast",
           member_id: dispatch.member.id,
-          campaign: dispatch.sms_campaign.label,
+          broadcast: dispatch.sms_broadcast.label,
           signalwire_message_id: sw_resp.sid,
         )
         dispatch.set_sent(sw_resp.sid)
@@ -99,7 +99,7 @@ class Suma::Marketing::SmsDispatch < Suma::Postgres::Model(:marketing_sms_dispat
   def hybrid_search_fields
     return [
       :member,
-      :sms_campaign,
+      :sms_broadcast,
       :sent_at,
       :transport_message_id,
       :last_error,
