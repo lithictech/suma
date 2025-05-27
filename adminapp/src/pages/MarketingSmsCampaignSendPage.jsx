@@ -39,15 +39,27 @@ export default function MarketingSmsCampaignSendPage() {
     <Stack gap={3}>
       <DetailGrid
         title={`Review ${state.campaign.label}`}
-        properties={[
-          { label: "Lists", value: elementJoin(state.listLabels) },
-          { label: "Total Recipients", value: state.totalRecipientCount },
-          { label: "English Recipients", value: state.enRecipientCount },
-          { label: "Spanish Recipients", value: state.esRecipientCount },
-          { label: "Total Cost", value: `$${state.totalCost}` },
-          { label: "English Cost", value: `$${state.enTotalCost}` },
-          { label: "Spanish Cost", value: `$${state.esTotalCost}` },
-        ]}
+        properties={
+          state.preReview
+            ? [
+                { label: "Lists", value: elementJoin(state.listLabels) },
+                { label: "Total Recipients", value: state.totalRecipients },
+                { label: "English Recipients", value: state.enRecipients },
+                { label: "Spanish Recipients", value: state.esRecipients },
+                { label: "Total Cost", value: `$${state.totalCost}` },
+                { label: "English Cost", value: `$${state.enTotalCost}` },
+                { label: "Spanish Cost", value: `$${state.esTotalCost}` },
+              ]
+            : [
+                { label: "Lists", value: elementJoin(state.listLabels) },
+                { label: "Total Recipients", value: state.totalRecipients },
+                { label: "Delivered Recipients", value: state.deliveredRecipients },
+                { label: "Failed Recipients", value: state.failedRecipients },
+                { label: "Canceled Recipients", value: state.canceledRecipients },
+                { label: "Pending Recipients", value: state.pendingRecipients },
+                { label: "Actual Cost", value: `$${state.actualCost}` },
+              ]
+        }
       />
       {state.campaign.sentAt ? (
         <Typography>

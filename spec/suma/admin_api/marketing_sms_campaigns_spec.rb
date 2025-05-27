@@ -132,7 +132,7 @@ RSpec.describe Suma::AdminAPI::MarketingSmsCampaigns, :db do
   end
 
   describe "GET /v1/marketing_sms_campaigns/:id/review" do
-    it "returns the review info" do
+    it "returns the pre-review info" do
       o = Suma::Fixtures.marketing_sms_campaign.create
 
       get "/v1/marketing_sms_campaigns/#{o.id}/review"
@@ -141,7 +141,19 @@ RSpec.describe Suma::AdminAPI::MarketingSmsCampaigns, :db do
       expect(last_response).to have_json_body.that_includes(
         campaign: include(id: o.id),
         total_cost: "0.0",
-        total_recipient_count: 0,
+        total_recipients: 0,
+      )
+    end
+
+    it "returns the post-review info" do
+      o = Suma::Fixtures.marketing_sms_campaign.create(sent_at: Time.now)
+
+      get "/v1/marketing_sms_campaigns/#{o.id}/review"
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.that_includes(
+        campaign: include(id: o.id),
+        actual_cost: "0.0",
       )
     end
 

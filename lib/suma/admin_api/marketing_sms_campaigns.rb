@@ -26,16 +26,30 @@ class Suma::AdminAPI::MarketingSmsCampaigns < Suma::AdminAPI::V1
     expose :cost
   end
 
-  class SmsCampaignReviewEntity < BaseEntity
+  class SmsCampaignPreReviewEntity < BaseEntity
     include Suma::AdminAPI::Entities
     expose :campaign, with: MarketingSmsCampaignEntity
     expose :list_labels
-    expose :total_recipient_count
-    expose :en_recipient_count
-    expose :es_recipient_count
+    expose :total_recipients
+    expose :en_recipients
+    expose :es_recipients
     expose :total_cost
     expose :en_total_cost
     expose :es_total_cost
+    expose :pre_review?, as: :pre_review
+  end
+
+  class SmsCampaignPostReviewEntity < BaseEntity
+    include Suma::AdminAPI::Entities
+    expose :campaign, with: MarketingSmsCampaignEntity
+    expose :list_labels
+    expose :total_recipients
+    expose :delivered_recipients
+    expose :failed_recipients
+    expose :canceled_recipients
+    expose :pending_recipients
+    expose :actual_cost
+    expose :pre_review?, as: :pre_review
   end
 
   resource :marketing_sms_campaigns do
@@ -93,8 +107,9 @@ class Suma::AdminAPI::MarketingSmsCampaigns < Suma::AdminAPI::V1
       get :review do
         (o = Suma::Marketing::SmsCampaign[params[:id]]) or forbidden!
         r = o.generate_review
+        entity = r.pre_review? ? SmsCampaignPreReviewEntity : SmsCampaignPostReviewEntity
         status 200
-        present r, with: SmsCampaignReviewEntity
+        present r, with: entity
       end
 
       post :send do

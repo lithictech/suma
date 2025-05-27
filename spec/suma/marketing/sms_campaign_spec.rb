@@ -132,7 +132,7 @@ RSpec.describe "Suma::Marketing::SmsCampaign", :db do
   end
 
   describe "review" do
-    it "includes all expected information" do
+    it "includes all expected pre-review information" do
       list1 = Suma::Fixtures.marketing_list(label: "list1").
         members(
           Suma::Fixtures.member.with_preferences(preferred_language: "en").create,
@@ -150,14 +150,60 @@ RSpec.describe "Suma::Marketing::SmsCampaign", :db do
       v = campaign.generate_review
       expect(v).to have_attributes(
         campaign: be === campaign,
-        en_recipient_count: 2,
+        en_recipients: 2,
         en_total_cost: BigDecimal("0.01245"),
-        es_recipient_count: 1,
+        es_recipients: 1,
         es_total_cost: BigDecimal("0.00415"),
         list_labels: ["list1 (1)", "list2 (2)"],
         total_cost: BigDecimal("0.0166"),
-        total_recipient_count: 3,
+        total_recipients: 3,
       )
+    end
+
+    it "includes all expected post-review information" do
+      list1 = Suma::Fixtures.marketing_list(label: "list1").create
+      campaign = Suma::Fixtures.marketing_sms_campaign.create(sent_at: Time.now)
+      campaign.add_list(list1)
+      v = campaign.generate_review
+      expect(v).to have_attributes(
+        campaign: be === campaign,
+        list_labels: ["list1"],
+        total_recipients: 0,
+        delivered_recipients: 0,
+        failed_recipients: 0,
+        pending_recipients: 0,
+        actual_cost: BigDecimal("0.00"),
+      )
+
+      dispatch_fac = Suma::Fixtures.marketing_sms_dispatch(sms_campaign: campaign)
+      sent1 = dispatch_fac.sent("sw1").create
+      sent2 = dispatch_fac.sent("sw2").create
+      pending1 = dispatch_fac.sent("sw3").create
+      failed1 = dispatch_fac.sent("sw4").create
+      unsent1 = dispatch_fac.create
+      canceled = dispatch_fac.canceled.create
+      Suma::Webhookdb.signalwire_messages_dataset.insert(sw_row("sw1", "delivered", 0.001))
+      Suma::Webhookdb.signalwire_messages_dataset.insert(sw_row("sw2", "sent", 0.001))
+      Suma::Webhookdb.signalwire_messages_dataset.insert(sw_row("sw3", "queued", 0.001))
+      Suma::Webhookdb.signalwire_messages_dataset.insert(sw_row("sw4", "undelivered", 0.001))
+
+      v = campaign.generate_review
+      expect(v).to have_attributes(
+        total_recipients: 6,
+        delivered_recipients: 2,
+        failed_recipients: 1,
+        pending_recipients: 2,
+        canceled_recipients: 1,
+        actual_cost: BigDecimal("0.004"),
+      )
+    end
+
+    def sw_row(sid, status, price)
+      r = {
+        signalwire_id: sid,
+        data: {sid:, status:, price:}.to_json,
+      }
+      return r
     end
   end
 end

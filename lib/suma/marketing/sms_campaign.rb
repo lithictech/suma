@@ -94,10 +94,14 @@ class Suma::Marketing::SmsCampaign < Suma::Postgres::Model(:marketing_sms_campai
   # It calculates all the SMS being sent for the members on the lists,
   # in their preferred language.
   def generate_review
+    return self.sent? ? self.generate_post_review : self.generate_pre_review
+  end
+
+  def generate_pre_review
     members = self.lists.map(&:members).flatten.uniq
     result = PreReview.new(
       campaign: self,
-      total_recipient_count: members.count,
+      total_recipients: members.count,
       list_labels: self.lists.map { |li| "#{li.label} (#{li.members.count})" }.sort,
     )
     members.each do |member|
@@ -106,13 +110,35 @@ class Suma::Marketing::SmsCampaign < Suma::Postgres::Model(:marketing_sms_campai
       cost = Payload.parse(member_text).cost
       result.total_cost += cost
       if language == "en"
-        result.en_recipient_count += 1
+        result.en_recipients += 1
         result.en_total_cost += cost
       else
-        result.es_recipient_count += 1
+        result.es_recipients += 1
         result.es_total_cost += cost
       end
     end
+    return result
+  end
+
+  def generate_post_review
+    msg_ds = Suma::Webhookdb.signalwire_messages_dataset
+    msg_ds = msg_ds.where(signalwire_id: self.sms_dispatches.map(&:transport_message_id))
+    sw_payloads = msg_ds.select_map(:data)
+    delivered_status = ["sent", "delivered"]
+    failed_status = ["failed", "undelivered"]
+    delivered_recipients = sw_payloads.count { |d| delivered_status.include?(d.fetch("status")) }
+    failed_recipients = sw_payloads.count { |d| failed_status.include?(d.fetch("status")) }
+    canceled_recipients = self.sms_dispatches.count(&:canceled?)
+    result = PostReview.new(
+      campaign: self,
+      total_recipients: self.sms_dispatches.count,
+      list_labels: self.lists.map(&:label).sort,
+      delivered_recipients:,
+      failed_recipients:,
+      canceled_recipients:,
+      pending_recipients: self.sms_dispatches.count - delivered_recipients - failed_recipients - canceled_recipients,
+      actual_cost: sw_payloads.sum(BigDecimal("0")) { |d| d.fetch("price", 0) },
+    )
     return result
   end
 
@@ -141,23 +167,38 @@ class Suma::Marketing::SmsCampaign < Suma::Postgres::Model(:marketing_sms_campai
   class PreReview < Suma::TypedStruct
     attr_accessor :campaign,
                   :list_labels,
-                  :total_recipient_count,
-                  :en_recipient_count,
-                  :es_recipient_count,
+                  :total_recipients,
+                  :en_recipients,
+                  :es_recipients,
                   :total_cost,
                   :en_total_cost,
                   :es_total_cost
 
+    def pre_review? = true
+
     def _defaults
       return {
         list_labels: [],
-        total_recipient_count: 0,
-        en_recipient_count: 0,
-        es_recipient_count: 0,
+        total_recipients: 0,
+        en_recipients: 0,
+        es_recipients: 0,
         total_cost: BigDecimal("0"),
         en_total_cost: BigDecimal("0"),
         es_total_cost: BigDecimal("0"),
       }
     end
+  end
+
+  class PostReview < Suma::TypedStruct
+    attr_reader :campaign,
+                :list_labels,
+                :total_recipients,
+                :delivered_recipients,
+                :failed_recipients,
+                :canceled_recipients,
+                :pending_recipients,
+                :actual_cost
+
+    def pre_review? = false
   end
 end
