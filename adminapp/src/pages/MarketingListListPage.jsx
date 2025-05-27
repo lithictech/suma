@@ -20,6 +20,7 @@ export default function MarketingListListPage() {
         {
           id: "label",
           label: "Label",
+          sortable: true,
           align: "left",
           render: (c) => <AdminLink model={c}>{c.label}</AdminLink>,
         },
