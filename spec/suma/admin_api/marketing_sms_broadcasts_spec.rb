@@ -84,6 +84,7 @@ RSpec.describe Suma::AdminAPI::MarketingSmsBroadcasts, :db do
       expect(last_response.headers).to include("Created-Resource-Admin")
       expect(Suma::Marketing::SmsBroadcast[id: last_response_json_body[:id]]).to have_attributes(
         label: "hi",
+        created_by: be === admin,
       )
     end
   end

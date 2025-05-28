@@ -233,6 +233,8 @@ module Suma::AdminAPI::CommonEndpoints
         check_role_access!(admin_member, :write, access)
         _throwsafe_transaction(model_type.db) do
           m = model_type.new
+          # Always set this if the model supports it.
+          m.created_by = admin_member if m.respond_to?(:created_by)
           around.call(self, m) do
             # Must be done INSIDE of 'around' in case it modifies `params`.
             dparams = declared_and_provided_params(params)
