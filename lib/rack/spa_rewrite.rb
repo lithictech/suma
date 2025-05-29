@@ -26,9 +26,28 @@ class Rack::SpaRewrite
     @head.call env
   end
 
+  ASSET_EXTS = [".js", ".css", ".png", ".jpg", ".jpeg", ".ico", ".json", ".ttf", ".woff"].freeze
+
   def get(env)
     request = Rack::Request.new env
-    return @app.call(env) if @html_only && !request.path_info.end_with?(".html")
+
+    if @html_only && !request.path_info.end_with?(".html")
+      # Skip custom logic if we are serving only html paths, and this isn't an html path.
+      # html_only is true on the 'first' call of this middleware, when we want to specific.
+      return @app.call(env)
+    end
+
+    if !@html_only && ASSET_EXTS.any? { |ext| request.path_info.end_with?(ext) }
+      # If html_only is false, we are running our fallback logic that serves the index html file
+      # for many types of requests that were 404ing. This is usually as-desired.
+      # But, if a JS file 404s, we don't want to serve it as an HTML file instead.
+      # So if the path extension is an asset type (image, css, js, etc),
+      # return a 404 explicitly. We do not want to run the 'fallback' logic here,
+      # since we're already at the fallback.
+      content = "Not found\n"
+      return [404, {"content-type" => "text/plain", "content-length" => content.length}, [content]]
+    end
+
     return [405, {"Allow" => ALLOW_HEADER}, ["Method Not Allowed"]] unless
       ALLOWED_VERBS.include?(request.request_method)
 

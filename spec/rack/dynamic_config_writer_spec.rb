@@ -2,6 +2,7 @@
 
 require "rack/dynamic_config_writer"
 
+# rubocop:disable Layout/LineLength
 RSpec.describe Rack::DynamicConfigWriter do
   include_context "uses temp dir"
 
@@ -49,6 +50,31 @@ RSpec.describe Rack::DynamicConfigWriter do
     expect(File.read(index)).to eq("<html><head><script>globals.x={\"x\":\"3\"}</script></head><body></body></html>")
   end
 
+  describe "with a manifest file" do
+    let(:manifest) { (temp_dir_path + ".vite" + "manifest.json").to_s }
+    before(:each) do
+      Dir.mkdir(temp_dir_path + ".vite")
+    end
+
+    it "handles an empty manifest json" do
+      File.write(index, "")
+      File.write(manifest, "{}")
+
+      dcw = described_class.new(index, global_assign: "globals.x")
+      dcw.emplace({})
+      expect(File.read(index)).to eq("<html><head><script>globals.x={}</script></head><body></body></html>")
+    end
+
+    it "includes the build JS asset file path from the manifest" do
+      File.write(index, "")
+      File.write(manifest, {"index.html" => {"file" => "assets/index-C5Z8u35m.js"}}.to_json)
+
+      dcw = described_class.new(index, global_assign: "globals.x")
+      dcw.emplace({})
+      expect(File.read(index)).to eq("<html><head><script>globals.x={\"VITE_HASHED_INDEX_JS\":\"assets/index-C5Z8u35m.js\"}</script></head><body></body></html>")
+    end
+  end
+
   describe "pick_env" do
     let(:env) { {"FOO1" => "x1", "FOO2" => "x2", "BAR2" => "y2"} }
     it "picks keys with a prefix" do
@@ -60,3 +86,4 @@ RSpec.describe Rack::DynamicConfigWriter do
     end
   end
 end
+# rubocop:enable Layout/LineLength

@@ -220,6 +220,7 @@ module Suma::Apps
       policy: {
         safe: ["'self' mysuma.org *.mysuma.org", Suma::Sentry.dsn_host],
         inline_scripts: [script],
+        script_hashes: Rack::Csp.extract_script_hashes(File.read("build-adminapp/index.html")),
         img_data: true,
         img_blob: true,
         parts: {
