@@ -126,6 +126,15 @@ RSpec.describe Suma::AdminAPI::Programs, :db do
       expect(program.refresh).to have_attributes(name: have_attributes(en: "pwb program"))
     end
 
+    it "audits some changes" do
+      program = Suma::Fixtures.program.create
+      post "/v1/programs/#{program.id}", app_link: "hello"
+
+      expect(last_response).to have_status(200)
+      expect(program.refresh).to have_attributes(app_link: "hello")
+      expect(program.refresh.audit_activities).to contain_exactly(have_attributes(message_name: "applinkchange"))
+    end
+
     it "handles adding and removing nested resources" do
       offering_fac = Suma::Fixtures.offering
       offering_to_remove = offering_fac.create
