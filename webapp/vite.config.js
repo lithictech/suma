@@ -13,6 +13,7 @@ export default defineConfig({
     }),
   ],
   build: {
+    manifest: true,
     outDir: "../build-webapp",
     emptyOutDir: true,
   },

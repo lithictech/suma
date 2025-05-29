@@ -1,27 +1,53 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1"/>
-    <meta name="theme-color" content="#000000"/>
-    <meta name="description" content="Admin site for https://app.mysuma.org"/>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#000000" />
+  <meta name="description" content="Admin site for https://app.mysuma.org" />
 
-    <title>Admin | Suma</title>
+  <title>Admin | Suma</title>
 
-    <link rel="icon" href="/favicon.ico" type="image/x-icon" />
-    <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/icons/favicon-16x16.png">
-    <meta name="msapplication-TileColor" content="#da532c">
-    <meta name="theme-color" content="#ffffff">
+  <link rel="icon" href="/favicon.ico" type="image/x-icon" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/icons/favicon-16x16.png">
+  <meta name="msapplication-TileColor" content="#da532c">
+  <meta name="theme-color" content="#ffffff">
 
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap"/>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons"/>
-    <link rel="stylesheet" media="print" href="/styles/print.css" />
-  </head>
-  <body>
-    <noscript>You need to enable JavaScript to run this app.</noscript>
-    <div id="root"></div>
-    <script type="module" src="/src/index.jsx"></script>
-  </body>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons" />
+  <link rel="stylesheet" media="print" href="/styles/print.css" />
+</head>
+<body>
+<noscript>You need to enable JavaScript to run this app.</noscript>
+<div id="root"></div>
+<script type="module" src="/src/index.jsx"></script>
+<script type="text/javascript" data-csp="ok">
+  // See commit this code was added in for an explanation.
+  (function() {
+    const hashedIndexJs = (window.sumaDynamicEnv || {}).VITE_HASHED_INDEX_JS;
+    if (!hashedIndexJs) {
+      return;
+    }
+    fetch(hashedIndexJs, { method: "HEAD" })
+      .then((r) => r.status >= 300 ? Promise.reject(`Server Error: ${r.status}`) : null)
+      .catch((e) => {
+        console.warn(`Suma failed to load ${hashedIndexJs}`, e);
+        const content = document.createElement("div");
+        content.style.padding = "30px";
+        if (!window.location.href.includes("clearcache=")) {
+          console.warn("Suma reloading with clearcache to bust the cache.");
+          content.innerText = "This application has been updated. If the page does not automatically refresh, please pull down or open your browser menu to refresh the page.";
+          document.body.appendChild(content);
+          window.location = window.location.href + "?clearcache=" + Date.now();
+        } else {
+          console.warn("Suma reloaded due to stale cache, but JS still not found. Not reloading.");
+          content.innerText = "Sorry, something went wrong loading the application. You can try refreshing, or reach out to info@mysuma.org.";
+          document.body.appendChild(content);
+        }
+      });
+  })();
+</script>
+</body>
 </html>

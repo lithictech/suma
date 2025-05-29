@@ -31,11 +31,12 @@ class Rack::DynamicConfigWriter
     @index_html_path = index_html_path
     @global_assign = global_assign
     @index_html_backup = index_html_path + backup_suffix
+    @additional_kvps = {}
   end
 
   def emplace(keys_and_values)
     self.prepare
-    json = Yajl::Encoder.encode(keys_and_values)
+    json = Yajl::Encoder.encode(@additional_kvps.merge(keys_and_values))
     script = "#{@global_assign}=#{json}"
     File.open(@index_html_backup) do |f|
       doc = Nokogiri::HTML5(f)
@@ -47,6 +48,19 @@ class Rack::DynamicConfigWriter
 
   protected def prepare
     return if File.exist?(@index_html_backup)
+
+    # Parse the manifest so we can get the hashed index JS path for further index.html templating.
+    begin
+      File.open(Pathname.new(@index_html_path).dirname + ".vite" + "manifest.json") do |f|
+        @manifest = Yajl::Parser.parse(f)
+        if (hashed_js = @manifest.dig("index.html", "file"))
+          @additional_kvps["VITE_HASHED_INDEX_JS"] = hashed_js
+        end
+      end
+    rescue Errno::ENOENT
+      # Ignore missing manifest
+    end
+
     FileUtils.move(@index_html_path, @index_html_backup)
   end
 

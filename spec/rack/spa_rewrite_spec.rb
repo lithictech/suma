@@ -118,5 +118,11 @@ RSpec.describe Rack::SpaRewrite do
         ],
       )
     end
+
+    it "404s if the underlying app if the file is an asset" do
+      expect(mw.call(Rack::MockRequest.env_for("/w.js", method: :get))).to eq(
+        [404, {"content-length" => 10, "content-type" => "text/plain"}, ["Not found\n"]],
+      )
+    end
   end
 end

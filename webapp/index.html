@@ -1,51 +1,78 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no">
-    <meta name="description" content="Suma provides affordable housing residents and other frontline community members access to low-cost, secure and easy to use access to clean mobility, food, transportation and utility options.">
-    <title>Suma</title>
-    <!-- Android  -->
-    <meta name="theme-color" content="#CDA671FF">
-    <meta name="mobile-web-app-capable" content="yes">
-    <!-- iOS -->
-    <meta name="apple-mobile-web-app-title" content="Suma">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <!-- Pinned Sites  -->
-    <meta name="application-name" content="Suma">
-    <!-- UC Mobile Browser  -->
-    <meta name="full-screen" content="yes">
-    <meta name="browsermode" content="application">
-    <!-- Layout mode -->
-    <meta name="layoutmode" content="fitscreen">
-    <!-- Orientation  -->
-    <meta name="screen-orientation" content="portrait">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no">
+  <meta name="description"
+        content="Suma provides affordable housing residents and other frontline community members access to low-cost, secure and easy to use access to clean mobility, food, transportation and utility options.">
+  <title>Suma</title>
+  <!-- Android  -->
+  <meta name="theme-color" content="#CDA671FF">
+  <meta name="mobile-web-app-capable" content="yes">
+  <!-- iOS -->
+  <meta name="apple-mobile-web-app-title" content="Suma">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <!-- Pinned Sites  -->
+  <meta name="application-name" content="Suma">
+  <!-- UC Mobile Browser  -->
+  <meta name="full-screen" content="yes">
+  <meta name="browsermode" content="application">
+  <!-- Layout mode -->
+  <meta name="layoutmode" content="fitscreen">
+  <!-- Orientation  -->
+  <meta name="screen-orientation" content="portrait">
 
-    <link rel="manifest" href="/manifest.json" />
-    <link rel="icon" href="/favicon.ico" type="image/x-icon" />
-    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
-    <link rel="apple-touch-icon" sizes="57x57" href="/icons/apple-touch-icon-57x57.png" />
-    <link rel="apple-touch-icon" sizes="72x72" href="/icons/apple-touch-icon-72x72.png" />
-    <link rel="apple-touch-icon" sizes="76x76" href="/icons/apple-touch-icon-76x76.png" />
-    <link rel="apple-touch-icon" sizes="114x114" href="/icons/apple-touch-icon-114x114.png" />
-    <link rel="apple-touch-icon" sizes="120x120" href="/icons/apple-touch-icon-120x120.png" />
-    <link rel="apple-touch-icon" sizes="144x144" href="/icons/apple-touch-icon-144x144.png" />
-    <link rel="apple-touch-icon" sizes="152x152" href="/icons/apple-touch-icon-152x152.png" />
-    <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon-180x180.png" />
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/index.jsx"></script>
-    <script type="text/javascript" data-csp="ok">
-      // AddToHomeScreen service worker must register here.
-      if ("serviceWorker" in navigator) {
-        window.addEventListener("load", () => {
-          navigator.serviceWorker
-            .register("%BASE_URL%/add-to-homescreen-service-worker.js", { scope: "%BASE_URL%" })
-            .catch((error) => error);
-        });
-      }
-    </script>
-  </body>
+  <link rel="manifest" href="/manifest.json" />
+  <link rel="icon" href="/favicon.ico" type="image/x-icon" />
+  <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+  <link rel="apple-touch-icon" sizes="57x57" href="/icons/apple-touch-icon-57x57.png" />
+  <link rel="apple-touch-icon" sizes="72x72" href="/icons/apple-touch-icon-72x72.png" />
+  <link rel="apple-touch-icon" sizes="76x76" href="/icons/apple-touch-icon-76x76.png" />
+  <link rel="apple-touch-icon" sizes="114x114" href="/icons/apple-touch-icon-114x114.png" />
+  <link rel="apple-touch-icon" sizes="120x120" href="/icons/apple-touch-icon-120x120.png" />
+  <link rel="apple-touch-icon" sizes="144x144" href="/icons/apple-touch-icon-144x144.png" />
+  <link rel="apple-touch-icon" sizes="152x152" href="/icons/apple-touch-icon-152x152.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon-180x180.png" />
+</head>
+<body>
+<div id="root"></div>
+<script type="module" src="/src/index.jsx"></script>
+<script type="text/javascript" data-csp="ok">
+  // AddToHomeScreen service worker must register here.
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker
+        .register("%BASE_URL%/add-to-homescreen-service-worker.js", { scope: "%BASE_URL%" })
+        .catch((error) => error);
+    });
+  }
+</script>
+<script type="text/javascript" data-csp="ok">
+  // See commit this code was added in for an explanation.
+  (function() {
+    const hashedIndexJs = (window.sumaDynamicEnv || {}).VITE_HASHED_INDEX_JS;
+    if (!hashedIndexJs) {
+      return;
+    }
+    fetch(hashedIndexJs, { method: "HEAD" })
+      .then((r) => r.status >= 300 ? Promise.reject(`Server Error: ${r.status}`) : null)
+      .catch((e) => {
+        console.warn(`Suma failed to load ${hashedIndexJs}`, e);
+        const content = document.createElement("div");
+        content.style.padding = "30px";
+        if (!window.location.href.includes("clearcache=")) {
+          console.warn("Suma reloading with clearcache to bust the cache.");
+          content.innerText = "This application has been updated. If the page does not automatically refresh, please pull down or open your browser menu to refresh the page.";
+          document.body.appendChild(content);
+          window.location = window.location.href + "?clearcache=" + Date.now();
+        } else {
+          console.warn("Suma reloaded due to stale cache, but JS still not found. Not reloading.");
+          content.innerText = "Sorry, something went wrong loading the application. You can try refreshing, or reach out to info@mysuma.org.";
+          document.body.appendChild(content);
+        }
+      });
+  })();
+</script>
+</body>
 </html>
