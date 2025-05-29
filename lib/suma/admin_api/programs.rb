@@ -16,6 +16,7 @@ class Suma::AdminAPI::Programs < Suma::AdminAPI::V1
     expose :anon_proxy_vendor_configurations, as: :configurations, with: VendorConfigurationEntity
     expose :payment_triggers, with: PaymentTriggerEntity
     expose :enrollments, with: ProgramEnrollmentEntity
+    expose :audit_activities, with: ActivityEntity
   end
 
   resource :programs do
@@ -71,6 +72,14 @@ class Suma::AdminAPI::Programs < Suma::AdminAPI::V1
         if vendor_services
           vendor_service_models = Suma::Vendor::Service.where(id: vendor_services.map { |o| o[:id] }).all
           m.replace_vendor_services(vendor_service_models)
+        end
+        if rt.params[:app_link]
+          # Audit app_link changes, since they could be used maliciously.
+          m.audit_activity(
+            "applinkchange",
+            member: rt.admin_member,
+            action: rt.params[:app_link],
+          )
         end
       end,
     ) do

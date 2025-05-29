@@ -1,12 +1,14 @@
 # frozen_string_literal: true
 
 require "suma/admin_linked"
+require "suma/has_activity_audit"
 require "suma/image"
 require "suma/postgres/model"
 
 class Suma::Program < Suma::Postgres::Model(:programs)
   include Suma::Postgres::HybridSearch
   include Suma::AdminLinked
+  include Suma::HasActivityAudit
   include Suma::Image::SingleAssociatedMixin
 
   plugin :hybrid_search

@@ -1,5 +1,6 @@
 import api from "../api";
 import AdminLink from "../components/AdminLink";
+import AuditActivityList from "../components/AuditActivityList";
 import RelatedList from "../components/RelatedList";
 import ResourceDetail from "../components/ResourceDetail";
 import SumaImage from "../components/SumaImage";
@@ -131,6 +132,7 @@ export default function ProgramDetailPage() {
             dayjsOrNull(row.unenrolledAt)?.format("lll"),
           ]}
         />,
+        <AuditActivityList activities={model.auditActivities} />,
       ]}
     </ResourceDetail>
   );
