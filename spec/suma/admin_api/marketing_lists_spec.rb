@@ -59,6 +59,15 @@ RSpec.describe Suma::AdminAPI::MarketingLists, :db do
     end
   end
 
+  describe "POST /v1/marketing_lists/create" do
+    it "creates the object" do
+      post "/v1/marketing_lists/create", label: "hello"
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.that_includes(label: "hello")
+    end
+  end
+
   describe "GET /v1/marketing_lists/:id" do
     it "returns the object" do
       o = Suma::Fixtures.marketing_list.create
@@ -71,6 +80,29 @@ RSpec.describe Suma::AdminAPI::MarketingLists, :db do
 
     it "403s if the item does not exist" do
       get "/v1/marketing_lists/0"
+
+      expect(last_response).to have_status(403)
+    end
+  end
+
+  describe "POST /v1/marketing_lists/:id" do
+    it "updates the object" do
+      m1 = Suma::Fixtures.member.create
+      m2 = Suma::Fixtures.member.create
+      m3 = Suma::Fixtures.member.create
+      o = Suma::Fixtures.marketing_list.members(m1, m2).create
+
+      post "/v1/marketing_lists/#{o.id}", label: "hello", members: [{id: m2.id}, {id: m3.id}]
+
+      expect(last_response).to have_status(200)
+      expect(o.refresh).to have_attributes(label: "hello")
+      expect(o.members).to have_same_ids_as(m2, m3)
+    end
+
+    it "errors if the list is managed" do
+      o = Suma::Fixtures.marketing_list.create(managed: true)
+
+      post "/v1/marketing_lists/#{o.id}", label: "hello"
 
       expect(last_response).to have_status(403)
     end

@@ -158,11 +158,14 @@ export default {
   updateVendor: ({ id, ...data }) => postForm(`/adminapi/v1/vendors/${id}`, data),
 
   getMarketingLists: (data) => get(`/adminapi/v1/marketing_lists`, data),
+  createMarketingList: (data) => post("/adminapi/v1/marketing_lists/create", data),
   getMarketingList: ({ id, ...data }) => get(`/adminapi/v1/marketing_lists/${id}`, data),
+  updateMarketingList: ({ id, ...data }) =>
+    post(`/adminapi/v1/marketing_lists/${id}`, data),
 
   getMarketingSmsBroadcasts: (data) => get(`/adminapi/v1/marketing_sms_broadcasts`, data),
   createMarketingSmsBroadcast: (data) =>
-    postForm("/adminapi/v1/marketing_sms_broadcasts/create", data),
+    post("/adminapi/v1/marketing_sms_broadcasts/create", data),
   getMarketingSmsBroadcast: ({ id, ...data }) =>
     get(`/adminapi/v1/marketing_sms_broadcasts/${id}`, data),
   updateMarketingSmsBroadcast: ({ id, ...data }) =>

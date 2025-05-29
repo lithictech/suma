@@ -15,7 +15,9 @@ import FundingTransactionCreatePage from "./pages/FundingTransactionCreatePage";
 import FundingTransactionDetailPage from "./pages/FundingTransactionDetailPage";
 import FundingTransactionListPage from "./pages/FundingTransactionListPage";
 import FundingTransactionRefundPage from "./pages/FundingTransactionRefundPage";
+import MarketingListCreatePage from "./pages/MarketingListCreatePage";
 import MarketingListDetailPage from "./pages/MarketingListDetailPage";
+import MarketingListEditPage from "./pages/MarketingListEditPage";
 import MarketingListListPage from "./pages/MarketingListListPage";
 import MarketingSmsBroadcastCreatePage from "./pages/MarketingSmsBroadcastCreatePage";
 import MarketingSmsBroadcastDetailPage from "./pages/MarketingSmsBroadcastDetailPage";
@@ -654,12 +656,26 @@ function PageSwitch() {
       />
       <Route
         exact
+        path="/marketing-list/new"
+        element={renderWithHocs(
+          redirectIfUnauthed,
+          withLayout(),
+          MarketingListCreatePage
+        )}
+      />
+      <Route
+        exact
         path="/marketing-list/:id"
         element={renderWithHocs(
           redirectIfUnauthed,
           withLayout(),
           MarketingListDetailPage
         )}
+      />
+      <Route
+        exact
+        path="/marketing-list/:id/edit"
+        element={renderWithHocs(redirectIfUnauthed, withLayout(), MarketingListEditPage)}
       />
 
       <Route

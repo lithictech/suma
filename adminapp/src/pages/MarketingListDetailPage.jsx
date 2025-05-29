@@ -11,6 +11,7 @@ export default function MarketingListDetailPage() {
     <ResourceDetail
       resource="marketing_list"
       apiGet={api.getMarketingList}
+      canEdit={(r) => !r.managed}
       properties={(model, replaceModel) => [
         { label: "ID", value: model.id },
         { label: "Created At", value: dayjs(model.createdAt) },
@@ -20,7 +21,7 @@ export default function MarketingListDetailPage() {
         },
         {
           label: "Managed",
-          value: model.managed,
+          value: model.managed ? "Automatic" : "Manual",
         },
       ]}
     >
@@ -35,7 +36,7 @@ export default function MarketingListDetailPage() {
             <AdminLink key="name" model={row}>
               {row.name}
             </AdminLink>,
-            row.phone,
+            row.formattedPhone,
           ]}
         />,
         <RelatedList

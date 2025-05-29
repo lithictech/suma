@@ -7,6 +7,7 @@ class Suma::Marketing::List < Suma::Postgres::Model(:marketing_lists)
   include Suma::Postgres::HybridSearch
   include Suma::AdminLinked
 
+  plugin :association_pks
   plugin :hybrid_search
   plugin :timestamps
 
@@ -16,6 +17,8 @@ class Suma::Marketing::List < Suma::Postgres::Model(:marketing_lists)
                left_key: :marketing_list_id,
                right_key: :member_id,
                order: :member_id
+  plugin :association_array_replacer, :members
+
   many_to_many :sms_broadcasts,
                class: "Suma::Marketing::SmsBroadcast",
                join_table: :marketing_lists_sms_broadcasts,
@@ -49,6 +52,8 @@ class Suma::Marketing::List < Suma::Postgres::Model(:marketing_lists)
       return lists
     end
   end
+
+  def managed? = self.managed
 
   def rel_admin_link = "/marketing-list/#{self.id}"
 
