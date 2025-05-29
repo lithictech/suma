@@ -105,6 +105,7 @@ module Suma::AdminAPI::Entities
     expose :email
     expose :name
     expose :phone
+    expose :us_phone, as: :formatted_phone
     expose :timezone
     expose :onboarding_verified_at
   end
@@ -353,7 +354,8 @@ module Suma::AdminAPI::Entities
   class MarketingMemberEntity < MemberEntity
     expose :id
     expose :name
-    expose :us_phone, as: :phone
+    expose :phone
+    expose :us_phone, as: :formatted_phone
     expose :admin_link
   end
 

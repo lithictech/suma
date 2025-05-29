@@ -4,7 +4,6 @@ import ResourceList from "../components/ResourceList";
 import Unavailable from "../components/Unavailable";
 import formatDate from "../modules/formatDate";
 import React from "react";
-import { formatPhoneNumber } from "react-phone-number-input";
 
 export default function MemberListPage() {
   return (
@@ -26,7 +25,7 @@ export default function MemberListPage() {
           label: "Phone Number",
           align: "center",
           sortable: true,
-          render: (c) => formatPhoneNumber("+" + c.phone),
+          render: (c) => c.formattedPhone,
         },
         {
           id: "name",

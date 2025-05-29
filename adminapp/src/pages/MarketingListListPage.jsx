@@ -8,6 +8,7 @@ export default function MarketingListListPage() {
     <ResourceList
       resource="marketing_list"
       apiList={api.getMarketingLists}
+      canCreate
       canSearch
       columns={[
         {

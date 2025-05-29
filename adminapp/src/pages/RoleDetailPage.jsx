@@ -3,7 +3,6 @@ import AdminLink from "../components/AdminLink";
 import RelatedList from "../components/RelatedList";
 import ResourceDetail from "../components/ResourceDetail";
 import React from "react";
-import { formatPhoneNumber } from "react-phone-number-input";
 
 export default function RoleDetailPage() {
   return (
@@ -24,7 +23,7 @@ export default function RoleDetailPage() {
           toCells={(row) => [
             <AdminLink key="id" model={row} />,
             row.name,
-            formatPhoneNumber("+" + row.phone),
+            row.formattedPhone,
           ]}
         />,
         <RelatedList

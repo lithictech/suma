@@ -1,5 +1,6 @@
 import useErrorSnackbar from "../hooks/useErrorSnackbar";
 import useRoleAccess from "../hooks/useRoleAccess";
+import invokeIfFunc from "../modules/invokeIfFunc";
 import { resourceEditRoute, resourceListRoute } from "../modules/resourceRoutes";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
 import useToggle from "../shared/react/useToggle";
@@ -68,7 +69,9 @@ export default function ResourceDetail({
             (() => apiDelete({ id }).then(() => navigate(resourceListRoute(resource))))
           }
           toEdit={
-            canEdit && canWriteResource(resource) && resourceEditRoute(resource, state)
+            invokeIfFunc(canEdit, state) &&
+            canWriteResource(resource) &&
+            resourceEditRoute(resource, state)
           }
         >
           {title(state)}
