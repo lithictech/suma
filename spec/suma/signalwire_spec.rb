@@ -52,4 +52,27 @@ RSpec.describe Suma::Signalwire, :db do
       expect { described_class.send_sms("+17742606953", "15554443210", "hello") }.to raise_error(ArgumentError)
     end
   end
+
+  describe "make_rest_request" do
+    it "makes a GET request" do
+      req = stub_request(:get, "https://sumafaketest.signalwire.com//api/video/rooms?x=1").
+        with(
+          headers: {
+            "Authorization" => "Basic c3ctdGVzdC1wcm9qZWN0OnN3LXRlc3QtdG9rZW4=",
+            "Content-Type" => "application/json",
+          },
+        ).
+        to_return(json_response)
+      described_class.make_rest_request(:get, "/api/video/rooms", query: {x: 1})
+      expect(req).to have_been_made
+    end
+
+    it "makes a POST request" do
+      req = stub_request(:post, "https://sumafaketest.signalwire.com//api/video/rooms").
+        with(body: "{\"x\":1}").
+        to_return(json_response)
+      described_class.make_rest_request(:post, "/api/video/rooms", body: {x: 1})
+      expect(req).to have_been_made
+    end
+  end
 end
