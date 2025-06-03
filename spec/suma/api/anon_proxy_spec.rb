@@ -160,4 +160,66 @@ RSpec.describe Suma::API::AnonProxy, :db do
       expect(last_response).to have_status(401)
     end
   end
+
+  describe "POST /v1/anon_proxy/relays/signalwire/webhooks", reset_configuration: Suma::AnonProxy do
+    let(:body) do
+      {
+        "MessageSid" => "1aba0c32-0e59-4b62-9541-dc73a1fb04a9",
+        "SmsSid" => "1aba0c32-0e59-4b62-9541-dc73a1fb04a9",
+        "AccountSid" => "0ef28bae-a4f0-437e-95b8-eab92d15162e",
+        "From" => "+15556661603",
+        "To" => "+15552221111",
+        "Body" => "Test message",
+        "NumMedia" => "0",
+        "NumSegments" => "1",
+      }
+    end
+
+    it "returns LaML for a matched member contact" do
+      Suma::AnonProxy.signalwire_relay_number = "15559994444"
+      mc = Suma::Fixtures.anon_proxy_member_contact.phone("15552221111").create
+      mc.member.update(phone: "15558889999")
+
+      post "/v1/anon_proxy/relays/signalwire/webhooks", body
+
+      expect(last_response).to have_status(200)
+      expect(last_response.headers["Content-Type"]).to eq("application/xml")
+      expect(last_response.body).to include(
+        '<Message from="+15559994444" to="+15558889999">From (555) 666-1603: Test message',
+      )
+    end
+
+    it "return empty for no matching member contact" do
+      expect(Sentry).to receive(:capture_message)
+
+      post "/v1/anon_proxy/relays/signalwire/webhooks", body
+
+      expect(last_response).to have_status(200)
+      expect(last_response.headers["Content-Type"]).to eq("application/xml")
+      expect(last_response.body).to include("<Response></Response>")
+    end
+  end
+
+  describe "POST /v1/anon_proxy/relays/signalwire/errors" do
+    let(:body) do
+      {
+        "MessageSid" => "1aba0c32-0e59-4b62-9541-dc73a1fb04a9",
+        "SmsSid" => "1aba0c32-0e59-4b62-9541-dc73a1fb04a9",
+        "AccountSid" => "0ef28bae-a4f0-437e-95b8-eab92d15162e",
+        "From" => "+15556661603",
+        "To" => "+15553861111",
+        "Body" => "Test message",
+        "NumMedia" => "0",
+        "NumSegments" => "1",
+      }
+    end
+
+    it "records the error in Sentry" do
+      expect(Sentry).to receive(:capture_message)
+
+      post "/v1/anon_proxy/relays/signalwire/errors", {x: 1}
+
+      expect(last_response).to have_status(200)
+    end
+  end
 end

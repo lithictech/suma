@@ -35,8 +35,14 @@ class Suma::AnonProxy::Relay
   require_relative "relay/fake_email"
   register(FakeEmail.new.key, FakeEmail)
 
+  require_relative "relay/fake_phone"
+  register(FakePhone.new.key, FakePhone)
+
   require_relative "relay/postmark"
   register(Postmark.new.key, Postmark)
+
+  require_relative "relay/signalwire"
+  register(Signalwire.new.key, Signalwire)
 
   # @return [Suma::AnonProxy::Relay]
   def self.create!(key)
@@ -47,4 +53,9 @@ class Suma::AnonProxy::Relay
   def self.active_email_relay_key = Suma::AnonProxy.email_relay
   # @return [Suma::AnonProxy::Relay]
   def self.active_email_relay = self.create!(self.active_email_relay_key)
+
+  # @return [String]
+  def self.active_phone_relay_key = Suma::AnonProxy.phone_relay
+  # @return [Suma::AnonProxy::Relay]
+  def self.active_phone_relay = self.create!(self.active_phone_relay_key)
 end

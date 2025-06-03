@@ -78,6 +78,24 @@ class Suma::AnonProxy::VendorAccount < Suma::Postgres::Model(:anon_proxy_vendor_
     end
   end
 
+  # Helper for code that uses anonymous phone numbers.
+  # Note that this takes a lock on the vendor account to avoid potential duplicate provisioning.
+  def ensure_anonymous_phone_contact
+    self.db.transaction do
+      self.lock!
+      unless (contact = self.member.anon_proxy_contacts.find(&:phone?))
+        phone = Suma::AnonProxy::Relay.active_phone_relay.provision(self.member)
+        contact = Suma::AnonProxy::MemberContact.create(
+          member: self.member,
+          phone:,
+          relay_key: Suma::AnonProxy::Relay.active_phone_relay_key,
+        )
+      end
+      self.update(contact:)
+      return contact
+    end
+  end
+
   def replace_access_code(code, magic_link, at: Time.now)
     self.set(
       latest_access_code: code,

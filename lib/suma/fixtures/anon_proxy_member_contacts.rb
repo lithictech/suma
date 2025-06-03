@@ -24,4 +24,10 @@ module Suma::Fixtures::AnonProxyMemberContacts
     self.email = v # if nil, this gets set in before_saving
     self.relay_key = "fake-email-relay"
   end
+
+  decorator :phone do |v=nil|
+    self.phone = v || "1555#{member.id}".ljust(11, "2")
+    self.email = nil
+    self.relay_key = "fake-phone-relay"
+  end
 end

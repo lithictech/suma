@@ -109,4 +109,22 @@ RSpec.describe "Suma::AnonProxy::VendorAccount", :db do
       expect(va.contact).to be === contact
     end
   end
+
+  describe "ensure_anonymous_phone_contact" do
+    let(:va) { Suma::Fixtures.anon_proxy_vendor_account.create }
+    let(:phone) { "15552223333" }
+
+    it "creates a new member with an anonymous phone contact" do
+      va.ensure_anonymous_phone_contact
+      # Phone format matches Relay::FakePhone logic
+      expect(va.contact).to have_attributes(phone: "1555#{va.member.id}".ljust(11, "1"))
+    end
+
+    it "noops if there is already an anonymous phone contact" do
+      contact = Suma::Fixtures.anon_proxy_member_contact(member: va.member).phone.create
+      va.update(contact:)
+      va.ensure_anonymous_phone_contact
+      expect(va.contact).to be === contact
+    end
+  end
 end
