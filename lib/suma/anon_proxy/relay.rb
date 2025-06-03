@@ -32,8 +32,8 @@ class Suma::AnonProxy::Relay
   # @return [ParsedMessage]
   def parse_message(_whdb_row) = raise NotImplementedError
 
-  require_relative "relay/fake"
-  register(Fake.new.key, Fake)
+  require_relative "relay/fake_email"
+  register(FakeEmail.new.key, FakeEmail)
 
   require_relative "relay/postmark"
   register(Postmark.new.key, Postmark)

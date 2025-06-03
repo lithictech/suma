@@ -36,18 +36,4 @@ class Suma::AnonProxy::AuthToVendor
   # True if the vendor account needs attention; like if it needs to be created
   # or relinked.
   def needs_attention?(now:) = raise NotImplementedError
-
-  # Helper for AuthToVendor implementations that use anonymous emails.
-  def ensure_anonymous_email_contact
-    unless (contact = self.vendor_account.member.anon_proxy_contacts.find(&:email?))
-      email = Suma::AnonProxy::Relay.active_email_relay.provision(self.vendor_account.member)
-      contact = Suma::AnonProxy::MemberContact.create(
-        member: self.vendor_account.member,
-        email:,
-        relay_key: Suma::AnonProxy::Relay.active_email_relay_key,
-      )
-    end
-    self.vendor_account.update(contact:)
-    return contact
-  end
 end

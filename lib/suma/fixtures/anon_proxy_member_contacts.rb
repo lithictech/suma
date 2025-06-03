@@ -9,7 +9,7 @@ module Suma::Fixtures::AnonProxyMemberContacts
   fixtured_class Suma::AnonProxy::MemberContact
 
   base :anon_proxy_member_contact do
-    self.relay_key ||= "fake-relay"
+    self.relay_key ||= "fake-email-relay"
   end
 
   before_saving do |instance|
@@ -22,6 +22,6 @@ module Suma::Fixtures::AnonProxyMemberContacts
   decorator :email do |v=nil|
     self.phone = nil
     self.email = v # if nil, this gets set in before_saving
-    self.relay_key = "fake-relay"
+    self.relay_key = "fake-email-relay"
   end
 end

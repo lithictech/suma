@@ -15,22 +15,6 @@ RSpec.describe Suma::AnonProxy::AuthToVendor, :db do
     end
   end
 
-  describe "ensure_anonymous_email_contact" do
-    let(:auth_to_vendor_key) { "fake" }
-
-    it "creates a new member with an anonymous email contact" do
-      va.auth_to_vendor.ensure_anonymous_email_contact
-      expect(va.contact).to have_attributes(email: "u#{va.member.id}@example.com")
-    end
-
-    it "noops if there is already an anonymous email contact" do
-      contact = Suma::Fixtures.anon_proxy_member_contact(member: va.member).email.create
-      va.update(contact:)
-      va.auth_to_vendor.ensure_anonymous_email_contact
-      expect(va.contact).to be === contact
-    end
-  end
-
   describe "Fake" do
     let(:auth_to_vendor_key) { "fake" }
 
@@ -77,7 +61,7 @@ RSpec.describe Suma::AnonProxy::AuthToVendor, :db do
 
     it "needs attention if there is no member contact" do
       expect(va.auth_to_vendor).to be_needs_attention(now: Time.now)
-      va.auth_to_vendor.ensure_anonymous_email_contact
+      va.ensure_anonymous_email_contact
       expect(va.auth_to_vendor).to_not be_needs_attention(now: Time.now)
     end
   end
