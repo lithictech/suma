@@ -14,6 +14,24 @@ class Suma::AnonProxy::MemberContact < Suma::Postgres::Model(:anon_proxy_member_
   many_to_one :member, class: "Suma::Member"
   one_to_many :vendor_accounts, class: "Suma::AnonProxy::VendorAccount", key: :contact_id
 
+  class << self
+    # Helper to provision an anonymous email or phone member contact for the member.
+    # @param member [Suma::Member]
+    # @param type [:phone, :email]
+    def ensure_anonymous_contact(member, type)
+      contact = member.anon_proxy_contacts.find(&:"#{type}?")
+      return contact if contact
+      relay = Suma::AnonProxy::Relay.send(:"active_#{type}_relay")
+      addr = relay.provision(member)
+      contact = Suma::AnonProxy::MemberContact.create(
+        member:,
+        relay_key: relay.key,
+        type => addr,
+      )
+      return contact
+    end
+  end
+
   def phone? = !!self.phone
   def email? = !!self.email
 

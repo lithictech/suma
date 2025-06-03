@@ -61,7 +61,7 @@ RSpec.describe Suma::AnonProxy::AuthToVendor, :db do
 
     it "needs attention if there is no member contact" do
       expect(va.auth_to_vendor).to be_needs_attention(now: Time.now)
-      va.ensure_anonymous_email_contact
+      va.ensure_anonymous_contact(:email)
       expect(va.auth_to_vendor).to_not be_needs_attention(now: Time.now)
     end
   end

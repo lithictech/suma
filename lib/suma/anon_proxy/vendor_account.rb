@@ -60,37 +60,13 @@ class Suma::AnonProxy::VendorAccount < Suma::Postgres::Model(:anon_proxy_vendor_
 
   def registered_with_vendor? = self.registered_with_vendor.present?
 
-  # Helper for code that uses anonymous emails.
+  # Ensure an anonymous email or phone number is provisioned.
   # Note that this takes a lock on the vendor account to avoid potential duplicate provisioning.
-  def ensure_anonymous_email_contact
+  # @param type [:phone, :email]
+  def ensure_anonymous_contact(type)
     self.db.transaction do
       self.lock!
-      unless (contact = self.member.anon_proxy_contacts.find(&:email?))
-        email = Suma::AnonProxy::Relay.active_email_relay.provision(self.member)
-        contact = Suma::AnonProxy::MemberContact.create(
-          member: self.member,
-          email:,
-          relay_key: Suma::AnonProxy::Relay.active_email_relay_key,
-        )
-      end
-      self.update(contact:)
-      return contact
-    end
-  end
-
-  # Helper for code that uses anonymous phone numbers.
-  # Note that this takes a lock on the vendor account to avoid potential duplicate provisioning.
-  def ensure_anonymous_phone_contact
-    self.db.transaction do
-      self.lock!
-      unless (contact = self.member.anon_proxy_contacts.find(&:phone?))
-        phone = Suma::AnonProxy::Relay.active_phone_relay.provision(self.member)
-        contact = Suma::AnonProxy::MemberContact.create(
-          member: self.member,
-          phone:,
-          relay_key: Suma::AnonProxy::Relay.active_phone_relay_key,
-        )
-      end
+      contact = Suma::AnonProxy::MemberContact.ensure_anonymous_contact(self.member, type)
       self.update(contact:)
       return contact
     end
