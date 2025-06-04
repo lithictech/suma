@@ -1,12 +1,14 @@
 # frozen_string_literal: true
 
 require "suma/admin_linked"
+require "suma/external_links"
 require "suma/postgres"
 require "suma/anon_proxy"
 require "suma/async/anon_proxy_destroyed_member_contact_cleanup"
 
 class Suma::AnonProxy::MemberContact < Suma::Postgres::Model(:anon_proxy_member_contacts)
   include Suma::AdminLinked
+  include Suma::ExternalLinks
   include Suma::Postgres::HybridSearch
 
   plugin :hybrid_search
@@ -37,11 +39,16 @@ class Suma::AnonProxy::MemberContact < Suma::Postgres::Model(:anon_proxy_member_
   def phone? = !!self.phone
   def email? = !!self.email
   def address = self.email || self.phone
+  def formatted_address = self.phone? ? Suma::PhoneNumber::US.format(self.phone) : self.email
 
   def rel_admin_link = "/anon-member-contact/#{self.id}"
 
   def hybrid_search_fields
     return [:member, :phone, :email]
+  end
+
+  def _external_links_self
+    Suma::AnonProxy::Relay.create!(self.relay_key).external_links(self)
   end
 
   def after_destroy

@@ -1,7 +1,7 @@
 import api from "../api";
 import FormLayout from "../components/FormLayout";
 import ResourceEdit from "../components/ResourceEdit";
-import { Stack, TextField, Typography } from "@mui/material";
+import { Stack, TextField } from "@mui/material";
 import React from "react";
 
 export default function AnonMemberContactEditPage() {

@@ -48,9 +48,7 @@ class Suma::AdminAPI::Members < Suma::AdminAPI::V1
   class MemberContactEntity < BaseEntity
     include Suma::AdminAPI::Entities
     include AutoExposeBase
-    expose :phone
-    expose :email
-    expose :relay_key
+    expose :formatted_address
   end
 
   class PreferencesSubscriptionEntity < BaseEntity
@@ -86,7 +84,7 @@ class Suma::AdminAPI::Members < Suma::AdminAPI::V1
     expose :message_deliveries, with: MessageDeliveryEntity
     expose :preferences!, as: :preferences, with: PreferencesEntity
     expose :anon_proxy_vendor_accounts, as: :vendor_accounts, with: MemberVendorAccountEntity
-    expose :anon_proxy_vendor_accounts, as: :vendor_accounts, with: MemberVendorAccountEntity
+    expose :anon_proxy_contacts, as: :member_contacts, with: MemberContactEntity
     expose :organization_memberships, with: OrganizationMembershipEntity
     expose :marketing_lists, with: MarketingListEntity
     expose :marketing_sms_dispatches, with: MarketingSmsDispatchEntity

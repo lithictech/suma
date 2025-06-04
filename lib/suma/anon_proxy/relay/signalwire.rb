@@ -68,4 +68,11 @@ class Suma::AnonProxy::Relay::Signalwire < Suma::AnonProxy::Relay
       timestamp: row.fetch(:date_created),
     )
   end
+
+  def external_links(member_contact)
+    phone_id = member_contact.external_relay_id
+    return [
+      {name: "Signalwire", url: "https://#{Suma::Signalwire.space_url}/phone_numbers/#{phone_id}"},
+    ]
+  end
 end

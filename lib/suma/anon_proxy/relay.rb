@@ -30,6 +30,9 @@ class Suma::AnonProxy::Relay
   # @param addr [ProvisionedAddress]
   def deprovision(addr) = raise NotImplementedError
 
+  # Array of {name:, url:} hashes for +Suma::ExternalLinks+.
+  def external_links(_member_contact) = []
+
   class ProvisionedAddress
     attr_accessor :address, :external_id
 

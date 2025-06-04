@@ -1,5 +1,7 @@
 import api from "../api";
 import AdminLink from "../components/AdminLink";
+import Copyable from "../components/Copyable";
+import ExternalLinks from "../components/ExternalLinks";
 import RelatedList from "../components/RelatedList";
 import ResourceDetail from "../components/ResourceDetail";
 import { dayjs } from "../modules/dayConfig";
@@ -15,16 +17,20 @@ export default function AnonMemberContactDetailPage() {
       properties={(model) => [
         { label: "ID", value: model.id },
         { label: "Created At", value: dayjs(model.createdAt) },
-        { label: "Phone", value: model.phone },
-        { label: "Email", value: model.email },
-        { label: "Relay", value: model.relayKey },
         {
           label: "Member",
           value: <AdminLink model={model.member}>{model.member.name}</AdminLink>,
         },
+        {
+          label: "Address",
+          value: <Copyable text={model.formattedAddress} inline></Copyable>,
+        },
+        { label: "Relay", value: model.relayKey },
+        { label: "External Relay Id", value: model.externalRelayId },
       ]}
     >
       {(model) => [
+        <ExternalLinks externalLinks={model.externalLinks} />,
         <RelatedList
           title="Extenal Accounts"
           rows={model.vendorAccounts}

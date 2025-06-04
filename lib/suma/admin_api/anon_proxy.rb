@@ -22,9 +22,7 @@ class Suma::AdminAPI::AnonProxy < Suma::AdminAPI::V1
     include Suma::AdminAPI::Entities
     include AutoExposeBase
     expose :member, with: MemberEntity
-    expose :phone
-    expose :email
-    expose :relay_key
+    expose :formatted_address
   end
 
   class VendorAccountEntity < BaseEntity
@@ -59,6 +57,10 @@ class Suma::AdminAPI::AnonProxy < Suma::AdminAPI::V1
     include Suma::AdminAPI::Entities
     include AutoExposeDetail
 
+    expose :phone
+    expose :email
+    expose :relay_key
+    expose :external_relay_id
     expose :vendor_accounts, with: VendorAccountEntity
   end
 

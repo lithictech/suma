@@ -23,6 +23,17 @@ export default function AnonMemberContactCreatePage() {
 }
 
 function CreateForm({ resource, setField, register, isBusy, onSubmit }) {
+  let helperText = <span>Who is this contact for?</span>;
+  if (resource.type === "phone") {
+    helperText = (
+      <>
+        {helperText}
+        <br />
+        NOTE: This will provision a phone number, which incurs a monthly charge. Destroy
+        this contact when you are done with the phone number.
+      </>
+    );
+  }
   return (
     <FormLayout
       title="Provision Anonymous Member Contact"
@@ -47,7 +58,7 @@ function CreateForm({ resource, setField, register, isBusy, onSubmit }) {
         <AutocompleteSearch
           {...register("member")}
           label="Member"
-          helperText="Who is this contact for?"
+          helperText={helperText}
           value={resource.member?.name || ""}
           fullWidth
           required
