@@ -2,8 +2,9 @@
 
 RSpec.describe Suma::AnonProxy::Relay, :db do
   describe Suma::AnonProxy::Relay::FakeEmail do
+    let(:relay) { Suma::AnonProxy::Relay.create!("fake-email-relay") }
+
     it "can parse a row into a message" do
-      relay = Suma::AnonProxy::Relay.create!("fake-phone-relay")
       row = {
         message_id: "m1",
         to: "abc",
@@ -13,11 +14,17 @@ RSpec.describe Suma::AnonProxy::Relay, :db do
       e = relay.parse_message(row)
       expect(e).to have_attributes(message_id: "m1", content: "hi", to: "abc", from: "xyz")
     end
+
+    it "can provision" do
+      m = Suma::Fixtures.member.create
+      expect(relay.provision(m)).to eq("u#{m.id}@example.com")
+    end
   end
 
   describe Suma::AnonProxy::Relay::Postmark do
+    let(:relay) { Suma::AnonProxy::Relay.create!("postmark") }
+
     it "can parse a row into a message" do
-      relay = Suma::AnonProxy::Relay.create!("postmark")
       now = Time.now
       row = {
         message_id: "m1",
@@ -30,6 +37,11 @@ RSpec.describe Suma::AnonProxy::Relay, :db do
       expect(e).to have_attributes(
         message_id: "m1", content: "hi", to: "abc", from: "xyz", timestamp: match_time(now),
       )
+    end
+
+    it "can provision" do
+      m = Suma::Fixtures.member.create
+      expect(relay.provision(m)).to eq("test.m#{m.id}@in-dev.mysuma.org")
     end
   end
 
@@ -50,8 +62,9 @@ RSpec.describe Suma::AnonProxy::Relay, :db do
   end
 
   describe Suma::AnonProxy::Relay::Signalwire do
+    let(:relay) { Suma::AnonProxy::Relay.create!("signalwire") }
+
     it "can parse a row into a message" do
-      relay = Suma::AnonProxy::Relay.create!("signalwire")
       now = Time.now
       row = {
         signalwire_id: "m1",
@@ -89,7 +102,6 @@ RSpec.describe Suma::AnonProxy::Relay, :db do
         }.to_json,
       ).to_return(fixture_response("signalwire/get_phone_number"))
 
-      relay = Suma::AnonProxy::Relay.create!("signalwire")
       phone = relay.provision(member)
       expect(phone).to eq("15037154424")
 

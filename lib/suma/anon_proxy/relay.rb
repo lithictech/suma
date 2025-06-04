@@ -23,9 +23,9 @@ class Suma::AnonProxy::Relay
   # For example, this can be generating an email address
   # that can be used to look up the user, or allocating a number in Twilio.
   #
-  # @param [Suma::Member]
+  # @param member [Suma::Member]
   # @return [String]
-  def provision(_member) = raise NotImplementedError
+  def provision(member) = raise NotImplementedError
 
   # Given a WebhookDB row from the integration associated with this relay,
   # return a +ParsedMessage+.

@@ -55,7 +55,7 @@ RSpec.describe Suma::Signalwire, :db do
 
   describe "make_rest_request" do
     it "makes a GET request" do
-      req = stub_request(:get, "https://sumafaketest.signalwire.com//api/video/rooms?x=1").
+      req = stub_request(:get, "https://sumafaketest.signalwire.com/api/video/rooms?x=1").
         with(
           headers: {
             "Authorization" => "Basic c3ctdGVzdC1wcm9qZWN0OnN3LXRlc3QtdG9rZW4=",
@@ -68,7 +68,7 @@ RSpec.describe Suma::Signalwire, :db do
     end
 
     it "makes a POST request" do
-      req = stub_request(:post, "https://sumafaketest.signalwire.com//api/video/rooms").
+      req = stub_request(:post, "https://sumafaketest.signalwire.com/api/video/rooms").
         with(body: "{\"x\":1}").
         to_return(json_response)
       described_class.make_rest_request(:post, "/api/video/rooms", body: {x: 1})

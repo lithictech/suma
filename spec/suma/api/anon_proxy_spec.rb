@@ -161,7 +161,8 @@ RSpec.describe Suma::API::AnonProxy, :db do
     end
   end
 
-  describe "POST /v1/anon_proxy/relays/signalwire/webhooks", reset_configuration: Suma::AnonProxy do
+  describe "POST /v1/anon_proxy/relays/signalwire/webhooks",
+           reset_configuration: [Suma::AnonProxy, Suma::Message::SmsTransport] do
     let(:body) do
       {
         "MessageSid" => "1aba0c32-0e59-4b62-9541-dc73a1fb04a9",
@@ -176,6 +177,7 @@ RSpec.describe Suma::API::AnonProxy, :db do
     end
 
     it "returns LaML for a matched member contact" do
+      Suma::Message::SmsTransport.allowlist = ["*"]
       Suma::AnonProxy.signalwire_relay_number = "15559994444"
       mc = Suma::Fixtures.anon_proxy_member_contact.phone("15552221111").create
       mc.member.update(phone: "15558889999")
@@ -190,7 +192,23 @@ RSpec.describe Suma::API::AnonProxy, :db do
     end
 
     it "return empty for no matching member contact" do
-      expect(Sentry).to receive(:capture_message)
+      Suma::Message::SmsTransport.allowlist = ["*"]
+      expect(Sentry).to receive(:capture_message).with("Received webhook for signalwire for unmatched number")
+
+      post "/v1/anon_proxy/relays/signalwire/webhooks", body
+
+      expect(last_response).to have_status(200)
+      expect(last_response.headers["Content-Type"]).to eq("application/xml")
+      expect(last_response.body).to include("<Response></Response>")
+    end
+
+    it "return empty if the member contact member phone is not on the sms allowlist" do
+      Suma::Message::SmsTransport.allowlist = []
+      Suma::AnonProxy.signalwire_relay_number = "15559994444"
+      mc = Suma::Fixtures.anon_proxy_member_contact.phone("15552221111").create
+      mc.member.update(phone: "15558889999")
+
+      expect(Sentry).to receive(:capture_message).with("Received webhook for signalwire to not-allowlisted phone")
 
       post "/v1/anon_proxy/relays/signalwire/webhooks", body
 

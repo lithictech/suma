@@ -26,7 +26,7 @@ module Suma::Fixtures::AnonProxyMemberContacts
   end
 
   decorator :phone do |v=nil|
-    self.phone = v || "1555#{member.id}".ljust(11, "2")
+    self.phone = v || "1555#{member&.id || 0}".ljust(11, "2")
     self.email = nil
     self.relay_key = "fake-phone-relay"
   end
