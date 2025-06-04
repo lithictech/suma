@@ -57,6 +57,17 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
     end
   end
 
+  describe "AnonProxyMemberContactDestroyedResourceCleanup" do
+    it "deprovisions the member contact in its relay" do
+      mc = Suma::Fixtures.anon_proxy_member_contact.email("a@b.c").create(external_relay_id: "123")
+      expect(Suma::AnonProxy::Relay::FakeEmail).to receive(:deprovision).
+        with(have_attributes(address: "a@b.c", external_id: "123"))
+      expect do
+        mc.destroy
+      end.to perform_async_job(Suma::Async::AnonProxyMemberContactDestroyedResourceCleanup)
+    end
+  end
+
   describe "Emailer" do
     it "sends emails" do
       d = Suma::Fixtures.message_delivery.create

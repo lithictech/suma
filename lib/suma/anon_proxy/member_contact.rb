@@ -3,6 +3,7 @@
 require "suma/admin_linked"
 require "suma/postgres"
 require "suma/anon_proxy"
+require "suma/async/anon_proxy_destroyed_member_contact_cleanup"
 
 class Suma::AnonProxy::MemberContact < Suma::Postgres::Model(:anon_proxy_member_contacts)
   include Suma::AdminLinked
@@ -35,11 +36,18 @@ class Suma::AnonProxy::MemberContact < Suma::Postgres::Model(:anon_proxy_member_
 
   def phone? = !!self.phone
   def email? = !!self.email
+  def address = self.email || self.phone
 
   def rel_admin_link = "/anon-member-contact/#{self.id}"
 
   def hybrid_search_fields
     return [:member, :phone, :email]
+  end
+
+  def after_destroy
+    super
+    Suma::Async::AnonProxyMemberContactDestroyedResourceCleanup.
+      perform_async({address: self.address, external_id: self.external_relay_id, relay_key: self.relay_key})
   end
 end
 

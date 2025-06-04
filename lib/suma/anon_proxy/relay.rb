@@ -27,6 +27,9 @@ class Suma::AnonProxy::Relay
   # @return [ProvisionedAddress]
   def provision(member) = raise NotImplementedError
 
+  # @param addr [ProvisionedAddress]
+  def deprovision(addr) = raise NotImplementedError
+
   class ProvisionedAddress
     attr_accessor :address, :external_id
 

@@ -43,6 +43,11 @@ RSpec.describe Suma::AnonProxy::Relay, :db do
       m = Suma::Fixtures.member.create
       expect(relay.provision(m)).to have_attributes(address: "test.m#{m.id}@in-dev.mysuma.org")
     end
+
+    it "can deprovision" do
+      addr = described_class::ProvisionedAddress.new("a@b.c")
+      expect { relay.deprovision(addr) }.to_not raise_error
+    end
   end
 
   describe Suma::AnonProxy::Relay::FakePhone do
@@ -112,10 +117,40 @@ RSpec.describe Suma::AnonProxy::Relay, :db do
 
     it "errors if the member is not on the SMS allowlist", reset_configuration: Suma::Message::SmsTransport do
       Suma::Message::SmsTransport.allowlist = []
-      relay = Suma::AnonProxy::Relay.create!("signalwire")
       expect do
         relay.provision(Suma::Fixtures.member.create)
       end.to raise_error(Suma::InvalidPrecondition)
+    end
+
+    describe "deprovisioning" do
+      let(:addr) { Suma::AnonProxy::Relay::ProvisionedAddress.new("12223334444", external_id: "xyz") }
+
+      it "deletes the referenced number" do
+        req = stub_request(:delete, "https://sumafaketest.signalwire.com/api/relay/rest/phone_numbers/xyz").
+          to_return(status: 204, body: "")
+        relay.deprovision(addr)
+        expect(req).to have_been_made
+      end
+
+      it "noops if the phone number does not exist" do
+        req = stub_request(:delete, "https://sumafaketest.signalwire.com/api/relay/rest/phone_numbers/xyz").
+          to_return(status: 404, body: "Not found")
+        relay.deprovision(addr)
+        expect(req).to have_been_made
+      end
+
+      it "schedules a new job if the number cannot be released", sidekiq: :fake do
+        req = stub_request(:delete, "https://sumafaketest.signalwire.com/api/relay/rest/phone_numbers/xyz").
+          to_return(fixture_response("signalwire/error_phone_cannot_release", status: 422))
+        relay.deprovision(addr)
+        expect(req).to have_been_made
+        expect(Suma::Async::AnonProxyMemberContactDestroyedResourceCleanup.jobs).to contain_exactly(
+          include(
+            "at" => 1_750_229_387,
+            "args" => [{"address" => "12223334444", "external_id" => "xyz", "relay_key" => "signalwire"}],
+          ),
+        )
+      end
     end
   end
 end

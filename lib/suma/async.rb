@@ -24,6 +24,7 @@ module Suma::Async
   # Registry of all jobs that will be required when the async system is started/run.
   JOBS = [
     "suma/async/analytics_dispatch",
+    "suma/async/anon_proxy_destroyed_member_contact_cleanup",
     "suma/async/deprecated_jobs",
     "suma/async/emailer",
     "suma/async/frontapp_upsert_contact",

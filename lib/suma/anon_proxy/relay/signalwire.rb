@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "suma/async/anon_proxy_destroyed_member_contact_cleanup"
+
 class Suma::AnonProxy::Relay::Signalwire < Suma::AnonProxy::Relay
   def key = "signalwire"
   def transport = :phone
@@ -32,6 +34,29 @@ class Suma::AnonProxy::Relay::Signalwire < Suma::AnonProxy::Relay
     )
     address = Suma::PhoneNumber::US.normalize(number)
     return ProvisionedAddress.new(address, external_id:)
+  end
+
+  def deprovision(addr)
+    Suma::Signalwire.make_rest_request(:delete, "/api/relay/rest/phone_numbers/#{addr.external_id}")
+    return nil
+  rescue Suma::Http::Error => e
+    return nil if e.status == 404
+    return nil if self._handle_rescheduled_delete(e, addr)
+    raise e
+  end
+
+  def _handle_rescheduled_delete(e, addr)
+    return false if e.status != 422
+    errors = e.response.parsed_response["errors"]
+    return false if errors.blank?
+    msg = errors.first.fetch("detail", "")
+    return false unless msg.include?("Number was purchased too recently to release")
+    can_release_at_re = /until (?<t>\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d UTC) to/.match(msg)
+    raise Suma::InvariantViolation, "unexpected Signalwire error, could not parse date: #{msg}" if
+      can_release_at_re.nil?
+    schedule_at = Time.parse(can_release_at_re["t"]) + 1.hour
+    Suma::Async::AnonProxyMemberContactDestroyedResourceCleanup.
+      perform_at(schedule_at, {address: addr.address, external_id: addr.external_id, relay_key: self.key})
   end
 
   def parse_message(row)
