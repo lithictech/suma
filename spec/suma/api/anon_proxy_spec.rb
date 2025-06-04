@@ -145,13 +145,13 @@ RSpec.describe Suma::API::AnonProxy, :db do
       logout
     end
 
-    it "enqueues the async jobs" do
+    it "enqueues the async jobs", sidekiq: :fake do
       header "Whdb-Webhook-Secret", Suma::Webhookdb.postmark_inbound_messages_secret
-      expect(Suma::Async::ProcessAnonProxyInboundWebhookdbRelays).to receive(:perform_async)
 
       post "/v1/anon_proxy/relays/webhookdb/webhooks", {x: 1}
 
       expect(last_response).to have_status(202)
+      expect(Suma::Async::ProcessAnonProxyInboundWebhookdbRelays.jobs).to have_length(1)
     end
 
     it "errors if the webhook header does not match" do

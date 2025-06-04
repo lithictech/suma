@@ -69,6 +69,8 @@ RSpec.configure do |config|
     Sidekiq::Testing.inline!
     require "suma/spec_helpers"
     config.include(Suma::SpecHelpers)
+    require "suma/spec_helpers/async"
+    config.include(Suma::SpecHelpers::Async)
     require "suma/spec_helpers/i18n"
     config.include(Suma::SpecHelpers::I18n)
     require "suma/spec_helpers/message"

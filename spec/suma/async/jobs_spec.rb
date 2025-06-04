@@ -432,10 +432,10 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
   end
 
   describe "GbfsSyncEnqueue" do
-    it "enqueues syncs for all feeds and components requiring a sync" do
+    it "enqueues syncs for all feeds and components requiring a sync", sidekiq: :fake do
       feed = Suma::Fixtures.mobility_gbfs_feed.create(free_bike_status_enabled: true)
-      expect(Suma::Async::GbfsSyncRun).to receive(:perform_async).with(feed.id, "free_bike_status")
       Suma::Async::GbfsSyncEnqueue.new.perform(true)
+      expect(Suma::Async::GbfsSyncRun.jobs).to contain_exactly(include("args" => [feed.id, "free_bike_status"]))
     end
   end
 
