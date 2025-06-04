@@ -22,9 +22,7 @@ class Suma::AdminAPI::AnonProxy < Suma::AdminAPI::V1
     include Suma::AdminAPI::Entities
     include AutoExposeBase
     expose :member, with: MemberEntity
-    expose :phone
-    expose :email
-    expose :relay_key
+    expose :formatted_address
   end
 
   class VendorAccountEntity < BaseEntity
@@ -59,6 +57,10 @@ class Suma::AdminAPI::AnonProxy < Suma::AdminAPI::V1
     include Suma::AdminAPI::Entities
     include AutoExposeDetail
 
+    expose :phone
+    expose :email
+    expose :relay_key
+    expose :external_relay_id
     expose :vendor_accounts, with: VendorAccountEntity
   end
 
@@ -115,6 +117,22 @@ class Suma::AdminAPI::AnonProxy < Suma::AdminAPI::V1
     end
 
     resource :member_contacts do
+      params do
+        requires(:member, type: JSON) { use :model_with_id }
+        requires :type, type: Symbol, values: [:email, :phone]
+      end
+      post :provision do
+        (member = Suma::Member[params[:member][:id]]) or forbidden!
+        contact, created = Suma::AnonProxy::MemberContact.ensure_anonymous_contact(member, params[:type])
+        unless created
+          msg = "Member #{member.name} already has a contact for #{params[:type]}. Delete it first and try again."
+          adminerror!(409, msg)
+        end
+        created_resource_headers(contact.id, contact.admin_link)
+        status 200
+        present contact, with: DetailedMemberContactEntity
+      end
+
       Suma::AdminAPI::CommonEndpoints.list(
         self,
         Suma::AnonProxy::MemberContact,
@@ -133,11 +151,16 @@ class Suma::AdminAPI::AnonProxy < Suma::AdminAPI::V1
         DetailedMemberContactEntity,
       ) do
         params do
-          # We can only safely change email, since phone may need to be provisioned
-          # and the other fields are technical.
           optional :email, type: String
+          optional :phone, type: String
         end
       end
+
+      Suma::AdminAPI::CommonEndpoints.destroy(
+        self,
+        Suma::AnonProxy::MemberContact,
+        DetailedMemberContactEntity,
+      )
     end
   end
 end

@@ -10,7 +10,7 @@ module Suma::Fixtures::Organizations
   fixtured_class Suma::Organization
 
   base :organization do
-    self.name ||= Faker::Company.name
+    self.name ||= (Faker::Company.name + " " + SecureRandom.hex(2))
   end
 
   before_saving do |instance|

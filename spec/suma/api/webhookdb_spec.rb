@@ -8,13 +8,13 @@ RSpec.describe Suma::API::Webhookdb, :db do
   let(:app) { described_class.build_app }
 
   describe "POST /v1/webhookdb/stripe_refund_v1" do
-    it "enqueues the async jobs" do
+    it "enqueues the async jobs", sidekiq: :fake do
       header "Whdb-Webhook-Secret", Suma::Webhookdb.stripe_refunds_secret
-      expect(Suma::Async::StripeRefundsBackfiller).to receive(:perform_async)
 
       post "/v1/webhookdb/stripe_refund_v1", {x: 1}
 
       expect(last_response).to have_status(202)
+      expect(Suma::Async::StripeRefundsBackfiller.jobs).to have_length(1)
     end
 
     it "errors if the webhook header does not match" do
@@ -25,13 +25,13 @@ RSpec.describe Suma::API::Webhookdb, :db do
   end
 
   describe "POST /v1/webhookdb/signalwire_message_v1" do
-    it "enqueues the async jobs" do
+    it "enqueues the async jobs", sidekiq: :fake do
       header "Whdb-Webhook-Secret", Suma::Webhookdb.signalwire_messages_secret
-      expect(Suma::Async::SignalwireProcessOptouts).to receive(:perform_async)
 
       post "/v1/webhookdb/signalwire_message_v1", {x: 1}
 
       expect(last_response).to have_status(202)
+      expect(Suma::Async::SignalwireProcessOptouts.jobs).to have_length(1)
     end
 
     it "errors if the webhook header does not match" do

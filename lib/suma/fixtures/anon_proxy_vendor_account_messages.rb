@@ -14,7 +14,7 @@ module Suma::Fixtures::AnonProxyVendorAccountMessages
     self.message_to ||= Faker::Internet.email
     self.message_content ||= Faker::Lorem.paragraph
     self.message_timestamp ||= Time.now
-    self.relay_key ||= "fake-relay"
+    self.relay_key ||= "fake-email-relay"
     self.message_handler_key ||= "fake-handler"
   end
 

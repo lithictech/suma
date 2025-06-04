@@ -142,6 +142,7 @@ export default function MemberDetailPage() {
           <BankAccounts bankAccounts={model.bankAccounts} />,
           <PaymentAccountRelatedLists paymentAccount={model.paymentAccount} />,
           <VendorAccounts vendorAccounts={model.vendorAccounts} />,
+          <MemberContacts memberContacts={model.memberContacts} />,
           <MessagePreferences preferences={model.preferences} />,
           <MessageDeliveries messageDeliveries={model.messageDeliveries} />,
           <Sessions sessions={model.sessions} />,
@@ -402,6 +403,18 @@ function VendorAccounts({ vendorAccounts }) {
         </SafeExternalLink>,
         row.latestAccessCode,
       ]}
+    />
+  );
+}
+
+function MemberContacts({ memberContacts }) {
+  return (
+    <RelatedList
+      title="Member Contacts"
+      headers={["Id", "Address"]}
+      rows={memberContacts}
+      keyRowAttr="id"
+      toCells={(row) => [<AdminLink key="id" model={row} />, row.formattedAddress]}
     />
   );
 }

@@ -1,11 +1,14 @@
 # frozen_string_literal: true
 
 require "suma/admin_linked"
+require "suma/external_links"
 require "suma/postgres"
 require "suma/anon_proxy"
+require "suma/async/anon_proxy_destroyed_member_contact_cleanup"
 
 class Suma::AnonProxy::MemberContact < Suma::Postgres::Model(:anon_proxy_member_contacts)
   include Suma::AdminLinked
+  include Suma::ExternalLinks
   include Suma::Postgres::HybridSearch
 
   plugin :hybrid_search
@@ -14,13 +17,44 @@ class Suma::AnonProxy::MemberContact < Suma::Postgres::Model(:anon_proxy_member_
   many_to_one :member, class: "Suma::Member"
   one_to_many :vendor_accounts, class: "Suma::AnonProxy::VendorAccount", key: :contact_id
 
+  class << self
+    # Helper to provision an anonymous email or phone member contact for the member.
+    # @param member [Suma::Member]
+    # @param type [:phone, :email]
+    def ensure_anonymous_contact(member, type)
+      contact = member.anon_proxy_contacts.find(&:"#{type}?")
+      return [contact, false] if contact
+      relay = Suma::AnonProxy::Relay.send(:"active_#{type}_relay")
+      addr = relay.provision(member)
+      contact = Suma::AnonProxy::MemberContact.create(
+        member:,
+        relay_key: relay.key,
+        type => addr.address,
+        external_relay_id: addr.external_id || "",
+      )
+      return [contact, true]
+    end
+  end
+
   def phone? = !!self.phone
   def email? = !!self.email
+  def address = self.email || self.phone
+  def formatted_address = self.phone? ? Suma::PhoneNumber::US.format(self.phone) : self.email
 
   def rel_admin_link = "/anon-member-contact/#{self.id}"
 
   def hybrid_search_fields
     return [:member, :phone, :email]
+  end
+
+  def _external_links_self
+    Suma::AnonProxy::Relay.create!(self.relay_key).external_links(self)
+  end
+
+  def after_destroy
+    super
+    Suma::Async::AnonProxyMemberContactDestroyedResourceCleanup.
+      perform_async({address: self.address, external_id: self.external_relay_id, relay_key: self.relay_key})
   end
 end
 

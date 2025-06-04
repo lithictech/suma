@@ -77,6 +77,57 @@ class Suma::API::AnonProxy < Suma::API::V1
           present({o: "k"})
         end
       end
+
+      resource :signalwire do
+        params do
+          requires :MessageSid, type: String
+          requires :SmsSid, type: String
+          requires :AccountSid, type: String
+          requires :From, type: String
+          requires :To, type: String
+          requires :Body, type: String
+          requires :NumMedia, type: String
+          requires :NumSegments, type: String
+        end
+        post :webhooks do
+          Sentry.set_context(:signalwire, params.to_h)
+
+          empty_xml = <<~XML
+            <?xml version="1.0" encoding="UTF-8"?>
+            <Response></Response>
+          XML
+
+          orig_to = Suma::PhoneNumber.unformat_e164(params[:To])
+          if !Suma::Message::SmsTransport.allowlisted_phone?(orig_to)
+            xml = empty_xml
+            Sentry.capture_message("Received webhook for signalwire to not-allowlisted phone")
+          elsif (mc = Suma::AnonProxy::MemberContact[phone: orig_to])
+            orig_from = Suma::PhoneNumber::US.format(Suma::PhoneNumber.unformat_e164(params[:From]))
+            forward_to = Suma::PhoneNumber.format_e164(mc.member.phone)
+            forward_from = Suma::PhoneNumber.format_e164(Suma::AnonProxy.signalwire_relay_number)
+            xml = <<~XML
+              <?xml version="1.0" encoding="UTF-8"?>
+              <Response>
+                  <Message from="#{forward_from}" to="#{forward_to}">From #{orig_from}: #{params[:Body]}</Message>
+              </Response>
+            XML
+          else
+            xml = empty_xml
+            Sentry.capture_message("Received webhook for signalwire for unmatched number")
+          end
+          env["api.format"] = :binary
+          content_type("application/xml")
+          body xml
+          status 200
+        end
+
+        post :errors do
+          Sentry.set_context(:signalwire, params.to_h)
+          Sentry.capture_message("Received Signalwire error webhook")
+          status 200
+          present({})
+        end
+      end
     end
   end
 

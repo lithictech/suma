@@ -35,4 +35,15 @@ RSpec.describe Suma::PhoneNumber do
       expect(described_class.format_e164(nil)).to be nil
     end
   end
+
+  describe "unformat_e164" do
+    it "returns the leading + sign stripped" do
+      expect(described_class.unformat_e164("+1555444321")).to eq("1555444321")
+    end
+
+    it "raises if not in e164 format" do
+      expect { described_class.unformat_e164("1555444321") }.to raise_error(ArgumentError)
+      expect { described_class.unformat_e164("+15554 44321") }.to raise_error(ArgumentError)
+    end
+  end
 end

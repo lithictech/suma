@@ -40,4 +40,12 @@ module Suma::PhoneNumber
     return "+1" + phone if phone.size == 10
     return "+" + phone if phone.size == 11
   end
+
+  # Given a phone number in E164 format (+<numbers>),
+  # remove the leading 'plus' sign. Providers may use a leading plus,
+  # but we don't in our database, so this can be used to convert.
+  def self.unformat_e164(e164)
+    raise ArgumentError, "#{e164} must be in E164 format" unless /^\+\d+$/.match?(e164)
+    return e164[1..]
+  end
 end

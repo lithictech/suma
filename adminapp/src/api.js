@@ -219,12 +219,14 @@ export default {
     post(`/adminapi/v1/anon_proxy/vendor_configurations/${id}/programs`, data),
 
   getAnonMemberContacts: (data) => get(`/adminapi/v1/anon_proxy/member_contacts`, data),
-  createAnonMemberContact: (data) =>
-    postForm("/adminapi/v1/anon_proxy/member_contacts/create", data),
+  provisionAnonMemberContact: (data) =>
+    post("/adminapi/v1/anon_proxy/member_contacts/provision", data),
   getAnonMemberContact: ({ id, ...data }) =>
     get(`/adminapi/v1/anon_proxy/member_contacts/${id}`, data),
   updateAnonMemberContact: ({ id, ...data }) =>
-    postForm(`/adminapi/v1/anon_proxy/member_contacts/${id}`, data),
+    post(`/adminapi/v1/anon_proxy/member_contacts/${id}`, data),
+  destroyMemberContact: ({ id, ...data }) =>
+    post(`/adminapi/v1/anon_proxy/member_contacts/${id}/destroy`, data),
 
   getCommerceOrders: (data) => get(`/adminapi/v1/commerce_orders`, data),
   getCommerceOrder: ({ id, ...data }) => get(`/adminapi/v1/commerce_orders/${id}`, data),

@@ -71,20 +71,20 @@ RSpec.describe "Suma::Marketing::SmsBroadcast", :db do
   describe "dispatching" do
     let(:broadcast) { Suma::Fixtures.marketing_sms_broadcast.create }
 
-    it "dispatches a broadcast to members of a list" do
+    it "dispatches a broadcast to members of a list", sidekiq: :fake do
       list = Suma::Fixtures.marketing_list.create
       member = Suma::Fixtures.member.create
       list.add_member(member)
       broadcast.add_list(list)
-      expect(Suma::Async::MarketingSmsBroadcastDispatch).to receive(:perform_async)
       broadcast.dispatch
+      expect(Suma::Async::MarketingSmsBroadcastDispatch.jobs).to have_length(1)
       expect(broadcast).to be_sent
       expect(broadcast.sms_dispatches).to contain_exactly(
         have_attributes(member: be === member, sent_at: nil),
       )
     end
 
-    it "does not duplicate members on multiple lists" do
+    it "does not duplicate members on multiple lists", sidekiq: :fake do
       member1 = Suma::Fixtures.member.create
       member2 = Suma::Fixtures.member.create
       list1 = Suma::Fixtures.marketing_list.members(member1).create
@@ -94,21 +94,21 @@ RSpec.describe "Suma::Marketing::SmsBroadcast", :db do
       broadcast.sms_dispatches # Cache this to make sure we clear it after dispatch
       # Ensure we do an upsert on the dispatches, not just getting unique members.
       Suma::Fixtures.marketing_sms_dispatch.create(sms_broadcast: broadcast, member: member2)
-      expect(Suma::Async::MarketingSmsBroadcastDispatch).to receive(:perform_async)
       broadcast.dispatch
+      expect(Suma::Async::MarketingSmsBroadcastDispatch.jobs).to have_length(1)
       expect(broadcast.sms_dispatches).to contain_exactly(
         have_attributes(member: be === member1),
         have_attributes(member: be === member2),
       )
     end
 
-    it "upserts new rows if force is true" do
+    it "upserts new rows if force is true", sidekiq: :fake do
       member1 = Suma::Fixtures.member.create
       member2 = Suma::Fixtures.member.create
       list1 = Suma::Fixtures.marketing_list.members(member1).create
       broadcast.add_list(list1)
-      expect(Suma::Async::MarketingSmsBroadcastDispatch).to receive(:perform_async).twice
       broadcast.dispatch
+      expect(Suma::Async::MarketingSmsBroadcastDispatch.jobs).to have_length(1)
       expect(broadcast.sms_dispatches).to contain_exactly(
         have_attributes(member: be === member1),
       )
@@ -119,14 +119,15 @@ RSpec.describe "Suma::Marketing::SmsBroadcast", :db do
         have_attributes(member: be === member1),
         have_attributes(member: be === member2),
       )
+      expect(Suma::Async::MarketingSmsBroadcastDispatch.jobs).to have_length(2)
     end
 
-    it "re-enqueues the job only if the broadcast is already sent" do
+    it "re-enqueues the job only if the broadcast is already sent", sidekiq: :fake do
       list = Suma::Fixtures.marketing_list.members(Suma::Fixtures.member.create).create
       broadcast.add_list(list)
       broadcast.sent = true
-      expect(Suma::Async::MarketingSmsBroadcastDispatch).to receive(:perform_async)
       broadcast.dispatch
+      expect(Suma::Async::MarketingSmsBroadcastDispatch.jobs).to have_length(1)
       expect(broadcast.sms_dispatches).to be_empty
     end
   end

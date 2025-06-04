@@ -1,0 +1,33 @@
+{
+  "links": {},
+  "data": [
+    {
+      "e164": "+15037154424",
+      "national_number_formatted": "(503) 715-4424",
+      "international_number_formatted": "+1 503-715-4424",
+      "rate_center": "PORTLAND",
+      "region": "OR",
+      "country_code": "US",
+      "capabilities": [
+        "voice",
+        "fax",
+        "sms",
+        "mms"
+      ]
+    },
+    {
+      "e164": "+15037154425",
+      "national_number_formatted": "(503) 715-4425",
+      "international_number_formatted": "+1 503-715-4425",
+      "rate_center": "PORTLAND",
+      "region": "OR",
+      "country_code": "US",
+      "capabilities": [
+        "voice",
+        "fax",
+        "sms",
+        "mms"
+      ]
+    }
+  ]
+}

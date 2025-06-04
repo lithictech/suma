@@ -21,6 +21,10 @@ module Suma::Signalwire
     setting :message_marketing_sms_unsubscribe_keywords, ["STOP", "UNSUBSCRIBE", "ALTO"], convert: SPLIT_WORDS
     setting :message_marketing_sms_resubscribe_keywords, ["START", "RESUBSCRIBE", "COMENZAR"], convert: SPLIT_WORDS
     setting :message_marketing_sms_help_keywords, ["HELP", "AYUDA"], convert: SPLIT_WORDS
+    # When provisioning phone numbers (see +Suma::AnonProxy::Relay::Signalwire+),
+    # what query parameters should be used to bias the search?
+    # See https://developer.signalwire.com/rest/signalwire-rest/endpoints/space/search-available-phone-numbers#request
+    setting :phone_number_provision_query, "city=Portland&region=OR"
 
     after_configured do
       @client = Signalwire::REST::Client.new(self.project_id, self.api_token, signalwire_space_url: self.space_url)
@@ -64,5 +68,14 @@ module Suma::Signalwire
       # Nothing we can do in these cases, so just retry.
       retry
     end
+  end
+
+  def self.make_rest_request(method, url, body: nil, headers: {}, **options)
+    headers["Content-Type"] ||= "application/json"
+    body = body.to_json if body
+    options[:basic_auth] = {username: self.project_id, password: self.api_token}
+    options[:logger] = self.logger
+    full_url = "https://#{self.space_url}#{url}"
+    Suma::Http.execute(method, full_url, body:, headers:, **options)
   end
 end

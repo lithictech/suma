@@ -60,6 +60,18 @@ class Suma::AnonProxy::VendorAccount < Suma::Postgres::Model(:anon_proxy_vendor_
 
   def registered_with_vendor? = self.registered_with_vendor.present?
 
+  # Ensure an anonymous email or phone number is provisioned.
+  # Note that this takes a lock on the vendor account to avoid potential duplicate provisioning.
+  # @param type [:phone, :email]
+  def ensure_anonymous_contact(type)
+    self.db.transaction do
+      self.lock!
+      contact, _ = Suma::AnonProxy::MemberContact.ensure_anonymous_contact(self.member, type)
+      self.update(contact:)
+      return contact
+    end
+  end
+
   def replace_access_code(code, magic_link, at: Time.now)
     self.set(
       latest_access_code: code,

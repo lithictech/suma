@@ -8,6 +8,7 @@ export default function AnonMemberContactListPage() {
     <ResourceList
       resource="anon_member_contact"
       apiList={api.getAnonMemberContacts}
+      canCreate
       canSearch
       columns={[
         {
@@ -24,18 +25,11 @@ export default function AnonMemberContactListPage() {
           render: (c) => <AdminLink model={c.member}>{c.member.name}</AdminLink>,
         },
         {
-          id: "email",
-          label: "Email",
+          id: "address",
+          label: "Address",
           align: "left",
           sortable: true,
-          render: (c) => c.email,
-        },
-        {
-          id: "phone",
-          label: "Phone",
-          align: "left",
-          sortable: true,
-          render: (c) => c.phone,
+          render: (c) => c.formattedAddress,
         },
       ]}
     />
