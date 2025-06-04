@@ -139,6 +139,13 @@ RSpec.describe Suma::AnonProxy::Relay, :db do
         expect(req).to have_been_made
       end
 
+      it "raises other errors" do
+        req = stub_request(:delete, "https://sumafaketest.signalwire.com/api/relay/rest/phone_numbers/xyz").
+          to_return(status: 500, body: "Error")
+        expect { relay.deprovision(addr) }.to raise_error(Suma::Http::Error)
+        expect(req).to have_been_made
+      end
+
       it "schedules a new job if the number cannot be released", sidekiq: :fake do
         req = stub_request(:delete, "https://sumafaketest.signalwire.com/api/relay/rest/phone_numbers/xyz").
           to_return(fixture_response("signalwire/error_phone_cannot_release", status: 422))

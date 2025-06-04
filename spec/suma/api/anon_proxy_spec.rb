@@ -219,19 +219,6 @@ RSpec.describe Suma::API::AnonProxy, :db do
   end
 
   describe "POST /v1/anon_proxy/relays/signalwire/errors" do
-    let(:body) do
-      {
-        "MessageSid" => "1aba0c32-0e59-4b62-9541-dc73a1fb04a9",
-        "SmsSid" => "1aba0c32-0e59-4b62-9541-dc73a1fb04a9",
-        "AccountSid" => "0ef28bae-a4f0-437e-95b8-eab92d15162e",
-        "From" => "+15556661603",
-        "To" => "+15553861111",
-        "Body" => "Test message",
-        "NumMedia" => "0",
-        "NumSegments" => "1",
-      }
-    end
-
     it "records the error in Sentry" do
       expect(Sentry).to receive(:capture_message)
 
