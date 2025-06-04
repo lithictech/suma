@@ -10,6 +10,7 @@ export default function AnonMemberContactDetailPage() {
     <ResourceDetail
       resource="anon_member_contact"
       apiGet={api.getAnonMemberContact}
+      apiDelete={api.destroyMemberContact}
       canEdit
       properties={(model) => [
         { label: "ID", value: model.id },

@@ -66,7 +66,7 @@ class Suma::AnonProxy::VendorAccount < Suma::Postgres::Model(:anon_proxy_vendor_
   def ensure_anonymous_contact(type)
     self.db.transaction do
       self.lock!
-      contact = Suma::AnonProxy::MemberContact.ensure_anonymous_contact(self.member, type)
+      contact, _ = Suma::AnonProxy::MemberContact.ensure_anonymous_contact(self.member, type)
       self.update(contact:)
       return contact
     end

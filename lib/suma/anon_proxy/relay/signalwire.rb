@@ -6,6 +6,8 @@ class Suma::AnonProxy::Relay::Signalwire < Suma::AnonProxy::Relay
   def webhookdb_table = Suma::Webhookdb.signalwire_messages_table
 
   def provision(member)
+    raise Suma::InvalidPrecondition, "Member[#{member.id}] phone #{member.phone} is not in the SMS_ALLOWLIST" unless
+      Suma::Message::SmsTransport.allowlisted_phone?(member.phone)
     query = URI.decode_www_form(Suma::Signalwire.phone_number_provision_query).to_h
     query[:max_results] = 1
     available = Suma::Signalwire.
@@ -14,11 +16,12 @@ class Suma::AnonProxy::Relay::Signalwire < Suma::AnonProxy::Relay
     raise Suma::InvariantViolation, "Signalwire returned no results" if available.fetch("data", []).empty?
     number = available["data"].first["e164"]
     purchased = Suma::Signalwire.make_rest_request(:post, "/api/relay/rest/phone_numbers", body: {number:})
+    environ = Suma::RACK_ENV == "production" ? "" : "(#{Suma::RACK_ENV}) "
     Suma::Signalwire.make_rest_request(
-      :post,
+      :put,
       "/api/relay/rest/phone_numbers/#{purchased.fetch('id')}",
       body: {
-        name: "AnonProxy - #{member.id}",
+        name: "#{environ}AnonProxy - #{member.id}",
         message_handler: "laml_webhooks",
         message_request_url: Suma.api_url + "/v1/anon_proxy/relays/signalwire/webhooks",
         message_request_method: "POST",

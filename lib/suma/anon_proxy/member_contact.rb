@@ -20,7 +20,7 @@ class Suma::AnonProxy::MemberContact < Suma::Postgres::Model(:anon_proxy_member_
     # @param type [:phone, :email]
     def ensure_anonymous_contact(member, type)
       contact = member.anon_proxy_contacts.find(&:"#{type}?")
-      return contact if contact
+      return [contact, false] if contact
       relay = Suma::AnonProxy::Relay.send(:"active_#{type}_relay")
       addr = relay.provision(member)
       contact = Suma::AnonProxy::MemberContact.create(
@@ -28,7 +28,7 @@ class Suma::AnonProxy::MemberContact < Suma::Postgres::Model(:anon_proxy_member_
         relay_key: relay.key,
         type => addr,
       )
-      return contact
+      return [contact, true]
     end
   end
 

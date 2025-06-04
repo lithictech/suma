@@ -1,6 +1,7 @@
 import { redirectIfAuthed, redirectIfUnauthed } from "./hocs/authRedirects";
 import { GlobalApiStateProvider } from "./hooks/globalApiState";
 import { UserProvider } from "./hooks/user";
+import AnonMemberContactCreatePage from "./pages/AnonMemberContactCreatePage";
 import AnonMemberContactDetailPage from "./pages/AnonMemberContactDetailPage";
 import AnonMemberContactEditPage from "./pages/AnonMemberContactEditPage";
 import AnonMemberContactListPage from "./pages/AnonMemberContactListPage";
@@ -156,6 +157,15 @@ function PageSwitch() {
           redirectIfUnauthed,
           withLayout(),
           AnonMemberContactListPage
+        )}
+      />
+      <Route
+        exact
+        path="/anon-member-contact/new"
+        element={renderWithHocs(
+          redirectIfUnauthed,
+          withLayout(),
+          AnonMemberContactCreatePage
         )}
       />
       <Route

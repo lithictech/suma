@@ -54,6 +54,13 @@ class Suma::Message::SmsTransport < Suma::Message::Transport
       end
       raise UnknownVerificationId, "Could not figure out how to parse a verification id from #{tmid}"
     end
+
+    def allowlisted_phone?(phone, allowlist: self.allowlist)
+      return false if phone.nil?
+      phone = phone.delete_prefix("+")
+      allowed = allowlist.map { |s| s.delete_prefix("+") }
+      return allowed.any? { |pattern| File.fnmatch(pattern, phone) }
+    end
   end
 
   attr_accessor :allowlist
@@ -79,12 +86,7 @@ class Suma::Message::SmsTransport < Suma::Message::Transport
     return self.allowlisted_phone?(Suma::PhoneNumber.format_e164(delivery.to))
   end
 
-  def allowlisted_phone?(phone)
-    return false if phone.nil?
-    phone = phone.delete_prefix("+")
-    allowed = self.allowlist.map { |s| s.delete_prefix("+") }
-    return allowed.any? { |pattern| File.fnmatch(pattern, phone) }
-  end
+  def allowlisted_phone?(phone) = self.class.allowlisted_phone?(phone, allowlist: self.allowlist)
 
   def send!(delivery)
     to_phone = Suma::PhoneNumber.format_e164(delivery.to)

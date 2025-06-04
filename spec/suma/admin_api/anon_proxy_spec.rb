@@ -206,6 +206,32 @@ RSpec.describe Suma::AdminAPI::AnonProxy, :db do
     end
   end
 
+  describe "POST /v1/anon_proxy/member_contacts/provision" do
+    let(:member) { Suma::Fixtures.member.create }
+
+    it "provisions a new member contact of the given type" do
+      post "/v1/anon_proxy/member_contacts/provision", member: {id: member.id}, type: :email
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.that_includes(email: "u#{member.id}@example.com")
+      expect(member.anon_proxy_contacts).to have_length(1)
+    end
+
+    it "errors if the member does not exist" do
+      post "/v1/anon_proxy/member_contacts/provision", member: {id: 0}, type: :email
+
+      expect(last_response).to have_status(403)
+    end
+
+    it "errors if the member already has a contact of the given type" do
+      mc = Suma::Fixtures.anon_proxy_member_contact.email.create(member:)
+
+      post "/v1/anon_proxy/member_contacts/provision", member: {id: member.id}, type: :email
+
+      expect(last_response).to have_status(409)
+    end
+  end
+
   describe "GET /v1/anon_proxy/member_contacts/:id" do
     it "returns the resource" do
       mc = Suma::Fixtures.anon_proxy_member_contact.create
@@ -225,6 +251,18 @@ RSpec.describe Suma::AdminAPI::AnonProxy, :db do
 
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.that_includes(id: mc.id, email: "a@b.c")
+    end
+  end
+
+  describe "POST /v1/anon_proxy/member_contacts/:id/destroy" do
+    it "destroys the resource" do
+      m = Suma::Fixtures.anon_proxy_member_contact.create
+
+      post "/v1/anon_proxy/member_contacts/#{m.id}/destroy"
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.that_includes(id: m.id)
+      expect(m).to be_destroyed
     end
   end
 end

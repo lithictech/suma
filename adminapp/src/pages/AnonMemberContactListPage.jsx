@@ -8,6 +8,7 @@ export default function AnonMemberContactListPage() {
     <ResourceList
       resource="anon_member_contact"
       apiList={api.getAnonMemberContacts}
+      canCreate
       canSearch
       columns={[
         {
