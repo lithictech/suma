@@ -24,8 +24,17 @@ class Suma::AnonProxy::Relay
   # that can be used to look up the user, or allocating a number in Twilio.
   #
   # @param member [Suma::Member]
-  # @return [String]
+  # @return [ProvisionedAddress]
   def provision(member) = raise NotImplementedError
+
+  class ProvisionedAddress
+    attr_accessor :address, :external_id
+
+    def initialize(address, external_id: nil)
+      self.address = address
+      self.external_id = external_id
+    end
+  end
 
   # Given a WebhookDB row from the integration associated with this relay,
   # return a +ParsedMessage+.

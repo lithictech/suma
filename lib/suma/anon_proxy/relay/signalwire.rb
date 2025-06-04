@@ -16,10 +16,11 @@ class Suma::AnonProxy::Relay::Signalwire < Suma::AnonProxy::Relay
     raise Suma::InvariantViolation, "Signalwire returned no results" if available.fetch("data", []).empty?
     number = available["data"].first["e164"]
     purchased = Suma::Signalwire.make_rest_request(:post, "/api/relay/rest/phone_numbers", body: {number:})
+    external_id = purchased.fetch("id")
     environ = Suma::RACK_ENV == "production" ? "" : "(#{Suma::RACK_ENV}) "
     Suma::Signalwire.make_rest_request(
       :put,
-      "/api/relay/rest/phone_numbers/#{purchased.fetch('id')}",
+      "/api/relay/rest/phone_numbers/#{external_id}",
       body: {
         name: "#{environ}AnonProxy - #{member.id}",
         message_handler: "laml_webhooks",
@@ -29,7 +30,8 @@ class Suma::AnonProxy::Relay::Signalwire < Suma::AnonProxy::Relay
         message_fallback_method: "POST",
       },
     )
-    return Suma::PhoneNumber::US.normalize(number)
+    address = Suma::PhoneNumber::US.normalize(number)
+    return ProvisionedAddress.new(address, external_id:)
   end
 
   def parse_message(row)

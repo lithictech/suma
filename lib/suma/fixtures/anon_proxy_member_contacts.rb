@@ -15,7 +15,8 @@ module Suma::Fixtures::AnonProxyMemberContacts
   before_saving do |instance|
     instance.member ||= Suma::Fixtures.member.create
     relay = Suma::AnonProxy::Relay.create!(instance.relay_key)
-    instance.send(:"#{relay.transport}=", relay.provision(instance.member)) if !instance.email && !instance.phone
+    instance.send(:"#{relay.transport}=", relay.provision(instance.member).address) if
+      !instance.email && !instance.phone
     instance
   end
 

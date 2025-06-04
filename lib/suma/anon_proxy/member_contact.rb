@@ -26,7 +26,8 @@ class Suma::AnonProxy::MemberContact < Suma::Postgres::Model(:anon_proxy_member_
       contact = Suma::AnonProxy::MemberContact.create(
         member:,
         relay_key: relay.key,
-        type => addr,
+        type => addr.address,
+        external_relay_id: addr.external_id || "",
       )
       return [contact, true]
     end

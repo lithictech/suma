@@ -17,7 +17,7 @@ RSpec.describe Suma::AnonProxy::Relay, :db do
 
     it "can provision" do
       m = Suma::Fixtures.member.create
-      expect(relay.provision(m)).to eq("u#{m.id}@example.com")
+      expect(relay.provision(m)).to have_attributes(address: "u#{m.id}@example.com")
     end
   end
 
@@ -41,7 +41,7 @@ RSpec.describe Suma::AnonProxy::Relay, :db do
 
     it "can provision" do
       m = Suma::Fixtures.member.create
-      expect(relay.provision(m)).to eq("test.m#{m.id}@in-dev.mysuma.org")
+      expect(relay.provision(m)).to have_attributes(address: "test.m#{m.id}@in-dev.mysuma.org")
     end
   end
 
@@ -102,8 +102,8 @@ RSpec.describe Suma::AnonProxy::Relay, :db do
         }.to_json,
       ).to_return(fixture_response("signalwire/get_phone_number"))
 
-      phone = relay.provision(member)
-      expect(phone).to eq("15037154424")
+      prov = relay.provision(member)
+      expect(prov).to have_attributes(address: "15037154424", external_id: "233dffc2-2ad3-455e-a597-0e332c39662a")
 
       expect(search_req).to have_been_made
       expect(purchase_req).to have_been_made

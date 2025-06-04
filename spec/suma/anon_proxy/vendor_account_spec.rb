@@ -99,8 +99,15 @@ RSpec.describe "Suma::AnonProxy::VendorAccount", :db do
     let(:phone) { "15552223333" }
 
     it "creates a new member with an anonymous email contact" do
+      Suma::AnonProxy::Relay::FakeEmail.provisioned_external_id = "xyz"
       va.ensure_anonymous_contact(:email)
-      expect(va.contact).to have_attributes(email: "u#{va.member.id}@example.com")
+      expect(va.contact).to have_attributes(
+        email: "u#{va.member.id}@example.com",
+        relay_key: "fake-email-relay",
+        external_relay_id: "xyz",
+      )
+    ensure
+      Suma::AnonProxy::Relay::FakeEmail.provisioned_external_id = nil
     end
 
     it "noops if there is already an anonymous email contact" do
