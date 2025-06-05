@@ -2,6 +2,7 @@ import ErrorScreen from "./components/ErrorScreen";
 import LayoutContainer from "./components/LayoutContainer";
 import PrivacyPolicyContent from "./components/PrivacyPolicyContent";
 import ScreenLoader from "./components/ScreenLoader";
+import history from "./history";
 import {
   redirectIfAuthed,
   redirectIfUnauthed,
@@ -61,7 +62,7 @@ import withProps from "./state/withProps";
 import withScreenLoaderMount from "./state/withScreenLoaderMount";
 import React from "react";
 import { HelmetProvider } from "react-helmet-async";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { unstable_HistoryRouter as Router, Routes, Route } from "react-router-dom";
 
 installPromiseExtras(window.Promise);
 
@@ -113,7 +114,7 @@ function InnerApp() {
 
 function AppRoutes() {
   return (
-    <Router basename={import.meta.env.BASE_URL}>
+    <Router basename={import.meta.env.BASE_URL} history={history}>
       <Routes>
         <Route
           path="/"
