@@ -8,6 +8,7 @@ import React from "react";
 export default function OfferingCreatePage() {
   const empty = {
     image: null,
+    imageCaption: formHelpers.initialTranslation,
     description: formHelpers.initialTranslation,
     fulfillmentPrompt: formHelpers.initialTranslation,
     fulfillmentConfirmation: formHelpers.initialTranslation,

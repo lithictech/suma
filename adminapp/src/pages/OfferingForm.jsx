@@ -47,7 +47,9 @@ export default function OfferingForm({
       <Stack spacing={2}>
         <ImageFileInput
           image={resource.image}
+          caption={resource.imageCaption}
           onImageChange={(f) => setField("image", f)}
+          onCaptionChange={(f) => setField("imageCaption", f)}
           required={isCreate}
         />
         <FormLabel>Description (text in offering list)</FormLabel>

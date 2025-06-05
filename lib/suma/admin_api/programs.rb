@@ -9,7 +9,7 @@ class Suma::AdminAPI::Programs < Suma::AdminAPI::V1
   class DetailedProgramEntity < ProgramEntity
     include Suma::AdminAPI::Entities
     include AutoExposeDetail
-    expose :image, with: ImageEntity, &self.delegate_to(:images?, :first)
+    expose_image :image
     expose :lyft_pass_program_id
     expose :commerce_offerings, with: OfferingEntity
     expose :vendor_services, with: VendorServiceEntity
@@ -34,6 +34,7 @@ class Suma::AdminAPI::Programs < Suma::AdminAPI::V1
     ) do
       params do
         requires :image, type: File
+        optional(:image_caption, type: JSON) { use :translated_text, allow_blank: true }
         requires(:name, type: JSON) { use :translated_text }
         requires(:description, type: JSON) { use :translated_text }
         optional :app_link, type: String
@@ -85,6 +86,7 @@ class Suma::AdminAPI::Programs < Suma::AdminAPI::V1
     ) do
       params do
         optional :image, type: File
+        optional(:image_caption, type: JSON) { use :translated_text, allow_blank: true }
         optional(:name, type: JSON) { use :translated_text }
         optional(:description, type: JSON) { use :translated_text }
         optional :app_link, type: String

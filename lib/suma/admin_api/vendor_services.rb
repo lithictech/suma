@@ -29,7 +29,7 @@ class Suma::AdminAPI::VendorServices < Suma::AdminAPI::V1
     expose :vendor_service_categories, as: :categories, with: VendorServiceCategoryEntity
     expose :rates, with: VendorServiceRateEntity
     expose :mobility_trips, with: DetailedMobilityTripEntity
-    expose :image, with: ImageEntity, &self.delegate_to(:images?, :first)
+    expose_image :image
   end
 
   resource :vendor_services do
@@ -50,6 +50,7 @@ class Suma::AdminAPI::VendorServices < Suma::AdminAPI::V1
     ) do
       params do
         optional :image, type: File
+        optional(:image_caption, type: JSON) { use :translated_text, allow_blank: true }
         optional :external_name, type: String
         optional :period_begin, type: Time
         optional :period_end, type: Time

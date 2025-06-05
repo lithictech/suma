@@ -40,7 +40,9 @@ export default function ProductForm({
       <Stack spacing={2}>
         <ImageFileInput
           image={resource.image}
+          caption={resource.imageCaption}
           onImageChange={(f) => setField("image", f)}
+          onCaptionChange={(f) => setField("imageCaption", f)}
           required={isCreate}
         />
         <Stack spacing={2}>

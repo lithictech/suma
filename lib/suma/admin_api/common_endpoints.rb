@@ -34,7 +34,23 @@ module Suma::AdminAPI::CommonEndpoints
       to_many_assocs_and_args = []
       to_one_assocs_and_params = []
       fk_attrs = {}
+      caption_params = []
       cparams.to_a.each do |(k, v)|
+        if k.to_s.end_with?("_caption")
+          # If this is a caption field, let's make sure it points to a Suma::Image.
+          # If so, we handle it specially.
+          # We must use multipart form for images, which requires a top-level File object.
+          # So we cannot have, for example, `{image: {file:, caption: {en: '', es: ''}}}`,
+          # we must have something like `{image_file:, image_caption:}`
+          # (we use `:image` instead of `:image_file` though).
+          captioned_field = k.to_s.delete_suffix("_caption").to_sym
+          is_image = association_class?(mtype.association_reflections[captioned_field], Suma::Image)
+          if is_image
+            caption_params << [captioned_field, v]
+            cparams.delete(k)
+            next
+          end
+        end
         next unless (assoc = mtype.association_reflections[k])
         cparams.delete(k)
         if assoc[:type].to_s.end_with?("_to_one")
@@ -127,6 +143,11 @@ module Suma::AdminAPI::CommonEndpoints
                 "Please modify it instead. If you need more help, please contact a developer."
           merror!(409, msg, code: "fk_violation", more: {exception: e.message}, skip_loc_check: true)
         end
+      end
+      caption_params.each do |(field, caption)|
+        img = m.send(field)
+        img.caption = Suma::TranslatedText.find_or_create(caption)
+        img.save_changes
       end
     end
 

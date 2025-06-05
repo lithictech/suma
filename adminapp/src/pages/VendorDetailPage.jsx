@@ -3,7 +3,7 @@ import AdminLink from "../components/AdminLink";
 import BoolCheckmark from "../components/BoolCheckmark";
 import RelatedList from "../components/RelatedList";
 import ResourceDetail from "../components/ResourceDetail";
-import SumaImage from "../components/SumaImage";
+import detailPageImageProperties from "../components/detailPageImageProperties";
 import { dayjs } from "../modules/dayConfig";
 import formatDate from "../modules/formatDate";
 import React from "react";
@@ -17,20 +17,9 @@ export default function VendorDetailPage() {
       properties={(model) => [
         { label: "ID", value: model.id },
         { label: "Created At", value: dayjs(model.createdAt) },
-        {
-          label: "Image",
-          value: (
-            <SumaImage
-              image={model.image}
-              alt={model.image.name}
-              className="w-100"
-              params={{ crop: "none" }}
-              h={60}
-            />
-          ),
-        },
         { label: "Name", value: model.name },
         { label: "Slug", value: model.slug },
+        ...detailPageImageProperties(model.image),
       ]}
     >
       {(model) => [

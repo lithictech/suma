@@ -2,7 +2,7 @@ import api from "../api";
 import AdminLink from "../components/AdminLink";
 import RelatedList from "../components/RelatedList";
 import ResourceDetail from "../components/ResourceDetail";
-import SumaImage from "../components/SumaImage";
+import detailPageImageProperties from "../components/detailPageImageProperties";
 import { dayjs } from "../modules/dayConfig";
 import formatDate from "../modules/formatDate";
 import createRelativeUrl from "../shared/createRelativeUrl";
@@ -18,18 +18,7 @@ export default function ProductDetailPage() {
       properties={(model) => [
         { label: "ID", value: model.id },
         { label: "Created At", value: dayjs(model.createdAt) },
-        {
-          label: "Image",
-          value: (
-            <SumaImage
-              image={model.image}
-              alt={model.image.name}
-              className="w-100"
-              params={{ crop: "none" }}
-              h={150}
-            />
-          ),
-        },
+        ...detailPageImageProperties(model.image),
         { label: "Name (En)", value: model.name.en },
         { label: "Name (Es)", value: model.name.es },
         { label: "Description (En)", value: model.description.en },

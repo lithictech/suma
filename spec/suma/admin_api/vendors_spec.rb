@@ -65,10 +65,11 @@ RSpec.describe Suma::AdminAPI::Vendors, :db do
 
   describe "POST /v1/vendors/create" do
     it "creates a vendor" do
-      post("/v1/vendors/create", name: "test", image:)
+      post "/v1/vendors/create", name: "test", image:, image_caption: {en: "hi", es: ""}
 
       expect(last_response).to have_status(200)
       expect(Suma::Vendor.all).to have_length(1)
+      expect(Suma::Vendor.first.image).to have_attributes(caption: have_attributes(en: "hi", es: ""))
     end
   end
 
@@ -99,10 +100,21 @@ RSpec.describe Suma::AdminAPI::Vendors, :db do
     it "updates a vendor" do
       v = Suma::Fixtures.vendor.create
 
-      post("/v1/vendors/#{v.id}", name: "test", image:)
+      post("/v1/vendors/#{v.id}", name: "test", image:, image_caption: {en: "hi", es: "hola"})
 
       expect(last_response).to have_status(200)
       expect(v.refresh).to have_attributes(name: "test")
+      expect(v.image).to have_attributes(caption: have_attributes(en: "hi", es: "hola"))
+    end
+
+    it "can update only image captions" do
+      v = Suma::Fixtures.vendor.create
+      Suma::Fixtures.image.create(vendor: v)
+
+      post("/v1/vendors/#{v.id}", image_caption: {en: "hi", es: "hola"})
+
+      expect(last_response).to have_status(200)
+      expect(v.image).to have_attributes(caption: have_attributes(en: "hi", es: "hola"))
     end
   end
 

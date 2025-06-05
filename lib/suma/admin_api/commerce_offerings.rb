@@ -26,7 +26,7 @@ class Suma::AdminAPI::CommerceOfferings < Suma::AdminAPI::V1
     expose :fulfillment_confirmation, with: TranslatedTextEntity
     expose :fulfillment_options, with: OfferingFulfillmentOptionEntity
     expose :begin_fulfillment_at
-    expose :image, with: ImageEntity, &self.delegate_to(:images?, :first)
+    expose_image :image
     expose :offering_products, with: OfferingProductEntity
     expose :orders, with: OrderInOfferingEntity
     expose :programs, with: ProgramEntity
@@ -85,6 +85,7 @@ class Suma::AdminAPI::CommerceOfferings < Suma::AdminAPI::V1
     ) do
       params do
         requires :image, type: File
+        optional(:image_caption, type: JSON) { use :translated_text, allow_blank: true }
         requires(:description, type: JSON) { use :translated_text }
         optional(:fulfillment_prompt, type: JSON) { use :translated_text, allow_blank: true  }
         optional(:fulfillment_instructions, type: JSON) { use :translated_text, allow_blank: true  }
@@ -118,6 +119,7 @@ class Suma::AdminAPI::CommerceOfferings < Suma::AdminAPI::V1
     ) do
       params do
         optional :image, type: File
+        optional(:image_caption, type: JSON) { use :translated_text, allow_blank: true }
         optional(:description, type: JSON) { use :translated_text }
         optional(:fulfillment_prompt, type: JSON) { use :translated_text, allow_blank: true }
         optional(:fulfillment_instructions, type: JSON) { use :translated_text, allow_blank: true }

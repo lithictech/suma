@@ -4,7 +4,7 @@ import AuditActivityList from "../components/AuditActivityList";
 import Programs from "../components/Programs";
 import RelatedList from "../components/RelatedList";
 import ResourceDetail from "../components/ResourceDetail";
-import SumaImage from "../components/SumaImage";
+import detailPageImageProperties from "../components/detailPageImageProperties";
 import { dayjs } from "../modules/dayConfig";
 import formatDate from "../modules/formatDate";
 import Money from "../shared/react/Money";
@@ -19,18 +19,7 @@ export default function VendorServiceDetailPage() {
       properties={(model) => [
         { label: "ID", value: model.id },
         { label: "Created At", value: dayjs(model.createdAt) },
-        {
-          label: "Image",
-          value: (
-            <SumaImage
-              image={model.image}
-              alt={model.image.name}
-              className="w-100"
-              params={{ crop: "none" }}
-              h={150}
-            />
-          ),
-        },
+        ...detailPageImageProperties(model.image),
         { label: "Name", value: model.name },
         { label: "Internal Name", value: model.internalName },
         { label: "Mobility Vendor Adapter", value: model.mobilityVendorAdapterKey },

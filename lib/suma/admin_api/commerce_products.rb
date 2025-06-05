@@ -26,7 +26,7 @@ class Suma::AdminAPI::CommerceProducts < Suma::AdminAPI::V1
     expose :offerings, with: OfferingEntity
     expose :orders, with: OrderEntity
     expose :offering_products, with: OfferingProductWithOfferingEntity
-    expose :image, with: ImageEntity, &self.delegate_to(:images?, :first)
+    expose_image :image
     expose :vendor_service_categories, with: VendorServiceCategoryEntity
   end
 
@@ -44,6 +44,7 @@ class Suma::AdminAPI::CommerceProducts < Suma::AdminAPI::V1
     ) do
       params do
         requires :image, type: File
+        optional(:image_caption, type: JSON) { use :translated_text, allow_blank: true }
         requires(:name, type: JSON) { use :translated_text }
         requires(:description, type: JSON) { use :translated_text }
         requires(:our_cost, type: JSON) { use :money }
@@ -71,6 +72,7 @@ class Suma::AdminAPI::CommerceProducts < Suma::AdminAPI::V1
     ) do
       params do
         optional :image, type: File
+        optional(:image_caption, type: JSON) { use :translated_text, allow_blank: true }
         optional(:name, type: JSON) { use :translated_text }
         optional(:description, type: JSON) { use :translated_text }
         optional(:our_cost, type: JSON) { use :money }
