@@ -5,7 +5,7 @@ require "suma/async/anon_proxy_destroyed_member_contact_cleanup"
 class Suma::AnonProxy::Relay::Signalwire < Suma::AnonProxy::Relay
   def key = "signalwire"
   def transport = :phone
-  def webhookdb_table = Suma::Webhookdb.signalwire_messages_table
+  def webhookdb_dataset = Suma::Webhookdb.signalwire_messages_dataset.where(direction: "inbound")
 
   def provision(member)
     raise Suma::InvalidPrecondition, "Member[#{member.id}] phone #{member.phone} is not in the SMS_ALLOWLIST" unless
