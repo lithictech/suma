@@ -1,7 +1,7 @@
 import { initSentry } from "./shared/sentry";
 
 // When we are serving from the Ruby backend, only use the config it provides.
-// Otherwise we could accidentally template in values at build time (on staging)
+// Otherwise, we could accidentally template in values at build time (on staging)
 // and carry them forward to runtime in a different env (on prod).
 // We won't have sumaDynamicEnv set (by Rack::DynamicConfigWriter) when running
 // the development server of React during local dev,
@@ -48,6 +48,8 @@ const config = {
   featureMobilityRestricted: env.VITE_FEATURE_MOBILITY_RESTRICTED,
   featureAddFunds: env.VITE_FEATURE_ADD_FUNDS,
   mapboxAccessToken: env.VITE_MAPBOX_ACCESS_TOKEN,
+  // Set to https://metrics.mysuma.org/count or similar to enable goatcounter
+  metricsEndpoint: env.VITE_METRICS_ENDPOINT,
 };
 
 initSentry({ dsn: config.sentryDsn, debug: config.debug, application: "web-app" });
