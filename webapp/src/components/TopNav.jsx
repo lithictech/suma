@@ -32,7 +32,7 @@ export default function TopNav() {
       expanded={expanded}
       onToggle={() => setExpanded(!expanded)}
     >
-      <Container>
+      <Container className="navbar-container">
         <Navbar.Brand
           href="/dashboard"
           className="me-auto d-flex align-items-center"
