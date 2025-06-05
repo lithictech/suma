@@ -7,6 +7,11 @@
   font-size: 1.5rem;
   letter-spacing: 1.2px;
   margin-bottom: 0;
+  z-index: 1;
+}
+
+.navbar-container {
+  position: relative;
 }
 
 .navbar-toggler-icon-bar {
@@ -23,6 +28,8 @@
 .navbar-toggler {
   border: none;
   background-image: none !important;
+  position: absolute;
+  right: 0;
 
   &:focus-visible, &:focus {
     box-shadow: none;
@@ -72,6 +79,8 @@
   display: flex;
   justify-content: center;
   align-items: center;
+  position: absolute;
+  right: 65px;
 }
 
 .offline-status-fadein {
