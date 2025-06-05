@@ -3,7 +3,7 @@ import AdminLink from "../components/AdminLink";
 import AuditActivityList from "../components/AuditActivityList";
 import RelatedList from "../components/RelatedList";
 import ResourceDetail from "../components/ResourceDetail";
-import SumaImage from "../components/SumaImage";
+import detailPageImageProperties from "../components/detailPageImageProperties";
 import { dayjs, dayjsOrNull } from "../modules/dayConfig";
 import formatDate from "../modules/formatDate";
 import createRelativeUrl from "../shared/createRelativeUrl";
@@ -19,18 +19,7 @@ export default function ProgramDetailPage() {
       properties={(model) => [
         { label: "ID", value: model.id },
         { label: "Created At", value: dayjs(model.createdAt) },
-        {
-          label: "Image",
-          value: (
-            <SumaImage
-              image={model.image}
-              alt=""
-              className="w-100"
-              params={{ crop: "none" }}
-              h={150}
-            />
-          ),
-        },
+        ...detailPageImageProperties(model.image),
         { label: "Name EN", value: model.name.en },
         { label: "Name ES", value: model.name.es },
         { label: "Description EN", value: model.description.en },

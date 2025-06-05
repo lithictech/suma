@@ -9,7 +9,27 @@ module Suma::AdminAPI::Entities
   LegalEntityEntity = Suma::Service::Entities::LegalEntityEntity
   AddressEntity = Suma::Service::Entities::Address
 
-  class BaseEntity < Suma::Service::Entities::Base; end
+  class TranslatedTextEntity < Suma::Service::Entities::Base
+    expose :en
+    expose :es
+  end
+
+  class ImageEntity < Suma::Service::Entities::Base
+    expose :url, &self.delegate_to(:uploaded_file, :absolute_url)
+    expose :caption, with: TranslatedTextEntity
+  end
+
+  class BaseEntity < Suma::Service::Entities::Base
+    def self.expose_image(name, &block)
+      self.expose(name, with: ImageEntity) do |instance, options|
+        evaluate_exposure(name, block, instance, options)
+      end
+      self.expose("#{name}_caption", with: TranslatedTextEntity) do |instance, options|
+        img = evaluate_exposure(name, block, instance, options)
+        img&.caption
+      end
+    end
+  end
 
   # Simple exposure of common fields that can be used for lists of entities.
   module AutoExposeBase
@@ -45,16 +65,6 @@ module Suma::AdminAPI::Entities
     expose :id
     expose :name
     expose :label
-  end
-
-  class TranslatedTextEntity < BaseEntity
-    expose :en
-    expose :es
-  end
-
-  class ImageEntity < BaseEntity
-    expose_translated :caption
-    expose :url, &self.delegate_to(:uploaded_file, :absolute_url)
   end
 
   class OrganizationEntity < BaseEntity

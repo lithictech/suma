@@ -24,8 +24,10 @@ export default function VendorForm({
       <Stack spacing={2}>
         <ImageFileInput
           image={resource.image}
+          caption={resource.imageCaption}
           required={isCreate}
           onImageChange={(f) => setField("image", f)}
+          onCaptionChange={(f) => setField("imageCaption", f)}
         />
         <TextField
           {...register("name")}

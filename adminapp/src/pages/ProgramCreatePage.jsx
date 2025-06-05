@@ -8,6 +8,7 @@ import React from "react";
 export default function ProgramCreatePage() {
   const empty = {
     image: null,
+    imageCaption: formHelpers.initialTranslation,
     name: formHelpers.initialTranslation,
     description: formHelpers.initialTranslation,
     appLink: "",

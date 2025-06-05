@@ -8,6 +8,7 @@ import React from "react";
 export default function ProductCreatePage() {
   const product = {
     image: null,
+    imageCaption: formHelpers.initialTranslation,
     description: formHelpers.initialTranslation,
     name: formHelpers.initialTranslation,
     ourCost: config.defaultZeroMoney,

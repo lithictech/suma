@@ -13,7 +13,7 @@ class Suma::AdminAPI::Vendors < Suma::AdminAPI::V1
     expose :services, with: VendorServiceEntity
     expose :products, with: ProductEntity
     expose :configurations, with: VendorConfigurationEntity
-    expose :image, with: ImageEntity, &self.delegate_to(:images?, :first)
+    expose_image :image
   end
 
   resource :vendors do
@@ -29,8 +29,9 @@ class Suma::AdminAPI::Vendors < Suma::AdminAPI::V1
       DetailedVendorEntity,
     ) do
       params do
-        requires :image, type: File
         requires :name, type: String, allow_blank: false
+        requires :image, type: File
+        optional(:image_caption, type: JSON) { use :translated_text, allow_blank: true }
       end
     end
 
@@ -46,8 +47,9 @@ class Suma::AdminAPI::Vendors < Suma::AdminAPI::V1
       DetailedVendorEntity,
     ) do
       params do
-        optional :image, type: File
         optional :name, type: String, allow_blank: false
+        optional :image, type: File
+        optional(:image_caption, type: JSON) { use :translated_text, allow_blank: true }
       end
     end
 

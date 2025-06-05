@@ -50,13 +50,14 @@ module Suma::Service::Entities
       end
     end
 
+    def evaluate_exposure(name, block, instance, options)
+      return instance.send(name) unless block
+      return block.arity == 1 ? block[instance] : block[instance, options]
+    end
+
     def self.expose_translated(name, *args, &block)
       self.expose(name, *args) do |instance, options|
-        txt = if block
-                block.arity == 1 ? block[instance] : block[instance, options]
-        else
-          instance.send(name)
-        end
+        txt = self.evaluate_exposure(name, block, instance, options)
         s = txt&.string || ""
         i18n_fmt = Suma::I18n::Formatter.for(s)
         "#{i18n_fmt.flag}#{s}"

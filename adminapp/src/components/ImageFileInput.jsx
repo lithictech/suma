@@ -1,5 +1,6 @@
+import MultiLingualText from "./MultiLingualText";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
-import { Button, FormHelperText, FormLabel, Stack, Typography } from "@mui/material";
+import { Button, FormHelperText, FormLabel, Stack } from "@mui/material";
 import isEmpty from "lodash/isEmpty";
 import React from "react";
 
@@ -8,12 +9,14 @@ import React from "react";
  * If you pass in an image file object or blob, it will be displayed
  * along with the image caption.
  * @param image the image source file or image blob
+ * @param caption
  * @param required sets the input field as required
  * @param onImageChange callback func which passes image file
+ * @param onCaptionChange callback func which receives the new multilingual value
  * @returns {JSX.Element}
  * @constructor
  */
-function ImageFileInput({ image, required, onImageChange }) {
+function ImageFileInput({ image, caption, required, onImageChange, onCaptionChange }) {
   let src = {};
   if (image?.url) {
     src = image.url;
@@ -43,10 +46,15 @@ function ImageFileInput({ image, required, onImageChange }) {
         display issues.
       </FormHelperText>
       {!isEmpty(src) && (
-        <>
-          <img src={src} alt={image.name || image.caption} />
-          <Typography variant="body2">{image.name || image.caption}</Typography>
-        </>
+        <Stack gap={3}>
+          <img src={src} alt={caption.en} />
+          <MultiLingualText
+            label="Caption"
+            fullWidth
+            value={caption}
+            onChange={onCaptionChange}
+          />
+        </Stack>
       )}
     </Stack>
   );
