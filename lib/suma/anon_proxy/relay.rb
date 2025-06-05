@@ -16,8 +16,9 @@ class Suma::AnonProxy::Relay
   def transport = raise NotImplementedError
 
   # Every relay requires at least one way to process inbound messages.
-  # If WebhookDB is used (see proxy-accounts.md), return the table name.
-  def webhookdb_table = raise NotImplementedError
+  # If WebhookDB is used (see proxy-accounts.md), return the dataset.
+  # This dataset can be limited to only relevant messages, if needed.
+  def webhookdb_dataset = raise NotImplementedError
 
   # Provision an address in the provider.
   # For example, this can be generating an email address

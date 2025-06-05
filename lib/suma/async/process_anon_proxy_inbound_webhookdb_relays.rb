@@ -33,11 +33,11 @@ class Suma::Async::ProcessAnonProxyInboundWebhookdbRelays
   def _inner_perform
     Suma::AnonProxy::Relay.registry.each_value do |relay_cls|
       relay = relay_cls.new
-      next unless relay.webhookdb_table
+      next unless relay.webhookdb_dataset
       cache_key = self.class.relay_cache_key(relay)
       last_synced_pk = Suma::Redis.cache.with { |c| c.call("GET", cache_key) }.to_i
       highest_pk = last_synced_pk
-      Suma::Webhookdb.dataset_for_table(relay.webhookdb_table).where { pk > last_synced_pk }.each do |row|
+      relay.webhookdb_dataset.where { pk > last_synced_pk }.each do |row|
         highest_pk = [highest_pk, row[:pk]].max
         message = relay.parse_message(row)
         Suma::AnonProxy::MessageHandler.handle(relay, message)

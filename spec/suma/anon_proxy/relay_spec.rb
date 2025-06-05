@@ -48,6 +48,10 @@ RSpec.describe Suma::AnonProxy::Relay, :db do
       addr = described_class::ProvisionedAddress.new("a@b.c")
       expect { relay.deprovision(addr) }.to_not raise_error
     end
+
+    it "has a webhookdb dataset" do
+      expect(relay.webhookdb_dataset.all).to be_empty
+    end
   end
 
   describe Suma::AnonProxy::Relay::FakePhone do
@@ -120,6 +124,15 @@ RSpec.describe Suma::AnonProxy::Relay, :db do
       expect do
         relay.provision(Suma::Fixtures.member.create)
       end.to raise_error(Suma::InvalidPrecondition)
+    end
+
+    describe "webhookdb_dataset" do
+      it "includes only inbound messages" do
+        Suma::Webhookdb.signalwire_messages_dataset.insert(signalwire_id: "m1", direction: "inbound", data: "{}")
+        Suma::Webhookdb.signalwire_messages_dataset.insert(signalwire_id: "m2", direction: "outbound", data: "{}")
+
+        expect(relay.webhookdb_dataset.all).to contain_exactly(include(signalwire_id: "m1"))
+      end
     end
 
     describe "deprovisioning" do

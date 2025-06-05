@@ -5,7 +5,7 @@ class Suma::AnonProxy::Relay::FakeRelay < Suma::AnonProxy::Relay
 
   def self.deprovision(_addr) = nil
 
-  def webhookdb_table = nil
+  def webhookdb_dataset = nil
   def parse_message(row) = Suma::AnonProxy::ParsedMessage.new(**row)
   def deprovision(addr) = self.class.deprovision(addr)
 end
