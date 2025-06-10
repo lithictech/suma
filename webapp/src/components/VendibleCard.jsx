@@ -31,9 +31,11 @@ export default function VendibleCard({
             >
               {description}
             </Card.Link>
-            <Card.Text className="text-secondary small">
-              {t("food:available_until", { date: dayjs(closesAt).format("ll") })}
-            </Card.Text>
+            {closesAt && (
+              <Card.Text className="text-secondary small">
+                {t("food:available_until", { date: dayjs(closesAt).format("ll") })}
+              </Card.Text>
+            )}
           </div>
         </Stack>
       </Card.Body>

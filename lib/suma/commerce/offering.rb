@@ -180,6 +180,10 @@ class Suma::Commerce::Offering < Suma::Postgres::Model(:commerce_offerings)
     return self.period.cover?(t)
   end
 
+  # Return +period_end+ if it is soon enough to matter, +nil+ if not.
+  # We do not need to display closing information for offerings that end so far in the future.
+  def period_end_visible = Suma::Program.period_end_or_nil(self.period_end)
+
   # Call begin_fulfillment on all orders, if this is a 'timed fulfillment' offering.
   # Untimed offerings must have their orders processed manually.
   def begin_order_fulfillment(now:)

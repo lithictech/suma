@@ -136,4 +136,14 @@ RSpec.describe "Suma::Commerce::Offering", :db do
       expect(offering.begin_order_fulfillment(now:)).to eq(-1)
     end
   end
+
+  describe "#period_end_visible" do
+    it "returns nil if the offering ends far in the future" do
+      t = 1.year.from_now
+      o = Suma::Fixtures.offering.create(period: 1.year.ago..t)
+      expect(o.period_end_visible).to eq(t)
+      o.period_end = 10.years.from_now
+      expect(o.period_end_visible).to be_nil
+    end
+  end
 end

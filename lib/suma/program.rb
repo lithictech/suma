@@ -51,6 +51,17 @@ class Suma::Program < Suma::Postgres::Model(:programs)
     end
   end
 
+  class << self
+    HIDE_ENDING_AFTER = 3.years
+
+    # Return +v+ if it is soon enough to matter, +nil+ if not (see +HIDE_ENDING_AFTER+).
+    # We do not need to display closing information for things that end so far in the future.
+    def period_end_or_nil(v)
+      return nil if v >= Time.now + HIDE_ENDING_AFTER
+      return v
+    end
+  end
+
   def enrollment_for(o, as_of:, include: :active)
     # Use datasets for these checks, since otherwise we'd need to load a bunch of organization memberships,
     # which could be very memory-intensive.
@@ -72,6 +83,10 @@ class Suma::Program < Suma::Postgres::Model(:programs)
     ds = ds.active(as_of:) unless include == :all
     return ds.first
   end
+
+  # Return +period_end+ if it is soon enough to matter, +nil+ if not.
+  # We do not need to display closing information for offerings that end so far in the future.
+  def period_end_visible = Suma::Program.period_end_or_nil(self.period_end)
 
   def rel_admin_link = "/program/#{self.id}"
 

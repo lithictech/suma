@@ -32,4 +32,14 @@ RSpec.describe "Suma::Program", :db do
     p = Suma::Fixtures.program.with_image.create
     expect(p.images).to have_length(1)
   end
+
+  describe "#period_end_visible" do
+    it "returns nil if the offering ends far in the future" do
+      t = 1.year.from_now
+      o = Suma::Fixtures.program.create(period: 1.year.ago..t)
+      expect(o.period_end_visible).to eq(t)
+      o.period_end = 10.years.from_now
+      expect(o.period_end_visible).to be_nil
+    end
+  end
 end

@@ -136,9 +136,11 @@ function ProgramCard({ name, description, image, periodEnd, appLink, appLinkText
         />
       </ImageComp>
       <div className="mt-3 text-links-dark">{dt(description)}</div>
-      <p className="mt-1 mb-0 small">
-        {t("dashboard:program_ends", { date: dayjs(periodEnd).format("ll") })}
-      </p>
+      {periodEnd && (
+        <p className="mt-1 mb-0 small">
+          {t("dashboard:program_ends", { date: dayjs(periodEnd).format("ll") })}
+        </p>
+      )}
       {appLink && (
         <Button
           as={RLink}
