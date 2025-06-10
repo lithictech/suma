@@ -2,7 +2,6 @@
 
 require "appydays/configurable"
 require "appydays/loggable"
-require "suma/message/transport"
 require "suma/signalwire"
 require "suma/twilio"
 
@@ -11,8 +10,6 @@ class Suma::Message::SmsTransport < Suma::Message::Transport
   include Appydays::Loggable
 
   class UnknownVerificationId < StandardError; end
-
-  register_transport(:sms)
 
   configurable(:sms) do
     setting :allowlist, [], convert: ->(s) { s.split.map { |p| Suma::PhoneNumber.format_e164(p) || p } }
@@ -90,14 +87,14 @@ class Suma::Message::SmsTransport < Suma::Message::Transport
 
   def send!(delivery)
     to_phone = Suma::PhoneNumber.format_e164(delivery.to)
-    raise Suma::Message::Transport::Error, "Could not format phone number" if
+    raise Suma::Message::Error, "Could not format phone number" if
       to_phone.nil?
 
     from_phone = delivery.extra_fields.fetch("from", self.class.from)
     (from_phone = Suma::PhoneNumber.format_e164(from_phone)) or
       raise Suma::InvalidPrecondition, "SMS_TRANSPORT_FROM is invalid"
 
-    raise Suma::Message::Transport::UndeliverableRecipient, "Number '#{to_phone}' not allowlisted" unless
+    raise Suma::Message::UndeliverableRecipient, "Number '#{to_phone}' not allowlisted" unless
       self.allowlisted_phone?(to_phone)
 
     body = delivery.bodies.first.content
@@ -111,7 +108,7 @@ class Suma::Message::SmsTransport < Suma::Message::Transport
       rescue Twilio::REST::RestError => e
         if (logmsg = FATAL_TWILIO_ERROR_CODES[e.code])
           self.logger.warn(logmsg, phone: to_phone, body:, error: e.response.body)
-          raise Suma::Message::Transport::UndeliverableRecipient, "Fatal Twilio error: #{logmsg}"
+          raise Suma::Message::UndeliverableRecipient, "Fatal Twilio error: #{logmsg}"
         end
         raise(e)
       end
@@ -121,7 +118,7 @@ class Suma::Message::SmsTransport < Suma::Message::Transport
       sid = self.class.verification_transport_message_id(response.sid, response.send_code_attempts.length.to_s)
     elsif self.class.provider_disabled
       self.logger.warn("sms_provider_disabled", phone: to_phone, body:)
-      raise Suma::Message::Transport::UndeliverableRecipient, "SMS provider disabled"
+      raise Suma::Message::UndeliverableRecipient, "SMS provider disabled"
     else
       self.logger.info("send_twilio_sms", to: to_phone, message_preview: body.slice(0, 20))
       begin
@@ -129,7 +126,7 @@ class Suma::Message::SmsTransport < Suma::Message::Transport
       rescue Twilio::REST::RestError => e
         if (logmsg = FATAL_SIGNALWIRE_ERROR_CODES[e.code])
           self.logger.warn(logmsg, phone: to_phone, body:, error: e.response.body)
-          raise Suma::Message::Transport::UndeliverableRecipient, "Fatal Signalwire error: #{logmsg}"
+          raise Suma::Message::UndeliverableRecipient, "Fatal Signalwire error: #{logmsg}"
         end
         raise(e)
       end

@@ -6,14 +6,14 @@ module Suma::SpecHelpers::Message
   def self.included(context)
     context.before(:each) do |example|
       if example.metadata[:messaging]
-        Suma::Message::Transport.override = :fake
+        Suma::Message::Transport.registry_override = :fake
         Suma::Message::FakeTransport.reset!
       end
     end
 
     context.after(:each) do |example|
       if example.metadata[:messaging]
-        Suma::Message::Transport.override = nil
+        Suma::Message::Transport.registry_override = nil
         Suma::Message::FakeTransport.reset!
       end
     end

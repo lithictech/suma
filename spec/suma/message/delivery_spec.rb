@@ -87,7 +87,7 @@ RSpec.describe "Suma::Message::Delivery", :db, :messaging do
 
     it "aborts if undeliverable recipient" do
       d = Suma::Fixtures.message_delivery.create
-      Suma::Message::FakeTransport.send_callback = proc { raise Suma::Message::Transport::UndeliverableRecipient }
+      Suma::Message::FakeTransport.send_callback = proc { raise Suma::Message::UndeliverableRecipient }
       expect(d.send!).to be === d
       expect(d).to have_attributes(sent_at: nil, transport_message_id: nil, aborted_at: be_within(5).of(Time.now))
     end

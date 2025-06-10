@@ -1,31 +1,10 @@
 # frozen_string_literal: true
 
 require "suma/message"
+require "suma/simple_registry"
 
 class Suma::Message::Transport
-  extend Suma::MethodUtilities
-
-  class Error < RuntimeError; end
-  class UndeliverableRecipient < Error; end
-
-  singleton_attr_reader :transports
-  @transports = {}
-
-  singleton_attr_accessor :override
-
-  def self.register_transport(type)
-    Suma::Message::Transport.transports[type] = self
-  end
-
-  def self.for(type)
-    type = Suma::Message::Transport.override || type
-    return Suma::Message::Transport.transports[type.to_sym]&.new
-  end
-
-  def self.for!(type)
-    (t = self.for(type)) or raise Suma::Message::InvalidTransportError, "invalid transport: %p" % type
-    return t
-  end
+  extend Suma::SimpleRegistry
 
   # Override this if a transport needs a different 'to' than the email,
   # like for text messages.
@@ -37,11 +16,16 @@ class Suma::Message::Transport
     return Suma::Message::Recipient.new(to, nil)
   end
 
-  def send!(_delivery)
-    raise "Must implement in subclass. Call 3rd party with message/content and return transport ID."
-  end
+  # Calls the 3rd party with message/content and returns its transport ID.
+  def send!(_delivery) = raise NotImplementedError
 
-  def allowlisted?(_delivery)
-    raise "Must be implemented in subclass. Return true if message can be delivered."
-  end
+  # Returns true if message can be delivered.
+  def allowlisted?(_delivery) = raise NotImplementedError
 end
+
+require_relative "email_transport"
+Suma::Message::Transport.register(:email, Suma::Message::EmailTransport)
+require_relative "fake_transport"
+Suma::Message::Transport.register(:fake, Suma::Message::FakeTransport)
+require_relative "sms_transport"
+Suma::Message::Transport.register(:sms, Suma::Message::SmsTransport)

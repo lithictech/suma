@@ -45,13 +45,13 @@ class Suma::Message::Delivery < Suma::Postgres::Model(:message_deliveries)
     self.db.transaction do
       self.lock!
       return nil if self.sent_at || self.aborted_at
-      unless self.transport.allowlisted?(self)
+      unless self.transport!.allowlisted?(self)
         self.update(aborted_at: Time.now)
         return self
       end
       begin
-        transport_message_id = self.transport.send!(self)
-      rescue Suma::Message::Transport::UndeliverableRecipient => e
+        transport_message_id = self.transport!.send!(self)
+      rescue Suma::Message::UndeliverableRecipient => e
         self.logger.error("undeliverable_recipient", message_delivery_id: self.id, error: e)
         self.update(aborted_at: Time.now)
         return self
@@ -65,13 +65,7 @@ class Suma::Message::Delivery < Suma::Postgres::Model(:message_deliveries)
     end
   end
 
-  def transport
-    return Suma::Message::Transport.for(self.transport_type)
-  end
-
-  def transport!
-    return Suma::Message::Transport.for!(self.transport_type)
-  end
+  def transport! = Suma::Message::Transport.registry_create!(self.transport_type)
 
   def rel_admin_link
     return "/message/#{self.id}"

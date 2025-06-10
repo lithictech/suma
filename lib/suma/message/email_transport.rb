@@ -2,24 +2,12 @@
 
 require "premailer"
 
-require "suma/message/transport"
-
 class Suma::Message::EmailTransport < Suma::Message::Transport
   include Appydays::Loggable
 
-  register_transport(:email)
-
-  def type
-    return :email
-  end
-
-  def service
-    return "none"
-  end
-
-  def supports_layout?
-    false
-  end
+  def type = :email
+  def service = "none"
+  def supports_layout? = false
 
   def recipient(to)
     if to.is_a?(Suma::Member)
@@ -29,13 +17,8 @@ class Suma::Message::EmailTransport < Suma::Message::Transport
     return Suma::Message::Recipient.new(to, nil)
   end
 
-  def allowlisted?(_delivery)
-    return false
-  end
-
-  def send!(_delivery)
-    raise NotImplementedError, "Email transport is not hooked up yet"
-  end
+  def allowlisted?(_delivery) = false
+  def send!(_delivery) = raise NotImplementedError, "Email transport is not hooked up yet"
 
   def add_bodies(delivery, content)
     pm = Premailer.new(

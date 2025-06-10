@@ -1,11 +1,7 @@
 # frozen_string_literal: true
 
-require "suma/message/transport"
-
 class Suma::Message::FakeTransport < Suma::Message::Transport
   extend Suma::MethodUtilities
-
-  register_transport(:fake)
 
   singleton_attr_reader :sent_deliveries
   @sent_deliveries = []
@@ -22,17 +18,9 @@ class Suma::Message::FakeTransport < Suma::Message::Transport
     self.send_callback = nil
   end
 
-  def type
-    return :fake
-  end
-
-  def service
-    return "fake"
-  end
-
-  def supports_layout?
-    return true
-  end
+  def type = :fake
+  def service = "fake"
+  def supports_layout? = true
 
   def add_bodies(delivery, content)
     bodies = []

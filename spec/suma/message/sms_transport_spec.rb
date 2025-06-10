@@ -66,7 +66,7 @@ RSpec.describe Suma::Message::SmsTransport, :db, reset_configuration: Suma::Mess
         sms = described_class.new
         sms.allowlist = []
         sms.send!(delivery)
-      end.to raise_error(Suma::Message::Transport::UndeliverableRecipient, /not allowlisted/)
+      end.to raise_error(Suma::Message::UndeliverableRecipient, /not allowlisted/)
     end
 
     it "raises undeliverable if the phone number is invalid" do
@@ -74,7 +74,7 @@ RSpec.describe Suma::Message::SmsTransport, :db, reset_configuration: Suma::Mess
       delivery = Suma::Fixtures.message_delivery.sms("(555) 444-3210", "hello").create
       expect do
         described_class.new.send!(delivery)
-      end.to raise_error(Suma::Message::Transport::UndeliverableRecipient, /signalwire_invalid_phone_number/)
+      end.to raise_error(Suma::Message::UndeliverableRecipient, /signalwire_invalid_phone_number/)
       expect(req).to have_been_made
     end
 
@@ -114,7 +114,7 @@ RSpec.describe Suma::Message::SmsTransport, :db, reset_configuration: Suma::Mess
         delivery = delivery_fac.sms("+15554443210", "Your suma verification code is: 12345").create
         expect do
           described_class.new.send!(delivery)
-        end.to raise_error(Suma::Message::Transport::UndeliverableRecipient, /twilio_invalid_phone_number/)
+        end.to raise_error(Suma::Message::UndeliverableRecipient, /twilio_invalid_phone_number/)
         expect(req).to have_been_made
       end
 
@@ -149,7 +149,7 @@ RSpec.describe Suma::Message::SmsTransport, :db, reset_configuration: Suma::Mess
         delivery = Suma::Fixtures.message_delivery.sms("+15554443210", "hello").create
         expect do
           described_class.new.send!(delivery)
-        end.to raise_error(Suma::Message::Transport::UndeliverableRecipient, /SMS provider disabled/)
+        end.to raise_error(Suma::Message::UndeliverableRecipient, /SMS provider disabled/)
       end
     end
   end

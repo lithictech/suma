@@ -45,7 +45,7 @@ RSpec.describe "Suma::Message", :db, :messaging do
     it "errors if the transport is invalid", messaging: false do
       expect do
         basic.dispatch("member@lithic.tech", transport: :fake2)
-      end.to raise_error(Suma::Message::InvalidTransportError)
+      end.to raise_error(Suma::SimpleRegistry::Unregistered)
     end
 
     it "renders bodies using the specified transport" do
