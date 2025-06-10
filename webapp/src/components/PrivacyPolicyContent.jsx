@@ -92,10 +92,7 @@ export default function PrivacyPolicyContent({ mobile }) {
                     label={t("overview:faq")}
                     to={`https://mysuma.org/faq-${language}`}
                   />
-                  <TabLink
-                    label={t("overview:contact_us")}
-                    to="mailto:apphelp@mysuma.org"
-                  />
+                  <TabLink label={t("overview:contact_us")} to="mailto:info@mysuma.org" />
                 </Stack>
               </Col>
             </Row>

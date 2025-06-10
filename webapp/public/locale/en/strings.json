@@ -42,7 +42,7 @@
     "privacy_policy": "Privacy Policy",
     "reference_id": "Reference ID",
     "scooter_cost": "{{startCost, sumaCurrency}} to start then {{costPerMinute, sumaCurrency}}/min + taxes",
-    "suma_help_email": "[apphelp@mysuma.org](mailto:apphelp@mysuma.org 'suma help email')",
+    "suma_help_email": "[info@mysuma.org](mailto:info@mysuma.org 'suma help email')",
     "suma_help_number": "[971-351-7862](tel:971-351-7862)",
     "terms_of_use": "Terms of Use",
     "translate_to_english": "Translate to English",
@@ -365,7 +365,7 @@
     "title": "Preferences"
   },
   "private_accounts": {
-    "auth_error": "Sorry, something went wrong. You can try again, or email apphelp@mysuma.org.",
+    "auth_error": "Sorry, something went wrong. You can try again, or email info@mysuma.org.",
     "create_account": "Create account",
     "initial": "Launch app",
     "intro": "Used to hide your email and phone number from vendors you use through the Suma platform. Follow the instructions for the vendors you want to create a Private Account with.",

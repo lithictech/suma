@@ -230,7 +230,7 @@ function NavFooter({ className }) {
         </Link>
       </div>
       <div className={rowCls}>
-        <a href="mailto:apphelp@mysuma.org" className={linkCls}>
+        <a href="mailto:info@mysuma.org" className={linkCls}>
           {t("common:contact_us")}
         </a>
       </div>
