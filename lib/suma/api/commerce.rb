@@ -267,7 +267,7 @@ class Suma::API::Commerce < Suma::API::V1
     expose_translated :fulfillment_prompt
     expose_translated :fulfillment_confirmation
     expose_translated :fulfillment_instructions
-    expose :period_end, as: :closes_at
+    expose :period_end_visible, as: :closes_at
     expose :image, with: Suma::API::Entities::ImageEntity, &self.delegate_to(:images?, :first)
     expose :rel_app_link, as: :app_link
   end

@@ -108,7 +108,7 @@ module Suma::API::Entities
     expose_translated :description, &self.delegate_to(:program, :description)
     expose :image, with: ImageEntity, &self.delegate_to(:program, :image?)
     expose :period_begin, &self.delegate_to(:program, :period, :begin)
-    expose :period_end, &self.delegate_to(:program, :period, :end)
+    expose :period_end, &self.delegate_to(:program, :period_end_visible)
     expose :app_link, &self.delegate_to(:program, :app_link)
     expose_translated :app_link_text, &self.delegate_to(:program, :app_link_text)
   end
