@@ -13,8 +13,6 @@ class Suma::Messages::Verification < Suma::Message::Template
     super()
   end
 
-  def localized? = true
-
   def liquid_drops
     return super.merge(
       expire_at: @reset_code.expire_at,

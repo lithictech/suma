@@ -18,6 +18,7 @@ class Suma::Message::EmailTransport < Suma::Message::Transport
   end
 
   def allowlisted?(_delivery) = false
+
   def send!(_delivery) = raise NotImplementedError, "Email transport is not hooked up yet"
 
   def add_bodies(delivery, content)

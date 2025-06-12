@@ -331,7 +331,7 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
       expect(Suma::Message::Delivery.all).to contain_exactly(
         have_attributes(
           template: "verification",
-          transport_type: "sms",
+          transport_type: "otp_sms",
           to: "12223334444",
         ),
       )
@@ -340,29 +340,18 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
 
   describe "ResetCodeUpdateTwilio" do
     let(:member) { Suma::Fixtures.member(phone: "12223334444").create }
-    let(:fac) { Suma::Fixtures.reset_code(member:).sms }
+    let(:code_fac) { Suma::Fixtures.reset_code(member:).sms }
 
-    it "noops if the code has no delivery, has an invalid message id or the delivery was aborted" do
-      no_delivery = fac.create
-      bad_msg_id = fac.create
-      bad_msg_id.update(message_delivery: Suma::Fixtures.message_delivery.create(transport_message_id: "MSGID"))
-      template = Suma::Message::SmsTransport.verification_template
-      message_delivery = Suma::Fixtures.message_delivery.via("sms").create(template:, transport_message_id: nil)
-      nil_msg_id = fac.create(message_delivery:)
+    it "noops for deliveries that do not use the Twilio Verify service" do
+      no_delivery = code_fac.create
+      nil_msg_id = code_fac.create(message_delivery: Suma::Fixtures.message_delivery.sent_to_verification.create)
+      nil_msg_id.message_delivery.update(transport_message_id: nil)
+      other_svc = code_fac.create(message_delivery: Suma::Fixtures.message_delivery.sent_to_verification.create)
+      other_svc.message_delivery.update(transport_service: "sms")
       expect do
         no_delivery.expire!
-        bad_msg_id.expire!
         nil_msg_id.expire!
-      end.to perform_async_job(Suma::Async::ResetCodeUpdateTwilio)
-    end
-
-    it "noops if the reset code message delivery does not use the verification template" do
-      message_delivery = Suma::Fixtures.message_delivery.sent_to_verification.create
-      message_delivery.update(template: "alt-verification")
-      code = fac.create(message_delivery:)
-
-      expect do
-        code.use!
+        other_svc.expire!
       end.to perform_async_job(Suma::Async::ResetCodeUpdateTwilio)
     end
 
@@ -374,9 +363,9 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
         with(body: {"Status" => "approved"}).
         to_return(status: 200, body: "{}")
 
-      pending = fac.create
+      pending = code_fac.create
       pending.update(message_delivery: Suma::Fixtures.message_delivery.sent_to_verification("VE123").create)
-      using = fac.create
+      using = code_fac.create
       using.update(message_delivery: Suma::Fixtures.message_delivery.sent_to_verification("VE456").create)
 
       expect do

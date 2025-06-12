@@ -24,7 +24,7 @@ module Suma::Twilio
     attr_accessor :client
   end
 
-  def self.send_verification(to, code:, locale:, channel: "sms")
+  def self.send_verification(to, code:, locale:, channel:)
     return self.client.verify.
         v2.
         services(self.verification_sid).

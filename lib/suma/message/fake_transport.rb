@@ -22,6 +22,8 @@ class Suma::Message::FakeTransport < Suma::Message::Transport
   def service = "fake"
   def supports_layout? = true
 
+  def recipient(to) = Suma::Message::EmailTransport.new.recipient(to)
+
   def add_bodies(delivery, content)
     bodies = []
     bodies << delivery.add_body(content: content.to_s, mediatype: "text/plain")
