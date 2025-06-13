@@ -114,7 +114,7 @@ RSpec.describe Suma::Message::Transport::Sms, :db, reset_configuration: Suma::Me
     end
 
     it "uses the value for :to if not a member" do
-      expect(described_class.new.recipient("5551112222")).to have_attributes(
+      expect(described_class.new.recipient("15551112222")).to have_attributes(
         to: "15551112222", member: nil, formatted_to: "(555) 111-2222",
       )
     end
