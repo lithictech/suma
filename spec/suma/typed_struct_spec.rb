@@ -20,4 +20,15 @@ RSpec.describe Suma::TypedStruct do
       expect(t.new(x: 1)[:x]).to eq(1)
     end
   end
+
+  describe "as_json" do
+    it "includes all fields" do
+      t = Class.new(described_class) do
+        attr_accessor :x, :y, :z
+
+        def _defaults = {z: 5}
+      end
+      expect(t.new(x: 5).as_json).to eq({"x" => 5, "y" => nil, "z" => 5})
+    end
+  end
 end

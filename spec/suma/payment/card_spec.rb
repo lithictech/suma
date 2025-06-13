@@ -31,7 +31,7 @@ RSpec.describe "Suma::Payment::Card", :db do
     it "links to the Stripe dashboard" do
       ca = Suma::Fixtures.card.with_stripe({"customer" => "cu_123"}).create
       expect(ca.external_links).to contain_exactly(
-        {name: "Stripe Customer", url: "https://dashboard.stripe.com/customers/cu_123"},
+        have_attributes(name: "Stripe Customer", url: "https://dashboard.stripe.com/customers/cu_123"),
       )
     end
   end

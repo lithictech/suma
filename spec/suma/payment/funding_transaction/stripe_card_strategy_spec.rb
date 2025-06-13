@@ -143,11 +143,11 @@ RSpec.describe "Suma::Payment::FundingTransaction::StripeCardStrategy", :db do
 
   describe "external_links" do
     it "generates external links" do
-      expect(strategy.external_links).to contain_exactly(include(name: "Stripe Customer"))
+      expect(strategy.external_links).to contain_exactly(have_attributes(name: "Stripe Customer"))
       strategy.charge_json = {"id" => "ch_abc"}
       expect(strategy.external_links).to contain_exactly(
-        include(name: "Stripe Customer"),
-        {name: "Stripe Charge", url: "https://dashboard.stripe.com/payments/ch_abc"},
+        have_attributes(name: "Stripe Customer"),
+        have_attributes(name: "Stripe Charge", url: "https://dashboard.stripe.com/payments/ch_abc"),
       )
     end
   end

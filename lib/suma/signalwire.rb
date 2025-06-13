@@ -78,4 +78,6 @@ module Suma::Signalwire
     full_url = "https://#{self.space_url}#{url}"
     Suma::Http.execute(method, full_url, body:, headers:, **options)
   end
+
+  def self.message_log_url(id) = "https://#{self.space_url}/logs/messages/#{id}"
 end
