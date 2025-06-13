@@ -1,5 +1,7 @@
 import api from "../api";
+import AdminActions from "../components/AdminActions";
 import AdminLink from "../components/AdminLink";
+import ExternalLinks from "../components/ExternalLinks";
 import ResourceDetail from "../components/ResourceDetail";
 import formatDate from "../modules/formatDate";
 import { Typography } from "@mui/material";
@@ -16,7 +18,7 @@ export default function MessageDetailPage() {
         { label: "Template", value: model.template },
         {
           label: "Transport",
-          value: `${model.transportService} (${model.transportType})`,
+          value: `${model.carrierKey} (${model.transportType})`,
         },
         { label: "MessageId", value: model.transportMessageId },
         { label: "Template", value: model.template },
@@ -34,19 +36,19 @@ export default function MessageDetailPage() {
       ]}
     >
       {(model) =>
-        model.bodies.map(({ id, mediatype, content }) => {
-          return (
-            <Box key={id} mt={3}>
-              <hr />
-              <Typography variant="h6">
-                Body {id} ({mediatype})
-              </Typography>
-              <div>
-                <div dangerouslySetInnerHTML={{ __html: content }} />
-              </div>
-            </Box>
-          );
-        })
+        model.bodies.map(({ id, mediatype, content }) => [
+          <ExternalLinks externalLinks={model.externalLinks} />,
+          <AdminActions adminActions={model.adminActions} />,
+          <Box key={id} mt={3}>
+            <hr />
+            <Typography variant="h6">
+              Body {id} ({mediatype})
+            </Typography>
+            <div>
+              <div dangerouslySetInnerHTML={{ __html: content }} />
+            </div>
+          </Box>,
+        ])
       }
     </ResourceDetail>
   );

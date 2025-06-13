@@ -19,17 +19,10 @@ class Suma::Async::ResetCodeUpdateTwilio
 
   def update_verification(code, status)
     md = code.message_delivery
-    return unless
-      # It's possible for a code to be expired before we have even sent the delivery
-      md &&
-        # email codes aren't using twilio verify, at least not yet (and probably never)
-        md.transport_type == "sms" &&
-        # deliveries can potentially be aborted therefore a having nil message id
-        md.transport_message_id &&
-        # We can send verifications using alternative templates; only the verification template uses
-        # the 'send via twilio verify' logic in SmsTransport, so we only update twilio when we use that template.
-        Suma::Message::SmsTransport.verification_delivery?(md)
-    verification_id = Suma::Message::SmsTransport.transport_message_id_to_verification_id(md.transport_message_id)
+    return unless md &&
+      md.transport_message_id.present? &&
+      md.carrier_key == "twilio_verify"
+    verification_id = Suma::Message::Carrier::TwilioVerify.new.decode_message_id(md.transport_message_id)
     Suma::Twilio.update_verification(verification_id, status:)
   end
 end

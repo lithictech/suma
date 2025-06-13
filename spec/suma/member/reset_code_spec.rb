@@ -83,35 +83,19 @@ RSpec.describe "Suma::Member::ResetCode", :db do
       expect(Suma::Message::Delivery.all).to contain_exactly(
         have_attributes(
           template: "verification",
-          transport_type: "sms",
+          transport_type: "otp_sms",
           to: phone,
           bodies: contain_exactly(
-            have_attributes(content: "Your suma verification code is: 12345"),
+            have_attributes(content: "12345"),
           ),
         ),
       )
     end
 
-    it "can send the code via email" do
-      member.message_preferences!.update(preferred_language: "es")
-      code = Suma::Fixtures.reset_code.create(member:, token: "12345", transport: "email")
-      code.dispatch_message
-
-      expect(Suma::Message::Delivery.all).to contain_exactly(
-        have_attributes(
-          template: "verification",
-          transport_type: "email",
-          to: email,
-          bodies: include(have_attributes(mediatype: "subject", content: "Su código de verificación suma")),
-        ),
-      )
-      expect(code.refresh.message_delivery).to be === Suma::Message::Delivery.first
-    end
-
-    it "errors for an unknown transport" do
-      code = Suma::Fixtures.reset_code.create(member:, token: "12345", transport: "email")
-      code.transport = "unknown"
-      expect { code.dispatch_message }.to raise_error(ArgumentError, /Unknown transport/)
+    it "errors for an unsupported transport" do
+      code = Suma::Fixtures.reset_code.create(member:, token: "12345", transport: "sms")
+      code.transport = "email" # bypass validation
+      expect { code.dispatch_message }.to raise_error(Suma::SimpleRegistry::Unregistered)
     end
   end
 
@@ -120,7 +104,8 @@ RSpec.describe "Suma::Member::ResetCode", :db do
       fac = Suma::Fixtures.reset_code(member:, transport: "sms")
       used = fac.used.create
       expired = fac.expired.create
-      valid_email = fac.create(transport: "email")
+      valid_email = fac.create
+      valid_email.set(transport: "email").save(validate: false)
       valid_sms_other_member = fac.create(member: Suma::Fixtures.member.create)
       valid_sms = fac.create
 

@@ -16,7 +16,7 @@ RSpec.describe "Suma::Message", :db, :messaging do
       expect(delivery).to have_attributes(
         template: "specs/basic",
         transport_type: "sms",
-        transport_service: "signalwire",
+        carrier_key: "signalwire",
         transport_message_id: nil,
         sent_at: nil,
         to: recipient.phone,
@@ -38,14 +38,14 @@ RSpec.describe "Suma::Message", :db, :messaging do
       delivery = basic.dispatch("member@lithic.tech", transport: :fake)
       expect(delivery).to have_attributes(
         transport_type: "fake",
-        transport_service: "fake",
+        carrier_key: "noop",
       )
     end
 
     it "errors if the transport is invalid", messaging: false do
       expect do
         basic.dispatch("member@lithic.tech", transport: :fake2)
-      end.to raise_error(Suma::Message::InvalidTransportError)
+      end.to raise_error(Suma::SimpleRegistry::Unregistered)
     end
 
     it "renders bodies using the specified transport" do
@@ -77,7 +77,7 @@ RSpec.describe "Suma::Message", :db, :messaging do
   end
 
   describe "rendering" do
-    let(:recipient) { Suma::Message::Recipient.new("member@lithic.tech", nil) }
+    let(:recipient) { Suma::Message::Recipient.new("member@lithic.tech", nil, nil) }
 
     it "errors if a template for the specified transport does not exist" do
       expect do

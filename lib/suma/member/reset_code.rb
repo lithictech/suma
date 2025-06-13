@@ -72,14 +72,7 @@ class Suma::Member::ResetCode < Suma::Postgres::Model(:member_reset_codes)
   def dispatch_message
     msg = Suma::Messages::Verification.new(self)
     msg.language = self.member.message_preferences!.preferred_language
-    self.message_delivery = case self.transport
-      when "sms"
-        msg.dispatch_sms(self.member)
-      when "email"
-        msg.dispatch_email(self.member)
-      else
-        raise ArgumentError, "Unknown transport for #{self.inspect}"
-    end
+    self.message_delivery = Suma::Message.dispatch(msg, self.member, :"otp_#{self.transport}")
     self.save_changes
   end
 
@@ -89,7 +82,7 @@ class Suma::Member::ResetCode < Suma::Postgres::Model(:member_reset_codes)
 
   def validate
     super
-    self.validates_includes(["sms", "email"], :transport)
+    self.validates_includes(["sms"], :transport)
   end
 end
 

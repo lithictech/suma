@@ -88,8 +88,8 @@ RSpec.describe Suma::AnonProxy::Relay, :db do
       )
     end
 
-    it "can provision a phone number", reset_configuration: Suma::Message::SmsTransport do
-      Suma::Message::SmsTransport.allowlist = ["*"]
+    it "can provision a phone number", reset_configuration: Suma::Message::Transport::Sms do
+      Suma::Message::Transport::Sms.allowlist = ["*"]
       member = Suma::Fixtures.member.create
 
       search_req = stub_request(:get, "https://sumafaketest.signalwire.com/api/relay/rest/phone_numbers/search?city=Portland&max_results=1&region=OR").
@@ -119,8 +119,8 @@ RSpec.describe Suma::AnonProxy::Relay, :db do
       expect(update_req).to have_been_made
     end
 
-    it "errors if the member is not on the SMS allowlist", reset_configuration: Suma::Message::SmsTransport do
-      Suma::Message::SmsTransport.allowlist = []
+    it "errors if the member is not on the SMS allowlist", reset_configuration: Suma::Message::Transport::Sms do
+      Suma::Message::Transport::Sms.allowlist = []
       expect do
         relay.provision(Suma::Fixtures.member.create)
       end.to raise_error(Suma::InvalidPrecondition)

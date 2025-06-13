@@ -13,17 +13,10 @@ module Suma::Message
   include Appydays::Configurable
   extend Suma::MethodUtilities
 
-  require "suma/liquid/expose"
-  require "suma/liquid/filters"
-  require "suma/liquid/liquification"
-  require "suma/liquid/partial"
-
-  require "suma/message/email_transport"
-  require "suma/message/fake_transport"
-  require "suma/message/sms_transport"
-  require "suma/message/transport"
-  require "suma/message/liquid_drops"
-  require "suma/message/template"
+  class Error < RuntimeError; end
+  class MissingTemplateError < Error; end
+  class LanguageNotSetError < Error; end
+  class UndeliverableRecipient < Error; end
 
   DEFAULT_TRANSPORT = :sms
   DATA_DIR = Suma::DATA_DIR + "messages"
@@ -38,8 +31,7 @@ module Suma::Message
   # Create a Suma::Message::Delivery ready to deliver (rendered, all bodies set up)
   # using the given transport_type to the given user.
   def self.dispatch(template, to, transport_type, extra_fields: {})
-    (transport = Suma::Message::Transport.for(transport_type)) or
-      raise InvalidTransportError, "Invalid transport #{transport_type}"
+    transport = Suma::Message::Transport.registry_create!(transport_type)
     recipient = transport.recipient(to)
 
     contents = self.render(template, transport_type, recipient)
@@ -49,7 +41,7 @@ module Suma::Message
         template: template.full_template_name,
         template_language: template.language || "",
         transport_type: transport.type,
-        transport_service: transport.service,
+        carrier_key: transport.carrier.key,
         to: recipient.to,
         recipient: recipient.member,
         extra_fields: template.extra_fields.merge(extra_fields),
@@ -81,7 +73,7 @@ module Suma::Message
     content_tmpl.registers[:exposed] = {}
     content = content_tmpl.render!(drops, strict_variables: true)
 
-    transport = Suma::Message::Transport.for(transport_type)
+    transport = Suma::Message::Transport.registry_create!(transport_type)
     if transport.supports_layout?
       layout_file = template.layout_path(transport_type)
       if layout_file
@@ -101,20 +93,16 @@ module Suma::Message
     return unsent
   end
 
-  class InvalidTransportError < StandardError; end
-
-  class MissingTemplateError < StandardError; end
-
-  class LanguageNotSetError < StandardError; end
-
   # Presents a homogeneous interface for a given 'to' value (email vs. member, for example).
-  # .to will always be a plain object, and .member will be a +Suma::Member+ if present.
+  # +to+ and +formatted_to+ will always be strings, and +member+ will be a +Suma::Member+ or +nil+.
+  # If +formatted_to+ is initialized with +nil+, it will use the value of +to+.
   class Recipient
-    attr_reader :to, :member
+    attr_reader :to, :member, :formatted_to
 
-    def initialize(to, member)
+    def initialize(to, member, formatted_to)
       @to = to
       @member = member
+      @formatted_to = formatted_to || to
     end
   end
 
@@ -146,3 +134,13 @@ module Suma::Message
     end
   end
 end
+
+require_relative "liquid/expose"
+require_relative "liquid/filters"
+require_relative "liquid/liquification"
+require_relative "liquid/partial"
+
+require_relative "message/carrier"
+require_relative "message/transport"
+require_relative "message/liquid_drops"
+require_relative "message/template"

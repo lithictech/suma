@@ -1,11 +1,16 @@
 # frozen_string_literal: true
 
-require "suma/postgres/model"
+require "suma/admin_actions"
+require "suma/admin_linked"
+require "suma/external_links"
 require "suma/message"
+require "suma/postgres/model"
 
 class Suma::Message::Delivery < Suma::Postgres::Model(:message_deliveries)
-  include Suma::Postgres::HybridSearch
   include Suma::AdminLinked
+  include Suma::AdminActions
+  include Suma::ExternalLinks
+  include Suma::Postgres::HybridSearch
 
   plugin :hybrid_search
   plugin :timestamps
@@ -29,11 +34,13 @@ class Suma::Message::Delivery < Suma::Postgres::Model(:message_deliveries)
     self[:extra_fields] ||= {}
   end
 
+  # @return [Suma::Message::Transport]
+  def transport! = Suma::Message::Transport.registry_create!(self.transport_type)
+  # @return [Suma::Message::Carrier]
+  def carrier! = Suma::Message::Carrier.registry_create!(self.carrier_key)
   def sensitive? = self.sensitive
-
-  def body_with_mediatype(mt)
-    return self.bodies.find { |b| b.mediatype == mt }
-  end
+  def formatted_to = self.transport!.recipient(self.to).formatted_to
+  def body_with_mediatype(mt) = self.bodies.find { |b| b.mediatype == mt }
 
   def body_with_mediatype!(mt)
     (b = self.body_with_mediatype(mt)) or raise "Delivery #{self.id} has no body with mediatype #{mt}"
@@ -42,46 +49,62 @@ class Suma::Message::Delivery < Suma::Postgres::Model(:message_deliveries)
 
   def send!
     return nil if self.sent_at || self.aborted_at
-    self.db.transaction do
-      self.lock!
-      return nil if self.sent_at || self.aborted_at
-      unless self.transport.allowlisted?(self)
-        self.update(aborted_at: Time.now)
+    SemanticLogger.named_tagged(message_delivery_id: self.id, to: self.to) do
+      self.db.transaction do
+        self.lock!
+        return nil if self.sent_at || self.aborted_at
+        unless self.transport!.allowlisted?(self)
+          self.update(aborted_at: Time.now)
+          return self
+        end
+        begin
+          transport_message_id = self.transport!.send!(self)
+        rescue Suma::Message::UndeliverableRecipient => e
+          self.logger.error("undeliverable_recipient",  error: e)
+          self.update(aborted_at: Time.now)
+          return self
+        end
+        if transport_message_id.blank?
+          self.logger.error("empty_transport_message_id")
+          transport_message_id = "WARNING-NOT-SET"
+        end
+        self.update(transport_message_id:, sent_at: Time.now)
         return self
       end
-      begin
-        transport_message_id = self.transport.send!(self)
-      rescue Suma::Message::Transport::UndeliverableRecipient => e
-        self.logger.error("undeliverable_recipient", message_delivery_id: self.id, error: e)
-        self.update(aborted_at: Time.now)
-        return self
-      end
-      if transport_message_id.blank?
-        self.logger.error("empty_transport_message_id", message_delivery_id: self.id)
-        transport_message_id = "WARNING-NOT-SET"
-      end
-      self.update(transport_message_id:, sent_at: Time.now)
-      return self
     end
   end
 
-  def transport
-    return Suma::Message::Transport.for(self.transport_type)
+  # Use external logs only if the message is less than 30 days old.
+  # Many carriers will remove external resources after a while,
+  # and anyway, this archival data should be useful for admins.
+  def _use_external_logs = self.sent_at.present? && self.sent_at > 30.days.ago
+
+  def _external_links_self
+    return [] unless self._use_external_logs
+    url = self.carrier!.external_link_for(self.carrier!.decode_message_id(self.transport_message_id))
+    return [] unless url
+    return [
+      self._external_link("View in #{self.carrier_key.humanize}", url),
+    ]
   end
 
-  def transport!
-    return Suma::Message::Transport.for!(self.transport_type)
+  def _admin_actions_self
+    return [] unless self._use_external_logs && self.carrier!.can_fetch_details?
+    return [
+      self._admin_action(
+        "View #{self.carrier_key.humanize} details",
+        "/adminapi/v1/message_deliveries/#{self.id}/external_details",
+      ),
+    ]
   end
 
-  def rel_admin_link
-    return "/message/#{self.id}"
-  end
+  def rel_admin_link = "/message/#{self.id}"
 
   def hybrid_search_fields
     return [
       :template,
       :transport_type,
-      :transport_service,
+      :carrier_key,
       :transport_message_id,
       :to,
       :recipient,

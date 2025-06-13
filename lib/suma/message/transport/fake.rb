@@ -1,11 +1,7 @@
 # frozen_string_literal: true
 
-require "suma/message/transport"
-
-class Suma::Message::FakeTransport < Suma::Message::Transport
+class Suma::Message::Transport::Fake < Suma::Message::Transport
   extend Suma::MethodUtilities
-
-  register_transport(:fake)
 
   singleton_attr_reader :sent_deliveries
   @sent_deliveries = []
@@ -22,17 +18,11 @@ class Suma::Message::FakeTransport < Suma::Message::Transport
     self.send_callback = nil
   end
 
-  def type
-    return :fake
-  end
+  def type = :fake
+  def carrier = Suma::Message::Carrier.registry_create!(:noop)
+  def supports_layout? = true
 
-  def service
-    return "fake"
-  end
-
-  def supports_layout?
-    return true
-  end
+  def recipient(to) = Suma::Message::Transport::Email.new.recipient(to)
 
   def add_bodies(delivery, content)
     bodies = []
@@ -41,14 +31,14 @@ class Suma::Message::FakeTransport < Suma::Message::Transport
   end
 
   def allowlisted?(delivery)
-    denied = Suma::Message::FakeTransport.allowlisted_callback&.call(delivery)
+    denied = self.class.allowlisted_callback&.call(delivery)
     return !denied
   end
 
   def send!(delivery)
-    Suma.logger.debug "Storing Delivery[%d] to %s as sent" % [delivery.id, delivery.to]
-    Suma::Message::FakeTransport.sent_deliveries << delivery
-    return Suma::Message::FakeTransport.send_callback.call(delivery) if Suma::Message::FakeTransport.send_callback
-    return "#{delivery.id}-#{SecureRandom.hex(6)}"
+    self.logger.debug "recording_delivery_sent"
+    self.class.sent_deliveries << delivery
+    return self.class.send_callback.call(delivery) if self.class.send_callback
+    return self.carrier.send!(delivery_id: delivery.id)
   end
 end

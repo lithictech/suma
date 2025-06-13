@@ -42,7 +42,7 @@ RSpec.describe Suma::Fixtures, db: true  do
     Suma::Fixtures.payment_trigger.inactive.create
     Suma::Fixtures.payout_transaction.with_fake_strategy.member(member).create
     Suma::Fixtures.program.with_(Suma::Fixtures.offering.create).create
-    Suma::Fixtures.reset_code.email.create
+    Suma::Fixtures.reset_code.create
     Suma::Fixtures.translated_text.empty.create
     Suma::Fixtures.uploaded_file.uploaded_bytes("x", "text/plain").create
     Suma::Fixtures.uploaded_file.uploaded_1x1_png.create

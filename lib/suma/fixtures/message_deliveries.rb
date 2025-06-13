@@ -15,8 +15,12 @@ module Suma::Fixtures::MessageDeliveries
   base :message_delivery do
     self.template ||= "fixture"
     self.transport_type ||= "fake"
-    self.transport_service ||= "fixture"
     self.to ||= "fixture-to"
+  end
+
+  before_saving do |instance|
+    instance.carrier_key ||= instance.transport!.carrier.key
+    instance
   end
 
   decorator :email, presave: true do |to=nil, content=nil|
@@ -61,6 +65,7 @@ module Suma::Fixtures::MessageDeliveries
   decorator :sent do |at=nil|
     at ||= Time.now
     self.sent_at = at
+    self.transport_message_id = "fixtured-#{SecureRandom.hex(6)}"
   end
 
   decorator :aborted do |at=nil|
@@ -73,8 +78,10 @@ module Suma::Fixtures::MessageDeliveries
   end
 
   decorator :sent_to_verification do |verification_sid="VE#{SecureRandom.hex(4)}"|
-    self.transport_type = "sms"
-    self.template = Suma::Message::SmsTransport.verification_template
-    self.transport_message_id = Suma::Message::SmsTransport.verification_transport_message_id(verification_sid, "1")
+    xport = Suma::Message::Transport::OtpSms.new
+    self.transport_type = xport.type
+    self.carrier_key = xport.carrier.key
+    self.template = "verification"
+    self.transport_message_id = xport.carrier.encode_message_id(verification_sid, "1")
   end
 end

@@ -10,7 +10,7 @@ module Suma::Fixtures::ResetCodes
   fixtured_class Suma::Member::ResetCode
 
   base :reset_code do
-    self.transport ||= ["sms", "email"].sample
+    self.transport ||= ["sms"].sample
   end
 
   before_saving do |instance|
@@ -20,10 +20,6 @@ module Suma::Fixtures::ResetCodes
 
   decorator :sms do
     self.transport = "sms"
-  end
-
-  decorator :email do
-    self.transport = "email"
   end
 
   decorator :expired do

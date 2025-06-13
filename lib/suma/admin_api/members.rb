@@ -19,6 +19,7 @@ class Suma::AdminAPI::Members < Suma::AdminAPI::V1
       expose_token = ra.can?(:read, ra.admin_sensitive_messages)
       expose_token ? inst.token : ("*" * inst.token.length)
     end
+    expose :message_delivery, with: MessageDeliveryEntity
   end
 
   class MemberSessionEntity < BaseEntity

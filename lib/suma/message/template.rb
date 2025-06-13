@@ -27,14 +27,6 @@ class Suma::Message::Template
     return Suma::Message.dispatch(self, to, transport)
   end
 
-  def dispatch_email(to)
-    return self.dispatch(to, transport: :email)
-  end
-
-  def dispatch_sms(to)
-    return self.dispatch(to, transport: :sms)
-  end
-
   # Return true if this message template supports localization
   # (different templates exist like basic.en.sms.liquid, etc).
   def localized? = false

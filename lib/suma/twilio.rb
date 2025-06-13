@@ -24,7 +24,7 @@ module Suma::Twilio
     attr_accessor :client
   end
 
-  def self.send_verification(to, code:, locale:, channel: "sms")
+  def self.send_verification(to, code:, locale:, channel:)
     return self.client.verify.
         v2.
         services(self.verification_sid).
@@ -33,6 +33,7 @@ module Suma::Twilio
   end
 
   # Update the verification. Usually used to change the status (status: 'canceled' or 'approved') of reset codes.
+  # https://www.twilio.com/docs/verify/api/verification-check#check-a-verification
   def self.update_verification(ve_id, kw)
     response = self.client.verify.
       v2.
@@ -41,10 +42,21 @@ module Suma::Twilio
       update(**kw)
     return response
   rescue Twilio::REST::RestError => e
-    # ignores 20404s, it means twilio has approved, expired or invalidated the code already
-    # https://www.twilio.com/docs/verify/api/verification-check#check-a-verification
+    # Ignore 20404s, it means twilio has approved, expired or invalidated the code already.
+    # See API docs for explanation.
     raise(e) unless IGNORE_TWILIO_ERROR_CODES[e.code]
   end
+
+  def self.fetch_verification(ve_id)
+    response = self.client.verify.
+      v2.
+      services(self.verification_sid).
+      verifications(ve_id).
+      fetch
+    return response
+  end
+
+  def self.verification_log_url(sid) = "https://console.twilio.com/us1/monitor/logs/verify-logs/#{sid}"
 
   IGNORE_TWILIO_ERROR_CODES = {
     20_404 => "twilio_resource_not_found",

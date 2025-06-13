@@ -246,7 +246,7 @@ function ResetCodes({ resetCodes }) {
   return (
     <RelatedList
       title="Login Codes"
-      headers={["Sent", "Expires", "Token", "Used"]}
+      headers={["Sent", "Expires", "Token", "Used", "Delivery"]}
       rows={resetCodes}
       keyRowAttr="id"
       toCells={(row) => [
@@ -254,6 +254,7 @@ function ResetCodes({ resetCodes }) {
         formatDate(row.expireAt),
         row.token,
         <BoolCheckmark key="used">{row.used}</BoolCheckmark>,
+        row.messageDelivery ? <AdminLink model={row.messageDelivery} /> : "(not sent)",
       ]}
     />
   );
@@ -373,7 +374,7 @@ function MessageDeliveries({ messageDeliveries }) {
         formatDate(row.createdAt),
         formatDate(row.sentAt, { default: "<unsent>" }),
         row.template,
-        row.to,
+        row.formattedTo,
       ]}
     />
   );
