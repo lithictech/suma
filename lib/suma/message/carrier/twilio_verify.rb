@@ -49,7 +49,20 @@ class Suma::Message::Carrier::TwilioVerify < Suma::Message::Carrier
     Suma.assert do
       [msg_id == self.decode_message_id(msg_id), "message id should have been decoded"]
     end
-    ve = Suma::Twilio.fetch_verification(msg_id)
+    begin
+      ve = Suma::Twilio.fetch_verification(msg_id)
+    rescue Twilio::REST::RestError => e
+      raise e unless e.code == 20_404
+      # This is ridiculous: https://help.twilio.com/articles/360033357033
+      return {
+        status: "unknown",
+        message: "Only pending verifications can be fetched this way. " \
+                 "This verification attempt has been finished, either due to success, failure, or cancelation. " \
+                 "You can view the results in the Twilio dashboard. " \
+                 "If you do not have an account, ask a developer or your team admin.",
+        error: e.response.body,
+      }
+    end
     return ve.instance_variable_get(:@properties)
   end
 end

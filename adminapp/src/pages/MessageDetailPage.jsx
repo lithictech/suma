@@ -18,7 +18,7 @@ export default function MessageDetailPage() {
         { label: "Template", value: model.template },
         {
           label: "Transport",
-          value: `${model.transportService} (${model.transportType})`,
+          value: `${model.carrierKey} (${model.transportType})`,
         },
         { label: "MessageId", value: model.transportMessageId },
         { label: "Template", value: model.template },
