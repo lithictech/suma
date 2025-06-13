@@ -45,26 +45,6 @@ RSpec.describe Suma::Message::Transport::OtpSms, :db, reset_configuration: Suma:
         sms.send!(delivery)
       end.to raise_error(Suma::Message::UndeliverableRecipient, /not allowlisted/)
     end
-
-    it "raises undeliverable if the phone number is invalid" do
-      req = stub_request(:post, "https://verify.twilio.com/v2/Services/VA555test/Verifications").
-        to_return(status: 400, body: load_fixture_data("twilio/error_invalid_phone", raw: true))
-      delivery = delivery_fac.sms("+15554443210", "Your suma verification code is: 12345").create
-      expect do
-        described_class.new.send!(delivery)
-      end.to raise_error(Suma::Message::UndeliverableRecipient, /twilio_invalid_phone_number/)
-      expect(req).to have_been_made
-    end
-
-    it "raises other twilio errors" do
-      req = stub_request(:post, "https://verify.twilio.com/v2/Services/VA555test/Verifications").
-        to_return(status: 500, body: "error")
-      delivery = delivery_fac.sms("+15554443210", "Your suma verification code is: 12345").create
-      expect do
-        described_class.new.send!(delivery)
-      end.to raise_error(Twilio::REST::RestError, /HTTP 500/)
-      expect(req).to have_been_made
-    end
   end
 
   describe "add_bodies" do

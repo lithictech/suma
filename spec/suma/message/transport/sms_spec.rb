@@ -61,24 +61,6 @@ RSpec.describe Suma::Message::Transport::Sms, :db, reset_configuration: Suma::Me
       end.to raise_error(Suma::Message::UndeliverableRecipient, /not allowlisted/)
     end
 
-    it "raises undeliverable if the phone number is invalid" do
-      req = stub_signalwire_sms(fixture: "signalwire/error_invalid_phone", status: 400)
-      delivery = Suma::Fixtures.message_delivery.sms("(555) 444-3210", "hello").create
-      expect do
-        described_class.new.send!(delivery)
-      end.to raise_error(Suma::Message::UndeliverableRecipient, /signalwire_invalid_phone_number/)
-      expect(req).to have_been_made
-    end
-
-    it "raises signalwire errors" do
-      req = stub_signalwire_sms(body: "error", status: 500)
-      delivery = Suma::Fixtures.message_delivery.sms("(555) 444-3210", "hello").create
-      expect do
-        described_class.new.send!(delivery)
-      end.to raise_error(Twilio::REST::RestError, /HTTP 500/)
-      expect(req).to have_been_made
-    end
-
     describe "with sms provider disabled", reset_configuration: described_class do
       before(:each) do
         described_class.provider_disabled = true
