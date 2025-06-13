@@ -11,10 +11,7 @@ require "yajl"
 
 if (heroku_app = ENV.fetch("MERGE_HEROKU_ENV", nil))
   text = `heroku config -j --app=#{heroku_app}`
-  json = Yajl::Parser.parse(text)
-  json.each do |k, v|
-    ENV[k] = v
-  end
+  ENV.merge!(Yajl::Parser.parse(text))
 end
 
 Money.locale_backend = :i18n
@@ -38,6 +35,8 @@ module Suma
   # Error raised when a thing that should always be the case,
   # is not the case. Should never be seen in the course of normal execution.
   class InvariantViolation < RuntimeError; end
+
+  class AssertionError <  RuntimeError; end
 
   class ResourceForbidden < RuntimeError; end
 
@@ -196,6 +195,16 @@ module Suma
 
   def self.set_request_now(t)
     Thread.current[:suma_request_now] = t
+  end
+
+  def self.assert(&)
+    do_assert = RACK_ENV == "test" || RACK_ENV == "development"
+    return unless do_assert
+    got = yield
+    passed, msg = as_ary(got)
+    return if passed
+    msg ||= "Assertion failed (block returned false)"
+    raise AssertionError, msg
   end
 
   def self.bool?(v) = [true, false].include?(v)
