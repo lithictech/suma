@@ -209,4 +209,45 @@ RSpec.describe Suma do
       expect(described_class.cached_get(key) { nil }).to be_nil
     end
   end
+
+  describe "assert" do
+    it "runs the block only in development or testing" do
+      runs = 0
+      incr = lambda do
+        runs += 1
+        true
+      end
+      Suma.assert(&incr)
+      expect(runs).to eq(1)
+      stub_const("Suma::RACK_ENV", "production")
+      Suma.assert(&incr)
+      expect(runs).to eq(1)
+    end
+
+    it "raises an assertion error if the block returns false" do
+      expect do
+        Suma.assert do
+          false
+        end
+      end.to raise_error(Suma::AssertionError, "Assertion failed (block returned false)")
+
+      expect do
+        Suma.assert do
+          [false, "my message"]
+        end
+      end.to raise_error(Suma::AssertionError, "my message")
+
+      expect do
+        Suma.assert do
+          true
+        end
+      end.to_not raise_error
+
+      expect do
+        Suma.assert do
+          [true, "my message"]
+        end
+      end.to_not raise_error
+    end
+  end
 end
