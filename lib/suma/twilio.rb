@@ -46,6 +46,8 @@ module Suma::Twilio
     raise(e) unless IGNORE_TWILIO_ERROR_CODES[e.code]
   end
 
+  def self.verification_log_url(sid) = "https://console.twilio.com/us1/monitor/logs/verify-logs/#{sid}"
+
   IGNORE_TWILIO_ERROR_CODES = {
     20_404 => "twilio_resource_not_found",
   }.freeze

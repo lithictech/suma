@@ -54,19 +54,19 @@ RSpec.describe "Suma::Message::Delivery", :db, :messaging do
     it "does not deliver sent messages" do
       d = Suma::Fixtures.message_delivery.sent.create
       expect(d.send!).to be_nil
-      expect(Suma::Message::FakeTransport.sent_deliveries).to be_empty
+      expect(Suma::Message::Transport::Fake.sent_deliveries).to be_empty
     end
 
     it "does not deliver aborted messages" do
       d = Suma::Fixtures.message_delivery.aborted.create
       expect(d.send!).to be_nil
-      expect(Suma::Message::FakeTransport.sent_deliveries).to be_empty
+      expect(Suma::Message::Transport::Fake.sent_deliveries).to be_empty
     end
 
     it "sends messages through the configured transport" do
       d = Suma::Fixtures.message_delivery.create
       expect(d.send!).to be === d
-      expect(Suma::Message::FakeTransport.sent_deliveries).to contain_exactly(d)
+      expect(Suma::Message::Transport::Fake.sent_deliveries).to contain_exactly(d)
     end
 
     it "updates fields about the sending" do
@@ -74,27 +74,27 @@ RSpec.describe "Suma::Message::Delivery", :db, :messaging do
       expect(d.send!).to be === d
       expect(d).to have_attributes(
         sent_at: be_within(5).of(Time.now),
-        transport_message_id: start_with("#{d.id}-"),
+        transport_message_id: start_with("noop-#{d.id}-"),
       )
     end
 
     it "aborts if undeliverable" do
       d = Suma::Fixtures.message_delivery.create
-      Suma::Message::FakeTransport.allowlisted_callback = proc { true }
+      Suma::Message::Transport::Fake.allowlisted_callback = proc { true }
       expect(d.send!).to be === d
       expect(d).to have_attributes(sent_at: nil, transport_message_id: nil, aborted_at: be_within(5).of(Time.now))
     end
 
     it "aborts if undeliverable recipient" do
       d = Suma::Fixtures.message_delivery.create
-      Suma::Message::FakeTransport.send_callback = proc { raise Suma::Message::UndeliverableRecipient }
+      Suma::Message::Transport::Fake.send_callback = proc { raise Suma::Message::UndeliverableRecipient }
       expect(d.send!).to be === d
       expect(d).to have_attributes(sent_at: nil, transport_message_id: nil, aborted_at: be_within(5).of(Time.now))
     end
 
     it "sets a default transport message id if the transport returns none" do
       d = Suma::Fixtures.message_delivery.create
-      Suma::Message::FakeTransport.send_callback = proc {}
+      Suma::Message::Transport::Fake.send_callback = proc {}
       expect(d.send!).to be === d
       expect(d).to have_attributes(transport_message_id: "WARNING-NOT-SET")
     end

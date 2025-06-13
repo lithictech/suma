@@ -41,7 +41,7 @@ module Suma::Message
         template: template.full_template_name,
         template_language: template.language || "",
         transport_type: transport.type,
-        transport_service: transport.service,
+        transport_service: transport.carrier.name,
         to: recipient.to,
         recipient: recipient.member,
         extra_fields: template.extra_fields.merge(extra_fields),
@@ -138,6 +138,7 @@ require_relative "liquid/filters"
 require_relative "liquid/liquification"
 require_relative "liquid/partial"
 
+require_relative "message/carrier"
 require_relative "message/transport"
 require_relative "message/liquid_drops"
 require_relative "message/template"

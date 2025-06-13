@@ -2,11 +2,11 @@
 
 require "premailer"
 
-class Suma::Message::EmailTransport < Suma::Message::Transport
+class Suma::Message::Transport::Email < Suma::Message::Transport
   include Appydays::Loggable
 
   def type = :email
-  def service = "none"
+  def carrier = nil
   def supports_layout? = false
 
   def recipient(to)

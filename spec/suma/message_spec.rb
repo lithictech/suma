@@ -38,7 +38,7 @@ RSpec.describe "Suma::Message", :db, :messaging do
       delivery = basic.dispatch("member@lithic.tech", transport: :fake)
       expect(delivery).to have_attributes(
         transport_type: "fake",
-        transport_service: "fake",
+        transport_service: "noop",
       )
     end
 

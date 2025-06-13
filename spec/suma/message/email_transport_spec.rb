@@ -2,7 +2,7 @@
 
 require "suma/message"
 
-RSpec.describe Suma::Message::EmailTransport, :db do
+RSpec.describe Suma::Message::Transport::Email, :db do
   describe "add_bodies" do
     it "renders subject, plain text, and HTML/inlined CSS bodies" do
       delivery = Suma::Fixtures.message_delivery.via(:email).create

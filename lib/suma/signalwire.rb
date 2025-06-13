@@ -17,6 +17,7 @@ module Suma::Signalwire
     setting :api_token, "sw-test-token"
     setting :project_id, "sw-test-project"
     setting :space_url, "sumafaketest.signalwire.com"
+    setting :transactional_number, "15554443333"
     setting :marketing_number, ""
     setting :message_marketing_sms_unsubscribe_keywords, ["STOP", "UNSUBSCRIBE", "ALTO"], convert: SPLIT_WORDS
     setting :message_marketing_sms_resubscribe_keywords, ["START", "RESUBSCRIBE", "COMENZAR"], convert: SPLIT_WORDS

@@ -9,7 +9,7 @@ class Suma::AnonProxy::Relay::Signalwire < Suma::AnonProxy::Relay
 
   def provision(member)
     raise Suma::InvalidPrecondition, "Member[#{member.id}] phone #{member.phone} is not in the SMS_ALLOWLIST" unless
-      Suma::Message::SmsTransport.allowlisted_phone?(member.phone)
+      Suma::Message::Transport::Sms.allowlisted_phone?(member.phone)
     query = URI.decode_www_form(Suma::Signalwire.phone_number_provision_query).to_h
     query[:max_results] = 1
     available = Suma::Signalwire.

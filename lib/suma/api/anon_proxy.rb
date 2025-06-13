@@ -98,7 +98,7 @@ class Suma::API::AnonProxy < Suma::API::V1
           XML
 
           orig_to = Suma::PhoneNumber.unformat_e164(params[:To])
-          if !Suma::Message::SmsTransport.allowlisted_phone?(orig_to)
+          if !Suma::Message::Transport::Sms.allowlisted_phone?(orig_to)
             xml = empty_xml
             Sentry.capture_message("Received webhook for signalwire to not-allowlisted phone")
           elsif (mc = Suma::AnonProxy::MemberContact[phone: orig_to])

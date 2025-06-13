@@ -1,27 +1,20 @@
 # frozen_string_literal: true
 
-require "suma/message/otp_sms_transport"
+require "suma/message"
 
-RSpec.describe Suma::Message::OtpSmsTransport, :db, reset_configuration: Suma::Message::SmsTransport do
+RSpec.describe Suma::Message::Transport::OtpSms, :db, reset_configuration: Suma::Message::Transport::Sms do
+
   before(:each) do
-    Suma::Message::SmsTransport.allowlist = ["*"]
+    Suma::Message::Transport::Sms.allowlist = ["*"]
   end
 
   describe "allowlisted?" do
     it "returns true if allowlisted" do
-      Suma::Message::SmsTransport.allowlist = ["1404*"]
+      Suma::Message::Transport::Sms.allowlist = ["1404*"]
       inst = described_class.new
       expect(inst).to be_allowlisted(Suma::Fixtures.message_delivery.sms("404-555-0128").instance)
       expect(inst).to_not be_allowlisted(Suma::Fixtures.message_delivery.sms("454-555-0128").instance)
       expect(inst).to_not be_allowlisted(Suma::Fixtures.message_delivery.sms("invalid").instance)
-    end
-  end
-
-  describe "verification ID parsing" do
-    it "parses the first part of the ID" do
-      xport = described_class.new
-      expect(xport.from_transport_message_id("123-1")).to eq("123")
-      expect(xport.to_transport_message_id("123", "1")).to eq("123-1")
     end
   end
 
@@ -36,7 +29,6 @@ RSpec.describe Suma::Message::OtpSmsTransport, :db, reset_configuration: Suma::M
       result = described_class.new.send!(delivery)
       expect(result).to eq("VE123-1")
       expect(req).to have_been_made
-      expect(described_class.new.from_transport_message_id(result)).to eq("VE123")
     end
 
     it "raises error if formatted phone is nil" do
@@ -47,7 +39,7 @@ RSpec.describe Suma::Message::OtpSmsTransport, :db, reset_configuration: Suma::M
     end
 
     it "raises undeliverable if the phone number is not allowlisted" do
-      Suma::Message::SmsTransport.allowlist = []
+      Suma::Message::Transport::Sms.allowlist = []
       sms = described_class.new
       delivery = Suma::Fixtures.message_delivery.sms("404-555-0128").create
       expect do

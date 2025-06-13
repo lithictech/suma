@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-require "suma/message/sms_transport"
+require "suma/message"
 
-RSpec.describe Suma::Message::SmsTransport, :db, reset_configuration: Suma::Message::SmsTransport do
+RSpec.describe Suma::Message::Transport::Sms, :db, reset_configuration: Suma::Message::Transport::Sms do
   before(:each) do
     described_class.allowlist = ["*"]
   end

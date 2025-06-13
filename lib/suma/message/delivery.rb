@@ -42,26 +42,28 @@ class Suma::Message::Delivery < Suma::Postgres::Model(:message_deliveries)
 
   def send!
     return nil if self.sent_at || self.aborted_at
-    self.db.transaction do
-      self.lock!
-      return nil if self.sent_at || self.aborted_at
-      unless self.transport!.allowlisted?(self)
-        self.update(aborted_at: Time.now)
+    SemanticLogger.named_tagged(message_delivery_id: self.id, to: self.to) do
+      self.db.transaction do
+        self.lock!
+        return nil if self.sent_at || self.aborted_at
+        unless self.transport!.allowlisted?(self)
+          self.update(aborted_at: Time.now)
+          return self
+        end
+        begin
+          transport_message_id = self.transport!.send!(self)
+        rescue Suma::Message::UndeliverableRecipient => e
+          self.logger.error("undeliverable_recipient",  error: e)
+          self.update(aborted_at: Time.now)
+          return self
+        end
+        if transport_message_id.blank?
+          self.logger.error("empty_transport_message_id")
+          transport_message_id = "WARNING-NOT-SET"
+        end
+        self.update(transport_message_id:, sent_at: Time.now)
         return self
       end
-      begin
-        transport_message_id = self.transport!.send!(self)
-      rescue Suma::Message::UndeliverableRecipient => e
-        self.logger.error("undeliverable_recipient", message_delivery_id: self.id, error: e)
-        self.update(aborted_at: Time.now)
-        return self
-      end
-      if transport_message_id.blank?
-        self.logger.error("empty_transport_message_id", message_delivery_id: self.id)
-        transport_message_id = "WARNING-NOT-SET"
-      end
-      self.update(transport_message_id:, sent_at: Time.now)
-      return self
     end
   end
 

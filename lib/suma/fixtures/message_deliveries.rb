@@ -73,10 +73,10 @@ module Suma::Fixtures::MessageDeliveries
   end
 
   decorator :sent_to_verification do |verification_sid="VE#{SecureRandom.hex(4)}"|
-    xport = Suma::Message::OtpSmsTransport.new
+    xport = Suma::Message::Transport::OtpSms.new
     self.transport_type = xport.type
-    self.transport_service = xport.service
+    self.transport_service = xport.carrier.name
     self.template = "verification"
-    self.transport_message_id = xport.to_transport_message_id(verification_sid, "1")
+    self.transport_message_id = xport.carrier.encode_message_id(verification_sid, "1")
   end
 end
