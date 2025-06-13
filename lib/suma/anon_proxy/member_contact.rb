@@ -39,7 +39,7 @@ class Suma::AnonProxy::MemberContact < Suma::Postgres::Model(:anon_proxy_member_
   def phone? = !!self.phone
   def email? = !!self.email
   def address = self.email || self.phone
-  def formatted_address = self.phone? ? Suma::PhoneNumber::US.format(self.phone) : self.email
+  def formatted_address = self.phone? ? Suma::PhoneNumber.format_display(self.phone) : self.email
 
   def rel_admin_link = "/anon-member-contact/#{self.id}"
 

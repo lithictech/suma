@@ -423,7 +423,7 @@ class Suma::Member < Suma::Postgres::Model(:members)
     # If it's empty or non-US, use the value verbatim.
     if (phone = self.phone).present?
       begin
-        us_phone = Suma::PhoneNumber::US.format(self.phone)
+        us_phone = Suma::PhoneNumber.format_display(self.phone)
         phone = "#{us_phone} #{self.phone} #{self.phone[1..]}"
       rescue ArgumentError
         nil
