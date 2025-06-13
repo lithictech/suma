@@ -1,5 +1,9 @@
 # frozen_string_literal: true
 
+require "suma/messages/order_confirmation"
+require "suma/messages/single_value"
+require "suma/messages/verification"
+
 RSpec.describe "Suma::Message", :db do
   it "can render templates" do
     r = Suma::Fixtures.member.create
