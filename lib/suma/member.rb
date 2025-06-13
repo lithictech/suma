@@ -527,6 +527,9 @@ require "suma/member/stripe_attributes"
 #  eligibility_member_associations        | eligibility_member_associations_pending_member_id_fkey  | (pending_member_id) REFERENCES members(id)
 #  eligibility_member_associations        | eligibility_member_associations_rejected_member_id_fkey | (rejected_member_id) REFERENCES members(id)
 #  eligibility_member_associations        | eligibility_member_associations_verified_member_id_fkey | (verified_member_id) REFERENCES members(id)
+#  marketing_lists_members                | marketing_lists_members_member_id_fkey                  | (member_id) REFERENCES members(id) ON DELETE CASCADE
+#  marketing_sms_broadcasts               | marketing_sms_broadcasts_created_by_id_fkey             | (created_by_id) REFERENCES members(id) ON DELETE SET NULL
+#  marketing_sms_dispatches               | marketing_sms_dispatches_member_id_fkey                 | (member_id) REFERENCES members(id)
 #  member_activities                      | member_activities_member_id_fkey                        | (member_id) REFERENCES members(id) ON DELETE CASCADE
 #  member_linked_legal_entities           | member_linked_legal_entities_member_id_fkey             | (member_id) REFERENCES members(id)
 #  member_referrals                       | member_referral_member_id_fkey                          | (member_id) REFERENCES members(id) ON DELETE CASCADE

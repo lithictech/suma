@@ -46,6 +46,15 @@ end
 #  undiscounted_cost | numeric                  |
 #  customer_cost     | numeric                  |
 #  savings           | numeric                  |
+#  quantity          | integer                  |
+#  product_id        | integer                  |
+#  product_name      | text                     |
+#  vendor_id         | integer                  |
+#  vendor_name       | text                     |
+#  offering_id       | integer                  |
+#  offering_name     | text                     |
+#  offering_begin    | timestamp with time zone |
+#  offering_end      | timestamp with time zone |
 # Indexes:
 #  order_items_pkey                 | PRIMARY KEY btree (pk)
 #  order_items_checkout_item_id_key | UNIQUE btree (checkout_item_id)

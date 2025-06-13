@@ -71,6 +71,7 @@ end
 #  vendor_service_rates_undiscounted_rate_id_fkey | (undiscounted_rate_id) REFERENCES vendor_service_rates(id)
 # Referenced By:
 #  mobility_trips                      | mobility_trips_vendor_service_rate_id_fkey                      | (vendor_service_rate_id) REFERENCES vendor_service_rates(id) ON DELETE RESTRICT
+#  programs                            | programs_vendor_service_rate_id_fkey                            | (vendor_service_rate_id) REFERENCES vendor_service_rates(id)
 #  vendor_service_rates                | vendor_service_rates_undiscounted_rate_id_fkey                  | (undiscounted_rate_id) REFERENCES vendor_service_rates(id)
 #  vendor_service_vendor_service_rates | vendor_service_vendor_service_rates_vendor_service_rate_id_fkey | (vendor_service_rate_id) REFERENCES vendor_service_rates(id)
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------

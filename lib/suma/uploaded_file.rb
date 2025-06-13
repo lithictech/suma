@@ -187,6 +187,7 @@ end
 #  content_type   | text                     | NOT NULL
 #  content_length | integer                  | NOT NULL
 #  created_by_id  | integer                  |
+#  private        | boolean                  | NOT NULL DEFAULT false
 # Indexes:
 #  uploaded_files_pkey          | PRIMARY KEY btree (id)
 #  uploaded_files_opaque_id_key | UNIQUE btree (opaque_id)

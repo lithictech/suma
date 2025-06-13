@@ -155,7 +155,7 @@ end
 #  updated_at           | timestamp with time zone |
 #  template             | text                     | NOT NULL
 #  transport_type       | text                     | NOT NULL
-#  transport_service    | text                     | NOT NULL
+#  carrier_key          | text                     | NOT NULL
 #  transport_message_id | text                     |
 #  to                   | text                     | NOT NULL
 #  recipient_id         | integer                  |
@@ -166,6 +166,7 @@ end
 #  search_content       | text                     |
 #  search_embedding     | vector(384)              |
 #  search_hash          | text                     |
+#  sensitive            | boolean                  | NOT NULL DEFAULT false
 # Indexes:
 #  message_deliveries_pkey                          | PRIMARY KEY btree (id)
 #  message_deliveries_transport_message_id_key      | UNIQUE btree (transport_message_id)

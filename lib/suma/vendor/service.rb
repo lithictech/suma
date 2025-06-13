@@ -134,6 +134,7 @@ end
 #  mobility_restricted_areas                 | mobility_restricted_areas_vendor_service_id_fkey           | (vendor_service_id) REFERENCES vendor_services(id)
 #  mobility_trips                            | mobility_trips_vendor_service_id_fkey                      | (vendor_service_id) REFERENCES vendor_services(id) ON DELETE RESTRICT
 #  mobility_vehicles                         | mobility_vehicles_vendor_service_id_fkey                   | (vendor_service_id) REFERENCES vendor_services(id) ON DELETE CASCADE
+#  programs                                  | programs_vendor_service_id_fkey                            | (vendor_service_id) REFERENCES vendor_services(id)
 #  programs_vendor_services                  | programs_vendor_services_service_id_fkey                   | (service_id) REFERENCES vendor_services(id)
 #  vendible_groups_vendor_services           | vendible_groups_vendor_services_service_id_fkey            | (service_id) REFERENCES vendor_services(id)
 #  vendor_service_categories_vendor_services | vendor_service_categories_vendor_services_service_id_fkey  | (service_id) REFERENCES vendor_services(id)

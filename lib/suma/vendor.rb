@@ -55,6 +55,7 @@ end
 #  anon_proxy_vendor_configurations | anon_proxy_vendor_configurations_vendor_id_fkey | (vendor_id) REFERENCES vendors(id) ON DELETE CASCADE
 #  commerce_products                | commerce_products_vendor_id_fkey                | (vendor_id) REFERENCES vendors(id)
 #  images                           | images_vendor_id_fkey                           | (vendor_id) REFERENCES vendors(id)
+#  mobility_gbfs_feeds              | mobility_gbfs_feeds_vendor_id_fkey              | (vendor_id) REFERENCES vendors(id)
 #  payment_accounts                 | payment_accounts_vendor_id_fkey                 | (vendor_id) REFERENCES vendors(id)
 #  vendor_services                  | vendor_services_vendor_id_fkey                  | (vendor_id) REFERENCES vendors(id) ON DELETE CASCADE
 # ------------------------------------------------------------------------------------------------------------------------------------------

@@ -38,11 +38,14 @@ end
 #  search_content   | text                     |
 #  search_embedding | vector(384)              |
 #  search_hash      | text                     |
+#  ordinal          | double precision         | NOT NULL DEFAULT 0
 # Indexes:
 #  organizations_pkey                          | PRIMARY KEY btree (id)
 #  organizations_name_key                      | UNIQUE btree (name)
 #  organizations_search_content_tsvector_index | gin (to_tsvector('english'::regconfig, search_content))
 # Referenced By:
+#  organization_memberships | organization_memberships_former_organization_id_fkey   | (former_organization_id) REFERENCES organizations(id)
 #  organization_memberships | organization_memberships_verified_organization_id_fkey | (verified_organization_id) REFERENCES organizations(id)
 #  program_enrollments      | program_enrollments_organization_id_fkey               | (organization_id) REFERENCES organizations(id) ON DELETE CASCADE
+#  roles_organizations      | roles_organizations_organization_id_fkey               | (organization_id) REFERENCES organizations(id)
 # -----------------------------------------------------------------------------------------------------------------------------------------------------

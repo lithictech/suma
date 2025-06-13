@@ -190,6 +190,9 @@ end
 #  search_content         | text                     |
 #  search_embedding       | vector(384)              |
 #  search_hash            | text                     |
+#  vehicle_type           | text                     | NOT NULL
+#  begin_address          | text                     |
+#  end_address            | text                     |
 # Indexes:
 #  mobility_trips_pkey                               | PRIMARY KEY btree (id)
 #  mobility_trips_external_trip_id_key               | UNIQUE btree (external_trip_id)
@@ -206,4 +209,5 @@ end
 #  mobility_trips_vendor_service_rate_id_fkey | (vendor_service_rate_id) REFERENCES vendor_service_rates(id) ON DELETE RESTRICT
 # Referenced By:
 #  charges | charges_mobility_trip_id_fkey | (mobility_trip_id) REFERENCES mobility_trips(id) ON DELETE SET NULL
+#  images  | images_mobility_trip_id_fkey  | (mobility_trip_id) REFERENCES mobility_trips(id)
 # -------------------------------------------------------------------------------------------------------------------------------------------------------------

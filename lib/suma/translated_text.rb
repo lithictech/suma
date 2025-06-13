@@ -71,6 +71,7 @@ end
 #  commerce_products                     | commerce_products_description_id_fkey                           | (description_id) REFERENCES translated_texts(id)
 #  commerce_products                     | commerce_products_name_id_fkey                                  | (name_id) REFERENCES translated_texts(id)
 #  images                                | images_caption_id_fkey                                          | (caption_id) REFERENCES translated_texts(id)
+#  marketing_sms_broadcasts              | marketing_sms_broadcasts_body_id_fkey                           | (body_id) REFERENCES translated_texts(id)
 #  payment_book_transactions             | payment_book_transactions_memo_id_fkey                          | (memo_id) REFERENCES translated_texts(id)
 #  payment_funding_transactions          | payment_funding_transactions_memo_id_fkey                       | (memo_id) REFERENCES translated_texts(id)
 #  payment_ledgers                       | payment_ledgers_contribution_text_id_fkey                       | (contribution_text_id) REFERENCES translated_texts(id)

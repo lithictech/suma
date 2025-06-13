@@ -50,6 +50,10 @@ end
 #  paid_cost          | numeric                  |
 #  cash_paid          | numeric                  |
 #  noncash_paid       | numeric                  |
+#  offering_id        | integer                  |
+#  offering_name      | text                     |
+#  offering_begin     | timestamp with time zone |
+#  offering_end       | timestamp with time zone |
 # Indexes:
 #  orders_pkey         | PRIMARY KEY btree (pk)
 #  orders_order_id_key | UNIQUE btree (order_id)

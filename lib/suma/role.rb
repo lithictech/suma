@@ -86,4 +86,5 @@ end
 # Referenced By:
 #  program_enrollments | program_enrollments_role_id_fkey | (role_id) REFERENCES roles(id) ON DELETE CASCADE
 #  roles_members       | roles_members_role_id_fkey       | (role_id) REFERENCES roles(id)
+#  roles_organizations | roles_organizations_role_id_fkey | (role_id) REFERENCES roles(id)
 # ----------------------------------------------------------------------------------------------------------
