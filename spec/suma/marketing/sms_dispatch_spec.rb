@@ -127,8 +127,8 @@ RSpec.describe "Suma::Marketing::SmsDispatch", :db do
       d = Suma::Fixtures.marketing_sms_dispatch.create
       expect(d.external_links).to be_empty
       d.transport_message_id = "abc"
-      expect(d.external_links).to eq(
-        [{name: "Signalwire Message", url: "https://sumafaketest.signalwire.com/logs/messages/abc"}],
+      expect(d.external_links).to contain_exactly(
+        have_attributes(name: "Signalwire Message", url: "https://sumafaketest.signalwire.com/logs/messages/abc"),
       )
     end
   end

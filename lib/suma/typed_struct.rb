@@ -4,6 +4,7 @@ class Suma::TypedStruct
   class << self
     def _cached_base_methods = @_cached_base_methods ||= Suma::TypedStruct.new.public_methods
   end
+
   def initialize(**kwargs)
     self._defaults.merge(kwargs).each do |k, v|
       raise TypeError, "invalid struct field #{k}" unless self.respond_to?(k)
@@ -20,10 +21,18 @@ class Suma::TypedStruct
   end
 
   def inspect
-    methods_to_keep = self.public_methods - Suma::TypedStruct._cached_base_methods
-    methods_to_keep.reject! { |m| m.to_s.end_with?("=") || self.method(m).arity.nonzero? }
-    methods_to_keep.sort!
-    kvps = methods_to_keep.map { |m| "#{m}: #{self.send(m).inspect}" }.join(", ")
+    kvps = self._accessors.map { |m| "#{m}: #{self.send(m).inspect}" }.join(", ")
     return "#{self.class.name}(#{kvps})"
   end
+
+  private def _accessors
+    return @_accessors ||= begin
+      @_accessors = self.public_methods - Suma::TypedStruct._cached_base_methods
+      @_accessors.reject! { |m| m.to_s.end_with?("=") || self.method(m).arity.nonzero? }
+      @_accessors.sort!
+      @_accessors
+    end
+  end
+
+  def as_json = self._accessors.to_h { |k| [k, self[k]] }.as_json
 end

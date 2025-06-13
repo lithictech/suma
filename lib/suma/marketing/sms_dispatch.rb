@@ -112,7 +112,7 @@ class Suma::Marketing::SmsDispatch < Suma::Postgres::Model(:marketing_sms_dispat
     return [
       self._external_link(
         "Signalwire Message",
-        "https://#{Suma::Signalwire.space_url}/logs/messages/#{self.transport_message_id}",
+        Suma::Signalwire.message_log_url(self.transport_message_id),
       ),
     ]
   end

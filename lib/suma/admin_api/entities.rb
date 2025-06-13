@@ -50,7 +50,7 @@ module Suma::AdminAPI::Entities
       end
       # Always expose an external links array when we mix this in
       ctx.expose :external_links do |inst|
-        inst.respond_to?(:external_links) ? inst.external_links : []
+        inst.respond_to?(:external_links) ? inst.external_links.map(&:as_json) : []
       end
     end
   end

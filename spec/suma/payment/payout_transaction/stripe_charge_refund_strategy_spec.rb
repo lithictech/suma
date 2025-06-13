@@ -54,10 +54,10 @@ RSpec.describe "Suma::Payment::PayoutTransaction::StripeChargeRefundStrategy", :
 
   describe "external_links" do
     it "generates external links" do
-      expect(strategy.external_links).to contain_exactly(include(name: "Stripe Charge"))
+      expect(strategy.external_links).to contain_exactly(have_attributes(name: "Stripe Charge"))
       strategy.refund_json = {"id" => "re_abc"}
       expect(strategy.external_links).to contain_exactly(
-        {name: "Stripe Charge", url: "https://dashboard.stripe.com/payments/ch_1"},
+        have_attributes(name: "Stripe Charge", url: "https://dashboard.stripe.com/payments/ch_1"),
       )
     end
   end

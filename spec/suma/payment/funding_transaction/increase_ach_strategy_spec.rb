@@ -82,11 +82,15 @@ RSpec.describe "Suma::Payment::FundingTransaction::IncreaseAchStrategy", :db do
         "path" => "/transfers/xfer",
         "transaction_id" => "fff",
       }
-      expect(strategy.external_links).to eq(
-        [
-          {name: "ACH Transfer into Increase Account", url: "https://dashboard.increase.com/transfers/xfer"},
-          {name: "Transaction for ACH Transfer", url: "https://dashboard.increase.com/transactions/fff"},
-        ],
+      expect(strategy.external_links).to contain_exactly(
+        have_attributes(
+          name: "ACH Transfer into Increase Account",
+          url: "https://dashboard.increase.com/transfers/xfer",
+        ),
+        have_attributes(
+          name: "Transaction for ACH Transfer",
+          url: "https://dashboard.increase.com/transactions/fff",
+        ),
       )
     end
   end
