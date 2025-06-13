@@ -83,7 +83,7 @@ class Suma::Message::SmsTransport < Suma::Message::Transport
   end
 
   def allowlisted?(delivery)
-    return self.allowlisted_phone?(Suma::PhoneNumber.format_e164(delivery.to))
+    return self.allowlisted_phone?(Suma::PhoneNumber.format_e164?(delivery.to))
   end
 
   def allowlisted_phone?(phone) = self.class.allowlisted_phone?(phone, allowlist: self.allowlist)

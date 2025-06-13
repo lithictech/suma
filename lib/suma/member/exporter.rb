@@ -11,7 +11,7 @@ class Suma::Member::Exporter < Suma::Exporter
       ["Channel", ->(m) { m.referral&.channel }],
       ["Event", ->(m) { m.referral&.event_name }],
       ["Phone", lambda { |m|
-                  m.soft_deleted? ? m.phone : Suma::PhoneNumber::US.format(m.phone)
+                  m.soft_deleted? ? m.phone : Suma::PhoneNumber.format_display(m.phone)
                 },],
       ["IntlPhone", lambda(&:phone)],
       ["Email", lambda(&:email)],
