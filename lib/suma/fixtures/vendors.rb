@@ -10,7 +10,7 @@ module Suma::Fixtures::Vendors
   fixtured_class Suma::Vendor
 
   base :vendor do
-    self.name ||= Faker::Company.name
+    self.name ||= "#{Faker::Company.name}-#{SecureRandom.hex(1)}"
   end
 
   before_saving do |instance|
