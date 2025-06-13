@@ -17,7 +17,8 @@ class Suma::Message::Transport
   # Return true if the transport supports layouts.
   # Usually true for email/designed formats, and false for simpler transports like sms.
   def supports_layout? = raise NotImplementedError
-  # Return the +Suma::Message::Recipient+ for the member or phone/email.
+  # Return the recipient for the member or phone/email.
+  # @return [Suma::Message::Recipient]
   def recipient(to) = raise NotImplementedError
   # Returns true if message can be delivered.
   def allowlisted?(_delivery) = raise NotImplementedError

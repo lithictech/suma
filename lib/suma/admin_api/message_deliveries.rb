@@ -20,8 +20,9 @@ class Suma::AdminAPI::MessageDeliveries < Suma::AdminAPI::V1
     end
   end
 
-  class MessageDeliveryWithBodiesEntity < MessageDeliveryEntity
+  class DetailedMessageDeliveryEntity < MessageDeliveryEntity
     include Suma::AdminAPI::Entities
+    include AutoExposeDetail
     expose :bodies, with: MessageBodyEntity
   end
 
@@ -36,13 +37,23 @@ class Suma::AdminAPI::MessageDeliveries < Suma::AdminAPI::V1
     get :last do
       check_role_access!(admin_member, :read, :admin_members)
       delivery = Suma::Message::Delivery.last
-      present delivery, with: MessageDeliveryWithBodiesEntity
+      present delivery, with: DetailedMessageDeliveryEntity
     end
 
     Suma::AdminAPI::CommonEndpoints.get_one(
       self,
       Suma::Message::Delivery,
-      MessageDeliveryWithBodiesEntity,
+      DetailedMessageDeliveryEntity,
     )
+
+    route_param :id, type: Integer do
+      post :external_details do
+        (d = Suma::Message::Delivery[params[:id]]) or forbidden!
+        c = d.carrier!
+        h = c.fetch_message_details(c.decode_message_id(d.transport_message_id))
+        status 200
+        present(h.as_json)
+      end
+    end
   end
 end

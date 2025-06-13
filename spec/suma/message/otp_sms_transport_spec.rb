@@ -3,7 +3,6 @@
 require "suma/message"
 
 RSpec.describe Suma::Message::Transport::OtpSms, :db, reset_configuration: Suma::Message::Transport::Sms do
-
   before(:each) do
     Suma::Message::Transport::Sms.allowlist = ["*"]
   end

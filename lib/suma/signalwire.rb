@@ -71,6 +71,10 @@ module Suma::Signalwire
     end
   end
 
+  def self.fetch_message(sid)
+    return self.client.messages(sid).fetch
+  end
+
   def self.make_rest_request(method, url, body: nil, headers: {}, **options)
     headers["Content-Type"] ||= "application/json"
     body = body.to_json if body

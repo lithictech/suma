@@ -52,6 +52,9 @@ module Suma::AdminAPI::Entities
       ctx.expose :external_links do |inst|
         inst.respond_to?(:external_links) ? inst.external_links.map(&:as_json) : []
       end
+      ctx.expose :admin_actions do |inst|
+        inst.respond_to?(:admin_actions) ? inst.admin_actions.map(&:as_json) : []
+      end
     end
   end
 
@@ -129,6 +132,7 @@ module Suma::AdminAPI::Entities
     expose :sent_at
     expose :aborted_at
     expose :to
+    expose :formatted_to
     expose :recipient, with: MemberEntity
   end
 

@@ -12,9 +12,9 @@ class Suma::Message::Transport::Email < Suma::Message::Transport
   def recipient(to)
     if to.is_a?(Suma::Member)
       raise Suma::InvalidPrecondition, "Member[#{to.id}] has no email" if to.email.blank?
-      return Suma::Message::Recipient.new(to.email, to)
+      return Suma::Message::Recipient.new(to.email, to, to.email)
     end
-    return Suma::Message::Recipient.new(to, nil)
+    return Suma::Message::Recipient.new(to, nil, to)
   end
 
   def allowlisted?(_delivery) = false

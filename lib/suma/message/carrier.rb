@@ -22,19 +22,21 @@ class Suma::Message::Carrier
   def external_link_for(_msg_id) = nil
 
   # Return true if +fetch_message_details+ is implemented.
-  def can_fetch_details?(_msg_id) = false
+  def can_fetch_details? = false
 
   # Fetch a hash of the message details from the carrier API.
   # Return nil if not supported.
-  def fetch_message_details(msg_id)
+  def fetch_message_details(_msg_id)
     raise Suma::InvariantViolation, "can_fetch_details? must be false if this is not implemented" if
-      self.can_fetch_details?(msg_id)
+      self.can_fetch_details?
     return nil
   end
 end
 
 require_relative "carrier/noop"
 Suma::Message::Carrier.register(:noop, Suma::Message::Carrier::Noop)
+require_relative "carrier/noop_extended"
+Suma::Message::Carrier.register(:noop_extended, Suma::Message::Carrier::NoopExtended)
 require_relative "carrier/signalwire"
 Suma::Message::Carrier.register(:signalwire, Suma::Message::Carrier::Signalwire)
 require_relative "carrier/twilio_verify"

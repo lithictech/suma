@@ -32,4 +32,11 @@ class Suma::Message::Carrier::Signalwire < Suma::Message::Carrier
   }.freeze
 
   def external_link_for(msg_id) = Suma::Signalwire.message_log_url(msg_id)
+
+  def can_fetch_details? = true
+
+  def fetch_message_details(msg_id)
+    r = Suma::Signalwire.fetch_message(msg_id)
+    return r.instance_variable_get(:@properties)
+  end
 end

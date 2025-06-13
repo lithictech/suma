@@ -36,9 +36,9 @@ class Suma::Message::Transport::Sms < Suma::Message::Transport
   def recipient(to)
     if to.is_a?(Suma::Member)
       raise Suma::InvalidPrecondition, "Member[#{to.id}] has no phone" if to.phone.blank?
-      return Suma::Message::Recipient.new(to.phone, to)
+      return Suma::Message::Recipient.new(to.phone, to, Suma::PhoneNumber::US.format(to.phone))
     end
-    return Suma::Message::Recipient.new(to, nil)
+    return Suma::Message::Recipient.new(to, nil, Suma::PhoneNumber::US.format(to))
   end
 
   def allowlisted?(delivery)

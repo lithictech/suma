@@ -8,7 +8,7 @@ class Suma::Message::Carrier::TwilioVerify < Suma::Message::Carrier
 
   def send!(to:, code:, locale:, channel:)
     begin
-      response = Suma::Twilio.send_verification(to, code:, locale:, channel:,)
+      response = Suma::Twilio.send_verification(to, code:, locale:, channel:)
     rescue Twilio::REST::RestError => e
       if (logmsg = FATAL_TWILIO_ERROR_CODES[e.code])
         self.logger.warn(logmsg, error: e.response.body)
@@ -38,9 +38,18 @@ class Suma::Message::Carrier::TwilioVerify < Suma::Message::Carrier
   # @param tmid [String]
   # @return [String]
   def decode_message_id(tmid)
-    idpart = tmid.rpartition("-")[0]
+    idpart = tmid.gsub(/-\d+$/, "")
     return idpart
   end
 
   def external_link_for(msg_id) = Suma::Twilio.verification_log_url(msg_id)
+  def can_fetch_details? = true
+
+  def fetch_message_details(msg_id)
+    Suma.assert do
+      [msg_id == self.decode_message_id(msg_id), "message id should have been decoded"]
+    end
+    ve = Suma::Twilio.fetch_verification(msg_id)
+    return ve.instance_variable_get(:@properties)
+  end
 end

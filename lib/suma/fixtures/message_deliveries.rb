@@ -15,8 +15,12 @@ module Suma::Fixtures::MessageDeliveries
   base :message_delivery do
     self.template ||= "fixture"
     self.transport_type ||= "fake"
-    self.transport_service ||= "fixture"
     self.to ||= "fixture-to"
+  end
+
+  before_saving do |instance|
+    instance.transport_service ||= instance.transport!.carrier.name
+    instance
   end
 
   decorator :email, presave: true do |to=nil, content=nil|
@@ -61,6 +65,7 @@ module Suma::Fixtures::MessageDeliveries
   decorator :sent do |at=nil|
     at ||= Time.now
     self.sent_at = at
+    self.transport_message_id = "fixtured-#{SecureRandom.hex(6)}"
   end
 
   decorator :aborted do |at=nil|
