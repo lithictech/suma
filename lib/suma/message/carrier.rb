@@ -7,7 +7,7 @@ class Suma::Message::Carrier
   extend Suma::SimpleRegistry
   include Appydays::Loggable
 
-  def name = raise NotImplementedError
+  def key = raise NotImplementedError
 
   # Send the message delivery through the carrier and return the message id.
   # Each carrier can have specific arguments for +send!+.

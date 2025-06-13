@@ -41,7 +41,7 @@ module Suma::Message
         template: template.full_template_name,
         template_language: template.language || "",
         transport_type: transport.type,
-        transport_service: transport.carrier.name,
+        carrier_key: transport.carrier.key,
         to: recipient.to,
         recipient: recipient.member,
         extra_fields: template.extra_fields.merge(extra_fields),

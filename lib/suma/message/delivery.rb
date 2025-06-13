@@ -37,7 +37,7 @@ class Suma::Message::Delivery < Suma::Postgres::Model(:message_deliveries)
   # @return [Suma::Message::Transport]
   def transport! = Suma::Message::Transport.registry_create!(self.transport_type)
   # @return [Suma::Message::Carrier]
-  def carrier! = Suma::Message::Carrier.registry_create!(self.transport_service)
+  def carrier! = Suma::Message::Carrier.registry_create!(self.carrier_key)
   def sensitive? = self.sensitive
   def formatted_to = self.transport!.recipient(self.to).formatted_to
   def body_with_mediatype(mt) = self.bodies.find { |b| b.mediatype == mt }
@@ -84,7 +84,7 @@ class Suma::Message::Delivery < Suma::Postgres::Model(:message_deliveries)
     url = self.carrier!.external_link_for(self.carrier!.decode_message_id(self.transport_message_id))
     return [] unless url
     return [
-      self._external_link("View in #{self.transport_service.humanize}", url),
+      self._external_link("View in #{self.carrier_key.humanize}", url),
     ]
   end
 
@@ -92,7 +92,7 @@ class Suma::Message::Delivery < Suma::Postgres::Model(:message_deliveries)
     return [] unless self._use_external_logs && self.carrier!.can_fetch_details?
     return [
       self._admin_action(
-        "View #{self.transport_service.humanize} details",
+        "View #{self.carrier_key.humanize} details",
         "/adminapi/v1/message_deliveries/#{self.id}/external_details",
       ),
     ]
@@ -104,7 +104,7 @@ class Suma::Message::Delivery < Suma::Postgres::Model(:message_deliveries)
     return [
       :template,
       :transport_type,
-      :transport_service,
+      :carrier_key,
       :transport_message_id,
       :to,
       :recipient,

@@ -347,7 +347,7 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
       nil_msg_id = code_fac.create(message_delivery: Suma::Fixtures.message_delivery.sent_to_verification.create)
       nil_msg_id.message_delivery.update(transport_message_id: nil)
       other_svc = code_fac.create(message_delivery: Suma::Fixtures.message_delivery.sent_to_verification.create)
-      other_svc.message_delivery.update(transport_service: "sms")
+      other_svc.message_delivery.update(carrier_key: "sms")
       expect do
         no_delivery.expire!
         nil_msg_id.expire!

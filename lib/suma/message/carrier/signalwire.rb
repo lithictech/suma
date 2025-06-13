@@ -3,7 +3,7 @@
 require "suma/signalwire"
 
 class Suma::Message::Carrier::Signalwire < Suma::Message::Carrier
-  def name = "signalwire"
+  def key = "signalwire"
 
   def send!(override_from:, to:, body:)
     from = override_from || Suma::Signalwire.transactional_number

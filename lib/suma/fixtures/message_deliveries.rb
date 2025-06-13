@@ -19,7 +19,7 @@ module Suma::Fixtures::MessageDeliveries
   end
 
   before_saving do |instance|
-    instance.transport_service ||= instance.transport!.carrier.name
+    instance.carrier_key ||= instance.transport!.carrier.key
     instance
   end
 
@@ -80,7 +80,7 @@ module Suma::Fixtures::MessageDeliveries
   decorator :sent_to_verification do |verification_sid="VE#{SecureRandom.hex(4)}"|
     xport = Suma::Message::Transport::OtpSms.new
     self.transport_type = xport.type
-    self.transport_service = xport.carrier.name
+    self.carrier_key = xport.carrier.key
     self.template = "verification"
     self.transport_message_id = xport.carrier.encode_message_id(verification_sid, "1")
   end

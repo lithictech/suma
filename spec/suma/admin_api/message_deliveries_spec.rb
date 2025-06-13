@@ -163,7 +163,7 @@ RSpec.describe Suma::AdminAPI::MessageDeliveries, :db do
   end
 
   describe "POST /v1/message_deliveries/:id/external_details" do
-    let(:d) { Suma::Fixtures.message_delivery.sent.create(transport_service: "noop_extended") }
+    let(:d) { Suma::Fixtures.message_delivery.sent.create(carrier_key: "noop_extended") }
 
     it "fetches details" do
       post "/v1/message_deliveries/#{d.id}/external_details"
@@ -182,7 +182,7 @@ RSpec.describe Suma::AdminAPI::MessageDeliveries, :db do
     end
 
     it "400s if the carrier does not support fetching details" do
-      d.update(transport_service: "noop")
+      d.update(carrier_key: "noop")
 
       post "/v1/message_deliveries/#{d.id}/external_details"
 

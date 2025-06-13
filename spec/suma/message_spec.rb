@@ -16,7 +16,7 @@ RSpec.describe "Suma::Message", :db, :messaging do
       expect(delivery).to have_attributes(
         template: "specs/basic",
         transport_type: "sms",
-        transport_service: "signalwire",
+        carrier_key: "signalwire",
         transport_message_id: nil,
         sent_at: nil,
         to: recipient.phone,
@@ -38,7 +38,7 @@ RSpec.describe "Suma::Message", :db, :messaging do
       delivery = basic.dispatch("member@lithic.tech", transport: :fake)
       expect(delivery).to have_attributes(
         transport_type: "fake",
-        transport_service: "noop",
+        carrier_key: "noop",
       )
     end
 

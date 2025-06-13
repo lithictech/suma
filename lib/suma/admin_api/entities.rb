@@ -127,7 +127,7 @@ module Suma::AdminAPI::Entities
     include AutoExposeBase
     expose :template
     expose :transport_type
-    expose :transport_service
+    expose :carrier_key
     expose :transport_message_id
     expose :sent_at
     expose :aborted_at

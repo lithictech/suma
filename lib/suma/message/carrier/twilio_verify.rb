@@ -4,7 +4,7 @@ require "appydays/loggable"
 require "suma/twilio"
 
 class Suma::Message::Carrier::TwilioVerify < Suma::Message::Carrier
-  def name = "twilio_verify"
+  def key = "twilio_verify"
 
   def send!(to:, code:, locale:, channel:)
     begin

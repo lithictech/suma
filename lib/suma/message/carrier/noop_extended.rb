@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class Suma::Message::Carrier::NoopExtended < Suma::Message::Carrier
-  def name = "noop_ext"
+  def key = "noop_ext"
 
   def send!(delivery_id:) = "noopext-#{delivery_id}-#{SecureRandom.hex(6)}"
 

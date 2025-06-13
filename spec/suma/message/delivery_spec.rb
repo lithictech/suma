@@ -102,28 +102,28 @@ RSpec.describe "Suma::Message::Delivery", :db, :messaging do
 
   describe "external_links" do
     it "generates external links from the carrier using the decoded message id" do
-      d = Suma::Fixtures.message_delivery.sent.create(transport_service: "noop_extended")
+      d = Suma::Fixtures.message_delivery.sent.create(carrier_key: "noop_extended")
       expect(d.external_links).to contain_exactly(
         have_attributes(name: "View in Noop extended", url: start_with("https://fakecarrier/fixtured-")),
       )
     end
 
     it "does not generate external links for deliveries older than 30 days" do
-      d = Suma::Fixtures.message_delivery.sent(31.days.ago).create(transport_service: "noop_extended")
+      d = Suma::Fixtures.message_delivery.sent(31.days.ago).create(carrier_key: "noop_extended")
       expect(d.external_links).to be_empty
     end
 
     it "does not generate links for carriers which do not support them" do
-      d = Suma::Fixtures.message_delivery.sent.create(transport_service: "noop")
+      d = Suma::Fixtures.message_delivery.sent.create(carrier_key: "noop")
       expect(d.external_links).to be_empty
     end
   end
 
   describe "admin_actions" do
-    let(:d) { Suma::Fixtures.message_delivery.create(transport_service: "signalwire") }
+    let(:d) { Suma::Fixtures.message_delivery.create(carrier_key: "signalwire") }
 
     it "generates actions from the carrier using the decoded message id" do
-      d = Suma::Fixtures.message_delivery.sent.create(transport_service: "noop_extended")
+      d = Suma::Fixtures.message_delivery.sent.create(carrier_key: "noop_extended")
       expect(d.admin_actions).to contain_exactly(
         have_attributes(
           label: "View Noop extended details",
@@ -134,12 +134,12 @@ RSpec.describe "Suma::Message::Delivery", :db, :messaging do
     end
 
     it "does not generate actions for deliveries older than 30 days" do
-      d = Suma::Fixtures.message_delivery.sent(31.days.ago).create(transport_service: "noop_extended")
+      d = Suma::Fixtures.message_delivery.sent(31.days.ago).create(carrier_key: "noop_extended")
       expect(d.admin_actions).to be_empty
     end
 
     it "does not generate actions for carriers which do not support them" do
-      d = Suma::Fixtures.message_delivery.sent.create(transport_service: "noop")
+      d = Suma::Fixtures.message_delivery.sent.create(carrier_key: "noop")
       expect(d.admin_actions).to be_empty
     end
   end
