@@ -48,8 +48,12 @@ class Suma::AdminAPI::MessageDeliveries < Suma::AdminAPI::V1
 
     route_param :id, type: Integer do
       post :external_details do
+        check_role_access!(admin_member, :read, :admin_members)
         (d = Suma::Message::Delivery[params[:id]]) or forbidden!
+        adminerror!(400, "Delivery has no transport message id") if d.transport_message_id.blank?
         c = d.carrier!
+        adminerror!(400, "Carrier does not support fetching message details") unless c.can_fetch_details?
+
         h = c.fetch_message_details(c.decode_message_id(d.transport_message_id))
         status 200
         present(h.as_json)

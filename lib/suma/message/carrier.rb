@@ -26,11 +26,7 @@ class Suma::Message::Carrier
 
   # Fetch a hash of the message details from the carrier API.
   # Return nil if not supported.
-  def fetch_message_details(_msg_id)
-    raise Suma::InvariantViolation, "can_fetch_details? must be false if this is not implemented" if
-      self.can_fetch_details?
-    return nil
-  end
+  def fetch_message_details(_msg_id) = nil
 end
 
 require_relative "carrier/noop"

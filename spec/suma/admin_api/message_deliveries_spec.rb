@@ -161,4 +161,47 @@ RSpec.describe Suma::AdminAPI::MessageDeliveries, :db do
       expect(last_response).to have_json_body.that_includes(error: include(code: "role_check"))
     end
   end
+
+  describe "POST /v1/message_deliveries/:id/external_details" do
+    let(:d) { Suma::Fixtures.message_delivery.sent.create(transport_service: "noop_extended") }
+
+    it "fetches details" do
+      post "/v1/message_deliveries/#{d.id}/external_details"
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.
+        that_includes(noop_msg_id: start_with("fixtured-"))
+    end
+
+    it "400s if there is no message id" do
+      d.update(transport_message_id: nil)
+
+      post "/v1/message_deliveries/#{d.id}/external_details"
+
+      expect(last_response).to have_status(400)
+    end
+
+    it "400s if the carrier does not support fetching details" do
+      d.update(transport_service: "noop")
+
+      post "/v1/message_deliveries/#{d.id}/external_details"
+
+      expect(last_response).to have_status(400)
+    end
+
+    it "errors without role access" do
+      replace_roles(admin, Suma::Role.cache.noop_admin)
+
+      post "/v1/message_deliveries/#{d.id}/external_details"
+
+      expect(last_response).to have_status(403)
+      expect(last_response).to have_json_body.that_includes(error: include(code: "role_check"))
+    end
+
+    it "errors if the delivery does not exist" do
+      post "/v1/message_deliveries/0/external_details"
+
+      expect(last_response).to have_status(403)
+    end
+  end
 end

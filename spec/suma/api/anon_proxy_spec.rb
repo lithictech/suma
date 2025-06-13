@@ -192,7 +192,7 @@ RSpec.describe Suma::API::AnonProxy, :db do
     end
 
     it "can handle messages sent from a shortcode" do
-      Suma::Message::SmsTransport.allowlist = ["*"]
+      Suma::Message::Transport::Sms.allowlist = ["*"]
       Suma::AnonProxy.signalwire_relay_number = "15559994444"
       mc = Suma::Fixtures.anon_proxy_member_contact.phone("15552221111").create
       mc.member.update(phone: "15558889999")

@@ -21,7 +21,7 @@ class Suma::Async::ResetCodeUpdateTwilio
     md = code.message_delivery
     return unless md &&
       md.transport_message_id.present? &&
-      md.transport_service == "twilio-verify"
+      md.transport_service == "twilio_verify"
     verification_id = Suma::Message::Carrier::TwilioVerify.new.decode_message_id(md.transport_message_id)
     Suma::Twilio.update_verification(verification_id, status:)
   end

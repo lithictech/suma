@@ -36,9 +36,13 @@ class Suma::Message::Transport::Sms < Suma::Message::Transport
   def recipient(to)
     if to.is_a?(Suma::Member)
       raise Suma::InvalidPrecondition, "Member[#{to.id}] has no phone" if to.phone.blank?
-      return Suma::Message::Recipient.new(to.phone, to, Suma::PhoneNumber::US.format(to.phone))
+      str_to = to.phone
+      member = to
+    else
+      str_to = to
+      member = nil
     end
-    return Suma::Message::Recipient.new(to, nil, Suma::PhoneNumber::US.format(to))
+    return Suma::Message::Recipient.new(str_to, member, Suma::PhoneNumber::US.format?(str_to))
   end
 
   def allowlisted?(delivery)
@@ -48,7 +52,7 @@ class Suma::Message::Transport::Sms < Suma::Message::Transport
   def allowlisted_phone?(phone) = self.class.allowlisted_phone?(phone, allowlist: self.allowlist)
 
   def send!(delivery)
-    to_phone = Suma::PhoneNumber.format_e164!(delivery.to)
+    to_phone = Suma::PhoneNumber.format_e164(delivery.to)
     raise Suma::Message::UndeliverableRecipient, "Number '#{to_phone}' not allowlisted" unless
       self.allowlisted_phone?(to_phone)
     override_from = delivery.extra_fields.fetch("from", nil)

@@ -95,13 +95,14 @@ module Suma::Message
 
   # Presents a homogeneous interface for a given 'to' value (email vs. member, for example).
   # +to+ and +formatted_to+ will always be strings, and +member+ will be a +Suma::Member+ or +nil+.
+  # If +formatted_to+ is initialized with +nil+, it will use the value of +to+.
   class Recipient
     attr_reader :to, :member, :formatted_to
 
     def initialize(to, member, formatted_to)
       @to = to
       @member = member
-      @formatted_to = formatted_to
+      @formatted_to = formatted_to || to
     end
   end
 

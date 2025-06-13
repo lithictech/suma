@@ -6,15 +6,15 @@ class Suma::Message::Transport::Email < Suma::Message::Transport
   include Appydays::Loggable
 
   def type = :email
-  def carrier = nil
+  def carrier = Suma::Message::Carrier::Noop.new
   def supports_layout? = false
 
   def recipient(to)
     if to.is_a?(Suma::Member)
       raise Suma::InvalidPrecondition, "Member[#{to.id}] has no email" if to.email.blank?
-      return Suma::Message::Recipient.new(to.email, to, to.email)
+      return Suma::Message::Recipient.new(to.email, to, nil)
     end
-    return Suma::Message::Recipient.new(to, nil, to)
+    return Suma::Message::Recipient.new(to, nil, nil)
   end
 
   def allowlisted?(_delivery) = false

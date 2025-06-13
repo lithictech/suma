@@ -77,7 +77,7 @@ RSpec.describe "Suma::Message", :db, :messaging do
   end
 
   describe "rendering" do
-    let(:recipient) { Suma::Message::Recipient.new("member@lithic.tech", nil) }
+    let(:recipient) { Suma::Message::Recipient.new("member@lithic.tech", nil, nil) }
 
     it "errors if a template for the specified transport does not exist" do
       expect do

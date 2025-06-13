@@ -7,7 +7,7 @@ class Suma::Message::Carrier::Signalwire < Suma::Message::Carrier
 
   def send!(override_from:, to:, body:)
     from = override_from || Suma::Signalwire.transactional_number
-    from = Suma::PhoneNumber.format_e164!(from)
+    from = Suma::PhoneNumber.format_e164(from)
 
     self.logger.info("send_signalwire_sms", to:)
     begin
