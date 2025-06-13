@@ -27,9 +27,6 @@ class Suma::Message::Transport::OtpSms < Suma::Message::Transport
 
   def send!(delivery)
     to_phone = Suma::PhoneNumber.format_e164(delivery.to)
-    raise Suma::Message::Error, "Could not format phone number" if
-      to_phone.nil?
-
     raise Suma::Message::UndeliverableRecipient, "Number '#{to_phone}' not allowlisted" unless
       @smstransport.allowlisted_phone?(to_phone)
 

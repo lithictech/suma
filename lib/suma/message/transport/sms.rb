@@ -8,7 +8,7 @@ class Suma::Message::Transport::Sms < Suma::Message::Transport
   include Appydays::Loggable
 
   configurable(:sms) do
-    setting :allowlist, [], convert: ->(s) { s.split.map { |p| Suma::PhoneNumber.format_e164(p) || p } }
+    setting :allowlist, [], convert: ->(s) { s.split.map { |p| Suma::PhoneNumber.format_e164?(p) || p } }
     # If set, disable SMS (but allow verifications).
     setting :provider_disabled, false
   end

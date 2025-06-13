@@ -30,11 +30,11 @@ RSpec.describe Suma::Message::Transport::OtpSms, :db, reset_configuration: Suma:
       expect(req).to have_been_made
     end
 
-    it "raises error if formatted phone is nil" do
+    it "raises error if to phone cannot be e164 formatted" do
       delivery = Suma::Fixtures.message_delivery.sms("invalid").create
       expect do
         described_class.new.send!(delivery)
-      end.to raise_error(/could not format/i)
+      end.to raise_error(Suma::PhoneNumber::BadFormat)
     end
 
     it "raises undeliverable if the phone number is not allowlisted" do
