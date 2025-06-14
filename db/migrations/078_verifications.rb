@@ -2,6 +2,10 @@
 
 Sequel.migration do
   up do
+    alter_table(:organizations) do
+      add_column :membership_verification_email, :text, null: false, default: ""
+    end
+
     create_table(:organization_membership_verifications) do
       primary_key :id
       timestamptz :created_at, null: false, default: Sequel.function(:now)
@@ -39,5 +43,8 @@ Sequel.migration do
   down do
     drop_table(:organization_membership_verification_audit_logs)
     drop_table(:organization_membership_verifications)
+    alter_table(:organizations) do
+      drop_column :membership_verification_email
+    end
   end
 end

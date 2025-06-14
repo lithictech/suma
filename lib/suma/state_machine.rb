@@ -2,7 +2,7 @@
 
 require "suma"
 
-module Suma::StateMachine
+class Suma::StateMachine
   class Error < RuntimeError; end
 
   class FailedTransition < Error
@@ -16,5 +16,16 @@ module Suma::StateMachine
       end
       @wrapped = wrapped
     end
+  end
+
+  class Helpers
+    def initialize(obj, name)
+      @obj = obj
+      @name = name
+      @machine = @obj.class.state_machines[@name]
+    end
+
+    # @return [Array<Symbol>]
+    def available_events(sm) = @machines.events.valid_for(sm).map(&:name)
   end
 end

@@ -64,19 +64,22 @@ class Suma::Organization::MembershipVerification < Suma::Postgres::Model(:organi
 
   def begin_partner_outreach
     member = self.membership.member
-    body = <<~S
-      Verification information for #{member.name}
-      Phone: #{member.us_phone}
-      Address: #{member.legal_entity.address&.one_line_address}
-    S
+    body = [
+      "Verification information for #{member.name}",
+    ]
+    body << "Phone: #{member.us_phone}" if member.phone
+    body << "Address: #{member.legal_entity.address&.one_line_address}" if member.legal_entity.address
     params = {
       subject: "Verification request for #{member.name}",
-      body:,
+      body: body.join("\n\n"),
       mode: "shared",
       should_add_default_signature: true,
     }
     if (author_id = self._front_author_id)
       params[:author_id] = author_id
+    end
+    if (partner_email = self.membership.organization_verification_email).present?
+      params[:to] = [Suma::Frontapp.contact_alt_handle(:email, partner_email)]
     end
     got = Suma::Frontapp.client.create_draft!(self.class.front_partner_channel_id, params)
     self.partner_outreach_front_response = got

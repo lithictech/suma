@@ -20,6 +20,20 @@ RSpec.describe "Suma::Organization::Membership", :db do
     end
   end
 
+  describe "organization_verification_email" do
+    it "returns the current, former, or matching org email" do
+      o = Suma::Fixtures.organization.create(name: "Acme", membership_verification_email: "office@mysuma.org")
+      m = Suma::Fixtures.organization_membership.unverified.create
+      expect(m.organization_verification_email).to eq("")
+      m.unverified_organization_name = "Acme"
+      expect(m.organization_verification_email).to eq("office@mysuma.org")
+      m.verified_organization = o
+      expect(m.organization_verification_email).to eq("office@mysuma.org")
+      m.remove_from_organization
+      expect(m.organization_verification_email).to eq("office@mysuma.org")
+    end
+  end
+
   describe "validations" do
     it "can only have verified or unverified set" do
       o = Suma::Fixtures.organization.create
