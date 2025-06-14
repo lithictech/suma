@@ -13,6 +13,7 @@ class Suma::Organization::Membership < Suma::Postgres::Model(:organization_membe
   many_to_one :verified_organization, class: "Suma::Organization"
   many_to_one :former_organization, class: "Suma::Organization"
   many_to_one :member, class: "Suma::Member"
+  one_to_one :verification, class: "Suma::Organization::MembershipVerification"
 
   dataset_module do
     def verified = self.exclude(verified_organization_id: nil)
