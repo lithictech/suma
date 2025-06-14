@@ -8,9 +8,18 @@ Sequel.migration do
       timestamptz :updated_at
 
       text :status, null: false
+      jsonb :partner_outreach_front_response
+      jsonb :member_outreach_front_response
 
       foreign_key :membership_id, :organization_memberships, null: false
       foreign_key :owner_id, :members, on_delete: :set_null
+
+      column :search_content, :text
+      column :search_embedding, "vector(384)"
+      column :search_hash, :text
+      index Sequel.function(:to_tsvector, "english", :search_content),
+            name: :organization_membership_verifications_search_content_tsvector_index,
+            type: :gin
     end
 
     create_table(:organization_membership_verification_audit_logs) do

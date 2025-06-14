@@ -23,6 +23,10 @@ class Suma::Organization::Membership < Suma::Postgres::Model(:organization_membe
   def unverified? = self.unverified_organization_name.to_s != ""
   def removed? = !self.former_organization_id.nil?
 
+  def organization_label
+    self.verified_organization&.name || self.former_organization&.name || self.unverified_organization_name
+  end
+
   def verified_organization_id=(id)
     self.unverified_organization_name = nil unless id.nil?
     self[:verified_organization_id] = id

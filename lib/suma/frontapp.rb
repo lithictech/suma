@@ -20,6 +20,8 @@ module Suma::Frontapp
     # @param [:email,:phone] source
     # @param [String] value
     def contact_alt_handle(source, value) = "alt:#{source}:#{value}"
+
+    def contact_phone_handle(p) = self.contact_alt_handle("phone", Suma::PhoneNumber.format_e164(p))
   end
 
   configurable(:frontapp) do
@@ -28,5 +30,11 @@ module Suma::Frontapp
     after_configured do
       self.client = Frontapp::Client.new(auth_token: self.auth_token, user_agent: Suma::Http.user_agent)
     end
+  end
+end
+
+module Frontapp::Client::Channels
+  def create_draft!(channel_id, params={})
+    create("channels/#{channel_id}/drafts", params)
   end
 end

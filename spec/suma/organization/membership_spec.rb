@@ -9,6 +9,17 @@ RSpec.describe "Suma::Organization::Membership", :db do
     expect { Suma::Fixtures.organization_membership.create }.to raise_error(/must call/)
   end
 
+  describe "organization_label" do
+    it "returns the name of the currently set org" do
+      m = Suma::Fixtures.organization_membership.unverified("Acme").create
+      expect(m.organization_label).to eq("Acme")
+      m.verified_organization = Suma::Fixtures.organization.create(name: "Acme")
+      expect(m.organization_label).to eq("Acme")
+      m.remove_from_organization
+      expect(m.organization_label).to eq("Acme")
+    end
+  end
+
   describe "validations" do
     it "can only have verified or unverified set" do
       o = Suma::Fixtures.organization.create
