@@ -5,7 +5,7 @@ require "suma/postgres/hybrid_search"
 require "suma/postgres/model"
 require "suma/state_machine"
 
-class Suma::Organization::MembershipVerification < Suma::Postgres::Model(:organization_membership_verifications)
+class Suma::Organization::Membership::Verification < Suma::Postgres::Model(:organization_membership_verifications)
   include Appydays::Configurable
   include Suma::AdminLinked
   include Suma::Postgres::HybridSearch
@@ -20,7 +20,7 @@ class Suma::Organization::MembershipVerification < Suma::Postgres::Model(:organi
   plugin :timestamps
 
   one_to_many :audit_logs,
-              class: "Suma::Organization::MembershipVerificationAuditLog",
+              class: "Suma::Organization::Membership::VerificationAuditLog",
               order: Sequel.desc(:at),
               key: :verification_id
   many_to_one :membership, class: "Suma::Organization::Membership"

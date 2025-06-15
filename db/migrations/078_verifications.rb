@@ -36,8 +36,19 @@ Sequel.migration do
       text :reason, null: false, default: ""
       jsonb :messages, null: false, default: "[]"
 
-      foreign_key :verification_id, :organization_membership_verifications, null: false
+      foreign_key :verification_id, :organization_membership_verifications, null: false, on_delete: :cascade
       foreign_key :actor_id, :members, on_delete: :set_null
+    end
+
+    create_table(:organization_membership_verification_notes) do
+      primary_key :id
+      timestamptz :created_at, null: false, default: Sequel.function(:now)
+      timestamptz :updated_at, null: false
+
+      text :contents, null: false
+
+      foreign_key :verification_id, :organization_membership_verifications, null: false, on_delete: :cascade
+      foreign_key :author_id, :members, on_delete: :set_null
     end
 
     if ENV["RACK_ENV"] == "test"

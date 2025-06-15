@@ -1,12 +1,12 @@
 # frozen_string_literal: true
 
 require "suma/fixtures"
-require "suma/organization/membership_verification"
+require "suma/organization/membership/verification"
 
 module Suma::Fixtures::OrganizationMembershipVerifications
   extend Suma::Fixtures
 
-  fixtured_class Suma::Organization::MembershipVerification
+  fixtured_class Suma::Organization::Membership::Verification
 
   base :organization_membership_verification do
   end

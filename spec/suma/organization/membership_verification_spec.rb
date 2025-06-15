@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-RSpec.describe "Suma::Organization::MembershipVerification", :db do
-  let(:described_class) { Suma::Organization::MembershipVerification }
+RSpec.describe "Suma::Organization::Membership::Verification", :db do
+  let(:described_class) { Suma::Organization::Membership::Verification }
 
   it "can fixture itself" do
     expect { Suma::Fixtures.organization_membership_verification.create }.to_not raise_error

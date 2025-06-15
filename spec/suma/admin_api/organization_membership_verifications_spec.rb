@@ -88,9 +88,9 @@ RSpec.describe Suma::AdminAPI::OrganizationMembershipVerifications, :db do
   end
 
   describe "POST /v1/organization_membership_verifications/:id/begin_partner_outreach",
-           reset_configuration: Suma::Organization::MembershipVerification do
+           reset_configuration: Suma::Organization::Membership::Verification do
     before(:each) do
-      Suma::Organization::MembershipVerification.front_partner_channel_id = "ch123"
+      Suma::Organization::Membership::Verification.front_partner_channel_id = "ch123"
     end
 
     it "begins partner outreach" do
@@ -110,9 +110,9 @@ RSpec.describe Suma::AdminAPI::OrganizationMembershipVerifications, :db do
   end
 
   describe "POST /v1/organization_membership_verifications/:id/begin_member_outreach",
-           reset_configuration: Suma::Organization::MembershipVerification do
+           reset_configuration: Suma::Organization::Membership::Verification do
     before(:each) do
-      Suma::Organization::MembershipVerification.front_member_channel_id = "ch123"
+      Suma::Organization::Membership::Verification.front_member_channel_id = "ch123"
     end
 
     it "begins member outreach" do

@@ -28,7 +28,7 @@ class Suma::AdminAPI::Access
     Suma::Message::Delivery => [:message_delivery, MEMBERS, MANAGEMENT],
     Suma::Mobility::Trip => [:mobility_trip, COMMERCE, MANAGEMENT],
     Suma::Organization::Membership => [:organization_membership, MEMBERS, MEMBERS],
-    Suma::Organization::MembershipVerification => [:organization_membership_verification, MEMBERS, MEMBERS],
+    Suma::Organization::Membership::Verification => [:organization_membership_verification, MEMBERS, MEMBERS],
     Suma::Organization => [:organization, MEMBERS, MANAGEMENT],
     Suma::Payment::Ledger => [:ledger, PAYMENTS, PAYMENTS],
     Suma::Payment::Trigger => [:payment_trigger, PAYMENTS, MANAGEMENT],

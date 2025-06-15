@@ -24,14 +24,14 @@ class Suma::AdminAPI::OrganizationMembershipVerifications < Suma::AdminAPI::V1
   resource :organization_membership_verifications do
     Suma::AdminAPI::CommonEndpoints.list(
       self,
-      Suma::Organization::MembershipVerification,
+      Suma::Organization::Membership::Verification,
       MembershipVerificationEntity,
     )
 
     resource :todo do
       Suma::AdminAPI::CommonEndpoints.list(
         self,
-        Suma::Organization::MembershipVerification,
+        Suma::Organization::Membership::Verification,
         MembershipVerificationEntity,
         dataset: lambda(&:todo),
       )
@@ -39,14 +39,14 @@ class Suma::AdminAPI::OrganizationMembershipVerifications < Suma::AdminAPI::V1
 
     Suma::AdminAPI::CommonEndpoints.get_one(
       self,
-      Suma::Organization::MembershipVerification,
+      Suma::Organization::Membership::Verification,
       DetailedMembershipVerificationEntity,
     )
 
     route_param :id, type: Integer do
       helpers do
         def lookup_writeable!
-          (v = Suma::Organization::MembershipVerification[params[:id]]) or forbidden!
+          (v = Suma::Organization::Membership::Verification[params[:id]]) or forbidden!
           check_role_access!(admin_member, :write, :admin_members)
           return v
         end
@@ -70,6 +70,13 @@ class Suma::AdminAPI::OrganizationMembershipVerifications < Suma::AdminAPI::V1
       end
 
       post :begin_member_outreach do
+        v = lookup_writeable!
+        v.begin_member_outreach
+        status 200
+        present v, with: DetailedMembershipVerificationEntity
+      end
+
+      post :add_note do
         v = lookup_writeable!
         v.begin_member_outreach
         status 200
