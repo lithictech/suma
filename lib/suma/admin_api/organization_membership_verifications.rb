@@ -11,11 +11,11 @@ class Suma::AdminAPI::OrganizationMembershipVerifications < Suma::AdminAPI::V1
     include AutoExposeDetail
 
     expose :status
-    # expose :partner_outreach_front_message_id
-    # expose :member_outreach_front_message_id
     expose :membership, with: OrganizationMembershipEntity
     expose :owner, with: MemberEntity
-    # expose :available_transitions
+    expose :available_events, &self.delegate_to(:state_machine, :available_events)
+    expose :front_partner_conversation_status
+    expose :front_member_conversation_status
   end
 
   class DetailedMembershipVerificationEntity < MembershipVerificationEntity

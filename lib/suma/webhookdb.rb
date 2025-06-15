@@ -18,6 +18,8 @@ module Suma::Webhookdb
   configurable(:webhookdb) do
     setting :database_url, ENV.fetch("DATABASE_URL", nil)
     setting :schema, :public
+    setting :front_conversations_table, :front_conversation_v1_fixture
+    setting :front_messages_table, :front_message_v1_fixture
     setting :postmark_inbound_messages_table, :postmark_inbound_message_v1_fixture
     setting :postmark_inbound_messages_secret, "fakesecret-#{SecureRandom.hex(3)}"
     setting :stripe_refunds_table, :stripe_refund_v1_fixture

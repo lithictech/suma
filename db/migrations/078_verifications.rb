@@ -12,8 +12,8 @@ Sequel.migration do
       timestamptz :updated_at
 
       text :status, null: false
-      jsonb :partner_outreach_front_response
-      jsonb :member_outreach_front_response
+      text :partner_outreach_front_conversation_id
+      text :member_outreach_front_conversation_id
 
       foreign_key :membership_id, :organization_memberships, null: false
       foreign_key :owner_id, :members, on_delete: :set_null
@@ -39,6 +39,27 @@ Sequel.migration do
       foreign_key :verification_id, :organization_membership_verifications, null: false
       foreign_key :actor_id, :members, on_delete: :set_null
     end
+
+    if ENV["RACK_ENV"] == "test"
+      run <<~SQL
+        CREATE TABLE front_message_v1_fixture (
+          pk bigserial PRIMARY KEY,
+          front_id text UNIQUE NOT NULL,
+          type text,
+          front_conversation_id text,
+          created_at timestamptz,
+          data jsonb NOT NULL
+        );
+        CREATE TABLE front_conversation_v1_fixture (
+          pk bigserial PRIMARY KEY,
+          front_id text UNIQUE NOT NULL,
+          subject text,
+          status text,
+          created_at timestamptz,
+          data jsonb NOT NULL
+        );
+      SQL
+    end
   end
   down do
     drop_table(:organization_membership_verification_audit_logs)
@@ -46,5 +67,6 @@ Sequel.migration do
     alter_table(:organizations) do
       drop_column :membership_verification_email
     end
+    run "DROP TABLE front_message_v1_fixture; DROP TABLE front_conversation_v1_fixture;" if ENV["RACK_ENV"] == "test"
   end
 end

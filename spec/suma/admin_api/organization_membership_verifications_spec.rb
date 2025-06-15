@@ -102,7 +102,7 @@ RSpec.describe Suma::AdminAPI::OrganizationMembershipVerifications, :db do
 
       expect(last_response).to have_status(200)
       expect(req).to have_been_made
-      expect(v.refresh).to have_attributes(partner_outreach_front_response: hash_including("id" => "msg_1q15qmtq"))
+      expect(v.refresh).to have_attributes(partner_outreach_front_conversation_id: "cnv_yo1kg5q")
     end
   end
 
@@ -121,7 +121,7 @@ RSpec.describe Suma::AdminAPI::OrganizationMembershipVerifications, :db do
 
       expect(last_response).to have_status(200)
       expect(req).to have_been_made
-      expect(v.refresh).to have_attributes(member_outreach_front_response: hash_including("id" => "msg_1q15qmtq"))
+      expect(v.refresh).to have_attributes(member_outreach_front_conversation_id: "cnv_yo1kg5q")
     end
   end
 end

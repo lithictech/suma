@@ -11,6 +11,7 @@
   "message_uid": "1eab543f84a0785f7b6b8967cck18f4d",
   "type": "email",
   "is_inbound": false,
+  "is_draft": true,
   "draft_mode": "shared",
   "error_type": null,
   "version": "551ba368f3e7803cce51503ee3e58ef0-26028-1701804863304-945c",

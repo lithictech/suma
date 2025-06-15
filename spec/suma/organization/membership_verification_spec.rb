@@ -13,6 +13,31 @@ RSpec.describe "Suma::Organization::MembershipVerification", :db do
     expect(v.audit_logs).to be_empty
   end
 
+  it "can find webhookdb associations" do
+    v = Suma::Fixtures.organization_membership_verification.create
+    expect(v.front_partner_conversation).to be_nil
+    expect(v.front_member_conversation).to be_nil
+    expect(v.front_latest_partner_message).to be_nil
+    expect(v.front_latest_member_message).to be_nil
+    convo1 = Suma::Webhookdb::FrontConversation.create(front_id: "convo1", data: "{}")
+    convo2 = Suma::Webhookdb::FrontConversation.create(front_id: "convo2", data: "{}")
+    msg1 = Suma::Webhookdb::FrontMessage.create(
+      front_id: "msg1", front_conversation_id: "convo1", created_at: 3.hours.ago, data: "{}",
+    )
+    msg2 = Suma::Webhookdb::FrontMessage.create(
+      front_id: "msg2", front_conversation_id: "convo1", created_at: 2.hours.ago, data: "{}",
+    )
+    msg3 = Suma::Webhookdb::FrontMessage.create(
+      front_id: "msg3", front_conversation_id: "convo2", created_at: 1.hours.ago, data: "{}",
+    )
+    v.refresh
+    v.update(partner_outreach_front_conversation_id: "convo1", member_outreach_front_conversation_id: "convo2")
+    expect(v.front_partner_conversation).to be === convo1
+    expect(v.front_member_conversation).to be === convo2
+    expect(v.front_latest_partner_message).to be === msg2
+    expect(v.front_latest_member_message).to be === msg3
+  end
+
   describe "state machines" do
     it "can perform simple transitions" do
       v = Suma::Fixtures.organization_membership_verification.create
@@ -23,6 +48,13 @@ RSpec.describe "Suma::Organization::MembershipVerification", :db do
       expect(v).to transition_on(:reject).to("ineligible")
       v.status = "in_progress"
       expect(v).to transition_on(:approve).to("verified")
+    end
+
+    it "knows available events for the current state" do
+      v = Suma::Fixtures.organization_membership_verification.create
+      expect(v.state_machine.available_events).to eq([:start])
+      v.status = :in_progress
+      expect(v.state_machine.available_events).to eq([:abandon, :reject, :approve])
     end
   end
 
@@ -46,7 +78,9 @@ RSpec.describe "Suma::Organization::MembershipVerification", :db do
         ).to_return(json_response(load_fixture_data("front/channel_create_draft")))
       v.begin_partner_outreach
       expect(req).to have_been_made
-      expect(v.refresh).to have_attributes(partner_outreach_front_response: hash_including("id" => "msg_1q15qmtq"))
+      expect(v.refresh).to have_attributes(
+        partner_outreach_front_conversation_id: "cnv_yo1kg5q",
+      )
     end
 
     it "uses the current admin as the author" do
@@ -104,7 +138,9 @@ RSpec.describe "Suma::Organization::MembershipVerification", :db do
         ).to_return(json_response(load_fixture_data("front/channel_create_draft")))
       v.begin_member_outreach
       expect(req).to have_been_made
-      expect(v.refresh).to have_attributes(member_outreach_front_response: hash_including("id" => "msg_1q15qmtq"))
+      expect(v.refresh).to have_attributes(
+        member_outreach_front_conversation_id: "cnv_yo1kg5q",
+      )
     end
 
     it "uses the current admin as the author" do
@@ -117,6 +153,64 @@ RSpec.describe "Suma::Organization::MembershipVerification", :db do
         v.begin_member_outreach
       end
       expect(req).to have_been_made
+    end
+  end
+
+  describe "front messages" do
+    let(:v) do
+      Suma::Fixtures.organization_membership_verification.create(
+        partner_outreach_front_conversation_id: "cnv_partner",
+        member_outreach_front_conversation_id: "cnv_member",
+      )
+    end
+
+    it "finds nothing if there are no Front ids set" do
+      v.update(partner_outreach_front_conversation_id: nil, member_outreach_front_conversation_id: nil)
+      expect(v).to have_attributes(
+        front_partner_conversation_status: nil,
+        front_member_conversation_status: nil,
+      )
+    end
+
+    it "uses the conversation if there is not Front message for the conversation" do
+      expect(v).to have_attributes(
+        front_partner_conversation_status: have_attributes(
+          last_updated_at: nil,
+          waiting_on_admin: false,
+          waiting_on_member: true,
+          web_url: "https://app.frontapp.com/open/cnv_partner",
+        ),
+        front_member_conversation_status: have_attributes(
+          web_url: "https://app.frontapp.com/open/cnv_member",
+        ),
+      )
+    end
+
+    it "uses the message if there is a Front message in webhookdb" do
+      t1 = 2.hour.ago
+      t2 = 1.hour.ago
+      Suma::Webhookdb::FrontMessage.create(
+        front_id: "msg1", front_conversation_id: "cnv_partner", created_at: t1, data: "{}",
+      )
+      expect(v).to have_attributes(
+        front_partner_conversation_status: have_attributes(
+          last_updated_at: match_time(t1),
+          waiting_on_admin: false,
+          waiting_on_member: true,
+          web_url: "https://app.frontapp.com/open/msg1",
+        ),
+      )
+      Suma::Webhookdb::FrontMessage.create(
+        front_id: "msg2", front_conversation_id: "cnv_partner", created_at: t2, data: {is_inbound: true},
+      )
+      expect(v.refresh).to have_attributes(
+        front_partner_conversation_status: have_attributes(
+          last_updated_at: match_time(t2),
+          waiting_on_admin: true,
+          waiting_on_member: false,
+          web_url: "https://app.frontapp.com/open/msg2",
+        ),
+      )
     end
   end
 end

@@ -1,17 +1,14 @@
 # frozen_string_literal: true
 
-require "suma/postgres/model"
 require "suma/admin_linked"
 require "suma/postgres/hybrid_search"
+require "suma/postgres/model"
+require "suma/state_machine"
 
 class Suma::Organization::MembershipVerification < Suma::Postgres::Model(:organization_membership_verifications)
   include Appydays::Configurable
   include Suma::AdminLinked
   include Suma::Postgres::HybridSearch
-
-  class Message < Suma::TypedStruct
-    attr_reader :url, :at
-  end
 
   configurable(:verifications) do
     setting :front_partner_channel_id, ""
@@ -28,6 +25,33 @@ class Suma::Organization::MembershipVerification < Suma::Postgres::Model(:organi
               key: :verification_id
   many_to_one :membership, class: "Suma::Organization::Membership"
   many_to_one :owner, class: "Suma::Member"
+
+  many_to_one :front_partner_conversation,
+              class: "Suma::Webhookdb::FrontConversation",
+              read_only: true,
+              key: :partner_outreach_front_conversation_id,
+              primary_key: :front_id
+  many_to_one :front_member_conversation,
+              class: "Suma::Webhookdb::FrontConversation",
+              read_only: true,
+              key: :member_outreach_front_conversation_id,
+              primary_key: :front_id
+  many_to_one :front_latest_partner_message,
+              class: "Suma::Webhookdb::FrontMessage",
+              read_only: true,
+              key: :partner_outreach_front_conversation_id,
+              primary_key: :front_conversation_id,
+              instance_specific: false do |ds|
+    ds.distinct(:front_conversation_id).order(:front_conversation_id, Sequel.desc(:created_at))
+  end
+  many_to_one :front_latest_member_message,
+              class: "Suma::Webhookdb::FrontMessage",
+              read_only: true,
+              key: :member_outreach_front_conversation_id,
+              primary_key: :front_conversation_id,
+              instance_specific: false do |ds|
+    ds.distinct(:front_conversation_id).order(:front_conversation_id, Sequel.desc(:created_at))
+  end
 
   state_machine :status, initial: :created do
     state :created,
@@ -62,6 +86,8 @@ class Suma::Organization::MembershipVerification < Suma::Postgres::Model(:organi
     end
   end
 
+  def state_machine = @state_machine ||= Suma::StateMachine.new(self, :status)
+
   def begin_partner_outreach
     member = self.membership.member
     body = [
@@ -81,8 +107,8 @@ class Suma::Organization::MembershipVerification < Suma::Postgres::Model(:organi
     if (partner_email = self.membership.organization_verification_email).present?
       params[:to] = [Suma::Frontapp.contact_alt_handle(:email, partner_email)]
     end
-    got = Suma::Frontapp.client.create_draft!(self.class.front_partner_channel_id, params)
-    self.partner_outreach_front_response = got
+    resp = Suma::Frontapp.client.create_draft!(self.class.front_partner_channel_id, params)
+    self.partner_outreach_front_conversation_id = self._parse_conversation_id(resp)
     self.save_changes
   end
 
@@ -95,9 +121,13 @@ class Suma::Organization::MembershipVerification < Suma::Postgres::Model(:organi
     if (author_id = self._front_author_id)
       params[:author_id] = author_id
     end
-    got = Suma::Frontapp.client.create_draft!(self.class.front_member_channel_id, params)
-    self.member_outreach_front_response = got
+    resp = Suma::Frontapp.client.create_draft!(self.class.front_member_channel_id, params)
+    self.member_outreach_front_conversation_id = self._parse_conversation_id(resp)
     self.save_changes
+  end
+
+  def _parse_conversation_id(front_resp)
+    return front_resp.fetch("_links").fetch("related").fetch("conversation").split("/").last
   end
 
   def _front_author_id
@@ -105,12 +135,28 @@ class Suma::Organization::MembershipVerification < Suma::Postgres::Model(:organi
     return Suma::Frontapp.contact_phone_handle(admin.phone)
   end
 
-  def last_partner_response
-    # Find message in WHDB
+  def front_partner_conversation_status = _front_conversation_status(:partner)
+  def front_member_conversation_status = _front_conversation_status(:member)
+
+  class ConversationStatus < Suma::TypedStruct
+    attr_reader :web_url, :last_updated_at, :waiting_on_member, :waiting_on_admin
   end
 
-  def latest_member_response
-    # Find message in WHDB
+  def _front_conversation_status(sym)
+    convo_id = self.send(:"#{sym}_outreach_front_conversation_id")
+    return nil if convo_id.blank?
+    params = {}
+    if (msg = self.send(:"front_latest_#{sym}_message"))
+      params[:web_url] = "https://app.frontapp.com/open/#{msg.front_id}"
+      params[:last_updated_at] = msg.created_at
+      params[:waiting_on_admin] = msg.data.fetch("is_inbound", false)
+    else
+      params[:web_url] = "https://app.frontapp.com/open/#{convo_id}"
+      params[:last_updated_at] = nil
+      params[:waiting_on_admin] = false
+    end
+    params[:waiting_on_member] = !params[:waiting_on_admin]
+    return ConversationStatus.new(**params)
   end
 
   def rel_admin_link = "/membership-verification/#{self.id}"

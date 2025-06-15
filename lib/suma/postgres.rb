@@ -43,6 +43,7 @@ module Suma::Postgres
   SUPERCLASSES = [
     "suma/postgres/model",
     "suma/analytics/model",
+    "suma/webhookdb/model",
   ].freeze
 
   # Require paths for all Sequel models used by the app.
@@ -131,6 +132,10 @@ module Suma::Postgres
     "suma/analytics/order",
     "suma/analytics/order_item",
     "suma/analytics/payout_transaction",
+
+    # webhookdb models
+    "suma/webhookdb/front_message",
+    "suma/webhookdb/front_conversation",
   ].freeze
 
   # If true, deferred model events publish immediately.

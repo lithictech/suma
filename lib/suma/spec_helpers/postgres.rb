@@ -79,7 +79,7 @@ module Suma::SpecHelpers::Postgres
         [txn_class, txn_class.config_key]
     end
 
-    dbs = txn_classes.map(&:db) + [Suma::Webhookdb.connection]
+    dbs = txn_classes.map(&:db)
     wrapped_proc = dbs.inject(example.method(:run)) do |callback, db|
       proc { db.transaction(auto_savepoint: :only, rollback: :always, &callback) }
     end
