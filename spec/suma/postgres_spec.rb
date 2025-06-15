@@ -57,7 +57,7 @@ RSpec.describe Suma::Postgres do
     described_class.registered_models.replace(@original_models)
     described_class.model_superclasses.replace(@original_superclasses)
 
-    sup = described_class.each_model_superclass.to_a
+    sup = described_class.model_superclasses.to_a
     expect(sup).to include(described_class::Model)
 
     models = []

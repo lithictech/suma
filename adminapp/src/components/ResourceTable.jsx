@@ -83,7 +83,6 @@ export default function ResourceTable({
                   key={col.id}
                   align={col.align}
                   sortDirection={orderBy === col.id ? order : false}
-                  className={classes.cell}
                 >
                   {col.sortable ? (
                     <TableSortLabel
@@ -124,7 +123,6 @@ export default function ResourceTable({
                     <TableCell
                       key={`${col.id}-${idx}`}
                       align={col.align}
-                      className={classes.cell}
                       {...(idx === 0 ? { component: "th", scope: "row" } : {})}
                     >
                       {col.render(c)}
@@ -168,14 +166,6 @@ export function cycleOrder(value) {
 }
 
 const useStyles = makeStyles(() => ({
-  cell: {
-    "&:last-child": {
-      paddingRight: 0,
-    },
-    "&:first-child": {
-      paddingLeft: 0,
-    },
-  },
   pageControls: {
     alignItems: "center",
     display: "flex",

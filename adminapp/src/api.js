@@ -254,6 +254,25 @@ export default {
   updateOrganizationMembership: ({ id, ...data }) =>
     post(`/adminapi/v1/organization_memberships/${id}`, data),
 
+  getOrganizationMembershipVerifications: (data) =>
+    get(`/adminapi/v1/organization_membership_verifications`, data),
+  getOrganizationMembershipVerificationTodo: (data) =>
+    get(`/adminapi/v1/organization_membership_verifications/todo`, data),
+  transitionOrganizationMembershipVerification: ({ id, ...data }) =>
+    post(`/adminapi/v1/organization_membership_verifications/${id}/transition`, data),
+  beginOrganizationMembershipVerificationPartnerOutreach: ({ id, ...data }) =>
+    post(
+      `/adminapi/v1/organization_membership_verifications/${id}/begin_partner_outreach`,
+      data
+    ),
+  beginOrganizationMembershipVerificationMemberOutreach: ({ id, ...data }) =>
+    post(
+      `/adminapi/v1/organization_membership_verifications/${id}/begin_member_outreach`,
+      data
+    ),
+  addOrganizationMembershipVerificationNote: ({ id, ...data }) =>
+    post(`/adminapi/v1/organization_membership_verifications/${id}/add_note`, data),
+
   getMobilityTrips: (data) => get(`/adminapi/v1/mobility_trips`, data),
   getMobilityTrip: ({ id, ...data }) => get(`/adminapi/v1/mobility_trips/${id}`, data),
   updateMobilityTrip: ({ id, ...data }) =>

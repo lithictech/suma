@@ -88,6 +88,7 @@ module Suma::Postgres
     "suma/mobility/vehicle",
     "suma/organization",
     "suma/organization",
+    "suma/organization/membership",
     "suma/organization/membership_verification",
     "suma/organization/membership_verification_audit_log",
     "suma/payment/bank_account",
@@ -176,20 +177,15 @@ module Suma::Postgres
     end
   end
 
-  ### Call the block for each registered model superclass.
-  def self.each_model_superclass(&)
-    self.model_superclasses.each(&)
-  end
-
   def self.each_model_class(&)
-    self.each_model_superclass do |sc|
+    self.model_superclasses.each do |sc|
       sc.descendants.each(&)
     end
   end
 
   def self.run_all_migrations(target: nil)
     Sequel.extension :migration
-    Suma::Postgres.each_model_superclass do |cls|
+    Suma::Postgres.model_superclasses.reject(&:read_only?).each do |cls|
       cls.install_all_extensions
       Sequel::Migrator.run(cls.db, "db/migrations", target:)
     end

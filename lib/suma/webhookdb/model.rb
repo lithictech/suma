@@ -16,5 +16,6 @@ class Suma::Webhookdb::Model
 
   class << self
     def db = Suma::Webhookdb.connection
+    def read_only? = true
   end
 end

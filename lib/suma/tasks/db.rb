@@ -15,7 +15,8 @@ class Suma::Tasks::DB < Rake::TaskLib
         # We cannot use load_models to get the schemas they use, in case the models cannot load correctly.
         # So just hard-code the known schemas that we use.
         schemas = ["public", "analytics"]
-        Suma::Postgres.each_model_superclass do |sc|
+        Suma::Postgres.model_superclasses.reject(&:read_only?).each do |sc|
+          next if sc == Suma::Webhookdb::Model && Suma::RACK_ENV != "test"
           schemas.each do |schemaname|
             sc.db[:pg_tables].where(schemaname:).each do |tbl|
               self.exec(sc.db, "DROP TABLE #{schemaname}.#{tbl[:tablename]} CASCADE")

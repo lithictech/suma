@@ -21,7 +21,7 @@ Suma::Async::Autoscaler.start
 on_worker_boot do
   SemanticLogger.reopen if defined?(SemanticLogger)
   if defined?(Suma::Postgres)
-    Suma::Postgres.each_model_superclass do |modelclass|
+    Suma::Postgres.model_superclasses.each do |modelclass|
       modelclass.db&.disconnect
     end
     Suma::UploadedFile.blob_database.disconnect

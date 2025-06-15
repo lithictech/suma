@@ -55,6 +55,10 @@ module Suma::Postgres::ModelUtilities
       end
     end
 
+    # Some model classes just map Sequel models onto readonly connections.
+    # These models should override this method and return true.
+    def read_only? = false
+
     # Return the Array of the schemas used by all descendents of the receiving
     # model class.
     # @return [Array<String>]
