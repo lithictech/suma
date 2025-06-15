@@ -95,8 +95,8 @@ RSpec.describe "Suma::Address", :db do
 
   it "includes blank items in its one line address" do
     address = described_class.new(
-      address1: "524 E. Burnside",
-      address2: "",
+      address1: " 524 E. Burnside ",
+      address2: " ",
       city: "Portland",
       state_or_province: "OR",
       postal_code: "",
@@ -202,6 +202,12 @@ RSpec.describe "Suma::Address", :db do
 
       expect(address).to be_saved
       expect(address.address1).to eq(fields[:address1])
+    end
+
+    it "trims whitespace" do
+      address = described_class.lookup(fields.merge(address1: " 123 Main "))
+      expect(address).to be_saved
+      expect(address.address1).to eq("123 Main")
     end
 
     it "returns an existing address if found" do

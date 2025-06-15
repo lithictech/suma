@@ -1,0 +1,28 @@
+{
+  "_links": {
+    "self": "https://yourCompany.api.frontapp.com/teammates/tea_6r55a",
+    "related": {
+      "inboxes": "https://yourCompany.api.frontapp.com/teammates/tea_6r55a/inboxes",
+      "conversations": "https://yourCompany.api.frontapp.com/teammates/tea_6r55a/conversations",
+      "botSource": "https://yourCompany.api.frontapp.com/rules/rul_6r55a"
+    }
+  },
+  "id": "tea_6r55a",
+  "email": "michael.scott@dundermifflin.com",
+  "username": "PrisonMike",
+  "first_name": "Michael",
+  "last_name": "Scott",
+  "is_admin": true,
+  "is_available": false,
+  "is_blocked": false,
+  "type": "user",
+  "custom_fields": {
+    "city": "London, UK",
+    "isVIP": true,
+    "renewal_date": 1525417200,
+    "sla_time": 90,
+    "owner": "leela@planet-express.com",
+    "replyTo": "inb_55c8c149",
+    "Job Title": "firefighter"
+  }
+}

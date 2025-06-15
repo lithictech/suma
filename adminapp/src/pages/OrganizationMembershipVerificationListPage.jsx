@@ -1,15 +1,19 @@
 import api from "../api";
 import AdminLink from "../components/AdminLink";
 import OrganizationMembership from "../components/OrganizationMembership";
-import ResourceList from "../components/ResourceList";
 import ResourceTable from "../components/ResourceTable";
 import useErrorSnackbar from "../hooks/useErrorSnackbar";
 import formatDate from "../modules/formatDate";
-import pluralize from "../modules/pluralize";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
 import useListQueryControls from "../shared/react/useListQueryControls";
 import useToggle from "../shared/react/useToggle";
 import ArrowRightIcon from "@mui/icons-material/ArrowRight";
+import CreateIcon from "@mui/icons-material/Create";
+import DraftsIcon from "@mui/icons-material/Drafts";
+import ReplyIcon from "@mui/icons-material/Reply";
+import SendIcon from "@mui/icons-material/Send";
+import { Stack } from "@mui/material";
+import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import ButtonGroup from "@mui/material/ButtonGroup";
 import ClickAwayListener from "@mui/material/ClickAwayListener";
@@ -18,7 +22,6 @@ import MenuItem from "@mui/material/MenuItem";
 import MenuList from "@mui/material/MenuList";
 import Paper from "@mui/material/Paper";
 import Popper from "@mui/material/Popper";
-import startCase from "lodash/startCase";
 import React from "react";
 
 export default function OrganizationMembershipVerificationListPage() {
@@ -43,10 +46,9 @@ export default function OrganizationMembershipVerificationListPage() {
   });
   const [updatedListResponses, setUpdatedListResponses] = React.useState({});
 
-  const handleTransition = React.useCallback(
-    (row, option) => {
-      api
-        .transitionOrganizationMembershipVerification({ id: row.id, event: option })
+  const handleApiCall = React.useCallback(
+    (promise) => {
+      promise
         .then((r) =>
           setUpdatedListResponses({ ...updatedListResponses, [r.data.id]: r.data })
         )
@@ -78,25 +80,13 @@ export default function OrganizationMembershipVerificationListPage() {
           id: "status",
           label: "Status",
           sortable: true,
-          // render: (c) => <Chip color="muted" label={c.status} />,
-          render: (c) => (
-            <SplitButton
-              color="secondary"
-              size="small"
-              variant="contained"
-              value={c.status}
-              options={c.availableEvents}
-              onOptionSelected={(o) => handleTransition(c, o)}
-            />
-          ),
+          render: (c) => <StatusCell verification={c} onApiCall={handleApiCall} />,
         },
         {
           id: "member",
           label: "Member",
           align: "left",
-          render: (c) => (
-            <AdminLink model={c.membership.member}>{c.membership.member.name}</AdminLink>
-          ),
+          render: (c) => <MemberInfo verification={c} onApiCall={handleApiCall} />,
         },
         {
           id: "phone",
@@ -108,7 +98,7 @@ export default function OrganizationMembershipVerificationListPage() {
           id: "organization",
           label: "Organization",
           align: "left",
-          render: (c) => <OrganizationMembership membership={c.membership} />,
+          render: (c) => <OrgInfo verification={c} onApiCall={handleApiCall} />,
         },
         {
           id: "created_at",
@@ -122,12 +112,36 @@ export default function OrganizationMembershipVerificationListPage() {
   );
 }
 
-const statusStyles = {
-  reject: { color: "error.main" },
-  approve: { color: "success.main" },
+const statusColors = {
+  reject: "error.main",
+  approve: "success.main",
+};
+const statusBtnProps = {
+  in_progress: { variant: "outlined" },
 };
 
-function SplitButton({ value, options, onClick, onOptionSelected, ...rest }) {
+function StatusCell({ verification, onApiCall }) {
+  const handleTransition = React.useCallback(
+    (row, option) => {
+      onApiCall(
+        api.transitionOrganizationMembershipVerification({ id: row.id, event: option })
+      );
+    },
+    [onApiCall]
+  );
+  return (
+    <Stack gap={1}>
+      <StatusPicker
+        value={verification.status}
+        options={verification.availableEvents}
+        onOptionSelected={(o) => handleTransition(verification, o)}
+      />
+      <Button variant="outlined">Notes</Button>
+    </Stack>
+  );
+}
+
+function StatusPicker({ value, options, onClick, onOptionSelected }) {
   const toggle = useToggle();
   const anchorRef = React.useRef(null);
 
@@ -143,10 +157,19 @@ function SplitButton({ value, options, onClick, onOptionSelected, ...rest }) {
     toggle.turnOff();
   };
 
+  const bprops = {
+    size: "small",
+    variant: "contained",
+    color: statusColors[value] || "secondary",
+    ...statusBtnProps[value],
+  };
+
   return (
     <>
-      <ButtonGroup {...rest} ref={anchorRef}>
-        <Button onClick={onClick}>{value}</Button>
+      <ButtonGroup {...bprops} ref={anchorRef}>
+        <Button sx={{ display: "flex", flex: 1 }} onClick={onClick}>
+          {value}
+        </Button>
         <Button size="small" onClick={toggle.toggle}>
           <ArrowRightIcon />
         </Button>
@@ -160,7 +183,7 @@ function SplitButton({ value, options, onClick, onOptionSelected, ...rest }) {
         disablePortal
         placement="bottom-end"
       >
-        {({ TransitionProps, placement }) => (
+        {({ TransitionProps }) => (
           <Grow
             {...TransitionProps}
             style={{
@@ -173,7 +196,7 @@ function SplitButton({ value, options, onClick, onOptionSelected, ...rest }) {
                   {options.map((option) => (
                     <MenuItem
                       key={option}
-                      sx={{ textTransform: "capitalize", ...statusStyles[option] }}
+                      sx={{ textTransform: "capitalize", color: statusColors[option] }}
                       onClick={(event) => handleMenuItemClick(event, option)}
                     >
                       <ArrowRightIcon />
@@ -188,4 +211,102 @@ function SplitButton({ value, options, onClick, onOptionSelected, ...rest }) {
       </Popper>
     </>
   );
+}
+
+function MemberInfo({ verification, onApiCall }) {
+  function handleBegin(e) {
+    e.preventDefault();
+    onApiCall(
+      api
+        .beginOrganizationMembershipVerificationMemberOutreach({ id: verification.id })
+        .tap((r) => window.open(r.data.frontMemberConversationStatus.webUrl, "_blank"))
+    );
+  }
+  return (
+    <Stack gap={1}>
+      <AdminLink model={verification.membership.member}>
+        {verification.membership.member.name}
+      </AdminLink>
+      <FrontConvoStatus
+        {...verification.frontMemberConversationStatus}
+        onBegin={handleBegin}
+      />
+    </Stack>
+  );
+}
+
+function OrgInfo({ verification, onApiCall }) {
+  function handleBegin(e) {
+    e.preventDefault();
+    onApiCall(
+      api
+        .beginOrganizationMembershipVerificationPartnerOutreach({ id: verification.id })
+        .tap((r) => window.open(r.data.frontPartnerConversationStatus.webUrl, "_blank"))
+    );
+  }
+  return (
+    <Stack gap={1}>
+      <OrganizationMembership membership={verification.membership} />
+      <FrontConvoStatus
+        {...verification.frontPartnerConversationStatus}
+        onBegin={handleBegin}
+      />
+    </Stack>
+  );
+}
+
+function FrontConvoStatus({
+  webUrl,
+  waitingOnAdmin,
+  initialDraft,
+  lastUpdatedAt,
+  onBegin,
+}) {
+  [webUrl, initialDraft, waitingOnAdmin, lastUpdatedAt] = getTestingProps();
+  let Icon, text;
+  const bprops = { href: webUrl, target: "_blank" };
+  if (!webUrl) {
+    Icon = CreateIcon;
+    text = "Begin";
+    bprops.href = bprops.target = null;
+    bprops.variant = "contained";
+    bprops.color = "primary";
+    bprops.onClick = onBegin;
+  } else if (initialDraft) {
+    Icon = DraftsIcon;
+    text = "Draft";
+    bprops.variant = "contained";
+    bprops.color = "primary";
+  } else if (waitingOnAdmin) {
+    Icon = ReplyIcon;
+    text = formatDate(lastUpdatedAt, { template: "ddd MMM D h:mma" });
+    bprops.variant = "contained";
+    bprops.color = "success";
+  } else {
+    Icon = SendIcon;
+    text = formatDate(lastUpdatedAt, { template: "ddd MMM D h:mma" });
+    bprops.variant = "outlined";
+    bprops.color = "secondary";
+  }
+  return (
+    <div>
+      <Button size="small" {...bprops}>
+        <Icon sx={{ marginRight: 1 }} />
+        {text}
+      </Button>
+    </div>
+  );
+}
+
+function getTestingProps() {
+  const r = Math.random();
+  if (r < 0.25) {
+    return ["", false, false, null]; // Not created
+  } else if (r < 0.5) {
+    return ["draft", true, false, null]; // created initial draft
+  } else if (r < 0.75) {
+    return ["waitonmember", false, false, "2012-11-22T12:00:00Z"]; // sent, waiting on member
+  } else {
+    return ["waitonadmin", false, true, "2012-11-22T12:00:00Z"]; // waiting on response
+  }
 }

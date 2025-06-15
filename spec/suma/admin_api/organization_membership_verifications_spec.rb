@@ -95,13 +95,16 @@ RSpec.describe Suma::AdminAPI::OrganizationMembershipVerifications, :db do
 
     it "begins partner outreach" do
       v = Suma::Fixtures.organization_membership_verification.create
-      req = stub_request(:post, "https://api2.frontapp.com/channels/ch123/drafts").
+      teammate_req = stub_request(:get, "https://api2.frontapp.com/teammates/alt:email:#{admin.email}").
+        to_return(json_response(load_fixture_data("front/teammate")))
+      draft_req = stub_request(:post, "https://api2.frontapp.com/channels/ch123/drafts").
         to_return(json_response(load_fixture_data("front/channel_create_draft")))
 
       post "/v1/organization_membership_verifications/#{v.id}/begin_partner_outreach"
 
       expect(last_response).to have_status(200)
-      expect(req).to have_been_made
+      expect(teammate_req).to have_been_made
+      expect(draft_req).to have_been_made
       expect(v.refresh).to have_attributes(partner_outreach_front_conversation_id: "cnv_yo1kg5q")
     end
   end
@@ -114,13 +117,16 @@ RSpec.describe Suma::AdminAPI::OrganizationMembershipVerifications, :db do
 
     it "begins member outreach" do
       v = Suma::Fixtures.organization_membership_verification.create
-      req = stub_request(:post, "https://api2.frontapp.com/channels/ch123/drafts").
+      teammate_req = stub_request(:get, "https://api2.frontapp.com/teammates/alt:email:#{admin.email}").
+        to_return(json_response(load_fixture_data("front/teammate")))
+      draft_req = stub_request(:post, "https://api2.frontapp.com/channels/ch123/drafts").
         to_return(json_response(load_fixture_data("front/channel_create_draft")))
 
       post "/v1/organization_membership_verifications/#{v.id}/begin_member_outreach"
 
       expect(last_response).to have_status(200)
-      expect(req).to have_been_made
+      expect(teammate_req).to have_been_made
+      expect(draft_req).to have_been_made
       expect(v.refresh).to have_attributes(member_outreach_front_conversation_id: "cnv_yo1kg5q")
     end
   end

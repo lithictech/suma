@@ -69,12 +69,12 @@ RSpec.describe "Suma::Organization::MembershipVerification", :db do
       v.membership.member.update(name: "Patricia Monahan", phone: "12158631080")
       req = stub_request(:post, "https://api2.frontapp.com/channels/cha123/drafts").
         with(
-          body: {
-            subject: "Verification request for Patricia Monahan",
-            body: "Verification information for Patricia Monahan\n\nPhone: (215) 863-1080",
-            mode: "shared",
-            should_add_default_signature: true,
-          }.to_json,
+          body: hash_including(
+            "subject" => "Verification request for Patricia Monahan",
+            "body" => include("Phone: (215) 863-1080"),
+            "mode" => "shared",
+            "should_add_default_signature" => true,
+          ),
         ).to_return(json_response(load_fixture_data("front/channel_create_draft")))
       v.begin_partner_outreach
       expect(req).to have_been_made
@@ -83,16 +83,51 @@ RSpec.describe "Suma::Organization::MembershipVerification", :db do
       )
     end
 
-    it "uses the current admin as the author" do
-      admin = Suma::Fixtures.member.create(phone: "19512371020")
-      req = stub_request(:post, "https://api2.frontapp.com/channels/cha123/drafts").
+    it "uses the current admin as the author if there is a teammate with matching email" do
+      admin = Suma::Fixtures.member.create(email: "paula_pagac@ebert.test")
+      teammate_req = stub_request(:get, "https://api2.frontapp.com/teammates/alt:email:paula_pagac@ebert.test").
+        to_return(json_response(load_fixture_data("front/teammate")))
+
+      draft_req = stub_request(:post, "https://api2.frontapp.com/channels/cha123/drafts").
         with(
-          body: hash_including("author_id" => "alt:phone:+19512371020"),
+          body: hash_including("author_id" => "tea_6r55a"),
         ).to_return(json_response(load_fixture_data("front/channel_create_draft")))
       Suma.set_request_user_and_admin(nil, admin) do
         v.begin_partner_outreach
       end
-      expect(req).to have_been_made
+      expect(teammate_req).to have_been_made
+      expect(draft_req).to have_been_made
+    end
+
+    it "uses the current admin as the author if there is a teammate with matching phone" do
+      admin = Suma::Fixtures.member.create(phone: "19512371020", email: nil)
+      teammate_req = stub_request(:get, "https://api2.frontapp.com/teammates/alt:phone:+19512371020").
+        to_return(json_response(load_fixture_data("front/teammate")))
+      draft_req = stub_request(:post, "https://api2.frontapp.com/channels/cha123/drafts").
+        with(
+          body: hash_including("author_id" => "tea_6r55a"),
+        ).to_return(json_response(load_fixture_data("front/channel_create_draft")))
+      Suma.set_request_user_and_admin(nil, admin) do
+        v.begin_partner_outreach
+      end
+      expect(teammate_req).to have_been_made
+      expect(draft_req).to have_been_made
+    end
+
+    it "does not set an author if no matching teammate can be found" do
+      admin = Suma::Fixtures.member.create(phone: "19512371020", email: "paula_pagac@ebert.test")
+      teammate_phone_req = stub_request(:get, "https://api2.frontapp.com/teammates/alt:phone:+19512371020").
+        to_return(status: 404)
+      teammate_email_req = stub_request(:get, "https://api2.frontapp.com/teammates/alt:email:paula_pagac@ebert.test").
+        to_return(status: 404)
+      draft_req = stub_request(:post, "https://api2.frontapp.com/channels/cha123/drafts").
+        to_return(json_response(load_fixture_data("front/channel_create_draft")))
+      Suma.set_request_user_and_admin(nil, admin) do
+        v.begin_partner_outreach
+      end
+      expect(teammate_phone_req).to have_been_made
+      expect(teammate_email_req).to have_been_made
+      expect(draft_req).to have_been_made
     end
 
     it "includes maximum available information" do
@@ -112,7 +147,7 @@ RSpec.describe "Suma::Organization::MembershipVerification", :db do
       v.membership.unverified_organization_name = o.name
       req = stub_request(:post, "https://api2.frontapp.com/channels/cha123/drafts").
         with(
-          body: hash_including("to" => ["alt:email:office@mysuma.org"]),
+          body: hash_including("to" => ["office@mysuma.org"]),
         ).to_return(json_response(load_fixture_data("front/channel_create_draft")))
       v.begin_partner_outreach
       expect(req).to have_been_made
@@ -143,16 +178,19 @@ RSpec.describe "Suma::Organization::MembershipVerification", :db do
       )
     end
 
-    it "uses the current admin as the author" do
-      admin = Suma::Fixtures.member.create(phone: "19512371020")
-      req = stub_request(:post, "https://api2.frontapp.com/channels/cha456/drafts").
+    it "uses the current admin as the author (test edge cases with begin_partner_outreach)" do
+      admin = Suma::Fixtures.member.create(email: "paula_pagac@ebert.test")
+      teammate_req = stub_request(:get, "https://api2.frontapp.com/teammates/alt:email:paula_pagac@ebert.test").
+        to_return(json_response(load_fixture_data("front/teammate")))
+      draft_req = stub_request(:post, "https://api2.frontapp.com/channels/cha456/drafts").
         with(
-          body: hash_including("author_id" => "alt:phone:+19512371020"),
+          body: hash_including("author_id" => "tea_6r55a"),
         ).to_return(json_response(load_fixture_data("front/channel_create_draft")))
       Suma.set_request_user_and_admin(nil, admin) do
         v.begin_member_outreach
       end
-      expect(req).to have_been_made
+      expect(teammate_req).to have_been_made
+      expect(draft_req).to have_been_made
     end
   end
 
@@ -177,7 +215,8 @@ RSpec.describe "Suma::Organization::MembershipVerification", :db do
         front_partner_conversation_status: have_attributes(
           last_updated_at: nil,
           waiting_on_admin: false,
-          waiting_on_member: true,
+          waiting_on_member: false,
+          initial_draft: true,
           web_url: "https://app.frontapp.com/open/cnv_partner",
         ),
         front_member_conversation_status: have_attributes(
@@ -197,6 +236,7 @@ RSpec.describe "Suma::Organization::MembershipVerification", :db do
           last_updated_at: match_time(t1),
           waiting_on_admin: false,
           waiting_on_member: true,
+          initial_draft: false,
           web_url: "https://app.frontapp.com/open/msg1",
         ),
       )

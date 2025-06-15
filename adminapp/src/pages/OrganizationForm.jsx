@@ -35,6 +35,17 @@ export default function OrganizationForm({
           onChange={setFieldFromInput}
         />
         <TextField
+          {...register("membershipVerificationEmail")}
+          label="Verification Email"
+          helperText="Email to contact for questions about verifying membership."
+          name="membershipVerificationEmail"
+          value={resource.membershipVerificationEmail}
+          type="membershipVerificationEmail"
+          variant="outlined"
+          fullWidth
+          onChange={setFieldFromInput}
+        />
+        <TextField
           {...register("ordinal")}
           label="Ordinal"
           helperText="The order in which organizations are displayed in the member onboarding flow, higher first."

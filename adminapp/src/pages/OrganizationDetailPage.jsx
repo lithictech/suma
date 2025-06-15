@@ -26,6 +26,7 @@ export default function OrganizationDetailPage() {
         { label: "Updated At", value: dayjs(model.updatedAt) },
         { label: "Name", value: model.name },
         { label: "Ordinal", value: model.ordinal },
+        { label: "Verification Email", value: model.membershipVerificationEmail },
         {
           label: "Roles",
           children: model.roles.map((role) => (

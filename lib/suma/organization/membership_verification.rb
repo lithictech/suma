@@ -91,13 +91,13 @@ class Suma::Organization::MembershipVerification < Suma::Postgres::Model(:organi
   def begin_partner_outreach
     member = self.membership.member
     body = [
-      "Verification information for #{member.name}",
+      "Verification information for <strong>#{member.name}</strong>",
     ]
     body << "Phone: #{member.us_phone}" if member.phone
     body << "Address: #{member.legal_entity.address&.one_line_address}" if member.legal_entity.address
     params = {
       subject: "Verification request for #{member.name}",
-      body: body.join("\n\n"),
+      body: "<p>" + body.join("<br />") + "</p>",
       mode: "shared",
       should_add_default_signature: true,
     }
@@ -105,7 +105,7 @@ class Suma::Organization::MembershipVerification < Suma::Postgres::Model(:organi
       params[:author_id] = author_id
     end
     if (partner_email = self.membership.organization_verification_email).present?
-      params[:to] = [Suma::Frontapp.contact_alt_handle(:email, partner_email)]
+      params[:to] = [partner_email]
     end
     resp = Suma::Frontapp.client.create_draft!(self.class.front_partner_channel_id, params)
     self.partner_outreach_front_conversation_id = self._parse_conversation_id(resp)
@@ -132,14 +132,30 @@ class Suma::Organization::MembershipVerification < Suma::Postgres::Model(:organi
 
   def _front_author_id
     (admin = Suma.request_user_and_admin.last) or return nil
-    return Suma::Frontapp.contact_phone_handle(admin.phone)
+    if admin.email.present?
+      begin
+        teammate = Suma::Frontapp.client.get_teammate Suma::Frontapp.contact_alt_handle("email", admin.email)
+        return teammate.fetch("id")
+      rescue Frontapp::NotFoundError
+        nil
+      end
+    end
+    if admin.phone.present?
+      begin
+        teammate = Suma::Frontapp.client.get_teammate Suma::Frontapp.contact_phone_handle(admin.phone)
+        return teammate.fetch("id")
+      rescue Frontapp::NotFoundError
+        nil
+      end
+    end
+    return nil
   end
 
   def front_partner_conversation_status = _front_conversation_status(:partner)
   def front_member_conversation_status = _front_conversation_status(:member)
 
   class ConversationStatus < Suma::TypedStruct
-    attr_reader :web_url, :last_updated_at, :waiting_on_member, :waiting_on_admin
+    attr_reader :web_url, :last_updated_at, :waiting_on_member, :waiting_on_admin, :initial_draft
   end
 
   def _front_conversation_status(sym)
@@ -150,12 +166,15 @@ class Suma::Organization::MembershipVerification < Suma::Postgres::Model(:organi
       params[:web_url] = "https://app.frontapp.com/open/#{msg.front_id}"
       params[:last_updated_at] = msg.created_at
       params[:waiting_on_admin] = msg.data.fetch("is_inbound", false)
+      params[:waiting_on_member] = !params[:waiting_on_admin]
+      params[:initial_draft] = false
     else
       params[:web_url] = "https://app.frontapp.com/open/#{convo_id}"
       params[:last_updated_at] = nil
       params[:waiting_on_admin] = false
+      params[:waiting_on_member] = false
+      params[:initial_draft] = true
     end
-    params[:waiting_on_member] = !params[:waiting_on_admin]
     return ConversationStatus.new(**params)
   end
 
