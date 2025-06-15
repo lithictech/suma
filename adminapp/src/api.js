@@ -271,7 +271,12 @@ export default {
       data
     ),
   addOrganizationMembershipVerificationNote: ({ id, ...data }) =>
-    post(`/adminapi/v1/organization_membership_verifications/${id}/add_note`, data),
+    post(`/adminapi/v1/organization_membership_verifications/${id}/notes`, data),
+  editOrganizationMembershipVerificationNote: ({ id, noteId, ...data }) =>
+    post(
+      `/adminapi/v1/organization_membership_verifications/${id}/notes/${noteId}`,
+      data
+    ),
 
   getMobilityTrips: (data) => get(`/adminapi/v1/mobility_trips`, data),
   getMobilityTrip: ({ id, ...data }) => get(`/adminapi/v1/mobility_trips/${id}`, data),

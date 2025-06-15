@@ -10,18 +10,21 @@ import useToggle from "../shared/react/useToggle";
 import ArrowRightIcon from "@mui/icons-material/ArrowRight";
 import CreateIcon from "@mui/icons-material/Create";
 import DraftsIcon from "@mui/icons-material/Drafts";
+import EditIcon from "@mui/icons-material/Edit";
 import ReplyIcon from "@mui/icons-material/Reply";
 import SendIcon from "@mui/icons-material/Send";
-import { Stack } from "@mui/material";
-import Box from "@mui/material/Box";
+import { Card, CardContent, Fade, Stack, TextField, Typography } from "@mui/material";
 import Button from "@mui/material/Button";
 import ButtonGroup from "@mui/material/ButtonGroup";
 import ClickAwayListener from "@mui/material/ClickAwayListener";
 import Grow from "@mui/material/Grow";
+import IconButton from "@mui/material/IconButton";
 import MenuItem from "@mui/material/MenuItem";
 import MenuList from "@mui/material/MenuList";
 import Paper from "@mui/material/Paper";
 import Popper from "@mui/material/Popper";
+import TrapFocus from "@mui/material/Unstable_TrapFocus";
+import { useTheme } from "@mui/styles";
 import React from "react";
 
 export default function OrganizationMembershipVerificationListPage() {
@@ -48,7 +51,7 @@ export default function OrganizationMembershipVerificationListPage() {
 
   const handleApiCall = React.useCallback(
     (promise) => {
-      promise
+      return promise
         .then((r) =>
           setUpdatedListResponses({ ...updatedListResponses, [r.data.id]: r.data })
         )
@@ -62,53 +65,68 @@ export default function OrganizationMembershipVerificationListPage() {
     items: (rawListResponse.items || []).map((r) => updatedListResponses[r.id] || r),
   };
 
+  const [notedVerificationId, setNotedVerificationId] = React.useState(null);
+  const notedVerification = listResponse.items.find((v) => v.id === notedVerificationId);
+
   return (
-    <ResourceTable
-      page={page}
-      perPage={perPage}
-      // search={canSearch ? search : undefined}
-      // disableSearch={!canSearch}
-      order={order}
-      orderBy={orderBy}
-      title="Verifications"
-      listResponse={listResponse}
-      listLoading={listLoading}
-      tableProps={{ sx: { minWidth: 650 }, size: "small" }}
-      onParamsChange={setListQueryParams}
-      columns={[
-        {
-          id: "status",
-          label: "Status",
-          sortable: true,
-          render: (c) => <StatusCell verification={c} onApiCall={handleApiCall} />,
-        },
-        {
-          id: "member",
-          label: "Member",
-          align: "left",
-          render: (c) => <MemberInfo verification={c} onApiCall={handleApiCall} />,
-        },
-        {
-          id: "phone",
-          label: "Phone",
-          align: "left",
-          render: (c) => c.formattedPhone,
-        },
-        {
-          id: "organization",
-          label: "Organization",
-          align: "left",
-          render: (c) => <OrgInfo verification={c} onApiCall={handleApiCall} />,
-        },
-        {
-          id: "created_at",
-          label: "Registered",
-          align: "left",
-          sortable: true,
-          render: (c) => formatDate(c.membership.member.createdAt),
-        },
-      ]}
-    />
+    <>
+      <ResourceTable
+        page={page}
+        perPage={perPage}
+        // search={canSearch ? search : undefined}
+        // disableSearch={!canSearch}
+        order={order}
+        orderBy={orderBy}
+        title="Verifications"
+        listResponse={listResponse}
+        listLoading={listLoading}
+        tableProps={{ sx: { minWidth: 650 }, size: "small" }}
+        onParamsChange={setListQueryParams}
+        columns={[
+          {
+            id: "status",
+            label: "Status",
+            sortable: true,
+            render: (c) => (
+              <StatusCell
+                verification={c}
+                onApiCall={handleApiCall}
+                isNoted={c.id === notedVerification?.id}
+                onNotesClicked={() =>
+                  setNotedVerificationId(c.id === notedVerification?.id ? null : c.id)
+                }
+              />
+            ),
+          },
+          {
+            id: "member",
+            label: "Member",
+            align: "left",
+            render: (c) => <MemberInfo verification={c} onApiCall={handleApiCall} />,
+          },
+          {
+            id: "phone",
+            label: "Phone",
+            align: "left",
+            render: (c) => c.formattedPhone,
+          },
+          {
+            id: "organization",
+            label: "Organization",
+            align: "left",
+            render: (c) => <OrgInfo verification={c} onApiCall={handleApiCall} />,
+          },
+          {
+            id: "created_at",
+            label: "Registered",
+            align: "left",
+            sortable: true,
+            render: (c) => formatDate(c.membership.member.createdAt),
+          },
+        ]}
+      />
+      <NotesViewer verification={notedVerification} onApiCall={handleApiCall} />
+    </>
   );
 }
 
@@ -120,7 +138,7 @@ const statusBtnProps = {
   in_progress: { variant: "outlined" },
 };
 
-function StatusCell({ verification, onApiCall }) {
+function StatusCell({ verification, isNoted, onNotesClicked, onApiCall }) {
   const handleTransition = React.useCallback(
     (row, option) => {
       onApiCall(
@@ -136,7 +154,12 @@ function StatusCell({ verification, onApiCall }) {
         options={verification.availableEvents}
         onOptionSelected={(o) => handleTransition(verification, o)}
       />
-      <Button variant="outlined">Notes</Button>
+      <Button
+        variant={isNoted ? "contained" : "outlined"}
+        onClick={() => onNotesClicked()}
+      >
+        Notes
+      </Button>
     </Stack>
   );
 }
@@ -309,4 +332,85 @@ function getTestingProps() {
   } else {
     return ["waitonadmin", false, true, "2012-11-22T12:00:00Z"]; // waiting on response
   }
+}
+
+function NotesViewer({ verification, onApiCall }) {
+  const [noteContent, setNoteContent] = React.useState();
+  const theme = useTheme();
+  function handleNoteSave(e) {
+    e.preventDefault();
+    onApiCall(
+      api.addOrganizationMembershipVerificationNote({
+        id: verification.id,
+        content: noteContent,
+      })
+    ).then(() => setNoteContent(""));
+  }
+  return (
+    <React.Fragment>
+      <TrapFocus open disableAutoFocus disableEnforceFocus>
+        <Fade appear={false} in={!!verification}>
+          <Paper
+            role="dialog"
+            square
+            variant="outlined"
+            tabIndex={-1}
+            sx={{
+              position: "sticky",
+              bottom: 0,
+              left: 0,
+              right: 0,
+              m: 0,
+              p: 2,
+              borderWidth: 0,
+              borderTopWidth: 1,
+              zIndex: 1,
+              height: "25vh",
+              overflow: "scroll",
+            }}
+          >
+            <Stack direction="row" justifyContent="space-between" gap={2}>
+              <Stack gap={1} sx={{ flex: 1 }}>
+                {verification?.notes.map((note) => (
+                  <Card key={note.id}>
+                    <CardContent sx={{ padding: `${theme.spacing(1)} !important` }}>
+                      <div dangerouslySetInnerHTML={{ __html: note.contentHtml }}></div>
+                      <Typography variant="caption">
+                        {note.creator?.name} at {formatDate(note.createdAt)}
+                      </Typography>
+                      {note.editor && (
+                        <Typography variant="caption">
+                          Edited by {note.editor.name} at {formatDate(note.editedAt)}
+                        </Typography>
+                      )}
+                    </CardContent>
+                  </Card>
+                ))}
+              </Stack>
+              <Stack gap={1} sx={{ flex: 1 }}>
+                <Typography variant="subtitle2">
+                  Notes for {verification?.membership.member.name} in{" "}
+                  {verification?.membership.organizationLabel}
+                </Typography>
+                <TextField
+                  label="Add Note"
+                  name="content"
+                  value={noteContent || ""}
+                  type="text"
+                  variant="outlined"
+                  fullWidth
+                  multiline
+                  rows={4}
+                  onChange={(e) => setNoteContent(e.target.value)}
+                />
+                <Button variant="contained" onClick={handleNoteSave}>
+                  Save
+                </Button>
+              </Stack>
+            </Stack>
+          </Paper>
+        </Fade>
+      </TrapFocus>
+    </React.Fragment>
+  );
 }

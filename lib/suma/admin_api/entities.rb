@@ -353,6 +353,7 @@ module Suma::AdminAPI::Entities
     expose :verified_organization, with: OrganizationEntity
     expose :unverified_organization_name
     expose :former_organization, with: OrganizationEntity
+    expose :organization_label
     expose :formerly_in_organization_at
     expose :membership_type
   end

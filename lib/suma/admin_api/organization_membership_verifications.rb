@@ -12,6 +12,7 @@ class Suma::AdminAPI::OrganizationMembershipVerifications < Suma::AdminAPI::V1
     expose :edited_at
     expose :editor, with: MemberEntity
     expose :content
+    expose :content_html
   end
 
   class MembershipVerificationEntity < BaseEntity
