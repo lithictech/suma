@@ -13,7 +13,7 @@ class Suma::Commerce::CartItem < Suma::Postgres::Model(:commerce_cart_items)
   one_to_many :checkout_items, class: "Suma::Commerce::CheckoutItem"
   one_to_one :offering_product,
              class: "Suma::Commerce::OfferingProduct",
-             readonly: true,
+             read_only: true,
              eager_loader: (lambda do |eo|
                offering_ids = []
                product_ids = []

@@ -37,11 +37,11 @@ class Suma::Charge < Suma::Postgres::Model(:charges)
   one_to_many :on_platform_line_items,
               class: "Suma::Charge::LineItem",
               conditions: Sequel[:book_transaction_id] !~ nil,
-              readonly: true
+              read_only: true
   one_to_many :off_platform_line_items,
               class: "Suma::Charge::LineItem",
               conditions: Sequel[:book_transaction_id] =~ nil,
-              readonly: true
+              read_only: true
   # Keep track of any synchronous funding transactions
   # that were caused due to this charge. There is NOT a direct linkage
   # in ledgering terms- this is rather modeling the user experience

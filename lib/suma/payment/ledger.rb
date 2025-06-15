@@ -29,7 +29,7 @@ class Suma::Payment::Ledger < Suma::Postgres::Model(:payment_ledgers)
   one_to_many :received_book_transactions, class: "Suma::Payment::BookTransaction", key: :receiving_ledger_id
   one_to_many :combined_book_transactions,
               class: "Suma::Payment::BookTransaction",
-              readonly: true,
+              read_only: true,
               eager_loader: (lambda do |eo|
                 # Custom eager loader because we need to check 2 FKs for an ID, not just one.
                 assocs_by_ledger_id = {}
