@@ -19,11 +19,15 @@ class Suma::Organization::Membership::Verification < Suma::Postgres::Model(:orga
   plugin :state_machine
   plugin :timestamps
 
+  many_to_one :membership, class: "Suma::Organization::Membership"
   one_to_many :audit_logs,
               class: "Suma::Organization::Membership::VerificationAuditLog",
               order: Sequel.desc(:at),
               key: :verification_id
-  many_to_one :membership, class: "Suma::Organization::Membership"
+  one_to_many :notes,
+              class: "Suma::Organization::Membership::VerificationNote",
+              order: Sequel.desc(:created_at),
+              key: :verification_id
   many_to_one :owner, class: "Suma::Member"
 
   many_to_one :front_partner_conversation,

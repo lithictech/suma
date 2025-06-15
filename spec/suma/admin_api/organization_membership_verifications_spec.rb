@@ -130,4 +130,50 @@ RSpec.describe Suma::AdminAPI::OrganizationMembershipVerifications, :db do
       expect(v.refresh).to have_attributes(member_outreach_front_conversation_id: "cnv_yo1kg5q")
     end
   end
+
+  describe "POST /v1/organization_membership_verifications/:id/notes" do
+    let(:v) { Suma::Fixtures.organization_membership_verification.create }
+    it "creates a note" do
+      post "/v1/organization_membership_verifications/#{v.id}/notes", content: "hello"
+
+      expect(last_response).to have_status(200)
+      expect(v.refresh.notes).to contain_exactly(
+        have_attributes(
+          content: "hello",
+          creator: be === admin,
+          created_at: match_time(:now),
+          editor: nil,
+          edited_at: nil,
+        ),
+      )
+    end
+  end
+
+  describe "POST /v1/organization_membership_verifications/:id/notes/:id" do
+    let(:v) { Suma::Fixtures.organization_membership_verification.create }
+    let(:other_admin) { Suma::Fixtures.member.create }
+    let(:created_at) { 5.hours.ago }
+    let(:note) { v.add_note(content: "hello", creator: other_admin, created_at:) }
+
+    it "edits a note" do
+      post "/v1/organization_membership_verifications/#{v.id}/notes/#{note.id}", content: "bye"
+
+      expect(last_response).to have_status(200)
+      expect(v.refresh.notes).to contain_exactly(
+        have_attributes(
+          content: "bye",
+          creator: be === other_admin,
+          created_at: match_time(created_at),
+          editor: be === admin,
+          edited_at: match_time(:now),
+        ),
+      )
+    end
+
+    it "403s for an invalid id" do
+      post "/v1/organization_membership_verifications/#{v.id}/notes/0", content: "hello"
+
+      expect(last_response).to have_status(403)
+    end
+  end
 end

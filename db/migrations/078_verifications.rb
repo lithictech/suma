@@ -43,12 +43,13 @@ Sequel.migration do
     create_table(:organization_membership_verification_notes) do
       primary_key :id
       timestamptz :created_at, null: false, default: Sequel.function(:now)
-      timestamptz :updated_at, null: false
+      timestamptz :edited_at
 
-      text :contents, null: false
+      text :content, null: false
 
       foreign_key :verification_id, :organization_membership_verifications, null: false, on_delete: :cascade
-      foreign_key :author_id, :members, on_delete: :set_null
+      foreign_key :creator_id, :members, on_delete: :set_null
+      foreign_key :editor_id, :members, on_delete: :set_null
     end
 
     if ENV["RACK_ENV"] == "test"
@@ -74,6 +75,7 @@ Sequel.migration do
   end
   down do
     drop_table(:organization_membership_verification_audit_logs)
+    drop_table(:organization_membership_verification_notes)
     drop_table(:organization_membership_verifications)
     alter_table(:organizations) do
       drop_column :membership_verification_email

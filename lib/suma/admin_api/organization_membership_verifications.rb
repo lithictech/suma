@@ -5,6 +5,15 @@ require "suma/admin_api"
 class Suma::AdminAPI::OrganizationMembershipVerifications < Suma::AdminAPI::V1
   include Suma::AdminAPI::Entities
 
+  class MembershipVerificationNoteEntity < BaseEntity
+    include Suma::AdminAPI::Entities
+    include AutoExposeBase
+    expose :creator, with: MemberEntity
+    expose :edited_at
+    expose :editor, with: MemberEntity
+    expose :content
+  end
+
   class MembershipVerificationEntity < BaseEntity
     include Suma::AdminAPI::Entities
     include AutoExposeBase
@@ -16,6 +25,7 @@ class Suma::AdminAPI::OrganizationMembershipVerifications < Suma::AdminAPI::V1
     expose :available_events, &self.delegate_to(:state_machine, :available_events)
     expose :front_partner_conversation_status
     expose :front_member_conversation_status
+    expose :notes, with: MembershipVerificationNoteEntity
   end
 
   class DetailedMembershipVerificationEntity < MembershipVerificationEntity
@@ -76,11 +86,37 @@ class Suma::AdminAPI::OrganizationMembershipVerifications < Suma::AdminAPI::V1
         present v, with: DetailedMembershipVerificationEntity
       end
 
-      post :add_note do
-        v = lookup_writeable!
-        v.begin_member_outreach
-        status 200
-        present v, with: DetailedMembershipVerificationEntity
+      resource :notes do
+        params do
+          requires :content, type: String
+        end
+        post do
+          v = lookup_writeable!
+          v.add_note(
+            content: params[:content],
+            creator: admin_member,
+            created_at: Time.now,
+          )
+          status 200
+          present v, with: DetailedMembershipVerificationEntity
+        end
+
+        route_param :note_id, type: Integer do
+          params do
+            requires :content
+          end
+          post do
+            v = lookup_writeable!
+            (note = v.notes_dataset[params[:note_id]]) or forbidden!
+            note.update(
+              content: params[:content],
+              editor: admin_member,
+              edited_at: Time.now,
+            )
+            status 200
+            present v, with: DetailedMembershipVerificationEntity
+          end
+        end
       end
     end
   end
