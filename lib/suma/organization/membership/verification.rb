@@ -207,4 +207,9 @@ class Suma::Organization::Membership::Verification < Suma::Postgres::Model(:orga
       :status,
     ]
   end
+
+  def after_save
+    super
+    Suma::SSE.publish(Suma::SSE::ORGANIZATION_MEMBERSHIP_VERIFICATIONS, {id: self.id})
+  end
 end

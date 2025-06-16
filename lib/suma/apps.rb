@@ -62,6 +62,7 @@ require "suma/admin_api/vendors"
 require "suma/admin_api/vendor_services"
 require "suma/admin_api/anon_proxy"
 
+require "suma/sse/middleware"
 require "suma/url_shortener"
 
 module Suma::Apps
@@ -234,6 +235,12 @@ module Suma::Apps
     )
     self.use(Rack::SimpleHeaders, SECURITY_HEADERS)
     Rack::SpaApp.run_spa_app(self, "build-adminapp", enforce_ssl: Suma::Service.enforce_ssl)
+  end
+
+  Events = Rack::Builder.new do
+    Suma::Service::Middleware.add_cors_middleware(self)
+    use Suma::SSE::Middleware, topic: Suma::SSE::ORGANIZATION_MEMBERSHIP_VERIFICATIONS
+    run Suma::SSE::NotFound
   end
 
   Root = Rack::Builder.new do

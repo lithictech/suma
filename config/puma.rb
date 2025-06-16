@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-# workers Integer(ENV['WEB_CONCURRENCY'] || 1)
-# threads_count = Integer(ENV['RAILS_MAX_THREADS'] || 2)
-# threads threads_count, threads_count
+# workers Integer(ENV['WEB_CONCURRENCY'] || 4)
+threads_count = Integer(ENV["RAILS_MAX_THREADS"] || 4) # We must use threads, even locally, due to Server Sent Events
+threads threads_count, threads_count
 
 lib = File.expand_path("lib", "#{__dir__}/..")
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)

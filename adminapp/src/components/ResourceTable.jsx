@@ -1,5 +1,9 @@
+import config from "../config";
+import { Logger } from "../shared/logger";
+import useMountEffect from "../shared/react/useMountEffect";
 import DownloadIcon from "@mui/icons-material/Download";
 import {
+  Button,
   CircularProgress,
   Paper,
   Stack,
@@ -20,6 +24,8 @@ import { makeStyles } from "@mui/styles";
 import { visuallyHidden } from "@mui/utils";
 import React from "react";
 
+const logger = new Logger("sse.resourcetable");
+
 /**
  *
  * @param page
@@ -36,6 +42,7 @@ import React from "react";
  * @param disableSearch
  * @param downloadUrl
  * @param {Array<{label: string, id: string, align: any, sortable: boolean, render: function}>} columns
+ * @param eventsUrl
  */
 export default function ResourceTable({
   page,
@@ -52,6 +59,7 @@ export default function ResourceTable({
   tableProps,
   disableSearch,
   downloadUrl,
+  eventsUrl,
 }) {
   const classes = useStyles();
   function handleSearchKeyDown(e) {
@@ -61,10 +69,43 @@ export default function ResourceTable({
     }
   }
 
+  const counter = React.useRef(0);
+  const counterButton = React.useRef(null);
+
+  useMountEffect(() => {
+    if (!eventsUrl) {
+      return;
+    }
+    const es = new EventSource(`${config.apiHost}${eventsUrl}`);
+    logger.debug("opened_eventsource");
+    es.onmessage = function (event) {
+      logger.debug("received_event", { message: event.data });
+      counter.current += 1;
+      if (counterButton.current) {
+        counterButton.current.style.display = "visible";
+        counterButton.current.innerText = `${counter.current} changes`;
+      }
+    };
+    return () => {
+      logger.debug("closing");
+      es.close();
+    };
+  });
+
+  function handleChangesClick(e) {
+    e.preventDefault();
+    onParamsChange({ page: 1000 });
+    counter.current = 0;
+    counterButton.current.style.display = "none";
+  }
+
   return (
-    <>
+    <Stack gap={1}>
       <Stack direction="row" justifyContent="space-between" alignItems="center">
-        <Typography variant="h5">{title}</Typography>
+        <Stack direction="row" gap={1}>
+          <Typography variant="h5">{title}</Typography>
+          <Button ref={counterButton} onClick={handleChangesClick} />
+        </Stack>
         <Stack direction="row" justifyContent="flex-end" alignItems="center" gap={2}>
           {filters}
           {!disableSearch && (
@@ -158,7 +199,7 @@ export default function ResourceTable({
           />
         </div>
       )}
-    </>
+    </Stack>
   );
 }
 export function cycleOrder(value) {

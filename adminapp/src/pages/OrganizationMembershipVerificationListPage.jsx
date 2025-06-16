@@ -96,6 +96,7 @@ export default function OrganizationMembershipVerificationListPage() {
         order={order}
         orderBy={orderBy}
         title="Verifications"
+        eventsUrl="/events/organization_membership_verifications"
         listResponse={listResponse}
         listLoading={listLoading}
         tableProps={{ sx: { minWidth: 650 }, size: "small" }}

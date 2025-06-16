@@ -17,6 +17,20 @@ end
 Money.locale_backend = :i18n
 Money.rounding_mode = BigDecimal::ROUND_HALF_UP
 
+module SemanticLogger
+  class << self
+    alias original_get []
+    def [](key)
+      logger = self.original_get(key)
+      return logger unless Suma.respond_to?(:log_level_overrides)
+      if (level = Suma.log_level_overrides[logger.name])
+        logger.level = level
+      end
+      return logger
+    end
+  end
+end
+
 module Suma
   include Appydays::Loggable
   include Appydays::Configurable
@@ -66,6 +80,7 @@ module Suma
             nil,
             key: "LOG_LEVEL",
             side_effect: ->(v) { Appydays::Loggable.default_level = v if v }
+    setting :log_level_overrides, {}, convert: ->(v) { JSON.parse(v) }
     setting :log_format, nil
     setting :app_url, "http://localhost:22004"
     setting :admin_url, "http://localhost:22014"
