@@ -19,7 +19,7 @@ module Suma::RackAttack
 
     after_configured do
       Rack::Attack.enabled = self.enabled
-      redis_url = self.redis_provider.present? ? ENV.fetch(self.redis_provider, nil) : self.redis_url
+      redis_url = Suma::Redis.fetch_url(self.redis_provider, self.redis_url)
       Rack::Attack.cache.store =
         if redis_url.present?
           ActiveSupport::Cache::RedisCacheStore.new(**Suma::Redis.conn_params(redis_url))

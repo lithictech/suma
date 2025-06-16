@@ -20,19 +20,33 @@ module Suma::Redis
       params.merge!(kw)
       return params
     end
-  end
 
-  configurable(:redis) do
-    setting :cache_url, "redis://localhost:22007/0"
-    setting :cache_url_provider, "REDIS_URL"
+    # Figure out the redis url to use. If +url_arg+ is present, use it.
+    # It should be effectivley `ENV['REDIS_URL']`.
+    # Otherwise, use `ENV[provider]` if provider is present.
+    # This should be like `ENV['REDIS_PROVIDER']`.
+    def fetch_url(provider, url_arg)
+      return url_arg if url_arg.present?
+      return "" if provider.blank?
+      return ENV.fetch(provider, "")
+    end
 
-    after_configured do
-      url = ENV.fetch(self.cache_url_provider, self.cache_url)
+    def create_pool(provider, url_arg)
+      url = fetch_url(provider, url_arg)
       redis_config = RedisClient.config(**self.conn_params(url, reconnect_attempts: 1))
-      self.cache = redis_config.new_pool(
+      return redis_config.new_pool(
         timeout: Suma::Postgres::Model.pool_timeout,
         size: Suma::Postgres::Model.max_connections,
       )
+    end
+  end
+
+  configurable(:redis) do
+    setting :cache_url, ""
+    setting :cache_url_provider, "REDIS_URL"
+
+    after_configured do
+      self.cache = self.create_pool(self.cache_url_provider, self.cache_url)
     end
   end
 
