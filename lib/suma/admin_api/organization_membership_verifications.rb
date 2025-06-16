@@ -30,6 +30,8 @@ class Suma::AdminAPI::OrganizationMembershipVerifications < Suma::AdminAPI::V1
   end
 
   class DetailedMembershipVerificationEntity < MembershipVerificationEntity
+    include Suma::AdminAPI::Entities
+    expose :audit_logs, with: AuditLogEntity
   end
 
   resource :organization_membership_verifications do

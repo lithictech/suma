@@ -67,6 +67,8 @@ class Suma::Organization::Membership::Verification < Suma::Postgres::Model(:orga
     event :start do
       transition created: :in_progress
     end
+    after_transition on: :start, do: :start!
+
     event :abandon do
       transition in_progress: :abandoned
     end
@@ -92,6 +94,11 @@ class Suma::Organization::Membership::Verification < Suma::Postgres::Model(:orga
   end
 
   def state_machine = @state_machine ||= Suma::StateMachine.new(self, :status)
+
+  def start!
+    admin = Suma.request_user_and_admin[1]
+    self.update(owner: admin) if admin
+  end
 
   def can_approve? = self.membership.verified? || self.membership.matched_organization
 

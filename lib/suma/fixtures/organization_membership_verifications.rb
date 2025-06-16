@@ -27,4 +27,9 @@ module Suma::Fixtures::OrganizationMembershipVerifications
     self.membership ||= Suma::Fixtures.organization_membership.unverified.create(organization:)
     self.membership.update(organization:)
   end
+
+  decorator :able_to_verify do
+    org = Suma::Fixtures.organization.create
+    self.membership = Suma::Fixtures.organization_membership.unverified(org.name).create
+  end
 end

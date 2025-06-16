@@ -40,7 +40,7 @@ RSpec.describe "Suma::Organization::Membership::Verification", :db do
 
   describe "state machines" do
     it "can perform simple transitions" do
-      v = Suma::Fixtures.organization_membership_verification.create
+      v = Suma::Fixtures.organization_membership_verification.able_to_verify.create
       expect(v).to transition_on(:start).to("in_progress")
       expect(v).to transition_on(:abandon).to("abandoned")
       expect(v).to transition_on(:resume).to("in_progress")
@@ -54,7 +54,27 @@ RSpec.describe "Suma::Organization::Membership::Verification", :db do
       v = Suma::Fixtures.organization_membership_verification.create
       expect(v.state_machine.available_events).to eq([:start])
       v.status = :in_progress
-      expect(v.state_machine.available_events).to eq([:abandon, :reject, :approve])
+      expect(v.state_machine.available_events).to eq([:abandon, :reject])
+    end
+
+    describe "start" do
+      let(:v) { Suma::Fixtures.organization_membership_verification.create }
+
+      it "sets the owner to the current admin" do
+        v.update(owner: Suma::Fixtures.member.create) # Replace whatever is there
+        admin = Suma::Fixtures.member.create(email: "paula_pagac@ebert.test")
+        Suma.set_request_user_and_admin(nil, admin) do
+          expect(v).to transition_on(:start).to("in_progress")
+        end
+        expect(v.owner).to be === admin
+      end
+
+      it "does not set the owner if there is no current admin" do
+        owner = Suma::Fixtures.member.create
+        v.update(owner:)
+        expect(v).to transition_on(:start).to("in_progress")
+        expect(v.owner).to be === owner
+      end
     end
 
     describe "approve" do

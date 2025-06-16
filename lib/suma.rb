@@ -179,12 +179,14 @@ module Suma
     end
     Thread.current[:suma_request_user] = user
     Thread.current[:suma_request_admin] = admin
+    StateMachines::Sequel.set_current_actor(admin)
     return if block.nil?
     begin
       yield
     ensure
       Thread.current[:suma_request_user] = nil
       Thread.current[:suma_request_admin] = nil
+      StateMachines::Sequel.set_current_actor(nil)
     end
   end
 
