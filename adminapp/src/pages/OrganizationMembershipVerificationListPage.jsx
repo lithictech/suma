@@ -1,9 +1,11 @@
 import api from "../api";
 import AdminLink from "../components/AdminLink";
+import Link from "../components/Link";
 import OrganizationMembership from "../components/OrganizationMembership";
 import ResourceTable from "../components/ResourceTable";
 import useErrorSnackbar from "../hooks/useErrorSnackbar";
 import formatDate from "../modules/formatDate";
+import relativeLink from "../modules/relativeLink";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
 import useListQueryControls from "../shared/react/useListQueryControls";
 import useToggle from "../shared/react/useToggle";
@@ -104,6 +106,7 @@ export default function OrganizationMembershipVerificationListPage() {
             <Select
               value={params.get("status") || "todo"}
               label="Status"
+              size="small"
               onChange={(e) => setListQueryParams({}, { status: e.target.value })}
             >
               <MenuItem value="todo">To-do</MenuItem>
@@ -133,7 +136,7 @@ export default function OrganizationMembershipVerificationListPage() {
                   variant={isNoted ? "contained" : "outlined"}
                   onClick={() => setNotedVerificationId(isNoted ? null : c.item.id)}
                 >
-                  Notes
+                  Notes{c.item.notes.length > 0 && ` (${c.item.notes.length})`}
                 </Button>
               );
             },
@@ -190,12 +193,17 @@ export default function OrganizationMembershipVerificationListPage() {
   );
 }
 
-const statusColors = {
-  reject: "error.main",
-  approve: "success.main",
+const eventStyles = {
+  reject: { color: "error.main" },
+  approve: { color: "success.main" },
 };
+
 const statusBtnProps = {
-  in_progress: { variant: "outlined" },
+  created: { variant: "contained", color: "secondary" },
+  in_progress: { variant: "contained", color: "secondary" },
+  ineligible: { variant: "outlined", color: "error" },
+  abandoned: { variant: "outlined", color: "secondary" },
+  verified: { variant: "outlined", color: "success" },
 };
 
 function StatusCell({ verification, onApiCall }) {
@@ -211,12 +219,13 @@ function StatusCell({ verification, onApiCall }) {
     <StatusPicker
       value={verification.status}
       options={verification.availableEvents}
+      href={relativeLink(verification.adminLink)[0]}
       onOptionSelected={(o) => handleTransition(verification, o)}
     />
   );
 }
 
-function StatusPicker({ value, options, onClick, onOptionSelected }) {
+function StatusPicker({ value, options, onOptionSelected, href }) {
   const toggle = useToggle();
   const anchorRef = React.useRef(null);
 
@@ -235,14 +244,13 @@ function StatusPicker({ value, options, onClick, onOptionSelected }) {
   const bprops = {
     size: "small",
     variant: "contained",
-    color: statusColors[value] || "secondary",
     ...statusBtnProps[value],
   };
 
   return (
     <>
       <ButtonGroup {...bprops} ref={anchorRef}>
-        <Button sx={{ display: "flex", flex: 1 }} onClick={onClick}>
+        <Button component={Link} href={href} sx={{ display: "flex", flex: 1 }}>
           {value}
         </Button>
         <Button size="small" onClick={toggle.toggle}>
@@ -271,7 +279,7 @@ function StatusPicker({ value, options, onClick, onOptionSelected }) {
                   {options.map((option) => (
                     <MenuItem
                       key={option}
-                      sx={{ textTransform: "capitalize", color: statusColors[option] }}
+                      sx={{ textTransform: "capitalize", ...eventStyles[option] }}
                       onClick={(event) => handleMenuItemClick(event, option)}
                     >
                       <ArrowRightIcon />
@@ -329,7 +337,7 @@ function FrontConvoStatus({
   lastUpdatedAt,
   onBegin,
 }) {
-  [webUrl, initialDraft, waitingOnAdmin, lastUpdatedAt] = getTestingProps();
+  // [webUrl, initialDraft, waitingOnAdmin, lastUpdatedAt] = getTestingProps();
   let Icon, text;
   const bprops = { href: webUrl, target: "_blank" };
   if (!webUrl) {
@@ -365,6 +373,9 @@ function FrontConvoStatus({
   );
 }
 
+// Use this to see all the permutations of fields on the list buttons,
+// which can be difficult to test out with Front in real usage.
+// eslint-disable-next-line no-unused-vars
 function getTestingProps() {
   const r = Math.random();
   if (r < 0.25) {

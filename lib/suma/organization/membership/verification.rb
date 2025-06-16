@@ -77,8 +77,9 @@ class Suma::Organization::Membership::Verification < Suma::Postgres::Model(:orga
       transition in_progress: :ineligible
     end
     event :approve do
-      transition in_progress: :verified
+      transition in_progress: :verified, if: :can_approve?
     end
+    after_transition on: :approve, do: :approve!
 
     after_transition(&:commit_audit_log)
     after_failure(&:commit_audit_log)
@@ -91,6 +92,13 @@ class Suma::Organization::Membership::Verification < Suma::Postgres::Model(:orga
   end
 
   def state_machine = @state_machine ||= Suma::StateMachine.new(self, :status)
+
+  def can_approve? = self.membership.verified? || self.membership.matched_organization
+
+  def approve!
+    return if self.membership.verified?
+    self.membership.update(verified_organization: self.membership.matched_organization)
+  end
 
   def begin_partner_outreach
     member = self.membership.member

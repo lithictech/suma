@@ -56,6 +56,34 @@ RSpec.describe "Suma::Organization::Membership::Verification", :db do
       v.status = :in_progress
       expect(v.state_machine.available_events).to eq([:abandon, :reject, :approve])
     end
+
+    describe "approve" do
+      it "sets the matching organization verified" do
+        org = Suma::Fixtures.organization.create
+        membership = Suma::Fixtures.organization_membership.unverified(org.name).create
+        v = Suma::Fixtures.organization_membership_verification.create(membership:, status: "in_progress")
+        expect(v).to transition_on(:approve).to("verified")
+        expect(membership).to be_verified
+      end
+
+      it "fails if there is no org matching the unverified org name" do
+        membership = Suma::Fixtures.organization_membership.unverified.create
+        v = Suma::Fixtures.organization_membership_verification.create(membership:, status: "in_progress")
+        expect(v).to not_transition_on(:approve)
+      end
+
+      it "succeeds if the membership is already verified" do
+        membership = Suma::Fixtures.organization_membership.verified.create
+        v = Suma::Fixtures.organization_membership_verification.create(membership:, status: "in_progress")
+        expect(v).to transition_on(:approve).to("verified")
+      end
+
+      it "fails if the membership is former" do
+        membership = Suma::Fixtures.organization_membership.former.create
+        v = Suma::Fixtures.organization_membership_verification.create(membership:, status: "in_progress")
+        expect(v).to not_transition_on(:approve)
+      end
+    end
   end
 
   describe "begin_partner_outreach", reset_configuration: described_class do

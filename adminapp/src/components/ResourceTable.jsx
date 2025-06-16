@@ -65,17 +65,19 @@ export default function ResourceTable({
     <>
       <Stack direction="row" justifyContent="space-between" alignItems="center">
         <Typography variant="h5">{title}</Typography>
-        {filters}
-        {!disableSearch && (
-          <TextField
-            label="Search"
-            variant="outlined"
-            type="search"
-            size="small"
-            defaultValue={search}
-            onKeyDown={handleSearchKeyDown}
-          />
-        )}
+        <Stack direction="row" justifyContent="flex-end" alignItems="center" gap={2}>
+          {filters}
+          {!disableSearch && (
+            <TextField
+              label="Search"
+              variant="outlined"
+              type="search"
+              size="small"
+              defaultValue={search}
+              onKeyDown={handleSearchKeyDown}
+            />
+          )}
+        </Stack>
       </Stack>
       <TableContainer component={Paper}>
         <Table {...tableProps}>

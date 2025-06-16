@@ -53,6 +53,7 @@ import OrganizationMembershipCreatePage from "./pages/OrganizationMembershipCrea
 import OrganizationMembershipDetailPage from "./pages/OrganizationMembershipDetailPage";
 import OrganizationMembershipEditPage from "./pages/OrganizationMembershipEditPage";
 import OrganizationMembershipListPage from "./pages/OrganizationMembershipListPage";
+import OrganizationMembershipVerificationDetailPage from "./pages/OrganizationMembershipVerificationDetailPage";
 import OrganizationMembershipVerificationListPage from "./pages/OrganizationMembershipVerificationListPage";
 import PaymentLedgerDetailPage from "./pages/PaymentLedgerDetailPage";
 import PaymentLedgerListPage from "./pages/PaymentLedgerListPage";
@@ -638,6 +639,15 @@ function PageSwitch() {
           redirectIfUnauthed,
           withLayout(),
           OrganizationMembershipVerificationListPage
+        )}
+      />
+      <Route
+        exact
+        path="/membership-verification/:id"
+        element={renderWithHocs(
+          redirectIfUnauthed,
+          withLayout(),
+          OrganizationMembershipVerificationDetailPage
         )}
       />
 
