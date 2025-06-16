@@ -33,19 +33,59 @@ class Suma::AdminAPI::OrganizationMembershipVerifications < Suma::AdminAPI::V1
   end
 
   resource :organization_membership_verifications do
-    Suma::AdminAPI::CommonEndpoints.list(
-      self,
-      Suma::Organization::Membership::Verification,
-      MembershipVerificationEntity,
-    )
-
-    resource :todo do
-      Suma::AdminAPI::CommonEndpoints.list(
-        self,
-        Suma::Organization::Membership::Verification,
-        MembershipVerificationEntity,
-        dataset: lambda(&:todo),
-      )
+    params do
+      use :pagination
+      use :ordering, default: :created_at, values: [:status, :member, :organization, :created_at]
+      use :searchable
+      optional :status, type: Symbol
+    end
+    get do
+      access = Suma::AdminAPI::Access.read_key(Suma::Organization::Membership::Verification)
+      check_role_access!(admin_member, :read, access)
+      ds = Suma::Organization::Membership::Verification.dataset
+      # Join the verification with its membership, member, and organization, so we can search by name
+      ds = ds.association_join(:membership).
+        left_join(:members, {id: Sequel[:membership][:member_id]}, qualify: :deep).
+        left_join(
+          :organizations,
+          {
+            id: Sequel.function(
+              :coalesce,
+              Sequel[:membership][:verified_organization_id],
+              Sequel[:membership][:former_organization_id],
+            ),
+          },
+          qualify: :deep,
+        )
+      if (status = params[:status]) == :todo
+        ds = ds.todo
+      elsif status == :all
+        nil
+      elsif status
+        ds = ds.where(status: status.to_s)
+      end
+      if (search = params[:search]).present?
+        srch = "%#{search}%"
+        ds = ds.where(
+          Sequel[:members][:name].ilike(srch) |
+            Sequel[:organizations][:name].ilike(srch) |
+            Sequel[:membership][:unverified_organization_name].ilike(srch),
+        )
+      end
+      orderings = if (order = params[:order_by]) == :member
+                    [Sequel[:members][:name]]
+      elsif order == :organization
+        [Sequel.function(:coalesce, Sequel[:organizations][:name], Sequel[:membership][:unverified_organization_name])]
+      else
+        [Sequel[:organization_membership_verifications][order]]
+      end
+      orderings << Sequel[:organization_membership_verifications][:id]
+      orderings.each do |expr|
+        ds = ds.order_append(Sequel.send(params[:order_direction], expr))
+      end
+      ds = paginate(ds, params)
+      ds = ds.select(Sequel[:organization_membership_verifications][Sequel.lit("*")])
+      present_collection ds, with: MembershipVerificationEntity
     end
 
     Suma::AdminAPI::CommonEndpoints.get_one(

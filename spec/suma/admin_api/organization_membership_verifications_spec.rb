@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "suma/admin_api/organization_membership_verifications"
+require "suma/api/behaviors"
 
 RSpec.describe Suma::AdminAPI::OrganizationMembershipVerifications, :db do
   let(:app) { described_class.build_app }
@@ -16,21 +17,130 @@ RSpec.describe Suma::AdminAPI::OrganizationMembershipVerifications, :db do
       get "/v1/organization_membership_verifications"
 
       expect(last_response).to have_status(200)
-      expect(last_response).to have_json_body.
-        that_includes(items: have_same_ids_as(*objs))
+      expect(last_response).to have_json_body.that_includes(items: have_same_ids_as(*objs))
     end
-  end
 
-  describe "GET /v1/organization_membership_verifications/todo" do
-    it "returns actionable organization memberships" do
-      m1 = Suma::Fixtures.organization_membership_verification.create
-      m2 = Suma::Fixtures.organization_membership_verification.create(status: "ineligible")
+    it_behaves_like "an endpoint with pagination", download: false do
+      let(:url) { "/v1/organization_membership_verifications" }
+      def make_item(i)
+        created = Time.now - i.days
+        return Suma::Fixtures.organization_membership_verification.create(created_at: created)
+      end
+    end
 
-      get "/v1/organization_membership_verifications/todo"
+    describe "status parameter" do
+      it "returns all memberships if 'all'" do
+        m1 = Suma::Fixtures.organization_membership_verification.create
+        m2 = Suma::Fixtures.organization_membership_verification.create(status: "ineligible")
 
-      expect(last_response).to have_status(200)
-      expect(last_response).to have_json_body.
-        that_includes(items: have_same_ids_as(m1))
+        get "/v1/organization_membership_verifications", status: "all"
+
+        expect(last_response).to have_status(200)
+        expect(last_response).to have_json_body.that_includes(items: have_same_ids_as(m1, m2))
+      end
+
+      it "returns actionable memberships if 'todo'" do
+        m1 = Suma::Fixtures.organization_membership_verification.create
+        m2 = Suma::Fixtures.organization_membership_verification.create(status: "in_progress")
+        Suma::Fixtures.organization_membership_verification.create(status: "ineligible")
+
+        get "/v1/organization_membership_verifications", status: "todo"
+
+        expect(last_response).to have_status(200)
+        expect(last_response).to have_json_body.that_includes(items: have_same_ids_as(m1, m2))
+      end
+
+      it "filters to the status value otherwise" do
+        Suma::Fixtures.organization_membership_verification.create
+        m = Suma::Fixtures.organization_membership_verification.create(status: "ineligible")
+        Suma::Fixtures.organization_membership_verification.create(status: "abandoned")
+
+        get "/v1/organization_membership_verifications", status: "ineligible"
+        expect(last_response).to have_status(200)
+        expect(last_response).to have_json_body.that_includes(items: have_same_ids_as(m))
+      end
+    end
+
+    describe "order parameter" do
+      it "can order by status" do
+        m1 = Suma::Fixtures.organization_membership_verification.create(status: "abandoned")
+        m2 = Suma::Fixtures.organization_membership_verification.create(status: "in_progress")
+
+        get "/v1/organization_membership_verifications", order_by: "status", order_direction: "desc"
+        expect(last_response).to have_status(200)
+        expect(last_response).to have_json_body.that_includes(items: have_same_ids_as(m2, m1).ordered)
+
+        get "/v1/organization_membership_verifications", order_by: "status", order_direction: "asc"
+        expect(last_response).to have_status(200)
+        expect(last_response).to have_json_body.that_includes(items: have_same_ids_as(m1, m2).ordered)
+      end
+
+      it "can order by member name" do
+        m1 = Suma::Fixtures.organization_membership_verification.create
+        m1.membership.member.update(name: "Abc")
+        m2 = Suma::Fixtures.organization_membership_verification.create
+        m2.membership.member.update(name: "Xyz")
+
+        get "/v1/organization_membership_verifications", order_by: "member", order_direction: "desc"
+        expect(last_response).to have_status(200)
+        expect(last_response).to have_json_body.that_includes(items: have_same_ids_as(m2, m1).ordered)
+
+        get "/v1/organization_membership_verifications", order_by: "member", order_direction: "asc"
+        expect(last_response).to have_status(200)
+        expect(last_response).to have_json_body.that_includes(items: have_same_ids_as(m1, m2).ordered)
+      end
+
+      it "can order by organization name, across unverified, verified, and former org names" do
+        m1 = Suma::Fixtures.organization_membership_verification.create
+        m1.membership.update(unverified_organization_name: "Abc")
+        m2 = Suma::Fixtures.organization_membership_verification.create
+        m2.membership.update(verified_organization: Suma::Fixtures.organization.create(name: "Lmn"))
+        m3 = Suma::Fixtures.organization_membership_verification.create
+        m3.membership.update(verified_organization: Suma::Fixtures.organization.create(name: "Xyz"))
+        m3.membership.remove_from_organization
+
+        get "/v1/organization_membership_verifications", order_by: "organization", order_direction: "asc"
+        expect(last_response).to have_status(200)
+        expect(last_response).to have_json_body.that_includes(items: have_same_ids_as(m1, m2, m3).ordered)
+
+        get "/v1/organization_membership_verifications", order_by: "organization", order_direction: "desc"
+        expect(last_response).to have_status(200)
+        expect(last_response).to have_json_body.that_includes(items: have_same_ids_as(m3, m2, m1).ordered)
+      end
+
+      it "can order by verification created at" do
+        m1 = Suma::Fixtures.organization_membership_verification.create
+        m2 = Suma::Fixtures.organization_membership_verification.create
+
+        get "/v1/organization_membership_verifications", order_by: "created_at", order_direction: "desc"
+        expect(last_response).to have_status(200)
+        expect(last_response).to have_json_body.that_includes(items: have_same_ids_as(m2, m1).ordered)
+
+        get "/v1/organization_membership_verifications", order_by: "created_at", order_direction: "asc"
+        expect(last_response).to have_status(200)
+        expect(last_response).to have_json_body.that_includes(items: have_same_ids_as(m1, m2).ordered)
+      end
+    end
+
+    describe "search" do
+      it "searches member and orgs names" do
+        m1 = Suma::Fixtures.organization_membership_verification.create
+        m1.membership.update(unverified_organization_name: "James")
+        m1.membership.member.update(name: "John")
+
+        m2 = Suma::Fixtures.organization_membership_verification.create
+        m2.membership.update(verified_organization: Suma::Fixtures.organization.create(name: "Lmn"))
+        m2.membership.member.update(name: "John")
+
+        m3 = Suma::Fixtures.organization_membership_verification.create
+        m3.membership.update(verified_organization: Suma::Fixtures.organization.create(name: "Xyz"))
+        m3.membership.remove_from_organization
+        m3.membership.member.update(name: "James")
+
+        get "/v1/organization_membership_verifications", search: "James"
+        expect(last_response).to have_status(200)
+        expect(last_response).to have_json_body.that_includes(items: have_same_ids_as(m1, m3))
+      end
     end
   end
 

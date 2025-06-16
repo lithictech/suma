@@ -10,15 +10,23 @@ import useToggle from "../shared/react/useToggle";
 import ArrowRightIcon from "@mui/icons-material/ArrowRight";
 import CreateIcon from "@mui/icons-material/Create";
 import DraftsIcon from "@mui/icons-material/Drafts";
-import EditIcon from "@mui/icons-material/Edit";
 import ReplyIcon from "@mui/icons-material/Reply";
 import SendIcon from "@mui/icons-material/Send";
-import { Card, CardContent, Fade, Stack, TextField, Typography } from "@mui/material";
+import {
+  Card,
+  CardContent,
+  Fade,
+  FormControl,
+  InputLabel,
+  Select,
+  Stack,
+  TextField,
+  Typography,
+} from "@mui/material";
 import Button from "@mui/material/Button";
 import ButtonGroup from "@mui/material/ButtonGroup";
 import ClickAwayListener from "@mui/material/ClickAwayListener";
 import Grow from "@mui/material/Grow";
-import IconButton from "@mui/material/IconButton";
 import MenuItem from "@mui/material/MenuItem";
 import MenuList from "@mui/material/MenuList";
 import Paper from "@mui/material/Paper";
@@ -30,18 +38,19 @@ import React from "react";
 export default function OrganizationMembershipVerificationListPage() {
   const { enqueueErrorSnackbar } = useErrorSnackbar();
 
-  const { page, perPage, search, order, orderBy, setListQueryParams } =
+  const { params, page, perPage, search, order, orderBy, setListQueryParams } =
     useListQueryControls();
 
   const getList = React.useCallback(() => {
-    return api.getOrganizationMembershipVerificationTodo({
+    return api.getOrganizationMembershipVerifications({
       page: page + 1,
       perPage,
       search,
       orderBy,
       orderDirection: order,
+      status: params.get("status"),
     });
-  }, [order, orderBy, page, perPage, search]);
+  }, [order, orderBy, page, perPage, search, params]);
 
   const { state: rawListResponse, loading: listLoading } = useAsyncFetch(getList, {
     default: {},
@@ -60,21 +69,28 @@ export default function OrganizationMembershipVerificationListPage() {
     [enqueueErrorSnackbar, updatedListResponses]
   );
 
-  const listResponse = {
-    ...rawListResponse,
-    items: (rawListResponse.items || []).map((r) => updatedListResponses[r.id] || r),
-  };
+  const listResponse = { ...rawListResponse, items: [] };
+  (rawListResponse.items || []).forEach((r) => {
+    const item = updatedListResponses[r.id] || r;
+    listResponse.items.push({ key: `${item.id}t`, item, top: true });
+    listResponse.items.push({ key: `${item.id}b`, item, top: false });
+  });
 
   const [notedVerificationId, setNotedVerificationId] = React.useState(null);
-  const notedVerification = listResponse.items.find((v) => v.id === notedVerificationId);
+  const notedVerification = listResponse.items
+    .map((t) => t.item)
+    .find((v) => v.id === notedVerificationId);
+
+  function colPropsCombineRows(c) {
+    return c.top ? { sx: { borderBottom: "none" } } : { sx: { paddingTop: 0 } };
+  }
 
   return (
     <>
       <ResourceTable
         page={page}
         perPage={perPage}
-        // search={canSearch ? search : undefined}
-        // disableSearch={!canSearch}
+        search={search}
         order={order}
         orderBy={orderBy}
         title="Verifications"
@@ -82,46 +98,90 @@ export default function OrganizationMembershipVerificationListPage() {
         listLoading={listLoading}
         tableProps={{ sx: { minWidth: 650 }, size: "small" }}
         onParamsChange={setListQueryParams}
+        filters={[
+          <FormControl key="status">
+            <InputLabel>Status</InputLabel>
+            <Select
+              value={params.get("status") || "todo"}
+              label="Status"
+              onChange={(e) => setListQueryParams({}, { status: e.target.value })}
+            >
+              <MenuItem value="todo">To-do</MenuItem>
+              <MenuItem value="verified">Verified</MenuItem>
+              <MenuItem value="ineligible">Ineligible</MenuItem>
+              <MenuItem value="abandoned">Abandoned</MenuItem>
+              <MenuItem value="all">All</MenuItem>
+            </Select>
+          </FormControl>,
+        ]}
         columns={[
           {
             id: "status",
             label: "Status",
             sortable: true,
-            render: (c) => (
-              <StatusCell
-                verification={c}
-                onApiCall={handleApiCall}
-                isNoted={c.id === notedVerification?.id}
-                onNotesClicked={() =>
-                  setNotedVerificationId(c.id === notedVerification?.id ? null : c.id)
-                }
-              />
-            ),
+            props: colPropsCombineRows,
+            render: (c) => {
+              const isNoted = c.item.id === notedVerification?.id;
+              return c.top ? (
+                <StatusCell
+                  verification={c.item}
+                  onApiCall={handleApiCall}
+                  isNoted={isNoted}
+                />
+              ) : (
+                <Button
+                  variant={isNoted ? "contained" : "outlined"}
+                  onClick={() => setNotedVerificationId(isNoted ? null : c.item.id)}
+                >
+                  Notes
+                </Button>
+              );
+            },
           },
           {
             id: "member",
             label: "Member",
             align: "left",
-            render: (c) => <MemberInfo verification={c} onApiCall={handleApiCall} />,
+            sortable: true,
+            props: colPropsCombineRows,
+            render: (c) =>
+              c.top ? (
+                <AdminLink model={c.item.membership.member}>
+                  {c.item.membership.member.name}
+                </AdminLink>
+              ) : (
+                <MemberOutreach verification={c.item} onApiCall={handleApiCall} />
+              ),
           },
           {
             id: "phone",
             label: "Phone",
             align: "left",
-            render: (c) => c.formattedPhone,
+            sortable: true,
+            props: colPropsCombineRows,
+            render: (c) => (c.top ? c.item.membership.member.formattedPhone : null),
           },
           {
             id: "organization",
             label: "Organization",
             align: "left",
-            render: (c) => <OrgInfo verification={c} onApiCall={handleApiCall} />,
+            sortable: true,
+            props: colPropsCombineRows,
+            render: (c) =>
+              c.top ? (
+                <OrganizationMembership membership={c.item.membership} />
+              ) : (
+                <PartnerOutreach verification={c.item} onApiCall={handleApiCall} />
+              ),
           },
           {
             id: "created_at",
             label: "Registered",
             align: "left",
             sortable: true,
-            render: (c) => formatDate(c.membership.member.createdAt),
+            props: colPropsCombineRows,
+            render: (c) =>
+              c.top ? formatDate(c.item.membership.member.createdAt) : null,
           },
         ]}
       />
@@ -138,7 +198,7 @@ const statusBtnProps = {
   in_progress: { variant: "outlined" },
 };
 
-function StatusCell({ verification, isNoted, onNotesClicked, onApiCall }) {
+function StatusCell({ verification, onApiCall }) {
   const handleTransition = React.useCallback(
     (row, option) => {
       onApiCall(
@@ -148,19 +208,11 @@ function StatusCell({ verification, isNoted, onNotesClicked, onApiCall }) {
     [onApiCall]
   );
   return (
-    <Stack gap={1}>
-      <StatusPicker
-        value={verification.status}
-        options={verification.availableEvents}
-        onOptionSelected={(o) => handleTransition(verification, o)}
-      />
-      <Button
-        variant={isNoted ? "contained" : "outlined"}
-        onClick={() => onNotesClicked()}
-      >
-        Notes
-      </Button>
-    </Stack>
+    <StatusPicker
+      value={verification.status}
+      options={verification.availableEvents}
+      onOptionSelected={(o) => handleTransition(verification, o)}
+    />
   );
 }
 
@@ -236,7 +288,7 @@ function StatusPicker({ value, options, onClick, onOptionSelected }) {
   );
 }
 
-function MemberInfo({ verification, onApiCall }) {
+function MemberOutreach({ verification, onApiCall }) {
   function handleBegin(e) {
     e.preventDefault();
     onApiCall(
@@ -246,19 +298,14 @@ function MemberInfo({ verification, onApiCall }) {
     );
   }
   return (
-    <Stack gap={1}>
-      <AdminLink model={verification.membership.member}>
-        {verification.membership.member.name}
-      </AdminLink>
-      <FrontConvoStatus
-        {...verification.frontMemberConversationStatus}
-        onBegin={handleBegin}
-      />
-    </Stack>
+    <FrontConvoStatus
+      {...verification.frontMemberConversationStatus}
+      onBegin={handleBegin}
+    />
   );
 }
 
-function OrgInfo({ verification, onApiCall }) {
+function PartnerOutreach({ verification, onApiCall }) {
   function handleBegin(e) {
     e.preventDefault();
     onApiCall(
@@ -268,13 +315,10 @@ function OrgInfo({ verification, onApiCall }) {
     );
   }
   return (
-    <Stack gap={1}>
-      <OrganizationMembership membership={verification.membership} />
-      <FrontConvoStatus
-        {...verification.frontPartnerConversationStatus}
-        onBegin={handleBegin}
-      />
-    </Stack>
+    <FrontConvoStatus
+      {...verification.frontPartnerConversationStatus}
+      onBegin={handleBegin}
+    />
   );
 }
 

@@ -30,6 +30,7 @@ import React from "react";
  * @param onParamsChange
  * @param listResponse
  * @param listLoading
+ * @param filters
  * @param title
  * @param tableProps
  * @param disableSearch
@@ -46,6 +47,7 @@ export default function ResourceTable({
   listResponse,
   listLoading,
   title,
+  filters,
   columns,
   tableProps,
   disableSearch,
@@ -63,6 +65,7 @@ export default function ResourceTable({
     <>
       <Stack direction="row" justifyContent="space-between" alignItems="center">
         <Typography variant="h5">{title}</Typography>
+        {filters}
         {!disableSearch && (
           <TextField
             label="Search"
@@ -118,12 +121,13 @@ export default function ResourceTable({
               </TableRow>
             ) : (
               listResponse.items?.map((c) => (
-                <TableRow key={c.id}>
+                <TableRow key={c.id || c.key}>
                   {columns.map((col, idx) => (
                     <TableCell
                       key={`${col.id}-${idx}`}
                       align={col.align}
                       {...(idx === 0 ? { component: "th", scope: "row" } : {})}
+                      {...(col.props && col.props(c))}
                     >
                       {col.render(c)}
                     </TableCell>

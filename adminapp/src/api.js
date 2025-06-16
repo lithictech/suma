@@ -256,8 +256,6 @@ export default {
 
   getOrganizationMembershipVerifications: (data) =>
     get(`/adminapi/v1/organization_membership_verifications`, data),
-  getOrganizationMembershipVerificationTodo: (data) =>
-    get(`/adminapi/v1/organization_membership_verifications/todo`, data),
   transitionOrganizationMembershipVerification: ({ id, ...data }) =>
     post(`/adminapi/v1/organization_membership_verifications/${id}/transition`, data),
   beginOrganizationMembershipVerificationPartnerOutreach: ({ id, ...data }) =>
