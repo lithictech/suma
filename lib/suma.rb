@@ -80,6 +80,8 @@ module Suma
             nil,
             key: "LOG_LEVEL",
             side_effect: ->(v) { Appydays::Loggable.default_level = v if v }
+    # Use the form 'SUMA_LOG_LEVEL_OVERRIDES={"Suma::Postgres::Model": "warn", "Suma::Service": "warn"}'
+    # to override log levels of loggers with the given names.
     setting :log_level_overrides, {}, convert: ->(v) { JSON.parse(v) }
     setting :log_format, nil
     setting :app_url, "http://localhost:22004"
