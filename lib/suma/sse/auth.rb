@@ -11,18 +11,23 @@ module Suma::SSE::Auth
   HEADER = "Suma-Events-Token"
   TTL = 5.minutes
 
+  class Error < StandardError; end
+  class Malformed < Error; end
+  class Missing < Error; end
+  class Expired < Error; end
+
   class << self
     def cipher = OpenSSL::Cipher.new("aes-256-cbc")
     def key = @key ||= cipher.random_key
     def iv = @iv ||= cipher.random_iv
 
-    def generate_token
+    def generate_token(now: Time.now)
       c = self.cipher
       c.encrypt
       c.key = self.key
       c.iv = self.iv
 
-      payload = {exp: (Time.now + TTL).to_i}
+      payload = {exp: (now + TTL).to_i}
       plain = payload.to_json
       encrypted = c.update(plain) + c.final
       b64 = Base64.urlsafe_encode64(encrypted)
@@ -30,7 +35,15 @@ module Suma::SSE::Auth
       return encoded
     end
 
-    def validate_token(encoded_token)
+    def validate_token(tok, now: Time.now)
+      self.validate_token!(tok, now:)
+      return true
+    rescue Error
+      return false
+    end
+
+    def validate_token!(encoded_token, now: Time.now)
+      raise Missing if encoded_token.blank?
       d = self.cipher
       d.decrypt
       d.key = self.key
@@ -39,8 +52,11 @@ module Suma::SSE::Auth
       encrypted = Base64.urlsafe_decode64(b64)
       plain = d.update(encrypted) + d.final
       payload = JSON.parse(plain)
-      ttl = Time.now + TTL
-      return payload["exp"] < ttl.to_i
+      now = now.to_i
+      exp = payload["exp"]
+      raise Expired if now > exp
+    rescue OpenSSL::Cipher::CipherError, KeyError
+      raise Malformed
     end
   end
 end

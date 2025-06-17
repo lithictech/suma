@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+require "puma/const"
+require "puma/null_io"
+require "puma/client"
 require "suma/sse"
 require "suma/sse/auth"
 
@@ -14,10 +17,19 @@ class Suma::SSE::Middleware
   }.freeze
 
   class << self
+    # This is shared between all event middleware.
+    attr_accessor :keepalive
+
     # Return the client collection for the process.
     # We use a global collection of clients,
     # with a single keepalive thread, to save on resources.
     def clients = @clients ||= ClientCollection.new
+
+    def reset_clients
+      @clients&.pinger&.kill
+      @clients = nil
+      self.keepalive = 25.seconds
+    end
   end
 
   def initialize(app, topic:, path: "/#{topic}")
@@ -43,6 +55,8 @@ class Suma::SSE::Middleware
       Suma::SSE.subscribe(@topic) do |msg|
         break unless self.class.clients.senddata(client, msg.to_json)
       end
+    rescue StandardError => e
+      Suma::SSE::Middleware.clients.logger.warn("subscriber_error", {client_id: client.id}, e)
     ensure
       self.class.clients.disconnect!(client, nil)
     end
@@ -56,6 +70,8 @@ class Suma::SSE::Middleware
   end
 
   class ClientCollection
+    attr_reader :pinger, :logger
+
     def initialize
       @clients = []
       @counter = 0
@@ -65,7 +81,7 @@ class Suma::SSE::Middleware
         # This prevents each SSE request from using three threads;
         # instead it can just one additional thread, plus the handler thread.
         loop do
-          sleep(25.seconds)
+          sleep(Suma::SSE::Middleware.keepalive)
           @clients.to_a.each do |client|
             @logger.debug "eventsource_keepalive", client_id: client.id
             self.keepalive(client)
@@ -127,3 +143,5 @@ class Suma::SSE::Middleware
     end
   end
 end
+
+Suma::SSE::Middleware.reset_clients
