@@ -41,8 +41,12 @@ class Suma::Member::FrontappAttributes
   def _contact_body
     body = {
       links: [@member.admin_link],
-      # NOTE: Setting things like customFields or groupNames will REPLACE existing ones,
+      # NOTE: Setting things like customFields or listNames will REPLACE existing ones,
       # so be very careful if we end up using them.
+      custom_fields: {
+        "SMS Marketing Opted Out" => @member.preferences!.marketing_sms_optout,
+        "Language" => @member.preferences!.preferred_language_name,
+      },
     }
     body[:name] = @member.name if @member.name.present?
     body

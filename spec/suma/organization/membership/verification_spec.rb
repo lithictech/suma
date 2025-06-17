@@ -214,7 +214,7 @@ RSpec.describe "Suma::Organization::Membership::Verification", :db do
       req = stub_request(:post, "https://api2.frontapp.com/channels/cha456/drafts").
         with(
           body: {
-            body: "TK",
+            body: "Hi Patricia",
             mode: "shared",
             should_add_default_signature: false,
           }.to_json,

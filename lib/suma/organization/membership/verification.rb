@@ -134,7 +134,7 @@ class Suma::Organization::Membership::Verification < Suma::Postgres::Model(:orga
 
   def begin_member_outreach
     params = {
-      body: "TK",
+      body: "Hi #{self.membership.member.name}",
       mode: "shared",
       should_add_default_signature: false,
     }
