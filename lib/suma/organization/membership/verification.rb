@@ -153,7 +153,11 @@ class Suma::Organization::Membership::Verification < Suma::Postgres::Model(:orga
       return ["Verification request for #{member.name}", body]
     end
     tmpl = Suma::Frontapp.client.get_message_template(front_template)
-    return [tmpl.fetch("subject"), tmpl.fetch("body")]
+    ctx = self.render_front_template_context(
+      member: self.membership.member,
+      handle: self.membership.organization_verification_email,
+    )
+    return self.render_front_template(tmpl, ctx)
   end
 
   def begin_member_outreach
@@ -191,7 +195,8 @@ class Suma::Organization::Membership::Verification < Suma::Postgres::Model(:orga
       return ["", "Hi #{member.name}"]
     end
     tmpl = Suma::Frontapp.client.get_message_template(front_template)
-    return [tmpl.fetch("subject"), tmpl.fetch("body")]
+    ctx = self.render_front_template_context(member:)
+    return self.render_front_template(tmpl, ctx)
   end
 
   def _parse_conversation_id(front_resp)
@@ -244,6 +249,72 @@ class Suma::Organization::Membership::Verification < Suma::Postgres::Model(:orga
       params[:initial_draft] = true
     end
     return ConversationStatus.new(**params)
+  end
+
+  def render_front_template_context(member:, handle: nil)
+    admin = Suma.request_user_and_admin.last
+    ctx = {
+      # account.name: name of the contact currently tied to the account
+      # conversation.id: numeric version of the conversation's ID
+      # conversation.public_id: ID available in app menus (e.g. cnv_123abc)
+      # conversation.ticket_id: ticket ID assigned to the conversation
+      # message.id: numeric version of the message's ID
+      # message.public_id: ID available in app menus (e.g. msg_123abc)
+      recipient: {
+        # recipient.handle: contact's handle (e.g. email, phone, etc.) dependent on message type
+        handle:,
+        # recipient.email: contact's email address
+        email: member.email,
+        # recipient.twitter: contact's X (formerly Twitter) handle
+        # recipient.phone: contact's phone number
+        phone: Suma::PhoneNumber.format_display(member.phone),
+        # recipient.name: contact's full name
+        name: member.name,
+        # recipient.first_name: First part of contact's name, split on the first space.
+        first_name: member.guessed_first_name,
+        # recipient.last_name: Remaining portion of contact's name following the first space.
+        last_name: member.guessed_last_name,
+        # recipient.link: contact's link attribute
+        custom: {
+          address: member.legal_entity.address&.one_line_address,
+        },
+      },
+      # survey: inserts Front's CSAT feature
+      user: {
+        # user.id: current Front user's numeric ID
+        # user.name: current Front user's full name (first + last)
+        name: admin&.name,
+        # user.first_name: current Front user's first name
+        first_name: admin&.guessed_first_name,
+        # user.last_name: current Front user's last name
+        last_name: admin&.guessed_last_name,
+        # user.email: current Front user's email
+        email: admin&.email,
+      },
+    }
+    return ctx
+  end
+
+  def render_front_template(tmpl, ctx)
+    subject = self.render_front_template_string(tmpl.fetch("subject"), ctx)
+    body = self.render_front_template_string(tmpl.fetch("body"), ctx)
+    return [subject, body]
+  end
+
+  # Using template text as the message body does not render it,
+  # as when you use a message template while composing a message.
+  # Front uses Liquid templates, so render it as Liquid with Front's
+  # common drops we can replicate.
+  # See https://help.front.com/en/articles/2306 for drops.
+  def render_front_template_string(s, ctx)
+    begin
+      tmpl = Liquid::Template.parse(s)
+    rescue Liquid::SyntaxError
+      return s
+    end
+    ctx = ctx.deep_stringify_keys
+    r = tmpl.render(ctx)
+    return r
   end
 
   def rel_admin_link = "/membership-verification/#{self.id}"

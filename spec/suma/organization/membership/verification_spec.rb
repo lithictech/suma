@@ -260,6 +260,35 @@ RSpec.describe "Suma::Organization::Membership::Verification",
         expect(tmpl_req).to have_been_made
         expect(req).to have_been_made
       end
+
+      it "renders the template" do
+        Suma::Fixtures.organization.create(
+          name: v.membership.unverified_organization_name,
+          membership_verification_email: "x@y.z",
+        )
+        v.membership.member.update(name: "Leigh Sipes")
+        admin = Suma::Fixtures.member.create(name: "Suma Admin", email: "paula_pagac@ebert.test")
+
+        teammate_req = stub_request(:get, "https://api2.frontapp.com/teammates/alt:email:paula_pagac@ebert.test").
+          to_return(json_response(load_fixture_data("front/teammate")))
+        template_body = load_fixture_data("front/message_template")
+        template_body["subject"] = "Member {{recipient.name}} to {{recipient.handle}} from {{user.name}}"
+        tmpl_req = stub_request(:get, "https://api2.frontapp.com/message_templates/rsp_default").
+          to_return(json_response(template_body))
+
+        req = stub_request(:post, "https://api2.frontapp.com/channels/cha123/drafts").
+          with(
+            body: hash_including(
+              "subject" => "Member Leigh Sipes to x@y.z from Suma Admin",
+            ),
+          ).to_return(json_response(load_fixture_data("front/channel_create_draft")))
+        Suma.set_request_user_and_admin(nil, admin) do
+          v.begin_partner_outreach
+        end
+        expect(tmpl_req).to have_been_made
+        expect(teammate_req).to have_been_made
+        expect(req).to have_been_made
+      end
     end
   end
 
@@ -346,6 +375,23 @@ RSpec.describe "Suma::Organization::Membership::Verification",
               "subject" => "Work time being used for wedding planning",
               "body" => include("Pam is spending"),
             ),
+          ).to_return(json_response(load_fixture_data("front/channel_create_draft")))
+        v.begin_member_outreach
+        expect(tmpl_req).to have_been_made
+        expect(req).to have_been_made
+      end
+
+      it "renders the template" do
+        v.membership.member.update(name: "Leigh Sipes")
+
+        template_body = load_fixture_data("front/message_template")
+        template_body["subject"] = "{{recipient.name}}"
+        tmpl_req = stub_request(:get, "https://api2.frontapp.com/message_templates/rsp_englishdefault").
+          to_return(json_response(template_body))
+
+        req = stub_request(:post, "https://api2.frontapp.com/channels/cha456/drafts").
+          with(
+            body: hash_including("subject" => "Leigh Sipes"),
           ).to_return(json_response(load_fixture_data("front/channel_create_draft")))
         v.begin_member_outreach
         expect(tmpl_req).to have_been_made

@@ -46,6 +46,7 @@ class Suma::Member::FrontappAttributes
       custom_fields: {
         "SMS Marketing Opted Out" => @member.preferences!.marketing_sms_optout,
         "Language" => @member.preferences!.preferred_language_name,
+        "Address" => @member.legal_entity.address&.one_line_address || "",
       },
     }
     body[:name] = @member.name if @member.name.present?
