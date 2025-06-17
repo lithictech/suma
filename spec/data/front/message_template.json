@@ -1,0 +1,30 @@
+{
+  "_links": {
+    "self": "https://yourCompany.api.frontapp.com/responses/rsp_16yc",
+    "related": {
+      "owner": "https://yourCompany.api.frontapp.com/teams/tim_s47",
+      "parent_folder": "https://yourCompany.api.frontapp.com/message_template_folders/rsf_g2"
+    }
+  },
+  "id": "rsp_16yc",
+  "name": "Pam wedding planning complaint",
+  "subject": "Work time being used for wedding planning",
+  "body": "Pam is spending time planning her wedding at the office. This message WAS NOT sent by Angela.",
+  "attachments": [
+    {
+      "id": "fil_3q8a7mby",
+      "filename": "Andy_Anger_Management_Certificate.png",
+      "url": "https://yourCompany.api.frontapp.com/download/fil_3q8a7mby",
+      "content_type": "image/png",
+      "size": 4405,
+      "metadata": {
+        "is_inline": true,
+        "cid": "526b45586d0e6b1c484afab63d1ef0be"
+      }
+    }
+  ],
+  "is_available_for_all_inboxes": true,
+  "inbox_ids": [
+    null
+  ]
+}

@@ -14,6 +14,17 @@ class Suma::Organization::Membership::Verification < Suma::Postgres::Model(:orga
   configurable(:verifications) do
     setting :front_partner_channel_id, ""
     setting :front_member_channel_id, ""
+    setting :front_partner_default_template_id, ""
+    setting :front_member_default_en_template_id, ""
+    setting :front_member_default_es_template_id, ""
+
+    after_configured do
+      self.front_partner_channel_id = Suma::Frontapp.to_channel_id(front_partner_channel_id)
+      self.front_member_channel_id = Suma::Frontapp.to_channel_id(front_member_channel_id)
+      self.front_partner_default_template_id = Suma::Frontapp.to_template_id(front_partner_default_template_id)
+      self.front_member_default_en_template_id = Suma::Frontapp.to_template_id(front_member_default_en_template_id)
+      self.front_member_default_es_template_id = Suma::Frontapp.to_template_id(front_member_default_es_template_id)
+    end
   end
 
   plugin :hybrid_search
@@ -109,15 +120,10 @@ class Suma::Organization::Membership::Verification < Suma::Postgres::Model(:orga
   end
 
   def begin_partner_outreach
-    member = self.membership.member
-    body = [
-      "Verification information for <strong>#{member.name}</strong>",
-    ]
-    body << "Phone: #{member.us_phone}" if member.phone
-    body << "Address: #{member.legal_entity.address&.one_line_address}" if member.legal_entity.address
+    subject, body = _partner_outreach_content
     params = {
-      subject: "Verification request for #{member.name}",
-      body: "<p>" + body.join("<br />") + "</p>",
+      subject:,
+      body:,
       mode: "shared",
       should_add_default_signature: true,
     }
@@ -132,9 +138,28 @@ class Suma::Organization::Membership::Verification < Suma::Postgres::Model(:orga
     self.save_changes
   end
 
+  def _partner_outreach_content
+    front_template = self.membership.lookup_organization_field(:membership_verification_front_template_id, "")
+    front_template = self.class.front_partner_default_template_id if front_template.blank?
+    if front_template.blank?
+      member = self.membership.member
+      body = [
+        "Verification information for <strong>#{member.name}</strong>",
+      ]
+      body << "Phone: #{member.us_phone}" if member.phone
+      body << "Address: #{member.legal_entity.address&.one_line_address}" if member.legal_entity.address
+      body = "<p>" + body.join("<br />") + "</p>"
+      return ["Verification request for #{member.name}", body]
+    end
+    tmpl = Suma::Frontapp.client.get_message_template(front_template)
+    return [tmpl.fetch("subject"), tmpl.fetch("body")]
+  end
+
   def begin_member_outreach
+    subject, body = self._member_outreach_content
     params = {
-      body: "Hi #{self.membership.member.name}",
+      subject:,
+      body:,
       mode: "shared",
       should_add_default_signature: false,
     }
@@ -144,6 +169,24 @@ class Suma::Organization::Membership::Verification < Suma::Postgres::Model(:orga
     resp = Suma::Frontapp.client.create_draft!(self.class.front_member_channel_id, params)
     self.member_outreach_front_conversation_id = self._parse_conversation_id(resp)
     self.save_changes
+  end
+
+  def _member_outreach_content
+    member = self.membership.member
+    lang = member.preferences!.preferred_language
+    front_template = ""
+    if (tt = self.membership.lookup_organization_field(:membership_verification_member_outreach_template))
+      # Use the localized translated text field from the organization.
+      front_template = tt.send(lang)
+    end
+    # Fall back to the localized configured field
+    front_template = self.class.send(:"front_member_default_#{lang}_template_id") if front_template.blank?
+    if front_template.blank?
+      # don't bother localizing this body
+      return ["", "Hi #{member.name}"]
+    end
+    tmpl = Suma::Frontapp.client.get_message_template(front_template)
+    return [tmpl.fetch("subject"), tmpl.fetch("body")]
   end
 
   def _parse_conversation_id(front_resp)

@@ -4,6 +4,8 @@ Sequel.migration do
   up do
     alter_table(:organizations) do
       add_column :membership_verification_email, :text, null: false, default: ""
+      add_column :membership_verification_front_template_id, :text, null: false, default: ""
+      add_foreign_key :membership_verification_member_outreach_template_id, :translated_texts
     end
 
     create_table(:organization_membership_verifications) do
@@ -79,6 +81,8 @@ Sequel.migration do
     drop_table(:organization_membership_verifications)
     alter_table(:organizations) do
       drop_column :membership_verification_email
+      drop_column :membership_verification_front_template_id
+      drop_column :membership_verification_member_outreach_template_id
     end
     run "DROP TABLE front_message_v1_fixture; DROP TABLE front_conversation_v1_fixture;" if ENV["RACK_ENV"] == "test"
   end

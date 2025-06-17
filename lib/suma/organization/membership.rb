@@ -27,12 +27,14 @@ class Suma::Organization::Membership < Suma::Postgres::Model(:organization_membe
     return self.verified_organization&.name || self.former_organization&.name || self.unverified_organization_name
   end
 
-  def organization_verification_email
-    return self.verified_organization&.membership_verification_email ||
-        self.former_organization&.membership_verification_email ||
-        self.matched_organization&.membership_verification_email ||
-        ""
+  def lookup_organization_field(m, default=nil)
+    return self.verified_organization&.send(m) ||
+        self.former_organization&.send(m) ||
+        self.matched_organization&.send(m) ||
+        default
   end
+
+  def organization_verification_email = lookup_organization_field(:membership_verification_email, "")
 
   def verified_organization_id=(id)
     self.unverified_organization_name = nil unless id.nil?

@@ -1,7 +1,25 @@
 # frozen_string_literal: true
 
-RSpec.describe "Suma::Organization::Membership::Verification", :db do
+RSpec.describe "Suma::Organization::Membership::Verification",
+               :db,
+               reset_configuration: Suma::Organization::Membership::Verification do
   let(:described_class) { Suma::Organization::Membership::Verification }
+
+  describe "configuration" do
+    it "converts numeric IDs to API ids" do
+      described_class.front_partner_channel_id = "12345"
+      described_class.front_member_channel_id = "cha_12345"
+      described_class.front_partner_default_template_id = "12345"
+      described_class.front_member_default_en_template_id = "rsp_12345"
+      described_class.front_member_default_es_template_id = "rsp_555"
+      described_class.run_after_configured_hooks
+      expect(described_class.front_partner_channel_id).to eq("cha_9ix")
+      expect(described_class.front_member_channel_id).to eq("cha_12345")
+      expect(described_class.front_partner_default_template_id).to eq("rsp_9ix")
+      expect(described_class.front_member_default_en_template_id).to eq("rsp_12345")
+      expect(described_class.front_member_default_es_template_id).to eq("rsp_555")
+    end
+  end
 
   it "can fixture itself" do
     expect { Suma::Fixtures.organization_membership_verification.create }.to_not raise_error
@@ -106,7 +124,7 @@ RSpec.describe "Suma::Organization::Membership::Verification", :db do
     end
   end
 
-  describe "begin_partner_outreach", reset_configuration: described_class do
+  describe "begin_partner_outreach" do
     let(:v) { Suma::Fixtures.organization_membership_verification.create }
 
     before(:each) do
@@ -200,9 +218,52 @@ RSpec.describe "Suma::Organization::Membership::Verification", :db do
       v.begin_partner_outreach
       expect(req).to have_been_made
     end
+
+    describe "template usage" do
+      before(:each) do
+        described_class.front_partner_default_template_id = "rsp_default"
+      end
+
+      it "uses the default partner template text if set" do
+        tmpl_req = stub_request(:get, "https://api2.frontapp.com/message_templates/rsp_default").
+          to_return(json_response(load_fixture_data("front/message_template")))
+
+        req = stub_request(:post, "https://api2.frontapp.com/channels/cha123/drafts").
+          with(
+            body: hash_including(
+              "subject" => "Work time being used for wedding planning",
+              "body" => include("Pam is spending"),
+            ),
+          ).to_return(json_response(load_fixture_data("front/channel_create_draft")))
+        v.begin_partner_outreach
+        expect(tmpl_req).to have_been_made
+        expect(req).to have_been_made
+      end
+
+      it "prefers the organization-specific template id" do
+        Suma::Fixtures.organization.create(
+          name: v.membership.unverified_organization_name,
+          membership_verification_front_template_id: "rsp_fromorg",
+        )
+
+        tmpl_req = stub_request(:get, "https://api2.frontapp.com/message_templates/rsp_fromorg").
+          to_return(json_response(load_fixture_data("front/message_template")))
+
+        req = stub_request(:post, "https://api2.frontapp.com/channels/cha123/drafts").
+          with(
+            body: hash_including(
+              "subject" => "Work time being used for wedding planning",
+              "body" => include("Pam is spending"),
+            ),
+          ).to_return(json_response(load_fixture_data("front/channel_create_draft")))
+        v.begin_partner_outreach
+        expect(tmpl_req).to have_been_made
+        expect(req).to have_been_made
+      end
+    end
   end
 
-  describe "begin_member_outreach", reset_configuration: described_class do
+  describe "begin_member_outreach" do
     let(:v) { Suma::Fixtures.organization_membership_verification.create }
 
     before(:each) do
@@ -214,7 +275,8 @@ RSpec.describe "Suma::Organization::Membership::Verification", :db do
       req = stub_request(:post, "https://api2.frontapp.com/channels/cha456/drafts").
         with(
           body: {
-            body: "Hi Patricia",
+            subject: "",
+            body: "Hi Patricia Monahan",
             mode: "shared",
             should_add_default_signature: false,
           }.to_json,
@@ -239,6 +301,55 @@ RSpec.describe "Suma::Organization::Membership::Verification", :db do
       end
       expect(teammate_req).to have_been_made
       expect(draft_req).to have_been_made
+    end
+
+    describe "template usage" do
+      before(:each) do
+        described_class.front_member_default_en_template_id = "rsp_englishdefault"
+        described_class.front_member_default_es_template_id = "rsp_spanishdefault"
+      end
+
+      it "uses the default, language-specific member template text if set" do
+        tmpl_req = stub_request(:get, "https://api2.frontapp.com/message_templates/rsp_spanishdefault").
+          to_return(json_response(load_fixture_data("front/message_template")))
+        v.membership.member.preferences!.update(preferred_language: "es")
+
+        req = stub_request(:post, "https://api2.frontapp.com/channels/cha456/drafts").
+          with(
+            body: hash_including(
+              "subject" => "Work time being used for wedding planning",
+              "body" => include("Pam is spending"),
+            ),
+          ).to_return(json_response(load_fixture_data("front/channel_create_draft")))
+        v.begin_member_outreach
+        expect(tmpl_req).to have_been_made
+        expect(req).to have_been_made
+      end
+
+      it "prefers the organization-specific localized template id" do
+        Suma::Fixtures.organization.create(
+          name: v.membership.unverified_organization_name,
+          membership_verification_member_outreach_template: Suma::TranslatedText.create(
+            en: "rsp_englishorg",
+            es: "rsp_spanishorg",
+          ),
+        )
+
+        v.membership.member.preferences!.update(preferred_language: "en")
+
+        tmpl_req = stub_request(:get, "https://api2.frontapp.com/message_templates/rsp_englishorg").
+          to_return(json_response(load_fixture_data("front/message_template")))
+        req = stub_request(:post, "https://api2.frontapp.com/channels/cha456/drafts").
+          with(
+            body: hash_including(
+              "subject" => "Work time being used for wedding planning",
+              "body" => include("Pam is spending"),
+            ),
+          ).to_return(json_response(load_fixture_data("front/channel_create_draft")))
+        v.begin_member_outreach
+        expect(tmpl_req).to have_been_made
+        expect(req).to have_been_made
+      end
     end
   end
 
