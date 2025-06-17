@@ -56,3 +56,5 @@ module Suma::SSE
     end
   end
 end
+
+require_relative "sse/auth"

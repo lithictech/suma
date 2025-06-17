@@ -3,6 +3,7 @@
 require "suma/admin_linked"
 require "suma/postgres/hybrid_search"
 require "suma/postgres/model"
+require "suma/sse"
 require "suma/state_machine"
 
 class Suma::Organization::Membership::Verification < Suma::Postgres::Model(:organization_membership_verifications)

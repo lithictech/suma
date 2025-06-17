@@ -54,10 +54,11 @@ export default function OrganizationMembershipVerificationListPage() {
     });
   }, [order, orderBy, page, perPage, search, params]);
 
-  const { state: rawListResponse, loading: listLoading } = useAsyncFetch(getList, {
-    default: {},
-    pickData: true,
-  });
+  const {
+    state: rawListResponse,
+    loading: listLoading,
+    asyncFetch,
+  } = useAsyncFetch(getList, { default: {} });
   const [updatedListResponses, setUpdatedListResponses] = React.useState({});
 
   const handleApiCall = React.useCallback(
@@ -71,12 +72,17 @@ export default function OrganizationMembershipVerificationListPage() {
     [enqueueErrorSnackbar, updatedListResponses]
   );
 
-  const listResponse = { ...rawListResponse, items: [] };
-  (rawListResponse.items || []).forEach((r) => {
+  const listResponse = { ...rawListResponse?.data, items: [] };
+  (rawListResponse?.data?.items || []).forEach((r) => {
     const item = updatedListResponses[r.id] || r;
     listResponse.items.push({ key: `${item.id}t`, item, top: true });
     listResponse.items.push({ key: `${item.id}b`, item, top: false });
   });
+
+  function handleEventChangesClicked() {
+    setListQueryParams({ page: 0 });
+    asyncFetch({ page: 0 });
+  }
 
   const [notedVerificationId, setNotedVerificationId] = React.useState(null);
   const notedVerification = listResponse.items
@@ -97,10 +103,12 @@ export default function OrganizationMembershipVerificationListPage() {
         orderBy={orderBy}
         title="Verifications"
         eventsUrl="/events/organization_membership_verifications"
+        eventsToken={rawListResponse?.headers?.get("Suma-Events-Token")}
         listResponse={listResponse}
         listLoading={listLoading}
         tableProps={{ sx: { minWidth: 650 }, size: "small" }}
         onParamsChange={setListQueryParams}
+        onEventChangesClicked={handleEventChangesClicked}
         filters={[
           <FormControl key="status">
             <InputLabel>Status</InputLabel>
@@ -108,7 +116,9 @@ export default function OrganizationMembershipVerificationListPage() {
               value={params.get("status") || "todo"}
               label="Status"
               size="small"
-              onChange={(e) => setListQueryParams({}, { status: e.target.value })}
+              onChange={(e) =>
+                setListQueryParams({}, { status: e.target.value, page: 0 })
+              }
             >
               <MenuItem value="todo">To-do</MenuItem>
               <MenuItem value="verified">Verified</MenuItem>

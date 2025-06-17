@@ -39,7 +39,7 @@ class Suma::AdminAPI::OrganizationMembershipVerifications < Suma::AdminAPI::V1
       use :pagination
       use :ordering, default: :created_at, values: [:status, :member, :organization, :created_at]
       use :searchable
-      optional :status, type: Symbol
+      optional :status, type: Symbol, default: :todo
     end
     get do
       access = Suma::AdminAPI::Access.read_key(Suma::Organization::Membership::Verification)
@@ -87,6 +87,7 @@ class Suma::AdminAPI::OrganizationMembershipVerifications < Suma::AdminAPI::V1
       end
       ds = paginate(ds, params)
       ds = ds.select(Sequel[:organization_membership_verifications][Sequel.lit("*")])
+      header Suma::SSE::Auth::HEADER, Suma::SSE::Auth.generate_token
       present_collection ds, with: MembershipVerificationEntity
     end
 

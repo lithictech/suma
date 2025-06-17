@@ -1,9 +1,6 @@
-import config from "../config";
-import { Logger } from "../shared/logger";
-import useMountEffect from "../shared/react/useMountEffect";
+import EventSourceChanges from "./EventSourceChanges";
 import DownloadIcon from "@mui/icons-material/Download";
 import {
-  Button,
   CircularProgress,
   Paper,
   Stack,
@@ -24,8 +21,6 @@ import { makeStyles } from "@mui/styles";
 import { visuallyHidden } from "@mui/utils";
 import React from "react";
 
-const logger = new Logger("sse.resourcetable");
-
 /**
  *
  * @param page
@@ -33,6 +28,7 @@ const logger = new Logger("sse.resourcetable");
  * @param search
  * @param order
  * @param orderBy
+ * @param onEventChangesClicked
  * @param onParamsChange
  * @param listResponse
  * @param listLoading
@@ -43,6 +39,7 @@ const logger = new Logger("sse.resourcetable");
  * @param downloadUrl
  * @param {Array<{label: string, id: string, align: any, sortable: boolean, render: function}>} columns
  * @param eventsUrl
+ * @param eventsToken
  */
 export default function ResourceTable({
   page,
@@ -50,6 +47,7 @@ export default function ResourceTable({
   search,
   order,
   orderBy,
+  onEventChangesClicked,
   onParamsChange,
   listResponse,
   listLoading,
@@ -60,8 +58,10 @@ export default function ResourceTable({
   disableSearch,
   downloadUrl,
   eventsUrl,
+  eventsToken,
 }) {
   const classes = useStyles();
+
   function handleSearchKeyDown(e) {
     if (e.key === "Enter") {
       e.preventDefault();
@@ -69,34 +69,8 @@ export default function ResourceTable({
     }
   }
 
-  const counter = React.useRef(0);
-  const counterButton = React.useRef(null);
-
-  useMountEffect(() => {
-    if (!eventsUrl) {
-      return;
-    }
-    const es = new EventSource(`${config.apiHost}${eventsUrl}`);
-    logger.debug("opened_eventsource");
-    es.onmessage = function (event) {
-      logger.debug("received_event", { message: event.data });
-      counter.current += 1;
-      if (counterButton.current) {
-        counterButton.current.style.display = "visible";
-        counterButton.current.innerText = `${counter.current} changes`;
-      }
-    };
-    return () => {
-      logger.debug("closing");
-      es.close();
-    };
-  });
-
-  function handleChangesClick(e) {
-    e.preventDefault();
-    onParamsChange({ page: 1000 });
-    counter.current = 0;
-    counterButton.current.style.display = "none";
+  function handleChangesClick() {
+    onEventChangesClicked();
   }
 
   return (
@@ -104,7 +78,13 @@ export default function ResourceTable({
       <Stack direction="row" justifyContent="space-between" alignItems="center">
         <Stack direction="row" gap={1}>
           <Typography variant="h5">{title}</Typography>
-          <Button ref={counterButton} onClick={handleChangesClick} />
+          {eventsUrl && eventsToken && (
+            <EventSourceChanges
+              eventsUrl={eventsUrl}
+              eventsToken={eventsToken}
+              onClick={handleChangesClick}
+            />
+          )}
         </Stack>
         <Stack direction="row" justifyContent="flex-end" alignItems="center" gap={2}>
           {filters}

@@ -18,6 +18,7 @@ RSpec.describe Suma::AdminAPI::OrganizationMembershipVerifications, :db do
 
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.that_includes(items: have_same_ids_as(*objs))
+      expect(last_response.headers).to include("Suma-Events-Token")
     end
 
     it_behaves_like "an endpoint with pagination", download: false do

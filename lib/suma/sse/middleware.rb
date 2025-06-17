@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "suma/sse"
+require "suma/sse/auth"
 
 class Suma::SSE::Middleware
   include Appydays::Loggable
@@ -9,8 +10,7 @@ class Suma::SSE::Middleware
     "Content-Type" => "text/event-stream",
     "Cache-Control" => "no-cache",
     "Connection" => "keep-alive",
-    "Transfer-Encoding" => "chunked",
-    "Access-Control-Allow-Origin" => "*", # We're not using auth, so this is safe.
+    "Access-Control-Allow-Origin" => "*", # This is fine for our purposes
   }.freeze
 
   class << self
@@ -20,15 +20,19 @@ class Suma::SSE::Middleware
     def clients = @clients ||= ClientCollection.new
   end
 
-  def initialize(app, topic:, path: "/#{topic}", keepalive: 25.seconds)
+  def initialize(app, topic:, path: "/#{topic}")
     @app = app
     @topic = topic
     @path = path
-    @keepalive = keepalive
   end
 
   def call(env)
     return @app.call unless env["PATH_INFO"] == @path
+
+    token = Rack::Request.new(env).GET["token"]
+    return [401, {"Content-Type" => "text/plain"}, "Unauthorized"] unless
+      Suma::SSE::Auth.validate_token(token)
+
     # We must use the socket directly so we disconnect as soon as a write fails.
     # Otherwise, Rack may buffer writes for a long time, even after the client has disconnected.
     # This causes the thread to hang, which is super expensive.
@@ -61,7 +65,7 @@ class Suma::SSE::Middleware
         # This prevents each SSE request from using three threads;
         # instead it can just one additional thread, plus the handler thread.
         loop do
-          sleep(@keepalive)
+          sleep(25.seconds)
           @clients.to_a.each do |client|
             @logger.debug "eventsource_keepalive", client_id: client.id
             self.keepalive(client)
@@ -79,7 +83,7 @@ class Suma::SSE::Middleware
     end
 
     def senddata(client, data)
-      @logger.debug "eventsource_sendevent", client_id: client.id
+      @logger.debug "eventsource_data", client_id: client.id
       return self.send!(client, "data: #{data}")
     end
 
@@ -107,11 +111,15 @@ class Suma::SSE::Middleware
     def initialize(id, socket)
       @id = id
       @socket = socket
+      @mux = Thread::Mutex.new
     end
 
     def <<(msg)
-      @socket.write(msg)
-      @socket.flush
+      @mux.synchronize do
+        @socket.write(msg)
+        @socket.flush
+      end
+      sleep(0.5) # Return control back to Puma, etc.m
     end
 
     def disconnect
