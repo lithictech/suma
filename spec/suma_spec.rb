@@ -252,4 +252,12 @@ RSpec.describe Suma do
       end.to_not raise_error
     end
   end
+
+  describe "log_level_overrides" do
+    it "can override the log level" do
+      expect(Suma).to receive(:log_level_overrides).and_return({"fakelogger" => "warn"})
+      logger = SemanticLogger["fakelogger"]
+      expect(logger).to have_attributes(level: :warn)
+    end
+  end
 end

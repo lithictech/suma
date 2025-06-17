@@ -24,8 +24,7 @@ module Suma::Fixtures::OrganizationMembershipVerifications
 
   decorator :organization do |organization={}|
     organization = Suma::Fixtures.organization.create(organization) unless organization.is_a?(Suma::Organization)
-    self.membership ||= Suma::Fixtures.organization_membership.unverified.create(organization:)
-    self.membership.update(organization:)
+    self.membership = Suma::Fixtures.organization_membership.unverified(organization.name).create
   end
 
   decorator :able_to_verify do

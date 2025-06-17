@@ -77,4 +77,22 @@ RSpec.describe Suma::Postgres do
       expect(t2).to start_with("SELECT * FROM CAST('2020-02-15")
     end
   end
+
+  describe "run_all_migrations" do
+    it "runs migrations on all writeable superclasses" do
+      writeable = Class.new do
+        def self.db = "mydb"
+        def self.read_only? = false
+        def self.install_all_extensions; end
+      end
+      readonly = Class.new do
+        def self.read_only? = true
+      end
+      described_class.model_superclasses << writeable
+      described_class.model_superclasses << readonly
+      Sequel.extension :migration
+      expect(Sequel::Migrator).to receive(:run).with("mydb", "db/migrations", target: nil)
+      described_class.run_all_migrations
+    end
+  end
 end

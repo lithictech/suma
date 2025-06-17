@@ -23,6 +23,8 @@ RSpec.describe "Suma::Organization::Membership::Verification",
 
   it "can fixture itself" do
     expect { Suma::Fixtures.organization_membership_verification.create }.to_not raise_error
+    expect { Suma::Fixtures.organization_membership_verification.member.create }.to_not raise_error
+    expect { Suma::Fixtures.organization_membership_verification.organization.create }.to_not raise_error
   end
 
   it "has relations" do
@@ -465,6 +467,20 @@ RSpec.describe "Suma::Organization::Membership::Verification",
       v = Suma::Fixtures.organization_membership_verification.create
       note = v.add_note(content: "hello **there**", created_at: Time.now)
       expect(note.content_html).to eq("hello <strong>there</strong>")
+    end
+  end
+
+  describe "rendering the front template" do
+    it "renders using a context" do
+      v = Suma::Fixtures.organization_membership_verification.create
+      r = v.render_front_template_string("hi {{ recipient.first_name }}", {recipient: {first_name: "Rob"}})
+      expect(r).to eq("hi Rob")
+    end
+
+    it "uses the string if syntax is invalid" do
+      v = Suma::Fixtures.organization_membership_verification.create
+      r = v.render_front_template_string("hi {{ xyz", {})
+      expect(r).to eq("hi {{ xyz")
     end
   end
 end
