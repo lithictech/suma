@@ -16,15 +16,13 @@ RSpec.describe "Suma::UploadedFile", :db do
   describe "configuration" do
     it "can create a plain table" do
       described_class.blob_database << "DROP TABLE IF EXISTS uploaded_file_cfg_test"
-      described_class.blob_table = "uploaded_file_cfg_test"
-      described_class.run_after_configured_hooks
+      described_class.reset_configuration(blob_table: "uploaded_file_cfg_test")
       expect(described_class.blob_dataset.all).to be_empty
     end
 
     it "can create a schema and table" do
       described_class.blob_database << "DROP SCHEMA IF EXISTS uploaded_file_testschema CASCADE"
-      described_class.blob_table = "uploaded_file_testschema.testtable"
-      described_class.run_after_configured_hooks
+      described_class.reset_configuration(blob_table: "uploaded_file_testschema.testtable")
       expect(described_class.blob_dataset.all).to be_empty
     end
   end

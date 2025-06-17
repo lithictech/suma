@@ -118,7 +118,7 @@ RSpec.describe Suma::API::Auth, :db, reset_configuration: Suma::Member do
 
     context "rate limiting", reset_configuration: Suma::RackAttack do
       before(:each) do
-        Suma::RackAttack.reconfigure(enabled: true)
+        Suma::RackAttack.reset_configuration(enabled: true)
       end
 
       it "rate limits requests to a particular phone number" do
@@ -239,7 +239,7 @@ RSpec.describe Suma::API::Auth, :db, reset_configuration: Suma::Member do
 
     context "rate limiting", reset_configuration: Suma::RackAttack do
       before(:each) do
-        Suma::RackAttack.reconfigure(enabled: true)
+        Suma::RackAttack.reset_configuration(enabled: true)
       end
 
       it "rate limits from a particular IP" do

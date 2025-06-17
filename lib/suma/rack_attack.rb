@@ -29,14 +29,6 @@ module Suma::RackAttack
     end
   end
 
-  # TODO: Move into Configurable
-  def self.reconfigure(**kw)
-    kw.each do |k, v|
-      self.send(:"#{k}=", v)
-    end
-    self.run_after_configured_hooks
-  end
-
   Rack::Attack.throttled_responder = lambda do |req|
     match_data = req.env["rack.attack.match_data"]
     now = Time.now.to_i

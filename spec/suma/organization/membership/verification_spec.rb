@@ -7,12 +7,13 @@ RSpec.describe "Suma::Organization::Membership::Verification",
 
   describe "configuration" do
     it "converts numeric IDs to API ids" do
-      described_class.front_partner_channel_id = "12345"
-      described_class.front_member_channel_id = "cha_12345"
-      described_class.front_partner_default_template_id = "12345"
-      described_class.front_member_default_en_template_id = "rsp_12345"
-      described_class.front_member_default_es_template_id = "rsp_555"
-      described_class.run_after_configured_hooks
+      described_class.reset_configuration(
+        front_partner_channel_id: "12345",
+        front_member_channel_id: "cha_12345",
+        front_partner_default_template_id: "12345",
+        front_member_default_en_template_id: "rsp_12345",
+        front_member_default_es_template_id: "rsp_555",
+      )
       expect(described_class.front_partner_channel_id).to eq("cha_9ix")
       expect(described_class.front_member_channel_id).to eq("cha_12345")
       expect(described_class.front_partner_default_template_id).to eq("rsp_9ix")

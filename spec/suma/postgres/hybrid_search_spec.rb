@@ -13,24 +13,23 @@ RSpec.describe Suma::Postgres::HybridSearch, :db do
 
     it "sets the embedding generator to nil if not configured" do
       SequelHybridSearch.embedding_generator = 5
-      described_class.embedding_generator = nil
-      described_class.run_after_configured_hooks
+      described_class.reset_configuration(embedding_generator: nil)
       expect(SequelHybridSearch.embedding_generator).to be_nil
     end
 
     it "configures the hybrid search subproc embedding generator" do
-      described_class.embedding_generator = "subprocess"
-      described_class.run_after_configured_hooks
+      described_class.reset_configuration(embedding_generator: "subprocess")
       expect(SequelHybridSearch.embedding_generator).to be_a(
         SequelHybridSearch::SubprocSentenceTransformerGenerator,
       )
     end
 
     it "configures the hybrid search aiapi embedding generator" do
-      described_class.embedding_generator = "api"
-      described_class.aiapi_host = "http://a.b"
-      described_class.aiapi_key = "apikey"
-      described_class.run_after_configured_hooks
+      described_class.reset_configuration(
+        embedding_generator: "api",
+        aiapi_host: "http://a.b",
+        aiapi_key: "apikey",
+      )
       expect(SequelHybridSearch.embedding_generator).to be_a(
         SequelHybridSearch::ApiEmbeddingGenerator,
       )
