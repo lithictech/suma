@@ -28,6 +28,18 @@ export default function OrganizationDetailPage() {
         { label: "Ordinal", value: model.ordinal },
         { label: "Verification Email", value: model.membershipVerificationEmail },
         {
+          label: "Front Membership Verification Template",
+          value: model.membershipVerificationFrontTemplateId,
+        },
+        {
+          label: "Front Member Outreach Template (En)",
+          value: model.membershipVerificationMemberOutreachTemplate?.en,
+        },
+        {
+          label: "Front Member Outreach Template (Es)",
+          value: model.membershipVerificationMemberOutreachTemplate?.es,
+        },
+        {
           label: "Roles",
           children: model.roles.map((role) => (
             <Chip key={role.id} label={role.label} sx={{ mr: 0.5 }} />

@@ -101,7 +101,7 @@ class Suma::Organization::Membership::Verification < Suma::Postgres::Model(:orga
 
   dataset_module do
     def todo
-      self.where(status: ["created", "in_progress"]).order(:created_at, :id)
+      self.where(status: ["created", "in_progress"])
     end
   end
 
@@ -131,6 +131,7 @@ class Suma::Organization::Membership::Verification < Suma::Postgres::Model(:orga
       params[:author_id] = author_id
     end
     if (partner_email = self.membership.organization_verification_email).present?
+      # Do not use a resource alias here, it doesn't work right for some reason.
       params[:to] = [partner_email]
     end
     resp = Suma::Frontapp.client.create_draft!(self.class.front_partner_channel_id, params)
@@ -162,6 +163,10 @@ class Suma::Organization::Membership::Verification < Suma::Postgres::Model(:orga
       body:,
       mode: "shared",
       should_add_default_signature: false,
+      to: [
+        # Use a resource alias for the user, the phone won't be associated directly.
+        Suma::Frontapp.contact_phone_handle(self.membership.member.phone),
+      ],
     }
     if (author_id = self._front_author_id)
       params[:author_id] = author_id

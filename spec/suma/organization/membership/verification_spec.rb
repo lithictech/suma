@@ -279,6 +279,7 @@ RSpec.describe "Suma::Organization::Membership::Verification",
             body: "Hi Patricia Monahan",
             mode: "shared",
             should_add_default_signature: false,
+            to: ["alt:phone:+12158631080"],
           }.to_json,
         ).to_return(json_response(load_fixture_data("front/channel_create_draft")))
       v.begin_member_outreach

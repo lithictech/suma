@@ -25,7 +25,6 @@ export default function OrganizationMembershipVerificationDetailPage() {
     <ResourceDetail
       resource="organization_membership_verification"
       apiGet={api.getOrganizationMembershipVerification}
-      canEdit
       properties={(model) => [
         { label: "ID", value: model.id },
         { label: "Created At", value: dayjs(model.createdAt) },

@@ -67,11 +67,11 @@ RSpec.describe Suma::AdminAPI::OrganizationMembershipVerifications, :db do
         m1 = Suma::Fixtures.organization_membership_verification.create(status: "abandoned")
         m2 = Suma::Fixtures.organization_membership_verification.create(status: "in_progress")
 
-        get "/v1/organization_membership_verifications", order_by: "status", order_direction: "desc"
+        get "/v1/organization_membership_verifications", status: "all", order_by: "status", order_direction: "desc"
         expect(last_response).to have_status(200)
         expect(last_response).to have_json_body.that_includes(items: have_same_ids_as(m2, m1).ordered)
 
-        get "/v1/organization_membership_verifications", order_by: "status", order_direction: "asc"
+        get "/v1/organization_membership_verifications", status: "all", order_by: "status", order_direction: "asc"
         expect(last_response).to have_status(200)
         expect(last_response).to have_json_body.that_includes(items: have_same_ids_as(m1, m2).ordered)
       end

@@ -33,6 +33,14 @@ export default function OrganizationMembershipListPage() {
           render: (c) => <OrganizationMembership membership={c} />,
         },
         {
+          id: "verification",
+          label: "Verification",
+          align: "left",
+          render: (c) => (
+            <AdminLink model={c.verification}>{c.verification?.status}</AdminLink>
+          ),
+        },
+        {
           id: "created_at",
           label: "Created",
           align: "left",

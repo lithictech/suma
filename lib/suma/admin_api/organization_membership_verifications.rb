@@ -15,22 +15,24 @@ class Suma::AdminAPI::OrganizationMembershipVerifications < Suma::AdminAPI::V1
     expose :content_html
   end
 
-  class MembershipVerificationEntity < BaseEntity
+  class VerificationListEntity < OrganizationMembershipVerificationEntity
     include Suma::AdminAPI::Entities
-    include AutoExposeBase
     include AutoExposeDetail
 
-    expose :status
-    expose :membership, with: OrganizationMembershipEntity
-    expose :owner, with: MemberEntity
     expose :available_events, &self.delegate_to(:state_machine, :available_events)
     expose :front_partner_conversation_status
     expose :front_member_conversation_status
     expose :notes, with: MembershipVerificationNoteEntity
   end
 
-  class DetailedMembershipVerificationEntity < MembershipVerificationEntity
+  class DetailedMembershipVerificationEntity < VerificationListEntity
     include Suma::AdminAPI::Entities
+    include AutoExposeDetail
+
+    expose :available_events, &self.delegate_to(:state_machine, :available_events)
+    expose :front_partner_conversation_status
+    expose :front_member_conversation_status
+    expose :notes, with: MembershipVerificationNoteEntity
     expose :audit_logs, with: AuditLogEntity
   end
 
@@ -88,7 +90,7 @@ class Suma::AdminAPI::OrganizationMembershipVerifications < Suma::AdminAPI::V1
       ds = paginate(ds, params)
       ds = ds.select(Sequel[:organization_membership_verifications][Sequel.lit("*")])
       header Suma::SSE::Auth::HEADER, Suma::SSE::Auth.generate_token
-      present_collection ds, with: MembershipVerificationEntity
+      present_collection ds, with: VerificationListEntity
     end
 
     Suma::AdminAPI::CommonEndpoints.get_one(
@@ -113,21 +115,21 @@ class Suma::AdminAPI::OrganizationMembershipVerifications < Suma::AdminAPI::V1
         v = lookup_writeable!
         v.process(params[:event]) or adminerror!(400, "Could not #{params[:event]} verification")
         status 200
-        present v, with: DetailedMembershipVerificationEntity
+        present v, with: VerificationListEntity
       end
 
       post :begin_partner_outreach do
         v = lookup_writeable!
         v.begin_partner_outreach
         status 200
-        present v, with: DetailedMembershipVerificationEntity
+        present v, with: VerificationListEntity
       end
 
       post :begin_member_outreach do
         v = lookup_writeable!
         v.begin_member_outreach
         status 200
-        present v, with: DetailedMembershipVerificationEntity
+        present v, with: VerificationListEntity
       end
 
       resource :notes do
@@ -142,7 +144,7 @@ class Suma::AdminAPI::OrganizationMembershipVerifications < Suma::AdminAPI::V1
             created_at: Time.now,
           )
           status 200
-          present v, with: DetailedMembershipVerificationEntity
+          present v, with: VerificationListEntity
         end
 
         route_param :note_id, type: Integer do
@@ -158,7 +160,7 @@ class Suma::AdminAPI::OrganizationMembershipVerifications < Suma::AdminAPI::V1
               edited_at: Time.now,
             )
             status 200
-            present v, with: DetailedMembershipVerificationEntity
+            present v, with: VerificationListEntity
           end
         end
       end
