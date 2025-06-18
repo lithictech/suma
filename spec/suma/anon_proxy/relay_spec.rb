@@ -162,11 +162,13 @@ RSpec.describe Suma::AnonProxy::Relay, :db do
       it "schedules a new job if the number cannot be released", sidekiq: :fake do
         req = stub_request(:delete, "https://sumafaketest.signalwire.com/api/relay/rest/phone_numbers/xyz").
           to_return(fixture_response("signalwire/error_phone_cannot_release", status: 422))
-        relay.deprovision(addr)
+        Timecop.freeze("2025-06-01T12:00:00Z") do
+          relay.deprovision(addr)
+        end
         expect(req).to have_been_made
         expect(Suma::Async::AnonProxyMemberContactDestroyedResourceCleanup.jobs).to contain_exactly(
           include(
-            "at" => 1_750_229_387,
+            "at" => Time.parse("2025-06-18 06:49:47 UTC").to_i,
             "args" => [{"address" => "12223334444", "external_id" => "xyz", "relay_key" => "signalwire"}],
           ),
         )
