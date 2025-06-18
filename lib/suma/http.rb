@@ -8,6 +8,9 @@ require "appydays/loggable/httparty_formatter"
 module Suma::Http
   include Appydays::Configurable
 
+  SAFE_METHODS = ["GET", "HEAD", "OPTIONS", "TRACE"].freeze
+  UNSAFE_METHODS = ["POST", "PUT", "PATCH", "DELETE", "CONNECT"].freeze
+
   configurable(:sumahttp) do
     # Keys are hosts ('app.mysuma.org'), values are env vars names ('QUOTAGUARDSTATIC_URL').
     # A value of '{"app.mysuma.org":"QUOTAGUARDSTATIC_URL"}' would proxy all requests to app.mysuma.org

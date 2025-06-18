@@ -52,7 +52,7 @@ class Suma::SSE::Middleware
     socket = env["rack.hijack_io"]
     client = self.class.clients.add_client(@path, socket)
     Thread.new do
-      Suma::SSE.subscribe(@topic) do |msg|
+      Suma::SSE.subscribe(@topic, session_id: token) do |msg|
         break unless self.class.clients.senddata(client, msg.to_json)
       end
     rescue StandardError => e
@@ -88,6 +88,8 @@ class Suma::SSE::Middleware
           end
         end
       end
+      # We don't need to know about exceptions, we kill this thread forcefully.
+      @pinger.report_on_exception = false
     end
 
     def add_client(path, socket)

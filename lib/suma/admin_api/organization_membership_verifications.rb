@@ -4,6 +4,7 @@ require "suma/admin_api"
 
 class Suma::AdminAPI::OrganizationMembershipVerifications < Suma::AdminAPI::V1
   include Suma::AdminAPI::Entities
+  include Suma::AdminAPI::ServerSentEvents
 
   class MembershipVerificationNoteEntity < BaseEntity
     include Suma::AdminAPI::Entities
@@ -89,7 +90,8 @@ class Suma::AdminAPI::OrganizationMembershipVerifications < Suma::AdminAPI::V1
       end
       ds = paginate(ds, params)
       ds = ds.select(Sequel[:organization_membership_verifications][Sequel.lit("*")])
-      header Suma::SSE::Auth::HEADER, Suma::SSE::Auth.generate_token
+      header Suma::SSE::TOKEN_HEADER, Suma::SSE::Auth.generate_token
+      header("Suma-Front-Enabled", "1") if Suma::Frontapp.configured?
       present_collection ds, with: VerificationListEntity
     end
 

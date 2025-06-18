@@ -20,56 +20,101 @@ class Suma::AdminAPI::TestV1API < Suma::AdminAPI::V1
   end
 end
 
-RSpec.describe Suma::AdminAPI::V1, :db do
+RSpec.describe Suma::AdminAPI, :db do
   include Rack::Test::Methods
 
-  let(:app) { Suma::AdminAPI::TestV1API.build_app }
   let(:admin) { Suma::Fixtures.member.admin.create }
 
-  before(:each) do
-    login_as admin
-  end
+  describe described_class::V1 do
+    let(:app) { Suma::AdminAPI::TestV1API.build_app }
 
-  it "converts unique constraint violations to 400s" do
-    get "/v1/unique_constraint"
-
-    expect(last_response).to have_status(400)
-    expect(last_response.body).to include("vendor_service_categories_slug_key")
-  end
-
-  it "converts validation failures to 400s" do
-    get "/v1/validation"
-
-    expect(last_response).to have_status(400)
-    expect(last_response.body).to include("phone is not present")
-  end
-
-  it "converts mismatched content types to 400s" do
-    get "/v1/content_type"
-
-    expect(last_response).to have_status(400)
-    expect(last_response.body).to include("'image/jpeg' does not match derived 'image/png'")
-  end
-
-  it "configures sentry" do
-    scope = Class.new do
-      attr_accessor :tags
-
-      def set_tags(tags)
-        @tags = tags
-      end
-
-      def respond_to_missing?(*) = true
-      def method_missing(*); end
+    before(:each) do
+      login_as admin
     end
-    sc = scope.new
-    expect(Sentry).to receive(:configure_scope) do |&block|
-      block.call(sc)
-    end.at_least(:once)
 
-    get "/v1/noop"
+    it "converts unique constraint violations to 400s" do
+      get "/v1/unique_constraint"
 
-    expect(last_response).to have_status(200)
-    expect(sc.tags).to eq(application: "admin-api")
+      expect(last_response).to have_status(400)
+      expect(last_response.body).to include("vendor_service_categories_slug_key")
+    end
+
+    it "converts validation failures to 400s" do
+      get "/v1/validation"
+
+      expect(last_response).to have_status(400)
+      expect(last_response.body).to include("phone is not present")
+    end
+
+    it "converts mismatched content types to 400s" do
+      get "/v1/content_type"
+
+      expect(last_response).to have_status(400)
+      expect(last_response.body).to include("'image/jpeg' does not match derived 'image/png'")
+    end
+
+    it "configures sentry" do
+      scope = Class.new do
+        attr_accessor :tags
+
+        def set_tags(tags)
+          @tags = tags
+        end
+
+        def respond_to_missing?(*) = true
+        def method_missing(*); end
+      end
+      sc = scope.new
+      expect(Sentry).to receive(:configure_scope) do |&block|
+        block.call(sc)
+      end.at_least(:once)
+
+      get "/v1/noop"
+
+      expect(last_response).to have_status(200)
+      expect(sc.tags).to eq(application: "admin-api")
+    end
+  end
+
+  describe described_class::ServerSentEvents do
+    sse_api = Class.new(Suma::AdminAPI::V1) do
+      include Suma::AdminAPI::ServerSentEvents
+
+      get :getter do
+        present({session_id: Suma::SSE.current_session_id})
+      end
+      post :poster do
+        status 200
+        present({session_id: Suma::SSE.current_session_id})
+      end
+    end
+
+    let(:app) { sse_api.build_app }
+
+    before(:each) do
+      login_as admin
+    end
+
+    it "does not require a token header for safe methods" do
+      get "/v1/getter"
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.that_includes(session_id: nil)
+    end
+
+    it "requires a token header for unsafe methods" do
+      post "/v1/poster"
+
+      expect(last_response).to have_status(400)
+      expect(last_response).to have_json_body.that_includes(error: include(code: "missing_sse_token"))
+    end
+
+    it "sets the current session to the token header" do
+      header "Suma-Events-Token", "abc"
+      post "/v1/poster"
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.that_includes(session_id: "abc")
+    end
   end
 end

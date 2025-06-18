@@ -61,23 +61,26 @@ export default function OrganizationMembershipVerificationListPage() {
   } = useAsyncFetch(getList, { default: {} });
   const [updatedListResponses, setUpdatedListResponses] = React.useState({});
 
-  const handleApiCall = React.useCallback(
-    (promise) => {
-      return promise
-        .then((r) =>
-          setUpdatedListResponses({ ...updatedListResponses, [r.data.id]: r.data })
-        )
-        .catch(enqueueErrorSnackbar);
-    },
-    [enqueueErrorSnackbar, updatedListResponses]
-  );
-
   const listResponse = { ...rawListResponse?.data, items: [] };
   (rawListResponse?.data?.items || []).forEach((r) => {
     const item = updatedListResponses[r.id] || r;
     listResponse.items.push({ key: `${item.id}t`, item, top: true });
     listResponse.items.push({ key: `${item.id}b`, item, top: false });
   });
+
+  const frontEnabled = rawListResponse?.headers?.get("Suma-Front-Enabled");
+  const eventsToken = rawListResponse?.headers?.get("Suma-Events-Token");
+
+  const makeApiCall = React.useCallback(
+    (func, params) => {
+      return func(params, { headers: { "Suma-Events-Token": eventsToken } })
+        .then((r) =>
+          setUpdatedListResponses({ ...updatedListResponses, [r.data.id]: r.data })
+        )
+        .tapCatch(enqueueErrorSnackbar);
+    },
+    [enqueueErrorSnackbar, eventsToken, updatedListResponses]
+  );
 
   function handleEventChangesClicked() {
     setListQueryParams({ page: 0 });
@@ -103,7 +106,7 @@ export default function OrganizationMembershipVerificationListPage() {
         orderBy={orderBy}
         title="Verifications"
         eventsUrl="/events/organization_membership_verifications"
-        eventsToken={rawListResponse?.headers?.get("Suma-Events-Token")}
+        eventsToken={eventsToken}
         listResponse={listResponse}
         listLoading={listLoading}
         tableProps={{ sx: { minWidth: 650 }, size: "small" }}
@@ -139,8 +142,8 @@ export default function OrganizationMembershipVerificationListPage() {
               return c.top ? (
                 <StatusCell
                   verification={c.item}
-                  onApiCall={handleApiCall}
                   isNoted={isNoted}
+                  makeApiCall={makeApiCall}
                 />
               ) : (
                 <Button
@@ -164,7 +167,11 @@ export default function OrganizationMembershipVerificationListPage() {
                   {c.item.membership.member.name}
                 </AdminLink>
               ) : (
-                <MemberOutreach verification={c.item} onApiCall={handleApiCall} />
+                <MemberOutreach
+                  verification={c.item}
+                  frontEnabled={frontEnabled}
+                  makeApiCall={makeApiCall}
+                />
               ),
           },
           {
@@ -185,7 +192,7 @@ export default function OrganizationMembershipVerificationListPage() {
               c.top ? (
                 <OrganizationMembership membership={c.item.membership} />
               ) : (
-                <PartnerOutreach verification={c.item} onApiCall={handleApiCall} />
+                <PartnerOutreach verification={c.item} makeApiCall={makeApiCall} />
               ),
           },
           {
@@ -199,7 +206,7 @@ export default function OrganizationMembershipVerificationListPage() {
           },
         ]}
       />
-      <NotesViewer verification={notedVerification} onApiCall={handleApiCall} />
+      <NotesViewer verification={notedVerification} makeApiCall={makeApiCall} />
     </>
   );
 }
@@ -217,14 +224,15 @@ const statusBtnProps = {
   verified: { variant: "outlined", color: "success" },
 };
 
-function StatusCell({ verification, onApiCall }) {
+function StatusCell({ verification, makeApiCall }) {
   const handleTransition = React.useCallback(
     (row, option) => {
-      onApiCall(
-        api.transitionOrganizationMembershipVerification({ id: row.id, event: option })
-      );
+      makeApiCall(api.transitionOrganizationMembershipVerification, {
+        id: row.id,
+        event: option,
+      });
     },
-    [onApiCall]
+    [makeApiCall]
   );
   return (
     <StatusPicker
@@ -307,31 +315,28 @@ function StatusPicker({ value, options, onOptionSelected, href }) {
   );
 }
 
-function MemberOutreach({ verification, onApiCall }) {
+function MemberOutreach({ verification, frontEnabled, makeApiCall }) {
   function handleBegin(e) {
     e.preventDefault();
-    onApiCall(
-      api
-        .beginOrganizationMembershipVerificationMemberOutreach({ id: verification.id })
-        .tap((r) => window.open(r.data.frontMemberConversationStatus.webUrl, "_blank"))
-    );
+    makeApiCall(api.beginOrganizationMembershipVerificationMemberOutreach, {
+      id: verification.id,
+    }).tap((r) => window.open(r.data.frontMemberConversationStatus.webUrl, "_blank"));
   }
   return (
     <FrontConvoStatus
       {...verification.frontMemberConversationStatus}
+      frontEnabled={frontEnabled}
       onBegin={handleBegin}
     />
   );
 }
 
-function PartnerOutreach({ verification, onApiCall }) {
+function PartnerOutreach({ verification, makeApiCall }) {
   function handleBegin(e) {
     e.preventDefault();
-    onApiCall(
-      api
-        .beginOrganizationMembershipVerificationPartnerOutreach({ id: verification.id })
-        .tap((r) => window.open(r.data.frontPartnerConversationStatus.webUrl, "_blank"))
-    );
+    makeApiCall(api.beginOrganizationMembershipVerificationPartnerOutreach, {
+      id: verification.id,
+    }).tap((r) => window.open(r.data.frontPartnerConversationStatus.webUrl, "_blank"));
   }
   return (
     <FrontConvoStatus
@@ -346,6 +351,7 @@ function FrontConvoStatus({
   waitingOnAdmin,
   initialDraft,
   lastUpdatedAt,
+  frontEnabled,
   onBegin,
 }) {
   // [webUrl, initialDraft, waitingOnAdmin, lastUpdatedAt] = getTestingProps();
@@ -362,7 +368,7 @@ function FrontConvoStatus({
     Icon = DraftsIcon;
     text = "Draft";
     bprops.variant = "contained";
-    bprops.color = "primary";
+    bprops.color = "success";
   } else if (waitingOnAdmin) {
     Icon = ReplyIcon;
     text = formatDate(lastUpdatedAt, { template: "ddd MMM D h:mma" });
@@ -376,7 +382,7 @@ function FrontConvoStatus({
   }
   return (
     <div>
-      <Button size="small" {...bprops}>
+      <Button size="small" disabled={!frontEnabled} {...bprops}>
         <Icon sx={{ marginRight: 1 }} />
         {text}
       </Button>
@@ -400,17 +406,15 @@ function getTestingProps() {
   }
 }
 
-function NotesViewer({ verification, onApiCall }) {
+function NotesViewer({ verification, makeApiCall }) {
   const [noteContent, setNoteContent] = React.useState();
   const theme = useTheme();
   function handleNoteSave(e) {
     e.preventDefault();
-    onApiCall(
-      api.addOrganizationMembershipVerificationNote({
-        id: verification.id,
-        content: noteContent,
-      })
-    ).then(() => setNoteContent(""));
+    makeApiCall(api.addOrganizationMembershipVerificationNote, {
+      id: verification.id,
+      content: noteContent,
+    }).then(() => setNoteContent(""));
   }
   return (
     <React.Fragment>

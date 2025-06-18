@@ -79,229 +79,279 @@ export default {
   put,
   del,
   signOut: () => del("/adminapi/v1/auth"),
-  signIn: (data) => post("/adminapi/v1/auth", data),
-  getCurrentUser: (data) => get(`/adminapi/v1/auth`, data),
-  impersonate: ({ id, ...data }) => post(`/adminapi/v1/auth/impersonate/${id}`, data),
-  unimpersonate: (data) => del(`/adminapi/v1/auth/impersonate`, data),
-  getCurrencies: (data) => get(`/adminapi/v1/meta/currencies`, data),
-  getSupportedGeographies: (data) => get(`/adminapi/v1/meta/geographies`, data),
-  getVendorServiceCategories: (data) =>
-    get(`/adminapi/v1/meta/vendor_service_categories`, data),
-  getProgramsMeta: (data) => get(`/adminapi/v1/meta/programs`, data),
-  getResourceAccessMeta: (data) => get(`/adminapi/v1/meta/resource_access`, data),
+  signIn: (data, ...args) => post("/adminapi/v1/auth", data, ...args),
+  getCurrentUser: (data, ...args) => get(`/adminapi/v1/auth`, data, ...args),
+  impersonate: ({ id, ...data }, ...args) =>
+    post(`/adminapi/v1/auth/impersonate/${id}`, data, ...args),
+  unimpersonate: (data, ...args) => del(`/adminapi/v1/auth/impersonate`, data, ...args),
+  getCurrencies: (data, ...args) => get(`/adminapi/v1/meta/currencies`, data, ...args),
+  getSupportedGeographies: (data, ...args) =>
+    get(`/adminapi/v1/meta/geographies`, data, ...args),
+  getVendorServiceCategories: (data, ...args) =>
+    get(`/adminapi/v1/meta/vendor_service_categories`, data, ...args),
+  getProgramsMeta: (data, ...args) => get(`/adminapi/v1/meta/programs`, data, ...args),
+  getResourceAccessMeta: (data, ...args) =>
+    get(`/adminapi/v1/meta/resource_access`, data, ...args),
 
-  getBankAccount: ({ id, ...data }) => get(`/adminapi/v1/bank_accounts/${id}`, data),
+  getBankAccount: ({ id, ...data }, ...args) =>
+    get(`/adminapi/v1/bank_accounts/${id}`, data, ...args),
 
-  getBookTransactions: (data) => get(`/adminapi/v1/book_transactions`, data),
-  getBookTransaction: ({ id, ...data }) =>
-    get(`/adminapi/v1/book_transactions/${id}`, data),
-  createBookTransaction: (data) => post(`/adminapi/v1/book_transactions/create`, data),
+  getBookTransactions: (data, ...args) =>
+    get(`/adminapi/v1/book_transactions`, data, ...args),
+  getBookTransaction: ({ id, ...data }, ...args) =>
+    get(`/adminapi/v1/book_transactions/${id}`, data, ...args),
+  createBookTransaction: (data, ...args) =>
+    post(`/adminapi/v1/book_transactions/create`, data, ...args),
 
-  getFundingTransactions: (data) => get(`/adminapi/v1/funding_transactions`, data),
-  getFundingTransaction: ({ id, ...data }) =>
-    get(`/adminapi/v1/funding_transactions/${id}`, data),
-  createForSelfFundingTransaction: (data) =>
-    post(`/adminapi/v1/funding_transactions/create_for_self`, data),
-  refundFundingTransaction: ({ id, ...data }) =>
-    post(`/adminapi/v1/funding_transactions/${id}/refund`, data),
-  getPayoutTransactions: (data) => get(`/adminapi/v1/payout_transactions`, data),
-  getPayoutTransaction: ({ id, ...data }) =>
-    get(`/adminapi/v1/payout_transactions/${id}`, data),
+  getFundingTransactions: (data, ...args) =>
+    get(`/adminapi/v1/funding_transactions`, data, ...args),
+  getFundingTransaction: ({ id, ...data }, ...args) =>
+    get(`/adminapi/v1/funding_transactions/${id}`, data, ...args),
+  createForSelfFundingTransaction: (data, ...args) =>
+    post(`/adminapi/v1/funding_transactions/create_for_self`, data, ...args),
+  refundFundingTransaction: ({ id, ...data }, ...args) =>
+    post(`/adminapi/v1/funding_transactions/${id}/refund`, data, ...args),
+  getPayoutTransactions: (data, ...args) =>
+    get(`/adminapi/v1/payout_transactions`, data, ...args),
+  getPayoutTransaction: ({ id, ...data }, ...args) =>
+    get(`/adminapi/v1/payout_transactions/${id}`, data, ...args),
 
-  getCharges: (data) => get(`/adminapi/v1/charges`, data),
-  getCharge: ({ id, ...data }) => get(`/adminapi/v1/charges/${id}`, data),
+  getCharges: (data, ...args) => get(`/adminapi/v1/charges`, data, ...args),
+  getCharge: ({ id, ...data }, ...args) =>
+    get(`/adminapi/v1/charges/${id}`, data, ...args),
 
-  getPaymentLedgers: (data) => get(`/adminapi/v1/payment_ledgers`, data),
-  getPaymentLedger: ({ id, ...data }) => get(`/adminapi/v1/payment_ledgers/${id}`, data),
+  getPaymentLedgers: (data, ...args) =>
+    get(`/adminapi/v1/payment_ledgers`, data, ...args),
+  getPaymentLedger: ({ id, ...data }, ...args) =>
+    get(`/adminapi/v1/payment_ledgers/${id}`, data, ...args),
 
-  getPaymentTriggers: (data) => get(`/adminapi/v1/payment_triggers`, data),
-  createPaymentTrigger: (data) => post(`/adminapi/v1/payment_triggers/create`, data),
-  getPaymentTrigger: ({ id, ...data }) =>
-    get(`/adminapi/v1/payment_triggers/${id}`, data),
-  updatePaymentTrigger: ({ id, ...data }) =>
-    post(`/adminapi/v1/payment_triggers/${id}`, data),
-  updatePaymentTriggerPrograms: ({ id, ...data }) =>
-    post(`/adminapi/v1/payment_triggers/${id}/programs`, data),
-  subdividePaymentTrigger: ({ id, ...data }) =>
-    post(`/adminapi/v1/payment_triggers/${id}/subdivide`, data),
+  getPaymentTriggers: (data, ...args) =>
+    get(`/adminapi/v1/payment_triggers`, data, ...args),
+  createPaymentTrigger: (data, ...args) =>
+    post(`/adminapi/v1/payment_triggers/create`, data, ...args),
+  getPaymentTrigger: ({ id, ...data }, ...args) =>
+    get(`/adminapi/v1/payment_triggers/${id}`, data, ...args),
+  updatePaymentTrigger: ({ id, ...data }, ...args) =>
+    post(`/adminapi/v1/payment_triggers/${id}`, data, ...args),
+  updatePaymentTriggerPrograms: ({ id, ...data }, ...args) =>
+    post(`/adminapi/v1/payment_triggers/${id}/programs`, data, ...args),
+  subdividePaymentTrigger: ({ id, ...data }, ...args) =>
+    post(`/adminapi/v1/payment_triggers/${id}/subdivide`, data, ...args),
 
-  getCommerceOfferings: (data) => get("/adminapi/v1/commerce_offerings", data),
-  getCommerceOffering: ({ id, ...data }) =>
-    get(`/adminapi/v1/commerce_offerings/${id}`, data),
-  createCommerceOffering: (data) =>
-    postForm("/adminapi/v1/commerce_offerings/create", data),
-  updateCommerceOffering: ({ id, ...data }) =>
-    postForm(`/adminapi/v1/commerce_offerings/${id}`, data),
-  updateOfferingPrograms: ({ id, ...data }) =>
-    post(`/adminapi/v1/commerce_offerings/${id}/programs`, data),
-  getCommerceOfferingPickList: ({ id, ...data }) =>
-    get(`/adminapi/v1/commerce_offerings/${id}/picklist`, data),
+  getCommerceOfferings: (data, ...args) =>
+    get("/adminapi/v1/commerce_offerings", data, ...args),
+  getCommerceOffering: ({ id, ...data }, ...args) =>
+    get(`/adminapi/v1/commerce_offerings/${id}`, data, ...args),
+  createCommerceOffering: (data, ...args) =>
+    postForm("/adminapi/v1/commerce_offerings/create", data, ...args),
+  updateCommerceOffering: ({ id, ...data }, ...args) =>
+    postForm(`/adminapi/v1/commerce_offerings/${id}`, data, ...args),
+  updateOfferingPrograms: ({ id, ...data }, ...args) =>
+    post(`/adminapi/v1/commerce_offerings/${id}/programs`, data, ...args),
+  getCommerceOfferingPickList: ({ id, ...data }, ...args) =>
+    get(`/adminapi/v1/commerce_offerings/${id}/picklist`, data, ...args),
 
-  getCommerceProducts: (data) => get("/adminapi/v1/commerce_products", data),
-  createCommerceProduct: (data) =>
-    postForm("/adminapi/v1/commerce_products/create", data),
-  getCommerceProduct: ({ id, ...data }) =>
-    get(`/adminapi/v1/commerce_products/${id}`, data),
-  updateCommerceProduct: ({ id, ...data }) =>
-    postForm(`/adminapi/v1/commerce_products/${id}`, data),
+  getCommerceProducts: (data, ...args) =>
+    get("/adminapi/v1/commerce_products", data, ...args),
+  createCommerceProduct: (data, ...args) =>
+    postForm("/adminapi/v1/commerce_products/create", data, ...args),
+  getCommerceProduct: ({ id, ...data }, ...args) =>
+    get(`/adminapi/v1/commerce_products/${id}`, data, ...args),
+  updateCommerceProduct: ({ id, ...data }, ...args) =>
+    postForm(`/adminapi/v1/commerce_products/${id}`, data, ...args),
 
-  createCommerceOfferingProduct: (data) =>
-    postForm("/adminapi/v1/commerce_offering_products/create", data),
-  getCommerceOfferingProduct: ({ id, ...data }) =>
-    get(`/adminapi/v1/commerce_offering_products/${id}`, data),
-  updateCommerceOfferingProduct: ({ id, ...data }) =>
-    post(`/adminapi/v1/commerce_offering_products/${id}`, data),
+  createCommerceOfferingProduct: (data, ...args) =>
+    postForm("/adminapi/v1/commerce_offering_products/create", data, ...args),
+  getCommerceOfferingProduct: ({ id, ...data }, ...args) =>
+    get(`/adminapi/v1/commerce_offering_products/${id}`, data, ...args),
+  updateCommerceOfferingProduct: ({ id, ...data }, ...args) =>
+    post(`/adminapi/v1/commerce_offering_products/${id}`, data, ...args),
 
-  getVendors: (data) => get(`/adminapi/v1/vendors`, data),
-  createVendor: (data) => postForm("/adminapi/v1/vendors/create", data),
-  getVendor: ({ id, ...data }) => get(`/adminapi/v1/vendors/${id}`, data),
-  updateVendor: ({ id, ...data }) => postForm(`/adminapi/v1/vendors/${id}`, data),
+  getVendors: (data, ...args) => get(`/adminapi/v1/vendors`, data, ...args),
+  createVendor: (data, ...args) => postForm("/adminapi/v1/vendors/create", data, ...args),
+  getVendor: ({ id, ...data }, ...args) =>
+    get(`/adminapi/v1/vendors/${id}`, data, ...args),
+  updateVendor: ({ id, ...data }, ...args) =>
+    postForm(`/adminapi/v1/vendors/${id}`, data, ...args),
 
-  getMarketingLists: (data) => get(`/adminapi/v1/marketing_lists`, data),
-  createMarketingList: (data) => post("/adminapi/v1/marketing_lists/create", data),
-  getMarketingList: ({ id, ...data }) => get(`/adminapi/v1/marketing_lists/${id}`, data),
-  updateMarketingList: ({ id, ...data }) =>
-    post(`/adminapi/v1/marketing_lists/${id}`, data),
+  getMarketingLists: (data, ...args) =>
+    get(`/adminapi/v1/marketing_lists`, data, ...args),
+  createMarketingList: (data, ...args) =>
+    post("/adminapi/v1/marketing_lists/create", data, ...args),
+  getMarketingList: ({ id, ...data }, ...args) =>
+    get(`/adminapi/v1/marketing_lists/${id}`, data, ...args),
+  updateMarketingList: ({ id, ...data }, ...args) =>
+    post(`/adminapi/v1/marketing_lists/${id}`, data, ...args),
 
-  getMarketingSmsBroadcasts: (data) => get(`/adminapi/v1/marketing_sms_broadcasts`, data),
-  createMarketingSmsBroadcast: (data) =>
-    post("/adminapi/v1/marketing_sms_broadcasts/create", data),
-  getMarketingSmsBroadcast: ({ id, ...data }) =>
-    get(`/adminapi/v1/marketing_sms_broadcasts/${id}`, data),
-  updateMarketingSmsBroadcast: ({ id, ...data }) =>
-    post(`/adminapi/v1/marketing_sms_broadcasts/${id}`, data),
-  sendMarketingSmsBroadcast: ({ id, ...data }) =>
-    post(`/adminapi/v1/marketing_sms_broadcasts/${id}/send`, data),
-  previewMarketingSmsBroadcast: (data) =>
-    post(`/adminapi/v1/marketing_sms_broadcasts/preview`, data),
-  getMarketingSmsBroadcastReview: ({ id, ...data }) =>
-    get(`/adminapi/v1/marketing_sms_broadcasts/${id}/review`, data),
+  getMarketingSmsBroadcasts: (data, ...args) =>
+    get(`/adminapi/v1/marketing_sms_broadcasts`, data, ...args),
+  createMarketingSmsBroadcast: (data, ...args) =>
+    post("/adminapi/v1/marketing_sms_broadcasts/create", data, ...args),
+  getMarketingSmsBroadcast: ({ id, ...data }, ...args) =>
+    get(`/adminapi/v1/marketing_sms_broadcasts/${id}`, data, ...args),
+  updateMarketingSmsBroadcast: ({ id, ...data }, ...args) =>
+    post(`/adminapi/v1/marketing_sms_broadcasts/${id}`, data, ...args),
+  sendMarketingSmsBroadcast: ({ id, ...data }, ...args) =>
+    post(`/adminapi/v1/marketing_sms_broadcasts/${id}/send`, data, ...args),
+  previewMarketingSmsBroadcast: (data, ...args) =>
+    post(`/adminapi/v1/marketing_sms_broadcasts/preview`, data, ...args),
+  getMarketingSmsBroadcastReview: ({ id, ...data }, ...args) =>
+    get(`/adminapi/v1/marketing_sms_broadcasts/${id}/review`, data, ...args),
 
-  getMarketingSmsDispatches: (data) => get(`/adminapi/v1/marketing_sms_dispatches`, data),
-  getMarketingSmsDispatch: ({ id, ...data }) =>
-    get(`/adminapi/v1/marketing_sms_dispatches/${id}`, data),
-  cancelMarketingSmsDispatch: ({ id, ...data }) =>
-    post(`/adminapi/v1/marketing_sms_dispatches/${id}/cancel`, data),
+  getMarketingSmsDispatches: (data, ...args) =>
+    get(`/adminapi/v1/marketing_sms_dispatches`, data, ...args),
+  getMarketingSmsDispatch: ({ id, ...data }, ...args) =>
+    get(`/adminapi/v1/marketing_sms_dispatches/${id}`, data, ...args),
+  cancelMarketingSmsDispatch: ({ id, ...data }, ...args) =>
+    post(`/adminapi/v1/marketing_sms_dispatches/${id}/cancel`, data, ...args),
 
-  getPrograms: (data) => get(`/adminapi/v1/programs`, data),
-  createProgram: (data) => postForm("/adminapi/v1/programs/create", data),
-  getProgram: ({ id, ...data }) => get(`/adminapi/v1/programs/${id}`, data),
-  updateProgram: ({ id, ...data }) => postForm(`/adminapi/v1/programs/${id}`, data),
+  getPrograms: (data, ...args) => get(`/adminapi/v1/programs`, data, ...args),
+  createProgram: (data, ...args) =>
+    postForm("/adminapi/v1/programs/create", data, ...args),
+  getProgram: ({ id, ...data }, ...args) =>
+    get(`/adminapi/v1/programs/${id}`, data, ...args),
+  updateProgram: ({ id, ...data }, ...args) =>
+    postForm(`/adminapi/v1/programs/${id}`, data, ...args),
 
-  getProgramEnrollments: (data) => get(`/adminapi/v1/program_enrollments`, data),
-  createProgramEnrollment: (data) =>
-    postForm("/adminapi/v1/program_enrollments/create", data),
-  getProgramEnrollment: ({ id, ...data }) =>
-    get(`/adminapi/v1/program_enrollments/${id}`, data),
-  updateProgramEnrollment: ({ id, ...data }) =>
-    postForm(`/adminapi/v1/program_enrollments/${id}`, data),
+  getProgramEnrollments: (data, ...args) =>
+    get(`/adminapi/v1/program_enrollments`, data, ...args),
+  createProgramEnrollment: (data, ...args) =>
+    postForm("/adminapi/v1/program_enrollments/create", data, ...args),
+  getProgramEnrollment: ({ id, ...data }, ...args) =>
+    get(`/adminapi/v1/program_enrollments/${id}`, data, ...args),
+  updateProgramEnrollment: ({ id, ...data }, ...args) =>
+    postForm(`/adminapi/v1/program_enrollments/${id}`, data, ...args),
 
-  getVendorServices: (data) => get(`/adminapi/v1/vendor_services`, data),
-  getVendorService: ({ id, ...data }) => get(`/adminapi/v1/vendor_services/${id}`, data),
-  updateVendorService: ({ id, ...data }) =>
-    postForm(`/adminapi/v1/vendor_services/${id}`, data),
-  updateVendorServicePrograms: ({ id, ...data }) =>
-    post(`/adminapi/v1/vendor_services/${id}/programs`, data),
+  getVendorServices: (data, ...args) =>
+    get(`/adminapi/v1/vendor_services`, data, ...args),
+  getVendorService: ({ id, ...data }, ...args) =>
+    get(`/adminapi/v1/vendor_services/${id}`, data, ...args),
+  updateVendorService: ({ id, ...data }, ...args) =>
+    postForm(`/adminapi/v1/vendor_services/${id}`, data, ...args),
+  updateVendorServicePrograms: ({ id, ...data }, ...args) =>
+    post(`/adminapi/v1/vendor_services/${id}/programs`, data, ...args),
 
-  getVendorAccounts: (data) => get("/adminapi/v1/anon_proxy/vendor_accounts", data),
-  getVendorAccount: ({ id, ...data }) =>
-    get(`/adminapi/v1/anon_proxy/vendor_accounts/${id}`, data),
-  destroyVendorAccount: ({ id, ...data }) =>
-    post(`/adminapi/v1/anon_proxy/vendor_accounts/${id}/destroy`, data),
+  getVendorAccounts: (data, ...args) =>
+    get("/adminapi/v1/anon_proxy/vendor_accounts", data, ...args),
+  getVendorAccount: ({ id, ...data }, ...args) =>
+    get(`/adminapi/v1/anon_proxy/vendor_accounts/${id}`, data, ...args),
+  destroyVendorAccount: ({ id, ...data }, ...args) =>
+    post(`/adminapi/v1/anon_proxy/vendor_accounts/${id}/destroy`, data, ...args),
 
-  getVendorConfigurations: (data) =>
-    get("/adminapi/v1/anon_proxy/vendor_configurations", data),
-  getVendorConfiguration: ({ id, ...data }) =>
-    get(`/adminapi/v1/anon_proxy/vendor_configurations/${id}`, data),
-  updateVendorConfiguration: ({ id, ...data }) =>
-    postForm(`/adminapi/v1/anon_proxy/vendor_configurations/${id}`, data),
-  updateVendorConfigurationPrograms: ({ id, ...data }) =>
-    post(`/adminapi/v1/anon_proxy/vendor_configurations/${id}/programs`, data),
+  getVendorConfigurations: (data, ...args) =>
+    get("/adminapi/v1/anon_proxy/vendor_configurations", data, ...args),
+  getVendorConfiguration: ({ id, ...data }, ...args) =>
+    get(`/adminapi/v1/anon_proxy/vendor_configurations/${id}`, data, ...args),
+  updateVendorConfiguration: ({ id, ...data }, ...args) =>
+    postForm(`/adminapi/v1/anon_proxy/vendor_configurations/${id}`, data, ...args),
+  updateVendorConfigurationPrograms: ({ id, ...data }, ...args) =>
+    post(`/adminapi/v1/anon_proxy/vendor_configurations/${id}/programs`, data, ...args),
 
-  getAnonMemberContacts: (data) => get(`/adminapi/v1/anon_proxy/member_contacts`, data),
-  provisionAnonMemberContact: (data) =>
-    post("/adminapi/v1/anon_proxy/member_contacts/provision", data),
-  getAnonMemberContact: ({ id, ...data }) =>
-    get(`/adminapi/v1/anon_proxy/member_contacts/${id}`, data),
-  updateAnonMemberContact: ({ id, ...data }) =>
-    post(`/adminapi/v1/anon_proxy/member_contacts/${id}`, data),
-  destroyMemberContact: ({ id, ...data }) =>
-    post(`/adminapi/v1/anon_proxy/member_contacts/${id}/destroy`, data),
+  getAnonMemberContacts: (data, ...args) =>
+    get(`/adminapi/v1/anon_proxy/member_contacts`, data, ...args),
+  provisionAnonMemberContact: (data, ...args) =>
+    post("/adminapi/v1/anon_proxy/member_contacts/provision", data, ...args),
+  getAnonMemberContact: ({ id, ...data }, ...args) =>
+    get(`/adminapi/v1/anon_proxy/member_contacts/${id}`, data, ...args),
+  updateAnonMemberContact: ({ id, ...data }, ...args) =>
+    post(`/adminapi/v1/anon_proxy/member_contacts/${id}`, data, ...args),
+  destroyMemberContact: ({ id, ...data }, ...args) =>
+    post(`/adminapi/v1/anon_proxy/member_contacts/${id}/destroy`, data, ...args),
 
-  getCommerceOrders: (data) => get(`/adminapi/v1/commerce_orders`, data),
-  getCommerceOrder: ({ id, ...data }) => get(`/adminapi/v1/commerce_orders/${id}`, data),
+  getCommerceOrders: (data, ...args) =>
+    get(`/adminapi/v1/commerce_orders`, data, ...args),
+  getCommerceOrder: ({ id, ...data }, ...args) =>
+    get(`/adminapi/v1/commerce_orders/${id}`, data, ...args),
 
-  getMessageDeliveries: (data) => get(`/adminapi/v1/message_deliveries`, data),
-  getMessageDelivery: ({ id, ...data }) =>
-    get(`/adminapi/v1/message_deliveries/${id}`, data),
+  getMessageDeliveries: (data, ...args) =>
+    get(`/adminapi/v1/message_deliveries`, data, ...args),
+  getMessageDelivery: ({ id, ...data }, ...args) =>
+    get(`/adminapi/v1/message_deliveries/${id}`, data, ...args),
 
-  getMembers: (data) => get(`/adminapi/v1/members`, data),
-  getMember: ({ id, ...data }) => get(`/adminapi/v1/members/${id}`, data),
-  updateMember: ({ id, ...data }) => post(`/adminapi/v1/members/${id}`, data),
-  softDeleteMember: ({ id, ...data }) => post(`/adminapi/v1/members/${id}/close`, data),
+  getMembers: (data, ...args) => get(`/adminapi/v1/members`, data, ...args),
+  getMember: ({ id, ...data }, ...args) =>
+    get(`/adminapi/v1/members/${id}`, data, ...args),
+  updateMember: ({ id, ...data }, ...args) =>
+    post(`/adminapi/v1/members/${id}`, data, ...args),
+  softDeleteMember: ({ id, ...data }, ...args) =>
+    post(`/adminapi/v1/members/${id}/close`, data, ...args),
 
-  getOrganizations: (data) => get(`/adminapi/v1/organizations`, data),
+  getOrganizations: (data, ...args) => get(`/adminapi/v1/organizations`, data, ...args),
   getOrganization: ({ id }) => get(`/adminapi/v1/organizations/${id}`),
-  createOrganization: (data) => post("/adminapi/v1/organizations/create", data),
-  updateOrganization: ({ id, ...data }) => post(`/adminapi/v1/organizations/${id}`, data),
+  createOrganization: (data, ...args) =>
+    post("/adminapi/v1/organizations/create", data, ...args),
+  updateOrganization: ({ id, ...data }, ...args) =>
+    post(`/adminapi/v1/organizations/${id}`, data, ...args),
 
-  getOrganizationMemberships: (data) =>
-    get(`/adminapi/v1/organization_memberships`, data),
+  getOrganizationMemberships: (data, ...args) =>
+    get(`/adminapi/v1/organization_memberships`, data, ...args),
   getOrganizationMembership: ({ id }) =>
     get(`/adminapi/v1/organization_memberships/${id}`),
-  createOrganizationMembership: (data) =>
-    post("/adminapi/v1/organization_memberships/create", data),
-  updateOrganizationMembership: ({ id, ...data }) =>
-    post(`/adminapi/v1/organization_memberships/${id}`, data),
+  createOrganizationMembership: (data, ...args) =>
+    post("/adminapi/v1/organization_memberships/create", data, ...args),
+  updateOrganizationMembership: ({ id, ...data }, ...args) =>
+    post(`/adminapi/v1/organization_memberships/${id}`, data, ...args),
 
-  getOrganizationMembershipVerifications: (data) =>
-    get(`/adminapi/v1/organization_membership_verifications`, data),
-  getOrganizationMembershipVerification: ({ id, ...data }) =>
-    get(`/adminapi/v1/organization_membership_verifications/${id}`, data),
-  transitionOrganizationMembershipVerification: ({ id, ...data }) =>
-    post(`/adminapi/v1/organization_membership_verifications/${id}/transition`, data),
-  beginOrganizationMembershipVerificationPartnerOutreach: ({ id, ...data }) =>
+  getOrganizationMembershipVerifications: (data, ...args) =>
+    get(`/adminapi/v1/organization_membership_verifications`, data, ...args),
+  getOrganizationMembershipVerification: ({ id, ...data }, ...args) =>
+    get(`/adminapi/v1/organization_membership_verifications/${id}`, data, ...args),
+  transitionOrganizationMembershipVerification: ({ id, ...data }, ...args) =>
+    post(
+      `/adminapi/v1/organization_membership_verifications/${id}/transition`,
+      data,
+      ...args
+    ),
+  beginOrganizationMembershipVerificationPartnerOutreach: ({ id, ...data }, ...args) =>
     post(
       `/adminapi/v1/organization_membership_verifications/${id}/begin_partner_outreach`,
       data
     ),
-  beginOrganizationMembershipVerificationMemberOutreach: ({ id, ...data }) =>
+  beginOrganizationMembershipVerificationMemberOutreach: ({ id, ...data }, ...args) =>
     post(
       `/adminapi/v1/organization_membership_verifications/${id}/begin_member_outreach`,
       data
     ),
-  addOrganizationMembershipVerificationNote: ({ id, ...data }) =>
-    post(`/adminapi/v1/organization_membership_verifications/${id}/notes`, data),
+  addOrganizationMembershipVerificationNote: ({ id, ...data }, ...args) =>
+    post(`/adminapi/v1/organization_membership_verifications/${id}/notes`, data, ...args),
   editOrganizationMembershipVerificationNote: ({ id, noteId, ...data }) =>
     post(
       `/adminapi/v1/organization_membership_verifications/${id}/notes/${noteId}`,
       data
     ),
 
-  getMobilityTrips: (data) => get(`/adminapi/v1/mobility_trips`, data),
-  getMobilityTrip: ({ id, ...data }) => get(`/adminapi/v1/mobility_trips/${id}`, data),
-  updateMobilityTrip: ({ id, ...data }) =>
-    post(`/adminapi/v1/mobility_trips/${id}`, data),
+  getMobilityTrips: (data, ...args) => get(`/adminapi/v1/mobility_trips`, data, ...args),
+  getMobilityTrip: ({ id, ...data }, ...args) =>
+    get(`/adminapi/v1/mobility_trips/${id}`, data, ...args),
+  updateMobilityTrip: ({ id, ...data }, ...args) =>
+    post(`/adminapi/v1/mobility_trips/${id}`, data, ...args),
 
-  getRoles: (data) => get(`/adminapi/v1/roles`, data),
-  createRole: (data) => postForm("/adminapi/v1/roles/create", data),
-  getRole: ({ id, ...data }) => get(`/adminapi/v1/roles/${id}`, data),
-  updateRole: ({ id, ...data }) => postForm(`/adminapi/v1/roles/${id}`, data),
+  getRoles: (data, ...args) => get(`/adminapi/v1/roles`, data, ...args),
+  createRole: (data, ...args) => postForm("/adminapi/v1/roles/create", data, ...args),
+  getRole: ({ id, ...data }, ...args) => get(`/adminapi/v1/roles/${id}`, data, ...args),
+  updateRole: ({ id, ...data }, ...args) =>
+    postForm(`/adminapi/v1/roles/${id}`, data, ...args),
 
-  searchProducts: (data) => post(`/adminapi/v1/search/products`, data),
-  searchOfferings: (data) => post(`/adminapi/v1/search/offerings`, data),
-  searchPaymentInstruments: (data) =>
-    post(`/adminapi/v1/search/payment_instruments`, data),
-  searchLedgers: (data) => post(`/adminapi/v1/search/ledgers`, data),
-  searchLedgersLookup: (data) => post(`/adminapi/v1/search/ledgers/lookup`, data),
-  searchTranslations: (data) => post(`/adminapi/v1/search/translations`, data),
-  searchVendors: (data) => post(`/adminapi/v1/search/vendors`, data),
-  searchMembers: (data) => post(`/adminapi/v1/search/members`, data),
-  searchOrganizations: (data) => post(`/adminapi/v1/search/organizations`, data),
-  searchRoles: (data) => post(`/adminapi/v1/search/roles`, data),
-  searchVendorServices: (data) => post(`/adminapi/v1/search/vendor_services`, data),
-  searchCommerceOffering: (data) => post(`/adminapi/v1/search/commerce_offerings`, data),
-  searchPrograms: (data) => post(`/adminapi/v1/search/programs`, data),
+  searchProducts: (data, ...args) => post(`/adminapi/v1/search/products`, data, ...args),
+  searchOfferings: (data, ...args) =>
+    post(`/adminapi/v1/search/offerings`, data, ...args),
+  searchPaymentInstruments: (data, ...args) =>
+    post(`/adminapi/v1/search/payment_instruments`, data, ...args),
+  searchLedgers: (data, ...args) => post(`/adminapi/v1/search/ledgers`, data, ...args),
+  searchLedgersLookup: (data, ...args) =>
+    post(`/adminapi/v1/search/ledgers/lookup`, data, ...args),
+  searchTranslations: (data, ...args) =>
+    post(`/adminapi/v1/search/translations`, data, ...args),
+  searchVendors: (data, ...args) => post(`/adminapi/v1/search/vendors`, data, ...args),
+  searchMembers: (data, ...args) => post(`/adminapi/v1/search/members`, data, ...args),
+  searchOrganizations: (data, ...args) =>
+    post(`/adminapi/v1/search/organizations`, data, ...args),
+  searchRoles: (data, ...args) => post(`/adminapi/v1/search/roles`, data, ...args),
+  searchVendorServices: (data, ...args) =>
+    post(`/adminapi/v1/search/vendor_services`, data, ...args),
+  searchCommerceOffering: (data, ...args) =>
+    post(`/adminapi/v1/search/commerce_offerings`, data, ...args),
+  searchPrograms: (data, ...args) => post(`/adminapi/v1/search/programs`, data, ...args),
 
   /**
    * Return an API url.

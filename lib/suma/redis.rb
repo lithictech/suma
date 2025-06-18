@@ -44,8 +44,6 @@ module Suma::Redis
   configurable(:redis) do
     setting :cache_url, ""
     setting :cache_url_provider, "REDIS_URL"
-    setting :pubsub_url, ""
-    setting :pubsub_url_provider, "REDIS_URL"
 
     after_configured do
       self.cache = self.create_pool(self.cache_url_provider, self.cache_url)
