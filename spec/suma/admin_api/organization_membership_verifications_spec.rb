@@ -182,6 +182,23 @@ RSpec.describe Suma::AdminAPI::OrganizationMembershipVerifications, :db do
     end
   end
 
+  describe "POST /v1/organization_membership_verifications/:id" do
+    let(:v) { Suma::Fixtures.organization_membership_verification.create }
+
+    it "updates the verification" do
+      post "/v1/organization_membership_verifications/#{v.id}", status: "abandoned"
+
+      expect(last_response).to have_status(200)
+      expect(v.refresh).to have_attributes(status: "abandoned")
+    end
+
+    it "403s if the item does not exist" do
+      post "/v1/organization_membership_verifications/0", status: "started"
+
+      expect(last_response).to have_status(403)
+    end
+  end
+
   describe "POST /v1/organization_membership_verifications/:id/transition" do
     let(:v) { Suma::Fixtures.organization_membership_verification.create }
 

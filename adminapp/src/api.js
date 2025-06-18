@@ -296,6 +296,8 @@ export default {
     get(`/adminapi/v1/organization_membership_verifications`, data, ...args),
   getOrganizationMembershipVerification: ({ id, ...data }, ...args) =>
     get(`/adminapi/v1/organization_membership_verifications/${id}`, data, ...args),
+  updateOrganizationMembershipVerification: ({ id, ...data }, ...args) =>
+    post(`/adminapi/v1/organization_membership_verifications/${id}`, data, ...args),
   transitionOrganizationMembershipVerification: ({ id, ...data }, ...args) =>
     post(
       `/adminapi/v1/organization_membership_verifications/${id}/transition`,

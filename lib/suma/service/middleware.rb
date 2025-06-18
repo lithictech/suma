@@ -42,6 +42,7 @@ module Suma::Service::Middleware
                    "Created-Resource-Admin",
                    "Suma-Current-Member",
                    "Suma-Events-Token",
+                   "Suma-Front-Enabled",
                  ]
       end
     end

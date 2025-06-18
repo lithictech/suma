@@ -323,9 +323,10 @@ module Suma::Service::Helpers
   end
 
   params :translated_text do |options|
-    blank = options[:allow_blank] || false
-    requires :en, type: String, allow_blank: blank
-    requires :es, type: String, allow_blank: blank
+    blank = options[:allow_blank] || false || options[:optional]
+    meth = options[:optional] ? :optional : :requires
+    send(meth, :en, type: String, allow_blank: blank)
+    send(meth, :es, type: String, allow_blank: blank)
   end
 
   params :model_with_id do

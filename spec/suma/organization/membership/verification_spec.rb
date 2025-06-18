@@ -484,4 +484,11 @@ RSpec.describe "Suma::Organization::Membership::Verification",
       expect(r).to eq("hi {{ xyz")
     end
   end
+
+  describe "validations" do
+    it "validates status" do
+      v = Suma::Fixtures.organization_membership_verification.create
+      expect { v.update(status: "foo") }.to raise_error(Sequel::ValidationFailed, /must be one of/)
+    end
+  end
 end

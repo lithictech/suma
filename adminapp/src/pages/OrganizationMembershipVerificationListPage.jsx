@@ -192,7 +192,11 @@ export default function OrganizationMembershipVerificationListPage() {
               c.top ? (
                 <OrganizationMembership membership={c.item.membership} />
               ) : (
-                <PartnerOutreach verification={c.item} makeApiCall={makeApiCall} />
+                <PartnerOutreach
+                  verification={c.item}
+                  frontEnabled={frontEnabled}
+                  makeApiCall={makeApiCall}
+                />
               ),
           },
           {
@@ -331,7 +335,7 @@ function MemberOutreach({ verification, frontEnabled, makeApiCall }) {
   );
 }
 
-function PartnerOutreach({ verification, makeApiCall }) {
+function PartnerOutreach({ verification, frontEnabled, makeApiCall }) {
   function handleBegin(e) {
     e.preventDefault();
     makeApiCall(api.beginOrganizationMembershipVerificationPartnerOutreach, {
@@ -341,6 +345,7 @@ function PartnerOutreach({ verification, makeApiCall }) {
   return (
     <FrontConvoStatus
       {...verification.frontPartnerConversationStatus}
+      frontEnabled={frontEnabled}
       onBegin={handleBegin}
     />
   );

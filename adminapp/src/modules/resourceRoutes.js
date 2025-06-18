@@ -3,6 +3,7 @@ import kebabCase from "lodash/kebabCase";
 
 const mapping = {
   organizationMembership: "membership",
+  organizationMembershipVerification: "membership-verification",
 };
 
 export function resourceRoute(resource, { plural } = {}) {

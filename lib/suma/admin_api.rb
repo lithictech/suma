@@ -76,7 +76,9 @@ module Suma::AdminAPI
       super
       mod.instance_eval do
         before do
-          if Suma::Http::UNSAFE_METHODS.include?(env["REQUEST_METHOD"]) && !headers.key?(Suma::SSE::TOKEN_HEADER)
+          header_check = Suma::Http::UNSAFE_METHODS.include?(env["REQUEST_METHOD"]) &&
+            !route_setting(:do_not_check_sse_token)
+          if header_check && !headers.key?(Suma::SSE::TOKEN_HEADER)
             # If we are taking an action that would result in an update, make sure the caller has included
             # an event token so we don't replay events back to the client.
             msg = "Endpoint uses Server Sent Events so requires a '#{Suma::SSE::TOKEN_HEADER}' header"
