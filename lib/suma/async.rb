@@ -27,6 +27,7 @@ module Suma::Async
     "suma/async/anon_proxy_destroyed_member_contact_cleanup",
     "suma/async/deprecated_jobs",
     "suma/async/emailer",
+    "suma/async/forward_messages",
     "suma/async/frontapp_upsert_contact",
     "suma/async/funding_transaction_processor",
     "suma/async/gbfs_sync_enqueue",

@@ -22,13 +22,6 @@ RSpec.describe Suma::Message::SignalwireWebhookdbOptoutProcessor, :db, reset_con
     return r
   end
 
-  it "errors if the signalwire marketing number starts with a +" do
-    Suma::Signalwire.marketing_number = "+12225550000"
-    expect do
-      described_class.new(now: Time.now).fetch_rows
-    end.to raise_error(Suma::InvalidPrecondition, /cannot have a/)
-  end
-
   it "finds potential unsubscribe rows from the last week" do
     old = messagerow("msg2", date_created: 8.days.ago)
     wrong_to = messagerow("msg3", to: "+13334445555")

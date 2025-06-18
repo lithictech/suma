@@ -78,6 +78,36 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
     end
   end
 
+  describe "ForwardMessages" do
+    before(:each) do
+      Suma::Message::Forwarder.reset_configuration
+    end
+    after(:each) do
+      Suma::Message::Forwarder.reset_configuration
+    end
+    it "forwards messages" do
+      Suma::Message::Forwarder.phone_numbers = ["12225550000"]
+      Suma::Message::Forwarder.front_inbox_id = "1234"
+
+      Suma::Webhookdb.signalwire_messages_dataset.insert(
+        signalwire_id: "msg1",
+        date_created: 4.days.ago,
+        direction: "inbound",
+        from: "+15556667777",
+        to: "+12225550000",
+        data: "{}",
+      )
+      req = stub_request(:post, "https://api2.frontapp.com/inboxes/inb_ya/imported_messages").
+        to_return(json_response({}))
+      Suma::Async::ForwardMessages.new.perform
+      expect(req).to have_been_made
+    end
+
+    it "noops if signalwire marketing number not configured" do
+      expect { Suma::Async::ForwardMessages.new.perform }.to_not raise_error
+    end
+  end
+
   describe "FrontappUpsertContact", reset_configuration: Suma::Frontapp do
     it "upserts front contacts" do
       Suma::Frontapp.auth_token = "fake token"
