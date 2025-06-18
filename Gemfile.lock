@@ -389,8 +389,8 @@ DEPENDENCIES
   premailer
   pry
   pry-clipboard2
-  puma (~> 6.4)
-  rack (~> 2.2)
+  puma (~> 6.6)
+  rack (~> 2.2.8)
   rack-attack
   rack-cors (~> 2.0)
   rack-protection
