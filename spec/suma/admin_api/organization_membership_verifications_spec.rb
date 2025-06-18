@@ -18,7 +18,6 @@ RSpec.describe Suma::AdminAPI::OrganizationMembershipVerifications, :db do
 
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.that_includes(items: have_same_ids_as(*objs))
-      expect(last_response.headers).to include("Suma-Events-Token")
     end
 
     it_behaves_like "an endpoint with pagination", download: false do
@@ -26,6 +25,27 @@ RSpec.describe Suma::AdminAPI::OrganizationMembershipVerifications, :db do
       def make_item(i)
         created = Time.now - i.days
         return Suma::Fixtures.organization_membership_verification.create(created_at: created)
+      end
+    end
+
+    describe "headers" do
+      it "includes an auth token, and an header indicating Front is enabled" do
+        Suma::Frontapp.auth_token = "fake-testing-auth-token"
+
+        get "/v1/organization_membership_verifications"
+
+        expect(last_response).to have_status(200)
+        expect(last_response.headers).to include("Suma-Events-Token")
+        expect(last_response.headers).to include("Suma-Front-Enabled" => "1")
+      ensure
+        Suma::Frontapp.reset_configuration
+      end
+
+      it "does not include the Suma-Front-Enabled header if Front is not enabled" do
+        get "/v1/organization_membership_verifications"
+
+        expect(last_response).to have_status(200)
+        expect(last_response.headers).to_not include("Suma-Front-Enabled")
       end
     end
 
@@ -163,9 +183,10 @@ RSpec.describe Suma::AdminAPI::OrganizationMembershipVerifications, :db do
   end
 
   describe "POST /v1/organization_membership_verifications/:id/transition" do
-    it "transitions the verification" do
-      v = Suma::Fixtures.organization_membership_verification.create
+    let(:v) { Suma::Fixtures.organization_membership_verification.create }
 
+    it "transitions the verification" do
+      header "Suma-Events-Token", "abc"
       post "/v1/organization_membership_verifications/#{v.id}/transition", event: "start"
 
       expect(last_response).to have_status(200)
@@ -175,6 +196,7 @@ RSpec.describe Suma::AdminAPI::OrganizationMembershipVerifications, :db do
     it "400s if the transition fails" do
       v = Suma::Fixtures.organization_membership_verification.create
 
+      header "Suma-Events-Token", "abc"
       post "/v1/organization_membership_verifications/#{v.id}/transition", event: "reject"
 
       expect(last_response).to have_status(400)
@@ -182,6 +204,7 @@ RSpec.describe Suma::AdminAPI::OrganizationMembershipVerifications, :db do
     end
 
     it "403s if the item does not exist" do
+      header "Suma-Events-Token", "abc"
       post "/v1/organization_membership_verifications/0/transition", event: "start"
 
       expect(last_response).to have_status(403)
@@ -189,12 +212,19 @@ RSpec.describe Suma::AdminAPI::OrganizationMembershipVerifications, :db do
 
     it "errors without role access" do
       replace_roles(admin, Suma::Role.cache.noop_admin)
-      v = Suma::Fixtures.organization_membership_verification.create
 
+      header "Suma-Events-Token", "abc"
       post "/v1/organization_membership_verifications/#{v.id}/transition", event: "start"
 
       expect(last_response).to have_status(403)
       expect(last_response).to have_json_body.that_includes(error: include(code: "role_check"))
+    end
+
+    it "400s for a missing events token header" do
+      post "/v1/organization_membership_verifications/#{v.id}/transition", event: "start"
+
+      expect(last_response).to have_status(400)
+      expect(last_response).to have_json_body.that_includes(error: include(code: "missing_sse_token"))
     end
   end
 
@@ -204,19 +234,28 @@ RSpec.describe Suma::AdminAPI::OrganizationMembershipVerifications, :db do
       Suma::Organization::Membership::Verification.front_partner_channel_id = "ch123"
     end
 
+    let(:v) { Suma::Fixtures.organization_membership_verification.create }
+
     it "begins partner outreach" do
-      v = Suma::Fixtures.organization_membership_verification.create
       teammate_req = stub_request(:get, "https://api2.frontapp.com/teammates/alt:email:#{admin.email}").
         to_return(json_response(load_fixture_data("front/teammate")))
       draft_req = stub_request(:post, "https://api2.frontapp.com/channels/ch123/drafts").
         to_return(json_response(load_fixture_data("front/channel_create_draft")))
 
+      header "Suma-Events-Token", "abc"
       post "/v1/organization_membership_verifications/#{v.id}/begin_partner_outreach"
 
       expect(last_response).to have_status(200)
       expect(teammate_req).to have_been_made
       expect(draft_req).to have_been_made
       expect(v.refresh).to have_attributes(partner_outreach_front_conversation_id: "cnv_yo1kg5q")
+    end
+
+    it "400s for a missing events token header" do
+      post "/v1/organization_membership_verifications/#{v.id}/begin_partner_outreach"
+
+      expect(last_response).to have_status(400)
+      expect(last_response).to have_json_body.that_includes(error: include(code: "missing_sse_token"))
     end
   end
 
@@ -226,13 +265,15 @@ RSpec.describe Suma::AdminAPI::OrganizationMembershipVerifications, :db do
       Suma::Organization::Membership::Verification.front_member_channel_id = "ch123"
     end
 
+    let(:v) { Suma::Fixtures.organization_membership_verification.create }
+
     it "begins member outreach" do
-      v = Suma::Fixtures.organization_membership_verification.create
       teammate_req = stub_request(:get, "https://api2.frontapp.com/teammates/alt:email:#{admin.email}").
         to_return(json_response(load_fixture_data("front/teammate")))
       draft_req = stub_request(:post, "https://api2.frontapp.com/channels/ch123/drafts").
         to_return(json_response(load_fixture_data("front/channel_create_draft")))
 
+      header "Suma-Events-Token", "abc"
       post "/v1/organization_membership_verifications/#{v.id}/begin_member_outreach"
 
       expect(last_response).to have_status(200)
@@ -240,11 +281,20 @@ RSpec.describe Suma::AdminAPI::OrganizationMembershipVerifications, :db do
       expect(draft_req).to have_been_made
       expect(v.refresh).to have_attributes(member_outreach_front_conversation_id: "cnv_yo1kg5q")
     end
+
+    it "400s for a missing events token header" do
+      post "/v1/organization_membership_verifications/#{v.id}/begin_member_outreach"
+
+      expect(last_response).to have_status(400)
+      expect(last_response).to have_json_body.that_includes(error: include(code: "missing_sse_token"))
+    end
   end
 
   describe "POST /v1/organization_membership_verifications/:id/notes" do
     let(:v) { Suma::Fixtures.organization_membership_verification.create }
+
     it "creates a note" do
+      header "Suma-Events-Token", "abc"
       post "/v1/organization_membership_verifications/#{v.id}/notes", content: "hello"
 
       expect(last_response).to have_status(200)
@@ -258,6 +308,13 @@ RSpec.describe Suma::AdminAPI::OrganizationMembershipVerifications, :db do
         ),
       )
     end
+
+    it "400s for a missing events token header" do
+      post "/v1/organization_membership_verifications/#{v.id}/notes", content: "hello"
+
+      expect(last_response).to have_status(400)
+      expect(last_response).to have_json_body.that_includes(error: include(code: "missing_sse_token"))
+    end
   end
 
   describe "POST /v1/organization_membership_verifications/:id/notes/:id" do
@@ -267,6 +324,7 @@ RSpec.describe Suma::AdminAPI::OrganizationMembershipVerifications, :db do
     let(:note) { v.add_note(content: "hello", creator: other_admin, created_at:) }
 
     it "edits a note" do
+      header "Suma-Events-Token", "abc"
       post "/v1/organization_membership_verifications/#{v.id}/notes/#{note.id}", content: "bye"
 
       expect(last_response).to have_status(200)
@@ -282,9 +340,17 @@ RSpec.describe Suma::AdminAPI::OrganizationMembershipVerifications, :db do
     end
 
     it "403s for an invalid id" do
+      header "Suma-Events-Token", "abc"
       post "/v1/organization_membership_verifications/#{v.id}/notes/0", content: "hello"
 
       expect(last_response).to have_status(403)
+    end
+
+    it "400s for a missing events token header" do
+      post "/v1/organization_membership_verifications/#{v.id}/notes/#{note.id}", content: "bye"
+
+      expect(last_response).to have_status(400)
+      expect(last_response).to have_json_body.that_includes(error: include(code: "missing_sse_token"))
     end
   end
 end

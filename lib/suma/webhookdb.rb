@@ -18,6 +18,8 @@ module Suma::Webhookdb
   configurable(:webhookdb) do
     setting :database_url, ENV.fetch("DATABASE_URL", nil)
     setting :schema, :public
+    # See +Suma::Webhookdb::Model+ for more information.
+    setting :models_enabled, false
     setting :front_conversations_table, :front_conversation_v1_fixture
     setting :front_messages_table, :front_message_v1_fixture
     setting :postmark_inbound_messages_table, :postmark_inbound_message_v1_fixture

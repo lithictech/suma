@@ -1,21 +1,62 @@
 # frozen_string_literal: true
 
+require "rspec/eventually"
+
 require "suma/sse"
 require "suma/sse/middleware"
 
 RSpec.describe Suma::SSE do
-  it "can publish and subscribe through Redis" do
-    got = nil
-    t = Thread.new do
-      described_class.subscribe("test") do |payload|
-        got = payload
-        break
+  describe "pubsub" do
+    it "includes the current session id, including the current session" do
+      got = []
+      t = Thread.new do
+        described_class.subscribe("test") do |message|
+          got << message
+        end
       end
+      sleep(1) # Wait for the subscriber to set up
+
+      described_class.publish("test", {x: 1})
+      begin
+        described_class.current_session_id = "abc"
+        described_class.publish("test", {x: 2})
+      ensure
+        described_class.current_session_id = nil
+      end
+      expect { got }.to eventually(have_length(2))
+      expect(got.first).to include("payload" => {"x" => 1})
+      expect(got.first).to_not include("sid")
+      expect(got.last).to include("payload" => {"x" => 2}, "sid" => "abc")
+    ensure
+      t.kill
     end
-    sleep(1) # Wait for the subscriber to set up
-    described_class.publish("test", {x: 1})
-    t.join
-    expect(got).to include("payload" => {"x" => 1})
+
+    it "skips events published by the subscriber session" do
+      sessid = "session1"
+      got = []
+      t = Thread.new do
+        described_class.subscribe("test", session_id: sessid) do |message|
+          got << message
+        end
+      end
+      sleep(1)
+
+      described_class.publish("test", {x: 1})
+      begin
+        described_class.current_session_id = "abc"
+        described_class.publish("test", {x: 2})
+        described_class.current_session_id = sessid
+        described_class.publish("test", {x: 3})
+      ensure
+        described_class.current_session_id = nil
+      end
+      # The session-less publish and matching publish should be recorded
+      expect { got }.to eventually(have_length(2))
+      expect(got.first).to include("payload" => {"x" => 1})
+      expect(got.last).to include("payload" => {"x" => 2}, "sid" => "abc")
+    ensure
+      t.kill
+    end
   end
 
   describe described_class::Auth do
@@ -34,6 +75,14 @@ RSpec.describe Suma::SSE do
       tok = described_class.generate_token(now: 1.hour.ago)
       expect { described_class.validate_token!(tok) }.to raise_error(described_class::Expired)
       expect { described_class.validate_token!(nil) }.to raise_error(described_class::Missing)
+    end
+
+    it "removes padding from the token" do
+      Array.new(100) do
+        tok = described_class.generate_token
+        expect(tok).to_not include("=")
+        expect(tok).to_not include("%")
+      end
     end
   end
 

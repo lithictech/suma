@@ -15,7 +15,14 @@ class Suma::Webhookdb::Model
   extend Suma::Postgres::ModelUtilities
 
   class << self
-    def db = Suma::Webhookdb.connection
+    def db
+      # If models are enabled, assume the configured tables existing in WebhookDB.
+      # If models are not enabled, we can mock out the connection with a mock:// database connection
+      # using Postgres semantics. We'll never get any results, so it should be okay.
+      return Suma::Webhookdb.connection if Suma::Webhookdb.models_enabled
+      return @_mock_db ||= Sequel.connect("mock://", host: "postgres")
+    end
+
     def read_only? = true
   end
 end

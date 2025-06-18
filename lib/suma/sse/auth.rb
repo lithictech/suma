@@ -8,7 +8,6 @@
 #
 # The TTL is short because once the event session is established, it stays open.
 module Suma::SSE::Auth
-  HEADER = "Suma-Events-Token"
   TTL = 5.minutes
 
   class Error < StandardError; end
@@ -31,6 +30,9 @@ module Suma::SSE::Auth
       plain = payload.to_json
       encrypted = c.update(plain) + c.final
       b64 = Base64.urlsafe_encode64(encrypted)
+      # Equal sign ends up being encoded, and can cause issues since this token is being passed around
+      # in a body, header, and query param. We don't need to include the padding, so remove it.
+      b64.gsub!(/=+$/, "")
       encoded = URI.encode_uri_component(b64)
       return encoded
     end
