@@ -152,6 +152,7 @@ class Suma::Organization::Membership::Verification < Suma::Postgres::Model(:orga
       body = "<p>" + body.join("<br />") + "</p>"
       return ["Verification request for #{member.name}", body]
     end
+    front_template = Suma::Frontapp.to_api_id("rsp", front_template)
     tmpl = Suma::Frontapp.client.get_message_template(front_template)
     ctx = self.render_front_template_context(
       member: self.membership.member,
@@ -194,6 +195,7 @@ class Suma::Organization::Membership::Verification < Suma::Postgres::Model(:orga
       # don't bother localizing this body
       return ["", "Hi #{member.name}"]
     end
+    front_template = Suma::Frontapp.to_api_id("rsp", front_template)
     tmpl = Suma::Frontapp.client.get_message_template(front_template)
     ctx = self.render_front_template_context(member:)
     return self.render_front_template(tmpl, ctx)

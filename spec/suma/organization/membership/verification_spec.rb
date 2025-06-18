@@ -246,10 +246,10 @@ RSpec.describe "Suma::Organization::Membership::Verification",
       it "prefers the organization-specific template id" do
         Suma::Fixtures.organization.create(
           name: v.membership.unverified_organization_name,
-          membership_verification_front_template_id: "rsp_fromorg",
+          membership_verification_front_template_id: "1234",
         )
 
-        tmpl_req = stub_request(:get, "https://api2.frontapp.com/message_templates/rsp_fromorg").
+        tmpl_req = stub_request(:get, "https://api2.frontapp.com/message_templates/rsp_ya").
           to_return(json_response(load_fixture_data("front/message_template")))
 
         req = stub_request(:post, "https://api2.frontapp.com/channels/cha123/drafts").
@@ -363,14 +363,14 @@ RSpec.describe "Suma::Organization::Membership::Verification",
         Suma::Fixtures.organization.create(
           name: v.membership.unverified_organization_name,
           membership_verification_member_outreach_template: Suma::TranslatedText.create(
-            en: "rsp_englishorg",
+            en: "123",
             es: "rsp_spanishorg",
           ),
         )
 
         v.membership.member.preferences!.update(preferred_language: "en")
 
-        tmpl_req = stub_request(:get, "https://api2.frontapp.com/message_templates/rsp_englishorg").
+        tmpl_req = stub_request(:get, "https://api2.frontapp.com/message_templates/rsp_3f").
           to_return(json_response(load_fixture_data("front/message_template")))
         req = stub_request(:post, "https://api2.frontapp.com/channels/cha456/drafts").
           with(
