@@ -35,6 +35,7 @@ module Suma::Frontapp
 
     def to_template_id(id) = to_api_id("rsp", id)
     def to_channel_id(id) = to_api_id("cha", id)
+    def to_inbox_id(id) = to_api_id("inb", id)
   end
 
   configurable(:frontapp) do
