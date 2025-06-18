@@ -53,6 +53,8 @@ import OrganizationMembershipCreatePage from "./pages/OrganizationMembershipCrea
 import OrganizationMembershipDetailPage from "./pages/OrganizationMembershipDetailPage";
 import OrganizationMembershipEditPage from "./pages/OrganizationMembershipEditPage";
 import OrganizationMembershipListPage from "./pages/OrganizationMembershipListPage";
+import OrganizationMembershipVerificationDetailPage from "./pages/OrganizationMembershipVerificationDetailPage";
+import OrganizationMembershipVerificationListPage from "./pages/OrganizationMembershipVerificationListPage";
 import PaymentLedgerDetailPage from "./pages/PaymentLedgerDetailPage";
 import PaymentLedgerListPage from "./pages/PaymentLedgerListPage";
 import PaymentTriggerCreatePage from "./pages/PaymentTriggerCreatePage";
@@ -629,6 +631,26 @@ function PageSwitch() {
           OrganizationMembershipEditPage
         )}
       />
+
+      <Route
+        exact
+        path="/membership-verifications"
+        element={renderWithHocs(
+          redirectIfUnauthed,
+          withLayout(),
+          OrganizationMembershipVerificationListPage
+        )}
+      />
+      <Route
+        exact
+        path="/membership-verification/:id"
+        element={renderWithHocs(
+          redirectIfUnauthed,
+          withLayout(),
+          OrganizationMembershipVerificationDetailPage
+        )}
+      />
+
       <Route
         exact
         path="/messages"

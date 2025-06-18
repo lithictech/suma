@@ -133,8 +133,10 @@ RSpec.describe Suma do
       expect(Suma.request_user_and_admin).to eq([nil, nil])
       Suma.set_request_user_and_admin(1, 2)
       expect(Suma.request_user_and_admin).to eq([1, 2])
+      expect(StateMachines::Sequel.current_actor).to eq(2)
       Suma.set_request_user_and_admin(nil, nil)
       expect(Suma.request_user_and_admin).to eq([nil, nil])
+      expect(StateMachines::Sequel.current_actor).to eq(nil)
     end
     it "can set request user with a block" do
       expect(Suma.request_user_and_admin).to eq([nil, nil])
@@ -248,6 +250,14 @@ RSpec.describe Suma do
           [true, "my message"]
         end
       end.to_not raise_error
+    end
+  end
+
+  describe "log_level_overrides" do
+    it "can override the log level" do
+      expect(Suma).to receive(:log_level_overrides).and_return({"fakelogger" => "warn"})
+      logger = SemanticLogger["fakelogger"]
+      expect(logger).to have_attributes(level: :warn)
     end
   end
 end

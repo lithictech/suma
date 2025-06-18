@@ -195,7 +195,8 @@ module Suma::AdminAPI::CommonEndpoints
     entity,
     exporter: Suma::Exporter::Placeholder,
     ordering_kw: {},
-    ordering: nil
+    ordering: nil,
+    dataset: nil
   )
     route_def.instance_exec do
       params do
@@ -217,6 +218,7 @@ module Suma::AdminAPI::CommonEndpoints
         else
           ds = order(ds, params)
         end
+        ds = dataset.call(ds) if dataset
         if params[:download]
           csv = exporter.new(ds).to_csv
           env["api.format"] = :binary

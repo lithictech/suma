@@ -19,7 +19,7 @@ module Suma::RackAttack
 
     after_configured do
       Rack::Attack.enabled = self.enabled
-      redis_url = self.redis_provider.present? ? ENV.fetch(self.redis_provider, nil) : self.redis_url
+      redis_url = Suma::Redis.fetch_url(self.redis_provider, self.redis_url)
       Rack::Attack.cache.store =
         if redis_url.present?
           ActiveSupport::Cache::RedisCacheStore.new(**Suma::Redis.conn_params(redis_url))
@@ -27,14 +27,6 @@ module Suma::RackAttack
           ActiveSupport::Cache::MemoryStore.new
         end
     end
-  end
-
-  # TODO: Move into Configurable
-  def self.reconfigure(**kw)
-    kw.each do |k, v|
-      self.send(:"#{k}=", v)
-    end
-    self.run_after_configured_hooks
   end
 
   Rack::Attack.throttled_responder = lambda do |req|

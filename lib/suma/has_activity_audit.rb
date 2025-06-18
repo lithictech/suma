@@ -8,7 +8,7 @@ module Suma::HasActivityAudit
                   order: Sequel.desc([:created_at, :id]),
                   key: :subject_id_int,
                   conditions: {subject_type: m.name},
-                  readonly: true
+                  read_only: true
 
     # Create a +Suma::Member::Activity+ on the given +member+ operating on the receiver as subject.
     #

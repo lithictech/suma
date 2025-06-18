@@ -19,7 +19,9 @@ module Suma::Fixtures::OrganizationMemberships
   before_saving do |instance|
     instance.member ||= Suma::Fixtures.member.create
     raise "must call .verified or .unverified" if
-      instance.verified_organization.nil? && instance.unverified_organization_name.nil?
+      instance.verified_organization.nil? &&
+        instance.unverified_organization_name.nil? &&
+        instance.former_organization.nil?
     instance
   end
 
@@ -30,5 +32,11 @@ module Suma::Fixtures::OrganizationMemberships
 
   decorator :unverified do |name=Faker::Company.name|
     self.unverified_organization_name = name
+  end
+
+  decorator :former do |org={}|
+    org = Suma::Fixtures.organization(org).create unless org.is_a?(Suma::Organization)
+    self.former_organization = org
+    self.formerly_in_organization_at = Time.now
   end
 end

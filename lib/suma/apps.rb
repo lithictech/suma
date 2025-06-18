@@ -49,6 +49,7 @@ require "suma/admin_api/marketing_sms_broadcasts"
 require "suma/admin_api/marketing_sms_dispatches"
 require "suma/admin_api/mobility_trips"
 require "suma/admin_api/organizations"
+require "suma/admin_api/organization_membership_verifications"
 require "suma/admin_api/organization_memberships"
 require "suma/admin_api/payment_ledgers"
 require "suma/admin_api/payment_triggers"
@@ -61,6 +62,7 @@ require "suma/admin_api/vendors"
 require "suma/admin_api/vendor_services"
 require "suma/admin_api/anon_proxy"
 
+require "suma/sse/middleware"
 require "suma/url_shortener"
 
 module Suma::Apps
@@ -103,6 +105,7 @@ module Suma::Apps
     mount Suma::AdminAPI::MobilityTrips
     mount Suma::AdminAPI::Organizations
     mount Suma::AdminAPI::OrganizationMemberships
+    mount Suma::AdminAPI::OrganizationMembershipVerifications
     mount Suma::AdminAPI::PaymentLedgers
     mount Suma::AdminAPI::PaymentTriggers
     mount Suma::AdminAPI::PayoutTransactions
@@ -232,6 +235,12 @@ module Suma::Apps
     )
     self.use(Rack::SimpleHeaders, SECURITY_HEADERS)
     Rack::SpaApp.run_spa_app(self, "build-adminapp", enforce_ssl: Suma::Service.enforce_ssl)
+  end
+
+  Events = Rack::Builder.new do
+    Suma::Service::Middleware.add_cors_middleware(self)
+    use Suma::SSE::Middleware, topic: Suma::SSE::ORGANIZATION_MEMBERSHIP_VERIFICATIONS
+    run Suma::SSE::NotFound
   end
 
   Root = Rack::Builder.new do

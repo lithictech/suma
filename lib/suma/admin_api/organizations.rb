@@ -10,6 +10,9 @@ class Suma::AdminAPI::Organizations < Suma::AdminAPI::V1
     include Suma::AdminAPI::Entities
     include AutoExposeDetail
     expose :ordinal
+    expose :membership_verification_email
+    expose :membership_verification_front_template_id
+    expose :membership_verification_member_outreach_template, with: TranslatedTextEntity
     expose :audit_activities, with: ActivityEntity
     expose :memberships, with: OrganizationMembershipEntity
     expose :former_memberships, with: OrganizationMembershipEntity
@@ -38,6 +41,9 @@ class Suma::AdminAPI::Organizations < Suma::AdminAPI::V1
       params do
         requires :name, type: String, allow_blank: false
         optional :ordinal, type: Float, default: 0
+        optional :membership_verification_email, type: String, allow_blank: true
+        optional :membership_verification_front_template_id, type: String, allow_blank: true
+        optional(:membership_verification_member_outreach_template, type: JSON) { use :translated_text }
       end
     end
 
@@ -62,6 +68,9 @@ class Suma::AdminAPI::Organizations < Suma::AdminAPI::V1
       params do
         optional :name, type: String, allow_blank: false
         optional :ordinal, type: Float, default: 0
+        optional :membership_verification_email, type: String, allow_blank: true
+        optional :membership_verification_front_template_id, type: String, allow_blank: true
+        optional(:membership_verification_member_outreach_template, type: JSON) { use :translated_text }
         optional :roles, type: Array[JSON] do
           use :model_with_id
         end

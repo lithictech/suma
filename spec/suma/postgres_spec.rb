@@ -57,7 +57,7 @@ RSpec.describe Suma::Postgres do
     described_class.registered_models.replace(@original_models)
     described_class.model_superclasses.replace(@original_superclasses)
 
-    sup = described_class.each_model_superclass.to_a
+    sup = described_class.model_superclasses.to_a
     expect(sup).to include(described_class::Model)
 
     models = []
@@ -75,6 +75,24 @@ RSpec.describe Suma::Postgres do
       end
       expect(t1).to start_with("SELECT * FROM CAST('2020-01-30")
       expect(t2).to start_with("SELECT * FROM CAST('2020-02-15")
+    end
+  end
+
+  describe "run_all_migrations" do
+    it "runs migrations on all writeable superclasses" do
+      writeable = Class.new do
+        def self.db = "mydb"
+        def self.read_only? = false
+        def self.install_all_extensions; end
+      end
+      readonly = Class.new do
+        def self.read_only? = true
+      end
+      described_class.model_superclasses << writeable
+      described_class.model_superclasses << readonly
+      Sequel.extension :migration
+      expect(Sequel::Migrator).to receive(:run).with("mydb", "db/migrations", target: nil)
+      described_class.run_all_migrations
     end
   end
 end

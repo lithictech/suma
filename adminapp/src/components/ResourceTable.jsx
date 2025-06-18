@@ -1,3 +1,4 @@
+import EventSourceChanges from "./EventSourceChanges";
 import DownloadIcon from "@mui/icons-material/Download";
 import {
   CircularProgress,
@@ -27,14 +28,18 @@ import React from "react";
  * @param search
  * @param order
  * @param orderBy
+ * @param onEventChangesClicked
  * @param onParamsChange
  * @param listResponse
  * @param listLoading
+ * @param filters
  * @param title
  * @param tableProps
  * @param disableSearch
  * @param downloadUrl
  * @param {Array<{label: string, id: string, align: any, sortable: boolean, render: function}>} columns
+ * @param eventsUrl
+ * @param eventsToken
  */
 export default function ResourceTable({
   page,
@@ -42,16 +47,21 @@ export default function ResourceTable({
   search,
   order,
   orderBy,
+  onEventChangesClicked,
   onParamsChange,
   listResponse,
   listLoading,
   title,
+  filters,
   columns,
   tableProps,
   disableSearch,
   downloadUrl,
+  eventsUrl,
+  eventsToken,
 }) {
   const classes = useStyles();
+
   function handleSearchKeyDown(e) {
     if (e.key === "Enter") {
       e.preventDefault();
@@ -59,20 +69,36 @@ export default function ResourceTable({
     }
   }
 
+  function handleChangesClick() {
+    onEventChangesClicked();
+  }
+
   return (
-    <>
+    <Stack gap={1}>
       <Stack direction="row" justifyContent="space-between" alignItems="center">
-        <Typography variant="h5">{title}</Typography>
-        {!disableSearch && (
-          <TextField
-            label="Search"
-            variant="outlined"
-            type="search"
-            size="small"
-            defaultValue={search}
-            onKeyDown={handleSearchKeyDown}
-          />
-        )}
+        <Stack direction="row" gap={1}>
+          <Typography variant="h5">{title}</Typography>
+          {eventsUrl && eventsToken && (
+            <EventSourceChanges
+              eventsUrl={eventsUrl}
+              eventsToken={eventsToken}
+              onClick={handleChangesClick}
+            />
+          )}
+        </Stack>
+        <Stack direction="row" justifyContent="flex-end" alignItems="center" gap={2}>
+          {filters}
+          {!disableSearch && (
+            <TextField
+              label="Search"
+              variant="outlined"
+              type="search"
+              size="small"
+              defaultValue={search}
+              onKeyDown={handleSearchKeyDown}
+            />
+          )}
+        </Stack>
       </Stack>
       <TableContainer component={Paper}>
         <Table {...tableProps}>
@@ -83,7 +109,6 @@ export default function ResourceTable({
                   key={col.id}
                   align={col.align}
                   sortDirection={orderBy === col.id ? order : false}
-                  className={classes.cell}
                 >
                   {col.sortable ? (
                     <TableSortLabel
@@ -119,13 +144,13 @@ export default function ResourceTable({
               </TableRow>
             ) : (
               listResponse.items?.map((c) => (
-                <TableRow key={c.id}>
+                <TableRow key={c.id || c.key}>
                   {columns.map((col, idx) => (
                     <TableCell
                       key={`${col.id}-${idx}`}
                       align={col.align}
-                      className={classes.cell}
                       {...(idx === 0 ? { component: "th", scope: "row" } : {})}
+                      {...(col.props && col.props(c))}
                     >
                       {col.render(c)}
                     </TableCell>
@@ -154,7 +179,7 @@ export default function ResourceTable({
           />
         </div>
       )}
-    </>
+    </Stack>
   );
 }
 export function cycleOrder(value) {
@@ -168,14 +193,6 @@ export function cycleOrder(value) {
 }
 
 const useStyles = makeStyles(() => ({
-  cell: {
-    "&:last-child": {
-      paddingRight: 0,
-    },
-    "&:first-child": {
-      paddingLeft: 0,
-    },
-  },
   pageControls: {
     alignItems: "center",
     display: "flex",

@@ -382,8 +382,7 @@ RSpec.describe Suma::Service, :db do
   end
 
   it "uses a consistent error shape for unhandled errors (devmode: off)", reset_configuration: Suma::Sentry do
-    Suma::Sentry.dsn = "foo"
-    Suma::Sentry.run_after_configured_hooks
+    Suma::Sentry.reset_configuration(dsn: "foo")
     expect(Sentry).to receive(:capture_exception)
 
     described_class.devmode = false
@@ -536,8 +535,7 @@ RSpec.describe Suma::Service, :db do
   end
 
   it "adds CORS_ORIGINS env into configured origins" do
-    described_class.cors_origins = ["a.b", "x.y", /suma-web-staging(-pr-\d+)?\.herokuapp\.com/]
-    described_class.run_after_configured_hooks
+    described_class.reset_configuration(cors_origins: ["a.b", "x.y", /suma-web-staging(-pr-\d+)?\.herokuapp\.com/])
     expect(described_class.cors_origins).to include(
       /localhost:\d+/, "a.b", "x.y", /suma-web-staging(-pr-\d+)?\.herokuapp\.com/,
     )
@@ -1057,7 +1055,7 @@ RSpec.describe Suma::Service, :db do
 
   describe "rate limiting", reset_configuration: Suma::RackAttack do
     it "returns a 429 with headers and body" do
-      Suma::RackAttack.reconfigure(enabled: true)
+      Suma::RackAttack.reset_configuration(enabled: true)
       Timecop.freeze("2024-01-01T12:00:12Z") do
         get "/rate_limited"
         expect(last_response).to have_status(200)

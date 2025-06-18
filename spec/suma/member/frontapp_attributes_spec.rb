@@ -29,7 +29,11 @@ RSpec.describe Suma::Member::FrontappAttributes, :db do
           get_phone = stub_request(:get, "https://api2.frontapp.com/contacts/alt:phone:15552223333").
             to_return(fixture_response("front/contact"))
           update = stub_request(:patch, "https://api2.frontapp.com/contacts/crd_123").
-            with(body: "{\"name\":\"R G\",\"links\":[\"http://localhost:22014/member/#{member.id}\"]}").
+            with(body: {
+              name: "R G",
+              links: ["http://localhost:22014/member/#{member.id}"],
+              custom_fields: {"SMS Marketing Opted Out": false, Language: "English", Address: ""},
+            }.to_json).
             to_return(fixture_response("front/contact"))
           phonehandle = stub_request(:post, "https://api2.frontapp.com/contacts/crd_123/handles").
             with(body: "{\"handle\":\"15552223333\",\"source\":\"phone\"}").
@@ -66,7 +70,11 @@ RSpec.describe Suma::Member::FrontappAttributes, :db do
             )
           # Make sure we use the merged contact id for future ops
           update = stub_request(:patch, "https://api2.frontapp.com/contacts/mergedid").
-            with(body: "{\"name\":\"R G\",\"links\":[\"http://localhost:22014/member/#{member.id}\"]}").
+            with(body: {
+              name: "R G",
+              links: ["http://localhost:22014/member/#{member.id}"],
+              custom_fields: {"SMS Marketing Opted Out": false, Language: "English", Address: ""},
+            }.to_json).
             to_return(fixture_response("front/contact"))
           phonehandle = stub_request(:post, "https://api2.frontapp.com/contacts/mergedid/handles").
             with(body: "{\"handle\":\"15552223333\",\"source\":\"phone\"}").

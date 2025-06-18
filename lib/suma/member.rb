@@ -208,6 +208,15 @@ class Suma::Member < Suma::Postgres::Model(:members)
     self[:opaque_id] ||= Suma::Secureid.new_opaque_id("c")
   end
 
+  def guessed_first_last_name
+    return ["", ""] if self.name.blank?
+    p1, p2 = self.name.split(" ", 2).map(&:strip)
+    return [p1, p2 || ""]
+  end
+
+  def guessed_first_name = self.guessed_first_last_name.first
+  def guessed_last_name = self.guessed_first_last_name.last
+
   def ensure_role(role_or_name)
     role = role_or_name.is_a?(Suma::Role) ? role_or_name : Suma::Role[name: role_or_name]
     raise "No role for #{role_or_name}" unless role.present?

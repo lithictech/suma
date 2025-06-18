@@ -13,6 +13,7 @@ class Suma::Organization::Membership < Suma::Postgres::Model(:organization_membe
   many_to_one :verified_organization, class: "Suma::Organization"
   many_to_one :former_organization, class: "Suma::Organization"
   many_to_one :member, class: "Suma::Member"
+  one_to_one :verification, class: "Suma::Organization::Membership::Verification"
 
   dataset_module do
     def verified = self.exclude(verified_organization_id: nil)
@@ -21,6 +22,19 @@ class Suma::Organization::Membership < Suma::Postgres::Model(:organization_membe
   def verified? = !self.verified_organization_id.nil?
   def unverified? = self.unverified_organization_name.to_s != ""
   def removed? = !self.former_organization_id.nil?
+
+  def organization_label
+    return self.verified_organization&.name || self.former_organization&.name || self.unverified_organization_name
+  end
+
+  def lookup_organization_field(m, default=nil)
+    return self.verified_organization&.send(m) ||
+        self.former_organization&.send(m) ||
+        self.matched_organization&.send(m) ||
+        default
+  end
+
+  def organization_verification_email = lookup_organization_field(:membership_verification_email, "")
 
   def verified_organization_id=(id)
     self.unverified_organization_name = nil unless id.nil?

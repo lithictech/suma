@@ -26,6 +26,9 @@ end
 map "/sidekiq" do
   run Suma::Apps::SidekiqWeb.to_app
 end
+map "/events" do
+  run Suma::Apps::Events.to_app
+end
 map Suma::UrlShortener::ROOT_PATH do
   run Suma::Apps::UrlRedirects.to_app
 end

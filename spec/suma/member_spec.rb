@@ -28,6 +28,20 @@ RSpec.describe "Suma::Member", :db do
     end
   end
 
+  it "can guess names" do
+    m = Suma::Fixtures.member.instance
+    m.name = ""
+    expect(m.guessed_first_last_name).to eq(["", ""])
+    m.name = "  "
+    expect(m.guessed_first_last_name).to eq(["", ""])
+    m.name = "Marcus"
+    expect(m.guessed_first_last_name).to eq(["Marcus", ""])
+    m.name = "Marcus Galanakis "
+    expect(m.guessed_first_last_name).to eq(["Marcus", "Galanakis"])
+    m.name = "Marcus Reynir Galanakis"
+    expect(m.guessed_first_last_name).to eq(["Marcus", "Reynir Galanakis"])
+  end
+
   context "ensure_role" do
     let(:member) { Suma::Fixtures.member.create }
     let(:role) { Suma::Role.create(name: "member-test") }

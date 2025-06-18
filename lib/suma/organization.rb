@@ -11,6 +11,8 @@ class Suma::Organization < Suma::Postgres::Model(:organizations)
   plugin :association_pks
   plugin :hybrid_search
   plugin :timestamps
+  # This is not actually localized text, it points to localized template IDs.
+  plugin :translated_text, :membership_verification_member_outreach_template, Suma::TranslatedText
 
   one_to_many :memberships, class: "Suma::Organization::Membership", key: :verified_organization_id
   one_to_many :former_memberships, class: "Suma::Organization::Membership", key: :former_organization_id

@@ -79,7 +79,7 @@ module Suma::SpecHelpers::Postgres
         [txn_class, txn_class.config_key]
     end
 
-    dbs = txn_classes.map(&:db) + [Suma::Webhookdb.connection]
+    dbs = txn_classes.map(&:db)
     wrapped_proc = dbs.inject(example.method(:run)) do |callback, db|
       proc { db.transaction(auto_savepoint: :only, rollback: :always, &callback) }
     end
@@ -131,7 +131,7 @@ module Suma::SpecHelpers::Postgres
     # while 'StripeAttributes', which nothing has an FK into, is very late).
     # This is much faster than truncating with cascade.
     # Though in some cases, it doesn't work, so we need to cascade.
-    Suma::Postgres.each_model_superclass do |sc|
+    Suma::Postgres.model_superclasses.each do |sc|
       sc.tsort.reverse_each do |m|
         m.dataset.delete
       rescue Sequel::ForeignKeyConstraintViolation

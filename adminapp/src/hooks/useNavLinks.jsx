@@ -16,6 +16,7 @@ import ManageAccountsIcon from "@mui/icons-material/ManageAccounts";
 import OutboxIcon from "@mui/icons-material/Outbox";
 import PaymentsIcon from "@mui/icons-material/Payments";
 import PersonIcon from "@mui/icons-material/Person";
+import PersonSearchIcon from "@mui/icons-material/PersonSearch";
 import PortraitIcon from "@mui/icons-material/Portrait";
 import ReceiptIcon from "@mui/icons-material/Receipt";
 import RecentActorsIcon from "@mui/icons-material/RecentActors";
@@ -63,6 +64,11 @@ export default function useNavLinks() {
             label: "Organization Memberships",
             href: "/memberships",
             icon: <AssignmentIndIcon />,
+          },
+          members && {
+            label: "Membership Verifications",
+            href: "/membership-verifications",
+            icon: <PersonSearchIcon />,
           },
         ].filter(Boolean),
       },
@@ -199,7 +205,7 @@ export default function useNavLinks() {
         ].filter(Boolean),
       },
     ];
-    return r.filter((t) => t.items.length > 0);
+    return r.filter((t) => t && t.items.length > 0);
   }, [canRead]);
   return links;
 }

@@ -347,14 +347,30 @@ module Suma::AdminAPI::Entities
     expose :member, with: MemberEntity, &self.delegate_to(:checkout, :cart, :member)
   end
 
+  # Needed to handle the 1-to-1 between Membership and Verification
+  class BaseOrganizationMembershipVerificationEntity < BaseEntity
+    include AutoExposeBase
+    expose :status
+    expose :owner, with: MemberEntity
+  end
+
   class OrganizationMembershipEntity < BaseEntity
     include AutoExposeBase
     expose :member, with: MemberEntity
     expose :verified_organization, with: OrganizationEntity
     expose :unverified_organization_name
     expose :former_organization, with: OrganizationEntity
+    expose :organization_label
     expose :formerly_in_organization_at
     expose :membership_type
+    expose :verification, with: BaseOrganizationMembershipVerificationEntity
+  end
+
+  class OrganizationMembershipVerificationEntity < BaseEntity
+    include AutoExposeBase
+    expose :status
+    expose :membership, with: OrganizationMembershipEntity
+    expose :owner, with: MemberEntity
   end
 
   class ChargeLineItemEntity < BaseEntity

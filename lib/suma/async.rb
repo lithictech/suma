@@ -61,7 +61,7 @@ module Suma::Async
     # to look for inbound emails.
     setting :cron_poll_interval, 30
 
-    setting :sidekiq_redis_url, "redis://localhost:6379/0", key: "REDIS_URL"
+    setting :sidekiq_redis_url, "", key: "REDIS_URL"
     setting :sidekiq_redis_provider, ""
     # For sidekiq web UI. Randomize a default so they will only be useful if set.
     setting :web_username, SecureRandom.hex(8)
@@ -69,7 +69,7 @@ module Suma::Async
 
     after_configured do
       # Very hard to to test this, so it's not tested.
-      url = self.sidekiq_redis_provider.present? ? ENV.fetch(self.sidekiq_redis_provider, nil) : self.sidekiq_redis_url
+      url = Suma::Redis.fetch_url(self.sidekiq_redis_provider, self.sidekiq_redis_url)
       redis_params = Suma::Redis.conn_params(url)
       Sidekiq.configure_server do |config|
         config.redis = redis_params

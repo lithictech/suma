@@ -27,6 +27,20 @@ export default function OrganizationMembershipDetailPage() {
           label: "Organization",
           value: <OrganizationMembership membership={model} detailed />,
         },
+        {
+          label: "Matched Organization",
+          value: (
+            <AdminLink model={model.matchedOrganization}>
+              {model.matchedOrganization?.name}
+            </AdminLink>
+          ),
+        },
+        {
+          label: "Verification",
+          value: (
+            <AdminLink model={model.verification}>{model.verification?.status}</AdminLink>
+          ),
+        },
       ]}
     />
   );

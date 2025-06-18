@@ -6,8 +6,7 @@ require "suma/sentry"
 
 RSpec.describe Suma::Sentry, reset_configuration: Suma::Sentry do
   it "configures the Sentry service" do
-    described_class.dsn = "http://public:secret@not-really-sentry.nope/someproject"
-    described_class.run_after_configured_hooks
+    described_class.reset_configuration(dsn: "http://public:secret@not-really-sentry.nope/someproject")
     client = Sentry.get_current_client
     expect(client).to_not be_nil
     expect(client.configuration).to have_attributes(
@@ -22,11 +21,9 @@ RSpec.describe Suma::Sentry, reset_configuration: Suma::Sentry do
   end
 
   it "can unconfigure Sentry" do
-    described_class.dsn = "http://public:secret@not-really-sentry.nope/someproject"
-    described_class.run_after_configured_hooks
+    described_class.reset_configuration(dsn: "http://public:secret@not-really-sentry.nope/someproject")
     expect(Sentry).to be_initialized
-    described_class.dsn = ""
-    described_class.run_after_configured_hooks
+    described_class.reset_configuration(dsn: "")
     expect(Sentry).to_not be_initialized
   end
 

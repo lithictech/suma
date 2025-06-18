@@ -99,6 +99,7 @@ class Suma::Address < Suma::Postgres::Model(:addresses)
   ### In practice, this rarely happens, but we may need to do something
   ### about it in the future.
   def self.lookup(fields)
+    fields = fields.transform_values { |v| v.respond_to?(:strip) ? v.strip : v }
     address_criteria = {
       address1: fields[:address1],
       address2: fields[:address2] || "",
@@ -191,8 +192,7 @@ class Suma::Address < Suma::Postgres::Model(:addresses)
       self.postal_code,
     ]
     one_line_address.push(self.country.upcase) if include_country
-
-    return one_line_address.select(&:present?).join(", ")
+    return one_line_address.select(&:present?).map(&:strip).join(", ")
   end
   alias to_s one_line_address
 

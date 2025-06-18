@@ -36,7 +36,13 @@ module Suma::Service::Middleware
                  headers: :any,
                  methods: :any,
                  credentials: true,
-                 expose: ["Etag", "Created-Resource-Id", "Created-Resource-Admin", "Suma-Current-Member"]
+                 expose: [
+                   "Etag",
+                   "Created-Resource-Id",
+                   "Created-Resource-Admin",
+                   "Suma-Current-Member",
+                   "Suma-Events-Token",
+                 ]
       end
     end
   end
