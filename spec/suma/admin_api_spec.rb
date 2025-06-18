@@ -83,7 +83,14 @@ RSpec.describe Suma::AdminAPI, :db do
       get :getter do
         present({session_id: Suma::SSE.current_session_id})
       end
+
       post :poster do
+        status 200
+        present({session_id: Suma::SSE.current_session_id})
+      end
+
+      route_setting :do_not_check_sse_token, true
+      post :poster_noreq do
         status 200
         present({session_id: Suma::SSE.current_session_id})
       end
@@ -115,6 +122,13 @@ RSpec.describe Suma::AdminAPI, :db do
 
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.that_includes(session_id: "abc")
+    end
+
+    it "can set the header not required" do
+      post "/v1/poster_noreq"
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.that_includes(session_id: nil)
     end
   end
 end

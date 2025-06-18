@@ -332,4 +332,9 @@ class Suma::Organization::Membership::Verification < Suma::Postgres::Model(:orga
     super
     Suma::SSE.publish(Suma::SSE::ORGANIZATION_MEMBERSHIP_VERIFICATIONS, {id: self.id})
   end
+
+  def validate
+    super
+    validates_state_machine
+  end
 end

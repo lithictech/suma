@@ -35,6 +35,8 @@ class Suma::AdminAPI::OrganizationMembershipVerifications < Suma::AdminAPI::V1
     expose :front_member_conversation_status
     expose :notes, with: MembershipVerificationNoteEntity
     expose :audit_logs, with: AuditLogEntity
+    expose :partner_outreach_front_conversation_id
+    expose :member_outreach_front_conversation_id
   end
 
   resource :organization_membership_verifications do
@@ -100,6 +102,19 @@ class Suma::AdminAPI::OrganizationMembershipVerifications < Suma::AdminAPI::V1
       Suma::Organization::Membership::Verification,
       DetailedMembershipVerificationEntity,
     )
+
+    Suma::AdminAPI::CommonEndpoints.update(
+      self,
+      Suma::Organization::Membership::Verification,
+      DetailedMembershipVerificationEntity,
+    ) do
+      route_setting :do_not_check_sse_token, true
+      params do
+        optional :status, type: String
+        optional :partner_outreach_front_conversation_id, type: String
+        optional :member_outreach_front_conversation_id, type: String
+      end
+    end
 
     route_param :id, type: Integer do
       helpers do
