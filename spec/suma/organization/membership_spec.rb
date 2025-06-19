@@ -123,5 +123,21 @@ RSpec.describe "Suma::Organization::Membership", :db do
       )
       expect(m.member).to_not be_onboarding_verified
     end
+
+    it "creates a verification if unverified" do
+      created_unverified = Suma::Fixtures.organization_membership.unverified.create
+      expect(created_unverified.verification).to be_a(Suma::Organization::Membership::Verification)
+      became_unverified = Suma::Fixtures.organization_membership.verified.create
+      expect(became_unverified.verification).to be_nil
+      became_unverified.update(unverified_organization_name: "abc", verified_organization: nil)
+      expect(became_unverified.verification).to be_a(Suma::Organization::Membership::Verification)
+    end
+
+    it "does not create a verification if not unverified" do
+      m = Suma::Fixtures.organization_membership.verified.create
+      expect(m.verification).to be_nil
+      m = Suma::Fixtures.organization_membership.former.create
+      expect(m.verification).to be_nil
+    end
   end
 end

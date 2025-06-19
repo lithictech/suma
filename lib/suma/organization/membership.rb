@@ -15,6 +15,13 @@ class Suma::Organization::Membership < Suma::Postgres::Model(:organization_membe
   many_to_one :member, class: "Suma::Member"
   one_to_one :verification, class: "Suma::Organization::Membership::Verification"
 
+  class << self
+    # When set, do not create a Vrification object for unverified memberships on create/update.
+    # Generally, this should only be used when fixturing verifications
+    # to avoid automatically creating a membership, which would create a verification,
+    # just to throw it away.
+    attr_accessor :disable_auto_verification_creation
+  end
   dataset_module do
     def verified = self.exclude(verified_organization_id: nil)
   end
@@ -78,7 +85,7 @@ class Suma::Organization::Membership < Suma::Postgres::Model(:organization_membe
   end
 
   def after_save
-    super
+    r = super
     # When a membership is verified, we want to make sure the member is also onboarding verified.
     # We must do this as part of a single backend operation, not an async job, since we want to make sure
     # an API request that verifies a membership also verifies the user, otherwise they can be in
@@ -86,9 +93,14 @@ class Suma::Organization::Membership < Suma::Postgres::Model(:organization_membe
     # (and we shouldn't assume it's true, since onboarding and membership verifications are different things),
     # it's so important for admins (and to some degree, common expectations)
     # that we enforce it here and not elsewhere (like in an API endpoint).
-    return unless self.verified?
-    self.member.onboarding_verified = true
-    self.member.save_changes
+    if self.verified?
+      self.member.onboarding_verified = true
+      self.member.save_changes
+    end
+    if self.unverified? && !self.class.disable_auto_verification_creation
+      self.verification ||= Suma::Organization::Membership::Verification.create(membership: self)
+    end
+    return r
   end
 end
 
