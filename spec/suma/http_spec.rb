@@ -144,6 +144,24 @@ RSpec.describe Suma::Http do
       expect { described_class.post("https://a.b", logger: nil, skip_error: true) }.to_not raise_error
       expect(req).to have_been_made
     end
+
+    it "can make a multipart request" do
+      # rubocop:disable Layout/LineLength
+      tf = Tempfile.new(["tf", ".jpg"])
+      tf << "file body"
+      tf.rewind
+      req = stub_request(:post, "https://a.b/").
+        with do |r|
+        expect(r.headers).to include("Content-Type" => start_with("multipart/form-data;"))
+        expect(r.body).to include("Content-Disposition: form-data; name=\"x\"\r\n\r\n1")
+        expect(r.body).to include("Content-Disposition: form-data; name=\"a[b]\"\r\n\r\nc")
+        expect(r.body).to include("Content-Disposition: form-data; name=\"z[]\"; filename=\"#{File.basename(tf.path)}\"\r\nContent-Type: image/jpeg\r\n\r\nfile body")
+      end.to_return(json_response({message_uid: "FMID2"}, status: 202))
+      # rubocop:enable Layout/LineLength
+
+      described_class.post("https://a.b/", body: {x: 1, a: {b: "c"}, z: [tf]}, logger: nil, multipart: true)
+      expect(req).to have_been_made
+    end
   end
 
   describe "Error" do

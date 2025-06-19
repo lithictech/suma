@@ -3,11 +3,10 @@
 require "frontapp"
 
 require "suma/http"
-require "suma/method_utilities"
 
 module Suma::Frontapp
   include Appydays::Configurable
-  extend Suma::MethodUtilities
+  include Appydays::Loggable
 
   UNCONFIGURED_AUTH_TOKEN = "get-from-front-add-to-env"
 
@@ -36,6 +35,18 @@ module Suma::Frontapp
     def to_template_id(id) = to_api_id("rsp", id)
     def to_channel_id(id) = to_api_id("cha", id)
     def to_inbox_id(id) = to_api_id("inb", id)
+
+    def make_http_request(method, url, **options)
+      options[:headers] ||= {}
+      options[:headers]["Authorization"] = "Bearer #{self.auth_token}"
+      resp = Suma::Http.execute(
+        method,
+        "https://api2.frontapp.com#{url}",
+        logger: self.logger,
+        **options,
+      )
+      return resp
+    end
   end
 
   configurable(:frontapp) do

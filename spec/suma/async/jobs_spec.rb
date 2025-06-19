@@ -95,7 +95,7 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
         direction: "inbound",
         from: "+15556667777",
         to: "+12225550000",
-        data: "{}",
+        data: {body: "x", num_media: 0}.to_json,
       )
       req = stub_request(:post, "https://api2.frontapp.com/inboxes/inb_ya/imported_messages").
         to_return(json_response({}))

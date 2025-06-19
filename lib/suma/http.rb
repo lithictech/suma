@@ -61,19 +61,11 @@ module Suma::Http
     end
 
     def get(url, query={}, **, &)
-      opts = {query:, headers: {}}.merge(**)
-      return self.execute("get", url, **opts, &)
+      return self.execute("get", url, query:, **, &)
     end
 
-    def post(url, body={}, headers: {}, **options, &)
-      raise ArgumentError, "must pass :logger keyword" unless options.key?(:logger)
-      headers["Content-Type"] ||= "application/json"
-      unless body.is_a?(String)
-        body = body.to_json if headers["Content-Type"].include?("json")
-        body = URI.encode_www_form(body) if headers["Content-Type"] == "application/x-www-form-urlencoded"
-      end
-      opts = {body:, headers:}.merge(**options)
-      return self.execute("post", url, **opts, &)
+    def post(url, body={}, **, &)
+      return self.execute("post", url, body:, **, &)
     end
 
     # Invoke HTTParty to make the http request.
@@ -87,10 +79,16 @@ module Suma::Http
     #   Note that a proxy may be assigned through +proxy_vars_for_hosts+,
     #   refer to it for more information.
     #   Use +false+ to explicitly ignore any configured proxy for the host.
-    def execute(method, url, **options, &)
+    def execute(method, url, headers: {}, **options, &)
       raise ArgumentError, "must pass :logger keyword" unless options.key?(:logger)
+      headers["Content-Type"] ||= "application/json"
+      if !options[:multipart] && (body = options[:body]) && !body.is_a?(String)
+        body = body.to_json if headers["Content-Type"].include?("json")
+        body = URI.encode_www_form(body) if headers["Content-Type"] == "application/x-www-form-urlencoded"
+        options[:body] = body
+      end
+      options[:headers] = headers
       options[:log_format] ||= :appydays
-      options[:headers] ||= {}
       options[:headers]["User-Agent"] = self.user_agent
       self.set_proxy_opts(url, options, options[:http_proxy_url])
       r = HTTParty.send(method, url, **options, &)
