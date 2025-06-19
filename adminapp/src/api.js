@@ -307,12 +307,14 @@ export default {
   beginOrganizationMembershipVerificationPartnerOutreach: ({ id, ...data }, ...args) =>
     post(
       `/adminapi/v1/organization_membership_verifications/${id}/begin_partner_outreach`,
-      data
+      data,
+      ...args
     ),
   beginOrganizationMembershipVerificationMemberOutreach: ({ id, ...data }, ...args) =>
     post(
       `/adminapi/v1/organization_membership_verifications/${id}/begin_member_outreach`,
-      data
+      data,
+      ...args
     ),
   addOrganizationMembershipVerificationNote: ({ id, ...data }, ...args) =>
     post(`/adminapi/v1/organization_membership_verifications/${id}/notes`, data, ...args),
