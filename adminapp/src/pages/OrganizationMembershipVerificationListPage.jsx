@@ -14,6 +14,7 @@ import CreateIcon from "@mui/icons-material/Create";
 import DraftsIcon from "@mui/icons-material/Drafts";
 import ReplyIcon from "@mui/icons-material/Reply";
 import SendIcon from "@mui/icons-material/Send";
+import LoadingButton from "@mui/lab/LoadingButton";
 import {
   Card,
   CardContent,
@@ -74,7 +75,7 @@ export default function OrganizationMembershipVerificationListPage() {
   const makeApiCall = React.useCallback(
     (func, params) => {
       return func(params, { headers: { "Suma-Events-Token": eventsToken } })
-        .then((r) =>
+        .tap((r) =>
           setUpdatedListResponses({ ...updatedListResponses, [r.data.id]: r.data })
         )
         .tapCatch(enqueueErrorSnackbar);
@@ -320,9 +321,8 @@ function StatusPicker({ value, options, onOptionSelected, href }) {
 }
 
 function MemberOutreach({ verification, frontEnabled, makeApiCall }) {
-  function handleBegin(e) {
-    e.preventDefault();
-    makeApiCall(api.beginOrganizationMembershipVerificationMemberOutreach, {
+  function handleBegin() {
+    return makeApiCall(api.beginOrganizationMembershipVerificationMemberOutreach, {
       id: verification.id,
     }).tap((r) => window.open(r.data.frontMemberConversationStatus.webUrl, "_blank"));
   }
@@ -336,9 +336,8 @@ function MemberOutreach({ verification, frontEnabled, makeApiCall }) {
 }
 
 function PartnerOutreach({ verification, frontEnabled, makeApiCall }) {
-  function handleBegin(e) {
-    e.preventDefault();
-    makeApiCall(api.beginOrganizationMembershipVerificationPartnerOutreach, {
+  function handleBegin() {
+    return makeApiCall(api.beginOrganizationMembershipVerificationPartnerOutreach, {
       id: verification.id,
     }).tap((r) => window.open(r.data.frontPartnerConversationStatus.webUrl, "_blank"));
   }
@@ -359,6 +358,12 @@ function FrontConvoStatus({
   frontEnabled,
   onBegin,
 }) {
+  const acting = useToggle();
+  function handleClick(e) {
+    e.preventDefault();
+    acting.turnOn();
+    onBegin().finally(acting.turnOff);
+  }
   // [webUrl, initialDraft, waitingOnAdmin, lastUpdatedAt] = getTestingProps();
   let Icon, text;
   const bprops = { href: webUrl, target: "_blank" };
@@ -368,7 +373,7 @@ function FrontConvoStatus({
     bprops.href = bprops.target = null;
     bprops.variant = "contained";
     bprops.color = "primary";
-    bprops.onClick = onBegin;
+    bprops.onClick = handleClick;
   } else if (initialDraft) {
     Icon = DraftsIcon;
     text = "Draft";
@@ -387,10 +392,15 @@ function FrontConvoStatus({
   }
   return (
     <div>
-      <Button size="small" disabled={!frontEnabled} {...bprops}>
+      <LoadingButton
+        size="small"
+        loading={acting.isOn}
+        disabled={!frontEnabled}
+        {...bprops}
+      >
         <Icon sx={{ marginRight: 1 }} />
         {text}
-      </Button>
+      </LoadingButton>
     </div>
   );
 }
@@ -413,13 +423,17 @@ function getTestingProps() {
 
 function NotesViewer({ verification, makeApiCall }) {
   const [noteContent, setNoteContent] = React.useState();
+  const saving = useToggle();
   const theme = useTheme();
   function handleNoteSave(e) {
     e.preventDefault();
+    saving.turnOn();
     makeApiCall(api.addOrganizationMembershipVerificationNote, {
       id: verification.id,
       content: noteContent,
-    }).then(() => setNoteContent(""));
+    })
+      .then(() => setNoteContent(""))
+      .finally(saving.turnOff);
   }
   return (
     <React.Fragment>
@@ -478,9 +492,14 @@ function NotesViewer({ verification, makeApiCall }) {
                   rows={4}
                   onChange={(e) => setNoteContent(e.target.value)}
                 />
-                <Button variant="contained" onClick={handleNoteSave}>
+                <LoadingButton
+                  variant="contained"
+                  loading={saving.isOn}
+                  onClick={handleNoteSave}
+                  disabled={!noteContent}
+                >
                   Save
-                </Button>
+                </LoadingButton>
               </Stack>
             </Stack>
           </Paper>
