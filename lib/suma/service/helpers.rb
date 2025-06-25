@@ -100,7 +100,7 @@ module Suma::Service::Helpers
     if !skip_loc_check && Suma::Service.localized_error_codes && !Suma::Service.localized_error_codes.include?(code)
       merror!(500, "Error code is unlocalized: #{code}", code: "unhandled_error")
     end
-    header "Content-Type", "application/json"
+    header Rack::CONTENT_TYPE, "application/json"
     body = Suma::Service.error_body(status, message, code:, more:)
     error!(body, status)
   end

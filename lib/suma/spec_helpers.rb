@@ -56,15 +56,15 @@ module Suma::SpecHelpers
     respbody = body || load_fixture_data(path, raw: true)
     case format
       when :json
-        headers["Content-Type"] = "application/json"
+        headers[Rack::CONTENT_TYPE] = "application/json"
       when :xml
-        headers["Content-Type"] = "application/xml"
+        headers[Rack::CONTENT_TYPE] = "application/xml"
     end
     return {status:, body: respbody, headers:}
   end
 
   module_function def json_response(body={}, status: 200, headers: {})
-    headers["Content-Type"] = "application/json"
+    headers[Rack::CONTENT_TYPE] = "application/json"
     body = body.to_json
     return {status:, body:, headers:}
   end

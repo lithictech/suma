@@ -146,10 +146,10 @@ RSpec.describe Suma::SSE do
       expect(sock.flushes).to be_positive
       expect(sock.written.gsub("\r\n", "\n")).to start_with(<<~HTTP)
         HTTP/1.1 200 OK
-        Content-Type: text/event-stream
-        Cache-Control: no-cache
-        Connection: keep-alive
-        Access-Control-Allow-Origin: *
+        content-type: text/event-stream
+        cache-control: no-cache
+        connection: keep-alive
+        access-control-allow-origin: *
       HTTP
       expect(sock.written).to include(": keep-alive\n\n")
       expect(sock.written).to include('data: {"payload":{"x":1},')

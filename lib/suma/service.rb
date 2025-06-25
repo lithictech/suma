@@ -83,7 +83,8 @@ class Suma::Service < Grape::API
   def self.decode_cookie(s)
     cfg = self.cookie_config
     s = s.delete_prefix(cfg[:key] + "=")
-    return cfg[:coder].decode(Rack::Utils.unescape(s))
+    s = Rack::Utils.unescape(s)
+    return cfg[:coder].decode(s)
   end
 
   ### Build the Rack app according to the configured environment.
@@ -183,6 +184,7 @@ class Suma::Service < Grape::API
       409,
       "Attempting to lock the resource failed. You should fetch a new version of the resource and try again.",
       code: "lock_failed",
+      skip_loc_check: true,
     )
   end
 
@@ -191,6 +193,7 @@ class Suma::Service < Grape::API
       409,
       "Member is in read-only mode and cannot be updated: #{e.reason}",
       code: e.reason,
+      skip_loc_check: true,
     )
   end
 
@@ -217,7 +220,7 @@ class Suma::Service < Grape::API
       msg = "An internal error occurred of type #{error_signature}. Error ID: #{error_id}"
     end
     Suma::Service.logger.error("api_exception", {error_id:, error_signature:}, e)
-    merror!(status, msg, code: "api_error", more:)
+    merror!(status, msg, code: "api_error", more:, skip_loc_check: true)
   end
 
   finally do

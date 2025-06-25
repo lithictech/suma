@@ -101,9 +101,7 @@ GEM
     faye-websocket (0.12.0)
       eventmachine (>= 0.12.0)
       websocket-driver (>= 0.8.0)
-    ffi (1.17.2)
-    ffi (1.17.2-x86_64-darwin)
-    ffi (1.17.2-x86_64-linux-gnu)
+    ffi (1.17.2-arm64-darwin)
     ffi-compiler (1.3.2)
       ffi (>= 1.15.5)
       rake
@@ -184,7 +182,6 @@ GEM
       benchmark
       logger
     mini_mime (1.1.5)
-    mini_portile2 (2.8.9)
     minitest (5.25.5)
     moneta (1.0.0)
     monetize (1.13.0)
@@ -201,12 +198,7 @@ GEM
     net-http (0.6.0)
       uri
     nio4r (2.7.4)
-    nokogiri (1.18.8)
-      mini_portile2 (~> 2.8.2)
-      racc (~> 1.4)
-    nokogiri (1.18.8-x86_64-darwin)
-      racc (~> 1.4)
-    nokogiri (1.18.8-x86_64-linux-gnu)
+    nokogiri (1.18.8-arm64-darwin)
       racc (~> 1.4)
     parallel (1.27.0)
     parser (3.3.8.0)
@@ -254,6 +246,8 @@ GEM
     rake (13.3.0)
     rate_throttle_client (0.1.2)
     redcarpet (3.6.1)
+    redis (5.4.0)
+      redis-client (>= 0.22.0)
     redis-client (0.25.0)
       connection_pool
     regexp_parser (2.10.0)
@@ -384,10 +378,7 @@ GEM
     zeitwerk (2.7.3)
 
 PLATFORMS
-  ruby
-  x86_64-darwin-21
-  x86_64-linux
-  x86_86-linux
+  arm64-darwin-23
 
 DEPENDENCIES
   activesupport (~> 7.2)
@@ -434,6 +425,7 @@ DEPENDENCIES
   rack-test
   rake
   redcarpet
+  redis
   redis-client
   rspec
   rspec-eventually

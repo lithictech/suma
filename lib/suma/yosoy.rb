@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'rack/session'
+
 # Bare-bones Rack-based authentication library.
 # After a decade of using Warden and Grape we decided to just write our auth system for our needs.
 # This just manages authentication, not authorization,
@@ -103,7 +105,7 @@ class Suma::Yosoy
 
     def response(status_code, extra={})
       headers = {
-        "Content-Type" => "application/json",
+        Rack::CONTENT_TYPE => "application/json",
       }
       body = {error: {status: status_code, **extra}}
       return [

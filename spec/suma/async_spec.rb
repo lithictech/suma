@@ -12,7 +12,7 @@ RSpec.describe Suma::Async do
 
   describe "JobLogger" do
     it "returns configured slow seconds" do
-      expect(Suma::Async::JobLogger.new.method(:slow_job_seconds).call).to eq(1)
+      expect(Suma::Async::JobLogger.new(Sidekiq::Config.new).method(:slow_job_seconds).call).to eq(1)
     end
   end
 end

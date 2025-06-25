@@ -334,7 +334,7 @@ module Suma::SpecHelpers::Service
         @msg = "expected response Set-Cookie '#{cookie}' to start with #{cookie_prefix}"
         break false
       end
-      payload = Suma::Service.decode_cookie(cookie)
+      payload = Suma::Service.decode_cookie(cookie) || {}
       (@payload_keys || []).each do |k|
         break false unless payload.key?(k)
       end

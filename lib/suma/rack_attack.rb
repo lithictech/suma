@@ -33,7 +33,7 @@ module Suma::RackAttack
     match_data = req.env["rack.attack.match_data"]
     now = Time.now.to_i
     retry_after = match_data[:period] - (now % match_data[:period])
-    headers = {"Content-Type" => "application/json", "Retry-After" => retry_after.to_s}
+    headers = {Rack::CONTENT_TYPE => "application/json", "retry-after" => retry_after.to_s}
     # Pass the retry-after value in the body as well as the header.
     body = Suma::Service.error_body(
       429,

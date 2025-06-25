@@ -59,7 +59,7 @@ RSpec.describe Suma::API::V1, :db do
 
       post "/v1/call_stripe"
 
-      expect(req).to have_been_made
+      expect(req).to have_been_made.times(3)
       expect(last_response).to have_status(500)
       expect(last_response).to have_json_body.that_includes(error: include(code: "api_error"))
     end

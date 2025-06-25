@@ -41,6 +41,7 @@ gem "rack-session", '~> 2.1'
 gem "rack-ssl-enforcer"
 gem "rake"
 gem "redcarpet"
+gem "redis"
 gem "redis-client"
 gem "ruby-vips"
 gem "semantic_logger"

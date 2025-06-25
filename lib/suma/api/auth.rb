@@ -21,7 +21,11 @@ class Suma::API::Auth < Suma::API::V1
     rescue JSON::ParserError
       return nil
     end
-    request.body.rewind
+    if request.body.class.to_s == 'Rack::Lint::Wrapper::InputWrapper'
+      request.body.instance_variable_get(:@input).rewind
+    else
+      request.body.rewind
+    end
     phone = Suma::PhoneNumber::US.normalize(params["phone"])
     return Suma::PhoneNumber::US.valid_normalized?(phone) ? phone : nil
   end

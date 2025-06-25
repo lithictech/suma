@@ -270,7 +270,7 @@ RSpec.describe Suma::API::Auth, :db, reset_configuration: Suma::Member do
         delete "/v1/auth"
 
         expect(last_response).to have_status(204)
-        expect(last_response["Set-Cookie"]).to include("=deleted; path=/; expires=Thu, 01 Jan 1970 00:00:00")
+        expect(last_response["Set-Cookie"]).to include("=; path=/; max-age=0; expires=Thu, 01 Jan 1970 00:00:00")
         expect(last_response["Clear-Site-Data"]).to eq("*")
       end
     end
@@ -283,7 +283,7 @@ RSpec.describe Suma::API::Auth, :db, reset_configuration: Suma::Member do
         delete "/v1/auth"
 
         expect(last_response).to have_status(204)
-        expect(last_response["Set-Cookie"]).to include("=deleted; path=/; expires=Thu, 01 Jan 1970 00:00:00")
+        expect(last_response["Set-Cookie"]).to include("=; path=/; max-age=0; expires=Thu, 01 Jan 1970 00:00:00")
         expect(last_response["Clear-Site-Data"]).to eq("*")
         expect(session.refresh).to be_logged_out
       end

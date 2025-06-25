@@ -81,7 +81,7 @@ module Suma::SSE
 
   class NotFound
     def call(*)
-      [404, {"Content-Type" => "text/plain"}, "Not Found"]
+      [404, {Rack::CONTENT_TYPE => "text/plain"}, "Not Found"]
     end
   end
 end

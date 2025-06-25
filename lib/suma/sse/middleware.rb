@@ -10,10 +10,10 @@ class Suma::SSE::Middleware
   include Appydays::Loggable
 
   HEADERS = {
-    "Content-Type" => "text/event-stream",
-    "Cache-Control" => "no-cache",
-    "Connection" => "keep-alive",
-    "Access-Control-Allow-Origin" => "*", # This is fine for our purposes
+    Rack::CONTENT_TYPE => "text/event-stream",
+    Rack::CACHE_CONTROL => "no-cache",
+    "connection" => "keep-alive",
+    "access-control-allow-origin" => "*", # This is fine for our purposes
   }.freeze
 
   class << self
@@ -42,7 +42,7 @@ class Suma::SSE::Middleware
     return @app.call unless env["PATH_INFO"] == @path
 
     token = Rack::Request.new(env).GET["token"]
-    return [401, {"Content-Type" => "text/plain"}, "Unauthorized"] unless
+    return [401, {Rack::CONTENT_TYPE => "text/plain"}, "Unauthorized"] unless
       Suma::SSE::Auth.validate_token(token)
 
     # We must use the socket directly so we disconnect as soon as a write fails.
