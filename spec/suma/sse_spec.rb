@@ -157,7 +157,7 @@ RSpec.describe Suma::SSE do
     end
 
     it "closes the socket if Redis errors" do
-      expect(Suma::SSE).to receive(:subscribe).and_raise(Redis::CannotConnectError)
+      expect(Suma::SSE).to receive(:subscribe).and_raise(RedisClient::CannotConnectError)
       expect(app.call(env).first).to eq(-1)
       sleep(1) # Wait for thread to set up
       expect(sock.closed).to be(true)

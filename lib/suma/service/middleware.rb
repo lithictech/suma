@@ -3,6 +3,7 @@
 require "rack/cors"
 require "rack/protection"
 require "rack/remote_ip"
+require "rack/session"
 require "rack/ssl-enforcer"
 require "sentry-ruby"
 require "appydays/loggable/request_logger"
@@ -50,7 +51,6 @@ module Suma::Service::Middleware
 
   def self.add_common_middleware(builder)
     builder.use(Rack::ContentLength)
-    builder.use(Rack::Chunked)
     builder.use(Rack::Deflater)
     builder.use(Sentry::Rack::CaptureExceptions)
     builder.use(Rack::RemoteIp)

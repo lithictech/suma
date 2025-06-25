@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require "amigo"
-require "redis"
 require "appydays/configurable"
 require "appydays/loggable"
 require "sentry-sidekiq"

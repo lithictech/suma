@@ -2,6 +2,7 @@
 
 require "appydays/configurable"
 require "appydays/loggable"
+require 'redis_client'
 
 module Suma::SSE
   include Appydays::Configurable
@@ -9,6 +10,7 @@ module Suma::SSE
 
   TOKEN_HEADER = "Suma-Events-Token"
   ORGANIZATION_MEMBERSHIP_VERIFICATIONS = "organization_membership_verifications"
+  NEXT_EVENT_TIMEOUT = 10
 
   class << self
     attr_accessor :publisher_redis
@@ -20,7 +22,7 @@ module Suma::SSE
 
     after_configured do
       redis_url = Suma::Redis.fetch_url(self.redis_provider, self.redis_url)
-      self.publisher_redis = Redis.new(**Suma::Redis.conn_params(redis_url))
+      self.publisher_redis = RedisClient.new(**Suma::Redis.conn_params(redis_url))
     end
   end
 
@@ -41,29 +43,34 @@ module Suma::SSE
       if (sid = self.current_session_id)
         msg[:sid] = sid
       end
-      self.publisher_redis.publish(topic, msg.to_json)
+      self.publisher_redis.pubsub.call("PUBLISH", topic, msg.to_json)
     end
 
     def new_subscriber_redis
       redis_url = Suma::Redis.fetch_url(self.redis_provider, self.redis_url)
-      return Redis.new(**Suma::Redis.conn_params(redis_url))
+      return RedisClient.new(**Suma::Redis.conn_params(redis_url))
     end
 
     def subscribe(topic, session_id: nil)
       redis = self.new_subscriber_redis
-      redis.subscribe(topic) do |on|
-        on.message do |_channel, data|
-          msg = JSON.parse(data)
-          msg_sid = msg["sid"]
-          # The subscriber should know about the message if:
-          # - We don't have a subscriber
-          # - The message was published by an anonymous subscriber
-          # - The message was published by another subscriber
-          subscriber_cares = session_id.nil? ||
-            msg_sid.nil? ||
-            session_id != msg_sid
-          yield(msg) if subscriber_cares
-        end
+      sub = redis.pubsub
+      sub.call('SUBSCRIBE', topic)
+      loop do
+        event = sub.next_event(NEXT_EVENT_TIMEOUT)
+        next unless event
+        event_action, event_topic, event_data = event
+        next unless event_action == "message"
+        next unless event_topic == topic
+        msg = JSON.parse(event_data)
+        msg_sid = msg["sid"]
+        # The subscriber should know about the message if:
+        # - We don't have a subscriber
+        # - The message was published by an anonymous subscriber
+        # - The message was published by another subscriber
+        subscriber_cares = session_id.nil? ||
+                           msg_sid.nil? ||
+                           session_id != msg_sid
+        yield(msg) if subscriber_cares
       end
     rescue IOError
       # client disconnected
