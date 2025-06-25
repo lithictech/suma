@@ -9,4 +9,4 @@ class Suma::Liquid::Partial < Liquid::Include
     super
   end
 end
-Liquid::Template.register_tag("partial", Suma::Liquid::Partial)
+Liquid::Environment.default.register_tag("partial", Suma::Liquid::Partial)

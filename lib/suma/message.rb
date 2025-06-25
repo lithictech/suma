@@ -23,8 +23,8 @@ module Suma::Message
 
   configurable(:messages) do
     after_configured do
-      Liquid::Template.error_mode = :strict
-      Liquid::Template.file_system = Liquid::LocalFileSystem.new(DATA_DIR, "%s.liquid")
+      Liquid::Environment.default.error_mode = :strict
+      Liquid::Environment.default.file_system = Liquid::LocalFileSystem.new(DATA_DIR, "%s.liquid")
     end
   end
 
