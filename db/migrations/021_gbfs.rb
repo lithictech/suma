@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 Sequel.migration do
-  change do
+  up do
     from(:mobility_restricted_areas).delete
     alter_table(:mobility_restricted_areas) do
       add_column :multipolygon, "decimal[][][][]", null: false

@@ -2,7 +2,7 @@
 
 require "appydays/configurable"
 require "appydays/loggable"
-require 'redis_client'
+require "redis_client"
 
 module Suma::SSE
   include Appydays::Configurable
@@ -54,7 +54,7 @@ module Suma::SSE
     def subscribe(topic, session_id: nil)
       redis = self.new_subscriber_redis
       sub = redis.pubsub
-      sub.call('SUBSCRIBE', topic)
+      sub.call("SUBSCRIBE", topic)
       loop do
         event = sub.next_event(NEXT_EVENT_TIMEOUT)
         next unless event
@@ -68,8 +68,8 @@ module Suma::SSE
         # - The message was published by an anonymous subscriber
         # - The message was published by another subscriber
         subscriber_cares = session_id.nil? ||
-                           msg_sid.nil? ||
-                           session_id != msg_sid
+          msg_sid.nil? ||
+          session_id != msg_sid
         yield(msg) if subscriber_cares
       end
     rescue IOError

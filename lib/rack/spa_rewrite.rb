@@ -65,7 +65,7 @@ class Rack::SpaRewrite
     headers = {
       Rack::CONTENT_LENGTH => @index_bytes.bytesize,
       Rack::CONTENT_TYPE => "text/html",
-      'last-modified' => lastmodhttp,
+      "last-modified" => lastmodhttp,
     }
     return [200, headers, [@index_bytes]]
   end

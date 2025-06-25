@@ -83,8 +83,6 @@ Naming/PredicateName:
 Naming/MethodParameterName:
   Enabled: false
 
-Sequel/ColumnDefault:
-  Enabled: false
 Sequel/ConcurrentIndex:
   Enabled: false
 

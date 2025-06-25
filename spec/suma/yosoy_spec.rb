@@ -31,7 +31,7 @@ RSpec.describe Suma::Yosoy do
   define_method :decode_cookie do |resp|
     s = resp[1]["set-cookie"]
     s = s.delete_prefix("rack.session=")
-    s = s.split(';', 2).first
+    s = s.split(";", 2).first
     s = Rack::Utils.unescape(s)
     create_cookie_app(nil).encryptors.first.decrypt(s).to_a
   end

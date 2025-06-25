@@ -21,7 +21,7 @@ class Suma::API::Auth < Suma::API::V1
     rescue JSON::ParserError
       return nil
     end
-    if request.body.class.to_s == 'Rack::Lint::Wrapper::InputWrapper'
+    if request.body.instance_of?(::Rack::Lint::Wrapper::InputWrapper)
       request.body.instance_variable_get(:@input).rewind
     else
       request.body.rewind

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'rack/session'
+require "rack/session"
 
 # Bare-bones Rack-based authentication library.
 # After a decade of using Warden and Grape we decided to just write our auth system for our needs.

@@ -7,7 +7,7 @@ module Suma::Mobility
   # to get an integer coordinate?
   COORD2INT_FACTOR = 10_000_000
   # Convert an integer coordinate back to a float.
-  INT2COORD_FACTOR = BigDecimal("1") / COORD2INT_FACTOR
+  INT2COORD_FACTOR = BigDecimal(1) / COORD2INT_FACTOR
   COORD_RANGE = -180.0..180.0
   INTCOORD_RANGE = (-180.0 * COORD2INT_FACTOR)..(180.0 * COORD2INT_FACTOR)
   # This 'magnitude' is in lat/lng degrees/minutes. It is not an actual

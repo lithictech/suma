@@ -136,7 +136,7 @@ class Suma::Marketing::SmsBroadcast < Suma::Postgres::Model(:marketing_sms_broad
       failed_recipients:,
       canceled_recipients:,
       pending_recipients: self.sms_dispatches.count - delivered_recipients - failed_recipients - canceled_recipients,
-      actual_cost: sw_payloads.sum(BigDecimal("0")) { |d| d.fetch("price", 0) },
+      actual_cost: sw_payloads.sum(BigDecimal(0)) { |d| d.fetch("price", 0) },
     )
     return result
   end
@@ -181,9 +181,9 @@ class Suma::Marketing::SmsBroadcast < Suma::Postgres::Model(:marketing_sms_broad
         total_recipients: 0,
         en_recipients: 0,
         es_recipients: 0,
-        total_cost: BigDecimal("0"),
-        en_total_cost: BigDecimal("0"),
-        es_total_cost: BigDecimal("0"),
+        total_cost: BigDecimal(0),
+        en_total_cost: BigDecimal(0),
+        es_total_cost: BigDecimal(0),
       }
     end
   end
