@@ -25,7 +25,7 @@ GIT
 GEM
   remote: https://rubygems.org/
   specs:
-    activesupport (7.2.2.1)
+    activesupport (8.0.2)
       base64
       benchmark (>= 0.3)
       bigdecimal
@@ -37,6 +37,7 @@ GEM
       minitest (>= 5.1)
       securerandom (>= 0.3)
       tzinfo (~> 2.0, >= 2.0.5)
+      uri (>= 0.13.1)
     addressable (2.8.7)
       public_suffix (>= 2.0.2, < 7.0)
     amazing_print (1.8.1)
@@ -236,8 +237,9 @@ GEM
     rack (3.1.16)
     rack-attack (6.7.0)
       rack (>= 1.0, < 4)
-    rack-cors (2.0.2)
-      rack (>= 2.0.0)
+    rack-cors (3.0.0)
+      logger
+      rack (>= 3.0.14)
     rack-protection (4.1.1)
       base64 (>= 0.1.0)
       logger (>= 1.6.0)
@@ -386,7 +388,7 @@ PLATFORMS
   arm64-darwin-23
 
 DEPENDENCIES
-  activesupport (~> 7.2)
+  activesupport (~> 8.0)
   amazing_print
   appydays!
   base64
@@ -423,7 +425,7 @@ DEPENDENCIES
   puma (~> 6.6)
   rack (~> 3.1)
   rack-attack
-  rack-cors (~> 2.0)
+  rack-cors (~> 3.0)
   rack-protection
   rack-session (~> 2.1)
   rack-ssl-enforcer!

@@ -233,6 +233,3 @@ end
 
 require "suma/phone_number"
 require "suma/typed_struct"
-
-raise "Remove this code, ActiveSupport has the new default" unless ActiveSupport::VERSION::MAJOR <= 7
-ActiveSupport.to_time_preserves_timezone = true
