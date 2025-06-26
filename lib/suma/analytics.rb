@@ -2,7 +2,7 @@
 
 module Suma::Analytics
   class << self
-    def olap_classes = Suma::Analytics::Model.named_descendants
+    def olap_classes = Suma::Analytics::Model.descendants.reject(&:anonymous?)
 
     # Given an OLTP model instances (like a Suma::Member),
     # upsert them into all corresponding analytics tables.

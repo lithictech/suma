@@ -96,7 +96,7 @@ RSpec.describe "Suma::Postgres::Model", :db do
   end
 
   it "knows named descendants" do
-    desc = Suma::Postgres::Model.named_descendants.map(&:name)
+    desc = Suma::Postgres::Model.descendants.reject(&:anonymous?).map(&:name)
     expect(desc).to all(start_with("Suma::"))
   end
 
