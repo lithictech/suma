@@ -181,14 +181,18 @@ RSpec.describe Suma::API::AnonProxy, :db do
       Suma::AnonProxy.signalwire_relay_number = "15559994444"
       mc = Suma::Fixtures.anon_proxy_member_contact.phone("15552221111").create
       mc.member.update(phone: "15558889999")
+      body["Body"] = 'Test special chars <a href="https://foo.bar?x=y&a=b" />'
 
       post "/v1/anon_proxy/relays/signalwire/webhooks", body
 
       expect(last_response).to have_status(200)
       expect(last_response.headers["Content-Type"]).to eq("application/xml")
-      expect(last_response.body).to include(
-        '<Message from="+15559994444" to="+15558889999">From (555) 666-1603: Test message',
-      )
+      expect(last_response.body).to eq(<<~XML)
+        <?xml version="1.0" encoding="UTF-8"?>
+        <Response>
+          <Message from="+15559994444" to="+15558889999">From (555) 666-1603: Test special chars &lt;a href="https://foo.bar?x=y&amp;a=b" /&gt;</Message>
+        </Response>
+      XML
     end
 
     it "can handle messages sent from a shortcode" do

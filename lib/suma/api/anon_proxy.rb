@@ -107,12 +107,13 @@ class Suma::API::AnonProxy < Suma::API::V1
             orig_from = Suma::PhoneNumber.format_display(raw_from)
             forward_to = Suma::PhoneNumber.format_e164(mc.member.phone)
             forward_from = Suma::PhoneNumber.format_e164(Suma::AnonProxy.signalwire_relay_number)
-            xml = <<~XML
-              <?xml version="1.0" encoding="UTF-8"?>
-              <Response>
-                  <Message from="#{forward_from}" to="#{forward_to}">From #{orig_from}: #{params[:Body]}</Message>
-              </Response>
-            XML
+            new_body = "From #{orig_from}: #{params[:Body]}"
+            xdoc = Nokogiri::XML::Builder.new(encoding: "UTF-8") do |xb|
+              xb.Response do
+                xb.Message(new_body, from: forward_from, to: forward_to)
+              end
+            end
+            xml = xdoc.to_xml
           else
             xml = empty_xml
             Sentry.capture_message("Received webhook for signalwire for unmatched number")
