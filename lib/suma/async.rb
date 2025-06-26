@@ -49,6 +49,40 @@ module Suma::Async
     "suma/async/stripe_refunds_backfiller",
   ].freeze
 
+  class << self
+    def configure_sidekiq_server(config)
+      url = Suma::Redis.fetch_url(self.sidekiq_redis_provider, self.sidekiq_redis_url)
+      redis_params = Suma::Redis.conn_params(url)
+      config.redis = redis_params
+      config[:job_logger] = Suma::Async::JobLogger
+
+      # We do NOT want the unstructured default error handler
+      config.error_handlers.replace([Suma::Async::JobLogger.method(:error_handler)])
+      # We must then replace the otherwise-automatically-added sentry middleware
+      config.error_handlers << Sentry::Sidekiq::ErrorHandler.new
+
+      config.death_handlers << Suma::Async::JobLogger.method(:death_handler)
+
+      config.client_middleware do |chain|
+        chain.add(SidekiqUniqueJobs::Middleware::Client)
+      end
+      config.server_middleware do |chain|
+        chain.add(SidekiqUniqueJobs::Middleware::Server)
+      end
+
+      SidekiqUniqueJobs::Server.configure(config)
+    end
+
+    def configure_sidekiq_client(config)
+      url = Suma::Redis.fetch_url(self.sidekiq_redis_provider, self.sidekiq_redis_url)
+      redis_params = Suma::Redis.conn_params(url)
+      config.redis = redis_params
+      config.client_middleware do |chain|
+        chain.add(SidekiqUniqueJobs::Middleware::Client)
+      end
+    end
+  end
+
   configurable(:async) do
     # The number of (Float) seconds that should be considered "slow" for a job.
     # Jobs that take longer than this amount of time will be logged
@@ -68,38 +102,11 @@ module Suma::Async
     setting :web_password, SecureRandom.hex(8)
 
     after_configured do
-      # Very hard to to test this, so it's not tested.
-      url = Suma::Redis.fetch_url(self.sidekiq_redis_provider, self.sidekiq_redis_url)
-      redis_params = Suma::Redis.conn_params(url)
       # Set this here since we need it for tests, which don't run as a real server.
+      # Otherwise we could put it in the configure_server call.
       Sidekiq.default_configuration.logger = self.logger
-      Sidekiq.configure_server do |config|
-        config.redis = redis_params
-        config[:job_logger] = Suma::Async::JobLogger
-
-        # We do NOT want the unstructured default error handler
-        config.error_handlers.replace([Suma::Async::JobLogger.method(:error_handler)])
-        # We must then replace the otherwise-automatically-added sentry middleware
-        config.error_handlers << Sentry::Sidekiq::ErrorHandler.new
-
-        config.death_handlers << Suma::Async::JobLogger.method(:death_handler)
-
-        config.client_middleware do |chain|
-          chain.add(SidekiqUniqueJobs::Middleware::Client)
-        end
-        config.server_middleware do |chain|
-          chain.add(SidekiqUniqueJobs::Middleware::Server)
-        end
-
-        SidekiqUniqueJobs::Server.configure(config)
-      end
-
-      Sidekiq.configure_client do |config|
-        config.redis = redis_params
-        config.client_middleware do |chain|
-          chain.add(SidekiqUniqueJobs::Middleware::Client)
-        end
-      end
+      Sidekiq.configure_server { |cfg| self.configure_sidekiq_server(cfg) }
+      Sidekiq.configure_client { |cfg| self.configure_sidekiq_client(cfg) }
 
       SidekiqUniqueJobs.configure do |config|
         config.logger = Appydays::Loggable[SidekiqUniqueJobs]

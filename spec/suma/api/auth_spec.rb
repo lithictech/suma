@@ -362,4 +362,21 @@ RSpec.describe Suma::API::Auth, :db, reset_configuration: Suma::Member do
       end
     end
   end
+
+  describe "extract_phone_from_request" do
+    reqcls = Struct.new(:body)
+
+    it "reads 'phone' from the body" do
+      body = StringIO.new({phone: "15552223333"}.to_json)
+      expect(described_class.extract_phone_from_request(reqcls.new(body:))).to eq("15552223333")
+      expect(body.pos).to eq(0)
+    end
+
+    it "handles a lint wrapper" do
+      body = StringIO.new({phone: "15552223333"}.to_json)
+      wbody = Rack::Lint::Wrapper::InputWrapper.new(body)
+      expect(described_class.extract_phone_from_request(reqcls.new(body: wbody))).to eq("15552223333")
+      expect(body.pos).to eq(0)
+    end
+  end
 end
