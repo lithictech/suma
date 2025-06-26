@@ -20,7 +20,11 @@ RSpec.describe Suma::Fixtures, db: true  do
       it mod.to_s do
         factory = mod.base_factory
         factory = mod.ensure_fixturable(factory)
-        factory.create
+        if mod.fixtured_class.method_defined?(:save)
+          factory.create
+        else
+          factory.instance
+        end
       end
     end
   end
