@@ -18,8 +18,8 @@ class Suma::Tasks::Annotate < Rake::TaskLib
       require "suma"
       Suma.load_app
       files = []
-      Suma::Postgres.model_classes.each do |cls|
-        next unless cls.name
+      Suma::Postgres.each_model_class do |cls|
+        next if cls.anonymous?
         filename = cls.name.underscore
         files << "lib/#{filename}.rb" if cls.name
       end

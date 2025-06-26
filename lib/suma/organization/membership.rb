@@ -132,4 +132,6 @@ end
 #  organization_memberships_former_organization_id_fkey   | (former_organization_id) REFERENCES organizations(id)
 #  organization_memberships_member_id_fkey                | (member_id) REFERENCES members(id)
 #  organization_memberships_verified_organization_id_fkey | (verified_organization_id) REFERENCES organizations(id)
+# Referenced By:
+#  organization_membership_verifications | organization_membership_verifications_membership_id_fkey | (membership_id) REFERENCES organization_memberships(id)
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------

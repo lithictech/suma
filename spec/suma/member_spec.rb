@@ -71,30 +71,30 @@ RSpec.describe "Suma::Member", :db do
     it "returns true if the password matches" do
       u = Suma::Member.new
       u.password = password
-      expect(u.authenticate(password)).to be_truthy
+      expect(u.authenticate?(password)).to be_truthy
     end
 
     it "returns false if the password does not match" do
       u = Suma::Member.new
       u.password = "testtest1"
-      expect(u.authenticate("testtest2")).to be_falsey
+      expect(u.authenticate?("testtest2")).to be_falsey
     end
 
     it "returns false if the new password is blank" do
       u = Suma::Member.new
-      expect(u.authenticate(nil)).to be_falsey
-      expect(u.authenticate("")).to be_falsey
+      expect(u.authenticate?(nil)).to be_falsey
+      expect(u.authenticate?("")).to be_falsey
 
       space = "          "
       u.password = space
-      expect(u.authenticate(space)).to be_truthy
+      expect(u.authenticate?(space)).to be_truthy
     end
 
     it "cannot auth after being removed" do
       u = Suma::Fixtures.member.create
       u.soft_delete
       u.password = password
-      expect(u.authenticate(password)).to be_falsey
+      expect(u.authenticate?(password)).to be_falsey
     end
   end
 

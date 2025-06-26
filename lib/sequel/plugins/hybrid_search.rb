@@ -174,7 +174,7 @@ module Sequel::Plugins::HybridSearch
       text.lines.each do |li|
         idx = li.index(":")
         next nil if idx.nil?
-        s = li[idx + 1..].strip
+        s = li[(idx + 1)..].strip
         next if s.blank?
         content << s
       end

@@ -77,10 +77,10 @@ class Suma::Message::Delivery < Suma::Postgres::Model(:message_deliveries)
   # Use external logs only if the message is less than 30 days old.
   # Many carriers will remove external resources after a while,
   # and anyway, this archival data should be useful for admins.
-  def _use_external_logs = self.sent_at.present? && self.sent_at > 30.days.ago
+  def _use_external_logs? = self.sent_at.present? && self.sent_at > 30.days.ago
 
   def _external_links_self
-    return [] unless self._use_external_logs
+    return [] unless self._use_external_logs?
     url = self.carrier!.external_link_for(self.carrier!.decode_message_id(self.transport_message_id))
     return [] unless url
     return [
@@ -89,7 +89,7 @@ class Suma::Message::Delivery < Suma::Postgres::Model(:message_deliveries)
   end
 
   def _admin_actions_self
-    return [] unless self._use_external_logs && self.carrier!.can_fetch_details?
+    return [] unless self._use_external_logs? && self.carrier!.can_fetch_details?
     return [
       self._admin_action(
         "View #{self.carrier_key.humanize} details",

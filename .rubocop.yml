@@ -1,4 +1,4 @@
-require:
+plugins:
   - rubocop-performance
   - rubocop-rake
   - rubocop-sequel
@@ -75,7 +75,23 @@ Lint/UselessAssignment:
 # https://rubocop.readthedocs.io/en/latest/cops_naming/
 Naming/AccessorMethodName:
   Enabled: false
-Naming/PredicateName:
+Naming/PredicateMethod:
+  AllowedMethods:
+    - 'admin_member?'
+    - 'authenticated_object?'
+    - 'collect_funds'
+    - 'connect'
+    - 'drop_blobs_table'
+    - 'fail_with'
+    - 'format?'
+    - 'read_key'
+    - 'repl'
+    - 'send_funds'
+    - 'write_key'
+    - 'with_lock?'
+  AllowedPatterns:
+    - 'setup_*'
+Naming/PredicatePrefix:
   Exclude:
     - 'spec/**/*'
     - 'lib/suma/spec_helpers.rb'
@@ -113,6 +129,8 @@ Style/RedundantSelf:
   Enabled: false
 Style/ReturnNilInPredicateMethodDefinition:
   Enabled: false # We usually do this but not always.
+Style/SafeNavigationChainLength:
+  Enabled: false # We can decide when it's useful or not.
 Style/StringConcatenation:
   Enabled: false
 Style/StringLiterals:

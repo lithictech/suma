@@ -2,7 +2,7 @@
 
 module Suma::Analytics
   class << self
-    def olap_classes = Suma::Analytics::Model.named_descendants
+    def olap_classes = Suma::Analytics::Model.descendants.reject(&:anonymous?)
 
     # Given an OLTP model instances (like a Suma::Member),
     # upsert them into all corresponding analytics tables.
@@ -12,7 +12,7 @@ module Suma::Analytics
       return nil if oltp_models.empty?
       uniq_oltp_classes = oltp_models.map(&:class).uniq
       raise Suma::InvalidPrecondition, "models must all be the same type, got: #{uniq_oltp_classes.map(&:name)}" unless
-        uniq_oltp_classes.count == 1
+        uniq_oltp_classes.one?
       model_cls = oltp_models.first.class.first.class
       eligible_olap_classes = self.olap_classes.select { |d| d.denormalize_from?(model_cls) }
       olap_classes = olap_classes.nil? ? eligible_olap_classes : (olap_classes & eligible_olap_classes)

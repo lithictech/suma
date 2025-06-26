@@ -80,7 +80,7 @@ group :test_group do
   gem "rspec-eventually"
   gem "rspec-json_expectations"
   gem "rspec-temp_dir"
-  gem "rubocop", "~> 1.65.1"
+  gem "rubocop", "~> 1.77.0"
   gem "rubocop-performance", require: false
   gem "rubocop-rake", require: false
   gem "rubocop-sequel", require: false

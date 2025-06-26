@@ -7,7 +7,7 @@ Sequel.migration do
     :organization_memberships,
     :program_enrollments,
   ]
-  # rubocop:disable Sequel/IrreversibleMigration:
+  # rubocop:disable Sequel/IrreversibleMigration
   change do
     tables.each do |tbl|
       alter_table(tbl) do
