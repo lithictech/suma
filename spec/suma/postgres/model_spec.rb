@@ -95,6 +95,11 @@ RSpec.describe "Suma::Postgres::Model", :db do
     expect(ds.reduce_expr(:|, [nil, false], method: :exclude)).to equal(ds)
   end
 
+  it "knows named descendants" do
+    desc = Suma::Postgres::Model.named_descendants.map(&:name)
+    expect(desc).to all(start_with("Suma::"))
+  end
+
   describe "#find_or_create_or_find" do
     let(:model_class) { Suma::Postgres::TestingPixie }
 
