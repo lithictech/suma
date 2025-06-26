@@ -270,7 +270,7 @@ RSpec.describe Suma::API::Auth, :db, reset_configuration: Suma::Member do
         delete "/v1/auth"
 
         expect(last_response).to have_status(204)
-        expect(last_response["Set-Cookie"]).to include("=deleted; path=/; expires=Thu, 01 Jan 1970 00:00:00")
+        expect(last_response["Set-Cookie"]).to include("=; path=/; max-age=0; expires=Thu, 01 Jan 1970 00:00:00")
         expect(last_response["Clear-Site-Data"]).to eq("*")
       end
     end
@@ -283,7 +283,7 @@ RSpec.describe Suma::API::Auth, :db, reset_configuration: Suma::Member do
         delete "/v1/auth"
 
         expect(last_response).to have_status(204)
-        expect(last_response["Set-Cookie"]).to include("=deleted; path=/; expires=Thu, 01 Jan 1970 00:00:00")
+        expect(last_response["Set-Cookie"]).to include("=; path=/; max-age=0; expires=Thu, 01 Jan 1970 00:00:00")
         expect(last_response["Clear-Site-Data"]).to eq("*")
         expect(session.refresh).to be_logged_out
       end
@@ -360,6 +360,23 @@ RSpec.describe Suma::API::Auth, :db, reset_configuration: Suma::Member do
           have_attributes(unverified_organization_name: org.name),
         )
       end
+    end
+  end
+
+  describe "extract_phone_from_request" do
+    reqcls = Struct.new(:body)
+
+    it "reads 'phone' from the body" do
+      body = StringIO.new({phone: "15552223333"}.to_json)
+      expect(described_class.extract_phone_from_request(reqcls.new(body:))).to eq("15552223333")
+      expect(body.pos).to eq(0)
+    end
+
+    it "handles a lint wrapper" do
+      body = StringIO.new({phone: "15552223333"}.to_json)
+      wbody = Rack::Lint::Wrapper::InputWrapper.new(body)
+      expect(described_class.extract_phone_from_request(reqcls.new(body: wbody))).to eq("15552223333")
+      expect(body.pos).to eq(0)
     end
   end
 end

@@ -146,10 +146,10 @@ RSpec.describe Suma::SSE do
       expect(sock.flushes).to be_positive
       expect(sock.written.gsub("\r\n", "\n")).to start_with(<<~HTTP)
         HTTP/1.1 200 OK
-        Content-Type: text/event-stream
-        Cache-Control: no-cache
-        Connection: keep-alive
-        Access-Control-Allow-Origin: *
+        content-type: text/event-stream
+        cache-control: no-cache
+        connection: keep-alive
+        access-control-allow-origin: *
       HTTP
       expect(sock.written).to include(": keep-alive\n\n")
       expect(sock.written).to include('data: {"payload":{"x":1},')
@@ -157,7 +157,7 @@ RSpec.describe Suma::SSE do
     end
 
     it "closes the socket if Redis errors" do
-      expect(Suma::SSE).to receive(:subscribe).and_raise(Redis::CannotConnectError)
+      expect(Suma::SSE).to receive(:subscribe).and_raise(RedisClient::CannotConnectError)
       expect(app.call(env).first).to eq(-1)
       sleep(1) # Wait for thread to set up
       expect(sock.closed).to be(true)

@@ -17,4 +17,4 @@ module Suma::Liquid::Filters
   end
 end
 
-Liquid::Template.register_filter(Suma::Liquid::Filters)
+Liquid::Environment.default.register_filter(Suma::Liquid::Filters)

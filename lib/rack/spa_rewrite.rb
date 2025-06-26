@@ -63,9 +63,9 @@ class Rack::SpaRewrite
 
     @index_bytes = ::File.read(@index_path) if @index_bytes.nil? || @index_mtime < lastmodhttp
     headers = {
-      "Content-Length" => @index_bytes.bytesize,
-      "Content-Type" => "text/html",
-      "Last-Modified" => lastmodhttp,
+      Rack::CONTENT_LENGTH => @index_bytes.bytesize,
+      Rack::CONTENT_TYPE => "text/html",
+      "last-modified" => lastmodhttp,
     }
     return [200, headers, [@index_bytes]]
   end

@@ -24,7 +24,9 @@ module Suma::Postgres::ModelUtilities
   end
 
   module ClassMethods
-    def named_descendants = self.descendants.reject(&:anonymous?)
+    def named_descendants
+      self.descendants.reject(&:anonymous?).reject { |cls| cls.name.start_with?("Sequel::_Model") }
+    end
 
     # Set up some things on new database connections.
     def db=(newdb)

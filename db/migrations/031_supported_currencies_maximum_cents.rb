@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 Sequel.migration do
-  change do
+  up do
     alter_table(:supported_currencies) do
       add_column :funding_maximum_cents, :integer, null: true
     end

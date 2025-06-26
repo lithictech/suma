@@ -8,10 +8,12 @@ RSpec.describe Suma::Message::Forwarder, :db, :no_transaction_check, reset_confi
     Suma::Message::Forwarder.front_inbox_id = "1234"
   end
 
+  let(:june14) { Time.at(1_749_921_156) }
+
   def messagerow(swid, data={})
     data[:to] ||= Suma::PhoneNumber.format_e164(Suma::Message::Forwarder.phone_numbers.sample)
     data[:from] ||= "+14445551234"
-    data[:date_created] ||= Time.now
+    data[:date_created] ||= june14
     data[:num_media] ||= 0
     r = {
       signalwire_id: swid,
@@ -27,9 +29,9 @@ RSpec.describe Suma::Message::Forwarder, :db, :no_transaction_check, reset_confi
   def insert_message(swid, data={}) = Suma::Webhookdb.signalwire_messages_dataset.insert(messagerow(swid, data))
 
   it "syncs recent messages sent to the configured numbers into the configured Front inbox" do
-    old = insert_message("msg2", date_created: Time.at(1_749_920_264) - 8.days)
+    old = insert_message("msg2", date_created: june14 - 8.days)
     wrong_to = insert_message("msg3", to: "+13334445555")
-    msg1 = insert_message("msg1", body: "hello", date_created: Time.at(1_749_921_156))
+    msg1 = insert_message("msg1", body: "hello")
 
     req = stub_request(:post, "https://api2.frontapp.com/inboxes/inb_ya/imported_messages").
       with(body: {
@@ -43,17 +45,17 @@ RSpec.describe Suma::Message::Forwarder, :db, :no_transaction_check, reset_confi
         attachments: [],
       }.to_json).to_return(json_response({}))
 
-    described_class.new(now: Time.now).run
+    described_class.new(now: june14).run
     expect(req).to have_been_made
   end
 
   it "is idempotent" do
-    insert_message("msg1", body: "hello", date_created: Time.at(1_749_921_156))
+    insert_message("msg1", body: "hello")
     req = stub_request(:post, "https://api2.frontapp.com/inboxes/inb_ya/imported_messages").
       to_return(json_response({}))
 
-    described_class.new(now: Time.now).run
-    described_class.new(now: Time.now).run
+    described_class.new(now: june14).run
+    described_class.new(now: june14).run
     expect(req).to have_been_made.once
   end
 
@@ -61,7 +63,6 @@ RSpec.describe Suma::Message::Forwarder, :db, :no_transaction_check, reset_confi
     msg = insert_message(
       "msg1",
       body: "hello",
-      date_created: Time.at(1_749_921_156),
       num_media: 3,
       subresource_uris: {
         media: "/api/laml/2010-04-01/Accounts/AC123/Messages/msg1/Media.json",
@@ -111,7 +112,7 @@ RSpec.describe Suma::Message::Forwarder, :db, :no_transaction_check, reset_confi
     end.to_return(json_response({message_uid: "FMID2"}, status: 202))
     # rubocop:enable Layout/LineLength
 
-    described_class.new(now: Time.now).run
+    described_class.new(now: june14).run
     expect(media_list_req).to have_been_made
     expect(media1_req).to have_been_made
     expect(media2_req).to have_been_made
@@ -122,7 +123,7 @@ RSpec.describe Suma::Message::Forwarder, :db, :no_transaction_check, reset_confi
   it "errors if the Front inbox is not set" do
     described_class.front_inbox_id = ""
     expect do
-      described_class.new(now: Time.now).run
+      described_class.new(now: june14).run
     end.to raise_error(/must be set/)
   end
 end

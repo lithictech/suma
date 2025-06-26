@@ -26,4 +26,4 @@ class Suma::Liquid::Expose < Liquid::Block
   end
 end
 
-Liquid::Template.register_tag("expose", Suma::Liquid::Expose)
+Liquid::Environment.default.register_tag("expose", Suma::Liquid::Expose)

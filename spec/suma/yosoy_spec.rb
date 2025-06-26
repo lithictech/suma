@@ -17,17 +17,23 @@ RSpec.describe Suma::Yosoy do
   let(:auth_obj) { {id: 1} }
   let(:coder) { Rack::Session::Cookie::Base64::Marshal.new }
 
+  define_method :create_cookie_app do |app|
+    Rack::Session::Cookie.new(app, {secret: "sekret" * 11, coder:})
+  end
+
   define_method :create_mw do |cls: mw_class, app: nil, &block|
     app ||= block
-    app = Rack::Session::Cookie.new(app, {secret: "sekret", coder:})
+    app = create_cookie_app(app)
     app = cls.new(app)
     app
   end
 
   define_method :decode_cookie do |resp|
-    s = resp[1]["Set-Cookie"]
+    s = resp[1]["set-cookie"]
     s = s.delete_prefix("rack.session=")
-    return coder.decode(Rack::Utils.unescape(s))
+    s = s.split(";", 2).first
+    s = Rack::Utils.unescape(s)
+    create_cookie_app(nil).encryptors.first.decrypt(s).to_a
   end
 
   it "handles the auth flow successfully" do
@@ -41,7 +47,7 @@ RSpec.describe Suma::Yosoy do
 
     resp = mw.call(req)
     expect(resp).to match_array(
-      [200, {"Set-Cookie" => start_with("rack.session=")}, "ok"],
+      [200, {"set-cookie" => start_with("rack.session=")}, "ok"],
     )
     expect(decode_cookie(resp)).to contain_exactly(
       ["session_id", be_present],
@@ -58,7 +64,7 @@ RSpec.describe Suma::Yosoy do
     end
 
     expect(mw.call(req)).to match_array(
-      [401, {"Content-Type" => "application/json"}, ["{\"error\":{\"status\":401,\"code\":\"unauthenticated\"}}"]],
+      [401, {"content-type" => "application/json"}, ["{\"error\":{\"status\":401,\"code\":\"unauthenticated\"}}"]],
     )
   end
 
@@ -72,7 +78,7 @@ RSpec.describe Suma::Yosoy do
 
     resp = mw.call(req)
     expect(resp).to match_array(
-      [200, {"Set-Cookie" => start_with("rack.session=")}, "ok"],
+      [200, {"set-cookie" => start_with("rack.session=")}, "ok"],
     )
     expect(decode_cookie(resp)).to contain_exactly(
       ["session_id", be_present],
@@ -87,7 +93,7 @@ RSpec.describe Suma::Yosoy do
 
     resp = mw.call(req)
     expect(resp).to match_array(
-      [402, {"Content-Type" => "application/json"}, ["{\"error\":{\"status\":402,\"x\":1}}"]],
+      [402, {"content-type" => "application/json"}, ["{\"error\":{\"status\":402,\"x\":1}}"]],
     )
   end
 
@@ -98,7 +104,7 @@ RSpec.describe Suma::Yosoy do
 
     resp = mw.call(req)
     expect(resp).to match_array(
-      [402, {"Content-Type" => "application/json"}, ["{\"error\":{\"status\":402}}"]],
+      [402, {"content-type" => "application/json"}, ["{\"error\":{\"status\":402}}"]],
     )
   end
 
@@ -109,7 +115,7 @@ RSpec.describe Suma::Yosoy do
 
     resp = mw.call(req)
     expect(resp).to match_array(
-      [401, {"Content-Type" => "application/json"}, ["{\"error\":{\"status\":401,\"code\":\"unauthenticated\"}}"]],
+      [401, {"content-type" => "application/json"}, ["{\"error\":{\"status\":401,\"code\":\"unauthenticated\"}}"]],
     )
   end
 
@@ -140,14 +146,14 @@ RSpec.describe Suma::Yosoy do
 
     Timecop.freeze(now + 299.seconds) do
       env = req
-      env["HTTP_COOKIE"] = resp_t0[1].fetch("Set-Cookie")
+      env["HTTP_COOKIE"] = resp_t0[1].fetch("set-cookie")
       resp_t299 = mw.call(env)
       expect(resp_t299[0]).to eq(200)
     end
 
     Timecop.freeze(now + 301.seconds) do
       env = req
-      env["HTTP_COOKIE"] = resp_t0[1].fetch("Set-Cookie")
+      env["HTTP_COOKIE"] = resp_t0[1].fetch("set-cookie")
       resp_t301 = mw.call(env)
       expect(resp_t301[0]).to eq(401)
     end
@@ -164,7 +170,7 @@ RSpec.describe Suma::Yosoy do
 
     Timecop.freeze(5.years.from_now) do
       env = req
-      env["HTTP_COOKIE"] = resp_t0[1].fetch("Set-Cookie")
+      env["HTTP_COOKIE"] = resp_t0[1].fetch("set-cookie")
       resp_tfuture = mw.call(env)
       expect(resp_tfuture[0]).to eq(200)
     end

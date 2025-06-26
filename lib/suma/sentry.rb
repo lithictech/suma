@@ -20,7 +20,7 @@ module Suma::Sentry
         Sentry.init do |config|
           # See https://docs.sentry.io/clients/ruby/config/ for more info.
           config.dsn = dsn
-          config.logger = self.logger
+          config.sdk_logger = self.logger
         end
       else
         Sentry.instance_variable_set(:@main_hub, nil)
