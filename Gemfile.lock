@@ -1,6 +1,6 @@
 GIT
   remote: https://github.com/lithictech/appydays.git
-  revision: a1df34558c1f0906a4f03388251a0a9167d7ef81
+  revision: 973739c88906a0049e6c7227fadc020e70c1ffde
   branch: sidekiq8
   specs:
     appydays (0.12.2)
@@ -15,7 +15,7 @@ GIT
 
 GIT
   remote: https://github.com/lithictech/sidekiq-amigo.git
-  revision: 39b8ef31a79155bad8293bb8482bbe74187c15ff
+  revision: fb59e939b5b5605979aca808fa9dbac4ebf7779a
   branch: sidekiq8
   specs:
     sidekiq-amigo (1.10.0)

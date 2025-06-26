@@ -73,7 +73,8 @@ module Suma::Async
       redis_params = Suma::Redis.conn_params(url)
       Sidekiq.configure_server do |config|
         config.redis = redis_params
-        config.options[:job_logger] = Suma::Async::JobLogger
+        config.logger = self.logger
+        config[:job_logger] = Suma::Async::JobLogger
 
         # We do NOT want the unstructured default error handler
         config.error_handlers.replace([Suma::Async::JobLogger.method(:error_handler)])
