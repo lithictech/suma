@@ -71,9 +71,10 @@ module Suma::Async
       # Very hard to to test this, so it's not tested.
       url = Suma::Redis.fetch_url(self.sidekiq_redis_provider, self.sidekiq_redis_url)
       redis_params = Suma::Redis.conn_params(url)
+      # Set this here since we need it for tests, which don't run as a real server.
+      Sidekiq.default_configuration.logger = self.logger
       Sidekiq.configure_server do |config|
         config.redis = redis_params
-        config.logger = self.logger
         config[:job_logger] = Suma::Async::JobLogger
 
         # We do NOT want the unstructured default error handler
