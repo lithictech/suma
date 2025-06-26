@@ -21,7 +21,7 @@ class Suma::AdminAPI::Auth < Suma::AdminAPI::BaseV1
     post do
       guard_authed!
       me = Suma::Member.with_email(params[:email])
-      if me.nil? || !me.authenticate(params[:password])
+      if me.nil? || !me.authenticate?(params[:password])
         merror!(403, "Those credentials are invalid or that email is not in our system.", code: "invalid_credentials")
       end
       check_role_access!(me, :read, :admin_access)

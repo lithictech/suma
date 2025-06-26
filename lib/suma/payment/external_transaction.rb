@@ -51,7 +51,9 @@ module Suma::Payment::ExternalTransaction
         self.associations[details[:name]] = strat
         self["#{details[:name]}_id"] = strat.id
         strat.associations[:payment] = self
-        return strat
+        # rubocop:disable Lint/NonLocalExitFromIterator
+        return
+        # rubocop:enable Lint/NonLocalExitFromIterator
       end
       raise "Strategy type #{strat.class.name} does not match any association type on #{self.class.name}"
     end

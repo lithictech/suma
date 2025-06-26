@@ -57,7 +57,6 @@ class Suma::Payment::FundingTransaction::StripeCardStrategy <
         # It's possible for the charge to be refunded before it is captured,
         # in which case, we can pull a fresh version of the charge and see it's refunded,
         # and the funding transaction will be canceled.
-        nil
       elsif e.code == "charge_expired_for_capture"
         # This should never happen, but it could if the payment processor is offline
         # for a long time. We always want to know about these,
