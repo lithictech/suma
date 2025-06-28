@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+# rubocop:disable Layout/LineLength
 RSpec.describe "Suma::Member::Activity", :db do
   let(:described_class) { Suma::Member::Activity }
 
@@ -14,8 +15,8 @@ RSpec.describe "Suma::Member::Activity", :db do
   end
 
   describe "HasActivityAudit" do
-    let(:auditable) { Suma::Fixtures.organization.create }
-    let(:member) { Suma::Fixtures.member.create }
+    let(:auditable) { Suma::Fixtures.organization.create(name: "MyOrg") }
+    let(:member) { Suma::Fixtures.member.create(email: "x@y.z") }
 
     it "adds an activity to the member, and the subject dataset" do
       a = auditable.audit_activity(
@@ -59,7 +60,7 @@ RSpec.describe "Suma::Member::Activity", :db do
         action: "world",
       )
       expect(a).to have_attributes(
-        summary: "#{member.email} performed testactivity on Suma::Organization[#{auditable.id}]: world",
+        summary: "x@y.z performed testactivity on Suma::Organization[#{auditable.id}] 'MyOrg': world",
       )
     end
 
@@ -69,8 +70,49 @@ RSpec.describe "Suma::Member::Activity", :db do
         member:,
       )
       expect(a).to have_attributes(
-        summary: "#{member.email} performed testactivity on Suma::Organization[#{auditable.id}]",
+        summary: "x@y.z performed testactivity on Suma::Organization[#{auditable.id}] 'MyOrg'",
+      )
+    end
+
+    it "calculates summary on receivers without a name" do
+      auditable.instance_eval do
+        undef :name
+      end
+      a = auditable.audit_activity(
+        "testactivity",
+        member:,
+      )
+      expect(a).to have_attributes(
+        summary: "x@y.z performed testactivity on Suma::Organization[#{auditable.id}]",
+      )
+    end
+
+    it "can use an object as an action (has name method)" do
+      o = Suma::Fixtures.organization.create(name: "OtherOrg")
+      a = auditable.audit_activity(
+        "testactivity",
+        member:,
+        action: o,
+      )
+      expect(a).to have_attributes(
+        summary: "x@y.z performed testactivity on Suma::Organization[#{auditable.id}] 'MyOrg': Suma::Organization[#{o.id}] 'OtherOrg'",
+      )
+    end
+
+    it "can use an object as an action (no name method)" do
+      o = Suma::Fixtures.organization.create
+      o.instance_eval do
+        undef :name
+      end
+      a = auditable.audit_activity(
+        "testactivity",
+        member:,
+        action: o,
+      )
+      expect(a).to have_attributes(
+        summary: "x@y.z performed testactivity on Suma::Organization[#{auditable.id}] 'MyOrg': Suma::Organization[#{o.id}]",
       )
     end
   end
 end
+# rubocop:enable Layout/LineLength
