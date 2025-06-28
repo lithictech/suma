@@ -30,6 +30,27 @@ class Suma::AdminAPI::OrganizationMemberships < Suma::AdminAPI::V1
       self,
       Suma::Organization::Membership,
       DetailedOrganizationMembershipEntity,
+      around: lambda do |rt, m, &block|
+        block.call
+        if (org = m.verified_organization || m.former_organization)
+          org.audit_activity(
+            "addmember",
+            member: rt.admin_member,
+            action: m.member,
+          )
+          m.member.audit_activity(
+            "createmembership",
+            member: rt.admin_member,
+            action: org,
+          )
+        else
+          m.member.audit_activity(
+            "createmembership",
+            member: rt.admin_member,
+            action: "Unverified Org: #{m.unverified_organization_name}",
+          )
+        end
+      end,
     ) do
       params do
         requires(:member, type: JSON) { use :model_with_id }

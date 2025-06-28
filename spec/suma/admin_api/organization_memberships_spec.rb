@@ -5,7 +5,7 @@ require "suma/api/behaviors"
 
 RSpec.describe Suma::AdminAPI::OrganizationMemberships, :db do
   let(:app) { described_class.build_app }
-  let(:admin) { Suma::Fixtures.member.admin.create }
+  let(:admin) { Suma::Fixtures.member.admin.create(email: "z@mysuma.org") }
 
   before(:each) do
     login_as(admin)
@@ -57,32 +57,49 @@ RSpec.describe Suma::AdminAPI::OrganizationMemberships, :db do
   end
 
   describe "POST /v1/organization_memberships/create" do
+    let(:member) { Suma::Fixtures.member.create(name: "Someone") }
+
+    # rubocop:disable Layout/LineLength
     it "creates a verified organization membership" do
-      org = Suma::Fixtures.organization.create
+      org = Suma::Fixtures.organization.create(name: "MyOrg")
 
       post "/v1/organization_memberships/create",
-           member: {id: admin.id},
+           member: {id: member.id},
            verified_organization: {id: org.id}
 
       expect(last_response).to have_status(200)
       expect(last_response.headers).to include("Created-Resource-Admin")
       expect(Suma::Organization::Membership.all).to contain_exactly(
-        have_attributes(verified_organization: include(id: org.id), member: include(id: admin.id)),
+        have_attributes(verified_organization: include(id: org.id), member: include(id: member.id)),
+      )
+      expect(member.audit_activities).to contain_exactly(
+        have_attributes(
+          summary: "z@mysuma.org performed createmembership on Suma::Member[#{member.id}] 'Someone': Suma::Organization[#{org.id}] 'MyOrg'",
+        ),
+      )
+      expect(org.audit_activities).to contain_exactly(
+        have_attributes(
+          summary: "z@mysuma.org performed addmember on Suma::Organization[#{org.id}] 'MyOrg': Suma::Member[#{member.id}] 'Someone'",
+        ),
       )
     end
 
     it "creates an unverified organization membership" do
-      org = Suma::Fixtures.organization.create
-
       post "/v1/organization_memberships/create",
-           member: {id: admin.id},
+           member: {id: member.id},
            unverified_organization_name: "xyz"
 
       expect(last_response).to have_status(200)
       expect(Suma::Organization::Membership.all).to contain_exactly(
         have_attributes(unverified_organization_name: "xyz"),
       )
+      expect(member.audit_activities).to contain_exactly(
+        have_attributes(
+          summary: "z@mysuma.org performed createmembership on Suma::Member[#{member.id}] 'Someone': Unverified Org: xyz",
+        ),
+      )
     end
+    # rubocop:enable Layout/LineLength
   end
 
   describe "POST /v1/organization_memberships/:id" do
