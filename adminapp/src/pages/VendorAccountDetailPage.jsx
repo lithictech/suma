@@ -73,8 +73,7 @@ export default function VendorAccountDetailPage() {
             title="Member Contact"
             properties={[
               { label: "ID", value: <AdminLink model={model.contact} /> },
-              { label: "Email", value: model.contact.email },
-              { label: "Phone", value: model.contact.phone },
+              { label: "Address", value: model.contact.formattedAddress },
               { label: "Relay Key", value: model.contact.relayKey },
             ]}
           />

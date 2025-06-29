@@ -12,7 +12,7 @@ class Suma::AdminAPI::Vendors < Suma::AdminAPI::V1
     expose :slug
     expose :services, with: VendorServiceEntity
     expose :products, with: ProductEntity
-    expose :configurations, with: VendorConfigurationEntity
+    expose :configurations, with: AnonProxyVendorConfigurationEntity
     expose_image :image
   end
 

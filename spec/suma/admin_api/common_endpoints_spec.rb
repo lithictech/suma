@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require "suma/admin_api/anon_proxy"
 require "suma/admin_api/common_endpoints"
 require "suma/admin_api/vendors"
 require "suma/api/behaviors"

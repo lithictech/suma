@@ -13,7 +13,7 @@ class Suma::AdminAPI::Programs < Suma::AdminAPI::V1
     expose :lyft_pass_program_id
     expose :commerce_offerings, with: OfferingEntity
     expose :vendor_services, with: VendorServiceEntity
-    expose :anon_proxy_vendor_configurations, as: :configurations, with: VendorConfigurationEntity
+    expose :anon_proxy_vendor_configurations, as: :configurations, with: AnonProxyVendorConfigurationEntity
     expose :payment_triggers, with: PaymentTriggerEntity
     expose :enrollments, with: ProgramEnrollmentEntity
     expose :audit_activities, with: ActivityEntity

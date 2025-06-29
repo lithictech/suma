@@ -232,31 +232,31 @@ export default {
     post(`/adminapi/v1/vendor_services/${id}/programs`, data, ...args),
 
   getVendorAccounts: (data, ...args) =>
-    get("/adminapi/v1/anon_proxy/vendor_accounts", data, ...args),
+    get("/adminapi/v1/anon_proxy_vendor_accounts", data, ...args),
   getVendorAccount: ({ id, ...data }, ...args) =>
-    get(`/adminapi/v1/anon_proxy/vendor_accounts/${id}`, data, ...args),
+    get(`/adminapi/v1/anon_proxy_vendor_accounts/${id}`, data, ...args),
   destroyVendorAccount: ({ id, ...data }, ...args) =>
-    post(`/adminapi/v1/anon_proxy/vendor_accounts/${id}/destroy`, data, ...args),
+    post(`/adminapi/v1/anon_proxy_vendor_accounts/${id}/destroy`, data, ...args),
 
   getVendorConfigurations: (data, ...args) =>
-    get("/adminapi/v1/anon_proxy/vendor_configurations", data, ...args),
+    get("/adminapi/v1/anon_proxy_vendor_configurations", data, ...args),
   getVendorConfiguration: ({ id, ...data }, ...args) =>
-    get(`/adminapi/v1/anon_proxy/vendor_configurations/${id}`, data, ...args),
+    get(`/adminapi/v1/anon_proxy_vendor_configurations/${id}`, data, ...args),
   updateVendorConfiguration: ({ id, ...data }, ...args) =>
-    postForm(`/adminapi/v1/anon_proxy/vendor_configurations/${id}`, data, ...args),
+    postForm(`/adminapi/v1/anon_proxy_vendor_configurations/${id}`, data, ...args),
   updateVendorConfigurationPrograms: ({ id, ...data }, ...args) =>
-    post(`/adminapi/v1/anon_proxy/vendor_configurations/${id}/programs`, data, ...args),
+    post(`/adminapi/v1/anon_proxy_vendor_configurations/${id}/programs`, data, ...args),
 
   getAnonMemberContacts: (data, ...args) =>
-    get(`/adminapi/v1/anon_proxy/member_contacts`, data, ...args),
+    get(`/adminapi/v1/anon_proxy_member_contacts`, data, ...args),
   provisionAnonMemberContact: (data, ...args) =>
-    post("/adminapi/v1/anon_proxy/member_contacts/provision", data, ...args),
+    post("/adminapi/v1/anon_proxy_member_contacts/provision", data, ...args),
   getAnonMemberContact: ({ id, ...data }, ...args) =>
-    get(`/adminapi/v1/anon_proxy/member_contacts/${id}`, data, ...args),
+    get(`/adminapi/v1/anon_proxy_member_contacts/${id}`, data, ...args),
   updateAnonMemberContact: ({ id, ...data }, ...args) =>
-    post(`/adminapi/v1/anon_proxy/member_contacts/${id}`, data, ...args),
+    post(`/adminapi/v1/anon_proxy_member_contacts/${id}`, data, ...args),
   destroyMemberContact: ({ id, ...data }, ...args) =>
-    post(`/adminapi/v1/anon_proxy/member_contacts/${id}/destroy`, data, ...args),
+    post(`/adminapi/v1/anon_proxy_member_contacts/${id}/destroy`, data, ...args),
 
   getCommerceOrders: (data, ...args) =>
     get(`/adminapi/v1/commerce_orders`, data, ...args),
