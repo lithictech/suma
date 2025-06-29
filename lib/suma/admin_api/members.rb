@@ -119,7 +119,6 @@ class Suma::AdminAPI::Members < Suma::AdminAPI::V1
           m.replace_roles(role_models)
           m.audit_activity(
             "rolechange",
-            member: rt.admin_member,
             action: m.roles.map(&:name).join(", "),
           )
         end
@@ -164,7 +163,6 @@ class Suma::AdminAPI::Members < Suma::AdminAPI::V1
         member.db.transaction do
           member.audit_activity(
             "accountclosed",
-            member: admin,
             prefix: "Admin #{admin.email} closed member #{member.email} account",
           )
           member.soft_delete unless member.soft_deleted?

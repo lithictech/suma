@@ -30,23 +30,20 @@ class Suma::AdminAPI::OrganizationMemberships < Suma::AdminAPI::V1
       self,
       Suma::Organization::Membership,
       DetailedOrganizationMembershipEntity,
-      around: lambda do |rt, m, &block|
+      around: lambda do |_rt, m, &block|
         block.call
         if (org = m.verified_organization || m.former_organization)
           org.audit_activity(
             "addmember",
-            member: rt.admin_member,
             action: m.member,
           )
           m.member.audit_activity(
             "createmembership",
-            member: rt.admin_member,
             action: org,
           )
         else
           m.member.audit_activity(
             "createmembership",
-            member: rt.admin_member,
             action: "Unverified Org: #{m.unverified_organization_name}",
           )
         end
@@ -72,23 +69,19 @@ class Suma::AdminAPI::OrganizationMemberships < Suma::AdminAPI::V1
         if remove_from_org
           m.former_organization.audit_activity(
             "removemember",
-            member: rt.admin_member,
             action: "Suma::Member[#{m.member.id}] #{m.member.name}",
           )
           m.member.audit_activity(
             "endmembership",
-            member: rt.admin_member,
             action: "Suma::Organization[#{m.former_organization.id}] #{m.former_organization.name}",
           )
         elsif rt.params[:verified_organization]
           m.verified_organization.audit_activity(
             "addmember",
-            member: rt.admin_member,
             action: "Suma::Member[#{m.member.id}] #{m.member.name}",
           )
           m.member.audit_activity(
             "beginmembership",
-            member: rt.admin_member,
             action: "Suma::Organization[#{m.verified_organization.id}] #{m.verified_organization.name}",
           )
         end

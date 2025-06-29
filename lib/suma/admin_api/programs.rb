@@ -78,7 +78,6 @@ class Suma::AdminAPI::Programs < Suma::AdminAPI::V1
           # Audit app_link changes, since they could be used maliciously.
           m.audit_activity(
             "applinkchange",
-            member: rt.admin_member,
             action: rt.params[:app_link],
           )
         end

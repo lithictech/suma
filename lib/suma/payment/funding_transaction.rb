@@ -176,7 +176,7 @@ class Suma::Payment::FundingTransaction < Suma::Postgres::Model(:payment_funding
     if collected && (member = self.originating_payment_account.member)
       self.audit_activity(
         "fundscollecting",
-        member:,
+        actor: member,
         summary: "FundingTransaction[#{self.id}] started collecting funds",
       )
     end

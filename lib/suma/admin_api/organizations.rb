@@ -59,7 +59,6 @@ class Suma::AdminAPI::Organizations < Suma::AdminAPI::V1
           m.replace_roles(role_models)
           m.audit_activity(
             "rolechange",
-            member: rt.admin_member,
             action: m.roles.map(&:name).join(", "),
           )
         end

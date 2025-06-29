@@ -330,7 +330,6 @@ module Suma::AdminAPI::CommonEndpoints
             m.save_changes
             m.audit_activity(
               "programchange",
-              member: admin_member,
               action: m.programs.map { |p| p.name.en }.join(", "),
             )
             status 200
