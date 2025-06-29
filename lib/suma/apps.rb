@@ -32,6 +32,9 @@ require "suma/api/surveys"
 require "suma/api/system"
 require "suma/api/webhookdb"
 
+require "suma/admin_api/anon_proxy_member_contacts"
+require "suma/admin_api/anon_proxy_vendor_accounts"
+require "suma/admin_api/anon_proxy_vendor_configurations"
 require "suma/admin_api/auth"
 require "suma/admin_api/bank_accounts"
 require "suma/admin_api/book_transactions"
@@ -60,7 +63,6 @@ require "suma/admin_api/roles"
 require "suma/admin_api/search"
 require "suma/admin_api/vendors"
 require "suma/admin_api/vendor_services"
-require "suma/admin_api/anon_proxy"
 
 require "suma/sse/middleware"
 require "suma/url_shortener"
@@ -86,7 +88,9 @@ module Suma::Apps
   end
 
   class AdminAPI < Suma::Service
-    mount Suma::AdminAPI::AnonProxy
+    mount Suma::AdminAPI::AnonProxyMemberContacts
+    mount Suma::AdminAPI::AnonProxyVendorAccounts
+    mount Suma::AdminAPI::AnonProxyVendorConfigurations
     mount Suma::AdminAPI::Auth
     mount Suma::AdminAPI::BankAccounts
     mount Suma::AdminAPI::BookTransactions

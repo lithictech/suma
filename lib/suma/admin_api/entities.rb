@@ -204,12 +204,27 @@ module Suma::AdminAPI::Entities
     expose :undiscounted_surcharge, with: MoneyEntity, &self.delegate_to(:undiscounted_rate, :surcharge, safe: true)
   end
 
-  class VendorConfigurationEntity < BaseEntity
+  class AnonProxyVendorConfigurationEntity < BaseEntity
     include AutoExposeBase
     expose :vendor, with: VendorEntity
     expose :app_install_link
     expose :auth_to_vendor_key
     expose :enabled
+  end
+
+  class AnonProxyMemberContactEntity < BaseEntity
+    include Suma::AdminAPI::Entities
+    include AutoExposeBase
+    expose :member, with: MemberEntity
+    expose :formatted_address
+    expose :relay_key
+  end
+
+  class AnonProxyVendorAccountEntity < BaseEntity
+    include Suma::AdminAPI::Entities
+    include AutoExposeBase
+    expose :member, with: MemberEntity
+    expose :configuration, with: AnonProxyVendorConfigurationEntity
   end
 
   class ChargeEntity < BaseEntity
