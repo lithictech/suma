@@ -74,8 +74,8 @@ class Suma::API::Auth < Suma::API::V1
         if is_new
           member.audit_activity(
             "registered",
+            actor: member,
             prefix: "Created from API",
-            member:,
           )
         end
         Suma::Member::ResetCode.replace_active(member, transport: "sms")
@@ -153,7 +153,9 @@ class Suma::API::Auth < Suma::API::V1
       guard_authed!
       Suma::Member.db.transaction do
         member = Suma::Member.with_us_phone(params[:phone])
+        created = false
         if member.nil?
+          created = true
           member = Suma::Member.new(
             phone: params[:phone],
             name: params[:name],
@@ -166,20 +168,22 @@ class Suma::API::Auth < Suma::API::V1
             channel: params[:channel],
             event_name: params[:event_name] || "",
           )
-          member.audit_activity(
-            "registered",
-            prefix: "Created from referral API",
-            member:,
-          )
-          member.message_preferences!.update(preferred_language: params[:language]) if params[:language].present?
-        else
-          member.audit_activity(
-            "added_to_contact_list",
-            prefix: "Added to contact list (channel: #{params[:channel]}, event_name: #{params[:event_name] || ''})",
-            member:,
-          )
         end
-        member.ensure_membership_in_organization(params[:organization_name]) if params.key?(:organization_name)
+        Suma.set_request_user_and_admin(member, nil) do
+          if created
+            member.audit_activity(
+              "registered",
+              prefix: "Created from referral API",
+            )
+            member.message_preferences!.update(preferred_language: params[:language]) if params[:language].present?
+          else
+            member.audit_activity(
+              "added_to_contact_list",
+              prefix: "Added to contact list (channel: #{params[:channel]}, event_name: #{params[:event_name] || ''})",
+            )
+          end
+          member.ensure_membership_in_organization(params[:organization_name]) if params.key?(:organization_name)
+        end
         status 200
       end
     end

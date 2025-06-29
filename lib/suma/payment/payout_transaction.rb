@@ -265,7 +265,7 @@ class Suma::Payment::PayoutTransaction < Suma::Postgres::Model(:payment_payout_t
     if sent && (member = self.originating_payment_account.member)
       self.audit_activity(
         "fundssending",
-        member:,
+        actor: member,
         summary: "PayoutTransaction[#{self.id}] started sending funds",
       )
     end

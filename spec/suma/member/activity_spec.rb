@@ -16,12 +16,12 @@ RSpec.describe "Suma::Member::Activity", :db do
 
   describe "HasActivityAudit" do
     let(:auditable) { Suma::Fixtures.organization.create(name: "MyOrg") }
-    let(:member) { Suma::Fixtures.member.create(email: "x@y.z") }
+    let(:actor) { Suma::Fixtures.member.create(email: "x@y.z") }
 
     it "adds an activity to the member, and the subject dataset" do
       a = auditable.audit_activity(
         "testactivity",
-        member:,
+        actor:,
         summary: "hi",
       )
       expect(a.values).to include(
@@ -30,14 +30,44 @@ RSpec.describe "Suma::Member::Activity", :db do
         subject_type: "Suma::Organization",
         summary: "hi",
       )
-      expect(member.activities).to have_same_ids_as(a)
+      expect(actor.activities).to have_same_ids_as(a)
       expect(auditable.audit_activities).to have_same_ids_as(a)
+    end
+
+    describe "the actor" do
+      it "has an email templated into the default action, if present" do
+        a = auditable.audit_activity("test", actor:)
+        expect(a.values).to include(
+          summary: /x@y\.z performed test/,
+        )
+      end
+
+      it "uses the actor name if email is not present" do
+        actor.update(email: nil, name: "Jim")
+        a = auditable.audit_activity("test", actor:)
+        expect(a.values).to include(
+          summary: /Jim performed test/,
+        )
+      end
+
+      it "defaults to the request admin" do
+        a = Suma.set_request_user_and_admin(nil, actor) do
+          auditable.audit_activity("test")
+        end
+        expect(a.values).to include(
+          summary: /x@y\.z performed test/,
+        )
+      end
+
+      it "errors if no actor is given and there is no request admin" do
+        expect { auditable.audit_activity("test") }.to raise_error(ArgumentError, /actor must be provided/)
+      end
     end
 
     it "calculates summary with a prefix and action" do
       a = auditable.audit_activity(
         "testactivity",
-        member:,
+        actor:,
         prefix: "hello",
         action: "world",
       )
@@ -47,7 +77,7 @@ RSpec.describe "Suma::Member::Activity", :db do
     it "calculates summary with a prefix" do
       a = auditable.audit_activity(
         "testactivity",
-        member:,
+        actor:,
         prefix: "hello",
       )
       expect(a).to have_attributes(summary: "hello")
@@ -56,7 +86,7 @@ RSpec.describe "Suma::Member::Activity", :db do
     it "calculates summary with an action" do
       a = auditable.audit_activity(
         "testactivity",
-        member:,
+        actor:,
         action: "world",
       )
       expect(a).to have_attributes(
@@ -67,7 +97,7 @@ RSpec.describe "Suma::Member::Activity", :db do
     it "calculates summary without any hint arguments" do
       a = auditable.audit_activity(
         "testactivity",
-        member:,
+        actor:,
       )
       expect(a).to have_attributes(
         summary: "x@y.z performed testactivity on Suma::Organization[#{auditable.id}] 'MyOrg'",
@@ -80,7 +110,7 @@ RSpec.describe "Suma::Member::Activity", :db do
       end
       a = auditable.audit_activity(
         "testactivity",
-        member:,
+        actor:,
       )
       expect(a).to have_attributes(
         summary: "x@y.z performed testactivity on Suma::Organization[#{auditable.id}]",
@@ -91,7 +121,7 @@ RSpec.describe "Suma::Member::Activity", :db do
       o = Suma::Fixtures.organization.create(name: "OtherOrg")
       a = auditable.audit_activity(
         "testactivity",
-        member:,
+        actor:,
         action: o,
       )
       expect(a).to have_attributes(
@@ -106,7 +136,7 @@ RSpec.describe "Suma::Member::Activity", :db do
       end
       a = auditable.audit_activity(
         "testactivity",
-        member:,
+        actor:,
         action: o,
       )
       expect(a).to have_attributes(
