@@ -11,6 +11,7 @@ class Suma::AdminAPI::OrganizationMemberships < Suma::AdminAPI::V1
     include AutoExposeDetail
     expose :matched_organization, with: OrganizationEntity
     expose :verification, with: OrganizationMembershipVerificationEntity
+    expose :audit_activities, with: ActivityEntity
   end
 
   resource :organization_memberships do
@@ -32,6 +33,7 @@ class Suma::AdminAPI::OrganizationMemberships < Suma::AdminAPI::V1
       DetailedOrganizationMembershipEntity,
       around: lambda do |_rt, m, &block|
         block.call
+        m.audit_activity("create")
         if (org = m.verified_organization || m.former_organization)
           org.audit_activity(
             "addmember",
@@ -67,6 +69,7 @@ class Suma::AdminAPI::OrganizationMemberships < Suma::AdminAPI::V1
         block.call
         # Audits do not modify the row itself so should come after
         if remove_from_org
+          m.audit_activity("end")
           m.former_organization.audit_activity(
             "removemember",
             action: "Suma::Member[#{m.member.id}] #{m.member.name}",
@@ -76,6 +79,7 @@ class Suma::AdminAPI::OrganizationMemberships < Suma::AdminAPI::V1
             action: "Suma::Organization[#{m.former_organization.id}] #{m.former_organization.name}",
           )
         elsif rt.params[:verified_organization]
+          m.audit_activity("verify")
           m.verified_organization.audit_activity(
             "addmember",
             action: "Suma::Member[#{m.member.id}] #{m.member.name}",

@@ -51,7 +51,7 @@ RSpec.describe "Suma::Member::Activity", :db do
       end
 
       it "defaults to the request admin" do
-        a = Suma.set_request_user_and_admin(nil, actor) do
+        a = Suma.set_request_user_and_admin(Suma::Fixtures.member.create, actor) do
           auditable.audit_activity("test")
         end
         expect(a.values).to include(
@@ -59,7 +59,16 @@ RSpec.describe "Suma::Member::Activity", :db do
         )
       end
 
-      it "errors if no actor is given and there is no request admin" do
+      it "falls back to the request user" do
+        a = Suma.set_request_user_and_admin(actor, nil) do
+          auditable.audit_activity("test")
+        end
+        expect(a.values).to include(
+          summary: /x@y\.z performed test/,
+        )
+      end
+
+      it "errors if no actor is given and there is no request info or user" do
         expect { auditable.audit_activity("test") }.to raise_error(ArgumentError, /actor must be provided/)
       end
     end
