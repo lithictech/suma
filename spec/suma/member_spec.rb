@@ -336,6 +336,13 @@ RSpec.describe "Suma::Member", :db do
       let(:m) { Suma::Fixtures.member.create }
       let(:o) { Suma::Fixtures.organization.create }
 
+      around(:each) do |example|
+        # Needed for auditing
+        Suma.set_request_user_and_admin(m, nil) do
+          example.run
+        end
+      end
+
       it "reuses an existing verified membership" do
         membership = m.add_organization_membership(verified_organization: o)
         expect(m.ensure_membership_in_organization(o.name)).to be === membership
@@ -344,6 +351,13 @@ RSpec.describe "Suma::Member", :db do
       it "reuses an existing unverified membership" do
         membership = m.add_organization_membership(unverified_organization_name: o.name)
         expect(m.ensure_membership_in_organization(o.name)).to be === membership
+      end
+
+      it "does not use a former membership" do
+        membership = m.add_organization_membership(former_organization: o, formerly_in_organization_at: Time.now)
+        m2 = m.ensure_membership_in_organization(o.name)
+        expect(m2).to_not be === membership
+        expect(m2.id).to be > membership.id
       end
 
       it "creates a new unverified membership" do

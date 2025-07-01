@@ -313,13 +313,19 @@ class Suma::Member < Suma::Postgres::Model(:members)
   # :section: Organizations
   #
 
+  # Ensure the receiver is a member in an organization with the given name.
+  # If there is already an 'active' (unverified, verified) membership,
+  # return it. Otherwise, create a new one and return it.
+  # @param [String] org_name
   def ensure_membership_in_organization(org_name)
     org_name = org_name.strip
     got = self.organization_memberships.find do |om|
       om.unverified_organization_name == org_name || om.verified_organization&.name == org_name
     end
     return got if got
-    return self.add_organization_membership(unverified_organization_name: org_name)
+    m = self.add_organization_membership(unverified_organization_name: org_name)
+    m.audit_activity("create")
+    return m
   end
 
   #

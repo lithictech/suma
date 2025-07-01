@@ -1,5 +1,6 @@
 import api from "../api";
 import AdminLink from "../components/AdminLink";
+import AuditActivityList from "../components/AuditActivityList";
 import OrganizationMembership from "../components/OrganizationMembership";
 import ResourceDetail from "../components/ResourceDetail";
 import { dayjs } from "../modules/dayConfig";
@@ -42,6 +43,8 @@ export default function OrganizationMembershipDetailPage() {
           ),
         },
       ]}
-    />
+    >
+      {(model) => [<AuditActivityList activities={model.auditActivities} />]}
+    </ResourceDetail>
   );
 }

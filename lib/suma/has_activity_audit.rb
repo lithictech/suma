@@ -14,6 +14,7 @@ module Suma::HasActivityAudit
     #
     # @param message_name [String] Simple, unique slug to group the action.
     # @param actor [Suma::Member] The actor. Default to +Suma.request_user_and_admin+ admin.
+    #   Fall back to the request member. If nil, raise +ArgumentError+.
     # @param action [String] See below.
     # @param prefix [String] See below.
     # @param summary [String] See below.
@@ -27,7 +28,10 @@ module Suma::HasActivityAudit
     # - If only prefix is given, the summary looks like "<prefix>".
     # - If action nor prefix are given, the summary looks like "a@b.c peformed rolechange on Suma::Member[5]".
     m.define_method(:audit_activity) do |message_name, actor: nil, action: nil, prefix: nil, summary: nil|
-      actor ||= Suma.request_user_and_admin.last
+      if actor.nil?
+        user, admin = Suma.request_user_and_admin
+        actor = actor || admin || user
+      end
       raise ArgumentError, "actor must be provided or in the request" if actor.nil?
       if action.is_a?(Sequel::Model)
         action_model = action

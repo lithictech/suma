@@ -1,10 +1,12 @@
 # frozen_string_literal: true
 
-require "suma/postgres/model"
 require "suma/admin_linked"
+require "suma/has_activity_audit"
+require "suma/postgres/model"
 
 class Suma::Organization::Membership < Suma::Postgres::Model(:organization_memberships)
   include Suma::AdminLinked
+  include Suma::HasActivityAudit
   include Suma::Postgres::HybridSearch
 
   plugin :hybrid_search
