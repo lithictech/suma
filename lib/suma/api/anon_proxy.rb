@@ -141,7 +141,9 @@ class Suma::API::AnonProxy < Suma::API::V1
     expose :magic_link do |instance|
       instance.latest_access_code_is_recent? ? instance.latest_access_code_magic_link : nil
     end
-    expose :registered_with_vendor?, as: :registered_with_vendor
+    expose :needs_attention do |instance|
+      instance.needs_attention?(now: self.current_time)
+    end
     expose :vendor_name, &self.delegate_to(:configuration, :vendor, :name)
     expose :vendor_slug, &self.delegate_to(:configuration, :vendor, :slug)
     expose :vendor_image, with: ImageEntity, &self.delegate_to(:configuration, :vendor, :images, :first)

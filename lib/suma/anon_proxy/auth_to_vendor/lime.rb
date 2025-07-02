@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class Suma::AnonProxy::AuthToVendor::Lime < Suma::AnonProxy::AuthToVendor
-  def auth
+  def auth(*)
     contact = self.vendor_account.ensure_anonymous_contact(:email)
     Suma::Http.post(
       "https://web-production.lime.bike/api/rider/v2/onboarding/magic-link",

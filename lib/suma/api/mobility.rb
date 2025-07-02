@@ -101,7 +101,7 @@ class Suma::API::Mobility < Suma::API::V1
       else
         vehicle = matches[0]
       end
-      present vehicle, with: MobilityVehicleEntity, member:, request:, current_time:
+      present vehicle, with: MobilityVehicleEntity, member:, request:
     end
 
     params do

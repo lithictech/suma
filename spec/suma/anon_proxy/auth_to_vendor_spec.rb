@@ -6,6 +6,7 @@ RSpec.describe Suma::AnonProxy::AuthToVendor, :db do
   end
   let(:member) { va.member }
   let(:auth_to_vendor_key) { raise NotImplementedError }
+  let(:now) { Time.now }
 
   shared_examples_for "an AuthToVendor" do
     it "responds to the necessary methods" do
@@ -23,7 +24,7 @@ RSpec.describe Suma::AnonProxy::AuthToVendor, :db do
     it "increments the call count" do
       Suma::AnonProxy::AuthToVendor::Fake.reset
       expect do
-        va.auth_to_vendor.auth
+        va.auth_to_vendor.auth(now:)
       end.to change { Suma::AnonProxy::AuthToVendor::Fake.calls }.from(0).to(1)
     end
   end
@@ -46,7 +47,7 @@ RSpec.describe Suma::AnonProxy::AuthToVendor, :db do
         ).
         to_return(status: 200, body: "", headers: {})
 
-      va.auth_to_vendor.auth
+      va.auth_to_vendor.auth(now:)
       expect(req).to have_been_made
     end
 
@@ -54,7 +55,7 @@ RSpec.describe Suma::AnonProxy::AuthToVendor, :db do
       req = stub_request(:post, "https://web-production.lime.bike/api/rider/v2/onboarding/magic-link").
         to_return(status: 200, body: "", headers: {})
 
-      va.auth_to_vendor.auth
+      va.auth_to_vendor.auth(now:)
       expect(req).to have_been_made
       expect(va.refresh.contact).to be_a(Suma::AnonProxy::MemberContact)
     end
@@ -95,16 +96,16 @@ RSpec.describe Suma::AnonProxy::AuthToVendor, :db do
         enrolled = Suma::Fixtures.program_enrollment(member:).in(lyft_pass_program_id: "34").create
         nogood = Suma::Fixtures.program_enrollment(member:).in(lyft_pass_program_id: "56").unapproved.create
         no_program = Suma::Fixtures.program_enrollment(member:).create
-        va.auth_to_vendor.auth
+        va.auth_to_vendor.auth(now:)
       end
       expect(req).to have_been_made
-      expect(va).to have_attributes(registered_with_vendor: '{"34":"2022-12-15T12:00:15Z"}')
+      expect(va.registrations).to contain_exactly(have_attributes(external_program_id: "34"))
     end
 
     it "noops if there are no programs" do
       Suma::ExternalCredential.dataset.delete
-      va.auth_to_vendor.auth
-      expect(va).to have_attributes(registered_with_vendor: "{}")
+      va.auth_to_vendor.auth(now:)
+      expect(va.registrations).to be_empty
     end
 
     it "does not re-register the account if the member already registered with that program" do
@@ -114,35 +115,26 @@ RSpec.describe Suma::AnonProxy::AuthToVendor, :db do
       Timecop.freeze("2020-01-15T12:00:00Z") do
         Suma::Fixtures.program_enrollment(member:).in(lyft_pass_program_id: "34").create
         Suma::Fixtures.program_enrollment(member:).in(lyft_pass_program_id: "56").create
-        va.update(registered_with_vendor: '{"34":""}')
-        va.auth_to_vendor.auth
+        va.add_registration(external_program_id: "34")
+        va.auth_to_vendor.auth(now:)
       end
       expect(req).to have_been_made
-      expect(va).to have_attributes(registered_with_vendor: '{"34":"","56":"2020-01-15T12:00:00Z"}')
-    end
-
-    it "handles invalid JSON in registered_with_vendor" do
-      va.update(registered_with_vendor: "abc")
-      va.auth_to_vendor.auth
-      expect(va).to have_attributes(registered_with_vendor: "{}")
-
-      va.update(registered_with_vendor: "[]")
-      va.auth_to_vendor.auth
-      expect(va).to have_attributes(registered_with_vendor: "{}")
+      expect(va.registrations).to contain_exactly(
+        have_attributes(external_program_id: "34"),
+        have_attributes(external_program_id: "56"),
+      )
     end
 
     it "needs attention if the user is not registered in an available program" do
-      expect(va.auth_to_vendor).to be_needs_attention(now: Time.now)
-      va.update(registered_with_vendor: "{}")
-      expect(va.auth_to_vendor).to_not be_needs_attention(now: Time.now)
+      expect(va.auth_to_vendor).to_not be_needs_attention(now:)
 
       Suma::Fixtures.program_enrollment(member:).in(lyft_pass_program_id: "5678").create
-      expect(va.auth_to_vendor).to be_needs_attention(now: Time.now)
-      va.update(registered_with_vendor: '{"5678":""}')
-      expect(va.auth_to_vendor).to_not be_needs_attention(now: Time.now)
+      expect(va.auth_to_vendor).to be_needs_attention(now:)
+      va.add_registration(external_program_id: "5678")
+      expect(va.auth_to_vendor).to_not be_needs_attention(now:)
 
       Suma::Fixtures.program_enrollment(member:).in(lyft_pass_program_id: "1234").create
-      expect(va.auth_to_vendor).to be_needs_attention(now: Time.now)
+      expect(va.auth_to_vendor).to be_needs_attention(now:)
     end
   end
 end
