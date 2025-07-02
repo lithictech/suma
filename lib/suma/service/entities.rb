@@ -17,7 +17,7 @@ module Suma::Service::Entities
   end
 
   class Base < Grape::Entity
-    extend Suma::MethodUtilities
+    def current_time = self.options.fetch(:env).fetch("now")
 
     def self.timezone(*lookup_path, field: nil)
       return lambda do |instance, opts|

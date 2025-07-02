@@ -52,6 +52,7 @@ module Suma::Postgres
     "suma/anon_proxy/member_contact",
     "suma/anon_proxy/vendor_account",
     "suma/anon_proxy/vendor_account_message",
+    "suma/anon_proxy/vendor_account_registration",
     "suma/anon_proxy/vendor_configuration",
     "suma/charge",
     "suma/charge/line_item",

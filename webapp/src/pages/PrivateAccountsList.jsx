@@ -109,12 +109,12 @@ export default function PrivateAccountsList() {
 }
 
 function PrivateAccount({ account, onHelp }) {
-  const { registeredWithVendor, vendorImage } = account;
+  const { needsAttention, vendorImage } = account;
   const [buttonStatus, setButtonStatus] = React.useState(INITIAL);
   const pollingController = React.useRef(new AbortController());
   const [error, setError] = useError(null);
   const [pollingSuccess, setPollingSuccess] = React.useState(null);
-  const isLinked = pollingSuccess || registeredWithVendor;
+  const isLinked = pollingSuccess || !needsAttention;
 
   useUnmountEffect(() => {
     pollingController.current.abort();

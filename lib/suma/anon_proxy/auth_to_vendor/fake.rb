@@ -22,7 +22,7 @@ class Suma::AnonProxy::AuthToVendor::Fake < Suma::AnonProxy::AuthToVendor
     super
   end
 
-  def auth = self.class._auth
+  def auth(*) = self.class._auth
   def needs_polling? = self.class.needs_polling
   def needs_attention?(*) = self.class.needs_attention
 end

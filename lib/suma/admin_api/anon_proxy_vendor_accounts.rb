@@ -6,6 +6,13 @@ class Suma::AdminAPI::AnonProxyVendorAccounts < Suma::AdminAPI::V1
   include Suma::Service::Types
   include Suma::AdminAPI::Entities
 
+  class VendorAccountRegistrationEntity < BaseEntity
+    include Suma::AdminAPI::Entities
+    include AutoExposeBase
+    expose :external_program_id
+    expose :external_registration_id
+  end
+
   class DetailedVendorAccountEntity < AnonProxyVendorAccountEntity
     include Suma::AdminAPI::Entities
     include AutoExposeDetail
@@ -13,8 +20,8 @@ class Suma::AdminAPI::AnonProxyVendorAccounts < Suma::AdminAPI::V1
     expose :latest_access_code_set_at
     expose :latest_access_code_requested_at
     expose :latest_access_code_magic_link
-    expose :registered_with_vendor
     expose :contact, with: AnonProxyMemberContactEntity
+    expose :registrations, with: VendorAccountRegistrationEntity
   end
 
   resource :anon_proxy_vendor_accounts do
