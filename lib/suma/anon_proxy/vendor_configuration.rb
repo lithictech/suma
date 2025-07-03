@@ -19,7 +19,6 @@ class Suma::AnonProxy::VendorConfiguration < Suma::Postgres::Model(:anon_proxy_v
   plugin :translated_text, :linked_success_instructions, Suma::TranslatedText
 
   many_to_one :vendor, class: "Suma::Vendor"
-  one_to_many :accounts, class: "Suma::AnonProxy::VendorAccount", key: :configuration_id
 
   many_to_many :programs,
                class: "Suma::Program",

@@ -176,6 +176,7 @@ RSpec.describe "Suma::Member", :db do
       c.legal_entity.update(name: "")
       c.update(name: "Jim Davis")
       expect(c.legal_entity.refresh).to have_attributes(name: "Jim Davis")
+      expect(c.legal_entity.member).to be === c
     end
 
     it "gets its name copied on member update if it matches the previous value" do

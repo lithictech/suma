@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "suma/behaviors"
+
 RSpec.describe "Suma::Payment::PayoutTransaction", :db, reset_configuration: Suma::Payment do
   let(:described_class) { Suma::Payment::PayoutTransaction }
 
@@ -371,6 +373,12 @@ RSpec.describe "Suma::Payment::PayoutTransaction", :db, reset_configuration: Sum
           )
         end
       end.to raise_error(Sequel::CheckConstraintViolation)
+    end
+  end
+
+  describe "AuditLog" do
+    it_behaves_like "an audit log", Suma::Payment::PayoutTransaction::AuditLog, :payout_transaction do
+      let(:parent) { Suma::Fixtures.payout_transaction.with_fake_strategy.create }
     end
   end
 end

@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "suma/behaviors"
+
 RSpec.describe "Suma::Payment::FundingTransaction", :db, reset_configuration: Suma::Payment do
   let(:described_class) { Suma::Payment::FundingTransaction }
 
@@ -255,6 +257,12 @@ RSpec.describe "Suma::Payment::FundingTransaction", :db, reset_configuration: Su
       payment = Suma::Fixtures.funding_transaction.with_fake_strategy.create
       expect { payment.save_changes }.to_not raise_error
       expect { payment.update(fake_strategy: nil) }.to raise_error(/strategy is not available/i)
+    end
+  end
+
+  describe "AuditLog" do
+    it_behaves_like "an audit log", Suma::Payment::FundingTransaction::AuditLog, :funding_transaction do
+      let(:parent) { Suma::Fixtures.funding_transaction.with_fake_strategy.create }
     end
   end
 end

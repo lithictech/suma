@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "suma/behaviors"
+
 RSpec.describe "Suma::Mobility::Trip", :db do
   let(:described_class) { Suma::Mobility::Trip }
   let(:member) { Suma::Fixtures.member.onboarding_verified.with_cash_ledger(amount: money("$15")).create }
@@ -9,6 +11,10 @@ RSpec.describe "Suma::Mobility::Trip", :db do
 
   it "can be fixtured" do
     expect(Suma::Fixtures.mobility_trip.create).to be_a(described_class)
+  end
+
+  it_behaves_like "a type with a single image" do
+    let(:instance) { Suma::Fixtures.mobility_trip.create }
   end
 
   describe "start_trip" do

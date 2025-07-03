@@ -25,10 +25,15 @@ RSpec.describe "Suma::Charge", :db do
     let(:book_transaction) { Suma::Fixtures.book_transaction.create }
     let(:memo) { Suma::Fixtures.translated_text.create }
 
-    it "requires self data set if not using a book transaction" do
+    it "requires self data to be set if not using a book transaction" do
       li = described_class.create_self(charge:, amount: Money.new(500), memo:)
       expect { li.update(book_transaction:) }.to raise_error(Sequel::CheckConstraintViolation)
       described_class.create(charge:, book_transaction:)
+    end
+
+    it "has an association from SelfData to LineItem" do
+      li = described_class.create_self(charge:, amount: Money.new(500), memo:)
+      expect(li.self_data.line_item).to be === li
     end
 
     it "can be fixtured" do

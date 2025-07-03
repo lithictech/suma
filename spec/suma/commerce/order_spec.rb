@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "suma/behaviors"
+
 RSpec.describe "Suma::Commerce::Order", :db do
   let(:described_class) { Suma::Commerce::Order }
 
@@ -231,6 +233,12 @@ RSpec.describe "Suma::Commerce::Order", :db do
       expect(limited_product.inventory.refresh).to have_attributes(
         quantity_on_hand: 4, quantity_pending_fulfillment: 2,
       )
+    end
+  end
+
+  describe "OrderAuditLog" do
+    it_behaves_like "an audit log", Suma::Commerce::OrderAuditLog, :order do
+      let(:parent) { Suma::Fixtures.order.create }
     end
   end
 end
