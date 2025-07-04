@@ -84,7 +84,7 @@ RSpec.describe Suma::Program::EnrollmentRemover, :db do
   end
 
   describe "lime" do
-    it "only processes removal if there are no enrollments in any lime programs" do
+    it "noops if there are no enrollments in any lime programs" do
       p1 = Suma::Fixtures.program.create
       p2 = Suma::Fixtures.program.create
       vc = Suma::Fixtures.anon_proxy_vendor_configuration.create(auth_to_vendor_key: "lime")
@@ -97,20 +97,23 @@ RSpec.describe Suma::Program::EnrollmentRemover, :db do
       expect { instance.process }.to_not raise_error
     end
 
-    it "assigns a newly provisioned member contact and closes the existing account" do
+    it "assigns a newly provisioned member contact and starts the account close process" do
       program = Suma::Fixtures.program.create
       vc = Suma::Fixtures.anon_proxy_vendor_configuration.create(auth_to_vendor_key: "lime")
       program.add_anon_proxy_vendor_configuration(vc)
-      old_contact = Suma::Fixtures.anon_proxy_member_contact.email("a@oldexample.com").create(member:)
-      lime_va = Suma::Fixtures.anon_proxy_vendor_account(member:, configuration: vc, contact: old_contact).create
+      contact = Suma::Fixtures.anon_proxy_member_contact.email("a@example.com").create(member:)
+      lime_va = Suma::Fixtures.anon_proxy_vendor_account(member:, configuration: vc, contact:).create
       other_va = Suma::Fixtures.anon_proxy_vendor_account(member:).create
       instance.reenroll do
         Suma::Fixtures.program_enrollment(member:, program:).create
       end
+      req = stub_request(:post, "https://web-production.lime.bike/api/rider/v2/onboarding/magic-link").
+        to_return(json_response({}))
       instance.process
-      expect(lime_va.refresh.contact).to_not be === old_contact
-      expect(lime_va.refresh.contact).to have_attributes(email: end_with("@example.com"))
-      expect(other_va.refresh.contact).to be_nil
+      expect(req).to have_been_made
+      lime_va.refresh
+      expect(lime_va).to have_attributes(pending_closure: true)
+      expect(other_va.refresh).to have_attributes(pending_closure: false)
     end
   end
 end

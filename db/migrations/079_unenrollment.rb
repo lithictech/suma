@@ -30,12 +30,14 @@ Sequel.migration do
 
     alter_table(:anon_proxy_vendor_accounts) do
       rename_column :registered_with_vendor, :legacy_registered_with_vendor
+      add_column :pending_closure, :boolean, default: false
     end
   end
   down do
     drop_table(:anon_proxy_vendor_account_registrations)
     alter_table(:anon_proxy_vendor_accounts) do
       rename_column :legacy_registered_with_vendor, :registered_with_vendor
+      drop_column :pending_closure
     end
   end
 end

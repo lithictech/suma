@@ -32,14 +32,23 @@ class Suma::AnonProxy::MessageHandler::Lime < Suma::AnonProxy::MessageHandler
       result.handled = false
       return result
     end
-    link_to_use = Suma::UrlShortener.enabled? ? Suma::UrlShortener.shortener.shorten(magic_link).url : magic_link
-    vendor_account_message.vendor_account.replace_access_code(token, link_to_use).save_changes
-    msg = Suma::Messages::SingleValue.new(
-      "anon_proxy",
-      "lime_deep_link_access_code",
-      link_to_use,
-    )
-    vendor_account_message.vendor_account.member.message_preferences!.dispatch(msg)
+
+    vendor_account = vendor_account_message.vendor_account
+    if vendor_account.pending_closure
+      lime_atv = Suma::AnonProxy::AuthToVendor::Lime.new(vendor_account)
+      # This will log the user out of their own device, which is good enough.
+      lime_atv.exchange_magic_link_token(token)
+      vendor_account.update(pending_closure: false)
+    else
+      link_to_use = Suma::UrlShortener.enabled? ? Suma::UrlShortener.shortener.shorten(magic_link).url : magic_link
+      vendor_account.replace_access_code(token, link_to_use).save_changes
+      msg = Suma::Messages::SingleValue.new(
+        "anon_proxy",
+        "lime_deep_link_access_code",
+        link_to_use,
+      )
+      vendor_account.member.message_preferences!.dispatch(msg)
+    end
     result.handled = true
     return result
   end
