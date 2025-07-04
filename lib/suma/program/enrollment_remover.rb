@@ -51,11 +51,13 @@ class Suma::Program::EnrollmentRemover
     still_in_lime = @after_configs.any? { |vc| vc.auth_to_vendor_key == "lime" }
     return unless was_in_lime && !still_in_lime
     lime_config = @before_configs.find { |vc| vc.auth_to_vendor_key == "lime" }
-    vas = @member.anon_proxy_vendor_accounts_dataset.where(configuration: lime_config).all
+    vas_ds = @member.anon_proxy_vendor_accounts_dataset.where(configuration: lime_config)
+    vas = vas_ds.all
     return if vas.empty?
-    new_contact = Suma::AnonProxy::MemberContact.provision_anonymous_contact(@member, :email)
+    vas_ds.update(pending_closure: true)
     vas.each do |va|
-      va.update(contact: new_contact)
+      # Request a new magic link, then log in, which will sign the account out of all other devices.
+      Suma::AnonProxy::AuthToVendor::Lime.new(va).auth
     end
   end
 
