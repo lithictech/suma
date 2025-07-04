@@ -50,7 +50,13 @@ class Suma::Program::EnrollmentRemover
     was_in_lime = @before_configs.any? { |vc| vc.auth_to_vendor_key == "lime" }
     still_in_lime = @after_configs.any? { |vc| vc.auth_to_vendor_key == "lime" }
     return unless was_in_lime && !still_in_lime
-    raise NotImplementedError, "TODO: Not sure how to handle this yet, ask devs for help"
+    lime_config = @before_configs.find { |vc| vc.auth_to_vendor_key == "lime" }
+    vas = @member.anon_proxy_vendor_accounts_dataset.where(configuration: lime_config).all
+    return if vas.empty?
+    new_contact = Suma::AnonProxy::MemberContact.provision_anonymous_contact(@member, :email)
+    vas.each do |va|
+      va.update(contact: new_contact)
+    end
   end
 
   # Revoking lyft pass is complex for a couple reasons:

@@ -97,14 +97,20 @@ RSpec.describe Suma::Program::EnrollmentRemover, :db do
       expect { instance.process }.to_not raise_error
     end
 
-    it "errors if they have lost access to any Lime program" do
+    it "assigns a newly provisioned member contact and closes the existing account" do
       program = Suma::Fixtures.program.create
       vc = Suma::Fixtures.anon_proxy_vendor_configuration.create(auth_to_vendor_key: "lime")
       program.add_anon_proxy_vendor_configuration(vc)
+      old_contact = Suma::Fixtures.anon_proxy_member_contact.email("a@oldexample.com").create(member:)
+      lime_va = Suma::Fixtures.anon_proxy_vendor_account(member:, configuration: vc, contact: old_contact).create
+      other_va = Suma::Fixtures.anon_proxy_vendor_account(member:).create
       instance.reenroll do
         Suma::Fixtures.program_enrollment(member:, program:).create
       end
-      expect { instance.process }.to raise_error(/TODO: Not sure how to handle this yet/)
+      instance.process
+      expect(lime_va.refresh.contact).to_not be === old_contact
+      expect(lime_va.refresh.contact).to have_attributes(email: end_with("@example.com"))
+      expect(other_va.refresh.contact).to be_nil
     end
   end
 end

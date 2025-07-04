@@ -8,7 +8,7 @@ class Suma::AnonProxy::Relay::FakeEmail < Suma::AnonProxy::Relay::FakeRelay
 
   def provision(member)
     ProvisionedAddress.new(
-      "u#{member.id}@example.com", external_id: self.class.provisioned_external_id,
+      "u#{member.id}.#{Time.now.to_i}@example.com", external_id: self.class.provisioned_external_id,
     )
   end
 end
