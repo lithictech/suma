@@ -24,6 +24,11 @@ class Suma::AnonProxy::MemberContact < Suma::Postgres::Model(:anon_proxy_member_
     def ensure_anonymous_contact(member, type)
       contact = member.anon_proxy_contacts.find(&:"#{type}?")
       return [contact, false] if contact
+      contact = self.provision_anonymous_contact(member, type)
+      return [contact, true]
+    end
+
+    def provision_anonymous_contact(member, type)
       relay = Suma::AnonProxy::Relay.send(:"active_#{type}_relay")
       addr = relay.provision(member)
       contact = Suma::AnonProxy::MemberContact.create(
@@ -32,7 +37,7 @@ class Suma::AnonProxy::MemberContact < Suma::Postgres::Model(:anon_proxy_member_
         type => addr.address,
         external_relay_id: addr.external_id || "",
       )
-      return [contact, true]
+      return contact
     end
   end
 

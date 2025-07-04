@@ -17,7 +17,9 @@ RSpec.describe Suma::AnonProxy::Relay, :db do
 
     it "can provision" do
       m = Suma::Fixtures.member.create
-      expect(relay.provision(m)).to have_attributes(address: "u#{m.id}@example.com")
+      Timecop.travel("2025-06-20T12:00:00-0700") do
+        expect(relay.provision(m)).to have_attributes(address: "u#{m.id}.1750446000@example.com")
+      end
     end
   end
 
@@ -41,7 +43,17 @@ RSpec.describe Suma::AnonProxy::Relay, :db do
 
     it "can provision" do
       m = Suma::Fixtures.member.create
-      expect(relay.provision(m)).to have_attributes(address: "test.m#{m.id}@in-dev.mysuma.org")
+      Timecop.travel("2025-06-20T12:00:00-0700") do
+        expect(relay.provision(m)).to have_attributes(address: "test.m#{m.id}.1750446000@in-dev.mysuma.org")
+      end
+    end
+
+    it "can provision in production, so there is no prefix" do
+      stub_const("Suma::RACK_ENV", "production")
+      m = Suma::Fixtures.member.create
+      Timecop.travel("2025-06-20T12:00:00-0700") do
+        expect(relay.provision(m)).to have_attributes(address: "m#{m.id}.1750446000@in-dev.mysuma.org")
+      end
     end
 
     it "can deprovision" do

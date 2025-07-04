@@ -4,7 +4,7 @@ module Suma::AnonProxy
   include Appydays::Configurable
 
   configurable(:anon_proxy) do
-    setting :postmark_email_template, "#{Suma::RACK_ENV}.m%{member_id}@in-dev.mysuma.org"
+    setting :postmark_email_domain, "in-dev.mysuma.org"
     setting :signalwire_relay_number, ""
     setting :email_relay, "fake-email-relay"
     setting :phone_relay, "fake-phone-relay"
