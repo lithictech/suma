@@ -75,20 +75,28 @@ class Suma::Program::Enrollment < Suma::Postgres::Model(:program_enrollments)
     end
   end
 
+  # Return true if the given time is within the program's period.
   def program_active_at?(t)
     return self.program.period.cover?(t)
   end
 
-  def approved? = Suma::MethodUtilities.timestamp_set?(self, :approved_at)
+  # Return true if this enrollment has ever been approved (approved_at is set).
+  def ever_approved? = Suma::MethodUtilities.timestamp_set?(self, :approved_at)
 
+  # Return true if the enrollment is approved and not unenrolled.
+  def enrolled? = self.ever_approved? && !self.unenrolled?
+
+  # Set approved_at.
   def approved=(v)
     Suma::MethodUtilities.timestamp_set(self, :approved_at, v)
   end
 
+  # Return true if unenrolled_at is set.
   def unenrolled?
     Suma::MethodUtilities.timestamp_set?(self, :unenrolled_at)
   end
 
+  # Set unenrolled_at.
   def unenrolled=(v)
     Suma::MethodUtilities.timestamp_set(self, :unenrolled_at, v)
   end
@@ -96,6 +104,7 @@ class Suma::Program::Enrollment < Suma::Postgres::Model(:program_enrollments)
   # @return [Suma::Member,Suma::Organization,Suma::Role]
   def enrollee = self.member || self.organization || self.role
 
+  # @return ["Member","Organization","Role","NilClass"]
   def enrollee_type = self.enrollee.class.name.demodulize
 
   def rel_admin_link = "/program-enrollment/#{self.id}"

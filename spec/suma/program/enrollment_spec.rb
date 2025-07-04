@@ -96,11 +96,32 @@ RSpec.describe "Suma::Program::Enrollment", :db do
     expect(pe).to have_attributes(enrollee_type: "NilClass", enrollee: nil)
   end
 
-  it_behaves_like "has a timestamp predicate", "approved_at", "approved" do
+  it_behaves_like "has a timestamp predicate", "approved_at", "ever_approved", :"approved=" do
     let(:instance) { Suma::Fixtures.program_enrollment.instance }
   end
 
   it_behaves_like "has a timestamp predicate", "unenrolled_at", "unenrolled" do
     let(:instance) { Suma::Fixtures.program_enrollment.instance }
+  end
+
+  it "has accessors describing its enrollment condition" do
+    pe = Suma::Fixtures.program_enrollment.unapproved.instance
+    expect(pe).to have_attributes(
+      ever_approved?: false,
+      enrolled?: false,
+      unenrolled?: false,
+    )
+    pe.approved = true
+    expect(pe).to have_attributes(
+      ever_approved?: true,
+      enrolled?: true,
+      unenrolled?: false,
+    )
+    pe.unenrolled = true
+    expect(pe).to have_attributes(
+      ever_approved?: true,
+      enrolled?: false,
+      unenrolled?: true,
+    )
   end
 end

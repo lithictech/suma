@@ -29,6 +29,19 @@ RSpec.describe Suma::Program::EnrollmentRemover, :db do
     expect(Suma::Program::Enrollment.all).to have_same_ids_as(p1enroll)
   end
 
+  it "excludes not-currently-enrolled enrollments from all calculations" do
+    e1 = Suma::Fixtures.program_enrollment(member:).create
+    e2 = Suma::Fixtures.program_enrollment(member:).unenrolled.create
+    e3 = Suma::Fixtures.program_enrollment(member:).unenrolled.create
+    e4 = Suma::Fixtures.program_enrollment(member:).unapproved.create
+    instance.reenroll do
+      e2.update(unenrolled: false)
+    end
+    instance.process
+    expect(instance.before_enrollments).to have_same_ids_as(e1, e2)
+    expect(instance.after_enrollments).to have_same_ids_as(e1)
+  end
+
   describe "lyft pass" do
     before(:each) do
       Suma::Lyft.reset_configuration

@@ -26,6 +26,7 @@ class Suma::Program::EnrollmentRemover
 
   def reenroll(&block)
     @reenroll_block = block
+    return self
   end
 
   def process
@@ -33,9 +34,9 @@ class Suma::Program::EnrollmentRemover
     @member.db.transaction(rollback: :always) do
       m2 = Suma::Member[@member.id]
       @reenroll_block.call(m2)
-      @before_enrollments = m2.combined_program_enrollments
+      @before_enrollments = m2.combined_program_enrollments.select(&:enrolled?)
     end
-    @after_enrollments = @member.combined_program_enrollments
+    @after_enrollments = @member.combined_program_enrollments.select(&:enrolled?)
     @removed_enrollments = @before_enrollments - @after_enrollments
 
     @before_configs = @before_enrollments.map(&:program).flat_map(&:anon_proxy_vendor_configurations).uniq
