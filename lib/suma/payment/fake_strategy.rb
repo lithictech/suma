@@ -2,11 +2,14 @@
 
 require "suma/postgres/model"
 require "suma/payment/funding_transaction/strategy"
+require "suma/payment/payout_transaction/strategy"
 
 class Suma::Payment::FakeStrategy < Suma::Postgres::Model(:payment_fake_strategies)
   include Suma::Payment::FundingTransaction::Strategy
+  include Suma::Payment::PayoutTransaction::Strategy
 
   one_to_one :funding_transaction, class: "Suma::Payment::FundingTransaction"
+  one_to_one :payout_transaction, class: "Suma::Payment::PayoutTransaction"
 
   def initialize(*)
     @memory_responses = {}

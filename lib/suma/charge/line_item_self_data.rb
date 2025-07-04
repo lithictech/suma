@@ -9,7 +9,7 @@ class Suma::Charge::LineItemSelfData < Suma::Postgres::Model(:charge_line_item_s
   plugin :money_fields, :amount
   plugin :translated_text, :memo, Suma::TranslatedText
 
-  one_to_one :line_item, class: "Suma::Charge::LineItem"
+  one_to_one :line_item, class: "Suma::Charge::LineItem", key: :self_data_id
 end
 
 # Table: charge_line_item_self_datas

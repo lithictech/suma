@@ -1,0 +1,45 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+# Find and print any unused associations.
+# See https://sequel.jeremyevans.net/rdoc-plugins/classes/Sequel/Plugins/UnusedAssociations.html.
+# Exit nonzero if tests fail, or there are unused associations.
+
+# Do this as a script, instead of a Rake task, given the subtle dependencies around require orders,
+# and how it's basically impossible to cover the file with code coverage.
+
+Dir.chdir(File.expand_path("..", __dir__))
+lib = File.expand_path("../lib", __dir__)
+$LOAD_PATH.unshift(lib)
+
+ENV["RACK_ENV"] = "test"
+require "appydays/dotenviable"
+Appydays::Dotenviable.load
+
+require "coverage"
+require "rspec/core"
+Coverage.start(methods: true)
+require("sequel")
+Sequel::Model.plugin :unused_associations
+require("suma")
+Suma.load_app
+
+args = ["spec/", "--fail-fast"]
+if (code = RSpec::Core::Runner.run(args)) != 0
+  puts "Tests failed."
+  exit(code.to_i)
+end
+
+cov_data = Sequel::Model.update_associations_coverage
+unused_associations_data = Sequel::Model.update_unused_associations_data(coverage_data: cov_data)
+got = Sequel::Model.unused_associations(unused_associations_data: unused_associations_data)
+got.reject! { |(cls, _)| cls.include?("SpecHelpers") }
+if got.empty?
+  puts "No unused associations."
+  exit(0)
+end
+puts "#{got.count} unused associations:"
+got.each do |(cls, assoc)|
+  puts "#{cls} #{assoc}"
+end
+exit(1)

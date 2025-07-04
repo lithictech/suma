@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "suma/behaviors"
+
 RSpec.describe "Suma::Organization::Membership::Verification",
                :db,
                reset_configuration: Suma::Organization::Membership::Verification do
@@ -468,6 +470,7 @@ RSpec.describe "Suma::Organization::Membership::Verification",
       v = Suma::Fixtures.organization_membership_verification.create
       note = v.add_note(content: "hello **there**", created_at: Time.now)
       expect(note.content_html).to eq("hello <strong>there</strong>")
+      expect(note.verification).to be === v
     end
   end
 
@@ -489,6 +492,12 @@ RSpec.describe "Suma::Organization::Membership::Verification",
     it "validates status" do
       v = Suma::Fixtures.organization_membership_verification.create
       expect { v.update(status: "foo") }.to raise_error(Sequel::ValidationFailed, /must be one of/)
+    end
+  end
+
+  describe "VerificationAuditLog" do
+    it_behaves_like "an audit log", Suma::Organization::Membership::VerificationAuditLog, :verification do
+      let(:parent) { Suma::Fixtures.organization_membership_verification.create }
     end
   end
 end

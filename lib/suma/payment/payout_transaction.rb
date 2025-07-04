@@ -38,12 +38,6 @@ class Suma::Payment::PayoutTransaction < Suma::Postgres::Model(:payment_payout_t
   many_to_one :fake_strategy, class: "Suma::Payment::FakeStrategy"
   many_to_one :stripe_charge_refund_strategy, class: "Suma::Payment::PayoutTransaction::StripeChargeRefundStrategy"
 
-  many_to_many :associated_charges,
-               class: "Suma::Charge",
-               join_table: :charges_associated_payout_transactions,
-               right_key: :charge_id,
-               left_key: :payout_transaction_id
-
   state_machine :status, initial: :created do
     state :created,
           :sending,

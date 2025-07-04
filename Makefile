@@ -77,6 +77,9 @@ migrate-test:
 wipe-test-db:
 	RACK_ENV=test bundle exec rake db:wipe
 
+find-unused-associations:
+	bundle exec ruby bin/find-unused-associations
+
 integration-test:
 	INTEGRATION_TESTS=true RACK_ENV=development bundle exec rspec integration/
 	@./bin/notify "Integration tests finished"

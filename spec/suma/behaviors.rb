@@ -36,3 +36,40 @@ RSpec.shared_examples "has a timestamp predicate" do |tsattr, boolattr|
     expect(m.send(tsattr)).to match_time(t)
   end
 end
+
+RSpec.shared_examples "a type with a single image" do
+  let(:instance) { raise "must be defined in block" }
+
+  it_behaves_like "a type with multiple images" do
+    let(:instance) { super() }
+  end
+
+  it "has an accessor" do
+    expect { instance.image }.to_not raise_error
+  end
+end
+
+RSpec.shared_examples "a type with multiple images" do
+  let(:instance) { raise "must be defined in block" }
+
+  it "has an accessor" do
+    expect(instance.images).to be_a(Array)
+  end
+end
+
+RSpec.shared_examples "an audit log" do |audit_cls, association|
+  let(:parent) { raise "must be defined in block" }
+
+  it "has an associated object" do
+    log = audit_cls.new(
+      association => parent,
+      at: Time.now,
+      event: "test",
+      to_state: "x",
+      from_state: "y",
+    )
+    log.machine_name = "test" if log.respond_to?(:machine_name)
+    log.save_changes
+    expect(log.send(association)).to be === parent
+  end
+end
