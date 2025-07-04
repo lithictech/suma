@@ -5,7 +5,12 @@ require "amigo/job"
 class Suma::Async::EnrollmentRemovalRunner
   extend Amigo::Job
 
-  on(/^suma\.((program\.enrollment\.updated)|(organization\.membership\.updated))$/)
+  on Regexp.new('^suma\.(' \
+                '(program\.enrollment\.updated)' \
+                '|(organization\.membership\.updated)' \
+                '|(member\.role\.removed)' \
+                '|(organization\.role\.removed)' \
+                ")$")
 
   class << self
     attr_accessor :testing_last_ran_removers
@@ -37,6 +42,22 @@ class Suma::Async::EnrollmentRemovalRunner
             ]
           else
             return
+        end
+      when "suma.member.role.removed"
+        member = self.lookup_model(Suma::Member, event.payload[0])
+        role = self.lookup_model(Suma::Role, event.payload[1])
+        removers = [
+          Suma::Program::EnrollmentRemover.new(member).reenroll do
+            member.add_role(role)
+          end,
+        ]
+      when "suma.organization.role.removed"
+        organization = self.lookup_model(Suma::Organization, event.payload[0])
+        role = self.lookup_model(Suma::Role, event.payload[1])
+        removers = organization.memberships.map do |m|
+          Suma::Program::EnrollmentRemover.new(m.member).reenroll do
+            organization.add_role(role)
+          end
         end
       else
         raise NotImplementedError, "unhandled event: #{event.name}"

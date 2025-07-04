@@ -2,6 +2,7 @@
 
 require "suma/postgres/model"
 require "suma/admin_linked"
+require "suma/role"
 
 class Suma::Organization < Suma::Postgres::Model(:organizations)
   include Suma::Postgres::HybridSearch
@@ -17,7 +18,7 @@ class Suma::Organization < Suma::Postgres::Model(:organizations)
   one_to_many :memberships, class: "Suma::Organization::Membership", key: :verified_organization_id
   one_to_many :former_memberships, class: "Suma::Organization::Membership", key: :former_organization_id
   one_to_many :program_enrollments, class: "Suma::Program::Enrollment"
-  many_to_many :roles, class: "Suma::Role", join_table: :roles_organizations
+  many_to_many :roles, class: "Suma::Role", join_table: :roles_organizations, **Suma::Role.association_options
 
   plugin :association_array_replacer, :roles
 
