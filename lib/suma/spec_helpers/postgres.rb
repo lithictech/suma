@@ -26,6 +26,7 @@ module Suma::SpecHelpers::Postgres
   SNIFF_LEAKY_TESTS = false
 
   Suma::Postgres.register_model("suma/postgres/testing_pixie")
+  SequelHybridSearch.indexing_mode = :off
 
   ### Inclusion callback -- install some hooks
   def self.included(context)
