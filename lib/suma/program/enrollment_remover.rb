@@ -31,6 +31,10 @@ class Suma::Program::EnrollmentRemover
 
   def process
     raise LocalJumpError, "must first call reenroll with a block" unless @reenroll_block
+    Suma::Postgres.check_transaction(
+      @member.db,
+      "Removal has side effects, and should be idempotent, so cannot use a transaction.",
+    )
     @member.db.transaction(rollback: :always) do
       m2 = Suma::Member[@member.id]
       @reenroll_block.call(m2)
@@ -44,6 +48,7 @@ class Suma::Program::EnrollmentRemover
     @removed_configs = @before_configs - @after_configs
     self._close_lime_account
     self._revoke_lyft_pass
+    return self
   end
 
   protected def _close_lime_account

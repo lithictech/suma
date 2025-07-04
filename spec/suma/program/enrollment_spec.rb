@@ -110,18 +110,21 @@ RSpec.describe "Suma::Program::Enrollment", :db do
       ever_approved?: false,
       enrolled?: false,
       unenrolled?: false,
+      enrollment_status: :pending,
     )
     pe.approved = true
     expect(pe).to have_attributes(
       ever_approved?: true,
       enrolled?: true,
       unenrolled?: false,
+      enrollment_status: :enrolled,
     )
     pe.unenrolled = true
     expect(pe).to have_attributes(
       ever_approved?: true,
       enrolled?: false,
       unenrolled?: true,
+      enrollment_status: :unenrolled,
     )
   end
 end

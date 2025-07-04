@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.describe Suma::Program::EnrollmentRemover, :db do
+RSpec.describe Suma::Program::EnrollmentRemover, :db, :no_transaction_check do
   let(:member) { Suma::Fixtures.member.create }
   let(:instance) { described_class.new(member) }
 
@@ -40,6 +40,11 @@ RSpec.describe Suma::Program::EnrollmentRemover, :db do
     instance.process
     expect(instance.before_enrollments).to have_same_ids_as(e1, e2)
     expect(instance.after_enrollments).to have_same_ids_as(e1)
+  end
+
+  it "errors if in a transaction", no_transaction_check: false do
+    instance.reenroll {}
+    expect { instance.process }.to raise_error(Suma::Postgres::InTransaction)
   end
 
   describe "lyft pass" do

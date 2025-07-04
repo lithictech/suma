@@ -107,6 +107,12 @@ class Suma::Program::Enrollment < Suma::Postgres::Model(:program_enrollments)
   # @return ["Member","Organization","Role","NilClass"]
   def enrollee_type = self.enrollee.class.name.demodulize
 
+  def enrollment_status
+    return :enrolled if self.enrolled?
+    return :unenrolled if self.unenrolled?
+    return :pending
+  end
+
   def rel_admin_link = "/program-enrollment/#{self.id}"
 
   def hybrid_search_fields
@@ -114,15 +120,7 @@ class Suma::Program::Enrollment < Suma::Postgres::Model(:program_enrollments)
       :program,
       :enrollee,
       :enrollee_type,
-    ]
-  end
-
-  def hybrid_search_facts
-    return [
-      self.approved? && "I have been approved.",
-      !self.approved? && "I have not been approved.",
-      !self.unenrolled? && "I am enrolled.",
-      self.unenrolled? && "I have been unenrolled.",
+      :enrollment_status,
     ]
   end
 end

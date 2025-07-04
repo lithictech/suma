@@ -67,9 +67,6 @@ RSpec.describe Suma::AnonProxy::AuthToVendor, :db do
     end
 
     describe "exchange_magic_link_token" do
-      let(:response_cookie) do
-        "_limebike-web_session=%2FeiRHNDbZElUfsNoabEDvl0lEoFlXSllTKHVcwDCHR50fqAf86rmSklHdZAziFkaH8kPkKuufiBq%2B4U9U%2BmnrDfbvtqA3yTmO00inhUlwHZ18TTqULKWwI3CbYYIDVWXDdN3nSHY8Q8uUhPflrTYiy6yJ4B3Au5hdwL3Pc5GSvKi%2Bwal%2BdWQfXirGjMSD86Lm3rA%2FbLE8kSqqDW1%2BnxkyMLJuwU5y1KfLJz%2F1rxB6IRD5MHd01a6duQbbrXj1qTeh5KcIT%2FUl3tIkEAD9sYidpOhs9aPIT2AsuPqliVmNxzN5zjsHlQOoecSMmxt4ucYiK7u2gf05TFkLn%2FOiXPx%2FZSQygM1Dk3XgxNF8JRaARJDou0j8MhAKPH6DPALGwT3DYWOe9AgdXsV%2BjqDmz%2B8E6AR7W1ZThm9c1%2Ba8oqQOqlR1evW33ntUyFiW%2Fuxu4utlQxYD7JSWwtmlNzCbASSE1CszculuT%2FAdziThdYtlPmYNDQY43O70Yu9QtIP7anjHSozf6rocbOwmRyD5y78ck1vyqFFv2OVF02XW1NKxX41qfv%2BuzAeow6G63sCQjNaonRahki0Fvov%2FqptF1OT1vamHe%2BFX85bw4ihfFv59U0fSK1UO%2FsYYiWROx0%2FoJRIFC10nFbtSo%2Ba%2FKfR4jcy6Nn7RPAQLP1%2F6BWKBr4mqZpvdrfojHiFc8YzRh28EGCOlRV3ooS1RplXZ4VqlxcXoOI%3D--Csc2k5BnVVMnsOAW--%2F%2BsQRcUVibT%2B2d34Ncd9ww%3D%3D; path=/; secure; HttpOnly; SameSite=Lax"
-      end
       it "exchanges the link token for an auth token" do
         req = stub_request(:post, "https://web-production.lime.bike/api/rider/v2/onboarding/login").
           with(
