@@ -26,4 +26,21 @@ RSpec.describe "Suma::Role", :db do
       expect(has_role.refresh.roles).to contain_exactly(role)
     end
   end
+
+  describe "association options", :async, :do_not_defer_events do
+    let(:member) { Suma::Fixtures.member.create }
+    let(:role) { Suma::Fixtures.role.create }
+
+    it "publishes an event when adding a role" do
+      expect do
+        member.add_role(role)
+      end.to publish("suma.member.role.added").with_payload([member.id, role.id])
+    end
+
+    it "publishes an event when removing a role" do
+      expect do
+        member.remove_role(role)
+      end.to publish("suma.member.role.removed").with_payload([member.id, role.id])
+    end
+  end
 end
