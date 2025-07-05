@@ -68,7 +68,7 @@ RSpec.describe Suma::AdminAPI::AnonProxyMemberContacts, :db do
       post "/v1/anon_proxy_member_contacts/provision", member: {id: member.id}, type: :email
 
       expect(last_response).to have_status(200)
-      expect(last_response).to have_json_body.that_includes(email: "u#{member.id}@example.com")
+      expect(last_response).to have_json_body.that_includes(email: /u#{member.id}\.\d+@example.com/)
       expect(member.anon_proxy_contacts).to have_length(1)
     end
 

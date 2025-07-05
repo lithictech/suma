@@ -8,7 +8,8 @@ class Suma::AdminAPI::ProgramEnrollments < Suma::AdminAPI::V1
   class DetailedProgramEnrollmentEntity < ProgramEnrollmentEntity
     include Suma::AdminAPI::Entities
     include AutoExposeDetail
-    expose :approved?, as: :approved
+    expose :enrolled?, as: :enrolled
+    expose :ever_approved?, as: :approved
     expose :approved_by, with: MemberEntity
     expose :unenrolled?, as: :unenrolled
     expose :unenrolled_by, with: MemberEntity
@@ -45,12 +46,15 @@ class Suma::AdminAPI::ProgramEnrollments < Suma::AdminAPI::V1
       self,
       Suma::Program::Enrollment,
       DetailedProgramEnrollmentEntity,
+      around: lambda do |rt, m, &block|
+        m.approved_by = rt.admin_member if rt.params[:approved]
+        m.unenrolled_by = rt.admin_member if rt.params[:unenrolled]
+        block.call
+      end,
     ) do
       params do
         optional :approved, type: Boolean
-        optional(:approved_by, type: JSON) { use :model_with_id }
         optional :unenrolled, type: Boolean
-        optional(:unenrolled_by, type: JSON) { use :model_with_id }
       end
     end
   end

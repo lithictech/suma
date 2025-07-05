@@ -609,5 +609,21 @@ RSpec.describe Suma::Lyft::Pass, :db, reset_configuration: Suma::Lyft do
       expect(req).to have_been_made
     end
   end
+
+  describe "revoke_member" do
+    let(:member) { Suma::Fixtures.member.create(phone: "15552223333") }
+
+    it "revokes access" do
+      insert_valid_credential
+      req = stub_request(:post, "https://www.lyft.com/api/rideprograms/enrollment/revoke").
+        with(
+          body: {ride_program_id: "5678", user_identifier: {phone_number: "+15552223333"}}.to_json,
+        ).to_return(status: 200, body: {}.to_json, headers: {"Content-Type" => "application/json"})
+
+      instance.authenticate
+      instance.revoke_member(member, program_id: "5678")
+      expect(req).to have_been_made
+    end
+  end
 end
 # rubocop:enable Layout/LineLength

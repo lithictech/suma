@@ -1,0 +1,91 @@
+{
+  "token": "ey123.ey456.789",
+  "user": {
+    "id": "BBBB",
+    "type": "users",
+    "attributes": {
+      "token": "BBBB",
+      "phone_number": null,
+      "email_address": "m1@in.mysuma.org",
+      "has_verified_email_address": true,
+      "name": null,
+      "given_name": null,
+      "surname": null,
+      "default_payment_method": null,
+      "referral_code": "AAAA",
+      "num_trips": 1,
+      "edu": false,
+      "enable_instabug": false,
+      "enable_instabug_screenshot": false,
+      "subscription_item_states": [],
+      "promotion_notification": false,
+      "enable_email_receipt": true,
+      "donation_profile": {
+        "id": "CCCC",
+        "type": "donation_profiles",
+        "attributes": {
+          "donation_type": "none",
+          "donation_organizations": [],
+          "total_donation_amount": {
+            "currency_code": "USD",
+            "amount": 0,
+            "amount_str": "0.0",
+            "currency_symbol": "$",
+            "display_string": "$0"
+          },
+          "total_donation_amount_cents": null,
+          "currency": null
+        }
+      },
+      "trusted_tester": false,
+      "accepted_user_agreement_version": 5,
+      "accepted_compliance_version": null,
+      "balance": {
+        "currency_code": "USD",
+        "amount": 0,
+        "amount_str": "0.0",
+        "currency_symbol": "$",
+        "display_string": "$0"
+      },
+      "pending_balance": {
+        "currency_code": "USD",
+        "amount": 0,
+        "amount_str": "0.0",
+        "currency_symbol": "$",
+        "display_string": "$0"
+      },
+      "balance_cents": 0,
+      "pending_balance_cents": 0,
+      "currency": "USD",
+      "show_group_ride": false,
+      "id_verification_pending": false
+    }
+  },
+  "meta": {
+    "latest_user_agreement_version": "-1",
+    "min_ios_version": "3.113.00",
+    "min_android_code": 311300,
+    "flags": "IOS_VERSION_V1.0,ANDROID_VERSION_V1.0",
+    "groups": {
+      "apple_pay": true,
+      "apple_pay_address_ui": true,
+      "card_scanner": "use_stripe_scanner",
+      "enable_google_pay": true,
+      "enable_new_payment_blocker": true,
+      "enable_stripe_sca_flow": true,
+      "full_screen_payment_prompt": false,
+      "request_payment_method_after_location_permission_killswitch": true,
+      "klarna_payment_method": false,
+      "require_email_after_signup": false,
+      "paypal_payment_method": true,
+      "payment_zip_code": true,
+      "onboarding_payment_ui_v2": false,
+      "zip_code_country_selector": true,
+      "zip_code_required_countries": [
+        "US"
+      ],
+      "enable_early_bootstrap": false,
+      "enable_api_authorization_via_access_token": false
+    }
+  }
+}

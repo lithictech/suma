@@ -26,6 +26,7 @@ module Suma::Async
     "suma/async/anon_proxy_destroyed_member_contact_cleanup",
     "suma/async/deprecated_jobs",
     "suma/async/emailer",
+    "suma/async/enrollment_removal_runner",
     "suma/async/forward_messages",
     "suma/async/frontapp_upsert_contact",
     "suma/async/funding_transaction_processor",
@@ -121,7 +122,7 @@ module Suma::Async
     u.user = self.web_username
     u.password = self.web_password
     u.path = "/sidekiq"
-    `open #{u}`
+    Kernel.send(:`, "open #{u}")
   end
 
   # Set up async for the web/client side of things.
@@ -154,6 +155,7 @@ module Suma::Async
   # It does not install the routing/auditing jobs,
   # since those should only be installed at specific times.
   def self.setup_tests
+    return if Amigo.structured_logging
     self._setup_common
     self._require_jobs
     return true

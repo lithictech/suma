@@ -79,6 +79,11 @@ RSpec.describe "Suma::Program::Enrollment", :db do
       expect(pe.program.enrollment_for(m, as_of:)).to be_nil
       expect(pe.program.enrollment_for(m, as_of:, include: :all)).to be === pe
     end
+
+    it "errors for an invalid type" do
+      pe = Suma::Fixtures.program_enrollment.create
+      expect { pe.program.enrollment_for(1, as_of:) }.to raise_error(TypeError, /unhandled type/)
+    end
   end
 
   it "can describe its enrollees" do
@@ -96,11 +101,35 @@ RSpec.describe "Suma::Program::Enrollment", :db do
     expect(pe).to have_attributes(enrollee_type: "NilClass", enrollee: nil)
   end
 
-  it_behaves_like "has a timestamp predicate", "approved_at", "approved" do
+  it_behaves_like "has a timestamp predicate", "approved_at", "ever_approved", :"approved=" do
     let(:instance) { Suma::Fixtures.program_enrollment.instance }
   end
 
   it_behaves_like "has a timestamp predicate", "unenrolled_at", "unenrolled" do
     let(:instance) { Suma::Fixtures.program_enrollment.instance }
+  end
+
+  it "has accessors describing its enrollment condition" do
+    pe = Suma::Fixtures.program_enrollment.unapproved.instance
+    expect(pe).to have_attributes(
+      ever_approved?: false,
+      enrolled?: false,
+      unenrolled?: false,
+      enrollment_status: :pending,
+    )
+    pe.approved = true
+    expect(pe).to have_attributes(
+      ever_approved?: true,
+      enrolled?: true,
+      unenrolled?: false,
+      enrollment_status: :enrolled,
+    )
+    pe.unenrolled = true
+    expect(pe).to have_attributes(
+      ever_approved?: true,
+      enrolled?: false,
+      unenrolled?: true,
+      enrollment_status: :unenrolled,
+    )
   end
 end

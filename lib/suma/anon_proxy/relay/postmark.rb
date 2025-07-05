@@ -4,7 +4,13 @@ class Suma::AnonProxy::Relay::Postmark < Suma::AnonProxy::Relay
   def key = "postmark"
   def transport = :email
   def webhookdb_dataset = Suma::Webhookdb.postmark_inbound_messages_dataset
-  def provision(member) = ProvisionedAddress.new(Suma::AnonProxy.postmark_email_template % {member_id: member.id})
+
+  def provision(member)
+    email = "m#{member.id}.#{Time.now.to_i}@#{Suma::AnonProxy.postmark_email_domain}"
+    email = "#{Suma::RACK_ENV}.#{email}" if Suma::RACK_ENV != "production"
+    ProvisionedAddress.new(email)
+  end
+
   def deprovision(_addr) = nil
 
   def parse_message(row)

@@ -393,10 +393,27 @@ class Suma::Lyft::Pass
         enrollment_users: [
           {
             custom_field_value_key_value_pairs: [],
-            user_identifier: {phone_number: "+#{member.phone}"},
+            user_identifier: {
+              phone_number: Suma::PhoneNumber.format_e164(member.phone),
+            },
           },
         ],
         ride_program_id: program_id,
+      },
+      headers: self.auth_headers,
+      logger: self.logger,
+    )
+  end
+
+  def revoke_member(member, program_id:)
+    self.logger.info "revoking_lyft_pass", member_id: member.id, lyft_program_id: program_id, phone: member.phone
+    Suma::Http.post(
+      "https://www.lyft.com/api/rideprograms/enrollment/revoke",
+      {
+        ride_program_id: program_id,
+        user_identifier: {
+          phone_number: Suma::PhoneNumber.format_e164(member.phone),
+        },
       },
       headers: self.auth_headers,
       logger: self.logger,

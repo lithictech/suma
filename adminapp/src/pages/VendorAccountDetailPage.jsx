@@ -39,10 +39,6 @@ export default function VendorAccountDetailPage() {
           label: "Latest Access Code Set At",
           value: formatDate(model.latestAccessCodeSetAt),
         },
-        {
-          label: "Registered with Vendor",
-          value: model.registeredWithVendor,
-        },
       ]}
     >
       {(model) => [
@@ -78,6 +74,18 @@ export default function VendorAccountDetailPage() {
             ]}
           />
         ),
+        <RelatedList
+          title="Registrations"
+          rows={model.registrations}
+          headers={["Id", "Created", "Program Id", "External Id"]}
+          keyRowAttr="id"
+          toCells={(row) => [
+            row.id,
+            formatDate(row.createdAt),
+            row.externalProgramId,
+            row.externalRegistrationId,
+          ]}
+        />,
         <RelatedList
           title="Messages"
           rows={model.messages}
