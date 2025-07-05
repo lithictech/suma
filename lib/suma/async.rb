@@ -122,7 +122,7 @@ module Suma::Async
     u.user = self.web_username
     u.password = self.web_password
     u.path = "/sidekiq"
-    `open #{u}`
+    Kernel.send(:`, "open #{u}")
   end
 
   # Set up async for the web/client side of things.
@@ -155,6 +155,7 @@ module Suma::Async
   # It does not install the routing/auditing jobs,
   # since those should only be installed at specific times.
   def self.setup_tests
+    return if Amigo.structured_logging
     self._setup_common
     self._require_jobs
     return true

@@ -1020,6 +1020,45 @@ RSpec.describe Suma::Service, :db do
         expect(r.as_json[:time_not_here]).to eq("2021-09-16T08:41:23-04:00")
       end
     end
+
+    describe "delegate_to" do
+      xcls = Class.new(Suma::TypedStruct) do
+        attr_accessor :a, :b, :c
+      end
+
+      let(:x) { xcls.new(a: xcls.new(b: xcls.new(c: 1))) }
+
+      it "delegates to the given fields" do
+        ent = Class.new(Suma::Service::Entities::Base) do
+          expose :z, &self.delegate_to(:a, :b, :c)
+        end
+        r = ent.represent(x)
+        expect(r.as_json.to_h).to eq({z: 1})
+      end
+
+      it "is nil if safe" do
+        ent = Class.new(Suma::Service::Entities::Base) do
+          expose :z, &self.delegate_to(:yyy, safe: true)
+        end
+        r = ent.represent(x)
+        expect(r.as_json.to_h).to eq({z: nil})
+      end
+
+      it "can give a safe_with_default" do
+        ent = Class.new(Suma::Service::Entities::Base) do
+          expose :z, &self.delegate_to(:yyy, safe_with_default: 100)
+        end
+        r = ent.represent(x)
+        expect(r.as_json.to_h).to eq({z: 100})
+      end
+
+      it "raises for an invalid path if unsafe" do
+        ent = Class.new(Suma::Service::Entities::Base) do
+          expose :z, &self.delegate_to(:yyy)
+        end
+        expect { ent.represent(x).as_json.to_h }.to raise_error(NoMethodError, /undefined method `yyy'/)
+      end
+    end
   end
 
   describe "localization" do

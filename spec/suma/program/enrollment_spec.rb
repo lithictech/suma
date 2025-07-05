@@ -79,6 +79,11 @@ RSpec.describe "Suma::Program::Enrollment", :db do
       expect(pe.program.enrollment_for(m, as_of:)).to be_nil
       expect(pe.program.enrollment_for(m, as_of:, include: :all)).to be === pe
     end
+
+    it "errors for an invalid type" do
+      pe = Suma::Fixtures.program_enrollment.create
+      expect { pe.program.enrollment_for(1, as_of:) }.to raise_error(TypeError, /unhandled type/)
+    end
   end
 
   it "can describe its enrollees" do

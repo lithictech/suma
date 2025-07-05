@@ -69,17 +69,11 @@ module Suma::SpecHelpers::Postgres
     super
   end
 
-  ### Run the specified +example+ in the context of a transaction for each loaded
-  ### model superclass. Raises if any of the loaded superclasses aren't
-  ### configured.
+  # Run the specified +example+ in the context of a transaction for each loaded
+  # model superclass. Raises if any of the loaded superclasses aren't
+  # configured.
   def self.wrap_example_in_transactions(example)
     txn_classes = Suma::Postgres.model_superclasses
-    txn_classes.each do |txn_class|
-      next if txn_class.db
-      raise "No database connection for %p configured! Add a %s section to the test config." %
-        [txn_class, txn_class.config_key]
-    end
-
     dbs = txn_classes.map(&:db)
     wrapped_proc = dbs.inject(example.method(:run)) do |callback, db|
       proc { db.transaction(auto_savepoint: :only, rollback: :always, &callback) }
@@ -185,13 +179,11 @@ module Suma::SpecHelpers::Postgres
 
     def failure_message
       return "Expected %s to have a row matching criteria %p but did not" % [@model.name, @criteria] unless @instance
-      return "Row found but matcher failed with: %s" % [@matcher.failure_message] if @matcher
-      return "invalid message"
+      return "Row found but matcher failed with: %s" % [@matcher.failure_message]
     end
 
     def failure_message_when_negated
-      return "Expected %s to not have a row matching criteria %p but did" % [@model.name, @criteria] if @instance
-      return "invalid message"
+      return "Expected %s to not have a row matching criteria %p but did" % [@model.name, @criteria]
     end
 
     def with_attributes(attrs)
@@ -255,7 +247,7 @@ module Suma::SpecHelpers::Postgres
     end
 
     failure_message do |actual|
-      "%s must be true or false" % [actual]
+      "#{actual.inspect} must be true or false"
     end
   end
 end
