@@ -195,6 +195,29 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
         )
       end
     end
+
+    context "noops when" do
+      specify "an organization membership changes other than to verified" do
+        organization = Suma::Fixtures.organization.create
+        m = Suma::Fixtures.organization_membership.unverified.create(member:)
+        Suma::Fixtures.program_enrollment.create(organization:)
+        expect do
+          m.verified_organization = organization
+          m.save_changes
+        end.to perform_async_job(jobclass)
+        expect(jobclass.testing_last_ran_removers).to be_empty
+      end
+    end
+
+    it "errors if somehow an unhandled event is captured by the regex but unhandled" do
+      expect(jobclass).to receive(:pattern).and_return("*").at_least(:once)
+
+      expect do
+        expect do
+          Suma::Fixtures.legal_entity.create
+        end.to perform_async_job(jobclass)
+      end.to raise_error(NotImplementedError, "unhandled event: suma.legalentity.created")
+    end
   end
 
   describe "ForwardMessages" do
