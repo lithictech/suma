@@ -26,6 +26,13 @@ RSpec.describe "Suma::Member", :db do
 
       expect(member.orders).to contain_exactly(be === o)
     end
+
+    it "has payment instrument associations" do
+      ba = Suma::Fixtures.bank_account.member.create
+      expect(ba.member.bank_accounts).to have_same_ids_as(ba)
+      card = Suma::Fixtures.card.member.create
+      expect(card.member.cards).to have_same_ids_as(card)
+    end
   end
 
   it "can guess names" do

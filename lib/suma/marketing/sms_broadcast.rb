@@ -23,7 +23,7 @@ class Suma::Marketing::SmsBroadcast < Suma::Postgres::Model(:marketing_sms_broad
                order: :list_id
   plugin :association_array_replacer, :lists
 
-  one_to_many :sms_dispatches, class: "Suma::Marketing::SmsDispatch", order: :id
+  one_to_many :sms_dispatches, class: "Suma::Marketing::SmsDispatch", order: order_desc
 
   class << self
     def render(member:, content:)

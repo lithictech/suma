@@ -25,8 +25,8 @@ class Suma::Commerce::Cart < Suma::Postgres::Model(:commerce_carts)
 
   many_to_one :member, class: "Suma::Member"
   many_to_one :offering, class: "Suma::Commerce::Offering"
-  one_to_many :items, class: "Suma::Commerce::CartItem", order: [:created_at, :id]
-  one_to_many :checkouts, class: "Suma::Commerce::Checkout"
+  one_to_many :items, class: "Suma::Commerce::CartItem", order: order_desc
+  one_to_many :checkouts, class: "Suma::Commerce::Checkout", order: order_desc
   one_to_many :purchased_checkout_items,
               class: "Suma::Commerce::CheckoutItem",
               read_only: true,

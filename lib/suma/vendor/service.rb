@@ -21,8 +21,10 @@ class Suma::Vendor::Service < Suma::Postgres::Model(:vendor_services)
 
   many_to_one :vendor, key: :vendor_id, class: "Suma::Vendor"
 
-  many_to_many :categories, class: "Suma::Vendor::ServiceCategory",
-                            join_table: :vendor_service_categories_vendor_services
+  many_to_many :categories,
+               class: "Suma::Vendor::ServiceCategory",
+               join_table: :vendor_service_categories_vendor_services,
+               order: order_desc(:slug)
   def vendor_service_categories = self.categories
   include Suma::Vendor::HasServiceCategories
 
@@ -30,14 +32,16 @@ class Suma::Vendor::Service < Suma::Postgres::Model(:vendor_services)
                class: "Suma::Vendor::ServiceRate",
                join_table: :vendor_service_vendor_service_rates,
                left_key: :vendor_service_id,
-               right_key: :vendor_service_rate_id
+               right_key: :vendor_service_rate_id,
+               order: order_desc(:name)
 
-  one_to_many :mobility_trips, class: "Suma::Mobility::Trip", key: :vendor_service_id
+  one_to_many :mobility_trips, class: "Suma::Mobility::Trip", key: :vendor_service_id, order: order_desc
 
   many_to_many :programs,
                class: "Suma::Program",
                join_table: :programs_vendor_services,
-               left_key: :service_id
+               left_key: :service_id,
+               order: order_desc
   include Suma::Program::Has
 
   dataset_module do

@@ -13,9 +13,9 @@ class Suma::Vendor < Suma::Postgres::Model(:vendors)
   plugin :timestamps
 
   one_to_one :payment_account, class: "Suma::Payment::Account"
-  one_to_many :services, class: "Suma::Vendor::Service"
-  one_to_many :configurations, class: "Suma::AnonProxy::VendorConfiguration"
-  one_to_many :products, class: "Suma::Commerce::Product"
+  one_to_many :services, class: "Suma::Vendor::Service", order: order_desc
+  one_to_many :configurations, class: "Suma::AnonProxy::VendorConfiguration", order: order_desc
+  one_to_many :products, class: "Suma::Commerce::Product", order: order_desc
 
   def before_create
     self.slug ||= Suma.to_slug(self.name)

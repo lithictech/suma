@@ -10,7 +10,7 @@ class Suma::Commerce::CartItem < Suma::Postgres::Model(:commerce_cart_items)
 
   many_to_one :cart, class: "Suma::Commerce::Cart"
   many_to_one :product, class: "Suma::Commerce::Product"
-  one_to_many :checkout_items, class: "Suma::Commerce::CheckoutItem"
+  one_to_many :checkout_items, class: "Suma::Commerce::CheckoutItem", order: order_desc
   one_to_one :offering_product,
              class: "Suma::Commerce::OfferingProduct",
              read_only: true,

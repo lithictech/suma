@@ -14,10 +14,16 @@ class Suma::Organization < Suma::Postgres::Model(:organizations)
   # This is not actually localized text, it points to localized template IDs.
   plugin :translated_text, :membership_verification_member_outreach_template, Suma::TranslatedText
 
-  one_to_many :memberships, class: "Suma::Organization::Membership", key: :verified_organization_id
-  one_to_many :former_memberships, class: "Suma::Organization::Membership", key: :former_organization_id
-  one_to_many :program_enrollments, class: "Suma::Program::Enrollment"
-  many_to_many :roles, class: "Suma::Role", join_table: :roles_organizations
+  one_to_many :memberships,
+              class: "Suma::Organization::Membership",
+              key: :verified_organization_id,
+              order: order_desc
+  one_to_many :former_memberships,
+              class: "Suma::Organization::Membership",
+              key: :former_organization_id,
+              order: order_desc
+  one_to_many :program_enrollments, class: "Suma::Program::Enrollment", order: order_desc
+  many_to_many :roles, class: "Suma::Role", join_table: :roles_organizations, order: order_assoc(:asc, :name)
 
   plugin :association_array_replacer, :roles
 

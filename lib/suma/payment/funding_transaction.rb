@@ -26,7 +26,7 @@ class Suma::Payment::FundingTransaction < Suma::Postgres::Model(:payment_funding
   many_to_one :platform_ledger, class: "Suma::Payment::Ledger"
   many_to_one :originating_payment_account, class: "Suma::Payment::Account"
   many_to_one :originated_book_transaction, class: "Suma::Payment::BookTransaction"
-  one_to_many :audit_logs, class: "Suma::Payment::FundingTransaction::AuditLog", order: Sequel.desc(:at)
+  one_to_many :audit_logs, class: "Suma::Payment::FundingTransaction::AuditLog", order: order_desc(:at)
 
   many_to_one :fake_strategy, class: "Suma::Payment::FakeStrategy"
   many_to_one :increase_ach_strategy, class: "Suma::Payment::FundingTransaction::IncreaseAchStrategy"
@@ -36,11 +36,13 @@ class Suma::Payment::FundingTransaction < Suma::Postgres::Model(:payment_funding
                class: "Suma::Charge",
                join_table: :charges_associated_funding_transactions,
                right_key: :charge_id,
-               left_key: :funding_transaction_id
+               left_key: :funding_transaction_id,
+               order: order_desc
 
   one_to_many :refund_payout_transactions,
               class: "Suma::Payment::PayoutTransaction",
-              key: :refunded_funding_transaction_id
+              key: :refunded_funding_transaction_id,
+              order: order_desc
 
   state_machine :status, initial: :created do
     state :created,

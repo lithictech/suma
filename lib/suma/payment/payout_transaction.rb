@@ -33,7 +33,7 @@ class Suma::Payment::PayoutTransaction < Suma::Postgres::Model(:payment_payout_t
   many_to_one :crediting_book_transaction, class: "Suma::Payment::BookTransaction"
   # The funding transaction that acts as a refund, if any.
   many_to_one :refunded_funding_transaction, class: "Suma::Payment::FundingTransaction"
-  one_to_many :audit_logs, class: "Suma::Payment::PayoutTransaction::AuditLog", order: Sequel.desc(:at)
+  one_to_many :audit_logs, class: "Suma::Payment::PayoutTransaction::AuditLog", order: order_desc(:at)
 
   many_to_one :fake_strategy, class: "Suma::Payment::FakeStrategy"
   many_to_one :stripe_charge_refund_strategy, class: "Suma::Payment::PayoutTransaction::StripeChargeRefundStrategy"

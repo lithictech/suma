@@ -23,7 +23,8 @@ class Suma::AnonProxy::VendorConfiguration < Suma::Postgres::Model(:anon_proxy_v
   many_to_many :programs,
                class: "Suma::Program",
                join_table: :programs_anon_proxy_vendor_configurations,
-               left_key: :configuration_id
+               left_key: :configuration_id,
+               order: order_desc
   include Suma::Program::Has
 
   dataset_module do

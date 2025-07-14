@@ -57,7 +57,7 @@ class Suma::Member < Suma::Postgres::Model(:members)
   plugin :association_pks
   plugin :hybrid_search
 
-  one_to_many :activities, class: "Suma::Member::Activity", order: Sequel.desc([:created_at, :id])
+  one_to_many :activities, class: "Suma::Member::Activity", order: order_desc
   many_through_many :bank_accounts,
                     [
                       [:legal_entities, :id, :id],
@@ -65,7 +65,7 @@ class Suma::Member < Suma::Postgres::Model(:members)
                     ],
                     class: "Suma::Payment::BankAccount",
                     left_primary_key: :legal_entity_id,
-                    order: [:created_at, :id],
+                    order: order_assoc(:asc),
                     read_only: true
   many_through_many :cards,
                     [
@@ -74,14 +74,14 @@ class Suma::Member < Suma::Postgres::Model(:members)
                     ],
                     class: "Suma::Payment::Card",
                     left_primary_key: :legal_entity_id,
-                    order: [:created_at, :id],
+                    order: order_assoc(:asc),
                     read_only: true
-  one_to_many :charges, class: "Suma::Charge", order: Sequel.desc([:id])
+  one_to_many :charges, class: "Suma::Charge", order: order_desc
   many_to_one :legal_entity, class: "Suma::LegalEntity"
-  one_to_many :message_deliveries, key: :recipient_id, class: "Suma::Message::Delivery"
+  one_to_many :message_deliveries, key: :recipient_id, class: "Suma::Message::Delivery", order: order_desc
   one_to_one :preferences, class: "Suma::Message::Preferences"
   one_to_one :ongoing_trip, class: "Suma::Mobility::Trip", conditions: {ended_at: nil}
-  one_to_many :mobility_trips, class: "Suma::Mobility::Trip"
+  one_to_many :mobility_trips, class: "Suma::Mobility::Trip", order: order_desc
   many_through_many :orders,
                     [
                       [:commerce_carts, :member_id, :id],
@@ -90,25 +90,28 @@ class Suma::Member < Suma::Postgres::Model(:members)
                     class: "Suma::Commerce::Order",
                     left_primary_key: :id,
                     right_primary_key: :checkout_id,
-                    order: Sequel.desc(:created_at),
+                    order: order_desc,
                     read_only: true
   one_to_one :payment_account, class: "Suma::Payment::Account"
   one_to_one :referral, class: "Suma::Member::Referral"
   one_to_many :reset_codes,
               class: "Suma::Member::ResetCode",
-              order: Sequel.desc([:created_at]),
+              order: order_desc,
               # Use ResetCode.replace_active instead, add_reset_code is unsafe since it can keep multiple active.
               adder: nil
-  many_to_many :roles, class: "Suma::Role", join_table: :roles_members
-  one_to_many :sessions, class: "Suma::Member::Session", order: Sequel.desc([:created_at, :id])
-  one_to_many :commerce_carts, class: "Suma::Commerce::Cart"
-  one_to_many :anon_proxy_contacts, class: "Suma::AnonProxy::MemberContact"
-  one_to_many :anon_proxy_vendor_accounts, class: "Suma::AnonProxy::VendorAccount"
-  one_to_many :organization_memberships, class: "Suma::Organization::Membership"
-  many_to_many :marketing_lists, class: "Suma::Marketing::List", join_table: :marketing_lists_members
-  one_to_many :marketing_sms_dispatches, class: "Suma::Marketing::SmsDispatch"
+  many_to_many :roles, class: "Suma::Role", join_table: :roles_members, order: order_assoc(:asc, :name)
+  one_to_many :sessions, class: "Suma::Member::Session", order: order_desc
+  one_to_many :commerce_carts, class: "Suma::Commerce::Cart", order: order_desc
+  one_to_many :anon_proxy_contacts, class: "Suma::AnonProxy::MemberContact", order: order_desc
+  one_to_many :anon_proxy_vendor_accounts, class: "Suma::AnonProxy::VendorAccount", order: order_desc
+  one_to_many :organization_memberships, class: "Suma::Organization::Membership", order: order_desc
+  many_to_many :marketing_lists,
+               class: "Suma::Marketing::List",
+               join_table: :marketing_lists_members,
+               order: order_desc(:label)
+  one_to_many :marketing_sms_dispatches, class: "Suma::Marketing::SmsDispatch", order: order_desc
 
-  one_to_many :direct_program_enrollments, class: "Suma::Program::Enrollment"
+  one_to_many :direct_program_enrollments, class: "Suma::Program::Enrollment", order: order_desc
   many_through_many :program_enrollments_via_organizations,
                     [
                       [:organization_memberships, :member_id, :verified_organization_id],

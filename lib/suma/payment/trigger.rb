@@ -20,10 +20,11 @@ class Suma::Payment::Trigger < Suma::Postgres::Model(:payment_triggers)
   many_to_many :programs,
                class: "Suma::Program",
                join_table: :programs_payment_triggers,
-               left_key: :trigger_id
+               left_key: :trigger_id,
+               order: order_desc
   include Suma::Program::Has
 
-  one_to_many :executions, class: "Suma::Payment::Trigger::Execution"
+  one_to_many :executions, class: "Suma::Payment::Trigger::Execution", order: order_desc
 
   dataset_module do
     # Limit dataset to rows where +t+ is in +active_during+.

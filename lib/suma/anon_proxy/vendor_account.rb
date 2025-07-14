@@ -25,7 +25,7 @@ class Suma::AnonProxy::VendorAccount < Suma::Postgres::Model(:anon_proxy_vendor_
   many_to_one :member, class: "Suma::Member"
   many_to_one :configuration, class: "Suma::AnonProxy::VendorConfiguration"
   many_to_one :contact, class: "Suma::AnonProxy::MemberContact"
-  one_to_many :messages, class: "Suma::AnonProxy::VendorAccountMessage"
+  one_to_many :messages, class: "Suma::AnonProxy::VendorAccountMessage", order: order_desc
 
   class << self
     # Return existing or newly created vendor accounts for the member,

@@ -33,13 +33,15 @@ class Suma::Charge < Suma::Postgres::Model(:charges)
   many_to_one :member, class: "Suma::Member"
   many_to_one :mobility_trip, class: "Suma::Mobility::Trip"
   many_to_one :commerce_order, class: "Suma::Commerce::Order"
-  one_to_many :line_items, class: "Suma::Charge::LineItem"
+  one_to_many :line_items, class: "Suma::Charge::LineItem", order: order_assoc(:asc)
   one_to_many :on_platform_line_items,
               class: "Suma::Charge::LineItem",
+              order: order_assoc(:asc),
               conditions: Sequel[:book_transaction_id] !~ nil,
               read_only: true
   one_to_many :off_platform_line_items,
               class: "Suma::Charge::LineItem",
+              order: order_assoc(:asc),
               conditions: Sequel[:book_transaction_id] =~ nil,
               read_only: true
   # Keep track of any synchronous funding transactions
@@ -52,7 +54,8 @@ class Suma::Charge < Suma::Postgres::Model(:charges)
                class: "Suma::Payment::FundingTransaction",
                join_table: :charges_associated_funding_transactions,
                left_key: :charge_id,
-               right_key: :funding_transaction_id
+               right_key: :funding_transaction_id,
+               order: order_desc
 
   def initialize(*)
     super
