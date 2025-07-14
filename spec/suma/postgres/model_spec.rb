@@ -460,4 +460,46 @@ RSpec.describe "Suma::Postgres::Model", :db do
       )
     end
   end
+
+  describe "one_to_many" do
+    Suma::Postgres::Model.descendants.reject(&:anonymous?).each do |host_class|
+      describe host_class.name do
+        host_class.associations.each do |assoc_name|
+          assoc = host_class.association_reflections.fetch(assoc_name)
+          # We only care about reverse FKs on one-to-many
+          next unless assoc.fetch(:type) == :one_to_many
+          # Don't assume these are simple lookups
+          next if assoc.fetch(:eager_block)
+          describe "#{assoc_name} association" do
+            fk_to_this_model = assoc.fetch(:key_method)
+            assoc_class = Kernel.const_get(assoc.fetch(:class_name))
+            assoc_table = [assoc_class.schema_name, assoc_class.table_name].compact.join(".")
+            it "has an index on #{assoc_table}.#{fk_to_this_model}" do
+              find_idx_sql = <<~SQL
+                select
+                  t.relname as table_name,
+                  i.relname as index_name,
+                  a.attname as column_name
+                from
+                  pg_class t,
+                  pg_class i,
+                  pg_index ix,
+                  pg_attribute a
+                where
+                  t.oid = ix.indrelid
+                and i.oid = ix.indexrelid
+                and a.attrelid = t.oid
+                and a.attnum = ANY(ix.indkey)
+                and t.relkind = 'r'
+                and t.oid::regclass = to_regclass('#{assoc_table}')
+                and a.attname = '#{fk_to_this_model}'
+              SQL
+              rows = assoc_class.db.fetch(Sequel.lit(find_idx_sql)).all
+              expect(rows).to be_present, "expected index on :#{assoc_table}, :#{fk_to_this_model}"
+            end
+          end
+        end
+      end
+    end
+  end
 end
