@@ -23,7 +23,7 @@ class Suma::Organization < Suma::Postgres::Model(:organizations)
               key: :former_organization_id,
               order: order_desc
   one_to_many :program_enrollments, class: "Suma::Program::Enrollment", order: order_desc
-  many_to_many :roles, class: "Suma::Role", join_table: :roles_organizations
+  many_to_many :roles, class: "Suma::Role", join_table: :roles_organizations, order: order_assoc(:asc, :name)
 
   plugin :association_array_replacer, :roles
 

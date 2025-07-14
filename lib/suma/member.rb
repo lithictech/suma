@@ -99,13 +99,16 @@ class Suma::Member < Suma::Postgres::Model(:members)
               order: order_desc,
               # Use ResetCode.replace_active instead, add_reset_code is unsafe since it can keep multiple active.
               adder: nil
-  many_to_many :roles, class: "Suma::Role", join_table: :roles_members
+  many_to_many :roles, class: "Suma::Role", join_table: :roles_members, order: order_assoc(:asc, :name)
   one_to_many :sessions, class: "Suma::Member::Session", order: order_desc
   one_to_many :commerce_carts, class: "Suma::Commerce::Cart", order: order_desc
   one_to_many :anon_proxy_contacts, class: "Suma::AnonProxy::MemberContact", order: order_desc
   one_to_many :anon_proxy_vendor_accounts, class: "Suma::AnonProxy::VendorAccount", order: order_desc
   one_to_many :organization_memberships, class: "Suma::Organization::Membership", order: order_desc
-  many_to_many :marketing_lists, class: "Suma::Marketing::List", join_table: :marketing_lists_members
+  many_to_many :marketing_lists,
+               class: "Suma::Marketing::List",
+               join_table: :marketing_lists_members,
+               order: order_desc(:label)
   one_to_many :marketing_sms_dispatches, class: "Suma::Marketing::SmsDispatch", order: order_desc
 
   one_to_many :direct_program_enrollments, class: "Suma::Program::Enrollment", order: order_desc

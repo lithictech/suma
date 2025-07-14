@@ -36,7 +36,8 @@ class Suma::Payment::FundingTransaction < Suma::Postgres::Model(:payment_funding
                class: "Suma::Charge",
                join_table: :charges_associated_funding_transactions,
                right_key: :charge_id,
-               left_key: :funding_transaction_id
+               left_key: :funding_transaction_id,
+               order: order_desc
 
   one_to_many :refund_payout_transactions,
               class: "Suma::Payment::PayoutTransaction",

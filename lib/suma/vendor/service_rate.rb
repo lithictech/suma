@@ -10,7 +10,8 @@ class Suma::Vendor::ServiceRate < Suma::Postgres::Model(:vendor_service_rates)
                class: "Suma::Vendor::Service",
                join_table: :vendor_service_vendor_service_rates,
                left_key: :vendor_service_rate_id,
-               right_key: :vendor_service_id
+               right_key: :vendor_service_id,
+               order: order_desc(:internal_name)
   many_to_one :undiscounted_rate, key: :undiscounted_rate_id, class: "Suma::Vendor::ServiceRate"
 
   def calculate_total(units)

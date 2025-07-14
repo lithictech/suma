@@ -22,10 +22,12 @@ class Suma::Commerce::Product < Suma::Postgres::Model(:commerce_products)
 
   one_to_one :inventory, class: "Suma::Commerce::ProductInventory"
 
-  many_to_many :vendor_service_categories, class: "Suma::Vendor::ServiceCategory",
-                                           join_table: :vendor_service_categories_commerce_products,
-                                           left_key: :product_id,
-                                           right_key: :category_id
+  many_to_many :vendor_service_categories,
+               class: "Suma::Vendor::ServiceCategory",
+               join_table: :vendor_service_categories_commerce_products,
+               left_key: :product_id,
+               right_key: :category_id,
+               order: order_desc(:slug)
   include Suma::Vendor::HasServiceCategories
 
   many_through_many :orders,

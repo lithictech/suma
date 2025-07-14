@@ -51,10 +51,12 @@ class Suma::Role < Suma::Postgres::Model(:roles)
 
   many_to_many :members,
                class: "Suma::Member",
-               join_table: :roles_members
+               join_table: :roles_members,
+               order: order_assoc(:name)
   many_to_many :organizations,
                class: "Suma::Organization",
-               join_table: :roles_organizations
+               join_table: :roles_organizations,
+               order: order_assoc(:name)
 
   one_to_many :program_enrollments, class: "Suma::Program::Enrollment", order: order_desc
 

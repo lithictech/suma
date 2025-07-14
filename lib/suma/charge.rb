@@ -54,7 +54,8 @@ class Suma::Charge < Suma::Postgres::Model(:charges)
                class: "Suma::Payment::FundingTransaction",
                join_table: :charges_associated_funding_transactions,
                left_key: :charge_id,
-               right_key: :funding_transaction_id
+               right_key: :funding_transaction_id,
+               order: order_desc
 
   def initialize(*)
     super

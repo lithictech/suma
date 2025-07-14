@@ -24,7 +24,8 @@ class Suma::Payment::Ledger < Suma::Postgres::Model(:payment_ledgers)
                class: "Suma::Vendor::ServiceCategory",
                join_table: :vendor_service_categories_payment_ledgers,
                left_key: :ledger_id,
-               right_key: :category_id
+               right_key: :category_id,
+               order: order_desc(:slug)
   one_to_many :originated_book_transactions,
               class: "Suma::Payment::BookTransaction",
               key: :originating_ledger_id,
