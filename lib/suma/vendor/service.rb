@@ -32,7 +32,7 @@ class Suma::Vendor::Service < Suma::Postgres::Model(:vendor_services)
                left_key: :vendor_service_id,
                right_key: :vendor_service_rate_id
 
-  one_to_many :mobility_trips, class: "Suma::Mobility::Trip", key: :vendor_service_id
+  one_to_many :mobility_trips, class: "Suma::Mobility::Trip", key: :vendor_service_id, order: order_desc
 
   many_to_many :programs,
                class: "Suma::Program",

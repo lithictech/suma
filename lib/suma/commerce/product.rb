@@ -18,7 +18,7 @@ class Suma::Commerce::Product < Suma::Postgres::Model(:commerce_products)
   plugin :translated_text, :description, Suma::TranslatedText
 
   many_to_one :vendor, class: "Suma::Vendor"
-  one_to_many :offering_products, class: "Suma::Commerce::OfferingProduct", order: [:offering_id]
+  one_to_many :offering_products, class: "Suma::Commerce::OfferingProduct", order: order_desc
 
   one_to_one :inventory, class: "Suma::Commerce::ProductInventory"
 

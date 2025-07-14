@@ -14,9 +14,9 @@ class Suma::Commerce::Order < Suma::Postgres::Model(:commerce_orders)
   plugin :state_machine
   plugin :timestamps
 
-  one_to_many :audit_logs, class: "Suma::Commerce::OrderAuditLog", order: Sequel.desc(:at)
+  one_to_many :audit_logs, class: "Suma::Commerce::OrderAuditLog", order: order_desc(:at)
   many_to_one :checkout, class: "Suma::Commerce::Checkout"
-  one_to_many :charges, class: "Suma::Charge", key: :commerce_order_id
+  one_to_many :charges, class: "Suma::Charge", key: :commerce_order_id, order: order_desc
 
   many_to_one :total_item_count,
               read_only: true,

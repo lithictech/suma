@@ -56,7 +56,7 @@ class Suma::Role < Suma::Postgres::Model(:roles)
                class: "Suma::Organization",
                join_table: :roles_organizations
 
-  one_to_many :program_enrollments, class: "Suma::Program::Enrollment"
+  one_to_many :program_enrollments, class: "Suma::Program::Enrollment", order: order_desc
 
   def rel_admin_link = "/role/#{self.id}"
 

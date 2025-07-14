@@ -25,8 +25,14 @@ class Suma::Payment::Ledger < Suma::Postgres::Model(:payment_ledgers)
                join_table: :vendor_service_categories_payment_ledgers,
                left_key: :ledger_id,
                right_key: :category_id
-  one_to_many :originated_book_transactions, class: "Suma::Payment::BookTransaction", key: :originating_ledger_id
-  one_to_many :received_book_transactions, class: "Suma::Payment::BookTransaction", key: :receiving_ledger_id
+  one_to_many :originated_book_transactions,
+              class: "Suma::Payment::BookTransaction",
+              key: :originating_ledger_id,
+              order: order_desc(:apply_at)
+  one_to_many :received_book_transactions,
+              class: "Suma::Payment::BookTransaction",
+              key: :receiving_ledger_id,
+              order: order_desc(:apply_at)
   one_to_many :combined_book_transactions,
               class: "Suma::Payment::BookTransaction",
               read_only: true,

@@ -23,7 +23,7 @@ class Suma::Commerce::Checkout < Suma::Postgres::Model(:commerce_checkouts)
   many_to_one :cart, class: "Suma::Commerce::Cart"
   many_to_one :card, class: "Suma::Payment::Card"
   many_to_one :bank_account, class: "Suma::Payment::BankAccount"
-  one_to_many :items, class: "Suma::Commerce::CheckoutItem"
+  one_to_many :items, class: "Suma::Commerce::CheckoutItem", order: order_desc
   one_to_one :order, class: "Suma::Commerce::Order"
   many_to_one :fulfillment_option, class: "Suma::Commerce::OfferingFulfillmentOption"
 

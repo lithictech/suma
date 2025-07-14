@@ -19,7 +19,7 @@ class Suma::Program < Suma::Postgres::Model(:programs)
   plugin :translated_text, :app_link_text, Suma::TranslatedText
   plugin :association_pks
 
-  one_to_many :enrollments, class: "Suma::Program::Enrollment"
+  one_to_many :enrollments, class: "Suma::Program::Enrollment", order: order_desc
   # Some programs need explicit association with a vendor service,
   # for example, to know which vendor service to association with a mobility trip.
   many_to_one :vendor_service, class: "Suma::Vendor::Service"

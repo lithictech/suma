@@ -29,9 +29,9 @@ class Suma::Commerce::Offering < Suma::Postgres::Model(:commerce_offerings)
                left_key: :offering_id,
                right_key: :program_id
 
-  one_to_many :fulfillment_options, class: "Suma::Commerce::OfferingFulfillmentOption"
-  one_to_many :offering_products, class: "Suma::Commerce::OfferingProduct"
-  one_to_many :carts, class: "Suma::Commerce::Cart"
+  one_to_many :fulfillment_options, class: "Suma::Commerce::OfferingFulfillmentOption", order: order_assoc(:asc)
+  one_to_many :offering_products, class: "Suma::Commerce::OfferingProduct", order: order_desc
+  one_to_many :carts, class: "Suma::Commerce::Cart", order: order_desc
 
   many_to_many :programs,
                class: "Suma::Program",

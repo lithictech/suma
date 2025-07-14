@@ -86,4 +86,16 @@ class Suma::Postgres::Model
   plugin :column_encryption do |enc|
     enc.key 0, self.encryption_key_0
   end
+
+  # Default ordering for associations, descending by created_at and id.
+  # This introduces a very small performance impact for queries, having to sort filtered association datasets.
+  # But since association datasets should be small, or use explicit ordering,
+  # setting this up as the default is reasonable.
+  def self.order_desc(ts=:created_at, pk: :id) = order_assoc(:desc, ts, pk:)
+
+  def self.order_assoc(dir, ts=:created_at, pk: :id)
+    cols = [ts, pk]
+    return cols if dir == :asc
+    return cols.map { |c| Sequel.desc(c) }
+  end
 end

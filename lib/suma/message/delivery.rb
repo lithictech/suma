@@ -16,7 +16,7 @@ class Suma::Message::Delivery < Suma::Postgres::Model(:message_deliveries)
   plugin :timestamps
 
   many_to_one :recipient, class: "Suma::Member"
-  one_to_many :bodies, class: "Suma::Message::Body"
+  one_to_many :bodies, class: "Suma::Message::Body", order: :id
 
   dataset_module do
     def unsent

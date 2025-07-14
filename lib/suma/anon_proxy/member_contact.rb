@@ -15,7 +15,7 @@ class Suma::AnonProxy::MemberContact < Suma::Postgres::Model(:anon_proxy_member_
   plugin :timestamps
 
   many_to_one :member, class: "Suma::Member"
-  one_to_many :vendor_accounts, class: "Suma::AnonProxy::VendorAccount", key: :contact_id
+  one_to_many :vendor_accounts, class: "Suma::AnonProxy::VendorAccount", key: :contact_id, order: order_desc
 
   class << self
     # Helper to provision an anonymous email or phone member contact for the member.

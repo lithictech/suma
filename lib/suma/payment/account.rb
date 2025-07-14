@@ -16,12 +16,14 @@ class Suma::Payment::Account < Suma::Postgres::Model(:payment_accounts)
   one_to_many :originated_funding_transactions,
               key: :originating_payment_account_id,
               class: "Suma::Payment::FundingTransaction",
+              order: order_desc,
               read_only: true
   one_to_many :originated_payout_transactions,
               key: :originating_payment_account_id,
               class: "Suma::Payment::PayoutTransaction",
+              order: order_desc,
               read_only: true
-  one_to_many :ledgers, class: "Suma::Payment::Ledger"
+  one_to_many :ledgers, class: "Suma::Payment::Ledger", order: order_assoc(:asc)
   one_to_one :cash_ledger, class: "Suma::Payment::Ledger", read_only: true do |ds|
     ds.where(vendor_service_categories: Suma::Vendor::ServiceCategory.where(slug: "cash"))
   end
