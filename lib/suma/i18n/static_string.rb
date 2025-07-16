@@ -87,6 +87,11 @@ class Suma::I18n::StaticString < Suma::Postgres::Model(:i18n_static_strings)
           where { modified_at > since }.
           select_map(:namespace)
     end
+
+    # Use this to send a notification so that all web workers rebuild their locale files.
+    def notify_change
+      self.db.notify(Rebuilder::PG_CHANNEL)
+    end
   end
 
   class AutoHash < Hash
@@ -99,11 +104,16 @@ class Suma::I18n::StaticString < Suma::Postgres::Model(:i18n_static_strings)
   # Background thread to build all the missing files after startup,
   # and periodically check if any namespaces need modification.
   class Rebuilder
+    include Appydays::Loggable
+
+    PG_CHANNEL = :static_string_rebuilder
+    SHUTDOWN_POLL_INTERVAL = 10 # Allow the thread to cleanly exit by polling instead of blocking
+
     class << self
       def instance = @instance ||= self.new
     end
 
-    attr_reader :last_build, :watcher
+    attr_reader :last_build
 
     def initialize(dir=Dir.mktmpdir)
       @dir = Pathname(dir)
@@ -119,6 +129,21 @@ class Suma::I18n::StaticString < Suma::Postgres::Model(:i18n_static_strings)
           self.rebuild_outdated
         end
       end
+      @listener = Thread.new do
+        Sequel.connect(Suma::Postgres::Model.uri, logger: self.logger) do |db|
+          loop do
+            # Using db.listen with loop: true and a timeout didn't work.
+            db.listen(PG_CHANNEL, timeout: SHUTDOWN_POLL_INTERVAL)
+            break if Suma::SHUTTING_DOWN.true?
+            self.rebuild_outdated
+          end
+        end
+      end
+    end
+
+    def join_watcher
+      @watcher.join
+      @listener.join
     end
 
     def rebuild_outdated
