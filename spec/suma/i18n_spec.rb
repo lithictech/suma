@@ -11,6 +11,44 @@ RSpec.describe Suma::I18n, :db do
     end
   end
 
+  describe "import_seeds" do
+    it "upserts seeds into the database" do
+      stub_const("Suma::I18n::SEEDS_DIR", temp_dir_path)
+      Dir.mkdir(temp_dir_path + "en")
+      Dir.mkdir(temp_dir_path + "es")
+      File.write(temp_dir_path + "en/ns1.json", {a: {b: "hi"}}.to_json)
+      File.write(temp_dir_path + "es/ns1.json", {a: {b: "hola"}}.to_json)
+      described_class.import_seeds
+      expect(Suma::I18n::StaticString.all).to contain_exactly(
+        have_attributes(key: "a.b", namespace: "ns1", text: have_attributes(en: "hi", es: "hola")),
+      )
+      File.write(temp_dir_path + "en/ns1.json", {a: {b: "bye", c: "cc"}}.to_json)
+      described_class.import_seeds
+      expect(Suma::I18n::StaticString.all).to contain_exactly(
+        have_attributes(key: "a.b", namespace: "ns1", text: have_attributes(en: "bye", es: "hola")),
+        have_attributes(key: "a.c", namespace: "ns1", text: have_attributes(en: "cc")),
+      )
+    end
+  end
+
+  describe "export_seeds" do
+    it "writes static strings" do
+      stub_const("Suma::I18n::SEEDS_DIR", temp_dir_path)
+
+      Suma::Fixtures.static_string.text("hi", es: "hola").create(key: "a.b", namespace: "n1")
+      Suma::Fixtures.static_string.text("en1", es: "es1").create(key: "a.c", namespace: "n1")
+      Suma::Fixtures.static_string.text("en2", es: "es2").create(key: "a.c", namespace: "n2")
+
+      described_class.export_seeds
+
+      expect(JSON.parse(File.read(temp_dir_path + "en/n1.json"))).to eq({"a.b" => "hi", "a.c" => "en1"})
+      expect(JSON.parse(File.read(temp_dir_path + "es/n1.json"))).to eq({"a.b" => "hola", "a.c" => "es1"})
+      expect(JSON.parse(File.read(temp_dir_path + "en/n2.json"))).to eq({"a.c" => "en2"})
+
+      expect { described_class.export_seeds }.to_not raise_error
+    end
+  end
+
   # nested_hash = {
   #   "x" => 1,
   #   "y" => {
@@ -58,11 +96,23 @@ RSpec.describe Suma::I18n, :db do
   #   end
   # end
   #
-  # describe "flatten_hash" do
-  #   it "flattens a hash" do
-  #     expect(described_class.flatten_hash(nested_hash)).to eq({"h" => 3, "x" => 1, "y:a" => 2, "y:b" => 1})
-  #   end
-  # end
+  describe "flatten_hash" do
+    nested_hash = {
+      "x" => 1,
+      "y" => {
+        "b" => 1,
+        "a" => 2,
+      },
+      "h" => 3,
+    }
+
+    it "flattens a hash" do
+      h = nested_hash.deep_dup
+      expect(described_class.flatten_hash(nested_hash)).to eq({"h" => 3, "x" => 1, "y.a" => 2, "y.b" => 1})
+      # Assert original unchanged
+      expect(nested_hash).to eq(h)
+    end
+  end
   #
   # describe "prepare_csv" do
   #   it "merges lang-specific data to base data and writes" do

@@ -114,8 +114,11 @@ pry-%:
 message-render: env-MESSAGE
 	@bundle exec rake 'message:render[$(MESSAGE), $(OUT), $(MESSAGE_LANG), $(MESSAGE_TRANSPORT)]'
 
-i18n-format:
-	@bundle exec rake i18n:format
+i18n-import:
+	@bundle exec rake i18n:import
+
+i18n-export:
+	@bundle exec rake i18n:export
 
 analytics-reimport:
 	@bundle exec rake analytics:truncate

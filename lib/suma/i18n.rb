@@ -16,6 +16,7 @@ module Suma::I18n
   class InvalidInput < StandardError; end
 
   DATA_DIR = Suma::DATA_DIR + "i18n"
+  SEEDS_DIR = DATA_DIR + "seeds"
   Locale = Struct.new(:code, :language, :native)
   SUPPORTED_LOCALES = {
     "en" => Locale.new("en", "English", "English"),
@@ -53,6 +54,56 @@ module Suma::I18n
       return @localized_error_codes ||= begin
         keys = Suma::I18n::StaticString.load_keys_from_file(Suma::I18n::StaticString.static_keys_base_file)
         keys.select { |k| k.start_with?("errors.") }.map { |k| k[7..] }
+      end
+    end
+
+    # Upsert static strings from seed files.
+    # Use when bootstrapping a new database.
+    def import_seeds
+      modified_at = Time.now
+      data = AutoHash.new
+      SEEDS_DIR.glob("*").each do |locale_dir|
+        locale_dir.glob("*").each do |path|
+          j = JSON.load_file(path)
+          j = self.flatten_hash(j)
+          namespace = path.basename(".*").to_s
+          locale = locale_dir.basename(".*").to_s
+          j.each do |key, text|
+            data[namespace][key][locale] = text
+          end
+        end
+      end
+      data.each do |namespace, ns_strings|
+        Suma::I18n::StaticString.dataset.
+          insert_conflict.
+          import([:namespace, :key, :modified_at], ns_strings.keys.map { |k| [namespace, k, modified_at] })
+        Suma::I18n::StaticString.where(deprecated: false).each do |ss|
+          translated = ns_strings[ss.key]
+          next unless translated
+          if ss.text
+            ss.text.update(translated)
+          else
+            ss.update(text: Suma::TranslatedText.create(translated))
+          end
+        end
+      end
+    end
+
+    # Export current static strings to seed files.
+    # Use to update the seeds so bootstrapping will give better results as the frontend cahnges.
+    def export_seeds
+      data = AutoHash.new
+      Suma::I18n::StaticString.dataset.where(deprecated: false).each do |ss|
+        self.enabled_locale_codes.each do |lc|
+          data[ss.namespace][lc][ss.key] = ss.text&.send(lc) || ""
+        end
+      end
+      self.enabled_locale_codes.each { |lc| FileUtils.mkdir_p(SEEDS_DIR + lc) }
+      data.each do |namespace, ns_strings|
+        ns_strings.each do |locale_code, translated|
+          path = SEEDS_DIR + locale_code + (namespace + ".json")
+          File.write(path, JSON.pretty_generate(translated))
+        end
       end
     end
   end
@@ -119,6 +170,7 @@ module Suma::I18n
   def self.strings_path(locale_code)
     return LOCALE_DIR + locale_code + "strings.json"
   end
+
   #
   # def self.strings_data(locale_code)
   #   begin
@@ -129,20 +181,20 @@ module Suma::I18n
   #   return Yajl::Parser.parse(d)
   # end
   #
-  # # Turn a nested nested hash like {a: {b: 1}, c: 2} into
-  # # a flat one like {a.b: 1, c: 2}
-  # # @return [Hash]
-  # def self.flatten_hash(h, memo: {}, path: [])
-  #   h.each do |k, v|
-  #     kpath = path + [k]
-  #     if v.is_a?(Hash)
-  #       self.flatten_hash(v, memo:, path: kpath)
-  #     else
-  #       memo[kpath.join(":")] = v
-  #     end
-  #   end
-  #   return memo
-  # end
+  # Turn a nested nested hash like {a: {b: 1}, c: 2} into
+  # a flat one like {a.b: 1, c: 2}
+  # @return [Hash]
+  def self.flatten_hash(h, memo: {}, path: [])
+    h.each do |k, v|
+      kpath = path + [k]
+      if v.is_a?(Hash)
+        self.flatten_hash(v, memo:, path: kpath)
+      else
+        memo[kpath.join(".")] = v
+      end
+    end
+    return memo
+  end
   #
   # # Ensures that both strings interpolation values match
   # # and remove whitespace. Strings should have same amount of
@@ -310,6 +362,13 @@ module Suma::I18n
   #   paths = Dir.glob(LOCALE_DIR + "{#{SUPPORTED_LOCALES.keys.join(',')}}/*.json").to_a
   #   ResourceRewriter.rewrite_resource_files(paths)
   # end
+
+  class AutoHash < Hash
+    def initialize(*)
+      super
+      self.default_proc = proc { |h, k| h[k] = AutoHash.new }
+    end
+  end
 end
 
 require "suma/i18n/formatter"

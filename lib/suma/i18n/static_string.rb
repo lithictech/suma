@@ -67,7 +67,7 @@ class Suma::I18n::StaticString < Suma::Postgres::Model(:i18n_static_strings)
 
     # Turn a hash like {x.y: 1, x.z: 2} into {x: {y: 1, z: 2}}
     def nest_hash(h)
-      result = AutoHash.new
+      result = Suma::I18n::AutoHash.new
       h.each do |k, v|
         hpart = result
         parts = k.split(".")
@@ -94,11 +94,8 @@ class Suma::I18n::StaticString < Suma::Postgres::Model(:i18n_static_strings)
     end
   end
 
-  class AutoHash < Hash
-    def initialize(*)
-      super
-      self.default_proc = proc { |h, k| h[k] = AutoHash.new }
-    end
+  def validate
+    # TODO:  Ensure key is valid
   end
 
   # Background thread to build all the missing files after startup,
