@@ -30,12 +30,30 @@ module Suma::I18n
   end
 
   configurable(:i18n) do
+    # What locale should be used for fallback?
     setting :base_locale_code, "en"
+    # What namespace is the 'base' namespace for global things like form text, errors, etc?
+    setting :base_namespace, "strings"
+    # Use this to disable certain locales. Used when dynamic resources or static strings
+    # are not being localized to all supported locales.
     setting :enabled_locale_codes, ["en", "es"], convert: lambda(&:split)
+    # How often do we check for new static strings?
+    # Changes to static strings may take this long to show up in the UI, if not picked up through pub/sub.
+    setting :static_string_rebuild_interval, 300
 
     after_configured do
       @enabled_locales = self.enabled_locale_codes.map { |c| SUPPORTED_LOCALES.fetch(c) }
       SequelTranslatedText.default_language = self.base_locale_code
+    end
+  end
+
+  class << self
+    # What error codes are found in the base localization strings?
+    def localized_error_codes
+      return @localized_error_codes ||= begin
+        keys = Suma::I18n::StaticString.load_keys_from_file(Suma::I18n::StaticString.static_keys_base_file)
+        keys.select { |k| k.start_with?("errors.") }.map { |k| k[7..] }
+      end
     end
   end
 
@@ -92,15 +110,15 @@ module Suma::I18n
   #   end
   #   return result
   # end
-  #
-  # def self.base_locale_data
-  #   return self.strings_data(self.base_locale_code)
-  # end
-  #
-  # # @return [String]
-  # def self.strings_path(locale_code)
-  #   return LOCALE_DIR + locale_code + "strings.json"
-  # end
+
+  def self.base_locale_data
+    return self.strings_data(self.base_locale_code)
+  end
+
+  # @return [String]
+  def self.strings_path(locale_code)
+    return LOCALE_DIR + locale_code + "strings.json"
+  end
   #
   # def self.strings_data(locale_code)
   #   begin

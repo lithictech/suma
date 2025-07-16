@@ -5,6 +5,12 @@ require "suma/i18n"
 RSpec.describe Suma::I18n, :db do
   include_context "uses temp dir"
 
+  describe "localized_error_codes" do
+    it "returns errors as listed in the strings seed file" do
+      expect(described_class.localized_error_codes).to include("auth_conflict")
+    end
+  end
+
   # nested_hash = {
   #   "x" => 1,
   #   "y" => {

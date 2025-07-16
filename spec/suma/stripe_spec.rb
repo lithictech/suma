@@ -9,11 +9,11 @@ RSpec.describe Suma::Stripe, :db do
     codes.each do |code|
       declinebody = {"error" => {"code" => "card_declined", "decline_code" => code, "type" => "card_error"}}
       err = Stripe::CardError.new("testing", "p", json_body: declinebody)
-      expect(Suma::Service.localized_error_codes).to be_include(described_class.localized_error_code(err))
+      expect(Suma::I18n.localized_error_codes).to be_include(described_class.localized_error_code(err))
 
       errbody = {"error" => {"code" => code, "type" => "card_error"}}
       err = Stripe::CardError.new("testing", "p", json_body: errbody)
-      expect(Suma::Service.localized_error_codes).to be_include(described_class.localized_error_code(err))
+      expect(Suma::I18n.localized_error_codes).to be_include(described_class.localized_error_code(err))
     end
   end
 

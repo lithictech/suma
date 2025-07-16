@@ -12,7 +12,7 @@ class Suma::Tasks::I18n < Rake::TaskLib
       task :import_static_string_keys do
         require "suma/i18n"
         Suma.load_app
-        Suma::I18n::StaticString.upsert_keys_from_file
+        Suma::I18n::StaticString.import_all_namespaces
       end
 
       # desc "Reformat all locale JSON files to standard spacing, alphabetized keys, and formatter function."

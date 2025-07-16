@@ -39,8 +39,9 @@ export default function I18nProvider({ children }) {
       if (i18n.hasFile(language, namespace)) {
         return Promise.resolve();
       }
-      return fetch(`/locale/${language}/out/${namespace}.out.json`)
-        .then((resp) => resp.json().then((j) => i18n.putFile(language, namespace, j)))
+      return api
+        .getLocaleFile({ locale: language, namespace })
+        .then((resp) => i18n.putFile(language, namespace, resp.data))
         .catch((e) =>
           logger
             .context({ error: e })

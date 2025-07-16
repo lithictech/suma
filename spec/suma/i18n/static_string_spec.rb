@@ -65,6 +65,11 @@ RSpec.describe "Suma::I18n::StaticString", :db do
         have_attributes(key: "s3", modified_at: match_time(t2), deprecated: false),
       )
     end
+
+    it "can load the default namespace file" do
+      k = described_class.load_keys_from_file(described_class.static_keys_base_file)
+      expect(k).to include("errors.unhandled_error")
+    end
   end
 
   describe "load_namespace_locale" do
@@ -90,39 +95,6 @@ RSpec.describe "Suma::I18n::StaticString", :db do
     end
   end
 
-  describe "write_namespace" do
-    it "writes an interpolated file for each static locale and the given namespace" do
-      Suma::Fixtures.static_string.text("hi", es: "hola").create(namespace: "n1", key: "s1")
-      Suma::Fixtures.static_string.text("hi").create(namespace: "n2", key: "s1")
-
-      described_class.write_namespace(temp_dir_path, "n1")
-      expect(File.read(temp_dir_path + "en_n1.json")).to eq('{"s1":["s","hi"]}')
-      expect(File.read(temp_dir_path + "es_n1.json")).to eq('{"s1":["s","hola"]}')
-    end
-  end
-
-  describe "write_all_namespaces" do
-    it "writes a file for all static locales and database namespaces" do
-      Suma::Fixtures.static_string.text("hi").create(namespace: "n1", key: "s1")
-      Suma::Fixtures.static_string.text("bye").create(namespace: "n2", key: "s1")
-
-      described_class.write_all_namespaces(temp_dir_path)
-      expect(File.read(temp_dir_path + "en_n1.json")).to eq('{"s1":["s","hi"]}')
-      expect(File.read(temp_dir_path + "en_n2.json")).to eq('{"s1":["s","bye"]}')
-    end
-  end
-
-  describe "fetch_namespaces" do
-    it "returns all distinct namespaces without deprecated rows" do
-      Suma::Fixtures.static_string.create(namespace: "n1", deprecated: true)
-      Suma::Fixtures.static_string.create(namespace: "n2")
-      Suma::Fixtures.static_string.create(namespace: "n2")
-      Suma::Fixtures.static_string.create(namespace: "n3")
-
-      expect(described_class.fetch_namespaces).to contain_exactly("n2", "n3")
-    end
-  end
-
   describe "fetch_modified_namespaces" do
     it "fetches namespaces modified after the given time" do
       Suma::Fixtures.static_string.create(namespace: "n1", deprecated: true)
@@ -133,6 +105,73 @@ RSpec.describe "Suma::I18n::StaticString", :db do
       Suma::Fixtures.static_string.create(namespace: "n5", modified_at: 10.hours.ago)
 
       expect(described_class.fetch_modified_namespaces(3.hours.ago)).to contain_exactly("n2", "n3")
+    end
+  end
+
+  describe "Rebuilder" do
+    describe "instance" do
+      it "returns an instance" do
+        expect(described_class::Rebuilder.instance).to be_a(described_class::Rebuilder)
+      end
+    end
+
+    describe "start_watcher", reset_configuration: described_class do
+      after(:each) do
+        Suma::Signals.reset
+      end
+
+      it "starts a watcher thread which rebuilds outdated" do
+        Suma::I18n.static_string_rebuild_interval = 0
+        r = described_class::Rebuilder.new
+        calls = 0
+        expect(r).to receive(:rebuild_outdated).twice do
+          calls += 1
+          Suma::Signals.handle_term if calls > 1
+        end
+        r.start_watcher
+        r.watcher.join
+      end
+
+      it "errors if already started" do
+        r = described_class::Rebuilder.new
+        Suma::Signals.handle_term
+        r.start_watcher
+        expect { r.start_watcher }.to raise_error("already started")
+        r.watcher.join
+      end
+    end
+
+    describe "write_namespace" do
+      it "writes an interpolated file for each static locale and the given namespace" do
+        Suma::Fixtures.static_string.text("hi", es: "hola").create(namespace: "n1", key: "s1")
+        Suma::Fixtures.static_string.text("hi").create(namespace: "n2", key: "s1")
+        Suma::Fixtures.static_string.text("hi").create(namespace: "n3", key: "s1")
+
+        described_class::Rebuilder.new(temp_dir_path).write_namespaces(["n1", "n2"])
+        expect(File.read(temp_dir_path + "en_n1.json")).to eq('{"s1":["s","hi"]}')
+        expect(File.read(temp_dir_path + "es_n1.json")).to eq('{"s1":["s","hola"]}')
+        expect(Pathname(temp_dir_path + "en_n2.json")).to be_exist
+        expect(Pathname(temp_dir_path + "en_n3.json")).to_not be_exist
+      end
+    end
+
+    describe "rebuild_outdated" do
+      it "rebuilds modified namespace files" do
+        r = described_class::Rebuilder.new(temp_dir_path)
+        s1 = Suma::Fixtures.static_string.text("hi").create(namespace: "n1", key: "s1")
+        s2 = Suma::Fixtures.static_string.text("hi").create(namespace: "n2", key: "s2")
+
+        r.rebuild_outdated
+        old_n1_mtime = File.stat(temp_dir_path + "en_n1.json").mtime
+        old_n2_mtime = File.stat(temp_dir_path + "en_n2.json").mtime
+
+        s1.update(modified_at: Time.now)
+
+        sleep(0.001)
+        r.rebuild_outdated
+        expect(File.stat(temp_dir_path + "en_n1.json").mtime).to be > old_n1_mtime
+        expect(File.stat(temp_dir_path + "en_n2.json").mtime).to eq old_n2_mtime
+      end
     end
   end
 end
