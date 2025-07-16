@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-require "suma/i18n"
+RSpec.describe "Suma::I18n::StaticString", :db do
+  let(:described_class) { Suma::I18n::StaticString }
 
-RSpec.describe Suma::I18n, :db do
   include_context "uses temp dir"
 
   describe "upsert_keys_from_file" do
@@ -12,11 +12,12 @@ RSpec.describe Suma::I18n, :db do
       t1 = Time.parse("2020-01-01T12:00:00Z")
       t2 = Time.parse("2020-02-01T12:00:00Z")
       t3 = Time.parse("2020-03-01T12:00:00Z")
+      t4 = Time.parse("2020-04-01T12:00:00Z")
       File.write(path, "s1\n\t\ns2\n\n \t\n")
       Timecop.freeze(t1) do
         described_class.upsert_keys_from_file(path)
       end
-      expect(Suma::I18n::StaticString.all).to contain_exactly(
+      expect(described_class.all).to contain_exactly(
         have_attributes(key: "s1", modified_at: match_time(t1), deprecated: false),
         have_attributes(key: "s2", modified_at: match_time(t1), deprecated: false),
       )
@@ -25,19 +26,29 @@ RSpec.describe Suma::I18n, :db do
       Timecop.freeze(t2) do
         described_class.upsert_keys_from_file(path)
       end
-      expect(Suma::I18n::StaticString.all).to contain_exactly(
+      expect(described_class.all).to contain_exactly(
         have_attributes(key: "s1", modified_at: match_time(t1), deprecated: false),
         have_attributes(key: "s2", modified_at: match_time(t1), deprecated: false),
         have_attributes(key: "s3", modified_at: match_time(t2), deprecated: false),
       )
 
-      File.write(path, "s3")
-      Timecop.freeze(t2) do
+      File.write(path, "s2\ns3")
+      Timecop.freeze(t3) do
         described_class.upsert_keys_from_file(path)
       end
-      expect(Suma::I18n::StaticString.all).to contain_exactly(
+      expect(described_class.all).to contain_exactly(
         have_attributes(key: "s1", modified_at: match_time(t3), deprecated: true),
-        have_attributes(key: "s2", modified_at: match_time(t3), deprecated: true),
+        have_attributes(key: "s2", modified_at: match_time(t1), deprecated: false),
+        have_attributes(key: "s3", modified_at: match_time(t2), deprecated: false),
+      )
+
+      File.write(path, "s3")
+      Timecop.freeze(t4) do
+        described_class.upsert_keys_from_file(path)
+      end
+      expect(described_class.all).to contain_exactly(
+        have_attributes(key: "s1", modified_at: match_time(t3), deprecated: true),
+        have_attributes(key: "s2", modified_at: match_time(t4), deprecated: true),
         have_attributes(key: "s3", modified_at: match_time(t2), deprecated: false),
       )
     end
