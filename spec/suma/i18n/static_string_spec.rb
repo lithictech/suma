@@ -108,6 +108,24 @@ RSpec.describe "Suma::I18n::StaticString", :db do
     end
   end
 
+  describe "validations" do
+    it "errors for invalid keys or namespaces" do
+      Suma::Fixtures.static_string.create(namespace: "n1", key: "s1")
+      Suma::Fixtures.static_string.create(namespace: "n1.n2", key: "s1.s2")
+      Suma::Fixtures.static_string.create(namespace: "n1_n2", key: "s1.s2")
+
+      expect do
+        Suma::Fixtures.static_string.create(namespace: "n1:n2")
+      end.to raise_error(Sequel::ValidationFailed, "namespace is invalid")
+      expect do
+        Suma::Fixtures.static_string.create(key: "s1:s2")
+      end.to raise_error(Sequel::ValidationFailed, "key is invalid")
+      expect do
+        Suma::Fixtures.static_string.create(key: "s1 s2", namespace: "n1-n2")
+      end.to raise_error(Sequel::ValidationFailed, "key is invalid, namespace is invalid")
+    end
+  end
+
   describe "Rebuilder" do
     describe "instance" do
       it "returns an instance" do

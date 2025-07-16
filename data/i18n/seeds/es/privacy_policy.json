@@ -35,7 +35,7 @@
   "sections": {
     "business_transfer": {
       "list": {
-        "email": "te informaremos sobre el cambio por correo electrónico y / o publicando un aviso en la página de inicio de la plataforma suma ($t(privacy-policy-strings:links:suma_platform_homepage)); y",
+        "email": "te informaremos sobre el cambio por correo electrónico y / o publicando un aviso en la página de inicio de la plataforma suma ($t(privacy_policy:links:suma_platform_homepage)); y",
         "opt_out": "tendrás la oportunidad de optar por no participar antes de que tu información esté sujeta a una política de privacidad distinta a la presente"
       },
       "paragraph": "Podemos optar por comprar o vender los activos de la plataforma suma. Estas transacciones pueden ser precisos por el beneficio legítimo de la plataforma, en particular, para cumplir con nuestro objetivo de hacer crecer la plataforma, servir a más miembros de la comunidad y ampliar la oferta de bienes y servicios. El traslado de los datos de los usuarios suele ocurrir en estas transacciones (tales como la venta, unión, liquidación, intervención judicial o transferencia de todos o una parte sustancialmente de los activos de la plataforma suma). Si tenemos la intención de transferir tu información:",
@@ -55,7 +55,7 @@
       "title": "Comunicaciones"
     },
     "contact_information": {
-      "paragraph": "Si tienes alguna pregunta sobre esta política de privacidad, estamos para atenderte en $t(privacy-policy-strings:links:suma_help_email). También estamos a la orden para organizar reuniones informativas virtuales o en persona, para resolver cualquier duda que tengas sobre la política de privacidad.",
+      "paragraph": "Si tienes alguna pregunta sobre esta política de privacidad, estamos para atenderte en $t(privacy_policy:links:suma_help_email). También estamos a la orden para organizar reuniones informativas virtuales o en persona, para resolver cualquier duda que tengas sobre la política de privacidad.",
       "title": "Los datos de contacto"
     },
     "cookies_policy": {
@@ -66,8 +66,8 @@
     "date": "2 de agosto de 2022",
     "effective": "Fecha de entrada en vigor:",
     "future_changes_to_policy": {
-      "conclusion": "Puedes consultar la política de privacidad vigente de la plataforma suma en cualquier momento en $t(privacy-policy-strings:links:suma_privacy_policy). Por cualquier pregunta o inquietud sobre cambios a esta política, comunícate con $t(privacy-policy-strings:links:suma_help_email).",
-      "paragraph": "Es posible que se actualice la política de privacidad de la plataforma suma de vez en cuando. Si cambiamos la política de privacidad de suma, te informaremos sobre el cambio por correo electrónico y / o publicando un aviso en la página de inicio de la plataforma $t(privacy-policy-strings:links:suma_platform_homepage). Este aviso te informará qué va a cambiar y por qué está cambiando. Proporcionaremos un aviso al menos 30 días antes de que los cambios entren en vigor, a menos que la ley requiera que el plazo de notificación sea distinto. Tendrás la oportunidad autorizar los cambios la primera vez que inicias una nueva sesión después de que los cambios entren en vigor. Si no aceptas los cambios, su cuenta será suspendida.",
+      "conclusion": "Puedes consultar la política de privacidad vigente de la plataforma suma en cualquier momento en $t(privacy_policy:links:suma_privacy_policy). Por cualquier pregunta o inquietud sobre cambios a esta política, comunícate con $t(privacy_policy:links:suma_help_email).",
+      "paragraph": "Es posible que se actualice la política de privacidad de la plataforma suma de vez en cuando. Si cambiamos la política de privacidad de suma, te informaremos sobre el cambio por correo electrónico y / o publicando un aviso en la página de inicio de la plataforma $t(privacy_policy:links:suma_platform_homepage). Este aviso te informará qué va a cambiar y por qué está cambiando. Proporcionaremos un aviso al menos 30 días antes de que los cambios entren en vigor, a menos que la ley requiera que el plazo de notificación sea distinto. Tendrás la oportunidad autorizar los cambios la primera vez que inicias una nueva sesión después de que los cambios entren en vigor. Si no aceptas los cambios, su cuenta será suspendida.",
       "title": "Cambios futuros a la presente política"
     },
     "information_collected": {

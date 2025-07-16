@@ -95,7 +95,9 @@ class Suma::I18n::StaticString < Suma::Postgres::Model(:i18n_static_strings)
   end
 
   def validate
-    # TODO:  Ensure key is valid
+    super
+    validates_format(/^[a-z0-9_.]+$/, :key)
+    validates_format(/^[a-z0-9_.]+$/, :namespace)
   end
 
   # Background thread to build all the missing files after startup,

@@ -42,7 +42,7 @@ export default function PrivacyPolicyContent({ mobile }) {
   const topNavHeight = topNav?.clientHeight - 1 || 0;
 
   useMountEffect(() => {
-    loadLanguageFile("privacy-policy-strings").then(() => setI18nLoading(false));
+    loadLanguageFile("privacy_policy").then(() => setI18nLoading(false));
   });
 
   if (i18nLoading) {
@@ -470,5 +470,5 @@ const navLinkSectionKeys = [
   "sections:contact_information",
 ];
 
-const lu = new Lookup("privacy-policy-strings");
+const lu = new Lookup("privacy_policy");
 const t = lu.t;
