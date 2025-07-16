@@ -142,4 +142,25 @@ RSpec.describe Suma::API::Meta, :db do
       )
     end
   end
+
+  describe "GET /v1/meta/static_strings/<locale>" do
+    it "returns the static string file from the database" do
+      orgb = Suma::Fixtures.organization.create(name: "b")
+      orgc = Suma::Fixtures.organization.create(name: "c")
+      orga = Suma::Fixtures.organization.create(name: "a")
+      orgup = Suma::Fixtures.organization.create(name: "d", ordinal: 1)
+
+      get "/v1/meta/supported_organizations"
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.that_includes(
+        items: [
+          {name: "d"},
+          {name: "a"},
+          {name: "b"},
+          {name: "c"},
+        ],
+      )
+    end
+  end
 end

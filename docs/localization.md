@@ -23,10 +23,13 @@ This means they need both a dedicated editor, and a dedicated delivery mechanism
 
 The static string pipeline is:
 
-- The `data/i18n/static_string_keys.txt` file contains all the static string keys needed by the app.
+- The files in `data/i18n/static_keys/strings.txt` file contains all the static string keys needed by the app.
+  - There are multiple files here, and each is a 'namespace.'
+  - Namespaces are loaded separately by the app to cut down on memory, like only loading the privacy policy strings
+    when viewing that page.
 - The release process upserts these keys, and marks any not-present rows deprecated.
-- On the first request to `/v1/meta/<locale>/strings.json`, the static strings are written out,
-  and the file is served if present.
+- On the first request to `/v1/meta/static_strings/<locale>/<namespace>.json`, the static strings are written out
+  for that local and namespace if needed (see below), and the file is served.
   - The file is also generated ahead of time in a background thread after startup,
     so it doesn't delay startup, and 'primes' the initial strings file request.
   - The time this happens is recorded.

@@ -6,21 +6,6 @@ require "suma/i18n/formatter"
 # Note the output file is JSON-based, but also as compact as possible.
 # In the future we could move to a binary forma,  but it's probably not worth it in terms of complexity for now.
 class Suma::I18n::ResourceRewriter
-  class << self
-    def rewrite_resource_files(paths)
-      rewriter = self.new
-      resource_files = paths.map { |p| ResourceFile.new(p, File.read(p)) }
-      rewriter.prime(*resource_files)
-      resource_files.each do |rf|
-        result = rewriter.to_output(rf)
-        contents = Yajl::Encoder.encode(result)
-        newpath = rf.output_path
-        newpath.dirname.mkpath
-        File.write(newpath.to_s, contents)
-      end
-    end
-  end
-
   def initialize
     # As we process the hash, keep a map of the strings, to the $t nestings the string depends on.
     # Then in a second pass, we deeply resolve the nestings to find the right formatter.
@@ -179,23 +164,16 @@ class Suma::I18n::ResourceRewriter
   end
 
   # Represent a resource file, like 'strings.json'.
-  # +path+ is the path of the read file (empty string for fake file is fine),
   # +str+ is the contents of the resource file, which will be parsed as json.
   class ResourceFile
-    # Path the caller says the resource file lives at.
-    attr_accessor :path
-    # Output path, which is based on the input path.
-    attr_accessor :output_path
     # Namespace ('strings' for 'strings.json').
     attr_accessor :namespace
     # Parsed contents of the input string.
     attr_accessor :strings
 
-    def initialize(path, str)
-      @path = Pathname.new(path)
-      @namespace = @path.basename(".*")
-      @output_path = Pathname(path).parent + "out" + "#{@namespace}.out.json"
-      @strings = Yajl::Parser.parse(str)
+    def initialize(strings, namespace:)
+      @strings = strings
+      @namespace = namespace
     end
   end
 end

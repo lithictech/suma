@@ -5,44 +5,6 @@ require "suma/i18n"
 RSpec.describe Suma::I18n, :db do
   include_context "uses temp dir"
 
-  describe "upsert_keys_from_file" do
-    let(:path) { temp_dir_path + "keys.txt" }
-
-    it "inserts new keys and deprecates old keys" do
-      t1 = Time.parse("2020-01-01T12:00:00Z")
-      t2 = Time.parse("2020-02-01T12:00:00Z")
-      t3 = Time.parse("2020-03-01T12:00:00Z")
-      File.write(path, "s1\n\t\ns2\n\n \t\n")
-      Timecop.freeze(t1) do
-        described_class.upsert_keys_from_file(path)
-      end
-      expect(Suma::I18n::StaticString.all).to contain_exactly(
-        have_attributes(key: "s1", modified_at: match_time(t1), deprecated: false),
-        have_attributes(key: "s2", modified_at: match_time(t1), deprecated: false),
-      )
-
-      File.write(path, "s1\ns2\ns3\n")
-      Timecop.freeze(t2) do
-        described_class.upsert_keys_from_file(path)
-      end
-      expect(Suma::I18n::StaticString.all).to contain_exactly(
-        have_attributes(key: "s1", modified_at: match_time(t1), deprecated: false),
-        have_attributes(key: "s2", modified_at: match_time(t1), deprecated: false),
-        have_attributes(key: "s3", modified_at: match_time(t2), deprecated: false),
-      )
-
-      File.write(path, "s3")
-      Timecop.freeze(t2) do
-        described_class.upsert_keys_from_file(path)
-      end
-      expect(Suma::I18n::StaticString.all).to contain_exactly(
-        have_attributes(key: "s1", modified_at: match_time(t3), deprecated: true),
-        have_attributes(key: "s2", modified_at: match_time(t3), deprecated: true),
-        have_attributes(key: "s3", modified_at: match_time(t2), deprecated: false),
-      )
-    end
-  end
-
   # nested_hash = {
   #   "x" => 1,
   #   "y" => {
@@ -267,199 +229,194 @@ RSpec.describe Suma::I18n, :db do
   #   end
   # end
   #
-  # describe "ResourceRewriter" do
-  #   def resfile(ns, h)
-  #     return described_class::ResourceRewriter::ResourceFile.new(ns, h.to_json)
-  #   end
-  #
-  #   def rewrite(s)
-  #     rr = described_class::ResourceRewriter.new
-  #     rf = resfile("strings", {s:})
-  #     rr.prime(rf)
-  #     return rr.to_output(rf).fetch("s")
-  #   end
-  #
-  #   it "calculates a filename" do
-  #     pth = described_class::ResourceRewriter::ResourceFile.new("en/strings.json", "{}").output_path
-  #     expect(pth.to_s).to eq("en/out/strings.out.json")
-  #   end
-  #
-  #   it "writes simple strings" do
-  #     expect(rewrite("abc d")).to eq([:s, "abc d"])
-  #     expect(rewrite("a")).to eq([:s, "a"])
-  #   end
-  #
-  #   it "trims spaces" do
-  #     expect(rewrite("")).to eq([:s, ""])
-  #     expect(rewrite(" ")).to eq([:s, ""])
-  #     expect(rewrite(" a ")).to eq([:s, "a"])
-  #   end
-  #
-  #   it "writes markdown strings" do
-  #     expect(rewrite("**x**")).to eq([:m, "**x**"])
-  #     expect(rewrite("a *x* z")).to eq([:m, "a *x* z"])
-  #   end
-  #
-  #   it "writes multiline markdown strings" do
-  #     expect(rewrite("x\ny")).to eq([:s, "x\ny"])
-  #     expect(rewrite("x\n\ny")).to eq([:mp, "x\n\ny"])
-  #   end
-  #
-  #   it "rewrites interpolated strings" do
-  #     expect(rewrite("{{x}}")).to eq([:s, "@%", {k: "x"}])
-  #     expect(rewrite("{{x.y.z}}")).to eq([:s, "@%", {k: "x.y.z"}])
-  #     expect(rewrite("{{x-2_3:y:z}}")).to eq([:s, "@%", {k: "x-2_3:y:z"}])
-  #     expect(rewrite("{{ x}} y")).to eq([:s, "@% y", {k: "x"}])
-  #     expect(rewrite("{{ x }} *{{y}}*")).to eq([:m, "@% *@%*", {k: "x"}, {k: "y"}])
-  #   end
-  #
-  #   it "rewrites interpolated strings with a formatter" do
-  #     expect(rewrite("{{x,currency}}")).to eq([:s, "@%", {f: "currency", k: "x"}])
-  #     expect(rewrite("{{ x, currency}} y")).to eq([:s, "@% y", {f: "currency", k: "x"}])
-  #     expect(rewrite("{{ x, currency }} *{{y,time }}*")).to eq(
-  #       [:m, "@% *@%*", {f: "currency", k: "x"}, {f: "time", k: "y"}],
-  #     )
-  #   end
-  #
-  #   it "rewrites strings referencing other strings" do
-  #     expect(rewrite("$t(xy)")).to eq([:s, "@%", {t: "xy"}])
-  #     expect(rewrite("$t(x.y)")).to eq([:s, "@%", {t: "x.y"}])
-  #     expect(rewrite("$t(x-2_3:y:z)")).to eq([:s, "@%", {t: "x-2_3:y:z"}])
-  #     expect(rewrite("a $t(xy) c")).to eq([:s, "a @% c", {t: "xy"}])
-  #     expect(rewrite("a *$t(xy)* $t(c)")).to eq([:m, "a *@%* @%", {t: "xy"}, {t: "c"}])
-  #   end
-  #
-  #   it "handles unicode" do
-  #     expect(rewrite("🤣$t(xyz)🤣{{abc}}🤣")).to eq([:s, "🤣@%🤣@%🤣", {t: "xyz"}, {k: "abc"}])
-  #   end
-  #
-  #   it "errors if the placeholder is used in a resource string" do
-  #     expect do
-  #       rewrite("hi @%")
-  #     end.to raise_error(described_class::InvalidInput)
-  #   end
-  #
-  #   it "errors if the json is not strings and hashes only" do
-  #     expect do
-  #       described_class::ResourceRewriter.new.prime(resfile("test", {s: ["abc"]}))
-  #     end.to raise_error(described_class::InvalidInput)
-  #   end
-  #
-  #   it "uses the higher-complexity plain/md/multiline renderer if a reference key uses it" do
-  #     strings = {
-  #       base: "abc",
-  #       md: "a *b* c",
-  #       mdp: "a\n\nb",
-  #       ref_plain: "$t(test.base) $t(test.base)",
-  #       ref_md: "$t(test.base) $t(test.md)",
-  #       ref_mdp: "$t(test.base) $t(test.mdp)",
-  #       ref_mdp_deep: "$t(test.ref_mdp)",
-  #       a: {b: {c: "*c*"}},
-  #       ref_deep: "$t(test.a.b.c)",
-  #     }
-  #     rr = described_class::ResourceRewriter.new
-  #     rr.prime(resfile("test", strings))
-  #     got = rr.to_output(resfile("test", strings))
-  #     expect(got).to eq(
-  #       {
-  #         "base" => [:s, "abc"],
-  #         "md" => [:m, "a *b* c"],
-  #         "mdp" => [:mp, "a\n\nb"],
-  #         "ref_plain" => [:s, "@% @%", {t: "test.base"}, {t: "test.base"}],
-  #         "ref_md" => [:m, "@% @%", {t: "test.base"}, {t: "test.md"}],
-  #         "ref_mdp" => [:mp, "@% @%", {t: "test.base"}, {t: "test.mdp"}],
-  #         "ref_mdp_deep" => [:mp, "@%", {t: "test.ref_mdp"}],
-  #         "a" => {"b" => {"c" => [:m, "*c*"]}},
-  #         "ref_deep" => [:m, "@%", {t: "test.a.b.c"}],
-  #       },
-  #     )
-  #   end
-  #
-  #   it "uses high-complexity formatters, even when refs are out-of-order" do
-  #     strings = {
-  #       s0: "xy",
-  #       s1: "$t(test.s2)",
-  #       s2: "*$t(test.s3)*",
-  #       s3: "$t(test.s0)\n\nhi",
-  #     }
-  #     rr = described_class::ResourceRewriter.new
-  #     rr.prime(resfile("test", strings))
-  #     got = rr.to_output(resfile("test", strings))
-  #     expect(got).to eq(
-  #       {
-  #         "s0" => [:s, "xy"],
-  #         "s1" => [:mp, "@%", {t: "test.s2"}],
-  #         "s2" => [:mp, "*@%*", {t: "test.s3"}],
-  #         "s3" => [:mp, "@%\n\nhi", {t: "test.s0"}],
-  #       },
-  #     )
-  #   end
-  #
-  #   it "finds refs across namespaces" do
-  #     strings1 = {
-  #       s1: "$t(test2.s1)",
-  #     }
-  #     strings2 = {
-  #       s1: "*hi*",
-  #     }
-  #     rr = described_class::ResourceRewriter.new
-  #     rr.prime(resfile("test1", strings1), resfile("test2", strings2))
-  #     got1 = rr.to_output(resfile("test1", strings1))
-  #     got2 = rr.to_output(resfile("test2", strings2))
-  #     expect(got2).to eq({"s1" => [:m, "*hi*"]})
-  #     expect(got1).to eq({"s1" => [:m, "@%", {t: "test2.s1"}]})
-  #   end
-  #
-  #   it "handles and fixes colon-separated path names" do
-  #     strings = {
-  #       s1: "$t(test:s2)",
-  #       s2: "*hi*",
-  #     }
-  #     rr = described_class::ResourceRewriter.new
-  #     rr.prime(resfile("test", strings))
-  #     got = rr.to_output(resfile("test", strings))
-  #     expect(got).to eq({"s1" => [:m, "@%", {t: "test:s2"}], "s2" => [:m, "*hi*"]})
-  #   end
-  #
-  #   it "errors if to_output is called without being primed" do
-  #     rr = described_class::ResourceRewriter.new
-  #     rf1 = resfile("test1", {})
-  #     rf2 = resfile("test2", {})
-  #     expect do
-  #       rr.to_output(rf1)
-  #     end.to raise_error(Suma::InvalidPrecondition, /Must call #prime with 'test1' resource file/)
-  #     rr.prime(rf1)
-  #     expect { rr.to_output(rf1) }.to_not raise_error
-  #     expect do
-  #       rr.to_output(rf2)
-  #     end.to raise_error(Suma::InvalidPrecondition, /Must call #prime with 'test2' resource file/)
-  #     rr.prime(rf2)
-  #     expect { rr.to_output(rf2) }.to_not raise_error
-  #   end
-  # end
-  #
-  # describe "Formatter" do
-  #   it "can figure out the formatter for a string" do
-  #     expect(described_class::Formatter.for("ab")).to eq(described_class::Formatter::STR)
-  #     expect(described_class::Formatter.for("a **b**")).to eq(described_class::Formatter::MD)
-  #     expect(described_class::Formatter.for("a\n\nz\n\n-b\n-c\n")).to eq(described_class::Formatter::MD_MULTILINE)
-  #     expect(described_class::Formatter.for("hi\n\n- a\n- b")).to eq(described_class::Formatter::MD_MULTILINE)
-  #     expect(described_class::Formatter.for("hi\n- a\n- b")).to eq(described_class::Formatter::STR)
-  #     expect(described_class::Formatter.for("- a\n- b")).to eq(described_class::Formatter::MD_MULTILINE)
-  #     expect(described_class::Formatter.for("hi\n1. a\n2. b")).to eq(described_class::Formatter::STR)
-  #     expect(described_class::Formatter.for("hi\n\n1. a\n2. b")).to eq(described_class::Formatter::MD_MULTILINE)
-  #     expect(described_class::Formatter.for("1. a\n2. b")).to eq(described_class::Formatter::MD_MULTILINE)
-  #   end
-  #
-  #   it "uses an LRU" do
-  #     orig_size = described_class::Formatter.lru.size
-  #     s1 = SecureRandom.hex
-  #     s2 = SecureRandom.hex
-  #     expect(described_class::Formatter.for(s1)).to eq(described_class::Formatter::STR)
-  #     expect(described_class::Formatter.for(s1)).to eq(described_class::Formatter::STR)
-  #     expect(described_class::Formatter.lru).to have_attributes(size: orig_size + 1)
-  #     expect(described_class::Formatter.for(s2)).to eq(described_class::Formatter::STR)
-  #     expect(described_class::Formatter.lru).to have_attributes(size: orig_size + 2)
-  #   end
-  # end
+  describe "ResourceRewriter" do
+    def resfile(ns, h)
+      return described_class::ResourceRewriter::ResourceFile.new(h.deep_stringify_keys, namespace: ns)
+    end
+
+    def rewrite(s)
+      rr = described_class::ResourceRewriter.new
+      rf = resfile("strings", {s:})
+      rr.prime(rf)
+      return rr.to_output(rf).fetch("s")
+    end
+
+    it "writes simple strings" do
+      expect(rewrite("abc d")).to eq([:s, "abc d"])
+      expect(rewrite("a")).to eq([:s, "a"])
+    end
+
+    it "trims spaces" do
+      expect(rewrite("")).to eq([:s, ""])
+      expect(rewrite(" ")).to eq([:s, ""])
+      expect(rewrite(" a ")).to eq([:s, "a"])
+    end
+
+    it "writes markdown strings" do
+      expect(rewrite("**x**")).to eq([:m, "**x**"])
+      expect(rewrite("a *x* z")).to eq([:m, "a *x* z"])
+    end
+
+    it "writes multiline markdown strings" do
+      expect(rewrite("x\ny")).to eq([:s, "x\ny"])
+      expect(rewrite("x\n\ny")).to eq([:mp, "x\n\ny"])
+    end
+
+    it "rewrites interpolated strings" do
+      expect(rewrite("{{x}}")).to eq([:s, "@%", {k: "x"}])
+      expect(rewrite("{{x.y.z}}")).to eq([:s, "@%", {k: "x.y.z"}])
+      expect(rewrite("{{x-2_3:y:z}}")).to eq([:s, "@%", {k: "x-2_3:y:z"}])
+      expect(rewrite("{{ x}} y")).to eq([:s, "@% y", {k: "x"}])
+      expect(rewrite("{{ x }} *{{y}}*")).to eq([:m, "@% *@%*", {k: "x"}, {k: "y"}])
+    end
+
+    it "rewrites interpolated strings with a formatter" do
+      expect(rewrite("{{x,currency}}")).to eq([:s, "@%", {f: "currency", k: "x"}])
+      expect(rewrite("{{ x, currency}} y")).to eq([:s, "@% y", {f: "currency", k: "x"}])
+      expect(rewrite("{{ x, currency }} *{{y,time }}*")).to eq(
+        [:m, "@% *@%*", {f: "currency", k: "x"}, {f: "time", k: "y"}],
+      )
+    end
+
+    it "rewrites strings referencing other strings" do
+      expect(rewrite("$t(xy)")).to eq([:s, "@%", {t: "xy"}])
+      expect(rewrite("$t(x.y)")).to eq([:s, "@%", {t: "x.y"}])
+      expect(rewrite("$t(x-2_3:y:z)")).to eq([:s, "@%", {t: "x-2_3:y:z"}])
+      expect(rewrite("a $t(xy) c")).to eq([:s, "a @% c", {t: "xy"}])
+      expect(rewrite("a *$t(xy)* $t(c)")).to eq([:m, "a *@%* @%", {t: "xy"}, {t: "c"}])
+    end
+
+    it "handles unicode" do
+      expect(rewrite("🤣$t(xyz)🤣{{abc}}🤣")).to eq([:s, "🤣@%🤣@%🤣", {t: "xyz"}, {k: "abc"}])
+    end
+
+    it "errors if the placeholder is used in a resource string" do
+      expect do
+        rewrite("hi @%")
+      end.to raise_error(described_class::InvalidInput)
+    end
+
+    it "errors if the json is not strings and hashes only" do
+      expect do
+        described_class::ResourceRewriter.new.prime(resfile("test", {s: ["abc"]}))
+      end.to raise_error(described_class::InvalidInput)
+    end
+
+    it "uses the higher-complexity plain/md/multiline renderer if a reference key uses it" do
+      strings = {
+        base: "abc",
+        md: "a *b* c",
+        mdp: "a\n\nb",
+        ref_plain: "$t(test.base) $t(test.base)",
+        ref_md: "$t(test.base) $t(test.md)",
+        ref_mdp: "$t(test.base) $t(test.mdp)",
+        ref_mdp_deep: "$t(test.ref_mdp)",
+        a: {b: {c: "*c*"}},
+        ref_deep: "$t(test.a.b.c)",
+      }
+      rr = described_class::ResourceRewriter.new
+      rr.prime(resfile("test", strings))
+      got = rr.to_output(resfile("test", strings))
+      expect(got).to eq(
+        {
+          "base" => [:s, "abc"],
+          "md" => [:m, "a *b* c"],
+          "mdp" => [:mp, "a\n\nb"],
+          "ref_plain" => [:s, "@% @%", {t: "test.base"}, {t: "test.base"}],
+          "ref_md" => [:m, "@% @%", {t: "test.base"}, {t: "test.md"}],
+          "ref_mdp" => [:mp, "@% @%", {t: "test.base"}, {t: "test.mdp"}],
+          "ref_mdp_deep" => [:mp, "@%", {t: "test.ref_mdp"}],
+          "a" => {"b" => {"c" => [:m, "*c*"]}},
+          "ref_deep" => [:m, "@%", {t: "test.a.b.c"}],
+        },
+      )
+    end
+
+    it "uses high-complexity formatters, even when refs are out-of-order" do
+      strings = {
+        s0: "xy",
+        s1: "$t(test.s2)",
+        s2: "*$t(test.s3)*",
+        s3: "$t(test.s0)\n\nhi",
+      }
+      rr = described_class::ResourceRewriter.new
+      rr.prime(resfile("test", strings))
+      got = rr.to_output(resfile("test", strings))
+      expect(got).to eq(
+        {
+          "s0" => [:s, "xy"],
+          "s1" => [:mp, "@%", {t: "test.s2"}],
+          "s2" => [:mp, "*@%*", {t: "test.s3"}],
+          "s3" => [:mp, "@%\n\nhi", {t: "test.s0"}],
+        },
+      )
+    end
+
+    it "finds refs across namespaces" do
+      strings1 = {
+        s1: "$t(test2.s1)",
+      }
+      strings2 = {
+        s1: "*hi*",
+      }
+      rr = described_class::ResourceRewriter.new
+      rr.prime(resfile("test1", strings1), resfile("test2", strings2))
+      got1 = rr.to_output(resfile("test1", strings1))
+      got2 = rr.to_output(resfile("test2", strings2))
+      expect(got2).to eq({"s1" => [:m, "*hi*"]})
+      expect(got1).to eq({"s1" => [:m, "@%", {t: "test2.s1"}]})
+    end
+
+    it "handles and fixes colon-separated path names" do
+      strings = {
+        s1: "$t(test:s2)",
+        s2: "*hi*",
+      }
+      rr = described_class::ResourceRewriter.new
+      rr.prime(resfile("test", strings))
+      got = rr.to_output(resfile("test", strings))
+      expect(got).to eq({"s1" => [:m, "@%", {t: "test:s2"}], "s2" => [:m, "*hi*"]})
+    end
+
+    it "errors if to_output is called without being primed" do
+      rr = described_class::ResourceRewriter.new
+      rf1 = resfile("test1", {})
+      rf2 = resfile("test2", {})
+      expect do
+        rr.to_output(rf1)
+      end.to raise_error(Suma::InvalidPrecondition, /Must call #prime with 'test1' resource file/)
+      rr.prime(rf1)
+      expect { rr.to_output(rf1) }.to_not raise_error
+      expect do
+        rr.to_output(rf2)
+      end.to raise_error(Suma::InvalidPrecondition, /Must call #prime with 'test2' resource file/)
+      rr.prime(rf2)
+      expect { rr.to_output(rf2) }.to_not raise_error
+    end
+  end
+
+  describe "Formatter" do
+    it "can figure out the formatter for a string" do
+      expect(described_class::Formatter.for("ab")).to eq(described_class::Formatter::STR)
+      expect(described_class::Formatter.for("a **b**")).to eq(described_class::Formatter::MD)
+      expect(described_class::Formatter.for("a\n\nz\n\n-b\n-c\n")).to eq(described_class::Formatter::MD_MULTILINE)
+      expect(described_class::Formatter.for("hi\n\n- a\n- b")).to eq(described_class::Formatter::MD_MULTILINE)
+      expect(described_class::Formatter.for("hi\n- a\n- b")).to eq(described_class::Formatter::STR)
+      expect(described_class::Formatter.for("- a\n- b")).to eq(described_class::Formatter::MD_MULTILINE)
+      expect(described_class::Formatter.for("hi\n1. a\n2. b")).to eq(described_class::Formatter::STR)
+      expect(described_class::Formatter.for("hi\n\n1. a\n2. b")).to eq(described_class::Formatter::MD_MULTILINE)
+      expect(described_class::Formatter.for("1. a\n2. b")).to eq(described_class::Formatter::MD_MULTILINE)
+    end
+
+    it "uses an LRU" do
+      orig_size = described_class::Formatter.lru.size
+      s1 = SecureRandom.hex
+      s2 = SecureRandom.hex
+      expect(described_class::Formatter.for(s1)).to eq(described_class::Formatter::STR)
+      expect(described_class::Formatter.for(s1)).to eq(described_class::Formatter::STR)
+      expect(described_class::Formatter.lru).to have_attributes(size: orig_size + 1)
+      expect(described_class::Formatter.for(s2)).to eq(described_class::Formatter::STR)
+      expect(described_class::Formatter.lru).to have_attributes(size: orig_size + 2)
+    end
+  end
 end

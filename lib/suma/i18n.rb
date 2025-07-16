@@ -16,7 +16,6 @@ module Suma::I18n
   class InvalidInput < StandardError; end
 
   DATA_DIR = Suma::DATA_DIR + "i18n"
-  LOCALE_DIR = Suma::DATA_DIR.parent + "webapp/public/locale"
   Locale = Struct.new(:code, :language, :native)
   SUPPORTED_LOCALES = {
     "en" => Locale.new("en", "English", "English"),
