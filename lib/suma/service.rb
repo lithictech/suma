@@ -63,6 +63,11 @@ class Suma::Service < Grape::API
     end
   end
 
+  # True if PUMA_WORKER is present in env, as set in puma.rb.
+  def self.puma_worker? = ENV.fetch("PUMA_WORKER", nil)
+  # True if this is not a worker; we assume if the env var is not set, this is a parent process.
+  def self.puma_parent? = !self.puma_worker?
+
   def self.error_code_localized?(code)
     return true unless self.verify_localized_error_codes
     return Suma::I18n.localized_error_codes.include?(code)

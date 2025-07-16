@@ -1160,4 +1160,14 @@ RSpec.describe Suma::Service, :db do
       )
     end
   end
+
+  describe "puma" do
+    it "knows if it is in master or worker mode" do
+      expect(described_class).to be_puma_parent
+      expect(described_class).to_not be_puma_worker
+      ENV["PUMA_WORKER"] = "1"
+      expect(described_class).to_not be_puma_parent
+      expect(described_class).to be_puma_worker
+    end
+  end
 end
