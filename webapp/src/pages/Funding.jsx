@@ -23,9 +23,9 @@ export default function Funding() {
   return (
     <>
       <LinearBreadcrumbs back />
-      <h2 className="page-header">{t("payments:payment_title")}</h2>
-      <p>{t("payments:payment_intro.intro")}</p>
-      <p id="some">{t("payments:payment_intro.privacy_statement")}</p>
+      <h2 className="page-header">{t("payments.payment_title")}</h2>
+      <p>{t("payments.payment_intro.intro")}</p>
+      <p id="some">{t("payments.payment_intro.privacy_statement")}</p>
       {isPaymentMethodSupported("bank_account") && (
         <BankAccountsCard instruments={user.usablePaymentInstruments} />
       )}
@@ -40,12 +40,12 @@ export default function Funding() {
 function BankAccountsCard({ instruments }) {
   const bankAccounts = filter(instruments, { paymentMethodType: "bank_account" });
   return (
-    <PaymentsCard header={t("payments:bank_accounts")}>
+    <PaymentsCard header={t("payments.bank_accounts")}>
       {bankAccounts.length === 0 ? (
         <>
-          <Card.Text>{t("payments:no_bank_accounts_warning")}</Card.Text>
+          <Card.Text>{t("payments.no_bank_accounts_warning")}</Card.Text>
           <Button variant="outline-primary" href="/link-bank-account" as={RLink}>
-            {t("payments:link_bank_account")}
+            {t("payments.link_bank_account")}
           </Button>
         </>
       ) : (
@@ -55,7 +55,7 @@ function BankAccountsCard({ instruments }) {
           ))}
           <hr className="my-4" />
           <Button variant="outline-primary" href="/link-bank-account" as={RLink}>
-            {t("payments:link_another_bank_account")}
+            {t("payments.link_another_bank_account")}
           </Button>
         </>
       )}
@@ -95,7 +95,7 @@ function InstrumentLine({ instrument }) {
               href={`/add-funds?id=${instrument.id}&paymentMethodType=${instrument.paymentMethodType}`}
               as={RLink}
             >
-              <i className="bi bi-plus-circle"></i> {t("payments:funds")}
+              <i className="bi bi-plus-circle"></i> {t("payments.funds")}
             </Button>
           ) : (
             <Button
@@ -111,13 +111,13 @@ function InstrumentLine({ instrument }) {
             {instrument.canUseForFunding ? (
               <small>
                 <i className="bi bi-check2-circle text-success" title="Verified account">
-                  {t("payments:payment_account_verified")}
+                  {t("payments.payment_account_verified")}
                 </i>
               </small>
             ) : (
               <small>
                 <i className="bi bi-stopwatch text-warning" title="Verification pending">
-                  {t("payments:payment_account_pending")}
+                  {t("payments.payment_account_pending")}
                 </i>
               </small>
             )}
@@ -146,7 +146,7 @@ function DeleteInstrument({ instrument, apiMethod, showDelete }) {
         </Dropdown.Toggle>
         <Dropdown.Menu align="end">
           <Dropdown.Item className="text-danger" onClick={showDelete.turnOn}>
-            {t("payments:unlink_account")}
+            {t("payments.unlink_account")}
           </Dropdown.Item>
         </Dropdown.Menu>
       </Dropdown>
@@ -178,22 +178,22 @@ function DeleteInstrumentModal({ instrument, apiMethod, toggle }) {
   return (
     <Modal show={toggle.isOn} onHide={toggle.turnOff} centered>
       <Modal.Header closeButton>
-        <Modal.Title as="h5">{t("payments:unlink_account")}</Modal.Title>
+        <Modal.Title as="h5">{t("payments.unlink_account")}</Modal.Title>
       </Modal.Header>
       <Modal.Body>
-        <p>{t("payments:unlink_account_question")}</p>
+        <p>{t("payments.unlink_account_question")}</p>
         <p>
-          <strong>{t("payments:unlink_account_question_subtitle")}</strong>
+          <strong>{t("payments.unlink_account_question_subtitle")}</strong>
         </p>
         <FormError error={error} />
         <FormButtons
           variant="danger"
           primaryProps={{
-            children: t("payments:unlink"),
+            children: t("payments.unlink"),
             onClick: submitDelete,
           }}
           secondaryProps={{
-            children: t("common:cancel"),
+            children: t("common.cancel"),
             onClick: toggle.turnOff,
           }}
         />
@@ -205,12 +205,12 @@ function DeleteInstrumentModal({ instrument, apiMethod, toggle }) {
 function CardsCard({ instruments }) {
   const cards = filter(instruments, { paymentMethodType: "card" });
   return (
-    <PaymentsCard header={t("payments:cards")}>
+    <PaymentsCard header={t("payments.cards")}>
       {cards.length === 0 ? (
         <>
-          <Card.Text>{t("payments:no_cards_warning")}</Card.Text>
+          <Card.Text>{t("payments.no_cards_warning")}</Card.Text>
           <Button variant="outline-primary" href="/add-card" as={RLink}>
-            {t("payments:add_card")}
+            {t("payments.add_card")}
           </Button>
         </>
       ) : (
@@ -220,7 +220,7 @@ function CardsCard({ instruments }) {
           ))}
           <hr className="my-4" />
           <Button variant="outline-primary" href="/add-card" as={RLink}>
-            {t("payments:add_another_card")}
+            {t("payments.add_another_card")}
           </Button>
         </>
       )}
@@ -230,8 +230,8 @@ function CardsCard({ instruments }) {
 
 function AdditionalSourcesCard() {
   return (
-    <PaymentsCard header={t("payments:payment_other_sources")}>
-      <Card.Text>{t("payments:payment_support_coming")}</Card.Text>
+    <PaymentsCard header={t("payments.payment_other_sources")}>
+      <Card.Text>{t("payments.payment_support_coming")}</Card.Text>
     </PaymentsCard>
   );
 }

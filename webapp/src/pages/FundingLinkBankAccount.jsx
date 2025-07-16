@@ -44,8 +44,8 @@ export default function FundingLinkBankAccount() {
 function Success({ instrumentId, instrumentType, returnTo }) {
   return (
     <>
-      <h2>{t("payments:linked_bank_account")}</h2>
-      {t("payments:linked_bank_account_successful")}
+      <h2>{t("payments.linked_bank_account")}</h2>
+      {t("payments.linked_bank_account_successful")}
       {returnTo ? (
         <div className="button-stack mt-4">
           <Button
@@ -53,7 +53,7 @@ function Success({ instrumentId, instrumentType, returnTo }) {
             as={RLink}
             variant="outline-primary"
           >
-            {t("forms:continue")}
+            {t("forms.continue")}
           </Button>
         </div>
       ) : (
@@ -116,8 +116,8 @@ function LinkBankAccount({ onSuccess, returnTo }) {
   return (
     <>
       <LinearBreadcrumbs back={returnTo || true} />
-      <h2 className="page-header">{t("payments:link_bank_account")}</h2>
-      <p>{t("payments:payment_intro.privacy_statement")}</p>
+      <h2 className="page-header">{t("payments.link_bank_account")}</h2>
+      <p>{t("payments.payment_intro.privacy_statement")}</p>
       <Form noValidate onSubmit={handleSubmit(handleFormSubmit)}>
         <Row className="mb-3">
           <FormControlGroup
@@ -125,8 +125,8 @@ function LinkBankAccount({ onSuccess, returnTo }) {
             required
             type="text"
             name="nickname"
-            label={t("forms:nickname")}
-            text={t("forms:nickname_caption")}
+            label={t("forms.nickname")}
+            text={t("forms.nickname_caption")}
             value={nickname}
             errors={errors}
             register={register}
@@ -141,11 +141,11 @@ function LinkBankAccount({ onSuccess, returnTo }) {
             pattern="^[0-9]{9}$"
             inputMode="numeric"
             name="routing_number"
-            label={t("forms:routing_number")}
-            text={t("forms:routing_caption")}
+            label={t("forms.routing_number")}
+            text={t("forms.routing_caption")}
             value={routing}
             errors={errors}
-            errorKeys={{ pattern: "forms:invalid_routing_number" }}
+            errorKeys={{ pattern: "forms.invalid_routing_number" }}
             register={register}
             onChange={(e) =>
               runSetter(e.target.name, setRouting, keepDigits(e.target.value))
@@ -160,11 +160,11 @@ function LinkBankAccount({ onSuccess, returnTo }) {
             pattern="^\d{3}\d+$"
             inputMode="numeric"
             name="account_number"
-            label={t("forms:account_number")}
-            text={t("forms:bank_account_caption")}
+            label={t("forms.account_number")}
+            text={t("forms.bank_account_caption")}
             value={accountNumber}
             errors={errors}
-            errorKeys={{ pattern: "forms:invalid_bank_account_number" }}
+            errorKeys={{ pattern: "forms.invalid_bank_account_number" }}
             register={register}
             onChange={(e) =>
               runSetter(e.target.name, setAccountNumber, keepDigits(e.target.value))
@@ -178,11 +178,11 @@ function LinkBankAccount({ onSuccess, returnTo }) {
             type="text"
             inputMode="numeric"
             name="confirm_account_number"
-            label={t("forms:confirm_account_number")}
-            text={t("forms:confirm_account_number_caption")}
+            label={t("forms.confirm_account_number")}
+            text={t("forms.confirm_account_number_caption")}
             value={accountNumberConfirm}
             errors={errors}
-            errorKeys={{ validate: "forms:invalid_bank_account_number_confirm" }}
+            errorKeys={{ validate: "forms.invalid_bank_account_number_confirm" }}
             register={register}
             registerOptions={{ validate: (v) => v === accountNumber }}
             onChange={(e) =>
@@ -196,14 +196,14 @@ function LinkBankAccount({ onSuccess, returnTo }) {
         </Row>
         <Row className="mb-3">
           <Form.Group as={Col}>
-            <Form.Label>{t("forms:bank_account_type")}</Form.Label>
+            <Form.Label>{t("forms.bank_account_type")}</Form.Label>
             <div>
               <Form.Check
                 inline
                 id="cheking"
                 name="account-type"
                 type="radio"
-                label={t("forms:checking")}
+                label={t("forms.checking")}
                 checked={accountType === "checking"}
                 onChange={() => setAccountType("checking")}
               />
@@ -212,22 +212,22 @@ function LinkBankAccount({ onSuccess, returnTo }) {
                 id="savings"
                 name="account-type"
                 type="radio"
-                label={t("forms:savings")}
+                label={t("forms.savings")}
                 checked={accountType === "savings"}
                 onChange={() => setAccountType("savings")}
               />
             </div>
-            <Form.Text>{t("forms:bank_account_type_caption")}</Form.Text>
+            <Form.Text>{t("forms.bank_account_type_caption")}</Form.Text>
           </Form.Group>
         </Row>
 
-        <p>{t("payments:account_submission_statement")}</p>
+        <p>{t("payments.account_submission_statement")}</p>
         <FormError error={error} />
         <FormButtons
           variant="outline-primary"
           back
           primaryProps={{
-            children: t("forms:continue"),
+            children: t("forms.continue"),
           }}
         />
         <Modal
@@ -236,10 +236,10 @@ function LinkBankAccount({ onSuccess, returnTo }) {
           centered
         >
           <Modal.Header closeButton>
-            <Modal.Title>{t("payments:check_details_title")}</Modal.Title>
+            <Modal.Title>{t("payments.check_details_title")}</Modal.Title>
           </Modal.Header>
           <Modal.Body>
-            <p>{t("payments:check_details_subtitle")}</p>
+            <p>{t("payments.check_details_subtitle")}</p>
             <img
               src={bankAccountCheckDetails}
               alt={imageAltT("check_detail_example")}

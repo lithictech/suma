@@ -54,8 +54,8 @@ export default function FundingAddCard() {
       ) : (
         <>
           <LinearBreadcrumbs back={returnTo || true} />
-          <h2 className="page-header">{t("payments:add_card")}</h2>
-          <p>{t("payments:payment_intro.privacy_statement")}</p>
+          <h2 className="page-header">{t("payments.add_card")}</h2>
+          <p>{t("payments.payment_intro.privacy_statement")}</p>
           <AddCreditCard
             error={error}
             setError={setError}
@@ -70,8 +70,8 @@ export default function FundingAddCard() {
 function Success({ instrumentId, instrumentType, returnTo }) {
   return (
     <>
-      <h2>{t("payments:added_card")}</h2>
-      {t("payments:added_card_successful")}
+      <h2>{t("payments.added_card")}</h2>
+      {t("payments.added_card_successful")}
       {returnTo ? (
         <div className="button-stack mt-4">
           <Button
@@ -79,7 +79,7 @@ function Success({ instrumentId, instrumentType, returnTo }) {
             as={RLink}
             variant="outline-primary"
           >
-            {t("forms:continue")}
+            {t("forms.continue")}
           </Button>
         </div>
       ) : (

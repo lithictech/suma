@@ -116,10 +116,6 @@ class I18n {
   };
 
   fqn = (...args) => {
-    // TODO: Delete this (and add a check)
-    // when we're ready to mass-update all localization keys.
-    // The 'convert : to ,' causes a lot of extra string copies.
-    args = [...args].map((x) => x?.replaceAll(":", "."));
     const suffix = args.join(".");
     const fqn = `${this.language}.${suffix}`;
     return fqn;

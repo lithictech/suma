@@ -33,7 +33,7 @@ export default function VendibleCard({
             </Card.Link>
             {closesAt && (
               <Card.Text className="text-secondary small">
-                {t("food:available_until", { date: dayjs(closesAt).format("ll") })}
+                {t("food.available_until", { date: dayjs(closesAt).format("ll") })}
               </Card.Text>
             )}
           </div>

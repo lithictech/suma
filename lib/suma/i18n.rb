@@ -73,17 +73,19 @@ module Suma::I18n
           end
         end
       end
-      data.each do |namespace, ns_strings|
-        Suma::I18n::StaticString.dataset.
-          insert_conflict.
-          import([:namespace, :key, :modified_at], ns_strings.keys.map { |k| [namespace, k, modified_at] })
-        Suma::I18n::StaticString.where(deprecated: false).each do |ss|
-          translated = ns_strings[ss.key]
-          next unless translated
-          if ss.text
-            ss.text.update(translated)
-          else
-            ss.update(text: Suma::TranslatedText.create(translated))
+      Suma::I18n::StaticString.db.transaction do
+        data.each do |namespace, ns_strings|
+          Suma::I18n::StaticString.dataset.
+            insert_conflict.
+            import([:namespace, :key, :modified_at], ns_strings.keys.map { |k| [namespace, k, modified_at] })
+          Suma::I18n::StaticString.where(deprecated: false).each do |ss|
+            translated = ns_strings[ss.key]
+            next unless translated
+            if ss.text
+              ss.text.update(translated)
+            else
+              ss.update(text: Suma::TranslatedText.create(translated))
+            end
           end
         end
       end

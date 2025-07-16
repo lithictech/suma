@@ -52,8 +52,8 @@ export default function FoodCart() {
       <LayoutContainer gutters>
         <LinearBreadcrumbs back={`/food/${offeringId}`} />
         <Stack direction="horizontal" gap={3} className="align-items-end">
-          <h4 className="mb-0">{t("food:cart_title")}</h4>
-          <span className="text-secondary ms-auto">{t("food:price")}</span>
+          <h4 className="mb-0">{t("food.cart_title")}</h4>
+          <span className="text-secondary ms-auto">{t("food.price")}</span>
         </Stack>
       </LayoutContainer>
       <hr className="mt-2 mb-4" />
@@ -74,7 +74,7 @@ export default function FoodCart() {
             })}
           </Stack>
         ) : (
-          <span>{t("food:no_cart_items")}</span>
+          <span>{t("food.no_cart_items")}</span>
         )}
       </LayoutContainer>
       <hr className="my-4" />
@@ -82,33 +82,33 @@ export default function FoodCart() {
         {!isEmpty(items) ? (
           <Stack gap={2} className="align-items-end">
             <div>
-              {t("food:subtotal_items", {
+              {t("food.subtotal_items", {
                 totalItems: items.length,
                 customerCost: cart.customerCost,
               })}
             </div>
             {anyMoney(cart.noncashLedgerContributionAmount) && (
               <div className="text-success">
-                {t("food:cart_available_credit", {
+                {t("food.cart_available_credit", {
                   amount: cart.noncashLedgerContributionAmount,
                 })}
               </div>
             )}
             {anyMoney(cart.cashCost) && (
               <div>
-                {t("food:cart_cash_cost", {
+                {t("food.cart_cash_cost", {
                   amount: cart.cashCost,
                 })}
               </div>
             )}
             <Button onClick={handleCheckout} variant="success">
-              {t("food:continue_to_checkout")}
+              {t("food.continue_to_checkout")}
             </Button>
           </Stack>
         ) : (
           <div className="button-stack">
-            <Button href="/food" as={RLink} title={t("food:title")}>
-              {t("food:available_offerings")}
+            <Button href="/food" as={RLink} title={t("food.title")}>
+              {t("food.available_offerings")}
             </Button>
           </div>
         )}
@@ -136,7 +136,7 @@ function CartItem({ offeringId, product, vendor }) {
           <h6 className="mb-2">{name}</h6>
         </Link>
         <p className="text-secondary mb-2 small">
-          {t("food:from_vendor", { vendorName: vendor.name })}
+          {t("food.from_vendor", { vendorName: vendor.name })}
         </p>
         <FoodCartWidget product={product} />
       </div>

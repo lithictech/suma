@@ -36,7 +36,7 @@ export default function PreferencesPublic() {
     );
   }
   if (successView.isOn) {
-    return <FormSuccess message={"preferences:success"} />;
+    return <FormSuccess message={"preferences.success"} />;
   }
   return (
     <Preferences

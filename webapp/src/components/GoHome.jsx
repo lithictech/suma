@@ -7,7 +7,7 @@ export default function GoHome() {
   return (
     <div className="button-stack mt-4">
       <Button variant="outline-primary" href="/dashboard" as={RLink}>
-        {t("common:go_home")}
+        {t("common.go_home")}
       </Button>
     </div>
   );

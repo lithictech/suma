@@ -29,21 +29,21 @@ export default function OrganizationInputDropdown({
         onChange={(e) => onOrganizationNameChange(e.target.value)}
       >
         <option disabled value="">
-          {t("forms:choose_organization")}
+          {t("forms.choose_organization")}
         </option>
         {supportedOrganizations.items?.map(({ name }) => (
           <option key={name} value={name}>
             {name}
           </option>
         ))}
-        <option value={t("forms:option_unaffiliated")}>
-          {t("forms:option_unaffiliated")}
+        <option value={t("forms.option_unaffiliated")}>
+          {t("forms.option_unaffiliated")}
         </option>
-        <option value={t("forms:option_not_listed")}>
-          {t("forms:option_not_listed")}
+        <option value={t("forms.option_not_listed")}>
+          {t("forms.option_not_listed")}
         </option>
       </FormControlGroup>
-      <FormText>{t("forms:organization_helper_text")}</FormText>
+      <FormText>{t("forms.organization_helper_text")}</FormText>
     </>
   );
 }

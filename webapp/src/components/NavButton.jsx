@@ -13,9 +13,9 @@ export default function NavButton({ left, right, className, children, ...rest })
       className={clsx("p-0", className)}
       {...rest}
     >
-      {left && <span className="me-1">{t("common:back_sym")}</span>}
+      {left && <span className="me-1">{t("common.back_sym")}</span>}
       <span>{children}</span>
-      {right && <span className="ms-1">{t("common:forward_sym")}</span>}
+      {right && <span className="ms-1">{t("common.forward_sym")}</span>}
     </Button>
   );
 }

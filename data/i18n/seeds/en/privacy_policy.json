@@ -35,7 +35,7 @@
   "sections": {
     "business_transfer": {
       "list": {
-        "email": "we will let you know about the change by email and/or by posting a notice on the suma platform’s homepage ($t(privacy_policy:links:suma_platform_homepage)); and",
+        "email": "we will let you know about the change by email and/or by posting a notice on the suma platform’s homepage ($t(privacy_policy.links.suma_platform_homepage)); and",
         "opt_out": "you will have the chance to opt out before information about you becomes subject to a different privacy policy"
       },
       "paragraph": "We may choose to sell assets of the suma platform or buy assets for the platform. These transactions may be necessary and in our legitimate interests, particularly our interest in growing the platform to serve more community members and to offer more goods and services. User information is typically an asset that is transferred in these transactions (such as a sale, merger, liquidation, receivership, or transfer of all or substantially all of the suma platform’s assets). If we intend to transfer information about you:",
@@ -55,7 +55,7 @@
       "title": "Communications"
     },
     "contact_information": {
-      "paragraph": "If you have questions about this privacy policy, we are here to listen. Please contact suma at $t(privacy_policy:links:suma_help_email). We are also available to host remote or in person meetings to provide information and answer questions about the privacy policy.",
+      "paragraph": "If you have questions about this privacy policy, we are here to listen. Please contact suma at $t(privacy_policy.links.suma_help_email). We are also available to host remote or in person meetings to provide information and answer questions about the privacy policy.",
       "title": "Contact information"
     },
     "cookies_policy": {
@@ -66,8 +66,8 @@
     "date": "August 2nd 2022",
     "effective": "Effective:",
     "future_changes_to_policy": {
-      "conclusion": "You can always find the most recent version of the suma platform privacy policy at $t(privacy_policy:links:suma_privacy_policy). Please contact $t(privacy_policy:links:suma_help_email) for any questions or concerns regarding our policy changes.",
-      "paragraph": "We may change the suma platform privacy policy from time to time. If we do change the suma platform privacy policy, we will let you know about the change by email and/or by posting a notice on the suma platform’s homepage $t(privacy_policy:links:suma_platform_homepage). This notice will let you know what is changing and why it is changing. We will provide this notice at least 30 days before the changes take effect unless the law requires a different notice period. You will have the chance to consent to the changes at your first login to the platform after the changes take effect. If you do not consent to the changes, you will not be able to use the platform.",
+      "conclusion": "You can always find the most recent version of the suma platform privacy policy at $t(privacy_policy.links.suma_privacy_policy). Please contact $t(privacy_policy.links.suma_help_email) for any questions or concerns regarding our policy changes.",
+      "paragraph": "We may change the suma platform privacy policy from time to time. If we do change the suma platform privacy policy, we will let you know about the change by email and/or by posting a notice on the suma platform’s homepage $t(privacy_policy.links.suma_platform_homepage). This notice will let you know what is changing and why it is changing. We will provide this notice at least 30 days before the changes take effect unless the law requires a different notice period. You will have the chance to consent to the changes at your first login to the platform after the changes take effect. If you do not consent to the changes, you will not be able to use the platform.",
       "title": "Future changes to policy"
     },
     "information_collected": {

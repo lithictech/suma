@@ -38,7 +38,7 @@ export default function Map() {
         return;
       }
       if (config.featureMobilityRestricted) {
-        setError(t("errors:mobility_coming_soon"));
+        setError(t("errors.mobility_coming_soon"));
         return;
       }
       const { loc, provider, disambiguator, type } = mapVehicle;
@@ -78,13 +78,13 @@ export default function Map() {
         }
         const opts = { context: "instructions", instructionsUrl: instructionsUrl };
         const localizedError = t(
-          "mobility:location_permissions_denied_instructions",
+          "mobility.location_permissions_denied_instructions",
           opts
         );
         setLocationPermissionsError(localizedError);
       })
       .catch(() => {
-        setLocationPermissionsError(t("mobility:location_permissions_denied"));
+        setLocationPermissionsError(t("mobility.location_permissions_denied"));
       });
   }, [setLocationPermissionsError]);
 
@@ -236,7 +236,7 @@ export default function Map() {
 
 function defaultDrawerContents() {
   return t(
-    "mobility:intro",
+    "mobility.intro",
     {},
     {
       markdown: {

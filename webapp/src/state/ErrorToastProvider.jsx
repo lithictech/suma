@@ -25,7 +25,7 @@ export default function ErrorToastProvider({ children }) {
       if (opts?.extract) {
         e = extractErrorCode(e);
       }
-      setState(React.isValidElement(e) ? e : t("errors:" + e));
+      setState(React.isValidElement(e) ? e : t("errors." + e));
     },
     [setState]
   );
@@ -46,7 +46,7 @@ export default function ErrorToastProvider({ children }) {
         >
           <Toast.Header className="text-danger">
             <i className="bi bi-exclamation-triangle-fill me-2"></i>
-            <strong className="me-auto">{t("common:error")}</strong>
+            <strong className="me-auto">{t("common.error")}</strong>
           </Toast.Header>
           <Toast.Body>{state}</Toast.Body>
         </Toast>

@@ -32,7 +32,7 @@ export default function Copyable({ className, children, delay, inline, text }) {
           autohide
         >
           <Toast.Body>
-            <p className="lead text-light mb-0">{t("common:copied_to_clipboard")}</p>
+            <p className="lead text-light mb-0">{t("common.copied_to_clipboard")}</p>
           </Toast.Body>
         </Toast>
       </ToastContainer>

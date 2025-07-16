@@ -35,8 +35,8 @@ export default class MapBuilder {
     this._l.control
       .zoom({
         position: "bottomright",
-        zoomInTitle: t("mobility:zoom_in"),
-        zoomOutTitle: t("mobility:zoom_out"),
+        zoomInTitle: t("mobility.zoom_in"),
+        zoomOutTitle: t("mobility.zoom_out"),
       })
       .addTo(this._map);
     this.updateLastExtendedVehicleBounds();
@@ -336,11 +336,11 @@ export default class MapBuilder {
       offset: [0, 10],
     });
     const parkingRestrictionContent = `<h6 class='mb-0'>${t(
-      "mobility:do_not_park_title"
-    )}</h6><p class='m-0'>${t("mobility:do_not_park_intro")}</p>`;
+      "mobility.do_not_park_title"
+    )}</h6><p class='m-0'>${t("mobility.do_not_park_intro")}</p>`;
     const ridingRestrictionContent = `<h6 class='mb-0'>${t(
-      "mobility:do_not_ride_title"
-    )}</h6><p class='m-0'>${t("mobility:do_not_ride_intro")}</p>`;
+      "mobility.do_not_ride_title"
+    )}</h6><p class='m-0'>${t("mobility.do_not_ride_intro")}</p>`;
 
     if (restriction.startsWith("do-not-park-or-ride")) {
       popup.setContent(parkingRestrictionContent + "<hr />" + ridingRestrictionContent);
@@ -400,9 +400,9 @@ export default class MapBuilder {
         );
         this.options.link = link;
         link.href = "#";
-        link.title = t("mobility:locate_me");
+        link.title = t("mobility.locate_me");
         link.setAttribute("role", "button");
-        link.setAttribute("aria-label", t("mobility:locate_me"));
+        link.setAttribute("aria-label", t("mobility.locate_me"));
         leaflet.DomUtil.create("div", "bi bi-geo-fill", link);
         leaflet.DomEvent.on(
           this.options.link,
@@ -460,7 +460,7 @@ export default class MapBuilder {
             e.code !== ERR_LOCATION_POSITION_UNAVAILABLE
           );
         }
-        console.error("locationerror:", e);
+        console.error("locationerror.", e);
         if (!ignoreLocationError()) {
           let cachedLocation = null;
           if (this._mapCache.lat) {

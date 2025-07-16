@@ -63,14 +63,14 @@ export default function PrivateAccountsList() {
     <>
       <LayoutContainer gutters top>
         <LinearBreadcrumbs back />
-        <h2>{t("titles:private_accounts")}</h2>
-        <p className="text-secondary">{t("private_accounts:intro")}</p>
+        <h2>{t("titles.private_accounts")}</h2>
+        <p className="text-secondary">{t("private_accounts.intro")}</p>
       </LayoutContainer>
       <hr className="my-4" />
       <Modal show={!!modalAccount} onHide={() => setModalAccount(null)}>
         <Modal.Header closeButton>
           <Modal.Title>
-            {t("private_accounts:vendor_private_accounts", {
+            {t("private_accounts.vendor_private_accounts", {
               vendorName: modalAccount?.vendorName,
             })}
           </Modal.Title>
@@ -81,7 +81,7 @@ export default function PrivateAccountsList() {
             {dt(modalAccount?.instructions)}
             <div className="d-flex justify-content-end mt-2">
               <Button variant="outline-secondary" onClick={() => setModalAccount(null)}>
-                {t("common:close")}
+                {t("common.close")}
               </Button>
             </div>
           </div>
@@ -102,7 +102,7 @@ export default function PrivateAccountsList() {
           </Stack>
         </LayoutContainer>
       ) : (
-        <LayoutContainer>{t("private_accounts:no_private_accounts")}</LayoutContainer>
+        <LayoutContainer>{t("private_accounts.no_private_accounts")}</LayoutContainer>
       )}
     </>
   );
@@ -176,10 +176,10 @@ function PrivateAccount({ account, onHelp }) {
     content = (
       <Stack direction="horizontal" gap={2} className="justify-content-center mb-1">
         <Button variant={isLinked ? "secondary" : "primary"} onClick={handleInitialClick}>
-          {isLinked ? t("private_accounts:relink_app") : t("private_accounts:link_app")}
+          {isLinked ? t("private_accounts.relink_app") : t("private_accounts.link_app")}
         </Button>
         <Button variant="outline-primary" onClick={() => onHelp()}>
-          {t("common:help")}
+          {t("common.help")}
         </Button>
       </Stack>
     );
@@ -188,8 +188,8 @@ function PrivateAccount({ account, onHelp }) {
       <Alert variant="info" className="w-100 mb-0">
         <Stack direction="horizontal" gap={3}>
           <div className="me-auto">
-            <h5>{t("private_accounts:polling")}</h5>
-            <p>{t("private_accounts:polling_detail")}</p>
+            <h5>{t("private_accounts.polling")}</h5>
+            <p>{t("private_accounts.polling_detail")}</p>
           </div>
           <img src={loaderRing} width="80" height="80" alt="" />
         </Stack>

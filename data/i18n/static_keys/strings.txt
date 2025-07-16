@@ -57,7 +57,7 @@ contact_list.signup_intro
 contact_list.signup_title
 contact_list.success_intro
 dashboard.about_suma
-dashboard.availableCash
+dashboard.available_cash
 dashboard.check_ongoing_trip
 dashboard.check_ongoing_trip_button
 dashboard.claim_orders

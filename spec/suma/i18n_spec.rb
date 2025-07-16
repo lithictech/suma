@@ -321,7 +321,7 @@ RSpec.describe Suma::I18n, :db do
     it "rewrites interpolated strings" do
       expect(rewrite("{{x}}")).to eq([:s, "@%", {k: "x"}])
       expect(rewrite("{{x.y.z}}")).to eq([:s, "@%", {k: "x.y.z"}])
-      expect(rewrite("{{x-2_3:y:z}}")).to eq([:s, "@%", {k: "x-2_3:y:z"}])
+      expect(rewrite("{{x-2_3.y.z}}")).to eq([:s, "@%", {k: "x-2_3:y.z"}])
       expect(rewrite("{{ x}} y")).to eq([:s, "@% y", {k: "x"}])
       expect(rewrite("{{ x }} *{{y}}*")).to eq([:m, "@% *@%*", {k: "x"}, {k: "y"}])
     end
@@ -425,13 +425,13 @@ RSpec.describe Suma::I18n, :db do
 
     it "handles and fixes colon-separated path names" do
       strings = {
-        s1: "$t(test:s2)",
+        s1: "$t(test.s2)",
         s2: "*hi*",
       }
       rr = described_class::ResourceRewriter.new
       rr.prime(resfile("test", strings))
       got = rr.to_output(resfile("test", strings))
-      expect(got).to eq({"s1" => [:m, "@%", {t: "test:s2"}], "s2" => [:m, "*hi*"]})
+      expect(got).to eq({"s1" => [:m, "@%", {t: "test.s2"}], "s2" => [:m, "*hi*"]})
     end
 
     it "errors if to_output is called without being primed" do

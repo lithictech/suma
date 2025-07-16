@@ -34,13 +34,13 @@ export default function Trips() {
   return (
     <>
       <LayoutContainer gutters top>
-        <h2>{t("titles:trips")}</h2>
-        <p className="text-secondary">{t("trips:intro")}</p>
+        <h2>{t("titles.trips")}</h2>
+        <p className="text-secondary">{t("trips.intro")}</p>
       </LayoutContainer>
       {tripsLoading ? (
         <PageLoader />
       ) : isEmpty(trips.items) ? (
-        <LayoutContainer>{t("trips:empty")}</LayoutContainer>
+        <LayoutContainer>{t("trips.empty")}</LayoutContainer>
       ) : (
         <LayoutContainer className="px-0">
           <Stack>
@@ -123,11 +123,11 @@ function Trip({ trip }) {
           />
           <Stack direction="vertical" className="small">
             <div className="me-3">
-              {t("trips:ride_description", {
+              {t("trips.ride_description", {
                 vendor: provider.vendorName,
-                vehicleType: t(`trips:${vehicleType}`),
+                vehicleType: t(`trips.${vehicleType}`),
               })}{" "}
-              &bull; {t(`trips:minutes`, { minutes: trip.minutes })}
+              &bull; {t(`trips.minutes`, { minutes: trip.minutes })}
             </div>
             <div className="text-muted">{dayjs(beganAt).format("MMM D, LT")}</div>
           </Stack>

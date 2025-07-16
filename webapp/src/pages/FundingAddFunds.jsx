@@ -55,7 +55,7 @@ export default function FundingAddFunds() {
     if (amountCents < selectedCurrency?.fundingMinimumCents) {
       setError(
         <span>
-          {t("forms:invalid_min_amount", {
+          {t("forms.invalid_min_amount", {
             constraint: {
               cents: selectedCurrency?.fundingMinimumCents,
               currency: selectedCurrency?.code,
@@ -68,7 +68,7 @@ export default function FundingAddFunds() {
     if (amountCents > selectedCurrency?.fundingMaximumCents) {
       setError(
         <span>
-          {t("forms:invalid_max_amount", {
+          {t("forms.invalid_max_amount", {
             constraint: {
               cents: selectedCurrency?.fundingMaximumCents,
               currency: selectedCurrency?.code,
@@ -122,8 +122,8 @@ export default function FundingAddFunds() {
 
   return (
     <>
-      <h2 className="page-header">{t("payments:add_funds")}</h2>
-      <p>{t("payments:add_funds_intro")}</p>
+      <h2 className="page-header">{t("payments.add_funds")}</h2>
+      <p>{t("payments.add_funds_intro")}</p>
       <Form noValidate onSubmit={handleFormSubmit}>
         <div className="d-flex justify-content-center mb-3">
           <div style={{ maxWidth: 400, flex: 1 }}>
@@ -136,7 +136,7 @@ export default function FundingAddFunds() {
           </div>
         </div>
         <p>
-          {t(`payments:payment_submission_statement_${instrument.paymentMethodType}`)}
+          {t(`payments.payment_submission_statement_${instrument.paymentMethodType}`)}
         </p>
         <FormError error={error} end />
         <FormButtons
@@ -145,7 +145,7 @@ export default function FundingAddFunds() {
           primaryProps={{
             disabled: !amountCents,
             style: { minWidth: 120 },
-            children: t("forms:add_funds"),
+            children: t("forms.add_funds"),
           }}
         />
       </Form>

@@ -24,8 +24,8 @@ export default function MarkdownContent({ languageFile }) {
       </div>
     );
   }
-  const title = loct(`titles:${languageFile}`) + " | " + loct("titles:suma_app");
-  const contentKey = `${languageFile}:contents`;
+  const title = loct(`titles.${languageFile}`) + " | " + loct("titles.suma_app");
+  const contentKey = `${languageFile}.contents`;
   return (
     <div className="bg-light">
       <div className="main-container">

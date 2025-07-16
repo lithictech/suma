@@ -77,13 +77,13 @@ export default function ContactListAdd() {
 
   return (
     <>
-      <h2 className="page-header">{t("contact_list:signup_title")}</h2>
-      <p>{t("contact_list:signup_intro")}</p>
+      <h2 className="page-header">{t("contact_list.signup_title")}</h2>
+      <p>{t("contact_list.signup_intro")}</p>
       <Form noValidate onSubmit={handleSubmit(handleFormSubmit)}>
         <FormControlGroup
           className="mb-3"
           name="name"
-          label={t("forms:name")}
+          label={t("forms.name")}
           required
           register={register}
           errors={errors}
@@ -94,7 +94,7 @@ export default function ContactListAdd() {
           className="mb-3"
           type="tel"
           name="phone"
-          label={t("forms:phone")}
+          label={t("forms.phone")}
           pattern="^(\+\d{1,2}\s)?\(?\d{3}\)?[\s-]\d{3}[\s-]\d{4}$"
           required
           register={register}
@@ -107,7 +107,7 @@ export default function ContactListAdd() {
           <FormControlGroup
             as={Col}
             name="channel"
-            label={t("contact_list:referral_label")}
+            label={t("contact_list.referral_label")}
             required
             Input={Form.Select}
             inputClass={referral ? null : "select-noselection"}
@@ -117,7 +117,7 @@ export default function ContactListAdd() {
             onChange={(e) => handleInputChange(e, setReferral)}
           >
             <option disabled value="">
-              {t("contact_list:referral_label")}
+              {t("contact_list.referral_label")}
             </option>
             <option value="instagram">Instagram</option>
             {referralList.map((referral) => (
@@ -145,7 +145,7 @@ export default function ContactListAdd() {
         <FormButtons
           variant="outline-primary"
           back
-          primaryProps={{ children: t("forms:submit"), disabled: !agreementChecked }}
+          primaryProps={{ children: t("forms.submit"), disabled: !agreementChecked }}
         />
       </Form>
       <ContactListTags />
@@ -154,10 +154,10 @@ export default function ContactListAdd() {
 }
 
 const referralList = [
-  { key: "contact_list:labels:friends_family", value: "friends_family" },
-  { key: "contact_list:labels:local_community", value: "local_community" },
-  { key: "contact_list:labels:suma_staff", value: "suma_staff" },
-  { key: "contact_list:labels:suma_event", value: "suma_event" },
-  { key: "contact_list:labels:mysuma_website", value: "mysuma_website" },
-  { key: "contact_list:labels:other", value: "other" },
+  { key: "contact_list.labels.friends_family", value: "friends_family" },
+  { key: "contact_list.labels.local_community", value: "local_community" },
+  { key: "contact_list.labels.suma_staff", value: "suma_staff" },
+  { key: "contact_list.labels.suma_event", value: "suma_event" },
+  { key: "contact_list.labels.mysuma_website", value: "mysuma_website" },
+  { key: "contact_list.labels.other", value: "other" },
 ];

@@ -46,18 +46,18 @@ export default function FoodCheckoutConfirmation() {
   return (
     <>
       <div className="bg-success text-white p-4">
-        <Alert.Heading>{t("food:confirmation_title")}</Alert.Heading>
-        <p className="mb-0">{t("food:confirmation_subtitle")}</p>
+        <Alert.Heading>{t("food.confirmation_title")}</Alert.Heading>
+        <p className="mb-0">{t("food.confirmation_subtitle")}</p>
       </div>
       <LayoutContainer gutters top>
-        <h4 className="mb-3">{t("food:confirmation_my_order")}</h4>
+        <h4 className="mb-3">{t("food.confirmation_my_order")}</h4>
         {items.map((p, idx) => (
           <Item key={idx} item={p} />
         ))}
         {user.unclaimedOrdersCount !== 0 && (
           <div className="button-stack my-4">
             <Button variant="success" href="/unclaimed-orders" as={RLink}>
-              {t("food:unclaimed_order_history_title")}
+              {t("food.unclaimed_order_history_title")}
             </Button>
           </div>
         )}
@@ -76,17 +76,17 @@ export default function FoodCheckoutConfirmation() {
         </>
       )}
       <LayoutContainer gutters>
-        <h4>{t("food:confirmation_transportation_title")}</h4>
-        <p className="mb-0">{t("food:confirmation_transportation_subtitle")}</p>
+        <h4>{t("food.confirmation_transportation_title")}</h4>
+        <p className="mb-0">{t("food.confirmation_transportation_subtitle")}</p>
         <div className="button-stack mt-3 mb-4">
           <Button href="/mobility" as={RLink}>
             <i className="bi bi-scooter me-2"></i>
-            {t("food:mobility_options")}
+            {t("food.mobility_options")}
           </Button>
         </div>
       </LayoutContainer>
       <hr className="my-4" />
-      <LayoutContainer gutters>{t("food:confirmation_help")}</LayoutContainer>
+      <LayoutContainer gutters>{t("food.confirmation_help")}</LayoutContainer>
     </>
   );
 }
@@ -105,7 +105,7 @@ function Item({ item }) {
       <Stack>
         <p className="mb-0 lead">{product.name}</p>
         <p className="text-secondary mb-0">
-          {t("food:quantity", { quantity: quantity })}
+          {t("food.quantity", { quantity: quantity })}
         </p>
       </Stack>
     </Stack>

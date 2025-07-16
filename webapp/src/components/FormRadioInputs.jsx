@@ -33,7 +33,7 @@ export default function FormRadioInputs({
 }) {
   const registerOptions = { required };
   const message = useValidationError(name, errors, registerOptions, {
-    required: "forms:invalid_required",
+    required: "forms.invalid_required",
   });
   return (
     <>

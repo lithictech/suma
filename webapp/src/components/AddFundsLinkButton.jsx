@@ -10,7 +10,7 @@ export default function AddFundsLinkButton() {
   }
   return (
     <Button variant="outline-success" href="/funding" as={RLink} size="sm">
-      {t("payments:add_funds")}
+      {t("payments.add_funds")}
     </Button>
   );
 }

@@ -12,7 +12,7 @@ export default function ContactListSuccess() {
   const { changeLanguage } = useI18n();
   return (
     <Container className="text-center">
-      {t("contact_list:success_intro")}
+      {t("contact_list.success_intro")}
       <div className="button-stack">
         <Button
           href={
@@ -25,7 +25,7 @@ export default function ContactListSuccess() {
           className="w-75"
           onClick={() => changeLanguage("en")}
         >
-          {t("contact_list:sign_up_again")}
+          {t("contact_list.sign_up_again")}
         </Button>
         <ContactListTags />
       </div>

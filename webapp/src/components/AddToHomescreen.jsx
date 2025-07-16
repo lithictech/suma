@@ -126,12 +126,12 @@ export default function AddToHomescreen() {
           className="me-2"
           style={{ width: 50 }}
         />
-        {t("common:add_to_homescreen")}
+        {t("common.add_to_homescreen")}
       </Alert.Heading>
-      <p>{t("common:add_to_homescreen_intro")}</p>
+      <p>{t("common.add_to_homescreen_intro")}</p>
       <div className="d-flex justify-content-end">
         <Button ref={addToHomescreenButtonRef} variant="primary">
-          {t("common:install_suma")}
+          {t("common.install_suma")}
         </Button>
       </div>
     </Alert>

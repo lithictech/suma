@@ -93,7 +93,7 @@ export default function SumaImage({
         className={clsx(styles.error, smallError && styles["error-small"], className)}
         style={sty}
       >
-        {"\u2639"} {realAlt || t("errors:image_load_failed")}
+        {"\u2639"} {realAlt || t("errors.image_load_failed")}
       </div>
     );
   }

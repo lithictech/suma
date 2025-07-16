@@ -125,7 +125,7 @@ class Suma::I18n::ResourceRewriter
       @h[key] ||= Nesting.new(key, formatter)
     end
 
-    def key(path) = path.is_a?(String) ? path.tr(":", ".") : path.join(".")
+    def key(path) = path.is_a?(String) ? path : path.join(".")
 
     def add_dep(path, d) = self.get(path).dependencies << d
 

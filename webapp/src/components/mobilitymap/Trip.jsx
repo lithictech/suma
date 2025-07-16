@@ -45,7 +45,7 @@ export default function Trip({ trip, onCloseTrip, onEndTrip, lastLocation }) {
         <DrawerContents>
           <DrawerTitle>{trip.provider.name}</DrawerTitle>
           <p className="text-muted">
-            {t("mobility:trip_started_at", {
+            {t("mobility.trip_started_at", {
               at: dayjs(trip.beganAt).format("LT"),
             })}
           </p>
@@ -56,7 +56,7 @@ export default function Trip({ trip, onCloseTrip, onEndTrip, lastLocation }) {
             className="w-100"
             onClick={handleEndTrip}
           >
-            {t("mobility:end_trip")}
+            {t("mobility.end_trip")}
           </Button>
         </DrawerContents>
       )}

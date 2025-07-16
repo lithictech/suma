@@ -22,7 +22,7 @@ export default function LinearBreadcrumbs({ back, noBottom }) {
         {back && (
           <li>
             <NavButton left size="sm" {...backProps}>
-              {t("common:back")}
+              {t("common.back")}
             </NavButton>
           </li>
         )}

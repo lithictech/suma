@@ -197,7 +197,7 @@ function CheckoutPayment({
           className={clsx(isInvalid && "link-danger")}
         >
           <i className="bi bi-credit-card me-2" />
-          {t("food:add_card")}
+          {t("food.add_card")}
         </Link>
       )}
       {isPaymentMethodSupported("bank_account") && (
@@ -206,7 +206,7 @@ function CheckoutPayment({
           className={clsx(isInvalid && "link-danger")}
         >
           <i className="bi bi-bank2 me-2" />
-          {t("payments:link_bank_account")}
+          {t("payments.link_bank_account")}
         </Link>
       )}
     </>
@@ -224,10 +224,10 @@ function CheckoutPayment({
   }));
   return (
     <>
-      <h5>{t("food:payment_title")}</h5>
+      <h5>{t("food.payment_title")}</h5>
       {isEmpty(checkout.availablePaymentInstruments) && (
         <Stack gap={2}>
-          <span className="small text-secondary">{t("food:link_new_payment")}</span>
+          <span className="small text-secondary">{t("food.link_new_payment")}</span>
           {addPaymentLinks}
           <PaymentsInputValidationMessage
             name={paymentValidationInputName}
@@ -253,14 +253,14 @@ function CheckoutPayment({
             <Form.Check
               id="savePayment"
               name="savePayment"
-              label={t("food:save_payment")}
+              label={t("food.save_payment")}
               checked={checkout.savePaymentInstrument}
               onChange={(e) =>
                 onCheckoutChange({ savePaymentInstrument: e.target.checked })
               }
             ></Form.Check>
           </Form.Group>
-          <div>{t("food:link_new_payment", { context: "or" })}</div>
+          <div>{t("food.link_new_payment", { context: "or" })}</div>
           {addPaymentLinks}
         </Stack>
       )}
@@ -281,7 +281,7 @@ function PaymentLabel({ institution, last4, name }) {
         />
       )}
       <span className="me-1">{name}</span>
-      <span className="text-secondary me-2">{t("food:ending_in", { last4: last4 })}</span>
+      <span className="text-secondary me-2">{t("food.ending_in", { last4: last4 })}</span>
     </>
   );
 }
@@ -335,7 +335,7 @@ function FulfillmentOptionLabel({ description, address }) {
           className="ms-1 nowrap"
         >
           <i className="bi bi-geo-alt-fill me-1"></i>
-          {t("food:address")}
+          {t("food.address")}
         </ExternalLink>
       )}
     </>
@@ -345,7 +345,7 @@ function FulfillmentOptionLabel({ description, address }) {
 function CheckoutItems({ checkout }) {
   return (
     <>
-      <h5>{t("food:checkout_items_title")}</h5>
+      <h5>{t("food.checkout_items_title")}</h5>
       {checkout.items?.map((it, idx) => {
         return (
           <React.Fragment key={it.product.productId}>
@@ -357,7 +357,7 @@ function CheckoutItems({ checkout }) {
       <div className="mt-3">
         <RLink to={`/cart/${checkout.offering.id}`}>
           <i className="bi bi-pencil-fill me-2" />
-          {t("food:edit_quantities")}
+          {t("food.edit_quantities")}
         </RLink>
       </div>
     </>
@@ -371,16 +371,16 @@ function OrderSummary({ checkout, chosenInstrument }) {
   const showSubmit = checkout.checkoutProhibitedReason !== "member_unverified";
   return (
     <>
-      <h5>{t("food:order_summary_title")}</h5>
+      <h5>{t("food.order_summary_title")}</h5>
       <div>
         <SummaryLine
-          label={t("food:labels:items_count", { itemCount: itemCount })}
+          label={t("food.labels.items_count", { itemCount: itemCount })}
           price={checkout.undiscountedCost}
         />
-        <SummaryLine label={t("food:labels:handling")} price={checkout.handling} />
+        <SummaryLine label={t("food.labels.handling")} price={checkout.handling} />
         {anyMoney(checkout.savings) && (
           <SummaryLine
-            label={t("food:labels:total_savings")}
+            label={t("food.labels.total_savings")}
             price={checkout.savings}
             subtract
             className="text-success"
@@ -388,10 +388,10 @@ function OrderSummary({ checkout, chosenInstrument }) {
         )}
         <hr className="ms-auto w-25 my-1" />
         <SummaryLine
-          label={t("food:labels:total_before_tax")}
+          label={t("food.labels.total_before_tax")}
           price={checkout.taxableCost}
         />
-        <SummaryLine label={t("food:labels:tax")} price={checkout.tax} />
+        <SummaryLine label={t("food.labels.tax")} price={checkout.tax} />
         {checkout.existingFundsAvailable.map(({ amount, name }) => (
           <SummaryLine key={name} label={name} price={amount} subtract credit />
         ))}
@@ -399,37 +399,37 @@ function OrderSummary({ checkout, chosenInstrument }) {
         {checkout.requiresPaymentInstrument ? (
           <>
             <SummaryLine
-              label={t("food:labels:chargeable_total")}
+              label={t("food.labels.chargeable_total")}
               price={checkout.chargeableTotal}
               className="text-success fw-bold fs-5"
             />
             {chosenInstrument && (
               <p className="small text-secondary mb-1">
-                {t("food:charge_to", { instrumentName: chosenInstrument.name })}.
+                {t("food.charge_to", { instrumentName: chosenInstrument.name })}.
               </p>
             )}
           </>
         ) : (
           <SummaryLine
-            label={t("food:labels:chargeable_total")}
+            label={t("food.labels.chargeable_total")}
             price={checkout.chargeableTotal}
             className="text-success"
           />
         )}
         {checkout.checkoutProhibitedReason === "member_unverified" && (
           <Alert variant="danger" className="mt-3">
-            {t("errors:read_only_unverified")}
+            {t("errors.read_only_unverified")}
           </Alert>
         )}
         {showSubmit && (
           <>
             <p className="small text-secondary mt-2">
-              {t("food:terms_of_use_agreement")}
+              {t("food.terms_of_use_agreement")}
             </p>
             <FormButtons
               primaryProps={{
                 variant: "success",
-                children: t("food:order_button"),
+                children: t("food.order_button"),
               }}
             />
           </>
@@ -465,17 +465,17 @@ function CheckoutItem({ item }) {
       {product.outOfStock ? (
         <Stack>
           <h6 className="mb-2">{product.name}</h6>
-          <p className="text-secondary mb-0">{t("food:sold_out")}</p>
+          <p className="text-secondary mb-0">{t("food.sold_out")}</p>
         </Stack>
       ) : (
         <>
           <Stack className="justify-content-between">
             <h6 className="mb-0">{product.name}</h6>
             <p className="text-secondary mb-0">
-              <small>{t("food:from_vendor", { vendorName: product.vendor.name })}</small>
+              <small>{t("food.from_vendor", { vendorName: product.vendor.name })}</small>
             </p>
             <div className="text-secondary mb-0 lh-1">
-              <small>{t("food:quantity", { quantity: quantity })}</small>
+              <small>{t("food.quantity", { quantity: quantity })}</small>
             </div>
           </Stack>
           <div className="text-end">
@@ -502,7 +502,7 @@ function CheckoutItem({ item }) {
 function PaymentsInputValidationMessage({ name, register, errors }) {
   const registerOptions = { required: true };
   const message = useValidationError(name, errors, registerOptions, {
-    required: "forms:invalid_required",
+    required: "forms.invalid_required",
   });
   return (
     <>

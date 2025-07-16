@@ -9,13 +9,13 @@ export default function OnboardingFinish() {
   return (
     <>
       {user.onboarded ? (
-        <p>{t("onboarding:finish_onboarded")}</p>
+        <p>{t("onboarding.finish_onboarded")}</p>
       ) : (
-        t("onboarding:finish")
+        t("onboarding.finish")
       )}
       <div className="button-stack">
         <Button href="/dashboard" variant="outline-primary" className="mt-3" as={RLink}>
-          {t("common:okay_ex")}
+          {t("common.okay_ex")}
         </Button>
       </div>
     </>

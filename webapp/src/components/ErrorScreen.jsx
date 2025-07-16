@@ -11,8 +11,8 @@ import React from "react";
 export default function ErrorScreen() {
   return (
     <>
-      <h2>{t("errors:something_went_wrong_title")}</h2>
-      <p>{t("errors:something_went_wrong_body")}</p>
+      <h2>{t("errors.something_went_wrong_title")}</h2>
+      <p>{t("errors.something_went_wrong_body")}</p>
       <GoHome />
     </>
   );

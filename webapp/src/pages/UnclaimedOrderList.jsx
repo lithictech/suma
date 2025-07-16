@@ -48,8 +48,8 @@ export default function UnclaimedOrderList() {
     <>
       <LayoutContainer gutters top>
         <LinearBreadcrumbs back />
-        <h2>{t("food:unclaimed_order_history_title")}</h2>
-        <p>{t("food:unclaimed_order_history_intro")}</p>
+        <h2>{t("food.unclaimed_order_history_title")}</h2>
+        <p>{t("food.unclaimed_order_history_intro")}</p>
       </LayoutContainer>
       <hr className="my-4" />
       <ClaimedOrderModal claimedOrder={claimedOrder} onHide={() => setClaimedOrder({})} />
@@ -75,14 +75,14 @@ export default function UnclaimedOrderList() {
       {isEmpty(items) && !loading && (
         <>
           <LayoutContainer gutters>
-            <p>{t("food:no_orders_to_claim")}</p>
+            <p>{t("food.no_orders_to_claim")}</p>
           </LayoutContainer>
           <hr className="my-4" />
           <LayoutContainer gutters>
             <div className="button-stack">
               <Button variant="primary" href="/order-history" as={RLink}>
                 <i className="bi bi-bag-check-fill me-2"></i>
-                {t("food:order_history_title")}
+                {t("food.order_history_title")}
               </Button>
             </div>
           </LayoutContainer>
@@ -97,7 +97,7 @@ function ClaimedOrderModal({ claimedOrder, onHide }) {
     <Modal show={!isEmpty(claimedOrder)} onHide={onHide} centered>
       <Modal.Header closeButton>
         <Modal.Title>
-          {t("food:order_claimed", { serial: claimedOrder.serial })}
+          {t("food.order_claimed", { serial: claimedOrder.serial })}
         </Modal.Title>
       </Modal.Header>
       <Modal.Body>
@@ -105,7 +105,7 @@ function ClaimedOrderModal({ claimedOrder, onHide }) {
           <ScrollTopOnMount />
           <AnimatedCheckmark />
           <p className="mt-2 fs-4 w-75 text-center">
-            {t("food:order_for_claimed_on", {
+            {t("food.order_for_claimed_on", {
               offeringDescription: claimedOrder.offeringDescription,
               fulfilledAt: dayjs(claimedOrder.fulfilledAt).format("lll"),
             })}
@@ -124,7 +124,7 @@ function ClaimedOrderModal({ claimedOrder, onHide }) {
                     <div className="text-align-start">
                       <div className="lead">{name}</div>
                       <Badge bg="secondary" className="fs-6">
-                        {t("food:price_times_quantity", {
+                        {t("food.price_times_quantity", {
                           price: customerPrice,
                           quantity,
                         })}
@@ -140,12 +140,12 @@ function ClaimedOrderModal({ claimedOrder, onHide }) {
               primaryProps={{
                 type: "button",
                 variant: "outline-secondary",
-                children: t("common:close"),
+                children: t("common.close"),
                 onClick: () => onHide(),
               }}
               secondaryProps={{
                 variant: "outline-primary",
-                children: t("food:view_order"),
+                children: t("food.view_order"),
                 href: `/order/${claimedOrder.id}`,
                 as: RLink,
               }}

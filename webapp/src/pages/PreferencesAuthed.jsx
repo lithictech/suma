@@ -27,7 +27,7 @@ export default function PreferencesAuthed() {
           dismissible
           onClose={() => setSaved(false)}
         >
-          <FormSuccess message="preferences:success" className="mb-0" />
+          <FormSuccess message="preferences.success" className="mb-0" />
         </Alert>
       )}
     </Preferences>

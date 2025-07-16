@@ -31,7 +31,7 @@ export default function PreTrip({ loading, vehicle, onReserve, reserveError }) {
     action = (
       <>
         <p>
-          {t("mobility:setup_private_account_with_vendor", {
+          {t("mobility.setup_private_account_with_vendor", {
             vendorName: vehicle.vendorService.vendorName,
           })}
         </p>
@@ -42,7 +42,7 @@ export default function PreTrip({ loading, vehicle, onReserve, reserveError }) {
           href="/private-accounts"
           as={RLink}
         >
-          {t("forms:get_started")}
+          {t("forms.get_started")}
         </Button>
       </>
     );
@@ -53,7 +53,7 @@ export default function PreTrip({ loading, vehicle, onReserve, reserveError }) {
           {t("common.open_app")} <i className="ms-2 bi bi-box-arrow-up-right"></i>
         </Button>
         <div className="mt-2">
-          {t("mobility:relink_private_account_with_vendor", {
+          {t("mobility.relink_private_account_with_vendor", {
             vendorName: vehicle.vendorService.vendorName,
           })}
         </div>
@@ -62,7 +62,7 @@ export default function PreTrip({ loading, vehicle, onReserve, reserveError }) {
   } else {
     action = (
       <Button size="sm" variant="success" className="w-100" onClick={handleReserve}>
-        {t("mobility:reserve_scooter")}
+        {t("mobility.reserve_scooter")}
       </Button>
     );
   }
@@ -71,7 +71,7 @@ export default function PreTrip({ loading, vehicle, onReserve, reserveError }) {
     <DrawerContents>
       <DrawerTitle>{vendorService.name}</DrawerTitle>
       <p className="text-muted">
-        {t("mobility:" + rate.localizationKey, {
+        {t("mobility." + rate.localizationKey, {
           surchargeCents: {
             cents: locVars.surchargeCents,
             currency: locVars.surchargeCurrency,
