@@ -56,4 +56,19 @@ RSpec.describe "Suma::I18n::StaticString", :db do
       end.to raise_error(Sequel::ValidationFailed, "key is invalid, namespace is invalid")
     end
   end
+
+  describe "needs_text?" do
+    it "is true if there is no text" do
+      expect(Suma::Fixtures.static_string.instance).to be_needs_text
+    end
+
+    it "is true if any supported locale is blank", reset_configuration: Suma::I18n do
+      s = Suma::Fixtures.static_string.text("x", es: "x").create
+      expect(s).to_not be_needs_text
+      s.text.en = " "
+      expect(s).to be_needs_text
+      Suma::I18n.enabled_locale_codes = ["es"]
+      expect(s).to_not be_needs_text
+    end
+  end
 end

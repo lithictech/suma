@@ -8,6 +8,7 @@ class Suma::AdminAPI::StaticStrings < Suma::AdminAPI::V1
     expose :namespace
     expose :key
     expose :deprecated
+    expose :needs_text?, as: :needs_text
     expose :en, &self.delegate_to(:text, :en, safe_with_default: "")
     expose :es, &self.delegate_to(:text, :es, safe_with_default: "")
   end
