@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require "rspec/eventually"
-
 require "suma/async"
 require "suma/messages/specs"
 

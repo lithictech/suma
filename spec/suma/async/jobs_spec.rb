@@ -5,7 +5,6 @@ require "suma/frontapp"
 require "suma/lime"
 require "suma/lyft"
 require "suma/messages/specs"
-require "rspec/eventually"
 
 RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transaction_check do
   before(:all) do
