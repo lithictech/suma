@@ -8,10 +8,9 @@ class Suma::Tasks::I18n < Rake::TaskLib
   def initialize
     super
     namespace :i18n do
-      desc "Import static_string_keys into the database."
-      task :import_static_string_keys do
+      task :replace do
         Suma.load_app?
-        Suma::I18n::StaticStringIO.import_all_keys
+        Suma::I18n::StaticStringIO.replace_seeds
       end
 
       desc "Import seeds into the database."

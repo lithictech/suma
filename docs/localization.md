@@ -14,34 +14,36 @@ Localization is essential to many Suma use cases. There are a few components:
 
 ## Static Localization
 
-Dynamic localization is pretty straightforward- edit strings on a model in admin,
+Dynamic localization is pretty straightforward: edit strings on a model in admin,
 and it takes effect immediately since it is part of the resource representation.
 
 Static strings though require an actual localization pipeline,
 since they aren't attached to any particular resources.
-This means they need both a dedicated editor, and a dedicated delivery mechanism (a static strings file).
+This means they need both a dedicated editor and a dedicated delivery mechanism (a static strings file).
 
 The static string pipeline is:
 
-- The files in `data/i18n/static_keys/strings.txt` file contains all the static string keys needed by the app.
-  - There are multiple files here, and each is a 'namespace.'
-  - Namespaces are loaded separately by the app to cut down on memory, like only loading the privacy policy strings
-    when viewing that page.
-- The release process upserts these keys, and marks any not-present rows deprecated.
-- On the first request to `/v1/meta/static_strings/<locale>/<namespace>.json`, the static strings are written out
-  for that local and namespace if needed (see below), and the file is served.
-  - The file is also generated ahead of time in a background thread after startup,
-    so it doesn't delay startup, and 'primes' the initial strings file request.
-  - The time this happens is recorded.
+- The files in `data/i18n/seeds/<locale>/<namespace>.json` file contains all the static string keys needed by the app.
+  - Namespaces are loaded separately by the app to cut down on memory,
+    such as only loading the privacy policy strings when viewing that page.
+- The release process calls `StaticStringRebuilder.import_seeds`.
+  This adds keys from the missing seeds, with the given values, so when the app starts up,
+  some initial value is present.
+- Web app startup writes out a cache of static strings from the database,
+  to the files it will serve to the frontend.
+- The frontend calls `/v1/meta/static_strings/<locale>/<namespace>.json`,
+  which returns the pregenerated file.
 - Whenever the text or another field is modified, `modified_at` is set.
-- Every few minutes, a background thread wakes up. It checks the `max(modified_at)` on the static strings table.
-  If `modified_at` is after the time the string file was generated, it regenerates the file.
-- Static strings can be dumped to `data/i18n/static_strings_seed.json` through `dump_to_seed_file`.
-- Static strings can be loaded from the seed file using `load_from_seed_file`.
-  This is usually done during bootstrapping.
+- Every few minutes, a background thread wakes up. It checks for `modified_at` of namespaces
+  modified since the files were last generated. It regenerates namespace files as needed.
+- When `Rebuilder.notify` is called, files on all web workers are regenerated.
+  This uses PG LISTEN/NOTIFY under the hood.
+- Static strings can be dumped to `data/i18n/static_strings_seed.json` through `make i18n-export`.
+- Static strings can be loaded from the seed file using `make i18n-import` or `make i18n-replace`.
 
 ## Message Localization
 
 Messages are another type of static string.
-`Message::Templte` instances with `dynamic?` of `true`
+`Message::Template` instances with `dynamic?` of `true`
 will look up their content from the database rather than a file.
+Message template static strings are stored in the `messages` namespace.

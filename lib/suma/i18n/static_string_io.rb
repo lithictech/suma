@@ -1,46 +1,18 @@
 # frozen_string_literal: true
 
 module Suma::I18n::StaticStringIO
-  KEYS_DIR = Suma::I18n::DATA_DIR + "static_keys"
   SEEDS_DIR = Suma::I18n::DATA_DIR + "seeds"
 
   class << self
-    def static_keys_base_file = KEYS_DIR + "#{Suma::I18n.base_namespace}.txt"
-
-    # Run import_namespace for each static keys file, to seed the database.
-    def import_all_keys(root=KEYS_DIR)
-      Dir.glob(root + "*").each do |path|
-        import_namespace_keys(path)
-      end
+    def replace_seeds
+      Suma::I18n::StaticString.dataset.delete
+      self.import_seeds
     end
 
-    # Upsert all keys in the given file into the static strings table, to seed the database.
-    def import_namespace_keys(path)
-      t = Time.now
-      keys = self.load_keys_from_file(path)
-      ns = File.basename(path, ".*")
-      Suma::I18n::StaticString.dataset.
-        insert_conflict.import([:key, :namespace, :modified_at], keys.map { |k| [k, ns, t] })
-      Suma::I18n::StaticString.dataset.
-        exclude(namespace: ns, key: keys).
-        where(deprecated: false).
-        update(deprecated: true, modified_at: t)
-    end
-
-    def load_keys_from_file(path)
-      keys = []
-      File.open(path) do |f|
-        f.each_line do |line|
-          line = line.strip
-          next if line.blank?
-          keys << line
-        end
-      end
-      return keys
-    end
-
-    # Replace all static strings with strings from seed files.
-    # Use when bootstrapping a new database, after initial migration, or as needed in development.
+    # For any static strings in the seed file not in the database,
+    # insert them into the database.
+    # To first delete seeds, use +replace_seeds+ instead.
+    # This method is called as part of the release process. See localization.md for more info.
     def import_seeds
       modified_at = Time.now
       data = Suma::I18n::AutoHash.new
@@ -56,13 +28,14 @@ module Suma::I18n::StaticStringIO
         end
       end
       Suma::I18n::StaticString.db.transaction do
-        Suma::I18n::StaticString.dataset.delete
         data.each do |namespace, ns_strings|
           Suma::I18n::StaticString.dataset.
+            insert_conflict.
             import([:namespace, :key, :modified_at], ns_strings.keys.map { |k| [namespace, k, modified_at] })
           Suma::I18n::StaticString.each do |ss|
             translated = ns_strings[ss.key]
             next unless translated
+            next if ss.text
             ss.update(text: Suma::TranslatedText.create(translated))
           end
         end
@@ -70,7 +43,6 @@ module Suma::I18n::StaticStringIO
     end
 
     # Export current static strings to seed files.
-    # Use to update the seeds so bootstrapping will give better results as the frontend cahnges.
     def export_seeds
       data = Suma::I18n::AutoHash.new
       Suma::I18n::StaticString.dataset.where(deprecated: false).each do |ss|
