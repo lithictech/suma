@@ -25,7 +25,7 @@ end
 def connect
   return false if defined?(Suma::Role) # Do not double-load
   require "suma"
-  Suma.load_app
+  Suma.load_app?
   require "suma/async"
   Suma::Async.setup_web
   return true

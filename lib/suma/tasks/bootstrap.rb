@@ -12,7 +12,7 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
     task :bootstrap do
       raise "only run this in development" unless Suma::RACK_ENV == "development"
       ENV["SUMA_DB_SLOW_QUERY_SECONDS"] = "1"
-      Suma.load_app
+      Suma.load_app?
       raise "only run with a fresh database" unless Suma::Member.dataset.empty?
       SequelTranslatedText.language = :en
       self.run_task

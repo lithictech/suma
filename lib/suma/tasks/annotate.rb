@@ -16,7 +16,7 @@ class Suma::Tasks::Annotate < Rake::TaskLib
       end
 
       require "suma"
-      Suma.load_app
+      Suma.load_app?
       files = []
       Suma::Postgres.each_model_class do |cls|
         next if cls.anonymous?
