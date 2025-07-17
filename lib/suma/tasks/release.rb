@@ -3,6 +3,8 @@
 require "rake/tasklib"
 
 require "suma/tasks"
+require "suma/tasks/db"
+require "suma/tasks/sidekiq"
 
 class Suma::Tasks::Release < Rake::TaskLib
   PASSWORD = "suma1234"
@@ -12,6 +14,7 @@ class Suma::Tasks::Release < Rake::TaskLib
     desc "Run the release script against the current environment."
     task :release do
       Rake::Task["db:migrate"].invoke
+      Rake::Task["sidekiq:release"].invoke
     end
 
     namespace :release do
