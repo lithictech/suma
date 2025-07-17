@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "csv"
+
 class Suma::Exporter
   def initialize(dataset)
     @dataset = dataset
