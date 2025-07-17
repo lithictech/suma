@@ -72,8 +72,9 @@ RSpec.describe "Suma::Message", :db, :messaging do
         tmpl = Suma::Messages::Testers::Localized.new
         tmpl.language = "es"
         Suma::Fixtures.static_string.
+          message(tmpl, :sms).
           text("", es: "spanish message").
-          create(namespace: "messages", key: "/templates/specs/localized.sms")
+          create
         delivery = tmpl.dispatch("member@lithic.tech", transport: :sms)
         expect(delivery).to have_attributes(template_language: "es")
         expect(delivery.bodies).to contain_exactly(have_attributes(content: match("spanish message")))
@@ -83,7 +84,8 @@ RSpec.describe "Suma::Message", :db, :messaging do
         tmpl = Suma::Messages::Testers::Localized.new
         tmpl.language = "es"
         Suma::Fixtures.static_string.
-          create(namespace: "messages", key: "/templates/specs/localized.sms")
+          message(tmpl, :sms).
+          create
         expect do
           tmpl.dispatch("member@lithic.tech", transport: :sms)
         end.to raise_error(Suma::Message::MissingTemplateError, /Message blank/)

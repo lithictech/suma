@@ -13,14 +13,16 @@ module Suma::I18n::StaticStringIO
     # insert them into the database.
     # To first delete seeds, use +replace_seeds+ instead.
     # This method is called as part of the release process. See localization.md for more info.
-    def import_seeds
+    def import_seeds(namespaces: nil)
+      namespaces = Array(namespaces) if namespaces
       modified_at = Time.now
       data = Suma::I18n::AutoHash.new
       SEEDS_DIR.glob("*").each do |locale_dir|
         locale_dir.glob("*").each do |path|
+          namespace = path.basename(".*").to_s
+          next if namespaces && !namespaces.include?(namespace)
           j = JSON.load_file(path)
           j = Suma::I18n.flatten_hash(j)
-          namespace = path.basename(".*").to_s
           locale = locale_dir.basename(".*").to_s
           j.each do |key, text|
             data[namespace][key][locale] = text

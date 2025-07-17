@@ -5,6 +5,7 @@ require "suma/message/signalwire_webhookdb_optout_processor"
 RSpec.describe Suma::Message::SignalwireWebhookdbOptoutProcessor, :db, reset_configuration: Suma::Signalwire do
   before(:each) do
     Suma::Signalwire.marketing_number = "12225550000"
+    import_localized_message_seeds
   end
 
   let(:member_phone) { "14445556666" }

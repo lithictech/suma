@@ -60,11 +60,7 @@ class Suma::Message::Template
       return path.read
     end
     raise Suma::Message::LanguageNotSetError if self.language.nil?
-    criteria = {
-      namespace: Suma::Message::STATIC_STRING_NAMESPACE,
-      key: "/templates/#{self.full_template_name}.#{transport}",
-    }
-
+    criteria = self.static_string_criteria(transport)
     template = Suma::I18n::StaticString.find(**criteria)
     raise Suma::Message::MissingTemplateError, "No static string row: #{criteria}" if
       template.nil?
@@ -72,6 +68,14 @@ class Suma::Message::Template
     raise Suma::Message::MissingTemplateError, "Message blank: #{criteria.merge(lang: self.language)}" if
       content.nil?
     return content
+  end
+
+  def static_string_criteria(transport)
+    criteria = {
+      namespace: Suma::Message::STATIC_STRING_NAMESPACE,
+      key: "#{self.full_template_name}.#{transport}",
+    }
+    return criteria
   end
 
   # The layout for the template. See the 'layouts' folder in the message data directory.

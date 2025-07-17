@@ -17,4 +17,9 @@ module Suma::Fixtures::StaticStrings
   decorator :text do |en=Faker::Lorem.sentence, **more|
     self.text = Suma::Fixtures.translated_text.create(en:, **more)
   end
+
+  decorator :message do |template, transport|
+    crit = template.static_string_criteria(transport)
+    self.set(crit)
+  end
 end

@@ -45,6 +45,18 @@ RSpec.describe Suma::I18n::StaticStringIO, :db do
         have_attributes(key: "a.d", namespace: "ns1", text: have_attributes(en: "yo", es: "")),
       )
     end
+
+    it "can be limited to namespaces" do
+      stub_const("Suma::I18n::StaticStringIO::SEEDS_DIR", temp_dir_path)
+      Dir.mkdir(temp_dir_path + "en")
+      File.write(temp_dir_path + "en/ns1.json", {a: "hi"}.to_json)
+      File.write(temp_dir_path + "en/ns2.json", {a: "hi"}.to_json)
+      described_class.import_seeds(namespaces: ["ns1"])
+      described_class.import_seeds(namespaces: "ns1")
+      expect(Suma::I18n::StaticString.all).to contain_exactly(
+        have_attributes(key: "a", namespace: "ns1"),
+      )
+    end
   end
 
   describe "export_seeds" do

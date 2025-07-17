@@ -15,10 +15,12 @@ RSpec.describe "Suma::Message::Preferences", :db, :messaging do
   end
 
   it "dispatches correctly using configured settings", reset_configuration: Suma::I18n do
-    Suma::I18n.enabled_locale_codes = ["en", "fr"]
+    import_localized_message_seeds
     msg = Suma::Messages::Testers::Localized.new
-    deliveries = Suma::Fixtures.member.create.message_preferences!.update(preferred_language: "fr").dispatch(msg)
-    expect(deliveries).to contain_exactly(have_attributes(template: "specs/localized", template_language: "fr"))
+    msg.language = "es"
+    Suma::Fixtures.static_string.message(msg, :sms).text("", es: "hola").create
+    deliveries = Suma::Fixtures.member.create.message_preferences!.update(preferred_language: "es").dispatch(msg)
+    expect(deliveries).to contain_exactly(have_attributes(template: "specs/localized", template_language: "es"))
   end
 
   describe "preferred_language_name" do
