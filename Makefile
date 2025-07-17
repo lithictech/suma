@@ -36,7 +36,9 @@ release-staging:
 	MERGE_HEROKU_ENV=$(staging_app) bundle exec foreman start release
 
 run:
-	bundle exec foreman start web
+	WEB_CONCURRENCY=0 bundle exec foreman start web
+run-cluster:
+	WEB_CONCURRENCY=2 bundle exec foreman start web
 run-with-verification:
 	bundle exec foreman start web
 run-workers:
