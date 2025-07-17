@@ -11,7 +11,7 @@ class Suma::Tasks::Integration < Rake::TaskLib
       desc "Run the LyftPass sync."
       task :lyftpass do
         require "suma"
-        Suma.load_app
+        Suma.load_app?
         require "suma/lyft/pass"
         Suma::Vendor::Service.where(mobility_vendor_adapter_key: "lyft_deeplink").update(charge_after_fulfillment: true)
         lp = Suma::Lyft::Pass.from_config

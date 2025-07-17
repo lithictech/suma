@@ -24,7 +24,7 @@ class Suma::Tasks::Message < Rake::TaskLib
         end
 
         require "suma"
-        Suma.load_app
+        Suma.load_app?
 
         delivery = Suma::Message::Delivery.preview(
           template_class_name,

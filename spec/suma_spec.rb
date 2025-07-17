@@ -260,4 +260,18 @@ RSpec.describe Suma do
       expect(logger).to have_attributes(level: :warn)
     end
   end
+
+  describe "load_app?" do
+    it "returns false if already loaded" do
+      expect(Suma.load_app?).to be(false)
+    end
+
+    it "calls load_app and returns true if not loaded" do
+      expect(Suma).to receive(:load_app)
+      Suma.instance_variable_set(:@app_loaded, false)
+      expect(Suma.load_app?).to be(true)
+    ensure
+      Suma.instance_variable_set(:@app_loaded, true)
+    end
+  end
 end

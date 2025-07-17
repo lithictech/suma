@@ -100,6 +100,12 @@ module Suma
 
   require "suma/sentry"
 
+  def self.load_app?
+    return false if @app_loaded
+    self.load_app
+    return true
+  end
+
   def self.load_app
     $stdout.sync = true
     $stderr.sync = true
@@ -108,6 +114,7 @@ module Suma
 
     require "suma/postgres"
     Suma::Postgres.load_models
+    @app_loaded = true
   end
 
   #
