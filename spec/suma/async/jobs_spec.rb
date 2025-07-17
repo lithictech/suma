@@ -274,14 +274,14 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
     let!(:order) { Suma::Fixtures.order.create }
 
     it "sends the order confirmation" do
-      order.checkout.cart.offering.update(confirmation_template: "2022-12-pilot-confirmation")
+      order.checkout.cart.offering.update(confirmation_template: "2022_12_pilot_confirmation")
       expect do
         order.publish_immediate("created", order.id)
       end.to perform_async_job(Suma::Async::OrderConfirmation)
 
       expect(Suma::Message::Delivery.all).to contain_exactly(
         have_attributes(
-          template: "offerings/2022-12-pilot-confirmation",
+          template: "offerings/2022_12_pilot_confirmation",
           transport_type: "sms",
           template_language: "en",
         ),

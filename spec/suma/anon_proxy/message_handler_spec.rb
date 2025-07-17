@@ -152,7 +152,7 @@ RSpec.describe Suma::AnonProxy::MessageHandler, :db do
         latest_access_code_set_at: match_time(:now),
       )
       expect(vendor_account.contact.member.message_deliveries.last).to have_attributes(
-        template: "anon_proxy/lime-deep-link-access-code",
+        template: "anon_proxy/lime_deep_link_access_code",
         transport_type: "sms",
         carrier_key: "signalwire",
       )
@@ -170,7 +170,7 @@ RSpec.describe Suma::AnonProxy::MessageHandler, :db do
         latest_access_code_set_at: match_time(:now),
       )
       expect(vendor_account.contact.member.message_deliveries.last).to have_attributes(
-        template: "anon_proxy/lime-deep-link-access-code",
+        template: "anon_proxy/lime_deep_link_access_code",
         transport_type: "sms",
         carrier_key: "signalwire",
       )

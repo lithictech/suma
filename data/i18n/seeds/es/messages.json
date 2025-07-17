@@ -1,3 +1,10 @@
 {
-
+  "/templates/anon_proxy/lime_deep_link_access_code.sms": "Presione este enlace para acceder a su cuenta Lime a través de suma: {{ value }}",
+  "/templates/offerings/2022_12_pilot_confirmation.sms": "¡Gracias por tu pedido! Nos pondremos en contacto antes del 12 de diciembre con información sobre la recogida. Responda a este texto o envíe un correo electrónico a info@mysuma.org si necesita ayuda. - suma",
+  "/templates/offerings/2023_07_pilot_confirmation.sms": "¡Gracias por tu orden! Ve a este enlace cuando estés en el mercado para reclamar tus cupones: {{ app_url }}/unclaimed-orders - suma",
+  "/templates/offerings/2023_12_holiday_confirmation.sms": "suma: ¡Gracias por tu pedido! Nos pondremos en contacto antes del 15 de diciembre con información sobre la recogida. Responde HELP si tienes preguntas. Responda STOP para cancelar la suscripción.",
+  "/templates/onboarding_verification.sms": "Su cuenta suma ha sido verificada. Inicie sesión en {{ value }} para comenzar a ahorrar dinero en alimentos y transporte mientras desarrolla el poder adquisitivo de la comunidad.",
+  "/templates/sms_compliance/help.sms": "¡Gracias! Estaremos en contacto pronto. ALTO para cancelar la suscripción.",
+  "/templates/sms_compliance/optin.sms": "¡Gracias por registrarte en suma! Pueden aplicarse tarifas por mensajes y datos. ALTO para cancelar la suscripción o AYUDA para recibir ayuda.",
+  "/templates/sms_compliance/optout.sms": "Has cancelado tu suscripción de suma y ya no recibirás mensajes de SMS. COMENZAR para suscribirte nuevamente."
 }

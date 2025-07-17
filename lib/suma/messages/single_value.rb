@@ -6,7 +6,7 @@ class Suma::Messages::SingleValue < Suma::Message::Template
   def self.fixtured(recipient)
     msg = self.new(
       "anon_proxy",
-      "lime-deep-link-access-code",
+      "lime_deep_link_access_code",
       "https://mysuma.org/some-lime-link-#{recipient.id}",
     )
     msg.language = ["es", "en"].sample

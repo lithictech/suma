@@ -54,14 +54,6 @@ RSpec.describe "Suma::Message", :db, :messaging do
       expect(delivery.bodies.first).to have_attributes(content: match("test message to member@lithic.tech"))
     end
 
-    it "includes the language in the template name if template supports localization" do
-      tmpl = Suma::Messages::Testers::Localized.new
-      tmpl.language = "fr"
-      delivery = tmpl.dispatch("member@lithic.tech", transport: :sms)
-      expect(delivery).to have_attributes(template_language: "fr")
-      expect(delivery.bodies).to contain_exactly(have_attributes(content: match("french message")))
-    end
-
     it "sets the delivery as sensitive if the template is sensitive" do
       tmpl = Suma::Messages::Testers::Sensitive.new
       delivery = tmpl.dispatch("member@lithic.tech", transport: :sms)
@@ -73,6 +65,44 @@ RSpec.describe "Suma::Message", :db, :messaging do
       expect do
         tmpl.dispatch("member@lithic.tech", transport: :sms)
       end.to raise_error(Suma::Message::LanguageNotSetError)
+    end
+
+    describe "when the template supports localization" do
+      it "loads the static string" do
+        tmpl = Suma::Messages::Testers::Localized.new
+        tmpl.language = "es"
+        Suma::Fixtures.static_string.
+          text("", es: "spanish message").
+          create(namespace: "messages", key: "/templates/specs/localized.sms")
+        delivery = tmpl.dispatch("member@lithic.tech", transport: :sms)
+        expect(delivery).to have_attributes(template_language: "es")
+        expect(delivery.bodies).to contain_exactly(have_attributes(content: match("spanish message")))
+      end
+
+      it "errors if the static string localized content is blank" do
+        tmpl = Suma::Messages::Testers::Localized.new
+        tmpl.language = "es"
+        Suma::Fixtures.static_string.
+          create(namespace: "messages", key: "/templates/specs/localized.sms")
+        expect do
+          tmpl.dispatch("member@lithic.tech", transport: :sms)
+        end.to raise_error(Suma::Message::MissingTemplateError, /Message blank/)
+      end
+
+      it "errors if there is no static string row" do
+        tmpl = Suma::Messages::Testers::Localized.new
+        tmpl.language = "es"
+        expect do
+          tmpl.dispatch("member@lithic.tech", transport: :sms)
+        end.to raise_error(Suma::Message::MissingTemplateError, /No static string row/)
+      end
+
+      it "errors if the language is not set" do
+        tmpl = Suma::Messages::Testers::Localized.new
+        expect do
+          tmpl.dispatch("member@lithic.tech", transport: :sms)
+        end.to raise_error(Suma::Message::LanguageNotSetError)
+      end
     end
   end
 

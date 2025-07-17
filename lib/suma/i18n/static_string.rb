@@ -62,7 +62,7 @@ class Suma::I18n::StaticString < Suma::Postgres::Model(:i18n_static_strings)
 
   def validate
     super
-    validates_format(/^[a-z0-9_.]+$/, :key)
-    validates_format(/^[a-z0-9_.]+$/, :namespace)
+    validates_format(%r{^[a-z0-9_./]+$}, :key)
+    validates_format(/^[a-z0-9_]+$/, :namespace)
   end
 end

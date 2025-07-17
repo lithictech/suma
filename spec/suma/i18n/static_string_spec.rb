@@ -41,9 +41,10 @@ RSpec.describe "Suma::I18n::StaticString", :db do
 
   describe "validations" do
     it "errors for invalid keys or namespaces" do
+      Suma::Fixtures.static_string.create
       Suma::Fixtures.static_string.create(namespace: "n1", key: "s1")
-      Suma::Fixtures.static_string.create(namespace: "n1.n2", key: "s1.s2")
       Suma::Fixtures.static_string.create(namespace: "n1_n2", key: "s1.s2")
+      Suma::Fixtures.static_string.create(key: "/template/xyz.sms")
 
       expect do
         Suma::Fixtures.static_string.create(namespace: "n1:n2")

@@ -1,8 +1,2 @@
-/templates/anon_proxy/lime-deep-link-access-code.sms
-/templates/offerings/2022-12-pilot-confirmation.sms
-/templates/offerings/2023-07-pilot-confirmation.sms
-/templates/offerings/2023-12-holiday-confirmation.sms
-/templates/onboarding_verification.sms
-/templates/sms_compliance/help.sms
-/templates/sms_compliance/optin.sms
-/templates/sms_compliance/optout.sms
+
+

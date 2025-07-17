@@ -1,3 +1,10 @@
 {
-
+  "/templates/anon_proxy/lime_deep_link_access_code.sms": "Press this link to access your Lime account through suma: {{ value }}",
+  "/templates/offerings/2022_12_pilot_confirmation.sms": "Thanks for your order! We'll reach out by December 12 with information about pickup. Respond to this text or email info@mysuma.org if you need help. - suma",
+  "/templates/offerings/2023_07_pilot_confirmation.sms": "Thanks for your order! Go to this link when you're at the market to claim your vouchers: {{ app_url }}/unclaimed-orders - suma",
+  "/templates/offerings/2023_12_holiday_confirmation.sms": "suma: Thanks for your order! We'll reach out by December 15 with information about pickup. Reply HELP if you have questions. Reply STOP to unsubscribe.",
+  "/templates/onboarding_verification.sms": "Your suma account has been verified. Log in at {{ value }} to start saving money on food and transportation while building community purchasing power!",
+  "/templates/sms_compliance/help.sms": "Thanks! We'll be in touch soon. STOP to unsubscribe.",
+  "/templates/sms_compliance/optin.sms": "Thanks for signing up for suma! Msg&Data rates may apply. STOP to unsubscribe or HELP for assistance.",
+  "/templates/sms_compliance/optout.sms": "You have successfully unsubscribed from suma and will no longer receive SMS messages. START to resubscribe."
 }
