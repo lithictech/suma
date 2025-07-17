@@ -146,7 +146,7 @@ RSpec.describe Suma::API::Meta, :db do
   describe "GET /v1/meta/static_strings/<locale>/<namespace>" do
     it "returns the static string file from the database" do
       Suma::Fixtures.static_string.text("hi").create(namespace: "forms", key: "s1")
-      Suma::I18n::StaticString::Rebuilder.instance.rebuild_outdated
+      Suma::I18n::StaticStringRebuilder.instance.rebuild_outdated
 
       get "/v1/meta/static_strings/en/forms"
 

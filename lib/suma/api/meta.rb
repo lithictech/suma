@@ -65,7 +65,7 @@ class Suma::API::Meta < Suma::API::V1
       route_param :locale do
         route_param :namespace do
           get do
-            f = Suma::I18n::StaticString::Rebuilder.instance.
+            f = Suma::I18n::StaticStringRebuilder.instance.
               path_for(namespace: params[:namespace], locale: params[:locale])
             sendfile f.to_s
           end

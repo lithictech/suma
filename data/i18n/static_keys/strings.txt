@@ -371,11 +371,3 @@ trips.your_trip
 utilities.intro
 utilities.page_title
 utilities.title
-message./templates/anon_proxy/lime-deep-link-access-code.sms
-message./templates/offerings/2022-12-pilot-confirmation.sms
-message./templates/offerings/2023-07-pilot-confirmation.sms
-message./templates/offerings/2023-12-holiday-confirmation.sms
-message./templates/onboarding_verification.sms
-message./templates/sms_compliance/help.sms
-message./templates/sms_compliance/optin.sms
-message./templates/sms_compliance/optout.sms

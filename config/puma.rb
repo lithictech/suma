@@ -20,7 +20,7 @@ require "suma"
 Suma.load_app
 require "suma/async/autoscaler"
 Suma::Async::Autoscaler.start
-Suma::I18n::StaticString::Rebuilder.instance.start_watcher
+Suma::I18n::StaticStringRebuilder.instance.start_watcher
 
 if workers_count.positive?
   before_fork do

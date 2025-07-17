@@ -16,6 +16,7 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
       raise "only run with a fresh database" unless Suma::Member.dataset.empty?
       SequelTranslatedText.language(:en) do
         Suma::Member.db.transaction do
+          Suma::I18n::StaticStringIO.import_seeds
           Meta.new.fixture
           Mobility.new.fixture
           AnonProxy.new.fixture
