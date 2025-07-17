@@ -64,6 +64,7 @@ export default function FoodList() {
           image={offering.image}
           w={500}
           h={140}
+          placeholderHeight={140}
           params={{ crop: "center" }}
           className="thin-header-image"
         />
