@@ -46,8 +46,9 @@ module Suma::I18n
     # What error codes are found in the base localization strings?
     def localized_error_codes
       return @localized_error_codes ||= begin
-        keys = Suma::I18n::StaticStringIO.load_keys_from_file(Suma::I18n::StaticStringIO.static_keys_base_file)
-        keys.select { |k| k.start_with?("errors.") }.map { |k| k[7..] }
+        f = Suma::I18n::StaticStringIO::SEEDS_DIR + self.base_locale_code + "#{self.base_namespace}.json"
+        j = JSON.load_file(f)
+        j.fetch("errors").keys
       end
     end
 
