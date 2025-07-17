@@ -12,21 +12,21 @@ RSpec.describe Suma::I18n, :db do
   end
 
   describe "import_seeds" do
-    it "upserts seeds into the database" do
+    it "replaces all static strings in the database" do
       stub_const("Suma::I18n::SEEDS_DIR", temp_dir_path)
       Dir.mkdir(temp_dir_path + "en")
       Dir.mkdir(temp_dir_path + "es")
-      File.write(temp_dir_path + "en/ns1.json", {a: {b: "hi"}}.to_json)
+      File.write(temp_dir_path + "en/ns1.json", {a: {b: "hi", c: "cc"}}.to_json)
       File.write(temp_dir_path + "es/ns1.json", {a: {b: "hola"}}.to_json)
       described_class.import_seeds
       expect(Suma::I18n::StaticString.all).to contain_exactly(
         have_attributes(key: "a.b", namespace: "ns1", text: have_attributes(en: "hi", es: "hola")),
+        have_attributes(key: "a.c", namespace: "ns1", text: have_attributes(en: "cc")),
       )
-      File.write(temp_dir_path + "en/ns1.json", {a: {b: "bye", c: "cc"}}.to_json)
+      File.write(temp_dir_path + "en/ns1.json", {a: {b: "bye"}}.to_json)
       described_class.import_seeds
       expect(Suma::I18n::StaticString.all).to contain_exactly(
         have_attributes(key: "a.b", namespace: "ns1", text: have_attributes(en: "bye", es: "hola")),
-        have_attributes(key: "a.c", namespace: "ns1", text: have_attributes(en: "cc")),
       )
     end
   end

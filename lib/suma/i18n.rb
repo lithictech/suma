@@ -57,8 +57,8 @@ module Suma::I18n
       end
     end
 
-    # Upsert static strings from seed files.
-    # Use when bootstrapping a new database.
+    # Replace all static strings with strings from seed files.
+    # Use when bootstrapping a new database, after initial migration, or as needed in development.
     def import_seeds
       modified_at = Time.now
       data = AutoHash.new
@@ -74,11 +74,11 @@ module Suma::I18n
         end
       end
       Suma::I18n::StaticString.db.transaction do
+        Suma::I18n::StaticString.dataset.delete
         data.each do |namespace, ns_strings|
           Suma::I18n::StaticString.dataset.
-            insert_conflict.
             import([:namespace, :key, :modified_at], ns_strings.keys.map { |k| [namespace, k, modified_at] })
-          Suma::I18n::StaticString.where(deprecated: false).each do |ss|
+          Suma::I18n::StaticString.each do |ss|
             translated = ns_strings[ss.key]
             next unless translated
             if ss.text

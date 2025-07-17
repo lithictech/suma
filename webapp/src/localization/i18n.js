@@ -73,9 +73,10 @@ class I18n {
         // Do not warn if this happens while we're still initializing languages
         // (cache is empty until first file is loaded).
         console.log(
-          `localization key '${fqn}' not found, maybe you need to run 'make i18n-format'`,
+          `localization key '${fqn}' not found, static string must be added`,
           this.cache
         );
+        console.trace();
       }
       return ["s", key];
     }
