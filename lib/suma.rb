@@ -232,6 +232,7 @@ module Suma
 end
 
 require "suma/phone_number"
+require "suma/signals"
 require "suma/typed_struct"
 
 raise "Remove this code, ActiveSupport has the new default" if
