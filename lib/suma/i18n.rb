@@ -51,10 +51,6 @@ module Suma::I18n
       end
     end
 
-    def base_locale_data
-      return self.strings_data(self.base_locale_code)
-    end
-
     # Turn a nested nested hash like {a: {b: 1}, c: 2} into
     # a flat one like {a.b: 1, c: 2}
     # @return [Hash]

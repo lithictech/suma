@@ -63,11 +63,7 @@ module Suma::I18n::StaticStringIO
           Suma::I18n::StaticString.each do |ss|
             translated = ns_strings[ss.key]
             next unless translated
-            if ss.text
-              ss.text.update(translated)
-            else
-              ss.update(text: Suma::TranslatedText.create(translated))
-            end
+            ss.update(text: Suma::TranslatedText.create(translated))
           end
         end
       end

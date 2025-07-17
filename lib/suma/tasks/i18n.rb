@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "rake/tasklib"
+
 require "suma/tasks"
 
 class Suma::Tasks::I18n < Rake::TaskLib
