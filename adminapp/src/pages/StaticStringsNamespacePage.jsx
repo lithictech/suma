@@ -1,5 +1,8 @@
 import api from "../api";
+import FabAdd from "../components/FabAdd";
+import Link from "../components/Link";
 import useErrorSnackbar from "../hooks/useErrorSnackbar";
+import { resourceCreateRoute } from "../modules/resourceRoutes";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
 import DeleteIcon from "@mui/icons-material/Delete";
 import FormatColorTextIcon from "@mui/icons-material/FormatColorText";
@@ -33,6 +36,10 @@ export default function StaticStringsNamespacePage() {
       <div style={{ height: HEADER_HEIGHT + strings.length * ROW_HEIGHT }}>
         <StaticStringsTable namespace={namespace} strings={strings} />
       </div>
+      <FabAdd
+        component={Link}
+        href={resourceCreateRoute("static_string") + `?namespace=${namespace}`}
+      />
     </>
   );
 }

@@ -50,6 +50,7 @@ class Suma::AdminAPI::StaticStrings < Suma::AdminAPI::V1
       row = Suma::I18n::StaticString.find_or_create_or_find(namespace: params[:namespace], key: params[:key]) do |s|
         s.modified_at = Time.now
       end
+      created_resource_headers(row.id, "/static-strings-namespace/#{row.namespace}")
       status 200
       present row, with: StandaloneStaticStringEntity
     end

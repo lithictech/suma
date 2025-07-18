@@ -1,5 +1,7 @@
 import api from "../api";
+import FabAdd from "../components/FabAdd";
 import Link from "../components/Link";
+import { resourceCreateRoute } from "../modules/resourceRoutes";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
 import { CircularProgress, Stack, Typography } from "@mui/material";
 import startCase from "lodash/startCase";
@@ -26,6 +28,7 @@ export default function StaticStringsPage() {
             </Link>
           </Typography>
         ))}
+        <FabAdd component={Link} href={resourceCreateRoute("static_string")} />
       </Stack>
     </>
   );

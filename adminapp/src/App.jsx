@@ -81,6 +81,7 @@ import RoleDetailPage from "./pages/RoleDetailPage";
 import RoleEditPage from "./pages/RoleEditPage";
 import RoleListPage from "./pages/RoleListPage";
 import SignInPage from "./pages/SignInPage";
+import StaticStringCreatePage from "./pages/StaticStringCreatePage";
 import StaticStringsNamespacePage from "./pages/StaticStringsNamespacePage";
 import StaticStringsPage from "./pages/StaticStringsPage";
 import VendorAccountDetailPage from "./pages/VendorAccountDetailPage";
@@ -789,6 +790,11 @@ function PageSwitch() {
         exact
         path="/static-strings"
         element={renderWithHocs(redirectIfUnauthed, withLayout(), StaticStringsPage)}
+      />
+      <Route
+        exact
+        path="/static-string/new"
+        element={renderWithHocs(redirectIfUnauthed, withLayout(), StaticStringCreatePage)}
       />
       <Route
         exact
