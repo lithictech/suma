@@ -19,7 +19,7 @@ class Suma::Tasks::DB < Rake::TaskLib
           next if sc == Suma::Webhookdb::Model && Suma::RACK_ENV != "test"
           schemas.each do |schemaname|
             sc.db[:pg_tables].where(schemaname:).each do |tbl|
-              self.exec(sc.db, "DROP TABLE #{schemaname}.#{tbl[:tablename]} CASCADE")
+              Suma::Tasks::DB.exec(sc.db, "DROP TABLE #{schemaname}.#{tbl[:tablename]} CASCADE")
             end
           end
         end
@@ -46,13 +46,13 @@ class Suma::Tasks::DB < Rake::TaskLib
     end
   end
 
-  def exec(db, cmd)
-    print cmd
+  def self.exec(db, cmd)
+    Kernel.print cmd
     begin
       db.execute(cmd)
-      print "\n"
+      Kernel.print "\n"
     rescue StandardError
-      print " (error)\n"
+      Kernel.print " (error)\n"
       raise
     end
   end

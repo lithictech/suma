@@ -1,11 +1,10 @@
 # frozen_string_literal: true
 
+require "suma/spec_helpers/rake"
 require "suma/tasks/sidekiq"
 
 RSpec.describe Suma::Tasks::Sidekiq, sidekiq: :disable do
-  before(:all) do
-    described_class.new
-  end
+  include Suma::SpecHelpers::Rake
 
   describe "reset" do
     it "clears the redis DB" do

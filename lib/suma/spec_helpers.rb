@@ -24,12 +24,6 @@ module Suma::SpecHelpers
     super
   end
 
-  module_function def invoke_rake_task(name)
-    Rake::Task[name].invoke
-  ensure
-    Rake::Task[name].reenable
-  end
-
   ### Load data from the spec/data directory with the specified +name+,
   ### deserializing it if it's YAML or JSON, and returning it.
   module_function def load_fixture_data(name, raw: false)

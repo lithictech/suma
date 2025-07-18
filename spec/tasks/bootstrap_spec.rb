@@ -1,11 +1,10 @@
 # frozen_string_literal: true
 
+require "suma/spec_helpers/rake"
 require "suma/tasks/bootstrap"
 
 RSpec.describe Suma::Tasks::Bootstrap, :db do
-  before(:all) do
-    described_class.new
-  end
+  include Suma::SpecHelpers::Rake
 
   it "runs successfully" do
     stub_const("Suma::RACK_ENV", "development")
