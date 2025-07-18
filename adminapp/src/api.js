@@ -336,6 +336,16 @@ export default {
   updateRole: ({ id, ...data }, ...args) =>
     postForm(`/adminapi/v1/roles/${id}`, data, ...args),
 
+  getStaticStrings: (data, ...args) => get(`/adminapi/v1/static_strings`, data, ...args),
+  createStaticString: (data, ...args) =>
+    post(`/adminapi/v1/static_strings/create`, data, ...args),
+  updateStaticString: ({ id, ...data }, ...args) =>
+    post(`/adminapi/v1/static_strings/${id}/update`, data, ...args),
+  deprecateStaticString: ({ id, ...data }, ...args) =>
+    post(`/adminapi/v1/static_strings/${id}/deprecate`, data, ...args),
+  undeprecatedStaticString: ({ id, ...data }, ...args) =>
+    post(`/adminapi/v1/static_strings/${id}/undeprecate`, data, ...args),
+
   searchProducts: (data, ...args) => post(`/adminapi/v1/search/products`, data, ...args),
   searchOfferings: (data, ...args) =>
     post(`/adminapi/v1/search/offerings`, data, ...args),

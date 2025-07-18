@@ -61,6 +61,7 @@ require "suma/admin_api/programs"
 require "suma/admin_api/program_enrollments"
 require "suma/admin_api/roles"
 require "suma/admin_api/search"
+require "suma/admin_api/static_strings"
 require "suma/admin_api/vendors"
 require "suma/admin_api/vendor_services"
 
@@ -117,6 +118,7 @@ module Suma::Apps
     mount Suma::AdminAPI::ProgramEnrollments
     mount Suma::AdminAPI::Roles
     mount Suma::AdminAPI::Search
+    mount Suma::AdminAPI::StaticStrings
     mount Suma::AdminAPI::Vendors
     mount Suma::AdminAPI::VendorServices
     add_swagger_documentation(mount_path: "/swagger", info: {title: "Suma Admin API"}) if
