@@ -6,6 +6,9 @@ class I18n {
     this.cache = {};
     this.formatters = {};
     this.language = "";
+    this.debugStaticStrings = new URLSearchParams(window.location.search).has(
+      "debugstaticstrings"
+    );
   }
 
   /**
@@ -65,6 +68,9 @@ class I18n {
    *   and the resolved string.
    */
   resolve = (key, opts) => {
+    if (this.debugStaticStrings) {
+      return ["s", key];
+    }
     const fqn = this.fqn(key);
     const value = get(this.cache, fqn);
     if (!value) {

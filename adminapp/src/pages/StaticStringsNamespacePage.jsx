@@ -1,4 +1,5 @@
 import api from "../api";
+import BackToList from "../components/BackToList";
 import FabAdd from "../components/FabAdd";
 import Link from "../components/Link";
 import ResponsiveStack from "../components/ResponsiveStack";
@@ -7,6 +8,7 @@ import extractErrorMessage from "../modules/extractErrorMessage";
 import { resourceCreateRoute } from "../modules/resourceRoutes";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
 import useToggle from "../shared/react/useToggle";
+import CloseIcon from "@mui/icons-material/Close";
 import DeleteIcon from "@mui/icons-material/Delete";
 import FormatColorTextIcon from "@mui/icons-material/FormatColorText";
 import RestoreFromTrashIcon from "@mui/icons-material/RestoreFromTrash";
@@ -22,8 +24,10 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
+import IconButton from "@mui/material/IconButton";
 import { makeStyles } from "@mui/styles";
 import { DataGrid, GridActionsCellItem, GridCellEditStopReasons } from "@mui/x-data-grid";
+import { now } from "lodash/date";
 import startCase from "lodash/startCase";
 import React from "react";
 import { useParams } from "react-router-dom";
@@ -45,6 +49,7 @@ export default function StaticStringsNamespacePage() {
     [namespaceStrings, updatedStringsById]
   );
 
+  const docsToggle = useToggle();
   const modalToggle = useToggle();
   const modalSaving = useToggle();
   const [rowBeingEdited, setRowBeingEdited] = React.useState({});
@@ -86,10 +91,16 @@ export default function StaticStringsNamespacePage() {
   return (
     <>
       <Typography variant="h5" gutterBottom>
-        &lsquo;{startCase(namespace)}&rsquo; Static Strings
+        <BackToList to="/static-strings" />
+        &lsquo;{startCase(namespace)}&rsquo; Static Strings{" "}
+        <Button sx={{ ml: 2 }} onClick={docsToggle.toggle}>
+          Help
+        </Button>
       </Typography>
+      <DocsModal toggle={docsToggle} selectedRow={rowBeingEdited} />
       <StaticStringsDialog
         toggle={modalToggle}
+        docsToggle={docsToggle}
         saving={modalSaving}
         row={rowBeingEdited}
         onFieldChange={handleRowFieldChange}
@@ -210,7 +221,14 @@ function StaticStringsTable({ strings, onRowEdit, onSavePromise }) {
   );
 }
 
-function StaticStringsDialog({ toggle, saving, row, onFieldChange, onSavePromise }) {
+function StaticStringsDialog({
+  toggle,
+  saving,
+  row,
+  docsToggle,
+  onFieldChange,
+  onSavePromise,
+}) {
   const handleModalClose = React.useCallback(() => {
     // Don't set these here, or it causes modal flashing before it disappears.
     // setRowBeingEdited({});
@@ -240,6 +258,7 @@ function StaticStringsDialog({ toggle, saving, row, onFieldChange, onSavePromise
     <Dialog
       open={toggle.isOn}
       disableEscapeKeyDown
+      fullWidth
       maxWidth="lg"
       PaperProps={{
         component: "form",
@@ -249,6 +268,9 @@ function StaticStringsDialog({ toggle, saving, row, onFieldChange, onSavePromise
     >
       <DialogTitle sx={{ lineBreak: "anywhere" }}>
         Edit {row.namespace}:{row.key}
+        <Button sx={{ ml: 2 }} onClick={docsToggle.toggle}>
+          Help
+        </Button>
       </DialogTitle>
       <DialogContent>
         <ResponsiveStack rowAt="md" sx={{ pt: 1 }}>
@@ -276,25 +298,6 @@ function StaticStringsDialog({ toggle, saving, row, onFieldChange, onSavePromise
             onChange={(e) => onFieldChange("es", e.target.value)}
           />
         </ResponsiveStack>
-        <DialogContentText sx={{ mt: 2 }}>
-          Strings can use Markdown formatting, usually{" "}
-          <strong>**two asterisks bold**</strong> or <em>*one asterisk for italic*</em>.
-        </DialogContentText>
-        <DialogContentText sx={{ mt: 2 }}>
-          Strings often must <em>interpolate</em> dynamic values. For example, a string
-          like <strong>There are &#123;&#123; value &#125;&#125; people here</strong> will
-          render on the frontend as <strong>There are 5 people here</strong>. Usually
-          programmers will include the necessary dynamic values in the strings they stub
-          out. Translators aren't expected to work with this feature.
-        </DialogContentText>
-        <DialogContentText sx={{ mt: 2 }}>
-          Strings can also refer to other strings. For example,{" "}
-          <strong>
-            Hello $(
-            {row.namespace}.${row.key})
-          </strong>{" "}
-          would render the string <strong>Hello {row.en}</strong>
-        </DialogContentText>
       </DialogContent>
       <DialogActions>
         <Button onClick={handleModalClose}>Cancel</Button>
@@ -320,3 +323,66 @@ const useStyles = makeStyles(() => ({
     display: "none !important",
   },
 }));
+
+function DocsModal({ toggle, selectedRow }) {
+  return (
+    <Dialog onClose={toggle.turnOff} open={toggle.isOn}>
+      <DialogTitle>Static Strings Help</DialogTitle>
+      <IconButton
+        onClick={toggle.turnOff}
+        sx={{
+          position: "absolute",
+          right: 8,
+          top: 8,
+          color: (theme) => theme.palette.grey[500],
+        }}
+      >
+        <CloseIcon />
+      </IconButton>
+      <DialogContent>
+        <DialogContentText>
+          Static strings are not tied to specific pieces of content, like program
+          descriptions. They are usually referred to directly in the UI (like form
+          labels), or their keys are referred to by dynamic content (like how offerings
+          have a field for their confirmation email template).
+        </DialogContentText>
+        <DialogContentText sx={{ mt: 2 }}>
+          <strong>Formatting:</strong> Strings can use Markdown formatting, usually{" "}
+          <strong>**two asterisks bold**</strong> or <em>*one asterisk for italic*</em>.
+        </DialogContentText>
+        <DialogContentText sx={{ mt: 2 }}>
+          <strong>Finding strings:</strong> You can view string keys in the app by adding{" "}
+          <strong style={{ whiteSpace: "nowrap" }}>"?debugstaticstrings=1"</strong> to any
+          URL in the web app.
+        </DialogContentText>
+        <DialogContentText sx={{ mt: 2 }}>
+          <strong>Interpolation:</strong> Strings often must <em>interpolate</em> dynamic
+          values. For example, a string like{" "}
+          <strong>"There are &#123;&#123; value &#125;&#125; people here"</strong> will
+          render on the frontend as <strong>"There are 5 people here"</strong>.
+          Programmers will include the necessary dynamic values in the strings they stub
+          out.
+        </DialogContentText>
+        <DialogContentText sx={{ mt: 2 }}>
+          <strong>References:</strong>{" "}
+          {selectedRow.key ? (
+            <>
+              Strings can also <em>refer</em> to other strings. For example,{" "}
+              <strong>
+                "Hello $(
+                {selectedRow.namespace || "strings"}.${selectedRow.key})"
+              </strong>{" "}
+              would render the string <strong>"Hello {selectedRow.en}"</strong>
+            </>
+          ) : (
+            <>
+              Strings can also <em>refer</em> to other strings. For example,{" "}
+              <strong>"Reach us at $(strings.common.suma_help_email)"</strong> would
+              render a link to our help email.
+            </>
+          )}
+        </DialogContentText>
+      </DialogContent>
+    </Dialog>
+  );
+}

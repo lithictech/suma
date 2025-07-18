@@ -200,6 +200,16 @@ Members can access programs through:
 
 **Messages** are all the messages the backend sends, including verification passcodes, order confirmations, etc.
 
+### Static Strings
+
+Static strings are not tied to specific pieces of content, like program
+descriptions. They are usually referred to directly in the UI (like form
+labels), or their keys are referred to by dynamic content (like how offerings
+have a field for their confirmation email template).
+
+Static string editing is a specialized task; if you aren't trained on it, you can still tweak what is there,
+but fully working with static strings is outside the scope of this glossary.
+
 ## Technical-only
 
 These are not editable in admin.
