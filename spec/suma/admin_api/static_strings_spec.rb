@@ -56,6 +56,8 @@ RSpec.describe Suma::AdminAPI::StaticStrings, :db do
 
   describe "POST /v1/static_strings/create" do
     it "creates a new static string" do
+      expect(Suma::I18n::StaticStringRebuilder).to receive(:notify_change)
+
       post "/v1/static_strings/create", namespace: "x", key: "y"
 
       expect(last_response).to have_status(200)
@@ -77,13 +79,15 @@ RSpec.describe Suma::AdminAPI::StaticStrings, :db do
 
   describe "POST /v1/static_strings/:id/update" do
     it "updates the given static strings (no existing text)" do
-      ss = Suma::Fixtures.static_string.create
+      expect(Suma::I18n::StaticStringRebuilder).to receive(:notify_change)
+
+      ss = Suma::Fixtures.static_string.create(modified_at: 3.hours.ago)
 
       post "/v1/static_strings/#{ss.id}/update", en: "hi"
 
       expect(last_response).to have_status(200)
-      expect(last_response).to have_json_body.
-        that_includes(en: "hi")
+      expect(last_response).to have_json_body.that_includes(en: "hi")
+      expect(ss.refresh).to have_attributes(modified_at: match_time(:now))
     end
 
     it "updates the given static strings (existing text)" do
@@ -119,23 +123,29 @@ RSpec.describe Suma::AdminAPI::StaticStrings, :db do
 
   describe "POST /v1/static_strings/:id/deprecate" do
     it "sets the string deprecated" do
-      ss = Suma::Fixtures.static_string.text.create
+      expect(Suma::I18n::StaticStringRebuilder).to receive(:notify_change)
+
+      ss = Suma::Fixtures.static_string.text.create(modified_at: 3.hours.ago)
 
       post "/v1/static_strings/#{ss.id}/deprecate"
 
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.that_includes(deprecated: true)
+      expect(ss.refresh).to have_attributes(modified_at: match_time(:now))
     end
   end
 
   describe "POST /v1/static_strings/undeprecate" do
     it "sets the string undeprecated" do
-      ss = Suma::Fixtures.static_string.text.create(deprecated: true)
+      expect(Suma::I18n::StaticStringRebuilder).to receive(:notify_change)
+
+      ss = Suma::Fixtures.static_string.text.create(deprecated: true, modified_at: 3.hours.ago)
 
       post "/v1/static_strings/#{ss.id}/undeprecate"
 
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.that_includes(deprecated: false)
+      expect(ss.refresh).to have_attributes(modified_at: match_time(:now))
     end
   end
 end

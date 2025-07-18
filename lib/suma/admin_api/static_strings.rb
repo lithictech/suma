@@ -27,6 +27,10 @@ class Suma::AdminAPI::StaticStrings < Suma::AdminAPI::V1
   end
 
   resource :static_strings do
+    helpers do
+      def notify_change = Suma::I18n::StaticStringRebuilder.notify_change
+    end
+
     get do
       check_role_access!(admin_member, :read, :localization)
       rows = Suma::I18n::StaticString.dataset.
@@ -51,6 +55,7 @@ class Suma::AdminAPI::StaticStrings < Suma::AdminAPI::V1
         s.modified_at = Time.now
       end
       created_resource_headers(row.id, "/static-strings-namespace/#{row.namespace}")
+      notify_change
       status 200
       present row, with: StandaloneStaticStringEntity
     end
@@ -78,25 +83,29 @@ class Suma::AdminAPI::StaticStrings < Suma::AdminAPI::V1
         end
         row.db.transaction do
           if row.text.nil?
-            row.update(text: Suma::TranslatedText.create(text))
+            row.update(text: Suma::TranslatedText.create(text), modified_at: Time.now)
           else
             row.text.update(text)
+            row.update(modified_at: Time.now)
           end
         end
+        notify_change
         status 200
         present row, with: StandaloneStaticStringEntity
       end
 
       post :deprecate do
         row = writeable_row
-        row.update(deprecated: true)
+        row.update(deprecated: true, modified_at: Time.now)
+        notify_change
         status 200
         present row, with: StandaloneStaticStringEntity
       end
 
       post :undeprecate do
         row = writeable_row
-        row.update(deprecated: false)
+        row.update(deprecated: false, modified_at: Time.now)
+        notify_change
         status 200
         present row, with: StandaloneStaticStringEntity
       end
