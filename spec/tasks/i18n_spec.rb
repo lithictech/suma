@@ -9,7 +9,7 @@ RSpec.describe Suma::Tasks::I18n, :db do
 
   describe "import" do
     it "imports seeds" do
-      Rake::Task["i18n:import"].invoke
+      invoke_rake_task("i18n:import")
       expect(Suma::I18n::StaticString.dataset).to_not be_empty
     end
   end
@@ -17,13 +17,13 @@ RSpec.describe Suma::Tasks::I18n, :db do
   describe "export" do
     it "exports seeds" do
       # Just run the code
-      expect { Rake::Task["i18n:export"].invoke }.to_not raise_error
+      expect { invoke_rake_task("i18n:export") }.to_not raise_error
     end
   end
 
   describe "replace" do
     it "replaces seeds" do
-      Rake::Task["i18n:replace"].invoke
+      invoke_rake_task("i18n:replace")
       expect(Suma::I18n::StaticString.dataset).to_not be_empty
     end
   end
