@@ -80,6 +80,8 @@ function StaticStringsTable({ strings }) {
       if (params.reason === GridCellEditStopReasons.cellFocusOut) {
         event.defaultMuiPrevented = true;
         return;
+      } else if (params.reason === GridCellEditStopReasons.escapeKeyDown) {
+        return;
       }
       handleApiCall(
         api.updateStaticString({
