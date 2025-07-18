@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require "suma/concurrency"
 require "suma/i18n"
 require "suma/postgres/model"
 
@@ -79,7 +80,11 @@ class Suma::I18n::StaticStringRebuilder
     resfiles.each do |(rf, locale)|
       result = rewriter.to_output(rf)
       contents = Yajl::Encoder.encode(result)
-      File.write(@dir + "#{locale}_#{rf.namespace}.json", contents)
+      # This may be happening live, while the current file is being served, so we need an atomic write
+      # which will allow existing open handles to finish on the old version.
+      Suma::Concurrency.atomic_write(@dir + "#{locale}_#{rf.namespace}.json") do |f|
+        f.write(contents)
+      end
     end
   end
 end
