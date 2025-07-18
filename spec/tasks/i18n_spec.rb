@@ -1,11 +1,10 @@
 # frozen_string_literal: true
 
+require "suma/spec_helpers/rake"
 require "suma/tasks/i18n"
 
 RSpec.describe Suma::Tasks::I18n, :db do
-  before(:all) do
-    described_class.new
-  end
+  include Suma::SpecHelpers::Rake
 
   describe "import" do
     it "imports seeds" do
