@@ -50,7 +50,7 @@ RSpec.describe Suma::I18n::StaticStringRebuilder, :db do
         # Must do this for each check, since the initial thread registration could miss the notify
         described_class.notify_change
         path
-      end.to eventually(be_exist)
+      end.to eventually(be_exist).within(5)
     ensure
       Suma::Signals.handle_term
       r.join_watcher
