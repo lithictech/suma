@@ -4,6 +4,7 @@ import invokeIfFunc from "../modules/invokeIfFunc";
 import { resourceEditRoute, resourceListRoute } from "../modules/resourceRoutes";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
 import useToggle from "../shared/react/useToggle";
+import BackToList from "./BackToList";
 import DetailGrid from "./DetailGrid";
 import Link from "./Link";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -74,6 +75,7 @@ export default function ResourceDetail({
             resourceEditRoute(resource, state)
           }
         >
+          <BackToList to={resourceListRoute(resource)} />
           {title(state)}
         </Title>
       }

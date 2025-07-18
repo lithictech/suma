@@ -111,6 +111,13 @@ export default function OfferingForm({
           />
         </ResponsiveStack>
         <Divider />
+        <TextField
+          name="confirmationTemplate"
+          value={resource.confirmationTemplate || ""}
+          label="Confirmation template"
+          helperText="They key of the static string in the 'messages' namespace that is sent after the order is placed. If empty, do not send a message."
+          onChange={setFieldFromInput}
+        />
         <FormLabel>Fulfillment Prompt ("how do you want to get your stuff?")</FormLabel>
         <ResponsiveStack>
           <MultiLingualText

@@ -36,14 +36,20 @@ export default function DetailGrid({ title, properties }) {
         )}
         <Table size="small">
           <TableBody>
-            {usedProperties.map(({ label, value, children }, index) => (
+            {usedProperties.map(({ label, value, tableCells, children }, index) => (
               <TableRow key={index}>
-                <TableCell sx={{ padding: 0.25, paddingRight: 1, border: "none" }}>
-                  <Label>{label}</Label>
-                </TableCell>
-                <TableCell sx={{ padding: 0.25, border: "none" }}>
-                  <Value value={value}>{children}</Value>
-                </TableCell>
+                {tableCells ? (
+                  tableCells({ sx: { padding: 0.25, border: "none" } })
+                ) : (
+                  <>
+                    <TableCell sx={{ padding: 0.25, paddingRight: 1, border: "none" }}>
+                      <Label>{label}</Label>
+                    </TableCell>
+                    <TableCell sx={{ padding: 0.25, border: "none" }}>
+                      <Value value={value}>{children}</Value>
+                    </TableCell>
+                  </>
+                )}
               </TableRow>
             ))}
           </TableBody>

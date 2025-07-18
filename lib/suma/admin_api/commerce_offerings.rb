@@ -20,6 +20,7 @@ class Suma::AdminAPI::CommerceOfferings < Suma::AdminAPI::V1
     include Suma::AdminAPI::Entities
     include AutoExposeDetail
     expose :audit_activities, with: ActivityEntity
+    expose :confirmation_template
     expose :description, with: TranslatedTextEntity
     expose :fulfillment_prompt, with: TranslatedTextEntity
     expose :fulfillment_instructions, with: TranslatedTextEntity
@@ -101,6 +102,7 @@ class Suma::AdminAPI::CommerceOfferings < Suma::AdminAPI::V1
         requires :period_begin, type: Time
         requires :period_end, type: Time
         optional :begin_fulfillment_at, type: Time
+        optional :confirmation_template, type: String
         optional :max_ordered_items_cumulative, type: Integer
         optional :max_ordered_items_per_member, type: Integer
       end
@@ -136,6 +138,7 @@ class Suma::AdminAPI::CommerceOfferings < Suma::AdminAPI::V1
         optional :period_begin, type: Time
         optional :period_end, type: Time
         optional :begin_fulfillment_at, type: Time
+        optional :confirmation_template, type: String
         optional :max_ordered_items_cumulative, type: Integer
         optional :max_ordered_items_per_member, type: Integer
       end
