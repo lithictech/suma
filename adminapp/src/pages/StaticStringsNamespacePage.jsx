@@ -27,7 +27,6 @@ import {
 import IconButton from "@mui/material/IconButton";
 import { makeStyles } from "@mui/styles";
 import { DataGrid, GridActionsCellItem, GridCellEditStopReasons } from "@mui/x-data-grid";
-import { now } from "lodash/date";
 import startCase from "lodash/startCase";
 import React from "react";
 import { useParams } from "react-router-dom";
@@ -60,9 +59,7 @@ export default function StaticStringsNamespacePage() {
         .then((r) =>
           setUpdatedStringsById({ ...updatedStringsById, [r.data.id]: r.data })
         )
-        .tapCatch((e) =>
-          enqueueErrorSnackbar(`${row.key}: ${extractErrorMessage(e)}`, null)
-        ),
+        .tapCatch((e) => enqueueErrorSnackbar(`${row.key}: ${extractErrorMessage(e)}`)),
     [enqueueErrorSnackbar, updatedStringsById]
   );
 
