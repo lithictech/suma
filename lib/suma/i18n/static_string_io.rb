@@ -45,9 +45,10 @@ module Suma::I18n::StaticStringIO
     end
 
     # Export current static strings to seed files.
-    def export_seeds
+    # Use compact formatting mostly when testing.
+    def export_seeds(compact: false)
       data = Suma::I18n::AutoHash.new
-      Suma::I18n::StaticString.dataset.where(deprecated: false).each do |ss|
+      Suma::I18n::StaticString.dataset.where(deprecated: false).order(:namespace, :key).each do |ss|
         Suma::I18n.enabled_locale_codes.each do |lc|
           data[ss.namespace][lc][ss.key] = ss.text&.send(lc) || ""
         end
@@ -56,7 +57,8 @@ module Suma::I18n::StaticStringIO
       data.each do |namespace, ns_strings|
         ns_strings.each do |locale_code, translated|
           path = SEEDS_DIR + locale_code + (namespace + ".json")
-          File.write(path, JSON.pretty_generate(translated))
+          j = compact ? JSON.generate(translated) : JSON.pretty_generate(translated)
+          File.write(path, j)
         end
       end
     end

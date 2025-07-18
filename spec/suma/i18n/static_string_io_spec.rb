@@ -75,5 +75,20 @@ RSpec.describe Suma::I18n::StaticStringIO, :db do
 
       expect { described_class.export_seeds }.to_not raise_error
     end
+
+    it "uses a consistent ordering in output to avoid diffs" do
+      stub_const("Suma::I18n::StaticStringIO::SEEDS_DIR", temp_dir_path)
+
+      Suma::Fixtures.static_string.create(key: "a", namespace: "n1")
+      Suma::Fixtures.static_string.create(key: "c", namespace: "n1")
+      Suma::Fixtures.static_string.create(key: "b", namespace: "n2")
+      Suma::Fixtures.static_string.create(key: "b", namespace: "n1")
+      Suma::Fixtures.static_string.create(key: "a", namespace: "n2")
+
+      described_class.export_seeds(compact: true)
+
+      expect(File.read(temp_dir_path + "en/n1.json")).to eq('{"a":"","b":"","c":""}')
+      expect(File.read(temp_dir_path + "en/n2.json")).to eq('{"a":"","b":""}')
+    end
   end
 end
