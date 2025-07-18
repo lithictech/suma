@@ -14,13 +14,14 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
       ENV["SUMA_DB_SLOW_QUERY_SECONDS"] = "1"
       Suma.load_app?
       raise "only run with a fresh database" unless Suma::Member.dataset.empty?
-      SequelTranslatedText.language = :en
-      Suma::Member.db.transaction do
-        Meta.new.fixture
-        Mobility.new.fixture
-        AnonProxy.new.fixture
-        Commerce.new.fixture
-        Programs.new.fixture
+      SequelTranslatedText.language(:en) do
+        Suma::Member.db.transaction do
+          Meta.new.fixture
+          Mobility.new.fixture
+          AnonProxy.new.fixture
+          Commerce.new.fixture
+          Programs.new.fixture
+        end
       end
     end
   end

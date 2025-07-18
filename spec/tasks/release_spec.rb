@@ -1,13 +1,10 @@
 # frozen_string_literal: true
 
+require "suma/spec_helpers/rake"
 require "suma/tasks/release"
 
 RSpec.describe Suma::Tasks::Release, :db do
-  before(:all) do
-    Suma::Tasks::DB.new
-    Suma::Tasks::Sidekiq.new
-    described_class.new
-  end
+  include Suma::SpecHelpers::Rake
 
   describe "release" do
     it "migrates the database, marks the Sidekiq deployment, imports static strings" do
