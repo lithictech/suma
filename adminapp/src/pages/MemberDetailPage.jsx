@@ -31,16 +31,14 @@ import {
   DialogActions,
 } from "@mui/material";
 import IconButton from "@mui/material/IconButton";
+import TableCell from "@mui/material/TableCell";
 import { makeStyles } from "@mui/styles";
 import isEmpty from "lodash/isEmpty";
 import React from "react";
 import { formatPhoneNumber, formatPhoneNumberIntl } from "react-phone-number-input";
-import { useParams } from "react-router-dom";
 
 export default function MemberDetailPage() {
   const { enqueueErrorSnackbar } = useErrorSnackbar();
-  let { id } = useParams();
-  id = Number(id);
   const handleUpdateMember = (member, replaceState) => {
     return api
       .updateMember(member)
@@ -49,14 +47,18 @@ export default function MemberDetailPage() {
   };
   return (
     <>
-      <Typography variant="h5" gutterBottom>
-        Member Details <ImpersonateButton id={id} />
-      </Typography>
       <ResourceDetail
         resource="member"
         apiGet={api.getMember}
         canEdit
         properties={(model, replaceState) => [
+          {
+            tableCells: (props) => (
+              <TableCell colSpan={2} {...props}>
+                <ImpersonateButton id={model.id} sx={{ mb: 1 }} />
+              </TableCell>
+            ),
+          },
           { label: "ID", value: model.id },
           { label: "Name", value: model.name },
           { label: "Email", value: model.email },
@@ -420,7 +422,7 @@ function MemberContacts({ memberContacts }) {
   );
 }
 
-function ImpersonateButton({ id }) {
+function ImpersonateButton({ id, ...rest }) {
   const { enqueueErrorSnackbar } = useErrorSnackbar();
   const { user, setUser } = useUser();
   const { canWrite } = useRoleAccess();
@@ -451,6 +453,7 @@ function ImpersonateButton({ id }) {
         variant="contained"
         color="warning"
         size="small"
+        {...rest}
       >
         Unimpersonate {user.impersonating.name || user.impersonating.phone}
       </Button>
@@ -466,6 +469,7 @@ function ImpersonateButton({ id }) {
       variant="outlined"
       color="warning"
       size="small"
+      {...rest}
     >
       Impersonate
     </Button>

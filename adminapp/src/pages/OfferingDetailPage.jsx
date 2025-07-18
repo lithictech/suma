@@ -31,6 +31,7 @@ export default function OfferingDetailPage() {
         { label: "Description (Es)", value: model.description.es },
         { label: "Opening Date", value: dayjs(model.periodBegin) },
         { label: "Closing Date", value: dayjs(model.periodEnd) },
+        { label: "Confirmation Message", value: model.confirmationTemplate },
         {
           label: "Begin Fulfillment At",
           value: model.beginFulfillmentAt && dayjs(model.beginFulfillmentAt),
