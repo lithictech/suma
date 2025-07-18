@@ -22,12 +22,20 @@ require "suma/async/autoscaler"
 Suma::Async::Autoscaler.start
 
 if workers_count.positive?
+  before_fork do
+    Suma::Postgres.model_superclasses.map(&:db).each(&:disconnect)
+    Suma::UploadedFile.blob_database.disconnect
+    Suma::Webhookdb.connection.disconnect
+  end
+
   on_worker_boot do |idx|
     ENV["PUMA_WORKER"] = idx.to_s
     SemanticLogger.reopen if defined?(SemanticLogger)
-    Suma::Postgres.model_superclasses.each do |modelclass|
-      modelclass.db&.disconnect
-    end
-    Suma::UploadedFile.blob_database.disconnect
+    # We have to recreate the DB for some reason or we get segfaults in cluster mode.
+    # I'm not sure why. Probably some adapter state that is left over.
+    # See https://github.com/jeremyevans/sequel/discussions/2318
+    Suma::Postgres.model_superclasses.select do |c|
+      c.respond_to?(:run_after_configured_hooks)
+    end.each(&:run_after_configured_hooks)
   end
 end

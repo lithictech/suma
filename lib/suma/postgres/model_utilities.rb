@@ -26,14 +26,6 @@ module Suma::Postgres::ModelUtilities
   module ClassMethods
     def anonymous? = self.name.blank? || self.name.start_with?("Sequel::_Model")
 
-    # Set up some things on new database connections.
-    def db=(newdb)
-      super
-      self.descendents.each do |subclass|
-        subclass.db = newdb
-      end
-    end
-
     # The application name, set on database connections.
     attr_reader :appname
 
