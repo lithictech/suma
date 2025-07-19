@@ -49,7 +49,7 @@ export default function OrderHistoryList() {
       {user.unclaimedOrdersCount > 0 && (
         <SeeAlsoAlert
           variant="success"
-          label={t("dashboard:claim_orders")}
+          label={t("dashboard.claim_orders")}
           iconClass="bi-bag-check-fill"
           show
           to="/unclaimed-orders"
@@ -57,7 +57,7 @@ export default function OrderHistoryList() {
       )}
       <LayoutContainer top={user.unclaimedOrdersCount === 0} gutters>
         <LinearBreadcrumbs back="/food" />
-        <h2>{t("food:order_history_title")}</h2>
+        <h2>{t("food.order_history_title")}</h2>
       </LayoutContainer>
       <LayoutContainer gutters>
         {loading ? (
@@ -70,10 +70,10 @@ export default function OrderHistoryList() {
           </Stack>
         ) : (
           <>
-            {t("food:no_orders")}
+            {t("food.no_orders")}
             <div className="button-stack mt-2">
               <Button variant="primary" href="/food" as={RLink}>
-                {t("food:available_offerings")}
+                {t("food.available_offerings")}
               </Button>
             </div>
           </>
@@ -111,20 +111,20 @@ function Order({
               className="h5"
               onClick={onNavigate}
             >
-              {t("food:order_serial", { serial: serial })}
+              {t("food.order_serial", { serial: serial })}
             </Card.Link>
             <Card.Text className="text-secondary mt-1">
               {fulfilledAt
-                ? t("food:claimed_on", {
+                ? t("food.claimed_on", {
                     fulfilledAt: dayjs(fulfilledAt).format("lll"),
                   })
                 : availableForPickupAt
-                ? t("food:order_available_for_pickup", {
+                ? t("food.order_available_for_pickup", {
                     date: dayjs(availableForPickupAt).format("ll"),
                   })
-                : t("food:order_date", { date: dayjs(createdAt).format("ll") })}
+                : t("food.order_date", { date: dayjs(createdAt).format("ll") })}
               <br />
-              {t("food:total", { total: total })}
+              {t("food.total", { total: total })}
             </Card.Text>
           </div>
         </Stack>

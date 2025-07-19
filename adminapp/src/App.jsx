@@ -81,6 +81,9 @@ import RoleDetailPage from "./pages/RoleDetailPage";
 import RoleEditPage from "./pages/RoleEditPage";
 import RoleListPage from "./pages/RoleListPage";
 import SignInPage from "./pages/SignInPage";
+import StaticStringCreatePage from "./pages/StaticStringCreatePage";
+import StaticStringsNamespacePage from "./pages/StaticStringsNamespacePage";
+import StaticStringsPage from "./pages/StaticStringsPage";
 import VendorAccountDetailPage from "./pages/VendorAccountDetailPage";
 import VendorAccountListPage from "./pages/VendorAccountListPage";
 import VendorConfigurationDetailPage from "./pages/VendorConfigurationDetailPage";
@@ -781,6 +784,25 @@ function PageSwitch() {
           redirectIfUnauthed,
           withLayout(),
           MarketingSmsDispatchDetailPage
+        )}
+      />
+      <Route
+        exact
+        path="/static-strings"
+        element={renderWithHocs(redirectIfUnauthed, withLayout(), StaticStringsPage)}
+      />
+      <Route
+        exact
+        path="/static-string/new"
+        element={renderWithHocs(redirectIfUnauthed, withLayout(), StaticStringCreatePage)}
+      />
+      <Route
+        exact
+        path="/static-strings-namespace/:namespace"
+        element={renderWithHocs(
+          redirectIfUnauthed,
+          withLayout(),
+          StaticStringsNamespacePage
         )}
       />
       <Route

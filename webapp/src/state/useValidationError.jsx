@@ -5,7 +5,7 @@ import { t } from "../localization";
  * @param name Name of the input.
  * @param errors Errors from react-hook-form.
  * @param validations Object like {required: true, minLength: 3}.
- * @param additionalErrorKeys Object like {min: "forms:invalid_min_amount"}.
+ * @param additionalErrorKeys Object like {min: "forms.invalid_min_amount"}.
  * @returns {null|string}
  */
 export default function useValidationError(
@@ -19,7 +19,7 @@ export default function useValidationError(
     return null;
   }
   const allErrKeys = { ...errorKeys, ...additionalErrorKeys };
-  const errKey = allErrKeys[err.type] || "forms:invalid_field";
+  const errKey = allErrKeys[err.type] || "forms.invalid_field";
   const message = t(errKey, {
     constraint: validations[err.type],
     value: err.ref.value,
@@ -28,8 +28,8 @@ export default function useValidationError(
 }
 
 const errorKeys = {
-  required: "forms:invalid_required",
-  minLength: "forms:invalid_min_length",
-  maxLength: "forms:invalid_max_length",
-  min: "forms:invalid_min",
+  required: "forms.invalid_required",
+  minLength: "forms.invalid_min_length",
+  maxLength: "forms.invalid_max_length",
+  min: "forms.invalid_min",
 };

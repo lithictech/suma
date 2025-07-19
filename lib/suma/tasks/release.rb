@@ -4,6 +4,7 @@ require "rake/tasklib"
 
 require "suma/tasks"
 require "suma/tasks/db"
+require "suma/tasks/i18n"
 require "suma/tasks/sidekiq"
 
 class Suma::Tasks::Release < Rake::TaskLib
@@ -14,6 +15,7 @@ class Suma::Tasks::Release < Rake::TaskLib
     desc "Run the release script against the current environment."
     task :release do
       Rake::Task["db:migrate"].invoke
+      Rake::Task["i18n:import"].invoke
       Rake::Task["sidekiq:release"].invoke
     end
 

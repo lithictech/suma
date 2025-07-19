@@ -68,6 +68,7 @@ module Suma::Postgres
     "suma/commerce/product",
     "suma/commerce/product_inventory",
     "suma/external_credential",
+    "suma/i18n/static_string",
     "suma/image",
     "suma/marketing/list",
     "suma/marketing/sms_broadcast",

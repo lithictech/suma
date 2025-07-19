@@ -21,7 +21,7 @@ export default function ContactListHome() {
       />
       <h1 className="mb-4">{t("common.welcome_to_suma")}</h1>
       <div className="button-stack">
-        <h5>{t("contact_list:choose_language")}</h5>
+        <h5>{t("contact_list.choose_language")}</h5>
         <LanguageButtons eventName={params.get("eventName")} />
       </div>
       <ContactListTags />

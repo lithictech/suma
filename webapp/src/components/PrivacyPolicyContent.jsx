@@ -42,7 +42,7 @@ export default function PrivacyPolicyContent({ mobile }) {
   const topNavHeight = topNav?.clientHeight - 1 || 0;
 
   useMountEffect(() => {
-    loadLanguageFile("privacy-policy-strings").then(() => setI18nLoading(false));
+    loadLanguageFile("privacy_policy").then(() => setI18nLoading(false));
   });
 
   if (i18nLoading) {
@@ -57,7 +57,7 @@ export default function PrivacyPolicyContent({ mobile }) {
         )}
       >
         <Helmet>
-          <title>{`${t("sections:title")} | ${loct("titles:suma_app")}`}</title>
+          <title>{`${t("sections.title")} | ${loct("titles.suma_app")}`}</title>
         </Helmet>
         {!mobile && (
           <Col className="table-of-contents-desktop d-none d-xl-block border-secondary border-end order-end">
@@ -78,21 +78,21 @@ export default function PrivacyPolicyContent({ mobile }) {
             <TranslationToggle classes="d-flex justify-content-end" />
             <Row>
               <Col xs={12} className={clsx(!mobile && "col-md-8")}>
-                <h1 className="display-4">{t("overview:title")}</h1>
-                <p className="fw-light">{t("overview:intro")}</p>
+                <h1 className="display-4">{t("overview.title")}</h1>
+                <p className="fw-light">{t("overview.intro")}</p>
                 <p className="pt-2">
                   <a href="#privacy_policy_title">
-                    <i>{t("overview:jump_to_privacy_policy")}</i>
+                    <i>{t("overview.jump_to_privacy_policy")}</i>
                   </a>
                 </p>
               </Col>
               <Col xs={12} className={clsx("pt-3", !mobile && "col-md-4")}>
                 <Stack gap={3}>
                   <TabLink
-                    label={t("overview:faq")}
+                    label={t("overview.faq")}
                     to={`https://mysuma.org/faq-${language}`}
                   />
-                  <TabLink label={t("overview:contact_us")} to="mailto:info@mysuma.org" />
+                  <TabLink label={t("overview.contact_us")} to="mailto:info@mysuma.org" />
                 </Stack>
               </Col>
             </Row>
@@ -107,23 +107,23 @@ export default function PrivacyPolicyContent({ mobile }) {
                   xs={12}
                   className={clsx(!mobile && "col-lg-4 col-xl-5 align-self-lg-center")}
                 >
-                  <h1 className="display-5">{t("overview:community_driven_title")}</h1>
+                  <h1 className="display-5">{t("overview.community_driven_title")}</h1>
                 </Col>
                 <Col xs={12} className={clsx(!mobile && "col-lg-8 col-xl-7")}>
-                  {t("overview:community_driven_intro")}
+                  {t("overview.community_driven_intro")}
                 </Col>
               </Row>
             </Container>
             <Row>
               <PedalCol
                 mobile={mobile}
-                sectionKey="overview:transparency"
+                sectionKey="overview.transparency"
                 img={transparencyIcon}
                 imgAlt=""
               />
               <PedalCol
                 mobile={mobile}
-                sectionKey="overview:consent"
+                sectionKey="overview.consent"
                 img={consentIcon}
                 imgAlt=""
                 right={true}
@@ -132,13 +132,13 @@ export default function PrivacyPolicyContent({ mobile }) {
             <Row className="mt-2">
               <PedalCol
                 mobile={mobile}
-                sectionKey="overview:education"
+                sectionKey="overview.education"
                 img={educationIcon}
                 imgAlt=""
               />
               <PedalCol
                 mobile={mobile}
-                sectionKey="overview:trust"
+                sectionKey="overview.trust"
                 img={trustIcon}
                 imgAlt=""
                 right={true}
@@ -148,158 +148,158 @@ export default function PrivacyPolicyContent({ mobile }) {
           <hr className="my-5" />
           <Container>
             <h1 id="privacy_policy_title" className="text-center display-4">
-              {t("sections:title")}
+              {t("sections.title")}
             </h1>
             <p className="text-center text-secondary mb-5">
-              {t("sections:effective") + " " + t("sections:date")}
+              {t("sections.effective") + " " + t("sections.date")}
             </p>
             <PrivacyPolicySection
               mobile={mobile}
-              sectionKey="sections:information_collected"
+              sectionKey="sections.information_collected"
               list={[
-                t("sections:information_collected:list:registration"),
-                t("sections:information_collected:list:vendors"),
-                t("sections:information_collected:list:subsidy"),
+                t("sections.information_collected.list.registration"),
+                t("sections.information_collected.list.vendors"),
+                t("sections.information_collected.list.subsidy"),
               ]}
             />
             <PrivacyPolicySection
               mobile={mobile}
-              sectionKey="sections:methods_of_collection"
+              sectionKey="sections.methods_of_collection"
               img={methodsOfCollection}
               imgAlt=""
               list={[
-                t("sections:methods_of_collection:list:registration_page"),
-                t("sections:methods_of_collection:list:cookies"),
-                t("sections:methods_of_collection:list:community_partners"),
+                t("sections.methods_of_collection.list.registration_page"),
+                t("sections.methods_of_collection.list.cookies"),
+                t("sections.methods_of_collection.list.community_partners"),
               ]}
             />
             <PrivacyPolicySection
               mobile={mobile}
-              sectionKey="sections:methods_of_information_usage"
+              sectionKey="sections.methods_of_information_usage"
               img={methodsOfInformationUsage}
               imgAlt=""
             >
-              <PrivacyPolicySection mobile={mobile} sectionKey="subsections:services" />
+              <PrivacyPolicySection mobile={mobile} sectionKey="subsections.services" />
               <PrivacyPolicySection
                 mobile={mobile}
-                sectionKey="subsections:support_subsidy"
+                sectionKey="subsections.support_subsidy"
               />
               <PrivacyPolicySection
                 mobile={mobile}
-                sectionKey="subsections:communicate_with_you"
+                sectionKey="subsections.communicate_with_you"
                 p={
                   <>
-                    {t("subsections:communicate_with_you:paragraph") + " "}
-                    <a href={makeSectionHashtag("sections:communications")}>
-                      {t("subsections:communicate_with_you:see_communications")}
+                    {t("subsections.communicate_with_you.paragraph") + " "}
+                    <a href={makeSectionHashtag("sections.communications")}>
+                      {t("subsections.communicate_with_you.see_communications")}
                     </a>
                   </>
                 }
               />
               <PrivacyPolicySection
                 mobile={mobile}
-                sectionKey="subsections:security_and_fraud_prevention"
+                sectionKey="subsections.security_and_fraud_prevention"
               />
               <PrivacyPolicySection
                 mobile={mobile}
-                sectionKey="subsections:comply_with_law"
+                sectionKey="subsections.comply_with_law"
               />
             </PrivacyPolicySection>
             <PrivacyPolicySection
               mobile={mobile}
-              sectionKey="sections:cookies_policy"
+              sectionKey="sections.cookies_policy"
               img={cookiesPolicy}
               imgAlt=""
             >
-              <p>{t("sections:cookies_policy:conclusion")}</p>
+              <p>{t("sections.cookies_policy.conclusion")}</p>
             </PrivacyPolicySection>
             <PrivacyPolicySection
               mobile={mobile}
-              sectionKey="sections:third_party_access"
+              sectionKey="sections.third_party_access"
               img={thirdPartyAcceess}
               imgAlt=""
               list={[
-                t("sections:third_party_access:list:service_providers"),
-                t("sections:third_party_access:list:with_your_consent"),
+                t("sections.third_party_access.list.service_providers"),
+                t("sections.third_party_access.list.with_your_consent"),
                 <>
-                  {t("sections:third_party_access:list:personal_information") + " "}
-                  <a href={makeSectionHashtag("sections:methods_of_information_usage")}>
-                    {t("sections:methods_of_information_usage:title")}
+                  {t("sections.third_party_access.list.personal_information") + " "}
+                  <a href={makeSectionHashtag("sections.methods_of_information_usage")}>
+                    {t("sections.methods_of_information_usage.title")}
                   </a>
                 </>,
               ]}
             />
             <PrivacyPolicySection
               mobile={mobile}
-              sectionKey="sections:information_retention_and_removal"
+              sectionKey="sections.information_retention_and_removal"
             >
               <PrivacyPolicySection
                 mobile={mobile}
-                sectionKey="subsections:information_retention"
+                sectionKey="subsections.information_retention"
                 img={informationRetention}
                 imgAlt=""
                 list={[
-                  t("subsections:information_retention:list:qualifications"),
-                  t("subsections:information_retention:list:maintain_performance"),
-                  t("subsections:information_retention:list:subsidy"),
+                  t("subsections.information_retention.list.qualifications"),
+                  t("subsections.information_retention.list.maintain_performance"),
+                  t("subsections.information_retention.list.subsidy"),
                   t(
-                    "subsections:information_retention:list:information_driven_business_decisions"
+                    "subsections.information_retention.list.information_driven_business_decisions"
                   ),
-                  t("subsections:information_retention:list:legal_obligations"),
-                  t("subsections:information_retention:list:resolving_disputes"),
+                  t("subsections.information_retention.list.legal_obligations"),
+                  t("subsections.information_retention.list.resolving_disputes"),
                 ]}
               />
               <PrivacyPolicySection
                 mobile={mobile}
-                sectionKey="subsections:information_removal"
+                sectionKey="subsections.information_removal"
                 img={informationRemoval}
                 imgAlt=""
                 list={[
-                  t("subsections:information_removal:list:deleting_your_account"),
-                  t("subsections:information_removal:list:deleting_certain_data"),
+                  t("subsections.information_removal.list.deleting_your_account"),
+                  t("subsections.information_removal.list.deleting_certain_data"),
                 ]}
               />
             </PrivacyPolicySection>
             <PrivacyPolicySection
               mobile={mobile}
-              sectionKey="sections:business_transfer"
+              sectionKey="sections.business_transfer"
               img={businessTransfer}
               imgAlt=""
               list={[
-                t("sections:business_transfer:list:email"),
-                t("sections:business_transfer:list:opt_out"),
+                t("sections.business_transfer.list.email"),
+                t("sections.business_transfer.list.opt_out"),
               ]}
             />
             <PrivacyPolicySection
               mobile={mobile}
-              sectionKey="sections:children_under_13"
+              sectionKey="sections.children_under_13"
               img={childrenUnder13}
               imgAlt=""
             />
             <PrivacyPolicySection
               mobile={mobile}
-              sectionKey="sections:communications"
+              sectionKey="sections.communications"
               img={communication}
               imgAlt=""
               list={[
-                t("sections:communications:list:platform_communications"),
-                t("sections:communications:list:service_messages"),
-                t("sections:communications:list:valid_communication_methods"),
+                t("sections.communications.list.platform_communications"),
+                t("sections.communications.list.service_messages"),
+                t("sections.communications.list.valid_communication_methods"),
               ]}
             />
             <PrivacyPolicySection
               mobile={mobile}
-              sectionKey="sections:future_changes_to_policy"
-              p={t("sections:future_changes_to_policy:paragraph")}
+              sectionKey="sections.future_changes_to_policy"
+              p={t("sections.future_changes_to_policy.paragraph")}
               img={policyChanges}
               imgAlt=""
             >
-              <p>{t("sections:future_changes_to_policy:conclusion")}</p>
+              <p>{t("sections.future_changes_to_policy.conclusion")}</p>
             </PrivacyPolicySection>
             <PrivacyPolicySection
               mobile={mobile}
-              sectionKey="sections:contact_information"
-              p={t("sections:contact_information:paragraph")}
+              sectionKey="sections.contact_information"
+              p={t("sections.contact_information.paragraph")}
             />
           </Container>
         </LayoutContainer>
@@ -359,7 +359,7 @@ const TableOfContentsNav = ({ mobile }) => {
             {navLinkSectionKeys.map((key, idx) => (
               <React.Fragment key={key}>
                 <Nav.Link href={makeSectionHashtag(key)} className="py-1">
-                  {t(key + ":title")}
+                  {t(key + ".title")}
                 </Nav.Link>
                 {idx === 0 && <hr className="my-2" />}
               </React.Fragment>
@@ -380,7 +380,7 @@ const TabLink = ({ to, label }) => {
 };
 
 const PedalCol = ({ sectionKey, img, imgAlt, right, mobile }) => {
-  const title = t(sectionKey + ":title");
+  const title = t(sectionKey + ".title");
   return (
     <Col xs={12} className={clsx("mb-4", !mobile && "mb-lg-0 px-sm-5 px-lg-2 col-lg-6")}>
       <Stack
@@ -401,7 +401,7 @@ const PedalCol = ({ sectionKey, img, imgAlt, right, mobile }) => {
           )}
         >
           <h5>{title}</h5>
-          <p className="fw-light">{t(sectionKey + ":statement")}</p>
+          <p className="fw-light">{t(sectionKey + ".statement")}</p>
         </div>
       </Stack>
     </Col>
@@ -411,8 +411,8 @@ const PedalCol = ({ sectionKey, img, imgAlt, right, mobile }) => {
 const PrivacyPolicySection = ({ p, img, imgAlt, list, sectionKey, children, mobile }) => {
   const subsection = sectionKey.startsWith("sub");
   const id = subsection ? undefined : makeSectionId(sectionKey);
-  const title = t(sectionKey + ":title");
-  p = p || t(sectionKey + ":paragraph");
+  const title = t(sectionKey + ".title");
+  p = p || t(sectionKey + ".paragraph");
   return (
     <div
       id={id}
@@ -452,23 +452,23 @@ function makeSectionHashtag(key) {
   return "#" + makeSectionId(key);
 }
 function makeSectionId(key) {
-  return key.replace(":", "_");
+  return key.replace(".", "_");
 }
 
 const navLinkSectionKeys = [
   "overview",
-  "sections:information_collected",
-  "sections:methods_of_collection",
-  "sections:methods_of_information_usage",
-  "sections:cookies_policy",
-  "sections:third_party_access",
-  "sections:information_retention_and_removal",
-  "sections:business_transfer",
-  "sections:children_under_13",
-  "sections:communications",
-  "sections:future_changes_to_policy",
-  "sections:contact_information",
+  "sections.information_collected",
+  "sections.methods_of_collection",
+  "sections.methods_of_information_usage",
+  "sections.cookies_policy",
+  "sections.third_party_access",
+  "sections.information_retention_and_removal",
+  "sections.business_transfer",
+  "sections.children_under_13",
+  "sections.communications",
+  "sections.future_changes_to_policy",
+  "sections.contact_information",
 ];
 
-const lu = new Lookup("privacy-policy-strings");
+const lu = new Lookup("privacy_policy");
 const t = lu.t;

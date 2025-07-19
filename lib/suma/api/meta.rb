@@ -60,5 +60,17 @@ class Suma::API::Meta < Suma::API::V1
       orgs = ds.select(:name).all.map { |o| {name: o.name} }
       present_collection orgs
     end
+
+    resource :static_strings do
+      route_param :locale do
+        route_param :namespace do
+          get do
+            f = Suma::I18n::StaticStringRebuilder.instance.
+              path_for(namespace: params[:namespace], locale: params[:locale])
+            sendfile f.to_s
+          end
+        end
+      end
+    end
   end
 end

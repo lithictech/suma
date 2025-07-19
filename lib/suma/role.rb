@@ -35,6 +35,9 @@ class Suma::Role < Suma::Postgres::Model(:roles)
     # Used only for testing. Has access to admin but not resources.
     def noop_admin = get("admin_noop")
 
+    # Can modify static localization strings.
+    def translator = get("translator")
+
     def get(name)
       name = name.to_s if name.is_a?(Symbol)
       return Suma.cached_get("role_#{name}") do

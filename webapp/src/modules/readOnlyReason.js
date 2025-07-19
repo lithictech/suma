@@ -34,5 +34,5 @@ export default function readOnlyReason(user, oneOf, unlocalized) {
   if (unlocalized) {
     return r;
   }
-  return t(`errors:${user.readOnlyReason}`);
+  return t(`errors.${user.readOnlyReason}`);
 }

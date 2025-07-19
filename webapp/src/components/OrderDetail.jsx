@@ -26,7 +26,7 @@ export default function OrderDetail({ order, setOrder, gutters }) {
       <LayoutContainer gutters={gutters}>
         <Stack gap={3}>
           <div>
-            <h3 className="mb-1">{t("food:order_serial", { serial: order.serial })}</h3>
+            <h3 className="mb-1">{t("food.order_serial", { serial: order.serial })}</h3>
             {dayjs(order.createdAt).format("lll")}
           </div>
           <PressAndHoldToClaim
@@ -36,16 +36,16 @@ export default function OrderDetail({ order, setOrder, gutters }) {
             onOrderClaim={(o) => setOrder(o)}
           />
           <p className="mb-0">
-            {t("food:labels:price", { price: order.customerCost })}
+            {t("food.labels.price", { price: order.customerCost })}
             {order.customerCost.cents !== order.undiscountedCost.cents && (
               <Money as="del" className="text-secondary ms-2">
                 {order.undiscountedCost}
               </Money>
             )}
             <br />
-            {t("food:labels:fees_and_taxes", { fees: order.handling, taxes: order.tax })}
+            {t("food.labels.fees_and_taxes", { fees: order.handling, taxes: order.tax })}
             <br />
-            {t("food:labels:total", { total: order.total })}
+            {t("food.labels.total", { total: order.total })}
             {order.fundingTransactions.map(({ label, amount }) => (
               <React.Fragment key={label}>
                 <br />
@@ -59,7 +59,7 @@ export default function OrderDetail({ order, setOrder, gutters }) {
             <Alert variant="info" className="mb-0">
               <ScrollTopOnMount />
               <Stack direction="horizontal" gap={3}>
-                {t("food:order_for_claimed_on", {
+                {t("food.order_for_claimed_on", {
                   offeringDescription: order.offeringDescription,
                   fulfilledAt: dayjs(order.fulfilledAt).format("lll"),
                 })}
@@ -78,13 +78,13 @@ export default function OrderDetail({ order, setOrder, gutters }) {
           />
           <hr className="my-0" />
           <Card.Text className="h4 mb-0">
-            {t("food:labels:items_count", { itemCount: order.items.length })}
+            {t("food.labels.items_count", { itemCount: order.items.length })}
           </Card.Text>
           {order.items.map(({ name, description, customerPrice, quantity }, i) => (
             <Stack key={i} className="justify-content-between align-items-start" gap={1}>
               <div className="lead">{name}</div>
               <div>
-                {t("food:price_times_quantity", {
+                {t("food.price_times_quantity", {
                   price: customerPrice,
                   quantity,
                 })}
@@ -137,7 +137,7 @@ function FulfillmentOption({ order, onOrderUpdated }) {
           )}
         </h6>
         {order.fulfillmentOption?.description || (
-          <span className="text-secondary">{t("food:no_option_chosen")}</span>
+          <span className="text-secondary">{t("food.no_option_chosen")}</span>
         )}
       </span>
     );
@@ -214,11 +214,11 @@ function PressAndHoldToClaim({ id, canClaim, offeringDescription, onOrderClaim }
     <div className="text-center">
       <Alert variant="info mb-0">
         <p className="small mb-0">
-          {t("food:claiming_instructions", { offeringDescription: offeringDescription })}
+          {t("food.claiming_instructions", { offeringDescription: offeringDescription })}
         </p>
         <PressAndHold size={200} onHeld={handleOrderClaim}>
           {t(
-            "food:press_and_hold",
+            "food.press_and_hold",
             {},
             {
               markdown: {

@@ -72,14 +72,14 @@ export default function Start() {
   };
   return (
     <>
-      <h2>{t("forms:get_started")}</h2>
-      <p id="phoneRequired">{t("forms:get_started_intro")}</p>
+      <h2>{t("forms.get_started")}</h2>
+      <p id="phoneRequired">{t("forms.get_started_intro")}</p>
       <Form noValidate onSubmit={handleSubmit(handleSubmitForm)}>
         <FormControlGroup
           className="mb-3"
           type="tel"
           name="phone"
-          label={t("forms:phone")}
+          label={t("forms.phone")}
           pattern="^(\+\d{1,2}\s)?\(?\d{3}\)?[\s-]\d{3}[\s-]\d{4}$"
           register={register}
           errors={errors}
@@ -98,7 +98,7 @@ export default function Start() {
         <FormButtons
           back
           primaryProps={{
-            children: t("forms:continue"),
+            children: t("forms.continue"),
             disabled: submitDisabled.isOn || !agreementChecked,
           }}
         />

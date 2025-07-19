@@ -44,7 +44,7 @@ export default function TopNav() {
             width="50"
             className="d-inline-block align-top me-2"
           />{" "}
-          <p className="brand-text">{t("common:app_name")}</p>
+          <p className="brand-text">{t("common.app_name")}</p>
         </Navbar.Brand>
         <div
           className={clsx(
@@ -122,7 +122,7 @@ function AuthedUserButtons({ className, user, onCollapse }) {
       <NavLinkButton
         href="/dashboard"
         icon="house-door-fill"
-        label={t("titles:dashboard")}
+        label={t("titles.dashboard")}
         className={className}
         onNoChangeClick={onCollapse}
       />
@@ -130,32 +130,32 @@ function AuthedUserButtons({ className, user, onCollapse }) {
         <NavLinkButton
           href="/private-accounts"
           icon="incognito"
-          label={t("titles:private_accounts")}
+          label={t("titles.private_accounts")}
           onNoChangeClick={onCollapse}
         />
       )}
       <NavLinkButton
         href="/funding"
         icon="wallet-fill"
-        label={t("payments:payment_methods")}
+        label={t("payments.payment_methods")}
         onNoChangeClick={onCollapse}
       />
       <NavLinkButton
         href="/ledgers"
         icon="clock-history"
-        label={t("payments:ledger_transactions")}
+        label={t("payments.ledger_transactions")}
         onNoChangeClick={onCollapse}
       />
       <NavLinkButton
         href="/trips"
         icon="scooter"
-        label={t("titles:trips")}
+        label={t("titles.trips")}
         onNoChangeClick={onCollapse}
       />
       <NavLinkButton
         href="/preferences"
         icon="gear-fill"
-        label={t("titles:preferences")}
+        label={t("titles.preferences")}
         onNoChangeClick={onCollapse}
       />
       <Button
@@ -164,7 +164,7 @@ function AuthedUserButtons({ className, user, onCollapse }) {
         className="nav-menu-button text-start mt-2"
       >
         <i className="bi bi-box-arrow-right me-2"></i>
-        {t("common:logout")}
+        {t("common.logout")}
       </Button>
       <LanguageButtons className="mt-3" />
     </>
@@ -226,12 +226,12 @@ function NavFooter({ className }) {
       </div>
       <div className={rowCls}>
         <Link to="/privacy-policy" className={linkCls}>
-          {t("common:privacy_policy")}
+          {t("common.privacy_policy")}
         </Link>
       </div>
       <div className={rowCls}>
         <a href="mailto:info@mysuma.org" className={linkCls}>
-          {t("common:contact_us")}
+          {t("common.contact_us")}
         </a>
       </div>
     </>

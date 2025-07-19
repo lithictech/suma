@@ -199,17 +199,17 @@ RSpec.describe "Suma::Message::Delivery", :db, :messaging do
     end
   end
 
-  describe "preview" do
+  describe "preview", messaging: false do
     it "errors if rack env is not development" do
       expect do
-        described_class.preview("Testers::Basic", rack_env: "test")
+        described_class.preview("Testers::Basic", transport: :email, rack_env: "test")
       end.to raise_error(/only preview in development/)
     end
 
     it "returns the delivery but rolls back changes" do
       member_count = Suma::Member.count
 
-      delivery = described_class.preview("Testers::Basic", rack_env: "development")
+      delivery = described_class.preview("Testers::Basic", transport: :email, rack_env: "development")
 
       expect(delivery).to be_a(described_class)
       expect(Suma::Member.count).to eq(member_count)
@@ -219,11 +219,18 @@ RSpec.describe "Suma::Message::Delivery", :db, :messaging do
     it "can commit changes" do
       member_count = Suma::Member.count
 
-      delivery = described_class.preview("Testers::Basic", commit: true, rack_env: "development")
+      delivery = described_class.preview("Testers::Basic", transport: :email, commit: true, rack_env: "development")
 
       expect(delivery).to be_a(described_class)
       expect(Suma::Member.count).to eq(member_count + 1)
       expect(Suma::Message::Delivery[id: delivery.id]).to be === delivery
+    end
+
+    it "can render static string templates" do
+      delivery = described_class.preview("OrderConfirmation", rack_env: "development", transport: :sms, language: "es")
+
+      expect(delivery).to be_a(described_class)
+      expect(delivery.bodies.first.content).to eq("test confirmation (es)")
     end
   end
 end

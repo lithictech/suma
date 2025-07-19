@@ -15,6 +15,7 @@ RSpec.describe Suma::Tasks::Release, :db do
         Sidekiq::Deploy.new.fetch
       end
       expect(marks).to eq({"2025-02-15T12:00:00Z" => "fakerelease"})
+      expect(Suma::I18n::StaticString.dataset).to_not be_empty
     end
   end
 

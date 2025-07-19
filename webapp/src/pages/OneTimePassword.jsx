@@ -123,7 +123,7 @@ const OneTimePassword = () => {
   const handleResend = () => {
     setOtpChars(new Array(6).fill(""));
     setError(null);
-    setMessage(["otp:code_resent", { phone: maskPhoneNumber(phoneNumber) }]);
+    setMessage(["otp.code_resent", { phone: maskPhoneNumber(phoneNumber) }]);
     const firstOtpField = document.getElementById("otpContainer").firstChild;
     firstOtpField.focus();
     api
@@ -151,13 +151,13 @@ const OneTimePassword = () => {
   return (
     <>
       <p className="text-center mb-0">
-        {t("otp:enter_code_sent_to")}
+        {t("otp.enter_code_sent_to")}
         <br />
         {maskPhoneNumber(phoneNumber)}:
       </p>
       <Form noValidate onSubmit={handleOtpSubmit}>
         <fieldset>
-          <h4 className="text-center mt-4">{t("otp:verify_code")}</h4>
+          <h4 className="text-center mt-4">{t("otp.verify_code")}</h4>
           <div id="otpContainer" className="d-flex justify-content-center mt-4">
             {otpChars.map((data, index) => (
               <input
@@ -175,7 +175,7 @@ const OneTimePassword = () => {
                 onPaste={handleOtpPaste}
                 onFocus={(e) => e.target.select()}
                 autoFocus={index === 0}
-                aria-label={t("otp:enter_code", { index: index + 1 })}
+                aria-label={t("otp.enter_code", { index: index + 1 })}
                 autoComplete="one-time-code"
               />
             ))}
@@ -184,7 +184,7 @@ const OneTimePassword = () => {
         <FormError error={error} center className="mb-1" />
         <FormSuccess message={message} center className="mb-1" />
         <p className="text-muted small text-center mt-4">
-          {t("otp:did_not_receive")}
+          {t("otp.did_not_receive")}
           <br />
           <Button
             className="p-0 align-baseline"
@@ -192,13 +192,13 @@ const OneTimePassword = () => {
             variant="link"
             onClick={handleResend}
           >
-            {t("otp:send_new_code")}
+            {t("otp.send_new_code")}
           </Button>
         </p>
         <FormButtons
           back
           primaryProps={{
-            children: t("otp:verify"),
+            children: t("otp.verify"),
             ref: handleSubmitRef,
           }}
           variant="outline-primary"

@@ -9,7 +9,7 @@ export default function PostTrip({ endTrip, onCloseTrip, error }) {
   const handleClose = () => onCloseTrip();
   return (
     <DrawerContents>
-      {t("mobility:trip_ended", {
+      {t("mobility.trip_ended", {
         vendor: provider.vendorName,
         totalCost: totalCost,
         discountAmount: discountAmount,
@@ -21,7 +21,7 @@ export default function PostTrip({ endTrip, onCloseTrip, error }) {
         className="w-100"
         onClick={handleClose}
       >
-        {t("common:close")}
+        {t("common.close")}
       </Button>
     </DrawerContents>
   );

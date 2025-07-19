@@ -103,6 +103,10 @@ RSpec.describe Suma::AnonProxy::MessageHandler, :db do
     let(:confirm_message) { create_message("webhookdb/lime_access_code_confirm_postmark_email") }
     let(:api_signin_message) { create_message("webhookdb/lime_access_code_api_signin_postmark_email") }
 
+    before(:each) do
+      import_localized_message_seeds
+    end
+
     it "handles messages from no-reply" do
       expect(lime).to be_can_handle(signin_message)
     end
@@ -152,7 +156,7 @@ RSpec.describe Suma::AnonProxy::MessageHandler, :db do
         latest_access_code_set_at: match_time(:now),
       )
       expect(vendor_account.contact.member.message_deliveries.last).to have_attributes(
-        template: "anon_proxy/lime-deep-link-access-code",
+        template: "anon_proxy/lime_deep_link_access_code",
         transport_type: "sms",
         carrier_key: "signalwire",
       )
@@ -170,7 +174,7 @@ RSpec.describe Suma::AnonProxy::MessageHandler, :db do
         latest_access_code_set_at: match_time(:now),
       )
       expect(vendor_account.contact.member.message_deliveries.last).to have_attributes(
-        template: "anon_proxy/lime-deep-link-access-code",
+        template: "anon_proxy/lime_deep_link_access_code",
         transport_type: "sms",
         carrier_key: "signalwire",
       )

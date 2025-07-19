@@ -6,6 +6,9 @@ class I18n {
     this.cache = {};
     this.formatters = {};
     this.language = "";
+    this.debugStaticStrings = new URLSearchParams(window.location.search).has(
+      "debugstaticstrings"
+    );
   }
 
   /**
@@ -65,6 +68,9 @@ class I18n {
    *   and the resolved string.
    */
   resolve = (key, opts) => {
+    if (this.debugStaticStrings) {
+      return ["s", key];
+    }
     const fqn = this.fqn(key);
     const value = get(this.cache, fqn);
     if (!value) {
@@ -73,9 +79,10 @@ class I18n {
         // Do not warn if this happens while we're still initializing languages
         // (cache is empty until first file is loaded).
         console.log(
-          `localization key '${fqn}' not found, maybe you need to run 'make i18n-format'`,
+          `localization key '${fqn}' not found, static string must be added`,
           this.cache
         );
+        console.trace();
       }
       return ["s", key];
     }
@@ -116,10 +123,6 @@ class I18n {
   };
 
   fqn = (...args) => {
-    // TODO: Delete this (and add a check)
-    // when we're ready to mass-update all localization keys.
-    // The 'convert : to ,' causes a lot of extra string copies.
-    args = [...args].map((x) => x?.replaceAll(":", "."));
     const suffix = args.join(".");
     const fqn = `${this.language}.${suffix}`;
     return fqn;

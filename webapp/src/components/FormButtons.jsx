@@ -9,7 +9,7 @@ const FormButtons = React.forwardRef(
     const defaultBack = React.useCallback(() => window.history.back(), []);
     if (back) {
       secondaryProps = {
-        children: t("common:back"),
+        children: t("common.back"),
         onClick: defaultBack,
       };
     }

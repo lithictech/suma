@@ -74,7 +74,7 @@ export default function FoodCartWidget({ product, size, onQuantityChange }) {
           {quantity > 0 && (
             <img
               src={xIcon}
-              alt={t("food:remove_from_cart")}
+              alt={t("food.remove_from_cart")}
               width="20px"
               className="ms-1"
             />
@@ -92,9 +92,9 @@ export default function FoodCartWidget({ product, size, onQuantityChange }) {
           <Button
             onClick={() => handleQuantityChange(quantity - 1)}
             className={btnClasses}
-            title={t("food:remove_from_cart")}
+            title={t("food.remove_from_cart")}
           >
-            <img src={subtractIcon} alt={t("food:remove_from_cart")} width="32px" />
+            <img src={subtractIcon} alt={t("food.remove_from_cart")} width="32px" />
           </Button>
           <Dropdown
             as={ButtonGroup}
@@ -118,16 +118,16 @@ export default function FoodCartWidget({ product, size, onQuantityChange }) {
       <Button
         onClick={() => handleQuantityChange(quantity + 1)}
         className={clsx(btnClasses, quantity === maxQuantity && "disabled", "nowrap")}
-        title={t("food:add_to_cart")}
+        title={t("food.add_to_cart")}
       >
-        <img src={addIcon} alt={t("food:add_to_cart")} width="32px" />
+        <img src={addIcon} alt={t("food.add_to_cart")} width="32px" />
         {size === "lg" && quantity === 0 && (
           <span
             className="text-capitalize fs-5 align-middle ms-1 pe-2"
             // Image always has alt text, do not have screen readers read it twice
             aria-hidden="true"
           >
-            {t("food:add_to_cart")}
+            {t("food.add_to_cart")}
           </span>
         )}
       </Button>

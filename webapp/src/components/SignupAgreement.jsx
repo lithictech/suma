@@ -9,11 +9,11 @@ export default function SignupAgreement({ checked, onCheckedChanged, ...rest }) 
         type="checkbox"
         checked={checked}
         onChange={(e) => onCheckedChanged(e.target.checked)}
-        aria-label={t("auth:agree_aria_label")}
+        aria-label={t("auth.agree_aria_label")}
         {...rest}
       />
       <div id="signup-agreement" className="ms-2 text-secondary small">
-        {t("auth:sign_up_agreement", { buttonLabel: t("forms:continue") })}
+        {t("auth.sign_up_agreement", { buttonLabel: t("forms.continue") })}
       </div>
     </div>
   );

@@ -310,7 +310,7 @@ RSpec.describe Suma::Service, :db do
   end
 
   it "uses a consistent error shape for manual errors (merror!)", reset_configuration: described_class do
-    described_class.localized_error_codes = nil
+    described_class.verify_localized_error_codes = false
     get "/merror?code=test_err"
     expect(last_response).to have_status(403)
     expect(last_response_json_body).to eq(
@@ -430,7 +430,7 @@ RSpec.describe Suma::Service, :db do
     end
 
     it "does not error if not enabled" do
-      described_class.localized_error_codes = nil
+      described_class.verify_localized_error_codes = false
       get "/merror?code=thisisabadcode"
       expect(last_response).to have_status(403)
     end
@@ -1158,6 +1158,16 @@ RSpec.describe Suma::Service, :db do
           ],
         },
       )
+    end
+  end
+
+  describe "puma" do
+    it "knows if it is in master or worker mode" do
+      expect(described_class).to be_puma_parent
+      expect(described_class).to_not be_puma_worker
+      ENV["PUMA_WORKER"] = "1"
+      expect(described_class).to_not be_puma_parent
+      expect(described_class).to be_puma_worker
     end
   end
 end

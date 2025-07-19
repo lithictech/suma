@@ -52,7 +52,7 @@ export default function FoodDetails() {
     );
   }
   const vendor = find(vendors, (v) => v.id === product.vendor.id);
-  const title = makeTitle(product.name, vendor.name, t("food:title"));
+  const title = makeTitle(product.name, vendor.name, t("food.title"));
   return (
     <>
       <Helmet>
@@ -98,7 +98,7 @@ export default function FoodDetails() {
               <div
                 className={clsx("me-4", !anyMoney(intToMoney(itemSubtotal)) && "d-none")}
               >
-                <div className="mt-2 small text-secondary">{t("food:item_subtotal")}</div>
+                <div className="mt-2 small text-secondary">{t("food.item_subtotal")}</div>
                 <Money className="text-muted">{intToMoney(itemSubtotal)}</Money>
               </div>
             </div>
@@ -108,8 +108,8 @@ export default function FoodDetails() {
       <hr className="my-4" />
       <LayoutContainer gutters>
         <Row>
-          <h5>{t("food:from_vendor", { vendorName: vendor.name })}</h5>
-          <h4>{t("food:details_header")}</h4>
+          <h5>{t("food.from_vendor", { vendorName: vendor.name })}</h5>
+          <h4>{t("food.details_header")}</h4>
           <div>{dt(product.description)}</div>
         </Row>
       </LayoutContainer>

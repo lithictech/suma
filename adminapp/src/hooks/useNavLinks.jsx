@@ -26,6 +26,7 @@ import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import SmsIcon from "@mui/icons-material/Sms";
 import StorefrontIcon from "@mui/icons-material/Storefront";
 import TollIcon from "@mui/icons-material/Toll";
+import TranslateIcon from "@mui/icons-material/Translate";
 import React from "react";
 
 /**
@@ -44,6 +45,7 @@ export default function useNavLinks() {
     const commerce = canRead("admin_commerce");
     const management = canRead("admin_management");
     const smsMarketing = canRead("marketing_sms");
+    const localization = canRead("localization");
     const r = [
       {
         title: "",
@@ -185,6 +187,11 @@ export default function useNavLinks() {
             label: "Roles",
             href: "/roles",
             icon: <KeyIcon />,
+          },
+          localization && {
+            label: "Localization Strings",
+            href: "/static-strings",
+            icon: <TranslateIcon />,
           },
         ].filter(Boolean),
       },

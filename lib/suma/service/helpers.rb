@@ -97,7 +97,7 @@ module Suma::Service::Helpers
   end
 
   def merror!(status, message, code:, more: {}, skip_loc_check: false)
-    if !skip_loc_check && Suma::Service.localized_error_codes && !Suma::Service.localized_error_codes.include?(code)
+    if !skip_loc_check && !Suma::Service.error_code_localized?(code)
       merror!(500, "Error code is unlocalized: #{code}", code: "unhandled_error")
     end
     header Rack::CONTENT_TYPE, "application/json"

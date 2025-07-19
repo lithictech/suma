@@ -27,8 +27,8 @@ class Suma::Message::Template
     return Suma::Message.dispatch(self, to, transport)
   end
 
-  # Return true if this message template supports localization
-  # (different templates exist like basic.en.sms.liquid, etc).
+  # Return true if this message template supports localization.
+  # Localized templates are stored as +Suma::I18n::StaticString+ rows in the 'messages' namespace.
   def localized? = false
 
   # Return true if this message template contains sensitive information.
@@ -53,13 +53,29 @@ class Suma::Message::Template
     return "#{fld}#{self.template_name}"
   end
 
-  def template_path(transport)
-    lang = ""
-    if self.localized?
-      raise Suma::Message::LanguageNotSetError if self.language.nil?
-      lang = "." + self.language
+  def template_string(transport)
+    unless self.localized?
+      path = Suma::Message::DATA_DIR + "templates/#{self.full_template_name}.#{transport}.liquid"
+      raise Suma::Message::MissingTemplateError, "#{path} does not exist" unless path.exist?
+      return path.read
     end
-    return Suma::Message::DATA_DIR + "templates/#{self.full_template_name}#{lang}.#{transport}.liquid"
+    raise Suma::Message::LanguageNotSetError if self.language.nil?
+    criteria = self.static_string_criteria(transport)
+    template = Suma::I18n::StaticString.find(**criteria)
+    raise Suma::Message::MissingTemplateError, "No static string row: #{criteria}" if
+      template.nil?
+    content = template.text&.send(self.language)
+    raise Suma::Message::MissingTemplateError, "Message blank: #{criteria.merge(lang: self.language)}" if
+      content.nil?
+    return content
+  end
+
+  def static_string_criteria(transport)
+    criteria = {
+      namespace: Suma::Message::STATIC_STRING_NAMESPACE,
+      key: "#{self.full_template_name}.#{transport}",
+    }
+    return criteria
   end
 
   # The layout for the template. See the 'layouts' folder in the message data directory.

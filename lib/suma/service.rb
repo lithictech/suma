@@ -30,8 +30,6 @@ class Suma::Service < Grape::API
   SHORT_PAGE_SIZE = 20
   PAGE_SIZE = 100
 
-  singleton_attr_accessor :localized_error_codes
-
   configurable(:service) do
     setting :max_session_age, 30.days.to_i
 
@@ -56,16 +54,23 @@ class Suma::Service < Grape::API
 
     setting :endpoint_caching, false
 
-    setting :verify_localized_response_codes, false
+    setting :verify_localized_error_codes, false
 
     setting :swagger_enabled, ENV["RACK_ENV"] == "development"
 
     after_configured do
       self.cors_origins += DEFAULT_CORS_ORIGINS
-      self.localized_error_codes = if self.verify_localized_response_codes
-                                     Suma::I18n.base_locale_data.fetch("errors").keys
-        end
     end
+  end
+
+  # True if PUMA_WORKER is present in env, as set in puma.rb.
+  def self.puma_worker? = ENV.fetch("PUMA_WORKER", nil)
+  # True if this is not a worker; we assume if the env var is not set, this is a parent process.
+  def self.puma_parent? = !self.puma_worker?
+
+  def self.error_code_localized?(code)
+    return true unless self.verify_localized_error_codes
+    return Suma::I18n.localized_error_codes.include?(code)
   end
 
   # Return the config for the Rack::Session::Cookie middleware.

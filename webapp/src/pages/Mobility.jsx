@@ -14,8 +14,8 @@ export default function Mobility() {
         imgAlt={imageAltT("person_riding_scooter")}
       >
         <WaitingList
-          title={t("mobility:title")}
-          text={t("mobility:intro")}
+          title={t("mobility.title")}
+          text={t("mobility.intro")}
           survey={{
             topic: "mobility_waitlist",
             questions: [],

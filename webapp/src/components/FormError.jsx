@@ -8,7 +8,7 @@ const FormError = React.forwardRef(
       return null;
     }
     const Component = component || "p";
-    const msg = React.isValidElement(error) ? error : t("errors:" + error);
+    const msg = React.isValidElement(error) ? error : t("errors." + error);
     const cls = clsx(
       "d-block text-danger small",
       noMargin && "m-0",

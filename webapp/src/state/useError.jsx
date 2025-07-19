@@ -60,6 +60,6 @@ export function extractLocalizedError(error) {
   if (code === "too_many_requests") {
     opts.seconds = Number(get(error, "response.data.error.retryAfter", 60));
   }
-  const msg = t(`errors:${code}`, opts);
+  const msg = t(`errors.${code}`, opts);
   return <>{msg}</>;
 }

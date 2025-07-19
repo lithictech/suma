@@ -41,7 +41,7 @@ export default function Food() {
   if (isEmpty(items)) {
     return (
       <FeaturePageHeader imgSrc={foodHeaderImage} imgAlt={imageAltT("local_food_stand")}>
-        <WaitingList title={t("food:title")} text={t("food:intro")} survey={surveySpec} />
+        <WaitingList title={t("food.title")} text={t("food.intro")} survey={surveySpec} />
         <OrderHistoryLink />
       </FeaturePageHeader>
     );
@@ -49,12 +49,12 @@ export default function Food() {
   return (
     <>
       <FeaturePageHeader imgSrc={foodHeaderImage} imgAlt={imageAltT("local_food_stand")}>
-        <h2>{t("food:title")}</h2>
-        <p className="mb-0">{t("food:intro")}</p>
+        <h2>{t("food.title")}</h2>
+        <p className="mb-0">{t("food.intro")}</p>
       </FeaturePageHeader>
       <hr className="my-4" />
       <LayoutContainer gutters>
-        <h4 className="mb-3">{t("food:current_offerings")}</h4>
+        <h4 className="mb-3">{t("food.current_offerings")}</h4>
         <Stack gap={3}>
           {items.map((it) => (
             <VendibleCard key={it.id} {...it} />
@@ -78,7 +78,7 @@ function OrderHistoryLink() {
         <div className="button-stack">
           <Button variant="outline-primary" href="/order-history" as={RLink}>
             <i className="bi bi-bag-check-fill me-2"></i>
-            {t("food:order_history_title")}
+            {t("food.order_history_title")}
           </Button>
         </div>
       </LayoutContainer>
@@ -91,43 +91,43 @@ const surveySpec = {
   questions: [
     {
       key: "entity_type",
-      labelKey: "surveys:member_type:label",
+      labelKey: "surveys.member_type.label",
       format: "radio",
       answers: [
-        { key: "community", labelKey: "surveys:member_type:community" },
-        { key: "for_profit", labelKey: "surveys:member_type:for_profit" },
-        { key: "government", labelKey: "surveys:member_type:government" },
-        { key: "non_profit", labelKey: "surveys:member_type:non_profit" },
-        { key: "philanthropy", labelKey: "surveys:member_type:philanthropy" },
+        { key: "community", labelKey: "surveys.member_type.community" },
+        { key: "for_profit", labelKey: "surveys.member_type.for_profit" },
+        { key: "government", labelKey: "surveys.member_type.government" },
+        { key: "non_profit", labelKey: "surveys.member_type.non_profit" },
+        { key: "philanthropy", labelKey: "surveys.member_type.philanthropy" },
       ],
     },
     {
       key: "food_shopping",
-      labelKey: "surveys:food_options:label",
+      labelKey: "surveys.food_options.label",
       format: "checkbox",
       answers: [
-        { key: "albertsons", labelKey: "surveys:food_options:albertsons" },
-        { key: "fred_meyer", labelKey: "surveys:food_options:fred_meyer" },
-        { key: "safeway", labelKey: "surveys:food_options:safeway" },
-        { key: "winco", labelKey: "surveys:food_options:winco" },
-        { key: "market", labelKey: "surveys:food_options:market" },
+        { key: "albertsons", labelKey: "surveys.food_options.albertsons" },
+        { key: "fred_meyer", labelKey: "surveys.food_options.fred_meyer" },
+        { key: "safeway", labelKey: "surveys.food_options.safeway" },
+        { key: "winco", labelKey: "surveys.food_options.winco" },
+        { key: "market", labelKey: "surveys.food_options.market" },
       ],
     },
     {
       key: "learn_more",
-      labelKey: "surveys:food_learn_more:label",
+      labelKey: "surveys.food_learn_more.label",
       format: "checkbox",
       answers: [
         {
           key: "connect_resources",
-          labelKey: "surveys:food_learn_more:connect_resources",
+          labelKey: "surveys.food_learn_more.connect_resources",
         },
         {
           key: "grant_support",
-          labelKey: "surveys:food_learn_more:grant_support",
+          labelKey: "surveys.food_learn_more.grant_support",
         },
-        { key: "partner", labelKey: "surveys:food_learn_more:partner" },
-        { key: "save", labelKey: "surveys:food_learn_more:save" },
+        { key: "partner", labelKey: "surveys.food_learn_more.partner" },
+        { key: "save", labelKey: "surveys.food_learn_more.save" },
       ],
     },
   ],

@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "redcarpet"
+
 require "suma/i18n"
 require "suma/lru"
 

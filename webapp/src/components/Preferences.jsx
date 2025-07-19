@@ -25,8 +25,8 @@ export default function Preferences({ user, onApiSubmit, children, onSaved }) {
 
   return (
     <Form onSubmit={handleSubmit}>
-      <h4>{t("preferences:title")}</h4>
-      <p>{t("preferences:intro")}</p>
+      <h4>{t("preferences.title")}</h4>
+      <p>{t("preferences.intro")}</p>
       {user.preferences.subscriptions.map((sub, idx) => {
         const optedIn = has(subscriptions, sub.key)
           ? subscriptions[sub.key]
@@ -43,7 +43,7 @@ export default function Preferences({ user, onApiSubmit, children, onSaved }) {
         );
       })}
       {children}
-      <FormButtons variant="success" primaryProps={{ children: t("forms:save") }} />
+      <FormButtons variant="success" primaryProps={{ children: t("forms.save") }} />
     </Form>
   );
 }
@@ -52,18 +52,18 @@ function Subscription({ subscriptionKey, optedIn, editableState, onCheckChange }
   return (
     <Form.Group className="mt-4">
       {editableState === "hidden" ? (
-        <p className="mb-0">{t(`preferences:${subscriptionKey}:title`)}</p>
+        <p className="mb-0">{t(`preferences.${subscriptionKey}.title`)}</p>
       ) : (
         <Form.Check
           id={subscriptionKey}
           type="checkbox"
-          label={t(`preferences:${subscriptionKey}:title`)}
+          label={t(`preferences.${subscriptionKey}.title`)}
           checked={optedIn}
           disabled={editableState !== "on"}
           onChange={(e) => onCheckChange(e.target.checked)}
         />
       )}
-      <Form.Text>{t(`preferences:${subscriptionKey}:helper_text`)}</Form.Text>
+      <Form.Text>{t(`preferences.${subscriptionKey}.helper_text`)}</Form.Text>
     </Form.Group>
   );
 }

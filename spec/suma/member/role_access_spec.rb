@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.describe "Suma::Member::RoleAccess", :db do
-  let(:described_class) { Suma::Member::RoleAccess }
-
+RSpec.describe Suma::Member::RoleAccess, :db do
   it "lets admins do everything" do
     member = Suma::Fixtures.member.admin.create
     expect(member.role_access { read?(upload_files) }).to be(true)
@@ -12,6 +10,7 @@ RSpec.describe "Suma::Member::RoleAccess", :db do
     expect(member.role_access { read?(admin_management) }).to be(true)
     expect(member.role_access { read?(marketing_sms) }).to be(true)
     expect(member.role_access { write?(marketing_sms) }).to be(true)
+    expect(member.role_access { write?(localization) }).to be(true)
   end
 
   it "lets non-admins do nothing extra" do
@@ -21,6 +20,7 @@ RSpec.describe "Suma::Member::RoleAccess", :db do
     expect(member.role_access { read?(admin_members) }).to be(false)
     expect(member.role_access { read?(admin_commerce) }).to be(false)
     expect(member.role_access { read?(admin_management) }).to be(false)
+    expect(member.role_access { read?(localization) }).to be(false)
   end
 
   it "lets image uploaders upload" do
@@ -31,6 +31,7 @@ RSpec.describe "Suma::Member::RoleAccess", :db do
     expect(member.role_access { read?(admin_members) }).to be(false)
     expect(member.role_access { read?(admin_commerce) }).to be(false)
     expect(member.role_access { read?(admin_management) }).to be(false)
+    expect(member.role_access { read?(localization) }).to be(false)
   end
 
   it "lets onboarding managers access admin" do
@@ -43,6 +44,7 @@ RSpec.describe "Suma::Member::RoleAccess", :db do
     expect(member.role_access { read?(admin_commerce) }).to be(false)
     expect(member.role_access { write?(admin_commerce) }).to be(false)
     expect(member.role_access { read?(admin_management) }).to be(false)
+    expect(member.role_access { read?(localization) }).to be(false)
   end
 
   it "lets sms marketers access admin and send messages" do
@@ -56,6 +58,21 @@ RSpec.describe "Suma::Member::RoleAccess", :db do
     expect(member.role_access { read?(admin_management) }).to be(false)
     expect(member.role_access { read?(marketing_sms) }).to be(true)
     expect(member.role_access { write?(marketing_sms) }).to be(true)
+    expect(member.role_access { read?(localization) }).to be(false)
+  end
+
+  it "lets translators localize" do
+    member = Suma::Fixtures.member.create
+    member.add_role(Suma::Role.cache.translator)
+    expect(member.role_access { read?(upload_files) }).to be(false)
+    expect(member.role_access { read?(admin_access) }).to be(true)
+    expect(member.role_access { read?(admin_members) }).to be(false)
+    expect(member.role_access { write?(admin_members) }).to be(false)
+    expect(member.role_access { read?(admin_commerce) }).to be(false)
+    expect(member.role_access { read?(admin_management) }).to be(false)
+    expect(member.role_access { read?(marketing_sms) }).to be(false)
+    expect(member.role_access { read?(localization) }).to be(true)
+    expect(member.role_access { write?(localization) }).to be(true)
   end
 
   it "uses maximum access when multiple roles are present" do

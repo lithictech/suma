@@ -96,7 +96,7 @@ function WaitlistForm({ title, text, survey, surveyAnswers, onSubmit }) {
         {inputs}
         <div className="button-stack mt-4">
           <Button type="submit" variant="primary">
-            {i18n.t("surveys:join_waitlist")}
+            {i18n.t("surveys.join_waitlist")}
           </Button>
         </div>
       </Form>
@@ -110,7 +110,7 @@ function AlreadyFinished({ title, text }) {
       <h2>{title}</h2>
       {text}
       <hr />
-      <p className="text-center lead">{i18n.t("surveys:waitlisted_already")}</p>
+      <p className="text-center lead">{i18n.t("surveys.waitlisted_already")}</p>
     </>
   );
 }
@@ -122,11 +122,11 @@ function JustFinished() {
         <AnimatedCheckmark scale={2} />
       </div>
       <p className="mt-4 mb-0 text-center lead checkmark__text">
-        {i18n.t("surveys:waitlist_joined")}
+        {i18n.t("surveys.waitlist_joined")}
       </p>
       <div className="button-stack mt-4 w-100">
         <Button variant="outline-primary" href="/dashboard" as={RLink}>
-          {t("common:go_home")}
+          {t("common.go_home")}
         </Button>
       </div>
     </div>

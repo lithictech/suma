@@ -21,6 +21,10 @@ module Suma::SpecHelpers::Message
     super
   end
 
+  module_function def import_localized_message_seeds
+    Suma::I18n::StaticStringIO.import_seeds(namespaces: Suma::Message::STATIC_STRING_NAMESPACE)
+  end
+
   module_function def stub_signalwire_sms(opts={})
     opts[:fixture] ||= "signalwire/send_message"
     opts[:sid] ||= "SMABCDXXXXXXXXXXXXXXXXXXXXXXXXXXXX"

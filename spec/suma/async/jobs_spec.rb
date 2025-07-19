@@ -274,14 +274,16 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
     let!(:order) { Suma::Fixtures.order.create }
 
     it "sends the order confirmation" do
-      order.checkout.cart.offering.update(confirmation_template: "2022-12-pilot-confirmation")
+      import_localized_message_seeds
+
+      order.checkout.cart.offering.update(confirmation_template: "2022_12_pilot_confirmation")
       expect do
         order.publish_immediate("created", order.id)
       end.to perform_async_job(Suma::Async::OrderConfirmation)
 
       expect(Suma::Message::Delivery.all).to contain_exactly(
         have_attributes(
-          template: "offerings/2022-12-pilot-confirmation",
+          template: "offerings/2022_12_pilot_confirmation",
           transport_type: "sms",
           template_language: "en",
         ),
@@ -408,6 +410,8 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
 
   describe "SignalwireProcessOptouts", reset_configuration: Suma::Signalwire do
     it "syncs refunds" do
+      import_localized_message_seeds
+
       Suma::Signalwire.marketing_number = "12225550000"
       member = Suma::Fixtures.member.create
       Suma::Webhookdb.signalwire_messages_dataset.insert(
@@ -617,6 +621,8 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
     let(:member) { Suma::Fixtures.member.create }
 
     it "dispatches an SMS to the member preferred messaging" do
+      import_localized_message_seeds
+
       expect do
         member.update(onboarding_verified_at: Time.now)
       end.to perform_async_job(Suma::Async::MemberOnboardingVerifiedDispatch)

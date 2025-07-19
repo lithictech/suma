@@ -14,20 +14,20 @@ const Onboarding = () => {
         <CarouselSlide
           imgSrc={onboardingMobility}
           imgAlt={imageAltT("person_riding_scooter")}
-          title={t("onboarding:mobility_title")}
-          subtitle={t("onboarding:mobility_text")}
+          title={t("onboarding.mobility_title")}
+          subtitle={t("onboarding.mobility_text")}
         />
         <CarouselSlide
           imgSrc={onboardingUtilities}
           imgAlt={imageAltT("solar_panels")}
-          title={t("onboarding:utilities_title")}
-          subtitle={t("onboarding:utilities_text")}
+          title={t("onboarding.utilities_title")}
+          subtitle={t("onboarding.utilities_text")}
         />
         <CarouselSlide
           imgSrc={onboardingFood}
           imgAlt={imageAltT("local_food_stand")}
-          title={t("onboarding:food_title")}
-          subtitle={t("onboarding:food_text")}
+          title={t("onboarding.food_title")}
+          subtitle={t("onboarding.food_text")}
         />
       </Carousel>
       <div className="button-stack">
@@ -37,7 +37,7 @@ const Onboarding = () => {
           variant="outline-primary"
           className="mt-4"
         >
-          {t("forms:continue")}
+          {t("forms.continue")}
         </Button>
       </div>
     </>

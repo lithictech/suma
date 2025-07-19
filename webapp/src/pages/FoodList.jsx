@@ -53,7 +53,7 @@ export default function FoodList() {
   if (loading) {
     return <PageLoader buffered />;
   }
-  const title = makeTitle(offering.description, t("food:title"));
+  const title = makeTitle(offering.description, t("food.title"));
   return (
     <>
       <Helmet>
@@ -64,6 +64,7 @@ export default function FoodList() {
           image={offering.image}
           w={500}
           h={140}
+          placeholderHeight={140}
           params={{ crop: "center" }}
           className="thin-header-image"
         />
@@ -77,10 +78,10 @@ export default function FoodList() {
         <h2 className="mb-3">{offering.description}</h2>
         {isEmpty(products) ? (
           <>
-            {t("food:no_products")}
+            {t("food.no_products")}
             <div className="button-stack w-100">
-              <Button href="/food" as={RLink} title={t("food:title")}>
-                {t("food:available_offerings")}
+              <Button href="/food" as={RLink} title={t("food.title")}>
+                {t("food.available_offerings")}
               </Button>
             </div>
           </>

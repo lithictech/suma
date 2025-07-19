@@ -17,4 +17,17 @@ module Suma::SpecHelpers::Rake
     # If the task itself calls Rake[task].invoke, we need to make sure it gets reset.
     Rake::Task.tasks.each(&:reenable)
   end
+
+  class NamedIO < StringIO
+    attr_accessor :path
+  end
+
+  def named_io(path)
+    io = NamedIO.new
+    io.path = path
+    return io
+  end
+
+  def named_stdout = named_io("<STDOUT>")
+  def named_stderr = named_io("<STDERR>")
 end

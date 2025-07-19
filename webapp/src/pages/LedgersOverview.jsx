@@ -76,8 +76,8 @@ export default function LedgersOverview() {
     <>
       <LayoutContainer gutters top>
         <LinearBreadcrumbs back="/dashboard" />
-        <h2 className="page-header">{t("payments:ledger_transactions")}</h2>
-        <p>{t("payments:ledgers_intro")}</p>
+        <h2 className="page-header">{t("payments.ledger_transactions")}</h2>
+        <p>{t("payments.ledgers_intro")}</p>
         <LedgerSelect
           activeLedger={activeLedger}
           ledgers={ledgersOverview.ledgers}
@@ -99,7 +99,7 @@ export default function LedgersOverview() {
             linesLoading={ledgersOverviewLoading}
           />
           {isEmpty(ledgersOverview.recentLines) && (
-            <p className="text-center">{t("payments:no_transaction_history")}</p>
+            <p className="text-center">{t("payments.no_transaction_history")}</p>
           )}
         </>
       ) : (
@@ -131,8 +131,8 @@ const RECENT_LINES_LEDGER = { id: 0 };
 function LedgerSelect({ activeLedger, ledgers, onLedgerSelected }) {
   const showRecentLines = activeLedger === RECENT_LINES_LEDGER;
   const selectedLedgerLabel = showRecentLines
-    ? t("payments:recent_ledger_lines")
-    : t("payments:ledger_label", {
+    ? t("payments.recent_ledger_lines")
+    : t("payments.ledger_label", {
         amount: activeLedger.balance,
         label: activeLedger.contributionText,
       });
@@ -150,12 +150,12 @@ function LedgerSelect({ activeLedger, ledgers, onLedgerSelected }) {
       <Dropdown.Menu className="w-100">
         <Dropdown.Item
           as={Stack}
-          title={t("payments:recent_ledger_lines")}
+          title={t("payments.recent_ledger_lines")}
           active={showRecentLines}
           className="overflow-hidden"
           onClick={() => onLedgerSelected(0)}
         >
-          {t("payments:recent_ledger_lines")}
+          {t("payments.recent_ledger_lines")}
         </Dropdown.Item>
         {ledgers.map((led) => (
           <Dropdown.Item
@@ -166,7 +166,7 @@ function LedgerSelect({ activeLedger, ledgers, onLedgerSelected }) {
             className="overflow-hidden"
             onClick={() => onLedgerSelected(led.id)}
           >
-            {t("payments:ledger_label", {
+            {t("payments.ledger_label", {
               amount: led.balance,
               label: led.contributionText,
             })}
@@ -184,13 +184,13 @@ function RecentLinesSubheader({ totalBalance, lifetimeSavings }) {
         <h3>
           <Money>{totalBalance}</Money>
         </h3>
-        <p className="m-0 mb-2">{t("payments:total_balance")}</p>
+        <p className="m-0 mb-2">{t("payments.total_balance")}</p>
       </div>
       <div className="text-end">
         <h3>
           <Money>{lifetimeSavings}</Money>
         </h3>
-        <p className="m-0">{t("payments:lifetime_savings")}</p>
+        <p className="m-0">{t("payments.lifetime_savings")}</p>
       </div>
     </div>
   );

@@ -8,15 +8,15 @@ export default function AppNav() {
   const { setAppNav } = useGlobalViewState();
   return (
     <div ref={setAppNav} className="app-nav d-flex flex-row">
-      <AppLink to="/dashboard" label={t("titles:home")} className="border-end-0" />
-      <AppLink to="/mobility" label={t("titles:mobility")} className="border-end-0" />
+      <AppLink to="/dashboard" label={t("titles.home")} className="border-end-0" />
+      <AppLink to="/mobility" label={t("titles.mobility")} className="border-end-0" />
       <AppLink
         to="/food"
-        label={t("food:title")}
+        label={t("food.title")}
         className="border-end-0"
         prefixes={["/checkout"]}
       />
-      <AppLink to="/utilities" label={t("utilities:title")} />
+      <AppLink to="/utilities" label={t("utilities.title")} />
     </div>
   );
 }

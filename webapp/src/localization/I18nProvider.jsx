@@ -7,6 +7,7 @@ import useMountEffect from "../shared/react/useMountEffect";
 import useUser from "../state/useUser";
 import { useCurrentLanguage } from "./currentLanguage";
 import i18n from "./i18n";
+import humps from "humps";
 import noop from "lodash/noop";
 import React from "react";
 
@@ -39,8 +40,11 @@ export default function I18nProvider({ children }) {
       if (i18n.hasFile(language, namespace)) {
         return Promise.resolve();
       }
-      return fetch(`/locale/${language}/out/${namespace}.out.json`)
-        .then((resp) => resp.json().then((j) => i18n.putFile(language, namespace, j)))
+      return api
+        .getLocaleFile({ locale: language, namespace })
+        .then((resp) =>
+          i18n.putFile(language, namespace, humps.decamelizeKeys(resp.data))
+        )
         .catch((e) =>
           logger
             .context({ error: e })

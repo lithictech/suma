@@ -20,6 +20,7 @@ module Suma::Message
 
   DEFAULT_TRANSPORT = :sms
   DATA_DIR = Suma::DATA_DIR + "messages"
+  STATIC_STRING_NAMESPACE = "messages"
 
   configurable(:messages) do
     after_configured do
@@ -60,16 +61,14 @@ module Suma::Message
   # like {% expose subject %}Hello from Suma!{% endexpose %}.
   # This is available as [:subject] on the returned rendering.
   def self.render(template, transport_type, recipient)
-    template_file = template.template_path(transport_type)
-    raise MissingTemplateError, "#{template_file} does not exist" unless template_file.exist?
-
     drops = template.liquid_drops.stringify_keys.merge(
       "recipient" => Suma::Message::MemberDrop.new(recipient),
       "environment" => Suma::Message::EnvironmentDrop.new,
       "app_url" => Suma.app_url,
     )
 
-    content_tmpl = Liquid::Template.parse(template_file.read)
+    template_string = template.template_string(transport_type)
+    content_tmpl = Liquid::Template.parse(template_string)
     content_tmpl.registers[:exposed] = {}
     content = content_tmpl.render!(drops, strict_variables: true)
 

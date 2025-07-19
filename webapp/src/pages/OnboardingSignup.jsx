@@ -79,14 +79,14 @@ export default function OnboardingSignup() {
   });
   return (
     <>
-      <h2 className="page-header">{t("onboarding:enroll_title")}</h2>
-      {t("onboarding:enroll_intro")}
+      <h2 className="page-header">{t("onboarding.enroll_title")}</h2>
+      {t("onboarding.enroll_intro")}
       <Form noValidate onSubmit={handleSubmit(handleFormSubmit)}>
         <FormControlGroup
           className="mb-3"
           name="name"
           autoComplete="name"
-          label={t("forms:name")}
+          label={t("forms.name")}
           required
           register={register}
           errors={errors}
@@ -97,7 +97,7 @@ export default function OnboardingSignup() {
           className="mb-3"
           name="address"
           autoComplete="address-line1"
-          label={t("forms:address1")}
+          label={t("forms.address1")}
           type="text"
           required
           register={register}
@@ -109,7 +109,7 @@ export default function OnboardingSignup() {
           className="mb-3"
           name="address2"
           autoComplete="address-line2"
-          label={t("forms:address2")}
+          label={t("forms.address2")}
           type="text"
           register={register}
           errors={errors}
@@ -120,7 +120,7 @@ export default function OnboardingSignup() {
           className="mb-3"
           name="city"
           autoComplete="address-level2"
-          label={t("forms:city")}
+          label={t("forms.city")}
           type="text"
           required
           register={register}
@@ -132,7 +132,7 @@ export default function OnboardingSignup() {
           <FormControlGroup
             as={Col}
             name="state"
-            label={t("forms:state")}
+            label={t("forms.state")}
             required
             Input={Form.Select}
             inputClass={state ? null : "select-noselection"}
@@ -142,7 +142,7 @@ export default function OnboardingSignup() {
             onChange={(e) => handleInputChange(e, setState)}
           >
             <option disabled value="">
-              {t("forms:choose_state")}
+              {t("forms.choose_state")}
             </option>
             {supportedGeographies.provinces?.map((state) => (
               <option key={state.value} value={state.value}>
@@ -155,7 +155,7 @@ export default function OnboardingSignup() {
             name="zip"
             autoComplete="postal-code"
             inputMode="numeric"
-            label={t("forms:zip")}
+            label={t("forms.zip")}
             type="text"
             pattern="^[0-9]{5}(?:-[0-9]{4})?$"
             minLength="5"
@@ -179,7 +179,7 @@ export default function OnboardingSignup() {
         <FormButtons
           variant="outline-primary"
           back
-          primaryProps={{ children: t("forms:submit") }}
+          primaryProps={{ children: t("forms.submit") }}
         />
       </Form>
     </>

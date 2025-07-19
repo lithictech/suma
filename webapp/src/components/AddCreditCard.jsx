@@ -77,9 +77,9 @@ export default function AddCreditCard({ onSuccess, error, setError }) {
           setError(extractErrorCode(e));
           return;
         }
-        const errkey = `errors:${e.response.data.error.type}.${e.response.data.error.code}`;
+        const errkey = `errors.${e.response.data.error.type}.${e.response.data.error.code}`;
         let localized = t(errkey);
-        if (localized === errkey.replaceAll(":", ".")) {
+        if (localized === errkey) {
           localized = e.response.data.error.message;
         }
         setError(<span>{localized}</span>);
@@ -143,7 +143,7 @@ export default function AddCreditCard({ onSuccess, error, setError }) {
             autoComplete="name"
             autoCorrect="off"
             spellCheck="false"
-            label={t("forms:name")}
+            label={t("forms.name")}
             value={name}
             errors={errors}
             register={register}
@@ -168,11 +168,11 @@ export default function AddCreditCard({ onSuccess, error, setError }) {
             autoComplete="cc-number"
             autoCorrect="off"
             spellCheck="false"
-            label={t("forms:card_number")}
+            label={t("forms.card_number")}
             value={number}
             errors={errors}
             registerOptions={{ validate: Payment.fns.validateCardNumber }}
-            errorKeys={{ validate: "forms:invalid_card_number" }}
+            errorKeys={{ validate: "forms.invalid_card_number" }}
             register={register}
             onChange={(e) => runSetter(e.target.name, setNumber, e.target.value)}
             onFocus={handleFocus}
@@ -200,7 +200,7 @@ export default function AddCreditCard({ onSuccess, error, setError }) {
             errors={errors}
             register={register}
             registerOptions={{ validate: Payment.fns.validateCardExpiry }}
-            errorKeys={{ validate: "forms:invalid_card_expiry" }}
+            errorKeys={{ validate: "forms.invalid_card_expiry" }}
             onChange={handleExpiryChange}
             onFocus={handleFocus}
             onBlur={handleBlur}
@@ -224,7 +224,7 @@ export default function AddCreditCard({ onSuccess, error, setError }) {
             errors={errors}
             register={register}
             registerOptions={{ validate: Payment.fns.validateCardCVC }}
-            errorKeys={{ validate: "forms:invalid_card_cvc" }}
+            errorKeys={{ validate: "forms.invalid_card_cvc" }}
             onChange={(e) => runSetter(e.target.name, setCvc, e.target.value)}
             onFocus={handleFocus}
             onBlur={handleBlur}
@@ -243,7 +243,7 @@ export default function AddCreditCard({ onSuccess, error, setError }) {
           variant="outline-primary"
           back
           primaryProps={{
-            children: t("forms:continue"),
+            children: t("forms.continue"),
           }}
         />
         <Row

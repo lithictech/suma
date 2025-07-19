@@ -142,4 +142,16 @@ RSpec.describe Suma::API::Meta, :db do
       )
     end
   end
+
+  describe "GET /v1/meta/static_strings/<locale>/<namespace>" do
+    it "returns the static string file from the database" do
+      Suma::Fixtures.static_string.text("hi").create(namespace: "forms", key: "s1")
+      Suma::I18n::StaticStringRebuilder.instance.rebuild_outdated
+
+      get "/v1/meta/static_strings/en/forms"
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.that_includes(s1: ["s", "hi"])
+    end
+  end
 end

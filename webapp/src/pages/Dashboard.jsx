@@ -32,8 +32,8 @@ export default function Dashboard() {
   if (dashboardError) {
     return (
       <LayoutContainer top>
-        <h2>{t("errors:something_went_wrong_title")}</h2>
-        <p>{t("errors:unhandled_error")}</p>
+        <h2>{t("errors.something_went_wrong_title")}</h2>
+        <p>{t("errors.unhandled_error")}</p>
       </LayoutContainer>
     );
   }
@@ -47,20 +47,20 @@ export default function Dashboard() {
       />
       <LayoutContainer gutters top>
         <div className="font-serif lead d-flex flex-column gap-3">
-          <p className="mb-0">{t("dashboard:intro")}</p>
+          <p className="mb-0">{t("dashboard.intro")}</p>
           <ExternalLink
             href={externalLinks.sumaIntroLink}
             className="text-dark fw-semibold"
             style={{ alignSelf: "flex-end" }}
           >
-            {t("dashboard:about_suma")}
+            {t("dashboard.about_suma")}
           </ExternalLink>
         </div>
         <AddToHomescreen />
       </LayoutContainer>
       {anyMoney(dashboard.cashBalance) && (
         <Alert className="border-radius-0 my-3" variant="success">
-          {t("dashboard:availableCash", { balance: dashboard.cashBalance })}
+          {t("dashboard.available_cash", { balance: dashboard.cashBalance })}
         </Alert>
       )}
       {dashboardLoading ? (
@@ -84,10 +84,10 @@ function TopAlerts() {
     <>
       {user.ongoingTrip && (
         <Alert variant="danger" className="border-radius-0">
-          <p>{t("dashboard:check_ongoing_trip")}</p>
+          <p>{t("dashboard.check_ongoing_trip")}</p>
           <div className="d-flex justify-content-end">
             <Link to="/mobility" className="btn btn-sm btn-danger px-3">
-              {t("dashboard:check_ongoing_trip_button")}
+              {t("dashboard.check_ongoing_trip_button")}
               <i
                 className="bi bi-box-arrow-in-right mx-1"
                 role="img"
@@ -106,7 +106,7 @@ function TopAlerts() {
         <SeeAlsoAlert
           alertClass="blinking-alert mb-0"
           variant="success"
-          label={t("dashboard:claim_orders")}
+          label={t("dashboard.claim_orders")}
           iconClass="bi-bag-check-fill"
           show
           to="/unclaimed-orders"
@@ -138,7 +138,7 @@ function ProgramCard({ name, description, image, periodEnd, appLink, appLinkText
       <div className="mt-3 text-links-dark">{dt(description)}</div>
       {periodEnd && (
         <p className="mt-1 mb-0 small">
-          {t("dashboard:program_ends", { date: dayjs(periodEnd).format("ll") })}
+          {t("dashboard.program_ends", { date: dayjs(periodEnd).format("ll") })}
         </p>
       )}
       {appLink && (

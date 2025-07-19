@@ -36,7 +36,7 @@ class Suma::AnonProxy::MessageHandler::Lime < Suma::AnonProxy::MessageHandler
     vendor_account_message.vendor_account.replace_access_code(token, link_to_use).save_changes
     msg = Suma::Messages::SingleValue.new(
       "anon_proxy",
-      "lime-deep-link-access-code",
+      "lime_deep_link_access_code",
       link_to_use,
     )
     vendor_account_message.vendor_account.member.message_preferences!.dispatch(msg)

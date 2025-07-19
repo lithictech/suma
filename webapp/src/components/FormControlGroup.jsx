@@ -23,7 +23,7 @@ import InputGroup from "react-bootstrap/InputGroup";
  *   which would be paired with an `errorKeys` like `{validate: 'forms:account_number_confirm_nomatch'}`.
  * @param errors Something like `formState: { errors }` from react-hook-form.
  * @param {object} errorKeys See useValidationError. Some default error messages for validations are supported;
- *   if you need a custom message, you can pass in something like: `{min: "forms:invalid_min_amount"}`.
+ *   if you need a custom message, you can pass in something like: `{min: "forms.invalid_min_amount"}`.
  * @param {boolean} required HTML5
  * @param {string} pattern HTML5
  * @param {number} minLength HTML5

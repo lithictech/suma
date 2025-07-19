@@ -25,15 +25,15 @@ export default function LedgerItemModal({ item, onClose }) {
               </Money>
             </p>
             {usageDetails.map(({ code, args }, i) => (
-              <p key={i}>{t("ledgerusage:" + code, { ...args })}</p>
+              <p key={i}>{t("ledgerusage." + code, { ...args })}</p>
             ))}
             <p className="mb-1">{dayjs(at).format("LLL")}</p>
             <p>
-              {t("common:reference_id")}: {opaqueId}
+              {t("common.reference_id")}: {opaqueId}
             </p>
             <div className="d-flex justify-content-end mt-4">
               <Button variant="outline-primary" className="mt-2" onClick={onClose}>
-                {t("common:close")}
+                {t("common.close")}
               </Button>
             </div>
           </>

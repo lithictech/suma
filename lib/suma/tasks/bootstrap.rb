@@ -16,6 +16,7 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
       raise "only run with a fresh database" unless Suma::Member.dataset.empty?
       SequelTranslatedText.language(:en) do
         Suma::Member.db.transaction do
+          Suma::I18n::StaticStringIO.import_seeds
           Meta.new.fixture
           Mobility.new.fixture
           AnonProxy.new.fixture
@@ -195,7 +196,7 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
 
     protected def setup_holiday_offering
       offering = Suma::Commerce::Offering.create do |o|
-        o.confirmation_template = "2022-12-pilot-confirmation"
+        o.confirmation_template = "2022_12_pilot_confirmation"
         o.period = Time.now..1.year.from_now
         o.description = Suma::TranslatedText.find_or_create(en: "Holidays Demo", es: "Días festivos")
         o.fulfillment_prompt = Suma::TranslatedText.find_or_create(
@@ -303,7 +304,7 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
 
       offering = Suma::Commerce::Offering.create do |o|
         o.period = offering_period
-        o.confirmation_template = "2023-07-pilot-confirmation"
+        o.confirmation_template = "2023_07_pilot_confirmation"
         o.set(
           description: Suma::TranslatedText.find_or_create(
             en: "#{market_name} Ride & Shop",
@@ -456,8 +457,8 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
         g.app_link_text = Suma::TranslatedText.find_or_create(en: "See offering", es: "See offering (ES)")
       end
       return unless fm_program.commerce_offerings.empty?
-      fm_program.add_commerce_offering(Suma::Commerce::Offering[confirmation_template: "2022-12-pilot-confirmation"])
-      fm_program.add_commerce_offering(Suma::Commerce::Offering[confirmation_template: "2023-07-pilot-confirmation"])
+      fm_program.add_commerce_offering(Suma::Commerce::Offering[confirmation_template: "2022_12_pilot_confirmation"])
+      fm_program.add_commerce_offering(Suma::Commerce::Offering[confirmation_template: "2023_07_pilot_confirmation"])
     end
   end
 end
