@@ -101,7 +101,7 @@ class Suma::API::Mobility < Suma::API::V1
       else
         vehicle = matches[0]
       end
-      present vehicle, with: MobilityVehicleEntity, member:, request:, current_time:
+      present vehicle, with: MobilityVehicleEntity, member:, request:
     end
 
     params do
@@ -222,9 +222,9 @@ class Suma::API::Mobility < Suma::API::V1
     expose :deeplink do |vehicle, options|
       vehicle.deep_link_for_user_agent(options.fetch(:request).user_agent)
     end
-    expose :goto_private_account do |vehicle, options|
+    expose :goto_private_account do |vehicle|
       member = options.fetch(:member)
-      now = options.fetch(:current_time)
+      now = self.current_time
       vehicle.vendor_service.mobility_adapter.anon_proxy_vendor_account_requires_attention?(member, now:)
     end
   end

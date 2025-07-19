@@ -26,6 +26,7 @@ class Suma::AnonProxy::VendorAccount < Suma::Postgres::Model(:anon_proxy_vendor_
   many_to_one :configuration, class: "Suma::AnonProxy::VendorConfiguration"
   many_to_one :contact, class: "Suma::AnonProxy::MemberContact"
   one_to_many :messages, class: "Suma::AnonProxy::VendorAccountMessage", order: order_desc
+  one_to_many :registrations, class: "Suma::AnonProxy::VendorAccountRegistration", key: :account_id
 
   class << self
     # Return existing or newly created vendor accounts for the member,
@@ -58,7 +59,7 @@ class Suma::AnonProxy::VendorAccount < Suma::Postgres::Model(:anon_proxy_vendor_
     return Suma::AnonProxy::AuthToVendor.create!(self.configuration.auth_to_vendor_key, vendor_account: self)
   end
 
-  def registered_with_vendor? = self.registered_with_vendor.present?
+  def needs_attention?(now:) = self.auth_to_vendor.needs_attention?(now:)
 
   # Ensure an anonymous email or phone number is provisioned.
   # Note that this takes a lock on the vendor account to avoid potential duplicate provisioning.

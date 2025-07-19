@@ -18,21 +18,21 @@ RSpec.shared_examples "a hybrid searchable object" do
   end
 end
 
-RSpec.shared_examples "has a timestamp predicate" do |tsattr, boolattr|
+RSpec.shared_examples "has a timestamp predicate" do |tsattr, boolattr, setter=:"#{boolattr}="|
   let(:instance) { raise "must be defined in block" }
 
   it "adheres to MethodUtilities.timestamp_set" do
     m = instance
-    m.send(:"#{boolattr}=", false)
+    m.send(setter, false)
     expect(m.send(tsattr)).to be_nil
     expect(m.send(:"#{boolattr}?")).to be(false)
 
-    m.send(:"#{boolattr}=", true)
+    m.send(setter, true)
     expect(m.send(tsattr)).to match_time(:now)
     expect(m.send(:"#{boolattr}?")).to be(true)
 
     t = 4.hours.ago
-    m.send(:"#{boolattr}=", t)
+    m.send(setter, t)
     expect(m.send(tsattr)).to match_time(t)
   end
 end

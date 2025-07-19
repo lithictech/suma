@@ -3,7 +3,6 @@ import AdminLink from "../components/AdminLink";
 import InlineEditField from "../components/InlineEditField";
 import ResourceDetail from "../components/ResourceDetail";
 import useErrorSnackbar from "../hooks/useErrorSnackbar";
-import { useUser } from "../hooks/user";
 import { dayjs } from "../modules/dayConfig";
 import formatDate from "../modules/formatDate";
 import { Switch } from "@mui/material";
@@ -11,7 +10,6 @@ import React from "react";
 
 export default function ProgramEnrollmentDetailPage() {
   const { enqueueErrorSnackbar } = useErrorSnackbar();
-  const { user } = useUser();
   const handleUpdateProgramEnrollment = (enrollment, replaceState) => {
     return api
       .updateProgramEnrollment(enrollment)
@@ -53,7 +51,6 @@ export default function ProgramEnrollmentDetailPage() {
                       set({
                         ...st,
                         approved: e.target.checked,
-                        approvedBy: e.target.checked ? { id: user.id } : null,
                       })
                     }
                   ></Switch>
@@ -85,7 +82,6 @@ export default function ProgramEnrollmentDetailPage() {
                       set({
                         ...st,
                         unenrolled: e.target.checked,
-                        unenrolledBy: e.target.checked ? { id: user.id } : null,
                       })
                     }
                   ></Switch>

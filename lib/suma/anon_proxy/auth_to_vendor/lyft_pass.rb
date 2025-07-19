@@ -3,41 +3,30 @@
 require "suma/lyft/pass"
 
 class Suma::AnonProxy::AuthToVendor::LyftPass < Suma::AnonProxy::AuthToVendor
-  def auth
-    now = Time.now.utc
-    enrollments, registered = self.enrollments_requiring_attention(now:)
-    unless enrollments.empty?
-      lp = Suma::Lyft::Pass.from_config
-      lp.authenticate
-      enrollments.each do |pe|
-        program_id = pe.program.lyft_pass_program_id
-        lp.invite_member(self.vendor_account.member, program_id:)
-        registered[program_id] = now.iso8601
-      end
+  def auth(now:)
+    enrollments = self.enrollments_requiring_attention_dataset(now:).all
+    return unless enrollments.any?
+    lp = Suma::Lyft::Pass.from_config
+    lp.authenticate
+    enrollments.each do |pe|
+      lyft_program_id = pe.program.lyft_pass_program_id
+      lp.invite_member(self.vendor_account.member, program_id: lyft_program_id)
+      self.vendor_account.add_registration(external_program_id: lyft_program_id)
     end
-    self.vendor_account.update(registered_with_vendor: registered.to_json)
   end
 
   def needs_polling? = false
+  def needs_attention?(now:) = !self.enrollments_requiring_attention_dataset(now:).empty?
 
-  def needs_attention?(now:)
-    self.vendor_account.registered_with_vendor.blank? ||
-      self.enrollments_requiring_attention(now:)[0].any?
-  end
-
-  # Return a tuple of <array of enrollments> and <parsed registered_with_vendor>
-  def enrollments_requiring_attention(now:)
-    begin
-      registered = JSON.parse(self.vendor_account.registered_with_vendor)
-    rescue JSON::ParserError, TypeError
-      registered = {}
-    end
-    registered = {} unless registered.is_a?(Hash)
-    unregistered_programs = Suma::Lyft::Pass.programs_dataset.exclude(lyft_pass_program_id: registered.keys)
-    enrollments = self.vendor_account.member.combined_program_enrollments_dataset.
+  # Return a dataset of program enrollments where:
+  # - There is a lyft program id on its program
+  # - The lyft program id is not part of this vendor account's registrations
+  def enrollments_requiring_attention_dataset(now:)
+    registered_ids = self.vendor_account.registrations.map(&:external_program_id)
+    unregistered_programs = Suma::Lyft::Pass.programs_dataset.exclude(lyft_pass_program_id: registered_ids)
+    ds = self.vendor_account.member.combined_program_enrollments_dataset.
       active(as_of: now).
-      where(program_id: unregistered_programs.select(:id)).
-      all
-    return enrollments, registered
+      where(program_id: unregistered_programs.select(:id))
+    return ds
   end
 end

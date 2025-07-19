@@ -98,10 +98,10 @@ RSpec.describe Suma::AdminAPI::ProgramEnrollments, :db do
   end
 
   describe "POST /v1/program_enrollments/:id" do
-    it "updates a program enrollment" do
+    it "sets approved_at and approved_by if approved is true" do
       enrollment = Suma::Fixtures.program_enrollment.unapproved.create
 
-      post "/v1/program_enrollments/#{enrollment.id}", approved: true, approved_by: {id: admin.id}
+      post "/v1/program_enrollments/#{enrollment.id}", approved: true
 
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.that_includes(
@@ -109,6 +109,22 @@ RSpec.describe Suma::AdminAPI::ProgramEnrollments, :db do
         approved_by: include(id: admin.id),
         unenrolled: false,
         unenrolled_by: be_nil,
+        enrolled: true,
+      )
+    end
+
+    it "sets unenrolled_at and unenrolled_by if unenrolled is true" do
+      enrollment = Suma::Fixtures.program_enrollment.create
+
+      post "/v1/program_enrollments/#{enrollment.id}", unenrolled: true
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.that_includes(
+        approved: true,
+        approved_by: nil,
+        unenrolled: true,
+        unenrolled_by: include(id: admin.id),
+        enrolled: false,
       )
     end
   end

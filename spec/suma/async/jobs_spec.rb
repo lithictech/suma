@@ -77,6 +77,149 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
     end
   end
 
+  describe "EnrollmentRemovalRunner" do
+    let(:jobclass) { Suma::Async::EnrollmentRemovalRunner }
+    let(:member) { Suma::Fixtures.member.create }
+
+    before(:each) do
+      jobclass.testing_last_ran_removers = []
+    end
+
+    context "runs the enrollment remover when" do
+      specify "a direct program enrollment is unenrolled" do
+        e = Suma::Fixtures.program_enrollment.create(member:)
+        expect do
+          e.update(unenrolled: true)
+        end.to perform_async_job(jobclass)
+        expect(jobclass.testing_last_ran_removers).to contain_exactly(
+          have_attributes(
+            before_enrollments: have_length(1),
+            after_enrollments: be_empty,
+          ),
+        )
+      end
+
+      specify "an organization program enrollment is unenrolled" do
+        organization = Suma::Fixtures.organization.create
+        Suma::Fixtures.organization_membership.verified(organization).create(member:)
+        Suma::Fixtures.organization_membership.former(organization).create
+        e = Suma::Fixtures.program_enrollment.create(organization:)
+        expect do
+          e.update(unenrolled: true)
+        end.to perform_async_job(jobclass)
+        expect(jobclass.testing_last_ran_removers).to contain_exactly(
+          have_attributes(
+            before_enrollments: have_length(1),
+            after_enrollments: be_empty,
+          ),
+        )
+      end
+
+      specify "an organization role program enrollment is unenrolled" do
+        role = Suma::Fixtures.role.create
+        organization = Suma::Fixtures.organization.create
+        organization.add_role(role)
+        Suma::Fixtures.organization_membership.verified(organization).create(member:)
+        e = Suma::Fixtures.program_enrollment.create(role:)
+        expect do
+          e.update(unenrolled: true)
+        end.to perform_async_job(jobclass)
+        expect(jobclass.testing_last_ran_removers).to contain_exactly(
+          have_attributes(
+            before_enrollments: have_length(1),
+            after_enrollments: be_empty,
+          ),
+        )
+      end
+
+      specify "a member role program enrollment is unenrolled" do
+        role = Suma::Fixtures.role.create
+        member.add_role(role)
+        e = Suma::Fixtures.program_enrollment.create(role:)
+        expect do
+          e.update(unenrolled: true)
+        end.to perform_async_job(jobclass)
+        expect(jobclass.testing_last_ran_removers).to contain_exactly(
+          have_attributes(
+            before_enrollments: have_length(1),
+            after_enrollments: be_empty,
+          ),
+        )
+      end
+
+      specify "a member is removed from an organization" do
+        organization = Suma::Fixtures.organization.create
+        m = Suma::Fixtures.organization_membership.verified(organization).create(member:)
+        Suma::Fixtures.program_enrollment.create(organization:)
+        expect do
+          m.remove_from_organization
+          m.save_changes
+        end.to perform_async_job(jobclass)
+        expect(jobclass.testing_last_ran_removers).to contain_exactly(
+          have_attributes(
+            before_enrollments: have_length(1),
+            after_enrollments: be_empty,
+          ),
+        )
+      end
+
+      specify "a role is removed from a member" do
+        role = Suma::Fixtures.role.create
+        member.add_role(role)
+        Suma::Fixtures.program_enrollment.create(role:)
+        expect do
+          member.remove_role(role)
+        end.to perform_async_job(jobclass)
+        expect(jobclass.testing_last_ran_removers).to contain_exactly(
+          have_attributes(
+            before_enrollments: have_length(1),
+            after_enrollments: be_empty,
+          ),
+        )
+      end
+
+      specify "a role is removed from an organization" do
+        role = Suma::Fixtures.role.create
+        organization = Suma::Fixtures.organization.create
+        organization.add_role(role)
+        Suma::Fixtures.organization_membership.verified(organization).create(member:)
+        Suma::Fixtures.program_enrollment.create(role:)
+        expect do
+          organization.remove_role(role)
+        end.to perform_async_job(jobclass)
+        expect(jobclass.testing_last_ran_removers).to contain_exactly(
+          have_attributes(
+            before_enrollments: have_length(1),
+            after_enrollments: be_empty,
+          ),
+        )
+      end
+    end
+
+    context "noops when" do
+      specify "an organization membership changes other than to verified" do
+        organization = Suma::Fixtures.organization.create
+        m = Suma::Fixtures.organization_membership.unverified.create(member:)
+        Suma::Fixtures.program_enrollment.create(organization:)
+        expect do
+          m.verified_organization = organization
+          m.save_changes
+        end.to perform_async_job(jobclass)
+        expect(jobclass.testing_last_ran_removers).to be_empty
+      end
+    end
+
+    it "errors if somehow an unhandled event is captured by the regex but unhandled" do
+      expect(jobclass).to receive(:pattern).and_return("*").at_least(:once)
+
+      expect do
+        expect do
+          Suma::Fixtures.legal_entity.create
+        end.to perform_async_job(jobclass)
+      end.to raise_error(NotImplementedError, "unhandled event: suma.legalentity.created")
+    end
+  end
+
   describe "ForwardMessages" do
     before(:each) do
       Suma::Message::Forwarder.reset_configuration

@@ -8,6 +8,7 @@ require "suma/admin_linked"
 require "suma/has_activity_audit"
 require "suma/payment/has_account"
 require "suma/postgres/model"
+require "suma/role"
 require "suma/secureid"
 
 class Suma::Member < Suma::Postgres::Model(:members)
@@ -99,7 +100,11 @@ class Suma::Member < Suma::Postgres::Model(:members)
               order: order_desc,
               # Use ResetCode.replace_active instead, add_reset_code is unsafe since it can keep multiple active.
               adder: nil
-  many_to_many :roles, class: "Suma::Role", join_table: :roles_members, order: order_assoc(:asc, :name)
+  many_to_many :roles,
+               class: "Suma::Role",
+               join_table: :roles_members,
+               order: order_assoc(:asc, :name),
+               **Suma::Role.association_options
   one_to_many :sessions, class: "Suma::Member::Session", order: order_desc
   one_to_many :commerce_carts, class: "Suma::Commerce::Cart", order: order_desc
   one_to_many :anon_proxy_contacts, class: "Suma::AnonProxy::MemberContact", order: order_desc
@@ -437,15 +442,11 @@ class Suma::Member < Suma::Postgres::Model(:members)
   end
 
   def hybrid_search_fields
-    # If we have a US phone, use the phone number formatted, and E164 with and without country code.
-    # If it's empty or non-US, use the value verbatim.
-    if (phone = self.phone).present?
-      begin
-        us_phone = Suma::PhoneNumber.format_display(self.phone)
-        phone = "#{us_phone} #{self.phone} #{self.phone[1..]}"
-      rescue ArgumentError
-        nil
-      end
+    phone = self.phone
+    if (us_phone = Suma::PhoneNumber::US.format?(phone))
+      # If we have a US phone, use the phone number formatted, and E164 with and without country code.
+      # If it's empty or non-US, use the value verbatim.
+      phone = "#{us_phone} #{self.phone} #{self.phone[1..]}"
     end
     orgnames = self.organization_memberships.map(&:verified_organization).select(&:itself).map(&:name)
     return [
