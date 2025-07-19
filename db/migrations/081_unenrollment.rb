@@ -8,7 +8,7 @@ Sequel.migration do
       primary_key :id
       timestamptz :created_at, null: false, default: Sequel.function(:now)
 
-      foreign_key :account_id, :anon_proxy_vendor_accounts, null: false, on_delete: :cascade
+      foreign_key :account_id, :anon_proxy_vendor_accounts, index: true, null: false, on_delete: :cascade
       text :external_program_id, null: false
       text :external_registration_id
       constraint(
