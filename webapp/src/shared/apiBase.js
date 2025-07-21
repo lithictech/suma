@@ -14,15 +14,18 @@ function create(apiHost, config) {
     baseURL: apiHost,
     timeout: 20000,
     withCredentials: true,
-    transformResponse: [
-      ...axios.defaults.transformResponse,
-      (data) => humps.camelizeKeys(data),
-    ],
     transformRequest: [
       (data) => humps.decamelizeKeys(data),
       ...axios.defaults.transformRequest,
     ],
+    transformResponse: [...axios.defaults.transformResponse],
     ...rest,
+  });
+  instance.interceptors.response.use((response) => {
+    if (typeof response.data === "object" && response.config.camelize !== false) {
+      response.data = humps.camelizeKeys(response.data);
+    }
+    return response;
   });
   if (debug) {
     console.log(

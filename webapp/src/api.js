@@ -41,70 +41,87 @@ export default {
   patch,
   put,
   del,
-  getMe: (data) => get(`/api/v1/me`, data),
-  updateMe: (data) => post(`/api/v1/me/update`, data),
-  changeLanguage: (data) => post(`/api/v1/me/language`, data),
-  getSupportedGeographies: (data) => get(`/api/v1/meta/supported_geographies`, data),
-  getSupportedLocales: (data) => get(`/api/v1/meta/supported_locales`, data),
-  getSupportedCurrencies: (data) => get(`/api/v1/meta/supported_currencies`, data),
-  getSupportedPaymentMethods: (data) =>
-    get(`/api/v1/meta/supported_payment_methods`, data),
-  geolocateIp: (data) => get(`/api/v1/meta/geolocate_ip`, data),
-  getSupportedOrganizations: (data) => get(`/api/v1/meta/supported_organizations`, data),
-  getLocaleFile: ({ namespace, locale, ...data }) =>
-    get(`/api/v1/meta/static_strings/${locale}/${namespace}`, data),
-  dashboard: (data) => get("/api/v1/me/dashboard", data),
-  getLedgersOverview: (data) => get("/api/v1/ledgers/overview", data),
-  getLedgerLines: ({ id, ...data }) => get(`/api/v1/ledgers/${id}/lines`, data),
-  authStart: (data) => post(`/api/v1/auth/start`, data),
-  authVerify: (data) => post(`/api/v1/auth/verify`, data),
-  authContactList: (data) => post(`/api/v1/auth/contact_list`, data),
-  authSignout: (data) => del(`/api/v1/auth`, data),
-  getMobilityMap: (data) => get("/api/v1/mobility/map", data),
-  getMobilityMapFeatures: (data) => get("/api/v1/mobility/map_features", data),
-  getMobilityVehicle: (data) => get("/api/v1/mobility/vehicle", data),
-  beginMobilityTrip: (data) => post("/api/v1/mobility/begin_trip", data),
-  endMobilityTrip: (data) => post("/api/v1/mobility/end_trip", data),
-  getMobilityTrips: (data) => get("/api/v1/mobility/trips", data),
+  getMe: (data, ...args) => get(`/api/v1/me`, data, ...args),
+  updateMe: (data, ...args) => post(`/api/v1/me/update`, data, ...args),
+  changeLanguage: (data, ...args) => post(`/api/v1/me/language`, data, ...args),
+  getSupportedGeographies: (data, ...args) =>
+    get(`/api/v1/meta/supported_geographies`, data, ...args),
+  getSupportedLocales: (data, ...args) =>
+    get(`/api/v1/meta/supported_locales`, data, ...args),
+  getSupportedCurrencies: (data, ...args) =>
+    get(`/api/v1/meta/supported_currencies`, data, ...args),
+  getSupportedPaymentMethods: (data, ...args) =>
+    get(`/api/v1/meta/supported_payment_methods`, data, ...args),
+  geolocateIp: (data, ...args) => get(`/api/v1/meta/geolocate_ip`, data, ...args),
+  getSupportedOrganizations: (data, ...args) =>
+    get(`/api/v1/meta/supported_organizations`, data, ...args),
+  getLocaleFile: ({ namespace, locale, ...data }, ...args) =>
+    get(`/api/v1/meta/static_strings/${locale}/${namespace}`, data, ...args),
+  dashboard: (data, ...args) => get("/api/v1/me/dashboard", data, ...args),
+  getLedgersOverview: (data, ...args) => get("/api/v1/ledgers/overview", data, ...args),
+  getLedgerLines: ({ id, ...data }, ...args) =>
+    get(`/api/v1/ledgers/${id}/lines`, data, ...args),
+  authStart: (data, ...args) => post(`/api/v1/auth/start`, data, ...args),
+  authVerify: (data, ...args) => post(`/api/v1/auth/verify`, data, ...args),
+  authContactList: (data, ...args) => post(`/api/v1/auth/contact_list`, data, ...args),
+  authSignout: (data, ...args) => del(`/api/v1/auth`, data, ...args),
+  getMobilityMap: (data, ...args) => get("/api/v1/mobility/map", data, ...args),
+  getMobilityMapFeatures: (data, ...args) =>
+    get("/api/v1/mobility/map_features", data, ...args),
+  getMobilityVehicle: (data, ...args) => get("/api/v1/mobility/vehicle", data, ...args),
+  beginMobilityTrip: (data, ...args) =>
+    post("/api/v1/mobility/begin_trip", data, ...args),
+  endMobilityTrip: (data, ...args) => post("/api/v1/mobility/end_trip", data, ...args),
+  getMobilityTrips: (data, ...args) => get("/api/v1/mobility/trips", data, ...args),
   getUserAgent: () => get("/api/useragent"),
   getCommerceOfferings: () => get("/api/v1/commerce/offerings"),
-  getCommerceOfferingDetails: ({ id, ...data }) =>
-    get(`/api/v1/commerce/offerings/${id}`, data),
-  putCartItem: ({ offeringId, ...data }) =>
-    put(`/api/v1/commerce/offerings/${offeringId}/cart/item`, data),
-  startCheckout: ({ offeringId, ...data }) =>
-    post(`/api/v1/commerce/offerings/${offeringId}/checkout`, data),
-  getCheckout: ({ id, ...data }) => get(`/api/v1/commerce/checkouts/${id}`, data),
-  updateCheckoutFulfillment: ({ checkoutId, ...data }) =>
-    post(`/api/v1/commerce/checkouts/${checkoutId}/modify_fulfillment`, data),
-  completeCheckout: ({ id, ...data }) =>
-    post(`/api/v1/commerce/checkouts/${id}/complete`, data),
-  getCheckoutConfirmation: ({ id, ...data }) =>
-    get(`/api/v1/commerce/checkouts/${id}/confirmation`, data),
-  getOrderHistory: (data) => get(`/api/v1/commerce/orders`, data),
-  getOrderDetails: ({ id, ...data }) => get(`/api/v1/commerce/orders/${id}`, data),
-  getUnclaimedOrderHistory: (data) => get(`/api/v1/commerce/orders/unclaimed`, data),
-  updateOrderFulfillment: ({ orderId, ...data }) =>
-    post(`/api/v1/commerce/orders/${orderId}/modify_fulfillment`, data),
-  claimOrder: ({ orderId, ...data }) =>
-    post(`/api/v1/commerce/orders/${orderId}/claim`, data),
+  getCommerceOfferingDetails: ({ id, ...data }, ...args) =>
+    get(`/api/v1/commerce/offerings/${id}`, data, ...args),
+  putCartItem: ({ offeringId, ...data }, ...args) =>
+    put(`/api/v1/commerce/offerings/${offeringId}/cart/item`, data, ...args),
+  startCheckout: ({ offeringId, ...data }, ...args) =>
+    post(`/api/v1/commerce/offerings/${offeringId}/checkout`, data, ...args),
+  getCheckout: ({ id, ...data }, ...args) =>
+    get(`/api/v1/commerce/checkouts/${id}`, data, ...args),
+  updateCheckoutFulfillment: ({ checkoutId, ...data }, ...args) =>
+    post(`/api/v1/commerce/checkouts/${checkoutId}/modify_fulfillment`, data, ...args),
+  completeCheckout: ({ id, ...data }, ...args) =>
+    post(`/api/v1/commerce/checkouts/${id}/complete`, data, ...args),
+  getCheckoutConfirmation: ({ id, ...data }, ...args) =>
+    get(`/api/v1/commerce/checkouts/${id}/confirmation`, data, ...args),
+  getOrderHistory: (data, ...args) => get(`/api/v1/commerce/orders`, data, ...args),
+  getOrderDetails: ({ id, ...data }, ...args) =>
+    get(`/api/v1/commerce/orders/${id}`, data, ...args),
+  getUnclaimedOrderHistory: (data, ...args) =>
+    get(`/api/v1/commerce/orders/unclaimed`, data, ...args),
+  updateOrderFulfillment: ({ orderId, ...data }, ...args) =>
+    post(`/api/v1/commerce/orders/${orderId}/modify_fulfillment`, data, ...args),
+  claimOrder: ({ orderId, ...data }, ...args) =>
+    post(`/api/v1/commerce/orders/${orderId}/claim`, data, ...args),
 
-  createBankAccount: (data) =>
-    post(`/api/v1/payment_instruments/bank_accounts/create`, data),
-  deleteBankAccount: (data) =>
-    del(`/api/v1/payment_instruments/bank_accounts/${data.id}`, data),
+  createBankAccount: (data, ...args) =>
+    post(`/api/v1/payment_instruments/bank_accounts/create`, data, ...args),
+  deleteBankAccount: (data, ...args) =>
+    del(`/api/v1/payment_instruments/bank_accounts/${data.id}`, data, ...args),
 
-  createCardStripe: (data) =>
-    post(`/api/v1/payment_instruments/cards/create_stripe`, data),
-  deleteCard: (data) => del(`/api/v1/payment_instruments/cards/${data.id}`, data),
+  createCardStripe: (data, ...args) =>
+    post(`/api/v1/payment_instruments/cards/create_stripe`, data, ...args),
+  deleteCard: (data, ...args) =>
+    del(`/api/v1/payment_instruments/cards/${data.id}`, data, ...args),
 
-  createFundingPayment: (data) => post(`/api/v1/payments/create_funding`, data),
+  createFundingPayment: (data, ...args) =>
+    post(`/api/v1/payments/create_funding`, data, ...args),
 
-  getPrivateAccounts: (data) => get(`/api/v1/anon_proxy/vendor_accounts`, data),
-  configurePrivateAccount: (data) =>
-    post(`/api/v1/anon_proxy/vendor_accounts/${data.id}/configure`, data),
-  makePrivateAccountAuthRequest: (data) =>
-    post(`/api/v1/anon_proxy/vendor_accounts/${data.id}/make_auth_request`, data),
+  getPrivateAccounts: (data, ...args) =>
+    get(`/api/v1/anon_proxy/vendor_accounts`, data, ...args),
+  configurePrivateAccount: (data, ...args) =>
+    post(`/api/v1/anon_proxy/vendor_accounts/${data.id}/configure`, data, ...args),
+  makePrivateAccountAuthRequest: (data, ...args) =>
+    post(
+      `/api/v1/anon_proxy/vendor_accounts/${data.id}/make_auth_request`,
+      data,
+      ...args
+    ),
   pollForNewPrivateAccountMagicLink: (data, opts) =>
     post(
       `/api/v1/anon_proxy/vendor_accounts/${data.id}/poll_for_new_magic_link`,
@@ -112,9 +129,11 @@ export default {
       opts
     ),
 
-  getPreferencesPublic: (data) => get("/api/v1/preferences/public", data),
-  updatePreferencesPublic: (data) => post("/api/v1/preferences/public", data),
-  updatePreferences: (data) => post("/api/v1/preferences", data),
+  getPreferencesPublic: (data, ...args) =>
+    get("/api/v1/preferences/public", data, ...args),
+  updatePreferencesPublic: (data, ...args) =>
+    post("/api/v1/preferences/public", data, ...args),
+  updatePreferences: (data, ...args) => post("/api/v1/preferences", data, ...args),
 
-  completeSurvey: (data) => post(`/api/v1/surveys`, data),
+  completeSurvey: (data, ...args) => post(`/api/v1/surveys`, data, ...args),
 };
