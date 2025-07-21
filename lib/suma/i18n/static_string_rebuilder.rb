@@ -14,6 +14,7 @@ class Suma::I18n::StaticStringRebuilder
 
   class << self
     def instance = @instance ||= self.new
+    attr_writer :instance
 
     # Use this to send a notification so that all web workers rebuild their locale files.
     def notify_change
@@ -71,19 +72,21 @@ class Suma::I18n::StaticStringRebuilder
     resfiles = []
     Suma::I18n::SUPPORTED_LOCALES.each_key do |locale|
       namespaces.each do |namespace|
-        data = Suma::I18n::StaticString.load_namespace_locale(namespace:, locale:)
+        data, modtime = Suma::I18n::StaticString.load_namespace_locale(namespace:, locale:)
         rf = Suma::I18n::ResourceRewriter::ResourceFile.new(data, namespace:)
-        resfiles << [rf, locale]
+        resfiles << [rf, locale, modtime]
       end
     end
-    rewriter.prime(*resfiles.map { |r, _| r })
-    resfiles.each do |(rf, locale)|
+    rewriter.prime(*resfiles.map { |r, *_| r })
+    resfiles.each do |(rf, locale, modtime)|
       result = rewriter.to_output(rf)
       contents = Yajl::Encoder.encode(result)
       # This may be happening live, while the current file is being served, so we need an atomic write
       # which will allow existing open handles to finish on the old version.
       Suma::Concurrency.atomic_write(@dir + "#{locale}_#{rf.namespace}.json") do |f|
         f.write(contents)
+        f.close
+        File.utime(modtime, modtime, f.path)
       end
     end
   end

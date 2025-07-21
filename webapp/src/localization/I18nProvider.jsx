@@ -1,4 +1,5 @@
 import api from "../api";
+import config from "../config.js";
 import { dayjs } from "../modules/dayConfig";
 import doOnce from "../shared/doOnce";
 import { Logger } from "../shared/logger";
@@ -40,7 +41,10 @@ export default function I18nProvider({ children }) {
         return Promise.resolve();
       }
       return api
-        .getLocaleFile({ locale: language, namespace }, { camelize: false })
+        .getLocaleFile(
+          { locale: language, namespace, cachebust: config.release },
+          { camelize: false }
+        )
         .then((resp) => i18n.putFile(language, namespace, resp.data))
         .catch((e) =>
           logger

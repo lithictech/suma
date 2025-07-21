@@ -8,16 +8,18 @@ class Suma::I18n::StaticString < Suma::Postgres::Model(:i18n_static_strings)
 
   class << self
     # Read all the strings out of the database for the given namespace and locale.
-    # Return it in a form that can be passed to ResourceRewriter.
+    # Return it in a form that can be passed to ResourceRewriter, along with the latest modified_at.
     def load_namespace_locale(namespace:, locale:)
       locale = locale.to_sym
       ds = self.namespace_locale_dataset(namespace:, locale:)
       h = {}
+      mtime = Time.at(0)
       ds.naked.each do |row|
         h[row.fetch(:key)] = row.fetch(locale) || ""
+        mtime = row.fetch(:modified_at) if row.fetch(:modified_at) > mtime
       end
       h = nest_hash(h)
-      return h
+      return h, mtime
     end
 
     # Return a dataset for the key and translated text of the given locale
@@ -27,7 +29,7 @@ class Suma::I18n::StaticString < Suma::Postgres::Model(:i18n_static_strings)
         exclude(deprecated: true).
         where(namespace:).
         left_join(:translated_texts, id: :text_id).
-        select(:key, locale.to_sym)
+        select(:key, :modified_at, locale.to_sym)
       return ds
     end
 

@@ -69,6 +69,22 @@ RSpec.describe Suma::I18n::StaticStringRebuilder, :db do
       expect(Pathname(temp_dir_path + "en_n2.json")).to be_exist
       expect(Pathname(temp_dir_path + "en_n3.json")).to_not be_exist
     end
+
+    it "writes an empty file if there are no strings" do
+      described_class.new(temp_dir_path).write_namespaces(["n"])
+      expect(File.read(temp_dir_path + "en_n.json")).to eq("{}")
+    end
+
+    it "sets the file modtime to the max namespace string modified_at" do
+      t1 = 1.year.ago
+      Suma::Fixtures.static_string.create(namespace: "n1", modified_at: t1)
+      t2 = 2.years.ago
+      Suma::Fixtures.static_string.create(namespace: "n2", modified_at: t2)
+
+      described_class.new(temp_dir_path).write_namespaces(["n1", "n2"])
+      expect(File.mtime(temp_dir_path + "en_n1.json")).to match_time(t1)
+      expect(File.mtime(temp_dir_path + "en_n2.json")).to match_time(t2)
+    end
   end
 
   describe "rebuild_outdated" do
