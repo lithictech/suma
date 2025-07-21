@@ -8,6 +8,12 @@ import * as Sentry from "@sentry/browser";
  * Add more shim methods as needed.
  */
 class SentryShim {
+  /**
+   * @param {function(Sentry.Scope): void} cb
+   */
+  withScope(cb) {
+    return Sentry.withScope(cb);
+  }
   captureMessage(message, context) {
     return Sentry.captureMessage(message, context);
   }
