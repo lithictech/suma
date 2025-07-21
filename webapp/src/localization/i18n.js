@@ -1,3 +1,4 @@
+import { withSentry } from "../shared/sentry.js";
 import get from "lodash/get";
 import isEmpty from "lodash/isEmpty";
 
@@ -74,7 +75,7 @@ class I18n {
     const fqn = this.fqn(key);
     const value = get(this.cache, fqn);
     if (!value) {
-      if (!isEmpty(this.cache)) {
+      if (!isEmpty(this.cache) && !alertedMissingFqns[fqn]) {
         // If the key isn't found, use string formatting on the key.
         // Do not warn if this happens while we're still initializing languages
         // (cache is empty until first file is loaded).
@@ -83,6 +84,18 @@ class I18n {
           this.cache
         );
         console.trace();
+        withSentry((sentry) => {
+          sentry.withScope((scope) => {
+            scope.setLevel("warning");
+            scope.setTags({
+              localization_key_fqn: fqn,
+              localization_key: key,
+              localization_language: this.language,
+            });
+            sentry.captureMessage("missing_localization_key");
+          });
+        });
+        alertedMissingFqns[fqn] = true;
       }
       return ["s", key];
     }
@@ -132,3 +145,5 @@ class I18n {
 const instance = new I18n();
 export default instance;
 window.i18n = instance;
+
+const alertedMissingFqns = {};

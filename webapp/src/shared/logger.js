@@ -32,15 +32,14 @@ export class Logger {
 
   error(event, fields) {
     console.error(...this._buildConsoleMsg(event, fields));
-    this._withSentry(function (sentry, ctx) {
-      const allctx = { ...fields, ...ctx };
-      sentry.captureMessage(event, allctx);
+    this._withSentry(function (sentry) {
+      sentry.captureMessage(event, "error");
     });
   }
 
   exception(event, exc, fields) {
-    this._withSentry(function (sentry, ctx) {
-      sentry.captureException(exc, ctx);
+    this._withSentry(function (sentry) {
+      sentry.captureException(exc);
     });
     console.error(...this._buildConsoleMsg(event, fields));
   }
@@ -59,9 +58,10 @@ export class Logger {
 
   _withSentry(cb) {
     withSentry((sentry) => {
-      cb(sentry, {
-        tags: { logger: this.name, ...this._tags },
-        extra: this._context,
+      sentry.withScope((scope) => {
+        scope.setTags({ logger: this.name, ...this._tags });
+        scope.setExtras(this._context);
+        cb(sentry);
       });
     });
   }
