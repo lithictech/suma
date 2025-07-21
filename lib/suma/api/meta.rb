@@ -62,12 +62,40 @@ class Suma::API::Meta < Suma::API::V1
     end
 
     resource :static_strings do
+      helpers do
+        def ifmodsince
+          t = env["HTTP_IF_MODIFIED_SINCE"]
+          return Time.at(0) unless t
+          return Time.httpdate(t)
+        rescue ArgumentError
+          return Time.at(0)
+        end
+      end
+
       route_param :locale do
         route_param :namespace do
           get do
+            # The frontend includes its build SHA to make sure we get a new file when we ship a new frontend.
+            use_http_expires_caching 24.hours
+            # We are using sendfile without a file, and need to be careful about assumptions we make
+            # around last-modified caching.
+            # - Grape sendfile may or may not set last-modified; we may as well set it ourselves.
+            #   I haven't debugged with how it's being calculated but not eventually sent.
+            # - Rack::ConditionalGet still does too much work; we replicate the behavior here instead.
             f = Suma::I18n::StaticStringRebuilder.instance.
               path_for(namespace: params[:namespace], locale: params[:locale])
-            sendfile f.to_s
+            begin
+              mtime = f.mtime
+            rescue Errno::ENOENT
+              forbidden!
+            end
+            if ifmodsince > mtime
+              status 304
+              body nil
+            else
+              header "last-modified", mtime.httpdate
+              sendfile f.to_s
+            end
           end
         end
       end

@@ -143,7 +143,7 @@ RSpec.describe Suma::API::Meta, :db do
     end
   end
 
-  describe "GET /v1/meta/static_strings/<locale>/<namespace>" do
+  describe "GET /v1/meta/static_strings/<locale>/<namespace>", :static_strings do
     it "returns the static string file from the database" do
       Suma::Fixtures.static_string.text("hi").create(namespace: "forms", key: "s1")
       Suma::I18n::StaticStringRebuilder.instance.rebuild_outdated
@@ -152,6 +152,47 @@ RSpec.describe Suma::API::Meta, :db do
 
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.that_includes(s1: ["s", "hi"])
+    end
+
+    it "sets the last-modified header" do
+      t = Time.parse("2020-01-01T12:00:00Z")
+      Suma::Fixtures.static_string.text("hi").create(namespace: "x", modified_at: t)
+      Suma::I18n::StaticStringRebuilder.instance.rebuild_outdated
+
+      get "/v1/meta/static_strings/en/x"
+
+      expect(last_response).to have_status(200)
+      expect(last_response.headers["last-modified"]).to eq("Wed, 01 Jan 2020 12:00:00 GMT")
+    end
+
+    it "304s if not modified" do
+      # Test this explicitly since we're using sendfile ourselves, and Rack may assume we're using a reverse proxy
+      t = Time.parse("2020-01-01T12:00:00Z")
+      Suma::Fixtures.static_string.text("hi").create(namespace: "x", modified_at: t)
+      Suma::I18n::StaticStringRebuilder.instance.rebuild_outdated
+
+      header "if-modified-since", (t + 1.year).httpdate
+
+      get "/v1/meta/static_strings/en/x"
+
+      expect(last_response).to have_status(304)
+    end
+
+    it "ignores an invalid header time" do
+      Suma::Fixtures.static_string.text("hi").create(namespace: "x")
+      Suma::I18n::StaticStringRebuilder.instance.rebuild_outdated
+
+      header "if-modified-since", "abcfake"
+
+      get "/v1/meta/static_strings/en/x"
+
+      expect(last_response).to have_status(200)
+    end
+
+    it "403s for an invalid namespace" do
+      get "/v1/meta/static_strings/en/x"
+
+      expect(last_response).to have_status(403)
     end
   end
 end

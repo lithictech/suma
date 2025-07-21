@@ -18,6 +18,19 @@ module Suma::SpecHelpers::I18n
         example.run
       end
     end
+
+    context.around(:each) do |example|
+      if example.metadata[:static_strings]
+        Suma::I18n::StaticStringRebuilder.instance = nil
+        begin
+          example.run
+        ensure
+          Suma::I18n::StaticStringRebuilder.instance = nil
+        end
+      else
+        example.run
+      end
+    end
     super
   end
 

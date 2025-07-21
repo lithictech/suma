@@ -10,19 +10,34 @@ RSpec.describe "Suma::I18n::StaticString", :db do
       Suma::Fixtures.static_string.text.create(key: "s1", namespace: "n2")
 
       j = described_class.load_namespace_locale(locale: "en", namespace: "n1")
-      expect(j).to eq({"x" => {"s1" => "there", "y" => {"s2" => "hi ${x.s1}"}}})
+      expect(j.first).to eq({"x" => {"s1" => "there", "y" => {"s2" => "hi ${x.s1}"}}})
     end
 
     it "does not include deprecated strings" do
       Suma::Fixtures.static_string.text.create(deprecated: true, namespace: "n1")
       j = described_class.load_namespace_locale(locale: "en", namespace: "n1")
-      expect(j).to eq({})
+      expect(j.first).to eq({})
     end
 
     it "uses empty string for rows with a null translated_text" do
       Suma::Fixtures.static_string.create(namespace: "n1", key: "s")
       j = described_class.load_namespace_locale(locale: "en", namespace: "n1")
-      expect(j).to eq({"s" => ""})
+      expect(j.first).to eq({"s" => ""})
+    end
+
+    it "includes the most recent modified_at" do
+      t = 1.hour.ago
+      Suma::Fixtures.static_string.create(namespace: "n", modified_at: 2.hours.ago)
+      Suma::Fixtures.static_string.create(namespace: "n", modified_at: t)
+      Suma::Fixtures.static_string.create(namespace: "n", modified_at: 3.hours.ago)
+      j = described_class.load_namespace_locale(locale: "en", namespace: "n")
+      expect(j.last).to match_time(t)
+    end
+
+    it "works when empty" do
+      j, t = described_class.load_namespace_locale(locale: "en", namespace: "n")
+      expect(j).to eq({})
+      expect(t).to eq(Time.at(0))
     end
   end
 
