@@ -11,13 +11,8 @@ class Suma::Payment::FundingTransaction::IncreaseAchStrategy <
   one_to_one :funding_transaction, class: "Suma::Payment::FundingTransaction"
   many_to_one :originating_bank_account, class: "Suma::Payment::BankAccount"
 
-  def originating_instrument
-    return self.originating_bank_account
-  end
-
-  def short_name
-    return "Increase ACH Funding"
-  end
+  def originating_instrument = self.originating_bank_account
+  def short_name = "Increase ACH Funding"
 
   def check_validity
     ba = self.originating_bank_account

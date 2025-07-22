@@ -28,13 +28,11 @@ class Suma::Tasks::Message < Rake::TaskLib
         )
 
         feedback << "*** Created #{delivery.inspect}\n\n"
-        body_for_out = if delivery.bodies.length == 1
-                         delivery.bodies.first
-        elsif (htmlbod = delivery.body_with_mediatype("text/html"))
-          htmlbod
+        body_for_out = if (htmlbod = delivery.body_with_mediatype("text/html"))
+                         htmlbod
         else
-          delivery.body_with_mediatype!("text/plain")
-                       end
+          delivery.bodies.first
+       end
         delivery.bodies.reject { |b| b === body_for_out }.each do |body|
           feedback << body.content
           feedback << "\n\n"

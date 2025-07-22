@@ -156,6 +156,18 @@ RSpec.describe "Suma::Message", :db, :messaging do
       expect(r.contents).to include("email to")
       expect(r.contents.strip).to end_with("</html>")
     end
+
+    it "provides the member, environment, and any additional drops" do
+      tmpl = testers::DropsTester.new
+      r = Suma::Message.render(tmpl, :fake, recipient)
+      expect(r.contents).to eq("test message to member@lithic.tech\n")
+    end
+
+    it "has filters available, including requiring liquifaction" do
+      tmpl = testers::WithFilters.new(str: "solid_snake", amount: Money.new(123, "USD"))
+      r = Suma::Message.render(tmpl, :fake, recipient)
+      expect(r.contents).to eq("Solid snake $1.23\n")
+    end
   end
 
   describe "send_unsent" do

@@ -58,7 +58,7 @@ class Suma::Payment::PayoutTransaction::StripeChargeRefundStrategy <
 
   private def refund_id_set!
     return if self.refund_id.present?
-    msg = "Stripe charge idid not set after API call from #{self.class.name}[#{self.id}]. " \
+    msg = "Stripe id not set after API call from #{self.class.name}[#{self.id}]. " \
           "JSON: #{self.refund_json}"
     raise Suma::InvalidPostcondition, msg
   end

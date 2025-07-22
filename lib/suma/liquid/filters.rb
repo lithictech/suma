@@ -11,10 +11,6 @@ module Suma::Liquid::Filters
   def money(input)
     return input.format
   end
-
-  def card(input)
-    return "#{input.brand} ending in #{input.last4}"
-  end
 end
 
 Liquid::Environment.default.register_filter(Suma::Liquid::Filters)

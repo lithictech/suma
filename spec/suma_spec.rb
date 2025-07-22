@@ -5,6 +5,22 @@ require "tempfile"
 require "suma"
 
 RSpec.describe Suma do
+  describe "MERGE_HEROKU_ENV" do
+    let(:env) { {} }
+    it "merges config from Heroku into env if defined" do
+      env["MERGE_HEROKU_ENV"] = "sushi"
+      expect(Kernel).to receive(:`).with("heroku config -j --app=sushi").and_return('{"XYZ":"val"}')
+      Suma.merge_heroku_env(env)
+      expect(env).to include("XYZ" => "val")
+    end
+
+    it "noops if not defined" do
+      expect(Kernel).to_not receive(:`)
+      Suma.merge_heroku_env(env)
+      expect(env).to_not include("XYZ")
+    end
+  end
+
   describe "load_fixture_data" do
     it "loads plain-text fixture data" do
       data = load_fixture_data("plain.txt")

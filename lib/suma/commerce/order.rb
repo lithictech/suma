@@ -58,10 +58,6 @@ class Suma::Commerce::Order < Suma::Postgres::Model(:commerce_orders)
       return self.where(fulfillment_status: "unfulfilled", order_status: FULFILLABLE_ORDER_STATUSES)
     end
 
-    def canceled
-      return self.where(order_status: "canceled")
-    end
-
     def uncanceled
       return self.where(order_status: ["open", "completed"])
     end

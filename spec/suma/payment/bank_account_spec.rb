@@ -9,6 +9,16 @@ RSpec.describe "Suma::Payment::BankAccount", :db do
     let(:instrument) { Suma::Fixtures.bank_account.create }
   end
 
+  describe "verified" do
+    it "is a timestamp accessor" do
+      ba = Suma::Fixtures.bank_account.create
+      expect(ba).to_not be_verified
+      ba.verified = true
+      expect(ba.verified_at).to match_time(:now)
+      expect(ba).to be_verified
+    end
+  end
+
   describe "dataset" do
     describe "usable" do
       it "is not soft deleted bank accounts" do

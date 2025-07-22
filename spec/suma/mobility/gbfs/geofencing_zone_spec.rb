@@ -161,54 +161,79 @@ RSpec.describe Suma::Mobility::Gbfs::GeofencingZone, :db do
   end
   let(:client) { Suma::Mobility::Gbfs::FakeClient.new(fake_geofencing_json:, fake_vehicle_types_json:) }
 
-  describe "GBFS geofencing" do
-    it "gets and upserts geofencing zones" do
-      Suma::Mobility::Gbfs::VendorSync.new(client:, vendor:, component: described_class.new).sync_all
-      expect(Suma::Mobility::RestrictedArea.all).to contain_exactly(
-        have_attributes(
-          title: "NE 24th/NE Knott",
-          unique_id: "NE 24th/NE Knott",
-          restriction: "do-not-park",
-        ),
-      )
-    end
-
-    it "uses all vehicle type ids if none are in the rules" do
-      fake_geofencing_json["data"]["geofencing_zones"]["features"][0]["properties"]["rules"][0].delete "vehicle_type_id"
-      Suma::Mobility::Gbfs::VendorSync.new(client:, vendor:, component: described_class.new).sync_all
-      expect(Suma::Mobility::RestrictedArea.all).to contain_exactly(
-        have_attributes(
-          title: "NE 24th/NE Knott",
-          unique_id: "NE 24th/NE Knott",
-          restriction: "do-not-park",
-        ),
-      )
-    end
-
-    it "limits zones to those matching the vendor service constraint" do
-      vendor_service.update(constraints: [{"form_factor" => "scooter"}, "propulsion_type" => "electric"])
-      Suma::Mobility::Gbfs::VendorSync.new(client:, vendor:, component: described_class.new).sync_all
-      expect(Suma::Mobility::RestrictedArea.all).to contain_exactly(
-        have_attributes(
-          title: "NE 24th/NE Knott",
-          unique_id: "NE 24th/NE Knott",
-        ),
-      )
-    end
-
-    it "does not create restricted areas for zones that are not handled" do
-      fake_geofencing_json["data"]["geofencing_zones"]["features"][0]["properties"]["rules"][0]["ride_allowed"] = true
-
-      Suma::Mobility::Gbfs::VendorSync.new(client:, vendor:, component: described_class.new).sync_all
-      expect(Suma::Mobility::RestrictedArea.all).to be_empty
-    end
+  it "gets and upserts geofencing zones" do
+    Suma::Mobility::Gbfs::VendorSync.new(client:, vendor:, component: described_class.new).sync_all
+    expect(Suma::Mobility::RestrictedArea.all).to contain_exactly(
+      have_attributes(
+        title: "NE 24th/NE Knott",
+        unique_id: "NE 24th/NE Knott",
+        restriction: "do-not-park",
+      ),
+    )
   end
 
-  it "sets correct zone restriction based on rules" do
+  it "uses all vehicle type ids if none are in the rules" do
+    fake_geofencing_json["data"]["geofencing_zones"]["features"][0]["properties"]["rules"][0].delete "vehicle_type_id"
+    Suma::Mobility::Gbfs::VendorSync.new(client:, vendor:, component: described_class.new).sync_all
+    expect(Suma::Mobility::RestrictedArea.all).to contain_exactly(
+      have_attributes(
+        title: "NE 24th/NE Knott",
+        unique_id: "NE 24th/NE Knott",
+        restriction: "do-not-park",
+      ),
+    )
+  end
+
+  it "limits zones to those matching the vendor service constraint" do
     vendor_service.update(constraints: [{"form_factor" => "scooter"}, "propulsion_type" => "electric"])
     Suma::Mobility::Gbfs::VendorSync.new(client:, vendor:, component: described_class.new).sync_all
     expect(Suma::Mobility::RestrictedArea.all).to contain_exactly(
-      have_attributes(restriction: "do-not-park"),
+      have_attributes(
+        title: "NE 24th/NE Knott",
+        unique_id: "NE 24th/NE Knott",
+        restriction: "do-not-park",
+      ),
     )
+  end
+
+  describe "restriction calculation" do
+    before(:each) do
+      fake_geofencing_json["data"]["geofencing_zones"]["features"].pop
+      @rule = fake_geofencing_json["data"]["geofencing_zones"]["features"][0]["properties"]["rules"][0]
+    end
+
+    it "uses do-not-ride if ride_through_allowed=false/ride_allowed=true" do
+      @rule["ride_through_allowed"] = false
+      @rule["ride_allowed"] = true
+      Suma::Mobility::Gbfs::VendorSync.new(client:, vendor:, component: described_class.new).sync_all
+      expect(Suma::Mobility::RestrictedArea.all).to contain_exactly(
+        have_attributes(restriction: "do-not-ride"),
+      )
+    end
+
+    it "uses do-not-park if ride_through_allowed=true/ride_allowed=false" do
+      @rule["ride_through_allowed"] = true
+      @rule["ride_allowed"] = false
+      Suma::Mobility::Gbfs::VendorSync.new(client:, vendor:, component: described_class.new).sync_all
+      expect(Suma::Mobility::RestrictedArea.all).to contain_exactly(
+        have_attributes(restriction: "do-not-park"),
+      )
+    end
+
+    it "uses do-not-park-or-ride if ride_through_allowed=false/ride_allowed=false" do
+      @rule["ride_through_allowed"] = false
+      @rule["ride_allowed"] = false
+      Suma::Mobility::Gbfs::VendorSync.new(client:, vendor:, component: described_class.new).sync_all
+      expect(Suma::Mobility::RestrictedArea.all).to contain_exactly(
+        have_attributes(restriction: "do-not-park-or-ride"),
+      )
+    end
+
+    it "uses no restriction if ride_through_allowed=true/ride_allowed=true" do
+      @rule["ride_through_allowed"] = true
+      @rule["ride_allowed"] = true
+      Suma::Mobility::Gbfs::VendorSync.new(client:, vendor:, component: described_class.new).sync_all
+      expect(Suma::Mobility::RestrictedArea.all).to be_empty
+    end
   end
 end

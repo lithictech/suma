@@ -51,13 +51,8 @@ class Suma::Service::Collection
     @total_count = total_count
   end
 
-  def last_page?
-    return @last_page
-  end
-
-  def more?
-    return !@last_page
-  end
+  def last_page? = @last_page
+  def more? = !@last_page
 
   module Helpers
     def present_collection(collection, opts={})

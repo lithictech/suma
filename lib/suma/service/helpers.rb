@@ -186,35 +186,6 @@ module Suma::Service::Helpers
     header "Expires", expiration.from_now.httpdate
   end
 
-  # Render a liquid template in the 'data' directory.
-  # 'vars' are sent into the template when rendering
-  # so can be used to render custom vars.
-  # If 'styles' is true, render styles.css/liquid into the template.
-  # The template should have `{{ styles }}` text somewhere in it.
-  def render_liquid(data_rel_path, vars: {}, content_type: "text/html", styles: false)
-    if styles
-      styles_css = render_liquid_content("assets/styles.css")
-      vars["styles"] = render_liquid_content("assets/styles.liquid", vars: {css: styles_css})
-    end
-    rendered = render_liquid_content(data_rel_path, vars:)
-    content_type content_type
-    env["api.format"] = :binary
-    return rendered
-  end
-
-  def render_liquid_content(data_rel_path, vars: {})
-    tmpl_file = File.open(Suma::DATA_DIR + data_rel_path)
-    liquid_tmpl = Liquid::Template.parse(tmpl_file.read)
-    rendered = liquid_tmpl.render!(vars.stringify_keys, registers: {})
-    return rendered
-  end
-
-  def set_one_relation(model, params, key, id_key: :id)
-    return unless params.key?(key)
-    value = params.delete(key).delete(id_key)
-    model.send(:"#{key}_#{id_key}=", value)
-  end
-
   # Set the provided, declared/valid parameters in params on model.
   # Because Grape's `declared()` function *adds* parameters that are declared-but-not-provided,
   # and its `params` value includes provided-but-not-declared entries,
@@ -276,11 +247,6 @@ module Suma::Service::Helpers
              }
   end
 
-  params :time_range do
-    requires :start, as: :begin, type: Time
-    requires :end, type: Time
-  end
-
   params :pagination do
     optional :page, type: Integer, default: 1, values: (1..1_000_000)
     optional :per_page, type: Integer, default: Suma::Service::PAGE_SIZE, values: (1..500)
@@ -301,14 +267,6 @@ module Suma::Service::Helpers
     raise "Must provide :values or :model for possible orderings" unless order_by_values
     optional :order_by, type: Symbol, values: order_by_values, default: default_order_by
     optional :order_direction, type: Symbol, values: [:asc, :desc], default: :desc
-  end
-
-  params :filters do
-    optional :filters, type: JSON do
-      requires :name, type: String
-      optional :operator, type: String, values: ["="], default: "="
-      requires :values, type: Array[String], allow_blank: false
-    end
   end
 
   params :address do

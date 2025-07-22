@@ -71,19 +71,6 @@ class Suma::Payment::PayoutTransaction < Suma::Postgres::Model(:payment_payout_t
   )
 
   class << self
-    # Force a fake strategy within a block. Mostly used for API tests,
-    # since you can otherwise pass strategy explicitly to start_new.
-    def force_fake(strat)
-      raise LocalJumpError unless block_given?
-      raise ArgumentError, "strat cannot be nil" if strat.nil?
-      @fake_strategy = strat
-      begin
-        return yield
-      ensure
-        @fake_strategy = nil
-      end
-    end
-
     # Create a new payout transaction with the given parameters.
     # @param payment_account [Suma::Payment::Account] For the member/vendor/etc who is associated with this payout.
     # @param amount [Money] Amount of the payout.

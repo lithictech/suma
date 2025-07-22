@@ -17,7 +17,7 @@ class Suma::Tasks::Integration < Rake::TaskLib
         lp = Suma::Lyft::Pass.from_config
         lp.authenticate
         Suma::Lyft::Pass.programs_dataset.each do |program|
-          lp.sync_trips(program.lyft_pass_program_id)
+          lp.sync_trips_from_program(program)
         end
       end
     end
