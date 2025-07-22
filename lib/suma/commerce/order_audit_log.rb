@@ -24,7 +24,8 @@ end
 #  actor_id     | integer                  |
 #  machine_name | text                     | NOT NULL
 # Indexes:
-#  commerce_order_audit_logs_pkey | PRIMARY KEY btree (id)
+#  commerce_order_audit_logs_pkey           | PRIMARY KEY btree (id)
+#  commerce_order_audit_logs_order_id_index | btree (order_id)
 # Foreign key constraints:
 #  commerce_order_audit_logs_actor_id_fkey | (actor_id) REFERENCES members(id) ON DELETE SET NULL
 #  commerce_order_audit_logs_order_id_fkey | (order_id) REFERENCES commerce_orders(id)

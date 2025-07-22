@@ -70,6 +70,7 @@ end
 #  commerce_offerings                    | commerce_offerings_fulfillment_prompt_id_fkey                   | (fulfillment_prompt_id) REFERENCES translated_texts(id)
 #  commerce_products                     | commerce_products_description_id_fkey                           | (description_id) REFERENCES translated_texts(id)
 #  commerce_products                     | commerce_products_name_id_fkey                                  | (name_id) REFERENCES translated_texts(id)
+#  i18n_static_strings                   | i18n_static_strings_text_id_fkey                                | (text_id) REFERENCES translated_texts(id) ON DELETE CASCADE
 #  images                                | images_caption_id_fkey                                          | (caption_id) REFERENCES translated_texts(id)
 #  marketing_sms_broadcasts              | marketing_sms_broadcasts_body_id_fkey                           | (body_id) REFERENCES translated_texts(id)
 #  organizations                         | organizations_membership_verification_member_outreach_temp_fkey | (membership_verification_member_outreach_template_id) REFERENCES translated_texts(id)

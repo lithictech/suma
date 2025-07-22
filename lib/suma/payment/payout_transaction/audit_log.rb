@@ -22,7 +22,8 @@ end
 #  payout_transaction_id | integer                  | NOT NULL
 #  actor_id              | integer                  |
 # Indexes:
-#  payment_payout_transaction_audit_logs_pkey | PRIMARY KEY btree (id)
+#  payment_payout_transaction_audit_logs_pkey                      | PRIMARY KEY btree (id)
+#  payment_payout_transaction_audit_logs_payout_transaction_id_ind | btree (payout_transaction_id)
 # Foreign key constraints:
 #  payment_payout_transaction_audit_log_payout_transaction_id_fkey | (payout_transaction_id) REFERENCES payment_payout_transactions(id)
 #  payment_payout_transaction_audit_logs_actor_id_fkey             | (actor_id) REFERENCES members(id) ON DELETE SET NULL

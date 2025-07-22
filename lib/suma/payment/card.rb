@@ -103,7 +103,8 @@ end
 #  legal_entity_id | integer                  | NOT NULL
 #  stripe_json     | jsonb                    | NOT NULL
 # Indexes:
-#  payment_cards_pkey | PRIMARY KEY btree (id)
+#  payment_cards_pkey                  | PRIMARY KEY btree (id)
+#  payment_cards_legal_entity_id_index | btree (legal_entity_id)
 # Foreign key constraints:
 #  payment_cards_legal_entity_id_fkey | (legal_entity_id) REFERENCES legal_entities(id) ON DELETE RESTRICT
 # Referenced By:

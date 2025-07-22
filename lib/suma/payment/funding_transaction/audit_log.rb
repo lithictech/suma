@@ -22,7 +22,8 @@ end
 #  funding_transaction_id | integer                  | NOT NULL
 #  actor_id               | integer                  |
 # Indexes:
-#  payment_funding_transaction_audit_logs_pkey | PRIMARY KEY btree (id)
+#  payment_funding_transaction_audit_logs_pkey                     | PRIMARY KEY btree (id)
+#  payment_funding_transaction_audit_logs_funding_transaction_id_i | btree (funding_transaction_id)
 # Foreign key constraints:
 #  payment_funding_transaction_audit_l_funding_transaction_id_fkey | (funding_transaction_id) REFERENCES payment_funding_transactions(id)
 #  payment_funding_transaction_audit_logs_actor_id_fkey            | (actor_id) REFERENCES members(id) ON DELETE SET NULL

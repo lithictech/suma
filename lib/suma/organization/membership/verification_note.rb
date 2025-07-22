@@ -31,7 +31,8 @@ end
 #  creator_id      | integer                  |
 #  editor_id       | integer                  |
 # Indexes:
-#  organization_membership_verification_notes_pkey | PRIMARY KEY btree (id)
+#  organization_membership_verification_notes_pkey                 | PRIMARY KEY btree (id)
+#  organization_membership_verification_notes_verification_id_inde | btree (verification_id)
 # Foreign key constraints:
 #  organization_membership_verification_notes_creator_id_fkey      | (creator_id) REFERENCES members(id) ON DELETE SET NULL
 #  organization_membership_verification_notes_editor_id_fkey       | (editor_id) REFERENCES members(id) ON DELETE SET NULL

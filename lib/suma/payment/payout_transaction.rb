@@ -313,6 +313,7 @@ end
 #  payment_payout_transactions_stripe_charge_refund_strategy_i_key | UNIQUE btree (stripe_charge_refund_strategy_id)
 #  payment_payout_transactions_originating_payment_account_id_inde | btree (originating_payment_account_id)
 #  payment_payout_transactions_platform_ledger_id_index            | btree (platform_ledger_id)
+#  payment_payout_transactions_refunded_funding_transaction_id_ind | btree (refunded_funding_transaction_id)
 #  payment_payout_transactions_search_content_tsvector_index       | gin (to_tsvector('english'::regconfig, search_content))
 # Check constraints:
 #  amount_positive      | (amount_cents > 0)

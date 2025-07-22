@@ -83,6 +83,7 @@ end
 # Indexes:
 #  commerce_products_pkey                          | PRIMARY KEY btree (id)
 #  commerce_products_search_content_tsvector_index | gin (to_tsvector('english'::regconfig, search_content))
+#  commerce_products_vendor_id_index               | btree (vendor_id)
 # Foreign key constraints:
 #  commerce_products_description_id_fkey | (description_id) REFERENCES translated_texts(id)
 #  commerce_products_name_id_fkey        | (name_id) REFERENCES translated_texts(id)

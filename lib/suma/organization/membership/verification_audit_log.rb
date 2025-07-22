@@ -24,7 +24,8 @@ end
 #  verification_id | integer                  | NOT NULL
 #  actor_id        | integer                  |
 # Indexes:
-#  organization_membership_verification_audit_logs_pkey | PRIMARY KEY btree (id)
+#  organization_membership_verification_audit_logs_pkey            | PRIMARY KEY btree (id)
+#  organization_membership_verification_audit_logs_verification_id | btree (verification_id)
 # Foreign key constraints:
 #  organization_membership_verification_audit_logs_actor_id_fkey   | (actor_id) REFERENCES members(id) ON DELETE SET NULL
 #  organization_membership_verification_audit_verification_id_fkey | (verification_id) REFERENCES organization_membership_verifications(id) ON DELETE CASCADE

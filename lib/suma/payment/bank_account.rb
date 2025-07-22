@@ -113,8 +113,9 @@ end
 #  account_type         | text                     | NOT NULL
 #  identity             | text                     | NOT NULL
 # Indexes:
-#  bank_accounts_pkey                         | PRIMARY KEY btree (id)
-#  unique_undeleted_bank_account_identity_key | UNIQUE btree (identity) WHERE soft_deleted_at IS NULL
+#  bank_accounts_pkey                          | PRIMARY KEY btree (id)
+#  unique_undeleted_bank_account_identity_key  | UNIQUE btree (identity) WHERE soft_deleted_at IS NULL
+#  payment_bank_accounts_legal_entity_id_index | btree (legal_entity_id)
 # Foreign key constraints:
 #  bank_accounts_legal_entity_id_fkey      | (legal_entity_id) REFERENCES legal_entities(id) ON DELETE RESTRICT
 #  bank_accounts_plaid_institution_id_fkey | (plaid_institution_id) REFERENCES plaid_institutions(pk) ON DELETE SET NULL
