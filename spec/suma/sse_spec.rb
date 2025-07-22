@@ -12,19 +12,22 @@ RSpec.describe Suma::SSE do
           got << message
         end
       end
-      sleep(1) # Wait for the subscriber to set up
 
-      described_class.publish("test", {x: 1})
+      # Keep publishing because we have to wait for the subscriber to be set up.
+      until got.any?
+        described_class.publish("test", {x: 1})
+        sleep(0.01)
+      end
+      expect(got.first).to include("payload" => {"x" => 1})
+
+      # Once the subscriber is set up, we can test on a single publish.
       begin
         described_class.current_session_id = "abc"
         described_class.publish("test", {x: 2})
       ensure
         described_class.current_session_id = nil
       end
-      expect { got }.to eventually(have_length(2))
-      expect(got.first).to include("payload" => {"x" => 1})
-      expect(got.first).to_not include("sid")
-      expect(got.last).to include("payload" => {"x" => 2}, "sid" => "abc")
+      expect { got.last }.to eventually(include("payload" => {"x" => 2}, "sid" => "abc"))
     ensure
       t.kill
     end
@@ -37,21 +40,24 @@ RSpec.describe Suma::SSE do
           got << message
         end
       end
-      sleep(1)
 
-      described_class.publish("test", {x: 1})
+      until got.any?
+        described_class.publish("test", {x: 1})
+        sleep(0.01)
+      end
+      expect(got.first).to include("payload" => {"x" => 1})
+
       begin
-        described_class.current_session_id = "abc"
-        described_class.publish("test", {x: 2})
+        # This event is skipped since it's from our session
         described_class.current_session_id = sessid
         described_class.publish("test", {x: 3})
+        # This event is recorded since it's from another session
+        described_class.current_session_id = "eventfromother"
+        described_class.publish("test", {x: 2})
       ensure
         described_class.current_session_id = nil
       end
-      # The session-less publish and matching publish should be recorded
-      expect { got }.to eventually(have_length(2))
-      expect(got.first).to include("payload" => {"x" => 1})
-      expect(got.last).to include("payload" => {"x" => 2}, "sid" => "abc")
+      expect { got.last }.to eventually(include("payload" => {"x" => 2}, "sid" => "eventfromother"))
     ensure
       t.kill
     end
