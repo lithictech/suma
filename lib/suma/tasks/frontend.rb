@@ -19,10 +19,10 @@ class Suma::Tasks::Frontend < Rake::TaskLib
 
   def runcmd(s)
     require "English"
-    `#{s}`
+    Kernel.send(:`, s)
     ps = $CHILD_STATUS
     return if ps.exitstatus.zero?
-    puts "Non-zero exit status: #{ps.inspect}"
-    exit(ps.exitstatus)
+    puts "Non-zero exit status: #{ps.exitstatus}"
+    Kernel.exit(ps.exitstatus)
   end
 end

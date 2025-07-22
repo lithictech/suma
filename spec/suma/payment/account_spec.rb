@@ -10,9 +10,20 @@ RSpec.describe "Suma::Payment::Account", :db do
     it "can find its cash ledger" do
       acct = Suma::Fixtures.payment_account.create
       expect(acct.cash_ledger).to be_nil
+      expect { acct.cash_ledger! }.to raise_error(/has no cash ledger/)
       cashledger = Suma::Payment.ensure_cash_ledger(acct.member)
       expect(acct.refresh.cash_ledger).to be_a(Suma::Payment::Ledger)
       expect(acct.cash_ledger).to be === cashledger
+    end
+
+    it "can find its mobility ledger" do
+      acct = Suma::Fixtures.payment_account.create
+      expect(acct.mobility_ledger).to be_nil
+      expect { acct.mobility_ledger! }.to raise_error(/has no mobility ledger/)
+      mobility = Suma::Fixtures.vendor_service_category.create(name: "mobility")
+      led = Suma::Fixtures.ledger(account: acct).with_categories(mobility).create
+      expect(acct.refresh.mobility_ledger).to be === led
+      expect(acct.refresh.mobility_ledger!).to be === led
     end
 
     it "can find book transactions across all ledgers" do
@@ -226,6 +237,15 @@ RSpec.describe "Suma::Payment::Account", :db do
         admin_link: "http://localhost:22014/payment-accounts/#{account.id}",
         display_name: "Payment Account #{account.id}",
       )
+    end
+  end
+
+  describe "HasAccount mixin" do
+    it "finds the payment account" do
+      m = Suma::Fixtures.member.create
+      expect { m.payment_account! }.to raise_error(/does not have a payment_account/)
+      led = Suma::Payment.ensure_cash_ledger(m)
+      expect(m.refresh.payment_account!).to be === led.account
     end
   end
 end

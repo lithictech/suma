@@ -9,10 +9,10 @@ class Suma::Tasks::Annotate < Rake::TaskLib
     super
     desc "Update model annotations"
     task :annotate do
-      unless `git diff`.blank?
+      unless Kernel.send(:`, "git diff").blank?
         puts "Cannot annotate while there is any git diff."
         puts "Please commit or revert any diff and try again."
-        exit(1)
+        next Kernel.exit(1)
       end
 
       require "suma"
@@ -26,7 +26,7 @@ class Suma::Tasks::Annotate < Rake::TaskLib
 
       require "sequel/annotate"
       Sequel::Annotate.annotate(files, border: true)
-      puts "Finished annotating:"
+      puts "Finished annotating #{files.count} model files."
       files.each { |f| puts "  #{f}" }
       puts "Please commit the changes."
     end

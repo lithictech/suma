@@ -9,10 +9,16 @@ require "pathname"
 require "phony"
 require "yajl"
 
-if (heroku_app = ENV.fetch("MERGE_HEROKU_ENV", nil))
-  text = `heroku config -j --app=#{heroku_app}`
-  ENV.merge!(Yajl::Parser.parse(text))
+module Suma
+  def self.merge_heroku_env(env=ENV)
+    if (heroku_app = env.fetch("MERGE_HEROKU_ENV", nil))
+      text = Kernel.send(:`, "heroku config -j --app=#{heroku_app}")
+      env.merge!(Yajl::Parser.parse(text))
+    end
+  end
 end
+
+Suma.merge_heroku_env
 
 Money.locale_backend = :i18n
 Money.rounding_mode = BigDecimal::ROUND_HALF_UP

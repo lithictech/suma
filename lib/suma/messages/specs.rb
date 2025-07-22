@@ -43,14 +43,6 @@ module Suma::Messages::Testers
     def layout = return "standard"
   end
 
-  class EatArgs < Base
-    def initialize(*)
-      super()
-    end
-
-    def template_name = "basic"
-  end
-
   class Localized < Base
     def localized? = true
   end
@@ -58,5 +50,19 @@ module Suma::Messages::Testers
   class Sensitive < Base
     def template_name = "basic"
     def sensitive? = true
+  end
+
+  class DropsTester < Base
+    def template_name = "basic"
+  end
+
+  class WithFilters < Base
+    def initialize(str:, amount:)
+      super()
+      @str = str
+      @amount = amount
+    end
+
+    def liquid_drops = super.merge(str: @str, amount: self.liquify(@amount))
   end
 end

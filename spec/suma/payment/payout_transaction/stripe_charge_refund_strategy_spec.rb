@@ -40,6 +40,17 @@ RSpec.describe "Suma::Payment::PayoutTransaction::StripeChargeRefundStrategy", :
       strategy.refund_json = {"id" => "re_abc", "status" => "succeeded"}.to_json
       expect(strategy.send_funds).to eq(false)
     end
+
+    it "errors if somehow the id isn't set after calling Stripe" do
+      resp = load_fixture_data("stripe/refund")
+      resp["id"] = nil
+      req = stub_request(:post, "https://api.stripe.com/v1/refunds").
+        with(body: hash_including("charge" => "ch_1", amount: xaction.amount.cents.to_s)).
+        to_return(json_response(resp))
+
+      expect { strategy.send_funds }.to raise_error(Suma::InvalidPostcondition, /not set after API/)
+      expect(req).to have_been_made
+    end
   end
 
   describe "funds_settled?" do

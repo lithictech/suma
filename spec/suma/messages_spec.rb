@@ -4,7 +4,7 @@ require "suma/messages/order_confirmation"
 require "suma/messages/single_value"
 require "suma/messages/verification"
 
-RSpec.describe Suma::Message, :db do
+RSpec.describe Suma::Messages, :db do
   describe "template fixturing" do
     let(:r) { Suma::Fixtures.member.create }
 

@@ -8,6 +8,21 @@ module Suma::SpecHelpers::Rake
     context.before(:all) do
       Suma::Tasks.load_all
     end
+    context.around(:each) do |example|
+      next example.run unless example.metadata[:redirect]
+      stdout = named_stdout
+      stderr = named_stderr
+      orig_stdout = $stdout
+      orig_stderr = $stderr
+      $stdout = stdout
+      $stderr = stderr
+      begin
+        example.run
+      ensure
+        $stdout = orig_stdout
+        $stderr = orig_stderr
+      end
+    end
   end
 
   module_function def invoke_rake_task(name, *)

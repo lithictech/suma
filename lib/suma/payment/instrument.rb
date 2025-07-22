@@ -32,22 +32,11 @@ module Suma::Payment::Instrument
     return "data:#{matched};base64,#{arg}"
   end
 
-  def payment_method_type
-    raise NotImplementedError
-  end
-
-  def rel_admin_link
-    raise NotImplementedError
-  end
-
-  def can_use_for_funding?
-    raise NotImplementedError
-  end
-
+  def payment_method_type = raise NotImplementedError
+  def rel_admin_link = raise NotImplementedError
+  def can_use_for_funding? = raise NotImplementedError
   # @return [Institution]
-  def institution
-    raise NotImplementedError
-  end
+  def institution = raise NotImplementedError
 
   def admin_label
     lbl = "#{self.name}/#{self.last4}"
@@ -56,9 +45,7 @@ module Suma::Payment::Instrument
     return lbl
   end
 
-  def simple_label
-    raise NotImplementedError
-  end
+  def simple_label = raise NotImplementedError
 
   def search_label
     lbl = "#{self.legal_entity.name}: #{self.name} x-#{self.last4}, #{self.institution.name}"

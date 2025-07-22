@@ -42,12 +42,10 @@ class Suma::Payment::BankAccount < Suma::Postgres::Model(:payment_bank_accounts)
     return Digest::SHA512.hexdigest("#{legal_entity_id}|#{routing_number}|#{account_number}")
   end
 
-  def verified?
-    return !!self.verified_at
-  end
+  def verified? = Suma::MethodUtilities.timestamp_set?(self, :verified_at)
 
   def verified=(v)
-    self.verified_at = v.nil? ? nil : Time.now
+    Suma::MethodUtilities.timestamp_set(self, :verified_at, v)
   end
 
   def payment_method_type

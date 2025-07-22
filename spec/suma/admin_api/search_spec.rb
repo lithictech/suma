@@ -132,6 +132,28 @@ RSpec.describe Suma::AdminAPI::Search, :db do
     end
   end
 
+  describe "POST /v1/search/products" do
+    it "returns matching products" do
+      o1 = Suma::Fixtures.product.create
+      o1.name.update(en: "abc")
+      o2 = Suma::Fixtures.product.create
+
+      post "/v1/search/products", q: "abc"
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.that_includes(items: have_same_ids_as(o1))
+    end
+
+    it "errors without role access" do
+      replace_roles(admin, Suma::Role.cache.noop_admin)
+
+      post "/v1/search/products", q: "abc"
+
+      expect(last_response).to have_status(403)
+      expect(last_response).to have_json_body.that_includes(error: include(code: "role_check"))
+    end
+  end
+
   describe "POST /v1/search/translations" do
     it "returns ranked distinct translated texts" do
       Suma::TranslatedText.create(en: "quickly fast brown")
