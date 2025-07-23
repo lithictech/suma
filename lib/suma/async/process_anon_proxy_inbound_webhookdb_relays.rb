@@ -31,8 +31,7 @@ class Suma::Async::ProcessAnonProxyInboundWebhookdbRelays
   end
 
   def _inner_perform
-    Suma::AnonProxy::Relay.registry.each_value do |relay_cls|
-      relay = relay_cls.new
+    Suma::AnonProxy::Relay.registry_each do |relay|
       next unless relay.webhookdb_dataset
       cache_key = self.class.relay_cache_key(relay)
       last_synced_pk = Suma::Redis.cache.with { |c| c.call("GET", cache_key) }.to_i

@@ -37,7 +37,10 @@ require_relative "transport/email"
 Suma::Message::Transport.register(:email, Suma::Message::Transport::Email)
 require_relative "transport/fake"
 Suma::Message::Transport.register(:fake, Suma::Message::Transport::Fake)
-require_relative "transport/otp_sms"
-Suma::Message::Transport.register(:otp_sms, Suma::Message::Transport::OtpSms)
+require_relative "transport/twilio_verify"
+Suma::Message::Transport.register(:otp_sms, Suma::Message::Transport::TwilioVerify, :sms)
+# Use 'call' instead of 'voice' since 'call' is a transport (the 2FA service makes a phone call)
+# but 'voice' is not.
+Suma::Message::Transport.register(:otp_call, Suma::Message::Transport::TwilioVerify, :call)
 require_relative "transport/sms"
 Suma::Message::Transport.register(:sms, Suma::Message::Transport::Sms)
