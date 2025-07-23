@@ -9,6 +9,8 @@ require "suma/messages/verification"
 class Suma::Member::ResetCode < Suma::Postgres::Model(:member_reset_codes)
   class Unusable < RuntimeError; end
 
+  TRANSPORTS = ["sms", "call"].freeze
+
   plugin :timestamps
 
   many_to_one :member, class: Suma::Member
@@ -82,7 +84,7 @@ class Suma::Member::ResetCode < Suma::Postgres::Model(:member_reset_codes)
 
   def validate
     super
-    self.validates_includes(["sms"], :transport)
+    self.validates_includes(TRANSPORTS, :transport)
   end
 end
 

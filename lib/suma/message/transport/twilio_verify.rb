@@ -3,17 +3,20 @@
 require "appydays/loggable"
 require "suma/twilio"
 
-class Suma::Message::Transport::OtpSms < Suma::Message::Transport
+class Suma::Message::Transport::TwilioVerify < Suma::Message::Transport
   include Appydays::Loggable
 
   class UnknownVerificationId < StandardError; end
 
-  def initialize
-    super
+  def initialize(channel)
+    super()
+    @channel = channel.to_s
+    @type = :"otp_#{channel}"
     @smstransport = Suma::Message::Transport::Sms.new
   end
 
-  def type = :otp_sms
+  attr_reader :type
+
   def carrier = Suma::Message::Carrier.registry_create!(:twilio_verify)
   def supports_layout? = false
   def recipient(to) = @smstransport.recipient(to)
@@ -34,7 +37,7 @@ class Suma::Message::Transport::OtpSms < Suma::Message::Transport
       to: to_phone,
       code: delivery.bodies.first.content.strip,
       locale: delivery.template_language,
-      channel: "sms",
+      channel: @channel,
     )
   end
 end

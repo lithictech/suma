@@ -49,7 +49,7 @@ class Suma::AnonProxy::MessageHandler
   # @return [Suma::AnonProxy::VendorAccountMessage,nil]
   def self.handle(relay, message)
     return nil if message.timestamp < OLD_MESSAGE_CUTOFF.ago
-    handler = self.registry.values.map(&:new).find { |h| h.can_handle?(message) }
+    handler = self.registry_each.find { |h| h.can_handle?(message) }
     if handler.nil?
       self.logger.warn("no_handler_for_message", message:)
       return nil

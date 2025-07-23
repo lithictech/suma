@@ -37,6 +37,7 @@ class Suma::API::Auth < Suma::API::V1
       requires :timezone, type: String, values: ALL_TIMEZONES
       optional :language, type: String, values: Suma::I18n.enabled_locale_codes
       optional :terms_agreed, type: Boolean
+      optional :transport, type: String, default: "sms", values: Suma::Member::ResetCode::TRANSPORTS
     end
     Suma::RackAttack.throttle_many(
       "/auth/sms_bomb_to_phone",
@@ -48,7 +49,6 @@ class Suma::API::Auth < Suma::API::V1
       next unless request.path.include?("/v1/auth/start")
       Suma::API::Auth.extract_phone_from_request(request)
     end
-
     Suma::RackAttack.throttle_many(
       "/auth/sms_bomb_from_ip",
       # Same limits as above
@@ -78,7 +78,7 @@ class Suma::API::Auth < Suma::API::V1
             prefix: "Created from API",
           )
         end
-        Suma::Member::ResetCode.replace_active(member, transport: "sms")
+        Suma::Member::ResetCode.replace_active(member, transport: params[:transport])
         member.message_preferences!.update(preferred_language: params[:language]) if params[:language].present?
         status 200
         present member, with: AuthFlowMemberEntity
