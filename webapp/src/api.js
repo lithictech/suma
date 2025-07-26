@@ -1,11 +1,13 @@
 import config from "./config";
 import { getCurrentLanguage } from "./localization/currentLanguage";
 import apiBase from "./shared/apiBase";
+import axiosRetry from "axios-retry";
 
 const instance = apiBase.create(config.apiHost, {
   debug: config.debug,
   chaos: config.chaos || false,
 });
+axiosRetry(instance);
 
 instance.interceptors.request.use(
   (config) => {
