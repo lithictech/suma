@@ -97,6 +97,7 @@ RSpec.describe "Suma::Payment::BookTransaction", :db do
     it "uses 'misc' if receiver has a charge without a mobility trip", lang: :en do
       ledger = Suma::Fixtures.ledger.member(member).create
       charge = Suma::Fixtures.charge(member:, undiscounted_subtotal: money("$12.50")).create
+      charge.mobility_trip = nil # Cannot be saved due to constraint but keep here to test fallback
       bx = Suma::Fixtures.book_transaction(amount: "$12.50", memo: translated_text(en: "Hello")).from(ledger).create
       charge.add_line_item(book_transaction: bx)
       expect(bx).to have_attributes(
