@@ -42,4 +42,11 @@ RSpec.describe "Suma::Charge", :db do
       Suma::Fixtures.charge_line_item.book_transaction.create
     end
   end
+
+  describe "validations" do
+    it "requires a trip or order" do
+      c = Suma::Charge.new(member: Suma::Fixtures.member.create, undiscounted_subtotal: "$1")
+      expect { c.save_changes }.to raise_error(Sequel::CheckConstraintViolation)
+    end
+  end
 end
