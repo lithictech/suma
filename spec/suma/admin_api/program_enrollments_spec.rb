@@ -75,6 +75,18 @@ RSpec.describe Suma::AdminAPI::ProgramEnrollments, :db do
       expect(last_response.headers).to include("Created-Resource-Admin")
       expect(Suma::Program::Enrollment.all).to have_length(1)
     end
+
+    it "is automatically approved" do
+      role = Suma::Role.create(name: "test")
+      program = Suma::Fixtures.program.create
+
+      post "/v1/program_enrollments/create", program: {id: program.id}, role: {id: role.id}
+
+      expect(last_response).to have_status(200)
+      expect(Suma::Program::Enrollment.first).to have_attributes(
+        approved_at: match_time(:now),
+      )
+    end
   end
 
   describe "GET /v1/program_enrollments/:id" do
