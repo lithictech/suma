@@ -16,8 +16,8 @@ export default function detailPageImageProperties(image, { h, label } = {}) {
     },
     {
       label: "Caption (En)",
-      value: image.caption.en,
+      value: image?.caption.en,
     },
-    { label: "Caption (Es)", value: image.caption.es },
+    { label: "Caption (Es)", value: image?.caption.es },
   ];
 }
