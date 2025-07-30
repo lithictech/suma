@@ -9,8 +9,8 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
   def initialize
     super
     desc "Bootstrap a new database so you can use the app."
-    task :bootstrap do
-      raise "only run this in development" unless Suma::RACK_ENV == "development"
+    task :bootstrap, [:force] do |_, args|
+      raise "only run this in development" unless args[:force] || Suma::RACK_ENV == "development"
       ENV["SUMA_DB_SLOW_QUERY_SECONDS"] = "1"
       Suma.load_app?
       raise "only run with a fresh database" unless Suma::Member.dataset.empty?
