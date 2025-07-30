@@ -56,8 +56,8 @@ import GlobalViewStateProvider from "./state/GlobalViewStateProvider";
 import OfferingProvider from "./state/OfferingProvider";
 import ScreenLoaderProvider from "./state/ScreenLoaderProvider";
 import UserProvider from "./state/UserProvider";
-import withLayout from "./state/withLayout";
 import withMetatags from "./state/withMetatags";
+import withPageLayout from "./state/withPageLayout.jsx";
 import withProps from "./state/withProps";
 import withScreenLoaderMount from "./state/withScreenLoaderMount";
 import React from "react";
@@ -122,14 +122,14 @@ function AppRoutes() {
           element={renderWithHocs(
             redirectIfAuthed,
             withMetatags({ title: t("common.welcome_to_suma"), exact: true }),
-            withLayout({ nav: "none", bg: "bg-white" }),
+            withPageLayout({ nav: "none", bg: "bg-white" }),
             Home
           )}
         />
         <Route
           path="/privacy-policy"
           exact
-          element={renderWithHocs(withLayout({ noScrollTop: true }), PrivacyPolicy)}
+          element={renderWithHocs(withPageLayout({ noScrollTop: true }), PrivacyPolicy)}
         />
         <Route
           path="/privacy-policy-content"
@@ -153,7 +153,7 @@ function AppRoutes() {
           element={renderWithHocs(
             redirectIfAuthed,
             withMetatags({ title: t("titles.start") }),
-            withLayout({ gutters: true, top: true }),
+            withPageLayout({ gutters: true, top: true }),
             Start
           )}
         />
@@ -163,7 +163,7 @@ function AppRoutes() {
           element={renderWithHocs(
             redirectIfAuthed,
             withMetatags({ title: t("titles.otp") }),
-            withLayout({ gutters: true, top: true }),
+            withPageLayout({ gutters: true, top: true }),
             OneTimePassword
           )}
         />
@@ -174,7 +174,7 @@ function AppRoutes() {
             redirectIfUnauthed,
             redirectIfBoarded,
             withMetatags({ title: t("titles.onboarding") }),
-            withLayout({}),
+            withPageLayout(),
             Onboarding
           )}
         />
@@ -185,7 +185,7 @@ function AppRoutes() {
             redirectIfUnauthed,
             redirectIfBoarded,
             withMetatags({ title: t("titles.onboarding_signup") }),
-            withLayout({ gutters: true, top: true }),
+            withPageLayout({ gutters: true, top: true }),
             OnboardingSignup
           )}
         />
@@ -195,7 +195,7 @@ function AppRoutes() {
           element={renderWithHocs(
             redirectIfUnauthed,
             withMetatags({ title: t("titles.onboarding_finish") }),
-            withLayout({ gutters: true, top: true }),
+            withPageLayout({ gutters: true, top: true }),
             OnboardingFinish
           )}
         />
@@ -205,7 +205,7 @@ function AppRoutes() {
           element={renderWithHocs(
             redirectIfAuthed,
             withMetatags({ title: t("titles.contact_list"), exact: true }),
-            withLayout({ nav: "none", bg: "bg-white" }),
+            withPageLayout({ nav: "none", bg: "bg-white" }),
             ContactListHome
           )}
         />
@@ -215,7 +215,7 @@ function AppRoutes() {
           element={renderWithHocs(
             redirectIfAuthed,
             withMetatags({ title: t("titles.contact_list_signup") }),
-            withLayout({ gutters: true, top: true }),
+            withPageLayout({ gutters: true, top: true }),
             ContactListAdd
           )}
         />
@@ -225,7 +225,7 @@ function AppRoutes() {
           element={renderWithHocs(
             redirectIfAuthed,
             withMetatags({ title: t("titles.contact_list_finish") }),
-            withLayout({ gutters: true, top: true }),
+            withPageLayout({ gutters: true, top: true }),
             ContactListSuccess
           )}
         />
@@ -237,7 +237,7 @@ function AppRoutes() {
             redirectIfUnboarded,
             withScreenLoaderMount(),
             withMetatags({ title: t("titles.dashboard") }),
-            withLayout({ appNav: true }),
+            withPageLayout({ appNav: true }),
             Dashboard
           )}
         />
@@ -249,7 +249,7 @@ function AppRoutes() {
             redirectIfUnboarded,
             withScreenLoaderMount(),
             withMetatags({ title: t("mobility.title") }),
-            withLayout({ noBottom: true, appNav: true }),
+            withPageLayout({ noBottom: true, appNav: true }),
             Mobility
           )}
         />
@@ -261,7 +261,7 @@ function AppRoutes() {
             redirectIfUnboarded,
             withScreenLoaderMount(),
             withMetatags({ title: t("food.title") }),
-            withLayout({ gutters: false, top: false, appNav: true }),
+            withPageLayout({ gutters: false, top: false, appNav: true }),
             Food
           )}
         />
@@ -273,7 +273,7 @@ function AppRoutes() {
             redirectIfUnboarded,
             withScreenLoaderMount(),
             withMetatags({ title: t("food.title") }),
-            withLayout({ gutters: false, top: false, appNav: true }),
+            withPageLayout({ gutters: false, top: false, appNav: true }),
             FoodList
           )}
         />
@@ -285,7 +285,7 @@ function AppRoutes() {
             redirectIfUnboarded,
             withScreenLoaderMount(),
             withMetatags({ title: t("food.title") }),
-            withLayout({ gutters: false, top: false }),
+            withPageLayout({ gutters: false, top: false }),
             FoodDetails
           )}
         />
@@ -297,7 +297,7 @@ function AppRoutes() {
             redirectIfUnboarded,
             withScreenLoaderMount(),
             withMetatags({ title: t("food.cart_title") }),
-            withLayout({ gutters: false, top: true }),
+            withPageLayout({ gutters: false, top: true }),
             FoodCart
           )}
         />
@@ -309,7 +309,7 @@ function AppRoutes() {
             redirectIfUnboarded,
             withScreenLoaderMount(),
             withMetatags({ title: t("food.checkout") }),
-            withLayout({ gutters: false, top: true }),
+            withPageLayout({ gutters: false, top: true }),
             FoodCheckout
           )}
         />
@@ -321,7 +321,7 @@ function AppRoutes() {
             redirectIfUnboarded,
             withScreenLoaderMount(),
             withMetatags({ title: t("food.checkout") }),
-            withLayout({ appNav: true, gutters: false }),
+            withPageLayout({ appNav: true, gutters: false }),
             FoodCheckoutConfirmation
           )}
         />
@@ -334,7 +334,7 @@ function AppRoutes() {
             redirectIfUnboarded,
             withScreenLoaderMount(),
             withMetatags({ title: t("utilities.title") }),
-            withLayout({ appNav: true }),
+            withPageLayout({ appNav: true }),
             Utilities
           )}
         />
@@ -346,7 +346,7 @@ function AppRoutes() {
             redirectIfUnboarded,
             withScreenLoaderMount(),
             withMetatags({ title: t("titles.funding") }),
-            withLayout({ top: true, gutters: true }),
+            withPageLayout({ top: true, gutters: true }),
             Funding
           )}
         />
@@ -358,7 +358,7 @@ function AppRoutes() {
             redirectIfUnboarded,
             withScreenLoaderMount(),
             withMetatags({ title: t("payments.link_bank_account") }),
-            withLayout({ top: true, gutters: true }),
+            withPageLayout({ top: true, gutters: true }),
             FundingLinkBankAccount
           )}
         />
@@ -370,7 +370,7 @@ function AppRoutes() {
             redirectIfUnboarded,
             withScreenLoaderMount(),
             withMetatags({ title: t("payments.add_card") }),
-            withLayout({ top: true, gutters: true }),
+            withPageLayout({ top: true, gutters: true }),
             FundingAddCard
           )}
         />
@@ -382,7 +382,7 @@ function AppRoutes() {
             redirectIfUnboarded,
             withScreenLoaderMount(),
             withMetatags({ title: t("payments.add_funds") }),
-            withLayout({ top: true, gutters: true }),
+            withPageLayout({ top: true, gutters: true }),
             FundingAddFunds
           )}
         />
@@ -394,7 +394,7 @@ function AppRoutes() {
             redirectIfUnboarded,
             withScreenLoaderMount(),
             withMetatags({ title: t("titles.ledgers_overview") }),
-            withLayout(),
+            withPageLayout(),
             LedgersOverview
           )}
         />
@@ -406,7 +406,7 @@ function AppRoutes() {
             redirectIfUnboarded,
             withScreenLoaderMount(),
             withMetatags({ title: t("titles.order_history") }),
-            withLayout(),
+            withPageLayout(),
             OrderHistoryList
           )}
         />
@@ -418,7 +418,7 @@ function AppRoutes() {
             redirectIfUnboarded,
             withScreenLoaderMount(),
             withMetatags({ title: t("food.unclaimed_order_history_title") }),
-            withLayout(),
+            withPageLayout(),
             UnclaimedOrderList
           )}
         />
@@ -430,7 +430,7 @@ function AppRoutes() {
             redirectIfUnboarded,
             withScreenLoaderMount(),
             withMetatags({ title: t("titles.order") }),
-            withLayout(),
+            withPageLayout(),
             OrderHistoryDetail
           )}
         />
@@ -442,7 +442,7 @@ function AppRoutes() {
             redirectIfUnboarded,
             withScreenLoaderMount(),
             withMetatags({ title: t("titles.private_accounts") }),
-            withLayout(),
+            withPageLayout(),
             PrivateAccountsList
           )}
         />
@@ -454,7 +454,7 @@ function AppRoutes() {
             redirectIfUnboarded,
             withScreenLoaderMount(),
             withMetatags({ title: t("titles.trips") }),
-            withLayout({ top: true, gutters: false }),
+            withPageLayout({ top: true, gutters: false }),
             Trips
           )}
         />
@@ -466,7 +466,7 @@ function AppRoutes() {
             redirectIfUnboarded,
             withScreenLoaderMount(),
             withMetatags({ title: t("titles.trip_detail") }),
-            withLayout({ top: true, gutters: false }),
+            withPageLayout({ top: true, gutters: false }),
             TripDetail
           )}
         />
@@ -477,7 +477,7 @@ function AppRoutes() {
             redirectIfUnauthed,
             withScreenLoaderMount(),
             withMetatags({ title: t("titles.preferences") }),
-            withLayout({ top: true, gutters: true }),
+            withPageLayout({ top: true, gutters: true }),
             PreferencesAuthed
           )}
         />
@@ -487,7 +487,7 @@ function AppRoutes() {
           element={renderWithHocs(
             withScreenLoaderMount(),
             withMetatags({ title: t("titles.messaging_preferences") }),
-            withLayout({ top: true, gutters: true }),
+            withPageLayout({ top: true, gutters: true }),
             PreferencesPublic
           )}
         />
@@ -496,7 +496,7 @@ function AppRoutes() {
           exact
           element={renderWithHocs(
             withMetatags({ title: t("common.error") }),
-            withLayout(),
+            withPageLayout(),
             () => (
               <LayoutContainer top>
                 <ErrorScreen />
