@@ -55,6 +55,9 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
         c.phone = ADMIN_PHONE
         c.onboarding_verified_at = Time.now
       end
+      admin.legal_entity.update(
+        address: Suma::Address.create(address1: "123 Main St", city: "Portland", state: "OR", postal_code: "97215"),
+      )
       admin.ensure_role(Suma::Role.cache.admin)
       Suma::Payment.ensure_cash_ledger(admin)
 
@@ -440,8 +443,6 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
         g.app_link = "/mobility"
         g.app_link_text = Suma::TranslatedText.find_or_create(en: "Check out mobility map", es: "Check out mobility map (ES)")
       end
-      mobility_program.add_enrollment(role: Suma::Role.cache.admin, approved_at: Time.now) unless
-        mobility_program.enrollments.any? { |e| e.role === Suma::Role.cache.admin }
 
       # Matches the vendor services fixtured previously
       ["lime_demo_mobility_deeplink", "biketown_demo_mobility_deeplink"].each do |internal_name|
@@ -459,6 +460,10 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
       return unless fm_program.commerce_offerings.empty?
       fm_program.add_commerce_offering(Suma::Commerce::Offering[confirmation_template: "2022_12_pilot_confirmation"])
       fm_program.add_commerce_offering(Suma::Commerce::Offering[confirmation_template: "2023_07_pilot_confirmation"])
+
+      Suma::Program.all.each do |pr|
+        pr.add_enrollment(role: Suma::Role.cache.admin, approved_at: Time.now)
+      end
     end
   end
 end

@@ -35,6 +35,15 @@ class Suma::Tasks::Release < Rake::TaskLib
           conn[:members].where(email: "admin@lithic.tech").update(soft_deleted_at: nil)
         end
       end
+
+      task :randomize_passwords do
+        Suma.load_app?
+        Suma::Member.exclude(email: nil).each do |m|
+          pw = SecureRandom.hex(24)
+          m.update(password: pw)
+          $stdout << "#{m.email}: #{pw}\n"
+        end
+      end
     end
   end
 end
