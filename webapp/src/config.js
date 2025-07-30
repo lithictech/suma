@@ -52,6 +52,12 @@ const config = {
   metricsEndpoint: env.VITE_METRICS_ENDPOINT,
 };
 
-initSentry({ dsn: config.sentryDsn, debug: config.debug, application: "web-app" });
+initSentry({
+  dsn: config.sentryDsn,
+  debug: config.debug,
+  application: "web-app",
+  release: config.release,
+  environment: config.environment,
+});
 
 export default config;
