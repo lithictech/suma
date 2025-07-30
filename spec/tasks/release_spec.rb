@@ -30,4 +30,15 @@ RSpec.describe Suma::Tasks::Release, :db do
       expect(admin.refresh).to_not be_soft_deleted
     end
   end
+
+  describe "randomize_passwords" do
+    it "randomizes passwords on all members", :redirect do
+      expect(SecureRandom).to receive(:hex).with(24).and_return("abcd1234")
+      m = Suma::Fixtures.member.create(email: "x@y.z")
+      Suma::Fixtures.member.create(email: nil)
+      invoke_rake_task("release:randomize_passwords")
+      expect($stdout.string).to eq("x@y.z: abcd1234\n")
+      expect(m.refresh.authenticate?("abcd1234")).to be(true)
+    end
+  end
 end

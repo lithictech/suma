@@ -61,6 +61,14 @@ reset-db-staging:
 	MERGE_HEROKU_ENV=$(staging_app) bundle exec rake db:reset
 bootstrap-db:
 	bundle exec rake bootstrap
+reinit-staging-db:
+	heroku ps:scale web=0 worker=0 --app $(staging_app)
+	heroku pg:reset --app=$(staging_app) --confirm=$(staging_app)
+	MERGE_HEROKU_ENV=$(staging_app) bundle exec foreman start release
+	MERGE_HEROKU_ENV=$(staging_app) bundle exec rake bootstrap[true]
+	heroku ps:scale web=1 worker=1 --app $(staging_app)
+	@echo "Randomizing passwords for all users:"
+	@MERGE_HEROKU_ENV=$(staging_app) bundle exec rake release:randomize_passwords
 
 reset-sidekiq-redis:
 	bundle exec rake sidekiq:reset
