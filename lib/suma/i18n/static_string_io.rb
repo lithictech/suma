@@ -29,17 +29,32 @@ module Suma::I18n::StaticStringIO
           end
         end
       end
+      locale_columns = Suma::I18n::SUPPORTED_LOCALES.keys.map(&:to_sym)
       Suma::I18n::StaticString.db.transaction do
         data.each do |namespace, ns_strings|
           Suma::I18n::StaticString.dataset.
             insert_conflict.
-            import([:namespace, :key, :modified_at], ns_strings.keys.map { |k| [namespace, k, modified_at] })
-          Suma::I18n::StaticString.each do |ss|
+            import([:namespace, :key, :modified_at], ns_strings.keys.map do |k|
+                                                       [namespace, k, modified_at]
+                                                     end, return: :primary_key,)
+          static_strings_to_update = []
+          translated_texts_to_insert = []
+          Suma::I18n::StaticString.all.each do |ss|
             translated = ns_strings[ss.key]
             next unless translated
             next if ss.text
-            ss.update(text: Suma::TranslatedText.create(translated))
+            static_strings_to_update << ss
+            translated.symbolize_keys!
+            # Every row for bulk insert needs the same keys
+            locale_columns.each { |c| translated[c] = "" unless translated.key?(c) }
+            translated_texts_to_insert << translated
           end
+          created_text_ids = Suma::TranslatedText.dataset.
+            multi_insert(translated_texts_to_insert, return: :primary_key)
+          update_sqls = static_strings_to_update.zip(created_text_ids).map do |(sstr, tt_pk)|
+            Suma::I18n::StaticString.dataset.where(id: sstr.id).update_sql(text_id: tt_pk)
+          end
+          Suma::I18n::StaticString.db << update_sqls.join("; ")
         end
       end
     end
