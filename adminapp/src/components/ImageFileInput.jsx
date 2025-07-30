@@ -1,3 +1,4 @@
+import formHelpers from "../modules/formHelpers";
 import MultiLingualText from "./MultiLingualText";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import { Button, FormHelperText, FormLabel, Stack } from "@mui/material";
@@ -17,6 +18,7 @@ import React from "react";
  * @constructor
  */
 function ImageFileInput({ image, caption, required, onImageChange, onCaptionChange }) {
+  caption = caption || formHelpers.initialTranslation;
   let src = {};
   if (image?.url) {
     src = image.url;
