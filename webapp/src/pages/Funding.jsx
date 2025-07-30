@@ -1,7 +1,8 @@
 import api from "../api";
+import BackBreadcrumb from "../components/BackBreadcrumb.jsx";
 import FormButtons from "../components/FormButtons";
 import FormError from "../components/FormError";
-import LinearBreadcrumbs from "../components/LinearBreadcrumbs";
+import PageHeading from "../components/PageHeading.jsx";
 import RLink from "../components/RLink";
 import config from "../config";
 import { t } from "../localization";
@@ -22,8 +23,8 @@ export default function Funding() {
   const { isPaymentMethodSupported } = useBackendGlobals();
   return (
     <>
-      <LinearBreadcrumbs back />
-      <h2 className="page-header">{t("payments.payment_title")}</h2>
+      <BackBreadcrumb back />
+      <PageHeading>{t("payments.payment_title")}</PageHeading>
       <p>{t("payments.payment_intro.intro")}</p>
       <p id="some">{t("payments.payment_intro.privacy_statement")}</p>
       {isPaymentMethodSupported("bank_account") && (

@@ -3,6 +3,7 @@ import FormButtons from "../components/FormButtons";
 import FormControlGroup from "../components/FormControlGroup";
 import FormError from "../components/FormError";
 import OrganizationInputDropdown from "../components/OrganizationInputDropdown";
+import PageHeading from "../components/PageHeading.jsx";
 import { t } from "../localization";
 import keepDigits from "../modules/keepDigits";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
@@ -79,7 +80,7 @@ export default function OnboardingSignup() {
   });
   return (
     <>
-      <h2 className="page-header">{t("onboarding.enroll_title")}</h2>
+      <PageHeading>{t("onboarding.enroll_title")}</PageHeading>
       {t("onboarding.enroll_intro")}
       <Form noValidate onSubmit={handleSubmit(handleFormSubmit)}>
         <FormControlGroup

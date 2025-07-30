@@ -1,8 +1,10 @@
+import BackBreadcrumb from "../components/BackBreadcrumb.jsx";
+import CartIconButtonForNav from "../components/CartIconButtonForNav.jsx";
 import ErrorScreen from "../components/ErrorScreen";
-import FoodNav from "../components/FoodNav";
 import FoodPrice from "../components/FoodPrice";
 import LayoutContainer from "../components/LayoutContainer";
-import LinearBreadcrumbs from "../components/LinearBreadcrumbs";
+import PageHeading from "../components/PageHeading.jsx";
+import PageLayout from "../components/PageLayout.jsx";
 import PageLoader from "../components/PageLoader";
 import RLink from "../components/RLink";
 import SoldOutText from "../components/SoldOutText";
@@ -45,17 +47,26 @@ export default function FoodList() {
 
   if (error) {
     return (
-      <LayoutContainer top>
-        <ErrorScreen />
-      </LayoutContainer>
+      <PageLayout {...PAGE_LAYOUT_PROPS}>
+        <LayoutContainer top>
+          <ErrorScreen />
+        </LayoutContainer>
+      </PageLayout>
     );
   }
   if (loading) {
-    return <PageLoader buffered />;
+    return (
+      <PageLayout {...PAGE_LAYOUT_PROPS}>
+        <PageLoader buffered />
+      </PageLayout>
+    );
   }
   const title = makeTitle(offering.description, t("food.title"));
   return (
-    <>
+    <PageLayout
+      {...PAGE_LAYOUT_PROPS}
+      stickyNavAddon={<CartIconButtonForNav offeringId={offeringId} cart={cart} />}
+    >
       <Helmet>
         <title>{title}</title>
       </Helmet>
@@ -69,13 +80,12 @@ export default function FoodList() {
           className="thin-header-image"
         />
       )}
-      <FoodNav
-        offeringId={offeringId}
-        cart={cart}
-        startElement={<LinearBreadcrumbs back="/food" noBottom />}
-      />
       <LayoutContainer gutters>
-        <h2 className="mb-3">{offering.description}</h2>
+        <div className="hstack my-3">
+          <BackBreadcrumb back="/food">
+            <PageHeading className="mb-0">{offering.description}</PageHeading>
+          </BackBreadcrumb>
+        </div>
         {isEmpty(products) ? (
           <>
             {t("food.no_products")}
@@ -98,7 +108,7 @@ export default function FoodList() {
           </Row>
         )}
       </LayoutContainer>
-    </>
+    </PageLayout>
   );
 }
 
@@ -131,3 +141,5 @@ function Product({ product, offeringId, cart }) {
     </Col>
   );
 }
+
+const PAGE_LAYOUT_PROPS = { gutters: false, top: false, appNav: true };

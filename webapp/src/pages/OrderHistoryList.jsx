@@ -1,7 +1,8 @@
 import api from "../api";
+import BackBreadcrumb from "../components/BackBreadcrumb.jsx";
 import ErrorScreen from "../components/ErrorScreen";
 import LayoutContainer from "../components/LayoutContainer";
-import LinearBreadcrumbs from "../components/LinearBreadcrumbs";
+import PageHeading from "../components/PageHeading.jsx";
 import PageLoader from "../components/PageLoader";
 import RLink from "../components/RLink";
 import SeeAlsoAlert from "../components/SeeAlsoAlert";
@@ -56,8 +57,8 @@ export default function OrderHistoryList() {
         />
       )}
       <LayoutContainer top={user.unclaimedOrdersCount === 0} gutters>
-        <LinearBreadcrumbs back="/food" />
-        <h2>{t("food.order_history_title")}</h2>
+        <BackBreadcrumb back="/food" />
+        <PageHeading>{t("food.order_history_title")}</PageHeading>
       </LayoutContainer>
       <LayoutContainer gutters>
         {loading ? (

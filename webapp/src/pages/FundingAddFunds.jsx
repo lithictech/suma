@@ -3,6 +3,7 @@ import CurrencyNumpad from "../components/CurrencyNumpad";
 import ErrorScreen from "../components/ErrorScreen";
 import FormButtons from "../components/FormButtons";
 import FormError from "../components/FormError";
+import PageHeading from "../components/PageHeading.jsx";
 import ScreenLoader from "../components/ScreenLoader";
 import { t } from "../localization";
 import idempotency from "../modules/idempotency";
@@ -122,7 +123,7 @@ export default function FundingAddFunds() {
 
   return (
     <>
-      <h2 className="page-header">{t("payments.add_funds")}</h2>
+      <PageHeading>{t("payments.add_funds")}</PageHeading>
       <p>{t("payments.add_funds_intro")}</p>
       <Form noValidate onSubmit={handleFormSubmit}>
         <div className="d-flex justify-content-center mb-3">

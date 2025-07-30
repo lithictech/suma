@@ -1,9 +1,9 @@
 import api from "../api";
+import BackBreadcrumb from "../components/BackBreadcrumb.jsx";
 import ErrorScreen from "../components/ErrorScreen";
 import FoodCartWidget from "../components/FoodCartWidget";
 import FoodPrice from "../components/FoodPrice";
 import LayoutContainer from "../components/LayoutContainer";
-import LinearBreadcrumbs from "../components/LinearBreadcrumbs";
 import PageLoader from "../components/PageLoader";
 import RLink from "../components/RLink";
 import SumaImage from "../components/SumaImage";
@@ -50,7 +50,7 @@ export default function FoodCart() {
   return (
     <>
       <LayoutContainer gutters>
-        <LinearBreadcrumbs back={`/food/${offeringId}`} />
+        <BackBreadcrumb back={`/food/${offeringId}`} />
         <Stack direction="horizontal" gap={3} className="align-items-end">
           <h4 className="mb-0">{t("food.cart_title")}</h4>
           <span className="text-secondary ms-auto">{t("food.price")}</span>

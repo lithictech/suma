@@ -29,6 +29,7 @@ import Row from "react-bootstrap/Row";
  *   with the bottom. Use noBottom in those cases.
  * @param {boolean=} noScrollTop By default, scroll to top when the page mounts.
  * @param {string=} bg Background color class for the page container.
+ * @param stickyNavAddon If given, render this component in the sticky nav div.
  * @param children
  */
 export default function PageLayout({
@@ -39,6 +40,7 @@ export default function PageLayout({
   noBottom,
   noScrollTop,
   bg,
+  stickyNavAddon,
   children,
 }) {
   nav = nav || "top";
@@ -70,6 +72,7 @@ export default function PageLayout({
           <div className="sticky-top">
             {nav === "top" && <TopNav />}
             {appNav === true && <AppNav />}
+            {stickyNavAddon}
           </div>
         )}
         {node}

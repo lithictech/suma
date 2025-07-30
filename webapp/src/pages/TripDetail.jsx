@@ -1,3 +1,4 @@
+import BackBreadcrumb from "../components/BackBreadcrumb.jsx";
 import ErrorScreen from "../components/ErrorScreen";
 import LayoutContainer from "../components/LayoutContainer";
 import SumaImage from "../components/SumaImage.jsx";
@@ -8,7 +9,6 @@ import useUrlMarshal from "../shared/react/useUrlMarshal.js";
 import dayjs from "dayjs";
 import React from "react";
 import Stack from "react-bootstrap/Stack";
-import { Link } from "react-router-dom";
 
 export default function TripDetail() {
   const { unmarshalFromUrl } = useUrlMarshal();
@@ -34,49 +34,47 @@ export default function TripDetail() {
   } = trip;
 
   return (
-    <>
-      <LayoutContainer className="px-0">
-        <Link to="/trips" className="link-unstyled">
-          <h4 className="ms-3">
-            {t("common.back_sym")} {dayjs(beganAt).format("ll")}
-          </h4>
-        </Link>
-        <Stack direction="vertical" gap={1} className="align-items-center p-3">
-          <div style={{ height: 60 }}>
-            <img
-              src={vehicleIconForVendorService(vehicleType, provider.slug)}
-              alt={`${provider.slug} ${vehicleType}`}
-              className="trips-image-vehicle"
-              height={60}
-            />
-          </div>
-          <Money as="h4" className="mb-0">
-            {charge.customerCost}
-          </Money>
-          <p className="mb-0">{t("trips.thanks")}</p>
-        </Stack>
-        {image ? (
-          <SumaImage image={image} className="w-100" placeholderHeight={300} />
-        ) : (
-          <div className="trips-week-divider" />
-        )}
-        <Stack direction="vertical" gap={3} className="p-3">
-          <h4>{t("trips.your_trip")}</h4>
-          <StartEnd t={beganAt} address={beginAddress} label={t("trips.start")} />
-          <StartEnd t={endedAt} address={endAddress} label={t("trips.end")} />
-        </Stack>
-        <div className="trips-week-divider" />
-        <Stack direction="vertical" gap={3} className="p-3">
-          <h4>{t("trips.payment")}</h4>
-          {charge.lineItems.map(({ memo, amount }) => (
-            <Stack key={memo} direction="horizontal" className="justify-content-between">
-              <div>{memo}</div>
-              <Money>{amount}</Money>
-            </Stack>
-          ))}
-        </Stack>
+    <div>
+      <LayoutContainer className="hstack">
+        <BackBreadcrumb back="/trips">
+          <h4 className="mb-0">{dayjs(beganAt).format("ll")}</h4>
+        </BackBreadcrumb>
       </LayoutContainer>
-    </>
+      <Stack direction="vertical" gap={1} className="align-items-center p-3">
+        <div style={{ height: 60 }}>
+          <img
+            src={vehicleIconForVendorService(vehicleType, provider.slug)}
+            alt={`${provider.slug} ${vehicleType}`}
+            className="trips-image-vehicle"
+            height={60}
+          />
+        </div>
+        <Money as="h4" className="mb-0">
+          {charge.customerCost}
+        </Money>
+        <p className="mb-0">{t("trips.thanks")}</p>
+      </Stack>
+      {image ? (
+        <SumaImage image={image} className="w-100" placeholderHeight={300} />
+      ) : (
+        <div className="trips-week-divider" />
+      )}
+      <Stack direction="vertical" gap={3} className="p-3">
+        <h4>{t("trips.your_trip")}</h4>
+        <StartEnd t={beganAt} address={beginAddress} label={t("trips.start")} />
+        <StartEnd t={endedAt} address={endAddress} label={t("trips.end")} />
+      </Stack>
+      <div className="trips-week-divider" />
+      <Stack direction="vertical" gap={3} className="p-3">
+        <h4>{t("trips.payment")}</h4>
+        {charge.lineItems.map(({ memo, amount }) => (
+          <Stack key={memo} direction="horizontal" className="justify-content-between">
+            <div>{memo}</div>
+            <Money>{amount}</Money>
+          </Stack>
+        ))}
+      </Stack>
+    </div>
   );
 }
 

@@ -1,31 +1,20 @@
-import { t } from "../localization";
-import NavButton from "./NavButton";
 import clsx from "clsx";
 import React from "react";
 
-export default function LinearBreadcrumbs({ back, noBottom }) {
-  let backProps;
-  if (back === true) {
-    backProps = {
-      to: "#",
-      onClick: (e) => {
-        e.preventDefault();
-        window.history.back();
-      },
-    };
-  } else if (typeof back === "string") {
-    backProps = { to: back };
-  }
+/**
+ * Render items as list items in linear breadcrumb navigation.
+ * See BackBreadcrumb for common usage.
+ * @param items Breadcrumb nav items. Each is in an li component.
+ * @param className
+ * @param noBottom If true, do not give the automatic mb-1.
+ */
+export default function LinearBreadcrumbs({ items, className, noBottom }) {
   return (
-    <nav className={clsx(noBottom || "mb-1")}>
+    <nav className={clsx(noBottom || "mb-1", className)}>
       <ol className="linear-breadcrumb m-0">
-        {back && (
-          <li>
-            <NavButton left size="sm" {...backProps}>
-              {t("common.back")}
-            </NavButton>
-          </li>
-        )}
+        {items.map((it, i) => (
+          <li key={i}>{it}</li>
+        ))}
       </ol>
     </nav>
   );
