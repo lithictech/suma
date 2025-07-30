@@ -1,11 +1,11 @@
 import api from "../api";
+import BackBreadcrumb from "../components/BackBreadcrumb.jsx";
 import ErrorScreen from "../components/ErrorScreen";
 import ExternalLink from "../components/ExternalLink";
 import FoodPrice from "../components/FoodPrice";
 import FormButtons from "../components/FormButtons";
 import FormRadioInputs from "../components/FormRadioInputs";
 import LayoutContainer from "../components/LayoutContainer";
-import LinearBreadcrumbs from "../components/LinearBreadcrumbs";
 import PageLoader from "../components/PageLoader";
 import RLink from "../components/RLink";
 import SumaImage from "../components/SumaImage";
@@ -125,7 +125,7 @@ export default function FoodCheckout() {
   return (
     <>
       <LayoutContainer gutters>
-        <LinearBreadcrumbs back={`/cart/${checkout.offering.id}`} />
+        <BackBreadcrumb back={`/cart/${checkout.offering.id}`} />
       </LayoutContainer>
       <Form noValidate onSubmit={handleSubmit(handleSubmitInner)}>
         {checkout.requiresPaymentInstrument && (

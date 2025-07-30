@@ -57,7 +57,7 @@ import OfferingProvider from "./state/OfferingProvider";
 import ScreenLoaderProvider from "./state/ScreenLoaderProvider";
 import UserProvider from "./state/UserProvider";
 import withMetatags from "./state/withMetatags";
-import withPageLayout from "./state/withPageLayout.jsx";
+import withPageLayout from "./state/withPageLayout";
 import withProps from "./state/withProps";
 import withScreenLoaderMount from "./state/withScreenLoaderMount";
 import React from "react";
@@ -273,7 +273,6 @@ function AppRoutes() {
             redirectIfUnboarded,
             withScreenLoaderMount(),
             withMetatags({ title: t("food.title") }),
-            withPageLayout({ gutters: false, top: false, appNav: true }),
             FoodList
           )}
         />
@@ -285,7 +284,6 @@ function AppRoutes() {
             redirectIfUnboarded,
             withScreenLoaderMount(),
             withMetatags({ title: t("food.title") }),
-            withPageLayout({ gutters: false, top: false }),
             FoodDetails
           )}
         />

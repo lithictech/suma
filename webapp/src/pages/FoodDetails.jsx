@@ -1,9 +1,11 @@
+import BackBreadcrumb from "../components/BackBreadcrumb.jsx";
+import CartIconButtonForNav from "../components/CartIconButtonForNav.jsx";
 import ErrorScreen from "../components/ErrorScreen";
 import FoodCartWidget from "../components/FoodCartWidget";
-import FoodNav from "../components/FoodNav";
 import FoodPrice from "../components/FoodPrice";
 import LayoutContainer from "../components/LayoutContainer";
-import LinearBreadcrumbs from "../components/LinearBreadcrumbs";
+import PageHeading from "../components/PageHeading.jsx";
+import PageLayout from "../components/PageLayout.jsx";
 import PageLoader from "../components/PageLoader";
 import SumaImage from "../components/SumaImage";
 import { dt, t } from "../localization";
@@ -41,32 +43,37 @@ export default function FoodDetails() {
   }, [product, item]);
 
   if (loading) {
-    return <PageLoader buffered />;
+    return (
+      <PageLayout {...PAGE_LAYOUT_PROPS}>
+        <PageLoader buffered />
+      </PageLayout>
+    );
   }
 
   if (error || !product) {
     return (
-      <LayoutContainer top>
-        <ErrorScreen />
-      </LayoutContainer>
+      <PageLayout {...PAGE_LAYOUT_PROPS}>
+        <LayoutContainer top>
+          <ErrorScreen />
+        </LayoutContainer>
+      </PageLayout>
     );
   }
   const vendor = find(vendors, (v) => v.id === product.vendor.id);
   const title = makeTitle(product.name, vendor.name, t("food.title"));
   return (
-    <>
+    <PageLayout
+      {...PAGE_LAYOUT_PROPS}
+      stickyNavAddon={<CartIconButtonForNav offeringId={offeringId} cart={cart} />}
+    >
       <Helmet>
         <title>{title}</title>
       </Helmet>
-      <FoodNav
-        offeringId={offeringId}
-        cart={cart}
-        startElement={<LinearBreadcrumbs back={`/food/${offeringId}`} noBottom />}
-      />
       <LayoutContainer gutters>
-        <Row>
-          <h3 className="mb-3">{product.name}</h3>
-        </Row>
+        <BackBreadcrumb back={`/food/${offeringId}`} />
+        <PageHeading level={1} className="mb-3">
+          {product.name}
+        </PageHeading>
       </LayoutContainer>
       <SumaImage
         image={product.images[0]}
@@ -113,6 +120,8 @@ export default function FoodDetails() {
           <div>{dt(product.description)}</div>
         </Row>
       </LayoutContainer>
-    </>
+    </PageLayout>
   );
 }
+
+const PAGE_LAYOUT_PROPS = { gutters: false, top: true };

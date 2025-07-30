@@ -33,7 +33,7 @@ export default function Trips() {
 
   return (
     <>
-      <LayoutContainer gutters top>
+      <LayoutContainer gutters>
         <h2>{t("titles.trips")}</h2>
         <p className="text-secondary">{t("trips.intro")}</p>
       </LayoutContainer>

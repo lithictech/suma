@@ -1,7 +1,8 @@
 import api from "../api";
 import AddCreditCard from "../components/AddCreditCard";
+import BackBreadcrumb from "../components/BackBreadcrumb.jsx";
 import GoHome from "../components/GoHome";
-import LinearBreadcrumbs from "../components/LinearBreadcrumbs";
+import PageHeading from "../components/PageHeading.jsx";
 import RLink from "../components/RLink";
 import { t } from "../localization";
 import { extractErrorCode, useError } from "../state/useError";
@@ -53,8 +54,8 @@ export default function FundingAddCard() {
         <Success {...submitSuccessful} returnTo={returnTo} />
       ) : (
         <>
-          <LinearBreadcrumbs back={returnTo || true} />
-          <h2 className="page-header">{t("payments.add_card")}</h2>
+          <BackBreadcrumb back={returnTo || true} />
+          <PageHeading>{t("payments.add_card")}</PageHeading>
           <p>{t("payments.payment_intro.privacy_statement")}</p>
           <AddCreditCard
             error={error}

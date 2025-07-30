@@ -4,6 +4,7 @@ import FormButtons from "../components/FormButtons";
 import FormControlGroup from "../components/FormControlGroup";
 import FormError from "../components/FormError";
 import OrganizationInputDropdown from "../components/OrganizationInputDropdown";
+import PageHeading from "../components/PageHeading.jsx";
 import SignupAgreement from "../components/SignupAgreement";
 import { t } from "../localization";
 import useI18n from "../localization/useI18n";
@@ -77,7 +78,7 @@ export default function ContactListAdd() {
 
   return (
     <>
-      <h2 className="page-header">{t("contact_list.signup_title")}</h2>
+      <PageHeading>{t("contact_list.signup_title")}</PageHeading>
       <p>{t("contact_list.signup_intro")}</p>
       <Form noValidate onSubmit={handleSubmit(handleFormSubmit)}>
         <FormControlGroup

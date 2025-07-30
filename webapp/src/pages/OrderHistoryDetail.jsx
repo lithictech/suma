@@ -1,7 +1,7 @@
 import api from "../api";
+import BackBreadcrumb from "../components/BackBreadcrumb.jsx";
 import ErrorScreen from "../components/ErrorScreen";
 import LayoutContainer from "../components/LayoutContainer";
-import LinearBreadcrumbs from "../components/LinearBreadcrumbs";
 import OrderDetail from "../components/OrderDetail";
 import PageLoader from "../components/PageLoader";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
@@ -32,7 +32,7 @@ export default function OrderHistoryDetail() {
   return (
     <>
       <LayoutContainer top gutters>
-        <LinearBreadcrumbs back />
+        <BackBreadcrumb back />
       </LayoutContainer>
       <OrderDetail order={state} setOrder={replaceState} gutters />
     </>

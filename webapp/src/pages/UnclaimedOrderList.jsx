@@ -1,10 +1,11 @@
 import api from "../api";
 import AnimatedCheckmark from "../components/AnimatedCheckmark";
+import BackBreadcrumb from "../components/BackBreadcrumb.jsx";
 import ErrorScreen from "../components/ErrorScreen";
 import FormButtons from "../components/FormButtons";
 import LayoutContainer from "../components/LayoutContainer";
-import LinearBreadcrumbs from "../components/LinearBreadcrumbs";
 import OrderDetail from "../components/OrderDetail";
+import PageHeading from "../components/PageHeading.jsx";
 import PageLoader from "../components/PageLoader";
 import RLink from "../components/RLink";
 import SumaImage from "../components/SumaImage";
@@ -47,8 +48,8 @@ export default function UnclaimedOrderList() {
   return (
     <>
       <LayoutContainer gutters top>
-        <LinearBreadcrumbs back />
-        <h2>{t("food.unclaimed_order_history_title")}</h2>
+        <BackBreadcrumb back />
+        <PageHeading>{t("food.unclaimed_order_history_title")}</PageHeading>
         <p>{t("food.unclaimed_order_history_intro")}</p>
       </LayoutContainer>
       <hr className="my-4" />

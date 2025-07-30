@@ -1,7 +1,8 @@
 import api from "../api";
+import BackBreadcrumb from "../components/BackBreadcrumb.jsx";
 import ForwardBackPagination from "../components/ForwardBackPagination";
 import LayoutContainer from "../components/LayoutContainer";
-import LinearBreadcrumbs from "../components/LinearBreadcrumbs";
+import PageHeading from "../components/PageHeading.jsx";
 import PageLoader from "../components/PageLoader";
 import LedgerItemModal from "../components/ledger/LedgerItemModal";
 import { t } from "../localization";
@@ -75,8 +76,8 @@ export default function LedgersOverview() {
   return (
     <>
       <LayoutContainer gutters top>
-        <LinearBreadcrumbs back="/dashboard" />
-        <h2 className="page-header">{t("payments.ledger_transactions")}</h2>
+        <BackBreadcrumb back="/dashboard" />
+        <PageHeading>{t("payments.ledger_transactions")}</PageHeading>
         <p>{t("payments.ledgers_intro")}</p>
         <LedgerSelect
           activeLedger={activeLedger}

@@ -1,9 +1,10 @@
 import api from "../api";
 import loaderRing from "../assets/images/loader-ring.svg";
+import BackBreadcrumb from "../components/BackBreadcrumb.jsx";
 import ErrorScreen from "../components/ErrorScreen";
 import FormError from "../components/FormError";
 import LayoutContainer from "../components/LayoutContainer";
-import LinearBreadcrumbs from "../components/LinearBreadcrumbs";
+import PageHeading from "../components/PageHeading.jsx";
 import PageLoader from "../components/PageLoader";
 import SumaImage from "../components/SumaImage";
 import { dt, t } from "../localization";
@@ -62,8 +63,8 @@ export default function PrivateAccountsList() {
   return (
     <>
       <LayoutContainer gutters top>
-        <LinearBreadcrumbs back />
-        <h2>{t("titles.private_accounts")}</h2>
+        <BackBreadcrumb back />
+        <PageHeading>{t("titles.private_accounts")}</PageHeading>
         <p className="text-secondary">{t("private_accounts.intro")}</p>
       </LayoutContainer>
       <hr className="my-4" />

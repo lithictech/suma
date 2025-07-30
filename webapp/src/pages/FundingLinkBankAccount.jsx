@@ -1,10 +1,11 @@
 import api from "../api";
 import bankAccountCheckDetails from "../assets/images/bank-account-check-details.gif";
+import BackBreadcrumb from "../components/BackBreadcrumb.jsx";
 import FormButtons from "../components/FormButtons";
 import FormControlGroup from "../components/FormControlGroup";
 import FormError from "../components/FormError";
 import GoHome from "../components/GoHome";
-import LinearBreadcrumbs from "../components/LinearBreadcrumbs";
+import PageHeading from "../components/PageHeading.jsx";
 import RLink from "../components/RLink";
 import config from "../config";
 import { imageAltT, t } from "../localization";
@@ -115,8 +116,8 @@ function LinkBankAccount({ onSuccess, returnTo }) {
 
   return (
     <>
-      <LinearBreadcrumbs back={returnTo || true} />
-      <h2 className="page-header">{t("payments.link_bank_account")}</h2>
+      <BackBreadcrumb back={returnTo || true} />
+      <PageHeading>{t("payments.link_bank_account")}</PageHeading>
       <p>{t("payments.payment_intro.privacy_statement")}</p>
       <Form noValidate onSubmit={handleSubmit(handleFormSubmit)}>
         <Row className="mb-3">
