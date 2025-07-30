@@ -26,6 +26,11 @@ class Suma::AdminAPI::ProgramEnrollments < Suma::AdminAPI::V1
       self,
       Suma::Program::Enrollment,
       ProgramEnrollmentEntity,
+      around: lambda do |rt, m, &b|
+        m.approved = true
+        m.approved_by = rt.admin_member
+        b.call
+      end,
     ) do
       params do
         requires(:program, type: JSON) { use :model_with_id }
