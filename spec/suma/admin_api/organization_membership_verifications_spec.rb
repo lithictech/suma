@@ -370,4 +370,27 @@ RSpec.describe Suma::AdminAPI::OrganizationMembershipVerifications, :db do
       expect(last_response).to have_json_body.that_includes(error: include(code: "missing_sse_token"))
     end
   end
+
+  describe "POST /v1/organization_membership_verifications/:id/rebuild_duplicates" do
+    let(:v) { Suma::Fixtures.organization_membership_verification.create }
+
+    it "rebuilds duplicates" do
+      v.update(
+        cached_duplicates_key: Suma::Organization::Membership::Verification::DuplicateFinder::CACHE_KEY,
+        cached_duplicates: [{chance: "low"}].to_json,
+      )
+
+      post "/v1/organization_membership_verifications/#{v.id}/rebuild_duplicates"
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.that_includes(duplicates: [])
+      expect(v.refresh.cached_duplicates).to be_empty
+    end
+
+    it "403s for an invalid id" do
+      post "/v1/organization_membership_verifications/0/rebuild_duplicates"
+
+      expect(last_response).to have_status(403)
+    end
+  end
 end

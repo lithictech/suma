@@ -5,6 +5,7 @@ import OrganizationMembership from "../components/OrganizationMembership";
 import ResourceTable from "../components/ResourceTable";
 import useErrorSnackbar from "../hooks/useErrorSnackbar";
 import formatDate from "../modules/formatDate";
+import membershipVerificationDuplicateChanceColor from "../modules/membershipVerificationDuplicateChanceColor";
 import relativeLink from "../modules/relativeLink";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
 import useListQueryControls from "../shared/react/useListQueryControls";
@@ -12,6 +13,7 @@ import useToggle from "../shared/react/useToggle";
 import ArrowRightIcon from "@mui/icons-material/ArrowRight";
 import CreateIcon from "@mui/icons-material/Create";
 import DraftsIcon from "@mui/icons-material/Drafts";
+import PolicyIcon from "@mui/icons-material/Policy";
 import ReplyIcon from "@mui/icons-material/Reply";
 import SendIcon from "@mui/icons-material/Send";
 import LoadingButton from "@mui/lab/LoadingButton";
@@ -147,12 +149,15 @@ export default function OrganizationMembershipVerificationListPage() {
                   makeApiCall={makeApiCall}
                 />
               ) : (
-                <Button
-                  variant={isNoted ? "contained" : "outlined"}
-                  onClick={() => setNotedVerificationId(isNoted ? null : c.item.id)}
-                >
-                  Notes{c.item.notes.length > 0 && ` (${c.item.notes.length})`}
-                </Button>
+                <Stack direction="row" alignItems="center" gap={1}>
+                  <Button
+                    variant={isNoted ? "contained" : "outlined"}
+                    onClick={() => setNotedVerificationId(isNoted ? null : c.item.id)}
+                  >
+                    Notes{c.item.notes.length > 0 && ` (${c.item.notes.length})`}
+                  </Button>
+                  <DuplicateBadge verification={c.item} />
+                </Stack>
               );
             },
           },
@@ -402,6 +407,18 @@ function FrontConvoStatus({
         {text}
       </LoadingButton>
     </div>
+  );
+}
+
+function DuplicateBadge({ verification }) {
+  const chance = verification.highestDuplicateChance;
+  if (!chance) {
+    return null;
+  }
+  return (
+    <AdminLink model={verification}>
+      <PolicyIcon color={membershipVerificationDuplicateChanceColor(chance)} />
+    </AdminLink>
   );
 }
 

@@ -17,6 +17,8 @@ class Suma::Organization::Membership::Verification < Suma::Postgres::Model(:orga
     setting :front_partner_default_template_id, ""
     setting :front_member_default_en_template_id, ""
     setting :front_member_default_es_template_id, ""
+    # Default pg_trgm threshold, we may need to configure it
+    setting :text_similarity_threshold, 0.3
 
     after_configured do
       self.front_partner_channel_id = Suma::Frontapp.to_channel_id(front_partner_channel_id)
@@ -320,6 +322,12 @@ class Suma::Organization::Membership::Verification < Suma::Postgres::Model(:orga
     ctx = ctx.deep_stringify_keys
     r = tmpl.render(ctx)
     return r
+  end
+
+  def find_duplicates = DuplicateFinder.lookup_matches(self)
+
+  def highest_duplicate_chance
+    return self.find_duplicates.map { |d| d.chance.to_sym }.max_by { |c| DuplicateFinder.chance_value(c) }
   end
 
   def rel_admin_link = "/membership-verification/#{self.id}"

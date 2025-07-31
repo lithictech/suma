@@ -12,6 +12,8 @@ Sequel.migration do
     alter_table(:organization_membership_verifications) do
       add_column :account_number, :text, null: true
       add_constraint :non_empty_account_number, Sequel.null_or_present_constraint(:account_number)
+      add_column :cached_duplicates_key, :text, null: false, default: ""
+      add_column :cached_duplicates, :jsonb, null: false, default: "[]"
     end
   end
 end

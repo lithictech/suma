@@ -24,6 +24,7 @@ class Suma::AdminAPI::OrganizationMembershipVerifications < Suma::AdminAPI::V1
     expose :front_partner_conversation_status
     expose :front_member_conversation_status
     expose :notes, with: MembershipVerificationNoteEntity
+    expose :highest_duplicate_chance
   end
 
   class DetailedMembershipVerificationEntity < VerificationListEntity
@@ -37,6 +38,9 @@ class Suma::AdminAPI::OrganizationMembershipVerifications < Suma::AdminAPI::V1
     expose :audit_logs, with: AuditLogEntity
     expose :partner_outreach_front_conversation_id
     expose :member_outreach_front_conversation_id
+    expose :duplicates do |instance|
+      instance.find_duplicates.map(&:as_json)
+    end
   end
 
   resource :organization_membership_verifications do
@@ -147,6 +151,15 @@ class Suma::AdminAPI::OrganizationMembershipVerifications < Suma::AdminAPI::V1
         v.begin_member_outreach
         status 200
         present v, with: VerificationListEntity
+      end
+
+      route_setting :do_not_check_sse_token, true
+      post :rebuild_duplicates do
+        v = lookup_writeable!
+        sleep 1
+        v.cached_duplicates_key = ""
+        status 200
+        present v, with: DetailedMembershipVerificationEntity
       end
 
       resource :notes do

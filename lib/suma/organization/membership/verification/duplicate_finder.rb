@@ -4,7 +4,27 @@ class Suma::Organization::Membership::Verification::DuplicateFinder
   HIGH = :high
   MED = :medium
   LOW = :low
-  SIMILARITY = 0.3 # Default pg_trgm threshold, we may need to configure it
+  CACHE_KEY = "v1"
+
+  def self.chance_value(x)
+    x = x.to_sym
+    return 1 if x == HIGH
+    return 0.5 if x == MED
+    return 0
+  end
+
+  # Return SerializedMatches from the cache if possible,
+  # or run the duplicate finder if needed (and save results to cache).
+  def self.lookup_matches(verification)
+    must_run = verification.cached_duplicates_key != CACHE_KEY
+    if must_run
+      matches = self.new(verification).run.matches
+      verification.cached_duplicates_key = CACHE_KEY
+      verification.cached_duplicates = matches.map(&:as_serialized).as_json
+      verification.save_changes
+    end
+    return verification.cached_duplicates.map { |d| SerializedMatch.new(**d) }
+  end
 
   class Match < Suma::TypedStruct
     attr_accessor :member,
@@ -19,6 +39,32 @@ class Suma::Organization::Membership::Verification::DuplicateFinder
       self.member = self.verification.membership.member
       self.organization_name = self.verification.membership.organization_label
     end
+
+    def as_serialized
+      return SerializedMatch.new(
+        member_id: self.member.id,
+        member_name: self.member.name,
+        member_phone: self.member.us_phone,
+        member_email: self.member.email,
+        member_admin_link: self.member.admin_link,
+        organization_name: self.organization_name,
+        verification_id: self.verification&.id,
+        chance: self.chance,
+        reason: self.reason,
+      )
+    end
+  end
+
+  class SerializedMatch < Suma::TypedStruct
+    attr_accessor :member_id,
+                  :member_name,
+                  :member_phone,
+                  :member_email,
+                  :member_admin_link,
+                  :organization_name,
+                  :verification_id,
+                  :chance,
+                  :reason
   end
 
   attr_reader :matches
@@ -37,6 +83,8 @@ class Suma::Organization::Membership::Verification::DuplicateFinder
     return self
   end
 
+  def similarity = Suma::Organization::Membership::Verification.text_similarity_threshold
+
   def search_account_numbers
     ac = @verification.account_number
     return if ac.blank?
@@ -50,7 +98,7 @@ class Suma::Organization::Membership::Verification::DuplicateFinder
   end
 
   def search_members
-    name_match = Sequel.function(:similarity, :name, @member.name) > SIMILARITY
+    name_match = Sequel.function(:similarity, :name, @member.name) > self.similarity
     phone_match = Sequel[@member.phone => Sequel.function(:ANY, :previous_phones)]
     email_match = Sequel[@member.email => Sequel.function(:ANY, :previous_emails)]
     sames = Suma::Member.
@@ -78,6 +126,7 @@ class Suma::Organization::Membership::Verification::DuplicateFinder
   end
 
   def search_addresses
+    return unless @member.legal_entity.address
     address_same = Sequel[legal_entity: Suma::LegalEntity.where(address: @member.legal_entity.address)]
     similar_address_text = Sequel.function(
       :similarity,
@@ -86,7 +135,7 @@ class Suma::Organization::Membership::Verification::DuplicateFinder
                       ", ", :country,),
     )
     address_similar = Sequel[
-      legal_entity: Suma::LegalEntity.where(address: Suma::Address.where(similar_address_text > SIMILARITY)),
+      legal_entity: Suma::LegalEntity.where(address: Suma::Address.where(similar_address_text > self.similarity)),
     ]
     sames_ds = Suma::Member.
       select_append(
