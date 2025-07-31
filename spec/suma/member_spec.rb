@@ -467,6 +467,23 @@ RSpec.describe "Suma::Member", :db do
     end
   end
 
+  describe "previous phone/email" do
+    it "appends to the previous list on email and phone changes" do
+      m = Suma::Fixtures.member.create(email: "a@b.c", phone: "12223334444")
+      expect(m).to have_attributes(previous_emails: [], previous_phones: [])
+      m.update(email: "a2@b.c")
+      expect(m).to have_attributes(previous_emails: ["a@b.c"], previous_phones: [])
+      m.update(phone: "13334445555")
+      expect(m).to have_attributes(previous_emails: ["a@b.c"], previous_phones: ["12223334444"])
+      m.update(name: "Hello Word")
+      expect(m).to have_attributes(previous_emails: ["a@b.c"], previous_phones: ["12223334444"])
+      m.update(email: "x@y.z", phone: "14445556666")
+      expect(m).to have_attributes(
+        previous_emails: ["a2@b.c", "a@b.c"], previous_phones: ["13334445555", "12223334444"],
+      )
+    end
+  end
+
   describe "hybrid search" do
     it "handles a bad or missing phone number" do
       m = Suma::Fixtures.member.email.instance(phone: "555")

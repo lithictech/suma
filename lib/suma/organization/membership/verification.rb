@@ -30,6 +30,9 @@ class Suma::Organization::Membership::Verification < Suma::Postgres::Model(:orga
   plugin :hybrid_search
   plugin :state_machine
   plugin :timestamps
+  plugin :column_encryption do |enc|
+    enc.column :account_number, searchable: :case_insensitive
+  end
 
   many_to_one :membership, class: "Suma::Organization::Membership"
   one_to_many :audit_logs,
@@ -340,6 +343,8 @@ class Suma::Organization::Membership::Verification < Suma::Postgres::Model(:orga
     validates_state_machine
   end
 end
+
+require_relative "verification/duplicate_finder"
 
 # Table: organization_membership_verifications
 # -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------

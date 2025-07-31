@@ -434,6 +434,18 @@ class Suma::Member < Suma::Postgres::Model(:members)
     super
   end
 
+  def before_update
+    # Record email and phone changes to the 'previous_emails/phones' columns
+    [:email, :phone].each do |field|
+      next unless (change = self.column_change(field))
+      prev_recorder_field = :"previous_#{field}s"
+      old_value = change[0]
+      self.send(prev_recorder_field).unshift(old_value)
+      self.will_change_column(prev_recorder_field)
+    end
+    super
+  end
+
   def after_save
     super
     orig_name = self.previous_changes&.fetch(:name, [])&.first || self.name
