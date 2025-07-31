@@ -3,7 +3,7 @@
 require "suma/organization"
 require "suma/postgres/model"
 
-class Suma::Organization::Membership::VerificationNote <
+class Suma::Organization::Membership::Verification::Note <
   Suma::Postgres::Model(:organization_membership_verification_notes)
   many_to_one :verification, class: "Suma::Organization::Membership::Verification", key: :verification_id
   many_to_one :creator, class: "Suma::Member"
