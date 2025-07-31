@@ -17,8 +17,6 @@ class Suma::Organization::Membership::Verification < Suma::Postgres::Model(:orga
     setting :front_partner_default_template_id, ""
     setting :front_member_default_en_template_id, ""
     setting :front_member_default_es_template_id, ""
-    # Default pg_trgm threshold, we may need to configure it
-    setting :text_similarity_threshold, 0.3
 
     after_configured do
       self.front_partner_channel_id = Suma::Frontapp.to_channel_id(front_partner_channel_id)

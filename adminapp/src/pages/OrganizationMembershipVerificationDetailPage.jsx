@@ -8,6 +8,7 @@ import useErrorSnackbar from "../hooks/useErrorSnackbar";
 import { dayjs } from "../modules/dayConfig";
 import formatDate from "../modules/formatDate";
 import membershipVerificationDuplicateChanceColor from "../modules/membershipVerificationDuplicateChanceColor";
+import oneLineAddress from "../modules/oneLineAddress";
 import useToggle from "../shared/react/useToggle";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import LoadingButton from "@mui/lab/LoadingButton";
@@ -56,6 +57,10 @@ export default function OrganizationMembershipVerificationDetailPage() {
               <OrganizationMembership membership={model.membership} detailed />
             </Stack>
           ),
+        },
+        {
+          label: "Address",
+          value: model.address && oneLineAddress(model.address),
         },
         {
           label: "Owner",

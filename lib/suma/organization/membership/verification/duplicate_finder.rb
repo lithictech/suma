@@ -83,8 +83,6 @@ class Suma::Organization::Membership::Verification::DuplicateFinder
     return self
   end
 
-  def similarity = Suma::Organization::Membership::Verification.text_similarity_threshold
-
   def search_account_numbers
     ac = @verification.account_number
     return if ac.blank?
@@ -97,8 +95,11 @@ class Suma::Organization::Membership::Verification::DuplicateFinder
     end
   end
 
+  # Adjust this as needed; some decent fuzziness is probably fine.
+  NAME_SIMILARITY = 0.7
+
   def search_members
-    name_match = Sequel.function(:similarity, :name, @member.name) > self.similarity
+    name_match = Sequel.function(:similarity, :name, @member.name) > NAME_SIMILARITY
     phone_match = Sequel[@member.phone => Sequel.function(:ANY, :previous_phones)]
     email_match = Sequel[@member.email => Sequel.function(:ANY, :previous_emails)]
     sames = Suma::Member.
@@ -125,6 +126,8 @@ class Suma::Organization::Membership::Verification::DuplicateFinder
     end
   end
 
+  # Because of city/state/country, we need to use a high threshold
+  ADDRESS_SIMILARITY = 0.9
   def search_addresses
     return unless @member.legal_entity.address
     address_same = Sequel[legal_entity: Suma::LegalEntity.where(address: @member.legal_entity.address)]
@@ -135,7 +138,7 @@ class Suma::Organization::Membership::Verification::DuplicateFinder
                       ", ", :country,),
     )
     address_similar = Sequel[
-      legal_entity: Suma::LegalEntity.where(address: Suma::Address.where(similar_address_text > self.similarity)),
+      legal_entity: Suma::LegalEntity.where(address: Suma::Address.where(similar_address_text > ADDRESS_SIMILARITY)),
     ]
     sames_ds = Suma::Member.
       select_append(
