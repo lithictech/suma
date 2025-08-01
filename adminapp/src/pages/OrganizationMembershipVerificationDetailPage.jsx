@@ -14,7 +14,7 @@ import SafeExternalLink from "../shared/react/SafeExternalLink";
 import useToggle from "../shared/react/useToggle";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import LoadingButton from "@mui/lab/LoadingButton";
-import { Badge, Chip, Stack, Switch, TextField } from "@mui/material";
+import { Chip, Stack, TextField } from "@mui/material";
 import startCase from "lodash/startCase";
 import React from "react";
 
