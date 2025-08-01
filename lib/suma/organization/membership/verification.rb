@@ -324,9 +324,9 @@ class Suma::Organization::Membership::Verification < Suma::Postgres::Model(:orga
 
   def find_duplicates = DuplicateFinder.lookup_matches(self)
 
-  def highest_duplicate_chance
-    return self.find_duplicates.map { |d| d.chance.to_sym }.max_by { |c| DuplicateFinder.chance_value(c) }
-  end
+  # Return the risk of the first duplicate, or nil.
+  # Duplicates are stored sorted so we can use the 0th item.
+  def duplicate_risk = self.find_duplicates.first&.max_risk
 
   def rel_admin_link = "/membership-verification/#{self.id}"
 

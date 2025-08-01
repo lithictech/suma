@@ -1,22 +1,34 @@
 # frozen_string_literal: true
 
 class Suma::Organization::Membership::Verification::DuplicateFinder
-  HIGH = :high
-  MED = :medium
-  LOW = :low
   CACHE_KEY = "v1"
 
-  def self.chance_value(x)
-    x = x.to_sym
-    return 1 if x == HIGH
-    return 0.5 if x == MED
-    return 0
+  class Risk < Suma::TypedStruct
+    attr_reader :name, :value
   end
+
+  class Factor < Suma::TypedStruct
+    attr_accessor :risk, :reason
+
+    def initialize(**)
+      super
+      self.risk = Risk.new(**self.risk) unless self.risk.is_a?(Risk)
+    end
+  end
+
+  HIGH = Risk.new(name: "high", value: 1)
+  MEDIUM = Risk.new(name: "medium", value: 0.5)
+  LOW = Risk.new(name: "low", value: 0.1)
+
+  NAME = "name"
+  CONTACT = "contact"
+  ADDRESS = "address"
+  ACCOUNT_NUMBER = "account_number"
 
   # Return SerializedMatches from the cache if possible,
   # or run the duplicate finder if needed (and save results to cache).
-  def self.lookup_matches(verification)
-    must_run = verification.cached_duplicates_key != CACHE_KEY
+  def self.lookup_matches(verification, force: false)
+    must_run = verification.cached_duplicates_key != CACHE_KEY || force
     if must_run
       matches = self.new(verification).run.matches
       verification.cached_duplicates_key = CACHE_KEY
@@ -26,19 +38,15 @@ class Suma::Organization::Membership::Verification::DuplicateFinder
     return verification.cached_duplicates.map { |d| SerializedMatch.new(**d) }
   end
 
-  class Match < Suma::TypedStruct
-    attr_accessor :member,
-                  :organization_name,
-                  :verification,
-                  :chance,
-                  :reason
+  class Match
+    attr_accessor :member, :factors
 
-    def initialize(**)
-      super
-      return unless self.verification
-      self.member = self.verification.membership.member
-      self.organization_name = self.verification.membership.organization_label
+    def initialize(member)
+      self.member = member
+      self.factors = []
     end
+
+    def max_risk = self.factors.map(&:risk).max_by(&:value)
 
     def as_serialized
       return SerializedMatch.new(
@@ -47,10 +55,7 @@ class Suma::Organization::Membership::Verification::DuplicateFinder
         member_phone: self.member.us_phone,
         member_email: self.member.email,
         member_admin_link: self.member.admin_link,
-        organization_name: self.organization_name,
-        verification_id: self.verification&.id,
-        chance: self.chance,
-        reason: self.reason,
+        factors: self.factors,
       )
     end
   end
@@ -61,26 +66,35 @@ class Suma::Organization::Membership::Verification::DuplicateFinder
                   :member_phone,
                   :member_email,
                   :member_admin_link,
-                  :organization_name,
-                  :verification_id,
-                  :chance,
-                  :reason
-  end
+                  :factors
 
-  attr_reader :matches
+    def initialize(**)
+      super
+      self.factors = self.factors.map { |f| f.is_a?(Hash) ? Factor.new(**f) : f }
+    end
+
+    def max_risk = self.factors.map(&:risk).max_by(&:value)
+  end
 
   def initialize(verification)
     @verification = verification
     @member = @verification.membership.member
-    @matches = nil
+    @matches_by_member_id = nil
   end
 
+  def matches = @matches_by_member_id.values.sort_by { |m| m.max_risk.value }
+
   def run
-    @matches = []
+    @matches_by_member_id = {}
     search_account_numbers
     search_members
     search_addresses
     return self
+  end
+
+  def add_match(member, risk, reason)
+    m = @matches_by_member_id[member.id] ||= Match.new(member)
+    m.factors << Factor.new(risk:, reason:)
   end
 
   def search_account_numbers
@@ -91,7 +105,7 @@ class Suma::Organization::Membership::Verification::DuplicateFinder
       exclude(id: @verification.id).
       all
     sames.each do |v|
-      @matches << Match.new(verification: v, chance: HIGH, reason: :account_number)
+      add_match(v.membership.member, HIGH, ACCOUNT_NUMBER)
     end
   end
 
@@ -112,17 +126,14 @@ class Suma::Organization::Membership::Verification::DuplicateFinder
       exclude(id: @member.id).
       all
     sames.each do |m|
-      if m[:phone_match]
-        reason = :phone
-        chance = :high
-      elsif m[:email_match]
-        reason = :email
-        chance = :high
+      if m[:phone_match] || m[:email_match]
+        reason = CONTACT
+        risk = HIGH
       else
-        chance = m.name == @member.name ? HIGH : MED
-        reason = :name
+        risk = m.name == @member.name ? HIGH : MEDIUM
+        reason = NAME
       end
-      @matches << Match.new(member: m, chance:, reason:)
+      add_match(m, risk, reason)
     end
   end
 
@@ -149,34 +160,14 @@ class Suma::Organization::Membership::Verification::DuplicateFinder
       exclude(id: @member.id)
     sames = sames_ds.all
     sames.each do |m|
-      chance = if m[:address_same]
-                 HIGH
+      risk = if m[:address_same]
+               HIGH
       elsif @member.legal_entity.address.address2.upcase == m.legal_entity.address.address2.upcase
-        MED
+        MEDIUM
       else
         LOW
       end
-      @matches << Match.new(member: m, chance:, reason: :address)
+      add_match(m, risk, ADDRESS)
     end
   end
 end
-
-# Table: organization_membership_verification_audit_logs
-# -----------------------------------------------------------------------------------------------------------------------------------------------------------
-# Columns:
-#  id              | integer                  | PRIMARY KEY GENERATED BY DEFAULT AS IDENTITY
-#  at              | timestamp with time zone | NOT NULL
-#  event           | text                     | NOT NULL
-#  to_state        | text                     | NOT NULL
-#  from_state      | text                     | NOT NULL
-#  reason          | text                     | NOT NULL DEFAULT ''::text
-#  messages        | jsonb                    | NOT NULL DEFAULT '[]'::jsonb
-#  verification_id | integer                  | NOT NULL
-#  actor_id        | integer                  |
-# Indexes:
-#  organization_membership_verification_audit_logs_pkey            | PRIMARY KEY btree (id)
-#  organization_membership_verification_audit_logs_verification_id | btree (verification_id)
-# Foreign key constraints:
-#  organization_membership_verification_audit_logs_actor_id_fkey   | (actor_id) REFERENCES members(id) ON DELETE SET NULL
-#  organization_membership_verification_audit_verification_id_fkey | (verification_id) REFERENCES organization_membership_verifications(id) ON DELETE CASCADE
-# -----------------------------------------------------------------------------------------------------------------------------------------------------------

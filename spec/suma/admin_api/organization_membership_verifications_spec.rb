@@ -377,7 +377,7 @@ RSpec.describe Suma::AdminAPI::OrganizationMembershipVerifications, :db do
     it "rebuilds duplicates" do
       v.update(
         cached_duplicates_key: Suma::Organization::Membership::Verification::DuplicateFinder::CACHE_KEY,
-        cached_duplicates: [{chance: "low"}].to_json,
+        cached_duplicates: [{}].to_json,
       )
 
       post "/v1/organization_membership_verifications/#{v.id}/rebuild_duplicates"

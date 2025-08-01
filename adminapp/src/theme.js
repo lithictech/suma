@@ -6,6 +6,7 @@ let theme = createTheme({
     secondary: { main: "#848682FF" },
     success: { main: "#498567" },
     error: { main: "#b53d00" },
+    warning: { main: "#ed8702" },
   },
 });
 
@@ -17,6 +18,12 @@ theme = createTheme(theme, {
         main: "#b6b6b6",
       },
       name: "muted",
+    }),
+    caution: theme.palette.augmentColor({
+      color: {
+        main: "#e0cb00",
+      },
+      name: "caution",
     }),
   },
 });

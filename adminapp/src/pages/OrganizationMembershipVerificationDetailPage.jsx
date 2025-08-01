@@ -1,23 +1,33 @@
 import api from "../api";
 import AdminLink from "../components/AdminLink";
 import AuditLogs from "../components/AuditLogs";
+import InlineEditField from "../components/InlineEditField";
 import OrganizationMembership from "../components/OrganizationMembership";
 import RelatedList from "../components/RelatedList";
 import ResourceDetail from "../components/ResourceDetail";
 import useErrorSnackbar from "../hooks/useErrorSnackbar";
 import { dayjs } from "../modules/dayConfig";
 import formatDate from "../modules/formatDate";
-import membershipVerificationDuplicateChanceColor from "../modules/membershipVerificationDuplicateChanceColor";
+import membershipVerificationDuplicateRiskColor from "../modules/membershipVerificationDuplicateRiskColor";
 import oneLineAddress from "../modules/oneLineAddress";
+import SafeExternalLink from "../shared/react/SafeExternalLink";
 import useToggle from "../shared/react/useToggle";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import LoadingButton from "@mui/lab/LoadingButton";
-import { Stack } from "@mui/material";
+import { Badge, Chip, Stack, Switch, TextField } from "@mui/material";
+import startCase from "lodash/startCase";
 import React from "react";
 
 export default function OrganizationMembershipVerificationDetailPage() {
   const { enqueueErrorSnackbar } = useErrorSnackbar();
   const rebuilding = useToggle();
+
+  const handleFieldUpdate = (data, replaceState) => {
+    return api
+      .updateOrganizationMembershipVerification(data)
+      .then((r) => replaceState(r.data))
+      .catch(enqueueErrorSnackbar);
+  };
 
   const handleRebuildDuplicates = React.useCallback(
     (model, setModel) => {
@@ -28,7 +38,7 @@ export default function OrganizationMembershipVerificationDetailPage() {
         .catch(enqueueErrorSnackbar)
         .finally(rebuilding.turnOff);
     },
-    [enqueueErrorSnackbar]
+    [enqueueErrorSnackbar, rebuilding]
   );
 
   return (
@@ -36,7 +46,7 @@ export default function OrganizationMembershipVerificationDetailPage() {
       resource="organization_membership_verification"
       apiGet={api.getOrganizationMembershipVerification}
       canEdit
-      properties={(model) => [
+      properties={(model, setModel) => [
         { label: "ID", value: model.id },
         { label: "Created At", value: dayjs(model.createdAt) },
         { label: "Updated At", value: dayjs(model.updatedAt) },
@@ -59,6 +69,31 @@ export default function OrganizationMembershipVerificationDetailPage() {
           ),
         },
         {
+          label: "EBT Account Number",
+          children: (
+            <InlineEditField
+              resource="organization_membership_verification"
+              renderDisplay={model.accountNumber}
+              initialEditingState={{ id: model.id, accountNumber: model.accountNumber }}
+              renderEdit={(st, set) => {
+                return (
+                  <TextField
+                    size="small"
+                    value={st.accountNumber || ""}
+                    onChange={(e) =>
+                      set({
+                        ...st,
+                        accountNumber: e.target.value,
+                      })
+                    }
+                  />
+                );
+              }}
+              onSave={(st) => handleFieldUpdate(st, setModel)}
+            />
+          ),
+        },
+        {
           label: "Address",
           value: model.address && oneLineAddress(model.address),
         },
@@ -68,7 +103,11 @@ export default function OrganizationMembershipVerificationDetailPage() {
         },
         {
           label: "Front Partner Outreach Url",
-          value: model.frontPartnerConversationStatus?.webUrl,
+          value: (
+            <SafeExternalLink href={model.frontPartnerConversationStatus?.webUrl}>
+              {model.frontPartnerConversationStatus?.webUrl}
+            </SafeExternalLink>
+          ),
         },
         {
           label: "Front Partner Outreach Last Message",
@@ -76,7 +115,11 @@ export default function OrganizationMembershipVerificationDetailPage() {
         },
         {
           label: "Front Member Outreach Url",
-          value: model.frontMemberConversationStatus?.webUrl,
+          value: (
+            <SafeExternalLink href={model.frontMemberConversationStatus?.webUrl}>
+              {model.frontMemberConversationStatus?.webUrl}
+            </SafeExternalLink>
+          ),
         },
         {
           label: "Front Member Outreach Last Message",
@@ -100,7 +143,29 @@ export default function OrganizationMembershipVerificationDetailPage() {
           ]}
         />,
         <RelatedList
-          title="Duplicates"
+          title={
+            <span>
+              Duplicates
+              <LoadingButton
+                key="risk"
+                loading={rebuilding.isOn}
+                loadingPosition="start"
+                variant="text"
+                color="primary"
+                size="large"
+                sx={{ marginLeft: 1 }}
+                startIcon={<RefreshIcon />}
+                onClick={() => handleRebuildDuplicates(model, setModel)}
+              />
+            </span>
+          }
+          emptyState={
+            <div>
+              No potential duplicates detected. Press the{" "}
+              <RefreshIcon sx={{ verticalAlign: "bottom" }} /> button above to check
+              again.
+            </div>
+          }
           rows={model.duplicates}
           headers={["Id", "Name", "Phone", "Organization", "Reason"]}
           getKey={(r) => `${r.memberId}${r.reason}`}
@@ -113,23 +178,16 @@ export default function OrganizationMembershipVerificationDetailPage() {
             </AdminLink>,
             row.memberPhone,
             row.organizationName,
-            <span>
-              {row.reason}
-              <LoadingButton
-                key="chance"
-                loading={rebuilding.isOn}
-                loadingPosition="start"
-                sx={{ marginLeft: 1 }}
-                startIcon={
-                  <RefreshIcon
-                    color={
-                      membershipVerificationDuplicateChanceColor(row.chance) || "action"
-                    }
-                  />
-                }
-                onClick={() => handleRebuildDuplicates(model, setModel)}
-              />
-            </span>,
+            <Stack key="dupes" direction="row" gap={1}>
+              {row.factors.map(({ reason, risk }) => (
+                <Chip
+                  key={reason}
+                  label={startCase(reason)}
+                  variant="filled"
+                  color={membershipVerificationDuplicateRiskColor(risk)}
+                />
+              ))}
+            </Stack>,
           ]}
         />,
         <AuditLogs auditLogs={model.auditLogs} />,

@@ -1,9 +1,9 @@
 const colors = {
   high: "error",
   medium: "warning",
-  low: "info",
+  low: "caution",
 };
 
-export default function membershipVerificationDuplicateChanceColor(chance) {
-  return colors[chance];
+export default function membershipVerificationDuplicateRiskColor(risk) {
+  return colors[risk.name];
 }

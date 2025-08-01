@@ -5,7 +5,7 @@ import OrganizationMembership from "../components/OrganizationMembership";
 import ResourceTable from "../components/ResourceTable";
 import useErrorSnackbar from "../hooks/useErrorSnackbar";
 import formatDate from "../modules/formatDate";
-import membershipVerificationDuplicateChanceColor from "../modules/membershipVerificationDuplicateChanceColor";
+import membershipVerificationDuplicateRiskColor from "../modules/membershipVerificationDuplicateRiskColor";
 import relativeLink from "../modules/relativeLink";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
 import useListQueryControls from "../shared/react/useListQueryControls";
@@ -411,13 +411,13 @@ function FrontConvoStatus({
 }
 
 function DuplicateBadge({ verification }) {
-  const chance = verification.highestDuplicateChance;
-  if (!chance) {
+  const risk = verification.duplicateRisk;
+  if (!risk) {
     return null;
   }
   return (
     <AdminLink model={verification}>
-      <PolicyIcon color={membershipVerificationDuplicateChanceColor(chance)} />
+      <PolicyIcon color={membershipVerificationDuplicateRiskColor(risk)} />
     </AdminLink>
   );
 }

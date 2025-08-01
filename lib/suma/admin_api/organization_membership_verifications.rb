@@ -20,11 +20,12 @@ class Suma::AdminAPI::OrganizationMembershipVerifications < Suma::AdminAPI::V1
     include Suma::AdminAPI::Entities
     include AutoExposeDetail
 
+    expose :account_number
     expose :available_events, &self.delegate_to(:state_machine, :available_events)
     expose :front_partner_conversation_status
     expose :front_member_conversation_status
     expose :notes, with: MembershipVerificationNoteEntity
-    expose :highest_duplicate_chance
+    expose :duplicate_risk
   end
 
   class DetailedMembershipVerificationEntity < VerificationListEntity
@@ -115,6 +116,7 @@ class Suma::AdminAPI::OrganizationMembershipVerifications < Suma::AdminAPI::V1
     ) do
       route_setting :do_not_check_sse_token, true
       params do
+        optional :account_number, type: String
         optional :status, type: String
         optional :partner_outreach_front_conversation_id, type: String
         optional :member_outreach_front_conversation_id, type: String
