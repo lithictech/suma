@@ -38,12 +38,19 @@ module Suma::SSE
 
     # Publish a payload via Redis.
     # Note that the payload here should be
-    def publish(topic, payload, t: Time.now)
+    def publish!(topic, payload, t: Time.now)
       msg = {payload:, t: t.to_f}
       if (sid = self.current_session_id)
         msg[:sid] = sid
       end
       self.publisher_redis.pubsub.call("PUBLISH", topic, msg.to_json)
+    end
+
+    def publish(topic, payload, t: Time.now)
+      publish!(topic, payload, t:)
+    rescue RedisClient::ConnectionError => e
+      self.logger.error("sse_publish", {topic:, payload:}, e)
+      Sentry.capture_exception(e)
     end
 
     def new_subscriber_redis
