@@ -21,7 +21,7 @@ module Suma::SSE
     setting :redis_url, ""
 
     after_configured do
-      redis_url = Suma::Redis.fetch_url(self.redis_provider, self.redis_url)
+      redis_url = Suma::Redis.fetch_url(Suma::SSE.redis_provider, Suma::SSE.redis_url)
       self.publisher_redis = RedisClient.new(**Suma::Redis.conn_params(redis_url))
     end
   end

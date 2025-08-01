@@ -12,10 +12,13 @@ module Suma::Redis
 
     def conn_params(url, **kw)
       params = {url:}
-      if url.start_with?("rediss:") && ENV["HEROKU_APP_ID"]
-        # rediss: schema is Redis with SSL. They use self-signed certs, so we have to turn off SSL verification.
+      if url.start_with?("rediss:")
+        # rediss: schema is Redis with SSL. redis-client needs ssl: true explicitly.
+        params[:ssl] = true
+        # Hereoku uses self-signed certs, so we have to turn off SSL verification.
         # There is not a clear KB on this, you have to piece it together from Heroku and Sidekiq docs.
-        params[:ssl_params] = {verify_mode: OpenSSL::SSL::VERIFY_NONE}
+        # This is still required as of August 2025.
+        (params[:ssl_params] = {verify_mode: OpenSSL::SSL::VERIFY_NONE}) if ENV["HEROKU_APP_ID"]
       end
       params.merge!(kw)
       return params
