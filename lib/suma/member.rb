@@ -439,7 +439,7 @@ class Suma::Member < Suma::Postgres::Model(:members)
     [:email, :phone].each do |field|
       next unless (change = self.column_change(field))
       prev_recorder_field = :"previous_#{field}s"
-      old_value = change[0]
+      next unless (old_value = change[0])
       self.send(prev_recorder_field).unshift(old_value)
       self.will_change_column(prev_recorder_field)
     end

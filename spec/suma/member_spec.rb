@@ -469,7 +469,9 @@ RSpec.describe "Suma::Member", :db do
 
   describe "previous phone/email" do
     it "appends to the previous list on email and phone changes" do
-      m = Suma::Fixtures.member.create(email: "a@b.c", phone: "12223334444")
+      m = Suma::Fixtures.member.create(email: nil, phone: "12223334444")
+      expect(m).to have_attributes(previous_emails: [], previous_phones: [])
+      m.update(email: "a@b.c")
       expect(m).to have_attributes(previous_emails: [], previous_phones: [])
       m.update(email: "a2@b.c")
       expect(m).to have_attributes(previous_emails: ["a@b.c"], previous_phones: [])
@@ -477,6 +479,7 @@ RSpec.describe "Suma::Member", :db do
       expect(m).to have_attributes(previous_emails: ["a@b.c"], previous_phones: ["12223334444"])
       m.update(name: "Hello Word")
       expect(m).to have_attributes(previous_emails: ["a@b.c"], previous_phones: ["12223334444"])
+      m.update(email: nil) # Ensure nil isn't added as a value
       m.update(email: "x@y.z", phone: "14445556666")
       expect(m).to have_attributes(
         previous_emails: ["a2@b.c", "a@b.c"], previous_phones: ["13334445555", "12223334444"],
