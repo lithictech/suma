@@ -3,7 +3,7 @@
 require "suma/organization"
 require "suma/postgres/model"
 
-class Suma::Organization::Membership::VerificationAuditLog <
+class Suma::Organization::Membership::Verification::AuditLog <
   Suma::Postgres::Model(:organization_membership_verification_audit_logs)
   plugin :state_machine_audit_log
 

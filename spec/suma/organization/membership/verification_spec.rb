@@ -495,8 +495,8 @@ RSpec.describe "Suma::Organization::Membership::Verification",
     end
   end
 
-  describe "VerificationAuditLog" do
-    it_behaves_like "an audit log", Suma::Organization::Membership::VerificationAuditLog, :verification do
+  describe "AuditLog" do
+    it_behaves_like "an audit log", Suma::Organization::Membership::Verification::AuditLog, :verification do
       let(:parent) { Suma::Fixtures.organization_membership_verification.create }
     end
   end

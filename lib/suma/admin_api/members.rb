@@ -71,6 +71,10 @@ class Suma::AdminAPI::Members < Suma::AdminAPI::V1
     expose :note
     expose :roles, with: RoleEntity
     expose :onboarding_verified?, as: :onboarding_verified
+    expose :previous_phones do |instance|
+      instance.previous_phones.map { |s| Suma::PhoneNumber.format_display(s) }
+    end
+    expose :previous_emails
 
     expose :activities, with: ActivityEntity
     expose :audit_activities, with: ActivityEntity

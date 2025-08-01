@@ -22,6 +22,7 @@ export default function RelatedList({
   addNewLabel,
   addNewLink,
   addNewRole,
+  emptyState,
   className,
   ...rest
 }) {
@@ -55,7 +56,7 @@ export default function RelatedList({
   }
   const { canWriteResource } = useRoleAccess();
   const addNew = Boolean(addNewLink) && canWriteResource(addNewRole);
-  if (isEmpty(rows) && !addNew) {
+  if (isEmpty(rows) && !addNew && !emptyState) {
     return null;
   }
   tableProps = merge({ size: "small" }, tableProps);
@@ -80,12 +81,16 @@ export default function RelatedList({
             {addNewLabel}
           </Link>
         )}
-        <SimpleTable
-          tableProps={tableProps}
-          rows={rows}
-          className={className}
-          {...rest}
-        />
+        {isEmpty(rows) ? (
+          emptyState
+        ) : (
+          <SimpleTable
+            tableProps={tableProps}
+            rows={rows}
+            className={className}
+            {...rest}
+          />
+        )}
         {showExpandCollapse && (
           <div className="related-list-expandcollapse">
             {rowsTrimmed && <div className="related-list-overlay"></div>}

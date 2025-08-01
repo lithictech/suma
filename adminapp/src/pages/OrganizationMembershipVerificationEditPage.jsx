@@ -37,7 +37,7 @@ function VerificationForm({ resource, setFieldFromInput, register, isBusy, onSub
           {...register("partnerOutreachFrontConversationId")}
           label="Partner Outreach Front Conversation Id"
           name="partnerOutreachFrontConversationId"
-          value={resource.partnerOutreachFrontConversationId}
+          value={resource.partnerOutreachFrontConversationId || ""}
           variant="outlined"
           onChange={setFieldFromInput}
         />
@@ -45,7 +45,7 @@ function VerificationForm({ resource, setFieldFromInput, register, isBusy, onSub
           {...register("memberOutreachFrontConversationId")}
           label="Member Outreach Front Conversation Id"
           name="memberOutreachFrontConversationId"
-          value={resource.memberOutreachFrontConversationId}
+          value={resource.memberOutreachFrontConversationId || ""}
           variant="outlined"
           onChange={setFieldFromInput}
         />

@@ -30,14 +30,17 @@ class Suma::Organization::Membership::Verification < Suma::Postgres::Model(:orga
   plugin :hybrid_search
   plugin :state_machine
   plugin :timestamps
+  plugin :column_encryption do |enc|
+    enc.column :account_number, searchable: :case_insensitive
+  end
 
   many_to_one :membership, class: "Suma::Organization::Membership"
   one_to_many :audit_logs,
-              class: "Suma::Organization::Membership::VerificationAuditLog",
+              class: "Suma::Organization::Membership::Verification::AuditLog",
               order: order_desc(:at),
               key: :verification_id
   one_to_many :notes,
-              class: "Suma::Organization::Membership::VerificationNote",
+              class: "Suma::Organization::Membership::Verification::Note",
               order: order_desc,
               key: :verification_id
   many_to_one :owner, class: "Suma::Member"
@@ -319,6 +322,12 @@ class Suma::Organization::Membership::Verification < Suma::Postgres::Model(:orga
     return r
   end
 
+  def find_duplicates = DuplicateFinder.lookup_matches(self)
+
+  # Return the risk of the first duplicate, or nil.
+  # Duplicates are stored sorted so we can use the 0th item.
+  def duplicate_risk = self.find_duplicates.first&.max_risk
+
   def rel_admin_link = "/membership-verification/#{self.id}"
 
   def hybrid_search_fields
@@ -328,6 +337,11 @@ class Suma::Organization::Membership::Verification < Suma::Postgres::Model(:orga
       ["Organization", self.membership.organization_label],
       :status,
     ]
+  end
+
+  def before_save
+    self.cached_duplicates_key = "" if self.column_change(:account_number)
+    super
   end
 
   def after_save
@@ -340,6 +354,8 @@ class Suma::Organization::Membership::Verification < Suma::Postgres::Model(:orga
     validates_state_machine
   end
 end
+
+require_relative "verification/duplicate_finder"
 
 # Table: organization_membership_verifications
 # -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------

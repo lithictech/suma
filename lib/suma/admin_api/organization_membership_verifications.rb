@@ -20,10 +20,12 @@ class Suma::AdminAPI::OrganizationMembershipVerifications < Suma::AdminAPI::V1
     include Suma::AdminAPI::Entities
     include AutoExposeDetail
 
+    expose :account_number
     expose :available_events, &self.delegate_to(:state_machine, :available_events)
     expose :front_partner_conversation_status
     expose :front_member_conversation_status
     expose :notes, with: MembershipVerificationNoteEntity
+    expose :duplicate_risk
   end
 
   class DetailedMembershipVerificationEntity < VerificationListEntity
@@ -33,10 +35,14 @@ class Suma::AdminAPI::OrganizationMembershipVerifications < Suma::AdminAPI::V1
     expose :available_events, &self.delegate_to(:state_machine, :available_events)
     expose :front_partner_conversation_status
     expose :front_member_conversation_status
+    expose :address, with: AddressEntity, &self.delegate_to(:membership, :member, :legal_entity, :address, safe: true)
     expose :notes, with: MembershipVerificationNoteEntity
     expose :audit_logs, with: AuditLogEntity
     expose :partner_outreach_front_conversation_id
     expose :member_outreach_front_conversation_id
+    expose :duplicates do |instance|
+      instance.find_duplicates.map(&:as_json)
+    end
   end
 
   resource :organization_membership_verifications do
@@ -110,6 +116,7 @@ class Suma::AdminAPI::OrganizationMembershipVerifications < Suma::AdminAPI::V1
     ) do
       route_setting :do_not_check_sse_token, true
       params do
+        optional :account_number, type: String
         optional :status, type: String
         optional :partner_outreach_front_conversation_id, type: String
         optional :member_outreach_front_conversation_id, type: String
@@ -147,6 +154,15 @@ class Suma::AdminAPI::OrganizationMembershipVerifications < Suma::AdminAPI::V1
         v.begin_member_outreach
         status 200
         present v, with: VerificationListEntity
+      end
+
+      route_setting :do_not_check_sse_token, true
+      post :rebuild_duplicates do
+        v = lookup_writeable!
+        sleep 1
+        v.cached_duplicates_key = ""
+        status 200
+        present v, with: DetailedMembershipVerificationEntity
       end
 
       resource :notes do

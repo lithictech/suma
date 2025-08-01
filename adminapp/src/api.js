@@ -323,6 +323,12 @@ export default {
       `/adminapi/v1/organization_membership_verifications/${id}/notes/${noteId}`,
       data
     ),
+  rebuildOrganizationMembershipVerificationDuplicates: ({ id, ...data }, ...args) =>
+    post(
+      `/adminapi/v1/organization_membership_verifications/${id}/rebuild_duplicates`,
+      data,
+      ...args
+    ),
 
   getMobilityTrips: (data, ...args) => get(`/adminapi/v1/mobility_trips`, data, ...args),
   getMobilityTrip: ({ id, ...data }, ...args) =>

@@ -123,6 +123,14 @@ export default function MemberDetailPage() {
                     />
                   ),
                 },
+                model.previousEmails.length > 0 && {
+                  label: "Previous Emails",
+                  value: model.previousEmails.join(", "),
+                },
+                model.previousPhones.length > 0 && {
+                  label: "Previous Phones",
+                  value: model.previousPhones.join(", "),
+                },
               ]}
             />
           </ResourceSummary>,
