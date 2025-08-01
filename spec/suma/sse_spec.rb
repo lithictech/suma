@@ -61,6 +61,31 @@ RSpec.describe Suma::SSE do
     ensure
       t.kill
     end
+
+    erroring_redis = Class.new do
+      attr_reader :pubsub, :calls
+
+      def initialize(ex)
+        @ex = ex
+        @calls = []
+      end
+
+      def pubsub = self
+
+      def call(*cmd)
+        @calls << cmd
+        raise @ex
+      end
+    end
+
+    it "reports and ignores on connection errors (unless publish! is used)", reset_configuration: described_class do
+      ex = RedisClient::ConnectionError.new
+      redis = erroring_redis.new(ex)
+      described_class.publisher_redis = redis
+      expect { described_class.publish!("test", {}) }.to raise_error(ex)
+      expect(Sentry).to receive(:capture_exception).with(ex)
+      expect { described_class.publish("test", {}) }.to_not raise_error
+    end
   end
 
   describe described_class::Auth do
