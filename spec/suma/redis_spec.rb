@@ -6,7 +6,12 @@ RSpec.describe Suma::Redis do
   describe "#conn_params" do
     it "returns keyword arguments" do
       params = described_class.conn_params("redis://localhost:1234/0", reconnect_attempts: 1, timeout: 1.0)
-      expect(params).to include(url: "redis://localhost:1234/0", reconnect_attempts: 1, timeout: 1.0)
+      expect(params).to eq({url: "redis://localhost:1234/0", reconnect_attempts: 1, timeout: 1.0})
+    end
+
+    it "uses ssl: true for rediss:// protocol" do
+      params = described_class.conn_params("rediss://localhost:1234/0")
+      expect(params).to eq({url: "rediss://localhost:1234/0", ssl: true})
     end
 
     it "returns ssl_params when using heroku redis" do
