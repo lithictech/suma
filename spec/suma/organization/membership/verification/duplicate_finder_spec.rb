@@ -204,4 +204,12 @@ RSpec.describe Suma::Organization::Membership::Verification::DuplicateFinder, :d
       expect(verification.duplicate_risk).to be_nil
     end
   end
+
+  describe "caching" do
+    it "clears the cache when account number is set" do
+      verification.cached_duplicates_key = described_class::CACHE_KEY
+      verification.update(account_number: "x")
+      expect(verification).to have_attributes(cached_duplicates_key: "")
+    end
+  end
 end

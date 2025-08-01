@@ -339,6 +339,11 @@ class Suma::Organization::Membership::Verification < Suma::Postgres::Model(:orga
     ]
   end
 
+  def before_save
+    self.cached_duplicates_key = "" if self.column_change(:account_number)
+    super
+  end
+
   def after_save
     super
     Suma::SSE.publish(Suma::SSE::ORGANIZATION_MEMBERSHIP_VERIFICATIONS, {id: self.id})
