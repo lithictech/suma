@@ -55,10 +55,11 @@ export default function OrganizationMembershipVerificationDetailPage() {
           label: "Member",
           value: (
             <AdminLink model={model.membership.member}>
-              {model.membership.member.name}
+              ({model.membership.member.id}) {model.membership.member.name}
             </AdminLink>
           ),
         },
+        { label: "Phone", value: model.membership.member.formattedPhone },
         {
           label: "Membership",
           children: (
