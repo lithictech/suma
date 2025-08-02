@@ -33,6 +33,12 @@ module Suma::AdminAPI
             header "Created-Resource-Id", resource_id.to_s
             header "Created-Resource-Admin", admin_link
           end
+
+          def check_admin_role_access!(rw, key, admin: admin_member)
+            Thread.current[:checked_role_access] = true if Suma.test?
+            key = Suma::AdminAPI::Access.key(key, rw) unless key.is_a?(Symbol)
+            check_role_access!(admin, rw, key)
+          end
         end
 
         rescue_from Sequel::UniqueConstraintViolation do |e|

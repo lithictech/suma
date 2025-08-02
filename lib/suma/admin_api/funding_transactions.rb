@@ -34,7 +34,7 @@ class Suma::AdminAPI::FundingTransactions < Suma::AdminAPI::V1
       requires(:amount, allow_blank: false, type: JSON) { use :money }
     end
     post :create_for_self do
-      check_role_access!(admin_member, :write, :admin_payments)
+      check_admin_role_access!(:write, Suma::Payment::FundingTransaction)
       instrument_ds = case params[:payment_method_type]
         when "bank_account"
           Suma::Payment::BankAccount.dataset
@@ -73,8 +73,7 @@ class Suma::AdminAPI::FundingTransactions < Suma::AdminAPI::V1
         exactly_one_of :amount, :full
       end
       post :refund do
-        check_role_access!(admin_member, :write, :admin_payments)
-
+        check_admin_role_access!(:write, Suma::Payment::PayoutTransaction)
         Suma::Payment::PayoutTransaction.db.transaction do
           (fx = Suma::Payment::FundingTransaction[params[:id]]) or forbidden!
           amount = params[:full] ? fx.refundable_amount : Suma::Moneyutil.from_h(params[:amount])

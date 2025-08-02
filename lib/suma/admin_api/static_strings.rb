@@ -32,7 +32,7 @@ class Suma::AdminAPI::StaticStrings < Suma::AdminAPI::V1
     end
 
     get do
-      check_role_access!(admin_member, :read, :localization)
+      check_admin_role_access!(:read, Suma::I18n::StaticString)
       rows = Suma::I18n::StaticString.dataset.
         select_all(:i18n_static_strings).
         association_left_join(:text).
@@ -50,7 +50,7 @@ class Suma::AdminAPI::StaticStrings < Suma::AdminAPI::V1
       requires :key, type: String
     end
     post :create do
-      check_role_access!(admin_member, :write, :localization)
+      check_admin_role_access!(:write, Suma::I18n::StaticString)
       row = Suma::I18n::StaticString.find_or_create_or_find(namespace: params[:namespace], key: params[:key]) do |s|
         s.modified_at = Time.now
       end
@@ -63,7 +63,7 @@ class Suma::AdminAPI::StaticStrings < Suma::AdminAPI::V1
     route_param :id, type: Integer do
       helpers do
         def writeable_row
-          check_role_access!(admin_member, :write, :localization)
+          check_admin_role_access!(:write, Suma::I18n::StaticString)
           row = Suma::I18n::StaticString.find!(id: params[:id])
           return row
         end

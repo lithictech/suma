@@ -45,7 +45,7 @@ class Suma::AdminAPI::CommerceOfferingProducts < Suma::AdminAPI::V1
         at_least_one_of :customer_price, :undiscounted_price
       end
       post do
-        check_role_access!(admin_member, :write, :admin_commerce)
+        check_admin_role_access!(:write, Suma::Commerce::OfferingProduct)
         Suma::Commerce::OfferingProduct.db.transaction do
           (m = Suma::Commerce::OfferingProduct[params[:id]]) or forbidden!
           new_op = m.with_changes(

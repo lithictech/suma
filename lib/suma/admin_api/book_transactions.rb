@@ -38,7 +38,7 @@ class Suma::AdminAPI::BookTransactions < Suma::AdminAPI::V1
       end
     end
     post :create do
-      check_role_access!(admin_member, :write, :admin_payments)
+      check_admin_role_access!(:write, Suma::Payment::Ledger)
       (originating = Suma::Payment::Ledger[params[:originating_ledger_id]]) or forbidden!
       (receiving = Suma::Payment::Ledger[params[:receiving_ledger_id]]) or forbidden!
       (vsc = Suma::Vendor::ServiceCategory[slug: params[:vendor_service_category_slug]]) or forbidden!

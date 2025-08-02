@@ -206,8 +206,7 @@ module Suma::AdminAPI::CommonEndpoints
         optional :download, type: String, values: ["csv"]
       end
       get do
-        access = Suma::AdminAPI::Access.read_key(model_type)
-        check_role_access!(admin_member, :read, access)
+        check_admin_role_access!(:read, model_type)
         ds = model_type.dataset
         if params[:search].present?
           ds = hybrid_search(ds, params)
@@ -237,8 +236,7 @@ module Suma::AdminAPI::CommonEndpoints
     route_def.instance_exec do
       route_param :id, type: Integer do
         get do
-          access = Suma::AdminAPI::Access.read_key(model_type)
-          check_role_access!(admin_member, :read, access)
+          check_admin_role_access!(:read, model_type)
           (m = model_type[params[:id]]) or forbidden!
           present m, with: entity
         end
@@ -252,8 +250,7 @@ module Suma::AdminAPI::CommonEndpoints
       helpers MutationHelpers
       yield
       post :create do
-        access = Suma::AdminAPI::Access.write_key(model_type)
-        check_role_access!(admin_member, :write, access)
+        check_admin_role_access!(:write, model_type)
         _throwsafe_transaction(model_type.db) do
           m = model_type.new
           # Always set this if the model supports it.
@@ -278,8 +275,7 @@ module Suma::AdminAPI::CommonEndpoints
         helpers MutationHelpers
         yield
         post do
-          access = Suma::AdminAPI::Access.write_key(model_type)
-          check_role_access!(admin_member, :write, access)
+          check_admin_role_access!(:write, model_type)
           _throwsafe_transaction(model_type.db) do
             (m = model_type[params[:id]]) or forbidden!
             around.call(self, m) do
@@ -300,8 +296,7 @@ module Suma::AdminAPI::CommonEndpoints
     route_def.instance_exec do
       route_param :id, type: Integer do
         post :destroy do
-          access = Suma::AdminAPI::Access.write_key(model_type)
-          check_role_access!(admin_member, :write, access)
+          check_admin_role_access!(:write, model_type)
           (m = model_type[params[:id]]) or forbidden!
           m.destroy
           status 200
@@ -319,8 +314,7 @@ module Suma::AdminAPI::CommonEndpoints
           requires :program_ids, type: Array[Integer], coerce_with: Suma::Service::Types::CommaSepArray[Integer]
         end
         post :programs do
-          access = Suma::AdminAPI::Access.write_key(model_type)
-          check_role_access!(admin_member, :write, access)
+          check_admin_role_access!(:write, model_type)
           _throwsafe_transaction(model_type.db) do
             (m = model_type[params[:id]]) or forbidden!
             params[:program_ids].each do |id|

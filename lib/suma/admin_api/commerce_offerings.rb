@@ -160,7 +160,7 @@ class Suma::AdminAPI::CommerceOfferings < Suma::AdminAPI::V1
 
       resource :picklist do
         get do
-          check_role_access!(admin_member, :read, :admin_commerce)
+          check_admin_role_access!(:read, :admin_commerce)
           offering = lookup
           picklist = Suma::Commerce::OfferingPicklist.new(offering).build
           present picklist, with: PicklistEntity

@@ -118,7 +118,7 @@ class Suma::AdminAPI::Members < Suma::AdminAPI::V1
         roles = rt.params.delete(:roles)
         block.call
         if roles
-          rt.check_role_access!(rt.admin_member, :write, :admin_management)
+          rt.check_admin_role_access!(rt.admin_member, :write, :admin_management)
           role_models = Suma::Role.where(id: roles.map { |r| r[:id] }).all
           m.replace_roles(role_models)
           m.audit_activity(
@@ -161,7 +161,7 @@ class Suma::AdminAPI::Members < Suma::AdminAPI::V1
       end
 
       post :close do
-        check_role_access!(admin_member, :write, :admin_members)
+        check_admin_role_access!(:write, Suma::Member)
         member = lookup_member!
         admin = admin_member
         member.db.transaction do
