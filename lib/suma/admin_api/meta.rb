@@ -8,12 +8,14 @@ class Suma::AdminAPI::Meta < Suma::AdminAPI::V1
   resource :meta do
     get :currencies do
       use_http_expires_caching 2.days
+      check_admin_role_access!(:read, :admin_access)
       cur = Suma::SupportedCurrency.dataset.order(:ordinal).all
       present_collection cur, with: CurrencyEntity
     end
 
     get :geographies do
       use_http_expires_caching 2.days
+      check_admin_role_access!(:read, :admin_access)
       countries = Suma::SupportedGeography.order(:label).where(type: "country").all
       provinces = Suma::SupportedGeography.order(:label).where(type: "province").all
       result = {}
@@ -27,11 +29,13 @@ class Suma::AdminAPI::Meta < Suma::AdminAPI::V1
     end
 
     get :vendor_service_categories do
+      check_admin_role_access!(:read, :admin_access)
       sc = Suma::Vendor::ServiceCategory.dataset.order(:name).all
       present_collection sc, with: HierarchicalCategoryEntity
     end
 
     get :programs do
+      check_admin_role_access!(:read, Suma::Program)
       ds = Suma::Program.dataset
       ds = ds.translation_join(:name, [:en])
       ds = ds.order(:name_en)
@@ -40,6 +44,7 @@ class Suma::AdminAPI::Meta < Suma::AdminAPI::V1
 
     get :resource_access do
       use_http_expires_caching 12.hours
+      check_admin_role_access!(:read, :admin_access)
       present Suma::AdminAPI::Access.as_json
     end
   end

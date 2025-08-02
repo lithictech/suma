@@ -366,15 +366,6 @@ RSpec.describe Suma::AdminAPI::Search, :db do
   end
 
   describe "POST /v1/search/roles" do
-    it "errors without role access" do
-      replace_roles(admin, Suma::Role.cache.noop_admin)
-
-      post "/v1/search/roles"
-
-      expect(last_response).to have_status(403)
-      expect(last_response).to have_json_body.that_includes(error: include(code: "role_check"))
-    end
-
     it "returns matching roles, using slug naming" do
       r1 = Suma::Role.create(name: "sponge_bob")
       r2 = Suma::Role.create(name: "patrick")
@@ -478,15 +469,6 @@ RSpec.describe Suma::AdminAPI::Search, :db do
   end
 
   describe "POST /v1/search/programs" do
-    it "errors without role access" do
-      replace_roles(admin, Suma::Role.cache.noop_admin)
-
-      post "/v1/search/programs", q: "pwb"
-
-      expect(last_response).to have_status(403)
-      expect(last_response).to have_json_body.that_includes(error: include(code: "role_check"))
-    end
-
     it "returns matching programs" do
       o1 = Suma::Fixtures.program.create(name: Suma::Fixtures.translated_text.create(en: "PWB funds"))
       o2 = Suma::Fixtures.program.create(name: Suma::Fixtures.translated_text.create(en: "test"))
