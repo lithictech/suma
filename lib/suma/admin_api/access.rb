@@ -11,7 +11,7 @@ class Suma::AdminAPI::Access
   LOCALIZATION = Suma::Member::RoleAccess::LOCALIZATION
 
   MAPPING = {
-    Suma::AnonProxy::MemberContact => [:anon_member_contact, COMMERCE, MANAGEMENT],
+    Suma::AnonProxy::MemberContact => [:member_contact, COMMERCE, COMMERCE],
     Suma::AnonProxy::VendorAccount => [:vendor_account, COMMERCE, COMMERCE],
     Suma::AnonProxy::VendorConfiguration => [:vendor_configuration, COMMERCE, COMMERCE],
     Suma::Payment::BankAccount => [:bank_account, MEMBERS, MEMBERS],
@@ -38,11 +38,13 @@ class Suma::AdminAPI::Access
     Suma::Program => [:program, ALL, MANAGEMENT],
     Suma::Program::Enrollment => [:program_enrollment, ALL, MANAGEMENT],
     Suma::Role => [:role, ALL, MANAGEMENT],
+    Suma::TranslatedText => [:role, ALL, MANAGEMENT],
     Suma::Vendor::Service => [:vendor_service, COMMERCE, COMMERCE],
     Suma::Vendor => [:vendor, COMMERCE, MANAGEMENT],
   }.freeze
 
   class << self
+    def key(resource, rw) = rw == :read ? read_key(resource) : write_key(resource)
     def read_key(resource) = can?(resource, 1)
     def write_key(resource) = can?(resource, 2)
 

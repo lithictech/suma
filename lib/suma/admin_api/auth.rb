@@ -24,7 +24,7 @@ class Suma::AdminAPI::Auth < Suma::AdminAPI::BaseV1
       if me.nil? || !me.authenticate?(params[:password])
         merror!(403, "Those credentials are invalid or that email is not in our system.", code: "invalid_credentials")
       end
-      check_role_access!(me, :read, :admin_access)
+      check_admin_role_access!(:read, :admin_access, admin: me)
       session = me.add_session(**Suma::Member::Session.params_for_request(request))
       set_session(session)
       status 200
@@ -49,7 +49,7 @@ class Suma::AdminAPI::Auth < Suma::AdminAPI::BaseV1
       route_param :member_id, type: Integer do
         desc "Impersonate a member"
         post do
-          check_role_access!(admin_member, :write, :impersonate)
+          check_admin_role_access!(:write, :impersonate)
           (target = Suma::Member[params[:member_id]]) or forbidden!
           current_session.impersonate(target).save_changes
           status 200

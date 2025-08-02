@@ -35,7 +35,7 @@ class Suma::AdminAPI::MessageDeliveries < Suma::AdminAPI::V1
 
     desc "Return the delivery with the last ID"
     get :last do
-      check_role_access!(admin_member, :read, :admin_members)
+      check_admin_role_access!(:read, Suma::Message::Delivery)
       delivery = Suma::Message::Delivery.last
       present delivery, with: DetailedMessageDeliveryEntity
     end
@@ -48,7 +48,7 @@ class Suma::AdminAPI::MessageDeliveries < Suma::AdminAPI::V1
 
     route_param :id, type: Integer do
       post :external_details do
-        check_role_access!(admin_member, :read, :admin_members)
+        check_admin_role_access!(:read, Suma::Message::Delivery)
         (d = Suma::Message::Delivery[params[:id]]) or forbidden!
         adminerror!(400, "Delivery has no transport message id") if d.transport_message_id.blank?
         c = d.carrier!

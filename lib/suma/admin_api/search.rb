@@ -21,7 +21,7 @@ class Suma::AdminAPI::Search < Suma::AdminAPI::V1
         optional :q, type: String
       end
       post do
-        check_role_access!(admin_member, :read, :admin_payments)
+        check_admin_role_access!(:read, Suma::Payment::Ledger)
         ds = Suma::Payment::Ledger.dataset
         if (q = params[:q]).present?
           # Search for ledgers, members, and vendors containing the given name.
@@ -58,7 +58,7 @@ class Suma::AdminAPI::Search < Suma::AdminAPI::V1
         optional :platform_categories, type: Array[String]
       end
       post :lookup do
-        check_role_access!(admin_member, :read, :admin_payments)
+        check_admin_role_access!(:read, Suma::Payment::Ledger)
         by_id = {}
         params.fetch(:ids, []).each do |ledger_id|
           led = Suma::Payment::Ledger[ledger_id]
@@ -84,7 +84,7 @@ class Suma::AdminAPI::Search < Suma::AdminAPI::V1
       optional :types, type: Array[Symbol], values: [:bank_account, :card]
     end
     post :payment_instruments do
-      check_role_access!(admin_member, :read, :admin_members)
+      check_admin_role_access!(:read, Suma::Member)
       ba_ds = Suma::Payment::BankAccount.dataset.usable.verified
       card_ds = Suma::Payment::Card.dataset.usable
       if (types = params[:types]).present?
@@ -144,7 +144,7 @@ class Suma::AdminAPI::Search < Suma::AdminAPI::V1
       optional :language, type: Symbol, values: [:en, :es], default: :en
     end
     post :translations do
-      check_role_access!(admin_member, :read, :admin_access)
+      check_admin_role_access!(:read, :admin_access)
       lang = params[:language]
       # Perform a subselect since otherwise we can't sort with distinct.
       base_ds = Suma::TranslatedText.dataset.distinct(lang)
@@ -162,7 +162,7 @@ class Suma::AdminAPI::Search < Suma::AdminAPI::V1
       optional :q, type: String
     end
     post :products do
-      check_role_access!(admin_member, :read, :admin_commerce)
+      check_admin_role_access!(:read, Suma::Commerce::Product)
       ds = Suma::Commerce::Product.dataset
       if (q = params[:q]).present?
         name_like = Suma::TranslatedText.dataset.distinct_search(:en, q)
@@ -177,7 +177,7 @@ class Suma::AdminAPI::Search < Suma::AdminAPI::V1
       optional :q, type: String
     end
     post :offerings do
-      check_role_access!(admin_member, :read, :admin_commerce)
+      check_admin_role_access!(:read, Suma::Commerce::Offering)
       ds = Suma::Commerce::Offering.dataset
       if (q = params[:q]).present?
         description_like = Suma::TranslatedText.dataset.distinct_search(:en, q)
@@ -192,7 +192,7 @@ class Suma::AdminAPI::Search < Suma::AdminAPI::V1
       optional :q, type: String
     end
     post :vendors do
-      check_role_access!(admin_member, :read, :admin_commerce)
+      check_admin_role_access!(:read, Suma::Vendor)
       ds = Suma::Vendor.dataset
       ds = ds_search_or_order_by(:name, ds, params)
       ds = ds.limit(15)
@@ -204,7 +204,7 @@ class Suma::AdminAPI::Search < Suma::AdminAPI::V1
       optional :q, type: String
     end
     post :members do
-      check_role_access!(admin_member, :read, :admin_members)
+      check_admin_role_access!(:read, Suma::Member)
       ds = Suma::Member.dataset.not_soft_deleted
       ds = ds_search_or_order_by(:name, ds, params)
       ds = ds.limit(15)
@@ -216,7 +216,7 @@ class Suma::AdminAPI::Search < Suma::AdminAPI::V1
       optional :q, type: String
     end
     post :organizations do
-      check_role_access!(admin_member, :read, :admin_members)
+      check_admin_role_access!(:read, Suma::Organization)
       ds = Suma::Organization.dataset
       ds = ds_search_or_order_by(:name, ds, params)
       ds = ds.limit(15)
@@ -228,7 +228,7 @@ class Suma::AdminAPI::Search < Suma::AdminAPI::V1
       optional :q, type: String
     end
     post :roles do
-      check_role_access!(admin_member, :read, :admin_members)
+      check_admin_role_access!(:read, Suma::Role)
       # role names are sluggified by default.
       params[:q] = Suma.to_slug(params[:q]) if params[:q].present?
       ds = Suma::Role.dataset
@@ -242,7 +242,7 @@ class Suma::AdminAPI::Search < Suma::AdminAPI::V1
       optional :q, type: String
     end
     post :vendor_services do
-      check_role_access!(admin_member, :read, :admin_commerce)
+      check_admin_role_access!(:read, Suma::Vendor::Service)
       ds = Suma::Vendor::Service.dataset
       ds = ds_search_or_order_by(:external_name, ds, params)
       ds = ds.limit(15)
@@ -254,7 +254,7 @@ class Suma::AdminAPI::Search < Suma::AdminAPI::V1
       optional :q, type: String
     end
     post :commerce_offerings do
-      check_role_access!(admin_member, :read, :admin_commerce)
+      check_admin_role_access!(:read, Suma::Commerce::Offering)
       ds = Suma::Commerce::Offering.dataset
       if (description_en_like = search_param_to_sql(params, :description_en, param: :q))
         description_es_like = search_param_to_sql(params, :description_es, param: :q)
@@ -271,7 +271,7 @@ class Suma::AdminAPI::Search < Suma::AdminAPI::V1
       optional :q, type: String
     end
     post :programs do
-      check_role_access!(admin_member, :read, :admin_management)
+      check_admin_role_access!(:read, Suma::Program)
       ds = Suma::Program.dataset
       if (name_en_like = search_param_to_sql(params, :name_en, param: :q))
         name_es_like = search_param_to_sql(params, :name_es, param: :q)

@@ -53,8 +53,7 @@ class Suma::AdminAPI::OrganizationMembershipVerifications < Suma::AdminAPI::V1
       optional :status, type: Symbol, default: :todo
     end
     get do
-      access = Suma::AdminAPI::Access.read_key(Suma::Organization::Membership::Verification)
-      check_role_access!(admin_member, :read, access)
+      check_admin_role_access!(:read, Suma::Organization::Membership::Verification)
       ds = Suma::Organization::Membership::Verification.dataset
       # Join the verification with its membership, member, and organization, so we can search by name
       ds = ds.association_join(:membership).
@@ -127,7 +126,7 @@ class Suma::AdminAPI::OrganizationMembershipVerifications < Suma::AdminAPI::V1
       helpers do
         def lookup_writeable!
           (v = Suma::Organization::Membership::Verification[params[:id]]) or forbidden!
-          check_role_access!(admin_member, :write, :admin_members)
+          check_admin_role_access!(:write, Suma::Organization::Membership::Verification)
           return v
         end
       end

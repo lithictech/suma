@@ -21,7 +21,7 @@ class Suma::AdminAPI::Roles < Suma::AdminAPI::V1
   resource :roles do
     desc "Return all roles, ordered by name"
     get do
-      check_role_access!(admin_member, :read, :admin_access) # This will always pass but better to be explicit
+      check_admin_role_access!(:read, Suma::Role)
       ds = Suma::Role.dataset.order(:name)
       use_http_expires_caching 2.hours
       present_collection ds, with: RoleEntity
