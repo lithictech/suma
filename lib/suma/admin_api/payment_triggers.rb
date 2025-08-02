@@ -91,6 +91,7 @@ class Suma::AdminAPI::PaymentTriggers < Suma::AdminAPI::V1
         requires :unit, type: Symbol, values: [:day, :week, :month]
       end
       post :subdivide do
+        check_admin_role_access!(:write, Suma::Payment::Trigger)
         (tr = Suma::Payment::Trigger[params[:id]]) or forbidden!
         tr.subdivide(amount: params[:amount], unit: params[:unit])
         created_resource_headers(tr.id, tr.admin_link)

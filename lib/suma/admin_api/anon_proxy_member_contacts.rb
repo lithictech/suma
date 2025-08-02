@@ -22,6 +22,7 @@ class Suma::AdminAPI::AnonProxyMemberContacts < Suma::AdminAPI::V1
       requires :type, type: Symbol, values: [:email, :phone]
     end
     post :provision do
+      check_admin_role_access!(:read, Suma::AnonProxy::MemberContact)
       (member = Suma::Member[params[:member][:id]]) or forbidden!
       contact, created = Suma::AnonProxy::MemberContact.ensure_anonymous_contact(member, params[:type])
       unless created

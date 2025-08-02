@@ -80,6 +80,7 @@ class Suma::AdminAPI::MarketingSmsBroadcasts < Suma::AdminAPI::V1
       requires :es, type: String
     end
     post :preview do
+      check_admin_role_access!(:read, Suma::Marketing::SmsBroadcast)
       preview = Suma::Marketing::SmsBroadcast.preview(member: admin_member, en: params[:en], es: params[:es])
       status 200
       present preview
@@ -105,6 +106,7 @@ class Suma::AdminAPI::MarketingSmsBroadcasts < Suma::AdminAPI::V1
 
     route_param :id, type: Integer do
       get :review do
+        check_admin_role_access!(:read, Suma::Marketing::SmsBroadcast)
         (o = Suma::Marketing::SmsBroadcast[params[:id]]) or forbidden!
         r = o.generate_review
         entity = r.pre_review? ? SmsBroadcastPreReviewEntity : SmsBroadcastPostReviewEntity
@@ -113,6 +115,7 @@ class Suma::AdminAPI::MarketingSmsBroadcasts < Suma::AdminAPI::V1
       end
 
       post :send do
+        check_admin_role_access!(:write, Suma::Marketing::SmsBroadcast)
         (o = Suma::Marketing::SmsBroadcast[params[:id]]) or forbidden!
         o.dispatch
         created_resource_headers(o.id, o.admin_link)

@@ -9,6 +9,7 @@ class Suma::AdminAPI::Auth < Suma::AdminAPI::BaseV1
   include Suma::AdminAPI::Entities
 
   resource :auth do
+    route_setting :skip_role_check, true
     desc "Return the current administrator member."
     get do
       present admin_member, with: CurrentMemberEntity, env:
@@ -31,6 +32,7 @@ class Suma::AdminAPI::Auth < Suma::AdminAPI::BaseV1
       present admin_member, with: CurrentMemberEntity, env:
     end
 
+    route_setting :skip_role_check, true
     delete do
       logout
       status 204
@@ -40,6 +42,7 @@ class Suma::AdminAPI::Auth < Suma::AdminAPI::BaseV1
     auth(:admin)
     resource :impersonate do
       desc "Remove any active impersonation and return the admin member."
+      route_setting :skip_role_check, true
       delete do
         current_session.unimpersonate.save_changes
         status 200

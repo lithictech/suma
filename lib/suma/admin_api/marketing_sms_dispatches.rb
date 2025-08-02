@@ -27,6 +27,7 @@ class Suma::AdminAPI::MarketingSmsDispatches < Suma::AdminAPI::V1
 
     route_param :id, type: Integer do
       post :cancel do
+        check_admin_role_access!(:write, Suma::Marketing::SmsDispatch)
         (o = Suma::Marketing::SmsDispatch[params[:id]]) or forbidden!
         adminerror!(409, "Dispatch already sent") if o.sent?
         o.cancel

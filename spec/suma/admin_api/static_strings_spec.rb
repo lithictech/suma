@@ -52,16 +52,6 @@ RSpec.describe Suma::AdminAPI::StaticStrings, :db do
           ),
         ))
     end
-
-    it "errors without access" do
-      admin.remove_role Suma::Role.cache.admin
-      admin.add_role Suma::Role.cache.readonly_admin
-
-      get "/v1/static_strings"
-
-      expect(last_response).to have_status(403)
-      expect(last_response).to have_json_body.that_includes(error: include(code: "role_check"))
-    end
   end
 
   describe "POST /v1/static_strings/create" do
@@ -84,16 +74,6 @@ RSpec.describe Suma::AdminAPI::StaticStrings, :db do
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.
         that_includes(key: "y", en: "hi")
-    end
-
-    it "errors without access" do
-      admin.remove_role Suma::Role.cache.admin
-      admin.add_role Suma::Role.cache.readonly_admin
-
-      post "/v1/static_strings/create", namespace: "x", key: "y"
-
-      expect(last_response).to have_status(403)
-      expect(last_response).to have_json_body.that_includes(error: include(code: "role_check"))
     end
   end
 

@@ -5,18 +5,28 @@ require "rack/test"
 require "suma/admin_api"
 
 class Suma::AdminAPI::TestV1API < Suma::AdminAPI::V1
+  route_setting :skip_role_check, true
   get :noop do
     present({})
   end
+  route_setting :skip_role_check, true
   get :unique_constraint do
     Suma::Fixtures.vendor_service_category.create(slug: "x")
     Suma::Fixtures.vendor_service_category.create(slug: "x")
   end
+  route_setting :skip_role_check, true
   get :validation do
     Suma::Fixtures.member.create(phone: nil)
   end
+  route_setting :skip_role_check, true
   get :content_type do
     Suma::UploadedFile.create_with_blob(bytes: Suma::SpecHelpers::PNG_1X1_BYTES, content_type: "image/jpeg")
+  end
+
+  get :missing_role_check do
+  end
+  get :role_check do
+    check_admin_role_access!(:read, :admin_access)
   end
 end
 
@@ -74,21 +84,38 @@ RSpec.describe Suma::AdminAPI, :db do
       expect(last_response).to have_status(200)
       expect(sc.tags).to eq(application: "admin-api")
     end
+
+    it "errors if check_role_access is not called and :skip_role_check is not set" do
+      get "/v1/missing_role_check"
+
+      expect(last_response).to have_status(500)
+      expect(last_response).to have_json_body.
+        that_includes(error: include(message: "check_admin_role_access! was not called"))
+    end
+
+    it "does not fail if check_admin_role_access is called" do
+      get "/v1/role_check"
+
+      expect(last_response).to have_status(200)
+    end
   end
 
   describe described_class::ServerSentEvents do
     sse_api = Class.new(Suma::AdminAPI::V1) do
       include Suma::AdminAPI::ServerSentEvents
 
+      route_setting :skip_role_check, true
       get :getter do
         present({session_id: Suma::SSE.current_session_id})
       end
 
+      route_setting :skip_role_check, true
       post :poster do
         status 200
         present({session_id: Suma::SSE.current_session_id})
       end
 
+      route_setting :skip_role_check, true
       route_setting :do_not_check_sse_token, true
       post :poster_noreq do
         status 200
