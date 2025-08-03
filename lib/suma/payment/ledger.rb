@@ -169,6 +169,36 @@ class Suma::Payment::Ledger < Suma::Postgres::Model(:payment_ledgers)
     end
   end
 
+  def find_unbalanced_ledgers
+    creditors = {}
+    debtors = {}
+    led.received_book_transactions.each do |bx|
+      debtors[bx.originating_ledger_id] ||= Money.new(0, bx.amount_currency)
+      if creditors.key?(bx.originating_ledger_id)
+        creditors[bx.originating_ledger_id] += bx.amount
+      else
+        creditors[bx.originating_ledger_id] = bx.amount
+      end
+    end
+    led.originated_book_transactions.each do |bx|
+      creditors[bx.receiving_ledger_id] ||= Money.new(0, bx.amount_currency)
+      if debtors.key?(bx.receiving_ledger_id)
+        debtors[bx.receiving_ledger_id] += bx.amount
+      else
+        debtors[bx.receiving_ledger_id] = bx.amount
+      end
+    end
+    creditors.each do |ledger_id, amount|
+      debtors[ledger_id] -= amount
+    end
+    unbalanced = []
+    debtors.each do |ledger_id, amount|
+      next if amount.zero?
+      unbalanced << [ledger_id, amount]
+    end
+    return unbalanced
+  end
+
   def rel_admin_link = "/payment-ledger/#{self.id}"
 
   def admin_label
