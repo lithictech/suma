@@ -172,8 +172,7 @@ class Suma::Payment::Ledger < Suma::Postgres::Model(:payment_ledgers)
   def rel_admin_link = "/payment-ledger/#{self.id}"
 
   def admin_label
-    lbl = "#{self.account.display_name} - #{self.name}"
-    lbl = "(#{self.id}) #{lbl}" unless self.account.platform_account?
+    lbl = "(#{self.id}) #{self.account.display_name} - #{self.name}"
     return lbl
   end
 
