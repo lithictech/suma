@@ -178,9 +178,8 @@ module Suma
     return s.downcase.gsub(/['"]/, "").gsub(/[^a-z0-9]/, "_").squeeze("_")
   end
 
-  def self.test?
-    return RACK_ENV == "test"
-  end
+  def self.test? = RACK_ENV == "test"
+  def self.macos? = ::RUBY_PLATFORM.include?("darwin")
 
   # Return the request user and admin stored in TLS. See service.rb for implementation.
   #

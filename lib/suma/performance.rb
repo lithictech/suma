@@ -1,9 +1,12 @@
 # frozen_string_literal: true
 
+require "appydays/configurable"
+require "appydays/loggable"
 require "suma/enumerable"
 
 module Suma::Performance
   include Appydays::Configurable
+  include Appydays::Loggable
 
   configurable(:performance) do
     setting :request_middleware, false
@@ -45,10 +48,24 @@ module Suma::Performance
       query = query.strip.delete('"')
       span_sql_data << {query:, duration:}
     end
+
+    if Suma.macos?
+      def memory_kb
+        out = Kernel.send(:`, "ps -o rss= -p #{Process.pid}")
+        out.to_i
+      end
+    else
+      def memory_kb
+        File.foreach("/proc/self/status") do |line|
+          return line.split[1].to_i if line.start_with?("VmRSS:")
+        end
+        raise "Could not parse RSS from /proc/self/status on #{RUBY_PLATFORM}"
+      end
+    end
   end
 
   class RackMiddleware
-    def initialize(app, logger:)
+    def initialize(app, logger: Suma::Performance.logger)
       @app = app
       @logger = logger
     end
@@ -102,6 +119,7 @@ module Suma::Performance
       # We'll have these somewhat often, especially for things like translated text.
       homogenized_dupe_counts = Suma::Enumerable.group_and_count(queries.map { |q| homogenize_sql(q) })
       tags[:sql_similar_duplicates] = homogenized_dupe_counts.values.sum - homogenized_dupe_counts.count
+      tags[:rss_kb] = Suma::Performance.memory_kb
 
       @logger.info(:performance, tags)
 

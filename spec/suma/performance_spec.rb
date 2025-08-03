@@ -79,4 +79,28 @@ RSpec.describe Suma::Performance, reset_configuration: Suma::Performance do
       include(event: :performance, sql_queries: 1),
     )
   end
+
+  describe "memory_kb" do
+    it "works on Mac using ps" do
+      expect(Suma).to receive(:macos?).and_return(true)
+      described_class.send(:remove_const, :THREAD_KEY)
+      load "suma/performance.rb"
+      expect(Process).to receive(:pid).and_return(123)
+      expect(Kernel).to receive(:`).with("ps -o rss= -p 123").and_return("456\n")
+      expect(Suma::Performance.memory_kb).to eq(456)
+    end
+
+    it "works on Linux us /proc/self/status" do
+      expect(Suma).to receive(:macos?).and_return(false)
+      described_class.send(:remove_const, :THREAD_KEY)
+      load "suma/performance.rb"
+      expect(File).to receive(:foreach).with("/proc/self/status").and_wrap_original do |*, &b|
+        b.call("Name:	ruby\n")
+        b.call("VmHWM:	   15000 kB\n")
+        b.call("VmRSS:	   14000 kB\n")
+        b.call("VmLck:	   13000 kB\n")
+      end
+      expect(Suma::Performance.memory_kb).to eq(14_000)
+    end
+  end
 end
