@@ -29,16 +29,35 @@ RSpec.describe "Suma::Payment::Ledger", :db do
       expect(eager_ledger.combined_book_transactions).to have_same_ids_as(debit1, debit2, credit1, credit2).ordered
     end
 
-    it "has a balance" do
-      expect(ledger).to have_attributes(balance: cost("$0"))
+    it "can calculate totals, sums, and balances of book transactions" do
+      expect(ledger).to have_attributes(
+        total_debits: cost("$0"),
+        count_debits: 0,
+        total_credits: cost("$0"),
+        count_credits: 0,
+        balance: cost("$0"),
+      )
       Suma::Fixtures.book_transaction.to(ledger).create(amount: money("$5"))
       Suma::Fixtures.book_transaction.to(ledger).create(amount: money("$10"))
       expect(ledger.refresh).to have_attributes(balance: cost("$15"))
       Suma::Fixtures.book_transaction.from(ledger).create(amount: money("$1.50"))
       Suma::Fixtures.book_transaction.from(ledger).create(amount: money("$1"))
-      expect(ledger.refresh).to have_attributes(balance: cost("$12.50"))
+      Suma::Fixtures.book_transaction.from(ledger).create(amount: money("$0.25"))
+      expect(ledger.refresh).to have_attributes(
+        total_debits: cost("$2.75"),
+        count_debits: 3,
+        total_credits: cost("$15"),
+        count_credits: 2,
+        balance: cost("$12.25"),
+      )
       eagered = described_class.where(id: ledger.id).all.first
-      expect(eagered).to have_attributes(balance: cost("$12.50"))
+      expect(eagered).to have_attributes(
+        total_debits: cost("$2.75"),
+        count_debits: 3,
+        total_credits: cost("$15"),
+        count_credits: 2,
+        balance: cost("$12.25"),
+      )
     end
   end
 

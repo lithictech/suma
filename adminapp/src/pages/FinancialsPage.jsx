@@ -27,9 +27,33 @@ export default function FinancialsPage() {
         title="Overview"
         anchorLeft
         properties={[
-          { label: "Funding", children: <Money>{platformStatus.funding}</Money> },
-          { label: "Payouts", children: <Money>{platformStatus.payouts}</Money> },
-          { label: "Refunds", children: <Money>{platformStatus.refunds}</Money> },
+          {
+            label: "Funding",
+            children: (
+              <SumCount
+                amount={platformStatus.funding}
+                count={platformStatus.fundingCount}
+              />
+            ),
+          },
+          {
+            label: "Payouts",
+            children: (
+              <SumCount
+                amount={platformStatus.payouts}
+                count={platformStatus.payoutCount}
+              />
+            ),
+          },
+          {
+            label: "Refunds",
+            children: (
+              <SumCount
+                amount={platformStatus.refunds}
+                count={platformStatus.refundCount}
+              />
+            ),
+          },
           {
             label: "Member Liabilities",
             children: <Money>{platformStatus.memberLiabilities}</Money>,
@@ -48,9 +72,7 @@ export default function FinancialsPage() {
             {row.accountName}
           </AdminLink>,
           row.name,
-          <Money key="balance">{row.balance}</Money>,
-          <Money key="debits">{row.totalDebits}</Money>,
-          <Money key="credits">{row.totalCredits}</Money>,
+          ...ledgerMonies(row),
         ]}
       />
       <RelatedList
@@ -61,11 +83,25 @@ export default function FinancialsPage() {
         toCells={(row) => [
           <AdminLink key="id" model={row} />,
           row.name,
-          <Money key="balance">{row.balance}</Money>,
-          <Money key="debits">{row.totalDebits}</Money>,
-          <Money key="credits">{row.totalCredits}</Money>,
+          ...ledgerMonies(row),
         ]}
       />
+    </>
+  );
+}
+
+function ledgerMonies(row) {
+  return [
+    <Money key="balance">{row.balance}</Money>,
+    <SumCount key="debits" amount={row.totalDebits} count={row.countDebits} />,
+    <SumCount key="credits" amount={row.totalCredits} count={row.countCredits} />,
+  ];
+}
+
+function SumCount({ amount, count }) {
+  return (
+    <>
+      <Money>{amount}</Money> ({count})
     </>
   );
 }

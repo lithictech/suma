@@ -76,9 +76,11 @@ class Suma::Payment::Ledger < Suma::Postgres::Model(:payment_ledgers)
   def any_transactions? = !(self.one_originated_book_transaction || self.one_received_book_transaction).nil?
 
   [:originating, :receiving].each do |direction|
+    assoc = :"#{direction}_stats"
     total_method = :"total_#{direction}"
+    count_method = :"count_#{direction}"
     fk = :"#{direction}_ledger_id"
-    many_to_one :"total_#{direction}",
+    many_to_one assoc,
                 read_only: true,
                 key: :id,
                 class: "Suma::Payment::Ledger",
@@ -86,7 +88,7 @@ class Suma::Payment::Ledger < Suma::Postgres::Model(:payment_ledgers)
                   ds = Suma::Payment::BookTransaction.
                     where(fk => id).
                     select { amount_cents.as(amount) }
-                  db.from(ds).select { sum(amount).as(total_method) }.naked
+                  db.from(ds).select { [sum(amount).as(total_method), count(1).as(count_method)] }.naked
                 },
                 eager_loader: (lambda do |eo|
                   eo[:rows].each { |p| p.associations[total_method] = nil }
@@ -95,7 +97,7 @@ class Suma::Payment::Ledger < Suma::Postgres::Model(:payment_ledgers)
                     select { [fk.as(ledger_id), amount_cents.as(amount)] }
                   db.from(ds).
                     select_group(:ledger_id).
-                    select_append { sum(amount).as(total_method) }.
+                    select_append { [sum(amount).as(total_method), count(1).as(count_method)] }.
                     all do |t|
                     p = eo[:id_map][t.delete(:ledger_id)].first
                     p.associations[total_method] = t
@@ -103,11 +105,17 @@ class Suma::Payment::Ledger < Suma::Postgres::Model(:payment_ledgers)
                 end)
 
     define_method(total_method) do
-      Money.new((super() || {}).fetch(total_method, 0), self.currency)
+      Money.new((self.send(assoc) || {}).fetch(total_method, 0), self.currency)
+    end
+
+    define_method(count_method) do
+      (self.send(assoc) || {}).fetch(count_method, 0)
     end
   end
   alias total_debits total_originating
+  alias count_debits count_originating
   alias total_credits total_receiving
+  alias count_credits count_receiving
 
   def balance = self.total_credits - self.total_debits
 

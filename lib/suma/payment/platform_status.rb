@@ -1,12 +1,13 @@
 # frozen_string_literal: true
 
 class Suma::Payment::PlatformStatus
-  # The amount we've received through funding transactions (which have not been refunded).
-  attr_accessor :funding
-  # The amount we've paid out through payout transactions (which aren't refunds).
-  attr_accessor :payouts
-  # The amount we've refunded.
-  attr_accessor :refunds
+  # The total amount and number of transactions we've received that move money onto the platform
+  # (which have not been refunded).
+  attr_accessor :funding, :funding_count
+  # The total amount and number of transactions we've paid out (which aren't refunds).
+  attr_accessor :payouts, :payout_count
+  # The total amount and number of refund transactions.
+  attr_accessor :refunds, :refund_count
   # The pending balance on platform ledgers. A positive value means users are carrying a balance.
   attr_accessor :member_liabilities
   # Funding minus payouts. This is 'potential profit'. Member liabilities reduce assets,
@@ -20,16 +21,27 @@ class Suma::Payment::PlatformStatus
 
   def calculate
     self.platform_ledgers = Suma::Payment::Account.lookup_platform_account.ledgers.sort_by(&:name)
-    self.refunds = sumamt(Suma::Payment::PayoutTransaction.exclude(refunded_funding_transaction_id: nil))
-    self.payouts = sumamt(Suma::Payment::PayoutTransaction.where(refunded_funding_transaction_id: nil))
-    self.funding = sumamt(Suma::Payment::FundingTransaction.dataset) - self.refunds
+    self.refunds, self.refund_count = sumcnt(
+      Suma::Payment::PayoutTransaction.exclude(refunded_funding_transaction_id: nil),
+    )
+    self.payouts, self.payout_count = sumcnt(
+      Suma::Payment::PayoutTransaction.where(refunded_funding_transaction_id: nil)
+    )
+    self.funding, self.funding_count = sumcnt(Suma::Payment::FundingTransaction.dataset)
+    self.funding -= self.refunds
+    self.funding_count -= self.refund_count
     self.member_liabilities = self.platform_ledgers.sum(&:balance) * -1
     self.assets = self.funding - self.payouts
     self.unbalanced_ledgers = self.find_unbalanced_ledgers_ds.all
     return self
   end
 
-  private def sumamt(ds) = Money.new(ds.sum(:amount_cents) || 0, Suma.default_currency)
+  private def sumcnt(ds)
+    row = ds.select { [sum(amount_cents).as(cents), count(1).as(count)] }.naked.first
+    cents = row.fetch(:cents) || 0
+    count = row.fetch(:count)
+    return Money.new(cents, Suma.default_currency), count
+  end
 
   private def db = @db ||= Suma::Payment::Account.db
 
