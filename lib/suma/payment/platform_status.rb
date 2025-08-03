@@ -25,7 +25,7 @@ class Suma::Payment::PlatformStatus
       Suma::Payment::PayoutTransaction.exclude(refunded_funding_transaction_id: nil),
     )
     self.payouts, self.payout_count = sumcnt(
-      Suma::Payment::PayoutTransaction.where(refunded_funding_transaction_id: nil)
+      Suma::Payment::PayoutTransaction.where(refunded_funding_transaction_id: nil),
     )
     self.funding, self.funding_count = sumcnt(Suma::Payment::FundingTransaction.dataset)
     self.funding -= self.refunds
