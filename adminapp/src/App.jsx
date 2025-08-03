@@ -12,6 +12,7 @@ import BookTransactionListPage from "./pages/BookTransactionListPage";
 import ChargeDetailPage from "./pages/ChargeDetailPage";
 import ChargeListPage from "./pages/ChargeListPage";
 import DashboardPage from "./pages/DashboardPage";
+import FinancialsPage from "./pages/FinancialsPage";
 import FundingTransactionCreatePage from "./pages/FundingTransactionCreatePage";
 import FundingTransactionDetailPage from "./pages/FundingTransactionDetailPage";
 import FundingTransactionListPage from "./pages/FundingTransactionListPage";
@@ -804,6 +805,11 @@ function PageSwitch() {
           withLayout(),
           StaticStringsNamespacePage
         )}
+      />
+      <Route
+        exact
+        path="/financials"
+        element={renderWithHocs(redirectIfUnauthed, withLayout(), FinancialsPage)}
       />
       <Route
         path="/*"

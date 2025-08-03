@@ -373,6 +373,9 @@ export default {
     post(`/adminapi/v1/search/commerce_offerings`, data, ...args),
   searchPrograms: (data, ...args) => post(`/adminapi/v1/search/programs`, data, ...args),
 
+  getFinancialsPlatformStatus: (data, ...args) =>
+    get(`/adminapi/v1/financials/platform_status`, data, ...args),
+
   /**
    * Return an API url.
    * @param tail {string}

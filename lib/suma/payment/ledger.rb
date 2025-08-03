@@ -75,11 +75,41 @@ class Suma::Payment::Ledger < Suma::Postgres::Model(:payment_ledgers)
   # True if the ledger has any lines, false if not.
   def any_transactions? = !(self.one_originated_book_transaction || self.one_received_book_transaction).nil?
 
-  def balance
-    credits = self.received_book_transactions.sum(Money.new(0), &:amount)
-    debits = self.originated_book_transactions.sum(Money.new(0), &:amount)
-    return credits - debits
+  [:originating, :receiving].each do |direction|
+    total_method = :"total_#{direction}"
+    fk = :"#{direction}_ledger_id"
+    many_to_one :"total_#{direction}",
+                read_only: true,
+                key: :id,
+                class: "Suma::Payment::Ledger",
+                dataset: proc {
+                  ds = Suma::Payment::BookTransaction.
+                    where(fk => id).
+                    select { amount_cents.as(amount) }
+                  db.from(ds).select { sum(amount).as(total_method) }.naked
+                },
+                eager_loader: (lambda do |eo|
+                  eo[:rows].each { |p| p.associations[total_method] = nil }
+                  ds = Suma::Payment::BookTransaction.
+                    where(fk => eo[:id_map].keys).
+                    select { [fk.as(ledger_id), amount_cents.as(amount)] }
+                  db.from(ds).
+                    select_group(:ledger_id).
+                    select_append { sum(amount).as(total_method) }.
+                    all do |t|
+                    p = eo[:id_map][t.delete(:ledger_id)].first
+                    p.associations[total_method] = t
+                  end
+                end)
+
+    define_method(total_method) do
+      Money.new((super() || {}).fetch(total_method, 0), self.currency)
+    end
   end
+  alias total_debits total_originating
+  alias total_credits total_receiving
+
+  def balance = self.total_credits - self.total_debits
 
   # Return true if this ledger can be used to purchase the given service.
   # This is done by comparing the vendor service categories on each.

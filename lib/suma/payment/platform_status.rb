@@ -1,0 +1,60 @@
+# frozen_string_literal: true
+
+class Suma::Payment::PlatformStatus
+  # The amount we've received through funding transactions (which have not been refunded).
+  attr_accessor :funding
+  # The amount we've paid out through payout transactions (which aren't refunds).
+  attr_accessor :payouts
+  # The amount we've refunded.
+  attr_accessor :refunds
+  # The pending balance on platform ledgers. A positive value means users are carrying a balance.
+  attr_accessor :member_liabilities
+  # Funding minus payouts. This is 'potential profit'. Member liabilities reduce assets,
+  # but not necessarily by their entire amount (since the actual amount will depend on vendor invoicing).
+  attr_accessor :assets
+  # Ledgers belonging to the platform account.
+  attr_accessor :platform_ledgers
+  # Unbalanced ledgers. These do not belong to the platform account,
+  # since unbalanced member ledgers always mean unbalanced platform ledgers.
+  attr_accessor :unbalanced_ledgers
+
+  def calculate
+    self.platform_ledgers = Suma::Payment::Account.lookup_platform_account.ledgers.sort_by(&:name)
+    self.refunds = sumamt(Suma::Payment::PayoutTransaction.exclude(refunded_funding_transaction_id: nil))
+    self.payouts = sumamt(Suma::Payment::PayoutTransaction.where(refunded_funding_transaction_id: nil))
+    self.funding = sumamt(Suma::Payment::FundingTransaction.dataset) - self.refunds
+    self.member_liabilities = self.platform_ledgers.sum(&:balance) * -1
+    self.assets = self.funding - self.payouts
+    self.unbalanced_ledgers = self.find_unbalanced_ledgers_ds.all
+    return self
+  end
+
+  private def sumamt(ds) = Money.new(ds.sum(:amount_cents) || 0, Suma.default_currency)
+
+  private def db = @db ||= Suma::Payment::Account.db
+
+  # Return all ledgers that do not have a zero balance.
+  # We can do this for all ledgers by aggregating so there is a row for each ledger
+  # of all the book transactions they received (assets) and a row for each ledger
+  # of all the book transactions they originated (liabilities);
+  # then group and sum from this union, and if the total isn't 0, it's unbalanced.
+  private def find_unbalanced_ledgers_ds
+    combined = Suma::Payment::BookTransaction.
+      select { [receiving_ledger_id.as(ledger_id), amount_cents.as(amount)] }.
+      union(
+        Suma::Payment::BookTransaction.
+          select { [originating_ledger_id.as(ledger_id), (amount_cents * -1).as(amount)] },
+        all: true,
+        from_self: false,
+      )
+    summed = db.from(combined).
+      group(:ledger_id).
+      select { [ledger_id, sum(amount).as(total)] }
+    unbalanced_ids = db.
+      from(summed).
+      exclude(total: 0).
+      exclude(ledger_id: self.platform_ledgers.map(&:id)).
+      select_map(:ledger_id)
+    return Suma::Payment::Ledger.order(:account_id, :name, :id).where(id: unbalanced_ids)
+  end
+end

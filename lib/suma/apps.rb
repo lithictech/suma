@@ -43,6 +43,7 @@ require "suma/admin_api/commerce_offerings"
 require "suma/admin_api/commerce_orders"
 require "suma/admin_api/commerce_products"
 require "suma/admin_api/commerce_offering_products"
+require "suma/admin_api/financials"
 require "suma/admin_api/funding_transactions"
 require "suma/admin_api/members"
 require "suma/admin_api/message_deliveries"
@@ -100,6 +101,7 @@ module Suma::Apps
     mount Suma::AdminAPI::CommerceOrders
     mount Suma::AdminAPI::CommerceProducts
     mount Suma::AdminAPI::CommerceOfferingProducts
+    mount Suma::AdminAPI::Financials
     mount Suma::AdminAPI::FundingTransactions
     mount Suma::AdminAPI::MarketingLists
     mount Suma::AdminAPI::MarketingSmsBroadcasts
