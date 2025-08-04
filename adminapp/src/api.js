@@ -116,6 +116,11 @@ export default {
   getPayoutTransaction: ({ id, ...data }, ...args) =>
     get(`/adminapi/v1/payout_transactions/${id}`, data, ...args),
 
+  createPaymentOffPlatform: (...args) =>
+    post(`/adminapi/v1/payment_off_platform/create`, ...args),
+  updatePaymentOffPlatform: (...args) =>
+    post(`/adminapi/v1/payment_off_platform/update`, ...args),
+
   getCharges: (data, ...args) => get(`/adminapi/v1/charges`, data, ...args),
   getCharge: ({ id, ...data }, ...args) =>
     get(`/adminapi/v1/charges/${id}`, data, ...args),

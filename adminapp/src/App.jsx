@@ -36,6 +36,8 @@ import MessageListPage from "./pages/MessageListPage";
 import MobilityTripDetailPage from "./pages/MobilityTripDetailPage";
 import MobilityTripEditPage from "./pages/MobilityTripEditPage";
 import MobilityTripListPage from "./pages/MobilityTripListPage";
+import OffPlatformTransactionCreatePage from "./pages/OffPlatformTransactionCreatePage";
+import OffPlatformTransactionEditPage from "./pages/OffPlatformTransactionEditPage";
 import OfferingCreatePage from "./pages/OfferingCreatePage";
 import OfferingDetailPage from "./pages/OfferingDetailPage";
 import OfferingEditPage from "./pages/OfferingEditPage";
@@ -260,6 +262,24 @@ function PageSwitch() {
           redirectIfUnauthed,
           withLayout(),
           PayoutTransactionDetailPage
+        )}
+      />
+      <Route
+        exact
+        path="/payment-off-platform/create"
+        element={renderWithHocs(
+          redirectIfUnauthed,
+          withLayout(),
+          OffPlatformTransactionCreatePage
+        )}
+      />
+      <Route
+        exact
+        path="/payment-off-platform/update"
+        element={renderWithHocs(
+          redirectIfUnauthed,
+          withLayout(),
+          OffPlatformTransactionEditPage
         )}
       />
       <Route
