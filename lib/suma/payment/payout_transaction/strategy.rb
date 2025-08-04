@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require "suma/external_links"
-require "suma/postgres/model"
+require "suma/payment/payout_transaction"
 
 module Suma::Payment::PayoutTransaction::Strategy
   include Suma::ExternalLinks

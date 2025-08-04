@@ -31,7 +31,7 @@ class Suma::Payment::FundingTransaction < Suma::Postgres::Model(:payment_funding
   many_to_one :fake_strategy, class: "Suma::Payment::FakeStrategy"
   many_to_one :increase_ach_strategy, class: "Suma::Payment::FundingTransaction::IncreaseAchStrategy"
   many_to_one :stripe_card_strategy, class: "Suma::Payment::FundingTransaction::StripeCardStrategy"
-  many_to_one :off_platform_strategy, class: "Suma::Payment::FundingTransaction::OffPlatformStrategy"
+  many_to_one :off_platform_strategy, class: "Suma::Payment::OffPlatformStrategy"
 
   many_to_many :associated_charges,
                class: "Suma::Charge",
