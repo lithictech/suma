@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "sequel/null_or_present_constraint"
+require "sequel/unambiguous_constraint"
 
 Sequel.migration do
   up do
@@ -13,6 +14,7 @@ Sequel.migration do
       text :note, null: false
       text :check_or_transaction_number, index: true
       constraint :null_or_present_number, Sequel.null_or_present_constraint(:check_or_transaction_number)
+      timestamptz :transacted_at, null: false
     end
 
     alter_table(:payment_funding_transactions) do

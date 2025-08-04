@@ -25,6 +25,7 @@ RSpec.describe Suma::Payment::ChargeContribution, :db do
     )
 
     Suma::Fixtures.book_transaction.to(ledger).create(amount: money("$2"))
+    ledger.refresh
     expect(c).to have_attributes(
       outstanding: cost("$3"),
       outstanding?: true,
@@ -33,6 +34,7 @@ RSpec.describe Suma::Payment::ChargeContribution, :db do
     )
 
     Suma::Fixtures.book_transaction.to(ledger).create(amount: money("$4"))
+    ledger.refresh
     expect(c).to have_attributes(
       outstanding: cost("$0"),
       outstanding?: false,

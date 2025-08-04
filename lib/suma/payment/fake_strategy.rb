@@ -22,8 +22,9 @@ class Suma::Payment::FakeStrategy < Suma::Postgres::Model(:payment_fake_strategi
   end
 
   [
-    :originating_instrument,
+    :originating_instrument_label,
     :check_validity,
+    :admin_details,
     :ready_to_collect_funds?,
     :collect_funds,
     :funds_cleared?,
@@ -55,6 +56,11 @@ class Suma::Payment::FakeStrategy < Suma::Postgres::Model(:payment_fake_strategi
       return cls[result.fetch("id")]
     end
     return result
+  end
+
+  def supports_refunds?
+    return false unless self.responses.key?(:supports_refunds?)
+    return return_response(:supports_refunds?)
   end
 
   def set_response(symbol, result)

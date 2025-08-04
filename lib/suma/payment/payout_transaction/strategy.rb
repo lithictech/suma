@@ -11,6 +11,9 @@ module Suma::Payment::PayoutTransaction::Strategy
   # it does not have to be totally unambiguous.
   def short_name = raise NotImplementedError
 
+  # Return a hash of labels and values to display in admin.
+  def admin_details = raise NotImplementedError
+
   # Return an array of reasons this strategy is not valid
   # to be created. Usually this is something like an instrument
   # being soft deleted or not being registered in an external service;

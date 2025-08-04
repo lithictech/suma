@@ -6,7 +6,9 @@ RSpec.describe "Suma::Payment::OffPlatformStrategy", :db do
   let(:described_class) { Suma::Payment::OffPlatformStrategy }
 
   describe "as a funding strategy" do
-    let(:strategy) { described_class.create(created_by: Suma::Fixtures.member.create, note: "") }
+    let(:strategy) do
+      described_class.create(transacted_at: Time.now, created_by: Suma::Fixtures.member.create, note: "")
+    end
     let!(:xaction) { Suma::Fixtures.funding_transaction(strategy:).create }
 
     it_behaves_like "a funding transaction payment strategy"
@@ -20,7 +22,9 @@ RSpec.describe "Suma::Payment::OffPlatformStrategy", :db do
   end
 
   describe "as a payout strategy" do
-    let(:strategy) { described_class.create(created_by: Suma::Fixtures.member.create, note: "") }
+    let(:strategy) do
+      described_class.create(transacted_at: Time.now, created_by: Suma::Fixtures.member.create, note: "")
+    end
     let!(:xaction) { Suma::Fixtures.payout_transaction(strategy:).create }
 
     it_behaves_like "a payout transaction payment strategy"

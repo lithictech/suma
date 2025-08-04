@@ -18,6 +18,7 @@ RSpec.describe Suma::AdminAPI::PaymentOffPlatform, :db do
       post "/v1/payment_off_platform/create",
            type: :funding,
            amount: {cents: 500, currency: "USD"},
+           transacted_at: "2022-01-01T12:00:00Z",
            note: "hello",
            check_or_transaction_number: "123"
 
@@ -25,7 +26,15 @@ RSpec.describe Suma::AdminAPI::PaymentOffPlatform, :db do
       expect(last_response.headers).to include("Created-Resource-Admin")
       fx = Suma::Payment::Account.lookup_platform_account.originated_funding_transactions
       expect(fx).to contain_exactly(
-        have_attributes(status: "cleared", strategy: be_a(Suma::Payment::OffPlatformStrategy)),
+        have_attributes(
+          status: "cleared",
+          amount: cost("$5"),
+          strategy: have_attributes(
+            note: "hello",
+            check_or_transaction_number: "123",
+            transacted_at: match_time("2022-01-01T12:00:00Z"),
+          ),
+        ),
       )
       expect(fx.first.audit_logs).to contain_exactly(
         have_attributes(
@@ -41,7 +50,12 @@ RSpec.describe Suma::AdminAPI::PaymentOffPlatform, :db do
         have_attributes(
           event: "created",
           actor: be === admin,
-          messages: ["note=hello", "check_or_transaction_number=123"],
+          messages: [
+            "amount=5.00",
+            "transacted_at=2022-01-01 12:00:00 +0000",
+            "note=hello",
+            "check_or_transaction_number=123",
+          ],
         ),
       )
     end
@@ -50,6 +64,7 @@ RSpec.describe Suma::AdminAPI::PaymentOffPlatform, :db do
       post "/v1/payment_off_platform/create",
            type: :payout,
            amount: {cents: 500, currency: "USD"},
+           transacted_at: Time.now,
            note: "hello",
            check_or_transaction_number: "123"
 
@@ -65,7 +80,6 @@ RSpec.describe Suma::AdminAPI::PaymentOffPlatform, :db do
         have_attributes(
           event: "created",
           actor: be === admin,
-          messages: ["note=hello", "check_or_transaction_number=123"],
         ),
       )
     end
@@ -74,6 +88,7 @@ RSpec.describe Suma::AdminAPI::PaymentOffPlatform, :db do
       post "/v1/payment_off_platform/create",
            type: :funding,
            amount: {cents: 500, currency: "USD"},
+           transacted_at: Time.now,
            note: " x ",
            check_or_transaction_number: ""
 
@@ -89,6 +104,7 @@ RSpec.describe Suma::AdminAPI::PaymentOffPlatform, :db do
       post "/v1/payment_off_platform/create",
            type: :funding,
            amount: {cents: 500, currency: "USD"},
+           transacted_at: Time.now,
            note: "x"
 
       expect(last_response).to have_status(403)
@@ -99,24 +115,41 @@ RSpec.describe Suma::AdminAPI::PaymentOffPlatform, :db do
   describe "POST /v1/payment_off_platform/update" do
     it "updates an off-platform funding transaction" do
       fx = Suma::Fixtures.funding_transaction.create(
-        off_platform_strategy: Suma::Payment::OffPlatformStrategy.create(note: "x"),
+        off_platform_strategy: Suma::Payment::OffPlatformStrategy.create(note: "x", transacted_at: Time.now),
       )
       post "/v1/payment_off_platform/update",
            type: :funding,
            id: fx.id,
+           amount: {cents: 500, currency: "USD"},
+           transacted_at: "2022-01-01T12:00:00Z",
            note: "hello",
            check_or_transaction_number: "123"
 
       expect(last_response).to have_status(200)
-      expect(fx.refresh.strategy).to have_attributes(note: "hello", check_or_transaction_number: "123")
+      expect(fx.refresh).to have_attributes(
+        amount: cost("$5"),
+        strategy: have_attributes(
+          transacted_at: match_time("2022-01-01T12:00:00Z"),
+          note: "hello",
+          check_or_transaction_number: "123",
+        ),
+      )
       expect(fx.audit_logs).to contain_exactly(
-        have_attributes(event: "updated", messages: ["note=hello", "check_or_transaction_number=123"]),
+        have_attributes(
+          event: "updated",
+          messages: [
+            "amount=5.00",
+            "transacted_at=2022-01-01 12:00:00 UTC",
+            "note=hello",
+            "check_or_transaction_number=123",
+          ],
+        ),
       )
     end
 
     it "updates an off-platform payout transaction" do
       fx = Suma::Fixtures.payout_transaction.create(
-        off_platform_strategy: Suma::Payment::OffPlatformStrategy.create(note: "x"),
+        off_platform_strategy: Suma::Payment::OffPlatformStrategy.create(transacted_at: Time.now, note: "x"),
       )
       post "/v1/payment_off_platform/update",
            type: :payout,
@@ -127,7 +160,7 @@ RSpec.describe Suma::AdminAPI::PaymentOffPlatform, :db do
       expect(last_response).to have_status(200)
       expect(fx.refresh.strategy).to have_attributes(note: "hello", check_or_transaction_number: "123")
       expect(fx.audit_logs).to contain_exactly(
-        have_attributes(event: "updated", messages: ["note=hello", "check_or_transaction_number=123"]),
+        have_attributes(event: "updated"),
       )
     end
 

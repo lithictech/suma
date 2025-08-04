@@ -12,9 +12,18 @@ class Suma::Payment::OffPlatformStrategy < Suma::Postgres::Model(:payment_off_pl
   one_to_one :payout_transaction, class: "Suma::Payment::PayoutTransaction"
   many_to_one :created_by, class: "Suma::Member"
 
-  def originating_instrument = nil
   def short_name = "Off Platform Payment"
+  def originating_instrument_label = "Off Platform"
   def check_validity = []
+
+  def admin_details
+    return {
+      "Transacted At" => self.transacted_at,
+      "Created By" => self.created_by.name,
+      "Check/Transaction" => self.check_or_transaction_number,
+      "Note" => self.note,
+    }
+  end
 
   def ready_to_collect_funds? = true
   def collect_funds = true

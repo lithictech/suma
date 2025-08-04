@@ -96,7 +96,7 @@ class Suma::Payment::BookTransaction < Suma::Postgres::Model(:payment_book_trans
     end
 
     if (fx = self.originating_funding_transaction)
-      result << UsageDetails.new("funding", {account_label: fx.strategy.originating_instrument.simple_label})
+      result << UsageDetails.new("funding", {account_label: fx.strategy.originating_instrument_label})
     elsif self.originating_payout_transaction
       result << UsageDetails.new("refund", {memo: self.memo.string})
     elsif self.credited_payout_transaction

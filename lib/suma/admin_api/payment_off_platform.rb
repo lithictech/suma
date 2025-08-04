@@ -23,12 +23,23 @@ class Suma::AdminAPI::PaymentOffPlatform < Suma::AdminAPI::V1
           :send_funds,
         ]
       end
+
+      def audit_transaction_values(x, event)
+        messages = []
+        messages << "amount=#{x.amount}" if params.key?(:amount)
+        [:transacted_at, :note, :check_or_transaction_number].each do |k|
+          next unless params.key?(k)
+          messages << "#{k}=#{x.strategy.send(k)}"
+        end
+        x.audit_one_off(event, messages)
+      end
     end
 
     desc "Create a funding or payout transaction using the off platform strategy."
     params do
       requires :type, type: Symbol, values: [:funding, :payout]
       requires(:amount, allow_blank: false, type: JSON) { use :money }
+      requires :transacted_at, type: Time
       requires :note, type: String, allow_blank: false
       optional :check_or_transaction_number, type: String
     end
@@ -39,6 +50,7 @@ class Suma::AdminAPI::PaymentOffPlatform < Suma::AdminAPI::V1
       check_or_transaction_number = nil if check_or_transaction_number.blank?
       tx = model_cls.db.transaction do
         strategy = Suma::Payment::OffPlatformStrategy.create(
+          transacted_at: params[:transacted_at],
           note: params[:note],
           check_or_transaction_number:,
         )
@@ -48,13 +60,7 @@ class Suma::AdminAPI::PaymentOffPlatform < Suma::AdminAPI::V1
           strategy:,
           **startparams,
         )
-        tx.audit_one_off(
-          "created",
-          [
-            "note=#{tx.strategy.note}",
-            "check_or_transaction_number=#{tx.strategy.check_or_transaction_number}",
-          ],
-        )
+        audit_transaction_values(tx, "created")
         tx.must_process(process_event)
         tx
       end
@@ -66,6 +72,8 @@ class Suma::AdminAPI::PaymentOffPlatform < Suma::AdminAPI::V1
     params do
       requires :type, type: Symbol, values: [:funding, :payout]
       requires :id, type: Integer, allow_blank: false
+      optional(:amount, allow_blank: false, type: JSON) { use :money }
+      optional :transacted_at, type: Time
       optional :note, type: String, allow_blank: false
       optional :check_or_transaction_number, type: String
     end
@@ -75,13 +83,13 @@ class Suma::AdminAPI::PaymentOffPlatform < Suma::AdminAPI::V1
       (fx = model_cls[params[:id]]) or forbidden!
       adminerror!(403, "transaction does not use an off platform strategy") unless fx.off_platform_strategy_id
       fx.db.transaction do
-        messages = []
-        [:note, :check_or_transaction_number].select { |k| params.key?(k) }.each do |f|
-          messages << "#{f}=#{params[f]}"
-          fx.strategy[f] = params[f]
+        fx.amount = params[:amount] if params.key?(:amount)
+        [:transacted_at, :note, :check_or_transaction_number].each do |k|
+          fx.strategy[k] = params[k] if params.key?(k)
         end
-        fx.audit_one_off("updated", messages)
+        fx.save_changes
         fx.strategy.save_changes
+        audit_transaction_values(fx, "updated")
       end
       status 200
       present fx, with: entity
