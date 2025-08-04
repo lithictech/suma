@@ -2,9 +2,11 @@
 
 require "suma/external_links"
 require "suma/payment/payout_transaction"
+require "suma/payment/strategy_helpers"
 
 module Suma::Payment::PayoutTransaction::Strategy
   include Suma::ExternalLinks
+  include Suma::Payment::StrategyHelpers
 
   # Return a string that summarizes the strategy.
   # Use whatever is most useful for an admin to see,

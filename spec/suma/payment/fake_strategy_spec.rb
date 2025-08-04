@@ -32,4 +32,22 @@ RSpec.describe "Suma::Payment::FakeStrategy", :db do
       run_error_test { Suma::Http.get("/fakeurl", logger: nil, timeout: nil) }
     end
   end
+
+  describe "admin_detail_typed" do
+    it "returns typing info for values" do
+      s = described_class.new
+      details = {"Num" => 1, "T" => Time.at(0), "H" => {}, "A" => [], "Str" => "str"}
+      s.set_response(:admin_details, details)
+      expect(s.admin_details_typed).to eq(
+        [
+          {label: "Strategy", type: :string, value: "Fake"},
+          {label: "A", type: :json, value: []},
+          {label: "H", type: :json, value: {}},
+          {label: "Num", type: :numeric, value: 1},
+          {label: "Str", type: :string, value: "str"},
+          {label: "T", type: :time, value: Time.at(0)},
+        ],
+      )
+    end
+  end
 end

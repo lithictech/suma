@@ -63,6 +63,11 @@ class Suma::Payment::FakeStrategy < Suma::Postgres::Model(:payment_fake_strategi
     return return_response(:supports_refunds?)
   end
 
+  def admin_details
+    return {} unless self.responses.key?(:admin_details)
+    return return_response(:admin_details)
+  end
+
   def set_response(symbol, result)
     @memory_responses ||= {}
     @memory_responses[symbol] = result

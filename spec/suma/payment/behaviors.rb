@@ -5,7 +5,7 @@ require "rspec"
 RSpec.shared_examples "a funding transaction payment strategy" do
   it "implements all abstract methods", on_potential_false_positives: :nothing do
     run_error_test { strategy.short_name }
-    run_error_test { strategy.admin_details }
+    run_error_test { strategy.admin_details_typed }
     run_error_test { strategy.check_validity }
     run_error_test { strategy.supports_refunds? }
     run_error_test { strategy.originating_instrument_label }
@@ -29,7 +29,7 @@ end
 RSpec.shared_examples "a payout transaction payment strategy" do
   it "implements all abstract methods", on_potential_false_positives: :nothing do
     run_error_test { strategy.short_name }
-    run_error_test { strategy.admin_details }
+    run_error_test { strategy.admin_details_typed }
     run_error_test { strategy.check_validity }
     run_error_test { strategy.ready_to_send_funds? }
     run_error_test { strategy.send_funds }
