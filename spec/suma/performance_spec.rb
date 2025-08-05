@@ -79,4 +79,47 @@ RSpec.describe Suma::Performance, reset_configuration: Suma::Performance do
       include(event: :performance, sql_queries: 1),
     )
   end
+
+  describe "memory_kb" do
+    describe "on Mac OS" do
+      before(:each) do
+        expect(Suma).to receive(:macos?).and_return(true)
+      end
+
+      it "returns kb from ps" do
+        expect(Process).to receive(:pid).and_return(123)
+        expect(Kernel).to receive(:`).with("ps -o rss= -p 123").and_return("456\n")
+        expect(Suma::Performance.memory_kb).to eq(456)
+      end
+
+      it "returns 0 on an unexpected stdout" do
+        expect(Process).to receive(:pid).and_return(123)
+        expect(Kernel).to receive(:`).with("ps -o rss= -p 123").and_return("xyz\n")
+        expect(Suma::Performance.memory_kb).to eq(0)
+      end
+    end
+
+    describe "on Linux" do
+      before(:each) do
+        expect(Suma).to receive(:macos?).and_return(false)
+      end
+
+      it "returns the output of /proc/self/status" do
+        expect(File).to receive(:foreach).with("/proc/self/status").and_wrap_original do |*, &b|
+          b.call("Name:	ruby\n")
+          b.call("VmHWM:	   15000 kB\n")
+          b.call("VmRSS:	   14000 kB\n")
+        end
+        expect(Suma::Performance.memory_kb).to eq(14_000)
+      end
+
+      it "uses 0 if VmRSS not found" do
+        expect(File).to receive(:foreach).with("/proc/self/status").and_wrap_original do |*, &b|
+          b.call("Name:	ruby\n")
+          b.call("VmHWM:	   15000 kB\n")
+        end
+        expect(Suma::Performance.memory_kb).to eq(0)
+      end
+    end
+  end
 end

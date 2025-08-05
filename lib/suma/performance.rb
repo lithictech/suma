@@ -1,9 +1,12 @@
 # frozen_string_literal: true
 
+require "appydays/configurable"
+require "appydays/loggable"
 require "suma/enumerable"
 
 module Suma::Performance
   include Appydays::Configurable
+  include Appydays::Loggable
 
   configurable(:performance) do
     setting :request_middleware, false
@@ -45,10 +48,26 @@ module Suma::Performance
       query = query.strip.delete('"')
       span_sql_data << {query:, duration:}
     end
+
+    # Return process RSS in kb.
+    # Ideally we'd use a compile-time condition define but that is too hard to test.
+    def memory_kb = Suma.macos? ? memory_kb_macos : memory_kb_linux
+
+    private def memory_kb_macos
+      out = Kernel.send(:`, "ps -o rss= -p #{Process.pid}")
+      out.to_i
+    end
+
+    private def memory_kb_linux
+      File.foreach("/proc/self/status") do |line|
+        return line.split[1].to_i if line.start_with?("VmRSS:")
+      end
+      return 0
+    end
   end
 
   class RackMiddleware
-    def initialize(app, logger:)
+    def initialize(app, logger: Suma::Performance.logger)
       @app = app
       @logger = logger
     end
@@ -102,6 +121,7 @@ module Suma::Performance
       # We'll have these somewhat often, especially for things like translated text.
       homogenized_dupe_counts = Suma::Enumerable.group_and_count(queries.map { |q| homogenize_sql(q) })
       tags[:sql_similar_duplicates] = homogenized_dupe_counts.values.sum - homogenized_dupe_counts.count
+      tags[:rss_kb] = Suma::Performance.memory_kb
 
       @logger.info(:performance, tags)
 
@@ -131,10 +151,12 @@ module Suma::Performance
   end
 end
 
-class Sequel::Database
-  alias _suma_orig_log_duration log_duration
-  def log_duration(duration, message)
-    Suma::Performance.log_sql(message, duration)
-    return _suma_orig_log_duration(duration, message)
+unless Sequel::Database.method_defined?(:_suma_orig_log_duration)
+  class Sequel::Database
+    alias _suma_orig_log_duration log_duration
+    def log_duration(duration, message)
+      Suma::Performance.log_sql(message, duration)
+      return _suma_orig_log_duration(duration, message)
+    end
   end
 end
