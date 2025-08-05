@@ -20,7 +20,9 @@ RSpec.describe Suma::AdminAPI::OffPlatformTransactions, :db do
            amount: {cents: 500, currency: "USD"},
            transacted_at: "2022-01-01T12:00:00Z",
            note: "hello",
-           check_or_transaction_number: "123"
+           check_or_transaction_number: "123",
+           vendor: Suma::Fixtures.vendor.create(name: "Foo"),
+           organization: Suma::Fixtures.organization.create(name: "Bar")
 
       expect(last_response).to have_status(200)
       expect(last_response.headers).to include("Created-Resource-Admin")
@@ -55,6 +57,8 @@ RSpec.describe Suma::AdminAPI::OffPlatformTransactions, :db do
             "transacted_at=2022-01-01 12:00:00 +0000",
             "note=hello",
             "check_or_transaction_number=123",
+            "vendor=Foo",
+            "organization=Bar",
           ],
         ),
       )

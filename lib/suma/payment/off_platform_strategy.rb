@@ -12,6 +12,8 @@ class Suma::Payment::OffPlatformStrategy < Suma::Postgres::Model(:payment_off_pl
   one_to_one :funding_transaction, class: "Suma::Payment::FundingTransaction"
   one_to_one :payout_transaction, class: "Suma::Payment::PayoutTransaction"
   many_to_one :created_by, class: "Suma::Member"
+  many_to_one :organization, class: "Suma::Organization"
+  many_to_one :vendor, class: "Suma::Vendor"
 
   def transaction = self.funding_transaction || self.payout_transaction
   def type = self.funding_transaction ? "Funding" : "Payout"
@@ -26,6 +28,8 @@ class Suma::Payment::OffPlatformStrategy < Suma::Postgres::Model(:payment_off_pl
       "Created By" => self.created_by&.name,
       "Check/Transaction" => self.check_or_transaction_number,
       "Note" => self.note,
+      "Organization" => self.organization,
+      "Vendor" => self.vendor,
     }
   end
 
@@ -44,6 +48,7 @@ class Suma::Payment::OffPlatformStrategy < Suma::Postgres::Model(:payment_off_pl
     [:note, :check_or_transaction_number].each do |f|
       self[f] = self[f].strip if self[f]
     end
+    self[:check_or_transaction_number] = nil if self[:check_or_transaction_number].blank?
     super
   end
 end

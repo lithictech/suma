@@ -50,5 +50,26 @@ RSpec.describe "Suma::Payment::FakeStrategy", :db do
         ],
       )
     end
+
+    it "can represent models with admin_label, name, or nothing" do
+      s = described_class.new
+      member = Suma::Fixtures.member.create
+      card = Suma::Fixtures.card.create
+      session = Suma::Fixtures.session.create
+      details = {
+        "Searched" => member,
+        "Lbl" => card,
+        "Nada" => session,
+      }
+      s.set_response(:admin_details, details)
+      expect(s.admin_details_typed).to eq(
+        [
+          {label: "Type", type: :string, value: "Fake"},
+          {label: "Lbl", type: :model, value: {label: card.admin_label, link: card.admin_link}},
+          {label: "Nada", type: :model, value: {label: "Suma::Member::Session[#{session.id}]", link: nil}},
+          {label: "Searched", type: :model, value: {label: member.search_label, link: member.admin_link}},
+        ],
+      )
+    end
   end
 end

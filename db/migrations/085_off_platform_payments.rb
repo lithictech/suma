@@ -5,6 +5,14 @@ require "sequel/unambiguous_constraint"
 
 Sequel.migration do
   up do
+    alter_table(:payment_funding_transaction_audit_logs) do
+      drop_foreign_key [:funding_transaction_id]
+      add_foreign_key [:funding_transaction_id], :payment_funding_transactions, null: false, on_delete: :cascade
+    end
+    alter_table(:payment_payout_transaction_audit_logs) do
+      drop_foreign_key [:payout_transaction_id]
+      add_foreign_key [:payout_transaction_id], :payment_payout_transactions, null: false, on_delete: :cascade
+    end
     create_table(:payment_off_platform_strategies) do
       primary_key :id
       timestamptz :created_at, null: false, default: Sequel.function(:now)
@@ -15,6 +23,8 @@ Sequel.migration do
       text :check_or_transaction_number, index: true
       constraint :null_or_present_number, Sequel.null_or_present_constraint(:check_or_transaction_number)
       timestamptz :transacted_at, null: false
+      foreign_key :vendor_id, :vendors
+      foreign_key :organization_id, :organizations
     end
 
     alter_table(:payment_funding_transactions) do
@@ -58,6 +68,8 @@ Sequel.migration do
   end
 
   down do
+    from(:payment_funding_transactions).exclude(off_platform_strategy_id: nil).delete
+    from(:payment_payout_transactions).exclude(off_platform_strategy_id: nil).delete
     alter_table(:payment_funding_transactions) do
       drop_constraint(:unambiguous_strategy)
       add_constraint(
@@ -72,7 +84,6 @@ Sequel.migration do
       )
       drop_column :off_platform_strategy_id
     end
-    drop_table(:payment_off_platform_strategies)
     alter_table(:payment_payout_transactions) do
       drop_constraint(:unambiguous_strategy)
       add_constraint(
@@ -86,6 +97,6 @@ Sequel.migration do
       )
       drop_column :off_platform_strategy_id
     end
-    drop_table(:payment_off_platform_strategies)
+    drop_table(:payment_off_platform_strategies, cascade: true)
   end
 end

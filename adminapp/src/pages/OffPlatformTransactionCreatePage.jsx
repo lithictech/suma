@@ -1,11 +1,10 @@
 import api from "../api";
-import CurrencyTextField from "../components/CurrencyTextField";
 import FormLayout from "../components/FormLayout";
 import ResourceCreate from "../components/ResourceCreate";
-import SafeDateTimePicker from "../components/SafeDateTimePicker";
 import config from "../config";
-import { dayjs, formatOrNull } from "../modules/dayConfig";
-import { FormControlLabel, Radio, RadioGroup, Stack, TextField } from "@mui/material";
+import { dayjs } from "../modules/dayConfig";
+import OffPlatformTransactionInputs from "./OffPlatformTransactionInputs";
+import { FormControlLabel, Radio, RadioGroup, Stack } from "@mui/material";
 import React from "react";
 
 export default function OffPlatformTransactionCreatePage() {
@@ -48,41 +47,11 @@ function Form({ resource, setField, setFieldFromInput, register, isBusy, onSubmi
           <FormControlLabel value="funding" control={<Radio />} label="Funding" />
           <FormControlLabel value="payout" control={<Radio />} label="Payout" />
         </RadioGroup>
-        <CurrencyTextField
-          {...register("amount")}
-          label="Amount"
-          helperText="How much was transacted?"
-          money={resource.amount}
-          sx={{ width: { xs: "100%", sm: "auto" } }}
-          required
-          onMoneyChange={(f) => setField("amount", f)}
-        />
-        <SafeDateTimePicker
-          label="Transacted At"
-          value={resource.transactedAt}
-          required
-          onChange={(v) => setField("transactedAt", formatOrNull(v))}
-        />
-        <TextField
-          {...register("note")}
-          label="Note"
-          name="note"
-          value={resource.note}
-          type="text"
-          variant="outlined"
-          required
-          fullWidth
-          onChange={setFieldFromInput}
-        />
-        <TextField
-          {...register("checkOrTransactionNumber")}
-          label="Check/Transaction Number"
-          name="checkOrTransactionNumber"
-          value={resource.checkOrTransactionNumber || ""}
-          type="text"
-          variant="outlined"
-          fullWidth
-          onChange={setFieldFromInput}
+        <OffPlatformTransactionInputs
+          register={register}
+          resource={resource}
+          setField={setField}
+          setFieldFromInput={setFieldFromInput}
         />
       </Stack>
     </FormLayout>
