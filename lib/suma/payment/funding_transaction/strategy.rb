@@ -1,13 +1,12 @@
 # frozen_string_literal: true
 
 require "suma/external_links"
-require "suma/postgres/model"
+require "suma/payment/funding_transaction"
+require "suma/payment/strategy_helpers"
 
 module Suma::Payment::FundingTransaction::Strategy
   include Suma::ExternalLinks
-
-  # @return Suma::Payment::Instrument
-  def originating_instrument = raise NotImplementedError
+  include Suma::Payment::StrategyHelpers
 
   # Return a string that summarizes the strategy.
   # Use whatever is most useful for an admin to see,
@@ -27,6 +26,15 @@ module Suma::Payment::FundingTransaction::Strategy
     return if msgs.empty?
     raise Suma::Payment::Invalid.new("Payment could not be created: #{msgs.join(', ')}", reasons: msgs)
   end
+
+  # Return a hash of labels and values to display in admin.
+  def admin_details = raise NotImplementedError
+
+  # True if the strategy type supports issuing refunds.
+  def supports_refunds? = false
+
+  # Something like the last-4 of the card, or 'Off Platform'.
+  def originating_instrument_label = raise NotImplementedError
 
   # Return true if we are ready to initiate
   # a debit from an external account to a credit to our platform account.

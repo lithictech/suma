@@ -3,6 +3,7 @@ import AdminLink from "../components/AdminLink";
 import AuditLogs from "../components/AuditLogs";
 import DetailGrid from "../components/DetailGrid";
 import ExternalLinks from "../components/ExternalLinks";
+import PaymentStrategyDetailGrid from "../components/PaymentStrategyDetailGrid";
 import ResourceDetail from "../components/ResourceDetail";
 import { dayjs } from "../modules/dayConfig";
 import Money from "../shared/react/Money";
@@ -13,6 +14,7 @@ export default function PayoutTransactionDetailPage() {
     <ResourceDetail
       resource="payout_transaction"
       apiGet={api.getPayoutTransaction}
+      canEdit={(model) => model.strategy.adminLink}
       properties={(model) => [
         { label: "ID", value: model.id },
         { label: "Created At", value: dayjs(model.createdAt) },
@@ -29,6 +31,7 @@ export default function PayoutTransactionDetailPage() {
           refundedFundingTransaction: refund,
         } = model;
         return [
+          <PaymentStrategyDetailGrid adminDetails={model.strategy.adminDetails} />,
           refund && (
             <DetailGrid
               title="Refunded Transaction"
@@ -39,34 +42,36 @@ export default function PayoutTransactionDetailPage() {
               ]}
             />
           ),
-          <DetailGrid
-            title="Originated Book Transaction"
-            properties={[
-              { label: "ID", value: <AdminLink model={originated} /> },
-              { label: "Apply At", value: dayjs(originated.applyAt) },
-              { label: "Amount", value: <Money>{originated.amount}</Money> },
-              {
-                label: "Category",
-                value: originated.associatedVendorServiceCategory?.name,
-              },
-              {
-                label: "Originating",
-                value: (
-                  <AdminLink model={originated.originatingLedger}>
-                    {originated.originatingLedger.adminLabel}
-                  </AdminLink>
-                ),
-              },
-              {
-                label: "Receiving",
-                value: (
-                  <AdminLink model={originated.receivingLedger}>
-                    {originated.receivingLedger.adminLabel}
-                  </AdminLink>
-                ),
-              },
-            ]}
-          />,
+          originated && (
+            <DetailGrid
+              title="Originated Book Transaction"
+              properties={[
+                { label: "ID", value: <AdminLink model={originated} /> },
+                { label: "Apply At", value: dayjs(originated.applyAt) },
+                { label: "Amount", value: <Money>{originated.amount}</Money> },
+                {
+                  label: "Category",
+                  value: originated.associatedVendorServiceCategory?.name,
+                },
+                {
+                  label: "Originating",
+                  value: (
+                    <AdminLink model={originated.originatingLedger}>
+                      {originated.originatingLedger.adminLabel}
+                    </AdminLink>
+                  ),
+                },
+                {
+                  label: "Receiving",
+                  value: (
+                    <AdminLink model={originated.receivingLedger}>
+                      {originated.receivingLedger.adminLabel}
+                    </AdminLink>
+                  ),
+                },
+              ]}
+            />
+          ),
           crediting && (
             <DetailGrid
               title="Crediting Book Transaction"

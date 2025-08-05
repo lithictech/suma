@@ -226,6 +226,9 @@ RSpec.describe "Suma::Payment::FundingTransaction", :db, reset_configuration: Su
       card = Suma::Fixtures.card.create
 
       fx = Suma::Fixtures.funding_transaction.with_fake_strategy.create(amount: money("$10"))
+      fx.strategy.set_response(:supports_refunds?, false)
+      expect(fx).to_not be_can_refund
+      fx.strategy.set_response(:supports_refunds?, true)
       expect(fx).to be_can_refund
       expect(fx).to have_attributes(refundable_amount: cost("$10"))
       Suma::Fixtures::PayoutTransactions.refund_of(fx, card, amount: money("$1"))

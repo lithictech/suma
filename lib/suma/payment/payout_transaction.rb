@@ -149,8 +149,8 @@ class Suma::Payment::PayoutTransaction < Suma::Postgres::Model(:payment_payout_t
       self.db.transaction do
         associated_vendor_service_category = Suma::Vendor::ServiceCategory.cash
         refund_memo = Suma::TranslatedText.create(
-          en: "Refund sent to #{funding_transaction.strategy.originating_instrument.simple_label}",
-          es: "Reembolso enviado a #{funding_transaction.strategy.originating_instrument.simple_label}",
+          en: "Refund sent to #{funding_transaction.strategy.originating_instrument_label}",
+          es: "Reembolso enviado a #{funding_transaction.strategy.originating_instrument_label}",
         )
         if strategy == :infer
           strategy = case funding_transaction.strategy

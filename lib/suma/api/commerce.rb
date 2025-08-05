@@ -426,7 +426,7 @@ class Suma::API::Commerce < Suma::API::V1
   class OrderHistoryFundingTransactionEntity < BaseEntity
     include Suma::API::Entities
     expose :amount, with: MoneyEntity
-    expose :label, &self.delegate_to(:strategy, :originating_instrument, :simple_label)
+    expose :label, &self.delegate_to(:strategy, :originating_instrument_label)
   end
 
   class OrderHistoryItemEntity < BaseEntity

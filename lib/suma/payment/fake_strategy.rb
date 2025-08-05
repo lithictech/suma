@@ -8,6 +8,8 @@ class Suma::Payment::FakeStrategy < Suma::Postgres::Model(:payment_fake_strategi
   include Suma::Payment::FundingTransaction::Strategy
   include Suma::Payment::PayoutTransaction::Strategy
 
+  class NoRegisteredResponse < ArgumentError; end
+
   one_to_one :funding_transaction, class: "Suma::Payment::FundingTransaction"
   one_to_one :payout_transaction, class: "Suma::Payment::PayoutTransaction"
 
@@ -22,8 +24,9 @@ class Suma::Payment::FakeStrategy < Suma::Postgres::Model(:payment_fake_strategi
   end
 
   [
-    :originating_instrument,
+    :originating_instrument_label,
     :check_validity,
+    :admin_details,
     :ready_to_collect_funds?,
     :collect_funds,
     :funds_cleared?,
@@ -48,13 +51,25 @@ class Suma::Payment::FakeStrategy < Suma::Postgres::Model(:payment_fake_strategi
       self.set_response(syms[..-2].to_sym, args[0])
       return args[0]
     end
-    raise ArgumentError, "no response registered for #{symbol.inspect}" unless self.responses.key?(syms)
+    raise NoRegisteredResponse, "no response registered for #{symbol.inspect}" unless self.responses.key?(syms)
     result = self.responses[syms]
     if result.is_a?(Hash) && result.key?("klass")
       cls = result["klass"].constantize
       return cls[result.fetch("id")]
     end
     return result
+  end
+
+  def supports_refunds?
+    return return_response(:supports_refunds?)
+  rescue NoRegisteredResponse
+    return false
+  end
+
+  def admin_details
+    return self.return_response(:admin_details)
+  rescue NoRegisteredResponse
+    return {}
   end
 
   def set_response(symbol, result)

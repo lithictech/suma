@@ -11,8 +11,14 @@ class Suma::Payment::FundingTransaction::IncreaseAchStrategy <
   one_to_one :funding_transaction, class: "Suma::Payment::FundingTransaction"
   many_to_one :originating_bank_account, class: "Suma::Payment::BankAccount"
 
-  def originating_instrument = self.originating_bank_account
   def short_name = "Increase ACH Funding"
+  def originating_instrument_label = self.originating_bank_account.simple_label
+
+  def admin_details
+    return {
+      "ACH Transfer" => self.ach_transfer_json,
+    }
+  end
 
   def check_validity
     ba = self.originating_bank_account
@@ -60,11 +66,11 @@ class Suma::Payment::FundingTransaction::IncreaseAchStrategy <
     return [
       self._external_link(
         "ACH Transfer into Increase Account",
-        "#{Suma::Increase.app_url}#{self.ach_transfer_json['path']}",
+        "#{Suma::Increase.app_url}#{self.ach_transfer_json.fetch('path')}",
       ),
       self._external_link(
         "Transaction for ACH Transfer",
-        "#{Suma::Increase.app_url}/transactions/#{self.ach_transfer_json['transaction_id']}",
+        "#{Suma::Increase.app_url}/transactions/#{self.ach_transfer_json.fetch('transaction_id')}",
       ),
     ]
   end

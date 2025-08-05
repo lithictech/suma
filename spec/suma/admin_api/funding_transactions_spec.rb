@@ -145,7 +145,7 @@ RSpec.describe Suma::AdminAPI::FundingTransactions, :db do
     let(:instrument) { Suma::Fixtures.bank_account.create }
     let(:fx) do
       fx = Suma::Fixtures.funding_transaction.with_fake_strategy.create(amount: money("$10"))
-      fx.strategy.set_response(:originating_instrument, instrument)
+      fx.strategy.set_response(:originating_instrument_label, instrument.simple_label)
       fx.strategy.set_response(:check_validity, [])
       fx.strategy.set_response(:ready_to_send_funds?, false)
       fx
