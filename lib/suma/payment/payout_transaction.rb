@@ -37,6 +37,7 @@ class Suma::Payment::PayoutTransaction < Suma::Postgres::Model(:payment_payout_t
 
   many_to_one :fake_strategy, class: "Suma::Payment::FakeStrategy"
   many_to_one :stripe_charge_refund_strategy, class: "Suma::Payment::PayoutTransaction::StripeChargeRefundStrategy"
+  many_to_one :off_platform_strategy, class: "Suma::Payment::OffPlatformStrategy"
 
   state_machine :status, initial: :created do
     state :created,
@@ -208,6 +209,7 @@ class Suma::Payment::PayoutTransaction < Suma::Postgres::Model(:payment_payout_t
   protected def strategy_array
     return [
       self.stripe_charge_refund_strategy,
+      self.off_platform_strategy,
       self.fake_strategy,
     ]
   end
