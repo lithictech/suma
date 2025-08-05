@@ -3,6 +3,7 @@ import AdminLink from "../components/AdminLink";
 import AuditLogs from "../components/AuditLogs";
 import DetailGrid from "../components/DetailGrid";
 import ExternalLinks from "../components/ExternalLinks";
+import PaymentStrategyDetailGrid from "../components/PaymentStrategyDetailGrid";
 import RelatedList from "../components/RelatedList";
 import ResourceDetail from "../components/ResourceDetail";
 import { dayjs } from "../modules/dayConfig";
@@ -38,6 +39,7 @@ export default function FundingTransactionDetailPage() {
       {(model) => {
         const originated = model.originatedBookTransaction;
         return [
+          <PaymentStrategyDetailGrid adminDetails={model.adminDetails} />,
           originated && (
             <DetailGrid
               title="Book Transaction"

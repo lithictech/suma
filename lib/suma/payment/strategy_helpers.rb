@@ -5,19 +5,19 @@ module Suma::Payment::StrategyHelpers
     d = self.admin_details
     r = d.map do |label, value|
       type = case value
-        when Hash, Array
+        when Hash, Array, Sequel::Postgres::JSONBObject
           :json
         when Time
-          :time
+          :date
         when Numeric
           :numeric
         else
-          :string
+          /^http/.match?(value) ? :href : :string
       end
       {label:, type:, value:}
     end
     r.sort_by! { |o| o[:label] }
-    r.unshift({label: "Strategy", type: :string, value: self.short_name})
+    r.unshift({label: "Type", type: :string, value: self.short_name})
     return r
   end
 end

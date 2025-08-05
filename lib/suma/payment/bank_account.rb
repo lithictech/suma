@@ -48,25 +48,14 @@ class Suma::Payment::BankAccount < Suma::Postgres::Model(:payment_bank_accounts)
     Suma::MethodUtilities.timestamp_set(self, :verified_at, v)
   end
 
-  def payment_method_type
-    return "bank_account"
-  end
+  def payment_method_type = "bank_account"
+  def can_use_for_funding? = self.verified?
 
-  def last4
-    return self.account_number[-4..]
-  end
-
-  def can_use_for_funding?
-    return self.verified?
-  end
-
-  def name_with_last4
-    return "#{self.name} x-#{self.last4}"
-  end
-
+  def last4 = self.account_number[-4..]
+  def name_with_last4 = "#{self.name} x-#{self.last4}"
   def simple_label = self.name_with_last4
 
-  def rel_admin_link = "/bank-account/#{self.id}"
+  def rel_admin_link = "/member/#{self.member&.id}"
 
   def institution
     inst = self.plaid_institution

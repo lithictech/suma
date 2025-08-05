@@ -36,16 +36,17 @@ RSpec.describe "Suma::Payment::FakeStrategy", :db do
   describe "admin_detail_typed" do
     it "returns typing info for values" do
       s = described_class.new
-      details = {"Num" => 1, "T" => Time.at(0), "H" => {}, "A" => [], "Str" => "str"}
+      details = {"Num" => 1, "T" => Time.at(0), "H" => {}, "A" => [], "Str" => "str", "Link" => "https://x.y"}
       s.set_response(:admin_details, details)
       expect(s.admin_details_typed).to eq(
         [
-          {label: "Strategy", type: :string, value: "Fake"},
+          {label: "Type", type: :string, value: "Fake"},
           {label: "A", type: :json, value: []},
           {label: "H", type: :json, value: {}},
+          {label: "Link", type: :href, value: "https://x.y"},
           {label: "Num", type: :numeric, value: 1},
           {label: "Str", type: :string, value: "str"},
-          {label: "T", type: :time, value: Time.at(0)},
+          {label: "T", type: :date, value: Time.at(0)},
         ],
       )
     end

@@ -19,7 +19,7 @@ class Suma::Payment::OffPlatformStrategy < Suma::Postgres::Model(:payment_off_pl
   def admin_details
     return {
       "Transacted At" => self.transacted_at,
-      "Created By" => self.created_by.name,
+      "Created By" => self.created_by&.name,
       "Check/Transaction" => self.check_or_transaction_number,
       "Note" => self.note,
     }

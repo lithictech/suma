@@ -35,7 +35,7 @@ export default function DetailGrid({ title, anchorLeft, properties }) {
   }
   return (
     <Card>
-      <CardContent sx={{ padding: 4 }}>
+      <CardContent sx={{ padding: 2 }}>
         {title && (
           <Typography variant="h6" gutterBottom mb={2}>
             {title}

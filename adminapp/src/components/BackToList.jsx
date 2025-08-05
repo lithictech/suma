@@ -4,7 +4,7 @@ import React from "react";
 
 export default function BackToList({ to }) {
   return (
-    <Link to={to} sx={{ verticalAlign: "bottom" }}>
+    <Link to={to} sx={{ verticalAlign: "text-top" }}>
       <LeftIcon />
     </Link>
   );
