@@ -11,10 +11,15 @@ class Suma::Payment::FundingTransaction::StripeCardStrategy <
   one_to_one :funding_transaction, class: "Suma::Payment::FundingTransaction"
   many_to_one :originating_card, class: "Suma::Payment::Card"
 
-  def originating_instrument = self.originating_card
+  def originating_instrument_label = self.originating_card.simple_label
+  def short_name = "Stripe Card Funding"
+  def supports_refunds? = true
 
-  def short_name
-    return "Stripe Card Funding"
+  def admin_details
+    return {
+      "Suma Card" => self.originating_card.admin_link,
+      "Stripe Charge" => self.charge_json,
+    }
   end
 
   def check_validity

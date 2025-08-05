@@ -151,7 +151,7 @@ class Suma::Payment::FundingTransaction < Suma::Postgres::Model(:payment_funding
 
   def refunded_amount = self.refund_payout_transactions.sum(Money.new(0), &:amount)
   def refundable_amount = self.amount - self.refunded_amount
-  def can_refund? = self.refundable_amount.positive?
+  def can_refund? = self.refundable_amount.positive? && self.strategy.supports_refunds?
 
   def rel_admin_link = "/funding-transaction/#{self.id}"
 

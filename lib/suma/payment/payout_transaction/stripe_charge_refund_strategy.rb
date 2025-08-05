@@ -14,8 +14,12 @@ class Suma::Payment::PayoutTransaction::StripeChargeRefundStrategy <
 
   one_to_one :payout_transaction, class: "Suma::Payment::PayoutTransaction"
 
-  def short_name
-    return "Stripe Card Payout"
+  def short_name = "Stripe Card Payout"
+
+  def admin_details
+    return {
+      "Stripe Refund" => self.refund_json,
+    }
   end
 
   def check_validity

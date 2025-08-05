@@ -17,6 +17,7 @@ class Suma::AdminAPI::PayoutTransactions < Suma::AdminAPI::V1
     expose :refunded_funding_transaction, with: FundingTransactionEntity
     expose :audit_activities, with: ActivityEntity
     expose :audit_logs, with: AuditLogEntity
+    expose :strategy, with: PaymentStrategyEntity
   end
 
   resource :payout_transactions do

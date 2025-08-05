@@ -51,7 +51,7 @@ RSpec.describe "Suma::Payment::PayoutTransaction", :db, reset_configuration: Sum
     let(:fx) do
       ba = Suma::Fixtures.bank_account.create(name: "My Savings", account_number: "991234")
       fx = Suma::Fixtures.funding_transaction(amount_cents: 750).with_fake_strategy.create
-      fx.strategy.set_response(:originating_instrument, ba)
+      fx.strategy.set_response(:originating_instrument_label, ba.simple_label)
       fx
     end
     let(:now) { Time.now }

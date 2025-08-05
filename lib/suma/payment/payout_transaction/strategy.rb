@@ -1,15 +1,20 @@
 # frozen_string_literal: true
 
 require "suma/external_links"
-require "suma/postgres/model"
+require "suma/payment/payout_transaction"
+require "suma/payment/strategy_helpers"
 
 module Suma::Payment::PayoutTransaction::Strategy
   include Suma::ExternalLinks
+  include Suma::Payment::StrategyHelpers
 
   # Return a string that summarizes the strategy.
   # Use whatever is most useful for an admin to see,
   # it does not have to be totally unambiguous.
   def short_name = raise NotImplementedError
+
+  # Return a hash of labels and values to display in admin.
+  def admin_details = raise NotImplementedError
 
   # Return an array of reasons this strategy is not valid
   # to be created. Usually this is something like an instrument

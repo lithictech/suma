@@ -150,7 +150,7 @@ RSpec.describe Suma::Analytics, :db do
   describe "FundingTransaction" do
     it "denormalizes from funding transactions" do
       o = Suma::Fixtures.funding_transaction.with_fake_strategy.create
-      o.strategy.set_response(:originating_instrument, Suma::Fixtures.card.create)
+      o.strategy.set_response(:originating_instrument_label, "x-1234")
       Suma::Analytics.upsert_from_transactional_model(o)
       expect(Suma::Analytics::FundingTransaction.dataset.all).to contain_exactly(
         include(funding_transaction_id: o.id),
@@ -160,7 +160,7 @@ RSpec.describe Suma::Analytics, :db do
     it "works without an originated book transaction" do
       o = Suma::Fixtures.funding_transaction.with_fake_strategy.create
       o.update(originated_book_transaction: nil)
-      o.strategy.set_response(:originating_instrument, Suma::Fixtures.card.create)
+      o.strategy.set_response(:originating_instrument_label, "x-1234")
       Suma::Analytics.upsert_from_transactional_model(o)
       expect(Suma::Analytics::FundingTransaction.dataset.all).to contain_exactly(
         include(funding_transaction_id: o.id),

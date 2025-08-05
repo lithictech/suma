@@ -110,7 +110,7 @@ RSpec.describe "Suma::Payment::BookTransaction", :db do
     it "uses 'funding' if receiver has a funding transaction" do
       ba = Suma::Fixtures.bank_account.create(name: "My Savings", account_number: "991234")
       fx = Suma::Fixtures.funding_transaction.with_fake_strategy.create
-      fx.strategy.set_response(:originating_instrument, ba)
+      fx.strategy.set_response(:originating_instrument_label, ba.simple_label)
       expect(fx.originated_book_transaction).to have_attributes(
         usage_details: contain_exactly(
           have_attributes(code: "funding", args: {account_label: "My Savings x-1234"}),

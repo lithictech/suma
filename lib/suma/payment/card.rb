@@ -28,15 +28,10 @@ class Suma::Payment::Card < Suma::Postgres::Model(:payment_cards)
     end
   end
 
-  def payment_method_type
-    return "card"
-  end
+  def payment_method_type = "card"
+  def can_use_for_funding? = true
 
-  def can_use_for_funding?
-    return true
-  end
-
-  def rel_admin_link = "/card/#{self.id}"
+  def rel_admin_link = "/member/#{self.member&.id}"
 
   def institution
     inst = INSTITUTIONS[self.brand]
