@@ -16,6 +16,15 @@ class Suma::AdminAPI::Financials < Suma::AdminAPI::V1
     expose :count_debits
   end
 
+  class OffPlatformTransactionEntity < BaseEntity
+    include Suma::AdminAPI::Entities
+    include AutoExposeBase
+    expose :amount, with: MoneyEntity
+    expose :transacted_at, &self.delegate_to(:strategy, :transacted_at)
+    expose :note, &self.delegate_to(:strategy, :note)
+    expose :check_or_transaction_number, &self.delegate_to(:strategy, :check_or_transaction_number)
+  end
+
   class PlatformStatusEntity < BaseEntity
     include Suma::AdminAPI::Entities
 
@@ -29,6 +38,8 @@ class Suma::AdminAPI::Financials < Suma::AdminAPI::V1
     expose :assets, with: MoneyEntity
     expose :platform_ledgers, with: LedgerEntity
     expose :unbalanced_ledgers, with: LedgerEntity
+    expose :off_platform_funding_transactions, with: OffPlatformTransactionEntity
+    expose :off_platform_payout_transactions, with: OffPlatformTransactionEntity
   end
 
   resource :financials do

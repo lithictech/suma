@@ -3,6 +3,8 @@ import AdminLink from "../components/AdminLink";
 import DetailGrid from "../components/DetailGrid";
 import Link from "../components/Link";
 import RelatedList from "../components/RelatedList";
+import { dayjs } from "../modules/dayConfig";
+import formatDate from "../modules/formatDate";
 import Money from "../shared/react/Money";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
 import ArrowRightIcon from "@mui/icons-material/ArrowRight";
@@ -91,6 +93,30 @@ export default function FinancialsPage() {
           <AdminLink key="id" model={row} />,
           row.name,
           ...ledgerMonies(row),
+        ]}
+      />
+      <RelatedList
+        title="Off Platform Funding"
+        rows={platformStatus.offPlatformFundingTransactions}
+        headers={["Id", "At", "Amount", "Note"]}
+        keyRowAttr="id"
+        toCells={(row) => [
+          <AdminLink key="id" model={row} />,
+          formatDate(row.transactedAt),
+          <Money>{row.amount}</Money>,
+          row.note,
+        ]}
+      />
+      <RelatedList
+        title="Off Platform Payouts"
+        rows={platformStatus.offPlatformPayoutTransactions}
+        headers={["Id", "At", "Amount", "Note"]}
+        keyRowAttr="id"
+        toCells={(row) => [
+          <AdminLink key="id" model={row} />,
+          formatDate(row.transactedAt),
+          <Money>{row.amount}</Money>,
+          row.note,
         ]}
       />
     </Stack>

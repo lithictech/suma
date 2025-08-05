@@ -19,20 +19,22 @@ class Suma::Payment::PlatformStatus
   # since unbalanced member ledgers always mean unbalanced platform ledgers.
   attr_accessor :unbalanced_ledgers
 
+  attr_accessor :off_platform_funding_transactions, :off_platform_payout_transactions
+
   def calculate
     self.platform_ledgers = Suma::Payment::Account.lookup_platform_account.ledgers.sort_by(&:name)
-    self.refunds, self.refund_count = sumcnt(
-      Suma::Payment::PayoutTransaction.exclude(refunded_funding_transaction_id: nil),
-    )
-    self.payouts, self.payout_count = sumcnt(
-      Suma::Payment::PayoutTransaction.where(refunded_funding_transaction_id: nil),
-    )
-    self.funding, self.funding_count = sumcnt(Suma::Payment::FundingTransaction.dataset)
+    funding_ds = Suma::Payment::FundingTransaction.dataset
+    payout_ds = Suma::Payment::PayoutTransaction
+    self.refunds, self.refund_count = sumcnt(payout_ds.exclude(refunded_funding_transaction_id: nil))
+    self.payouts, self.payout_count = sumcnt(payout_ds.where(refunded_funding_transaction_id: nil))
+    self.funding, self.funding_count = sumcnt(funding_ds)
     self.funding -= self.refunds
     self.funding_count -= self.refund_count
     self.member_liabilities = self.platform_ledgers.sum(&:balance) * -1
     self.assets = self.funding - self.payouts
     self.unbalanced_ledgers = self.find_unbalanced_ledgers_ds.all
+    self.off_platform_funding_transactions = offplatform_ds(funding_ds).all
+    self.off_platform_payout_transactions = offplatform_ds(payout_ds).all
     return self
   end
 
@@ -41,6 +43,18 @@ class Suma::Payment::PlatformStatus
     cents = row.fetch(:cents) || 0
     count = row.fetch(:count)
     return Money.new(cents, Suma.default_currency), count
+  end
+
+  private def offplatform_ds(ds)
+    ds = ds.exclude(off_platform_strategy_id: nil)
+    ds = ds.association_join(:off_platform_strategy)
+    ds = ds.order(
+      Sequel.desc(
+        Sequel.function(:coalesce, :transacted_at, Sequel[:off_platform_strategy][:created_at]),
+      ),
+      :off_platform_strategy_id,
+    )
+    return ds
   end
 
   private def db = @db ||= Suma::Payment::Account.db
