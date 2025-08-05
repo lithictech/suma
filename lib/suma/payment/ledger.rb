@@ -169,10 +169,10 @@ class Suma::Payment::Ledger < Suma::Postgres::Model(:payment_ledgers)
     end
   end
 
-  def find_unbalanced_ledgers
+  def find_unbalanced_counterparties
     creditors = {}
     debtors = {}
-    led.received_book_transactions.each do |bx|
+    self.received_book_transactions.each do |bx|
       debtors[bx.originating_ledger_id] ||= Money.new(0, bx.amount_currency)
       if creditors.key?(bx.originating_ledger_id)
         creditors[bx.originating_ledger_id] += bx.amount
@@ -180,7 +180,7 @@ class Suma::Payment::Ledger < Suma::Postgres::Model(:payment_ledgers)
         creditors[bx.originating_ledger_id] = bx.amount
       end
     end
-    led.originated_book_transactions.each do |bx|
+    self.originated_book_transactions.each do |bx|
       creditors[bx.receiving_ledger_id] ||= Money.new(0, bx.amount_currency)
       if debtors.key?(bx.receiving_ledger_id)
         debtors[bx.receiving_ledger_id] += bx.amount
@@ -191,10 +191,12 @@ class Suma::Payment::Ledger < Suma::Postgres::Model(:payment_ledgers)
     creditors.each do |ledger_id, amount|
       debtors[ledger_id] -= amount
     end
-    unbalanced = []
-    debtors.each do |ledger_id, amount|
-      next if amount.zero?
-      unbalanced << [ledger_id, amount]
+    unbalanced_ids = debtors.to_a.
+      reject { |(_, amount)| amount.zero? }.
+      map { |(lid, _)| lid }
+    unbalanced_ledgers_by_id = Suma::Payment::Ledger.where(id: unbalanced_ids).all.map { |le| [le.id, le ]}.to_h
+    unbalanced = unbalanced_ids.map do |ledger_id|
+      {amount: debtors[ledger_id], ledger: unbalanced_ledgers_by_id.fetch(ledger_id) }
     end
     return unbalanced
   end

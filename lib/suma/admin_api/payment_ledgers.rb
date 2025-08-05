@@ -18,10 +18,17 @@ class Suma::AdminAPI::PaymentLedgers < Suma::AdminAPI::V1
     expose :member, with: MemberEntity, &self.delegate_to(:account, :member)
   end
 
+  class CounterpartyEntity < BaseEntity
+    include Suma::AdminAPI::Entities
+    expose :amount, with: MoneyEntity
+    expose :ledger, with: LedgerEntity
+  end
+
   class DetailedLedgerEntity < LedgerEntity
     include AutoExposeDetail
     expose :vendor_service_categories, with: VendorServiceCategoryEntity
     expose :combined_book_transactions, with: BookTransactionEntity
+    expose :find_unbalanced_counterparties, as: :unbalanced_counterparties, with: CounterpartyEntity
   end
 
   resource :payment_ledgers do
