@@ -19,6 +19,8 @@
 export default function relativeLink(href) {
   if (href.startsWith(start)) {
     return [href.slice(start.length - 1), true];
+  } else if (href.startsWith("/")) {
+    return [href, true];
   } else {
     return [href, false];
   }

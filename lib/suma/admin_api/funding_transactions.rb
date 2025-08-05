@@ -19,7 +19,7 @@ class Suma::AdminAPI::FundingTransactions < Suma::AdminAPI::V1
     expose :originated_book_transaction, with: BookTransactionEntity
     expose :audit_activities, with: ActivityEntity
     expose :audit_logs, with: AuditLogEntity
-    expose :admin_details, &self.delegate_to(:strategy, :admin_details_typed)
+    expose :strategy, with: PaymentStrategyEntity
   end
 
   resource :funding_transactions do

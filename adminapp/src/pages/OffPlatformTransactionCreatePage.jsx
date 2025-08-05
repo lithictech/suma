@@ -17,7 +17,11 @@ export default function OffPlatformTransactionCreatePage() {
     transactedAt: dayjs().toISOString(),
   };
   return (
-    <ResourceCreate empty={empty} apiCreate={api.createPaymentOffPlatform} Form={Form} />
+    <ResourceCreate
+      empty={empty}
+      apiCreate={api.createOffPlatformTransaction}
+      Form={Form}
+    />
   );
 }
 

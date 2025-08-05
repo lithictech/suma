@@ -14,6 +14,7 @@ export default function PayoutTransactionDetailPage() {
     <ResourceDetail
       resource="payout_transaction"
       apiGet={api.getPayoutTransaction}
+      canEdit={(model) => model.strategy.adminLink}
       properties={(model) => [
         { label: "ID", value: model.id },
         { label: "Created At", value: dayjs(model.createdAt) },
@@ -30,7 +31,7 @@ export default function PayoutTransactionDetailPage() {
           refundedFundingTransaction: refund,
         } = model;
         return [
-          <PaymentStrategyDetailGrid adminDetails={model.adminDetails} />,
+          <PaymentStrategyDetailGrid adminDetails={model.strategy.adminDetails} />,
           refund && (
             <DetailGrid
               title="Refunded Transaction"

@@ -4,6 +4,7 @@ import invokeIfFunc from "../modules/invokeIfFunc";
 import { resourceEditRoute, resourceListRoute } from "../modules/resourceRoutes";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
 import useToggle from "../shared/react/useToggle";
+import AdminLink from "./AdminLink";
 import BackToList from "./BackToList";
 import DetailGrid from "./DetailGrid";
 import Link from "./Link";
@@ -60,6 +61,12 @@ export default function ResourceDetail({
   if (isEmpty(state)) {
     return null;
   }
+  let toEdit = canWriteResource(resource) && invokeIfFunc(canEdit, state);
+  console.log(toEdit);
+  if (typeof toEdit !== "string") {
+    toEdit = resourceEditRoute(resource, state);
+  }
+
   const topCards = [
     <DetailGrid
       key={-1}
@@ -69,11 +76,7 @@ export default function ResourceDetail({
             apiDelete &&
             (() => apiDelete({ id }).then(() => navigate(resourceListRoute(resource))))
           }
-          toEdit={
-            invokeIfFunc(canEdit, state) &&
-            canWriteResource(resource) &&
-            resourceEditRoute(resource, state)
-          }
+          toEdit={toEdit}
         >
           <BackToList to={resourceListRoute(resource)} />
           {title(state)}
@@ -127,7 +130,7 @@ function Title({ toEdit, onDelete, children }) {
     <>
       {children}
       {toEdit && (
-        <IconButton href={toEdit} component={Link}>
+        <IconButton to={toEdit} component={AdminLink}>
           <EditIcon color="info" />
         </IconButton>
       )}

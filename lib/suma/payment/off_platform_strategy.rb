@@ -5,12 +5,16 @@ require "suma/payment/payout_transaction/strategy"
 require "suma/postgres/model"
 
 class Suma::Payment::OffPlatformStrategy < Suma::Postgres::Model(:payment_off_platform_strategies)
+  include Suma::AdminLinked
   include Suma::Payment::FundingTransaction::Strategy
   include Suma::Payment::PayoutTransaction::Strategy
 
   one_to_one :funding_transaction, class: "Suma::Payment::FundingTransaction"
   one_to_one :payout_transaction, class: "Suma::Payment::PayoutTransaction"
   many_to_one :created_by, class: "Suma::Member"
+
+  def transaction = self.funding_transaction || self.payout_transaction
+  def type = self.funding_transaction ? "Funding" : "Payout"
 
   def short_name = "Off Platform Payment"
   def originating_instrument_label = "Off Platform"
@@ -33,6 +37,8 @@ class Suma::Payment::OffPlatformStrategy < Suma::Postgres::Model(:payment_off_pl
   def ready_to_send_funds? = true
   def send_funds = true
   def funds_settled? = true
+
+  def rel_admin_link = "/payment-off-platform/#{self.id}/edit"
 
   def before_save
     [:note, :check_or_transaction_number].each do |f|

@@ -275,7 +275,7 @@ function PageSwitch() {
       />
       <Route
         exact
-        path="/payment-off-platform/update"
+        path="/payment-off-platform/:id/edit"
         element={renderWithHocs(
           redirectIfUnauthed,
           withLayout(),

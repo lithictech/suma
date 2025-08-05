@@ -16,6 +16,7 @@ export default function FundingTransactionDetailPage() {
     <ResourceDetail
       resource="funding_transaction"
       apiGet={api.getFundingTransaction}
+      canEdit={(model) => model.strategy.adminLink}
       properties={(model) => [
         { label: "ID", value: model.id },
         { label: "Created At", value: dayjs(model.createdAt) },
@@ -39,7 +40,7 @@ export default function FundingTransactionDetailPage() {
       {(model) => {
         const originated = model.originatedBookTransaction;
         return [
-          <PaymentStrategyDetailGrid adminDetails={model.adminDetails} />,
+          <PaymentStrategyDetailGrid adminDetails={model.strategy.adminDetails} />,
           originated && (
             <DetailGrid
               title="Book Transaction"

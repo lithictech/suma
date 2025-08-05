@@ -261,6 +261,11 @@ module Suma::AdminAPI::Entities
     expose :display_name
   end
 
+  class PaymentStrategyEntity < BaseEntity
+    include AutoExposeBase
+    expose :admin_details_typed, as: :admin_details
+  end
+
   class FundingTransactionEntity < BaseEntity
     include AutoExposeBase
     expose :status
