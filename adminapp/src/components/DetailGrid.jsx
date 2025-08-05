@@ -11,10 +11,12 @@ import React from "react";
 
 /**
  * @param title The title of the detailgrid section
+ * @param anchorLeft If true, use width:1% and white-space:no-wrap to make the left column
+ *   use the minimum width.
  * @param {Array<DetailGridProperty>} properties
  * @constructor
  */
-export default function DetailGrid({ title, properties }) {
+export default function DetailGrid({ title, anchorLeft, properties }) {
   const usedProperties = properties
     .filter(Boolean)
     .filter(({ hideEmpty, value, children }) => {
@@ -26,9 +28,14 @@ export default function DetailGrid({ title, properties }) {
       }
       return !isEmpty(children);
     });
+  const leftStyle = { padding: 0.25, paddingRight: 1, border: "none" };
+  if (anchorLeft) {
+    leftStyle.width = "1%";
+    leftStyle.whiteSpace = "nowrap";
+  }
   return (
     <Card>
-      <CardContent sx={{ padding: 4 }}>
+      <CardContent sx={{ padding: 2 }}>
         {title && (
           <Typography variant="h6" gutterBottom mb={2}>
             {title}
@@ -42,7 +49,7 @@ export default function DetailGrid({ title, properties }) {
                   tableCells({ sx: { padding: 0.25, border: "none" } })
                 ) : (
                   <>
-                    <TableCell sx={{ padding: 0.25, paddingRight: 1, border: "none" }}>
+                    <TableCell sx={leftStyle}>
                       <Label>{label}</Label>
                     </TableCell>
                     <TableCell sx={{ padding: 0.25, border: "none" }}>

@@ -2,13 +2,18 @@ import { dayjs } from "../modules/dayConfig";
 import { scaleMoney } from "../shared/money";
 import Money from "../shared/react/Money";
 import AdminLink from "./AdminLink";
+import ForwardTo from "./ForwardTo";
 import RelatedList from "./RelatedList";
 import React from "react";
 
 export default function LedgerBookTransactionsRelatedList({ ledger, title, rows }) {
   return (
     <RelatedList
-      title={title}
+      title={
+        <span>
+          {title} <ForwardTo to={ledger.adminLink} />
+        </span>
+      }
       headers={["Id", "Applied", "Amount", "Originating", "Receiving"]}
       rows={rows}
       keyRowAttr="id"
