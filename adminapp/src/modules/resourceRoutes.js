@@ -4,6 +4,7 @@ import kebabCase from "lodash/kebabCase";
 const mapping = {
   organizationMembership: "membership",
   organizationMembershipVerification: "membership-verification",
+  ledger: "payment-ledger",
 };
 
 export function resourceRoute(resource, { plural } = {}) {
