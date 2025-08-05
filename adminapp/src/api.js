@@ -116,6 +116,13 @@ export default {
   getPayoutTransaction: ({ id, ...data }, ...args) =>
     get(`/adminapi/v1/payout_transactions/${id}`, data, ...args),
 
+  createOffPlatformTransaction: (...args) =>
+    post(`/adminapi/v1/off_platform_transactions/create`, ...args),
+  getOffPlatformTransaction: ({ id, ...data }, ...args) =>
+    get(`/adminapi/v1/off_platform_transactions/${id}`, data, ...args),
+  updateOffPlatformTransaction: ({ id, ...data }, ...args) =>
+    post(`/adminapi/v1/off_platform_transactions/${id}`, data, ...args),
+
   getCharges: (data, ...args) => get(`/adminapi/v1/charges`, data, ...args),
   getCharge: ({ id, ...data }, ...args) =>
     get(`/adminapi/v1/charges/${id}`, data, ...args),
@@ -372,6 +379,9 @@ export default {
   searchCommerceOffering: (data, ...args) =>
     post(`/adminapi/v1/search/commerce_offerings`, data, ...args),
   searchPrograms: (data, ...args) => post(`/adminapi/v1/search/programs`, data, ...args),
+
+  getFinancialsPlatformStatus: (data, ...args) =>
+    get(`/adminapi/v1/financials/platform_status`, data, ...args),
 
   /**
    * Return an API url.
