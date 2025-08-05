@@ -3,14 +3,11 @@ import AdminLink from "../components/AdminLink";
 import DetailGrid from "../components/DetailGrid";
 import Link from "../components/Link";
 import RelatedList from "../components/RelatedList";
-import { dayjs } from "../modules/dayConfig";
 import formatDate from "../modules/formatDate";
 import Money from "../shared/react/Money";
 import useAsyncFetch from "../shared/react/useAsyncFetch";
-import ArrowRightIcon from "@mui/icons-material/ArrowRight";
 import { CircularProgress, Stack, Typography } from "@mui/material";
 import Button from "@mui/material/Button";
-import ButtonGroup from "@mui/material/ButtonGroup";
 import React from "react";
 
 export default function FinancialsPage() {

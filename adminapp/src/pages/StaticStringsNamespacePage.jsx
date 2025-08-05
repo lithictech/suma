@@ -1,5 +1,5 @@
 import api from "../api";
-import BackToList from "../components/BackToList";
+import BackTo from "../components/BackTo";
 import FabAdd from "../components/FabAdd";
 import Link from "../components/Link";
 import ResponsiveStack from "../components/ResponsiveStack";
@@ -88,7 +88,7 @@ export default function StaticStringsNamespacePage() {
   return (
     <>
       <Typography variant="h5" gutterBottom>
-        <BackToList to="/static-strings" />
+        <BackTo to="/static-strings" />
         &lsquo;{startCase(namespace)}&rsquo; Static Strings{" "}
         <Button sx={{ ml: 2 }} onClick={docsToggle.toggle}>
           Help

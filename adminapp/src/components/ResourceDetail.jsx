@@ -5,9 +5,8 @@ import { resourceEditRoute, resourceListRoute } from "../modules/resourceRoutes"
 import useAsyncFetch from "../shared/react/useAsyncFetch";
 import useToggle from "../shared/react/useToggle";
 import AdminLink from "./AdminLink";
-import BackToList from "./BackToList";
+import BackTo from "./BackTo";
 import DetailGrid from "./DetailGrid";
-import Link from "./Link";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import {
@@ -62,7 +61,6 @@ export default function ResourceDetail({
     return null;
   }
   let toEdit = canWriteResource(resource) && invokeIfFunc(canEdit, state);
-  console.log(toEdit);
   if (typeof toEdit !== "string") {
     toEdit = resourceEditRoute(resource, state);
   }
@@ -78,7 +76,7 @@ export default function ResourceDetail({
           }
           toEdit={toEdit}
         >
-          <BackToList to={resourceListRoute(resource)} />
+          <BackTo to={resourceListRoute(resource)} />
           {title(state)}
         </Title>
       }
