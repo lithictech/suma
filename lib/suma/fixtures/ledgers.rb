@@ -40,6 +40,10 @@ module Suma::Fixtures::Ledgers
     self.name ||= name
   end
 
+  decorator :platform do
+    self.account = Suma::Payment::Account.lookup_platform_account
+  end
+
   def self.ensure_platform_cash
     return Suma::Payment.ensure_cash_ledger(Suma::Payment::Account.lookup_platform_account)
   end

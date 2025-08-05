@@ -139,6 +139,50 @@ RSpec.describe "Suma::Payment::Ledger", :db do
     end
   end
 
+  describe "find_unbalanced_counterparty_ledgers" do
+    let(:ledger) { Suma::Fixtures.ledger.create }
+
+    it "finds other ledgers which do not have a $0 balance with this ledger" do
+      platform1 = Suma::Fixtures.ledger.platform.create
+      platform_orig = Suma::Fixtures.ledger.platform.create
+      platform_recip = Suma::Fixtures.ledger.platform.create
+
+      Suma::Fixtures.book_transaction.from(platform1).to(ledger).create(amount: money("$5"))
+      Suma::Fixtures.book_transaction.from(platform1).to(ledger).create(amount: money("$1"))
+      Suma::Fixtures.book_transaction.from(ledger).to(platform1).create(amount: money("$6"))
+
+      Suma::Fixtures.book_transaction.from(platform_orig).to(ledger).create(amount: money("$7"))
+      Suma::Fixtures.book_transaction.from(ledger).to(platform_recip).create(amount: money("$8"))
+
+      Suma::Fixtures.book_transaction.from(ledger).create(amount: money("$23"))
+      Suma::Fixtures.book_transaction.to(ledger).create(amount: money("$27"))
+
+      unbalanced = ledger.find_unbalanced_counterparty_ledgers
+      expect(unbalanced).to contain_exactly(
+        include(amount: cost("$7"), ledger: be === platform_orig),
+        include(amount: cost("-$8"), ledger: be === platform_recip),
+      )
+    end
+
+    it "can include all ledgers" do
+      other1 = Suma::Fixtures.ledger.create
+      other2 = Suma::Fixtures.ledger.create
+      Suma::Fixtures.book_transaction.from(ledger).to(other1).create(amount: money("$1"))
+      Suma::Fixtures.book_transaction.from(ledger).to(other1).create(amount: money("$4"))
+      Suma::Fixtures.book_transaction.from(other1).to(ledger).create(amount: money("$1"))
+      Suma::Fixtures.book_transaction.from(other1).to(ledger).create(amount: money("$1"))
+
+      Suma::Fixtures.book_transaction.from(ledger).to(other2).create(amount: money("$1"))
+      Suma::Fixtures.book_transaction.from(other2).to(ledger).create(amount: money("$4"))
+
+      unbalanced = ledger.find_unbalanced_counterparty_ledgers(include_all: true)
+      expect(unbalanced).to contain_exactly(
+        include(amount: cost("-$3"), ledger: be === other1),
+        include(amount: cost("$3"), ledger: be === other2),
+      )
+    end
+  end
+
   describe "validations" do
     it "account and name must be unique" do
       Suma::Fixtures.ledger.create(name: "A")
