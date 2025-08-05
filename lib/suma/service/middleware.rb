@@ -26,7 +26,7 @@ module Suma::Service::Middleware
     self.add_auth_middleware(builder)
     self.add_etag_middleware(builder)
     builder.use(RequestLogger)
-    builder.use(Suma::Performance::RackMiddleware, logger: Suma::Service.logger)
+    builder.use(Suma::Performance::RackMiddleware)
   end
 
   def self.add_cors_middleware(builder)
