@@ -128,6 +128,12 @@ class Suma::Payment::BookTransaction < Suma::Postgres::Model(:payment_book_trans
     super
   end
 
+  def after_save
+    super
+    self.originating_ledger.clear_compound_associations if self.associations[:originating_ledger]
+    self.receiving_ledger.clear_compound_associations if self.associations[:receiving_ledger]
+  end
+
   # Return the current actor. If the action happened by request of an admin,
   # they are the actor. Otherwise the actor is the user making a request.
   # If the transaction was created outside of a request, such as through

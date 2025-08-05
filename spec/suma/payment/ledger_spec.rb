@@ -28,6 +28,37 @@ RSpec.describe "Suma::Payment::Ledger", :db do
       eager_ledger = ledger.account.ledgers.first
       expect(eager_ledger.combined_book_transactions).to have_same_ids_as(debit1, debit2, credit1, credit2).ordered
     end
+
+    it "can calculate totals, sums, and balances of book transactions" do
+      expect(ledger).to have_attributes(
+        total_debits: cost("$0"),
+        count_debits: 0,
+        total_credits: cost("$0"),
+        count_credits: 0,
+        balance: cost("$0"),
+      )
+      Suma::Fixtures.book_transaction.to(ledger).create(amount: money("$5"))
+      Suma::Fixtures.book_transaction.to(ledger).create(amount: money("$10"))
+      expect(ledger).to have_attributes(balance: cost("$15"))
+      Suma::Fixtures.book_transaction.from(ledger).create(amount: money("$1.50"))
+      Suma::Fixtures.book_transaction.from(ledger).create(amount: money("$1"))
+      Suma::Fixtures.book_transaction.from(ledger).create(amount: money("$0.25"))
+      expect(ledger).to have_attributes(
+        total_debits: cost("$2.75"),
+        count_debits: 3,
+        total_credits: cost("$15"),
+        count_credits: 2,
+        balance: cost("$12.25"),
+      )
+      eagered = described_class.where(id: ledger.id).all.first
+      expect(eagered).to have_attributes(
+        total_debits: cost("$2.75"),
+        count_debits: 3,
+        total_credits: cost("$15"),
+        count_credits: 2,
+        balance: cost("$12.25"),
+      )
+    end
   end
 
   describe "transactions?" do
@@ -38,20 +69,6 @@ RSpec.describe "Suma::Payment::Ledger", :db do
 
       led = Suma::Fixtures.ledger.create
       expect(led).to_not be_any_transactions
-    end
-  end
-
-  describe "balance" do
-    let(:ledger) { Suma::Fixtures.ledger.create }
-
-    it "adds received and subtracts originated" do
-      expect(ledger).to have_attributes(balance: cost("$0"))
-      Suma::Fixtures.book_transaction.to(ledger).create(amount: money("$5"))
-      Suma::Fixtures.book_transaction.to(ledger).create(amount: money("$10"))
-      expect(ledger.refresh).to have_attributes(balance: cost("$15"))
-      Suma::Fixtures.book_transaction.from(ledger).create(amount: money("$1.50"))
-      Suma::Fixtures.book_transaction.from(ledger).create(amount: money("$1"))
-      expect(ledger.refresh).to have_attributes(balance: cost("$12.50"))
     end
   end
 
