@@ -20,6 +20,7 @@ import PersonSearchIcon from "@mui/icons-material/PersonSearch";
 import PortraitIcon from "@mui/icons-material/Portrait";
 import ReceiptIcon from "@mui/icons-material/Receipt";
 import RecentActorsIcon from "@mui/icons-material/RecentActors";
+import SavingsIcon from "@mui/icons-material/Savings";
 import SellIcon from "@mui/icons-material/Sell";
 import ShoppingBagIcon from "@mui/icons-material/ShoppingBag";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
@@ -106,6 +107,11 @@ export default function useNavLinks() {
             label: "Payment Triggers",
             href: "/payment-triggers",
             icon: <AutoModeIcon />,
+          },
+          payments && {
+            label: "Platform Financials",
+            href: "/financials",
+            icon: <SavingsIcon />,
           },
         ].filter(Boolean),
       },

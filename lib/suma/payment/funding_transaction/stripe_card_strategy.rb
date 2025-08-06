@@ -17,7 +17,7 @@ class Suma::Payment::FundingTransaction::StripeCardStrategy <
 
   def admin_details
     return {
-      "Suma Card" => self.originating_card.admin_link,
+      "Suma Card" => self.originating_card,
       "Stripe Charge" => self.charge_json,
     }
   end

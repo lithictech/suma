@@ -41,6 +41,16 @@ export default function PaymentLedgerDetailPage() {
           title="Book Transactions"
           rows={model.combinedBookTransactions}
         />,
+        <RelatedList
+          title="Unbalanced Counterparties"
+          headers={["Name", "Balance"]}
+          rows={model.unbalancedCounterparties}
+          getKey={(row) => row.ledger.id}
+          toCells={(row) => [
+            <AdminLink model={row.ledger}>{row.ledger.adminLabel}</AdminLink>,
+            <Money>{row.amount}</Money>,
+          ]}
+        />,
       ]}
     </ResourceDetail>
   );

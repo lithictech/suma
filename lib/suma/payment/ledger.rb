@@ -175,6 +175,38 @@ class Suma::Payment::Ledger < Suma::Postgres::Model(:payment_ledgers)
     end
   end
 
+  # Return an array of {:ledger, :amount} hashes, including ledgers where the sum of the book transactions
+  # sent to, and received from, this ledger, are not $0 (and the amount off of $0).
+  #
+  # In general, book transactions to and from platform ledgers should zero-out for a ledger,
+  # so this can be used to indicate where something isn't lined up.
+  #
+  # @param include_all If true, look at all ledgers, not just platform ledgers.
+  def find_unbalanced_counterparty_ledgers(include_all: false)
+    platform_account = Suma::Payment::Account.lookup_platform_account
+    totals_by_ledger = {}
+    self.combined_book_transactions.each do |bx|
+      if bx.originating_ledger === self
+        counterparty = bx.receiving_ledger
+        amount = bx.amount * -1
+      else
+        amount = bx.amount
+        counterparty = bx.originating_ledger
+      end
+      next unless include_all || counterparty.account === platform_account
+      if totals_by_ledger.key?(counterparty)
+        totals_by_ledger[counterparty] += amount
+      else
+        totals_by_ledger[counterparty] = amount
+      end
+    end
+    result = totals_by_ledger.
+      reject { |_, amount| amount.zero? }.
+      map { |ledger, amount| {ledger:, amount:} }.
+      sort_by { |h| h[:amount] }
+    return result
+  end
+
   def rel_admin_link = "/payment-ledger/#{self.id}"
 
   def admin_label

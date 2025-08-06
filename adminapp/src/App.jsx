@@ -12,6 +12,7 @@ import BookTransactionListPage from "./pages/BookTransactionListPage";
 import ChargeDetailPage from "./pages/ChargeDetailPage";
 import ChargeListPage from "./pages/ChargeListPage";
 import DashboardPage from "./pages/DashboardPage";
+import FinancialsPage from "./pages/FinancialsPage";
 import FundingTransactionCreatePage from "./pages/FundingTransactionCreatePage";
 import FundingTransactionDetailPage from "./pages/FundingTransactionDetailPage";
 import FundingTransactionListPage from "./pages/FundingTransactionListPage";
@@ -35,6 +36,8 @@ import MessageListPage from "./pages/MessageListPage";
 import MobilityTripDetailPage from "./pages/MobilityTripDetailPage";
 import MobilityTripEditPage from "./pages/MobilityTripEditPage";
 import MobilityTripListPage from "./pages/MobilityTripListPage";
+import OffPlatformTransactionCreatePage from "./pages/OffPlatformTransactionCreatePage";
+import OffPlatformTransactionEditPage from "./pages/OffPlatformTransactionEditPage";
 import OfferingCreatePage from "./pages/OfferingCreatePage";
 import OfferingDetailPage from "./pages/OfferingDetailPage";
 import OfferingEditPage from "./pages/OfferingEditPage";
@@ -259,6 +262,24 @@ function PageSwitch() {
           redirectIfUnauthed,
           withLayout(),
           PayoutTransactionDetailPage
+        )}
+      />
+      <Route
+        exact
+        path="/payment-off-platform/create"
+        element={renderWithHocs(
+          redirectIfUnauthed,
+          withLayout(),
+          OffPlatformTransactionCreatePage
+        )}
+      />
+      <Route
+        exact
+        path="/payment-off-platform/:id/edit"
+        element={renderWithHocs(
+          redirectIfUnauthed,
+          withLayout(),
+          OffPlatformTransactionEditPage
         )}
       />
       <Route
@@ -804,6 +825,11 @@ function PageSwitch() {
           withLayout(),
           StaticStringsNamespacePage
         )}
+      />
+      <Route
+        exact
+        path="/financials"
+        element={renderWithHocs(redirectIfUnauthed, withLayout(), FinancialsPage)}
       />
       <Route
         path="/*"

@@ -43,6 +43,7 @@ require "suma/admin_api/commerce_offerings"
 require "suma/admin_api/commerce_orders"
 require "suma/admin_api/commerce_products"
 require "suma/admin_api/commerce_offering_products"
+require "suma/admin_api/financials"
 require "suma/admin_api/funding_transactions"
 require "suma/admin_api/members"
 require "suma/admin_api/message_deliveries"
@@ -54,6 +55,7 @@ require "suma/admin_api/mobility_trips"
 require "suma/admin_api/organizations"
 require "suma/admin_api/organization_membership_verifications"
 require "suma/admin_api/organization_memberships"
+require "suma/admin_api/off_platform_transactions"
 require "suma/admin_api/payment_ledgers"
 require "suma/admin_api/payment_triggers"
 require "suma/admin_api/payout_transactions"
@@ -100,6 +102,7 @@ module Suma::Apps
     mount Suma::AdminAPI::CommerceOrders
     mount Suma::AdminAPI::CommerceProducts
     mount Suma::AdminAPI::CommerceOfferingProducts
+    mount Suma::AdminAPI::Financials
     mount Suma::AdminAPI::FundingTransactions
     mount Suma::AdminAPI::MarketingLists
     mount Suma::AdminAPI::MarketingSmsBroadcasts
@@ -111,6 +114,7 @@ module Suma::Apps
     mount Suma::AdminAPI::Organizations
     mount Suma::AdminAPI::OrganizationMemberships
     mount Suma::AdminAPI::OrganizationMembershipVerifications
+    mount Suma::AdminAPI::OffPlatformTransactions
     mount Suma::AdminAPI::PaymentLedgers
     mount Suma::AdminAPI::PaymentTriggers
     mount Suma::AdminAPI::PayoutTransactions
