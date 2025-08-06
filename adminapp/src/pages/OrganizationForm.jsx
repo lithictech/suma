@@ -39,7 +39,10 @@ export default function OrganizationForm({
         <TextField
           {...register("ordinal")}
           label="Ordinal"
-          helperText="The order in which organizations are displayed in the member onboarding flow, higher first."
+          helperText="The order in which organizations are displayed in the member onboarding flow.
+          Decimals are ok.
+          Higher values appear before lower values.
+          Negative values will hide the organization."
           name="ordinal"
           value={resource.ordinal}
           type="number"
