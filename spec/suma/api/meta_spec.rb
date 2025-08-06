@@ -141,6 +141,20 @@ RSpec.describe Suma::API::Meta, :db do
         ],
       )
     end
+
+    it "excludes organizations with a negative ordinal" do
+      Suma::Fixtures.organization.create(name: "ord-1", ordinal: -1)
+      Suma::Fixtures.organization.create(name: "ord1", ordinal: 1)
+
+      get "/v1/meta/supported_organizations"
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.that_includes(
+        items: [
+          {name: "ord1"},
+        ],
+      )
+    end
   end
 
   describe "GET /v1/meta/static_strings/<locale>/<namespace>", :static_strings do
