@@ -87,6 +87,16 @@ RSpec.describe Suma::AnonProxy::AuthToVendor, :db do
         expect(req).to have_been_made
         expect(token).to eq("ey123.ey456.789")
       end
+
+      it "raises an HTTP error if the response does not include a 'token' key" do
+        req = stub_request(:post, "https://web-production.lime.bike/api/rider/v2/onboarding/login").
+          to_return(json_response({}))
+
+        expect do
+          va.auth_to_vendor.exchange_magic_link_token("mytoken")
+        end.to raise_error(/HttpError\(status: 200/)
+        expect(req).to have_been_made
+      end
     end
 
     describe "log_out" do

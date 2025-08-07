@@ -43,6 +43,8 @@ class Suma::AnonProxy::AuthToVendor::Lime < Suma::AnonProxy::AuthToVendor
       },
       logger: self.vendor_account.logger,
     )
+    # Not sure why yet but we can get 200s without a token when making many requests.
+    raise Suma::Http::Error, resp unless resp.parsed_response.key?("token")
     return resp.parsed_response.fetch("token")
   end
 
