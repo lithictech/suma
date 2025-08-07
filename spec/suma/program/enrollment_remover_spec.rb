@@ -86,6 +86,48 @@ RSpec.describe Suma::Program::EnrollmentRemover, :db, :no_transaction_check do
       expect(reg1).to_not be_destroyed
       expect(reg2).to be_destroyed
     end
+
+    describe "when a member is soft deleted" do
+      it "revokes passes of the latest previous number" do
+        member.update(phone: "15553334444")
+        member.soft_delete
+        lyft_pass_config = Suma::Fixtures.anon_proxy_vendor_configuration.create(auth_to_vendor_key: "lyft_pass")
+        lyft_pass_vendor_acct = Suma::Fixtures.anon_proxy_vendor_account.
+          create(configuration: lyft_pass_config, member:)
+        reg = lyft_pass_vendor_acct.add_registration(external_program_id: "111")
+        prog = Suma::Fixtures.program.create(lyft_pass_program_id: "111")
+
+        pe = Suma::Fixtures.program_enrollment(member:).in(prog).unenrolled.create
+        instance.reenroll do
+          pe.update(unenrolled_at: nil)
+        end
+
+        stub_request(:post, "https://www.lyft.com/api/rideprograms/enrollment/revoke").
+          with(body: hash_including(
+            "ride_program_id" => "111",
+            "user_identifier" => {"phone_number" => "+15553334444"},
+          )).to_return(status: 200)
+
+        instance.process
+        expect(reg).to be_destroyed
+      end
+
+      it "does not revoke if there is no previous number" do
+        member.update(soft_deleted_at: Time.now)
+        lyft_pass_config = Suma::Fixtures.anon_proxy_vendor_configuration.create(auth_to_vendor_key: "lyft_pass")
+        lyft_pass_vendor_acct = Suma::Fixtures.anon_proxy_vendor_account.
+          create(configuration: lyft_pass_config, member:)
+        reg = lyft_pass_vendor_acct.add_registration(external_program_id: "111")
+        prog = Suma::Fixtures.program.create(lyft_pass_program_id: "111")
+
+        pe = Suma::Fixtures.program_enrollment(member:).in(prog).unenrolled.create
+        instance.reenroll do
+          pe.update(unenrolled_at: nil)
+        end
+        instance.process
+        expect(reg).to be_destroyed
+      end
+    end
   end
 
   describe "lime" do
