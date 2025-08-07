@@ -54,6 +54,7 @@ RSpec.describe Suma::AdminAPI::CommonEndpoints, :db do
       ciri = Suma::Fixtures.vendor.create(name: "Ciri of Rivia")
       yen = Suma::Fixtures.vendor.create(name: "Yennefer of Vengerburg")
       Suma::Vendor.hybrid_search_reindex_all
+      Suma::Vendor.hybrid_search_semantic_scale = 0
 
       get "/v1/vendors", search: "Rivia"
 
@@ -64,6 +65,8 @@ RSpec.describe Suma::AdminAPI::CommonEndpoints, :db do
 
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.that_includes(items: have_same_ids_as(ciri, geralt).ordered)
+    ensure
+      Suma::Vendor.hybrid_search_semantic_scale = 1
     end
 
     it_behaves_like "an endpoint capable of search" do
