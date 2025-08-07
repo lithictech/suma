@@ -9,6 +9,18 @@ module Sequel::Plugins::HybridSearch
     vector_column: :search_embedding,
     hash_column: :search_hash,
     language: "english",
+    # This is RFF, as well explained here:
+    # https://jkatz05.com/post/postgres/hybrid-search-postgres-pgvector/
+    # 'search 1' is semantic, 'search 2' is keyword.
+    # So lower values
+    rff_k: 60,
+    # Weigh the semantic search more or less heavily.
+    # Set to 0 to not consider its results,
+    # which can be useful in unit tests which test ordering
+    # (since semantic search is not deterministic).
+    semantic_scale: 1,
+    # Same as +semantic_rank+ but for the keyword search.
+    keyword_scale: 1,
   }.freeze
 
   def self.apply(*); end
@@ -19,6 +31,9 @@ module Sequel::Plugins::HybridSearch
     model.hybrid_search_vector_column = opts[:vector_column]
     model.hybrid_search_hash_column = opts[:hash_column]
     model.hybrid_search_language = opts[:language]
+    model.hybrid_search_rff_k = opts[:rff_k]
+    model.hybrid_search_semantic_scale = opts[:semantic_scale]
+    model.hybrid_search_keyword_scale = opts[:keyword_scale]
     SequelHybridSearch.searchable_models << model
     model.plugin :pgvector, model.hybrid_search_vector_column
   end
@@ -90,13 +105,10 @@ module Sequel::Plugins::HybridSearch
         )
 
       # Now join on our two queries, and order it based on their combined ranking.
-      # This is RFF, as well explained here:
-      # https://jkatz05.com/post/postgres/hybrid-search-postgres-pgvector/
-      # Not sure what this value is
-      rff_k = 60
+      rff_k = self.model.hybrid_search_rff_k
       rank_order = Sequel.lit(
-        "COALESCE(1.0 / (#{rff_k} + semantic_search.rank), 0.0) + " \
-        "COALESCE(1.0 / (#{rff_k} + kw_search.rank), 0.0) DESC",
+        "(COALESCE(1.0 / (#{rff_k} + semantic_search.rank), 0.0) * #{self.model.hybrid_search_semantic_scale}) + " \
+        "(COALESCE(1.0 / (#{rff_k} + kw_search.rank), 0.0) * #{self.model.hybrid_search_keyword_scale}) DESC",
       )
       ds = self.model.
         join(kw_search.as(:kw_search), id: pk).
@@ -110,7 +122,10 @@ module Sequel::Plugins::HybridSearch
     attr_accessor :hybrid_search_content_column,
                   :hybrid_search_vector_column,
                   :hybrid_search_hash_column,
-                  :hybrid_search_language
+                  :hybrid_search_language,
+                  :hybrid_search_rff_k,
+                  :hybrid_search_semantic_scale,
+                  :hybrid_search_keyword_scale
 
     def hybrid_search_reindex_all
       did = 0
