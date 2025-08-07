@@ -90,7 +90,9 @@ class Suma::Program::EnrollmentRemover
     lp = Suma::Lyft::Pass.from_config
     lp.authenticate
     registrations.each do |r|
-      lp.revoke_member(r.account.member, program_id: r.external_program_id)
+      member = r.account.member
+      phone = member.soft_deleted? ? member.previous_phones.first : member.phone
+      lp.revoke_member(r.account.member, program_id: r.external_program_id, phone:) if phone
       r.destroy
     end
   end

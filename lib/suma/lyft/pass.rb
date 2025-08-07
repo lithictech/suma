@@ -405,14 +405,17 @@ class Suma::Lyft::Pass
     )
   end
 
-  def revoke_member(member, program_id:)
-    self.logger.info "revoking_lyft_pass", member_id: member.id, lyft_program_id: program_id, phone: member.phone
+  # Revoke the member's access to Lyft Pass.
+  # @param [String] phone If given, use this as the phone instead of member.phone.
+  #   Useful when a member is deleted and its current phone is a placeholder.
+  def revoke_member(member, program_id:, phone: member.phone)
+    self.logger.info "revoking_lyft_pass", member_id: member.id, lyft_program_id: program_id, phone:
     Suma::Http.post(
       "https://www.lyft.com/api/rideprograms/enrollment/revoke",
       {
         ride_program_id: program_id,
         user_identifier: {
-          phone_number: Suma::PhoneNumber.format_e164(member.phone),
+          phone_number: Suma::PhoneNumber.format_e164(phone),
         },
       },
       headers: self.auth_headers,
