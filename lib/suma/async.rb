@@ -28,6 +28,7 @@ module Suma::Async
     "suma/async/emailer",
     "suma/async/enrollment_removal_runner",
     "suma/async/forward_messages",
+    "suma/async/frontapp_list_sync",
     "suma/async/frontapp_upsert_contact",
     "suma/async/funding_transaction_processor",
     "suma/async/gbfs_sync_enqueue",

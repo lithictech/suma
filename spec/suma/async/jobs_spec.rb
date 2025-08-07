@@ -250,23 +250,61 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
     end
   end
 
+  describe "FrontappListSync", reset_configuration: Suma::Frontapp do
+    before(:each) do
+      Suma::Frontapp.auth_token = "faketoken"
+      Suma::Frontapp.list_sync_enabled = true
+    end
+
+    it "syncs marketing lists" do
+      get_req = stub_request(:get, "https://api2.frontapp.com/contact_groups").
+        to_return(
+          json_response({}),
+          json_response({}),
+        )
+      Suma::Async::FrontappListSync.new.perform
+      expect(get_req).to have_been_made.times(2)
+    end
+
+    it "noops if sync not enabled" do
+      Suma::Frontapp.list_sync_enabled = false
+      expect { Suma::Async::FrontappListSync.new.perform }.to_not raise_error
+    end
+
+    it "noops if client not configured" do
+      Suma::Frontapp.auth_token = ""
+      expect { Suma::Async::FrontappListSync.new.perform }.to_not raise_error
+    end
+  end
+
   describe "FrontappUpsertContact", reset_configuration: Suma::Frontapp do
-    it "upserts front contacts" do
+    before(:each) do
       Suma::Frontapp.auth_token = "fake token"
+    end
+
+    it "upserts front contacts" do
       req = stub_request(:post, "https://api2.frontapp.com/contacts").
         to_return(fixture_response("front/contact"))
 
-      member = nil
       expect do
-        member = Suma::Fixtures.member.create
+        Suma::Fixtures.member.create
       end.to perform_async_job(Suma::Async::FrontappUpsertContact)
 
       expect(req).to have_been_made
     end
 
     it "noops if Front is not configured" do
+      Suma::Frontapp.auth_token = ""
       expect do
         Suma::Fixtures.member.create
+      end.to perform_async_job(Suma::Async::FrontappUpsertContact)
+    end
+
+    it "noops if the update does not change meaningful fields" do
+      m = Suma::Fixtures.member.create
+      m.updated_at = 3.minutes.from_now
+      expect do
+        m.save_changes
       end.to perform_async_job(Suma::Async::FrontappUpsertContact)
     end
   end
@@ -641,37 +679,6 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
       expect do
         Suma::Async::GbfsSyncRun.new.perform(feed.id, :free_bike_status)
       end.to_not raise_error
-    end
-  end
-
-  describe "FrontappUpsertContact", reset_configuration: Suma::Frontapp do
-    before(:each) do
-      Suma::Frontapp.auth_token = "fake token"
-    end
-    it "upserts front contacts" do
-      req = stub_request(:post, "https://api2.frontapp.com/contacts").
-        to_return(fixture_response("front/contact"))
-
-      expect do
-        Suma::Fixtures.member.create
-      end.to perform_async_job(Suma::Async::FrontappUpsertContact)
-
-      expect(req).to have_been_made
-    end
-
-    it "noops if Front is not configured" do
-      Suma::Frontapp.auth_token = ""
-      expect do
-        Suma::Fixtures.member.create
-      end.to perform_async_job(Suma::Async::FrontappUpsertContact)
-    end
-
-    it "noops if the update does not change meaningful fields" do
-      m = Suma::Fixtures.member.create
-      m.updated_at = 3.minutes.from_now
-      expect do
-        m.save_changes
-      end.to perform_async_job(Suma::Async::FrontappUpsertContact)
     end
   end
 
