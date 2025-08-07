@@ -132,4 +132,39 @@ RSpec.describe "Suma::Program::Enrollment", :db do
       enrollment_status: :unenrolled,
     )
   end
+
+  describe "members" do
+    it "returns a directly enrolled member" do
+      m = Suma::Fixtures.member.create
+      e = Suma::Fixtures.program_enrollment.create(member: m)
+      expect(e.members).to contain_exactly(m)
+    end
+
+    it "returns organization memberships" do
+      om1 = Suma::Fixtures.organization_membership.verified.create
+      om2 = Suma::Fixtures.organization_membership.create(verified_organization: om1.verified_organization)
+      e = Suma::Fixtures.program_enrollment.create(organization: om1.verified_organization)
+      expect(e.members).to contain_exactly(om1.member, om2.member)
+    end
+
+    it "returns role members, and members of role organizations" do
+      role = Suma::Fixtures.role.create
+      om = Suma::Fixtures.organization_membership.verified.create
+      role.add_organization(om.verified_organization)
+      m = Suma::Fixtures.member.create
+      role.add_member(m)
+      e = Suma::Fixtures.program_enrollment.create(role:)
+      expect(e.members).to contain_exactly(om.member, m)
+    end
+
+    it "returns unique members" do
+      role = Suma::Fixtures.role.create
+      m = Suma::Fixtures.member.create
+      role.add_member(m)
+      om = Suma::Fixtures.organization_membership.verified.create(member: m)
+      role.add_organization(om.verified_organization)
+      e = Suma::Fixtures.program_enrollment.create(role:)
+      expect(e.members).to contain_exactly(m)
+    end
+  end
 end

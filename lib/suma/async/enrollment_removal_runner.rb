@@ -68,16 +68,9 @@ class Suma::Async::EnrollmentRemovalRunner
   end
 
   def handle_direct_enrollment_unenrolled(enrollment)
-    reenroll = ->(*) { enrollment.update(unenrolled_at: nil) }
-    members = if enrollment.member
-                [enrollment.member]
-    elsif enrollment.organization
-      enrollment.organization.memberships.map(&:member)
-    else
-      enrollment.role.members + enrollment.role.organizations.flat_map(&:memberships).map(&:member)
+    removers = enrollment.members.map do |m|
+      Suma::Program::EnrollmentRemover.new(m).reenroll { enrollment.update(unenrolled_at: nil) }
     end
-    removers = members.uniq.map { |m| Suma::Program::EnrollmentRemover.new(m) }
-    removers.each { |r| r.reenroll(&reenroll) }
     return removers
   end
 end

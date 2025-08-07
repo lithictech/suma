@@ -113,6 +113,15 @@ class Suma::Program::Enrollment < Suma::Postgres::Model(:program_enrollments)
     return :pending
   end
 
+  # Return the unique enrolled members for this enrollment.
+  # Look them up through direct membership, organization, and roles.
+  def members
+    return [self.member] if self.member
+    return self.organization.memberships.map(&:member) if self.organization
+    result = self.role.members + self.role.organizations.flat_map(&:memberships).map(&:member)
+    return result.uniq
+  end
+
   def rel_admin_link = "/program-enrollment/#{self.id}"
 
   def hybrid_search_fields
