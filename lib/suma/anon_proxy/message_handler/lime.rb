@@ -37,7 +37,13 @@ class Suma::AnonProxy::MessageHandler::Lime < Suma::AnonProxy::MessageHandler
     if vendor_account.pending_closure
       lime_atv = Suma::AnonProxy::AuthToVendor::Lime.new(vendor_account)
       # This will log the user out of their own device, which is good enough.
-      lime_atv.exchange_magic_link_token(token)
+      begin
+        lime_atv.exchange_magic_link_token(token)
+      rescue Suma::AnonProxy::AuthToVendor::Lime::NoToken
+        # If when we log in, we're served with a user agreement rather than an auth token,
+        # that is good enough (we think).
+        nil
+      end
       vendor_account.update(pending_closure: false)
     else
       link_to_use = Suma::UrlShortener.enabled? ? Suma::UrlShortener.shortener.shorten(magic_link).url : magic_link

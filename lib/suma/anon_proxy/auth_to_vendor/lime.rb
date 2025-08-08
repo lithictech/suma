@@ -1,6 +1,10 @@
 # frozen_string_literal: true
 
+require "suma/http"
+
 class Suma::AnonProxy::AuthToVendor::Lime < Suma::AnonProxy::AuthToVendor
+  class NoToken < Suma::Http::Error; end
+
   AGREEMENT_PARAMS = {user_agreement_version: "5", user_agreement_country_code: "US"}.freeze
   USER_AGENT = "Android Lime/3.219.0; (com.limebike; build:3.219.0; Android 33) 4.12.0"
   APP_VERSION = "3.219.0"
@@ -44,7 +48,7 @@ class Suma::AnonProxy::AuthToVendor::Lime < Suma::AnonProxy::AuthToVendor
       logger: self.vendor_account.logger,
     )
     # Not sure why yet but we can get 200s without a token when making many requests.
-    raise Suma::Http::Error, resp unless resp.parsed_response.key?("token")
+    raise NoToken, resp unless resp.parsed_response.key?("token")
     return resp.parsed_response.fetch("token")
   end
 

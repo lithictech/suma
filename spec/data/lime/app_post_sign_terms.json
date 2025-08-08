@@ -1,0 +1,31 @@
+{
+  "user_agreement": {
+    "id": "views::useragreementview",
+    "type": "user_agreement_view",
+    "attributes": {
+      "user_agreement_url": "https://www.li.me/user-agreement",
+      "user_agreement_country_code": "US",
+      "user_agreement_version": 6,
+      "user_agreement_v2": {
+        "id": "views::useragreementview",
+        "type": "user_agreement_view",
+        "attributes": {
+          "title": "Please agree before proceeding",
+          "body": null,
+          "show_checkbox": true,
+          "checkbox_text": "\u003cfont style='font-size:13px' face='Montserrat'\u003eI confirm that I agree to Lime's \u003ca href='https://www.li.me/user-agreement' style='color:#05C500;text-decoration:none;'\u003eUser Agreement\u003c/a\u003e, and I acknowledge that I have read Lime's \u003ca href='https://www.li.me/legal/privacy-policy' style='color:#05C500;text-decoration:none;'\u003ePrivacy Notice\u003c/a\u003e.\u003c/font\u003e"
+        }
+      }
+    }
+  },
+  "user_agreement_v2": {
+    "id": "views::useragreementview",
+    "type": "user_agreement_view",
+    "attributes": {
+      "title": "Please agree before proceeding",
+      "body": null,
+      "show_checkbox": true,
+      "checkbox_text": "\u003cfont style='font-size:13px' face='Montserrat'\u003eI confirm that I agree to Lime's \u003ca href='https://www.li.me/user-agreement' style='color:#05C500;text-decoration:none;'\u003eUser Agreement\u003c/a\u003e, and I acknowledge that I have read Lime's \u003ca href='https://www.li.me/legal/privacy-policy' style='color:#05C500;text-decoration:none;'\u003ePrivacy Notice\u003c/a\u003e.\u003c/font\u003e"
+    }
+  }
+}
