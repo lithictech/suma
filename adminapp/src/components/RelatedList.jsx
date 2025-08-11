@@ -4,7 +4,7 @@ import Link from "./Link";
 import "./RelatedList.css";
 import SimpleTable from "./SimpleTable";
 import ListAltIcon from "@mui/icons-material/ListAlt";
-import { Card, CardContent } from "@mui/material";
+import { Card, CardContent, Chip } from "@mui/material";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
 import clsx from "clsx";
@@ -72,7 +72,7 @@ export default function RelatedList({
         <div ref={topRef} />
         {title && (
           <Typography variant="h6" gutterBottom>
-            {title}
+            {title} <ListCount items={rows} showMore={showMore} />
           </Typography>
         )}
         {addNew && (
@@ -101,5 +101,23 @@ export default function RelatedList({
         )}
       </CardContent>
     </Card>
+  );
+}
+
+function ListCount({ items, showMore }) {
+  if (isEmpty(items)) {
+    return null;
+  }
+  if (items.length <= showMore) {
+    return null;
+  }
+  return (
+    <Chip
+      label={items.length}
+      variant="outlined"
+      size="small"
+      color="secondary"
+      sx={{ marginLeft: 0.5 }}
+    />
   );
 }
