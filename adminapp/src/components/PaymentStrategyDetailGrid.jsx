@@ -22,6 +22,9 @@ function property({ label, value, type }) {
     case "date":
       typedValue = dayjs(value);
       break;
+    case "model":
+      typedValue = <AdminLink to={value.link}>{value.label}</AdminLink>;
+      break;
     case "href":
       typedValue = <AdminLink to={value}>{value}</AdminLink>;
       break;

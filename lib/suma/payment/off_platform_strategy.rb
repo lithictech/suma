@@ -42,7 +42,7 @@ class Suma::Payment::OffPlatformStrategy < Suma::Postgres::Model(:payment_off_pl
   def send_funds = true
   def funds_settled? = true
 
-  def rel_admin_link = "/payment-off-platform/#{self.id}/edit"
+  def rel_admin_link = "/payment-off-platform/#{self.id}"
 
   def before_save
     [:note, :check_or_transaction_number].each do |f|

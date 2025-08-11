@@ -6,6 +6,7 @@ import ExternalLinks from "../components/ExternalLinks";
 import PaymentStrategyDetailGrid from "../components/PaymentStrategyDetailGrid";
 import ResourceDetail from "../components/ResourceDetail";
 import { dayjs } from "../modules/dayConfig";
+import { directEditRoute } from "../modules/resourceRoutes";
 import Money from "../shared/react/Money";
 import React from "react";
 
@@ -14,7 +15,9 @@ export default function PayoutTransactionDetailPage() {
     <ResourceDetail
       resource="payout_transaction"
       apiGet={api.getPayoutTransaction}
-      canEdit={(model) => model.strategy.adminLink}
+      canEdit={(model) =>
+        model.strategy.adminLink && directEditRoute(model.strategy.adminLink)
+      }
       properties={(model) => [
         { label: "ID", value: model.id },
         { label: "Created At", value: dayjs(model.createdAt) },

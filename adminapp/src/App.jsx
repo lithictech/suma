@@ -37,6 +37,7 @@ import MobilityTripDetailPage from "./pages/MobilityTripDetailPage";
 import MobilityTripEditPage from "./pages/MobilityTripEditPage";
 import MobilityTripListPage from "./pages/MobilityTripListPage";
 import OffPlatformTransactionCreatePage from "./pages/OffPlatformTransactionCreatePage";
+import OffPlatformTransactionDetailPage from "./pages/OffPlatformTransactionDetailPage";
 import OffPlatformTransactionEditPage from "./pages/OffPlatformTransactionEditPage";
 import OfferingCreatePage from "./pages/OfferingCreatePage";
 import OfferingDetailPage from "./pages/OfferingDetailPage";
@@ -111,7 +112,7 @@ import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { SnackbarProvider } from "notistack";
 import React from "react";
-import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
+import { Route, BrowserRouter as Router, Routes, Navigate } from "react-router-dom";
 
 installPromiseExtras(window.Promise);
 
@@ -275,6 +276,15 @@ function PageSwitch() {
       />
       <Route
         exact
+        path="/payment-off-platform/:id"
+        element={renderWithHocs(
+          redirectIfUnauthed,
+          withLayout(),
+          OffPlatformTransactionDetailPage
+        )}
+      />
+      <Route
+        exact
         path="/payment-off-platform/:id/edit"
         element={renderWithHocs(
           redirectIfUnauthed,
@@ -345,6 +355,11 @@ function PageSwitch() {
           withLayout(),
           PaymentTriggerSubdividePage
         )}
+      />
+      <Route
+        exact
+        path="/payment-accounts/platform"
+        element={<Navigate to="/financials" replace />}
       />
       <Route
         exact

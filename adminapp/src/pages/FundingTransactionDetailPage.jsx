@@ -8,6 +8,7 @@ import RelatedList from "../components/RelatedList";
 import ResourceDetail from "../components/ResourceDetail";
 import { dayjs } from "../modules/dayConfig";
 import formatDate from "../modules/formatDate";
+import { directEditRoute } from "../modules/resourceRoutes";
 import Money from "../shared/react/Money";
 import React from "react";
 
@@ -16,7 +17,9 @@ export default function FundingTransactionDetailPage() {
     <ResourceDetail
       resource="funding_transaction"
       apiGet={api.getFundingTransaction}
-      canEdit={(model) => model.strategy.adminLink}
+      canEdit={(model) =>
+        model.strategy.adminLink && directEditRoute(model.strategy.adminLink)
+      }
       properties={(model) => [
         { label: "ID", value: model.id },
         { label: "Created At", value: dayjs(model.createdAt) },
