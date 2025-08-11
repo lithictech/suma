@@ -8,8 +8,10 @@ class Suma::AdminAPI::OffPlatformTransactions < Suma::AdminAPI::V1
   class DetailedOffPlatformTransactionEntity < BaseEntity
     include Suma::AdminAPI::Entities
     include AutoExposeDetail
+    include AutoExposeDetail
     expose :funding_transaction, with: FundingTransactionEntity
     expose :payout_transaction, with: PayoutTransactionEntity
+    expose :transaction_admin_link, &self.delegate_to(:transaction, :admin_link)
     expose :type
     expose :amount, with: MoneyEntity, &self.delegate_to(:transaction, :amount)
     expose :transacted_at

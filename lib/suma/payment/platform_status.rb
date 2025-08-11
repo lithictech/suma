@@ -24,7 +24,7 @@ class Suma::Payment::PlatformStatus
   def calculate
     self.platform_ledgers = Suma::Payment::Account.lookup_platform_account.ledgers.sort_by(&:name)
     funding_ds = Suma::Payment::FundingTransaction.dataset
-    payout_ds = Suma::Payment::PayoutTransaction
+    payout_ds = Suma::Payment::PayoutTransaction.dataset
     self.refunds, self.refund_count = sumcnt(payout_ds.exclude(refunded_funding_transaction_id: nil))
     self.payouts, self.payout_count = sumcnt(payout_ds.where(refunded_funding_transaction_id: nil))
     self.funding, self.funding_count = sumcnt(funding_ds)
@@ -48,12 +48,8 @@ class Suma::Payment::PlatformStatus
   private def offplatform_ds(ds)
     ds = ds.exclude(off_platform_strategy_id: nil)
     ds = ds.association_join(:off_platform_strategy)
-    ds = ds.order(
-      Sequel.desc(
-        Sequel.function(:coalesce, :transacted_at, Sequel[:off_platform_strategy][:created_at]),
-      ),
-      :off_platform_strategy_id,
-    )
+    ds = ds.order(Sequel.desc(:transacted_at), :off_platform_strategy_id)
+    ds = ds.select(Sequel[ds.model.table_name][Sequel.lit("*")])
     return ds
   end
 
