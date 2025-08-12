@@ -1,5 +1,6 @@
 import api from "../api";
 import AdminLink from "../components/AdminLink";
+import InlineEditField from "../components/InlineEditField";
 import Link from "../components/Link";
 import OrganizationMembership from "../components/OrganizationMembership";
 import ResourceTable from "../components/ResourceTable";
@@ -38,6 +39,7 @@ import Paper from "@mui/material/Paper";
 import Popper from "@mui/material/Popper";
 import TrapFocus from "@mui/material/Unstable_TrapFocus";
 import { useTheme } from "@mui/styles";
+import isEmpty from "lodash/isEmpty";
 import React from "react";
 
 export default function OrganizationMembershipVerificationListPage() {
@@ -442,6 +444,7 @@ function NotesViewer({ verification, makeApiCall }) {
   const [noteContent, setNoteContent] = React.useState();
   const saving = useToggle();
   const theme = useTheme();
+
   function handleNoteSave(e) {
     e.preventDefault();
     saving.turnOn();
@@ -451,6 +454,12 @@ function NotesViewer({ verification, makeApiCall }) {
     })
       .then(() => setNoteContent(""))
       .finally(saving.turnOff);
+  }
+  function handleAccountNumberSave(v) {
+    return makeApiCall(api.updateOrganizationMembershipVerification, {
+      id: verification.id,
+      accountNumber: v.accountNumber,
+    });
   }
   return (
     <React.Fragment>
@@ -473,10 +482,45 @@ function NotesViewer({ verification, makeApiCall }) {
               zIndex: 1,
               height: "25vh",
               overflow: "scroll",
+              boxShadow: "0px -3px 6px -1px rgba(0, 0, 0, 0.5)",
+              clipPath: "inset(-30px 0 0 0)",
             }}
           >
             <Stack direction="row" justifyContent="space-between" gap={2}>
               <Stack gap={1} sx={{ flex: 1 }}>
+                {verification && (
+                  <Card key={verification.id}>
+                    <CardContent sx={{ padding: `${theme.spacing(1)} !important` }}>
+                      <InlineEditField
+                        resource="organization_membership_verification"
+                        renderDisplay={
+                          <span>Account/EBT: {verification.accountNumber}</span>
+                        }
+                        initialEditingState={{
+                          accountNumber: verification.accountNumber,
+                        }}
+                        renderEdit={(st, set) => (
+                          <TextField
+                            size="small"
+                            value={st.accountNumber || ""}
+                            onChange={(e) =>
+                              set({
+                                ...verification,
+                                accountNumber: e.target.value,
+                              })
+                            }
+                          />
+                        )}
+                        onSave={(v) => handleAccountNumberSave(v)}
+                      />
+                    </CardContent>
+                  </Card>
+                )}
+                {isEmpty(verification?.notes) && (
+                  <Typography variant="subtitle2">
+                    Add a note using the note editor.
+                  </Typography>
+                )}
                 {verification?.notes.map((note) => (
                   <Card key={note.id}>
                     <CardContent sx={{ padding: `${theme.spacing(1)} !important` }}>
