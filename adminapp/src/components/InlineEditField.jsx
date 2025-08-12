@@ -1,6 +1,7 @@
 import useRoleAccess from "../hooks/useRoleAccess";
 import CancelIcon from "@mui/icons-material/Cancel";
 import EditIcon from "@mui/icons-material/Edit";
+import HourglassTopIcon from "@mui/icons-material/HourglassTop";
 import SaveIcon from "@mui/icons-material/Save";
 import IconButton from "@mui/material/IconButton";
 import React from "react";
@@ -30,13 +31,20 @@ export default function InlineEditField({
   const { canWriteResource } = useRoleAccess();
   const [editing, setEditing] = React.useState(false);
   const [editingState, setEditingState] = React.useState(initialEditingState);
+  const [saving, setSaving] = React.useState(false);
   function startEditing(e) {
     setEditing(true);
+    setSaving(false);
     setEditingState(initialEditingState);
   }
   async function saveChanges(e) {
-    await onSave(editingState);
-    setEditing(false);
+    setSaving(true);
+    try {
+      await onSave(editingState);
+      setEditing(false);
+    } finally {
+      setSaving(false);
+    }
   }
   function discardChanges(e) {
     setEditing(false);
@@ -58,10 +66,13 @@ export default function InlineEditField({
   return (
     <div>
       {renderEdit(editingState, setEditingState)}
-      <IconButton onClick={saveChanges}>
+      <IconButton sx={{ display: saving ? null : "none" }}>
+        <HourglassTopIcon />
+      </IconButton>
+      <IconButton sx={{ display: saving ? "none" : null }} onClick={saveChanges}>
         <SaveIcon color="success" />
       </IconButton>
-      <IconButton onClick={discardChanges}>
+      <IconButton sx={{ display: saving ? "none" : null }} onClick={discardChanges}>
         <CancelIcon color="error" />
       </IconButton>
     </div>
