@@ -1,7 +1,9 @@
 # frozen_string_literal: true
 
+require "grape"
 require "suma/sse"
 require "suma/sse/middleware"
+require "suma/sse/session_middleware"
 
 RSpec.describe Suma::SSE do
   describe "pubsub" do
@@ -190,6 +192,61 @@ RSpec.describe Suma::SSE do
       expect(app.call(env).first).to eq(-1)
       sleep(1) # Wait for thread to set up
       expect(sock.closed).to be(true)
+    end
+  end
+
+  describe described_class::SessionMiddleware do
+    appcls = Class.new(Grape::API) do
+      use Suma::SSE::SessionMiddleware
+
+      route_setting :skip_role_check, true
+      get :getter do
+        present({session_id: Suma::SSE.current_session_id}.to_json)
+      end
+
+      route_setting :skip_role_check, true
+      post :poster do
+        status 200
+        present({session_id: Suma::SSE.current_session_id}.to_json)
+      end
+
+      route_setting :skip_role_check, true
+      route_setting :do_not_check_sse_token, true
+      post :poster_noreq do
+        status 200
+        present({session_id: Suma::SSE.current_session_id}.to_json)
+      end
+    end
+
+    let(:app) { appcls }
+
+    it "does not require a token header for safe methods" do
+      get "/getter"
+
+      expect(last_response).to have_status(200)
+      expect(last_response.body).to eq("{\"session_id\":null}")
+    end
+
+    it "requires a token header for unsafe methods" do
+      post "/poster"
+
+      expect(last_response).to have_status(400)
+      expect(last_response).to have_json_body.that_includes(error: include(code: "missing_sse_token"))
+    end
+
+    it "sets the current session to the token header" do
+      header "Suma-Events-Token", "abc"
+      post "/poster"
+
+      expect(last_response).to have_status(200)
+      expect(last_response.body).to eq("{\"session_id\":\"abc\"}")
+    end
+
+    it "can set the header not required" do
+      post "/poster_noreq"
+
+      expect(last_response).to have_status(200)
+      expect(last_response.body).to eq("{\"session_id\":null}")
     end
   end
 end

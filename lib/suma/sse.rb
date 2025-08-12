@@ -9,6 +9,7 @@ module Suma::SSE
   include Appydays::Loggable
 
   TOKEN_HEADER = "Suma-Events-Token"
+  TOKEN_RACK_HEADER = "HTTP_#{TOKEN_HEADER.tr('-', '_').upcase}".freeze
   ORGANIZATION_MEMBERSHIP_VERIFICATIONS = "organization_membership_verifications"
   NEXT_EVENT_TIMEOUT = 10
 
