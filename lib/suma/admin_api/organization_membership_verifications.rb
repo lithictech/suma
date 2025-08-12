@@ -1,10 +1,11 @@
 # frozen_string_literal: true
 
 require "suma/admin_api"
+require "suma/sse/session_middleware"
 
 class Suma::AdminAPI::OrganizationMembershipVerifications < Suma::AdminAPI::V1
   include Suma::AdminAPI::Entities
-  include Suma::AdminAPI::ServerSentEvents
+  use Suma::SSE::SessionMiddleware
 
   class MembershipVerificationNoteEntity < BaseEntity
     include Suma::AdminAPI::Entities

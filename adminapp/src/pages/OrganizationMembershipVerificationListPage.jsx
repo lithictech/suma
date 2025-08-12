@@ -89,6 +89,7 @@ export default function OrganizationMembershipVerificationListPage() {
 
   function handleEventChangesClicked() {
     setListQueryParams({ page: 0 });
+    setNotedVerificationId(null);
     asyncFetch({ page: 0 });
   }
 
