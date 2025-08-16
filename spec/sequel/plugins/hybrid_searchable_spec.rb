@@ -6,6 +6,18 @@ require "sequel/sequel_hybrid_search/subproc_sentence_transformer_generator"
 require "sequel/sequel_hybrid_search/api_embedding_generator"
 
 RSpec.describe "sequel-hybrid-searchable" do
+  fake_embeddings_generator = Class.new do
+    DEFAULT_EMBEDDING = [0] * 384
+    attr_accessor :model_name, :embedding
+
+    def initialize(model_name: "fake", embedding: DEFAULT_EMBEDDING)
+      @model_name = model_name
+      @embedding = embedding
+    end
+
+    def get_embedding(*) = self.embedding
+  end
+
   before(:all) do
     @db = Sequel.connect(ENV.fetch("DATABASE_URL"))
     @db.drop_table?(:svs_tester)
@@ -35,7 +47,8 @@ RSpec.describe "sequel-hybrid-searchable" do
     @db[:svs_tester].truncate
     SequelHybridSearch.searchable_models.clear
     SequelHybridSearch.indexing_mode = :off
-    SequelHybridSearch.embedding_generator = SequelHybridSearch::SubprocSentenceTransformerGenerator
+    # In most cases we don't need real embeddings, so use this for speed.
+    SequelHybridSearch.embedding_generator = fake_embeddings_generator.new
   end
 
   after(:each) do
@@ -98,6 +111,11 @@ RSpec.describe "sequel-hybrid-searchable" do
   end
 
   describe "search" do
+    before(:each) do
+      # We need real embeddings to test search
+      SequelHybridSearch.embedding_generator = SequelHybridSearch::SubprocSentenceTransformerGenerator
+    end
+
     it "performs a hybrid semantic and keyword search" do
       geralt = model.create(name: "Geralt", desc: "Rivia")
       ciri = model.create(name: "Rivia", desc: "Ciri")
@@ -194,11 +212,50 @@ RSpec.describe "sequel-hybrid-searchable" do
       expect(geralt.refresh.values[:search_embedding]).to be_nil
     end
 
-    it "sets the search content to just values after a colon" do
+    it "sets the search content to just values after a colon, and exclues symbol-only lines" do
       geralt = model.create(name: "Geralt")
-      expect(geralt.refresh).to have_attributes(search_content: match(/svs tester\n\d+\nGeralt/))
+      expect(geralt.refresh).to have_attributes(search_content: match(/^svs tester\n\d+\nGeralt$/))
       geralt.update(desc: "of Rivia")
-      expect(geralt.refresh).to have_attributes(search_content: match(/svs tester\n\d+\nGeralt\nof Rivia/))
+      expect(geralt.refresh).to have_attributes(search_content: match(/^svs tester\n\d+\nGeralt\nof Rivia$/))
+      geralt.update(desc: "[]")
+      expect(geralt.refresh).to have_attributes(search_content: match(/^svs tester\n\d+\nGeralt$/))
+    end
+
+    it "can load and overwrite a legacy hash" do
+      geralt = model.create(name: "Geralt")
+      geralt.this.update(search_hash: "abc-xyz")
+      expect(geralt.refresh).to have_attributes(search_hash: "abc-xyz")
+      geralt.update(name: "Ciri")
+      expect(geralt.refresh).to have_attributes(search_hash: match(/^v2\.[a-f0-9]{32}\.\d{16}$/))
+    end
+
+    it "noops if the current search has was generated after the current time" do
+      geralt = model.create(name: "Geralt")
+      expect(geralt.refresh).to have_attributes(search_content: match(/Geralt$/))
+      geralt.update(name: "Ciri")
+      expect(geralt.refresh).to have_attributes(search_content: match(/Ciri$/))
+      Timecop.travel(10.minutes.ago) { geralt.update(name: "Geralt") }
+      expect(geralt.refresh).to have_attributes(search_content: match(/Ciri$/))
+    end
+
+    it "retries a certain number of times before erroring" do
+      expect(Kernel).to receive(:sleep).with(4)
+      expect(Kernel).to receive(:sleep).with(8)
+      expect(SequelHybridSearch.embedding_generator).to receive(:get_embedding).and_raise(RuntimeError)
+      expect(SequelHybridSearch.embedding_generator).to receive(:get_embedding).and_raise(RuntimeError)
+      expect(SequelHybridSearch.embedding_generator).to receive(:get_embedding).and_call_original
+      geralt = model.create(name: "Geralt")
+      expect(geralt.refresh).to have_attributes(search_content: match(/Geralt$/))
+    end
+
+    it "can exhaust retries" do
+      expect(Kernel).to receive(:sleep).with(4)
+      expect(Kernel).to receive(:sleep).with(8)
+      expect(Kernel).to receive(:sleep).with(16)
+      expect(Kernel).to receive(:sleep).with(32)
+      e = RuntimeError.new("hi")
+      expect(SequelHybridSearch.embedding_generator).to receive(:get_embedding).and_raise(e).exactly(5).times
+      expect { model.create(name: "Geralt") }.to raise_error(e)
     end
   end
 
@@ -261,8 +318,9 @@ RSpec.describe "sequel-hybrid-searchable" do
     end
 
     it "does not block on stderr filling up" do
+      gen = SequelHybridSearch::SubprocSentenceTransformerGenerator.instance
       Array.new(1000) do |i|
-        SequelHybridSearch.embedding_generator.get_embedding(i.to_s)
+        gen.get_embedding(i.to_s)
       end
     end
   end

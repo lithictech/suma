@@ -4,6 +4,8 @@ require "sequel/sequel_hybrid_search"
 require "pgvector"
 
 module Sequel::Plugins::HybridSearch
+  HASH_VERSION = "v2"
+
   DEFAULT_OPTIONS = {
     content_column: :search_content,
     vector_column: :search_embedding,
@@ -21,6 +23,11 @@ module Sequel::Plugins::HybridSearch
     semantic_scale: 1,
     # Same as +semantic_rank+ but for the keyword search.
     keyword_scale: 1,
+    # How many times to retry if reindexing fails (API server is down, etc.).
+    indexing_retries: 4,
+    # Called to figure out how long to sleep between retries.
+    # By default, use exponential backoff with a base delay of 4 seconds.
+    indexing_backoff: ->(attempt) { 4 * (2**(attempt - 1)) },
   }.freeze
 
   def self.apply(*); end
@@ -34,6 +41,8 @@ module Sequel::Plugins::HybridSearch
     model.hybrid_search_rff_k = opts[:rff_k]
     model.hybrid_search_semantic_scale = opts[:semantic_scale]
     model.hybrid_search_keyword_scale = opts[:keyword_scale]
+    model.hybrid_search_indexing_retries = opts[:indexing_retries]
+    model.hybrid_search_indexing_backoff = opts[:indexing_backoff]
     SequelHybridSearch.searchable_models << model
     model.plugin :pgvector, model.hybrid_search_vector_column
   end
@@ -125,7 +134,9 @@ module Sequel::Plugins::HybridSearch
                   :hybrid_search_language,
                   :hybrid_search_rff_k,
                   :hybrid_search_semantic_scale,
-                  :hybrid_search_keyword_scale
+                  :hybrid_search_keyword_scale,
+                  :hybrid_search_indexing_retries,
+                  :hybrid_search_indexing_backoff
 
     def hybrid_search_reindex_all
       did = 0
@@ -166,23 +177,53 @@ module Sequel::Plugins::HybridSearch
       end
     end
 
-    def hybrid_search_reindex
+    def hybrid_search_reindex(attempt: 1)
       text = self.hybrid_search_text
-      new_hash = "#{SequelHybridSearch.embedding_generator.model_name}-#{Digest::MD5.hexdigest(text)}"
-      return if new_hash == self.send(self.model.hybrid_search_hash_column)
+      new_hash = self._hybrid_search_hash_changed(text)
+      return if new_hash.nil?
       em = SequelHybridSearch.embedding_generator.get_embedding(text)
-      content = self._hybrid_search_text_to_storage(text)
+      content = _hybrid_search_text_to_storage(text)
       self.this.update(
         self.model.hybrid_search_content_column => content,
         self.model.hybrid_search_vector_column => Pgvector.encode(em),
         self.model.hybrid_search_hash_column => new_hash,
       )
+    rescue StandardError => e
+      raise e if attempt > self.model.hybrid_search_indexing_retries
+      Kernel.sleep(self.model.hybrid_search_indexing_backoff.call(attempt))
+      self.hybrid_search_reindex(attempt: attempt + 1)
+    end
+
+    # The v2 hash is encoded as "<version>.<md5 llm + text>.<timestamp>"
+    # We do not need to regenerate if:
+    # - the hash version and md5 are the same (the data is unchanged)
+    # - the timestamp of the last reindex is later than this one.
+    #   Indexing happens in threads, and involves API calls, so there is a nonzero chance
+    #   that model changes get interleaved.
+    private def _hybrid_search_hash_changed(new_text)
+      now = Time.now
+      # Get the timestamp as a microsecond integer
+      now_tsint = (now.to_i * (10**6)) + now.usec
+      content_digest = Digest::MD5.new
+      content_digest.update(SequelHybridSearch.embedding_generator.model_name)
+      content_digest.update(new_text)
+      new_hashed_content = content_digest.hexdigest
+      old_hash = self.send(self.model.hybrid_search_hash_column)
+      new_hash = "#{HASH_VERSION}.#{new_hashed_content}.#{now_tsint}"
+      # If the old hash is a different version, don't even try to use it.
+      return new_hash unless old_hash&.start_with?("#{HASH_VERSION}.")
+      # Parse the old hash. If the content hasn't changed, we don't need to rebuild.
+      _version, old_hashed_content, old_hashed_timestamp = old_hash.split(".")
+      return nil if old_hashed_content == new_hashed_content
+      # Grab the old hash's generation timestamp. If it's after now, we don't want to rebuild.
+      return nil if old_hashed_timestamp.to_i > now_tsint
+      return new_hash
     end
 
     # For the search/text content, only include tokens which come after ':' if present.
     # These fields are the dynamically determined ones so are the only ones
     # relevant for keyword searches.
-    def _hybrid_search_text_to_storage(text)
+    private def _hybrid_search_text_to_storage(text)
       # Always include the model name so things like 'Users named Tim' will find all users (and rank Tim more highly),
       # while 'Tim' will only find users with the literal 'Tim'.
       content = [self.model.table_name.to_s.gsub(/[^a-zA-Z]/, " ")]
