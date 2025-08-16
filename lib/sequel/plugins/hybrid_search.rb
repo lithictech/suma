@@ -178,19 +178,32 @@ module Sequel::Plugins::HybridSearch
     end
 
     def hybrid_search_reindex(attempt: 1)
+      model = self.model
       text = self.hybrid_search_text
-      new_hash = self._hybrid_search_hash_changed(text)
-      return if new_hash.nil?
+      hash_version, hash_content, hash_ts = self._hybrid_search_hash_changed(text)
+      return if hash_version.nil?
       em = SequelHybridSearch.embedding_generator.get_embedding(text)
       content = _hybrid_search_text_to_storage(text)
-      self.this.update(
-        self.model.hybrid_search_content_column => content,
-        self.model.hybrid_search_vector_column => Pgvector.encode(em),
-        self.model.hybrid_search_hash_column => new_hash,
+      # We update when any of these are true:
+      # - The old hash doesn't begin with the current hash version string.
+      # - The hashed content is different from the new content AND
+      #   the timestamp of when we fetched the data is after the stored timestamp.
+      this_ds = self.this.where(
+        Sequel[model.hybrid_search_hash_column => nil] |
+        ~Sequel.like(model.hybrid_search_hash_column, "#{hash_version}.%") |
+        (
+          (Sequel.function(:split_part, model.hybrid_search_hash_column, ".", 2) !~ hash_content) &
+          (Sequel.function(:split_part, model.hybrid_search_hash_column, ".", 3).cast(:bigint) < hash_ts)
+        ),
+      )
+      this_ds.update(
+        model.hybrid_search_content_column => content,
+        model.hybrid_search_vector_column => Pgvector.encode(em),
+        model.hybrid_search_hash_column => "#{hash_version}.#{hash_content}.#{hash_ts}",
       )
     rescue StandardError => e
-      raise e if attempt > self.model.hybrid_search_indexing_retries
-      Kernel.sleep(self.model.hybrid_search_indexing_backoff.call(attempt))
+      raise e if attempt > model.hybrid_search_indexing_retries
+      Kernel.sleep(model.hybrid_search_indexing_backoff.call(attempt))
       self.hybrid_search_reindex(attempt: attempt + 1)
     end
 
@@ -201,7 +214,7 @@ module Sequel::Plugins::HybridSearch
     #   Indexing happens in threads, and involves API calls, so there is a nonzero chance
     #   that model changes get interleaved.
     private def _hybrid_search_hash_changed(new_text)
-      now = Time.now
+      now = self.db.fetch("SELECT now() AS now").first.fetch(:now)
       # Get the timestamp as a microsecond integer
       now_tsint = (now.to_i * (10**6)) + now.usec
       content_digest = Digest::MD5.new
@@ -209,15 +222,14 @@ module Sequel::Plugins::HybridSearch
       content_digest.update(new_text)
       new_hashed_content = content_digest.hexdigest
       old_hash = self.send(self.model.hybrid_search_hash_column)
-      new_hash = "#{HASH_VERSION}.#{new_hashed_content}.#{now_tsint}"
-      # If the old hash is a different version, don't even try to use it.
-      return new_hash unless old_hash&.start_with?("#{HASH_VERSION}.")
+      new_hash_parts = [HASH_VERSION, new_hashed_content, now_tsint]
+      # If the old hash is a different version, we know we'll need to update.
+      return new_hash_parts unless old_hash&.start_with?("#{HASH_VERSION}.")
       # Parse the old hash. If the content hasn't changed, we don't need to rebuild.
-      _version, old_hashed_content, old_hashed_timestamp = old_hash.split(".")
+      _old_version, old_hashed_content, _old_timestamp = old_hash.split(".")
       return nil if old_hashed_content == new_hashed_content
-      # Grab the old hash's generation timestamp. If it's after now, we don't want to rebuild.
-      return nil if old_hashed_timestamp.to_i > now_tsint
-      return new_hash
+      # We may need to rebuild, do the conditional update.
+      return new_hash_parts
     end
 
     # For the search/text content, only include tokens which come after ':' if present.

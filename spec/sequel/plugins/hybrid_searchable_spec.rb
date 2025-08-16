@@ -230,12 +230,47 @@ RSpec.describe "sequel-hybrid-searchable" do
     end
 
     it "noops if the current search has was generated after the current time" do
-      geralt = model.create(name: "Geralt")
-      expect(geralt.refresh).to have_attributes(search_content: match(/Geralt$/))
-      geralt.update(name: "Ciri")
-      expect(geralt.refresh).to have_attributes(search_content: match(/Ciri$/))
-      Timecop.travel(10.minutes.ago) { geralt.update(name: "Geralt") }
-      expect(geralt.refresh).to have_attributes(search_content: match(/Ciri$/))
+      # Here is the race conditions:
+      #
+      # T0: Model is created
+      # T1: Process X updates the model (State 1) and triggers a reindex in Thread A
+      # T2: Thread A loads the model (State 1)
+      # T3: Process Y updates the model (State 2) and triggers a reindex in Thread B
+      # T4: Thread B loads the model (State 2)
+      # T5: Thread B reindexes and saves the embeddings (from State 2)
+      # T6: Thread A reindexes and saves the embeddings (from State 1)
+      #
+      # Because for all means and purposes, indexing always happens in a new thread that pulls from the database,
+      # we know that when indexing starts, the data we're using is fresh.
+      # We need to make sure that when we commit the data, we are not overwriting a thread that loaded data
+      # later than we did.
+      #
+      # This is a challenge to test; using threads and mocking is almost impossible after a half-day of attempts.
+      # Instead, we can:
+      # 1- create the model
+      # 2- open a new connection and a transaction and ask for the current time; this locks in 'now'.
+      # 3- update the model in the main thread, in a new transaction, which has a newer 'now'
+      # 4- update the model in the old transaction, which should now be stale.
+
+      main_geralt = model.create(name: "Geralt")
+      now_captured_event = Concurrent::Event.new
+      main_updated_event = Concurrent::Event.new
+
+      t = Thread.new do
+        g = model.with_pk!(main_geralt.id)
+        model.db.transaction do
+          model.db << "SELECT now()"
+          now_captured_event.set
+          main_updated_event.wait
+          g.update(name: "Geralt2")
+        end
+      end
+
+      now_captured_event.wait
+      main_geralt.update(name: "Geralt1")
+      main_updated_event.set
+      t.join
+      expect(main_geralt.refresh).to have_attributes(search_content: match(/Geralt1/))
     end
 
     it "retries a certain number of times before erroring" do
