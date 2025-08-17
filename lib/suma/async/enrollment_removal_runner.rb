@@ -48,7 +48,7 @@ class Suma::Async::EnrollmentRemovalRunner
         role = self.lookup_model(Suma::Role, event.payload[1])
         removers = [
           Suma::Program::EnrollmentRemover.new(member).reenroll do
-            member.add_role(role)
+            member.ensure_role(role)
           end,
         ]
       when "suma.organization.role.removed"
@@ -56,7 +56,7 @@ class Suma::Async::EnrollmentRemovalRunner
         role = self.lookup_model(Suma::Role, event.payload[1])
         removers = organization.memberships.map do |m|
           Suma::Program::EnrollmentRemover.new(m.member).reenroll do
-            organization.add_role(role)
+            organization.ensure_role(role)
           end
         end
       else
