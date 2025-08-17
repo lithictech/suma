@@ -168,9 +168,12 @@ module Sequel::Plugins::HybridSearch
 
     def _run_after_model_hook
       if SequelHybridSearch.indexing_mode == :async
-        # We must refetch the model to index since it happens on another thread.
-        SequelHybridSearch.threadpool.post do
-          self.model.hybrid_search_reindex_model(self.pk)
+        # Because we're re-fetching the model, we need to make sure it happens after the DB sees the update.
+        self.db.after_commit do
+          # We must refetch the model to index since it happens on another thread.
+          SequelHybridSearch.threadpool.post do
+            self.model.hybrid_search_reindex_model(self.pk)
+          end
         end
       elsif SequelHybridSearch.indexing_mode == :sync
         self.hybrid_search_reindex

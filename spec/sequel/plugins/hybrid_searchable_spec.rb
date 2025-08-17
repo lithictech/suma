@@ -53,6 +53,8 @@ RSpec.describe "sequel-hybrid-searchable" do
 
   after(:each) do
     SequelHybridSearch.searchable_models.replace(@searchable)
+    # Must be reset in case a test shut it down.
+    SequelHybridSearch.threadpool = nil
   end
 
   let(:model) do
@@ -293,6 +295,25 @@ RSpec.describe "sequel-hybrid-searchable" do
       e = RuntimeError.new("hi")
       expect(SequelHybridSearch.embedding_generator).to receive(:get_embedding).and_raise(e).exactly(5).times
       expect { model.create(name: "Geralt") }.to raise_error(e)
+    end
+
+    it "runs after the current transaction has committed when using :async mode" do
+      SequelHybridSearch.indexing_mode = :async
+      o = model.create(name: "Geralt")
+      o.define_singleton_method(:around_save) do |&b|
+        b.call
+        # We want to test that reindexing happens AFTER this block returns (transaction commits).
+        # We cannot use events to test this, since once the fix is in place, the reindexing thread
+        # won't run until this block return. So we cannot wait here for indexing to finish,
+        # since it won't even have started.
+        # Instead, we can do a short sleep, which without the after_commit hook almost always makes this test fail,
+        # and is still safe to use once after_commit is in place.
+        sleep(0.05)
+      end
+      o.update(name: "Geralt1")
+      SequelHybridSearch.threadpool.shutdown
+      SequelHybridSearch.threadpool.wait_for_termination
+      expect(o.refresh).to have_attributes(search_content: match(/Geralt1/))
     end
   end
 
