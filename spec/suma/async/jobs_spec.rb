@@ -207,6 +207,38 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
         end.to perform_async_job(jobclass)
         expect(jobclass.testing_last_ran_removers).to be_empty
       end
+
+      specify "a member role is removed, but during processing the member has regained that role" do
+        role = Suma::Fixtures.role.create
+        member.add_role(role)
+        Suma::Fixtures.program_enrollment.create(role:)
+        expect do
+          member.publish_immediate("role.removed", member.id, role.id)
+        end.to perform_async_job(jobclass)
+        expect(jobclass.testing_last_ran_removers).to contain_exactly(
+          have_attributes(
+            before_enrollments: have_length(1),
+            after_enrollments: have_length(1),
+          ),
+        )
+      end
+
+      specify "an organization role is removed, but during processing the organization has regained that role" do
+        role = Suma::Fixtures.role.create
+        organization = Suma::Fixtures.organization.create
+        organization.add_role(role)
+        Suma::Fixtures.organization_membership.verified(organization).create(member:)
+        Suma::Fixtures.program_enrollment.create(role:)
+        expect do
+          organization.publish_immediate("role.removed", organization.id, role.id)
+        end.to perform_async_job(jobclass)
+        expect(jobclass.testing_last_ran_removers).to contain_exactly(
+          have_attributes(
+            before_enrollments: have_length(1),
+            after_enrollments: have_length(1),
+          ),
+        )
+      end
     end
 
     it "errors if somehow an unhandled event is captured by the regex but unhandled" do
