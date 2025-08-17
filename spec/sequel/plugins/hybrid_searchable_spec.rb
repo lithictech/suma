@@ -214,11 +214,13 @@ RSpec.describe "sequel-hybrid-searchable" do
 
     it "sets the search content to just values after a colon, and exclues symbol-only lines" do
       geralt = model.create(name: "Geralt")
-      expect(geralt.refresh).to have_attributes(search_content: match(/^svs tester\n\d+\nGeralt$/))
+      expect(geralt.refresh).to have_attributes(search_content: match(/\Asvs tester\n\d+\nGeralt\Z/))
       geralt.update(desc: "of Rivia")
-      expect(geralt.refresh).to have_attributes(search_content: match(/^svs tester\n\d+\nGeralt\nof Rivia$/))
+      expect(geralt.refresh).to have_attributes(search_content: match(/\Asvs tester\n\d+\nGeralt\nof Rivia\Z/))
       geralt.update(desc: "[]")
-      expect(geralt.refresh).to have_attributes(search_content: match(/^svs tester\n\d+\nGeralt$/))
+      expect(geralt.refresh).to have_attributes(search_content: match(/\Asvs tester\n\d+\nGeralt\Z/))
+      geralt.update(desc: "😀")
+      expect(geralt.refresh).to have_attributes(search_content: match(/\Asvs tester\n\d+\nGeralt\n😀\Z/))
     end
 
     it "can load and overwrite a legacy hash" do

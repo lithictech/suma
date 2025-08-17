@@ -241,9 +241,13 @@ module Sequel::Plugins::HybridSearch
       content = [self.model.table_name.to_s.gsub(/[^a-zA-Z]/, " ")]
       text.lines.each do |li|
         idx = li.index(":")
-        next nil if idx.nil?
+        next if idx.nil?
         s = li[(idx + 1)..].strip
         next if s.blank?
+        # Ignore symbol-only lines. See https://www.ascii-code.com/ for a table;
+        # " -/" catches all everything from codes 32 to 47, for example.
+        # Rubocop has a bug here, %r{} regex form cannot be used due to the backtick, so turn it off.
+        next if s.match?(/^[ -\/:-@\[-`{-~]+$/) # rubocop:disable Style/RegexpLiteral
         content << s
       end
       return content.join("\n")
