@@ -100,11 +100,13 @@ class Suma::Member < Suma::Postgres::Model(:members)
               order: order_desc,
               # Use ResetCode.replace_active instead, add_reset_code is unsafe since it can keep multiple active.
               adder: nil
-  many_to_many :roles,
-               class: "Suma::Role",
-               join_table: :roles_members,
-               order: order_assoc(:asc, :name),
-               **Suma::Role.association_options
+  plugin :many_to_many_pubsub,
+         :roles,
+         class: "Suma::Role",
+         join_table: :roles_members,
+         order: order_assoc(:asc, :name)
+  plugin :many_to_many_ensurer, :roles
+  plugin :association_array_replacer, :roles
   one_to_many :sessions, class: "Suma::Member::Session", order: order_desc
   one_to_many :commerce_carts, class: "Suma::Commerce::Cart", order: order_desc
   one_to_many :anon_proxy_contacts, class: "Suma::AnonProxy::MemberContact", order: order_desc
@@ -180,8 +182,6 @@ class Suma::Member < Suma::Postgres::Model(:members)
                 end
               end)
 
-  plugin :association_array_replacer, :roles
-
   dataset_module do
     def with_email(*emails)
       emails = emails.map { |e| e.downcase.strip }
@@ -224,12 +224,6 @@ class Suma::Member < Suma::Postgres::Model(:members)
 
   def guessed_first_name = self.guessed_first_last_name.first
   def guessed_last_name = self.guessed_first_last_name.last
-
-  def ensure_role(role_or_name)
-    role = role_or_name.is_a?(Suma::Role) ? role_or_name : Suma::Role[name: role_or_name]
-    raise "No role for #{role_or_name}" unless role.present?
-    self.add_role(role) unless self.roles_dataset[role.id]
-  end
 
   # Return the +Suma::Member::RoleAccess+ for the member.
   # If a block is given, evaluate it in the context of the role access.
