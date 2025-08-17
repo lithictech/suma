@@ -50,17 +50,6 @@ class Suma::Role < Suma::Postgres::Model(:roles)
     # Return a cache of roles lookups.
     # Generally callers should use +Suma::Member::RoleAccess+ rather than look at roles directly.
     def cache = @cache ||= Cache.new
-
-    def association_options
-      return {
-        after_add: lambda do |receiver, role|
-          receiver.publish_deferred("role.added", receiver.pk, role.pk)
-        end,
-        after_remove: lambda do |receiver, role|
-          receiver.publish_deferred("role.removed", receiver.pk, role.pk)
-        end,
-      }
-    end
   end
 
   many_to_many :members,

@@ -152,15 +152,35 @@ RSpec.describe "Suma::Postgres::Model", :db do
     it "can error if an instance or dataset entry is not found" do
       expect do
         model_class.find!(name: "foo")
-      end.to raise_error(Suma::InvalidPostcondition, 'No row matching Suma::Postgres::TestingPixie[{:name=>"foo"}]')
+      end.to raise_error(Suma::Postgres::NoMatchingRow, "SELECT * FROM \"testing_pixies\" WHERE (\"name\" = 'foo')")
+
+      expect do
+        model_class.find!(1)
+      end.to raise_error(Suma::Postgres::NoMatchingRow, "SELECT * FROM \"testing_pixies\" WHERE (\"id\" = 1)")
 
       expect do
         model_class.dataset.where(name: "foo").find!
-      end.to raise_error(Suma::InvalidPostcondition, "No matching dataset row (params: {})")
+      end.to raise_error(Suma::Postgres::NoMatchingRow, "SELECT * FROM \"testing_pixies\" WHERE (\"name\" = 'foo')")
+
+      expect do
+        model_class.dataset.where(name: "foo").find!(id: 1)
+      end.to raise_error(
+        Suma::Postgres::NoMatchingRow, "SELECT * FROM \"testing_pixies\" WHERE ((\"name\" = 'foo') AND (\"id\" = 1))",
+      )
+
+      expect do
+        model_class.dataset.where(name: "foo").find!(1)
+      end.to raise_error(
+        Suma::Postgres::NoMatchingRow, "SELECT * FROM \"testing_pixies\" WHERE ((\"name\" = 'foo') AND (\"id\" = 1))",
+      )
 
       x = model_class.create(name: "foo")
       expect(model_class.find!(name: "foo")).to be === x
+      expect(model_class.find!(x.id)).to be === x
       expect(model_class.dataset.where(name: "foo").find!).to be === x
+      expect(model_class.dataset.where(id: x.id).find!).to be === x
+      expect(model_class.dataset.where(name: "foo").find!(x.id)).to be === x
+      expect(model_class.dataset.where(name: "foo").find!(id: x.id)).to be === x
     end
   end
 

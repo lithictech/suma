@@ -165,10 +165,16 @@ module Suma::Postgres::ModelUtilities
     return model
   end
 
-  def find!(params)
-    x = self[params]
+  def find!(arg)
+    if arg.is_a?(Integer)
+      x = self.with_pk(arg)
+      ds = self.where(self.primary_key_hash(arg))
+    else
+      ds = self.where(arg)
+      x = ds.first
+    end
     return x if x
-    raise Suma::InvalidPostcondition, "No row matching #{self.name}[#{params}]"
+    raise Suma::Postgres::NoMatchingRow, ds
   end
 
   # Temporarily set a field on the class.
@@ -284,10 +290,19 @@ module Suma::Postgres::ModelUtilities
   end
 
   module DatasetMethods
-    def find!(**params)
-      x = self[params]
+    def find!(arg=nil)
+      if arg.nil?
+        ds = self
+        x = ds.first
+      elsif arg.is_a?(Integer)
+        x = self.with_pk(arg)
+        ds = self.where(self.model.primary_key_hash(arg))
+      else
+        ds = self.where(arg)
+        x = ds.first
+      end
       return x if x
-      raise Suma::InvalidPostcondition, "No matching dataset row (params: #{params})"
+      raise Suma::Postgres::NoMatchingRow, ds
     end
 
     # Helper for applying multiple conditions for Sequel, where some can be nil.

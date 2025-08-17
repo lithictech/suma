@@ -15,6 +15,13 @@ module Suma::Postgres
 
   class InTransaction < StandardError; end
 
+  class NoMatchingRow < Sequel::NoMatchingRow
+    def initialize(ds)
+      super(ds.sql)
+      self.dataset = ds
+    end
+  end
+
   singleton_attr_accessor :unsafe_skip_transaction_check
   @unsafe_skip_transaction_check = false
   def self.check_transaction(db, error_msg)

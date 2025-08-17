@@ -59,16 +59,25 @@ RSpec.describe "Suma::Member", :db do
     end
 
     it "can set a role by the role name" do
-      member.ensure_role(role.name)
+      member.ensure_role(name: role.name)
+      expect(member.roles).to contain_exactly(role)
+    end
+
+    it "can set a role by the role id" do
+      member.ensure_role(role.id)
       expect(member.roles).to contain_exactly(role)
     end
 
     it "noops if the member already has the role" do
-      member.ensure_role(role.name)
-      member.ensure_role(role.name)
+      member.ensure_role(name: role.name)
+      member.ensure_role(name: role.name)
       member.ensure_role(role)
       member.ensure_role(role)
       expect(member.roles).to contain_exactly(role)
+    end
+
+    it "errors if the role does not exist" do
+      expect { member.ensure_role(0) }.to raise_error(Sequel::NoMatchingRow)
     end
   end
 

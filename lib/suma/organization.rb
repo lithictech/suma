@@ -24,12 +24,12 @@ class Suma::Organization < Suma::Postgres::Model(:organizations)
               key: :former_organization_id,
               order: order_desc
   one_to_many :program_enrollments, class: "Suma::Program::Enrollment", order: order_desc
-  many_to_many :roles,
-               class: "Suma::Role",
-               join_table: :roles_organizations,
-               order: order_assoc(:asc, :name),
-               **Suma::Role.association_options
-
+  plugin :many_to_many_pubsub,
+         :roles,
+         class: "Suma::Role",
+         join_table: :roles_organizations,
+         order: order_assoc(:asc, :name)
+  plugin :many_to_many_ensurer, :roles
   plugin :association_array_replacer, :roles
 
   def rel_admin_link = "/organization/#{self.id}"
