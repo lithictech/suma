@@ -9,6 +9,7 @@ import elementDimensions from "../modules/elementDimensions";
 import keepDigits from "../modules/keepDigits";
 import { extractErrorCode } from "../state/useError";
 import useScreenLoader from "../state/useScreenLoader";
+import useStripeErrorMessage from "../state/useStripeErrorMessage.jsx";
 import get from "lodash/get";
 import Payment from "payment";
 import React from "react";
@@ -43,13 +44,16 @@ export default function AddCreditCard({ onSuccess, error, setError }) {
   const [cvc, setCvc] = React.useState(config.devCardDetails.cvc || "");
   const [focus, setFocus] = React.useState("");
 
+  const { localizeStripeError } = useStripeErrorMessage();
+
   const runSetter = React.useCallback(
     (name, set, value) => {
+      setError("");
       clearErrors(name);
       setValue(name, value);
       set(value);
     },
-    [clearErrors, setValue]
+    [clearErrors, setError, setValue]
   );
 
   const handleSubmitInner = React.useCallback(() => {
@@ -73,18 +77,12 @@ export default function AddCreditCard({ onSuccess, error, setError }) {
       .then((r) => onSuccess(r.data))
       .catch((e) => {
         screenLoader.turnOff();
-        if (!get(e, "response.data.error.type")) {
-          setError(extractErrorCode(e));
-          return;
-        }
-        const errkey = `errors.${e.response.data.error.type}.${e.response.data.error.code}`;
-        let localized = t(errkey);
-        if (localized === errkey) {
-          localized = e.response.data.error.message;
-        }
-        setError(<span>{localized}</span>);
+        const errMsg =
+          localizeStripeError(get(e, "response.data")) || extractErrorCode(e);
+        setError(<span>{errMsg}</span>);
+        document.activeElement?.blur();
       });
-  }, [cvc, expiry, name, number, onSuccess, screenLoader, setError]);
+  }, [cvc, expiry, localizeStripeError, name, number, onSuccess, screenLoader, setError]);
 
   const handleFocus = (e) => {
     setFocus(e.target.name);

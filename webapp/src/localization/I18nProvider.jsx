@@ -28,13 +28,12 @@ export default function I18nProvider({ children }) {
   const { userAuthed } = useUser();
 
   /**
-   * Loads the given language file by making an HTTP request.
-   * The promise resolves when the language file is loaded.
-   * @param {string} namespace Name of the file, like 'strings'.
-   * @param {string} language Language ('en', 'es') or empty to use current language.
-   * @return {Promise}
+   * Same as loadLanguageFile, but the rejected promises bubbles up.
+   * In general this isn't useful, since if the load fails, we just want to fall back
+   * to the unlocalized string keys.
+   * But in some cases we need to know if the load failed.
    */
-  const loadLanguageFile = React.useCallback(
+  const loadLanguageFileUnsafe = React.useCallback(
     (namespace, { language } = {}) => {
       language = language || currentLanguage;
       if (i18n.hasFile(language, namespace)) {
@@ -46,13 +45,27 @@ export default function I18nProvider({ children }) {
           { camelize: false }
         )
         .then((resp) => i18n.putFile(language, namespace, resp.data))
-        .catch((e) =>
+        .tapCatch((e) =>
           logger
             .context({ error: e })
             .error(`Failed to load i18n namespace`, { language, namespace })
         );
     },
     [currentLanguage]
+  );
+
+  /**
+   * Loads the given language file by making an HTTP request.
+   * The promise resolves when the language file is loaded or fails to load.
+   * @param {string} namespace Name of the file, like 'strings'.
+   * @param {string} language Language ('en', 'es') or empty to use current language.
+   * @return {Promise}
+   */
+  const loadLanguageFile = React.useCallback(
+    (namespace, { language } = {}) => {
+      return loadLanguageFileUnsafe(namespace, { language }).catch(() => null);
+    },
+    [loadLanguageFileUnsafe]
   );
 
   /**
@@ -101,9 +114,16 @@ export default function I18nProvider({ children }) {
       initializing,
       currentLanguage,
       changeLanguage,
+      loadLanguageFileUnsafe,
       loadLanguageFile,
     }),
-    [changeLanguage, currentLanguage, initializing, loadLanguageFile]
+    [
+      changeLanguage,
+      currentLanguage,
+      initializing,
+      loadLanguageFile,
+      loadLanguageFileUnsafe,
+    ]
   );
 
   // noinspection JSValidateTypes

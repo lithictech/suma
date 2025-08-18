@@ -81,7 +81,7 @@ class I18n {
         // (cache is empty until first file is loaded).
         console.log(
           `localization key '${fqn}' not found, static string must be added`,
-          this.cache
+          JSON.stringify(this.cache)
         );
         console.trace();
         withSentry((sentry) => {
