@@ -157,6 +157,18 @@ RSpec.describe Suma::API::Meta, :db do
     end
   end
 
+  describe "GET /v1/meta/static_strings/<locale>/stripe", :static_strings do
+    it "returns stripe error codes and their localized messages" do
+      Suma::Fixtures.static_string.text("hi").create(namespace: "strings", key: "errors.card_invalid_zip")
+      Suma::I18n::StaticStringRebuilder.instance.rebuild_outdated
+
+      get "/v1/meta/static_strings/en/stripe"
+
+      expect(last_response).to have_status(200)
+      expect(last_response_json_body).to eq({errors: {incorrect_zip: ["s", "hi"]}})
+    end
+  end
+
   describe "GET /v1/meta/static_strings/<locale>/<namespace>", :static_strings do
     it "returns the static string file from the database" do
       Suma::Fixtures.static_string.text("hi").create(namespace: "forms", key: "s1")

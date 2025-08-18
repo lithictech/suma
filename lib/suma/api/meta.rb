@@ -75,6 +75,24 @@ class Suma::API::Meta < Suma::API::V1
       end
 
       route_param :locale do
+        get :stripe do
+          use_http_expires_caching 24.hours
+          text_for_key = Suma::I18n::StaticString.
+            namespace_locale_dataset(namespace: "strings", locale: params[:locale]).
+            where(key: Suma::Stripe::ERRORS_FOR_CODES.values.map { |c| "errors.#{c}" }).
+            select(:key, params[:locale]).
+            naked.
+            select_map([:key, params[:locale].to_sym]).
+            to_h
+          result = {
+            errors: Suma::Stripe::ERRORS_FOR_CODES.filter_map do |stripe_code, strings_code|
+              mapped = text_for_key["errors.#{strings_code}"]
+              mapped ? [stripe_code, ["s", mapped]] : nil
+            end.to_h,
+          }
+          present(result)
+        end
+
         route_param :namespace do
           get do
             # The frontend includes its build SHA to make sure we get a new file when we ship a new frontend.
