@@ -31,7 +31,7 @@ class Suma::API::AnonProxy < Suma::API::V1
 
         post :make_auth_request do
           apva = lookup
-          apva.auth_to_vendor.auth
+          apva.auth_to_vendor.auth(now: current_time)
           apva.update(latest_access_code_requested_at: current_time)
           status 200
           present apva, with: AnonProxyVendorAccountEntity
