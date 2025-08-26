@@ -1,6 +1,7 @@
 import api from "../api";
 import { localStorageCache } from "../shared/localStorageHelper";
 import { Logger } from "../shared/logger";
+import { withSentry } from "../shared/sentry.js";
 import humps from "humps";
 import get from "lodash/get";
 import React from "react";
@@ -23,6 +24,10 @@ export default function UserProvider({ children }) {
   const [userError, setUserError] = React.useState(null);
 
   const setUser = React.useCallback((u) => {
+    withSentry((sentry) => {
+      const user = u ? { id: u.id, email: u.email, username: u.name } : null;
+      sentry.setUser(user);
+    });
     setUserInner(u);
     localStorageCache.setItem(STORAGE_KEY, u);
     setUserLoading(false);
