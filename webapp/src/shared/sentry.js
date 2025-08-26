@@ -14,6 +14,9 @@ class SentryShim {
   withScope(cb) {
     return Sentry.withScope(cb);
   }
+  setUser(user) {
+    Sentry.setUser(user);
+  }
   captureMessage(message, context) {
     return Sentry.captureMessage(message, context);
   }
