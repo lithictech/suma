@@ -52,6 +52,7 @@ module Suma::Frontapp
   configurable(:frontapp) do
     setting :auth_token, UNCONFIGURED_AUTH_TOKEN
     setting :list_sync_enabled, false
+    setting :default_inbox_id, "inb_123"
 
     after_configured do
       self.client = Frontapp::Client.new(auth_token: self.auth_token, user_agent: Suma::Http.user_agent)
@@ -62,6 +63,12 @@ end
 module Frontapp::Client::Channels
   def create_draft!(channel_id, params={})
     create("channels/#{channel_id}/drafts", params)
+  end
+end
+
+module Frontapp::Client::Conversations
+  def create_conversation(params={})
+    create("conversations", params)
   end
 end
 

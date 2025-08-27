@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "amigo"
+require "amigo/advisory_locked"
 require "appydays/configurable"
 require "appydays/loggable"
 require "sentry-sidekiq"
@@ -34,6 +35,7 @@ module Suma::Async
     "suma/async/gbfs_sync_enqueue",
     "suma/async/gbfs_sync_run",
     "suma/async/hybrid_search_reindex",
+    "suma/async/lime_violations_processor",
     "suma/async/lyft_pass_trip_sync",
     "suma/async/marketing_list_sync",
     "suma/async/marketing_sms_broadcast_dispatch",
@@ -70,6 +72,7 @@ module Suma::Async
       end
       config.server_middleware do |chain|
         chain.add(SidekiqUniqueJobs::Middleware::Server)
+        chain.add(Amigo::AdvisoryLocked::ServerMiddleware)
       end
 
       SidekiqUniqueJobs::Server.configure(config)
