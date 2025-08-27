@@ -39,7 +39,8 @@ export default function useStripeErrorMessage() {
         // Use the default message if our namespace isn't loaded.
         return data.error.message;
       }
-      const key = `errors.${data.error.code}`;
+      const errCode = data.error.declineCode || data.error.code;
+      const key = `errors.${errCode}`;
       const localized = stripeTextLookup.t(key);
       if (localized.endsWith(key)) {
         return data.error.message;
