@@ -714,6 +714,78 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
     end
   end
 
+  describe "LimeViolationsProcessor" do
+    # rubocop:disable Layout/LineLength
+
+    before(:each) do
+      Suma::Webhookdb.postmark_inbound_messages_dataset.delete
+      Suma::Redis.cache.with do |c|
+        c.call("DEL", Suma::Lime::HandleViolations::LAST_SYNCED_PK_KEY)
+      end
+    end
+
+    it "creates Front discussion conversations for violation messages" do
+      now = Time.parse("2025-08-27T23:13:09+00:00")
+      member = Suma::Fixtures.member.create(name: "Joleen Klocko", phone: "12375589839")
+      mc = Suma::Fixtures.anon_proxy_member_contact.email("test@example.com").create(member:)
+
+      req = stub_request(:post, "https://api2.frontapp.com/conversations").
+        with do |req|
+        expect(req.body).to include("Content-Disposition: form-data; name=\"type\"\r\n\r\ndiscussion")
+        expect(req.body).to include("name=\"inbox_id\"\r\n\r\ninb_123")
+        if req.body.include?("Service Violation")
+          expect(req.body).to include("name=\"subject\"\r\n\r\nService Violation Notification")
+          expect(req.body).to include("name=\"comment[body]\"\r\n\r\nAnonymous email: test@example.com\nMember #{member.id}: Joleen Klocko, (237) 558-9839\nhttp://localhost:22014/member/#{member.id}\nOriginally sent by Lime: 2025-08-27T23:13:09+00:00\n\n\ntxtbody")
+        else
+          expect(req.body).to include("name=\"subject\"\r\n\r\nParking violation")
+          expect(req.body).to include("name=\"comment[body]\"\r\n\r\nAnonymous email: nonexist@in.mysuma.org\nOriginally sent by Lime: 2025-08-27T23:13:09+00:00\n\n\ntxtbody")
+        end
+        expect(req.body).to include("name=\"attachments[0]\"; filename=\"limewarning.html\"\r\nContent-Type: text/html\r\n\r\nhtmlbody")
+      end.to_return(json_response({}), json_response({}))
+
+      Suma::Webhookdb.postmark_inbound_messages_dataset.insert(
+        message_id: "valid-to-email",
+        from_email: "support@limebike.com",
+        to_email: mc.email,
+        subject: "Service Violation Notification",
+        timestamp: now,
+        data: Sequel.pg_jsonb({"HtmlBody" => "htmlbody", "TextBody" => "txtbody"}),
+      )
+      Suma::Webhookdb.postmark_inbound_messages_dataset.insert(
+        message_id: "invalid-to-email",
+        from_email: "no-reply@li.me",
+        to_email: "nonexist@in.mysuma.org",
+        subject: "Parking violation",
+        timestamp: now,
+        data: Sequel.pg_jsonb({"HtmlBody" => "htmlbody", "TextBody" => "txtbody"}),
+      )
+      Suma::Webhookdb.postmark_inbound_messages_dataset.insert(
+        message_id: "old",
+        from_email: "no-reply@li.me",
+        to_email: "nonexist@in.mysuma.org",
+        subject: "Parking violation",
+        timestamp: now - 4.weeks,
+        data: Sequel.pg_jsonb({}),
+      )
+      Suma::Webhookdb.postmark_inbound_messages_dataset.insert(
+        message_id: "bad-subject",
+        from_email: "no-reply@li.me",
+        to_email: "nonexist@in.mysuma.org",
+        subject: "Not an expected subject",
+        timestamp: now,
+        data: Sequel.pg_jsonb({}),
+      )
+
+      Suma::Async::LimeViolationsProcessor.new.perform(true)
+      expect(req).to have_been_made.times(2)
+
+      # Ensure we keep track of what's been synced
+      Suma::Async::LimeViolationsProcessor.new.perform(true)
+    end
+
+    # rubocop:enable Layout/LineLength
+  end
+
   describe "OfferingScheduleFulfillment" do
     it "on create, enqueues a processing job at the fulfillment time" do
       o = Suma::Fixtures.offering.timed_fulfillment.create
@@ -786,16 +858,6 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
       # Ensure we keep track of what's been synced
       Suma::Async::ProcessAnonProxyInboundWebhookdbRelays.new.perform(true)
       expect(Suma::AnonProxy::MessageHandler::Fake.handled).to have_length(1)
-    end
-
-    it "reschedules for the future if the advisory lock is taken" do
-      expect(Suma::Async::ProcessAnonProxyInboundWebhookdbRelays).to receive(:perform_in)
-      j = Suma::Async::ProcessAnonProxyInboundWebhookdbRelays.new
-      Sequel.connect(Suma::Postgres::Model.uri) do |db|
-        j.advisory_lock(db:).with_lock do
-          j.perform(true)
-        end
-      end
     end
   end
 

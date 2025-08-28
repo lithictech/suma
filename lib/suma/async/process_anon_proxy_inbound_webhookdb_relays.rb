@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require "amigo/scheduled_job"
-require "sequel/advisory_lock"
+require "amigo/advisory_locked"
 require "suma/async"
 require "suma/redis"
 require "suma/webhookdb"
@@ -9,7 +9,11 @@ require "suma/webhookdb"
 class Suma::Async::ProcessAnonProxyInboundWebhookdbRelays
   extend Amigo::ScheduledJob
 
-  sidekiq_options(Suma::Async.cron_job_options)
+  sidekiq_options(
+    Suma::Async.cron_job_options.merge(
+      advisory_lock: {db: Suma::Member.db, backoff: nil},
+    ),
+  )
   cron "*/#{Suma::Async.cron_poll_interval - 2} * * * * *"
   splay nil
 
@@ -18,19 +22,7 @@ class Suma::Async::ProcessAnonProxyInboundWebhookdbRelays
     return "process-anon-proxy-inbound-relays-#{relay.key}"
   end
 
-  def advisory_lock(db: Suma::Member.db) = Sequel::AdvisoryLock.new(db, 2_000_123_654)
-
   def _perform
-    # This can be enqueued from cron, and also explicitly, so it needs an exclusive lock.
-    alock = self.advisory_lock
-    performed, _ = alock.with_lock? do
-      self._inner_perform
-    end
-    return if performed
-    self.class.perform_in(3.seconds)
-  end
-
-  def _inner_perform
     Suma::AnonProxy::Relay.registry_each do |relay|
       next unless relay.webhookdb_dataset
       cache_key = self.class.relay_cache_key(relay)

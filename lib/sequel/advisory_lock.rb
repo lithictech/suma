@@ -3,6 +3,18 @@
 require "sequel"
 
 class Sequel::AdvisoryLock
+  class << self
+    def parts_to_key(key1, key2)
+      return ((key2.to_i & 0xFFFFFFFF) << 32) | (key1.to_i & 0xFFFFFFFF)
+    end
+
+    def key_to_parts(n)
+      low  = n & 0xFFFFFFFF
+      high = (n >> 32) & 0xFFFFFFFF
+      return [low, high]
+    end
+  end
+
   def initialize(db, key_or_key1, key2=nil, shared: false, xact: false)
     @db = db
     xstr = xact ? "_xact" : ""

@@ -17,6 +17,12 @@ RSpec.describe Sequel::AdvisoryLock do
 
   let(:db) { @db }
 
+  it "can convert a bigint key to and from int parts" do
+    parts = described_class.key_to_parts(87_000_123_654)
+    expect(parts).to eq([1_100_777_734, 20])
+    expect(described_class.parts_to_key(*parts)).to eq(87_000_123_654)
+  end
+
   it "can lock with a Long key" do
     lock = described_class.new(db, 6_000_123_654)
     expect(lock.dataset(this: true).all).to be_empty
