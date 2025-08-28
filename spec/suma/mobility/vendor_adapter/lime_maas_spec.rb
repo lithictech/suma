@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require "suma/lime"
-
 RSpec.describe Suma::Mobility::VendorAdapter::LimeMaas, :db do
   let(:instance) { described_class.new }
   let(:member) { Suma::Fixtures.member.onboarding_verified.create }
