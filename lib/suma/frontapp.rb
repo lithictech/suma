@@ -60,6 +60,16 @@ module Suma::Frontapp
   end
 end
 
+class Frontapp::Client
+  def create(path, body)
+    body_key = HTTP::FormData.send(:multipart?, body) ? :form : :json
+    res = @headers.post("#{base_url}#{path}", body_key => body)
+    response = JSON.parse(res.to_s)
+    raise Frontapp::Error.from_response(res) unless res.status.success?
+    response
+  end
+end
+
 module Frontapp::Client::Channels
   def create_draft!(channel_id, params={})
     create("channels/#{channel_id}/drafts", params)

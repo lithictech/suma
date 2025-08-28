@@ -30,10 +30,10 @@ class Suma::Lime::HandleViolations
         type: "discussion",
         inbox_id: Suma::Frontapp.to_inbox_id(Suma::Frontapp.default_inbox_id),
         subject: row.fetch(:subject),
-        comment: {
-          body: body_lines.join("\n"),
-          attachments: ["data:text/html;name=limewarning.html;base64,#{Base64.strict_encode64(html_body)}"],
-        },
+        "comment[body]" => body_lines.join("\n"),
+        "attachments[0]" => HTTP::FormData::Part.new(
+          html_body, content_type: "text/html", filename: "limewarning.html",
+        ),
       )
     end
     Suma::Redis.cache.with { |c| c.call("SET", LAST_SYNCED_PK_KEY, rows.last.fetch(:pk).to_s) }
