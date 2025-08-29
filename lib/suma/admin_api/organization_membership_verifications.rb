@@ -97,7 +97,7 @@ class Suma::AdminAPI::OrganizationMembershipVerifications < Suma::AdminAPI::V1
         ds = ds.order_append(Sequel.send(params[:order_direction], expr))
       end
       ds = paginate(ds, params)
-      ds = ds.select(Sequel[:organization_membership_verifications][Sequel.lit("*")])
+      ds = ds.reselect
       header Suma::SSE::TOKEN_HEADER, Suma::SSE::Auth.generate_token
       header("Suma-Front-Enabled", "1") if Suma::Frontapp.configured?
       present_collection ds, with: VerificationListEntity

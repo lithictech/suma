@@ -49,7 +49,7 @@ class Suma::Payment::PlatformStatus
     ds = ds.exclude(off_platform_strategy_id: nil)
     ds = ds.association_join(:off_platform_strategy)
     ds = ds.order(Sequel.desc(:transacted_at), :off_platform_strategy_id)
-    ds = ds.select(Sequel[ds.model.table_name][Sequel.lit("*")])
+    ds = ds.reselect
     return ds
   end
 
