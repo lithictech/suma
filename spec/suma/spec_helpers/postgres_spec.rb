@@ -131,4 +131,12 @@ RSpec.describe Suma::SpecHelpers::Postgres, :db do
       end
     end
   end
+
+  describe "when skipping hybrid search tests" do
+    it "skips", :hybrid_search do
+      expect do
+        described_class.skip_hybrid_search!
+      end.to raise_error(RSpec::Core::Pending::SkipDeclaredInExample, "Hybrid search tests disabled")
+    end
+  end
 end
