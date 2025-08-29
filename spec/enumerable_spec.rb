@@ -18,4 +18,14 @@ RSpec.describe Suma::Enumerable do
       expect(result).to eq(a: 2, b: 1, c: 1)
     end
   end
+
+  describe "one!" do
+    it "returns the only item, or raises" do
+      expect { described_class.one!([]) }.to raise_error(ArgumentError)
+      expect(described_class.one!([1])).to eq(1)
+      expect(described_class.one!([nil])).to be_nil
+      expect { described_class.one!([nil, nil]) }.to raise_error(ArgumentError)
+      expect { described_class.one!([1, 1]) }.to raise_error(ArgumentError)
+    end
+  end
 end
