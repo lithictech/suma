@@ -171,7 +171,8 @@ rather than transactional events (like orders).
 
 #### Vendor Service Rates
 
-**Vendor Service Rates** describe the expected (or in some cases actual) pricing for the **Vendor Service**.
+**Vendor Service Rates** describe the expected (or in some cases actual) pricing for the **Vendor Service**. Because the same service can have different rates,
+the actual rate a user sees depends on the pricing set up through **Program Pricings**.
 
 ## Platform
 
@@ -183,6 +184,9 @@ allows members to access **Offerings** and **Vendor Services**.
 The **Programs** a member can access are visible to members on their dashboard.
 
 **Programs** with an "app link" have some action they can take on the platform, like viewing an **Offering**. **Programs** without an app link are informational-only, like informing the member of services available off-platform.
+
+Programs also have a collections of **Pricings**. These pricings associate as **Vendor Service**
+(such as "lime scooters"), with a **Vendor Service Rate** (such as "50 cents to unlock, 7 cents a minute). This allows us to know price a member should have for a given vendor service.
 
 ### Program Enrollments
 

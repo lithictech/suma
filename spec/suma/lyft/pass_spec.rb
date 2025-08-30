@@ -446,7 +446,7 @@ RSpec.describe Suma::Lyft::Pass, :db, reset_configuration: Suma::Lyft do
 
       instance.authenticate
       instance.sync_trips_from_program(
-        Suma::Fixtures.program.create(lyft_pass_program_id: "5678", vendor_service:, vendor_service_rate:),
+        Suma::Fixtures.program.with_pricing(vendor_service:, vendor_service_rate:).create(lyft_pass_program_id: "5678"),
       )
       expect(program_req).to have_been_made
       expect(rides_req).to have_been_made
@@ -461,16 +461,17 @@ RSpec.describe Suma::Lyft::Pass, :db, reset_configuration: Suma::Lyft do
       )
     end
 
-    it "errors if any fields are not set" do
-      p = Suma::Fixtures.program.create(lyft_pass_program_id: "5678", vendor_service:, vendor_service_rate:)
-      p.lyft_pass_program_id = nil
+    it "errors if the lyft pass program id is not set" do
+      p = Suma::Fixtures.program.create
       expect { instance.sync_trips_from_program(p) }.to raise_error(/ lyft_pass_program_id /)
-      p.refresh
-      p.vendor_service = nil
-      expect { instance.sync_trips_from_program(p) }.to raise_error(/ vendor_service /)
-      p.refresh
-      p.vendor_service_rate = nil
-      expect { instance.sync_trips_from_program(p) }.to raise_error(/ vendor_service_rate /)
+    end
+
+    it "errors if there is not only one program pricing" do
+      p = Suma::Fixtures.program.create(lyft_pass_program_id: "5678")
+      expect { instance.sync_trips_from_program(p) }.to raise_error(/have exactly 1 item/)
+      Suma::Fixtures.program_pricing.create(program: p)
+      Suma::Fixtures.program_pricing.create(program: p)
+      expect { instance.sync_trips_from_program(p) }.to raise_error(/have exactly 1 item/)
     end
   end
 

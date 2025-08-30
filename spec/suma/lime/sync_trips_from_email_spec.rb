@@ -34,12 +34,12 @@ RSpec.describe Suma::Lime::SyncTripsFromEmail, :db do
       va = Suma::Fixtures.anon_proxy_vendor_account.create(member:)
       mc = Suma::Fixtures.anon_proxy_member_contact.email.create(member:)
       va.add_registration(external_program_id: mc.email)
-      program = Suma::Fixtures.program.create(
+      program = Suma::Fixtures.program.with_pricing(
         vendor_service: Suma::Fixtures.vendor_service.
           mobility.
           create(charge_after_fulfillment: true, mobility_vendor_adapter_key: "lime_deeplink"),
         vendor_service_rate: Suma::Fixtures.vendor_service_rate.create,
-      )
+      ).create
       va.configuration.add_program(program)
 
       now = Time.parse("2024-07-15T12:00:00Z")
@@ -58,14 +58,14 @@ RSpec.describe Suma::Lime::SyncTripsFromEmail, :db do
       expect(Suma::Mobility::Trip.all).to contain_exactly(
         have_attributes(
           vehicle_id: "valid",
-          vendor_service: be === program.vendor_service,
+          vendor_service: be === program.pricings.first.vendor_service,
           begin_lat: 0.0,
           begin_lng: 0.0,
           began_at: match_time("2024-07-15T10:43:00Z"),
           end_lat: 0.0,
           end_lng: 0.0,
           ended_at: match_time("2024-07-15T11:59:00Z"),
-          vendor_service_rate: be === program.vendor_service_rate,
+          vendor_service_rate: be === program.pricings.first.vendor_service_rate,
           member: be === member,
           external_trip_id: "valid",
           vehicle_type: "escooter",
@@ -105,18 +105,14 @@ RSpec.describe Suma::Lime::SyncTripsFromEmail, :db do
       )
       expect do
         described_class.new.run
-      end.to raise_error(Suma::InvalidPrecondition, /Found 2 programs on/)
+      end.to raise_error(/have exactly 1 item/)
     end
 
-    it "errors if the associated program does not have a vendor service and rate" do
+    it "errors if the associated program does not have pricing" do
       member = Suma::Fixtures.member.onboarding_verified.with_cash_ledger.create
       va = Suma::Fixtures.anon_proxy_vendor_account.create(member:)
       mc = Suma::Fixtures.anon_proxy_member_contact.email.create(member:)
       va.add_registration(external_program_id: mc.email)
-      vendor_service = Suma::Fixtures.vendor_service.
-        mobility.
-        create(charge_after_fulfillment: true, mobility_vendor_adapter_key: "lime_deeplink")
-      vendor_service_rate = Suma::Fixtures.vendor_service_rate.create
       program = Suma::Fixtures.program.create
       va.configuration.add_program(program)
 
@@ -131,14 +127,7 @@ RSpec.describe Suma::Lime::SyncTripsFromEmail, :db do
 
       expect do
         described_class.new.run
-      end.to raise_error(Suma::InvalidPrecondition, /must have a vendor_service$/)
-      program.update(vendor_service:)
-      expect do
-        described_class.new.run
-      end.to raise_error(Suma::InvalidPrecondition, /must have a vendor_service_rate$/)
-      program.update(vendor_service_rate:)
-      described_class.new.run
-      expect(Suma::Mobility::Trip.all).to have_length(1)
+      end.to raise_error(ArgumentError, /must have exactly 1 item/)
     end
 
     it "does not create duplicate trips" do
@@ -146,12 +135,12 @@ RSpec.describe Suma::Lime::SyncTripsFromEmail, :db do
       va = Suma::Fixtures.anon_proxy_vendor_account.create(member:)
       mc = Suma::Fixtures.anon_proxy_member_contact.email.create(member:)
       va.add_registration(external_program_id: mc.email)
-      program = Suma::Fixtures.program.create(
+      program = Suma::Fixtures.program.with_pricing(
         vendor_service: Suma::Fixtures.vendor_service.
           mobility.
           create(charge_after_fulfillment: true, mobility_vendor_adapter_key: "lime_deeplink"),
         vendor_service_rate: Suma::Fixtures.vendor_service_rate.create,
-      )
+      ).create
       va.configuration.add_program(program)
 
       Suma::Webhookdb.postmark_inbound_messages_dataset.insert(

@@ -88,12 +88,9 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
     def fixture
       lime_vs = self.create_mobility_vendor_service(
         vendor_name: "Lime",
-        rate_name: "Demo Scooter Rate",
         internal_name: "lime_demo_mobility_deeplink",
         external_name: "Lime Demo E-Scooter",
         constraints: [{"form_factor" => "scooter", "propulsion_type" => "electric"}],
-        rate_surcharge: Money.new(0),
-        rate_unit_amount: Money.new(7),
         mobility_vendor_adapter_key: "lime_deeplink",
       )
       # Lime: "https://data.lime.bike/api/partners/v2/gbfs_transit"
@@ -102,9 +99,6 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
         internal_name: "biketown_demo_mobility_deeplink",
         external_name: "Biketown Demo E-Bike",
         constraints: [{"form_factor" => "bicycle", "propulsion_type" => "electric_assist"}],
-        rate_name: "Demo Bike Rate",
-        rate_surcharge: Money.new(0),
-        rate_unit_amount: Money.new(10),
         mobility_vendor_adapter_key: "lyft_deeplink",
       )
       Suma::Mobility::GbfsFeed.create(
@@ -120,18 +114,9 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
       internal_name:,
       external_name:,
       constraints:,
-      rate_name:,
-      rate_surcharge:,
-      rate_unit_amount:,
       mobility_vendor_adapter_key:
     )
       vendor = Suma::Vendor.create(name: vendor_name)
-      rate = Suma::Vendor::ServiceRate.create(
-        name: rate_name,
-        localization_key: "mobility_start_and_per_minute",
-        surcharge: rate_surcharge,
-        unit_amount: rate_unit_amount,
-      )
       svc = Suma::Vendor::Service.create(
         vendor:,
         internal_name:,
@@ -141,7 +126,6 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
         period: Time.now..1.year.from_now,
       )
       svc.add_category(Suma::Vendor::ServiceCategory.find_or_create(name: "Mobility", parent: cash_category))
-      svc.add_rate(rate)
       return svc
     end
 
@@ -437,18 +421,26 @@ class Suma::Tasks::Bootstrap < Rake::TaskLib
   class Programs
     def fixture
       mobility_program_name = Suma::TranslatedText.find_or_create(en: "Micromobility", es: "Micromobility (ES)")
-      mobility_program = Suma::Program.find_or_create(name: mobility_program_name) do |g|
+      _mobility_program = Suma::Program.find_or_create(name: mobility_program_name) do |g|
         g.description = Suma::TranslatedText.find_or_create(en: "Ride electric bikes and scooters", es: "Ride electric bikes and scooters (ES)")
         g.period = 1.year.ago..1.year.from_now
         g.app_link = "/mobility"
         g.app_link_text = Suma::TranslatedText.find_or_create(en: "Check out mobility map", es: "Check out mobility map (ES)")
       end
 
-      # Matches the vendor services fixtured previously
-      ["lime_demo_mobility_deeplink", "biketown_demo_mobility_deeplink"].each do |internal_name|
-        vs = Suma::Vendor::Service[internal_name:]
-        mobility_program.add_vendor_service(vs) unless mobility_program.vendor_services.any? { |v| v === vs }
-      end
+      # scooter_rate = Suma::Vendor::ServiceRate.find_or_create(rate_name: "Demo Scooter Rate") do |r|
+      #   r.rate_surcharge = Money.new(0)
+      #   r.rate_unit_amount = Money.new(7)
+      # end
+      # scooter_vs = Suma::Vendor::Service[internal_name: "lime_demo_mobility_deeplink"]
+      # bike_rate = Suma::Vendor::ServiceRate.find_or_create(rate_name: "Demo Bike Rate") do |r|
+      #   r.rate_surcharge = Money.new(50)
+      #   r.rate_unit_amount = Money.new(10)
+      # end
+      # bike_vs = Suma::Vendor::Service[internal_name: "biketown_demo_mobility_deeplink"]
+      #
+      # mobility_program.add_vendor_service(scooter_vs) unless mobility_program.vendor_services.any? { |v| v === scooter_vs }
+      # mobility_program.add_vendor_service(bike_vs) unless mobility_program.vendor_services.any? { |v| v === bike_vs }
 
       fm_name = Suma::TranslatedText.find_or_create(en: "Farmers Markets", es: "Farmers Markets (ES)")
       fm_program = Suma::Program.find_or_create(name: fm_name) do |g|

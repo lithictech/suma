@@ -37,15 +37,8 @@ class Suma::Lime::SyncTripsFromEmail
   def create_trip_from_row(row)
     registration = Suma::AnonProxy::VendorAccountRegistration.find!(external_program_id: row.fetch(:to_email))
     vendor_config = registration.account.configuration
-    unless vendor_config.programs.one?
-      msg = "Found #{vendor_config.programs.count} programs on VendorConfiguration[#{vendor_config.id}]"
-      raise Suma::InvalidPrecondition, msg
-    end
-    program = vendor_config.programs.first
-    (vendor_service = program.vendor_service) or
-      raise Suma::InvalidPrecondition, "Program[#{program.id}] must have a vendor_service"
-    (vendor_service_rate = program.vendor_service_rate) or
-      raise Suma::InvalidPrecondition, "Program[#{program.id}] must have a vendor_service_rate"
+    program = Suma::Enumerable.one!(vendor_config.programs)
+    pricing = Suma::Enumerable.one!(program.pricings)
     receipt = self.parse_row_to_receipt(row)
     registration.db.transaction(savepoint: true) do
       begin
@@ -53,8 +46,8 @@ class Suma::Lime::SyncTripsFromEmail
           member: registration.account.member,
           vehicle_id: receipt.ride_id,
           vehicle_type: receipt.vehicle_type,
-          vendor_service:,
-          rate: vendor_service_rate,
+          vendor_service: pricing.vendor_service,
+          rate: pricing.vendor_service_rate,
           lat: 0,
           lng: 0,
           at: receipt.started_at,

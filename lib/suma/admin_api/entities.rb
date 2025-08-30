@@ -204,6 +204,13 @@ module Suma::AdminAPI::Entities
     expose :undiscounted_surcharge, with: MoneyEntity, &self.delegate_to(:undiscounted_rate, :surcharge, safe: true)
   end
 
+  class ProgramPricingEntity < BaseEntity
+    include AutoExposeBase
+    expose :program, with: ProgramEntity
+    expose :vendor_service, with: VendorServiceEntity
+    expose :vendor_service_rate, with: VendorServiceRateEntity
+  end
+
   class AnonProxyVendorConfigurationEntity < BaseEntity
     include AutoExposeBase
     expose :vendor, with: VendorEntity

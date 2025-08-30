@@ -64,10 +64,8 @@ RSpec.describe Suma::AdminAPI::VendorServices, :db do
   describe "GET /v1/vendor_services/:id" do
     it "returns the vendor service" do
       vendor = Suma::Fixtures.vendor.create
-      program = Suma::Fixtures.program.create
-      service = Suma::Fixtures.vendor_service.mobility.with_programs(program).create(vendor:)
-      rate = Suma::Fixtures.vendor_service_rate.surcharge.for_service(service).create
-      trip = Suma::Fixtures.mobility_trip.create(vendor_service: service)
+      service = Suma::Fixtures.vendor_service.mobility.create(vendor:)
+      pricing = Suma::Fixtures.program_pricing.create(vendor_service: service)
 
       get "/v1/vendor_services/#{service.id}"
 
@@ -75,11 +73,9 @@ RSpec.describe Suma::AdminAPI::VendorServices, :db do
       expect(last_response).to have_json_body.that_includes(
         id: service.id,
         vendor: include(id: vendor.id),
-        programs: have_same_ids_as(program),
+        program_pricings: have_same_ids_as(pricing),
         mobility_vendor_adapter_key: "fake",
         categories: contain_exactly(include(name: "Mobility")),
-        rates: have_same_ids_as(rate),
-        mobility_trips: have_same_ids_as(trip),
       )
     end
 
@@ -104,29 +100,6 @@ RSpec.describe Suma::AdminAPI::VendorServices, :db do
 
       expect(last_response).to have_status(200)
       expect(v.refresh).to have_attributes(external_name: "test")
-    end
-  end
-
-  describe "POST /v1/vendor_services/:id/programs" do
-    it "replaces the programs" do
-      pr = Suma::Fixtures.program.create
-      to_add = Suma::Fixtures.program.create
-      vs = Suma::Fixtures.vendor_service.with_programs(pr).create
-
-      post "/v1/vendor_services/#{vs.id}/programs", {program_ids: [to_add.id]}
-
-      expect(last_response).to have_status(200)
-      expect(last_response).to have_json_body.that_includes(id: vs.id)
-      expect(last_response).to have_json_body.
-        that_includes(programs: contain_exactly(include(id: to_add.id)))
-    end
-
-    it "403s if the program does not exist" do
-      vs = Suma::Fixtures.vendor_service.create
-
-      post "/v1/vendor_services/#{vs.id}/programs", {program_ids: [0]}
-
-      expect(last_response).to have_status(403)
     end
   end
 end
