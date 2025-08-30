@@ -35,9 +35,12 @@ module Suma::Fixtures::Programs
     self.add_commerce_offering(o)
   end
 
-  decorator :with_vendor_service, presave: true do |o={}|
-    o = Suma::Fixtures.vendor_service(o).create unless o.is_a?(Suma::Vendor::Service)
-    self.add_vendor_service(o)
+  decorator :with_pricing, presave: true do |o={}|
+    if o.is_a?(Suma::Program::Pricing)
+      self.add_pricing(o)
+    else
+      Suma::Fixtures.program_pricing(o.merge(program: self)).create
+    end
   end
 
   decorator :with_, presave: true do |*objs|

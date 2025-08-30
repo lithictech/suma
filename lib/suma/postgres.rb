@@ -114,6 +114,7 @@ module Suma::Postgres
     "suma/payment/payout_transaction/stripe_charge_refund_strategy",
     "suma/program",
     "suma/program/enrollment",
+    "suma/program/pricing",
 
     # Move this out of alphabetical order since it requires
     # all transaction types to be loaded (fake strategy

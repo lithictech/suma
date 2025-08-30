@@ -37,7 +37,8 @@ module Suma::Fixtures::VendorServices
     end
   end
 
-  decorator :with_programs, presave: true do |*programs|
-    programs.each { |c| self.add_program(c) }
+  decorator :available_to, presave: true do |m|
+    pricing = Suma::Fixtures.program_pricing.create(vendor_service: self)
+    Suma::Fixtures.program_enrollment.in(pricing.program).create(member: m)
   end
 end

@@ -296,11 +296,13 @@ class Suma::Lyft::Pass
   end
 
   def sync_trips_from_program(program)
-    ip = Suma::InvalidPrecondition
+    program_id = program.lyft_pass_program_id
+    raise Suma::InvalidPrecondition, "program must have lyft_pass_program_id set" if program_id.blank?
+    pricing = Suma::Enumerable.one!(program.pricings)
     self.sync_trips(
-      program_id: (program.lyft_pass_program_id or raise ip, "program must have lyft_pass_program_id set"),
-      vendor_service: (program.vendor_service or raise ip, "program must have vendor_service set"),
-      vendor_service_rate: (program.vendor_service_rate or raise ip, "program must have vendor_service_rate set"),
+      program_id:,
+      vendor_service: pricing.vendor_service,
+      vendor_service_rate: pricing.vendor_service_rate,
     )
   end
 
