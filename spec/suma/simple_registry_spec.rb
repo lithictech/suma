@@ -23,7 +23,9 @@ RSpec.describe Suma::SimpleRegistry do
     base_cls.register(:sub, subcls)
     expect(base_cls.registry_lookup!(:sub)).to eq(subcls)
     expect(base_cls.registry_create!(:sub)).to be_a(subcls)
-    expect { base_cls.registry_lookup!(:nope) }.to raise_error(described_class::Unregistered)
+    expect { base_cls.registry_lookup!(:nope) }.to raise_error(described_class::Unregistered, /nope not in/)
+    expect { base_cls.registry_lookup!(nil) }.to raise_error(described_class::Unregistered, /key cannot be blank/)
+    expect { base_cls.registry_lookup!(" ") }.to raise_error(described_class::Unregistered, /key cannot be blank/)
   end
 
   it "initializes classes with registered arguments" do

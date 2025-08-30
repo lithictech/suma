@@ -364,5 +364,11 @@ module Suma::Postgres::ModelUtilities
       end
       action&.call(returned_rows_chunk)
     end
+
+    # Reselect is shorthandle for "ds.select(Sequel[ds.model.table_name][Sequel.lit("*")])".
+    # This is useful after a join that is used in the query, but we only want to return the original model.
+    def reselect
+      return self.select(Sequel[self.model.table_name][Sequel.lit("*")])
+    end
   end
 end

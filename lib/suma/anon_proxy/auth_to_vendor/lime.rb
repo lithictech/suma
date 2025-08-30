@@ -34,6 +34,13 @@ class Suma::AnonProxy::AuthToVendor::Lime < Suma::AnonProxy::AuthToVendor
       },
       logger: self.vendor_account.logger,
     )
+    # Store the email on the registration so we know what email a user authed with.
+    # Member contacts can be deleted, so this keeps a historical record of all emails
+    # that were in the Lime system.
+    Suma::AnonProxy::VendorAccountRegistration.find_or_create_or_find(
+      account: self.vendor_account,
+      external_program_id: contact.email,
+    )
   end
 
   # Given a magic link token, return an auth token.

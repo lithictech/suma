@@ -2,7 +2,6 @@
 
 require "appydays/configurable"
 require "appydays/loggable"
-require "suma/enumerable"
 
 module Suma::Performance
   include Appydays::Configurable

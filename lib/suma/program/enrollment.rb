@@ -66,10 +66,7 @@ class Suma::Program::Enrollment < Suma::Postgres::Model(:program_enrollments)
         Sequel[:jrolemembers][:member_id],
         Sequel[:jroleorgs][:member_id],
       )
-      annotated = full.select(
-        Sequel[:program_enrollments][Sequel.lit("*")],
-        coalesce_member_id.as(:annotated_member_id),
-      )
+      annotated = full.reselect.select_append(coalesce_member_id.as(:annotated_member_id))
       limited = annotated.where(coalesce_member_id => member_ids)
       return limited
     end

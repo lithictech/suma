@@ -33,4 +33,28 @@ module Suma::Webhookdb
       self.connection = Sequel.connect(self.database_url, extensions: [:pg_json])
     end
   end
+
+  # We commonly need to process rows within a table,
+  # and only process a row once. To do this, we can use Redis to keep track of the latest primary key
+  # that we've iterated over.
+  class RowIterator
+    attr_accessor :pk_key
+
+    def initialize(pk_key)
+      @pk_key = pk_key
+    end
+
+    def each(dataset, &)
+      last_synced_pk = Suma::Redis.cache.with { |c| c.call("GET", @pk_key) }.to_i
+      rows = dataset.order(:pk).where { pk > last_synced_pk }.all
+      return 0 if rows.empty?
+      rows.each(&)
+      Suma::Redis.cache.with { |c| c.call("SET", @pk_key, rows.last.fetch(:pk).to_s) }
+      return rows.size
+    end
+
+    def reset
+      Suma::Redis.cache.with { |c| c.call("DEL", @pk_key) }
+    end
+  end
 end

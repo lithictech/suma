@@ -18,6 +18,8 @@ module Suma::Postgres::HybridSearch
     setting :aiapi_host, nil
     setting :aiapi_key, "fake-key"
 
+    setting :skip_tests, false
+
     after_configured do
       if self.embedding_generator == "subprocess"
         require "sequel/sequel_hybrid_search/subproc_sentence_transformer_generator"

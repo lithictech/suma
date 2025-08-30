@@ -16,6 +16,7 @@ module Suma::SimpleRegistry
   def registry_lookup_args!(key)
     key = self.registry_override if self.registry_override
     r = self.registry[key.to_s]
+    raise Unregistered, "key cannot be blank" if key.blank?
     raise Unregistered, "#{key} not in registry: #{self.registry.keys}" if r.nil?
     return r
   end

@@ -1,11 +1,19 @@
 # frozen_string_literal: true
 
+require "suma/lime/maas_client"
+
 class Suma::Mobility::VendorAdapter::LimeMaas
   include Suma::Mobility::VendorAdapter
 
+  attr_reader :maas_client
+
+  def initialize
+    @maas_client = Suma::Lime::MaasClient.new(Suma::Lime.maas_auth_token)
+  end
+
   def begin_trip(trip)
-    lime_user_id = Suma::Lime.ensure_member_registered(trip.member)
-    resp = Suma::Lime.start_trip(
+    lime_user_id = self.maas_client.ensure_member_registered(trip.member)
+    resp = self.maas_client.start_trip(
       vehicle_id: trip.vehicle_id,
       user_id: lime_user_id,
       lat: trip.begin_lat,
@@ -19,7 +27,7 @@ class Suma::Mobility::VendorAdapter::LimeMaas
   end
 
   def end_trip(trip)
-    resp = Suma::Lime.complete_trip(
+    resp = self.maas_client.complete_trip(
       trip_id: trip.external_trip_id,
       lat: trip.end_lat,
       lng: trip.end_lng,
