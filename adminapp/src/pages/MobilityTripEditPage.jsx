@@ -1,6 +1,6 @@
 import api from "../api";
 import ResourceEdit from "../components/ResourceEdit";
-import MobilityTripForm from "./MobilityTripForm.jsx";
+import MobilityTripForm from "./MobilityTripForm";
 import React from "react";
 
 export default function MobilityTripEditPage() {
