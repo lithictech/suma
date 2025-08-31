@@ -43,6 +43,7 @@ class Suma::AdminAPI::VendorServices < Suma::AdminAPI::V1
         optional :mobility_vendor_adapter_key, type: String, default: ""
         optional :charge_after_fulfillment, type: Boolean, default: false
         optional :constraints, type: String
+        optional(:categories, type: Array, coerce_with: lambda(&:values)) { use :model_with_id }
       end
     end
     Suma::AdminAPI::CommonEndpoints.get_one(
@@ -65,6 +66,7 @@ class Suma::AdminAPI::VendorServices < Suma::AdminAPI::V1
         optional :mobility_vendor_adapter_key, type: String
         optional :charge_after_fulfillment, type: Boolean
         optional :constraints, type: String
+        optional(:categories, type: Array, coerce_with: lambda(&:values)) { use :model_with_id }
       end
     end
   end

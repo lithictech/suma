@@ -4,6 +4,7 @@ import FormLayout from "../components/FormLayout";
 import ImageFileInput from "../components/ImageFileInput";
 import ResponsiveStack from "../components/ResponsiveStack";
 import SafeDateTimePicker from "../components/SafeDateTimePicker";
+import VendorServiceCategorySelect from "../components/VendorServiceCategorySelect";
 import { formatOrNull } from "../modules/dayConfig";
 import RemoveIcon from "@mui/icons-material/Remove";
 import {
@@ -17,6 +18,7 @@ import {
   TextField,
 } from "@mui/material";
 import MenuItem from "@mui/material/MenuItem";
+import get from "lodash/get";
 import React from "react";
 
 export default function VendorServiceForm({
@@ -91,6 +93,15 @@ export default function VendorServiceForm({
             onChange={(v) => setField("periodEnd", formatOrNull(v))}
           />
         </ResponsiveStack>
+        <VendorServiceCategorySelect
+          {...register("category")}
+          label="Category"
+          helperText="What ledger funds can be used to pay for this service?"
+          value={get(resource, "categories.0.slug") || ""}
+          style={{ flex: 1 }}
+          onChange={(_, c) => setField("categories.0", c)}
+          required
+        />
         <Stack>
           <FormControlLabel
             control={<Switch />}
