@@ -9,6 +9,15 @@ class Suma::API::Mobility < Suma::API::V1
   include Suma::API::Entities
 
   resource :mobility do
+    helpers do
+      def program_pricings_dataset
+        return Suma::Program::Pricing.
+            compress.
+            eligible_to(current_member, as_of: current_time).
+            where(vendor_service: Suma::Vendor::Service.dataset.available_at(current_time))
+      end
+    end
+
     desc "Return all mobility vehicles fitting the requested parameters."
     params do
       requires :sw, type: Array[BigDecimal], coerce_with: DecimalLocation
@@ -16,18 +25,15 @@ class Suma::API::Mobility < Suma::API::V1
       optional :types, type: Array[String], coerce_with: CommaSepArray, values: ["ebike", "escooter"]
     end
     get :map do
-      me = current_member
+      current_member
       min_lat, min_lng = params[:sw]
       max_lat, max_lng = params[:ne]
       ds = Suma::Mobility::Vehicle.search(min_lat:, min_lng:, max_lat:, max_lng:)
       ds = ds.where(vehicle_type: params[:types]) if params.key?(:types)
-      vendor_services = Suma::Vendor::Service.dataset.
-        mobility.
-        eligible_to(me, as_of: current_time).
-        available_at(current_time)
-      ds = ds.where(vendor_service: vendor_services)
+      pricings_by_service_id = program_pricings_dataset.all.index_by(&:vendor_service_id)
+      ds = ds.where(vendor_service_id: pricings_by_service_id.keys)
       ds = ds.order(:id)
-      vnd_services = []
+      program_pricings = []
       map_obj = {}
       # If a vehicle's identity is in this hash, we need to apply a disambiguator to it.
       # If the value of that hash is not nil, we assume that is the first occurance of the
@@ -35,13 +41,14 @@ class Suma::API::Mobility < Suma::API::V1
       # If the value is nil, we assume it's been applied.
       seen_identities_and_initial_vehicle_hashes = {}
       ds.all.each do |vehicle|
-        if (vnd_svc_idx = vnd_services.find_index { |vs| vs.id === vehicle.vendor_service_id }).nil?
-          vnd_svc_idx = vnd_services.length
-          vnd_services << vehicle.vendor_service
+        provider_idx = program_pricings.find_index { |pricing| pricing.vendor_service_id == vehicle.vendor_service_id }
+        if provider_idx.nil?
+          provider_idx = program_pricings.length
+          program_pricings << pricings_by_service_id.fetch(vehicle.vendor_service_id)
         end
         vhash = {
           c: vehicle.to_api_location,
-          p: vnd_svc_idx,
+          p: provider_idx,
         }
         videntity = vehicle.api_identity
         if seen_identities_and_initial_vehicle_hashes.key?(videntity)
@@ -58,7 +65,7 @@ class Suma::API::Mobility < Suma::API::V1
         arr << vhash
       end
       Suma::Mobility.offset_disambiguated_vehicles(map_obj)
-      map_obj[:providers] = vnd_services
+      map_obj[:providers] = program_pricings
       present map_obj, with: MobilityMapEntity
     end
 
@@ -90,7 +97,7 @@ class Suma::API::Mobility < Suma::API::V1
         lng_int: params[:loc][1],
         vendor_service_id: params[:provider_id],
         vehicle_type: params[:type],
-      ).all
+      ).where(vendor_service_id: program_pricings_dataset.select(:vendor_service_id)).all
       merror!(403, "No vehicle matching criteria was found", code: "vehicle_not_found") if matches.empty?
       if matches.length > 1
         disambig = params[:disambiguator]
@@ -101,7 +108,7 @@ class Suma::API::Mobility < Suma::API::V1
       else
         vehicle = matches[0]
       end
-      present vehicle, with: MobilityVehicleEntity, member:, request:
+      present vehicle, with: MobilityVehicleEntity, member:, request:, rate: Suma::Vendor::ServiceRate.first
     end
 
     params do
@@ -117,7 +124,7 @@ class Suma::API::Mobility < Suma::API::V1
       ]
       merror!(403, "Vehicle does not exist", code: "vehicle_not_found") if vehicle.nil?
       check_eligibility!(vehicle.vendor_service, member)
-      rate = vehicle.vendor_service.rates_dataset[params[:rate_id]]
+      rate = Suma::Vendor::ServiceRate[params[:rate_id]]
       merror!(403, "Rate does not exist", code: "rate_not_found") if rate.nil?
       begin
         trip = Suma::Mobility::Trip.start_trip_from_vehicle(member:, vehicle:, rate:)
@@ -183,8 +190,13 @@ class Suma::API::Mobility < Suma::API::V1
     expose :o, expose_nil: false
   end
 
-  class MobilityMapVendorServiceEntity < VendorServiceEntity
-    expose :charge_after_fulfillment, as: :zero_balance_ok
+  class MobilityMapProviderEntity < BaseEntity
+    expose :id
+    expose :name, &self.delegate_to(:vendor_service, :external_name)
+    expose :slug, &self.delegate_to(:vendor_service, :internal_name)
+    expose :vendor_name, &self.delegate_to(:vendor_service, :vendor, :name)
+    expose :vendor_slug, &self.delegate_to(:vendor_service, :vendor, :slug)
+    expose :zero_balance_ok, &self.delegate_to(:vendor_service, :charge_after_fulfillment)
   end
 
   class MobilityMapEntity < BaseEntity
@@ -195,7 +207,7 @@ class Suma::API::Mobility < Suma::API::V1
     expose :refresh do |_|
       30_000
     end
-    expose :providers, with: MobilityMapVendorServiceEntity
+    expose :providers, with: MobilityMapProviderEntity
     expose :escooter, with: MobilityMapVehicleEntity, expose_nil: false
     expose :ebike, with: MobilityMapVehicleEntity, expose_nil: false
   end
@@ -218,7 +230,9 @@ class Suma::API::Mobility < Suma::API::V1
     expose :vendor_service, with: VendorServiceEntity
     expose :vehicle_id
     expose :to_api_location, as: :loc
-    expose :rate, with: VendorServiceRateEntity, &self.delegate_to(:vendor_service, :one_rate)
+    expose :rate, with: VendorServiceRateEntity do |_v, options|
+      options.fetch(:rate)
+    end
     expose :deeplink do |vehicle, options|
       vehicle.deep_link_for_user_agent(options.fetch(:request).user_agent)
     end

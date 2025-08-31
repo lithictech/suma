@@ -1,13 +1,10 @@
 import api from "../api";
 import AdminLink from "../components/AdminLink";
 import AuditActivityList from "../components/AuditActivityList";
-import Programs from "../components/Programs";
 import RelatedList from "../components/RelatedList";
 import ResourceDetail from "../components/ResourceDetail";
 import detailPageImageProperties from "../components/detailPageImageProperties";
 import { dayjs } from "../modules/dayConfig";
-import formatDate from "../modules/formatDate";
-import Money from "../shared/react/Money";
 import React from "react";
 
 export default function VendorServiceDetailPage() {
@@ -20,25 +17,35 @@ export default function VendorServiceDetailPage() {
         { label: "ID", value: model.id },
         { label: "Created At", value: dayjs(model.createdAt) },
         ...detailPageImageProperties(model.image),
-        { label: "Name", value: model.name },
+        { label: "External Name", value: model.externalName },
         { label: "Internal Name", value: model.internalName },
-        { label: "Mobility Vendor Adapter", value: model.mobilityVendorAdapterKey },
-        { label: "Charge After Fulfillment", value: model.chargeAfterFulfillment },
         {
           label: "Vendor",
           value: <AdminLink model={model.vendor}>{model.vendor?.name}</AdminLink>,
         },
         { label: "Opening Date", value: dayjs(model.periodBegin) },
         { label: "Closing Date", value: dayjs(model.periodEnd) },
+        { label: "Charge After Fulfillment", value: model.chargeAfterFulfillment },
+        { label: "Mobility Vendor Adapter", value: model.mobilityVendorAdapterKey },
+        {
+          label: "Mobility Constraints",
+          value: <code>{JSON.stringify(model.constraints)}</code>,
+        },
       ]}
     >
-      {(model, setModel) => [
-        <Programs
-          resource="vendor_service"
-          modelId={model.id}
-          programs={model.programs}
-          makeUpdateRequest={api.updateVendorServicePrograms}
-          replaceModelData={setModel}
+      {(model) => [
+        <RelatedList
+          title="Program Pricings"
+          rows={model.programPricings}
+          headers={["Id", "Program", "Rate"]}
+          keyRowAttr="id"
+          toCells={(row) => [
+            <AdminLink model={row}>{row.id}</AdminLink>,
+            <AdminLink model={row.program}>{row.program.name.en}</AdminLink>,
+            <AdminLink model={row.vendorServiceRate}>
+              {row.vendorServiceRate.name}
+            </AdminLink>,
+          ]}
         />,
         <RelatedList
           title="Categories"
@@ -46,65 +53,6 @@ export default function VendorServiceDetailPage() {
           headers={["Id", "Name", "Slug"]}
           keyRowAttr="id"
           toCells={(row) => [row.id, row.name, row.slug]}
-        />,
-        <RelatedList
-          title="Rates"
-          rows={model.rates}
-          headers={[
-            "Id",
-            "Created",
-            "Name",
-            "Unit Amount",
-            "Surcharge",
-            "Unit Offset",
-            "Undiscounted Amount",
-            "Undiscounted Surcharge",
-          ]}
-          keyRowAttr="id"
-          toCells={(row) => [
-            row.id,
-            formatDate(row.createdAt),
-            row.name,
-            <Money key="unit_amount">{row.unitAmount}</Money>,
-            <Money key="surcharge">{row.surcharge}</Money>,
-            row.unitOffset,
-            <Money key="undiscounted_amount">{row.undiscountedAmount}</Money>,
-            <Money key="undiscounted_surcharge">{row.undiscountedSurcharge}</Money>,
-          ]}
-        />,
-        <RelatedList
-          title="Mobility Trips"
-          rows={model.mobilityTrips}
-          headers={[
-            "Id",
-            "Created",
-            "Vehicle Id",
-            "Rate",
-            "Began",
-            "Ended",
-            "Begin Latitude",
-            "Begin Longitude",
-            "Ending Latitude",
-            "Ending Longitude",
-            "Total Cost",
-            "Discount Amount",
-          ]}
-          keyRowAttr="id"
-          toCells={(row) => [
-            <AdminLink key="id" model={row} />,
-            formatDate(row.createdAt),
-            row.vehicleId,
-            row.rate.name,
-            // This formatting shows date and time with seconds
-            formatDate(row.beganAt, { template: "ll LTS" }),
-            formatDate(row.endedAt, { template: "ll LTS", default: "Ongoing" }),
-            row.beginLat,
-            row.beginLng,
-            row.endLat,
-            row.endLng,
-            <Money>{row.totalCost}</Money>,
-            <Money>{row.discountAmount}</Money>,
-          ]}
         />,
         <AuditActivityList activities={model.auditActivities} />,
       ]}

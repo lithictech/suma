@@ -388,6 +388,51 @@ RSpec.describe Suma::AdminAPI::Search, :db do
     end
   end
 
+  describe "POST /v1/search/static_strings" do
+    it "returns strings" do
+      ss1 = Suma::Fixtures.static_string.create(namespace: "other", key: "mobility.rates.foo")
+      ss2 = Suma::Fixtures.static_string.create(namespace: "strings", key: "mobility.rates.foo")
+      ss3 = Suma::Fixtures.static_string.create(namespace: "strings", key: "mobility.rates.foo2", deprecated: true)
+      ss4 = Suma::Fixtures.static_string.create(namespace: "strings", key: "mobility.foo")
+      ss5 = Suma::Fixtures.static_string.create(namespace: "strings", key: "foo")
+      ss6 = Suma::Fixtures.static_string.create(namespace: "strings", key: "mobility.rates.bar")
+
+      post "/v1/search/static_strings", q: "rates"
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.that_includes(items: have_same_ids_as(ss1, ss2, ss6))
+
+      post "/v1/search/static_strings", q: "foo", prefix: "mobility.rates."
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.that_includes(items: have_same_ids_as(ss1, ss2))
+
+      post "/v1/search/static_strings", q: "foo", namespace: "other"
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.that_includes(items: have_same_ids_as(ss1))
+
+      post "/v1/search/static_strings", q: "foo", namespace: "strings", prefix: "mobility."
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.that_includes(items: have_same_ids_as(ss2, ss4))
+    end
+
+    it "qualifies the entity label if namespace is not provided" do
+      Suma::Fixtures.static_string.create(namespace: "str", key: "foo")
+
+      post "/v1/search/static_strings", q: "foo"
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.that_includes(items: contain_exactly(include(label: "str.foo")))
+
+      post "/v1/search/static_strings", q: "foo", namespace: "str"
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.that_includes(items: contain_exactly(include(label: "foo")))
+    end
+  end
+
   describe "POST /v1/search/vendor_services" do
     it "errors without role access" do
       replace_roles(admin, Suma::Role.cache.noop_admin)
@@ -425,6 +470,27 @@ RSpec.describe Suma::AdminAPI::Search, :db do
 
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.that_includes(items: have_same_ids_as(vs2, vs1).ordered)
+    end
+  end
+
+  describe "POST /v1/search/vendor_service_rates" do
+    it "errors without role access" do
+      replace_roles(admin, Suma::Role.cache.noop_admin)
+
+      post "/v1/search/vendor_service_rates", q: "ride"
+
+      expect(last_response).to have_status(403)
+      expect(last_response).to have_json_body.that_includes(error: include(code: "role_check"))
+    end
+
+    it "returns matching vendor service rates" do
+      rate1 = Suma::Fixtures.vendor_service_rate.create(name: "ratex")
+      rate2 = Suma::Fixtures.organization.create(name: "ratey")
+
+      post "/v1/search/vendor_service_rates", q: "ratex"
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.that_includes(items: have_same_ids_as(rate1))
     end
   end
 

@@ -182,7 +182,8 @@ module Suma::AdminAPI::Entities
 
   class VendorServiceEntity < BaseEntity
     include AutoExposeBase
-    expose :external_name, as: :name
+    expose :internal_name
+    expose :external_name
     expose :vendor, with: VendorEntity
     expose :period_begin
     expose :period_end
@@ -199,9 +200,13 @@ module Suma::AdminAPI::Entities
     expose :name
     expose :unit_amount, with: MoneyEntity
     expose :surcharge, with: MoneyEntity
-    expose :unit_offset
-    expose :undiscounted_amount, with: MoneyEntity, &self.delegate_to(:undiscounted_rate, :unit_amount, safe: true)
-    expose :undiscounted_surcharge, with: MoneyEntity, &self.delegate_to(:undiscounted_rate, :surcharge, safe: true)
+  end
+
+  class ProgramPricingEntity < BaseEntity
+    include AutoExposeBase
+    expose :program, with: ProgramEntity
+    expose :vendor_service, with: VendorServiceEntity
+    expose :vendor_service_rate, with: VendorServiceRateEntity
   end
 
   class AnonProxyVendorConfigurationEntity < BaseEntity

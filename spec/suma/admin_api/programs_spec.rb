@@ -64,7 +64,6 @@ RSpec.describe Suma::AdminAPI::Programs, :db do
       photo_file = File.open("spec/data/images/photo.png", "rb")
       image = Rack::Test::UploadedFile.new(photo_file, "image/png", true)
       offering = Suma::Fixtures.offering.create
-      vendor_service = Suma::Fixtures.vendor_service.create
 
       post "/v1/programs/create",
            image:,
@@ -78,18 +77,12 @@ RSpec.describe Suma::AdminAPI::Programs, :db do
              "0" => {
                id: offering.id,
              },
-           },
-           vendor_services: {
-             "0" => {
-               id: vendor_service.id,
-             },
            }
 
       expect(last_response).to have_status(200)
       expect(Suma::Program.all).to have_length(1)
       expect(last_response).to have_json_body.that_includes(
         commerce_offerings: contain_exactly(include(id: offering.id)),
-        vendor_services: contain_exactly(include(id: vendor_service.id)),
       )
     end
   end
@@ -97,8 +90,7 @@ RSpec.describe Suma::AdminAPI::Programs, :db do
   describe "GET /v1/programs/:id" do
     it "returns the program" do
       o = Suma::Fixtures.offering.create
-      vs = Suma::Fixtures.vendor_service.create
-      program = Suma::Fixtures.program.with_offering(o).with_vendor_service(vs).create
+      program = Suma::Fixtures.program.with_offering(o).create
 
       get "/v1/programs/#{program.id}"
 
@@ -106,7 +98,6 @@ RSpec.describe Suma::AdminAPI::Programs, :db do
       expect(last_response).to have_json_body.that_includes(
         id: program.id,
         commerce_offerings: contain_exactly(include(id: o.id)),
-        vendor_services: contain_exactly(include(id: vs.id)),
       )
     end
 
@@ -139,29 +130,18 @@ RSpec.describe Suma::AdminAPI::Programs, :db do
       offering_fac = Suma::Fixtures.offering
       offering_to_remove = offering_fac.create
       offering_to_add = offering_fac.create
-      vs_fac = Suma::Fixtures.vendor_service
-      vs_to_remove = vs_fac.create
-      vs_to_add = vs_fac.create
-      program = Suma::Fixtures.program.with_offering(offering_to_remove).with_vendor_service(vs_to_remove).create
+      program = Suma::Fixtures.program.with_offering(offering_to_remove).create
 
       post "/v1/programs/#{program.id}",
            commerce_offerings: {
              "0" => {
                id: offering_to_add.id,
              },
-           },
-           vendor_services: {
-             "0" => {
-               id: vs_to_add.id,
-             },
            }
 
       expect(last_response).to have_status(200)
       expect(program.refresh.commerce_offerings).to contain_exactly(
         have_attributes(id: offering_to_add.id),
-      )
-      expect(program.refresh.vendor_services).to contain_exactly(
-        have_attributes(id: vs_to_add.id),
       )
     end
   end

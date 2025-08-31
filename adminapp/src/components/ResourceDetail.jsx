@@ -34,6 +34,7 @@ export default function ResourceDetail({
   title,
   properties,
   canEdit,
+  backTo,
   children,
 }) {
   const { enqueueErrorSnackbar } = useErrorSnackbar();
@@ -76,7 +77,7 @@ export default function ResourceDetail({
           }
           toEdit={toEdit}
         >
-          <BackTo to={resourceListRoute(resource)} />
+          <BackTo to={invokeIfFunc(backTo, state) || resourceListRoute(resource)} />
           {title(state)}
         </Title>
       }

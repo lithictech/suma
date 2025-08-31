@@ -61,13 +61,31 @@ RSpec.describe Suma::AdminAPI::VendorServices, :db do
     end
   end
 
+  describe "POST /v1/vendor_services/create" do
+    it "creates a model" do
+      photo_file = File.open("spec/data/images/photo.png", "rb")
+      image = Rack::Test::UploadedFile.new(photo_file, "image/png", true)
+
+      post "/v1/vendor_services/create",
+           vendor: {id: Suma::Fixtures.vendor.create.id},
+           image:,
+           image_caption: {en: "testen", es: "testes"},
+           internal_name: "testint",
+           external_name: "testext",
+           period_begin: "2024-07-01T00:00:00-0700",
+           period_end: "2024-10-01T00:00:00-0700"
+
+      expect(last_response).to have_status(200)
+      expect(Suma::Vendor::Service.all).to have_length(1)
+      expect(last_response).to have_json_body.that_includes(external_name: "testext")
+    end
+  end
+
   describe "GET /v1/vendor_services/:id" do
     it "returns the vendor service" do
       vendor = Suma::Fixtures.vendor.create
-      program = Suma::Fixtures.program.create
-      service = Suma::Fixtures.vendor_service.mobility.with_programs(program).create(vendor:)
-      rate = Suma::Fixtures.vendor_service_rate.surcharge.for_service(service).create
-      trip = Suma::Fixtures.mobility_trip.create(vendor_service: service)
+      service = Suma::Fixtures.vendor_service.mobility.create(vendor:)
+      pricing = Suma::Fixtures.program_pricing.create(vendor_service: service)
 
       get "/v1/vendor_services/#{service.id}"
 
@@ -75,11 +93,9 @@ RSpec.describe Suma::AdminAPI::VendorServices, :db do
       expect(last_response).to have_json_body.that_includes(
         id: service.id,
         vendor: include(id: vendor.id),
-        programs: have_same_ids_as(program),
+        program_pricings: have_same_ids_as(pricing),
         mobility_vendor_adapter_key: "fake",
         categories: contain_exactly(include(name: "Mobility")),
-        rates: have_same_ids_as(rate),
-        mobility_trips: have_same_ids_as(trip),
       )
     end
 
@@ -104,29 +120,6 @@ RSpec.describe Suma::AdminAPI::VendorServices, :db do
 
       expect(last_response).to have_status(200)
       expect(v.refresh).to have_attributes(external_name: "test")
-    end
-  end
-
-  describe "POST /v1/vendor_services/:id/programs" do
-    it "replaces the programs" do
-      pr = Suma::Fixtures.program.create
-      to_add = Suma::Fixtures.program.create
-      vs = Suma::Fixtures.vendor_service.with_programs(pr).create
-
-      post "/v1/vendor_services/#{vs.id}/programs", {program_ids: [to_add.id]}
-
-      expect(last_response).to have_status(200)
-      expect(last_response).to have_json_body.that_includes(id: vs.id)
-      expect(last_response).to have_json_body.
-        that_includes(programs: contain_exactly(include(id: to_add.id)))
-    end
-
-    it "403s if the program does not exist" do
-      vs = Suma::Fixtures.vendor_service.create
-
-      post "/v1/vendor_services/#{vs.id}/programs", {program_ids: [0]}
-
-      expect(last_response).to have_status(403)
     end
   end
 end

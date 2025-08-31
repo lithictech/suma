@@ -5,7 +5,6 @@ require "suma/image"
 require "suma/has_activity_audit"
 require "suma/mobility/vendor_adapter"
 require "suma/postgres/model"
-require "suma/program/has"
 require "suma/vendor/has_service_categories"
 
 class Suma::Vendor::Service < Suma::Postgres::Model(:vendor_services)
@@ -28,21 +27,11 @@ class Suma::Vendor::Service < Suma::Postgres::Model(:vendor_services)
   def vendor_service_categories = self.categories
   include Suma::Vendor::HasServiceCategories
 
-  many_to_many :rates,
-               class: "Suma::Vendor::ServiceRate",
-               join_table: :vendor_service_vendor_service_rates,
-               left_key: :vendor_service_id,
-               right_key: :vendor_service_rate_id,
-               order: order_desc(:name)
-
   one_to_many :mobility_trips, class: "Suma::Mobility::Trip", key: :vendor_service_id, order: order_desc
-
-  many_to_many :programs,
-               class: "Suma::Program",
-               join_table: :programs_vendor_services,
-               left_key: :service_id,
-               order: order_desc
-  include Suma::Program::Has
+  one_to_many :program_pricings,
+              class: "Suma::Program::Pricing",
+              key: :vendor_service_id,
+              order: order_desc
 
   dataset_module do
     def mobility
@@ -62,20 +51,14 @@ class Suma::Vendor::Service < Suma::Postgres::Model(:vendor_services)
     return Suma::Mobility::VendorAdapter.create(self.mobility_vendor_adapter_key)
   end
 
-  # Return the one and only rate for this service, or error if it has multiple rates.
-  # In the future we will likely support determining rates per-resident,
-  # but for now, we assume one rate for all residents using a service.
-  def one_rate
-    r = self.rates
-    raise "#{self.inspect} has no rates" if r.empty?
-    raise "#{self.inspect} has too many rates" if r.length > 1
-    return r.first
-  end
-
   def guard_zero_balance!(member)
     return if self.charge_after_fulfillment
     return if (pa = member.payment_account) && pa && pa.total_balance > Money.new(0)
     raise Suma::Member::ReadOnlyMode, "read_only_zero_balance"
+  end
+
+  def eligible_to?(member, as_of:)
+    return !self.program_pricings_dataset.eligible_to(member, as_of:).empty?
   end
 
   # A hash is said to satisfy the vendor service constraints

@@ -239,6 +239,23 @@ class Suma::AdminAPI::Search < Suma::AdminAPI::V1
     end
 
     params do
+      optional :namespace, type: String
+      optional :prefix, type: String
+      optional :q, type: String
+    end
+    post :static_strings do
+      check_admin_role_access!(:read, :admin_access)
+      ds = Suma::I18n::StaticString.dataset
+      ds = ds.exclude(deprecated: true)
+      ds = ds_search_or_order_by(:key, ds, params)
+      ds = ds.where(namespace: params[:namespace]) if params[:namespace]
+      ds = ds.grep(:key, params[:prefix] + "%") if params[:prefix]
+      ds = ds.limit(50)
+      status 200
+      present_collection ds, with: SearchStaticStringEntity, qualify: !params[:namespace]
+    end
+
+    params do
       optional :q, type: String
     end
     post :vendor_services do
@@ -248,6 +265,18 @@ class Suma::AdminAPI::Search < Suma::AdminAPI::V1
       ds = ds.limit(15)
       status 200
       present_collection ds, with: SearchVendorServiceEntity
+    end
+
+    params do
+      optional :q, type: String
+    end
+    post :vendor_service_rates do
+      check_admin_role_access!(:read, Suma::Vendor::ServiceRate)
+      ds = Suma::Vendor::ServiceRate.dataset
+      ds = ds_search_or_order_by(:name, ds, params)
+      ds = ds.limit(15)
+      status 200
+      present_collection ds, with: SearchVendorServiceRateEntity
     end
 
     params do
@@ -357,12 +386,29 @@ class Suma::AdminAPI::Search < Suma::AdminAPI::V1
     expose :label
   end
 
+  class SearchStaticStringEntity < BaseEntity
+    expose :fqn, as: :key
+    expose :id
+    expose :label do |inst, opts|
+      opts.fetch(:qualify) ? inst.fqn : inst.key
+    end
+    expose :key, as: :string_key
+  end
+
   class SearchVendorServiceEntity < BaseEntity
     expose :key, &self.delegate_to(:id, :to_s)
     expose :id
     expose :admin_link
     expose :external_name, as: :name
     expose :external_name, as: :label
+  end
+
+  class SearchVendorServiceRateEntity < BaseEntity
+    expose :key, &self.delegate_to(:id, :to_s)
+    expose :id
+    expose :admin_link
+    expose :name
+    expose :name, as: :label
   end
 
   class SearchCommerceOfferingEntity < BaseEntity

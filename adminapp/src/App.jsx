@@ -80,6 +80,9 @@ import ProgramEnrollmentCreatePage from "./pages/ProgramEnrollmentCreatePage";
 import ProgramEnrollmentDetailPage from "./pages/ProgramEnrollmentDetailPage";
 import ProgramEnrollmentListPage from "./pages/ProgramEnrollmentListPage";
 import ProgramListPage from "./pages/ProgramListPage";
+import ProgramPricingCreatePage from "./pages/ProgramPricingCreatePage";
+import ProgramPricingDetailPage from "./pages/ProgramPricingDetailPage";
+import ProgramPricingEditPage from "./pages/ProgramPricingEditPage";
 import RoleCreatePage from "./pages/RoleCreatePage";
 import RoleDetailPage from "./pages/RoleDetailPage";
 import RoleEditPage from "./pages/RoleEditPage";
@@ -97,9 +100,14 @@ import VendorCreatePage from "./pages/VendorCreatePage";
 import VendorDetailPage from "./pages/VendorDetailPage";
 import VendorEditPage from "./pages/VendorEditPage";
 import VendorListPage from "./pages/VendorListPage";
+import VendorServiceCreatePage from "./pages/VendorServiceCreatePage";
 import VendorServiceDetailPage from "./pages/VendorServiceDetailPage";
 import VendorServiceEditPage from "./pages/VendorServiceEditPage";
 import VendorServiceListPage from "./pages/VendorServiceListPage";
+import VendorServiceRateCreatePage from "./pages/VendorServiceRateCreatePage";
+import VendorServiceRateDetailPage from "./pages/VendorServiceRateDetailPage";
+import VendorServiceRateEditPage from "./pages/VendorServiceRateEditPage";
+import VendorServiceRateListPage from "./pages/VendorServiceRateListPage";
 import applyHocs from "./shared/applyHocs";
 import { installPromiseExtras } from "./shared/bluejay";
 import ClientsideSearchParamsProvider from "./shared/react/ClientsideSearchParamsProvider";
@@ -532,6 +540,29 @@ function PageSwitch() {
       />
       <Route
         exact
+        path="/program-pricing/new"
+        element={renderWithHocs(
+          redirectIfUnauthed,
+          withLayout(),
+          ProgramPricingCreatePage
+        )}
+      />
+      <Route
+        exact
+        path="/program-pricing/:id"
+        element={renderWithHocs(
+          redirectIfUnauthed,
+          withLayout(),
+          ProgramPricingDetailPage
+        )}
+      />
+      <Route
+        exact
+        path="/program-pricing/:id/edit"
+        element={renderWithHocs(redirectIfUnauthed, withLayout(), ProgramPricingEditPage)}
+      />
+      <Route
+        exact
         path="/vendor-accounts"
         element={renderWithHocs(redirectIfUnauthed, withLayout(), VendorAccountListPage)}
       />
@@ -578,6 +609,15 @@ function PageSwitch() {
       />
       <Route
         exact
+        path="/vendor-service/new"
+        element={renderWithHocs(
+          redirectIfUnauthed,
+          withLayout(),
+          VendorServiceCreatePage
+        )}
+      />
+      <Route
+        exact
         path="/vendor-service/:id"
         element={renderWithHocs(
           redirectIfUnauthed,
@@ -589,6 +629,42 @@ function PageSwitch() {
         exact
         path="/vendor-service/:id/edit"
         element={renderWithHocs(redirectIfUnauthed, withLayout(), VendorServiceEditPage)}
+      />
+      <Route
+        exact
+        path="/vendor-service-rates"
+        element={renderWithHocs(
+          redirectIfUnauthed,
+          withLayout(),
+          VendorServiceRateListPage
+        )}
+      />
+      <Route
+        exact
+        path="/vendor-service-rate/new"
+        element={renderWithHocs(
+          redirectIfUnauthed,
+          withLayout(),
+          VendorServiceRateCreatePage
+        )}
+      />
+      <Route
+        exact
+        path="/vendor-service-rate/:id"
+        element={renderWithHocs(
+          redirectIfUnauthed,
+          withLayout(),
+          VendorServiceRateDetailPage
+        )}
+      />
+      <Route
+        exact
+        path="/vendor-service-rate/:id/edit"
+        element={renderWithHocs(
+          redirectIfUnauthed,
+          withLayout(),
+          VendorServiceRateEditPage
+        )}
       />
       <Route
         exact
