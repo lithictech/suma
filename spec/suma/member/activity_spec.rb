@@ -138,6 +138,21 @@ RSpec.describe "Suma::Member::Activity", :db do
       )
     end
 
+    it "can use an object as an action (has name object method)" do
+      o = Suma::Fixtures.organization.create
+      o.instance_eval do
+        def name = Suma::TranslatedText.new(en: "blah")
+      end
+      a = auditable.audit_activity(
+        "testactivity",
+        actor:,
+        action: o,
+      )
+      expect(a).to have_attributes(
+        summary: "x@y.z performed testactivity on Suma::Organization[#{auditable.id}] 'MyOrg': Suma::Organization[#{o.id}] 'blah'",
+      )
+    end
+
     it "can use an object as an action (no name method)" do
       o = Suma::Fixtures.organization.create
       o.instance_eval do
