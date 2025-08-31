@@ -11,6 +11,7 @@ RSpec.describe Suma::API::Mobility, :db do
   let(:member) { Suma::Fixtures.member.onboarding_verified.with_cash_ledger(amount: money("$15")).create }
   let(:vendor_service_fac) { Suma::Fixtures.vendor_service(mobility_vendor_adapter_key: "fake").available_to(member) }
   let(:vendor_service) { vendor_service_fac.create }
+  let(:program_pricing) { vendor_service.program_pricings.first }
   let(:vehicle_fac) { Suma::Fixtures.mobility_vehicle(vendor_service:) }
 
   before(:each) do
@@ -268,7 +269,7 @@ RSpec.describe Suma::API::Mobility, :db do
       b2 = vehicle_fac.loc(30, 120).ebike.create
       s3 = vehicle_fac.loc(0.5, 179.5).escooter.create
 
-      get "/v1/mobility/vehicle", loc: [5_000_000, 1_795_000_000], provider_id: vendor_service.id, type: "ebike"
+      get "/v1/mobility/vehicle", loc: [5_000_000, 1_795_000_000], provider_id: program_pricing.id, type: "ebike"
 
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.
@@ -276,7 +277,7 @@ RSpec.describe Suma::API::Mobility, :db do
           vendor_service: include(:name, :vendor_name, id: vendor_service.id),
           vehicle_id: b1.vehicle_id,
           loc: [5_000_000, 1_795_000_000],
-          rate: include(id: vendor_service.program_pricings.first.vendor_service_rate_id),
+          rate: include(id: program_pricing.vendor_service_rate_id),
           deeplink: nil,
         )
     end
@@ -286,7 +287,7 @@ RSpec.describe Suma::API::Mobility, :db do
       vehicle_fac.loc(0.5, 179.5).ebike.create(vehicle_id: "abc")
 
       get "/v1/mobility/vehicle",
-          loc: [5_000_000, 1_795_000_000], provider_id: vendor_service.id, type: "ebike", disambiguator: "abc"
+          loc: [5_000_000, 1_795_000_000], provider_id: program_pricing.id, type: "ebike", disambiguator: "abc"
 
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.that_includes(vehicle_id: "abc")
@@ -295,7 +296,7 @@ RSpec.describe Suma::API::Mobility, :db do
     it "403s if no vehicle is found" do
       vehicle_fac.ebike.create
 
-      get "/v1/mobility/vehicle", loc: [0, 0], provider_id: vendor_service.id, type: "ebike"
+      get "/v1/mobility/vehicle", loc: [0, 0], provider_id: program_pricing.id, type: "ebike"
 
       expect(last_response).to have_status(403)
       expect(last_response).to have_json_body.that_includes(error: include(code: "vehicle_not_found"))
@@ -304,16 +305,16 @@ RSpec.describe Suma::API::Mobility, :db do
     it "403s if the vehicle is not available within the given provider" do
       b1 = vehicle_fac.loc(0, 0).ebike.create(vendor_service: vendor_service_fac.create)
 
-      get "/v1/mobility/vehicle", loc: [0, 0], provider_id: vendor_service.id, type: "ebike"
+      get "/v1/mobility/vehicle", loc: [0, 0], provider_id: program_pricing.id, type: "ebike"
 
       expect(last_response).to have_status(403)
     end
 
     it "403s if the provider is not evailable to the member" do
-      vs2 = Suma::Fixtures.vendor_service.create
-      b1 = vehicle_fac.loc(0, 0).ebike.create(vendor_service: vs2)
+      pp2 = Suma::Fixtures.program_pricing.create
+      b1 = vehicle_fac.loc(0, 0).ebike.create(vendor_service: pp2.vendor_service)
 
-      get "/v1/mobility/vehicle", loc: [0, 0], provider_id: vs2.id, type: "ebike"
+      get "/v1/mobility/vehicle", loc: [0, 0], provider_id: pp2.id, type: "ebike"
 
       expect(last_response).to have_status(403)
     end
@@ -322,7 +323,7 @@ RSpec.describe Suma::API::Mobility, :db do
       vehicle_fac.loc(0, 0).ebike.create(vehicle_id: "xyz")
       vehicle_fac.loc(0, 0).ebike.create(vehicle_id: "abc")
 
-      get "/v1/mobility/vehicle", loc: [0, 0], provider_id: vendor_service.id, type: "ebike", disambiguator: "rst"
+      get "/v1/mobility/vehicle", loc: [0, 0], provider_id: program_pricing.id, type: "ebike", disambiguator: "rst"
 
       expect(last_response).to have_status(403)
       expect(last_response).to have_json_body.that_includes(error: include(code: "vehicle_not_found"))
@@ -332,7 +333,7 @@ RSpec.describe Suma::API::Mobility, :db do
       vehicle_fac.loc(0, 0).ebike.create(vehicle_id: "xyz")
       vehicle_fac.loc(0, 0).ebike.create(vehicle_id: "abc")
 
-      get "/v1/mobility/vehicle", loc: [0, 0], provider_id: vendor_service.id, type: "ebike"
+      get "/v1/mobility/vehicle", loc: [0, 0], provider_id: program_pricing.id, type: "ebike"
 
       expect(last_response).to have_status(400)
       expect(last_response).to have_json_body.that_includes(error: include(code: "disambiguation_required"))
@@ -349,7 +350,7 @@ RSpec.describe Suma::API::Mobility, :db do
 
       b1 = vehicle_fac.loc(0.5, 179.5).ebike.create(vehicle_id: "abcd")
 
-      get "/v1/mobility/vehicle", loc: [5_000_000, 1_795_000_000], provider_id: vendor_service.id, type: "ebike"
+      get "/v1/mobility/vehicle", loc: [5_000_000, 1_795_000_000], provider_id: program_pricing.id, type: "ebike"
 
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.
@@ -362,11 +363,9 @@ RSpec.describe Suma::API::Mobility, :db do
 
   describe "POST /v1/mobility/begin_trip" do
     let(:vehicle) { Suma::Fixtures.mobility_vehicle.create(vendor_service:) }
-    let(:rate) { vendor_service.program_pricings.first.vendor_service_rate }
 
     it "starts a trip for the resident using the given vehicle and its associated rate" do
-      post "/v1/mobility/begin_trip",
-           provider_id: vehicle.vendor_service_id, vehicle_id: vehicle.vehicle_id, rate_id: rate.id
+      post "/v1/mobility/begin_trip", provider_id: program_pricing.id, vehicle_id: vehicle.vehicle_id
 
       expect(last_response).to have_status(200)
       expect(last_response.headers).to include("Suma-Current-Member")
@@ -377,8 +376,7 @@ RSpec.describe Suma::API::Mobility, :db do
     end
 
     it "errors if the vehicle cannot be found" do
-      post "/v1/mobility/begin_trip",
-           provider_id: vehicle.vendor_service_id, vehicle_id: vehicle.vehicle_id + "1", rate_id: rate.id
+      post "/v1/mobility/begin_trip", provider_id: program_pricing.id, vehicle_id: vehicle.vehicle_id + "1"
 
       expect(last_response).to have_status(403)
       expect(last_response).to have_json_body.that_includes(error: include(code: "vehicle_not_found"))
@@ -387,31 +385,20 @@ RSpec.describe Suma::API::Mobility, :db do
     it "errors if the resident already has an active trip" do
       Suma::Fixtures.mobility_trip.ongoing.for_vehicle(vehicle).create(member:)
 
-      post "/v1/mobility/begin_trip",
-           provider_id: vehicle.vendor_service_id, vehicle_id: vehicle.vehicle_id, rate_id: rate.id
+      post "/v1/mobility/begin_trip", provider_id: program_pricing.id, vehicle_id: vehicle.vehicle_id
 
       expect(last_response).to have_status(409)
       expect(last_response).to have_json_body.that_includes(error: include(code: "ongoing_trip"))
     end
 
-    # it "errors if the given rate does not exist for the provider" do
-    #   rate2 = Suma::Fixtures.vendor_service_rate.create
-    #   post "/v1/mobility/begin_trip",
-    #        provider_id: vehicle.vendor_service_id, vehicle_id: vehicle.vehicle_id, rate_id: rate2.id
-    #
-    #   expect(last_response).to have_status(403)
-    #   expect(last_response).to have_json_body.that_includes(error: include(code: "rate_not_found"))
-    # end
+    it "errors if the member cannot access the service due to eligibility" do
+      program_pricing.program.enrollments.first.destroy
 
-    # it "errors if the member cannot access the service due to eligibility" do
-    #   vendor_service.add_program(Suma::Fixtures.program.create)
-    #
-    #   post "/v1/mobility/begin_trip",
-    #        provider_id: vehicle.vendor_service_id, vehicle_id: vehicle.vehicle_id, rate_id: rate.id
-    #
-    #   expect(last_response).to have_status(403)
-    #   expect(last_response).to have_json_body.that_includes(error: include(code: "eligibility_violation"))
-    # end
+      post "/v1/mobility/begin_trip", provider_id: program_pricing.id, vehicle_id: vehicle.vehicle_id
+
+      expect(last_response).to have_status(403)
+      expect(last_response).to have_json_body.that_includes(error: include(code: "vehicle_not_found"))
+    end
   end
 
   describe "POST /v1/mobility/end_trip" do

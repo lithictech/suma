@@ -31,7 +31,7 @@ class Suma::AdminAPI::VendorServiceRates < Suma::AdminAPI::V1
         requires(:unit_amount, type: JSON) { use :money }
         requires(:surcharge, type: JSON) { use :money }
         requires :unit_offset, type: Integer
-        requires(:undiscounted_rate, type: JSON) { use :model_with_id }
+        optional(:undiscounted_rate, type: JSON) { use :model_with_id }
         requires :localization_key, type: String
         optional :ordinal, type: Float, default: 0
       end

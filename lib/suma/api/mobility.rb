@@ -16,6 +16,17 @@ class Suma::API::Mobility < Suma::API::V1
             eligible_to(current_member, as_of: current_time).
             where(vendor_service: Suma::Vendor::Service.dataset.available_at(current_time))
       end
+
+      def find_pricing_and_vehicles(provider_id, **criteria)
+        pricing = program_pricings_dataset.
+          where(Sequel[:program_pricings][:id] => provider_id).
+          first
+        return nil, [] if pricing.nil?
+        matches = Suma::Mobility::Vehicle.where(criteria).where(
+          vendor_service_id: pricing.vendor_service_id,
+        )
+        return pricing, matches.all
+      end
     end
 
     desc "Return all mobility vehicles fitting the requested parameters."
@@ -92,42 +103,37 @@ class Suma::API::Mobility < Suma::API::V1
     end
     get :vehicle do
       member = current_member
-      matches = Suma::Mobility::Vehicle.where(
+      pricing, vehicles = find_pricing_and_vehicles(
+        params[:provider_id],
         lat_int: params[:loc][0],
         lng_int: params[:loc][1],
-        vendor_service_id: params[:provider_id],
         vehicle_type: params[:type],
-      ).where(vendor_service_id: program_pricings_dataset.select(:vendor_service_id)).all
-      merror!(403, "No vehicle matching criteria was found", code: "vehicle_not_found") if matches.empty?
-      if matches.length > 1
+      )
+      merror!(403, "No vehicle matching criteria was found", code: "vehicle_not_found") if vehicles.empty?
+      if vehicles.length > 1
         disambig = params[:disambiguator]
         merror!(400, "Multiple vehicles found. Disambiguation required.", code: "disambiguation_required") if
           disambig.blank?
-        vehicle = matches.find { |v| v.vehicle_id == disambig }
+        vehicle = vehicles.find { |v| v.vehicle_id == disambig }
         merror!(403, "No disambiguated vehicle matching criteria was found", code: "vehicle_not_found") if vehicle.nil?
       else
-        vehicle = matches[0]
+        vehicle = vehicles[0]
       end
-      present vehicle, with: MobilityVehicleEntity, member:, request:, rate: Suma::Vendor::ServiceRate.first
+      present vehicle, with: MobilityVehicleEntity, member:, request:, rate: pricing.vendor_service_rate
     end
 
     params do
       requires :provider_id, type: Integer
       requires :vehicle_id, type: String
-      requires :rate_id, type: Integer
     end
     post :begin_trip do
       member = current_member
-      vehicle = Suma::Mobility::Vehicle[
-        vendor_service_id: params[:provider_id],
-        vehicle_id: params[:vehicle_id],
-      ]
-      merror!(403, "Vehicle does not exist", code: "vehicle_not_found") if vehicle.nil?
-      check_eligibility!(vehicle.vendor_service, member)
-      rate = Suma::Vendor::ServiceRate[params[:rate_id]]
-      merror!(403, "Rate does not exist", code: "rate_not_found") if rate.nil?
+      pricing, vehicles = find_pricing_and_vehicles(params[:provider_id], vehicle_id: params[:vehicle_id])
+      merror!(403, "Vehicle does not exist", code: "vehicle_not_found") if vehicles.empty?
       begin
-        trip = Suma::Mobility::Trip.start_trip_from_vehicle(member:, vehicle:, rate:)
+        trip = Suma::Mobility::Trip.start_trip_from_vehicle(
+          member:, vehicle: vehicles[0], rate: pricing.vendor_service_rate,
+        )
       rescue Suma::Mobility::Trip::OngoingTrip
         merror!(409, "Already in a trip", code: "ongoing_trip")
       end

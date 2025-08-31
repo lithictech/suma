@@ -99,7 +99,6 @@ export default function VendorServiceRateForm({
           label="Undiscounted Rate"
           value={resource.undiscountedRate?.name || ""}
           fullWidth
-          required
           search={api.searchVendorServiceRates}
           style={{ flex: 1 }}
           searchEmpty
