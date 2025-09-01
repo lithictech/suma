@@ -65,7 +65,7 @@ module Suma::AdminAPI::Entities
   end
 
   class RoleEntity < BaseEntity
-    expose :id
+    include AutoExposeBase
     expose :name
     expose :label
   end
@@ -213,6 +213,7 @@ module Suma::AdminAPI::Entities
     include AutoExposeBase
     expose :program, with: ProgramEntity
     expose :member, with: MemberEntity
+    expose :role, with: RoleEntity
   end
 
   class AnonProxyVendorConfigurationEntity < BaseEntity

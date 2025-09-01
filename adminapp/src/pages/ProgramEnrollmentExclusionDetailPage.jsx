@@ -23,7 +23,11 @@ export default function ProgramEnrollmentExclusionDetailPage() {
         },
         {
           label: "Member",
-          value: <AdminLink model={model.member}>{model.member.name}</AdminLink>,
+          value: <AdminLink model={model.member}>{model.member?.name}</AdminLink>,
+        },
+        {
+          label: "Role",
+          value: <AdminLink model={model.role}>{model.role?.name}</AdminLink>,
         },
       ]}
     />

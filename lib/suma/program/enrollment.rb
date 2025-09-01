@@ -69,8 +69,11 @@ class Suma::Program::Enrollment < Suma::Postgres::Model(:program_enrollments)
       annotated = full.reselect.select_append(coalesce_member_id.as(:annotated_member_id))
       annotated = annotated.exclude(
         self.db[:program_enrollment_exclusions].where(
-          program_id: :program_id,
-          member_id: coalesce_member_id,
+          Sequel[program_id: :program_id] &
+          (
+            Sequel[member_id: coalesce_member_id] |
+            Sequel[role_id: self.db[:roles_members].where(member_id: coalesce_member_id).select(:role_id)]
+          ),
         ).exists,
       )
       limited = annotated.where(coalesce_member_id => member_ids)

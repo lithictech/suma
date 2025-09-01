@@ -219,8 +219,9 @@ function EnrollmentExclusions({ model }) {
       title="Enrollment Exclusions"
       addNewLabel="Add Exclusion"
       addNewLink={createRelativeUrl(`/program-enrollment-exclusion/new`, {
-        memberId: model.id,
-        memberLabel: `(${model.id}) ${model.name}`,
+        enrolleeId: model.id,
+        enrolleeLabel: `(${model.id}) ${model.name}`,
+        enrolleeType: "member",
       })}
       addNewRole="programEnrollmentExclusion"
       rows={model.programEnrollmentExclusions}

@@ -2,6 +2,7 @@ import api from "../api";
 import AdminLink from "../components/AdminLink";
 import RelatedList from "../components/RelatedList";
 import ResourceDetail from "../components/ResourceDetail";
+import createRelativeUrl from "../shared/createRelativeUrl";
 import React from "react";
 
 export default function RoleDetailPage() {
@@ -14,7 +15,7 @@ export default function RoleDetailPage() {
         { label: "Name", value: model.name },
       ]}
     >
-      {(model, setModel) => [
+      {(model) => [
         <RelatedList
           title="Members"
           rows={model.members}
@@ -36,6 +37,25 @@ export default function RoleDetailPage() {
         <RelatedList
           title="Program Enrollments"
           rows={model.programEnrollments}
+          headers={["Id", "Program"]}
+          keyRowAttr="id"
+          toCells={(row) => [
+            <AdminLink key="id" model={row} />,
+            <AdminLink key="name" model={row.program}>
+              {row.program.name.en}
+            </AdminLink>,
+          ]}
+        />,
+        <RelatedList
+          title="Program Enrollment Exclusions"
+          addNewLabel="Add Exclusion"
+          addNewLink={createRelativeUrl(`/program-enrollment-exclusion/new`, {
+            enrolleeId: model.id,
+            enrolleeLabel: `(${model.id}) ${model.name}`,
+            enrolleeType: "role",
+          })}
+          addNewRole="programEnrollmentExclusion"
+          rows={model.programEnrollmentExclusions}
           headers={["Id", "Program"]}
           keyRowAttr="id"
           toCells={(row) => [

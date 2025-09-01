@@ -11,16 +11,20 @@ class Suma::AdminAPI::ProgramPricings < Suma::AdminAPI::V1
   end
 
   resource :program_pricings do
+    helpers do
+      def modelrepr(m)
+        prefix = Suma::HasActivityAudit.model_repr(m)
+        "#{prefix}(service: '#{m.vendor_service.internal_name}', rate: '#{m.vendor_service_rate.name}')"
+      end
+    end
+
     Suma::AdminAPI::CommonEndpoints.create(
       self,
       Suma::Program::Pricing,
       DetailedProgramPricingEntity,
-      around: lambda do |_rt, m, &block|
+      around: lambda do |rt, m, &block|
         block.call
-        m.program.audit_activity(
-          "addpricing",
-          action: "Created #{m.class.name}[#{m.id}]",
-        )
+        m.program.audit_activity("addpricing", action: rt.modelrepr(m))
       end,
     ) do
       params do
@@ -40,13 +44,9 @@ class Suma::AdminAPI::ProgramPricings < Suma::AdminAPI::V1
       self,
       Suma::Program::Pricing,
       DetailedProgramPricingEntity,
-      around: lambda do |_rt, m, &block|
+      around: lambda do |rt, m, &block|
         block.call
-        m.program.audit_activity(
-          "changepricing",
-          action: "Updated #{Suma::HasActivityAudit.model_repr(m)} rate: " \
-                  "#{Suma::HasActivityAudit.model_repr(m.vendor_service_rate)}",
-        )
+        m.program.audit_activity("changepricing", action: rt.modelrepr(m))
       end,
     ) do
       params do
@@ -60,7 +60,7 @@ class Suma::AdminAPI::ProgramPricings < Suma::AdminAPI::V1
       DetailedProgramPricingEntity,
       around: lambda do |rt, m, &block|
         block.call
-        m.program.audit_activity("deletepricing", action: m)
+        m.program.audit_activity("deletepricing", action: rt.modelrepr(m))
         rt.created_resource_headers(m.program_id, m.program.admin_link)
       end,
     )

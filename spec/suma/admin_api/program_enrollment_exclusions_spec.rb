@@ -23,6 +23,7 @@ RSpec.describe Suma::AdminAPI::ProgramEnrollmentExclusions, :db do
       expect(last_response).to have_status(200)
       expect(last_response.headers).to include("Created-Resource-Admin")
       expect(Suma::Program::EnrollmentExclusion.all).to have_length(1)
+      expect(program.audit_activities).to contain_exactly(have_attributes(message_name: "addexclusion"))
     end
   end
 
@@ -46,6 +47,7 @@ RSpec.describe Suma::AdminAPI::ProgramEnrollmentExclusions, :db do
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.that_includes(id: m.id)
       expect(last_response.headers).to include("Created-Resource-Id" => m.program.id.to_s)
+      expect(m.program.audit_activities).to contain_exactly(have_attributes(message_name: "removeexclusion"))
       expect(m).to be_destroyed
     end
   end

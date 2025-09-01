@@ -134,12 +134,15 @@ export default function ProgramDetailPage() {
           })}
           addNewRole="programEnrollmentExclusion"
           rows={model.enrollmentExclusions}
-          headers={["Id", "Member"]}
+          headers={["Id", "Member", "Role"]}
           keyRowAttr="id"
           toCells={(row) => [
             <AdminLink key="id" model={row} />,
             <AdminLink key="member" model={row.member}>
-              {row.member.name}
+              {row.member?.name}
+            </AdminLink>,
+            <AdminLink key="role" model={row.role}>
+              {row.role?.name}
             </AdminLink>,
           ]}
         />,

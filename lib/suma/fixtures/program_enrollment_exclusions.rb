@@ -11,8 +11,8 @@ module Suma::Fixtures::ProgramEnrollmentExclusions
   end
 
   before_saving do |instance|
-    instance.member ||= Suma::Fixtures.member.create
     instance.program ||= Suma::Fixtures.program.create
+    instance.member ||= Suma::Fixtures.member.create if instance.role_id.nil?
     instance
   end
 end
