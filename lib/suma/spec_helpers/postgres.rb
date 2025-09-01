@@ -34,6 +34,7 @@ module Suma::SpecHelpers::Postgres
       Suma::Postgres.unsafe_skip_transaction_check = true if example.metadata[:no_transaction_check]
       Suma::Postgres.do_not_defer_events = true if example.metadata[:do_not_defer_events]
       if example.metadata[:hybrid_search]
+        skip_hybrid_search!
         require "sequel/sequel_hybrid_search/subproc_sentence_transformer_generator"
         SequelHybridSearch.embedding_generator = SequelHybridSearch::SubprocSentenceTransformerGenerator
       end
@@ -143,6 +144,12 @@ module Suma::SpecHelpers::Postgres
   # so eager loading can be tested.
   module_function def refetch_for_eager(o)
     return o.class.dataset.where(id: o.id).all.first
+  end
+
+  module_function def skip_hybrid_search!
+    return unless Suma::Postgres::HybridSearch.skip_tests
+    require "rspec/core/pending"
+    raise RSpec::Core::Pending::SkipDeclaredInExample, "Hybrid search tests disabled"
   end
 
   module_function def replace_roles(m, *roles)

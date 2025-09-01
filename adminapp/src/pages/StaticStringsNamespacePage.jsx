@@ -26,7 +26,12 @@ import {
 } from "@mui/material";
 import IconButton from "@mui/material/IconButton";
 import { makeStyles } from "@mui/styles";
-import { DataGrid, GridActionsCellItem, GridCellEditStopReasons } from "@mui/x-data-grid";
+import {
+  DataGrid,
+  GridActionsCellItem,
+  GridCellEditStopReasons,
+  GridToolbar,
+} from "@mui/x-data-grid";
 import startCase from "lodash/startCase";
 import React from "react";
 import { useParams } from "react-router-dom";
@@ -103,14 +108,12 @@ export default function StaticStringsNamespacePage() {
         onFieldChange={handleRowFieldChange}
         onSavePromise={handleSavePromise}
       />
-      <div style={{ height: HEADER_HEIGHT + combinedStrings.length * ROW_HEIGHT }}>
-        <StaticStringsTable
-          namespace={namespace}
-          strings={combinedStrings}
-          onRowEdit={handleRowEdit}
-          onSavePromise={handleSavePromise}
-        />
-      </div>
+      <StaticStringsTable
+        namespace={namespace}
+        strings={combinedStrings}
+        onRowEdit={handleRowEdit}
+        onSavePromise={handleSavePromise}
+      />
       <FabAdd
         component={Link}
         href={resourceCreateRoute("static_string") + `?namespace=${namespace}`}
@@ -209,10 +212,18 @@ function StaticStringsTable({ strings, onRowEdit, onSavePromise }) {
   return (
     <DataGrid
       experimentalFeatures={{ newEditingApi: true }}
-      classes={{ footerContainer: classes.footerContainer }}
       columns={columns}
       rows={strings}
+      pagination
+      autoHeight
       getRowClassName={getRowClassName}
+      components={{ Toolbar: GridToolbar }}
+      componentsProps={{
+        toolbar: {
+          showQuickFilter: true,
+          quickFilterProps: { debounceMs: 100 },
+        },
+      }}
       onCellEditStop={handleCellEditStop}
     />
   );
@@ -306,18 +317,12 @@ function StaticStringsDialog({
   );
 }
 
-const HEADER_HEIGHT = 56;
-const ROW_HEIGHT = 52;
-
 const useStyles = makeStyles(() => ({
   deprecatedRow: {
     opacity: 0.3,
   },
   needsTextRow: {
     backgroundColor: "rgb(255, 244, 244)",
-  },
-  footerContainer: {
-    display: "none !important",
   },
 }));
 

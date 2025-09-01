@@ -1,20 +1,16 @@
 # frozen_string_literal: true
 
 class Suma::Lime::HandleViolations
-  LAST_SYNCED_PK_KEY = "lime/handleviolations/pk"
   CUTOFF = 2.weeks
 
+  def row_iterator = Suma::Webhookdb::RowIterator.new("lime/handleviolations/pk")
+
   def run
-    last_synced_pk = Suma::Redis.cache.with { |c| c.call("GET", LAST_SYNCED_PK_KEY) }.to_i
-    rows = Suma::Webhookdb.postmark_inbound_messages_dataset.
+    ds = Suma::Webhookdb.postmark_inbound_messages_dataset.
       where(from_email: ["support@limebike.com", "no-reply@li.me"]).
       where(Sequel.ilike(:subject, "%Service Violation Notification%") | Sequel.ilike(:subject, "%Parking violation%")).
-      where { pk > last_synced_pk }.
-      where { timestamp > CUTOFF.ago }.
-      order(:pk).
-      all
-    return 0 if rows.empty?
-    rows.each do |row|
+      where { timestamp > CUTOFF.ago }
+    num_synced = self.row_iterator.each(ds) do |row|
       member = Suma::AnonProxy::MemberContact[email: row.fetch(:to_email)]&.member
       html_body = row.fetch(:data).fetch("HtmlBody")
       body_lines = [
@@ -36,7 +32,6 @@ class Suma::Lime::HandleViolations
         ),
       )
     end
-    Suma::Redis.cache.with { |c| c.call("SET", LAST_SYNCED_PK_KEY, rows.last.fetch(:pk).to_s) }
-    return rows.size
+    return num_synced
   end
 end

@@ -49,6 +49,7 @@ RSpec.describe Suma::AnonProxy::AuthToVendor, :db do
 
       va.auth_to_vendor.auth(now:)
       expect(req).to have_been_made
+      expect(va.registrations).to contain_exactly(have_attributes(external_program_id: "a@b.c"))
     end
 
     it "provisions a contact with an anonymous email" do

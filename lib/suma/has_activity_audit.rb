@@ -35,8 +35,7 @@ module Suma::HasActivityAudit
       raise ArgumentError, "actor must be provided or in the request" if actor.nil?
       if action.is_a?(Sequel::Model)
         action_model = action
-        action = "#{action_model.class.name}[#{action_model.pk}]"
-        action += " '#{action_model.name}'" if action_model.respond_to?(:name)
+        action = Suma::HasActivityAudit.model_repr(action_model)
       end
       if summary.nil?
         if action && prefix
@@ -44,8 +43,7 @@ module Suma::HasActivityAudit
         elsif prefix
           summary = prefix
         else
-          identifier = "#{self.class.name}[#{self.pk}]"
-          identifier += " '#{self.name}'" if self.respond_to?(:name)
+          identifier = Suma::HasActivityAudit.model_repr(self)
           pre = "#{actor.email || actor.name} performed #{message_name} on #{identifier}"
           summary = action ? "#{pre}: #{action}" : pre
         end
@@ -58,5 +56,13 @@ module Suma::HasActivityAudit
       )
       activity
     end
+  end
+
+  def self.model_repr(m)
+    s = "#{m.class.name}[#{m.pk}]"
+    return s unless m.respond_to?(:name)
+    name = m.name
+    name = name.send(SequelTranslatedText.default_language) if name.respond_to?(SequelTranslatedText.default_language)
+    return s + " '#{name}'"
   end
 end

@@ -31,7 +31,7 @@ const CurrencyTextField = React.forwardRef(function CurrencyTextField(
       return;
     }
     const num = parseCurrency(e.target.value);
-    const newMoney = { cents: num * 100, currency: currency.code };
+    const newMoney = { cents: parseInt(num * 100), currency: currency.code };
     setValue(formatMoney(newMoney, { noCurrency: true }));
     onMoneyChange(newMoney);
   }
