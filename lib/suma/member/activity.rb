@@ -7,6 +7,35 @@ class Suma::Member::Activity < Suma::Postgres::Model(:member_activities)
   plugin :timestamps
 
   many_to_one :member, class: Suma::Member
+
+  def summary_md
+    s = self.summary.dup
+    # Replace all Suma::Xyz[0] with code blocks, using the admin link if supported.
+    s.gsub!(/(Suma::[A-Za-z:]+\[\d+\])/) do |m|
+      clsname, id = m.split("[")
+      id.delete_suffix!("]")
+      cls = Kernel.const_get(clsname)
+      model = cls.new
+      if model.respond_to?(:admin_link)
+        model[cls.primary_key] = id.to_i
+        m = m.delete_prefix("Suma::")
+        "[<code class=\"code\">#{m}</code>](#{model.rooted_admin_link})"
+      else
+        "<code class=\"code\">#{m}</code>"
+      end
+    end
+    # Replace single-quoted name strings with a colored span.
+    s.gsub!(/('[\w\s_-]+')/) do |m|
+      "<span class=\"quote\">#{m}</span>"
+    end
+    # Make email bold
+    s.gsub!(/(\w+@[\w.]+)/) do |m|
+      "<span class=\"email\">#{m}</span>"
+    end
+    # Make actions bold
+    s.gsub!(self.message_name, "<span class=\"action\">#{self.message_name}</span>")
+    return s
+  end
 end
 
 # Table: member_activities
