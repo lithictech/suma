@@ -209,6 +209,12 @@ module Suma::AdminAPI::Entities
     expose :vendor_service_rate, with: VendorServiceRateEntity
   end
 
+  class ProgramEnrollmentExclusionEntity < BaseEntity
+    include AutoExposeBase
+    expose :program, with: ProgramEntity
+    expose :member, with: MemberEntity
+  end
+
   class AnonProxyVendorConfigurationEntity < BaseEntity
     include AutoExposeBase
     expose :vendor, with: VendorEntity

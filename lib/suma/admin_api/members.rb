@@ -83,6 +83,7 @@ class Suma::AdminAPI::Members < Suma::AdminAPI::V1
     expose :bank_accounts, with: PaymentInstrumentEntity
     expose :charges, with: ChargeEntity
     expose :direct_program_enrollments, with: ProgramEnrollmentEntity
+    expose :program_enrollment_exclusions, with: ProgramEnrollmentExclusionEntity
     expose :reset_codes, with: MemberResetCodeEntity
     expose :sessions, with: MemberSessionEntity
     expose :orders, with: MemberOrderEntity
