@@ -1,3 +1,4 @@
+import api from "../api";
 import useErrorSnackbar from "../hooks/useErrorSnackbar";
 import useRoleAccess from "../hooks/useRoleAccess";
 import invokeIfFunc from "../modules/invokeIfFunc";
@@ -73,7 +74,10 @@ export default function ResourceDetail({
         <Title
           onDelete={
             apiDelete &&
-            (() => apiDelete({ id }).then(() => navigate(resourceListRoute(resource))))
+            (() =>
+              apiDelete({ id })
+                .then(api.followRedirect(navigate))
+                .then((r) => r !== null && navigate(resourceListRoute(resource))))
           }
           toEdit={toEdit}
         >

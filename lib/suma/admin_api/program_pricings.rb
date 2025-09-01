@@ -18,7 +18,7 @@ class Suma::AdminAPI::ProgramPricings < Suma::AdminAPI::V1
       around: lambda do |_rt, m, &block|
         block.call
         m.program.audit_activity(
-          "pricingchange",
+          "addpricing",
           action: "Created #{m.class.name}[#{m.id}]",
         )
       end,
@@ -43,7 +43,7 @@ class Suma::AdminAPI::ProgramPricings < Suma::AdminAPI::V1
       around: lambda do |_rt, m, &block|
         block.call
         m.program.audit_activity(
-          "pricingchange",
+          "changepricing",
           action: "Updated #{Suma::HasActivityAudit.model_repr(m)} rate: " \
                   "#{Suma::HasActivityAudit.model_repr(m.vendor_service_rate)}",
         )
@@ -53,5 +53,16 @@ class Suma::AdminAPI::ProgramPricings < Suma::AdminAPI::V1
         optional(:vendor_service_rate, type: JSON) { use :model_with_id }
       end
     end
+
+    Suma::AdminAPI::CommonEndpoints.destroy(
+      self,
+      Suma::Program::Pricing,
+      DetailedProgramPricingEntity,
+      around: lambda do |rt, m, &block|
+        block.call
+        m.program.audit_activity("deletepricing", action: m)
+        rt.created_resource_headers(m.program_id, m.program.admin_link)
+      end,
+    )
   end
 end
