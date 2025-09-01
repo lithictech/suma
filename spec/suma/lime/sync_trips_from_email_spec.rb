@@ -3,11 +3,6 @@
 require "suma/lime/sync_trips_from_email"
 
 RSpec.describe Suma::Lime::SyncTripsFromEmail, :db do
-  let(:program) do
-    Suma::Fixtures.program.create(
-      vendor: Suma::Lime.deeplink_vendor,
-    )
-  end
   before(:each) do
     Suma::Webhookdb.postmark_inbound_messages_dataset.delete
     described_class.new.row_iterator.reset
@@ -141,7 +136,8 @@ RSpec.describe Suma::Lime::SyncTripsFromEmail, :db do
       described_class.new.run
       described_class.new.row_iterator.reset
       described_class.new.run
-
+      expect(Suma::Mobility::Trip).to receive(:where).and_return([])
+      described_class.new.run
       expect(Suma::Mobility::Trip.all).to have_length(1)
     end
 

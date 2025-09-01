@@ -57,7 +57,7 @@ class Suma::Lime::SyncTripsFromEmail
           external_trip_id: receipt.ride_id,
         )
       rescue Sequel::UniqueConstraintViolation
-        self.logger.debug("ride_already_exists", ride_id:)
+        self.logger.debug("ride_already_exists", ride_id: receipt.ride_id)
         raise Sequel::Rollback
       end
 
