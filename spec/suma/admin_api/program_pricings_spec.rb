@@ -28,7 +28,7 @@ RSpec.describe Suma::AdminAPI::ProgramPricings, :db do
       expect(last_response).to have_json_body.that_includes(
         program: include(id: program.id),
       )
-      expect(program.refresh.audit_activities).to contain_exactly(have_attributes(message_name: "pricingchange"))
+      expect(program.refresh.audit_activities).to contain_exactly(have_attributes(message_name: "addpricing"))
     end
   end
 
@@ -52,7 +52,20 @@ RSpec.describe Suma::AdminAPI::ProgramPricings, :db do
 
       expect(last_response).to have_status(200)
       expect(pricing.refresh).to have_attributes(vendor_service_rate: be === rate2)
-      expect(pricing.program.audit_activities).to contain_exactly(have_attributes(message_name: "pricingchange"))
+      expect(pricing.program.audit_activities).to contain_exactly(have_attributes(message_name: "changepricing"))
+    end
+  end
+
+  describe "POST /v1/program_pricings/:id/destroy" do
+    it "destroys the resource" do
+      m = Suma::Fixtures.program_pricing.create
+
+      post "/v1/program_pricings/#{m.id}/destroy"
+
+      expect(last_response).to have_status(200)
+      expect(last_response).to have_json_body.that_includes(id: m.id)
+      expect(m.program.audit_activities).to contain_exactly(have_attributes(message_name: "deletepricing"))
+      expect(m).to be_destroyed
     end
   end
 end

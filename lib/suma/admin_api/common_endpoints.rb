@@ -292,13 +292,16 @@ module Suma::AdminAPI::CommonEndpoints
     end
   end
 
-  def self.destroy(route_def, model_type, entity)
+  def self.destroy(route_def, model_type, entity, around: nil)
+    around ||= ->(*, &b) { b.call }
     route_def.instance_exec do
       route_param :id, type: Integer do
         post :destroy do
           check_admin_role_access!(:write, model_type)
           (m = model_type[params[:id]]) or forbidden!
-          m.destroy
+          around.call(self, m) do
+            m.destroy
+          end
           status 200
           present m, with: entity
         end

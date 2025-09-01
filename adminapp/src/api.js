@@ -61,8 +61,10 @@ function followRedirect(navigate) {
       const [href, relative] = relativeLink(resp.headers["created-resource-admin"]);
       if (relative) {
         navigate(href);
+        return null;
       } else {
         window.location.href = href;
+        return null;
       }
     }
     return resp;
@@ -235,6 +237,8 @@ export default {
     get(`/adminapi/v1/program_pricings/${id}`, data, ...args),
   updateProgramPricing: ({ id, ...data }, ...args) =>
     postForm(`/adminapi/v1/program_pricings/${id}`, data, ...args),
+  destroyProgramPricing: ({ id, ...data }, ...args) =>
+    post(`/adminapi/v1/program_pricings/${id}/destroy`, data, ...args),
 
   getVendorServices: (data, ...args) =>
     get(`/adminapi/v1/vendor_services`, data, ...args),

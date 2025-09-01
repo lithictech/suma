@@ -10,6 +10,7 @@ export default function ProgramPricingDetailPage() {
       resource="program_pricing"
       backTo={(m) => m.program?.adminLink}
       apiGet={api.getProgramPricing}
+      apiDelete={api.destroyProgramPricing}
       properties={(model) => [
         { label: "ID", value: model.id },
         { label: "Created At", value: dayjs(model.createdAt) },
