@@ -63,11 +63,10 @@ module Sequel::Plugins::HybridSearch
     # To avoid this, you can use cursor-based pagination by filtering the dataset,
     # like `ds.where { id > last_result_id }.hybrid_search(...)`.
     def hybrid_search(q)
-      query_embedding = SequelHybridSearch.embedding_generator.get_embedding(q)
-      pk = self.model.primary_key
-      tbl = self.model.table_name
+      (pk = self.model.primary_key) or raise "model #{self.model} must have a primary key"
       vec_col = self.model.hybrid_search_vector_column
       content_col = self.model.hybrid_search_content_column
+      query_embedding = SequelHybridSearch.embedding_generator.get_embedding(q)
       q = q.strip
       vec = Pgvector.encode(query_embedding)
       lang = self.model.hybrid_search_language
@@ -92,7 +91,7 @@ module Sequel::Plugins::HybridSearch
 
       # Rank text-filtered rows based on their text match.
       kw_search = self.model.
-        from(tbl, table_and_tsquery).
+        from(self, table_and_tsquery).
         where(matches_tsquery).
         select(
           Sequel[pk].as(:id),
@@ -104,7 +103,7 @@ module Sequel::Plugins::HybridSearch
       # Now for semantic search. We still need to do the keyword matching,
       # so we only rank rows that are possible search candidates.
       semantic_search = self.model.
-        from(tbl, table_and_tsquery).
+        from(self, table_and_tsquery).
         where(matches_tsquery).
         select(
           Sequel[pk].as(:id),

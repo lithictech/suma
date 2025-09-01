@@ -128,6 +128,21 @@ RSpec.describe "sequel-hybrid-searchable" do
       expect(got).to have_attributes(id: geralt.id, name: "Geralt")
     end
 
+    it "chains from the underlying dataset" do
+      model.create(name: "Geralt", desc: "Rivia")
+      model.create(name: "Rivia", desc: "Ciri")
+      model.hybrid_search_reindex_all
+      expect(model.dataset.exclude(name: "Geralt").hybrid_search("test models named 'geralt'")).to be_empty
+    end
+
+    it "errors if the model has no primary key" do
+      model.instance_eval do
+        def self.primary_key = nil
+      end
+
+      expect { model.dataset.hybrid_search("hi") }.to raise_error(/must have a primary key/)
+    end
+
     it "only includes results matching the keyword search" do
       geralt = model.create(name: "Geralt", desc: "Rivia")
       ciri = model.create(name: "Rivia", desc: "Ciri")
