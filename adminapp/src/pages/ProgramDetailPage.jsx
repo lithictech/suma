@@ -35,7 +35,7 @@ export default function ProgramDetailPage() {
     >
       {(model) => [
         <RelatedList
-          title={`Commerce Offerings (${model.commerceOfferings?.length})`}
+          title="Commerce Offerings"
           rows={model.commerceOfferings}
           headers={["Id", "Description", "Opening Date", "Closing Date"]}
           keyRowAttr="id"
@@ -47,24 +47,28 @@ export default function ProgramDetailPage() {
           ]}
         />,
         <RelatedList
-          title={`Vendor Services (${model.vendorServices?.length})`}
-          rows={model.vendorServices}
-          headers={["Id", "Name", "Vendor", "Opening Date", "Closing Date"]}
+          title="Pricings"
+          addNewLabel="Add Program Pricing"
+          addNewLink={createRelativeUrl(`/program-pricing/new`, {
+            programId: model.id,
+            programLabel: `(${model.id}) ${model.name.en || "-"}`,
+          })}
+          addNewRole="programPricing"
+          rows={model.pricings}
+          headers={["Id", "Service", "Rate"]}
           keyRowAttr="id"
           toCells={(row) => [
             <AdminLink key="id" model={row} />,
-            <AdminLink key="name" model={row}>
-              {row.name}
+            <AdminLink key="service" model={row.vendorService}>
+              {row.vendorService.internalName}
             </AdminLink>,
-            <AdminLink key="vendor_name" model={row.vendor}>
-              {row.vendor.name}
+            <AdminLink key="rate" model={row.vendorServiceRate}>
+              {row.vendorServiceRate.name}
             </AdminLink>,
-            formatDate(row.periodBegin),
-            formatDate(row.periodEnd),
           ]}
         />,
         <RelatedList
-          title={`Payment Triggers (${model.paymentTriggers?.length})`}
+          title="Payment Triggers"
           rows={model.paymentTriggers}
           headers={["Id", "Label", "Opening Date", "Closing Date"]}
           keyRowAttr="id"
@@ -76,7 +80,7 @@ export default function ProgramDetailPage() {
           ]}
         />,
         <RelatedList
-          title={`Vendor Configurations (${model.configurations?.length})`}
+          title="Vendor Configurations"
           rows={model.configurations}
           keyRowAttr="id"
           headers={[

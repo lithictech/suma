@@ -3,16 +3,17 @@
 require "suma/postgres/model"
 
 class Suma::Vendor::ServiceRate < Suma::Postgres::Model(:vendor_service_rates)
+  include Suma::AdminLinked
+
   plugin :timestamps
   plugin :money_fields, :unit_amount, :surcharge
 
-  many_to_many :services,
-               class: "Suma::Vendor::Service",
-               join_table: :vendor_service_vendor_service_rates,
-               left_key: :vendor_service_rate_id,
-               right_key: :vendor_service_id,
-               order: order_desc(:internal_name)
   many_to_one :undiscounted_rate, key: :undiscounted_rate_id, class: "Suma::Vendor::ServiceRate"
+
+  one_to_many :program_pricings,
+              class: "Suma::Program::Pricing",
+              key: :vendor_service_rate_id,
+              order: order_desc
 
   def calculate_total(units)
     offset_units = [units - self.unit_offset, 0].max
@@ -49,6 +50,8 @@ class Suma::Vendor::ServiceRate < Suma::Postgres::Model(:vendor_service_rates)
       surcharge_currency: self.surcharge.currency.to_s,
     }
   end
+
+  def rel_admin_link = "/vendor-service-rate/#{self.id}"
 end
 
 # Table: vendor_service_rates

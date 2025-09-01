@@ -20,17 +20,10 @@ class Suma::Program < Suma::Postgres::Model(:programs)
   plugin :association_pks
 
   one_to_many :enrollments, class: "Suma::Program::Enrollment", order: order_desc
-  # Some programs need explicit association with a vendor service,
-  # for example, to know which vendor service to association with a mobility trip.
-  many_to_one :vendor_service, class: "Suma::Vendor::Service"
-  # See #vendor_service for an explanation of this relationship.
-  many_to_one :vendor_service_rate, class: "Suma::Vendor::ServiceRate"
+  one_to_many :pricings,
+              class: "Suma::Program::Pricing",
+              order: order_desc
 
-  many_to_many :vendor_services,
-               class: "Suma::Vendor::Service",
-               join_table: :programs_vendor_services,
-               right_key: :service_id,
-               order: order_desc(:internal_name)
   many_to_many :commerce_offerings,
                class: "Suma::Commerce::Offering",
                join_table: :programs_commerce_offerings,
@@ -47,7 +40,7 @@ class Suma::Program < Suma::Postgres::Model(:programs)
                right_key: :trigger_id,
                order: order_desc
 
-  plugin :association_array_replacer, :vendor_services, :commerce_offerings
+  plugin :association_array_replacer, :commerce_offerings, :anon_proxy_vendor_configurations, :payment_triggers
 
   dataset_module do
     def active(as_of:)

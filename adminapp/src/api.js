@@ -229,14 +229,30 @@ export default {
   updateProgramEnrollment: ({ id, ...data }, ...args) =>
     postForm(`/adminapi/v1/program_enrollments/${id}`, data, ...args),
 
+  createProgramPricing: (data, ...args) =>
+    postForm("/adminapi/v1/program_pricings/create", data, ...args),
+  getProgramPricing: ({ id, ...data }, ...args) =>
+    get(`/adminapi/v1/program_pricings/${id}`, data, ...args),
+  updateProgramPricing: ({ id, ...data }, ...args) =>
+    postForm(`/adminapi/v1/program_pricings/${id}`, data, ...args),
+
   getVendorServices: (data, ...args) =>
     get(`/adminapi/v1/vendor_services`, data, ...args),
   getVendorService: ({ id, ...data }, ...args) =>
     get(`/adminapi/v1/vendor_services/${id}`, data, ...args),
+  createVendorService: (data, ...args) =>
+    postForm(`/adminapi/v1/vendor_services/create`, data, ...args),
   updateVendorService: ({ id, ...data }, ...args) =>
     postForm(`/adminapi/v1/vendor_services/${id}`, data, ...args),
-  updateVendorServicePrograms: ({ id, ...data }, ...args) =>
-    post(`/adminapi/v1/vendor_services/${id}/programs`, data, ...args),
+
+  getVendorServiceRates: (data, ...args) =>
+    get(`/adminapi/v1/vendor_service_rates`, data, ...args),
+  getVendorServiceRate: ({ id, ...data }, ...args) =>
+    get(`/adminapi/v1/vendor_service_rates/${id}`, data, ...args),
+  createVendorServiceRate: (data, ...args) =>
+    postForm(`/adminapi/v1/vendor_service_rates/create`, data, ...args),
+  updateVendorServiceRate: ({ id, ...data }, ...args) =>
+    postForm(`/adminapi/v1/vendor_service_rates/${id}`, data, ...args),
 
   getVendorAccounts: (data, ...args) =>
     get("/adminapi/v1/anon_proxy_vendor_accounts", data, ...args),
@@ -367,6 +383,8 @@ export default {
   searchLedgers: (data, ...args) => post(`/adminapi/v1/search/ledgers`, data, ...args),
   searchLedgersLookup: (data, ...args) =>
     post(`/adminapi/v1/search/ledgers/lookup`, data, ...args),
+  searchStaticStrings: (data, ...args) =>
+    post(`/adminapi/v1/search/static_strings`, data, ...args),
   searchTranslations: (data, ...args) =>
     post(`/adminapi/v1/search/translations`, data, ...args),
   searchVendors: (data, ...args) => post(`/adminapi/v1/search/vendors`, data, ...args),
@@ -376,6 +394,8 @@ export default {
   searchRoles: (data, ...args) => post(`/adminapi/v1/search/roles`, data, ...args),
   searchVendorServices: (data, ...args) =>
     post(`/adminapi/v1/search/vendor_services`, data, ...args),
+  searchVendorServiceRates: (data, ...args) =>
+    post(`/adminapi/v1/search/vendor_service_rates`, data, ...args),
   searchCommerceOffering: (data, ...args) =>
     post(`/adminapi/v1/search/commerce_offerings`, data, ...args),
   searchPrograms: (data, ...args) => post(`/adminapi/v1/search/programs`, data, ...args),

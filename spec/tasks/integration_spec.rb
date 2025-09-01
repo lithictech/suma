@@ -16,7 +16,9 @@ RSpec.describe Suma::Tasks::Integration, :db do
           charge_after_fulfillment: true,
         )
     end
-    let(:program) { Suma::Fixtures.program.create(lyft_pass_program_id: "5678", vendor_service:, vendor_service_rate:) }
+    let(:program) do
+      Suma::Fixtures.program(lyft_pass_program_id: "5678").with_pricing(vendor_service:, vendor_service_rate:).create
+    end
 
     it "runs the sync" do
       Suma::Lyft.reset_configuration

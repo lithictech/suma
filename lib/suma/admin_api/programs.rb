@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require "grape"
 require "suma/admin_api"
 
 class Suma::AdminAPI::Programs < Suma::AdminAPI::V1
@@ -12,7 +11,7 @@ class Suma::AdminAPI::Programs < Suma::AdminAPI::V1
     expose_image :image
     expose :lyft_pass_program_id
     expose :commerce_offerings, with: OfferingEntity
-    expose :vendor_services, with: VendorServiceEntity
+    expose :pricings, with: ProgramPricingEntity
     expose :anon_proxy_vendor_configurations, as: :configurations, with: AnonProxyVendorConfigurationEntity
     expose :payment_triggers, with: PaymentTriggerEntity
     expose :enrollments, with: ProgramEnrollmentEntity
@@ -46,9 +45,6 @@ class Suma::AdminAPI::Programs < Suma::AdminAPI::V1
         optional :commerce_offerings, type: Array, coerce_with: proc(&:values) do
           use :model_with_id
         end
-        optional :vendor_services, type: Array, coerce_with: proc(&:values) do
-          use :model_with_id
-        end
       end
     end
 
@@ -64,15 +60,10 @@ class Suma::AdminAPI::Programs < Suma::AdminAPI::V1
       DetailedProgramEntity,
       around: lambda do |rt, m, &block|
         offerings = rt.params.delete(:commerce_offerings)
-        vendor_services = rt.params.delete(:vendor_services)
         block.call
         if offerings
           offering_models = Suma::Commerce::Offering.where(id: offerings.map { |o| o[:id] }).all
           m.replace_commerce_offerings(offering_models)
-        end
-        if vendor_services
-          vendor_service_models = Suma::Vendor::Service.where(id: vendor_services.map { |o| o[:id] }).all
-          m.replace_vendor_services(vendor_service_models)
         end
         if rt.params[:app_link]
           # Audit app_link changes, since they could be used maliciously.
@@ -95,9 +86,6 @@ class Suma::AdminAPI::Programs < Suma::AdminAPI::V1
         optional :ordinal, type: Integer
         optional :lyft_pass_program_id, type: String
         optional :commerce_offerings, type: Array, coerce_with: proc(&:values) do
-          use :model_with_id
-        end
-        optional :vendor_services, type: Array, coerce_with: proc(&:values) do
           use :model_with_id
         end
       end

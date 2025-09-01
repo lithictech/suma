@@ -10,11 +10,17 @@ RSpec.describe "Suma::Program", :db do
     expect(o.programs).to contain_exactly(be === g)
   end
 
-  it "can fixture with vendor services" do
-    g = Suma::Fixtures.program.with_vendor_service.create
-    expect(g.vendor_services).to have_length(1)
-    o = g.vendor_services.first
-    expect(o.programs).to contain_exactly(be === g)
+  it "can fixture with pricing" do
+    g = Suma::Fixtures.program.with_pricing.create
+    expect(g.pricings).to have_length(1)
+    o = g.pricings.first
+    expect(o.program).to be === g
+    unsaved_pricing = Suma::Fixtures.program_pricing(
+      vendor_service: Suma::Fixtures.vendor_service.create,
+      vendor_service_rate: Suma::Fixtures.vendor_service_rate.create,
+    ).instance
+    g2 = Suma::Fixtures.program.with_pricing(unsaved_pricing).create
+    expect(g2.pricings).to contain_exactly(be === unsaved_pricing)
   end
 
   describe "datasets" do

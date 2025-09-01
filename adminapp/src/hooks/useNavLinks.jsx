@@ -18,6 +18,7 @@ import PaymentsIcon from "@mui/icons-material/Payments";
 import PersonIcon from "@mui/icons-material/Person";
 import PersonSearchIcon from "@mui/icons-material/PersonSearch";
 import PortraitIcon from "@mui/icons-material/Portrait";
+import PriceChangeIcon from "@mui/icons-material/PriceChange";
 import ReceiptIcon from "@mui/icons-material/Receipt";
 import RecentActorsIcon from "@mui/icons-material/RecentActors";
 import SavingsIcon from "@mui/icons-material/Savings";
@@ -168,6 +169,11 @@ export default function useNavLinks() {
             label: "Vendor Services",
             href: "/vendor-services",
             icon: <AddBusinessIcon />,
+          },
+          commerce && {
+            label: "Service Rates",
+            href: "/vendor-service-rates",
+            icon: <PriceChangeIcon />,
           },
         ].filter(Boolean),
       },

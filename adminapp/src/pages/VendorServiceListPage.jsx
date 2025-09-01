@@ -9,6 +9,7 @@ export default function VendorServiceListPage() {
     <ResourceList
       resource="vendor_service"
       apiList={api.getVendorServices}
+      canCreate
       canSearch
       columns={[
         {
@@ -19,11 +20,18 @@ export default function VendorServiceListPage() {
           render: (c) => <AdminLink model={c} />,
         },
         {
-          id: "external_name",
-          label: "Name",
+          id: "internal_name",
+          label: "Internal Name",
           align: "left",
-          render: (c) => <AdminLink model={c}>{c.name}</AdminLink>,
+          render: (c) => <AdminLink model={c}>{c.internalName}</AdminLink>,
         },
+        {
+          id: "external_name",
+          label: "External Name",
+          align: "left",
+          render: (c) => <AdminLink model={c}>{c.externalName}</AdminLink>,
+        },
+
         {
           id: "vendor",
           label: "Vendor",

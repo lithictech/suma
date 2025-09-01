@@ -71,7 +71,7 @@ export default function PreTrip({ loading, vehicle, onReserve, reserveError }) {
     <DrawerContents>
       <DrawerTitle>{vendorService.name}</DrawerTitle>
       <p className="text-muted">
-        {t("mobility." + rate.localizationKey, {
+        {t(rate.localizationKey, {
           surchargeCents: {
             cents: locVars.surchargeCents,
             currency: locVars.surchargeCurrency,

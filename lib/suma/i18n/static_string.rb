@@ -57,6 +57,8 @@ class Suma::I18n::StaticString < Suma::Postgres::Model(:i18n_static_strings)
     end
   end
 
+  def fqn = "#{self.namespace}.#{self.key}"
+
   def needs_text?
     return true if self.text_id.nil?
     return Suma::I18n.enabled_locale_codes.any? { |c| self.text.send(c).blank? }
