@@ -137,9 +137,6 @@ export default function FoodCheckout() {
                 onSelectedInstrumentChange={(pi) =>
                   runSetter("paymentOption", setManuallySelectedInstrument, pi)
                 }
-                onCheckoutChange={(attrs) =>
-                  setCheckoutMutations({ ...checkoutMutations, ...attrs })
-                }
                 register={register}
                 errors={errors}
               />
@@ -182,7 +179,6 @@ function CheckoutPayment({
   checkout,
   selectedInstrument,
   onSelectedInstrumentChange,
-  onCheckoutChange,
   register,
   errors,
 }) {
@@ -248,17 +244,6 @@ function CheckoutPayment({
               onChange={handleChange}
               required
             />
-          </Form.Group>
-          <Form.Group>
-            <Form.Check
-              id="savePayment"
-              name="savePayment"
-              label={t("food.save_payment")}
-              checked={checkout.savePaymentInstrument}
-              onChange={(e) =>
-                onCheckoutChange({ savePaymentInstrument: e.target.checked })
-              }
-            ></Form.Check>
           </Form.Group>
           <div>{t("food.link_new_payment", { context: "or" })}</div>
           {addPaymentLinks}

@@ -225,7 +225,6 @@ class Suma::Commerce::Cart < Suma::Postgres::Model(:commerce_carts)
       checkout = Suma::Commerce::Checkout.create(
         cart: self,
         payment_instrument: self.member.default_payment_instrument,
-        save_payment_instrument: self.member.default_payment_instrument.present?,
         fulfillment_option: fulfillment_option || nil,
       )
 

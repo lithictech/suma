@@ -140,7 +140,6 @@ class Suma::API::Commerce < Suma::API::V1
             use :payment_instrument
           end
           optional :fulfillment_option_id, type: Integer
-          optional :save_payment_instrument, type: Boolean, allow_blank: false
         end
         post :complete do
           member = current_member
@@ -154,9 +153,6 @@ class Suma::API::Commerce < Suma::API::V1
           if params.key?(:fulfillment_option_id)
             set_fulfillment_or_error(checkout, params[:fulfillment_option_id], checkout.available_fulfillment_options)
           end
-
-          checkout.save_payment_instrument = params[:save_payment_instrument] if
-            params.key?(:save_payment_instrument)
 
           checkout.db.transaction do
             checkout.save_changes
@@ -365,7 +361,6 @@ class Suma::API::Commerce < Suma::API::V1
     expose :available_fulfillment_options, with: FulfillmentOptionEntity
     expose :payment_instrument, with: Suma::API::Entities::PaymentInstrumentEntity
     expose :available_payment_instruments, with: Suma::API::Entities::PaymentInstrumentEntity
-    expose :save_payment_instrument
 
     expose :customer_cost, with: Suma::Service::Entities::Money
     expose :undiscounted_cost, with: Suma::Service::Entities::Money

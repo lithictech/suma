@@ -186,7 +186,6 @@
     "quantity": "Cantidad: {{quantity}}",
     "remove_from_cart": "Eliminar del carrito",
     "return_to_dashboard_alert": "Por favor regrese al inicio para agregar más fondos o edite las cantidades del carrito para reducir el costo.",
-    "save_payment": "Guardar para pedidos futuros",
     "shop": "Comprar",
     "sold_out": "Todo vendido",
     "subsidy_and_discount_applied": "{{discountAmount, sumaCurrency}} descuento de {{vendorName}} y {{subsidyAmount, sumaCurrency}} suma subsidio crédito",

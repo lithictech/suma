@@ -186,7 +186,6 @@
     "quantity": "Quantity: {{quantity}}",
     "remove_from_cart": "Remove from cart",
     "return_to_dashboard_alert": "Please return to the dashboard to add more funds or edit the cart quantities to lower your cost.",
-    "save_payment": "Save for future orders",
     "shop": "Shop",
     "sold_out": "Sold out",
     "subsidy_and_discount_applied": "{{discountAmount, sumaCurrency}} discount from {{vendorName}} and {{subsidyAmount, sumaCurrency}} suma subsidy credit",

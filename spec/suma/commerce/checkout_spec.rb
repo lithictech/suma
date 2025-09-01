@@ -157,19 +157,13 @@ RSpec.describe "Suma::Commerce::Checkout", :db do
         fulfillment_status: "unfulfilled",
       )
       expect(checkout).to be_completed
-      expect(checkout.card).to be_soft_deleted
+      expect(checkout.card).to_not be_soft_deleted
     end
 
     it "deletes the cart items, and copies their quantity to the checkout items" do
       create_order
       expect(checkout.cart.items).to be_empty
       expect(checkout.items.first).to have_attributes(quantity: 2, cart_item: nil)
-    end
-
-    it "does not delete the payment instrument if it is being saved" do
-      checkout.update(save_payment_instrument: true)
-      create_order
-      expect(checkout.card).to_not be_soft_deleted
     end
 
     it "prevents soft deleting payment instrument if it is not required" do
