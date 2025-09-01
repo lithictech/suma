@@ -10,7 +10,9 @@ import useBusy from "../hooks/useBusy";
 import useErrorSnackbar from "../hooks/useErrorSnackbar";
 import formHelpers from "../modules/formHelpers";
 import useMountEffect from "../shared/react/useMountEffect";
+import SwapHorizontalIcon from "@mui/icons-material/SwapHoriz";
 import { FormLabel, Stack } from "@mui/material";
+import IconButton from "@mui/material/IconButton";
 import humps from "humps";
 import React from "react";
 import { useForm } from "react-hook-form";
@@ -73,6 +75,14 @@ export default function BookTransactionCreatePage() {
       .tapCatch(notBusy)
       .catch(enqueueErrorSnackbar);
   }
+
+  function handleSwapLedgers(e) {
+    e.preventDefault();
+    const orig = originatingLedger;
+    setOriginatingLedger(receivingLedger);
+    setReceivingLedger(orig);
+  }
+
   return (
     <FormLayout
       title="Create a Book Transaction"
@@ -82,7 +92,13 @@ export default function BookTransactionCreatePage() {
       isBusy={isBusy}
     >
       <Stack spacing={2}>
-        <ResponsiveStack>
+        <ResponsiveStack
+          divider={
+            <IconButton color="primary" onClick={handleSwapLedgers}>
+              <SwapHorizontalIcon />
+            </IconButton>
+          }
+        >
           <AutocompleteSearch
             {...register("originatingLedger")}
             label="Originating Ledger"
