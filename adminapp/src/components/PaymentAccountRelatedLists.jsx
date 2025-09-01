@@ -47,7 +47,7 @@ export default function PaymentAccountRelatedLists({ paymentAccount }) {
                   "slug"
                 )}`}
               >
-                Add Book Credit
+                New Book Transaction
               </Link>
             );
           }
