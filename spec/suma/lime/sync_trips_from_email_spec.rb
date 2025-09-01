@@ -14,6 +14,17 @@ RSpec.describe Suma::Lime::SyncTripsFromEmail, :db do
   end
 
   describe "run" do
+    let(:member) { Suma::Fixtures.member.onboarding_verified.with_cash_ledger.create }
+    let(:va) { Suma::Fixtures.anon_proxy_vendor_account.create(member:) }
+    let(:mc) { Suma::Fixtures.anon_proxy_member_contact.email.create(member:) }
+    let(:program) do
+      Suma::Fixtures.program.with_pricing(
+        vendor_service: Suma::Fixtures.vendor_service.
+          mobility.
+          create(charge_after_fulfillment: true, mobility_vendor_adapter_key: "lime_deeplink"),
+        vendor_service_rate: Suma::Fixtures.vendor_service_rate.create,
+      ).create
+    end
     let(:text_body) do
       <<~TXT
         Start Fee
@@ -29,19 +40,12 @@ RSpec.describe Suma::Lime::SyncTripsFromEmail, :db do
       TXT
     end
 
-    it "creates trips from receipt emails" do
-      member = Suma::Fixtures.member.onboarding_verified.with_cash_ledger.create
-      va = Suma::Fixtures.anon_proxy_vendor_account.create(member:)
-      mc = Suma::Fixtures.anon_proxy_member_contact.email.create(member:)
+    before(:each) do
       va.add_registration(external_program_id: mc.email)
-      program = Suma::Fixtures.program.with_pricing(
-        vendor_service: Suma::Fixtures.vendor_service.
-          mobility.
-          create(charge_after_fulfillment: true, mobility_vendor_adapter_key: "lime_deeplink"),
-        vendor_service_rate: Suma::Fixtures.vendor_service_rate.create,
-      ).create
       va.configuration.add_program(program)
+    end
 
+    it "creates trips from receipt emails" do
       now = Time.parse("2024-07-15T12:00:00Z")
       Suma::Webhookdb.postmark_inbound_messages_dataset.insert(
         message_id: "valid",
@@ -71,6 +75,11 @@ RSpec.describe Suma::Lime::SyncTripsFromEmail, :db do
           vehicle_type: "escooter",
         ),
       )
+      expect(Suma::Mobility::Trip.first.charge.line_items).to contain_exactly(
+        have_attributes(amount: cost("$0.50"), memo: have_attributes(en: "Start Fee")),
+        have_attributes(amount: cost("$5.32"), memo: have_attributes(en: "Riding - $0.07/min (76 min)")),
+        have_attributes(amount: cost("-$5.82"), memo: have_attributes(en: "Discount")),
+      )
     end
 
     it "noops if no program registration with the email exists" do
@@ -88,11 +97,6 @@ RSpec.describe Suma::Lime::SyncTripsFromEmail, :db do
     end
 
     it "errors if there is not only 1 program for the configuration, so we cannot figure out which one to use" do
-      member = Suma::Fixtures.member.onboarding_verified.with_cash_ledger.create
-      va = Suma::Fixtures.anon_proxy_vendor_account.create(member:)
-      mc = Suma::Fixtures.anon_proxy_member_contact.email.create(member:)
-      va.add_registration(external_program_id: mc.email)
-      va.configuration.add_program(Suma::Fixtures.program.create)
       va.configuration.add_program(Suma::Fixtures.program.create)
 
       Suma::Webhookdb.postmark_inbound_messages_dataset.insert(
@@ -109,12 +113,7 @@ RSpec.describe Suma::Lime::SyncTripsFromEmail, :db do
     end
 
     it "errors if the associated program does not have pricing" do
-      member = Suma::Fixtures.member.onboarding_verified.with_cash_ledger.create
-      va = Suma::Fixtures.anon_proxy_vendor_account.create(member:)
-      mc = Suma::Fixtures.anon_proxy_member_contact.email.create(member:)
-      va.add_registration(external_program_id: mc.email)
-      program = Suma::Fixtures.program.create
-      va.configuration.add_program(program)
+      program.pricings.first.destroy
 
       Suma::Webhookdb.postmark_inbound_messages_dataset.insert(
         message_id: "valid",
@@ -131,18 +130,6 @@ RSpec.describe Suma::Lime::SyncTripsFromEmail, :db do
     end
 
     it "does not create duplicate trips" do
-      member = Suma::Fixtures.member.onboarding_verified.with_cash_ledger.create
-      va = Suma::Fixtures.anon_proxy_vendor_account.create(member:)
-      mc = Suma::Fixtures.anon_proxy_member_contact.email.create(member:)
-      va.add_registration(external_program_id: mc.email)
-      program = Suma::Fixtures.program.with_pricing(
-        vendor_service: Suma::Fixtures.vendor_service.
-          mobility.
-          create(charge_after_fulfillment: true, mobility_vendor_adapter_key: "lime_deeplink"),
-        vendor_service_rate: Suma::Fixtures.vendor_service_rate.create,
-      ).create
-      va.configuration.add_program(program)
-
       Suma::Webhookdb.postmark_inbound_messages_dataset.insert(
         message_id: "valid",
         from_email: "no-reply@li.me",
@@ -156,6 +143,67 @@ RSpec.describe Suma::Lime::SyncTripsFromEmail, :db do
       described_class.new.run
 
       expect(Suma::Mobility::Trip.all).to have_length(1)
+    end
+
+    it "handles paused charges" do
+      text = <<~TXT
+        Start Fee
+        $0.50
+        Riding - $0.07/min (18 min)
+        $2.31
+        Pause - $0.07/min (15 min)
+        $1.05
+        Discount
+        -$2.81
+        Subtotal
+        $0.00
+        Total
+        FREE
+      TXT
+      Suma::Webhookdb.postmark_inbound_messages_dataset.insert(
+        message_id: "valid",
+        from_email: "no-reply@li.me",
+        to_email: mc.email,
+        subject: "Receipt for your Lime ride",
+        timestamp: Time.now,
+        data: Sequel.pg_jsonb({"TextBody" => text}),
+      )
+      described_class.new.run
+      expect(Suma::Mobility::Trip.all).to have_length(1)
+      expect(Suma::Mobility::Trip.first.charge.line_items).to contain_exactly(
+        have_attributes(amount: cost("$0.50"), memo: have_attributes(en: "Start Fee")),
+        have_attributes(amount: cost("$1.26"), memo: have_attributes(en: "Riding - $0.07/min (18 min)")),
+        have_attributes(amount: cost("$1.05"), memo: have_attributes(en: "Pause - $0.07/min (15 min)")),
+        have_attributes(amount: cost("-$2.81"), memo: have_attributes(en: "Discount")),
+      )
+    end
+
+    it "errors if the assumptions about pause and riding are violated" do
+      text = <<~TXT
+        Start Fee
+        $0.50
+        Riding - $0.07/min (18 min)
+        $1.26
+        Pause - $0.07/min (15 min)
+        $1.05
+        Discount
+        -$2.81
+        Subtotal
+        $0.00
+        Total
+        FREE
+      TXT
+      Suma::Webhookdb.postmark_inbound_messages_dataset.insert(
+        message_id: "valid",
+        from_email: "no-reply@li.me",
+        to_email: mc.email,
+        subject: "Receipt for your Lime ride",
+        timestamp: Time.now,
+        data: Sequel.pg_jsonb({"TextBody" => text}),
+      )
+      expect do
+        described_class.new.run
+      end.to raise_error(/unexpected pause and riding line items/)
     end
   end
 
@@ -231,9 +279,9 @@ RSpec.describe Suma::Lime::SyncTripsFromEmail, :db do
         ended_at: Time.parse("2024-07-15T11:59:00Z"),
         total: cost("$0"),
         line_items: [
-          {amount: cost("$0.50"), memo: "Start Fee"},
-          {amount: cost("$5.32"), memo: "Riding - $0.07/min (76 min)"},
-          {amount: cost("-$5.82"), memo: "Discount"},
+          include(amount: cost("$0.50"), memo: "Start Fee"),
+          include(amount: cost("$5.32"), memo: "Riding - $0.07/min (76 min)"),
+          include(amount: cost("-$5.82"), memo: "Discount"),
         ],
       )
     end

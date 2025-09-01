@@ -82,14 +82,23 @@ class Suma::Lime::SyncTripsFromEmail
     )
     lines = row.fetch(:data).fetch("TextBody").lines.reject(&:blank?).map(&:strip)
     i = 0
+    riding_line_item = pause_line_item = nil
     while i < lines.length
       line = lines[i]
       if LINE_ITEM_HEADINGS.include?(line)
         r.line_items << {memo: line, amount: Monetize.parse(lines[i + 1])}
         i += 1
-      elsif line.start_with?("Riding -")
-        r.line_items << {memo: line, amount: Monetize.parse(lines[i + 1])}
-        minutes = line[/\((\d+) min\)/, 1].to_i
+      elsif line.start_with?("Riding -", "Pause -")
+        match = line.match(%r{(\$\d+\.\d\d)/min \((\d+) min\)})
+        per_minute = Monetize.parse(match[1])
+        minutes = match[2].to_i
+        line_item = {memo: line, amount: Monetize.parse(lines[i + 1]), minutes:, per_minute:}
+        if line.start_with?("Riding")
+          riding_line_item = line_item
+        else
+          pause_line_item = line_item
+        end
+        r.line_items << line_item
         r.started_at = r.ended_at - (minutes * 60)
         i += 1
       elsif line == "Total"
@@ -97,6 +106,18 @@ class Suma::Lime::SyncTripsFromEmail
         r.total = total
       end
       i += 1
+    end
+    if pause_line_item && riding_line_item
+      # Lime receipt emails have separate minute totals for pause and riding,
+      # but the riding charge also contains the pause charge. Not sure why this is!
+      # But handle it by reducing the riding charge. Raise an error if it looks wrong, though;
+      # this is an email receipt so we should expect it to change without notice.
+      expected_riding_total = pause_line_item[:amount] + (riding_line_item[:per_minute] * riding_line_item[:minutes])
+      if expected_riding_total != riding_line_item[:amount]
+        msg = "unexpected pause and riding line items: #{pause_line_item}, #{riding_line_item}"
+        raise Suma::InvariantViolation, msg
+      end
+      riding_line_item[:amount] -= pause_line_item[:amount]
     end
     return r
   end
