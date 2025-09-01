@@ -1,9 +1,6 @@
 # frozen_string_literal: true
 
 require "suma/async"
-require "suma/frontapp"
-require "suma/lime"
-require "suma/lyft"
 require "suma/messages/specs"
 
 RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transaction_check do
@@ -383,6 +380,46 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
       expect(Suma::Member).to receive(:hybrid_search_reindex_all)
       expect(Suma::Organization).to_not receive(:hybrid_search_reindex_all)
       Suma::Async::HybridSearchReindex.new.perform "Suma::Member"
+    end
+  end
+
+  describe "LimeTripSync", reset_configuration: Suma::Lime do
+    it "syncs trips" do
+      member = Suma::Fixtures.member.onboarding_verified.with_cash_ledger.create
+      va = Suma::Fixtures.anon_proxy_vendor_account.create(member:)
+      mc = Suma::Fixtures.anon_proxy_member_contact.email.create(member:)
+      va.add_registration(external_program_id: mc.email)
+      program = Suma::Fixtures.program.with_pricing(
+        vendor_service: Suma::Fixtures.vendor_service.
+          mobility.
+          create(charge_after_fulfillment: true, mobility_vendor_adapter_key: "lime_deeplink"),
+        vendor_service_rate: Suma::Fixtures.vendor_service_rate.create,
+      ).create
+      va.configuration.add_program(program)
+
+      text_body = <<~TXT
+        Start Fee
+        $0.50
+        Riding - $0.07/min (76 min)
+        $5.32
+        Discount
+        -$5.82
+        Subtotal
+        $0.00
+        Total
+        FREE
+      TXT
+      Suma::Webhookdb.postmark_inbound_messages_dataset.insert(
+        message_id: "valid",
+        from_email: "no-reply@li.me",
+        to_email: mc.email,
+        subject: "Receipt for your Lime ride",
+        timestamp: Time.now,
+        data: Sequel.pg_jsonb({"TextBody" => text_body}),
+      )
+      Suma::Async::LimeTripSync.new.perform
+
+      expect(Suma::Mobility::Trip.all).to contain_exactly(have_attributes(vehicle_id: "valid"))
     end
   end
 
