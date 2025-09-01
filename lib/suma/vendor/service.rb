@@ -57,10 +57,6 @@ class Suma::Vendor::Service < Suma::Postgres::Model(:vendor_services)
     raise Suma::Member::ReadOnlyMode, "read_only_zero_balance"
   end
 
-  def eligible_to?(member, as_of:)
-    return !self.program_pricings_dataset.eligible_to(member, as_of:).empty?
-  end
-
   # A hash is said to satisfy the vendor service constraints
   # if any of the constraints have all of their keys and values present in the hash.
   #

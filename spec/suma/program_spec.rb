@@ -15,6 +15,12 @@ RSpec.describe "Suma::Program", :db do
     expect(g.pricings).to have_length(1)
     o = g.pricings.first
     expect(o.program).to be === g
+    unsaved_pricing = Suma::Fixtures.program_pricing(
+      vendor_service: Suma::Fixtures.vendor_service.create,
+      vendor_service_rate: Suma::Fixtures.vendor_service_rate.create,
+    ).instance
+    g2 = Suma::Fixtures.program.with_pricing(unsaved_pricing).create
+    expect(g2.pricings).to contain_exactly(be === unsaved_pricing)
   end
 
   describe "datasets" do
