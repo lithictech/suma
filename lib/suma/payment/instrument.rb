@@ -1,54 +1,58 @@
 # frozen_string_literal: true
 
-require "mimemagic"
-
-require "suma/admin_linked"
 require "suma/payment"
 
-module Suma::Payment::Instrument
-  class Institution
-    attr_reader :name, :logo_src, :color
+class Suma::Payment::Instrument < Suma::Postgres::Model(:payment_instruments)
+  plugin :hybrid_search
 
-    def initialize(name:, logo:, color:)
-      @name = name
-      @color = color
-      @logo_src = Suma::Payment::Instrument.logo_to_src(logo)
+  class << self
+    def view? = true
+    def primary_key = :id
+
+    def type_strings_to_types
+      return @type_strings_to_types ||= {
+        Suma::Payment::BankAccount.new.payment_method_type => Suma::Payment::BankAccount,
+        Suma::Payment::Card.new.payment_method_type => Suma::Payment::Card,
+      }
+    end
+
+    # Given an array of instrument rows, return an array where each instrument row
+    # has been replaced with its concrete type (+Suma::Card+, etc), with the same order.
+    def reify(rows)
+      ids_by_type = {}
+      rows.each do |r|
+        ids = (ids_by_type[r.type] ||= [])
+        ids << r.id
+      end
+      instances_by_type = {}
+      ids_by_type.each do |t, ids|
+        type = self.type_strings_to_types.fetch(t)
+        instances_by_type[t] = type.dataset.where(type.primary_key => ids).all.index_by(&type.primary_key)
+      end
+      result = rows.map { |r| instances_by_type[r.type].fetch(r.id) }
+      return result
     end
   end
 
-  PNG_PREFIX = "iVBORw0KGgo"
+  module Interface
+    def payment_method_type = raise NotImplementedError
+    def rel_admin_link = raise NotImplementedError
+    def can_use_for_funding? = raise NotImplementedError
+    # @return [Institution]
+    def institution = raise NotImplementedError
 
-  def self.logo_to_src(arg)
-    return "" if arg.nil?
-    return arg if /^[a-z]{2,10}:/.match?(arg)
-    return "data:image/png;base64,#{arg}" if arg.start_with?(PNG_PREFIX)
-    begin
-      raw = Base64.strict_decode64(arg[...(4 * 10)]) # base64 string length is divisible by 4
-    rescue ArgumentError
-      return arg
+    def admin_label
+      lbl = "#{self.name}/#{self.last4}"
+      inst_name = self.institution.name
+      lbl += " (#{inst_name})" unless self.name&.include?(inst_name || "")
+      return lbl
     end
-    matched = MimeMagic.by_magic(raw)
-    return arg unless matched
-    return "data:#{matched};base64,#{arg}"
-  end
 
-  def payment_method_type = raise NotImplementedError
-  def rel_admin_link = raise NotImplementedError
-  def can_use_for_funding? = raise NotImplementedError
-  # @return [Institution]
-  def institution = raise NotImplementedError
+    def simple_label = raise NotImplementedError
 
-  def admin_label
-    lbl = "#{self.name}/#{self.last4}"
-    inst_name = self.institution.name
-    lbl += " (#{inst_name})" unless self.name&.include?(inst_name || "")
-    return lbl
-  end
-
-  def simple_label = raise NotImplementedError
-
-  def search_label
-    lbl = "#{self.legal_entity.name}: #{self.name} x-#{self.last4}, #{self.institution.name}"
-    return lbl
+    def search_label
+      lbl = "#{self.legal_entity.name}: #{self.name} x-#{self.last4}, #{self.institution.name}"
+      return lbl
+    end
   end
 end

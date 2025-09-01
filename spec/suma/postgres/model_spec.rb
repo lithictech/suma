@@ -100,6 +100,17 @@ RSpec.describe "Suma::Postgres::Model", :db do
     expect(desc).to all(start_with("Suma::"))
   end
 
+  describe "with_setting" do
+    it "temporarily sets a field" do
+      m = create_model(:testing)
+      expect(m).to have_attributes(strict_param_setting: true)
+      m.with_setting(:strict_param_setting, false) do
+        expect(m).to have_attributes(strict_param_setting: false)
+      end
+      expect(m).to have_attributes(strict_param_setting: true)
+    end
+  end
+
   describe "#find_or_create_or_find" do
     let(:model_class) { Suma::Postgres::TestingPixie }
 
