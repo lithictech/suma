@@ -6,10 +6,12 @@ require "suma/payment/instrument"
 require "suma/postgres/model"
 
 class Suma::Payment::BankAccount < Suma::Postgres::Model(:payment_bank_accounts)
-  include Suma::Payment::Instrument
+  include Suma::Payment::Instrument::Interface
+  include Suma::Postgres::HybridSearch
   include Suma::AdminLinked
   include Suma::ExternalLinks
 
+  plugin :hybrid_search
   plugin :timestamps
   plugin :soft_deletes
   plugin :column_encryption do |enc|
@@ -59,7 +61,7 @@ class Suma::Payment::BankAccount < Suma::Postgres::Model(:payment_bank_accounts)
 
   def institution
     inst = self.plaid_institution
-    return Institution.new(
+    return Suma::Payment::Institution.new(
       name: inst&.name || "Unknown",
       logo: inst&.logo_base64 || "",
       color: inst&.primary_color_hex || "#000000",
@@ -81,6 +83,17 @@ class Suma::Payment::BankAccount < Suma::Postgres::Model(:payment_bank_accounts)
   def before_save
     self.reassociate_plaid_institution if self.id.nil? || self.changed_columns.include?(:routing_number)
     super
+  end
+
+  def hybrid_search_fields
+    return [
+      :payment_method_type,
+      :name,
+      :routing_number,
+      :last4,
+      [:institution_name, self.institution.name],
+      ["Owner", self.legal_entity.name],
+    ]
   end
 end
 

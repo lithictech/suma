@@ -6,10 +6,12 @@ require "suma/payment/instrument"
 require "suma/postgres/model"
 
 class Suma::Payment::Card < Suma::Postgres::Model(:payment_cards)
-  include Suma::Payment::Instrument
+  include Suma::Payment::Instrument::Interface
+  include Suma::Postgres::HybridSearch
   include Suma::AdminLinked
   include Suma::ExternalLinks
 
+  plugin :hybrid_search
   plugin :timestamps
   plugin :soft_deletes
 
@@ -35,7 +37,7 @@ class Suma::Payment::Card < Suma::Postgres::Model(:payment_cards)
 
   def institution
     inst = INSTITUTIONS[self.brand]
-    inst ||= Institution.new(
+    inst ||= Suma::Payment::Institution.new(
       name: self.brand,
       logo: DEFAULT_INSTITUTION.logo_src,
       color: DEFAULT_INSTITUTION.color,
@@ -64,24 +66,35 @@ class Suma::Payment::Card < Suma::Postgres::Model(:payment_cards)
     ]
   end
 
+  def hybrid_search_fields
+    return [
+      :payment_method_type,
+      :stripe_id,
+      :last4,
+      :brand,
+      [:institution_name, self.institution.name],
+      ["Owner", self.legal_entity.name],
+    ]
+  end
+
   def self.load_payment_icon_base64(name)
     b = Base64.strict_encode64(File.binread(Suma::DATA_DIR + "payment-icons/#{name}"))
     return "data:image/png;base64,#{b}"
   end
 
   INSTITUTIONS = {
-    "Visa" => Institution.new(
+    "Visa" => Suma::Payment::Institution.new(
       name: "Visa",
       logo: self.load_payment_icon_base64("visa.png"),
       color: "#1A1F71",
     ),
-    "MasterCard" => Institution.new(
+    "MasterCard" => Suma::Payment::Institution.new(
       name: "MasterCard",
       logo: self.load_payment_icon_base64("mastercard.png"),
       color: "#EB001B",
     ),
   }.freeze
-  DEFAULT_INSTITUTION = Institution.new(
+  DEFAULT_INSTITUTION = Suma::Payment::Institution.new(
     name: "",
     logo: self.load_payment_icon_base64("default.png"),
     color: "#AAAAAA",

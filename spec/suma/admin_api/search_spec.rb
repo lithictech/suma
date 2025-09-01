@@ -91,7 +91,7 @@ RSpec.describe Suma::AdminAPI::Search, :db do
     end
   end
 
-  describe "POST /v1/search/payment_instruments" do
+  describe "POST /v1/search/payment_instruments", :hybrid_search do
     it "errors without role access" do
       replace_roles(admin, Suma::Role.cache.noop_admin)
 
@@ -101,34 +101,33 @@ RSpec.describe Suma::AdminAPI::Search, :db do
       expect(last_response).to have_json_body.that_includes(error: include(code: "role_check"))
     end
 
-    it "returns matching bank accounts" do
-      o1 = Suma::Fixtures.bank_account.verified.create(name: "abc")
-      o2 = Suma::Fixtures.bank_account.verified.create(name: "xyz")
+    it "returns matching payment instruments" do
+      ba_abc = Suma::Fixtures.bank_account.verified.create(name: "abc")
+      Suma::Fixtures.bank_account.verified.create(name: "abc").soft_delete
+      ba_xyz = Suma::Fixtures.bank_account.verified.create(name: "xyz")
+      card_abc = Suma::Fixtures.card.with_stripe("brand" => "abc").create
+      Suma::Fixtures.card.with_stripe("brand" => "abc").create.soft_delete
+      card_xyz = Suma::Fixtures.card.with_stripe("brand" => "xyz").create
+
+      Suma::Payment::BankAccount.hybrid_search_reindex_all
+      Suma::Payment::Card.hybrid_search_reindex_all
 
       post "/v1/search/payment_instruments", q: "abc"
 
       expect(last_response).to have_status(200)
-      expect(last_response).to have_json_body.that_includes(items: have_same_ids_as(o1))
-    end
-
-    it "can search a card last 4" do
-      o1 = Suma::Fixtures.card.with_stripe("last4" => "1234").create
-      o2 = Suma::Fixtures.card.with_stripe("last4" => "5678").create
-
-      post "/v1/search/payment_instruments", q: "5678"
-
-      expect(last_response).to have_status(200)
-      expect(last_response).to have_json_body.that_includes(items: have_same_ids_as(o2))
+      expect(last_response).to have_json_body.that_includes(items: have_same_ids_as(ba_abc, card_abc))
     end
 
     it "can filter on payment method type" do
-      o1 = Suma::Fixtures.bank_account.verified.create(name: "5678")
-      o2 = Suma::Fixtures.card.with_stripe("last4" => "5678").create
+      ba = Suma::Fixtures.bank_account.verified.create(name: "myaccount")
+      card = Suma::Fixtures.card.with_stripe("brand" => "myaccount").create
+      Suma::Payment::BankAccount.hybrid_search_reindex_all
+      Suma::Payment::Card.hybrid_search_reindex_all
 
-      post "/v1/search/payment_instruments", q: "5678", types: ["bank_account"]
+      post "/v1/search/payment_instruments", q: "myaccount", types: ["card"]
 
       expect(last_response).to have_status(200)
-      expect(last_response).to have_json_body.that_includes(items: have_same_ids_as(o1))
+      expect(last_response).to have_json_body.that_includes(items: have_same_ids_as(card))
     end
   end
 

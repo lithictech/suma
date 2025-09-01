@@ -81,59 +81,15 @@ class Suma::AdminAPI::Search < Suma::AdminAPI::V1
 
     params do
       optional :q, type: String
-      optional :types, type: Array[Symbol], values: [:bank_account, :card]
+      optional :types, type: Array[String], values: ["bank_account", "card"]
     end
     post :payment_instruments do
       check_admin_role_access!(:read, Suma::Member)
-      ba_ds = Suma::Payment::BankAccount.dataset.usable.verified
-      card_ds = Suma::Payment::Card.dataset.usable
-      if (types = params[:types]).present?
-        ba_ds = ba_ds.where(1 => 2) unless types.include?(:bank_account)
-        card_ds = card_ds.where(1 => 2) unless types.include?(:card)
-      end
-      if (q = params[:q]).present?
-        legal_entity_search = Sequel[legal_entity: Suma::LegalEntity.where(
-          search_to_sql(q, :name) |
-            Sequel[member: Suma::Member.where(search_to_sql(q, :name))],
-        )]
-        ba_ds = ba_ds.where(search_to_sql(q, :name) | legal_entity_search)
-        card_ds = card_ds.where(
-          search_to_sql(q, Sequel.pg_json_op(:stripe_json).get_text("last4")) |
-            legal_entity_search,
-        )
-      end
-      unioned_ds = ba_ds.select(
-        :id,
-        Sequel.as("bank_account", :payment_method_type),
-        :legal_entity_id,
-        :name,
-        :account_number,
-        :plaid_institution_id,
-        Sequel.as("{}", :stripe_json),
-        Sequel.as(:name, :ordering),
-      ).union(
-        card_ds.select(
-          :id,
-          Sequel.as("card", :payment_method_type),
-          :legal_entity_id,
-          Sequel.as("", :name),
-          Sequel.as("", :account_number),
-          Sequel.as(0, :plaid_institution_id),
-          :stripe_json,
-          Sequel.pg_json_op(:stripe_json).get_text("last4").as(:ordering),
-        ),
-      )
-      unioned_ds = unioned_ds.order(:ordering).limit(15)
-      instruments = unioned_ds.naked.map do |row|
-        model = row[:payment_method_type] == "card" ? Suma::Payment::Card : Suma::Payment::BankAccount
-        id = row.delete(:id)
-        # Disable strict mode so we ignore the common rows in the union
-        m = model.with_setting(:strict_param_setting, false) do
-          model.new(**row)
-        end
-        m.id = id
-        m
-      end
+      ds = Suma::Payment::Instrument.
+        where(soft_deleted_at: nil)
+      ds = ds.where(type: params[:types]) if params[:types].present?
+      ds = hybrid_search(ds, params).limit(15)
+      instruments = Suma::Payment::Instrument.reify(ds.all)
       status 200
       present_collection instruments, with: SearchPaymentInstrumentEntity
     end

@@ -21,7 +21,7 @@ RSpec.describe Suma::Payment, :db do
     end
   end
 
-  describe Suma::Payment::Instrument do
+  describe Suma::Payment::Institution do
     describe "logo_to_src" do
       it "converts nil to empty string" do
         expect(described_class.logo_to_src(nil)).to eq("")

@@ -29,6 +29,14 @@ RSpec.describe "Suma::Payment::BankAccount", :db do
         expect(Suma::Payment::BankAccount.usable.all).to have_same_ids_as(ba1, ba2)
       end
     end
+
+    describe "verified" do
+      it "is limited to verified bank accounts" do
+        ba2 = Suma::Fixtures.bank_account.verified.create
+        ba1 = Suma::Fixtures.bank_account.create
+        expect(Suma::Payment::BankAccount.verified.all).to have_same_ids_as(ba2)
+      end
+    end
   end
 
   it "finds or updates associated plaid institution when routing number is changed" do

@@ -2,6 +2,7 @@
 
 require "biz"
 require "holidays"
+require "mimemagic"
 
 module Suma::Payment
   include Appydays::Configurable
@@ -18,6 +19,32 @@ module Suma::Payment
   end
 
   class UnsupportedMethod < Error; end
+
+  class Institution
+    attr_reader :name, :logo_src, :color
+
+    def initialize(name:, logo:, color:)
+      @name = name
+      @color = color
+      @logo_src = self.class.logo_to_src(logo)
+    end
+
+    PNG_PREFIX = "iVBORw0KGgo"
+
+    def self.logo_to_src(arg)
+      return "" if arg.nil?
+      return arg if /^[a-z]{2,10}:/.match?(arg)
+      return "data:image/png;base64,#{arg}" if arg.start_with?(PNG_PREFIX)
+      begin
+        raw = Base64.strict_decode64(arg[...(4 * 10)]) # base64 string length is divisible by 4
+      rescue ArgumentError
+        return arg
+      end
+      matched = MimeMagic.by_magic(raw)
+      return arg unless matched
+      return "data:#{matched};base64,#{arg}"
+    end
+  end
 
   configurable(:payments) do
     setting :autoverify_account_numbers, [], convert: lambda(&:split)

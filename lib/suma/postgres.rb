@@ -108,6 +108,7 @@ module Suma::Postgres
     "suma/payment/funding_transaction/audit_log",
     "suma/payment/funding_transaction/increase_ach_strategy",
     "suma/payment/funding_transaction/stripe_card_strategy",
+    "suma/payment/instrument",
     "suma/payment/off_platform_strategy",
     "suma/payment/payout_transaction",
     "suma/payment/payout_transaction/audit_log",

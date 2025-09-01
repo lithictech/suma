@@ -72,7 +72,7 @@ RSpec.shared_examples "a payment instrument" do
       name: be_a(String).and(be_present),
       last4: be_a(String).and(be_present),
       can_use_for_funding?: be_bool,
-      institution: be_a(Suma::Payment::Instrument::Institution),
+      institution: be_a(Suma::Payment::Institution),
       legal_entity: be_a(Suma::LegalEntity),
     )
   end

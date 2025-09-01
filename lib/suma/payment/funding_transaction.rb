@@ -83,7 +83,7 @@ class Suma::Payment::FundingTransaction < Suma::Postgres::Model(:payment_funding
     # Create a new funding transaction with the given parameters.
     # @param [Suma::Payment::Account] payment_account
     # @param [Money] amount
-    # @param [Suma::Payment::Instrument] instrument The payment instrument to use.
+    # @param [Suma::Payment::Instrument::Interface] instrument The payment instrument to use.
     #   Use an ACH strategy for bank accounts, Card strategy for cards, etc.
     # @param [String] originating_ip The IP of the user starting this transaction.
     #   Only some strategies, like cards, require this to be set.

@@ -170,7 +170,7 @@ module Suma::Service::Helpers
   end
 
   def hybrid_search(dataset, params)
-    search = params.fetch(:search)
+    search = params.key?(:search) ? params.fetch(:search) : params.fetch(:q)
     # Convert US-formatted phone numbers to E164 format (no leading country code)
     # so they can be matched more explicitly. Otherwise, the spaces in the phone number
     # are split as tokens, and we get bad results.
