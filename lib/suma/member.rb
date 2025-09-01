@@ -166,7 +166,9 @@ class Suma::Member < Suma::Postgres::Model(:members)
                   self.program_enrollments_via_organization_roles_dataset,
                   alias: :program_enrollments,
                 ).exclude(
-                  program_id: Suma::Program::EnrollmentExclusion.where(member: self).select(:program_id),
+                  program_id: Suma::Program::EnrollmentExclusion.
+                    where(Sequel[member: self] | Sequel[role: self.roles_dataset]).
+                    select(:program_id),
                 ).order(:program_id, :member_id, :organization_id).
                   distinct(:program_id)
               },

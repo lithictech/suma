@@ -3,7 +3,14 @@ import AutocompleteSearch from "../components/AutocompleteSearch";
 import FormLayout from "../components/FormLayout";
 import ResourceCreate from "../components/ResourceCreate";
 import useMountEffect from "../shared/react/useMountEffect";
-import { FormLabel, Stack } from "@mui/material";
+import {
+  FormControl,
+  FormControlLabel,
+  FormLabel,
+  Radio,
+  RadioGroup,
+  Stack,
+} from "@mui/material";
 import React from "react";
 import { useSearchParams } from "react-router-dom";
 
@@ -23,16 +30,31 @@ export default function ProgramEnrollmentExclusionCreatePage() {
 
 function Form({ resource, setField, register, isBusy, onSubmit }) {
   const [searchParams] = useSearchParams();
+  const searchProgramId = Number(searchParams.get("programId") || -1);
+  const searchEnrolleeId = Number(searchParams.get("enrolleeId") || -1);
+  const searchEnrolleeType = searchParams.get("enrolleeType");
+  const [enrolleeType, setEnrolleeType] = React.useState(searchEnrolleeType || "member");
+  const fixedEnrollee = searchEnrolleeId > 0;
+
   useMountEffect(() => {
-    const programId = Number(searchParams.get("programId") || -1);
-    const memberId = Number(searchParams.get("memberId") || -1);
-    if (programId > 0) {
-      setField("program", { id: programId, label: searchParams.get("programLabel") });
+    if (searchProgramId > 0) {
+      setField("program", {
+        id: searchProgramId,
+        label: searchParams.get("programLabel"),
+      });
     }
-    if (memberId > 0) {
-      setField("member", { id: memberId, label: searchParams.get("memberLabel") });
+    if (searchEnrolleeId > 0) {
+      setField(searchEnrolleeType, {
+        id: searchEnrolleeId,
+        label: searchParams.get("enrolleeLabel"),
+      });
     }
   }, [searchParams]);
+
+  const handleEnrolleeTypeChange = (e) => {
+    setEnrolleeType(e.target.value);
+    setField(enrolleeType, null);
+  };
 
   return (
     <FormLayout
@@ -55,18 +77,43 @@ function Form({ resource, setField, register, isBusy, onSubmit }) {
           searchEmpty
           onValueSelect={(p) => setField("program", p)}
         />
-        <AutocompleteSearch
-          {...register("member")}
-          label="Member"
-          value={resource.member?.label || ""}
-          fullWidth
-          search={api.searchMembers}
-          required
-          disabled={searchParams.has("memberId")}
-          style={{ flex: 1 }}
-          searchEmpty
-          onValueSelect={(p) => setField("member", p)}
-        />
+        <FormControl disabled={fixedEnrollee}>
+          <FormLabel>Enrollee Type</FormLabel>
+          <RadioGroup value={enrolleeType} row onChange={handleEnrolleeTypeChange}>
+            <FormControlLabel value="member" control={<Radio />} label="Member" />
+            <FormControlLabel value="role" control={<Radio />} label="Role" />
+          </RadioGroup>
+        </FormControl>
+        {enrolleeType === "member" && (
+          <AutocompleteSearch
+            {...register("member")}
+            label="Member"
+            helperText="This member is excluded from this program."
+            value={resource.member?.label || ""}
+            fullWidth
+            search={api.searchMembers}
+            required
+            disabled={searchParams.has("enrolleeId")}
+            style={{ flex: 1 }}
+            searchEmpty
+            onValueSelect={(p) => setField("member", p)}
+          />
+        )}
+        {enrolleeType === "role" && (
+          <AutocompleteSearch
+            key="role"
+            {...register("role")}
+            label="Role"
+            helperText="Members (NOT organizations) with this role are excluded from this program."
+            value={resource.role?.label || ""}
+            fullWidth
+            search={api.searchRoles}
+            searchEmpty={true}
+            disabled={fixedEnrollee}
+            style={{ flex: 1 }}
+            onValueSelect={(role) => setField("role", role)}
+          />
+        )}
       </Stack>
     </FormLayout>
   );

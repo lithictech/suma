@@ -225,25 +225,25 @@ export default {
   getProgramEnrollments: (data, ...args) =>
     get(`/adminapi/v1/program_enrollments`, data, ...args),
   createProgramEnrollment: (data, ...args) =>
-    postForm("/adminapi/v1/program_enrollments/create", data, ...args),
+    post("/adminapi/v1/program_enrollments/create", data, ...args),
   getProgramEnrollment: ({ id, ...data }, ...args) =>
     get(`/adminapi/v1/program_enrollments/${id}`, data, ...args),
   updateProgramEnrollment: ({ id, ...data }, ...args) =>
-    postForm(`/adminapi/v1/program_enrollments/${id}`, data, ...args),
+    post(`/adminapi/v1/program_enrollments/${id}`, data, ...args),
 
   createProgramEnrollmentExclusion: (data, ...args) =>
-    postForm("/adminapi/v1/program_enrollment_exclusions/create", data, ...args),
+    post("/adminapi/v1/program_enrollment_exclusions/create", data, ...args),
   getProgramEnrollmentExclusion: ({ id, ...data }, ...args) =>
     get(`/adminapi/v1/program_enrollment_exclusions/${id}`, data, ...args),
   destroyProgramEnrollmentExclusion: ({ id, ...data }, ...args) =>
     post(`/adminapi/v1/program_enrollment_exclusions/${id}/destroy`, data, ...args),
 
   createProgramPricing: (data, ...args) =>
-    postForm("/adminapi/v1/program_pricings/create", data, ...args),
+    post("/adminapi/v1/program_pricings/create", data, ...args),
   getProgramPricing: ({ id, ...data }, ...args) =>
     get(`/adminapi/v1/program_pricings/${id}`, data, ...args),
   updateProgramPricing: ({ id, ...data }, ...args) =>
-    postForm(`/adminapi/v1/program_pricings/${id}`, data, ...args),
+    post(`/adminapi/v1/program_pricings/${id}`, data, ...args),
   destroyProgramPricing: ({ id, ...data }, ...args) =>
     post(`/adminapi/v1/program_pricings/${id}/destroy`, data, ...args),
 
@@ -261,9 +261,9 @@ export default {
   getVendorServiceRate: ({ id, ...data }, ...args) =>
     get(`/adminapi/v1/vendor_service_rates/${id}`, data, ...args),
   createVendorServiceRate: (data, ...args) =>
-    postForm(`/adminapi/v1/vendor_service_rates/create`, data, ...args),
+    post(`/adminapi/v1/vendor_service_rates/create`, data, ...args),
   updateVendorServiceRate: ({ id, ...data }, ...args) =>
-    postForm(`/adminapi/v1/vendor_service_rates/${id}`, data, ...args),
+    post(`/adminapi/v1/vendor_service_rates/${id}`, data, ...args),
 
   getVendorAccounts: (data, ...args) =>
     get("/adminapi/v1/anon_proxy_vendor_accounts", data, ...args),

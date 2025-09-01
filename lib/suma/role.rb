@@ -62,6 +62,7 @@ class Suma::Role < Suma::Postgres::Model(:roles)
                order: order_assoc(:name)
 
   one_to_many :program_enrollments, class: "Suma::Program::Enrollment", order: order_desc
+  one_to_many :program_enrollment_exclusions, class: "Suma::Program::EnrollmentExclusion", order: order_desc
 
   def rel_admin_link = "/role/#{self.id}"
 

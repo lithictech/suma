@@ -200,6 +200,15 @@ Members can access programs through:
 - _Role enrollments_, where a member can access the program by having a particular role.
   For example, "all beta testers have access to free e-bike rides."
 
+### Program Enrollment Exclusions
+
+In some cases, we want to prohibit certain members from access certain programs,
+even if they otherwise have access.
+
+For example, Lime may request we terminate access to a member with bad behavior. We can do this by creating an **enrollment exclusion** for them in the Lime Access program.
+
+Or, a member may have access to Lime Access through their organization which allows minors, but Lime Access does not allow minors. These members can get an `age_of_minority` role automatically applied, which can then be excluded from enrollment in the Lime program.
+
 ### Messages
 
 **Messages** are all the messages the backend sends, including verification passcodes, order confirmations, etc.

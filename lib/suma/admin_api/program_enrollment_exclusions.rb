@@ -12,18 +12,26 @@ class Suma::AdminAPI::ProgramEnrollmentExclusions < Suma::AdminAPI::V1
   end
 
   resource :program_enrollment_exclusions do
+    helpers do
+      def modelrepr(m)
+        prefix = Suma::HasActivityAudit.model_repr(m)
+        "#{prefix}(enrollee: #{Suma::HasActivityAudit.model_repr(m.enrollee)})"
+      end
+    end
+
     Suma::AdminAPI::CommonEndpoints.create(
       self,
       Suma::Program::EnrollmentExclusion,
       DetailedProgramEnrollmentExclusionEntity,
-      around: lambda do |_rt, m, &block|
+      around: lambda do |rt, m, &block|
         block.call
-        m.program.audit_activity("addexclusion", action: m)
+        m.program.audit_activity("addexclusion", action: rt.modelrepr(m))
       end,
     ) do
       params do
         requires(:program, type: JSON) { use :model_with_id }
-        requires(:member, type: JSON) { use :model_with_id }
+        optional(:member, type: JSON) { use :model_with_id }
+        optional(:role, type: JSON) { use :model_with_id }
       end
     end
 
@@ -39,7 +47,7 @@ class Suma::AdminAPI::ProgramEnrollmentExclusions < Suma::AdminAPI::V1
       DetailedProgramEnrollmentExclusionEntity,
       around: lambda do |rt, m, &block|
         block.call
-        m.program.audit_activity("removeexclusion", action: m)
+        m.program.audit_activity("removeexclusion", action: rt.modelrepr(m))
         rt.created_resource_headers(m.program_id, m.program.admin_link)
       end,
     )
