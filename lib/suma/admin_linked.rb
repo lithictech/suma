@@ -1,12 +1,18 @@
 # frozen_string_literal: true
 
 module Suma::AdminLinked
+  private def _rel_admin_link
+    return self.rel_admin_link
+  rescue NoMethodError
+    raise NotImplementedError, "#{self.class} must implement :rel_admin_link"
+  end
+
   def admin_link
-    begin
-      ln = self.rel_admin_link
-    rescue NoMethodError
-      raise NotImplementedError, "AdminLinked must implement :rel_admin_link"
-    end
-    return Suma.admin_url + ln
+    return Suma.admin_url + _rel_admin_link
+  end
+
+  def rooted_admin_link
+    u = URI(Suma.admin_url)
+    return u.path + _rel_admin_link
   end
 end

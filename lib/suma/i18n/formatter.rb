@@ -72,5 +72,12 @@ class Suma::I18n::Formatter
     def lru
       return @lru ||= Suma::Lru.new(300)
     end
+
+    def strip_paragraph_container!(s)
+      s.strip!
+      s.delete_prefix!("<p>")
+      s.delete_suffix!("</p>")
+      return s
+    end
   end
 end

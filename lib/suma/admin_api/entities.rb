@@ -111,6 +111,7 @@ module Suma::AdminAPI::Entities
     expose :message_name
     expose :message_vars
     expose :summary
+    expose :summary_md
   end
 
   class MemberEntity < BaseEntity

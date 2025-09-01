@@ -13,10 +13,7 @@ class Suma::Organization::Membership::Verification::Note <
   # It will have no container paragraph element, to make it easier to nest.
   def content_html
     s = Suma::I18n::Formatter.redcarpet.render(self.content)
-    s.strip!
-    s.delete_prefix!("<p>")
-    s.delete_suffix!("</p>")
-    return s
+    return Suma::I18n::Formatter.strip_paragraph_container!(s)
   end
 end
 

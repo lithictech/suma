@@ -9,9 +9,18 @@ RSpec.describe "Suma::Member::Activity", :db do
     a = Suma::Fixtures.member_activity.subject(o).create
     expect(o.audit_activities).to have_same_ids_as(a)
   end
+
   it "can use an integer or text subject id" do
     expect { Suma::Fixtures.member_activity.create(subject_id: "1") }.to_not raise_error
     expect { Suma::Fixtures.member_activity.create(subject_id: "abc") }.to_not raise_error
+  end
+
+  describe "summary_md" do
+    it "parses and renders the summary" do
+      a = described_class.new(message_name: "removeexclusion")
+      a.summary = "a@lithic.tech performed removeexclusion on Suma::Program[39] 'A Market 2025': Suma::Program::EnrollmentExclusion[7](enrollee: Suma::Member[439] 'Person x' Suma::Payment::FakeStrategy[1])"
+      expect(a.summary_md).to eq("<span class=\"email\">a@lithic.tech</span> performed <span class=\"action\">removeexclusion</span> on [<code class=\"code\">Program[39]</code>](/program/39) <span class=\"quote\">'A Market 2025'</span>: [<code class=\"code\">Program::EnrollmentExclusion[7]</code>](/program-enrollment-exclusion/7)(enrollee: [<code class=\"code\">Member[439]</code>](/member/439) <span class=\"quote\">'Person x'</span> <code class=\"code\">Suma::Payment::FakeStrategy[1]</code>)")
+    end
   end
 
   describe "HasActivityAudit" do
