@@ -27,7 +27,6 @@ class Suma::AdminAPI::CommerceOrders < Suma::AdminAPI::V1
     expose :handling, with: MoneyEntity
     expose :tax, with: MoneyEntity
     expose :total, with: MoneyEntity
-    expose :save_payment_instrument
     expose :payment_instrument, with: PaymentInstrumentEntity
     expose :fulfillment_option, with: OfferingFulfillmentOptionEntity
   end

@@ -238,9 +238,6 @@ class Suma::Commerce::Checkout < Suma::Postgres::Model(:commerce_checkouts)
         charge.add_associated_funding_transaction(funding)
       end
 
-      # Delete this at the end, after it's charged.
-      self.payment_instrument.soft_delete if self.payment_instrument && !self.save_payment_instrument
-
       return order
     end
   end

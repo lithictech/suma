@@ -459,15 +459,6 @@ RSpec.describe Suma::API::Commerce, :db do
       expect(last_response).to have_json_body.that_includes(error: include(code: "invalid_order_quantity"))
     end
 
-    it "deletes the payment instrument if it is not being saved" do
-      post "/v1/commerce/checkouts/#{checkout.id}/complete",
-           charge_amount_cents: cost,
-           save_payment_instrument: false
-
-      expect(last_response).to have_status(200)
-      expect(card.refresh).to be_soft_deleted
-    end
-
     it "403s if the member cannot access the offering due to eligibility" do
       offering.add_program(Suma::Fixtures.program.create)
 
