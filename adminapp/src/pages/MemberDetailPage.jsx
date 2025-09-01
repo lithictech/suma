@@ -137,15 +137,16 @@ export default function MemberDetailPage() {
           <ResourceSummary>
             <LegalEntity {...model.legalEntity} />
           </ResourceSummary>,
+          <OrganizationMemberships
+            memberships={model.organizationMemberships}
+            model={model}
+          />,
           <ProgramEnrollmentRelatedList
             model={model}
             resource="member"
             enrollments={model.directProgramEnrollments}
           />,
-          <OrganizationMemberships
-            memberships={model.organizationMemberships}
-            model={model}
-          />,
+          <EnrollmentExclusions model={model} />,
           <Activities activities={model.activities} />,
           <Orders orders={model.orders} />,
           <Charges charges={model.charges} />,
@@ -209,6 +210,29 @@ function LegalEntity({ address }) {
         ]}
       />
     </div>
+  );
+}
+
+function EnrollmentExclusions({ model }) {
+  return (
+    <RelatedList
+      title="Enrollment Exclusions"
+      addNewLabel="Add Exclusion"
+      addNewLink={createRelativeUrl(`/program-enrollment-exclusion/new`, {
+        memberId: model.id,
+        memberLabel: `(${model.id}) ${model.name}`,
+      })}
+      addNewRole="programEnrollmentExclusion"
+      rows={model.programEnrollmentExclusions}
+      headers={["Id", "Program"]}
+      keyRowAttr="id"
+      toCells={(row) => [
+        <AdminLink key="id" model={row} />,
+        <AdminLink key="program" model={row.program}>
+          {row.program.name.en}
+        </AdminLink>,
+      ]}
+    />
   );
 }
 

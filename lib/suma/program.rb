@@ -20,9 +20,8 @@ class Suma::Program < Suma::Postgres::Model(:programs)
   plugin :association_pks
 
   one_to_many :enrollments, class: "Suma::Program::Enrollment", order: order_desc
-  one_to_many :pricings,
-              class: "Suma::Program::Pricing",
-              order: order_desc
+  one_to_many :pricings, class: "Suma::Program::Pricing", order: order_desc
+  one_to_many :enrollment_exclusions, class: "Suma::Program::EnrollmentExclusion", order: order_desc
 
   many_to_many :commerce_offerings,
                class: "Suma::Commerce::Offering",

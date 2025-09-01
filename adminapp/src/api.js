@@ -231,6 +231,13 @@ export default {
   updateProgramEnrollment: ({ id, ...data }, ...args) =>
     postForm(`/adminapi/v1/program_enrollments/${id}`, data, ...args),
 
+  createProgramEnrollmentExclusion: (data, ...args) =>
+    postForm("/adminapi/v1/program_enrollment_exclusions/create", data, ...args),
+  getProgramEnrollmentExclusion: ({ id, ...data }, ...args) =>
+    get(`/adminapi/v1/program_enrollment_exclusions/${id}`, data, ...args),
+  destroyProgramEnrollmentExclusion: ({ id, ...data }, ...args) =>
+    post(`/adminapi/v1/program_enrollment_exclusions/${id}/destroy`, data, ...args),
+
   createProgramPricing: (data, ...args) =>
     postForm("/adminapi/v1/program_pricings/create", data, ...args),
   getProgramPricing: ({ id, ...data }, ...args) =>

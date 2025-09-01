@@ -442,6 +442,22 @@ RSpec.describe "Suma::Member", :db do
       )
     end
 
+    it "it excludes overridden enrollments from the combined dataset" do
+      role = Suma::Role.create(name: "test")
+      organization.add_role(role)
+      Suma::Fixtures.organization_membership(member:).verified(organization).create
+      e = Suma::Fixtures.program_enrollment(role:).create
+
+      expect(member.combined_program_enrollments_dataset.all).to have_same_ids_as(e)
+      Suma::Fixtures.program_enrollment_exclusion.create(program: e.program, member:)
+      expect(member.combined_program_enrollments_dataset.all).to be_empty
+
+      eagered_member = Suma::Member.all.first
+      expect(eagered_member.combined_program_enrollments).to be_empty
+      # Ensure the non-combined dataset is still good
+      expect(member.program_enrollments_via_organization_roles_dataset.all).to have_same_ids_as(e)
+    end
+
     describe "with redundant enrollment directly, and through org and role" do
       it "returns the direct enrollment" do
         r = Suma::Role.create(name: "role access")

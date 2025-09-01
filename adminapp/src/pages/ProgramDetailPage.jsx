@@ -107,7 +107,7 @@ export default function ProgramDetailPage() {
           ]}
         />,
         <RelatedList
-          title="Program Enrollments"
+          title="Enrollments"
           headers={["Id", "Enrollee", "Enrollee Type", "Approved At", "Unenrolled At"]}
           rows={model.enrollments}
           addNewLabel="Enroll member, organization or role"
@@ -123,6 +123,24 @@ export default function ProgramDetailPage() {
             row.enrolleeType,
             dayjsOrNull(row.approvedAt)?.format("lll"),
             dayjsOrNull(row.unenrolledAt)?.format("lll"),
+          ]}
+        />,
+        <RelatedList
+          title="Enrollment Exclusions"
+          addNewLabel="Add Exclusion"
+          addNewLink={createRelativeUrl(`/program-enrollment-exclusion/new`, {
+            programId: model.id,
+            programLabel: `(${model.id}) ${model.name.en || "-"}`,
+          })}
+          addNewRole="programEnrollmentExclusion"
+          rows={model.enrollmentExclusions}
+          headers={["Id", "Member"]}
+          keyRowAttr="id"
+          toCells={(row) => [
+            <AdminLink key="id" model={row} />,
+            <AdminLink key="member" model={row.member}>
+              {row.member.name}
+            </AdminLink>,
           ]}
         />,
         <AuditActivityList activities={model.auditActivities} />,

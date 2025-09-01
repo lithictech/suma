@@ -78,6 +78,8 @@ import ProgramDetailPage from "./pages/ProgramDetailPage";
 import ProgramEditPage from "./pages/ProgramEditPage";
 import ProgramEnrollmentCreatePage from "./pages/ProgramEnrollmentCreatePage";
 import ProgramEnrollmentDetailPage from "./pages/ProgramEnrollmentDetailPage";
+import ProgramEnrollmentExclusionCreatePage from "./pages/ProgramEnrollmentExclusionCreatePage";
+import ProgramEnrollmentExclusionDetailPage from "./pages/ProgramEnrollmentExclusionDetailPage";
 import ProgramEnrollmentListPage from "./pages/ProgramEnrollmentListPage";
 import ProgramListPage from "./pages/ProgramListPage";
 import ProgramPricingCreatePage from "./pages/ProgramPricingCreatePage";
@@ -538,6 +540,25 @@ function PageSwitch() {
           ProgramEnrollmentDetailPage
         )}
       />
+      <Route
+        exact
+        path="/program-enrollment-exclusion/new"
+        element={renderWithHocs(
+          redirectIfUnauthed,
+          withLayout(),
+          ProgramEnrollmentExclusionCreatePage
+        )}
+      />
+      <Route
+        exact
+        path="/program-enrollment-exclusion/:id"
+        element={renderWithHocs(
+          redirectIfUnauthed,
+          withLayout(),
+          ProgramEnrollmentExclusionDetailPage
+        )}
+      />
+
       <Route
         exact
         path="/program-pricing/new"

@@ -61,6 +61,7 @@ require "suma/admin_api/payment_triggers"
 require "suma/admin_api/payout_transactions"
 require "suma/admin_api/programs"
 require "suma/admin_api/program_enrollments"
+require "suma/admin_api/program_enrollment_exclusions"
 require "suma/admin_api/program_pricings"
 require "suma/admin_api/roles"
 require "suma/admin_api/search"
@@ -122,6 +123,7 @@ module Suma::Apps
     mount Suma::AdminAPI::PayoutTransactions
     mount Suma::AdminAPI::Programs
     mount Suma::AdminAPI::ProgramEnrollments
+    mount Suma::AdminAPI::ProgramEnrollmentExclusions
     mount Suma::AdminAPI::ProgramPricings
     mount Suma::AdminAPI::Roles
     mount Suma::AdminAPI::Search

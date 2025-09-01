@@ -118,6 +118,7 @@ class Suma::Member < Suma::Postgres::Model(:members)
                order: order_desc(:label)
   one_to_many :marketing_sms_dispatches, class: "Suma::Marketing::SmsDispatch", order: order_desc
 
+  one_to_many :program_enrollment_exclusions, class: "Suma::Program::EnrollmentExclusion", order: order_desc
   one_to_many :direct_program_enrollments, class: "Suma::Program::Enrollment", order: order_desc
   many_through_many :program_enrollments_via_organizations,
                     [
@@ -164,6 +165,8 @@ class Suma::Member < Suma::Postgres::Model(:members)
                 ).union(
                   self.program_enrollments_via_organization_roles_dataset,
                   alias: :program_enrollments,
+                ).exclude(
+                  program_id: Suma::Program::EnrollmentExclusion.where(member: self).select(:program_id),
                 ).order(:program_id, :member_id, :organization_id).
                   distinct(:program_id)
               },

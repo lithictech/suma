@@ -38,6 +38,7 @@ class Suma::AdminAPI::Access
     Suma::Payment::Trigger => [:payment_trigger, PAYMENTS, MANAGEMENT],
     Suma::Program => [:program, ALL, MANAGEMENT],
     Suma::Program::Enrollment => [:program_enrollment, ALL, MANAGEMENT],
+    Suma::Program::EnrollmentExclusion => [:program_enrollment_exclusion, ALL, MANAGEMENT],
     Suma::Program::Pricing => [:program_pricing, ALL, MANAGEMENT],
     Suma::Role => [:role, ALL, MANAGEMENT],
     Suma::TranslatedText => [:role, ALL, MANAGEMENT],
