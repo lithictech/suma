@@ -35,6 +35,7 @@ module Suma::Async
     "suma/async/gbfs_sync_enqueue",
     "suma/async/gbfs_sync_run",
     "suma/async/hybrid_search_reindex",
+    "suma/async/lime_trip_sync",
     "suma/async/lime_violations_processor",
     "suma/async/lyft_pass_trip_sync",
     "suma/async/marketing_list_sync",
