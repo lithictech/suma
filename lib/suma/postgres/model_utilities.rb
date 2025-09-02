@@ -160,14 +160,6 @@ module Suma::Postgres::ModelUtilities
     return self.find(params)
   end
 
-  def find_or_new(params, &)
-    model = self[params]
-    return model if model
-    model = self.new(params)
-    yield(model) if block_given?
-    return model
-  end
-
   def find!(arg)
     if arg.is_a?(Integer)
       x = self.with_pk(arg)
