@@ -138,25 +138,6 @@ RSpec.describe "Suma::Postgres::Model", :db do
     end
   end
 
-  describe "#find_or_new" do
-    let(:model_class) { Suma::Postgres::TestingPixie }
-
-    it "returns an instance matching criteria" do
-      m = model_class.create(name: "x")
-      expect(model_class.find_or_new(name: "x")).to be === m
-    end
-
-    it "calls the block and returns the instance" do
-      m = model_class.find_or_new(name: "x") { |p| p.name = "y" }
-      expect(m).to have_attributes(name: "y", id: nil)
-    end
-
-    it "handles no block given" do
-      m = model_class.find_or_new(name: "x")
-      expect(m).to have_attributes(name: "x", id: nil)
-    end
-  end
-
   describe "find!" do
     let(:model_class) { Suma::Postgres::TestingPixie }
 
@@ -350,6 +331,18 @@ RSpec.describe "Suma::Postgres::Model", :db do
       expect(ba.inspect).to include('account_number: "123...789')
       ba.account_number = "postgres://user:pass@localhost:1234/db"
       expect(ba.inspect).to include('account_number: "postgres://*:*@localhost')
+      ba.account_number = "://"
+      expect(ba.inspect).to include('account_number: "://...://')
+    end
+
+    it "handles classes without column encryption metadata" do
+      cls = Class.new(Suma::Postgres::TestingPixie) do
+        class << self
+          undef column_encryption_metadata
+          def inspect = "MyCls"
+        end
+      end
+      expect(cls.new.inspect).to eq("#<MyCls >")
     end
 
     it "shows the embedding size" do
@@ -359,6 +352,12 @@ RSpec.describe "Suma::Postgres::Model", :db do
       expect(m.inspect).to include("search_embedding: vector(384)")
       m.search_embedding = [1, 2, 3]
       expect(m.inspect).to include("search_embedding: vector(384)")
+    end
+
+    it "formats base64 fields" do
+      state = Suma::Postgres::TestingPixie.create
+      state.values[:foo_base64] = Base64.strict_encode64("abc")
+      expect(state.inspect).to include("foo_base64: (4)")
     end
   end
 
