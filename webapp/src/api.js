@@ -1,13 +1,24 @@
 import config from "./config";
 import { getCurrentLanguage } from "./localization/currentLanguage";
 import apiBase from "./shared/apiBase";
-import axiosRetry from "axios-retry";
+import axiosRetry, { isIdempotentRequestError, isNetworkError } from "axios-retry";
 
 const instance = apiBase.create(config.apiHost, {
   debug: config.debug,
   chaos: config.chaos || false,
 });
-axiosRetry(instance);
+axiosRetry(instance, {
+  shouldResetTimeout: true,
+  retryCondition: (error) => {
+    return (
+      isNetworkError(error) ||
+      isIdempotentRequestError(error) ||
+      (SAFE_HTTP_METHODS.includes(error.config.method) && error.code === "ECONNABORTED")
+    );
+  },
+});
+
+const SAFE_HTTP_METHODS = ["get", "head", "options"];
 
 instance.interceptors.request.use(
   (config) => {

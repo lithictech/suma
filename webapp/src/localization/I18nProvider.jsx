@@ -42,7 +42,7 @@ export default function I18nProvider({ children }) {
       return api
         .getLocaleFile(
           { locale: language, namespace, cachebust: config.release },
-          { camelize: false }
+          { camelize: false, timeout: 5000 }
         )
         .then((resp) => i18n.putFile(language, namespace, resp.data))
         .tapCatch((e) =>
