@@ -54,9 +54,9 @@ Sequel.migration do
     drop_view(:payment_instruments)
     search_tables.each do |tbl|
       alter_table(tbl) do
-        drop_column :search_content, :text
-        drop_column :search_embedding, "vector(384)"
-        drop_column :search_hash, :text
+        drop_column :search_content
+        drop_column :search_embedding
+        drop_column :search_hash
       end
     end
   end
