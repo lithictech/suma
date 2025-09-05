@@ -35,8 +35,8 @@ class Suma::Mobility::VendorAdapter::LimeMaas
     )
     duration = resp.dig("data", "duration_seconds") / 60.0
     return EndTripResult.new(
-      cost_cents: trip.vendor_service_rate.calculate_total(duration).cents.to_i,
-      cost_currency: "USD",
+      cost: trip.vendor_service_rate.calculate_total(duration),
+      undiscounted: trip.vendor_service_rate.calculate_undiscounted_total(duration),
       end_time: resp.dig("data", "completed_at"),
       duration_minutes: duration.ceil,
     )

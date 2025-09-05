@@ -8,14 +8,12 @@ module Suma::Mobility::VendorAdapter
   BeginTripResult = Struct.new(:raw_result, keyword_init: true)
   EndTripResult = Struct.new(
     :raw_result,
-    :cost_cents,
-    :cost_currency,
+    :cost,
+    :undiscounted,
     :duration_minutes,
     :end_time,
     keyword_init: true,
-  ) do
-    def cost = Money.new(self.cost_cents, self.cost_currency)
-  end
+  )
 
   class << self
     def create(name)

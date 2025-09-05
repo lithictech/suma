@@ -274,6 +274,7 @@ RSpec.describe Suma::Lime::SyncTripsFromEmail, :db do
         started_at: Time.parse("2024-07-15T10:43:00Z"),
         ended_at: Time.parse("2024-07-15T11:59:00Z"),
         total: cost("$0"),
+        discount: cost("$5.82"),
         line_items: [
           include(amount: cost("$0.50"), memo: "Start Fee"),
           include(amount: cost("$5.32"), memo: "Riding - $0.07/min (76 min)"),
