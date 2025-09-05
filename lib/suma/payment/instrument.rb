@@ -3,10 +3,9 @@
 require "suma/payment"
 
 class Suma::Payment::Instrument < Suma::Postgres::Model(:payment_instruments)
-  plugin :hybrid_search
+  plugin :hybrid_search, indexable: false
 
   class << self
-    def view? = true
     def primary_key = :id
 
     def type_strings_to_types

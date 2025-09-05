@@ -26,9 +26,6 @@ module Suma::Postgres::ModelUtilities
   module ClassMethods
     def anonymous? = self.name.blank? || self.name.start_with?("Sequel::_Model")
 
-    # Override on view-based models.
-    def view? = false
-
     # The application name, set on database connections.
     attr_reader :appname
 

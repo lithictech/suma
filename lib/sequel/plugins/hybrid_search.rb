@@ -25,6 +25,8 @@ module Sequel::Plugins::HybridSearch
     keyword_scale: 1,
     # How many times to retry if reindexing fails (API server is down, etc.).
     indexing_retries: 4,
+    # False to avoid registering in +SequelHybridSearch.indexable_models+.
+    indexable: true,
     # Called to figure out how long to sleep between retries.
     # By default, use exponential backoff with a base delay of 4 seconds.
     indexing_backoff: ->(attempt) { 4 * (2**(attempt - 1)) },
@@ -43,7 +45,7 @@ module Sequel::Plugins::HybridSearch
     model.hybrid_search_keyword_scale = opts[:keyword_scale]
     model.hybrid_search_indexing_retries = opts[:indexing_retries]
     model.hybrid_search_indexing_backoff = opts[:indexing_backoff]
-    SequelHybridSearch.searchable_models << model
+    SequelHybridSearch.indexable_models << model unless opts[:indexable] == false
     model.plugin :pgvector, model.hybrid_search_vector_column
   end
 

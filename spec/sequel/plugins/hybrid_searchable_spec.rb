@@ -34,7 +34,7 @@ RSpec.describe "sequel-hybrid-searchable" do
       index Sequel.function(:to_tsvector, "english", :search_content)
     end
     SequelHybridSearch.indexing_mode = :off
-    @searchable = SequelHybridSearch.searchable_models.dup
+    @searchable = SequelHybridSearch.indexable_models.dup
   end
 
   after(:all) do
@@ -45,14 +45,14 @@ RSpec.describe "sequel-hybrid-searchable" do
 
   before(:each) do
     @db[:svs_tester].truncate
-    SequelHybridSearch.searchable_models.clear
+    SequelHybridSearch.indexable_models.clear
     SequelHybridSearch.indexing_mode = :off
     # In most cases we don't need real embeddings, so use this for speed.
     SequelHybridSearch.embedding_generator = fake_embeddings_generator.new
   end
 
   after(:each) do
-    SequelHybridSearch.searchable_models.replace(@searchable)
+    SequelHybridSearch.indexable_models.replace(@searchable)
     # Must be reset in case a test shut it down.
     SequelHybridSearch.threadpool = nil
   end
@@ -98,9 +98,16 @@ RSpec.describe "sequel-hybrid-searchable" do
       m = Class.new(Sequel::Model(:svs_tester)) do
         plugin :hybrid_search
       end
-      SequelHybridSearch.searchable_models.delete(m) # Don't leave this sitting around
+      SequelHybridSearch.indexable_models.delete(m) # Don't leave this sitting around
       o = m.new
       expect { o.hybrid_search_text }.to raise_error(NoMethodError)
+    end
+
+    it "avoids registering non-indexable models as indexable" do
+      m = Class.new(Sequel::Model(:svs_tester)) do
+        plugin :hybrid_search, indexable: false
+      end
+      expect(SequelHybridSearch.indexable_models).to_not include(m)
     end
   end
 
