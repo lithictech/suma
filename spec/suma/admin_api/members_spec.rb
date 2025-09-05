@@ -53,7 +53,7 @@ RSpec.describe Suma::AdminAPI::Members, :db do
     end
 
     it "will search a US phone number as an E164 form in search", :hybrid_search do
-      nomatch = Suma::Fixtures.member(phone: "13334445556").create
+      nomatch = Suma::Fixtures.member(phone: "19998887777").create
       match = Suma::Fixtures.member(phone: "13334445555").create
 
       Suma::Member.hybrid_search_reindex_all

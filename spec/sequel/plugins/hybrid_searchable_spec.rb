@@ -139,7 +139,7 @@ RSpec.describe "sequel-hybrid-searchable" do
       model.create(name: "Geralt", desc: "Rivia")
       model.create(name: "Rivia", desc: "Ciri")
       model.hybrid_search_reindex_all
-      expect(model.dataset.exclude(name: "Geralt").hybrid_search("test models named 'geralt'")).to be_empty
+      expect(model.dataset.exclude(name: "Geralt").hybrid_search("geralt")).to be_empty
     end
 
     it "errors if the model has no primary key" do
@@ -178,15 +178,15 @@ RSpec.describe "sequel-hybrid-searchable" do
     end
 
     it "uses OR for the keyword search (instead of 'AND')" do
-      m1 = model.create(name: "Tim 1")
-      m2 = model.create(name: "Tim 2")
+      m1 = model.create(name: "Sherlock 1")
+      m2 = model.create(name: "Sherlock 2")
       m3 = model.create(name: "Barry")
       model.hybrid_search_reindex_all
 
-      got = model.dataset.hybrid_search("Tim and here is a bunch of extra text").all
+      got = model.dataset.hybrid_search("Sherlock xyz zzz yyy").all
       expect(got).to have_same_ids_as(m2, m1)
 
-      got = model.dataset.hybrid_search("Barry Tim").all
+      got = model.dataset.hybrid_search("Barry Sherlock").all
       expect(got).to have_same_ids_as(m1, m2, m3)
     end
 
@@ -207,6 +207,15 @@ RSpec.describe "sequel-hybrid-searchable" do
 
       page = model.dataset.hybrid_search(q).limit(2, 4).all
       expect(page).to have_same_ids_as(rows[4]).ordered
+    end
+
+    it "uses the trigram index" do
+      m1 = model.create(name: "My name is Lammy Jr")
+      model.create(name: "No name")
+      model.hybrid_search_reindex_all
+
+      got = model.dataset.hybrid_search("Lam").all
+      expect(got).to have_same_ids_as(m1)
     end
   end
 

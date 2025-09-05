@@ -11,18 +11,31 @@ module Sequel::Plugins::HybridSearch
     vector_column: :search_embedding,
     hash_column: :search_hash,
     language: "english",
-    # This is RFF, as well explained here:
+    # This is RFF, as explained here:
     # https://jkatz05.com/post/postgres/hybrid-search-postgres-pgvector/
-    # 'search 1' is semantic, 'search 2' is keyword.
-    # So lower values
-    rff_k: 60,
+    # Should be 0-100.
+    # Basically, higher values mean that the difference between the better and worse ranked answers
+    # are compressed; lower values mean the differences are more extreme.
+    # Because semantic search gives us different vectors for nearly all rows,
+    # we can use a higher value: there may not be a meaningful difference
+    semantic_rrf_k: 75,
+    # See +semantic_rrf_k+, but for keyword search.
+    # Because many rows will give the same value, the difference between rankings is very important.
+    # For example, "user smithers" may give a rank of 1 to smithers, and 2 to every other user.
+    # Compare this to semantic rrf, where 1 may be smithers, and all the other results (who are not smithers)
+    # are ranked 2, 3, 4, 5, etc. on.
+    keyword_rrf_k: 0,
     # Weigh the semantic search more or less heavily.
     # Set to 0 to not consider its results,
     # which can be useful in unit tests which test ordering
     # (since semantic search is not deterministic).
-    semantic_scale: 1,
-    # Same as +semantic_rank+ but for the keyword search.
+    # We weigh keyword results more highly since,
+    # for this simple vector search, they map more cleanly to expectations.
+    semantic_scale: 0.5,
+    # Same as +semantic_scale+ but for the keyword/text search.
     keyword_scale: 1,
+    # Filter out rows with lower than this trigram similarity score.
+    trigram_threshold: 0.3,
     # How many times to retry if reindexing fails (API server is down, etc.).
     indexing_retries: 4,
     # False to avoid registering in +SequelHybridSearch.indexable_models+.
@@ -40,9 +53,11 @@ module Sequel::Plugins::HybridSearch
     model.hybrid_search_vector_column = opts[:vector_column]
     model.hybrid_search_hash_column = opts[:hash_column]
     model.hybrid_search_language = opts[:language]
-    model.hybrid_search_rff_k = opts[:rff_k]
+    model.hybrid_search_semantic_rrf_k = opts[:semantic_rrf_k]
+    model.hybrid_search_keyword_rrf_k = opts[:keyword_rrf_k]
     model.hybrid_search_semantic_scale = opts[:semantic_scale]
     model.hybrid_search_keyword_scale = opts[:keyword_scale]
+    model.hybrid_search_trigram_threshold = opts[:trigram_threshold]
     model.hybrid_search_indexing_retries = opts[:indexing_retries]
     model.hybrid_search_indexing_backoff = opts[:indexing_backoff]
     SequelHybridSearch.indexable_models << model unless opts[:indexable] == false
@@ -73,7 +88,7 @@ module Sequel::Plugins::HybridSearch
       vec = Pgvector.encode(query_embedding)
       lang = self.model.hybrid_search_language
       # Match certain queries against all rows, requires an OR 1=1 on the filter
-      matchall = q.blank? || q == "*" ? " OR 1=1" : ""
+      should_match_all = q.blank? || q == "*"
       # Queries look like "users named Tim who were created in the last 5 days".
       # We need to use an OR against all words (rather than AND/FOLLOWED BY),
       # so that relevant terms like 'Tim' are matched, but irrelevant ones like 'days' are not.
@@ -89,16 +104,42 @@ module Sequel::Plugins::HybridSearch
       table_and_tsquery = Sequel.function(:websearch_to_tsquery, lang, processed_query).as(:query)
 
       # Establish the filter to limit rows in the keyword (and semantic) query.
-      matches_tsquery = Sequel.lit("to_tsvector(?, #{content_col}) @@ query#{matchall}", lang)
+      # Rows must match the tsvector OR trigram filters.
+      if should_match_all
+        matchallexpr = " OR 1=1"
+        matches_trigram = Sequel[1 => 1]
+      else
+        matches_trigram = Sequel.function(:word_similarity, q, content_col) >
+          self.model.hybrid_search_trigram_threshold
+        matchallexpr = ""
+      end
+      matches_tsquery = Sequel.lit("to_tsvector(?, #{content_col}) @@ query#{matchallexpr}", lang)
 
       # Rank text-filtered rows based on their text match.
+      # We use both text vector AND trigram similarity to figure out what rows to include, and how to rank.
       kw_search = self.model.
         from(self, table_and_tsquery).
-        where(matches_tsquery).
+        where(matches_tsquery | matches_trigram).
         select(
           Sequel[pk].as(:id),
           Sequel.function(:rank).
-            over(order: Sequel.lit("ts_rank_cd(to_tsvector(?, #{content_col}), query) DESC", lang)).
+            over(
+              order: Sequel.desc(
+                # To get the ordering, multiply the fulltext and trigram rankings by each other.
+                # We cannot normalize trigram and tsvector values against each other, unfortunately,
+                # so this is what we're left with. Rows that rank very low in either one
+                # will be ranked lower; rows that are higher in both will do better.
+                Sequel.function(
+                  :ts_rank_cd,
+                  Sequel.function(:to_tsvector, lang, content_col),
+                  :query,
+                  # Use 32 to ensure we're between 0-1.
+                  # I'm not certain this is required though.
+                  # https://www.postgresql.org/docs/current/textsearch-controls.html#TEXTSEARCH-RANKING
+                  32,
+                ) * Sequel.function(:word_similarity, q, content_col),
+              ),
+            ).
             as(:rank),
         )
 
@@ -115,15 +156,28 @@ module Sequel::Plugins::HybridSearch
         )
 
       # Now join on our two queries, and order it based on their combined ranking.
-      rff_k = self.model.hybrid_search_rff_k
-      rank_order = Sequel.lit(
-        "(COALESCE(1.0 / (#{rff_k} + semantic_search.rank), 0.0) * #{self.model.hybrid_search_semantic_scale}) + " \
-        "(COALESCE(1.0 / (#{rff_k} + kw_search.rank), 0.0) * #{self.model.hybrid_search_keyword_scale}) DESC",
+      rank_order = [
+        [self.model.hybrid_search_semantic_rrf_k, :semantic_search, self.model.hybrid_search_semantic_scale],
+        [self.model.hybrid_search_keyword_rrf_k, :kw_search, self.model.hybrid_search_keyword_scale],
+      ].sum do |(rrf, subq, scale)|
+        Sequel.function(:coalesce, Sequel[1.0] / (Sequel[rrf] + Sequel[subq][:rank]), 0.0) * scale
+      end
+      ds = self.model
+      # Join the full dataset against the keyword search (which is derived from 'self'),
+      # to limit rows.
+      ds = ds.join(kw_search.as(:kw_search), id: pk)
+      # We want to return rows that don't match any in the semantic search, so use a left_join.
+      ds = ds.left_join(semantic_search.as(:semantic_search), id: pk)
+      # Unfortunately the left_join messes up columns, so reselect them
+      ds = ds.select(Sequel[self.model.table_name][Sequel.lit("*")])
+      # Select the total rank as a field and then order by it
+      ds = ds.select_append(rank_order.as(:_shs_total_rank))
+      ds = ds.order(Sequel.desc(:_shs_total_rank))
+      # Add additional columns to debug rankings.
+      ds = ds.select_append(
+        Sequel[:kw_search][:rank].as(:_shs_kw_rank),
+        Sequel[:semantic_search][:rank].as(:_shs_semantic_rank),
       )
-      ds = self.model.
-        join(kw_search.as(:kw_search), id: pk).
-        join(semantic_search.as(:semantic_search), id: pk).
-        order(rank_order)
       return ds
     end
   end
@@ -133,9 +187,11 @@ module Sequel::Plugins::HybridSearch
                   :hybrid_search_vector_column,
                   :hybrid_search_hash_column,
                   :hybrid_search_language,
-                  :hybrid_search_rff_k,
+                  :hybrid_search_semantic_rrf_k,
+                  :hybrid_search_keyword_rrf_k,
                   :hybrid_search_semantic_scale,
                   :hybrid_search_keyword_scale,
+                  :hybrid_search_trigram_threshold,
                   :hybrid_search_indexing_retries,
                   :hybrid_search_indexing_backoff
 
