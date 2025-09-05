@@ -10,8 +10,8 @@ module SequelHybridSearch
   INDEXING_DEFAULT_MODE = :async
 
   class << self
-    def searchable_models = @searchable_models ||= []
-    def reindex_all = self.searchable_models.sum(&:hybrid_search_reindex_all)
+    def indexable_models = @indexable_models ||= []
+    def reindex_all = self.indexable_models.sum(&:hybrid_search_reindex_all)
 
     def indexing_mode = @indexing_mode || INDEXING_DEFAULT_MODE
 

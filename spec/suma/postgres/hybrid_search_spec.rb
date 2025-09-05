@@ -63,8 +63,7 @@ RSpec.describe Suma::Postgres::HybridSearch, :db do
   end
 
   describe "all hybrid searchable models" do
-    SequelHybridSearch.searchable_models.each do |m|
-      next if m.view?
+    SequelHybridSearch.indexable_models.each do |m|
       describe m.name do
         it_behaves_like "a hybrid searchable object" do
           let(:instance) do
