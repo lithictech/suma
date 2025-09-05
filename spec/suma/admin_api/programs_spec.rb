@@ -36,7 +36,7 @@ RSpec.describe Suma::AdminAPI::Programs, :db do
 
       def make_non_matching_items
         return [
-          Suma::Fixtures.program(name: translated_text("wibble wobble")).create,
+          Suma::Fixtures.program(name: translated_text("frumfrom")).create,
         ]
       end
     end
