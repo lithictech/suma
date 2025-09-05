@@ -71,8 +71,6 @@ class Suma::Lime::SyncTripsFromEmail
     end
   end
 
-  LINE_ITEM_HEADINGS = ["Start Fee", "Discount"].freeze
-
   def parse_row_to_receipt(row)
     r = Suma::Mobility::VendorAdapter::LimeDeeplink::RideReceipt.new(
       vehicle_type: DEFAULT_VEHICLE_TYPE,
@@ -85,8 +83,12 @@ class Suma::Lime::SyncTripsFromEmail
     riding_line_item = pause_line_item = nil
     while i < lines.length
       line = lines[i]
-      if LINE_ITEM_HEADINGS.include?(line)
+      if line == "Start Fee"
         r.line_items << {memo: line, amount: Monetize.parse(lines[i + 1])}
+        i += 1
+      elsif line == "Discount"
+        r.discount = Monetize.parse(lines[i + 1]) * -1
+        r.line_items << {memo: line, amount: -r.discount}
         i += 1
       elsif line.start_with?("Riding -", "Pause -")
         match = line.match(%r{(\$\d+\.\d\d)/min \((\d+) min\)})

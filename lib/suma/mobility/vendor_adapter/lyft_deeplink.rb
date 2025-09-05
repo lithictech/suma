@@ -23,14 +23,15 @@ class Suma::Mobility::VendorAdapter::LyftDeeplink
   def end_trip(_trip, ride_response:)
     start_time = Time.at(ride_response.fetch("ride").fetch("pickup").fetch("timestamp_ms") / 1000)
     end_time = Time.at(ride_response.fetch("ride").fetch("dropoff").fetch("timestamp_ms") / 1000)
-    zero_money = Money.new(0, ride_response.fetch("money").fetch("currency"))
+    total_h = ride_response.fetch("money")
+    zero_money = Money.new(0, total_h.fetch("currency"))
     total_of_non_promo_items = ride_response.fetch("ride").fetch("line_items").sum(zero_money) do |li|
       next 0 if li.fetch("title") == "Promo applied"
       Money.new(li.fetch("money").fetch("amount"), li.fetch("money").fetch("currency"))
     end
     return Suma::Mobility::VendorAdapter::EndTripResult.new(
-      cost_cents: total_of_non_promo_items.cents,
-      cost_currency: total_of_non_promo_items.currency,
+      cost: total_of_non_promo_items,
+      undiscounted: Money.new(total_h.fetch("amount"), total_h.fetch("currency")),
       end_time:,
       duration_minutes: (end_time - start_time).minutes,
     )
