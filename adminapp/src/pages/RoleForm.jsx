@@ -26,6 +26,16 @@ export default function RoleForm({
           name="name"
           value={resource.name}
           fullWidth
+          required
+          onChange={setFieldFromInput}
+        />
+        <TextField
+          {...register("description")}
+          label="Description"
+          name="description"
+          value={resource.description}
+          fullWidth
+          helperText="What does it mean for a member or organization to have this role?"
           onChange={setFieldFromInput}
         />
       </Stack>
