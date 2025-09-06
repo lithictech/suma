@@ -13,6 +13,7 @@ export default function RoleDetailPage() {
       properties={(model) => [
         { label: "ID", value: model.id },
         { label: "Name", value: model.name },
+        { label: "Description", value: model.description },
       ]}
     >
       {(model) => [

@@ -9,10 +9,15 @@ class Suma::AdminAPI::Roles < Suma::AdminAPI::V1
     include Suma::AdminAPI::Entities::AutoExposeBase
   end
 
+  class RoleListEntity < RoleEntity
+    expose :description
+  end
+
   class DetailedRoleEntity < RoleEntity
     include Suma::AdminAPI::Entities
     include AutoExposeDetail
 
+    expose :description
     expose :members, with: Suma::AdminAPI::Entities::MemberEntity
     expose :organizations, with: Suma::AdminAPI::Entities::OrganizationEntity
     expose :program_enrollments, with: Suma::AdminAPI::Entities::ProgramEnrollmentEntity
@@ -25,7 +30,7 @@ class Suma::AdminAPI::Roles < Suma::AdminAPI::V1
       check_admin_role_access!(:read, Suma::Role)
       ds = Suma::Role.dataset.order(:name)
       use_http_expires_caching 2.hours
-      present_collection ds, with: RoleEntity
+      present_collection ds, with: RoleListEntity
     end
 
     Suma::AdminAPI::CommonEndpoints.create(
@@ -35,6 +40,7 @@ class Suma::AdminAPI::Roles < Suma::AdminAPI::V1
     ) do
       params do
         requires :name, type: String, allow_blank: false
+        optional :description, type: String
       end
     end
 
@@ -51,6 +57,7 @@ class Suma::AdminAPI::Roles < Suma::AdminAPI::V1
     ) do
       params do
         optional :name, type: String, allow_blank: false
+        optional :description, type: String
       end
     end
   end

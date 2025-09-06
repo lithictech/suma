@@ -25,6 +25,13 @@ export default function RoleListPage() {
           sortable: true,
           render: (c) => <AdminLink model={c}>{c.name}</AdminLink>,
         },
+        {
+          id: "description",
+          label: "Description",
+          align: "left",
+          sortable: false,
+          render: (c) => c.description,
+        },
       ]}
     />
   );
