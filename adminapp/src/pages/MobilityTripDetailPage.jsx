@@ -31,7 +31,17 @@ export default function MobilityTripDetailPage() {
         {
           label: "Vendor Service",
           value: (
-            <AdminLink model={model.vendorService}>{model.vendorService?.name}</AdminLink>
+            <AdminLink model={model.vendorService}>
+              {model.vendorService?.internalName}
+            </AdminLink>
+          ),
+        },
+        {
+          label: "Service Rate",
+          value: (
+            <AdminLink model={model.vendorServiceRate}>
+              {model.vendorServiceRate?.name}
+            </AdminLink>
           ),
         },
         { label: "Vehicle ID", value: model.vehicleId },
@@ -72,25 +82,6 @@ export default function MobilityTripDetailPage() {
             ]}
           />
         ),
-        <DetailGrid
-          title="Rate"
-          properties={[
-            { label: "Id", value: model.rate.id },
-            { label: "Name", value: model.rate.name },
-            { label: "Created", value: formatDate(model.rate.createdAt) },
-            { label: "Unit Amount", value: <Money>{model.rate.unitAmount}</Money> },
-            { label: "Surcharge", value: <Money>{model.rate.surcharge}</Money> },
-            { label: "Unit Offset", value: model.rate.unitOffset },
-            {
-              label: "Undiscounted Amount",
-              value: <Money>{model.rate.undiscountedAmount}</Money>,
-            },
-            {
-              label: "Undiscounted Surcharge",
-              value: <Money>{model.rate.undiscountedSurcharge}</Money>,
-            },
-          ]}
-        />,
       ]}
     </ResourceDetail>
   );
