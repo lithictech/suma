@@ -478,7 +478,7 @@ class Suma::Member < Suma::Postgres::Model(:members)
     lines = [
       self.onboarding_verified? ? "My identify has been verified" : "My identity is unverified.",
       self.soft_deleted? && "I have been deleted.",
-      self.roles.include?(Suma::Role.cache.admin) && "I am an administrator.",
+      self.roles.any?(Suma::Role.cache.admin) && "I am an administrator.",
       "I am a member of #{self.organization_memberships.count} organizations.",
       "I have been assigned #{self.roles.count} roles.",
     ]

@@ -55,7 +55,7 @@ class Suma::Member::RoleAccess
     @member = member
     @features = {}
     # rubocop:disable Style/GuardClause, Style/IfUnlessModifier
-    if member.roles.include?(Suma::Role.cache.admin)
+    if member.roles.any?(Suma::Role.cache.admin)
       self.add_feature(UPLOAD_FILES, true, true)
       self.add_feature(IMPERSONATE, true, true)
       self.add_feature(ADMIN_ACCESS, true, true)
@@ -67,32 +67,32 @@ class Suma::Member::RoleAccess
       self.add_feature(MARKETING_SMS, true, true)
       self.add_feature(LOCALIZATION, true, true)
     end
-    if member.roles.include?(Suma::Role.cache.readonly_admin)
+    if member.roles.any?(Suma::Role.cache.readonly_admin)
       self.add_feature(ADMIN_ACCESS, true, false)
       self.add_feature(ADMIN_MEMBERS, true, false)
       self.add_feature(ADMIN_COMMERCE, true, false)
       self.add_feature(ADMIN_PAYMENTS, true, false)
       self.add_feature(ADMIN_MANAGEMENT, true, false)
     end
-    if member.roles.include?(Suma::Role.cache.noop_admin)
+    if member.roles.any?(Suma::Role.cache.noop_admin)
       self.add_feature(ADMIN_ACCESS, true, false)
     end
-    if member.roles.include?(Suma::Role.cache.upload_files)
+    if member.roles.any?(Suma::Role.cache.upload_files)
       self.add_feature(UPLOAD_FILES, true, true)
     end
-    if member.roles.include?(Suma::Role.cache.onboarding_manager)
+    if member.roles.any?(Suma::Role.cache.onboarding_manager)
       self.add_feature(ADMIN_ACCESS, true, true)
       self.add_feature(ADMIN_MEMBERS, true, true)
     end
-    if member.roles.include?(Suma::Role.cache.sensitive_messages)
+    if member.roles.any?(Suma::Role.cache.sensitive_messages)
       self.add_feature(ADMIN_SENSITIVE_MESSAGES, true, false)
     end
-    if member.roles.include?(Suma::Role.cache.sms_marketing)
+    if member.roles.any?(Suma::Role.cache.sms_marketing)
       self.add_feature(ADMIN_ACCESS, true, true)
       self.add_feature(ADMIN_MEMBERS, true, false)
       self.add_feature(MARKETING_SMS, true, true)
     end
-    if member.roles.include?(Suma::Role.cache.translator)
+    if member.roles.any?(Suma::Role.cache.translator)
       self.add_feature(ADMIN_ACCESS, true, true)
       self.add_feature(LOCALIZATION, true, true)
     end

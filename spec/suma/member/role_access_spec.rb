@@ -101,4 +101,14 @@ RSpec.describe Suma::Member::RoleAccess, :db do
     member.add_role(Suma::Role.cache.upload_files)
     expect(member.role_access.as_json).to eq({"upload_files" => ["read", "write"]})
   end
+
+  it "searches for roles properly (any vs include)" do
+    member = Suma::Fixtures.member.create
+    member.add_role(Suma::Role.cache.upload_files)
+    member.refresh
+    # Change the role so == (used by include?) no longer matches,
+    # but === (used by any?) does.
+    member.roles.first.set(name: "Other Name")
+    expect(member.role_access.as_json).to eq({"upload_files" => ["read", "write"]})
+  end
 end
