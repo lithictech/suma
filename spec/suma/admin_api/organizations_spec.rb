@@ -25,11 +25,11 @@ RSpec.describe Suma::AdminAPI::Organizations, :db do
 
     it_behaves_like "an endpoint capable of search" do
       let(:url) { "/v1/organizations" }
-      let(:search_term) { "Hacienda" }
+      let(:search_term) { "zzz" }
 
       def make_matching_items
         return [
-          Suma::Fixtures.organization(name: "Hacienda ABC").create,
+          Suma::Fixtures.organization(name: "zzz ABC").create,
         ]
       end
 

@@ -26,11 +26,11 @@ RSpec.describe Suma::AdminAPI::AnonProxyMemberContacts, :db do
 
     it_behaves_like "an endpoint capable of search" do
       let(:url) { "/v1/anon_proxy_member_contacts" }
-      let(:search_term) { "abc" }
+      let(:search_term) { "zzz" }
 
       def make_matching_items
         return [
-          Suma::Fixtures.anon_proxy_member_contact.create(email: "abc  123"),
+          Suma::Fixtures.anon_proxy_member_contact.create(email: "zzz  123"),
         ]
       end
 

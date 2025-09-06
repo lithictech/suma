@@ -26,12 +26,12 @@ RSpec.describe Suma::AdminAPI::BookTransactions, :db do
 
     it_behaves_like "an endpoint capable of search" do
       let(:url) { "/v1/book_transactions" }
-      let(:search_term) { "ZIM" }
+      let(:search_term) { "ZZZ" }
 
       def make_matching_items
         return [
-          Suma::Fixtures.book_transaction(memo: translated_text("zim zam zom")).create,
-          Suma::Fixtures.book_transaction(opaque_id: "Zim Zam").create,
+          Suma::Fixtures.book_transaction(memo: translated_text("zzz zam zom")).create,
+          Suma::Fixtures.book_transaction(opaque_id: "Zim Zzz").create,
         ]
       end
 

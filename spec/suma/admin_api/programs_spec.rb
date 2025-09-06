@@ -26,11 +26,11 @@ RSpec.describe Suma::AdminAPI::Programs, :db do
 
     it_behaves_like "an endpoint capable of search" do
       let(:url) { "/v1/programs" }
-      let(:search_term) { "zibble" }
+      let(:search_term) { "zzz" }
 
       def make_matching_items
         return [
-          Suma::Fixtures.program(name: translated_text("zibble zabble")).create,
+          Suma::Fixtures.program(name: translated_text("zzz zabble")).create,
         ]
       end
 

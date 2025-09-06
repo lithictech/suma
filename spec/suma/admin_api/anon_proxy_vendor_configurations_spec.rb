@@ -26,11 +26,11 @@ RSpec.describe Suma::AdminAPI::AnonProxyVendorConfigurations, :db do
 
     it_behaves_like "an endpoint capable of search" do
       let(:url) { "/v1/anon_proxy_vendor_configurations" }
-      let(:search_term) { "abcdefg" }
+      let(:search_term) { "zzz" }
 
       def make_matching_items
         return [
-          Suma::Fixtures.anon_proxy_vendor_configuration.vendor(name: "abcdefg").create,
+          Suma::Fixtures.anon_proxy_vendor_configuration.vendor(name: "zzz").create,
         ]
       end
 
