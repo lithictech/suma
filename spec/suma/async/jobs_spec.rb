@@ -747,13 +747,14 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
     end
   end
 
-  describe "LimeViolationsProcessor" do
+  describe "LimeViolationsProcessor", reset_configuration: Suma::Lime do
     before(:each) do
       Suma::Webhookdb.postmark_inbound_messages_dataset.delete
       Suma::Lime::HandleViolations.new.row_iterator.reset
     end
 
     it "creates Front discussion conversations for violation messages" do
+      Suma::Lime.violations_processor_enabled = true
       req = stub_request(:post, "https://api2.frontapp.com/conversations").
         to_return(json_response({}))
 
@@ -767,6 +768,12 @@ RSpec.describe "suma async jobs", :async, :db, :do_not_defer_events, :no_transac
       )
       Suma::Async::LimeViolationsProcessor.new.perform(true)
       expect(req).to have_been_made
+    end
+
+    it "noops if not enabled" do
+      Suma::Lime.violations_processor_enabled = false
+      expect(Suma::Lime::HandleViolations).to_not receive(:new)
+      Suma::Async::LimeViolationsProcessor.new.perform(true)
     end
   end
 

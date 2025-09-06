@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "suma/mobility/vendor_adapter"
+
 RSpec.describe Suma::Mobility::VendorAdapter::LimeMaas, :db do
   let(:instance) { described_class.new }
   let(:member) { Suma::Fixtures.member.onboarding_verified.create }
@@ -57,7 +59,14 @@ RSpec.describe Suma::Mobility::VendorAdapter::LimeMaas, :db do
 
   it "can stop an ongoing trip" do
     member.update(lime_user_id: "myuser")
-    trip.update(external_trip_id: "mytrip", end_lng: 120.5, end_lat: 45.2, ended_at: Time.at(1_528_768_782.9))
+    rate = Suma::Fixtures.vendor_service_rate.surcharge(100).discounted_by(0.5).create
+    trip.update(
+      vendor_service_rate: rate,
+      external_trip_id: "mytrip",
+      end_lng: 120.5,
+      end_lat: 45.2,
+      ended_at: Time.at(1_528_768_782.9),
+    )
 
     stop_req = stub_request(:post, "https://external-api.lime.bike/api/maas/v1/partner/trips/mytrip/complete").
       with(
@@ -69,7 +78,11 @@ RSpec.describe Suma::Mobility::VendorAdapter::LimeMaas, :db do
           },
         }.to_json,
       ).to_return(fixture_response("lime/complete_trip"))
-    expect(instance.end_trip(trip)).to have_attributes(end_time: match_time("2022-01-19T10:17:20:12Z"))
+    expect(instance.end_trip(trip)).to have_attributes(
+      end_time: match_time("2022-01-19T10:17:20:12Z"),
+      cost: cost("$1"),
+      undiscounted: cost("$2"),
+    )
     expect(stop_req).to have_been_made
   end
 end

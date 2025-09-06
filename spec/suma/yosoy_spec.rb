@@ -135,18 +135,28 @@ RSpec.describe Suma::Yosoy do
     end
     mw = create_mw(cls: mwclass_with_timeout) do |env|
       yosoy = env.fetch("yosoytest")
-      yosoy.set_authenticated_object(auth_obj) unless yosoy.authenticated_object?
+      case env[:callcount]
+        when 1
+          yosoy.set_authenticated_object(auth_obj)
+        when 2, 3
+          yosoy.authenticated_object!
+        when 4
+          yosoy.authenticated_object?
+      end
       [200, {}, "ok"]
     end
     now = Time.now
     resp_t0 = Timecop.freeze(now) do
-      mw.call(req)
+      env = req
+      env[:callcount] = 1
+      mw.call(env)
     end
     expect(resp_t0[0]).to eq(200)
 
     Timecop.freeze(now + 299.seconds) do
       env = req
       env["HTTP_COOKIE"] = resp_t0[1].fetch("set-cookie")
+      env[:callcount] = 2
       resp_t299 = mw.call(env)
       expect(resp_t299[0]).to eq(200)
     end
@@ -154,8 +164,13 @@ RSpec.describe Suma::Yosoy do
     Timecop.freeze(now + 301.seconds) do
       env = req
       env["HTTP_COOKIE"] = resp_t0[1].fetch("set-cookie")
+      env[:callcount] = 3
       resp_t301 = mw.call(env)
       expect(resp_t301[0]).to eq(401)
+
+      env[:callcount] = 4
+      resp_t301 = mw.call(env)
+      expect(resp_t301[0]).to eq(200)
     end
   end
 

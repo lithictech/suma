@@ -9,6 +9,10 @@ RSpec.describe "Suma::Mobility::Trip", :db do
   let(:rate) { Suma::Fixtures.vendor_service_rate.create }
   let(:t) { trunc_time(Time.now) }
 
+  before(:each) do
+    Suma::Mobility::VendorAdapter::Fake.reset
+  end
+
   it "can be fixtured" do
     expect(Suma::Fixtures.mobility_trip.create).to be_a(described_class)
   end
@@ -83,14 +87,12 @@ RSpec.describe "Suma::Mobility::Trip", :db do
     let!(:cash) { Suma::Vendor::ServiceCategory.find!(slug: "cash") }
     let!(:mobility) { Suma::Vendor::ServiceCategory.find!(slug: "mobility") }
 
-    it "ends the trip and creates a charge using the linked rate" do
-      rate = Suma::Fixtures.vendor_service_rate.
-        unit_amount(20).
-        discounted_by(0.25).
-        create
-      trip = Suma::Fixtures.mobility_trip.
-        ongoing.
-        create(began_at: 6.minutes.ago, vendor_service_rate: rate, member:)
+    it "ends the trip and creates a charge using the returned cost" do
+      Suma::Mobility::VendorAdapter::Fake.end_trip_callback = lambda do |etr|
+        etr.cost = money("$1.20")
+        etr.undiscounted = money("$1.62")
+      end
+      trip = Suma::Fixtures.mobility_trip.ongoing.create(member:)
       trip.end_trip(lat: 1, lng: 2)
       expect(trip.refresh).to have_attributes(end_lat: 1, end_lng: 2)
       expect(trip.charge).to have_attributes(

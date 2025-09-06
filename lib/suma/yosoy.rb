@@ -193,7 +193,6 @@ class Suma::Yosoy
       expire_at = ts + self.middleware.inactivity_timeout
       return unless Time.now > expire_at
       self.logout
-      self.unauthenticated!(message: "Cookie expired")
     end
 
     def logout

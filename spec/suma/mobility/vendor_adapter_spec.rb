@@ -32,12 +32,12 @@ RSpec.describe Suma::Mobility::VendorAdapter, :db do
     end
 
     it "returns the charge based on the rate" do
-      rate = Suma::Fixtures.vendor_service_rate.surcharge(100).unit_amount(20).create
+      rate = Suma::Fixtures.vendor_service_rate.surcharge(100).unit_amount(20).discounted_by(0.5).create
       trip = Suma::Fixtures.mobility_trip.create(began_at: 5.minutes.ago, vendor_service_rate: rate)
       endres = ad.end_trip(trip)
       expect(endres).to have_attributes(
-        cost_cents: 200,
-        cost_currency: "USD",
+        cost: cost("$2"),
+        undiscounted: cost("$4"),
         duration_minutes: 5,
       )
     end
@@ -59,12 +59,12 @@ RSpec.describe Suma::Mobility::VendorAdapter, :db do
     end
 
     it "returns the charge based on the rate" do
-      rate = Suma::Fixtures.vendor_service_rate.surcharge(100).unit_amount(20).create
+      rate = Suma::Fixtures.vendor_service_rate.surcharge(100).unit_amount(20).discounted_by(0.5).create
       trip = Suma::Fixtures.mobility_trip.create(began_at: 5.minutes.ago, vendor_service_rate: rate)
       endres = ad.end_trip(trip)
       expect(endres).to have_attributes(
-        cost_cents: 200,
-        cost_currency: "USD",
+        cost: cost("$2"),
+        undiscounted: cost("$4"),
         duration_minutes: 5,
       )
     end

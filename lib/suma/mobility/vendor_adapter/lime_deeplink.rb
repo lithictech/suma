@@ -25,13 +25,14 @@ class Suma::Mobility::VendorAdapter::LimeDeeplink
                   :started_at,
                   :ended_at,
                   :total,
+                  :discount,
                   :line_items
   end
 
   def end_trip(_trip, receipt:)
     return Suma::Mobility::VendorAdapter::EndTripResult.new(
-      cost_cents: receipt.total.cents,
-      cost_currency: receipt.total.currency,
+      cost: receipt.total,
+      undiscounted: receipt.discount + receipt.total,
       end_time: receipt.ended_at,
       duration_minutes: ((receipt.ended_at - receipt.started_at) / 60.0).to_i,
     )

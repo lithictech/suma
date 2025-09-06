@@ -29,8 +29,8 @@ class Suma::Mobility::VendorAdapter::Internal
     ended = Time.now
     duration = (ended - trip.began_at) / 60.0
     return EndTripResult.new(
-      cost_cents: trip.vendor_service_rate.calculate_total(duration).cents.to_i,
-      cost_currency: "USD",
+      cost: trip.vendor_service_rate.calculate_total(duration),
+      undiscounted: trip.vendor_service_rate.calculate_undiscounted_total(duration),
       end_time: ended,
       duration_minutes: duration.to_i,
     )

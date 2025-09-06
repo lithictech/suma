@@ -77,17 +77,9 @@ class Suma::Mobility::Trip < Suma::Postgres::Model(:mobility_trips)
     raise Suma::InvalidPostcondition, "negative trip cost for #{self.inspect}" if result.cost.negative?
     self.db.transaction do
       self.update(end_lat: lat, end_lng: lng, ended_at: result.end_time)
-      # The calculated rate can be different from the service actually
-      # charges us, so if we aren't using a discount, always use
-      # what we end up getting actually charged.
-      undiscounted_subtotal = if self.vendor_service_rate.undiscounted_rate.nil?
-                                result.cost
-                              else
-                                self.vendor_service_rate.calculate_undiscounted_total(self.rate_units)
-                              end
       self.charge = Suma::Charge.create(
         mobility_trip: self,
-        undiscounted_subtotal:,
+        undiscounted_subtotal: result.undiscounted,
         member: self.member,
       )
       contrib_coll = self.member.payment_account!.calculate_charge_contributions(

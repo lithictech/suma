@@ -15,6 +15,7 @@ class Suma::Async::LimeViolationsProcessor
   splay 30.seconds
 
   def _perform
+    return unless Suma::Lime.violations_processor_enabled
     Suma::Lime::HandleViolations.new.run
   end
 end

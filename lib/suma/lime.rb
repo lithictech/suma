@@ -12,6 +12,9 @@ module Suma::Lime
     setting :maas_auth_token, UNCONFIGURED_AUTH_TOKEN
     # Slug of the Vendor to use for deeplinking into the Lime app.
     setting :deeplink_vendor_slug, "lime"
+    # Turn off the violations processor. We want to make sure we only run this on production,
+    # even if other environments (like development) point towards the production email table.
+    setting :violations_processor_enabled, false
   end
 
   # @return [Suma::Vendor]
