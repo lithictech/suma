@@ -49,10 +49,10 @@ RSpec.describe Suma::AdminAPI::PaymentLedgers, :db do
 
     it_behaves_like "an endpoint capable of search" do
       let(:url) { "/v1/payment_ledgers" }
-      let(:search_term) { "match" }
+      let(:search_term) { "zzz" }
 
       def make_matching_items
-        return [Suma::Fixtures.ledger(name: "FM match 2023").create]
+        return [Suma::Fixtures.ledger(name: "FM zzz 2023").create]
       end
 
       def make_non_matching_items

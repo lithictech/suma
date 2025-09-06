@@ -56,7 +56,7 @@ RSpec.describe Suma::AdminAPI::CommonEndpoints, :db do
       Suma::Vendor.hybrid_search_reindex_all
       Suma::Vendor.hybrid_search_semantic_scale = 0
 
-      get "/v1/vendors", search: "Rivia"
+      get "/v1/vendors", search: "Rivia", order_by: "name", order_direction: "desc"
 
       expect(last_response).to have_status(200)
       expect(last_response).to have_json_body.that_includes(items: have_same_ids_as(geralt, ciri).ordered)
@@ -71,11 +71,11 @@ RSpec.describe Suma::AdminAPI::CommonEndpoints, :db do
 
     it_behaves_like "an endpoint capable of search" do
       let(:url) { "/v1/vendors" }
-      let(:search_term) { "johns farm" }
+      let(:search_term) { "zzz" }
 
       def make_matching_items
         return [
-          Suma::Fixtures.vendor(name: "Johns Farmers Market").create,
+          Suma::Fixtures.vendor(name: "zzz Market").create,
         ]
       end
 

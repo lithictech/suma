@@ -26,11 +26,11 @@ RSpec.describe Suma::AdminAPI::MobilityTrips, :db do
 
     it_behaves_like "an endpoint capable of search" do
       let(:url) { "/v1/mobility_trips" }
-      let(:search_term) { "abcdefg" }
+      let(:search_term) { "zzz" }
 
       def make_matching_items
         return [
-          Suma::Fixtures.mobility_trip(external_trip_id: "abcdefg").create,
+          Suma::Fixtures.mobility_trip(external_trip_id: "zzz").create,
         ]
       end
 

@@ -26,11 +26,11 @@ RSpec.describe Suma::AdminAPI::ProgramEnrollments, :db do
 
     it_behaves_like "an endpoint capable of search" do
       let(:url) { "/v1/program_enrollments" }
-      let(:search_term) { "abcdefg" }
+      let(:search_term) { "zzz" }
 
       def make_matching_items
         return [
-          Suma::Fixtures.program_enrollment.in(Suma::Fixtures.program.named("abcdefg").create).create,
+          Suma::Fixtures.program_enrollment.in(Suma::Fixtures.program.named("zzz").create).create,
         ]
       end
 

@@ -26,11 +26,11 @@ RSpec.describe Suma::AdminAPI::VendorServices, :db do
 
     it_behaves_like "an endpoint capable of search" do
       let(:url) { "/v1/vendor_services" }
-      let(:search_term) { "demo" }
+      let(:search_term) { "zzz" }
 
       def make_matching_items
         return [
-          Suma::Fixtures.vendor_service(internal_name: "Demo Mobility Deeplink").create,
+          Suma::Fixtures.vendor_service(internal_name: "zzz Mobility Deeplink").create,
         ]
       end
 

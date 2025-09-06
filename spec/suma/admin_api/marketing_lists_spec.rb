@@ -26,11 +26,11 @@ RSpec.describe Suma::AdminAPI::MarketingLists, :db do
 
     it_behaves_like "an endpoint capable of search" do
       let(:url) { "/v1/marketing_lists" }
-      let(:search_term) { "ZIM" }
+      let(:search_term) { "zzz" }
 
       def make_matching_items
         return [
-          Suma::Fixtures.marketing_list(label: "zim zam zom").create,
+          Suma::Fixtures.marketing_list(label: "zim zzz zom").create,
         ]
       end
 

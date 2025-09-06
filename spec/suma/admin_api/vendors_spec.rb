@@ -28,11 +28,11 @@ RSpec.describe Suma::AdminAPI::Vendors, :db do
 
     it_behaves_like "an endpoint capable of search" do
       let(:url) { "/v1/vendors" }
-      let(:search_term) { "johns farm" }
+      let(:search_term) { "ZZZ" }
 
       def make_matching_items
         return [
-          Suma::Fixtures.vendor(name: "Johns Farmers Market").create,
+          Suma::Fixtures.vendor(name: "Johns zzz Market").create,
         ]
       end
 

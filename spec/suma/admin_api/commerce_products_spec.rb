@@ -26,11 +26,11 @@ RSpec.describe Suma::AdminAPI::CommerceProducts, :db do
 
     it_behaves_like "an endpoint capable of search" do
       let(:url) { "/v1/commerce_products" }
-      let(:search_term) { "ZIM" }
+      let(:search_term) { "zzz" }
 
       def make_matching_items
         return [
-          Suma::Fixtures.product(name: translated_text("ZIM zam")).create,
+          Suma::Fixtures.product(name: translated_text("zzz zam")).create,
         ]
       end
 

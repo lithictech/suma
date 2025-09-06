@@ -26,11 +26,11 @@ RSpec.describe Suma::AdminAPI::PayoutTransactions, :db do
 
     it_behaves_like "an endpoint capable of search" do
       let(:url) { "/v1/payout_transactions" }
-      let(:search_term) { "ZIM" }
+      let(:search_term) { "zzz" }
 
       def make_matching_items
         return [
-          Suma::Fixtures.payout_transaction(memo: translated_text("zim zam zom")).with_fake_strategy.create,
+          Suma::Fixtures.payout_transaction(memo: translated_text("zzz zam zom")).with_fake_strategy.create,
         ]
       end
 

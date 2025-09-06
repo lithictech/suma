@@ -35,12 +35,12 @@ RSpec.describe Suma::AdminAPI::Members, :db do
 
     it_behaves_like "an endpoint capable of search" do
       let(:url) { "/v1/members" }
-      let(:search_term) { "ZIM" }
+      let(:search_term) { "ZZZ" }
 
       def make_matching_items
         return [
-          Suma::Fixtures.member(note: "Hi, zim").create,
-          Suma::Fixtures.member(name: "Zim Zam").create,
+          Suma::Fixtures.member(note: "Hi, zzz").create,
+          Suma::Fixtures.member(name: "Zzz Zam").create,
         ]
       end
 

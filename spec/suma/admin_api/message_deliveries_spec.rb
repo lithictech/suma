@@ -27,18 +27,18 @@ RSpec.describe Suma::AdminAPI::MessageDeliveries, :db do
 
     it_behaves_like "an endpoint capable of search" do
       let(:url) { "/v1/message_deliveries" }
-      let(:search_term) { "ZIM" }
+      let(:search_term) { "zzz" }
 
       def make_matching_items
         return [
-          Suma::Fixtures.message_delivery(to: "ZIM zam com").create,
-          Suma::Fixtures.message_delivery(template: "zim zam").create,
+          Suma::Fixtures.message_delivery(to: "zzz zam com").create,
+          Suma::Fixtures.message_delivery(template: "zzz zam").create,
         ]
       end
 
       def make_non_matching_items
         return [
-          Suma::Fixtures.message_delivery(to: "zam zam com", template: "zam zam").create,
+          Suma::Fixtures.message_delivery(to: "tam tam com", template: "tam tam").create,
         ]
       end
     end
