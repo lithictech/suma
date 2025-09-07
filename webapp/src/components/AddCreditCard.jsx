@@ -197,8 +197,18 @@ export default function AddCreditCard({ onSuccess, error, setError }) {
             value={expiry}
             errors={errors}
             register={register}
-            registerOptions={{ validate: Payment.fns.validateCardExpiry }}
-            errorKeys={{ validate: "forms.invalid_card_expiry" }}
+            registerOptions={{
+              validate: {
+                format: (m, y) =>
+                  Payment.fns.validateCardExpiryReason(m, y) !== Payment.INVALID_FORMAT,
+                expired: (m, y) =>
+                  Payment.fns.validateCardExpiryReason(m, y) !== Payment.INVALID_EXPIRED,
+              },
+            }}
+            errorKeys={{
+              format: "forms.invalid_card_expiry",
+              expired: "forms.invalid_card_expired",
+            }}
             onChange={handleExpiryChange}
             onFocus={handleFocus}
             onBlur={handleBlur}

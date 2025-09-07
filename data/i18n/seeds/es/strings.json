@@ -221,6 +221,7 @@
     "invalid_bank_account_number": "Ingresa  el número de tu cuenta bancaria.",
     "invalid_bank_account_number_confirm": "Debe coincidir con el number de cuenta de arriba.",
     "invalid_card_cvc": "El código de seguridad es un número de 3 o 4 dígitos que se encuentra en el reverso de la tarjeta.",
+    "invalid_card_expired": "La fecha de vencimiento debe ser futura.",
     "invalid_card_expiry": "La fecha de caducidad debe escribirse Mes Mes / Año Año, como '10/23'.",
     "invalid_card_number": "Por favor verifique el número de cuenta.",
     "invalid_field": "Respuesta invalida",
