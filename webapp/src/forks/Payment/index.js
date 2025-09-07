@@ -82,7 +82,7 @@ cards = [
   {
     type: "jcb",
     pattern:
-      /^(308[8-9]|309[0-3]|3094[0]{4}|309[6-9]|310[0-2]|311[2-9]|3120|315[8-9]|333[7-9]|334[0-9]|35)/,
+      /^(308[8-9]|309[0-3]|30940{4}|309[6-9]|310[0-2]|311[2-9]|3120|315[8-9]|333[7-9]|334[0-9]|35)/,
     format: defaultFormat,
     length: [16, 19],
     cvcLength: [3],
@@ -199,7 +199,7 @@ luhnCheck = function (num) {
 };
 
 hasTextSelected = function (target) {
-  let e, ref;
+  let ref;
   try {
     if (target.selectionStart != null && target.selectionStart !== target.selectionEnd) {
       return true;
@@ -216,14 +216,14 @@ hasTextSelected = function (target) {
       }
     }
   } catch (error) {
-    e = error;
+    // ignore this
   }
   return false;
 };
 
 reFormatCardNumber = function (e) {
   return setTimeout(
-    (function (_this) {
+    (function () {
       return function () {
         let target, value;
         target = e.target;
@@ -566,7 +566,7 @@ Payment = (function () {
         (card.luhn === false || luhnCheck(num))
       );
     },
-    validateCardExpiry: function (month, year) {
+    validateCardExpiryReason: function (month, year) {
       let currentTime, expiry, prefix, ref, ref1;
       if (typeof month === "object" && "month" in month) {
         (ref = month), (month = ref.month), (year = ref.year);
@@ -576,19 +576,19 @@ Payment = (function () {
           (year = ref1.year);
       }
       if (!(month && year)) {
-        return false;
+        return FORMAT;
       }
       month = QJ.trim(month);
       year = QJ.trim(year);
       if (!/^\d+$/.test(month)) {
-        return false;
+        return FORMAT;
       }
       if (!/^\d+$/.test(year)) {
-        return false;
+        return FORMAT;
       }
       month = parseInt(month, 10);
       if (!(month && month <= 12)) {
-        return false;
+        return FORMAT;
       }
       if (year.length === 2) {
         prefix = new Date().getFullYear();
@@ -599,7 +599,11 @@ Payment = (function () {
       currentTime = new Date();
       expiry.setMonth(expiry.getMonth() - 1);
       expiry.setMonth(expiry.getMonth() + 1, 1);
-      return expiry > currentTime;
+      return expiry > currentTime ? null : EXPIRED;
+    },
+    validateCardExpiry: function (month, year) {
+      const reason = Payment.fns.validateCardExpiryReason(month, year);
+      return !reason;
     },
     validateCardCVC: function (cvc, type) {
       let ref, ref1;
@@ -727,6 +731,11 @@ Payment = (function () {
     }
     return true;
   };
+
+  const FORMAT = "format";
+  const EXPIRED = "expired";
+  Payment.INVALID_FORMAT = FORMAT;
+  Payment.INVALID_EXPIRED = EXPIRED;
 
   return Payment;
 })();

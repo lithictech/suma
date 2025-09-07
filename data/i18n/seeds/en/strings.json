@@ -221,6 +221,7 @@
     "invalid_bank_account_number": "Please enter your bank account number.",
     "invalid_bank_account_number_confirm": "Must match your Account Number above.",
     "invalid_card_cvc": "The security code is a 3 or 4 digit number on the back fo the card.",
+    "invalid_card_expired": "Expiration date must be in the future.",
     "invalid_card_expiry": "Expiration date should be typed Month Month / Year Year, like '10 / 23'.",
     "invalid_card_number": "Please double check the account number.",
     "invalid_field": "This field is not valid.",
