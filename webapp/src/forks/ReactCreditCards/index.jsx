@@ -1,4 +1,4 @@
-import Payment from "payment";
+import Payment from "../Payment";
 import React from "react";
 
 export default class ReactCreditCards extends React.Component {
