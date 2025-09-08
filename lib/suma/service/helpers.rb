@@ -303,7 +303,7 @@ module Suma::Service::Helpers
   end
 
   def find_payment_instrument!(member, params)
-    instrument = member.usable_payment_instruments.find do |pi|
+    instrument = member.public_payment_instruments.find do |pi|
       pi.id == params[:payment_instrument_id] && pi.payment_method_type == params[:payment_method_type]
     end
     merror!(403, "Instrument not found", code: "resource_not_found") unless instrument

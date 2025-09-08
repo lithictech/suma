@@ -29,13 +29,8 @@ class Suma::Payment::BankAccount < Suma::Postgres::Model(:payment_bank_accounts)
                    left_primary_key: :legal_entity_id
 
   dataset_module do
-    def usable
-      return self.not_soft_deleted
-    end
-
-    def verified
-      return self.exclude(verified_at: nil)
-    end
+    def usable_for_funding(*) = self.exclude(verified_at: nil)
+    def usable_for_payout(*) = self
   end
 
   # Create a stable identity for this account. We encrypt the account number
@@ -51,7 +46,8 @@ class Suma::Payment::BankAccount < Suma::Postgres::Model(:payment_bank_accounts)
   end
 
   def payment_method_type = "bank_account"
-  def can_use_for_funding? = self.verified?
+  def usable_for_funding?(*) = self.verified?
+  def usable_for_payout?(*) = true
 
   def last4 = self.account_number[-4..]
   def name_with_last4 = "#{self.name} x-#{self.last4}"

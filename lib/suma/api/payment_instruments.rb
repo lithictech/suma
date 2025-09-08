@@ -36,18 +36,14 @@ class Suma::API::PaymentInstruments < Suma::API::V1
         save_or_error!(ba)
         add_current_member_header
         status 200
-        present(
-          ba,
-          with: MutationPaymentInstrumentEntity,
-          all_payment_instruments: c.usable_payment_instruments,
-        )
+        present ba, with: MutationPaymentInstrumentEntity
       end
 
       route_param :id, type: Integer do
         helpers do
           def lookup
             c = current_member
-            ba = c.legal_entity.bank_accounts_dataset.usable[params[:id]]
+            ba = c.legal_entity.bank_accounts_dataset.not_soft_deleted[params[:id]]
             merror!(403, "No bank account with that id", code: "resource_not_found") if ba.nil?
             return ba
           end
@@ -55,11 +51,7 @@ class Suma::API::PaymentInstruments < Suma::API::V1
         delete do
           ba = lookup
           ba.soft_delete
-          present(
-            ba,
-            with: MutationPaymentInstrumentEntity,
-            all_payment_instruments: current_member.usable_payment_instruments,
-          )
+          present ba, with: MutationPaymentInstrumentEntity
         end
       end
     end
@@ -80,7 +72,9 @@ class Suma::API::PaymentInstruments < Suma::API::V1
           # token fingerprint is not passed through params
           # for security reasons, fetch it with stripe API instead
           tok_fingerprint = Stripe::Token.retrieve(params[:token][:id]).card.fingerprint
-          existing_card = me.legal_entity.cards_dataset.usable.all.find { |c| c.fingerprint === tok_fingerprint }
+          existing_card = me.legal_entity.cards_dataset.not_soft_deleted.all.find do |c|
+            c.fingerprint === tok_fingerprint
+          end
           if existing_card
             existing_card
           else
@@ -93,17 +87,13 @@ class Suma::API::PaymentInstruments < Suma::API::V1
         end
         add_current_member_header
         status 200
-        present(
-          card,
-          with: MutationPaymentInstrumentEntity,
-          all_payment_instruments: me.usable_payment_instruments,
-        )
+        present card, with: MutationPaymentInstrumentEntity
       end
       route_param :id, type: Integer do
         helpers do
           def lookup
             c = current_member
-            card = c.legal_entity.cards_dataset.usable[params[:id]]
+            card = c.legal_entity.cards_dataset.not_soft_deleted[params[:id]]
             merror!(403, "No card with that id", code: "resource_not_found") if card.nil?
             return card
           end
@@ -112,11 +102,7 @@ class Suma::API::PaymentInstruments < Suma::API::V1
           card = lookup
           card.stripe_card.delete
           card.soft_delete
-          present(
-            card,
-            with: MutationPaymentInstrumentEntity,
-            all_payment_instruments: current_member.usable_payment_instruments,
-          )
+          present card, with: MutationPaymentInstrumentEntity
         end
       end
     end
@@ -124,8 +110,8 @@ class Suma::API::PaymentInstruments < Suma::API::V1
 
   class MutationPaymentInstrumentEntity < PaymentInstrumentEntity
     include Suma::API::Entities
-    expose :all_payment_instruments, with: PaymentInstrumentEntity do |_inst, opts|
-      opts.fetch(:all_payment_instruments)
+    expose :all_payment_instruments, with: PaymentInstrumentEntity do |_inst|
+      self.current_member.public_payment_instruments
     end
   end
 end

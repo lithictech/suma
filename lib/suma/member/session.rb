@@ -46,6 +46,8 @@ class Suma::Member::Session < Suma::Postgres::Model(:member_sessions)
 
   def impersonation? = !self.impersonating_id.nil?
 
+  def public_user = self.impersonation? ? self.impersonating : self.member
+
   # If this session is impersonating someone, the character is the member being impersonated.
   # If this session is not impersonating, the member is the character.
   # def character = self.impersonation? ? self.impersonating : self.member

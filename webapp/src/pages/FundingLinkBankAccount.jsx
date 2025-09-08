@@ -102,7 +102,7 @@ function LinkBankAccount({ onSuccess, returnTo }) {
       })
       .tap(handleUpdateCurrentMember)
       .then((r) => {
-        setUser({ ...user, usablePaymentInstruments: r.data.allPaymentInstruments });
+        setUser({ ...user, paymentInstruments: r.data.allPaymentInstruments });
         onSuccess({ instrumentId: r.data.id, instrumentType: r.data.paymentMethodType });
       })
       .catch((e) => setError(extractErrorCode(e)))

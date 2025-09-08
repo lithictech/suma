@@ -82,11 +82,12 @@ class Suma::AdminAPI::Search < Suma::AdminAPI::V1
     params do
       optional :q, type: String
       optional :types, type: Array[String], values: ["bank_account", "card"]
+      requires :purpose, type: Symbol, values: [:funding, :payout]
     end
     post :payment_instruments do
       check_admin_role_access!(:read, Suma::Member)
-      ds = Suma::Payment::Instrument.
-        where(soft_deleted_at: nil)
+      ds = Suma::Payment::Instrument.not_soft_deleted
+      ds = params[:purpose] == :funding ? ds.usable_for_funding : ds.usable_for_payout
       ds = ds.where(type: params[:types]) if params[:types].present?
       ds = hybrid_search(ds, params).limit(15)
       instruments = Suma::Payment::Instrument.reify(ds.all)

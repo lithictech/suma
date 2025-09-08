@@ -11,6 +11,9 @@ class Suma::Payment::Card < Suma::Postgres::Model(:payment_cards)
   include Suma::AdminLinked
   include Suma::ExternalLinks
 
+  EXPIRING_SOON_MONTHS = 3
+
+  plugin :generated_columns
   plugin :hybrid_search
   plugin :timestamps
   plugin :soft_deletes
@@ -25,13 +28,15 @@ class Suma::Payment::Card < Suma::Postgres::Model(:payment_cards)
                    left_primary_key: :legal_entity_id
 
   dataset_module do
-    def usable
-      return self.not_soft_deleted
-    end
+    def usable_for_funding(now:) = self.unexpired_as_of(now)
+    def usable_for_payout(*) = self.where(1 => 0)
+    def unexpired_as_of(t) = self.where { expires_at > Sequel[t] }
+    def expired_as_of(t) = self.where { expires_at <= Sequel[t] }
   end
 
   def payment_method_type = "card"
-  def can_use_for_funding? = true
+  def usable_for_funding?(now:) = !self.expired?(now:)
+  def usable_for_payout?(*) = false
 
   def rel_admin_link = "/member/#{self.member&.id}"
 
@@ -50,6 +55,11 @@ class Suma::Payment::Card < Suma::Postgres::Model(:payment_cards)
   def last4  = self.stripe_json.fetch("last4")
   def brand  = self.stripe_json.fetch("brand")
   def name = "#{self.brand} x-#{self.last4}"
+  def exp_month = self.stripe_json.fetch("exp_month")
+  def exp_year = self.stripe_json.fetch("exp_year")
+  def expires_at = Time.utc(self.exp_year, self.exp_month, 1).next_month
+  def expiring_soon?(now:) = self.expires_at < now + EXPIRING_SOON_MONTHS.months
+  def expired?(now:) = self.expires_at < now
 
   def simple_label = self.name
 

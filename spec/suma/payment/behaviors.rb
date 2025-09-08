@@ -66,14 +66,18 @@ RSpec.shared_examples "a payment strategy with a verifiable instrument" do
 end
 
 RSpec.shared_examples "a payment instrument" do
+  let(:factory) { Suma::Fixtures.fixture_module_for(described_class).base_factory }
+
   it "knows about itself" do
+    instrument = factory.create
     expect(instrument).to have_attributes(
       payment_method_type: be_a(String),
       name: be_a(String).and(be_present),
       last4: be_a(String).and(be_present),
-      can_use_for_funding?: be_bool,
       institution: be_a(Suma::Payment::Institution),
       legal_entity: be_a(Suma::LegalEntity),
     )
+    expect(instrument.usable_for_funding?(now: Time.now)).to be_bool
+    expect(instrument.usable_for_payout?(now: Time.now)).to be_bool
   end
 end
