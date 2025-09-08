@@ -26,7 +26,7 @@ module Suma::Fixtures::Cards
       "cvc_check" => "pass",
       "dynamic_last4" => nil,
       "exp_month" => 8,
-      "exp_year" => 2023,
+      "exp_year" => Time.now.year + 1,
       "fingerprint" => "vIjZVstYyGmkvbVe",
       "funding" => "credit",
       "last4" => "4242",
@@ -58,5 +58,17 @@ module Suma::Fixtures::Cards
   decorator :visa do
     self.stripe_json["brand"] = "Visa"
     self.stripe_json["last4"] = "4242"
+  end
+
+  decorator :expired do |month: Time.now.month, year: Time.now.year|
+    self.stripe_json["exp_month"] = month
+    self.stripe_json["exp_year"] = year
+  end
+
+  decorator :usable do
+  end
+
+  decorator :unusable do
+    self.stripe_json["exp_year"] = Time.now.year - 1
   end
 end

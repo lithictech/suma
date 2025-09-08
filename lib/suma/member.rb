@@ -280,19 +280,20 @@ class Suma::Member < Suma::Postgres::Model(:members)
     return self.terms_agreed < LATEST_TERMS_PUBLISH_DATE
   end
 
-  def usable_payment_instruments
+  # Return the instruments (cards, bank accounts) that can be returned to the user (are not deleted).
+  def public_payment_instruments
     ord = [Sequel.desc(:created_at), :id]
     result = []
-    result.concat(self.legal_entity.bank_accounts_dataset.usable.order(*ord).all) if
+    result.concat(self.legal_entity.bank_accounts_dataset.not_soft_deleted.order(*ord).all) if
       Suma::Payment.method_supported?("bank_account")
-    result.concat(self.legal_entity.cards_dataset.usable.order(*ord).all) if
+    result.concat(self.legal_entity.cards_dataset.not_soft_deleted.order(*ord).all) if
       Suma::Payment.method_supported?("card")
     return result
   end
 
   def default_payment_instrument
     # In the future we can let them set a default, for now we don't expect many folks to have multiple.
-    return self.usable_payment_instruments.first
+    return self.public_payment_instruments.first
   end
 
   def search_label

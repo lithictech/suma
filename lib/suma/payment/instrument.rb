@@ -5,6 +5,15 @@ require "suma/payment"
 class Suma::Payment::Instrument < Suma::Postgres::Model(:payment_instruments)
   plugin :hybrid_search, indexable: false
 
+  dataset_module do
+    def not_soft_deleted = self.where(soft_deleted_at: nil)
+    def usable_for_funding = self.where(usable_for_funding: true)
+    def usable_for_payout = self.where(usable_for_payout: true)
+  end
+
+  def usable_for_funding?(*) = self.usable_for_funding
+  def usable_for_payout?(*) = self.usable_for_payout
+
   class << self
     def primary_key = :id
 
@@ -36,7 +45,14 @@ class Suma::Payment::Instrument < Suma::Postgres::Model(:payment_instruments)
   module Interface
     def payment_method_type = raise NotImplementedError
     def rel_admin_link = raise NotImplementedError
-    def can_use_for_funding? = raise NotImplementedError
+
+    # Return true if the instance can be used for funding.
+    # This should not check whether the instance is soft-deleted,
+    # just that other fields are set up to be able to use for funding.
+    def usable_for_funding?(now:) = raise NotImplementedError
+    # See +usable_for_funding?+.
+    def usable_for_payout?(now:) = raise NotImplementedError
+
     # @return [Institution]
     def institution = raise NotImplementedError
 

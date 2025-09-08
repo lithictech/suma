@@ -236,10 +236,10 @@ RSpec.describe "Suma::Member", :db do
     end
   end
 
-  describe "usable_payment_instruments", reset_configuration: Suma::Payment do
+  describe "public_payment_instruments", reset_configuration: Suma::Payment do
     let(:member) { Suma::Fixtures.member.create }
-    let(:bank_fac) { Suma::Fixtures.bank_account.member(member) }
-    let(:card_fac) { Suma::Fixtures.card.member(member) }
+    let(:bank_fac) { Suma::Fixtures.bank_account.member(member).usable }
+    let(:card_fac) { Suma::Fixtures.card.member(member).usable }
 
     it "returns undeleted bank accounts and cards" do
       deleted_ba = bank_fac.create
@@ -252,16 +252,16 @@ RSpec.describe "Suma::Member", :db do
       ba1 = bank_fac.create
       c2 = card_fac.create
 
-      expect(member.usable_payment_instruments).to have_same_ids_as(ba1, ba2, c2, c1).ordered
+      expect(member.public_payment_instruments).to have_same_ids_as(ba1, ba2, c2, c1).ordered
     end
 
     it "excludes unsupported payment methods" do
       c1 = card_fac.create
       ba1 = bank_fac.create
 
-      expect(member.usable_payment_instruments).to have_same_ids_as(ba1, c1)
+      expect(member.public_payment_instruments).to have_same_ids_as(ba1, c1)
       Suma::Payment.supported_methods = ["card"]
-      expect(member.usable_payment_instruments).to have_same_ids_as(c1)
+      expect(member.public_payment_instruments).to have_same_ids_as(c1)
     end
   end
 

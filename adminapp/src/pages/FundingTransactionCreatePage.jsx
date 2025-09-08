@@ -57,7 +57,9 @@ export default function FundingTransactionCreatePage() {
           helperText="Where are we debiting the money from?"
           fullWidth
           required
-          search={api.searchPaymentInstruments}
+          search={(data, ...args) =>
+            api.searchPaymentInstruments({ purpose: "funding", ...data }, ...args)
+          }
           onValueSelect={(o) => setPaymentInstrument(o)}
         />
       </ResponsiveStack>

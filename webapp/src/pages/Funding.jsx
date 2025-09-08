@@ -28,10 +28,10 @@ export default function Funding() {
       <p>{t("payments.payment_intro.intro")}</p>
       <p id="some">{t("payments.payment_intro.privacy_statement")}</p>
       {isPaymentMethodSupported("bank_account") && (
-        <BankAccountsCard instruments={user.usablePaymentInstruments} />
+        <BankAccountsCard instruments={user.paymentInstruments} />
       )}
       {isPaymentMethodSupported("card") && (
-        <CardsCard instruments={user.usablePaymentInstruments} />
+        <CardsCard instruments={user.paymentInstruments} />
       )}
       <AdditionalSourcesCard />
     </>
@@ -88,7 +88,7 @@ function InstrumentLine({ instrument }) {
           </Card.Subtitle>
         </div>
         <div className="ms-auto text-end">
-          {instrument.canUseForFunding && config.featureAddFunds ? (
+          {instrument.usableForFunding && config.featureAddFunds ? (
             <Button
               variant="success"
               size="sm"
@@ -109,7 +109,7 @@ function InstrumentLine({ instrument }) {
             </Button>
           )}
           <div>
-            {instrument.canUseForFunding ? (
+            {instrument.usableForFunding ? (
               <small>
                 <i className="bi bi-check2-circle text-success" title="Verified account">
                   {t("payments.payment_account_verified")}
@@ -169,9 +169,7 @@ function DeleteInstrumentModal({ instrument, apiMethod, toggle }) {
     screenLoader.turnOn();
     e.preventDefault();
     apiMethod({ id: instrument.id })
-      .then((r) =>
-        setUser({ ...user, usablePaymentInstruments: r.data.allPaymentInstruments })
-      )
+      .then((r) => setUser({ ...user, paymentInstruments: r.data.allPaymentInstruments }))
       .catch((e) => setError(extractErrorCode(e)))
       .finally(screenLoader.turnOff);
   }

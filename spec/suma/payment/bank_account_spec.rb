@@ -5,8 +5,19 @@ require "suma/payment/behaviors"
 RSpec.describe "Suma::Payment::BankAccount", :db do
   let(:described_class) { Suma::Payment::BankAccount }
 
-  it_behaves_like "a payment instrument" do
-    let(:instrument) { Suma::Fixtures.bank_account.create }
+  it_behaves_like "a payment instrument"
+
+  it "knows when it is usable for funding and payouts" do
+    ba = Suma::Fixtures.bank_account.create
+    expect(ba).to have_attributes(usable_for_funding?: false, usable_for_payout?: true)
+    expect(described_class.usable_for_funding.all).to be_empty
+    expect(described_class.usable_for_payout.all).to have_same_ids_as(ba)
+
+    ba.verified = true
+    expect(ba).to have_attributes(usable_for_funding?: true, usable_for_payout?: true)
+    ba.save_changes
+    expect(described_class.usable_for_funding.all).to have_same_ids_as(ba)
+    expect(described_class.usable_for_payout.all).to have_same_ids_as(ba)
   end
 
   describe "verified" do
@@ -16,26 +27,6 @@ RSpec.describe "Suma::Payment::BankAccount", :db do
       ba.verified = true
       expect(ba.verified_at).to match_time(:now)
       expect(ba).to be_verified
-    end
-  end
-
-  describe "dataset" do
-    describe "usable" do
-      it "is not soft deleted bank accounts" do
-        deleted_ba = Suma::Fixtures.bank_account.create
-        deleted_ba.soft_delete
-        ba2 = Suma::Fixtures.bank_account.create
-        ba1 = Suma::Fixtures.bank_account.create
-        expect(Suma::Payment::BankAccount.usable.all).to have_same_ids_as(ba1, ba2)
-      end
-    end
-
-    describe "verified" do
-      it "is limited to verified bank accounts" do
-        ba2 = Suma::Fixtures.bank_account.verified.create
-        ba1 = Suma::Fixtures.bank_account.create
-        expect(Suma::Payment::BankAccount.verified.all).to have_same_ids_as(ba2)
-      end
     end
   end
 
