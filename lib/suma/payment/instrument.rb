@@ -1,18 +1,82 @@
 # frozen_string_literal: true
 
+require "suma/admin_linked"
 require "suma/payment"
 
 class Suma::Payment::Instrument < Suma::Postgres::Model(:payment_instruments)
-  plugin :hybrid_search, indexable: false
+  module Interface
+    include Suma::AdminLinked
 
-  dataset_module do
-    def not_soft_deleted = self.where(soft_deleted_at: nil)
-    def usable_for_funding = self.where(usable_for_funding: true)
-    def usable_for_payout = self.where(usable_for_payout: true)
+    def self.included(m)
+      m.many_to_one :legal_entity, class: "Suma::LegalEntity"
+      m.one_through_many :member,
+                         [
+                           [:legal_entities, :id, :id],
+                           [:members, :legal_entity_id, :id],
+                         ],
+                         class: "Suma::Member",
+                         left_primary_key: :legal_entity_id
+    end
+
+    # 'card', 'bank_account', etc.
+    def payment_method_type = raise NotImplementedError
+    # Return true if the instance can be used for funding.
+    # This should not check whether the instance is soft-deleted,
+    # just that other fields are set up to be able to use for funding.
+    def usable_for_funding? = raise NotImplementedError
+    # See +usable_for_funding?+.
+    def usable_for_payout? = raise NotImplementedError
+    # When does this expire? False if unexpired, or not supporting expiration.
+    def expires_at = raise NotImplementedError
+    # Is this account verified, for whatever the instrument's meaning of verified is.
+    def verified? = raise NotImplementedError
+    # @return [String]
+    def institution_name = raise NotImplementedError
+
+    def rel_admin_link = "/member/#{self.member&.id}"
+
+    def expired_as_of?(t) = self.expires_at.nil? ? false : self.expires_at <= t
+    def expired? = self.expired_as_of?(Time.now)
+
+    def status
+      return :expired if expired?
+      return :unverified unless verified?
+      return :ok
+    end
+
+    def admin_label
+      lbl = self.simple_label
+      inst_name = self.institution_name
+      lbl += " (#{inst_name})" unless self.name&.include?(inst_name || "")
+      return lbl
+    end
+
+    def simple_label = raise NotImplementedError
+
+    def search_label
+      lbl = "#{self.legal_entity.name}: #{self.name}, #{self.institution_name}"
+      return lbl
+    end
   end
 
-  def usable_for_funding?(*) = self.usable_for_funding
-  def usable_for_payout?(*) = self.usable_for_payout
+  include Interface
+
+  plugin :hybrid_search, indexable: false
+  plugin :soft_deletes
+
+  dataset_module do
+    def usable_for_funding = self.where(usable_for_funding: true)
+    def usable_for_payout = self.where(usable_for_payout: true)
+    def unexpired_as_of(t) = self.where((Sequel[:expires_at] =~ nil) | (Sequel[:expires_at] > Sequel[t]))
+    def expired_as_of(t) = self.where { expires_at <= Sequel[t] }
+  end
+
+  def payment_method_type = self[:payment_method_type]
+  def usable_for_funding? = self[:usable_for_funding]
+  def usable_for_payout? = self[:usable_for_payout]
+  def expires_at = self[:expires_at]
+  def verified? = self[:verified]
+  def institution_name = self[:institution_name]
 
   class << self
     def primary_key = :id
@@ -29,7 +93,7 @@ class Suma::Payment::Instrument < Suma::Postgres::Model(:payment_instruments)
     def reify(rows)
       ids_by_type = {}
       rows.each do |r|
-        ids = (ids_by_type[r.type] ||= [])
+        ids = (ids_by_type[r.payment_method_type] ||= [])
         ids << r.id
       end
       instances_by_type = {}
@@ -37,37 +101,8 @@ class Suma::Payment::Instrument < Suma::Postgres::Model(:payment_instruments)
         type = self.type_strings_to_types.fetch(t)
         instances_by_type[t] = type.dataset.where(type.primary_key => ids).all.index_by(&type.primary_key)
       end
-      result = rows.map { |r| instances_by_type[r.type].fetch(r.id) }
+      result = rows.map { |r| instances_by_type[r.payment_method_type].fetch(r.id) }
       return result
-    end
-  end
-
-  module Interface
-    def payment_method_type = raise NotImplementedError
-    def rel_admin_link = raise NotImplementedError
-
-    # Return true if the instance can be used for funding.
-    # This should not check whether the instance is soft-deleted,
-    # just that other fields are set up to be able to use for funding.
-    def usable_for_funding?(now:) = raise NotImplementedError
-    # See +usable_for_funding?+.
-    def usable_for_payout?(now:) = raise NotImplementedError
-
-    # @return [Institution]
-    def institution = raise NotImplementedError
-
-    def admin_label
-      lbl = "#{self.name}/#{self.last4}"
-      inst_name = self.institution.name
-      lbl += " (#{inst_name})" unless self.name&.include?(inst_name || "")
-      return lbl
-    end
-
-    def simple_label = raise NotImplementedError
-
-    def search_label
-      lbl = "#{self.legal_entity.name}: #{self.name} x-#{self.last4}, #{self.institution.name}"
-      return lbl
     end
   end
 end

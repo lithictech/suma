@@ -60,15 +60,8 @@ module Suma::Fixtures::Cards
     self.stripe_json["last4"] = "4242"
   end
 
-  decorator :expired do |month: Time.now.month, year: Time.now.year|
+  decorator :expired do |month: Time.now.last_month.month, year: Time.now.last_month.year|
     self.stripe_json["exp_month"] = month
     self.stripe_json["exp_year"] = year
-  end
-
-  decorator :usable do
-  end
-
-  decorator :unusable do
-    self.stripe_json["exp_year"] = Time.now.year - 1
   end
 end

@@ -86,9 +86,9 @@ class Suma::AdminAPI::Search < Suma::AdminAPI::V1
     end
     post :payment_instruments do
       check_admin_role_access!(:read, Suma::Member)
-      ds = Suma::Payment::Instrument.not_soft_deleted
+      ds = Suma::Payment::Instrument.dataset.not_soft_deleted
       ds = params[:purpose] == :funding ? ds.usable_for_funding : ds.usable_for_payout
-      ds = ds.where(type: params[:types]) if params[:types].present?
+      ds = ds.where(payment_method_type: params[:types]) if params[:types].present?
       ds = hybrid_search(ds, params).limit(15)
       instruments = Suma::Payment::Instrument.reify(ds.all)
       status 200

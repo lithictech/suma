@@ -38,9 +38,9 @@ module Suma::API::Entities
     expose :created_at
     expose :id, as: :payment_instrument_id
     expose :payment_method_type
-    expose :usable_for_funding do |inst|
-      inst.usable_for_funding?(now: self.current_time)
-    end
+    expose :usable_for_funding?, as: :usable_for_funding
+    expose :status
+    expose :expires_at
     expose :institution
     expose :name
     expose :last4

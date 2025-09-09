@@ -238,8 +238,8 @@ RSpec.describe "Suma::Member", :db do
 
   describe "public_payment_instruments", reset_configuration: Suma::Payment do
     let(:member) { Suma::Fixtures.member.create }
-    let(:bank_fac) { Suma::Fixtures.bank_account.member(member).usable }
-    let(:card_fac) { Suma::Fixtures.card.member(member).usable }
+    let(:bank_fac) { Suma::Fixtures.bank_account.member(member) }
+    let(:card_fac) { Suma::Fixtures.card.member(member) }
 
     it "returns undeleted bank accounts and cards" do
       deleted_ba = bank_fac.create
