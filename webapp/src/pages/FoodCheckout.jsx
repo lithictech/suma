@@ -1,5 +1,5 @@
 import api from "../api";
-import BackBreadcrumb from "../components/BackBreadcrumb.jsx";
+import BackBreadcrumb from "../components/BackBreadcrumb";
 import ErrorScreen from "../components/ErrorScreen";
 import ExternalLink from "../components/ExternalLink";
 import FoodPrice from "../components/FoodPrice";
@@ -221,42 +221,53 @@ function CheckoutPayment({
   return (
     <>
       <h5>{t("food.payment_title")}</h5>
-      {isEmpty(checkout.availablePaymentInstruments) && (
-        <Stack gap={2}>
-          <span className="small text-secondary">{t("food.link_new_payment")}</span>
-          {addPaymentLinks}
-          <PaymentsInputValidationMessage
-            name={paymentValidationInputName}
-            register={register}
-            errors={errors}
-          />
-        </Stack>
-      )}
-      {!isEmpty(checkout.availablePaymentInstruments) && (
-        <Stack gap={2}>
-          <Form.Group>
-            <FormRadioInputs
-              inputs={inputs}
-              name="paymentOption"
-              selected={selectedInstrument?.key}
+      <Stack gap={2}>
+        {checkout.unavailablePaymentInstruments
+          .filter((pi) => pi.status === "expired")
+          .map((pi) => (
+            <Stack key={pi.id} direction="horizontal" className="opacity-50">
+              <PaymentLabel {...pi} />
+            </Stack>
+          ))}
+        {isEmpty(checkout.availablePaymentInstruments) ? (
+          <>
+            <span className="small text-secondary">{t("food.link_new_payment")}</span>
+            {addPaymentLinks}
+            <PaymentsInputValidationMessage
+              name={paymentValidationInputName}
               register={register}
               errors={errors}
-              onChange={handleChange}
-              required
             />
-          </Form.Group>
-          <div>{t("food.link_new_payment", { context: "or" })}</div>
-          {addPaymentLinks}
-        </Stack>
-      )}
+          </>
+        ) : (
+          <>
+            <Form.Group>
+              <FormRadioInputs
+                inputs={inputs}
+                name="paymentOption"
+                selected={selectedInstrument?.key}
+                register={register}
+                errors={errors}
+                onChange={handleChange}
+                required
+              />
+            </Form.Group>
+            <div>{t("food.link_new_payment_or")}</div>
+            {addPaymentLinks}
+          </>
+        )}
+      </Stack>
     </>
   );
 }
 
-function PaymentLabel({ institution, last4, name }) {
+function PaymentLabel({ institution, last4, name, status }) {
   name = institution.name.toLowerCase() === "unknown" ? name : institution.name;
   return (
     <>
+      {status === "expired" && (
+        <span className="text-danger me-2">{t("payments.payment_account_expired")}</span>
+      )}
       {!isEmpty(institution.logoSrc) && (
         <img
           className="me-2"

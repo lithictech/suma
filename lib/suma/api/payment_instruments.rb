@@ -69,6 +69,10 @@ class Suma::API::PaymentInstruments < Suma::API::V1
           Suma::Payment.method_supported?("card")
         me.stripe.ensure_registered_as_customer
         card = me.db.transaction do
+          # First of all, soft deleted all expired cards. If someone adds a card,
+          # assume we want to clean up existing cards. If the card they pass in,
+          # is already an card with a new date, we'll create a new one with the same number.
+          me.cards_dataset.expired_as_of(current_time).each(&:soft_delete)
           # token fingerprint is not passed through params
           # for security reasons, fetch it with stripe API instead
           tok_fingerprint = Stripe::Token.retrieve(params[:token][:id]).card.fingerprint

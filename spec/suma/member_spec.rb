@@ -265,6 +265,19 @@ RSpec.describe "Suma::Member", :db do
     end
   end
 
+  describe "default_payment_instrument" do
+    it "is the first ok payment instrument" do
+      m = Suma::Fixtures.member.create
+      expect(m.default_payment_instrument).to be_nil
+      Suma::Fixtures.card.member(m).expired.create
+      Suma::Fixtures.card.member(m).create.soft_delete
+      expect(m.default_payment_instrument).to be_nil
+
+      c = Suma::Fixtures.card.member(m).create
+      expect(m.default_payment_instrument).to be === c
+    end
+  end
+
   describe "soft deleting" do
     it "sets email and password" do
       c = Suma::Fixtures.member(email: "a@b.c", password: "password").create

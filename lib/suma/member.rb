@@ -287,7 +287,7 @@ class Suma::Member < Suma::Postgres::Model(:members)
 
   def default_payment_instrument
     # In the future we can let them set a default, for now we don't expect many folks to have multiple.
-    return self.public_payment_instruments.first
+    return self.public_payment_instruments.find { |pi| pi.status == :ok }
   end
 
   def search_label

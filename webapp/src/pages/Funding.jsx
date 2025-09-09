@@ -6,11 +6,13 @@ import PageHeading from "../components/PageHeading.jsx";
 import RLink from "../components/RLink";
 import config from "../config";
 import { t } from "../localization";
+import { dayjs } from "../modules/dayConfig.js";
 import useToggle from "../shared/react/useToggle";
 import useBackendGlobals from "../state/useBackendGlobals";
 import { extractErrorCode, useError } from "../state/useError";
 import useScreenLoader from "../state/useScreenLoader";
 import useUser from "../state/useUser";
+import clsx from "clsx";
 import filter from "lodash/filter";
 import React from "react";
 import Button from "react-bootstrap/Button";
@@ -83,8 +85,24 @@ function InstrumentLine({ instrument }) {
             )}
             {instrument.name}
           </Card.Title>
-          <Card.Subtitle className="m-0">
-            <span className="opacity-50">x-{instrument.last4}</span>
+          <Card.Subtitle className="mt-2">
+            {instrument.expiresAt &&
+              (instrument.status === "expired" ? (
+                <span className="text-danger">
+                  {t("payments.payment_account_expired")}{" "}
+                  {dayjs(instrument.expiresAt).format("MM/YY")}
+                </span>
+              ) : (
+                <span className="text-muted">
+                  {t("payments.payment_account_expires")}{" "}
+                  {dayjs(instrument.expiresAt).format("MM/YY")}
+                </span>
+              ))}
+            {instrument.paymentMethodType === "bank_account" && (
+              <span className="text-muted">
+                {instrument.institution.name} x-{instrument.last4}
+              </span>
+            )}
           </Card.Subtitle>
         </div>
         <div className="ms-auto text-end">
@@ -109,19 +127,7 @@ function InstrumentLine({ instrument }) {
             </Button>
           )}
           <div>
-            {instrument.usableForFunding ? (
-              <small>
-                <i className="bi bi-check2-circle text-success" title="Verified account">
-                  {t("payments.payment_account_verified")}
-                </i>
-              </small>
-            ) : (
-              <small>
-                <i className="bi bi-stopwatch text-warning" title="Verification pending">
-                  {t("payments.payment_account_pending")}
-                </i>
-              </small>
-            )}
+            <InstrumentStatus instrument={instrument} />
             <DeleteInstrument
               instrument={instrument}
               apiMethod={
@@ -135,6 +141,24 @@ function InstrumentLine({ instrument }) {
         </div>
       </Card.Body>
     </Card>
+  );
+}
+
+function InstrumentStatus({ instrument }) {
+  let cls, locKey;
+  if (instrument.status === "ok") {
+    cls = "bi-check2-circle text-success";
+    locKey = "payments.payment_account_verified";
+  } else if (instrument.status === "unverified") {
+    cls = "bi-stopwatch text-warning";
+    locKey = "payments.payment_account_pending";
+  } else {
+    return;
+  }
+  return (
+    <small>
+      <i className={clsx("bi", cls)}>&nbsp;{t(locKey)}</i>
+    </small>
   );
 }
 
