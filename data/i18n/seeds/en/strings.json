@@ -324,6 +324,8 @@
     "no_bank_accounts_warning": "You don't have any bank accounts linked.",
     "no_cards_warning": "You don't have any credit or debit cards linked.",
     "no_transaction_history": "You haven't added or spent any money.",
+    "payment_account_expired": "Expired",
+    "payment_account_expires": "Expires",
     "payment_account_pending": "Pending",
     "payment_account_verified": "Verified",
     "payment_intro": {

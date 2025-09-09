@@ -361,6 +361,7 @@ class Suma::API::Commerce < Suma::API::V1
     expose :available_fulfillment_options, with: FulfillmentOptionEntity
     expose :payment_instrument, with: Suma::API::Entities::PaymentInstrumentEntity
     expose :available_payment_instruments, with: Suma::API::Entities::PaymentInstrumentEntity
+    expose :unavailable_payment_instruments, with: Suma::API::Entities::PaymentInstrumentEntity
 
     expose :customer_cost, with: Suma::Service::Entities::Money
     expose :undiscounted_cost, with: Suma::Service::Entities::Money
