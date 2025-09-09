@@ -59,24 +59,18 @@ class Suma::Member < Suma::Postgres::Model(:members)
   plugin :hybrid_search
 
   one_to_many :activities, class: "Suma::Member::Activity", order: order_desc
-  many_through_many :bank_accounts,
-                    [
-                      [:legal_entities, :id, :id],
-                      [:payment_bank_accounts, :legal_entity_id, :id],
-                    ],
-                    class: "Suma::Payment::BankAccount",
-                    left_primary_key: :legal_entity_id,
-                    order: order_assoc(:asc),
-                    read_only: true
-  many_through_many :cards,
-                    [
-                      [:legal_entities, :id, :id],
-                      [:payment_cards, :legal_entity_id, :id],
-                    ],
-                    class: "Suma::Payment::Card",
-                    left_primary_key: :legal_entity_id,
-                    order: order_assoc(:asc),
-                    read_only: true
+  one_to_many :bank_accounts,
+              class: "Suma::Payment::BankAccount",
+              key: :legal_entity_id,
+              primary_key: :legal_entity_id,
+              order: order_assoc(:asc),
+              read_only: true
+  one_to_many :cards,
+              class: "Suma::Payment::Card",
+              key: :legal_entity_id,
+              primary_key: :legal_entity_id,
+              order: order_assoc(:asc),
+              read_only: true
   one_to_many :charges, class: "Suma::Charge", order: order_desc
   many_to_one :legal_entity, class: "Suma::LegalEntity"
   one_to_many :message_deliveries, key: :recipient_id, class: "Suma::Message::Delivery", order: order_desc

@@ -9,29 +9,28 @@ RSpec.describe "Suma::Payment::Card", :db do
 
   it "knows when it is usable for funding and payouts" do
     c = Suma::Fixtures.card.create
-    now = Time.now
-    expect(c).to be_usable_for_funding(now:)
-    expect(c).to_not be_usable_for_payout(now:)
-    expect(described_class.usable_for_funding(now:).all).to have_same_ids_as(c)
-    expect(described_class.usable_for_payout(now:).all).to be_empty
+    expect(c).to be_usable_for_funding
+    expect(c).to_not be_usable_for_payout
+    expect(described_class.usable_for_funding.all).to have_same_ids_as(c)
+    expect(described_class.usable_for_payout.all).to be_empty
 
     c.update(stripe_json: c.stripe_json.merge("exp_year" => 1001))
-    expect(c).to_not be_usable_for_funding(now:)
-    expect(c).to_not be_usable_for_payout(now:)
-    expect(described_class.usable_for_funding(now:).all).to be_empty
-    expect(described_class.usable_for_payout(now:).all).to be_empty
+    expect(c).to_not be_usable_for_funding
+    expect(c).to_not be_usable_for_payout
+    expect(described_class.usable_for_funding.all).to be_empty
+    expect(described_class.usable_for_payout.all).to be_empty
   end
 
   it "knows its expiration" do
     t = Time.now
     c = Suma::Fixtures.card.expired(month: 5, year: 3001).create
     expect(c).to have_attributes(expires_at: match_time("3001-06-01T00:00:00Z"))
-    expect(c).to_not be_expired(now: Time.now)
+    expect(c).to_not be_expired
     expect(described_class.expired_as_of(t).all).to be_empty
     expect(described_class.unexpired_as_of(t).all).to have_same_ids_as(c)
     c.update(stripe_json: c.stripe_json.merge("exp_year" => 1001))
     expect(c).to have_attributes(expires_at: match_time("1001-06-01T00:00:00Z"))
-    expect(c).to be_expired(now: t)
+    expect(c).to be_expired
     expect(described_class.expired_as_of(t).all).to have_same_ids_as(c)
     expect(described_class.unexpired_as_of(t).all).to be_empty
   end

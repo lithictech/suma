@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require "suma/admin_linked"
 require "suma/external_links"
 require "suma/payment/instrument"
 require "suma/postgres/model"
@@ -8,7 +7,6 @@ require "suma/postgres/model"
 class Suma::Payment::BankAccount < Suma::Postgres::Model(:payment_bank_accounts)
   include Suma::Payment::Instrument::Interface
   include Suma::Postgres::HybridSearch
-  include Suma::AdminLinked
   include Suma::ExternalLinks
 
   plugin :hybrid_search
@@ -19,18 +17,12 @@ class Suma::Payment::BankAccount < Suma::Postgres::Model(:payment_bank_accounts)
   end
 
   many_to_one :plaid_institution, class: "Suma::PlaidInstitution"
-  many_to_one :legal_entity, class: "Suma::LegalEntity"
-  one_through_many :member,
-                   [
-                     [:legal_entities, :id, :id],
-                     [:members, :legal_entity_id, :id],
-                   ],
-                   class: "Suma::Member",
-                   left_primary_key: :legal_entity_id
 
   dataset_module do
-    def usable_for_funding(*) = self.exclude(verified_at: nil)
-    def usable_for_payout(*) = self
+    def usable_for_funding = self.exclude(verified_at: nil)
+    def usable_for_payout = self
+    def expired_as_of(_t) = self.where(1 => 0)
+    def unexpired_as_of(_t) = self
   end
 
   # Create a stable identity for this account. We encrypt the account number
@@ -46,14 +38,13 @@ class Suma::Payment::BankAccount < Suma::Postgres::Model(:payment_bank_accounts)
   end
 
   def payment_method_type = "bank_account"
-  def usable_for_funding?(*) = self.verified?
-  def usable_for_payout?(*) = true
-
+  def usable_for_funding? = self.verified?
+  def usable_for_payout? = true
+  def expired? = false
   def last4 = self.account_number[-4..]
-  def name_with_last4 = "#{self.name} x-#{self.last4}"
-  def simple_label = self.name_with_last4
-
-  def rel_admin_link = "/member/#{self.member&.id}"
+  def simple_label = "#{self.name} x-#{self.last4}"
+  def institution_name = self.institution.name
+  def expires_at = nil
 
   def institution
     inst = self.plaid_institution

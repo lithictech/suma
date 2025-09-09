@@ -20,6 +20,12 @@ RSpec.describe "Suma::Payment::BankAccount", :db do
     expect(described_class.usable_for_payout.all).to have_same_ids_as(ba)
   end
 
+  it "knows it can never expire" do
+    ba = Suma::Fixtures.bank_account.create
+    expect(described_class.unexpired_as_of(Time.now).all).to have_same_ids_as(ba)
+    expect(described_class.expired_as_of(Time.now).all).to be_empty
+  end
+
   describe "verified" do
     it "is a timestamp accessor" do
       ba = Suma::Fixtures.bank_account.create
@@ -53,7 +59,7 @@ RSpec.describe "Suma::Payment::BankAccount", :db do
         name: "Checking",
         last4: "4567",
         simple_label: "Checking x-4567",
-        admin_label: "Checking/4567 (Unknown)",
+        admin_label: "Checking x-4567 (Unknown)",
       )
     end
 
@@ -74,7 +80,7 @@ RSpec.describe "Suma::Payment::BankAccount", :db do
         name: "Checking",
         last4: "4567",
         simple_label: "Checking x-4567",
-        admin_label: "Checking/4567 (Chase)",
+        admin_label: "Checking x-4567 (Chase)",
       )
     end
   end
