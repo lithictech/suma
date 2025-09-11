@@ -27,6 +27,8 @@ module Suma::Async
     "suma/async/anon_proxy_destroyed_member_contact_cleanup",
     "suma/async/deprecated_jobs",
     "suma/async/enrollment_removal_runner",
+    "suma/async/expiring_instrument_notifier",
+    "suma/async/expiring_instrument_scheduler",
     "suma/async/forward_messages",
     "suma/async/frontapp_list_sync",
     "suma/async/frontapp_upsert_contact",

@@ -192,8 +192,10 @@ class Suma::Member < Suma::Postgres::Model(:members)
     # If a member has an instrument expiring soon,
     # AND has taken mobility trip in the last 12 months,
     # we want to let them know about an expiring payment instrument.
+    #
     # We don't want to tell people about expiring cards if they haven't taken trips,
     # since they don't need to keep them active.
+    #
     # We don't need to look at trips all time, since they may not be using suma trips anymore.
     #
     # We look at cards expiring within 6 weeks (42 days), since a card company will pretty reliably
@@ -205,8 +207,9 @@ class Suma::Member < Suma::Postgres::Model(:members)
         where { expires_at >= as_of }.
         expired_as_of(as_of + 6.weeks).
         where(legal_entity_id: self.select(:legal_entity_id))
-      ds = self.where(
-        mobility_trips: Suma::Mobility::Trip.dataset,
+      recent_trips = Suma::Mobility::Trip.dataset.where { began_at > (as_of - 12.months) }
+      ds = self.not_soft_deleted.where(
+        mobility_trips: recent_trips,
         legal_entity_id: expiring_intruments.select(:legal_entity_id),
       )
       return ds

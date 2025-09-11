@@ -70,6 +70,15 @@ RSpec.describe "Suma::Member", :db do
         Suma::Fixtures.mobility_trip.create(member: trip_and_expiring_card)
         Suma::Fixtures.card.member(trip_and_expiring_card).expiring.create
 
+        old_trip_and_expiring_card = Suma::Fixtures.member.create
+        Suma::Fixtures.mobility_trip.create(member: old_trip_and_expiring_card, began_at: 2.years.ago)
+        Suma::Fixtures.card.member(old_trip_and_expiring_card).expiring.create
+
+        deleted_with_trip_and_expiring_card = Suma::Fixtures.member.create
+        deleted_with_trip_and_expiring_card.soft_delete
+        Suma::Fixtures.mobility_trip.create(member: deleted_with_trip_and_expiring_card)
+        Suma::Fixtures.card.member(deleted_with_trip_and_expiring_card).expiring.create
+
         trip_and_expired_card = Suma::Fixtures.member.create
         Suma::Fixtures.mobility_trip.create(member: trip_and_expired_card)
         Suma::Fixtures.card.member(trip_and_expired_card).expired.create
