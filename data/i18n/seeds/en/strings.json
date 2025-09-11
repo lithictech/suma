@@ -66,11 +66,13 @@
   },
   "dashboard": {
     "about_suma": "About Suma",
-    "available_cash": "Available cash: {{balance, sumaCurrency}}",
     "check_ongoing_trip": "You have an ongoing trip. Please make sure you end it when you are finished with your ride!",
     "check_ongoing_trip_button": "See My Trip",
     "claim_orders": "Your order is ready for pickup.",
     "intro": "Helping our community save money on things you buy the most - all in one place.",
+    "negative_cash_balance": "Your last payment to suma failed. We will retry soon. Please send a text message to $t(strings.common.suma_help_number) if you have questions.",
+    "negative_cash_balance_no_instrument": "You must add a payment method so we can charge your account. [Add a new card](/funding) to continue accessing suma.",
+    "payment_methods_expiring": "Some of your payment methods are expiring. [Add a new card](/funding) to avoid any problems.",
     "program_ends": "Program ends {{ date }}"
   },
   "errors": {

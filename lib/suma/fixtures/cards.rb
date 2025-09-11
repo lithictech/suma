@@ -64,4 +64,11 @@ module Suma::Fixtures::Cards
     self.stripe_json["exp_month"] = month
     self.stripe_json["exp_year"] = year
   end
+
+  # Mark the card as expiring soon. The simplest way to do this is to set the expiration date
+  # to this month, so the 'expires at' is the start of next month.
+  decorator :expiring do |now=Time.now|
+    self.stripe_json["exp_month"] = now.month
+    self.stripe_json["exp_year"] = now.year
+  end
 end

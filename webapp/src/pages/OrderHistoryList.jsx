@@ -52,6 +52,7 @@ export default function OrderHistoryList() {
           variant="success"
           label={t("dashboard.claim_orders")}
           iconClass="bi-bag-check-fill"
+          alertClass="solo-alert"
           show
           to="/unclaimed-orders"
         />

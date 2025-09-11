@@ -187,8 +187,29 @@ class Suma::Member < Suma::Postgres::Model(:members)
       return self.where(email: emails)
     end
 
-    def with_normalized_phone(*phones)
-      return self.where(phone: phones)
+    def with_normalized_phone(*phones) = self.where(phone: phones)
+
+    # If a member has an instrument expiring soon,
+    # AND has taken mobility trip in the last 12 months,
+    # we want to let them know about an expiring payment instrument.
+    # We don't want to tell people about expiring cards if they haven't taken trips,
+    # since they don't need to keep them active.
+    # We don't need to look at trips all time, since they may not be using suma trips anymore.
+    #
+    # We look at cards expiring within 6 weeks (42 days), since a card company will pretty reliably
+    # have sent out a replacement card at that point.
+    def for_alerting_about_expiring_payment_instruments(as_of)
+      expiring_intruments = Suma::Payment::Instrument.
+        dataset.
+        not_soft_deleted.
+        where { expires_at >= as_of }.
+        expired_as_of(as_of + 6.weeks).
+        where(legal_entity_id: self.select(:legal_entity_id))
+      ds = self.where(
+        mobility_trips: Suma::Mobility::Trip.dataset,
+        legal_entity_id: expiring_intruments.select(:legal_entity_id),
+      )
+      return ds
     end
   end
 
